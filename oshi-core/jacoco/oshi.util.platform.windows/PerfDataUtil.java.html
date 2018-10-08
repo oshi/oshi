@@ -224,10 +224,12 @@ public class PerfDataUtil {
 <span class="nc" id="L224">        }</span>
         // Remove query
 <span class="nc" id="L226">        HANDLEByReference query = queryMap.get(queryKey);</span>
-<span class="nc" id="L227">        PDH.PdhCloseQuery(query.getValue());</span>
-<span class="nc" id="L228">        queryMap.remove(queryKey);</span>
-<span class="nc" id="L229">        disabledQueries.remove(queryKey);</span>
-<span class="nc" id="L230">    }</span>
+<span class="nc bnc" id="L227" title="All 2 branches missed.">        if (query != null) {</span>
+<span class="nc" id="L228">            PDH.PdhCloseQuery(query.getValue());</span>
+        }
+<span class="nc" id="L230">        queryMap.remove(queryKey);</span>
+<span class="nc" id="L231">        disabledQueries.remove(queryKey);</span>
+<span class="nc" id="L232">    }</span>
 
     /**
      * Open a query for the given string, or confirm a query is already open for
@@ -240,15 +242,15 @@ public class PerfDataUtil {
      * @return A handle to the query, or null if an error occurred.
      */
     private static HANDLEByReference openQuery(String objectName) {
-<span class="nc bnc" id="L243" title="All 2 branches missed.">        if (queryMap.containsKey(objectName)) {</span>
-<span class="nc" id="L244">            return queryMap.get(objectName);</span>
+<span class="nc bnc" id="L245" title="All 2 branches missed.">        if (queryMap.containsKey(objectName)) {</span>
+<span class="nc" id="L246">            return queryMap.get(objectName);</span>
         }
-<span class="nc" id="L246">        HANDLEByReference q = new HANDLEByReference();</span>
-<span class="nc bnc" id="L247" title="All 2 branches missed.">        if (openQuery(q)) {</span>
-<span class="nc" id="L248">            queryMap.put(objectName, q);</span>
-<span class="nc" id="L249">            return q;</span>
+<span class="nc" id="L248">        HANDLEByReference q = new HANDLEByReference();</span>
+<span class="nc bnc" id="L249" title="All 2 branches missed.">        if (openQuery(q)) {</span>
+<span class="nc" id="L250">            queryMap.put(objectName, q);</span>
+<span class="nc" id="L251">            return q;</span>
         }
-<span class="nc" id="L251">        return null;</span>
+<span class="nc" id="L253">        return null;</span>
     }
 
     /**
@@ -260,24 +262,24 @@ public class PerfDataUtil {
      * @return A string representing the complete counter
      */
     private static String counterPath(PerfCounter counter) {
-<span class="nc" id="L263">        StringBuilder sb = new StringBuilder();</span>
-<span class="nc" id="L264">        sb.append('\\').append(counter.object);</span>
-<span class="nc bnc" id="L265" title="All 2 branches missed.">        if (counter.instance != null) {</span>
-<span class="nc" id="L266">            sb.append('(').append(counter.instance).append(')');</span>
+<span class="nc" id="L265">        StringBuilder sb = new StringBuilder();</span>
+<span class="nc" id="L266">        sb.append('\\').append(counter.object);</span>
+<span class="nc bnc" id="L267" title="All 2 branches missed.">        if (counter.instance != null) {</span>
+<span class="nc" id="L268">            sb.append('(').append(counter.instance).append(')');</span>
         }
-<span class="nc" id="L268">        sb.append('\\').append(counter.counter);</span>
-<span class="nc" id="L269">        return sb.toString();</span>
+<span class="nc" id="L270">        sb.append('\\').append(counter.counter);</span>
+<span class="nc" id="L271">        return sb.toString();</span>
     }
 
     /**
      * Stop monitoring all Performance Data counters and release their resources
      */
     public static void removeAllCounters() {
-<span class="nc" id="L276">        Set&lt;String&gt; queries = new HashSet&lt;&gt;(queryMap.keySet());</span>
-<span class="nc bnc" id="L277" title="All 2 branches missed.">        for (String query : queries) {</span>
-<span class="nc" id="L278">            removeAllCounters(query);</span>
-<span class="nc" id="L279">        }</span>
-<span class="nc" id="L280">    }</span>
+<span class="nc" id="L278">        Set&lt;String&gt; queries = new HashSet&lt;&gt;(queryMap.keySet());</span>
+<span class="nc bnc" id="L279" title="All 2 branches missed.">        for (String query : queries) {</span>
+<span class="nc" id="L280">            removeAllCounters(query);</span>
+<span class="nc" id="L281">        }</span>
+<span class="nc" id="L282">    }</span>
 
     /**
      * Open a pdh query
@@ -287,11 +289,11 @@ public class PerfDataUtil {
      * @return true if successful
      */
     private static boolean openQuery(HANDLEByReference q) {
-<span class="nc" id="L290">        int pdhOpenQueryError = PDH.PdhOpenQuery(null, PZERO, q);</span>
-<span class="nc bnc" id="L291" title="All 4 branches missed.">        if (pdhOpenQueryError != WinError.ERROR_SUCCESS &amp;&amp; LOG.isErrorEnabled()) {</span>
-<span class="nc" id="L292">            LOG.error(&quot;Failed to open PDH Query. Error code: {}&quot;, String.format(HEX_ERROR_FMT, pdhOpenQueryError));</span>
+<span class="nc" id="L292">        int pdhOpenQueryError = PDH.PdhOpenQuery(null, PZERO, q);</span>
+<span class="nc bnc" id="L293" title="All 4 branches missed.">        if (pdhOpenQueryError != WinError.ERROR_SUCCESS &amp;&amp; LOG.isErrorEnabled()) {</span>
+<span class="nc" id="L294">            LOG.error(&quot;Failed to open PDH Query. Error code: {}&quot;, String.format(HEX_ERROR_FMT, pdhOpenQueryError));</span>
         }
-<span class="nc bnc" id="L294" title="All 2 branches missed.">        return pdhOpenQueryError == WinError.ERROR_SUCCESS;</span>
+<span class="nc bnc" id="L296" title="All 2 branches missed.">        return pdhOpenQueryError == WinError.ERROR_SUCCESS;</span>
     }
 
     /**
@@ -306,12 +308,12 @@ public class PerfDataUtil {
      * @return
      */
     private static boolean addCounter(WinNT.HANDLEByReference query, String path, WinNT.HANDLEByReference p) {
-<span class="nc" id="L309">        int pdhAddCounterError = PDH.PdhAddEnglishCounter(query.getValue(), path, PZERO, p);</span>
-<span class="nc bnc" id="L310" title="All 4 branches missed.">        if (pdhAddCounterError != WinError.ERROR_SUCCESS &amp;&amp; LOG.isWarnEnabled()) {</span>
-<span class="nc" id="L311">            LOG.warn(&quot;Failed to add PDH Counter: {}, Error code: {}&quot;, path,</span>
-<span class="nc" id="L312">                    String.format(HEX_ERROR_FMT, pdhAddCounterError));</span>
+<span class="nc" id="L311">        int pdhAddCounterError = PDH.PdhAddEnglishCounter(query.getValue(), path, PZERO, p);</span>
+<span class="nc bnc" id="L312" title="All 4 branches missed.">        if (pdhAddCounterError != WinError.ERROR_SUCCESS &amp;&amp; LOG.isWarnEnabled()) {</span>
+<span class="nc" id="L313">            LOG.warn(&quot;Failed to add PDH Counter: {}, Error code: {}&quot;, path,</span>
+<span class="nc" id="L314">                    String.format(HEX_ERROR_FMT, pdhAddCounterError));</span>
         }
-<span class="nc bnc" id="L314" title="All 2 branches missed.">        return pdhAddCounterError == WinError.ERROR_SUCCESS;</span>
+<span class="nc bnc" id="L316" title="All 2 branches missed.">        return pdhAddCounterError == WinError.ERROR_SUCCESS;</span>
     }
 
     /**
@@ -322,14 +324,14 @@ public class PerfDataUtil {
      * @return long value of the counter
      */
     private static long queryCounter(WinNT.HANDLEByReference counter) {
-<span class="nc" id="L325">        int ret = PDH.PdhGetRawCounterValue(counter.getValue(), PDH_FMT_RAW, counterValue);</span>
-<span class="nc bnc" id="L326" title="All 2 branches missed.">        if (ret != WinError.ERROR_SUCCESS) {</span>
-<span class="nc bnc" id="L327" title="All 2 branches missed.">            if (LOG.isWarnEnabled()) {</span>
-<span class="nc" id="L328">                LOG.warn(&quot;Failed to get counter. Error code: {}&quot;, String.format(HEX_ERROR_FMT, ret));</span>
+<span class="nc" id="L327">        int ret = PDH.PdhGetRawCounterValue(counter.getValue(), PDH_FMT_RAW, counterValue);</span>
+<span class="nc bnc" id="L328" title="All 2 branches missed.">        if (ret != WinError.ERROR_SUCCESS) {</span>
+<span class="nc bnc" id="L329" title="All 2 branches missed.">            if (LOG.isWarnEnabled()) {</span>
+<span class="nc" id="L330">                LOG.warn(&quot;Failed to get counter. Error code: {}&quot;, String.format(HEX_ERROR_FMT, ret));</span>
             }
-<span class="nc" id="L330">            return 0L;</span>
+<span class="nc" id="L332">            return 0L;</span>
         }
-<span class="nc" id="L332">        return counterValue.FirstValue;</span>
+<span class="nc" id="L334">        return counterValue.FirstValue;</span>
     }
 
     /**
@@ -340,16 +342,16 @@ public class PerfDataUtil {
      * @return The update timestamp of the first counter in the query
      */
     private static long updateQueryTimestamp(WinNT.HANDLEByReference query) {
-<span class="nc" id="L343">        LONGLONGByReference pllTimeStamp = new LONGLONGByReference();</span>
-<span class="nc" id="L344">        int ret = PDH.PdhCollectQueryDataWithTime(query.getValue(), pllTimeStamp);</span>
-<span class="nc bnc" id="L345" title="All 2 branches missed.">        if (ret != WinError.ERROR_SUCCESS) {</span>
-<span class="nc bnc" id="L346" title="All 2 branches missed.">            if (LOG.isWarnEnabled()) {</span>
-<span class="nc" id="L347">                LOG.warn(&quot;Failed to update counter. Error code: {}&quot;, String.format(HEX_ERROR_FMT, ret));</span>
+<span class="nc" id="L345">        LONGLONGByReference pllTimeStamp = new LONGLONGByReference();</span>
+<span class="nc" id="L346">        int ret = PDH.PdhCollectQueryDataWithTime(query.getValue(), pllTimeStamp);</span>
+<span class="nc bnc" id="L347" title="All 2 branches missed.">        if (ret != WinError.ERROR_SUCCESS) {</span>
+<span class="nc bnc" id="L348" title="All 2 branches missed.">            if (LOG.isWarnEnabled()) {</span>
+<span class="nc" id="L349">                LOG.warn(&quot;Failed to update counter. Error code: {}&quot;, String.format(HEX_ERROR_FMT, ret));</span>
             }
-<span class="nc" id="L349">            return 0;</span>
+<span class="nc" id="L351">            return 0;</span>
         }
         // Perf Counter timestamp is in local time
-<span class="nc" id="L352">        return filetimeToUtcMs(pllTimeStamp.getValue().longValue(), true);</span>
+<span class="nc" id="L354">        return filetimeToUtcMs(pllTimeStamp.getValue().longValue(), true);</span>
     }
 
     /**
@@ -364,7 +366,7 @@ public class PerfDataUtil {
      * @return Equivalent milliseconds since the epoch
      */
     public static long filetimeToUtcMs(long filetime, boolean local) {
-<span class="nc bnc" id="L367" title="All 2 branches missed.">        return filetime / 10000L - EPOCH_DIFF - (local ? TZ_OFFSET : 0L);</span>
+<span class="nc bnc" id="L369" title="All 2 branches missed.">        return filetime / 10000L - EPOCH_DIFF - (local ? TZ_OFFSET : 0L);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

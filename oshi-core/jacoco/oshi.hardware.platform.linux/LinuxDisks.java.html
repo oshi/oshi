@@ -55,7 +55,7 @@ import oshi.util.ParseUtil;
 <span class="nc" id="L55">    enum UdevStat {</span>
         // The parsing implementation in ParseUtil requires these to be declared
         // in increasing order. Use 0-ordered index here
-<span class="nc" id="L58">        READS(0), READ_BYTES(2), WRITES(4), WRITE_BYTES(6), ACTIVE_MS(9);</span>
+<span class="nc" id="L58">        READS(0), READ_BYTES(2), WRITES(4), WRITE_BYTES(6), QUEUE_LENGTH(8), ACTIVE_MS(9);</span>
 
         private int order;
 
@@ -210,7 +210,8 @@ import oshi.util.ParseUtil;
 <span class="nc" id="L210">        store.setReadBytes(devstatArray[UdevStat.READ_BYTES.ordinal()] * SECTORSIZE);</span>
 <span class="nc" id="L211">        store.setWrites(devstatArray[UdevStat.WRITES.ordinal()]);</span>
 <span class="nc" id="L212">        store.setWriteBytes(devstatArray[UdevStat.WRITE_BYTES.ordinal()] * SECTORSIZE);</span>
-<span class="nc" id="L213">        store.setTransferTime(devstatArray[UdevStat.ACTIVE_MS.ordinal()]);</span>
-<span class="nc" id="L214">    }</span>
+<span class="nc" id="L213">        store.setCurrentQueueLength(devstatArray[UdevStat.QUEUE_LENGTH.ordinal()]);</span>
+<span class="nc" id="L214">        store.setTransferTime(devstatArray[UdevStat.ACTIVE_MS.ordinal()]);</span>
+<span class="nc" id="L215">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

@@ -25,8 +25,8 @@ under the License.
     <language>en-us</language>
     <copyright>&#169;2010 - 2018 oshi</copyright>
     <item>
-      <title>File: 184,
-             Errors: 5844,
+      <title>File: 189,
+             Errors: 5963,
              Warnings: 0,
              Infos: 0
       </title>
@@ -153,7 +153,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  3
+                  4
                 </td>
               </tr>
                           <tr>
@@ -195,7 +195,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  75
+                  57
                 </td>
               </tr>
                           <tr>
@@ -433,7 +433,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  3
+                  4
                 </td>
               </tr>
                           <tr>
@@ -503,7 +503,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  11
+                  17
                 </td>
               </tr>
                           <tr>
@@ -578,6 +578,20 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="https://github.com/oshi/oshi/oshi-core/checkstyle.html#oshi.hardware.platform.linux.LinuxSoundCard.java">oshi/hardware/platform/linux/LinuxSoundCard.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  20
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/oshi/oshi/oshi-core/checkstyle.html#oshi.hardware.platform.linux.package-info.java">oshi/hardware/platform/linux/package-info.java</a>
                 </td>
                 <td>
@@ -648,6 +662,20 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="https://github.com/oshi/oshi/oshi-core/checkstyle.html#oshi.hardware.common.AbstractSoundCard.java">oshi/hardware/common/AbstractSoundCard.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  27
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/oshi/oshi/oshi-core/checkstyle.html#oshi.software.os.OperatingSystemVersion.java">oshi/software/os/OperatingSystemVersion.java</a>
                 </td>
                 <td>
@@ -671,7 +699,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  58
+                  61
                 </td>
               </tr>
                           <tr>
@@ -998,6 +1026,20 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="https://github.com/oshi/oshi/oshi-core/checkstyle.html#oshi.hardware.SoundCard.java">oshi/hardware/SoundCard.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  5
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/oshi/oshi/oshi-core/checkstyle.html#oshi.software.os.OSProcess.java">oshi/software/os/OSProcess.java</a>
                 </td>
                 <td>
@@ -1049,7 +1091,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  40
+                  45
                 </td>
               </tr>
                           <tr>
@@ -1287,7 +1329,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  3
+                  5
                 </td>
               </tr>
                           <tr>
@@ -1413,7 +1455,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  3
+                  4
                 </td>
               </tr>
                           <tr>
@@ -1749,7 +1791,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  132
+                  133
                 </td>
               </tr>
                           <tr>
@@ -1903,7 +1945,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  117
+                  130
                 </td>
               </tr>
                           <tr>
@@ -2132,6 +2174,20 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="https://github.com/oshi/oshi/oshi-core/checkstyle.html#oshi.hardware.platform.windows.WindowsSoundCard.java">oshi/hardware/platform/windows/WindowsSoundCard.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  35
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/oshi/oshi/oshi-core/checkstyle.html#oshi.hardware.platform.windows.package-info.java">oshi/hardware/platform/windows/package-info.java</a>
                 </td>
                 <td>
@@ -2286,6 +2342,20 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="https://github.com/oshi/oshi/oshi-core/checkstyle.html#oshi.hardware.platform.mac.MacSoundCard.java">oshi/hardware/platform/mac/MacSoundCard.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  8
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/oshi/oshi/oshi-core/checkstyle.html#oshi.hardware.platform.mac.MacComputerSystem.java">oshi/hardware/platform/mac/MacComputerSystem.java</a>
                 </td>
                 <td>
@@ -2351,7 +2421,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  141
+                  151
                 </td>
               </tr>
                           <tr>
@@ -2393,7 +2463,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  80
+                  79
                 </td>
               </tr>
                           <tr>

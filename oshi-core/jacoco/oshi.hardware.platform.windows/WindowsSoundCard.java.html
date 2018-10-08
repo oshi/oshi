@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>WindowsSoundCard.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.windows</a> &gt; <span class="el_source">WindowsSoundCard.java</span></div><h1>WindowsSoundCard.java</h1><pre class="source lang-java linenums">/**
+ * Oshi (https://github.com/oshi/oshi)
+ *
+ * Copyright (c) 2010 - 2018 The Oshi Project Team
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Maintainers:
+ * dblock[at]dblock[dot]org
+ * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
+ *
+ * Contributors:
+ * https://github.com/oshi/oshi/graphs/contributors
+ */
+package oshi.hardware.platform.windows;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import oshi.hardware.common.AbstractSoundCard;
+import oshi.jna.platform.windows.WbemcliUtil;
+import oshi.util.platform.windows.WmiUtil;
+
+/**
+ * Sound Card data obtained by Wmi Queries for Windows.
+ *
+ * @author : BilalAM
+ */
+public class WindowsSoundCard extends AbstractSoundCard {
+<span class="nc" id="L36">    enum SoundCardName {</span>
+<span class="nc" id="L37">        MANUFACTURER, NAME;</span>
+    }
+
+<span class="nc" id="L40">    enum SoundCardKernel {</span>
+<span class="nc" id="L41">        DRIVERPROVIDERNAME, DRIVERNAME, DRIVERVERSION, DEVICENAME;</span>
+    }
+
+<span class="nc" id="L44">    private static final Map&lt;String, String&gt; NAME_MAP = new HashMap&lt;&gt;();</span>
+    private static final String DRIVER_QUERY;
+
+    /**
+     * Runs the Win32_SoundDevice query only once and initializes a Map with
+     * Name as key and Manufacturer as Value
+     *
+     * Also calls the createClause() method to build our WHERE clause query only
+     * once
+     */
+    static {
+<span class="nc" id="L55">        WbemcliUtil.WmiQuery&lt;SoundCardName&gt; soundCardQuery = new WbemcliUtil.WmiQuery&lt;&gt;(&quot;Win32_SoundDevice&quot;,</span>
+                SoundCardName.class);
+<span class="nc" id="L57">        WbemcliUtil.WmiResult&lt;SoundCardName&gt; soundCardResult = WmiUtil.queryWMI(soundCardQuery);</span>
+<span class="nc bnc" id="L58" title="All 2 branches missed.">        for (int i = 0; i &lt; soundCardResult.getResultCount(); i++) {</span>
+<span class="nc" id="L59">            NAME_MAP.put(WmiUtil.getString(soundCardResult, SoundCardName.NAME, i),</span>
+<span class="nc" id="L60">                    WmiUtil.getString(soundCardResult, SoundCardName.MANUFACTURER, i));</span>
+        }
+<span class="nc" id="L62">        DRIVER_QUERY = createClause();</span>
+<span class="nc" id="L63">    }</span>
+
+    public WindowsSoundCard(String kernelVersion, String name, String codec) {
+<span class="nc" id="L66">        super(kernelVersion, name, codec);</span>
+<span class="nc" id="L67">    }</span>
+
+    /**
+     * Creates our Win32_PnPSignedDevice query with the WHERE clause taking the
+     * attributes from our map.
+     * 
+     * @param map
+     *            The map whose keys will be used inside the Where Clause.
+     * @return The WHERE clause
+     */
+    private static String createClause() {
+<span class="nc" id="L78">        StringBuilder sb = new StringBuilder(&quot;Win32_PnPSignedDriver&quot;);</span>
+<span class="nc" id="L79">        boolean first = true;</span>
+<span class="nc bnc" id="L80" title="All 2 branches missed.">        for (String key : NAME_MAP.keySet()) {</span>
+<span class="nc bnc" id="L81" title="All 2 branches missed.">            if (first) {</span>
+<span class="nc" id="L82">                sb.append(&quot; WHERE&quot;);</span>
+<span class="nc" id="L83">                first = false;</span>
+            } else {
+<span class="nc" id="L85">                sb.append(&quot; OR&quot;);</span>
+            }
+<span class="nc" id="L87">            sb.append(&quot; DeviceName LIKE \&quot;%&quot;).append(key).append(&quot;%\&quot;&quot;);</span>
+<span class="nc" id="L88">        }</span>
+<span class="nc" id="L89">        return sb.toString();</span>
+    }
+
+    /**
+     * Short method to build our kernel string.
+     * 
+     * @param index
+     *            The row to fetch data.
+     * @param cardKernelQueryResult
+     *            The result to take data from.
+     * @return The kernel string.
+     */
+    private static String getAudioCardKernelVersion(int index,
+            WbemcliUtil.WmiResult&lt;SoundCardKernel&gt; cardKernelQueryResult) {
+        String audioCardKernel;
+<span class="nc" id="L104">        audioCardKernel = WmiUtil.getString(cardKernelQueryResult, SoundCardKernel.DRIVERPROVIDERNAME, index) + &quot; &quot;</span>
+<span class="nc" id="L105">                + WmiUtil.getString(cardKernelQueryResult, SoundCardKernel.DEVICENAME, index) + &quot; &quot;</span>
+<span class="nc" id="L106">                + WmiUtil.getString(cardKernelQueryResult, SoundCardKernel.DRIVERNAME, index) + &quot; &quot;</span>
+<span class="nc" id="L107">                + WmiUtil.getString(cardKernelQueryResult, SoundCardKernel.DRIVERVERSION, index);</span>
+<span class="nc" id="L108">        return audioCardKernel;</span>
+    }
+
+    /**
+     * Does the following :
+     * &lt;ul&gt;
+     * &lt;li&gt;Creates and runs our 'built where clause' query&lt;/li&gt;
+     * &lt;li&gt;Then iterates over the key values of our map and compares the key
+     * with the DeviceName attribute returned by our where-clause query.If its a
+     * match then we create our SoundCard object&lt;/li&gt;
+     * &lt;/ul&gt;
+     * &lt;br&gt;
+     * NOTE : The reason why the codec name is same as the card name is because
+     * windows does not provide the name of the codec chip but sometimes the
+     * name of the card returned is infact the name of the codec chip also.
+     * Example : Realtek ALC887 HD Audio Device
+     * 
+     * @return List of sound cards
+     */
+    public static List&lt;WindowsSoundCard&gt; getSoundCards() {
+<span class="nc" id="L128">        WbemcliUtil.WmiQuery&lt;SoundCardKernel&gt; cardKernelQuery = new WbemcliUtil.WmiQuery&lt;&gt;(DRIVER_QUERY,</span>
+                SoundCardKernel.class);
+<span class="nc" id="L130">        WbemcliUtil.WmiResult&lt;SoundCardKernel&gt; cardKernelQueryResult = WmiUtil.queryWMI(cardKernelQuery);</span>
+
+<span class="nc" id="L132">        List&lt;WindowsSoundCard&gt; soundCards = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L133" title="All 2 branches missed.">        for (int i = 0; i &lt; cardKernelQueryResult.getResultCount(); i++) {</span>
+            // If the map has a key that is equal to the value returned by
+            // cardKernelQuery
+<span class="nc bnc" id="L136" title="All 2 branches missed.">            if (NAME_MAP.containsKey(WmiUtil.getString(cardKernelQueryResult, SoundCardKernel.DEVICENAME, i))) {</span>
+                // then build a sound card by extracting values from
+                // cardKernelQuery
+<span class="nc" id="L139">                soundCards.add(new WindowsSoundCard(getAudioCardKernelVersion(i, cardKernelQueryResult),</span>
+<span class="nc" id="L140">                        WmiUtil.getString(cardKernelQueryResult, SoundCardKernel.DRIVERPROVIDERNAME, i) + &quot; &quot;</span>
+<span class="nc" id="L141">                                + WmiUtil.getString(cardKernelQueryResult, SoundCardKernel.DEVICENAME, i),</span>
+<span class="nc" id="L142">                        WmiUtil.getString(cardKernelQueryResult, SoundCardKernel.DEVICENAME, i)));</span>
+            }
+        }
+<span class="nc" id="L145">        return soundCards;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

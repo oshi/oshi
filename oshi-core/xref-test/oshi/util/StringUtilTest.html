@@ -52,7 +52,22 @@
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>          List&lt;String&gt; list = Arrays.asList(multiple);
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>          assertEquals(<span class="jxr_string">"foo,bar"</span>, StringUtil.join(<span class="jxr_string">","</span>, list));
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>      }
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>  }
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>  
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>      @Test
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testTextBetween() {
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>          String text = <span class="jxr_string">"foo bar baz"</span>;
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>          String before = <span class="jxr_string">"foo"</span>;
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>          String after = <span class="jxr_string">"baz"</span>;
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>          assertEquals(<span class="jxr_string">" bar "</span>, StringUtil.textBetweenStrings(text, before, after));
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>  
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>          before = <span class="jxr_string">"food"</span>;
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>          assertEquals(<span class="jxr_string">""</span>, StringUtil.textBetweenStrings(text, before, after));
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>  
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>          before = <span class="jxr_string">"foo"</span>;
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>          after = <span class="jxr_string">"qux"</span>;
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>          assertEquals(<span class="jxr_string">""</span>, StringUtil.textBetweenStrings(text, before, after));
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>      }
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>  }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2018 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
