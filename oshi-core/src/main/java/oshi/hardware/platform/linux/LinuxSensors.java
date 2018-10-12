@@ -18,6 +18,9 @@
  */
 package oshi.hardware.platform.linux;
 
+import oshi.hardware.Sensors;
+import oshi.util.FileUtil;
+
 import java.io.File;
 import java.io.FileFilter;
 import java.nio.file.Paths;
@@ -25,9 +28,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import oshi.hardware.Sensors;
-import oshi.util.FileUtil;
 
 public class LinuxSensors implements Sensors {
 
@@ -57,7 +57,8 @@ public class LinuxSensors implements Sensors {
                 // Find any *_input files in that path
                 @Override
                 public boolean accept(File f) {
-                    return f.getName().startsWith(sensorPrefix) && f.getName().endsWith("_input");
+                    return f.getName().startsWith(sensorPrefix) && f.getName().endsWith("_input")
+                            && FileUtil.getIntFromFile(f.getName()) > 0;
                 }
             });
         }
@@ -77,7 +78,7 @@ public class LinuxSensors implements Sensors {
 
     /**
      * Find all sensor files in a specific path and adds them to the hwmonMap
-     * 
+     *
      * @param sensorPath
      *            A string containing the sensor path
      * @param sensor
@@ -103,35 +104,40 @@ public class LinuxSensors implements Sensors {
      */
     @Override
     public double getCpuTemperature() {
+        long millidegrees = 0;
         if (!sensorsMap.containsKey(TEMP)) {
             return 0d;
         }
         String hwmon = sensorsMap.get(TEMP);
-        // First attempt should be CPU temperature at index 1, if available
-        long millidegrees = FileUtil.getLongFromFile(String.format("%s1_input", hwmon));
-        // Should return a single line of millidegrees Celsius
-        if (millidegrees > 0) {
-            return millidegrees / 1000d;
-        }
-        // If temp1_input doesn't exist, iterate over temp2..temp6_input
-        // and average
-        long sum = 0;
-        int count = 0;
-        for (int i = 2; i <= 6; i++) {
-            millidegrees = FileUtil.getLongFromFile(String.format("%s%d_input", hwmon, i));
+        if(hwmon.contains("hwmon")) {
+            // First attempt should be CPU temperature at index 1, if available
+            millidegrees = FileUtil.getLongFromFile(String.format("%s1_input", hwmon));
+            // Should return a single line of millidegrees Celsius
             if (millidegrees > 0) {
-                sum += millidegrees;
-                count++;
+                return millidegrees / 1000d;
+            }
+            // If temp1_input doesn't exist, iterate over temp2..temp6_input
+            // and average
+            long sum = 0;
+            int count = 0;
+            for (int i = 2; i <= 6; i++) {
+                millidegrees = FileUtil.getLongFromFile(String.format("%s%d_input", hwmon, i));
+                if (millidegrees > 0) {
+                    sum += millidegrees;
+                    count++;
+                }
+            }
+            if (count > 0) {
+                return sum / (count * 1000d);
             }
         }
-        if (count > 0) {
-            return sum / (count * 1000d);
-        }
-        // If temp2..temp6_input doesn't exist, try thermal_zone0
-        millidegrees = FileUtil.getLongFromFile(String.format("%s", hwmon));
-        // Should return a single line of millidegrees Celsius
-        if (millidegrees > 0) {
-            return millidegrees / 1000d;
+        else if(hwmon.contains("thermal_zone")) {
+            // If temp2..temp6_input doesn't exist, try thermal_zone0
+            millidegrees = FileUtil.getLongFromFile(hwmon);
+            // Should return a single line of millidegrees Celsius
+            if (millidegrees > 0) {
+                return millidegrees / 1000d;
+            }
         }
         return 0d;
     }
