@@ -244,8 +244,8 @@ public class ParseUtilTest {
      */
     @Test
     public void testGetStringBetweenMultipleQuotes(){
-        assertEquals("Gosling's Java" , ParseUtil.getStringBetweenMultipleQuotes("value = 'Gosling's Java' "));
-        assertEquals("Realtel AC'97 Audio" , ParseUtil.getStringBetweenMultipleQuotes("pci.device = 'Realtel AC'97 Audio'"));
+        assertEquals("hello $ is" , ParseUtil.getStringBetween("hello = $hello $ is $",'$'));
+        assertEquals("Realtek AC'97 Audio" , ParseUtil.getStringBetween("pci.device = 'Realtek AC'97 Audio'",'\''));
     }
 
     /**

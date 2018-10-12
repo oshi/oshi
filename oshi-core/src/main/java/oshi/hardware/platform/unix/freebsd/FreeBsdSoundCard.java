@@ -65,10 +65,10 @@ public class FreeBsdSoundCard extends AbstractSoundCard {
             } else if (line.contains("freebsd.driver =") && "pcm".equals(ParseUtil.getSingleQuoteStringValue(line))) {
                 sounds.add(key);
             } else if (line.contains(("info.product"))) {
-                productMap.put(key, ParseUtil.getStringBetweenMultipleQuotes(line));
+                productMap.put(key, ParseUtil.getStringBetween(line,'\''));
                 continue;
             } else if (line.contains("info.vendor")) {
-                vendorMap.put(key, ParseUtil.getStringBetweenMultipleQuotes(line));
+                vendorMap.put(key, ParseUtil.getStringBetween(line,'\''));
                 continue;
             }
         }

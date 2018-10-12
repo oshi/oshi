@@ -499,18 +499,25 @@ public class ParseUtil {
     }
 
     /**
-     * Gets a value between two quotes having multiple quotes between them.
-     * See ParseUtilTest.java for more clarification.
+     * Gets a value between two characters having multiple same characters between them.
+     * <b>Examples : </b>
+     * <ul>
+     *     <li>"name = 'James Gosling's Java'" ---> returns "James Gosling's Java"</li>
+     *     <li>"pci.name = 'Realtek AC'97 Audio Device'"  ---> returns "Realtek AC'97 Audio Device"</li>
+     * </ul>
+     *
      * @param line
      *          The "key-value" pair line.
-     * @return : The value having quotes between them.
+     * @param c
+     *          The Trailing And Leading characters of the string line
+     * @return : The value having the characters between them.
      */
-    public static String getStringBetweenMultipleQuotes(String line){
-        int firstOcc = line.indexOf("'");
+    public static String getStringBetween(String line , char c){
+        int firstOcc = line.indexOf(c);
         if(firstOcc < 0){
             return "";
         }
-        return line.substring(firstOcc + 1 , line.lastIndexOf("'"));
+        return (line.substring(firstOcc + 1 , line.lastIndexOf(c))).trim();
     }
 
     /**
