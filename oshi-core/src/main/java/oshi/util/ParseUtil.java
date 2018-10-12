@@ -18,15 +18,15 @@
  */
 package oshi.util;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * String parsing utility.
@@ -496,6 +496,28 @@ public class ParseUtil {
             return "";
         }
         return split[1];
+    }
+
+    /**
+     * Gets a value between two characters having multiple same characters between them.
+     * <b>Examples : </b>
+     * <ul>
+     *     <li>"name = 'James Gosling's Java'" ---> returns "James Gosling's Java"</li>
+     *     <li>"pci.name = 'Realtek AC'97 Audio Device'"  ---> returns "Realtek AC'97 Audio Device"</li>
+     * </ul>
+     *
+     * @param line
+     *          The "key-value" pair line.
+     * @param c
+     *          The Trailing And Leading characters of the string line
+     * @return : The value having the characters between them.
+     */
+    public static String getStringBetween(String line , char c){
+        int firstOcc = line.indexOf(c);
+        if(firstOcc < 0){
+            return "";
+        }
+        return (line.substring(firstOcc + 1 , line.lastIndexOf(c))).trim();
     }
 
     /**
