@@ -214,7 +214,7 @@ public class WindowsDisks implements Disks {
             diskStore.setReadBytes(MapUtil.getOrDefault(readByteMap, index, 0L));
             diskStore.setWrites(MapUtil.getOrDefault(writeMap, index, 0L));
             diskStore.setWriteBytes(MapUtil.getOrDefault(writeByteMap, index, 0L));
-            diskStore.setTransferTime(MapUtil.getOrDefault(queueLengthMap, index, 0L));
+            diskStore.setCurrentQueueLength(MapUtil.getOrDefault(queueLengthMap, index, 0L));
             diskStore.setTransferTime(MapUtil.getOrDefault(xferTimeMap, index, 0L));
             diskStore.setTimeStamp(MapUtil.getOrDefault(timeStampMap, index, 0L));
             return true;

@@ -70,8 +70,6 @@ public class WindowsSoundCard extends AbstractSoundCard {
      * Creates our Win32_PnPSignedDevice query with the WHERE clause taking the
      * attributes from our map.
      * 
-     * @param map
-     *            The map whose keys will be used inside the Where Clause.
      * @return The WHERE clause
      */
     private static String createClause() {
