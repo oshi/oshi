@@ -18,15 +18,15 @@
  */
 package oshi.util;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * String parsing utility.
@@ -496,6 +496,21 @@ public class ParseUtil {
             return "";
         }
         return split[1];
+    }
+
+    /**
+     * Gets a value between two quotes having multiple quotes between them.
+     * See ParseUtilTest.java for more clarification.
+     * @param line
+     *          The "key-value" pair line.
+     * @return : The value having quotes between them.
+     */
+    public static String getStringBetweenMultipleQuotes(String line){
+        int firstOcc = line.indexOf("'");
+        if(firstOcc < 0){
+            return "";
+        }
+        return line.substring(firstOcc + 1 , line.lastIndexOf("'"));
     }
 
     /**
