@@ -44,4 +44,19 @@ public class StringUtilTest {
         List<String> list = Arrays.asList(multiple);
         assertEquals("foo,bar", StringUtil.join(",", list));
     }
+
+    @Test
+    public void testTextBetween() {
+        String text = "foo bar baz";
+        String before = "foo";
+        String after = "baz";
+        assertEquals(" bar ", StringUtil.textBetweenStrings(text, before, after));
+
+        before = "food";
+        assertEquals("", StringUtil.textBetweenStrings(text, before, after));
+
+        before = "foo";
+        after = "qux";
+        assertEquals("", StringUtil.textBetweenStrings(text, before, after));
+    }
 }

@@ -31,7 +31,6 @@ import oshi.json.hardware.ComputerSystem;
 import oshi.json.hardware.Display;
 import oshi.json.hardware.GlobalMemory;
 import oshi.json.hardware.HWDiskStore;
-import oshi.json.hardware.HWPartition;
 import oshi.json.hardware.HardwareAbstractionLayer;
 import oshi.json.hardware.NetworkIF;
 import oshi.json.hardware.PowerSource;

@@ -191,9 +191,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
             PdhEnumObjectItems objectItems = PdhUtil.PdhEnumObjectItems(null, null, PROCESSOR_LOCALIZED, 100);
 
             if (!objectItems.getInstances().isEmpty()) {
-                // The Idle time counter is inconsistent across Windows versions
-                // and vs. WMI, but the Processor Time matches. Subtract
-                // User+Privileged from Processor to get Idle.
+                // % Processor Time is actually Idle time
                 this.dpcTickCounter = new PerfCounter[this.logicalProcessorCount];
                 this.interruptTickCounter = new PerfCounter[this.logicalProcessorCount];
                 this.privilegedTickCounter = new PerfCounter[this.logicalProcessorCount];
@@ -318,25 +316,25 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
 
         // IRQ:
         // Percent time raw value is cumulative 100NS-ticks
-        // Divide by 10000 to get milliseconds
+        // Divide by 10_000 to get milliseconds
         if (this.systemTickCountQuery == null) {
             refreshTickCounters();
-            ticks[TickType.IRQ.getIndex()] = PerfDataUtil.queryCounter(this.irqTickCounter) / 10000L;
-            ticks[TickType.SOFTIRQ.getIndex()] = PerfDataUtil.queryCounter(this.softIrqTickCounter) / 10000L;
+            ticks[TickType.IRQ.getIndex()] = PerfDataUtil.queryCounter(this.irqTickCounter) / 10_000L;
+            ticks[TickType.SOFTIRQ.getIndex()] = PerfDataUtil.queryCounter(this.softIrqTickCounter) / 10_000L;
         } else {
             WmiResult<SystemTickCountProperty> result = WmiUtil.queryWMI(this.systemTickCountQuery);
             if (result.getResultCount() > 0) {
                 ticks[TickType.IRQ.getIndex()] = WmiUtil.getUint64(result, SystemTickCountProperty.PERCENTINTERRUPTTIME,
-                        0) / 10000L;
+                        0) / 10_000L;
                 ticks[TickType.SOFTIRQ.getIndex()] = WmiUtil.getUint64(result, SystemTickCountProperty.PERCENTDPCTIME,
-                        0) / 10000L;
+                        0) / 10_000L;
             }
         }
 
-        ticks[TickType.IDLE.getIndex()] = lpIdleTime.toDWordLong().longValue() / 10000L;
-        ticks[TickType.SYSTEM.getIndex()] = lpKernelTime.toDWordLong().longValue() / 10000L
+        ticks[TickType.IDLE.getIndex()] = lpIdleTime.toDWordLong().longValue() / 10_000L;
+        ticks[TickType.SYSTEM.getIndex()] = lpKernelTime.toDWordLong().longValue() / 10_000L
                 - ticks[TickType.IDLE.getIndex()];
-        ticks[TickType.USER.getIndex()] = lpUserTime.toDWordLong().longValue() / 10000L;
+        ticks[TickType.USER.getIndex()] = lpUserTime.toDWordLong().longValue() / 10_000L;
         // Additional decrement to avoid double counting in the total array
         ticks[TickType.SYSTEM.getIndex()] -= ticks[TickType.IRQ.getIndex()] + ticks[TickType.SOFTIRQ.getIndex()];
         return ticks;
@@ -371,8 +369,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
                 ticks[cpu][TickType.USER.getIndex()] = PerfDataUtil.queryCounter(this.userTickCounter[cpu]);
                 ticks[cpu][TickType.IRQ.getIndex()] = PerfDataUtil.queryCounter(this.interruptTickCounter[cpu]);
                 ticks[cpu][TickType.SOFTIRQ.getIndex()] = PerfDataUtil.queryCounter(this.dpcTickCounter[cpu]);
-                // Fetch total processor ticks
-                // Later decrement by system + user
+                // % Processor Time is actually Idle time
                 ticks[cpu][TickType.IDLE.getIndex()] = PerfDataUtil.queryCounter(this.processorTickCounter[cpu]);
             }
         } else {
@@ -387,27 +384,24 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
                         ProcessorTickCountProperty.PERCENTINTERRUPTTIME, cpu);
                 ticks[cpu][TickType.SOFTIRQ.getIndex()] = WmiUtil.getUint64(result,
                         ProcessorTickCountProperty.PERCENTDPCTIME, cpu);
-                // Fetch total processor ticks
-                // Later decrement by system + user
+                // % Processor Time is actually Idle time
                 ticks[cpu][TickType.IDLE.getIndex()] = WmiUtil.getUint64(result,
                         ProcessorTickCountProperty.PERCENTPROCESSORTIME, cpu);
             }
         }
         for (int cpu = 0; cpu < this.logicalProcessorCount; cpu++) {
-            ticks[cpu][TickType.IDLE.getIndex()] -= ticks[cpu][TickType.SYSTEM.getIndex()]
-                    + ticks[cpu][TickType.USER.getIndex()];
             // Additional decrement to avoid double counting in the
             // total array
             ticks[cpu][TickType.SYSTEM.getIndex()] -= ticks[cpu][TickType.IRQ.getIndex()]
                     + ticks[cpu][TickType.SOFTIRQ.getIndex()];
 
             // Raw value is cumulative 100NS-ticks
-            // Divide by 10000 to get milliseconds
-            ticks[cpu][TickType.SYSTEM.getIndex()] /= 10000L;
-            ticks[cpu][TickType.USER.getIndex()] /= 10000L;
-            ticks[cpu][TickType.IRQ.getIndex()] /= 10000L;
-            ticks[cpu][TickType.SOFTIRQ.getIndex()] /= 10000L;
-            ticks[cpu][TickType.IDLE.getIndex()] /= 10000L;
+            // Divide by 10_000 to get milliseconds
+            ticks[cpu][TickType.SYSTEM.getIndex()] /= 10_000L;
+            ticks[cpu][TickType.USER.getIndex()] /= 10_000L;
+            ticks[cpu][TickType.IRQ.getIndex()] /= 10_000L;
+            ticks[cpu][TickType.SOFTIRQ.getIndex()] /= 10_000L;
+            ticks[cpu][TickType.IDLE.getIndex()] /= 10_000L;
         }
         // Skipping nice and IOWait, they'll stay 0
         return ticks;
@@ -418,6 +412,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public long getSystemUptime() {
+        // Uptime is in seconds so divide milliseconds
         // GetTickCount64 requires Vista (6.0) or later
         if (MAJOR_VERSION >= 6) {
             return Kernel32.INSTANCE.GetTickCount64() / 1000L;
