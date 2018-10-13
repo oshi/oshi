@@ -123,6 +123,6 @@ public class MacHardwareAbstractionLayer extends AbstractHardwareAbstractionLaye
 
     @Override
     public User getUser() {
-        return null;
+        return new MacUser("",0,"","");
     }
 }

@@ -63,6 +63,7 @@ public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstraction
      */
     @Override
     public PowerSource[] getPowerSources() {
+
         return WindowsPowerSource.getPowerSources();
     }
 
@@ -71,6 +72,7 @@ public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstraction
      */
     @Override
     public HWDiskStore[] getDiskStores() {
+
         return new WindowsDisks().getDisks();
     }
 
@@ -79,6 +81,7 @@ public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstraction
      */
     @Override
     public Display[] getDisplays() {
+
         return WindowsDisplay.getDisplays();
     }
 
@@ -123,6 +126,6 @@ public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstraction
 
     @Override
     public User getUser() {
-        return null;
+        return new WindowsUser("",0,"","");
     }
 }
