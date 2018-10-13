@@ -33,6 +33,7 @@ public class UserTest {
         public void testUser(){
                 SystemInfo info = new SystemInfo();
                 User user = info.getHardware().getUser();
+                Assert.assertNotNull(user);
                 Assert.assertNotNull(user.getHomeDir());
                 Assert.assertNotNull(user.getRealName());
                 Assert.assertNotNull(user.getUserId());
