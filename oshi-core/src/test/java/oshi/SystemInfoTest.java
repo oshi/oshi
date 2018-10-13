@@ -18,38 +18,20 @@
  */
 package oshi;
 
-import static org.junit.Assert.assertFalse;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import oshi.hardware.*;
+import oshi.hardware.CentralProcessor.TickType;
+import oshi.software.os.*;
+import oshi.software.os.OperatingSystem.ProcessSort;
+import oshi.util.FormatUtil;
+import oshi.util.Util;
 
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import oshi.hardware.Baseboard;
-import oshi.hardware.CentralProcessor;
-import oshi.hardware.CentralProcessor.TickType;
-import oshi.hardware.ComputerSystem;
-import oshi.hardware.Display;
-import oshi.hardware.Firmware;
-import oshi.hardware.GlobalMemory;
-import oshi.hardware.HWDiskStore;
-import oshi.hardware.HWPartition;
-import oshi.hardware.HardwareAbstractionLayer;
-import oshi.hardware.NetworkIF;
-import oshi.hardware.PowerSource;
-import oshi.hardware.Sensors;
-import oshi.hardware.UsbDevice;
-import oshi.hardware.SoundCard;
-import oshi.software.os.FileSystem;
-import oshi.software.os.NetworkParams;
-import oshi.software.os.OSFileStore;
-import oshi.software.os.OSProcess;
-import oshi.software.os.OperatingSystem;
-import oshi.software.os.OperatingSystem.ProcessSort;
-import oshi.util.FormatUtil;
-import oshi.util.Util;
+import static org.junit.Assert.assertFalse;
 
 /**
  * The Class SystemInfoTest.
@@ -127,8 +109,12 @@ public class SystemInfoTest {
         LOG.info("Checking USB Devices...");
         printUsbDevices(hal.getUsbDevices(true));
 
+        //hardware : Sound Card
         LOG.info("Checking Sound Cards...");
         printSoundCards(hal.getSoundCards());
+
+        LOG.info("Checking User...");
+        printUser(hal.getUser());
     }
 
     private static void printComputerSystem(final ComputerSystem computerSystem) {
@@ -346,5 +332,14 @@ public class SystemInfoTest {
         for (SoundCard card : cards) {
             System.out.println(card.toString());
         }
+    }
+
+    private static void printUser(User user){
+        System.out.println("User Information : ");
+        System.out.println("User ID        : " + user.getUserId());
+        System.out.println("USER NAME      : " + user.getUserName());
+        System.out.println("USER DIR       : " + user.getHomeDir());
+        System.out.println("USER REAL NAME : " + user.getRealName());
+
     }
 }

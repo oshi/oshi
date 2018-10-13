@@ -120,4 +120,9 @@ public class FreeBsdHardwareAbstractionLayer extends AbstractHardwareAbstraction
     public SoundCard[] getSoundCards() {
         return FreeBsdSoundCard.getSoundCards().toArray(new SoundCard[0]);
     }
+
+    @Override
+    public User getUser() {
+        return FreeBsdUser.getUser();
+    }
 }
