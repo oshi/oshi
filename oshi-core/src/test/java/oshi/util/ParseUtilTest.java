@@ -18,12 +18,12 @@
  */
 package oshi.util;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.junit.Test;
 
 import java.util.Arrays;
 
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * The Class ParseUtilTest.
@@ -236,6 +236,16 @@ public class ParseUtilTest {
     public void testGetSingleQuoteStringValue() {
         assertEquals("bar", ParseUtil.getSingleQuoteStringValue("foo = 'bar' (string)"));
         assertEquals("", ParseUtil.getSingleQuoteStringValue("foo = bar (string)"));
+    }
+
+
+    /**
+     * Test parse SingleQuoteBetweenMultipleQuotes
+     */
+    @Test
+    public void testGetStringBetweenMultipleQuotes(){
+        assertEquals("hello $ is" , ParseUtil.getStringBetween("hello = $hello $ is $",'$'));
+        assertEquals("Realtek AC'97 Audio" , ParseUtil.getStringBetween("pci.device = 'Realtek AC'97 Audio'",'\''));
     }
 
     /**
