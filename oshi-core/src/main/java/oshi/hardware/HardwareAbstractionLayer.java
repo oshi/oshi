@@ -122,4 +122,11 @@ public interface HardwareAbstractionLayer extends Serializable {
      *         present.
      */
     SoundCard[] getSoundCards();
+
+    /**
+     * Returns information about current user
+     *
+     * @return A User object
+     */
+    User getUser();
 }
