@@ -215,8 +215,8 @@ public class WindowsDisks implements Disks {
             diskStore.setWrites(MapUtil.getOrDefault(writeMap, index, 0L));
             diskStore.setWriteBytes(MapUtil.getOrDefault(writeByteMap, index, 0L));
             diskStore.setCurrentQueueLength(MapUtil.getOrDefault(queueLengthMap, index, 0L));
-            diskStore.setTransferTime(MapUtil.getOrDefault(timeStampMap, index, 0L)-MapUtil.getOrDefault(xferTimeMap, index, 0L));
             diskStore.setTimeStamp(MapUtil.getOrDefault(timeStampMap, index, 0L));
+            diskStore.setTransferTime(diskStore.getTimeStamp()-MapUtil.getOrDefault(xferTimeMap, index, 0L));
             return true;
         } else {
             return false;
@@ -246,8 +246,8 @@ public class WindowsDisks implements Disks {
             ds.setWrites(MapUtil.getOrDefault(writeMap, index, 0L));
             ds.setWriteBytes(MapUtil.getOrDefault(writeByteMap, index, 0L));
             ds.setCurrentQueueLength(MapUtil.getOrDefault(queueLengthMap, index, 0L));
-            ds.setTransferTime(MapUtil.getOrDefault(timeStampMap, index, 0L)-MapUtil.getOrDefault(xferTimeMap, index, 0L));
             ds.setTimeStamp(MapUtil.getOrDefault(timeStampMap, index, 0L));
+            ds.setTransferTime(ds.getTimeStamp()-MapUtil.getOrDefault(xferTimeMap, index, 0L));
             ds.setSize(WmiUtil.getUint64(vals, DiskDriveProperty.SIZE, i));
             // Get partitions
             List<HWPartition> partitions = new ArrayList<>();
