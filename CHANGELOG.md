@@ -1,7 +1,7 @@
 3.10.0 (in progress)
 ================
 * [#647](https://github.com/oshi/oshi/pull/647): Fix Windows idle counter calculation. - [@dbwiddis](https://github.com/dbwiddis).
-* Your contribution here.
+* [#653](https://github.com/oshi/oshi/pull/653): Fix transferTime in WindowsDisks by using 1-%Idle - [@Space2Man](https://github.com/Space2Man).
 
 3.9.0 (10/7/2018)
 ================
