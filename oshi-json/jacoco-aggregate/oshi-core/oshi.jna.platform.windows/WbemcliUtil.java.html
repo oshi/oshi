@@ -73,7 +73,7 @@ import oshi.jna.platform.windows.Wbemcli.IWbemServices;
 
         /**
          * Instantiate a WmiQuery.
-         * 
+         *
          * @param nameSpace
          *            The WMI namespace to use.
          * @param wmiClassName
@@ -107,14 +107,14 @@ import oshi.jna.platform.windows.Wbemcli.IWbemServices;
          * @return The enum containing the properties
          */
         public Class&lt;T&gt; getPropertyEnum() {
-<span class="nc" id="L110">            return propertyEnum;</span>
+<span class="nc" id="L110">            return this.propertyEnum;</span>
         }
 
         /**
          * @return The namespace
          */
         public String getNameSpace() {
-<span class="nc" id="L117">            return nameSpace;</span>
+<span class="nc" id="L117">            return this.nameSpace;</span>
         }
 
         /**
@@ -129,7 +129,7 @@ import oshi.jna.platform.windows.Wbemcli.IWbemServices;
          * @return The class name
          */
         public String getWmiClassName() {
-<span class="nc" id="L132">            return wmiClassName;</span>
+<span class="nc" id="L132">            return this.wmiClassName;</span>
         }
 
         /**
@@ -368,13 +368,13 @@ import oshi.jna.platform.windows.Wbemcli.IWbemServices;
          *            The enum associated with this map
          */
 <span class="nc" id="L370">        public WmiResult(Class&lt;T&gt; propertyEnum) {</span>
-<span class="nc" id="L371">            propertyMap = new EnumMap&lt;&gt;(propertyEnum);</span>
-<span class="nc" id="L372">            vtTypeMap = new EnumMap&lt;&gt;(propertyEnum);</span>
-<span class="nc" id="L373">            cimTypeMap = new EnumMap&lt;&gt;(propertyEnum);</span>
+<span class="nc" id="L371">            this.propertyMap = new EnumMap&lt;&gt;(propertyEnum);</span>
+<span class="nc" id="L372">            this.vtTypeMap = new EnumMap&lt;&gt;(propertyEnum);</span>
+<span class="nc" id="L373">            this.cimTypeMap = new EnumMap&lt;&gt;(propertyEnum);</span>
 <span class="nc bnc" id="L374" title="All 2 branches missed.">            for (T prop : propertyEnum.getEnumConstants()) {</span>
-<span class="nc" id="L375">                propertyMap.put(prop, new ArrayList&lt;&gt;());</span>
-<span class="nc" id="L376">                vtTypeMap.put(prop, Variant.VT_NULL);</span>
-<span class="nc" id="L377">                cimTypeMap.put(prop, Wbemcli.CIM_EMPTY);</span>
+<span class="nc" id="L375">                this.propertyMap.put(prop, new ArrayList&lt;&gt;());</span>
+<span class="nc" id="L376">                this.vtTypeMap.put(prop, Variant.VT_NULL);</span>
+<span class="nc" id="L377">                this.cimTypeMap.put(prop, Wbemcli.CIM_EMPTY);</span>
             }
 <span class="nc" id="L379">        }</span>
 
@@ -384,7 +384,7 @@ import oshi.jna.platform.windows.Wbemcli.IWbemServices;
          * enumerated WMI property and will be consistent for a given property,
          * and may be validated by the user using {@link #getVtType} or the
          * Class of the returned Object.
-         * 
+         *
          * @param property
          *            The property (column) to fetch
          * @param index
@@ -399,7 +399,7 @@ import oshi.jna.platform.windows.Wbemcli.IWbemServices;
          * Gets the Variant type from the WmiResult. The integer value is
          * defined as a VT_* constant in the
          * {@link com.sun.jna.platform.win32.Variant} interface.
-         * 
+         *
          * @param property
          *            The property (column) whose type to fetch
          * @return An integer representing the Variant type
@@ -411,7 +411,7 @@ import oshi.jna.platform.windows.Wbemcli.IWbemServices;
         /**
          * Gets the CIM type from the WmiResult. The integer value is defined as
          * a CIM_* constant in the {@link Wbemcli} interface.
-         * 
+         *
          * @param property
          *            The property (column) whose type to fetch
          * @return An integer representing the CIM type
@@ -422,7 +422,7 @@ import oshi.jna.platform.windows.Wbemcli.IWbemServices;
 
         /**
          * Adds a value to the WmiResult at the next index for that property
-         * 
+         *
          * @param vtType
          *            The Variant type of this object
          * @param cimType

@@ -132,7 +132,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         int ioWriteIndex;
         int workingSetPrivateIndex;
         try {
-<span class="nc" id="L135">            processIndex = PdhUtil.PdhLookupPerfIndexByEnglishName(&quot;Process&quot;);</span>
+<span class="nc" id="L135">            this.processIndex = PdhUtil.PdhLookupPerfIndexByEnglishName(&quot;Process&quot;);</span>
 <span class="nc" id="L136">            priorityBaseIndex = PdhUtil.PdhLookupPerfIndexByEnglishName(&quot;Priority Base&quot;);</span>
 <span class="nc" id="L137">            elapsedTimeIndex = PdhUtil.PdhLookupPerfIndexByEnglishName(&quot;Elapsed Time&quot;);</span>
 <span class="nc" id="L138">            idProcessIndex = PdhUtil.PdhLookupPerfIndexByEnglishName(&quot;ID Process&quot;);</span>
@@ -144,7 +144,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
 <span class="nc" id="L144">            LOG.error(&quot;Unable to locate English counter names in registry Perflib 009. Assuming English counters.&quot;);</span>
 <span class="nc" id="L145">            DWORDByReference index = new DWORDByReference();</span>
 <span class="nc" id="L146">            Pdh.INSTANCE.PdhLookupPerfIndexByName(null, &quot;Process&quot;, index);</span>
-<span class="nc" id="L147">            processIndex = index.getValue().intValue();</span>
+<span class="nc" id="L147">            this.processIndex = index.getValue().intValue();</span>
 <span class="nc" id="L148">            Pdh.INSTANCE.PdhLookupPerfIndexByName(null, &quot;Priority Base&quot;, index);</span>
 <span class="nc" id="L149">            priorityBaseIndex = index.getValue().intValue();</span>
 <span class="nc" id="L150">            Pdh.INSTANCE.PdhLookupPerfIndexByName(null, &quot;Elapsed Time&quot;, index);</span>
@@ -160,15 +160,15 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
 <span class="nc" id="L160">            Pdh.INSTANCE.PdhLookupPerfIndexByName(null, &quot;Working Set - Private&quot;, index);</span>
 <span class="nc" id="L161">            workingSetPrivateIndex = index.getValue().intValue();</span>
 <span class="nc" id="L162">        }</span>
-<span class="nc" id="L163">        processIndexStr = Integer.toString(processIndex);</span>
+<span class="nc" id="L163">        this.processIndexStr = Integer.toString(this.processIndex);</span>
 
         // now load the Process registry to match up the offsets
         // Sequentially increase the buffer until everything fits.
         // Save this buffer size for later use
 <span class="nc" id="L168">        IntByReference lpcbData = new IntByReference(this.perfDataBufferSize);</span>
 <span class="nc" id="L169">        Pointer pPerfData = new Memory(this.perfDataBufferSize);</span>
-<span class="nc" id="L170">        int ret = Advapi32.INSTANCE.RegQueryValueEx(WinReg.HKEY_PERFORMANCE_DATA, processIndexStr, 0, null, pPerfData,</span>
-                lpcbData);
+<span class="nc" id="L170">        int ret = Advapi32.INSTANCE.RegQueryValueEx(WinReg.HKEY_PERFORMANCE_DATA, this.processIndexStr, 0, null,</span>
+                pPerfData, lpcbData);
 <span class="nc bnc" id="L172" title="All 4 branches missed.">        if (ret != WinError.ERROR_SUCCESS &amp;&amp; ret != WinError.ERROR_MORE_DATA) {</span>
 <span class="nc" id="L173">            LOG.error(&quot;Error {} reading HKEY_PERFORMANCE_DATA from the registry.&quot;, ret);</span>
 <span class="nc" id="L174">            return;</span>
@@ -177,8 +177,8 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
 <span class="nc" id="L177">            this.perfDataBufferSize += 4096;</span>
 <span class="nc" id="L178">            lpcbData.setValue(this.perfDataBufferSize);</span>
 <span class="nc" id="L179">            pPerfData = new Memory(this.perfDataBufferSize);</span>
-<span class="nc" id="L180">            ret = Advapi32.INSTANCE.RegQueryValueEx(WinReg.HKEY_PERFORMANCE_DATA, processIndexStr, 0, null, pPerfData,</span>
-                    lpcbData);
+<span class="nc" id="L180">            ret = Advapi32.INSTANCE.RegQueryValueEx(WinReg.HKEY_PERFORMANCE_DATA, this.processIndexStr, 0, null,</span>
+                    pPerfData, lpcbData);
         }
 
 <span class="nc" id="L184">        PERF_DATA_BLOCK perfData = new PERF_DATA_BLOCK(pPerfData.share(0));</span>
@@ -201,7 +201,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             // Identify where counter definitions start
 <span class="nc" id="L202">            long perfCounterOffset = perfObjectOffset + perfObject.HeaderLength;</span>
             // If this isn't the Process object, ignore
-<span class="nc bnc" id="L204" title="All 2 branches missed.">            if (perfObject.ObjectNameTitleIndex == processIndex) {</span>
+<span class="nc bnc" id="L204" title="All 2 branches missed.">            if (perfObject.ObjectNameTitleIndex == this.processIndex) {</span>
 <span class="nc bnc" id="L205" title="All 2 branches missed.">                for (int counter = 0; counter &lt; perfObject.NumCounters; counter++) {</span>
 <span class="nc" id="L206">                    PERF_COUNTER_DEFINITION perfCounter = new PERF_COUNTER_DEFINITION(</span>
 <span class="nc" id="L207">                            pPerfData.share(perfCounterOffset));</span>
@@ -234,7 +234,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     private void initBitness() {
         // If bitness is 64 we are 64 bit.
         // If 32 test if we are on 64-bit OS
-<span class="nc bnc" id="L237" title="All 2 branches missed.">        if (bitness &lt; 64) {</span>
+<span class="nc bnc" id="L237" title="All 2 branches missed.">        if (this.bitness &lt; 64) {</span>
             // Try the easy way
 <span class="nc bnc" id="L239" title="All 2 branches missed.">            if (System.getenv(&quot;ProgramFiles(x86)&quot;) != null) {</span>
 <span class="nc" id="L240">                this.bitness = 64;</span>
@@ -363,7 +363,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
 <span class="nc" id="L363">                proc.setName(procInfo.pProcessName);</span>
             } else {
 <span class="nc" id="L365">                proc = this.processMap.get(pid);</span>
-<span class="nc bnc" id="L366" title="All 6 branches missed.">                if (proc == null || (pids != null &amp;&amp; !pids.contains(pid))) {</span>
+<span class="nc bnc" id="L366" title="All 6 branches missed.">                if (proc == null || pids != null &amp;&amp; !pids.contains(pid)) {</span>
 <span class="nc" id="L367">                    continue;</span>
                 }
             }
@@ -483,8 +483,8 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         // Sequentially increase the buffer until everything fits.
 <span class="nc" id="L484">        IntByReference lpcbData = new IntByReference(this.perfDataBufferSize);</span>
 <span class="nc" id="L485">        Pointer pPerfData = new Memory(this.perfDataBufferSize);</span>
-<span class="nc" id="L486">        int ret = Advapi32.INSTANCE.RegQueryValueEx(WinReg.HKEY_PERFORMANCE_DATA, processIndexStr, 0, null, pPerfData,</span>
-                lpcbData);
+<span class="nc" id="L486">        int ret = Advapi32.INSTANCE.RegQueryValueEx(WinReg.HKEY_PERFORMANCE_DATA, this.processIndexStr, 0, null,</span>
+                pPerfData, lpcbData);
 <span class="nc bnc" id="L488" title="All 4 branches missed.">        if (ret != WinError.ERROR_SUCCESS &amp;&amp; ret != WinError.ERROR_MORE_DATA) {</span>
 <span class="nc" id="L489">            LOG.error(&quot;Error {} reading HKEY_PERFORMANCE_DATA from the registry.&quot;, ret);</span>
 <span class="nc" id="L490">            return;</span>
@@ -493,8 +493,8 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
 <span class="nc" id="L493">            this.perfDataBufferSize += 4096;</span>
 <span class="nc" id="L494">            lpcbData.setValue(this.perfDataBufferSize);</span>
 <span class="nc" id="L495">            pPerfData = new Memory(this.perfDataBufferSize);</span>
-<span class="nc" id="L496">            ret = Advapi32.INSTANCE.RegQueryValueEx(WinReg.HKEY_PERFORMANCE_DATA, processIndexStr, 0, null, pPerfData,</span>
-                    lpcbData);
+<span class="nc" id="L496">            ret = Advapi32.INSTANCE.RegQueryValueEx(WinReg.HKEY_PERFORMANCE_DATA, this.processIndexStr, 0, null,</span>
+                    pPerfData, lpcbData);
         }
 
 <span class="nc" id="L500">        PERF_DATA_BLOCK perfData = new PERF_DATA_BLOCK(pPerfData.share(0));</span>
@@ -517,7 +517,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
 <span class="nc bnc" id="L517" title="All 2 branches missed.">        for (int obj = 0; obj &lt; perfData.NumObjectTypes; obj++) {</span>
 <span class="nc" id="L518">            PERF_OBJECT_TYPE perfObject = new PERF_OBJECT_TYPE(pPerfData.share(perfObjectOffset));</span>
             // If this isn't the Process object, ignore
-<span class="nc bnc" id="L520" title="All 2 branches missed.">            if (perfObject.ObjectNameTitleIndex == processIndex) {</span>
+<span class="nc bnc" id="L520" title="All 2 branches missed.">            if (perfObject.ObjectNameTitleIndex == this.processIndex) {</span>
                 // Skip over counter definitions
                 // There will be many of these, this points to the first one
 <span class="nc" id="L523">                long perfInstanceOffset = perfObjectOffset + perfObject.DefinitionLength;</span>

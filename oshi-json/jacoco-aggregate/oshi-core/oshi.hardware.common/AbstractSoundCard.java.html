@@ -39,7 +39,7 @@ public abstract class AbstractSoundCard implements SoundCard {
 
     @Override
     public String getDriverVersion() {
-<span class="nc" id="L42">        return kernelVersion;</span>
+<span class="nc" id="L42">        return this.kernelVersion;</span>
     }
 
     public void setKernelVersion(String kernelVersion) {
@@ -48,7 +48,7 @@ public abstract class AbstractSoundCard implements SoundCard {
 
     @Override
     public String getName() {
-<span class="nc" id="L51">        return name;</span>
+<span class="nc" id="L51">        return this.name;</span>
     }
 
     public void setName(String name) {
@@ -57,7 +57,7 @@ public abstract class AbstractSoundCard implements SoundCard {
 
     @Override
     public String getCodec() {
-<span class="nc" id="L60">        return codec;</span>
+<span class="nc" id="L60">        return this.codec;</span>
     }
 
     public void setCodec(String codec) {
@@ -70,11 +70,11 @@ public abstract class AbstractSoundCard implements SoundCard {
 <span class="nc" id="L70">        builder.append(&quot;SoundCard@&quot;);</span>
 <span class="nc" id="L71">        builder.append(Integer.toHexString(hashCode()));</span>
 <span class="nc" id="L72">        builder.append(&quot; [kernelVersion=&quot;);</span>
-<span class="nc" id="L73">        builder.append(kernelVersion);</span>
+<span class="nc" id="L73">        builder.append(this.kernelVersion);</span>
 <span class="nc" id="L74">        builder.append(&quot;, name=&quot;);</span>
-<span class="nc" id="L75">        builder.append(name);</span>
+<span class="nc" id="L75">        builder.append(this.name);</span>
 <span class="nc" id="L76">        builder.append(&quot;, codec=&quot;);</span>
-<span class="nc" id="L77">        builder.append(codec);</span>
+<span class="nc" id="L77">        builder.append(this.codec);</span>
 <span class="nc" id="L78">        builder.append(']');</span>
 <span class="nc" id="L79">        return builder.toString();</span>
     }

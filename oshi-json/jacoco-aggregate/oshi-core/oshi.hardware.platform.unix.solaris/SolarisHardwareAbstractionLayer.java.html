@@ -18,10 +18,19 @@
  */
 package oshi.hardware.platform.unix.solaris;
 
-import oshi.hardware.*;
+import oshi.hardware.CentralProcessor;
+import oshi.hardware.ComputerSystem;
+import oshi.hardware.Display;
+import oshi.hardware.GlobalMemory;
+import oshi.hardware.HWDiskStore;
+import oshi.hardware.NetworkIF;
+import oshi.hardware.PowerSource;
+import oshi.hardware.Sensors;
+import oshi.hardware.SoundCard;
+import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
 
-<span class="nc" id="L24">public class SolarisHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {</span>
+<span class="nc" id="L33">public class SolarisHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {</span>
 
     private static final long serialVersionUID = 1L;
 
@@ -30,10 +39,10 @@ import oshi.hardware.common.AbstractHardwareAbstractionLayer;
      */
     @Override
     public ComputerSystem getComputerSystem() {
-<span class="nc bnc" id="L33" title="All 2 branches missed.">        if (this.computerSystem == null) {</span>
-<span class="nc" id="L34">            this.computerSystem = new SolarisComputerSystem();</span>
+<span class="nc bnc" id="L42" title="All 2 branches missed.">        if (this.computerSystem == null) {</span>
+<span class="nc" id="L43">            this.computerSystem = new SolarisComputerSystem();</span>
         }
-<span class="nc" id="L36">        return this.computerSystem;</span>
+<span class="nc" id="L45">        return this.computerSystem;</span>
     }
 
     /**
@@ -41,10 +50,10 @@ import oshi.hardware.common.AbstractHardwareAbstractionLayer;
      */
     @Override
     public GlobalMemory getMemory() {
-<span class="nc bnc" id="L44" title="All 2 branches missed.">        if (this.memory == null) {</span>
-<span class="nc" id="L45">            this.memory = new SolarisGlobalMemory();</span>
+<span class="nc bnc" id="L53" title="All 2 branches missed.">        if (this.memory == null) {</span>
+<span class="nc" id="L54">            this.memory = new SolarisGlobalMemory();</span>
         }
-<span class="nc" id="L47">        return this.memory;</span>
+<span class="nc" id="L56">        return this.memory;</span>
     }
 
     /**
@@ -52,10 +61,10 @@ import oshi.hardware.common.AbstractHardwareAbstractionLayer;
      */
     @Override
     public CentralProcessor getProcessor() {
-<span class="nc bnc" id="L55" title="All 2 branches missed.">        if (this.processor == null) {</span>
-<span class="nc" id="L56">            this.processor = new SolarisCentralProcessor();</span>
+<span class="nc bnc" id="L64" title="All 2 branches missed.">        if (this.processor == null) {</span>
+<span class="nc" id="L65">            this.processor = new SolarisCentralProcessor();</span>
         }
-<span class="nc" id="L58">        return this.processor;</span>
+<span class="nc" id="L67">        return this.processor;</span>
     }
 
     /**
@@ -63,7 +72,7 @@ import oshi.hardware.common.AbstractHardwareAbstractionLayer;
      */
     @Override
     public PowerSource[] getPowerSources() {
-<span class="nc" id="L66">        return SolarisPowerSource.getPowerSources();</span>
+<span class="nc" id="L75">        return SolarisPowerSource.getPowerSources();</span>
     }
 
     /**
@@ -71,7 +80,7 @@ import oshi.hardware.common.AbstractHardwareAbstractionLayer;
      */
     @Override
     public HWDiskStore[] getDiskStores() {
-<span class="nc" id="L74">        return new SolarisDisks().getDisks();</span>
+<span class="nc" id="L83">        return new SolarisDisks().getDisks();</span>
     }
 
     /**
@@ -79,7 +88,7 @@ import oshi.hardware.common.AbstractHardwareAbstractionLayer;
      */
     @Override
     public Display[] getDisplays() {
-<span class="nc" id="L82">        return SolarisDisplay.getDisplays();</span>
+<span class="nc" id="L91">        return SolarisDisplay.getDisplays();</span>
     }
 
     /**
@@ -87,10 +96,10 @@ import oshi.hardware.common.AbstractHardwareAbstractionLayer;
      */
     @Override
     public Sensors getSensors() {
-<span class="nc bnc" id="L90" title="All 2 branches missed.">        if (this.sensors == null) {</span>
-<span class="nc" id="L91">            this.sensors = new SolarisSensors();</span>
+<span class="nc bnc" id="L99" title="All 2 branches missed.">        if (this.sensors == null) {</span>
+<span class="nc" id="L100">            this.sensors = new SolarisSensors();</span>
         }
-<span class="nc" id="L93">        return this.sensors;</span>
+<span class="nc" id="L102">        return this.sensors;</span>
     }
 
     /**
@@ -98,7 +107,7 @@ import oshi.hardware.common.AbstractHardwareAbstractionLayer;
      */
     @Override
     public NetworkIF[] getNetworkIFs() {
-<span class="nc" id="L101">        return new SolarisNetworks().getNetworks();</span>
+<span class="nc" id="L110">        return new SolarisNetworks().getNetworks();</span>
     }
 
     /**
@@ -106,12 +115,12 @@ import oshi.hardware.common.AbstractHardwareAbstractionLayer;
      */
     @Override
     public UsbDevice[] getUsbDevices(boolean tree) {
-<span class="nc" id="L109">        return SolarisUsbDevice.getUsbDevices(tree);</span>
+<span class="nc" id="L118">        return SolarisUsbDevice.getUsbDevices(tree);</span>
     }
 
     @Override
     public SoundCard[] getSoundCards() {
-<span class="nc" id="L114">        return new SoundCard[0];</span>
+<span class="nc" id="L123">        return SolarisSoundCard.getSoundCards().toArray(new SoundCard[0]);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

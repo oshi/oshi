@@ -45,19 +45,19 @@ import oshi.util.ExecutingCommand;
         private long lastRefreshedTimestamp;
 
         public OSUser getUser(String userId) {
-<span class="nc bnc" id="L48" title="All 2 branches missed.">            if ((System.currentTimeMillis() - lastRefreshedTimestamp) &gt; CACHE_REFRESH_TIME_MS) {</span>
+<span class="nc bnc" id="L48" title="All 2 branches missed.">            if (System.currentTimeMillis() - this.lastRefreshedTimestamp &gt; CACHE_REFRESH_TIME_MS) {</span>
 <span class="nc" id="L49">                refresh();</span>
             }
-<span class="nc" id="L51">            OSUser osUser = usersIdMap.get(userId);</span>
+<span class="nc" id="L51">            OSUser osUser = this.usersIdMap.get(userId);</span>
 <span class="nc bnc" id="L52" title="All 2 branches missed.">            if (osUser == null) {</span>
 <span class="nc" id="L53">                refresh();</span>
-<span class="nc" id="L54">                return usersIdMap.get(userId);</span>
+<span class="nc" id="L54">                return this.usersIdMap.get(userId);</span>
             }
 <span class="nc" id="L56">            return osUser;</span>
         }
 
         private void refresh() {
-<span class="nc" id="L60">            usersIdMap.clear();</span>
+<span class="nc" id="L60">            this.usersIdMap.clear();</span>
 <span class="nc" id="L61">            List&lt;String&gt; passwd = ExecutingCommand.runNative(&quot;getent passwd&quot;);</span>
             // see man 5 passwd for the fields
 <span class="nc bnc" id="L63" title="All 2 branches missed.">            for (String entry : passwd) {</span>
@@ -69,14 +69,14 @@ import oshi.util.ExecutingCommand;
 <span class="nc" id="L69">                String uid = split[2];</span>
                 // it is allowed to have multiple entries for the same userId,
                 // we use the first one
-<span class="nc bnc" id="L72" title="All 2 branches missed.">                if (!usersIdMap.containsKey(uid)) {</span>
+<span class="nc bnc" id="L72" title="All 2 branches missed.">                if (!this.usersIdMap.containsKey(uid)) {</span>
 <span class="nc" id="L73">                    OSUser user = new OSUser();</span>
 <span class="nc" id="L74">                    user.setUserId(uid);</span>
 <span class="nc" id="L75">                    user.setUserName(userName);</span>
-<span class="nc" id="L76">                    usersIdMap.put(uid, user);</span>
+<span class="nc" id="L76">                    this.usersIdMap.put(uid, user);</span>
                 }
 <span class="nc" id="L78">            }</span>
-<span class="nc" id="L79">            lastRefreshedTimestamp = System.currentTimeMillis();</span>
+<span class="nc" id="L79">            this.lastRefreshedTimestamp = System.currentTimeMillis();</span>
 <span class="nc" id="L80">        }</span>
     }
 
@@ -85,19 +85,19 @@ import oshi.util.ExecutingCommand;
         private long lastRefreshedTimestamp;
 
         public String getGroup(String groupId) {
-<span class="nc bnc" id="L88" title="All 2 branches missed.">            if ((System.currentTimeMillis() - lastRefreshedTimestamp) &gt; CACHE_REFRESH_TIME_MS) {</span>
+<span class="nc bnc" id="L88" title="All 2 branches missed.">            if (System.currentTimeMillis() - this.lastRefreshedTimestamp &gt; CACHE_REFRESH_TIME_MS) {</span>
 <span class="nc" id="L89">                refresh();</span>
             }
-<span class="nc" id="L91">            String groupName = groupsIdMap.get(groupId);</span>
+<span class="nc" id="L91">            String groupName = this.groupsIdMap.get(groupId);</span>
 <span class="nc bnc" id="L92" title="All 2 branches missed.">            if (groupName == null) {</span>
 <span class="nc" id="L93">                refresh();</span>
-<span class="nc" id="L94">                return groupsIdMap.get(groupId);</span>
+<span class="nc" id="L94">                return this.groupsIdMap.get(groupId);</span>
             }
 <span class="nc" id="L96">            return groupName;</span>
         }
 
         private void refresh() {
-<span class="nc" id="L100">            groupsIdMap.clear();</span>
+<span class="nc" id="L100">            this.groupsIdMap.clear();</span>
 <span class="nc" id="L101">            List&lt;String&gt; group = ExecutingCommand.runNative(&quot;getent group&quot;);</span>
             // see man 5 group for the fields
 <span class="nc bnc" id="L103" title="All 2 branches missed.">            for (String entry : group) {</span>
@@ -107,11 +107,11 @@ import oshi.util.ExecutingCommand;
                 }
 <span class="nc" id="L108">                String groupName = split[0];</span>
 <span class="nc" id="L109">                String gid = split[2];</span>
-<span class="nc bnc" id="L110" title="All 2 branches missed.">                if (!groupsIdMap.containsKey(gid)) {</span>
-<span class="nc" id="L111">                    groupsIdMap.put(gid, groupName);</span>
+<span class="nc bnc" id="L110" title="All 2 branches missed.">                if (!this.groupsIdMap.containsKey(gid)) {</span>
+<span class="nc" id="L111">                    this.groupsIdMap.put(gid, groupName);</span>
                 }
 <span class="nc" id="L113">            }</span>
-<span class="nc" id="L114">            lastRefreshedTimestamp = System.currentTimeMillis();</span>
+<span class="nc" id="L114">            this.lastRefreshedTimestamp = System.currentTimeMillis();</span>
 <span class="nc" id="L115">        }</span>
     }
 }
