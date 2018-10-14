@@ -108,7 +108,7 @@ import oshi.util.platform.windows.WmiUtil;
      * For disk query
      */
 <span class="nc" id="L110">    enum PhysicalDiskProperty {</span>
-<span class="nc" id="L111">        NAME, DISKREADSPERSEC, DISKREADBYTESPERSEC, DISKWRITESPERSEC, DISKWRITEBYTESPERSEC, CURRENTDISKQUEUELENGTH, PERCENTDISKTIME, TIMESTAMP_SYS100NS;</span>
+<span class="nc" id="L111">        NAME, DISKREADSPERSEC, DISKREADBYTESPERSEC, DISKWRITESPERSEC, DISKWRITEBYTESPERSEC, CURRENTDISKQUEUELENGTH, PERCENTIDLETIME, TIMESTAMP_SYS100NS;</span>
     }
 
     // Only one of counter or query will be used
@@ -162,7 +162,7 @@ import oshi.util.platform.windows.WmiUtil;
 <span class="nc" id="L162">                        throw new PdhException(0);</span>
                     }
 
-<span class="nc" id="L165">                    counter = PerfDataUtil.createCounter(PHYSICAL_DISK, instance, &quot;% Disk Time&quot;);</span>
+<span class="nc" id="L165">                    counter = PerfDataUtil.createCounter(PHYSICAL_DISK, instance, &quot;% Idle Time&quot;);</span>
 <span class="nc" id="L166">                    diskXferTimeCounterMap.put(instance, counter);</span>
 <span class="nc bnc" id="L167" title="All 2 branches missed.">                    if (!PerfDataUtil.addCounterToQuery(counter)) {</span>
 <span class="nc" id="L168">                        throw new PdhException(0);</span>
@@ -214,9 +214,9 @@ import oshi.util.platform.windows.WmiUtil;
 <span class="nc" id="L214">            diskStore.setReadBytes(MapUtil.getOrDefault(readByteMap, index, 0L));</span>
 <span class="nc" id="L215">            diskStore.setWrites(MapUtil.getOrDefault(writeMap, index, 0L));</span>
 <span class="nc" id="L216">            diskStore.setWriteBytes(MapUtil.getOrDefault(writeByteMap, index, 0L));</span>
-<span class="nc" id="L217">            diskStore.setTransferTime(MapUtil.getOrDefault(queueLengthMap, index, 0L));</span>
-<span class="nc" id="L218">            diskStore.setTransferTime(MapUtil.getOrDefault(xferTimeMap, index, 0L));</span>
-<span class="nc" id="L219">            diskStore.setTimeStamp(MapUtil.getOrDefault(timeStampMap, index, 0L));</span>
+<span class="nc" id="L217">            diskStore.setCurrentQueueLength(MapUtil.getOrDefault(queueLengthMap, index, 0L));</span>
+<span class="nc" id="L218">            diskStore.setTimeStamp(MapUtil.getOrDefault(timeStampMap, index, 0L));</span>
+<span class="nc" id="L219">            diskStore.setTransferTime(diskStore.getTimeStamp() - MapUtil.getOrDefault(xferTimeMap, index, 0L));</span>
 <span class="nc" id="L220">            return true;</span>
         } else {
 <span class="nc" id="L222">            return false;</span>
@@ -246,8 +246,8 @@ import oshi.util.platform.windows.WmiUtil;
 <span class="nc" id="L246">            ds.setWrites(MapUtil.getOrDefault(writeMap, index, 0L));</span>
 <span class="nc" id="L247">            ds.setWriteBytes(MapUtil.getOrDefault(writeByteMap, index, 0L));</span>
 <span class="nc" id="L248">            ds.setCurrentQueueLength(MapUtil.getOrDefault(queueLengthMap, index, 0L));</span>
-<span class="nc" id="L249">            ds.setTransferTime(MapUtil.getOrDefault(xferTimeMap, index, 0L));</span>
-<span class="nc" id="L250">            ds.setTimeStamp(MapUtil.getOrDefault(timeStampMap, index, 0L));</span>
+<span class="nc" id="L249">            ds.setTimeStamp(MapUtil.getOrDefault(timeStampMap, index, 0L));</span>
+<span class="nc" id="L250">            ds.setTransferTime(ds.getTimeStamp() - MapUtil.getOrDefault(xferTimeMap, index, 0L));</span>
 <span class="nc" id="L251">            ds.setSize(WmiUtil.getUint64(vals, DiskDriveProperty.SIZE, i));</span>
             // Get partitions
 <span class="nc" id="L253">            List&lt;HWPartition&gt; partitions = new ArrayList&lt;&gt;();</span>
@@ -269,7 +269,7 @@ import oshi.util.platform.windows.WmiUtil;
     /**
      * Populates the maps for the specified index. If the index is null,
      * populates all the maps
-     * 
+     *
      * @param index
      *            The index to populate/update maps for
      */
@@ -289,7 +289,7 @@ import oshi.util.platform.windows.WmiUtil;
 <span class="nc" id="L289">            WmiResult&lt;PhysicalDiskProperty&gt; result = WmiUtil.queryWMI(physicalDiskQuery);</span>
 <span class="nc bnc" id="L290" title="All 2 branches missed.">            for (int i = 0; i &lt; result.getResultCount(); i++) {</span>
 <span class="nc" id="L291">                String name = getIndexFromName(WmiUtil.getString(result, PhysicalDiskProperty.NAME, i));</span>
-<span class="nc bnc" id="L292" title="All 6 branches missed.">                if ((index != null &amp;&amp; !index.equals(name)) || TOTAL_INSTANCE.equals(name)) {</span>
+<span class="nc bnc" id="L292" title="All 6 branches missed.">                if (index != null &amp;&amp; !index.equals(name) || TOTAL_INSTANCE.equals(name)) {</span>
 <span class="nc" id="L293">                    continue;</span>
                 }
 <span class="nc" id="L295">                readMap.put(name, WmiUtil.getUint32asLong(result, PhysicalDiskProperty.DISKREADSPERSEC, i));</span>
@@ -297,7 +297,7 @@ import oshi.util.platform.windows.WmiUtil;
 <span class="nc" id="L297">                writeMap.put(name, WmiUtil.getUint32asLong(result, PhysicalDiskProperty.DISKWRITESPERSEC, i));</span>
 <span class="nc" id="L298">                writeByteMap.put(name, WmiUtil.getUint64(result, PhysicalDiskProperty.DISKWRITEBYTESPERSEC, i));</span>
 <span class="nc" id="L299">                queueLengthMap.put(name, WmiUtil.getUint64(result, PhysicalDiskProperty.CURRENTDISKQUEUELENGTH, i));</span>
-<span class="nc" id="L300">                xferTimeMap.put(name, WmiUtil.getUint64(result, PhysicalDiskProperty.PERCENTDISKTIME, i) / 10000L);</span>
+<span class="nc" id="L300">                xferTimeMap.put(name, WmiUtil.getUint64(result, PhysicalDiskProperty.PERCENTIDLETIME, i) / 10000L);</span>
 <span class="nc" id="L301">                long timestamp = WmiUtil.getUint64(result, PhysicalDiskProperty.TIMESTAMP_SYS100NS, i);</span>
 <span class="nc bnc" id="L302" title="All 2 branches missed.">                timeStampMap.put(name,</span>
 <span class="nc" id="L303">                        timestamp &gt; 0 ? PerfDataUtil.filetimeToUtcMs(timestamp, false) : System.currentTimeMillis());</span>
@@ -362,7 +362,7 @@ import oshi.util.platform.windows.WmiUtil;
             }
 
 <span class="nc bnc" id="L364" title="All 2 branches missed.">            if (!diskXferTimeCounterMap.containsKey(instance)) {</span>
-<span class="nc" id="L365">                PerfCounter counter = PerfDataUtil.createCounter(PHYSICAL_DISK, instance, &quot;% Disk Time&quot;);</span>
+<span class="nc" id="L365">                PerfCounter counter = PerfDataUtil.createCounter(PHYSICAL_DISK, instance, &quot;% Idle Time&quot;);</span>
 <span class="nc" id="L366">                diskXferTimeCounterMap.put(instance, counter);</span>
 <span class="nc bnc" id="L367" title="All 2 branches missed.">                if (!PerfDataUtil.addCounterToQuery(counter)) {</span>
 <span class="nc" id="L368">                    diskXferTimeCounterMap.remove(instance);</span>
@@ -460,7 +460,7 @@ import oshi.util.platform.windows.WmiUtil;
 
     /**
      * Parse a drive name like &quot;0 C:&quot; to just the index &quot;0&quot;
-     * 
+     *
      * @param s
      *            A drive name to parse
      * @return The first space-delimited value

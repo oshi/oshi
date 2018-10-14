@@ -31,7 +31,7 @@ import com.sun.jna.platform.win32.WinReg;
 
 /**
  * Pdh utility API.
- * 
+ *
  * @author widdis[at]gmail[dot]com
  */
 <span class="nc" id="L37">public abstract class PdhUtil {</span>
@@ -46,7 +46,7 @@ import com.sun.jna.platform.win32.WinReg;
      * Utility method to call Pdh's PdhLookupPerfNameByIndex that allocates the
      * required memory for the szNameBuffer parameter based on the type mapping
      * used, calls to PdhLookupPerfNameByIndex, and returns the received string.
-     * 
+     *
      * @param szMachineName
      *            Null-terminated string that specifies the name of the computer
      *            where the specified performance object or counter is located.
@@ -89,7 +89,7 @@ import com.sun.jna.platform.win32.WinReg;
      * counter index corresponding to the specified counter name in English.
      * Uses the registry on the local machine to find the index in the English
      * locale, regardless of the current language setting on the machine.
-     * 
+     *
      * @param szNameBuffer
      *            The English name of the performance counter
      * @return The counter's index if it exists, or 0 otherwise.
@@ -120,7 +120,7 @@ import com.sun.jna.platform.win32.WinReg;
      * Utility method to call Pdh's PdhEnumObjectItems that allocates the
      * required memory for the lists parameters based on the type mapping used,
      * calls to PdhEnumObjectItems, and returns the received lists of strings.
-     * 
+     *
      * @param szDataSource
      *            String that specifies the name of the log file used to
      *            enumerate the counter and instance names. If NULL, the
@@ -234,7 +234,7 @@ import com.sun.jna.platform.win32.WinReg;
          *         receive the same list and thus share modifications
          */
         public List&lt;String&gt; getCounters() {
-<span class="nc" id="L237">            return counters;</span>
+<span class="nc" id="L237">            return this.counters;</span>
         }
 
         /**
@@ -242,7 +242,7 @@ import com.sun.jna.platform.win32.WinReg;
          *         receive the same list and thus share modifications
          */
         public List&lt;String&gt; getInstances() {
-<span class="nc" id="L245">            return instances;</span>
+<span class="nc" id="L245">            return this.instances;</span>
         }
 
         private List&lt;String&gt; copyAndEmptyListForNullList(List&lt;String&gt; inputList) {
@@ -255,7 +255,7 @@ import com.sun.jna.platform.win32.WinReg;
 
         @Override
         public String toString() {
-<span class="nc" id="L258">            return &quot;PdhEnumObjectItems{&quot; + &quot;counters=&quot; + counters + &quot;, instances=&quot; + instances + '}';</span>
+<span class="nc" id="L258">            return &quot;PdhEnumObjectItems{&quot; + &quot;counters=&quot; + this.counters + &quot;, instances=&quot; + this.instances + '}';</span>
         }
     }
 
@@ -269,7 +269,7 @@ import com.sun.jna.platform.win32.WinReg;
 <span class="nc" id="L269">        }</span>
 
         public int getErrorCode() {
-<span class="nc" id="L272">            return errorCode;</span>
+<span class="nc" id="L272">            return this.errorCode;</span>
         }
     }
 }

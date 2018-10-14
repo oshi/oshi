@@ -191,92 +191,90 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
 <span class="nc" id="L191">            PdhEnumObjectItems objectItems = PdhUtil.PdhEnumObjectItems(null, null, PROCESSOR_LOCALIZED, 100);</span>
 
 <span class="nc bnc" id="L193" title="All 2 branches missed.">            if (!objectItems.getInstances().isEmpty()) {</span>
-                // The Idle time counter is inconsistent across Windows versions
-                // and vs. WMI, but the Processor Time matches. Subtract
-                // User+Privileged from Processor to get Idle.
-<span class="nc" id="L197">                this.dpcTickCounter = new PerfCounter[this.logicalProcessorCount];</span>
-<span class="nc" id="L198">                this.interruptTickCounter = new PerfCounter[this.logicalProcessorCount];</span>
-<span class="nc" id="L199">                this.privilegedTickCounter = new PerfCounter[this.logicalProcessorCount];</span>
-<span class="nc" id="L200">                this.processorTickCounter = new PerfCounter[this.logicalProcessorCount];</span>
-<span class="nc" id="L201">                this.userTickCounter = new PerfCounter[this.logicalProcessorCount];</span>
+                // % Processor Time is actually Idle time
+<span class="nc" id="L195">                this.dpcTickCounter = new PerfCounter[this.logicalProcessorCount];</span>
+<span class="nc" id="L196">                this.interruptTickCounter = new PerfCounter[this.logicalProcessorCount];</span>
+<span class="nc" id="L197">                this.privilegedTickCounter = new PerfCounter[this.logicalProcessorCount];</span>
+<span class="nc" id="L198">                this.processorTickCounter = new PerfCounter[this.logicalProcessorCount];</span>
+<span class="nc" id="L199">                this.userTickCounter = new PerfCounter[this.logicalProcessorCount];</span>
 
-<span class="nc" id="L203">                List&lt;String&gt; instances = objectItems.getInstances();</span>
+<span class="nc" id="L201">                List&lt;String&gt; instances = objectItems.getInstances();</span>
                 PerfCounter counter;
-<span class="nc bnc" id="L205" title="All 4 branches missed.">                for (int i = 0; i &lt; instances.size() &amp;&amp; i &lt; this.logicalProcessorCount; i++) {</span>
-<span class="nc" id="L206">                    String instance = instances.get(i);</span>
+<span class="nc bnc" id="L203" title="All 4 branches missed.">                for (int i = 0; i &lt; instances.size() &amp;&amp; i &lt; this.logicalProcessorCount; i++) {</span>
+<span class="nc" id="L204">                    String instance = instances.get(i);</span>
 
-<span class="nc" id="L208">                    counter = PerfDataUtil.createCounter(PROCESSOR, instance, &quot;% DPC Time&quot;);</span>
-<span class="nc" id="L209">                    this.dpcTickCounter[i] = counter;</span>
-<span class="nc bnc" id="L210" title="All 2 branches missed.">                    if (!PerfDataUtil.addCounterToQuery(counter)) {</span>
-<span class="nc" id="L211">                        throw new PdhException(0);</span>
+<span class="nc" id="L206">                    counter = PerfDataUtil.createCounter(PROCESSOR, instance, &quot;% DPC Time&quot;);</span>
+<span class="nc" id="L207">                    this.dpcTickCounter[i] = counter;</span>
+<span class="nc bnc" id="L208" title="All 2 branches missed.">                    if (!PerfDataUtil.addCounterToQuery(counter)) {</span>
+<span class="nc" id="L209">                        throw new PdhException(0);</span>
                     }
 
-<span class="nc" id="L214">                    counter = PerfDataUtil.createCounter(PROCESSOR, instance, &quot;% Interrupt Time&quot;);</span>
-<span class="nc" id="L215">                    this.interruptTickCounter[i] = counter;</span>
-<span class="nc bnc" id="L216" title="All 2 branches missed.">                    if (!PerfDataUtil.addCounterToQuery(counter)) {</span>
-<span class="nc" id="L217">                        throw new PdhException(0);</span>
+<span class="nc" id="L212">                    counter = PerfDataUtil.createCounter(PROCESSOR, instance, &quot;% Interrupt Time&quot;);</span>
+<span class="nc" id="L213">                    this.interruptTickCounter[i] = counter;</span>
+<span class="nc bnc" id="L214" title="All 2 branches missed.">                    if (!PerfDataUtil.addCounterToQuery(counter)) {</span>
+<span class="nc" id="L215">                        throw new PdhException(0);</span>
                     }
 
-<span class="nc" id="L220">                    counter = PerfDataUtil.createCounter(PROCESSOR, instance, &quot;% Privileged Time&quot;);</span>
-<span class="nc" id="L221">                    this.privilegedTickCounter[i] = counter;</span>
-<span class="nc bnc" id="L222" title="All 2 branches missed.">                    if (!PerfDataUtil.addCounterToQuery(counter)) {</span>
-<span class="nc" id="L223">                        throw new PdhException(0);</span>
+<span class="nc" id="L218">                    counter = PerfDataUtil.createCounter(PROCESSOR, instance, &quot;% Privileged Time&quot;);</span>
+<span class="nc" id="L219">                    this.privilegedTickCounter[i] = counter;</span>
+<span class="nc bnc" id="L220" title="All 2 branches missed.">                    if (!PerfDataUtil.addCounterToQuery(counter)) {</span>
+<span class="nc" id="L221">                        throw new PdhException(0);</span>
                     }
 
-<span class="nc" id="L226">                    counter = PerfDataUtil.createCounter(PROCESSOR, instance, &quot;% Processor Time&quot;);</span>
-<span class="nc" id="L227">                    this.processorTickCounter[i] = counter;</span>
-<span class="nc bnc" id="L228" title="All 2 branches missed.">                    if (!PerfDataUtil.addCounterToQuery(counter)) {</span>
-<span class="nc" id="L229">                        throw new PdhException(0);</span>
+<span class="nc" id="L224">                    counter = PerfDataUtil.createCounter(PROCESSOR, instance, &quot;% Processor Time&quot;);</span>
+<span class="nc" id="L225">                    this.processorTickCounter[i] = counter;</span>
+<span class="nc bnc" id="L226" title="All 2 branches missed.">                    if (!PerfDataUtil.addCounterToQuery(counter)) {</span>
+<span class="nc" id="L227">                        throw new PdhException(0);</span>
                     }
 
-<span class="nc" id="L232">                    counter = PerfDataUtil.createCounter(PROCESSOR, instance, &quot;% User Time&quot;);</span>
-<span class="nc" id="L233">                    this.userTickCounter[i] = counter;</span>
-<span class="nc bnc" id="L234" title="All 2 branches missed.">                    if (!PerfDataUtil.addCounterToQuery(counter)) {</span>
-<span class="nc" id="L235">                        throw new PdhException(0);</span>
+<span class="nc" id="L230">                    counter = PerfDataUtil.createCounter(PROCESSOR, instance, &quot;% User Time&quot;);</span>
+<span class="nc" id="L231">                    this.userTickCounter[i] = counter;</span>
+<span class="nc bnc" id="L232" title="All 2 branches missed.">                    if (!PerfDataUtil.addCounterToQuery(counter)) {</span>
+<span class="nc" id="L233">                        throw new PdhException(0);</span>
                     }
                 }
 
-<span class="nc" id="L239">                counter = PerfDataUtil.createCounter(PROCESSOR, TOTAL_INSTANCE, &quot;% Interrupt Time&quot;);</span>
-<span class="nc" id="L240">                this.irqTickCounter = counter;</span>
-<span class="nc bnc" id="L241" title="All 2 branches missed.">                if (!PerfDataUtil.addCounterToQuery(counter)) {</span>
-<span class="nc" id="L242">                    throw new PdhException(0);</span>
+<span class="nc" id="L237">                counter = PerfDataUtil.createCounter(PROCESSOR, TOTAL_INSTANCE, &quot;% Interrupt Time&quot;);</span>
+<span class="nc" id="L238">                this.irqTickCounter = counter;</span>
+<span class="nc bnc" id="L239" title="All 2 branches missed.">                if (!PerfDataUtil.addCounterToQuery(counter)) {</span>
+<span class="nc" id="L240">                    throw new PdhException(0);</span>
                 }
 
-<span class="nc" id="L245">                counter = PerfDataUtil.createCounter(PROCESSOR, TOTAL_INSTANCE, &quot;% DPC Time&quot;);</span>
-<span class="nc" id="L246">                this.softIrqTickCounter = counter;</span>
-<span class="nc bnc" id="L247" title="All 2 branches missed.">                if (!PerfDataUtil.addCounterToQuery(counter)) {</span>
-<span class="nc" id="L248">                    throw new PdhException(0);</span>
+<span class="nc" id="L243">                counter = PerfDataUtil.createCounter(PROCESSOR, TOTAL_INSTANCE, &quot;% DPC Time&quot;);</span>
+<span class="nc" id="L244">                this.softIrqTickCounter = counter;</span>
+<span class="nc bnc" id="L245" title="All 2 branches missed.">                if (!PerfDataUtil.addCounterToQuery(counter)) {</span>
+<span class="nc" id="L246">                    throw new PdhException(0);</span>
                 }
 
-<span class="nc" id="L251">                counter = PerfDataUtil.createCounter(PROCESSOR, TOTAL_INSTANCE, &quot;Interrupts/sec&quot;);</span>
-<span class="nc" id="L252">                this.interruptsPerSecCounter = counter;</span>
-<span class="nc bnc" id="L253" title="All 2 branches missed.">                if (!PerfDataUtil.addCounterToQuery(counter)) {</span>
-<span class="nc" id="L254">                    throw new PdhException(0);</span>
+<span class="nc" id="L249">                counter = PerfDataUtil.createCounter(PROCESSOR, TOTAL_INSTANCE, &quot;Interrupts/sec&quot;);</span>
+<span class="nc" id="L250">                this.interruptsPerSecCounter = counter;</span>
+<span class="nc bnc" id="L251" title="All 2 branches missed.">                if (!PerfDataUtil.addCounterToQuery(counter)) {</span>
+<span class="nc" id="L252">                    throw new PdhException(0);</span>
                 }
             }
-<span class="nc" id="L257">        } catch (PdhException e) {</span>
-<span class="nc" id="L258">            LOG.warn(&quot;Unable to enumerate performance counter instances for {}.&quot;, PROCESSOR_LOCALIZED);</span>
-<span class="nc" id="L259">            enumeration = false;</span>
-<span class="nc" id="L260">        }</span>
-<span class="nc bnc" id="L261" title="All 2 branches missed.">        if (!enumeration) {</span>
-<span class="nc" id="L262">            PerfDataUtil.removeAllCounters(PROCESSOR);</span>
-<span class="nc" id="L263">            this.dpcTickCounter = null;</span>
-<span class="nc" id="L264">            this.interruptTickCounter = null;</span>
-<span class="nc" id="L265">            this.privilegedTickCounter = null;</span>
-<span class="nc" id="L266">            this.processorTickCounter = null;</span>
-<span class="nc" id="L267">            this.userTickCounter = null;</span>
-<span class="nc" id="L268">            this.irqTickCounter = null;</span>
-<span class="nc" id="L269">            this.softIrqTickCounter = null;</span>
-<span class="nc" id="L270">            this.interruptsPerSecCounter = null;</span>
+<span class="nc" id="L255">        } catch (PdhException e) {</span>
+<span class="nc" id="L256">            LOG.warn(&quot;Unable to enumerate performance counter instances for {}.&quot;, PROCESSOR_LOCALIZED);</span>
+<span class="nc" id="L257">            enumeration = false;</span>
+<span class="nc" id="L258">        }</span>
+<span class="nc bnc" id="L259" title="All 2 branches missed.">        if (!enumeration) {</span>
+<span class="nc" id="L260">            PerfDataUtil.removeAllCounters(PROCESSOR);</span>
+<span class="nc" id="L261">            this.dpcTickCounter = null;</span>
+<span class="nc" id="L262">            this.interruptTickCounter = null;</span>
+<span class="nc" id="L263">            this.privilegedTickCounter = null;</span>
+<span class="nc" id="L264">            this.processorTickCounter = null;</span>
+<span class="nc" id="L265">            this.userTickCounter = null;</span>
+<span class="nc" id="L266">            this.irqTickCounter = null;</span>
+<span class="nc" id="L267">            this.softIrqTickCounter = null;</span>
+<span class="nc" id="L268">            this.interruptsPerSecCounter = null;</span>
 
-<span class="nc" id="L272">            processorTickCountQuery = new WmiQuery&lt;&gt;(&quot;Win32_PerfRawData_PerfOS_Processor WHERE NOT Name=\&quot;_Total\&quot;&quot;,</span>
-                    ProcessorTickCountProperty.class);
-<span class="nc" id="L274">            systemTickCountQuery = new WmiQuery&lt;&gt;(&quot;Win32_PerfRawData_PerfOS_Processor WHERE Name=\&quot;_Total\&quot;&quot;,</span>
+<span class="nc" id="L270">            this.processorTickCountQuery = new WmiQuery&lt;&gt;(</span>
+                    &quot;Win32_PerfRawData_PerfOS_Processor WHERE NOT Name=\&quot;_Total\&quot;&quot;, ProcessorTickCountProperty.class);
+<span class="nc" id="L272">            this.systemTickCountQuery = new WmiQuery&lt;&gt;(&quot;Win32_PerfRawData_PerfOS_Processor WHERE Name=\&quot;_Total\&quot;&quot;,</span>
                     SystemTickCountProperty.class);
-<span class="nc" id="L276">            interruptsQuery = new WmiQuery&lt;&gt;(&quot;Win32_PerfRawData_PerfOS_Processor WHERE Name=\&quot;_Total\&quot;&quot;,</span>
+<span class="nc" id="L274">            this.interruptsQuery = new WmiQuery&lt;&gt;(&quot;Win32_PerfRawData_PerfOS_Processor WHERE Name=\&quot;_Total\&quot;&quot;,</span>
                     InterruptsProperty.class);
         }
-<span class="nc" id="L279">    }</span>
+<span class="nc" id="L277">    }</span>
 
     /**
      * Updates logical and physical processor counts
@@ -284,62 +282,62 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
     @Override
     protected void calculateProcessorCounts() {
         // Get number of logical processors
-<span class="nc" id="L287">        SYSTEM_INFO sysinfo = new SYSTEM_INFO();</span>
-<span class="nc" id="L288">        Kernel32.INSTANCE.GetSystemInfo(sysinfo);</span>
-<span class="nc" id="L289">        this.logicalProcessorCount = sysinfo.dwNumberOfProcessors.intValue();</span>
+<span class="nc" id="L285">        SYSTEM_INFO sysinfo = new SYSTEM_INFO();</span>
+<span class="nc" id="L286">        Kernel32.INSTANCE.GetSystemInfo(sysinfo);</span>
+<span class="nc" id="L287">        this.logicalProcessorCount = sysinfo.dwNumberOfProcessors.intValue();</span>
 
         // Get number of physical processors
-<span class="nc" id="L292">        WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION[] processors = Kernel32Util.getLogicalProcessorInformation();</span>
-<span class="nc bnc" id="L293" title="All 2 branches missed.">        for (SYSTEM_LOGICAL_PROCESSOR_INFORMATION proc : processors) {</span>
-<span class="nc bnc" id="L294" title="All 2 branches missed.">            if (proc.relationship == WinNT.LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorPackage) {</span>
-<span class="nc" id="L295">                this.physicalPackageCount++;</span>
+<span class="nc" id="L290">        WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION[] processors = Kernel32Util.getLogicalProcessorInformation();</span>
+<span class="nc bnc" id="L291" title="All 2 branches missed.">        for (SYSTEM_LOGICAL_PROCESSOR_INFORMATION proc : processors) {</span>
+<span class="nc bnc" id="L292" title="All 2 branches missed.">            if (proc.relationship == WinNT.LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorPackage) {</span>
+<span class="nc" id="L293">                this.physicalPackageCount++;</span>
             }
-<span class="nc bnc" id="L297" title="All 2 branches missed.">            if (proc.relationship == WinNT.LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorCore) {</span>
-<span class="nc" id="L298">                this.physicalProcessorCount++;</span>
+<span class="nc bnc" id="L295" title="All 2 branches missed.">            if (proc.relationship == WinNT.LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorCore) {</span>
+<span class="nc" id="L296">                this.physicalProcessorCount++;</span>
             }
         }
-<span class="nc" id="L301">    }</span>
+<span class="nc" id="L299">    }</span>
 
     /**
      * {@inheritDoc}
      */
     @Override
     public long[] getSystemCpuLoadTicks() {
-<span class="nc" id="L308">        long[] ticks = new long[TickType.values().length];</span>
-<span class="nc" id="L309">        WinBase.FILETIME lpIdleTime = new WinBase.FILETIME();</span>
-<span class="nc" id="L310">        WinBase.FILETIME lpKernelTime = new WinBase.FILETIME();</span>
-<span class="nc" id="L311">        WinBase.FILETIME lpUserTime = new WinBase.FILETIME();</span>
-<span class="nc bnc" id="L312" title="All 2 branches missed.">        if (!Kernel32.INSTANCE.GetSystemTimes(lpIdleTime, lpKernelTime, lpUserTime)) {</span>
-<span class="nc" id="L313">            LOG.error(&quot;Failed to update system idle/kernel/user times. Error code: {}&quot;, Native.getLastError());</span>
-<span class="nc" id="L314">            return ticks;</span>
+<span class="nc" id="L306">        long[] ticks = new long[TickType.values().length];</span>
+<span class="nc" id="L307">        WinBase.FILETIME lpIdleTime = new WinBase.FILETIME();</span>
+<span class="nc" id="L308">        WinBase.FILETIME lpKernelTime = new WinBase.FILETIME();</span>
+<span class="nc" id="L309">        WinBase.FILETIME lpUserTime = new WinBase.FILETIME();</span>
+<span class="nc bnc" id="L310" title="All 2 branches missed.">        if (!Kernel32.INSTANCE.GetSystemTimes(lpIdleTime, lpKernelTime, lpUserTime)) {</span>
+<span class="nc" id="L311">            LOG.error(&quot;Failed to update system idle/kernel/user times. Error code: {}&quot;, Native.getLastError());</span>
+<span class="nc" id="L312">            return ticks;</span>
         }
         // IOwait:
         // Windows does not measure IOWait.
 
         // IRQ:
         // Percent time raw value is cumulative 100NS-ticks
-        // Divide by 10000 to get milliseconds
-<span class="nc bnc" id="L322" title="All 2 branches missed.">        if (this.systemTickCountQuery == null) {</span>
-<span class="nc" id="L323">            refreshTickCounters();</span>
-<span class="nc" id="L324">            ticks[TickType.IRQ.getIndex()] = PerfDataUtil.queryCounter(this.irqTickCounter) / 10000L;</span>
-<span class="nc" id="L325">            ticks[TickType.SOFTIRQ.getIndex()] = PerfDataUtil.queryCounter(this.softIrqTickCounter) / 10000L;</span>
+        // Divide by 10_000 to get milliseconds
+<span class="nc bnc" id="L320" title="All 2 branches missed.">        if (this.systemTickCountQuery == null) {</span>
+<span class="nc" id="L321">            refreshTickCounters();</span>
+<span class="nc" id="L322">            ticks[TickType.IRQ.getIndex()] = PerfDataUtil.queryCounter(this.irqTickCounter) / 10_000L;</span>
+<span class="nc" id="L323">            ticks[TickType.SOFTIRQ.getIndex()] = PerfDataUtil.queryCounter(this.softIrqTickCounter) / 10_000L;</span>
         } else {
-<span class="nc" id="L327">            WmiResult&lt;SystemTickCountProperty&gt; result = WmiUtil.queryWMI(this.systemTickCountQuery);</span>
-<span class="nc bnc" id="L328" title="All 2 branches missed.">            if (result.getResultCount() &gt; 0) {</span>
-<span class="nc" id="L329">                ticks[TickType.IRQ.getIndex()] = WmiUtil.getUint64(result, SystemTickCountProperty.PERCENTINTERRUPTTIME,</span>
-                        0) / 10000L;
-<span class="nc" id="L331">                ticks[TickType.SOFTIRQ.getIndex()] = WmiUtil.getUint64(result, SystemTickCountProperty.PERCENTDPCTIME,</span>
-                        0) / 10000L;
+<span class="nc" id="L325">            WmiResult&lt;SystemTickCountProperty&gt; result = WmiUtil.queryWMI(this.systemTickCountQuery);</span>
+<span class="nc bnc" id="L326" title="All 2 branches missed.">            if (result.getResultCount() &gt; 0) {</span>
+<span class="nc" id="L327">                ticks[TickType.IRQ.getIndex()] = WmiUtil.getUint64(result, SystemTickCountProperty.PERCENTINTERRUPTTIME,</span>
+                        0) / 10_000L;
+<span class="nc" id="L329">                ticks[TickType.SOFTIRQ.getIndex()] = WmiUtil.getUint64(result, SystemTickCountProperty.PERCENTDPCTIME,</span>
+                        0) / 10_000L;
             }
         }
 
-<span class="nc" id="L336">        ticks[TickType.IDLE.getIndex()] = lpIdleTime.toDWordLong().longValue() / 10000L;</span>
-<span class="nc" id="L337">        ticks[TickType.SYSTEM.getIndex()] = lpKernelTime.toDWordLong().longValue() / 10000L</span>
-<span class="nc" id="L338">                - ticks[TickType.IDLE.getIndex()];</span>
-<span class="nc" id="L339">        ticks[TickType.USER.getIndex()] = lpUserTime.toDWordLong().longValue() / 10000L;</span>
+<span class="nc" id="L334">        ticks[TickType.IDLE.getIndex()] = lpIdleTime.toDWordLong().longValue() / 10_000L;</span>
+<span class="nc" id="L335">        ticks[TickType.SYSTEM.getIndex()] = lpKernelTime.toDWordLong().longValue() / 10_000L</span>
+<span class="nc" id="L336">                - ticks[TickType.IDLE.getIndex()];</span>
+<span class="nc" id="L337">        ticks[TickType.USER.getIndex()] = lpUserTime.toDWordLong().longValue() / 10_000L;</span>
         // Additional decrement to avoid double counting in the total array
-<span class="nc" id="L341">        ticks[TickType.SYSTEM.getIndex()] -= ticks[TickType.IRQ.getIndex()] + ticks[TickType.SOFTIRQ.getIndex()];</span>
-<span class="nc" id="L342">        return ticks;</span>
+<span class="nc" id="L339">        ticks[TickType.SYSTEM.getIndex()] -= ticks[TickType.IRQ.getIndex()] + ticks[TickType.SOFTIRQ.getIndex()];</span>
+<span class="nc" id="L340">        return ticks;</span>
     }
 
     /**
@@ -347,15 +345,15 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public double[] getSystemLoadAverage(int nelem) {
-<span class="nc bnc" id="L350" title="All 4 branches missed.">        if (nelem &lt; 1 || nelem &gt; 3) {</span>
-<span class="nc" id="L351">            throw new IllegalArgumentException(&quot;Must include from one to three elements.&quot;);</span>
+<span class="nc bnc" id="L348" title="All 4 branches missed.">        if (nelem &lt; 1 || nelem &gt; 3) {</span>
+<span class="nc" id="L349">            throw new IllegalArgumentException(&quot;Must include from one to three elements.&quot;);</span>
         }
-<span class="nc" id="L353">        double[] average = new double[nelem];</span>
+<span class="nc" id="L351">        double[] average = new double[nelem];</span>
         // Windows doesn't have load average
-<span class="nc bnc" id="L355" title="All 2 branches missed.">        for (int i = 0; i &lt; average.length; i++) {</span>
-<span class="nc" id="L356">            average[i] = -1;</span>
+<span class="nc bnc" id="L353" title="All 2 branches missed.">        for (int i = 0; i &lt; average.length; i++) {</span>
+<span class="nc" id="L354">            average[i] = -1;</span>
         }
-<span class="nc" id="L358">        return average;</span>
+<span class="nc" id="L356">        return average;</span>
     }
 
     /**
@@ -363,54 +361,50 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public long[][] getProcessorCpuLoadTicks() {
-<span class="nc" id="L366">        long[][] ticks = new long[this.logicalProcessorCount][TickType.values().length];</span>
-<span class="nc bnc" id="L367" title="All 2 branches missed.">        if (this.processorTickCountQuery == null) {</span>
-<span class="nc" id="L368">            refreshTickCounters();</span>
-<span class="nc bnc" id="L369" title="All 2 branches missed.">            for (int cpu = 0; cpu &lt; this.logicalProcessorCount; cpu++) {</span>
-<span class="nc" id="L370">                ticks[cpu][TickType.SYSTEM.getIndex()] = PerfDataUtil.queryCounter(this.privilegedTickCounter[cpu]);</span>
-<span class="nc" id="L371">                ticks[cpu][TickType.USER.getIndex()] = PerfDataUtil.queryCounter(this.userTickCounter[cpu]);</span>
-<span class="nc" id="L372">                ticks[cpu][TickType.IRQ.getIndex()] = PerfDataUtil.queryCounter(this.interruptTickCounter[cpu]);</span>
-<span class="nc" id="L373">                ticks[cpu][TickType.SOFTIRQ.getIndex()] = PerfDataUtil.queryCounter(this.dpcTickCounter[cpu]);</span>
-                // Fetch total processor ticks
-                // Later decrement by system + user
-<span class="nc" id="L376">                ticks[cpu][TickType.IDLE.getIndex()] = PerfDataUtil.queryCounter(this.processorTickCounter[cpu]);</span>
+<span class="nc" id="L364">        long[][] ticks = new long[this.logicalProcessorCount][TickType.values().length];</span>
+<span class="nc bnc" id="L365" title="All 2 branches missed.">        if (this.processorTickCountQuery == null) {</span>
+<span class="nc" id="L366">            refreshTickCounters();</span>
+<span class="nc bnc" id="L367" title="All 2 branches missed.">            for (int cpu = 0; cpu &lt; this.logicalProcessorCount; cpu++) {</span>
+<span class="nc" id="L368">                ticks[cpu][TickType.SYSTEM.getIndex()] = PerfDataUtil.queryCounter(this.privilegedTickCounter[cpu]);</span>
+<span class="nc" id="L369">                ticks[cpu][TickType.USER.getIndex()] = PerfDataUtil.queryCounter(this.userTickCounter[cpu]);</span>
+<span class="nc" id="L370">                ticks[cpu][TickType.IRQ.getIndex()] = PerfDataUtil.queryCounter(this.interruptTickCounter[cpu]);</span>
+<span class="nc" id="L371">                ticks[cpu][TickType.SOFTIRQ.getIndex()] = PerfDataUtil.queryCounter(this.dpcTickCounter[cpu]);</span>
+                // % Processor Time is actually Idle time
+<span class="nc" id="L373">                ticks[cpu][TickType.IDLE.getIndex()] = PerfDataUtil.queryCounter(this.processorTickCounter[cpu]);</span>
             }
         } else {
-<span class="nc" id="L379">            ticks = new long[this.logicalProcessorCount][TickType.values().length];</span>
-<span class="nc" id="L380">            WmiResult&lt;ProcessorTickCountProperty&gt; result = WmiUtil.queryWMI(this.processorTickCountQuery);</span>
-<span class="nc bnc" id="L381" title="All 4 branches missed.">            for (int cpu = 0; cpu &lt; result.getResultCount() &amp;&amp; cpu &lt; this.logicalProcessorCount; cpu++) {</span>
-<span class="nc" id="L382">                ticks[cpu][TickType.SYSTEM.getIndex()] = WmiUtil.getUint64(result,</span>
+<span class="nc" id="L376">            ticks = new long[this.logicalProcessorCount][TickType.values().length];</span>
+<span class="nc" id="L377">            WmiResult&lt;ProcessorTickCountProperty&gt; result = WmiUtil.queryWMI(this.processorTickCountQuery);</span>
+<span class="nc bnc" id="L378" title="All 4 branches missed.">            for (int cpu = 0; cpu &lt; result.getResultCount() &amp;&amp; cpu &lt; this.logicalProcessorCount; cpu++) {</span>
+<span class="nc" id="L379">                ticks[cpu][TickType.SYSTEM.getIndex()] = WmiUtil.getUint64(result,</span>
                         ProcessorTickCountProperty.PERCENTPRIVILEGEDTIME, cpu);
-<span class="nc" id="L384">                ticks[cpu][TickType.USER.getIndex()] = WmiUtil.getUint64(result,</span>
+<span class="nc" id="L381">                ticks[cpu][TickType.USER.getIndex()] = WmiUtil.getUint64(result,</span>
                         ProcessorTickCountProperty.PERCENTUSERTIME, cpu);
-<span class="nc" id="L386">                ticks[cpu][TickType.IRQ.getIndex()] = WmiUtil.getUint64(result,</span>
+<span class="nc" id="L383">                ticks[cpu][TickType.IRQ.getIndex()] = WmiUtil.getUint64(result,</span>
                         ProcessorTickCountProperty.PERCENTINTERRUPTTIME, cpu);
-<span class="nc" id="L388">                ticks[cpu][TickType.SOFTIRQ.getIndex()] = WmiUtil.getUint64(result,</span>
+<span class="nc" id="L385">                ticks[cpu][TickType.SOFTIRQ.getIndex()] = WmiUtil.getUint64(result,</span>
                         ProcessorTickCountProperty.PERCENTDPCTIME, cpu);
-                // Fetch total processor ticks
-                // Later decrement by system + user
-<span class="nc" id="L392">                ticks[cpu][TickType.IDLE.getIndex()] = WmiUtil.getUint64(result,</span>
+                // % Processor Time is actually Idle time
+<span class="nc" id="L388">                ticks[cpu][TickType.IDLE.getIndex()] = WmiUtil.getUint64(result,</span>
                         ProcessorTickCountProperty.PERCENTPROCESSORTIME, cpu);
             }
         }
-<span class="nc bnc" id="L396" title="All 2 branches missed.">        for (int cpu = 0; cpu &lt; this.logicalProcessorCount; cpu++) {</span>
-<span class="nc" id="L397">            ticks[cpu][TickType.IDLE.getIndex()] -= ticks[cpu][TickType.SYSTEM.getIndex()]</span>
-<span class="nc" id="L398">                    + ticks[cpu][TickType.USER.getIndex()];</span>
+<span class="nc bnc" id="L392" title="All 2 branches missed.">        for (int cpu = 0; cpu &lt; this.logicalProcessorCount; cpu++) {</span>
             // Additional decrement to avoid double counting in the
             // total array
-<span class="nc" id="L401">            ticks[cpu][TickType.SYSTEM.getIndex()] -= ticks[cpu][TickType.IRQ.getIndex()]</span>
-<span class="nc" id="L402">                    + ticks[cpu][TickType.SOFTIRQ.getIndex()];</span>
+<span class="nc" id="L395">            ticks[cpu][TickType.SYSTEM.getIndex()] -= ticks[cpu][TickType.IRQ.getIndex()]</span>
+<span class="nc" id="L396">                    + ticks[cpu][TickType.SOFTIRQ.getIndex()];</span>
 
             // Raw value is cumulative 100NS-ticks
-            // Divide by 10000 to get milliseconds
-<span class="nc" id="L406">            ticks[cpu][TickType.SYSTEM.getIndex()] /= 10000L;</span>
-<span class="nc" id="L407">            ticks[cpu][TickType.USER.getIndex()] /= 10000L;</span>
-<span class="nc" id="L408">            ticks[cpu][TickType.IRQ.getIndex()] /= 10000L;</span>
-<span class="nc" id="L409">            ticks[cpu][TickType.SOFTIRQ.getIndex()] /= 10000L;</span>
-<span class="nc" id="L410">            ticks[cpu][TickType.IDLE.getIndex()] /= 10000L;</span>
+            // Divide by 10_000 to get milliseconds
+<span class="nc" id="L400">            ticks[cpu][TickType.SYSTEM.getIndex()] /= 10_000L;</span>
+<span class="nc" id="L401">            ticks[cpu][TickType.USER.getIndex()] /= 10_000L;</span>
+<span class="nc" id="L402">            ticks[cpu][TickType.IRQ.getIndex()] /= 10_000L;</span>
+<span class="nc" id="L403">            ticks[cpu][TickType.SOFTIRQ.getIndex()] /= 10_000L;</span>
+<span class="nc" id="L404">            ticks[cpu][TickType.IDLE.getIndex()] /= 10_000L;</span>
         }
         // Skipping nice and IOWait, they'll stay 0
-<span class="nc" id="L413">        return ticks;</span>
+<span class="nc" id="L407">        return ticks;</span>
     }
 
     /**
@@ -418,12 +412,13 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public long getSystemUptime() {
+        // Uptime is in seconds so divide milliseconds
         // GetTickCount64 requires Vista (6.0) or later
-<span class="nc bnc" id="L422" title="All 2 branches missed.">        if (MAJOR_VERSION &gt;= 6) {</span>
-<span class="nc" id="L423">            return Kernel32.INSTANCE.GetTickCount64() / 1000L;</span>
+<span class="nc bnc" id="L417" title="All 2 branches missed.">        if (MAJOR_VERSION &gt;= 6) {</span>
+<span class="nc" id="L418">            return Kernel32.INSTANCE.GetTickCount64() / 1000L;</span>
         } else {
             // 32 bit rolls over at ~ 49 days
-<span class="nc" id="L426">            return Kernel32.INSTANCE.GetTickCount() / 1000L;</span>
+<span class="nc" id="L421">            return Kernel32.INSTANCE.GetTickCount() / 1000L;</span>
         }
     }
 
@@ -433,7 +428,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
     @Override
     @Deprecated
     public String getSystemSerialNumber() {
-<span class="nc" id="L436">        return new WindowsComputerSystem().getSerialNumber();</span>
+<span class="nc" id="L431">        return new WindowsComputerSystem().getSerialNumber();</span>
     }
 
     /**
@@ -441,15 +436,15 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public long getContextSwitches() {
-<span class="nc bnc" id="L444" title="All 2 branches missed.">        if (this.contextSwitchQuery == null) {</span>
-<span class="nc" id="L445">            PerfDataUtil.updateQuery(this.contextSwitchesPerSecCounter);</span>
-<span class="nc" id="L446">            return PerfDataUtil.queryCounter(this.contextSwitchesPerSecCounter);</span>
+<span class="nc bnc" id="L439" title="All 2 branches missed.">        if (this.contextSwitchQuery == null) {</span>
+<span class="nc" id="L440">            PerfDataUtil.updateQuery(this.contextSwitchesPerSecCounter);</span>
+<span class="nc" id="L441">            return PerfDataUtil.queryCounter(this.contextSwitchesPerSecCounter);</span>
         }
-<span class="nc" id="L448">        WmiResult&lt;ContextSwitchProperty&gt; result = WmiUtil.queryWMI(this.contextSwitchQuery);</span>
-<span class="nc bnc" id="L449" title="All 2 branches missed.">        if (result.getResultCount() &gt; 0) {</span>
-<span class="nc" id="L450">            return WmiUtil.getUint32(result, ContextSwitchProperty.CONTEXTSWITCHESPERSEC, 0);</span>
+<span class="nc" id="L443">        WmiResult&lt;ContextSwitchProperty&gt; result = WmiUtil.queryWMI(this.contextSwitchQuery);</span>
+<span class="nc bnc" id="L444" title="All 2 branches missed.">        if (result.getResultCount() &gt; 0) {</span>
+<span class="nc" id="L445">            return WmiUtil.getUint32(result, ContextSwitchProperty.CONTEXTSWITCHESPERSEC, 0);</span>
         }
-<span class="nc" id="L452">        return 0L;</span>
+<span class="nc" id="L447">        return 0L;</span>
     }
 
     /**
@@ -457,24 +452,24 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public long getInterrupts() {
-<span class="nc bnc" id="L460" title="All 2 branches missed.">        if (this.interruptsQuery == null) {</span>
-<span class="nc" id="L461">            refreshTickCounters();</span>
-<span class="nc" id="L462">            return PerfDataUtil.queryCounter(this.interruptsPerSecCounter);</span>
+<span class="nc bnc" id="L455" title="All 2 branches missed.">        if (this.interruptsQuery == null) {</span>
+<span class="nc" id="L456">            refreshTickCounters();</span>
+<span class="nc" id="L457">            return PerfDataUtil.queryCounter(this.interruptsPerSecCounter);</span>
         }
-<span class="nc" id="L464">        WmiResult&lt;InterruptsProperty&gt; result = WmiUtil.queryWMI(this.interruptsQuery);</span>
-<span class="nc bnc" id="L465" title="All 2 branches missed.">        if (result.getResultCount() &gt; 0) {</span>
-<span class="nc" id="L466">            return WmiUtil.getUint32(result, InterruptsProperty.INTERRUPTSPERSEC, 0);</span>
+<span class="nc" id="L459">        WmiResult&lt;InterruptsProperty&gt; result = WmiUtil.queryWMI(this.interruptsQuery);</span>
+<span class="nc bnc" id="L460" title="All 2 branches missed.">        if (result.getResultCount() &gt; 0) {</span>
+<span class="nc" id="L461">            return WmiUtil.getUint32(result, InterruptsProperty.INTERRUPTSPERSEC, 0);</span>
         }
-<span class="nc" id="L468">        return 0L;</span>
+<span class="nc" id="L463">        return 0L;</span>
     }
 
     /**
      * Refresh PDH counters no more often than 100ms
      */
     private static void refreshTickCounters() {
-<span class="nc bnc" id="L475" title="All 2 branches missed.">        if (System.currentTimeMillis() - lastRefresh &gt; 100L) {</span>
-<span class="nc" id="L476">            lastRefresh = PerfDataUtil.updateQuery(PROCESSOR);</span>
+<span class="nc bnc" id="L470" title="All 2 branches missed.">        if (System.currentTimeMillis() - lastRefresh &gt; 100L) {</span>
+<span class="nc" id="L471">            lastRefresh = PerfDataUtil.updateQuery(PROCESSOR);</span>
         }
-<span class="nc" id="L478">    }</span>
+<span class="nc" id="L473">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

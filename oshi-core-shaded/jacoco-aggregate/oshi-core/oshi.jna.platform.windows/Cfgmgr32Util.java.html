@@ -38,7 +38,7 @@ import com.sun.jna.ptr.IntByReference;
 <span class="nc" id="L38">        }</span>
 
         public int getErrorCode() {
-<span class="nc" id="L41">            return errorCode;</span>
+<span class="nc" id="L41">            return this.errorCode;</span>
         }
     }
 
@@ -46,7 +46,7 @@ import com.sun.jna.ptr.IntByReference;
      * Utility method to call Cfgmgr32's CM_Get_Device_ID that allocates the
      * required memory for the Buffer parameter based on the type mapping used,
      * calls to CM_Get_Device_ID, and returns the received string.
-     * 
+     *
      * @param devInst
      *            Caller-supplied device instance handle that is bound to the
      *            local machine.

@@ -23,7 +23,7 @@ import java.util.List;
 
 import oshi.hardware.common.AbstractSoundCard;
 import oshi.util.FileUtil;
-import oshi.util.StringUtil;
+import oshi.util.ParseUtil;
 
 /**
  * Sound card data obtained via system_profiler
@@ -71,7 +71,7 @@ public class MacSoundCard extends AbstractSoundCard {
             }
 <span class="nc bnc" id="L72" title="All 2 branches missed.">            if (version) {</span>
 <span class="nc" id="L73">                kernelVersion = &quot;AppleHDAController &quot;</span>
-<span class="nc" id="L74">                        + StringUtil.textBetweenStrings(checkLine, &quot;&lt;string&gt;&quot;, &quot;&lt;/string&gt;&quot;);</span>
+<span class="nc" id="L74">                        + ParseUtil.getTextBetweenStrings(checkLine, &quot;&lt;string&gt;&quot;, &quot;&lt;/string&gt;&quot;);</span>
 <span class="nc" id="L75">                version = false;</span>
             }
 <span class="nc" id="L77">        }</span>

@@ -41,7 +41,7 @@ public interface Pdh extends com.sun.jna.platform.win32.Pdh {
     /**
      * Returns the specified object's counter and instance names that exist on
      * the specified computer or in the specified log file.
-     * 
+     *
      * @param szDataSource
      *            String that specifies the name of the log file used to
      *            enumerate the counter and instance names. If NULL, the
@@ -110,7 +110,7 @@ public interface Pdh extends com.sun.jna.platform.win32.Pdh {
 
     /**
      * Returns the counter index corresponding to the specified counter name.
-     * 
+     *
      * @param szMachineName
      *            Null-terminated string that specifies the name of the computer
      *            where the specified counter is located. The computer name can
@@ -132,7 +132,7 @@ public interface Pdh extends com.sun.jna.platform.win32.Pdh {
     /**
      * Returns the performance object name or counter name corresponding to the
      * specified index.
-     * 
+     *
      * @param szMachineName
      *            Null-terminated string that specifies the name of the computer
      *            where the specified performance object or counter is located.

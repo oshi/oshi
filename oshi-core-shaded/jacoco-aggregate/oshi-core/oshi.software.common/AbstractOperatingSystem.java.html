@@ -38,7 +38,7 @@ import oshi.software.os.OperatingSystemVersion;
     protected OperatingSystemVersion version;
     // Initialize based on JVM Bitness. Individual OS implementations will test
     // if 32-bit JVM running on 64-bit OS
-<span class="nc bnc" id="L41" title="All 2 branches missed.">    protected int bitness = (System.getProperty(&quot;os.arch&quot;).indexOf(&quot;64&quot;) != -1) ? 64 : 32;</span>
+<span class="nc bnc" id="L41" title="All 2 branches missed.">    protected int bitness = System.getProperty(&quot;os.arch&quot;).indexOf(&quot;64&quot;) != -1 ? 64 : 32;</span>
 
     /*
      * Comparators for use in processSort()
@@ -184,10 +184,11 @@ import oshi.software.os.OperatingSystemVersion;
 <span class="nc" id="L184">        List&lt;OSProcess&gt; returnValue = new LinkedList&lt;&gt;();</span>
 <span class="nc bnc" id="L185" title="All 2 branches missed.">        for (Integer pid : pids) {</span>
 <span class="nc" id="L186">            OSProcess process = getProcess(pid);</span>
-<span class="nc bnc" id="L187" title="All 2 branches missed.">            if (process != null)</span>
+<span class="nc bnc" id="L187" title="All 2 branches missed.">            if (process != null) {</span>
 <span class="nc" id="L188">                returnValue.add(process);</span>
-<span class="nc" id="L189">        }</span>
-<span class="nc" id="L190">        return returnValue;</span>
+            }
+<span class="nc" id="L190">        }</span>
+<span class="nc" id="L191">        return returnValue;</span>
     }
 
     /**
@@ -195,7 +196,7 @@ import oshi.software.os.OperatingSystemVersion;
      */
     @Override
     public int getBitness() {
-<span class="nc" id="L198">        return bitness;</span>
+<span class="nc" id="L199">        return this.bitness;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>
