@@ -81,7 +81,7 @@
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>  
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>          <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>  <em class="jxr_javadoccomment">         * Instantiate a WmiQuery.</em>
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>  <em class="jxr_javadoccomment">         * </em>
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>  <em class="jxr_javadoccomment">         *</em>
 <a class="jxr_linenumber" name="L77" href="#L77">77</a>  <em class="jxr_javadoccomment">         * @param nameSpace</em>
 <a class="jxr_linenumber" name="L78" href="#L78">78</a>  <em class="jxr_javadoccomment">         *            The WMI namespace to use.</em>
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>  <em class="jxr_javadoccomment">         * @param wmiClassName</em>
@@ -115,14 +115,14 @@
 <a class="jxr_linenumber" name="L107" href="#L107">107</a> <em class="jxr_javadoccomment">         * @return The enum containing the properties</em>
 <a class="jxr_linenumber" name="L108" href="#L108">108</a> <em class="jxr_javadoccomment">         */</em>
 <a class="jxr_linenumber" name="L109" href="#L109">109</a>         <strong class="jxr_keyword">public</strong> Class&lt;T&gt; getPropertyEnum() {
-<a class="jxr_linenumber" name="L110" href="#L110">110</a>             <strong class="jxr_keyword">return</strong> propertyEnum;
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.propertyEnum;
 <a class="jxr_linenumber" name="L111" href="#L111">111</a>         }
 <a class="jxr_linenumber" name="L112" href="#L112">112</a> 
 <a class="jxr_linenumber" name="L113" href="#L113">113</a>         <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L114" href="#L114">114</a> <em class="jxr_javadoccomment">         * @return The namespace</em>
 <a class="jxr_linenumber" name="L115" href="#L115">115</a> <em class="jxr_javadoccomment">         */</em>
 <a class="jxr_linenumber" name="L116" href="#L116">116</a>         <strong class="jxr_keyword">public</strong> String getNameSpace() {
-<a class="jxr_linenumber" name="L117" href="#L117">117</a>             <strong class="jxr_keyword">return</strong> nameSpace;
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.nameSpace;
 <a class="jxr_linenumber" name="L118" href="#L118">118</a>         }
 <a class="jxr_linenumber" name="L119" href="#L119">119</a> 
 <a class="jxr_linenumber" name="L120" href="#L120">120</a>         <em class="jxr_javadoccomment">/**</em>
@@ -137,7 +137,7 @@
 <a class="jxr_linenumber" name="L129" href="#L129">129</a> <em class="jxr_javadoccomment">         * @return The class name</em>
 <a class="jxr_linenumber" name="L130" href="#L130">130</a> <em class="jxr_javadoccomment">         */</em>
 <a class="jxr_linenumber" name="L131" href="#L131">131</a>         <strong class="jxr_keyword">public</strong> String getWmiClassName() {
-<a class="jxr_linenumber" name="L132" href="#L132">132</a>             <strong class="jxr_keyword">return</strong> wmiClassName;
+<a class="jxr_linenumber" name="L132" href="#L132">132</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.wmiClassName;
 <a class="jxr_linenumber" name="L133" href="#L133">133</a>         }
 <a class="jxr_linenumber" name="L134" href="#L134">134</a> 
 <a class="jxr_linenumber" name="L135" href="#L135">135</a>         <em class="jxr_javadoccomment">/**</em>
@@ -376,13 +376,13 @@
 <a class="jxr_linenumber" name="L368" href="#L368">368</a> <em class="jxr_javadoccomment">         *            The enum associated with this map</em>
 <a class="jxr_linenumber" name="L369" href="#L369">369</a> <em class="jxr_javadoccomment">         */</em>
 <a class="jxr_linenumber" name="L370" href="#L370">370</a>         <strong class="jxr_keyword">public</strong> <a href="../../../../oshi/jna/platform/windows/WbemcliUtil.html">WmiResult</a>(Class&lt;T&gt; propertyEnum) {
-<a class="jxr_linenumber" name="L371" href="#L371">371</a>             propertyMap = <strong class="jxr_keyword">new</strong> EnumMap&lt;&gt;(propertyEnum);
-<a class="jxr_linenumber" name="L372" href="#L372">372</a>             vtTypeMap = <strong class="jxr_keyword">new</strong> EnumMap&lt;&gt;(propertyEnum);
-<a class="jxr_linenumber" name="L373" href="#L373">373</a>             cimTypeMap = <strong class="jxr_keyword">new</strong> EnumMap&lt;&gt;(propertyEnum);
+<a class="jxr_linenumber" name="L371" href="#L371">371</a>             <strong class="jxr_keyword">this</strong>.propertyMap = <strong class="jxr_keyword">new</strong> EnumMap&lt;&gt;(propertyEnum);
+<a class="jxr_linenumber" name="L372" href="#L372">372</a>             <strong class="jxr_keyword">this</strong>.vtTypeMap = <strong class="jxr_keyword">new</strong> EnumMap&lt;&gt;(propertyEnum);
+<a class="jxr_linenumber" name="L373" href="#L373">373</a>             <strong class="jxr_keyword">this</strong>.cimTypeMap = <strong class="jxr_keyword">new</strong> EnumMap&lt;&gt;(propertyEnum);
 <a class="jxr_linenumber" name="L374" href="#L374">374</a>             <strong class="jxr_keyword">for</strong> (T prop : propertyEnum.getEnumConstants()) {
-<a class="jxr_linenumber" name="L375" href="#L375">375</a>                 propertyMap.put(prop, <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;());
-<a class="jxr_linenumber" name="L376" href="#L376">376</a>                 vtTypeMap.put(prop, Variant.VT_NULL);
-<a class="jxr_linenumber" name="L377" href="#L377">377</a>                 cimTypeMap.put(prop, Wbemcli.CIM_EMPTY);
+<a class="jxr_linenumber" name="L375" href="#L375">375</a>                 <strong class="jxr_keyword">this</strong>.propertyMap.put(prop, <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;());
+<a class="jxr_linenumber" name="L376" href="#L376">376</a>                 <strong class="jxr_keyword">this</strong>.vtTypeMap.put(prop, Variant.VT_NULL);
+<a class="jxr_linenumber" name="L377" href="#L377">377</a>                 <strong class="jxr_keyword">this</strong>.cimTypeMap.put(prop, Wbemcli.CIM_EMPTY);
 <a class="jxr_linenumber" name="L378" href="#L378">378</a>             }
 <a class="jxr_linenumber" name="L379" href="#L379">379</a>         }
 <a class="jxr_linenumber" name="L380" href="#L380">380</a> 
@@ -392,7 +392,7 @@
 <a class="jxr_linenumber" name="L384" href="#L384">384</a> <em class="jxr_javadoccomment">         * enumerated WMI property and will be consistent for a given property,</em>
 <a class="jxr_linenumber" name="L385" href="#L385">385</a> <em class="jxr_javadoccomment">         * and may be validated by the user using {@link #getVtType} or the</em>
 <a class="jxr_linenumber" name="L386" href="#L386">386</a> <em class="jxr_javadoccomment">         * Class of the returned Object.</em>
-<a class="jxr_linenumber" name="L387" href="#L387">387</a> <em class="jxr_javadoccomment">         * </em>
+<a class="jxr_linenumber" name="L387" href="#L387">387</a> <em class="jxr_javadoccomment">         *</em>
 <a class="jxr_linenumber" name="L388" href="#L388">388</a> <em class="jxr_javadoccomment">         * @param property</em>
 <a class="jxr_linenumber" name="L389" href="#L389">389</a> <em class="jxr_javadoccomment">         *            The property (column) to fetch</em>
 <a class="jxr_linenumber" name="L390" href="#L390">390</a> <em class="jxr_javadoccomment">         * @param index</em>
@@ -407,7 +407,7 @@
 <a class="jxr_linenumber" name="L399" href="#L399">399</a> <em class="jxr_javadoccomment">         * Gets the Variant type from the WmiResult. The integer value is</em>
 <a class="jxr_linenumber" name="L400" href="#L400">400</a> <em class="jxr_javadoccomment">         * defined as a VT_* constant in the</em>
 <a class="jxr_linenumber" name="L401" href="#L401">401</a> <em class="jxr_javadoccomment">         * {@link com.sun.jna.platform.win32.Variant} interface.</em>
-<a class="jxr_linenumber" name="L402" href="#L402">402</a> <em class="jxr_javadoccomment">         * </em>
+<a class="jxr_linenumber" name="L402" href="#L402">402</a> <em class="jxr_javadoccomment">         *</em>
 <a class="jxr_linenumber" name="L403" href="#L403">403</a> <em class="jxr_javadoccomment">         * @param property</em>
 <a class="jxr_linenumber" name="L404" href="#L404">404</a> <em class="jxr_javadoccomment">         *            The property (column) whose type to fetch</em>
 <a class="jxr_linenumber" name="L405" href="#L405">405</a> <em class="jxr_javadoccomment">         * @return An integer representing the Variant type</em>
@@ -419,7 +419,7 @@
 <a class="jxr_linenumber" name="L411" href="#L411">411</a>         <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L412" href="#L412">412</a> <em class="jxr_javadoccomment">         * Gets the CIM type from the WmiResult. The integer value is defined as</em>
 <a class="jxr_linenumber" name="L413" href="#L413">413</a> <em class="jxr_javadoccomment">         * a CIM_* constant in the {@link Wbemcli} interface.</em>
-<a class="jxr_linenumber" name="L414" href="#L414">414</a> <em class="jxr_javadoccomment">         * </em>
+<a class="jxr_linenumber" name="L414" href="#L414">414</a> <em class="jxr_javadoccomment">         *</em>
 <a class="jxr_linenumber" name="L415" href="#L415">415</a> <em class="jxr_javadoccomment">         * @param property</em>
 <a class="jxr_linenumber" name="L416" href="#L416">416</a> <em class="jxr_javadoccomment">         *            The property (column) whose type to fetch</em>
 <a class="jxr_linenumber" name="L417" href="#L417">417</a> <em class="jxr_javadoccomment">         * @return An integer representing the CIM type</em>
@@ -430,7 +430,7 @@
 <a class="jxr_linenumber" name="L422" href="#L422">422</a> 
 <a class="jxr_linenumber" name="L423" href="#L423">423</a>         <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L424" href="#L424">424</a> <em class="jxr_javadoccomment">         * Adds a value to the WmiResult at the next index for that property</em>
-<a class="jxr_linenumber" name="L425" href="#L425">425</a> <em class="jxr_javadoccomment">         * </em>
+<a class="jxr_linenumber" name="L425" href="#L425">425</a> <em class="jxr_javadoccomment">         *</em>
 <a class="jxr_linenumber" name="L426" href="#L426">426</a> <em class="jxr_javadoccomment">         * @param vtType</em>
 <a class="jxr_linenumber" name="L427" href="#L427">427</a> <em class="jxr_javadoccomment">         *            The Variant type of this object</em>
 <a class="jxr_linenumber" name="L428" href="#L428">428</a> <em class="jxr_javadoccomment">         * @param cimType</em>

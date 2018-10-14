@@ -50,7 +50,7 @@
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>  <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>  <em class="jxr_javadoccomment"> * Helper class to centralize the boilerplate portions of PDH counter setup and</em>
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>  <em class="jxr_javadoccomment"> * allow applications to easily add, query, and remove counters.</em>
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>  <em class="jxr_javadoccomment"> * </em>
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>  <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>  <em class="jxr_javadoccomment"> * @author widdis[at]gmail[dot]com</em>
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>  <em class="jxr_javadoccomment"> */</em>
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../oshi/util/platform/windows/PerfDataUtil.html">PerfDataUtil</a> {
@@ -85,9 +85,9 @@
 <a class="jxr_linenumber" name="L77" href="#L77">77</a>          <strong class="jxr_keyword">private</strong> String counter;
 <a class="jxr_linenumber" name="L78" href="#L78">78</a>  
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>          <strong class="jxr_keyword">public</strong> <a href="../../../../oshi/util/platform/windows/PerfDataUtil.html">PerfCounter</a>(String objectName, String instanceName, String counterName) {
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>              object = objectName;
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>              instance = instanceName;
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>              counter = counterName;
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>              <strong class="jxr_keyword">this</strong>.object = objectName;
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>              <strong class="jxr_keyword">this</strong>.instance = instanceName;
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>              <strong class="jxr_keyword">this</strong>.counter = counterName;
 <a class="jxr_linenumber" name="L83" href="#L83">83</a>          }
 <a class="jxr_linenumber" name="L84" href="#L84">84</a>      }
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>  
@@ -103,7 +103,7 @@
 <a class="jxr_linenumber" name="L95" href="#L95">95</a>  
 <a class="jxr_linenumber" name="L96" href="#L96">96</a>      <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L97" href="#L97">97</a>  <em class="jxr_javadoccomment">     * Create a Performance Counter</em>
-<a class="jxr_linenumber" name="L98" href="#L98">98</a>  <em class="jxr_javadoccomment">     * </em>
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>  <em class="jxr_javadoccomment">     *</em>
 <a class="jxr_linenumber" name="L99" href="#L99">99</a>  <em class="jxr_javadoccomment">     * @param object</em>
 <a class="jxr_linenumber" name="L100" href="#L100">100</a> <em class="jxr_javadoccomment">     *            The object/path for the counter</em>
 <a class="jxr_linenumber" name="L101" href="#L101">101</a> <em class="jxr_javadoccomment">     * @param instance</em>
@@ -119,7 +119,7 @@
 <a class="jxr_linenumber" name="L111" href="#L111">111</a> 
 <a class="jxr_linenumber" name="L112" href="#L112">112</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L113" href="#L113">113</a> <em class="jxr_javadoccomment">     * Begin monitoring a Performance Data counter</em>
-<a class="jxr_linenumber" name="L114" href="#L114">114</a> <em class="jxr_javadoccomment">     * </em>
+<a class="jxr_linenumber" name="L114" href="#L114">114</a> <em class="jxr_javadoccomment">     *</em>
 <a class="jxr_linenumber" name="L115" href="#L115">115</a> <em class="jxr_javadoccomment">     * @param counter</em>
 <a class="jxr_linenumber" name="L116" href="#L116">116</a> <em class="jxr_javadoccomment">     *            A PerfCounter object</em>
 <a class="jxr_linenumber" name="L117" href="#L117">117</a> <em class="jxr_javadoccomment">     * @return True if the counter was successfully added.</em>
@@ -141,7 +141,7 @@
 <a class="jxr_linenumber" name="L133" href="#L133">133</a> 
 <a class="jxr_linenumber" name="L134" href="#L134">134</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L135" href="#L135">135</a> <em class="jxr_javadoccomment">     * Stop monitoring a Performance Data counter</em>
-<a class="jxr_linenumber" name="L136" href="#L136">136</a> <em class="jxr_javadoccomment">     * </em>
+<a class="jxr_linenumber" name="L136" href="#L136">136</a> <em class="jxr_javadoccomment">     *</em>
 <a class="jxr_linenumber" name="L137" href="#L137">137</a> <em class="jxr_javadoccomment">     * @param counter</em>
 <a class="jxr_linenumber" name="L138" href="#L138">138</a> <em class="jxr_javadoccomment">     *            A PerfCounter object</em>
 <a class="jxr_linenumber" name="L139" href="#L139">139</a> <em class="jxr_javadoccomment">     * @return True if the counter was successfully removed.</em>
@@ -155,7 +155,7 @@
 <a class="jxr_linenumber" name="L147" href="#L147">147</a> 
 <a class="jxr_linenumber" name="L148" href="#L148">148</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L149" href="#L149">149</a> <em class="jxr_javadoccomment">     * Update a counter, and all other counters on that object</em>
-<a class="jxr_linenumber" name="L150" href="#L150">150</a> <em class="jxr_javadoccomment">     * </em>
+<a class="jxr_linenumber" name="L150" href="#L150">150</a> <em class="jxr_javadoccomment">     *</em>
 <a class="jxr_linenumber" name="L151" href="#L151">151</a> <em class="jxr_javadoccomment">     * @param counter</em>
 <a class="jxr_linenumber" name="L152" href="#L152">152</a> <em class="jxr_javadoccomment">     *            The counter whose object to update counters on</em>
 <a class="jxr_linenumber" name="L153" href="#L153">153</a> <em class="jxr_javadoccomment">     * @return The timestamp for the update of all the counters, in milliseconds</em>
@@ -182,7 +182,7 @@
 <a class="jxr_linenumber" name="L174" href="#L174">174</a> 
 <a class="jxr_linenumber" name="L175" href="#L175">175</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L176" href="#L176">176</a> <em class="jxr_javadoccomment">     * Update all counters on an object</em>
-<a class="jxr_linenumber" name="L177" href="#L177">177</a> <em class="jxr_javadoccomment">     * </em>
+<a class="jxr_linenumber" name="L177" href="#L177">177</a> <em class="jxr_javadoccomment">     *</em>
 <a class="jxr_linenumber" name="L178" href="#L178">178</a> <em class="jxr_javadoccomment">     * @param queryKey</em>
 <a class="jxr_linenumber" name="L179" href="#L179">179</a> <em class="jxr_javadoccomment">     *            The counter object to update counters on</em>
 <a class="jxr_linenumber" name="L180" href="#L180">180</a> <em class="jxr_javadoccomment">     * @return The timestamp for the update of all the counters, in milliseconds</em>
@@ -198,7 +198,7 @@
 <a class="jxr_linenumber" name="L190" href="#L190">190</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L191" href="#L191">191</a> <em class="jxr_javadoccomment">     * Query the raw counter value of a Performance Data counter. Further</em>
 <a class="jxr_linenumber" name="L192" href="#L192">192</a> <em class="jxr_javadoccomment">     * mathematical manipulation/conversion is left to the caller.</em>
-<a class="jxr_linenumber" name="L193" href="#L193">193</a> <em class="jxr_javadoccomment">     * </em>
+<a class="jxr_linenumber" name="L193" href="#L193">193</a> <em class="jxr_javadoccomment">     *</em>
 <a class="jxr_linenumber" name="L194" href="#L194">194</a> <em class="jxr_javadoccomment">     * @param counter</em>
 <a class="jxr_linenumber" name="L195" href="#L195">195</a> <em class="jxr_javadoccomment">     *            The counter to query</em>
 <a class="jxr_linenumber" name="L196" href="#L196">196</a> <em class="jxr_javadoccomment">     * @return The raw value of the counter</em>
@@ -216,7 +216,7 @@
 <a class="jxr_linenumber" name="L208" href="#L208">208</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L209" href="#L209">209</a> <em class="jxr_javadoccomment">     * Stop monitoring Performance Data counters for a particular queryKey and</em>
 <a class="jxr_linenumber" name="L210" href="#L210">210</a> <em class="jxr_javadoccomment">     * release their resources</em>
-<a class="jxr_linenumber" name="L211" href="#L211">211</a> <em class="jxr_javadoccomment">     * </em>
+<a class="jxr_linenumber" name="L211" href="#L211">211</a> <em class="jxr_javadoccomment">     *</em>
 <a class="jxr_linenumber" name="L212" href="#L212">212</a> <em class="jxr_javadoccomment">     * @param queryKey</em>
 <a class="jxr_linenumber" name="L213" href="#L213">213</a> <em class="jxr_javadoccomment">     *            The counter object to remove counters from</em>
 <a class="jxr_linenumber" name="L214" href="#L214">214</a> <em class="jxr_javadoccomment">     */</em>
@@ -243,7 +243,7 @@
 <a class="jxr_linenumber" name="L235" href="#L235">235</a> <em class="jxr_javadoccomment">     * Open a query for the given string, or confirm a query is already open for</em>
 <a class="jxr_linenumber" name="L236" href="#L236">236</a> <em class="jxr_javadoccomment">     * that string. Multiple counters may be added to this string, but will all</em>
 <a class="jxr_linenumber" name="L237" href="#L237">237</a> <em class="jxr_javadoccomment">     * be queried at the same time.</em>
-<a class="jxr_linenumber" name="L238" href="#L238">238</a> <em class="jxr_javadoccomment">     * </em>
+<a class="jxr_linenumber" name="L238" href="#L238">238</a> <em class="jxr_javadoccomment">     *</em>
 <a class="jxr_linenumber" name="L239" href="#L239">239</a> <em class="jxr_javadoccomment">     * @param objectName</em>
 <a class="jxr_linenumber" name="L240" href="#L240">240</a> <em class="jxr_javadoccomment">     *            String to associate with the counter. Normally the English PDH</em>
 <a class="jxr_linenumber" name="L241" href="#L241">241</a> <em class="jxr_javadoccomment">     *            object name.</em>
@@ -263,10 +263,10 @@
 <a class="jxr_linenumber" name="L255" href="#L255">255</a> 
 <a class="jxr_linenumber" name="L256" href="#L256">256</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L257" href="#L257">257</a> <em class="jxr_javadoccomment">     * Build a counter path</em>
-<a class="jxr_linenumber" name="L258" href="#L258">258</a> <em class="jxr_javadoccomment">     * </em>
+<a class="jxr_linenumber" name="L258" href="#L258">258</a> <em class="jxr_javadoccomment">     *</em>
 <a class="jxr_linenumber" name="L259" href="#L259">259</a> <em class="jxr_javadoccomment">     * counter A Counter object with the object, counter, and (optional)</em>
 <a class="jxr_linenumber" name="L260" href="#L260">260</a> <em class="jxr_javadoccomment">     * instance</em>
-<a class="jxr_linenumber" name="L261" href="#L261">261</a> <em class="jxr_javadoccomment">     * </em>
+<a class="jxr_linenumber" name="L261" href="#L261">261</a> <em class="jxr_javadoccomment">     *</em>
 <a class="jxr_linenumber" name="L262" href="#L262">262</a> <em class="jxr_javadoccomment">     * @return A string representing the complete counter</em>
 <a class="jxr_linenumber" name="L263" href="#L263">263</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L264" href="#L264">264</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String counterPath(<a href="../../../../oshi/util/platform/windows/PerfDataUtil.html">PerfCounter</a> counter) {
@@ -291,7 +291,7 @@
 <a class="jxr_linenumber" name="L283" href="#L283">283</a> 
 <a class="jxr_linenumber" name="L284" href="#L284">284</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L285" href="#L285">285</a> <em class="jxr_javadoccomment">     * Open a pdh query</em>
-<a class="jxr_linenumber" name="L286" href="#L286">286</a> <em class="jxr_javadoccomment">     * </em>
+<a class="jxr_linenumber" name="L286" href="#L286">286</a> <em class="jxr_javadoccomment">     *</em>
 <a class="jxr_linenumber" name="L287" href="#L287">287</a> <em class="jxr_javadoccomment">     * @param q</em>
 <a class="jxr_linenumber" name="L288" href="#L288">288</a> <em class="jxr_javadoccomment">     *            pointer to the query</em>
 <a class="jxr_linenumber" name="L289" href="#L289">289</a> <em class="jxr_javadoccomment">     * @return true if successful</em>
@@ -306,7 +306,7 @@
 <a class="jxr_linenumber" name="L298" href="#L298">298</a> 
 <a class="jxr_linenumber" name="L299" href="#L299">299</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L300" href="#L300">300</a> <em class="jxr_javadoccomment">     * Adds a pdh counter to a query</em>
-<a class="jxr_linenumber" name="L301" href="#L301">301</a> <em class="jxr_javadoccomment">     * </em>
+<a class="jxr_linenumber" name="L301" href="#L301">301</a> <em class="jxr_javadoccomment">     *</em>
 <a class="jxr_linenumber" name="L302" href="#L302">302</a> <em class="jxr_javadoccomment">     * @param query</em>
 <a class="jxr_linenumber" name="L303" href="#L303">303</a> <em class="jxr_javadoccomment">     *            Pointer to the query to add the counter</em>
 <a class="jxr_linenumber" name="L304" href="#L304">304</a> <em class="jxr_javadoccomment">     * @param path</em>
@@ -326,7 +326,7 @@
 <a class="jxr_linenumber" name="L318" href="#L318">318</a> 
 <a class="jxr_linenumber" name="L319" href="#L319">319</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L320" href="#L320">320</a> <em class="jxr_javadoccomment">     * Get value of pdh counter</em>
-<a class="jxr_linenumber" name="L321" href="#L321">321</a> <em class="jxr_javadoccomment">     * </em>
+<a class="jxr_linenumber" name="L321" href="#L321">321</a> <em class="jxr_javadoccomment">     *</em>
 <a class="jxr_linenumber" name="L322" href="#L322">322</a> <em class="jxr_javadoccomment">     * @param counter</em>
 <a class="jxr_linenumber" name="L323" href="#L323">323</a> <em class="jxr_javadoccomment">     *            The counter to get the value of</em>
 <a class="jxr_linenumber" name="L324" href="#L324">324</a> <em class="jxr_javadoccomment">     * @return long value of the counter</em>
@@ -344,7 +344,7 @@
 <a class="jxr_linenumber" name="L336" href="#L336">336</a> 
 <a class="jxr_linenumber" name="L337" href="#L337">337</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L338" href="#L338">338</a> <em class="jxr_javadoccomment">     * Update a query and get the timestamp</em>
-<a class="jxr_linenumber" name="L339" href="#L339">339</a> <em class="jxr_javadoccomment">     * </em>
+<a class="jxr_linenumber" name="L339" href="#L339">339</a> <em class="jxr_javadoccomment">     *</em>
 <a class="jxr_linenumber" name="L340" href="#L340">340</a> <em class="jxr_javadoccomment">     * @param query</em>
 <a class="jxr_linenumber" name="L341" href="#L341">341</a> <em class="jxr_javadoccomment">     *            The query to update all counters in</em>
 <a class="jxr_linenumber" name="L342" href="#L342">342</a> <em class="jxr_javadoccomment">     * @return The update timestamp of the first counter in the query</em>
@@ -365,7 +365,7 @@
 <a class="jxr_linenumber" name="L357" href="#L357">357</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L358" href="#L358">358</a> <em class="jxr_javadoccomment">     * Convert a long representing filetime (100-ns since 1601 epoch) to ms</em>
 <a class="jxr_linenumber" name="L359" href="#L359">359</a> <em class="jxr_javadoccomment">     * since 1970 epoch</em>
-<a class="jxr_linenumber" name="L360" href="#L360">360</a> <em class="jxr_javadoccomment">     * </em>
+<a class="jxr_linenumber" name="L360" href="#L360">360</a> <em class="jxr_javadoccomment">     *</em>
 <a class="jxr_linenumber" name="L361" href="#L361">361</a> <em class="jxr_javadoccomment">     * @param filetime</em>
 <a class="jxr_linenumber" name="L362" href="#L362">362</a> <em class="jxr_javadoccomment">     *            A 64-bit value equivalent to FILETIME</em>
 <a class="jxr_linenumber" name="L363" href="#L363">363</a> <em class="jxr_javadoccomment">     * @param local</em>

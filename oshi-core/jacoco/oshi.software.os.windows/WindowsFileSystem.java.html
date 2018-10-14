@@ -89,7 +89,7 @@ public class WindowsFileSystem implements FileSystem {
 
     private void initPdhCounters() {
 <span class="nc" id="L91">        this.handleCountCounter = PerfDataUtil.createCounter(&quot;Process&quot;, &quot;_Total&quot;, &quot;Handle Count&quot;);</span>
-<span class="nc bnc" id="L92" title="All 2 branches missed.">        if (!PerfDataUtil.addCounterToQuery(handleCountCounter)) {</span>
+<span class="nc bnc" id="L92" title="All 2 branches missed.">        if (!PerfDataUtil.addCounterToQuery(this.handleCountCounter)) {</span>
 <span class="nc" id="L93">            this.handleCountCounter = null;</span>
 <span class="nc" id="L94">            this.handleCountQuery = new WmiQuery&lt;&gt;(&quot;Win32_Process&quot;, HandleCountProperty.class);</span>
         }
@@ -207,7 +207,7 @@ public class WindowsFileSystem implements FileSystem {
         long total;
 <span class="nc" id="L208">        List&lt;OSFileStore&gt; fs = new ArrayList&lt;&gt;();</span>
 
-<span class="nc" id="L210">        WmiResult&lt;LogicalDiskProperty&gt; drives = WmiUtil.queryWMI(LOGICAL_DISK_QUERY);</span>
+<span class="nc" id="L210">        WmiResult&lt;LogicalDiskProperty&gt; drives = WmiUtil.queryWMI(this.LOGICAL_DISK_QUERY);</span>
 
 <span class="nc bnc" id="L212" title="All 2 branches missed.">        for (int i = 0; i &lt; drives.getResultCount(); i++) {</span>
 <span class="nc" id="L213">            free = WmiUtil.getUint64(drives, LogicalDiskProperty.FREESPACE, i);</span>
@@ -262,7 +262,7 @@ public class WindowsFileSystem implements FileSystem {
     @Override
     public long getOpenFileDescriptors() {
         // Try PDH if counter exists
-<span class="nc bnc" id="L265" title="All 2 branches missed.">        if (handleCountCounter != null) {</span>
+<span class="nc bnc" id="L265" title="All 2 branches missed.">        if (this.handleCountCounter != null) {</span>
 <span class="nc" id="L266">            PerfDataUtil.updateQuery(this.handleCountCounter);</span>
 <span class="nc" id="L267">            return PerfDataUtil.queryCounter(this.handleCountCounter);</span>
         }

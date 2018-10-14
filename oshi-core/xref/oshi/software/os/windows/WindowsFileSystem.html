@@ -97,7 +97,7 @@
 <a class="jxr_linenumber" name="L89" href="#L89">89</a>  
 <a class="jxr_linenumber" name="L90" href="#L90">90</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> initPdhCounters() {
 <a class="jxr_linenumber" name="L91" href="#L91">91</a>          <strong class="jxr_keyword">this</strong>.handleCountCounter = PerfDataUtil.createCounter(<span class="jxr_string">"Process"</span>, <span class="jxr_string">"_Total"</span>, <span class="jxr_string">"Handle Count"</span>);
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>          <strong class="jxr_keyword">if</strong> (!PerfDataUtil.addCounterToQuery(handleCountCounter)) {
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>          <strong class="jxr_keyword">if</strong> (!PerfDataUtil.addCounterToQuery(<strong class="jxr_keyword">this</strong>.handleCountCounter)) {
 <a class="jxr_linenumber" name="L93" href="#L93">93</a>              <strong class="jxr_keyword">this</strong>.handleCountCounter = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L94" href="#L94">94</a>              <strong class="jxr_keyword">this</strong>.handleCountQuery = <strong class="jxr_keyword">new</strong> WmiQuery&lt;&gt;(<span class="jxr_string">"Win32_Process"</span>, HandleCountProperty.<strong class="jxr_keyword">class</strong>);
 <a class="jxr_linenumber" name="L95" href="#L95">95</a>          }
@@ -215,7 +215,7 @@
 <a class="jxr_linenumber" name="L207" href="#L207">207</a>         <strong class="jxr_keyword">long</strong> total;
 <a class="jxr_linenumber" name="L208" href="#L208">208</a>         List&lt;OSFileStore&gt; fs = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
 <a class="jxr_linenumber" name="L209" href="#L209">209</a> 
-<a class="jxr_linenumber" name="L210" href="#L210">210</a>         WmiResult&lt;LogicalDiskProperty&gt; drives = WmiUtil.queryWMI(LOGICAL_DISK_QUERY);
+<a class="jxr_linenumber" name="L210" href="#L210">210</a>         WmiResult&lt;LogicalDiskProperty&gt; drives = WmiUtil.queryWMI(<strong class="jxr_keyword">this</strong>.LOGICAL_DISK_QUERY);
 <a class="jxr_linenumber" name="L211" href="#L211">211</a> 
 <a class="jxr_linenumber" name="L212" href="#L212">212</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; drives.getResultCount(); i++) {
 <a class="jxr_linenumber" name="L213" href="#L213">213</a>             free = WmiUtil.getUint64(drives, LogicalDiskProperty.FREESPACE, i);
@@ -270,7 +270,7 @@
 <a class="jxr_linenumber" name="L262" href="#L262">262</a>     @Override
 <a class="jxr_linenumber" name="L263" href="#L263">263</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getOpenFileDescriptors() {
 <a class="jxr_linenumber" name="L264" href="#L264">264</a>         <em class="jxr_comment">// Try PDH if counter exists</em>
-<a class="jxr_linenumber" name="L265" href="#L265">265</a>         <strong class="jxr_keyword">if</strong> (handleCountCounter != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L265" href="#L265">265</a>         <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.handleCountCounter != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L266" href="#L266">266</a>             PerfDataUtil.updateQuery(<strong class="jxr_keyword">this</strong>.handleCountCounter);
 <a class="jxr_linenumber" name="L267" href="#L267">267</a>             <strong class="jxr_keyword">return</strong> PerfDataUtil.queryCounter(<strong class="jxr_keyword">this</strong>.handleCountCounter);
 <a class="jxr_linenumber" name="L268" href="#L268">268</a>         }

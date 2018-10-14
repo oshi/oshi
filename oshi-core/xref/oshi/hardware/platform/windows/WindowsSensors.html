@@ -156,8 +156,8 @@
 <a class="jxr_linenumber" name="L148" href="#L148">148</a>         <em class="jxr_comment">// If we get this far, OHM is not running. Try from PDH</em>
 <a class="jxr_linenumber" name="L149" href="#L149">149</a>         <strong class="jxr_keyword">long</strong> tempK = 0L;
 <a class="jxr_linenumber" name="L150" href="#L150">150</a>         <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.thermalZoneQuery == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L151" href="#L151">151</a>             PerfDataUtil.updateQuery(thermalZoneCounter);
-<a class="jxr_linenumber" name="L152" href="#L152">152</a>             tempK = PerfDataUtil.queryCounter(thermalZoneCounter);
+<a class="jxr_linenumber" name="L151" href="#L151">151</a>             PerfDataUtil.updateQuery(<strong class="jxr_keyword">this</strong>.thermalZoneCounter);
+<a class="jxr_linenumber" name="L152" href="#L152">152</a>             tempK = PerfDataUtil.queryCounter(<strong class="jxr_keyword">this</strong>.thermalZoneCounter);
 <a class="jxr_linenumber" name="L153" href="#L153">153</a>         } <strong class="jxr_keyword">else</strong> {
 <a class="jxr_linenumber" name="L154" href="#L154">154</a>             <em class="jxr_comment">// No counter, use WMI</em>
 <a class="jxr_linenumber" name="L155" href="#L155">155</a>             WmiResult&lt;ThermalZoneProperty&gt; result = WmiUtil.queryWMI(<strong class="jxr_keyword">this</strong>.thermalZoneQuery);

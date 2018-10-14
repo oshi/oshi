@@ -123,7 +123,7 @@ import java.io.Serializable;
 
     /**
      * @return Returns the process current working directory.
-     * 
+     *
      *         On Windows, this value is only populated for the current process.
      */
     public String getCurrentWorkingDirectory() {
@@ -528,7 +528,7 @@ import java.io.Serializable;
     /**
      * Sets the number of open file handles (or network connections) that
      * belongs to the process
-     * 
+     *
      * @param count
      *            The number of handles
      */
@@ -542,16 +542,16 @@ import java.io.Serializable;
      *
      * On FreeBSD and Solaris, this value is only populated if information for a
      * single process id is requested.
-     * 
+     *
      * @return open files or -1 if unknown or not supported
      */
     public long getOpenFiles() {
-<span class="fc" id="L549">        return openFiles;</span>
+<span class="fc" id="L549">        return this.openFiles;</span>
     }
 
     /**
      * Calculates CPU usage of this process.
-     * 
+     *
      * @return The proportion of up time that the process was executing in
      *         kernel or user mode.
      */
@@ -569,8 +569,8 @@ import java.io.Serializable;
     public String toString() {
 <span class="nc" id="L570">        StringBuilder builder = new StringBuilder(&quot;OSProcess@&quot;);</span>
 <span class="nc" id="L571">        builder.append(Integer.toHexString(hashCode()));</span>
-<span class="nc" id="L572">        builder.append(&quot;[processID=&quot;).append(processID);</span>
-<span class="nc" id="L573">        builder.append(&quot;, name=&quot;).append(name).append(']');</span>
+<span class="nc" id="L572">        builder.append(&quot;[processID=&quot;).append(this.processID);</span>
+<span class="nc" id="L573">        builder.append(&quot;, name=&quot;).append(this.name).append(']');</span>
 <span class="nc" id="L574">        return builder.toString();</span>
     }
 }

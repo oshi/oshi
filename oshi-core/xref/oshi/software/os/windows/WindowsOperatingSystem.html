@@ -140,7 +140,7 @@
 <a class="jxr_linenumber" name="L132" href="#L132">132</a>         <strong class="jxr_keyword">int</strong> ioWriteIndex;
 <a class="jxr_linenumber" name="L133" href="#L133">133</a>         <strong class="jxr_keyword">int</strong> workingSetPrivateIndex;
 <a class="jxr_linenumber" name="L134" href="#L134">134</a>         <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L135" href="#L135">135</a>             processIndex = PdhUtil.PdhLookupPerfIndexByEnglishName(<span class="jxr_string">"Process"</span>);
+<a class="jxr_linenumber" name="L135" href="#L135">135</a>             <strong class="jxr_keyword">this</strong>.processIndex = PdhUtil.PdhLookupPerfIndexByEnglishName(<span class="jxr_string">"Process"</span>);
 <a class="jxr_linenumber" name="L136" href="#L136">136</a>             priorityBaseIndex = PdhUtil.PdhLookupPerfIndexByEnglishName(<span class="jxr_string">"Priority Base"</span>);
 <a class="jxr_linenumber" name="L137" href="#L137">137</a>             elapsedTimeIndex = PdhUtil.PdhLookupPerfIndexByEnglishName(<span class="jxr_string">"Elapsed Time"</span>);
 <a class="jxr_linenumber" name="L138" href="#L138">138</a>             idProcessIndex = PdhUtil.PdhLookupPerfIndexByEnglishName(<span class="jxr_string">"ID Process"</span>);
@@ -152,7 +152,7 @@
 <a class="jxr_linenumber" name="L144" href="#L144">144</a>             LOG.error(<span class="jxr_string">"Unable to locate English counter names in registry Perflib 009. Assuming English counters."</span>);
 <a class="jxr_linenumber" name="L145" href="#L145">145</a>             DWORDByReference index = <strong class="jxr_keyword">new</strong> DWORDByReference();
 <a class="jxr_linenumber" name="L146" href="#L146">146</a>             Pdh.INSTANCE.PdhLookupPerfIndexByName(<strong class="jxr_keyword">null</strong>, <span class="jxr_string">"Process"</span>, index);
-<a class="jxr_linenumber" name="L147" href="#L147">147</a>             processIndex = index.getValue().intValue();
+<a class="jxr_linenumber" name="L147" href="#L147">147</a>             <strong class="jxr_keyword">this</strong>.processIndex = index.getValue().intValue();
 <a class="jxr_linenumber" name="L148" href="#L148">148</a>             Pdh.INSTANCE.PdhLookupPerfIndexByName(<strong class="jxr_keyword">null</strong>, <span class="jxr_string">"Priority Base"</span>, index);
 <a class="jxr_linenumber" name="L149" href="#L149">149</a>             priorityBaseIndex = index.getValue().intValue();
 <a class="jxr_linenumber" name="L150" href="#L150">150</a>             Pdh.INSTANCE.PdhLookupPerfIndexByName(<strong class="jxr_keyword">null</strong>, <span class="jxr_string">"Elapsed Time"</span>, index);
@@ -168,15 +168,15 @@
 <a class="jxr_linenumber" name="L160" href="#L160">160</a>             Pdh.INSTANCE.PdhLookupPerfIndexByName(<strong class="jxr_keyword">null</strong>, <span class="jxr_string">"Working Set - Private"</span>, index);
 <a class="jxr_linenumber" name="L161" href="#L161">161</a>             workingSetPrivateIndex = index.getValue().intValue();
 <a class="jxr_linenumber" name="L162" href="#L162">162</a>         }
-<a class="jxr_linenumber" name="L163" href="#L163">163</a>         processIndexStr = Integer.toString(processIndex);
+<a class="jxr_linenumber" name="L163" href="#L163">163</a>         <strong class="jxr_keyword">this</strong>.processIndexStr = Integer.toString(<strong class="jxr_keyword">this</strong>.processIndex);
 <a class="jxr_linenumber" name="L164" href="#L164">164</a> 
 <a class="jxr_linenumber" name="L165" href="#L165">165</a>         <em class="jxr_comment">// now load the Process registry to match up the offsets</em>
 <a class="jxr_linenumber" name="L166" href="#L166">166</a>         <em class="jxr_comment">// Sequentially increase the buffer until everything fits.</em>
 <a class="jxr_linenumber" name="L167" href="#L167">167</a>         <em class="jxr_comment">// Save this buffer size for later use</em>
 <a class="jxr_linenumber" name="L168" href="#L168">168</a>         IntByReference lpcbData = <strong class="jxr_keyword">new</strong> IntByReference(<strong class="jxr_keyword">this</strong>.perfDataBufferSize);
 <a class="jxr_linenumber" name="L169" href="#L169">169</a>         Pointer pPerfData = <strong class="jxr_keyword">new</strong> Memory(<strong class="jxr_keyword">this</strong>.perfDataBufferSize);
-<a class="jxr_linenumber" name="L170" href="#L170">170</a>         <strong class="jxr_keyword">int</strong> ret = Advapi32.INSTANCE.RegQueryValueEx(WinReg.HKEY_PERFORMANCE_DATA, processIndexStr, 0, <strong class="jxr_keyword">null</strong>, pPerfData,
-<a class="jxr_linenumber" name="L171" href="#L171">171</a>                 lpcbData);
+<a class="jxr_linenumber" name="L170" href="#L170">170</a>         <strong class="jxr_keyword">int</strong> ret = Advapi32.INSTANCE.RegQueryValueEx(WinReg.HKEY_PERFORMANCE_DATA, <strong class="jxr_keyword">this</strong>.processIndexStr, 0, <strong class="jxr_keyword">null</strong>,
+<a class="jxr_linenumber" name="L171" href="#L171">171</a>                 pPerfData, lpcbData);
 <a class="jxr_linenumber" name="L172" href="#L172">172</a>         <strong class="jxr_keyword">if</strong> (ret != WinError.ERROR_SUCCESS &amp;&amp; ret != WinError.ERROR_MORE_DATA) {
 <a class="jxr_linenumber" name="L173" href="#L173">173</a>             LOG.error(<span class="jxr_string">"Error {} reading HKEY_PERFORMANCE_DATA from the registry."</span>, ret);
 <a class="jxr_linenumber" name="L174" href="#L174">174</a>             <strong class="jxr_keyword">return</strong>;
@@ -185,8 +185,8 @@
 <a class="jxr_linenumber" name="L177" href="#L177">177</a>             <strong class="jxr_keyword">this</strong>.perfDataBufferSize += 4096;
 <a class="jxr_linenumber" name="L178" href="#L178">178</a>             lpcbData.setValue(<strong class="jxr_keyword">this</strong>.perfDataBufferSize);
 <a class="jxr_linenumber" name="L179" href="#L179">179</a>             pPerfData = <strong class="jxr_keyword">new</strong> Memory(<strong class="jxr_keyword">this</strong>.perfDataBufferSize);
-<a class="jxr_linenumber" name="L180" href="#L180">180</a>             ret = Advapi32.INSTANCE.RegQueryValueEx(WinReg.HKEY_PERFORMANCE_DATA, processIndexStr, 0, <strong class="jxr_keyword">null</strong>, pPerfData,
-<a class="jxr_linenumber" name="L181" href="#L181">181</a>                     lpcbData);
+<a class="jxr_linenumber" name="L180" href="#L180">180</a>             ret = Advapi32.INSTANCE.RegQueryValueEx(WinReg.HKEY_PERFORMANCE_DATA, <strong class="jxr_keyword">this</strong>.processIndexStr, 0, <strong class="jxr_keyword">null</strong>,
+<a class="jxr_linenumber" name="L181" href="#L181">181</a>                     pPerfData, lpcbData);
 <a class="jxr_linenumber" name="L182" href="#L182">182</a>         }
 <a class="jxr_linenumber" name="L183" href="#L183">183</a> 
 <a class="jxr_linenumber" name="L184" href="#L184">184</a>         <a href="../../../../oshi/jna/platform/windows/WinPerf.html">PERF_DATA_BLOCK</a> perfData = <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/jna/platform/windows/WinPerf.html">PERF_DATA_BLOCK</a>(pPerfData.share(0));
@@ -209,7 +209,7 @@
 <a class="jxr_linenumber" name="L201" href="#L201">201</a>             <em class="jxr_comment">// Identify where counter definitions start</em>
 <a class="jxr_linenumber" name="L202" href="#L202">202</a>             <strong class="jxr_keyword">long</strong> perfCounterOffset = perfObjectOffset + perfObject.HeaderLength;
 <a class="jxr_linenumber" name="L203" href="#L203">203</a>             <em class="jxr_comment">// If this isn't the Process object, ignore</em>
-<a class="jxr_linenumber" name="L204" href="#L204">204</a>             <strong class="jxr_keyword">if</strong> (perfObject.ObjectNameTitleIndex == processIndex) {
+<a class="jxr_linenumber" name="L204" href="#L204">204</a>             <strong class="jxr_keyword">if</strong> (perfObject.ObjectNameTitleIndex == <strong class="jxr_keyword">this</strong>.processIndex) {
 <a class="jxr_linenumber" name="L205" href="#L205">205</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> counter = 0; counter &lt; perfObject.NumCounters; counter++) {
 <a class="jxr_linenumber" name="L206" href="#L206">206</a>                     <a href="../../../../oshi/jna/platform/windows/WinPerf.html">PERF_COUNTER_DEFINITION</a> perfCounter = <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/jna/platform/windows/WinPerf.html">PERF_COUNTER_DEFINITION</a>(
 <a class="jxr_linenumber" name="L207" href="#L207">207</a>                             pPerfData.share(perfCounterOffset));
@@ -242,7 +242,7 @@
 <a class="jxr_linenumber" name="L234" href="#L234">234</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> initBitness() {
 <a class="jxr_linenumber" name="L235" href="#L235">235</a>         <em class="jxr_comment">// If bitness is 64 we are 64 bit.</em>
 <a class="jxr_linenumber" name="L236" href="#L236">236</a>         <em class="jxr_comment">// If 32 test if we are on 64-bit OS</em>
-<a class="jxr_linenumber" name="L237" href="#L237">237</a>         <strong class="jxr_keyword">if</strong> (bitness &lt; 64) {
+<a class="jxr_linenumber" name="L237" href="#L237">237</a>         <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.bitness &lt; 64) {
 <a class="jxr_linenumber" name="L238" href="#L238">238</a>             <em class="jxr_comment">// Try the easy way</em>
 <a class="jxr_linenumber" name="L239" href="#L239">239</a>             <strong class="jxr_keyword">if</strong> (System.getenv(<span class="jxr_string">"ProgramFiles(x86)"</span>) != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L240" href="#L240">240</a>                 <strong class="jxr_keyword">this</strong>.bitness = 64;
@@ -371,7 +371,7 @@
 <a class="jxr_linenumber" name="L363" href="#L363">363</a>                 proc.setName(procInfo.pProcessName);
 <a class="jxr_linenumber" name="L364" href="#L364">364</a>             } <strong class="jxr_keyword">else</strong> {
 <a class="jxr_linenumber" name="L365" href="#L365">365</a>                 proc = <strong class="jxr_keyword">this</strong>.processMap.get(pid);
-<a class="jxr_linenumber" name="L366" href="#L366">366</a>                 <strong class="jxr_keyword">if</strong> (proc == <strong class="jxr_keyword">null</strong> || (pids != <strong class="jxr_keyword">null</strong> &amp;&amp; !pids.contains(pid))) {
+<a class="jxr_linenumber" name="L366" href="#L366">366</a>                 <strong class="jxr_keyword">if</strong> (proc == <strong class="jxr_keyword">null</strong> || pids != <strong class="jxr_keyword">null</strong> &amp;&amp; !pids.contains(pid)) {
 <a class="jxr_linenumber" name="L367" href="#L367">367</a>                     <strong class="jxr_keyword">continue</strong>;
 <a class="jxr_linenumber" name="L368" href="#L368">368</a>                 }
 <a class="jxr_linenumber" name="L369" href="#L369">369</a>             }
@@ -491,8 +491,8 @@
 <a class="jxr_linenumber" name="L483" href="#L483">483</a>         <em class="jxr_comment">// Sequentially increase the buffer until everything fits.</em>
 <a class="jxr_linenumber" name="L484" href="#L484">484</a>         IntByReference lpcbData = <strong class="jxr_keyword">new</strong> IntByReference(<strong class="jxr_keyword">this</strong>.perfDataBufferSize);
 <a class="jxr_linenumber" name="L485" href="#L485">485</a>         Pointer pPerfData = <strong class="jxr_keyword">new</strong> Memory(<strong class="jxr_keyword">this</strong>.perfDataBufferSize);
-<a class="jxr_linenumber" name="L486" href="#L486">486</a>         <strong class="jxr_keyword">int</strong> ret = Advapi32.INSTANCE.RegQueryValueEx(WinReg.HKEY_PERFORMANCE_DATA, processIndexStr, 0, <strong class="jxr_keyword">null</strong>, pPerfData,
-<a class="jxr_linenumber" name="L487" href="#L487">487</a>                 lpcbData);
+<a class="jxr_linenumber" name="L486" href="#L486">486</a>         <strong class="jxr_keyword">int</strong> ret = Advapi32.INSTANCE.RegQueryValueEx(WinReg.HKEY_PERFORMANCE_DATA, <strong class="jxr_keyword">this</strong>.processIndexStr, 0, <strong class="jxr_keyword">null</strong>,
+<a class="jxr_linenumber" name="L487" href="#L487">487</a>                 pPerfData, lpcbData);
 <a class="jxr_linenumber" name="L488" href="#L488">488</a>         <strong class="jxr_keyword">if</strong> (ret != WinError.ERROR_SUCCESS &amp;&amp; ret != WinError.ERROR_MORE_DATA) {
 <a class="jxr_linenumber" name="L489" href="#L489">489</a>             LOG.error(<span class="jxr_string">"Error {} reading HKEY_PERFORMANCE_DATA from the registry."</span>, ret);
 <a class="jxr_linenumber" name="L490" href="#L490">490</a>             <strong class="jxr_keyword">return</strong>;
@@ -501,8 +501,8 @@
 <a class="jxr_linenumber" name="L493" href="#L493">493</a>             <strong class="jxr_keyword">this</strong>.perfDataBufferSize += 4096;
 <a class="jxr_linenumber" name="L494" href="#L494">494</a>             lpcbData.setValue(<strong class="jxr_keyword">this</strong>.perfDataBufferSize);
 <a class="jxr_linenumber" name="L495" href="#L495">495</a>             pPerfData = <strong class="jxr_keyword">new</strong> Memory(<strong class="jxr_keyword">this</strong>.perfDataBufferSize);
-<a class="jxr_linenumber" name="L496" href="#L496">496</a>             ret = Advapi32.INSTANCE.RegQueryValueEx(WinReg.HKEY_PERFORMANCE_DATA, processIndexStr, 0, <strong class="jxr_keyword">null</strong>, pPerfData,
-<a class="jxr_linenumber" name="L497" href="#L497">497</a>                     lpcbData);
+<a class="jxr_linenumber" name="L496" href="#L496">496</a>             ret = Advapi32.INSTANCE.RegQueryValueEx(WinReg.HKEY_PERFORMANCE_DATA, <strong class="jxr_keyword">this</strong>.processIndexStr, 0, <strong class="jxr_keyword">null</strong>,
+<a class="jxr_linenumber" name="L497" href="#L497">497</a>                     pPerfData, lpcbData);
 <a class="jxr_linenumber" name="L498" href="#L498">498</a>         }
 <a class="jxr_linenumber" name="L499" href="#L499">499</a> 
 <a class="jxr_linenumber" name="L500" href="#L500">500</a>         <a href="../../../../oshi/jna/platform/windows/WinPerf.html">PERF_DATA_BLOCK</a> perfData = <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/jna/platform/windows/WinPerf.html">PERF_DATA_BLOCK</a>(pPerfData.share(0));
@@ -525,7 +525,7 @@
 <a class="jxr_linenumber" name="L517" href="#L517">517</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> obj = 0; obj &lt; perfData.NumObjectTypes; obj++) {
 <a class="jxr_linenumber" name="L518" href="#L518">518</a>             <a href="../../../../oshi/jna/platform/windows/WinPerf.html">PERF_OBJECT_TYPE</a> perfObject = <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/jna/platform/windows/WinPerf.html">PERF_OBJECT_TYPE</a>(pPerfData.share(perfObjectOffset));
 <a class="jxr_linenumber" name="L519" href="#L519">519</a>             <em class="jxr_comment">// If this isn't the Process object, ignore</em>
-<a class="jxr_linenumber" name="L520" href="#L520">520</a>             <strong class="jxr_keyword">if</strong> (perfObject.ObjectNameTitleIndex == processIndex) {
+<a class="jxr_linenumber" name="L520" href="#L520">520</a>             <strong class="jxr_keyword">if</strong> (perfObject.ObjectNameTitleIndex == <strong class="jxr_keyword">this</strong>.processIndex) {
 <a class="jxr_linenumber" name="L521" href="#L521">521</a>                 <em class="jxr_comment">// Skip over counter definitions</em>
 <a class="jxr_linenumber" name="L522" href="#L522">522</a>                 <em class="jxr_comment">// There will be many of these, this points to the first one</em>
 <a class="jxr_linenumber" name="L523" href="#L523">523</a>                 <strong class="jxr_keyword">long</strong> perfInstanceOffset = perfObjectOffset + perfObject.DefinitionLength;

@@ -131,7 +131,7 @@
 <a class="jxr_linenumber" name="L123" href="#L123">123</a> 
 <a class="jxr_linenumber" name="L124" href="#L124">124</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L125" href="#L125">125</a> <em class="jxr_javadoccomment">     * @return Returns the process current working directory.</em>
-<a class="jxr_linenumber" name="L126" href="#L126">126</a> <em class="jxr_javadoccomment">     * </em>
+<a class="jxr_linenumber" name="L126" href="#L126">126</a> <em class="jxr_javadoccomment">     *</em>
 <a class="jxr_linenumber" name="L127" href="#L127">127</a> <em class="jxr_javadoccomment">     *         On Windows, this value is only populated for the current process.</em>
 <a class="jxr_linenumber" name="L128" href="#L128">128</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L129" href="#L129">129</a>     <strong class="jxr_keyword">public</strong> String getCurrentWorkingDirectory() {
@@ -536,7 +536,7 @@
 <a class="jxr_linenumber" name="L528" href="#L528">528</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L529" href="#L529">529</a> <em class="jxr_javadoccomment">     * Sets the number of open file handles (or network connections) that</em>
 <a class="jxr_linenumber" name="L530" href="#L530">530</a> <em class="jxr_javadoccomment">     * belongs to the process</em>
-<a class="jxr_linenumber" name="L531" href="#L531">531</a> <em class="jxr_javadoccomment">     * </em>
+<a class="jxr_linenumber" name="L531" href="#L531">531</a> <em class="jxr_javadoccomment">     *</em>
 <a class="jxr_linenumber" name="L532" href="#L532">532</a> <em class="jxr_javadoccomment">     * @param count</em>
 <a class="jxr_linenumber" name="L533" href="#L533">533</a> <em class="jxr_javadoccomment">     *            The number of handles</em>
 <a class="jxr_linenumber" name="L534" href="#L534">534</a> <em class="jxr_javadoccomment">     */</em>
@@ -550,16 +550,16 @@
 <a class="jxr_linenumber" name="L542" href="#L542">542</a> <em class="jxr_javadoccomment">     *</em>
 <a class="jxr_linenumber" name="L543" href="#L543">543</a> <em class="jxr_javadoccomment">     * On FreeBSD and Solaris, this value is only populated if information for a</em>
 <a class="jxr_linenumber" name="L544" href="#L544">544</a> <em class="jxr_javadoccomment">     * single process id is requested.</em>
-<a class="jxr_linenumber" name="L545" href="#L545">545</a> <em class="jxr_javadoccomment">     * </em>
+<a class="jxr_linenumber" name="L545" href="#L545">545</a> <em class="jxr_javadoccomment">     *</em>
 <a class="jxr_linenumber" name="L546" href="#L546">546</a> <em class="jxr_javadoccomment">     * @return open files or -1 if unknown or not supported</em>
 <a class="jxr_linenumber" name="L547" href="#L547">547</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L548" href="#L548">548</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getOpenFiles() {
-<a class="jxr_linenumber" name="L549" href="#L549">549</a>         <strong class="jxr_keyword">return</strong> openFiles;
+<a class="jxr_linenumber" name="L549" href="#L549">549</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.openFiles;
 <a class="jxr_linenumber" name="L550" href="#L550">550</a>     }
 <a class="jxr_linenumber" name="L551" href="#L551">551</a> 
 <a class="jxr_linenumber" name="L552" href="#L552">552</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L553" href="#L553">553</a> <em class="jxr_javadoccomment">     * Calculates CPU usage of this process.</em>
-<a class="jxr_linenumber" name="L554" href="#L554">554</a> <em class="jxr_javadoccomment">     * </em>
+<a class="jxr_linenumber" name="L554" href="#L554">554</a> <em class="jxr_javadoccomment">     *</em>
 <a class="jxr_linenumber" name="L555" href="#L555">555</a> <em class="jxr_javadoccomment">     * @return The proportion of up time that the process was executing in</em>
 <a class="jxr_linenumber" name="L556" href="#L556">556</a> <em class="jxr_javadoccomment">     *         kernel or user mode.</em>
 <a class="jxr_linenumber" name="L557" href="#L557">557</a> <em class="jxr_javadoccomment">     */</em>
@@ -577,8 +577,8 @@
 <a class="jxr_linenumber" name="L569" href="#L569">569</a>     <strong class="jxr_keyword">public</strong> String toString() {
 <a class="jxr_linenumber" name="L570" href="#L570">570</a>         StringBuilder builder = <strong class="jxr_keyword">new</strong> StringBuilder(<span class="jxr_string">"OSProcess@"</span>);
 <a class="jxr_linenumber" name="L571" href="#L571">571</a>         builder.append(Integer.toHexString(hashCode()));
-<a class="jxr_linenumber" name="L572" href="#L572">572</a>         builder.append(<span class="jxr_string">"[processID="</span>).append(processID);
-<a class="jxr_linenumber" name="L573" href="#L573">573</a>         builder.append(<span class="jxr_string">", name="</span>).append(name).append(']');
+<a class="jxr_linenumber" name="L572" href="#L572">572</a>         builder.append(<span class="jxr_string">"[processID="</span>).append(<strong class="jxr_keyword">this</strong>.processID);
+<a class="jxr_linenumber" name="L573" href="#L573">573</a>         builder.append(<span class="jxr_string">", name="</span>).append(<strong class="jxr_keyword">this</strong>.name).append(']');
 <a class="jxr_linenumber" name="L574" href="#L574">574</a>         <strong class="jxr_keyword">return</strong> builder.toString();
 <a class="jxr_linenumber" name="L575" href="#L575">575</a>     }
 <a class="jxr_linenumber" name="L576" href="#L576">576</a> }

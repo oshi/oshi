@@ -116,7 +116,7 @@
 <a class="jxr_linenumber" name="L108" href="#L108">108</a> <em class="jxr_comment">     * For disk query</em>
 <a class="jxr_linenumber" name="L109" href="#L109">109</a> <em class="jxr_comment">     */</em>
 <a class="jxr_linenumber" name="L110" href="#L110">110</a>     enum <a href="../../../../oshi/hardware/platform/windows/WindowsDisks.html">PhysicalDiskProperty</a> {
-<a class="jxr_linenumber" name="L111" href="#L111">111</a>         NAME, DISKREADSPERSEC, DISKREADBYTESPERSEC, DISKWRITESPERSEC, DISKWRITEBYTESPERSEC, CURRENTDISKQUEUELENGTH, PERCENTDISKTIME, TIMESTAMP_SYS100NS;
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>         NAME, DISKREADSPERSEC, DISKREADBYTESPERSEC, DISKWRITESPERSEC, DISKWRITEBYTESPERSEC, CURRENTDISKQUEUELENGTH, PERCENTIDLETIME, TIMESTAMP_SYS100NS;
 <a class="jxr_linenumber" name="L112" href="#L112">112</a>     }
 <a class="jxr_linenumber" name="L113" href="#L113">113</a> 
 <a class="jxr_linenumber" name="L114" href="#L114">114</a>     <em class="jxr_comment">// Only one of counter or query will be used</em>
@@ -170,7 +170,7 @@
 <a class="jxr_linenumber" name="L162" href="#L162">162</a>                         <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/jna/platform/windows/PdhUtil.html">PdhException</a>(0);
 <a class="jxr_linenumber" name="L163" href="#L163">163</a>                     }
 <a class="jxr_linenumber" name="L164" href="#L164">164</a> 
-<a class="jxr_linenumber" name="L165" href="#L165">165</a>                     counter = PerfDataUtil.createCounter(PHYSICAL_DISK, instance, <span class="jxr_string">"% Disk Time"</span>);
+<a class="jxr_linenumber" name="L165" href="#L165">165</a>                     counter = PerfDataUtil.createCounter(PHYSICAL_DISK, instance, <span class="jxr_string">"% Idle Time"</span>);
 <a class="jxr_linenumber" name="L166" href="#L166">166</a>                     diskXferTimeCounterMap.put(instance, counter);
 <a class="jxr_linenumber" name="L167" href="#L167">167</a>                     <strong class="jxr_keyword">if</strong> (!PerfDataUtil.addCounterToQuery(counter)) {
 <a class="jxr_linenumber" name="L168" href="#L168">168</a>                         <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/jna/platform/windows/PdhUtil.html">PdhException</a>(0);
@@ -222,9 +222,9 @@
 <a class="jxr_linenumber" name="L214" href="#L214">214</a>             diskStore.setReadBytes(MapUtil.getOrDefault(readByteMap, index, 0L));
 <a class="jxr_linenumber" name="L215" href="#L215">215</a>             diskStore.setWrites(MapUtil.getOrDefault(writeMap, index, 0L));
 <a class="jxr_linenumber" name="L216" href="#L216">216</a>             diskStore.setWriteBytes(MapUtil.getOrDefault(writeByteMap, index, 0L));
-<a class="jxr_linenumber" name="L217" href="#L217">217</a>             diskStore.setTransferTime(MapUtil.getOrDefault(queueLengthMap, index, 0L));
-<a class="jxr_linenumber" name="L218" href="#L218">218</a>             diskStore.setTransferTime(MapUtil.getOrDefault(xferTimeMap, index, 0L));
-<a class="jxr_linenumber" name="L219" href="#L219">219</a>             diskStore.setTimeStamp(MapUtil.getOrDefault(timeStampMap, index, 0L));
+<a class="jxr_linenumber" name="L217" href="#L217">217</a>             diskStore.setCurrentQueueLength(MapUtil.getOrDefault(queueLengthMap, index, 0L));
+<a class="jxr_linenumber" name="L218" href="#L218">218</a>             diskStore.setTimeStamp(MapUtil.getOrDefault(timeStampMap, index, 0L));
+<a class="jxr_linenumber" name="L219" href="#L219">219</a>             diskStore.setTransferTime(diskStore.getTimeStamp() - MapUtil.getOrDefault(xferTimeMap, index, 0L));
 <a class="jxr_linenumber" name="L220" href="#L220">220</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
 <a class="jxr_linenumber" name="L221" href="#L221">221</a>         } <strong class="jxr_keyword">else</strong> {
 <a class="jxr_linenumber" name="L222" href="#L222">222</a>             <strong class="jxr_keyword">return</strong> false;
@@ -254,8 +254,8 @@
 <a class="jxr_linenumber" name="L246" href="#L246">246</a>             ds.setWrites(MapUtil.getOrDefault(writeMap, index, 0L));
 <a class="jxr_linenumber" name="L247" href="#L247">247</a>             ds.setWriteBytes(MapUtil.getOrDefault(writeByteMap, index, 0L));
 <a class="jxr_linenumber" name="L248" href="#L248">248</a>             ds.setCurrentQueueLength(MapUtil.getOrDefault(queueLengthMap, index, 0L));
-<a class="jxr_linenumber" name="L249" href="#L249">249</a>             ds.setTransferTime(MapUtil.getOrDefault(xferTimeMap, index, 0L));
-<a class="jxr_linenumber" name="L250" href="#L250">250</a>             ds.setTimeStamp(MapUtil.getOrDefault(timeStampMap, index, 0L));
+<a class="jxr_linenumber" name="L249" href="#L249">249</a>             ds.setTimeStamp(MapUtil.getOrDefault(timeStampMap, index, 0L));
+<a class="jxr_linenumber" name="L250" href="#L250">250</a>             ds.setTransferTime(ds.getTimeStamp() - MapUtil.getOrDefault(xferTimeMap, index, 0L));
 <a class="jxr_linenumber" name="L251" href="#L251">251</a>             ds.setSize(WmiUtil.getUint64(vals, DiskDriveProperty.SIZE, i));
 <a class="jxr_linenumber" name="L252" href="#L252">252</a>             <em class="jxr_comment">// Get partitions</em>
 <a class="jxr_linenumber" name="L253" href="#L253">253</a>             List&lt;HWPartition&gt; partitions = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
@@ -277,7 +277,7 @@
 <a class="jxr_linenumber" name="L269" href="#L269">269</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L270" href="#L270">270</a> <em class="jxr_javadoccomment">     * Populates the maps for the specified index. If the index is null,</em>
 <a class="jxr_linenumber" name="L271" href="#L271">271</a> <em class="jxr_javadoccomment">     * populates all the maps</em>
-<a class="jxr_linenumber" name="L272" href="#L272">272</a> <em class="jxr_javadoccomment">     * </em>
+<a class="jxr_linenumber" name="L272" href="#L272">272</a> <em class="jxr_javadoccomment">     *</em>
 <a class="jxr_linenumber" name="L273" href="#L273">273</a> <em class="jxr_javadoccomment">     * @param index</em>
 <a class="jxr_linenumber" name="L274" href="#L274">274</a> <em class="jxr_javadoccomment">     *            The index to populate/update maps for</em>
 <a class="jxr_linenumber" name="L275" href="#L275">275</a> <em class="jxr_javadoccomment">     */</em>
@@ -297,7 +297,7 @@
 <a class="jxr_linenumber" name="L289" href="#L289">289</a>             WmiResult&lt;PhysicalDiskProperty&gt; result = WmiUtil.queryWMI(physicalDiskQuery);
 <a class="jxr_linenumber" name="L290" href="#L290">290</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; result.getResultCount(); i++) {
 <a class="jxr_linenumber" name="L291" href="#L291">291</a>                 String name = getIndexFromName(WmiUtil.getString(result, PhysicalDiskProperty.NAME, i));
-<a class="jxr_linenumber" name="L292" href="#L292">292</a>                 <strong class="jxr_keyword">if</strong> ((index != <strong class="jxr_keyword">null</strong> &amp;&amp; !index.equals(name)) || TOTAL_INSTANCE.equals(name)) {
+<a class="jxr_linenumber" name="L292" href="#L292">292</a>                 <strong class="jxr_keyword">if</strong> (index != <strong class="jxr_keyword">null</strong> &amp;&amp; !index.equals(name) || TOTAL_INSTANCE.equals(name)) {
 <a class="jxr_linenumber" name="L293" href="#L293">293</a>                     <strong class="jxr_keyword">continue</strong>;
 <a class="jxr_linenumber" name="L294" href="#L294">294</a>                 }
 <a class="jxr_linenumber" name="L295" href="#L295">295</a>                 readMap.put(name, WmiUtil.getUint32asLong(result, PhysicalDiskProperty.DISKREADSPERSEC, i));
@@ -305,7 +305,7 @@
 <a class="jxr_linenumber" name="L297" href="#L297">297</a>                 writeMap.put(name, WmiUtil.getUint32asLong(result, PhysicalDiskProperty.DISKWRITESPERSEC, i));
 <a class="jxr_linenumber" name="L298" href="#L298">298</a>                 writeByteMap.put(name, WmiUtil.getUint64(result, PhysicalDiskProperty.DISKWRITEBYTESPERSEC, i));
 <a class="jxr_linenumber" name="L299" href="#L299">299</a>                 queueLengthMap.put(name, WmiUtil.getUint64(result, PhysicalDiskProperty.CURRENTDISKQUEUELENGTH, i));
-<a class="jxr_linenumber" name="L300" href="#L300">300</a>                 xferTimeMap.put(name, WmiUtil.getUint64(result, PhysicalDiskProperty.PERCENTDISKTIME, i) / 10000L);
+<a class="jxr_linenumber" name="L300" href="#L300">300</a>                 xferTimeMap.put(name, WmiUtil.getUint64(result, PhysicalDiskProperty.PERCENTIDLETIME, i) / 10000L);
 <a class="jxr_linenumber" name="L301" href="#L301">301</a>                 <strong class="jxr_keyword">long</strong> timestamp = WmiUtil.getUint64(result, PhysicalDiskProperty.TIMESTAMP_SYS100NS, i);
 <a class="jxr_linenumber" name="L302" href="#L302">302</a>                 timeStampMap.put(name,
 <a class="jxr_linenumber" name="L303" href="#L303">303</a>                         timestamp &gt; 0 ? PerfDataUtil.filetimeToUtcMs(timestamp, false) : System.currentTimeMillis());
@@ -370,7 +370,7 @@
 <a class="jxr_linenumber" name="L362" href="#L362">362</a>             }
 <a class="jxr_linenumber" name="L363" href="#L363">363</a> 
 <a class="jxr_linenumber" name="L364" href="#L364">364</a>             <strong class="jxr_keyword">if</strong> (!diskXferTimeCounterMap.containsKey(instance)) {
-<a class="jxr_linenumber" name="L365" href="#L365">365</a>                 <a href="../../../../oshi/util/platform/windows/PerfDataUtil.html">PerfCounter</a> counter = PerfDataUtil.createCounter(PHYSICAL_DISK, instance, <span class="jxr_string">"% Disk Time"</span>);
+<a class="jxr_linenumber" name="L365" href="#L365">365</a>                 <a href="../../../../oshi/util/platform/windows/PerfDataUtil.html">PerfCounter</a> counter = PerfDataUtil.createCounter(PHYSICAL_DISK, instance, <span class="jxr_string">"% Idle Time"</span>);
 <a class="jxr_linenumber" name="L366" href="#L366">366</a>                 diskXferTimeCounterMap.put(instance, counter);
 <a class="jxr_linenumber" name="L367" href="#L367">367</a>                 <strong class="jxr_keyword">if</strong> (!PerfDataUtil.addCounterToQuery(counter)) {
 <a class="jxr_linenumber" name="L368" href="#L368">368</a>                     diskXferTimeCounterMap.remove(instance);
@@ -468,7 +468,7 @@
 <a class="jxr_linenumber" name="L460" href="#L460">460</a> 
 <a class="jxr_linenumber" name="L461" href="#L461">461</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L462" href="#L462">462</a> <em class="jxr_javadoccomment">     * Parse a drive name like "0 C:" to just the index "0"</em>
-<a class="jxr_linenumber" name="L463" href="#L463">463</a> <em class="jxr_javadoccomment">     * </em>
+<a class="jxr_linenumber" name="L463" href="#L463">463</a> <em class="jxr_javadoccomment">     *</em>
 <a class="jxr_linenumber" name="L464" href="#L464">464</a> <em class="jxr_javadoccomment">     * @param s</em>
 <a class="jxr_linenumber" name="L465" href="#L465">465</a> <em class="jxr_javadoccomment">     *            A drive name to parse</em>
 <a class="jxr_linenumber" name="L466" href="#L466">466</a> <em class="jxr_javadoccomment">     * @return The first space-delimited value</em>

@@ -31,7 +31,7 @@
 <a class="jxr_linenumber" name="L23" href="#L23">23</a>  
 <a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.common.AbstractSoundCard;
 <a class="jxr_linenumber" name="L25" href="#L25">25</a>  <strong class="jxr_keyword">import</strong> oshi.util.FileUtil;
-<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <strong class="jxr_keyword">import</strong> oshi.util.StringUtil;
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <strong class="jxr_keyword">import</strong> oshi.util.ParseUtil;
 <a class="jxr_linenumber" name="L27" href="#L27">27</a>  
 <a class="jxr_linenumber" name="L28" href="#L28">28</a>  <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L29" href="#L29">29</a>  <em class="jxr_javadoccomment"> * Sound card data obtained via system_profiler</em>
@@ -79,7 +79,7 @@
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>              }
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>              <strong class="jxr_keyword">if</strong> (version) {
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>                  kernelVersion = <span class="jxr_string">"AppleHDAController "</span>
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>                          + StringUtil.textBetweenStrings(checkLine, <span class="jxr_string">"&lt;string&gt;"</span>, <span class="jxr_string">"&lt;/string&gt;"</span>);
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>                          + ParseUtil.getTextBetweenStrings(checkLine, <span class="jxr_string">"&lt;string&gt;"</span>, <span class="jxr_string">"&lt;/string&gt;"</span>);
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>                  version = false;
 <a class="jxr_linenumber" name="L76" href="#L76">76</a>              }
 <a class="jxr_linenumber" name="L77" href="#L77">77</a>          }
