@@ -111,6 +111,6 @@ public class SolarisHardwareAbstractionLayer extends AbstractHardwareAbstraction
 
     @Override
     public SoundCard[] getSoundCards() {
-        return new SoundCard[0];
+        return SolarisSoundCard.getSoundCards().toArray(new SoundCard[0]);
     }
 }
