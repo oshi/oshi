@@ -241,11 +241,11 @@
 <a class="jxr_linenumber" name="L233" href="#L233">233</a>         }
 <a class="jxr_linenumber" name="L234" href="#L234">234</a>         proc.setUserID(ParseUtil.whitespaces.split(MapUtil.getOrDefault(status, <span class="jxr_string">"Uid"</span>, <span class="jxr_string">""</span>))[0]);
 <a class="jxr_linenumber" name="L235" href="#L235">235</a>         proc.setGroupID(ParseUtil.whitespaces.split(MapUtil.getOrDefault(status, <span class="jxr_string">"Gid"</span>, <span class="jxr_string">""</span>))[0]);
-<a class="jxr_linenumber" name="L236" href="#L236">236</a>         <a href="../../../../oshi/software/os/OSUser.html">OSUser</a> user = userGroupInfo.getUser(proc.getUserID());
+<a class="jxr_linenumber" name="L236" href="#L236">236</a>         <a href="../../../../oshi/software/os/OSUser.html">OSUser</a> user = <strong class="jxr_keyword">this</strong>.userGroupInfo.getUser(proc.getUserID());
 <a class="jxr_linenumber" name="L237" href="#L237">237</a>         <strong class="jxr_keyword">if</strong> (user != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L238" href="#L238">238</a>             proc.setUser(user.getUserName());
 <a class="jxr_linenumber" name="L239" href="#L239">239</a>         }
-<a class="jxr_linenumber" name="L240" href="#L240">240</a>         proc.setGroup(userGroupInfo.getGroupName(proc.getGroupID()));
+<a class="jxr_linenumber" name="L240" href="#L240">240</a>         proc.setGroup(<strong class="jxr_keyword">this</strong>.userGroupInfo.getGroupName(proc.getGroupID()));
 <a class="jxr_linenumber" name="L241" href="#L241">241</a> 
 <a class="jxr_linenumber" name="L242" href="#L242">242</a>         <em class="jxr_comment">// THe /proc/pid/cmdline value is null-delimited</em>
 <a class="jxr_linenumber" name="L243" href="#L243">243</a>         proc.setCommandLine(FileUtil.getStringFromFile(String.format(<span class="jxr_string">"/proc/%d/cmdline"</span>, pid)));
@@ -643,7 +643,7 @@
 <a class="jxr_linenumber" name="L635" href="#L635">635</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L636" href="#L636">636</a> <em class="jxr_javadoccomment">     * Gets Jiffies per second, useful for converting ticks to milliseconds and</em>
 <a class="jxr_linenumber" name="L637" href="#L637">637</a> <em class="jxr_javadoccomment">     * vice versa.</em>
-<a class="jxr_linenumber" name="L638" href="#L638">638</a> <em class="jxr_javadoccomment">     * </em>
+<a class="jxr_linenumber" name="L638" href="#L638">638</a> <em class="jxr_javadoccomment">     *</em>
 <a class="jxr_linenumber" name="L639" href="#L639">639</a> <em class="jxr_javadoccomment">     * @return Jiffies per second if it can be calculated. If not, returns 1000</em>
 <a class="jxr_linenumber" name="L640" href="#L640">640</a> <em class="jxr_javadoccomment">     *         which assumes jiffies equal milliseconds.</em>
 <a class="jxr_linenumber" name="L641" href="#L641">641</a> <em class="jxr_javadoccomment">     */</em>
@@ -654,7 +654,7 @@
 <a class="jxr_linenumber" name="L646" href="#L646">646</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L647" href="#L647">647</a> <em class="jxr_javadoccomment">     * Calculates Jiffies per second, useful for converting ticks to</em>
 <a class="jxr_linenumber" name="L648" href="#L648">648</a> <em class="jxr_javadoccomment">     * milliseconds and vice versa.</em>
-<a class="jxr_linenumber" name="L649" href="#L649">649</a> <em class="jxr_javadoccomment">     * </em>
+<a class="jxr_linenumber" name="L649" href="#L649">649</a> <em class="jxr_javadoccomment">     *</em>
 <a class="jxr_linenumber" name="L650" href="#L650">650</a> <em class="jxr_javadoccomment">     * @return Jiffies per second if it can be calculated. If not, returns 1000</em>
 <a class="jxr_linenumber" name="L651" href="#L651">651</a> <em class="jxr_javadoccomment">     *         which assumes jiffies equal milliseconds.</em>
 <a class="jxr_linenumber" name="L652" href="#L652">652</a> <em class="jxr_javadoccomment">     */</em>
