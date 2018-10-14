@@ -267,11 +267,11 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
             this.softIrqTickCounter = null;
             this.interruptsPerSecCounter = null;
 
-            processorTickCountQuery = new WmiQuery<>("Win32_PerfRawData_PerfOS_Processor WHERE NOT Name=\"_Total\"",
-                    ProcessorTickCountProperty.class);
-            systemTickCountQuery = new WmiQuery<>("Win32_PerfRawData_PerfOS_Processor WHERE Name=\"_Total\"",
+            this.processorTickCountQuery = new WmiQuery<>(
+                    "Win32_PerfRawData_PerfOS_Processor WHERE NOT Name=\"_Total\"", ProcessorTickCountProperty.class);
+            this.systemTickCountQuery = new WmiQuery<>("Win32_PerfRawData_PerfOS_Processor WHERE Name=\"_Total\"",
                     SystemTickCountProperty.class);
-            interruptsQuery = new WmiQuery<>("Win32_PerfRawData_PerfOS_Processor WHERE Name=\"_Total\"",
+            this.interruptsQuery = new WmiQuery<>("Win32_PerfRawData_PerfOS_Processor WHERE Name=\"_Total\"",
                     InterruptsProperty.class);
         }
     }

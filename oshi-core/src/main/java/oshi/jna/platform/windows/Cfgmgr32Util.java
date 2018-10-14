@@ -38,7 +38,7 @@ public abstract class Cfgmgr32Util {
         }
 
         public int getErrorCode() {
-            return errorCode;
+            return this.errorCode;
         }
     }
 
@@ -46,7 +46,7 @@ public abstract class Cfgmgr32Util {
      * Utility method to call Cfgmgr32's CM_Get_Device_ID that allocates the
      * required memory for the Buffer parameter based on the type mapping used,
      * calls to CM_Get_Device_ID, and returns the received string.
-     * 
+     *
      * @param devInst
      *            Caller-supplied device instance handle that is bound to the
      *            local machine.

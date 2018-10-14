@@ -81,15 +81,15 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
     private void initPdhCounters() {
         this.pagesInputPerSecCounter = PerfDataUtil.createCounter("Memory", null, "Pages Input/sec");
         this.pagesOutputPerSecCounter = PerfDataUtil.createCounter("Memory", null, "Pages Output/sec");
-        if (!PerfDataUtil.addCounterToQuery(pagesInputPerSecCounter)
-                || !PerfDataUtil.addCounterToQuery(pagesOutputPerSecCounter)) {
+        if (!PerfDataUtil.addCounterToQuery(this.pagesInputPerSecCounter)
+                || !PerfDataUtil.addCounterToQuery(this.pagesOutputPerSecCounter)) {
             this.pagesInputPerSecCounter = null;
             this.pagesOutputPerSecCounter = null;
             this.pageSwapsQuery = new WmiQuery<>("Win32_PerfRawData_PerfOS_Memory", PageSwapProperty.class);
         }
 
         this.pagingPercentUsageCounter = PerfDataUtil.createCounter("Paging File", "_Total", "% Usage");
-        if (!PerfDataUtil.addCounterToQuery(pagingPercentUsageCounter)) {
+        if (!PerfDataUtil.addCounterToQuery(this.pagingPercentUsageCounter)) {
             this.pagingPercentUsageCounter = null;
             this.pagingPercentQuery = new WmiQuery<>("Win32_PerfRawData_PerfOS_PagingFile",
                     PagingPercentProperty.class);
@@ -114,9 +114,9 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
                     * (this.perfInfo.CommitLimit.longValue() - this.perfInfo.PhysicalTotal.longValue());
             if (this.swapTotal > 0) {
                 if (this.pageSwapsQuery == null) {
-                    PerfDataUtil.updateQuery(pagesInputPerSecCounter);
-                    this.swapPagesIn = PerfDataUtil.queryCounter(pagesInputPerSecCounter);
-                    this.swapPagesOut = PerfDataUtil.queryCounter(pagesOutputPerSecCounter);
+                    PerfDataUtil.updateQuery(this.pagesInputPerSecCounter);
+                    this.swapPagesIn = PerfDataUtil.queryCounter(this.pagesInputPerSecCounter);
+                    this.swapPagesOut = PerfDataUtil.queryCounter(this.pagesOutputPerSecCounter);
                 } else {
                     WmiResult<PageSwapProperty> result = WmiUtil.queryWMI(this.pageSwapsQuery);
                     if (result.getResultCount() > 0) {
@@ -137,8 +137,8 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
         updateMeminfo();
         if (this.swapTotal > 0) {
             if (this.pagingPercentQuery == null) {
-                PerfDataUtil.updateQuery(pagingPercentUsageCounter);
-                this.swapUsed = PerfDataUtil.queryCounter(pagingPercentUsageCounter) * this.pageSize;
+                PerfDataUtil.updateQuery(this.pagingPercentUsageCounter);
+                this.swapUsed = PerfDataUtil.queryCounter(this.pagingPercentUsageCounter) * this.pageSize;
             } else {
                 WmiResult<PagingPercentProperty> result = WmiUtil.queryWMI(this.pagingPercentQuery);
                 if (result.getResultCount() > 0) {

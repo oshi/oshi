@@ -216,7 +216,7 @@ public class WindowsDisks implements Disks {
             diskStore.setWriteBytes(MapUtil.getOrDefault(writeByteMap, index, 0L));
             diskStore.setCurrentQueueLength(MapUtil.getOrDefault(queueLengthMap, index, 0L));
             diskStore.setTimeStamp(MapUtil.getOrDefault(timeStampMap, index, 0L));
-            diskStore.setTransferTime(diskStore.getTimeStamp()-MapUtil.getOrDefault(xferTimeMap, index, 0L));
+            diskStore.setTransferTime(diskStore.getTimeStamp() - MapUtil.getOrDefault(xferTimeMap, index, 0L));
             return true;
         } else {
             return false;
@@ -247,7 +247,7 @@ public class WindowsDisks implements Disks {
             ds.setWriteBytes(MapUtil.getOrDefault(writeByteMap, index, 0L));
             ds.setCurrentQueueLength(MapUtil.getOrDefault(queueLengthMap, index, 0L));
             ds.setTimeStamp(MapUtil.getOrDefault(timeStampMap, index, 0L));
-            ds.setTransferTime(ds.getTimeStamp()-MapUtil.getOrDefault(xferTimeMap, index, 0L));
+            ds.setTransferTime(ds.getTimeStamp() - MapUtil.getOrDefault(xferTimeMap, index, 0L));
             ds.setSize(WmiUtil.getUint64(vals, DiskDriveProperty.SIZE, i));
             // Get partitions
             List<HWPartition> partitions = new ArrayList<>();
@@ -269,7 +269,7 @@ public class WindowsDisks implements Disks {
     /**
      * Populates the maps for the specified index. If the index is null,
      * populates all the maps
-     * 
+     *
      * @param index
      *            The index to populate/update maps for
      */
@@ -289,7 +289,7 @@ public class WindowsDisks implements Disks {
             WmiResult<PhysicalDiskProperty> result = WmiUtil.queryWMI(physicalDiskQuery);
             for (int i = 0; i < result.getResultCount(); i++) {
                 String name = getIndexFromName(WmiUtil.getString(result, PhysicalDiskProperty.NAME, i));
-                if ((index != null && !index.equals(name)) || TOTAL_INSTANCE.equals(name)) {
+                if (index != null && !index.equals(name) || TOTAL_INSTANCE.equals(name)) {
                     continue;
                 }
                 readMap.put(name, WmiUtil.getUint32asLong(result, PhysicalDiskProperty.DISKREADSPERSEC, i));
@@ -460,7 +460,7 @@ public class WindowsDisks implements Disks {
 
     /**
      * Parse a drive name like "0 C:" to just the index "0"
-     * 
+     *
      * @param s
      *            A drive name to parse
      * @return The first space-delimited value

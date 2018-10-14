@@ -39,7 +39,7 @@ public abstract class AbstractSoundCard implements SoundCard {
 
     @Override
     public String getDriverVersion() {
-        return kernelVersion;
+        return this.kernelVersion;
     }
 
     public void setKernelVersion(String kernelVersion) {
@@ -48,7 +48,7 @@ public abstract class AbstractSoundCard implements SoundCard {
 
     @Override
     public String getName() {
-        return name;
+        return this.name;
     }
 
     public void setName(String name) {
@@ -57,7 +57,7 @@ public abstract class AbstractSoundCard implements SoundCard {
 
     @Override
     public String getCodec() {
-        return codec;
+        return this.codec;
     }
 
     public void setCodec(String codec) {
@@ -70,11 +70,11 @@ public abstract class AbstractSoundCard implements SoundCard {
         builder.append("SoundCard@");
         builder.append(Integer.toHexString(hashCode()));
         builder.append(" [kernelVersion=");
-        builder.append(kernelVersion);
+        builder.append(this.kernelVersion);
         builder.append(", name=");
-        builder.append(name);
+        builder.append(this.name);
         builder.append(", codec=");
-        builder.append(codec);
+        builder.append(this.codec);
         builder.append(']');
         return builder.toString();
     }

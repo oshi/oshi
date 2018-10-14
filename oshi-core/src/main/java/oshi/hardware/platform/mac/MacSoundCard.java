@@ -23,7 +23,7 @@ import java.util.List;
 
 import oshi.hardware.common.AbstractSoundCard;
 import oshi.util.FileUtil;
-import oshi.util.StringUtil;
+import oshi.util.ParseUtil;
 
 /**
  * Sound card data obtained via system_profiler
@@ -71,7 +71,7 @@ public class MacSoundCard extends AbstractSoundCard {
             }
             if (version) {
                 kernelVersion = "AppleHDAController "
-                        + StringUtil.textBetweenStrings(checkLine, "<string>", "</string>");
+                        + ParseUtil.getTextBetweenStrings(checkLine, "<string>", "</string>");
                 version = false;
             }
         }

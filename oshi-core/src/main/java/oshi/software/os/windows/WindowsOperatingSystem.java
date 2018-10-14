@@ -132,7 +132,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         int ioWriteIndex;
         int workingSetPrivateIndex;
         try {
-            processIndex = PdhUtil.PdhLookupPerfIndexByEnglishName("Process");
+            this.processIndex = PdhUtil.PdhLookupPerfIndexByEnglishName("Process");
             priorityBaseIndex = PdhUtil.PdhLookupPerfIndexByEnglishName("Priority Base");
             elapsedTimeIndex = PdhUtil.PdhLookupPerfIndexByEnglishName("Elapsed Time");
             idProcessIndex = PdhUtil.PdhLookupPerfIndexByEnglishName("ID Process");
@@ -144,7 +144,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             LOG.error("Unable to locate English counter names in registry Perflib 009. Assuming English counters.");
             DWORDByReference index = new DWORDByReference();
             Pdh.INSTANCE.PdhLookupPerfIndexByName(null, "Process", index);
-            processIndex = index.getValue().intValue();
+            this.processIndex = index.getValue().intValue();
             Pdh.INSTANCE.PdhLookupPerfIndexByName(null, "Priority Base", index);
             priorityBaseIndex = index.getValue().intValue();
             Pdh.INSTANCE.PdhLookupPerfIndexByName(null, "Elapsed Time", index);
@@ -160,15 +160,15 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             Pdh.INSTANCE.PdhLookupPerfIndexByName(null, "Working Set - Private", index);
             workingSetPrivateIndex = index.getValue().intValue();
         }
-        processIndexStr = Integer.toString(processIndex);
+        this.processIndexStr = Integer.toString(this.processIndex);
 
         // now load the Process registry to match up the offsets
         // Sequentially increase the buffer until everything fits.
         // Save this buffer size for later use
         IntByReference lpcbData = new IntByReference(this.perfDataBufferSize);
         Pointer pPerfData = new Memory(this.perfDataBufferSize);
-        int ret = Advapi32.INSTANCE.RegQueryValueEx(WinReg.HKEY_PERFORMANCE_DATA, processIndexStr, 0, null, pPerfData,
-                lpcbData);
+        int ret = Advapi32.INSTANCE.RegQueryValueEx(WinReg.HKEY_PERFORMANCE_DATA, this.processIndexStr, 0, null,
+                pPerfData, lpcbData);
         if (ret != WinError.ERROR_SUCCESS && ret != WinError.ERROR_MORE_DATA) {
             LOG.error("Error {} reading HKEY_PERFORMANCE_DATA from the registry.", ret);
             return;
@@ -177,8 +177,8 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             this.perfDataBufferSize += 4096;
             lpcbData.setValue(this.perfDataBufferSize);
             pPerfData = new Memory(this.perfDataBufferSize);
-            ret = Advapi32.INSTANCE.RegQueryValueEx(WinReg.HKEY_PERFORMANCE_DATA, processIndexStr, 0, null, pPerfData,
-                    lpcbData);
+            ret = Advapi32.INSTANCE.RegQueryValueEx(WinReg.HKEY_PERFORMANCE_DATA, this.processIndexStr, 0, null,
+                    pPerfData, lpcbData);
         }
 
         PERF_DATA_BLOCK perfData = new PERF_DATA_BLOCK(pPerfData.share(0));
@@ -201,7 +201,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             // Identify where counter definitions start
             long perfCounterOffset = perfObjectOffset + perfObject.HeaderLength;
             // If this isn't the Process object, ignore
-            if (perfObject.ObjectNameTitleIndex == processIndex) {
+            if (perfObject.ObjectNameTitleIndex == this.processIndex) {
                 for (int counter = 0; counter < perfObject.NumCounters; counter++) {
                     PERF_COUNTER_DEFINITION perfCounter = new PERF_COUNTER_DEFINITION(
                             pPerfData.share(perfCounterOffset));
@@ -234,7 +234,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     private void initBitness() {
         // If bitness is 64 we are 64 bit.
         // If 32 test if we are on 64-bit OS
-        if (bitness < 64) {
+        if (this.bitness < 64) {
             // Try the easy way
             if (System.getenv("ProgramFiles(x86)") != null) {
                 this.bitness = 64;
@@ -363,7 +363,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                 proc.setName(procInfo.pProcessName);
             } else {
                 proc = this.processMap.get(pid);
-                if (proc == null || (pids != null && !pids.contains(pid))) {
+                if (proc == null || pids != null && !pids.contains(pid)) {
                     continue;
                 }
             }
@@ -483,8 +483,8 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         // Sequentially increase the buffer until everything fits.
         IntByReference lpcbData = new IntByReference(this.perfDataBufferSize);
         Pointer pPerfData = new Memory(this.perfDataBufferSize);
-        int ret = Advapi32.INSTANCE.RegQueryValueEx(WinReg.HKEY_PERFORMANCE_DATA, processIndexStr, 0, null, pPerfData,
-                lpcbData);
+        int ret = Advapi32.INSTANCE.RegQueryValueEx(WinReg.HKEY_PERFORMANCE_DATA, this.processIndexStr, 0, null,
+                pPerfData, lpcbData);
         if (ret != WinError.ERROR_SUCCESS && ret != WinError.ERROR_MORE_DATA) {
             LOG.error("Error {} reading HKEY_PERFORMANCE_DATA from the registry.", ret);
             return;
@@ -493,8 +493,8 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             this.perfDataBufferSize += 4096;
             lpcbData.setValue(this.perfDataBufferSize);
             pPerfData = new Memory(this.perfDataBufferSize);
-            ret = Advapi32.INSTANCE.RegQueryValueEx(WinReg.HKEY_PERFORMANCE_DATA, processIndexStr, 0, null, pPerfData,
-                    lpcbData);
+            ret = Advapi32.INSTANCE.RegQueryValueEx(WinReg.HKEY_PERFORMANCE_DATA, this.processIndexStr, 0, null,
+                    pPerfData, lpcbData);
         }
 
         PERF_DATA_BLOCK perfData = new PERF_DATA_BLOCK(pPerfData.share(0));
@@ -517,7 +517,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         for (int obj = 0; obj < perfData.NumObjectTypes; obj++) {
             PERF_OBJECT_TYPE perfObject = new PERF_OBJECT_TYPE(pPerfData.share(perfObjectOffset));
             // If this isn't the Process object, ignore
-            if (perfObject.ObjectNameTitleIndex == processIndex) {
+            if (perfObject.ObjectNameTitleIndex == this.processIndex) {
                 // Skip over counter definitions
                 // There will be many of these, this points to the first one
                 long perfInstanceOffset = perfObjectOffset + perfObject.DefinitionLength;

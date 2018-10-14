@@ -32,7 +32,7 @@ public class StringUtil {
     /**
      * Returns a new String composed of copies of the array elements joined
      * together with a copy of the specified delimiter.
-     * 
+     *
      * @param delimiter
      *            The character to separate the strings
      * @param stringArray
@@ -54,7 +54,7 @@ public class StringUtil {
     /**
      * Returns a new String composed of copies of the list elements joined
      * together with a copy of the specified delimiter.
-     * 
+     *
      * @param delimiter
      *            The character to separate the strings
      * @param stringList
@@ -65,26 +65,4 @@ public class StringUtil {
         return join(delimiter, stringList.toArray(new String[stringList.size()]));
     }
 
-    /**
-     * Get a String in a line of text between two marker strings
-     *
-     * @param text
-     *            Text to search for match
-     * @param before
-     *            Start matching after this text
-     * @param after
-     *            End matching before this text
-     * @return Text between the strings before and after, or empty string if
-     *         either marker does not exist
-     */
-    public static String textBetweenStrings(String text, String before, String after) {
-
-        String result = "";
-
-        if (text.indexOf(before) >= 0 && text.indexOf(after) >= 0) {
-            result = text.substring(text.indexOf(before) + before.length(), text.length());
-            result = result.substring(0, result.indexOf(after));
-        }
-        return result;
-    }
 }

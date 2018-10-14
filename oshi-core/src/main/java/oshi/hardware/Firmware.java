@@ -29,35 +29,35 @@ public interface Firmware extends Serializable {
 
     /**
      * Get the firmware manufacturer.
-     * 
+     *
      * @return the manufacturer
      */
     String getManufacturer();
 
     /**
      * Get the firmware name.
-     * 
+     *
      * @return the name
      */
     String getName();
 
     /**
      * Get the firmware description.
-     * 
+     *
      * @return the description
      */
     String getDescription();
 
     /**
      * Get the firmware version.
-     * 
+     *
      * @return the version
      */
     String getVersion();
 
     /**
      * Get the firmware release date.
-     * 
+     *
      * @return The date in ISO 8601 YYYY-MM-DD format.
      */
     String getReleaseDate();

@@ -18,9 +18,6 @@
  */
 package oshi.hardware.platform.linux;
 
-import oshi.hardware.Sensors;
-import oshi.util.FileUtil;
-
 import java.io.File;
 import java.io.FileFilter;
 import java.nio.file.Paths;
@@ -28,6 +25,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import oshi.hardware.Sensors;
+import oshi.util.FileUtil;
 
 public class LinuxSensors implements Sensors {
 
@@ -65,7 +65,7 @@ public class LinuxSensors implements Sensors {
         // Iterate over all thermal_zone* directories and look for sensor files
         // if no temperature sensor is found
         // e.g. /sys/class/thermal/thermal_zone0/temp
-        if (!sensorsMap.containsKey(TEMP)) {
+        if (!this.sensorsMap.containsKey(TEMP)) {
             getSensorFilesFromPath(THERMAL_ZONE, TEMP, new FileFilter() {
                 // Find any temp files in that path
                 @Override
@@ -93,7 +93,7 @@ public class LinuxSensors implements Sensors {
             File dir = new File(path);
             File[] matchingFiles = dir.listFiles(sensorFileFilter);
             if (matchingFiles != null && matchingFiles.length > 0) {
-                sensorsMap.put(sensor, String.format("%s/%s", path, sensor));
+                this.sensorsMap.put(sensor, String.format("%s/%s", path, sensor));
             }
             i++;
         }
@@ -105,11 +105,11 @@ public class LinuxSensors implements Sensors {
     @Override
     public double getCpuTemperature() {
         long millidegrees = 0;
-        if (!sensorsMap.containsKey(TEMP)) {
+        if (!this.sensorsMap.containsKey(TEMP)) {
             return 0d;
         }
-        String hwmon = sensorsMap.get(TEMP);
-        if(hwmon.contains("hwmon")) {
+        String hwmon = this.sensorsMap.get(TEMP);
+        if (hwmon.contains("hwmon")) {
             // First attempt should be CPU temperature at index 1, if available
             millidegrees = FileUtil.getLongFromFile(String.format("%s1_input", hwmon));
             // Should return a single line of millidegrees Celsius
@@ -130,8 +130,7 @@ public class LinuxSensors implements Sensors {
             if (count > 0) {
                 return sum / (count * 1000d);
             }
-        }
-        else if(hwmon.contains("thermal_zone")) {
+        } else if (hwmon.contains("thermal_zone")) {
             // If temp2..temp6_input doesn't exist, try thermal_zone0
             millidegrees = FileUtil.getLongFromFile(hwmon);
             // Should return a single line of millidegrees Celsius
@@ -147,8 +146,8 @@ public class LinuxSensors implements Sensors {
      */
     @Override
     public int[] getFanSpeeds() {
-        if (sensorsMap.containsKey(FAN)) {
-            String hwmon = sensorsMap.get(FAN);
+        if (this.sensorsMap.containsKey(FAN)) {
+            String hwmon = this.sensorsMap.get(FAN);
             List<Integer> speeds = new ArrayList<>();
             int fan = 1;
             for (;;) {
@@ -176,8 +175,8 @@ public class LinuxSensors implements Sensors {
      */
     @Override
     public double getCpuVoltage() {
-        if (sensorsMap.containsKey(VOLTAGE)) {
-            String hwmon = sensorsMap.get(VOLTAGE);
+        if (this.sensorsMap.containsKey(VOLTAGE)) {
+            String hwmon = this.sensorsMap.get(VOLTAGE);
             // Should return a single line of millivolt
             return FileUtil.getIntFromFile(String.format("%s1_input", hwmon)) / 1000d;
         }

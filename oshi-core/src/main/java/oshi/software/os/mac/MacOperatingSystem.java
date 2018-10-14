@@ -76,8 +76,8 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
     }
 
     private void initBitness() {
-        if (bitness < 64) {
-            if (this.getVersion().getOsxVersionNumber() > 7) {
+        if (this.bitness < 64) {
+            if (getVersion().getOsxVersionNumber() > 7) {
                 this.bitness = 64;
             } else {
                 this.bitness = ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer("getconf LONG_BIT"), 32);

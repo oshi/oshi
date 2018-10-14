@@ -48,7 +48,7 @@ public interface IPHlpAPI extends Library {
 
     /**
      * The MIB_IFROW structure stores information about a particular interface.
-     * 
+     *
      * @see <A HREF=
      *      "https://docs.microsoft.com/en-us/previous-versions/windows/desktop/api/ifmib/ns-ifmib-_mib_ifrow">MIB_IFROW</A>
      */
@@ -91,7 +91,7 @@ public interface IPHlpAPI extends Library {
     /**
      * The MIB_IF_ROW2 structure stores information about a particular
      * interface.
-     * 
+     *
      * @see <A HREF=
      *      "https://msdn.microsoft.com/library/windows/hardware/ff559214">MIB_IF_ROW2</A>
      */
@@ -158,7 +158,7 @@ public interface IPHlpAPI extends Library {
      * The IP_ADDRESS_STRING structure stores an IPv4 address in dotted decimal
      * notation. The IP_ADDRESS_STRING structure definition is also the type
      * definition for the IP_MASK_STRING structure.
-     * 
+     *
      * @see <A HREF=
      *      "https://docs.microsoft.com/en-us/windows/desktop/api/iptypes/ns-iptypes-ip_address_string">IP_ADDRESS_STRING</A>
      */
@@ -177,7 +177,7 @@ public interface IPHlpAPI extends Library {
     /**
      * The IP_ADDR_STRING structure represents a node in a linked-list of IPv4
      * addresses.
-     * 
+     *
      * @see <A HREF=
      *      "https://docs.microsoft.com/en-us/windows/desktop/api/iptypes/ns-iptypes-_ip_addr_string">IP_ADDR_STRING</A>
      */
@@ -199,7 +199,7 @@ public interface IPHlpAPI extends Library {
     /**
      * The FIXED_INFO structure contains information that is the same across all
      * the interfaces on a computer.
-     * 
+     *
      * @see <A HREF=
      *      "https://docs.microsoft.com/en-us/windows/desktop/api/iptypes/ns-iptypes-fixed_info_w2ksp1">FIXED_INFO</A>
      */

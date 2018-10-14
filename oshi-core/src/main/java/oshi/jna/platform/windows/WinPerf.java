@@ -28,7 +28,7 @@ import com.sun.jna.platform.win32.WinNT.LARGE_INTEGER;
 
 /**
  * Various performance counters structures and definitions
- * 
+ *
  * @author Daniel Widdis
  * @see <A HREF=
  *      "https://msdn.microsoft.com/en-us/library/windows/desktop/aa373093(v=vs.85).aspx">
@@ -37,7 +37,7 @@ import com.sun.jna.platform.win32.WinNT.LARGE_INTEGER;
 public interface WinPerf extends com.sun.jna.platform.win32.WinPerf {
     /**
      * Describes the performance data block that you queried
-     * 
+     *
      * @see <A HREF=
      *      "https://msdn.microsoft.com/en-us/library/windows/desktop/aa373157(v=vs.85).aspx">PERF_DATA_BLOCK</A>
      */
@@ -76,7 +76,7 @@ public interface WinPerf extends com.sun.jna.platform.win32.WinPerf {
 
     /**
      * Describes an instance of a performance object
-     * 
+     *
      * @see <A HREF=
      *      "https://msdn.microsoft.com/en-us/library/windows/desktop/aa373159(v=vs.85).aspx">PERF_INSTANCE_DEFINITION</A>
      */
@@ -108,7 +108,7 @@ public interface WinPerf extends com.sun.jna.platform.win32.WinPerf {
      * Describes object-specific performance information, for example, the
      * number of instances of the object and the number of counters that the
      * object defines.
-     * 
+     *
      * @see <A HREF=
      *      "https://msdn.microsoft.com/en-us/library/windows/desktop/aa373160(v=vs.85).aspx">
      *      PERF_OBJECT_TYPE</A>
@@ -148,7 +148,7 @@ public interface WinPerf extends com.sun.jna.platform.win32.WinPerf {
 
     /**
      * Describes a performance counter.
-     * 
+     *
      * @see <A HREF=
      *      "https://msdn.microsoft.com/en-us/library/windows/desktop/aa373150(v=vs.85).aspx">
      *      PERF_COUNTER_DEFINITION</A>
@@ -185,7 +185,7 @@ public interface WinPerf extends com.sun.jna.platform.win32.WinPerf {
     /**
      * Describes the block of memory that contains the raw performance counter
      * data for an object's counters.
-     * 
+     *
      * @see <A HREF=
      *      "https://msdn.microsoft.com/en-us/library/windows/desktop/aa373147(v=vs.85).aspx">
      *      PERF_COUNTER_BLOCK</A>

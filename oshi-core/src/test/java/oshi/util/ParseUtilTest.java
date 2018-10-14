@@ -18,12 +18,12 @@
  */
 package oshi.util;
 
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.junit.Test;
 
 /**
  * The Class ParseUtilTest.
@@ -238,14 +238,13 @@ public class ParseUtilTest {
         assertEquals("", ParseUtil.getSingleQuoteStringValue("foo = bar (string)"));
     }
 
-
     /**
      * Test parse SingleQuoteBetweenMultipleQuotes
      */
     @Test
-    public void testGetStringBetweenMultipleQuotes(){
-        assertEquals("hello $ is" , ParseUtil.getStringBetween("hello = $hello $ is $",'$'));
-        assertEquals("Realtek AC'97 Audio" , ParseUtil.getStringBetween("pci.device = 'Realtek AC'97 Audio'",'\''));
+    public void testGetStringBetweenMultipleQuotes() {
+        assertEquals("hello $ is", ParseUtil.getStringBetween("hello = $hello $ is $", '$'));
+        assertEquals("Realtek AC'97 Audio", ParseUtil.getStringBetween("pci.device = 'Realtek AC'97 Audio'", '\''));
     }
 
     /**
@@ -316,5 +315,20 @@ public class ParseUtilTest {
         foo = String.format("Array too short %d %d %d %d", 123, 456, 789, now);
         result = ParseUtil.parseStringToLongArray(foo, indices, 2, ' ');
         assertEquals(0, result[1]);
+    }
+
+    @Test
+    public void testTextBetween() {
+        String text = "foo bar baz";
+        String before = "foo";
+        String after = "baz";
+        assertEquals(" bar ", ParseUtil.getTextBetweenStrings(text, before, after));
+
+        before = "food";
+        assertEquals("", ParseUtil.getTextBetweenStrings(text, before, after));
+
+        before = "foo";
+        after = "qux";
+        assertEquals("", ParseUtil.getTextBetweenStrings(text, before, after));
     }
 }

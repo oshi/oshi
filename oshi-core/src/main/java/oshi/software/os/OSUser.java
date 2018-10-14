@@ -23,7 +23,7 @@ public class OSUser {
     private String userName;
 
     public String getUserId() {
-        return userId;
+        return this.userId;
     }
 
     public void setUserId(String userId) {
@@ -31,7 +31,7 @@ public class OSUser {
     }
 
     public String getUserName() {
-        return userName;
+        return this.userName;
     }
 
     public void setUserName(String userName) {

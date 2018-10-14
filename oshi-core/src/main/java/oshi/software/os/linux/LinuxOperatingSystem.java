@@ -233,11 +233,11 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         }
         proc.setUserID(ParseUtil.whitespaces.split(MapUtil.getOrDefault(status, "Uid", ""))[0]);
         proc.setGroupID(ParseUtil.whitespaces.split(MapUtil.getOrDefault(status, "Gid", ""))[0]);
-        OSUser user = userGroupInfo.getUser(proc.getUserID());
+        OSUser user = this.userGroupInfo.getUser(proc.getUserID());
         if (user != null) {
             proc.setUser(user.getUserName());
         }
-        proc.setGroup(userGroupInfo.getGroupName(proc.getGroupID()));
+        proc.setGroup(this.userGroupInfo.getGroupName(proc.getGroupID()));
 
         // THe /proc/pid/cmdline value is null-delimited
         proc.setCommandLine(FileUtil.getStringFromFile(String.format("/proc/%d/cmdline", pid)));
@@ -635,7 +635,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     /**
      * Gets Jiffies per second, useful for converting ticks to milliseconds and
      * vice versa.
-     * 
+     *
      * @return Jiffies per second if it can be calculated. If not, returns 1000
      *         which assumes jiffies equal milliseconds.
      */
@@ -646,7 +646,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     /**
      * Calculates Jiffies per second, useful for converting ticks to
      * milliseconds and vice versa.
-     * 
+     *
      * @return Jiffies per second if it can be calculated. If not, returns 1000
      *         which assumes jiffies equal milliseconds.
      */

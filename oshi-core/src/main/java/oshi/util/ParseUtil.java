@@ -18,15 +18,15 @@
  */
 package oshi.util;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * String parsing utility.
@@ -328,7 +328,7 @@ public class ParseUtil {
         // sign-extension,
         // then drop any copies of the sign bit, to prevent the value being
         // considered a negative one by Java if it is set
-        long longValue = (long) unsignedValue;
+        long longValue = unsignedValue;
         return longValue & 0xffffffffL;
     }
 
@@ -413,7 +413,7 @@ public class ParseUtil {
      */
     public static long parseUnsignedLongOrDefault(String s, long defaultLong) {
         try {
-            return (new BigInteger(s)).longValue();
+            return new BigInteger(s).longValue();
         } catch (NumberFormatException e) {
             LOG.trace(DEFAULT_LOG_MSG, s, e);
             return defaultLong;
@@ -499,25 +499,26 @@ public class ParseUtil {
     }
 
     /**
-     * Gets a value between two characters having multiple same characters between them.
-     * <b>Examples : </b>
+     * Gets a value between two characters having multiple same characters
+     * between them. <b>Examples : </b>
      * <ul>
-     *     <li>"name = 'James Gosling's Java'" ---> returns "James Gosling's Java"</li>
-     *     <li>"pci.name = 'Realtek AC'97 Audio Device'"  ---> returns "Realtek AC'97 Audio Device"</li>
+     * <li>"name = 'James Gosling's Java'" returns "James Gosling's Java"</li>
+     * <li>"pci.name = 'Realtek AC'97 Audio Device'" returns "Realtek AC'97
+     * Audio Device"</li>
      * </ul>
      *
      * @param line
-     *          The "key-value" pair line.
+     *            The "key-value" pair line.
      * @param c
-     *          The Trailing And Leading characters of the string line
+     *            The Trailing And Leading characters of the string line
      * @return : The value having the characters between them.
      */
-    public static String getStringBetween(String line , char c){
+    public static String getStringBetween(String line, char c) {
         int firstOcc = line.indexOf(c);
-        if(firstOcc < 0){
+        if (firstOcc < 0) {
             return "";
         }
-        return (line.substring(firstOcc + 1 , line.lastIndexOf(c))).trim();
+        return line.substring(firstOcc + 1, line.lastIndexOf(c)).trim();
     }
 
     /**
@@ -554,7 +555,7 @@ public class ParseUtil {
     /**
      * Removes all matching sub strings from the string. More efficient than
      * regexp.
-     * 
+     *
      * @param original
      *            source String to remove from
      * @param toRemove
@@ -562,12 +563,14 @@ public class ParseUtil {
      * @return The string with all matching substrings removed
      */
     public static String removeMatchingString(final String original, final String toRemove) {
-        if (original == null || original.isEmpty() || toRemove == null || toRemove.isEmpty())
+        if (original == null || original.isEmpty() || toRemove == null || toRemove.isEmpty()) {
             return original;
+        }
 
         int matchIndex = original.indexOf(toRemove, 0);
-        if (matchIndex == -1)
+        if (matchIndex == -1) {
             return original;
+        }
 
         StringBuilder buffer = new StringBuilder(original.length() - toRemove.length());
         int currIndex = 0;
@@ -586,12 +589,12 @@ public class ParseUtil {
      * predictable-length arrays such as outputs of reliably formatted Linux
      * proc or sys filesystem, minimizing new object creation. Users should
      * perform other sanity checks of data.
-     * 
+     *
      * The indices parameters are referenced assuming the length as specified,
      * and leading characters are ignored. For example, if the string is "foo 12
      * 34 5" and the length is 3, then index 0 is 12, index 1 is 34, and index 2
      * is 5.
-     * 
+     *
      * @param s
      *            The string to parse
      * @param indices
@@ -653,5 +656,28 @@ public class ParseUtil {
             return new long[indices.length];
         }
         return parsed;
+    }
+
+    /**
+     * Get a String in a line of text between two marker strings
+     *
+     * @param text
+     *            Text to search for match
+     * @param before
+     *            Start matching after this text
+     * @param after
+     *            End matching before this text
+     * @return Text between the strings before and after, or empty string if
+     *         either marker does not exist
+     */
+    public static String getTextBetweenStrings(String text, String before, String after) {
+
+        String result = "";
+
+        if (text.indexOf(before) >= 0 && text.indexOf(after) >= 0) {
+            result = text.substring(text.indexOf(before) + before.length(), text.length());
+            result = result.substring(0, result.indexOf(after));
+        }
+        return result;
     }
 }

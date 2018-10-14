@@ -31,7 +31,7 @@ import com.sun.jna.platform.win32.WinReg;
 
 /**
  * Pdh utility API.
- * 
+ *
  * @author widdis[at]gmail[dot]com
  */
 public abstract class PdhUtil {
@@ -46,7 +46,7 @@ public abstract class PdhUtil {
      * Utility method to call Pdh's PdhLookupPerfNameByIndex that allocates the
      * required memory for the szNameBuffer parameter based on the type mapping
      * used, calls to PdhLookupPerfNameByIndex, and returns the received string.
-     * 
+     *
      * @param szMachineName
      *            Null-terminated string that specifies the name of the computer
      *            where the specified performance object or counter is located.
@@ -89,7 +89,7 @@ public abstract class PdhUtil {
      * counter index corresponding to the specified counter name in English.
      * Uses the registry on the local machine to find the index in the English
      * locale, regardless of the current language setting on the machine.
-     * 
+     *
      * @param szNameBuffer
      *            The English name of the performance counter
      * @return The counter's index if it exists, or 0 otherwise.
@@ -120,7 +120,7 @@ public abstract class PdhUtil {
      * Utility method to call Pdh's PdhEnumObjectItems that allocates the
      * required memory for the lists parameters based on the type mapping used,
      * calls to PdhEnumObjectItems, and returns the received lists of strings.
-     * 
+     *
      * @param szDataSource
      *            String that specifies the name of the log file used to
      *            enumerate the counter and instance names. If NULL, the
@@ -234,7 +234,7 @@ public abstract class PdhUtil {
          *         receive the same list and thus share modifications
          */
         public List<String> getCounters() {
-            return counters;
+            return this.counters;
         }
 
         /**
@@ -242,7 +242,7 @@ public abstract class PdhUtil {
          *         receive the same list and thus share modifications
          */
         public List<String> getInstances() {
-            return instances;
+            return this.instances;
         }
 
         private List<String> copyAndEmptyListForNullList(List<String> inputList) {
@@ -255,7 +255,7 @@ public abstract class PdhUtil {
 
         @Override
         public String toString() {
-            return "PdhEnumObjectItems{" + "counters=" + counters + ", instances=" + instances + '}';
+            return "PdhEnumObjectItems{" + "counters=" + this.counters + ", instances=" + this.instances + '}';
         }
     }
 
@@ -269,7 +269,7 @@ public abstract class PdhUtil {
         }
 
         public int getErrorCode() {
-            return errorCode;
+            return this.errorCode;
         }
     }
 }

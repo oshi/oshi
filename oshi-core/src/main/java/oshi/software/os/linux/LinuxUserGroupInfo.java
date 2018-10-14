@@ -45,19 +45,19 @@ public class LinuxUserGroupInfo {
         private long lastRefreshedTimestamp;
 
         public OSUser getUser(String userId) {
-            if ((System.currentTimeMillis() - lastRefreshedTimestamp) > CACHE_REFRESH_TIME_MS) {
+            if (System.currentTimeMillis() - this.lastRefreshedTimestamp > CACHE_REFRESH_TIME_MS) {
                 refresh();
             }
-            OSUser osUser = usersIdMap.get(userId);
+            OSUser osUser = this.usersIdMap.get(userId);
             if (osUser == null) {
                 refresh();
-                return usersIdMap.get(userId);
+                return this.usersIdMap.get(userId);
             }
             return osUser;
         }
 
         private void refresh() {
-            usersIdMap.clear();
+            this.usersIdMap.clear();
             List<String> passwd = ExecutingCommand.runNative("getent passwd");
             // see man 5 passwd for the fields
             for (String entry : passwd) {
@@ -69,14 +69,14 @@ public class LinuxUserGroupInfo {
                 String uid = split[2];
                 // it is allowed to have multiple entries for the same userId,
                 // we use the first one
-                if (!usersIdMap.containsKey(uid)) {
+                if (!this.usersIdMap.containsKey(uid)) {
                     OSUser user = new OSUser();
                     user.setUserId(uid);
                     user.setUserName(userName);
-                    usersIdMap.put(uid, user);
+                    this.usersIdMap.put(uid, user);
                 }
             }
-            lastRefreshedTimestamp = System.currentTimeMillis();
+            this.lastRefreshedTimestamp = System.currentTimeMillis();
         }
     }
 
@@ -85,19 +85,19 @@ public class LinuxUserGroupInfo {
         private long lastRefreshedTimestamp;
 
         public String getGroup(String groupId) {
-            if ((System.currentTimeMillis() - lastRefreshedTimestamp) > CACHE_REFRESH_TIME_MS) {
+            if (System.currentTimeMillis() - this.lastRefreshedTimestamp > CACHE_REFRESH_TIME_MS) {
                 refresh();
             }
-            String groupName = groupsIdMap.get(groupId);
+            String groupName = this.groupsIdMap.get(groupId);
             if (groupName == null) {
                 refresh();
-                return groupsIdMap.get(groupId);
+                return this.groupsIdMap.get(groupId);
             }
             return groupName;
         }
 
         private void refresh() {
-            groupsIdMap.clear();
+            this.groupsIdMap.clear();
             List<String> group = ExecutingCommand.runNative("getent group");
             // see man 5 group for the fields
             for (String entry : group) {
@@ -107,11 +107,11 @@ public class LinuxUserGroupInfo {
                 }
                 String groupName = split[0];
                 String gid = split[2];
-                if (!groupsIdMap.containsKey(gid)) {
-                    groupsIdMap.put(gid, groupName);
+                if (!this.groupsIdMap.containsKey(gid)) {
+                    this.groupsIdMap.put(gid, groupName);
                 }
             }
-            lastRefreshedTimestamp = System.currentTimeMillis();
+            this.lastRefreshedTimestamp = System.currentTimeMillis();
         }
     }
 }

@@ -73,7 +73,7 @@ public class WbemcliUtil {
 
         /**
          * Instantiate a WmiQuery.
-         * 
+         *
          * @param nameSpace
          *            The WMI namespace to use.
          * @param wmiClassName
@@ -107,14 +107,14 @@ public class WbemcliUtil {
          * @return The enum containing the properties
          */
         public Class<T> getPropertyEnum() {
-            return propertyEnum;
+            return this.propertyEnum;
         }
 
         /**
          * @return The namespace
          */
         public String getNameSpace() {
-            return nameSpace;
+            return this.nameSpace;
         }
 
         /**
@@ -129,7 +129,7 @@ public class WbemcliUtil {
          * @return The class name
          */
         public String getWmiClassName() {
-            return wmiClassName;
+            return this.wmiClassName;
         }
 
         /**
@@ -368,13 +368,13 @@ public class WbemcliUtil {
          *            The enum associated with this map
          */
         public WmiResult(Class<T> propertyEnum) {
-            propertyMap = new EnumMap<>(propertyEnum);
-            vtTypeMap = new EnumMap<>(propertyEnum);
-            cimTypeMap = new EnumMap<>(propertyEnum);
+            this.propertyMap = new EnumMap<>(propertyEnum);
+            this.vtTypeMap = new EnumMap<>(propertyEnum);
+            this.cimTypeMap = new EnumMap<>(propertyEnum);
             for (T prop : propertyEnum.getEnumConstants()) {
-                propertyMap.put(prop, new ArrayList<>());
-                vtTypeMap.put(prop, Variant.VT_NULL);
-                cimTypeMap.put(prop, Wbemcli.CIM_EMPTY);
+                this.propertyMap.put(prop, new ArrayList<>());
+                this.vtTypeMap.put(prop, Variant.VT_NULL);
+                this.cimTypeMap.put(prop, Wbemcli.CIM_EMPTY);
             }
         }
 
@@ -384,7 +384,7 @@ public class WbemcliUtil {
          * enumerated WMI property and will be consistent for a given property,
          * and may be validated by the user using {@link #getVtType} or the
          * Class of the returned Object.
-         * 
+         *
          * @param property
          *            The property (column) to fetch
          * @param index
@@ -399,7 +399,7 @@ public class WbemcliUtil {
          * Gets the Variant type from the WmiResult. The integer value is
          * defined as a VT_* constant in the
          * {@link com.sun.jna.platform.win32.Variant} interface.
-         * 
+         *
          * @param property
          *            The property (column) whose type to fetch
          * @return An integer representing the Variant type
@@ -411,7 +411,7 @@ public class WbemcliUtil {
         /**
          * Gets the CIM type from the WmiResult. The integer value is defined as
          * a CIM_* constant in the {@link Wbemcli} interface.
-         * 
+         *
          * @param property
          *            The property (column) whose type to fetch
          * @return An integer representing the CIM type
@@ -422,7 +422,7 @@ public class WbemcliUtil {
 
         /**
          * Adds a value to the WmiResult at the next index for that property
-         * 
+         *
          * @param vtType
          *            The Variant type of this object
          * @param cimType

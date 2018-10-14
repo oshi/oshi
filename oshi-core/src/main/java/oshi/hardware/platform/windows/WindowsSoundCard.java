@@ -69,7 +69,7 @@ public class WindowsSoundCard extends AbstractSoundCard {
     /**
      * Creates our Win32_PnPSignedDevice query with the WHERE clause taking the
      * attributes from our map.
-     * 
+     *
      * @return The WHERE clause
      */
     private static String createClause() {
@@ -89,7 +89,7 @@ public class WindowsSoundCard extends AbstractSoundCard {
 
     /**
      * Short method to build our kernel string.
-     * 
+     *
      * @param index
      *            The row to fetch data.
      * @param cardKernelQueryResult
@@ -119,7 +119,7 @@ public class WindowsSoundCard extends AbstractSoundCard {
      * windows does not provide the name of the codec chip but sometimes the
      * name of the card returned is infact the name of the codec chip also.
      * Example : Realtek ALC887 HD Audio Device
-     * 
+     *
      * @return List of sound cards
      */
     public static List<WindowsSoundCard> getSoundCards() {

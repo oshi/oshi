@@ -18,7 +18,16 @@
  */
 package oshi.hardware.platform.unix.solaris;
 
-import oshi.hardware.*;
+import oshi.hardware.CentralProcessor;
+import oshi.hardware.ComputerSystem;
+import oshi.hardware.Display;
+import oshi.hardware.GlobalMemory;
+import oshi.hardware.HWDiskStore;
+import oshi.hardware.NetworkIF;
+import oshi.hardware.PowerSource;
+import oshi.hardware.Sensors;
+import oshi.hardware.SoundCard;
+import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
 
 public class SolarisHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {

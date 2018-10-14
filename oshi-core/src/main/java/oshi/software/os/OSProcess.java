@@ -123,7 +123,7 @@ public class OSProcess implements Serializable {
 
     /**
      * @return Returns the process current working directory.
-     * 
+     *
      *         On Windows, this value is only populated for the current process.
      */
     public String getCurrentWorkingDirectory() {
@@ -528,7 +528,7 @@ public class OSProcess implements Serializable {
     /**
      * Sets the number of open file handles (or network connections) that
      * belongs to the process
-     * 
+     *
      * @param count
      *            The number of handles
      */
@@ -542,16 +542,16 @@ public class OSProcess implements Serializable {
      *
      * On FreeBSD and Solaris, this value is only populated if information for a
      * single process id is requested.
-     * 
+     *
      * @return open files or -1 if unknown or not supported
      */
     public long getOpenFiles() {
-        return openFiles;
+        return this.openFiles;
     }
 
     /**
      * Calculates CPU usage of this process.
-     * 
+     *
      * @return The proportion of up time that the process was executing in
      *         kernel or user mode.
      */
@@ -569,8 +569,8 @@ public class OSProcess implements Serializable {
     public String toString() {
         StringBuilder builder = new StringBuilder("OSProcess@");
         builder.append(Integer.toHexString(hashCode()));
-        builder.append("[processID=").append(processID);
-        builder.append(", name=").append(name).append(']');
+        builder.append("[processID=").append(this.processID);
+        builder.append(", name=").append(this.name).append(']');
         return builder.toString();
     }
 }

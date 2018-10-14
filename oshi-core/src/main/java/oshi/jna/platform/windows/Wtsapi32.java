@@ -65,7 +65,7 @@ public interface Wtsapi32 extends com.sun.jna.platform.win32.Wtsapi32 {
      * Session Host (RD Session Host) server. This structure is returned by the
      * WTSEnumerateProcessesEx function when you set the pLevel parameter to
      * one.
-     * 
+     *
      * @see <A HREF=
      *      "https://docs.microsoft.com/en-us/windows/desktop/api/wtsapi32/ns-wtsapi32-_wts_process_info_exa">WTS_PROCESS_INFO_EXA</A>
      * @see <A HREF=
@@ -106,7 +106,7 @@ public interface Wtsapi32 extends com.sun.jna.platform.win32.Wtsapi32 {
      * Retrieves information about the active processes on the specified Remote
      * Desktop Session Host (RD Session Host) server or Remote Desktop
      * Virtualization Host (RD Virtualization Host) server.
-     * 
+     *
      * @param hServer
      *            A handle to an RD Session Host server. Specify a handle opened
      *            by the WTSOpenServer function, or specify
@@ -147,7 +147,7 @@ public interface Wtsapi32 extends com.sun.jna.platform.win32.Wtsapi32 {
     /**
      * Frees memory that contains WTS_PROCESS_INFO_EX or WTS_SESSION_INFO_1
      * structures allocated by a Remote Desktop Services function.
-     * 
+     *
      * @param WTSTypeClass
      *            A value of the WTS_TYPE_CLASS enumeration type that specifies
      *            the type of structures contained in the buffer referenced by

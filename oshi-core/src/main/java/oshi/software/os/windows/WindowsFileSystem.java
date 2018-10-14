@@ -89,7 +89,7 @@ public class WindowsFileSystem implements FileSystem {
 
     private void initPdhCounters() {
         this.handleCountCounter = PerfDataUtil.createCounter("Process", "_Total", "Handle Count");
-        if (!PerfDataUtil.addCounterToQuery(handleCountCounter)) {
+        if (!PerfDataUtil.addCounterToQuery(this.handleCountCounter)) {
             this.handleCountCounter = null;
             this.handleCountQuery = new WmiQuery<>("Win32_Process", HandleCountProperty.class);
         }
@@ -207,7 +207,7 @@ public class WindowsFileSystem implements FileSystem {
         long total;
         List<OSFileStore> fs = new ArrayList<>();
 
-        WmiResult<LogicalDiskProperty> drives = WmiUtil.queryWMI(LOGICAL_DISK_QUERY);
+        WmiResult<LogicalDiskProperty> drives = WmiUtil.queryWMI(this.LOGICAL_DISK_QUERY);
 
         for (int i = 0; i < drives.getResultCount(); i++) {
             free = WmiUtil.getUint64(drives, LogicalDiskProperty.FREESPACE, i);
@@ -262,7 +262,7 @@ public class WindowsFileSystem implements FileSystem {
     @Override
     public long getOpenFileDescriptors() {
         // Try PDH if counter exists
-        if (handleCountCounter != null) {
+        if (this.handleCountCounter != null) {
             PerfDataUtil.updateQuery(this.handleCountCounter);
             return PerfDataUtil.queryCounter(this.handleCountCounter);
         }
