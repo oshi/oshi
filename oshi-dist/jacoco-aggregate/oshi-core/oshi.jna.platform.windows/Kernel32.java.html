@@ -49,7 +49,7 @@ public interface Kernel32 extends com.sun.jna.platform.win32.Kernel32 {
 
     /**
      * Retrieves timing information for the specified process.
-     * 
+     *
      * @param hProcess
      *            A handle to the process whose timing information is sought.
      *            The handle must have the PROCESS_QUERY_INFORMATION or
@@ -85,7 +85,7 @@ public interface Kernel32 extends com.sun.jna.platform.win32.Kernel32 {
     /**
      * Retrieves accounting information for all I/O operations performed by the
      * specified process.
-     * 
+     *
      * @param hProcess
      *            A handle to the process. The handle must have the
      *            PROCESS_QUERY_INFORMATION or PROCESS_QUERY_LIMITED_INFORMATION

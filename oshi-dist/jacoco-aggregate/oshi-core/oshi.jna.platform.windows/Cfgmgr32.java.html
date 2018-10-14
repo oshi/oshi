@@ -45,7 +45,7 @@ public interface Cfgmgr32 extends Library {
      * The CM_Locate_DevNode function obtains a device instance handle to the
      * device node that is associated with a specified device instance ID on the
      * local machine.
-     * 
+     *
      * @param pdnDevInst
      *            A pointer to a device instance handle that CM_Locate_DevNode
      *            retrieves. The retrieved handle is bound to the local machine.
@@ -73,7 +73,7 @@ public interface Cfgmgr32 extends Library {
      * The CM_Get_Parent function obtains a device instance handle to the parent
      * node of a specified device node (devnode) in the local machine's device
      * tree.
-     * 
+     *
      * @param pdnDevInst
      *            Caller-supplied pointer to the device instance handle to the
      *            parent node that this function retrieves. The retrieved handle
@@ -96,7 +96,7 @@ public interface Cfgmgr32 extends Library {
      * The CM_Get_Child function is used to retrieve a device instance handle to
      * the first child node of a specified device node (devnode) in the local
      * machine's device tree.
-     * 
+     *
      * @param pdnDevInst
      *            Caller-supplied pointer to the device instance handle to the
      *            child node that this function retrieves. The retrieved handle
@@ -119,7 +119,7 @@ public interface Cfgmgr32 extends Library {
      * The CM_Get_Sibling function obtains a device instance handle to the next
      * sibling node of a specified device node (devnode) in the local machine's
      * device tree.
-     * 
+     *
      * @param pdnDevInst
      *            Caller-supplied pointer to the device instance handle to the
      *            sibling node that this function retrieves. The retrieved
@@ -141,7 +141,7 @@ public interface Cfgmgr32 extends Library {
     /**
      * The CM_Get_Device_ID function retrieves the device instance ID for a
      * specified device instance on the local machine.
-     * 
+     *
      * @param devInst
      *            Caller-supplied device instance handle that is bound to the
      *            local machine.
@@ -167,7 +167,7 @@ public interface Cfgmgr32 extends Library {
     /**
      * The CM_Get_Device_ID_Size function retrieves the buffer size required to
      * hold a device instance ID for a device instance on the local machine.
-     * 
+     *
      * @param pulLen
      *            Receives a value representing the required buffer size, in
      *            characters.

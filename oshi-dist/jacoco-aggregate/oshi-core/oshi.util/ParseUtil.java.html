@@ -328,7 +328,7 @@ public class ParseUtil {
         // sign-extension,
         // then drop any copies of the sign bit, to prevent the value being
         // considered a negative one by Java if it is set
-<span class="fc" id="L331">        long longValue = (long) unsignedValue;</span>
+<span class="fc" id="L331">        long longValue = unsignedValue;</span>
 <span class="fc" id="L332">        return longValue &amp; 0xffffffffL;</span>
     }
 
@@ -413,7 +413,7 @@ public class ParseUtil {
      */
     public static long parseUnsignedLongOrDefault(String s, long defaultLong) {
         try {
-<span class="fc" id="L416">            return (new BigInteger(s)).longValue();</span>
+<span class="fc" id="L416">            return new BigInteger(s).longValue();</span>
 <span class="fc" id="L417">        } catch (NumberFormatException e) {</span>
 <span class="fc" id="L418">            LOG.trace(DEFAULT_LOG_MSG, s, e);</span>
 <span class="fc" id="L419">            return defaultLong;</span>
@@ -499,6 +499,29 @@ public class ParseUtil {
     }
 
     /**
+     * Gets a value between two characters having multiple same characters
+     * between them. &lt;b&gt;Examples : &lt;/b&gt;
+     * &lt;ul&gt;
+     * &lt;li&gt;&quot;name = 'James Gosling's Java'&quot; returns &quot;James Gosling's Java&quot;&lt;/li&gt;
+     * &lt;li&gt;&quot;pci.name = 'Realtek AC'97 Audio Device'&quot; returns &quot;Realtek AC'97
+     * Audio Device&quot;&lt;/li&gt;
+     * &lt;/ul&gt;
+     *
+     * @param line
+     *            The &quot;key-value&quot; pair line.
+     * @param c
+     *            The Trailing And Leading characters of the string line
+     * @return : The value having the characters between them.
+     */
+    public static String getStringBetween(String line, char c) {
+<span class="fc" id="L517">        int firstOcc = line.indexOf(c);</span>
+<span class="pc bpc" id="L518" title="1 of 2 branches missed.">        if (firstOcc &lt; 0) {</span>
+<span class="nc" id="L519">            return &quot;&quot;;</span>
+        }
+<span class="fc" id="L521">        return line.substring(firstOcc + 1, line.lastIndexOf(c)).trim();</span>
+    }
+
+    /**
      * Parses a string such as &quot;10.12.2&quot; or &quot;key = 1 (0x1) (int)&quot; to find the
      * integer value of the first set of one or more consecutive digits
      *
@@ -507,7 +530,7 @@ public class ParseUtil {
      * @return the value of first integer if any; 0 otherwise
      */
     public static int getFirstIntValue(String line) {
-<span class="fc" id="L510">        return getNthIntValue(line, 1);</span>
+<span class="fc" id="L533">        return getNthIntValue(line, 1);</span>
     }
 
     /**
@@ -522,17 +545,17 @@ public class ParseUtil {
      */
     public static int getNthIntValue(String line, int n) {
         // Split the string by non-digits,
-<span class="fc" id="L525">        String[] split = notDigits.split(startWithNotDigits.matcher(line).replaceFirst(&quot;&quot;));</span>
-<span class="fc bfc" id="L526" title="All 2 branches covered.">        if (split.length &gt;= n) {</span>
-<span class="fc" id="L527">            return parseIntOrDefault(split[n - 1], 0);</span>
+<span class="fc" id="L548">        String[] split = notDigits.split(startWithNotDigits.matcher(line).replaceFirst(&quot;&quot;));</span>
+<span class="fc bfc" id="L549" title="All 2 branches covered.">        if (split.length &gt;= n) {</span>
+<span class="fc" id="L550">            return parseIntOrDefault(split[n - 1], 0);</span>
         }
-<span class="fc" id="L529">        return 0;</span>
+<span class="fc" id="L552">        return 0;</span>
     }
 
     /**
      * Removes all matching sub strings from the string. More efficient than
      * regexp.
-     * 
+     *
      * @param original
      *            source String to remove from
      * @param toRemove
@@ -540,23 +563,25 @@ public class ParseUtil {
      * @return The string with all matching substrings removed
      */
     public static String removeMatchingString(final String original, final String toRemove) {
-<span class="pc bpc" id="L543" title="2 of 8 branches missed.">        if (original == null || original.isEmpty() || toRemove == null || toRemove.isEmpty())</span>
-<span class="fc" id="L544">            return original;</span>
+<span class="pc bpc" id="L566" title="2 of 8 branches missed.">        if (original == null || original.isEmpty() || toRemove == null || toRemove.isEmpty()) {</span>
+<span class="fc" id="L567">            return original;</span>
+        }
 
-<span class="fc" id="L546">        int matchIndex = original.indexOf(toRemove, 0);</span>
-<span class="fc bfc" id="L547" title="All 2 branches covered.">        if (matchIndex == -1)</span>
-<span class="fc" id="L548">            return original;</span>
+<span class="fc" id="L570">        int matchIndex = original.indexOf(toRemove, 0);</span>
+<span class="fc bfc" id="L571" title="All 2 branches covered.">        if (matchIndex == -1) {</span>
+<span class="fc" id="L572">            return original;</span>
+        }
 
-<span class="fc" id="L550">        StringBuilder buffer = new StringBuilder(original.length() - toRemove.length());</span>
-<span class="fc" id="L551">        int currIndex = 0;</span>
+<span class="fc" id="L575">        StringBuilder buffer = new StringBuilder(original.length() - toRemove.length());</span>
+<span class="fc" id="L576">        int currIndex = 0;</span>
         do {
-<span class="fc" id="L553">            buffer.append(original.substring(currIndex, matchIndex));</span>
-<span class="fc" id="L554">            currIndex = matchIndex + toRemove.length();</span>
-<span class="fc" id="L555">            matchIndex = original.indexOf(toRemove, currIndex);</span>
-<span class="fc bfc" id="L556" title="All 2 branches covered.">        } while (matchIndex != -1);</span>
+<span class="fc" id="L578">            buffer.append(original.substring(currIndex, matchIndex));</span>
+<span class="fc" id="L579">            currIndex = matchIndex + toRemove.length();</span>
+<span class="fc" id="L580">            matchIndex = original.indexOf(toRemove, currIndex);</span>
+<span class="fc bfc" id="L581" title="All 2 branches covered.">        } while (matchIndex != -1);</span>
 
-<span class="fc" id="L558">        buffer.append(original.substring(currIndex));</span>
-<span class="fc" id="L559">        return buffer.toString();</span>
+<span class="fc" id="L583">        buffer.append(original.substring(currIndex));</span>
+<span class="fc" id="L584">        return buffer.toString();</span>
     }
 
     /**
@@ -564,12 +589,12 @@ public class ParseUtil {
      * predictable-length arrays such as outputs of reliably formatted Linux
      * proc or sys filesystem, minimizing new object creation. Users should
      * perform other sanity checks of data.
-     * 
+     *
      * The indices parameters are referenced assuming the length as specified,
      * and leading characters are ignored. For example, if the string is &quot;foo 12
      * 34 5&quot; and the length is 3, then index 0 is 12, index 1 is 34, and index 2
      * is 5.
-     * 
+     *
      * @param s
      *            The string to parse
      * @param indices
@@ -587,50 +612,73 @@ public class ParseUtil {
      *         occurred, will be an array of zeros.
      */
     public static long[] parseStringToLongArray(String s, int[] indices, int length, char delimiter) {
-<span class="fc" id="L590">        long[] parsed = new long[indices.length];</span>
+<span class="fc" id="L615">        long[] parsed = new long[indices.length];</span>
         // Iterate from right-to-left of String
         // Fill right to left of result array using index array
-<span class="fc" id="L593">        int charIndex = s.length() - 1;</span>
-<span class="fc" id="L594">        int parsedIndex = indices.length - 1;</span>
-<span class="fc" id="L595">        int stringIndex = length - 1;</span>
+<span class="fc" id="L618">        int charIndex = s.length() - 1;</span>
+<span class="fc" id="L619">        int parsedIndex = indices.length - 1;</span>
+<span class="fc" id="L620">        int stringIndex = length - 1;</span>
 
-<span class="fc" id="L597">        int power = 0;</span>
+<span class="fc" id="L622">        int power = 0;</span>
         int c;
-<span class="fc" id="L599">        boolean delimCurrent = false;</span>
-<span class="fc bfc" id="L600" title="All 4 branches covered.">        while (charIndex &gt; 0 &amp;&amp; parsedIndex &gt;= 0) {</span>
-<span class="fc" id="L601">            c = s.charAt(charIndex--);</span>
-<span class="fc bfc" id="L602" title="All 2 branches covered.">            if (c == delimiter) {</span>
-<span class="pc bpc" id="L603" title="1 of 2 branches missed.">                if (!delimCurrent) {</span>
-<span class="fc" id="L604">                    power = 0;</span>
-<span class="fc bfc" id="L605" title="All 2 branches covered.">                    if (indices[parsedIndex] == stringIndex--) {</span>
-<span class="fc" id="L606">                        parsedIndex--;</span>
+<span class="fc" id="L624">        boolean delimCurrent = false;</span>
+<span class="fc bfc" id="L625" title="All 4 branches covered.">        while (charIndex &gt; 0 &amp;&amp; parsedIndex &gt;= 0) {</span>
+<span class="fc" id="L626">            c = s.charAt(charIndex--);</span>
+<span class="fc bfc" id="L627" title="All 2 branches covered.">            if (c == delimiter) {</span>
+<span class="pc bpc" id="L628" title="1 of 2 branches missed.">                if (!delimCurrent) {</span>
+<span class="fc" id="L629">                    power = 0;</span>
+<span class="fc bfc" id="L630" title="All 2 branches covered.">                    if (indices[parsedIndex] == stringIndex--) {</span>
+<span class="fc" id="L631">                        parsedIndex--;</span>
                     }
-<span class="fc" id="L608">                    delimCurrent = true;</span>
+<span class="fc" id="L633">                    delimCurrent = true;</span>
                 }
-<span class="fc bfc" id="L610" title="All 4 branches covered.">            } else if (indices[parsedIndex] != stringIndex || c == '+') {</span>
+<span class="fc bfc" id="L635" title="All 4 branches covered.">            } else if (indices[parsedIndex] != stringIndex || c == '+') {</span>
                 // Doesn't impact parsing, ignore
-<span class="fc" id="L612">                delimCurrent = false;</span>
-<span class="fc bfc" id="L613" title="All 4 branches covered.">            } else if (c &gt;= '0' &amp;&amp; c &lt;= '9') {</span>
-<span class="fc bfc" id="L614" title="All 2 branches covered.">                if (power &gt; 18) {</span>
-<span class="fc" id="L615">                    LOG.error(&quot;Number is too big for a long parsing string '{}' to long array&quot;, s);</span>
-<span class="fc" id="L616">                    return new long[indices.length];</span>
+<span class="fc" id="L637">                delimCurrent = false;</span>
+<span class="fc bfc" id="L638" title="All 4 branches covered.">            } else if (c &gt;= '0' &amp;&amp; c &lt;= '9') {</span>
+<span class="fc bfc" id="L639" title="All 2 branches covered.">                if (power &gt; 18) {</span>
+<span class="fc" id="L640">                    LOG.error(&quot;Number is too big for a long parsing string '{}' to long array&quot;, s);</span>
+<span class="fc" id="L641">                    return new long[indices.length];</span>
                 }
-<span class="fc" id="L618">                parsed[parsedIndex] += (c - '0') * ParseUtil.POWERS_OF_TEN[power++];</span>
-<span class="fc" id="L619">                delimCurrent = false;</span>
-<span class="fc bfc" id="L620" title="All 2 branches covered.">            } else if (c == '-') {</span>
-<span class="fc" id="L621">                parsed[parsedIndex] *= -1L;</span>
-<span class="fc" id="L622">                delimCurrent = false;</span>
+<span class="fc" id="L643">                parsed[parsedIndex] += (c - '0') * ParseUtil.POWERS_OF_TEN[power++];</span>
+<span class="fc" id="L644">                delimCurrent = false;</span>
+<span class="fc bfc" id="L645" title="All 2 branches covered.">            } else if (c == '-') {</span>
+<span class="fc" id="L646">                parsed[parsedIndex] *= -1L;</span>
+<span class="fc" id="L647">                delimCurrent = false;</span>
             } else {
                 // error on everything else
-<span class="fc" id="L625">                LOG.error(&quot;Illegal character parsing string '{}' to long array: {}&quot;, s, s.charAt(charIndex));</span>
-<span class="fc" id="L626">                return new long[indices.length];</span>
+<span class="fc" id="L650">                LOG.error(&quot;Illegal character parsing string '{}' to long array: {}&quot;, s, s.charAt(charIndex));</span>
+<span class="fc" id="L651">                return new long[indices.length];</span>
             }
         }
-<span class="fc bfc" id="L629" title="All 2 branches covered.">        if (parsedIndex &gt; 0) {</span>
-<span class="fc" id="L630">            LOG.error(&quot;Not enough fields in string '{}' parsing to long array: {}&quot;, s, indices.length - parsedIndex);</span>
-<span class="fc" id="L631">            return new long[indices.length];</span>
+<span class="fc bfc" id="L654" title="All 2 branches covered.">        if (parsedIndex &gt; 0) {</span>
+<span class="fc" id="L655">            LOG.error(&quot;Not enough fields in string '{}' parsing to long array: {}&quot;, s, indices.length - parsedIndex);</span>
+<span class="fc" id="L656">            return new long[indices.length];</span>
         }
-<span class="fc" id="L633">        return parsed;</span>
+<span class="fc" id="L658">        return parsed;</span>
+    }
+
+    /**
+     * Get a String in a line of text between two marker strings
+     *
+     * @param text
+     *            Text to search for match
+     * @param before
+     *            Start matching after this text
+     * @param after
+     *            End matching before this text
+     * @return Text between the strings before and after, or empty string if
+     *         either marker does not exist
+     */
+    public static String getTextBetweenStrings(String text, String before, String after) {
+
+<span class="fc" id="L675">        String result = &quot;&quot;;</span>
+
+<span class="fc bfc" id="L677" title="All 4 branches covered.">        if (text.indexOf(before) &gt;= 0 &amp;&amp; text.indexOf(after) &gt;= 0) {</span>
+<span class="fc" id="L678">            result = text.substring(text.indexOf(before) + before.length(), text.length());</span>
+<span class="fc" id="L679">            result = result.substring(0, result.indexOf(after));</span>
+        }
+<span class="fc" id="L681">        return result;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

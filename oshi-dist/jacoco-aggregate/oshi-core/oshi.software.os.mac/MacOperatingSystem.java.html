@@ -76,8 +76,8 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
 <span class="nc" id="L76">    }</span>
 
     private void initBitness() {
-<span class="nc bnc" id="L79" title="All 2 branches missed.">        if (bitness &lt; 64) {</span>
-<span class="nc bnc" id="L80" title="All 2 branches missed.">            if (this.getVersion().getOsxVersionNumber() &gt; 7) {</span>
+<span class="nc bnc" id="L79" title="All 2 branches missed.">        if (this.bitness &lt; 64) {</span>
+<span class="nc bnc" id="L80" title="All 2 branches missed.">            if (getVersion().getOsxVersionNumber() &gt; 7) {</span>
 <span class="nc" id="L81">                this.bitness = 64;</span>
             } else {
 <span class="nc" id="L83">                this.bitness = ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer(&quot;getconf LONG_BIT&quot;), 32);</span>

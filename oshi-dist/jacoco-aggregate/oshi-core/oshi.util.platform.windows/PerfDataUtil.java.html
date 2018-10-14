@@ -42,7 +42,7 @@ import com.sun.jna.platform.win32.WinNT.HANDLEByReference;
 /**
  * Helper class to centralize the boilerplate portions of PDH counter setup and
  * allow applications to easily add, query, and remove counters.
- * 
+ *
  * @author widdis[at]gmail[dot]com
  */
 public class PerfDataUtil {
@@ -77,9 +77,9 @@ public class PerfDataUtil {
         private String counter;
 
 <span class="nc" id="L79">        public PerfCounter(String objectName, String instanceName, String counterName) {</span>
-<span class="nc" id="L80">            object = objectName;</span>
-<span class="nc" id="L81">            instance = instanceName;</span>
-<span class="nc" id="L82">            counter = counterName;</span>
+<span class="nc" id="L80">            this.object = objectName;</span>
+<span class="nc" id="L81">            this.instance = instanceName;</span>
+<span class="nc" id="L82">            this.counter = counterName;</span>
 <span class="nc" id="L83">        }</span>
     }
 
@@ -95,7 +95,7 @@ public class PerfDataUtil {
 
     /**
      * Create a Performance Counter
-     * 
+     *
      * @param object
      *            The object/path for the counter
      * @param instance
@@ -111,7 +111,7 @@ public class PerfDataUtil {
 
     /**
      * Begin monitoring a Performance Data counter
-     * 
+     *
      * @param counter
      *            A PerfCounter object
      * @return True if the counter was successfully added.
@@ -133,7 +133,7 @@ public class PerfDataUtil {
 
     /**
      * Stop monitoring a Performance Data counter
-     * 
+     *
      * @param counter
      *            A PerfCounter object
      * @return True if the counter was successfully removed.
@@ -147,7 +147,7 @@ public class PerfDataUtil {
 
     /**
      * Update a counter, and all other counters on that object
-     * 
+     *
      * @param counter
      *            The counter whose object to update counters on
      * @return The timestamp for the update of all the counters, in milliseconds
@@ -174,7 +174,7 @@ public class PerfDataUtil {
 
     /**
      * Update all counters on an object
-     * 
+     *
      * @param queryKey
      *            The counter object to update counters on
      * @return The timestamp for the update of all the counters, in milliseconds
@@ -190,7 +190,7 @@ public class PerfDataUtil {
     /**
      * Query the raw counter value of a Performance Data counter. Further
      * mathematical manipulation/conversion is left to the caller.
-     * 
+     *
      * @param counter
      *            The counter to query
      * @return The raw value of the counter
@@ -208,7 +208,7 @@ public class PerfDataUtil {
     /**
      * Stop monitoring Performance Data counters for a particular queryKey and
      * release their resources
-     * 
+     *
      * @param queryKey
      *            The counter object to remove counters from
      */
@@ -235,7 +235,7 @@ public class PerfDataUtil {
      * Open a query for the given string, or confirm a query is already open for
      * that string. Multiple counters may be added to this string, but will all
      * be queried at the same time.
-     * 
+     *
      * @param objectName
      *            String to associate with the counter. Normally the English PDH
      *            object name.
@@ -255,10 +255,10 @@ public class PerfDataUtil {
 
     /**
      * Build a counter path
-     * 
+     *
      * counter A Counter object with the object, counter, and (optional)
      * instance
-     * 
+     *
      * @return A string representing the complete counter
      */
     private static String counterPath(PerfCounter counter) {
@@ -283,7 +283,7 @@ public class PerfDataUtil {
 
     /**
      * Open a pdh query
-     * 
+     *
      * @param q
      *            pointer to the query
      * @return true if successful
@@ -298,7 +298,7 @@ public class PerfDataUtil {
 
     /**
      * Adds a pdh counter to a query
-     * 
+     *
      * @param query
      *            Pointer to the query to add the counter
      * @param path
@@ -318,7 +318,7 @@ public class PerfDataUtil {
 
     /**
      * Get value of pdh counter
-     * 
+     *
      * @param counter
      *            The counter to get the value of
      * @return long value of the counter
@@ -336,7 +336,7 @@ public class PerfDataUtil {
 
     /**
      * Update a query and get the timestamp
-     * 
+     *
      * @param query
      *            The query to update all counters in
      * @return The update timestamp of the first counter in the query
@@ -357,7 +357,7 @@ public class PerfDataUtil {
     /**
      * Convert a long representing filetime (100-ns since 1601 epoch) to ms
      * since 1970 epoch
-     * 
+     *
      * @param filetime
      *            A 64-bit value equivalent to FILETIME
      * @param local

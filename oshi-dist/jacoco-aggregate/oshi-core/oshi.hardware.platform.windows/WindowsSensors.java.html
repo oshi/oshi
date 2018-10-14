@@ -148,8 +148,8 @@ public class WindowsSensors implements Sensors {
         // If we get this far, OHM is not running. Try from PDH
 <span class="nc" id="L149">        long tempK = 0L;</span>
 <span class="nc bnc" id="L150" title="All 2 branches missed.">        if (this.thermalZoneQuery == null) {</span>
-<span class="nc" id="L151">            PerfDataUtil.updateQuery(thermalZoneCounter);</span>
-<span class="nc" id="L152">            tempK = PerfDataUtil.queryCounter(thermalZoneCounter);</span>
+<span class="nc" id="L151">            PerfDataUtil.updateQuery(this.thermalZoneCounter);</span>
+<span class="nc" id="L152">            tempK = PerfDataUtil.queryCounter(this.thermalZoneCounter);</span>
         } else {
             // No counter, use WMI
 <span class="nc" id="L155">            WmiResult&lt;ThermalZoneProperty&gt; result = WmiUtil.queryWMI(this.thermalZoneQuery);</span>
