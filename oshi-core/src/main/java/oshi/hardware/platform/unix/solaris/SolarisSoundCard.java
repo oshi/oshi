@@ -62,7 +62,7 @@ public class SolarisSoundCard extends AbstractSoundCard {
                                 continue;
                         } else if (line.contains("info.solaris.driver =") && DEFAULT_AUDIO_DRIVER.equals(ParseUtil.getSingleQuoteStringValue(line))) {
                                 sounds.add(key);
-                        } else if (line.contains(("info.product"))) {
+                        } else if (line.contains("info.product")) {
                                 productMap.put(key, ParseUtil.getStringBetween(line,'\''));
                                 continue;
                         } else if (line.contains("info.vendor")) {
