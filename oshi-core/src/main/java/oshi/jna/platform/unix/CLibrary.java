@@ -18,12 +18,10 @@
  */
 package oshi.jna.platform.unix;
 
-import java.util.Arrays;
-import java.util.List;
-
 import com.sun.jna.Library;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
+import com.sun.jna.Structure.FieldOrder;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
 
@@ -44,29 +42,23 @@ public interface CLibrary extends Library {
     /**
      * Return type for BSD sysctl kern.boottime
      */
+    @FieldOrder({ "tv_sec", "tv_usec" })
     class Timeval extends Structure {
         public long tv_sec; // seconds
         public long tv_usec; // microseconds
-
-        @Override
-        protected List<String> getFieldOrder() {
-            return Arrays.asList(new String[] { "tv_sec", "tv_usec" });
-        }
     }
 
+    @FieldOrder({ "sa_family", "sa_data" })
     class Sockaddr extends Structure {
         public short sa_family;
         public byte[] sa_data = new byte[14];
 
         public static class ByReference extends Sockaddr implements Structure.ByReference {
         }
-
-        @Override
-        protected List<String> getFieldOrder() {
-            return Arrays.asList(new String[] { "sa_family", "sa_data" });
-        }
     }
 
+    @FieldOrder({ "ai_flags", "ai_family", "ai_socktype", "ai_protocol", "ai_addrlen", "ai_addr", "ai_canonname",
+            "ai_next" })
     class Addrinfo extends Structure {
         public int ai_flags;
         public int ai_family;
@@ -78,12 +70,6 @@ public interface CLibrary extends Library {
         public ByReference ai_next;
 
         public static class ByReference extends Addrinfo implements Structure.ByReference {
-        }
-
-        @Override
-        protected List<String> getFieldOrder() {
-            return Arrays.asList(new String[] { "ai_flags", "ai_family", "ai_socktype", "ai_protocol", "ai_addrlen",
-                    "ai_addr", "ai_canonname", "ai_next" });
         }
 
         public Addrinfo() {

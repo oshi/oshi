@@ -18,14 +18,12 @@
  */
 package oshi.jna.platform.windows;
 
-import java.util.Arrays;
-import java.util.List;
-
 import com.sun.jna.Library;
 import com.sun.jna.Native;
 import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
+import com.sun.jna.Structure.FieldOrder;
 
 /**
  * Power profile stats. This class should be considered non-API as it may be
@@ -38,6 +36,8 @@ public interface PowrProf extends Library {
 
     int SYSTEM_BATTERY_STATE = 5;
 
+    @FieldOrder({ "acOnLine", "batteryPresent", "charging", "discharging", "spare1", "maxCapacity", "remainingCapacity",
+            "rate", "estimatedTime", "defaultAlert1", "defaultAlert2" })
     class SystemBatteryState extends Structure {
         public byte acOnLine; // boolean
         public byte batteryPresent; // boolean
@@ -50,12 +50,6 @@ public interface PowrProf extends Library {
         public int estimatedTime; // signed 32 bit
         public int defaultAlert1; // unsigned 32 bit
         public int defaultAlert2; // unsigned 32 bit
-
-        @Override
-        protected List<String> getFieldOrder() {
-            return Arrays.asList(new String[] { "acOnLine", "batteryPresent", "charging", "discharging", "spare1",
-                    "maxCapacity", "remainingCapacity", "rate", "estimatedTime", "defaultAlert1", "defaultAlert2" });
-        }
     }
 
     int CallNtPowerInformation(int informationLevel, Pointer lpInputBuffer, NativeLong nInputBufferSize,
