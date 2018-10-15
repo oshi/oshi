@@ -112,6 +112,8 @@ public class WmiUtil {
     /**
      * Query WMI for values, with no timeout.
      *
+     * @param <T>
+     *            The properties enum
      * @param query
      *            A WmiQuery object encapsulating the namespace, class, and
      *            properties
@@ -161,6 +163,8 @@ public class WmiUtil {
     /**
      * Translate a WmiQuery to the actual query string
      * 
+     * @param <T>
+     *            The properties enum
      * @param query
      *            The WmiQuery object
      * @return The string that is queried in WMI

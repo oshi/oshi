@@ -67,7 +67,9 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
 
     /**
      * Copy constructor
-     *
+     * 
+     * @param diskStore
+     *            The object to copy
      */
     public HWDiskStore(HWDiskStore diskStore) {
         HWPartition[] partsOrig = diskStore.getPartitions();
