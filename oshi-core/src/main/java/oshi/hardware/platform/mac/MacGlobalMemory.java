@@ -24,11 +24,11 @@ import org.slf4j.LoggerFactory;
 import com.sun.jna.Native; // NOSONAR
 import com.sun.jna.platform.mac.SystemB;
 import com.sun.jna.platform.mac.SystemB.VMStatistics;
+import com.sun.jna.platform.mac.SystemB.XswUsage;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.LongByReference;
 
 import oshi.hardware.common.AbstractGlobalMemory;
-import oshi.jna.platform.mac.SystemB.XswUsage;
 import oshi.util.ParseUtil;
 import oshi.util.platform.mac.SysctlUtil;
 

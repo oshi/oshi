@@ -18,9 +18,10 @@
  */
 package oshi.hardware.platform.windows;
 
+import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery; // NOSONAR squid:S1191
+import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
+
 import oshi.hardware.common.AbstractFirmware;
-import oshi.jna.platform.windows.WbemcliUtil.WmiQuery;
-import oshi.jna.platform.windows.WbemcliUtil.WmiResult;
 import oshi.util.platform.windows.WmiUtil;
 
 /**

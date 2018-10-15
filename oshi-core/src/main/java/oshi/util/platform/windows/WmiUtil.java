@@ -25,17 +25,17 @@ import java.util.concurrent.TimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sun.jna.platform.win32.Ole32;
 import com.sun.jna.platform.win32.Variant;
 import com.sun.jna.platform.win32.WinError;
 import com.sun.jna.platform.win32.WinNT.HRESULT;
 import com.sun.jna.platform.win32.COM.COMException;
 import com.sun.jna.platform.win32.COM.COMUtils;
+import com.sun.jna.platform.win32.COM.Wbemcli;
+import com.sun.jna.platform.win32.COM.WbemcliUtil;
+import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
+import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
-import oshi.jna.platform.windows.Ole32;
-import oshi.jna.platform.windows.Wbemcli;
-import oshi.jna.platform.windows.WbemcliUtil;
-import oshi.jna.platform.windows.WbemcliUtil.WmiQuery;
-import oshi.jna.platform.windows.WbemcliUtil.WmiResult;
 import oshi.util.ParseUtil;
 
 /**
@@ -113,7 +113,7 @@ public class WmiUtil {
      * Query WMI for values, with no timeout.
      *
      * @param <T>
-     *            The enum type containing the property keys
+     *            The properties enum
      * @param query
      *            A WmiQuery object encapsulating the namespace, class, and
      *            properties
@@ -137,27 +137,47 @@ public class WmiUtil {
         } catch (COMException e) {
             // Ignore any exceptions with OpenHardwareMonitor
             if (!OHM_NAMESPACE.equals(query.getNameSpace())) {
-                // TODO: JNA 5 version of COMException will include the HResult
-                // and allow finer grained error messages based on
-                // Wbemcli.WBEM_E_INVALID_NAMESPACE,
-                // Wbemcli.WBEM_E_INVALID_CLASS, or
-                // Wbemcli.WBEM_E_INVALID_QUERY.
+                switch (e.getHresult().intValue()) {
+                case Wbemcli.WBEM_E_INVALID_NAMESPACE:
+                    LOG.warn("COM exception: Invalid Namespace {}", query.getNameSpace());
+                    break;
+                case Wbemcli.WBEM_E_INVALID_CLASS:
+                    LOG.warn("COM exception: Invalid Class {}", query.getWmiClassName());
+                    break;
+                case Wbemcli.WBEM_E_INVALID_QUERY:
+                    LOG.warn("COM exception: Invalid Query: {}", queryToString(query));
+                    break;
+                default:
+                    LOG.warn(
+                            "COM exception querying {}, which might not be on your system. Will not attempt to query it again. Error was: {}:",
+                            query.getWmiClassName(), e.getMessage());
+                }
                 failedWmiClassNames.add(query.getWmiClassName());
-                LOG.warn(
-                        "COM exception querying {}, which might not be on your system. Will not attempt to query it again. Error was: {}:",
-                        query.getWmiClassName(), e.getMessage());
             }
         } catch (TimeoutException e) {
-            T[] props = query.getPropertyEnum().getEnumConstants();
-            StringBuilder sb = new StringBuilder("SELECT ");
-            sb.append(props[0].name());
-            for (int i = 1; i < props.length; i++) {
-                sb.append(',').append(props[i].name());
-            }
-            sb.append(" FROM ").append(query.getWmiClassName());
-            LOG.error("WMI query timed out after {} ms: {}", wmiTimeout, sb);
+            LOG.error("WMI query timed out after {} ms: {}", wmiTimeout, queryToString(query));
         }
         return result;
+    }
+
+    /**
+     * Translate a WmiQuery to the actual query string
+     * 
+     * @param <T>
+     *            The properties enum
+     * @param query
+     *            The WmiQuery object
+     * @return The string that is queried in WMI
+     */
+    public static <T extends Enum<T>> String queryToString(WmiQuery<T> query) {
+        T[] props = query.getPropertyEnum().getEnumConstants();
+        StringBuilder sb = new StringBuilder("SELECT ");
+        sb.append(props[0].name());
+        for (int i = 1; i < props.length; i++) {
+            sb.append(',').append(props[i].name());
+        }
+        sb.append(" FROM ").append(query.getWmiClassName());
+        return sb.toString();
     }
 
     /**
