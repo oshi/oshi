@@ -21,7 +21,7 @@ package oshi.hardware.platform.windows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.NativeLong; // NOSONAR
+import com.sun.jna.NativeLong; // NOSONAR squid:S1191
 
 import oshi.hardware.PowerSource;
 import oshi.hardware.common.AbstractPowerSource;

@@ -34,31 +34,21 @@ import com.sun.jna.Structure;
  * @author widdis[at]gmail[dot]com
  */
 public interface PowrProf extends Library {
-    PowrProf INSTANCE = Native.loadLibrary("PowrProf", PowrProf.class);
+    PowrProf INSTANCE = Native.load("PowrProf", PowrProf.class);
 
     int SYSTEM_BATTERY_STATE = 5;
 
     class SystemBatteryState extends Structure {
         public byte acOnLine; // boolean
-
         public byte batteryPresent; // boolean
-
         public byte charging; // boolean
-
         public byte discharging; // boolean
-
         public byte[] spare1 = new byte[4]; // unused
-
         public int maxCapacity; // unsigned 32 bit
-
         public int remainingCapacity; // unsigned 32 bit
-
         public int rate; // signed 32 bit
-
         public int estimatedTime; // signed 32 bit
-
         public int defaultAlert1; // unsigned 32 bit
-
         public int defaultAlert2; // unsigned 32 bit
 
         @Override

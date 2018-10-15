@@ -18,6 +18,7 @@
  */
 package oshi.util.platform.windows;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
@@ -25,17 +26,17 @@ import java.util.concurrent.TimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sun.jna.platform.win32.Ole32;
 import com.sun.jna.platform.win32.Variant;
 import com.sun.jna.platform.win32.WinError;
 import com.sun.jna.platform.win32.WinNT.HRESULT;
 import com.sun.jna.platform.win32.COM.COMException;
 import com.sun.jna.platform.win32.COM.COMUtils;
+import com.sun.jna.platform.win32.COM.Wbemcli;
+import com.sun.jna.platform.win32.COM.WbemcliUtil;
+import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
+import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
-import oshi.jna.platform.windows.Ole32;
-import oshi.jna.platform.windows.Wbemcli;
-import oshi.jna.platform.windows.WbemcliUtil;
-import oshi.jna.platform.windows.WbemcliUtil.WmiQuery;
-import oshi.jna.platform.windows.WbemcliUtil.WmiResult;
 import oshi.util.ParseUtil;
 
 /**
@@ -137,15 +138,23 @@ public class WmiUtil {
         } catch (COMException e) {
             // Ignore any exceptions with OpenHardwareMonitor
             if (!OHM_NAMESPACE.equals(query.getNameSpace())) {
-                // TODO: JNA 5 version of COMException will include the HResult
-                // and allow finer grained error messages based on
-                // Wbemcli.WBEM_E_INVALID_NAMESPACE,
-                // Wbemcli.WBEM_E_INVALID_CLASS, or
-                // Wbemcli.WBEM_E_INVALID_QUERY.
+                switch (e.getHresult().intValue()) {
+                case Wbemcli.WBEM_E_INVALID_NAMESPACE:
+                    LOG.warn("COM exception: Invalid Namespace {}", query.getNameSpace());
+                    break;
+                case Wbemcli.WBEM_E_INVALID_CLASS:
+                    LOG.warn("COM exception: Invalid Class {}", query.getWmiClassName());
+                    break;
+                case Wbemcli.WBEM_E_INVALID_QUERY:
+                    LOG.warn("COM exception: Invalid Query: SELECT {} FROM {}",
+                            Arrays.toString(query.getPropertyEnum().getEnumConstants()), query.getWmiClassName());
+                    break;
+                default:
+                    LOG.warn(
+                            "COM exception querying {}, which might not be on your system. Will not attempt to query it again. Error was: {}:",
+                            query.getWmiClassName(), e.getMessage());
+                }
                 failedWmiClassNames.add(query.getWmiClassName());
-                LOG.warn(
-                        "COM exception querying {}, which might not be on your system. Will not attempt to query it again. Error was: {}:",
-                        query.getWmiClassName(), e.getMessage());
             }
         } catch (TimeoutException e) {
             T[] props = query.getPropertyEnum().getEnumConstants();

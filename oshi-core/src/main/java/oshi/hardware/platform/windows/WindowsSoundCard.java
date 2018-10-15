@@ -23,8 +23,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.sun.jna.platform.win32.COM.WbemcliUtil; // NOSONAR squid:S1191
+
 import oshi.hardware.common.AbstractSoundCard;
-import oshi.jna.platform.windows.WbemcliUtil;
 import oshi.util.platform.windows.WmiUtil;
 
 /**
