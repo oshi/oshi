@@ -43,7 +43,7 @@ import oshi.jna.platform.mac.CoreFoundation.CFTypeRef;
  * @author widdis[at]gmail[dot]com
  */
 public interface IOKit extends Library {
-    IOKit INSTANCE = Native.loadLibrary("IOKit", IOKit.class);
+    IOKit INSTANCE = Native.load("IOKit", IOKit.class);
 
     CFStringRef IOPS_NAME_KEY = CFStringRef.toCFString("Name");
 

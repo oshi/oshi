@@ -25,14 +25,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.ptr.IntByReference; // NOSONAR
+import com.sun.jna.platform.mac.SystemB; // NOSONAR
+import com.sun.jna.ptr.IntByReference;
 
 import oshi.jna.platform.mac.IOKit;
 import oshi.jna.platform.mac.IOKit.IOConnect;
 import oshi.jna.platform.mac.IOKit.SMCKeyData;
 import oshi.jna.platform.mac.IOKit.SMCKeyDataKeyInfo;
 import oshi.jna.platform.mac.IOKit.SMCVal;
-import oshi.jna.platform.mac.SystemB;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
 

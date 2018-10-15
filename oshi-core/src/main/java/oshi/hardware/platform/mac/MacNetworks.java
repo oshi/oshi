@@ -26,13 +26,13 @@ import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Memory; // NOSONAR
 import com.sun.jna.Pointer;
+import com.sun.jna.platform.mac.SystemB;
+import com.sun.jna.platform.mac.SystemB.IFmsgHdr;
+import com.sun.jna.platform.mac.SystemB.IFmsgHdr2;
 import com.sun.jna.ptr.IntByReference;
 
 import oshi.hardware.NetworkIF;
 import oshi.hardware.common.AbstractNetworks;
-import oshi.jna.platform.mac.SystemB;
-import oshi.jna.platform.mac.SystemB.IFmsgHdr;
-import oshi.jna.platform.mac.SystemB.IFmsgHdr2;
 
 /**
  * @author widdis[at]gmail[dot]com

@@ -33,7 +33,7 @@ import oshi.jna.platform.mac.CoreFoundation.CFDictionaryRef;
  * @author widdis[at]gmail[dot]com
  */
 public interface DiskArbitration extends Library {
-    DiskArbitration INSTANCE = Native.loadLibrary("DiskArbitration", DiskArbitration.class);
+    DiskArbitration INSTANCE = Native.load("DiskArbitration", DiskArbitration.class);
 
     class DASessionRef extends PointerType {
     }
