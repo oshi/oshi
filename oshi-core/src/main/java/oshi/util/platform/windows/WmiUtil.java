@@ -18,7 +18,6 @@
  */
 package oshi.util.platform.windows;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
@@ -113,8 +112,6 @@ public class WmiUtil {
     /**
      * Query WMI for values, with no timeout.
      *
-     * @param <T>
-     *            The enum type containing the property keys
      * @param query
      *            A WmiQuery object encapsulating the namespace, class, and
      *            properties
@@ -146,8 +143,7 @@ public class WmiUtil {
                     LOG.warn("COM exception: Invalid Class {}", query.getWmiClassName());
                     break;
                 case Wbemcli.WBEM_E_INVALID_QUERY:
-                    LOG.warn("COM exception: Invalid Query: SELECT {} FROM {}",
-                            Arrays.toString(query.getPropertyEnum().getEnumConstants()), query.getWmiClassName());
+                    LOG.warn("COM exception: Invalid Query: {}", queryToString(query));
                     break;
                 default:
                     LOG.warn(
@@ -157,16 +153,27 @@ public class WmiUtil {
                 failedWmiClassNames.add(query.getWmiClassName());
             }
         } catch (TimeoutException e) {
-            T[] props = query.getPropertyEnum().getEnumConstants();
-            StringBuilder sb = new StringBuilder("SELECT ");
-            sb.append(props[0].name());
-            for (int i = 1; i < props.length; i++) {
-                sb.append(',').append(props[i].name());
-            }
-            sb.append(" FROM ").append(query.getWmiClassName());
-            LOG.error("WMI query timed out after {} ms: {}", wmiTimeout, sb);
+            LOG.error("WMI query timed out after {} ms: {}", wmiTimeout, queryToString(query));
         }
         return result;
+    }
+
+    /**
+     * Translate a WmiQuery to the actual query string
+     * 
+     * @param query
+     *            The WmiQuery object
+     * @return The string that is queried in WMI
+     */
+    public static <T extends Enum<T>> String queryToString(WmiQuery<T> query) {
+        T[] props = query.getPropertyEnum().getEnumConstants();
+        StringBuilder sb = new StringBuilder("SELECT ");
+        sb.append(props[0].name());
+        for (int i = 1; i < props.length; i++) {
+            sb.append(',').append(props[i].name());
+        }
+        sb.append(" FROM ").append(query.getWmiClassName());
+        return sb.toString();
     }
 
     /**
