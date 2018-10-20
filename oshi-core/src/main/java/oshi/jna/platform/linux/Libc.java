@@ -18,7 +18,10 @@
  */
 package oshi.jna.platform.linux;
 
+import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 import com.sun.jna.Native;
@@ -60,6 +63,54 @@ public interface Libc extends CLibrary {
         }
     }
 
+    class Statvfs extends Structure {
+        private static final int PADDING_SIZE = 8 / NativeLong.SIZE - 1;
+
+        public NativeLong fsBlockSize;
+        public NativeLong fsFragmentSize;
+        public NativeLong fsSizeInBlocks;
+        public NativeLong fsBlocksFree;
+        public NativeLong fsBlocksFreeUnpriv;
+        public NativeLong fsTotalInodeCount;
+        public NativeLong fsFreeInodeCount;
+        public NativeLong fsFreeInodeCountUnpriv;
+        public NativeLong fsId;
+        public int[] _fPad32bit = new int[PADDING_SIZE];  // Won't be written for 64-bit systems
+        public NativeLong fsMountFlags;
+        public NativeLong fsMaxFilenameLength;
+        public int[] _fSpare = new int[6];
+
+        @Override
+        protected List<Field> getFieldList() {
+            List<Field> fields = new ArrayList<Field>(super.getFieldList());
+            if (PADDING_SIZE == 0) {
+                Iterator<Field> fieldIterator = fields.iterator();
+                while (fieldIterator.hasNext()) {
+                    Field field = fieldIterator.next();
+                    if ("_fPad32bit".equals(field.getName())) {
+                        fieldIterator.remove();
+                    }
+                }
+            }
+            return fields;
+        }
+
+        protected List<String> getFieldOrder() {
+            if (PADDING_SIZE == 0) {
+                return Arrays.asList(new String[]{"fsBlockSize", "fsFragmentSize", "fsSizeInBlocks", "fsBlocksFree",
+                        "fsBlocksFreeUnpriv", "fsTotalInodeCount", "fsFreeInodeCount", "fsFreeInodeCountUnpriv",
+                        "fsId", "fsMountFlags", "fsMaxFilenameLength", "_fSpare"});
+            } else {
+                return Arrays.asList(new String[]{"fsBlockSize", "fsFragmentSize", "fsSizeInBlocks", "fsBlocksFree",
+                        "fsBlocksFreeUnpriv", "fsTotalInodeCount", "fsFreeInodeCount", "fsFreeInodeCountUnpriv",
+                        "fsId", "_fPad32bit", "fsMountFlags", "fsMaxFilenameLength", "_fSpare"});
+            }
+        }
+
+    }
+
     int sysinfo(Sysinfo info);
+
+    int statvfs(String path, Statvfs buf);
 
 }

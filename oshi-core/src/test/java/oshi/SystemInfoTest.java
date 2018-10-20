@@ -286,11 +286,12 @@ public class SystemInfoTest {
             long usable = fs.getUsableSpace();
             long total = fs.getTotalSpace();
             System.out.format(
-                    " %s (%s) [%s] %s of %s free (%.1f%%) is %s "
+                    " %s (%s) [%s] %s of %s free (%.1f%%), %s of %s files free (%.1f%%) is %s "
                             + (fs.getLogicalVolume() != null && fs.getLogicalVolume().length() > 0 ? "[%s]" : "%s")
                             + " and is mounted at %s%n",
                     fs.getName(), fs.getDescription().isEmpty() ? "file system" : fs.getDescription(), fs.getType(),
                     FormatUtil.formatBytes(usable), FormatUtil.formatBytes(fs.getTotalSpace()), 100d * usable / total,
+                    fs.getUsableFiles(), fs.getTotalFiles(), 100d * fs.getUsableFiles() / fs.getTotalFiles(),
                     fs.getVolume(), fs.getLogicalVolume(), fs.getMount());
         }
     }

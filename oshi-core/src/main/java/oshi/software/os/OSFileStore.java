@@ -49,6 +49,10 @@ public class OSFileStore implements Serializable {
 
     private long totalSpace;
 
+    private long usableFiles;
+
+    private long totalFiles;
+
     public OSFileStore() {
     }
 
@@ -71,9 +75,13 @@ public class OSFileStore implements Serializable {
      *            Available/usable bytes
      * @param newTotalSpace
      *            Total bytes
+     * @param newUsableFiles
+     *            Available files / free inodes
+     * @param newTotalFiles
+     *            Total files allowed / maximum number of inodes in filesystem
      */
     public OSFileStore(String newName, String newVolume, String newMount, String newDescription, String newType,
-            String newUuid, long newUsableSpace, long newTotalSpace) {
+            String newUuid, long newUsableSpace, long newTotalSpace, long newUsableFiles, long newTotalFiles) {
         setName(newName);
         setVolume(newVolume);
         setLogicalVolume("");
@@ -83,6 +91,8 @@ public class OSFileStore implements Serializable {
         setUUID(newUuid);
         setUsableSpace(newUsableSpace);
         setTotalSpace(newTotalSpace);
+        setUsableFiles(newUsableFiles);
+        setTotalFiles(newTotalFiles);
     }
 
     /**
@@ -258,5 +268,43 @@ public class OSFileStore implements Serializable {
      */
     public void setTotalSpace(long value) {
         this.totalSpace = value;
+    }
+
+    /**
+     * Usable files / free inodes on the drive.
+     *
+     * @return Usable files / free inodes on the drive (count)
+     */
+    public long getUsableFiles() {
+        return this.usableFiles;
+    }
+
+    /**
+     * Sets usable files on the drive.
+     *
+     * @param value
+     *            Number of free files / free inodes.
+     */
+    public void setUsableFiles(long value) {
+        this.usableFiles = value;
+    }
+
+    /**
+     * Maximum number of files / inodes of the filesystem.
+     *
+     * @return Maximum number of files / inodes of the filesystem (count)
+     */
+    public long getTotalFiles() {
+        return this.totalFiles;
+    }
+
+    /**
+     * Sets the maximum number of files / inodes on the filesystem.
+     *
+     * @param value
+     *            Count of maximum files / number of inodes
+     */
+    public void setTotalFiles(long value) {
+        this.totalFiles = value;
     }
 }

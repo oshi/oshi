@@ -29,9 +29,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.sun.jna.Native;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import oshi.jna.platform.linux.Libc;
 import oshi.software.os.FileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.FileUtil;
@@ -157,8 +159,6 @@ public class LinuxFileSystem implements FileSystem {
             }
             String volume = split[0].replaceAll("\\\\040", " ");
             String uuid = MapUtil.getOrDefault(uuidMap, split[0], "");
-            long totalSpace = new File(path).getTotalSpace();
-            long usableSpace = new File(path).getUsableSpace();
 
             String description;
             if (volume.startsWith("/dev")) {
@@ -188,7 +188,28 @@ public class LinuxFileSystem implements FileSystem {
                 }
             }
 
-            OSFileStore osStore = new OSFileStore(name, volume, path, description, type, uuid, usableSpace, totalSpace);
+            long totalFiles = 0L;
+            long usableFiles = 0L;
+            long totalSpace = 0L;
+            long usableSpace = 0L;
+
+            try {
+                Libc.Statvfs vfsStat = new Libc.Statvfs();
+                if (0 == Libc.INSTANCE.statvfs(path, vfsStat)) {
+                    totalFiles = vfsStat.fsTotalInodeCount.longValue();
+                    usableFiles = vfsStat.fsFreeInodeCount.longValue();
+                    totalSpace = vfsStat.fsSizeInBlocks.longValue() * vfsStat.fsBlockSize.longValue();
+                    usableSpace = vfsStat.fsBlocksFree.longValue() * vfsStat.fsBlockSize.longValue();
+                } else {
+                    totalSpace = new File(path).getTotalSpace();
+                    usableSpace = new File(path).getUsableSpace();
+                    LOG.error("Failed to get statvfs. Error code: {}", Native.getLastError());
+                }
+            } catch (UnsatisfiedLinkError | NoClassDefFoundError e) {
+                LOG.error("Failed to get file counts from statvfs. {}", e);
+            }
+
+            OSFileStore osStore = new OSFileStore(name, volume, path, description, type, uuid, usableSpace, totalSpace, usableFiles, totalFiles);
             osStore.setLogicalVolume(logicalVolume);
             fsList.add(osStore);
         }

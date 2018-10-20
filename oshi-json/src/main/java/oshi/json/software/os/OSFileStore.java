@@ -63,11 +63,15 @@ public class OSFileStore extends AbstractOshiJsonObject {
      *            Available/usable bytes
      * @param newTotalSpace
      *            Total bytes
+     * @param newUsableFiles
+     *            Available files / free inodes
+     * @param newTotalFiles
+     *            Total files allowed / maximum number of inodes in filesystem
      */
     public OSFileStore(String newName, String newVolume, String newMount, String newDescription, String newType,
-            String newUuid, long newUsableSpace, long newTotalSpace) {
+            String newUuid, long newUsableSpace, long newTotalSpace, long newUsableFiles, long newTotalFiles) {
         this.fileStore = new oshi.software.os.OSFileStore(newName, newVolume, newMount, newDescription, newType,
-                newUuid, newUsableSpace, newTotalSpace);
+                newUuid, newUsableSpace, newTotalSpace, newUsableFiles, newTotalFiles);
     }
 
     /**
@@ -242,6 +246,44 @@ public class OSFileStore extends AbstractOshiJsonObject {
     }
 
     /**
+     * Usable files / free inodes on the drive.
+     *
+     * @return Usable files / free inodes on the drive (count)
+     */
+    public long getUsableFiles() {
+        return this.fileStore.getUsableFiles();
+    }
+
+    /**
+     * Sets usable files on the drive.
+     *
+     * @param value
+     *            Number of free files / free inodes.
+     */
+    public void setUsableFiles(long value) {
+        this.fileStore.setUsableFiles(value);
+    }
+
+    /**
+     * Maximum number of files / inodes of the filesystem.
+     *
+     * @return Maximum number of files / inodes of the filesystem (count)
+     */
+    public long getTotalFiles() {
+        return this.fileStore.getTotalFiles();
+    }
+
+    /**
+     * Sets the maximum number of files / inodes on the filesystem.
+     *
+     * @param value
+     *            Count of maximum files / number of inodes
+     */
+    public void setTotalFiles(long value) {
+        this.fileStore.setTotalFiles(value);
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
@@ -270,6 +312,12 @@ public class OSFileStore extends AbstractOshiJsonObject {
         }
         if (PropertiesUtil.getBoolean(properties, "operatingSystem.fileSystem.fileStores.totalSpace")) {
             json.add("totalSpace", getTotalSpace());
+        }
+        if (PropertiesUtil.getBoolean(properties, "operatingSystem.fileSystem.fileStores.usableFiles")) {
+            json.add("usableFiles", getUsableFiles());
+        }
+        if (PropertiesUtil.getBoolean(properties, "operatingSystem.fileSystem.fileStores.totalFiles")) {
+            json.add("totalFiles", getTotalFiles());
         }
         return json.build();
     }
