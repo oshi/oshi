@@ -250,7 +250,7 @@ public class OSFileStore extends AbstractOshiJsonObject {
      *
      * @return Usable / free inodes on the drive (count)
      */
-    public long getUsableFiles() {
+    public long getFreeInodes() {
         return this.fileStore.getFreeInodes();
     }
 
@@ -314,7 +314,7 @@ public class OSFileStore extends AbstractOshiJsonObject {
             json.add("totalSpace", getTotalSpace());
         }
         if (PropertiesUtil.getBoolean(properties, "operatingSystem.fileSystem.fileStores.freeInodes")) {
-            json.add("freeInodes", getUsableFiles());
+            json.add("freeInodes", getFreeInodes());
         }
         if (PropertiesUtil.getBoolean(properties, "operatingSystem.fileSystem.fileStores.totalInodes")) {
             json.add("totalInodes", getTotalInodes());
