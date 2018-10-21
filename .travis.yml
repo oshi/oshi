@@ -29,7 +29,7 @@ addons:
 matrix:
   include:  
     - os: linux
-      jdk: oraclejdk10
+      jdk: oraclejdk11
       env: AFTER_SUCCESS="jacoco"
     - os: linux
       jdk: openjdk10
