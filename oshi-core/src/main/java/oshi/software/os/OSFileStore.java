@@ -57,42 +57,23 @@ public class OSFileStore implements Serializable {
     }
 
     /**
-     * Creates an OSFileStore with the specified parameters.
+     * Creates a copy of an OSFileStore.
      *
-     * @param newName
-     *            Name of the filestore
-     * @param newVolume
-     *            Volume of the filestore
-     * @param newMount
-     *            Mountpoint of the filestore
-     * @param newDescription
-     *            Description of the file store
-     * @param newType
-     *            Type of the filestore, e.g. FAT, NTFS, etx2, ext4, etc.
-     * @param newUuid
-     *            UUID/GUID of the filestore
-     * @param newUsableSpace
-     *            Available/usable bytes
-     * @param newTotalSpace
-     *            Total bytes
-     * @param newFreeInodes
-     *            Available / free inodes
-     * @param newTotalInodes
-     *            Total / maximum number of inodes in filesystem
+     * @param fileStore
+     *            OSFileStore which is copied
      */
-    public OSFileStore(String newName, String newVolume, String newMount, String newDescription, String newType,
-            String newUuid, long newUsableSpace, long newTotalSpace, long newFreeInodes, long newTotalInodes) {
-        setName(newName);
-        setVolume(newVolume);
-        setLogicalVolume("");
-        setMount(newMount);
-        setDescription(newDescription);
-        setType(newType);
-        setUUID(newUuid);
-        setUsableSpace(newUsableSpace);
-        setTotalSpace(newTotalSpace);
-        setFreeInodes(newFreeInodes);
-        setTotalInodes(newTotalInodes);
+    public OSFileStore(OSFileStore fileStore) {
+        setName(fileStore.getName());
+        setVolume(fileStore.getVolume());
+        setLogicalVolume(fileStore.getLogicalVolume());
+        setMount(fileStore.getMount());
+        setDescription(fileStore.getDescription());
+        setType(fileStore.getType());
+        setUUID(fileStore.getUUID());
+        setUsableSpace(fileStore.getUsableSpace());
+        setTotalSpace(fileStore.getTotalSpace());
+        setFreeInodes(fileStore.getFreeInodes());
+        setTotalInodes(fileStore.getTotalInodes());
     }
 
     /**

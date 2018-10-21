@@ -45,33 +45,13 @@ public class OSFileStore extends AbstractOshiJsonObject {
     private oshi.software.os.OSFileStore fileStore;
 
     /**
-     * Creates an OSFileStore with the specified parameters.
+     * Create an json OSFileStore from OSFileStore.
      *
-     * @param newName
-     *            Name of the filestore
-     * @param newVolume
-     *            Volume of the filestore
-     * @param newMount
-     *            Mountpoint of the filestore
-     * @param newDescription
-     *            Description of the file store
-     * @param newType
-     *            Type of the filestore, e.g. FAT, NTFS, etx2, ext4, etc.
-     * @param newUuid
-     *            UUID/GUID of the filestore
-     * @param newUsableSpace
-     *            Available/usable bytes
-     * @param newTotalSpace
-     *            Total bytes
-     * @param newFreeInodes
-     *            Available / free inodes
-     * @param newTotalInodes
-     *            Total / maximum number of inodes in filesystem
+     * @param origFileStore
+     *            Original filestore
      */
-    public OSFileStore(String newName, String newVolume, String newMount, String newDescription, String newType,
-            String newUuid, long newUsableSpace, long newTotalSpace, long newFreeInodes, long newTotalInodes) {
-        this.fileStore = new oshi.software.os.OSFileStore(newName, newVolume, newMount, newDescription, newType,
-                newUuid, newUsableSpace, newTotalSpace, newFreeInodes, newTotalInodes);
+    public OSFileStore(oshi.software.os.OSFileStore origFileStore) {
+        this.fileStore = new oshi.software.os.OSFileStore(origFileStore);
     }
 
     /**
