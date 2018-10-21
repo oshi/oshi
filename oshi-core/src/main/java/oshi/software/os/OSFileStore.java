@@ -49,9 +49,9 @@ public class OSFileStore implements Serializable {
 
     private long totalSpace;
 
-    private long freeInodes;
+    private long freeInodes = -1;
 
-    private long totalInodes;
+    private long totalInodes = -1;
 
     public OSFileStore() {
     }
@@ -93,6 +93,39 @@ public class OSFileStore implements Serializable {
         setTotalSpace(newTotalSpace);
         setFreeInodes(newFreeInodes);
         setTotalInodes(newTotalInodes);
+    }
+
+    /**
+     * Creates an OSFileStore with the specified parameters.
+     *
+     * @param newName
+     *            Name of the filestore
+     * @param newVolume
+     *            Volume of the filestore
+     * @param newMount
+     *            Mountpoint of the filestore
+     * @param newDescription
+     *            Description of the file store
+     * @param newType
+     *            Type of the filestore, e.g. FAT, NTFS, etx2, ext4, etc.
+     * @param newUuid
+     *            UUID/GUID of the filestore
+     * @param newUsableSpace
+     *            Available/usable bytes
+     * @param newTotalSpace
+     *            Total bytes
+     */
+    public OSFileStore(String newName, String newVolume, String newMount, String newDescription, String newType,
+                       String newUuid, long newUsableSpace, long newTotalSpace) {
+        setName(newName);
+        setVolume(newVolume);
+        setLogicalVolume("");
+        setMount(newMount);
+        setDescription(newDescription);
+        setType(newType);
+        setUUID(newUuid);
+        setUsableSpace(newUsableSpace);
+        setTotalSpace(newTotalSpace);
     }
 
     /**
