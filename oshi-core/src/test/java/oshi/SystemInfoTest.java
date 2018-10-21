@@ -291,7 +291,7 @@ public class SystemInfoTest {
                             + " and is mounted at %s%n",
                     fs.getName(), fs.getDescription().isEmpty() ? "file system" : fs.getDescription(), fs.getType(),
                     FormatUtil.formatBytes(usable), FormatUtil.formatBytes(fs.getTotalSpace()), 100d * usable / total,
-                    fs.getUsableInodes(), fs.getTotalInodes(), 100d * fs.getUsableInodes() / fs.getTotalInodes(),
+                    fs.getFreeInodes(), fs.getTotalInodes(), 100d * fs.getFreeInodes() / fs.getTotalInodes(),
                     fs.getVolume(), fs.getLogicalVolume(), fs.getMount());
         }
     }

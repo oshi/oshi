@@ -63,15 +63,15 @@ public class OSFileStore extends AbstractOshiJsonObject {
      *            Available/usable bytes
      * @param newTotalSpace
      *            Total bytes
-     * @param newUsableFiles
-     *            Available files / free inodes
-     * @param newTotalFiles
-     *            Total files allowed / maximum number of inodes in filesystem
+     * @param newFreeInodes
+     *            Available / free inodes
+     * @param newTotalInodes
+     *            Total / maximum number of inodes in filesystem
      */
     public OSFileStore(String newName, String newVolume, String newMount, String newDescription, String newType,
-            String newUuid, long newUsableSpace, long newTotalSpace, long newUsableFiles, long newTotalFiles) {
+            String newUuid, long newUsableSpace, long newTotalSpace, long newFreeInodes, long newTotalInodes) {
         this.fileStore = new oshi.software.os.OSFileStore(newName, newVolume, newMount, newDescription, newType,
-                newUuid, newUsableSpace, newTotalSpace, newUsableFiles, newTotalFiles);
+                newUuid, newUsableSpace, newTotalSpace, newFreeInodes, newTotalInodes);
     }
 
     /**
@@ -246,40 +246,40 @@ public class OSFileStore extends AbstractOshiJsonObject {
     }
 
     /**
-     * Usable files / free inodes on the drive.
+     * Usable / free inodes on the drive.
      *
-     * @return Usable files / free inodes on the drive (count)
+     * @return Usable / free inodes on the drive (count)
      */
     public long getUsableFiles() {
-        return this.fileStore.getUsableInodes();
+        return this.fileStore.getFreeInodes();
     }
 
     /**
-     * Sets usable files on the drive.
+     * Sets usable inodes on the drive.
      *
      * @param value
-     *            Number of free files / free inodes.
+     *            Number of free inodes.
      */
-    public void setUsableFiles(long value) {
-        this.fileStore.setUsableInodes(value);
+    public void setFreeInodes(long value) {
+        this.fileStore.setFreeInodes(value);
     }
 
     /**
-     * Maximum number of files / inodes of the filesystem.
+     * Maximum number of inodes of the filesystem.
      *
-     * @return Maximum number of files / inodes of the filesystem (count)
+     * @return Maximum number of inodes of the filesystem (count)
      */
-    public long getTotalFiles() {
+    public long getTotalInodes() {
         return this.fileStore.getTotalInodes();
     }
 
     /**
-     * Sets the maximum number of files / inodes on the filesystem.
+     * Sets the maximum number of inodes on the filesystem.
      *
      * @param value
-     *            Count of maximum files / number of inodes
+     *            Count of maximum number of inodes
      */
-    public void setTotalFiles(long value) {
+    public void setTotalInodes(long value) {
         this.fileStore.setTotalInodes(value);
     }
 
@@ -313,11 +313,11 @@ public class OSFileStore extends AbstractOshiJsonObject {
         if (PropertiesUtil.getBoolean(properties, "operatingSystem.fileSystem.fileStores.totalSpace")) {
             json.add("totalSpace", getTotalSpace());
         }
-        if (PropertiesUtil.getBoolean(properties, "operatingSystem.fileSystem.fileStores.usableFiles")) {
-            json.add("usableFiles", getUsableFiles());
+        if (PropertiesUtil.getBoolean(properties, "operatingSystem.fileSystem.fileStores.freeInodes")) {
+            json.add("freeInodes", getUsableFiles());
         }
-        if (PropertiesUtil.getBoolean(properties, "operatingSystem.fileSystem.fileStores.totalFiles")) {
-            json.add("totalFiles", getTotalFiles());
+        if (PropertiesUtil.getBoolean(properties, "operatingSystem.fileSystem.fileStores.totalInodes")) {
+            json.add("totalInodes", getTotalInodes());
         }
         return json.build();
     }

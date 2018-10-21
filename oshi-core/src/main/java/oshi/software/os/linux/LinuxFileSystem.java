@@ -189,7 +189,7 @@ public class LinuxFileSystem implements FileSystem {
             }
 
             long totalInodes = 0L;
-            long usableInodes = 0L;
+            long freeInodes = 0L;
             long totalSpace = 0L;
             long usableSpace = 0L;
 
@@ -197,7 +197,7 @@ public class LinuxFileSystem implements FileSystem {
                 Libc.Statvfs vfsStat = new Libc.Statvfs();
                 if (0 == Libc.INSTANCE.statvfs(path, vfsStat)) {
                     totalInodes = vfsStat.fsTotalInodeCount.longValue();
-                    usableInodes = vfsStat.fsFreeInodeCount.longValue();
+                    freeInodes = vfsStat.fsFreeInodeCount.longValue();
                     totalSpace = vfsStat.fsSizeInBlocks.longValue() * vfsStat.fsBlockSize.longValue();
                     usableSpace = vfsStat.fsBlocksFree.longValue() * vfsStat.fsBlockSize.longValue();
                 } else {
@@ -219,7 +219,7 @@ public class LinuxFileSystem implements FileSystem {
             osStore.setUUID(uuid);
             osStore.setUsableSpace(usableSpace);
             osStore.setTotalSpace(totalSpace);
-            osStore.setUsableInodes(usableInodes);
+            osStore.setFreeInodes(freeInodes);
             osStore.setTotalInodes(totalInodes);
             osStore.setLogicalVolume(logicalVolume);
 

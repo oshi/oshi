@@ -49,7 +49,7 @@ public class OSFileStore implements Serializable {
 
     private long totalSpace;
 
-    private long usableInodes;
+    private long freeInodes;
 
     private long totalInodes;
 
@@ -75,13 +75,13 @@ public class OSFileStore implements Serializable {
      *            Available/usable bytes
      * @param newTotalSpace
      *            Total bytes
-     * @param newUsableInodes
+     * @param newFreeInodes
      *            Available / free inodes
      * @param newTotalInodes
      *            Total / maximum number of inodes in filesystem
      */
     public OSFileStore(String newName, String newVolume, String newMount, String newDescription, String newType,
-            String newUuid, long newUsableSpace, long newTotalSpace, long newUsableInodes, long newTotalInodes) {
+            String newUuid, long newUsableSpace, long newTotalSpace, long newFreeInodes, long newTotalInodes) {
         setName(newName);
         setVolume(newVolume);
         setLogicalVolume("");
@@ -91,7 +91,7 @@ public class OSFileStore implements Serializable {
         setUUID(newUuid);
         setUsableSpace(newUsableSpace);
         setTotalSpace(newTotalSpace);
-        setUsableInodes(newUsableInodes);
+        setFreeInodes(newFreeInodes);
         setTotalInodes(newTotalInodes);
     }
 
@@ -275,8 +275,8 @@ public class OSFileStore implements Serializable {
      *
      * @return Usable / free inodes on the drive (count)
      */
-    public long getUsableInodes() {
-        return this.usableInodes;
+    public long getFreeInodes() {
+        return this.freeInodes;
     }
 
     /**
@@ -285,8 +285,8 @@ public class OSFileStore implements Serializable {
      * @param value
      *            Number of free inodes.
      */
-    public void setUsableInodes(long value) {
-        this.usableInodes = value;
+    public void setFreeInodes(long value) {
+        this.freeInodes = value;
     }
 
     /**
