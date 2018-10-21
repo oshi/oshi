@@ -188,29 +188,41 @@ public class LinuxFileSystem implements FileSystem {
                 }
             }
 
-            long totalFiles = 0L;
-            long usableFiles = 0L;
+            long totalInodes = 0L;
+            long usableInodes = 0L;
             long totalSpace = 0L;
             long usableSpace = 0L;
 
             try {
                 Libc.Statvfs vfsStat = new Libc.Statvfs();
                 if (0 == Libc.INSTANCE.statvfs(path, vfsStat)) {
-                    totalFiles = vfsStat.fsTotalInodeCount.longValue();
-                    usableFiles = vfsStat.fsFreeInodeCount.longValue();
+                    totalInodes = vfsStat.fsTotalInodeCount.longValue();
+                    usableInodes = vfsStat.fsFreeInodeCount.longValue();
                     totalSpace = vfsStat.fsSizeInBlocks.longValue() * vfsStat.fsBlockSize.longValue();
                     usableSpace = vfsStat.fsBlocksFree.longValue() * vfsStat.fsBlockSize.longValue();
                 } else {
-                    totalSpace = new File(path).getTotalSpace();
-                    usableSpace = new File(path).getUsableSpace();
+                    File tmpFile = new File(path);
+                    totalSpace = tmpFile.getTotalSpace();
+                    usableSpace = tmpFile.getUsableSpace();
                     LOG.error("Failed to get statvfs. Error code: {}", Native.getLastError());
                 }
             } catch (UnsatisfiedLinkError | NoClassDefFoundError e) {
                 LOG.error("Failed to get file counts from statvfs. {}", e);
             }
 
-            OSFileStore osStore = new OSFileStore(name, volume, path, description, type, uuid, usableSpace, totalSpace, usableFiles, totalFiles);
+            OSFileStore osStore = new OSFileStore();
+            osStore.setName(name);
+            osStore.setVolume(volume);
+            osStore.setMount(path);
+            osStore.setDescription(description);
+            osStore.setType(type);
+            osStore.setUUID(uuid);
+            osStore.setUsableSpace(usableSpace);
+            osStore.setTotalSpace(totalSpace);
+            osStore.setUsableInodes(usableInodes);
+            osStore.setTotalInodes(totalInodes);
             osStore.setLogicalVolume(logicalVolume);
+
             fsList.add(osStore);
         }
 
