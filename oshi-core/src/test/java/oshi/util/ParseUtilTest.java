@@ -324,11 +324,15 @@ public class ParseUtilTest {
         String after = "baz";
         assertEquals(" bar ", ParseUtil.getTextBetweenStrings(text, before, after));
 
+        before = "";
+        assertEquals("foo bar ", ParseUtil.getTextBetweenStrings(text, before, after));
+
         before = "food";
         assertEquals("", ParseUtil.getTextBetweenStrings(text, before, after));
 
         before = "foo";
         after = "qux";
         assertEquals("", ParseUtil.getTextBetweenStrings(text, before, after));
+
     }
 }
