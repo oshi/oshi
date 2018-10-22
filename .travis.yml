@@ -9,6 +9,9 @@ after_success:
       ./mvnw clean org.jacoco:jacoco-maven-plugin:prepare-agent package sonar:sonar -Dsonar.host.url=https://sonarqube.com -Dsonar.login=df16219a00545aae71f880423a6f23191330744f;
     fi
 
+after_failure:
+  - cat /home/travis/build/oshi/oshi/oshi-core/target/surefire-reports/*.dumpstream
+
 env:
   global:
    # COVERITY_SCAN_TOKEN
