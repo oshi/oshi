@@ -112,6 +112,27 @@ public class FreeBsdFileSystem implements FileSystem {
 
         List<OSFileStore> fsList = new ArrayList<>();
 
+        // Get inode usage data
+        Map<String, Long> inodeFreeMap = new HashMap<>();
+        Map<String, Long> inodeTotalMap = new HashMap<>();
+        for (String line : ExecutingCommand.runNative("df -i")) {
+            /*- Sample Output:
+            Filesystem    1K-blocks   Used   Avail Capacity iused  ifree %iused  Mounted on
+            /dev/twed0s1a   2026030 584112 1279836    31%    2751 279871    1%   /
+            */
+            if (line.startsWith("/")) {
+                String[] split = ParseUtil.whitespaces.split(line);
+                if (split.length > 7) {
+                    inodeFreeMap.put(split[0], ParseUtil.parseLongOrDefault(split[6], 0L));
+                    // total is actually used + free
+                    if (inodeFreeMap.get(split[0]) >= 0) {
+                        inodeTotalMap.put(split[0],
+                                inodeFreeMap.get(split[0]) + ParseUtil.parseLongOrDefault(split[5], 0L));
+                    }
+                }
+            }
+        }
+
         // Get mount table
         for (String fs : ExecutingCommand.runNative("mount -p")) {
             String[] split = ParseUtil.whitespaces.split(fs);
@@ -157,12 +178,14 @@ public class FreeBsdFileSystem implements FileSystem {
             OSFileStore osStore = new OSFileStore();
             osStore.setName(name);
             osStore.setVolume(volume);
-            osStore.setLogicalVolume(path);
+            osStore.setMount(path);
             osStore.setDescription(description);
             osStore.setType(type);
             osStore.setUUID(uuid);
             osStore.setUsableSpace(usableSpace);
             osStore.setTotalSpace(totalSpace);
+            osStore.setFreeInodes(inodeFreeMap.containsKey(path) ? inodeFreeMap.get(path) : 0L);
+            osStore.setTotalInodes(inodeTotalMap.containsKey(path) ? inodeTotalMap.get(path) : 0L);
             fsList.add(osStore);
         }
         return fsList.toArray(new OSFileStore[fsList.size()]);
