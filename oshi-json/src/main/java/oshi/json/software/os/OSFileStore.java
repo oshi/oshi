@@ -226,9 +226,9 @@ public class OSFileStore extends AbstractOshiJsonObject {
     }
 
     /**
-     * Usable / free inodes on the drive.
+     * Usable / free inodes on the drive. Not applicable on Windows.
      *
-     * @return Usable / free inodes on the drive (count)
+     * @return Usable / free inodes on the drive (count), or -1 if unimplemented
      */
     public long getFreeInodes() {
         return this.fileStore.getFreeInodes();
@@ -245,9 +245,11 @@ public class OSFileStore extends AbstractOshiJsonObject {
     }
 
     /**
-     * Maximum number of inodes of the filesystem.
+     * Total / maximum number of inodes of the filesystem. Not applicable on
+     * Windows.
      *
-     * @return Maximum number of inodes of the filesystem (count)
+     * @return Total / maximum number of inodes of the filesystem (count), or -1
+     *         if unimplemented
      */
     public long getTotalInodes() {
         return this.fileStore.getTotalInodes();

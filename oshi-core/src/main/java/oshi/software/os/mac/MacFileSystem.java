@@ -166,8 +166,16 @@ public class MacFileSystem implements FileSystem {
                 }
 
                 // Add to the list
-                fsList.add(new OSFileStore(name, volume, path, description, type, uuid,
-                        file.getUsableSpace(), file.getTotalSpace()));
+                OSFileStore osStore = new OSFileStore();
+                osStore.setName(name);
+                osStore.setVolume(volume);
+                osStore.setLogicalVolume(path);
+                osStore.setDescription(description);
+                osStore.setType(type);
+                osStore.setUUID(uuid);
+                osStore.setUsableSpace(file.getUsableSpace());
+                osStore.setTotalSpace(file.getTotalSpace());
+                fsList.add(osStore);
             }
         }
         // Close DA session

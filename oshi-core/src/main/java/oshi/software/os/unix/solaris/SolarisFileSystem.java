@@ -129,8 +129,17 @@ public class SolarisFileSystem implements FileSystem {
             } else {
                 description = "Mount Point";
             }
-            // No UUID info on Solaris
-            OSFileStore osStore = new OSFileStore(name, volume, path, description, type, "", usableSpace, totalSpace);
+
+            // Add to the list
+            OSFileStore osStore = new OSFileStore();
+            osStore.setName(name);
+            osStore.setVolume(volume);
+            osStore.setLogicalVolume(path);
+            osStore.setDescription(description);
+            osStore.setType(type);
+            osStore.setUUID(""); // No UUID info on Solaris
+            osStore.setUsableSpace(usableSpace);
+            osStore.setTotalSpace(totalSpace);
             fsList.add(osStore);
         }
         return fsList.toArray(new OSFileStore[fsList.size()]);
