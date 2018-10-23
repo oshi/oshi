@@ -113,8 +113,8 @@ public class SolarisFileSystem implements FileSystem {
             } else if (line.contains("free files")) {
                 free = ParseUtil.getTextBetweenStrings(line, "", "free files").trim();
                 if (key != null) {
-                    inodeFreeMap.put(key, ParseUtil.parseLongOrDefault(free, -1L));
-                    inodeTotalMap.put(key, ParseUtil.parseLongOrDefault(total, -1L));
+                    inodeFreeMap.put(key, ParseUtil.parseLongOrDefault(free, 0L));
+                    inodeTotalMap.put(key, ParseUtil.parseLongOrDefault(total, 0L));
                     key = null;
                 }
             }

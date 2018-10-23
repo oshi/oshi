@@ -124,11 +124,9 @@ public class FreeBsdFileSystem implements FileSystem {
                 String[] split = ParseUtil.whitespaces.split(line);
                 if (split.length > 7) {
                     inodeFreeMap.put(split[0], ParseUtil.parseLongOrDefault(split[6], 0L));
-                    // total is actually used + free
-                    if (inodeFreeMap.get(split[0]) >= 0) {
-                        inodeTotalMap.put(split[0],
-                                inodeFreeMap.get(split[0]) + ParseUtil.parseLongOrDefault(split[5], 0L));
-                    }
+                    // total is used + free
+                    inodeTotalMap.put(split[0],
+                            inodeFreeMap.get(split[0]) + ParseUtil.parseLongOrDefault(split[5], 0L));
                 }
             }
         }
