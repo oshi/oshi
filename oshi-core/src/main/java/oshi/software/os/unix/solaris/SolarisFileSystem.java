@@ -108,11 +108,12 @@ public class SolarisFileSystem implements FileSystem {
             */
             if (line.startsWith("/")) {
                 key = ParseUtil.whitespaces.split(line)[0];
+                total = null;
             } else if (line.contains("available") && line.contains("total files")) {
                 total = ParseUtil.getTextBetweenStrings(line, "available", "total files").trim();
             } else if (line.contains("free files")) {
                 free = ParseUtil.getTextBetweenStrings(line, "", "free files").trim();
-                if (key != null) {
+                if (key != null && total != null) {
                     inodeFreeMap.put(key, ParseUtil.parseLongOrDefault(free, 0L));
                     inodeTotalMap.put(key, ParseUtil.parseLongOrDefault(total, 0L));
                     key = null;

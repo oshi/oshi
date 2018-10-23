@@ -98,12 +98,11 @@ public class LinuxSoundCard extends AbstractSoundCard {
     private static String getCardCodec(File cardDir) {
         String cardCodec = "";
         File[] cardFiles = cardDir.listFiles();
-        if (cardFiles == null) {
-            return "";
-        }
-        for (File file : cardDir.listFiles()) {
-            if (file.getName().startsWith("codec")) {
-                cardCodec = FileUtil.getKeyValueMapFromFile(file.getPath(), ":").get("Codec");
+        if (cardFiles != null) {
+            for (File file : cardFiles) {
+                if (file.getName().startsWith("codec")) {
+                    cardCodec = FileUtil.getKeyValueMapFromFile(file.getPath(), ":").get("Codec");
+                }
             }
         }
         return cardCodec;
