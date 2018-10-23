@@ -183,8 +183,16 @@ public class WindowsFileSystem implements FileSystem {
 
             if (!strMount.isEmpty()) {
                 // Volume is mounted
-                fs.add(new OSFileStore(String.format("%s (%s)", strName, strMount), volume, strMount,
-                        getDriveType(strMount), strFsType, uuid, systemFreeBytes.getValue(), totalBytes.getValue()));
+                OSFileStore osStore = new OSFileStore();
+                osStore.setName(String.format("%s (%s)", strName, strMount));
+                osStore.setVolume(volume);
+                osStore.setLogicalVolume(strMount);
+                osStore.setDescription(getDriveType(strMount));
+                osStore.setType(strFsType);
+                osStore.setUUID(uuid);
+                osStore.setUsableSpace(systemFreeBytes.getValue());
+                osStore.setTotalSpace(totalBytes.getValue());
+                fs.add(osStore);
             }
             retVal = Kernel32.INSTANCE.FindNextVolume(hVol, aVolume, BUFSIZE);
             if (!retVal) {
@@ -228,8 +236,16 @@ public class WindowsFileSystem implements FileSystem {
                 }
             }
 
-            fs.add(new OSFileStore(String.format("%s (%s)", description, name), volume, name + "\\", getDriveType(name),
-                    WmiUtil.getString(drives, LogicalDiskProperty.FILESYSTEM, i), "", free, total));
+            OSFileStore osStore = new OSFileStore();
+            osStore.setName(String.format("%s (%s)", description, name));
+            osStore.setVolume(volume);
+            osStore.setLogicalVolume(name + "\\");
+            osStore.setDescription(getDriveType(name));
+            osStore.setType(WmiUtil.getString(drives, LogicalDiskProperty.FILESYSTEM, i));
+            osStore.setUUID("");
+            osStore.setUsableSpace(free);
+            osStore.setTotalSpace(total);
+            fs.add(osStore);
         }
 
         return fs;

@@ -32,57 +32,38 @@ public class OSFileStore implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private String name;
-
     private String volume;
-
-    private String logicalVolume;
-
+    private String logicalVolume = "";
     private String mount;
-
     private String description;
-
     private String fsType;
-
     private String uuid;
-
     private long usableSpace;
-
     private long totalSpace;
+    private long freeInodes = -1;
+    private long totalInodes = -1;
 
     public OSFileStore() {
     }
 
     /**
-     * Creates an OSFileStore with the specified parameters.
+     * Creates a copy of an OSFileStore.
      *
-     * @param newName
-     *            Name of the filestore
-     * @param newVolume
-     *            Volume of the filestore
-     * @param newMount
-     *            Mountpoint of the filestore
-     * @param newDescription
-     *            Description of the file store
-     * @param newType
-     *            Type of the filestore, e.g. FAT, NTFS, etx2, ext4, etc.
-     * @param newUuid
-     *            UUID/GUID of the filestore
-     * @param newUsableSpace
-     *            Available/usable bytes
-     * @param newTotalSpace
-     *            Total bytes
+     * @param fileStore
+     *            OSFileStore which is copied
      */
-    public OSFileStore(String newName, String newVolume, String newMount, String newDescription, String newType,
-            String newUuid, long newUsableSpace, long newTotalSpace) {
-        setName(newName);
-        setVolume(newVolume);
-        setLogicalVolume("");
-        setMount(newMount);
-        setDescription(newDescription);
-        setType(newType);
-        setUUID(newUuid);
-        setUsableSpace(newUsableSpace);
-        setTotalSpace(newTotalSpace);
+    public OSFileStore(OSFileStore fileStore) {
+        setName(fileStore.getName());
+        setVolume(fileStore.getVolume());
+        setLogicalVolume(fileStore.getLogicalVolume());
+        setMount(fileStore.getMount());
+        setDescription(fileStore.getDescription());
+        setType(fileStore.getType());
+        setUUID(fileStore.getUUID());
+        setUsableSpace(fileStore.getUsableSpace());
+        setTotalSpace(fileStore.getTotalSpace());
+        setFreeInodes(fileStore.getFreeInodes());
+        setTotalInodes(fileStore.getTotalInodes());
     }
 
     /**
@@ -258,5 +239,45 @@ public class OSFileStore implements Serializable {
      */
     public void setTotalSpace(long value) {
         this.totalSpace = value;
+    }
+
+    /**
+     * Usable / free inodes on the drive. Not applicable on Windows.
+     *
+     * @return Usable / free inodes on the drive (count), or -1 if unimplemented
+     */
+    public long getFreeInodes() {
+        return this.freeInodes;
+    }
+
+    /**
+     * Sets usable inodes on the drive.
+     *
+     * @param value
+     *            Number of free inodes.
+     */
+    public void setFreeInodes(long value) {
+        this.freeInodes = value;
+    }
+
+    /**
+     * Total / maximum number of inodes of the filesystem. Not applicable on
+     * Windows.
+     *
+     * @return Total / maximum number of inodes of the filesystem (count), or -1
+     *         if unimplemented
+     */
+    public long getTotalInodes() {
+        return this.totalInodes;
+    }
+
+    /**
+     * Sets the total / maximum number of inodes on the filesystem.
+     *
+     * @param value
+     *            Total / maximum count of inodes
+     */
+    public void setTotalInodes(long value) {
+        this.totalInodes = value;
     }
 }

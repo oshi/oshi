@@ -45,29 +45,13 @@ public class OSFileStore extends AbstractOshiJsonObject {
     private oshi.software.os.OSFileStore fileStore;
 
     /**
-     * Creates an OSFileStore with the specified parameters.
+     * Create an json OSFileStore from OSFileStore.
      *
-     * @param newName
-     *            Name of the filestore
-     * @param newVolume
-     *            Volume of the filestore
-     * @param newMount
-     *            Mountpoint of the filestore
-     * @param newDescription
-     *            Description of the file store
-     * @param newType
-     *            Type of the filestore, e.g. FAT, NTFS, etx2, ext4, etc.
-     * @param newUuid
-     *            UUID/GUID of the filestore
-     * @param newUsableSpace
-     *            Available/usable bytes
-     * @param newTotalSpace
-     *            Total bytes
+     * @param origFileStore
+     *            Original filestore
      */
-    public OSFileStore(String newName, String newVolume, String newMount, String newDescription, String newType,
-            String newUuid, long newUsableSpace, long newTotalSpace) {
-        this.fileStore = new oshi.software.os.OSFileStore(newName, newVolume, newMount, newDescription, newType,
-                newUuid, newUsableSpace, newTotalSpace);
+    public OSFileStore(oshi.software.os.OSFileStore origFileStore) {
+        this.fileStore = new oshi.software.os.OSFileStore(origFileStore);
     }
 
     /**
@@ -242,6 +226,46 @@ public class OSFileStore extends AbstractOshiJsonObject {
     }
 
     /**
+     * Usable / free inodes on the drive. Not applicable on Windows.
+     *
+     * @return Usable / free inodes on the drive (count), or -1 if unimplemented
+     */
+    public long getFreeInodes() {
+        return this.fileStore.getFreeInodes();
+    }
+
+    /**
+     * Sets usable inodes on the drive.
+     *
+     * @param value
+     *            Number of free inodes.
+     */
+    public void setFreeInodes(long value) {
+        this.fileStore.setFreeInodes(value);
+    }
+
+    /**
+     * Total / maximum number of inodes of the filesystem. Not applicable on
+     * Windows.
+     *
+     * @return Total / maximum number of inodes of the filesystem (count), or -1
+     *         if unimplemented
+     */
+    public long getTotalInodes() {
+        return this.fileStore.getTotalInodes();
+    }
+
+    /**
+     * Sets the maximum number of inodes on the filesystem.
+     *
+     * @param value
+     *            Count of maximum number of inodes
+     */
+    public void setTotalInodes(long value) {
+        this.fileStore.setTotalInodes(value);
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
@@ -270,6 +294,12 @@ public class OSFileStore extends AbstractOshiJsonObject {
         }
         if (PropertiesUtil.getBoolean(properties, "operatingSystem.fileSystem.fileStores.totalSpace")) {
             json.add("totalSpace", getTotalSpace());
+        }
+        if (PropertiesUtil.getBoolean(properties, "operatingSystem.fileSystem.fileStores.freeInodes")) {
+            json.add("freeInodes", getFreeInodes());
+        }
+        if (PropertiesUtil.getBoolean(properties, "operatingSystem.fileSystem.fileStores.totalInodes")) {
+            json.add("totalInodes", getTotalInodes());
         }
         return json.build();
     }

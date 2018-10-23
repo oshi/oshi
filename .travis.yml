@@ -29,13 +29,9 @@ addons:
 matrix:
   include:  
     - os: linux
-      jdk: oraclejdk11
-      env: AFTER_SUCCESS="jacoco"
-    - os: linux
-      jdk: openjdk10
-    - os: linux
       jdk: oraclejdk8
+      env: AFTER_SUCCESS="jacoco"
     - os: osx
-      osx_image: xcode6.4
+      osx_image: xcode10  #jdk10
     - os: osx
-      osx_image: xcode9.4.1
+      osx_image: xcode9.3 #jdk8

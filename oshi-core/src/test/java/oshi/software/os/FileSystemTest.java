@@ -26,6 +26,7 @@ import java.io.IOException;
 
 import org.junit.Test;
 
+import oshi.PlatformEnum;
 import oshi.SystemInfo;
 
 /**
@@ -56,6 +57,10 @@ public class FileSystemTest {
             assertNotNull(store.getUUID());
             assertTrue(store.getTotalSpace() >= 0);
             assertTrue(store.getUsableSpace() >= 0);
+            if (SystemInfo.getCurrentPlatformEnum() != PlatformEnum.WINDOWS) {
+                assertTrue(store.getFreeInodes() >= 0);
+                assertTrue(store.getTotalInodes() >= store.getFreeInodes());
+            }
             if (!store.getDescription().equals("Network drive")) {
                 assertTrue(store.getUsableSpace() <= store.getTotalSpace());
             }
