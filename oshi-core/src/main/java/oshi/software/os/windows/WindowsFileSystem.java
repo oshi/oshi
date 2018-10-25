@@ -186,7 +186,7 @@ public class WindowsFileSystem implements FileSystem {
                 OSFileStore osStore = new OSFileStore();
                 osStore.setName(String.format("%s (%s)", strName, strMount));
                 osStore.setVolume(volume);
-                osStore.setLogicalVolume(strMount);
+                osStore.setMount(strMount);
                 osStore.setDescription(getDriveType(strMount));
                 osStore.setType(strFsType);
                 osStore.setUUID(uuid);
@@ -239,7 +239,7 @@ public class WindowsFileSystem implements FileSystem {
             OSFileStore osStore = new OSFileStore();
             osStore.setName(String.format("%s (%s)", description, name));
             osStore.setVolume(volume);
-            osStore.setLogicalVolume(name + "\\");
+            osStore.setMount(name + "\\");
             osStore.setDescription(getDriveType(name));
             osStore.setType(WmiUtil.getString(drives, LogicalDiskProperty.FILESYSTEM, i));
             osStore.setUUID("");
