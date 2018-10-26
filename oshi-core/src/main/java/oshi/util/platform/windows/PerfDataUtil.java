@@ -205,8 +205,7 @@ public class PerfDataUtil {
         }
         long value = queryCounter(counterMap.get(counter));
         if (value < 0) {
-            // Nevative value is error code. Make positive for comparison
-            value *= -1L;
+            // Nevative value is error code.
             if (value == PdhMsg.PDH_INVALID_HANDLE) {
                 if (LOG.isWarnEnabled()) {
                     LOG.warn(LOG_COUNTER_RECREATE, counterPath(counter));
