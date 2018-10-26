@@ -256,7 +256,7 @@ public class WindowsSensors implements Sensors {
         // Try to get from conventional WMI
         WmiResult<VoltProperty> voltage = WmiUtil.queryWMI(VOLT_QUERY);
         if (voltage.getResultCount() > 1) {
-            int decivolts = WmiUtil.getUint32(voltage, VoltProperty.CURRENTVOLTAGE, 0);
+            int decivolts = WmiUtil.getUint16(voltage, VoltProperty.CURRENTVOLTAGE, 0);
             // If the eighth bit is set, bits 0-6 contain the voltage
             // multiplied by 10. If the eighth bit is not set, then the bit
             // setting in VoltageCaps represents the voltage value.
