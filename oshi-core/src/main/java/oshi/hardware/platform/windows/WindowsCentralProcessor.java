@@ -73,14 +73,13 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
     private static final String PROCESSOR = "Processor";
     private static final String PROCESSOR_LOCALIZED;
     static {
-        String localized;
+        String localized = null;
         try {
             localized = PdhUtil.PdhLookupPerfNameByIndex(null, PdhUtil.PdhLookupPerfIndexByEnglishName(PROCESSOR));
         } catch (Win32Exception e) {
             LOG.error("Unable to locate English counter names in registry Perflib 009. Assuming English counters.");
-            localized = PROCESSOR;
         }
-        PROCESSOR_LOCALIZED = localized;
+        PROCESSOR_LOCALIZED = (localized != null && localized.length() > 0) ? localized : PROCESSOR;
     }
     private static final String TOTAL_INSTANCE = "_Total";
 

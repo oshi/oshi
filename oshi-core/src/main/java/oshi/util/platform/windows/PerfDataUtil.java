@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import com.sun.jna.platform.win32.BaseTSD.DWORD_PTR; // NOSONAR
 import com.sun.jna.platform.win32.Pdh;
 import com.sun.jna.platform.win32.Pdh.PDH_RAW_COUNTER;
+import com.sun.jna.platform.win32.PdhMsg;
 import com.sun.jna.platform.win32.WinDef.DWORD;
 import com.sun.jna.platform.win32.WinDef.DWORDByReference;
 import com.sun.jna.platform.win32.WinDef.LONGLONGByReference;
@@ -55,11 +56,11 @@ public class PerfDataUtil {
 
     private static final DWORD_PTR PZERO = new DWORD_PTR(0);
     private static final DWORDByReference PDH_FMT_RAW = new DWORDByReference(new DWORD(Pdh.PDH_FMT_RAW));
-    private static final PDH_RAW_COUNTER counterValue = new PDH_RAW_COUNTER();
     private static final Pdh PDH = Pdh.INSTANCE;
 
     private static final String HEX_ERROR_FMT = "0x%08X";
     private static final String LOG_COUNTER_NOT_EXISTS = "Counter does not exist: {}";
+    private static final String LOG_COUNTER_RECREATE = "Removing and re-adding counter: {}";
 
     // PDH timestamps are 1601 epoch, local time
     // Constants to convert to UTC millis
@@ -202,7 +203,20 @@ public class PerfDataUtil {
             }
             return 0;
         }
-        return queryCounter(counterMap.get(counter));
+        long value = queryCounter(counterMap.get(counter));
+        if (value < 0) {
+            // Nevative value is error code. Make positive for comparison
+            value *= -1L;
+            if (value == PdhMsg.PDH_INVALID_HANDLE) {
+                if (LOG.isWarnEnabled()) {
+                    LOG.warn(LOG_COUNTER_RECREATE, counterPath(counter));
+                }
+                removeCounterFromQuery(counter);
+                addCounterToQuery(counter);
+            }
+            return 0;
+        }
+        return value;
     }
 
     /**
@@ -321,15 +335,18 @@ public class PerfDataUtil {
      *
      * @param counter
      *            The counter to get the value of
-     * @return long value of the counter
+     * @return long value of the counter, or negative value representing an
+     *         error code
      */
     private static long queryCounter(WinNT.HANDLEByReference counter) {
+        PDH_RAW_COUNTER counterValue = new PDH_RAW_COUNTER();
         int ret = PDH.PdhGetRawCounterValue(counter.getValue(), PDH_FMT_RAW, counterValue);
         if (ret != WinError.ERROR_SUCCESS) {
             if (LOG.isWarnEnabled()) {
                 LOG.warn("Failed to get counter. Error code: {}", String.format(HEX_ERROR_FMT, ret));
             }
-            return 0L;
+            // Return error code as a negative value
+            return -1L * ret;
         }
         return counterValue.FirstValue;
     }
