@@ -39,12 +39,21 @@
 		<url>https://github.com/oshi/oshi.git</url>
 		<tag>HEAD</tag>
 	</scm>
-
+	
+	<properties>
+		<jna.version>5.0.0</jna.version>
+	</properties>
+	
 	<dependencies>
 		<dependency>
 			<groupId>net.java.dev.jna</groupId>
+			<artifactId>jna</artifactId>
+			<version>${jna.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>net.java.dev.jna</groupId>
 			<artifactId>jna-platform</artifactId>
-			<version>5.0.0</version>
+			<version>${jna.version}</version>
 		</dependency>
 	</dependencies>
 </project>
