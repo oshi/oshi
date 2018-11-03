@@ -7,14 +7,14 @@
 <body>
 <div id="overview"><a href="../../../../../apidocs/oshi/software/os/windows/WindowsOperatingSystem.html">View Javadoc</a></div><pre>
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_javadoccomment"> * Oshi (https://github.com/oshi/oshi)</em>
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_javadoccomment"> * Oshi (<a href="https://github.com/oshi/oshi)" target="alexandria_uri">https://github.com/oshi/oshi)</a></em>
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_javadoccomment"> * Copyright (c) 2010 - 2018 The Oshi Project Team</em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * All rights reserved. This program and the accompanying materials</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> * are made available under the terms of the Eclipse Public License v1.0</em>
 <a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> * which accompanies this distribution, and is available at</em>
-<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> * <a href="http://www.eclipse.org/legal/epl-v10.htm" target="alexandria_uri">http://www.eclipse.org/legal/epl-v10.htm</a>l</em>
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> * <a href="http://www.eclipse.org/legal/epl-v10.html" target="alexandria_uri">http://www.eclipse.org/legal/epl-v10.html</a></em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * Maintainers:</em>
 <a class="jxr_linenumber" name="L12" href="#L12">12</a>  <em class="jxr_javadoccomment"> * dblock[at]dblock[dot]org</em>
@@ -22,7 +22,7 @@
 <a class="jxr_linenumber" name="L14" href="#L14">14</a>  <em class="jxr_javadoccomment"> * enrico.bianchi[at]gmail[dot]com</em>
 <a class="jxr_linenumber" name="L15" href="#L15">15</a>  <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L16" href="#L16">16</a>  <em class="jxr_javadoccomment"> * Contributors:</em>
-<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <em class="jxr_javadoccomment"> * https://github.com/oshi/oshi/graphs/contributors</em>
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <em class="jxr_javadoccomment"> * <a href="https://github.com/oshi/oshi/graphs/contributors" target="alexandria_uri">https://github.com/oshi/oshi/graphs/contributors</a></em>
 <a class="jxr_linenumber" name="L18" href="#L18">18</a>  <em class="jxr_javadoccomment"> */</em>
 <a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">package</strong> oshi.software.os.windows;
 <a class="jxr_linenumber" name="L20" href="#L20">20</a>  
@@ -39,39 +39,39 @@
 <a class="jxr_linenumber" name="L31" href="#L31">31</a>  <strong class="jxr_keyword">import</strong> org.slf4j.Logger;
 <a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">import</strong> org.slf4j.LoggerFactory;
 <a class="jxr_linenumber" name="L33" href="#L33">33</a>  
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.Memory; <em class="jxr_comment">// NOSONAR</em>
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.Memory; <em class="jxr_comment">// NOSONAR squid:S1191</em>
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.Native;
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.Pointer;
 <a class="jxr_linenumber" name="L37" href="#L37">37</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.Advapi32;
 <a class="jxr_linenumber" name="L38" href="#L38">38</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.Advapi32Util;
 <a class="jxr_linenumber" name="L39" href="#L39">39</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.Advapi32Util.Account;
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.Kernel32Util;
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.Psapi;
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.Psapi.PERFORMANCE_INFORMATION;
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.Tlhelp32;
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.Win32Exception;
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.WinDef.DWORD;
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.WinDef.DWORDByReference;
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.WinError;
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.WinNT;
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.WinNT.HANDLE;
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.WinNT.HANDLEByReference;
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.WinReg;
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.ptr.IntByReference;
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.ptr.PointerByReference;
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>  
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.windows.Kernel32;
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.windows.Pdh;
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.windows.PdhUtil;
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.windows.WbemcliUtil.WmiQuery;
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.windows.WbemcliUtil.WmiResult;
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.windows.WinPerf.PERF_COUNTER_BLOCK;
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.windows.WinPerf.PERF_COUNTER_DEFINITION;
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.windows.WinPerf.PERF_DATA_BLOCK;
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.windows.WinPerf.PERF_INSTANCE_DEFINITION;
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.windows.WinPerf.PERF_OBJECT_TYPE;
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.windows.Wtsapi32;
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.windows.Wtsapi32.WTS_PROCESS_INFO_EX;
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.Kernel32;
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.Kernel32Util;
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.Pdh;
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.PdhUtil;
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.Psapi;
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.Psapi.PERFORMANCE_INFORMATION;
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.Tlhelp32;
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.Win32Exception;
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.WinDef.DWORD;
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.WinDef.DWORDByReference;
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.WinError;
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.WinNT;
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.WinNT.HANDLE;
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.WinNT.HANDLEByReference;
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.WinPerf.PERF_COUNTER_BLOCK;
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.WinPerf.PERF_COUNTER_DEFINITION;
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.WinPerf.PERF_DATA_BLOCK;
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.WinPerf.PERF_INSTANCE_DEFINITION;
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.WinPerf.PERF_OBJECT_TYPE;
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.WinReg;
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.Wtsapi32;
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.Wtsapi32.WTS_PROCESS_INFO_EX;
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.ptr.IntByReference;
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.ptr.PointerByReference;
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>  
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>  <strong class="jxr_keyword">import</strong> oshi.software.common.AbstractOperatingSystem;
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.FileSystem;
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.NetworkParams;
@@ -79,16 +79,16 @@
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>  <strong class="jxr_keyword">import</strong> oshi.util.FormatUtil;
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>  <strong class="jxr_keyword">import</strong> oshi.util.platform.windows.WmiUtil;
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>  
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../oshi/software/os/windows/WindowsOperatingSystem.html">WindowsOperatingSystem</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../oshi/software/common/AbstractOperatingSystem.html">AbstractOperatingSystem</a> {
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="WindowsOperatingSystem" href="../../../../oshi/software/os/windows/WindowsOperatingSystem.html#WindowsOperatingSystem">WindowsOperatingSystem</a> <strong class="jxr_keyword">extends</strong> <a name="AbstractOperatingSystem" href="../../../../oshi/software/common/AbstractOperatingSystem.html#AbstractOperatingSystem">AbstractOperatingSystem</a> {
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> serialVersionUID = 1L;
 <a class="jxr_linenumber" name="L76" href="#L76">76</a>  
 <a class="jxr_linenumber" name="L77" href="#L77">77</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Logger LOG = LoggerFactory.getLogger(WindowsOperatingSystem.<strong class="jxr_keyword">class</strong>);
 <a class="jxr_linenumber" name="L78" href="#L78">78</a>  
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>      enum <a href="../../../../oshi/software/os/windows/WindowsOperatingSystem.html">BitnessProperty</a> {
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>      enum BitnessProperty {
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>          ADDRESSWIDTH;
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>      }
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>  
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>      enum <a href="../../../../oshi/software/os/windows/WindowsOperatingSystem.html">ProcessProperty</a> {
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>      enum ProcessProperty {
 <a class="jxr_linenumber" name="L84" href="#L84">84</a>          PROCESSID, COMMANDLINE;
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>      }
 <a class="jxr_linenumber" name="L86" href="#L86">86</a>  
@@ -122,10 +122,10 @@
 <a class="jxr_linenumber" name="L114" href="#L114">114</a> <em class="jxr_comment">     */</em>
 <a class="jxr_linenumber" name="L115" href="#L115">115</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Map&lt;Integer, OSProcess&gt; processMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
 <a class="jxr_linenumber" name="L116" href="#L116">116</a> 
-<a class="jxr_linenumber" name="L117" href="#L117">117</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../oshi/software/os/windows/WindowsOperatingSystem.html">WindowsOperatingSystem</a>() {
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>     <strong class="jxr_keyword">public</strong> <a name="WindowsOperatingSystem" href="../../../../oshi/software/os/windows/WindowsOperatingSystem.html#WindowsOperatingSystem">WindowsOperatingSystem</a>() {
 <a class="jxr_linenumber" name="L118" href="#L118">118</a>         <strong class="jxr_keyword">this</strong>.manufacturer = <span class="jxr_string">"Microsoft"</span>;
 <a class="jxr_linenumber" name="L119" href="#L119">119</a>         <strong class="jxr_keyword">this</strong>.family = <span class="jxr_string">"Windows"</span>;
-<a class="jxr_linenumber" name="L120" href="#L120">120</a>         <strong class="jxr_keyword">this</strong>.version = <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/software/os/windows/WindowsOSVersionInfoEx.html">WindowsOSVersionInfoEx</a>();
+<a class="jxr_linenumber" name="L120" href="#L120">120</a>         <strong class="jxr_keyword">this</strong>.version = <strong class="jxr_keyword">new</strong> <a name="WindowsOSVersionInfoEx" href="../../../../oshi/software/os/windows/WindowsOSVersionInfoEx.html#WindowsOSVersionInfoEx">WindowsOSVersionInfoEx</a>();
 <a class="jxr_linenumber" name="L121" href="#L121">121</a>         initRegistry();
 <a class="jxr_linenumber" name="L122" href="#L122">122</a>         initBitness();
 <a class="jxr_linenumber" name="L123" href="#L123">123</a>     }
@@ -189,7 +189,7 @@
 <a class="jxr_linenumber" name="L181" href="#L181">181</a>                     pPerfData, lpcbData);
 <a class="jxr_linenumber" name="L182" href="#L182">182</a>         }
 <a class="jxr_linenumber" name="L183" href="#L183">183</a> 
-<a class="jxr_linenumber" name="L184" href="#L184">184</a>         <a href="../../../../oshi/jna/platform/windows/WinPerf.html">PERF_DATA_BLOCK</a> perfData = <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/jna/platform/windows/WinPerf.html">PERF_DATA_BLOCK</a>(pPerfData.share(0));
+<a class="jxr_linenumber" name="L184" href="#L184">184</a>         PERF_DATA_BLOCK perfData = <strong class="jxr_keyword">new</strong> PERF_DATA_BLOCK(pPerfData.share(0));
 <a class="jxr_linenumber" name="L185" href="#L185">185</a> 
 <a class="jxr_linenumber" name="L186" href="#L186">186</a>         <em class="jxr_comment">// See format at</em>
 <a class="jxr_linenumber" name="L187" href="#L187">187</a>         <em class="jxr_comment">// https://msdn.microsoft.com/en-us/library/windows/desktop/aa373105(v=vs.85).aspx</em>
@@ -205,13 +205,13 @@
 <a class="jxr_linenumber" name="L197" href="#L197">197</a> 
 <a class="jxr_linenumber" name="L198" href="#L198">198</a>         <em class="jxr_comment">// Iterate object types. For Process should only be one here</em>
 <a class="jxr_linenumber" name="L199" href="#L199">199</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> obj = 0; obj &lt; perfData.NumObjectTypes; obj++) {
-<a class="jxr_linenumber" name="L200" href="#L200">200</a>             <a href="../../../../oshi/jna/platform/windows/WinPerf.html">PERF_OBJECT_TYPE</a> perfObject = <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/jna/platform/windows/WinPerf.html">PERF_OBJECT_TYPE</a>(pPerfData.share(perfObjectOffset));
+<a class="jxr_linenumber" name="L200" href="#L200">200</a>             PERF_OBJECT_TYPE perfObject = <strong class="jxr_keyword">new</strong> PERF_OBJECT_TYPE(pPerfData.share(perfObjectOffset));
 <a class="jxr_linenumber" name="L201" href="#L201">201</a>             <em class="jxr_comment">// Identify where counter definitions start</em>
 <a class="jxr_linenumber" name="L202" href="#L202">202</a>             <strong class="jxr_keyword">long</strong> perfCounterOffset = perfObjectOffset + perfObject.HeaderLength;
 <a class="jxr_linenumber" name="L203" href="#L203">203</a>             <em class="jxr_comment">// If this isn't the Process object, ignore</em>
 <a class="jxr_linenumber" name="L204" href="#L204">204</a>             <strong class="jxr_keyword">if</strong> (perfObject.ObjectNameTitleIndex == <strong class="jxr_keyword">this</strong>.processIndex) {
 <a class="jxr_linenumber" name="L205" href="#L205">205</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> counter = 0; counter &lt; perfObject.NumCounters; counter++) {
-<a class="jxr_linenumber" name="L206" href="#L206">206</a>                     <a href="../../../../oshi/jna/platform/windows/WinPerf.html">PERF_COUNTER_DEFINITION</a> perfCounter = <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/jna/platform/windows/WinPerf.html">PERF_COUNTER_DEFINITION</a>(
+<a class="jxr_linenumber" name="L206" href="#L206">206</a>                     PERF_COUNTER_DEFINITION perfCounter = <strong class="jxr_keyword">new</strong> PERF_COUNTER_DEFINITION(
 <a class="jxr_linenumber" name="L207" href="#L207">207</a>                             pPerfData.share(perfCounterOffset));
 <a class="jxr_linenumber" name="L208" href="#L208">208</a>                     <strong class="jxr_keyword">if</strong> (perfCounter.CounterNameTitleIndex == priorityBaseIndex) {
 <a class="jxr_linenumber" name="L209" href="#L209">209</a>                         <strong class="jxr_keyword">this</strong>.priorityBaseOffset = perfCounter.CounterOffset;
@@ -260,25 +260,25 @@
 <a class="jxr_linenumber" name="L252" href="#L252">252</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
 <a class="jxr_linenumber" name="L253" href="#L253">253</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L254" href="#L254">254</a>     @Override
-<a class="jxr_linenumber" name="L255" href="#L255">255</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../oshi/software/os/FileSystem.html">FileSystem</a> getFileSystem() {
-<a class="jxr_linenumber" name="L256" href="#L256">256</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/software/os/windows/WindowsFileSystem.html">WindowsFileSystem</a>();
+<a class="jxr_linenumber" name="L255" href="#L255">255</a>     <strong class="jxr_keyword">public</strong> <a name="FileSystem" href="../../../../oshi/software/os/FileSystem.html#FileSystem">FileSystem</a> getFileSystem() {
+<a class="jxr_linenumber" name="L256" href="#L256">256</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a name="WindowsFileSystem" href="../../../../oshi/software/os/windows/WindowsFileSystem.html#WindowsFileSystem">WindowsFileSystem</a>();
 <a class="jxr_linenumber" name="L257" href="#L257">257</a>     }
 <a class="jxr_linenumber" name="L258" href="#L258">258</a> 
 <a class="jxr_linenumber" name="L259" href="#L259">259</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L260" href="#L260">260</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
 <a class="jxr_linenumber" name="L261" href="#L261">261</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L262" href="#L262">262</a>     @Override
-<a class="jxr_linenumber" name="L263" href="#L263">263</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../oshi/software/os/OSProcess.html">OSProcess</a>[] getProcesses(<strong class="jxr_keyword">int</strong> limit, <a href="../../../../oshi/software/os/OperatingSystem.html">ProcessSort</a> sort) {
+<a class="jxr_linenumber" name="L263" href="#L263">263</a>     <strong class="jxr_keyword">public</strong> <a name="OSProcess" href="../../../../oshi/software/os/OSProcess.html#OSProcess">OSProcess</a>[] getProcesses(<strong class="jxr_keyword">int</strong> limit, ProcessSort sort) {
 <a class="jxr_linenumber" name="L264" href="#L264">264</a>         List&lt;OSProcess&gt; procList = processMapToList(<strong class="jxr_keyword">null</strong>);
 <a class="jxr_linenumber" name="L265" href="#L265">265</a>         List&lt;OSProcess&gt; sorted = processSort(procList, limit, sort);
-<a class="jxr_linenumber" name="L266" href="#L266">266</a>         <strong class="jxr_keyword">return</strong> sorted.toArray(<strong class="jxr_keyword">new</strong> <a href="../../../../oshi/software/os/OSProcess.html">OSProcess</a>[sorted.size()]);
+<a class="jxr_linenumber" name="L266" href="#L266">266</a>         <strong class="jxr_keyword">return</strong> sorted.toArray(<strong class="jxr_keyword">new</strong> <a name="OSProcess" href="../../../../oshi/software/os/OSProcess.html#OSProcess">OSProcess</a>[sorted.size()]);
 <a class="jxr_linenumber" name="L267" href="#L267">267</a>     }
 <a class="jxr_linenumber" name="L268" href="#L268">268</a> 
 <a class="jxr_linenumber" name="L269" href="#L269">269</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L270" href="#L270">270</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
 <a class="jxr_linenumber" name="L271" href="#L271">271</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L272" href="#L272">272</a>     @Override
-<a class="jxr_linenumber" name="L273" href="#L273">273</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../oshi/software/os/OSProcess.html">OSProcess</a>[] getChildProcesses(<strong class="jxr_keyword">int</strong> parentPid, <strong class="jxr_keyword">int</strong> limit, <a href="../../../../oshi/software/os/OperatingSystem.html">ProcessSort</a> sort) {
+<a class="jxr_linenumber" name="L273" href="#L273">273</a>     <strong class="jxr_keyword">public</strong> <a name="OSProcess" href="../../../../oshi/software/os/OSProcess.html#OSProcess">OSProcess</a>[] getChildProcesses(<strong class="jxr_keyword">int</strong> parentPid, <strong class="jxr_keyword">int</strong> limit, ProcessSort sort) {
 <a class="jxr_linenumber" name="L274" href="#L274">274</a>         Set&lt;Integer&gt; childPids = <strong class="jxr_keyword">new</strong> HashSet&lt;&gt;();
 <a class="jxr_linenumber" name="L275" href="#L275">275</a>         <em class="jxr_comment">// Get processes from ToolHelp API for parent PID</em>
 <a class="jxr_linenumber" name="L276" href="#L276">276</a>         Tlhelp32.PROCESSENTRY32.ByReference processEntry = <strong class="jxr_keyword">new</strong> Tlhelp32.PROCESSENTRY32.ByReference();
@@ -294,14 +294,14 @@
 <a class="jxr_linenumber" name="L286" href="#L286">286</a>         }
 <a class="jxr_linenumber" name="L287" href="#L287">287</a>         List&lt;OSProcess&gt; procList = getProcesses(childPids);
 <a class="jxr_linenumber" name="L288" href="#L288">288</a>         List&lt;OSProcess&gt; sorted = processSort(procList, limit, sort);
-<a class="jxr_linenumber" name="L289" href="#L289">289</a>         <strong class="jxr_keyword">return</strong> sorted.toArray(<strong class="jxr_keyword">new</strong> <a href="../../../../oshi/software/os/OSProcess.html">OSProcess</a>[sorted.size()]);
+<a class="jxr_linenumber" name="L289" href="#L289">289</a>         <strong class="jxr_keyword">return</strong> sorted.toArray(<strong class="jxr_keyword">new</strong> <a name="OSProcess" href="../../../../oshi/software/os/OSProcess.html#OSProcess">OSProcess</a>[sorted.size()]);
 <a class="jxr_linenumber" name="L290" href="#L290">290</a>     }
 <a class="jxr_linenumber" name="L291" href="#L291">291</a> 
 <a class="jxr_linenumber" name="L292" href="#L292">292</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L293" href="#L293">293</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
 <a class="jxr_linenumber" name="L294" href="#L294">294</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L295" href="#L295">295</a>     @Override
-<a class="jxr_linenumber" name="L296" href="#L296">296</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../oshi/software/os/OSProcess.html">OSProcess</a> getProcess(<strong class="jxr_keyword">int</strong> pid) {
+<a class="jxr_linenumber" name="L296" href="#L296">296</a>     <strong class="jxr_keyword">public</strong> <a name="OSProcess" href="../../../../oshi/software/os/OSProcess.html#OSProcess">OSProcess</a> getProcess(<strong class="jxr_keyword">int</strong> pid) {
 <a class="jxr_linenumber" name="L297" href="#L297">297</a>         Set&lt;Integer&gt; pids = <strong class="jxr_keyword">new</strong> HashSet&lt;&gt;(1);
 <a class="jxr_linenumber" name="L298" href="#L298">298</a>         pids.add(pid);
 <a class="jxr_linenumber" name="L299" href="#L299">299</a>         List&lt;OSProcess&gt; procList = processMapToList(pids);
@@ -344,8 +344,8 @@
 <a class="jxr_linenumber" name="L336" href="#L336">336</a>         }
 <a class="jxr_linenumber" name="L337" href="#L337">337</a>         <em class="jxr_comment">// extract the pointed-to pointer and create array</em>
 <a class="jxr_linenumber" name="L338" href="#L338">338</a>         <strong class="jxr_keyword">final</strong> Pointer pProcessInfo = ppProcessInfo.getValue();
-<a class="jxr_linenumber" name="L339" href="#L339">339</a>         <strong class="jxr_keyword">final</strong> <a href="../../../../oshi/jna/platform/windows/Wtsapi32.html">WTS_PROCESS_INFO_EX</a> processInfoRef = <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/jna/platform/windows/Wtsapi32.html">WTS_PROCESS_INFO_EX</a>(pProcessInfo);
-<a class="jxr_linenumber" name="L340" href="#L340">340</a>         <strong class="jxr_keyword">final</strong> <a href="../../../../oshi/jna/platform/windows/Wtsapi32.html">WTS_PROCESS_INFO_EX</a>[] processInfo = (WTS_PROCESS_INFO_EX[]) processInfoRef.toArray(pCount.getValue());
+<a class="jxr_linenumber" name="L339" href="#L339">339</a>         <strong class="jxr_keyword">final</strong> WTS_PROCESS_INFO_EX processInfoRef = <strong class="jxr_keyword">new</strong> WTS_PROCESS_INFO_EX(pProcessInfo);
+<a class="jxr_linenumber" name="L340" href="#L340">340</a>         <strong class="jxr_keyword">final</strong> WTS_PROCESS_INFO_EX[] processInfo = (WTS_PROCESS_INFO_EX[]) processInfoRef.toArray(pCount.getValue());
 <a class="jxr_linenumber" name="L341" href="#L341">341</a> 
 <a class="jxr_linenumber" name="L342" href="#L342">342</a>         <em class="jxr_comment">// Store a subset of processes in a list to later return.</em>
 <a class="jxr_linenumber" name="L343" href="#L343">343</a>         List&lt;OSProcess&gt; processList = <strong class="jxr_keyword">new</strong> LinkedList&lt;&gt;();
@@ -361,12 +361,12 @@
 <a class="jxr_linenumber" name="L353" href="#L353">353</a>             <em class="jxr_comment">// the cache completely.</em>
 <a class="jxr_linenumber" name="L354" href="#L354">354</a> 
 <a class="jxr_linenumber" name="L355" href="#L355">355</a>             <strong class="jxr_keyword">int</strong> pid = procInfo.ProcessId;
-<a class="jxr_linenumber" name="L356" href="#L356">356</a>             <a href="../../../../oshi/software/os/OSProcess.html">OSProcess</a> proc = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L356" href="#L356">356</a>             <a name="OSProcess" href="../../../../oshi/software/os/OSProcess.html#OSProcess">OSProcess</a> proc = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L357" href="#L357">357</a>             <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.processMap.isEmpty()) {
 <a class="jxr_linenumber" name="L358" href="#L358">358</a>                 <strong class="jxr_keyword">if</strong> (pids != <strong class="jxr_keyword">null</strong> &amp;&amp; !pids.contains(pid)) {
 <a class="jxr_linenumber" name="L359" href="#L359">359</a>                     <strong class="jxr_keyword">continue</strong>;
 <a class="jxr_linenumber" name="L360" href="#L360">360</a>                 }
-<a class="jxr_linenumber" name="L361" href="#L361">361</a>                 proc = <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/software/os/OSProcess.html">OSProcess</a>();
+<a class="jxr_linenumber" name="L361" href="#L361">361</a>                 proc = <strong class="jxr_keyword">new</strong> <a name="OSProcess" href="../../../../oshi/software/os/OSProcess.html#OSProcess">OSProcess</a>();
 <a class="jxr_linenumber" name="L362" href="#L362">362</a>                 proc.setProcessID(pid);
 <a class="jxr_linenumber" name="L363" href="#L363">363</a>                 proc.setName(procInfo.pProcessName);
 <a class="jxr_linenumber" name="L364" href="#L364">364</a>             } <strong class="jxr_keyword">else</strong> {
@@ -448,7 +448,7 @@
 <a class="jxr_linenumber" name="L440" href="#L440">440</a>         <em class="jxr_comment">// Command Line only accessible via WMI.</em>
 <a class="jxr_linenumber" name="L441" href="#L441">441</a>         <em class="jxr_comment">// Utilize cache to only update new processes</em>
 <a class="jxr_linenumber" name="L442" href="#L442">442</a>         Set&lt;Integer&gt; emptyCommandLines = <strong class="jxr_keyword">new</strong> HashSet&lt;&gt;();
-<a class="jxr_linenumber" name="L443" href="#L443">443</a>         <strong class="jxr_keyword">for</strong> (OSProcess cachedProcess : processList) {
+<a class="jxr_linenumber" name="L443" href="#L443">443</a>         <strong class="jxr_keyword">for</strong> (<a name="OSProcess" href="../../../../oshi/software/os/OSProcess.html#OSProcess">OSProcess</a> cachedProcess : processList) {
 <a class="jxr_linenumber" name="L444" href="#L444">444</a>             <em class="jxr_comment">// If the process in the cache has an empty command line.</em>
 <a class="jxr_linenumber" name="L445" href="#L445">445</a>             <strong class="jxr_keyword">if</strong> (cachedProcess.getCommandLine().isEmpty()) {
 <a class="jxr_linenumber" name="L446" href="#L446">446</a>                 emptyCommandLines.add(cachedProcess.getProcessID());
@@ -475,7 +475,7 @@
 <a class="jxr_linenumber" name="L467" href="#L467">467</a>                 <em class="jxr_comment">// built from a subset of the cache, but just in case, protect</em>
 <a class="jxr_linenumber" name="L468" href="#L468">468</a>                 <em class="jxr_comment">// against dereferencing null</em>
 <a class="jxr_linenumber" name="L469" href="#L469">469</a>                 <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.processMap.containsKey(pid)) {
-<a class="jxr_linenumber" name="L470" href="#L470">470</a>                     <a href="../../../../oshi/software/os/OSProcess.html">OSProcess</a> proc = <strong class="jxr_keyword">this</strong>.processMap.get(pid);
+<a class="jxr_linenumber" name="L470" href="#L470">470</a>                     <a name="OSProcess" href="../../../../oshi/software/os/OSProcess.html#OSProcess">OSProcess</a> proc = <strong class="jxr_keyword">this</strong>.processMap.get(pid);
 <a class="jxr_linenumber" name="L471" href="#L471">471</a>                     proc.setCommandLine(WmiUtil.getString(commandLineProcs, ProcessProperty.COMMANDLINE, p));
 <a class="jxr_linenumber" name="L472" href="#L472">472</a>                 }
 <a class="jxr_linenumber" name="L473" href="#L473">473</a>             }
@@ -505,7 +505,7 @@
 <a class="jxr_linenumber" name="L497" href="#L497">497</a>                     pPerfData, lpcbData);
 <a class="jxr_linenumber" name="L498" href="#L498">498</a>         }
 <a class="jxr_linenumber" name="L499" href="#L499">499</a> 
-<a class="jxr_linenumber" name="L500" href="#L500">500</a>         <a href="../../../../oshi/jna/platform/windows/WinPerf.html">PERF_DATA_BLOCK</a> perfData = <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/jna/platform/windows/WinPerf.html">PERF_DATA_BLOCK</a>(pPerfData.share(0));
+<a class="jxr_linenumber" name="L500" href="#L500">500</a>         PERF_DATA_BLOCK perfData = <strong class="jxr_keyword">new</strong> PERF_DATA_BLOCK(pPerfData.share(0));
 <a class="jxr_linenumber" name="L501" href="#L501">501</a>         <strong class="jxr_keyword">long</strong> perfTime100nSec = perfData.PerfTime100nSec.getValue(); <em class="jxr_comment">// 1601</em>
 <a class="jxr_linenumber" name="L502" href="#L502">502</a>         <strong class="jxr_keyword">long</strong> now = System.currentTimeMillis(); <em class="jxr_comment">// 1970 epoch</em>
 <a class="jxr_linenumber" name="L503" href="#L503">503</a> 
@@ -523,7 +523,7 @@
 <a class="jxr_linenumber" name="L515" href="#L515">515</a> 
 <a class="jxr_linenumber" name="L516" href="#L516">516</a>         <em class="jxr_comment">// Iterate object types. For Process should only be one here</em>
 <a class="jxr_linenumber" name="L517" href="#L517">517</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> obj = 0; obj &lt; perfData.NumObjectTypes; obj++) {
-<a class="jxr_linenumber" name="L518" href="#L518">518</a>             <a href="../../../../oshi/jna/platform/windows/WinPerf.html">PERF_OBJECT_TYPE</a> perfObject = <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/jna/platform/windows/WinPerf.html">PERF_OBJECT_TYPE</a>(pPerfData.share(perfObjectOffset));
+<a class="jxr_linenumber" name="L518" href="#L518">518</a>             PERF_OBJECT_TYPE perfObject = <strong class="jxr_keyword">new</strong> PERF_OBJECT_TYPE(pPerfData.share(perfObjectOffset));
 <a class="jxr_linenumber" name="L519" href="#L519">519</a>             <em class="jxr_comment">// If this isn't the Process object, ignore</em>
 <a class="jxr_linenumber" name="L520" href="#L520">520</a>             <strong class="jxr_keyword">if</strong> (perfObject.ObjectNameTitleIndex == <strong class="jxr_keyword">this</strong>.processIndex) {
 <a class="jxr_linenumber" name="L521" href="#L521">521</a>                 <em class="jxr_comment">// Skip over counter definitions</em>
@@ -532,11 +532,11 @@
 <a class="jxr_linenumber" name="L524" href="#L524">524</a> 
 <a class="jxr_linenumber" name="L525" href="#L525">525</a>                 <em class="jxr_comment">// We need this for every process, initialize outside loop to</em>
 <a class="jxr_linenumber" name="L526" href="#L526">526</a>                 <em class="jxr_comment">// save overhead</em>
-<a class="jxr_linenumber" name="L527" href="#L527">527</a>                 <a href="../../../../oshi/jna/platform/windows/WinPerf.html">PERF_COUNTER_BLOCK</a> perfCounterBlock = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L527" href="#L527">527</a>                 PERF_COUNTER_BLOCK perfCounterBlock = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L528" href="#L528">528</a>                 <em class="jxr_comment">// Iterate instances.</em>
 <a class="jxr_linenumber" name="L529" href="#L529">529</a>                 <em class="jxr_comment">// The last instance is _Total so subtract 1 from max</em>
 <a class="jxr_linenumber" name="L530" href="#L530">530</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> inst = 0; inst &lt; perfObject.NumInstances - 1; inst++) {
-<a class="jxr_linenumber" name="L531" href="#L531">531</a>                     <a href="../../../../oshi/jna/platform/windows/WinPerf.html">PERF_INSTANCE_DEFINITION</a> perfInstance = <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/jna/platform/windows/WinPerf.html">PERF_INSTANCE_DEFINITION</a>(
+<a class="jxr_linenumber" name="L531" href="#L531">531</a>                     PERF_INSTANCE_DEFINITION perfInstance = <strong class="jxr_keyword">new</strong> PERF_INSTANCE_DEFINITION(
 <a class="jxr_linenumber" name="L532" href="#L532">532</a>                             pPerfData.share(perfInstanceOffset));
 <a class="jxr_linenumber" name="L533" href="#L533">533</a>                     <strong class="jxr_keyword">long</strong> perfCounterBlockOffset = perfInstanceOffset + perfInstance.ByteLength;
 <a class="jxr_linenumber" name="L534" href="#L534">534</a> 
@@ -545,7 +545,7 @@
 <a class="jxr_linenumber" name="L537" href="#L537">537</a>                         pidsToKeep.add(pid);
 <a class="jxr_linenumber" name="L538" href="#L538">538</a> 
 <a class="jxr_linenumber" name="L539" href="#L539">539</a>                         <em class="jxr_comment">// If process exists fetch from cache</em>
-<a class="jxr_linenumber" name="L540" href="#L540">540</a>                         <a href="../../../../oshi/software/os/OSProcess.html">OSProcess</a> proc = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L540" href="#L540">540</a>                         <a name="OSProcess" href="../../../../oshi/software/os/OSProcess.html#OSProcess">OSProcess</a> proc = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L541" href="#L541">541</a>                         <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.processMap.containsKey(pid)) {
 <a class="jxr_linenumber" name="L542" href="#L542">542</a>                             proc = <strong class="jxr_keyword">this</strong>.processMap.get(pid);
 <a class="jxr_linenumber" name="L543" href="#L543">543</a>                         }
@@ -555,7 +555,7 @@
 <a class="jxr_linenumber" name="L547" href="#L547">547</a>                                 - pPerfData.getLong(perfCounterBlockOffset + <strong class="jxr_keyword">this</strong>.elapsedTimeOffset)) / 10_000L;
 <a class="jxr_linenumber" name="L548" href="#L548">548</a>                         <strong class="jxr_keyword">long</strong> startTime = now - upTime;
 <a class="jxr_linenumber" name="L549" href="#L549">549</a>                         <strong class="jxr_keyword">if</strong> (proc == <strong class="jxr_keyword">null</strong> || Math.abs(startTime - proc.getStartTime()) &gt; 200) {
-<a class="jxr_linenumber" name="L550" href="#L550">550</a>                             proc = <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/software/os/OSProcess.html">OSProcess</a>();
+<a class="jxr_linenumber" name="L550" href="#L550">550</a>                             proc = <strong class="jxr_keyword">new</strong> <a name="OSProcess" href="../../../../oshi/software/os/OSProcess.html#OSProcess">OSProcess</a>();
 <a class="jxr_linenumber" name="L551" href="#L551">551</a>                             proc.setProcessID(pid);
 <a class="jxr_linenumber" name="L552" href="#L552">552</a>                             proc.setStartTime(startTime);
 <a class="jxr_linenumber" name="L553" href="#L553">553</a>                             proc.setName(pPerfData.getWideString(perfInstanceOffset + perfInstance.NameOffset));
@@ -575,7 +575,7 @@
 <a class="jxr_linenumber" name="L567" href="#L567">567</a>                     }
 <a class="jxr_linenumber" name="L568" href="#L568">568</a> 
 <a class="jxr_linenumber" name="L569" href="#L569">569</a>                     <em class="jxr_comment">// Increment to next instance</em>
-<a class="jxr_linenumber" name="L570" href="#L570">570</a>                     perfCounterBlock = <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/jna/platform/windows/WinPerf.html">PERF_COUNTER_BLOCK</a>(pPerfData.share(perfCounterBlockOffset));
+<a class="jxr_linenumber" name="L570" href="#L570">570</a>                     perfCounterBlock = <strong class="jxr_keyword">new</strong> PERF_COUNTER_BLOCK(pPerfData.share(perfCounterBlockOffset));
 <a class="jxr_linenumber" name="L571" href="#L571">571</a>                     perfInstanceOffset = perfCounterBlockOffset + perfCounterBlock.ByteLength;
 <a class="jxr_linenumber" name="L572" href="#L572">572</a>                 }
 <a class="jxr_linenumber" name="L573" href="#L573">573</a>                 <em class="jxr_comment">// We've found the process object and are done, no need to look</em>
@@ -634,8 +634,8 @@
 <a class="jxr_linenumber" name="L626" href="#L626">626</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
 <a class="jxr_linenumber" name="L627" href="#L627">627</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L628" href="#L628">628</a>     @Override
-<a class="jxr_linenumber" name="L629" href="#L629">629</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../oshi/software/os/NetworkParams.html">NetworkParams</a> getNetworkParams() {
-<a class="jxr_linenumber" name="L630" href="#L630">630</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/software/os/windows/WindowsNetworkParams.html">WindowsNetworkParams</a>();
+<a class="jxr_linenumber" name="L629" href="#L629">629</a>     <strong class="jxr_keyword">public</strong> <a name="NetworkParams" href="../../../../oshi/software/os/NetworkParams.html#NetworkParams">NetworkParams</a> getNetworkParams() {
+<a class="jxr_linenumber" name="L630" href="#L630">630</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a name="WindowsNetworkParams" href="../../../../oshi/software/os/windows/WindowsNetworkParams.html#WindowsNetworkParams">WindowsNetworkParams</a>();
 <a class="jxr_linenumber" name="L631" href="#L631">631</a>     }
 <a class="jxr_linenumber" name="L632" href="#L632">632</a> 
 <a class="jxr_linenumber" name="L633" href="#L633">633</a>     <em class="jxr_javadoccomment">/**</em>
