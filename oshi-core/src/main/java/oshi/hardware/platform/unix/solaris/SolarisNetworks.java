@@ -40,6 +40,9 @@ public class SolarisNetworks extends AbstractNetworks {
      */
     public static void updateNetworkStats(NetworkIF netIF) {
         Kstat ksp = KstatUtil.kstatLookup("link", -1, netIF.getName());
+        if (ksp == null) { // Solaris 10 compatibility
+            ksp = KstatUtil.kstatLookup(null, -1, netIF.getName());
+        }
         if (ksp != null && KstatUtil.kstatRead(ksp)) {
             netIF.setBytesSent(KstatUtil.kstatDataLookupLong(ksp, "obytes64"));
             netIF.setBytesRecv(KstatUtil.kstatDataLookupLong(ksp, "rbytes64"));
@@ -49,7 +52,7 @@ public class SolarisNetworks extends AbstractNetworks {
             netIF.setInErrors(KstatUtil.kstatDataLookupLong(ksp, "ierrors"));
             netIF.setSpeed(KstatUtil.kstatDataLookupLong(ksp, "ifspeed"));
             // Snap time in ns; convert to ms
-            netIF.setTimeStamp(ksp.ks_snaptime / 1000000L);
+            netIF.setTimeStamp(ksp.ks_snaptime / 1_000_000L);
         }
     }
 }
