@@ -22,14 +22,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Native; // NOSONAR
+import com.sun.jna.platform.mac.SystemB;
 import com.sun.jna.platform.mac.SystemB.HostCpuLoadInfo;
+import com.sun.jna.platform.mac.SystemB.Timeval;
+import com.sun.jna.platform.mac.SystemB.VMMeter;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
 
 import oshi.hardware.common.AbstractCentralProcessor;
-import oshi.jna.platform.mac.SystemB;
-import oshi.jna.platform.mac.SystemB.VMMeter;
-import oshi.jna.platform.unix.CLibrary.Timeval;
 import oshi.util.ExecutingCommand;
 import oshi.util.FormatUtil;
 import oshi.util.ParseUtil;
@@ -51,7 +51,7 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
     private static final long BOOTTIME;
     static {
 <span class="nc" id="L53">        Timeval tv = new Timeval();</span>
-<span class="nc bnc" id="L54" title="All 4 branches missed.">        if (!SysctlUtil.sysctl(&quot;kern.boottime&quot;, tv) || tv.tv_sec == 0) {</span>
+<span class="nc bnc" id="L54" title="All 4 branches missed.">        if (!SysctlUtil.sysctl(&quot;kern.boottime&quot;, tv) || tv.tv_sec.longValue() == 0L) {</span>
             // Usually this works. If it doesn't, fall back to text parsing.
             // Boot time will be the first consecutive string of digits.
 <span class="nc" id="L57">            BOOTTIME = ParseUtil.parseLongOrDefault(</span>
@@ -61,7 +61,7 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
             // tv now points to a 64-bit timeval structure for boot time.
             // First 4 bytes are seconds, second 4 bytes are microseconds
             // (we ignore)
-<span class="nc" id="L64">            BOOTTIME = tv.tv_sec;</span>
+<span class="nc" id="L64">            BOOTTIME = tv.tv_sec.longValue();</span>
         }
 <span class="nc" id="L66">    }</span>
 
@@ -221,4 +221,4 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
 <span class="nc" id="L221">        return ParseUtil.unsignedIntToLong(vmstats.v_intr);</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

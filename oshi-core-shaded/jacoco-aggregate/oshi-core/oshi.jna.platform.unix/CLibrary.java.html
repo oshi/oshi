@@ -18,12 +18,10 @@
  */
 package oshi.jna.platform.unix;
 
-import java.util.Arrays;
-import java.util.List;
-
 import com.sun.jna.Library;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
+import com.sun.jna.Structure.FieldOrder;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
 
@@ -44,29 +42,23 @@ public interface CLibrary extends Library {
     /**
      * Return type for BSD sysctl kern.boottime
      */
-<span class="nc" id="L47">    class Timeval extends Structure {</span>
+    @FieldOrder({ &quot;tv_sec&quot;, &quot;tv_usec&quot; })
+<span class="nc" id="L46">    class Timeval extends Structure {</span>
         public long tv_sec; // seconds
         public long tv_usec; // microseconds
-
-        @Override
-        protected List&lt;String&gt; getFieldOrder() {
-<span class="nc" id="L53">            return Arrays.asList(new String[] { &quot;tv_sec&quot;, &quot;tv_usec&quot; });</span>
-        }
     }
 
-<span class="nc" id="L57">    class Sockaddr extends Structure {</span>
+    @FieldOrder({ &quot;sa_family&quot;, &quot;sa_data&quot; })
+<span class="nc" id="L52">    class Sockaddr extends Structure {</span>
         public short sa_family;
-<span class="nc" id="L59">        public byte[] sa_data = new byte[14];</span>
+<span class="nc" id="L54">        public byte[] sa_data = new byte[14];</span>
 
-<span class="nc" id="L61">        public static class ByReference extends Sockaddr implements Structure.ByReference {</span>
-        }
-
-        @Override
-        protected List&lt;String&gt; getFieldOrder() {
-<span class="nc" id="L66">            return Arrays.asList(new String[] { &quot;sa_family&quot;, &quot;sa_data&quot; });</span>
+<span class="nc" id="L56">        public static class ByReference extends Sockaddr implements Structure.ByReference {</span>
         }
     }
 
+    @FieldOrder({ &quot;ai_flags&quot;, &quot;ai_family&quot;, &quot;ai_socktype&quot;, &quot;ai_protocol&quot;, &quot;ai_addrlen&quot;, &quot;ai_addr&quot;, &quot;ai_canonname&quot;,
+            &quot;ai_next&quot; })
     class Addrinfo extends Structure {
         public int ai_flags;
         public int ai_family;
@@ -77,22 +69,16 @@ public interface CLibrary extends Library {
         public String ai_canonname;
         public ByReference ai_next;
 
-<span class="nc" id="L80">        public static class ByReference extends Addrinfo implements Structure.ByReference {</span>
+<span class="nc" id="L72">        public static class ByReference extends Addrinfo implements Structure.ByReference {</span>
         }
 
-        @Override
-        protected List&lt;String&gt; getFieldOrder() {
-<span class="nc" id="L85">            return Arrays.asList(new String[] { &quot;ai_flags&quot;, &quot;ai_family&quot;, &quot;ai_socktype&quot;, &quot;ai_protocol&quot;, &quot;ai_addrlen&quot;,</span>
-                    &quot;ai_addr&quot;, &quot;ai_canonname&quot;, &quot;ai_next&quot; });
-        }
-
-<span class="nc" id="L89">        public Addrinfo() {</span>
-<span class="nc" id="L90">        }</span>
+<span class="nc" id="L75">        public Addrinfo() {</span>
+<span class="nc" id="L76">        }</span>
 
         public Addrinfo(Pointer p) {
-<span class="nc" id="L93">            super(p);</span>
-<span class="nc" id="L94">            read();</span>
-<span class="nc" id="L95">        }</span>
+<span class="nc" id="L79">            super(p);</span>
+<span class="nc" id="L80">            read();</span>
+<span class="nc" id="L81">        }</span>
     }
 
     /**
@@ -283,4 +269,4 @@ public interface CLibrary extends Library {
      */
     int getpagesize();
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

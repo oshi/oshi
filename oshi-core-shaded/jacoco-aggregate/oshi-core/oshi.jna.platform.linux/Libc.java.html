@@ -18,12 +18,15 @@
  */
 package oshi.jna.platform.linux;
 
-import java.util.Arrays;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import com.sun.jna.Native;
 import com.sun.jna.NativeLong;
 import com.sun.jna.Structure;
+import com.sun.jna.Structure.FieldOrder;
 
 import oshi.jna.platform.unix.CLibrary;
 
@@ -35,44 +38,128 @@ import oshi.jna.platform.unix.CLibrary;
  */
 public interface Libc extends CLibrary {
 
-<span class="nc" id="L38">    Libc INSTANCE = Native.loadLibrary(&quot;c&quot;, Libc.class);</span>
+<span class="nc" id="L41">    Libc INSTANCE = Native.load(&quot;c&quot;, Libc.class);</span>
 
-<span class="nc" id="L40">    class Sysinfo extends Structure {</span>
+    @FieldOrder({ &quot;uptime&quot;, &quot;loads&quot;, &quot;totalram&quot;, &quot;freeram&quot;, &quot;sharedram&quot;, &quot;bufferram&quot;, &quot;totalswap&quot;, &quot;freeswap&quot;, &quot;procs&quot;,
+            &quot;totalhigh&quot;, &quot;freehigh&quot;, &quot;mem_unit&quot;, &quot;_f&quot; })
+<span class="nc" id="L45">    class Sysinfo extends Structure {</span>
+<span class="nc" id="L46">        private static final int PADDING_SIZE = 20 - 2 * NativeLong.SIZE - 4;</span>
+
         public NativeLong uptime; // Seconds since boot
-        // 1, 5, and 15 minute load averages
-
-<span class="nc" id="L44">        public NativeLong[] loads = new NativeLong[3];</span>
-
+        // 1, 5, and 15 minute load averages, divide by 2^16
+<span class="nc" id="L50">        public NativeLong[] loads = new NativeLong[3];</span>
         public NativeLong totalram; // Total usable main memory size
-
         public NativeLong freeram; // Available memory size
-
         public NativeLong sharedram; // Amount of shared memory
-
         public NativeLong bufferram; // Memory used by buffers
-
         public NativeLong totalswap; // Total swap space size
-
         public NativeLong freeswap; // swap space still available
-
         public short procs; // Number of current processes
-
         public NativeLong totalhigh; // Total high memory size
-
         public NativeLong freehigh; // Available high memory size
-
         public int mem_unit; // Memory unit size in bytes
+        // Padding to 64 bytes
+<span class="nc" id="L62">        public byte[] _f = new byte[PADDING_SIZE];</span>
 
-<span class="nc" id="L66">        public byte[] _f = new byte[8]; // Won't be written for 64-bit systems</span>
+        /*
+         * getFieldList and getFieldOrder are overridden because PADDING_SIZE
+         * might be 0 - that is a GCC only extension and not supported by JNA
+         * 
+         * The dummy field at the end of the structure is just padding and so if
+         * the field is the zero length array, it is stripped from the fields
+         * and field order.
+         */
+        @Override
+        protected List&lt;Field&gt; getFieldList() {
+<span class="nc" id="L74">            List&lt;Field&gt; fields = new ArrayList&lt;&gt;(super.getFieldList());</span>
+<span class="nc bnc" id="L75" title="All 2 branches missed.">            if (PADDING_SIZE == 0) {</span>
+<span class="nc" id="L76">                Iterator&lt;Field&gt; fieldIterator = fields.iterator();</span>
+<span class="nc bnc" id="L77" title="All 2 branches missed.">                while (fieldIterator.hasNext()) {</span>
+<span class="nc" id="L78">                    Field field = fieldIterator.next();</span>
+<span class="nc bnc" id="L79" title="All 2 branches missed.">                    if (&quot;_f&quot;.equals(field.getName())) {</span>
+<span class="nc" id="L80">                        fieldIterator.remove();</span>
+                    }
+<span class="nc" id="L82">                }</span>
+            }
+<span class="nc" id="L84">            return fields;</span>
+        }
 
         @Override
         protected List&lt;String&gt; getFieldOrder() {
-<span class="nc" id="L70">            return Arrays.asList(new String[] { &quot;uptime&quot;, &quot;loads&quot;, &quot;totalram&quot;, &quot;freeram&quot;, &quot;sharedram&quot;, &quot;bufferram&quot;,</span>
-                    &quot;totalswap&quot;, &quot;freeswap&quot;, &quot;procs&quot;, &quot;totalhigh&quot;, &quot;freehigh&quot;, &quot;mem_unit&quot;, &quot;_f&quot; });
+<span class="nc" id="L89">            List&lt;String&gt; fieldOrder = new ArrayList&lt;&gt;(super.getFieldOrder());</span>
+<span class="nc bnc" id="L90" title="All 2 branches missed.">            if (PADDING_SIZE == 0) {</span>
+<span class="nc" id="L91">                fieldOrder.remove(&quot;_f&quot;);</span>
+            }
+<span class="nc" id="L93">            return fieldOrder;</span>
         }
     }
 
+    @FieldOrder({ &quot;fsBlockSize&quot;, &quot;fsFragmentSize&quot;, &quot;fsSizeInBlocks&quot;, &quot;fsBlocksFree&quot;, &quot;fsBlocksFreeUnpriv&quot;,
+            &quot;fsTotalInodeCount&quot;, &quot;fsFreeInodeCount&quot;, &quot;fsFreeInodeCountUnpriv&quot;, &quot;fsId&quot;, &quot;_fPad32bit&quot;, &quot;fsMountFlags&quot;,
+            &quot;fsMaxFilenameLength&quot;, &quot;_fSpare&quot; })
+<span class="nc" id="L100">    class Statvfs extends Structure {</span>
+<span class="nc" id="L101">        private static final int PADDING_SIZE = 8 / NativeLong.SIZE - 1;</span>
+
+        public NativeLong fsBlockSize;
+        public NativeLong fsFragmentSize;
+        public NativeLong fsSizeInBlocks;
+        public NativeLong fsBlocksFree;
+        public NativeLong fsBlocksFreeUnpriv;
+        public NativeLong fsTotalInodeCount;
+        public NativeLong fsFreeInodeCount;
+        public NativeLong fsFreeInodeCountUnpriv;
+        public NativeLong fsId;
+<span class="nc" id="L112">        public int[] _fPad32bit = new int[PADDING_SIZE]; // 0 on 64-bit systems</span>
+        public NativeLong fsMountFlags;
+        public NativeLong fsMaxFilenameLength;
+<span class="nc" id="L115">        public int[] _fSpare = new int[6];</span>
+
+        @Override
+        protected List&lt;Field&gt; getFieldList() {
+<span class="nc" id="L119">            List&lt;Field&gt; fields = new ArrayList&lt;Field&gt;(super.getFieldList());</span>
+<span class="nc bnc" id="L120" title="All 2 branches missed.">            if (PADDING_SIZE == 0) {</span>
+<span class="nc" id="L121">                Iterator&lt;Field&gt; fieldIterator = fields.iterator();</span>
+<span class="nc bnc" id="L122" title="All 2 branches missed.">                while (fieldIterator.hasNext()) {</span>
+<span class="nc" id="L123">                    Field field = fieldIterator.next();</span>
+<span class="nc bnc" id="L124" title="All 2 branches missed.">                    if (&quot;_fPad32bit&quot;.equals(field.getName())) {</span>
+<span class="nc" id="L125">                        fieldIterator.remove();</span>
+                    }
+<span class="nc" id="L127">                }</span>
+            }
+<span class="nc" id="L129">            return fields;</span>
+        }
+
+        @Override
+        protected List&lt;String&gt; getFieldOrder() {
+<span class="nc" id="L134">            List&lt;String&gt; fieldOrder = new ArrayList&lt;&gt;(super.getFieldOrder());</span>
+<span class="nc bnc" id="L135" title="All 2 branches missed.">            if (PADDING_SIZE == 0) {</span>
+<span class="nc" id="L136">                fieldOrder.remove(&quot;_fPad32bit&quot;);</span>
+            }
+<span class="nc" id="L138">            return fieldOrder;</span>
+        }
+    }
+
+    /**
+     * sysinfo() provides a simple way of getting overall system statistics.
+     * This is more portable than reading /dev/kmem.
+     * 
+     * @param info
+     *            A Sysinfo structure which will be populated
+     * @return On success, zero is returned. On error, -1 is returned, and errno
+     *         is set appropriately.
+     */
     int sysinfo(Sysinfo info);
 
+    /**
+     * The function statvfs() returns information about a mounted filesystem.
+     * 
+     * @param path
+     *            the pathname of any file within the mounted filesystem.
+     * @param buf
+     *            a pointer to a statvfs structure
+     * @return On success, zero is returned. On error, -1 is returned, and errno
+     *         is set appropriately.
+     */
+    int statvfs(String path, Statvfs buf);
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

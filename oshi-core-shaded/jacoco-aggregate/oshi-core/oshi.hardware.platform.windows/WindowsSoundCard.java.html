@@ -23,8 +23,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.sun.jna.platform.win32.COM.WbemcliUtil; // NOSONAR squid:S1191
+
 import oshi.hardware.common.AbstractSoundCard;
-import oshi.jna.platform.windows.WbemcliUtil;
 import oshi.util.platform.windows.WmiUtil;
 
 /**
@@ -33,15 +34,15 @@ import oshi.util.platform.windows.WmiUtil;
  * @author : BilalAM
  */
 public class WindowsSoundCard extends AbstractSoundCard {
-<span class="nc" id="L36">    enum SoundCardName {</span>
-<span class="nc" id="L37">        MANUFACTURER, NAME;</span>
+<span class="nc" id="L37">    enum SoundCardName {</span>
+<span class="nc" id="L38">        MANUFACTURER, NAME;</span>
     }
 
-<span class="nc" id="L40">    enum SoundCardKernel {</span>
-<span class="nc" id="L41">        DRIVERPROVIDERNAME, DRIVERNAME, DRIVERVERSION, DEVICENAME;</span>
+<span class="nc" id="L41">    enum SoundCardKernel {</span>
+<span class="nc" id="L42">        DRIVERPROVIDERNAME, DRIVERNAME, DRIVERVERSION, DEVICENAME;</span>
     }
 
-<span class="nc" id="L44">    private static final Map&lt;String, String&gt; NAME_MAP = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L45">    private static final Map&lt;String, String&gt; NAME_MAP = new HashMap&lt;&gt;();</span>
     private static final String DRIVER_QUERY;
 
     /**
@@ -52,19 +53,19 @@ public class WindowsSoundCard extends AbstractSoundCard {
      * once
      */
     static {
-<span class="nc" id="L55">        WbemcliUtil.WmiQuery&lt;SoundCardName&gt; soundCardQuery = new WbemcliUtil.WmiQuery&lt;&gt;(&quot;Win32_SoundDevice&quot;,</span>
+<span class="nc" id="L56">        WbemcliUtil.WmiQuery&lt;SoundCardName&gt; soundCardQuery = new WbemcliUtil.WmiQuery&lt;&gt;(&quot;Win32_SoundDevice&quot;,</span>
                 SoundCardName.class);
-<span class="nc" id="L57">        WbemcliUtil.WmiResult&lt;SoundCardName&gt; soundCardResult = WmiUtil.queryWMI(soundCardQuery);</span>
-<span class="nc bnc" id="L58" title="All 2 branches missed.">        for (int i = 0; i &lt; soundCardResult.getResultCount(); i++) {</span>
-<span class="nc" id="L59">            NAME_MAP.put(WmiUtil.getString(soundCardResult, SoundCardName.NAME, i),</span>
-<span class="nc" id="L60">                    WmiUtil.getString(soundCardResult, SoundCardName.MANUFACTURER, i));</span>
+<span class="nc" id="L58">        WbemcliUtil.WmiResult&lt;SoundCardName&gt; soundCardResult = WmiUtil.queryWMI(soundCardQuery);</span>
+<span class="nc bnc" id="L59" title="All 2 branches missed.">        for (int i = 0; i &lt; soundCardResult.getResultCount(); i++) {</span>
+<span class="nc" id="L60">            NAME_MAP.put(WmiUtil.getString(soundCardResult, SoundCardName.NAME, i),</span>
+<span class="nc" id="L61">                    WmiUtil.getString(soundCardResult, SoundCardName.MANUFACTURER, i));</span>
         }
-<span class="nc" id="L62">        DRIVER_QUERY = createClause();</span>
-<span class="nc" id="L63">    }</span>
+<span class="nc" id="L63">        DRIVER_QUERY = createClause();</span>
+<span class="nc" id="L64">    }</span>
 
     public WindowsSoundCard(String kernelVersion, String name, String codec) {
-<span class="nc" id="L66">        super(kernelVersion, name, codec);</span>
-<span class="nc" id="L67">    }</span>
+<span class="nc" id="L67">        super(kernelVersion, name, codec);</span>
+<span class="nc" id="L68">    }</span>
 
     /**
      * Creates our Win32_PnPSignedDevice query with the WHERE clause taking the
@@ -73,18 +74,18 @@ public class WindowsSoundCard extends AbstractSoundCard {
      * @return The WHERE clause
      */
     private static String createClause() {
-<span class="nc" id="L76">        StringBuilder sb = new StringBuilder(&quot;Win32_PnPSignedDriver&quot;);</span>
-<span class="nc" id="L77">        boolean first = true;</span>
-<span class="nc bnc" id="L78" title="All 2 branches missed.">        for (String key : NAME_MAP.keySet()) {</span>
-<span class="nc bnc" id="L79" title="All 2 branches missed.">            if (first) {</span>
-<span class="nc" id="L80">                sb.append(&quot; WHERE&quot;);</span>
-<span class="nc" id="L81">                first = false;</span>
+<span class="nc" id="L77">        StringBuilder sb = new StringBuilder(&quot;Win32_PnPSignedDriver&quot;);</span>
+<span class="nc" id="L78">        boolean first = true;</span>
+<span class="nc bnc" id="L79" title="All 2 branches missed.">        for (String key : NAME_MAP.keySet()) {</span>
+<span class="nc bnc" id="L80" title="All 2 branches missed.">            if (first) {</span>
+<span class="nc" id="L81">                sb.append(&quot; WHERE&quot;);</span>
+<span class="nc" id="L82">                first = false;</span>
             } else {
-<span class="nc" id="L83">                sb.append(&quot; OR&quot;);</span>
+<span class="nc" id="L84">                sb.append(&quot; OR&quot;);</span>
             }
-<span class="nc" id="L85">            sb.append(&quot; DeviceName LIKE \&quot;%&quot;).append(key).append(&quot;%\&quot;&quot;);</span>
-<span class="nc" id="L86">        }</span>
-<span class="nc" id="L87">        return sb.toString();</span>
+<span class="nc" id="L86">            sb.append(&quot; DeviceName LIKE \&quot;%&quot;).append(key).append(&quot;%\&quot;&quot;);</span>
+<span class="nc" id="L87">        }</span>
+<span class="nc" id="L88">        return sb.toString();</span>
     }
 
     /**
@@ -99,11 +100,11 @@ public class WindowsSoundCard extends AbstractSoundCard {
     private static String getAudioCardKernelVersion(int index,
             WbemcliUtil.WmiResult&lt;SoundCardKernel&gt; cardKernelQueryResult) {
         String audioCardKernel;
-<span class="nc" id="L102">        audioCardKernel = WmiUtil.getString(cardKernelQueryResult, SoundCardKernel.DRIVERPROVIDERNAME, index) + &quot; &quot;</span>
-<span class="nc" id="L103">                + WmiUtil.getString(cardKernelQueryResult, SoundCardKernel.DEVICENAME, index) + &quot; &quot;</span>
-<span class="nc" id="L104">                + WmiUtil.getString(cardKernelQueryResult, SoundCardKernel.DRIVERNAME, index) + &quot; &quot;</span>
-<span class="nc" id="L105">                + WmiUtil.getString(cardKernelQueryResult, SoundCardKernel.DRIVERVERSION, index);</span>
-<span class="nc" id="L106">        return audioCardKernel;</span>
+<span class="nc" id="L103">        audioCardKernel = WmiUtil.getString(cardKernelQueryResult, SoundCardKernel.DRIVERPROVIDERNAME, index) + &quot; &quot;</span>
+<span class="nc" id="L104">                + WmiUtil.getString(cardKernelQueryResult, SoundCardKernel.DEVICENAME, index) + &quot; &quot;</span>
+<span class="nc" id="L105">                + WmiUtil.getString(cardKernelQueryResult, SoundCardKernel.DRIVERNAME, index) + &quot; &quot;</span>
+<span class="nc" id="L106">                + WmiUtil.getString(cardKernelQueryResult, SoundCardKernel.DRIVERVERSION, index);</span>
+<span class="nc" id="L107">        return audioCardKernel;</span>
     }
 
     /**
@@ -123,24 +124,24 @@ public class WindowsSoundCard extends AbstractSoundCard {
      * @return List of sound cards
      */
     public static List&lt;WindowsSoundCard&gt; getSoundCards() {
-<span class="nc" id="L126">        WbemcliUtil.WmiQuery&lt;SoundCardKernel&gt; cardKernelQuery = new WbemcliUtil.WmiQuery&lt;&gt;(DRIVER_QUERY,</span>
+<span class="nc" id="L127">        WbemcliUtil.WmiQuery&lt;SoundCardKernel&gt; cardKernelQuery = new WbemcliUtil.WmiQuery&lt;&gt;(DRIVER_QUERY,</span>
                 SoundCardKernel.class);
-<span class="nc" id="L128">        WbemcliUtil.WmiResult&lt;SoundCardKernel&gt; cardKernelQueryResult = WmiUtil.queryWMI(cardKernelQuery);</span>
+<span class="nc" id="L129">        WbemcliUtil.WmiResult&lt;SoundCardKernel&gt; cardKernelQueryResult = WmiUtil.queryWMI(cardKernelQuery);</span>
 
-<span class="nc" id="L130">        List&lt;WindowsSoundCard&gt; soundCards = new ArrayList&lt;&gt;();</span>
-<span class="nc bnc" id="L131" title="All 2 branches missed.">        for (int i = 0; i &lt; cardKernelQueryResult.getResultCount(); i++) {</span>
+<span class="nc" id="L131">        List&lt;WindowsSoundCard&gt; soundCards = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L132" title="All 2 branches missed.">        for (int i = 0; i &lt; cardKernelQueryResult.getResultCount(); i++) {</span>
             // If the map has a key that is equal to the value returned by
             // cardKernelQuery
-<span class="nc bnc" id="L134" title="All 2 branches missed.">            if (NAME_MAP.containsKey(WmiUtil.getString(cardKernelQueryResult, SoundCardKernel.DEVICENAME, i))) {</span>
+<span class="nc bnc" id="L135" title="All 2 branches missed.">            if (NAME_MAP.containsKey(WmiUtil.getString(cardKernelQueryResult, SoundCardKernel.DEVICENAME, i))) {</span>
                 // then build a sound card by extracting values from
                 // cardKernelQuery
-<span class="nc" id="L137">                soundCards.add(new WindowsSoundCard(getAudioCardKernelVersion(i, cardKernelQueryResult),</span>
-<span class="nc" id="L138">                        WmiUtil.getString(cardKernelQueryResult, SoundCardKernel.DRIVERPROVIDERNAME, i) + &quot; &quot;</span>
-<span class="nc" id="L139">                                + WmiUtil.getString(cardKernelQueryResult, SoundCardKernel.DEVICENAME, i),</span>
-<span class="nc" id="L140">                        WmiUtil.getString(cardKernelQueryResult, SoundCardKernel.DEVICENAME, i)));</span>
+<span class="nc" id="L138">                soundCards.add(new WindowsSoundCard(getAudioCardKernelVersion(i, cardKernelQueryResult),</span>
+<span class="nc" id="L139">                        WmiUtil.getString(cardKernelQueryResult, SoundCardKernel.DRIVERPROVIDERNAME, i) + &quot; &quot;</span>
+<span class="nc" id="L140">                                + WmiUtil.getString(cardKernelQueryResult, SoundCardKernel.DEVICENAME, i),</span>
+<span class="nc" id="L141">                        WmiUtil.getString(cardKernelQueryResult, SoundCardKernel.DEVICENAME, i)));</span>
             }
         }
-<span class="nc" id="L143">        return soundCards;</span>
+<span class="nc" id="L144">        return soundCards;</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

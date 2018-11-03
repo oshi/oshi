@@ -18,14 +18,12 @@
  */
 package oshi.jna.platform.windows;
 
-import java.util.Arrays;
-import java.util.List;
-
 import com.sun.jna.Library;
 import com.sun.jna.Native;
 import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
+import com.sun.jna.Structure.FieldOrder;
 
 /**
  * Power profile stats. This class should be considered non-API as it may be
@@ -34,41 +32,27 @@ import com.sun.jna.Structure;
  * @author widdis[at]gmail[dot]com
  */
 public interface PowrProf extends Library {
-<span class="nc" id="L37">    PowrProf INSTANCE = Native.loadLibrary(&quot;PowrProf&quot;, PowrProf.class);</span>
+<span class="nc" id="L35">    PowrProf INSTANCE = Native.load(&quot;PowrProf&quot;, PowrProf.class);</span>
 
     int SYSTEM_BATTERY_STATE = 5;
 
+    @FieldOrder({ &quot;acOnLine&quot;, &quot;batteryPresent&quot;, &quot;charging&quot;, &quot;discharging&quot;, &quot;spare1&quot;, &quot;maxCapacity&quot;, &quot;remainingCapacity&quot;,
+            &quot;rate&quot;, &quot;estimatedTime&quot;, &quot;defaultAlert1&quot;, &quot;defaultAlert2&quot; })
 <span class="nc" id="L41">    class SystemBatteryState extends Structure {</span>
         public byte acOnLine; // boolean
-
         public byte batteryPresent; // boolean
-
         public byte charging; // boolean
-
         public byte discharging; // boolean
-
-<span class="nc" id="L50">        public byte[] spare1 = new byte[4]; // unused</span>
-
+<span class="nc" id="L46">        public byte[] spare1 = new byte[4]; // unused</span>
         public int maxCapacity; // unsigned 32 bit
-
         public int remainingCapacity; // unsigned 32 bit
-
         public int rate; // signed 32 bit
-
         public int estimatedTime; // signed 32 bit
-
         public int defaultAlert1; // unsigned 32 bit
-
         public int defaultAlert2; // unsigned 32 bit
-
-        @Override
-        protected List&lt;String&gt; getFieldOrder() {
-<span class="nc" id="L66">            return Arrays.asList(new String[] { &quot;acOnLine&quot;, &quot;batteryPresent&quot;, &quot;charging&quot;, &quot;discharging&quot;, &quot;spare1&quot;,</span>
-                    &quot;maxCapacity&quot;, &quot;remainingCapacity&quot;, &quot;rate&quot;, &quot;estimatedTime&quot;, &quot;defaultAlert1&quot;, &quot;defaultAlert2&quot; });
-        }
     }
 
     int CallNtPowerInformation(int informationLevel, Pointer lpInputBuffer, NativeLong nInputBufferSize,
             Structure lpOutputBuffer, NativeLong nOutputBufferSize);
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>
