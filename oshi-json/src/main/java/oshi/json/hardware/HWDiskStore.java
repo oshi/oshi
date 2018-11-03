@@ -63,6 +63,9 @@ public class HWDiskStore extends AbstractOshiJsonObject implements Comparable<HW
 
     /**
      * Create json diskStore from hardware diskStore
+     * 
+     * @param diskStore
+     *            The object to copy
      */
     public HWDiskStore(oshi.hardware.HWDiskStore diskStore) {
         this.hwDiskStore = new oshi.hardware.HWDiskStore(diskStore);

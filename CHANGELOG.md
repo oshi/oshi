@@ -1,10 +1,13 @@
-3.10.0 (in progress)
+3.11.0 (in progress)
+================
+* Your contribution here.
+
+3.10.0 (11/03/18)
 ================
 * [#656](https://github.com/oshi/oshi/pull/656): JNA 5.0.0. - [@dbwiddis](https://github.com/dbwiddis).
 * [#659](https://github.com/oshi/oshi/pull/659): Add free/total inode counts. - [@Space2Man](https://github.com/Space2Man).
 * [#666](https://github.com/oshi/oshi/pull/666): Recreate counter handles when invalid - [@dbwiddis](https://github.com/dbwiddis).
 * [#675](https://github.com/oshi/oshi/pull/675): Solaris 10 network stats compatibility fix - [@dbwiddis](https://github.com/dbwiddis).
-* Your contribution here.
 
 3.9.1 (10/14/18)
 ================

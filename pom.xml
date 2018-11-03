@@ -126,7 +126,7 @@
 		<maven-surefire-plugin.version>2.22.1</maven-surefire-plugin.version>
 		<!-- maven-site-plugin dependencies -->
 		<doxia-module-markdown.version>1.8</doxia-module-markdown.version>
-		<wagon-git.version>2.0.4</wagon-git.version><!-- https://github.com/trajano/wagon-git/issues/18 -->
+		<wagon-git.version>2.0.3</wagon-git.version><!-- https://github.com/trajano/wagon-git/issues/18 -->
 		<wagon-ssh.version>3.2.0</wagon-ssh.version>
 		<maven-fluido-skin.version>1.7</maven-fluido-skin.version>
 		<!-- build plugins -->
@@ -145,10 +145,7 @@
 		<maven-dependency-plugin.version>3.1.1</maven-dependency-plugin.version>
 		<maven-release-plugin.version>2.5.3</maven-release-plugin.version>
 		<maven-source-plugin.version>3.0.1</maven-source-plugin.version>
-		<findbugs-maven-plugin.version>3.0.5</findbugs-maven-plugin.version><!-- 
-			remove for jdk8 -->
-		<spotbugs-maven-plugin.version>3.1.3</spotbugs-maven-plugin.version><!-- 
-			add for jdk8 -->
+		<spotbugs-maven-plugin.version>3.1.3</spotbugs-maven-plugin.version>
 		<jacoco-maven-plugin.version>0.8.2</jacoco-maven-plugin.version>
 		<coveralls-maven-plugin.version>4.3.0</coveralls-maven-plugin.version>
 		<tidy-maven-plugin.version>1.1.0</tidy-maven-plugin.version>
@@ -158,7 +155,7 @@
 		<maven-changelog-plugin.version>2.3</maven-changelog-plugin.version>
 		<maven-jxr-plugin.version>3.0.0</maven-jxr-plugin.version>
 		<maven-project-info-reports-plugin.version>3.0.0</maven-project-info-reports-plugin.version>
-		<maven-surefire-report-plugin.version>2.21.1</maven-surefire-report-plugin.version>
+		<maven-surefire-report-plugin.version>2.22.1</maven-surefire-report-plugin.version>
 		<taglist-maven-plugin.version>2.4</taglist-maven-plugin.version>
 		<versions-maven-plugin.version>2.7</versions-maven-plugin.version>
 		<!-- SCM -->
@@ -170,12 +167,11 @@
 		<plexus-utils.version>3.1.0</plexus-utils.version>
 		<!-- Misc. -->
 		<sonar-maven-plugin.version>3.5.0.1254</sonar-maven-plugin.version>
-		<wagon-maven-plugin.version>2.0</wagon-maven-plugin.version>
+		<wagon-maven-plugin.version>2.0.0</wagon-maven-plugin.version>
 		<animal-sniffer-maven-plugin.version>1.16</animal-sniffer-maven-plugin.version>
 		<dependency-check-maven.version>3.3.4</dependency-check-maven.version>
 		<puppycrawl.checkstyle.version>8.14</puppycrawl.checkstyle.version>
 		<m2e.lifecycle-mapping.version>1.0.0</m2e.lifecycle-mapping.version>
-
 	</properties>
 
 	<dependencies>
@@ -345,7 +341,7 @@
 					<version>${bnd-maven-plugin.version}</version>
 					<configuration>
 						<bnd><![CDATA[
-						Export-Package: oshi.*;-noimport:=true
+						Export-Package: oshi.*;-noimport:=true;-split-package:=merge-first
 						Import-Package: com.sun.management.*;optional:=true, *
 						Bundle-SymbolicName: ${project.groupId}.${project.artifactId}
 						-snapshot: SNAPSHOT
@@ -454,11 +450,6 @@
 					</executions>
 				</plugin>
 				<!-- External Tools -->
-				<plugin>
-					<groupId>org.codehaus.mojo</groupId> <!-- Upgrade to spotbugs (jdk8) -->
-					<artifactId>findbugs-maven-plugin</artifactId>
-					<version>${findbugs-maven-plugin.version}</version>
-				</plugin>
 				<plugin>
 					<groupId>com.github.spotbugs</groupId>
 					<artifactId>spotbugs-maven-plugin</artifactId>
