@@ -19,7 +19,8 @@
     https://github.com/oshi/oshi/graphs/contributors
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
@@ -94,9 +95,9 @@
 						<configuration>
 							<includeDependencySources>true</includeDependencySources>
 							<dependencySourceIncludes>
-				                <!-- include ONLY dependencies I control -->
-                				<dependencySourceInclude>com.github.oshi:*</dependencySourceInclude>
-              				</dependencySourceIncludes>
+								<!-- include ONLY dependencies I control -->
+								<dependencySourceInclude>com.github.oshi:*</dependencySourceInclude>
+							</dependencySourceIncludes>
 						</configuration>
 					</execution>
 				</executions>
@@ -106,7 +107,7 @@
 				<artifactId>bnd-maven-plugin</artifactId>
 				<version>3.5.0</version>
 				<configuration>
-				<bnd><![CDATA[
+					<bnd><![CDATA[
 					Export-Package: oshi.*;-noimport:=true
 					Import-Package: com.sun.management.*;optional:=true, !org.slf4j.*, *
 					Bundle-SymbolicName: ${project.groupId}.${project.artifactId}
