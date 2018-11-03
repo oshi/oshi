@@ -18,9 +18,10 @@
  */
 package oshi.hardware.platform.windows;
 
+import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery; // NOSONAR squid:S1191
+import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
+
 import oshi.hardware.common.AbstractBaseboard;
-import oshi.jna.platform.windows.WbemcliUtil.WmiQuery;
-import oshi.jna.platform.windows.WbemcliUtil.WmiResult;
 import oshi.util.platform.windows.WmiUtil;
 
 /**
@@ -32,23 +33,23 @@ public class WindowsBaseboard extends AbstractBaseboard {
 
     private static final long serialVersionUID = 1L;
 
-<span class="nc" id="L35">    enum BaseboardProperty {</span>
-<span class="nc" id="L36">        MANUFACTURER, MODEL, VERSION, SERIALNUMBER;</span>
+<span class="nc" id="L36">    enum BaseboardProperty {</span>
+<span class="nc" id="L37">        MANUFACTURER, MODEL, VERSION, SERIALNUMBER;</span>
     }
 
-<span class="nc" id="L39">    WindowsBaseboard() {</span>
-<span class="nc" id="L40">        init();</span>
-<span class="nc" id="L41">    }</span>
+<span class="nc" id="L40">    WindowsBaseboard() {</span>
+<span class="nc" id="L41">        init();</span>
+<span class="nc" id="L42">    }</span>
 
     private void init() {
-<span class="nc" id="L44">        WmiQuery&lt;BaseboardProperty&gt; baseboardQuery = new WmiQuery&lt;&gt;(&quot;Win32_BaseBoard&quot;, BaseboardProperty.class);</span>
-<span class="nc" id="L45">        WmiResult&lt;BaseboardProperty&gt; win32BaseBoard = WmiUtil.queryWMI(baseboardQuery);</span>
-<span class="nc bnc" id="L46" title="All 2 branches missed.">        if (win32BaseBoard.getResultCount() &gt; 0) {</span>
-<span class="nc" id="L47">            setManufacturer(WmiUtil.getString(win32BaseBoard, BaseboardProperty.MANUFACTURER, 0));</span>
-<span class="nc" id="L48">            setModel(WmiUtil.getString(win32BaseBoard, BaseboardProperty.MODEL, 0));</span>
-<span class="nc" id="L49">            setVersion(WmiUtil.getString(win32BaseBoard, BaseboardProperty.VERSION, 0));</span>
-<span class="nc" id="L50">            setSerialNumber(WmiUtil.getString(win32BaseBoard, BaseboardProperty.SERIALNUMBER, 0));</span>
+<span class="nc" id="L45">        WmiQuery&lt;BaseboardProperty&gt; baseboardQuery = new WmiQuery&lt;&gt;(&quot;Win32_BaseBoard&quot;, BaseboardProperty.class);</span>
+<span class="nc" id="L46">        WmiResult&lt;BaseboardProperty&gt; win32BaseBoard = WmiUtil.queryWMI(baseboardQuery);</span>
+<span class="nc bnc" id="L47" title="All 2 branches missed.">        if (win32BaseBoard.getResultCount() &gt; 0) {</span>
+<span class="nc" id="L48">            setManufacturer(WmiUtil.getString(win32BaseBoard, BaseboardProperty.MANUFACTURER, 0));</span>
+<span class="nc" id="L49">            setModel(WmiUtil.getString(win32BaseBoard, BaseboardProperty.MODEL, 0));</span>
+<span class="nc" id="L50">            setVersion(WmiUtil.getString(win32BaseBoard, BaseboardProperty.VERSION, 0));</span>
+<span class="nc" id="L51">            setSerialNumber(WmiUtil.getString(win32BaseBoard, BaseboardProperty.SERIALNUMBER, 0));</span>
         }
-<span class="nc" id="L52">    }</span>
+<span class="nc" id="L53">    }</span>
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

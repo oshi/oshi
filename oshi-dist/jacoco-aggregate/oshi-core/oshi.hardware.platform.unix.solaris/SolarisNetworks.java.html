@@ -40,17 +40,20 @@ import oshi.util.platform.unix.solaris.KstatUtil;
      */
     public static void updateNetworkStats(NetworkIF netIF) {
 <span class="nc" id="L42">        Kstat ksp = KstatUtil.kstatLookup(&quot;link&quot;, -1, netIF.getName());</span>
-<span class="nc bnc" id="L43" title="All 4 branches missed.">        if (ksp != null &amp;&amp; KstatUtil.kstatRead(ksp)) {</span>
-<span class="nc" id="L44">            netIF.setBytesSent(KstatUtil.kstatDataLookupLong(ksp, &quot;obytes64&quot;));</span>
-<span class="nc" id="L45">            netIF.setBytesRecv(KstatUtil.kstatDataLookupLong(ksp, &quot;rbytes64&quot;));</span>
-<span class="nc" id="L46">            netIF.setPacketsSent(KstatUtil.kstatDataLookupLong(ksp, &quot;opackets64&quot;));</span>
-<span class="nc" id="L47">            netIF.setPacketsRecv(KstatUtil.kstatDataLookupLong(ksp, &quot;ipackets64&quot;));</span>
-<span class="nc" id="L48">            netIF.setOutErrors(KstatUtil.kstatDataLookupLong(ksp, &quot;oerrors&quot;));</span>
-<span class="nc" id="L49">            netIF.setInErrors(KstatUtil.kstatDataLookupLong(ksp, &quot;ierrors&quot;));</span>
-<span class="nc" id="L50">            netIF.setSpeed(KstatUtil.kstatDataLookupLong(ksp, &quot;ifspeed&quot;));</span>
-            // Snap time in ns; convert to ms
-<span class="nc" id="L52">            netIF.setTimeStamp(ksp.ks_snaptime / 1000000L);</span>
+<span class="nc bnc" id="L43" title="All 2 branches missed.">        if (ksp == null) { // Solaris 10 compatibility</span>
+<span class="nc" id="L44">            ksp = KstatUtil.kstatLookup(null, -1, netIF.getName());</span>
         }
-<span class="nc" id="L54">    }</span>
+<span class="nc bnc" id="L46" title="All 4 branches missed.">        if (ksp != null &amp;&amp; KstatUtil.kstatRead(ksp)) {</span>
+<span class="nc" id="L47">            netIF.setBytesSent(KstatUtil.kstatDataLookupLong(ksp, &quot;obytes64&quot;));</span>
+<span class="nc" id="L48">            netIF.setBytesRecv(KstatUtil.kstatDataLookupLong(ksp, &quot;rbytes64&quot;));</span>
+<span class="nc" id="L49">            netIF.setPacketsSent(KstatUtil.kstatDataLookupLong(ksp, &quot;opackets64&quot;));</span>
+<span class="nc" id="L50">            netIF.setPacketsRecv(KstatUtil.kstatDataLookupLong(ksp, &quot;ipackets64&quot;));</span>
+<span class="nc" id="L51">            netIF.setOutErrors(KstatUtil.kstatDataLookupLong(ksp, &quot;oerrors&quot;));</span>
+<span class="nc" id="L52">            netIF.setInErrors(KstatUtil.kstatDataLookupLong(ksp, &quot;ierrors&quot;));</span>
+<span class="nc" id="L53">            netIF.setSpeed(KstatUtil.kstatDataLookupLong(ksp, &quot;ifspeed&quot;));</span>
+            // Snap time in ns; convert to ms
+<span class="nc" id="L55">            netIF.setTimeStamp(ksp.ks_snaptime / 1_000_000L);</span>
+        }
+<span class="nc" id="L57">    }</span>
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

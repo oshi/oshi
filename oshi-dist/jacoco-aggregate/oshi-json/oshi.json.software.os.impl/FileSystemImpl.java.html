@@ -63,12 +63,9 @@ public class FileSystemImpl extends AbstractOshiJsonObject implements FileSystem
 <span class="nc" id="L63">        oshi.software.os.OSFileStore[] fs = this.fileSystem.getFileStores();</span>
 <span class="nc" id="L64">        OSFileStore[] fileStores = new OSFileStore[fs.length];</span>
 <span class="nc bnc" id="L65" title="All 2 branches missed.">        for (int i = 0; i &lt; fs.length; i++) {</span>
-<span class="nc" id="L66">            fileStores[i] = new OSFileStore(fs[i].getName(), fs[i].getVolume(), fs[i].getMount(),</span>
-<span class="nc" id="L67">                    fs[i].getDescription(), fs[i].getType(), fs[i].getUUID(), fs[i].getUsableSpace(),</span>
-<span class="nc" id="L68">                    fs[i].getTotalSpace());</span>
-<span class="nc" id="L69">            fileStores[i].setLogicalvolume(fs[i].getLogicalVolume());</span>
+<span class="nc" id="L66">            fileStores[i] = new OSFileStore(fs[i]);</span>
         }
-<span class="nc" id="L71">        return fileStores;</span>
+<span class="nc" id="L68">        return fileStores;</span>
     }
 
     /**
@@ -76,7 +73,7 @@ public class FileSystemImpl extends AbstractOshiJsonObject implements FileSystem
      */
     @Override
     public long getOpenFileDescriptors() {
-<span class="nc" id="L79">        return this.fileSystem.getOpenFileDescriptors();</span>
+<span class="nc" id="L76">        return this.fileSystem.getOpenFileDescriptors();</span>
     }
 
     /**
@@ -84,7 +81,7 @@ public class FileSystemImpl extends AbstractOshiJsonObject implements FileSystem
      */
     @Override
     public long getMaxFileDescriptors() {
-<span class="nc" id="L87">        return this.fileSystem.getMaxFileDescriptors();</span>
+<span class="nc" id="L84">        return this.fileSystem.getMaxFileDescriptors();</span>
     }
 
     /**
@@ -92,21 +89,21 @@ public class FileSystemImpl extends AbstractOshiJsonObject implements FileSystem
      */
     @Override
     public JsonObject toJSON(Properties properties) {
-<span class="nc" id="L95">        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(this.jsonFactory.createObjectBuilder());</span>
-<span class="nc bnc" id="L96" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.fileSystem.fileStores&quot;)) {</span>
-<span class="nc" id="L97">            JsonArrayBuilder fileStoreArrayBuilder = this.jsonFactory.createArrayBuilder();</span>
-<span class="nc bnc" id="L98" title="All 2 branches missed.">            for (OSFileStore fileStore : getFileStores()) {</span>
-<span class="nc" id="L99">                fileStoreArrayBuilder.add(fileStore.toJSON(properties));</span>
+<span class="nc" id="L92">        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(this.jsonFactory.createObjectBuilder());</span>
+<span class="nc bnc" id="L93" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.fileSystem.fileStores&quot;)) {</span>
+<span class="nc" id="L94">            JsonArrayBuilder fileStoreArrayBuilder = this.jsonFactory.createArrayBuilder();</span>
+<span class="nc bnc" id="L95" title="All 2 branches missed.">            for (OSFileStore fileStore : getFileStores()) {</span>
+<span class="nc" id="L96">                fileStoreArrayBuilder.add(fileStore.toJSON(properties));</span>
             }
-<span class="nc" id="L101">            json.add(&quot;fileStores&quot;, fileStoreArrayBuilder.build());</span>
+<span class="nc" id="L98">            json.add(&quot;fileStores&quot;, fileStoreArrayBuilder.build());</span>
         }
-<span class="nc bnc" id="L103" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.fileSystem.openFileDescriptors&quot;)) {</span>
-<span class="nc" id="L104">            json.add(&quot;openFileDescriptors&quot;, getOpenFileDescriptors());</span>
+<span class="nc bnc" id="L100" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.fileSystem.openFileDescriptors&quot;)) {</span>
+<span class="nc" id="L101">            json.add(&quot;openFileDescriptors&quot;, getOpenFileDescriptors());</span>
         }
-<span class="nc bnc" id="L106" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.fileSystem.maxFileDescriptors&quot;)) {</span>
-<span class="nc" id="L107">            json.add(&quot;maxFileDescriptors&quot;, getMaxFileDescriptors());</span>
+<span class="nc bnc" id="L103" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;operatingSystem.fileSystem.maxFileDescriptors&quot;)) {</span>
+<span class="nc" id="L104">            json.add(&quot;maxFileDescriptors&quot;, getMaxFileDescriptors());</span>
         }
-<span class="nc" id="L109">        return json.build();</span>
+<span class="nc" id="L106">        return json.build();</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>
