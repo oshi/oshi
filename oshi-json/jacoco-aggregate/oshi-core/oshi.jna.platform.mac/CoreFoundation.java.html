@@ -34,7 +34,7 @@ import com.sun.jna.ptr.PointerByReference;
  * @author widdis[at]gmail[dot]com
  */
 public interface CoreFoundation extends Library {
-<span class="nc" id="L37">    CoreFoundation INSTANCE = Native.loadLibrary(&quot;CoreFoundation&quot;, CoreFoundation.class);</span>
+<span class="nc" id="L37">    CoreFoundation INSTANCE = Native.load(&quot;CoreFoundation&quot;, CoreFoundation.class);</span>
 
     int UTF_8 = 0x08000100;
 
@@ -124,4 +124,4 @@ public interface CoreFoundation extends Library {
 
     PointerByReference CFDataGetBytePtr(CFTypeRef theData);
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>
