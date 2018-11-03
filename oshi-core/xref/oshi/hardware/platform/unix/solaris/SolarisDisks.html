@@ -7,14 +7,14 @@
 <body>
 <div id="overview"><a href="../../../../../../apidocs/oshi/hardware/platform/unix/solaris/SolarisDisks.html">View Javadoc</a></div><pre>
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_javadoccomment"> * Oshi (https://github.com/oshi/oshi)</em>
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_javadoccomment"> * Oshi (<a href="https://github.com/oshi/oshi)" target="alexandria_uri">https://github.com/oshi/oshi)</a></em>
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_javadoccomment"> * Copyright (c) 2010 - 2018 The Oshi Project Team</em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * All rights reserved. This program and the accompanying materials</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> * are made available under the terms of the Eclipse Public License v1.0</em>
 <a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> * which accompanies this distribution, and is available at</em>
-<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> * <a href="http://www.eclipse.org/legal/epl-v10.htm" target="alexandria_uri">http://www.eclipse.org/legal/epl-v10.htm</a>l</em>
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> * <a href="http://www.eclipse.org/legal/epl-v10.html" target="alexandria_uri">http://www.eclipse.org/legal/epl-v10.html</a></em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * Maintainers:</em>
 <a class="jxr_linenumber" name="L12" href="#L12">12</a>  <em class="jxr_javadoccomment"> * dblock[at]dblock[dot]org</em>
@@ -22,7 +22,7 @@
 <a class="jxr_linenumber" name="L14" href="#L14">14</a>  <em class="jxr_javadoccomment"> * enrico.bianchi[at]gmail[dot]com</em>
 <a class="jxr_linenumber" name="L15" href="#L15">15</a>  <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L16" href="#L16">16</a>  <em class="jxr_javadoccomment"> * Contributors:</em>
-<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <em class="jxr_javadoccomment"> * https://github.com/oshi/oshi/graphs/contributors</em>
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <em class="jxr_javadoccomment"> * <a href="https://github.com/oshi/oshi/graphs/contributors" target="alexandria_uri">https://github.com/oshi/oshi/graphs/contributors</a></em>
 <a class="jxr_linenumber" name="L18" href="#L18">18</a>  <em class="jxr_javadoccomment"> */</em>
 <a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">package</strong> oshi.hardware.platform.unix.solaris;
 <a class="jxr_linenumber" name="L20" href="#L20">20</a>  
@@ -48,11 +48,11 @@
 <a class="jxr_linenumber" name="L40" href="#L40">40</a>  <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>  <em class="jxr_javadoccomment"> * @author widdis[at]gmail[dot]com</em>
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../oshi/hardware/platform/unix/solaris/SolarisDisks.html">SolarisDisks</a> <strong class="jxr_keyword">implements</strong> <a href="../../../../../oshi/hardware/Disks.html">Disks</a> {
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="SolarisDisks" href="../../../../../oshi/hardware/platform/unix/solaris/SolarisDisks.html#SolarisDisks">SolarisDisks</a> <strong class="jxr_keyword">implements</strong> <a name="Disks" href="../../../../../oshi/hardware/Disks.html#Disks">Disks</a> {
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>  
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> serialVersionUID = 1L;
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>  
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> updateDiskStats(<a href="../../../../../oshi/hardware/HWDiskStore.html">HWDiskStore</a> diskStore) {
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> updateDiskStats(<a name="HWDiskStore" href="../../../../../oshi/hardware/HWDiskStore.html#HWDiskStore">HWDiskStore</a> diskStore) {
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>          Kstat ksp = KstatUtil.kstatLookup(<strong class="jxr_keyword">null</strong>, 0, diskStore.getName());
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>          <strong class="jxr_keyword">if</strong> (ksp != <strong class="jxr_keyword">null</strong> &amp;&amp; KstatUtil.kstatRead(ksp)) {
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>              KstatIO data = <strong class="jxr_keyword">new</strong> KstatIO(ksp.ks_data);
@@ -71,7 +71,7 @@
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>      }
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>  
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>      @Override
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../../oshi/hardware/HWDiskStore.html">HWDiskStore</a>[] getDisks() {
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>      <strong class="jxr_keyword">public</strong> <a name="HWDiskStore" href="../../../../../oshi/hardware/HWDiskStore.html#HWDiskStore">HWDiskStore</a>[] getDisks() {
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>          <em class="jxr_comment">// Create map indexed by device name for multiple command reference</em>
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>          Map&lt;String, HWDiskStore&gt; diskMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>          <em class="jxr_comment">// First, run iostat -er to enumerate disks by name. Sample output:</em>
@@ -99,7 +99,7 @@
 <a class="jxr_linenumber" name="L91" href="#L91">91</a>              <strong class="jxr_keyword">if</strong> (diskSplit.length &lt; 5 || <span class="jxr_string">"device"</span>.equals(diskSplit[0])) {
 <a class="jxr_linenumber" name="L92" href="#L92">92</a>                  <strong class="jxr_keyword">continue</strong>;
 <a class="jxr_linenumber" name="L93" href="#L93">93</a>              }
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>              <a href="../../../../../oshi/hardware/HWDiskStore.html">HWDiskStore</a> store = <strong class="jxr_keyword">new</strong> <a href="../../../../../oshi/hardware/HWDiskStore.html">HWDiskStore</a>();
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>              <a name="HWDiskStore" href="../../../../../oshi/hardware/HWDi<a name="HWDiskStore" href="../../../../../oshi/hardware/HWDiskStore.html#HWDiskStore">HWDiskStore</a>l#HWDiskStore">HWDiskStore</a> store = <strong class="jxr_keyword">new</strong> <a name="HWDiskStore" href="../../../../../oshi/hardware/HWDiskStore.html#HWDiskStore">HWDiskStore</a>();
 <a class="jxr_linenumber" name="L95" href="#L95">95</a>              store.setName(diskSplit[0]);
 <a class="jxr_linenumber" name="L96" href="#L96">96</a>              diskMap.put(diskSplit[0], store);
 <a class="jxr_linenumber" name="L97" href="#L97">97</a>              <em class="jxr_comment">// Map mount</em>
@@ -191,7 +191,7 @@
 <a class="jxr_linenumber" name="L183" href="#L183">183</a> 
 <a class="jxr_linenumber" name="L184" href="#L184">184</a>         <em class="jxr_comment">// Finally use kstat to get reads/writes</em>
 <a class="jxr_linenumber" name="L185" href="#L185">185</a>         <em class="jxr_comment">// simultaneously populate result array</em>
-<a class="jxr_linenumber" name="L186" href="#L186">186</a>         <a href="../../../../../oshi/hardware/HWDiskStore.html">HWDiskStore</a>[] results = <strong class="jxr_keyword">new</strong> <a href="../../../../../oshi/hardware/HWDiskStore.html">HWDiskStore</a>[diskMap.keySet().size()];
+<a class="jxr_linenumber" name="L186" href="#L186">186</a>         <a name="HWDiskStore" href="../../../../../oshi/hardware/HWDiskSt<a name="HWDiskStore" href="../../../../../oshi/hardware/HWDiskStore.html#HWDiskStore">HWDiskStore</a>DiskStore">HWDiskStore</a>[] results = <strong class="jxr_keyword">new</strong> <a name="HWDiskStore" href="../../../../../oshi/hardware/HWDiskStore.html#HWDiskStore">HWDiskStore</a>[diskMap.keySet().size()];
 <a class="jxr_linenumber" name="L187" href="#L187">187</a>         <strong class="jxr_keyword">int</strong> index = 0;
 <a class="jxr_linenumber" name="L188" href="#L188">188</a>         <strong class="jxr_keyword">for</strong> (Entry&lt;String, HWDiskStore&gt; entry : diskMap.entrySet()) {
 <a class="jxr_linenumber" name="L189" href="#L189">189</a>             updateDiskStats(entry.getValue());
@@ -222,7 +222,7 @@
 <a class="jxr_linenumber" name="L214" href="#L214">214</a> <em class="jxr_javadoccomment">     * @param major</em>
 <a class="jxr_linenumber" name="L215" href="#L215">215</a> <em class="jxr_javadoccomment">     *            The major device number for the partition</em>
 <a class="jxr_linenumber" name="L216" href="#L216">216</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L217" href="#L217">217</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> updateStore(<a href="../../../../../oshi/hardware/HWDiskStore.html">HWDiskStore</a> store, String model, String vendor, String product, String serial, <strong class="jxr_keyword">long</strong> size,
+<a class="jxr_linenumber" name="L217" href="#L217">217</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> updateStore(<a name="HWDiskStore" href="../../../../../oshi/hardware/HWDiskStore.html#HWDiskStore">HWDiskStore</a> store, String model, String vendor, String product, String serial, <strong class="jxr_keyword">long</strong> size,
 <a class="jxr_linenumber" name="L218" href="#L218">218</a>             String mount, <strong class="jxr_keyword">int</strong> major) {
 <a class="jxr_linenumber" name="L219" href="#L219">219</a>         store.setModel(model.isEmpty() ? (vendor + <span class="jxr_string">" "</span> + product).trim() : model);
 <a class="jxr_linenumber" name="L220" href="#L220">220</a>         store.setSerial(serial);
@@ -265,7 +265,7 @@
 <a class="jxr_linenumber" name="L257" href="#L257">257</a>                 <strong class="jxr_keyword">if</strong> (split.length &lt; 6 || <span class="jxr_string">"2"</span>.equals(split[0])) {
 <a class="jxr_linenumber" name="L258" href="#L258">258</a>                     <strong class="jxr_keyword">continue</strong>;
 <a class="jxr_linenumber" name="L259" href="#L259">259</a>                 }
-<a class="jxr_linenumber" name="L260" href="#L260">260</a>                 <a href="../../../../../oshi/hardware/HWPartition.html">HWPartition</a> partition = <strong class="jxr_keyword">new</strong> <a href="../../../../../oshi/hardware/HWPartition.html">HWPartition</a>();
+<a class="jxr_linenumber" name="L260" href="#L260">260</a>                 <a name="HWPartition" href="../../../../../oshi/hardware/HWPartit<a name="HWPartition" href="../../../../../oshi/hardware/HWPartition.html#HWPartition">HWPartition</a>Partition">HWPartition</a> partition = <strong class="jxr_keyword">new</strong> <a name="HWPartition" href="../../../../../oshi/hardware/HWPartition.html#HWPartition">HWPartition</a>();
 <a class="jxr_linenumber" name="L261" href="#L261">261</a>                 <em class="jxr_comment">// First field is partition number</em>
 <a class="jxr_linenumber" name="L262" href="#L262">262</a>                 partition.setIdentification(mount + <span class="jxr_string">"s"</span> + split[0]);
 <a class="jxr_linenumber" name="L263" href="#L263">263</a>                 partition.setMajor(major);
@@ -343,7 +343,7 @@
 <a class="jxr_linenumber" name="L335" href="#L335">335</a>                 }
 <a class="jxr_linenumber" name="L336" href="#L336">336</a>                 partList.add(partition);
 <a class="jxr_linenumber" name="L337" href="#L337">337</a>             }
-<a class="jxr_linenumber" name="L338" href="#L338">338</a>             store.setPartitions(partList.toArray(<strong class="jxr_keyword">new</strong> <a href="../../../../../oshi/hardware/HWPartition.html">HWPartition</a>[partList.size()]));
+<a class="jxr_linenumber" name="L338" href="#L338">338</a>             store.setPartitions(partList.toArray(<strong class="jxr_keyword">new</strong> <a name="HWPartition" href="../../../../../oshi/hardware/HWPartition.html#HWPartition">HWPartition</a>[partList.size()]));
 <a class="jxr_linenumber" name="L339" href="#L339">339</a>         }
 <a class="jxr_linenumber" name="L340" href="#L340">340</a>     }
 <a class="jxr_linenumber" name="L341" href="#L341">341</a> }

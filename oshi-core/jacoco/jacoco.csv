@@ -1,44 +1,11 @@
 GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
-oshi-core,oshi.jna.platform.windows,PowrProf.SystemBatteryState,55,0,0,0,3,0,2,0,2,0
-oshi-core,oshi.jna.platform.windows,WbemcliUtil,103,0,10,0,21,0,9,0,4,0
-oshi-core,oshi.jna.platform.windows,Cfgmgr32Util.Cfgmgr32Exception,9,0,0,0,4,0,2,0,2,0
-oshi-core,oshi.jna.platform.windows,WbemcliUtil.WmiQuery,383,0,29,0,76,0,29,0,11,0
-oshi-core,oshi.jna.platform.windows,WinPerf.PERF_DATA_BLOCK,117,0,0,0,11,0,3,0,3,0
-oshi-core,oshi.jna.platform.windows,IPHlpAPI.IP_ADDR_STRING,23,0,0,0,2,0,2,0,2,0
-oshi-core,oshi.jna.platform.windows,IPHlpAPI.IP_ADDRESS_STRING,15,0,0,0,3,0,2,0,2,0
-oshi-core,oshi.jna.platform.windows,WinPerf.PERF_OBJECT_TYPE,69,0,0,0,6,0,3,0,3,0
-oshi-core,oshi.jna.platform.windows,IPHlpAPI.MIB_IFROW,115,0,0,0,5,0,2,0,2,0
-oshi-core,oshi.jna.platform.windows,PdhUtil.PdhEnumObjectItems,47,0,2,0,10,0,6,0,5,0
-oshi-core,oshi.jna.platform.windows,Wtsapi32.WTS_PROCESS_INFO_EX,64,0,0,0,6,0,3,0,3,0
+oshi-core,oshi.jna.platform.windows,PowrProf.SystemBatteryState,7,0,0,0,2,0,1,0,1,0
 oshi-core,oshi.jna.platform.windows,PowrProf,6,0,0,0,1,0,1,0,1,0
-oshi-core,oshi.jna.platform.windows,Cfgmgr32Util,105,0,12,0,21,0,8,0,2,0
-oshi-core,oshi.jna.platform.windows,WbemcliUtil.WmiResult,143,0,8,0,22,0,11,0,7,0
-oshi-core,oshi.jna.platform.windows,Wbemcli.IEnumWbemClassObject,77,0,2,0,14,0,5,0,4,0
-oshi-core,oshi.jna.platform.windows,IPHlpAPI.MIB_IF_ROW2,187,0,0,0,6,0,2,0,2,0
-oshi-core,oshi.jna.platform.windows,WinPerf.PERF_COUNTER_BLOCK,17,0,0,0,6,0,3,0,3,0
-oshi-core,oshi.jna.platform.windows,Wbemcli.IWbemLocator,147,0,2,0,27,0,7,0,6,0
-oshi-core,oshi.jna.platform.windows,IPHlpAPI.FIXED_INFO,73,0,0,0,9,0,3,0,3,0
-oshi-core,oshi.jna.platform.windows,WinPerf.PERF_COUNTER_DEFINITION,53,0,0,0,6,0,3,0,3,0
-oshi-core,oshi.jna.platform.windows,Kernel32.IO_COUNTERS,31,0,0,0,2,0,2,0,2,0
-oshi-core,oshi.jna.platform.windows,Cfgmgr32,7,0,0,0,1,0,1,0,1,0
-oshi-core,oshi.jna.platform.windows,Wbemcli.IWbemServices,77,0,0,0,14,0,4,0,4,0
-oshi-core,oshi.jna.platform.windows,PdhUtil.PdhException,18,0,0,0,4,0,2,0,2,0
-oshi-core,oshi.jna.platform.windows,Wbemcli.IWbemContext,7,0,0,0,4,0,2,0,2,0
-oshi-core,oshi.jna.platform.windows,Kernel32,6,0,0,0,1,0,1,0,1,0
-oshi-core,oshi.jna.platform.windows,WinPerf.PERF_INSTANCE_DEFINITION,37,0,0,0,6,0,3,0,3,0
-oshi-core,oshi.jna.platform.windows,WbemcliUtil.NamespaceProperty,14,0,0,0,2,0,1,0,1,0
-oshi-core,oshi.jna.platform.windows,Pdh,7,0,0,0,1,0,1,0,1,0
-oshi-core,oshi.jna.platform.windows,Wtsapi32,12,0,0,0,2,0,1,0,1,0
-oshi-core,oshi.jna.platform.windows,PdhUtil,305,0,42,0,63,0,26,0,5,0
-oshi-core,oshi.jna.platform.windows,IPHlpAPI.IP_ADDR_STRING.ByReference,3,0,0,0,1,0,1,0,1,0
-oshi-core,oshi.jna.platform.windows,IPHlpAPI,6,0,0,0,1,0,1,0,1,0
-oshi-core,oshi.jna.platform.windows,Ole32,7,0,0,0,1,0,1,0,1,0
-oshi-core,oshi.jna.platform.windows,Wbemcli.IWbemClassObject,41,0,0,0,6,0,3,0,3,0
 oshi-core,oshi.util.platform.windows,PerfDataUtil.new Thread() {...},8,0,0,0,3,0,2,0,2,0
 oshi-core,oshi.util.platform.windows,WmiUtil.new Thread() {...},8,0,0,0,3,0,2,0,2,0
 oshi-core,oshi.util.platform.windows,PerfDataUtil.PerfCounter,15,0,0,0,5,0,1,0,1,0
-oshi-core,oshi.util.platform.windows,PerfDataUtil,473,0,64,0,101,0,49,0,17,0
-oshi-core,oshi.util.platform.windows,WmiUtil,745,0,61,0,123,0,52,0,21,0
+oshi-core,oshi.util.platform.windows,PerfDataUtil,502,0,70,0,109,0,52,0,17,0
+oshi-core,oshi.util.platform.windows,WmiUtil,771,0,65,0,131,0,56,0,22,0
 oshi-core,oshi.hardware.platform.windows,WindowsComputerSystem.ComputerSystemProperty,24,0,0,0,2,0,1,0,1,0
 oshi-core,oshi.hardware.platform.windows,WindowsComputerSystem,108,0,12,0,27,0,10,0,4,0
 oshi-core,oshi.hardware.platform.windows,WindowsDisplay,118,0,8,0,25,0,7,0,3,0
@@ -48,7 +15,7 @@ oshi-core,oshi.hardware.platform.windows,WindowsSensors.OhmHardwareProperty,14,0
 oshi-core,oshi.hardware.platform.windows,WindowsBaseboard.BaseboardProperty,44,0,0,0,2,0,1,0,1,0
 oshi-core,oshi.hardware.platform.windows,WindowsDisks.DiskDriveProperty,64,0,0,0,2,0,1,0,1,0
 oshi-core,oshi.hardware.platform.windows,WindowsDisks.DriveToPartitionProperty,24,0,0,0,2,0,1,0,1,0
-oshi-core,oshi.hardware.platform.windows,WindowsCentralProcessor,953,0,76,0,197,0,51,0,13,0
+oshi-core,oshi.hardware.platform.windows,WindowsCentralProcessor,960,0,80,0,197,0,53,0,13,0
 oshi-core,oshi.hardware.platform.windows,WindowsDisks.DiskPartitionProperty,74,0,0,0,2,0,1,0,1,0
 oshi-core,oshi.hardware.platform.windows,WindowsComputerSystem.ComputerSystemProductProperty,14,0,0,0,2,0,1,0,1,0
 oshi-core,oshi.hardware.platform.windows,WindowsBaseboard,42,0,2,0,11,0,3,0,2,0
@@ -81,7 +48,7 @@ oshi-core,oshi.hardware.platform.windows,WindowsGlobalMemory.PagingPercentProper
 oshi-core,oshi.software.os,OSUser,17,0,0,0,7,0,5,0,5,0
 oshi-core,oshi.software.os,OperatingSystem.ProcessSort,74,0,0,0,2,0,1,0,1,0
 oshi-core,oshi.software.os,OSProcess.State,0,74,0,0,0,8,0,1,0,1
-oshi-core,oshi.software.os,OSFileStore,3,93,0,0,2,38,1,19,1,19
+oshi-core,oshi.software.os,OSFileStore,56,89,0,0,13,38,1,23,1,23
 oshi-core,oshi.software.os,OSProcess,30,207,1,1,5,80,2,46,1,46
 oshi-core,oshi.hardware.common,AbstractUsbDevice,156,0,8,0,26,0,14,0,10,0
 oshi-core,oshi.hardware.common,AbstractGlobalMemory,69,0,4,0,24,0,10,0,8,0
@@ -99,7 +66,7 @@ oshi-core,oshi.software.os.windows,WindowsOSVersionInfoEx.OSVersionProperty,54,0
 oshi-core,oshi.software.os.windows,WindowsOperatingSystem,1358,0,124,0,283,0,78,0,16,0
 oshi-core,oshi.software.os.windows,WindowsFileSystem.LogicalDiskProperty,74,0,0,0,2,0,1,0,1,0
 oshi-core,oshi.software.os.windows,WindowsNetworkParams,309,0,32,0,73,0,25,0,9,0
-oshi-core,oshi.software.os.windows,WindowsFileSystem,442,0,34,0,91,0,28,0,9,0
+oshi-core,oshi.software.os.windows,WindowsFileSystem,478,0,34,0,107,0,28,0,9,0
 oshi-core,oshi.software.os.windows,WindowsOSVersionInfoEx,296,0,66,0,67,0,38,0,5,0
 oshi-core,oshi.software.os.windows,WindowsFileSystem.HandleCountProperty,14,0,0,0,2,0,1,0,1,0
 oshi-core,oshi.software.os.windows,WindowsNetworkParams.NetRouteProperty,24,0,0,0,2,0,1,0,1,0
@@ -111,18 +78,18 @@ oshi-core,oshi.util.platform.unix.solaris,KstatUtil.new Thread() {...},8,0,0,0,3
 oshi-core,oshi.software.os.mac,MacNetworkParams,124,0,16,0,32,0,13,0,5,0
 oshi-core,oshi.software.os.mac,MacOSVersionInfoEx,77,0,18,0,28,0,20,0,4,0
 oshi-core,oshi.software.os.mac,MacOperatingSystem,727,0,75,0,154,0,54,0,14,0
-oshi-core,oshi.software.os.mac,MacFileSystem,243,0,34,0,58,0,22,0,5,0
-oshi-core,oshi,SystemInfo.new Object() {...},5,35,0,0,0,1,0,1,0,1
+oshi-core,oshi.software.os.mac,MacFileSystem,273,0,34,0,68,0,22,0,5,0
 oshi-core,oshi,PlatformEnum,0,64,0,0,0,7,0,1,0,1
 oshi-core,oshi,SystemInfo,90,55,19,7,25,19,17,5,0,5
 oshi-core,oshi.jna.platform.linux,Udev,6,0,0,0,1,0,1,0,1,0
 oshi-core,oshi.jna.platform.linux,Udev.UdevHandle,7,0,0,0,4,0,2,0,2,0
 oshi-core,oshi.jna.platform.linux,Udev.UdevEnumerate,7,0,0,0,4,0,2,0,2,0
+oshi-core,oshi.jna.platform.linux,Libc.Statvfs,60,0,8,0,17,0,8,0,4,0
 oshi-core,oshi.jna.platform.linux,Udev.UdevDevice,7,0,0,0,4,0,2,0,2,0
-oshi-core,oshi.jna.platform.linux,Libc.Sysinfo,67,0,0,0,4,0,2,0,2,0
+oshi-core,oshi.jna.platform.linux,Libc.Sysinfo,62,0,8,0,17,0,8,0,4,0
 oshi-core,oshi.jna.platform.linux,Udev.UdevListEntry,7,0,0,0,4,0,2,0,2,0
 oshi-core,oshi.jna.platform.linux,Libc,6,0,0,0,1,0,1,0,1,0
-oshi-core,oshi.software.os.linux,LinuxFileSystem,421,0,42,0,67,0,28,0,7,0
+oshi-core,oshi.software.os.linux,LinuxFileSystem,496,0,44,0,92,0,29,0,7,0
 oshi-core,oshi.software.os.linux,LinuxOSVersionInfoEx,468,0,90,0,100,0,54,0,9,0
 oshi-core,oshi.software.os.linux,LinuxUserGroupInfo.UsersCache,94,0,10,0,25,0,8,0,3,0
 oshi-core,oshi.software.os.linux,LinuxOperatingSystem,1215,0,160,0,247,0,117,0,23,0
@@ -131,7 +98,7 @@ oshi-core,oshi.software.os.linux,LinuxOperatingSystem.new FileFilter() {...},37,
 oshi-core,oshi.software.os.linux,LinuxNetworkParams,203,0,32,0,48,0,21,0,5,0
 oshi-core,oshi.software.os.linux,LinuxUserGroupInfo.GroupsCache,84,0,10,0,22,0,8,0,3,0
 oshi-core,oshi.software.os.linux,LinuxUserGroupInfo,22,0,0,0,5,0,4,0,4,0
-oshi-core,oshi.jna.platform.unix.freebsd,Libc.CpTime,15,0,0,0,3,0,2,0,2,0
+oshi-core,oshi.jna.platform.unix.freebsd,Libc.CpTime,7,0,0,0,2,0,1,0,1,0
 oshi-core,oshi.jna.platform.unix.freebsd,Libc,12,0,0,0,3,0,1,0,1,0
 oshi-core,oshi.util.platform.linux,ProcUtil,112,0,12,0,29,0,11,0,5,0
 oshi-core,oshi.util.platform.linux,ProcUtil.new FileFilter() {...},9,0,0,0,2,0,2,0,2,0
@@ -142,14 +109,14 @@ oshi-core,oshi.util.platform.mac,SysctlUtil,147,0,10,0,27,0,10,0,5,0
 oshi-core,oshi.util.platform.mac,CfUtil.CFNumberType,184,0,0,0,2,0,1,0,1,0
 oshi-core,oshi.util.platform.mac,SmcUtil,299,0,28,0,71,0,23,0,9,0
 oshi-core,oshi.jna.platform.unix,CLibrary.Addrinfo.ByReference,3,0,0,0,1,0,1,0,1,0
-oshi-core,oshi.jna.platform.unix,CLibrary.Addrinfo,45,0,0,0,6,0,3,0,3,0
-oshi-core,oshi.jna.platform.unix,CLibrary.Timeval,15,0,0,0,2,0,2,0,2,0
-oshi-core,oshi.jna.platform.unix,CLibrary.Sockaddr,19,0,0,0,3,0,2,0,2,0
+oshi-core,oshi.jna.platform.unix,CLibrary.Addrinfo,9,0,0,0,5,0,2,0,2,0
+oshi-core,oshi.jna.platform.unix,CLibrary.Timeval,3,0,0,0,1,0,1,0,1,0
+oshi-core,oshi.jna.platform.unix,CLibrary.Sockaddr,7,0,0,0,2,0,1,0,1,0
 oshi-core,oshi.jna.platform.unix,CLibrary.Sockaddr.ByReference,3,0,0,0,1,0,1,0,1,0
 oshi-core,oshi.software.os.unix.freebsd,FreeBsdOperatingSystem,382,0,30,0,80,0,28,0,11,0
 oshi-core,oshi.software.os.unix.freebsd,FreeBsdOSVersionInfoEx,34,0,0,0,7,0,1,0,1,0
 oshi-core,oshi.software.os.unix.freebsd,FreeBsdNetworkParams,75,0,4,0,22,0,7,0,5,0
-oshi-core,oshi.software.os.unix.freebsd,FreeBsdFileSystem,307,0,40,0,50,0,25,0,5,0
+oshi-core,oshi.software.os.unix.freebsd,FreeBsdFileSystem,413,0,50,0,70,0,30,0,5,0
 oshi-core,oshi.hardware.platform.unix.freebsd,FreeBsdFirmware,112,0,14,0,28,0,9,0,2,0
 oshi-core,oshi.hardware.platform.unix.freebsd,FreeBsdUsbDevice,398,0,40,0,80,0,26,0,6,0
 oshi-core,oshi.hardware.platform.unix.freebsd,FreeBsdDisplay,88,0,12,0,24,0,9,0,3,0
@@ -169,7 +136,7 @@ oshi-core,oshi.hardware.platform.unix.solaris,SolarisDisks,668,0,85,0,155,0,54,0
 oshi-core,oshi.hardware.platform.unix.solaris,SolarisDisplay,88,0,12,0,24,0,9,0,3,0
 oshi-core,oshi.hardware.platform.unix.solaris,SolarisGlobalMemory,123,0,10,0,25,0,9,0,4,0
 oshi-core,oshi.hardware.platform.unix.solaris,SolarisUsbDevice,380,0,38,0,74,0,25,0,6,0
-oshi-core,oshi.hardware.platform.unix.solaris,SolarisNetworks,56,0,4,0,12,0,4,0,2,0
+oshi-core,oshi.hardware.platform.unix.solaris,SolarisNetworks,64,0,6,0,14,0,5,0,2,0
 oshi-core,oshi.hardware.platform.unix.solaris,SolarisSensors,124,0,18,0,27,0,13,0,4,0
 oshi-core,oshi.hardware.platform.unix.solaris,SolarisCentralProcessor,429,0,50,0,90,0,37,0,12,0
 oshi-core,oshi.hardware.platform.unix.solaris,SolarisComputerSystem,360,0,64,0,102,0,35,0,3,0
@@ -185,18 +152,18 @@ oshi-core,oshi.hardware.platform.linux,LinuxComputerSystem,168,0,38,0,38,0,22,0,
 oshi-core,oshi.hardware.platform.linux,LinuxCentralProcessor,578,0,89,0,128,0,59,0,12,0
 oshi-core,oshi.hardware.platform.linux,LinuxHardwareAbstractionLayer,70,0,8,0,19,0,15,0,11,0
 oshi-core,oshi.hardware.platform.linux,LinuxDisks,418,0,28,0,92,0,20,0,6,0
-oshi-core,oshi.hardware.platform.linux,LinuxGlobalMemory,263,0,39,0,65,0,29,0,5,0
+oshi-core,oshi.hardware.platform.linux,LinuxGlobalMemory,249,0,32,0,65,0,25,0,5,0
 oshi-core,oshi.hardware.platform.linux,LinuxDisks.UdevStat,81,0,0,0,6,0,3,0,3,0
 oshi-core,oshi.hardware.platform.linux,LinuxDisplay,88,0,12,0,24,0,9,0,3,0
 oshi-core,oshi.hardware.platform.linux,LinuxNetworks,117,0,2,0,18,0,3,0,2,0
 oshi-core,oshi.hardware.platform.linux,LinuxUsbDevice,376,0,26,0,78,0,19,0,6,0
 oshi-core,oshi.hardware.platform.linux,LinuxBaseboard,58,0,16,0,16,0,10,0,2,0
-oshi-core,oshi.hardware.platform.linux,LinuxSoundCard,182,0,22,0,36,0,18,0,7,0
+oshi-core,oshi.hardware.platform.linux,LinuxSoundCard,179,0,22,0,35,0,18,0,7,0
 oshi-core,oshi.hardware.platform.mac,MacFirmware,3,0,0,0,1,0,1,0,1,0
 oshi-core,oshi.hardware.platform.mac,MacDisplay,96,0,6,0,24,0,6,0,3,0
 oshi-core,oshi.hardware.platform.mac,MacDisks,791,0,62,0,210,0,36,0,5,0
 oshi-core,oshi.hardware.platform.mac,MacSensors.new Thread() {...},9,0,0,0,3,0,2,0,2,0
-oshi-core,oshi.hardware.platform.mac,MacCentralProcessor,430,0,30,0,84,0,26,0,11,0
+oshi-core,oshi.hardware.platform.mac,MacCentralProcessor,432,0,30,0,84,0,26,0,11,0
 oshi-core,oshi.hardware.platform.mac,MacGlobalMemory,145,0,12,0,34,0,10,0,4,0
 oshi-core,oshi.hardware.platform.mac,MacUsbDevice,619,0,40,0,116,0,27,0,7,0
 oshi-core,oshi.hardware.platform.mac,MacComputerSystem,201,0,30,0,57,0,18,0,3,0
@@ -208,45 +175,30 @@ oshi-core,oshi.hardware.platform.mac,MacPowerSource,126,0,10,0,29,0,8,0,3,0
 oshi-core,oshi.hardware.platform.mac,MacBaseboard,3,0,0,0,1,0,1,0,1,0
 oshi-core,oshi.hardware.platform.mac,MacNetworks.IFdata,24,0,0,0,9,0,1,0,1,0
 oshi-core,oshi.software.os.unix.solaris,SolarisOSVersionInfoEx,27,0,2,0,8,0,2,0,1,0
-oshi-core,oshi.software.os.unix.solaris,SolarisFileSystem,265,0,40,0,43,0,25,0,5,0
+oshi-core,oshi.software.os.unix.solaris,SolarisFileSystem,393,0,58,0,71,0,34,0,5,0
 oshi-core,oshi.software.os.unix.solaris,SolarisOperatingSystem,348,0,26,0,75,0,26,0,11,0
 oshi-core,oshi.software.os.unix.solaris,SolarisNetworkParams,11,0,0,0,3,0,3,0,3,0
 oshi-core,oshi.jna.platform.mac,CoreFoundation.CFStringRef,19,0,0,0,4,0,2,0,2,0
 oshi-core,oshi.jna.platform.mac,DiskArbitration.DADiskRef,3,0,0,0,1,0,1,0,1,0
-oshi-core,oshi.jna.platform.mac,SystemB.RUsageInfoV2,87,0,0,0,3,0,2,0,2,0
 oshi-core,oshi.jna.platform.mac,DiskArbitration.DASessionRef,3,0,0,0,1,0,1,0,1,0
-oshi-core,oshi.jna.platform.mac,IOKit.SMCKeyData,47,0,0,0,3,0,2,0,2,0
+oshi-core,oshi.jna.platform.mac,IOKit.SMCKeyData,7,0,0,0,2,0,1,0,1,0
 oshi-core,oshi.jna.platform.mac,CoreFoundation.CFDictionaryRef,3,0,0,0,1,0,1,0,1,0
-oshi-core,oshi.jna.platform.mac,IOKit.SMCKeyDataKeyInfo,19,0,0,0,2,0,2,0,2,0
-oshi-core,oshi.jna.platform.mac,SystemB.ProcTaskInfo,79,0,0,0,2,0,2,0,2,0
-oshi-core,oshi.jna.platform.mac,IOKit.SMCKeyDataVers,31,0,0,0,3,0,2,0,2,0
-oshi-core,oshi.jna.platform.mac,SystemB.IFdata,123,0,0,0,2,0,2,0,2,0
+oshi-core,oshi.jna.platform.mac,IOKit.SMCKeyDataKeyInfo,3,0,0,0,1,0,1,0,1,0
+oshi-core,oshi.jna.platform.mac,IOKit.SMCKeyDataVers,7,0,0,0,2,0,1,0,1,0
 oshi-core,oshi.jna.platform.mac,CoreFoundation.CFNumberRef,3,0,0,0,1,0,1,0,1,0
 oshi-core,oshi.jna.platform.mac,DiskArbitration,6,0,0,0,1,0,1,0,1,0
 oshi-core,oshi.jna.platform.mac,IOKit,18,0,0,0,5,0,1,0,1,0
-oshi-core,oshi.jna.platform.mac,SystemB.ProcTaskAllInfo,15,0,0,0,2,0,2,0,2,0
 oshi-core,oshi.jna.platform.mac,SystemB,6,0,0,0,1,0,1,0,1,0
 oshi-core,oshi.jna.platform.mac,CoreFoundation.CFAllocatorRef,3,0,0,0,1,0,1,0,1,0
-oshi-core,oshi.jna.platform.mac,SystemB.VnodePathInfo,15,0,0,0,2,0,2,0,2,0
-oshi-core,oshi.jna.platform.mac,SystemB.XswUsage,27,0,0,0,3,0,2,0,2,0
-oshi-core,oshi.jna.platform.mac,SystemB.VMMeter,147,0,0,0,2,0,2,0,2,0
 oshi-core,oshi.jna.platform.mac,CoreFoundation.CFDataRef,3,0,0,0,1,0,1,0,1,0
 oshi-core,oshi.jna.platform.mac,IOKit.IOConnect,3,0,0,0,1,0,1,0,1,0
 oshi-core,oshi.jna.platform.mac,IOKit.MachPort,3,0,0,0,1,0,1,0,1,0
-oshi-core,oshi.jna.platform.mac,SystemB.VnodeInfoPath,23,0,0,0,4,0,2,0,2,0
-oshi-core,oshi.jna.platform.mac,SystemB.Group,23,0,0,0,2,0,2,0,2,0
-oshi-core,oshi.jna.platform.mac,SystemB.IFdata64,107,0,0,0,2,0,2,0,2,0
-oshi-core,oshi.jna.platform.mac,SystemB.Passwd,51,0,0,0,2,0,2,0,2,0
-oshi-core,oshi.jna.platform.mac,IOKit.SMCVal,35,0,0,0,5,0,2,0,2,0
-oshi-core,oshi.jna.platform.mac,SystemB.ProcBsdInfo,103,0,0,0,4,0,2,0,2,0
+oshi-core,oshi.jna.platform.mac,IOKit.SMCVal,15,0,0,0,4,0,1,0,1,0
 oshi-core,oshi.jna.platform.mac,CoreFoundation,6,0,0,0,1,0,1,0,1,0
 oshi-core,oshi.jna.platform.mac,CoreFoundation.CFTypeRef,3,0,0,0,1,0,1,0,1,0
-oshi-core,oshi.jna.platform.mac,SystemB.IFmsgHdr,39,0,0,0,5,0,3,0,3,0
-oshi-core,oshi.jna.platform.mac,IOKit.SMCKeyDataPLimitData,27,0,0,0,2,0,2,0,2,0
+oshi-core,oshi.jna.platform.mac,IOKit.SMCKeyDataPLimitData,3,0,0,0,1,0,1,0,1,0
 oshi-core,oshi.jna.platform.mac,CoreFoundation.CFArrayRef,3,0,0,0,1,0,1,0,1,0
 oshi-core,oshi.jna.platform.mac,CoreFoundation.CFBooleanRef,3,0,0,0,1,0,1,0,1,0
-oshi-core,oshi.jna.platform.mac,SystemB.IFmsgHdr2,52,0,0,0,3,0,2,0,2,0
-oshi-core,oshi.jna.platform.mac,SystemB.Statfs,91,0,0,0,7,0,2,0,2,0
 oshi-core,oshi.jna.platform.mac,CoreFoundation.CFMutableDictionaryRef,3,0,0,0,1,0,1,0,1,0
 oshi-core,oshi.util,Util,7,33,0,2,2,11,0,4,0,3
 oshi-core,oshi.util,EdidUtil,32,521,7,16,2,63,6,25,0,17
@@ -262,7 +214,6 @@ oshi-core,oshi.software.common,AbstractOperatingSystem.new Comparator() {...},11
 oshi-core,oshi.software.common,AbstractOperatingSystem.new Comparator() {...},9,0,0,0,2,0,2,0,2,0
 oshi-core,oshi.software.common,AbstractOperatingSystem.new Comparator() {...},9,0,0,0,2,0,2,0,2,0
 oshi-core,oshi.software.common,AbstractOperatingSystem.new Comparator() {...},9,0,0,0,2,0,2,0,2,0
-oshi-core,oshi.software.common,AbstractOperatingSystem.new Object() {...},54,0,0,0,1,0,1,0,1,0
 oshi-core,oshi.software.common,AbstractOperatingSystem.new Comparator() {...},9,0,0,0,2,0,2,0,2,0
 oshi-core,oshi.software.common,AbstractOperatingSystem.new Comparator() {...},9,0,0,0,2,0,2,0,2,0
 oshi-core,oshi.software.common,AbstractOperatingSystem.new Comparator() {...},9,0,0,0,2,0,2,0,2,0
@@ -270,7 +221,5 @@ oshi-core,oshi.software.common,AbstractOperatingSystem,186,0,22,0,48,0,23,0,9,0
 oshi-core,oshi.software.common,AbstractOSVersionInfoEx,69,0,8,0,18,0,12,0,8,0
 oshi-core,oshi.hardware,NetworkIF,23,233,7,9,12,58,7,30,0,27
 oshi-core,oshi.hardware,CentralProcessor.TickType,0,103,0,0,0,13,0,3,0,3
-oshi-core,oshi.hardware,HWDiskStore.new Object() {...},5,35,0,0,0,1,0,1,0,1
 oshi-core,oshi.hardware,HWDiskStore,193,258,22,24,38,78,21,35,3,28
 oshi-core,oshi.hardware,HWPartition,35,304,20,42,10,77,15,37,0,21
-oshi-core,oshi.hardware,NetworkIF.new Object() {...},5,35,0,0,0,1,0,1,0,1

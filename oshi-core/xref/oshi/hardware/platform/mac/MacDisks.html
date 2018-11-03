@@ -7,14 +7,14 @@
 <body>
 <div id="overview"><a href="../../../../../apidocs/oshi/hardware/platform/mac/MacDisks.html">View Javadoc</a></div><pre>
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_javadoccomment"> * Oshi (https://github.com/oshi/oshi)</em>
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_javadoccomment"> * Oshi (<a href="https://github.com/oshi/oshi)" target="alexandria_uri">https://github.com/oshi/oshi)</a></em>
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_javadoccomment"> * Copyright (c) 2010 - 2018 The Oshi Project Team</em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * All rights reserved. This program and the accompanying materials</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> * are made available under the terms of the Eclipse Public License v1.0</em>
 <a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> * which accompanies this distribution, and is available at</em>
-<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> * <a href="http://www.eclipse.org/legal/epl-v10.htm" target="alexandria_uri">http://www.eclipse.org/legal/epl-v10.htm</a>l</em>
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> * <a href="http://www.eclipse.org/legal/epl-v10.html" target="alexandria_uri">http://www.eclipse.org/legal/epl-v10.html</a></em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * Maintainers:</em>
 <a class="jxr_linenumber" name="L12" href="#L12">12</a>  <em class="jxr_javadoccomment"> * dblock[at]dblock[dot]org</em>
@@ -22,7 +22,7 @@
 <a class="jxr_linenumber" name="L14" href="#L14">14</a>  <em class="jxr_javadoccomment"> * enrico.bianchi[at]gmail[dot]com</em>
 <a class="jxr_linenumber" name="L15" href="#L15">15</a>  <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L16" href="#L16">16</a>  <em class="jxr_javadoccomment"> * Contributors:</em>
-<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <em class="jxr_javadoccomment"> * https://github.com/oshi/oshi/graphs/contributors</em>
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <em class="jxr_javadoccomment"> * <a href="https://github.com/oshi/oshi/graphs/contributors" target="alexandria_uri">https://github.com/oshi/oshi/graphs/contributors</a></em>
 <a class="jxr_linenumber" name="L18" href="#L18">18</a>  <em class="jxr_javadoccomment"> */</em>
 <a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">package</strong> oshi.hardware.platform.mac;
 <a class="jxr_linenumber" name="L20" href="#L20">20</a>  
@@ -38,24 +38,24 @@
 <a class="jxr_linenumber" name="L30" href="#L30">30</a>  <strong class="jxr_keyword">import</strong> org.slf4j.LoggerFactory;
 <a class="jxr_linenumber" name="L31" href="#L31">31</a>  
 <a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.Pointer;
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.ptr.IntByReference;
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.ptr.PointerByReference;
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>  
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.Disks;
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.HWDiskStore;
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.HWPartition;
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.mac.CoreFoundation;
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.mac.CoreFoundation.CFBooleanRef;
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.mac.CoreFoundation.CFDictionaryRef;
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.mac.CoreFoundation.CFMutableDictionaryRef;
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.mac.CoreFoundation.CFNumberRef;
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.mac.CoreFoundation.CFStringRef;
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.mac.DiskArbitration;
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.mac.DiskArbitration.DADiskRef;
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.mac.DiskArbitration.DASessionRef;
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.mac.IOKit;
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.mac.SystemB;
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.mac.SystemB.Statfs;
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.mac.SystemB;
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.mac.SystemB.Statfs;
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.ptr.IntByReference;
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.ptr.PointerByReference;
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>  
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.Disks;
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.HWDiskStore;
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.HWPartition;
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.mac.CoreFoundation;
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.mac.CoreFoundation.CFBooleanRef;
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.mac.CoreFoundation.CFDictionaryRef;
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.mac.CoreFoundation.CFMutableDictionaryRef;
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.mac.CoreFoundation.CFNumberRef;
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.mac.CoreFoundation.CFStringRef;
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.mac.DiskArbitration;
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.mac.DiskArbitration.DADiskRef;
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.mac.DiskArbitration.DASessionRef;
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.mac.IOKit;
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>  <strong class="jxr_keyword">import</strong> oshi.util.ExecutingCommand;
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>  <strong class="jxr_keyword">import</strong> oshi.util.MapUtil;
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>  <strong class="jxr_keyword">import</strong> oshi.util.ParseUtil;
@@ -67,7 +67,7 @@
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>  <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>  <em class="jxr_javadoccomment"> * @author enrico[dot]bianchi[at]gmail[dot]com</em>
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../oshi/hardware/platform/mac/MacDisks.html">MacDisks</a> <strong class="jxr_keyword">implements</strong> <a href="../../../../oshi/hardware/Disks.html">Disks</a> {
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="MacDisks" href="../../../../oshi/hardware/platform/mac/MacDisks.html#MacDisks">MacDisks</a> <strong class="jxr_keyword">implements</strong> <a name="Disks" href="../../../../oshi/hardware/Disks.html#Disks">Disks</a> {
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>  
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> serialVersionUID = 1L;
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>  
@@ -76,11 +76,11 @@
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Map&lt;String, String&gt; mountPointMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Map&lt;String, String&gt; logicalVolumeMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>  
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> updateDiskStats(<a href="../../../../oshi/hardware/HWDiskStore.html">HWDiskStore</a> diskStore, <a href="../../../../oshi/jna/platform/mac/DiskArbitration.html">DASessionRef</a> session) {
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> updateDiskStats(<a name="HWDiskStore" href="../../../../oshi/hardware/HWDiskStore.html#HWDiskStore">HWDiskStore</a> diskStore, DASessionRef session) {
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>          <em class="jxr_comment">// Now look up the device using the BSD Name to get its</em>
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>          <em class="jxr_comment">// statistics</em>
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>          String bsdName = diskStore.getName();
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>          <a href="../../../../oshi/jna/platform/mac/CoreFoundation.html">CFMutableDictionaryRef</a> matchingDict = IOKitUtil.getBSDNameMatchingDict(bsdName);
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>          CFMutableDictionaryRef matchingDict = IOKitUtil.getBSDNameMatchingDict(bsdName);
 <a class="jxr_linenumber" name="L76" href="#L76">76</a>          <strong class="jxr_keyword">if</strong> (matchingDict != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L77" href="#L77">77</a>              <em class="jxr_comment">// search for all IOservices that match the bsd name</em>
 <a class="jxr_linenumber" name="L78" href="#L78">78</a>              IntByReference driveList = <strong class="jxr_keyword">new</strong> IntByReference();
@@ -98,14 +98,14 @@
 <a class="jxr_linenumber" name="L90" href="#L90">90</a>                      PointerByReference propsPtr = <strong class="jxr_keyword">new</strong> PointerByReference();
 <a class="jxr_linenumber" name="L91" href="#L91">91</a>                      <strong class="jxr_keyword">if</strong> (IOKit.INSTANCE.IOObjectConformsTo(parent.getValue(), <span class="jxr_string">"IOBlockStorageDriver"</span>) &amp;&amp; IOKit.INSTANCE
 <a class="jxr_linenumber" name="L92" href="#L92">92</a>                              .IORegistryEntryCreateCFProperties(parent.getValue(), propsPtr, CfUtil.ALLOCATOR, 0) == 0) {
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>                          <a href="../../../../oshi/jna/platform/mac/CoreFoundation.html">CFMutableDictionaryRef</a> properties = <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/jna/platform/mac/CoreFoundation.html">CFMutableDictionaryRef</a>();
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>                          CFMutableDictionaryRef properties = <strong class="jxr_keyword">new</strong> CFMutableDictionaryRef();
 <a class="jxr_linenumber" name="L94" href="#L94">94</a>                          properties.setPointer(propsPtr.getValue());
 <a class="jxr_linenumber" name="L95" href="#L95">95</a>                          <em class="jxr_comment">// We now have a properties object with the</em>
 <a class="jxr_linenumber" name="L96" href="#L96">96</a>                          <em class="jxr_comment">// statistics we need on it. Fetch them</em>
 <a class="jxr_linenumber" name="L97" href="#L97">97</a>                          Pointer statsPtr = CoreFoundation.INSTANCE.CFDictionaryGetValue(properties,
 <a class="jxr_linenumber" name="L98" href="#L98">98</a>                                  CfUtil.getCFString(<span class="jxr_string">"Statistics"</span>));
 <a class="jxr_linenumber" name="L99" href="#L99">99</a>                          diskStore.setTimeStamp(System.currentTimeMillis());
-<a class="jxr_linenumber" name="L100" href="#L100">100</a>                         <a href="../../../../oshi/jna/platform/mac/CoreFoundation.html">CFDictionaryRef</a> statistics = <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/jna/platform/mac/CoreFoundation.html">CFDictionaryRef</a>();
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>                         CFDictionaryRef statistics = <strong class="jxr_keyword">new</strong> CFDictionaryRef();
 <a class="jxr_linenumber" name="L101" href="#L101">101</a>                         statistics.setPointer(statsPtr);
 <a class="jxr_linenumber" name="L102" href="#L102">102</a> 
 <a class="jxr_linenumber" name="L103" href="#L103">103</a>                         <em class="jxr_comment">// Now get the stats we want</em>
@@ -142,21 +142,21 @@
 <a class="jxr_linenumber" name="L134" href="#L134">134</a>                     <em class="jxr_comment">// Now get partitions for this disk.</em>
 <a class="jxr_linenumber" name="L135" href="#L135">135</a>                     List&lt;HWPartition&gt; partitions = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
 <a class="jxr_linenumber" name="L136" href="#L136">136</a>                     <strong class="jxr_keyword">if</strong> (IOKit.INSTANCE.IORegistryEntryCreateCFProperties(drive, propsPtr, CfUtil.ALLOCATOR, 0) == 0) {
-<a class="jxr_linenumber" name="L137" href="#L137">137</a>                         <a href="../../../../oshi/jna/platform/mac/CoreFoundation.html">CFMutableDictionaryRef</a> properties = <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/jna/platform/mac/CoreFoundation.html">CFMutableDictionaryRef</a>();
+<a class="jxr_linenumber" name="L137" href="#L137">137</a>                         CFMutableDictionaryRef properties = <strong class="jxr_keyword">new</strong> CFMutableDictionaryRef();
 <a class="jxr_linenumber" name="L138" href="#L138">138</a>                         properties.setPointer(propsPtr.getValue());
 <a class="jxr_linenumber" name="L139" href="#L139">139</a>                         <em class="jxr_comment">// Partitions will match BSD Unit property</em>
 <a class="jxr_linenumber" name="L140" href="#L140">140</a>                         Pointer p = CoreFoundation.INSTANCE.CFDictionaryGetValue(properties,
 <a class="jxr_linenumber" name="L141" href="#L141">141</a>                                 CfUtil.getCFString(<span class="jxr_string">"BSD Unit"</span>));
-<a class="jxr_linenumber" name="L142" href="#L142">142</a>                         <a href="../../../../oshi/jna/platform/mac/CoreFoundation.html">CFNumberRef</a> bsdUnit = <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/jna/platform/mac/CoreFoundation.html">CFNumberRef</a>();
+<a class="jxr_linenumber" name="L142" href="#L142">142</a>                         CFNumberRef bsdUnit = <strong class="jxr_keyword">new</strong> CFNumberRef();
 <a class="jxr_linenumber" name="L143" href="#L143">143</a>                         bsdUnit.setPointer(p);
 <a class="jxr_linenumber" name="L144" href="#L144">144</a>                         <em class="jxr_comment">// We need a CFBoolean that's false.</em>
 <a class="jxr_linenumber" name="L145" href="#L145">145</a>                         <em class="jxr_comment">// Whole disk has 'true' for Whole and 'false'</em>
 <a class="jxr_linenumber" name="L146" href="#L146">146</a>                         <em class="jxr_comment">// for leaf; store the boolean false</em>
 <a class="jxr_linenumber" name="L147" href="#L147">147</a>                         p = CoreFoundation.INSTANCE.CFDictionaryGetValue(properties, CfUtil.getCFString(<span class="jxr_string">"Leaf"</span>));
-<a class="jxr_linenumber" name="L148" href="#L148">148</a>                         <a href="../../../../oshi/jna/platform/mac/CoreFoundation.html">CFBooleanRef</a> cfFalse = <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/jna/platform/mac/CoreFoundation.html">CFBooleanRef</a>();
+<a class="jxr_linenumber" name="L148" href="#L148">148</a>                         CFBooleanRef cfFalse = <strong class="jxr_keyword">new</strong> CFBooleanRef();
 <a class="jxr_linenumber" name="L149" href="#L149">149</a>                         cfFalse.setPointer(p);
 <a class="jxr_linenumber" name="L150" href="#L150">150</a>                         <em class="jxr_comment">// create a matching dict for BSD Unit</em>
-<a class="jxr_linenumber" name="L151" href="#L151">151</a>                         <a href="../../../../oshi/jna/platform/mac/CoreFoundation.html">CFMutableDictionaryRef</a> propertyDict = CoreFoundation.INSTANCE
+<a class="jxr_linenumber" name="L151" href="#L151">151</a>                         CFMutableDictionaryRef propertyDict = CoreFoundation.INSTANCE
 <a class="jxr_linenumber" name="L152" href="#L152">152</a>                                 .CFDictionaryCreateMutable(CfUtil.ALLOCATOR, 0, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>);
 <a class="jxr_linenumber" name="L153" href="#L153">153</a>                         CoreFoundation.INSTANCE.CFDictionarySetValue(propertyDict, CfUtil.getCFString(<span class="jxr_string">"BSD Unit"</span>),
 <a class="jxr_linenumber" name="L154" href="#L154">154</a>                                 bsdUnit);
@@ -182,10 +182,10 @@
 <a class="jxr_linenumber" name="L174" href="#L174">174</a>                             String type = <span class="jxr_string">""</span>;
 <a class="jxr_linenumber" name="L175" href="#L175">175</a>                             <em class="jxr_comment">// Get the DiskArbitration dictionary for</em>
 <a class="jxr_linenumber" name="L176" href="#L176">176</a>                             <em class="jxr_comment">// this partition</em>
-<a class="jxr_linenumber" name="L177" href="#L177">177</a>                             <a href="../../../../oshi/jna/platform/mac/DiskArbitration.html">DADiskRef</a> disk = DiskArbitration.INSTANCE.DADiskCreateFromBSDName(CfUtil.ALLOCATOR, session,
+<a class="jxr_linenumber" name="L177" href="#L177">177</a>                             DADiskRef disk = DiskArbitration.INSTANCE.DADiskCreateFromBSDName(CfUtil.ALLOCATOR, session,
 <a class="jxr_linenumber" name="L178" href="#L178">178</a>                                     partBsdName);
 <a class="jxr_linenumber" name="L179" href="#L179">179</a>                             <strong class="jxr_keyword">if</strong> (disk != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L180" href="#L180">180</a>                                 <a href="../../../../oshi/jna/platform/mac/CoreFoundation.html">CFDictionaryRef</a> diskInfo = DiskArbitration.INSTANCE.DADiskCopyDescription(disk);
+<a class="jxr_linenumber" name="L180" href="#L180">180</a>                                 CFDictionaryRef diskInfo = DiskArbitration.INSTANCE.DADiskCopyDescription(disk);
 <a class="jxr_linenumber" name="L181" href="#L181">181</a>                                 <strong class="jxr_keyword">if</strong> (diskInfo != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L182" href="#L182">182</a>                                     <em class="jxr_comment">// get volume name from its key</em>
 <a class="jxr_linenumber" name="L183" href="#L183">183</a>                                     Pointer volumePtr = CoreFoundation.INSTANCE.CFDictionaryGetValue(diskInfo,
@@ -208,7 +208,7 @@
 <a class="jxr_linenumber" name="L200" href="#L200">200</a>                             } <strong class="jxr_keyword">else</strong> {
 <a class="jxr_linenumber" name="L201" href="#L201">201</a>                                 mountPoint = MapUtil.getOrDefault(mountPointMap, partBsdName, <span class="jxr_string">""</span>);
 <a class="jxr_linenumber" name="L202" href="#L202">202</a>                             }
-<a class="jxr_linenumber" name="L203" href="#L203">203</a>                             partitions.add(<strong class="jxr_keyword">new</strong> <a href="../../../../oshi/hardware/HWPartition.html">HWPartition</a>(partBsdName, name, type,
+<a class="jxr_linenumber" name="L203" href="#L203">203</a>                             partitions.add(<strong class="jxr_keyword">new</strong> <a name="HWPartition" href="../../../../oshi/hardware/HWPartition.html#HWPartition">HWPartition</a>(partBsdName, name, type,
 <a class="jxr_linenumber" name="L204" href="#L204">204</a>                                     IOKitUtil.getIORegistryStringProperty(sdService, <span class="jxr_string">"UUID"</span>),
 <a class="jxr_linenumber" name="L205" href="#L205">205</a>                                     IOKitUtil.getIORegistryLongProperty(sdService, <span class="jxr_string">"Size"</span>),
 <a class="jxr_linenumber" name="L206" href="#L206">206</a>                                     IOKitUtil.getIORegistryIntProperty(sdService, <span class="jxr_string">"BSD Major"</span>),
@@ -223,7 +223,7 @@
 <a class="jxr_linenumber" name="L215" href="#L215">215</a>                         LOG.error(<span class="jxr_string">"Unable to find properties for {}"</span>, bsdName);
 <a class="jxr_linenumber" name="L216" href="#L216">216</a>                     }
 <a class="jxr_linenumber" name="L217" href="#L217">217</a>                     Collections.sort(partitions);
-<a class="jxr_linenumber" name="L218" href="#L218">218</a>                     diskStore.setPartitions(partitions.toArray(<strong class="jxr_keyword">new</strong> <a href="../../../../oshi/hardware/HWPartition.html">HWPartition</a>[partitions.size()]));
+<a class="jxr_linenumber" name="L218" href="#L218">218</a>                     diskStore.setPartitions(partitions.toArray(<strong class="jxr_keyword">new</strong> <a name="HWPartition" href="../../../../oshi/hardware/HWPartition.html#HWPartition">HWPartition</a>[partitions.size()]));
 <a class="jxr_linenumber" name="L219" href="#L219">219</a>                     IOKit.INSTANCE.IOObjectRelease(parent.getValue());
 <a class="jxr_linenumber" name="L220" href="#L220">220</a>                 } <strong class="jxr_keyword">else</strong> {
 <a class="jxr_linenumber" name="L221" href="#L221">221</a>                     LOG.error(<span class="jxr_string">"Unable to find IOMedia device or parent for {}"</span>, bsdName);
@@ -237,8 +237,8 @@
 <a class="jxr_linenumber" name="L229" href="#L229">229</a>         }
 <a class="jxr_linenumber" name="L230" href="#L230">230</a>     }
 <a class="jxr_linenumber" name="L231" href="#L231">231</a> 
-<a class="jxr_linenumber" name="L232" href="#L232">232</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> updateDiskStats(<a href="../../../../oshi/hardware/HWDiskStore.html">HWDiskStore</a> diskStore) {
-<a class="jxr_linenumber" name="L233" href="#L233">233</a>         <a href="../../../../oshi/jna/platform/mac/DiskArbitration.html">DASessionRef</a> session = DiskArbitration.INSTANCE.DASessionCreate(CfUtil.ALLOCATOR);
+<a class="jxr_linenumber" name="L232" href="#L232">232</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> updateDiskStats(<a name="HWDiskStore" href="../../../../oshi/hardware/HWDiskStore.html#HWDiskStore">HWDiskStore</a> diskStore) {
+<a class="jxr_linenumber" name="L233" href="#L233">233</a>         DASessionRef session = DiskArbitration.INSTANCE.DASessionCreate(CfUtil.ALLOCATOR);
 <a class="jxr_linenumber" name="L234" href="#L234">234</a>         <strong class="jxr_keyword">if</strong> (session == <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L235" href="#L235">235</a>             LOG.error(<span class="jxr_string">"Unable to open session to DiskArbitration framework."</span>);
 <a class="jxr_linenumber" name="L236" href="#L236">236</a>             <strong class="jxr_keyword">return</strong> false;
@@ -252,7 +252,7 @@
 <a class="jxr_linenumber" name="L244" href="#L244">244</a>     }
 <a class="jxr_linenumber" name="L245" href="#L245">245</a> 
 <a class="jxr_linenumber" name="L246" href="#L246">246</a>     @Override
-<a class="jxr_linenumber" name="L247" href="#L247">247</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../oshi/hardware/HWDiskStore.html">HWDiskStore</a>[] getDisks() {
+<a class="jxr_linenumber" name="L247" href="#L247">247</a>     <strong class="jxr_keyword">public</strong> <a name="HWDiskStore" href="../../../../oshi/hardware/HWDiskStore.html#HWDiskStore">HWDiskStore</a>[] getDisks() {
 <a class="jxr_linenumber" name="L248" href="#L248">248</a>         mountPointMap.clear();
 <a class="jxr_linenumber" name="L249" href="#L249">249</a>         logicalVolumeMap.clear();
 <a class="jxr_linenumber" name="L250" href="#L250">250</a>         List&lt;HWDiskStore&gt; result = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
@@ -260,9 +260,9 @@
 <a class="jxr_linenumber" name="L252" href="#L252">252</a>         <em class="jxr_comment">// Use statfs to populate mount point map</em>
 <a class="jxr_linenumber" name="L253" href="#L253">253</a>         <strong class="jxr_keyword">int</strong> numfs = SystemB.INSTANCE.getfsstat64(<strong class="jxr_keyword">null</strong>, 0, 0);
 <a class="jxr_linenumber" name="L254" href="#L254">254</a>         <em class="jxr_comment">// Create array to hold results</em>
-<a class="jxr_linenumber" name="L255" href="#L255">255</a>         <a href="../../../../oshi/jna/platform/mac/SystemB.html">Statfs</a>[] fs = <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/jna/platform/mac/SystemB.html">Statfs</a>[numfs];
+<a class="jxr_linenumber" name="L255" href="#L255">255</a>         Statfs[] fs = <strong class="jxr_keyword">new</strong> Statfs[numfs];
 <a class="jxr_linenumber" name="L256" href="#L256">256</a>         <em class="jxr_comment">// Fill array with results</em>
-<a class="jxr_linenumber" name="L257" href="#L257">257</a>         SystemB.INSTANCE.getfsstat64(fs, numfs * <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/jna/platform/mac/SystemB.html">Statfs</a>().size(), SystemB.MNT_NOWAIT);
+<a class="jxr_linenumber" name="L257" href="#L257">257</a>         SystemB.INSTANCE.getfsstat64(fs, numfs * <strong class="jxr_keyword">new</strong> Statfs().size(), SystemB.MNT_NOWAIT);
 <a class="jxr_linenumber" name="L258" href="#L258">258</a>         <em class="jxr_comment">// Iterate all mounted file systems</em>
 <a class="jxr_linenumber" name="L259" href="#L259">259</a>         <strong class="jxr_keyword">for</strong> (Statfs f : fs) {
 <a class="jxr_linenumber" name="L260" href="#L260">260</a>             String mntFrom = <strong class="jxr_keyword">new</strong> String(f.f_mntfromname).trim();
@@ -301,10 +301,10 @@
 <a class="jxr_linenumber" name="L293" href="#L293">293</a>         }
 <a class="jxr_linenumber" name="L294" href="#L294">294</a> 
 <a class="jxr_linenumber" name="L295" href="#L295">295</a>         <em class="jxr_comment">// Open a DiskArbitration session</em>
-<a class="jxr_linenumber" name="L296" href="#L296">296</a>         <a href="../../../../oshi/jna/platform/mac/DiskArbitration.html">DASessionRef</a> session = DiskArbitration.INSTANCE.DASessionCreate(CfUtil.ALLOCATOR);
+<a class="jxr_linenumber" name="L296" href="#L296">296</a>         DASessionRef session = DiskArbitration.INSTANCE.DASessionCreate(CfUtil.ALLOCATOR);
 <a class="jxr_linenumber" name="L297" href="#L297">297</a>         <strong class="jxr_keyword">if</strong> (session == <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L298" href="#L298">298</a>             LOG.error(<span class="jxr_string">"Unable to open session to DiskArbitration framework."</span>);
-<a class="jxr_linenumber" name="L299" href="#L299">299</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/hardware/HWDiskStore.html">HWDiskStore</a>[0];
+<a class="jxr_linenumber" name="L299" href="#L299">299</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a name="HWDiskStore" href="../../../../oshi/hardware/HWDiskStore.html#HWDiskStore">HWDiskStore</a>[0];
 <a class="jxr_linenumber" name="L300" href="#L300">300</a>         }
 <a class="jxr_linenumber" name="L301" href="#L301">301</a> 
 <a class="jxr_linenumber" name="L302" href="#L302">302</a>         <em class="jxr_comment">// Get IOMedia objects representing whole drives</em>
@@ -314,7 +314,7 @@
 <a class="jxr_linenumber" name="L306" href="#L306">306</a>         <strong class="jxr_keyword">int</strong> media = IOKit.INSTANCE.IOIteratorNext(iter.getValue());
 <a class="jxr_linenumber" name="L307" href="#L307">307</a>         <strong class="jxr_keyword">while</strong> (media != 0) {
 <a class="jxr_linenumber" name="L308" href="#L308">308</a>             <strong class="jxr_keyword">if</strong> (IOKitUtil.getIORegistryBooleanProperty(media, <span class="jxr_string">"Whole"</span>)) {
-<a class="jxr_linenumber" name="L309" href="#L309">309</a>                 <a href="../../../../oshi/jna/platform/mac/DiskArbitration.html">DADiskRef</a> disk = DiskArbitration.INSTANCE.DADiskCreateFromIOMedia(CfUtil.ALLOCATOR, session, media);
+<a class="jxr_linenumber" name="L309" href="#L309">309</a>                 DADiskRef disk = DiskArbitration.INSTANCE.DADiskCreateFromIOMedia(CfUtil.ALLOCATOR, session, media);
 <a class="jxr_linenumber" name="L310" href="#L310">310</a>                 bsdNames.add(DiskArbitration.INSTANCE.DADiskGetBSDName(disk));
 <a class="jxr_linenumber" name="L311" href="#L311">311</a>             }
 <a class="jxr_linenumber" name="L312" href="#L312">312</a>             IOKit.INSTANCE.IOObjectRelease(media);
@@ -332,9 +332,9 @@
 <a class="jxr_linenumber" name="L324" href="#L324">324</a> 
 <a class="jxr_linenumber" name="L325" href="#L325">325</a>             <em class="jxr_comment">// Get the DiskArbitration dictionary for this disk, which has model</em>
 <a class="jxr_linenumber" name="L326" href="#L326">326</a>             <em class="jxr_comment">// and size (capacity)</em>
-<a class="jxr_linenumber" name="L327" href="#L327">327</a>             <a href="../../../../oshi/jna/platform/mac/DiskArbitration.html">DADiskRef</a> disk = DiskArbitration.INSTANCE.DADiskCreateFromBSDName(CfUtil.ALLOCATOR, session, path);
+<a class="jxr_linenumber" name="L327" href="#L327">327</a>             DADiskRef disk = DiskArbitration.INSTANCE.DADiskCreateFromBSDName(CfUtil.ALLOCATOR, session, path);
 <a class="jxr_linenumber" name="L328" href="#L328">328</a>             <strong class="jxr_keyword">if</strong> (disk != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L329" href="#L329">329</a>                 <a href="../../../../oshi/jna/platform/mac/CoreFoundation.html">CFDictionaryRef</a> diskInfo = DiskArbitration.INSTANCE.DADiskCopyDescription(disk);
+<a class="jxr_linenumber" name="L329" href="#L329">329</a>                 CFDictionaryRef diskInfo = DiskArbitration.INSTANCE.DADiskCopyDescription(disk);
 <a class="jxr_linenumber" name="L330" href="#L330">330</a>                 <strong class="jxr_keyword">if</strong> (diskInfo != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L331" href="#L331">331</a>                     <em class="jxr_comment">// Parse out model and size from their respective keys</em>
 <a class="jxr_linenumber" name="L332" href="#L332">332</a>                     Pointer modelPtr = CoreFoundation.INSTANCE.CFDictionaryGetValue(diskInfo,
@@ -347,12 +347,12 @@
 <a class="jxr_linenumber" name="L339" href="#L339">339</a> 
 <a class="jxr_linenumber" name="L340" href="#L340">340</a>                     <em class="jxr_comment">// Use the model as a key to get serial from IOKit</em>
 <a class="jxr_linenumber" name="L341" href="#L341">341</a>                     <strong class="jxr_keyword">if</strong> (!<span class="jxr_string">"Disk Image"</span>.equals(model)) {
-<a class="jxr_linenumber" name="L342" href="#L342">342</a>                         <a href="../../../../oshi/jna/platform/mac/CoreFoundation.html">CFStringRef</a> modelNameRef = CFStringRef.toCFString(model);
-<a class="jxr_linenumber" name="L343" href="#L343">343</a>                         <a href="../../../../oshi/jna/platform/mac/CoreFoundation.html">CFMutableDictionaryRef</a> propertyDict = CoreFoundation.INSTANCE
+<a class="jxr_linenumber" name="L342" href="#L342">342</a>                         CFStringRef modelNameRef = CFStringRef.toCFString(model);
+<a class="jxr_linenumber" name="L343" href="#L343">343</a>                         CFMutableDictionaryRef propertyDict = CoreFoundation.INSTANCE
 <a class="jxr_linenumber" name="L344" href="#L344">344</a>                                 .CFDictionaryCreateMutable(CfUtil.ALLOCATOR, 0, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>);
 <a class="jxr_linenumber" name="L345" href="#L345">345</a>                         CoreFoundation.INSTANCE.CFDictionarySetValue(propertyDict, CfUtil.getCFString(<span class="jxr_string">"Model"</span>),
 <a class="jxr_linenumber" name="L346" href="#L346">346</a>                                 modelNameRef);
-<a class="jxr_linenumber" name="L347" href="#L347">347</a>                         <a href="../../../../oshi/jna/platform/mac/CoreFoundation.html">CFMutableDictionaryRef</a> matchingDict = CoreFoundation.INSTANCE
+<a class="jxr_linenumber" name="L347" href="#L347">347</a>                         CFMutableDictionaryRef matchingDict = CoreFoundation.INSTANCE
 <a class="jxr_linenumber" name="L348" href="#L348">348</a>                                 .CFDictionaryCreateMutable(CfUtil.ALLOCATOR, 0, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>);
 <a class="jxr_linenumber" name="L349" href="#L349">349</a>                         CoreFoundation.INSTANCE.CFDictionarySetValue(matchingDict,
 <a class="jxr_linenumber" name="L350" href="#L350">350</a>                                 CfUtil.getCFString(<span class="jxr_string">"IOPropertyMatch"</span>), propertyDict);
@@ -386,7 +386,7 @@
 <a class="jxr_linenumber" name="L378" href="#L378">378</a>                 <strong class="jxr_keyword">if</strong> (size &lt;= 0) {
 <a class="jxr_linenumber" name="L379" href="#L379">379</a>                     <strong class="jxr_keyword">continue</strong>;
 <a class="jxr_linenumber" name="L380" href="#L380">380</a>                 }
-<a class="jxr_linenumber" name="L381" href="#L381">381</a>                 <a href="../../../../oshi/hardware/HWDiskStore.html">HWDiskStore</a> diskStore = <strong class="jxr_keyword">new</strong> <a href="../../../../oshi/hardware/HWDiskStore.html">HWDiskStore</a>();
+<a class="jxr_linenumber" name="L381" href="#L381">381</a>                 <a name="HWDiskStore" href="../../../../oshi/hardware/HWDiskStore<a name="HWDiskStore" href="../../../../oshi/hardware/HWDiskStore.html#HWDiskStore">HWDiskStore</a>kStore">HWDiskStore</a> diskStore = <strong class="jxr_keyword">new</strong> <a name="HWDiskStore" href="../../../../oshi/hardware/HWDiskStore.html#HWDiskStore">HWDiskStore</a>();
 <a class="jxr_linenumber" name="L382" href="#L382">382</a>                 diskStore.setName(bsdName);
 <a class="jxr_linenumber" name="L383" href="#L383">383</a>                 diskStore.setModel(model.trim());
 <a class="jxr_linenumber" name="L384" href="#L384">384</a>                 diskStore.setSerial(serial.trim());
@@ -399,7 +399,7 @@
 <a class="jxr_linenumber" name="L391" href="#L391">391</a>         <em class="jxr_comment">// Close DA session</em>
 <a class="jxr_linenumber" name="L392" href="#L392">392</a>         CfUtil.release(session);
 <a class="jxr_linenumber" name="L393" href="#L393">393</a>         Collections.sort(result);
-<a class="jxr_linenumber" name="L394" href="#L394">394</a>         <strong class="jxr_keyword">return</strong> result.toArray(<strong class="jxr_keyword">new</strong> <a href="../../../../oshi/hardware/HWDiskStore.html">HWDiskStore</a>[result.size()]);
+<a class="jxr_linenumber" name="L394" href="#L394">394</a>         <strong class="jxr_keyword">return</strong> result.toArray(<strong class="jxr_keyword">new</strong> <a name="HWDiskStore" href="../../../../oshi/hardware/HWDiskStore.html#HWDiskStore">HWDiskStore</a>[result.size()]);
 <a class="jxr_linenumber" name="L395" href="#L395">395</a>     }
 <a class="jxr_linenumber" name="L396" href="#L396">396</a> 
 <a class="jxr_linenumber" name="L397" href="#L397">397</a> }

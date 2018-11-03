@@ -25,8 +25,8 @@ under the License.
     <language>en-us</language>
     <copyright>&#169;2010 - 2018 oshi</copyright>
     <item>
-      <title>File: 191,
-             Errors: 5824,
+      <title>File: 180,
+             Errors: 4279,
              Warnings: 0,
              Infos: 0
       </title>
@@ -83,7 +83,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  95
+                  101
                 </td>
               </tr>
                           <tr>
@@ -139,7 +139,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  143
+                  134
                 </td>
               </tr>
                           <tr>
@@ -298,20 +298,6 @@ under the License.
               </tr>
                           <tr>
                 <td>
-                  <a href="https://github.com/oshi/oshi/oshi-core/checkstyle.html#oshi.jna.platform.windows.Wtsapi32.java">oshi/jna/platform/windows/Wtsapi32.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  57
-                </td>
-              </tr>
-                          <tr>
-                <td>
                   <a href="https://github.com/oshi/oshi/oshi-core/checkstyle.html#oshi.software.os.OperatingSystem.java">oshi/software/os/OperatingSystem.java</a>
                 </td>
                 <td>
@@ -363,21 +349,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  53
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/oshi-core/checkstyle.html#oshi.jna.platform.windows.WbemcliUtil.java">oshi/jna/platform/windows/WbemcliUtil.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  75
+                  50
                 </td>
               </tr>
                           <tr>
@@ -573,7 +545,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  13
+                  24
                 </td>
               </tr>
                           <tr>
@@ -742,20 +714,6 @@ under the License.
                 </td>
                 <td>
                   19
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/oshi-core/checkstyle.html#oshi.jna.platform.windows.PdhUtil.java">oshi/jna/platform/windows/PdhUtil.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  52
                 </td>
               </tr>
                           <tr>
@@ -937,7 +895,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  20
+                  22
                 </td>
               </tr>
                           <tr>
@@ -1119,7 +1077,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  56
+                  53
                 </td>
               </tr>
                           <tr>
@@ -1250,20 +1208,6 @@ under the License.
               </tr>
                           <tr>
                 <td>
-                  <a href="https://github.com/oshi/oshi/oshi-core/checkstyle.html#oshi.jna.platform.windows.WinPerf.java">oshi/jna/platform/windows/WinPerf.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  179
-                </td>
-              </tr>
-                          <tr>
-                <td>
                   <a href="https://github.com/oshi/oshi/oshi-core/checkstyle.html#oshi.jna.platform.windows.PowrProf.java">oshi/jna/platform/windows/PowrProf.java</a>
                 </td>
                 <td>
@@ -1273,7 +1217,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  32
+                  30
                 </td>
               </tr>
                           <tr>
@@ -1343,7 +1287,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  36
+                  69
                 </td>
               </tr>
                           <tr>
@@ -1446,20 +1390,6 @@ under the License.
               </tr>
                           <tr>
                 <td>
-                  <a href="https://github.com/oshi/oshi/oshi-core/checkstyle.html#oshi.jna.platform.windows.Cfgmgr32.java">oshi/jna/platform/windows/Cfgmgr32.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  26
-                </td>
-              </tr>
-                          <tr>
-                <td>
                   <a href="https://github.com/oshi/oshi/oshi-core/checkstyle.html#oshi.hardware.platform.windows.WindowsHardwareAbstractionLayer.java">oshi/hardware/platform/windows/WindowsHardwareAbstractionLayer.java</a>
                 </td>
                 <td>
@@ -1470,20 +1400,6 @@ under the License.
                 </td>
                 <td>
                   3
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/oshi-core/checkstyle.html#oshi.jna.platform.windows.Pdh.java">oshi/jna/platform/windows/Pdh.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  18
                 </td>
               </tr>
                           <tr>
@@ -1526,20 +1442,6 @@ under the License.
                 </td>
                 <td>
                   15
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/oshi-core/checkstyle.html#oshi.jna.platform.windows.IPHlpAPI.java">oshi/jna/platform/windows/IPHlpAPI.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  265
                 </td>
               </tr>
                           <tr>
@@ -1609,7 +1511,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  16
+                  15
                 </td>
               </tr>
                           <tr>
@@ -1638,20 +1540,6 @@ under the License.
                 </td>
                 <td>
                   47
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/oshi-core/checkstyle.html#oshi.jna.platform.windows.Wbemcli.java">oshi/jna/platform/windows/Wbemcli.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  133
                 </td>
               </tr>
                           <tr>
@@ -1708,20 +1596,6 @@ under the License.
                 </td>
                 <td>
                   1
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/oshi-core/checkstyle.html#oshi.jna.platform.windows.Ole32.java">oshi/jna/platform/windows/Ole32.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  22
                 </td>
               </tr>
                           <tr>
@@ -1791,7 +1665,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  42
+                  37
                 </td>
               </tr>
                           <tr>
@@ -1805,7 +1679,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  132
+                  134
                 </td>
               </tr>
                           <tr>
@@ -2043,21 +1917,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  13
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/oshi-core/checkstyle.html#oshi.jna.platform.windows.Cfgmgr32Util.java">oshi/jna/platform/windows/Cfgmgr32Util.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  16
+                  23
                 </td>
               </tr>
                           <tr>
@@ -2253,7 +2113,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  35
+                  36
                 </td>
               </tr>
                           <tr>
@@ -2281,7 +2141,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  15
+                  14
                 </td>
               </tr>
                           <tr>
@@ -2352,20 +2212,6 @@ under the License.
                 </td>
                 <td>
                   12
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/oshi-core/checkstyle.html#oshi.jna.platform.windows.Kernel32.java">oshi/jna/platform/windows/Kernel32.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  28
                 </td>
               </tr>
                           <tr>
@@ -2589,7 +2435,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  717
+                  2
                 </td>
               </tr>
                           <tr>

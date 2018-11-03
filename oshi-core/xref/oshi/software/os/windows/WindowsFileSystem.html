@@ -7,14 +7,14 @@
 <body>
 <div id="overview"><a href="../../../../../apidocs/oshi/software/os/windows/WindowsFileSystem.html">View Javadoc</a></div><pre>
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_javadoccomment"> * Oshi (https://github.com/oshi/oshi)</em>
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_javadoccomment"> * Oshi (<a href="https://github.com/oshi/oshi)" target="alexandria_uri">https://github.com/oshi/oshi)</a></em>
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_javadoccomment"> * Copyright (c) 2010 - 2018 The Oshi Project Team</em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * All rights reserved. This program and the accompanying materials</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> * are made available under the terms of the Eclipse Public License v1.0</em>
 <a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> * which accompanies this distribution, and is available at</em>
-<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> * <a href="http://www.eclipse.org/legal/epl-v10.htm" target="alexandria_uri">http://www.eclipse.org/legal/epl-v10.htm</a>l</em>
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> * <a href="http://www.eclipse.org/legal/epl-v10.html" target="alexandria_uri">http://www.eclipse.org/legal/epl-v10.html</a></em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * Maintainers:</em>
 <a class="jxr_linenumber" name="L12" href="#L12">12</a>  <em class="jxr_javadoccomment"> * dblock[at]dblock[dot]org</em>
@@ -22,7 +22,7 @@
 <a class="jxr_linenumber" name="L14" href="#L14">14</a>  <em class="jxr_javadoccomment"> * enrico.bianchi[at]gmail[dot]com</em>
 <a class="jxr_linenumber" name="L15" href="#L15">15</a>  <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L16" href="#L16">16</a>  <em class="jxr_javadoccomment"> * Contributors:</em>
-<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <em class="jxr_javadoccomment"> * https://github.com/oshi/oshi/graphs/contributors</em>
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <em class="jxr_javadoccomment"> * <a href="https://github.com/oshi/oshi/graphs/contributors" target="alexandria_uri">https://github.com/oshi/oshi/graphs/contributors</a></em>
 <a class="jxr_linenumber" name="L18" href="#L18">18</a>  <em class="jxr_javadoccomment"> */</em>
 <a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">package</strong> oshi.software.os.windows;
 <a class="jxr_linenumber" name="L20" href="#L20">20</a>  
@@ -33,9 +33,9 @@
 <a class="jxr_linenumber" name="L25" href="#L25">25</a>  
 <a class="jxr_linenumber" name="L26" href="#L26">26</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.Kernel32; <em class="jxr_comment">//NOSONAR</em>
 <a class="jxr_linenumber" name="L27" href="#L27">27</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.WinNT;
-<a class="jxr_linenumber" name="L28" href="#L28">28</a>  
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.windows.WbemcliUtil.WmiQuery;
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.windows.WbemcliUtil.WmiResult;
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>  
 <a class="jxr_linenumber" name="L31" href="#L31">31</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.FileSystem;
 <a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.OSFileStore;
 <a class="jxr_linenumber" name="L33" href="#L33">33</a>  <strong class="jxr_keyword">import</strong> oshi.util.ParseUtil;
@@ -51,7 +51,7 @@
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>  <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>  <em class="jxr_javadoccomment"> * @author enrico[dot]bianchi[at]gmail[dot]com</em>
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../oshi/software/os/windows/WindowsFileSystem.html">WindowsFileSystem</a> <strong class="jxr_keyword">implements</strong> <a href="../../../../oshi/software/os/FileSystem.html">FileSystem</a> {
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="WindowsFileSystem" href="../../../../oshi/software/os/windows/WindowsFileSystem.html#WindowsFileSystem">WindowsFileSystem</a> <strong class="jxr_keyword">implements</strong> <a name="FileSystem" href="../../../../oshi/software/os/FileSystem.html#FileSystem">FileSystem</a> {
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>  
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> serialVersionUID = 1L;
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>  
@@ -59,7 +59,7 @@
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>  
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> SEM_FAILCRITICALERRORS = 0x0001;
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>  
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>      enum <a href="../../../../oshi/software/os/windows/WindowsFileSystem.html">LogicalDiskProperty</a> {
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>      enum LogicalDiskProperty {
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>          DESCRIPTION, DRIVETYPE, FILESYSTEM, FREESPACE, NAME, PROVIDERNAME, SIZE;
 <a class="jxr_linenumber" name="L56" href="#L56">56</a>      }
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>  
@@ -69,12 +69,12 @@
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>      <em class="jxr_comment">/*</em>
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>  <em class="jxr_comment">     * For handle counts</em>
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>  <em class="jxr_comment">     */</em>
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>      enum <a href="../../../../oshi/software/os/windows/WindowsFileSystem.html">HandleCountProperty</a> {
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>      enum HandleCountProperty {
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>          HANDLECOUNT;
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>      }
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>  
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>      <em class="jxr_comment">// Only one of these will be used</em>
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">transient</strong> <a href="../../../../oshi/util/platform/windows/PerfDataUtil.html">PerfCounter</a> handleCountCounter = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">transient</strong> PerfCounter handleCountCounter = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">transient</strong> WmiQuery&lt;HandleCountProperty&gt; handleCountQuery = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>  
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> MAX_WINDOWS_HANDLES;
@@ -89,7 +89,7 @@
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>          }
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>      }
 <a class="jxr_linenumber" name="L83" href="#L83">83</a>  
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../oshi/software/os/windows/WindowsFileSystem.html">WindowsFileSystem</a>() {
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>      <strong class="jxr_keyword">public</strong> <a name="WindowsFileSystem" href="../../../../oshi/software/os/windows/WindowsFileSystem.html#WindowsFileSystem">WindowsFileSystem</a>() {
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>          <em class="jxr_comment">// Set error mode to fail rather than prompt for FLoppy/CD-Rom</em>
 <a class="jxr_linenumber" name="L86" href="#L86">86</a>          Kernel32.INSTANCE.SetErrorMode(SEM_FAILCRITICALERRORS);
 <a class="jxr_linenumber" name="L87" href="#L87">87</a>          initPdhCounters();
@@ -111,7 +111,7 @@
 <a class="jxr_linenumber" name="L103" href="#L103">103</a> <em class="jxr_javadoccomment">     *         {@link OSFileStore#getTotalSpace()} = 0.</em>
 <a class="jxr_linenumber" name="L104" href="#L104">104</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L105" href="#L105">105</a>     @Override
-<a class="jxr_linenumber" name="L106" href="#L106">106</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../oshi/software/os/OSFileStore.html">OSFileStore</a>[] getFileStores() {
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>     <strong class="jxr_keyword">public</strong> <a name="OSFileStore" href="../../../../oshi/software/os/OSFileStore.html#OSFileStore">OSFileStore</a>[] getFileStores() {
 <a class="jxr_linenumber" name="L107" href="#L107">107</a>         <em class="jxr_comment">// Create list to hold results</em>
 <a class="jxr_linenumber" name="L108" href="#L108">108</a>         ArrayList&lt;OSFileStore&gt; result;
 <a class="jxr_linenumber" name="L109" href="#L109">109</a> 
@@ -120,13 +120,13 @@
 <a class="jxr_linenumber" name="L112" href="#L112">112</a> 
 <a class="jxr_linenumber" name="L113" href="#L113">113</a>         <em class="jxr_comment">// Build a map of existing mount point to OSFileStore</em>
 <a class="jxr_linenumber" name="L114" href="#L114">114</a>         Map&lt;String, OSFileStore&gt; volumeMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
-<a class="jxr_linenumber" name="L115" href="#L115">115</a>         <strong class="jxr_keyword">for</strong> (OSFileStore volume : result) {
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>         <strong class="jxr_keyword">for</strong> (<a name="OSFileStore" href="../../../../oshi/software/os/OSFileStore.html#OSFileStore">OSFileStore</a> volume : result) {
 <a class="jxr_linenumber" name="L116" href="#L116">116</a>             volumeMap.put(volume.getMount(), volume);
 <a class="jxr_linenumber" name="L117" href="#L117">117</a>         }
 <a class="jxr_linenumber" name="L118" href="#L118">118</a> 
 <a class="jxr_linenumber" name="L119" href="#L119">119</a>         <em class="jxr_comment">// Iterate through volumes in WMI and update description (if it exists)</em>
 <a class="jxr_linenumber" name="L120" href="#L120">120</a>         <em class="jxr_comment">// or add new if it doesn't (expected for network drives)</em>
-<a class="jxr_linenumber" name="L121" href="#L121">121</a>         <strong class="jxr_keyword">for</strong> (OSFileStore wmiVolume : getWmiVolumes()) {
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>         <strong class="jxr_keyword">for</strong> (<a name="OSFileStore" href="../../../../oshi/software/os/OSFileStore.html#OSFileStore">OSFileStore</a> wmiVolume : getWmiVolumes()) {
 <a class="jxr_linenumber" name="L122" href="#L122">122</a>             <strong class="jxr_keyword">if</strong> (volumeMap.containsKey(wmiVolume.getMount())) {
 <a class="jxr_linenumber" name="L123" href="#L123">123</a>                 <em class="jxr_comment">// If the volume is already in our list, update the name field</em>
 <a class="jxr_linenumber" name="L124" href="#L124">124</a>                 <em class="jxr_comment">// using WMI's more verbose name</em>
@@ -136,7 +136,7 @@
 <a class="jxr_linenumber" name="L128" href="#L128">128</a>                 result.add(wmiVolume);
 <a class="jxr_linenumber" name="L129" href="#L129">129</a>             }
 <a class="jxr_linenumber" name="L130" href="#L130">130</a>         }
-<a class="jxr_linenumber" name="L131" href="#L131">131</a>         <strong class="jxr_keyword">return</strong> result.toArray(<strong class="jxr_keyword">new</strong> <a href="../../../../oshi/software/os/OSFileStore.html">OSFileStore</a>[result.size()]);
+<a class="jxr_linenumber" name="L131" href="#L131">131</a>         <strong class="jxr_keyword">return</strong> result.toArray(<strong class="jxr_keyword">new</strong> <a name="OSFileStore" href="../../../../oshi/software/os/OSFileStore.html#OSFileStore">OSFileStore</a>[result.size()]);
 <a class="jxr_linenumber" name="L132" href="#L132">132</a>     }
 <a class="jxr_linenumber" name="L133" href="#L133">133</a> 
 <a class="jxr_linenumber" name="L134" href="#L134">134</a>     <em class="jxr_javadoccomment">/**</em>
@@ -191,103 +191,119 @@
 <a class="jxr_linenumber" name="L183" href="#L183">183</a> 
 <a class="jxr_linenumber" name="L184" href="#L184">184</a>             <strong class="jxr_keyword">if</strong> (!strMount.isEmpty()) {
 <a class="jxr_linenumber" name="L185" href="#L185">185</a>                 <em class="jxr_comment">// Volume is mounted</em>
-<a class="jxr_linenumber" name="L186" href="#L186">186</a>                 fs.add(<strong class="jxr_keyword">new</strong> <a href="../../../../oshi/software/os/OSFileStore.html">OSFileStore</a>(String.format(<span class="jxr_string">"%s (%s)"</span>, strName, strMount), volume, strMount,
-<a class="jxr_linenumber" name="L187" href="#L187">187</a>                         getDriveType(strMount), strFsType, uuid, systemFreeBytes.getValue(), totalBytes.getValue()));
-<a class="jxr_linenumber" name="L188" href="#L188">188</a>             }
-<a class="jxr_linenumber" name="L189" href="#L189">189</a>             retVal = Kernel32.INSTANCE.FindNextVolume(hVol, aVolume, BUFSIZE);
-<a class="jxr_linenumber" name="L190" href="#L190">190</a>             <strong class="jxr_keyword">if</strong> (!retVal) {
-<a class="jxr_linenumber" name="L191" href="#L191">191</a>                 Kernel32.INSTANCE.FindVolumeClose(hVol);
-<a class="jxr_linenumber" name="L192" href="#L192">192</a>                 <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L193" href="#L193">193</a>             }
-<a class="jxr_linenumber" name="L194" href="#L194">194</a>         }
-<a class="jxr_linenumber" name="L195" href="#L195">195</a> 
-<a class="jxr_linenumber" name="L196" href="#L196">196</a>         <strong class="jxr_keyword">return</strong> fs;
-<a class="jxr_linenumber" name="L197" href="#L197">197</a>     }
-<a class="jxr_linenumber" name="L198" href="#L198">198</a> 
-<a class="jxr_linenumber" name="L199" href="#L199">199</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L200" href="#L200">200</a> <em class="jxr_javadoccomment">     * Private method for getting logical drives listed in WMI.</em>
-<a class="jxr_linenumber" name="L201" href="#L201">201</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L202" href="#L202">202</a> <em class="jxr_javadoccomment">     * @return A list of {@link OSFileStore} objects representing all network</em>
-<a class="jxr_linenumber" name="L203" href="#L203">203</a> <em class="jxr_javadoccomment">     *         mounted volumes</em>
-<a class="jxr_linenumber" name="L204" href="#L204">204</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L205" href="#L205">205</a>     <strong class="jxr_keyword">private</strong> List&lt;OSFileStore&gt; getWmiVolumes() {
-<a class="jxr_linenumber" name="L206" href="#L206">206</a>         <strong class="jxr_keyword">long</strong> free;
-<a class="jxr_linenumber" name="L207" href="#L207">207</a>         <strong class="jxr_keyword">long</strong> total;
-<a class="jxr_linenumber" name="L208" href="#L208">208</a>         List&lt;OSFileStore&gt; fs = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
-<a class="jxr_linenumber" name="L209" href="#L209">209</a> 
-<a class="jxr_linenumber" name="L210" href="#L210">210</a>         WmiResult&lt;LogicalDiskProperty&gt; drives = WmiUtil.queryWMI(<strong class="jxr_keyword">this</strong>.LOGICAL_DISK_QUERY);
-<a class="jxr_linenumber" name="L211" href="#L211">211</a> 
-<a class="jxr_linenumber" name="L212" href="#L212">212</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; drives.getResultCount(); i++) {
-<a class="jxr_linenumber" name="L213" href="#L213">213</a>             free = WmiUtil.getUint64(drives, LogicalDiskProperty.FREESPACE, i);
-<a class="jxr_linenumber" name="L214" href="#L214">214</a>             total = WmiUtil.getUint64(drives, LogicalDiskProperty.SIZE, i);
-<a class="jxr_linenumber" name="L215" href="#L215">215</a>             String description = WmiUtil.getString(drives, LogicalDiskProperty.DESCRIPTION, i);
-<a class="jxr_linenumber" name="L216" href="#L216">216</a>             String name = WmiUtil.getString(drives, LogicalDiskProperty.NAME, i);
-<a class="jxr_linenumber" name="L217" href="#L217">217</a>             <strong class="jxr_keyword">int</strong> type = WmiUtil.getUint32(drives, LogicalDiskProperty.DRIVETYPE, i);
-<a class="jxr_linenumber" name="L218" href="#L218">218</a>             String volume;
-<a class="jxr_linenumber" name="L219" href="#L219">219</a>             <strong class="jxr_keyword">if</strong> (type != 4) {
-<a class="jxr_linenumber" name="L220" href="#L220">220</a>                 <strong class="jxr_keyword">char</strong>[] chrVolume = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">char</strong>[BUFSIZE];
-<a class="jxr_linenumber" name="L221" href="#L221">221</a>                 Kernel32.INSTANCE.GetVolumeNameForVolumeMountPoint(name + <span class="jxr_string">"&#92;&#92;"</span>, chrVolume, BUFSIZE);
-<a class="jxr_linenumber" name="L222" href="#L222">222</a>                 volume = <strong class="jxr_keyword">new</strong> String(chrVolume).trim();
-<a class="jxr_linenumber" name="L223" href="#L223">223</a>             } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L224" href="#L224">224</a>                 volume = WmiUtil.getString(drives, LogicalDiskProperty.PROVIDERNAME, i);
-<a class="jxr_linenumber" name="L225" href="#L225">225</a>                 String[] split = volume.split(<span class="jxr_string">"&#92;&#92;&#92;&#92;"</span>);
-<a class="jxr_linenumber" name="L226" href="#L226">226</a>                 <strong class="jxr_keyword">if</strong> (split.length &gt; 1 &amp;&amp; split[split.length - 1].length() &gt; 0) {
-<a class="jxr_linenumber" name="L227" href="#L227">227</a>                     description = split[split.length - 1];
-<a class="jxr_linenumber" name="L228" href="#L228">228</a>                 }
-<a class="jxr_linenumber" name="L229" href="#L229">229</a>             }
-<a class="jxr_linenumber" name="L230" href="#L230">230</a> 
-<a class="jxr_linenumber" name="L231" href="#L231">231</a>             fs.add(<strong class="jxr_keyword">new</strong> <a href="../../../../oshi/software/os/OSFileStore.html">OSFileStore</a>(String.format(<span class="jxr_string">"%s (%s)"</span>, description, name), volume, name + <span class="jxr_string">"&#92;&#92;"</span>, getDriveType(name),
-<a class="jxr_linenumber" name="L232" href="#L232">232</a>                     WmiUtil.getString(drives, LogicalDiskProperty.FILESYSTEM, i), <span class="jxr_string">""</span>, free, total));
-<a class="jxr_linenumber" name="L233" href="#L233">233</a>         }
-<a class="jxr_linenumber" name="L234" href="#L234">234</a> 
-<a class="jxr_linenumber" name="L235" href="#L235">235</a>         <strong class="jxr_keyword">return</strong> fs;
-<a class="jxr_linenumber" name="L236" href="#L236">236</a>     }
-<a class="jxr_linenumber" name="L237" href="#L237">237</a> 
-<a class="jxr_linenumber" name="L238" href="#L238">238</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L239" href="#L239">239</a> <em class="jxr_javadoccomment">     * Private method for getting mounted drive type.</em>
-<a class="jxr_linenumber" name="L240" href="#L240">240</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L241" href="#L241">241</a> <em class="jxr_javadoccomment">     * @param drive</em>
-<a class="jxr_linenumber" name="L242" href="#L242">242</a> <em class="jxr_javadoccomment">     *            Mounted drive</em>
-<a class="jxr_linenumber" name="L243" href="#L243">243</a> <em class="jxr_javadoccomment">     * @return A drive type description</em>
-<a class="jxr_linenumber" name="L244" href="#L244">244</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L245" href="#L245">245</a>     <strong class="jxr_keyword">private</strong> String getDriveType(String drive) {
-<a class="jxr_linenumber" name="L246" href="#L246">246</a>         <strong class="jxr_keyword">switch</strong> (Kernel32.INSTANCE.GetDriveType(drive)) {
-<a class="jxr_linenumber" name="L247" href="#L247">247</a>         <strong class="jxr_keyword">case</strong> 2:
-<a class="jxr_linenumber" name="L248" href="#L248">248</a>             <strong class="jxr_keyword">return</strong> <span class="jxr_string">"Removable drive"</span>;
-<a class="jxr_linenumber" name="L249" href="#L249">249</a>         <strong class="jxr_keyword">case</strong> 3:
-<a class="jxr_linenumber" name="L250" href="#L250">250</a>             <strong class="jxr_keyword">return</strong> <span class="jxr_string">"Fixed drive"</span>;
-<a class="jxr_linenumber" name="L251" href="#L251">251</a>         <strong class="jxr_keyword">case</strong> 4:
-<a class="jxr_linenumber" name="L252" href="#L252">252</a>             <strong class="jxr_keyword">return</strong> <span class="jxr_string">"Network drive"</span>;
-<a class="jxr_linenumber" name="L253" href="#L253">253</a>         <strong class="jxr_keyword">case</strong> 5:
-<a class="jxr_linenumber" name="L254" href="#L254">254</a>             <strong class="jxr_keyword">return</strong> <span class="jxr_string">"CD-ROM"</span>;
-<a class="jxr_linenumber" name="L255" href="#L255">255</a>         <strong class="jxr_keyword">case</strong> 6:
-<a class="jxr_linenumber" name="L256" href="#L256">256</a>             <strong class="jxr_keyword">return</strong> <span class="jxr_string">"RAM drive"</span>;
-<a class="jxr_linenumber" name="L257" href="#L257">257</a>         <strong class="jxr_keyword">default</strong>:
-<a class="jxr_linenumber" name="L258" href="#L258">258</a>             <strong class="jxr_keyword">return</strong> <span class="jxr_string">"Unknown drive type"</span>;
-<a class="jxr_linenumber" name="L259" href="#L259">259</a>         }
-<a class="jxr_linenumber" name="L260" href="#L260">260</a>     }
-<a class="jxr_linenumber" name="L261" href="#L261">261</a> 
-<a class="jxr_linenumber" name="L262" href="#L262">262</a>     @Override
-<a class="jxr_linenumber" name="L263" href="#L263">263</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getOpenFileDescriptors() {
-<a class="jxr_linenumber" name="L264" href="#L264">264</a>         <em class="jxr_comment">// Try PDH if counter exists</em>
-<a class="jxr_linenumber" name="L265" href="#L265">265</a>         <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.handleCountCounter != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L266" href="#L266">266</a>             PerfDataUtil.updateQuery(<strong class="jxr_keyword">this</strong>.handleCountCounter);
-<a class="jxr_linenumber" name="L267" href="#L267">267</a>             <strong class="jxr_keyword">return</strong> PerfDataUtil.queryCounter(<strong class="jxr_keyword">this</strong>.handleCountCounter);
-<a class="jxr_linenumber" name="L268" href="#L268">268</a>         }
-<a class="jxr_linenumber" name="L269" href="#L269">269</a>         <em class="jxr_comment">// Use WMI instead</em>
-<a class="jxr_linenumber" name="L270" href="#L270">270</a>         WmiResult&lt;HandleCountProperty&gt; result = WmiUtil.queryWMI(<strong class="jxr_keyword">this</strong>.handleCountQuery);
-<a class="jxr_linenumber" name="L271" href="#L271">271</a>         <strong class="jxr_keyword">long</strong> descriptors = 0L;
-<a class="jxr_linenumber" name="L272" href="#L272">272</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; result.getResultCount(); i++) {
-<a class="jxr_linenumber" name="L273" href="#L273">273</a>             descriptors += WmiUtil.getUint32(result, HandleCountProperty.HANDLECOUNT, i);
-<a class="jxr_linenumber" name="L274" href="#L274">274</a>         }
-<a class="jxr_linenumber" name="L275" href="#L275">275</a>         <strong class="jxr_keyword">return</strong> descriptors;
+<a class="jxr_linenumber" name="L186" href="#L186">186</a>                 <a name="OSFileStore" href="../../../../oshi/software/os/OSFile<a name="OSFileStore" href="../../../../oshi/software/os/OSFileStore.html#OSFileStore">OSFileStore</a>OSFileStore">OSFileStore</a> osStore = <strong class="jxr_keyword">new</strong> <a name="OSFileStore" href="../../../../oshi/software/os/OSFileStore.html#OSFileStore">OSFileStore</a>();
+<a class="jxr_linenumber" name="L187" href="#L187">187</a>                 osStore.setName(String.format(<span class="jxr_string">"%s (%s)"</span>, strName, strMount));
+<a class="jxr_linenumber" name="L188" href="#L188">188</a>                 osStore.setVolume(volume);
+<a class="jxr_linenumber" name="L189" href="#L189">189</a>                 osStore.setMount(strMount);
+<a class="jxr_linenumber" name="L190" href="#L190">190</a>                 osStore.setDescription(getDriveType(strMount));
+<a class="jxr_linenumber" name="L191" href="#L191">191</a>                 osStore.setType(strFsType);
+<a class="jxr_linenumber" name="L192" href="#L192">192</a>                 osStore.setUUID(uuid);
+<a class="jxr_linenumber" name="L193" href="#L193">193</a>                 osStore.setUsableSpace(systemFreeBytes.getValue());
+<a class="jxr_linenumber" name="L194" href="#L194">194</a>                 osStore.setTotalSpace(totalBytes.getValue());
+<a class="jxr_linenumber" name="L195" href="#L195">195</a>                 fs.add(osStore);
+<a class="jxr_linenumber" name="L196" href="#L196">196</a>             }
+<a class="jxr_linenumber" name="L197" href="#L197">197</a>             retVal = Kernel32.INSTANCE.FindNextVolume(hVol, aVolume, BUFSIZE);
+<a class="jxr_linenumber" name="L198" href="#L198">198</a>             <strong class="jxr_keyword">if</strong> (!retVal) {
+<a class="jxr_linenumber" name="L199" href="#L199">199</a>                 Kernel32.INSTANCE.FindVolumeClose(hVol);
+<a class="jxr_linenumber" name="L200" href="#L200">200</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L201" href="#L201">201</a>             }
+<a class="jxr_linenumber" name="L202" href="#L202">202</a>         }
+<a class="jxr_linenumber" name="L203" href="#L203">203</a> 
+<a class="jxr_linenumber" name="L204" href="#L204">204</a>         <strong class="jxr_keyword">return</strong> fs;
+<a class="jxr_linenumber" name="L205" href="#L205">205</a>     }
+<a class="jxr_linenumber" name="L206" href="#L206">206</a> 
+<a class="jxr_linenumber" name="L207" href="#L207">207</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L208" href="#L208">208</a> <em class="jxr_javadoccomment">     * Private method for getting logical drives listed in WMI.</em>
+<a class="jxr_linenumber" name="L209" href="#L209">209</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L210" href="#L210">210</a> <em class="jxr_javadoccomment">     * @return A list of {@link OSFileStore} objects representing all network</em>
+<a class="jxr_linenumber" name="L211" href="#L211">211</a> <em class="jxr_javadoccomment">     *         mounted volumes</em>
+<a class="jxr_linenumber" name="L212" href="#L212">212</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L213" href="#L213">213</a>     <strong class="jxr_keyword">private</strong> List&lt;OSFileStore&gt; getWmiVolumes() {
+<a class="jxr_linenumber" name="L214" href="#L214">214</a>         <strong class="jxr_keyword">long</strong> free;
+<a class="jxr_linenumber" name="L215" href="#L215">215</a>         <strong class="jxr_keyword">long</strong> total;
+<a class="jxr_linenumber" name="L216" href="#L216">216</a>         List&lt;OSFileStore&gt; fs = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L217" href="#L217">217</a> 
+<a class="jxr_linenumber" name="L218" href="#L218">218</a>         WmiResult&lt;LogicalDiskProperty&gt; drives = WmiUtil.queryWMI(<strong class="jxr_keyword">this</strong>.LOGICAL_DISK_QUERY);
+<a class="jxr_linenumber" name="L219" href="#L219">219</a> 
+<a class="jxr_linenumber" name="L220" href="#L220">220</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; drives.getResultCount(); i++) {
+<a class="jxr_linenumber" name="L221" href="#L221">221</a>             free = WmiUtil.getUint64(drives, LogicalDiskProperty.FREESPACE, i);
+<a class="jxr_linenumber" name="L222" href="#L222">222</a>             total = WmiUtil.getUint64(drives, LogicalDiskProperty.SIZE, i);
+<a class="jxr_linenumber" name="L223" href="#L223">223</a>             String description = WmiUtil.getString(drives, LogicalDiskProperty.DESCRIPTION, i);
+<a class="jxr_linenumber" name="L224" href="#L224">224</a>             String name = WmiUtil.getString(drives, LogicalDiskProperty.NAME, i);
+<a class="jxr_linenumber" name="L225" href="#L225">225</a>             <strong class="jxr_keyword">int</strong> type = WmiUtil.getUint32(drives, LogicalDiskProperty.DRIVETYPE, i);
+<a class="jxr_linenumber" name="L226" href="#L226">226</a>             String volume;
+<a class="jxr_linenumber" name="L227" href="#L227">227</a>             <strong class="jxr_keyword">if</strong> (type != 4) {
+<a class="jxr_linenumber" name="L228" href="#L228">228</a>                 <strong class="jxr_keyword">char</strong>[] chrVolume = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">char</strong>[BUFSIZE];
+<a class="jxr_linenumber" name="L229" href="#L229">229</a>                 Kernel32.INSTANCE.GetVolumeNameForVolumeMountPoint(name + <span class="jxr_string">"&#92;&#92;"</span>, chrVolume, BUFSIZE);
+<a class="jxr_linenumber" name="L230" href="#L230">230</a>                 volume = <strong class="jxr_keyword">new</strong> String(chrVolume).trim();
+<a class="jxr_linenumber" name="L231" href="#L231">231</a>             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L232" href="#L232">232</a>                 volume = WmiUtil.getString(drives, LogicalDiskProperty.PROVIDERNAME, i);
+<a class="jxr_linenumber" name="L233" href="#L233">233</a>                 String[] split = volume.split(<span class="jxr_string">"&#92;&#92;&#92;&#92;"</span>);
+<a class="jxr_linenumber" name="L234" href="#L234">234</a>                 <strong class="jxr_keyword">if</strong> (split.length &gt; 1 &amp;&amp; split[split.length - 1].length() &gt; 0) {
+<a class="jxr_linenumber" name="L235" href="#L235">235</a>                     description = split[split.length - 1];
+<a class="jxr_linenumber" name="L236" href="#L236">236</a>                 }
+<a class="jxr_linenumber" name="L237" href="#L237">237</a>             }
+<a class="jxr_linenumber" name="L238" href="#L238">238</a> 
+<a class="jxr_linenumber" name="L239" href="#L239">239</a>             <a name="OSFileStore" href="../../../../oshi/software/os/OSFile<a name="OSFileStore" href="../../../../oshi/software/os/OSFileStore.html#OSFileStore">OSFileStore</a>OSFileStore">OSFileStore</a> osStore = <strong class="jxr_keyword">new</strong> <a name="OSFileStore" href="../../../../oshi/software/os/OSFileStore.html#OSFileStore">OSFileStore</a>();
+<a class="jxr_linenumber" name="L240" href="#L240">240</a>             osStore.setName(String.format(<span class="jxr_string">"%s (%s)"</span>, description, name));
+<a class="jxr_linenumber" name="L241" href="#L241">241</a>             osStore.setVolume(volume);
+<a class="jxr_linenumber" name="L242" href="#L242">242</a>             osStore.setMount(name + <span class="jxr_string">"&#92;&#92;"</span>);
+<a class="jxr_linenumber" name="L243" href="#L243">243</a>             osStore.setDescription(getDriveType(name));
+<a class="jxr_linenumber" name="L244" href="#L244">244</a>             osStore.setType(WmiUtil.getString(drives, LogicalDiskProperty.FILESYSTEM, i));
+<a class="jxr_linenumber" name="L245" href="#L245">245</a>             osStore.setUUID(<span class="jxr_string">""</span>);
+<a class="jxr_linenumber" name="L246" href="#L246">246</a>             osStore.setUsableSpace(free);
+<a class="jxr_linenumber" name="L247" href="#L247">247</a>             osStore.setTotalSpace(total);
+<a class="jxr_linenumber" name="L248" href="#L248">248</a>             fs.add(osStore);
+<a class="jxr_linenumber" name="L249" href="#L249">249</a>         }
+<a class="jxr_linenumber" name="L250" href="#L250">250</a> 
+<a class="jxr_linenumber" name="L251" href="#L251">251</a>         <strong class="jxr_keyword">return</strong> fs;
+<a class="jxr_linenumber" name="L252" href="#L252">252</a>     }
+<a class="jxr_linenumber" name="L253" href="#L253">253</a> 
+<a class="jxr_linenumber" name="L254" href="#L254">254</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L255" href="#L255">255</a> <em class="jxr_javadoccomment">     * Private method for getting mounted drive type.</em>
+<a class="jxr_linenumber" name="L256" href="#L256">256</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L257" href="#L257">257</a> <em class="jxr_javadoccomment">     * @param drive</em>
+<a class="jxr_linenumber" name="L258" href="#L258">258</a> <em class="jxr_javadoccomment">     *            Mounted drive</em>
+<a class="jxr_linenumber" name="L259" href="#L259">259</a> <em class="jxr_javadoccomment">     * @return A drive type description</em>
+<a class="jxr_linenumber" name="L260" href="#L260">260</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L261" href="#L261">261</a>     <strong class="jxr_keyword">private</strong> String getDriveType(String drive) {
+<a class="jxr_linenumber" name="L262" href="#L262">262</a>         <strong class="jxr_keyword">switch</strong> (Kernel32.INSTANCE.GetDriveType(drive)) {
+<a class="jxr_linenumber" name="L263" href="#L263">263</a>         <strong class="jxr_keyword">case</strong> 2:
+<a class="jxr_linenumber" name="L264" href="#L264">264</a>             <strong class="jxr_keyword">return</strong> <span class="jxr_string">"Removable drive"</span>;
+<a class="jxr_linenumber" name="L265" href="#L265">265</a>         <strong class="jxr_keyword">case</strong> 3:
+<a class="jxr_linenumber" name="L266" href="#L266">266</a>             <strong class="jxr_keyword">return</strong> <span class="jxr_string">"Fixed drive"</span>;
+<a class="jxr_linenumber" name="L267" href="#L267">267</a>         <strong class="jxr_keyword">case</strong> 4:
+<a class="jxr_linenumber" name="L268" href="#L268">268</a>             <strong class="jxr_keyword">return</strong> <span class="jxr_string">"Network drive"</span>;
+<a class="jxr_linenumber" name="L269" href="#L269">269</a>         <strong class="jxr_keyword">case</strong> 5:
+<a class="jxr_linenumber" name="L270" href="#L270">270</a>             <strong class="jxr_keyword">return</strong> <span class="jxr_string">"CD-ROM"</span>;
+<a class="jxr_linenumber" name="L271" href="#L271">271</a>         <strong class="jxr_keyword">case</strong> 6:
+<a class="jxr_linenumber" name="L272" href="#L272">272</a>             <strong class="jxr_keyword">return</strong> <span class="jxr_string">"RAM drive"</span>;
+<a class="jxr_linenumber" name="L273" href="#L273">273</a>         <strong class="jxr_keyword">default</strong>:
+<a class="jxr_linenumber" name="L274" href="#L274">274</a>             <strong class="jxr_keyword">return</strong> <span class="jxr_string">"Unknown drive type"</span>;
+<a class="jxr_linenumber" name="L275" href="#L275">275</a>         }
 <a class="jxr_linenumber" name="L276" href="#L276">276</a>     }
 <a class="jxr_linenumber" name="L277" href="#L277">277</a> 
 <a class="jxr_linenumber" name="L278" href="#L278">278</a>     @Override
-<a class="jxr_linenumber" name="L279" href="#L279">279</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getMaxFileDescriptors() {
-<a class="jxr_linenumber" name="L280" href="#L280">280</a>         <strong class="jxr_keyword">return</strong> MAX_WINDOWS_HANDLES;
-<a class="jxr_linenumber" name="L281" href="#L281">281</a>     }
-<a class="jxr_linenumber" name="L282" href="#L282">282</a> }
+<a class="jxr_linenumber" name="L279" href="#L279">279</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getOpenFileDescriptors() {
+<a class="jxr_linenumber" name="L280" href="#L280">280</a>         <em class="jxr_comment">// Try PDH if counter exists</em>
+<a class="jxr_linenumber" name="L281" href="#L281">281</a>         <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.handleCountCounter != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L282" href="#L282">282</a>             PerfDataUtil.updateQuery(<strong class="jxr_keyword">this</strong>.handleCountCounter);
+<a class="jxr_linenumber" name="L283" href="#L283">283</a>             <strong class="jxr_keyword">return</strong> PerfDataUtil.queryCounter(<strong class="jxr_keyword">this</strong>.handleCountCounter);
+<a class="jxr_linenumber" name="L284" href="#L284">284</a>         }
+<a class="jxr_linenumber" name="L285" href="#L285">285</a>         <em class="jxr_comment">// Use WMI instead</em>
+<a class="jxr_linenumber" name="L286" href="#L286">286</a>         WmiResult&lt;HandleCountProperty&gt; result = WmiUtil.queryWMI(<strong class="jxr_keyword">this</strong>.handleCountQuery);
+<a class="jxr_linenumber" name="L287" href="#L287">287</a>         <strong class="jxr_keyword">long</strong> descriptors = 0L;
+<a class="jxr_linenumber" name="L288" href="#L288">288</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; result.getResultCount(); i++) {
+<a class="jxr_linenumber" name="L289" href="#L289">289</a>             descriptors += WmiUtil.getUint32(result, HandleCountProperty.HANDLECOUNT, i);
+<a class="jxr_linenumber" name="L290" href="#L290">290</a>         }
+<a class="jxr_linenumber" name="L291" href="#L291">291</a>         <strong class="jxr_keyword">return</strong> descriptors;
+<a class="jxr_linenumber" name="L292" href="#L292">292</a>     }
+<a class="jxr_linenumber" name="L293" href="#L293">293</a> 
+<a class="jxr_linenumber" name="L294" href="#L294">294</a>     @Override
+<a class="jxr_linenumber" name="L295" href="#L295">295</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getMaxFileDescriptors() {
+<a class="jxr_linenumber" name="L296" href="#L296">296</a>         <strong class="jxr_keyword">return</strong> MAX_WINDOWS_HANDLES;
+<a class="jxr_linenumber" name="L297" href="#L297">297</a>     }
+<a class="jxr_linenumber" name="L298" href="#L298">298</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2018 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

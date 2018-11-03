@@ -27,6 +27,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Pointer;
+import com.sun.jna.platform.mac.SystemB;
+import com.sun.jna.platform.mac.SystemB.Statfs;
 import com.sun.jna.ptr.IntByReference;
 
 import oshi.jna.platform.mac.CoreFoundation;
@@ -36,8 +38,6 @@ import oshi.jna.platform.mac.DiskArbitration;
 import oshi.jna.platform.mac.DiskArbitration.DADiskRef;
 import oshi.jna.platform.mac.DiskArbitration.DASessionRef;
 import oshi.jna.platform.mac.IOKit;
-import oshi.jna.platform.mac.SystemB;
-import oshi.jna.platform.mac.SystemB.Statfs;
 import oshi.software.os.FileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.platform.mac.CfUtil;
@@ -166,23 +166,33 @@ import oshi.util.platform.mac.SysctlUtil;
                 }
 
                 // Add to the list
-<span class="nc" id="L169">                fsList.add(new OSFileStore(name, volume, path, description, type, uuid, file.getUsableSpace(),</span>
-<span class="nc" id="L170">                        file.getTotalSpace()));</span>
+<span class="nc" id="L169">                OSFileStore osStore = new OSFileStore();</span>
+<span class="nc" id="L170">                osStore.setName(name);</span>
+<span class="nc" id="L171">                osStore.setVolume(volume);</span>
+<span class="nc" id="L172">                osStore.setMount(path);</span>
+<span class="nc" id="L173">                osStore.setDescription(description);</span>
+<span class="nc" id="L174">                osStore.setType(type);</span>
+<span class="nc" id="L175">                osStore.setUUID(uuid);</span>
+<span class="nc" id="L176">                osStore.setUsableSpace(file.getUsableSpace());</span>
+<span class="nc" id="L177">                osStore.setTotalSpace(file.getTotalSpace());</span>
+<span class="nc" id="L178">                osStore.setFreeInodes(fs[f].f_ffree);</span>
+<span class="nc" id="L179">                osStore.setTotalInodes(fs[f].f_files);</span>
+<span class="nc" id="L180">                fsList.add(osStore);</span>
             }
         }
         // Close DA session
-<span class="nc" id="L174">        CfUtil.release(session);</span>
-<span class="nc" id="L175">        return fsList.toArray(new OSFileStore[fsList.size()]);</span>
+<span class="nc" id="L184">        CfUtil.release(session);</span>
+<span class="nc" id="L185">        return fsList.toArray(new OSFileStore[fsList.size()]);</span>
     }
 
     @Override
     public long getOpenFileDescriptors() {
-<span class="nc" id="L180">        return SysctlUtil.sysctl(&quot;kern.num_files&quot;, 0);</span>
+<span class="nc" id="L190">        return SysctlUtil.sysctl(&quot;kern.num_files&quot;, 0);</span>
     }
 
     @Override
     public long getMaxFileDescriptors() {
-<span class="nc" id="L185">        return SysctlUtil.sysctl(&quot;kern.maxfiles&quot;, 0);</span>
+<span class="nc" id="L195">        return SysctlUtil.sysctl(&quot;kern.maxfiles&quot;, 0);</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>
