@@ -25,7 +25,7 @@
 	<parent>
 		<groupId>com.github.oshi</groupId>
 		<artifactId>oshi-parent</artifactId>
-		<version>3.10.0-SNAPSHOT</version>
+		<version>3.11.0-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>oshi-core</artifactId>
@@ -39,11 +39,11 @@
 		<url>https://github.com/oshi/oshi.git</url>
 		<tag>HEAD</tag>
 	</scm>
-	
+
 	<properties>
 		<jna.version>5.0.0</jna.version>
 	</properties>
-	
+
 	<dependencies>
 		<dependency>
 			<groupId>net.java.dev.jna</groupId>

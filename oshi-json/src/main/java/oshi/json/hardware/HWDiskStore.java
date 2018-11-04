@@ -52,20 +52,23 @@ public class HWDiskStore extends AbstractOshiJsonObject implements Comparable<HW
 
     private transient JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
 
-    private oshi.hardware.HWDiskStore hwDiskStore;
+    private oshi.hardware.HWDiskStore diskStore;
 
     /**
      * Create a new HWDiskStore with default/empty values
      */
     public HWDiskStore() {
-        this.hwDiskStore = new oshi.hardware.HWDiskStore();
+        this.diskStore = new oshi.hardware.HWDiskStore();
     }
 
     /**
      * Create json diskStore from hardware diskStore
+     * 
+     * @param diskStore
+     *            The object to copy
      */
     public HWDiskStore(oshi.hardware.HWDiskStore diskStore) {
-        this.hwDiskStore = new oshi.hardware.HWDiskStore(diskStore);
+        this.diskStore = new oshi.hardware.HWDiskStore(diskStore);
     }
 
     /**
@@ -79,19 +82,19 @@ public class HWDiskStore extends AbstractOshiJsonObject implements Comparable<HW
         boolean diskFound = false;
         switch (SystemInfo.getCurrentPlatformEnum()) {
         case WINDOWS:
-            diskFound = oshi.hardware.platform.windows.WindowsDisks.updateDiskStats(this.hwDiskStore);
+            diskFound = oshi.hardware.platform.windows.WindowsDisks.updateDiskStats(this.diskStore);
             break;
         case LINUX:
-            diskFound = oshi.hardware.platform.linux.LinuxDisks.updateDiskStats(this.hwDiskStore);
+            diskFound = oshi.hardware.platform.linux.LinuxDisks.updateDiskStats(this.diskStore);
             break;
         case MACOSX:
-            diskFound = oshi.hardware.platform.mac.MacDisks.updateDiskStats(this.hwDiskStore);
+            diskFound = oshi.hardware.platform.mac.MacDisks.updateDiskStats(this.diskStore);
             break;
         case SOLARIS:
-            diskFound = oshi.hardware.platform.unix.solaris.SolarisDisks.updateDiskStats(this.hwDiskStore);
+            diskFound = oshi.hardware.platform.unix.solaris.SolarisDisks.updateDiskStats(this.diskStore);
             break;
         case FREEBSD:
-            diskFound = oshi.hardware.platform.unix.freebsd.FreeBsdDisks.updateDiskStats(this.hwDiskStore);
+            diskFound = oshi.hardware.platform.unix.freebsd.FreeBsdDisks.updateDiskStats(this.diskStore);
             break;
         default:
             LOG.error("Unsupported platform. No update performed.");
@@ -104,56 +107,56 @@ public class HWDiskStore extends AbstractOshiJsonObject implements Comparable<HW
      * @return the name
      */
     public String getName() {
-        return this.hwDiskStore.getName();
+        return this.diskStore.getName();
     }
 
     /**
      * @return the model
      */
     public String getModel() {
-        return this.hwDiskStore.getModel();
+        return this.diskStore.getModel();
     }
 
     /**
      * @return the serial
      */
     public String getSerial() {
-        return this.hwDiskStore.getSerial();
+        return this.diskStore.getSerial();
     }
 
     /**
      * @return Get size of disk (in bytes)
      */
     public long getSize() {
-        return this.hwDiskStore.getSize();
+        return this.diskStore.getSize();
     }
 
     /**
      * @return the reads
      */
     public long getReads() {
-        return this.hwDiskStore.getReads();
+        return this.diskStore.getReads();
     }
 
     /**
      * @return the bytes read
      */
     public long getReadBytes() {
-        return this.hwDiskStore.getReadBytes();
+        return this.diskStore.getReadBytes();
     }
 
     /**
      * @return the writes
      */
     public long getWrites() {
-        return this.hwDiskStore.getWrites();
+        return this.diskStore.getWrites();
     }
 
     /**
      * @return the bytes written
      */
     public long getWriteBytes() {
-        return this.hwDiskStore.getWriteBytes();
+        return this.diskStore.getWriteBytes();
     }
 
     /**
@@ -162,27 +165,27 @@ public class HWDiskStore extends AbstractOshiJsonObject implements Comparable<HW
      *         yet completed. Not supported on macOS.
      */
     public long getCurrentQueueLength() {
-        return this.hwDiskStore.getCurrentQueueLength();
+        return this.diskStore.getCurrentQueueLength();
     }
 
     /**
      * @return the milliseconds spent reading or writing
      */
     public long getTransferTime() {
-        return this.hwDiskStore.getTransferTime();
+        return this.diskStore.getTransferTime();
     }
 
     /**
      * @return the partitions of this disk
      */
     public HWPartition[] getPartitions() {
-        HWPartition[] partitions = new HWPartition[this.hwDiskStore.getPartitions().length];
+        HWPartition[] partitions = new HWPartition[this.diskStore.getPartitions().length];
         for (int i = 0; i < partitions.length; i++) {
-            partitions[i] = new HWPartition(this.hwDiskStore.getPartitions()[i].getIdentification(),
-                    this.hwDiskStore.getPartitions()[i].getName(), this.hwDiskStore.getPartitions()[i].getType(),
-                    this.hwDiskStore.getPartitions()[i].getUuid(), this.hwDiskStore.getPartitions()[i].getSize(),
-                    this.hwDiskStore.getPartitions()[i].getMajor(), this.hwDiskStore.getPartitions()[i].getMinor(),
-                    this.hwDiskStore.getPartitions()[i].getMountPoint());
+            partitions[i] = new HWPartition(this.diskStore.getPartitions()[i].getIdentification(),
+                    this.diskStore.getPartitions()[i].getName(), this.diskStore.getPartitions()[i].getType(),
+                    this.diskStore.getPartitions()[i].getUuid(), this.diskStore.getPartitions()[i].getSize(),
+                    this.diskStore.getPartitions()[i].getMajor(), this.diskStore.getPartitions()[i].getMinor(),
+                    this.diskStore.getPartitions()[i].getMountPoint());
         }
         return partitions;
     }
@@ -191,7 +194,7 @@ public class HWDiskStore extends AbstractOshiJsonObject implements Comparable<HW
      * @return Returns the timeStamp.
      */
     public long getTimeStamp() {
-        return this.hwDiskStore.getTimeStamp();
+        return this.diskStore.getTimeStamp();
     }
 
     /**
@@ -199,7 +202,7 @@ public class HWDiskStore extends AbstractOshiJsonObject implements Comparable<HW
      *            the name to set
      */
     public void setName(String name) {
-        this.hwDiskStore.setName(name);
+        this.diskStore.setName(name);
     }
 
     /**
@@ -207,7 +210,7 @@ public class HWDiskStore extends AbstractOshiJsonObject implements Comparable<HW
      *            the model to set
      */
     public void setModel(String model) {
-        this.hwDiskStore.setModel(model);
+        this.diskStore.setModel(model);
     }
 
     /**
@@ -215,7 +218,7 @@ public class HWDiskStore extends AbstractOshiJsonObject implements Comparable<HW
      *            the serial to set
      */
     public void setSerial(String serial) {
-        this.hwDiskStore.setSerial(serial);
+        this.diskStore.setSerial(serial);
     }
 
     /**
@@ -223,7 +226,7 @@ public class HWDiskStore extends AbstractOshiJsonObject implements Comparable<HW
      *            Set size of disk (in bytes)
      */
     public void setSize(long size) {
-        this.hwDiskStore.setSize(size);
+        this.diskStore.setSize(size);
     }
 
     /**
@@ -231,7 +234,7 @@ public class HWDiskStore extends AbstractOshiJsonObject implements Comparable<HW
      *            the reads to set
      */
     public void setReads(long reads) {
-        this.hwDiskStore.setReads(reads);
+        this.diskStore.setReads(reads);
     }
 
     /**
@@ -239,7 +242,7 @@ public class HWDiskStore extends AbstractOshiJsonObject implements Comparable<HW
      *            the bytes read to set
      */
     public void setReadBytes(long readBytes) {
-        this.hwDiskStore.setReadBytes(readBytes);
+        this.diskStore.setReadBytes(readBytes);
     }
 
     /**
@@ -247,7 +250,7 @@ public class HWDiskStore extends AbstractOshiJsonObject implements Comparable<HW
      *            the writes to set
      */
     public void setWrites(long writes) {
-        this.hwDiskStore.setWrites(writes);
+        this.diskStore.setWrites(writes);
     }
 
     /**
@@ -255,7 +258,7 @@ public class HWDiskStore extends AbstractOshiJsonObject implements Comparable<HW
      *            the bytes written to set
      */
     public void setWriteBytes(long writeBytes) {
-        this.hwDiskStore.setWriteBytes(writeBytes);
+        this.diskStore.setWriteBytes(writeBytes);
     }
 
     /**
@@ -263,7 +266,7 @@ public class HWDiskStore extends AbstractOshiJsonObject implements Comparable<HW
      *            the length of the disk queue (#I/O's in progress) to set
      */
     public void setCurrentQueueLength(long currentQueueLength) {
-        this.hwDiskStore.setCurrentQueueLength(currentQueueLength);
+        this.diskStore.setCurrentQueueLength(currentQueueLength);
     }
 
     /**
@@ -271,7 +274,7 @@ public class HWDiskStore extends AbstractOshiJsonObject implements Comparable<HW
      *            milliseconds spent reading or writing to set
      */
     public void setTransferTime(long transferTime) {
-        this.hwDiskStore.setTransferTime(transferTime);
+        this.diskStore.setTransferTime(transferTime);
     }
 
     /**
@@ -285,7 +288,7 @@ public class HWDiskStore extends AbstractOshiJsonObject implements Comparable<HW
                     partitions[i].getType(), partitions[i].getUuid(), partitions[i].getSize(), partitions[i].getMajor(),
                     partitions[i].getMinor(), partitions[i].getMountPoint());
         }
-        this.hwDiskStore.setPartitions(parts);
+        this.diskStore.setPartitions(parts);
     }
 
     /**
@@ -293,7 +296,7 @@ public class HWDiskStore extends AbstractOshiJsonObject implements Comparable<HW
      *            The timeStamp to set.
      */
     public void setTimeStamp(long timeStamp) {
-        this.hwDiskStore.setTimeStamp(timeStamp);
+        this.diskStore.setTimeStamp(timeStamp);
     }
 
     /**
@@ -303,34 +306,34 @@ public class HWDiskStore extends AbstractOshiJsonObject implements Comparable<HW
     public JsonObject toJSON(Properties properties) {
         JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(this.jsonFactory.createObjectBuilder());
         if (PropertiesUtil.getBoolean(properties, "hardware.disks.name")) {
-            json.add("name", this.hwDiskStore.getName());
+            json.add("name", this.diskStore.getName());
         }
         if (PropertiesUtil.getBoolean(properties, "hardware.disks.model")) {
-            json.add("model", this.hwDiskStore.getModel());
+            json.add("model", this.diskStore.getModel());
         }
         if (PropertiesUtil.getBoolean(properties, "hardware.disks.serial")) {
-            json.add("serial", this.hwDiskStore.getSerial());
+            json.add("serial", this.diskStore.getSerial());
         }
         if (PropertiesUtil.getBoolean(properties, "hardware.disks.size")) {
-            json.add("size", this.hwDiskStore.getSize());
+            json.add("size", this.diskStore.getSize());
         }
         if (PropertiesUtil.getBoolean(properties, "hardware.disks.reads")) {
-            json.add("reads", this.hwDiskStore.getReads());
+            json.add("reads", this.diskStore.getReads());
         }
         if (PropertiesUtil.getBoolean(properties, "hardware.disks.readBytes")) {
-            json.add("readBytes", this.hwDiskStore.getReadBytes());
+            json.add("readBytes", this.diskStore.getReadBytes());
         }
         if (PropertiesUtil.getBoolean(properties, "hardware.disks.writes")) {
-            json.add("writes", this.hwDiskStore.getWrites());
+            json.add("writes", this.diskStore.getWrites());
         }
         if (PropertiesUtil.getBoolean(properties, "hardware.disks.writeBytes")) {
-            json.add("writeBytes", this.hwDiskStore.getWriteBytes());
+            json.add("writeBytes", this.diskStore.getWriteBytes());
         }
         if (PropertiesUtil.getBoolean(properties, "hardware.disks.queueLength")) {
-            json.add("currentQueueLength", this.hwDiskStore.getCurrentQueueLength());
+            json.add("currentQueueLength", this.diskStore.getCurrentQueueLength());
         }
         if (PropertiesUtil.getBoolean(properties, "hardware.disks.transferTime")) {
-            json.add("transferTime", this.hwDiskStore.getTransferTime());
+            json.add("transferTime", this.diskStore.getTransferTime());
         }
         if (PropertiesUtil.getBoolean(properties, "hardware.disks.partitions")) {
             JsonArrayBuilder partitionArrayBuilder = this.jsonFactory.createArrayBuilder();
@@ -340,7 +343,7 @@ public class HWDiskStore extends AbstractOshiJsonObject implements Comparable<HW
             json.add("partitions", partitionArrayBuilder.build());
         }
         if (PropertiesUtil.getBoolean(properties, "hardware.disks.timeStamp")) {
-            json.add("timeStamp", this.hwDiskStore.getTimeStamp());
+            json.add("timeStamp", this.diskStore.getTimeStamp());
         }
         return json.build();
     }
@@ -350,7 +353,7 @@ public class HWDiskStore extends AbstractOshiJsonObject implements Comparable<HW
      */
     @Override
     public int compareTo(HWDiskStore store) {
-        return this.hwDiskStore.compareTo(store.hwDiskStore);
+        return this.diskStore.compareTo(store.diskStore);
     }
 
     /**
@@ -360,7 +363,7 @@ public class HWDiskStore extends AbstractOshiJsonObject implements Comparable<HW
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + (this.hwDiskStore == null ? 0 : this.hwDiskStore.hashCode());
+        result = prime * result + (this.diskStore == null ? 0 : this.diskStore.hashCode());
         return result;
     }
 
@@ -379,11 +382,11 @@ public class HWDiskStore extends AbstractOshiJsonObject implements Comparable<HW
             return false;
         }
         HWDiskStore other = (HWDiskStore) obj;
-        if (this.hwDiskStore == null) {
-            if (other.hwDiskStore != null) {
+        if (this.diskStore == null) {
+            if (other.diskStore != null) {
                 return false;
             }
-        } else if (!this.hwDiskStore.equals(other.hwDiskStore)) {
+        } else if (!this.diskStore.equals(other.diskStore)) {
             return false;
         }
         return true;

@@ -25,7 +25,7 @@
 	<parent>
 		<groupId>com.github.oshi</groupId>
 		<artifactId>oshi-parent</artifactId>
-		<version>3.10.0-SNAPSHOT</version>
+		<version>3.11.0-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>oshi-core-shaded</artifactId>
@@ -44,7 +44,7 @@
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-jdk14</artifactId>
-			<version>1.7.25</version>
+			<version>${slf4j.version}</version>
 			<scope>runtime</scope>
 			<optional>true</optional>
 		</dependency>
@@ -60,7 +60,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-shade-plugin</artifactId>
-				<version>3.1.1</version>
+				<version>${maven-shade-plugin.version}</version>
 				<executions>
 					<execution>
 						<phase>package</phase>
@@ -72,7 +72,6 @@
 								<includes>
 									<include>org.slf4j:slf4j-api:</include>
 									<include>org.slf4j:slf4j-jdk14:</include>
-									<include>org.threeten:threetenbp:</include>
 								</includes>
 							</artifactSet>
 							<createDependencyReducedPom>true</createDependencyReducedPom>
@@ -83,7 +82,7 @@
 			</plugin>
 			<plugin>
 				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>3.0.1</version>
+				<version>${maven-javadoc-plugin.version}</version>
 				<executions>
 					<execution>
 						<id>javadoc-jar</id>
@@ -94,9 +93,9 @@
 						<configuration>
 							<includeDependencySources>true</includeDependencySources>
 							<dependencySourceIncludes>
-				                <!-- include ONLY dependencies I control -->
-                				<dependencySourceInclude>com.github.oshi:*</dependencySourceInclude>
-              				</dependencySourceIncludes>
+								<!-- include ONLY dependencies I control -->
+								<dependencySourceInclude>com.github.oshi:*</dependencySourceInclude>
+							</dependencySourceIncludes>
 						</configuration>
 					</execution>
 				</executions>
@@ -104,11 +103,11 @@
 			<plugin>
 				<groupId>biz.aQute.bnd</groupId>
 				<artifactId>bnd-maven-plugin</artifactId>
-				<version>3.5.0</version>
+				<version>${bnd-maven-plugin.version}</version>
 				<configuration>
-				<bnd><![CDATA[
-					Export-Package: oshi.*;-noimport:=true
-					Import-Package: com.sun.management.*;optional:=true, !org.slf4j.*, *
+					<bnd><![CDATA[
+					Export-Package: oshi.*;-noimport:=true;-split-package:=merge-first
+					Import-Package: com.sun.management.*;resolution:=optional, !org.slf4j.*, *
 					Bundle-SymbolicName: ${project.groupId}.${project.artifactId}
 					-snapshot: SNAPSHOT
 				]]></bnd>
