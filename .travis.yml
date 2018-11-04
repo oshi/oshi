@@ -1,7 +1,9 @@
 language: java
 
-script: mvn test
-
+# Get most recent JDK versions on-the-fly
+before_install:
+  - wget https://github.com/sormuras/bach/raw/master/install-jdk.sh
+  
 after_success:
   - bash <(curl -s https://codecov.io/bash)
   - if [ "$AFTER_SUCCESS" == "jacoco" ]; then
@@ -26,12 +28,24 @@ addons:
   hosts:
     - oshi
   hostname: oshi
+
 matrix:
   include:  
     - os: linux
       jdk: oraclejdk8
-      env: AFTER_SUCCESS="jacoco"
+      env:
+      - JDK = "Oracle JDK 8 - Linux" 
+      - AFTER_SUCCESS="jacoco"
+    - os: linux
+      install: . ./install-jdk.sh -F 11 -L BCL
+      env: JDK = "Oracle JDK 11 - Linux" 
     - os: osx
-      osx_image: xcode10  #jdk10
+      env: JDK = "Oracle JDK 8 - Mac" 
+      osx_image: xcode9.3
     - os: osx
-      osx_image: xcode9.3 #jdk8
+      env: JDK = "OpenJDK 11 - Mac" 
+      osx_image: xcode10.1
+
+script: 
+  - java -version
+  - mvn test
