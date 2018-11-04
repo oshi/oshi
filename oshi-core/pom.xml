@@ -42,6 +42,7 @@
 
 	<properties>
 		<jna.version>5.0.0</jna.version>
+		<lombok.version>1.18.4</lombok.version>
 	</properties>
 
 	<dependencies>
@@ -58,7 +59,7 @@
 		<dependency>
     			<groupId>org.projectlombok</groupId>
     			<artifactId>lombok</artifactId>
-    			<version>1.16.18</version>
+    			<version>${lombok.version}</version>
     			<scope>provided</scope>
 		</dependency>
 
