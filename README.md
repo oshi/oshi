@@ -207,9 +207,13 @@ Many thanks to the following companies for providing free support of Open Source
 
 Projects using OSHI
 -------------------
-* [Systeminfo Binding](https://github.com/openhab/openhab2-addons/tree/master/addons/binding/org.openhab.binding.systeminfo) for [OpenHAB](http://www.openhab.org/)
-* [OfficeConnector](https://confluence.atlassian.com/doc/edit-office-files-170494553.html) for [Atlassian Confluence](https://www.atlassian.com/software/confluence)
-* [Hawkular WildFly Agent](https://github.com/hawkular/hawkular-agent) for [Hawkular](http://www.hawkular.org/)
+* [CAS Server](https://apereo.github.io/cas)
+* [JPPF](https://jppf.org/)
+* [DeepLearning4J](https://deeplearning4j.org/)
+* [PSI Probe](https://github.com/psi-probe/psi-probe)
+* [openHAB Systeminfo Binding](https://github.com/openhab/openhab2-addons/tree/master/addons/binding/org.openhab.binding.systeminfo)
+* [Hawkular WildFly Agent](https://github.com/hawkular/hawkular-agent)
+* [GeoServer](https://docs.geoserver.org/stable/en/user/community/status-monitoring/index.html)
 * [UniversalMediaServer](https://github.com/UniversalMediaServer/UniversalMediaServer)
 * [Dagr](https://github.com/fulcrumgenomics/dagr)
 * [sys-API](https://github.com/Krillsson/sys-API)
