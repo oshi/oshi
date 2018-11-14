@@ -21,8 +21,6 @@ package oshi.util;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import javax.xml.bind.DatatypeConverter;
-
 import org.junit.Test;
 
 /*
@@ -54,14 +52,7 @@ public class EdidUtilTest {
     private final static String EDID_STR2 = EDID_HEADER + EDID_MANUFID + EDID_PRODCODE + EDID_SERIAL + EDID_WKYR
             + EDID_VERSION + EDID_VIDEO + EDID_TIMING + EDID_DESC5 + EDID_DESC6 + EDID_DESC7 + EDID_DESC8 + EDID_EXTS
             + EDID_CHKSUM;
-    private final static byte[] EDID = DatatypeConverter.parseHexBinary(EDID_STR);
-
-    @Test
-    public void testToHexString() {
-        byte[] temp = { (byte) 0xab, (byte) 0xcd, (byte) 0xef };
-        assertEquals("ABCDEF", EdidUtil.toHexString(temp));
-        assertEquals(EDID_STR, EdidUtil.toHexString(EDID));
-    }
+    private final static byte[] EDID = ParseUtil.hexStringToByteArray(EDID_STR);
 
     @Test
     public void testGetEdidAttrs() {
@@ -97,7 +88,7 @@ public class EdidUtilTest {
             case 2:
                 assertEquals(0xFF, type);
                 assertEquals("C02JM2PFF2GC", EdidUtil.getDescriptorText(descs[i]));
-                assertEquals(EDID_DESC3, EdidUtil.getDescriptorHex(descs[i]));
+                assertEquals(EDID_DESC3, ParseUtil.byteArrayToHexString(descs[i]));
                 break;
             case 3:
                 assertEquals(0xFC, type);
@@ -112,7 +103,7 @@ public class EdidUtilTest {
     public void testToString() {
         String[] toString = EdidUtil.toString(EDID).split("\\n");
         assertEquals(6, toString.length);
-        toString = EdidUtil.toString(DatatypeConverter.parseHexBinary(EDID_STR2)).split("\\n");
+        toString = EdidUtil.toString(ParseUtil.hexStringToByteArray(EDID_STR2)).split("\\n");
         assertEquals(6, toString.length);
     };
 }

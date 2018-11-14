@@ -28,19 +28,20 @@ import org.slf4j.LoggerFactory;
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
+import com.sun.jna.platform.mac.SystemB;
+import com.sun.jna.platform.mac.SystemB.Group;
+import com.sun.jna.platform.mac.SystemB.Passwd;
+import com.sun.jna.platform.mac.SystemB.ProcTaskAllInfo;
+import com.sun.jna.platform.mac.SystemB.ProcTaskInfo;
+import com.sun.jna.platform.mac.SystemB.RUsageInfoV2;
+import com.sun.jna.platform.mac.SystemB.VnodePathInfo;
 import com.sun.jna.ptr.IntByReference;
 
-import oshi.jna.platform.mac.SystemB;
-import oshi.jna.platform.mac.SystemB.Group;
-import oshi.jna.platform.mac.SystemB.Passwd;
-import oshi.jna.platform.mac.SystemB.ProcTaskAllInfo;
-import oshi.jna.platform.mac.SystemB.ProcTaskInfo;
-import oshi.jna.platform.mac.SystemB.RUsageInfoV2;
-import oshi.jna.platform.mac.SystemB.VnodePathInfo;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
 import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
+import oshi.util.ExecutingCommand;
 import oshi.util.FormatUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.mac.SysctlUtil;
@@ -71,6 +72,17 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
                         : System.getProperty("os.name");
         // Set max processes
         this.maxProc = SysctlUtil.sysctl("kern.maxproc", 0x1000);
+        initBitness();
+    }
+
+    private void initBitness() {
+        if (this.bitness < 64) {
+            if (getVersion().getOsxVersionNumber() > 7) {
+                this.bitness = 64;
+            } else {
+                this.bitness = ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer("getconf LONG_BIT"), 32);
+            }
+        }
     }
 
     /**

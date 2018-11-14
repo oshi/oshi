@@ -54,6 +54,7 @@ public class OperatingSystemTest {
 
         assertTrue(os.getProcessCount() >= 1);
         assertTrue(os.getThreadCount() >= 1);
+        assertTrue(os.getBitness() == 32 || os.getBitness() == 64);
         assertTrue(os.getProcessId() > 0);
 
         assertTrue(os.getProcesses(0, null).length > 0);
@@ -76,6 +77,7 @@ public class OperatingSystemTest {
         assertTrue(proc.getKernelTime() >= 0);
         assertTrue(proc.getUserTime() >= 0);
         assertTrue(proc.getUpTime() >= 0);
+        assertTrue(proc.calculateCpuPercent() >= 0d);
         assertTrue(proc.getStartTime() >= 0);
         assertTrue(proc.getBytesRead() >= 0);
         assertTrue(proc.getBytesWritten() >= 0);
@@ -159,6 +161,7 @@ public class OperatingSystemTest {
             } else if (onePid < 0 && childMap.get(i) == 1) {
                 onePid = i;
             } else if (nPid < 0 && childMap.get(i) > 1) {
+                // nPid is probably PID=1 with all PIDs with no other parent
                 nPid = i;
                 nNum = childMap.get(i);
             } else if (mPid < 0 && childMap.get(i) > 1) {
@@ -170,16 +173,23 @@ public class OperatingSystemTest {
             }
         }
         if (zeroPid >= 0) {
-            assertEquals(os.getChildProcesses(zeroPid, 0, null).length, 0);
-        }
-        if (onePid >= 0) {
-            assertEquals(os.getChildProcesses(onePid, 0, null).length, 1);
+            assertEquals(0, os.getChildProcesses(zeroPid, 0, null).length);
         }
         // Due to race condition, a process may terminate before we count its
-        // children. nPid is probably PID=1 with all PIDs with no other parent
-        // In case one has ended we'll try a backup
-        if (nPid >= 0 && mPid >= 0) {
-            assertTrue(os.getChildProcesses(nPid, 0, null).length == nNum
+        // children.
+        if (onePid >= 0) {
+            assertTrue(0 <= os.getChildProcesses(onePid, 0, null).length);
+        }
+        if (nPid >= 0) {
+            assertTrue(0 <= os.getChildProcesses(nPid, 0, null).length);
+        }
+        if (mPid >= 0) {
+            assertTrue(0 <= os.getChildProcesses(mPid, 0, null).length);
+        }
+        // At least one of these tests should work.
+        if (onePid >= 0 && nPid >= 0 && mPid >= 0) {
+            assertTrue(os.getChildProcesses(onePid, 0, null).length == 1
+                    || os.getChildProcesses(nPid, 0, null).length == nNum
                     || os.getChildProcesses(mPid, 0, null).length == mNum);
         }
     }
@@ -237,5 +247,20 @@ public class OperatingSystemTest {
         assertEquals(oldProcess.getStartTime(), newProcess.getStartTime());
         assertEquals(oldProcess.getBytesRead(), newProcess.getBytesRead());
         assertEquals(oldProcess.getBytesWritten(), newProcess.getBytesWritten());
+    }
+
+    @Test
+    public void testGetCommandLine() {
+        int processesWithNonEmptyCmdLine = 0;
+
+        SystemInfo si = new SystemInfo();
+        OperatingSystem os = si.getOperatingSystem();
+        for (OSProcess process : os.getProcesses(0, null)) {
+            if (!process.getCommandLine().trim().isEmpty()) {
+                processesWithNonEmptyCmdLine++;
+            }
+        }
+
+        assertTrue(processesWithNonEmptyCmdLine >= 1);
     }
 }

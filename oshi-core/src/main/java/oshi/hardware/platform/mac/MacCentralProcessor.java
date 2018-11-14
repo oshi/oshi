@@ -22,14 +22,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Native; // NOSONAR
+import com.sun.jna.platform.mac.SystemB;
 import com.sun.jna.platform.mac.SystemB.HostCpuLoadInfo;
+import com.sun.jna.platform.mac.SystemB.Timeval;
+import com.sun.jna.platform.mac.SystemB.VMMeter;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
 
 import oshi.hardware.common.AbstractCentralProcessor;
-import oshi.jna.platform.mac.SystemB;
-import oshi.jna.platform.mac.SystemB.VMMeter;
-import oshi.jna.platform.unix.CLibrary.Timeval;
 import oshi.util.ExecutingCommand;
 import oshi.util.FormatUtil;
 import oshi.util.ParseUtil;
@@ -51,7 +51,7 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
     private static final long BOOTTIME;
     static {
         Timeval tv = new Timeval();
-        if (!SysctlUtil.sysctl("kern.boottime", tv) || tv.tv_sec == 0) {
+        if (!SysctlUtil.sysctl("kern.boottime", tv) || tv.tv_sec.longValue() == 0L) {
             // Usually this works. If it doesn't, fall back to text parsing.
             // Boot time will be the first consecutive string of digits.
             BOOTTIME = ParseUtil.parseLongOrDefault(
@@ -61,7 +61,7 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
             // tv now points to a 64-bit timeval structure for boot time.
             // First 4 bytes are seconds, second 4 bytes are microseconds
             // (we ignore)
-            BOOTTIME = tv.tv_sec;
+            BOOTTIME = tv.tv_sec.longValue();
         }
     }
 

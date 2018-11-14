@@ -25,9 +25,8 @@ import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
+import com.sun.jna.platform.mac.SystemB;
 import com.sun.jna.ptr.IntByReference;
-
-import oshi.jna.platform.mac.SystemB;
 
 /**
  * Provides access to sysctl calls on OS X

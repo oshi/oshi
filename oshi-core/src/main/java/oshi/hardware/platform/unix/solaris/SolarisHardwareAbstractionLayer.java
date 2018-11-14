@@ -26,6 +26,7 @@ import oshi.hardware.HWDiskStore;
 import oshi.hardware.NetworkIF;
 import oshi.hardware.PowerSource;
 import oshi.hardware.Sensors;
+import oshi.hardware.SoundCard;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
 
@@ -115,5 +116,10 @@ public class SolarisHardwareAbstractionLayer extends AbstractHardwareAbstraction
     @Override
     public UsbDevice[] getUsbDevices(boolean tree) {
         return SolarisUsbDevice.getUsbDevices(tree);
+    }
+
+    @Override
+    public SoundCard[] getSoundCards() {
+        return SolarisSoundCard.getSoundCards().toArray(new SoundCard[0]);
     }
 }

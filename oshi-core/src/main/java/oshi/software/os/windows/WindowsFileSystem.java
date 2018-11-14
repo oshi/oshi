@@ -25,10 +25,14 @@ import java.util.Map;
 
 import com.sun.jna.platform.win32.Kernel32; //NOSONAR
 import com.sun.jna.platform.win32.WinNT;
+import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
+import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.software.os.FileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.ParseUtil;
+import oshi.util.platform.windows.PerfDataUtil;
+import oshi.util.platform.windows.PerfDataUtil.PerfCounter;
 import oshi.util.platform.windows.WmiUtil;
 
 /**
@@ -47,9 +51,48 @@ public class WindowsFileSystem implements FileSystem {
 
     private static final int SEM_FAILCRITICALERRORS = 0x0001;
 
+    enum LogicalDiskProperty {
+        DESCRIPTION, DRIVETYPE, FILESYSTEM, FREESPACE, NAME, PROVIDERNAME, SIZE;
+    }
+
+    private final transient WmiQuery<LogicalDiskProperty> LOGICAL_DISK_QUERY = new WmiQuery<>("Win32_LogicalDisk",
+            LogicalDiskProperty.class);
+
+    /*
+     * For handle counts
+     */
+    enum HandleCountProperty {
+        HANDLECOUNT;
+    }
+
+    // Only one of these will be used
+    private transient PerfCounter handleCountCounter = null;
+    private transient WmiQuery<HandleCountProperty> handleCountQuery = null;
+
+    private static final long MAX_WINDOWS_HANDLES;
+    static {
+        // Determine whether 32-bit or 64-bit handle limit, although both are
+        // essentially infinite for practical purposes. See
+        // https://blogs.technet.microsoft.com/markrussinovich/2009/09/29/pushing-the-limits-of-windows-handles/
+        if (System.getenv("ProgramFiles(x86)") == null) {
+            MAX_WINDOWS_HANDLES = 16_777_216L - 32_768L;
+        } else {
+            MAX_WINDOWS_HANDLES = 16_777_216L - 65_536L;
+        }
+    }
+
     public WindowsFileSystem() {
         // Set error mode to fail rather than prompt for FLoppy/CD-Rom
         Kernel32.INSTANCE.SetErrorMode(SEM_FAILCRITICALERRORS);
+        initPdhCounters();
+    }
+
+    private void initPdhCounters() {
+        this.handleCountCounter = PerfDataUtil.createCounter("Process", "_Total", "Handle Count");
+        if (!PerfDataUtil.addCounterToQuery(this.handleCountCounter)) {
+            this.handleCountCounter = null;
+            this.handleCountQuery = new WmiQuery<>("Win32_Process", HandleCountProperty.class);
+        }
     }
 
     /**
@@ -140,8 +183,16 @@ public class WindowsFileSystem implements FileSystem {
 
             if (!strMount.isEmpty()) {
                 // Volume is mounted
-                fs.add(new OSFileStore(String.format("%s (%s)", strName, strMount), volume, strMount,
-                        getDriveType(strMount), strFsType, uuid, systemFreeBytes.getValue(), totalBytes.getValue()));
+                OSFileStore osStore = new OSFileStore();
+                osStore.setName(String.format("%s (%s)", strName, strMount));
+                osStore.setVolume(volume);
+                osStore.setMount(strMount);
+                osStore.setDescription(getDriveType(strMount));
+                osStore.setType(strFsType);
+                osStore.setUUID(uuid);
+                osStore.setUsableSpace(systemFreeBytes.getValue());
+                osStore.setTotalSpace(totalBytes.getValue());
+                fs.add(osStore);
             }
             retVal = Kernel32.INSTANCE.FindNextVolume(hVol, aVolume, BUFSIZE);
             if (!retVal) {
@@ -160,41 +211,43 @@ public class WindowsFileSystem implements FileSystem {
      *         mounted volumes
      */
     private List<OSFileStore> getWmiVolumes() {
-        Map<String, List<String>> drives;
-        List<OSFileStore> fs;
-        String volume;
         long free;
         long total;
+        List<OSFileStore> fs = new ArrayList<>();
 
-        fs = new ArrayList<>();
+        WmiResult<LogicalDiskProperty> drives = WmiUtil.queryWMI(this.LOGICAL_DISK_QUERY);
 
-        drives = WmiUtil.selectStringsFrom(null, "Win32_LogicalDisk",
-                "Name,Description,ProviderName,FileSystem,Freespace,Size", null);
-
-        for (int i = 0; i < drives.get("Name").size(); i++) {
-            free = ParseUtil.parseLongOrDefault(drives.get("Freespace").get(i), 0L);
-            total = ParseUtil.parseLongOrDefault(drives.get("Size").get(i), 0L);
-            String description = drives.get("Description").get(i);
-
-            long type = WmiUtil.selectUint32From(null, "Win32_LogicalDisk", "DriveType",
-                    "WHERE Name = '" + drives.get("Name").get(i) + "'");
+        for (int i = 0; i < drives.getResultCount(); i++) {
+            free = WmiUtil.getUint64(drives, LogicalDiskProperty.FREESPACE, i);
+            total = WmiUtil.getUint64(drives, LogicalDiskProperty.SIZE, i);
+            String description = WmiUtil.getString(drives, LogicalDiskProperty.DESCRIPTION, i);
+            String name = WmiUtil.getString(drives, LogicalDiskProperty.NAME, i);
+            int type = WmiUtil.getUint32(drives, LogicalDiskProperty.DRIVETYPE, i);
+            String volume;
             if (type != 4) {
                 char[] chrVolume = new char[BUFSIZE];
-                Kernel32.INSTANCE.GetVolumeNameForVolumeMountPoint(drives.get("Name").get(i) + "\\", chrVolume,
-                        BUFSIZE);
+                Kernel32.INSTANCE.GetVolumeNameForVolumeMountPoint(name + "\\", chrVolume, BUFSIZE);
                 volume = new String(chrVolume).trim();
             } else {
-                volume = drives.get("ProviderName").get(i);
+                volume = WmiUtil.getString(drives, LogicalDiskProperty.PROVIDERNAME, i);
                 String[] split = volume.split("\\\\");
                 if (split.length > 1 && split[split.length - 1].length() > 0) {
                     description = split[split.length - 1];
                 }
             }
 
-            fs.add(new OSFileStore(String.format("%s (%s)", description, drives.get("Name").get(i)), volume,
-                    drives.get("Name").get(i) + "\\", getDriveType(drives.get("Name").get(i)),
-                    drives.get("FileSystem").get(i), "", free, total));
+            OSFileStore osStore = new OSFileStore();
+            osStore.setName(String.format("%s (%s)", description, name));
+            osStore.setVolume(volume);
+            osStore.setMount(name + "\\");
+            osStore.setDescription(getDriveType(name));
+            osStore.setType(WmiUtil.getString(drives, LogicalDiskProperty.FILESYSTEM, i));
+            osStore.setUUID("");
+            osStore.setUsableSpace(free);
+            osStore.setTotalSpace(total);
+            fs.add(osStore);
         }
+
         return fs;
     }
 
@@ -224,11 +277,22 @@ public class WindowsFileSystem implements FileSystem {
 
     @Override
     public long getOpenFileDescriptors() {
-        return 0L;
+        // Try PDH if counter exists
+        if (this.handleCountCounter != null) {
+            PerfDataUtil.updateQuery(this.handleCountCounter);
+            return PerfDataUtil.queryCounter(this.handleCountCounter);
+        }
+        // Use WMI instead
+        WmiResult<HandleCountProperty> result = WmiUtil.queryWMI(this.handleCountQuery);
+        long descriptors = 0L;
+        for (int i = 0; i < result.getResultCount(); i++) {
+            descriptors += WmiUtil.getUint32(result, HandleCountProperty.HANDLECOUNT, i);
+        }
+        return descriptors;
     }
 
     @Override
     public long getMaxFileDescriptors() {
-        return 0L;
+        return MAX_WINDOWS_HANDLES;
     }
 }

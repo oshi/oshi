@@ -30,7 +30,7 @@ import com.sun.jna.PointerType;
  */
 public interface Udev extends Library {
 
-    Udev INSTANCE = Native.loadLibrary("udev", Udev.class);
+    Udev INSTANCE = Native.load("udev", Udev.class);
 
     final class UdevHandle extends PointerType {
 
@@ -93,7 +93,7 @@ public interface Udev extends Library {
 
     Udev.UdevListEntry udev_list_entry_get_next(Udev.UdevListEntry list_entry);
 
-    String udev_device_get_sysattr_value(final Udev.UdevDevice udev_device, final String sysattr);
+    String udev_device_get_sysattr_value(Udev.UdevDevice udev_device, String sysattr);
 
     int udev_enumerate_add_match_subsystem(Udev.UdevEnumerate udev_enumerate, String subsystem);
 

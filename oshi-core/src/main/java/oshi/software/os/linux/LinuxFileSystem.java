@@ -29,9 +29,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.sun.jna.Native;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import oshi.jna.platform.linux.Libc;
 import oshi.software.os.FileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.FileUtil;
@@ -115,7 +117,7 @@ public class LinuxFileSystem implements FileSystem {
         // Map uuids with device path as key
         Map<String, String> uuidMap = new HashMap<>();
         File uuidDir = new File("/dev/disk/by-uuid");
-        if (uuidDir != null && uuidDir.listFiles() != null) {
+        if (uuidDir.listFiles() != null) {
             for (File uuid : uuidDir.listFiles()) {
                 try {
                     // Store UUID as value with path (e.g., /dev/sda1) as key
@@ -157,8 +159,6 @@ public class LinuxFileSystem implements FileSystem {
             }
             String volume = split[0].replaceAll("\\\\040", " ");
             String uuid = MapUtil.getOrDefault(uuidMap, split[0], "");
-            long totalSpace = new File(path).getTotalSpace();
-            long usableSpace = new File(path).getUsableSpace();
 
             String description;
             if (volume.startsWith("/dev")) {
@@ -188,8 +188,41 @@ public class LinuxFileSystem implements FileSystem {
                 }
             }
 
-            OSFileStore osStore = new OSFileStore(name, volume, path, description, type, uuid, usableSpace, totalSpace);
+            long totalInodes = 0L;
+            long freeInodes = 0L;
+            long totalSpace = 0L;
+            long usableSpace = 0L;
+
+            try {
+                Libc.Statvfs vfsStat = new Libc.Statvfs();
+                if (0 == Libc.INSTANCE.statvfs(path, vfsStat)) {
+                    totalInodes = vfsStat.fsTotalInodeCount.longValue();
+                    freeInodes = vfsStat.fsFreeInodeCount.longValue();
+                    totalSpace = vfsStat.fsSizeInBlocks.longValue() * vfsStat.fsBlockSize.longValue();
+                    usableSpace = vfsStat.fsBlocksFree.longValue() * vfsStat.fsBlockSize.longValue();
+                } else {
+                    File tmpFile = new File(path);
+                    totalSpace = tmpFile.getTotalSpace();
+                    usableSpace = tmpFile.getUsableSpace();
+                    LOG.error("Failed to get statvfs. Error code: {}", Native.getLastError());
+                }
+            } catch (UnsatisfiedLinkError | NoClassDefFoundError e) {
+                LOG.error("Failed to get file counts from statvfs. {}", e);
+            }
+
+            OSFileStore osStore = new OSFileStore();
+            osStore.setName(name);
+            osStore.setVolume(volume);
+            osStore.setMount(path);
+            osStore.setDescription(description);
+            osStore.setType(type);
+            osStore.setUUID(uuid);
+            osStore.setUsableSpace(usableSpace);
+            osStore.setTotalSpace(totalSpace);
+            osStore.setFreeInodes(freeInodes);
+            osStore.setTotalInodes(totalInodes);
             osStore.setLogicalVolume(logicalVolume);
+
             fsList.add(osStore);
         }
 

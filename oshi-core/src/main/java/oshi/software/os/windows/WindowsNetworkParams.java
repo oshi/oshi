@@ -20,18 +20,20 @@ package oshi.software.os.windows;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Memory; //NOSONAR
+import com.sun.jna.platform.win32.IPHlpAPI;
+import com.sun.jna.platform.win32.IPHlpAPI.FIXED_INFO;
+import com.sun.jna.platform.win32.IPHlpAPI.IP_ADDR_STRING;
 import com.sun.jna.platform.win32.Kernel32;
-import com.sun.jna.platform.win32.WinDef;
+import com.sun.jna.platform.win32.WinError;
+import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
+import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 import com.sun.jna.ptr.IntByReference;
 
-import oshi.jna.platform.windows.IPHlpAPI;
-import oshi.jna.platform.windows.IPHlpAPI.FIXED_INFO;
 import oshi.software.common.AbstractNetworkParams;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
@@ -43,11 +45,25 @@ public class WindowsNetworkParams extends AbstractNetworkParams {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsNetworkParams.class);
 
-    private static final WmiUtil.ValueType[] GATEWAY_TYPES = { WmiUtil.ValueType.STRING, WmiUtil.ValueType.UINT16 };
     private static final String IPV4_DEFAULT_DEST = "0.0.0.0/0"; // NOSONAR
     private static final String IPV6_DEFAULT_DEST = "::/0";
 
     private static final int COMPUTER_NAME_DNS_DOMAIN_FULLY_QUALIFIED = 3;
+
+    enum NetRouteProperty {
+        NEXTHOP, ROUTEMETRIC;
+    }
+
+    private static final String NETROUTE_BASE_CLASS = "MSFT_NetRoute";
+    private static final WmiQuery<NetRouteProperty> NETROUTE_QUERY = new WmiQuery<>("ROOT\\StandardCimv2", null,
+            NetRouteProperty.class);
+
+    enum IP4RouteProperty {
+        NEXTHOP, METRIC1;
+    }
+
+    private static final String IP4ROUTE_BASE_CLASS = "Win32_IP4RouteTable";
+    private static final WmiQuery<IP4RouteProperty> IP4ROUTE_QUERY = new WmiQuery<>(null, IP4RouteProperty.class);
 
     /**
      * {@inheritDoc}
@@ -68,27 +84,23 @@ public class WindowsNetworkParams extends AbstractNetworkParams {
      */
     @Override
     public String[] getDnsServers() {
-        // this may be done by iterating WMI instances
-        // ROOT\CIMV2\Win32_NetworkAdapterConfiguration
-        // then sort by IPConnectionMetric, but current JNA release does not
-        // have string array support
-        // for Variant (it's merged but not release yet).
-        WinDef.ULONGByReference bufferSize = new WinDef.ULONGByReference();
+        IntByReference bufferSize = new IntByReference();
         int ret = IPHlpAPI.INSTANCE.GetNetworkParams(null, bufferSize);
-        if (ret != IPHlpAPI.ERROR_BUFFER_OVERFLOW) {
+        if (ret != WinError.ERROR_BUFFER_OVERFLOW) {
             LOG.error("Failed to get network parameters buffer size. Error code: {}", ret);
             return new String[0];
         }
 
-        FIXED_INFO buffer = new FIXED_INFO(new Memory(bufferSize.getValue().longValue()));
+        Memory buffer = new Memory(bufferSize.getValue());
         ret = IPHlpAPI.INSTANCE.GetNetworkParams(buffer, bufferSize);
         if (ret != 0) {
             LOG.error("Failed to get network parameters. Error code: {}", ret);
             return new String[0];
         }
+        FIXED_INFO fixedInfo = new FIXED_INFO(buffer);
 
         List<String> list = new ArrayList<>();
-        IPHlpAPI.IP_ADDR_STRING dns = buffer.DnsServerList;
+        IP_ADDR_STRING dns = fixedInfo.DnsServerList;
         while (dns != null) {
             String addr = new String(dns.IpAddress.String);
             int nullPos = addr.indexOf(0);
@@ -98,7 +110,6 @@ public class WindowsNetworkParams extends AbstractNetworkParams {
             list.add(addr);
             dns = dns.Next;
         }
-
         return list.toArray(new String[list.size()]);
     }
 
@@ -128,41 +139,43 @@ public class WindowsNetworkParams extends AbstractNetworkParams {
     }
 
     private String getNextHop(String dest) {
-        Map<String, List<Object>> vals = WmiUtil.selectObjectsFrom("ROOT\\StandardCimv2", "MSFT_NetRoute",
-                "NextHop,RouteMetric", "WHERE DestinationPrefix=\"" + dest + "\"", GATEWAY_TYPES);
-        List<Object> metrics = vals.get("RouteMetric");
-        if (vals.get("RouteMetric").isEmpty()) {
+        StringBuilder sb = new StringBuilder(NETROUTE_BASE_CLASS);
+        sb.append(" WHERE DestinationPrefix=\"").append(dest).append('\"');
+        NETROUTE_QUERY.setWmiClassName(sb.toString());
+        WmiResult<NetRouteProperty> vals = WmiUtil.queryWMI(NETROUTE_QUERY);
+        if (vals.getResultCount() < 1) {
             return "";
         }
         int index = 0;
-        Long min = Long.MAX_VALUE;
-        for (int i = 0; i < metrics.size(); i++) {
-            Long metric = (Long) metrics.get(i);
+        int min = Integer.MAX_VALUE;
+        for (int i = 0; i < vals.getResultCount(); i++) {
+            int metric = WmiUtil.getUint16(vals, NetRouteProperty.ROUTEMETRIC, i);
             if (metric < min) {
                 min = metric;
                 index = i;
             }
         }
-        return (String) vals.get("NextHop").get(index);
+        return WmiUtil.getString(vals, NetRouteProperty.NEXTHOP, index);
     }
 
     private String getNextHopWin7(String dest) {
-        Map<String, List<Object>> vals = WmiUtil.selectObjectsFrom(null, "Win32_IP4RouteTable", "NextHop,Metric1",
-                "WHERE Destination=\"" + dest + "\"", GATEWAY_TYPES);
-        List<Object> metrics = vals.get("Metric1");
-        if (vals.get("Metric1").isEmpty()) {
+        StringBuilder sb = new StringBuilder(IP4ROUTE_BASE_CLASS);
+        sb.append(" WHERE Destination=\"").append(dest).append('\"');
+        IP4ROUTE_QUERY.setWmiClassName(sb.toString());
+        WmiResult<IP4RouteProperty> vals = WmiUtil.queryWMI(IP4ROUTE_QUERY);
+        if (vals.getResultCount() < 1) {
             return "";
         }
         int index = 0;
-        Long min = Long.MAX_VALUE;
-        for (int i = 0; i < metrics.size(); i++) {
-            Long metric = (Long) metrics.get(i);
+        int min = Integer.MAX_VALUE;
+        for (int i = 0; i < vals.getResultCount(); i++) {
+            int metric = WmiUtil.getSint32(vals, IP4RouteProperty.METRIC1, i);
             if (metric < min) {
                 min = metric;
                 index = i;
             }
         }
-        return (String) vals.get("NextHop").get(index);
+        return WmiUtil.getString(vals, IP4RouteProperty.NEXTHOP, index);
     }
 
     private String parseIpv6Route() {

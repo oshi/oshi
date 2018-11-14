@@ -25,13 +25,13 @@
 	<parent>
 		<groupId>com.github.oshi</groupId>
 		<artifactId>oshi-parent</artifactId>
-		<version>3.6.0-SNAPSHOT</version>
+		<version>3.11.0-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>oshi-dist</artifactId>
 	<packaging>pom</packaging>
 
- 	<scm>
+	<scm>
 		<connection>scm:git:git@github.com:oshi/oshi.git</connection>
 		<developerConnection>scm:git:git@github.com:oshi/oshi.git</developerConnection>
 		<url>https://github.com/oshi/oshi.git</url>

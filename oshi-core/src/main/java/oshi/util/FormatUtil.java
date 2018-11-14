@@ -20,14 +20,9 @@ package oshi.util;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.RoundingMode;
 import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.threeten.bp.LocalDate;
-import org.threeten.bp.format.DateTimeFormatter;
-import org.threeten.bp.format.DateTimeParseException;
 
 /**
  * Formatting utility for appending units or converting between number types.
@@ -35,8 +30,6 @@ import org.threeten.bp.format.DateTimeParseException;
  * @author dblock[at]dblock[dot]org
  */
 public class FormatUtil {
-    private static final Logger LOG = LoggerFactory.getLogger(FormatUtil.class);
-
     /**
      * Binary prefixes, used in IEC Standard for naming bytes.
      * (http://en.wikipedia.org/wiki/International_Electrotechnical_Commission)
@@ -60,8 +53,6 @@ public class FormatUtil {
     private static final long TERA = 1000000000000L;
     private static final long PETA = 1000000000000000L;
     private static final long EXA = 1000000000000000000L;
-
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("MM/dd/yyyy");
 
     /*
      * Two's complement reference: 2^64.
@@ -208,7 +199,7 @@ public class FormatUtil {
      * @return rounded result
      */
     public static float round(float d, int decimalPlace) {
-        final BigDecimal bd = new BigDecimal(Float.toString(d)).setScale(decimalPlace, BigDecimal.ROUND_HALF_UP);
+        final BigDecimal bd = new BigDecimal(Float.toString(d)).setScale(decimalPlace, RoundingMode.HALF_UP);
         return bd.floatValue();
     }
 
@@ -221,33 +212,6 @@ public class FormatUtil {
      */
     public static long getUnsignedInt(int x) {
         return x & 0x00000000ffffffffL;
-    }
-
-    /**
-     * Convert a java date to a MM-dd-yyyy string representation
-     *
-     * @param date
-     *            the date to convert
-     * @return a string in the form MM/dd/yyyy
-     */
-    public static String formatDate(LocalDate date) {
-        return date == null ? "null" : date.format(DATE_FORMATTER);
-    }
-
-    /**
-     * Convert a MM-dd-yyyy string representation to a java LocalDate
-     *
-     * @param date
-     *            a string in the form MM/dd/yyyy
-     * @return the corresponding LocalDate
-     */
-    public static LocalDate formatStringDate(String date) {
-        try {
-            return date == null ? null : LocalDate.parse(date, DATE_FORMATTER);
-        } catch (DateTimeParseException dtpe) {
-            LOG.warn("Date parse error: {}", dtpe);
-            return null;
-        }
     }
 
     /**

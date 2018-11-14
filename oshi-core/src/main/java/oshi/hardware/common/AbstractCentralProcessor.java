@@ -136,17 +136,10 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
      * Initializes tick arrays
      */
     protected synchronized void initTicks() {
-        // Per-processor ticks
         this.prevProcTicks = new long[this.logicalProcessorCount][TickType.values().length];
         this.curProcTicks = new long[this.logicalProcessorCount][TickType.values().length];
-        updateProcessorTicks();
-
-        // Solaris relies on procTicks init before system ticks
-        // System ticks
         this.prevTicks = new long[TickType.values().length];
         this.curTicks = new long[TickType.values().length];
-        updateSystemTicks();
-
     }
 
     /**
@@ -497,20 +490,19 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
         // through branch prediction if it doesn't
         for (long[] tick : ticks) {
             for (long element : tick) {
-                if (element == 0L) {
-                    continue;
+                if (element != 0L) {
+                    // We have a nonzero tick array, update and return!
+                    this.procTickTime = System.currentTimeMillis();
+                    // Copy to previous
+                    for (int cpu = 0; cpu < this.logicalProcessorCount; cpu++) {
+                        System.arraycopy(this.curProcTicks[cpu], 0, this.prevProcTicks[cpu], 0,
+                                this.curProcTicks[cpu].length);
+                    }
+                    for (int cpu = 0; cpu < this.logicalProcessorCount; cpu++) {
+                        System.arraycopy(ticks[cpu], 0, this.curProcTicks[cpu], 0, ticks[cpu].length);
+                    }
+                    return;
                 }
-                // We have a nonzero tick array, update and return!
-                this.procTickTime = System.currentTimeMillis();
-                // Copy to previous
-                for (int cpu = 0; cpu < this.logicalProcessorCount; cpu++) {
-                    System.arraycopy(this.curProcTicks[cpu], 0, this.prevProcTicks[cpu], 0,
-                            this.curProcTicks[cpu].length);
-                }
-                for (int cpu = 0; cpu < this.logicalProcessorCount; cpu++) {
-                    System.arraycopy(ticks[cpu], 0, this.curProcTicks[cpu], 0, ticks[cpu].length);
-                }
-                return;
             }
         }
     }

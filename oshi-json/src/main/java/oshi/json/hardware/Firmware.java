@@ -18,8 +18,6 @@
  */
 package oshi.json.hardware;
 
-import org.threeten.bp.LocalDate;
-
 import oshi.json.json.OshiJsonObject;
 
 /**
@@ -29,13 +27,38 @@ import oshi.json.json.OshiJsonObject;
  */
 public interface Firmware extends OshiJsonObject {
 
+    /**
+     * Get the firmware manufacturer.
+     * 
+     * @return the manufacturer
+     */
     String getManufacturer();
 
+    /**
+     * Get the firmware name.
+     * 
+     * @return the name
+     */
     String getName();
 
+    /**
+     * Get the firmware description.
+     * 
+     * @return the description
+     */
     String getDescription();
 
+    /**
+     * Get the firmware version.
+     * 
+     * @return the version
+     */
     String getVersion();
 
-    LocalDate getReleaseDate();
+    /**
+     * Get the firmware release date.
+     * 
+     * @return The date in ISO 8601 YYYY-MM-DD format.
+     */
+    String getReleaseDate();
 }

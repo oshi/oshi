@@ -22,8 +22,6 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -34,6 +32,7 @@ import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 
+import oshi.hardware.CentralProcessor.TickType;
 import oshi.jna.platform.linux.Libc;
 import oshi.jna.platform.linux.Libc.Sysinfo;
 import oshi.software.common.AbstractOperatingSystem;
@@ -69,16 +68,46 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     // To get the actual size in bytes we need to multiply that with page size.
     private final int memoryPageSize;
 
-    // Jiffies per second, used for process time counters.
-    private static long hz = 1000L;
-    // Boot time in MS
-    private static long bootTime = 0L;
+    // Order the field is in /proc/pid/stat
+    enum ProcPidStat {
+        // The parsing implementation in ParseUtil requires these to be declared
+        // in increasing order
+        PPID(4), USER_TIME(14), KERNEL_TIME(15), PRIORITY(18), THREAD_COUNT(20), START_TIME(22), VSZ(23), RSS(24);
+
+        private int order;
+
+        public int getOrder() {
+            return this.order;
+        }
+
+        ProcPidStat(int order) {
+            this.order = order;
+        }
+    }
+
+    // Get a list of orders to pass to ParseUtil
+    private static final int[] PROC_PID_STAT_ORDERS = new int[ProcPidStat.values().length];
+    static {
+        for (ProcPidStat stat : ProcPidStat.values()) {
+            // The PROC_PID_STAT enum indices are 1-indexed.
+            // Subtract one to get a zero-based index
+            PROC_PID_STAT_ORDERS[stat.ordinal()] = stat.getOrder() - 1;
+        }
+    }
+
+    // 2.6 Kernel has 44 elements, 3.3 has 47, and 3.5 has 52.
+    // Since we parse a proc/pid value as part of jiffy calculation, we can
+    // count the length there to set this value
+    private static int procPidStatLength = 52;
 
     private transient LinuxUserGroupInfo userGroupInfo = new LinuxUserGroupInfo();
 
-    static {
-        init();
-    }
+    // Jiffies per second, used for process time counters.
+    private static final long USER_HZ = calcHz();
+    // Boot time in MS. Cast/truncation is effectively rounding. Boot time could
+    // be +/- 5 ms due to System Uptime rounding to nearest 10ms.
+    private static final long BOOT_TIME = System.currentTimeMillis()
+            - 10L * (long) (100 * ProcUtil.getSystemUptimeSeconds() + 0.5);
 
     public LinuxOperatingSystem() {
         this.manufacturer = "GNU/Linux";
@@ -87,90 +116,13 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         // to pass to version constructor
         this.version = new LinuxOSVersionInfoEx(this.versionId, this.codeName);
         this.memoryPageSize = getMemoryPageSize();
-        init();
+        initBitness();
     }
 
-    /**
-     * Correlate the youngest process start time in seconds with start time in
-     * jiffies
-     */
-    private static void init() {
-        // To correlate a process start time in seconds with the same process
-        // start time in jiffies. We prefer the youngest (or close to it) which
-        // minimizes its up time (etime)
-        // Timeline:
-        // BOOT|<----jiffies---->|<----etime---->|NOW
-        // BOOT|<------------uptime------------->|NOW
-
-        // To avoid having to check all processes we can just pick the highest
-        // PID. This will either be the youngest one or at least big enough.
-
-        // Get all the pid files (guaranteed to be digit-only filenames)
-        File[] pids = ProcUtil.getPidFiles();
-        // Sort descending "numerically"
-        Arrays.sort(pids, new Comparator<File>() {
-            @Override
-            public int compare(File f1, File f2) {
-                return Integer.valueOf(f2.getName()).compareTo(Integer.valueOf(f1.getName()));
-            }
-        });
-
-        // Iterate /proc/[pid]/stat checking the creation time (field 22,
-        // jiffies since boot). Since we're working on descending PIDs, we
-        // expect the first (higher PIDs) to be younger, but may have processes
-        // that ended since we collected the files. The first time we get a
-        // value we'll save it as the youngest and quit.
-        long youngestJiffies = 0L;
-        String youngestPid = "";
-        for (File pid : pids) {
-            List<String> stat = FileUtil.readFile(String.format("/proc/%s/stat", pid.getName()), false);
-            if (!stat.isEmpty()) {
-                String[] split = ParseUtil.whitespaces.split(stat.get(0));
-                if (split.length >= 22) {
-                    youngestJiffies = ParseUtil.parseLongOrDefault(split[21], 0L);
-                    youngestPid = pid.getName();
-                    break;
-                }
-            }
+    private void initBitness() {
+        if (this.bitness < 64 && ExecutingCommand.getFirstAnswer("uname -m").indexOf("64") != -1) {
+            this.bitness = 64;
         }
-        LOG.debug("Youngest PID is {} with {} jiffies", youngestPid, youngestJiffies);
-        // Shouldn't happen but avoiding Division by zero
-        if (youngestJiffies == 0) {
-            LOG.error("Couldn't find any running processes, which is odd since we are in a running process. "
-                    + "Process time values are in jiffies, not milliseconds.");
-            return;
-        }
-
-        float startTimeSecsSinceBoot = ProcUtil.getSystemUptimeFromProc();
-        bootTime = System.currentTimeMillis() - (long) (1000 * startTimeSecsSinceBoot);
-
-        // This takes advantage of the fact that ps does all the heavy lifting
-        // of sorting out HZ internally.
-        String etime = ExecutingCommand.getFirstAnswer(String.format("ps -p %s -o etimes=", youngestPid));
-        // Since we picked the youngest process, it's safe to assume an
-        // etime close to 0 in case this command fails; the longer the system
-        // has been up, the less impact this assumption will have
-        if (!etime.isEmpty()) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Etime is {} seconds", etime.trim());
-            }
-            startTimeSecsSinceBoot -= Float.parseFloat(etime.trim());
-        }
-        // By subtracting etime (secs) from uptime (secs) we get uptime (in
-        // secs) when the process was started. This correlates with startTime in
-        // jiffies for this process
-        LOG.debug("Start time in secs: {}", startTimeSecsSinceBoot);
-        if (startTimeSecsSinceBoot <= 0) {
-            LOG.warn("Couldn't calculate jiffies per second. "
-                    + "Process time values are in jiffies, not milliseconds.");
-            return;
-        }
-
-        // divide jiffies (since boot) by seconds (since boot)
-        hz = (long) (youngestJiffies / startTimeSecsSinceBoot + 0.5f);
-        // reset to default if value is invalid
-        if (hz == 0)
-            hz = 1000L;
     }
 
     private static int getMemoryPageSize() {
@@ -215,10 +167,6 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
      */
     @Override
     public OSProcess getProcess(int pid) {
-        String[] split = FileUtil.getSplitFromFile(String.format("/proc/%d/stat", pid));
-        if (split.length < 24) {
-            return null;
-        }
         String path = "";
         Pointer buf = new Memory(1024);
         int size = Libc.INSTANCE.readlink(String.format("/proc/%d/exe", pid), buf, 1023);
@@ -226,18 +174,44 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
             path = buf.getString(0).substring(0, size);
         }
         Map<String, String> io = FileUtil.getKeyValueMapFromFile(String.format("/proc/%d/io", pid), ":");
-        long now = System.currentTimeMillis();
-        OSProcess proc = new OSProcess();
         // See man proc for how to parse /proc/[pid]/stat
-        int nameOffset = 0;
-        StringBuilder name = new StringBuilder(split[1].replaceFirst("\\(", ""));
-        while (!split[1 + nameOffset].endsWith(")")) {
-            nameOffset++;
-            name.append(' ').append(split[1 + nameOffset]);
+        long now = System.currentTimeMillis();
+        String stat = FileUtil.getStringFromFile(String.format("/proc/%d/stat", pid));
+        // A race condition may leave us with an empty string
+        if (stat.isEmpty()) {
+            return null;
         }
-        proc.setName(name.substring(0, name.length() - 1));
+        OSProcess proc = new OSProcess();
+        // We can get name and status more easily from /proc/pid/status which we
+        // call later, so just get the numeric bits here
+        proc.setProcessID(pid);
+        long[] statArray = ParseUtil.parseStringToLongArray(stat, PROC_PID_STAT_ORDERS, procPidStatLength, ' ');
+        proc.setParentProcessID((int) statArray[ProcPidStat.PPID.ordinal()]);
+        proc.setThreadCount((int) statArray[ProcPidStat.THREAD_COUNT.ordinal()]);
+        proc.setPriority((int) statArray[ProcPidStat.PRIORITY.ordinal()]);
+        proc.setVirtualSize(statArray[ProcPidStat.VSZ.ordinal()]);
+        proc.setResidentSetSize(statArray[ProcPidStat.RSS.ordinal()] * this.memoryPageSize);
+        proc.setKernelTime(statArray[ProcPidStat.KERNEL_TIME.ordinal()] * 1000L / USER_HZ);
+        proc.setUserTime(statArray[ProcPidStat.USER_TIME.ordinal()] * 1000L / USER_HZ);
+        proc.setStartTime(BOOT_TIME + statArray[ProcPidStat.START_TIME.ordinal()] * 1000L / USER_HZ);
+        // BOOT_TIME could be up to 5ms off. In rare cases when a process has
+        // started within 5ms of boot it is possible to get negative uptime.
+        if (proc.getStartTime() >= now) {
+            proc.setStartTime(now - 1);
+        }
+        proc.setUpTime(now - proc.getStartTime());
+        // See man proc for how to parse /proc/[pid]/io
+        proc.setBytesRead(ParseUtil.parseLongOrDefault(MapUtil.getOrDefault(io, "read_bytes", ""), 0L));
+        proc.setBytesWritten(ParseUtil.parseLongOrDefault(MapUtil.getOrDefault(io, "write_bytes", ""), 0L));
+
+        // gets the open files count
+        List<String> openFilesList = ExecutingCommand.runNative(String.format("ls -f /proc/%d/fd", pid));
+        proc.setOpenFiles(openFilesList.size() - 1L);
+
+        Map<String, String> status = FileUtil.getKeyValueMapFromFile(String.format("/proc/%d/status", pid), ":");
+        proc.setName(MapUtil.getOrDefault(status, "Name", ""));
         proc.setPath(path);
-        switch (split[2 + nameOffset].charAt(0)) {
+        switch (MapUtil.getOrDefault(status, "State", "U").charAt(0)) {
         case 'R':
             proc.setState(OSProcess.State.RUNNING);
             break;
@@ -257,32 +231,13 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
             proc.setState(OSProcess.State.OTHER);
             break;
         }
-        proc.setProcessID(pid);
-        proc.setParentProcessID(ParseUtil.parseIntOrDefault(split[3 + nameOffset], 0));
-        proc.setThreadCount(ParseUtil.parseIntOrDefault(split[19 + nameOffset], 0));
-        proc.setPriority(ParseUtil.parseIntOrDefault(split[17 + nameOffset], 0));
-        proc.setVirtualSize(ParseUtil.parseLongOrDefault(split[22 + nameOffset], 0L));
-        proc.setResidentSetSize(ParseUtil.parseLongOrDefault(split[23 + nameOffset], 0L) * this.memoryPageSize);
-        proc.setKernelTime(ParseUtil.parseLongOrDefault(split[14 + nameOffset], 0L) * 1000L / hz);
-        proc.setUserTime(ParseUtil.parseLongOrDefault(split[13 + nameOffset], 0L) * 1000L / hz);
-        proc.setStartTime(bootTime + ParseUtil.parseLongOrDefault(split[21 + nameOffset], 0L) * 1000L / hz);
-        proc.setUpTime(now - proc.getStartTime());
-        // See man proc for how to parse /proc/[pid]/io
-        proc.setBytesRead(ParseUtil.parseLongOrDefault(MapUtil.getOrDefault(io, "read_bytes", ""), 0L));
-        proc.setBytesWritten(ParseUtil.parseLongOrDefault(MapUtil.getOrDefault(io, "write_bytes", ""), 0L));
-
-        // gets the open files count
-        List<String> openFilesList = ExecutingCommand.runNative(String.format("ls -f /proc/%d/fd", pid));
-        proc.setOpenFiles(openFilesList.size() - 1L);
-
-        Map<String, String> status = FileUtil.getKeyValueMapFromFile(String.format("/proc/%d/status", pid), ":");
         proc.setUserID(ParseUtil.whitespaces.split(MapUtil.getOrDefault(status, "Uid", ""))[0]);
         proc.setGroupID(ParseUtil.whitespaces.split(MapUtil.getOrDefault(status, "Gid", ""))[0]);
-        OSUser user = userGroupInfo.getUser(proc.getUserID());
+        OSUser user = this.userGroupInfo.getUser(proc.getUserID());
         if (user != null) {
             proc.setUser(user.getUserName());
         }
-        proc.setGroup(userGroupInfo.getGroupName(proc.getGroupID()));
+        proc.setGroup(this.userGroupInfo.getGroupName(proc.getGroupID()));
 
         // THe /proc/pid/cmdline value is null-delimited
         proc.setCommandLine(FileUtil.getStringFromFile(String.format("/proc/%d/cmdline", pid)));
@@ -321,11 +276,9 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     }
 
     private static int getParentPidFromProcFile(int pid) {
-        String[] split = FileUtil.getSplitFromFile(String.format("/proc/%d/stat", pid));
-        if (split.length < 24) {
-            return 0;
-        }
-        return ParseUtil.parseIntOrDefault(split[3], 0);
+        String stat = FileUtil.getStringFromFile(String.format("/proc/%d/stat", pid));
+        long[] statArray = ParseUtil.parseStringToLongArray(stat, PROC_PID_STAT_ORDERS, procPidStatLength, ' ');
+        return (int) statArray[ProcPidStat.PPID.ordinal()];
     }
 
     /**
@@ -680,13 +633,49 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     }
 
     /**
-     * gets the calculated Jiffies per second, useful for converting ticks to
-     * milliseconds and vice versa
-     * 
-     * @return Jiffies per second
+     * Gets Jiffies per second, useful for converting ticks to milliseconds and
+     * vice versa.
+     *
+     * @return Jiffies per second if it can be calculated. If not, returns 1000
+     *         which assumes jiffies equal milliseconds.
      */
     public static long getHz() {
-        return hz;
+        return USER_HZ;
+    }
+
+    /**
+     * Calculates Jiffies per second, useful for converting ticks to
+     * milliseconds and vice versa.
+     *
+     * @return Jiffies per second if it can be calculated. If not, returns 1000
+     *         which assumes jiffies equal milliseconds.
+     */
+    private static long calcHz() {
+        // Grab idle time before fetching ticks
+        double idleSecsSinceBoot = ProcUtil.getSystemIdletimeSeconds();
+        long[] ticks = ProcUtil.getSystemCpuLoadTicks();
+        // Grab idle time again. We would normally divide by 2 here to get an
+        // average, but will use the doubled value in the calculation later for
+        // rounding to a multiple of 2
+        idleSecsSinceBoot += ProcUtil.getSystemIdletimeSeconds();
+
+        // Calculations convert ticks per second to milliseconds by multiplying
+        // by 1000/Hz. If we failed to fetch the idle time or idle ticks, by
+        // returning 1000 here we simply remove the conversion factor.
+        if (idleSecsSinceBoot <= 0d || ticks[TickType.IDLE.getIndex()] <= 0L) {
+            LOG.warn("Couldn't calculate jiffies per second. "
+                    + "Process time values are in jiffies, not milliseconds.");
+            return 1000L;
+        }
+
+        // Divide ticks in the idle process by seconds in the idle process. Per
+        // http://man7.org/linux/man-pages/man5/proc.5.html this is the USER_HZ
+        // value. Note we added the seconds calculations before/after fetching
+        // proc/stat so the initial division (by 2x seconds) will result in half
+        // of the eventual hz value. We round to the nearest integer by adding
+        // 0.5 and casting to long. Then we multiply by 2, so the final Hz value
+        // returned is rounded to the nearest even number.
+        return 2L * (long) (ticks[TickType.IDLE.getIndex()] / idleSecsSinceBoot + 0.5d);
     }
 
 }

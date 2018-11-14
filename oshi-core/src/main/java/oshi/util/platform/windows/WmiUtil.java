@@ -18,64 +18,74 @@
  */
 package oshi.util.platform.windows;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.TimeoutException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.NativeLong; // NOSONAR
-import com.sun.jna.Pointer;
-import com.sun.jna.platform.win32.OleAuto;
-import com.sun.jna.platform.win32.Variant.VARIANT;
-import com.sun.jna.platform.win32.WTypes.BSTR;
+import com.sun.jna.platform.win32.Ole32;
+import com.sun.jna.platform.win32.Variant;
 import com.sun.jna.platform.win32.WinError;
 import com.sun.jna.platform.win32.WinNT.HRESULT;
+import com.sun.jna.platform.win32.COM.COMException;
 import com.sun.jna.platform.win32.COM.COMUtils;
-import com.sun.jna.ptr.LongByReference;
-import com.sun.jna.ptr.PointerByReference;
+import com.sun.jna.platform.win32.COM.Wbemcli;
+import com.sun.jna.platform.win32.COM.WbemcliUtil;
+import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
+import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
-import oshi.jna.platform.windows.Ole32;
-import oshi.jna.platform.windows.COM.EnumWbemClassObject;
-import oshi.jna.platform.windows.COM.WbemClassObject;
-import oshi.jna.platform.windows.COM.WbemLocator;
-import oshi.jna.platform.windows.COM.WbemServices;
-import oshi.util.FormatUtil;
 import oshi.util.ParseUtil;
-import oshi.util.StringUtil;
 
 /**
- * Provides access to WMI queries
+ * Helper class for WMI
  *
  * @author widdis[at]gmail[dot]com
  */
 public class WmiUtil {
+    /**
+     * Instance to generate the WmiConnection class.
+     */
+    public static final WmiUtil INSTANCE = new WmiUtil();
+
     private static final Logger LOG = LoggerFactory.getLogger(WmiUtil.class);
 
-    public static final String DEFAULT_NAMESPACE = "ROOT\\CIMV2";
+    // Global timeout for WMI queries
+    private static int wmiTimeout = Wbemcli.WBEM_INFINITE;
 
+    // Cache namespaces
+    private static Set<String> hasNamespaceCache = new HashSet<>();
+    private static Set<String> hasNotNamespaceCache = new HashSet<>();
+
+    // Cache failed wmi classes
+    private static Set<String> failedWmiClassNames = new HashSet<>();
+    // Not a built in manespace, failed connections are normal and don't need
+    // error logging
+    public static final String OHM_NAMESPACE = "ROOT\\OpenHardwareMonitor";
+
+    private static final String CLASS_CAST_MSG = "%s is not a %s type. CIM Type is %d and VT type is %d";
+
+    // Track initialization of COM and Security
     private static boolean comInitialized = false;
     private static boolean securityInitialized = false;
 
     /**
-     * Enum for WMI queries for proper parsing from the returned VARIANT
+     * Private constructor so this class can't be instantiated from the outside.
+     * Also initializes COM and sets up hooks to uninit if necessary.
      */
-    public enum ValueType {
-        // Properties
-        STRING, UINT32, FLOAT, DATETIME, BOOLEAN, UINT64, UINT16,
-        // Methods (use "__PATH" for property)
-        PROCESS_GETOWNER, PROCESS_GETOWNERSID
-    }
+    private WmiUtil() {
+        // Initialize COM
+        initCOM();
 
-    /**
-     * For WMI queries requiring array input
-     */
-    private static final ValueType[] STRING_TYPE = { ValueType.STRING };
-    private static final ValueType[] UINT32_TYPE = { ValueType.UINT32 };
-    private static final ValueType[] FLOAT_TYPE = { ValueType.FLOAT };
+        // Set up hook to uninit on shutdown
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                unInitCOM();
+            }
+        });
+    }
 
     /**
      * Determine if WMI has the requested namespace. Some namespaces only exist
@@ -86,529 +96,352 @@ public class WmiUtil {
      * @return true if the namespace exists, false otherwise
      */
     public static boolean hasNamespace(String namespace) {
-        Map<String, List<String>> nsMap = WmiUtil.selectStringsFrom("ROOT", "__NAMESPACE", "Name", null);
-        for (String s : nsMap.get("Name")) {
-            if (s.equals(namespace)) {
-                return true;
-            }
+        if (hasNamespaceCache.contains(namespace)) {
+            return true;
+        } else if (hasNotNamespaceCache.contains(namespace)) {
+            return false;
         }
+        if (WbemcliUtil.hasNamespace(namespace)) {
+            hasNamespaceCache.add(namespace);
+            return true;
+        }
+        hasNotNamespaceCache.add(namespace);
         return false;
     }
 
     /**
-     * Get a single Unsigned Integer value from WMI (as Long)
+     * Query WMI for values, with no timeout.
      *
-     * @param namespace
-     *            The namespace or null to use the default
-     * @param wmiClass
-     *            The class to query
+     * @param <T>
+     *            The properties enum
+     * @param query
+     *            A WmiQuery object encapsulating the namespace, class, and
+     *            properties
+     * @return a WmiResult object containing the query results, wrapping an
+     *         EnumMap
+     */
+    public static <T extends Enum<T>> WmiResult<T> queryWMI(WmiQuery<T> query) {
+
+        WmiResult<T> result = WbemcliUtil.INSTANCE.new WmiResult<>(query.getPropertyEnum());
+        if (failedWmiClassNames.contains(query.getWmiClassName())) {
+            return result;
+        }
+        try {
+            // Initialize COM if not already done. Needed if COM was previously
+            // initialized externally but is no longer initialized.
+            if (!isComInitialized()) {
+                initCOM();
+            }
+
+            result = query.execute(wmiTimeout);
+        } catch (COMException e) {
+            // Ignore any exceptions with OpenHardwareMonitor
+            if (!OHM_NAMESPACE.equals(query.getNameSpace())) {
+                switch (e.getHresult().intValue()) {
+                case Wbemcli.WBEM_E_INVALID_NAMESPACE:
+                    LOG.warn("COM exception: Invalid Namespace {}", query.getNameSpace());
+                    break;
+                case Wbemcli.WBEM_E_INVALID_CLASS:
+                    LOG.warn("COM exception: Invalid Class {}", query.getWmiClassName());
+                    break;
+                case Wbemcli.WBEM_E_INVALID_QUERY:
+                    LOG.warn("COM exception: Invalid Query: {}", queryToString(query));
+                    break;
+                default:
+                    LOG.warn(
+                            "COM exception querying {}, which might not be on your system. Will not attempt to query it again. Error was: {}:",
+                            query.getWmiClassName(), e.getMessage());
+                }
+                failedWmiClassNames.add(query.getWmiClassName());
+            }
+        } catch (TimeoutException e) {
+            LOG.error("WMI query timed out after {} ms: {}", wmiTimeout, queryToString(query));
+        }
+        return result;
+    }
+
+    /**
+     * Translate a WmiQuery to the actual query string
+     * 
+     * @param <T>
+     *            The properties enum
+     * @param query
+     *            The WmiQuery object
+     * @return The string that is queried in WMI
+     */
+    public static <T extends Enum<T>> String queryToString(WmiQuery<T> query) {
+        T[] props = query.getPropertyEnum().getEnumConstants();
+        StringBuilder sb = new StringBuilder("SELECT ");
+        sb.append(props[0].name());
+        for (int i = 1; i < props.length; i++) {
+            sb.append(',').append(props[i].name());
+        }
+        sb.append(" FROM ").append(query.getWmiClassName());
+        return sb.toString();
+    }
+
+    /**
+     * Gets a String value from a WmiResult
+     *
+     * @param <T>
+     *            The enum type containing the property keys
+     * @param result
+     *            The WmiResult from which to fetch the value
      * @param property
-     *            The property whose value to return
-     * @param whereClause
-     *            A WQL where clause matching properties and keywords
-     * @return A Long containing the value of the requested property
+     *            The property (column) to fetch
+     * @param index
+     *            The index (row) to fetch
+     * @return The stored value if non-null, an empty-string otherwise
      */
-    public static Long selectUint32From(String namespace, String wmiClass, String property, String whereClause) {
-        Map<String, List<Object>> result = queryWMI(namespace == null ? DEFAULT_NAMESPACE : namespace, property,
-                wmiClass, whereClause, UINT32_TYPE);
-        if (result.containsKey(property) && !result.get(property).isEmpty()) {
-            return (Long) result.get(property).get(0);
+    public static <T extends Enum<T>> String getString(WmiResult<T> result, T property, int index) {
+        if (result.getCIMType(property) == Wbemcli.CIM_STRING) {
+            return getStr(result, property, index);
         }
-        return 0L;
+        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), "String",
+                result.getCIMType(property), result.getVtType(property)));
     }
 
     /**
-     * Get multiple Unsigned Integer values from WMI (as Longs)
+     * Gets a Date value from a WmiResult as a String
      *
-     * @param namespace
-     *            The namespace or null to use the default
-     * @param wmiClass
-     *            The class to query
-     * @param properties
-     *            A comma delimited list of properties whose value to return
-     * @param whereClause
-     *            A WQL where clause matching properties and keywords
-     * @return A map, with each property as the key, containing Longs with the
-     *         value of the requested properties. Each list's order corresponds
-     *         to other lists.
-     */
-    public static Map<String, List<Long>> selectUint32sFrom(String namespace, String wmiClass, String properties,
-            String whereClause) {
-        Map<String, List<Object>> result = queryWMI(namespace == null ? DEFAULT_NAMESPACE : namespace, properties,
-                wmiClass, whereClause, UINT32_TYPE);
-        HashMap<String, List<Long>> longMap = new HashMap<>();
-        for (Entry<String, List<Object>> entry : result.entrySet()) {
-            ArrayList<Long> longList = new ArrayList<>();
-            for (Object obj : entry.getValue()) {
-                longList.add((Long) obj);
-            }
-            longMap.put(entry.getKey(), longList);
-        }
-        return longMap;
-    }
-
-    /**
-     * Get a single Float value from WMI
-     *
-     * @param namespace
-     *            The namespace or null to use the default
-     * @param wmiClass
-     *            The class to query
+     * @param <T>
+     *            The enum type containing the property keys
+     * @param result
+     *            The WmiResult from which to fetch the value
      * @param property
-     *            The property whose value to return
-     * @param whereClause
-     *            A WQL where clause matching properties and keywords
-     * @return A Float containing the value of the requested property
+     *            The property (column) to fetch
+     * @param index
+     *            The index (row) to fetch
+     * @return The stored value if non-null, an empty-string otherwise
      */
-    public static Float selectFloatFrom(String namespace, String wmiClass, String property, String whereClause) {
-        Map<String, List<Object>> result = queryWMI(namespace == null ? DEFAULT_NAMESPACE : namespace, property,
-                wmiClass, whereClause, FLOAT_TYPE);
-        if (result.containsKey(property) && !result.get(property).isEmpty()) {
-            return (Float) result.get(property).get(0);
+    public static <T extends Enum<T>> String getDateString(WmiResult<T> result, T property, int index) {
+        if (result.getCIMType(property) == Wbemcli.CIM_DATETIME) {
+            String date = getStr(result, property, index);
+            return date.substring(0, 4) + '-' + date.substring(4, 6) + '-' + date.substring(6, 8);
         }
-        return 0f;
+        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), "DateTime",
+                result.getCIMType(property), result.getVtType(property)));
     }
 
     /**
-     * Get multiple Float values from WMI
+     * Gets a Reference value from a WmiResult as a String
      *
-     * @param namespace
-     *            The namespace or null to use the default
-     * @param wmiClass
-     *            The class to query
-     * @param properties
-     *            A comma delimited list of properties whose value to return
-     * @param whereClause
-     *            A WQL where clause matching properties and keywords
-     * @return A map, with each property as the key, containing Floats with the
-     *         value of the requested properties. Each list's order corresponds
-     *         to other lists.
-     */
-    public static Map<String, List<Float>> selectFloatsFrom(String namespace, String wmiClass, String properties,
-            String whereClause) {
-        Map<String, List<Object>> result = queryWMI(namespace == null ? DEFAULT_NAMESPACE : namespace, properties,
-                wmiClass, whereClause, FLOAT_TYPE);
-        HashMap<String, List<Float>> floatMap = new HashMap<>();
-        for (Entry<String, List<Object>> entry : result.entrySet()) {
-            ArrayList<Float> floatList = new ArrayList<>();
-            for (Object obj : entry.getValue()) {
-                floatList.add((Float) obj);
-            }
-            floatMap.put(entry.getKey(), floatList);
-        }
-        return floatMap;
-    }
-
-    /**
-     * Get a single String value from WMI
-     *
-     * @param namespace
-     *            The namespace or null to use the default
-     * @param wmiClass
-     *            The class to query
+     * @param <T>
+     *            The enum type containing the property keys
+     * @param result
+     *            The WmiResult from which to fetch the value
      * @param property
-     *            The property whose value to return
-     * @param whereClause
-     *            A WQL where clause matching properties and keywords
-     * @return A string containing the value of the requested property
+     *            The property (column) to fetch
+     * @param index
+     *            The index (row) to fetch
+     * @return The stored value if non-null, an empty-string otherwise
      */
-    public static String selectStringFrom(String namespace, String wmiClass, String property, String whereClause) {
-        Map<String, List<Object>> result = queryWMI(namespace == null ? DEFAULT_NAMESPACE : namespace, property,
-                wmiClass, whereClause, STRING_TYPE);
-        if (result.containsKey(property) && !result.get(property).isEmpty()) {
-            return (String) result.get(property).get(0);
+    public static <T extends Enum<T>> String getRefString(WmiResult<T> result, T property, int index) {
+        if (result.getCIMType(property) == Wbemcli.CIM_REFERENCE) {
+            return getStr(result, property, index);
         }
-        return "";
+        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), "Reference",
+                result.getCIMType(property), result.getVtType(property)));
+    }
+
+    private static <T extends Enum<T>> String getStr(WmiResult<T> result, T property, int index) {
+        Object o = result.getValue(property, index);
+        if (o == null) {
+            return "";
+        } else if (result.getVtType(property) == Variant.VT_BSTR) {
+            return (String) o;
+        }
+        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), "String-mapped",
+                result.getCIMType(property), result.getVtType(property)));
     }
 
     /**
-     * Get multiple String values from WMI
+     * Gets a Uint64 value from a WmiResult (parsing the String). Note that
+     * while the CIM type is unsigned, the return type is signed and the parsing
+     * will exclude any return values above Long.MAX_VALUE.
      *
-     * @param namespace
-     *            The namespace or null to use the default
-     * @param wmiClass
-     *            The class to query
-     * @param properties
-     *            A comma delimited list of properties whose value to return
-     * @param whereClause
-     *            A WQL where clause matching properties and keywords
-     * @return A map, with each property as the key, containing strings with the
-     *         value of the requested properties. Each list's order corresponds
-     *         to other lists.
+     * @param <T>
+     *            The enum type containing the property keys
+     * @param result
+     *            The WmiResult from which to fetch the value
+     * @param property
+     *            The property (column) to fetch
+     * @param index
+     *            The index (row) to fetch
+     * @return The stored value if non-null and parseable as a long, 0 otherwise
      */
-    public static Map<String, List<String>> selectStringsFrom(String namespace, String wmiClass, String properties,
-            String whereClause) {
-        Map<String, List<Object>> result = queryWMI(namespace == null ? DEFAULT_NAMESPACE : namespace, properties,
-                wmiClass, whereClause, STRING_TYPE);
-        HashMap<String, List<String>> strMap = new HashMap<>();
-        for (Entry<String, List<Object>> entry : result.entrySet()) {
-            ArrayList<String> strList = new ArrayList<>();
-            for (Object obj : entry.getValue()) {
-                strList.add((String) obj);
-            }
-            strMap.put(entry.getKey(), strList);
+    public static <T extends Enum<T>> long getUint64(WmiResult<T> result, T property, int index) {
+        Object o = result.getValue(property, index);
+        if (o == null) {
+            return 0L;
+        } else if (result.getCIMType(property) == Wbemcli.CIM_UINT64 && result.getVtType(property) == Variant.VT_BSTR) {
+            return ParseUtil.parseLongOrDefault((String) o, 0L);
         }
-        return strMap;
+        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), "UINT64",
+                result.getCIMType(property), result.getVtType(property)));
     }
 
     /**
-     * Get multiple individually typed values from WMI
+     * Gets an UINT32 value from a WmiResult. Note that while a UINT32 CIM type
+     * is unsigned, the return type is signed and requires further processing by
+     * the user if unsigned values are desired.
      *
-     * @param namespace
-     *            The namespace or null to use the default
-     * @param wmiClass
-     *            The class to query
-     * @param properties
-     *            A comma delimited list of properties whose value to return
-     * @param whereClause
-     *            A WQL where clause matching properties and keywords
-     * @param propertyTypes
-     *            An array of types corresponding to the properties, or a single
-     *            element array
-     * @return A map, with each property as the key, containing Objects with the
-     *         value of the requested properties. Each list's order corresponds
-     *         to other lists. The type of the objects is identified by the
-     *         propertyTypes array. If only one propertyType is given, all
-     *         Objects will have that type. It is the responsibility of the
-     *         caller to cast the returned objects.
+     * @param <T>
+     *            The enum type containing the property keys
+     * @param result
+     *            The WmiResult from which to fetch the value
+     * @param property
+     *            The property (column) to fetch
+     * @param index
+     *            The index (row) to fetch
+     * @return The stored value if non-null, 0 otherwise
      */
-    public static Map<String, List<Object>> selectObjectsFrom(String namespace, String wmiClass, String properties,
-            String whereClause, ValueType[] propertyTypes) {
-        return queryWMI(namespace == null ? DEFAULT_NAMESPACE : namespace, properties, wmiClass, whereClause,
-                propertyTypes);
+    public static <T extends Enum<T>> int getUint32(WmiResult<T> result, T property, int index) {
+        if (result.getCIMType(property) == Wbemcli.CIM_UINT32) {
+            return getInt(result, property, index);
+        }
+        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), "UINT32",
+                result.getCIMType(property), result.getVtType(property)));
     }
 
     /**
-     * Get multiple individually typed values from WMI
+     * Gets an UINT32 value from a WmiResult as a long, preserving the
+     * unsignedness.
      *
-     * @param namespace
-     *            The namespace or null to use the default
-     * @param wmiClass
-     *            The class to query
-     * @param properties
-     *            An array of properties whose value to return
-     * @param whereClause
-     *            A WQL where clause matching properties and keywords
-     * @param propertyTypes
-     *            An array of types corresponding to the properties, or a single
-     *            element array
-     * @return A map, with each property as the key, containing Objects with the
-     *         value of the requested properties. Each list's order corresponds
-     *         to other lists. The type of the objects is identified by the
-     *         propertyTypes array. If only one propertyType is given, all
-     *         Objects will have that type. It is the responsibility of the
-     *         caller to cast the returned objects.
+     * @param <T>
+     *            The enum type containing the property keys
+     * @param result
+     *            The WmiResult from which to fetch the value
+     * @param property
+     *            The property (column) to fetch
+     * @param index
+     *            The index (row) to fetch
+     * @return The stored value if non-null, 0 otherwise
      */
-    public static Map<String, List<Object>> selectObjectsFrom(String namespace, String wmiClass, String[] properties,
-            String whereClause, ValueType[] propertyTypes) {
-        String propertiesStr = StringUtil.join(",", properties);
-        return queryWMI(namespace == null ? DEFAULT_NAMESPACE : namespace, propertiesStr, wmiClass, whereClause,
-                propertyTypes);
+    public static <T extends Enum<T>> long getUint32asLong(WmiResult<T> result, T property, int index) {
+        if (result.getCIMType(property) == Wbemcli.CIM_UINT32) {
+            return getInt(result, property, index) & 0xFFFFFFFFL;
+        }
+        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), "UINT32",
+                result.getCIMType(property), result.getVtType(property)));
     }
 
     /**
-     * Query WMI for values
+     * Gets a Sint32 value from a WmiResult. Note that while the CIM type is
+     * unsigned, the return type is signed and requires further processing by
+     * the user if unsigned values are desired.
      *
-     * @param namespace
-     *            The namespace to query
-     * @param properties
-     *            A single property or comma-delimited list of properties to
-     *            enumerate
-     * @param wmiClass
-     *            The WMI class to query
-     * @param propertyTypes
-     *            An array corresponding to the properties, containing the type
-     *            of data being queried, to control how VARIANT is parsed
-     * @return A map, with the string value of each property as the key,
-     *         containing a list of Objects which can be cast appropriately per
-     *         valType. The order of objects in each list corresponds to the
-     *         other lists.
+     * @param <T>
+     *            The enum type containing the property keys
+     * @param result
+     *            The WmiResult from which to fetch the value
+     * @param property
+     *            The property (column) to fetch
+     * @param index
+     *            The index (row) to fetch
+     * @return The stored value if non-null, 0 otherwise
      */
-    private static Map<String, List<Object>> queryWMI(String namespace, String properties, String wmiClass,
-            String whereClause, ValueType[] propertyTypes) {
-        // Set up empty map
-        Map<String, List<Object>> values = new HashMap<>();
-        String[] props = properties.split(",");
-        for (int i = 0; i < props.length; i++) {
-            if ("__PATH".equals(props[i])) {
-                // Methods will query __PATH
-                values.put(propertyTypes[i].name(), new ArrayList<>());
-            } else {
-                // Properties are named
-                values.put(props[i], new ArrayList<>());
-            }
+    public static <T extends Enum<T>> int getSint32(WmiResult<T> result, T property, int index) {
+        if (result.getCIMType(property) == Wbemcli.CIM_SINT32) {
+            return getInt(result, property, index);
         }
-
-        // Initialize COM
-        if (!initCOM()) {
-            unInitCOM();
-            return values;
-        }
-
-        PointerByReference pSvc = new PointerByReference();
-        if (!connectServer(namespace, pSvc)) {
-            unInitCOM();
-            return values;
-        }
-        WbemServices svc = new WbemServices(pSvc.getValue());
-
-        PointerByReference pEnumerator = new PointerByReference();
-        if (!selectProperties(svc, pEnumerator, properties, wmiClass, whereClause)) {
-            svc.Release();
-            unInitCOM();
-            return values;
-        }
-        EnumWbemClassObject enumerator = new EnumWbemClassObject(pEnumerator.getValue());
-
-        enumerateProperties(values, enumerator, props, propertyTypes, svc);
-
-        // Cleanup
-        enumerator.Release();
-        svc.Release();
-        unInitCOM();
-        return values;
+        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), "SINT32",
+                result.getCIMType(property), result.getVtType(property)));
     }
 
-    /*
-     * Below methods ported from: Getting WMI Data from Local Computer
-     * https://msdn.microsoft.com/en-us/library/aa390423(v=VS.85).aspx
+    /**
+     * Gets a Uint16 value from a WmiResult. Note that while the CIM type is
+     * unsigned, the return type is signed and requires further processing by
+     * the user if unsigned values are desired.
      *
-     * Steps 1 - 7 correspond to the above link.
+     * @param <T>
+     *            The enum type containing the property keys
+     * @param result
+     *            The WmiResult from which to fetch the value
+     * @param property
+     *            The property (column) to fetch
+     * @param index
+     *            The index (row) to fetch
+     * @return The stored value if non-null, 0 otherwise
      */
+    public static <T extends Enum<T>> int getUint16(WmiResult<T> result, T property, int index) {
+        if (result.getCIMType(property) == Wbemcli.CIM_UINT16) {
+            return getInt(result, property, index);
+        }
+        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), "UINT16",
+                result.getCIMType(property), result.getVtType(property)));
+    }
+
+    private static <T extends Enum<T>> int getInt(WmiResult<T> result, T property, int index) {
+        Object o = result.getValue(property, index);
+        if (o == null) {
+            return 0;
+        } else if (result.getVtType(property) == Variant.VT_I4) {
+            return (int) o;
+        }
+        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), "32-bit integer",
+                result.getCIMType(property), result.getVtType(property)));
+    }
+
+    /**
+     * Gets a Float value from a WmiResult
+     *
+     * @param <T>
+     *            The enum type containing the property keys
+     * @param result
+     *            The WmiResult from which to fetch the value
+     * @param property
+     *            The property (column) to fetch
+     * @param index
+     *            The index (row) to fetch
+     * @return The stored value if non-null, 0 otherwise
+     */
+    public static <T extends Enum<T>> float getFloat(WmiResult<T> result, T property, int index) {
+        Object o = result.getValue(property, index);
+        if (o == null) {
+            return 0f;
+        } else if (result.getCIMType(property) == Wbemcli.CIM_REAL32 && result.getVtType(property) == Variant.VT_R4) {
+            return (float) o;
+        }
+        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), "Float",
+                result.getCIMType(property), result.getVtType(property)));
+    }
+
     /**
      * Initializes COM library and sets security to impersonate the local user
-     *
-     * @return true if COM successfully initialized
      */
-    private static boolean initCOM() {
+    public static void initCOM() {
+        HRESULT hres = null;
         // Step 1: --------------------------------------------------
         // Initialize COM. ------------------------------------------
-        HRESULT hres = Ole32.INSTANCE.CoInitializeEx(null, Ole32.COINIT_MULTITHREADED);
-        if (COMUtils.FAILED(hres)) {
-            if (hres.intValue() == WinError.RPC_E_CHANGED_MODE) {
-                // Com already initialized, ignore error
-                LOG.debug("COM already initialized.");
-                securityInitialized = true;
-                return true;
+        if (!isComInitialized()) {
+            hres = Ole32.INSTANCE.CoInitializeEx(null, Ole32.COINIT_MULTITHREADED);
+            switch (hres.intValue()) {
+            // Successful local initialization
+            case COMUtils.S_OK:
+                comInitialized = true;
+                break;
+            // COM was already initialized
+            case COMUtils.S_FALSE:
+            case WinError.RPC_E_CHANGED_MODE:
+                break;
+            // Any other results is an error
+            default:
+                throw new COMException("Failed to initialize COM library.");
             }
-            if (LOG.isErrorEnabled()) {
-                LOG.error(String.format("Failed to initialize COM library. Error code = 0x%08x", hres.intValue()));
-            }
-            return false;
-        }
-        comInitialized = true;
-        if (securityInitialized) {
-            // Only run CoInitializeSecuirty once
-            return true;
         }
         // Step 2: --------------------------------------------------
         // Set general COM security levels --------------------------
-        hres = Ole32.INSTANCE.CoInitializeSecurity(null, new NativeLong(-1), null, null,
-                Ole32.RPC_C_AUTHN_LEVEL_DEFAULT, Ole32.RPC_C_IMP_LEVEL_IMPERSONATE, null, Ole32.EOAC_NONE, null);
-        if (COMUtils.FAILED(hres) && hres.intValue() != WinError.RPC_E_TOO_LATE) {
-            if (LOG.isErrorEnabled()) {
-                LOG.error(String.format("Failed to initialize security. Error code = 0x%08x", hres.intValue()));
+        if (!isSecurityInitialized()) {
+            hres = Ole32.INSTANCE.CoInitializeSecurity(null, -1, null, null, Ole32.RPC_C_AUTHN_LEVEL_DEFAULT,
+                    Ole32.RPC_C_IMP_LEVEL_IMPERSONATE, null, Ole32.EOAC_NONE, null);
+            // If security already initialized we get RPC_E_TOO_LATE
+            // This can be safely ignored
+            if (COMUtils.FAILED(hres) && hres.intValue() != WinError.RPC_E_TOO_LATE) {
+                Ole32.INSTANCE.CoUninitialize();
+                throw new COMException("Failed to initialize security.");
             }
-            Ole32.INSTANCE.CoUninitialize();
-            return false;
-        }
-        securityInitialized = true;
-        return true;
-    }
-
-    /**
-     * Obtains a locator to the WMI server and connects to the specified
-     * namespace
-     *
-     * @param namespace
-     *            The namespace to connect to
-     * @param pSvc
-     *            A pointer to receive an indirect to the WMI service
-     * @return true if successful; pSvc will contain an indirect pointer to the
-     *         WMI service for future IWbemServices calls
-     */
-    private static boolean connectServer(String namespace, PointerByReference pSvc) {
-        // Step 3: ---------------------------------------------------
-        // Obtain the initial locator to WMI -------------------------
-        WbemLocator loc = WbemLocator.create();
-        if (loc == null) {
-            return false;
-        }
-        // Step 4: -----------------------------------------------------
-        // Connect to WMI through the IWbemLocator::ConnectServer method
-        // Connect to the namespace with the current user and obtain pointer
-        // pSvc to make IWbemServices calls.
-        HRESULT hres = loc.ConnectServer(new BSTR(namespace), null, null, null, null, null, null, pSvc);
-        if (COMUtils.FAILED(hres)) {
-            // Don't error on OpenHardwareMonitor
-            if (!"root\\OpenHardwareMonitor".equals(namespace) && LOG.isErrorEnabled()) {
-                LOG.error(String.format("Could not connect to namespace %s. Error code = 0x%08x", namespace,
-                        hres.intValue()));
-            }
-            loc.Release();
-            unInitCOM();
-            return false;
-        }
-        LOG.debug("Connected to {} WMI namespace", namespace);
-        loc.Release();
-
-        // Step 5: --------------------------------------------------
-        // Set security levels on the proxy -------------------------
-        hres = Ole32.INSTANCE.CoSetProxyBlanket(pSvc.getValue(), Ole32.RPC_C_AUTHN_WINNT, Ole32.RPC_C_AUTHZ_NONE, null,
-                Ole32.RPC_C_AUTHN_LEVEL_CALL, Ole32.RPC_C_IMP_LEVEL_IMPERSONATE, null, Ole32.EOAC_NONE);
-        if (COMUtils.FAILED(hres)) {
-            if (LOG.isErrorEnabled()) {
-                LOG.error(String.format("Could not set proxy blanket. Error code = 0x%08x", hres.intValue()));
-            }
-            new WbemServices(pSvc.getValue()).Release();
-            unInitCOM();
-            return false;
-        }
-        LOG.debug("Proxy blanket set.");
-        return true;
-    }
-
-    /**
-     * Selects properties from WMI. Returns immediately, even while results are
-     * being retrieved; results may begun to be enumerated in the forward
-     * direction only.
-     *
-     * @param svc
-     *            A WbemServices object to make the calls
-     * @param pEnumerator
-     *            An enumerator to receive the results of the query
-     * @param properties
-     *            A comma separated list of properties to query
-     * @param wmiClass
-     *            The WMI class to query
-     * @param whereClause
-     *            A WHERE clause to narrow the query
-     * @return True if successful. The enumerator will allow enumeration of
-     *         results of the query
-     */
-    private static boolean selectProperties(WbemServices svc, PointerByReference pEnumerator, String properties,
-            String wmiClass, String whereClause) {
-        // Step 6: --------------------------------------------------
-        // Use the IWbemServices pointer to make requests of WMI ----
-        String query = String.format("SELECT %s FROM %s %s", properties, wmiClass,
-                whereClause != null ? whereClause : "");
-        LOG.debug("Query: {}", query);
-        HRESULT hres = svc.ExecQuery(new BSTR("WQL"), new BSTR(query),
-                new NativeLong(
-                        EnumWbemClassObject.WBEM_FLAG_FORWARD_ONLY | EnumWbemClassObject.WBEM_FLAG_RETURN_IMMEDIATELY),
-                null, pEnumerator);
-        if (COMUtils.FAILED(hres)) {
-            if (LOG.isErrorEnabled()) {
-                LOG.error(String.format("Query '%s' failed. Error code = 0x%08x", query, hres.intValue()));
-            }
-            svc.Release();
-            unInitCOM();
-            return false;
-        }
-        LOG.debug("Query succeeded.");
-        return true;
-    }
-
-    /**
-     * Enumerate the results of a WMI query. This method is called while results
-     * are still being retrieved and may iterate in the forward direction only.
-     *
-     * @param values
-     *            A map to hold the results of the query using the property as
-     *            the key, and placing each enumerated result in a
-     *            (common-index) list for each property
-     * @param enumerator
-     *            The enumerator with the results
-     * @param properties
-     *            Comma-delimited list of properties to retrieve
-     * @param propertyTypes
-     *            An array of property types matching the properties or a single
-     *            property type which will be used for all properties
-     * @param svc
-     *            The WbemServices object
-     */
-    private static void enumerateProperties(Map<String, List<Object>> values, EnumWbemClassObject enumerator,
-            String[] properties, ValueType[] propertyTypes, WbemServices svc) {
-        if (propertyTypes.length > 1 && properties.length != propertyTypes.length) {
-            throw new IllegalArgumentException("Property type array size must be 1 or equal to properties array size.");
-        }
-        // Step 7: -------------------------------------------------
-        // Get the data from the query in step 6 -------------------
-        PointerByReference pclsObj = new PointerByReference();
-        LongByReference uReturn = new LongByReference(0L);
-        int resultCount = 0;
-        while (enumerator.getPointer() != Pointer.NULL) {
-            HRESULT hres = enumerator.Next(new NativeLong(EnumWbemClassObject.WBEM_INFINITE), new NativeLong(1),
-                    pclsObj, uReturn);
-            // Requested 1; if 0 objects returned, we're done
-            if (0L == uReturn.getValue() || COMUtils.FAILED(hres)) {
-                // Enumerator will be released by calling method so no need to
-                // release it here.
-                LOG.debug("Returned {} results.", resultCount);
-                return;
-            }
-            resultCount++;
-            VARIANT.ByReference vtProp = new VARIANT.ByReference();
-
-            // Get the value of the properties
-            WbemClassObject clsObj = new WbemClassObject(pclsObj.getValue());
-            for (int p = 0; p < properties.length; p++) {
-                String property = properties[p];
-                // hres =
-                clsObj.Get(new BSTR(property), new NativeLong(0L), vtProp, null, null);
-
-                ValueType propertyType = propertyTypes.length > 1 ? propertyTypes[p] : propertyTypes[0];
-                switch (propertyType) {
-                case STRING:
-                    values.get(property).add(vtProp.getValue() == null ? "unknown" : vtProp.stringValue());
-                    break;
-                // uint16 == VT_I4, a 32-bit number
-                case UINT16:
-                    values.get(property).add(vtProp.getValue() == null ? 0L : vtProp.intValue());
-                    break;
-                // WMI Uint32s will return as longs
-                case UINT32:
-                    values.get(property).add(vtProp.getValue() == null ? 0L : vtProp.longValue());
-                    break;
-                // WMI Longs will return as strings so we have the option of
-                // calling a string and parsing later, or calling UINT64 and
-                // letting this method do the parsing
-                case UINT64:
-                    values.get(property).add(
-                            vtProp.getValue() == null ? 0L : ParseUtil.parseLongOrDefault(vtProp.stringValue(), 0L));
-                    break;
-                case FLOAT:
-                    values.get(property).add(vtProp.getValue() == null ? 0f : vtProp.floatValue());
-                    break;
-                case DATETIME:
-                    // Read a string in format 20160513072950.782000-420 and
-                    // parse to a long representing ms since eopch
-                    values.get(property)
-                            .add(vtProp.getValue() == null ? 0L : ParseUtil.cimDateTimeToMillis(vtProp.stringValue()));
-                    break;
-                case BOOLEAN:
-                    values.get(property).add(vtProp.getValue() == null ? 0L : vtProp.booleanValue());
-                    break;
-                case PROCESS_GETOWNER:
-                    // Win32_Process object GetOwner method
-                    String owner = FormatUtil.join("\\",
-                            execMethod(svc, vtProp.stringValue(), "GetOwner", "Domain", "User"));
-                    values.get(propertyType.name()).add("\\".equals(owner) ? "N/A" : owner);
-                    break;
-                case PROCESS_GETOWNERSID:
-                    // Win32_Process object GetOwnerSid method
-                    String[] ownerSid = execMethod(svc, vtProp.stringValue(), "GetOwnerSid", "Sid");
-                    values.get(propertyType.name()).add(ownerSid.length < 1 ? "" : ownerSid[0]);
-                    break;
-                default:
-                    // Should never get here! If you get this exception you've
-                    // added something to the enum without adding it here. Tsk.
-                    throw new IllegalArgumentException("Unimplemented enum type: " + propertyType.toString());
-                }
-                OleAuto.INSTANCE.VariantClear(vtProp);
-            }
-
-            clsObj.Release();
+            securityInitialized = true;
         }
     }
 
@@ -616,45 +449,53 @@ public class WmiUtil {
      * UnInitializes COM library if it was initialized by the {@link #initCOM()}
      * method. Otherwise, does nothing.
      */
-    private static void unInitCOM() {
-        if (comInitialized) {
+    public static void unInitCOM() {
+        if (isComInitialized()) {
             Ole32.INSTANCE.CoUninitialize();
             comInitialized = false;
         }
     }
 
     /**
-     * Convenience method for executing WMI methods without any input parameters
+     * COM may already have been initialized outside this class. This boolean is
+     * a flag whether this class initialized it, to avoid uninitializing later
+     * and killing the external initialization
      *
-     * @param svc
-     *            The WbemServices object
-     * @param clsObj
-     *            The full path to the class object to execute (result of WMI
-     *            "__PATH" query)
-     * @param method
-     *            The name of the method to execute
-     * @param properties
-     *            One or more properties returned as a result of the query
-     * @return An array of the properties returned from the method
+     * @return Returns whether this class initialized COM
      */
-    private static String[] execMethod(WbemServices svc, String clsObj, String method, String... properties) {
-        List<String> result = new ArrayList<>();
-        PointerByReference ppOutParams = new PointerByReference();
-        HRESULT hres = svc.ExecMethod(new BSTR(clsObj), new BSTR(method), new NativeLong(0L), null, null, ppOutParams,
-                null);
-        if (COMUtils.FAILED(hres)) {
-            return new String[0];
-        }
-        WbemClassObject obj = new WbemClassObject(ppOutParams.getValue());
-        VARIANT.ByReference vtProp = new VARIANT.ByReference();
-        for (String prop : properties) {
-            hres = obj.Get(new BSTR(prop), new NativeLong(0L), vtProp, null, null);
-            if (!COMUtils.FAILED(hres)) {
-                result.add(vtProp.getValue() == null ? "" : vtProp.stringValue());
-            }
-        }
-        obj.Release();
-        return result.toArray(new String[result.size()]);
+    public static boolean isComInitialized() {
+        return comInitialized;
     }
 
+    /**
+     * Security only needs to be initialized once. This boolean identifies
+     * whether that has happened.
+     *
+     * @return Returns the securityInitialized.
+     */
+    public static boolean isSecurityInitialized() {
+        return securityInitialized;
+    }
+
+    /**
+     * Gets the current WMI timeout. WMI queries will fail if they take longer
+     * than this number of milliseconds. A value of -1 is infinite (no timeout).
+     *
+     * @return Returns the current value of wmiTimeout.
+     */
+    public static int getWmiTimeout() {
+        return wmiTimeout;
+    }
+
+    /**
+     * Sets the WMI timeout. WMI queries will fail if they take longer than this
+     * number of milliseconds.
+     *
+     * @param wmiTimeout
+     *            The wmiTimeout to set, in milliseconds. To disable timeouts,
+     *            set timeout as -1 (infinite).
+     */
+    public static void setWmiTimeout(int wmiTimeout) {
+        WmiUtil.wmiTimeout = wmiTimeout;
+    }
 }

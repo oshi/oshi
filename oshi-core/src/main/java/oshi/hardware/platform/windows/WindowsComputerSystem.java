@@ -18,8 +18,8 @@
  */
 package oshi.hardware.platform.windows;
 
-import java.util.List;
-import java.util.Map;
+import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery; // NOSONAR squid:S1191
+import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.hardware.common.AbstractComputerSystem;
 import oshi.util.platform.windows.WmiUtil;
@@ -34,42 +34,64 @@ final class WindowsComputerSystem extends AbstractComputerSystem {
 
     private static final long serialVersionUID = 1L;
 
+    enum ComputerSystemProperty {
+        MANUFACTURER, MODEL;
+    }
+
+    enum BiosProperty {
+        SERIALNUMBER;
+    }
+
+    enum ComputerSystemProductProperty {
+        IDENTIFYINGNUMBER;
+    }
+
+    private static final WmiQuery<ComputerSystemProductProperty> IDENTIFYINGNUMBER_QUERY = new WmiQuery<>(
+            "Win32_ComputerSystemProduct", ComputerSystemProductProperty.class);
+
+    private String systemSerialNumber = "";
+
     WindowsComputerSystem() {
         init();
     }
 
     private void init() {
-
-        final Map<String, List<String>> win32ComputerSystem = WmiUtil.selectStringsFrom(null, "Win32_ComputerSystem",
-                "Manufacturer,Model", null);
-
-        final List<String> manufacturers = win32ComputerSystem.get("Manufacturer");
-        if (manufacturers != null && !manufacturers.isEmpty()) {
-            setManufacturer(manufacturers.get(0));
-        }
-
-        final List<String> models = win32ComputerSystem.get("Model");
-        if (models != null && !models.isEmpty()) {
-            setModel(models.get(0));
+        WmiQuery<ComputerSystemProperty> computerSystemQuery = new WmiQuery<>("Win32_ComputerSystem",
+                ComputerSystemProperty.class);
+        WmiResult<ComputerSystemProperty> win32ComputerSystem = WmiUtil.queryWMI(computerSystemQuery);
+        if (win32ComputerSystem.getResultCount() > 0) {
+            setManufacturer(WmiUtil.getString(win32ComputerSystem, ComputerSystemProperty.MANUFACTURER, 0));
+            setModel(WmiUtil.getString(win32ComputerSystem, ComputerSystemProperty.MODEL, 0));
         }
 
         setSerialNumber(getSystemSerialNumber());
-
         setFirmware(new WindowsFirmware());
-
         setBaseboard(new WindowsBaseboard());
     }
 
     private String getSystemSerialNumber() {
+        if (!"".equals(this.systemSerialNumber)) {
+            return this.systemSerialNumber;
+        }
         // This should always work
-        String serialNumber = WmiUtil.selectStringFrom(null, "Win32_BIOS", "SerialNumber", "where PrimaryBIOS=true");
+        WmiQuery<BiosProperty> serialNumberQuery = new WmiQuery<>("Win32_BIOS where PrimaryBIOS=true",
+                BiosProperty.class);
+        WmiResult<BiosProperty> serialNumber = WmiUtil.queryWMI(serialNumberQuery);
+        if (serialNumber.getResultCount() > 0) {
+            this.systemSerialNumber = WmiUtil.getString(serialNumber, BiosProperty.SERIALNUMBER, 0);
+        }
         // If the above doesn't work, this might
-        if ("".equals(serialNumber)) {
-            serialNumber = WmiUtil.selectStringFrom(null, "Win32_Csproduct", "IdentifyingNumber", null);
+        if ("".equals(this.systemSerialNumber)) {
+            WmiResult<ComputerSystemProductProperty> identifyingNumber = WmiUtil.queryWMI(IDENTIFYINGNUMBER_QUERY);
+            if (identifyingNumber.getResultCount() > 0) {
+                this.systemSerialNumber = WmiUtil.getString(identifyingNumber,
+                        ComputerSystemProductProperty.IDENTIFYINGNUMBER, 0);
+            }
         }
-        if ("".equals(serialNumber)) {
-            serialNumber = "unknown";
+        // Nothing worked. Default.
+        if ("".equals(this.systemSerialNumber)) {
+            this.systemSerialNumber = "unknown";
         }
-        return serialNumber;
+        return this.systemSerialNumber;
     }
 }

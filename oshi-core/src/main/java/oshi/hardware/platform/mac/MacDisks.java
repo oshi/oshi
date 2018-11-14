@@ -30,6 +30,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Pointer;
+import com.sun.jna.platform.mac.SystemB;
+import com.sun.jna.platform.mac.SystemB.Statfs;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
 
@@ -46,8 +48,6 @@ import oshi.jna.platform.mac.DiskArbitration;
 import oshi.jna.platform.mac.DiskArbitration.DADiskRef;
 import oshi.jna.platform.mac.DiskArbitration.DASessionRef;
 import oshi.jna.platform.mac.IOKit;
-import oshi.jna.platform.mac.SystemB;
-import oshi.jna.platform.mac.SystemB.Statfs;
 import oshi.util.ExecutingCommand;
 import oshi.util.MapUtil;
 import oshi.util.ParseUtil;
@@ -378,8 +378,11 @@ public class MacDisks implements Disks {
                 if (size <= 0) {
                     continue;
                 }
-                HWDiskStore diskStore = new HWDiskStore(bsdName, model.trim(), serial.trim(), size, 0L, 0L, 0L, 0L, 0L,
-                        new HWPartition[0], 0L);
+                HWDiskStore diskStore = new HWDiskStore();
+                diskStore.setName(bsdName);
+                diskStore.setModel(model.trim());
+                diskStore.setSerial(serial.trim());
+                diskStore.setSize(size);
 
                 updateDiskStats(diskStore, session);
                 result.add(diskStore);

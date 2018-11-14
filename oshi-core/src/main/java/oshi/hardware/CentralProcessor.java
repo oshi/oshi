@@ -46,8 +46,7 @@ public interface CentralProcessor extends Serializable {
         NICE(1),
         /**
          * CPU utilization that occurred while executing at the system level
-         * (kernel). Also includes CPU time which the hypervisor dedicated for
-         * other guests in the system (steal).
+         * (kernel).
          */
         SYSTEM(2),
         /**
@@ -393,21 +392,21 @@ public interface CentralProcessor extends Serializable {
     /**
      * Get the number of packages/sockets in the system. A single package may
      * contain multiple cores.
-     * 
+     *
      * @return The number of physical packages available.
      */
     int getPhysicalPackageCount();
 
     /**
      * Get the number of context switches which have occurred
-     * 
+     *
      * @return The number of context switches
      */
     long getContextSwitches();
 
     /**
      * Get the number of interrupts which have occurred
-     * 
+     *
      * @return The number of interrupts
      */
     long getInterrupts();

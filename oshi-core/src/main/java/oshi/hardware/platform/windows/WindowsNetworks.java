@@ -21,14 +21,13 @@ package oshi.hardware.platform.windows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sun.jna.platform.win32.IPHlpAPI; // NOSONAR squid:S1191
+import com.sun.jna.platform.win32.IPHlpAPI.MIB_IFROW;
+import com.sun.jna.platform.win32.IPHlpAPI.MIB_IF_ROW2;
 import com.sun.jna.platform.win32.Kernel32;
-import com.sun.jna.platform.win32.WinDef.ULONG;
 
 import oshi.hardware.NetworkIF;
 import oshi.hardware.common.AbstractNetworks;
-import oshi.jna.platform.windows.IPHlpAPI;
-import oshi.jna.platform.windows.IPHlpAPI.MIB_IFROW;
-import oshi.jna.platform.windows.IPHlpAPI.MIB_IFROW2;
 import oshi.util.ParseUtil;
 
 /**
@@ -41,7 +40,7 @@ public class WindowsNetworks extends AbstractNetworks {
     private static final Logger LOG = LoggerFactory.getLogger(WindowsNetworks.class);
 
     // Save Windows version info for 32 bit/64 bit branch later
-    private static final byte majorVersion = Kernel32.INSTANCE.GetVersion().getLow().byteValue();
+    private static final byte MAJOR_VERSION = Kernel32.INSTANCE.GetVersion().getLow().byteValue();
 
     /**
      * Updates interface network statistics on the given interface. Statistics
@@ -52,10 +51,10 @@ public class WindowsNetworks extends AbstractNetworks {
      */
     public static void updateNetworkStats(NetworkIF netIF) {
         // MIB_IFROW2 requires Vista (6.0) or later.
-        if (majorVersion >= 6) {
+        if (MAJOR_VERSION >= 6) {
             // Create new MIB_IFROW2 and set index to this interface index
-            MIB_IFROW2 ifRow = new MIB_IFROW2();
-            ifRow.InterfaceIndex = new ULONG(netIF.getNetworkInterface().getIndex());
+            MIB_IF_ROW2 ifRow = new MIB_IF_ROW2();
+            ifRow.InterfaceIndex = netIF.getNetworkInterface().getIndex();
             if (0 != IPHlpAPI.INSTANCE.GetIfEntry2(ifRow)) {
                 // Error, abort
                 LOG.error("Failed to retrieve data for interface {}, {}", netIF.getNetworkInterface().getIndex(),

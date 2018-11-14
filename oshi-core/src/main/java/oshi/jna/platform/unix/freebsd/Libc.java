@@ -18,11 +18,9 @@
  */
 package oshi.jna.platform.unix.freebsd;
 
-import java.util.Arrays;
-import java.util.List;
-
 import com.sun.jna.Native;
 import com.sun.jna.Structure;
+import com.sun.jna.Structure.FieldOrder;
 
 import oshi.jna.platform.unix.CLibrary;
 
@@ -33,7 +31,7 @@ import oshi.jna.platform.unix.CLibrary;
  * @author widdis[at]gmail[dot]com
  */
 public interface Libc extends CLibrary {
-    Libc INSTANCE = Native.loadLibrary("libc", Libc.class);
+    Libc INSTANCE = Native.load("libc", Libc.class);
 
     /*
      * Data size
@@ -51,12 +49,8 @@ public interface Libc extends CLibrary {
     int CP_INTR = 3;
     int CP_IDLE = 4;
 
+    @FieldOrder({ "cpu_ticks" })
     class CpTime extends Structure {
         public long[] cpu_ticks = new long[CPUSTATES];
-
-        @Override
-        protected List<String> getFieldOrder() {
-            return Arrays.asList(new String[] { "cpu_ticks" });
-        }
     }
 }

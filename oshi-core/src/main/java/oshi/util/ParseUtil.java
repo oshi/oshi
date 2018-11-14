@@ -21,17 +21,12 @@ package oshi.util;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.threeten.bp.LocalTime;
-import org.threeten.bp.OffsetDateTime;
-import org.threeten.bp.format.DateTimeFormatter;
-import org.threeten.bp.format.DateTimeParseException;
 
 /**
  * String parsing utility.
@@ -52,13 +47,6 @@ public class ParseUtil {
      * Used to check validity of a hexadecimal string
      */
     private static final Pattern VALID_HEX = Pattern.compile("[0-9a-fA-F]+");
-
-    /*
-     * Format for parsing DATETIME originally 20160513072950.782000-420,
-     * modified to 20160513072950.782000-07:00
-     */
-    private static final DateTimeFormatter CIM_FORMAT = DateTimeFormatter.ofPattern("yyyyMMddHHmmss.SSSSSSZZZZZ",
-            Locale.US);
 
     /*
      * Pattern for [dd-[hh:[mm:ss]]]
@@ -94,12 +82,21 @@ public class ParseUtil {
     static {
         multipliers = new HashMap<>();
         multipliers.put(HZ, 1L);
-        multipliers.put(KHZ, 1000L);
-        multipliers.put(MHZ, 1000000L);
-        multipliers.put(GHZ, 1000000000L);
-        multipliers.put(THZ, 1000000000000L);
-        multipliers.put(PHZ, 1000000000000000L);
+        multipliers.put(KHZ, 1_000L);
+        multipliers.put(MHZ, 1_000_000L);
+        multipliers.put(GHZ, 1_000_000_000L);
+        multipliers.put(THZ, 1_000_000_000_000L);
+        multipliers.put(PHZ, 1_000_000_000_000_000L);
     }
+
+    // Fast decimal exponentiation: pow(10,y) --> POWERS_OF_10[y]
+    private static final long[] POWERS_OF_TEN = { 1L, 10L, 100L, 1_000L, 10_000L, 100_000L, 1_000_000L, 10_000_000L,
+            100_000_000L, 1_000_000_000L, 10_000_000_000L, 100_000_000_000L, 1_000_000_000_000L, 10_000_000_000_000L,
+            100_000_000_000_000L, 1_000_000_000_000_000L, 10_000_000_000_000_000L, 100_000_000_000_000_000L,
+            1_000_000_000_000_000_000L };
+
+    // Fast hex character lookup
+    private static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
 
     private ParseUtil() {
     }
@@ -115,8 +112,10 @@ public class ParseUtil {
         Matcher matcher = HERTZ_PATTERN.matcher(hertz.trim());
         if (matcher.find() && matcher.groupCount() == 3) {
             // Regexp enforces #(.#) format so no test for NFE required
-            Double value = Double.valueOf(matcher.group(1)) * MapUtil.getOrDefault(multipliers, matcher.group(3), -1L);
-            return value < 0d ? -1L : value.longValue();
+            double value = Double.valueOf(matcher.group(1)) * MapUtil.getOrDefault(multipliers, matcher.group(3), -1L);
+            if (value >= 0d) {
+                return (long) value;
+            }
         }
         return -1L;
     }
@@ -171,6 +170,26 @@ public class ParseUtil {
         } else {
             return ss[ss.length - 1];
         }
+    }
+
+    /**
+     * Parse a byte aray into a string of hexadecimal digits including leading
+     * zeros
+     *
+     * @param bytes
+     *            The byte array to represent
+     * @return A string of hex characters corresponding to the bytes. The string
+     *         is upper case.
+     */
+    public static String byteArrayToHexString(byte[] bytes) {
+        // Solution copied from https://stackoverflow.com/questions/9655181
+        char[] hexChars = new char[bytes.length * 2];
+        for (int j = 0; j < bytes.length; j++) {
+            int v = bytes[j] & 0xFF;
+            hexChars[j * 2] = HEX_ARRAY[v >>> 4];
+            hexChars[j * 2 + 1] = HEX_ARRAY[v & 0x0F];
+        }
+        return new String(hexChars);
     }
 
     /**
@@ -309,34 +328,8 @@ public class ParseUtil {
         // sign-extension,
         // then drop any copies of the sign bit, to prevent the value being
         // considered a negative one by Java if it is set
-        long longValue = (long) unsignedValue;
+        long longValue = unsignedValue;
         return longValue & 0xffffffffL;
-    }
-
-    /**
-     * Parses a CIM_DateTime format (from WMI) to milliseconds since the epoch.
-     * See https://msdn.microsoft.com/en-us/library/aa387237(v=vs.85).aspx
-     *
-     * @param cimDate
-     *            A string containing the CIM_DateTime
-     * @return The corresponding DateTime as a number of milliseconds since the
-     *         epoch
-     */
-    public static long cimDateTimeToMillis(String cimDate) {
-        // Keep first 22 characters: digits, decimal, and + or - sign of
-        // time zone. Parse last 3 digits from minutes to HH:mm
-        try {
-            int tzInMinutes = Integer.parseInt(cimDate.substring(22));
-            LocalTime offsetAsLocalTime = LocalTime.MIN.plusMinutes(tzInMinutes);
-            OffsetDateTime dateTime = OffsetDateTime.parse(
-                    cimDate.substring(0, 22) + offsetAsLocalTime.format(DateTimeFormatter.ISO_LOCAL_TIME), CIM_FORMAT);
-            return dateTime.toInstant().toEpochMilli();
-        } catch (IndexOutOfBoundsException // if cimDate not 22+ chars
-                | NumberFormatException // if TZ minutes doesn't parse
-                | DateTimeParseException e) {
-            LOG.trace(DEFAULT_LOG_MSG, cimDate, e);
-            return 0L;
-        }
     }
 
     /**
@@ -420,7 +413,7 @@ public class ParseUtil {
      */
     public static long parseUnsignedLongOrDefault(String s, long defaultLong) {
         try {
-            return (new BigInteger(s)).longValue();
+            return new BigInteger(s).longValue();
         } catch (NumberFormatException e) {
             LOG.trace(DEFAULT_LOG_MSG, s, e);
             return defaultLong;
@@ -467,7 +460,7 @@ public class ParseUtil {
             }
             milliseconds += parseLongOrDefault(m.group(3), 0L) * 60000L;
             milliseconds += parseLongOrDefault(m.group(4), 0L) * 1000L;
-            milliseconds += 1000 * parseDoubleOrDefault("0." + m.group(5), 0d);
+            milliseconds += (long) (1000 * parseDoubleOrDefault("0." + m.group(5), 0d));
             return milliseconds;
         }
         return defaultLong;
@@ -506,6 +499,29 @@ public class ParseUtil {
     }
 
     /**
+     * Gets a value between two characters having multiple same characters
+     * between them. <b>Examples : </b>
+     * <ul>
+     * <li>"name = 'James Gosling's Java'" returns "James Gosling's Java"</li>
+     * <li>"pci.name = 'Realtek AC'97 Audio Device'" returns "Realtek AC'97
+     * Audio Device"</li>
+     * </ul>
+     *
+     * @param line
+     *            The "key-value" pair line.
+     * @param c
+     *            The Trailing And Leading characters of the string line
+     * @return : The value having the characters between them.
+     */
+    public static String getStringBetween(String line, char c) {
+        int firstOcc = line.indexOf(c);
+        if (firstOcc < 0) {
+            return "";
+        }
+        return line.substring(firstOcc + 1, line.lastIndexOf(c)).trim();
+    }
+
+    /**
      * Parses a string such as "10.12.2" or "key = 1 (0x1) (int)" to find the
      * integer value of the first set of one or more consecutive digits
      *
@@ -539,7 +555,7 @@ public class ParseUtil {
     /**
      * Removes all matching sub strings from the string. More efficient than
      * regexp.
-     * 
+     *
      * @param original
      *            source String to remove from
      * @param toRemove
@@ -547,12 +563,14 @@ public class ParseUtil {
      * @return The string with all matching substrings removed
      */
     public static String removeMatchingString(final String original, final String toRemove) {
-        if (original == null || original.isEmpty() || toRemove == null || toRemove.isEmpty())
+        if (original == null || original.isEmpty() || toRemove == null || toRemove.isEmpty()) {
             return original;
+        }
 
         int matchIndex = original.indexOf(toRemove, 0);
-        if (matchIndex == -1)
+        if (matchIndex == -1) {
             return original;
+        }
 
         StringBuilder buffer = new StringBuilder(original.length() - toRemove.length());
         int currIndex = 0;
@@ -564,5 +582,102 @@ public class ParseUtil {
 
         buffer.append(original.substring(currIndex));
         return buffer.toString();
+    }
+
+    /**
+     * Parses a delimited string to an array of longs. Optimized for processing
+     * predictable-length arrays such as outputs of reliably formatted Linux
+     * proc or sys filesystem, minimizing new object creation. Users should
+     * perform other sanity checks of data.
+     *
+     * The indices parameters are referenced assuming the length as specified,
+     * and leading characters are ignored. For example, if the string is "foo 12
+     * 34 5" and the length is 3, then index 0 is 12, index 1 is 34, and index 2
+     * is 5.
+     *
+     * @param s
+     *            The string to parse
+     * @param indices
+     *            An array indicating which indexes should be populated in the
+     *            final array; other values will be skipped. This idex is
+     *            zero-referenced assuming the rightmost delimited fields of the
+     *            string contain the array.
+     * @param length
+     *            The total number of elements in the string array. It is
+     *            permissible for the string to have more elements than this;
+     *            leading elements will be ignored.
+     * @param delimiter
+     *            The character to delimit by
+     * @return If successful, an array of parsed longs. If parsing errors
+     *         occurred, will be an array of zeros.
+     */
+    public static long[] parseStringToLongArray(String s, int[] indices, int length, char delimiter) {
+        long[] parsed = new long[indices.length];
+        // Iterate from right-to-left of String
+        // Fill right to left of result array using index array
+        int charIndex = s.length() - 1;
+        int parsedIndex = indices.length - 1;
+        int stringIndex = length - 1;
+
+        int power = 0;
+        int c;
+        boolean delimCurrent = false;
+        while (charIndex > 0 && parsedIndex >= 0) {
+            c = s.charAt(charIndex--);
+            if (c == delimiter) {
+                if (!delimCurrent) {
+                    power = 0;
+                    if (indices[parsedIndex] == stringIndex--) {
+                        parsedIndex--;
+                    }
+                    delimCurrent = true;
+                }
+            } else if (indices[parsedIndex] != stringIndex || c == '+') {
+                // Doesn't impact parsing, ignore
+                delimCurrent = false;
+            } else if (c >= '0' && c <= '9') {
+                if (power > 18) {
+                    LOG.error("Number is too big for a long parsing string '{}' to long array", s);
+                    return new long[indices.length];
+                }
+                parsed[parsedIndex] += (c - '0') * ParseUtil.POWERS_OF_TEN[power++];
+                delimCurrent = false;
+            } else if (c == '-') {
+                parsed[parsedIndex] *= -1L;
+                delimCurrent = false;
+            } else {
+                // error on everything else
+                LOG.error("Illegal character parsing string '{}' to long array: {}", s, s.charAt(charIndex));
+                return new long[indices.length];
+            }
+        }
+        if (parsedIndex > 0) {
+            LOG.error("Not enough fields in string '{}' parsing to long array: {}", s, indices.length - parsedIndex);
+            return new long[indices.length];
+        }
+        return parsed;
+    }
+
+    /**
+     * Get a String in a line of text between two marker strings
+     *
+     * @param text
+     *            Text to search for match
+     * @param before
+     *            Start matching after this text
+     * @param after
+     *            End matching before this text
+     * @return Text between the strings before and after, or empty string if
+     *         either marker does not exist
+     */
+    public static String getTextBetweenStrings(String text, String before, String after) {
+
+        String result = "";
+
+        if (text.indexOf(before) >= 0 && text.indexOf(after) >= 0) {
+            result = text.substring(text.indexOf(before) + before.length(), text.length());
+            result = result.substring(0, result.indexOf(after));
+        }
+        return result;
     }
 }

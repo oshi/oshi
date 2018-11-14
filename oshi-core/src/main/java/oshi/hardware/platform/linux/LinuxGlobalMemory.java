@@ -131,10 +131,10 @@ public class LinuxGlobalMemory extends AbstractGlobalMemory {
                 if (memorySplit.length > 1) {
                     switch (memorySplit[0]) {
                     case "pgpgin":
-                        swapPagesIn = ParseUtil.parseLongOrDefault(memorySplit[1], 0L);
+                        this.swapPagesIn = ParseUtil.parseLongOrDefault(memorySplit[1], 0L);
                         break;
                     case "pgpgout":
-                        swapPagesOut = ParseUtil.parseLongOrDefault(memorySplit[1], 0L);
+                        this.swapPagesOut = ParseUtil.parseLongOrDefault(memorySplit[1], 0L);
                         break;
                     default:
                         // do nothing with other lines

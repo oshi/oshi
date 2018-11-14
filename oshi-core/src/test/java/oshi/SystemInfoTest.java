@@ -41,6 +41,7 @@ import oshi.hardware.NetworkIF;
 import oshi.hardware.PowerSource;
 import oshi.hardware.Sensors;
 import oshi.hardware.UsbDevice;
+import oshi.hardware.SoundCard;
 import oshi.software.os.FileSystem;
 import oshi.software.os.NetworkParams;
 import oshi.software.os.OSFileStore;
@@ -125,6 +126,9 @@ public class SystemInfoTest {
         // hardware: USB devices
         LOG.info("Checking USB Devices...");
         printUsbDevices(hal.getUsbDevices(true));
+
+        LOG.info("Checking Sound Cards...");
+        printSoundCards(hal.getSoundCards());
     }
 
     private static void printComputerSystem(final ComputerSystem computerSystem) {
@@ -139,7 +143,7 @@ public class SystemInfoTest {
         System.out.println("  description: " + firmware.getDescription());
         System.out.println("  version: " + firmware.getVersion());
         System.out.println("  release date: " + (firmware.getReleaseDate() == null ? "unknown"
-                : firmware.getReleaseDate() == null ? "unknown" : FormatUtil.formatDate(firmware.getReleaseDate())));
+                : firmware.getReleaseDate() == null ? "unknown" : firmware.getReleaseDate()));
         final Baseboard baseboard = computerSystem.getBaseboard();
         System.out.println("baseboard:");
         System.out.println("  manufacturer: " + baseboard.getManufacturer());
@@ -282,11 +286,12 @@ public class SystemInfoTest {
             long usable = fs.getUsableSpace();
             long total = fs.getTotalSpace();
             System.out.format(
-                    " %s (%s) [%s] %s of %s free (%.1f%%) is %s "
+                    " %s (%s) [%s] %s of %s free (%.1f%%), %s of %s files free (%.1f%%) is %s "
                             + (fs.getLogicalVolume() != null && fs.getLogicalVolume().length() > 0 ? "[%s]" : "%s")
                             + " and is mounted at %s%n",
                     fs.getName(), fs.getDescription().isEmpty() ? "file system" : fs.getDescription(), fs.getType(),
                     FormatUtil.formatBytes(usable), FormatUtil.formatBytes(fs.getTotalSpace()), 100d * usable / total,
+                    fs.getFreeInodes(), fs.getTotalInodes(), 100d * fs.getFreeInodes() / fs.getTotalInodes(),
                     fs.getVolume(), fs.getLogicalVolume(), fs.getMount());
         }
     }
@@ -334,6 +339,13 @@ public class SystemInfoTest {
         System.out.println("USB Devices:");
         for (UsbDevice usbDevice : usbDevices) {
             System.out.println(usbDevice.toString());
+        }
+    }
+
+    private static void printSoundCards(SoundCard[] cards) {
+        System.out.println("Sound Cards:");
+        for (SoundCard card : cards) {
+            System.out.println(card.toString());
         }
     }
 }

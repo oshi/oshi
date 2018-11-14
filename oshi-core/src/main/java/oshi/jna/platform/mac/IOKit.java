@@ -18,13 +18,11 @@
  */
 package oshi.jna.platform.mac;
 
-import java.util.Arrays;
-import java.util.List;
-
 import com.sun.jna.Library;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
+import com.sun.jna.Structure.FieldOrder;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.LongByReference;
 import com.sun.jna.ptr.PointerByReference;
@@ -43,7 +41,7 @@ import oshi.jna.platform.mac.CoreFoundation.CFTypeRef;
  * @author widdis[at]gmail[dot]com
  */
 public interface IOKit extends Library {
-    IOKit INSTANCE = Native.loadLibrary("IOKit", IOKit.class);
+    IOKit INSTANCE = Native.load("IOKit", IOKit.class);
 
     CFStringRef IOPS_NAME_KEY = CFStringRef.toCFString("Name");
 
@@ -70,6 +68,7 @@ public interface IOKit extends Library {
     /**
      * Holds the return value of SMC version query.
      */
+    @FieldOrder({ "major", "minor", "build", "reserved", "release" })
     class SMCKeyDataVers extends Structure {
         public byte major;
         public byte minor;
@@ -77,45 +76,34 @@ public interface IOKit extends Library {
         public byte[] reserved = new byte[1];
         public short release;
 
-        @Override
-        protected List<String> getFieldOrder() {
-            return Arrays.asList(new String[] { "major", "minor", "build", "reserved", "release" });
-        }
     }
 
     /**
      * Holds the return value of SMC pLimit query.
      */
+    @FieldOrder({ "version", "length", "cpuPLimit", "gpuPLimit", "memPLimit" })
     class SMCKeyDataPLimitData extends Structure {
         public short version;
         public short length;
         public int cpuPLimit;
         public int gpuPLimit;
         public int memPLimit;
-
-        @Override
-        protected List<String> getFieldOrder() {
-            return Arrays.asList(new String[] { "version", "length", "cpuPLimit", "gpuPLimit", "memPLimit" });
-        }
     }
 
     /**
      * Holds the return value of SMC KeyInfo query.
      */
+    @FieldOrder({ "dataSize", "dataType", "dataAttributes" })
     class SMCKeyDataKeyInfo extends Structure {
         public int dataSize;
         public int dataType;
         public byte dataAttributes;
-
-        @Override
-        protected List<String> getFieldOrder() {
-            return Arrays.asList(new String[] { "dataSize", "dataType", "dataAttributes" });
-        }
     }
 
     /**
      * Holds the return value of SMC query.
      */
+    @FieldOrder({ "key", "vers", "pLimitData", "keyInfo", "result", "status", "data8", "data32", "bytes" })
     class SMCKeyData extends Structure {
         public int key;
         public SMCKeyDataVers vers;
@@ -126,27 +114,17 @@ public interface IOKit extends Library {
         public byte data8;
         public int data32;
         public byte[] bytes = new byte[32];
-
-        @Override
-        protected List<String> getFieldOrder() {
-            return Arrays.asList(new String[] { "key", "vers", "pLimitData", "keyInfo", "result", "status", "data8",
-                    "data32", "bytes" });
-        }
     }
 
     /**
      * Holds an SMC value
      */
+    @FieldOrder({ "key", "dataSize", "dataType", "bytes" })
     class SMCVal extends Structure {
         public byte[] key = new byte[5];
         public int dataSize;
         public byte[] dataType = new byte[5];
         public byte[] bytes = new byte[32];
-
-        @Override
-        protected List<String> getFieldOrder() {
-            return Arrays.asList(new String[] { "key", "dataSize", "dataType", "bytes" });
-        }
     }
 
     class IOConnect extends IntByReference {

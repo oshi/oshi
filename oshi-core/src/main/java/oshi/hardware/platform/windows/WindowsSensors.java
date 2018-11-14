@@ -18,99 +18,165 @@
  */
 package oshi.hardware.platform.windows;
 
-import java.util.List;
-import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.sun.jna.platform.win32.PdhUtil; // NOSONAR squid:S1191
+import com.sun.jna.platform.win32.PdhUtil.PdhEnumObjectItems;
+import com.sun.jna.platform.win32.PdhUtil.PdhException;
+import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
+import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.hardware.Sensors;
+import oshi.util.platform.windows.PerfDataUtil;
+import oshi.util.platform.windows.PerfDataUtil.PerfCounter;
 import oshi.util.platform.windows.WmiUtil;
 
 public class WindowsSensors implements Sensors {
 
     private static final long serialVersionUID = 1L;
 
-    // Successful (?) WMI namespace, path and property
-    private String wmiTempNamespace = null;
+    private static final Logger LOG = LoggerFactory.getLogger(WindowsSensors.class);
 
-    private String wmiTempClass = null;
+    private static final String BASE_SENSOR_CLASS = "Sensor";
 
-    private String wmiTempProperty = null;
+    enum OhmHardwareProperty {
+        IDENTIFIER;
+    }
 
-    // Successful (?) WMI path and property
-    private String wmiVoltNamespace = null;
+    private static final WmiQuery<OhmHardwareProperty> OHM_HARDWARE_QUERY = new WmiQuery<>(WmiUtil.OHM_NAMESPACE,
+            "Hardware WHERE HardwareType=\"CPU\"", OhmHardwareProperty.class);
+    private static final WmiQuery<OhmHardwareProperty> OHM_VOLTAGE_QUERY = new WmiQuery<>(WmiUtil.OHM_NAMESPACE,
+            "Hardware WHERE SensorType=\"Voltage\"", OhmHardwareProperty.class);
 
-    private String wmiVoltClass = null;
+    enum OhmSensorProperty {
+        VALUE;
+    }
 
-    private String wmiVoltProperty = null;
+    private static final WmiQuery<OhmSensorProperty> OHM_SENSOR_QUERY = new WmiQuery<>(WmiUtil.OHM_NAMESPACE, null,
+            OhmSensorProperty.class);
 
-    private static final String OHM_NAMESPACE = "root\\OpenHardwareMonitor";
-    private static final String HARDWARE_CLASS = "Hardware";
-    private static final String SENSOR_CLASS = "Sensor";
-    private static final String IDENTIFIER_PROPERTY = "Identifier";
-    private static final String VALUE_PROPERTY = "Value";
-    private static final String CPU_FILTER = "WHERE HardwareType=\"CPU\"";
-    private static final String CPU_SENSOR_FILTER = "WHERE Parent=\"%s\" AND SensorType=\"%s\"";
+    enum FanProperty {
+        DESIREDSPEED;
+    }
+
+    private static final WmiQuery<FanProperty> FAN_QUERY = new WmiQuery<>("Win32_Fan", FanProperty.class);
+
+    enum VoltProperty {
+        CURRENTVOLTAGE, VOLTAGECAPS;
+    }
+
+    private static final WmiQuery<VoltProperty> VOLT_QUERY = new WmiQuery<>("Win32_Processor", VoltProperty.class);
+
+    /*
+     * For temperature query
+     */
+    enum ThermalZoneProperty {
+        NAME, TEMPERATURE;
+    }
+
+    // Only one of these will be used
+    private transient PerfCounter thermalZoneCounter = null;
+    private transient WmiQuery<ThermalZoneProperty> thermalZoneQuery = null;
+
+    public WindowsSensors() {
+        initPdhCounters();
+    }
+
+    private void initPdhCounters() {
+        String thermalZoneInfo = PdhUtil.PdhLookupPerfNameByIndex(null,
+                PdhUtil.PdhLookupPerfIndexByEnglishName("Thermal Zone Information"));
+        boolean enumeration = false;
+        if (!thermalZoneInfo.isEmpty()) {
+            try {
+                PdhEnumObjectItems objectItems = PdhUtil.PdhEnumObjectItems(null, null, thermalZoneInfo, 100);
+                // Default to first value
+                // Prefer a value with "CPU" in it
+                String cpuInstance = "";
+                for (String instance : objectItems.getInstances()) {
+                    if (cpuInstance.isEmpty() || instance.toLowerCase().contains("cpu")) {
+                        cpuInstance = instance;
+                        enumeration = true;
+                    }
+                }
+                this.thermalZoneCounter = PerfDataUtil.createCounter("Thermal Zone Information", cpuInstance,
+                        "Temperature");
+            } catch (PdhException e) {
+                LOG.warn("Unable to enumerate performance counter instances for {}.", thermalZoneInfo);
+            }
+        }
+        if (!enumeration || !PerfDataUtil.addCounterToQuery(this.thermalZoneCounter)) {
+            this.thermalZoneCounter = null;
+            this.thermalZoneQuery = new WmiQuery<>("Win32_PerfRawData_Counters_ThermalZoneInformation",
+                    ThermalZoneProperty.class);
+        }
+    }
 
     /**
      * {@inheritDoc}
      */
     @Override
     public double getCpuTemperature() {
-        // Initialize
+        // Initialize default
         double tempC = 0d;
 
-        // Attempt to fetch value from Open Hardware Monitor if it is running
-        String cpuIdentifier = WmiUtil.selectStringFrom(OHM_NAMESPACE, HARDWARE_CLASS, IDENTIFIER_PROPERTY, CPU_FILTER);
-        if (cpuIdentifier.length() > 0) {
-            Map<String, List<Float>> vals = WmiUtil.selectFloatsFrom(OHM_NAMESPACE, SENSOR_CLASS, VALUE_PROPERTY,
-                    String.format(CPU_SENSOR_FILTER, cpuIdentifier, "Temperature"));
-            if (!vals.get(VALUE_PROPERTY).isEmpty()) {
-                double sum = 0;
-                for (double val : vals.get(VALUE_PROPERTY)) {
-                    sum += val;
+        // Attempt to fetch value from Open Hardware Monitor if it is running,
+        // as it will give the most accurate results and the time to query (or
+        // attempt) is trivial
+        WmiResult<OhmHardwareProperty> ohmHardware = WmiUtil.queryWMI(OHM_HARDWARE_QUERY);
+        if (ohmHardware.getResultCount() > 0) {
+            String cpuIdentifier = WmiUtil.getString(ohmHardware, OhmHardwareProperty.IDENTIFIER, 0);
+            if (cpuIdentifier.length() > 0) {
+                StringBuilder sb = new StringBuilder(BASE_SENSOR_CLASS);
+                sb.append(" WHERE Parent = \"").append(cpuIdentifier);
+                sb.append("\" AND SensorType=\"Temperature\"");
+                OHM_SENSOR_QUERY.setWmiClassName(sb.toString());
+                WmiResult<OhmSensorProperty> ohmSensors = WmiUtil.queryWMI(OHM_SENSOR_QUERY);
+
+                if (ohmSensors.getResultCount() > 0) {
+                    double sum = 0;
+                    for (int i = 0; i < ohmSensors.getResultCount(); i++) {
+                        sum += WmiUtil.getFloat(ohmSensors, OhmSensorProperty.VALUE, i);
+                    }
+                    tempC = sum / ohmSensors.getResultCount();
                 }
-                tempC = sum / vals.get(VALUE_PROPERTY).size();
+                if (tempC > 0) {
+                    return tempC;
+                }
             }
-            return tempC;
         }
 
-        // If we get this far, OHM is not running.
-        // Try to get from conventional WMI
-        long tempK;
-        if (this.wmiTempClass == null) {
-            this.wmiTempNamespace = "root\\cimv2";
-            this.wmiTempClass = "Win32_Temperature";
-            this.wmiTempProperty = "CurrentReading";
-            tempK = WmiUtil.selectUint32From(this.wmiTempNamespace, this.wmiTempClass, this.wmiTempProperty, null);
-            if (tempK == 0) {
-                this.wmiTempClass = "Win32_TemperatureProbe";
-                tempK = WmiUtil.selectUint32From(this.wmiTempNamespace, this.wmiTempClass, this.wmiTempProperty, null);
-            }
-            if (tempK == 0) {
-                this.wmiTempClass = "Win32_PerfFormattedData_Counters_ThermalZoneInformation";
-                this.wmiTempProperty = "Temperature";
-                tempK = WmiUtil.selectUint32From(this.wmiTempNamespace, this.wmiTempClass, this.wmiTempProperty, null);
-            }
-            if (tempK == 0) {
-                this.wmiTempNamespace = "root\\wmi";
-                this.wmiTempClass = "MSAcpi_ThermalZoneTemperature";
-                this.wmiTempProperty = "CurrentTemperature";
-                tempK = WmiUtil.selectUint32From(this.wmiTempNamespace, this.wmiTempClass, this.wmiTempProperty, null);
-            }
+        // If we get this far, OHM is not running. Try from PDH
+        long tempK = 0L;
+        if (this.thermalZoneQuery == null) {
+            PerfDataUtil.updateQuery(this.thermalZoneCounter);
+            tempK = PerfDataUtil.queryCounter(this.thermalZoneCounter);
         } else {
-            // We've successfully read a previous time, or failed both here and
-            // with OHM, so keep using same values
-            tempK = WmiUtil.selectUint32From(this.wmiTempNamespace, this.wmiTempClass, this.wmiTempProperty, null);
+            // No counter, use WMI
+            WmiResult<ThermalZoneProperty> result = WmiUtil.queryWMI(this.thermalZoneQuery);
+            // Default to first value
+            // Prefer a value with "CPU" in name
+            for (int i = 0; i < result.getResultCount(); i++) {
+                if (tempK == 0L
+                        || WmiUtil.getString(result, ThermalZoneProperty.NAME, i).toLowerCase().contains("cpu")) {
+                    tempK = WmiUtil.getUint32(result, ThermalZoneProperty.TEMPERATURE, i);
+                }
+            }
         }
-        // Convert K to C and return result
-        if (tempK > 2732) {
+        if (tempK > 2732L) {
             tempC = tempK / 10d - 273.15;
-        } else if (tempK > 274) {
+        } else if (tempK > 274L) {
             tempC = tempK - 273d;
         }
-        if (tempC <= 0d) {
-            // Unable to get temperature via WMI.
+        if (tempC < 0d) {
             tempC = 0d;
         }
+
+        // Other fallbacks to WMI are unreliable so we omit them
+        // Win32_TemperatureProbe is the official location but is not currently
+        // populated and is "reserved for future use"
+        // MSAcpu_ThermalZoneTemperature only updates during a high temperature
+        // event and is otherwise unchanged/misleading.
         return tempC;
     }
 
@@ -119,31 +185,39 @@ public class WindowsSensors implements Sensors {
      */
     @Override
     public int[] getFanSpeeds() {
-        // Initialize
-        int[] fanSpeeds = new int[1];
-
         // Attempt to fetch value from Open Hardware Monitor if it is running
-        String cpuIdentifier = WmiUtil.selectStringFrom(OHM_NAMESPACE, HARDWARE_CLASS, IDENTIFIER_PROPERTY, CPU_FILTER);
-        if (cpuIdentifier.length() > 0) {
-            Map<String, List<Float>> vals = WmiUtil.selectFloatsFrom(OHM_NAMESPACE, SENSOR_CLASS, VALUE_PROPERTY,
-                    String.format(CPU_SENSOR_FILTER, cpuIdentifier, "Fan"));
-            if (!vals.get(VALUE_PROPERTY).isEmpty()) {
-                fanSpeeds = new int[vals.get(VALUE_PROPERTY).size()];
-                for (int i = 0; i < vals.get(VALUE_PROPERTY).size(); i++) {
-                    fanSpeeds[i] = vals.get(VALUE_PROPERTY).get(i).intValue();
+        WmiResult<OhmHardwareProperty> ohmHardware = WmiUtil.queryWMI(OHM_HARDWARE_QUERY);
+        if (ohmHardware.getResultCount() > 0) {
+            String cpuIdentifier = WmiUtil.getString(ohmHardware, OhmHardwareProperty.IDENTIFIER, 0);
+            if (cpuIdentifier.length() > 0) {
+                StringBuilder sb = new StringBuilder(BASE_SENSOR_CLASS);
+                sb.append(" WHERE Parent = \"").append(cpuIdentifier);
+                sb.append("\" AND SensorType=\"Fan\"");
+                OHM_SENSOR_QUERY.setWmiClassName(sb.toString());
+                WmiResult<OhmSensorProperty> ohmSensors = WmiUtil.queryWMI(OHM_SENSOR_QUERY);
+
+                if (ohmSensors.getResultCount() > 0) {
+                    int[] fanSpeeds = new int[ohmSensors.getResultCount()];
+                    for (int i = 0; i < ohmSensors.getResultCount(); i++) {
+                        fanSpeeds[i] = (int) WmiUtil.getFloat(ohmSensors, OhmSensorProperty.VALUE, i);
+                    }
+                    return fanSpeeds;
                 }
             }
-            return fanSpeeds;
         }
 
         // If we get this far, OHM is not running.
         // Try to get from conventional WMI
-        int rpm = WmiUtil.selectUint32From(null, "Win32_Fan", "DesiredSpeed", null).intValue();
-        // Set in array and return
-        if (rpm > 0) {
-            fanSpeeds[0] = rpm;
+        WmiResult<FanProperty> fan = WmiUtil.queryWMI(FAN_QUERY);
+        if (fan.getResultCount() > 1) {
+            int[] fanSpeeds = new int[fan.getResultCount()];
+            for (int i = 0; i < fan.getResultCount(); i++) {
+                fanSpeeds[i] = WmiUtil.getUint32(fan, FanProperty.DESIREDSPEED, i);
+            }
+            return fanSpeeds;
         }
-        return fanSpeeds;
+        // Default
+        return new int[1];
     }
 
     /**
@@ -151,70 +225,59 @@ public class WindowsSensors implements Sensors {
      */
     @Override
     public double getCpuVoltage() {
-        // Initialize
-        double volts = 0d;
-
         // Attempt to fetch value from Open Hardware Monitor if it is running
-        Map<String, List<String>> voltIdentifiers = WmiUtil.selectStringsFrom(OHM_NAMESPACE, HARDWARE_CLASS,
-                IDENTIFIER_PROPERTY, "WHERE SensorType=\"Voltage\"");
-        // Look for identifier containing "cpu"
-        String voltIdentifierStr = null;
-        for (String id : voltIdentifiers.get(IDENTIFIER_PROPERTY)) {
-            if (id.toLowerCase().contains("cpu")) {
-                voltIdentifierStr = id;
-                break;
+        WmiResult<OhmHardwareProperty> ohmHardware = WmiUtil.queryWMI(OHM_VOLTAGE_QUERY);
+        if (ohmHardware.getResultCount() > 0) {
+            // Look for identifier containing "cpu"
+            String voltIdentifierStr = null;
+            for (int i = 0; i < ohmHardware.getResultCount(); i++) {
+                String id = WmiUtil.getString(ohmHardware, OhmHardwareProperty.IDENTIFIER, i);
+                if (id.toLowerCase().contains("cpu")) {
+                    voltIdentifierStr = id;
+                    break;
+                }
             }
-        }
-        // If none contain cpu just grab the first one
-        if (voltIdentifierStr == null && !voltIdentifiers.get(IDENTIFIER_PROPERTY).isEmpty()) {
-            voltIdentifierStr = voltIdentifiers.get(IDENTIFIER_PROPERTY).get(0);
-        }
-        if (voltIdentifierStr != null) {
-            return WmiUtil.selectFloatFrom(OHM_NAMESPACE, SENSOR_CLASS, VALUE_PROPERTY,
-                    "WHERE Parent=\"" + voltIdentifierStr + "\" AND SensorType=\"Voltage\"");
+            // If none found, just get the first one
+            if (voltIdentifierStr == null) {
+                voltIdentifierStr = WmiUtil.getString(ohmHardware, OhmHardwareProperty.IDENTIFIER, 0);
+            }
+            // Now fetch sensor
+            StringBuilder sb = new StringBuilder(BASE_SENSOR_CLASS);
+            sb.append(" WHERE Parent = \"").append(voltIdentifierStr);
+            sb.append("\" AND SensorType=\"Voltage\"");
+            OHM_SENSOR_QUERY.setWmiClassName(sb.toString());
+            WmiResult<OhmSensorProperty> ohmSensors = WmiUtil.queryWMI(OHM_SENSOR_QUERY);
+            if (ohmSensors.getResultCount() > 0) {
+                return WmiUtil.getFloat(ohmSensors, OhmSensorProperty.VALUE, 0);
+            }
         }
 
         // If we get this far, OHM is not running.
         // Try to get from conventional WMI
-        int decivolts;
-        if (this.wmiVoltClass == null) {
-            this.wmiVoltNamespace = "root\\cimv2";
-            this.wmiVoltClass = "Win32_Processor";
-            this.wmiVoltProperty = "CurrentVoltage";
-            decivolts = WmiUtil.selectUint32From(this.wmiVoltNamespace, this.wmiVoltClass, this.wmiVoltProperty, null)
-                    .intValue();
+        WmiResult<VoltProperty> voltage = WmiUtil.queryWMI(VOLT_QUERY);
+        if (voltage.getResultCount() > 1) {
+            int decivolts = WmiUtil.getUint16(voltage, VoltProperty.CURRENTVOLTAGE, 0);
             // If the eighth bit is set, bits 0-6 contain the voltage
             // multiplied by 10. If the eighth bit is not set, then the bit
             // setting in VoltageCaps represents the voltage value.
-            if ((decivolts & 0x80) == 0 && decivolts > 0) {
-                this.wmiVoltProperty = "VoltageCaps";
-                // really a bit setting, not decivolts, test later
-                decivolts = WmiUtil
-                        .selectUint32From(this.wmiVoltNamespace, this.wmiVoltClass, this.wmiVoltProperty, null)
-                        .intValue();
-            }
-        } else {
-            // We've successfully read a previous time, or failed both here and
-            // with OHM
-            decivolts = WmiUtil.selectUint32From(this.wmiVoltNamespace, this.wmiVoltClass, this.wmiVoltProperty, null)
-                    .intValue();
-        }
-        // Convert dV to V and return result
-        if (decivolts > 0) {
-            if ("VoltageCaps".equals(this.wmiVoltProperty)) {
-                // decivolts are bits
-                if ((decivolts & 0x1) > 0) {
-                    volts = 5.0;
-                } else if ((decivolts & 0x2) > 0) {
-                    volts = 3.3;
-                } else if ((decivolts & 0x4) > 0) {
-                    volts = 2.9;
+            if (decivolts > 0) {
+                if ((decivolts & 0x80) == 0) {
+                    decivolts = WmiUtil.getUint32(voltage, VoltProperty.VOLTAGECAPS, 0);
+                    // This value is really a bit setting, not decivolts
+                    if ((decivolts & 0x1) > 0) {
+                        return 5.0;
+                    } else if ((decivolts & 0x2) > 0) {
+                        return 3.3;
+                    } else if ((decivolts & 0x4) > 0) {
+                        return 2.9;
+                    }
+                } else {
+                    // Value from bits 0-6, divided by 10
+                    return (decivolts & 0x7F) / 10d;
                 }
-            } else {
-                // Value from bits 0-6
-                volts = (decivolts & 0x7F) / 10d;
             }
         }
-        return volts;
+        // Default
+        return 0d;
     }
 }

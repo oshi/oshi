@@ -18,8 +18,8 @@
  */
 package oshi.hardware.platform.windows;
 
-import java.util.List;
-import java.util.Map;
+import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery; // NOSONAR squid:S1191
+import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.hardware.common.AbstractBaseboard;
 import oshi.util.platform.windows.WmiUtil;
@@ -33,33 +33,22 @@ public class WindowsBaseboard extends AbstractBaseboard {
 
     private static final long serialVersionUID = 1L;
 
+    enum BaseboardProperty {
+        MANUFACTURER, MODEL, VERSION, SERIALNUMBER;
+    }
+
     WindowsBaseboard() {
         init();
     }
 
     private void init() {
-
-        final Map<String, List<String>> win32BaseBoard = WmiUtil.selectStringsFrom(null, "Win32_BaseBoard",
-                "Manufacturer,Model,Version,SerialNumber", null);
-
-        final List<String> baseboardManufacturers = win32BaseBoard.get("Manufacturer");
-        if (baseboardManufacturers != null && !baseboardManufacturers.isEmpty()) {
-            setManufacturer(baseboardManufacturers.get(0));
-        }
-
-        final List<String> baseboardModels = win32BaseBoard.get("Model");
-        if (baseboardModels != null && !baseboardModels.isEmpty()) {
-            setModel(baseboardModels.get(0));
-        }
-
-        final List<String> baseboardVersions = win32BaseBoard.get("Version");
-        if (baseboardVersions != null && !baseboardVersions.isEmpty()) {
-            setVersion(baseboardVersions.get(0));
-        }
-
-        final List<String> baseboardSerials = win32BaseBoard.get("SerialNumber");
-        if (baseboardSerials != null && !baseboardSerials.isEmpty()) {
-            setSerialNumber(baseboardSerials.get(0));
+        WmiQuery<BaseboardProperty> baseboardQuery = new WmiQuery<>("Win32_BaseBoard", BaseboardProperty.class);
+        WmiResult<BaseboardProperty> win32BaseBoard = WmiUtil.queryWMI(baseboardQuery);
+        if (win32BaseBoard.getResultCount() > 0) {
+            setManufacturer(WmiUtil.getString(win32BaseBoard, BaseboardProperty.MANUFACTURER, 0));
+            setModel(WmiUtil.getString(win32BaseBoard, BaseboardProperty.MODEL, 0));
+            setVersion(WmiUtil.getString(win32BaseBoard, BaseboardProperty.VERSION, 0));
+            setSerialNumber(WmiUtil.getString(win32BaseBoard, BaseboardProperty.SERIALNUMBER, 0));
         }
     }
 }

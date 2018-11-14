@@ -26,7 +26,6 @@ import java.util.List;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.threeten.bp.LocalDate;
 
 /**
  * The Class FormatUtilTest.
@@ -152,18 +151,6 @@ public class FormatUtilTest {
     @Test
     public void testGetUnsignedInt() {
         assertEquals(4294967295L, FormatUtil.getUnsignedInt(-1));
-    }
-
-    /**
-     * Test format date.
-     */
-    @Test
-    public void testFormatDate() {
-        assertEquals("null", FormatUtil.formatDate(null));
-        assertEquals("01/01/2017", FormatUtil.formatDate(LocalDate.parse("2017-01-01")));
-        assertEquals(null, FormatUtil.formatStringDate(null));
-        assertEquals(null, FormatUtil.formatStringDate("Unparseable"));
-        assertEquals(LocalDate.parse("2017-01-01"), FormatUtil.formatStringDate("01/01/2017"));
     }
 
     /**

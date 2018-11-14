@@ -19,7 +19,6 @@
 package oshi.json.hardware;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -48,11 +47,11 @@ public class DisksTest {
 
         HWDiskStore lastDisk = new HWDiskStore();
         for (HWDiskStore disk : si.getHardware().getDiskStores()) {
-            assertTrue(disk.equals(disk));
-            assertFalse(disk.equals(null));
-            assertFalse(disk.equals("A String"));
-            assertFalse(disk.equals(lastDisk));
-            assertFalse(disk.hashCode() == lastDisk.hashCode());
+            assertEquals(disk, disk);
+            assertNotEquals(disk, null);
+            assertNotEquals(disk, "A String");
+            assertNotEquals(disk, lastDisk);
+            assertNotEquals(disk.hashCode(), lastDisk.hashCode());
             HWPartition[] parts = disk.getPartitions();
             HWPartition[] partArray = new HWPartition[parts.length];
             for (int i = 0; i < partArray.length; i++) {
@@ -76,6 +75,7 @@ public class DisksTest {
             assertTrue(disk.getReadBytes() >= 0);
             assertTrue(disk.getWrites() >= 0);
             assertTrue(disk.getWriteBytes() >= 0);
+            assertTrue(disk.getCurrentQueueLength() >= 0);
             assertTrue(disk.getTransferTime() >= 0);
             assertTrue(disk.getTimeStamp() >= 0);
 
@@ -133,7 +133,8 @@ public class DisksTest {
             disk.setReadBytes(789L);
             disk.setWrites(101112L);
             disk.setWriteBytes(131415L);
-            disk.setTransferTime(161718L);
+            disk.setCurrentQueueLength(161718L);
+            disk.setTransferTime(192021L);
             disk.setTimeStamp(timeStamp);
 
             assertEquals("name", disk.getName());
@@ -144,7 +145,8 @@ public class DisksTest {
             assertEquals(789L, disk.getReadBytes());
             assertEquals(101112L, disk.getWrites());
             assertEquals(131415L, disk.getWriteBytes());
-            assertEquals(161718L, disk.getTransferTime());
+            assertEquals(161718L, disk.getCurrentQueueLength());
+            assertEquals(192021L, disk.getTransferTime());
             assertEquals(timeStamp, disk.getTimeStamp());
 
             for (HWPartition partition : disk.getPartitions()) {

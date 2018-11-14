@@ -20,7 +20,6 @@ package oshi.hardware.platform.unix.freebsd;
 
 import oshi.hardware.common.AbstractFirmware;
 import oshi.util.ExecutingCommand;
-import oshi.util.FormatUtil;
 
 final class FreeBsdFirmware extends AbstractFirmware {
 
@@ -70,7 +69,13 @@ final class FreeBsdFirmware extends AbstractFirmware {
             setVersion(version);
         }
         if (!releaseDate.isEmpty()) {
-            setReleaseDate(FormatUtil.formatStringDate(releaseDate));
+            try {
+                // Date is MM-DD-YYYY, convert to YYYY-MM-DD
+                setReleaseDate(String.format("%s-%s-%s", releaseDate.substring(6, 10), releaseDate.substring(0, 2),
+                        releaseDate.substring(3, 5)));
+            } catch (StringIndexOutOfBoundsException e) {
+                setReleaseDate(releaseDate);
+            }
         }
     }
 }

@@ -18,15 +18,11 @@
  */
 package oshi.hardware.platform.windows;
 
-import java.util.List;
-import java.util.Map;
-
-import org.threeten.bp.Instant;
-import org.threeten.bp.ZoneOffset;
+import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery; // NOSONAR squid:S1191
+import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.hardware.common.AbstractFirmware;
 import oshi.util.platform.windows.WmiUtil;
-import oshi.util.platform.windows.WmiUtil.ValueType;
 
 /**
  * Firmware data obtained from WMI
@@ -37,41 +33,24 @@ final class WindowsFirmware extends AbstractFirmware {
 
     private static final long serialVersionUID = 1L;
 
-    private static final ValueType[] BIOS_TYPES = { ValueType.STRING, ValueType.STRING, ValueType.STRING,
-            ValueType.STRING, ValueType.DATETIME };
+    enum BiosProperty {
+        MANUFACTURER, NAME, DESCRIPTION, VERSION, RELEASEDATE;
+    }
 
     WindowsFirmware() {
         init();
     }
 
     private void init() {
+        WmiQuery<BiosProperty> biosQuery = new WmiQuery<>("Win32_BIOS where PrimaryBIOS=true", BiosProperty.class);
 
-        final Map<String, List<Object>> win32BIOS = WmiUtil.selectObjectsFrom(null, "Win32_BIOS",
-                "Manufacturer,Name,Description,Version,ReleaseDate", "where PrimaryBIOS=true", BIOS_TYPES);
-
-        final List<Object> manufacturers = win32BIOS.get("Manufacturer");
-        if (manufacturers != null && manufacturers.size() == 1) {
-            setManufacturer((String) manufacturers.get(0));
-        }
-
-        final List<Object> names = win32BIOS.get("Name");
-        if (names != null && names.size() == 1) {
-            setName((String) names.get(0));
-        }
-
-        final List<Object> descriptions = win32BIOS.get("Description");
-        if (descriptions != null && descriptions.size() == 1) {
-            setDescription((String) descriptions.get(0));
-        }
-
-        final List<Object> version = win32BIOS.get("Version");
-        if (version != null && version.size() == 1) {
-            setVersion((String) version.get(0));
-        }
-
-        final List<Object> releaseDate = win32BIOS.get("ReleaseDate");
-        if (releaseDate != null && releaseDate.size() == 1) {
-            setReleaseDate(Instant.ofEpochMilli((Long) releaseDate.get(0)).atZone(ZoneOffset.UTC).toLocalDate());
+        WmiResult<BiosProperty> win32BIOS = WmiUtil.queryWMI(biosQuery);
+        if (win32BIOS.getResultCount() > 0) {
+            setManufacturer(WmiUtil.getString(win32BIOS, BiosProperty.MANUFACTURER, 0));
+            setName(WmiUtil.getString(win32BIOS, BiosProperty.NAME, 0));
+            setDescription(WmiUtil.getString(win32BIOS, BiosProperty.DESCRIPTION, 0));
+            setVersion(WmiUtil.getString(win32BIOS, BiosProperty.VERSION, 0));
+            setReleaseDate(WmiUtil.getDateString(win32BIOS, BiosProperty.RELEASEDATE, 0));
         }
     }
 }

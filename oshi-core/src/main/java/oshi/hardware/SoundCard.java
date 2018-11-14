@@ -16,9 +16,32 @@
  * Contributors:
  * https://github.com/oshi/oshi/graphs/contributors
  */
+package oshi.hardware;
+
 /**
- * Provides implementation of COM objects for Windows. These classes should be
- * considered non-API as they may be removed if/when their code is incorporated
- * into the JNA project.
+ * @author BilalAM
  */
-package oshi.jna.platform.windows.COM;
+public interface SoundCard {
+
+    /**
+     * Retrieves the driver version currently in use in machine
+     *
+     * @return The current and complete name of the driver version
+     */
+    String getDriverVersion();
+
+    /**
+     * Retrieves the full name of the card.
+     *
+     * @return The name of the card.
+     */
+    String getName();
+
+    /**
+     * Retrieves the codec of the Sound card
+     *
+     * @return The name of the codec of the sound card
+     */
+    String getCodec();
+
+}

@@ -26,6 +26,7 @@ import oshi.hardware.HWDiskStore;
 import oshi.hardware.NetworkIF;
 import oshi.hardware.PowerSource;
 import oshi.hardware.Sensors;
+import oshi.hardware.SoundCard;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
 
@@ -115,5 +116,17 @@ public class MacHardwareAbstractionLayer extends AbstractHardwareAbstractionLaye
     @Override
     public UsbDevice[] getUsbDevices(boolean tree) {
         return MacUsbDevice.getUsbDevices(tree);
+    }
+
+    /**
+     * Instantiates an array of {@link SoundCard} objects, representing the
+     * Sound cards.
+     *
+     * @return An array of SoundCard objects or an empty array if none are
+     *         present.
+     */
+    @Override
+    public SoundCard[] getSoundCards() {
+        return MacSoundCard.getSoundCards().toArray(new SoundCard[0]);
     }
 }

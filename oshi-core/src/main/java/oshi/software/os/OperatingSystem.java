@@ -112,7 +112,7 @@ public interface OperatingSystem extends Serializable {
      * return all processes. The order may be specified by the sort parameter,
      * for example, to return the top cpu or memory consuming processes; if
      * null, no order is guaranteed.
-     * 
+     *
      * @param parentPid
      *            A process ID
      * @param limit
@@ -146,6 +146,13 @@ public interface OperatingSystem extends Serializable {
      * @return The number of threads running
      */
     int getThreadCount();
+
+    /**
+     * Gets the bitness (32 or 64) of the operating system.
+     *
+     * @return The number of bits supported by the operating system.
+     */
+    int getBitness();
 
     /**
      * Instantiates a {@link NetworkParams} object.

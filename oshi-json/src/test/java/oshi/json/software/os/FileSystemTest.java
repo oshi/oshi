@@ -54,7 +54,10 @@ public class FileSystemTest {
             assertNotNull(store.getMount());
             assertNotNull(store.getUUID());
             assertTrue(store.getTotalSpace() >= 0);
-            assertTrue(store.getUsableSpace() <= store.getTotalSpace());
+            assertTrue(store.getUsableSpace() >= 0);
+            if (!store.getDescription().equals("Network drive")) {
+                assertTrue(store.getUsableSpace() <= store.getTotalSpace());
+            }
 
             store.setName("name");
             store.setVolume("volume");

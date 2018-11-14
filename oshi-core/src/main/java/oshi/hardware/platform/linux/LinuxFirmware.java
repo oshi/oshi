@@ -21,7 +21,6 @@ package oshi.hardware.platform.linux;
 import oshi.hardware.common.AbstractFirmware;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
-import oshi.util.FormatUtil;
 
 /**
  * Firmware data obtained by sysfs
@@ -118,7 +117,13 @@ final class LinuxFirmware extends AbstractFirmware {
 
         final String biosDate = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + "bios_date");
         if (biosDate != null && !biosDate.trim().isEmpty()) {
-            setReleaseDate(FormatUtil.formatStringDate(biosDate.trim()));
+            try {
+                // Date is MM-DD-YYYY, convert to YYYY-MM-DD
+                setReleaseDate(String.format("%s-%s-%s", biosDate.substring(6, 10), biosDate.substring(0, 2),
+                        biosDate.substring(3, 5)));
+            } catch (StringIndexOutOfBoundsException e) {
+                setReleaseDate(biosDate);
+            }
         }
 
         // name --> not set

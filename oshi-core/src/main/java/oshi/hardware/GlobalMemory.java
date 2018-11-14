@@ -87,7 +87,7 @@ public interface GlobalMemory extends Serializable {
 
     /**
      * The number of bytes in a memory page
-     * 
+     *
      * @return Page size in bytes.
      */
     long getPageSize();

@@ -46,6 +46,13 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
         this.manufacturer = "Unix/BSD";
         this.family = BsdSysctlUtil.sysctl("kern.ostype", "FreeBSD");
         this.version = new FreeBsdOSVersionInfoEx();
+        initBitness();
+    }
+
+    private void initBitness() {
+        if (this.bitness < 64 && ExecutingCommand.getFirstAnswer("uname -m").indexOf("64") != -1) {
+            this.bitness = 64;
+        }
     }
 
     /**

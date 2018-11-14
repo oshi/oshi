@@ -25,13 +25,10 @@ import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 
-import org.threeten.bp.LocalDate;
-
 import oshi.json.hardware.Firmware;
 import oshi.json.json.AbstractOshiJsonObject;
 import oshi.json.json.NullAwareJsonObjectBuilder;
 import oshi.json.util.PropertiesUtil;
-import oshi.util.FormatUtil;
 
 /**
  * Wrapper class to implement Firmware interface with platform-specific objects
@@ -91,7 +88,7 @@ public class FirmwareImpl extends AbstractOshiJsonObject implements Firmware {
      * {@inheritDoc}
      */
     @Override
-    public LocalDate getReleaseDate() {
+    public String getReleaseDate() {
         return this.firmware.getReleaseDate();
     }
 
@@ -114,7 +111,7 @@ public class FirmwareImpl extends AbstractOshiJsonObject implements Firmware {
             json.add("version", getVersion());
         }
         if (PropertiesUtil.getBoolean(properties, "hardware.computerSystem.firmware.releaseDate")) {
-            json.add("releaseDate", getReleaseDate() == null ? "unknown" : FormatUtil.formatDate(getReleaseDate()));
+            json.add("releaseDate", getReleaseDate());
         }
         return json.build();
     }

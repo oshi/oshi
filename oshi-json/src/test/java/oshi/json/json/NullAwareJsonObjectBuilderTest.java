@@ -64,6 +64,9 @@ public class NullAwareJsonObjectBuilderTest {
         json.add("long", 4200L);
         json.add("double", 42d);
         json.add("boolean", true);
+        json.add("nan", Double.NaN);
+        json.add("inf", Double.POSITIVE_INFINITY);
+        json.add("-inf", Double.NEGATIVE_INFINITY);
 
         JsonArrayBuilder arrayBuilder = null;
         json.add("nullArray", arrayBuilder);
@@ -107,6 +110,13 @@ public class NullAwareJsonObjectBuilderTest {
         assertEquals("42.0", obj.get("double").toString());
         assertEquals(JsonValue.ValueType.TRUE, obj.get("boolean").getValueType());
         assertEquals("true", obj.get("boolean").toString());
+
+        assertEquals(JsonValue.ValueType.STRING, obj.get("nan").getValueType());
+        assertEquals("\"NaN\"", obj.get("nan").toString());
+        assertEquals(JsonValue.ValueType.STRING, obj.get("inf").getValueType());
+        assertEquals("\"Infinity\"", obj.get("inf").toString());
+        assertEquals(JsonValue.ValueType.STRING, obj.get("-inf").getValueType());
+        assertEquals("\"-Infinity\"", obj.get("-inf").toString());
 
         assertEquals(JsonValue.ValueType.ARRAY, obj.get("zeroArray").getValueType());
         assertEquals("[{\"zero\":0}]", obj.get("zeroArray").toString());

@@ -54,6 +54,8 @@ public class OSProcess implements Serializable {
     private long bytesRead;
     private long bytesWritten;
     private long openFiles;
+    // cache calculation for sorting
+    private transient double cpuPercent = -1d;
 
     /**
      * Process Execution States
@@ -121,7 +123,7 @@ public class OSProcess implements Serializable {
 
     /**
      * @return Returns the process current working directory.
-     * 
+     *
      *         On Windows, this value is only populated for the current process.
      */
     public String getCurrentWorkingDirectory() {
@@ -267,9 +269,6 @@ public class OSProcess implements Serializable {
      * @return Returns the number of milliseconds since the process started.
      */
     public long getUpTime() {
-        if (this.upTime < this.kernelTime + this.userTime) {
-            return this.kernelTime + this.userTime;
-        }
         return this.upTime;
     }
 
@@ -529,7 +528,7 @@ public class OSProcess implements Serializable {
     /**
      * Sets the number of open file handles (or network connections) that
      * belongs to the process
-     * 
+     *
      * @param count
      *            The number of handles
      */
@@ -543,10 +542,35 @@ public class OSProcess implements Serializable {
      *
      * On FreeBSD and Solaris, this value is only populated if information for a
      * single process id is requested.
-     * 
+     *
      * @return open files or -1 if unknown or not supported
      */
     public long getOpenFiles() {
-        return openFiles;
+        return this.openFiles;
+    }
+
+    /**
+     * Calculates CPU usage of this process.
+     *
+     * @return The proportion of up time that the process was executing in
+     *         kernel or user mode.
+     */
+    public double calculateCpuPercent() {
+        if (this.cpuPercent < 0d) {
+            this.cpuPercent = (getKernelTime() + getUserTime()) / (double) getUpTime();
+        }
+        return this.cpuPercent;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder("OSProcess@");
+        builder.append(Integer.toHexString(hashCode()));
+        builder.append("[processID=").append(this.processID);
+        builder.append(", name=").append(this.name).append(']');
+        return builder.toString();
     }
 }

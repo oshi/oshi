@@ -34,7 +34,7 @@ import com.sun.jna.ptr.PointerByReference;
  * @author widdis[at]gmail[dot]com
  */
 public interface CoreFoundation extends Library {
-    CoreFoundation INSTANCE = Native.loadLibrary("CoreFoundation", CoreFoundation.class);
+    CoreFoundation INSTANCE = Native.load("CoreFoundation", CoreFoundation.class);
 
     int UTF_8 = 0x08000100;
 

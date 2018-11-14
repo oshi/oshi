@@ -52,9 +52,10 @@ public class SolarisDisks implements Disks {
             diskStore.setWrites(data.writes);
             diskStore.setReadBytes(data.nread);
             diskStore.setWriteBytes(data.nwritten);
+            diskStore.setCurrentQueueLength((long) data.wcnt + data.rcnt);
             // rtime and snaptime are nanoseconds, convert to millis
-            diskStore.setTransferTime(data.rtime / 1000000L);
-            diskStore.setTimeStamp(ksp.ks_snaptime / 1000000L);
+            diskStore.setTransferTime(data.rtime / 1_000_000L);
+            diskStore.setTimeStamp(ksp.ks_snaptime / 1_000_000L);
             return true;
         } else {
             return false;

@@ -36,6 +36,9 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
     protected String manufacturer;
     protected String family;
     protected OperatingSystemVersion version;
+    // Initialize based on JVM Bitness. Individual OS implementations will test
+    // if 32-bit JVM running on 64-bit OS
+    protected int bitness = System.getProperty("os.arch").indexOf("64") != -1 ? 64 : 32;
 
     /*
      * Comparators for use in processSort()
@@ -43,8 +46,7 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
     private static final Comparator<OSProcess> CPU_DESC_SORT = new Comparator<OSProcess>() {
         @Override
         public int compare(OSProcess p1, OSProcess p2) {
-            return Double.compare((p2.getKernelTime() + p2.getUserTime()) / (double) p2.getUpTime(),
-                    (p1.getKernelTime() + p1.getUserTime()) / (double) p1.getUpTime());
+            return Double.compare(p2.calculateCpuPercent(), p1.calculateCpuPercent());
         }
     };
     private static final Comparator<OSProcess> RSS_DESC_SORT = new Comparator<OSProcess>() {
@@ -182,9 +184,18 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
         List<OSProcess> returnValue = new LinkedList<>();
         for (Integer pid : pids) {
             OSProcess process = getProcess(pid);
-            if (process != null)
+            if (process != null) {
                 returnValue.add(process);
+            }
         }
         return returnValue;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getBitness() {
+        return this.bitness;
     }
 }

@@ -27,6 +27,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Pointer;
+import com.sun.jna.platform.mac.SystemB;
+import com.sun.jna.platform.mac.SystemB.Statfs;
 import com.sun.jna.ptr.IntByReference;
 
 import oshi.jna.platform.mac.CoreFoundation;
@@ -36,8 +38,6 @@ import oshi.jna.platform.mac.DiskArbitration;
 import oshi.jna.platform.mac.DiskArbitration.DADiskRef;
 import oshi.jna.platform.mac.DiskArbitration.DASessionRef;
 import oshi.jna.platform.mac.IOKit;
-import oshi.jna.platform.mac.SystemB;
-import oshi.jna.platform.mac.SystemB.Statfs;
 import oshi.software.os.FileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.platform.mac.CfUtil;
@@ -166,8 +166,18 @@ public class MacFileSystem implements FileSystem {
                 }
 
                 // Add to the list
-                fsList.add(new OSFileStore(name, volume, path, description, type, uuid, file.getUsableSpace(),
-                        file.getTotalSpace()));
+                OSFileStore osStore = new OSFileStore();
+                osStore.setName(name);
+                osStore.setVolume(volume);
+                osStore.setMount(path);
+                osStore.setDescription(description);
+                osStore.setType(type);
+                osStore.setUUID(uuid);
+                osStore.setUsableSpace(file.getUsableSpace());
+                osStore.setTotalSpace(file.getTotalSpace());
+                osStore.setFreeInodes(fs[f].f_ffree);
+                osStore.setTotalInodes(fs[f].f_files);
+                fsList.add(osStore);
             }
         }
         // Close DA session

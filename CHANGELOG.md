@@ -1,4 +1,72 @@
-3.6.0 (in progress)
+3.11.0 (in progress)
+================
+* Your contribution here.
+
+3.10.0 (11/03/18)
+================
+* [#656](https://github.com/oshi/oshi/pull/656): JNA 5.0.0. - [@dbwiddis](https://github.com/dbwiddis).
+* [#659](https://github.com/oshi/oshi/pull/659): Add free/total inode counts. - [@Space2Man](https://github.com/Space2Man).
+* [#666](https://github.com/oshi/oshi/pull/666): Recreate counter handles when invalid - [@dbwiddis](https://github.com/dbwiddis).
+* [#675](https://github.com/oshi/oshi/pull/675): Solaris 10 network stats compatibility fix - [@dbwiddis](https://github.com/dbwiddis).
+
+3.9.1 (10/14/18)
+================
+* [#647](https://github.com/oshi/oshi/pull/647): Fix Windows idle counter calculation. - [@dbwiddis](https://github.com/dbwiddis).
+* [#653](https://github.com/oshi/oshi/pull/653): Fix transferTime in WindowsDisks by using 1-%Idle - [@Space2Man](https://github.com/Space2Man).
+
+3.9.0 (10/7/2018)
+================
+* [#630](https://github.com/oshi/oshi/pull/630), [#640](https://github.com/oshi/oshi/pull/640), [#645](https://github.com/oshi/oshi/pull/645), [#652](https://github.com/oshi/oshi/pull/652), [#655](https://github.com/oshi/oshi/pull/655): Add Sound Card list. - [@bilalAM](https://github.com/bilalAM).
+* [#636](https://github.com/oshi/oshi/pull/636): Catch exception when english counters missing. - [@dbwiddis](https://github.com/dbwiddis).
+* [#639](https://github.com/oshi/oshi/pull/639): Implement QueueLength metric in HWDiskStore. - [@Space2Man](https://github.com/Space2Man).
+
+3.8.1 (09/01/2018), 3.8.2 (09/07/2018), 3.8.3 (09/14/2018), 3.8.4 (09/24/2018)
+================
+* [#592](https://github.com/oshi/oshi/pull/592): Test for non-numeric doubles in JSON parsing. - [@dbwiddis](https://github.com/dbwiddis).
+* [#597](https://github.com/oshi/oshi/pull/597): Fix Windows serialnumber fallback bug. - [@dbwiddis](https://github.com/dbwiddis).
+* [#603](https://github.com/oshi/oshi/pull/603): Fix Process Uptime bug. - [@anitakosman](https://github.com/anitakosman).
+* [#604](https://github.com/oshi/oshi/pull/604): Fix Windows interrupt count bug. - [@dbwiddis](https://github.com/dbwiddis).
+* [#605](https://github.com/oshi/oshi/pull/605): Update OSGi imports. - [@dbwiddis](https://github.com/dbwiddis).
+* [#608](https://github.com/oshi/oshi/pull/608): Fix Windows context swith count bug. - [@dbwiddis](https://github.com/dbwiddis).
+* [#611](https://github.com/oshi/oshi/pull/611): Fix proc stat parsing on older Linux distros. - [@dbwiddis](https://github.com/dbwiddis).
+* [#612](https://github.com/oshi/oshi/pull/612): OSProcess toString. - [@dbwiddis](https://github.com/dbwiddis).
+* [#614](https://github.com/oshi/oshi/pull/614): Remove unneeded debug query and fix a WMI cast error - [@dbwiddis](https://github.com/dbwiddis).
+* [#626](https://github.com/oshi/oshi/pull/626): Fix calculation of Hz on Linux - [@dbwiddis](https://github.com/dbwiddis).
+
+3.8.0 (08/20/2018)
+================
+* [#580](https://github.com/oshi/oshi/pull/580): Windows process uptime wasn't updating. - [@dbwiddis](https://github.com/dbwiddis).
+* [#585](https://github.com/oshi/oshi/pull/585): Fix WMI type mapping and BSTR allocation. - [@dbwiddis](https://github.com/dbwiddis).
+* [#586](https://github.com/oshi/oshi/pull/586): Add PerfDataUtil.removeAllCounters. - [@dbwiddis](https://github.com/dbwiddis).
+* [#587](https://github.com/oshi/oshi/pull/587): Localize PDH instance enumeration. - [@dbwiddis](https://github.com/dbwiddis).
+* [#588](https://github.com/oshi/oshi/pull/588): WMI backup for all PDH Counters. - [@dbwiddis](https://github.com/dbwiddis).
+
+3.7.1 (07/28/2018), 3.7.2 (08/01/2018)
+================
+* [#571](https://github.com/oshi/oshi/pull/571): CIM date broken for timezones east of GMT. - [@dbwiddis](https://github.com/dbwiddis).
+* [#573](https://github.com/oshi/oshi/pull/573): Don't get PDH swap stats if no swap. - [@dbwiddis](https://github.com/dbwiddis).
+* [#574](https://github.com/oshi/oshi/pull/574): Suppress repeat updates of failed PDH counters. - [@dbwiddis](https://github.com/dbwiddis).
+* [#575](https://github.com/oshi/oshi/pull/575): Replace WMI value types with Variant types. - [@dbwiddis](https://github.com/dbwiddis).
+* [#577](https://github.com/oshi/oshi/pull/577): Get Windows temperature from PDH counters. - [@dbwiddis](https://github.com/dbwiddis).
+
+3.7.0 (07/28/2018)
+================
+* [#551](https://github.com/oshi/oshi/pull/551): Check for zero-length PDH counter lists to avoid exceptions - [@dbwiddis](https://github.com/dbwiddis).
+* [#556](https://github.com/oshi/oshi/pull/556): WMI timeouts, standardization, and simplification. - [@dbwiddis](https://github.com/dbwiddis).
+* [#557](https://github.com/oshi/oshi/pull/557): Localize PDH Counter paths. - [@dbwiddis](https://github.com/dbwiddis).
+* [#561](https://github.com/oshi/oshi/pull/561): Optimize Process CPU sort. - [@dbwiddis](https://github.com/dbwiddis).
+* [#564](https://github.com/oshi/oshi/pull/564): Cache WMI connections. - [@dbwiddis](https://github.com/dbwiddis).
+* [#567](https://github.com/oshi/oshi/pull/567): Cache USB devices. - [@dbwiddis](https://github.com/dbwiddis).
+* [#569](https://github.com/oshi/oshi/pull/569): Remove threetenbp dependency. - [@dbwiddis](https://github.com/dbwiddis).
+
+3.6.1 (6/28/2018), 3.6.2 (7/10/18)
+================
+* [#527](https://github.com/oshi/oshi/pull/527): Correct process information caching and command line retrieval under Windows - [@dustin-johnson](https://github.com/dustin-johnson).
+* [#533](https://github.com/oshi/oshi/pull/533): Filter to CPU zone if multiple Windows Thermal sensors. - [@dbwiddis](https://github.com/dbwiddis).
+* [#542](https://github.com/oshi/oshi/pull/542): Disabled Windows performance collection leads to empty Process cache - [@MarcMil](https://github.com/MarcMil).
+* [#547](https://github.com/oshi/oshi/pull/547): Remove DataTypeConverter dependency so OSHI builds on Java 9+ - [@dbwiddis](https://github.com/dbwiddis).
+
+3.6.0 (6/20/2018)
 ================
 * [#489](https://github.com/oshi/oshi/pull/489): Switch from WMI to native methods for most Windows Process data. - [@dbwiddis](https://github.com/dbwiddis).
 * [#501](https://github.com/oshi/oshi/pull/501): Added HWDiskStore.updateDiskStats. - [@cjbrowne](https://github.com/cjbrowne).
@@ -6,7 +74,7 @@
 * [#507](https://github.com/oshi/oshi/pull/507): Replace WMI with (faster) PDH queries for WindowsCentralProcessor. - [@dbwiddis](https://github.com/dbwiddis).
 * [#508](https://github.com/oshi/oshi/pull/508): Replace WMI with (faster) registry data for Windows Processes. - [@dbwiddis](https://github.com/dbwiddis).
 * [#509](https://github.com/oshi/oshi/pull/509): Add pages swapped in/out to paging/swap file. - [@dbwiddis](https://github.com/dbwiddis).
-* Your contribution here.
+* [#518](https://github.com/oshi/oshi/pull/518): Add OS bitness. - [@dbwiddis](https://github.com/dbwiddis).
 
 3.5.0 (4/15/18)
 ================

@@ -161,24 +161,6 @@ public class FileUtil {
     }
 
     /**
-     * Read a file and return an array of whitespaces-delimited string values
-     * contained therein. Intended primarily for Linux /proc
-     *
-     * @param filename
-     *            The file to read
-     * @return An array of strings containing delimited values
-     */
-    public static String[] getSplitFromFile(String filename) {
-        LOG.debug("Reading file {}", filename);
-        List<String> read = FileUtil.readFile(filename, false);
-        if (!read.isEmpty()) {
-            LOG.trace("Read {}", read.get(0));
-            return ParseUtil.whitespaces.split(read.get(0));
-        }
-        return new String[0];
-    }
-
-    /**
      * Read a file and return a map of string keys to string values contained
      * therein. Intended primarily for Linux /proc/[pid]/io
      *

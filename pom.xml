@@ -24,7 +24,7 @@
 
 	<groupId>com.github.oshi</groupId>
 	<artifactId>oshi-parent</artifactId>
-	<version>3.6.0-SNAPSHOT</version>
+	<version>3.11.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>Operating System and Hardware Information</name>
@@ -57,10 +57,6 @@
 			<organizationUrl>https://github.com/dbwiddis/</organizationUrl>
 		</developer>
 	</developers>
-
-	<prerequisites>
-		<maven>${maven-min.version}</maven>
-	</prerequisites>
 
 	<modules>
 		<module>oshi-core</module>
@@ -108,30 +104,92 @@
 		<maven.compiler.target>1.7</maven.compiler.target>
 		<maven.compiler.testSource>1.7</maven.compiler.testSource>
 		<maven.compiler.testTarget>1.7</maven.compiler.testTarget>
-		<maven.min-version>3.2.3</maven.min-version>
+		<maven.min-version>3.3.9</maven.min-version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.build.resourceEncoding>UTF-8</project.build.resourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<signature.artifact>java17</signature.artifact>
 		<signature.version>1.0</signature.version>
+		<!-- Dependency versions -->
+		<slf4j.version>1.7.25</slf4j.version>
+		<junit-vintage-engine.version>4.12.3</junit-vintage-engine.version>
+		<!-- Compile versions -->
+		<maven-clean-plugin.version>3.1.0</maven-clean-plugin.version>
+		<maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
+		<maven-deploy-plugin.version>3.0.0-M1</maven-deploy-plugin.version>
+		<maven-enforcer-plugin.version>3.0.0-M2</maven-enforcer-plugin.version>
+		<maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
+		<maven-install-plugin.version>3.0.0-M1</maven-install-plugin.version>
+		<maven-resources-plugin.version>3.1.0</maven-resources-plugin.version>
+		<maven-site-plugin.version>3.7.1</maven-site-plugin.version>
+		<maven-surefire-plugin.version>2.22.1</maven-surefire-plugin.version>
+		<!-- maven-site-plugin dependencies -->
+		<doxia-module-markdown.version>1.8</doxia-module-markdown.version>
+		<wagon-git.version>2.0.3</wagon-git.version><!-- https://github.com/trajano/wagon-git/issues/18 -->
+		<wagon-ssh.version>3.2.0</wagon-ssh.version>
+		<maven-fluido-skin.version>1.7</maven-fluido-skin.version>
+		<!-- build plugins -->
+		<git-commit-id-plugin.version>2.2.5</git-commit-id-plugin.version>
+		<build-helper-maven-plugin.version>3.0.0</build-helper-maven-plugin.version>
+		<maven-jar-plugin.version>3.1.0</maven-jar-plugin.version>
+		<maven-war-plugin.version>3.2.2</maven-war-plugin.version>
+		<bnd-maven-plugin.version>4.1.0</bnd-maven-plugin.version>
+		<maven-shade-plugin.version>3.2.0</maven-shade-plugin.version>
+		<!-- reporting plugins -->
+		<maven-checkstyle-plugin.version>3.0.0</maven-checkstyle-plugin.version>
+		<maven-javadoc-plugin.version>3.0.1</maven-javadoc-plugin.version>
+		<maven-pmd-plugin.version>3.11.0</maven-pmd-plugin.version>
+		<!-- tools -->
+		<maven-antrun-plugin.version>1.8</maven-antrun-plugin.version>
+		<maven-assembly-plugin.version>3.1.0</maven-assembly-plugin.version>
+		<maven-dependency-plugin.version>3.1.1</maven-dependency-plugin.version>
+		<maven-release-plugin.version>2.5.3</maven-release-plugin.version>
+		<maven-source-plugin.version>3.0.1</maven-source-plugin.version>
+		<spotbugs-maven-plugin.version>3.1.7</spotbugs-maven-plugin.version>
+		<jacoco-maven-plugin.version>0.8.2</jacoco-maven-plugin.version>
+		<coveralls-maven-plugin.version>4.3.0</coveralls-maven-plugin.version>
+		<tidy-maven-plugin.version>1.1.0</tidy-maven-plugin.version>
+		<license-maven-plugin.version>3.0</license-maven-plugin.version>
+		<!-- report only -->
+		<jdepend-maven-plugin.version>2.0</jdepend-maven-plugin.version>
+		<maven-changelog-plugin.version>2.3</maven-changelog-plugin.version>
+		<maven-jxr-plugin.version>3.0.0</maven-jxr-plugin.version>
+		<maven-project-info-reports-plugin.version>3.0.0</maven-project-info-reports-plugin.version>
+		<maven-surefire-report-plugin.version>2.22.1</maven-surefire-report-plugin.version>
+		<taglist-maven-plugin.version>2.4</taglist-maven-plugin.version>
+		<versions-maven-plugin.version>2.7</versions-maven-plugin.version>
+		<!-- SCM -->
+		<maven-scm-plugin.version>1.11.1</maven-scm-plugin.version>
+		<maven-scm-provider-jgit.version>1.11.1</maven-scm-provider-jgit.version>
+		<JavaEWAH.version>1.1.6</JavaEWAH.version>
+		<jsch.version>0.1.54</jsch.version>
+		<jgit.version>5.1.3.201810200350-r</jgit.version>
+		<plexus-utils.version>3.1.0</plexus-utils.version>
+		<!-- Misc. -->
+		<sonar-maven-plugin.version>3.5.0.1254</sonar-maven-plugin.version>
+		<wagon-maven-plugin.version>2.0.0</wagon-maven-plugin.version>
+		<animal-sniffer-maven-plugin.version>1.17</animal-sniffer-maven-plugin.version>
+		<dependency-check-maven.version>3.3.4</dependency-check-maven.version>
+		<puppycrawl.checkstyle.version>8.14</puppycrawl.checkstyle.version>
+		<m2e.lifecycle-mapping.version>1.0.0</m2e.lifecycle-mapping.version>
 	</properties>
 
 	<dependencies>
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
-			<version>1.7.25</version>
+			<version>${slf4j.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-simple</artifactId>
-			<version>1.7.25</version>
+			<version>${slf4j.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.junit.vintage</groupId>
 			<artifactId>junit-vintage-engine</artifactId>
-			<version>4.12.3</version>
+			<version>${junit-vintage-engine.version}</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
@@ -143,92 +201,95 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-clean-plugin</artifactId>
-					<version>3.1.0</version>
+					<version>${maven-clean-plugin.version}</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
-					<version>3.7.0</version>
+					<version>${maven-compiler-plugin.version}</version>
 					<configuration>
-						<!-- Slightly faster builds, see https://jira.codehaus.org/browse/MCOMPILER-209 -->
+						<!-- Slightly faster builds, see https://issues.apache.org/jira/browse/MCOMPILER-209 -->
 						<useIncrementalCompilation>false</useIncrementalCompilation>
 					</configuration>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-deploy-plugin</artifactId>
-					<version>2.8.2</version>
+					<version>${maven-deploy-plugin.version}</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-enforcer-plugin</artifactId>
-					<version>3.0.0-M1</version>
+					<version>${maven-enforcer-plugin.version}</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-gpg-plugin</artifactId>
-					<version>1.6</version>
+					<version>${maven-gpg-plugin.version}</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-install-plugin</artifactId>
-					<version>2.5.2</version>
+					<version>${maven-install-plugin.version}</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-resources-plugin</artifactId>
-					<version>3.0.2</version>
+					<version>${maven-resources-plugin.version}</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-site-plugin</artifactId>
-					<version>3.7</version>
+					<version>${maven-site-plugin.version}</version>
 					<dependencies>
 						<dependency>
 							<groupId>org.apache.maven.doxia</groupId>
 							<artifactId>doxia-module-markdown</artifactId>
-							<version>1.8</version>
+							<version>${doxia-module-markdown.version}</version>
 						</dependency>
 						<dependency>
 							<groupId>net.trajano.wagon</groupId>
 							<artifactId>wagon-git</artifactId>
-							<version>2.0.3</version>
-							<!-- 2.0.4 does not work with ssh properly -->
-						</dependency>
-						<!-- For reporting only of versions -->
-						<dependency>
-							<groupId>org.apache.maven.skins</groupId>
-							<artifactId>maven-fluido-skin</artifactId>
-							<version>1.7</version>
+							<version>${wagon-git.version}</version>
 						</dependency>
 						<dependency>
 							<groupId>org.apache.maven.wagon</groupId>
 							<artifactId>wagon-ssh</artifactId>
-							<version>3.0.0</version>
+							<version>${wagon-ssh.version}</version>
+						</dependency>
+						<dependency>
+							<groupId>org.apache.maven.skins</groupId>
+							<artifactId>maven-fluido-skin</artifactId>
+							<version>${maven-fluido-skin.version}</version>
 						</dependency>
 					</dependencies>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-surefire-plugin</artifactId>
-					<version>2.19.1</version> <!-- Don't upgrade past this until junit5 is properly supported (memory leaks) -->
+					<version>${maven-surefire-plugin.version}</version>
+					<configuration>
+						<forkCount>3</forkCount>
+						<reuseForks>true</reuseForks>
+						<argLine>-Xmx1024m -XX:MaxPermSize=256m</argLine>
+					</configuration>
 				</plugin>
 				<!-- Build Plugins -->
 				<plugin>
 					<groupId>pl.project13.maven</groupId>
 					<artifactId>git-commit-id-plugin</artifactId>
-					<version>2.2.4</version>
+					<version>${git-commit-id-plugin.version}</version>
 				</plugin>
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>build-helper-maven-plugin</artifactId>
-					<version>3.0.0</version>
+					<version>${build-helper-maven-plugin.version}</version>
 				</plugin>
 				<!-- Packaging types / tools -->
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-jar-plugin</artifactId>
-					<version>3.1.0</version>
+					<version>${maven-jar-plugin.version}</version>
 					<configuration>
 						<archive>
 							<manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
@@ -252,7 +313,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-war-plugin</artifactId>
-					<version>3.2.0</version>
+					<version>${maven-war-plugin.version}</version>
 					<configuration>
 						<archive>
 							<manifest>
@@ -273,14 +334,15 @@
 						</archive>
 					</configuration>
 				</plugin>
+				<!-- OSGi -->
 				<plugin>
 					<groupId>biz.aQute.bnd</groupId>
 					<artifactId>bnd-maven-plugin</artifactId>
-					<version>3.5.0</version>
+					<version>${bnd-maven-plugin.version}</version>
 					<configuration>
-					<bnd><![CDATA[
-						Export-Package: oshi.*
-                                                Import-Package: com.sun.jna.*
+						<bnd><![CDATA[
+						Export-Package: oshi.*;-noimport:=true;-split-package:=merge-first
+						Import-Package: com.sun.management.*;resolution:=optional, *
 						Bundle-SymbolicName: ${project.groupId}.${project.artifactId}
 						-snapshot: SNAPSHOT
 					]]></bnd>
@@ -290,12 +352,12 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-checkstyle-plugin</artifactId>
-					<version>3.0.0</version>
+					<version>${maven-checkstyle-plugin.version}</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-javadoc-plugin</artifactId>
-					<version>3.0.0</version>
+					<version>${maven-javadoc-plugin.version}</version>
 					<configuration>
 						<archive>
 							<manifest>
@@ -318,28 +380,28 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-pmd-plugin</artifactId>
-					<version>3.9.0</version>
+					<version>${maven-pmd-plugin.version}</version>
 				</plugin>
 				<!-- Tools -->
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-antrun-plugin</artifactId>
-					<version>1.8</version>
+					<version>${maven-antrun-plugin.version}</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-assembly-plugin</artifactId>
-					<version>3.1.0</version>
+					<version>${maven-assembly-plugin.version}</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-dependency-plugin</artifactId>
-					<version>3.1.0</version>
+					<version>${maven-dependency-plugin.version}</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-release-plugin</artifactId>
-					<version>2.5.3</version>
+					<version>${maven-release-plugin.version}</version>
 					<configuration>
 						<mavenExecutorId>forked-path</mavenExecutorId>
 						<useReleaseProfile>false</useReleaseProfile>
@@ -350,7 +412,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-source-plugin</artifactId>
-					<version>3.0.1</version>
+					<version>${maven-source-plugin.version}</version>
 					<configuration>
 						<archive>
 							<manifest>
@@ -389,109 +451,115 @@
 				</plugin>
 				<!-- External Tools -->
 				<plugin>
-					<groupId>org.codehaus.mojo</groupId> <!-- Upgrade to spotbugs (jdk8) -->
-					<artifactId>findbugs-maven-plugin</artifactId>
-					<version>3.0.5</version>
+					<groupId>com.github.spotbugs</groupId>
+					<artifactId>spotbugs-maven-plugin</artifactId>
+					<version>${spotbugs-maven-plugin.version}</version>
+					<dependencies>
+						<!-- overwrite dependency on spotbugs if you want to specify the version 
+							of spotbugs -->
+						<dependency>
+							<groupId>com.github.spotbugs</groupId>
+							<artifactId>spotbugs</artifactId>
+							<version>${spotbugs-maven-plugin.version}</version>
+						</dependency>
+					</dependencies>
 				</plugin>
 				<plugin>
 					<groupId>org.jacoco</groupId>
 					<artifactId>jacoco-maven-plugin</artifactId>
-					<version>0.8.1</version>
+					<version>${jacoco-maven-plugin.version}</version>
 				</plugin>
 				<plugin>
 					<groupId>org.eluder.coveralls</groupId>
 					<artifactId>coveralls-maven-plugin</artifactId>
-					<version>4.3.0</version>
+					<version>${coveralls-maven-plugin.version}</version>
 				</plugin>
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>tidy-maven-plugin</artifactId>
-					<version>1.1.0</version>
+					<version>${tidy-maven-plugin.version}</version>
 				</plugin>
-				<!-- Not yet Neon compatible <plugin> <groupId>net.revelc.code.formatter</groupId> 
-					<artifactId>formatter-maven-plugin</artifactId> <version>2.0.1</version> 
-					</plugin> -->
 				<plugin>
 					<groupId>com.mycila</groupId>
 					<artifactId>license-maven-plugin</artifactId>
-					<version>3.0</version>
+					<version>${license-maven-plugin.version}</version>
 					<configuration>
 						<header>LICENSE_HEADER</header>
-                        <excludes>
+						<excludes>
 							<exclude>**/*test.*.txt</exclude>
-                            <exclude>**/maven-wrapper.properties</exclude>
-                            <exclude>**/MavenWrapperDownloader.java</exclude>
-                            <exclude>mvnw</exclude>
-                            <exclude>mvnw.cmd</exclude>
-                        </excludes>
+							<exclude>**/maven-wrapper.properties</exclude>
+							<exclude>**/MavenWrapperDownloader.java</exclude>
+							<exclude>mvnw</exclude>
+							<exclude>mvnw.cmd</exclude>
+						</excludes>
 					</configuration>
 				</plugin>
 				<!-- Report Only -->
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>jdepend-maven-plugin</artifactId>
-					<version>2.0</version>
+					<version>${jdepend-maven-plugin.version}</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-changelog-plugin</artifactId>
-					<version>2.3</version>
+					<version>${maven-changelog-plugin.version}</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-jxr-plugin</artifactId>
-					<version>2.5</version>
+					<version>${maven-jxr-plugin.version}</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-project-info-reports-plugin</artifactId>
-					<version>2.9</version>
+					<version>${maven-project-info-reports-plugin.version}</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-surefire-report-plugin</artifactId>
-					<version>2.19.1</version> <!-- Stay until memory leaks fixed -->
+					<version>${maven-surefire-report-plugin.version}</version>
 				</plugin>
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>taglist-maven-plugin</artifactId>
-					<version>2.4</version>
+					<version>${taglist-maven-plugin.version}</version>
 				</plugin>
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>versions-maven-plugin</artifactId>
-					<version>2.5</version>
+					<version>${versions-maven-plugin.version}</version>
 				</plugin>
 				<!-- SCM -->
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-scm-plugin</artifactId>
-					<version>1.9.5</version>
+					<version>${maven-scm-plugin.version}</version>
 					<dependencies>
 						<dependency>
 							<groupId>org.apache.maven.scm</groupId>
 							<artifactId>maven-scm-provider-jgit</artifactId>
-							<version>1.9.5</version>
+							<version>${maven-scm-provider-jgit.version}</version>
 						</dependency>
 						<dependency>
 							<groupId>com.googlecode.javaewah</groupId>
 							<artifactId>JavaEWAH</artifactId>
-							<version>1.1.6</version>
+							<version>${JavaEWAH.version}</version>
 						</dependency>
 						<dependency>
 							<groupId>com.jcraft</groupId>
 							<artifactId>jsch</artifactId>
-							<version>0.1.54</version>
+							<version>${jsch.version}</version>
 						</dependency>
 						<dependency>
 							<groupId>org.eclipse.jgit</groupId>
 							<artifactId>org.eclipse.jgit</artifactId>
-							<version>4.9.2.201712150930-r</version>
+							<version>${jgit.version}</version>
 						</dependency>
 						<dependency>
 							<groupId>org.codehaus.plexus</groupId>
 							<artifactId>plexus-utils</artifactId>
-							<version>3.1.0</version>
+							<version>${plexus-utils}</version>
 						</dependency>
 					</dependencies>
 				</plugin>
@@ -499,18 +567,18 @@
 				<plugin>
 					<groupId>org.sonarsource.scanner.maven</groupId>
 					<artifactId>sonar-maven-plugin</artifactId>
-					<version>3.4.0.905</version>
+					<version>${sonar-maven-plugin.version}</version>
 				</plugin>
 				<!-- Wagon -->
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>wagon-maven-plugin</artifactId>
-					<version>1.0</version>
+					<version>${wagon-maven-plugin.version}</version>
 				</plugin>
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>animal-sniffer-maven-plugin</artifactId>
-					<version>1.16</version>
+					<version>${animal-sniffer-maven-plugin.version}</version>
 					<configuration>
 						<signature>
 							<groupId>org.codehaus.mojo.signature</groupId>
@@ -522,7 +590,7 @@
 				<plugin>
 					<groupId>org.owasp</groupId>
 					<artifactId>dependency-check-maven</artifactId>
-					<version>3.1.2</version>
+					<version>${dependency-check-maven.version}</version>
 				</plugin>
 			</plugins>
 		</pluginManagement>
@@ -695,24 +763,25 @@
 				<groupId>org.eluder.coveralls</groupId>
 				<artifactId>coveralls-maven-plugin</artifactId>
 			</plugin>
-            <!-- Checkstyle dependencies required here or they won't be used (per maven) -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-                <dependencies>
-                    <dependency>
-                        <groupId>com.puppycrawl.tools</groupId>
-                        <artifactId>checkstyle</artifactId>
-                        <version>8.9</version>
-                    </dependency>
-                </dependencies>
-            </plugin>
-        </plugins>
+			<!-- Checkstyle dependencies required here or they won't be used (per 
+				maven) -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-checkstyle-plugin</artifactId>
+				<dependencies>
+					<dependency>
+						<groupId>com.puppycrawl.tools</groupId>
+						<artifactId>checkstyle</artifactId>
+						<version>${puppycrawl.checkstyle.version}</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+		</plugins>
 		<extensions>
 			<extension>
 				<groupId>org.apache.maven.wagon</groupId>
 				<artifactId>wagon-ssh</artifactId>
-				<version>3.0.0</version>
+				<version>${wagon-ssh.version}</version>
 			</extension>
 		</extensions>
 	</build>
@@ -726,6 +795,10 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-checkstyle-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>com.github.spotbugs</groupId>
+				<artifactId>spotbugs-maven-plugin</artifactId>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -746,10 +819,6 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-report-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>findbugs-maven-plugin</artifactId>
 			</plugin>
 			<plugin>
 				<groupId>org.jacoco</groupId>
@@ -819,24 +888,6 @@
 					</plugin>
 					<!-- External Tools -->
 					<plugin>
-						<groupId>org.codehaus.mojo</groupId>
-						<artifactId>findbugs-maven-plugin</artifactId>
-						<configuration>
-							<findbugsXmlOutput>true</findbugsXmlOutput>
-							<effort>max</effort>
-							<includeTests>true</includeTests>
-							<failOnError>false</failOnError>
-						</configuration>
-						<executions>
-							<execution>
-								<phase>verify</phase>
-								<goals>
-									<goal>check</goal>
-								</goals>
-							</execution>
-						</executions>
-					</plugin>
-					<plugin>
 						<groupId>org.jacoco</groupId>
 						<artifactId>jacoco-maven-plugin</artifactId>
 						<executions>
@@ -891,7 +942,7 @@
 						<plugin>
 							<groupId>org.eclipse.m2e</groupId>
 							<artifactId>lifecycle-mapping</artifactId>
-							<version>1.0.0</version>
+							<version>${m2e.lifecycle-mapping.version}</version>
 							<configuration>
 								<lifecycleMappingMetadata>
 									<pluginExecutions>
@@ -921,15 +972,11 @@
 												<ignore />
 											</action>
 										</pluginExecution>
-										<!-- Not yet Neon compatible <pluginExecution> <pluginExecutionFilter> 
-											<groupId>net.revelc.code.formatter</groupId> <artifactId>formatter-maven-plugin</artifactId> 
-											<versionRange>[2.0.1,)</versionRange> <goals> <goal>format</goal> </goals> 
-											</pluginExecutionFilter> <action> <ignore /> </action> </pluginExecution> -->
 										<pluginExecution>
 											<pluginExecutionFilter>
 												<groupId>org.apache.maven.plugins</groupId>
 												<artifactId>maven-enforcer-plugin</artifactId>
-												<versionRange>[3.0.0-M1,)</versionRange>
+												<versionRange>[3.0.0-M2,)</versionRange>
 												<goals>
 													<goal>enforce</goal>
 												</goals>
@@ -946,13 +993,6 @@
 				</pluginManagement>
 			</build>
 		</profile>
-		<!-- Not yet Neon compatible <profile> <id>format</id> <build> <plugins> 
-			<plugin> <groupId>net.revelc.code.formatter</groupId> <artifactId>formatter-maven-plugin</artifactId> 
-			<configuration> <configFile>eclipse/format.xml</configFile> </configuration> 
-			<dependencies> <dependency> <groupId>${project.groupId}</groupId> <artifactId>oshi-core</artifactId> 
-			<version>${project.version}</version> </dependency> </dependencies> <executions> 
-			<execution> <goals> <goal>format</goal> </goals> </execution> </executions> 
-			</plugin> </plugins> </build> </profile> -->
 		<profile>
 			<id>sort</id>
 			<build>

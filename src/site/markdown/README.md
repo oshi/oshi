@@ -1,17 +1,21 @@
 ![OSHI](https://dl.dropboxusercontent.com/s/c82qboyvvudpvdp/oshilogo.png)
 
-[![Maven central](https://maven-badges.herokuapp.com/maven-central/com.github.oshi/oshi-core/badge.svg)](http://search.maven.org/#search|ga|1|com.github.oshi)
+[![Maven central](https://maven-badges.herokuapp.com/maven-central/com.github.oshi/oshi-core/badge.svg)](https://search.maven.org/search?q=com.github.oshi)
 [![Build Status](https://travis-ci.org/oshi/oshi.svg)](https://travis-ci.org/oshi/oshi)
-[![SonarQube Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=com.github.oshi%3Aoshi-parent&amp;metric=alert_status)](https://sonarcloud.io/dashboard?id=com.github.oshi%3Aoshi-parent)
 [![Coverage Status](https://coveralls.io/repos/github/oshi/oshi/badge.svg?branch=master)](https://coveralls.io/github/oshi/oshi?branch=master)
 [![codecov.io](https://codecov.io/github/oshi/oshi/coverage.svg?branch=master)](https://codecov.io/github/oshi/oshi?branch=master)
 [![Coverity Scan Build Status](https://img.shields.io/coverity/scan/9332.svg)](https://scan.coverity.com/projects/dblock-oshi)
 [![Codacy Grade](https://api.codacy.com/project/badge/Grade/5370178ae91d4f56b43de2f26f7c5e7a)](https://www.codacy.com/app/widdis/oshi?utm_source=github.com&amp;amp;utm_medium=referral&amp;amp;utm_content=oshi/oshi&amp;amp;utm_campaign=Badge_Grade)
-[![Dependency Status](https://www.versioneye.com/user/projects/58baedff01b5b7003d62096a/badge.svg)](https://www.versioneye.com/user/projects/58baedff01b5b7003d62096a)
-[![References](https://www.versioneye.com/java/com.github.dblock:oshi-core/reference_badge.svg?style=flat-square)](https://www.versioneye.com/java/com.github.dblock:oshi-core/references)
 [![Eclipse Public License](http://img.shields.io/badge/license-Eclipse-blue.svg)](https://www.eclipse.org/legal/epl-v10.html)
 [![Join the chat at https://gitter.im/oshi/oshi](https://badges.gitter.im/oshi/oshi.svg)](https://gitter.im/oshi/oshi?utm_source=badge&amp;utm_medium=badge&amp;utm_campaign=pr-badge&amp;utm_content=badge)
-[![Project Stats](https://www.openhub.net/p/oshi/widgets/project_thin_badge.gif)](https://www.openhub.net/p/oshi?ref=github)
+[![SonarQube Bugs](https://sonarcloud.io/api/project_badges/measure?project=com.github.oshi%3Aoshi-parent&amp;metric=bugs)](https://sonarcloud.io/dashboard?id=com.github.oshi%3Aoshi-parent)
+[![SonarQube Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=com.github.oshi%3Aoshi-parent&amp;metric=vulnerabilities)](https://sonarcloud.io/dashboard?id=com.github.oshi%3Aoshi-parent)
+[![SonarQube Maintainability](https://sonarcloud.io/api/project_badges/measure?project=com.github.oshi%3Aoshi-parent&amp;metric=sqale_rating)](https://sonarcloud.io/dashboard?id=com.github.oshi%3Aoshi-parent)
+[![SonarQube Reliability](https://sonarcloud.io/api/project_badges/measure?project=com.github.oshi%3Aoshi-parent&amp;metric=reliability_rating)](https://sonarcloud.io/dashboard?id=com.github.oshi%3Aoshi-parent)
+[![SonarQube Security](https://sonarcloud.io/api/project_badges/measure?project=com.github.oshi%3Aoshi-parent&amp;metric=security_rating)](https://sonarcloud.io/dashboard?id=com.github.oshi%3Aoshi-parent)
+[![Code Quality: Java](https://img.shields.io/lgtm/grade/java/g/oshi/oshi.svg?logo=lgtm&amp;logoWidth=18)](https://lgtm.com/projects/g/oshi/oshi/context:java)
+[![LGTM Stats](https://www.openhub.net/p/oshi/widgets/project_thin_badge.gif)](https://www.openhub.net/p/oshi?ref=github)
+[![Say Thanks!](https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg)](https://saythanks.io/to/dbwiddis)
 
 OSHI is a free JNA-based (native) Operating System and Hardware Information library for Java.
 It doesn't require the installation of any additional native libraries and aims to provide a 
@@ -24,6 +28,12 @@ and extends that with flexible, configurable JSON-formatted data in the `oshi-js
 Supported platforms 
 --------------------------- 
 Windows • Linux • Mac OS X • Unix (Solaris, FreeBSD) 
+
+Essentials
+----------
+* [Find OSHI on Maven Central](https://search.maven.org/search?q=com.github.oshi)
+* [FAQ](https://github.com/oshi/oshi/blob/master/FAQ.md) • [API](http://oshi.github.io/oshi/apidocs/) • [Site](http://oshi.github.io/oshi/) 
+* [Upgrading from an earlier version?](https://github.com/oshi/oshi/blob/master/UPGRADING.md) 
 
 Supported features 
 --------------------------
@@ -42,27 +52,12 @@ Supported features
 * USB Devices
 * Sensors (temperature, fan speeds, voltage)
 
-Essentials
-----------
-* [Find OSHI on Maven Central](http://search.maven.org/#search|ga|1|com.github.oshi)
-* [FAQ](https://github.com/oshi/oshi/blob/master/FAQ.md) • [API](http://oshi.github.io/oshi/apidocs/) • [Site](http://oshi.github.io/oshi/) 
-* [Upgrading from an earlier version?](https://github.com/oshi/oshi/blob/master/UPGRADING.md) 
-
 Downloads
 ---------
 | Stable Release Version | Current Development Version | Dependencies |
 | ------------- | ------------- | ------------- |
-| [oshi-core-3.5.0](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&amp;g=com.github.oshi&amp;a=oshi-core&amp;v=3.5.0&amp;e=jar)  | [oshi-core-3.6.0-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;g=com.github.oshi&amp;a=oshi-core&amp;v=3.6.0-SNAPSHOT&amp;e=jar) | [JNA](https://github.com/java-native-access/jna) • [SLF4J](http://www.slf4j.org/) • [threetenbp](http://www.threeten.org/threetenbp/) |
-| [oshi-json-3.5.0](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&amp;g=com.github.oshi&amp;a=oshi-json&amp;v=3.5.0&amp;e=jar)   | [oshi-json-3.6.0-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;g=com.github.oshi&amp;a=oshi-json&amp;v=3.6.0-SNAPSHOT&amp;e=jar)  | [javax.json](https://jsonp.java.net/download.html) |
-
-Projects using OSHI
--------------------
-* [Systeminfo Binding](https://github.com/openhab/openhab2-addons/tree/master/addons/binding/org.openhab.binding.systeminfo) for [OpenHAB](http://www.openhab.org/)
-* [OfficeConnector](https://confluence.atlassian.com/doc/edit-office-files-170494553.html) for [Atlassian Confluence](https://www.atlassian.com/software/confluence)
-* [Hawkular WildFly Agent](https://github.com/hawkular/hawkular-agent) for [Hawkular](http://www.hawkular.org/)
-* [UniversalMediaServer](https://github.com/UniversalMediaServer/UniversalMediaServer)
-* [Dagr](https://github.com/fulcrumgenomics/dagr)
-* [sys-API](https://github.com/Krillsson/sys-API)
+| [oshi-core-3.10.0](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&amp;g=com.github.oshi&amp;a=oshi-core&amp;v=3.10.0&amp;e=jar)  | [oshi-core-3.11.0-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;g=com.github.oshi&amp;a=oshi-core&amp;v=3.11.0-SNAPSHOT&amp;e=jar) | [JNA](https://github.com/java-native-access/jna) • [SLF4J](http://www.slf4j.org/) |
+| [oshi-json-3.10.0](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&amp;g=com.github.oshi&amp;a=oshi-json&amp;v=3.10.0&amp;e=jar)   | [oshi-json-3.11.0-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;g=com.github.oshi&amp;a=oshi-json&amp;v=3.11.0-SNAPSHOT&amp;e=jar)  | [javax.json](https://jsonp.java.net/download.html) |
 
 Output
 -------------
@@ -191,7 +186,6 @@ mvn test-compile -pl oshi-core -q exec:java \
   -Dexec.classpathScope="test"
 ```
 
-
 Where are we?
 -------------
 [OSHI originated](http://code.dblock.org/2010/06/23/introducing-oshi-operating-system-and-hardware-information-java.html) 
@@ -204,21 +198,24 @@ but we would love *you* to help by:
 * Documenting implementation.  Our Wiki is blank.  Want to help new users follow in your footsteps?
 * Suggesting new features.  Do you need OSHI to do something it doesn't currently do?  Let us know.
 
+Acknowledgements
+-------------------
+Many thanks to the following companies for providing free support of Open Source projects including OSHI:
+* [SonarCloud](https://sonarcloud.io/about) for a range of code quality tools
+* [Travis CI](https://travis-ci.org/) for continuous integration testing
+* The [jProfile Java Profiler](https://www.ej-technologies.com/products/jprofiler/overview.html) used to eliminate cpu bottlenecks
 
-How is this different from ...
-------------------------------
-
-* [Sigar](http://sigar.hyperic.com): 
-	* Sigar uses [JNI](http://docs.oracle.com/javase/8/docs/technotes/guides/jni/index.html) which requires a native DLL to be installed. OSHI uses [JNA](https://github.com/twall/jna) and doesn't require a native DLL to be installed. 
-	* Sigar is licensed under Apache 2.0 license. OSHI is distributed under the EPL license.
-	* The last stable release of Sigar (1.6.4) was in 2010. OSHI is under active development as-of 2017. 
-* [jHardware](https://github.com/profesorfalken/jHardware):
-	* jHardware does not require [JNA](https://github.com/twall/jna) but instead uses command-line parsing and has a limited set of features.  OSHI integrates more native code through JNA and supports more platforms and more features.
-	* jHardware presently only supports Windows and *Nix systems.
-* [OperatingSystemMXBean](http://docs.oracle.com/javase/7/docs/jre/api/management/extension/com/sun/management/OperatingSystemMXBean.html)
-	* The `com.sun.management` MXBean may not be available in non-Oracle JVMs.
-	* The `MXBean` has very few methods that address system-wide statistics.
-	* OSHI provides significantly more information than the `OperatingSystemMXBean`.
+Projects using OSHI
+-------------------
+* [Systeminfo Binding](https://github.com/openhab/openhab2-addons/tree/master/addons/binding/org.openhab.binding.systeminfo) for [OpenHAB](http://www.openhab.org/)
+* [OfficeConnector](https://confluence.atlassian.com/doc/edit-office-files-170494553.html) for [Atlassian Confluence](https://www.atlassian.com/software/confluence)
+* [Hawkular WildFly Agent](https://github.com/hawkular/hawkular-agent) for [Hawkular](http://www.hawkular.org/)
+* [UniversalMediaServer](https://github.com/UniversalMediaServer/UniversalMediaServer)
+* [Dagr](https://github.com/fulcrumgenomics/dagr)
+* [sys-API](https://github.com/Krillsson/sys-API)
+* [NexCapMAT](http://www.nexess-solutions.com/fr/produits/application-nexcap-mat/)
+* [360Suite](https://360suite.io/)
+* [Stefan's OS](https://BotCompany.de/)
 
 License
 -------
