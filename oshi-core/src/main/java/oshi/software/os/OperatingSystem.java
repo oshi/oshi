@@ -84,6 +84,9 @@ public interface OperatingSystem extends Serializable {
      */
     OSProcess[] getProcesses(int limit, ProcessSort sort);
 
+    /* faster version */
+    OSProcess[] getProcesses(int limit, ProcessSort sort, boolean withOpenFiles);
+    
     /**
      * Gets information on a currently running process
      *

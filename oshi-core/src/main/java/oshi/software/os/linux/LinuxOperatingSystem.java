@@ -148,12 +148,17 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
      */
     @Override
     public OSProcess[] getProcesses(int limit, ProcessSort sort) {
+    	return getProcesses(limit, sort, true);
+    }
+    
+    @Override
+    public OSProcess[] getProcesses(int limit, ProcessSort sort, boolean withOpenFiles) {
         List<OSProcess> procs = new ArrayList<>();
         File[] pids = ProcUtil.getPidFiles();
 
         // now for each file (with digit name) get process info
         for (File pid : pids) {
-            OSProcess proc = getProcess(ParseUtil.parseIntOrDefault(pid.getName(), 0));
+            OSProcess proc = getProcess(ParseUtil.parseIntOrDefault(pid.getName(), 0), withOpenFiles);
             if (proc != null) {
                 procs.add(proc);
             }
@@ -167,6 +172,10 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
      */
     @Override
     public OSProcess getProcess(int pid) {
+    	return getProcess(pid, true);
+    }
+
+    public OSProcess getProcess(int pid, boolean withOpenFiles) {
         String path = "";
         Pointer buf = new Memory(1024);
         int size = Libc.INSTANCE.readlink(String.format("/proc/%d/exe", pid), buf, 1023);
@@ -205,8 +214,10 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         proc.setBytesWritten(ParseUtil.parseLongOrDefault(MapUtil.getOrDefault(io, "write_bytes", ""), 0L));
 
         // gets the open files count
-        List<String> openFilesList = ExecutingCommand.runNative(String.format("ls -f /proc/%d/fd", pid));
-        proc.setOpenFiles(openFilesList.size() - 1L);
+        if (withOpenFiles) {
+        	List<String> openFilesList = ExecutingCommand.runNative(String.format("ls -f /proc/%d/fd", pid));
+        	proc.setOpenFiles(openFilesList.size() - 1L);
+        }
 
         Map<String, String> status = FileUtil.getKeyValueMapFromFile(String.format("/proc/%d/status", pid), ":");
         proc.setName(MapUtil.getOrDefault(status, "Name", ""));

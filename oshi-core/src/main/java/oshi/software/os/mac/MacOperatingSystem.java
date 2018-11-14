@@ -92,7 +92,7 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
     public FileSystem getFileSystem() {
         return new MacFileSystem();
     }
-
+    
     /**
      * {@inheritDoc}
      */

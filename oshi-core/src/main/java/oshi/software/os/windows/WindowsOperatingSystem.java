@@ -256,6 +256,10 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         return new WindowsFileSystem();
     }
 
+    public OSProcess[] getProcesses(int limit, ProcessSort sort, boolean withOpenFiles) {
+    	return getProcesses(limit, sort, true);
+    }
+    
     /**
      * {@inheritDoc}
      */

@@ -175,6 +175,11 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
         sb.append(getManufacturer()).append(' ').append(getFamily()).append(' ').append(getVersion().toString());
         return sb.toString();
     }
+    
+    @Override
+    public OSProcess[] getProcesses(int limit, ProcessSort sort, boolean withOpenFiles) {
+    	return getProcesses(limit, sort);
+    }
 
     /**
      * {@inheritDoc}
