@@ -24,10 +24,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Native; // NOSONAR
+import com.sun.jna.platform.linux.LibC;
+import com.sun.jna.platform.linux.LibC.Sysinfo;
 
 import oshi.hardware.common.AbstractGlobalMemory;
-import oshi.jna.platform.linux.Libc;
-import oshi.jna.platform.linux.Libc.Sysinfo;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 
@@ -55,7 +55,7 @@ public class LinuxGlobalMemory extends AbstractGlobalMemory {
     public LinuxGlobalMemory() {
         try {
             Sysinfo info = new Sysinfo();
-            if (0 == Libc.INSTANCE.sysinfo(info)) {
+            if (0 == LibC.INSTANCE.sysinfo(info)) {
                 this.pageSize = info.mem_unit;
             } else {
                 LOG.error("Failed to get sysinfo. Error code: {}", Native.getLastError());

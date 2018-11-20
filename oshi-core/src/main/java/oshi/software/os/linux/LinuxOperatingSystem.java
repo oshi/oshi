@@ -31,9 +31,10 @@ import org.slf4j.LoggerFactory;
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
+import com.sun.jna.platform.linux.LibC;
+import com.sun.jna.platform.linux.LibC.Sysinfo;
 
 import oshi.jna.platform.linux.Libc;
-import oshi.jna.platform.linux.Libc.Sysinfo;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
 import oshi.software.os.NetworkParams;
@@ -316,7 +317,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     public int getThreadCount() {
         try {
             Sysinfo info = new Sysinfo();
-            if (0 != Libc.INSTANCE.sysinfo(info)) {
+            if (0 != LibC.INSTANCE.sysinfo(info)) {
                 LOG.error("Failed to get process thread count. Error code: {}", Native.getLastError());
                 return 0;
             }

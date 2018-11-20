@@ -41,7 +41,7 @@
 	</scm>
 
 	<properties>
-		<jna.version>5.0.0</jna.version>
+		<jna.version>5.1.0</jna.version>
 	</properties>
 
 	<dependencies>
