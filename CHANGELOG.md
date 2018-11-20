@@ -1,5 +1,6 @@
 3.11.0 (in progress)
 ================
+* [#685](https://github.com/oshi/oshi/pull/685): Get Linux HZ from system config - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here.
 
 3.10.0 (11/03/18)
