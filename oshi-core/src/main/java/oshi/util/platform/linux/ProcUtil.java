@@ -59,28 +59,6 @@ public class ProcUtil {
     }
 
     /**
-     * Parses the second value in /proc/uptime for seconds in the idle process
-     * since boot
-     *
-     * @return Seconds since boot in idle (if multiple processors, will probably
-     *         exceed uptime)
-     */
-    public static double getSystemIdletimeSeconds() {
-        String uptime = FileUtil.getStringFromFile("/proc/uptime");
-        int spaceIndex = uptime.indexOf(' ');
-        try {
-            if (spaceIndex < 0) {
-                // No space, error
-                return 0d;
-            } else {
-                return Double.parseDouble(uptime.substring(spaceIndex + 1));
-            }
-        } catch (NumberFormatException | IndexOutOfBoundsException e) {
-            return 0d;
-        }
-    }
-
-    /**
      * Gets the CPU ticks array from /proc/stat
      *
      * @return Array of CPU ticks

@@ -32,7 +32,6 @@ import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 
-import oshi.hardware.CentralProcessor.TickType;
 import oshi.jna.platform.linux.Libc;
 import oshi.jna.platform.linux.Libc.Sysinfo;
 import oshi.software.common.AbstractOperatingSystem;
@@ -103,11 +102,24 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     private transient LinuxUserGroupInfo userGroupInfo = new LinuxUserGroupInfo();
 
     // Jiffies per second, used for process time counters.
-    private static final long USER_HZ = calcHz();
-    // Boot time in MS. Cast/truncation is effectively rounding. Boot time could
-    // be +/- 5 ms due to System Uptime rounding to nearest 10ms.
-    private static final long BOOT_TIME = System.currentTimeMillis()
-            - 10L * (long) (100 * ProcUtil.getSystemUptimeSeconds() + 0.5);
+    private static final long USER_HZ = ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer("getconf CLK_TCK"),
+            100L);
+    // Boot time in MS.
+    private static final long BOOT_TIME;
+    static {
+        // Uptime is only in hundredths of seconds but we need thousandths.
+        // We can grab uptime twice and take average to reduce error, getting
+        // current time in between
+        double uptime = ProcUtil.getSystemUptimeSeconds();
+        long now = System.currentTimeMillis();
+        uptime += ProcUtil.getSystemUptimeSeconds();
+        // Uptime is now 2x seconds, so divide by 2, but
+        // we want milliseconds so multiply by 1000
+        // Ultimately multiply by 1000/2 = 500
+        BOOT_TIME = now - (long) (500L * uptime + 0.5);
+        // Cast/truncation is effectively rounding. Boot time could
+        // be +/- 5 ms due to System Uptime rounding to nearest 10ms.
+    }
 
     public LinuxOperatingSystem() {
         this.manufacturer = "GNU/Linux";
@@ -636,46 +648,10 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
      * Gets Jiffies per second, useful for converting ticks to milliseconds and
      * vice versa.
      *
-     * @return Jiffies per second if it can be calculated. If not, returns 1000
-     *         which assumes jiffies equal milliseconds.
+     * @return Jiffies per second.
      */
     public static long getHz() {
         return USER_HZ;
-    }
-
-    /**
-     * Calculates Jiffies per second, useful for converting ticks to
-     * milliseconds and vice versa.
-     *
-     * @return Jiffies per second if it can be calculated. If not, returns 1000
-     *         which assumes jiffies equal milliseconds.
-     */
-    private static long calcHz() {
-        // Grab idle time before fetching ticks
-        double idleSecsSinceBoot = ProcUtil.getSystemIdletimeSeconds();
-        long[] ticks = ProcUtil.getSystemCpuLoadTicks();
-        // Grab idle time again. We would normally divide by 2 here to get an
-        // average, but will use the doubled value in the calculation later for
-        // rounding to a multiple of 2
-        idleSecsSinceBoot += ProcUtil.getSystemIdletimeSeconds();
-
-        // Calculations convert ticks per second to milliseconds by multiplying
-        // by 1000/Hz. If we failed to fetch the idle time or idle ticks, by
-        // returning 1000 here we simply remove the conversion factor.
-        if (idleSecsSinceBoot <= 0d || ticks[TickType.IDLE.getIndex()] <= 0L) {
-            LOG.warn("Couldn't calculate jiffies per second. "
-                    + "Process time values are in jiffies, not milliseconds.");
-            return 1000L;
-        }
-
-        // Divide ticks in the idle process by seconds in the idle process. Per
-        // http://man7.org/linux/man-pages/man5/proc.5.html this is the USER_HZ
-        // value. Note we added the seconds calculations before/after fetching
-        // proc/stat so the initial division (by 2x seconds) will result in half
-        // of the eventual hz value. We round to the nearest integer by adding
-        // 0.5 and casting to long. Then we multiply by 2, so the final Hz value
-        // returned is rounded to the nearest even number.
-        return 2L * (long) (ticks[TickType.IDLE.getIndex()] / idleSecsSinceBoot + 0.5d);
     }
 
 }
