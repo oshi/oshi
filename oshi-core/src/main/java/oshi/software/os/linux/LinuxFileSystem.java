@@ -29,11 +29,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.sun.jna.Native;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import oshi.jna.platform.linux.Libc;
+import com.sun.jna.Native; // NOSONAR
+import com.sun.jna.platform.linux.LibC;
+
 import oshi.software.os.FileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.FileUtil;
@@ -194,12 +195,12 @@ public class LinuxFileSystem implements FileSystem {
             long usableSpace = 0L;
 
             try {
-                Libc.Statvfs vfsStat = new Libc.Statvfs();
-                if (0 == Libc.INSTANCE.statvfs(path, vfsStat)) {
-                    totalInodes = vfsStat.fsTotalInodeCount.longValue();
-                    freeInodes = vfsStat.fsFreeInodeCount.longValue();
-                    totalSpace = vfsStat.fsSizeInBlocks.longValue() * vfsStat.fsBlockSize.longValue();
-                    usableSpace = vfsStat.fsBlocksFree.longValue() * vfsStat.fsBlockSize.longValue();
+                LibC.Statvfs vfsStat = new LibC.Statvfs();
+                if (0 == LibC.INSTANCE.statvfs(path, vfsStat)) {
+                    totalInodes = vfsStat.f_files.longValue();
+                    freeInodes = vfsStat.f_ffree.longValue();
+                    totalSpace = vfsStat.f_blocks.longValue() * vfsStat.f_bsize.longValue();
+                    usableSpace = vfsStat.f_bfree.longValue() * vfsStat.f_bsize.longValue();
                 } else {
                     File tmpFile = new File(path);
                     totalSpace = tmpFile.getTotalSpace();
