@@ -3,6 +3,7 @@
 * [#685](https://github.com/oshi/oshi/pull/685): Get Linux HZ from system config - [@dbwiddis](https://github.com/dbwiddis).
 * [#686](https://github.com/oshi/oshi/pull/686): JNA 5.1.0 - [@dbwiddis](https://github.com/dbwiddis).
 * [#688](https://github.com/oshi/oshi/pull/688): Fix Linux proc stat and pagesize parsing - [@dbwiddis](https://github.com/dbwiddis).
+* [#689](https://github.com/oshi/oshi/pull/689): Optionally skip slow OSProcess fields - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here.
 
 3.10.0 (11/03/18)
