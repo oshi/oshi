@@ -96,9 +96,24 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     }
 
     // 2.6 Kernel has 44 elements, 3.3 has 47, and 3.5 has 52.
-    // Since we parse a proc/pid value as part of jiffy calculation, we can
-    // count the length there to set this value
-    private static int procPidStatLength = 52;
+    // Check /proc/self/stat to find its length
+    private static final int PROC_PID_STAT_LENGTH;
+    static {
+        List<String> stat = FileUtil.readFile("/proc/self/stat", false);
+        if (!stat.isEmpty() && stat.get(0).contains(")")) {
+            String procPidStat = stat.get(0);
+            // 2nd elment is process name and may contain spaces, but is
+            // within parenthesis. Split from the ')' index.
+            int parenIndex = procPidStat.lastIndexOf(')');
+            String[] split = ParseUtil.whitespaces.split(procPidStat.substring(parenIndex));
+            // ')' is split index 0 but stat element 2.
+            // Add 1 to account for pid that didn't make the split
+            PROC_PID_STAT_LENGTH = split.length + 1;
+        } else {
+            // Default assuming recent kernel
+            PROC_PID_STAT_LENGTH = 52;
+        }
+    }
 
     private transient LinuxUserGroupInfo userGroupInfo = new LinuxUserGroupInfo();
 
@@ -117,7 +132,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         // Uptime is now 2x seconds, so divide by 2, but
         // we want milliseconds so multiply by 1000
         // Ultimately multiply by 1000/2 = 500
-        BOOT_TIME = now - (long) (500L * uptime + 0.5);
+        BOOT_TIME = now - (long) (500d * uptime + 0.5);
         // Cast/truncation is effectively rounding. Boot time could
         // be +/- 5 ms due to System Uptime rounding to nearest 10ms.
     }
@@ -128,7 +143,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         // The above call may also populate versionId and codeName
         // to pass to version constructor
         this.version = new LinuxOSVersionInfoEx(this.versionId, this.codeName);
-        this.memoryPageSize = getMemoryPageSize();
+        this.memoryPageSize = ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer("getconf PAGESIZE"), 4096);
         initBitness();
     }
 
@@ -136,16 +151,6 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         if (this.bitness < 64 && ExecutingCommand.getFirstAnswer("uname -m").indexOf("64") != -1) {
             this.bitness = 64;
         }
-    }
-
-    private static int getMemoryPageSize() {
-        try {
-            return Libc.INSTANCE.getpagesize();
-        } catch (UnsatisfiedLinkError | NoClassDefFoundError e) {
-            LOG.error("Failed to get the memory page size.", e);
-        }
-        // default to 4K if the above call fails
-        return 4096;
     }
 
     /**
@@ -198,7 +203,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         // We can get name and status more easily from /proc/pid/status which we
         // call later, so just get the numeric bits here
         proc.setProcessID(pid);
-        long[] statArray = ParseUtil.parseStringToLongArray(stat, PROC_PID_STAT_ORDERS, procPidStatLength, ' ');
+        long[] statArray = ParseUtil.parseStringToLongArray(stat, PROC_PID_STAT_ORDERS, PROC_PID_STAT_LENGTH, ' ');
         proc.setParentProcessID((int) statArray[ProcPidStat.PPID.ordinal()]);
         proc.setThreadCount((int) statArray[ProcPidStat.THREAD_COUNT.ordinal()]);
         proc.setPriority((int) statArray[ProcPidStat.PRIORITY.ordinal()]);
@@ -290,7 +295,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
 
     private static int getParentPidFromProcFile(int pid) {
         String stat = FileUtil.getStringFromFile(String.format("/proc/%d/stat", pid));
-        long[] statArray = ParseUtil.parseStringToLongArray(stat, PROC_PID_STAT_ORDERS, procPidStatLength, ' ');
+        long[] statArray = ParseUtil.parseStringToLongArray(stat, PROC_PID_STAT_ORDERS, PROC_PID_STAT_LENGTH, ' ');
         return (int) statArray[ProcPidStat.PPID.ordinal()];
     }
 

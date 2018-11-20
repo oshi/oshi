@@ -259,13 +259,4 @@ public interface CLibrary extends Library {
      *         of the contents.
      */
     int readlink(String path, Pointer buf, int bufsize);
-
-    /**
-     * Returns the number of bytes in a memory page, where "page" is a
-     * fixed-length block, the unit for memory allocation and file mapping
-     * performed by mmap(2).
-     *
-     * @return the memory page size
-     */
-    int getpagesize();
 }
