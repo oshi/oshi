@@ -362,6 +362,14 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
             // files, which show: "Distributor release x.x (Codename)"
             //
 
+            // Attempt to read /etc/system-release which has more details than
+            // os-release on (CentOS and Fedora)
+            if (readDistribRelease("/etc/system-release")) {
+                // If successful, we're done. this.family has been set and
+                // possibly the versionID and codeName
+                return;
+            }
+
             // Attempt to read /etc/os-release file.
             if (readOsRelease()) {
                 // If successful, we're done. this.family has been set and
@@ -572,7 +580,8 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
             public boolean accept(File f) {
                 return (f.getName().endsWith("-release") || f.getName().endsWith("-version")
                         || f.getName().endsWith("_release") || f.getName().endsWith("_version"))
-                        && !(f.getName().endsWith("os-release") || f.getName().endsWith("lsb-release"));
+                        && !(f.getName().endsWith("os-release") || f.getName().endsWith("lsb-release")
+                                || f.getName().endsWith("system-release"));
             }
         });
         if (matchingFiles != null && matchingFiles.length > 0) {

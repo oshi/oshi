@@ -84,6 +84,14 @@ public class LinuxOSVersionInfoEx extends AbstractOSVersionInfoEx {
         // files, which show: "Distributor release x.x (Codename)"
         //
 
+        // Attempt to read /etc/system-release which has more details than
+        // os-release on (CentOS and Fedora)
+        if (readDistribRelease("/etc/system-release")) {
+            // If successful, we're done. this.family has been set and
+            // possibly the versionID and codeName
+            return;
+        }
+
         // Attempt to read /etc/os-release file.
         if (readOsRelease()) {
             // If successful, we're done. The version and possibly codeName
