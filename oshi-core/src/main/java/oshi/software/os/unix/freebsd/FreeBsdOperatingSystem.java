@@ -67,9 +67,10 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
      * {@inheritDoc}
      */
     @Override
-    public OSProcess[] getProcesses(int limit, ProcessSort sort) {
+    public OSProcess[] getProcesses(int limit, ProcessSort sort, boolean slowFields) {
         List<OSProcess> procs = getProcessListFromPS(
-                "ps -awwxo state,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etimes,systime,time,comm,args", -1);
+                "ps -awwxo state,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etimes,systime,time,comm,args", -1,
+                slowFields);
         List<OSProcess> sorted = processSort(procs, limit, sort);
         return sorted.toArray(new OSProcess[sorted.size()]);
     }
@@ -79,8 +80,13 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
      */
     @Override
     public OSProcess getProcess(int pid) {
+        return getProcess(pid, true);
+    }
+
+    private OSProcess getProcess(int pid, boolean slowFields) {
         List<OSProcess> procs = getProcessListFromPS(
-                "ps -awwxo state,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etimes,systime,time,comm,args -p ", pid);
+                "ps -awwxo state,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etimes,systime,time,comm,args -p ", pid,
+                slowFields);
         if (procs.isEmpty()) {
             return null;
         }
@@ -94,12 +100,12 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
     public OSProcess[] getChildProcesses(int parentPid, int limit, ProcessSort sort) {
         List<OSProcess> procs = getProcessListFromPS(
                 "ps -awwxo state,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etimes,systime,time,comm,args --ppid",
-                parentPid);
+                parentPid, true);
         List<OSProcess> sorted = processSort(procs, limit, sort);
         return sorted.toArray(new OSProcess[sorted.size()]);
     }
 
-    private List<OSProcess> getProcessListFromPS(String psCommand, int pid) {
+    private List<OSProcess> getProcessListFromPS(String psCommand, int pid, boolean slowFields) {
         Map<Integer, String> cwdMap = LsofUtil.getCwdMap(pid);
         List<OSProcess> procs = new ArrayList<>();
         List<String> procList = ExecutingCommand.runNative(psCommand + (pid < 0 ? "" : pid));
@@ -161,8 +167,8 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
             fproc.setName(fproc.getPath().substring(fproc.getPath().lastIndexOf('/') + 1));
             fproc.setCommandLine(split[15]);
             fproc.setCurrentWorkingDirectory(MapUtil.getOrDefault(cwdMap, fproc.getProcessID(), ""));
-            // gets the open files count -- only do for single-PID requests
-            if (pid >= 0) {
+            // gets the open files count -- slow
+            if (slowFields) {
                 List<String> openFilesList = ExecutingCommand.runNative(String.format("lsof -p %d", pid));
                 fproc.setOpenFiles(openFilesList.size() - 1L);
             }

@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -260,8 +259,8 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
      * {@inheritDoc}
      */
     @Override
-    public OSProcess[] getProcesses(int limit, ProcessSort sort) {
-        List<OSProcess> procList = processMapToList(null);
+    public OSProcess[] getProcesses(int limit, ProcessSort sort, boolean slowFields) {
+        List<OSProcess> procList = processMapToList(null, slowFields);
         List<OSProcess> sorted = processSort(procList, limit, sort);
         return sorted.toArray(new OSProcess[sorted.size()]);
     }
@@ -294,9 +293,13 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
      */
     @Override
     public OSProcess getProcess(int pid) {
+        return getProcess(pid, true);
+    }
+
+    private OSProcess getProcess(int pid, boolean slowFields) {
         Set<Integer> pids = new HashSet<>(1);
         pids.add(pid);
-        List<OSProcess> procList = processMapToList(pids);
+        List<OSProcess> procList = processMapToList(pids, slowFields);
         return procList.isEmpty() ? null : procList.get(0);
     }
 
@@ -305,7 +308,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
      */
     @Override
     public List<OSProcess> getProcesses(Collection<Integer> pids) {
-        return processMapToList(pids);
+        return processMapToList(pids, true);
     }
 
     /**
@@ -314,15 +317,17 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
      * @param pids
      *            A collection of pids to query. If null, the entire process
      *            list will be queried.
+     * @param slowFields
+     *            Whether to include fields that incur processor latency
      * @return A corresponding list of processes
      */
-    private List<OSProcess> processMapToList(Collection<Integer> pids) {
+    private List<OSProcess> processMapToList(Collection<Integer> pids, boolean slowFields) {
         // Get data from the registry to update cache
         updateProcessMapFromRegistry(pids);
 
         // define here to avoid object repeated creation overhead later
-        List<String> groupList = new LinkedList<>();
-        List<String> groupIDList = new LinkedList<>();
+        List<String> groupList = new ArrayList<>();
+        List<String> groupIDList = new ArrayList<>();
         int myPid = getProcessId();
 
         // Get processes from WTS
@@ -340,7 +345,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         final WTS_PROCESS_INFO_EX[] processInfo = (WTS_PROCESS_INFO_EX[]) processInfoRef.toArray(pCount.getValue());
 
         // Store a subset of processes in a list to later return.
-        List<OSProcess> processList = new LinkedList<>();
+        List<OSProcess> processList = new ArrayList<>(pids.size());
 
         for (WTS_PROCESS_INFO_EX procInfo : processInfo) {
             // Skip if only updating a subset of pids, or if not in cache.
@@ -391,9 +396,8 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                         Account account = Advapi32Util.getTokenAccount(phToken.getValue());
                         proc.setUser(account.name);
                         proc.setUserID(account.sidString);
-                        // Fetching group information incurs ~10ms latency per
-                        // process. Skip for full process list
-                        if (pids != null) {
+                        // Fetching group information incurs ~10ms per process.
+                        if (slowFields) {
                             Account[] accounts = Advapi32Util.getTokenGroups(phToken.getValue());
                             // get groups
                             groupList.clear();
@@ -477,7 +481,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     }
 
     private void updateProcessMapFromRegistry(Collection<Integer> pids) {
-        List<Integer> pidsToKeep = new LinkedList<>();
+        List<Integer> pidsToKeep = new ArrayList<>(pids.size());
 
         // Grab the PERF_DATA_BLOCK from the registry.
         // Sequentially increase the buffer until everything fits.

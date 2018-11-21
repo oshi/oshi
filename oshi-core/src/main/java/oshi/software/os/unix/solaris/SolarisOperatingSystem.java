@@ -67,9 +67,9 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
      * {@inheritDoc}
      */
     @Override
-    public OSProcess[] getProcesses(int limit, ProcessSort sort) {
+    public OSProcess[] getProcesses(int limit, ProcessSort sort, boolean slowFields) {
         List<OSProcess> procs = getProcessListFromPS(
-                "ps -eo s,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etime,time,comm,args", -1);
+                "ps -eo s,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etime,time,comm,args", -1, slowFields);
         List<OSProcess> sorted = processSort(procs, limit, sort);
         return sorted.toArray(new OSProcess[sorted.size()]);
     }
@@ -79,8 +79,12 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
      */
     @Override
     public OSProcess getProcess(int pid) {
+        return getProcess(pid, true);
+    }
+
+    private OSProcess getProcess(int pid, boolean slowFields) {
         List<OSProcess> procs = getProcessListFromPS(
-                "ps -o s,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etime,time,comm,args -p ", pid);
+                "ps -o s,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etime,time,comm,args -p ", pid, slowFields);
         if (procs.isEmpty()) {
             return null;
         }
@@ -93,12 +97,12 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
     @Override
     public OSProcess[] getChildProcesses(int parentPid, int limit, ProcessSort sort) {
         List<OSProcess> procs = getProcessListFromPS(
-                "ps -eo s,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etime,time,comm,args --ppid", parentPid);
+                "ps -eo s,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etime,time,comm,args --ppid", parentPid, true);
         List<OSProcess> sorted = processSort(procs, limit, sort);
         return sorted.toArray(new OSProcess[sorted.size()]);
     }
 
-    private List<OSProcess> getProcessListFromPS(String psCommand, int pid) {
+    private List<OSProcess> getProcessListFromPS(String psCommand, int pid, boolean slowFields) {
         Map<Integer, String> cwdMap = LsofUtil.getCwdMap(pid);
         List<OSProcess> procs = new ArrayList<>();
         List<String> procList = ExecutingCommand.runNative(psCommand + (pid < 0 ? "" : pid));
@@ -159,8 +163,8 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
             sproc.setCurrentWorkingDirectory(MapUtil.getOrDefault(cwdMap, sproc.getProcessID(), ""));
             // bytes read/written not easily available
 
-            // gets the open files count -- only do for single-PID requests
-            if (pid >= 0) {
+            // gets the open files count -- slow
+            if (slowFields) {
                 List<String> openFilesList = ExecutingCommand.runNative(String.format("lsof -p %d", pid));
                 sproc.setOpenFiles(openFilesList.size() - 1L);
             }
