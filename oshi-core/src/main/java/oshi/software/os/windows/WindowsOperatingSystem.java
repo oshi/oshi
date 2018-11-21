@@ -345,7 +345,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         final WTS_PROCESS_INFO_EX[] processInfo = (WTS_PROCESS_INFO_EX[]) processInfoRef.toArray(pCount.getValue());
 
         // Store a subset of processes in a list to later return.
-        List<OSProcess> processList = new ArrayList<>(pids.size());
+        List<OSProcess> processList = new ArrayList<>();
 
         for (WTS_PROCESS_INFO_EX procInfo : processInfo) {
             // Skip if only updating a subset of pids, or if not in cache.
@@ -481,7 +481,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     }
 
     private void updateProcessMapFromRegistry(Collection<Integer> pids) {
-        List<Integer> pidsToKeep = new ArrayList<>(pids.size());
+        List<Integer> pidsToKeep = new ArrayList<>();
 
         // Grab the PERF_DATA_BLOCK from the registry.
         // Sequentially increase the buffer until everything fits.
