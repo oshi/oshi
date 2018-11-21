@@ -48,4 +48,5 @@ matrix:
 
 script: 
   - java -version
+  - echo "COVERITY_SCAN_BRANCH = ${COVERITY_SCAN_BRANCH}"
   - if [ "${COVERITY_SCAN_BRANCH}" != 1 ]; then mvn test; fi
