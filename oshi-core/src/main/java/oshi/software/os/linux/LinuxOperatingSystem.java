@@ -22,6 +22,8 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -137,6 +139,11 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         // be +/- 5 ms due to System Uptime rounding to nearest 10ms.
     }
 
+    /*
+     * This process map will cache process info to avoid repeated calls for data
+     */
+    private final Map<Integer, OSProcess> processMap = new HashMap<>();
+
     public LinuxOperatingSystem() {
         this.manufacturer = "GNU/Linux";
         setFamilyFromReleaseFiles();
@@ -168,14 +175,24 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     public OSProcess[] getProcesses(int limit, ProcessSort sort, boolean slowFields) {
         List<OSProcess> procs = new ArrayList<>();
         File[] pids = ProcUtil.getPidFiles();
+        List<Integer> pidsToKeep = new ArrayList<>();
 
         // now for each file (with digit name) get process info
-        for (File pid : pids) {
-            OSProcess proc = getProcess(ParseUtil.parseIntOrDefault(pid.getName(), 0), slowFields);
+        for (File pidFile : pids) {
+            int pid = ParseUtil.parseIntOrDefault(pidFile.getName(), 0);
+            OSProcess proc = getProcess(pid, slowFields);
             if (proc != null) {
                 procs.add(proc);
+                pidsToKeep.add(pid);
             }
         }
+        // Clear out anything not in cache
+        for (Integer pid : new HashSet<>(this.processMap.keySet())) {
+            if (!pidsToKeep.contains(pid)) {
+                this.processMap.remove(pid);
+            }
+        }
+        // Sort
         List<OSProcess> sorted = processSort(procs, limit, sort);
         return sorted.toArray(new OSProcess[sorted.size()]);
     }
@@ -203,11 +220,27 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         if (stat.isEmpty()) {
             return null;
         }
-        OSProcess proc = new OSProcess();
         // We can get name and status more easily from /proc/pid/status which we
         // call later, so just get the numeric bits here
-        proc.setProcessID(pid);
         long[] statArray = ParseUtil.parseStringToLongArray(stat, PROC_PID_STAT_ORDERS, PROC_PID_STAT_LENGTH, ' ');
+        // Fetch cached process if it exists
+        OSProcess proc = processMap.get(pid);
+        long startTime = BOOT_TIME + statArray[ProcPidStat.START_TIME.ordinal()] * 1000L / USER_HZ;
+        // BOOT_TIME could be up to 5ms off. In rare cases when a process has
+        // started within 5ms of boot it is possible to get negative uptime.
+        if (startTime >= now) {
+            startTime = now - 1;
+        }
+        // New process if start time differs by 200ms or more
+        if (proc == null || Math.abs(startTime - proc.getStartTime()) > 200) {
+            proc = new OSProcess();
+            proc.setProcessID(pid);
+            proc.setStartTime(startTime);
+            // The /proc/pid/cmdline value is null-delimited
+            proc.setCommandLine(FileUtil.getStringFromFile(String.format("/proc/%d/cmdline", pid)));
+            // Add or replace value in the map
+            processMap.put(pid, proc);
+        }
         proc.setParentProcessID((int) statArray[ProcPidStat.PPID.ordinal()]);
         proc.setThreadCount((int) statArray[ProcPidStat.THREAD_COUNT.ordinal()]);
         proc.setPriority((int) statArray[ProcPidStat.PRIORITY.ordinal()]);
@@ -215,12 +248,6 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         proc.setResidentSetSize(statArray[ProcPidStat.RSS.ordinal()] * this.memoryPageSize);
         proc.setKernelTime(statArray[ProcPidStat.KERNEL_TIME.ordinal()] * 1000L / USER_HZ);
         proc.setUserTime(statArray[ProcPidStat.USER_TIME.ordinal()] * 1000L / USER_HZ);
-        proc.setStartTime(BOOT_TIME + statArray[ProcPidStat.START_TIME.ordinal()] * 1000L / USER_HZ);
-        // BOOT_TIME could be up to 5ms off. In rare cases when a process has
-        // started within 5ms of boot it is possible to get negative uptime.
-        if (proc.getStartTime() >= now) {
-            proc.setStartTime(now - 1);
-        }
         proc.setUpTime(now - proc.getStartTime());
         // See man proc for how to parse /proc/[pid]/io
         proc.setBytesRead(ParseUtil.parseLongOrDefault(MapUtil.getOrDefault(io, "read_bytes", ""), 0L));
@@ -263,8 +290,6 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         }
         proc.setGroup(this.userGroupInfo.getGroupName(proc.getGroupID()));
 
-        // THe /proc/pid/cmdline value is null-delimited
-        proc.setCommandLine(FileUtil.getStringFromFile(String.format("/proc/%d/cmdline", pid)));
         try {
             String cwdLink = String.format("/proc/%d/cwd", pid);
             String cwd = new File(cwdLink).getCanonicalPath();
