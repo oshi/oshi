@@ -47,7 +47,5 @@ matrix:
       osx_image: xcode10.1
 
 script: 
-  - if [ "${COVERITY_SCAN_BRANCH}" != 1 ]; then
-      java -version
-      mvn test
-    fi
+  - java -version
+  - if [ "${COVERITY_SCAN_BRANCH}" != 1 ]; then mvn test; fi
