@@ -63,7 +63,7 @@ oshi-core-shaded/oshi-core,oshi.hardware.common,AbstractNetworks,68,0,6,0,19,0,6
 oshi-core-shaded/oshi-core,oshi.hardware.common,AbstractDisplay,17,0,0,0,5,0,3,0,3,0
 oshi-core-shaded/oshi-core,oshi.software.os.windows,WindowsOperatingSystem.BitnessProperty,14,0,0,0,2,0,1,0,1,0
 oshi-core-shaded/oshi-core,oshi.software.os.windows,WindowsOSVersionInfoEx.OSVersionProperty,54,0,0,0,2,0,1,0,1,0
-oshi-core-shaded/oshi-core,oshi.software.os.windows,WindowsOperatingSystem,1358,0,124,0,283,0,78,0,16,0
+oshi-core-shaded/oshi-core,oshi.software.os.windows,WindowsOperatingSystem,1366,0,124,0,284,0,79,0,17,0
 oshi-core-shaded/oshi-core,oshi.software.os.windows,WindowsFileSystem.LogicalDiskProperty,74,0,0,0,2,0,1,0,1,0
 oshi-core-shaded/oshi-core,oshi.software.os.windows,WindowsNetworkParams,309,0,32,0,73,0,25,0,9,0
 oshi-core-shaded/oshi-core,oshi.software.os.windows,WindowsFileSystem,478,0,34,0,107,0,28,0,9,0
@@ -77,30 +77,28 @@ oshi-core-shaded/oshi-core,oshi.util.platform.unix.solaris,KstatUtil,319,0,52,0,
 oshi-core-shaded/oshi-core,oshi.util.platform.unix.solaris,KstatUtil.new Thread() {...},8,0,0,0,3,0,2,0,2,0
 oshi-core-shaded/oshi-core,oshi.software.os.mac,MacNetworkParams,124,0,16,0,32,0,13,0,5,0
 oshi-core-shaded/oshi-core,oshi.software.os.mac,MacOSVersionInfoEx,77,0,18,0,28,0,20,0,4,0
-oshi-core-shaded/oshi-core,oshi.software.os.mac,MacOperatingSystem,727,0,75,0,154,0,54,0,14,0
+oshi-core-shaded/oshi-core,oshi.software.os.mac,MacOperatingSystem,734,0,75,0,155,0,55,0,15,0
 oshi-core-shaded/oshi-core,oshi.software.os.mac,MacFileSystem,273,0,34,0,68,0,22,0,5,0
 oshi-core-shaded/oshi-core,oshi,PlatformEnum,0,64,0,0,0,7,0,1,0,1
 oshi-core-shaded/oshi-core,oshi,SystemInfo,90,55,19,7,25,19,17,5,0,5
 oshi-core-shaded/oshi-core,oshi.jna.platform.linux,Udev,6,0,0,0,1,0,1,0,1,0
 oshi-core-shaded/oshi-core,oshi.jna.platform.linux,Udev.UdevHandle,7,0,0,0,4,0,2,0,2,0
 oshi-core-shaded/oshi-core,oshi.jna.platform.linux,Udev.UdevEnumerate,7,0,0,0,4,0,2,0,2,0
-oshi-core-shaded/oshi-core,oshi.jna.platform.linux,Libc.Statvfs,60,0,8,0,17,0,8,0,4,0
 oshi-core-shaded/oshi-core,oshi.jna.platform.linux,Udev.UdevDevice,7,0,0,0,4,0,2,0,2,0
-oshi-core-shaded/oshi-core,oshi.jna.platform.linux,Libc.Sysinfo,62,0,8,0,17,0,8,0,4,0
 oshi-core-shaded/oshi-core,oshi.jna.platform.linux,Udev.UdevListEntry,7,0,0,0,4,0,2,0,2,0
 oshi-core-shaded/oshi-core,oshi.jna.platform.linux,Libc,6,0,0,0,1,0,1,0,1,0
 oshi-core-shaded/oshi-core,oshi.software.os.linux,LinuxFileSystem,496,0,44,0,92,0,29,0,7,0
-oshi-core-shaded/oshi-core,oshi.software.os.linux,LinuxOSVersionInfoEx,468,0,90,0,100,0,54,0,9,0
+oshi-core-shaded/oshi-core,oshi.software.os.linux,LinuxOSVersionInfoEx,473,0,92,0,102,0,55,0,9,0
 oshi-core-shaded/oshi-core,oshi.software.os.linux,LinuxUserGroupInfo.UsersCache,94,0,10,0,25,0,8,0,3,0
-oshi-core-shaded/oshi-core,oshi.software.os.linux,LinuxOperatingSystem,1215,0,160,0,247,0,117,0,23,0
+oshi-core-shaded/oshi-core,oshi.software.os.linux,LinuxOperatingSystem,1294,0,172,0,262,0,122,0,22,0
 oshi-core-shaded/oshi-core,oshi.software.os.linux,LinuxOperatingSystem.ProcPidStat,103,0,0,0,6,0,3,0,3,0
-oshi-core-shaded/oshi-core,oshi.software.os.linux,LinuxOperatingSystem.new FileFilter() {...},37,0,12,0,4,0,8,0,2,0
+oshi-core-shaded/oshi-core,oshi.software.os.linux,LinuxOperatingSystem.new FileFilter() {...},42,0,14,0,5,0,9,0,2,0
 oshi-core-shaded/oshi-core,oshi.software.os.linux,LinuxNetworkParams,203,0,32,0,48,0,21,0,5,0
 oshi-core-shaded/oshi-core,oshi.software.os.linux,LinuxUserGroupInfo.GroupsCache,84,0,10,0,22,0,8,0,3,0
 oshi-core-shaded/oshi-core,oshi.software.os.linux,LinuxUserGroupInfo,22,0,0,0,5,0,4,0,4,0
 oshi-core-shaded/oshi-core,oshi.jna.platform.unix.freebsd,Libc.CpTime,7,0,0,0,2,0,1,0,1,0
 oshi-core-shaded/oshi-core,oshi.jna.platform.unix.freebsd,Libc,12,0,0,0,3,0,1,0,1,0
-oshi-core-shaded/oshi-core,oshi.util.platform.linux,ProcUtil,112,0,12,0,29,0,11,0,5,0
+oshi-core-shaded/oshi-core,oshi.util.platform.linux,ProcUtil,91,0,10,0,22,0,9,0,4,0
 oshi-core-shaded/oshi-core,oshi.util.platform.linux,ProcUtil.new FileFilter() {...},9,0,0,0,2,0,2,0,2,0
 oshi-core-shaded/oshi-core,oshi.util.platform.unix.freebsd,BsdSysctlUtil,147,0,10,0,27,0,10,0,5,0
 oshi-core-shaded/oshi-core,oshi.util.platform.mac,IOKitUtil,251,0,40,0,76,0,32,0,12,0
@@ -113,7 +111,7 @@ oshi-core-shaded/oshi-core,oshi.jna.platform.unix,CLibrary.Addrinfo,9,0,0,0,5,0,
 oshi-core-shaded/oshi-core,oshi.jna.platform.unix,CLibrary.Timeval,3,0,0,0,1,0,1,0,1,0
 oshi-core-shaded/oshi-core,oshi.jna.platform.unix,CLibrary.Sockaddr,7,0,0,0,2,0,1,0,1,0
 oshi-core-shaded/oshi-core,oshi.jna.platform.unix,CLibrary.Sockaddr.ByReference,3,0,0,0,1,0,1,0,1,0
-oshi-core-shaded/oshi-core,oshi.software.os.unix.freebsd,FreeBsdOperatingSystem,382,0,30,0,80,0,28,0,11,0
+oshi-core-shaded/oshi-core,oshi.software.os.unix.freebsd,FreeBsdOperatingSystem,390,0,30,0,81,0,29,0,12,0
 oshi-core-shaded/oshi-core,oshi.software.os.unix.freebsd,FreeBsdOSVersionInfoEx,34,0,0,0,7,0,1,0,1,0
 oshi-core-shaded/oshi-core,oshi.software.os.unix.freebsd,FreeBsdNetworkParams,75,0,4,0,22,0,7,0,5,0
 oshi-core-shaded/oshi-core,oshi.software.os.unix.freebsd,FreeBsdFileSystem,413,0,50,0,70,0,30,0,5,0
@@ -176,7 +174,7 @@ oshi-core-shaded/oshi-core,oshi.hardware.platform.mac,MacBaseboard,3,0,0,0,1,0,1
 oshi-core-shaded/oshi-core,oshi.hardware.platform.mac,MacNetworks.IFdata,24,0,0,0,9,0,1,0,1,0
 oshi-core-shaded/oshi-core,oshi.software.os.unix.solaris,SolarisOSVersionInfoEx,27,0,2,0,8,0,2,0,1,0
 oshi-core-shaded/oshi-core,oshi.software.os.unix.solaris,SolarisFileSystem,393,0,58,0,71,0,34,0,5,0
-oshi-core-shaded/oshi-core,oshi.software.os.unix.solaris,SolarisOperatingSystem,348,0,26,0,75,0,26,0,11,0
+oshi-core-shaded/oshi-core,oshi.software.os.unix.solaris,SolarisOperatingSystem,356,0,26,0,76,0,27,0,12,0
 oshi-core-shaded/oshi-core,oshi.software.os.unix.solaris,SolarisNetworkParams,11,0,0,0,3,0,3,0,3,0
 oshi-core-shaded/oshi-core,oshi.jna.platform.mac,CoreFoundation.CFStringRef,19,0,0,0,4,0,2,0,2,0
 oshi-core-shaded/oshi-core,oshi.jna.platform.mac,DiskArbitration.DADiskRef,3,0,0,0,1,0,1,0,1,0
@@ -217,7 +215,7 @@ oshi-core-shaded/oshi-core,oshi.software.common,AbstractOperatingSystem.new Comp
 oshi-core-shaded/oshi-core,oshi.software.common,AbstractOperatingSystem.new Comparator() {...},9,0,0,0,2,0,2,0,2,0
 oshi-core-shaded/oshi-core,oshi.software.common,AbstractOperatingSystem.new Comparator() {...},9,0,0,0,2,0,2,0,2,0
 oshi-core-shaded/oshi-core,oshi.software.common,AbstractOperatingSystem.new Comparator() {...},9,0,0,0,2,0,2,0,2,0
-oshi-core-shaded/oshi-core,oshi.software.common,AbstractOperatingSystem,186,0,22,0,48,0,23,0,9,0
+oshi-core-shaded/oshi-core,oshi.software.common,AbstractOperatingSystem,194,0,22,0,49,0,24,0,10,0
 oshi-core-shaded/oshi-core,oshi.software.common,AbstractOSVersionInfoEx,69,0,8,0,18,0,12,0,8,0
 oshi-core-shaded/oshi-core,oshi.hardware,NetworkIF,23,233,7,9,12,58,7,30,0,27
 oshi-core-shaded/oshi-core,oshi.hardware,CentralProcessor.TickType,0,103,0,0,0,13,0,3,0,3
