@@ -1,12 +1,14 @@
 language: java
 
-# Get most recent JDK versions on-the-fly
 before_install:
+  # When building the coverity_scan branch, allow only the first job to continue.
+  - if [[ "${TRAVIS_BRANCH}" == "coverity_scan" && "$MATRIX_ID" != "first" ]]; then exit 0; fi
+  # Get most recent JDK versions on-the-fly
   - wget https://github.com/sormuras/bach/raw/master/install-jdk.sh
   
 after_success:
   - bash <(curl -s https://codecov.io/bash)
-  - if [ "$AFTER_SUCCESS" == "jacoco" ]; then
+  - if [ "$MATRIX_ID" == "first" ]; then
       ./mvnw clean test jacoco:report coveralls:report;
       ./mvnw clean org.jacoco:jacoco-maven-plugin:prepare-agent package sonar:sonar -Dsonar.host.url=https://sonarqube.com -Dsonar.login=df16219a00545aae71f880423a6f23191330744f;
     fi
@@ -22,8 +24,8 @@ addons:
       name: "dblock/oshi"
       description: "Build submitted via Travis CI"
     notification_email: widdis@gmail.com
-    build_command_prepend: "./mvnw clean"
-    build_command:   "./mvnw -DskipTests=true compile"
+    build_command_prepend: "cov-configure --comptype gcc --compiler gcc-4.8 --template"
+    build_command:   "./mvnw -DskipTests=true clean compile"
     branch_pattern: coverity_scan
   hosts:
     - oshi
@@ -35,7 +37,7 @@ matrix:
       jdk: oraclejdk8
       env:
       - JDK = "Oracle JDK 8 - Linux" 
-      - AFTER_SUCCESS="jacoco"
+      - MATRIX_ID="first"
     - os: linux
       install: . ./install-jdk.sh -F 11 -L BCL
       env: JDK = "Oracle JDK 11 - Linux" 
@@ -47,6 +49,7 @@ matrix:
       osx_image: xcode10.1
 
 script: 
+  # Skip tests on coverity_scan branch
+  - if [[ "${TRAVIS_BRANCH}" == "coverity_scan" ]]; then exit 0; fi
   - java -version
-  - echo "COVERITY_SCAN_BRANCH = ${COVERITY_SCAN_BRANCH}"
-  - if [ "${COVERITY_SCAN_BRANCH}" != 1 ]; then mvn test; fi
+  - mvn test
