@@ -84,44 +84,52 @@ public class LinuxOSVersionInfoEx extends AbstractOSVersionInfoEx {
         // files, which show: &quot;Distributor release x.x (Codename)&quot;
         //
 
+        // Attempt to read /etc/system-release which has more details than
+        // os-release on (CentOS and Fedora)
+<span class="nc bnc" id="L89" title="All 2 branches missed.">        if (readDistribRelease(&quot;/etc/system-release&quot;)) {</span>
+            // If successful, we're done. this.family has been set and
+            // possibly the versionID and codeName
+<span class="nc" id="L92">            return;</span>
+        }
+
         // Attempt to read /etc/os-release file.
-<span class="nc bnc" id="L88" title="All 2 branches missed.">        if (readOsRelease()) {</span>
+<span class="nc bnc" id="L96" title="All 2 branches missed.">        if (readOsRelease()) {</span>
             // If successful, we're done. The version and possibly codeName
             // are set
-<span class="nc" id="L91">            return;</span>
+<span class="nc" id="L99">            return;</span>
         }
 
         // Attempt to execute the `lsb_release` command
-<span class="nc bnc" id="L95" title="All 2 branches missed.">        if (execLsbRelease()) {</span>
+<span class="nc bnc" id="L103" title="All 2 branches missed.">        if (execLsbRelease()) {</span>
             // If successful, we're done. The version and possibly codeName
             // are set
-<span class="nc" id="L98">            return;</span>
+<span class="nc" id="L106">            return;</span>
         }
 
         // The above two options should hopefully work on most
         // distributions. If not, we keep having fun.
         // Attempt to read /etc/lsb-release file
-<span class="nc bnc" id="L104" title="All 2 branches missed.">        if (readLsbRelease()) {</span>
+<span class="nc bnc" id="L112" title="All 2 branches missed.">        if (readLsbRelease()) {</span>
             // If successful, we're done. The version and possibly codeName
             // are set
-<span class="nc" id="L107">            return;</span>
+<span class="nc" id="L115">            return;</span>
         }
 
         // If we're still looking, we search for any /etc/*-release (or
         // similar) filename, for which the first line should be of the
         // &quot;Distributor release x.x (Codename)&quot; format or possibly a
         // &quot;Distributor VERSION x.x (Codename)&quot; format
-<span class="nc" id="L114">        String etcDistribRelease = LinuxOperatingSystem.getReleaseFilename();</span>
-<span class="nc bnc" id="L115" title="All 2 branches missed.">        if (readDistribRelease(etcDistribRelease)) {</span>
+<span class="nc" id="L122">        String etcDistribRelease = LinuxOperatingSystem.getReleaseFilename();</span>
+<span class="nc bnc" id="L123" title="All 2 branches missed.">        if (readDistribRelease(etcDistribRelease)) {</span>
             // If successful, we're done. The version and possibly codeName
             // are set
-<span class="nc" id="L118">            return;</span>
+<span class="nc" id="L126">            return;</span>
         }
         // Finally, if all else fails
-<span class="nc bnc" id="L121" title="All 2 branches missed.">        if (getVersion() == null) {</span>
-<span class="nc" id="L122">            setVersion(System.getProperty(&quot;os.version&quot;));</span>
+<span class="nc bnc" id="L129" title="All 2 branches missed.">        if (getVersion() == null) {</span>
+<span class="nc" id="L130">            setVersion(System.getProperty(&quot;os.version&quot;));</span>
         }
-<span class="nc" id="L124">    }</span>
+<span class="nc" id="L132">    }</span>
 
     /**
      * Attempts to read /etc/os-release
@@ -129,36 +137,36 @@ public class LinuxOSVersionInfoEx extends AbstractOSVersionInfoEx {
      * @return true if file successfully read and NAME= found
      */
     private boolean readOsRelease() {
-<span class="nc bnc" id="L132" title="All 2 branches missed.">        if (new File(&quot;/etc/os-release&quot;).exists()) {</span>
-<span class="nc" id="L133">            List&lt;String&gt; osRelease = FileUtil.readFile(&quot;/etc/os-release&quot;);</span>
+<span class="nc bnc" id="L140" title="All 2 branches missed.">        if (new File(&quot;/etc/os-release&quot;).exists()) {</span>
+<span class="nc" id="L141">            List&lt;String&gt; osRelease = FileUtil.readFile(&quot;/etc/os-release&quot;);</span>
             // Search for NAME=
-<span class="nc bnc" id="L135" title="All 2 branches missed.">            for (String line : osRelease) {</span>
-<span class="nc bnc" id="L136" title="All 2 branches missed.">                if (line.startsWith(&quot;VERSION=&quot;)) {</span>
-<span class="nc" id="L137">                    LOG.debug(&quot;os-release: {}&quot;, line);</span>
+<span class="nc bnc" id="L143" title="All 2 branches missed.">            for (String line : osRelease) {</span>
+<span class="nc bnc" id="L144" title="All 2 branches missed.">                if (line.startsWith(&quot;VERSION=&quot;)) {</span>
+<span class="nc" id="L145">                    LOG.debug(&quot;os-release: {}&quot;, line);</span>
                     // remove beginning and ending '&quot;' characters, etc from
                     // VERSION=&quot;14.04.4 LTS, Trusty Tahr&quot; (Ubuntu style)
                     // or VERSION=&quot;17 (Beefy Miracle)&quot; (os-release doc style)
-<span class="nc" id="L141">                    line = line.replace(&quot;VERSION=&quot;, &quot;&quot;).replaceAll(&quot;^\&quot;|\&quot;$&quot;, &quot;&quot;).trim();</span>
-<span class="nc" id="L142">                    String[] split = line.split(&quot;[()]&quot;);</span>
-<span class="nc bnc" id="L143" title="All 2 branches missed.">                    if (split.length &lt;= 1) {</span>
+<span class="nc" id="L149">                    line = line.replace(&quot;VERSION=&quot;, &quot;&quot;).replaceAll(&quot;^\&quot;|\&quot;$&quot;, &quot;&quot;).trim();</span>
+<span class="nc" id="L150">                    String[] split = line.split(&quot;[()]&quot;);</span>
+<span class="nc bnc" id="L151" title="All 2 branches missed.">                    if (split.length &lt;= 1) {</span>
                         // If no parentheses, check for Ubuntu's comma format
-<span class="nc" id="L145">                        split = line.split(&quot;, &quot;);</span>
+<span class="nc" id="L153">                        split = line.split(&quot;, &quot;);</span>
                     }
-<span class="nc bnc" id="L147" title="All 2 branches missed.">                    if (split.length &gt; 0) {</span>
-<span class="nc" id="L148">                        this.version = split[0].trim();</span>
+<span class="nc bnc" id="L155" title="All 2 branches missed.">                    if (split.length &gt; 0) {</span>
+<span class="nc" id="L156">                        this.version = split[0].trim();</span>
                     }
-<span class="nc bnc" id="L150" title="All 2 branches missed.">                    if (split.length &gt; 1) {</span>
-<span class="nc" id="L151">                        this.codeName = split[1].trim();</span>
+<span class="nc bnc" id="L158" title="All 2 branches missed.">                    if (split.length &gt; 1) {</span>
+<span class="nc" id="L159">                        this.codeName = split[1].trim();</span>
                     }
-<span class="nc bnc" id="L153" title="All 4 branches missed.">                } else if (line.startsWith(&quot;VERSION_ID=&quot;) &amp;&amp; this.version == null) {</span>
-<span class="nc" id="L154">                    LOG.debug(&quot;os-release: {}&quot;, line);</span>
+<span class="nc bnc" id="L161" title="All 4 branches missed.">                } else if (line.startsWith(&quot;VERSION_ID=&quot;) &amp;&amp; this.version == null) {</span>
+<span class="nc" id="L162">                    LOG.debug(&quot;os-release: {}&quot;, line);</span>
                     // remove beginning and ending '&quot;' characters, etc from
                     // VERSION_ID=&quot;14.04&quot;
-<span class="nc" id="L157">                    this.version = line.replace(&quot;VERSION_ID=&quot;, &quot;&quot;).replaceAll(&quot;^\&quot;|\&quot;$&quot;, &quot;&quot;).trim();</span>
+<span class="nc" id="L165">                    this.version = line.replace(&quot;VERSION_ID=&quot;, &quot;&quot;).replaceAll(&quot;^\&quot;|\&quot;$&quot;, &quot;&quot;).trim();</span>
                 }
-<span class="nc" id="L159">            }</span>
+<span class="nc" id="L167">            }</span>
         }
-<span class="nc bnc" id="L161" title="All 2 branches missed.">        return this.version != null;</span>
+<span class="nc bnc" id="L169" title="All 2 branches missed.">        return this.version != null;</span>
     }
 
     /**
@@ -171,22 +179,22 @@ public class LinuxOSVersionInfoEx extends AbstractOSVersionInfoEx {
         // If description is of the format Distrib release x.x (Codename)
         // that is primary, otherwise use Distributor ID: which returns the
         // distribution concatenated, e.g., RedHat instead of Red Hat
-<span class="nc bnc" id="L174" title="All 2 branches missed.">        for (String line : ExecutingCommand.runNative(&quot;lsb_release -a&quot;)) {</span>
-<span class="nc bnc" id="L175" title="All 2 branches missed.">            if (line.startsWith(&quot;Description:&quot;)) {</span>
-<span class="nc" id="L176">                LOG.debug(&quot;lsb_release -a: {}&quot;, line);</span>
-<span class="nc" id="L177">                line = line.replace(&quot;Description:&quot;, &quot;&quot;).trim();</span>
-<span class="nc bnc" id="L178" title="All 2 branches missed.">                if (line.contains(&quot; release &quot;)) {</span>
-<span class="nc" id="L179">                    this.version = parseRelease(line, &quot; release &quot;);</span>
+<span class="nc bnc" id="L182" title="All 2 branches missed.">        for (String line : ExecutingCommand.runNative(&quot;lsb_release -a&quot;)) {</span>
+<span class="nc bnc" id="L183" title="All 2 branches missed.">            if (line.startsWith(&quot;Description:&quot;)) {</span>
+<span class="nc" id="L184">                LOG.debug(&quot;lsb_release -a: {}&quot;, line);</span>
+<span class="nc" id="L185">                line = line.replace(&quot;Description:&quot;, &quot;&quot;).trim();</span>
+<span class="nc bnc" id="L186" title="All 2 branches missed.">                if (line.contains(&quot; release &quot;)) {</span>
+<span class="nc" id="L187">                    this.version = parseRelease(line, &quot; release &quot;);</span>
                 }
-<span class="nc bnc" id="L181" title="All 4 branches missed.">            } else if (line.startsWith(&quot;Release:&quot;) &amp;&amp; this.version == null) {</span>
-<span class="nc" id="L182">                LOG.debug(&quot;lsb_release -a: {}&quot;, line);</span>
-<span class="nc" id="L183">                this.version = line.replace(&quot;Release:&quot;, &quot;&quot;).trim();</span>
-<span class="nc bnc" id="L184" title="All 4 branches missed.">            } else if (line.startsWith(&quot;Codename:&quot;) &amp;&amp; this.codeName == null) {</span>
-<span class="nc" id="L185">                LOG.debug(&quot;lsb_release -a: {}&quot;, line);</span>
-<span class="nc" id="L186">                this.codeName = line.replace(&quot;Codename:&quot;, &quot;&quot;).trim();</span>
+<span class="nc bnc" id="L189" title="All 4 branches missed.">            } else if (line.startsWith(&quot;Release:&quot;) &amp;&amp; this.version == null) {</span>
+<span class="nc" id="L190">                LOG.debug(&quot;lsb_release -a: {}&quot;, line);</span>
+<span class="nc" id="L191">                this.version = line.replace(&quot;Release:&quot;, &quot;&quot;).trim();</span>
+<span class="nc bnc" id="L192" title="All 4 branches missed.">            } else if (line.startsWith(&quot;Codename:&quot;) &amp;&amp; this.codeName == null) {</span>
+<span class="nc" id="L193">                LOG.debug(&quot;lsb_release -a: {}&quot;, line);</span>
+<span class="nc" id="L194">                this.codeName = line.replace(&quot;Codename:&quot;, &quot;&quot;).trim();</span>
             }
-<span class="nc" id="L188">        }</span>
-<span class="nc bnc" id="L189" title="All 2 branches missed.">        return this.version != null;</span>
+<span class="nc" id="L196">        }</span>
+<span class="nc bnc" id="L197" title="All 2 branches missed.">        return this.version != null;</span>
     }
 
     /**
@@ -196,26 +204,26 @@ public class LinuxOSVersionInfoEx extends AbstractOSVersionInfoEx {
      *         DISTRIB_DESCRIPTION found
      */
     private boolean readLsbRelease() {
-<span class="nc bnc" id="L199" title="All 2 branches missed.">        if (new File(&quot;/etc/lsb-release&quot;).exists()) {</span>
-<span class="nc" id="L200">            List&lt;String&gt; osRelease = FileUtil.readFile(&quot;/etc/lsb-release&quot;);</span>
+<span class="nc bnc" id="L207" title="All 2 branches missed.">        if (new File(&quot;/etc/lsb-release&quot;).exists()) {</span>
+<span class="nc" id="L208">            List&lt;String&gt; osRelease = FileUtil.readFile(&quot;/etc/lsb-release&quot;);</span>
             // Search for NAME=
-<span class="nc bnc" id="L202" title="All 2 branches missed.">            for (String line : osRelease) {</span>
-<span class="nc bnc" id="L203" title="All 2 branches missed.">                if (line.startsWith(&quot;DISTRIB_DESCRIPTION=&quot;)) {</span>
-<span class="nc" id="L204">                    LOG.debug(&quot;lsb-release: {}&quot;, line);</span>
-<span class="nc" id="L205">                    line = line.replace(&quot;DISTRIB_DESCRIPTION=&quot;, &quot;&quot;).replaceAll(&quot;^\&quot;|\&quot;$&quot;, &quot;&quot;).trim();</span>
-<span class="nc bnc" id="L206" title="All 2 branches missed.">                    if (line.contains(&quot; release &quot;)) {</span>
-<span class="nc" id="L207">                        this.version = parseRelease(line, &quot; release &quot;);</span>
+<span class="nc bnc" id="L210" title="All 2 branches missed.">            for (String line : osRelease) {</span>
+<span class="nc bnc" id="L211" title="All 2 branches missed.">                if (line.startsWith(&quot;DISTRIB_DESCRIPTION=&quot;)) {</span>
+<span class="nc" id="L212">                    LOG.debug(&quot;lsb-release: {}&quot;, line);</span>
+<span class="nc" id="L213">                    line = line.replace(&quot;DISTRIB_DESCRIPTION=&quot;, &quot;&quot;).replaceAll(&quot;^\&quot;|\&quot;$&quot;, &quot;&quot;).trim();</span>
+<span class="nc bnc" id="L214" title="All 2 branches missed.">                    if (line.contains(&quot; release &quot;)) {</span>
+<span class="nc" id="L215">                        this.version = parseRelease(line, &quot; release &quot;);</span>
                     }
-<span class="nc bnc" id="L209" title="All 4 branches missed.">                } else if (line.startsWith(&quot;DISTRIB_RELEASE=&quot;) &amp;&amp; this.version == null) {</span>
-<span class="nc" id="L210">                    LOG.debug(&quot;lsb-release: {}&quot;, line);</span>
-<span class="nc" id="L211">                    this.version = line.replace(&quot;DISTRIB_RELEASE=&quot;, &quot;&quot;).replaceAll(&quot;^\&quot;|\&quot;$&quot;, &quot;&quot;).trim();</span>
-<span class="nc bnc" id="L212" title="All 4 branches missed.">                } else if (line.startsWith(&quot;DISTRIB_CODENAME=&quot;) &amp;&amp; this.codeName == null) {</span>
-<span class="nc" id="L213">                    LOG.debug(&quot;lsb-release: {}&quot;, line);</span>
-<span class="nc" id="L214">                    this.codeName = line.replace(&quot;DISTRIB_CODENAME=&quot;, &quot;&quot;).replaceAll(&quot;^\&quot;|\&quot;$&quot;, &quot;&quot;).trim();</span>
+<span class="nc bnc" id="L217" title="All 4 branches missed.">                } else if (line.startsWith(&quot;DISTRIB_RELEASE=&quot;) &amp;&amp; this.version == null) {</span>
+<span class="nc" id="L218">                    LOG.debug(&quot;lsb-release: {}&quot;, line);</span>
+<span class="nc" id="L219">                    this.version = line.replace(&quot;DISTRIB_RELEASE=&quot;, &quot;&quot;).replaceAll(&quot;^\&quot;|\&quot;$&quot;, &quot;&quot;).trim();</span>
+<span class="nc bnc" id="L220" title="All 4 branches missed.">                } else if (line.startsWith(&quot;DISTRIB_CODENAME=&quot;) &amp;&amp; this.codeName == null) {</span>
+<span class="nc" id="L221">                    LOG.debug(&quot;lsb-release: {}&quot;, line);</span>
+<span class="nc" id="L222">                    this.codeName = line.replace(&quot;DISTRIB_CODENAME=&quot;, &quot;&quot;).replaceAll(&quot;^\&quot;|\&quot;$&quot;, &quot;&quot;).trim();</span>
                 }
-<span class="nc" id="L216">            }</span>
+<span class="nc" id="L224">            }</span>
         }
-<span class="nc bnc" id="L218" title="All 2 branches missed.">        return this.version != null;</span>
+<span class="nc bnc" id="L226" title="All 2 branches missed.">        return this.version != null;</span>
     }
 
     /**
@@ -225,23 +233,23 @@ public class LinuxOSVersionInfoEx extends AbstractOSVersionInfoEx {
      *         found
      */
     private boolean readDistribRelease(String filename) {
-<span class="nc bnc" id="L228" title="All 2 branches missed.">        if (new File(filename).exists()) {</span>
-<span class="nc" id="L229">            List&lt;String&gt; osRelease = FileUtil.readFile(filename);</span>
+<span class="nc bnc" id="L236" title="All 2 branches missed.">        if (new File(filename).exists()) {</span>
+<span class="nc" id="L237">            List&lt;String&gt; osRelease = FileUtil.readFile(filename);</span>
             // Search for Distrib release x.x (Codename)
-<span class="nc bnc" id="L231" title="All 2 branches missed.">            for (String line : osRelease) {</span>
-<span class="nc" id="L232">                LOG.debug(&quot;{}: {}&quot;, filename, line);</span>
-<span class="nc bnc" id="L233" title="All 2 branches missed.">                if (line.contains(&quot; release &quot;)) {</span>
-<span class="nc" id="L234">                    this.version = parseRelease(line, &quot; release &quot;);</span>
+<span class="nc bnc" id="L239" title="All 2 branches missed.">            for (String line : osRelease) {</span>
+<span class="nc" id="L240">                LOG.debug(&quot;{}: {}&quot;, filename, line);</span>
+<span class="nc bnc" id="L241" title="All 2 branches missed.">                if (line.contains(&quot; release &quot;)) {</span>
+<span class="nc" id="L242">                    this.version = parseRelease(line, &quot; release &quot;);</span>
                     // If this parses properly we're done
-<span class="nc" id="L236">                    break;</span>
-<span class="nc bnc" id="L237" title="All 2 branches missed.">                } else if (line.contains(&quot; VERSION &quot;)) {</span>
-<span class="nc" id="L238">                    this.version = parseRelease(line, &quot; VERSION &quot;);</span>
+<span class="nc" id="L244">                    break;</span>
+<span class="nc bnc" id="L245" title="All 2 branches missed.">                } else if (line.contains(&quot; VERSION &quot;)) {</span>
+<span class="nc" id="L246">                    this.version = parseRelease(line, &quot; VERSION &quot;);</span>
                     // If this parses properly we're done
-<span class="nc" id="L240">                    break;</span>
+<span class="nc" id="L248">                    break;</span>
                 }
-<span class="nc" id="L242">            }</span>
+<span class="nc" id="L250">            }</span>
         }
-<span class="nc bnc" id="L244" title="All 2 branches missed.">        return this.version != null;</span>
+<span class="nc bnc" id="L252" title="All 2 branches missed.">        return this.version != null;</span>
     }
 
     /**
@@ -254,17 +262,17 @@ public class LinuxOSVersionInfoEx extends AbstractOSVersionInfoEx {
      * @return the parsed version (codeName may have also been set)
      */
     private String parseRelease(String line, String splitLine) {
-<span class="nc" id="L257">        String[] split = line.split(splitLine);</span>
-<span class="nc bnc" id="L258" title="All 2 branches missed.">        if (split.length &gt; 1) {</span>
-<span class="nc" id="L259">            split = split[1].split(&quot;[()]&quot;);</span>
-<span class="nc bnc" id="L260" title="All 2 branches missed.">            if (split.length &gt; 0) {</span>
-<span class="nc" id="L261">                this.version = split[0].trim();</span>
+<span class="nc" id="L265">        String[] split = line.split(splitLine);</span>
+<span class="nc bnc" id="L266" title="All 2 branches missed.">        if (split.length &gt; 1) {</span>
+<span class="nc" id="L267">            split = split[1].split(&quot;[()]&quot;);</span>
+<span class="nc bnc" id="L268" title="All 2 branches missed.">            if (split.length &gt; 0) {</span>
+<span class="nc" id="L269">                this.version = split[0].trim();</span>
             }
-<span class="nc bnc" id="L263" title="All 2 branches missed.">            if (split.length &gt; 1) {</span>
-<span class="nc" id="L264">                this.codeName = split[1].trim();</span>
+<span class="nc bnc" id="L271" title="All 2 branches missed.">            if (split.length &gt; 1) {</span>
+<span class="nc" id="L272">                this.codeName = split[1].trim();</span>
             }
         }
-<span class="nc" id="L267">        return this.version;</span>
+<span class="nc" id="L275">        return this.version;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>
