@@ -52,13 +52,13 @@ public class HWDiskStore extends AbstractOshiJsonObject implements Comparable&lt
 
 <span class="fc" id="L53">    private transient JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
 
-    private oshi.hardware.HWDiskStore hwDiskStore;
+    private oshi.hardware.HWDiskStore diskStore;
 
     /**
      * Create a new HWDiskStore with default/empty values
      */
 <span class="fc" id="L60">    public HWDiskStore() {</span>
-<span class="fc" id="L61">        this.hwDiskStore = new oshi.hardware.HWDiskStore();</span>
+<span class="fc" id="L61">        this.diskStore = new oshi.hardware.HWDiskStore();</span>
 <span class="fc" id="L62">    }</span>
 
     /**
@@ -68,7 +68,7 @@ public class HWDiskStore extends AbstractOshiJsonObject implements Comparable&lt
      *            The object to copy
      */
 <span class="fc" id="L70">    public HWDiskStore(oshi.hardware.HWDiskStore diskStore) {</span>
-<span class="fc" id="L71">        this.hwDiskStore = new oshi.hardware.HWDiskStore(diskStore);</span>
+<span class="fc" id="L71">        this.diskStore = new oshi.hardware.HWDiskStore(diskStore);</span>
 <span class="fc" id="L72">    }</span>
 
     /**
@@ -82,19 +82,19 @@ public class HWDiskStore extends AbstractOshiJsonObject implements Comparable&lt
 <span class="fc" id="L82">        boolean diskFound = false;</span>
 <span class="pc bpc" id="L83" title="5 of 6 branches missed.">        switch (SystemInfo.getCurrentPlatformEnum()) {</span>
         case WINDOWS:
-<span class="nc" id="L85">            diskFound = oshi.hardware.platform.windows.WindowsDisks.updateDiskStats(this.hwDiskStore);</span>
+<span class="nc" id="L85">            diskFound = oshi.hardware.platform.windows.WindowsDisks.updateDiskStats(this.diskStore);</span>
 <span class="nc" id="L86">            break;</span>
         case LINUX:
-<span class="nc" id="L88">            diskFound = oshi.hardware.platform.linux.LinuxDisks.updateDiskStats(this.hwDiskStore);</span>
+<span class="nc" id="L88">            diskFound = oshi.hardware.platform.linux.LinuxDisks.updateDiskStats(this.diskStore);</span>
 <span class="nc" id="L89">            break;</span>
         case MACOSX:
-<span class="fc" id="L91">            diskFound = oshi.hardware.platform.mac.MacDisks.updateDiskStats(this.hwDiskStore);</span>
+<span class="fc" id="L91">            diskFound = oshi.hardware.platform.mac.MacDisks.updateDiskStats(this.diskStore);</span>
 <span class="fc" id="L92">            break;</span>
         case SOLARIS:
-<span class="nc" id="L94">            diskFound = oshi.hardware.platform.unix.solaris.SolarisDisks.updateDiskStats(this.hwDiskStore);</span>
+<span class="nc" id="L94">            diskFound = oshi.hardware.platform.unix.solaris.SolarisDisks.updateDiskStats(this.diskStore);</span>
 <span class="nc" id="L95">            break;</span>
         case FREEBSD:
-<span class="nc" id="L97">            diskFound = oshi.hardware.platform.unix.freebsd.FreeBsdDisks.updateDiskStats(this.hwDiskStore);</span>
+<span class="nc" id="L97">            diskFound = oshi.hardware.platform.unix.freebsd.FreeBsdDisks.updateDiskStats(this.diskStore);</span>
 <span class="nc" id="L98">            break;</span>
         default:
 <span class="nc" id="L100">            LOG.error(&quot;Unsupported platform. No update performed.&quot;);</span>
@@ -107,56 +107,56 @@ public class HWDiskStore extends AbstractOshiJsonObject implements Comparable&lt
      * @return the name
      */
     public String getName() {
-<span class="fc" id="L110">        return this.hwDiskStore.getName();</span>
+<span class="fc" id="L110">        return this.diskStore.getName();</span>
     }
 
     /**
      * @return the model
      */
     public String getModel() {
-<span class="fc" id="L117">        return this.hwDiskStore.getModel();</span>
+<span class="fc" id="L117">        return this.diskStore.getModel();</span>
     }
 
     /**
      * @return the serial
      */
     public String getSerial() {
-<span class="fc" id="L124">        return this.hwDiskStore.getSerial();</span>
+<span class="fc" id="L124">        return this.diskStore.getSerial();</span>
     }
 
     /**
      * @return Get size of disk (in bytes)
      */
     public long getSize() {
-<span class="fc" id="L131">        return this.hwDiskStore.getSize();</span>
+<span class="fc" id="L131">        return this.diskStore.getSize();</span>
     }
 
     /**
      * @return the reads
      */
     public long getReads() {
-<span class="fc" id="L138">        return this.hwDiskStore.getReads();</span>
+<span class="fc" id="L138">        return this.diskStore.getReads();</span>
     }
 
     /**
      * @return the bytes read
      */
     public long getReadBytes() {
-<span class="fc" id="L145">        return this.hwDiskStore.getReadBytes();</span>
+<span class="fc" id="L145">        return this.diskStore.getReadBytes();</span>
     }
 
     /**
      * @return the writes
      */
     public long getWrites() {
-<span class="fc" id="L152">        return this.hwDiskStore.getWrites();</span>
+<span class="fc" id="L152">        return this.diskStore.getWrites();</span>
     }
 
     /**
      * @return the bytes written
      */
     public long getWriteBytes() {
-<span class="fc" id="L159">        return this.hwDiskStore.getWriteBytes();</span>
+<span class="fc" id="L159">        return this.diskStore.getWriteBytes();</span>
     }
 
     /**
@@ -165,27 +165,27 @@ public class HWDiskStore extends AbstractOshiJsonObject implements Comparable&lt
      *         yet completed. Not supported on macOS.
      */
     public long getCurrentQueueLength() {
-<span class="fc" id="L168">        return this.hwDiskStore.getCurrentQueueLength();</span>
+<span class="fc" id="L168">        return this.diskStore.getCurrentQueueLength();</span>
     }
 
     /**
      * @return the milliseconds spent reading or writing
      */
     public long getTransferTime() {
-<span class="fc" id="L175">        return this.hwDiskStore.getTransferTime();</span>
+<span class="fc" id="L175">        return this.diskStore.getTransferTime();</span>
     }
 
     /**
      * @return the partitions of this disk
      */
     public HWPartition[] getPartitions() {
-<span class="fc" id="L182">        HWPartition[] partitions = new HWPartition[this.hwDiskStore.getPartitions().length];</span>
+<span class="fc" id="L182">        HWPartition[] partitions = new HWPartition[this.diskStore.getPartitions().length];</span>
 <span class="fc bfc" id="L183" title="All 2 branches covered.">        for (int i = 0; i &lt; partitions.length; i++) {</span>
-<span class="fc" id="L184">            partitions[i] = new HWPartition(this.hwDiskStore.getPartitions()[i].getIdentification(),</span>
-<span class="fc" id="L185">                    this.hwDiskStore.getPartitions()[i].getName(), this.hwDiskStore.getPartitions()[i].getType(),</span>
-<span class="fc" id="L186">                    this.hwDiskStore.getPartitions()[i].getUuid(), this.hwDiskStore.getPartitions()[i].getSize(),</span>
-<span class="fc" id="L187">                    this.hwDiskStore.getPartitions()[i].getMajor(), this.hwDiskStore.getPartitions()[i].getMinor(),</span>
-<span class="fc" id="L188">                    this.hwDiskStore.getPartitions()[i].getMountPoint());</span>
+<span class="fc" id="L184">            partitions[i] = new HWPartition(this.diskStore.getPartitions()[i].getIdentification(),</span>
+<span class="fc" id="L185">                    this.diskStore.getPartitions()[i].getName(), this.diskStore.getPartitions()[i].getType(),</span>
+<span class="fc" id="L186">                    this.diskStore.getPartitions()[i].getUuid(), this.diskStore.getPartitions()[i].getSize(),</span>
+<span class="fc" id="L187">                    this.diskStore.getPartitions()[i].getMajor(), this.diskStore.getPartitions()[i].getMinor(),</span>
+<span class="fc" id="L188">                    this.diskStore.getPartitions()[i].getMountPoint());</span>
         }
 <span class="fc" id="L190">        return partitions;</span>
     }
@@ -194,7 +194,7 @@ public class HWDiskStore extends AbstractOshiJsonObject implements Comparable&lt
      * @return Returns the timeStamp.
      */
     public long getTimeStamp() {
-<span class="fc" id="L197">        return this.hwDiskStore.getTimeStamp();</span>
+<span class="fc" id="L197">        return this.diskStore.getTimeStamp();</span>
     }
 
     /**
@@ -202,7 +202,7 @@ public class HWDiskStore extends AbstractOshiJsonObject implements Comparable&lt
      *            the name to set
      */
     public void setName(String name) {
-<span class="fc" id="L205">        this.hwDiskStore.setName(name);</span>
+<span class="fc" id="L205">        this.diskStore.setName(name);</span>
 <span class="fc" id="L206">    }</span>
 
     /**
@@ -210,7 +210,7 @@ public class HWDiskStore extends AbstractOshiJsonObject implements Comparable&lt
      *            the model to set
      */
     public void setModel(String model) {
-<span class="fc" id="L213">        this.hwDiskStore.setModel(model);</span>
+<span class="fc" id="L213">        this.diskStore.setModel(model);</span>
 <span class="fc" id="L214">    }</span>
 
     /**
@@ -218,7 +218,7 @@ public class HWDiskStore extends AbstractOshiJsonObject implements Comparable&lt
      *            the serial to set
      */
     public void setSerial(String serial) {
-<span class="fc" id="L221">        this.hwDiskStore.setSerial(serial);</span>
+<span class="fc" id="L221">        this.diskStore.setSerial(serial);</span>
 <span class="fc" id="L222">    }</span>
 
     /**
@@ -226,7 +226,7 @@ public class HWDiskStore extends AbstractOshiJsonObject implements Comparable&lt
      *            Set size of disk (in bytes)
      */
     public void setSize(long size) {
-<span class="fc" id="L229">        this.hwDiskStore.setSize(size);</span>
+<span class="fc" id="L229">        this.diskStore.setSize(size);</span>
 <span class="fc" id="L230">    }</span>
 
     /**
@@ -234,7 +234,7 @@ public class HWDiskStore extends AbstractOshiJsonObject implements Comparable&lt
      *            the reads to set
      */
     public void setReads(long reads) {
-<span class="fc" id="L237">        this.hwDiskStore.setReads(reads);</span>
+<span class="fc" id="L237">        this.diskStore.setReads(reads);</span>
 <span class="fc" id="L238">    }</span>
 
     /**
@@ -242,7 +242,7 @@ public class HWDiskStore extends AbstractOshiJsonObject implements Comparable&lt
      *            the bytes read to set
      */
     public void setReadBytes(long readBytes) {
-<span class="fc" id="L245">        this.hwDiskStore.setReadBytes(readBytes);</span>
+<span class="fc" id="L245">        this.diskStore.setReadBytes(readBytes);</span>
 <span class="fc" id="L246">    }</span>
 
     /**
@@ -250,7 +250,7 @@ public class HWDiskStore extends AbstractOshiJsonObject implements Comparable&lt
      *            the writes to set
      */
     public void setWrites(long writes) {
-<span class="fc" id="L253">        this.hwDiskStore.setWrites(writes);</span>
+<span class="fc" id="L253">        this.diskStore.setWrites(writes);</span>
 <span class="fc" id="L254">    }</span>
 
     /**
@@ -258,7 +258,7 @@ public class HWDiskStore extends AbstractOshiJsonObject implements Comparable&lt
      *            the bytes written to set
      */
     public void setWriteBytes(long writeBytes) {
-<span class="fc" id="L261">        this.hwDiskStore.setWriteBytes(writeBytes);</span>
+<span class="fc" id="L261">        this.diskStore.setWriteBytes(writeBytes);</span>
 <span class="fc" id="L262">    }</span>
 
     /**
@@ -266,7 +266,7 @@ public class HWDiskStore extends AbstractOshiJsonObject implements Comparable&lt
      *            the length of the disk queue (#I/O's in progress) to set
      */
     public void setCurrentQueueLength(long currentQueueLength) {
-<span class="fc" id="L269">        this.hwDiskStore.setCurrentQueueLength(currentQueueLength);</span>
+<span class="fc" id="L269">        this.diskStore.setCurrentQueueLength(currentQueueLength);</span>
 <span class="fc" id="L270">    }</span>
 
     /**
@@ -274,7 +274,7 @@ public class HWDiskStore extends AbstractOshiJsonObject implements Comparable&lt
      *            milliseconds spent reading or writing to set
      */
     public void setTransferTime(long transferTime) {
-<span class="fc" id="L277">        this.hwDiskStore.setTransferTime(transferTime);</span>
+<span class="fc" id="L277">        this.diskStore.setTransferTime(transferTime);</span>
 <span class="fc" id="L278">    }</span>
 
     /**
@@ -288,7 +288,7 @@ public class HWDiskStore extends AbstractOshiJsonObject implements Comparable&lt
 <span class="fc" id="L288">                    partitions[i].getType(), partitions[i].getUuid(), partitions[i].getSize(), partitions[i].getMajor(),</span>
 <span class="fc" id="L289">                    partitions[i].getMinor(), partitions[i].getMountPoint());</span>
         }
-<span class="fc" id="L291">        this.hwDiskStore.setPartitions(parts);</span>
+<span class="fc" id="L291">        this.diskStore.setPartitions(parts);</span>
 <span class="fc" id="L292">    }</span>
 
     /**
@@ -296,7 +296,7 @@ public class HWDiskStore extends AbstractOshiJsonObject implements Comparable&lt
      *            The timeStamp to set.
      */
     public void setTimeStamp(long timeStamp) {
-<span class="fc" id="L299">        this.hwDiskStore.setTimeStamp(timeStamp);</span>
+<span class="fc" id="L299">        this.diskStore.setTimeStamp(timeStamp);</span>
 <span class="fc" id="L300">    }</span>
 
     /**
@@ -306,34 +306,34 @@ public class HWDiskStore extends AbstractOshiJsonObject implements Comparable&lt
     public JsonObject toJSON(Properties properties) {
 <span class="fc" id="L307">        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(this.jsonFactory.createObjectBuilder());</span>
 <span class="pc bpc" id="L308" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.disks.name&quot;)) {</span>
-<span class="fc" id="L309">            json.add(&quot;name&quot;, this.hwDiskStore.getName());</span>
+<span class="fc" id="L309">            json.add(&quot;name&quot;, this.diskStore.getName());</span>
         }
 <span class="pc bpc" id="L311" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.disks.model&quot;)) {</span>
-<span class="fc" id="L312">            json.add(&quot;model&quot;, this.hwDiskStore.getModel());</span>
+<span class="fc" id="L312">            json.add(&quot;model&quot;, this.diskStore.getModel());</span>
         }
 <span class="pc bpc" id="L314" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.disks.serial&quot;)) {</span>
-<span class="fc" id="L315">            json.add(&quot;serial&quot;, this.hwDiskStore.getSerial());</span>
+<span class="fc" id="L315">            json.add(&quot;serial&quot;, this.diskStore.getSerial());</span>
         }
 <span class="pc bpc" id="L317" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.disks.size&quot;)) {</span>
-<span class="fc" id="L318">            json.add(&quot;size&quot;, this.hwDiskStore.getSize());</span>
+<span class="fc" id="L318">            json.add(&quot;size&quot;, this.diskStore.getSize());</span>
         }
 <span class="pc bpc" id="L320" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.disks.reads&quot;)) {</span>
-<span class="fc" id="L321">            json.add(&quot;reads&quot;, this.hwDiskStore.getReads());</span>
+<span class="fc" id="L321">            json.add(&quot;reads&quot;, this.diskStore.getReads());</span>
         }
 <span class="pc bpc" id="L323" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.disks.readBytes&quot;)) {</span>
-<span class="fc" id="L324">            json.add(&quot;readBytes&quot;, this.hwDiskStore.getReadBytes());</span>
+<span class="fc" id="L324">            json.add(&quot;readBytes&quot;, this.diskStore.getReadBytes());</span>
         }
 <span class="pc bpc" id="L326" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.disks.writes&quot;)) {</span>
-<span class="fc" id="L327">            json.add(&quot;writes&quot;, this.hwDiskStore.getWrites());</span>
+<span class="fc" id="L327">            json.add(&quot;writes&quot;, this.diskStore.getWrites());</span>
         }
 <span class="pc bpc" id="L329" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.disks.writeBytes&quot;)) {</span>
-<span class="fc" id="L330">            json.add(&quot;writeBytes&quot;, this.hwDiskStore.getWriteBytes());</span>
+<span class="fc" id="L330">            json.add(&quot;writeBytes&quot;, this.diskStore.getWriteBytes());</span>
         }
 <span class="pc bpc" id="L332" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.disks.queueLength&quot;)) {</span>
-<span class="fc" id="L333">            json.add(&quot;currentQueueLength&quot;, this.hwDiskStore.getCurrentQueueLength());</span>
+<span class="fc" id="L333">            json.add(&quot;currentQueueLength&quot;, this.diskStore.getCurrentQueueLength());</span>
         }
 <span class="pc bpc" id="L335" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.disks.transferTime&quot;)) {</span>
-<span class="fc" id="L336">            json.add(&quot;transferTime&quot;, this.hwDiskStore.getTransferTime());</span>
+<span class="fc" id="L336">            json.add(&quot;transferTime&quot;, this.diskStore.getTransferTime());</span>
         }
 <span class="pc bpc" id="L338" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.disks.partitions&quot;)) {</span>
 <span class="fc" id="L339">            JsonArrayBuilder partitionArrayBuilder = this.jsonFactory.createArrayBuilder();</span>
@@ -343,7 +343,7 @@ public class HWDiskStore extends AbstractOshiJsonObject implements Comparable&lt
 <span class="fc" id="L343">            json.add(&quot;partitions&quot;, partitionArrayBuilder.build());</span>
         }
 <span class="pc bpc" id="L345" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.disks.timeStamp&quot;)) {</span>
-<span class="fc" id="L346">            json.add(&quot;timeStamp&quot;, this.hwDiskStore.getTimeStamp());</span>
+<span class="fc" id="L346">            json.add(&quot;timeStamp&quot;, this.diskStore.getTimeStamp());</span>
         }
 <span class="fc" id="L348">        return json.build();</span>
     }
@@ -353,7 +353,7 @@ public class HWDiskStore extends AbstractOshiJsonObject implements Comparable&lt
      */
     @Override
     public int compareTo(HWDiskStore store) {
-<span class="fc" id="L356">        return this.hwDiskStore.compareTo(store.hwDiskStore);</span>
+<span class="fc" id="L356">        return this.diskStore.compareTo(store.diskStore);</span>
     }
 
     /**
@@ -363,7 +363,7 @@ public class HWDiskStore extends AbstractOshiJsonObject implements Comparable&lt
     public int hashCode() {
 <span class="fc" id="L364">        final int prime = 31;</span>
 <span class="fc" id="L365">        int result = 1;</span>
-<span class="pc bpc" id="L366" title="1 of 2 branches missed.">        result = prime * result + (this.hwDiskStore == null ? 0 : this.hwDiskStore.hashCode());</span>
+<span class="pc bpc" id="L366" title="1 of 2 branches missed.">        result = prime * result + (this.diskStore == null ? 0 : this.diskStore.hashCode());</span>
 <span class="fc" id="L367">        return result;</span>
     }
 
@@ -382,11 +382,11 @@ public class HWDiskStore extends AbstractOshiJsonObject implements Comparable&lt
 <span class="fc" id="L382">            return false;</span>
         }
 <span class="fc" id="L384">        HWDiskStore other = (HWDiskStore) obj;</span>
-<span class="pc bpc" id="L385" title="1 of 2 branches missed.">        if (this.hwDiskStore == null) {</span>
-<span class="nc bnc" id="L386" title="All 2 branches missed.">            if (other.hwDiskStore != null) {</span>
+<span class="pc bpc" id="L385" title="1 of 2 branches missed.">        if (this.diskStore == null) {</span>
+<span class="nc bnc" id="L386" title="All 2 branches missed.">            if (other.diskStore != null) {</span>
 <span class="nc" id="L387">                return false;</span>
             }
-<span class="fc bfc" id="L389" title="All 2 branches covered.">        } else if (!this.hwDiskStore.equals(other.hwDiskStore)) {</span>
+<span class="fc bfc" id="L389" title="All 2 branches covered.">        } else if (!this.diskStore.equals(other.diskStore)) {</span>
 <span class="fc" id="L390">            return false;</span>
         }
 <span class="fc" id="L392">        return true;</span>
