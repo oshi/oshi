@@ -56,8 +56,8 @@ Downloads
 ---------
 | Stable Release Version | Current Development Version | Dependencies |
 | ------------- | ------------- | ------------- |
-| [oshi-core-3.10.0](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&amp;g=com.github.oshi&amp;a=oshi-core&amp;v=3.10.0&amp;e=jar)  | [oshi-core-3.11.0-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;g=com.github.oshi&amp;a=oshi-core&amp;v=3.11.0-SNAPSHOT&amp;e=jar) | [JNA](https://github.com/java-native-access/jna) • [SLF4J](http://www.slf4j.org/) |
-| [oshi-json-3.10.0](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&amp;g=com.github.oshi&amp;a=oshi-json&amp;v=3.10.0&amp;e=jar)   | [oshi-json-3.11.0-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;g=com.github.oshi&amp;a=oshi-json&amp;v=3.11.0-SNAPSHOT&amp;e=jar)  | [javax.json](https://jsonp.java.net/download.html) |
+| [oshi-core-3.11.0](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&amp;g=com.github.oshi&amp;a=oshi-core&amp;v=3.11.0&amp;e=jar)  | [oshi-core-3.12.0-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;g=com.github.oshi&amp;a=oshi-core&amp;v=3.12.0-SNAPSHOT&amp;e=jar) | [JNA](https://github.com/java-native-access/jna) • [SLF4J](http://www.slf4j.org/) |
+| [oshi-json-3.11.0](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&amp;g=com.github.oshi&amp;a=oshi-json&amp;v=3.11.0&amp;e=jar)   | [oshi-json-3.12.0-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;g=com.github.oshi&amp;a=oshi-json&amp;v=3.12.0-SNAPSHOT&amp;e=jar)  | [javax.json](https://jsonp.java.net/download.html) |
 
 Output
 -------------
@@ -207,14 +207,22 @@ Many thanks to the following companies for providing free support of Open Source
 
 Projects using OSHI
 -------------------
-* [Systeminfo Binding](https://github.com/openhab/openhab2-addons/tree/master/addons/binding/org.openhab.binding.systeminfo) for [OpenHAB](http://www.openhab.org/)
-* [OfficeConnector](https://confluence.atlassian.com/doc/edit-office-files-170494553.html) for [Atlassian Confluence](https://www.atlassian.com/software/confluence)
-* [Hawkular WildFly Agent](https://github.com/hawkular/hawkular-agent) for [Hawkular](http://www.hawkular.org/)
+* [CAS Server](https://apereo.github.io/cas)
+* [JPPF](https://jppf.org/)
+* [Apache Flink](https://flink.apache.org/)
+* [DeepLearning4J](https://deeplearning4j.org/)
+* [PSI Probe](https://github.com/psi-probe/psi-probe)
+* [openHAB Systeminfo Binding](https://github.com/openhab/openhab2-addons/tree/master/addons/binding/org.openhab.binding.systeminfo)
+* [Semux](https://www.semux.org/)
+* [Arthas](https://alibaba.github.io/arthas/en/)
+* [Hawkular WildFly Agent](https://github.com/hawkular/hawkular-agent)
+* [GeoServer](https://docs.geoserver.org/stable/en/user/community/status-monitoring/index.html)
 * [UniversalMediaServer](https://github.com/UniversalMediaServer/UniversalMediaServer)
 * [Dagr](https://github.com/fulcrumgenomics/dagr)
 * [sys-API](https://github.com/Krillsson/sys-API)
 * [NexCapMAT](http://www.nexess-solutions.com/fr/produits/application-nexcap-mat/)
 * [360Suite](https://360suite.io/)
+* [GoMint](https://gomint.io/)
 * [Stefan's OS](https://BotCompany.de/)
 
 License

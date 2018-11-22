@@ -1,4 +1,8 @@
-3.11.0 (in progress)
+3.12.0 (in progress)
+================
+* Your contribution here.
+
+3.11.0 (11/21/18)
 ================
 * [#685](https://github.com/oshi/oshi/pull/685): Get Linux HZ from system config - [@dbwiddis](https://github.com/dbwiddis).
 * [#686](https://github.com/oshi/oshi/pull/686): JNA 5.1.0 - [@dbwiddis](https://github.com/dbwiddis).
@@ -6,7 +10,6 @@
 * [#689](https://github.com/oshi/oshi/pull/689): Optionally skip slow OSProcess fields - [@dbwiddis](https://github.com/dbwiddis).
 * [#690](https://github.com/oshi/oshi/pull/690): Prioritize system-release for Fedora and CentOS version - [@dbwiddis](https://github.com/dbwiddis).
 * [#691](https://github.com/oshi/oshi/pull/691): Cache OSProcesses on Linux - [@dbwiddis](https://github.com/dbwiddis).
-* Your contribution here.
 
 3.10.0 (11/03/18)
 ================
