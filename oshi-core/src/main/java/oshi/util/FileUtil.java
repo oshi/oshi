@@ -70,7 +70,9 @@ public class FileUtil {
      */
     public static List<String> readFile(String filename, boolean reportError) {
         if (new File(filename).canRead()) {
-            LOG.debug("Reading file {}", filename);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Reading file {}", filename);
+            }
             try {
                 return Files.readAllLines(Paths.get(filename), StandardCharsets.UTF_8);
             } catch (IOException e) {
@@ -93,10 +95,14 @@ public class FileUtil {
      * @return The value contained in the file, if any; otherwise zero
      */
     public static long getLongFromFile(String filename) {
-        LOG.debug("Reading file {}", filename);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Reading file {}", filename);
+        }
         List<String> read = FileUtil.readFile(filename, false);
         if (!read.isEmpty()) {
-            LOG.trace("Read {}", read.get(0));
+            if (LOG.isTraceEnabled()) {
+                LOG.trace("Read {}", read.get(0));
+            }
             return ParseUtil.parseLongOrDefault(read.get(0), 0L);
         }
         return 0L;
@@ -111,10 +117,14 @@ public class FileUtil {
      * @return The value contained in the file, if any; otherwise zero
      */
     public static long getUnsignedLongFromFile(String filename) {
-        LOG.debug("Reading file {}", filename);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Reading file {}", filename);
+        }
         List<String> read = FileUtil.readFile(filename, false);
         if (!read.isEmpty()) {
-            LOG.trace("Read {}", read.get(0));
+            if (LOG.isTraceEnabled()) {
+                LOG.trace("Read {}", read.get(0));
+            }
             return ParseUtil.parseUnsignedLongOrDefault(read.get(0), 0L);
         }
         return 0L;
@@ -129,15 +139,19 @@ public class FileUtil {
      * @return The value contained in the file, if any; otherwise zero
      */
     public static int getIntFromFile(String filename) {
-        LOG.debug("Reading file {}", filename);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Reading file {}", filename);
+        }
         try {
             List<String> read = FileUtil.readFile(filename, false);
             if (!read.isEmpty()) {
-                LOG.trace("Read {}", read.get(0));
+                if (LOG.isTraceEnabled()) {
+                    LOG.trace("Read {}", read.get(0));
+                }
                 return Integer.parseInt(read.get(0));
             }
         } catch (NumberFormatException ex) {
-            LOG.debug("Unable to read value from {}. {}", filename, ex);
+            LOG.warn("Unable to read value from {}. {}", filename, ex);
         }
         return 0;
     }
@@ -151,10 +165,14 @@ public class FileUtil {
      * @return The value contained in the file, if any; otherwise empty string
      */
     public static String getStringFromFile(String filename) {
-        LOG.debug("Reading file {}", filename);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Reading file {}", filename);
+        }
         List<String> read = FileUtil.readFile(filename, false);
         if (!read.isEmpty()) {
-            LOG.trace("Read {}", read.get(0));
+            if (LOG.isTraceEnabled()) {
+                LOG.trace("Read {}", read.get(0));
+            }
             return read.get(0);
         }
         return "";
@@ -173,7 +191,9 @@ public class FileUtil {
      */
     public static Map<String, String> getKeyValueMapFromFile(String filename, String separator) {
         Map<String, String> map = new HashMap<>();
-        LOG.debug("Reading file {}", filename);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Reading file {}", filename);
+        }
         List<String> lines = FileUtil.readFile(filename, false);
         for (String line : lines) {
             String[] parts = line.split(separator);
