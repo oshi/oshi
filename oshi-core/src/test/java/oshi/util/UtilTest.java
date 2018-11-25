@@ -42,5 +42,11 @@ public class UtilTest {
         then = now - 550;
         Util.sleepAfter(then, 500);
         assertTrue(System.currentTimeMillis() - now < 500);
+
+        String LicenseKeytest  = Util.generateLicenseKey();
+        System.out.println(LicenseKeytest);
     }
+
+
+
 }

@@ -92,13 +92,12 @@ public class Util {
         String processorIdentifier = centralProcessor.getIdentifier();
         int processors = centralProcessor.getLogicalProcessorCount();
 
-        //For the processor count.
         String delimiter = "#";
 
         return vendor.hashCode() +
-                delimiter.hashCode() +
+                delimiter +
                 processorSerialNumber.hashCode() +
-                delimiter.hashCode() +
+                delimiter +
                 processorIdentifier.hashCode() +
                 delimiter +
                 processors;
