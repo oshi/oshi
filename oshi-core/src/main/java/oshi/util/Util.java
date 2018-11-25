@@ -20,6 +20,12 @@ package oshi.util;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import oshi.SystemInfo;
+import oshi.hardware.CentralProcessor;
+import oshi.hardware.ComputerSystem;
+import oshi.hardware.HardwareAbstractionLayer;
+import oshi.software.os.OperatingSystem;
+
 
 /**
  * General utility methods
@@ -64,5 +70,37 @@ public class Util {
         if (now < until) {
             sleep(until - now);
         }
+    }
+
+    /**
+     * Generates a licence key based upon the processor serial number, vendor,
+     * processor identifier, and total processor count. These are obtained using
+     * the interfaces like OperatingSystem, HardwareAbstractionLayer, CentralProcessor
+     * ComputerSystem and class SystemInfo.
+     *
+     */
+    static String generateLicenseKey()
+    {
+        SystemInfo systemInfo = new SystemInfo();
+        OperatingSystem operatingSystem = systemInfo.getOperatingSystem();
+        HardwareAbstractionLayer hardwareAbstractionLayer = systemInfo.getHardware();
+        CentralProcessor centralProcessor = hardwareAbstractionLayer.getProcessor();
+        ComputerSystem computerSystem = hardwareAbstractionLayer.getComputerSystem();
+
+        String vendor = operatingSystem.getManufacturer();
+        String processorSerialNumber = computerSystem.getSerialNumber();
+        String processorIdentifier = centralProcessor.getIdentifier();
+        int processors = centralProcessor.getLogicalProcessorCount();
+
+        //For the processor count.
+        String delimiter = "#";
+
+        return vendor.hashCode() +
+                delimiter.hashCode() +
+                processorSerialNumber.hashCode() +
+                delimiter.hashCode() +
+                processorIdentifier.hashCode() +
+                delimiter +
+                processors;
     }
 }
