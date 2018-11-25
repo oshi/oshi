@@ -94,11 +94,11 @@ public class Util {
 
         String delimiter = "#";
 
-        return vendor.hashCode() +
+        return vendor +
                 delimiter +
-                processorSerialNumber.hashCode() +
+                processorSerialNumber +
                 delimiter +
-                processorIdentifier.hashCode() +
+                processorIdentifier +
                 delimiter +
                 processors;
     }
