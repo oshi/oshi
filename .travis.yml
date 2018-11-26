@@ -10,7 +10,7 @@ after_success:
   - bash <(curl -s https://codecov.io/bash)
   - if [ "$MATRIX_ID" == "first" ]; then
       ./mvnw clean test jacoco:report coveralls:report;
-      ./mvnw clean org.jacoco:jacoco-maven-plugin:prepare-agent package sonar:sonar -Dsonar.host.url=https://sonarqube.com -Dsonar.login=df16219a00545aae71f880423a6f23191330744f;
+      ./mvnw clean org.jacoco:jacoco-maven-plugin:prepare-agent package sonar:sonar;
     fi
 
 env:
@@ -27,6 +27,8 @@ addons:
     build_command_prepend: "cov-configure --comptype gcc --compiler gcc-4.8 --template"
     build_command:   "./mvnw -DskipTests=true clean compile"
     branch_pattern: coverity_scan
+  sonarcloud:
+    organization: "default" # the key of the open source org
   hosts:
     - oshi
   hostname: oshi
