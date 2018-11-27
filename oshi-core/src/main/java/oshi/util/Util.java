@@ -73,13 +73,14 @@ public class Util {
     }
 
     /**
-     * Generates a licence key based upon the processor serial number, vendor,
+     * Generates a licence key(This may not be unique as in one case hashcode could be
+     * same for multiple values) based upon the processor serial number, vendor,
      * processor identifier, and total processor count. These are obtained using
      * the interfaces like OperatingSystem, HardwareAbstractionLayer, CentralProcessor
      * ComputerSystem and class SystemInfo.
      *
      */
-    static String generateLicenseKey()
+    public static String generateLicenseKey()
     {
         SystemInfo systemInfo = new SystemInfo();
         OperatingSystem operatingSystem = systemInfo.getOperatingSystem();
@@ -92,13 +93,13 @@ public class Util {
         String processorIdentifier = centralProcessor.getIdentifier();
         int processors = centralProcessor.getLogicalProcessorCount();
 
-        String delimiter = "#";
+        String delimiter = "-";
 
-        return vendor +
+        return String.format("%08x", vendor.hashCode()) +
                 delimiter +
-                processorSerialNumber +
+                String.format("%08x", processorSerialNumber.hashCode()) +
                 delimiter +
-                processorIdentifier +
+                String.format("%08x", processorIdentifier.hashCode()) +
                 delimiter +
                 processors;
     }

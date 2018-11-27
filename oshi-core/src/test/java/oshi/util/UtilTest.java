@@ -44,7 +44,8 @@ public class UtilTest {
         assertTrue(System.currentTimeMillis() - now < 500);
 
         String LicenseKeytest  = Util.generateLicenseKey();
-        System.out.println(LicenseKeytest);
+        String UIDParts[] =  LicenseKeytest.split("-");
+        assert UIDParts.length >= 4;
     }
 
 
