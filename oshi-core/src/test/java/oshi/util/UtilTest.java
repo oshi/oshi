@@ -18,6 +18,7 @@
  */
 package oshi.util;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
@@ -42,5 +43,9 @@ public class UtilTest {
         then = now - 550;
         Util.sleepAfter(then, 500);
         assertTrue(System.currentTimeMillis() - now < 500);
+
+        String computerIdentifier = Util.getComputerIdentifier();
+        String idParts[] = computerIdentifier.split("-");
+        assertEquals(4, idParts.length);
     }
 }
