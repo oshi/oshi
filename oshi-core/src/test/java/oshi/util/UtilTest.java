@@ -18,6 +18,7 @@
  */
 package oshi.util;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
@@ -43,11 +44,8 @@ public class UtilTest {
         Util.sleepAfter(then, 500);
         assertTrue(System.currentTimeMillis() - now < 500);
 
-        String LicenseKeytest  = Util.generateLicenseKey();
-        String UIDParts[] =  LicenseKeytest.split("-");
-        assert UIDParts.length >= 4;
+        String computerIdentifier = Util.getComputerIdentifier();
+        String idParts[] = computerIdentifier.split("-");
+        assertEquals(4, idParts.length);
     }
-
-
-
 }
