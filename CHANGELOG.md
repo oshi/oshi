@@ -1,5 +1,6 @@
 3.12.0 (in progress)
 ================
+* [#694](https://github.com/oshi/oshi/pull/694): ComputerIdentifier Util Method - [@Aashishthakur10](https://github.com/Aashishthakur10).
 * Your contribution here.
 
 3.11.0 (11/21/18)
