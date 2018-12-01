@@ -50,7 +50,7 @@ public class SolarisSoundCard extends AbstractSoundCard {
         String key = ""; 
         for (String line : ExecutingCommand.runNative(LSHAL)) {
             if (line.startsWith("udi =")) {
-        	    // we have the key.
+                // we have the key.
                 key = ParseUtil.getSingleQuoteStringValue(line);
                 continue;
             }
