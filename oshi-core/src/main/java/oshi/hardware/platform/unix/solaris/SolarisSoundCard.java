@@ -49,15 +49,15 @@ public class SolarisSoundCard extends AbstractSoundCard {
         List<String> sounds = new ArrayList<>();
         String key = ""; 
         for (String line : ExecutingCommand.runNative(LSHAL)) {
-        	if (line.startsWith("udi =")) {
-            	// we have the key.
+            if (line.startsWith("udi =")) {
+        	    // we have the key.
                 key = ParseUtil.getSingleQuoteStringValue(line);
                 continue;
             }
         	
         	line = line.trim();
         	
-        	if (key.isEmpty() || line.isEmpty()) {
+            if (key.isEmpty() || line.isEmpty()) {
                 continue;
             }
             

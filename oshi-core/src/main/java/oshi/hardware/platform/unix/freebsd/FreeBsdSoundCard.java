@@ -50,7 +50,7 @@ public class FreeBsdSoundCard extends AbstractSoundCard {
         List<String> sounds = new ArrayList<>();
         String key = "";
         for (String line : ExecutingCommand.runNative(LSHAL)) {
-        	if (line.startsWith("udi =")) {
+            if (line.startsWith("udi =")) {
                 // we have the key.
                 key = ParseUtil.getSingleQuoteStringValue(line);
                 continue;
@@ -58,7 +58,7 @@ public class FreeBsdSoundCard extends AbstractSoundCard {
         	
         	line = line.trim();
         	
-        	if (key.isEmpty() || line.isEmpty()) {
+            if (key.isEmpty() || line.isEmpty()) {
                 continue;
             }
             
