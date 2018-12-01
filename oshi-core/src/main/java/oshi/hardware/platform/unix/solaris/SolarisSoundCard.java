@@ -55,7 +55,7 @@ public class SolarisSoundCard extends AbstractSoundCard {
                 continue;
             }
         	
-        	line = line.trim();
+            line = line.trim();
         	
             if (key.isEmpty() || line.isEmpty()) {
                 continue;
