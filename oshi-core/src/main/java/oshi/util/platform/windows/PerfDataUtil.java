@@ -61,6 +61,7 @@ public class PerfDataUtil {
     private static final String HEX_ERROR_FMT = "0x%08X";
     private static final String LOG_COUNTER_NOT_EXISTS = "Counter does not exist: {}";
     private static final String LOG_COUNTER_RECREATE = "Removing and re-adding counter: {}";
+    private static final String LOG_COUNTER_QUERY = "Querying counter: {}";
 
     // PDH timestamps are 1601 epoch, local time
     // Constants to convert to UTC millis
@@ -203,19 +204,20 @@ public class PerfDataUtil {
             }
             return 0;
         }
-        long value = queryCounter(counterMap.get(counter));
-        if (value < 0) {
-            // Nevative value is error code.
-            if (value == PdhMsg.PDH_INVALID_HANDLE) {
-                if (LOG.isWarnEnabled()) {
-                    LOG.warn(LOG_COUNTER_RECREATE, counterPath(counter));
-                }
-                removeCounterFromQuery(counter);
-                addCounterToQuery(counter);
-            }
-            return 0;
+        if (LOG.isTraceEnabled()) {
+            LOG.trace(LOG_COUNTER_QUERY, counterPath(counter));
         }
-        return value;
+        long value = queryCounter(counterMap.get(counter));
+        if (value == PdhMsg.PDH_INVALID_HANDLE) {
+            if (LOG.isWarnEnabled()) {
+                LOG.warn(LOG_COUNTER_RECREATE, counterPath(counter));
+            }
+            removeCounterFromQuery(counter);
+            addCounterToQuery(counter);
+            // Query again with new handle
+            value = queryCounter(counterMap.get(counter));
+        }
+        return value < 0 ? 0 : value;
     }
 
     /**
@@ -344,8 +346,8 @@ public class PerfDataUtil {
             if (LOG.isWarnEnabled()) {
                 LOG.warn("Failed to get counter. Error code: {}", String.format(HEX_ERROR_FMT, ret));
             }
-            // Return error code as a negative value
-            return -1L * ret;
+            // Return error code. Will be a negative value
+            return ret;
         }
         return counterValue.FirstValue;
     }
