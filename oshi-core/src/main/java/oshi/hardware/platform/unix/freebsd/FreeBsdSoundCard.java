@@ -54,14 +54,14 @@ public class FreeBsdSoundCard extends AbstractSoundCard {
                 // we have the key.
                 key = ParseUtil.getSingleQuoteStringValue(line);
                 continue;
-            } 
-        	
+            }
+
             line = line.trim();
-        	
+
             if (key.isEmpty() || line.isEmpty()) {
                 continue;
             }
-            
+
             if (line.contains("freebsd.driver =") && "pcm".equals(ParseUtil.getSingleQuoteStringValue(line))) {
                 sounds.add(key);
             } else if (line.contains("info.product")) {
