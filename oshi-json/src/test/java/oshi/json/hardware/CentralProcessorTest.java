@@ -48,34 +48,34 @@ public class CentralProcessorTest {
         assertNotNull(p.getVendor());
         assertTrue(p.getVendorFreq() == -1 || p.getVendorFreq() > 0);
         p.setVendor("v");
-        assertEquals(p.getVendor(), "v");
+        assertEquals("v", p.getVendor());
 
         assertNotNull(p.getName());
         p.setName("n");
-        assertEquals(p.getName(), "n");
+        assertEquals("n", p.getName());
 
         assertNotNull(p.getIdentifier());
         p.setIdentifier("i");
-        assertEquals(p.getIdentifier(), "i");
+        assertEquals("i", p.getIdentifier());
 
         assertNotNull(p.getProcessorID());
         p.setProcessorID("p");
-        assertEquals(p.getProcessorID(), "p");
+        assertEquals("p", p.getProcessorID());
 
         p.setCpu64(true);
         assertTrue(p.isCpu64bit());
 
         assertNotNull(p.getStepping());
         p.setStepping("s");
-        assertEquals(p.getStepping(), "s");
+        assertEquals("s", p.getStepping());
 
         assertNotNull(p.getModel());
         p.setModel("m");
-        assertEquals(p.getModel(), "m");
+        assertEquals("m", p.getModel());
 
         assertNotNull(p.getFamily());
         p.setFamily("f");
-        assertEquals(p.getFamily(), "f");
+        assertEquals("f", p.getFamily());
 
         assertTrue(p.getSystemCpuLoadBetweenTicks() >= 0 && p.getSystemCpuLoadBetweenTicks() <= 1);
         assertEquals(p.getSystemCpuLoadTicks().length, TickType.values().length);
@@ -85,7 +85,7 @@ public class CentralProcessorTest {
         if (SystemInfo.getCurrentPlatformEnum() != PlatformEnum.FREEBSD) {
             assertTrue(p.getSystemCpuLoad() >= 0.0 && p.getSystemCpuLoad() <= 1.0);
         }
-        assertEquals(p.getSystemLoadAverage(3).length, 3);
+        assertEquals(3, p.getSystemLoadAverage(3).length);
         if (Platform.isMac() || Platform.isLinux()) {
             assertTrue(p.getSystemLoadAverage() >= 0.0);
         }
