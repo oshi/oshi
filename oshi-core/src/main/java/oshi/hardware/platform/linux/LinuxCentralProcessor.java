@@ -218,15 +218,6 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
     }
 
     /**
-     * {@inheritDoc}
-     */
-    @Override
-    @Deprecated
-    public String getSystemSerialNumber() {
-        return new LinuxComputerSystem().getSerialNumber();
-    }
-
-    /**
      * Fetches the ProcessorID from dmidecode (if possible with root
      * permissions), the cpuid command (if installed) or by encoding the
      * stepping, model, family, and feature flags.

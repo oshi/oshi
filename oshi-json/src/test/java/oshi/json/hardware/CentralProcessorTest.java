@@ -39,7 +39,6 @@ public class CentralProcessorTest {
     /**
      * Test central processor.
      */
-    @SuppressWarnings("deprecation") // serialNumber until removed
     @Test
     public void testCentralProcessor() {
         SystemInfo si = new SystemInfo();
@@ -97,7 +96,6 @@ public class CentralProcessorTest {
         }
 
         assertTrue(p.getSystemUptime() > 0);
-        assertNotNull(p.getSystemSerialNumber());
         assertTrue(p.getLogicalProcessorCount() >= p.getPhysicalProcessorCount());
         assertTrue(p.getPhysicalProcessorCount() > 0);
         assertTrue(p.getPhysicalProcessorCount() >= p.getPhysicalPackageCount());

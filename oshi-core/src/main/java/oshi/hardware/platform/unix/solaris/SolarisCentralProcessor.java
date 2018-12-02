@@ -177,15 +177,6 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
     }
 
     /**
-     * {@inheritDoc}
-     */
-    @Override
-    @Deprecated
-    public String getSystemSerialNumber() {
-        return new SolarisComputerSystem().getSerialNumber();
-    }
-
-    /**
      * Fetches the ProcessorID by encoding the stepping, model, family, and
      * feature flags.
      *
