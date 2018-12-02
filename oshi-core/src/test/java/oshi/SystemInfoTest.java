@@ -89,6 +89,9 @@ public class SystemInfoTest {
         LOG.info("Checking computer system...");
         printComputerSystem(hal.getComputerSystem());
 
+        LOG.info("Checking virtualization...");
+        printComputerVirtualization();
+
         LOG.info("Checking Processor...");
         printProcessor(hal.getProcessor());
 
@@ -131,7 +134,11 @@ public class SystemInfoTest {
         printSoundCards(hal.getSoundCards());
     }
 
-    private static void printComputerSystem(final ComputerSystem computerSystem) {
+    private static void printComputerVirtualization() {
+    	System.out.println("virtualization: " + Util.identifyVM());
+	}
+
+	private static void printComputerSystem(final ComputerSystem computerSystem) {
 
         System.out.println("manufacturer: " + computerSystem.getManufacturer());
         System.out.println("model: " + computerSystem.getModel());
