@@ -47,20 +47,20 @@ public class SolarisSoundCard extends AbstractSoundCard {
         vendorMap.clear();
         productMap.clear();
         List<String> sounds = new ArrayList<>();
-        String key = ""; 
+        String key = "";
         for (String line : ExecutingCommand.runNative(LSHAL)) {
             if (line.startsWith("udi =")) {
                 // we have the key.
                 key = ParseUtil.getSingleQuoteStringValue(line);
                 continue;
             }
-        	
+
             line = line.trim();
-        	
+
             if (key.isEmpty() || line.isEmpty()) {
                 continue;
             }
-            
+
             if (line.contains("info.solaris.driver =")
                     && DEFAULT_AUDIO_DRIVER.equals(ParseUtil.getSingleQuoteStringValue(line))) {
                 sounds.add(key);
