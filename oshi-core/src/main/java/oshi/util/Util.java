@@ -39,16 +39,18 @@ import oshi.software.os.OperatingSystem;
 public class Util {
 	private static final Logger LOG = LoggerFactory.getLogger(Util.class);
 
-	private static final Map<String, String> vmIF_Mac = new HashMap<>();
+	// Constant for Mac address OUI portion, the first 24 bits of MAC address
+	// https://www.webopedia.com/TERM/O/OUI.html
+	private static final Map<String, String> vmMacAddressOUI = new HashMap<>();
 	static {
-		vmIF_Mac.put("00:50:56", "VMware ESX 3");
-		vmIF_Mac.put("00:0C:29", "VMware ESX 3");
-		vmIF_Mac.put("00:05:69", "VMware ESX 3");
-		vmIF_Mac.put("00:03:FF", "Microsoft Hyper-V");
-		vmIF_Mac.put("00:1C:42", "Parallels Desktop");
-		vmIF_Mac.put("00:0F:4B", "Virtual Iron 4");
-		vmIF_Mac.put("00:16:3E", "Xen or Oracle VM");
-		vmIF_Mac.put("08:00:27", "Sun xVM VirtualBox");
+		vmMacAddressOUI.put("00:50:56", "VMware ESX 3");
+		vmMacAddressOUI.put("00:0C:29", "VMware ESX 3");
+		vmMacAddressOUI.put("00:05:69", "VMware ESX 3");
+		vmMacAddressOUI.put("00:03:FF", "Microsoft Hyper-V");
+		vmMacAddressOUI.put("00:1C:42", "Parallels Desktop");
+		vmMacAddressOUI.put("00:0F:4B", "Virtual Iron 4");
+		vmMacAddressOUI.put("00:16:3E", "Xen or Oracle VM");
+		vmMacAddressOUI.put("08:00:27", "VirtualBox");
 	}
 
 	private static final String[] vmModelArray = new String[] { "Linux KVM", "Linux lguest", "OpenVZ", "Qemu",
@@ -139,21 +141,31 @@ public class Util {
 		boolean isvm = false;
 		for (NetworkIF nif : nifs) {
 			String mac = nif.getMacaddr().substring(0, 8).toUpperCase();
-			if (vmIF_Mac.containsKey(mac)) {
+			if (vmMacAddressOUI.containsKey(mac)) {
 				isvm = true;
-				return "On a VM: " + vmIF_Mac.get(mac);
+				return "On a VM: " + vmMacAddressOUI.get(mac);
 			}
 		}
 
 		// Try well known models
 		if (!isvm) {
 			String model = hw.getComputerSystem().getModel();
-			System.out.println(model);
 			for (String vm : vmModelArray) {
 				if (model.contains(vm)) {
 					isvm = true;
 					return "On a VM: " + vm;
 				}
+			}
+		}
+
+		// Check manufacturer and model, for now only Microsoft
+		if (!isvm) {
+			String manufacturer = hw.getComputerSystem().getManufacturer();
+			String model = hw.getComputerSystem().getModel();
+			if (manufacturer.equals("Microsoft Corporation") 
+				&& model.equals("Virtual Machine")) {
+					isvm = true;
+					return "On a VM: Microsoft Hyper-V";
 			}
 		}
 		return "Couldn't detect VM";
