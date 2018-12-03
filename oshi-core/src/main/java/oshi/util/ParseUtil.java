@@ -491,11 +491,11 @@ public class ParseUtil {
      * @return the value contained between single tick marks
      */
     public static String getSingleQuoteStringValue(String line) {
-        String[] split = line.split("'");
-        if (split.length < 2) {
-            return "";
-        }
-        return split[1];
+      return getStringBetween(line , '\'');
+    }
+
+    public static String getDoubleQuoteStringValue(String line) {
+        return getStringBetween(line , '"');
     }
 
     /**
