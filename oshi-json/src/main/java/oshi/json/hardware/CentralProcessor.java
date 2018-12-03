@@ -18,7 +18,6 @@
  */
 package oshi.json.hardware;
 
-import oshi.hardware.ComputerSystem;
 import oshi.json.json.OshiJsonObject;
 
 /**
@@ -304,22 +303,6 @@ public interface CentralProcessor extends OshiJsonObject {
      * @return Number of seconds since boot.
      */
     long getSystemUptime();
-
-    /**
-     * Get the System/CPU Serial Number, if available.
-     *
-     * On Linux and FreeBSD, this requires either root permissions, installation
-     * of the (deprecated) HAL library (lshal command). Linux also attempts to
-     * read the dmi/id serial number files in sysfs, which are read-only root by
-     * default but may have permissions altered by the user.
-     *
-     * @return the System/CPU Serial Number, if available, otherwise returns
-     *         "unknown"
-     *
-     * @deprecated use {@link ComputerSystem#getSerialNumber()} instead.
-     */
-    @Deprecated
-    String getSystemSerialNumber();
 
     /**
      * Get the number of logical CPUs available for processing. This value may

@@ -425,15 +425,6 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
      * {@inheritDoc}
      */
     @Override
-    @Deprecated
-    public String getSystemSerialNumber() {
-        return new WindowsComputerSystem().getSerialNumber();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public long getContextSwitches() {
         if (this.contextSwitchQuery == null) {
             PerfDataUtil.updateQuery(this.contextSwitchesPerSecCounter);

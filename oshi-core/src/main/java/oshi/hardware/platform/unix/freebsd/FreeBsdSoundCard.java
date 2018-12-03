@@ -54,21 +54,20 @@ public class FreeBsdSoundCard extends AbstractSoundCard {
                 // we have the key.
                 key = ParseUtil.getSingleQuoteStringValue(line);
                 continue;
+            }
 
-            } else if (key.isEmpty()) {
+            line = line.trim();
+
+            if (key.isEmpty() || line.isEmpty()) {
                 continue;
             }
-            line = line.trim();
-            if (line.isEmpty()) {
-                continue;
-            } else if (line.contains("freebsd.driver =") && "pcm".equals(ParseUtil.getSingleQuoteStringValue(line))) {
+
+            if (line.contains("freebsd.driver =") && "pcm".equals(ParseUtil.getSingleQuoteStringValue(line))) {
                 sounds.add(key);
             } else if (line.contains("info.product")) {
                 productMap.put(key, ParseUtil.getStringBetween(line, '\''));
-                continue;
             } else if (line.contains("info.vendor")) {
                 vendorMap.put(key, ParseUtil.getStringBetween(line, '\''));
-                continue;
             }
         }
         List<SoundCard> soundCards = new ArrayList<>();

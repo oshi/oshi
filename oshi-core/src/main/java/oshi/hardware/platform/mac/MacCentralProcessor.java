@@ -186,15 +186,6 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
      * {@inheritDoc}
      */
     @Override
-    @Deprecated
-    public String getSystemSerialNumber() {
-        return new MacComputerSystem().getSerialNumber();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public long getContextSwitches() {
         int machPort = SystemB.INSTANCE.mach_host_self();
         VMMeter vmstats = new VMMeter();

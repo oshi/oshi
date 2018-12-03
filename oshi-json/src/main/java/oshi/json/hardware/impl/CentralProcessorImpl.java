@@ -266,15 +266,6 @@ public class CentralProcessorImpl extends AbstractOshiJsonObject implements Cent
      * {@inheritDoc}
      */
     @Override
-    @Deprecated
-    public String getSystemSerialNumber() {
-        return this.processor.getSystemSerialNumber();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public int getLogicalProcessorCount() {
         return this.processor.getLogicalProcessorCount();
     }
