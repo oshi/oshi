@@ -19,6 +19,7 @@
 package oshi.util;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
@@ -47,5 +48,11 @@ public class UtilTest {
         String computerIdentifier = Util.getComputerIdentifier();
         String idParts[] = computerIdentifier.split("-");
         assertEquals(4, idParts.length);
+    }
+
+    @Test
+    public void testIdentyVM() {
+        String vm = Util.identifyVM();
+        assertNotNull(vm);
     }
 }

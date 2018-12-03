@@ -123,13 +123,16 @@ public class Util {
 	}
 
 	/**
-	 * The function returns a string for VM identification, based on 2 checks so far:
-	 *  	1. MAC address
-	 *  	2. Computer model
+	 * The function returns a string for VM identification, based on 3 checks so far:
+	 *     1. MAC address
+	 *     2. Computer model
+	 *     3. Manufacturer and model for Microsoft Hyper-V
 	 * The checks are done against two constants defined above. More can be added to
 	 * the constants as we encounter more types.
 	 * 
-	 * @return A string indicating if the machine is a VM or not. If yes, what type
+	 * @return A string indicating the machine's virtualization info:
+	 *     Empty string: we couldn't tell if the machine is a VM or not
+	 *     Non-empty string: VM machine's type
 	 */
 	public static String identifyVM() {
 
@@ -143,7 +146,7 @@ public class Util {
 			String mac = nif.getMacaddr().substring(0, 8).toUpperCase();
 			if (vmMacAddressOUI.containsKey(mac)) {
 				isvm = true;
-				return "On a VM: " + vmMacAddressOUI.get(mac);
+				return vmMacAddressOUI.get(mac);
 			}
 		}
 
@@ -153,7 +156,7 @@ public class Util {
 			for (String vm : vmModelArray) {
 				if (model.contains(vm)) {
 					isvm = true;
-					return "On a VM: " + vm;
+					return vm;
 				}
 			}
 		}
@@ -165,9 +168,9 @@ public class Util {
 			if (manufacturer.equals("Microsoft Corporation") 
 				&& model.equals("Virtual Machine")) {
 					isvm = true;
-					return "On a VM: Microsoft Hyper-V";
+					return "Microsoft Hyper-V";
 			}
 		}
-		return "Couldn't detect VM";
+		return "";
 	}
 }
