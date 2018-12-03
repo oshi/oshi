@@ -28,8 +28,7 @@ import org.junit.Test;
 /**
  * The Class ParseUtilTest.
  */
-public class   ParseUtilTest
-{
+public class   ParseUtilTest {
 
 
     /**
