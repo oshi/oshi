@@ -40,8 +40,8 @@ import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.NetworkIF;
 import oshi.hardware.PowerSource;
 import oshi.hardware.Sensors;
-import oshi.hardware.UsbDevice;
 import oshi.hardware.SoundCard;
+import oshi.hardware.UsbDevice;
 import oshi.software.os.FileSystem;
 import oshi.software.os.NetworkParams;
 import oshi.software.os.OSFileStore;
@@ -150,6 +150,9 @@ public class SystemInfoTest {
         System.out.println("  model: " + baseboard.getModel());
         System.out.println("  version: " + baseboard.getVersion());
         System.out.println("  serialnumber: " + baseboard.getSerialNumber());
+        if (Util.identifyVM().length() > 0) {
+            System.out.println("virtualization: " + Util.identifyVM());
+        }
     }
 
     private static void printProcessor(CentralProcessor processor) {
