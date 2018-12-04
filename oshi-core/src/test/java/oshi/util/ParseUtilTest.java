@@ -239,6 +239,15 @@ public class ParseUtilTest {
     }
 
     /**
+     * Test parse DoubleQuoteString
+     */
+    @Test
+    public void testGetDoubleQuoteStringValue() {
+        assertEquals("bar", ParseUtil.getDoubleQuoteStringValue("foo = \"bar\" (string)"));
+        assertEquals("", ParseUtil.getDoubleQuoteStringValue("foo = bar (string)"));
+    }
+
+    /**
      * Test parse SingleQuoteBetweenMultipleQuotes
      */
     @Test
