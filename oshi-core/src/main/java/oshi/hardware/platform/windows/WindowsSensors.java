@@ -212,7 +212,7 @@ public class WindowsSensors implements Sensors {
         if (fan.getResultCount() > 1) {
             int[] fanSpeeds = new int[fan.getResultCount()];
             for (int i = 0; i < fan.getResultCount(); i++) {
-                fanSpeeds[i] = WmiUtil.getUint32(fan, FanProperty.DESIREDSPEED, i);
+                fanSpeeds[i] = (int) WmiUtil.getUint64(fan, FanProperty.DESIREDSPEED, i);
             }
             return fanSpeeds;
         }
