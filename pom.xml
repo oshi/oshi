@@ -110,6 +110,8 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<signature.artifact>java17</signature.artifact>
 		<signature.version>1.0</signature.version>
+		<!-- Base directory, overwrite in submodules -->
+		<main.basedir>${project.basedir}</main.basedir>
 		<!-- Dependency versions -->
 		<slf4j.version>1.7.25</slf4j.version>
 		<junit-vintage-engine.version>4.12.3</junit-vintage-engine.version>
@@ -484,7 +486,7 @@
 					<artifactId>license-maven-plugin</artifactId>
 					<version>${license-maven-plugin.version}</version>
 					<configuration>
-						<header>LICENSE_HEADER</header>
+						<header>${main.basedir}/LICENSE_HEADER</header>
 						<excludes>
 							<exclude>**/*test.*.txt</exclude>
 							<exclude>**/maven-wrapper.properties</exclude>

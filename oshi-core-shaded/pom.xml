@@ -40,6 +40,10 @@
 		<tag>HEAD</tag>
 	</scm>
 
+	<properties>
+		<main.basedir>${project.parent.basedir}</main.basedir>
+	</properties>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.slf4j</groupId>
