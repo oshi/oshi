@@ -36,7 +36,7 @@ public class PowerSourceTest {
         SystemInfo si = new SystemInfo();
         PowerSource[] psArr = si.getHardware().getPowerSources();
         for (PowerSource ps : psArr) {
-            assertTrue(ps.getRemainingCapacity() >= 0 && ps.getRemainingCapacity() <= 1);
+            assertTrue(ps.getRemainingCapacity() >= 0);
             double epsilon = 1E-6;
             assertTrue(ps.getTimeRemaining() > 0 || Math.abs(ps.getTimeRemaining() - -1) < epsilon
                     || Math.abs(ps.getTimeRemaining() - -2) < epsilon);
