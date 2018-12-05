@@ -147,7 +147,7 @@
 		<maven-dependency-plugin.version>3.1.1</maven-dependency-plugin.version>
 		<maven-release-plugin.version>2.5.3</maven-release-plugin.version>
 		<maven-source-plugin.version>3.0.1</maven-source-plugin.version>
-		<spotbugs-maven-plugin.version>3.1.8</spotbugs-maven-plugin.version>
+		<spotbugs-maven-plugin.version>3.1.9</spotbugs-maven-plugin.version>
 		<jacoco-maven-plugin.version>0.8.2</jacoco-maven-plugin.version>
 		<coveralls-maven-plugin.version>4.3.0</coveralls-maven-plugin.version>
 		<tidy-maven-plugin.version>1.1.0</tidy-maven-plugin.version>
@@ -164,7 +164,7 @@
 		<maven-scm-plugin.version>1.11.1</maven-scm-plugin.version>
 		<maven-scm-provider-jgit.version>1.11.1</maven-scm-provider-jgit.version>
 		<JavaEWAH.version>1.1.6</JavaEWAH.version>
-		<jsch.version>0.1.54</jsch.version>
+		<jsch.version>0.1.55</jsch.version>
 		<jgit.version>5.1.3.201810200350-r</jgit.version>
 		<plexus-utils.version>3.1.0</plexus-utils.version>
 		<!-- Misc. -->
@@ -172,7 +172,7 @@
 		<wagon-maven-plugin.version>2.0.0</wagon-maven-plugin.version>
 		<animal-sniffer-maven-plugin.version>1.17</animal-sniffer-maven-plugin.version>
 		<dependency-check-maven.version>3.3.4</dependency-check-maven.version>
-		<puppycrawl.checkstyle.version>8.14</puppycrawl.checkstyle.version>
+		<puppycrawl.checkstyle.version>8.15</puppycrawl.checkstyle.version>
 		<m2e.lifecycle-mapping.version>1.0.0</m2e.lifecycle-mapping.version>
 	</properties>
 
