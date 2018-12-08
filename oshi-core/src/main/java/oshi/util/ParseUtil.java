@@ -486,16 +486,21 @@ public class ParseUtil {
     /**
      * Parses a string key = 'value' (string)
      *
-     * @param line
-     *            The entire string
+     * @param line The entire string
      * @return the value contained between single tick marks
      */
     public static String getSingleQuoteStringValue(String line) {
-        String[] split = line.split("'");
-        if (split.length < 2) {
-            return "";
-        }
-        return split[1];
+        return getStringBetween(line, '\'');
+    }
+
+    /**
+     * Parses a string key = "value" (string)
+     *
+     * @param line The entire string
+     * @return the value contained between double quote marks
+     */
+    public static String getDoubleQuoteStringValue(String line) {
+        return getStringBetween(line, '"');
     }
 
     /**
