@@ -137,24 +137,20 @@ public class WmiUtil {
         } catch (COMException e) {
             // Ignore any exceptions with OpenHardwareMonitor
             if (!OHM_NAMESPACE.equals(query.getNameSpace())) {
-                if (e.getHresult() == null) {
-                    LOG.warn("COM exception (HRESULT == null): {}", e.getMessage());
-                } else {
-                    switch (e.getHresult().intValue()) {
-                        case Wbemcli.WBEM_E_INVALID_NAMESPACE:
-                            LOG.warn("COM exception: Invalid Namespace {}", query.getNameSpace());
-                            break;
-                        case Wbemcli.WBEM_E_INVALID_CLASS:
-                            LOG.warn("COM exception: Invalid Class {}", query.getWmiClassName());
-                            break;
-                        case Wbemcli.WBEM_E_INVALID_QUERY:
-                            LOG.warn("COM exception: Invalid Query: {}", queryToString(query));
-                            break;
-                        default:
-                            LOG.warn(
-                                    "COM exception querying {}, which might not be on your system. Will not attempt to query it again. Error was: {}:",
-                                    query.getWmiClassName(), e.getMessage());
-                    }
+                switch (e.getHresult().intValue()) {
+                case Wbemcli.WBEM_E_INVALID_NAMESPACE:
+                    LOG.warn("COM exception: Invalid Namespace {}", query.getNameSpace());
+                    break;
+                case Wbemcli.WBEM_E_INVALID_CLASS:
+                    LOG.warn("COM exception: Invalid Class {}", query.getWmiClassName());
+                    break;
+                case Wbemcli.WBEM_E_INVALID_QUERY:
+                    LOG.warn("COM exception: Invalid Query: {}", queryToString(query));
+                    break;
+                default:
+                    LOG.warn(
+                            "COM exception querying {}, which might not be on your system. Will not attempt to query it again. Error was: {}:",
+                            query.getWmiClassName(), e.getMessage());
                 }
                 failedWmiClassNames.add(query.getWmiClassName());
             }
@@ -431,7 +427,7 @@ public class WmiUtil {
                 break;
             // Any other results is an error
             default:
-                throw new COMException("Failed to initialize COM library.");
+                throw new COMException("Failed to initialize COM library.", new HRESULT(-1));
             }
         }
         // Step 2: --------------------------------------------------
@@ -443,7 +439,7 @@ public class WmiUtil {
             // This can be safely ignored
             if (COMUtils.FAILED(hres) && hres.intValue() != WinError.RPC_E_TOO_LATE) {
                 Ole32.INSTANCE.CoUninitialize();
-                throw new COMException("Failed to initialize security.");
+                throw new COMException("Failed to initialize security.", new HRESULT(-1));
             }
             securityInitialized = true;
         }
