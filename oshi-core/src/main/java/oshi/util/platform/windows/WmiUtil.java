@@ -137,20 +137,24 @@ public class WmiUtil {
         } catch (COMException e) {
             // Ignore any exceptions with OpenHardwareMonitor
             if (!OHM_NAMESPACE.equals(query.getNameSpace())) {
-                switch (e.getHresult().intValue()) {
-                case Wbemcli.WBEM_E_INVALID_NAMESPACE:
-                    LOG.warn("COM exception: Invalid Namespace {}", query.getNameSpace());
-                    break;
-                case Wbemcli.WBEM_E_INVALID_CLASS:
-                    LOG.warn("COM exception: Invalid Class {}", query.getWmiClassName());
-                    break;
-                case Wbemcli.WBEM_E_INVALID_QUERY:
-                    LOG.warn("COM exception: Invalid Query: {}", queryToString(query));
-                    break;
-                default:
-                    LOG.warn(
-                            "COM exception querying {}, which might not be on your system. Will not attempt to query it again. Error was: {}:",
-                            query.getWmiClassName(), e.getMessage());
+                if (e.getHresult() == null) {
+                    LOG.warn("COM exception (HRESULT == null): {}", e.getMessage());
+                } else {
+                    switch (e.getHresult().intValue()) {
+                        case Wbemcli.WBEM_E_INVALID_NAMESPACE:
+                            LOG.warn("COM exception: Invalid Namespace {}", query.getNameSpace());
+                            break;
+                        case Wbemcli.WBEM_E_INVALID_CLASS:
+                            LOG.warn("COM exception: Invalid Class {}", query.getWmiClassName());
+                            break;
+                        case Wbemcli.WBEM_E_INVALID_QUERY:
+                            LOG.warn("COM exception: Invalid Query: {}", queryToString(query));
+                            break;
+                        default:
+                            LOG.warn(
+                                    "COM exception querying {}, which might not be on your system. Will not attempt to query it again. Error was: {}:",
+                                    query.getWmiClassName(), e.getMessage());
+                    }
                 }
                 failedWmiClassNames.add(query.getWmiClassName());
             }
