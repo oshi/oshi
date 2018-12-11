@@ -137,7 +137,8 @@ public class WmiUtil {
         } catch (COMException e) {
             // Ignore any exceptions with OpenHardwareMonitor
             if (!OHM_NAMESPACE.equals(query.getNameSpace())) {
-                switch (e.getHresult().intValue()) {
+                final int hresult = e.getHresult() == null ? -1 : e.getHresult().intValue();
+                switch (hresult) {
                 case Wbemcli.WBEM_E_INVALID_NAMESPACE:
                     LOG.warn("COM exception: Invalid Namespace {}", query.getNameSpace());
                     break;
@@ -427,7 +428,7 @@ public class WmiUtil {
                 break;
             // Any other results is an error
             default:
-                throw new COMException("Failed to initialize COM library.", new HRESULT(-1));
+                throw new COMException("Failed to initialize COM library.", hres);
             }
         }
         // Step 2: --------------------------------------------------
@@ -439,7 +440,7 @@ public class WmiUtil {
             // This can be safely ignored
             if (COMUtils.FAILED(hres) && hres.intValue() != WinError.RPC_E_TOO_LATE) {
                 Ole32.INSTANCE.CoUninitialize();
-                throw new COMException("Failed to initialize security.", new HRESULT(-1));
+                throw new COMException("Failed to initialize security.", hres);
             }
             securityInitialized = true;
         }
