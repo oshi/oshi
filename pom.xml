@@ -114,17 +114,17 @@
 		<main.basedir>${project.basedir}</main.basedir>
 		<!-- Dependency versions -->
 		<slf4j.version>1.7.25</slf4j.version>
-		<junit-vintage-engine.version>4.12.3</junit-vintage-engine.version>
+		<junit-vintage-engine.version>5.3.2</junit-vintage-engine.version>
 		<!-- Compile versions -->
 		<maven-clean-plugin.version>3.1.0</maven-clean-plugin.version>
 		<maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
 		<maven-deploy-plugin.version>3.0.0-M1</maven-deploy-plugin.version>
-		<maven-enforcer-plugin.version>3.0.0-M2</maven-enforcer-plugin.version>
+		<maven-enforcer-plugin.version>3.0.0-M1</maven-enforcer-plugin.version>
 		<maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
 		<maven-install-plugin.version>3.0.0-M1</maven-install-plugin.version>
 		<maven-resources-plugin.version>3.1.0</maven-resources-plugin.version>
 		<maven-site-plugin.version>3.7.1</maven-site-plugin.version>
-		<maven-surefire-plugin.version>2.22.1</maven-surefire-plugin.version>
+		<maven-surefire-plugin.version>3.0.0-M2</maven-surefire-plugin.version>
 		<!-- maven-site-plugin dependencies -->
 		<doxia-module-markdown.version>1.8</doxia-module-markdown.version>
 		<wagon-git.version>2.0.3</wagon-git.version><!-- https://github.com/trajano/wagon-git/issues/18 -->
@@ -165,7 +165,7 @@
 		<maven-scm-provider-jgit.version>1.11.1</maven-scm-provider-jgit.version>
 		<JavaEWAH.version>1.1.6</JavaEWAH.version>
 		<jsch.version>0.1.55</jsch.version>
-		<jgit.version>5.1.3.201810200350-r</jgit.version>
+		<jgit.version>5.2.0.201812061821-r</jgit.version>
 		<plexus-utils.version>3.1.0</plexus-utils.version>
 		<!-- Misc. -->
 		<sonar-maven-plugin.version>3.5.0.1254</sonar-maven-plugin.version>
