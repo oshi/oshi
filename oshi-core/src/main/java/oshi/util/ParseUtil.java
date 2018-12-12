@@ -333,6 +333,16 @@ public class ParseUtil {
     }
 
     /**
+     * Convert an unsigned long to a signed long value.
+     * @param unsignedValue
+     *      The unsigned long value to convert.
+     * @return The signed long value.
+     */
+    public static long unsignedLongToSignedLong(long unsignedValue) {
+        return unsignedValue & 0x7fffffffffffffffL;
+    }
+
+    /**
      * Parses a string of hex digits to a string where each pair of hex digits
      * represents an ASCII character
      *
