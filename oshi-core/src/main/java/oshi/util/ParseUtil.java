@@ -494,6 +494,11 @@ public class ParseUtil {
       return getStringBetween(line , '\'');
     }
 
+    /**
+     * Parse a string key = "value" (string)
+     * @param line the entire string
+     * @return   the value contained between double tick marks
+     */
     public static String getDoubleQuoteStringValue(String line) {
         return getStringBetween(line , '"');
     }

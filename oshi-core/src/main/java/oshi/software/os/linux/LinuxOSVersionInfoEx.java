@@ -145,8 +145,7 @@ public class LinuxOSVersionInfoEx extends AbstractOSVersionInfoEx {
                     LOG.debug("os-release: {}", line);
                     // remove beginning and ending '"' characters, etc from
                     // VERSION="14.04.4 LTS, Trusty Tahr" (Ubuntu style)
-                    // or VERSION="17 (Beefy Miracle)" (os-release doc style)
-                    //line = line.replace("VERSION=", "").replaceAll("^\"|\"$", "").trim();
+                    // or VERSION="17 (Beefy Miracle)" (os-release doc style
                     line = ParseUtil.getDoubleQuoteStringValue(line).trim();
                     String[] split = line.split("[()]");
                     if (split.length <= 1) {
@@ -163,7 +162,6 @@ public class LinuxOSVersionInfoEx extends AbstractOSVersionInfoEx {
                     LOG.debug("os-release: {}", line);
                     // remove beginning and ending '"' characters, etc from
                     // VERSION_ID="14.04"
-                    //this.version = line.replace("VERSION_ID=", "").replaceAll("^\"|\"$", "").trim();
                     this.version = ParseUtil.getDoubleQuoteStringValue(line).trim();
                 }
             }
@@ -212,18 +210,15 @@ public class LinuxOSVersionInfoEx extends AbstractOSVersionInfoEx {
             for (String line : osRelease) {
                 if (line.startsWith("DISTRIB_DESCRIPTION=")) {
                     LOG.debug("lsb-release: {}", line);
-                    //line = line.replace("DISTRIB_DESCRIPTION=", "").replaceAll("^\"|\"$", "").trim();
                     line = ParseUtil.getDoubleQuoteStringValue(line).trim();
                     if (line.contains(" release ")) {
                         this.version = parseRelease(line, " release ");
                     }
                 } else if (line.startsWith("DISTRIB_RELEASE=") && this.version == null) {
                     LOG.debug("lsb-release: {}", line);
-                    //this.version = line.replace("DISTRIB_RELEASE=", "").replaceAll("^\"|\"$", "").trim();
                     this.version = ParseUtil.getDoubleQuoteStringValue(line).trim();
                 } else if (line.startsWith("DISTRIB_CODENAME=") && this.codeName == null) {
                     LOG.debug("lsb-release: {}", line);
-                    //this.codeName = line.replace("DISTRIB_CODENAME=", "").replaceAll("^\"|\"$", "").trim();
                     this.codeName = ParseUtil.getDoubleQuoteStringValue(line).trim();
                 }
             }
