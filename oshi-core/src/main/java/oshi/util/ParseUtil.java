@@ -333,6 +333,19 @@ public class ParseUtil {
     }
 
     /**
+     * Convert an unsigned long to a signed long value by stripping the sign
+     * bit. This method "rolls over" long values greater than the max value but
+     * ensures the result is never negative.
+     * 
+     * @param unsignedValue
+     *            The unsigned long value to convert.
+     * @return The signed long value.
+     */
+    public static long unsignedLongToSignedLong(long unsignedValue) {
+        return unsignedValue & 0x7fffffff_ffffffffL;
+    }
+
+    /**
      * Parses a string of hex digits to a string where each pair of hex digits
      * represents an ASCII character
      *

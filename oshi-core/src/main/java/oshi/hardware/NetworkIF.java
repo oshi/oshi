@@ -37,6 +37,7 @@ import oshi.hardware.platform.unix.freebsd.FreeBsdNetworks;
 import oshi.hardware.platform.unix.solaris.SolarisNetworks;
 import oshi.hardware.platform.windows.WindowsNetworks;
 import oshi.util.FormatUtil;
+import oshi.util.ParseUtil;
 
 /**
  * A network interface in the machine, including statistics
@@ -178,7 +179,7 @@ public class NetworkIF implements Serializable {
      *            Set Bytes Received
      */
     public void setBytesRecv(long bytesRecv) {
-        this.bytesRecv = bytesRecv & 0x7fffffffffffffffL;
+        this.bytesRecv = ParseUtil.unsignedLongToSignedLong(bytesRecv);
     }
 
     /**
@@ -195,7 +196,7 @@ public class NetworkIF implements Serializable {
      *            Set the Bytes Sent
      */
     public void setBytesSent(long bytesSent) {
-        this.bytesSent = bytesSent & 0x7fffffffffffffffL;
+        this.bytesSent = ParseUtil.unsignedLongToSignedLong(bytesSent);
     }
 
     /**
@@ -213,7 +214,7 @@ public class NetworkIF implements Serializable {
      *            Set The Packets Received
      */
     public void setPacketsRecv(long packetsRecv) {
-        this.packetsRecv = packetsRecv & 0x7fffffffffffffffL;
+        this.packetsRecv = ParseUtil.unsignedLongToSignedLong(packetsRecv);
     }
 
     /**
@@ -230,7 +231,7 @@ public class NetworkIF implements Serializable {
      *            Set The Packets Sent
      */
     public void setPacketsSent(long packetsSent) {
-        this.packetsSent = packetsSent & 0x7fffffffffffffffL;
+        this.packetsSent = ParseUtil.unsignedLongToSignedLong(packetsSent);
     }
 
     /**
@@ -247,7 +248,7 @@ public class NetworkIF implements Serializable {
      *            The Input Errors to set.
      */
     public void setInErrors(long inErrors) {
-        this.inErrors = inErrors & 0x7fffffffffffffffL;
+        this.inErrors = ParseUtil.unsignedLongToSignedLong(inErrors);
     }
 
     /**
@@ -264,7 +265,7 @@ public class NetworkIF implements Serializable {
      *            The Output Errors to set.
      */
     public void setOutErrors(long outErrors) {
-        this.outErrors = outErrors & 0x7fffffffffffffffL;
+        this.outErrors = ParseUtil.unsignedLongToSignedLong(outErrors);
     }
 
     /**
@@ -282,7 +283,7 @@ public class NetworkIF implements Serializable {
      *            Set the speed of the network interface
      */
     public void setSpeed(long speed) {
-        this.speed = speed & 0x7fffffffffffffffL;
+        this.speed = ParseUtil.unsignedLongToSignedLong(speed);
     }
 
     /**

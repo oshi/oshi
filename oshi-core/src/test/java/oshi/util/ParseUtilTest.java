@@ -153,6 +153,16 @@ public class ParseUtilTest {
     }
 
     /**
+     * Test unsigned long to signed long
+     */
+    @Test
+    public void testUnsignedLongToSignedLong() {
+        assertEquals(1L, ParseUtil.unsignedLongToSignedLong(Long.MAX_VALUE + 2));
+        assertEquals(123L, ParseUtil.unsignedLongToSignedLong(123));
+        assertEquals(9223372036854775807L, ParseUtil.unsignedLongToSignedLong(9223372036854775807L));
+    }
+
+    /**
      * Test hex string to string
      */
     @Test
