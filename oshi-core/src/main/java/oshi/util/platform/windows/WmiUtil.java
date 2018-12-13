@@ -39,7 +39,9 @@ import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 import oshi.util.ParseUtil;
 
 /**
- * Helper class for WMI
+ * Helper class for WMI. Users should test whether they are on the Windows
+ * operating system prior to calling any methods or instantiating any
+ * subclasses.
  *
  * @author widdis[at]gmail[dot]com
  */
