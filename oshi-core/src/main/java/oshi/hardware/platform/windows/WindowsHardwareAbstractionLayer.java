@@ -29,10 +29,23 @@ import oshi.hardware.Sensors;
 import oshi.hardware.SoundCard;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
+import oshi.util.platform.windows.WmiQueryHandler;
+import oshi.util.platform.windows.WmiUtil;
 
 public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {
 
     private static final long serialVersionUID = 1L;
+
+    private transient final WmiQueryHandler queryHandler;
+
+    @Deprecated
+    public WindowsHardwareAbstractionLayer() {
+        this(WmiUtil.getShared());
+    }
+
+    public WindowsHardwareAbstractionLayer(WmiQueryHandler queryHandler) {
+        this.queryHandler = queryHandler;
+    }
 
     /**
      * {@inheritDoc}
@@ -40,7 +53,7 @@ public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstraction
     @Override
     public ComputerSystem getComputerSystem() {
         if (this.computerSystem == null) {
-            this.computerSystem = new WindowsComputerSystem();
+            this.computerSystem = new WindowsComputerSystem(queryHandler);
         }
         return this.computerSystem;
     }
@@ -51,7 +64,7 @@ public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstraction
     @Override
     public GlobalMemory getMemory() {
         if (this.memory == null) {
-            this.memory = new WindowsGlobalMemory();
+            this.memory = new WindowsGlobalMemory(queryHandler);
         }
         return this.memory;
     }
@@ -62,7 +75,7 @@ public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstraction
     @Override
     public CentralProcessor getProcessor() {
         if (this.processor == null) {
-            this.processor = new WindowsCentralProcessor();
+            this.processor = new WindowsCentralProcessor(queryHandler);
         }
         return this.processor;
     }
@@ -80,7 +93,7 @@ public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstraction
      */
     @Override
     public HWDiskStore[] getDiskStores() {
-        return new WindowsDisks().getDisks();
+        return new WindowsDisks(queryHandler).getDisks();
     }
 
     /**
@@ -97,7 +110,7 @@ public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstraction
     @Override
     public Sensors getSensors() {
         if (this.sensors == null) {
-            this.sensors = new WindowsSensors();
+            this.sensors = new WindowsSensors(queryHandler);
         }
         return this.sensors;
     }

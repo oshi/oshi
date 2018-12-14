@@ -37,6 +37,7 @@ import com.sun.jna.ptr.IntByReference;
 import oshi.software.common.AbstractNetworkParams;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
+import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
 
 public class WindowsNetworkParams extends AbstractNetworkParams {
@@ -64,6 +65,17 @@ public class WindowsNetworkParams extends AbstractNetworkParams {
 
     private static final String IP4ROUTE_BASE_CLASS = "Win32_IP4RouteTable";
     private static final WmiQuery<IP4RouteProperty> IP4ROUTE_QUERY = new WmiQuery<>(null, IP4RouteProperty.class);
+
+    private transient final WmiQueryHandler queryHandler;
+
+    @Deprecated
+    public WindowsNetworkParams() {
+        this(WmiUtil.getShared());
+    }
+
+    public WindowsNetworkParams(WmiQueryHandler queryHandler) {
+        this.queryHandler = queryHandler;
+    }
 
     /**
      * {@inheritDoc}
@@ -119,7 +131,7 @@ public class WindowsNetworkParams extends AbstractNetworkParams {
     @Override
     public String getIpv4DefaultGateway() {
         // IPv6 info not available in WMI pre Windows 8
-        if (WmiUtil.hasNamespace("StandardCimv2")) {
+        if (queryHandler.hasNamespace("StandardCimv2")) {
             return getNextHop(IPV4_DEFAULT_DEST);
         }
         // IPv4 info available in Win32_IP4RouteTable
@@ -132,7 +144,7 @@ public class WindowsNetworkParams extends AbstractNetworkParams {
     @Override
     public String getIpv6DefaultGateway() {
         // IPv6 info not available in WMI pre Windows 8
-        if (WmiUtil.hasNamespace("StandardCimv2")) {
+        if (queryHandler.hasNamespace("StandardCimv2")) {
             return getNextHop(IPV6_DEFAULT_DEST);
         }
         return parseIpv6Route();
@@ -142,7 +154,7 @@ public class WindowsNetworkParams extends AbstractNetworkParams {
         StringBuilder sb = new StringBuilder(NETROUTE_BASE_CLASS);
         sb.append(" WHERE DestinationPrefix=\"").append(dest).append('\"');
         NETROUTE_QUERY.setWmiClassName(sb.toString());
-        WmiResult<NetRouteProperty> vals = WmiUtil.queryWMI(NETROUTE_QUERY);
+        WmiResult<NetRouteProperty> vals = queryHandler.queryWMI(NETROUTE_QUERY);
         if (vals.getResultCount() < 1) {
             return "";
         }
@@ -162,7 +174,7 @@ public class WindowsNetworkParams extends AbstractNetworkParams {
         StringBuilder sb = new StringBuilder(IP4ROUTE_BASE_CLASS);
         sb.append(" WHERE Destination=\"").append(dest).append('\"');
         IP4ROUTE_QUERY.setWmiClassName(sb.toString());
-        WmiResult<IP4RouteProperty> vals = WmiUtil.queryWMI(IP4ROUTE_QUERY);
+        WmiResult<IP4RouteProperty> vals = queryHandler.queryWMI(IP4ROUTE_QUERY);
         if (vals.getResultCount() < 1) {
             return "";
         }

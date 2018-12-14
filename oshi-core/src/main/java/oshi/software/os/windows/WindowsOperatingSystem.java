@@ -67,7 +67,9 @@ import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
 import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
+import oshi.software.os.OperatingSystemVersion;
 import oshi.util.FormatUtil;
+import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
 
 public class WindowsOperatingSystem extends AbstractOperatingSystem {
@@ -113,10 +115,18 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
      */
     private final Map<Integer, OSProcess> processMap = new HashMap<>();
 
+    private final transient WmiQueryHandler queryHandler;
+
+    @Deprecated
     public WindowsOperatingSystem() {
+        this(WmiUtil.getShared(), new WindowsOSVersionInfoEx());
+    }
+
+    public WindowsOperatingSystem(WmiQueryHandler queryHandler, OperatingSystemVersion version) {
+        this.queryHandler = queryHandler;
         this.manufacturer = "Microsoft";
         this.family = "Windows";
-        this.version = new WindowsOSVersionInfoEx();
+        this.version = version;
         initRegistry();
         initBitness();
     }
@@ -239,7 +249,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                 this.bitness = 64;
             } else {
                 WmiQuery<BitnessProperty> bitnessQuery = new WmiQuery<>("Win32_Processor", BitnessProperty.class);
-                WmiResult<BitnessProperty> bitnessMap = WmiUtil.queryWMI(bitnessQuery);
+                WmiResult<BitnessProperty> bitnessMap = queryHandler.queryWMI(bitnessQuery);
                 if (bitnessMap.getResultCount() > 0) {
                     this.bitness = WmiUtil.getUint16(bitnessMap, BitnessProperty.ADDRESSWIDTH, 0);
                 }
@@ -252,7 +262,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
      */
     @Override
     public FileSystem getFileSystem() {
-        return new WindowsFileSystem();
+        return new WindowsFileSystem(queryHandler);
     }
 
     /**
@@ -418,8 +428,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                         }
                     }
                 } catch (Win32Exception e) {
-                    LOG.warn("Failed to set path or get user/group on PID {}. It may have terminated. {}",
-                            proc.getProcessID(), e.getMessage());
+                    handleWin32ExceptionOnGetProcessInfo(proc, e);
                 }
             }
             Kernel32.INSTANCE.CloseHandle(pHandle);
@@ -463,7 +472,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                 sb.append(pid);
             }
             PROCESS_QUERY.setWmiClassName(sb.toString());
-            WmiResult<ProcessProperty> commandLineProcs = WmiUtil.queryWMI(PROCESS_QUERY);
+            WmiResult<ProcessProperty> commandLineProcs = queryHandler.queryWMI(PROCESS_QUERY);
 
             for (int p = 0; p < commandLineProcs.getResultCount(); p++) {
                 int pid = WmiUtil.getUint32(commandLineProcs, ProcessProperty.PROCESSID, p);
@@ -478,6 +487,11 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         }
 
         return processList;
+    }
+
+    protected void handleWin32ExceptionOnGetProcessInfo(OSProcess proc, Win32Exception ex) {
+        LOG.warn("Failed to set path or get user/group on PID {}. It may have terminated. {}",
+                proc.getProcessID(), ex.getMessage());
     }
 
     private void updateProcessMapFromRegistry(Collection<Integer> pids) {
@@ -631,7 +645,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
      */
     @Override
     public NetworkParams getNetworkParams() {
-        return new WindowsNetworkParams();
+        return new WindowsNetworkParams(queryHandler);
     }
 
     /**

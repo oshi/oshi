@@ -33,7 +33,9 @@ import oshi.software.os.linux.LinuxOperatingSystem;
 import oshi.software.os.mac.MacOperatingSystem;
 import oshi.software.os.unix.freebsd.FreeBsdOperatingSystem;
 import oshi.software.os.unix.solaris.SolarisOperatingSystem;
+import oshi.software.os.windows.WindowsOSVersionInfoEx;
 import oshi.software.os.windows.WindowsOperatingSystem;
+import oshi.util.platform.windows.WmiQueryHandler;
 
 /**
  * System information. This is the main entry point to Oshi. This object
@@ -50,6 +52,8 @@ public class SystemInfo implements Serializable {
     private OperatingSystem os = null;
 
     private HardwareAbstractionLayer hardware = null;
+
+    private WmiQueryHandler queryHandler;
 
     // The platform isn't going to change, and making this static enables easy
     // access from outside this class
@@ -89,7 +93,7 @@ public class SystemInfo implements Serializable {
             switch (currentPlatformEnum) {
 
             case WINDOWS:
-                this.os = new WindowsOperatingSystem();
+                this.os = createWindowsOperatingSystem();
                 break;
             case LINUX:
                 this.os = new LinuxOperatingSystem();
@@ -111,6 +115,16 @@ public class SystemInfo implements Serializable {
     }
 
     /**
+     * Create a new instance of the Windows-specific{@link OperatingSystem} implementation.
+     *
+     * @return A new instance of a Windows-specific {@code OperatingSystem} implementation.
+     */
+    protected OperatingSystem createWindowsOperatingSystem() {
+        WmiQueryHandler queryHandler = getWmiQueryHandler();
+        return new WindowsOperatingSystem(queryHandler, new WindowsOSVersionInfoEx(queryHandler));
+    }
+
+    /**
      * Creates a new instance of the appropriate platform-specific
      * {@link HardwareAbstractionLayer}.
      *
@@ -121,7 +135,7 @@ public class SystemInfo implements Serializable {
             switch (currentPlatformEnum) {
 
             case WINDOWS:
-                this.hardware = new WindowsHardwareAbstractionLayer();
+                this.hardware = createWindowsHardwareAbstractionLayer();
                 break;
             case LINUX:
                 this.hardware = new LinuxHardwareAbstractionLayer();
@@ -140,5 +154,36 @@ public class SystemInfo implements Serializable {
             }
         }
         return this.hardware;
+    }
+
+    /**
+     * Create a new instance of the Windows-specific {@code HardwareAbstractionLayer} implementation.
+     *
+     * @return A new instance of a Windows-specific {@code HardwareAbstractionLayer} implementation.
+     */
+    protected HardwareAbstractionLayer createWindowsHardwareAbstractionLayer() {
+        WmiQueryHandler queryHandler = getWmiQueryHandler();
+        return new WindowsHardwareAbstractionLayer(queryHandler);
+    }
+
+    /**
+     * Get the {@link WmiQueryHandler} instance which is used for the Windows-specific API.
+     *
+     * @return Return the {@code WmiQueryHandler} instance which is used for the Windows-specific API.
+     */
+    public WmiQueryHandler getWmiQueryHandler() {
+        if (queryHandler == null) {
+            queryHandler = createWmiQueryHandler();
+        }
+        return queryHandler;
+    }
+
+    /**
+     * Create a new {@link WmiQueryHandler} instance.
+     *
+     * @return A new {@code WmiQueryHandler} instance.
+     */
+    protected WmiQueryHandler createWmiQueryHandler() {
+        return new WmiQueryHandler();
     }
 }

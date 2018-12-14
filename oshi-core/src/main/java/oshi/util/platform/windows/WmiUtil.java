@@ -18,75 +18,35 @@
  */
 package oshi.util.platform.windows;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.TimeoutException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.sun.jna.platform.win32.Ole32;
 import com.sun.jna.platform.win32.Variant;
-import com.sun.jna.platform.win32.WinError;
-import com.sun.jna.platform.win32.WinNT.HRESULT;
-import com.sun.jna.platform.win32.COM.COMException;
-import com.sun.jna.platform.win32.COM.COMUtils;
 import com.sun.jna.platform.win32.COM.Wbemcli;
-import com.sun.jna.platform.win32.COM.WbemcliUtil;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.util.ParseUtil;
 
 /**
- * Helper class for WMI. Users should test whether they are on the Windows
- * operating system prior to calling any methods or instantiating any
- * subclasses.
+ * Helper class for WMI
  *
  * @author widdis[at]gmail[dot]com
  */
 public class WmiUtil {
-    /**
-     * Instance to generate the WmiConnection class.
-     */
+
+    @Deprecated
     public static final WmiUtil INSTANCE = new WmiUtil();
 
-    private static final Logger LOG = LoggerFactory.getLogger(WmiUtil.class);
+    private static WmiQueryHandler SHARED;
 
-    // Global timeout for WMI queries
-    private static int wmiTimeout = Wbemcli.WBEM_INFINITE;
-
-    // Cache namespaces
-    private static Set<String> hasNamespaceCache = new HashSet<>();
-    private static Set<String> hasNotNamespaceCache = new HashSet<>();
-
-    // Cache failed wmi classes
-    private static Set<String> failedWmiClassNames = new HashSet<>();
     // Not a built in manespace, failed connections are normal and don't need
     // error logging
     public static final String OHM_NAMESPACE = "ROOT\\OpenHardwareMonitor";
 
     private static final String CLASS_CAST_MSG = "%s is not a %s type. CIM Type is %d and VT type is %d";
 
-    // Track initialization of COM and Security
-    private static boolean comInitialized = false;
-    private static boolean securityInitialized = false;
-
     /**
      * Private constructor so this class can't be instantiated from the outside.
-     * Also initializes COM and sets up hooks to uninit if necessary.
      */
     private WmiUtil() {
-        // Initialize COM
-        initCOM();
-
-        // Set up hook to uninit on shutdown
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                unInitCOM();
-            }
-        });
     }
 
     /**
@@ -96,19 +56,12 @@ public class WmiUtil {
      * @param namespace
      *            The namespace to test
      * @return true if the namespace exists, false otherwise
+     * @deprecated Use {@link WmiQueryHandler#hasNamespace(String)}.
+     *            This method uses a shared static {@code WmiQueryHandler} instance.
      */
+    @Deprecated
     public static boolean hasNamespace(String namespace) {
-        if (hasNamespaceCache.contains(namespace)) {
-            return true;
-        } else if (hasNotNamespaceCache.contains(namespace)) {
-            return false;
-        }
-        if (WbemcliUtil.hasNamespace(namespace)) {
-            hasNamespaceCache.add(namespace);
-            return true;
-        }
-        hasNotNamespaceCache.add(namespace);
-        return false;
+        return SHARED != null && SHARED.hasNamespace(namespace);
     }
 
     /**
@@ -121,46 +74,12 @@ public class WmiUtil {
      *            properties
      * @return a WmiResult object containing the query results, wrapping an
      *         EnumMap
+     * @deprecated Use {@link WmiQueryHandler#queryWMI(WmiQuery)}.
+     *            This method uses a shared static {@code WmiQueryHandler} instance.
      */
+    @Deprecated
     public static <T extends Enum<T>> WmiResult<T> queryWMI(WmiQuery<T> query) {
-
-        WmiResult<T> result = WbemcliUtil.INSTANCE.new WmiResult<>(query.getPropertyEnum());
-        if (failedWmiClassNames.contains(query.getWmiClassName())) {
-            return result;
-        }
-        try {
-            // Initialize COM if not already done. Needed if COM was previously
-            // initialized externally but is no longer initialized.
-            if (!isComInitialized()) {
-                initCOM();
-            }
-
-            result = query.execute(wmiTimeout);
-        } catch (COMException e) {
-            // Ignore any exceptions with OpenHardwareMonitor
-            if (!OHM_NAMESPACE.equals(query.getNameSpace())) {
-                final int hresult = e.getHresult() == null ? -1 : e.getHresult().intValue();
-                switch (hresult) {
-                case Wbemcli.WBEM_E_INVALID_NAMESPACE:
-                    LOG.warn("COM exception: Invalid Namespace {}", query.getNameSpace());
-                    break;
-                case Wbemcli.WBEM_E_INVALID_CLASS:
-                    LOG.warn("COM exception: Invalid Class {}", query.getWmiClassName());
-                    break;
-                case Wbemcli.WBEM_E_INVALID_QUERY:
-                    LOG.warn("COM exception: Invalid Query: {}", queryToString(query));
-                    break;
-                default:
-                    LOG.warn(
-                            "COM exception querying {}, which might not be on your system. Will not attempt to query it again. Error was: {}:",
-                            query.getWmiClassName(), e.getMessage());
-                }
-                failedWmiClassNames.add(query.getWmiClassName());
-            }
-        } catch (TimeoutException e) {
-            LOG.error("WMI query timed out after {} ms: {}", wmiTimeout, queryToString(query));
-        }
-        return result;
+        return createOrGetShared().queryWMI(query);
     }
 
     /**
@@ -412,50 +331,24 @@ public class WmiUtil {
 
     /**
      * Initializes COM library and sets security to impersonate the local user
+     * @deprecated Use {@link WmiQueryHandler#initCOM()}.
+     *            This method uses a shared static {@code WmiQueryHandler} instance.
      */
+    @Deprecated
     public static void initCOM() {
-        HRESULT hres = null;
-        // Step 1: --------------------------------------------------
-        // Initialize COM. ------------------------------------------
-        if (!isComInitialized()) {
-            hres = Ole32.INSTANCE.CoInitializeEx(null, Ole32.COINIT_MULTITHREADED);
-            switch (hres.intValue()) {
-            // Successful local initialization
-            case COMUtils.S_OK:
-                comInitialized = true;
-                break;
-            // COM was already initialized
-            case COMUtils.S_FALSE:
-            case WinError.RPC_E_CHANGED_MODE:
-                break;
-            // Any other results is an error
-            default:
-                throw new COMException("Failed to initialize COM library.", hres);
-            }
-        }
-        // Step 2: --------------------------------------------------
-        // Set general COM security levels --------------------------
-        if (!isSecurityInitialized()) {
-            hres = Ole32.INSTANCE.CoInitializeSecurity(null, -1, null, null, Ole32.RPC_C_AUTHN_LEVEL_DEFAULT,
-                    Ole32.RPC_C_IMP_LEVEL_IMPERSONATE, null, Ole32.EOAC_NONE, null);
-            // If security already initialized we get RPC_E_TOO_LATE
-            // This can be safely ignored
-            if (COMUtils.FAILED(hres) && hres.intValue() != WinError.RPC_E_TOO_LATE) {
-                Ole32.INSTANCE.CoUninitialize();
-                throw new COMException("Failed to initialize security.", hres);
-            }
-            securityInitialized = true;
-        }
+        createOrGetShared().initCOM();
     }
 
     /**
      * UnInitializes COM library if it was initialized by the {@link #initCOM()}
      * method. Otherwise, does nothing.
+     * @deprecated Use {@link WmiQueryHandler#unInitCOM()}.
+     *            This method uses a shared static {@code WmiQueryHandler} instance.
      */
+    @Deprecated
     public static void unInitCOM() {
-        if (isComInitialized()) {
-            Ole32.INSTANCE.CoUninitialize();
-            comInitialized = false;
+        if (SHARED != null) {
+            SHARED.unInitCOM();
         }
     }
 
@@ -465,9 +358,12 @@ public class WmiUtil {
      * and killing the external initialization
      *
      * @return Returns whether this class initialized COM
+     * @deprecated Use {@link WmiQueryHandler#isComInitialized()}.
+     *            This method uses a shared static {@code WmiQueryHandler} instance.
      */
+    @Deprecated
     public static boolean isComInitialized() {
-        return comInitialized;
+        return SHARED != null && SHARED.isComInitialized();
     }
 
     /**
@@ -475,9 +371,12 @@ public class WmiUtil {
      * whether that has happened.
      *
      * @return Returns the securityInitialized.
+     * @deprecated Use {@link WmiQueryHandler#isSecurityInitialized()}.
+     *            This method uses a shared static {@code WmiQueryHandler} instance.
      */
+    @Deprecated
     public static boolean isSecurityInitialized() {
-        return securityInitialized;
+        return SHARED != null && SHARED.isSecurityInitialized();
     }
 
     /**
@@ -485,9 +384,15 @@ public class WmiUtil {
      * than this number of milliseconds. A value of -1 is infinite (no timeout).
      *
      * @return Returns the current value of wmiTimeout.
+     * @deprecated Use {@link WmiQueryHandler#getWmiTimeout()}.
+     *            This method uses a shared static {@code WmiQueryHandler} instance.
      */
+    @Deprecated
     public static int getWmiTimeout() {
-        return wmiTimeout;
+        if (SHARED != null) {
+            return SHARED.getWmiTimeout();
+        }
+        return Wbemcli.WBEM_INFINITE;
     }
 
     /**
@@ -497,8 +402,38 @@ public class WmiUtil {
      * @param wmiTimeout
      *            The wmiTimeout to set, in milliseconds. To disable timeouts,
      *            set timeout as -1 (infinite).
+     * @deprecated Use {@link WmiQueryHandler#setWmiTimeout(int)}.
+     *            This method uses a shared static {@code WmiQueryHandler} instance.
      */
+    @Deprecated
     public static void setWmiTimeout(int wmiTimeout) {
-        WmiUtil.wmiTimeout = wmiTimeout;
+        createOrGetShared().setWmiTimeout(wmiTimeout);
+    }
+
+    /**
+     * Provide a shared static {@code WmiQueryHandler} instance which is used to support
+     * the deprecated API in the Oshi Windows API.
+     *
+     * @deprecated Create a {@link WmiQueryHandler} instance.
+     *            This method uses a shared static {@code WmiQueryHandler} instance.
+     * @return Returns a static shared {@code WmiQueryHandler} instance.
+     */
+    @Deprecated
+    public static WmiQueryHandler getShared() {
+        return createOrGetShared();
+    }
+
+    /**
+     * Create or get a shared static {@code WmiQueryHandler} instance which is used
+     * to support the deprecated API in this class.
+     *
+     * @return Create or get a static shared {@code WmiQueryHandler} instance.
+     */
+    @Deprecated
+    private static WmiQueryHandler createOrGetShared() {
+        if (SHARED == null) {
+            SHARED = new WmiQueryHandler();
+        }
+        return SHARED;
     }
 }

@@ -33,6 +33,7 @@ import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 import oshi.software.common.AbstractOSVersionInfoEx;
 import oshi.util.ParseUtil;
 import oshi.util.StringUtil;
+import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
 
 public class WindowsOSVersionInfoEx extends AbstractOSVersionInfoEx {
@@ -45,19 +46,21 @@ public class WindowsOSVersionInfoEx extends AbstractOSVersionInfoEx {
         VERSION, PRODUCTTYPE, BUILDNUMBER, CSDVERSION, SUITEMASK;
     }
 
+    @Deprecated
     public WindowsOSVersionInfoEx() {
-        init();
+        this(WmiUtil.getShared());
     }
 
-    private void init() {
+    public WindowsOSVersionInfoEx(WmiQueryHandler queryHandler) {
+        init(queryHandler);
+    }
+
+    private void init(WmiQueryHandler queryHandler) {
         // Populate a key-value map from WMI
         WmiQuery<OSVersionProperty> osVersionQuery = new WmiQuery<>("Win32_OperatingSystem", OSVersionProperty.class);
-        WmiResult<OSVersionProperty> versionInfo = WmiUtil.queryWMI(osVersionQuery);
+        WmiResult<OSVersionProperty> versionInfo = queryHandler.queryWMI(osVersionQuery);
         if (versionInfo.getResultCount() < 1) {
-            LOG.warn("No version data available.");
-            setVersion(System.getProperty("os.version"));
-            setCodeName("");
-            setBuildNumber("");
+            handleNoVersionInfo();
         } else {
             // Guaranteed that versionInfo is not null and lists non-empty
             // before calling the parse*() methods
@@ -67,6 +70,13 @@ public class WindowsOSVersionInfoEx extends AbstractOSVersionInfoEx {
             setBuildNumber(WmiUtil.getString(versionInfo, OSVersionProperty.BUILDNUMBER, 0));
             LOG.debug("Initialized OSVersionInfoEx");
         }
+    }
+
+    protected void handleNoVersionInfo() {
+        LOG.warn("No version data available.");
+        setVersion(System.getProperty("os.version"));
+        setCodeName("");
+        setBuildNumber("");
     }
 
     /**

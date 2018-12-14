@@ -22,6 +22,7 @@ import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery; // NOSONAR squid:S11
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.hardware.common.AbstractBaseboard;
+import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
 
 /**
@@ -37,13 +38,13 @@ public class WindowsBaseboard extends AbstractBaseboard {
         MANUFACTURER, MODEL, VERSION, SERIALNUMBER;
     }
 
-    WindowsBaseboard() {
-        init();
+    WindowsBaseboard(WmiQueryHandler queryHandler) {
+        init(queryHandler);
     }
 
-    private void init() {
+    private void init(WmiQueryHandler queryHandler) {
         WmiQuery<BaseboardProperty> baseboardQuery = new WmiQuery<>("Win32_BaseBoard", BaseboardProperty.class);
-        WmiResult<BaseboardProperty> win32BaseBoard = WmiUtil.queryWMI(baseboardQuery);
+        WmiResult<BaseboardProperty> win32BaseBoard = queryHandler.queryWMI(baseboardQuery);
         if (win32BaseBoard.getResultCount() > 0) {
             setManufacturer(WmiUtil.getString(win32BaseBoard, BaseboardProperty.MANUFACTURER, 0));
             setModel(WmiUtil.getString(win32BaseBoard, BaseboardProperty.MODEL, 0));

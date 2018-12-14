@@ -22,6 +22,7 @@ import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery; // NOSONAR squid:S11
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.hardware.common.AbstractFirmware;
+import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
 
 /**
@@ -37,14 +38,14 @@ final class WindowsFirmware extends AbstractFirmware {
         MANUFACTURER, NAME, DESCRIPTION, VERSION, RELEASEDATE;
     }
 
-    WindowsFirmware() {
-        init();
+    WindowsFirmware(WmiQueryHandler queryHandler) {
+        init(queryHandler);
     }
 
-    private void init() {
+    private void init(WmiQueryHandler queryHandler) {
         WmiQuery<BiosProperty> biosQuery = new WmiQuery<>("Win32_BIOS where PrimaryBIOS=true", BiosProperty.class);
 
-        WmiResult<BiosProperty> win32BIOS = WmiUtil.queryWMI(biosQuery);
+        WmiResult<BiosProperty> win32BIOS = queryHandler.queryWMI(biosQuery);
         if (win32BIOS.getResultCount() > 0) {
             setManufacturer(WmiUtil.getString(win32BIOS, BiosProperty.MANUFACTURER, 0));
             setName(WmiUtil.getString(win32BIOS, BiosProperty.NAME, 0));
