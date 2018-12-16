@@ -32,6 +32,7 @@ Windows • Linux • Mac OS X • Unix (Solaris, FreeBSD)
 
 Essentials
 ----------
+* [API](http://oshi.github.io/oshi/apidocs/) 
 * [Find OSHI on Maven Central](https://search.maven.org/search?q=com.github.oshi)
 * [FAQ](https://github.com/oshi/oshi/blob/master/FAQ.md) • [API](http://oshi.github.io/oshi/apidocs/) • [Site](http://oshi.github.io/oshi/) 
 * [Upgrading from an earlier version?](https://github.com/oshi/oshi/blob/master/UPGRADING.md) 
@@ -57,8 +58,8 @@ Downloads
 ---------
 | Stable Release Version | Current Development Version | Dependencies |
 | ------------- | ------------- | ------------- |
-| [oshi-core-3.11.0](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.github.oshi&a=oshi-core&v=3.11.0&e=jar)  | [oshi-core-3.12.0-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=com.github.oshi&a=oshi-core&v=3.12.0-SNAPSHOT&e=jar) | [JNA](https://github.com/java-native-access/jna) • [SLF4J](http://www.slf4j.org/) |
-| [oshi-json-3.11.0](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.github.oshi&a=oshi-json&v=3.11.0&e=jar)   | [oshi-json-3.12.0-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=com.github.oshi&a=oshi-json&v=3.12.0-SNAPSHOT&e=jar)  | [javax.json](https://jsonp.java.net/download.html) |
+| [oshi-core-3.12.0](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.github.oshi&a=oshi-core&v=3.12.0&e=jar)  | [oshi-core-4.0.0-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=com.github.oshi&a=oshi-core&v=4.0.0-SNAPSHOT&e=jar) | [JNA](https://github.com/java-native-access/jna) • [SLF4J](http://www.slf4j.org/) |
+| [oshi-json-3.12.0](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.github.oshi&a=oshi-json&v=3.12.0&e=jar)   | [oshi-json-4.0.0-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=com.github.oshi&a=oshi-json&v=4.0.0-SNAPSHOT&e=jar)  | [javax.json](https://jsonp.java.net/download.html) |
 
 Output
 -------------
