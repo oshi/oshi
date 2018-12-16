@@ -186,24 +186,15 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
      * {@inheritDoc}
      */
     @Override
-    @Deprecated
-    public String getSystemSerialNumber() {
-<span class="nc" id="L191">        return new MacComputerSystem().getSerialNumber();</span>
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public long getContextSwitches() {
-<span class="nc" id="L199">        int machPort = SystemB.INSTANCE.mach_host_self();</span>
-<span class="nc" id="L200">        VMMeter vmstats = new VMMeter();</span>
-<span class="nc bnc" id="L201" title="All 2 branches missed.">        if (0 != SystemB.INSTANCE.host_statistics(machPort, SystemB.HOST_VM_INFO, vmstats,</span>
-<span class="nc" id="L202">                new IntByReference(vmstats.size()))) {</span>
-<span class="nc" id="L203">            LOG.error(&quot;Failed to update vmstats. Error code: {}&quot;, Native.getLastError());</span>
-<span class="nc" id="L204">            return -1;</span>
+<span class="nc" id="L190">        int machPort = SystemB.INSTANCE.mach_host_self();</span>
+<span class="nc" id="L191">        VMMeter vmstats = new VMMeter();</span>
+<span class="nc bnc" id="L192" title="All 2 branches missed.">        if (0 != SystemB.INSTANCE.host_statistics(machPort, SystemB.HOST_VM_INFO, vmstats,</span>
+<span class="nc" id="L193">                new IntByReference(vmstats.size()))) {</span>
+<span class="nc" id="L194">            LOG.error(&quot;Failed to update vmstats. Error code: {}&quot;, Native.getLastError());</span>
+<span class="nc" id="L195">            return -1;</span>
         }
-<span class="nc" id="L206">        return ParseUtil.unsignedIntToLong(vmstats.v_swtch);</span>
+<span class="nc" id="L197">        return ParseUtil.unsignedIntToLong(vmstats.v_swtch);</span>
     }
 
     /**
@@ -211,14 +202,14 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public long getInterrupts() {
-<span class="nc" id="L214">        int machPort = SystemB.INSTANCE.mach_host_self();</span>
-<span class="nc" id="L215">        VMMeter vmstats = new VMMeter();</span>
-<span class="nc bnc" id="L216" title="All 2 branches missed.">        if (0 != SystemB.INSTANCE.host_statistics(machPort, SystemB.HOST_VM_INFO, vmstats,</span>
-<span class="nc" id="L217">                new IntByReference(vmstats.size()))) {</span>
-<span class="nc" id="L218">            LOG.error(&quot;Failed to update vmstats. Error code: {}&quot;, Native.getLastError());</span>
-<span class="nc" id="L219">            return -1;</span>
+<span class="nc" id="L205">        int machPort = SystemB.INSTANCE.mach_host_self();</span>
+<span class="nc" id="L206">        VMMeter vmstats = new VMMeter();</span>
+<span class="nc bnc" id="L207" title="All 2 branches missed.">        if (0 != SystemB.INSTANCE.host_statistics(machPort, SystemB.HOST_VM_INFO, vmstats,</span>
+<span class="nc" id="L208">                new IntByReference(vmstats.size()))) {</span>
+<span class="nc" id="L209">            LOG.error(&quot;Failed to update vmstats. Error code: {}&quot;, Native.getLastError());</span>
+<span class="nc" id="L210">            return -1;</span>
         }
-<span class="nc" id="L221">        return ParseUtil.unsignedIntToLong(vmstats.v_intr);</span>
+<span class="nc" id="L212">        return ParseUtil.unsignedIntToLong(vmstats.v_intr);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>
