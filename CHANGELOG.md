@@ -1,11 +1,14 @@
-3.12.0 (in progress)
+4.0.0 (in progress)
+================
+* Your contribution here.
+
+3.12.0 (12/16/18)
 ================
 * [#694](https://github.com/oshi/oshi/pull/694): ComputerIdentifier Util Method - [@Aashishthakur10](https://github.com/Aashishthakur10).
 * [#699](https://github.com/oshi/oshi/pull/699): Fix PerfData error handling - [@dbwiddis](https://github.com/dbwiddis).
 * [#703](https://github.com/oshi/oshi/pull/703): Remove deprecated CentralProcessor serialNumber method - [@dbwiddis](https://github.com/dbwiddis).
 * [#704](https://github.com/oshi/oshi/pull/704): Check for Virtual Machine - [@haidong](https://github.com/haidong).
 * [#724](https://github.com/oshi/oshi/pull/724): Refactor unsigned long bitmasking - [@LiborB] (https://github.com/LiborB).
-* Your contribution here.
 
 3.11.0 (11/21/18)
 ================
