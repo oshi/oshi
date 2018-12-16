@@ -71,81 +71,110 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
 <span class="nc" id="L71">    private transient WmiQuery&lt;PagingPercentProperty&gt; pagingPercentQuery = null;</span>
 
 <span class="nc" id="L73">    public WindowsGlobalMemory() {</span>
-        // Initialize pdh counters
-<span class="nc" id="L75">        initPdhCounters();</span>
-<span class="nc" id="L76">    }</span>
+<span class="nc" id="L74">        initPdhCounters();</span>
+<span class="nc" id="L75">    }</span>
 
     /**
      * Initializes PDH Tick Counters
      */
     private void initPdhCounters() {
-<span class="nc" id="L82">        this.pagesInputPerSecCounter = PerfDataUtil.createCounter(&quot;Memory&quot;, null, &quot;Pages Input/sec&quot;);</span>
-<span class="nc" id="L83">        this.pagesOutputPerSecCounter = PerfDataUtil.createCounter(&quot;Memory&quot;, null, &quot;Pages Output/sec&quot;);</span>
-<span class="nc bnc" id="L84" title="All 2 branches missed.">        if (!PerfDataUtil.addCounterToQuery(this.pagesInputPerSecCounter)</span>
-<span class="nc bnc" id="L85" title="All 2 branches missed.">                || !PerfDataUtil.addCounterToQuery(this.pagesOutputPerSecCounter)) {</span>
-<span class="nc" id="L86">            this.pagesInputPerSecCounter = null;</span>
-<span class="nc" id="L87">            this.pagesOutputPerSecCounter = null;</span>
-<span class="nc" id="L88">            this.pageSwapsQuery = new WmiQuery&lt;&gt;(&quot;Win32_PerfRawData_PerfOS_Memory&quot;, PageSwapProperty.class);</span>
+<span class="nc" id="L81">        this.pagesInputPerSecCounter = PerfDataUtil.createCounter(&quot;Memory&quot;, null, &quot;Pages Input/sec&quot;);</span>
+<span class="nc" id="L82">        this.pagesOutputPerSecCounter = PerfDataUtil.createCounter(&quot;Memory&quot;, null, &quot;Pages Output/sec&quot;);</span>
+<span class="nc bnc" id="L83" title="All 2 branches missed.">        if (!PerfDataUtil.addCounterToQuery(this.pagesInputPerSecCounter)</span>
+<span class="nc bnc" id="L84" title="All 2 branches missed.">                || !PerfDataUtil.addCounterToQuery(this.pagesOutputPerSecCounter)) {</span>
+<span class="nc" id="L85">            initWmiSwapIoQuery();</span>
         }
 
-<span class="nc" id="L91">        this.pagingPercentUsageCounter = PerfDataUtil.createCounter(&quot;Paging File&quot;, &quot;_Total&quot;, &quot;% Usage&quot;);</span>
-<span class="nc bnc" id="L92" title="All 2 branches missed.">        if (!PerfDataUtil.addCounterToQuery(this.pagingPercentUsageCounter)) {</span>
-<span class="nc" id="L93">            this.pagingPercentUsageCounter = null;</span>
-<span class="nc" id="L94">            this.pagingPercentQuery = new WmiQuery&lt;&gt;(&quot;Win32_PerfRawData_PerfOS_PagingFile&quot;,</span>
-                    PagingPercentProperty.class);
+<span class="nc" id="L88">        this.pagingPercentUsageCounter = PerfDataUtil.createCounter(&quot;Paging File&quot;, &quot;_Total&quot;, &quot;% Usage&quot;);</span>
+<span class="nc bnc" id="L89" title="All 2 branches missed.">        if (!PerfDataUtil.addCounterToQuery(this.pagingPercentUsageCounter)) {</span>
+<span class="nc" id="L90">            initWmiSwapUsageQuery();</span>
         }
-<span class="nc" id="L97">    }</span>
+<span class="nc" id="L92">    }</span>
+
+    /**
+     * Nulls PDH counters and sets up WMI query for page swap counters.
+     */
+    private void initWmiSwapIoQuery() {
+<span class="nc" id="L98">        PerfDataUtil.removeCounterFromQuery(this.pagesInputPerSecCounter);</span>
+<span class="nc" id="L99">        this.pagesInputPerSecCounter = null;</span>
+<span class="nc" id="L100">        PerfDataUtil.removeCounterFromQuery(this.pagesOutputPerSecCounter);</span>
+<span class="nc" id="L101">        this.pagesOutputPerSecCounter = null;</span>
+<span class="nc" id="L102">        this.pageSwapsQuery = new WmiQuery&lt;&gt;(&quot;Win32_PerfRawData_PerfOS_Memory&quot;, PageSwapProperty.class);</span>
+<span class="nc" id="L103">    }</span>
+
+    /**
+     * Nulls PDH counter and sets up WMI query for pagefile usage.
+     */
+    private void initWmiSwapUsageQuery() {
+<span class="nc" id="L109">        PerfDataUtil.removeCounterFromQuery(this.pagingPercentUsageCounter);</span>
+<span class="nc" id="L110">        this.pagingPercentUsageCounter = null;</span>
+<span class="nc" id="L111">        this.pagingPercentQuery = new WmiQuery&lt;&gt;(&quot;Win32_PerfRawData_PerfOS_PagingFile&quot;, PagingPercentProperty.class);</span>
+<span class="nc" id="L112">    }</span>
 
     /**
      * Update the performance information no more frequently than every 100ms
      */
     @Override
     protected void updateMeminfo() {
-<span class="nc" id="L104">        long now = System.currentTimeMillis();</span>
-<span class="nc bnc" id="L105" title="All 2 branches missed.">        if (now - this.lastUpdate &gt; 100) {</span>
-<span class="nc bnc" id="L106" title="All 2 branches missed.">            if (!Psapi.INSTANCE.GetPerformanceInfo(this.perfInfo, this.perfInfo.size())) {</span>
-<span class="nc" id="L107">                LOG.error(&quot;Failed to get Performance Info. Error code: {}&quot;, Kernel32.INSTANCE.GetLastError());</span>
-<span class="nc" id="L108">                return;</span>
+<span class="nc" id="L119">        long now = System.currentTimeMillis();</span>
+<span class="nc bnc" id="L120" title="All 2 branches missed.">        if (now - this.lastUpdate &gt; 100) {</span>
+<span class="nc bnc" id="L121" title="All 2 branches missed.">            if (!Psapi.INSTANCE.GetPerformanceInfo(this.perfInfo, this.perfInfo.size())) {</span>
+<span class="nc" id="L122">                LOG.error(&quot;Failed to get Performance Info. Error code: {}&quot;, Kernel32.INSTANCE.GetLastError());</span>
+<span class="nc" id="L123">                return;</span>
             }
-<span class="nc" id="L110">            this.pageSize = this.perfInfo.PageSize.longValue();</span>
-<span class="nc" id="L111">            this.memAvailable = this.pageSize * this.perfInfo.PhysicalAvailable.longValue();</span>
-<span class="nc" id="L112">            this.memTotal = this.pageSize * this.perfInfo.PhysicalTotal.longValue();</span>
-<span class="nc" id="L113">            this.swapTotal = this.pageSize</span>
-<span class="nc" id="L114">                    * (this.perfInfo.CommitLimit.longValue() - this.perfInfo.PhysicalTotal.longValue());</span>
-<span class="nc bnc" id="L115" title="All 2 branches missed.">            if (this.swapTotal &gt; 0) {</span>
-<span class="nc bnc" id="L116" title="All 2 branches missed.">                if (this.pageSwapsQuery == null) {</span>
-<span class="nc" id="L117">                    PerfDataUtil.updateQuery(this.pagesInputPerSecCounter);</span>
-<span class="nc" id="L118">                    this.swapPagesIn = PerfDataUtil.queryCounter(this.pagesInputPerSecCounter);</span>
-<span class="nc" id="L119">                    this.swapPagesOut = PerfDataUtil.queryCounter(this.pagesOutputPerSecCounter);</span>
-                } else {
-<span class="nc" id="L121">                    WmiResult&lt;PageSwapProperty&gt; result = WmiUtil.queryWMI(this.pageSwapsQuery);</span>
-<span class="nc bnc" id="L122" title="All 2 branches missed.">                    if (result.getResultCount() &gt; 0) {</span>
-<span class="nc" id="L123">                        this.swapPagesIn = WmiUtil.getUint32(result, PageSwapProperty.PAGESINPUTPERSEC, 0);</span>
-<span class="nc" id="L124">                        this.swapPagesOut = WmiUtil.getUint32(result, PageSwapProperty.PAGESOUTPUTPERSEC, 0);</span>
+<span class="nc" id="L125">            this.pageSize = this.perfInfo.PageSize.longValue();</span>
+<span class="nc" id="L126">            this.memAvailable = this.pageSize * this.perfInfo.PhysicalAvailable.longValue();</span>
+<span class="nc" id="L127">            this.memTotal = this.pageSize * this.perfInfo.PhysicalTotal.longValue();</span>
+<span class="nc" id="L128">            this.swapTotal = this.pageSize</span>
+<span class="nc" id="L129">                    * (this.perfInfo.CommitLimit.longValue() - this.perfInfo.PhysicalTotal.longValue());</span>
+<span class="nc bnc" id="L130" title="All 2 branches missed.">            if (this.swapTotal &gt; 0) {</span>
+<span class="nc bnc" id="L131" title="All 2 branches missed.">                if (this.pageSwapsQuery == null) {</span>
+<span class="nc" id="L132">                    long timeStamp = PerfDataUtil.updateQuery(this.pagesInputPerSecCounter);</span>
+<span class="nc bnc" id="L133" title="All 2 branches missed.">                    if (timeStamp &gt; 0) {</span>
+<span class="nc" id="L134">                        this.swapPagesIn = PerfDataUtil.queryCounter(this.pagesInputPerSecCounter);</span>
+<span class="nc" id="L135">                        this.swapPagesOut = PerfDataUtil.queryCounter(this.pagesOutputPerSecCounter);</span>
+                    } else {
+                        // Zero timestamp means update failed after muliple
+                        // attempts; fallback to WMI
+<span class="nc" id="L139">                        initWmiSwapIoQuery();</span>
+                    }
+                }
+<span class="nc bnc" id="L142" title="All 2 branches missed.">                if (this.pageSwapsQuery != null) {</span>
+<span class="nc" id="L143">                    WmiResult&lt;PageSwapProperty&gt; result = WmiUtil.queryWMI(this.pageSwapsQuery);</span>
+<span class="nc bnc" id="L144" title="All 2 branches missed.">                    if (result.getResultCount() &gt; 0) {</span>
+<span class="nc" id="L145">                        this.swapPagesIn = WmiUtil.getUint32(result, PageSwapProperty.PAGESINPUTPERSEC, 0);</span>
+<span class="nc" id="L146">                        this.swapPagesOut = WmiUtil.getUint32(result, PageSwapProperty.PAGESOUTPUTPERSEC, 0);</span>
                     }
                 }
             }
-<span class="nc" id="L128">            this.lastUpdate = now;</span>
+<span class="nc" id="L150">            this.lastUpdate = now;</span>
         }
-<span class="nc" id="L130">    }</span>
+<span class="nc" id="L152">    }</span>
 
     /**
      * {@inheritDoc}
      */
     @Override
     protected void updateSwap() {
-<span class="nc" id="L137">        updateMeminfo();</span>
-<span class="nc bnc" id="L138" title="All 2 branches missed.">        if (this.swapTotal &gt; 0) {</span>
-<span class="nc bnc" id="L139" title="All 2 branches missed.">            if (this.pagingPercentQuery == null) {</span>
-<span class="nc" id="L140">                PerfDataUtil.updateQuery(this.pagingPercentUsageCounter);</span>
-<span class="nc" id="L141">                this.swapUsed = PerfDataUtil.queryCounter(this.pagingPercentUsageCounter) * this.pageSize;</span>
-            } else {
-<span class="nc" id="L143">                WmiResult&lt;PagingPercentProperty&gt; result = WmiUtil.queryWMI(this.pagingPercentQuery);</span>
-<span class="nc bnc" id="L144" title="All 2 branches missed.">                if (result.getResultCount() &gt; 0) {</span>
-<span class="nc" id="L145">                    this.swapUsed = WmiUtil.getUint32(result, PagingPercentProperty.PERCENTUSAGE, 0) * this.pageSize;</span>
+<span class="nc" id="L159">        updateMeminfo();</span>
+<span class="nc bnc" id="L160" title="All 2 branches missed.">        if (this.swapTotal &gt; 0) {</span>
+<span class="nc bnc" id="L161" title="All 2 branches missed.">            if (this.pagingPercentQuery == null) {</span>
+<span class="nc" id="L162">                long timeStamp = PerfDataUtil.updateQuery(this.pagingPercentUsageCounter);</span>
+<span class="nc bnc" id="L163" title="All 2 branches missed.">                if (timeStamp &gt; 0) {</span>
+<span class="nc" id="L164">                    this.swapUsed = PerfDataUtil.queryCounter(this.pagingPercentUsageCounter) * this.pageSize;</span>
+                } else {
+                    // Zero timestamp means update failed after muliple
+                    // attempts; fallback to WMI
+<span class="nc" id="L168">                    initWmiSwapUsageQuery();</span>
+                }
+            }
+<span class="nc bnc" id="L171" title="All 2 branches missed.">            if (this.pagingPercentQuery != null) {</span>
+<span class="nc" id="L172">                WmiResult&lt;PagingPercentProperty&gt; result = WmiUtil.queryWMI(this.pagingPercentQuery);</span>
+<span class="nc bnc" id="L173" title="All 2 branches missed.">                if (result.getResultCount() &gt; 0) {</span>
+<span class="nc" id="L174">                    this.swapUsed = WmiUtil.getUint32(result, PagingPercentProperty.PERCENTUSAGE, 0) * this.pageSize;</span>
                 }
             }
         }
-<span class="nc" id="L149">    }</span>
+<span class="nc" id="L178">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

@@ -61,32 +61,31 @@
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>                  <em class="jxr_comment">// we have the key.</em>
 <a class="jxr_linenumber" name="L54" href="#L54">54</a>                  key = ParseUtil.getSingleQuoteStringValue(line);
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>                  <strong class="jxr_keyword">continue</strong>;
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>  
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>              } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (key.isEmpty()) {
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>                  <strong class="jxr_keyword">continue</strong>;
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>              }
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>              line = line.trim();
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>              <strong class="jxr_keyword">if</strong> (line.isEmpty()) {
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>                  <strong class="jxr_keyword">continue</strong>;
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>              } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (line.contains(<span class="jxr_string">"info.solaris.driver ="</span>)
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>                      &amp;&amp; DEFAULT_AUDIO_DRIVER.equals(ParseUtil.getSingleQuoteStringValue(line))) {
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>                  sounds.add(key);
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>              } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (line.contains(<span class="jxr_string">"info.product"</span>)) {
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>                  productMap.put(key, ParseUtil.getStringBetween(line, '\''));
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>                  <strong class="jxr_keyword">continue</strong>;
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>              }
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>  
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>              line = line.trim();
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>  
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>              <strong class="jxr_keyword">if</strong> (key.isEmpty() || line.isEmpty()) {
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>                  <strong class="jxr_keyword">continue</strong>;
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>              }
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>  
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>              <strong class="jxr_keyword">if</strong> (line.contains(<span class="jxr_string">"info.solaris.driver ="</span>)
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>                      &amp;&amp; DEFAULT_AUDIO_DRIVER.equals(ParseUtil.getSingleQuoteStringValue(line))) {
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>                  sounds.add(key);
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>              } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (line.contains(<span class="jxr_string">"info.product"</span>)) {
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>                  productMap.put(key, ParseUtil.getStringBetween(line, '\''));
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>              } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (line.contains(<span class="jxr_string">"info.vendor"</span>)) {
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>                  vendorMap.put(key, ParseUtil.getStringBetween(line, '\''));
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>                  <strong class="jxr_keyword">continue</strong>;
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>              }
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>          }
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>          List&lt;SolarisSoundCard&gt; soundCards = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>          <strong class="jxr_keyword">for</strong> (String _key : sounds) {
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>              soundCards.add(<strong class="jxr_keyword">new</strong> <a name="SolarisSoundCard" href="../../../../../oshi/hardware/platform/unix/solaris/SolarisSoundCard.html#SolarisSoundCard">SolarisSoundCard</a>(productMap.get(_key) + <span class="jxr_string">" "</span> + DEFAULT_AUDIO_DRIVER,
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>                      vendorMap.get(_key) + <span class="jxr_string">" "</span> + productMap.get(_key), productMap.get(_key)));
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>          }
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>          <strong class="jxr_keyword">return</strong> soundCards;
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>      }
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>  }
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>              }
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>          }
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>          List&lt;SolarisSoundCard&gt; soundCards = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>          <strong class="jxr_keyword">for</strong> (String _key : sounds) {
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>              soundCards.add(<strong class="jxr_keyword">new</strong> <a name="SolarisSoundCard" href="../../../../../oshi/hardware/platform/unix/solaris/SolarisSoundCard.html#SolarisSoundCard">SolarisSoundCard</a>(productMap.get(_key) + <span class="jxr_string">" "</span> + DEFAULT_AUDIO_DRIVER,
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>                      vendorMap.get(_key) + <span class="jxr_string">" "</span> + productMap.get(_key), productMap.get(_key)));
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>          }
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>          <strong class="jxr_keyword">return</strong> soundCards;
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>      }
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>  }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2018 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
