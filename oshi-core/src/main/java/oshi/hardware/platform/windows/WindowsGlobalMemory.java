@@ -72,6 +72,9 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
     private transient WmiQuery<PagingPercentProperty> pagingPercentQuery = null;
     private transient WmiQueryHandler queryHandler;
 
+    /**
+     * @deprecated TODO: Write javadoc or remove this method.
+     */
     @Deprecated
     public WindowsGlobalMemory() {
         this(WmiUtil.getShared());

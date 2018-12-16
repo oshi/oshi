@@ -187,6 +187,9 @@ public class WindowsDisks implements Disks {
         }
     }
 
+    /**
+     * @deprecated TODO: Write javadoc or remove this method.
+     */
     @Deprecated
     public static boolean updateDiskStats(HWDiskStore diskStore) {
         return updateDiskStats(WmiUtil.getShared(), diskStore);
@@ -232,6 +235,9 @@ public class WindowsDisks implements Disks {
 
     private transient final WmiQueryHandler queryHandler;
 
+    /**
+     * @deprecated TODO: Write javadoc or remove this method.
+     */
     @Deprecated
     public WindowsDisks() {
         this(WmiUtil.getShared());

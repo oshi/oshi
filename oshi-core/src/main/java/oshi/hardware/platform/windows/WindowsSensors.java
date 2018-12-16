@@ -81,6 +81,9 @@ public class WindowsSensors implements Sensors {
     private transient WmiQuery<ThermalZoneProperty> thermalZoneQuery = null;
     private transient final WmiQueryHandler queryHandler;
 
+    /**
+     * @deprecated TODO: Write javadoc or remove this method.
+     */
     @Deprecated
     public WindowsSensors() {
         this(WmiUtil.getShared());

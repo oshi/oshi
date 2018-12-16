@@ -46,6 +46,9 @@ public class WindowsOSVersionInfoEx extends AbstractOSVersionInfoEx {
         VERSION, PRODUCTTYPE, BUILDNUMBER, CSDVERSION, SUITEMASK;
     }
 
+    /**
+     * @deprecated TODO: Write javadoc or remove this method.
+     */
     @Deprecated
     public WindowsOSVersionInfoEx() {
         this(WmiUtil.getShared());

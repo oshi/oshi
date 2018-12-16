@@ -84,6 +84,9 @@ public class WindowsFileSystem implements FileSystem {
 
     private transient final WmiQueryHandler queryHandler;
 
+    /**
+     * @deprecated TODO: Write javadoc or remove this method.
+     */
     @Deprecated
     public WindowsFileSystem() {
         this(WmiUtil.getShared());

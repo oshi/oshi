@@ -38,6 +38,9 @@ public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstraction
 
     private transient final WmiQueryHandler queryHandler;
 
+    /**
+     * @deprecated TODO: Write javadoc or remove this method.
+     */
     @Deprecated
     public WindowsHardwareAbstractionLayer() {
         this(WmiUtil.getShared());

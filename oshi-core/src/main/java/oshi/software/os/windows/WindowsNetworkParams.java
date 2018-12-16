@@ -68,6 +68,9 @@ public class WindowsNetworkParams extends AbstractNetworkParams {
 
     private transient final WmiQueryHandler queryHandler;
 
+    /**
+     * @deprecated TODO: Write javadoc or remove this method.
+     */
     @Deprecated
     public WindowsNetworkParams() {
         this(WmiUtil.getShared());

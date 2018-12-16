@@ -134,6 +134,8 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
 
     /**
      * Create a Processor
+     *
+     * @deprecated TODO: Write javadoc or remove this method.
      */
     @Deprecated
     public WindowsCentralProcessor() {
