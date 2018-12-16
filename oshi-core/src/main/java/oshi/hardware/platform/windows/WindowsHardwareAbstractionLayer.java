@@ -32,11 +32,15 @@ import oshi.hardware.common.AbstractHardwareAbstractionLayer;
 import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
 
+import java.util.List;
+
 public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {
 
     private static final long serialVersionUID = 1L;
 
     private transient final WmiQueryHandler queryHandler;
+
+    private transient WindowsSoundCardCache soundCardCache;
 
     /**
      * @deprecated TODO: Write javadoc or remove this method.
@@ -143,6 +147,29 @@ public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstraction
      */
     @Override
     public SoundCard[] getSoundCards() {
-        return WindowsSoundCard.getSoundCards().toArray(new SoundCard[0]);
+        WindowsSoundCardCache cache = getSoundCardCache();
+        List<WindowsSoundCard> ret = WindowsSoundCard.getSoundCards(queryHandler, cache);
+        return ret.toArray(new SoundCard[0]);
+    }
+
+    /**
+     * Get the {@link WindowsSoundCardCache} instance which is used for the {@link #getSoundCards()} API.
+     *
+     * @return Return the {@code WindowsSoundCardCache} instance which is used for the {@code getSoundCards()} API.
+     */
+    public WindowsSoundCardCache getSoundCardCache() {
+        if (soundCardCache == null) {
+            soundCardCache = createWindowsSoundCardCache();
+        }
+        return soundCardCache;
+    }
+
+    /**
+     * Create a new {@link WindowsSoundCardCache} instance.
+     *
+     * @return A new {@code WindowsSoundCardCache} instance.
+     */
+    protected WindowsSoundCardCache createWindowsSoundCardCache() {
+        return new WindowsSoundCardDefaultCache(queryHandler);
     }
 }

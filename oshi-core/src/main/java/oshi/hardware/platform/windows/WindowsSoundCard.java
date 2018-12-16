@@ -19,13 +19,13 @@
 package oshi.hardware.platform.windows;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.sun.jna.platform.win32.COM.WbemcliUtil; // NOSONAR squid:S1191
 
 import oshi.hardware.common.AbstractSoundCard;
+import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
 
 /**
@@ -42,50 +42,8 @@ public class WindowsSoundCard extends AbstractSoundCard {
         DRIVERPROVIDERNAME, DRIVERNAME, DRIVERVERSION, DEVICENAME;
     }
 
-    private static final Map<String, String> NAME_MAP = new HashMap<>();
-    private static final String DRIVER_QUERY;
-
-    /**
-     * Runs the Win32_SoundDevice query only once and initializes a Map with
-     * Name as key and Manufacturer as Value
-     *
-     * Also calls the createClause() method to build our WHERE clause query only
-     * once
-     */
-    static {
-        WbemcliUtil.WmiQuery<SoundCardName> soundCardQuery = new WbemcliUtil.WmiQuery<>("Win32_SoundDevice",
-                SoundCardName.class);
-        WbemcliUtil.WmiResult<SoundCardName> soundCardResult = WmiUtil.queryWMI(soundCardQuery);
-        for (int i = 0; i < soundCardResult.getResultCount(); i++) {
-            NAME_MAP.put(WmiUtil.getString(soundCardResult, SoundCardName.NAME, i),
-                    WmiUtil.getString(soundCardResult, SoundCardName.MANUFACTURER, i));
-        }
-        DRIVER_QUERY = createClause();
-    }
-
     public WindowsSoundCard(String kernelVersion, String name, String codec) {
         super(kernelVersion, name, codec);
-    }
-
-    /**
-     * Creates our Win32_PnPSignedDevice query with the WHERE clause taking the
-     * attributes from our map.
-     *
-     * @return The WHERE clause
-     */
-    private static String createClause() {
-        StringBuilder sb = new StringBuilder("Win32_PnPSignedDriver");
-        boolean first = true;
-        for (String key : NAME_MAP.keySet()) {
-            if (first) {
-                sb.append(" WHERE");
-                first = false;
-            } else {
-                sb.append(" OR");
-            }
-            sb.append(" DeviceName LIKE \"%").append(key).append("%\"");
-        }
-        return sb.toString();
     }
 
     /**
@@ -107,6 +65,13 @@ public class WindowsSoundCard extends AbstractSoundCard {
         return audioCardKernel;
     }
 
+    @Deprecated
+    public static List<WindowsSoundCard> getSoundCards() {
+        WmiQueryHandler queryHandler = new WmiQueryHandler();
+        WindowsSoundCardDefaultCache cache = new WindowsSoundCardDefaultCache(queryHandler);
+        return getSoundCards(queryHandler, cache);
+    }
+
     /**
      * Does the following :
      * <ul>
@@ -123,16 +88,17 @@ public class WindowsSoundCard extends AbstractSoundCard {
      *
      * @return List of sound cards
      */
-    public static List<WindowsSoundCard> getSoundCards() {
-        WbemcliUtil.WmiQuery<SoundCardKernel> cardKernelQuery = new WbemcliUtil.WmiQuery<>(DRIVER_QUERY,
+    public static List<WindowsSoundCard> getSoundCards(WmiQueryHandler queryHandler, WindowsSoundCardCache cache) {
+        WbemcliUtil.WmiQuery<SoundCardKernel> cardKernelQuery = new WbemcliUtil.WmiQuery<>(cache.getDriverQuery(),
                 SoundCardKernel.class);
-        WbemcliUtil.WmiResult<SoundCardKernel> cardKernelQueryResult = WmiUtil.queryWMI(cardKernelQuery);
+        WbemcliUtil.WmiResult<SoundCardKernel> cardKernelQueryResult = queryHandler.queryWMI(cardKernelQuery);
 
+        Map<String, String> manufacturerByName = cache.getManufacturerByName();
         List<WindowsSoundCard> soundCards = new ArrayList<>();
         for (int i = 0; i < cardKernelQueryResult.getResultCount(); i++) {
             // If the map has a key that is equal to the value returned by
             // cardKernelQuery
-            if (NAME_MAP.containsKey(WmiUtil.getString(cardKernelQueryResult, SoundCardKernel.DEVICENAME, i))) {
+            if (manufacturerByName.containsKey(WmiUtil.getString(cardKernelQueryResult, SoundCardKernel.DEVICENAME, i))) {
                 // then build a sound card by extracting values from
                 // cardKernelQuery
                 soundCards.add(new WindowsSoundCard(getAudioCardKernelVersion(i, cardKernelQueryResult),
