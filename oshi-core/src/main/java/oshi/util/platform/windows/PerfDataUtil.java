@@ -40,6 +40,8 @@ import com.sun.jna.platform.win32.WinError;
 import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.platform.win32.WinNT.HANDLEByReference;
 
+import oshi.util.Util;
+
 /**
  * Helper class to centralize the boilerplate portions of PDH counter setup and
  * allow applications to easily add, query, and remove counters.
@@ -214,8 +216,6 @@ public class PerfDataUtil {
             }
             removeCounterFromQuery(counter);
             addCounterToQuery(counter);
-            // Query again with new handle
-            value = queryCounter(counterMap.get(counter));
         }
         return value < 0 ? 0 : value;
     }
@@ -362,6 +362,13 @@ public class PerfDataUtil {
     private static long updateQueryTimestamp(WinNT.HANDLEByReference query) {
         LONGLONGByReference pllTimeStamp = new LONGLONGByReference();
         int ret = PDH.PdhCollectQueryDataWithTime(query.getValue(), pllTimeStamp);
+        // Due to race condition, initial update may fail with PDH_NO_DATA.
+        int retries = 0;
+        while (ret == PdhMsg.PDH_NO_DATA && retries++ < 3) {
+            // Exponential fallback.
+            Util.sleep(1 << retries);
+            ret = PDH.PdhCollectQueryDataWithTime(query.getValue(), pllTimeStamp);
+        }
         if (ret != WinError.ERROR_SUCCESS) {
             if (LOG.isWarnEnabled()) {
                 LOG.warn("Failed to update counter. Error code: {}", String.format(HEX_ERROR_FMT, ret));

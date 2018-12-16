@@ -185,8 +185,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
     private void initPdhCounters() {
         this.contextSwitchesPerSecCounter = PerfDataUtil.createCounter("System", null, "Context Switches/sec");
         if (!PerfDataUtil.addCounterToQuery(this.contextSwitchesPerSecCounter)) {
-            this.contextSwitchesPerSecCounter = null;
-            this.contextSwitchQuery = new WmiQuery<>("Win32_PerfRawData_PerfOS_System", ContextSwitchProperty.class);
+            initWmiContextSwitchQuery();
         }
 
         boolean enumeration = true;
@@ -277,6 +276,15 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
             this.interruptsQuery = new WmiQuery<>("Win32_PerfRawData_PerfOS_Processor WHERE Name=\"_Total\"",
                     InterruptsProperty.class);
         }
+    }
+
+    /**
+     * Nulls PDH counters and sets up WMI query for context switch counters.
+     */
+    private void initWmiContextSwitchQuery() {
+        PerfDataUtil.removeCounterFromQuery(this.contextSwitchesPerSecCounter);
+        this.contextSwitchesPerSecCounter = null;
+        this.contextSwitchQuery = new WmiQuery<>("Win32_PerfRawData_PerfOS_System", ContextSwitchProperty.class);
     }
 
     /**
