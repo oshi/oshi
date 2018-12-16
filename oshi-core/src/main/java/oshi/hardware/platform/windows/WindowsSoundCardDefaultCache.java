@@ -38,7 +38,7 @@ public class WindowsSoundCardDefaultCache extends WindowsSoundCardCache {
     private static final Object LOCK = new Object();
 
     //@GuardedBy("LOCK")
-    private static volatile Map<String, String> MANUFACTURER_BY_NAME = new HashMap<>();
+    private static volatile Map<String, String> MANUFACTURER_BY_NAME;
 
     //@GuardedBy("LOCK")
     private static volatile String DRIVER_QUERY;
