@@ -47,73 +47,71 @@
 <a class="jxr_linenumber" name="L39" href="#L39">39</a>      <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L40" href="#L40">40</a>  <em class="jxr_javadoccomment">     * Test central processor.</em>
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>      @SuppressWarnings(<span class="jxr_string">"deprecation"</span>) <em class="jxr_comment">// serialNumber until removed</em>
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>      @Test
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testCentralProcessor() {
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>          SystemInfo si = <strong class="jxr_keyword">new</strong> SystemInfo();
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>          CentralProcessor p = si.getHardware().getProcessor();
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>  
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>          assertNotNull(p.getVendor());
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>          assertTrue(p.getVendorFreq() == -1 || p.getVendorFreq() &gt; 0);
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>          p.setVendor(<span class="jxr_string">"v"</span>);
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>          assertEquals(p.getVendor(), <span class="jxr_string">"v"</span>);
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>  
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>          assertNotNull(p.getName());
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>          p.setName(<span class="jxr_string">"n"</span>);
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>          assertEquals(p.getName(), <span class="jxr_string">"n"</span>);
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>  
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>          assertNotNull(p.getIdentifier());
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>          p.setIdentifier(<span class="jxr_string">"i"</span>);
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>          assertEquals(p.getIdentifier(), <span class="jxr_string">"i"</span>);
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>  
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>          assertNotNull(p.getProcessorID());
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>          p.setProcessorID(<span class="jxr_string">"p"</span>);
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>          assertEquals(p.getProcessorID(), <span class="jxr_string">"p"</span>);
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>  
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>          p.setCpu64(<strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>          assertTrue(p.isCpu64bit());
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>  
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>          assertNotNull(p.getStepping());
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>          p.setStepping(<span class="jxr_string">"s"</span>);
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>          assertEquals(p.getStepping(), <span class="jxr_string">"s"</span>);
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>  
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>          assertNotNull(p.getModel());
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>          p.setModel(<span class="jxr_string">"m"</span>);
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>          assertEquals(p.getModel(), <span class="jxr_string">"m"</span>);
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>  
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>          assertNotNull(p.getFamily());
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>          p.setFamily(<span class="jxr_string">"f"</span>);
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>          assertEquals(p.getFamily(), <span class="jxr_string">"f"</span>);
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>  
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>          assertTrue(p.getSystemCpuLoadBetweenTicks() &gt;= 0 &amp;&amp; p.getSystemCpuLoadBetweenTicks() &lt;= 1);
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>          assertEquals(p.getSystemCpuLoadTicks().length, TickType.values().length);
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>  
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>          Util.sleep(500);
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>          <em class="jxr_comment">// This test fails on FreeBSD due to error in Java MXBean</em>
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>          <strong class="jxr_keyword">if</strong> (SystemInfo.getCurrentPlatformEnum() != PlatformEnum.FREEBSD) {
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>              assertTrue(p.getSystemCpuLoad() &gt;= 0.0 &amp;&amp; p.getSystemCpuLoad() &lt;= 1.0);
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>          }
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>          assertEquals(p.getSystemLoadAverage(3).length, 3);
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>          <strong class="jxr_keyword">if</strong> (Platform.isMac() || Platform.isLinux()) {
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>              assertTrue(p.getSystemLoadAverage() &gt;= 0.0);
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>          }
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>  
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>          assertEquals(p.getProcessorCpuLoadBetweenTicks().length, p.getLogicalProcessorCount());
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>          <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> cpu = 0; cpu &lt; p.getLogicalProcessorCount(); cpu++) {
-<a class="jxr_linenumber" name="L95" href="#L95">95</a>              assertTrue(p.getProcessorCpuLoadBetweenTicks()[cpu] &gt;= 0 &amp;&amp; p.getProcessorCpuLoadBetweenTicks()[cpu] &lt;= 1);
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>              assertEquals(p.getProcessorCpuLoadTicks()[cpu].length, TickType.values().length);
-<a class="jxr_linenumber" name="L97" href="#L97">97</a>          }
-<a class="jxr_linenumber" name="L98" href="#L98">98</a>  
-<a class="jxr_linenumber" name="L99" href="#L99">99</a>          assertTrue(p.getSystemUptime() &gt; 0);
-<a class="jxr_linenumber" name="L100" href="#L100">100</a>         assertNotNull(p.getSystemSerialNumber());
-<a class="jxr_linenumber" name="L101" href="#L101">101</a>         assertTrue(p.getLogicalProcessorCount() &gt;= p.getPhysicalProcessorCount());
-<a class="jxr_linenumber" name="L102" href="#L102">102</a>         assertTrue(p.getPhysicalProcessorCount() &gt; 0);
-<a class="jxr_linenumber" name="L103" href="#L103">103</a>         assertTrue(p.getPhysicalProcessorCount() &gt;= p.getPhysicalPackageCount());
-<a class="jxr_linenumber" name="L104" href="#L104">104</a>         assertTrue(p.getPhysicalPackageCount() &gt; 0);
-<a class="jxr_linenumber" name="L105" href="#L105">105</a>         assertTrue(p.getContextSwitches() &gt;= 0);
-<a class="jxr_linenumber" name="L106" href="#L106">106</a>         assertTrue(p.getInterrupts() &gt;= 0);
-<a class="jxr_linenumber" name="L107" href="#L107">107</a>     }
-<a class="jxr_linenumber" name="L108" href="#L108">108</a> }
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>      @Test
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testCentralProcessor() {
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>          SystemInfo si = <strong class="jxr_keyword">new</strong> SystemInfo();
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>          CentralProcessor p = si.getHardware().getProcessor();
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>  
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>          assertNotNull(p.getVendor());
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>          assertTrue(p.getVendorFreq() == -1 || p.getVendorFreq() &gt; 0);
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>          p.setVendor(<span class="jxr_string">"v"</span>);
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>          assertEquals(<span class="jxr_string">"v"</span>, p.getVendor());
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>  
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>          assertNotNull(p.getName());
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>          p.setName(<span class="jxr_string">"n"</span>);
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>          assertEquals(<span class="jxr_string">"n"</span>, p.getName());
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>  
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>          assertNotNull(p.getIdentifier());
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>          p.setIdentifier(<span class="jxr_string">"i"</span>);
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>          assertEquals(<span class="jxr_string">"i"</span>, p.getIdentifier());
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>  
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>          assertNotNull(p.getProcessorID());
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>          p.setProcessorID(<span class="jxr_string">"p"</span>);
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>          assertEquals(<span class="jxr_string">"p"</span>, p.getProcessorID());
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>  
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>          p.setCpu64(<strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>          assertTrue(p.isCpu64bit());
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>  
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>          assertNotNull(p.getStepping());
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>          p.setStepping(<span class="jxr_string">"s"</span>);
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>          assertEquals(<span class="jxr_string">"s"</span>, p.getStepping());
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>  
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>          assertNotNull(p.getModel());
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>          p.setModel(<span class="jxr_string">"m"</span>);
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>          assertEquals(<span class="jxr_string">"m"</span>, p.getModel());
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>  
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>          assertNotNull(p.getFamily());
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>          p.setFamily(<span class="jxr_string">"f"</span>);
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>          assertEquals(<span class="jxr_string">"f"</span>, p.getFamily());
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>  
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>          assertTrue(p.getSystemCpuLoadBetweenTicks() &gt;= 0 &amp;&amp; p.getSystemCpuLoadBetweenTicks() &lt;= 1);
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>          assertEquals(p.getSystemCpuLoadTicks().length, TickType.values().length);
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>  
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>          Util.sleep(500);
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>          <em class="jxr_comment">// This test fails on FreeBSD due to error in Java MXBean</em>
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>          <strong class="jxr_keyword">if</strong> (SystemInfo.getCurrentPlatformEnum() != PlatformEnum.FREEBSD) {
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>              assertTrue(p.getSystemCpuLoad() &gt;= 0.0 &amp;&amp; p.getSystemCpuLoad() &lt;= 1.0);
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>          }
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>          assertEquals(3, p.getSystemLoadAverage(3).length);
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>          <strong class="jxr_keyword">if</strong> (Platform.isMac() || Platform.isLinux()) {
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>              assertTrue(p.getSystemLoadAverage() &gt;= 0.0);
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>          }
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>  
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>          assertEquals(p.getProcessorCpuLoadBetweenTicks().length, p.getLogicalProcessorCount());
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>          <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> cpu = 0; cpu &lt; p.getLogicalProcessorCount(); cpu++) {
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>              assertTrue(p.getProcessorCpuLoadBetweenTicks()[cpu] &gt;= 0 &amp;&amp; p.getProcessorCpuLoadBetweenTicks()[cpu] &lt;= 1);
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>              assertEquals(p.getProcessorCpuLoadTicks()[cpu].length, TickType.values().length);
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>          }
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>  
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>          assertTrue(p.getSystemUptime() &gt; 0);
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>          assertTrue(p.getLogicalProcessorCount() &gt;= p.getPhysicalProcessorCount());
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>         assertTrue(p.getPhysicalProcessorCount() &gt; 0);
+<a class="jxr_linenumber" name="L101" href="#L101">101</a>         assertTrue(p.getPhysicalProcessorCount() &gt;= p.getPhysicalPackageCount());
+<a class="jxr_linenumber" name="L102" href="#L102">102</a>         assertTrue(p.getPhysicalPackageCount() &gt; 0);
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>         assertTrue(p.getContextSwitches() &gt;= 0);
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>         assertTrue(p.getInterrupts() &gt;= 0);
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>     }
+<a class="jxr_linenumber" name="L106" href="#L106">106</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2018 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

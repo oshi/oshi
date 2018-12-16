@@ -5,8 +5,8 @@ oshi-json,oshi.json,SystemInfo,0,90,3,7,0,21,3,7,0,5
 oshi-json,oshi.util.platform.windows,PerfDataUtil.new Thread() {...},8,0,0,0,3,0,2,0,2,0
 oshi-json,oshi.util.platform.windows,WmiUtil.new Thread() {...},8,0,0,0,3,0,2,0,2,0
 oshi-json,oshi.util.platform.windows,PerfDataUtil.PerfCounter,15,0,0,0,5,0,1,0,1,0
-oshi-json,oshi.util.platform.windows,PerfDataUtil,502,0,70,0,109,0,52,0,17,0
-oshi-json,oshi.util.platform.windows,WmiUtil,771,0,65,0,131,0,56,0,22,0
+oshi-json,oshi.util.platform.windows,PerfDataUtil,529,0,76,0,113,0,55,0,17,0
+oshi-json,oshi.util.platform.windows,WmiUtil,780,0,67,0,132,0,57,0,22,0
 oshi-json,oshi.hardware.platform.windows,WindowsComputerSystem.ComputerSystemProperty,24,0,0,0,2,0,1,0,1,0
 oshi-json,oshi.hardware.platform.windows,WindowsComputerSystem,108,0,12,0,27,0,10,0,4,0
 oshi-json,oshi.hardware.platform.windows,WindowsDisplay,118,0,8,0,25,0,7,0,3,0
@@ -16,14 +16,14 @@ oshi-json,oshi.hardware.platform.windows,WindowsSensors.OhmHardwareProperty,14,0
 oshi-json,oshi.hardware.platform.windows,WindowsBaseboard.BaseboardProperty,44,0,0,0,2,0,1,0,1,0
 oshi-json,oshi.hardware.platform.windows,WindowsDisks.DiskDriveProperty,64,0,0,0,2,0,1,0,1,0
 oshi-json,oshi.hardware.platform.windows,WindowsDisks.DriveToPartitionProperty,24,0,0,0,2,0,1,0,1,0
-oshi-json,oshi.hardware.platform.windows,WindowsCentralProcessor,960,0,80,0,197,0,53,0,13,0
+oshi-json,oshi.hardware.platform.windows,WindowsCentralProcessor,962,0,80,0,199,0,53,0,13,0
 oshi-json,oshi.hardware.platform.windows,WindowsDisks.DiskPartitionProperty,74,0,0,0,2,0,1,0,1,0
 oshi-json,oshi.hardware.platform.windows,WindowsComputerSystem.ComputerSystemProductProperty,14,0,0,0,2,0,1,0,1,0
 oshi-json,oshi.hardware.platform.windows,WindowsBaseboard,42,0,2,0,11,0,3,0,2,0
 oshi-json,oshi.hardware.platform.windows,WindowsCentralProcessor.InterruptsProperty,14,0,0,0,2,0,1,0,1,0
 oshi-json,oshi.hardware.platform.windows,WindowsUsbDevice,549,0,44,0,120,0,30,0,8,0
 oshi-json,oshi.hardware.platform.windows,WindowsNetworks,131,0,6,0,33,0,6,0,3,0
-oshi-json,oshi.hardware.platform.windows,WindowsGlobalMemory,237,0,22,0,53,0,16,0,5,0
+oshi-json,oshi.hardware.platform.windows,WindowsGlobalMemory,273,0,30,0,66,0,22,0,7,0
 oshi-json,oshi.hardware.platform.windows,WindowsDisks.PhysicalDiskProperty,84,0,0,0,2,0,1,0,1,0
 oshi-json,oshi.hardware.platform.windows,WindowsGlobalMemory.PageSwapProperty,24,0,0,0,2,0,1,0,1,0
 oshi-json,oshi.hardware.platform.windows,WindowsUsbDevice.USBControllerProperty,14,0,0,0,2,0,1,0,1,0
@@ -34,7 +34,7 @@ oshi-json,oshi.hardware.platform.windows,WindowsSoundCard,176,0,10,0,35,0,10,0,5
 oshi-json,oshi.hardware.platform.windows,WindowsCentralProcessor.ProcessorProperty,14,0,0,0,2,0,1,0,1,0
 oshi-json,oshi.hardware.platform.windows,WindowsSoundCard.SoundCardName,24,0,0,0,2,0,1,0,1,0
 oshi-json,oshi.hardware.platform.windows,WindowsFirmware.BiosProperty,54,0,0,0,2,0,1,0,1,0
-oshi-json,oshi.hardware.platform.windows,WindowsSensors,472,0,70,0,115,0,41,0,6,0
+oshi-json,oshi.hardware.platform.windows,WindowsSensors,473,0,70,0,115,0,41,0,6,0
 oshi-json,oshi.hardware.platform.windows,WindowsUsbDevice.PnPEntityProperty,34,0,0,0,2,0,1,0,1,0
 oshi-json,oshi.hardware.platform.windows,WindowsComputerSystem.BiosProperty,14,0,0,0,2,0,1,0,1,0
 oshi-json,oshi.hardware.platform.windows,WindowsSensors.OhmSensorProperty,14,0,0,0,2,0,1,0,1,0
@@ -93,7 +93,7 @@ oshi-json,oshi.jna.platform.linux,Udev.UdevDevice,7,0,0,0,4,0,2,0,2,0
 oshi-json,oshi.jna.platform.linux,Udev.UdevListEntry,7,0,0,0,4,0,2,0,2,0
 oshi-json,oshi.jna.platform.linux,Libc,6,0,0,0,1,0,1,0,1,0
 oshi-json,oshi.software.os.linux,LinuxFileSystem,496,0,44,0,92,0,29,0,7,0
-oshi-json,oshi.software.os.linux,LinuxOSVersionInfoEx,473,0,92,0,102,0,55,0,9,0
+oshi-json,oshi.software.os.linux,LinuxOSVersionInfoEx,448,0,92,0,102,0,55,0,9,0
 oshi-json,oshi.software.os.linux,LinuxUserGroupInfo.UsersCache,94,0,10,0,25,0,8,0,3,0
 oshi-json,oshi.software.os.linux,LinuxOperatingSystem,1294,0,172,0,262,0,122,0,22,0
 oshi-json,oshi.software.os.linux,LinuxOperatingSystem.ProcPidStat,103,0,0,0,6,0,3,0,3,0
@@ -108,7 +108,7 @@ oshi-json,oshi.jna.platform.unix.freebsd,Libc.CpTime,7,0,0,0,2,0,1,0,1,0
 oshi-json,oshi.jna.platform.unix.freebsd,Libc,12,0,0,0,3,0,1,0,1,0
 oshi-json,oshi.json.hardware.impl,SoundCardImpl,64,0,6,0,16,0,9,0,6,0
 oshi-json,oshi.json.hardware.impl,ComputerSystemImpl,102,0,10,0,22,0,13,0,8,0
-oshi-json,oshi.json.hardware.impl,CentralProcessorImpl,506,0,54,0,107,0,62,0,35,0
+oshi-json,oshi.json.hardware.impl,CentralProcessorImpl,502,0,54,0,106,0,61,0,34,0
 oshi-json,oshi.json.hardware.impl,BaseboardImpl,78,0,8,0,19,0,11,0,7,0
 oshi-json,oshi.json.hardware.impl,PowerSourceImpl,60,0,6,0,15,0,8,0,5,0
 oshi-json,oshi.json.hardware.impl,GlobalMemoryImpl,116,0,14,0,27,0,16,0,9,0
@@ -143,25 +143,25 @@ oshi-json,oshi.software.os.unix.freebsd,FreeBsdFileSystem,413,0,50,0,70,0,30,0,5
 oshi-json,oshi.hardware.platform.unix.freebsd,FreeBsdFirmware,112,0,14,0,28,0,9,0,2,0
 oshi-json,oshi.hardware.platform.unix.freebsd,FreeBsdUsbDevice,398,0,40,0,80,0,26,0,6,0
 oshi-json,oshi.hardware.platform.unix.freebsd,FreeBsdDisplay,88,0,12,0,24,0,9,0,3,0
-oshi-json,oshi.hardware.platform.unix.freebsd,FreeBsdSoundCard,141,0,18,0,32,0,12,0,3,0
+oshi-json,oshi.hardware.platform.unix.freebsd,FreeBsdSoundCard,139,0,18,0,28,0,12,0,3,0
 oshi-json,oshi.hardware.platform.unix.freebsd,FreeBsdBaseboard,102,0,18,0,30,0,11,0,2,0
 oshi-json,oshi.hardware.platform.unix.freebsd,FreeBsdPowerSource,58,0,4,0,14,0,5,0,3,0
 oshi-json,oshi.hardware.platform.unix.freebsd,FreeBsdNetworks,70,0,2,0,13,0,3,0,2,0
 oshi-json,oshi.hardware.platform.unix.freebsd,FreeBsdComputerSystem,117,0,18,0,33,0,12,0,3,0
 oshi-json,oshi.hardware.platform.unix.freebsd,FreeBsdDisks,575,0,66,0,124,0,38,0,5,0
-oshi-json,oshi.hardware.platform.unix.freebsd,FreeBsdCentralProcessor,655,0,66,0,126,0,45,0,12,0
+oshi-json,oshi.hardware.platform.unix.freebsd,FreeBsdCentralProcessor,650,0,66,0,125,0,44,0,11,0
 oshi-json,oshi.hardware.platform.unix.freebsd,FreeBsdHardwareAbstractionLayer,70,0,8,0,19,0,15,0,11,0
 oshi-json,oshi.hardware.platform.unix.freebsd,FreeBsdSensors,66,0,4,0,16,0,6,0,4,0
 oshi-json,oshi.hardware.platform.unix.freebsd,FreeBsdGlobalMemory,74,0,2,0,18,0,4,0,3,0
 oshi-json,oshi.hardware.platform.unix.solaris,SolarisPowerSource,175,0,28,0,37,0,17,0,3,0
-oshi-json,oshi.hardware.platform.unix.solaris,SolarisSoundCard,150,0,18,0,33,0,12,0,3,0
+oshi-json,oshi.hardware.platform.unix.solaris,SolarisSoundCard,148,0,18,0,29,0,12,0,3,0
 oshi-json,oshi.hardware.platform.unix.solaris,SolarisDisks,668,0,85,0,155,0,54,0,4,0
 oshi-json,oshi.hardware.platform.unix.solaris,SolarisDisplay,88,0,12,0,24,0,9,0,3,0
 oshi-json,oshi.hardware.platform.unix.solaris,SolarisGlobalMemory,123,0,10,0,25,0,9,0,4,0
 oshi-json,oshi.hardware.platform.unix.solaris,SolarisUsbDevice,380,0,38,0,74,0,25,0,6,0
 oshi-json,oshi.hardware.platform.unix.solaris,SolarisNetworks,64,0,6,0,14,0,5,0,2,0
 oshi-json,oshi.hardware.platform.unix.solaris,SolarisSensors,124,0,18,0,27,0,13,0,4,0
-oshi-json,oshi.hardware.platform.unix.solaris,SolarisCentralProcessor,429,0,50,0,90,0,37,0,12,0
+oshi-json,oshi.hardware.platform.unix.solaris,SolarisCentralProcessor,424,0,50,0,89,0,36,0,11,0
 oshi-json,oshi.hardware.platform.unix.solaris,SolarisComputerSystem,360,0,64,0,102,0,35,0,3,0
 oshi-json,oshi.hardware.platform.unix.solaris,SolarisBaseboard,3,0,0,0,1,0,1,0,1,0
 oshi-json,oshi.hardware.platform.unix.solaris,SolarisFirmware,3,0,0,0,1,0,1,0,1,0
@@ -172,7 +172,7 @@ oshi-json,oshi.hardware.platform.linux,LinuxFirmware,136,0,24,0,29,0,14,0,2,0
 oshi-json,oshi.hardware.platform.linux,LinuxSensors.new FileFilter() {...},11,0,0,0,2,0,2,0,2,0
 oshi-json,oshi.hardware.platform.linux,LinuxSensors.new FileFilter() {...},28,0,6,0,3,0,5,0,2,0
 oshi-json,oshi.hardware.platform.linux,LinuxComputerSystem,168,0,38,0,38,0,22,0,3,0
-oshi-json,oshi.hardware.platform.linux,LinuxCentralProcessor,578,0,89,0,128,0,59,0,12,0
+oshi-json,oshi.hardware.platform.linux,LinuxCentralProcessor,573,0,89,0,127,0,58,0,11,0
 oshi-json,oshi.hardware.platform.linux,LinuxHardwareAbstractionLayer,70,0,8,0,19,0,15,0,11,0
 oshi-json,oshi.hardware.platform.linux,LinuxDisks,418,0,28,0,92,0,20,0,6,0
 oshi-json,oshi.hardware.platform.linux,LinuxGlobalMemory,249,0,32,0,65,0,25,0,5,0
@@ -186,7 +186,7 @@ oshi-json,oshi.hardware.platform.mac,MacFirmware,3,0,0,0,1,0,1,0,1,0
 oshi-json,oshi.hardware.platform.mac,MacDisplay,96,0,6,0,24,0,6,0,3,0
 oshi-json,oshi.hardware.platform.mac,MacDisks,791,0,62,0,210,0,36,0,5,0
 oshi-json,oshi.hardware.platform.mac,MacSensors.new Thread() {...},9,0,0,0,3,0,2,0,2,0
-oshi-json,oshi.hardware.platform.mac,MacCentralProcessor,432,0,30,0,84,0,26,0,11,0
+oshi-json,oshi.hardware.platform.mac,MacCentralProcessor,427,0,30,0,83,0,25,0,10,0
 oshi-json,oshi.hardware.platform.mac,MacGlobalMemory,145,0,12,0,34,0,10,0,4,0
 oshi-json,oshi.hardware.platform.mac,MacUsbDevice,619,0,40,0,116,0,27,0,7,0
 oshi-json,oshi.hardware.platform.mac,MacComputerSystem,201,0,30,0,57,0,18,0,3,0
@@ -223,15 +223,15 @@ oshi-json,oshi.jna.platform.mac,IOKit.SMCKeyDataPLimitData,3,0,0,0,1,0,1,0,1,0
 oshi-json,oshi.jna.platform.mac,CoreFoundation.CFArrayRef,3,0,0,0,1,0,1,0,1,0
 oshi-json,oshi.jna.platform.mac,CoreFoundation.CFBooleanRef,3,0,0,0,1,0,1,0,1,0
 oshi-json,oshi.jna.platform.mac,CoreFoundation.CFMutableDictionaryRef,3,0,0,0,1,0,1,0,1,0
-oshi-json,oshi.util,Util,27,13,2,0,8,5,2,2,1,2
+oshi-json,oshi.util,Util,187,112,14,0,36,15,10,2,3,2
 oshi-json,oshi.util,EdidUtil,553,0,23,0,65,0,31,0,17,0
 oshi-json,oshi.util,FormatUtil,395,43,41,3,62,10,31,4,10,3
 oshi-json,oshi.util,LsofUtil,65,0,9,0,13,0,6,0,1,0
 oshi-json,oshi.util,StringUtil,40,0,4,0,7,0,4,0,2,0
-oshi-json,oshi.util,ParseUtil,521,390,73,15,118,60,55,16,14,13
+oshi-json,oshi.util,ParseUtil,515,394,71,15,116,61,55,17,15,14
 oshi-json,oshi.util,ExecutingCommand,53,49,4,2,14,13,4,4,2,3
 oshi-json,oshi.util,MapUtil,23,51,2,4,6,13,2,5,1,3
-oshi-json,oshi.util,FileUtil,170,25,17,1,43,5,14,3,5,3
+oshi-json,oshi.util,FileUtil,201,24,36,2,53,5,24,3,5,3
 oshi-json,oshi.software.common,AbstractNetworkParams,164,0,20,0,35,0,16,0,6,0
 oshi-json,oshi.software.common,AbstractOperatingSystem.new Comparator() {...},11,0,0,0,2,0,2,0,2,0
 oshi-json,oshi.software.common,AbstractOperatingSystem.new Comparator() {...},9,0,0,0,2,0,2,0,2,0
@@ -242,7 +242,7 @@ oshi-json,oshi.software.common,AbstractOperatingSystem.new Comparator() {...},9,
 oshi-json,oshi.software.common,AbstractOperatingSystem.new Comparator() {...},9,0,0,0,2,0,2,0,2,0
 oshi-json,oshi.software.common,AbstractOperatingSystem,194,0,22,0,49,0,24,0,10,0
 oshi-json,oshi.software.common,AbstractOSVersionInfoEx,69,0,8,0,18,0,12,0,8,0
-oshi-json,oshi.hardware,NetworkIF,23,233,7,9,12,58,7,30,0,27
+oshi-json,oshi.hardware,NetworkIF,23,226,7,9,12,58,7,30,0,27
 oshi-json,oshi.hardware,CentralProcessor.TickType,0,103,0,0,0,13,0,3,0,3
 oshi-json,oshi.hardware,HWDiskStore,65,386,24,22,23,93,21,35,1,30
 oshi-json,oshi.hardware,HWPartition,41,298,23,39,13,74,18,34,0,21

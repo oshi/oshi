@@ -177,15 +177,6 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
     }
 
     /**
-     * {@inheritDoc}
-     */
-    @Override
-    @Deprecated
-    public String getSystemSerialNumber() {
-<span class="nc" id="L185">        return new SolarisComputerSystem().getSerialNumber();</span>
-    }
-
-    /**
      * Fetches the ProcessorID by encoding the stepping, model, family, and
      * feature flags.
      *
@@ -195,16 +186,16 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
      * @return The Processor ID string
      */
     private String getProcessorID(String stepping, String model, String family) {
-<span class="nc" id="L198">        List&lt;String&gt; isainfo = ExecutingCommand.runNative(&quot;isainfo -v&quot;);</span>
-<span class="nc" id="L199">        StringBuilder flags = new StringBuilder();</span>
-<span class="nc bnc" id="L200" title="All 2 branches missed.">        for (String line : isainfo) {</span>
-<span class="nc bnc" id="L201" title="All 2 branches missed.">            if (line.startsWith(&quot;32-bit&quot;)) {</span>
-<span class="nc" id="L202">                break;</span>
-<span class="nc bnc" id="L203" title="All 2 branches missed.">            } else if (!line.startsWith(&quot;64-bit&quot;)) {</span>
-<span class="nc" id="L204">                flags.append(' ').append(line.trim());</span>
+<span class="nc" id="L189">        List&lt;String&gt; isainfo = ExecutingCommand.runNative(&quot;isainfo -v&quot;);</span>
+<span class="nc" id="L190">        StringBuilder flags = new StringBuilder();</span>
+<span class="nc bnc" id="L191" title="All 2 branches missed.">        for (String line : isainfo) {</span>
+<span class="nc bnc" id="L192" title="All 2 branches missed.">            if (line.startsWith(&quot;32-bit&quot;)) {</span>
+<span class="nc" id="L193">                break;</span>
+<span class="nc bnc" id="L194" title="All 2 branches missed.">            } else if (!line.startsWith(&quot;64-bit&quot;)) {</span>
+<span class="nc" id="L195">                flags.append(' ').append(line.trim());</span>
             }
-<span class="nc" id="L206">        }</span>
-<span class="nc" id="L207">        return createProcessorID(stepping, model, family, ParseUtil.whitespaces.split(flags.toString().toLowerCase()));</span>
+<span class="nc" id="L197">        }</span>
+<span class="nc" id="L198">        return createProcessorID(stepping, model, family, ParseUtil.whitespaces.split(flags.toString().toLowerCase()));</span>
     }
 
     /**
@@ -212,12 +203,12 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public long getContextSwitches() {
-<span class="nc" id="L215">        long swtch = 0;</span>
-<span class="nc" id="L216">        List&lt;String&gt; kstat = ExecutingCommand.runNative(&quot;kstat -p cpu_stat:::/pswitch\\\\|inv_swtch/&quot;);</span>
-<span class="nc bnc" id="L217" title="All 2 branches missed.">        for (String s : kstat) {</span>
-<span class="nc" id="L218">            swtch += ParseUtil.parseLastLong(s, 0L);</span>
-<span class="nc" id="L219">        }</span>
-<span class="nc bnc" id="L220" title="All 2 branches missed.">        return swtch &gt; 0 ? swtch : -1L;</span>
+<span class="nc" id="L206">        long swtch = 0;</span>
+<span class="nc" id="L207">        List&lt;String&gt; kstat = ExecutingCommand.runNative(&quot;kstat -p cpu_stat:::/pswitch\\\\|inv_swtch/&quot;);</span>
+<span class="nc bnc" id="L208" title="All 2 branches missed.">        for (String s : kstat) {</span>
+<span class="nc" id="L209">            swtch += ParseUtil.parseLastLong(s, 0L);</span>
+<span class="nc" id="L210">        }</span>
+<span class="nc bnc" id="L211" title="All 2 branches missed.">        return swtch &gt; 0 ? swtch : -1L;</span>
     }
 
     /**
@@ -225,12 +216,12 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public long getInterrupts() {
-<span class="nc" id="L228">        long intr = 0;</span>
-<span class="nc" id="L229">        List&lt;String&gt; kstat = ExecutingCommand.runNative(&quot;kstat -p cpu_stat:::/intr/&quot;);</span>
-<span class="nc bnc" id="L230" title="All 2 branches missed.">        for (String s : kstat) {</span>
-<span class="nc" id="L231">            intr += ParseUtil.parseLastLong(s, 0L);</span>
-<span class="nc" id="L232">        }</span>
-<span class="nc bnc" id="L233" title="All 2 branches missed.">        return intr &gt; 0 ? intr : -1L;</span>
+<span class="nc" id="L219">        long intr = 0;</span>
+<span class="nc" id="L220">        List&lt;String&gt; kstat = ExecutingCommand.runNative(&quot;kstat -p cpu_stat:::/intr/&quot;);</span>
+<span class="nc bnc" id="L221" title="All 2 branches missed.">        for (String s : kstat) {</span>
+<span class="nc" id="L222">            intr += ParseUtil.parseLastLong(s, 0L);</span>
+<span class="nc" id="L223">        }</span>
+<span class="nc bnc" id="L224" title="All 2 branches missed.">        return intr &gt; 0 ? intr : -1L;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

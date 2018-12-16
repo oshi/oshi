@@ -237,15 +237,6 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
     }
 
     /**
-     * {@inheritDoc}
-     */
-    @Override
-    @Deprecated
-    public String getSystemSerialNumber() {
-<span class="nc" id="L245">        return new FreeBsdComputerSystem().getSerialNumber();</span>
-    }
-
-    /**
      * Fetches the ProcessorID from dmidecode (if possible with root
      * permissions), otherwise uses the values from /var/run/dmesg.boot
      *
@@ -253,18 +244,18 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
      * @return The ProcessorID string
      */
     private String getProcessorID(long processorID) {
-<span class="nc" id="L256">        boolean procInfo = false;</span>
-<span class="nc" id="L257">        String marker = &quot;Processor Information&quot;;</span>
-<span class="nc bnc" id="L258" title="All 2 branches missed.">        for (String checkLine : ExecutingCommand.runNative(&quot;dmidecode -t system&quot;)) {</span>
-<span class="nc bnc" id="L259" title="All 4 branches missed.">            if (!procInfo &amp;&amp; checkLine.contains(marker)) {</span>
-<span class="nc" id="L260">                marker = &quot;ID:&quot;;</span>
-<span class="nc" id="L261">                procInfo = true;</span>
-<span class="nc bnc" id="L262" title="All 4 branches missed.">            } else if (procInfo &amp;&amp; checkLine.contains(marker)) {</span>
-<span class="nc" id="L263">                return checkLine.split(marker)[1].trim();</span>
+<span class="nc" id="L247">        boolean procInfo = false;</span>
+<span class="nc" id="L248">        String marker = &quot;Processor Information&quot;;</span>
+<span class="nc bnc" id="L249" title="All 2 branches missed.">        for (String checkLine : ExecutingCommand.runNative(&quot;dmidecode -t system&quot;)) {</span>
+<span class="nc bnc" id="L250" title="All 4 branches missed.">            if (!procInfo &amp;&amp; checkLine.contains(marker)) {</span>
+<span class="nc" id="L251">                marker = &quot;ID:&quot;;</span>
+<span class="nc" id="L252">                procInfo = true;</span>
+<span class="nc bnc" id="L253" title="All 4 branches missed.">            } else if (procInfo &amp;&amp; checkLine.contains(marker)) {</span>
+<span class="nc" id="L254">                return checkLine.split(marker)[1].trim();</span>
             }
-<span class="nc" id="L265">        }</span>
+<span class="nc" id="L256">        }</span>
         // If we've gotten this far, dmidecode failed. Used the passed-in values
-<span class="nc" id="L267">        return String.format(&quot;%016X&quot;, processorID);</span>
+<span class="nc" id="L258">        return String.format(&quot;%016X&quot;, processorID);</span>
     }
 
     /**
@@ -272,13 +263,13 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public long getContextSwitches() {
-<span class="nc" id="L275">        String name = &quot;vm.stats.sys.v_swtch&quot;;</span>
-<span class="nc" id="L276">        IntByReference size = new IntByReference(Libc.INT_SIZE);</span>
-<span class="nc" id="L277">        Pointer p = new Memory(size.getValue());</span>
-<span class="nc bnc" id="L278" title="All 2 branches missed.">        if (0 != Libc.INSTANCE.sysctlbyname(name, p, size, null, 0)) {</span>
-<span class="nc" id="L279">            return -1;</span>
+<span class="nc" id="L266">        String name = &quot;vm.stats.sys.v_swtch&quot;;</span>
+<span class="nc" id="L267">        IntByReference size = new IntByReference(Libc.INT_SIZE);</span>
+<span class="nc" id="L268">        Pointer p = new Memory(size.getValue());</span>
+<span class="nc bnc" id="L269" title="All 2 branches missed.">        if (0 != Libc.INSTANCE.sysctlbyname(name, p, size, null, 0)) {</span>
+<span class="nc" id="L270">            return -1;</span>
         }
-<span class="nc" id="L281">        return ParseUtil.unsignedIntToLong(p.getInt(0));</span>
+<span class="nc" id="L272">        return ParseUtil.unsignedIntToLong(p.getInt(0));</span>
     }
 
     /**
@@ -286,13 +277,13 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public long getInterrupts() {
-<span class="nc" id="L289">        String name = &quot;vm.stats.sys.v_intr&quot;;</span>
-<span class="nc" id="L290">        IntByReference size = new IntByReference(Libc.INT_SIZE);</span>
-<span class="nc" id="L291">        Pointer p = new Memory(size.getValue());</span>
-<span class="nc bnc" id="L292" title="All 2 branches missed.">        if (0 != Libc.INSTANCE.sysctlbyname(name, p, size, null, 0)) {</span>
-<span class="nc" id="L293">            return -1;</span>
+<span class="nc" id="L280">        String name = &quot;vm.stats.sys.v_intr&quot;;</span>
+<span class="nc" id="L281">        IntByReference size = new IntByReference(Libc.INT_SIZE);</span>
+<span class="nc" id="L282">        Pointer p = new Memory(size.getValue());</span>
+<span class="nc bnc" id="L283" title="All 2 branches missed.">        if (0 != Libc.INSTANCE.sysctlbyname(name, p, size, null, 0)) {</span>
+<span class="nc" id="L284">            return -1;</span>
         }
-<span class="nc" id="L295">        return ParseUtil.unsignedIntToLong(p.getInt(0));</span>
+<span class="nc" id="L286">        return ParseUtil.unsignedIntToLong(p.getInt(0));</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>
