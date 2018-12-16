@@ -226,90 +226,81 @@
 <a class="jxr_linenumber" name="L218" href="#L218">218</a>     }
 <a class="jxr_linenumber" name="L219" href="#L219">219</a> 
 <a class="jxr_linenumber" name="L220" href="#L220">220</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L221" href="#L221">221</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
-<a class="jxr_linenumber" name="L222" href="#L222">222</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L223" href="#L223">223</a>     @Override
-<a class="jxr_linenumber" name="L224" href="#L224">224</a>     @Deprecated
-<a class="jxr_linenumber" name="L225" href="#L225">225</a>     <strong class="jxr_keyword">public</strong> String getSystemSerialNumber() {
-<a class="jxr_linenumber" name="L226" href="#L226">226</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a name="LinuxComputerSystem" href="../../../../oshi/hardware/platform/linux/LinuxComputerSystem.html#LinuxComputerSystem">LinuxComputerSystem</a>().getSerialNumber();
-<a class="jxr_linenumber" name="L227" href="#L227">227</a>     }
-<a class="jxr_linenumber" name="L228" href="#L228">228</a> 
-<a class="jxr_linenumber" name="L229" href="#L229">229</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L230" href="#L230">230</a> <em class="jxr_javadoccomment">     * Fetches the ProcessorID from dmidecode (if possible with root</em>
-<a class="jxr_linenumber" name="L231" href="#L231">231</a> <em class="jxr_javadoccomment">     * permissions), the cpuid command (if installed) or by encoding the</em>
-<a class="jxr_linenumber" name="L232" href="#L232">232</a> <em class="jxr_javadoccomment">     * stepping, model, family, and feature flags.</em>
-<a class="jxr_linenumber" name="L233" href="#L233">233</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L234" href="#L234">234</a> <em class="jxr_javadoccomment">     * @param stepping</em>
-<a class="jxr_linenumber" name="L235" href="#L235">235</a> <em class="jxr_javadoccomment">     * @param model</em>
-<a class="jxr_linenumber" name="L236" href="#L236">236</a> <em class="jxr_javadoccomment">     * @param family</em>
-<a class="jxr_linenumber" name="L237" href="#L237">237</a> <em class="jxr_javadoccomment">     * @param flags</em>
-<a class="jxr_linenumber" name="L238" href="#L238">238</a> <em class="jxr_javadoccomment">     * @return The Processor ID string</em>
-<a class="jxr_linenumber" name="L239" href="#L239">239</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L240" href="#L240">240</a>     <strong class="jxr_keyword">private</strong> String getProcessorID(String stepping, String model, String family, String[] flags) {
-<a class="jxr_linenumber" name="L241" href="#L241">241</a>         <strong class="jxr_keyword">boolean</strong> procInfo = false;
-<a class="jxr_linenumber" name="L242" href="#L242">242</a>         String marker = <span class="jxr_string">"Processor Information"</span>;
-<a class="jxr_linenumber" name="L243" href="#L243">243</a>         <strong class="jxr_keyword">for</strong> (String checkLine : ExecutingCommand.runNative(<span class="jxr_string">"dmidecode -t 4"</span>)) {
-<a class="jxr_linenumber" name="L244" href="#L244">244</a>             <strong class="jxr_keyword">if</strong> (!procInfo &amp;&amp; checkLine.contains(marker)) {
-<a class="jxr_linenumber" name="L245" href="#L245">245</a>                 marker = <span class="jxr_string">"ID:"</span>;
-<a class="jxr_linenumber" name="L246" href="#L246">246</a>                 procInfo = <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L247" href="#L247">247</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (procInfo &amp;&amp; checkLine.contains(marker)) {
-<a class="jxr_linenumber" name="L248" href="#L248">248</a>                 <strong class="jxr_keyword">return</strong> checkLine.split(marker)[1].trim();
-<a class="jxr_linenumber" name="L249" href="#L249">249</a>             }
-<a class="jxr_linenumber" name="L250" href="#L250">250</a>         }
-<a class="jxr_linenumber" name="L251" href="#L251">251</a>         <em class="jxr_comment">// If we've gotten this far, dmidecode failed. Try cpuid.</em>
-<a class="jxr_linenumber" name="L252" href="#L252">252</a>         marker = <span class="jxr_string">"eax="</span>;
-<a class="jxr_linenumber" name="L253" href="#L253">253</a>         <strong class="jxr_keyword">for</strong> (String checkLine : ExecutingCommand.runNative(<span class="jxr_string">"cpuid -1r"</span>)) {
-<a class="jxr_linenumber" name="L254" href="#L254">254</a>             <strong class="jxr_keyword">if</strong> (checkLine.contains(marker) &amp;&amp; checkLine.trim().startsWith(<span class="jxr_string">"0x00000001"</span>)) {
-<a class="jxr_linenumber" name="L255" href="#L255">255</a>                 String eax = <span class="jxr_string">""</span>;
-<a class="jxr_linenumber" name="L256" href="#L256">256</a>                 String edx = <span class="jxr_string">""</span>;
-<a class="jxr_linenumber" name="L257" href="#L257">257</a>                 <strong class="jxr_keyword">for</strong> (String register : ParseUtil.whitespaces.split(checkLine)) {
-<a class="jxr_linenumber" name="L258" href="#L258">258</a>                     <strong class="jxr_keyword">if</strong> (register.startsWith(<span class="jxr_string">"eax="</span>)) {
-<a class="jxr_linenumber" name="L259" href="#L259">259</a>                         eax = ParseUtil.removeMatchingString(register, <span class="jxr_string">"eax=0x"</span>);
-<a class="jxr_linenumber" name="L260" href="#L260">260</a>                     } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (register.startsWith(<span class="jxr_string">"edx="</span>)) {
-<a class="jxr_linenumber" name="L261" href="#L261">261</a>                         edx = ParseUtil.removeMatchingString(register, <span class="jxr_string">"edx=0x"</span>);
-<a class="jxr_linenumber" name="L262" href="#L262">262</a>                     }
-<a class="jxr_linenumber" name="L263" href="#L263">263</a>                 }
-<a class="jxr_linenumber" name="L264" href="#L264">264</a>                 <strong class="jxr_keyword">return</strong> edx + eax;
-<a class="jxr_linenumber" name="L265" href="#L265">265</a>             }
-<a class="jxr_linenumber" name="L266" href="#L266">266</a>         }
-<a class="jxr_linenumber" name="L267" href="#L267">267</a>         <em class="jxr_comment">// If we've gotten this far, dmidecode failed. Encode arguments</em>
-<a class="jxr_linenumber" name="L268" href="#L268">268</a>         <strong class="jxr_keyword">return</strong> createProcessorID(stepping, model, family, flags);
-<a class="jxr_linenumber" name="L269" href="#L269">269</a>     }
-<a class="jxr_linenumber" name="L270" href="#L270">270</a> 
-<a class="jxr_linenumber" name="L271" href="#L271">271</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L272" href="#L272">272</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
-<a class="jxr_linenumber" name="L273" href="#L273">273</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L274" href="#L274">274</a>     @Override
-<a class="jxr_linenumber" name="L275" href="#L275">275</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getContextSwitches() {
-<a class="jxr_linenumber" name="L276" href="#L276">276</a>         List&lt;String&gt; procStat = FileUtil.readFile(<span class="jxr_string">"/proc/stat"</span>);
-<a class="jxr_linenumber" name="L277" href="#L277">277</a>         <strong class="jxr_keyword">for</strong> (String stat : procStat) {
-<a class="jxr_linenumber" name="L278" href="#L278">278</a>             <strong class="jxr_keyword">if</strong> (stat.startsWith(<span class="jxr_string">"ctxt "</span>)) {
-<a class="jxr_linenumber" name="L279" href="#L279">279</a>                 String[] ctxtArr = ParseUtil.whitespaces.split(stat);
-<a class="jxr_linenumber" name="L280" href="#L280">280</a>                 <strong class="jxr_keyword">if</strong> (ctxtArr.length == 2) {
-<a class="jxr_linenumber" name="L281" href="#L281">281</a>                     <strong class="jxr_keyword">return</strong> ParseUtil.parseLongOrDefault(ctxtArr[1], 0);
-<a class="jxr_linenumber" name="L282" href="#L282">282</a>                 }
-<a class="jxr_linenumber" name="L283" href="#L283">283</a>             }
-<a class="jxr_linenumber" name="L284" href="#L284">284</a>         }
-<a class="jxr_linenumber" name="L285" href="#L285">285</a>         <strong class="jxr_keyword">return</strong> -1;
-<a class="jxr_linenumber" name="L286" href="#L286">286</a>     }
-<a class="jxr_linenumber" name="L287" href="#L287">287</a> 
-<a class="jxr_linenumber" name="L288" href="#L288">288</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L289" href="#L289">289</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
-<a class="jxr_linenumber" name="L290" href="#L290">290</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L291" href="#L291">291</a>     @Override
-<a class="jxr_linenumber" name="L292" href="#L292">292</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getInterrupts() {
-<a class="jxr_linenumber" name="L293" href="#L293">293</a>         List&lt;String&gt; procStat = FileUtil.readFile(<span class="jxr_string">"/proc/stat"</span>);
-<a class="jxr_linenumber" name="L294" href="#L294">294</a>         <strong class="jxr_keyword">for</strong> (String stat : procStat) {
-<a class="jxr_linenumber" name="L295" href="#L295">295</a>             <strong class="jxr_keyword">if</strong> (stat.startsWith(<span class="jxr_string">"intr "</span>)) {
-<a class="jxr_linenumber" name="L296" href="#L296">296</a>                 String[] intrArr = ParseUtil.whitespaces.split(stat);
-<a class="jxr_linenumber" name="L297" href="#L297">297</a>                 <strong class="jxr_keyword">if</strong> (intrArr.length &gt; 2) {
-<a class="jxr_linenumber" name="L298" href="#L298">298</a>                     <strong class="jxr_keyword">return</strong> ParseUtil.parseLongOrDefault(intrArr[1], 0);
-<a class="jxr_linenumber" name="L299" href="#L299">299</a>                 }
-<a class="jxr_linenumber" name="L300" href="#L300">300</a>             }
-<a class="jxr_linenumber" name="L301" href="#L301">301</a>         }
-<a class="jxr_linenumber" name="L302" href="#L302">302</a>         <strong class="jxr_keyword">return</strong> -1;
-<a class="jxr_linenumber" name="L303" href="#L303">303</a>     }
-<a class="jxr_linenumber" name="L304" href="#L304">304</a> }
+<a class="jxr_linenumber" name="L221" href="#L221">221</a> <em class="jxr_javadoccomment">     * Fetches the ProcessorID from dmidecode (if possible with root</em>
+<a class="jxr_linenumber" name="L222" href="#L222">222</a> <em class="jxr_javadoccomment">     * permissions), the cpuid command (if installed) or by encoding the</em>
+<a class="jxr_linenumber" name="L223" href="#L223">223</a> <em class="jxr_javadoccomment">     * stepping, model, family, and feature flags.</em>
+<a class="jxr_linenumber" name="L224" href="#L224">224</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L225" href="#L225">225</a> <em class="jxr_javadoccomment">     * @param stepping</em>
+<a class="jxr_linenumber" name="L226" href="#L226">226</a> <em class="jxr_javadoccomment">     * @param model</em>
+<a class="jxr_linenumber" name="L227" href="#L227">227</a> <em class="jxr_javadoccomment">     * @param family</em>
+<a class="jxr_linenumber" name="L228" href="#L228">228</a> <em class="jxr_javadoccomment">     * @param flags</em>
+<a class="jxr_linenumber" name="L229" href="#L229">229</a> <em class="jxr_javadoccomment">     * @return The Processor ID string</em>
+<a class="jxr_linenumber" name="L230" href="#L230">230</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L231" href="#L231">231</a>     <strong class="jxr_keyword">private</strong> String getProcessorID(String stepping, String model, String family, String[] flags) {
+<a class="jxr_linenumber" name="L232" href="#L232">232</a>         <strong class="jxr_keyword">boolean</strong> procInfo = false;
+<a class="jxr_linenumber" name="L233" href="#L233">233</a>         String marker = <span class="jxr_string">"Processor Information"</span>;
+<a class="jxr_linenumber" name="L234" href="#L234">234</a>         <strong class="jxr_keyword">for</strong> (String checkLine : ExecutingCommand.runNative(<span class="jxr_string">"dmidecode -t 4"</span>)) {
+<a class="jxr_linenumber" name="L235" href="#L235">235</a>             <strong class="jxr_keyword">if</strong> (!procInfo &amp;&amp; checkLine.contains(marker)) {
+<a class="jxr_linenumber" name="L236" href="#L236">236</a>                 marker = <span class="jxr_string">"ID:"</span>;
+<a class="jxr_linenumber" name="L237" href="#L237">237</a>                 procInfo = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L238" href="#L238">238</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (procInfo &amp;&amp; checkLine.contains(marker)) {
+<a class="jxr_linenumber" name="L239" href="#L239">239</a>                 <strong class="jxr_keyword">return</strong> checkLine.split(marker)[1].trim();
+<a class="jxr_linenumber" name="L240" href="#L240">240</a>             }
+<a class="jxr_linenumber" name="L241" href="#L241">241</a>         }
+<a class="jxr_linenumber" name="L242" href="#L242">242</a>         <em class="jxr_comment">// If we've gotten this far, dmidecode failed. Try cpuid.</em>
+<a class="jxr_linenumber" name="L243" href="#L243">243</a>         marker = <span class="jxr_string">"eax="</span>;
+<a class="jxr_linenumber" name="L244" href="#L244">244</a>         <strong class="jxr_keyword">for</strong> (String checkLine : ExecutingCommand.runNative(<span class="jxr_string">"cpuid -1r"</span>)) {
+<a class="jxr_linenumber" name="L245" href="#L245">245</a>             <strong class="jxr_keyword">if</strong> (checkLine.contains(marker) &amp;&amp; checkLine.trim().startsWith(<span class="jxr_string">"0x00000001"</span>)) {
+<a class="jxr_linenumber" name="L246" href="#L246">246</a>                 String eax = <span class="jxr_string">""</span>;
+<a class="jxr_linenumber" name="L247" href="#L247">247</a>                 String edx = <span class="jxr_string">""</span>;
+<a class="jxr_linenumber" name="L248" href="#L248">248</a>                 <strong class="jxr_keyword">for</strong> (String register : ParseUtil.whitespaces.split(checkLine)) {
+<a class="jxr_linenumber" name="L249" href="#L249">249</a>                     <strong class="jxr_keyword">if</strong> (register.startsWith(<span class="jxr_string">"eax="</span>)) {
+<a class="jxr_linenumber" name="L250" href="#L250">250</a>                         eax = ParseUtil.removeMatchingString(register, <span class="jxr_string">"eax=0x"</span>);
+<a class="jxr_linenumber" name="L251" href="#L251">251</a>                     } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (register.startsWith(<span class="jxr_string">"edx="</span>)) {
+<a class="jxr_linenumber" name="L252" href="#L252">252</a>                         edx = ParseUtil.removeMatchingString(register, <span class="jxr_string">"edx=0x"</span>);
+<a class="jxr_linenumber" name="L253" href="#L253">253</a>                     }
+<a class="jxr_linenumber" name="L254" href="#L254">254</a>                 }
+<a class="jxr_linenumber" name="L255" href="#L255">255</a>                 <strong class="jxr_keyword">return</strong> edx + eax;
+<a class="jxr_linenumber" name="L256" href="#L256">256</a>             }
+<a class="jxr_linenumber" name="L257" href="#L257">257</a>         }
+<a class="jxr_linenumber" name="L258" href="#L258">258</a>         <em class="jxr_comment">// If we've gotten this far, dmidecode failed. Encode arguments</em>
+<a class="jxr_linenumber" name="L259" href="#L259">259</a>         <strong class="jxr_keyword">return</strong> createProcessorID(stepping, model, family, flags);
+<a class="jxr_linenumber" name="L260" href="#L260">260</a>     }
+<a class="jxr_linenumber" name="L261" href="#L261">261</a> 
+<a class="jxr_linenumber" name="L262" href="#L262">262</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L263" href="#L263">263</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L264" href="#L264">264</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L265" href="#L265">265</a>     @Override
+<a class="jxr_linenumber" name="L266" href="#L266">266</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getContextSwitches() {
+<a class="jxr_linenumber" name="L267" href="#L267">267</a>         List&lt;String&gt; procStat = FileUtil.readFile(<span class="jxr_string">"/proc/stat"</span>);
+<a class="jxr_linenumber" name="L268" href="#L268">268</a>         <strong class="jxr_keyword">for</strong> (String stat : procStat) {
+<a class="jxr_linenumber" name="L269" href="#L269">269</a>             <strong class="jxr_keyword">if</strong> (stat.startsWith(<span class="jxr_string">"ctxt "</span>)) {
+<a class="jxr_linenumber" name="L270" href="#L270">270</a>                 String[] ctxtArr = ParseUtil.whitespaces.split(stat);
+<a class="jxr_linenumber" name="L271" href="#L271">271</a>                 <strong class="jxr_keyword">if</strong> (ctxtArr.length == 2) {
+<a class="jxr_linenumber" name="L272" href="#L272">272</a>                     <strong class="jxr_keyword">return</strong> ParseUtil.parseLongOrDefault(ctxtArr[1], 0);
+<a class="jxr_linenumber" name="L273" href="#L273">273</a>                 }
+<a class="jxr_linenumber" name="L274" href="#L274">274</a>             }
+<a class="jxr_linenumber" name="L275" href="#L275">275</a>         }
+<a class="jxr_linenumber" name="L276" href="#L276">276</a>         <strong class="jxr_keyword">return</strong> -1;
+<a class="jxr_linenumber" name="L277" href="#L277">277</a>     }
+<a class="jxr_linenumber" name="L278" href="#L278">278</a> 
+<a class="jxr_linenumber" name="L279" href="#L279">279</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L280" href="#L280">280</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L281" href="#L281">281</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L282" href="#L282">282</a>     @Override
+<a class="jxr_linenumber" name="L283" href="#L283">283</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getInterrupts() {
+<a class="jxr_linenumber" name="L284" href="#L284">284</a>         List&lt;String&gt; procStat = FileUtil.readFile(<span class="jxr_string">"/proc/stat"</span>);
+<a class="jxr_linenumber" name="L285" href="#L285">285</a>         <strong class="jxr_keyword">for</strong> (String stat : procStat) {
+<a class="jxr_linenumber" name="L286" href="#L286">286</a>             <strong class="jxr_keyword">if</strong> (stat.startsWith(<span class="jxr_string">"intr "</span>)) {
+<a class="jxr_linenumber" name="L287" href="#L287">287</a>                 String[] intrArr = ParseUtil.whitespaces.split(stat);
+<a class="jxr_linenumber" name="L288" href="#L288">288</a>                 <strong class="jxr_keyword">if</strong> (intrArr.length &gt; 2) {
+<a class="jxr_linenumber" name="L289" href="#L289">289</a>                     <strong class="jxr_keyword">return</strong> ParseUtil.parseLongOrDefault(intrArr[1], 0);
+<a class="jxr_linenumber" name="L290" href="#L290">290</a>                 }
+<a class="jxr_linenumber" name="L291" href="#L291">291</a>             }
+<a class="jxr_linenumber" name="L292" href="#L292">292</a>         }
+<a class="jxr_linenumber" name="L293" href="#L293">293</a>         <strong class="jxr_keyword">return</strong> -1;
+<a class="jxr_linenumber" name="L294" href="#L294">294</a>     }
+<a class="jxr_linenumber" name="L295" href="#L295">295</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2018 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

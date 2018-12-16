@@ -153,8 +153,8 @@
 <a class="jxr_linenumber" name="L145" href="#L145">145</a>                     LOG.debug(<span class="jxr_string">"os-release: {}"</span>, line);
 <a class="jxr_linenumber" name="L146" href="#L146">146</a>                     <em class="jxr_comment">// remove beginning and ending '&quot;' characters, etc from</em>
 <a class="jxr_linenumber" name="L147" href="#L147">147</a>                     <em class="jxr_comment">// VERSION="14.04.4 LTS, Trusty Tahr" (Ubuntu style)</em>
-<a class="jxr_linenumber" name="L148" href="#L148">148</a>                     <em class="jxr_comment">// or VERSION="17 (Beefy Miracle)" (os-release doc style)</em>
-<a class="jxr_linenumber" name="L149" href="#L149">149</a>                     line = line.replace(<span class="jxr_string">"VERSION="</span>, <span class="jxr_string">""</span>).replaceAll(<span class="jxr_string">"^\&quot;|\&quot;$"</span>, <span class="jxr_string">""</span>).trim();
+<a class="jxr_linenumber" name="L148" href="#L148">148</a>                     <em class="jxr_comment">// or VERSION="17 (Beefy Miracle)" (os-release doc style</em>
+<a class="jxr_linenumber" name="L149" href="#L149">149</a>                     line = ParseUtil.getDoubleQuoteStringValue(line).trim();
 <a class="jxr_linenumber" name="L150" href="#L150">150</a>                     String[] split = line.split(<span class="jxr_string">"[()]"</span>);
 <a class="jxr_linenumber" name="L151" href="#L151">151</a>                     <strong class="jxr_keyword">if</strong> (split.length &lt;= 1) {
 <a class="jxr_linenumber" name="L152" href="#L152">152</a>                         <em class="jxr_comment">// If no parentheses, check for Ubuntu's comma format</em>
@@ -170,7 +170,7 @@
 <a class="jxr_linenumber" name="L162" href="#L162">162</a>                     LOG.debug(<span class="jxr_string">"os-release: {}"</span>, line);
 <a class="jxr_linenumber" name="L163" href="#L163">163</a>                     <em class="jxr_comment">// remove beginning and ending '&quot;' characters, etc from</em>
 <a class="jxr_linenumber" name="L164" href="#L164">164</a>                     <em class="jxr_comment">// VERSION_ID="14.04"</em>
-<a class="jxr_linenumber" name="L165" href="#L165">165</a>                     <strong class="jxr_keyword">this</strong>.version = line.replace(<span class="jxr_string">"VERSION_ID="</span>, <span class="jxr_string">""</span>).replaceAll(<span class="jxr_string">"^\&quot;|\&quot;$"</span>, <span class="jxr_string">""</span>).trim();
+<a class="jxr_linenumber" name="L165" href="#L165">165</a>                     <strong class="jxr_keyword">this</strong>.version = ParseUtil.getDoubleQuoteStringValue(line).trim();
 <a class="jxr_linenumber" name="L166" href="#L166">166</a>                 }
 <a class="jxr_linenumber" name="L167" href="#L167">167</a>             }
 <a class="jxr_linenumber" name="L168" href="#L168">168</a>         }
@@ -218,16 +218,16 @@
 <a class="jxr_linenumber" name="L210" href="#L210">210</a>             <strong class="jxr_keyword">for</strong> (String line : osRelease) {
 <a class="jxr_linenumber" name="L211" href="#L211">211</a>                 <strong class="jxr_keyword">if</strong> (line.startsWith(<span class="jxr_string">"DISTRIB_DESCRIPTION="</span>)) {
 <a class="jxr_linenumber" name="L212" href="#L212">212</a>                     LOG.debug(<span class="jxr_string">"lsb-release: {}"</span>, line);
-<a class="jxr_linenumber" name="L213" href="#L213">213</a>                     line = line.replace(<span class="jxr_string">"DISTRIB_DESCRIPTION="</span>, <span class="jxr_string">""</span>).replaceAll(<span class="jxr_string">"^\&quot;|\&quot;$"</span>, <span class="jxr_string">""</span>).trim();
+<a class="jxr_linenumber" name="L213" href="#L213">213</a>                     line = ParseUtil.getDoubleQuoteStringValue(line).trim();
 <a class="jxr_linenumber" name="L214" href="#L214">214</a>                     <strong class="jxr_keyword">if</strong> (line.contains(<span class="jxr_string">" release "</span>)) {
 <a class="jxr_linenumber" name="L215" href="#L215">215</a>                         <strong class="jxr_keyword">this</strong>.version = parseRelease(line, <span class="jxr_string">" release "</span>);
 <a class="jxr_linenumber" name="L216" href="#L216">216</a>                     }
 <a class="jxr_linenumber" name="L217" href="#L217">217</a>                 } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (line.startsWith(<span class="jxr_string">"DISTRIB_RELEASE="</span>) &amp;&amp; <strong class="jxr_keyword">this</strong>.version == <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L218" href="#L218">218</a>                     LOG.debug(<span class="jxr_string">"lsb-release: {}"</span>, line);
-<a class="jxr_linenumber" name="L219" href="#L219">219</a>                     <strong class="jxr_keyword">this</strong>.version = line.replace(<span class="jxr_string">"DISTRIB_RELEASE="</span>, <span class="jxr_string">""</span>).replaceAll(<span class="jxr_string">"^\&quot;|\&quot;$"</span>, <span class="jxr_string">""</span>).trim();
+<a class="jxr_linenumber" name="L219" href="#L219">219</a>                     <strong class="jxr_keyword">this</strong>.version = ParseUtil.getDoubleQuoteStringValue(line).trim();
 <a class="jxr_linenumber" name="L220" href="#L220">220</a>                 } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (line.startsWith(<span class="jxr_string">"DISTRIB_CODENAME="</span>) &amp;&amp; <strong class="jxr_keyword">this</strong>.codeName == <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L221" href="#L221">221</a>                     LOG.debug(<span class="jxr_string">"lsb-release: {}"</span>, line);
-<a class="jxr_linenumber" name="L222" href="#L222">222</a>                     <strong class="jxr_keyword">this</strong>.codeName = line.replace(<span class="jxr_string">"DISTRIB_CODENAME="</span>, <span class="jxr_string">""</span>).replaceAll(<span class="jxr_string">"^\&quot;|\&quot;$"</span>, <span class="jxr_string">""</span>).trim();
+<a class="jxr_linenumber" name="L222" href="#L222">222</a>                     <strong class="jxr_keyword">this</strong>.codeName = ParseUtil.getDoubleQuoteStringValue(line).trim();
 <a class="jxr_linenumber" name="L223" href="#L223">223</a>                 }
 <a class="jxr_linenumber" name="L224" href="#L224">224</a>             }
 <a class="jxr_linenumber" name="L225" href="#L225">225</a>         }
