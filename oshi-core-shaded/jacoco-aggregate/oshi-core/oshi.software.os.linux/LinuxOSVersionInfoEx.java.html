@@ -145,8 +145,8 @@ public class LinuxOSVersionInfoEx extends AbstractOSVersionInfoEx {
 <span class="nc" id="L145">                    LOG.debug(&quot;os-release: {}&quot;, line);</span>
                     // remove beginning and ending '&quot;' characters, etc from
                     // VERSION=&quot;14.04.4 LTS, Trusty Tahr&quot; (Ubuntu style)
-                    // or VERSION=&quot;17 (Beefy Miracle)&quot; (os-release doc style)
-<span class="nc" id="L149">                    line = line.replace(&quot;VERSION=&quot;, &quot;&quot;).replaceAll(&quot;^\&quot;|\&quot;$&quot;, &quot;&quot;).trim();</span>
+                    // or VERSION=&quot;17 (Beefy Miracle)&quot; (os-release doc style
+<span class="nc" id="L149">                    line = ParseUtil.getDoubleQuoteStringValue(line).trim();</span>
 <span class="nc" id="L150">                    String[] split = line.split(&quot;[()]&quot;);</span>
 <span class="nc bnc" id="L151" title="All 2 branches missed.">                    if (split.length &lt;= 1) {</span>
                         // If no parentheses, check for Ubuntu's comma format
@@ -162,7 +162,7 @@ public class LinuxOSVersionInfoEx extends AbstractOSVersionInfoEx {
 <span class="nc" id="L162">                    LOG.debug(&quot;os-release: {}&quot;, line);</span>
                     // remove beginning and ending '&quot;' characters, etc from
                     // VERSION_ID=&quot;14.04&quot;
-<span class="nc" id="L165">                    this.version = line.replace(&quot;VERSION_ID=&quot;, &quot;&quot;).replaceAll(&quot;^\&quot;|\&quot;$&quot;, &quot;&quot;).trim();</span>
+<span class="nc" id="L165">                    this.version = ParseUtil.getDoubleQuoteStringValue(line).trim();</span>
                 }
 <span class="nc" id="L167">            }</span>
         }
@@ -210,16 +210,16 @@ public class LinuxOSVersionInfoEx extends AbstractOSVersionInfoEx {
 <span class="nc bnc" id="L210" title="All 2 branches missed.">            for (String line : osRelease) {</span>
 <span class="nc bnc" id="L211" title="All 2 branches missed.">                if (line.startsWith(&quot;DISTRIB_DESCRIPTION=&quot;)) {</span>
 <span class="nc" id="L212">                    LOG.debug(&quot;lsb-release: {}&quot;, line);</span>
-<span class="nc" id="L213">                    line = line.replace(&quot;DISTRIB_DESCRIPTION=&quot;, &quot;&quot;).replaceAll(&quot;^\&quot;|\&quot;$&quot;, &quot;&quot;).trim();</span>
+<span class="nc" id="L213">                    line = ParseUtil.getDoubleQuoteStringValue(line).trim();</span>
 <span class="nc bnc" id="L214" title="All 2 branches missed.">                    if (line.contains(&quot; release &quot;)) {</span>
 <span class="nc" id="L215">                        this.version = parseRelease(line, &quot; release &quot;);</span>
                     }
 <span class="nc bnc" id="L217" title="All 4 branches missed.">                } else if (line.startsWith(&quot;DISTRIB_RELEASE=&quot;) &amp;&amp; this.version == null) {</span>
 <span class="nc" id="L218">                    LOG.debug(&quot;lsb-release: {}&quot;, line);</span>
-<span class="nc" id="L219">                    this.version = line.replace(&quot;DISTRIB_RELEASE=&quot;, &quot;&quot;).replaceAll(&quot;^\&quot;|\&quot;$&quot;, &quot;&quot;).trim();</span>
+<span class="nc" id="L219">                    this.version = ParseUtil.getDoubleQuoteStringValue(line).trim();</span>
 <span class="nc bnc" id="L220" title="All 4 branches missed.">                } else if (line.startsWith(&quot;DISTRIB_CODENAME=&quot;) &amp;&amp; this.codeName == null) {</span>
 <span class="nc" id="L221">                    LOG.debug(&quot;lsb-release: {}&quot;, line);</span>
-<span class="nc" id="L222">                    this.codeName = line.replace(&quot;DISTRIB_CODENAME=&quot;, &quot;&quot;).replaceAll(&quot;^\&quot;|\&quot;$&quot;, &quot;&quot;).trim();</span>
+<span class="nc" id="L222">                    this.codeName = ParseUtil.getDoubleQuoteStringValue(line).trim();</span>
                 }
 <span class="nc" id="L224">            }</span>
         }

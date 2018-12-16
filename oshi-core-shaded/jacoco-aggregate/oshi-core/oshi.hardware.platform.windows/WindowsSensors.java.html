@@ -212,7 +212,7 @@ public class WindowsSensors implements Sensors {
 <span class="nc bnc" id="L212" title="All 2 branches missed.">        if (fan.getResultCount() &gt; 1) {</span>
 <span class="nc" id="L213">            int[] fanSpeeds = new int[fan.getResultCount()];</span>
 <span class="nc bnc" id="L214" title="All 2 branches missed.">            for (int i = 0; i &lt; fan.getResultCount(); i++) {</span>
-<span class="nc" id="L215">                fanSpeeds[i] = WmiUtil.getUint32(fan, FanProperty.DESIREDSPEED, i);</span>
+<span class="nc" id="L215">                fanSpeeds[i] = (int) WmiUtil.getUint64(fan, FanProperty.DESIREDSPEED, i);</span>
             }
 <span class="nc" id="L217">            return fanSpeeds;</span>
         }
