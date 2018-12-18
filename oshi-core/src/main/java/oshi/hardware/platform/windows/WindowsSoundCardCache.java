@@ -26,7 +26,7 @@ import java.util.Map;
  * Used to cache sound-card-specific data.
  *
  * @see WindowsSoundCardDefaultCache
- * @see WindowsHardwareAbstractionLayer#createWindowsSoundCardCache()
+ * @see WindowsHardwareAbstractionLayer#createSoundCardCache()
  */
 public abstract class WindowsSoundCardCache {
 

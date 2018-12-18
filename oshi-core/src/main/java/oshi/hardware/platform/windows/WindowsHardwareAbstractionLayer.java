@@ -40,6 +40,8 @@ public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstraction
 
     private transient final WmiQueryHandler queryHandler;
 
+    private transient WindowsUsbDeviceCache usbDeviceCache;
+
     private transient WindowsSoundCardCache soundCardCache;
 
     /**
@@ -135,7 +137,30 @@ public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstraction
      */
     @Override
     public UsbDevice[] getUsbDevices(boolean tree) {
-        return WindowsUsbDevice.getUsbDevices(tree);
+        WindowsUsbDeviceCache cache = getUsbDeviceCache();
+        List<UsbDevice> ret = WindowsUsbDevice.getUsbDevices(queryHandler, cache, tree);
+        return ret.toArray(new UsbDevice[0]);
+    }
+
+    /**
+     * Get the {@link WindowsUsbDeviceCache} instance which is used for the {@link #getUsbDevices(boolean)} API.
+     *
+     * @return Return the {@code WindowsUsbDeviceCache} instance which is used for the {@code getUsbDevices(boolean)} API.
+     */
+    public WindowsUsbDeviceCache getUsbDeviceCache() {
+        if (usbDeviceCache == null) {
+            usbDeviceCache = createUsbDeviceCache();
+        }
+        return usbDeviceCache;
+    }
+
+    /**
+     * Create a new {@link WindowsUsbDeviceCache} instance.
+     *
+     * @return A new {@code WindowsUsbDeviceCache} instance.
+     */
+    protected WindowsUsbDeviceCache createUsbDeviceCache() {
+        return new WindowsUsbDeviceDefaultCache(queryHandler);
     }
 
     /**
@@ -159,7 +184,7 @@ public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstraction
      */
     public WindowsSoundCardCache getSoundCardCache() {
         if (soundCardCache == null) {
-            soundCardCache = createWindowsSoundCardCache();
+            soundCardCache = createSoundCardCache();
         }
         return soundCardCache;
     }
@@ -169,7 +194,7 @@ public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstraction
      *
      * @return A new {@code WindowsSoundCardCache} instance.
      */
-    protected WindowsSoundCardCache createWindowsSoundCardCache() {
+    protected WindowsSoundCardCache createSoundCardCache() {
         return new WindowsSoundCardDefaultCache(queryHandler);
     }
 }

@@ -31,7 +31,7 @@ import java.util.Map;
  * which queries the Win32_SoundDevice only once.
  *
  * @see WindowsSoundCardCache
- * @see WindowsHardwareAbstractionLayer#createWindowsSoundCardCache()
+ * @see WindowsHardwareAbstractionLayer#createSoundCardCache()
  */
 public class WindowsSoundCardDefaultCache extends WindowsSoundCardCache {
 
