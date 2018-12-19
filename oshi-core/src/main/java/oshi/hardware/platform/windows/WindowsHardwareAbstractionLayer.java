@@ -30,7 +30,6 @@ import oshi.hardware.SoundCard;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
 import oshi.util.platform.windows.WmiQueryHandler;
-import oshi.util.platform.windows.WmiUtil;
 
 import java.util.List;
 
@@ -43,14 +42,6 @@ public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstraction
     private transient WindowsUsbDeviceCache usbDeviceCache;
 
     private transient WindowsSoundCardCache soundCardCache;
-
-    /**
-     * @deprecated TODO: Write javadoc or remove this method.
-     */
-    @Deprecated
-    public WindowsHardwareAbstractionLayer() {
-        this(WmiUtil.getShared());
-    }
 
     public WindowsHardwareAbstractionLayer(WmiQueryHandler queryHandler) {
         this.queryHandler = queryHandler;

@@ -235,14 +235,6 @@ public class WindowsDisks implements Disks {
 
     private transient final WmiQueryHandler queryHandler;
 
-    /**
-     * @deprecated TODO: Write javadoc or remove this method.
-     */
-    @Deprecated
-    public WindowsDisks() {
-        this(WmiUtil.getShared());
-    }
-
     public WindowsDisks(WmiQueryHandler queryHandler) {
         this.queryHandler = queryHandler;
     }

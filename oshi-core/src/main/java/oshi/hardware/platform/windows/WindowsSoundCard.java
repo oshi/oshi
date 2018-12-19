@@ -65,13 +65,6 @@ public class WindowsSoundCard extends AbstractSoundCard {
         return audioCardKernel;
     }
 
-    @Deprecated
-    public static List<WindowsSoundCard> getSoundCards() {
-        WmiQueryHandler queryHandler = new WmiQueryHandler();
-        WindowsSoundCardDefaultCache cache = new WindowsSoundCardDefaultCache(queryHandler);
-        return getSoundCards(queryHandler, cache);
-    }
-
     /**
      * Does the following :
      * <ul>

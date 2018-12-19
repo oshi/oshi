@@ -117,14 +117,6 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
 
     private final transient WmiQueryHandler queryHandler;
 
-    /**
-     * @deprecated TODO: Write javadoc or remove this method.
-     */
-    @Deprecated
-    public WindowsOperatingSystem() {
-        this(WmiUtil.getShared(), new WindowsOSVersionInfoEx());
-    }
-
     public WindowsOperatingSystem(WmiQueryHandler queryHandler, OperatingSystemVersion version) {
         this.queryHandler = queryHandler;
         this.manufacturer = "Microsoft";

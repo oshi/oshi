@@ -32,9 +32,6 @@ import oshi.util.ParseUtil;
  */
 public class WmiUtil {
 
-    @Deprecated
-    public static final WmiUtil INSTANCE = new WmiUtil();
-
     private static WmiQueryHandler SHARED;
 
     // Not a built in manespace, failed connections are normal and don't need
@@ -47,39 +44,6 @@ public class WmiUtil {
      * Private constructor so this class can't be instantiated from the outside.
      */
     private WmiUtil() {
-    }
-
-    /**
-     * Determine if WMI has the requested namespace. Some namespaces only exist
-     * on newer versions of Windows.
-     *
-     * @param namespace
-     *            The namespace to test
-     * @return true if the namespace exists, false otherwise
-     * @deprecated Use {@link WmiQueryHandler#hasNamespace(String)}.
-     *            This method uses a shared static {@code WmiQueryHandler} instance.
-     */
-    @Deprecated
-    public static boolean hasNamespace(String namespace) {
-        return SHARED != null && SHARED.hasNamespace(namespace);
-    }
-
-    /**
-     * Query WMI for values, with no timeout.
-     *
-     * @param <T>
-     *            The properties enum
-     * @param query
-     *            A WmiQuery object encapsulating the namespace, class, and
-     *            properties
-     * @return a WmiResult object containing the query results, wrapping an
-     *         EnumMap
-     * @deprecated Use {@link WmiQueryHandler#queryWMI(WmiQuery)}.
-     *            This method uses a shared static {@code WmiQueryHandler} instance.
-     */
-    @Deprecated
-    public static <T extends Enum<T>> WmiResult<T> queryWMI(WmiQuery<T> query) {
-        return createOrGetShared().queryWMI(query);
     }
 
     /**
@@ -327,87 +291,6 @@ public class WmiUtil {
         }
         throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), "Float",
                 result.getCIMType(property), result.getVtType(property)));
-    }
-
-    /**
-     * Initializes COM library and sets security to impersonate the local user
-     * @deprecated Use {@link WmiQueryHandler#initCOM()}.
-     *            This method uses a shared static {@code WmiQueryHandler} instance.
-     */
-    @Deprecated
-    public static void initCOM() {
-        createOrGetShared().initCOM();
-    }
-
-    /**
-     * UnInitializes COM library if it was initialized by the {@link #initCOM()}
-     * method. Otherwise, does nothing.
-     * @deprecated Use {@link WmiQueryHandler#unInitCOM()}.
-     *            This method uses a shared static {@code WmiQueryHandler} instance.
-     */
-    @Deprecated
-    public static void unInitCOM() {
-        if (SHARED != null) {
-            SHARED.unInitCOM();
-        }
-    }
-
-    /**
-     * COM may already have been initialized outside this class. This boolean is
-     * a flag whether this class initialized it, to avoid uninitializing later
-     * and killing the external initialization
-     *
-     * @return Returns whether this class initialized COM
-     * @deprecated Use {@link WmiQueryHandler#isComInitialized()}.
-     *            This method uses a shared static {@code WmiQueryHandler} instance.
-     */
-    @Deprecated
-    public static boolean isComInitialized() {
-        return SHARED != null && SHARED.isComInitialized();
-    }
-
-    /**
-     * Security only needs to be initialized once. This boolean identifies
-     * whether that has happened.
-     *
-     * @return Returns the securityInitialized.
-     * @deprecated Use {@link WmiQueryHandler#isSecurityInitialized()}.
-     *            This method uses a shared static {@code WmiQueryHandler} instance.
-     */
-    @Deprecated
-    public static boolean isSecurityInitialized() {
-        return SHARED != null && SHARED.isSecurityInitialized();
-    }
-
-    /**
-     * Gets the current WMI timeout. WMI queries will fail if they take longer
-     * than this number of milliseconds. A value of -1 is infinite (no timeout).
-     *
-     * @return Returns the current value of wmiTimeout.
-     * @deprecated Use {@link WmiQueryHandler#getWmiTimeout()}.
-     *            This method uses a shared static {@code WmiQueryHandler} instance.
-     */
-    @Deprecated
-    public static int getWmiTimeout() {
-        if (SHARED != null) {
-            return SHARED.getWmiTimeout();
-        }
-        return Wbemcli.WBEM_INFINITE;
-    }
-
-    /**
-     * Sets the WMI timeout. WMI queries will fail if they take longer than this
-     * number of milliseconds.
-     *
-     * @param wmiTimeout
-     *            The wmiTimeout to set, in milliseconds. To disable timeouts,
-     *            set timeout as -1 (infinite).
-     * @deprecated Use {@link WmiQueryHandler#setWmiTimeout(int)}.
-     *            This method uses a shared static {@code WmiQueryHandler} instance.
-     */
-    @Deprecated
-    public static void setWmiTimeout(int wmiTimeout) {
-        createOrGetShared().setWmiTimeout(wmiTimeout);
     }
 
     /**

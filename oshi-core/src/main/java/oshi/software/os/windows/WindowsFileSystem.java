@@ -84,14 +84,6 @@ public class WindowsFileSystem implements FileSystem {
 
     private transient final WmiQueryHandler queryHandler;
 
-    /**
-     * @deprecated TODO: Write javadoc or remove this method.
-     */
-    @Deprecated
-    public WindowsFileSystem() {
-        this(WmiUtil.getShared());
-    }
-
     public WindowsFileSystem(WmiQueryHandler queryHandler) {
         this.queryHandler = queryHandler;
         // Set error mode to fail rather than prompt for FLoppy/CD-Rom

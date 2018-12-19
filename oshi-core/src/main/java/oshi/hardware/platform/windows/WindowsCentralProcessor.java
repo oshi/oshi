@@ -134,16 +134,6 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
 
     /**
      * Create a Processor
-     *
-     * @deprecated TODO: Write javadoc or remove this method.
-     */
-    @Deprecated
-    public WindowsCentralProcessor() {
-        this(WmiUtil.getShared());
-    }
-
-    /**
-     * Create a Processor
      */
     public WindowsCentralProcessor(WmiQueryHandler queryHandler) {
         super();

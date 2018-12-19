@@ -1,18 +1,20 @@
-/*
- * WindowsUsbDeviceDefaultCache.java
+/**
+ * Oshi (https://github.com/oshi/oshi)
  *
- * Creator:
- * 18.12.2018 20:34 Reto Merz
+ * Copyright (c) 2010 - 2018 The Oshi Project Team
  *
- * Maintainer:
- * 18.12.2018 20:34 Reto Merz
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
  *
- * Last Modification:
- * $Id: $
+ * Maintainers:
+ * dblock[at]dblock[dot]org
+ * widdis[at]gmail[dot]com
+ * enrico.bianchi[at]gmail[dot]com
  *
- * PLEASE DO NOT REFORMAT THIS CODE, I WILL REFORMAT IT BACK ALWAYS IT'S DONE
- *
- * Copyright (c) 2003 Abacus Research AG, All Rights Reserved
+ * Contributors:
+ * https://github.com/oshi/oshi/graphs/contributors
  */
 package oshi.hardware.platform.windows;
 
