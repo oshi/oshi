@@ -78,11 +78,11 @@ public class HWDiskStore extends AbstractOshiJsonObject implements Comparable<HW
      * @return True if the update was successful, false if the disk was not
      *         found
      */
-    public boolean updateDiskStats() {
+    public boolean updateDiskStats(oshi.SystemInfo info) {
         boolean diskFound = false;
         switch (SystemInfo.getCurrentPlatformEnum()) {
         case WINDOWS:
-            diskFound = oshi.hardware.platform.windows.WindowsDisks.updateDiskStats(this.diskStore);
+            diskFound = oshi.hardware.platform.windows.WindowsDisks.updateDiskStats(info.getWmiQueryHandler(), this.diskStore);
             break;
         case LINUX:
             diskFound = oshi.hardware.platform.linux.LinuxDisks.updateDiskStats(this.diskStore);

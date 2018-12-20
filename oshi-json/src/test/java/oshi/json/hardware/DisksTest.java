@@ -81,7 +81,7 @@ public class DisksTest {
 
             long oldReads = disk.getReads();
             long oldReadBytes = disk.getReadBytes();
-            assertTrue(disk.updateDiskStats());
+            assertTrue(disk.updateDiskStats(si.getImpl()));
             assertTrue(disk.getReads() >= oldReads);
             assertTrue(disk.getReadBytes() >= oldReadBytes);
 

@@ -32,8 +32,6 @@ import oshi.util.ParseUtil;
  */
 public class WmiUtil {
 
-    private static WmiQueryHandler SHARED;
-
     // Not a built in manespace, failed connections are normal and don't need
     // error logging
     public static final String OHM_NAMESPACE = "ROOT\\OpenHardwareMonitor";
@@ -291,32 +289,5 @@ public class WmiUtil {
         }
         throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), "Float",
                 result.getCIMType(property), result.getVtType(property)));
-    }
-
-    /**
-     * Provide a shared static {@code WmiQueryHandler} instance which is used to support
-     * the deprecated API in the Oshi Windows API.
-     *
-     * @deprecated Create a {@link WmiQueryHandler} instance.
-     *            This method uses a shared static {@code WmiQueryHandler} instance.
-     * @return Returns a static shared {@code WmiQueryHandler} instance.
-     */
-    @Deprecated
-    public static WmiQueryHandler getShared() {
-        return createOrGetShared();
-    }
-
-    /**
-     * Create or get a shared static {@code WmiQueryHandler} instance which is used
-     * to support the deprecated API in this class.
-     *
-     * @return Create or get a static shared {@code WmiQueryHandler} instance.
-     */
-    @Deprecated
-    private static WmiQueryHandler createOrGetShared() {
-        if (SHARED == null) {
-            SHARED = new WmiQueryHandler();
-        }
-        return SHARED;
     }
 }
