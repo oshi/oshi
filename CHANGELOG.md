@@ -2,6 +2,10 @@
 ================
 * Your contribution here.
 
+3.12.1 (12/31/18)
+================
+* [#730](https://github.com/oshi/oshi/pull/730): Fix Windows process token handle leak. - [@dbwiddis](https://github.com/dbwiddis).
+
 3.12.0 (12/16/18)
 ================
 * [#694](https://github.com/oshi/oshi/pull/694): ComputerIdentifier Util Method - [@Aashishthakur10](https://github.com/Aashishthakur10).

@@ -388,9 +388,9 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                     proc.getProcessID());
             if (pHandle != null) {
                 // Full path
+                final HANDLEByReference phToken = new HANDLEByReference();
                 try {
                     proc.setPath(Kernel32Util.QueryFullProcessImageName(pHandle, 0));
-                    final HANDLEByReference phToken = new HANDLEByReference();
                     if (Advapi32.INSTANCE.OpenProcessToken(pHandle, WinNT.TOKEN_DUPLICATE | WinNT.TOKEN_QUERY,
                             phToken)) {
                         Account account = Advapi32Util.getTokenAccount(phToken.getValue());
@@ -420,6 +420,11 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                 } catch (Win32Exception e) {
                     LOG.warn("Failed to set path or get user/group on PID {}. It may have terminated. {}",
                             proc.getProcessID(), e.getMessage());
+                } finally {
+                    final HANDLE token = phToken.getValue();
+                    if (token != null) {
+                        Kernel32.INSTANCE.CloseHandle(token);
+                    }
                 }
             }
             Kernel32.INSTANCE.CloseHandle(pHandle);
@@ -650,6 +655,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         success = Advapi32.INSTANCE.LookupPrivilegeValue(null, WinNT.SE_DEBUG_NAME, luid);
         if (!success) {
             LOG.error("LookupprivilegeValue failed. Error: {}", Native.getLastError());
+            Kernel32.INSTANCE.CloseHandle(hToken.getValue());
             return;
         }
         WinNT.TOKEN_PRIVILEGES tkp = new WinNT.TOKEN_PRIVILEGES(1);
