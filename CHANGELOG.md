@@ -1,5 +1,6 @@
 4.0.0 (in progress)
 ================
+* [#731](https://github.com/oshi/oshi/pull/731): Switch to MIT License, JNA 5.2.0. - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here.
 
 3.12.1 (12/31/18)
