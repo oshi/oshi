@@ -120,7 +120,7 @@
 		<main.basedir>${project.basedir}</main.basedir>
 		<!-- Dependency versions -->
 		<slf4j.version>1.7.25</slf4j.version>
-		<junit-vintage-engine.version>5.3.2</junit-vintage-engine.version>
+		<junit-vintage-engine.version>5.4.0-M1</junit-vintage-engine.version>
 		<!-- Compile versions -->
 		<maven-clean-plugin.version>3.1.0</maven-clean-plugin.version>
 		<maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
@@ -153,7 +153,7 @@
 		<maven-dependency-plugin.version>3.1.1</maven-dependency-plugin.version>
 		<maven-release-plugin.version>2.5.3</maven-release-plugin.version>
 		<maven-source-plugin.version>3.0.1</maven-source-plugin.version>
-		<spotbugs-maven-plugin.version>3.1.9</spotbugs-maven-plugin.version>
+		<spotbugs-maven-plugin.version>3.1.10</spotbugs-maven-plugin.version>
 		<jacoco-maven-plugin.version>0.8.2</jacoco-maven-plugin.version>
 		<coveralls-maven-plugin.version>4.3.0</coveralls-maven-plugin.version>
 		<tidy-maven-plugin.version>1.1.0</tidy-maven-plugin.version>
@@ -172,13 +172,13 @@
 		<JavaEWAH.version>1.1.6</JavaEWAH.version>
 		<jsch.version>0.1.55</jsch.version>
 		<jgit.version>5.2.0.201812061821-r</jgit.version>
-		<plexus-utils.version>3.1.0</plexus-utils.version>
+		<plexus-utils.version>3.1.1</plexus-utils.version>
 		<!-- Misc. -->
 		<sonar-maven-plugin.version>3.5.0.1254</sonar-maven-plugin.version>
 		<wagon-maven-plugin.version>2.0.0</wagon-maven-plugin.version>
 		<animal-sniffer-maven-plugin.version>1.17</animal-sniffer-maven-plugin.version>
 		<dependency-check-maven.version>3.3.4</dependency-check-maven.version>
-		<puppycrawl.checkstyle.version>8.15</puppycrawl.checkstyle.version>
+		<puppycrawl.checkstyle.version>8.16</puppycrawl.checkstyle.version>
 		<m2e.lifecycle-mapping.version>1.0.0</m2e.lifecycle-mapping.version>
 	</properties>
 
