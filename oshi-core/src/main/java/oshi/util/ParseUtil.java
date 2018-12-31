@@ -509,16 +509,18 @@ public class ParseUtil {
      * @return the value contained between single tick marks
      */
     public static String getSingleQuoteStringValue(String line) {
-      return getStringBetween(line , '\'');
+        return getStringBetween(line, '\'');
     }
 
     /**
      * Parse a string key = "value" (string)
-     * @param line the entire string
-     * @return   the value contained between double tick marks
+     * 
+     * @param line
+     *            the entire string
+     * @return the value contained between double tick marks
      */
     public static String getDoubleQuoteStringValue(String line) {
-        return getStringBetween(line , '"');
+        return getStringBetween(line, '"');
     }
 
     /**

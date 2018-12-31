@@ -33,7 +33,7 @@ import org.junit.Test;
 /**
  * The Class ParseUtilTest.
  */
-public class   ParseUtilTest {
+public class ParseUtilTest {
     /**
      * Test parse hertz.
      */
@@ -254,7 +254,7 @@ public class   ParseUtilTest {
 
     @Test
     public void testGetDoubleQuoteStringValue() {
-        assertEquals("bar" , ParseUtil.getDoubleQuoteStringValue("foo = \"bar\" (string)"));
+        assertEquals("bar", ParseUtil.getDoubleQuoteStringValue("foo = \"bar\" (string)"));
         assertEquals("", ParseUtil.getDoubleQuoteStringValue("hello"));
     }
 
