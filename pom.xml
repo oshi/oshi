@@ -1,25 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Oshi (https://github.com/oshi/oshi)
+    OSHI (https://github.com/oshi/oshi)
 
-    Copyright (c) 2010 - 2018 The Oshi Project Team
-
-    All rights reserved. This program and the accompanying materials
-    are made available under the terms of the Eclipse Public License v1.0
-    which accompanies this distribution, and is available at
-    http://www.eclipse.org/legal/epl-v10.html
-
-    Maintainers:
-    dblock[at]dblock[dot]org
-    widdis[at]gmail[dot]com
-    enrico.bianchi[at]gmail[dot]com
-
-    Contributors:
+    Copyright (c) 2010 - 2019 The OSHI Project Team:
     https://github.com/oshi/oshi/graphs/contributors
 
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+    The above copyright notice and this permission notice shall be included in
+    all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
+
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.github.oshi</groupId>
@@ -37,8 +43,8 @@
 	</organization>
 	<licenses>
 		<license>
-			<name>Eclipse Public License</name>
-			<url>http://www.eclipse.org/legal/epl-v10.html</url>
+			<name>MIT License</name>
+			<url>https://opensource.org/licenses/MIT</url>
 			<distribution>repo</distribution>
 		</license>
 	</licenses>
@@ -98,7 +104,7 @@
 	</distributionManagement>
 
 	<properties>
-		<copyright>2018</copyright>
+		<copyright>2010 - 2019</copyright>
 		<maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
 		<maven.compiler.source>1.7</maven.compiler.source>
 		<maven.compiler.target>1.7</maven.compiler.target>
@@ -114,7 +120,7 @@
 		<main.basedir>${project.basedir}</main.basedir>
 		<!-- Dependency versions -->
 		<slf4j.version>1.7.25</slf4j.version>
-		<junit-vintage-engine.version>5.3.2</junit-vintage-engine.version>
+		<junit-vintage-engine.version>5.4.0-M1</junit-vintage-engine.version>
 		<!-- Compile versions -->
 		<maven-clean-plugin.version>3.1.0</maven-clean-plugin.version>
 		<maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
@@ -147,7 +153,7 @@
 		<maven-dependency-plugin.version>3.1.1</maven-dependency-plugin.version>
 		<maven-release-plugin.version>2.5.3</maven-release-plugin.version>
 		<maven-source-plugin.version>3.0.1</maven-source-plugin.version>
-		<spotbugs-maven-plugin.version>3.1.9</spotbugs-maven-plugin.version>
+		<spotbugs-maven-plugin.version>3.1.10</spotbugs-maven-plugin.version>
 		<jacoco-maven-plugin.version>0.8.2</jacoco-maven-plugin.version>
 		<coveralls-maven-plugin.version>4.3.0</coveralls-maven-plugin.version>
 		<tidy-maven-plugin.version>1.1.0</tidy-maven-plugin.version>
@@ -166,13 +172,13 @@
 		<JavaEWAH.version>1.1.6</JavaEWAH.version>
 		<jsch.version>0.1.55</jsch.version>
 		<jgit.version>5.2.0.201812061821-r</jgit.version>
-		<plexus-utils.version>3.1.0</plexus-utils.version>
+		<plexus-utils.version>3.1.1</plexus-utils.version>
 		<!-- Misc. -->
 		<sonar-maven-plugin.version>3.5.0.1254</sonar-maven-plugin.version>
 		<wagon-maven-plugin.version>2.0.0</wagon-maven-plugin.version>
 		<animal-sniffer-maven-plugin.version>1.17</animal-sniffer-maven-plugin.version>
 		<dependency-check-maven.version>3.3.4</dependency-check-maven.version>
-		<puppycrawl.checkstyle.version>8.15</puppycrawl.checkstyle.version>
+		<puppycrawl.checkstyle.version>8.16</puppycrawl.checkstyle.version>
 		<m2e.lifecycle-mapping.version>1.0.0</m2e.lifecycle-mapping.version>
 	</properties>
 
