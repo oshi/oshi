@@ -67,9 +67,9 @@ public class WindowsOSVersionInfoEx extends AbstractOSVersionInfoEx {
             // Guaranteed that versionInfo is not null and lists non-empty
             // before calling the parse*() methods
             int suiteMask = WmiUtil.getUint32(versionInfo, OSVersionProperty.SUITEMASK, 0);
+            setBuildNumber(WmiUtil.getString(versionInfo, OSVersionProperty.BUILDNUMBER, 0));
             setVersion(parseVersion(versionInfo, suiteMask));
             setCodeName(parseCodeName(suiteMask));
-            setBuildNumber(WmiUtil.getString(versionInfo, OSVersionProperty.BUILDNUMBER, 0));
             LOG.debug("Initialized OSVersionInfoEx");
         }
     }
@@ -98,7 +98,9 @@ public class WindowsOSVersionInfoEx extends AbstractOSVersionInfoEx {
                 0) == WinNT.VER_NT_WORKSTATION;
         if (major == 10) {
             if (minor == 0) {
-                version = ntWorkstation ? "10" : "Server 2016";
+                // Build numbers greater than 17762 is Server 2019 for OS Version 10.0
+                version = ntWorkstation ? "10" :
+                        (Long.parseLong(getBuildNumber()) > 17762 ? "Server 2019" : "Server 2016");
             }
         } else if (major == 6) {
             if (minor == 3) {
