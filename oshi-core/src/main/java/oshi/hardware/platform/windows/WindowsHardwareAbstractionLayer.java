@@ -23,8 +23,6 @@
  */
 package oshi.hardware.platform.windows;
 
-import java.util.List;
-
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.ComputerSystem;
 import oshi.hardware.Display;
@@ -40,8 +38,6 @@ import oshi.hardware.common.AbstractHardwareAbstractionLayer;
 public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {
 
     private static final long serialVersionUID = 1L;
-
-    private transient WindowsUsbDeviceCache usbDeviceCache;
 
     /**
      * {@inheritDoc}
@@ -124,32 +120,7 @@ public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstraction
      */
     @Override
     public UsbDevice[] getUsbDevices(boolean tree) {
-        WindowsUsbDeviceCache cache = getUsbDeviceCache();
-        List<UsbDevice> ret = WindowsUsbDevice.getUsbDevices(cache, tree);
-        return ret.toArray(new UsbDevice[0]);
-    }
-
-    /**
-     * Get the {@link WindowsUsbDeviceCache} instance which is used for the
-     * {@link #getUsbDevices(boolean)} API.
-     *
-     * @return Return the {@code WindowsUsbDeviceCache} instance which is used
-     *         for the {@code getUsbDevices(boolean)} API.
-     */
-    public WindowsUsbDeviceCache getUsbDeviceCache() {
-        if (usbDeviceCache == null) {
-            usbDeviceCache = createUsbDeviceCache();
-        }
-        return usbDeviceCache;
-    }
-
-    /**
-     * Create a new {@link WindowsUsbDeviceCache} instance.
-     *
-     * @return A new {@code WindowsUsbDeviceCache} instance.
-     */
-    protected WindowsUsbDeviceCache createUsbDeviceCache() {
-        return new WindowsUsbDeviceDefaultCache();
+        return WindowsUsbDevice.getUsbDevices(tree);
     }
 
     /**
