@@ -24,6 +24,7 @@
 package oshi.hardware.platform.windows;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -46,6 +47,10 @@ public class WindowsSoundCard extends AbstractSoundCard {
     enum SoundCardKernel {
         DRIVERPROVIDERNAME, DRIVERNAME, DRIVERVERSION, DEVICENAME;
     }
+
+    // Save manufacturer/name map and driver query to avoid repeated queries
+    private static final Map<String, String> MANUFACTURER_BY_NAME = new HashMap<>();
+    private static String driverQuery = null;
 
     public WindowsSoundCard(String kernelVersion, String name, String codec) {
         super(kernelVersion, name, codec);
@@ -86,18 +91,17 @@ public class WindowsSoundCard extends AbstractSoundCard {
      *
      * @return List of sound cards
      */
-    public static List<WindowsSoundCard> getSoundCards(WindowsSoundCardCache cache) {
-        WbemcliUtil.WmiQuery<SoundCardKernel> cardKernelQuery = new WbemcliUtil.WmiQuery<>(cache.getDriverQuery(),
+    public static List<WindowsSoundCard> getSoundCards() {
+        WbemcliUtil.WmiQuery<SoundCardKernel> cardKernelQuery = new WbemcliUtil.WmiQuery<>(getDriverQuery(),
                 SoundCardKernel.class);
         WbemcliUtil.WmiResult<SoundCardKernel> cardKernelQueryResult = WmiQueryHandler.getInstance()
                 .queryWMI(cardKernelQuery);
 
-        Map<String, String> manufacturerByName = cache.getManufacturerByName();
         List<WindowsSoundCard> soundCards = new ArrayList<>();
         for (int i = 0; i < cardKernelQueryResult.getResultCount(); i++) {
             // If the map has a key that is equal to the value returned by
             // cardKernelQuery
-            if (manufacturerByName
+            if (MANUFACTURER_BY_NAME
                     .containsKey(WmiUtil.getString(cardKernelQueryResult, SoundCardKernel.DEVICENAME, i))) {
                 // then build a sound card by extracting values from
                 // cardKernelQuery
@@ -108,5 +112,48 @@ public class WindowsSoundCard extends AbstractSoundCard {
             }
         }
         return soundCards;
+    }
+
+    /**
+     * Builds the Sound Card device query, using sound device name and
+     * manufacturer to add WHERE filters.
+     * 
+     * @return A String that will query sound device drivers for the known sound
+     *         devices
+     */
+    private static String getDriverQuery() {
+        if (driverQuery == null) {
+            WbemcliUtil.WmiQuery<SoundCardName> soundCardQuery = new WbemcliUtil.WmiQuery<>("Win32_SoundDevice",
+                    SoundCardName.class);
+            WbemcliUtil.WmiResult<SoundCardName> soundCardResult = WmiQueryHandler.getInstance()
+                    .queryWMI(soundCardQuery);
+            for (int i = 0; i < soundCardResult.getResultCount(); i++) {
+                MANUFACTURER_BY_NAME.put(WmiUtil.getString(soundCardResult, SoundCardName.NAME, i),
+                        WmiUtil.getString(soundCardResult, SoundCardName.MANUFACTURER, i));
+            }
+            driverQuery = createClause();
+        }
+        return driverQuery;
+    }
+
+    /**
+     * Creates our Win32_PnPSignedDevice query with the WHERE clause taking the
+     * attributes from our map.
+     *
+     * @return The WHERE clause
+     */
+    private static String createClause() {
+        StringBuilder sb = new StringBuilder("Win32_PnPSignedDriver");
+        boolean first = true;
+        for (String key : MANUFACTURER_BY_NAME.keySet()) {
+            if (first) {
+                sb.append(" WHERE");
+                first = false;
+            } else {
+                sb.append(" OR");
+            }
+            sb.append(" DeviceName LIKE \"%").append(key).append("%\"");
+        }
+        return sb.toString();
     }
 }

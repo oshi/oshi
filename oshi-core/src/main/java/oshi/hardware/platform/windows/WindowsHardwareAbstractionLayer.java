@@ -43,8 +43,6 @@ public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstraction
 
     private transient WindowsUsbDeviceCache usbDeviceCache;
 
-    private transient WindowsSoundCardCache soundCardCache;
-
     /**
      * {@inheritDoc}
      */
@@ -163,31 +161,6 @@ public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstraction
      */
     @Override
     public SoundCard[] getSoundCards() {
-        WindowsSoundCardCache cache = getSoundCardCache();
-        List<WindowsSoundCard> ret = WindowsSoundCard.getSoundCards(cache);
-        return ret.toArray(new SoundCard[0]);
-    }
-
-    /**
-     * Get the {@link WindowsSoundCardCache} instance which is used for the
-     * {@link #getSoundCards()} API.
-     *
-     * @return Return the {@code WindowsSoundCardCache} instance which is used
-     *         for the {@code getSoundCards()} API.
-     */
-    public WindowsSoundCardCache getSoundCardCache() {
-        if (soundCardCache == null) {
-            soundCardCache = createSoundCardCache();
-        }
-        return soundCardCache;
-    }
-
-    /**
-     * Create a new {@link WindowsSoundCardCache} instance.
-     *
-     * @return A new {@code WindowsSoundCardCache} instance.
-     */
-    protected WindowsSoundCardCache createSoundCardCache() {
-        return new WindowsSoundCardDefaultCache();
+        return WindowsSoundCard.getSoundCards().toArray(new SoundCard[0]);
     }
 }
