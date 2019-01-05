@@ -86,17 +86,19 @@ public class WindowsSoundCard extends AbstractSoundCard {
      *
      * @return List of sound cards
      */
-    public static List<WindowsSoundCard> getSoundCards(WmiQueryHandler queryHandler, WindowsSoundCardCache cache) {
+    public static List<WindowsSoundCard> getSoundCards(WindowsSoundCardCache cache) {
         WbemcliUtil.WmiQuery<SoundCardKernel> cardKernelQuery = new WbemcliUtil.WmiQuery<>(cache.getDriverQuery(),
                 SoundCardKernel.class);
-        WbemcliUtil.WmiResult<SoundCardKernel> cardKernelQueryResult = queryHandler.queryWMI(cardKernelQuery);
+        WbemcliUtil.WmiResult<SoundCardKernel> cardKernelQueryResult = WmiQueryHandler.getInstance()
+                .queryWMI(cardKernelQuery);
 
         Map<String, String> manufacturerByName = cache.getManufacturerByName();
         List<WindowsSoundCard> soundCards = new ArrayList<>();
         for (int i = 0; i < cardKernelQueryResult.getResultCount(); i++) {
             // If the map has a key that is equal to the value returned by
             // cardKernelQuery
-            if (manufacturerByName.containsKey(WmiUtil.getString(cardKernelQueryResult, SoundCardKernel.DEVICENAME, i))) {
+            if (manufacturerByName
+                    .containsKey(WmiUtil.getString(cardKernelQueryResult, SoundCardKernel.DEVICENAME, i))) {
                 // then build a sound card by extracting values from
                 // cardKernelQuery
                 soundCards.add(new WindowsSoundCard(getAudioCardKernelVersion(i, cardKernelQueryResult),

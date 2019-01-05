@@ -18,21 +18,6 @@
  */
 package oshi.hardware.platform.windows;
 
-import com.sun.jna.platform.win32.COM.WbemcliUtil;
-import com.sun.jna.platform.win32.Cfgmgr32; // NOSONAR squid:S1191
-import com.sun.jna.platform.win32.Cfgmgr32Util;
-import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
-import com.sun.jna.ptr.IntByReference;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import oshi.hardware.UsbDevice;
-import oshi.hardware.platform.windows.WindowsUsbDevice.DiskDriveProperty;
-import oshi.hardware.platform.windows.WindowsUsbDevice.PnPEntityProperty;
-import oshi.util.MapUtil;
-import oshi.util.ParseUtil;
-import oshi.util.platform.windows.WmiQueryHandler;
-import oshi.util.platform.windows.WmiUtil;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -42,6 +27,23 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.sun.jna.platform.win32.Cfgmgr32; // NOSONAR squid:S1191
+import com.sun.jna.platform.win32.Cfgmgr32Util;
+import com.sun.jna.platform.win32.COM.WbemcliUtil;
+import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
+import com.sun.jna.ptr.IntByReference;
+
+import oshi.hardware.UsbDevice;
+import oshi.hardware.platform.windows.WindowsUsbDevice.DiskDriveProperty;
+import oshi.hardware.platform.windows.WindowsUsbDevice.PnPEntityProperty;
+import oshi.util.MapUtil;
+import oshi.util.ParseUtil;
+import oshi.util.platform.windows.WmiQueryHandler;
+import oshi.util.platform.windows.WmiUtil;
 
 final class WindowsUsbDeviceCollector {
 
@@ -53,15 +55,13 @@ final class WindowsUsbDeviceCollector {
     private static final String PNPENTITY_BASE_CLASS = "Win32_PnPEntity";
     private static final String DISKDRIVE_BASE_CLASS = "Win32_DiskDrive";
 
-    private final WmiQueryHandler queryHandler;
     private final WindowsUsbDeviceCache cache;
     private final Map<String, WindowsUsbDevice> byPnpDeviceId = new HashMap<>();
     private Set<String> toAdd;
     private Set<String> toRemove;
     private Map<String, List<String>> treeMap;
 
-    private WindowsUsbDeviceCollector(WmiQueryHandler queryHandler, WindowsUsbDeviceCache cache) {
-        this.queryHandler = queryHandler;
+    private WindowsUsbDeviceCollector(WindowsUsbDeviceCache cache) {
         this.cache = cache;
     }
 
@@ -146,7 +146,7 @@ final class WindowsUsbDeviceCollector {
             // Query Win32_PnPEntity to populate the maps
             WmiQuery<PnPEntityProperty> pnpEntityQuery = new WmiQuery<>(null, PnPEntityProperty.class);
             pnpEntityQuery.setWmiClassName(PNPENTITY_BASE_CLASS + whereClause);
-            WbemcliUtil.WmiResult<PnPEntityProperty> pnpEntity = queryHandler.queryWMI(pnpEntityQuery);
+            WbemcliUtil.WmiResult<PnPEntityProperty> pnpEntity = WmiQueryHandler.getInstance().queryWMI(pnpEntityQuery);
             for (int i = 0; i < pnpEntity.getResultCount(); i++) {
                 String pnpDeviceID = WmiUtil.getString(pnpEntity, PnPEntityProperty.PNPDEVICEID, i);
                 String name = WmiUtil.getString(pnpEntity, PnPEntityProperty.NAME, i);
@@ -158,7 +158,8 @@ final class WindowsUsbDeviceCollector {
             // Get serial # for disk drives or other physical media
             WmiQuery<DiskDriveProperty> diskDriveQuery = new WmiQuery<>(null, DiskDriveProperty.class);
             diskDriveQuery.setWmiClassName(DISKDRIVE_BASE_CLASS + whereClause);
-            WbemcliUtil.WmiResult<DiskDriveProperty> serialNumber = queryHandler.queryWMI(diskDriveQuery);
+            WbemcliUtil.WmiResult<DiskDriveProperty> serialNumber = WmiQueryHandler.getInstance()
+                    .queryWMI(diskDriveQuery);
             for (int i = 0; i < serialNumber.getResultCount(); i++) {
                 String pnpDeviceID = WmiUtil.getString(serialNumber, DiskDriveProperty.PNPDEVICEID, i);
                 if (byPnpDeviceId.containsKey(pnpDeviceID)) {
@@ -261,8 +262,8 @@ final class WindowsUsbDeviceCollector {
     /**
      * @return An mutable list.
      */
-    static List<UsbDevice> collect(WmiQueryHandler queryHandler, WindowsUsbDeviceCache cache, boolean tree) {
-        WindowsUsbDeviceCollector collector = new WindowsUsbDeviceCollector(queryHandler, cache);
+    static List<UsbDevice> collect(WindowsUsbDeviceCache cache, boolean tree) {
+        WindowsUsbDeviceCollector collector = new WindowsUsbDeviceCollector(cache);
         return collector.collectImpl(tree);
     }
 }

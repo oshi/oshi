@@ -135,14 +135,11 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
 
     private static long lastRefresh = 0L;
 
-    private transient WmiQueryHandler queryHandler;
-
     /**
      * Create a Processor
      */
-    public WindowsCentralProcessor(WmiQueryHandler queryHandler) {
+    public WindowsCentralProcessor() {
         super();
-        this.queryHandler = queryHandler;
         // Initialize class variables
         initVars();
         // Initialize pdh counters
@@ -178,7 +175,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
         }
 
         WmiQuery<ProcessorProperty> processorIdQuery = new WmiQuery<>("Win32_Processor", ProcessorProperty.class);
-        WmiResult<ProcessorProperty> processorId = queryHandler.queryWMI(processorIdQuery);
+        WmiResult<ProcessorProperty> processorId = WmiQueryHandler.getInstance().queryWMI(processorIdQuery);
         if (processorId.getResultCount() > 0) {
             setProcessorID(WmiUtil.getString(processorId, ProcessorProperty.PROCESSORID, 0));
         }
@@ -338,7 +335,8 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
             ticks[TickType.IRQ.getIndex()] = PerfDataUtil.queryCounter(this.irqTickCounter) / 10_000L;
             ticks[TickType.SOFTIRQ.getIndex()] = PerfDataUtil.queryCounter(this.softIrqTickCounter) / 10_000L;
         } else {
-            WmiResult<SystemTickCountProperty> result = queryHandler.queryWMI(this.systemTickCountQuery);
+            WmiResult<SystemTickCountProperty> result = WmiQueryHandler.getInstance()
+                    .queryWMI(this.systemTickCountQuery);
             if (result.getResultCount() > 0) {
                 ticks[TickType.IRQ.getIndex()] = WmiUtil.getUint64(result, SystemTickCountProperty.PERCENTINTERRUPTTIME,
                         0) / 10_000L;
@@ -390,7 +388,8 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
             }
         } else {
             ticks = new long[this.logicalProcessorCount][TickType.values().length];
-            WmiResult<ProcessorTickCountProperty> result = queryHandler.queryWMI(this.processorTickCountQuery);
+            WmiResult<ProcessorTickCountProperty> result = WmiQueryHandler.getInstance()
+                    .queryWMI(this.processorTickCountQuery);
             for (int cpu = 0; cpu < result.getResultCount() && cpu < this.logicalProcessorCount; cpu++) {
                 ticks[cpu][TickType.SYSTEM.getIndex()] = WmiUtil.getUint64(result,
                         ProcessorTickCountProperty.PERCENTPRIVILEGEDTIME, cpu);
@@ -447,7 +446,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
             PerfDataUtil.updateQuery(this.contextSwitchesPerSecCounter);
             return PerfDataUtil.queryCounter(this.contextSwitchesPerSecCounter);
         }
-        WmiResult<ContextSwitchProperty> result = queryHandler.queryWMI(this.contextSwitchQuery);
+        WmiResult<ContextSwitchProperty> result = WmiQueryHandler.getInstance().queryWMI(this.contextSwitchQuery);
         if (result.getResultCount() > 0) {
             return WmiUtil.getUint32(result, ContextSwitchProperty.CONTEXTSWITCHESPERSEC, 0);
         }
@@ -463,7 +462,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
             refreshTickCounters();
             return PerfDataUtil.queryCounter(this.interruptsPerSecCounter);
         }
-        WmiResult<InterruptsProperty> result = queryHandler.queryWMI(this.interruptsQuery);
+        WmiResult<InterruptsProperty> result = WmiQueryHandler.getInstance().queryWMI(this.interruptsQuery);
         if (result.getResultCount() > 0) {
             return WmiUtil.getUint32(result, InterruptsProperty.INTERRUPTSPERSEC, 0);
         }

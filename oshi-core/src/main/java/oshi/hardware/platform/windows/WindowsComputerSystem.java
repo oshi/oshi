@@ -57,38 +57,40 @@ final class WindowsComputerSystem extends AbstractComputerSystem {
 
     private String systemSerialNumber = "";
 
-    WindowsComputerSystem(WmiQueryHandler queryHandler) {
-        init(queryHandler);
+    WindowsComputerSystem() {
+        init();
     }
 
-    private void init(WmiQueryHandler queryHandler) {
+    private void init() {
         WmiQuery<ComputerSystemProperty> computerSystemQuery = new WmiQuery<>("Win32_ComputerSystem",
                 ComputerSystemProperty.class);
-        WmiResult<ComputerSystemProperty> win32ComputerSystem = queryHandler.queryWMI(computerSystemQuery);
+        WmiResult<ComputerSystemProperty> win32ComputerSystem = WmiQueryHandler.getInstance()
+                .queryWMI(computerSystemQuery);
         if (win32ComputerSystem.getResultCount() > 0) {
             setManufacturer(WmiUtil.getString(win32ComputerSystem, ComputerSystemProperty.MANUFACTURER, 0));
             setModel(WmiUtil.getString(win32ComputerSystem, ComputerSystemProperty.MODEL, 0));
         }
 
-        setSerialNumber(getSystemSerialNumber(queryHandler));
-        setFirmware(new WindowsFirmware(queryHandler));
-        setBaseboard(new WindowsBaseboard(queryHandler));
+        setSerialNumber(getSystemSerialNumber());
+        setFirmware(new WindowsFirmware());
+        setBaseboard(new WindowsBaseboard());
     }
 
-    private String getSystemSerialNumber(WmiQueryHandler queryHandler) {
+    private String getSystemSerialNumber() {
         if (!"".equals(this.systemSerialNumber)) {
             return this.systemSerialNumber;
         }
         // This should always work
         WmiQuery<BiosProperty> serialNumberQuery = new WmiQuery<>("Win32_BIOS where PrimaryBIOS=true",
                 BiosProperty.class);
-        WmiResult<BiosProperty> serialNumber = queryHandler.queryWMI(serialNumberQuery);
+        WmiResult<BiosProperty> serialNumber = WmiQueryHandler.getInstance().queryWMI(serialNumberQuery);
         if (serialNumber.getResultCount() > 0) {
             this.systemSerialNumber = WmiUtil.getString(serialNumber, BiosProperty.SERIALNUMBER, 0);
         }
         // If the above doesn't work, this might
         if ("".equals(this.systemSerialNumber)) {
-            WmiResult<ComputerSystemProductProperty> identifyingNumber = queryHandler.queryWMI(IDENTIFYINGNUMBER_QUERY);
+            WmiResult<ComputerSystemProductProperty> identifyingNumber = WmiQueryHandler.getInstance()
+                    .queryWMI(IDENTIFYINGNUMBER_QUERY);
             if (identifyingNumber.getResultCount() > 0) {
                 this.systemSerialNumber = WmiUtil.getString(identifyingNumber,
                         ComputerSystemProductProperty.IDENTIFYINGNUMBER, 0);

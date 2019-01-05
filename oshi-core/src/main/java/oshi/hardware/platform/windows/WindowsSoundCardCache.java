@@ -18,8 +18,6 @@
  */
 package oshi.hardware.platform.windows;
 
-import oshi.util.platform.windows.WmiQueryHandler;
-
 import java.util.Map;
 
 /**
@@ -29,12 +27,6 @@ import java.util.Map;
  * @see WindowsHardwareAbstractionLayer#createSoundCardCache()
  */
 public abstract class WindowsSoundCardCache {
-
-    protected transient final WmiQueryHandler queryHandler;
-
-    public WindowsSoundCardCache(WmiQueryHandler queryHandler) {
-        this.queryHandler = queryHandler;
-    }
 
     protected abstract String getDriverQuery();
 

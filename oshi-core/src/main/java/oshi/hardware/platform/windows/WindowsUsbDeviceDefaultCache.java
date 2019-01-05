@@ -18,15 +18,16 @@
  */
 package oshi.hardware.platform.windows;
 
-import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
-import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
-import oshi.hardware.platform.windows.WindowsUsbDevice.USBControllerProperty;
-import oshi.util.platform.windows.WmiQueryHandler;
-import oshi.util.platform.windows.WmiUtil;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
+import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
+
+import oshi.hardware.platform.windows.WindowsUsbDevice.USBControllerProperty;
+import oshi.util.platform.windows.WmiQueryHandler;
+import oshi.util.platform.windows.WmiUtil;
 
 /**
  * Default static and thread-safe {@link WindowsUsbDeviceCache} implementation
@@ -39,12 +40,8 @@ public class WindowsUsbDeviceDefaultCache extends WindowsUsbDeviceCache {
 
     private static final Object LOCK = new Object();
 
-    //@GuardedBy("LOCK")
+    // @GuardedBy("LOCK")
     private static volatile List<String> PNP_DEVICE_IDS;
-
-    public WindowsUsbDeviceDefaultCache(WmiQueryHandler queryHandler) {
-        super(queryHandler);
-    }
 
     @Override
     public List<String> getPnpDeviceIds() {
@@ -62,7 +59,7 @@ public class WindowsUsbDeviceDefaultCache extends WindowsUsbDeviceCache {
         // One time lookup of USB Controller PnP Device IDs which don't change
         WmiQuery<USBControllerProperty> usbControllerQuery = new WmiQuery<>("Win32_USBController",
                 USBControllerProperty.class);
-        WmiResult<USBControllerProperty> usbController = queryHandler.queryWMI(usbControllerQuery);
+        WmiResult<USBControllerProperty> usbController = WmiQueryHandler.getInstance().queryWMI(usbControllerQuery);
         List<String> pnpDeviceIds = new ArrayList<>(usbController.getResultCount());
         for (int i = 0; i < usbController.getResultCount(); i++) {
             pnpDeviceIds.add(WmiUtil.getString(usbController, USBControllerProperty.PNPDEVICEID, i));

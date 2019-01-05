@@ -67,10 +67,6 @@ public class SystemInfo extends AbstractOshiJsonObject implements OshiJsonObject
         this.si = new oshi.SystemInfo();
     }
 
-    public oshi.SystemInfo getImpl() {
-        return si;
-    }
-
     /**
      * @return Returns the currentPlatformEnum.
      */

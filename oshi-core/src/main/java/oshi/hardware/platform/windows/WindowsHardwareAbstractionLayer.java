@@ -23,6 +23,8 @@
  */
 package oshi.hardware.platform.windows;
 
+import java.util.List;
+
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.ComputerSystem;
 import oshi.hardware.Display;
@@ -34,23 +36,14 @@ import oshi.hardware.Sensors;
 import oshi.hardware.SoundCard;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
-import oshi.util.platform.windows.WmiQueryHandler;
-
-import java.util.List;
 
 public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {
 
     private static final long serialVersionUID = 1L;
 
-    private transient final WmiQueryHandler queryHandler;
-
     private transient WindowsUsbDeviceCache usbDeviceCache;
 
     private transient WindowsSoundCardCache soundCardCache;
-
-    public WindowsHardwareAbstractionLayer(WmiQueryHandler queryHandler) {
-        this.queryHandler = queryHandler;
-    }
 
     /**
      * {@inheritDoc}
@@ -58,7 +51,7 @@ public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstraction
     @Override
     public ComputerSystem getComputerSystem() {
         if (this.computerSystem == null) {
-            this.computerSystem = new WindowsComputerSystem(queryHandler);
+            this.computerSystem = new WindowsComputerSystem();
         }
         return this.computerSystem;
     }
@@ -69,7 +62,7 @@ public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstraction
     @Override
     public GlobalMemory getMemory() {
         if (this.memory == null) {
-            this.memory = new WindowsGlobalMemory(queryHandler);
+            this.memory = new WindowsGlobalMemory();
         }
         return this.memory;
     }
@@ -80,7 +73,7 @@ public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstraction
     @Override
     public CentralProcessor getProcessor() {
         if (this.processor == null) {
-            this.processor = new WindowsCentralProcessor(queryHandler);
+            this.processor = new WindowsCentralProcessor();
         }
         return this.processor;
     }
@@ -98,7 +91,7 @@ public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstraction
      */
     @Override
     public HWDiskStore[] getDiskStores() {
-        return new WindowsDisks(queryHandler).getDisks();
+        return new WindowsDisks().getDisks();
     }
 
     /**
@@ -115,7 +108,7 @@ public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstraction
     @Override
     public Sensors getSensors() {
         if (this.sensors == null) {
-            this.sensors = new WindowsSensors(queryHandler);
+            this.sensors = new WindowsSensors();
         }
         return this.sensors;
     }
@@ -134,14 +127,16 @@ public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstraction
     @Override
     public UsbDevice[] getUsbDevices(boolean tree) {
         WindowsUsbDeviceCache cache = getUsbDeviceCache();
-        List<UsbDevice> ret = WindowsUsbDevice.getUsbDevices(queryHandler, cache, tree);
+        List<UsbDevice> ret = WindowsUsbDevice.getUsbDevices(cache, tree);
         return ret.toArray(new UsbDevice[0]);
     }
 
     /**
-     * Get the {@link WindowsUsbDeviceCache} instance which is used for the {@link #getUsbDevices(boolean)} API.
+     * Get the {@link WindowsUsbDeviceCache} instance which is used for the
+     * {@link #getUsbDevices(boolean)} API.
      *
-     * @return Return the {@code WindowsUsbDeviceCache} instance which is used for the {@code getUsbDevices(boolean)} API.
+     * @return Return the {@code WindowsUsbDeviceCache} instance which is used
+     *         for the {@code getUsbDevices(boolean)} API.
      */
     public WindowsUsbDeviceCache getUsbDeviceCache() {
         if (usbDeviceCache == null) {
@@ -156,7 +151,7 @@ public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstraction
      * @return A new {@code WindowsUsbDeviceCache} instance.
      */
     protected WindowsUsbDeviceCache createUsbDeviceCache() {
-        return new WindowsUsbDeviceDefaultCache(queryHandler);
+        return new WindowsUsbDeviceDefaultCache();
     }
 
     /**
@@ -169,14 +164,16 @@ public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstraction
     @Override
     public SoundCard[] getSoundCards() {
         WindowsSoundCardCache cache = getSoundCardCache();
-        List<WindowsSoundCard> ret = WindowsSoundCard.getSoundCards(queryHandler, cache);
+        List<WindowsSoundCard> ret = WindowsSoundCard.getSoundCards(cache);
         return ret.toArray(new SoundCard[0]);
     }
 
     /**
-     * Get the {@link WindowsSoundCardCache} instance which is used for the {@link #getSoundCards()} API.
+     * Get the {@link WindowsSoundCardCache} instance which is used for the
+     * {@link #getSoundCards()} API.
      *
-     * @return Return the {@code WindowsSoundCardCache} instance which is used for the {@code getSoundCards()} API.
+     * @return Return the {@code WindowsSoundCardCache} instance which is used
+     *         for the {@code getSoundCards()} API.
      */
     public WindowsSoundCardCache getSoundCardCache() {
         if (soundCardCache == null) {
@@ -191,6 +188,6 @@ public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstraction
      * @return A new {@code WindowsSoundCardCache} instance.
      */
     protected WindowsSoundCardCache createSoundCardCache() {
-        return new WindowsSoundCardDefaultCache(queryHandler);
+        return new WindowsSoundCardDefaultCache();
     }
 }

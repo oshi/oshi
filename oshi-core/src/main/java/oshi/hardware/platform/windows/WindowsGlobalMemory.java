@@ -75,10 +75,8 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
     // Only one of these will be used
     private transient PerfCounter pagingPercentUsageCounter = null;
     private transient WmiQuery<PagingPercentProperty> pagingPercentQuery = null;
-    private transient WmiQueryHandler queryHandler;
 
-    public WindowsGlobalMemory(WmiQueryHandler queryHandler) {
-        this.queryHandler = queryHandler;
+    public WindowsGlobalMemory() {
         initPdhCounters();
     }
 
@@ -148,7 +146,7 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
                     }
                 }
                 if (this.pageSwapsQuery != null) {
-                    WmiResult<PageSwapProperty> result = queryHandler.queryWMI(this.pageSwapsQuery);
+                    WmiResult<PageSwapProperty> result = WmiQueryHandler.getInstance().queryWMI(this.pageSwapsQuery);
                     if (result.getResultCount() > 0) {
                         this.swapPagesIn = WmiUtil.getUint32(result, PageSwapProperty.PAGESINPUTPERSEC, 0);
                         this.swapPagesOut = WmiUtil.getUint32(result, PageSwapProperty.PAGESOUTPUTPERSEC, 0);
@@ -177,7 +175,8 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
                 }
             }
             if (this.pagingPercentQuery != null) {
-                WmiResult<PagingPercentProperty> result = queryHandler.queryWMI(this.pagingPercentQuery);
+                WmiResult<PagingPercentProperty> result = WmiQueryHandler.getInstance()
+                        .queryWMI(this.pagingPercentQuery);
                 if (result.getResultCount() > 0) {
                     this.swapUsed = WmiUtil.getUint32(result, PagingPercentProperty.PERCENTUSAGE, 0) * this.pageSize;
                 }

@@ -43,14 +43,14 @@ final class WindowsFirmware extends AbstractFirmware {
         MANUFACTURER, NAME, DESCRIPTION, VERSION, RELEASEDATE;
     }
 
-    WindowsFirmware(WmiQueryHandler queryHandler) {
-        init(queryHandler);
+    WindowsFirmware() {
+        init();
     }
 
-    private void init(WmiQueryHandler queryHandler) {
+    private void init() {
         WmiQuery<BiosProperty> biosQuery = new WmiQuery<>("Win32_BIOS where PrimaryBIOS=true", BiosProperty.class);
 
-        WmiResult<BiosProperty> win32BIOS = queryHandler.queryWMI(biosQuery);
+        WmiResult<BiosProperty> win32BIOS = WmiQueryHandler.getInstance().queryWMI(biosQuery);
         if (win32BIOS.getResultCount() > 0) {
             setManufacturer(WmiUtil.getString(win32BIOS, BiosProperty.MANUFACTURER, 0));
             setName(WmiUtil.getString(win32BIOS, BiosProperty.NAME, 0));

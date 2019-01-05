@@ -18,13 +18,14 @@
  */
 package oshi.hardware.platform.windows;
 
-import com.sun.jna.platform.win32.COM.WbemcliUtil;
-import oshi.util.platform.windows.WmiQueryHandler;
-import oshi.util.platform.windows.WmiUtil;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+
+import com.sun.jna.platform.win32.COM.WbemcliUtil;
+
+import oshi.util.platform.windows.WmiQueryHandler;
+import oshi.util.platform.windows.WmiUtil;
 
 /**
  * Default static and thread-safe {@link WindowsSoundCardCache} implementation
@@ -37,15 +38,11 @@ public class WindowsSoundCardDefaultCache extends WindowsSoundCardCache {
 
     private static final Object LOCK = new Object();
 
-    //@GuardedBy("LOCK")
+    // @GuardedBy("LOCK")
     private static volatile Map<String, String> MANUFACTURER_BY_NAME;
 
-    //@GuardedBy("LOCK")
+    // @GuardedBy("LOCK")
     private static volatile String DRIVER_QUERY;
-
-    public WindowsSoundCardDefaultCache(WmiQueryHandler queryHandler) {
-        super(queryHandler);
-    }
 
     @Override
     protected String getDriverQuery() {
@@ -72,9 +69,10 @@ public class WindowsSoundCardDefaultCache extends WindowsSoundCardCache {
     }
 
     private void buildCache() {
-        WbemcliUtil.WmiQuery<WindowsSoundCard.SoundCardName> soundCardQuery = new WbemcliUtil.WmiQuery<>("Win32_SoundDevice",
-                WindowsSoundCard.SoundCardName.class);
-        WbemcliUtil.WmiResult<WindowsSoundCard.SoundCardName> soundCardResult = queryHandler.queryWMI(soundCardQuery);
+        WbemcliUtil.WmiQuery<WindowsSoundCard.SoundCardName> soundCardQuery = new WbemcliUtil.WmiQuery<>(
+                "Win32_SoundDevice", WindowsSoundCard.SoundCardName.class);
+        WbemcliUtil.WmiResult<WindowsSoundCard.SoundCardName> soundCardResult = WmiQueryHandler.getInstance()
+                .queryWMI(soundCardQuery);
         Map<String, String> manufacturerByName = new HashMap<>(soundCardResult.getResultCount());
         for (int i = 0; i < soundCardResult.getResultCount(); i++) {
             manufacturerByName.put(WmiUtil.getString(soundCardResult, WindowsSoundCard.SoundCardName.NAME, i),

@@ -108,11 +108,11 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
      * @return True if the update was (probably) successful, false if the disk
      *         was not found
      */
-    public boolean updateDiskStats(SystemInfo info) {
+    public boolean updateDiskStats() {
         boolean diskFound = false;
         switch (SystemInfo.getCurrentPlatformEnum()) {
         case WINDOWS:
-            diskFound = WindowsDisks.updateDiskStats(info.getWmiQueryHandler(), this);
+            diskFound = WindowsDisks.updateDiskStats(this);
             break;
         case LINUX:
             diskFound = LinuxDisks.updateDiskStats(this);

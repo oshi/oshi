@@ -18,8 +18,6 @@
  */
 package oshi.hardware.platform.windows;
 
-import oshi.util.platform.windows.WmiQueryHandler;
-
 import java.util.List;
 
 /**
@@ -30,16 +28,11 @@ import java.util.List;
  */
 public abstract class WindowsUsbDeviceCache {
 
-    protected transient final WmiQueryHandler queryHandler;
-
-    public WindowsUsbDeviceCache(WmiQueryHandler queryHandler) {
-        this.queryHandler = queryHandler;
-    }
-
     /**
      * Get the USB Controller PnP Device IDs.
      *
-     * @return Return an immutable list which contains the USB Controller PnP Device IDs.
+     * @return Return an immutable list which contains the USB Controller PnP
+     *         Device IDs.
      */
     public abstract List<String> getPnpDeviceIds();
 }

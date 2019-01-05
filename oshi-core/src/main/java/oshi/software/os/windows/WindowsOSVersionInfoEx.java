@@ -51,14 +51,14 @@ public class WindowsOSVersionInfoEx extends AbstractOSVersionInfoEx {
         VERSION, PRODUCTTYPE, BUILDNUMBER, CSDVERSION, SUITEMASK;
     }
 
-    public WindowsOSVersionInfoEx(WmiQueryHandler queryHandler) {
-        init(queryHandler);
+    public WindowsOSVersionInfoEx() {
+        init();
     }
 
-    private void init(WmiQueryHandler queryHandler) {
+    private void init() {
         // Populate a key-value map from WMI
         WmiQuery<OSVersionProperty> osVersionQuery = new WmiQuery<>("Win32_OperatingSystem", OSVersionProperty.class);
-        WmiResult<OSVersionProperty> versionInfo = queryHandler.queryWMI(osVersionQuery);
+        WmiResult<OSVersionProperty> versionInfo = WmiQueryHandler.getInstance().queryWMI(osVersionQuery);
         if (versionInfo.getResultCount() < 1) {
             handleNoVersionInfo();
         } else {
@@ -103,9 +103,10 @@ public class WindowsOSVersionInfoEx extends AbstractOSVersionInfoEx {
                 0) == WinNT.VER_NT_WORKSTATION;
         if (major == 10) {
             if (minor == 0) {
-                // Build numbers greater than 17762 is Server 2019 for OS Version 10.0
-                version = ntWorkstation ? "10" :
-                        (Long.parseLong(getBuildNumber()) > 17762 ? "Server 2019" : "Server 2016");
+                // Build numbers greater than 17762 is Server 2019 for OS
+                // Version 10.0
+                version = ntWorkstation ? "10"
+                        : (Long.parseLong(getBuildNumber()) > 17762 ? "Server 2019" : "Server 2016");
             }
         } else if (major == 6) {
             if (minor == 3) {

@@ -23,11 +23,10 @@
  */
 package oshi.hardware.platform.windows;
 
+import java.util.List;
+
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractUsbDevice;
-import oshi.util.platform.windows.WmiQueryHandler;
-
-import java.util.List;
 
 public class WindowsUsbDevice extends AbstractUsbDevice {
 
@@ -58,7 +57,7 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
         this.vendorId = vendorId;
     }
 
-    void setProductId(String productId ) {
+    void setProductId(String productId) {
         this.productId = productId;
     }
 
@@ -71,9 +70,9 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
     }
 
     /**
-     * @return An mutable list.
+     * @return A mutable list of USB Devices.
      */
-    public static List<UsbDevice> getUsbDevices(WmiQueryHandler queryHandler, WindowsUsbDeviceCache cache, boolean tree) {
-        return WindowsUsbDeviceCollector.collect(queryHandler, cache, tree);
+    public static List<UsbDevice> getUsbDevices(WindowsUsbDeviceCache cache, boolean tree) {
+        return WindowsUsbDeviceCollector.collect(cache, tree);
     }
 }

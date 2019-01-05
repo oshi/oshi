@@ -18,19 +18,20 @@
  */
 package oshi.util.platform.windows;
 
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.TimeoutException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.sun.jna.platform.win32.Ole32;
+import com.sun.jna.platform.win32.WinError;
+import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.platform.win32.COM.COMException;
 import com.sun.jna.platform.win32.COM.COMUtils;
 import com.sun.jna.platform.win32.COM.Wbemcli;
 import com.sun.jna.platform.win32.COM.WbemcliUtil;
-import com.sun.jna.platform.win32.Ole32;
-import com.sun.jna.platform.win32.WinError;
-import com.sun.jna.platform.win32.WinNT;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.TimeoutException;
 
 public class WmiQueryHandler {
 
@@ -50,11 +51,25 @@ public class WmiQueryHandler {
     private boolean comInitialized = false;
     private boolean securityInitialized = false;
 
+    // Singleton pattern
+    private static WmiQueryHandler instance;
+
+    private WmiQueryHandler() {
+    }
+
+    public static synchronized WmiQueryHandler getInstance() {
+        if (instance == null) {
+            instance = new WmiQueryHandler();
+        }
+        return instance;
+    }
+
     /**
      * Determine if WMI has the requested namespace. Some namespaces only exist
      * on newer versions of Windows.
      *
-     * @param namespace The namespace to test
+     * @param namespace
+     *            The namespace to test
      * @return true if the namespace exists, false otherwise
      */
     public boolean hasNamespace(String namespace) {
@@ -74,11 +89,13 @@ public class WmiQueryHandler {
     /**
      * Query WMI for values, with no timeout.
      *
-     * @param <T>   The properties enum
-     * @param query A WmiQuery object encapsulating the namespace, class, and
-     *              properties
+     * @param <T>
+     *            The properties enum
+     * @param query
+     *            A WmiQuery object encapsulating the namespace, class, and
+     *            properties
      * @return a WmiResult object containing the query results, wrapping an
-     * EnumMap
+     *         EnumMap
      */
     public <T extends Enum<T>> WbemcliUtil.WmiResult<T> queryWMI(WbemcliUtil.WmiQuery<T> query) {
 
@@ -99,17 +116,17 @@ public class WmiQueryHandler {
             if (!WmiUtil.OHM_NAMESPACE.equals(query.getNameSpace())) {
                 final int hresult = e.getHresult() == null ? -1 : e.getHresult().intValue();
                 switch (hresult) {
-                    case Wbemcli.WBEM_E_INVALID_NAMESPACE:
-                        LOG.warn("COM exception: Invalid Namespace {}", query.getNameSpace());
-                        break;
-                    case Wbemcli.WBEM_E_INVALID_CLASS:
-                        LOG.warn("COM exception: Invalid Class {}", query.getWmiClassName());
-                        break;
-                    case Wbemcli.WBEM_E_INVALID_QUERY:
-                        LOG.warn("COM exception: Invalid Query: {}", WmiUtil.queryToString(query));
-                        break;
-                    default:
-                        handleComException(query, e);
+                case Wbemcli.WBEM_E_INVALID_NAMESPACE:
+                    LOG.warn("COM exception: Invalid Namespace {}", query.getNameSpace());
+                    break;
+                case Wbemcli.WBEM_E_INVALID_CLASS:
+                    LOG.warn("COM exception: Invalid Class {}", query.getWmiClassName());
+                    break;
+                case Wbemcli.WBEM_E_INVALID_QUERY:
+                    LOG.warn("COM exception: Invalid Query: {}", WmiUtil.queryToString(query));
+                    break;
+                default:
+                    handleComException(query, e);
                 }
                 failedWmiClassNames.add(query.getWmiClassName());
             }
@@ -135,17 +152,17 @@ public class WmiQueryHandler {
         if (!isComInitialized()) {
             hres = Ole32.INSTANCE.CoInitializeEx(null, Ole32.COINIT_MULTITHREADED);
             switch (hres.intValue()) {
-                // Successful local initialization
-                case COMUtils.S_OK:
-                    comInitialized = true;
-                    break;
-                // COM was already initialized
-                case COMUtils.S_FALSE:
-                case WinError.RPC_E_CHANGED_MODE:
-                    break;
-                // Any other results is an error
-                default:
-                    throw new COMException("Failed to initialize COM library.", hres);
+            // Successful local initialization
+            case COMUtils.S_OK:
+                comInitialized = true;
+                break;
+            // COM was already initialized
+            case COMUtils.S_FALSE:
+            case WinError.RPC_E_CHANGED_MODE:
+                break;
+            // Any other results is an error
+            default:
+                throw new COMException("Failed to initialize COM library.", hres);
             }
         }
         // Step 2: --------------------------------------------------
@@ -209,8 +226,9 @@ public class WmiQueryHandler {
      * Sets the WMI timeout. WMI queries will fail if they take longer than this
      * number of milliseconds.
      *
-     * @param wmiTimeout The wmiTimeout to set, in milliseconds. To disable timeouts,
-     *                   set timeout as -1 (infinite).
+     * @param wmiTimeout
+     *            The wmiTimeout to set, in milliseconds. To disable timeouts,
+     *            set timeout as -1 (infinite).
      */
     public void setWmiTimeout(int wmiTimeout) {
         this.wmiTimeout = wmiTimeout;
