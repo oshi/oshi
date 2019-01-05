@@ -25,7 +25,7 @@ import java.util.concurrent.TimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.platform.win32.Ole32;
+import com.sun.jna.platform.win32.Ole32; // NOSONAR
 import com.sun.jna.platform.win32.WinError;
 import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.platform.win32.COM.COMException;
@@ -127,6 +127,7 @@ public class WmiQueryHandler {
                     break;
                 default:
                     handleComException(query, e);
+                    break;
                 }
                 failedWmiClassNames.add(query.getWmiClassName());
             }
