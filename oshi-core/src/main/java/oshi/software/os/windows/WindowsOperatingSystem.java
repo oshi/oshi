@@ -1,20 +1,25 @@
 /**
- * Oshi (https://github.com/oshi/oshi)
+ * OSHI (https://github.com/oshi/oshi)
  *
- * Copyright (c) 2010 - 2018 The Oshi Project Team
- *
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- *
- * Maintainers:
- * dblock[at]dblock[dot]org
- * widdis[at]gmail[dot]com
- * enrico.bianchi[at]gmail[dot]com
- *
- * Contributors:
+ * Copyright (c) 2010 - 2019 The OSHI Project Team:
  * https://github.com/oshi/oshi/graphs/contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 package oshi.software.os.windows;
 
@@ -393,9 +398,9 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                     proc.getProcessID());
             if (pHandle != null) {
                 // Full path
+                final HANDLEByReference phToken = new HANDLEByReference();
                 try {
                     proc.setPath(Kernel32Util.QueryFullProcessImageName(pHandle, 0));
-                    final HANDLEByReference phToken = new HANDLEByReference();
                     if (Advapi32.INSTANCE.OpenProcessToken(pHandle, WinNT.TOKEN_DUPLICATE | WinNT.TOKEN_QUERY,
                             phToken)) {
                         Account account = Advapi32Util.getTokenAccount(phToken.getValue());
@@ -424,6 +429,11 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                     }
                 } catch (Win32Exception e) {
                     handleWin32ExceptionOnGetProcessInfo(proc, e);
+                } finally {
+                    final HANDLE token = phToken.getValue();
+                    if (token != null) {
+                        Kernel32.INSTANCE.CloseHandle(token);
+                    }
                 }
             }
             Kernel32.INSTANCE.CloseHandle(pHandle);
@@ -659,6 +669,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         success = Advapi32.INSTANCE.LookupPrivilegeValue(null, WinNT.SE_DEBUG_NAME, luid);
         if (!success) {
             LOG.error("LookupprivilegeValue failed. Error: {}", Native.getLastError());
+            Kernel32.INSTANCE.CloseHandle(hToken.getValue());
             return;
         }
         WinNT.TOKEN_PRIVILEGES tkp = new WinNT.TOKEN_PRIVILEGES(1);

@@ -1,6 +1,11 @@
 4.0.0 (in progress)
 ================
+* [#731](https://github.com/oshi/oshi/pull/731): Switch to MIT License, JNA 5.2.0. - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here.
+
+3.12.1 (12/31/18)
+================
+* [#730](https://github.com/oshi/oshi/pull/730): Fix Windows process token handle leak. - [@dbwiddis](https://github.com/dbwiddis).
 
 3.12.0 (12/16/18)
 ================
