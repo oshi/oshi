@@ -35,6 +35,7 @@ import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 import oshi.hardware.common.AbstractGlobalMemory;
 import oshi.util.platform.windows.PerfDataUtil;
 import oshi.util.platform.windows.PerfDataUtil.PerfCounter;
+import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
 
 /**
@@ -145,7 +146,7 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
                     }
                 }
                 if (this.pageSwapsQuery != null) {
-                    WmiResult<PageSwapProperty> result = WmiUtil.queryWMI(this.pageSwapsQuery);
+                    WmiResult<PageSwapProperty> result = WmiQueryHandler.getInstance().queryWMI(this.pageSwapsQuery);
                     if (result.getResultCount() > 0) {
                         this.swapPagesIn = WmiUtil.getUint32(result, PageSwapProperty.PAGESINPUTPERSEC, 0);
                         this.swapPagesOut = WmiUtil.getUint32(result, PageSwapProperty.PAGESOUTPUTPERSEC, 0);
@@ -174,7 +175,8 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
                 }
             }
             if (this.pagingPercentQuery != null) {
-                WmiResult<PagingPercentProperty> result = WmiUtil.queryWMI(this.pagingPercentQuery);
+                WmiResult<PagingPercentProperty> result = WmiQueryHandler.getInstance()
+                        .queryWMI(this.pagingPercentQuery);
                 if (result.getResultCount() > 0) {
                     this.swapUsed = WmiUtil.getUint32(result, PagingPercentProperty.PERCENTUSAGE, 0) * this.pageSize;
                 }

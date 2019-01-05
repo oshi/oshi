@@ -38,6 +38,7 @@ import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 import oshi.software.common.AbstractOSVersionInfoEx;
 import oshi.util.ParseUtil;
 import oshi.util.StringUtil;
+import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
 
 public class WindowsOSVersionInfoEx extends AbstractOSVersionInfoEx {
@@ -57,12 +58,9 @@ public class WindowsOSVersionInfoEx extends AbstractOSVersionInfoEx {
     private void init() {
         // Populate a key-value map from WMI
         WmiQuery<OSVersionProperty> osVersionQuery = new WmiQuery<>("Win32_OperatingSystem", OSVersionProperty.class);
-        WmiResult<OSVersionProperty> versionInfo = WmiUtil.queryWMI(osVersionQuery);
+        WmiResult<OSVersionProperty> versionInfo = WmiQueryHandler.getInstance().queryWMI(osVersionQuery);
         if (versionInfo.getResultCount() < 1) {
-            LOG.warn("No version data available.");
-            setVersion(System.getProperty("os.version"));
-            setCodeName("");
-            setBuildNumber("");
+            handleNoVersionInfo();
         } else {
             // Guaranteed that versionInfo is not null and lists non-empty
             // before calling the parse*() methods
@@ -72,6 +70,13 @@ public class WindowsOSVersionInfoEx extends AbstractOSVersionInfoEx {
             setCodeName(parseCodeName(suiteMask));
             LOG.debug("Initialized OSVersionInfoEx");
         }
+    }
+
+    protected void handleNoVersionInfo() {
+        LOG.warn("No version data available.");
+        setVersion(System.getProperty("os.version"));
+        setCodeName("");
+        setBuildNumber("");
     }
 
     /**
@@ -96,13 +101,20 @@ public class WindowsOSVersionInfoEx extends AbstractOSVersionInfoEx {
         // http://msdn.microsoft.com/en-us/library/windows/desktop/ms724833%28v=vs.85%29.aspx
         boolean ntWorkstation = WmiUtil.getUint32(versionInfo, OSVersionProperty.PRODUCTTYPE,
                 0) == WinNT.VER_NT_WORKSTATION;
-        if (major == 10) {
+        switch (major) {
+        case 10:
             if (minor == 0) {
-                // Build numbers greater than 17762 is Server 2019 for OS Version 10.0
-                version = ntWorkstation ? "10" :
-                        (Long.parseLong(getBuildNumber()) > 17762 ? "Server 2019" : "Server 2016");
+                if (ntWorkstation) {
+                    version = "10";
+                } else {
+                    // Build numbers greater than 17762 is Server 2019 for OS
+                    // Version 10.0
+                    version = (ParseUtil.parseLongOrDefault(getBuildNumber(), 0L) > 17762) ? "Server 2019"
+                            : "Server 2016";
+                }
             }
-        } else if (major == 6) {
+            break;
+        case 6:
             if (minor == 3) {
                 version = ntWorkstation ? "8.1" : "Server 2012 R2";
             } else if (minor == 2) {
@@ -112,7 +124,8 @@ public class WindowsOSVersionInfoEx extends AbstractOSVersionInfoEx {
             } else if (minor == 0) {
                 version = ntWorkstation ? "Vista" : "Server 2008";
             }
-        } else if (major == 5) {
+            break;
+        case 5:
             if (minor == 2) {
                 if ((suiteMask & 0x00008000) != 0) {// VER_SUITE_WH_SERVER
                     version = "Home Server";
@@ -127,6 +140,9 @@ public class WindowsOSVersionInfoEx extends AbstractOSVersionInfoEx {
             } else if (minor == 0) {
                 version = "2000";
             }
+            break;
+        default:
+            break;
         }
 
         String sp = WmiUtil.getString(versionInfo, OSVersionProperty.CSDVERSION, 0);

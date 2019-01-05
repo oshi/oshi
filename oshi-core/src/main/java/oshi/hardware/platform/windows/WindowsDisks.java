@@ -49,6 +49,7 @@ import oshi.util.MapUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.windows.PerfDataUtil;
 import oshi.util.platform.windows.PerfDataUtil.PerfCounter;
+import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
 
 /**
@@ -236,7 +237,7 @@ public class WindowsDisks implements Disks {
         populateReadWriteMaps(null);
         populatePartitionMaps();
 
-        WmiResult<DiskDriveProperty> vals = WmiUtil.queryWMI(DISK_DRIVE_QUERY);
+        WmiResult<DiskDriveProperty> vals = WmiQueryHandler.getInstance().queryWMI(DISK_DRIVE_QUERY);
 
         for (int i = 0; i < vals.getResultCount(); i++) {
             HWDiskStore ds = new HWDiskStore();
@@ -291,7 +292,7 @@ public class WindowsDisks implements Disks {
         }
         // If WMI query is not null, don't use counters
         if (physicalDiskQuery != null) {
-            WmiResult<PhysicalDiskProperty> result = WmiUtil.queryWMI(physicalDiskQuery);
+            WmiResult<PhysicalDiskProperty> result = WmiQueryHandler.getInstance().queryWMI(physicalDiskQuery);
             for (int i = 0; i < result.getResultCount(); i++) {
                 String name = getIndexFromName(WmiUtil.getString(result, PhysicalDiskProperty.NAME, i));
                 if (index != null && !index.equals(name) || TOTAL_INSTANCE.equals(name)) {
@@ -421,7 +422,8 @@ public class WindowsDisks implements Disks {
         Matcher mDep;
 
         // Map drives to partitions
-        WmiResult<DriveToPartitionProperty> drivePartitionMap = WmiUtil.queryWMI(DRIVE_TO_PARTITION_QUERY);
+        WmiResult<DriveToPartitionProperty> drivePartitionMap = WmiQueryHandler.getInstance()
+                .queryWMI(DRIVE_TO_PARTITION_QUERY);
         for (int i = 0; i < drivePartitionMap.getResultCount(); i++) {
             mAnt = DEVICE_ID.matcher(WmiUtil.getRefString(drivePartitionMap, DriveToPartitionProperty.ANTECEDENT, i));
             mDep = DEVICE_ID.matcher(WmiUtil.getRefString(drivePartitionMap, DriveToPartitionProperty.DEPENDENT, i));
@@ -432,7 +434,8 @@ public class WindowsDisks implements Disks {
         }
 
         // Map partitions to logical disks
-        WmiResult<DriveToPartitionProperty> diskPartitionMap = WmiUtil.queryWMI(DISK_TO_PARTITION_QUERY);
+        WmiResult<DriveToPartitionProperty> diskPartitionMap = WmiQueryHandler.getInstance()
+                .queryWMI(DISK_TO_PARTITION_QUERY);
         for (int i = 0; i < diskPartitionMap.getResultCount(); i++) {
             mAnt = DEVICE_ID.matcher(WmiUtil.getRefString(diskPartitionMap, DriveToPartitionProperty.ANTECEDENT, i));
             mDep = DEVICE_ID.matcher(WmiUtil.getRefString(diskPartitionMap, DriveToPartitionProperty.DEPENDENT, i));
@@ -442,7 +445,7 @@ public class WindowsDisks implements Disks {
         }
 
         // Next, get all partitions and create objects
-        WmiResult<DiskPartitionProperty> hwPartitionQueryMap = WmiUtil.queryWMI(PARTITION_QUERY);
+        WmiResult<DiskPartitionProperty> hwPartitionQueryMap = WmiQueryHandler.getInstance().queryWMI(PARTITION_QUERY);
         for (int i = 0; i < hwPartitionQueryMap.getResultCount(); i++) {
             String deviceID = WmiUtil.getString(hwPartitionQueryMap, DiskPartitionProperty.DEVICEID, i);
             String logicalDrive = MapUtil.getOrDefault(partitionToLogicalDriveMap, deviceID, "");

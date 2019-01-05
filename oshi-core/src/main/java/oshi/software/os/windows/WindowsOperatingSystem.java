@@ -73,6 +73,7 @@ import oshi.software.os.FileSystem;
 import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
 import oshi.util.FormatUtil;
+import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
 
 public class WindowsOperatingSystem extends AbstractOperatingSystem {
@@ -244,7 +245,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                 this.bitness = 64;
             } else {
                 WmiQuery<BitnessProperty> bitnessQuery = new WmiQuery<>("Win32_Processor", BitnessProperty.class);
-                WmiResult<BitnessProperty> bitnessMap = WmiUtil.queryWMI(bitnessQuery);
+                WmiResult<BitnessProperty> bitnessMap = WmiQueryHandler.getInstance().queryWMI(bitnessQuery);
                 if (bitnessMap.getResultCount() > 0) {
                     this.bitness = WmiUtil.getUint16(bitnessMap, BitnessProperty.ADDRESSWIDTH, 0);
                 }
@@ -423,8 +424,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                         }
                     }
                 } catch (Win32Exception e) {
-                    LOG.warn("Failed to set path or get user/group on PID {}. It may have terminated. {}",
-                            proc.getProcessID(), e.getMessage());
+                    handleWin32ExceptionOnGetProcessInfo(proc, e);
                 } finally {
                     final HANDLE token = phToken.getValue();
                     if (token != null) {
@@ -473,7 +473,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                 sb.append(pid);
             }
             PROCESS_QUERY.setWmiClassName(sb.toString());
-            WmiResult<ProcessProperty> commandLineProcs = WmiUtil.queryWMI(PROCESS_QUERY);
+            WmiResult<ProcessProperty> commandLineProcs = WmiQueryHandler.getInstance().queryWMI(PROCESS_QUERY);
 
             for (int p = 0; p < commandLineProcs.getResultCount(); p++) {
                 int pid = WmiUtil.getUint32(commandLineProcs, ProcessProperty.PROCESSID, p);
@@ -488,6 +488,11 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         }
 
         return processList;
+    }
+
+    protected void handleWin32ExceptionOnGetProcessInfo(OSProcess proc, Win32Exception ex) {
+        LOG.warn("Failed to set path or get user/group on PID {}. It may have terminated. {}", proc.getProcessID(),
+                ex.getMessage());
     }
 
     private void updateProcessMapFromRegistry(Collection<Integer> pids) {

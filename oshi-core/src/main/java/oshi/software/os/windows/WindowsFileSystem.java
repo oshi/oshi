@@ -38,6 +38,7 @@ import oshi.software.os.OSFileStore;
 import oshi.util.ParseUtil;
 import oshi.util.platform.windows.PerfDataUtil;
 import oshi.util.platform.windows.PerfDataUtil.PerfCounter;
+import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
 
 /**
@@ -220,7 +221,7 @@ public class WindowsFileSystem implements FileSystem {
         long total;
         List<OSFileStore> fs = new ArrayList<>();
 
-        WmiResult<LogicalDiskProperty> drives = WmiUtil.queryWMI(this.LOGICAL_DISK_QUERY);
+        WmiResult<LogicalDiskProperty> drives = WmiQueryHandler.getInstance().queryWMI(this.LOGICAL_DISK_QUERY);
 
         for (int i = 0; i < drives.getResultCount(); i++) {
             free = WmiUtil.getUint64(drives, LogicalDiskProperty.FREESPACE, i);
@@ -288,7 +289,7 @@ public class WindowsFileSystem implements FileSystem {
             return PerfDataUtil.queryCounter(this.handleCountCounter);
         }
         // Use WMI instead
-        WmiResult<HandleCountProperty> result = WmiUtil.queryWMI(this.handleCountQuery);
+        WmiResult<HandleCountProperty> result = WmiQueryHandler.getInstance().queryWMI(this.handleCountQuery);
         long descriptors = 0L;
         for (int i = 0; i < result.getResultCount(); i++) {
             descriptors += WmiUtil.getUint32(result, HandleCountProperty.HANDLECOUNT, i);
