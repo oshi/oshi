@@ -328,7 +328,14 @@ public class PerfDataUtil {
      * @return
      */
     private static boolean addCounter(WinNT.HANDLEByReference query, String path, WinNT.HANDLEByReference p) {
-        int pdhAddCounterError = PDH.PdhAddEnglishCounter(query.getValue(), path, PZERO, p);
+        int pdhAddCounterError;
+        try {
+            // Localized version for Vista+
+            pdhAddCounterError = PDH.PdhAddEnglishCounter(query.getValue(), path, PZERO, p);
+        } catch (UnsatisfiedLinkError e) {
+            // Will occur on Windows XP, only will work for English counters
+            pdhAddCounterError = PDH.PdhAddCounter(query.getValue(), path, PZERO, p);
+        }
         if (pdhAddCounterError != WinError.ERROR_SUCCESS && LOG.isWarnEnabled()) {
             LOG.warn("Failed to add PDH Counter: {}, Error code: {}", path,
                     String.format(HEX_ERROR_FMT, pdhAddCounterError));
