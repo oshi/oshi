@@ -55,6 +55,7 @@ import com.sun.jna.platform.win32.WinError;
 import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.platform.win32.WinNT.HANDLE;
 import com.sun.jna.platform.win32.WinNT.HANDLEByReference;
+import com.sun.jna.platform.win32.WinNT.LARGE_INTEGER;
 import com.sun.jna.platform.win32.WinPerf.PERF_COUNTER_BLOCK;
 import com.sun.jna.platform.win32.WinPerf.PERF_COUNTER_DEFINITION;
 import com.sun.jna.platform.win32.WinPerf.PERF_DATA_BLOCK;
@@ -91,6 +92,13 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
 
     private static final String PROCESS_BASE_CLASS = "Win32_Process";
     private static final WmiQuery<ProcessProperty> PROCESS_QUERY = new WmiQuery<>(null, ProcessProperty.class);
+
+    // Properties to get from WMI if WTSEnumerateProcesses doesn't work
+    enum ProcessXPProperty {
+        PROCESSID, NAME, KERNELMODETIME, USERMODETIME, THREADCOUNT, PAGEFILEUSAGE, HANDLECOUNT;
+    }
+
+    private static final WmiQuery<ProcessXPProperty> PROCESS_QUERY_XP = new WmiQuery<>(null, ProcessXPProperty.class);
 
     /*
      * Registry variables to persist
@@ -336,19 +344,57 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         List<String> groupIDList = new ArrayList<>();
         int myPid = getProcessId();
 
-        // Get processes from WTS
+        // Structure we'll fill from native memory pointer
+        Pointer pProcessInfo = null;
+        WTS_PROCESS_INFO_EX[] processInfo = null;
+
+        // Get processes from WTS (post-XP)
         final PointerByReference ppProcessInfo = new PointerByReference();
         IntByReference pCount = new IntByReference(0);
-        if (!Wtsapi32.INSTANCE.WTSEnumerateProcessesEx(Wtsapi32.WTS_CURRENT_SERVER_HANDLE,
-                new IntByReference(Wtsapi32.WTS_PROCESS_INFO_LEVEL_1), Wtsapi32.WTS_ANY_SESSION, ppProcessInfo,
-                pCount)) {
-            LOG.error("Failed to enumerate Processes. Error code: {}", Kernel32.INSTANCE.GetLastError());
-            return new ArrayList<>(0);
+        try {
+            if (!Wtsapi32.INSTANCE.WTSEnumerateProcessesEx(Wtsapi32.WTS_CURRENT_SERVER_HANDLE,
+                    new IntByReference(Wtsapi32.WTS_PROCESS_INFO_LEVEL_1), Wtsapi32.WTS_ANY_SESSION, ppProcessInfo,
+                    pCount)) {
+                LOG.error("Failed to enumerate Processes. Error code: {}", Kernel32.INSTANCE.GetLastError());
+                return new ArrayList<>(0);
+            }
+            // extract the pointed-to pointer and create array
+            pProcessInfo = ppProcessInfo.getValue();
+            final WTS_PROCESS_INFO_EX processInfoRef = new WTS_PROCESS_INFO_EX(pProcessInfo);
+            processInfo = (WTS_PROCESS_INFO_EX[]) processInfoRef.toArray(pCount.getValue());
+        } catch (UnsatisfiedLinkError e) {
+            // On XP we can't use WTSEnumerateProcessesEx so we'll grab the same
+            // info from WMI and fake the array
+            StringBuilder sb = new StringBuilder(PROCESS_BASE_CLASS);
+            if (pids != null) {
+                boolean first = true;
+                for (Integer pid : pids) {
+                    if (first) {
+                        sb.append(" WHERE ProcessID=");
+                        first = false;
+                    } else {
+                        sb.append(" OR ProcessID=");
+                    }
+                    sb.append(pid);
+                }
+            }
+            PROCESS_QUERY_XP.setWmiClassName(sb.toString());
+            WmiResult<ProcessXPProperty> pseudoWTSResult = WmiQueryHandler.getInstance().queryWMI(PROCESS_QUERY_XP);
+            processInfo = new WTS_PROCESS_INFO_EX[pseudoWTSResult.getResultCount()];
+            for (int i = 0; i < pseudoWTSResult.getResultCount(); i++) {
+                processInfo[i].ProcessId = WmiUtil.getUint32(pseudoWTSResult, ProcessXPProperty.PROCESSID, i);
+                processInfo[i].pProcessName = WmiUtil.getString(pseudoWTSResult, ProcessXPProperty.NAME, i);
+                processInfo[i].KernelTime = new LARGE_INTEGER(
+                        WmiUtil.getUint64(pseudoWTSResult, ProcessXPProperty.KERNELMODETIME, i));
+                processInfo[i].UserTime = new LARGE_INTEGER(
+                        WmiUtil.getUint64(pseudoWTSResult, ProcessXPProperty.USERMODETIME, i));
+                processInfo[i].NumberOfThreads = WmiUtil.getUint32(pseudoWTSResult, ProcessXPProperty.THREADCOUNT, i);
+                // WMI Pagefile usage is in KB
+                processInfo[i].PagefileUsage = 1024
+                        * WmiUtil.getUint32(pseudoWTSResult, ProcessXPProperty.PAGEFILEUSAGE, i);
+                processInfo[i].HandleCount = WmiUtil.getUint32(pseudoWTSResult, ProcessXPProperty.HANDLECOUNT, i);
+            }
         }
-        // extract the pointed-to pointer and create array
-        final Pointer pProcessInfo = ppProcessInfo.getValue();
-        final WTS_PROCESS_INFO_EX processInfoRef = new WTS_PROCESS_INFO_EX(pProcessInfo);
-        final WTS_PROCESS_INFO_EX[] processInfo = (WTS_PROCESS_INFO_EX[]) processInfoRef.toArray(pCount.getValue());
 
         // Store a subset of processes in a list to later return.
         List<OSProcess> processList = new ArrayList<>();
@@ -446,7 +492,8 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             processList.add(proc);
         }
         // Clean up memory allocated in C
-        if (!Wtsapi32.INSTANCE.WTSFreeMemoryEx(Wtsapi32.WTS_PROCESS_INFO_LEVEL_1, pProcessInfo, pCount.getValue())) {
+        if (pProcessInfo != null && !Wtsapi32.INSTANCE.WTSFreeMemoryEx(Wtsapi32.WTS_PROCESS_INFO_LEVEL_1, pProcessInfo,
+                pCount.getValue())) {
             LOG.error("Failed to Free Memory for Processes. Error code: {}", Kernel32.INSTANCE.GetLastError());
             return new ArrayList<>(0);
         }
