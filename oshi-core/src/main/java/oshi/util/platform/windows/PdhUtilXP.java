@@ -31,6 +31,8 @@ import com.sun.jna.platform.win32.WinDef.DWORD;
 import com.sun.jna.platform.win32.WinDef.DWORDByReference;
 import com.sun.jna.platform.win32.WinError;
 
+import oshi.jna.platform.windows.VersionHelpers;
+
 /**
  * TODO: This class is compatible with Windows XP and will be removed when the
  * JNA version of it is released.
@@ -38,11 +40,8 @@ import com.sun.jna.platform.win32.WinError;
 public class PdhUtilXP {
     private static final int CHAR_TO_BYTES = Boolean.getBoolean("w32.ascii") ? 1 : Native.WCHAR_SIZE;
 
-    // Windows XP requires non-null buffer size for PdhLookupPerfNameByIndex.
-    // Use this as a flag to determine whether we need to pass a buffer to the
-    // function. -1 is untested, 0 means null buffer is allowed, and 1 means a
-    // buffer is required.
-    private static int minPerfNameBufferSize = -1;
+    // Can I pass null buffer to PdhLookupPerfNameByIndex?
+    private static final boolean IS_VISTA_OR_GREATER = VersionHelpers.IsWindowsVistaOrGreater();
 
     private static final int PDH_INSUFFICIENT_BUFFER = 0xC0000BC2;
 
@@ -61,20 +60,9 @@ public class PdhUtilXP {
      * @return Returns the name of the performance object or counter.
      */
     public static String PdhLookupPerfNameByIndex(String szMachineName, int dwNameIndex) {
-        // If we haven't established whether buffer is required, test for that
-        if (minPerfNameBufferSize < 0) {
-            int result = Pdh.INSTANCE.PdhLookupPerfNameByIndex(szMachineName, dwNameIndex, null,
-                    new DWORDByReference(new DWORD(0)));
-            if (result == WinError.ERROR_SUCCESS || result == Pdh.PDH_MORE_DATA) {
-                minPerfNameBufferSize = 0;
-            } else {
-                minPerfNameBufferSize = 1;
-            }
-        }
-
         // Call once to get required buffer size
-        DWORDByReference pcchNameBufferSize = new DWORDByReference(new DWORD(minPerfNameBufferSize));
-        Memory mem = minPerfNameBufferSize > 0 ? new Memory(minPerfNameBufferSize) : null;
+        DWORDByReference pcchNameBufferSize = new DWORDByReference(new DWORD(IS_VISTA_OR_GREATER ? 1 : 0));
+        Memory mem = IS_VISTA_OR_GREATER ? null : new Memory(1);
         int result = Pdh.INSTANCE.PdhLookupPerfNameByIndex(szMachineName, dwNameIndex, mem, pcchNameBufferSize);
         if (result != WinError.ERROR_SUCCESS && result != Pdh.PDH_MORE_DATA && result != PDH_INSUFFICIENT_BUFFER) {
             throw new PdhException(result);

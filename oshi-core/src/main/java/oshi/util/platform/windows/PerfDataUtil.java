@@ -45,6 +45,7 @@ import com.sun.jna.platform.win32.WinError;
 import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.platform.win32.WinNT.HANDLEByReference;
 
+import oshi.jna.platform.windows.VersionHelpers;
 import oshi.util.Util;
 
 /**
@@ -79,6 +80,9 @@ public class PerfDataUtil {
     private static final Map<PerfCounter, HANDLEByReference> counterMap = new HashMap<>();
     private static final Map<String, HANDLEByReference> queryMap = new HashMap<>();
     private static final Set<String> disabledQueries = new HashSet<>();
+
+    // Is AddEnglishCounter available?
+    private static final boolean IS_VISTA_OR_GREATER = VersionHelpers.IsWindowsVistaOrGreater();
 
     public class PerfCounter {
         private String object;
@@ -329,11 +333,11 @@ public class PerfDataUtil {
      */
     private static boolean addCounter(WinNT.HANDLEByReference query, String path, WinNT.HANDLEByReference p) {
         int pdhAddCounterError;
-        try {
+        if (IS_VISTA_OR_GREATER) {
             // Localized version for Vista+
             pdhAddCounterError = PDH.PdhAddEnglishCounter(query.getValue(), path, PZERO, p);
-        } catch (UnsatisfiedLinkError e) {
-            // Will occur on Windows XP, only will work for English counters
+        } else {
+            // Only will work for English counters
             pdhAddCounterError = PDH.PdhAddCounter(query.getValue(), path, PZERO, p);
         }
         if (pdhAddCounterError != WinError.ERROR_SUCCESS && LOG.isWarnEnabled()) {

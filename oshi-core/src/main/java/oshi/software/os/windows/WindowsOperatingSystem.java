@@ -69,6 +69,7 @@ import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
 
+import oshi.jna.platform.windows.VersionHelpers;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
 import oshi.software.os.NetworkParams;
@@ -99,6 +100,9 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     }
 
     private static final WmiQuery<ProcessXPProperty> PROCESS_QUERY_XP = new WmiQuery<>(null, ProcessXPProperty.class);
+
+    // Is AddEnglishCounter available?
+    private static final boolean IS_VISTA_OR_GREATER = VersionHelpers.IsWindowsVistaOrGreater();
 
     /*
      * Registry variables to persist
@@ -351,7 +355,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         // Get processes from WTS (post-XP)
         final PointerByReference ppProcessInfo = new PointerByReference();
         IntByReference pCount = new IntByReference(0);
-        try {
+        if (IS_VISTA_OR_GREATER) {
             if (!Wtsapi32.INSTANCE.WTSEnumerateProcessesEx(Wtsapi32.WTS_CURRENT_SERVER_HANDLE,
                     new IntByReference(Wtsapi32.WTS_PROCESS_INFO_LEVEL_1), Wtsapi32.WTS_ANY_SESSION, ppProcessInfo,
                     pCount)) {
@@ -362,9 +366,9 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             pProcessInfo = ppProcessInfo.getValue();
             final WTS_PROCESS_INFO_EX processInfoRef = new WTS_PROCESS_INFO_EX(pProcessInfo);
             processInfo = (WTS_PROCESS_INFO_EX[]) processInfoRef.toArray(pCount.getValue());
-        } catch (UnsatisfiedLinkError e) {
-            // On XP we can't use WTSEnumerateProcessesEx so we'll grab the same
-            // info from WMI and fake the array
+        } else {
+            // Pre-Vista we can't use WTSEnumerateProcessesEx so we'll grab the
+            // same info from WMI and fake the array
             StringBuilder sb = new StringBuilder(PROCESS_BASE_CLASS);
             if (pids != null) {
                 boolean first = true;
