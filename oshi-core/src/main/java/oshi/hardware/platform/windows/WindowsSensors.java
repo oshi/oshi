@@ -33,6 +33,7 @@ import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.hardware.Sensors;
+import oshi.util.platform.windows.PdhUtilXP;
 import oshi.util.platform.windows.PerfDataUtil;
 import oshi.util.platform.windows.PerfDataUtil.PerfCounter;
 import oshi.util.platform.windows.WmiQueryHandler;
@@ -90,7 +91,7 @@ public class WindowsSensors implements Sensors {
     }
 
     private void initPdhCounters() {
-        String thermalZoneInfo = PdhUtil.PdhLookupPerfNameByIndex(null,
+        String thermalZoneInfo = PdhUtilXP.PdhLookupPerfNameByIndex(null,
                 PdhUtil.PdhLookupPerfIndexByEnglishName("Thermal Zone Information"));
         boolean enumeration = false;
         if (!thermalZoneInfo.isEmpty()) {

@@ -47,6 +47,7 @@ import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
 import oshi.util.MapUtil;
 import oshi.util.ParseUtil;
+import oshi.util.platform.windows.PdhUtilXP;
 import oshi.util.platform.windows.PerfDataUtil;
 import oshi.util.platform.windows.PerfDataUtil.PerfCounter;
 import oshi.util.platform.windows.WmiQueryHandler;
@@ -79,7 +80,7 @@ public class WindowsDisks implements Disks {
 
     private static final String PHYSICALDRIVE_PREFIX = "\\\\.\\PHYSICALDRIVE";
     private static final String PHYSICAL_DISK = "PhysicalDisk";
-    private static final String PHYSICAL_DISK_LOCALIZED = PdhUtil.PdhLookupPerfNameByIndex(null,
+    private static final String PHYSICAL_DISK_LOCALIZED = PdhUtilXP.PdhLookupPerfNameByIndex(null,
             PdhUtil.PdhLookupPerfIndexByEnglishName(PHYSICAL_DISK));
     private static final String TOTAL_INSTANCE = "_Total";
 
@@ -128,7 +129,7 @@ public class WindowsDisks implements Disks {
     private static WmiQuery<PhysicalDiskProperty> physicalDiskQuery = null;
 
     static {
-        String physicalDisk = PdhUtil.PdhLookupPerfNameByIndex(null,
+        String physicalDisk = PdhUtilXP.PdhLookupPerfNameByIndex(null,
                 PdhUtil.PdhLookupPerfIndexByEnglishName(PHYSICAL_DISK));
         boolean enumeration = true;
         try {
