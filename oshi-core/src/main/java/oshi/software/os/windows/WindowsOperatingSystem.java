@@ -55,7 +55,6 @@ import com.sun.jna.platform.win32.WinError;
 import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.platform.win32.WinNT.HANDLE;
 import com.sun.jna.platform.win32.WinNT.HANDLEByReference;
-import com.sun.jna.platform.win32.WinNT.LARGE_INTEGER;
 import com.sun.jna.platform.win32.WinPerf.PERF_COUNTER_BLOCK;
 import com.sun.jna.platform.win32.WinPerf.PERF_COUNTER_DEFINITION;
 import com.sun.jna.platform.win32.WinPerf.PERF_DATA_BLOCK;
@@ -96,7 +95,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
 
     // Properties to get from WMI if WTSEnumerateProcesses doesn't work
     enum ProcessXPProperty {
-        PROCESSID, NAME, KERNELMODETIME, USERMODETIME, THREADCOUNT, PAGEFILEUSAGE, HANDLECOUNT;
+        PROCESSID, NAME, KERNELMODETIME, USERMODETIME, THREADCOUNT, PAGEFILEUSAGE, HANDLECOUNT, EXECUTABLEPATH;
     }
 
     private static final WmiQuery<ProcessXPProperty> PROCESS_QUERY_XP = new WmiQuery<>(null, ProcessXPProperty.class);
@@ -348,14 +347,17 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         List<String> groupIDList = new ArrayList<>();
         int myPid = getProcessId();
 
-        // Structure we'll fill from native memory pointer
+        // Structure we'll fill from native memory pointer for Vista+
         Pointer pProcessInfo = null;
         WTS_PROCESS_INFO_EX[] processInfo = null;
+        IntByReference pCount = new IntByReference(0);
+
+        // WMI result we'll use for pre-Vista
+        WmiResult<ProcessXPProperty> processWmiResult = null;
 
         // Get processes from WTS (post-XP)
-        final PointerByReference ppProcessInfo = new PointerByReference();
-        IntByReference pCount = new IntByReference(0);
         if (IS_VISTA_OR_GREATER) {
+            final PointerByReference ppProcessInfo = new PointerByReference();
             if (!Wtsapi32.INSTANCE.WTSEnumerateProcessesEx(Wtsapi32.WTS_CURRENT_SERVER_HANDLE,
                     new IntByReference(Wtsapi32.WTS_PROCESS_INFO_LEVEL_1), Wtsapi32.WTS_ANY_SESSION, ppProcessInfo,
                     pCount)) {
@@ -383,28 +385,15 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                 }
             }
             PROCESS_QUERY_XP.setWmiClassName(sb.toString());
-            WmiResult<ProcessXPProperty> pseudoWTSResult = WmiQueryHandler.getInstance().queryWMI(PROCESS_QUERY_XP);
-            processInfo = new WTS_PROCESS_INFO_EX[pseudoWTSResult.getResultCount()];
-            for (int i = 0; i < pseudoWTSResult.getResultCount(); i++) {
-                processInfo[i] = new WTS_PROCESS_INFO_EX();
-                processInfo[i].ProcessId = WmiUtil.getUint32(pseudoWTSResult, ProcessXPProperty.PROCESSID, i);
-                processInfo[i].pProcessName = WmiUtil.getString(pseudoWTSResult, ProcessXPProperty.NAME, i);
-                processInfo[i].KernelTime = new LARGE_INTEGER(
-                        WmiUtil.getUint64(pseudoWTSResult, ProcessXPProperty.KERNELMODETIME, i));
-                processInfo[i].UserTime = new LARGE_INTEGER(
-                        WmiUtil.getUint64(pseudoWTSResult, ProcessXPProperty.USERMODETIME, i));
-                processInfo[i].NumberOfThreads = WmiUtil.getUint32(pseudoWTSResult, ProcessXPProperty.THREADCOUNT, i);
-                // WMI Pagefile usage is in KB
-                processInfo[i].PagefileUsage = 1024
-                        * WmiUtil.getUint32(pseudoWTSResult, ProcessXPProperty.PAGEFILEUSAGE, i);
-                processInfo[i].HandleCount = WmiUtil.getUint32(pseudoWTSResult, ProcessXPProperty.HANDLECOUNT, i);
-            }
+            processWmiResult = WmiQueryHandler.getInstance().queryWMI(PROCESS_QUERY_XP);
         }
 
         // Store a subset of processes in a list to later return.
         List<OSProcess> processList = new ArrayList<>();
 
-        for (WTS_PROCESS_INFO_EX procInfo : processInfo) {
+        int procCount = IS_VISTA_OR_GREATER ? processInfo.length : processWmiResult.getResultCount();
+        for (int i = 0; i < procCount; i++) {
+
             // Skip if only updating a subset of pids, or if not in cache.
             // (Cache should have just been updated from registry so this will
             // only occur in a race condition for a just-started process.)
@@ -414,7 +403,8 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             // ignore
             // the cache completely.
 
-            int pid = procInfo.ProcessId;
+            int pid = IS_VISTA_OR_GREATER ? processInfo[i].ProcessId
+                    : WmiUtil.getUint32(processWmiResult, ProcessXPProperty.PROCESSID, i);
             OSProcess proc = null;
             if (this.processMap.isEmpty()) {
                 if (pids != null && !pids.contains(pid)) {
@@ -422,7 +412,8 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                 }
                 proc = new OSProcess();
                 proc.setProcessID(pid);
-                proc.setName(procInfo.pProcessName);
+                proc.setName(IS_VISTA_OR_GREATER ? processInfo[i].pProcessName
+                        : WmiUtil.getString(processWmiResult, ProcessXPProperty.NAME, i));
             } else {
                 proc = this.processMap.get(pid);
                 if (proc == null || pids != null && !pids.contains(pid)) {
@@ -436,8 +427,22 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                 proc.setCurrentWorkingDirectory(cwd.isEmpty() ? "" : cwd.substring(0, cwd.length() - 1));
             }
 
-            proc.setKernelTime(procInfo.KernelTime.getValue() / 10000L);
-            proc.setUserTime(procInfo.UserTime.getValue() / 10000L);
+            if (IS_VISTA_OR_GREATER) {
+                WTS_PROCESS_INFO_EX procInfo = processInfo[i];
+                proc.setKernelTime(procInfo.KernelTime.getValue() / 10000L);
+                proc.setUserTime(procInfo.UserTime.getValue() / 10000L);
+                proc.setThreadCount(procInfo.NumberOfThreads);
+                proc.setVirtualSize(procInfo.PagefileUsage & 0xffff_ffffL);
+                proc.setOpenFiles(procInfo.HandleCount);
+            } else {
+                proc.setKernelTime(WmiUtil.getUint64(processWmiResult, ProcessXPProperty.KERNELMODETIME, i) / 10000L);
+                proc.setUserTime(WmiUtil.getUint64(processWmiResult, ProcessXPProperty.USERMODETIME, i) / 10000L);
+                proc.setThreadCount(WmiUtil.getUint32(processWmiResult, ProcessXPProperty.THREADCOUNT, i));
+                // WMI Pagefile usage is in KB
+                proc.setVirtualSize(1024
+                        * (WmiUtil.getUint32(processWmiResult, ProcessXPProperty.PAGEFILEUSAGE, i) & 0xffff_ffffL));
+                proc.setOpenFiles(WmiUtil.getUint32(processWmiResult, ProcessXPProperty.HANDLECOUNT, i));
+            }
 
             // Get a handle to the process for various extended info. Only gets
             // current user unless running as administrator
@@ -446,8 +451,9 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             if (pHandle != null) {
                 // Full path
                 final HANDLEByReference phToken = new HANDLEByReference();
-                try {
-                    proc.setPath(Kernel32Util.QueryFullProcessImageName(pHandle, 0));
+                try {// EXECUTABLEPATH
+                    proc.setPath(IS_VISTA_OR_GREATER ? Kernel32Util.QueryFullProcessImageName(pHandle, 0)
+                            : WmiUtil.getString(processWmiResult, ProcessXPProperty.EXECUTABLEPATH, i));
                     if (Advapi32.INSTANCE.OpenProcessToken(pHandle, WinNT.TOKEN_DUPLICATE | WinNT.TOKEN_QUERY,
                             phToken)) {
                         Account account = Advapi32Util.getTokenAccount(phToken.getValue());
@@ -490,15 +496,14 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             // State and possibly roll up.
             proc.setState(OSProcess.State.RUNNING);
 
-            proc.setThreadCount(procInfo.NumberOfThreads);
-            proc.setVirtualSize(procInfo.PagefileUsage & 0xffff_ffffL);
-
-            proc.setOpenFiles(procInfo.HandleCount);
             processList.add(proc);
         }
-        // Clean up memory allocated in C
+        // Clean up memory allocated in C (only Vista+ but null pointer
+        // effectively tests)
         if (pProcessInfo != null && !Wtsapi32.INSTANCE.WTSFreeMemoryEx(Wtsapi32.WTS_PROCESS_INFO_LEVEL_1, pProcessInfo,
-                pCount.getValue())) {
+                pCount.getValue()))
+
+        {
             LOG.error("Failed to Free Memory for Processes. Error code: {}", Kernel32.INSTANCE.GetLastError());
             return new ArrayList<>(0);
         }
