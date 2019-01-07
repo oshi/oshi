@@ -152,33 +152,16 @@ public class WmiQueryHandler {
      * Initializes COM library and sets security to impersonate the local user
      */
     public void initCOM() {
-        WinNT.HRESULT hres = null;
         // Step 1: --------------------------------------------------
         // Initialize COM. ------------------------------------------
-        if (!isComInitialized()) {
-            hres = Ole32.INSTANCE.CoInitializeEx(null, Ole32.COINIT_MULTITHREADED);
-            switch (hres.intValue()) {
-            // Successful local initialization (S_OK) or was already initialized
-            // (S_FALSE) but still needs uninit
-            case COMUtils.S_OK:
-            case COMUtils.S_FALSE:
-                comInitialized = true;
-                break;
-            // COM was already initialized with multithreaded and we are using
-            // apartment threaded. Given that we try to initialize multithreaded
-            // this might not ever occur.
-            case WinError.RPC_E_CHANGED_MODE:
-                break;
-            // Any other results is an error
-            default:
-                throw new COMException("Failed to initialize COM library.", hres);
-            }
+        if (!initCOM(Ole32.COINIT_MULTITHREADED)) {
+            initCOM(Ole32.COINIT_APARTMENTTHREADED);
         }
         // Step 2: --------------------------------------------------
         // Set general COM security levels --------------------------
         if (!isSecurityInitialized()) {
-            hres = Ole32.INSTANCE.CoInitializeSecurity(null, -1, null, null, Ole32.RPC_C_AUTHN_LEVEL_DEFAULT,
-                    Ole32.RPC_C_IMP_LEVEL_IMPERSONATE, null, Ole32.EOAC_NONE, null);
+            WinNT.HRESULT hres = Ole32.INSTANCE.CoInitializeSecurity(null, -1, null, null,
+                    Ole32.RPC_C_AUTHN_LEVEL_DEFAULT, Ole32.RPC_C_IMP_LEVEL_IMPERSONATE, null, Ole32.EOAC_NONE, null);
             // If security already initialized we get RPC_E_TOO_LATE
             // This can be safely ignored
             if (COMUtils.FAILED(hres) && hres.intValue() != WinError.RPC_E_TOO_LATE) {
@@ -187,6 +170,27 @@ public class WmiQueryHandler {
             }
             securityInitialized = true;
         }
+    }
+
+    private boolean initCOM(int coInitThreading) {
+        if (!isComInitialized()) {
+            WinNT.HRESULT hres = Ole32.INSTANCE.CoInitializeEx(null, coInitThreading);
+            switch (hres.intValue()) {
+            // Successful local initialization (S_OK) or was already initialized
+            // (S_FALSE) but still needs uninit
+            case COMUtils.S_OK:
+            case COMUtils.S_FALSE:
+                comInitialized = true;
+                return true;
+            // COM was already initialized with a different threading model
+            case WinError.RPC_E_CHANGED_MODE:
+                return false;
+            // Any other results is impossible
+            default:
+                throw new COMException("Failed to initialize COM library.", hres);
+            }
+        }
+        return true;
     }
 
     /**
@@ -242,5 +246,4 @@ public class WmiQueryHandler {
     public void setWmiTimeout(int wmiTimeout) {
         this.wmiTimeout = wmiTimeout;
     }
-
 }
