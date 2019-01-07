@@ -158,12 +158,15 @@ public class WmiQueryHandler {
         if (!isComInitialized()) {
             hres = Ole32.INSTANCE.CoInitializeEx(null, Ole32.COINIT_MULTITHREADED);
             switch (hres.intValue()) {
-            // Successful local initialization
+            // Successful local initialization (S_OK) or was already initialized
+            // (S_FALSE) but still needs uninit
             case COMUtils.S_OK:
+            case COMUtils.S_FALSE:
                 comInitialized = true;
                 break;
-            // COM was already initialized
-            case COMUtils.S_FALSE:
+            // COM was already initialized with multithreaded and we are using
+            // apartment threaded. Given that we try to initialize multithreaded
+            // this might not ever occur.
             case WinError.RPC_E_CHANGED_MODE:
                 break;
             // Any other results is an error
