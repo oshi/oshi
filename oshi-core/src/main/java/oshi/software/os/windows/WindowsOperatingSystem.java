@@ -386,6 +386,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             WmiResult<ProcessXPProperty> pseudoWTSResult = WmiQueryHandler.getInstance().queryWMI(PROCESS_QUERY_XP);
             processInfo = new WTS_PROCESS_INFO_EX[pseudoWTSResult.getResultCount()];
             for (int i = 0; i < pseudoWTSResult.getResultCount(); i++) {
+                processInfo[i] = new WTS_PROCESS_INFO_EX();
                 processInfo[i].ProcessId = WmiUtil.getUint32(pseudoWTSResult, ProcessXPProperty.PROCESSID, i);
                 processInfo[i].pProcessName = WmiUtil.getString(pseudoWTSResult, ProcessXPProperty.NAME, i);
                 processInfo[i].KernelTime = new LARGE_INTEGER(

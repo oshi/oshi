@@ -377,13 +377,22 @@ public class PerfDataUtil {
      */
     private static long updateQueryTimestamp(WinNT.HANDLEByReference query) {
         LONGLONGByReference pllTimeStamp = new LONGLONGByReference();
-        int ret = PDH.PdhCollectQueryDataWithTime(query.getValue(), pllTimeStamp);
+        int ret;
+        if (IS_VISTA_OR_GREATER) {
+            ret = PDH.PdhCollectQueryDataWithTime(query.getValue(), pllTimeStamp);
+        } else {
+            ret = PDH.PdhCollectQueryData(query.getValue());
+        }
         // Due to race condition, initial update may fail with PDH_NO_DATA.
         int retries = 0;
         while (ret == PdhMsg.PDH_NO_DATA && retries++ < 3) {
             // Exponential fallback.
             Util.sleep(1 << retries);
-            ret = PDH.PdhCollectQueryDataWithTime(query.getValue(), pllTimeStamp);
+            if (IS_VISTA_OR_GREATER) {
+                ret = PDH.PdhCollectQueryDataWithTime(query.getValue(), pllTimeStamp);
+            } else {
+                ret = PDH.PdhCollectQueryData(query.getValue());
+            }
         }
         if (ret != WinError.ERROR_SUCCESS) {
             if (LOG.isWarnEnabled()) {
@@ -392,7 +401,13 @@ public class PerfDataUtil {
             return 0;
         }
         // Perf Counter timestamp is in local time
-        return filetimeToUtcMs(pllTimeStamp.getValue().longValue(), true);
+        if (IS_VISTA_OR_GREATER) {
+            return filetimeToUtcMs(pllTimeStamp.getValue().longValue(), true);
+        } else {
+            // Approximate timestamp
+            return System.currentTimeMillis();
+        }
+
     }
 
     /**
