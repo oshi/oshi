@@ -38,12 +38,12 @@ public class UtilTest {
     public void testSleep() {
         long now = System.currentTimeMillis();
         Util.sleep(100);
-        assertTrue(System.currentTimeMillis() - now >= 100);
+        assertTrue(System.currentTimeMillis() - now >= 99);
 
         now = System.currentTimeMillis();
         long then = now + 100;
         Util.sleepAfter(then, 100);
-        assertTrue(System.currentTimeMillis() - now >= 200);
+        assertTrue(System.currentTimeMillis() - now >= 199);
 
         now = System.currentTimeMillis();
         then = now - 550;
