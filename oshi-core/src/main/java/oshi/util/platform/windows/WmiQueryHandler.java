@@ -52,8 +52,10 @@ public class WmiQueryHandler {
     // Cache failed wmi classes
     private final Set<String> failedWmiClassNames = new HashSet<>();
 
-    // Track initialization of COM and Security
-    private boolean comInitialized = false;
+    // Preferred threading model
+    private int comThreading = Ole32.COINIT_MULTITHREADED;
+
+    // Track initialization of Security
     private boolean securityInitialized = false;
 
     // Singleton pattern
@@ -108,13 +110,9 @@ public class WmiQueryHandler {
         if (failedWmiClassNames.contains(query.getWmiClassName())) {
             return result;
         }
+        boolean comInit = false;
         try {
-            // Initialize COM if not already done. Needed if COM was previously
-            // initialized externally but is no longer initialized.
-            if (!isComInitialized()) {
-                initCOM();
-            }
-
+            comInit = initCOM();
             result = query.execute(wmiTimeout);
         } catch (COMException e) {
             // Ignore any exceptions with OpenHardwareMonitor
@@ -139,6 +137,9 @@ public class WmiQueryHandler {
         } catch (TimeoutException e) {
             LOG.error("WMI query timed out after {} ms: {}", wmiTimeout, WmiUtil.queryToString(query));
         }
+        if (comInit) {
+            unInitCOM();
+        }
         return result;
     }
 
@@ -150,16 +151,20 @@ public class WmiQueryHandler {
 
     /**
      * Initializes COM library and sets security to impersonate the local user
+     * 
+     * @return
      */
-    public void initCOM() {
+    public boolean initCOM() {
+        boolean comInit = false;
         // Step 1: --------------------------------------------------
         // Initialize COM. ------------------------------------------
-        if (!initCOM(Ole32.COINIT_MULTITHREADED)) {
-            initCOM(Ole32.COINIT_APARTMENTTHREADED);
+        comInit = initCOM(getComThreading());
+        if (!comInit) {
+            comInit = initCOM(switchComThreading());
         }
         // Step 2: --------------------------------------------------
         // Set general COM security levels --------------------------
-        if (!isSecurityInitialized()) {
+        if (comInit && !isSecurityInitialized()) {
             WinNT.HRESULT hres = Ole32.INSTANCE.CoInitializeSecurity(null, -1, null, null,
                     Ole32.RPC_C_AUTHN_LEVEL_DEFAULT, Ole32.RPC_C_IMP_LEVEL_IMPERSONATE, null, Ole32.EOAC_NONE, null);
             // If security already initialized we get RPC_E_TOO_LATE
@@ -170,49 +175,57 @@ public class WmiQueryHandler {
             }
             securityInitialized = true;
         }
+        return comInit;
     }
 
     private boolean initCOM(int coInitThreading) {
-        if (!isComInitialized()) {
-            WinNT.HRESULT hres = Ole32.INSTANCE.CoInitializeEx(null, coInitThreading);
-            switch (hres.intValue()) {
-            // Successful local initialization (S_OK) or was already initialized
-            // (S_FALSE) but still needs uninit
-            case COMUtils.S_OK:
-            case COMUtils.S_FALSE:
-                comInitialized = true;
-                return true;
-            // COM was already initialized with a different threading model
-            case WinError.RPC_E_CHANGED_MODE:
-                return false;
-            // Any other results is impossible
-            default:
-                throw new COMException("Failed to initialize COM library.", hres);
-            }
+        WinNT.HRESULT hres = Ole32.INSTANCE.CoInitializeEx(null, coInitThreading);
+        switch (hres.intValue()) {
+        // Successful local initialization (S_OK) or was already initialized
+        // (S_FALSE) but still needs uninit
+        case COMUtils.S_OK:
+        case COMUtils.S_FALSE:
+            return true;
+        // COM was already initialized with a different threading model
+        case WinError.RPC_E_CHANGED_MODE:
+            return false;
+        // Any other results is impossible
+        default:
+            throw new COMException("Failed to initialize COM library.", hres);
         }
-        return true;
     }
 
     /**
-     * UnInitializes COM library if it was initialized by the {@link #initCOM()}
-     * method. Otherwise, does nothing.
+     * UnInitializes COM library. This should be called once for every
+     * successful call to initCOM.
      */
     public void unInitCOM() {
-        if (isComInitialized()) {
-            Ole32.INSTANCE.CoUninitialize();
-            comInitialized = false;
-        }
+        Ole32.INSTANCE.CoUninitialize();
     }
 
     /**
-     * COM may already have been initialized outside this class. This boolean is
-     * a flag whether this class initialized it, to avoid uninitializing later
-     * and killing the external initialization
-     *
-     * @return Returns whether this class initialized COM
+     * Returns the current threading model for COM initialization, as OSHI is
+     * required to match if an external program has COM initialized already.
+     * 
+     * @return The current threading model
      */
-    public boolean isComInitialized() {
-        return comInitialized;
+    public int getComThreading() {
+        return comThreading;
+    }
+
+    /**
+     * Switches the current threading model for COM initialization, as OSHI is
+     * required to match if an external program has COM initialized already.
+     * 
+     * @return The new threading model after switching
+     */
+    public int switchComThreading() {
+        if (comThreading == Ole32.COINIT_APARTMENTTHREADED) {
+            comThreading = Ole32.COINIT_MULTITHREADED;
+        } else {
+            comThreading = Ole32.COINIT_APARTMENTTHREADED;
+        }
+        return comThreading;
     }
 
     /**
