@@ -45,6 +45,7 @@ import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.hardware.common.AbstractCentralProcessor;
+import oshi.util.platform.windows.PdhUtilXP;
 import oshi.util.platform.windows.PerfDataUtil;
 import oshi.util.platform.windows.PerfDataUtil.PerfCounter;
 import oshi.util.platform.windows.WmiQueryHandler;
@@ -70,23 +71,8 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
     // Save Windows version info for 32 bit/64 bit branch later
     private static final byte MAJOR_VERSION = Kernel32.INSTANCE.GetVersion().getLow().byteValue();
 
-    // Localize the "Processor" counter string. English counter names should
-    // normally be in HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows
-    // NT\CurrentVersion\Perflib\009\Counter, but language manipulations may
-    // delete the 009 index. In this case we can assume English must be the
-    // language and continue. We may still fail to match the name if the
-    // assumption is wrong but it's better than nothing.
     private static final String PROCESSOR = "Processor";
-    private static final String PROCESSOR_LOCALIZED;
-    static {
-        String localized = null;
-        try {
-            localized = PdhUtil.PdhLookupPerfNameByIndex(null, PdhUtil.PdhLookupPerfIndexByEnglishName(PROCESSOR));
-        } catch (Win32Exception e) {
-            LOG.error("Unable to locate English counter names in registry Perflib 009. Assuming English counters.");
-        }
-        PROCESSOR_LOCALIZED = (localized != null && localized.length() > 0) ? localized : PROCESSOR;
-    }
+    private static String processorLocalized = null;
     private static final String TOTAL_INSTANCE = "_Total";
 
     /*
@@ -192,7 +178,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
 
         boolean enumeration = true;
         try {
-            PdhEnumObjectItems objectItems = PdhUtil.PdhEnumObjectItems(null, null, PROCESSOR_LOCALIZED, 100);
+            PdhEnumObjectItems objectItems = PdhUtil.PdhEnumObjectItems(null, null, getProcessorLocalized(), 100);
 
             if (!objectItems.getInstances().isEmpty()) {
                 // % Processor Time is actually Idle time
@@ -257,7 +243,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
                 }
             }
         } catch (PdhException e) {
-            LOG.warn("Unable to enumerate performance counter instances for {}.", PROCESSOR_LOCALIZED);
+            LOG.warn("Unable to enumerate performance counter instances for {}.", getProcessorLocalized());
             enumeration = false;
         }
         if (!enumeration) {
@@ -477,4 +463,28 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
             lastRefresh = PerfDataUtil.updateQuery(PROCESSOR);
         }
     }
+
+    /**
+     * Localize the "Processor" counter string. English counter names should
+     * normally be in HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows
+     * NT\CurrentVersion\Perflib\009\Counter, but language manipulations may
+     * delete the 009 index. In this case we can assume English must be the
+     * language and continue. We may still fail to match the name if the
+     * assumption is wrong but it's better than nothing.
+     */
+    private static String getProcessorLocalized() {
+        if (processorLocalized == null) {
+            try {
+                processorLocalized = PdhUtilXP.PdhLookupPerfNameByIndex(null,
+                        PdhUtil.PdhLookupPerfIndexByEnglishName(PROCESSOR));
+            } catch (Win32Exception e) {
+                LOG.error("Unable to locate English counter names in registry Perflib 009. Assuming English counters.");
+            }
+            if (processorLocalized == null || processorLocalized.length() == 0) {
+                processorLocalized = PROCESSOR;
+            }
+        }
+        return processorLocalized;
+    }
+
 }

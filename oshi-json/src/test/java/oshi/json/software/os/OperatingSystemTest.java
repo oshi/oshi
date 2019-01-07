@@ -77,7 +77,7 @@ public class OperatingSystemTest {
         assertTrue(proc.getParentProcessID() > 0);
         assertTrue(proc.getThreadCount() > 0);
         assertTrue(proc.getPriority() >= -20 && proc.getPriority() <= 128);
-        assertTrue(proc.getVirtualSize() >= proc.getResidentSetSize());
+        assertTrue(proc.getVirtualSize() >= 0);
         assertTrue(proc.getResidentSetSize() >= 0);
         assertTrue(proc.getKernelTime() >= 0);
         assertTrue(proc.getUserTime() >= 0);

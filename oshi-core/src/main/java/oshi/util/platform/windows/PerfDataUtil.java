@@ -45,6 +45,7 @@ import com.sun.jna.platform.win32.WinError;
 import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.platform.win32.WinNT.HANDLEByReference;
 
+import oshi.jna.platform.windows.VersionHelpers;
 import oshi.util.Util;
 
 /**
@@ -79,6 +80,9 @@ public class PerfDataUtil {
     private static final Map<PerfCounter, HANDLEByReference> counterMap = new HashMap<>();
     private static final Map<String, HANDLEByReference> queryMap = new HashMap<>();
     private static final Set<String> disabledQueries = new HashSet<>();
+
+    // Is AddEnglishCounter available?
+    private static final boolean IS_VISTA_OR_GREATER = VersionHelpers.IsWindowsVistaOrGreater();
 
     public class PerfCounter {
         private String object;
@@ -328,7 +332,14 @@ public class PerfDataUtil {
      * @return
      */
     private static boolean addCounter(WinNT.HANDLEByReference query, String path, WinNT.HANDLEByReference p) {
-        int pdhAddCounterError = PDH.PdhAddEnglishCounter(query.getValue(), path, PZERO, p);
+        int pdhAddCounterError;
+        if (IS_VISTA_OR_GREATER) {
+            // Localized version for Vista+
+            pdhAddCounterError = PDH.PdhAddEnglishCounter(query.getValue(), path, PZERO, p);
+        } else {
+            // Only will work for English counters
+            pdhAddCounterError = PDH.PdhAddCounter(query.getValue(), path, PZERO, p);
+        }
         if (pdhAddCounterError != WinError.ERROR_SUCCESS && LOG.isWarnEnabled()) {
             LOG.warn("Failed to add PDH Counter: {}, Error code: {}", path,
                     String.format(HEX_ERROR_FMT, pdhAddCounterError));
@@ -366,13 +377,22 @@ public class PerfDataUtil {
      */
     private static long updateQueryTimestamp(WinNT.HANDLEByReference query) {
         LONGLONGByReference pllTimeStamp = new LONGLONGByReference();
-        int ret = PDH.PdhCollectQueryDataWithTime(query.getValue(), pllTimeStamp);
+        int ret;
+        if (IS_VISTA_OR_GREATER) {
+            ret = PDH.PdhCollectQueryDataWithTime(query.getValue(), pllTimeStamp);
+        } else {
+            ret = PDH.PdhCollectQueryData(query.getValue());
+        }
         // Due to race condition, initial update may fail with PDH_NO_DATA.
         int retries = 0;
         while (ret == PdhMsg.PDH_NO_DATA && retries++ < 3) {
             // Exponential fallback.
             Util.sleep(1 << retries);
-            ret = PDH.PdhCollectQueryDataWithTime(query.getValue(), pllTimeStamp);
+            if (IS_VISTA_OR_GREATER) {
+                ret = PDH.PdhCollectQueryDataWithTime(query.getValue(), pllTimeStamp);
+            } else {
+                ret = PDH.PdhCollectQueryData(query.getValue());
+            }
         }
         if (ret != WinError.ERROR_SUCCESS) {
             if (LOG.isWarnEnabled()) {
@@ -381,7 +401,13 @@ public class PerfDataUtil {
             return 0;
         }
         // Perf Counter timestamp is in local time
-        return filetimeToUtcMs(pllTimeStamp.getValue().longValue(), true);
+        if (IS_VISTA_OR_GREATER) {
+            return filetimeToUtcMs(pllTimeStamp.getValue().longValue(), true);
+        } else {
+            // Approximate timestamp
+            return System.currentTimeMillis();
+        }
+
     }
 
     /**
