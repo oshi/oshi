@@ -23,15 +23,17 @@
  */
 package oshi.util.platform.windows;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sun.jna.Memory; //NOSONAR
 import com.sun.jna.Native;
 import com.sun.jna.platform.win32.Pdh;
+import com.sun.jna.platform.win32.PdhMsg;
 import com.sun.jna.platform.win32.PdhUtil.PdhException;
 import com.sun.jna.platform.win32.WinDef.DWORD;
 import com.sun.jna.platform.win32.WinDef.DWORDByReference;
 import com.sun.jna.platform.win32.WinError;
-
-import oshi.jna.platform.windows.VersionHelpers;
 
 /**
  * TODO: This class is compatible with Windows XP and will be removed when the
@@ -40,10 +42,9 @@ import oshi.jna.platform.windows.VersionHelpers;
 public class PdhUtilXP {
     private static final int CHAR_TO_BYTES = Boolean.getBoolean("w32.ascii") ? 1 : Native.WCHAR_SIZE;
 
-    // Can I pass null buffer to PdhLookupPerfNameByIndex?
-    private static final boolean IS_VISTA_OR_GREATER = VersionHelpers.IsWindowsVistaOrGreater();
-
     private static final int PDH_INSUFFICIENT_BUFFER = 0xC0000BC2;
+
+    private static final Logger LOG = LoggerFactory.getLogger(PdhUtilXP.class);
 
     /**
      * Utility method to call Pdh's PdhLookupPerfNameByIndex that allocates the
@@ -61,25 +62,56 @@ public class PdhUtilXP {
      */
     public static String PdhLookupPerfNameByIndex(String szMachineName, int dwNameIndex) {
         // Call once to get required buffer size
-        DWORDByReference pcchNameBufferSize = new DWORDByReference(new DWORD(IS_VISTA_OR_GREATER ? 1 : 0));
-        Memory mem = IS_VISTA_OR_GREATER ? null : new Memory(1);
-        int result = Pdh.INSTANCE.PdhLookupPerfNameByIndex(szMachineName, dwNameIndex, mem, pcchNameBufferSize);
-        if (result != WinError.ERROR_SUCCESS && result != Pdh.PDH_MORE_DATA && result != PDH_INSUFFICIENT_BUFFER) {
-            throw new PdhException(result);
-        }
+        LOG.error(">>>>> Entering lookup method for index " + dwNameIndex);
+        DWORDByReference pcchNameBufferSize = new DWORDByReference(new DWORD(0));
+        int result = Pdh.INSTANCE.PdhLookupPerfNameByIndex(szMachineName, dwNameIndex, null, pcchNameBufferSize);
+        Memory mem = null;
+        // Windows XP requires a non-null buffer and nonzero buffer size.
+        LOG.error(">>>>> Result = " + result);
+        LOG.error(">>>>> BufferSize = " + pcchNameBufferSize.getValue().intValue());
+        if (result == PdhMsg.PDH_INVALID_ARGUMENT) {
+            // Fails on XP
+            // Retry buffer size until big enough.
+            int bufferSize = 0;
+            LOG.error(">>>>> Entering invalid arg (XP) branch.");
+            do {
+                LOG.error(">>>>> In do loop.");
+                bufferSize += 32;
+                pcchNameBufferSize = new DWORDByReference(new DWORD(bufferSize));
+                LOG.error(">>>>> Buffer = " + bufferSize);
+                mem = new Memory(bufferSize * CHAR_TO_BYTES);
+                result = Pdh.INSTANCE.PdhLookupPerfNameByIndex(szMachineName, dwNameIndex, mem, pcchNameBufferSize);
+                LOG.error(">>>>> Result = " + result);
+                LOG.error(">>>>> BufferSize = " + pcchNameBufferSize.getValue().intValue());
+            } while (result == PdhMsg.PDH_INVALID_ARGUMENT || result == PDH_INSUFFICIENT_BUFFER);
+        } else {
+            // Non-XP success branch, retry
+            if (result != WinError.ERROR_SUCCESS && result != Pdh.PDH_MORE_DATA) {
+                throw new PdhException(result);
+            }
 
-        // Can't allocate 0 memory
-        if (pcchNameBufferSize.getValue().intValue() < 1) {
-            return "";
+            // Can't allocate 0 memory
+            if (pcchNameBufferSize.getValue().intValue() < 1) {
+                return "";
+            }
+            // Allocate buffer and call again
+            mem = new Memory(pcchNameBufferSize.getValue().intValue() * CHAR_TO_BYTES);
+            LOG.error(">>>>> Trying final call.");
+            result = Pdh.INSTANCE.PdhLookupPerfNameByIndex(szMachineName, dwNameIndex, mem, pcchNameBufferSize);
+            LOG.error(">>>>> Result = " + result);
+            LOG.error(">>>>> BufferSize = " + pcchNameBufferSize.getValue().intValue());
         }
-        // Allocate buffer and call again
-        mem = new Memory(pcchNameBufferSize.getValue().intValue() * CHAR_TO_BYTES);
-        result = Pdh.INSTANCE.PdhLookupPerfNameByIndex(szMachineName, dwNameIndex, mem, pcchNameBufferSize);
-
         if (result != WinError.ERROR_SUCCESS) {
             throw new PdhException(result);
         }
 
+        // Convert buffer to Java String
+        if (CHAR_TO_BYTES == 1) {
+            LOG.error(">>>>> Calculated " + mem.getString(0));
+        } else {
+            LOG.error(">>>>> Calculated " + mem.getWideString(0));
+        }
+        
         // Convert buffer to Java String
         if (CHAR_TO_BYTES == 1) {
             return mem.getString(0);
