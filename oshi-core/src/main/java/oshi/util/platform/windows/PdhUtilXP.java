@@ -26,12 +26,11 @@ package oshi.util.platform.windows;
 import com.sun.jna.Memory; //NOSONAR
 import com.sun.jna.Native;
 import com.sun.jna.platform.win32.Pdh;
+import com.sun.jna.platform.win32.PdhMsg;
 import com.sun.jna.platform.win32.PdhUtil.PdhException;
 import com.sun.jna.platform.win32.WinDef.DWORD;
 import com.sun.jna.platform.win32.WinDef.DWORDByReference;
 import com.sun.jna.platform.win32.WinError;
-
-import oshi.jna.platform.windows.VersionHelpers;
 
 /**
  * TODO: This class is compatible with Windows XP and will be removed when the
@@ -39,11 +38,6 @@ import oshi.jna.platform.windows.VersionHelpers;
  */
 public class PdhUtilXP {
     private static final int CHAR_TO_BYTES = Boolean.getBoolean("w32.ascii") ? 1 : Native.WCHAR_SIZE;
-
-    // Can I pass null buffer to PdhLookupPerfNameByIndex?
-    private static final boolean IS_VISTA_OR_GREATER = VersionHelpers.IsWindowsVistaOrGreater();
-
-    private static final int PDH_INSUFFICIENT_BUFFER = 0xC0000BC2;
 
     /**
      * Utility method to call Pdh's PdhLookupPerfNameByIndex that allocates the
@@ -60,22 +54,35 @@ public class PdhUtilXP {
      * @return Returns the name of the performance object or counter.
      */
     public static String PdhLookupPerfNameByIndex(String szMachineName, int dwNameIndex) {
-        // Call once to get required buffer size
-        DWORDByReference pcchNameBufferSize = new DWORDByReference(new DWORD(IS_VISTA_OR_GREATER ? 1 : 0));
-        Memory mem = IS_VISTA_OR_GREATER ? null : new Memory(1);
-        int result = Pdh.INSTANCE.PdhLookupPerfNameByIndex(szMachineName, dwNameIndex, mem, pcchNameBufferSize);
-        if (result != WinError.ERROR_SUCCESS && result != Pdh.PDH_MORE_DATA && result != PDH_INSUFFICIENT_BUFFER) {
-            throw new PdhException(result);
+        // Call once with null buffer to get required buffer size
+        DWORDByReference pcchNameBufferSize = new DWORDByReference(new DWORD(0));
+        int result = Pdh.INSTANCE.PdhLookupPerfNameByIndex(szMachineName, dwNameIndex, null, pcchNameBufferSize);
+        Memory mem = null;
+        // Windows XP requires a non-null buffer and nonzero buffer size and
+        // will return PDH_INVALID_ARGUMENT.
+        if (result != PdhMsg.PDH_INVALID_ARGUMENT) {
+            // Vista+ branch: use returned buffer size for second query
+            if (result != WinError.ERROR_SUCCESS && result != Pdh.PDH_MORE_DATA) {
+                throw new PdhException(result);
+            }
+            // Can't allocate 0 memory
+            if (pcchNameBufferSize.getValue().intValue() < 1) {
+                return "";
+            }
+            // Allocate buffer and call again
+            mem = new Memory(pcchNameBufferSize.getValue().intValue() * CHAR_TO_BYTES);
+            result = Pdh.INSTANCE.PdhLookupPerfNameByIndex(szMachineName, dwNameIndex, mem, pcchNameBufferSize);
+        } else {
+            // XP branch: try increasing buffer sizes until successful
+            for (int bufferSize = 32; bufferSize <= Pdh.PDH_MAX_COUNTER_NAME; bufferSize *= 2) {
+                pcchNameBufferSize = new DWORDByReference(new DWORD(bufferSize));
+                mem = new Memory(bufferSize * CHAR_TO_BYTES);
+                result = Pdh.INSTANCE.PdhLookupPerfNameByIndex(szMachineName, dwNameIndex, mem, pcchNameBufferSize);
+                if (result != PdhMsg.PDH_INVALID_ARGUMENT && result != PdhMsg.PDH_INSUFFICIENT_BUFFER) {
+                    break;
+                }
+            }
         }
-
-        // Can't allocate 0 memory
-        if (pcchNameBufferSize.getValue().intValue() < 1) {
-            return "";
-        }
-        // Allocate buffer and call again
-        mem = new Memory(pcchNameBufferSize.getValue().intValue() * CHAR_TO_BYTES);
-        result = Pdh.INSTANCE.PdhLookupPerfNameByIndex(szMachineName, dwNameIndex, mem, pcchNameBufferSize);
-
         if (result != WinError.ERROR_SUCCESS) {
             throw new PdhException(result);
         }

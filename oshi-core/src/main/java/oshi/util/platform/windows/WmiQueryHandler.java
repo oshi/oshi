@@ -45,10 +45,6 @@ public class WmiQueryHandler {
     // Timeout for WMI queries
     private int wmiTimeout = Wbemcli.WBEM_INFINITE;
 
-    // Cache namespaces
-    private final Set<String> hasNamespaceCache = new HashSet<>();
-    private final Set<String> hasNotNamespaceCache = new HashSet<>();
-
     // Cache failed wmi classes
     private final Set<String> failedWmiClassNames = new HashSet<>();
 
@@ -69,28 +65,6 @@ public class WmiQueryHandler {
             instance = new WmiQueryHandler();
         }
         return instance;
-    }
-
-    /**
-     * Determine if WMI has the requested namespace. Some namespaces only exist
-     * on newer versions of Windows.
-     *
-     * @param namespace
-     *            The namespace to test
-     * @return true if the namespace exists, false otherwise
-     */
-    public boolean hasNamespace(String namespace) {
-        if (hasNamespaceCache.contains(namespace)) {
-            return true;
-        } else if (hasNotNamespaceCache.contains(namespace)) {
-            return false;
-        }
-        if (WbemcliUtil.hasNamespace(namespace)) {
-            hasNamespaceCache.add(namespace);
-            return true;
-        }
-        hasNotNamespaceCache.add(namespace);
-        return false;
     }
 
     /**
