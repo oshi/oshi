@@ -177,7 +177,7 @@
 		<sonar-maven-plugin.version>3.6.0.1398</sonar-maven-plugin.version>
 		<wagon-maven-plugin.version>2.0.0</wagon-maven-plugin.version>
 		<animal-sniffer-maven-plugin.version>1.17</animal-sniffer-maven-plugin.version>
-		<dependency-check-maven.version>3.3.4</dependency-check-maven.version>
+		<dependency-check-maven.version>4.0.2</dependency-check-maven.version>
 		<puppycrawl.checkstyle.version>8.16</puppycrawl.checkstyle.version>
 		<m2e.lifecycle-mapping.version>1.0.0</m2e.lifecycle-mapping.version>
 	</properties>
