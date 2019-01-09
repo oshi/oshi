@@ -39,6 +39,7 @@ import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 import com.sun.jna.ptr.IntByReference;
 
+import oshi.jna.platform.windows.VersionHelpers;
 import oshi.software.common.AbstractNetworkParams;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
@@ -125,11 +126,13 @@ public class WindowsNetworkParams extends AbstractNetworkParams {
     @Override
     public String getIpv4DefaultGateway() {
         // IPv6 info not available in WMI pre Windows 8
-        if (WmiQueryHandler.getInstance().hasNamespace("StandardCimv2")) {
+        if (VersionHelpers.IsWindows8OrGreater()) {
             return getNextHop(IPV4_DEFAULT_DEST);
+        } else if (VersionHelpers.IsWindowsVistaOrGreater()) {
+            // IPv4 info available in Win32_IP4RouteTable
+            return getNextHopWin7(IPV4_DEFAULT_DEST.split("/")[0]);
         }
-        // IPv4 info available in Win32_IP4RouteTable
-        return getNextHopWin7(IPV4_DEFAULT_DEST.split("/")[0]);
+        return parseIpv4Route();
     }
 
     /**
@@ -138,7 +141,7 @@ public class WindowsNetworkParams extends AbstractNetworkParams {
     @Override
     public String getIpv6DefaultGateway() {
         // IPv6 info not available in WMI pre Windows 8
-        if (WmiQueryHandler.getInstance().hasNamespace("StandardCimv2")) {
+        if (VersionHelpers.IsWindows8OrGreater()) {
             return getNextHop(IPV6_DEFAULT_DEST);
         }
         return parseIpv6Route();
@@ -182,6 +185,17 @@ public class WindowsNetworkParams extends AbstractNetworkParams {
             }
         }
         return WmiUtil.getString(vals, IP4RouteProperty.NEXTHOP, index);
+    }
+
+    private String parseIpv4Route() {
+        List<String> lines = ExecutingCommand.runNative("route print -4 0.0.0.0");
+        for (String line : lines) {
+            String[] fields = ParseUtil.whitespaces.split(line.trim());
+            if (fields.length > 2 && "0.0.0.0".equals(fields[0])) {
+                return fields[2];
+            }
+        }
+        return "";
     }
 
     private String parseIpv6Route() {
