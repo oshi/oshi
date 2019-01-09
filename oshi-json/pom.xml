@@ -60,7 +60,7 @@
 			<groupId>org.glassfish</groupId>
 			<artifactId>javax.json</artifactId>
 			<!-- 1.1.2 requires Java 8 -->
-			<version>1.0.4</version>
+			<version>1.1.4</version>
 		</dependency>
 	</dependencies>
 </project>
