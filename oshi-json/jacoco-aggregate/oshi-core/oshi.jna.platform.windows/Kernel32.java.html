@@ -1,102 +1,118 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>Kernel32.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-json</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.jna.platform.windows</a> &gt; <span class="el_source">Kernel32.java</span></div><h1>Kernel32.java</h1><pre class="source lang-java linenums">/**
- * Oshi (https://github.com/oshi/oshi)
+ * OSHI (https://github.com/oshi/oshi)
  *
- * Copyright (c) 2010 - 2018 The Oshi Project Team
- *
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- *
- * Maintainers:
- * dblock[at]dblock[dot]org
- * widdis[at]gmail[dot]com
- * enrico.bianchi[at]gmail[dot]com
- *
- * Contributors:
+ * Copyright (c) 2010 - 2019 The OSHI Project Team:
  * https://github.com/oshi/oshi/graphs/contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 package oshi.jna.platform.windows;
 
-import java.util.Arrays;
-import java.util.List;
-
 import com.sun.jna.Native;
-import com.sun.jna.Structure;
 
 /**
- * Windows Kernel32
- *
- * @author widdis[at]gmail[dot]com
+ * Kernel32 and WinNT info submitted to JNA as #1050. This class should be
+ * considered non-API as it may be removed if/when its code is incorporated into
+ * the JNA project.
  */
 public interface Kernel32 extends com.sun.jna.platform.win32.Kernel32 {
-<span class="nc" id="L33">    Kernel32 INSTANCE = Native.loadLibrary(&quot;Kernel32&quot;, Kernel32.class);</span>
+<span class="nc" id="L34">    Kernel32 INSTANCE = Native.load(&quot;Kernel32&quot;, Kernel32.class);</span>
 
-<span class="nc" id="L35">    class IO_COUNTERS extends Structure {</span>
-        public long ReadOperationCount;
-        public long WriteOperationCount;
-        public long OtherOperationCount;
-        public long ReadTransferCount;
-        public long WriteTransferCount;
-        public long OtherTransferCount;
-
-        @Override
-        protected List&lt;String&gt; getFieldOrder() {
-<span class="nc" id="L45">            return Arrays.asList(new String[] { &quot;ReadOperationCount&quot;, &quot;WriteOperationCount&quot;, &quot;OtherOperationCount&quot;,</span>
-                    &quot;ReadTransferCount&quot;, &quot;WriteTransferCount&quot;, &quot;OtherTransferCount&quot; });
-        }
-    }
+    /*
+     * WIN32_WINNT version constants
+     */
+    short WIN32_WINNT_NT4 = 0x0400; // Windows NT 4.0
+    short WIN32_WINNT_WIN2K = 0x0500; // Windows 2000
+    short WIN32_WINNT_WINXP = 0x0501; // Windows XP
+    short WIN32_WINNT_WS03 = 0x0502; // Windows Server 2003
+    short WIN32_WINNT_WIN6 = 0x0600; // Windows Vista
+    short WIN32_WINNT_VISTA = 0x0600; // Windows Vista
+    short WIN32_WINNT_WS08 = 0x0600; // Windows Server 2008
+    short WIN32_WINNT_LONGHORN = 0x0600; // Windows Vista
+    short WIN32_WINNT_WIN7 = 0x0601; // Windows 7
+    short WIN32_WINNT_WIN8 = 0x0602; // Windows 8
+    short WIN32_WINNT_WINBLUE = 0x0603; // Windows 8.1
+    short WIN32_WINNT_WINTHRESHOLD = 0x0A00; // Windows 10
+    short WIN32_WINNT_WIN10 = 0x0A00; // Windows 10
 
     /**
-     * Retrieves timing information for the specified process.
-     *
-     * @param hProcess
-     *            A handle to the process whose timing information is sought.
-     *            The handle must have the PROCESS_QUERY_INFORMATION or
-     *            PROCESS_QUERY_LIMITED_INFORMATION access right.
-     * @param lpCreationTime
-     *            A pointer to a FILETIME structure that receives the creation
-     *            time of the process.
-     * @param lpExitTime
-     *            A pointer to a FILETIME structure that receives the exit time
-     *            of the process. If the process has not exited, the content of
-     *            this structure is undefined.
-     * @param lpKernelTime
-     *            A pointer to a FILETIME structure that receives the amount of
-     *            time that the process has executed in kernel mode. The time
-     *            that each of the threads of the process has executed in kernel
-     *            mode is determined, and then all of those times are summed
-     *            together to obtain this value.
-     * @param lpUserTime
-     *            A pointer to a FILETIME structure that receives the amount of
-     *            time that the process has executed in user mode. The time that
-     *            each of the threads of the process has executed in user mode
-     *            is determined, and then all of those times are summed together
-     *            to obtain this value. Note that this value can exceed the
-     *            amount of real time elapsed (between lpCreationTime and
-     *            lpExitTime) if the process executes across multiple CPU cores.
-     * @return If the function succeeds, the return value is nonzero. If the
-     *         function fails, the return value is zero. To get extended error
-     *         information, call GetLastError.
+     * Compares a set of operating system version requirements to the
+     * corresponding values for the currently running version of the system.This
+     * function is subject to manifest-based behavior.
+     * 
+     * @param lpVersionInformation
+     *            A pointer to an OSVERSIONINFOEX structure containing the
+     *            operating system version requirements to compare. The
+     *            dwTypeMask parameter indicates the members of this structure
+     *            that contain information to compare.
+     * 
+     *            You must set the dwOSVersionInfoSize member of this structure
+     *            to sizeof(OSVERSIONINFOEX). You must also specify valid data
+     *            for the members indicated by dwTypeMask. The function ignores
+     *            structure members for which the corresponding dwTypeMask bit
+     *            is not set.
+     * @param dwTypeMask
+     *            A mask that indicates the members of the OSVERSIONINFOEX
+     *            structure to be tested.
+     * @param dwlConditionMask
+     *            The type of comparison to be used for each lpVersionInfo
+     *            member being compared. To build this value, call the
+     *            VerSetConditionMask function once for each OSVERSIONINFOEX
+     *            member being compared.
+     * @return If the currently running operating system satisfies the specified
+     *         requirements, the return value is a nonzero value.
+     * 
+     *         If the current system does not satisfy the requirements, the
+     *         return value is zero and GetLastError returns
+     *         ERROR_OLD_WIN_VERSION.
+     * 
+     *         If the function fails, the return value is zero and GetLastError
+     *         returns an error code other than ERROR_OLD_WIN_VERSION.
      */
-    boolean GetProcessTimes(HANDLE hProcess, FILETIME lpCreationTime, FILETIME lpExitTime, FILETIME lpKernelTime,
-            FILETIME lpUserTime);
+    boolean VerifyVersionInfoW(OSVERSIONINFOEX lpVersionInformation, int dwTypeMask, long dwlConditionMask);
 
     /**
-     * Retrieves accounting information for all I/O operations performed by the
-     * specified process.
-     *
-     * @param hProcess
-     *            A handle to the process. The handle must have the
-     *            PROCESS_QUERY_INFORMATION or PROCESS_QUERY_LIMITED_INFORMATION
-     *            access right.
-     * @param lpIoCounters
-     *            A pointer to an IO_COUNTERS structure that receives the I/O
-     *            accounting information for the process.
-     * @return If the function succeeds, the return value is nonzero. If the
-     *         function fails, the return value is zero. To get extended error
-     *         information, call GetLastError.
+     * Sets the bits of a 64-bit value to indicate the comparison operator to
+     * use for a specified operating system version attribute. This function is
+     * used to build the dwlConditionMask parameter of the VerifyVersionInfo
+     * function.
+     * 
+     * @param conditionMask
+     *            A value to be passed as the dwlConditionMask parameter of the
+     *            VerifyVersionInfo function. The function stores the comparison
+     *            information in the bits of this variable.
+     * 
+     *            Before the first call to VerSetCondition, initialize this
+     *            variable to zero. For subsequent calls, pass in the variable
+     *            used in the previous call.
+     * @param typeMask
+     *            A mask that indicates the member of the OSVERSIONINFOEX
+     *            structure whose comparison operator is being set. This value
+     *            corresponds to one of the bits specified in the dwTypeMask
+     *            parameter for the VerifyVersionInfo function.
+     * @param condition
+     *            The operator to be used for the comparison. The
+     *            VerifyVersionInfo function uses this operator to compare a
+     *            specified attribute value to the corresponding value for the
+     *            currently running system.
+     * @return The function returns the condition mask value.
      */
-    boolean GetProcessIoCounters(HANDLE hProcess, IO_COUNTERS lpIoCounters);
+    long VerSetConditionMask(long conditionMask, int typeMask, byte condition);
+
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

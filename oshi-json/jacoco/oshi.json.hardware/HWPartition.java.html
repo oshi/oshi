@@ -1,20 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>HWPartition.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">oshi-json</a> &gt; <a href="index.source.html" class="el_package">oshi.json.hardware</a> &gt; <span class="el_source">HWPartition.java</span></div><h1>HWPartition.java</h1><pre class="source lang-java linenums">/**
- * Oshi (https://github.com/oshi/oshi)
+ * OSHI (https://github.com/oshi/oshi)
  *
- * Copyright (c) 2010 - 2018 The Oshi Project Team
- *
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- *
- * Maintainers:
- * dblock[at]dblock[dot]org
- * widdis[at]gmail[dot]com
- * enrico.bianchi[at]gmail[dot]com
- *
- * Contributors:
+ * Copyright (c) 2010 - 2019 The OSHI Project Team:
  * https://github.com/oshi/oshi/graphs/contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 package oshi.json.hardware;
 
@@ -41,7 +46,7 @@ public class HWPartition extends AbstractOshiJsonObject implements Comparable&lt
 
     private static final long serialVersionUID = 1L;
 
-<span class="fc" id="L44">    private transient JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
+<span class="fc" id="L49">    private transient JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
 
     private oshi.hardware.HWPartition hwPartition;
 
@@ -66,72 +71,72 @@ public class HWPartition extends AbstractOshiJsonObject implements Comparable&lt
      *            Where the partition is mounted
      */
     public HWPartition(String identification, String name, String type, String uuid, long size, int major, int minor,
-<span class="fc" id="L69">            String mountPoint) {</span>
-<span class="fc" id="L70">        this.hwPartition = new oshi.hardware.HWPartition(identification, name, type, uuid, size, major, minor,</span>
+<span class="fc" id="L74">            String mountPoint) {</span>
+<span class="fc" id="L75">        this.hwPartition = new oshi.hardware.HWPartition(identification, name, type, uuid, size, major, minor,</span>
                 mountPoint);
-<span class="fc" id="L72">    }</span>
+<span class="fc" id="L77">    }</span>
 
     /**
      * Creates a new HWPartition
      */
-<span class="fc" id="L77">    public HWPartition() {</span>
-<span class="fc" id="L78">        this.hwPartition = new oshi.hardware.HWPartition();</span>
-<span class="fc" id="L79">    }</span>
+<span class="fc" id="L82">    public HWPartition() {</span>
+<span class="fc" id="L83">        this.hwPartition = new oshi.hardware.HWPartition();</span>
+<span class="fc" id="L84">    }</span>
 
     /**
      * @return Returns the identification.
      */
     public String getIdentification() {
-<span class="fc" id="L85">        return this.hwPartition.getIdentification();</span>
+<span class="fc" id="L90">        return this.hwPartition.getIdentification();</span>
     }
 
     /**
      * @return Returns the name.
      */
     public String getName() {
-<span class="fc" id="L92">        return this.hwPartition.getName();</span>
+<span class="fc" id="L97">        return this.hwPartition.getName();</span>
     }
 
     /**
      * @return Returns the type.
      */
     public String getType() {
-<span class="fc" id="L99">        return this.hwPartition.getType();</span>
+<span class="fc" id="L104">        return this.hwPartition.getType();</span>
     }
 
     /**
      * @return Returns the uuid.
      */
     public String getUuid() {
-<span class="fc" id="L106">        return this.hwPartition.getUuid();</span>
+<span class="fc" id="L111">        return this.hwPartition.getUuid();</span>
     }
 
     /**
      * @return Returns the size in bytes.
      */
     public long getSize() {
-<span class="fc" id="L113">        return this.hwPartition.getSize();</span>
+<span class="fc" id="L118">        return this.hwPartition.getSize();</span>
     }
 
     /**
      * @return Returns the major device ID.
      */
     public int getMajor() {
-<span class="fc" id="L120">        return this.hwPartition.getMajor();</span>
+<span class="fc" id="L125">        return this.hwPartition.getMajor();</span>
     }
 
     /**
      * @return Returns the minor device ID.
      */
     public int getMinor() {
-<span class="fc" id="L127">        return this.hwPartition.getMinor();</span>
+<span class="fc" id="L132">        return this.hwPartition.getMinor();</span>
     }
 
     /**
      * @return Returns the mount point.
      */
     public String getMountPoint() {
-<span class="fc" id="L134">        return this.hwPartition.getMountPoint();</span>
+<span class="fc" id="L139">        return this.hwPartition.getMountPoint();</span>
     }
 
     /**
@@ -139,96 +144,96 @@ public class HWPartition extends AbstractOshiJsonObject implements Comparable&lt
      *            The identification to set.
      */
     public void setIdentification(String identification) {
-<span class="fc" id="L142">        this.hwPartition.setIdentification(identification);</span>
-<span class="fc" id="L143">    }</span>
+<span class="fc" id="L147">        this.hwPartition.setIdentification(identification);</span>
+<span class="fc" id="L148">    }</span>
 
     /**
      * @param name
      *            The name to set.
      */
     public void setName(String name) {
-<span class="fc" id="L150">        this.hwPartition.setName(name);</span>
-<span class="fc" id="L151">    }</span>
+<span class="fc" id="L155">        this.hwPartition.setName(name);</span>
+<span class="fc" id="L156">    }</span>
 
     /**
      * @param type
      *            The type to set.
      */
     public void setType(String type) {
-<span class="fc" id="L158">        this.hwPartition.setType(type);</span>
-<span class="fc" id="L159">    }</span>
+<span class="fc" id="L163">        this.hwPartition.setType(type);</span>
+<span class="fc" id="L164">    }</span>
 
     /**
      * @param uuid
      *            The uuid to set.
      */
     public void setUuid(String uuid) {
-<span class="fc" id="L166">        this.hwPartition.setUuid(uuid);</span>
-<span class="fc" id="L167">    }</span>
+<span class="fc" id="L171">        this.hwPartition.setUuid(uuid);</span>
+<span class="fc" id="L172">    }</span>
 
     /**
      * @param size
      *            The size (in bytes) to set.
      */
     public void setSize(long size) {
-<span class="fc" id="L174">        this.hwPartition.setSize(size);</span>
-<span class="fc" id="L175">    }</span>
+<span class="fc" id="L179">        this.hwPartition.setSize(size);</span>
+<span class="fc" id="L180">    }</span>
 
     /**
      * @param major
      *            The major device ID to set.
      */
     public void setMajor(int major) {
-<span class="fc" id="L182">        this.hwPartition.setMajor(major);</span>
-<span class="fc" id="L183">    }</span>
+<span class="fc" id="L187">        this.hwPartition.setMajor(major);</span>
+<span class="fc" id="L188">    }</span>
 
     /**
      * @param minor
      *            The minor device ID to set.
      */
     public void setMinor(int minor) {
-<span class="fc" id="L190">        this.hwPartition.setMinor(minor);</span>
-<span class="fc" id="L191">    }</span>
+<span class="fc" id="L195">        this.hwPartition.setMinor(minor);</span>
+<span class="fc" id="L196">    }</span>
 
     /**
      * @param mountPoint
      *            Mount point of the partition
      */
     public void setMountPoint(String mountPoint) {
-<span class="fc" id="L198">        this.hwPartition.setMountPoint(mountPoint);</span>
-<span class="fc" id="L199">    }</span>
+<span class="fc" id="L203">        this.hwPartition.setMountPoint(mountPoint);</span>
+<span class="fc" id="L204">    }</span>
 
     /**
      * {@inheritDoc}
      */
     @Override
     public JsonObject toJSON(Properties properties) {
-<span class="fc" id="L206">        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(this.jsonFactory.createObjectBuilder());</span>
-<span class="pc bpc" id="L207" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.disks.partitions.identification&quot;)) {</span>
-<span class="fc" id="L208">            json.add(&quot;identification&quot;, this.hwPartition.getIdentification());</span>
+<span class="fc" id="L211">        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(this.jsonFactory.createObjectBuilder());</span>
+<span class="pc bpc" id="L212" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.disks.partitions.identification&quot;)) {</span>
+<span class="fc" id="L213">            json.add(&quot;identification&quot;, this.hwPartition.getIdentification());</span>
         }
-<span class="pc bpc" id="L210" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.disks.partitions.name&quot;)) {</span>
-<span class="fc" id="L211">            json.add(&quot;name&quot;, this.hwPartition.getName());</span>
+<span class="pc bpc" id="L215" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.disks.partitions.name&quot;)) {</span>
+<span class="fc" id="L216">            json.add(&quot;name&quot;, this.hwPartition.getName());</span>
         }
-<span class="pc bpc" id="L213" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.disks.partitions.type&quot;)) {</span>
-<span class="fc" id="L214">            json.add(&quot;type&quot;, this.hwPartition.getType());</span>
+<span class="pc bpc" id="L218" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.disks.partitions.type&quot;)) {</span>
+<span class="fc" id="L219">            json.add(&quot;type&quot;, this.hwPartition.getType());</span>
         }
-<span class="pc bpc" id="L216" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.disks.partitions.uuid&quot;)) {</span>
-<span class="fc" id="L217">            json.add(&quot;uuid&quot;, this.hwPartition.getUuid());</span>
+<span class="pc bpc" id="L221" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.disks.partitions.uuid&quot;)) {</span>
+<span class="fc" id="L222">            json.add(&quot;uuid&quot;, this.hwPartition.getUuid());</span>
         }
-<span class="pc bpc" id="L219" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.disks.partitions.size&quot;)) {</span>
-<span class="fc" id="L220">            json.add(&quot;size&quot;, this.hwPartition.getSize());</span>
+<span class="pc bpc" id="L224" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.disks.partitions.size&quot;)) {</span>
+<span class="fc" id="L225">            json.add(&quot;size&quot;, this.hwPartition.getSize());</span>
         }
-<span class="pc bpc" id="L222" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.disks.partitions.major&quot;)) {</span>
-<span class="fc" id="L223">            json.add(&quot;major&quot;, this.hwPartition.getMajor());</span>
+<span class="pc bpc" id="L227" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.disks.partitions.major&quot;)) {</span>
+<span class="fc" id="L228">            json.add(&quot;major&quot;, this.hwPartition.getMajor());</span>
         }
-<span class="pc bpc" id="L225" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.disks.partitions.minor&quot;)) {</span>
-<span class="fc" id="L226">            json.add(&quot;minor&quot;, this.hwPartition.getMinor());</span>
+<span class="pc bpc" id="L230" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.disks.partitions.minor&quot;)) {</span>
+<span class="fc" id="L231">            json.add(&quot;minor&quot;, this.hwPartition.getMinor());</span>
         }
-<span class="pc bpc" id="L228" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.disks.partitions.mountPoint&quot;)) {</span>
-<span class="fc" id="L229">            json.add(&quot;mountPoint&quot;, this.hwPartition.getMountPoint());</span>
+<span class="pc bpc" id="L233" title="1 of 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.disks.partitions.mountPoint&quot;)) {</span>
+<span class="fc" id="L234">            json.add(&quot;mountPoint&quot;, this.hwPartition.getMountPoint());</span>
         }
-<span class="fc" id="L231">        return json.build();</span>
+<span class="fc" id="L236">        return json.build();</span>
     }
 
     /**
@@ -236,7 +241,7 @@ public class HWPartition extends AbstractOshiJsonObject implements Comparable&lt
      */
     @Override
     public int compareTo(HWPartition part) {
-<span class="fc" id="L239">        return this.hwPartition.compareTo(part.hwPartition);</span>
+<span class="fc" id="L244">        return this.hwPartition.compareTo(part.hwPartition);</span>
     }
 
     /**
@@ -244,10 +249,10 @@ public class HWPartition extends AbstractOshiJsonObject implements Comparable&lt
      */
     @Override
     public int hashCode() {
-<span class="fc" id="L247">        final int prime = 31;</span>
-<span class="fc" id="L248">        int result = 1;</span>
-<span class="pc bpc" id="L249" title="1 of 2 branches missed.">        result = prime * result + (this.hwPartition == null ? 0 : this.hwPartition.hashCode());</span>
-<span class="fc" id="L250">        return result;</span>
+<span class="fc" id="L252">        final int prime = 31;</span>
+<span class="fc" id="L253">        int result = 1;</span>
+<span class="pc bpc" id="L254" title="1 of 2 branches missed.">        result = prime * result + (this.hwPartition == null ? 0 : this.hwPartition.hashCode());</span>
+<span class="fc" id="L255">        return result;</span>
     }
 
     /**
@@ -255,24 +260,24 @@ public class HWPartition extends AbstractOshiJsonObject implements Comparable&lt
      */
     @Override
     public boolean equals(Object obj) {
-<span class="fc bfc" id="L258" title="All 2 branches covered.">        if (this == obj) {</span>
-<span class="fc" id="L259">            return true;</span>
+<span class="fc bfc" id="L263" title="All 2 branches covered.">        if (this == obj) {</span>
+<span class="fc" id="L264">            return true;</span>
         }
-<span class="fc bfc" id="L261" title="All 2 branches covered.">        if (obj == null) {</span>
-<span class="fc" id="L262">            return false;</span>
+<span class="fc bfc" id="L266" title="All 2 branches covered.">        if (obj == null) {</span>
+<span class="fc" id="L267">            return false;</span>
         }
-<span class="fc bfc" id="L264" title="All 2 branches covered.">        if (!(obj instanceof HWPartition)) {</span>
-<span class="fc" id="L265">            return false;</span>
+<span class="fc bfc" id="L269" title="All 2 branches covered.">        if (!(obj instanceof HWPartition)) {</span>
+<span class="fc" id="L270">            return false;</span>
         }
-<span class="fc" id="L267">        HWPartition other = (HWPartition) obj;</span>
-<span class="pc bpc" id="L268" title="1 of 2 branches missed.">        if (this.hwPartition == null) {</span>
-<span class="nc bnc" id="L269" title="All 2 branches missed.">            if (other.hwPartition != null) {</span>
-<span class="nc" id="L270">                return false;</span>
+<span class="fc" id="L272">        HWPartition other = (HWPartition) obj;</span>
+<span class="pc bpc" id="L273" title="1 of 2 branches missed.">        if (this.hwPartition == null) {</span>
+<span class="nc bnc" id="L274" title="All 2 branches missed.">            if (other.hwPartition != null) {</span>
+<span class="nc" id="L275">                return false;</span>
             }
-<span class="fc bfc" id="L272" title="All 2 branches covered.">        } else if (!this.hwPartition.equals(other.hwPartition)) {</span>
-<span class="fc" id="L273">            return false;</span>
+<span class="fc bfc" id="L277" title="All 2 branches covered.">        } else if (!this.hwPartition.equals(other.hwPartition)) {</span>
+<span class="fc" id="L278">            return false;</span>
         }
-<span class="fc" id="L275">        return true;</span>
+<span class="fc" id="L280">        return true;</span>
     }
 
 }

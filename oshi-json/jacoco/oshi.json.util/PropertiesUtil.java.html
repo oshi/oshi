@@ -1,20 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PropertiesUtil.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">oshi-json</a> &gt; <a href="index.source.html" class="el_package">oshi.json.util</a> &gt; <span class="el_source">PropertiesUtil.java</span></div><h1>PropertiesUtil.java</h1><pre class="source lang-java linenums">/**
- * Oshi (https://github.com/oshi/oshi)
+ * OSHI (https://github.com/oshi/oshi)
  *
- * Copyright (c) 2010 - 2018 The Oshi Project Team
- *
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- *
- * Maintainers:
- * dblock[at]dblock[dot]org
- * widdis[at]gmail[dot]com
- * enrico.bianchi[at]gmail[dot]com
- *
- * Contributors:
+ * Copyright (c) 2010 - 2019 The OSHI Project Team:
  * https://github.com/oshi/oshi/graphs/contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 package oshi.json.util;
 
@@ -33,7 +38,7 @@ import oshi.util.ParseUtil;
  * @author widdis[at]gmail[dot]com
  */
 public class PropertiesUtil {
-<span class="fc" id="L36">    private static final Logger LOG = LoggerFactory.getLogger(PropertiesUtil.class);</span>
+<span class="fc" id="L41">    private static final Logger LOG = LoggerFactory.getLogger(PropertiesUtil.class);</span>
 
     private PropertiesUtil() {
     }
@@ -46,22 +51,22 @@ public class PropertiesUtil {
      * @return A Properties object from the loaded file
      */
     public static Properties loadProperties(String propertiesFile) {
-<span class="fc" id="L49">        Properties props = new Properties();</span>
-<span class="fc" id="L50">        ClassLoader loader = Thread.currentThread().getContextClassLoader();</span>
-<span class="pc bpc" id="L51" title="1 of 2 branches missed.">        if (loader == null) {</span>
-<span class="nc" id="L52">            return props;</span>
+<span class="fc" id="L54">        Properties props = new Properties();</span>
+<span class="fc" id="L55">        ClassLoader loader = Thread.currentThread().getContextClassLoader();</span>
+<span class="pc bpc" id="L56" title="1 of 2 branches missed.">        if (loader == null) {</span>
+<span class="nc" id="L57">            return props;</span>
         }
-<span class="fc" id="L54">        try (InputStream input = loader.getResourceAsStream(propertiesFile)) {</span>
-<span class="fc bfc" id="L55" title="All 2 branches covered.">            if (input == null) {</span>
-<span class="fc" id="L56">                LOG.error(&quot;No properties file {} on the classpath.&quot;, propertiesFile);</span>
-<span class="fc" id="L57">                return props;</span>
+<span class="fc" id="L59">        try (InputStream input = loader.getResourceAsStream(propertiesFile)) {</span>
+<span class="fc bfc" id="L60" title="All 2 branches covered.">            if (input == null) {</span>
+<span class="fc" id="L61">                LOG.error(&quot;No properties file {} on the classpath.&quot;, propertiesFile);</span>
+<span class="fc" id="L62">                return props;</span>
             }
-<span class="fc" id="L59">            props.load(input);</span>
-<span class="fc" id="L60">            LOG.debug(&quot;Loaded properties: {}&quot;, props);</span>
-<span class="pc" id="L61">        } catch (IOException ex) {</span>
-<span class="nc" id="L62">            LOG.error(&quot;Error reading properties file {}. {}&quot;, propertiesFile, ex);</span>
-<span class="fc" id="L63">        }</span>
-<span class="fc" id="L64">        return props;</span>
+<span class="fc" id="L64">            props.load(input);</span>
+<span class="fc" id="L65">            LOG.debug(&quot;Loaded properties: {}&quot;, props);</span>
+<span class="pc" id="L66">        } catch (IOException ex) {</span>
+<span class="nc" id="L67">            LOG.error(&quot;Error reading properties file {}. {}&quot;, propertiesFile, ex);</span>
+<span class="fc" id="L68">        }</span>
+<span class="fc" id="L69">        return props;</span>
     }
 
     /**
@@ -74,7 +79,7 @@ public class PropertiesUtil {
      * @return False if the property is set to &quot;false&quot;; true otherwise
      */
     public static boolean getBoolean(Properties properties, String property) {
-<span class="pc bpc" id="L77" title="1 of 2 branches missed.">        return !&quot;false&quot;.equalsIgnoreCase(properties.getProperty(property, &quot;true&quot;));</span>
+<span class="pc bpc" id="L82" title="1 of 2 branches missed.">        return !&quot;false&quot;.equalsIgnoreCase(properties.getProperty(property, &quot;true&quot;));</span>
     }
 
     /**
@@ -89,7 +94,7 @@ public class PropertiesUtil {
      * @return The integer value if parseable, or the default, otherwise
      */
     public static int getIntOrDefault(Properties properties, String property, int defaultInt) {
-<span class="fc" id="L92">        return ParseUtil.parseIntOrDefault(properties.getProperty(property), defaultInt);</span>
+<span class="fc" id="L97">        return ParseUtil.parseIntOrDefault(properties.getProperty(property), defaultInt);</span>
     }
 
     /**
@@ -102,8 +107,8 @@ public class PropertiesUtil {
      * @return The string value if parseable, or the string &quot;null&quot;, otherwise
      */
     public static String getString(Properties properties, String property) {
-<span class="fc" id="L105">        String s = properties.getProperty(property);</span>
-<span class="fc bfc" id="L106" title="All 2 branches covered.">        return s == null ? &quot;null&quot; : s;</span>
+<span class="fc" id="L110">        String s = properties.getProperty(property);</span>
+<span class="fc bfc" id="L111" title="All 2 branches covered.">        return s == null ? &quot;null&quot; : s;</span>
     }
 
     /**
@@ -120,16 +125,16 @@ public class PropertiesUtil {
      * @return The enum value if parseable, or null, otherwise
      */
     public static &lt;T extends Enum&lt;T&gt;&gt; T getEnum(Properties properties, String property, Class&lt;T&gt; enumClass) {
-<span class="fc" id="L123">        String s = properties.getProperty(property);</span>
-<span class="pc bpc" id="L124" title="1 of 4 branches missed.">        if (enumClass != null &amp;&amp; s != null) {</span>
+<span class="fc" id="L128">        String s = properties.getProperty(property);</span>
+<span class="pc bpc" id="L129" title="1 of 4 branches missed.">        if (enumClass != null &amp;&amp; s != null) {</span>
             try {
-<span class="fc" id="L126">                return Enum.valueOf(enumClass, s.trim().toUpperCase());</span>
-<span class="fc" id="L127">            } catch (IllegalArgumentException ex) {</span>
-<span class="fc" id="L128">                LOG.error(&quot;Property value {} from property {} does not match enum class {}. {}&quot;, s, property,</span>
-<span class="fc" id="L129">                        enumClass.getName(), ex);</span>
+<span class="fc" id="L131">                return Enum.valueOf(enumClass, s.trim().toUpperCase());</span>
+<span class="fc" id="L132">            } catch (IllegalArgumentException ex) {</span>
+<span class="fc" id="L133">                LOG.error(&quot;Property value {} from property {} does not match enum class {}. {}&quot;, s, property,</span>
+<span class="fc" id="L134">                        enumClass.getName(), ex);</span>
             }
         }
-<span class="fc" id="L132">        return null;</span>
+<span class="fc" id="L137">        return null;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

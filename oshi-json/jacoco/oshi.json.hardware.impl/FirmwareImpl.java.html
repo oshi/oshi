@@ -1,20 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FirmwareImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">oshi-json</a> &gt; <a href="index.source.html" class="el_package">oshi.json.hardware.impl</a> &gt; <span class="el_source">FirmwareImpl.java</span></div><h1>FirmwareImpl.java</h1><pre class="source lang-java linenums">/**
- * Oshi (https://github.com/oshi/oshi)
+ * OSHI (https://github.com/oshi/oshi)
  *
- * Copyright (c) 2010 - 2018 The Oshi Project Team
- *
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- *
- * Maintainers:
- * dblock[at]dblock[dot]org
- * widdis[at]gmail[dot]com
- * enrico.bianchi[at]gmail[dot]com
- *
- * Contributors:
+ * Copyright (c) 2010 - 2019 The OSHI Project Team:
  * https://github.com/oshi/oshi/graphs/contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 package oshi.json.hardware.impl;
 
@@ -37,7 +42,7 @@ public class FirmwareImpl extends AbstractOshiJsonObject implements Firmware {
 
     private static final long serialVersionUID = 1L;
 
-<span class="nc" id="L40">    private transient JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
+<span class="nc" id="L45">    private transient JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
 
     private oshi.hardware.Firmware firmware;
 
@@ -48,16 +53,16 @@ public class FirmwareImpl extends AbstractOshiJsonObject implements Firmware {
      * @param firmware
      *            a platform-specific Firmware object
      */
-<span class="nc" id="L51">    public FirmwareImpl(oshi.hardware.Firmware firmware) {</span>
-<span class="nc" id="L52">        this.firmware = firmware;</span>
-<span class="nc" id="L53">    }</span>
+<span class="nc" id="L56">    public FirmwareImpl(oshi.hardware.Firmware firmware) {</span>
+<span class="nc" id="L57">        this.firmware = firmware;</span>
+<span class="nc" id="L58">    }</span>
 
     /**
      * {@inheritDoc}
      */
     @Override
     public String getManufacturer() {
-<span class="nc" id="L60">        return this.firmware.getManufacturer();</span>
+<span class="nc" id="L65">        return this.firmware.getManufacturer();</span>
     }
 
     /**
@@ -65,7 +70,7 @@ public class FirmwareImpl extends AbstractOshiJsonObject implements Firmware {
      */
     @Override
     public String getName() {
-<span class="nc" id="L68">        return this.firmware.getName();</span>
+<span class="nc" id="L73">        return this.firmware.getName();</span>
     }
 
     /**
@@ -73,7 +78,7 @@ public class FirmwareImpl extends AbstractOshiJsonObject implements Firmware {
      */
     @Override
     public String getDescription() {
-<span class="nc" id="L76">        return this.firmware.getDescription();</span>
+<span class="nc" id="L81">        return this.firmware.getDescription();</span>
     }
 
     /**
@@ -81,7 +86,7 @@ public class FirmwareImpl extends AbstractOshiJsonObject implements Firmware {
      */
     @Override
     public String getVersion() {
-<span class="nc" id="L84">        return this.firmware.getVersion();</span>
+<span class="nc" id="L89">        return this.firmware.getVersion();</span>
     }
 
     /**
@@ -89,7 +94,7 @@ public class FirmwareImpl extends AbstractOshiJsonObject implements Firmware {
      */
     @Override
     public String getReleaseDate() {
-<span class="nc" id="L92">        return this.firmware.getReleaseDate();</span>
+<span class="nc" id="L97">        return this.firmware.getReleaseDate();</span>
     }
 
     /**
@@ -97,28 +102,28 @@ public class FirmwareImpl extends AbstractOshiJsonObject implements Firmware {
      */
     @Override
     public JsonObject toJSON(Properties properties) {
-<span class="nc" id="L100">        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(this.jsonFactory.createObjectBuilder());</span>
-<span class="nc bnc" id="L101" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.computerSystem.firmware.manufacturer&quot;)) {</span>
-<span class="nc" id="L102">            json.add(&quot;manufacturer&quot;, getManufacturer());</span>
+<span class="nc" id="L105">        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(this.jsonFactory.createObjectBuilder());</span>
+<span class="nc bnc" id="L106" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.computerSystem.firmware.manufacturer&quot;)) {</span>
+<span class="nc" id="L107">            json.add(&quot;manufacturer&quot;, getManufacturer());</span>
         }
-<span class="nc bnc" id="L104" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.computerSystem.firmware.name&quot;)) {</span>
-<span class="nc" id="L105">            json.add(&quot;name&quot;, getName());</span>
+<span class="nc bnc" id="L109" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.computerSystem.firmware.name&quot;)) {</span>
+<span class="nc" id="L110">            json.add(&quot;name&quot;, getName());</span>
         }
-<span class="nc bnc" id="L107" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.computerSystem.firmware.description&quot;)) {</span>
-<span class="nc" id="L108">            json.add(&quot;description&quot;, getDescription());</span>
+<span class="nc bnc" id="L112" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.computerSystem.firmware.description&quot;)) {</span>
+<span class="nc" id="L113">            json.add(&quot;description&quot;, getDescription());</span>
         }
-<span class="nc bnc" id="L110" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.computerSystem.firmware.version&quot;)) {</span>
-<span class="nc" id="L111">            json.add(&quot;version&quot;, getVersion());</span>
+<span class="nc bnc" id="L115" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.computerSystem.firmware.version&quot;)) {</span>
+<span class="nc" id="L116">            json.add(&quot;version&quot;, getVersion());</span>
         }
-<span class="nc bnc" id="L113" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.computerSystem.firmware.releaseDate&quot;)) {</span>
-<span class="nc" id="L114">            json.add(&quot;releaseDate&quot;, getReleaseDate());</span>
+<span class="nc bnc" id="L118" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.computerSystem.firmware.releaseDate&quot;)) {</span>
+<span class="nc" id="L119">            json.add(&quot;releaseDate&quot;, getReleaseDate());</span>
         }
-<span class="nc" id="L116">        return json.build();</span>
+<span class="nc" id="L121">        return json.build();</span>
     }
 
     @Override
     public String toString() {
-<span class="nc" id="L121">        return this.firmware.toString();</span>
+<span class="nc" id="L126">        return this.firmware.toString();</span>
     }
 
 }

@@ -1,20 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>SolarisFileSystem.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-json</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.software.os.unix.solaris</a> &gt; <span class="el_source">SolarisFileSystem.java</span></div><h1>SolarisFileSystem.java</h1><pre class="source lang-java linenums">/**
- * Oshi (https://github.com/oshi/oshi)
+ * OSHI (https://github.com/oshi/oshi)
  *
- * Copyright (c) 2010 - 2018 The Oshi Project Team
- *
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- *
- * Maintainers:
- * dblock[at]dblock[dot]org
- * widdis[at]gmail[dot]com
- * enrico.bianchi[at]gmail[dot]com
- *
- * Contributors:
+ * Copyright (c) 2010 - 2019 The OSHI Project Team:
  * https://github.com/oshi/oshi/graphs/contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 package oshi.software.os.unix.solaris;
 
@@ -41,12 +46,12 @@ import oshi.util.platform.unix.solaris.KstatUtil;
  *
  * @author widdis[at]gmail[dot]com
  */
-<span class="nc" id="L44">public class SolarisFileSystem implements FileSystem {</span>
+<span class="nc" id="L49">public class SolarisFileSystem implements FileSystem {</span>
 
     private static final long serialVersionUID = 1L;
 
     // Solaris defines a set of virtual file systems
-<span class="nc" id="L49">    private final List&lt;String&gt; pseudofs = Arrays.asList(new String[] { //</span>
+<span class="nc" id="L54">    private final List&lt;String&gt; pseudofs = Arrays.asList(new String[] { //</span>
             &quot;proc&quot;, // Proc file system
             &quot;devfs&quot;, // Dev temporary file system
             &quot;ctfs&quot;, // Contract file system
@@ -61,7 +66,7 @@ import oshi.util.platform.unix.solaris.KstatUtil;
     });
 
     // System path mounted as tmpfs
-<span class="nc" id="L64">    private final List&lt;String&gt; tmpfsPaths = Arrays.asList(new String[] { &quot;/system&quot;, &quot;/tmp&quot;, &quot;/dev/fd&quot; });</span>
+<span class="nc" id="L69">    private final List&lt;String&gt; tmpfsPaths = Arrays.asList(new String[] { &quot;/system&quot;, &quot;/tmp&quot;, &quot;/dev/fd&quot; });</span>
 
     /**
      * Checks if file path equals or starts with an element in the given list
@@ -74,12 +79,12 @@ import oshi.util.platform.unix.solaris.KstatUtil;
      *         in aList
      */
     private boolean listElementStartsWith(List&lt;String&gt; aList, String charSeq) {
-<span class="nc bnc" id="L77" title="All 2 branches missed.">        for (String match : aList) {</span>
-<span class="nc bnc" id="L78" title="All 4 branches missed.">            if (charSeq.equals(match) || charSeq.startsWith(match + &quot;/&quot;)) {</span>
-<span class="nc" id="L79">                return true;</span>
+<span class="nc bnc" id="L82" title="All 2 branches missed.">        for (String match : aList) {</span>
+<span class="nc bnc" id="L83" title="All 4 branches missed.">            if (charSeq.equals(match) || charSeq.startsWith(match + &quot;/&quot;)) {</span>
+<span class="nc" id="L84">                return true;</span>
             }
-<span class="nc" id="L81">        }</span>
-<span class="nc" id="L82">        return false;</span>
+<span class="nc" id="L86">        }</span>
+<span class="nc" id="L87">        return false;</span>
     }
 
     /**
@@ -91,110 +96,110 @@ import oshi.util.platform.unix.solaris.KstatUtil;
      */
     @Override
     public OSFileStore[] getFileStores() {
-<span class="nc" id="L94">        List&lt;OSFileStore&gt; fsList = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L99">        List&lt;OSFileStore&gt; fsList = new ArrayList&lt;&gt;();</span>
 
         // Get inode usage data
-<span class="nc" id="L97">        Map&lt;String, Long&gt; inodeFreeMap = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L98">        Map&lt;String, Long&gt; inodeTotalMap = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L99">        String key = null;</span>
-<span class="nc" id="L100">        String total = null;</span>
-<span class="nc" id="L101">        String free = null;</span>
-<span class="nc bnc" id="L102" title="All 2 branches missed.">        for (String line : ExecutingCommand.runNative(&quot;df -g&quot;)) {</span>
+<span class="nc" id="L102">        Map&lt;String, Long&gt; inodeFreeMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L103">        Map&lt;String, Long&gt; inodeTotalMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L104">        String key = null;</span>
+<span class="nc" id="L105">        String total = null;</span>
+<span class="nc" id="L106">        String free = null;</span>
+<span class="nc bnc" id="L107" title="All 2 branches missed.">        for (String line : ExecutingCommand.runNative(&quot;df -g&quot;)) {</span>
             /*- Sample Output:
             /                  (/dev/md/dsk/d0    ):         8192 block size          1024 frag size
             41310292 total blocks   18193814 free blocks 17780712 available        2486848 total files
              2293351 free files     22282240 filesys id
                  ufs fstype       0x00000004 flag             255 filename length
             */
-<span class="nc bnc" id="L109" title="All 2 branches missed.">            if (line.startsWith(&quot;/&quot;)) {</span>
-<span class="nc" id="L110">                key = ParseUtil.whitespaces.split(line)[0];</span>
-<span class="nc" id="L111">                total = null;</span>
-<span class="nc bnc" id="L112" title="All 4 branches missed.">            } else if (line.contains(&quot;available&quot;) &amp;&amp; line.contains(&quot;total files&quot;)) {</span>
-<span class="nc" id="L113">                total = ParseUtil.getTextBetweenStrings(line, &quot;available&quot;, &quot;total files&quot;).trim();</span>
-<span class="nc bnc" id="L114" title="All 2 branches missed.">            } else if (line.contains(&quot;free files&quot;)) {</span>
-<span class="nc" id="L115">                free = ParseUtil.getTextBetweenStrings(line, &quot;&quot;, &quot;free files&quot;).trim();</span>
-<span class="nc bnc" id="L116" title="All 4 branches missed.">                if (key != null &amp;&amp; total != null) {</span>
-<span class="nc" id="L117">                    inodeFreeMap.put(key, ParseUtil.parseLongOrDefault(free, 0L));</span>
-<span class="nc" id="L118">                    inodeTotalMap.put(key, ParseUtil.parseLongOrDefault(total, 0L));</span>
-<span class="nc" id="L119">                    key = null;</span>
+<span class="nc bnc" id="L114" title="All 2 branches missed.">            if (line.startsWith(&quot;/&quot;)) {</span>
+<span class="nc" id="L115">                key = ParseUtil.whitespaces.split(line)[0];</span>
+<span class="nc" id="L116">                total = null;</span>
+<span class="nc bnc" id="L117" title="All 4 branches missed.">            } else if (line.contains(&quot;available&quot;) &amp;&amp; line.contains(&quot;total files&quot;)) {</span>
+<span class="nc" id="L118">                total = ParseUtil.getTextBetweenStrings(line, &quot;available&quot;, &quot;total files&quot;).trim();</span>
+<span class="nc bnc" id="L119" title="All 2 branches missed.">            } else if (line.contains(&quot;free files&quot;)) {</span>
+<span class="nc" id="L120">                free = ParseUtil.getTextBetweenStrings(line, &quot;&quot;, &quot;free files&quot;).trim();</span>
+<span class="nc bnc" id="L121" title="All 4 branches missed.">                if (key != null &amp;&amp; total != null) {</span>
+<span class="nc" id="L122">                    inodeFreeMap.put(key, ParseUtil.parseLongOrDefault(free, 0L));</span>
+<span class="nc" id="L123">                    inodeTotalMap.put(key, ParseUtil.parseLongOrDefault(total, 0L));</span>
+<span class="nc" id="L124">                    key = null;</span>
                 }
             }
-<span class="nc" id="L122">        }</span>
+<span class="nc" id="L127">        }</span>
 
         // Get mount table
-<span class="nc bnc" id="L125" title="All 2 branches missed.">        for (String fs : ExecutingCommand.runNative(&quot;cat /etc/mnttab&quot;)) {</span>
-<span class="nc" id="L126">            String[] split = ParseUtil.whitespaces.split(fs);</span>
-<span class="nc bnc" id="L127" title="All 2 branches missed.">            if (split.length &lt; 5) {</span>
-<span class="nc" id="L128">                continue;</span>
+<span class="nc bnc" id="L130" title="All 2 branches missed.">        for (String fs : ExecutingCommand.runNative(&quot;cat /etc/mnttab&quot;)) {</span>
+<span class="nc" id="L131">            String[] split = ParseUtil.whitespaces.split(fs);</span>
+<span class="nc bnc" id="L132" title="All 2 branches missed.">            if (split.length &lt; 5) {</span>
+<span class="nc" id="L133">                continue;</span>
             }
             // 1st field is volume name
             // 2nd field is mount point
             // 3rd field is fs type
             // other fields ignored
-<span class="nc" id="L134">            String volume = split[0];</span>
-<span class="nc" id="L135">            String path = split[1];</span>
-<span class="nc" id="L136">            String type = split[2];</span>
+<span class="nc" id="L139">            String volume = split[0];</span>
+<span class="nc" id="L140">            String path = split[1];</span>
+<span class="nc" id="L141">            String type = split[2];</span>
 
             // Exclude pseudo file systems
-<span class="nc bnc" id="L139" title="All 6 branches missed.">            if (this.pseudofs.contains(type) || path.equals(&quot;/dev&quot;) || listElementStartsWith(this.tmpfsPaths, path)</span>
-<span class="nc bnc" id="L140" title="All 4 branches missed.">                    || volume.startsWith(&quot;rpool&quot;) &amp;&amp; !path.equals(&quot;/&quot;)) {</span>
-<span class="nc" id="L141">                continue;</span>
+<span class="nc bnc" id="L144" title="All 6 branches missed.">            if (this.pseudofs.contains(type) || path.equals(&quot;/dev&quot;) || listElementStartsWith(this.tmpfsPaths, path)</span>
+<span class="nc bnc" id="L145" title="All 4 branches missed.">                    || volume.startsWith(&quot;rpool&quot;) &amp;&amp; !path.equals(&quot;/&quot;)) {</span>
+<span class="nc" id="L146">                continue;</span>
             }
 
-<span class="nc" id="L144">            String name = path.substring(path.lastIndexOf('/') + 1);</span>
+<span class="nc" id="L149">            String name = path.substring(path.lastIndexOf('/') + 1);</span>
             // Special case for /, pull last element of volume instead
-<span class="nc bnc" id="L146" title="All 2 branches missed.">            if (name.isEmpty()) {</span>
-<span class="nc" id="L147">                name = volume.substring(volume.lastIndexOf('/') + 1);</span>
+<span class="nc bnc" id="L151" title="All 2 branches missed.">            if (name.isEmpty()) {</span>
+<span class="nc" id="L152">                name = volume.substring(volume.lastIndexOf('/') + 1);</span>
             }
-<span class="nc" id="L149">            long totalSpace = new File(path).getTotalSpace();</span>
-<span class="nc" id="L150">            long usableSpace = new File(path).getUsableSpace();</span>
+<span class="nc" id="L154">            long totalSpace = new File(path).getTotalSpace();</span>
+<span class="nc" id="L155">            long usableSpace = new File(path).getUsableSpace();</span>
 
             String description;
-<span class="nc bnc" id="L153" title="All 4 branches missed.">            if (volume.startsWith(&quot;/dev&quot;) || path.equals(&quot;/&quot;)) {</span>
-<span class="nc" id="L154">                description = &quot;Local Disk&quot;;</span>
-<span class="nc bnc" id="L155" title="All 2 branches missed.">            } else if (volume.equals(&quot;tmpfs&quot;)) {</span>
-<span class="nc" id="L156">                description = &quot;Ram Disk&quot;;</span>
-<span class="nc bnc" id="L157" title="All 4 branches missed.">            } else if (type.startsWith(&quot;nfs&quot;) || type.equals(&quot;cifs&quot;)) {</span>
-<span class="nc" id="L158">                description = &quot;Network Disk&quot;;</span>
+<span class="nc bnc" id="L158" title="All 4 branches missed.">            if (volume.startsWith(&quot;/dev&quot;) || path.equals(&quot;/&quot;)) {</span>
+<span class="nc" id="L159">                description = &quot;Local Disk&quot;;</span>
+<span class="nc bnc" id="L160" title="All 2 branches missed.">            } else if (volume.equals(&quot;tmpfs&quot;)) {</span>
+<span class="nc" id="L161">                description = &quot;Ram Disk&quot;;</span>
+<span class="nc bnc" id="L162" title="All 4 branches missed.">            } else if (type.startsWith(&quot;nfs&quot;) || type.equals(&quot;cifs&quot;)) {</span>
+<span class="nc" id="L163">                description = &quot;Network Disk&quot;;</span>
             } else {
-<span class="nc" id="L160">                description = &quot;Mount Point&quot;;</span>
+<span class="nc" id="L165">                description = &quot;Mount Point&quot;;</span>
             }
 
             // Add to the list
-<span class="nc" id="L164">            OSFileStore osStore = new OSFileStore();</span>
-<span class="nc" id="L165">            osStore.setName(name);</span>
-<span class="nc" id="L166">            osStore.setVolume(volume);</span>
-<span class="nc" id="L167">            osStore.setMount(path);</span>
-<span class="nc" id="L168">            osStore.setDescription(description);</span>
-<span class="nc" id="L169">            osStore.setType(type);</span>
-<span class="nc" id="L170">            osStore.setUUID(&quot;&quot;); // No UUID info on Solaris</span>
-<span class="nc" id="L171">            osStore.setUsableSpace(usableSpace);</span>
-<span class="nc" id="L172">            osStore.setTotalSpace(totalSpace);</span>
-<span class="nc bnc" id="L173" title="All 2 branches missed.">            osStore.setFreeInodes(inodeFreeMap.containsKey(path) ? inodeFreeMap.get(path) : 0L);</span>
-<span class="nc bnc" id="L174" title="All 2 branches missed.">            osStore.setTotalInodes(inodeTotalMap.containsKey(path) ? inodeTotalMap.get(path) : 0L);</span>
-<span class="nc" id="L175">            fsList.add(osStore);</span>
-<span class="nc" id="L176">        }</span>
-<span class="nc" id="L177">        return fsList.toArray(new OSFileStore[fsList.size()]);</span>
+<span class="nc" id="L169">            OSFileStore osStore = new OSFileStore();</span>
+<span class="nc" id="L170">            osStore.setName(name);</span>
+<span class="nc" id="L171">            osStore.setVolume(volume);</span>
+<span class="nc" id="L172">            osStore.setMount(path);</span>
+<span class="nc" id="L173">            osStore.setDescription(description);</span>
+<span class="nc" id="L174">            osStore.setType(type);</span>
+<span class="nc" id="L175">            osStore.setUUID(&quot;&quot;); // No UUID info on Solaris</span>
+<span class="nc" id="L176">            osStore.setUsableSpace(usableSpace);</span>
+<span class="nc" id="L177">            osStore.setTotalSpace(totalSpace);</span>
+<span class="nc bnc" id="L178" title="All 2 branches missed.">            osStore.setFreeInodes(inodeFreeMap.containsKey(path) ? inodeFreeMap.get(path) : 0L);</span>
+<span class="nc bnc" id="L179" title="All 2 branches missed.">            osStore.setTotalInodes(inodeTotalMap.containsKey(path) ? inodeTotalMap.get(path) : 0L);</span>
+<span class="nc" id="L180">            fsList.add(osStore);</span>
+<span class="nc" id="L181">        }</span>
+<span class="nc" id="L182">        return fsList.toArray(new OSFileStore[fsList.size()]);</span>
     }
 
     @Override
     public long getOpenFileDescriptors() {
-<span class="nc" id="L182">        Kstat ksp = KstatUtil.kstatLookup(null, -1, &quot;file_cache&quot;);</span>
+<span class="nc" id="L187">        Kstat ksp = KstatUtil.kstatLookup(null, -1, &quot;file_cache&quot;);</span>
         // Set values
-<span class="nc bnc" id="L184" title="All 4 branches missed.">        if (ksp != null &amp;&amp; KstatUtil.kstatRead(ksp)) {</span>
-<span class="nc" id="L185">            return KstatUtil.kstatDataLookupLong(ksp, &quot;buf_inuse&quot;);</span>
+<span class="nc bnc" id="L189" title="All 4 branches missed.">        if (ksp != null &amp;&amp; KstatUtil.kstatRead(ksp)) {</span>
+<span class="nc" id="L190">            return KstatUtil.kstatDataLookupLong(ksp, &quot;buf_inuse&quot;);</span>
         }
-<span class="nc" id="L187">        return 0L;</span>
+<span class="nc" id="L192">        return 0L;</span>
     }
 
     @Override
     public long getMaxFileDescriptors() {
-<span class="nc" id="L192">        Kstat ksp = KstatUtil.kstatLookup(null, -1, &quot;file_cache&quot;);</span>
+<span class="nc" id="L197">        Kstat ksp = KstatUtil.kstatLookup(null, -1, &quot;file_cache&quot;);</span>
         // Set values
-<span class="nc bnc" id="L194" title="All 4 branches missed.">        if (ksp != null &amp;&amp; KstatUtil.kstatRead(ksp)) {</span>
-<span class="nc" id="L195">            return KstatUtil.kstatDataLookupLong(ksp, &quot;buf_max&quot;);</span>
+<span class="nc bnc" id="L199" title="All 4 branches missed.">        if (ksp != null &amp;&amp; KstatUtil.kstatRead(ksp)) {</span>
+<span class="nc" id="L200">            return KstatUtil.kstatDataLookupLong(ksp, &quot;buf_max&quot;);</span>
         }
-<span class="nc" id="L197">        return 0L;</span>
+<span class="nc" id="L202">        return 0L;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

@@ -1,20 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>LinuxOperatingSystem.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-json</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.software.os.linux</a> &gt; <span class="el_source">LinuxOperatingSystem.java</span></div><h1>LinuxOperatingSystem.java</h1><pre class="source lang-java linenums">/**
- * Oshi (https://github.com/oshi/oshi)
+ * OSHI (https://github.com/oshi/oshi)
  *
- * Copyright (c) 2010 - 2018 The Oshi Project Team
- *
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- *
- * Maintainers:
- * dblock[at]dblock[dot]org
- * widdis[at]gmail[dot]com
- * enrico.bianchi[at]gmail[dot]com
- *
- * Contributors:
+ * Copyright (c) 2010 - 2019 The OSHI Project Team:
  * https://github.com/oshi/oshi/graphs/contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 package oshi.software.os.linux;
 
@@ -58,7 +63,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
 
     private static final long serialVersionUID = 1L;
 
-<span class="nc" id="L61">    private static final Logger LOG = LoggerFactory.getLogger(LinuxOperatingSystem.class);</span>
+<span class="nc" id="L66">    private static final Logger LOG = LoggerFactory.getLogger(LinuxOperatingSystem.class);</span>
 
     // Populated with results of reading /etc/os-release or other files
     protected String versionId;
@@ -71,29 +76,29 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     private final int memoryPageSize;
 
     // Order the field is in /proc/pid/stat
-<span class="nc" id="L74">    enum ProcPidStat {</span>
+<span class="nc" id="L79">    enum ProcPidStat {</span>
         // The parsing implementation in ParseUtil requires these to be declared
         // in increasing order
-<span class="nc" id="L77">        PPID(4), USER_TIME(14), KERNEL_TIME(15), PRIORITY(18), THREAD_COUNT(20), START_TIME(22), VSZ(23), RSS(24);</span>
+<span class="nc" id="L82">        PPID(4), USER_TIME(14), KERNEL_TIME(15), PRIORITY(18), THREAD_COUNT(20), START_TIME(22), VSZ(23), RSS(24);</span>
 
         private int order;
 
         public int getOrder() {
-<span class="nc" id="L82">            return this.order;</span>
+<span class="nc" id="L87">            return this.order;</span>
         }
 
-<span class="nc" id="L85">        ProcPidStat(int order) {</span>
-<span class="nc" id="L86">            this.order = order;</span>
-<span class="nc" id="L87">        }</span>
+<span class="nc" id="L90">        ProcPidStat(int order) {</span>
+<span class="nc" id="L91">            this.order = order;</span>
+<span class="nc" id="L92">        }</span>
     }
 
     // Get a list of orders to pass to ParseUtil
-<span class="nc" id="L91">    private static final int[] PROC_PID_STAT_ORDERS = new int[ProcPidStat.values().length];</span>
+<span class="nc" id="L96">    private static final int[] PROC_PID_STAT_ORDERS = new int[ProcPidStat.values().length];</span>
     static {
-<span class="nc bnc" id="L93" title="All 2 branches missed.">        for (ProcPidStat stat : ProcPidStat.values()) {</span>
+<span class="nc bnc" id="L98" title="All 2 branches missed.">        for (ProcPidStat stat : ProcPidStat.values()) {</span>
             // The PROC_PID_STAT enum indices are 1-indexed.
             // Subtract one to get a zero-based index
-<span class="nc" id="L96">            PROC_PID_STAT_ORDERS[stat.ordinal()] = stat.getOrder() - 1;</span>
+<span class="nc" id="L101">            PROC_PID_STAT_ORDERS[stat.ordinal()] = stat.getOrder() - 1;</span>
         }
     }
 
@@ -101,26 +106,26 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     // Check /proc/self/stat to find its length
     private static final int PROC_PID_STAT_LENGTH;
     static {
-<span class="nc" id="L104">        List&lt;String&gt; stat = FileUtil.readFile(&quot;/proc/self/stat&quot;, false);</span>
-<span class="nc bnc" id="L105" title="All 4 branches missed.">        if (!stat.isEmpty() &amp;&amp; stat.get(0).contains(&quot;)&quot;)) {</span>
-<span class="nc" id="L106">            String procPidStat = stat.get(0);</span>
+<span class="nc" id="L109">        List&lt;String&gt; stat = FileUtil.readFile(&quot;/proc/self/stat&quot;, false);</span>
+<span class="nc bnc" id="L110" title="All 4 branches missed.">        if (!stat.isEmpty() &amp;&amp; stat.get(0).contains(&quot;)&quot;)) {</span>
+<span class="nc" id="L111">            String procPidStat = stat.get(0);</span>
             // 2nd elment is process name and may contain spaces, but is
             // within parenthesis. Split from the ')' index.
-<span class="nc" id="L109">            int parenIndex = procPidStat.lastIndexOf(')');</span>
-<span class="nc" id="L110">            String[] split = ParseUtil.whitespaces.split(procPidStat.substring(parenIndex));</span>
+<span class="nc" id="L114">            int parenIndex = procPidStat.lastIndexOf(')');</span>
+<span class="nc" id="L115">            String[] split = ParseUtil.whitespaces.split(procPidStat.substring(parenIndex));</span>
             // ')' is split index 0 but stat element 2.
             // Add 1 to account for pid that didn't make the split
-<span class="nc" id="L113">            PROC_PID_STAT_LENGTH = split.length + 1;</span>
-<span class="nc" id="L114">        } else {</span>
+<span class="nc" id="L118">            PROC_PID_STAT_LENGTH = split.length + 1;</span>
+<span class="nc" id="L119">        } else {</span>
             // Default assuming recent kernel
-<span class="nc" id="L116">            PROC_PID_STAT_LENGTH = 52;</span>
+<span class="nc" id="L121">            PROC_PID_STAT_LENGTH = 52;</span>
         }
     }
 
-<span class="nc" id="L120">    private transient LinuxUserGroupInfo userGroupInfo = new LinuxUserGroupInfo();</span>
+<span class="nc" id="L125">    private transient LinuxUserGroupInfo userGroupInfo = new LinuxUserGroupInfo();</span>
 
     // Jiffies per second, used for process time counters.
-<span class="nc" id="L123">    private static final long USER_HZ = ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer(&quot;getconf CLK_TCK&quot;),</span>
+<span class="nc" id="L128">    private static final long USER_HZ = ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer(&quot;getconf CLK_TCK&quot;),</span>
             100L);
     // Boot time in MS.
     private static final long BOOT_TIME;
@@ -128,44 +133,44 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         // Uptime is only in hundredths of seconds but we need thousandths.
         // We can grab uptime twice and take average to reduce error, getting
         // current time in between
-<span class="nc" id="L131">        double uptime = ProcUtil.getSystemUptimeSeconds();</span>
-<span class="nc" id="L132">        long now = System.currentTimeMillis();</span>
-<span class="nc" id="L133">        uptime += ProcUtil.getSystemUptimeSeconds();</span>
+<span class="nc" id="L136">        double uptime = ProcUtil.getSystemUptimeSeconds();</span>
+<span class="nc" id="L137">        long now = System.currentTimeMillis();</span>
+<span class="nc" id="L138">        uptime += ProcUtil.getSystemUptimeSeconds();</span>
         // Uptime is now 2x seconds, so divide by 2, but
         // we want milliseconds so multiply by 1000
         // Ultimately multiply by 1000/2 = 500
-<span class="nc" id="L137">        BOOT_TIME = now - (long) (500d * uptime + 0.5);</span>
+<span class="nc" id="L142">        BOOT_TIME = now - (long) (500d * uptime + 0.5);</span>
         // Cast/truncation is effectively rounding. Boot time could
         // be +/- 5 ms due to System Uptime rounding to nearest 10ms.
-<span class="nc" id="L140">    }</span>
+<span class="nc" id="L145">    }</span>
 
     /*
      * This process map will cache process info to avoid repeated calls for data
      */
-<span class="nc" id="L145">    private final Map&lt;Integer, OSProcess&gt; processMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L150">    private final Map&lt;Integer, OSProcess&gt; processMap = new HashMap&lt;&gt;();</span>
 
-<span class="nc" id="L147">    public LinuxOperatingSystem() {</span>
-<span class="nc" id="L148">        this.manufacturer = &quot;GNU/Linux&quot;;</span>
-<span class="nc" id="L149">        setFamilyFromReleaseFiles();</span>
+<span class="nc" id="L152">    public LinuxOperatingSystem() {</span>
+<span class="nc" id="L153">        this.manufacturer = &quot;GNU/Linux&quot;;</span>
+<span class="nc" id="L154">        setFamilyFromReleaseFiles();</span>
         // The above call may also populate versionId and codeName
         // to pass to version constructor
-<span class="nc" id="L152">        this.version = new LinuxOSVersionInfoEx(this.versionId, this.codeName);</span>
-<span class="nc" id="L153">        this.memoryPageSize = ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer(&quot;getconf PAGESIZE&quot;), 4096);</span>
-<span class="nc" id="L154">        initBitness();</span>
-<span class="nc" id="L155">    }</span>
+<span class="nc" id="L157">        this.version = new LinuxOSVersionInfoEx(this.versionId, this.codeName);</span>
+<span class="nc" id="L158">        this.memoryPageSize = ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer(&quot;getconf PAGESIZE&quot;), 4096);</span>
+<span class="nc" id="L159">        initBitness();</span>
+<span class="nc" id="L160">    }</span>
 
     private void initBitness() {
-<span class="nc bnc" id="L158" title="All 4 branches missed.">        if (this.bitness &lt; 64 &amp;&amp; ExecutingCommand.getFirstAnswer(&quot;uname -m&quot;).indexOf(&quot;64&quot;) != -1) {</span>
-<span class="nc" id="L159">            this.bitness = 64;</span>
+<span class="nc bnc" id="L163" title="All 4 branches missed.">        if (this.bitness &lt; 64 &amp;&amp; ExecutingCommand.getFirstAnswer(&quot;uname -m&quot;).indexOf(&quot;64&quot;) != -1) {</span>
+<span class="nc" id="L164">            this.bitness = 64;</span>
         }
-<span class="nc" id="L161">    }</span>
+<span class="nc" id="L166">    }</span>
 
     /**
      * {@inheritDoc}
      */
     @Override
     public FileSystem getFileSystem() {
-<span class="nc" id="L168">        return new LinuxFileSystem();</span>
+<span class="nc" id="L173">        return new LinuxFileSystem();</span>
     }
 
     /**
@@ -173,28 +178,28 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
      */
     @Override
     public OSProcess[] getProcesses(int limit, ProcessSort sort, boolean slowFields) {
-<span class="nc" id="L176">        List&lt;OSProcess&gt; procs = new ArrayList&lt;&gt;();</span>
-<span class="nc" id="L177">        File[] pids = ProcUtil.getPidFiles();</span>
-<span class="nc" id="L178">        List&lt;Integer&gt; pidsToKeep = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L181">        List&lt;OSProcess&gt; procs = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L182">        File[] pids = ProcUtil.getPidFiles();</span>
+<span class="nc" id="L183">        List&lt;Integer&gt; pidsToKeep = new ArrayList&lt;&gt;();</span>
 
         // now for each file (with digit name) get process info
-<span class="nc bnc" id="L181" title="All 2 branches missed.">        for (File pidFile : pids) {</span>
-<span class="nc" id="L182">            int pid = ParseUtil.parseIntOrDefault(pidFile.getName(), 0);</span>
-<span class="nc" id="L183">            OSProcess proc = getProcess(pid, slowFields);</span>
-<span class="nc bnc" id="L184" title="All 2 branches missed.">            if (proc != null) {</span>
-<span class="nc" id="L185">                procs.add(proc);</span>
-<span class="nc" id="L186">                pidsToKeep.add(pid);</span>
+<span class="nc bnc" id="L186" title="All 2 branches missed.">        for (File pidFile : pids) {</span>
+<span class="nc" id="L187">            int pid = ParseUtil.parseIntOrDefault(pidFile.getName(), 0);</span>
+<span class="nc" id="L188">            OSProcess proc = getProcess(pid, slowFields);</span>
+<span class="nc bnc" id="L189" title="All 2 branches missed.">            if (proc != null) {</span>
+<span class="nc" id="L190">                procs.add(proc);</span>
+<span class="nc" id="L191">                pidsToKeep.add(pid);</span>
             }
         }
         // Clear out anything not in cache
-<span class="nc bnc" id="L190" title="All 2 branches missed.">        for (Integer pid : new HashSet&lt;&gt;(this.processMap.keySet())) {</span>
-<span class="nc bnc" id="L191" title="All 2 branches missed.">            if (!pidsToKeep.contains(pid)) {</span>
-<span class="nc" id="L192">                this.processMap.remove(pid);</span>
+<span class="nc bnc" id="L195" title="All 2 branches missed.">        for (Integer pid : new HashSet&lt;&gt;(this.processMap.keySet())) {</span>
+<span class="nc bnc" id="L196" title="All 2 branches missed.">            if (!pidsToKeep.contains(pid)) {</span>
+<span class="nc" id="L197">                this.processMap.remove(pid);</span>
             }
-<span class="nc" id="L194">        }</span>
+<span class="nc" id="L199">        }</span>
         // Sort
-<span class="nc" id="L196">        List&lt;OSProcess&gt; sorted = processSort(procs, limit, sort);</span>
-<span class="nc" id="L197">        return sorted.toArray(new OSProcess[sorted.size()]);</span>
+<span class="nc" id="L201">        List&lt;OSProcess&gt; sorted = processSort(procs, limit, sort);</span>
+<span class="nc" id="L202">        return sorted.toArray(new OSProcess[sorted.size()]);</span>
     }
 
     /**
@@ -202,104 +207,104 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
      */
     @Override
     public OSProcess getProcess(int pid) {
-<span class="nc" id="L205">        return getProcess(pid, true);</span>
+<span class="nc" id="L210">        return getProcess(pid, true);</span>
     }
 
     private OSProcess getProcess(int pid, boolean slowFields) {
-<span class="nc" id="L209">        String path = &quot;&quot;;</span>
-<span class="nc" id="L210">        Pointer buf = new Memory(1024);</span>
-<span class="nc" id="L211">        int size = Libc.INSTANCE.readlink(String.format(&quot;/proc/%d/exe&quot;, pid), buf, 1023);</span>
-<span class="nc bnc" id="L212" title="All 2 branches missed.">        if (size &gt; 0) {</span>
-<span class="nc" id="L213">            path = buf.getString(0).substring(0, size);</span>
+<span class="nc" id="L214">        String path = &quot;&quot;;</span>
+<span class="nc" id="L215">        Pointer buf = new Memory(1024);</span>
+<span class="nc" id="L216">        int size = Libc.INSTANCE.readlink(String.format(&quot;/proc/%d/exe&quot;, pid), buf, 1023);</span>
+<span class="nc bnc" id="L217" title="All 2 branches missed.">        if (size &gt; 0) {</span>
+<span class="nc" id="L218">            path = buf.getString(0).substring(0, size);</span>
         }
-<span class="nc" id="L215">        Map&lt;String, String&gt; io = FileUtil.getKeyValueMapFromFile(String.format(&quot;/proc/%d/io&quot;, pid), &quot;:&quot;);</span>
+<span class="nc" id="L220">        Map&lt;String, String&gt; io = FileUtil.getKeyValueMapFromFile(String.format(&quot;/proc/%d/io&quot;, pid), &quot;:&quot;);</span>
         // See man proc for how to parse /proc/[pid]/stat
-<span class="nc" id="L217">        long now = System.currentTimeMillis();</span>
-<span class="nc" id="L218">        String stat = FileUtil.getStringFromFile(String.format(&quot;/proc/%d/stat&quot;, pid));</span>
+<span class="nc" id="L222">        long now = System.currentTimeMillis();</span>
+<span class="nc" id="L223">        String stat = FileUtil.getStringFromFile(String.format(&quot;/proc/%d/stat&quot;, pid));</span>
         // A race condition may leave us with an empty string
-<span class="nc bnc" id="L220" title="All 2 branches missed.">        if (stat.isEmpty()) {</span>
-<span class="nc" id="L221">            return null;</span>
+<span class="nc bnc" id="L225" title="All 2 branches missed.">        if (stat.isEmpty()) {</span>
+<span class="nc" id="L226">            return null;</span>
         }
         // We can get name and status more easily from /proc/pid/status which we
         // call later, so just get the numeric bits here
-<span class="nc" id="L225">        long[] statArray = ParseUtil.parseStringToLongArray(stat, PROC_PID_STAT_ORDERS, PROC_PID_STAT_LENGTH, ' ');</span>
+<span class="nc" id="L230">        long[] statArray = ParseUtil.parseStringToLongArray(stat, PROC_PID_STAT_ORDERS, PROC_PID_STAT_LENGTH, ' ');</span>
         // Fetch cached process if it exists
-<span class="nc" id="L227">        OSProcess proc = processMap.get(pid);</span>
-<span class="nc" id="L228">        long startTime = BOOT_TIME + statArray[ProcPidStat.START_TIME.ordinal()] * 1000L / USER_HZ;</span>
+<span class="nc" id="L232">        OSProcess proc = processMap.get(pid);</span>
+<span class="nc" id="L233">        long startTime = BOOT_TIME + statArray[ProcPidStat.START_TIME.ordinal()] * 1000L / USER_HZ;</span>
         // BOOT_TIME could be up to 5ms off. In rare cases when a process has
         // started within 5ms of boot it is possible to get negative uptime.
-<span class="nc bnc" id="L231" title="All 2 branches missed.">        if (startTime &gt;= now) {</span>
-<span class="nc" id="L232">            startTime = now - 1;</span>
+<span class="nc bnc" id="L236" title="All 2 branches missed.">        if (startTime &gt;= now) {</span>
+<span class="nc" id="L237">            startTime = now - 1;</span>
         }
         // New process if start time differs by 200ms or more
-<span class="nc bnc" id="L235" title="All 4 branches missed.">        if (proc == null || Math.abs(startTime - proc.getStartTime()) &gt; 200) {</span>
-<span class="nc" id="L236">            proc = new OSProcess();</span>
-<span class="nc" id="L237">            proc.setProcessID(pid);</span>
-<span class="nc" id="L238">            proc.setStartTime(startTime);</span>
+<span class="nc bnc" id="L240" title="All 4 branches missed.">        if (proc == null || Math.abs(startTime - proc.getStartTime()) &gt; 200) {</span>
+<span class="nc" id="L241">            proc = new OSProcess();</span>
+<span class="nc" id="L242">            proc.setProcessID(pid);</span>
+<span class="nc" id="L243">            proc.setStartTime(startTime);</span>
             // The /proc/pid/cmdline value is null-delimited
-<span class="nc" id="L240">            proc.setCommandLine(FileUtil.getStringFromFile(String.format(&quot;/proc/%d/cmdline&quot;, pid)));</span>
+<span class="nc" id="L245">            proc.setCommandLine(FileUtil.getStringFromFile(String.format(&quot;/proc/%d/cmdline&quot;, pid)));</span>
             // Add or replace value in the map
-<span class="nc" id="L242">            processMap.put(pid, proc);</span>
+<span class="nc" id="L247">            processMap.put(pid, proc);</span>
         }
-<span class="nc" id="L244">        proc.setParentProcessID((int) statArray[ProcPidStat.PPID.ordinal()]);</span>
-<span class="nc" id="L245">        proc.setThreadCount((int) statArray[ProcPidStat.THREAD_COUNT.ordinal()]);</span>
-<span class="nc" id="L246">        proc.setPriority((int) statArray[ProcPidStat.PRIORITY.ordinal()]);</span>
-<span class="nc" id="L247">        proc.setVirtualSize(statArray[ProcPidStat.VSZ.ordinal()]);</span>
-<span class="nc" id="L248">        proc.setResidentSetSize(statArray[ProcPidStat.RSS.ordinal()] * this.memoryPageSize);</span>
-<span class="nc" id="L249">        proc.setKernelTime(statArray[ProcPidStat.KERNEL_TIME.ordinal()] * 1000L / USER_HZ);</span>
-<span class="nc" id="L250">        proc.setUserTime(statArray[ProcPidStat.USER_TIME.ordinal()] * 1000L / USER_HZ);</span>
-<span class="nc" id="L251">        proc.setUpTime(now - proc.getStartTime());</span>
+<span class="nc" id="L249">        proc.setParentProcessID((int) statArray[ProcPidStat.PPID.ordinal()]);</span>
+<span class="nc" id="L250">        proc.setThreadCount((int) statArray[ProcPidStat.THREAD_COUNT.ordinal()]);</span>
+<span class="nc" id="L251">        proc.setPriority((int) statArray[ProcPidStat.PRIORITY.ordinal()]);</span>
+<span class="nc" id="L252">        proc.setVirtualSize(statArray[ProcPidStat.VSZ.ordinal()]);</span>
+<span class="nc" id="L253">        proc.setResidentSetSize(statArray[ProcPidStat.RSS.ordinal()] * this.memoryPageSize);</span>
+<span class="nc" id="L254">        proc.setKernelTime(statArray[ProcPidStat.KERNEL_TIME.ordinal()] * 1000L / USER_HZ);</span>
+<span class="nc" id="L255">        proc.setUserTime(statArray[ProcPidStat.USER_TIME.ordinal()] * 1000L / USER_HZ);</span>
+<span class="nc" id="L256">        proc.setUpTime(now - proc.getStartTime());</span>
         // See man proc for how to parse /proc/[pid]/io
-<span class="nc" id="L253">        proc.setBytesRead(ParseUtil.parseLongOrDefault(MapUtil.getOrDefault(io, &quot;read_bytes&quot;, &quot;&quot;), 0L));</span>
-<span class="nc" id="L254">        proc.setBytesWritten(ParseUtil.parseLongOrDefault(MapUtil.getOrDefault(io, &quot;write_bytes&quot;, &quot;&quot;), 0L));</span>
+<span class="nc" id="L258">        proc.setBytesRead(ParseUtil.parseLongOrDefault(MapUtil.getOrDefault(io, &quot;read_bytes&quot;, &quot;&quot;), 0L));</span>
+<span class="nc" id="L259">        proc.setBytesWritten(ParseUtil.parseLongOrDefault(MapUtil.getOrDefault(io, &quot;write_bytes&quot;, &quot;&quot;), 0L));</span>
 
         // gets the open files count
-<span class="nc bnc" id="L257" title="All 2 branches missed.">        if (slowFields) {</span>
-<span class="nc" id="L258">            List&lt;String&gt; openFilesList = ExecutingCommand.runNative(String.format(&quot;ls -f /proc/%d/fd&quot;, pid));</span>
-<span class="nc" id="L259">            proc.setOpenFiles(openFilesList.size() - 1L);</span>
+<span class="nc bnc" id="L262" title="All 2 branches missed.">        if (slowFields) {</span>
+<span class="nc" id="L263">            List&lt;String&gt; openFilesList = ExecutingCommand.runNative(String.format(&quot;ls -f /proc/%d/fd&quot;, pid));</span>
+<span class="nc" id="L264">            proc.setOpenFiles(openFilesList.size() - 1L);</span>
         }
 
-<span class="nc" id="L262">        Map&lt;String, String&gt; status = FileUtil.getKeyValueMapFromFile(String.format(&quot;/proc/%d/status&quot;, pid), &quot;:&quot;);</span>
-<span class="nc" id="L263">        proc.setName(MapUtil.getOrDefault(status, &quot;Name&quot;, &quot;&quot;));</span>
-<span class="nc" id="L264">        proc.setPath(path);</span>
-<span class="nc bnc" id="L265" title="All 6 branches missed.">        switch (MapUtil.getOrDefault(status, &quot;State&quot;, &quot;U&quot;).charAt(0)) {</span>
+<span class="nc" id="L267">        Map&lt;String, String&gt; status = FileUtil.getKeyValueMapFromFile(String.format(&quot;/proc/%d/status&quot;, pid), &quot;:&quot;);</span>
+<span class="nc" id="L268">        proc.setName(MapUtil.getOrDefault(status, &quot;Name&quot;, &quot;&quot;));</span>
+<span class="nc" id="L269">        proc.setPath(path);</span>
+<span class="nc bnc" id="L270" title="All 6 branches missed.">        switch (MapUtil.getOrDefault(status, &quot;State&quot;, &quot;U&quot;).charAt(0)) {</span>
         case 'R':
-<span class="nc" id="L267">            proc.setState(OSProcess.State.RUNNING);</span>
-<span class="nc" id="L268">            break;</span>
+<span class="nc" id="L272">            proc.setState(OSProcess.State.RUNNING);</span>
+<span class="nc" id="L273">            break;</span>
         case 'S':
-<span class="nc" id="L270">            proc.setState(OSProcess.State.SLEEPING);</span>
-<span class="nc" id="L271">            break;</span>
+<span class="nc" id="L275">            proc.setState(OSProcess.State.SLEEPING);</span>
+<span class="nc" id="L276">            break;</span>
         case 'D':
-<span class="nc" id="L273">            proc.setState(OSProcess.State.WAITING);</span>
-<span class="nc" id="L274">            break;</span>
+<span class="nc" id="L278">            proc.setState(OSProcess.State.WAITING);</span>
+<span class="nc" id="L279">            break;</span>
         case 'Z':
-<span class="nc" id="L276">            proc.setState(OSProcess.State.ZOMBIE);</span>
-<span class="nc" id="L277">            break;</span>
+<span class="nc" id="L281">            proc.setState(OSProcess.State.ZOMBIE);</span>
+<span class="nc" id="L282">            break;</span>
         case 'T':
-<span class="nc" id="L279">            proc.setState(OSProcess.State.STOPPED);</span>
-<span class="nc" id="L280">            break;</span>
+<span class="nc" id="L284">            proc.setState(OSProcess.State.STOPPED);</span>
+<span class="nc" id="L285">            break;</span>
         default:
-<span class="nc" id="L282">            proc.setState(OSProcess.State.OTHER);</span>
+<span class="nc" id="L287">            proc.setState(OSProcess.State.OTHER);</span>
             break;
         }
-<span class="nc" id="L285">        proc.setUserID(ParseUtil.whitespaces.split(MapUtil.getOrDefault(status, &quot;Uid&quot;, &quot;&quot;))[0]);</span>
-<span class="nc" id="L286">        proc.setGroupID(ParseUtil.whitespaces.split(MapUtil.getOrDefault(status, &quot;Gid&quot;, &quot;&quot;))[0]);</span>
-<span class="nc" id="L287">        OSUser user = this.userGroupInfo.getUser(proc.getUserID());</span>
-<span class="nc bnc" id="L288" title="All 2 branches missed.">        if (user != null) {</span>
-<span class="nc" id="L289">            proc.setUser(user.getUserName());</span>
+<span class="nc" id="L290">        proc.setUserID(ParseUtil.whitespaces.split(MapUtil.getOrDefault(status, &quot;Uid&quot;, &quot;&quot;))[0]);</span>
+<span class="nc" id="L291">        proc.setGroupID(ParseUtil.whitespaces.split(MapUtil.getOrDefault(status, &quot;Gid&quot;, &quot;&quot;))[0]);</span>
+<span class="nc" id="L292">        OSUser user = this.userGroupInfo.getUser(proc.getUserID());</span>
+<span class="nc bnc" id="L293" title="All 2 branches missed.">        if (user != null) {</span>
+<span class="nc" id="L294">            proc.setUser(user.getUserName());</span>
         }
-<span class="nc" id="L291">        proc.setGroup(this.userGroupInfo.getGroupName(proc.getGroupID()));</span>
+<span class="nc" id="L296">        proc.setGroup(this.userGroupInfo.getGroupName(proc.getGroupID()));</span>
 
         try {
-<span class="nc" id="L294">            String cwdLink = String.format(&quot;/proc/%d/cwd&quot;, pid);</span>
-<span class="nc" id="L295">            String cwd = new File(cwdLink).getCanonicalPath();</span>
-<span class="nc bnc" id="L296" title="All 2 branches missed.">            if (!cwd.equals(cwdLink)) {</span>
-<span class="nc" id="L297">                proc.setCurrentWorkingDirectory(cwd);</span>
+<span class="nc" id="L299">            String cwdLink = String.format(&quot;/proc/%d/cwd&quot;, pid);</span>
+<span class="nc" id="L300">            String cwd = new File(cwdLink).getCanonicalPath();</span>
+<span class="nc bnc" id="L301" title="All 2 branches missed.">            if (!cwd.equals(cwdLink)) {</span>
+<span class="nc" id="L302">                proc.setCurrentWorkingDirectory(cwd);</span>
             }
-<span class="nc" id="L299">        } catch (IOException e) {</span>
-<span class="nc" id="L300">            LOG.trace(&quot;Couldn't find cwd for pid {}: {}&quot;, pid, e);</span>
-<span class="nc" id="L301">        }</span>
-<span class="nc" id="L302">        return proc;</span>
+<span class="nc" id="L304">        } catch (IOException e) {</span>
+<span class="nc" id="L305">            LOG.trace(&quot;Couldn't find cwd for pid {}: {}&quot;, pid, e);</span>
+<span class="nc" id="L306">        }</span>
+<span class="nc" id="L307">        return proc;</span>
     }
 
     /**
@@ -307,27 +312,27 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
      */
     @Override
     public OSProcess[] getChildProcesses(int parentPid, int limit, ProcessSort sort) {
-<span class="nc" id="L310">        List&lt;OSProcess&gt; procs = new ArrayList&lt;&gt;();</span>
-<span class="nc" id="L311">        File[] procFiles = ProcUtil.getPidFiles();</span>
+<span class="nc" id="L315">        List&lt;OSProcess&gt; procs = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L316">        File[] procFiles = ProcUtil.getPidFiles();</span>
 
         // now for each file (with digit name) get process info
-<span class="nc bnc" id="L314" title="All 2 branches missed.">        for (File procFile : procFiles) {</span>
-<span class="nc" id="L315">            int pid = ParseUtil.parseIntOrDefault(procFile.getName(), 0);</span>
-<span class="nc bnc" id="L316" title="All 2 branches missed.">            if (parentPid == getParentPidFromProcFile(pid)) {</span>
-<span class="nc" id="L317">                OSProcess proc = getProcess(pid, true);</span>
-<span class="nc bnc" id="L318" title="All 2 branches missed.">                if (proc != null) {</span>
-<span class="nc" id="L319">                    procs.add(proc);</span>
+<span class="nc bnc" id="L319" title="All 2 branches missed.">        for (File procFile : procFiles) {</span>
+<span class="nc" id="L320">            int pid = ParseUtil.parseIntOrDefault(procFile.getName(), 0);</span>
+<span class="nc bnc" id="L321" title="All 2 branches missed.">            if (parentPid == getParentPidFromProcFile(pid)) {</span>
+<span class="nc" id="L322">                OSProcess proc = getProcess(pid, true);</span>
+<span class="nc bnc" id="L323" title="All 2 branches missed.">                if (proc != null) {</span>
+<span class="nc" id="L324">                    procs.add(proc);</span>
                 }
             }
         }
-<span class="nc" id="L323">        List&lt;OSProcess&gt; sorted = processSort(procs, limit, sort);</span>
-<span class="nc" id="L324">        return sorted.toArray(new OSProcess[sorted.size()]);</span>
+<span class="nc" id="L328">        List&lt;OSProcess&gt; sorted = processSort(procs, limit, sort);</span>
+<span class="nc" id="L329">        return sorted.toArray(new OSProcess[sorted.size()]);</span>
     }
 
     private static int getParentPidFromProcFile(int pid) {
-<span class="nc" id="L328">        String stat = FileUtil.getStringFromFile(String.format(&quot;/proc/%d/stat&quot;, pid));</span>
-<span class="nc" id="L329">        long[] statArray = ParseUtil.parseStringToLongArray(stat, PROC_PID_STAT_ORDERS, PROC_PID_STAT_LENGTH, ' ');</span>
-<span class="nc" id="L330">        return (int) statArray[ProcPidStat.PPID.ordinal()];</span>
+<span class="nc" id="L333">        String stat = FileUtil.getStringFromFile(String.format(&quot;/proc/%d/stat&quot;, pid));</span>
+<span class="nc" id="L334">        long[] statArray = ParseUtil.parseStringToLongArray(stat, PROC_PID_STAT_ORDERS, PROC_PID_STAT_LENGTH, ' ');</span>
+<span class="nc" id="L335">        return (int) statArray[ProcPidStat.PPID.ordinal()];</span>
     }
 
     /**
@@ -335,7 +340,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
      */
     @Override
     public int getProcessId() {
-<span class="nc" id="L338">        return Libc.INSTANCE.getpid();</span>
+<span class="nc" id="L343">        return Libc.INSTANCE.getpid();</span>
     }
 
     /**
@@ -343,7 +348,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
      */
     @Override
     public int getProcessCount() {
-<span class="nc" id="L346">        return ProcUtil.getPidFiles().length;</span>
+<span class="nc" id="L351">        return ProcUtil.getPidFiles().length;</span>
     }
 
     /**
@@ -352,16 +357,16 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     @Override
     public int getThreadCount() {
         try {
-<span class="nc" id="L355">            Sysinfo info = new Sysinfo();</span>
-<span class="nc bnc" id="L356" title="All 2 branches missed.">            if (0 != LibC.INSTANCE.sysinfo(info)) {</span>
-<span class="nc" id="L357">                LOG.error(&quot;Failed to get process thread count. Error code: {}&quot;, Native.getLastError());</span>
-<span class="nc" id="L358">                return 0;</span>
+<span class="nc" id="L360">            Sysinfo info = new Sysinfo();</span>
+<span class="nc bnc" id="L361" title="All 2 branches missed.">            if (0 != LibC.INSTANCE.sysinfo(info)) {</span>
+<span class="nc" id="L362">                LOG.error(&quot;Failed to get process thread count. Error code: {}&quot;, Native.getLastError());</span>
+<span class="nc" id="L363">                return 0;</span>
             }
-<span class="nc" id="L360">            return info.procs;</span>
-<span class="nc" id="L361">        } catch (UnsatisfiedLinkError | NoClassDefFoundError e) {</span>
-<span class="nc" id="L362">            LOG.error(&quot;Failed to get procs from sysinfo. {}&quot;, e);</span>
+<span class="nc" id="L365">            return info.procs;</span>
+<span class="nc" id="L366">        } catch (UnsatisfiedLinkError | NoClassDefFoundError e) {</span>
+<span class="nc" id="L367">            LOG.error(&quot;Failed to get procs from sysinfo. {}&quot;, e);</span>
         }
-<span class="nc" id="L364">        return 0;</span>
+<span class="nc" id="L369">        return 0;</span>
     }
 
     /**
@@ -369,11 +374,11 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
      */
     @Override
     public NetworkParams getNetworkParams() {
-<span class="nc" id="L372">        return new LinuxNetworkParams();</span>
+<span class="nc" id="L377">        return new LinuxNetworkParams();</span>
     }
 
     private void setFamilyFromReleaseFiles() {
-<span class="nc bnc" id="L376" title="All 2 branches missed.">        if (this.family == null) {</span>
+<span class="nc bnc" id="L381" title="All 2 branches missed.">        if (this.family == null) {</span>
             // There are two competing options for family/version information.
             // Newer systems are adopting a standard /etc/os-release file:
             // https://www.freedesktop.org/software/systemd/man/os-release.html
@@ -389,51 +394,51 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
 
             // Attempt to read /etc/system-release which has more details than
             // os-release on (CentOS and Fedora)
-<span class="nc bnc" id="L392" title="All 2 branches missed.">            if (readDistribRelease(&quot;/etc/system-release&quot;)) {</span>
+<span class="nc bnc" id="L397" title="All 2 branches missed.">            if (readDistribRelease(&quot;/etc/system-release&quot;)) {</span>
                 // If successful, we're done. this.family has been set and
                 // possibly the versionID and codeName
-<span class="nc" id="L395">                return;</span>
+<span class="nc" id="L400">                return;</span>
             }
 
             // Attempt to read /etc/os-release file.
-<span class="nc bnc" id="L399" title="All 2 branches missed.">            if (readOsRelease()) {</span>
+<span class="nc bnc" id="L404" title="All 2 branches missed.">            if (readOsRelease()) {</span>
                 // If successful, we're done. this.family has been set and
                 // possibly the versionID and codeName
-<span class="nc" id="L402">                return;</span>
+<span class="nc" id="L407">                return;</span>
             }
 
             // Attempt to execute the `lsb_release` command
-<span class="nc bnc" id="L406" title="All 2 branches missed.">            if (execLsbRelease()) {</span>
+<span class="nc bnc" id="L411" title="All 2 branches missed.">            if (execLsbRelease()) {</span>
                 // If successful, we're done. this.family has been set and
                 // possibly the versionID and codeName
-<span class="nc" id="L409">                return;</span>
+<span class="nc" id="L414">                return;</span>
             }
 
             // The above two options should hopefully work on most
             // distributions. If not, we keep having fun.
             // Attempt to read /etc/lsb-release file
-<span class="nc bnc" id="L415" title="All 2 branches missed.">            if (readLsbRelease()) {</span>
+<span class="nc bnc" id="L420" title="All 2 branches missed.">            if (readLsbRelease()) {</span>
                 // If successful, we're done. this.family has been set and
                 // possibly the versionID and codeName
-<span class="nc" id="L418">                return;</span>
+<span class="nc" id="L423">                return;</span>
             }
 
             // If we're still looking, we search for any /etc/*-release (or
             // similar) filename, for which the first line should be of the
             // &quot;Distributor release x.x (Codename)&quot; format or possibly a
             // &quot;Distributor VERSION x.x (Codename)&quot; format
-<span class="nc" id="L425">            String etcDistribRelease = getReleaseFilename();</span>
-<span class="nc bnc" id="L426" title="All 2 branches missed.">            if (readDistribRelease(etcDistribRelease)) {</span>
+<span class="nc" id="L430">            String etcDistribRelease = getReleaseFilename();</span>
+<span class="nc bnc" id="L431" title="All 2 branches missed.">            if (readDistribRelease(etcDistribRelease)) {</span>
                 // If successful, we're done. this.family has been set and
                 // possibly the versionID and codeName
-<span class="nc" id="L429">                return;</span>
+<span class="nc" id="L434">                return;</span>
             }
             // If we've gotten this far with no match, use the distrib-release
             // filename (defaults will eventually give &quot;Unknown&quot;)
-<span class="nc" id="L433">            this.family = filenameToFamily(etcDistribRelease.replace(&quot;/etc/&quot;, &quot;&quot;).replace(&quot;release&quot;, &quot;&quot;)</span>
-<span class="nc" id="L434">                    .replace(&quot;version&quot;, &quot;&quot;).replace(&quot;-&quot;, &quot;&quot;).replace(&quot;_&quot;, &quot;&quot;));</span>
+<span class="nc" id="L438">            this.family = filenameToFamily(etcDistribRelease.replace(&quot;/etc/&quot;, &quot;&quot;).replace(&quot;release&quot;, &quot;&quot;)</span>
+<span class="nc" id="L439">                    .replace(&quot;version&quot;, &quot;&quot;).replace(&quot;-&quot;, &quot;&quot;).replace(&quot;_&quot;, &quot;&quot;));</span>
         }
-<span class="nc" id="L436">    }</span>
+<span class="nc" id="L441">    }</span>
 
     /**
      * Attempts to read /etc/os-release
@@ -441,41 +446,41 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
      * @return true if file successfully read and NAME= found
      */
     private boolean readOsRelease() {
-<span class="nc bnc" id="L444" title="All 2 branches missed.">        if (new File(&quot;/etc/os-release&quot;).exists()) {</span>
-<span class="nc" id="L445">            List&lt;String&gt; osRelease = FileUtil.readFile(&quot;/etc/os-release&quot;);</span>
+<span class="nc bnc" id="L449" title="All 2 branches missed.">        if (new File(&quot;/etc/os-release&quot;).exists()) {</span>
+<span class="nc" id="L450">            List&lt;String&gt; osRelease = FileUtil.readFile(&quot;/etc/os-release&quot;);</span>
             // Search for NAME=
-<span class="nc bnc" id="L447" title="All 2 branches missed.">            for (String line : osRelease) {</span>
-<span class="nc bnc" id="L448" title="All 2 branches missed.">                if (line.startsWith(&quot;VERSION=&quot;)) {</span>
-<span class="nc" id="L449">                    LOG.debug(&quot;os-release: {}&quot;, line);</span>
+<span class="nc bnc" id="L452" title="All 2 branches missed.">            for (String line : osRelease) {</span>
+<span class="nc bnc" id="L453" title="All 2 branches missed.">                if (line.startsWith(&quot;VERSION=&quot;)) {</span>
+<span class="nc" id="L454">                    LOG.debug(&quot;os-release: {}&quot;, line);</span>
                     // remove beginning and ending '&quot;' characters, etc from
                     // VERSION=&quot;14.04.4 LTS, Trusty Tahr&quot; (Ubuntu style)
                     // or VERSION=&quot;17 (Beefy Miracle)&quot; (os-release doc style)
-<span class="nc" id="L453">                    line = line.replace(&quot;VERSION=&quot;, &quot;&quot;).replaceAll(&quot;^\&quot;|\&quot;$&quot;, &quot;&quot;).trim();</span>
-<span class="nc" id="L454">                    String[] split = line.split(&quot;[()]&quot;);</span>
-<span class="nc bnc" id="L455" title="All 2 branches missed.">                    if (split.length &lt;= 1) {</span>
+<span class="nc" id="L458">                    line = line.replace(&quot;VERSION=&quot;, &quot;&quot;).replaceAll(&quot;^\&quot;|\&quot;$&quot;, &quot;&quot;).trim();</span>
+<span class="nc" id="L459">                    String[] split = line.split(&quot;[()]&quot;);</span>
+<span class="nc bnc" id="L460" title="All 2 branches missed.">                    if (split.length &lt;= 1) {</span>
                         // If no parentheses, check for Ubuntu's comma format
-<span class="nc" id="L457">                        split = line.split(&quot;, &quot;);</span>
+<span class="nc" id="L462">                        split = line.split(&quot;, &quot;);</span>
                     }
-<span class="nc bnc" id="L459" title="All 2 branches missed.">                    if (split.length &gt; 0) {</span>
-<span class="nc" id="L460">                        this.versionId = split[0].trim();</span>
+<span class="nc bnc" id="L464" title="All 2 branches missed.">                    if (split.length &gt; 0) {</span>
+<span class="nc" id="L465">                        this.versionId = split[0].trim();</span>
                     }
-<span class="nc bnc" id="L462" title="All 2 branches missed.">                    if (split.length &gt; 1) {</span>
-<span class="nc" id="L463">                        this.codeName = split[1].trim();</span>
+<span class="nc bnc" id="L467" title="All 2 branches missed.">                    if (split.length &gt; 1) {</span>
+<span class="nc" id="L468">                        this.codeName = split[1].trim();</span>
                     }
-<span class="nc bnc" id="L465" title="All 4 branches missed.">                } else if (line.startsWith(&quot;NAME=&quot;) &amp;&amp; this.family == null) {</span>
-<span class="nc" id="L466">                    LOG.debug(&quot;os-release: {}&quot;, line);</span>
-                    // remove beginning and ending '&quot;' characters, etc from
-                    // NAME=&quot;Ubuntu&quot;
-<span class="nc" id="L469">                    this.family = line.replace(&quot;NAME=&quot;, &quot;&quot;).replaceAll(&quot;^\&quot;|\&quot;$&quot;, &quot;&quot;).trim();</span>
-<span class="nc bnc" id="L470" title="All 4 branches missed.">                } else if (line.startsWith(&quot;VERSION_ID=&quot;) &amp;&amp; this.versionId == null) {</span>
+<span class="nc bnc" id="L470" title="All 4 branches missed.">                } else if (line.startsWith(&quot;NAME=&quot;) &amp;&amp; this.family == null) {</span>
 <span class="nc" id="L471">                    LOG.debug(&quot;os-release: {}&quot;, line);</span>
                     // remove beginning and ending '&quot;' characters, etc from
+                    // NAME=&quot;Ubuntu&quot;
+<span class="nc" id="L474">                    this.family = line.replace(&quot;NAME=&quot;, &quot;&quot;).replaceAll(&quot;^\&quot;|\&quot;$&quot;, &quot;&quot;).trim();</span>
+<span class="nc bnc" id="L475" title="All 4 branches missed.">                } else if (line.startsWith(&quot;VERSION_ID=&quot;) &amp;&amp; this.versionId == null) {</span>
+<span class="nc" id="L476">                    LOG.debug(&quot;os-release: {}&quot;, line);</span>
+                    // remove beginning and ending '&quot;' characters, etc from
                     // VERSION_ID=&quot;14.04&quot;
-<span class="nc" id="L474">                    this.versionId = line.replace(&quot;VERSION_ID=&quot;, &quot;&quot;).replaceAll(&quot;^\&quot;|\&quot;$&quot;, &quot;&quot;).trim();</span>
+<span class="nc" id="L479">                    this.versionId = line.replace(&quot;VERSION_ID=&quot;, &quot;&quot;).replaceAll(&quot;^\&quot;|\&quot;$&quot;, &quot;&quot;).trim();</span>
                 }
-<span class="nc" id="L476">            }</span>
+<span class="nc" id="L481">            }</span>
         }
-<span class="nc bnc" id="L478" title="All 2 branches missed.">        return this.family != null;</span>
+<span class="nc bnc" id="L483" title="All 2 branches missed.">        return this.family != null;</span>
     }
 
     /**
@@ -488,25 +493,25 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         // If description is of the format Distrib release x.x (Codename)
         // that is primary, otherwise use Distributor ID: which returns the
         // distribution concatenated, e.g., RedHat instead of Red Hat
-<span class="nc bnc" id="L491" title="All 2 branches missed.">        for (String line : ExecutingCommand.runNative(&quot;lsb_release -a&quot;)) {</span>
-<span class="nc bnc" id="L492" title="All 2 branches missed.">            if (line.startsWith(&quot;Description:&quot;)) {</span>
-<span class="nc" id="L493">                LOG.debug(&quot;lsb_release -a: {}&quot;, line);</span>
-<span class="nc" id="L494">                line = line.replace(&quot;Description:&quot;, &quot;&quot;).trim();</span>
-<span class="nc bnc" id="L495" title="All 2 branches missed.">                if (line.contains(&quot; release &quot;)) {</span>
-<span class="nc" id="L496">                    this.family = parseRelease(line, &quot; release &quot;);</span>
+<span class="nc bnc" id="L496" title="All 2 branches missed.">        for (String line : ExecutingCommand.runNative(&quot;lsb_release -a&quot;)) {</span>
+<span class="nc bnc" id="L497" title="All 2 branches missed.">            if (line.startsWith(&quot;Description:&quot;)) {</span>
+<span class="nc" id="L498">                LOG.debug(&quot;lsb_release -a: {}&quot;, line);</span>
+<span class="nc" id="L499">                line = line.replace(&quot;Description:&quot;, &quot;&quot;).trim();</span>
+<span class="nc bnc" id="L500" title="All 2 branches missed.">                if (line.contains(&quot; release &quot;)) {</span>
+<span class="nc" id="L501">                    this.family = parseRelease(line, &quot; release &quot;);</span>
                 }
-<span class="nc bnc" id="L498" title="All 4 branches missed.">            } else if (line.startsWith(&quot;Distributor ID:&quot;) &amp;&amp; this.family == null) {</span>
-<span class="nc" id="L499">                LOG.debug(&quot;lsb_release -a: {}&quot;, line);</span>
-<span class="nc" id="L500">                this.family = line.replace(&quot;Distributor ID:&quot;, &quot;&quot;).trim();</span>
-<span class="nc bnc" id="L501" title="All 4 branches missed.">            } else if (line.startsWith(&quot;Release:&quot;) &amp;&amp; this.versionId == null) {</span>
-<span class="nc" id="L502">                LOG.debug(&quot;lsb_release -a: {}&quot;, line);</span>
-<span class="nc" id="L503">                this.versionId = line.replace(&quot;Release:&quot;, &quot;&quot;).trim();</span>
-<span class="nc bnc" id="L504" title="All 4 branches missed.">            } else if (line.startsWith(&quot;Codename:&quot;) &amp;&amp; this.codeName == null) {</span>
-<span class="nc" id="L505">                LOG.debug(&quot;lsb_release -a: {}&quot;, line);</span>
-<span class="nc" id="L506">                this.codeName = line.replace(&quot;Codename:&quot;, &quot;&quot;).trim();</span>
+<span class="nc bnc" id="L503" title="All 4 branches missed.">            } else if (line.startsWith(&quot;Distributor ID:&quot;) &amp;&amp; this.family == null) {</span>
+<span class="nc" id="L504">                LOG.debug(&quot;lsb_release -a: {}&quot;, line);</span>
+<span class="nc" id="L505">                this.family = line.replace(&quot;Distributor ID:&quot;, &quot;&quot;).trim();</span>
+<span class="nc bnc" id="L506" title="All 4 branches missed.">            } else if (line.startsWith(&quot;Release:&quot;) &amp;&amp; this.versionId == null) {</span>
+<span class="nc" id="L507">                LOG.debug(&quot;lsb_release -a: {}&quot;, line);</span>
+<span class="nc" id="L508">                this.versionId = line.replace(&quot;Release:&quot;, &quot;&quot;).trim();</span>
+<span class="nc bnc" id="L509" title="All 4 branches missed.">            } else if (line.startsWith(&quot;Codename:&quot;) &amp;&amp; this.codeName == null) {</span>
+<span class="nc" id="L510">                LOG.debug(&quot;lsb_release -a: {}&quot;, line);</span>
+<span class="nc" id="L511">                this.codeName = line.replace(&quot;Codename:&quot;, &quot;&quot;).trim();</span>
             }
-<span class="nc" id="L508">        }</span>
-<span class="nc bnc" id="L509" title="All 2 branches missed.">        return this.family != null;</span>
+<span class="nc" id="L513">        }</span>
+<span class="nc bnc" id="L514" title="All 2 branches missed.">        return this.family != null;</span>
     }
 
     /**
@@ -516,29 +521,29 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
      *         DISTRIB_DESCRIPTION found
      */
     private boolean readLsbRelease() {
-<span class="nc bnc" id="L519" title="All 2 branches missed.">        if (new File(&quot;/etc/lsb-release&quot;).exists()) {</span>
-<span class="nc" id="L520">            List&lt;String&gt; osRelease = FileUtil.readFile(&quot;/etc/lsb-release&quot;);</span>
+<span class="nc bnc" id="L524" title="All 2 branches missed.">        if (new File(&quot;/etc/lsb-release&quot;).exists()) {</span>
+<span class="nc" id="L525">            List&lt;String&gt; osRelease = FileUtil.readFile(&quot;/etc/lsb-release&quot;);</span>
             // Search for NAME=
-<span class="nc bnc" id="L522" title="All 2 branches missed.">            for (String line : osRelease) {</span>
-<span class="nc bnc" id="L523" title="All 2 branches missed.">                if (line.startsWith(&quot;DISTRIB_DESCRIPTION=&quot;)) {</span>
-<span class="nc" id="L524">                    LOG.debug(&quot;lsb-release: {}&quot;, line);</span>
-<span class="nc" id="L525">                    line = line.replace(&quot;DISTRIB_DESCRIPTION=&quot;, &quot;&quot;).replaceAll(&quot;^\&quot;|\&quot;$&quot;, &quot;&quot;).trim();</span>
-<span class="nc bnc" id="L526" title="All 2 branches missed.">                    if (line.contains(&quot; release &quot;)) {</span>
-<span class="nc" id="L527">                        this.family = parseRelease(line, &quot; release &quot;);</span>
+<span class="nc bnc" id="L527" title="All 2 branches missed.">            for (String line : osRelease) {</span>
+<span class="nc bnc" id="L528" title="All 2 branches missed.">                if (line.startsWith(&quot;DISTRIB_DESCRIPTION=&quot;)) {</span>
+<span class="nc" id="L529">                    LOG.debug(&quot;lsb-release: {}&quot;, line);</span>
+<span class="nc" id="L530">                    line = line.replace(&quot;DISTRIB_DESCRIPTION=&quot;, &quot;&quot;).replaceAll(&quot;^\&quot;|\&quot;$&quot;, &quot;&quot;).trim();</span>
+<span class="nc bnc" id="L531" title="All 2 branches missed.">                    if (line.contains(&quot; release &quot;)) {</span>
+<span class="nc" id="L532">                        this.family = parseRelease(line, &quot; release &quot;);</span>
                     }
-<span class="nc bnc" id="L529" title="All 4 branches missed.">                } else if (line.startsWith(&quot;DISTRIB_ID=&quot;) &amp;&amp; this.family == null) {</span>
-<span class="nc" id="L530">                    LOG.debug(&quot;lsb-release: {}&quot;, line);</span>
-<span class="nc" id="L531">                    this.family = line.replace(&quot;DISTRIB_ID=&quot;, &quot;&quot;).replaceAll(&quot;^\&quot;|\&quot;$&quot;, &quot;&quot;).trim();</span>
-<span class="nc bnc" id="L532" title="All 4 branches missed.">                } else if (line.startsWith(&quot;DISTRIB_RELEASE=&quot;) &amp;&amp; this.versionId == null) {</span>
-<span class="nc" id="L533">                    LOG.debug(&quot;lsb-release: {}&quot;, line);</span>
-<span class="nc" id="L534">                    this.versionId = line.replace(&quot;DISTRIB_RELEASE=&quot;, &quot;&quot;).replaceAll(&quot;^\&quot;|\&quot;$&quot;, &quot;&quot;).trim();</span>
-<span class="nc bnc" id="L535" title="All 4 branches missed.">                } else if (line.startsWith(&quot;DISTRIB_CODENAME=&quot;) &amp;&amp; this.codeName == null) {</span>
-<span class="nc" id="L536">                    LOG.debug(&quot;lsb-release: {}&quot;, line);</span>
-<span class="nc" id="L537">                    this.codeName = line.replace(&quot;DISTRIB_CODENAME=&quot;, &quot;&quot;).replaceAll(&quot;^\&quot;|\&quot;$&quot;, &quot;&quot;).trim();</span>
+<span class="nc bnc" id="L534" title="All 4 branches missed.">                } else if (line.startsWith(&quot;DISTRIB_ID=&quot;) &amp;&amp; this.family == null) {</span>
+<span class="nc" id="L535">                    LOG.debug(&quot;lsb-release: {}&quot;, line);</span>
+<span class="nc" id="L536">                    this.family = line.replace(&quot;DISTRIB_ID=&quot;, &quot;&quot;).replaceAll(&quot;^\&quot;|\&quot;$&quot;, &quot;&quot;).trim();</span>
+<span class="nc bnc" id="L537" title="All 4 branches missed.">                } else if (line.startsWith(&quot;DISTRIB_RELEASE=&quot;) &amp;&amp; this.versionId == null) {</span>
+<span class="nc" id="L538">                    LOG.debug(&quot;lsb-release: {}&quot;, line);</span>
+<span class="nc" id="L539">                    this.versionId = line.replace(&quot;DISTRIB_RELEASE=&quot;, &quot;&quot;).replaceAll(&quot;^\&quot;|\&quot;$&quot;, &quot;&quot;).trim();</span>
+<span class="nc bnc" id="L540" title="All 4 branches missed.">                } else if (line.startsWith(&quot;DISTRIB_CODENAME=&quot;) &amp;&amp; this.codeName == null) {</span>
+<span class="nc" id="L541">                    LOG.debug(&quot;lsb-release: {}&quot;, line);</span>
+<span class="nc" id="L542">                    this.codeName = line.replace(&quot;DISTRIB_CODENAME=&quot;, &quot;&quot;).replaceAll(&quot;^\&quot;|\&quot;$&quot;, &quot;&quot;).trim();</span>
                 }
-<span class="nc" id="L539">            }</span>
+<span class="nc" id="L544">            }</span>
         }
-<span class="nc bnc" id="L541" title="All 2 branches missed.">        return this.family != null;</span>
+<span class="nc bnc" id="L546" title="All 2 branches missed.">        return this.family != null;</span>
     }
 
     /**
@@ -548,23 +553,23 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
      *         found
      */
     private boolean readDistribRelease(String filename) {
-<span class="nc bnc" id="L551" title="All 2 branches missed.">        if (new File(filename).exists()) {</span>
-<span class="nc" id="L552">            List&lt;String&gt; osRelease = FileUtil.readFile(filename);</span>
+<span class="nc bnc" id="L556" title="All 2 branches missed.">        if (new File(filename).exists()) {</span>
+<span class="nc" id="L557">            List&lt;String&gt; osRelease = FileUtil.readFile(filename);</span>
             // Search for Distrib release x.x (Codename)
-<span class="nc bnc" id="L554" title="All 2 branches missed.">            for (String line : osRelease) {</span>
-<span class="nc" id="L555">                LOG.debug(&quot;{}: {}&quot;, filename, line);</span>
-<span class="nc bnc" id="L556" title="All 2 branches missed.">                if (line.contains(&quot; release &quot;)) {</span>
-<span class="nc" id="L557">                    this.family = parseRelease(line, &quot; release &quot;);</span>
+<span class="nc bnc" id="L559" title="All 2 branches missed.">            for (String line : osRelease) {</span>
+<span class="nc" id="L560">                LOG.debug(&quot;{}: {}&quot;, filename, line);</span>
+<span class="nc bnc" id="L561" title="All 2 branches missed.">                if (line.contains(&quot; release &quot;)) {</span>
+<span class="nc" id="L562">                    this.family = parseRelease(line, &quot; release &quot;);</span>
                     // If this parses properly we're done
-<span class="nc" id="L559">                    break;</span>
-<span class="nc bnc" id="L560" title="All 2 branches missed.">                } else if (line.contains(&quot; VERSION &quot;)) {</span>
-<span class="nc" id="L561">                    this.family = parseRelease(line, &quot; VERSION &quot;);</span>
+<span class="nc" id="L564">                    break;</span>
+<span class="nc bnc" id="L565" title="All 2 branches missed.">                } else if (line.contains(&quot; VERSION &quot;)) {</span>
+<span class="nc" id="L566">                    this.family = parseRelease(line, &quot; VERSION &quot;);</span>
                     // If this parses properly we're done
-<span class="nc" id="L563">                    break;</span>
+<span class="nc" id="L568">                    break;</span>
                 }
-<span class="nc" id="L565">            }</span>
+<span class="nc" id="L570">            }</span>
         }
-<span class="nc bnc" id="L567" title="All 2 branches missed.">        return this.family != null;</span>
+<span class="nc bnc" id="L572" title="All 2 branches missed.">        return this.family != null;</span>
     }
 
     /**
@@ -577,18 +582,18 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
      * @return the parsed family (versionID and codeName may have also been set)
      */
     private String parseRelease(String line, String splitLine) {
-<span class="nc" id="L580">        String[] split = line.split(splitLine);</span>
-<span class="nc" id="L581">        String family = split[0].trim();</span>
-<span class="nc bnc" id="L582" title="All 2 branches missed.">        if (split.length &gt; 1) {</span>
-<span class="nc" id="L583">            split = split[1].split(&quot;[()]&quot;);</span>
-<span class="nc bnc" id="L584" title="All 2 branches missed.">            if (split.length &gt; 0) {</span>
-<span class="nc" id="L585">                this.versionId = split[0].trim();</span>
+<span class="nc" id="L585">        String[] split = line.split(splitLine);</span>
+<span class="nc" id="L586">        String family = split[0].trim();</span>
+<span class="nc bnc" id="L587" title="All 2 branches missed.">        if (split.length &gt; 1) {</span>
+<span class="nc" id="L588">            split = split[1].split(&quot;[()]&quot;);</span>
+<span class="nc bnc" id="L589" title="All 2 branches missed.">            if (split.length &gt; 0) {</span>
+<span class="nc" id="L590">                this.versionId = split[0].trim();</span>
             }
-<span class="nc bnc" id="L587" title="All 2 branches missed.">            if (split.length &gt; 1) {</span>
-<span class="nc" id="L588">                this.codeName = split[1].trim();</span>
+<span class="nc bnc" id="L592" title="All 2 branches missed.">            if (split.length &gt; 1) {</span>
+<span class="nc" id="L593">                this.codeName = split[1].trim();</span>
             }
         }
-<span class="nc" id="L591">        return family;</span>
+<span class="nc" id="L596">        return family;</span>
     }
 
     /**
@@ -598,25 +603,25 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
      */
     protected static String getReleaseFilename() {
         // Look for any /etc/*-release, *-version, and variants
-<span class="nc" id="L601">        File etc = new File(&quot;/etc&quot;);</span>
+<span class="nc" id="L606">        File etc = new File(&quot;/etc&quot;);</span>
         // Find any *_input files in that path
-<span class="nc" id="L603">        File[] matchingFiles = etc.listFiles(new FileFilter() {</span>
+<span class="nc" id="L608">        File[] matchingFiles = etc.listFiles(new FileFilter() {</span>
             @Override
             public boolean accept(File f) {
-<span class="nc bnc" id="L606" title="All 4 branches missed.">                return (f.getName().endsWith(&quot;-release&quot;) || f.getName().endsWith(&quot;-version&quot;)</span>
-<span class="nc bnc" id="L607" title="All 4 branches missed.">                        || f.getName().endsWith(&quot;_release&quot;) || f.getName().endsWith(&quot;_version&quot;))</span>
-<span class="nc bnc" id="L608" title="All 4 branches missed.">                        &amp;&amp; !(f.getName().endsWith(&quot;os-release&quot;) || f.getName().endsWith(&quot;lsb-release&quot;)</span>
-<span class="nc bnc" id="L609" title="All 2 branches missed.">                                || f.getName().endsWith(&quot;system-release&quot;));</span>
+<span class="nc bnc" id="L611" title="All 4 branches missed.">                return (f.getName().endsWith(&quot;-release&quot;) || f.getName().endsWith(&quot;-version&quot;)</span>
+<span class="nc bnc" id="L612" title="All 4 branches missed.">                        || f.getName().endsWith(&quot;_release&quot;) || f.getName().endsWith(&quot;_version&quot;))</span>
+<span class="nc bnc" id="L613" title="All 4 branches missed.">                        &amp;&amp; !(f.getName().endsWith(&quot;os-release&quot;) || f.getName().endsWith(&quot;lsb-release&quot;)</span>
+<span class="nc bnc" id="L614" title="All 2 branches missed.">                                || f.getName().endsWith(&quot;system-release&quot;));</span>
             }
         });
-<span class="nc bnc" id="L612" title="All 4 branches missed.">        if (matchingFiles != null &amp;&amp; matchingFiles.length &gt; 0) {</span>
-<span class="nc" id="L613">            return matchingFiles[0].getPath();</span>
+<span class="nc bnc" id="L617" title="All 4 branches missed.">        if (matchingFiles != null &amp;&amp; matchingFiles.length &gt; 0) {</span>
+<span class="nc" id="L618">            return matchingFiles[0].getPath();</span>
         }
-<span class="nc bnc" id="L615" title="All 2 branches missed.">        if (new File(&quot;/etc/release&quot;).exists()) {</span>
-<span class="nc" id="L616">            return &quot;/etc/release&quot;;</span>
+<span class="nc bnc" id="L620" title="All 2 branches missed.">        if (new File(&quot;/etc/release&quot;).exists()) {</span>
+<span class="nc" id="L621">            return &quot;/etc/release&quot;;</span>
         }
         // If all else fails, try this
-<span class="nc" id="L619">        return &quot;/etc/issue&quot;;</span>
+<span class="nc" id="L624">        return &quot;/etc/issue&quot;;</span>
     }
 
     /**
@@ -629,64 +634,64 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
      * @return Mixed case family
      */
     private static String filenameToFamily(String name) {
-<span class="nc bnc" id="L632" title="All 26 branches missed.">        switch (name.toLowerCase()) {</span>
+<span class="nc bnc" id="L637" title="All 26 branches missed.">        switch (name.toLowerCase()) {</span>
         // Handle known special cases
         case &quot;&quot;:
-<span class="nc" id="L635">            return &quot;Solaris&quot;;</span>
+<span class="nc" id="L640">            return &quot;Solaris&quot;;</span>
         case &quot;blackcat&quot;:
-<span class="nc" id="L637">            return &quot;Black Cat&quot;;</span>
+<span class="nc" id="L642">            return &quot;Black Cat&quot;;</span>
         case &quot;bluewhite64&quot;:
-<span class="nc" id="L639">            return &quot;BlueWhite64&quot;;</span>
+<span class="nc" id="L644">            return &quot;BlueWhite64&quot;;</span>
         case &quot;e-smith&quot;:
-<span class="nc" id="L641">            return &quot;SME Server&quot;;</span>
+<span class="nc" id="L646">            return &quot;SME Server&quot;;</span>
         case &quot;eos&quot;:
-<span class="nc" id="L643">            return &quot;FreeEOS&quot;;</span>
+<span class="nc" id="L648">            return &quot;FreeEOS&quot;;</span>
         case &quot;hlfs&quot;:
-<span class="nc" id="L645">            return &quot;HLFS&quot;;</span>
+<span class="nc" id="L650">            return &quot;HLFS&quot;;</span>
         case &quot;lfs&quot;:
-<span class="nc" id="L647">            return &quot;Linux-From-Scratch&quot;;</span>
+<span class="nc" id="L652">            return &quot;Linux-From-Scratch&quot;;</span>
         case &quot;linuxppc&quot;:
-<span class="nc" id="L649">            return &quot;Linux-PPC&quot;;</span>
+<span class="nc" id="L654">            return &quot;Linux-PPC&quot;;</span>
         case &quot;meego&quot;:
-<span class="nc" id="L651">            return &quot;MeeGo&quot;;</span>
+<span class="nc" id="L656">            return &quot;MeeGo&quot;;</span>
         case &quot;mandakelinux&quot;:
-<span class="nc" id="L653">            return &quot;Mandrake&quot;;</span>
+<span class="nc" id="L658">            return &quot;Mandrake&quot;;</span>
         case &quot;mklinux&quot;:
-<span class="nc" id="L655">            return &quot;MkLinux&quot;;</span>
+<span class="nc" id="L660">            return &quot;MkLinux&quot;;</span>
         case &quot;nld&quot;:
-<span class="nc" id="L657">            return &quot;Novell Linux Desktop&quot;;</span>
+<span class="nc" id="L662">            return &quot;Novell Linux Desktop&quot;;</span>
         case &quot;novell&quot;:
         case &quot;SuSE&quot;:
-<span class="nc" id="L660">            return &quot;SUSE Linux&quot;;</span>
+<span class="nc" id="L665">            return &quot;SUSE Linux&quot;;</span>
         case &quot;pld&quot;:
-<span class="nc" id="L662">            return &quot;PLD&quot;;</span>
+<span class="nc" id="L667">            return &quot;PLD&quot;;</span>
         case &quot;redhat&quot;:
-<span class="nc" id="L664">            return &quot;Red Hat Linux&quot;;</span>
+<span class="nc" id="L669">            return &quot;Red Hat Linux&quot;;</span>
         case &quot;sles&quot;:
-<span class="nc" id="L666">            return &quot;SUSE Linux ES9&quot;;</span>
+<span class="nc" id="L671">            return &quot;SUSE Linux ES9&quot;;</span>
         case &quot;sun&quot;:
-<span class="nc" id="L668">            return &quot;Sun JDS&quot;;</span>
+<span class="nc" id="L673">            return &quot;Sun JDS&quot;;</span>
         case &quot;synoinfo&quot;:
-<span class="nc" id="L670">            return &quot;Synology&quot;;</span>
+<span class="nc" id="L675">            return &quot;Synology&quot;;</span>
         case &quot;tinysofa&quot;:
-<span class="nc" id="L672">            return &quot;Tiny Sofa&quot;;</span>
+<span class="nc" id="L677">            return &quot;Tiny Sofa&quot;;</span>
         case &quot;turbolinux&quot;:
-<span class="nc" id="L674">            return &quot;TurboLinux&quot;;</span>
+<span class="nc" id="L679">            return &quot;TurboLinux&quot;;</span>
         case &quot;ultrapenguin&quot;:
-<span class="nc" id="L676">            return &quot;UltraPenguin&quot;;</span>
+<span class="nc" id="L681">            return &quot;UltraPenguin&quot;;</span>
         case &quot;va&quot;:
-<span class="nc" id="L678">            return &quot;VA-Linux&quot;;</span>
+<span class="nc" id="L683">            return &quot;VA-Linux&quot;;</span>
         case &quot;vmware&quot;:
-<span class="nc" id="L680">            return &quot;VMWareESX&quot;;</span>
+<span class="nc" id="L685">            return &quot;VMWareESX&quot;;</span>
         case &quot;yellowdog&quot;:
-<span class="nc" id="L682">            return &quot;Yellow Dog&quot;;</span>
+<span class="nc" id="L687">            return &quot;Yellow Dog&quot;;</span>
 
         // /etc/issue will end up here:
         case &quot;issue&quot;:
-<span class="nc" id="L686">            return &quot;Unknown&quot;;</span>
+<span class="nc" id="L691">            return &quot;Unknown&quot;;</span>
         // If not a special case just capitalize first letter
         default:
-<span class="nc" id="L689">            return name.substring(0, 1).toUpperCase() + name.substring(1);</span>
+<span class="nc" id="L694">            return name.substring(0, 1).toUpperCase() + name.substring(1);</span>
         }
     }
 
@@ -697,7 +702,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
      * @return Jiffies per second.
      */
     public static long getHz() {
-<span class="nc" id="L700">        return USER_HZ;</span>
+<span class="nc" id="L705">        return USER_HZ;</span>
     }
 
 }

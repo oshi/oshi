@@ -1,20 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>WindowsSensors.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-json</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.windows</a> &gt; <span class="el_source">WindowsSensors.java</span></div><h1>WindowsSensors.java</h1><pre class="source lang-java linenums">/**
- * Oshi (https://github.com/oshi/oshi)
+ * OSHI (https://github.com/oshi/oshi)
  *
- * Copyright (c) 2010 - 2018 The Oshi Project Team
- *
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- *
- * Maintainers:
- * dblock[at]dblock[dot]org
- * widdis[at]gmail[dot]com
- * enrico.bianchi[at]gmail[dot]com
- *
- * Contributors:
+ * Copyright (c) 2010 - 2019 The OSHI Project Team:
  * https://github.com/oshi/oshi/graphs/contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 package oshi.hardware.platform.windows;
 
@@ -28,89 +33,91 @@ import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.hardware.Sensors;
+import oshi.util.platform.windows.PdhUtilXP;
 import oshi.util.platform.windows.PerfDataUtil;
 import oshi.util.platform.windows.PerfDataUtil.PerfCounter;
+import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
 
 public class WindowsSensors implements Sensors {
 
     private static final long serialVersionUID = 1L;
 
-<span class="nc" id="L39">    private static final Logger LOG = LoggerFactory.getLogger(WindowsSensors.class);</span>
+<span class="nc" id="L46">    private static final Logger LOG = LoggerFactory.getLogger(WindowsSensors.class);</span>
 
     private static final String BASE_SENSOR_CLASS = &quot;Sensor&quot;;
 
-<span class="nc" id="L43">    enum OhmHardwareProperty {</span>
-<span class="nc" id="L44">        IDENTIFIER;</span>
+<span class="nc" id="L50">    enum OhmHardwareProperty {</span>
+<span class="nc" id="L51">        IDENTIFIER;</span>
     }
 
-<span class="nc" id="L47">    private static final WmiQuery&lt;OhmHardwareProperty&gt; OHM_HARDWARE_QUERY = new WmiQuery&lt;&gt;(WmiUtil.OHM_NAMESPACE,</span>
+<span class="nc" id="L54">    private static final WmiQuery&lt;OhmHardwareProperty&gt; OHM_HARDWARE_QUERY = new WmiQuery&lt;&gt;(WmiUtil.OHM_NAMESPACE,</span>
             &quot;Hardware WHERE HardwareType=\&quot;CPU\&quot;&quot;, OhmHardwareProperty.class);
-<span class="nc" id="L49">    private static final WmiQuery&lt;OhmHardwareProperty&gt; OHM_VOLTAGE_QUERY = new WmiQuery&lt;&gt;(WmiUtil.OHM_NAMESPACE,</span>
+<span class="nc" id="L56">    private static final WmiQuery&lt;OhmHardwareProperty&gt; OHM_VOLTAGE_QUERY = new WmiQuery&lt;&gt;(WmiUtil.OHM_NAMESPACE,</span>
             &quot;Hardware WHERE SensorType=\&quot;Voltage\&quot;&quot;, OhmHardwareProperty.class);
 
-<span class="nc" id="L52">    enum OhmSensorProperty {</span>
-<span class="nc" id="L53">        VALUE;</span>
+<span class="nc" id="L59">    enum OhmSensorProperty {</span>
+<span class="nc" id="L60">        VALUE;</span>
     }
 
-<span class="nc" id="L56">    private static final WmiQuery&lt;OhmSensorProperty&gt; OHM_SENSOR_QUERY = new WmiQuery&lt;&gt;(WmiUtil.OHM_NAMESPACE, null,</span>
+<span class="nc" id="L63">    private static final WmiQuery&lt;OhmSensorProperty&gt; OHM_SENSOR_QUERY = new WmiQuery&lt;&gt;(WmiUtil.OHM_NAMESPACE, null,</span>
             OhmSensorProperty.class);
 
-<span class="nc" id="L59">    enum FanProperty {</span>
-<span class="nc" id="L60">        DESIREDSPEED;</span>
+<span class="nc" id="L66">    enum FanProperty {</span>
+<span class="nc" id="L67">        DESIREDSPEED;</span>
     }
 
-<span class="nc" id="L63">    private static final WmiQuery&lt;FanProperty&gt; FAN_QUERY = new WmiQuery&lt;&gt;(&quot;Win32_Fan&quot;, FanProperty.class);</span>
+<span class="nc" id="L70">    private static final WmiQuery&lt;FanProperty&gt; FAN_QUERY = new WmiQuery&lt;&gt;(&quot;Win32_Fan&quot;, FanProperty.class);</span>
 
-<span class="nc" id="L65">    enum VoltProperty {</span>
-<span class="nc" id="L66">        CURRENTVOLTAGE, VOLTAGECAPS;</span>
+<span class="nc" id="L72">    enum VoltProperty {</span>
+<span class="nc" id="L73">        CURRENTVOLTAGE, VOLTAGECAPS;</span>
     }
 
-<span class="nc" id="L69">    private static final WmiQuery&lt;VoltProperty&gt; VOLT_QUERY = new WmiQuery&lt;&gt;(&quot;Win32_Processor&quot;, VoltProperty.class);</span>
+<span class="nc" id="L76">    private static final WmiQuery&lt;VoltProperty&gt; VOLT_QUERY = new WmiQuery&lt;&gt;(&quot;Win32_Processor&quot;, VoltProperty.class);</span>
 
     /*
      * For temperature query
      */
-<span class="nc" id="L74">    enum ThermalZoneProperty {</span>
-<span class="nc" id="L75">        NAME, TEMPERATURE;</span>
+<span class="nc" id="L81">    enum ThermalZoneProperty {</span>
+<span class="nc" id="L82">        NAME, TEMPERATURE;</span>
     }
 
     // Only one of these will be used
-<span class="nc" id="L79">    private transient PerfCounter thermalZoneCounter = null;</span>
-<span class="nc" id="L80">    private transient WmiQuery&lt;ThermalZoneProperty&gt; thermalZoneQuery = null;</span>
+<span class="nc" id="L86">    private transient PerfCounter thermalZoneCounter = null;</span>
+<span class="nc" id="L87">    private transient WmiQuery&lt;ThermalZoneProperty&gt; thermalZoneQuery = null;</span>
 
-<span class="nc" id="L82">    public WindowsSensors() {</span>
-<span class="nc" id="L83">        initPdhCounters();</span>
-<span class="nc" id="L84">    }</span>
+<span class="nc" id="L89">    public WindowsSensors() {</span>
+<span class="nc" id="L90">        initPdhCounters();</span>
+<span class="nc" id="L91">    }</span>
 
     private void initPdhCounters() {
-<span class="nc" id="L87">        String thermalZoneInfo = PdhUtil.PdhLookupPerfNameByIndex(null,</span>
-<span class="nc" id="L88">                PdhUtil.PdhLookupPerfIndexByEnglishName(&quot;Thermal Zone Information&quot;));</span>
-<span class="nc" id="L89">        boolean enumeration = false;</span>
-<span class="nc bnc" id="L90" title="All 2 branches missed.">        if (!thermalZoneInfo.isEmpty()) {</span>
+<span class="nc" id="L94">        String thermalZoneInfo = PdhUtilXP.PdhLookupPerfNameByIndex(null,</span>
+<span class="nc" id="L95">                PdhUtil.PdhLookupPerfIndexByEnglishName(&quot;Thermal Zone Information&quot;));</span>
+<span class="nc" id="L96">        boolean enumeration = false;</span>
+<span class="nc bnc" id="L97" title="All 2 branches missed.">        if (!thermalZoneInfo.isEmpty()) {</span>
             try {
-<span class="nc" id="L92">                PdhEnumObjectItems objectItems = PdhUtil.PdhEnumObjectItems(null, null, thermalZoneInfo, 100);</span>
+<span class="nc" id="L99">                PdhEnumObjectItems objectItems = PdhUtil.PdhEnumObjectItems(null, null, thermalZoneInfo, 100);</span>
                 // Default to first value
                 // Prefer a value with &quot;CPU&quot; in it
-<span class="nc" id="L95">                String cpuInstance = &quot;&quot;;</span>
-<span class="nc bnc" id="L96" title="All 2 branches missed.">                for (String instance : objectItems.getInstances()) {</span>
-<span class="nc bnc" id="L97" title="All 4 branches missed.">                    if (cpuInstance.isEmpty() || instance.toLowerCase().contains(&quot;cpu&quot;)) {</span>
-<span class="nc" id="L98">                        cpuInstance = instance;</span>
-<span class="nc" id="L99">                        enumeration = true;</span>
+<span class="nc" id="L102">                String cpuInstance = &quot;&quot;;</span>
+<span class="nc bnc" id="L103" title="All 2 branches missed.">                for (String instance : objectItems.getInstances()) {</span>
+<span class="nc bnc" id="L104" title="All 4 branches missed.">                    if (cpuInstance.isEmpty() || instance.toLowerCase().contains(&quot;cpu&quot;)) {</span>
+<span class="nc" id="L105">                        cpuInstance = instance;</span>
+<span class="nc" id="L106">                        enumeration = true;</span>
                     }
-<span class="nc" id="L101">                }</span>
-<span class="nc" id="L102">                this.thermalZoneCounter = PerfDataUtil.createCounter(&quot;Thermal Zone Information&quot;, cpuInstance,</span>
+<span class="nc" id="L108">                }</span>
+<span class="nc" id="L109">                this.thermalZoneCounter = PerfDataUtil.createCounter(&quot;Thermal Zone Information&quot;, cpuInstance,</span>
                         &quot;Temperature&quot;);
-<span class="nc" id="L104">            } catch (PdhException e) {</span>
-<span class="nc" id="L105">                LOG.warn(&quot;Unable to enumerate performance counter instances for {}.&quot;, thermalZoneInfo);</span>
-<span class="nc" id="L106">            }</span>
+<span class="nc" id="L111">            } catch (PdhException e) {</span>
+<span class="nc" id="L112">                LOG.warn(&quot;Unable to enumerate performance counter instances for {}.&quot;, thermalZoneInfo);</span>
+<span class="nc" id="L113">            }</span>
         }
-<span class="nc bnc" id="L108" title="All 4 branches missed.">        if (!enumeration || !PerfDataUtil.addCounterToQuery(this.thermalZoneCounter)) {</span>
-<span class="nc" id="L109">            this.thermalZoneCounter = null;</span>
-<span class="nc" id="L110">            this.thermalZoneQuery = new WmiQuery&lt;&gt;(&quot;Win32_PerfRawData_Counters_ThermalZoneInformation&quot;,</span>
+<span class="nc bnc" id="L115" title="All 4 branches missed.">        if (!enumeration || !PerfDataUtil.addCounterToQuery(this.thermalZoneCounter)) {</span>
+<span class="nc" id="L116">            this.thermalZoneCounter = null;</span>
+<span class="nc" id="L117">            this.thermalZoneQuery = new WmiQuery&lt;&gt;(&quot;Win32_PerfRawData_Counters_ThermalZoneInformation&quot;,</span>
                     ThermalZoneProperty.class);
         }
-<span class="nc" id="L113">    }</span>
+<span class="nc" id="L120">    }</span>
 
     /**
      * {@inheritDoc}
@@ -118,58 +125,58 @@ public class WindowsSensors implements Sensors {
     @Override
     public double getCpuTemperature() {
         // Initialize default
-<span class="nc" id="L121">        double tempC = 0d;</span>
+<span class="nc" id="L128">        double tempC = 0d;</span>
 
         // Attempt to fetch value from Open Hardware Monitor if it is running,
         // as it will give the most accurate results and the time to query (or
         // attempt) is trivial
-<span class="nc" id="L126">        WmiResult&lt;OhmHardwareProperty&gt; ohmHardware = WmiUtil.queryWMI(OHM_HARDWARE_QUERY);</span>
-<span class="nc bnc" id="L127" title="All 2 branches missed.">        if (ohmHardware.getResultCount() &gt; 0) {</span>
-<span class="nc" id="L128">            String cpuIdentifier = WmiUtil.getString(ohmHardware, OhmHardwareProperty.IDENTIFIER, 0);</span>
-<span class="nc bnc" id="L129" title="All 2 branches missed.">            if (cpuIdentifier.length() &gt; 0) {</span>
-<span class="nc" id="L130">                StringBuilder sb = new StringBuilder(BASE_SENSOR_CLASS);</span>
-<span class="nc" id="L131">                sb.append(&quot; WHERE Parent = \&quot;&quot;).append(cpuIdentifier);</span>
-<span class="nc" id="L132">                sb.append(&quot;\&quot; AND SensorType=\&quot;Temperature\&quot;&quot;);</span>
-<span class="nc" id="L133">                OHM_SENSOR_QUERY.setWmiClassName(sb.toString());</span>
-<span class="nc" id="L134">                WmiResult&lt;OhmSensorProperty&gt; ohmSensors = WmiUtil.queryWMI(OHM_SENSOR_QUERY);</span>
+<span class="nc" id="L133">        WmiResult&lt;OhmHardwareProperty&gt; ohmHardware = WmiQueryHandler.getInstance().queryWMI(OHM_HARDWARE_QUERY);</span>
+<span class="nc bnc" id="L134" title="All 2 branches missed.">        if (ohmHardware.getResultCount() &gt; 0) {</span>
+<span class="nc" id="L135">            String cpuIdentifier = WmiUtil.getString(ohmHardware, OhmHardwareProperty.IDENTIFIER, 0);</span>
+<span class="nc bnc" id="L136" title="All 2 branches missed.">            if (cpuIdentifier.length() &gt; 0) {</span>
+<span class="nc" id="L137">                StringBuilder sb = new StringBuilder(BASE_SENSOR_CLASS);</span>
+<span class="nc" id="L138">                sb.append(&quot; WHERE Parent = \&quot;&quot;).append(cpuIdentifier);</span>
+<span class="nc" id="L139">                sb.append(&quot;\&quot; AND SensorType=\&quot;Temperature\&quot;&quot;);</span>
+<span class="nc" id="L140">                OHM_SENSOR_QUERY.setWmiClassName(sb.toString());</span>
+<span class="nc" id="L141">                WmiResult&lt;OhmSensorProperty&gt; ohmSensors = WmiQueryHandler.getInstance().queryWMI(OHM_SENSOR_QUERY);</span>
 
-<span class="nc bnc" id="L136" title="All 2 branches missed.">                if (ohmSensors.getResultCount() &gt; 0) {</span>
-<span class="nc" id="L137">                    double sum = 0;</span>
-<span class="nc bnc" id="L138" title="All 2 branches missed.">                    for (int i = 0; i &lt; ohmSensors.getResultCount(); i++) {</span>
-<span class="nc" id="L139">                        sum += WmiUtil.getFloat(ohmSensors, OhmSensorProperty.VALUE, i);</span>
+<span class="nc bnc" id="L143" title="All 2 branches missed.">                if (ohmSensors.getResultCount() &gt; 0) {</span>
+<span class="nc" id="L144">                    double sum = 0;</span>
+<span class="nc bnc" id="L145" title="All 2 branches missed.">                    for (int i = 0; i &lt; ohmSensors.getResultCount(); i++) {</span>
+<span class="nc" id="L146">                        sum += WmiUtil.getFloat(ohmSensors, OhmSensorProperty.VALUE, i);</span>
                     }
-<span class="nc" id="L141">                    tempC = sum / ohmSensors.getResultCount();</span>
+<span class="nc" id="L148">                    tempC = sum / ohmSensors.getResultCount();</span>
                 }
-<span class="nc bnc" id="L143" title="All 2 branches missed.">                if (tempC &gt; 0) {</span>
-<span class="nc" id="L144">                    return tempC;</span>
+<span class="nc bnc" id="L150" title="All 2 branches missed.">                if (tempC &gt; 0) {</span>
+<span class="nc" id="L151">                    return tempC;</span>
                 }
             }
         }
 
         // If we get this far, OHM is not running. Try from PDH
-<span class="nc" id="L150">        long tempK = 0L;</span>
-<span class="nc bnc" id="L151" title="All 2 branches missed.">        if (this.thermalZoneQuery == null) {</span>
-<span class="nc" id="L152">            PerfDataUtil.updateQuery(this.thermalZoneCounter);</span>
-<span class="nc" id="L153">            tempK = PerfDataUtil.queryCounter(this.thermalZoneCounter);</span>
+<span class="nc" id="L157">        long tempK = 0L;</span>
+<span class="nc bnc" id="L158" title="All 2 branches missed.">        if (this.thermalZoneQuery == null) {</span>
+<span class="nc" id="L159">            PerfDataUtil.updateQuery(this.thermalZoneCounter);</span>
+<span class="nc" id="L160">            tempK = PerfDataUtil.queryCounter(this.thermalZoneCounter);</span>
         } else {
             // No counter, use WMI
-<span class="nc" id="L156">            WmiResult&lt;ThermalZoneProperty&gt; result = WmiUtil.queryWMI(this.thermalZoneQuery);</span>
+<span class="nc" id="L163">            WmiResult&lt;ThermalZoneProperty&gt; result = WmiQueryHandler.getInstance().queryWMI(this.thermalZoneQuery);</span>
             // Default to first value
             // Prefer a value with &quot;CPU&quot; in name
-<span class="nc bnc" id="L159" title="All 2 branches missed.">            for (int i = 0; i &lt; result.getResultCount(); i++) {</span>
-<span class="nc bnc" id="L160" title="All 2 branches missed.">                if (tempK == 0L</span>
-<span class="nc bnc" id="L161" title="All 2 branches missed.">                        || WmiUtil.getString(result, ThermalZoneProperty.NAME, i).toLowerCase().contains(&quot;cpu&quot;)) {</span>
-<span class="nc" id="L162">                    tempK = WmiUtil.getUint32(result, ThermalZoneProperty.TEMPERATURE, i);</span>
+<span class="nc bnc" id="L166" title="All 2 branches missed.">            for (int i = 0; i &lt; result.getResultCount(); i++) {</span>
+<span class="nc bnc" id="L167" title="All 2 branches missed.">                if (tempK == 0L</span>
+<span class="nc bnc" id="L168" title="All 2 branches missed.">                        || WmiUtil.getString(result, ThermalZoneProperty.NAME, i).toLowerCase().contains(&quot;cpu&quot;)) {</span>
+<span class="nc" id="L169">                    tempK = WmiUtil.getUint32(result, ThermalZoneProperty.TEMPERATURE, i);</span>
                 }
             }
         }
-<span class="nc bnc" id="L166" title="All 2 branches missed.">        if (tempK &gt; 2732L) {</span>
-<span class="nc" id="L167">            tempC = tempK / 10d - 273.15;</span>
-<span class="nc bnc" id="L168" title="All 2 branches missed.">        } else if (tempK &gt; 274L) {</span>
-<span class="nc" id="L169">            tempC = tempK - 273d;</span>
+<span class="nc bnc" id="L173" title="All 2 branches missed.">        if (tempK &gt; 2732L) {</span>
+<span class="nc" id="L174">            tempC = tempK / 10d - 273.15;</span>
+<span class="nc bnc" id="L175" title="All 2 branches missed.">        } else if (tempK &gt; 274L) {</span>
+<span class="nc" id="L176">            tempC = tempK - 273d;</span>
         }
-<span class="nc bnc" id="L171" title="All 2 branches missed.">        if (tempC &lt; 0d) {</span>
-<span class="nc" id="L172">            tempC = 0d;</span>
+<span class="nc bnc" id="L178" title="All 2 branches missed.">        if (tempC &lt; 0d) {</span>
+<span class="nc" id="L179">            tempC = 0d;</span>
         }
 
         // Other fallbacks to WMI are unreliable so we omit them
@@ -177,7 +184,7 @@ public class WindowsSensors implements Sensors {
         // populated and is &quot;reserved for future use&quot;
         // MSAcpu_ThermalZoneTemperature only updates during a high temperature
         // event and is otherwise unchanged/misleading.
-<span class="nc" id="L180">        return tempC;</span>
+<span class="nc" id="L187">        return tempC;</span>
     }
 
     /**
@@ -186,38 +193,38 @@ public class WindowsSensors implements Sensors {
     @Override
     public int[] getFanSpeeds() {
         // Attempt to fetch value from Open Hardware Monitor if it is running
-<span class="nc" id="L189">        WmiResult&lt;OhmHardwareProperty&gt; ohmHardware = WmiUtil.queryWMI(OHM_HARDWARE_QUERY);</span>
-<span class="nc bnc" id="L190" title="All 2 branches missed.">        if (ohmHardware.getResultCount() &gt; 0) {</span>
-<span class="nc" id="L191">            String cpuIdentifier = WmiUtil.getString(ohmHardware, OhmHardwareProperty.IDENTIFIER, 0);</span>
-<span class="nc bnc" id="L192" title="All 2 branches missed.">            if (cpuIdentifier.length() &gt; 0) {</span>
-<span class="nc" id="L193">                StringBuilder sb = new StringBuilder(BASE_SENSOR_CLASS);</span>
-<span class="nc" id="L194">                sb.append(&quot; WHERE Parent = \&quot;&quot;).append(cpuIdentifier);</span>
-<span class="nc" id="L195">                sb.append(&quot;\&quot; AND SensorType=\&quot;Fan\&quot;&quot;);</span>
-<span class="nc" id="L196">                OHM_SENSOR_QUERY.setWmiClassName(sb.toString());</span>
-<span class="nc" id="L197">                WmiResult&lt;OhmSensorProperty&gt; ohmSensors = WmiUtil.queryWMI(OHM_SENSOR_QUERY);</span>
+<span class="nc" id="L196">        WmiResult&lt;OhmHardwareProperty&gt; ohmHardware = WmiQueryHandler.getInstance().queryWMI(OHM_HARDWARE_QUERY);</span>
+<span class="nc bnc" id="L197" title="All 2 branches missed.">        if (ohmHardware.getResultCount() &gt; 0) {</span>
+<span class="nc" id="L198">            String cpuIdentifier = WmiUtil.getString(ohmHardware, OhmHardwareProperty.IDENTIFIER, 0);</span>
+<span class="nc bnc" id="L199" title="All 2 branches missed.">            if (cpuIdentifier.length() &gt; 0) {</span>
+<span class="nc" id="L200">                StringBuilder sb = new StringBuilder(BASE_SENSOR_CLASS);</span>
+<span class="nc" id="L201">                sb.append(&quot; WHERE Parent = \&quot;&quot;).append(cpuIdentifier);</span>
+<span class="nc" id="L202">                sb.append(&quot;\&quot; AND SensorType=\&quot;Fan\&quot;&quot;);</span>
+<span class="nc" id="L203">                OHM_SENSOR_QUERY.setWmiClassName(sb.toString());</span>
+<span class="nc" id="L204">                WmiResult&lt;OhmSensorProperty&gt; ohmSensors = WmiQueryHandler.getInstance().queryWMI(OHM_SENSOR_QUERY);</span>
 
-<span class="nc bnc" id="L199" title="All 2 branches missed.">                if (ohmSensors.getResultCount() &gt; 0) {</span>
-<span class="nc" id="L200">                    int[] fanSpeeds = new int[ohmSensors.getResultCount()];</span>
-<span class="nc bnc" id="L201" title="All 2 branches missed.">                    for (int i = 0; i &lt; ohmSensors.getResultCount(); i++) {</span>
-<span class="nc" id="L202">                        fanSpeeds[i] = (int) WmiUtil.getFloat(ohmSensors, OhmSensorProperty.VALUE, i);</span>
+<span class="nc bnc" id="L206" title="All 2 branches missed.">                if (ohmSensors.getResultCount() &gt; 0) {</span>
+<span class="nc" id="L207">                    int[] fanSpeeds = new int[ohmSensors.getResultCount()];</span>
+<span class="nc bnc" id="L208" title="All 2 branches missed.">                    for (int i = 0; i &lt; ohmSensors.getResultCount(); i++) {</span>
+<span class="nc" id="L209">                        fanSpeeds[i] = (int) WmiUtil.getFloat(ohmSensors, OhmSensorProperty.VALUE, i);</span>
                     }
-<span class="nc" id="L204">                    return fanSpeeds;</span>
+<span class="nc" id="L211">                    return fanSpeeds;</span>
                 }
             }
         }
 
         // If we get this far, OHM is not running.
         // Try to get from conventional WMI
-<span class="nc" id="L211">        WmiResult&lt;FanProperty&gt; fan = WmiUtil.queryWMI(FAN_QUERY);</span>
-<span class="nc bnc" id="L212" title="All 2 branches missed.">        if (fan.getResultCount() &gt; 1) {</span>
-<span class="nc" id="L213">            int[] fanSpeeds = new int[fan.getResultCount()];</span>
-<span class="nc bnc" id="L214" title="All 2 branches missed.">            for (int i = 0; i &lt; fan.getResultCount(); i++) {</span>
-<span class="nc" id="L215">                fanSpeeds[i] = (int) WmiUtil.getUint64(fan, FanProperty.DESIREDSPEED, i);</span>
+<span class="nc" id="L218">        WmiResult&lt;FanProperty&gt; fan = WmiQueryHandler.getInstance().queryWMI(FAN_QUERY);</span>
+<span class="nc bnc" id="L219" title="All 2 branches missed.">        if (fan.getResultCount() &gt; 1) {</span>
+<span class="nc" id="L220">            int[] fanSpeeds = new int[fan.getResultCount()];</span>
+<span class="nc bnc" id="L221" title="All 2 branches missed.">            for (int i = 0; i &lt; fan.getResultCount(); i++) {</span>
+<span class="nc" id="L222">                fanSpeeds[i] = (int) WmiUtil.getUint64(fan, FanProperty.DESIREDSPEED, i);</span>
             }
-<span class="nc" id="L217">            return fanSpeeds;</span>
+<span class="nc" id="L224">            return fanSpeeds;</span>
         }
         // Default
-<span class="nc" id="L220">        return new int[1];</span>
+<span class="nc" id="L227">        return new int[1];</span>
     }
 
     /**
@@ -226,59 +233,59 @@ public class WindowsSensors implements Sensors {
     @Override
     public double getCpuVoltage() {
         // Attempt to fetch value from Open Hardware Monitor if it is running
-<span class="nc" id="L229">        WmiResult&lt;OhmHardwareProperty&gt; ohmHardware = WmiUtil.queryWMI(OHM_VOLTAGE_QUERY);</span>
-<span class="nc bnc" id="L230" title="All 2 branches missed.">        if (ohmHardware.getResultCount() &gt; 0) {</span>
+<span class="nc" id="L236">        WmiResult&lt;OhmHardwareProperty&gt; ohmHardware = WmiQueryHandler.getInstance().queryWMI(OHM_VOLTAGE_QUERY);</span>
+<span class="nc bnc" id="L237" title="All 2 branches missed.">        if (ohmHardware.getResultCount() &gt; 0) {</span>
             // Look for identifier containing &quot;cpu&quot;
-<span class="nc" id="L232">            String voltIdentifierStr = null;</span>
-<span class="nc bnc" id="L233" title="All 2 branches missed.">            for (int i = 0; i &lt; ohmHardware.getResultCount(); i++) {</span>
-<span class="nc" id="L234">                String id = WmiUtil.getString(ohmHardware, OhmHardwareProperty.IDENTIFIER, i);</span>
-<span class="nc bnc" id="L235" title="All 2 branches missed.">                if (id.toLowerCase().contains(&quot;cpu&quot;)) {</span>
-<span class="nc" id="L236">                    voltIdentifierStr = id;</span>
-<span class="nc" id="L237">                    break;</span>
+<span class="nc" id="L239">            String voltIdentifierStr = null;</span>
+<span class="nc bnc" id="L240" title="All 2 branches missed.">            for (int i = 0; i &lt; ohmHardware.getResultCount(); i++) {</span>
+<span class="nc" id="L241">                String id = WmiUtil.getString(ohmHardware, OhmHardwareProperty.IDENTIFIER, i);</span>
+<span class="nc bnc" id="L242" title="All 2 branches missed.">                if (id.toLowerCase().contains(&quot;cpu&quot;)) {</span>
+<span class="nc" id="L243">                    voltIdentifierStr = id;</span>
+<span class="nc" id="L244">                    break;</span>
                 }
             }
             // If none found, just get the first one
-<span class="nc bnc" id="L241" title="All 2 branches missed.">            if (voltIdentifierStr == null) {</span>
-<span class="nc" id="L242">                voltIdentifierStr = WmiUtil.getString(ohmHardware, OhmHardwareProperty.IDENTIFIER, 0);</span>
+<span class="nc bnc" id="L248" title="All 2 branches missed.">            if (voltIdentifierStr == null) {</span>
+<span class="nc" id="L249">                voltIdentifierStr = WmiUtil.getString(ohmHardware, OhmHardwareProperty.IDENTIFIER, 0);</span>
             }
             // Now fetch sensor
-<span class="nc" id="L245">            StringBuilder sb = new StringBuilder(BASE_SENSOR_CLASS);</span>
-<span class="nc" id="L246">            sb.append(&quot; WHERE Parent = \&quot;&quot;).append(voltIdentifierStr);</span>
-<span class="nc" id="L247">            sb.append(&quot;\&quot; AND SensorType=\&quot;Voltage\&quot;&quot;);</span>
-<span class="nc" id="L248">            OHM_SENSOR_QUERY.setWmiClassName(sb.toString());</span>
-<span class="nc" id="L249">            WmiResult&lt;OhmSensorProperty&gt; ohmSensors = WmiUtil.queryWMI(OHM_SENSOR_QUERY);</span>
-<span class="nc bnc" id="L250" title="All 2 branches missed.">            if (ohmSensors.getResultCount() &gt; 0) {</span>
-<span class="nc" id="L251">                return WmiUtil.getFloat(ohmSensors, OhmSensorProperty.VALUE, 0);</span>
+<span class="nc" id="L252">            StringBuilder sb = new StringBuilder(BASE_SENSOR_CLASS);</span>
+<span class="nc" id="L253">            sb.append(&quot; WHERE Parent = \&quot;&quot;).append(voltIdentifierStr);</span>
+<span class="nc" id="L254">            sb.append(&quot;\&quot; AND SensorType=\&quot;Voltage\&quot;&quot;);</span>
+<span class="nc" id="L255">            OHM_SENSOR_QUERY.setWmiClassName(sb.toString());</span>
+<span class="nc" id="L256">            WmiResult&lt;OhmSensorProperty&gt; ohmSensors = WmiQueryHandler.getInstance().queryWMI(OHM_SENSOR_QUERY);</span>
+<span class="nc bnc" id="L257" title="All 2 branches missed.">            if (ohmSensors.getResultCount() &gt; 0) {</span>
+<span class="nc" id="L258">                return WmiUtil.getFloat(ohmSensors, OhmSensorProperty.VALUE, 0);</span>
             }
         }
 
         // If we get this far, OHM is not running.
         // Try to get from conventional WMI
-<span class="nc" id="L257">        WmiResult&lt;VoltProperty&gt; voltage = WmiUtil.queryWMI(VOLT_QUERY);</span>
-<span class="nc bnc" id="L258" title="All 2 branches missed.">        if (voltage.getResultCount() &gt; 1) {</span>
-<span class="nc" id="L259">            int decivolts = WmiUtil.getUint16(voltage, VoltProperty.CURRENTVOLTAGE, 0);</span>
+<span class="nc" id="L264">        WmiResult&lt;VoltProperty&gt; voltage = WmiQueryHandler.getInstance().queryWMI(VOLT_QUERY);</span>
+<span class="nc bnc" id="L265" title="All 2 branches missed.">        if (voltage.getResultCount() &gt; 1) {</span>
+<span class="nc" id="L266">            int decivolts = WmiUtil.getUint16(voltage, VoltProperty.CURRENTVOLTAGE, 0);</span>
             // If the eighth bit is set, bits 0-6 contain the voltage
             // multiplied by 10. If the eighth bit is not set, then the bit
             // setting in VoltageCaps represents the voltage value.
-<span class="nc bnc" id="L263" title="All 2 branches missed.">            if (decivolts &gt; 0) {</span>
-<span class="nc bnc" id="L264" title="All 2 branches missed.">                if ((decivolts &amp; 0x80) == 0) {</span>
-<span class="nc" id="L265">                    decivolts = WmiUtil.getUint32(voltage, VoltProperty.VOLTAGECAPS, 0);</span>
+<span class="nc bnc" id="L270" title="All 2 branches missed.">            if (decivolts &gt; 0) {</span>
+<span class="nc bnc" id="L271" title="All 2 branches missed.">                if ((decivolts &amp; 0x80) == 0) {</span>
+<span class="nc" id="L272">                    decivolts = WmiUtil.getUint32(voltage, VoltProperty.VOLTAGECAPS, 0);</span>
                     // This value is really a bit setting, not decivolts
-<span class="nc bnc" id="L267" title="All 2 branches missed.">                    if ((decivolts &amp; 0x1) &gt; 0) {</span>
-<span class="nc" id="L268">                        return 5.0;</span>
-<span class="nc bnc" id="L269" title="All 2 branches missed.">                    } else if ((decivolts &amp; 0x2) &gt; 0) {</span>
-<span class="nc" id="L270">                        return 3.3;</span>
-<span class="nc bnc" id="L271" title="All 2 branches missed.">                    } else if ((decivolts &amp; 0x4) &gt; 0) {</span>
-<span class="nc" id="L272">                        return 2.9;</span>
+<span class="nc bnc" id="L274" title="All 2 branches missed.">                    if ((decivolts &amp; 0x1) &gt; 0) {</span>
+<span class="nc" id="L275">                        return 5.0;</span>
+<span class="nc bnc" id="L276" title="All 2 branches missed.">                    } else if ((decivolts &amp; 0x2) &gt; 0) {</span>
+<span class="nc" id="L277">                        return 3.3;</span>
+<span class="nc bnc" id="L278" title="All 2 branches missed.">                    } else if ((decivolts &amp; 0x4) &gt; 0) {</span>
+<span class="nc" id="L279">                        return 2.9;</span>
                     }
                 } else {
                     // Value from bits 0-6, divided by 10
-<span class="nc" id="L276">                    return (decivolts &amp; 0x7F) / 10d;</span>
+<span class="nc" id="L283">                    return (decivolts &amp; 0x7F) / 10d;</span>
                 }
             }
         }
         // Default
-<span class="nc" id="L281">        return 0d;</span>
+<span class="nc" id="L288">        return 0d;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>
