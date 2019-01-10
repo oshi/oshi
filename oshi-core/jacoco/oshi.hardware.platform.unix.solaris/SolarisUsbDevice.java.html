@@ -1,20 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SolarisUsbDevice.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.unix.solaris</a> &gt; <span class="el_source">SolarisUsbDevice.java</span></div><h1>SolarisUsbDevice.java</h1><pre class="source lang-java linenums">/**
- * Oshi (https://github.com/oshi/oshi)
+ * OSHI (https://github.com/oshi/oshi)
  *
- * Copyright (c) 2010 - 2018 The Oshi Project Team
- *
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- *
- * Maintainers:
- * dblock[at]dblock[dot]org
- * widdis[at]gmail[dot]com
- * enrico.bianchi[at]gmail[dot]com
- *
- * Contributors:
+ * Copyright (c) 2010 - 2019 The OSHI Project Team:
  * https://github.com/oshi/oshi/graphs/contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 package oshi.hardware.platform.unix.solaris;
 
@@ -37,124 +42,124 @@ public class SolarisUsbDevice extends AbstractUsbDevice {
     /*
      * Maps to store information using node # as the key
      */
-<span class="nc" id="L40">    private static Map&lt;String, String&gt; nameMap = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L41">    private static Map&lt;String, String&gt; vendorIdMap = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L42">    private static Map&lt;String, String&gt; productIdMap = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L43">    private static Map&lt;String, List&lt;String&gt;&gt; hubMap = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L44">    private static Map&lt;String, String&gt; deviceTypeMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L45">    private static Map&lt;String, String&gt; nameMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L46">    private static Map&lt;String, String&gt; vendorIdMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L47">    private static Map&lt;String, String&gt; productIdMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L48">    private static Map&lt;String, List&lt;String&gt;&gt; hubMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L49">    private static Map&lt;String, String&gt; deviceTypeMap = new HashMap&lt;&gt;();</span>
     /*
      * For parsing tree
      */
-<span class="nc" id="L48">    private static Map&lt;Integer, String&gt; lastParent = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L53">    private static Map&lt;Integer, String&gt; lastParent = new HashMap&lt;&gt;();</span>
 
     public SolarisUsbDevice(String name, String vendor, String vendorId, String productId, String serialNumber,
             UsbDevice[] connectedDevices) {
-<span class="nc" id="L52">        super(name, vendor, vendorId, productId, serialNumber, connectedDevices);</span>
-<span class="nc" id="L53">    }</span>
+<span class="nc" id="L57">        super(name, vendor, vendorId, productId, serialNumber, connectedDevices);</span>
+<span class="nc" id="L58">    }</span>
 
     /**
      * {@inheritDoc}
      */
     public static UsbDevice[] getUsbDevices(boolean tree) {
-<span class="nc" id="L59">        UsbDevice[] devices = getUsbDevices();</span>
-<span class="nc bnc" id="L60" title="All 2 branches missed.">        if (tree) {</span>
-<span class="nc" id="L61">            return devices;</span>
+<span class="nc" id="L64">        UsbDevice[] devices = getUsbDevices();</span>
+<span class="nc bnc" id="L65" title="All 2 branches missed.">        if (tree) {</span>
+<span class="nc" id="L66">            return devices;</span>
         }
-<span class="nc" id="L63">        List&lt;UsbDevice&gt; deviceList = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L68">        List&lt;UsbDevice&gt; deviceList = new ArrayList&lt;&gt;();</span>
         // Top level is controllers; they won't be added to the list, but all
         // their connected devices will be
-<span class="nc bnc" id="L66" title="All 2 branches missed.">        for (UsbDevice device : devices) {</span>
-<span class="nc" id="L67">            deviceList.add(new SolarisUsbDevice(device.getName(), device.getVendor(), device.getVendorId(),</span>
-<span class="nc" id="L68">                    device.getProductId(), device.getSerialNumber(), new SolarisUsbDevice[0]));</span>
-<span class="nc" id="L69">            addDevicesToList(deviceList, device.getConnectedDevices());</span>
+<span class="nc bnc" id="L71" title="All 2 branches missed.">        for (UsbDevice device : devices) {</span>
+<span class="nc" id="L72">            deviceList.add(new SolarisUsbDevice(device.getName(), device.getVendor(), device.getVendorId(),</span>
+<span class="nc" id="L73">                    device.getProductId(), device.getSerialNumber(), new SolarisUsbDevice[0]));</span>
+<span class="nc" id="L74">            addDevicesToList(deviceList, device.getConnectedDevices());</span>
         }
-<span class="nc" id="L71">        return deviceList.toArray(new UsbDevice[deviceList.size()]);</span>
+<span class="nc" id="L76">        return deviceList.toArray(new UsbDevice[deviceList.size()]);</span>
     }
 
     private static void addDevicesToList(List&lt;UsbDevice&gt; deviceList, UsbDevice[] connectedDevices) {
-<span class="nc bnc" id="L75" title="All 2 branches missed.">        for (UsbDevice device : connectedDevices) {</span>
-<span class="nc" id="L76">            deviceList.add(device);</span>
-<span class="nc" id="L77">            addDevicesToList(deviceList, device.getConnectedDevices());</span>
+<span class="nc bnc" id="L80" title="All 2 branches missed.">        for (UsbDevice device : connectedDevices) {</span>
+<span class="nc" id="L81">            deviceList.add(device);</span>
+<span class="nc" id="L82">            addDevicesToList(deviceList, device.getConnectedDevices());</span>
         }
-<span class="nc" id="L79">    }</span>
+<span class="nc" id="L84">    }</span>
 
     private static UsbDevice[] getUsbDevices() {
         // Empty out maps
-<span class="nc" id="L83">        nameMap.clear();</span>
-<span class="nc" id="L84">        vendorIdMap.clear();</span>
-<span class="nc" id="L85">        productIdMap.clear();</span>
-<span class="nc" id="L86">        hubMap.clear();</span>
+<span class="nc" id="L88">        nameMap.clear();</span>
+<span class="nc" id="L89">        vendorIdMap.clear();</span>
+<span class="nc" id="L90">        productIdMap.clear();</span>
+<span class="nc" id="L91">        hubMap.clear();</span>
 
         // Enumerate all usb devices and build information maps
-<span class="nc" id="L89">        List&lt;String&gt; devices = ExecutingCommand.runNative(&quot;prtconf -pv&quot;);</span>
-<span class="nc bnc" id="L90" title="All 2 branches missed.">        if (devices.isEmpty()) {</span>
-<span class="nc" id="L91">            return new SolarisUsbDevice[0];</span>
+<span class="nc" id="L94">        List&lt;String&gt; devices = ExecutingCommand.runNative(&quot;prtconf -pv&quot;);</span>
+<span class="nc bnc" id="L95" title="All 2 branches missed.">        if (devices.isEmpty()) {</span>
+<span class="nc" id="L96">            return new SolarisUsbDevice[0];</span>
         }
         // For each item enumerated, store information in the maps
-<span class="nc" id="L94">        String key = &quot;&quot;;</span>
-<span class="nc" id="L95">        int indent = 0;</span>
-<span class="nc" id="L96">        List&lt;String&gt; usbControllers = new ArrayList&lt;&gt;();</span>
-<span class="nc bnc" id="L97" title="All 2 branches missed.">        for (String line : devices) {</span>
+<span class="nc" id="L99">        String key = &quot;&quot;;</span>
+<span class="nc" id="L100">        int indent = 0;</span>
+<span class="nc" id="L101">        List&lt;String&gt; usbControllers = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L102" title="All 2 branches missed.">        for (String line : devices) {</span>
             // Node 0x... identifies start of a new tree
-<span class="nc bnc" id="L99" title="All 2 branches missed.">            if (line.contains(&quot;Node 0x&quot;)) {</span>
+<span class="nc bnc" id="L104" title="All 2 branches missed.">            if (line.contains(&quot;Node 0x&quot;)) {</span>
                 // Remove indent for key
-<span class="nc" id="L101">                key = line.replaceFirst(&quot;^\\s*&quot;, &quot;&quot;);</span>
+<span class="nc" id="L106">                key = line.replaceFirst(&quot;^\\s*&quot;, &quot;&quot;);</span>
                 // Calculate indent and store as last parent at this depth
-<span class="nc" id="L103">                int depth = line.length() - key.length();</span>
+<span class="nc" id="L108">                int depth = line.length() - key.length();</span>
                 // Store first indent for future use
-<span class="nc bnc" id="L105" title="All 2 branches missed.">                if (indent == 0) {</span>
-<span class="nc" id="L106">                    indent = depth;</span>
+<span class="nc bnc" id="L110" title="All 2 branches missed.">                if (indent == 0) {</span>
+<span class="nc" id="L111">                    indent = depth;</span>
                 }
                 // Store this Node ID as parent at this depth
-<span class="nc" id="L109">                lastParent.put(depth, key);</span>
+<span class="nc" id="L114">                lastParent.put(depth, key);</span>
                 // Add as child to appropriate parent
-<span class="nc bnc" id="L111" title="All 2 branches missed.">                if (depth &gt; indent) {</span>
+<span class="nc bnc" id="L116" title="All 2 branches missed.">                if (depth &gt; indent) {</span>
                     // Has a parent. Get parent and add this node to child list
-<span class="nc" id="L113">                    MapUtil.createNewListIfAbsent(hubMap, lastParent.get(depth - indent)).add(key);</span>
+<span class="nc" id="L118">                    MapUtil.createNewListIfAbsent(hubMap, lastParent.get(depth - indent)).add(key);</span>
                 } else {
                     // No parent, add to controllers list
-<span class="nc" id="L116">                    usbControllers.add(key);</span>
+<span class="nc" id="L121">                    usbControllers.add(key);</span>
                 }
-<span class="nc" id="L118">                continue;</span>
-<span class="nc bnc" id="L119" title="All 2 branches missed.">            } else if (key.isEmpty()) {</span>
+<span class="nc" id="L123">                continue;</span>
+<span class="nc bnc" id="L124" title="All 2 branches missed.">            } else if (key.isEmpty()) {</span>
                 // Ignore everything preceding the first node
-<span class="nc" id="L121">                continue;</span>
+<span class="nc" id="L126">                continue;</span>
             }
             // We are currently processing for node identified by key. Save
             // approrpriate variables to maps.
-<span class="nc" id="L125">            line = line.trim();</span>
-<span class="nc bnc" id="L126" title="All 2 branches missed.">            if (line.startsWith(&quot;model:&quot;)) {</span>
-<span class="nc" id="L127">                nameMap.put(key, ParseUtil.getSingleQuoteStringValue(line));</span>
-<span class="nc bnc" id="L128" title="All 2 branches missed.">            } else if (line.startsWith(&quot;name:&quot;)) {</span>
+<span class="nc" id="L130">            line = line.trim();</span>
+<span class="nc bnc" id="L131" title="All 2 branches missed.">            if (line.startsWith(&quot;model:&quot;)) {</span>
+<span class="nc" id="L132">                nameMap.put(key, ParseUtil.getSingleQuoteStringValue(line));</span>
+<span class="nc bnc" id="L133" title="All 2 branches missed.">            } else if (line.startsWith(&quot;name:&quot;)) {</span>
                 // Name is backup for model if model doesn't exist, so only
                 // put if key doesn't yet exist
-<span class="nc" id="L131">                MapUtil.putIfAbsent(nameMap, key, ParseUtil.getSingleQuoteStringValue(line));</span>
-<span class="nc bnc" id="L132" title="All 2 branches missed.">            } else if (line.startsWith(&quot;vendor-id:&quot;)) {</span>
+<span class="nc" id="L136">                MapUtil.putIfAbsent(nameMap, key, ParseUtil.getSingleQuoteStringValue(line));</span>
+<span class="nc bnc" id="L137" title="All 2 branches missed.">            } else if (line.startsWith(&quot;vendor-id:&quot;)) {</span>
                 // Format: vendor-id: 00008086
-<span class="nc bnc" id="L134" title="All 2 branches missed.">                if (line.length() &gt; 4) {</span>
-<span class="nc" id="L135">                    vendorIdMap.put(key, line.substring(line.length() - 4));</span>
-                }
-<span class="nc bnc" id="L137" title="All 2 branches missed.">            } else if (line.startsWith(&quot;device-id:&quot;)) {</span>
-                // Format: device-id: 00002440
 <span class="nc bnc" id="L139" title="All 2 branches missed.">                if (line.length() &gt; 4) {</span>
-<span class="nc" id="L140">                    productIdMap.put(key, line.substring(line.length() - 4));</span>
+<span class="nc" id="L140">                    vendorIdMap.put(key, line.substring(line.length() - 4));</span>
                 }
-<span class="nc bnc" id="L142" title="All 2 branches missed.">            } else if (line.startsWith(&quot;device_type:&quot;)) {</span>
+<span class="nc bnc" id="L142" title="All 2 branches missed.">            } else if (line.startsWith(&quot;device-id:&quot;)) {</span>
+                // Format: device-id: 00002440
+<span class="nc bnc" id="L144" title="All 2 branches missed.">                if (line.length() &gt; 4) {</span>
+<span class="nc" id="L145">                    productIdMap.put(key, line.substring(line.length() - 4));</span>
+                }
+<span class="nc bnc" id="L147" title="All 2 branches missed.">            } else if (line.startsWith(&quot;device_type:&quot;)) {</span>
                 // Name is backup for model if model doesn't exist, so only
                 // put if key doesn't yet exist
-<span class="nc" id="L145">                MapUtil.putIfAbsent(deviceTypeMap, key, ParseUtil.getSingleQuoteStringValue(line));</span>
+<span class="nc" id="L150">                MapUtil.putIfAbsent(deviceTypeMap, key, ParseUtil.getSingleQuoteStringValue(line));</span>
             }
-<span class="nc" id="L147">        }</span>
+<span class="nc" id="L152">        }</span>
 
         // Build tree and return
-<span class="nc" id="L150">        List&lt;UsbDevice&gt; controllerDevices = new ArrayList&lt;&gt;();</span>
-<span class="nc bnc" id="L151" title="All 2 branches missed.">        for (String controller : usbControllers) {</span>
+<span class="nc" id="L155">        List&lt;UsbDevice&gt; controllerDevices = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L156" title="All 2 branches missed.">        for (String controller : usbControllers) {</span>
             // Only do controllers that are USB device type
-<span class="nc bnc" id="L153" title="All 2 branches missed.">            if (&quot;usb&quot;.equals(MapUtil.getOrDefault(deviceTypeMap, controller, &quot;&quot;))) {</span>
-<span class="nc" id="L154">                controllerDevices.add(getDeviceAndChildren(controller, &quot;0000&quot;, &quot;0000&quot;));</span>
+<span class="nc bnc" id="L158" title="All 2 branches missed.">            if (&quot;usb&quot;.equals(MapUtil.getOrDefault(deviceTypeMap, controller, &quot;&quot;))) {</span>
+<span class="nc" id="L159">                controllerDevices.add(getDeviceAndChildren(controller, &quot;0000&quot;, &quot;0000&quot;));</span>
             }
-<span class="nc" id="L156">        }</span>
-<span class="nc" id="L157">        return controllerDevices.toArray(new UsbDevice[controllerDevices.size()]);</span>
+<span class="nc" id="L161">        }</span>
+<span class="nc" id="L162">        return controllerDevices.toArray(new UsbDevice[controllerDevices.size()]);</span>
     }
 
     /**
@@ -170,16 +175,16 @@ public class SolarisUsbDevice extends AbstractUsbDevice {
      * @return A SolarisUsbDevice corresponding to this device
      */
     private static SolarisUsbDevice getDeviceAndChildren(String devPath, String vid, String pid) {
-<span class="nc" id="L173">        String vendorId = MapUtil.getOrDefault(vendorIdMap, devPath, vid);</span>
-<span class="nc" id="L174">        String productId = MapUtil.getOrDefault(productIdMap, devPath, pid);</span>
-<span class="nc" id="L175">        List&lt;String&gt; childPaths = MapUtil.getOrDefault(hubMap, devPath, new ArrayList&lt;String&gt;());</span>
-<span class="nc" id="L176">        List&lt;SolarisUsbDevice&gt; usbDevices = new ArrayList&lt;&gt;();</span>
-<span class="nc bnc" id="L177" title="All 2 branches missed.">        for (String path : childPaths) {</span>
-<span class="nc" id="L178">            usbDevices.add(getDeviceAndChildren(path, vendorId, productId));</span>
-<span class="nc" id="L179">        }</span>
-<span class="nc" id="L180">        Collections.sort(usbDevices);</span>
-<span class="nc" id="L181">        return new SolarisUsbDevice(MapUtil.getOrDefault(nameMap, devPath, vendorId + &quot;:&quot; + productId), &quot;&quot;, vendorId,</span>
-<span class="nc" id="L182">                productId, &quot;&quot;, usbDevices.toArray(new UsbDevice[usbDevices.size()]));</span>
+<span class="nc" id="L178">        String vendorId = MapUtil.getOrDefault(vendorIdMap, devPath, vid);</span>
+<span class="nc" id="L179">        String productId = MapUtil.getOrDefault(productIdMap, devPath, pid);</span>
+<span class="nc" id="L180">        List&lt;String&gt; childPaths = MapUtil.getOrDefault(hubMap, devPath, new ArrayList&lt;String&gt;());</span>
+<span class="nc" id="L181">        List&lt;SolarisUsbDevice&gt; usbDevices = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L182" title="All 2 branches missed.">        for (String path : childPaths) {</span>
+<span class="nc" id="L183">            usbDevices.add(getDeviceAndChildren(path, vendorId, productId));</span>
+<span class="nc" id="L184">        }</span>
+<span class="nc" id="L185">        Collections.sort(usbDevices);</span>
+<span class="nc" id="L186">        return new SolarisUsbDevice(MapUtil.getOrDefault(nameMap, devPath, vendorId + &quot;:&quot; + productId), &quot;&quot;, vendorId,</span>
+<span class="nc" id="L187">                productId, &quot;&quot;, usbDevices.toArray(new UsbDevice[usbDevices.size()]));</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

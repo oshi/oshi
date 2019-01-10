@@ -1,20 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FreeBsdFileSystem.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.software.os.unix.freebsd</a> &gt; <span class="el_source">FreeBsdFileSystem.java</span></div><h1>FreeBsdFileSystem.java</h1><pre class="source lang-java linenums">/**
- * Oshi (https://github.com/oshi/oshi)
+ * OSHI (https://github.com/oshi/oshi)
  *
- * Copyright (c) 2010 - 2018 The Oshi Project Team
- *
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- *
- * Maintainers:
- * dblock[at]dblock[dot]org
- * widdis[at]gmail[dot]com
- * enrico.bianchi[at]gmail[dot]com
- *
- * Contributors:
+ * Copyright (c) 2010 - 2019 The OSHI Project Team:
  * https://github.com/oshi/oshi/graphs/contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 package oshi.software.os.unix.freebsd;
 
@@ -40,12 +45,12 @@ import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
  *
  * @author widdis[at]gmail[dot]com
  */
-<span class="nc" id="L43">public class FreeBsdFileSystem implements FileSystem {</span>
+<span class="nc" id="L48">public class FreeBsdFileSystem implements FileSystem {</span>
 
     private static final long serialVersionUID = 1L;
 
     // Linux defines a set of virtual file systems
-<span class="nc" id="L48">    private final List&lt;String&gt; pseudofs = Arrays.asList(new String[] { //</span>
+<span class="nc" id="L53">    private final List&lt;String&gt; pseudofs = Arrays.asList(new String[] { //</span>
             &quot;procfs&quot;, // Proc file system
             &quot;devfs&quot;, // Dev temporary file system
             &quot;ctfs&quot;, // Contract file system
@@ -61,7 +66,7 @@ import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
     });
 
     // System path mounted as tmpfs
-<span class="nc" id="L64">    private final List&lt;String&gt; tmpfsPaths = Arrays.asList(new String[] { &quot;/system&quot;, &quot;/tmp&quot;, &quot;/dev/fd&quot; });</span>
+<span class="nc" id="L69">    private final List&lt;String&gt; tmpfsPaths = Arrays.asList(new String[] { &quot;/system&quot;, &quot;/tmp&quot;, &quot;/dev/fd&quot; });</span>
 
     /**
      * Checks if file path equals or starts with an element in the given list
@@ -74,12 +79,12 @@ import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
      *         in aList
      */
     private boolean listElementStartsWith(List&lt;String&gt; aList, String charSeq) {
-<span class="nc bnc" id="L77" title="All 2 branches missed.">        for (String match : aList) {</span>
-<span class="nc bnc" id="L78" title="All 4 branches missed.">            if (charSeq.equals(match) || charSeq.startsWith(match + &quot;/&quot;)) {</span>
-<span class="nc" id="L79">                return true;</span>
+<span class="nc bnc" id="L82" title="All 2 branches missed.">        for (String match : aList) {</span>
+<span class="nc bnc" id="L83" title="All 4 branches missed.">            if (charSeq.equals(match) || charSeq.startsWith(match + &quot;/&quot;)) {</span>
+<span class="nc" id="L84">                return true;</span>
             }
-<span class="nc" id="L81">        }</span>
-<span class="nc" id="L82">        return false;</span>
+<span class="nc" id="L86">        }</span>
+<span class="nc" id="L87">        return false;</span>
     }
 
     /**
@@ -92,111 +97,111 @@ import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
     @Override
     public OSFileStore[] getFileStores() {
         // Find any partition UUIDs and map them
-<span class="nc" id="L95">        Map&lt;String, String&gt; uuidMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L100">        Map&lt;String, String&gt; uuidMap = new HashMap&lt;&gt;();</span>
         // Now grab dmssg output
-<span class="nc" id="L97">        String device = &quot;&quot;;</span>
-<span class="nc bnc" id="L98" title="All 2 branches missed.">        for (String line : ExecutingCommand.runNative(&quot;geom part list&quot;)) {</span>
-<span class="nc bnc" id="L99" title="All 2 branches missed.">            if (line.contains(&quot;Name: &quot;)) {</span>
-<span class="nc" id="L100">                device = line.substring(line.lastIndexOf(' ') + 1);</span>
+<span class="nc" id="L102">        String device = &quot;&quot;;</span>
+<span class="nc bnc" id="L103" title="All 2 branches missed.">        for (String line : ExecutingCommand.runNative(&quot;geom part list&quot;)) {</span>
+<span class="nc bnc" id="L104" title="All 2 branches missed.">            if (line.contains(&quot;Name: &quot;)) {</span>
+<span class="nc" id="L105">                device = line.substring(line.lastIndexOf(' ') + 1);</span>
             }
             // If we aren't working with a current partition, continue
-<span class="nc bnc" id="L103" title="All 2 branches missed.">            if (device.isEmpty()) {</span>
-<span class="nc" id="L104">                continue;</span>
+<span class="nc bnc" id="L108" title="All 2 branches missed.">            if (device.isEmpty()) {</span>
+<span class="nc" id="L109">                continue;</span>
             }
-<span class="nc" id="L106">            line = line.trim();</span>
-<span class="nc bnc" id="L107" title="All 2 branches missed.">            if (line.startsWith(&quot;rawuuid:&quot;)) {</span>
-<span class="nc" id="L108">                uuidMap.put(device, line.substring(line.lastIndexOf(' ') + 1));</span>
-<span class="nc" id="L109">                device = &quot;&quot;;</span>
+<span class="nc" id="L111">            line = line.trim();</span>
+<span class="nc bnc" id="L112" title="All 2 branches missed.">            if (line.startsWith(&quot;rawuuid:&quot;)) {</span>
+<span class="nc" id="L113">                uuidMap.put(device, line.substring(line.lastIndexOf(' ') + 1));</span>
+<span class="nc" id="L114">                device = &quot;&quot;;</span>
             }
-<span class="nc" id="L111">        }</span>
+<span class="nc" id="L116">        }</span>
 
-<span class="nc" id="L113">        List&lt;OSFileStore&gt; fsList = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L118">        List&lt;OSFileStore&gt; fsList = new ArrayList&lt;&gt;();</span>
 
         // Get inode usage data
-<span class="nc" id="L116">        Map&lt;String, Long&gt; inodeFreeMap = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L117">        Map&lt;String, Long&gt; inodeTotalMap = new HashMap&lt;&gt;();</span>
-<span class="nc bnc" id="L118" title="All 2 branches missed.">        for (String line : ExecutingCommand.runNative(&quot;df -i&quot;)) {</span>
+<span class="nc" id="L121">        Map&lt;String, Long&gt; inodeFreeMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L122">        Map&lt;String, Long&gt; inodeTotalMap = new HashMap&lt;&gt;();</span>
+<span class="nc bnc" id="L123" title="All 2 branches missed.">        for (String line : ExecutingCommand.runNative(&quot;df -i&quot;)) {</span>
             /*- Sample Output:
             Filesystem    1K-blocks   Used   Avail Capacity iused  ifree %iused  Mounted on
             /dev/twed0s1a   2026030 584112 1279836    31%    2751 279871    1%   /
             */
-<span class="nc bnc" id="L123" title="All 2 branches missed.">            if (line.startsWith(&quot;/&quot;)) {</span>
-<span class="nc" id="L124">                String[] split = ParseUtil.whitespaces.split(line);</span>
-<span class="nc bnc" id="L125" title="All 2 branches missed.">                if (split.length &gt; 7) {</span>
-<span class="nc" id="L126">                    inodeFreeMap.put(split[0], ParseUtil.parseLongOrDefault(split[6], 0L));</span>
+<span class="nc bnc" id="L128" title="All 2 branches missed.">            if (line.startsWith(&quot;/&quot;)) {</span>
+<span class="nc" id="L129">                String[] split = ParseUtil.whitespaces.split(line);</span>
+<span class="nc bnc" id="L130" title="All 2 branches missed.">                if (split.length &gt; 7) {</span>
+<span class="nc" id="L131">                    inodeFreeMap.put(split[0], ParseUtil.parseLongOrDefault(split[6], 0L));</span>
                     // total is used + free
-<span class="nc" id="L128">                    inodeTotalMap.put(split[0],</span>
-<span class="nc" id="L129">                            inodeFreeMap.get(split[0]) + ParseUtil.parseLongOrDefault(split[5], 0L));</span>
+<span class="nc" id="L133">                    inodeTotalMap.put(split[0],</span>
+<span class="nc" id="L134">                            inodeFreeMap.get(split[0]) + ParseUtil.parseLongOrDefault(split[5], 0L));</span>
                 }
             }
-<span class="nc" id="L132">        }</span>
+<span class="nc" id="L137">        }</span>
 
         // Get mount table
-<span class="nc bnc" id="L135" title="All 2 branches missed.">        for (String fs : ExecutingCommand.runNative(&quot;mount -p&quot;)) {</span>
-<span class="nc" id="L136">            String[] split = ParseUtil.whitespaces.split(fs);</span>
-<span class="nc bnc" id="L137" title="All 2 branches missed.">            if (split.length &lt; 5) {</span>
-<span class="nc" id="L138">                continue;</span>
+<span class="nc bnc" id="L140" title="All 2 branches missed.">        for (String fs : ExecutingCommand.runNative(&quot;mount -p&quot;)) {</span>
+<span class="nc" id="L141">            String[] split = ParseUtil.whitespaces.split(fs);</span>
+<span class="nc bnc" id="L142" title="All 2 branches missed.">            if (split.length &lt; 5) {</span>
+<span class="nc" id="L143">                continue;</span>
             }
             // 1st field is volume name
             // 2nd field is mount point
             // 3rd field is fs type
             // other fields ignored
-<span class="nc" id="L144">            String volume = split[0];</span>
-<span class="nc" id="L145">            String path = split[1];</span>
-<span class="nc" id="L146">            String type = split[2];</span>
+<span class="nc" id="L149">            String volume = split[0];</span>
+<span class="nc" id="L150">            String path = split[1];</span>
+<span class="nc" id="L151">            String type = split[2];</span>
 
             // Exclude pseudo file systems
-<span class="nc bnc" id="L149" title="All 6 branches missed.">            if (this.pseudofs.contains(type) || path.equals(&quot;/dev&quot;) || listElementStartsWith(this.tmpfsPaths, path)</span>
-<span class="nc bnc" id="L150" title="All 4 branches missed.">                    || volume.startsWith(&quot;rpool&quot;) &amp;&amp; !path.equals(&quot;/&quot;)) {</span>
-<span class="nc" id="L151">                continue;</span>
+<span class="nc bnc" id="L154" title="All 6 branches missed.">            if (this.pseudofs.contains(type) || path.equals(&quot;/dev&quot;) || listElementStartsWith(this.tmpfsPaths, path)</span>
+<span class="nc bnc" id="L155" title="All 4 branches missed.">                    || volume.startsWith(&quot;rpool&quot;) &amp;&amp; !path.equals(&quot;/&quot;)) {</span>
+<span class="nc" id="L156">                continue;</span>
             }
 
-<span class="nc" id="L154">            String name = path.substring(path.lastIndexOf('/') + 1);</span>
+<span class="nc" id="L159">            String name = path.substring(path.lastIndexOf('/') + 1);</span>
             // Special case for /, pull last element of volume instead
-<span class="nc bnc" id="L156" title="All 2 branches missed.">            if (name.isEmpty()) {</span>
-<span class="nc" id="L157">                name = volume.substring(volume.lastIndexOf('/') + 1);</span>
+<span class="nc bnc" id="L161" title="All 2 branches missed.">            if (name.isEmpty()) {</span>
+<span class="nc" id="L162">                name = volume.substring(volume.lastIndexOf('/') + 1);</span>
             }
-<span class="nc" id="L159">            long totalSpace = new File(path).getTotalSpace();</span>
-<span class="nc" id="L160">            long usableSpace = new File(path).getUsableSpace();</span>
+<span class="nc" id="L164">            long totalSpace = new File(path).getTotalSpace();</span>
+<span class="nc" id="L165">            long usableSpace = new File(path).getUsableSpace();</span>
 
             String description;
-<span class="nc bnc" id="L163" title="All 4 branches missed.">            if (volume.startsWith(&quot;/dev&quot;) || path.equals(&quot;/&quot;)) {</span>
-<span class="nc" id="L164">                description = &quot;Local Disk&quot;;</span>
-<span class="nc bnc" id="L165" title="All 2 branches missed.">            } else if (volume.equals(&quot;tmpfs&quot;)) {</span>
-<span class="nc" id="L166">                description = &quot;Ram Disk&quot;;</span>
-<span class="nc bnc" id="L167" title="All 4 branches missed.">            } else if (type.startsWith(&quot;nfs&quot;) || type.equals(&quot;cifs&quot;)) {</span>
-<span class="nc" id="L168">                description = &quot;Network Disk&quot;;</span>
+<span class="nc bnc" id="L168" title="All 4 branches missed.">            if (volume.startsWith(&quot;/dev&quot;) || path.equals(&quot;/&quot;)) {</span>
+<span class="nc" id="L169">                description = &quot;Local Disk&quot;;</span>
+<span class="nc bnc" id="L170" title="All 2 branches missed.">            } else if (volume.equals(&quot;tmpfs&quot;)) {</span>
+<span class="nc" id="L171">                description = &quot;Ram Disk&quot;;</span>
+<span class="nc bnc" id="L172" title="All 4 branches missed.">            } else if (type.startsWith(&quot;nfs&quot;) || type.equals(&quot;cifs&quot;)) {</span>
+<span class="nc" id="L173">                description = &quot;Network Disk&quot;;</span>
             } else {
-<span class="nc" id="L170">                description = &quot;Mount Point&quot;;</span>
+<span class="nc" id="L175">                description = &quot;Mount Point&quot;;</span>
             }
             // Match UUID
-<span class="nc" id="L173">            String uuid = MapUtil.getOrDefault(uuidMap, name, &quot;&quot;);</span>
+<span class="nc" id="L178">            String uuid = MapUtil.getOrDefault(uuidMap, name, &quot;&quot;);</span>
 
             // Add to the list
-<span class="nc" id="L176">            OSFileStore osStore = new OSFileStore();</span>
-<span class="nc" id="L177">            osStore.setName(name);</span>
-<span class="nc" id="L178">            osStore.setVolume(volume);</span>
-<span class="nc" id="L179">            osStore.setMount(path);</span>
-<span class="nc" id="L180">            osStore.setDescription(description);</span>
-<span class="nc" id="L181">            osStore.setType(type);</span>
-<span class="nc" id="L182">            osStore.setUUID(uuid);</span>
-<span class="nc" id="L183">            osStore.setUsableSpace(usableSpace);</span>
-<span class="nc" id="L184">            osStore.setTotalSpace(totalSpace);</span>
-<span class="nc bnc" id="L185" title="All 2 branches missed.">            osStore.setFreeInodes(inodeFreeMap.containsKey(path) ? inodeFreeMap.get(path) : 0L);</span>
-<span class="nc bnc" id="L186" title="All 2 branches missed.">            osStore.setTotalInodes(inodeTotalMap.containsKey(path) ? inodeTotalMap.get(path) : 0L);</span>
-<span class="nc" id="L187">            fsList.add(osStore);</span>
-<span class="nc" id="L188">        }</span>
-<span class="nc" id="L189">        return fsList.toArray(new OSFileStore[fsList.size()]);</span>
+<span class="nc" id="L181">            OSFileStore osStore = new OSFileStore();</span>
+<span class="nc" id="L182">            osStore.setName(name);</span>
+<span class="nc" id="L183">            osStore.setVolume(volume);</span>
+<span class="nc" id="L184">            osStore.setMount(path);</span>
+<span class="nc" id="L185">            osStore.setDescription(description);</span>
+<span class="nc" id="L186">            osStore.setType(type);</span>
+<span class="nc" id="L187">            osStore.setUUID(uuid);</span>
+<span class="nc" id="L188">            osStore.setUsableSpace(usableSpace);</span>
+<span class="nc" id="L189">            osStore.setTotalSpace(totalSpace);</span>
+<span class="nc bnc" id="L190" title="All 2 branches missed.">            osStore.setFreeInodes(inodeFreeMap.containsKey(path) ? inodeFreeMap.get(path) : 0L);</span>
+<span class="nc bnc" id="L191" title="All 2 branches missed.">            osStore.setTotalInodes(inodeTotalMap.containsKey(path) ? inodeTotalMap.get(path) : 0L);</span>
+<span class="nc" id="L192">            fsList.add(osStore);</span>
+<span class="nc" id="L193">        }</span>
+<span class="nc" id="L194">        return fsList.toArray(new OSFileStore[fsList.size()]);</span>
     }
 
     @Override
     public long getOpenFileDescriptors() {
-<span class="nc" id="L194">        return BsdSysctlUtil.sysctl(&quot;kern.openfiles&quot;, 0);</span>
+<span class="nc" id="L199">        return BsdSysctlUtil.sysctl(&quot;kern.openfiles&quot;, 0);</span>
     }
 
     @Override
     public long getMaxFileDescriptors() {
-<span class="nc" id="L199">        return BsdSysctlUtil.sysctl(&quot;kern.maxfiles&quot;, 0);</span>
+<span class="nc" id="L204">        return BsdSysctlUtil.sysctl(&quot;kern.maxfiles&quot;, 0);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

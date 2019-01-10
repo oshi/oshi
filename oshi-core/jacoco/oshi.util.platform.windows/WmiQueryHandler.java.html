@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>WmiQueryHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.util.platform.windows</a> &gt; <span class="el_source">WmiQueryHandler.java</span></div><h1>WmiQueryHandler.java</h1><pre class="source lang-java linenums">/**
+ * OSHI (https://github.com/oshi/oshi)
+ *
+ * Copyright (c) 2010 - 2019 The OSHI Project Team:
+ * https://github.com/oshi/oshi/graphs/contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+package oshi.util.platform.windows;
+
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.TimeoutException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.sun.jna.platform.win32.Ole32; // NOSONAR
+import com.sun.jna.platform.win32.WinError;
+import com.sun.jna.platform.win32.WinNT;
+import com.sun.jna.platform.win32.COM.COMException;
+import com.sun.jna.platform.win32.COM.COMUtils;
+import com.sun.jna.platform.win32.COM.Wbemcli;
+import com.sun.jna.platform.win32.COM.WbemcliUtil;
+
+public class WmiQueryHandler {
+
+<span class="nc" id="L43">    private static final Logger LOG = LoggerFactory.getLogger(WmiQueryHandler.class);</span>
+
+    // Timeout for WMI queries
+<span class="nc" id="L46">    private int wmiTimeout = Wbemcli.WBEM_INFINITE;</span>
+
+    // Cache failed wmi classes
+<span class="nc" id="L49">    private final Set&lt;String&gt; failedWmiClassNames = new HashSet&lt;&gt;();</span>
+
+    // Preferred threading model
+<span class="nc" id="L52">    private int comThreading = Ole32.COINIT_MULTITHREADED;</span>
+
+    // Track initialization of Security
+<span class="nc" id="L55">    private boolean securityInitialized = false;</span>
+
+    // Singleton pattern
+    private static WmiQueryHandler instance;
+
+<span class="nc" id="L60">    private WmiQueryHandler() {</span>
+<span class="nc" id="L61">    }</span>
+
+    public static synchronized WmiQueryHandler getInstance() {
+<span class="nc bnc" id="L64" title="All 2 branches missed.">        if (instance == null) {</span>
+<span class="nc" id="L65">            instance = new WmiQueryHandler();</span>
+        }
+<span class="nc" id="L67">        return instance;</span>
+    }
+
+    /**
+     * Query WMI for values, with no timeout.
+     *
+     * @param &lt;T&gt;
+     *            The properties enum
+     * @param query
+     *            A WmiQuery object encapsulating the namespace, class, and
+     *            properties
+     * @return a WmiResult object containing the query results, wrapping an
+     *         EnumMap
+     */
+    public &lt;T extends Enum&lt;T&gt;&gt; WbemcliUtil.WmiResult&lt;T&gt; queryWMI(WbemcliUtil.WmiQuery&lt;T&gt; query) {
+
+<span class="nc" id="L83">        WbemcliUtil.WmiResult&lt;T&gt; result = WbemcliUtil.INSTANCE.new WmiResult&lt;&gt;(query.getPropertyEnum());</span>
+<span class="nc bnc" id="L84" title="All 2 branches missed.">        if (failedWmiClassNames.contains(query.getWmiClassName())) {</span>
+<span class="nc" id="L85">            return result;</span>
+        }
+<span class="nc" id="L87">        boolean comInit = false;</span>
+        try {
+<span class="nc" id="L89">            comInit = initCOM();</span>
+<span class="nc" id="L90">            result = query.execute(wmiTimeout);</span>
+<span class="nc" id="L91">        } catch (COMException e) {</span>
+            // Ignore any exceptions with OpenHardwareMonitor
+<span class="nc bnc" id="L93" title="All 2 branches missed.">            if (!WmiUtil.OHM_NAMESPACE.equals(query.getNameSpace())) {</span>
+<span class="nc bnc" id="L94" title="All 2 branches missed.">                final int hresult = e.getHresult() == null ? -1 : e.getHresult().intValue();</span>
+<span class="nc bnc" id="L95" title="All 4 branches missed.">                switch (hresult) {</span>
+                case Wbemcli.WBEM_E_INVALID_NAMESPACE:
+<span class="nc" id="L97">                    LOG.warn(&quot;COM exception: Invalid Namespace {}&quot;, query.getNameSpace());</span>
+<span class="nc" id="L98">                    break;</span>
+                case Wbemcli.WBEM_E_INVALID_CLASS:
+<span class="nc" id="L100">                    LOG.warn(&quot;COM exception: Invalid Class {}&quot;, query.getWmiClassName());</span>
+<span class="nc" id="L101">                    break;</span>
+                case Wbemcli.WBEM_E_INVALID_QUERY:
+<span class="nc" id="L103">                    LOG.warn(&quot;COM exception: Invalid Query: {}&quot;, WmiUtil.queryToString(query));</span>
+<span class="nc" id="L104">                    break;</span>
+                default:
+<span class="nc" id="L106">                    handleComException(query, e);</span>
+                    break;
+                }
+<span class="nc" id="L109">                failedWmiClassNames.add(query.getWmiClassName());</span>
+            }
+<span class="nc" id="L111">        } catch (TimeoutException e) {</span>
+<span class="nc" id="L112">            LOG.error(&quot;WMI query timed out after {} ms: {}&quot;, wmiTimeout, WmiUtil.queryToString(query));</span>
+<span class="nc" id="L113">        }</span>
+<span class="nc bnc" id="L114" title="All 2 branches missed.">        if (comInit) {</span>
+<span class="nc" id="L115">            unInitCOM();</span>
+        }
+<span class="nc" id="L117">        return result;</span>
+    }
+
+    protected void handleComException(WbemcliUtil.WmiQuery&lt;?&gt; query, COMException ex) {
+<span class="nc" id="L121">        LOG.warn(</span>
+                &quot;COM exception querying {}, which might not be on your system. Will not attempt to query it again. Error was: {}:&quot;,
+<span class="nc" id="L123">                query.getWmiClassName(), ex.getMessage());</span>
+<span class="nc" id="L124">    }</span>
+
+    /**
+     * Initializes COM library and sets security to impersonate the local user
+     * 
+     * @return True if COM was initialized and needs to be uninitialized, false
+     *         otherwise
+     */
+    public boolean initCOM() {
+<span class="nc" id="L133">        boolean comInit = false;</span>
+        // Step 1: --------------------------------------------------
+        // Initialize COM. ------------------------------------------
+<span class="nc" id="L136">        comInit = initCOM(getComThreading());</span>
+<span class="nc bnc" id="L137" title="All 2 branches missed.">        if (!comInit) {</span>
+<span class="nc" id="L138">            comInit = initCOM(switchComThreading());</span>
+        }
+        // Step 2: --------------------------------------------------
+        // Set general COM security levels --------------------------
+<span class="nc bnc" id="L142" title="All 4 branches missed.">        if (comInit &amp;&amp; !isSecurityInitialized()) {</span>
+<span class="nc" id="L143">            WinNT.HRESULT hres = Ole32.INSTANCE.CoInitializeSecurity(null, -1, null, null,</span>
+                    Ole32.RPC_C_AUTHN_LEVEL_DEFAULT, Ole32.RPC_C_IMP_LEVEL_IMPERSONATE, null, Ole32.EOAC_NONE, null);
+            // If security already initialized we get RPC_E_TOO_LATE
+            // This can be safely ignored
+<span class="nc bnc" id="L147" title="All 4 branches missed.">            if (COMUtils.FAILED(hres) &amp;&amp; hres.intValue() != WinError.RPC_E_TOO_LATE) {</span>
+<span class="nc" id="L148">                Ole32.INSTANCE.CoUninitialize();</span>
+<span class="nc" id="L149">                throw new COMException(&quot;Failed to initialize security.&quot;, hres);</span>
+            }
+<span class="nc" id="L151">            securityInitialized = true;</span>
+        }
+<span class="nc" id="L153">        return comInit;</span>
+    }
+
+    private boolean initCOM(int coInitThreading) {
+<span class="nc" id="L157">        WinNT.HRESULT hres = Ole32.INSTANCE.CoInitializeEx(null, coInitThreading);</span>
+<span class="nc bnc" id="L158" title="All 3 branches missed.">        switch (hres.intValue()) {</span>
+        // Successful local initialization (S_OK) or was already initialized
+        // (S_FALSE) but still needs uninit
+        case COMUtils.S_OK:
+        case COMUtils.S_FALSE:
+<span class="nc" id="L163">            return true;</span>
+        // COM was already initialized with a different threading model
+        case WinError.RPC_E_CHANGED_MODE:
+<span class="nc" id="L166">            return false;</span>
+        // Any other results is impossible
+        default:
+<span class="nc" id="L169">            throw new COMException(&quot;Failed to initialize COM library.&quot;, hres);</span>
+        }
+    }
+
+    /**
+     * UnInitializes COM library. This should be called once for every
+     * successful call to initCOM.
+     */
+    public void unInitCOM() {
+<span class="nc" id="L178">        Ole32.INSTANCE.CoUninitialize();</span>
+<span class="nc" id="L179">    }</span>
+
+    /**
+     * Returns the current threading model for COM initialization, as OSHI is
+     * required to match if an external program has COM initialized already.
+     * 
+     * @return The current threading model
+     */
+    public int getComThreading() {
+<span class="nc" id="L188">        return comThreading;</span>
+    }
+
+    /**
+     * Switches the current threading model for COM initialization, as OSHI is
+     * required to match if an external program has COM initialized already.
+     * 
+     * @return The new threading model after switching
+     */
+    public int switchComThreading() {
+<span class="nc bnc" id="L198" title="All 2 branches missed.">        if (comThreading == Ole32.COINIT_APARTMENTTHREADED) {</span>
+<span class="nc" id="L199">            comThreading = Ole32.COINIT_MULTITHREADED;</span>
+        } else {
+<span class="nc" id="L201">            comThreading = Ole32.COINIT_APARTMENTTHREADED;</span>
+        }
+<span class="nc" id="L203">        return comThreading;</span>
+    }
+
+    /**
+     * Security only needs to be initialized once. This boolean identifies
+     * whether that has happened.
+     *
+     * @return Returns the securityInitialized.
+     */
+    public boolean isSecurityInitialized() {
+<span class="nc" id="L213">        return securityInitialized;</span>
+    }
+
+    /**
+     * Gets the current WMI timeout. WMI queries will fail if they take longer
+     * than this number of milliseconds. A value of -1 is infinite (no timeout).
+     *
+     * @return Returns the current value of wmiTimeout.
+     */
+    public int getWmiTimeout() {
+<span class="nc" id="L223">        return wmiTimeout;</span>
+    }
+
+    /**
+     * Sets the WMI timeout. WMI queries will fail if they take longer than this
+     * number of milliseconds.
+     *
+     * @param wmiTimeout
+     *            The wmiTimeout to set, in milliseconds. To disable timeouts,
+     *            set timeout as -1 (infinite).
+     */
+    public void setWmiTimeout(int wmiTimeout) {
+<span class="nc" id="L235">        this.wmiTimeout = wmiTimeout;</span>
+<span class="nc" id="L236">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

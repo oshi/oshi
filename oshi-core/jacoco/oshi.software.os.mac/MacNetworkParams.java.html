@@ -1,20 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MacNetworkParams.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.software.os.mac</a> &gt; <span class="el_source">MacNetworkParams.java</span></div><h1>MacNetworkParams.java</h1><pre class="source lang-java linenums">/**
- * Oshi (https://github.com/oshi/oshi)
+ * OSHI (https://github.com/oshi/oshi)
  *
- * Copyright (c) 2010 - 2018 The Oshi Project Team
- *
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- *
- * Maintainers:
- * dblock[at]dblock[dot]org
- * widdis[at]gmail[dot]com
- * enrico.bianchi[at]gmail[dot]com
- *
- * Contributors:
+ * Copyright (c) 2010 - 2019 The OSHI Project Team:
  * https://github.com/oshi/oshi/graphs/contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 package oshi.software.os.mac;
 
@@ -32,9 +37,9 @@ import oshi.software.common.AbstractNetworkParams;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
-<span class="nc" id="L35">public class MacNetworkParams extends AbstractNetworkParams {</span>
+<span class="nc" id="L40">public class MacNetworkParams extends AbstractNetworkParams {</span>
 
-<span class="nc" id="L37">    private static final Logger LOG = LoggerFactory.getLogger(MacNetworkParams.class);</span>
+<span class="nc" id="L42">    private static final Logger LOG = LoggerFactory.getLogger(MacNetworkParams.class);</span>
 
     private static final long serialVersionUID = 1L;
 
@@ -47,27 +52,27 @@ import oshi.util.ParseUtil;
      */
     @Override
     public String getDomainName() {
-<span class="nc" id="L50">        SystemB.Addrinfo hint = new SystemB.Addrinfo();</span>
-<span class="nc" id="L51">        hint.ai_flags = SystemB.AI_CANONNAME;</span>
-<span class="nc" id="L52">        String hostname = &quot;&quot;;</span>
+<span class="nc" id="L55">        SystemB.Addrinfo hint = new SystemB.Addrinfo();</span>
+<span class="nc" id="L56">        hint.ai_flags = SystemB.AI_CANONNAME;</span>
+<span class="nc" id="L57">        String hostname = &quot;&quot;;</span>
         try {
-<span class="nc" id="L54">            hostname = InetAddress.getLocalHost().getHostName();</span>
-<span class="nc" id="L55">        } catch (UnknownHostException e) {</span>
-<span class="nc" id="L56">            LOG.error(&quot;Unknown host exception when getting address of local host: {}&quot;, e);</span>
-<span class="nc" id="L57">            return &quot;&quot;;</span>
-<span class="nc" id="L58">        }</span>
-<span class="nc" id="L59">        PointerByReference ptr = new PointerByReference();</span>
-<span class="nc" id="L60">        int res = SystemB.INSTANCE.getaddrinfo(hostname, null, hint, ptr);</span>
-<span class="nc bnc" id="L61" title="All 2 branches missed.">        if (res &gt; 0) {</span>
-<span class="nc bnc" id="L62" title="All 2 branches missed.">            if (LOG.isErrorEnabled()) {</span>
-<span class="nc" id="L63">                LOG.error(&quot;Failed getaddrinfo(): {}&quot;, SystemB.INSTANCE.gai_strerror(res));</span>
+<span class="nc" id="L59">            hostname = InetAddress.getLocalHost().getHostName();</span>
+<span class="nc" id="L60">        } catch (UnknownHostException e) {</span>
+<span class="nc" id="L61">            LOG.error(&quot;Unknown host exception when getting address of local host: {}&quot;, e);</span>
+<span class="nc" id="L62">            return &quot;&quot;;</span>
+<span class="nc" id="L63">        }</span>
+<span class="nc" id="L64">        PointerByReference ptr = new PointerByReference();</span>
+<span class="nc" id="L65">        int res = SystemB.INSTANCE.getaddrinfo(hostname, null, hint, ptr);</span>
+<span class="nc bnc" id="L66" title="All 2 branches missed.">        if (res &gt; 0) {</span>
+<span class="nc bnc" id="L67" title="All 2 branches missed.">            if (LOG.isErrorEnabled()) {</span>
+<span class="nc" id="L68">                LOG.error(&quot;Failed getaddrinfo(): {}&quot;, SystemB.INSTANCE.gai_strerror(res));</span>
             }
-<span class="nc" id="L65">            return &quot;&quot;;</span>
+<span class="nc" id="L70">            return &quot;&quot;;</span>
         }
-<span class="nc" id="L67">        SystemB.Addrinfo info = new SystemB.Addrinfo(ptr.getValue());</span>
-<span class="nc" id="L68">        String canonname = info.ai_canonname.trim();</span>
-<span class="nc" id="L69">        SystemB.INSTANCE.freeaddrinfo(ptr.getValue());</span>
-<span class="nc" id="L70">        return canonname;</span>
+<span class="nc" id="L72">        SystemB.Addrinfo info = new SystemB.Addrinfo(ptr.getValue());</span>
+<span class="nc" id="L73">        String canonname = info.ai_canonname.trim();</span>
+<span class="nc" id="L74">        SystemB.INSTANCE.freeaddrinfo(ptr.getValue());</span>
+<span class="nc" id="L75">        return canonname;</span>
     }
 
     /**
@@ -75,7 +80,7 @@ import oshi.util.ParseUtil;
      */
     @Override
     public String getIpv4DefaultGateway() {
-<span class="nc" id="L78">        return searchGateway(ExecutingCommand.runNative(&quot;route -n get default&quot;));</span>
+<span class="nc" id="L83">        return searchGateway(ExecutingCommand.runNative(&quot;route -n get default&quot;));</span>
     }
 
     /**
@@ -83,19 +88,19 @@ import oshi.util.ParseUtil;
      */
     @Override
     public String getIpv6DefaultGateway() {
-<span class="nc" id="L86">        List&lt;String&gt; lines = ExecutingCommand.runNative(&quot;netstat -nr&quot;);</span>
-<span class="nc" id="L87">        boolean v6Table = false;</span>
-<span class="nc bnc" id="L88" title="All 2 branches missed.">        for (String line : lines) {</span>
-<span class="nc bnc" id="L89" title="All 4 branches missed.">            if (v6Table &amp;&amp; line.startsWith(DEFAULT_GATEWAY)) {</span>
-<span class="nc" id="L90">                String[] fields = ParseUtil.whitespaces.split(line);</span>
-<span class="nc bnc" id="L91" title="All 4 branches missed.">                if (fields.length &gt; 2 &amp;&amp; fields[2].contains(&quot;G&quot;)) {</span>
-<span class="nc" id="L92">                    return fields[1].split(&quot;%&quot;)[0];</span>
+<span class="nc" id="L91">        List&lt;String&gt; lines = ExecutingCommand.runNative(&quot;netstat -nr&quot;);</span>
+<span class="nc" id="L92">        boolean v6Table = false;</span>
+<span class="nc bnc" id="L93" title="All 2 branches missed.">        for (String line : lines) {</span>
+<span class="nc bnc" id="L94" title="All 4 branches missed.">            if (v6Table &amp;&amp; line.startsWith(DEFAULT_GATEWAY)) {</span>
+<span class="nc" id="L95">                String[] fields = ParseUtil.whitespaces.split(line);</span>
+<span class="nc bnc" id="L96" title="All 4 branches missed.">                if (fields.length &gt; 2 &amp;&amp; fields[2].contains(&quot;G&quot;)) {</span>
+<span class="nc" id="L97">                    return fields[1].split(&quot;%&quot;)[0];</span>
                 }
-<span class="nc bnc" id="L94" title="All 2 branches missed.">            } else if (line.startsWith(IPV6_ROUTE_HEADER)) {</span>
-<span class="nc" id="L95">                v6Table = true;</span>
+<span class="nc bnc" id="L99" title="All 2 branches missed.">            } else if (line.startsWith(IPV6_ROUTE_HEADER)) {</span>
+<span class="nc" id="L100">                v6Table = true;</span>
             }
-<span class="nc" id="L97">        }</span>
-<span class="nc" id="L98">        return &quot;&quot;;</span>
+<span class="nc" id="L102">        }</span>
+<span class="nc" id="L103">        return &quot;&quot;;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>
