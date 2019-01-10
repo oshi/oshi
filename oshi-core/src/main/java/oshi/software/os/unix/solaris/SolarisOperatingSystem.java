@@ -34,7 +34,6 @@ import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
 import oshi.util.ExecutingCommand;
 import oshi.util.LsofUtil;
-import oshi.util.MapUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.linux.ProcUtil;
 
@@ -165,7 +164,7 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
             sproc.setPath(split[13]);
             sproc.setName(sproc.getPath().substring(sproc.getPath().lastIndexOf('/') + 1));
             sproc.setCommandLine(split[14]);
-            sproc.setCurrentWorkingDirectory(MapUtil.getOrDefault(cwdMap, sproc.getProcessID(), ""));
+            sproc.setCurrentWorkingDirectory(cwdMap.getOrDefault(sproc.getProcessID(), ""));
             // bytes read/written not easily available
 
             // gets the open files count -- slow

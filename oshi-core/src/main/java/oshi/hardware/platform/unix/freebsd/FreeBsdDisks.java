@@ -36,7 +36,6 @@ import oshi.hardware.Disks;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
 import oshi.util.ExecutingCommand;
-import oshi.util.MapUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
 
@@ -201,7 +200,7 @@ public class FreeBsdDisks implements Disks {
                     partition = new HWPartition();
                     partition.setIdentification(part);
                     partition.setName(part);
-                    partition.setMountPoint(MapUtil.getOrDefault(mountMap, part, ""));
+                    partition.setMountPoint(mountMap.getOrDefault(part, ""));
                 }
             }
             // If we don't have a valid store, don't bother parsing anything

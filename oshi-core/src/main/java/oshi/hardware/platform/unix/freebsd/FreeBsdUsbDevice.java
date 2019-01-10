@@ -32,7 +32,6 @@ import java.util.Map;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractUsbDevice;
 import oshi.util.ExecutingCommand;
-import oshi.util.MapUtil;
 import oshi.util.ParseUtil;
 
 public class FreeBsdUsbDevice extends AbstractUsbDevice {
@@ -132,7 +131,7 @@ public class FreeBsdUsbDevice extends AbstractUsbDevice {
                 // Store parent for later usbus-skipping
                 parentMap.put(key, parent);
                 // Add this key to the parent's hubmap list
-                MapUtil.createNewListIfAbsent(hubMap, parent).add(key);
+                hubMap.computeIfAbsent(parent, x -> new ArrayList<>()).add(key);
             } else if (line.contains(".vendor =")) {
                 vendorMap.put(key, ParseUtil.getSingleQuoteStringValue(line));
             } else if (line.contains(".product =")) {
@@ -171,15 +170,15 @@ public class FreeBsdUsbDevice extends AbstractUsbDevice {
      * @return A SolarisUsbDevice corresponding to this device
      */
     private static FreeBsdUsbDevice getDeviceAndChildren(String devPath, String vid, String pid) {
-        String vendorId = MapUtil.getOrDefault(vendorIdMap, devPath, vid);
-        String productId = MapUtil.getOrDefault(productIdMap, devPath, pid);
-        List<String> childPaths = MapUtil.getOrDefault(hubMap, devPath, new ArrayList<String>());
+        String vendorId = vendorIdMap.getOrDefault(devPath, vid);
+        String productId = productIdMap.getOrDefault(devPath, pid);
+        List<String> childPaths = hubMap.getOrDefault(devPath, new ArrayList<String>());
         List<FreeBsdUsbDevice> usbDevices = new ArrayList<>();
         for (String path : childPaths) {
             usbDevices.add(getDeviceAndChildren(path, vendorId, productId));
         }
         Collections.sort(usbDevices);
-        return new FreeBsdUsbDevice(MapUtil.getOrDefault(nameMap, devPath, vendorId + ":" + productId), "", vendorId,
+        return new FreeBsdUsbDevice(nameMap.getOrDefault(devPath, vendorId + ":" + productId), "", vendorId,
                 productId, "", usbDevices.toArray(new UsbDevice[usbDevices.size()]));
     }
 }
