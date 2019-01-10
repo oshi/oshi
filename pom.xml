@@ -499,6 +499,7 @@
 							<exclude>**/MavenWrapperDownloader.java</exclude>
 							<exclude>mvnw</exclude>
 							<exclude>mvnw.cmd</exclude>
+							<exclude>LICENSE_*</exclude>
 						</excludes>
 					</configuration>
 				</plugin>

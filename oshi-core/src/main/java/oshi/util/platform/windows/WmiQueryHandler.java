@@ -126,7 +126,8 @@ public class WmiQueryHandler {
     /**
      * Initializes COM library and sets security to impersonate the local user
      * 
-     * @return
+     * @return True if COM was initialized and needs to be uninitialized, false
+     *         otherwise
      */
     public boolean initCOM() {
         boolean comInit = false;
