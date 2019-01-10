@@ -45,6 +45,7 @@ import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.hardware.common.AbstractCentralProcessor;
+import oshi.jna.platform.windows.VersionHelpers;
 import oshi.util.platform.windows.PdhUtilXP;
 import oshi.util.platform.windows.PerfDataUtil;
 import oshi.util.platform.windows.PerfDataUtil.PerfCounter;
@@ -68,8 +69,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
         PROCESSORID;
     }
 
-    // Save Windows version info for 32 bit/64 bit branch later
-    private static final byte MAJOR_VERSION = Kernel32.INSTANCE.GetVersion().getLow().byteValue();
+    private static boolean IS_VISTA_OR_GREATER = VersionHelpers.IsWindowsVistaOrGreater();
 
     private static final String PROCESSOR = "Processor";
     private static String processorLocalized = null;
@@ -415,7 +415,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
     public long getSystemUptime() {
         // Uptime is in seconds so divide milliseconds
         // GetTickCount64 requires Vista (6.0) or later
-        if (MAJOR_VERSION >= 6) {
+        if (IS_VISTA_OR_GREATER) {
             return Kernel32.INSTANCE.GetTickCount64() / 1000L;
         } else {
             // 32 bit rolls over at ~ 49 days
