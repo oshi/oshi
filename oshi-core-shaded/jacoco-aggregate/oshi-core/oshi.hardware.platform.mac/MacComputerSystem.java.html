@@ -1,20 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>MacComputerSystem.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-core-shaded</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.mac</a> &gt; <span class="el_source">MacComputerSystem.java</span></div><h1>MacComputerSystem.java</h1><pre class="source lang-java linenums">/**
- * Oshi (https://github.com/oshi/oshi)
+ * OSHI (https://github.com/oshi/oshi)
  *
- * Copyright (c) 2010 - 2018 The Oshi Project Team
- *
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- *
- * Maintainers:
- * dblock[at]dblock[dot]org
- * widdis[at]gmail[dot]com
- * enrico.bianchi[at]gmail[dot]com
- *
- * Contributors:
+ * Copyright (c) 2010 - 2019 The OSHI Project Team:
  * https://github.com/oshi/oshi/graphs/contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 package oshi.hardware.platform.mac;
 
@@ -37,13 +42,13 @@ final class MacComputerSystem extends AbstractComputerSystem {
 
     private static final String APPLE = &quot;Apple Inc.&quot;;
 
-<span class="nc" id="L40">    MacComputerSystem() {</span>
-<span class="nc" id="L41">        init();</span>
-<span class="nc" id="L42">    }</span>
+<span class="nc" id="L45">    MacComputerSystem() {</span>
+<span class="nc" id="L46">        init();</span>
+<span class="nc" id="L47">    }</span>
 
     private void init() {
 
-<span class="nc" id="L46">        setManufacturer(APPLE);</span>
+<span class="nc" id="L51">        setManufacturer(APPLE);</span>
 
         // $ system_profiler SPHardwareDataType
         // Hardware:
@@ -66,83 +71,83 @@ final class MacComputerSystem extends AbstractComputerSystem {
         // Sudden Motion Sensor:
         // State: Enabled
 
-<span class="nc" id="L69">        String modelName = &quot;&quot;;</span>
-<span class="nc" id="L70">        final String modelNameMarker = &quot;Model Name:&quot;;</span>
-<span class="nc" id="L71">        String modelIdentifier = &quot;&quot;;</span>
-<span class="nc" id="L72">        final String modelIdMarker = &quot;Model Identifier:&quot;;</span>
-<span class="nc" id="L73">        String serialNumberSystem = &quot;&quot;;</span>
-<span class="nc" id="L74">        final String serialNumMarker = &quot;Serial Number (system):&quot;;</span>
-<span class="nc" id="L75">        String smcVersion = &quot;&quot;;</span>
-<span class="nc" id="L76">        final String smcMarker = &quot;SMC Version (system):&quot;;</span>
-<span class="nc" id="L77">        String bootRomVersion = &quot;&quot;;</span>
-<span class="nc" id="L78">        final String bootRomMarker = &quot;Boot ROM Version:&quot;;</span>
+<span class="nc" id="L74">        String modelName = &quot;&quot;;</span>
+<span class="nc" id="L75">        final String modelNameMarker = &quot;Model Name:&quot;;</span>
+<span class="nc" id="L76">        String modelIdentifier = &quot;&quot;;</span>
+<span class="nc" id="L77">        final String modelIdMarker = &quot;Model Identifier:&quot;;</span>
+<span class="nc" id="L78">        String serialNumberSystem = &quot;&quot;;</span>
+<span class="nc" id="L79">        final String serialNumMarker = &quot;Serial Number (system):&quot;;</span>
+<span class="nc" id="L80">        String smcVersion = &quot;&quot;;</span>
+<span class="nc" id="L81">        final String smcMarker = &quot;SMC Version (system):&quot;;</span>
+<span class="nc" id="L82">        String bootRomVersion = &quot;&quot;;</span>
+<span class="nc" id="L83">        final String bootRomMarker = &quot;Boot ROM Version:&quot;;</span>
 
-<span class="nc" id="L80">        final MacFirmware firmware = new MacFirmware();</span>
-<span class="nc" id="L81">        firmware.setManufacturer(APPLE);</span>
-<span class="nc" id="L82">        firmware.setName(&quot;EFI&quot;);</span>
+<span class="nc" id="L85">        final MacFirmware firmware = new MacFirmware();</span>
+<span class="nc" id="L86">        firmware.setManufacturer(APPLE);</span>
+<span class="nc" id="L87">        firmware.setName(&quot;EFI&quot;);</span>
 
-<span class="nc" id="L84">        final MacBaseboard baseboard = new MacBaseboard();</span>
-<span class="nc" id="L85">        baseboard.setManufacturer(APPLE);</span>
-<span class="nc" id="L86">        baseboard.setModel(&quot;SMC&quot;);</span>
+<span class="nc" id="L89">        final MacBaseboard baseboard = new MacBaseboard();</span>
+<span class="nc" id="L90">        baseboard.setManufacturer(APPLE);</span>
+<span class="nc" id="L91">        baseboard.setModel(&quot;SMC&quot;);</span>
 
         // Populate name and ID
-<span class="nc bnc" id="L89" title="All 2 branches missed.">        for (final String checkLine : ExecutingCommand.runNative(&quot;system_profiler SPHardwareDataType&quot;)) {</span>
-<span class="nc bnc" id="L90" title="All 2 branches missed.">            if (checkLine.contains(modelNameMarker)) {</span>
-<span class="nc" id="L91">                modelName = checkLine.split(modelNameMarker)[1].trim();</span>
+<span class="nc bnc" id="L94" title="All 2 branches missed.">        for (final String checkLine : ExecutingCommand.runNative(&quot;system_profiler SPHardwareDataType&quot;)) {</span>
+<span class="nc bnc" id="L95" title="All 2 branches missed.">            if (checkLine.contains(modelNameMarker)) {</span>
+<span class="nc" id="L96">                modelName = checkLine.split(modelNameMarker)[1].trim();</span>
             }
-<span class="nc bnc" id="L93" title="All 2 branches missed.">            if (checkLine.contains(modelIdMarker)) {</span>
-<span class="nc" id="L94">                modelIdentifier = checkLine.split(modelIdMarker)[1].trim();</span>
+<span class="nc bnc" id="L98" title="All 2 branches missed.">            if (checkLine.contains(modelIdMarker)) {</span>
+<span class="nc" id="L99">                modelIdentifier = checkLine.split(modelIdMarker)[1].trim();</span>
             }
-<span class="nc bnc" id="L96" title="All 2 branches missed.">            if (checkLine.contains(bootRomMarker)) {</span>
-<span class="nc" id="L97">                bootRomVersion = checkLine.split(bootRomMarker)[1].trim();</span>
+<span class="nc bnc" id="L101" title="All 2 branches missed.">            if (checkLine.contains(bootRomMarker)) {</span>
+<span class="nc" id="L102">                bootRomVersion = checkLine.split(bootRomMarker)[1].trim();</span>
             }
-<span class="nc bnc" id="L99" title="All 2 branches missed.">            if (checkLine.contains(smcMarker)) {</span>
-<span class="nc" id="L100">                smcVersion = checkLine.split(Pattern.quote(smcMarker))[1].trim();</span>
+<span class="nc bnc" id="L104" title="All 2 branches missed.">            if (checkLine.contains(smcMarker)) {</span>
+<span class="nc" id="L105">                smcVersion = checkLine.split(Pattern.quote(smcMarker))[1].trim();</span>
             }
-<span class="nc bnc" id="L102" title="All 2 branches missed.">            if (checkLine.contains(serialNumMarker)) {</span>
-<span class="nc" id="L103">                serialNumberSystem = checkLine.split(Pattern.quote(serialNumMarker))[1].trim();</span>
+<span class="nc bnc" id="L107" title="All 2 branches missed.">            if (checkLine.contains(serialNumMarker)) {</span>
+<span class="nc" id="L108">                serialNumberSystem = checkLine.split(Pattern.quote(serialNumMarker))[1].trim();</span>
             }
-<span class="nc" id="L105">        }</span>
+<span class="nc" id="L110">        }</span>
         // Use name (id) if both available; else either one
-<span class="nc bnc" id="L107" title="All 2 branches missed.">        if (!modelName.isEmpty()) {</span>
-<span class="nc bnc" id="L108" title="All 2 branches missed.">            if (!modelIdentifier.isEmpty()) {</span>
-<span class="nc" id="L109">                setModel(modelName + &quot; (&quot; + modelIdentifier + &quot;)&quot;);</span>
+<span class="nc bnc" id="L112" title="All 2 branches missed.">        if (!modelName.isEmpty()) {</span>
+<span class="nc bnc" id="L113" title="All 2 branches missed.">            if (!modelIdentifier.isEmpty()) {</span>
+<span class="nc" id="L114">                setModel(modelName + &quot; (&quot; + modelIdentifier + &quot;)&quot;);</span>
             } else {
-<span class="nc" id="L111">                setModel(modelName);</span>
+<span class="nc" id="L116">                setModel(modelName);</span>
             }
         } else {
-<span class="nc bnc" id="L114" title="All 2 branches missed.">            if (!modelIdentifier.isEmpty()) {</span>
-<span class="nc" id="L115">                setModel(modelIdentifier);</span>
+<span class="nc bnc" id="L119" title="All 2 branches missed.">            if (!modelIdentifier.isEmpty()) {</span>
+<span class="nc" id="L120">                setModel(modelIdentifier);</span>
             }
         }
-<span class="nc bnc" id="L118" title="All 2 branches missed.">        if (serialNumberSystem.isEmpty()) {</span>
-<span class="nc" id="L119">            serialNumberSystem = getSystemSerialNumber();</span>
+<span class="nc bnc" id="L123" title="All 2 branches missed.">        if (serialNumberSystem.isEmpty()) {</span>
+<span class="nc" id="L124">            serialNumberSystem = getSystemSerialNumber();</span>
         }
-<span class="nc" id="L121">        setSerialNumber(serialNumberSystem);</span>
-<span class="nc" id="L122">        baseboard.setSerialNumber(serialNumberSystem);</span>
-<span class="nc bnc" id="L123" title="All 2 branches missed.">        if (!smcVersion.isEmpty()) {</span>
-<span class="nc" id="L124">            baseboard.setVersion(smcVersion);</span>
+<span class="nc" id="L126">        setSerialNumber(serialNumberSystem);</span>
+<span class="nc" id="L127">        baseboard.setSerialNumber(serialNumberSystem);</span>
+<span class="nc bnc" id="L128" title="All 2 branches missed.">        if (!smcVersion.isEmpty()) {</span>
+<span class="nc" id="L129">            baseboard.setVersion(smcVersion);</span>
         }
-<span class="nc bnc" id="L126" title="All 4 branches missed.">        if (bootRomVersion != null &amp;&amp; !bootRomVersion.isEmpty()) {</span>
-<span class="nc" id="L127">            firmware.setVersion(bootRomVersion);</span>
+<span class="nc bnc" id="L131" title="All 4 branches missed.">        if (bootRomVersion != null &amp;&amp; !bootRomVersion.isEmpty()) {</span>
+<span class="nc" id="L132">            firmware.setVersion(bootRomVersion);</span>
         }
 
-<span class="nc" id="L130">        setFirmware(firmware);</span>
-<span class="nc" id="L131">        setBaseboard(baseboard);</span>
-<span class="nc" id="L132">    }</span>
+<span class="nc" id="L135">        setFirmware(firmware);</span>
+<span class="nc" id="L136">        setBaseboard(baseboard);</span>
+<span class="nc" id="L137">    }</span>
 
     private String getSystemSerialNumber() {
-<span class="nc" id="L135">        String serialNumber = null;</span>
-<span class="nc" id="L136">        int service = IOKitUtil.getMatchingService(&quot;IOPlatformExpertDevice&quot;);</span>
-<span class="nc bnc" id="L137" title="All 2 branches missed.">        if (service != 0) {</span>
+<span class="nc" id="L140">        String serialNumber = null;</span>
+<span class="nc" id="L141">        int service = IOKitUtil.getMatchingService(&quot;IOPlatformExpertDevice&quot;);</span>
+<span class="nc bnc" id="L142" title="All 2 branches missed.">        if (service != 0) {</span>
             // Fetch the serial number
-<span class="nc" id="L139">            serialNumber = IOKitUtil.getIORegistryStringProperty(service, &quot;IOPlatformSerialNumber&quot;);</span>
-<span class="nc" id="L140">            IOKit.INSTANCE.IOObjectRelease(service);</span>
+<span class="nc" id="L144">            serialNumber = IOKitUtil.getIORegistryStringProperty(service, &quot;IOPlatformSerialNumber&quot;);</span>
+<span class="nc" id="L145">            IOKit.INSTANCE.IOObjectRelease(service);</span>
         }
-<span class="nc bnc" id="L142" title="All 2 branches missed.">        if (serialNumber == null) {</span>
-<span class="nc" id="L143">            serialNumber = &quot;unknown&quot;;</span>
+<span class="nc bnc" id="L147" title="All 2 branches missed.">        if (serialNumber == null) {</span>
+<span class="nc" id="L148">            serialNumber = &quot;unknown&quot;;</span>
         }
-<span class="nc" id="L145">        return serialNumber;</span>
+<span class="nc" id="L150">        return serialNumber;</span>
     }
 
 }

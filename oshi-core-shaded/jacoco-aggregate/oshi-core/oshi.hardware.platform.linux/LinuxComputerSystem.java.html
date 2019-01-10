@@ -1,20 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>LinuxComputerSystem.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-core-shaded</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.linux</a> &gt; <span class="el_source">LinuxComputerSystem.java</span></div><h1>LinuxComputerSystem.java</h1><pre class="source lang-java linenums">/**
- * Oshi (https://github.com/oshi/oshi)
+ * OSHI (https://github.com/oshi/oshi)
  *
- * Copyright (c) 2010 - 2018 The Oshi Project Team
- *
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- *
- * Maintainers:
- * dblock[at]dblock[dot]org
- * widdis[at]gmail[dot]com
- * enrico.bianchi[at]gmail[dot]com
- *
- * Contributors:
+ * Copyright (c) 2010 - 2019 The OSHI Project Team:
  * https://github.com/oshi/oshi/graphs/contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 package oshi.hardware.platform.linux;
 
@@ -38,9 +43,9 @@ final class LinuxComputerSystem extends AbstractComputerSystem {
     private static final String SYSFS_SERIAL_PATH = &quot;/sys/devices/virtual/dmi/id/&quot;;
     private static final String UNKNOWN = &quot;unknown&quot;;
 
-<span class="nc" id="L41">    LinuxComputerSystem() {</span>
-<span class="nc" id="L42">        init();</span>
-<span class="nc" id="L43">    }</span>
+<span class="nc" id="L46">    LinuxComputerSystem() {</span>
+<span class="nc" id="L47">        init();</span>
+<span class="nc" id="L48">    }</span>
 
     private void init() {
 
@@ -52,67 +57,67 @@ final class LinuxComputerSystem extends AbstractComputerSystem {
         // board_name chassis_type product_serial
         // board_serial chassis_vendor product_uuid
 
-<span class="nc" id="L55">        final String sysVendor = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + &quot;sys_vendor&quot;);</span>
-<span class="nc bnc" id="L56" title="All 4 branches missed.">        if (sysVendor != null &amp;&amp; !sysVendor.trim().isEmpty()) {</span>
-<span class="nc" id="L57">            setManufacturer(sysVendor.trim());</span>
+<span class="nc" id="L60">        final String sysVendor = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + &quot;sys_vendor&quot;);</span>
+<span class="nc bnc" id="L61" title="All 4 branches missed.">        if (sysVendor != null &amp;&amp; !sysVendor.trim().isEmpty()) {</span>
+<span class="nc" id="L62">            setManufacturer(sysVendor.trim());</span>
         }
 
-<span class="nc" id="L60">        final String productName = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + &quot;product_name&quot;);</span>
-<span class="nc" id="L61">        final String productVersion = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + &quot;product_version&quot;);</span>
+<span class="nc" id="L65">        final String productName = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + &quot;product_name&quot;);</span>
+<span class="nc" id="L66">        final String productVersion = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + &quot;product_version&quot;);</span>
 
-<span class="nc bnc" id="L63" title="All 4 branches missed.">        if (productName != null &amp;&amp; !productName.trim().isEmpty()) {</span>
+<span class="nc bnc" id="L68" title="All 4 branches missed.">        if (productName != null &amp;&amp; !productName.trim().isEmpty()) {</span>
 
-<span class="nc bnc" id="L65" title="All 6 branches missed.">            if (productVersion != null &amp;&amp; !productVersion.trim().isEmpty() &amp;&amp; !&quot;None&quot;.equals(productVersion.trim())) {</span>
+<span class="nc bnc" id="L70" title="All 6 branches missed.">            if (productVersion != null &amp;&amp; !productVersion.trim().isEmpty() &amp;&amp; !&quot;None&quot;.equals(productVersion.trim())) {</span>
 
-<span class="nc" id="L67">                setModel(productName.trim() + &quot; (version: &quot; + productVersion.trim() + &quot;)&quot;);</span>
+<span class="nc" id="L72">                setModel(productName.trim() + &quot; (version: &quot; + productVersion.trim() + &quot;)&quot;);</span>
             } else {
-<span class="nc" id="L69">                setModel(productName.trim());</span>
+<span class="nc" id="L74">                setModel(productName.trim());</span>
             }
         } else {
-<span class="nc bnc" id="L72" title="All 4 branches missed.">            if (productVersion != null &amp;&amp; !productVersion.trim().isEmpty()) {</span>
+<span class="nc bnc" id="L77" title="All 4 branches missed.">            if (productVersion != null &amp;&amp; !productVersion.trim().isEmpty()) {</span>
 
-<span class="nc" id="L74">                setModel(productVersion.trim());</span>
+<span class="nc" id="L79">                setModel(productVersion.trim());</span>
             }
         }
 
-<span class="nc" id="L78">        setSerialNumber(getSystemSerialNumber());</span>
+<span class="nc" id="L83">        setSerialNumber(getSystemSerialNumber());</span>
 
-<span class="nc" id="L80">        setFirmware(new LinuxFirmware());</span>
+<span class="nc" id="L85">        setFirmware(new LinuxFirmware());</span>
 
-<span class="nc" id="L82">        setBaseboard(new LinuxBaseboard());</span>
-<span class="nc" id="L83">    }</span>
+<span class="nc" id="L87">        setBaseboard(new LinuxBaseboard());</span>
+<span class="nc" id="L88">    }</span>
 
     private String getSystemSerialNumber() {
         // These sysfs files accessible by root, or can be chmod'd at boot time
         // to enable access without root
-<span class="nc" id="L88">        String serialNumber = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + &quot;product_serial&quot;);</span>
-<span class="nc bnc" id="L89" title="All 4 branches missed.">        if (serialNumber.isEmpty() || &quot;None&quot;.equals(serialNumber)) {</span>
-<span class="nc" id="L90">            serialNumber = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + &quot;board_serial&quot;);</span>
-<span class="nc bnc" id="L91" title="All 4 branches missed.">            if (serialNumber.isEmpty() || &quot;None&quot;.equals(serialNumber)) {</span>
-<span class="nc" id="L92">                serialNumber = UNKNOWN;</span>
+<span class="nc" id="L93">        String serialNumber = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + &quot;product_serial&quot;);</span>
+<span class="nc bnc" id="L94" title="All 4 branches missed.">        if (serialNumber.isEmpty() || &quot;None&quot;.equals(serialNumber)) {</span>
+<span class="nc" id="L95">            serialNumber = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + &quot;board_serial&quot;);</span>
+<span class="nc bnc" id="L96" title="All 4 branches missed.">            if (serialNumber.isEmpty() || &quot;None&quot;.equals(serialNumber)) {</span>
+<span class="nc" id="L97">                serialNumber = UNKNOWN;</span>
             }
         }
         // If root privileges this will work
-<span class="nc" id="L96">        String marker = &quot;Serial Number:&quot;;</span>
-<span class="nc bnc" id="L97" title="All 2 branches missed.">        if (UNKNOWN.equals(serialNumber)) {</span>
-<span class="nc bnc" id="L98" title="All 2 branches missed.">            for (String checkLine : ExecutingCommand.runNative(&quot;dmidecode -t system&quot;)) {</span>
-<span class="nc bnc" id="L99" title="All 2 branches missed.">                if (checkLine.contains(marker)) {</span>
-<span class="nc" id="L100">                    serialNumber = checkLine.split(marker)[1].trim();</span>
-<span class="nc" id="L101">                    break;</span>
+<span class="nc" id="L101">        String marker = &quot;Serial Number:&quot;;</span>
+<span class="nc bnc" id="L102" title="All 2 branches missed.">        if (UNKNOWN.equals(serialNumber)) {</span>
+<span class="nc bnc" id="L103" title="All 2 branches missed.">            for (String checkLine : ExecutingCommand.runNative(&quot;dmidecode -t system&quot;)) {</span>
+<span class="nc bnc" id="L104" title="All 2 branches missed.">                if (checkLine.contains(marker)) {</span>
+<span class="nc" id="L105">                    serialNumber = checkLine.split(marker)[1].trim();</span>
+<span class="nc" id="L106">                    break;</span>
                 }
-<span class="nc" id="L103">            }</span>
+<span class="nc" id="L108">            }</span>
         }
         // if lshal command available (HAL deprecated in newer linuxes)
-<span class="nc bnc" id="L106" title="All 2 branches missed.">        if (UNKNOWN.equals(serialNumber)) {</span>
-<span class="nc" id="L107">            marker = &quot;system.hardware.serial =&quot;;</span>
-<span class="nc bnc" id="L108" title="All 2 branches missed.">            for (String checkLine : ExecutingCommand.runNative(&quot;lshal&quot;)) {</span>
-<span class="nc bnc" id="L109" title="All 2 branches missed.">                if (checkLine.contains(marker)) {</span>
-<span class="nc" id="L110">                    serialNumber = ParseUtil.getSingleQuoteStringValue(checkLine);</span>
-<span class="nc" id="L111">                    break;</span>
+<span class="nc bnc" id="L111" title="All 2 branches missed.">        if (UNKNOWN.equals(serialNumber)) {</span>
+<span class="nc" id="L112">            marker = &quot;system.hardware.serial =&quot;;</span>
+<span class="nc bnc" id="L113" title="All 2 branches missed.">            for (String checkLine : ExecutingCommand.runNative(&quot;lshal&quot;)) {</span>
+<span class="nc bnc" id="L114" title="All 2 branches missed.">                if (checkLine.contains(marker)) {</span>
+<span class="nc" id="L115">                    serialNumber = ParseUtil.getSingleQuoteStringValue(checkLine);</span>
+<span class="nc" id="L116">                    break;</span>
                 }
-<span class="nc" id="L113">            }</span>
+<span class="nc" id="L118">            }</span>
         }
-<span class="nc" id="L115">        return serialNumber;</span>
+<span class="nc" id="L120">        return serialNumber;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

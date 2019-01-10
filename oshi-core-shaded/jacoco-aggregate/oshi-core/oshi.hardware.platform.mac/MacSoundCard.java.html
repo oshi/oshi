@@ -1,20 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>MacSoundCard.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-core-shaded</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.mac</a> &gt; <span class="el_source">MacSoundCard.java</span></div><h1>MacSoundCard.java</h1><pre class="source lang-java linenums">/**
- * Oshi (https://github.com/oshi/oshi)
+ * OSHI (https://github.com/oshi/oshi)
  *
- * Copyright (c) 2010 - 2018 The Oshi Project Team
- *
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- *
- * Maintainers:
- * dblock[at]dblock[dot]org
- * widdis[at]gmail[dot]com
- * enrico.bianchi[at]gmail[dot]com
- *
- * Contributors:
+ * Copyright (c) 2010 - 2019 The OSHI Project Team:
  * https://github.com/oshi/oshi/graphs/contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 package oshi.hardware.platform.mac;
 
@@ -36,8 +41,8 @@ public class MacSoundCard extends AbstractSoundCard {
     private static final String APPLE = &quot;Apple Inc.&quot;;
 
     public MacSoundCard(String kernelVersion, String name, String codec) {
-<span class="nc" id="L39">        super(kernelVersion, name, codec);</span>
-<span class="nc" id="L40">    }</span>
+<span class="nc" id="L44">        super(kernelVersion, name, codec);</span>
+<span class="nc" id="L45">    }</span>
 
     /**
      * public method used by
@@ -47,7 +52,7 @@ public class MacSoundCard extends AbstractSoundCard {
      * @return List of {@link MacSoundCard} objects.
      */
     public static List&lt;MacSoundCard&gt; getSoundCards() {
-<span class="nc" id="L50">        List&lt;MacSoundCard&gt; soundCards = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L55">        List&lt;MacSoundCard&gt; soundCards = new ArrayList&lt;&gt;();</span>
 
         // /System/Library/Extensions/AppleHDA.kext/Contents/Info.plist
 
@@ -56,28 +61,28 @@ public class MacSoundCard extends AbstractSoundCard {
         // &lt;key&gt;com.apple.driver.AppleHDAController&lt;/key&gt;
         // &lt;string&gt;1.7.2a1&lt;/string&gt;
 
-<span class="nc" id="L59">        String manufacturer = APPLE;</span>
-<span class="nc" id="L60">        String kernelVersion = &quot;AppleHDAController&quot;;</span>
-<span class="nc" id="L61">        String codec = &quot;AppleHDACodec&quot;;</span>
+<span class="nc" id="L64">        String manufacturer = APPLE;</span>
+<span class="nc" id="L65">        String kernelVersion = &quot;AppleHDAController&quot;;</span>
+<span class="nc" id="L66">        String codec = &quot;AppleHDACodec&quot;;</span>
 
-<span class="nc" id="L63">        boolean version = false;</span>
-<span class="nc" id="L64">        String versionMarker = &quot;&lt;key&gt;com.apple.driver.AppleHDAController&lt;/key&gt;&quot;;</span>
+<span class="nc" id="L68">        boolean version = false;</span>
+<span class="nc" id="L69">        String versionMarker = &quot;&lt;key&gt;com.apple.driver.AppleHDAController&lt;/key&gt;&quot;;</span>
 
-<span class="nc bnc" id="L66" title="All 2 branches missed.">        for (final String checkLine : FileUtil</span>
-<span class="nc" id="L67">                .readFile(&quot;/System/Library/Extensions/AppleHDA.kext/Contents/Info.plist&quot;)) {</span>
-<span class="nc bnc" id="L68" title="All 2 branches missed.">            if (checkLine.contains(versionMarker)) {</span>
-<span class="nc" id="L69">                version = true;</span>
-<span class="nc" id="L70">                continue;</span>
+<span class="nc bnc" id="L71" title="All 2 branches missed.">        for (final String checkLine : FileUtil</span>
+<span class="nc" id="L72">                .readFile(&quot;/System/Library/Extensions/AppleHDA.kext/Contents/Info.plist&quot;)) {</span>
+<span class="nc bnc" id="L73" title="All 2 branches missed.">            if (checkLine.contains(versionMarker)) {</span>
+<span class="nc" id="L74">                version = true;</span>
+<span class="nc" id="L75">                continue;</span>
             }
-<span class="nc bnc" id="L72" title="All 2 branches missed.">            if (version) {</span>
-<span class="nc" id="L73">                kernelVersion = &quot;AppleHDAController &quot;</span>
-<span class="nc" id="L74">                        + ParseUtil.getTextBetweenStrings(checkLine, &quot;&lt;string&gt;&quot;, &quot;&lt;/string&gt;&quot;);</span>
-<span class="nc" id="L75">                version = false;</span>
+<span class="nc bnc" id="L77" title="All 2 branches missed.">            if (version) {</span>
+<span class="nc" id="L78">                kernelVersion = &quot;AppleHDAController &quot;</span>
+<span class="nc" id="L79">                        + ParseUtil.getTextBetweenStrings(checkLine, &quot;&lt;string&gt;&quot;, &quot;&lt;/string&gt;&quot;);</span>
+<span class="nc" id="L80">                version = false;</span>
             }
-<span class="nc" id="L77">        }</span>
-<span class="nc" id="L78">        soundCards.add(new MacSoundCard(kernelVersion, manufacturer, codec));</span>
+<span class="nc" id="L82">        }</span>
+<span class="nc" id="L83">        soundCards.add(new MacSoundCard(kernelVersion, manufacturer, codec));</span>
 
-<span class="nc" id="L80">        return soundCards;</span>
+<span class="nc" id="L85">        return soundCards;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

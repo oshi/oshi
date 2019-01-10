@@ -1,20 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>IOKit.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-core-shaded</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.jna.platform.mac</a> &gt; <span class="el_source">IOKit.java</span></div><h1>IOKit.java</h1><pre class="source lang-java linenums">/**
- * Oshi (https://github.com/oshi/oshi)
+ * OSHI (https://github.com/oshi/oshi)
  *
- * Copyright (c) 2010 - 2018 The Oshi Project Team
- *
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- *
- * Maintainers:
- * dblock[at]dblock[dot]org
- * widdis[at]gmail[dot]com
- * enrico.bianchi[at]gmail[dot]com
- *
- * Contributors:
+ * Copyright (c) 2010 - 2019 The OSHI Project Team:
  * https://github.com/oshi/oshi/graphs/contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 package oshi.jna.platform.mac;
 
@@ -41,15 +46,15 @@ import oshi.jna.platform.mac.CoreFoundation.CFTypeRef;
  * @author widdis[at]gmail[dot]com
  */
 public interface IOKit extends Library {
-<span class="nc" id="L44">    IOKit INSTANCE = Native.load(&quot;IOKit&quot;, IOKit.class);</span>
+<span class="nc" id="L49">    IOKit INSTANCE = Native.load(&quot;IOKit&quot;, IOKit.class);</span>
 
-<span class="nc" id="L46">    CFStringRef IOPS_NAME_KEY = CFStringRef.toCFString(&quot;Name&quot;);</span>
+<span class="nc" id="L51">    CFStringRef IOPS_NAME_KEY = CFStringRef.toCFString(&quot;Name&quot;);</span>
 
-<span class="nc" id="L48">    CFStringRef IOPS_IS_PRESENT_KEY = CFStringRef.toCFString(&quot;Is Present&quot;);</span>
+<span class="nc" id="L53">    CFStringRef IOPS_IS_PRESENT_KEY = CFStringRef.toCFString(&quot;Is Present&quot;);</span>
 
-<span class="nc" id="L50">    CFStringRef IOPS_CURRENT_CAPACITY_KEY = CFStringRef.toCFString(&quot;Current Capacity&quot;);</span>
+<span class="nc" id="L55">    CFStringRef IOPS_CURRENT_CAPACITY_KEY = CFStringRef.toCFString(&quot;Current Capacity&quot;);</span>
 
-<span class="nc" id="L52">    CFStringRef IOPS_MAX_CAPACITY_KEY = CFStringRef.toCFString(&quot;Max Capacity&quot;);</span>
+<span class="nc" id="L57">    CFStringRef IOPS_MAX_CAPACITY_KEY = CFStringRef.toCFString(&quot;Max Capacity&quot;);</span>
 
     String SMC_KEY_FAN_NUM = &quot;FNum&quot;;
 
@@ -69,11 +74,11 @@ public interface IOKit extends Library {
      * Holds the return value of SMC version query.
      */
     @FieldOrder({ &quot;major&quot;, &quot;minor&quot;, &quot;build&quot;, &quot;reserved&quot;, &quot;release&quot; })
-<span class="nc" id="L72">    class SMCKeyDataVers extends Structure {</span>
+<span class="nc" id="L77">    class SMCKeyDataVers extends Structure {</span>
         public byte major;
         public byte minor;
         public byte build;
-<span class="nc" id="L76">        public byte[] reserved = new byte[1];</span>
+<span class="nc" id="L81">        public byte[] reserved = new byte[1];</span>
         public short release;
 
     }
@@ -82,7 +87,7 @@ public interface IOKit extends Library {
      * Holds the return value of SMC pLimit query.
      */
     @FieldOrder({ &quot;version&quot;, &quot;length&quot;, &quot;cpuPLimit&quot;, &quot;gpuPLimit&quot;, &quot;memPLimit&quot; })
-<span class="nc" id="L85">    class SMCKeyDataPLimitData extends Structure {</span>
+<span class="nc" id="L90">    class SMCKeyDataPLimitData extends Structure {</span>
         public short version;
         public short length;
         public int cpuPLimit;
@@ -94,7 +99,7 @@ public interface IOKit extends Library {
      * Holds the return value of SMC KeyInfo query.
      */
     @FieldOrder({ &quot;dataSize&quot;, &quot;dataType&quot;, &quot;dataAttributes&quot; })
-<span class="nc" id="L97">    class SMCKeyDataKeyInfo extends Structure {</span>
+<span class="nc" id="L102">    class SMCKeyDataKeyInfo extends Structure {</span>
         public int dataSize;
         public int dataType;
         public byte dataAttributes;
@@ -104,7 +109,7 @@ public interface IOKit extends Library {
      * Holds the return value of SMC query.
      */
     @FieldOrder({ &quot;key&quot;, &quot;vers&quot;, &quot;pLimitData&quot;, &quot;keyInfo&quot;, &quot;result&quot;, &quot;status&quot;, &quot;data8&quot;, &quot;data32&quot;, &quot;bytes&quot; })
-<span class="nc" id="L107">    class SMCKeyData extends Structure {</span>
+<span class="nc" id="L112">    class SMCKeyData extends Structure {</span>
         public int key;
         public SMCKeyDataVers vers;
         public SMCKeyDataPLimitData pLimitData;
@@ -113,24 +118,24 @@ public interface IOKit extends Library {
         public byte status;
         public byte data8;
         public int data32;
-<span class="nc" id="L116">        public byte[] bytes = new byte[32];</span>
+<span class="nc" id="L121">        public byte[] bytes = new byte[32];</span>
     }
 
     /**
      * Holds an SMC value
      */
     @FieldOrder({ &quot;key&quot;, &quot;dataSize&quot;, &quot;dataType&quot;, &quot;bytes&quot; })
-<span class="nc" id="L123">    class SMCVal extends Structure {</span>
-<span class="nc" id="L124">        public byte[] key = new byte[5];</span>
+<span class="nc" id="L128">    class SMCVal extends Structure {</span>
+<span class="nc" id="L129">        public byte[] key = new byte[5];</span>
         public int dataSize;
-<span class="nc" id="L126">        public byte[] dataType = new byte[5];</span>
-<span class="nc" id="L127">        public byte[] bytes = new byte[32];</span>
+<span class="nc" id="L131">        public byte[] dataType = new byte[5];</span>
+<span class="nc" id="L132">        public byte[] bytes = new byte[32];</span>
     }
 
-<span class="nc" id="L130">    class IOConnect extends IntByReference {</span>
+<span class="nc" id="L135">    class IOConnect extends IntByReference {</span>
     }
 
-<span class="nc" id="L133">    class MachPort extends IntByReference {</span>
+<span class="nc" id="L138">    class MachPort extends IntByReference {</span>
     }
 
     CFTypeRef IOPSCopyPowerSourcesInfo();
