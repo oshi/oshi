@@ -87,7 +87,7 @@ public class CentralProcessorTest {
         Util.sleep(500);
         // This test fails on FreeBSD due to error in Java MXBean
         if (SystemInfo.getCurrentPlatformEnum() != PlatformEnum.FREEBSD) {
-            assertTrue(p.getSystemCpuLoad() >= 0.0 && p.getSystemCpuLoad() <= 1.0);
+            assertTrue(p.getSystemCpuLoad() <= 1.0);
         }
         assertEquals(3, p.getSystemLoadAverage(3).length);
         if (Platform.isMac() || Platform.isLinux()) {
