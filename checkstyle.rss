@@ -23,10 +23,10 @@ under the License.
     <link>https://github.com/oshi/oshi</link>
     <description>Operating System and Hardware Information - Checkstyle report</description>
     <language>en-us</language>
-    <copyright>&#169;2010 - 2018 oshi</copyright>
+    <copyright>&#169;2010 - 2019 oshi</copyright>
     <item>
-      <title>File: 228,
-             Errors: 4919,
+      <title>File: 232,
+             Errors: 5084,
              Warnings: 0,
              Infos: 0
       </title>
@@ -615,7 +615,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  30
+                  34
                 </td>
               </tr>
                           <tr>
@@ -732,6 +732,20 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.util.platform.windows.PdhUtilXP.java">oshi/util/platform/windows/PdhUtilXP.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  20
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.windows.WindowsSensors.java">oshi/hardware/platform/windows/WindowsSensors.java</a>
                 </td>
                 <td>
@@ -741,7 +755,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  68
+                  70
                 </td>
               </tr>
                           <tr>
@@ -965,7 +979,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  90
+                  93
                 </td>
               </tr>
                           <tr>
@@ -1063,7 +1077,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  134
+                  133
                 </td>
               </tr>
                           <tr>
@@ -1469,7 +1483,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  150
+                  151
                 </td>
               </tr>
                           <tr>
@@ -1525,7 +1539,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  52
+                  56
                 </td>
               </tr>
                           <tr>
@@ -1595,7 +1609,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  10
+                  9
                 </td>
               </tr>
                           <tr>
@@ -1665,7 +1679,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  102
+                  78
                 </td>
               </tr>
                           <tr>
@@ -1722,6 +1736,20 @@ under the License.
                 </td>
                 <td>
                   16
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.util.platform.windows.WmiQueryHandler.java">oshi/util/platform/windows/WmiQueryHandler.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  37
                 </td>
               </tr>
                           <tr>
@@ -1917,7 +1945,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  40
+                  37
                 </td>
               </tr>
                           <tr>
@@ -2197,7 +2225,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  13
+                  14
                 </td>
               </tr>
                           <tr>
@@ -2310,6 +2338,20 @@ under the License.
                 </td>
                 <td>
                   1
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.jna.platform.windows.VersionHelpers.java">oshi/jna/platform/windows/VersionHelpers.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  50
                 </td>
               </tr>
                           <tr>
@@ -2463,7 +2505,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  151
+                  150
                 </td>
               </tr>
                           <tr>
@@ -2757,7 +2799,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  138
+                  177
                 </td>
               </tr>
                           <tr>
@@ -2897,7 +2939,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  31
+                  33
                 </td>
               </tr>
                           <tr>
@@ -2996,6 +3038,20 @@ under the License.
                 </td>
                 <td>
                   1
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.jna.platform.windows.Kernel32.java">oshi/jna/platform/windows/Kernel32.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  23
                 </td>
               </tr>
                           <tr>
@@ -3205,7 +3261,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  72
+                  81
                 </td>
               </tr>
                           <tr>
