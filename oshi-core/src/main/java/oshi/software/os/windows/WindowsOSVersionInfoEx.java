@@ -37,7 +37,6 @@ import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.software.common.AbstractOSVersionInfoEx;
 import oshi.util.ParseUtil;
-import oshi.util.StringUtil;
 import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
 
@@ -187,6 +186,6 @@ public class WindowsOSVersionInfoEx extends AbstractOSVersionInfoEx {
             suites.add("Compute Cluster");
         }
         // 0x8000, Home Server, is included in main version name
-        return StringUtil.join(",", suites);
+        return String.join(",", suites);
     }
 }
