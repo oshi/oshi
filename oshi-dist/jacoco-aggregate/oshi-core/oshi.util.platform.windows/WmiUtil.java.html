@@ -1,166 +1,52 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>WmiUtil.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.util.platform.windows</a> &gt; <span class="el_source">WmiUtil.java</span></div><h1>WmiUtil.java</h1><pre class="source lang-java linenums">/**
- * Oshi (https://github.com/oshi/oshi)
+ * OSHI (https://github.com/oshi/oshi)
  *
- * Copyright (c) 2010 - 2018 The Oshi Project Team
- *
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- *
- * Maintainers:
- * dblock[at]dblock[dot]org
- * widdis[at]gmail[dot]com
- * enrico.bianchi[at]gmail[dot]com
- *
- * Contributors:
+ * Copyright (c) 2010 - 2019 The OSHI Project Team:
  * https://github.com/oshi/oshi/graphs/contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 package oshi.util.platform.windows;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.TimeoutException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.sun.jna.platform.win32.Ole32;
 import com.sun.jna.platform.win32.Variant;
-import com.sun.jna.platform.win32.WinError;
-import com.sun.jna.platform.win32.WinNT.HRESULT;
-import com.sun.jna.platform.win32.COM.COMException;
-import com.sun.jna.platform.win32.COM.COMUtils;
 import com.sun.jna.platform.win32.COM.Wbemcli;
-import com.sun.jna.platform.win32.COM.WbemcliUtil;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.util.ParseUtil;
 
 /**
- * Helper class for WMI. Users should test whether they are on the Windows
- * operating system prior to calling any methods or instantiating any
- * subclasses.
+ * Helper class for WMI
  *
  * @author widdis[at]gmail[dot]com
  */
 public class WmiUtil {
-    /**
-     * Instance to generate the WmiConnection class.
-     */
-<span class="nc" id="L52">    public static final WmiUtil INSTANCE = new WmiUtil();</span>
 
-<span class="nc" id="L54">    private static final Logger LOG = LoggerFactory.getLogger(WmiUtil.class);</span>
-
-    // Global timeout for WMI queries
-<span class="nc" id="L57">    private static int wmiTimeout = Wbemcli.WBEM_INFINITE;</span>
-
-    // Cache namespaces
-<span class="nc" id="L60">    private static Set&lt;String&gt; hasNamespaceCache = new HashSet&lt;&gt;();</span>
-<span class="nc" id="L61">    private static Set&lt;String&gt; hasNotNamespaceCache = new HashSet&lt;&gt;();</span>
-
-    // Cache failed wmi classes
-<span class="nc" id="L64">    private static Set&lt;String&gt; failedWmiClassNames = new HashSet&lt;&gt;();</span>
     // Not a built in manespace, failed connections are normal and don't need
     // error logging
     public static final String OHM_NAMESPACE = &quot;ROOT\\OpenHardwareMonitor&quot;;
 
     private static final String CLASS_CAST_MSG = &quot;%s is not a %s type. CIM Type is %d and VT type is %d&quot;;
 
-    // Track initialization of COM and Security
-<span class="nc" id="L72">    private static boolean comInitialized = false;</span>
-<span class="nc" id="L73">    private static boolean securityInitialized = false;</span>
-
     /**
      * Private constructor so this class can't be instantiated from the outside.
-     * Also initializes COM and sets up hooks to uninit if necessary.
      */
-<span class="nc" id="L79">    private WmiUtil() {</span>
-        // Initialize COM
-<span class="nc" id="L81">        initCOM();</span>
-
-        // Set up hook to uninit on shutdown
-<span class="nc" id="L84">        Runtime.getRuntime().addShutdownHook(new Thread() {</span>
-            @Override
-            public void run() {
-<span class="nc" id="L87">                unInitCOM();</span>
-<span class="nc" id="L88">            }</span>
-        });
-<span class="nc" id="L90">    }</span>
-
-    /**
-     * Determine if WMI has the requested namespace. Some namespaces only exist
-     * on newer versions of Windows.
-     *
-     * @param namespace
-     *            The namespace to test
-     * @return true if the namespace exists, false otherwise
-     */
-    public static boolean hasNamespace(String namespace) {
-<span class="nc bnc" id="L101" title="All 2 branches missed.">        if (hasNamespaceCache.contains(namespace)) {</span>
-<span class="nc" id="L102">            return true;</span>
-<span class="nc bnc" id="L103" title="All 2 branches missed.">        } else if (hasNotNamespaceCache.contains(namespace)) {</span>
-<span class="nc" id="L104">            return false;</span>
-        }
-<span class="nc bnc" id="L106" title="All 2 branches missed.">        if (WbemcliUtil.hasNamespace(namespace)) {</span>
-<span class="nc" id="L107">            hasNamespaceCache.add(namespace);</span>
-<span class="nc" id="L108">            return true;</span>
-        }
-<span class="nc" id="L110">        hasNotNamespaceCache.add(namespace);</span>
-<span class="nc" id="L111">        return false;</span>
-    }
-
-    /**
-     * Query WMI for values, with no timeout.
-     *
-     * @param &lt;T&gt;
-     *            The properties enum
-     * @param query
-     *            A WmiQuery object encapsulating the namespace, class, and
-     *            properties
-     * @return a WmiResult object containing the query results, wrapping an
-     *         EnumMap
-     */
-    public static &lt;T extends Enum&lt;T&gt;&gt; WmiResult&lt;T&gt; queryWMI(WmiQuery&lt;T&gt; query) {
-
-<span class="nc" id="L127">        WmiResult&lt;T&gt; result = WbemcliUtil.INSTANCE.new WmiResult&lt;&gt;(query.getPropertyEnum());</span>
-<span class="nc bnc" id="L128" title="All 2 branches missed.">        if (failedWmiClassNames.contains(query.getWmiClassName())) {</span>
-<span class="nc" id="L129">            return result;</span>
-        }
-        try {
-            // Initialize COM if not already done. Needed if COM was previously
-            // initialized externally but is no longer initialized.
-<span class="nc bnc" id="L134" title="All 2 branches missed.">            if (!isComInitialized()) {</span>
-<span class="nc" id="L135">                initCOM();</span>
-            }
-
-<span class="nc" id="L138">            result = query.execute(wmiTimeout);</span>
-<span class="nc" id="L139">        } catch (COMException e) {</span>
-            // Ignore any exceptions with OpenHardwareMonitor
-<span class="nc bnc" id="L141" title="All 2 branches missed.">            if (!OHM_NAMESPACE.equals(query.getNameSpace())) {</span>
-<span class="nc bnc" id="L142" title="All 2 branches missed.">                final int hresult = e.getHresult() == null ? -1 : e.getHresult().intValue();</span>
-<span class="nc bnc" id="L143" title="All 4 branches missed.">                switch (hresult) {</span>
-                case Wbemcli.WBEM_E_INVALID_NAMESPACE:
-<span class="nc" id="L145">                    LOG.warn(&quot;COM exception: Invalid Namespace {}&quot;, query.getNameSpace());</span>
-<span class="nc" id="L146">                    break;</span>
-                case Wbemcli.WBEM_E_INVALID_CLASS:
-<span class="nc" id="L148">                    LOG.warn(&quot;COM exception: Invalid Class {}&quot;, query.getWmiClassName());</span>
-<span class="nc" id="L149">                    break;</span>
-                case Wbemcli.WBEM_E_INVALID_QUERY:
-<span class="nc" id="L151">                    LOG.warn(&quot;COM exception: Invalid Query: {}&quot;, queryToString(query));</span>
-<span class="nc" id="L152">                    break;</span>
-                default:
-<span class="nc" id="L154">                    LOG.warn(</span>
-                            &quot;COM exception querying {}, which might not be on your system. Will not attempt to query it again. Error was: {}:&quot;,
-<span class="nc" id="L156">                            query.getWmiClassName(), e.getMessage());</span>
-                }
-<span class="nc" id="L158">                failedWmiClassNames.add(query.getWmiClassName());</span>
-            }
-<span class="nc" id="L160">        } catch (TimeoutException e) {</span>
-<span class="nc" id="L161">            LOG.error(&quot;WMI query timed out after {} ms: {}&quot;, wmiTimeout, queryToString(query));</span>
-<span class="nc" id="L162">        }</span>
-<span class="nc" id="L163">        return result;</span>
+    private WmiUtil() {
     }
 
     /**
@@ -173,14 +59,14 @@ public class WmiUtil {
      * @return The string that is queried in WMI
      */
     public static &lt;T extends Enum&lt;T&gt;&gt; String queryToString(WmiQuery&lt;T&gt; query) {
-<span class="nc" id="L176">        T[] props = query.getPropertyEnum().getEnumConstants();</span>
-<span class="nc" id="L177">        StringBuilder sb = new StringBuilder(&quot;SELECT &quot;);</span>
-<span class="nc" id="L178">        sb.append(props[0].name());</span>
-<span class="nc bnc" id="L179" title="All 2 branches missed.">        for (int i = 1; i &lt; props.length; i++) {</span>
-<span class="nc" id="L180">            sb.append(',').append(props[i].name());</span>
+<span class="nc" id="L62">        T[] props = query.getPropertyEnum().getEnumConstants();</span>
+<span class="nc" id="L63">        StringBuilder sb = new StringBuilder(&quot;SELECT &quot;);</span>
+<span class="nc" id="L64">        sb.append(props[0].name());</span>
+<span class="nc bnc" id="L65" title="All 2 branches missed.">        for (int i = 1; i &lt; props.length; i++) {</span>
+<span class="nc" id="L66">            sb.append(',').append(props[i].name());</span>
         }
-<span class="nc" id="L182">        sb.append(&quot; FROM &quot;).append(query.getWmiClassName());</span>
-<span class="nc" id="L183">        return sb.toString();</span>
+<span class="nc" id="L68">        sb.append(&quot; FROM &quot;).append(query.getWmiClassName());</span>
+<span class="nc" id="L69">        return sb.toString();</span>
     }
 
     /**
@@ -197,11 +83,11 @@ public class WmiUtil {
      * @return The stored value if non-null, an empty-string otherwise
      */
     public static &lt;T extends Enum&lt;T&gt;&gt; String getString(WmiResult&lt;T&gt; result, T property, int index) {
-<span class="nc bnc" id="L200" title="All 2 branches missed.">        if (result.getCIMType(property) == Wbemcli.CIM_STRING) {</span>
-<span class="nc" id="L201">            return getStr(result, property, index);</span>
+<span class="nc bnc" id="L86" title="All 2 branches missed.">        if (result.getCIMType(property) == Wbemcli.CIM_STRING) {</span>
+<span class="nc" id="L87">            return getStr(result, property, index);</span>
         }
-<span class="nc" id="L203">        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), &quot;String&quot;,</span>
-<span class="nc" id="L204">                result.getCIMType(property), result.getVtType(property)));</span>
+<span class="nc" id="L89">        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), &quot;String&quot;,</span>
+<span class="nc" id="L90">                result.getCIMType(property), result.getVtType(property)));</span>
     }
 
     /**
@@ -218,12 +104,12 @@ public class WmiUtil {
      * @return The stored value if non-null, an empty-string otherwise
      */
     public static &lt;T extends Enum&lt;T&gt;&gt; String getDateString(WmiResult&lt;T&gt; result, T property, int index) {
-<span class="nc bnc" id="L221" title="All 2 branches missed.">        if (result.getCIMType(property) == Wbemcli.CIM_DATETIME) {</span>
-<span class="nc" id="L222">            String date = getStr(result, property, index);</span>
-<span class="nc" id="L223">            return date.substring(0, 4) + '-' + date.substring(4, 6) + '-' + date.substring(6, 8);</span>
+<span class="nc bnc" id="L107" title="All 2 branches missed.">        if (result.getCIMType(property) == Wbemcli.CIM_DATETIME) {</span>
+<span class="nc" id="L108">            String date = getStr(result, property, index);</span>
+<span class="nc" id="L109">            return date.substring(0, 4) + '-' + date.substring(4, 6) + '-' + date.substring(6, 8);</span>
         }
-<span class="nc" id="L225">        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), &quot;DateTime&quot;,</span>
-<span class="nc" id="L226">                result.getCIMType(property), result.getVtType(property)));</span>
+<span class="nc" id="L111">        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), &quot;DateTime&quot;,</span>
+<span class="nc" id="L112">                result.getCIMType(property), result.getVtType(property)));</span>
     }
 
     /**
@@ -240,22 +126,22 @@ public class WmiUtil {
      * @return The stored value if non-null, an empty-string otherwise
      */
     public static &lt;T extends Enum&lt;T&gt;&gt; String getRefString(WmiResult&lt;T&gt; result, T property, int index) {
-<span class="nc bnc" id="L243" title="All 2 branches missed.">        if (result.getCIMType(property) == Wbemcli.CIM_REFERENCE) {</span>
-<span class="nc" id="L244">            return getStr(result, property, index);</span>
+<span class="nc bnc" id="L129" title="All 2 branches missed.">        if (result.getCIMType(property) == Wbemcli.CIM_REFERENCE) {</span>
+<span class="nc" id="L130">            return getStr(result, property, index);</span>
         }
-<span class="nc" id="L246">        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), &quot;Reference&quot;,</span>
-<span class="nc" id="L247">                result.getCIMType(property), result.getVtType(property)));</span>
+<span class="nc" id="L132">        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), &quot;Reference&quot;,</span>
+<span class="nc" id="L133">                result.getCIMType(property), result.getVtType(property)));</span>
     }
 
     private static &lt;T extends Enum&lt;T&gt;&gt; String getStr(WmiResult&lt;T&gt; result, T property, int index) {
-<span class="nc" id="L251">        Object o = result.getValue(property, index);</span>
-<span class="nc bnc" id="L252" title="All 2 branches missed.">        if (o == null) {</span>
-<span class="nc" id="L253">            return &quot;&quot;;</span>
-<span class="nc bnc" id="L254" title="All 2 branches missed.">        } else if (result.getVtType(property) == Variant.VT_BSTR) {</span>
-<span class="nc" id="L255">            return (String) o;</span>
+<span class="nc" id="L137">        Object o = result.getValue(property, index);</span>
+<span class="nc bnc" id="L138" title="All 2 branches missed.">        if (o == null) {</span>
+<span class="nc" id="L139">            return &quot;&quot;;</span>
+<span class="nc bnc" id="L140" title="All 2 branches missed.">        } else if (result.getVtType(property) == Variant.VT_BSTR) {</span>
+<span class="nc" id="L141">            return (String) o;</span>
         }
-<span class="nc" id="L257">        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), &quot;String-mapped&quot;,</span>
-<span class="nc" id="L258">                result.getCIMType(property), result.getVtType(property)));</span>
+<span class="nc" id="L143">        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), &quot;String-mapped&quot;,</span>
+<span class="nc" id="L144">                result.getCIMType(property), result.getVtType(property)));</span>
     }
 
     /**
@@ -274,14 +160,14 @@ public class WmiUtil {
      * @return The stored value if non-null and parseable as a long, 0 otherwise
      */
     public static &lt;T extends Enum&lt;T&gt;&gt; long getUint64(WmiResult&lt;T&gt; result, T property, int index) {
-<span class="nc" id="L277">        Object o = result.getValue(property, index);</span>
-<span class="nc bnc" id="L278" title="All 2 branches missed.">        if (o == null) {</span>
-<span class="nc" id="L279">            return 0L;</span>
-<span class="nc bnc" id="L280" title="All 4 branches missed.">        } else if (result.getCIMType(property) == Wbemcli.CIM_UINT64 &amp;&amp; result.getVtType(property) == Variant.VT_BSTR) {</span>
-<span class="nc" id="L281">            return ParseUtil.parseLongOrDefault((String) o, 0L);</span>
+<span class="nc" id="L163">        Object o = result.getValue(property, index);</span>
+<span class="nc bnc" id="L164" title="All 2 branches missed.">        if (o == null) {</span>
+<span class="nc" id="L165">            return 0L;</span>
+<span class="nc bnc" id="L166" title="All 4 branches missed.">        } else if (result.getCIMType(property) == Wbemcli.CIM_UINT64 &amp;&amp; result.getVtType(property) == Variant.VT_BSTR) {</span>
+<span class="nc" id="L167">            return ParseUtil.parseLongOrDefault((String) o, 0L);</span>
         }
-<span class="nc" id="L283">        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), &quot;UINT64&quot;,</span>
-<span class="nc" id="L284">                result.getCIMType(property), result.getVtType(property)));</span>
+<span class="nc" id="L169">        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), &quot;UINT64&quot;,</span>
+<span class="nc" id="L170">                result.getCIMType(property), result.getVtType(property)));</span>
     }
 
     /**
@@ -300,11 +186,11 @@ public class WmiUtil {
      * @return The stored value if non-null, 0 otherwise
      */
     public static &lt;T extends Enum&lt;T&gt;&gt; int getUint32(WmiResult&lt;T&gt; result, T property, int index) {
-<span class="nc bnc" id="L303" title="All 2 branches missed.">        if (result.getCIMType(property) == Wbemcli.CIM_UINT32) {</span>
-<span class="nc" id="L304">            return getInt(result, property, index);</span>
+<span class="nc bnc" id="L189" title="All 2 branches missed.">        if (result.getCIMType(property) == Wbemcli.CIM_UINT32) {</span>
+<span class="nc" id="L190">            return getInt(result, property, index);</span>
         }
-<span class="nc" id="L306">        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), &quot;UINT32&quot;,</span>
-<span class="nc" id="L307">                result.getCIMType(property), result.getVtType(property)));</span>
+<span class="nc" id="L192">        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), &quot;UINT32&quot;,</span>
+<span class="nc" id="L193">                result.getCIMType(property), result.getVtType(property)));</span>
     }
 
     /**
@@ -322,11 +208,11 @@ public class WmiUtil {
      * @return The stored value if non-null, 0 otherwise
      */
     public static &lt;T extends Enum&lt;T&gt;&gt; long getUint32asLong(WmiResult&lt;T&gt; result, T property, int index) {
-<span class="nc bnc" id="L325" title="All 2 branches missed.">        if (result.getCIMType(property) == Wbemcli.CIM_UINT32) {</span>
-<span class="nc" id="L326">            return getInt(result, property, index) &amp; 0xFFFFFFFFL;</span>
+<span class="nc bnc" id="L211" title="All 2 branches missed.">        if (result.getCIMType(property) == Wbemcli.CIM_UINT32) {</span>
+<span class="nc" id="L212">            return getInt(result, property, index) &amp; 0xFFFFFFFFL;</span>
         }
-<span class="nc" id="L328">        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), &quot;UINT32&quot;,</span>
-<span class="nc" id="L329">                result.getCIMType(property), result.getVtType(property)));</span>
+<span class="nc" id="L214">        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), &quot;UINT32&quot;,</span>
+<span class="nc" id="L215">                result.getCIMType(property), result.getVtType(property)));</span>
     }
 
     /**
@@ -345,11 +231,11 @@ public class WmiUtil {
      * @return The stored value if non-null, 0 otherwise
      */
     public static &lt;T extends Enum&lt;T&gt;&gt; int getSint32(WmiResult&lt;T&gt; result, T property, int index) {
-<span class="nc bnc" id="L348" title="All 2 branches missed.">        if (result.getCIMType(property) == Wbemcli.CIM_SINT32) {</span>
-<span class="nc" id="L349">            return getInt(result, property, index);</span>
+<span class="nc bnc" id="L234" title="All 2 branches missed.">        if (result.getCIMType(property) == Wbemcli.CIM_SINT32) {</span>
+<span class="nc" id="L235">            return getInt(result, property, index);</span>
         }
-<span class="nc" id="L351">        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), &quot;SINT32&quot;,</span>
-<span class="nc" id="L352">                result.getCIMType(property), result.getVtType(property)));</span>
+<span class="nc" id="L237">        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), &quot;SINT32&quot;,</span>
+<span class="nc" id="L238">                result.getCIMType(property), result.getVtType(property)));</span>
     }
 
     /**
@@ -368,22 +254,22 @@ public class WmiUtil {
      * @return The stored value if non-null, 0 otherwise
      */
     public static &lt;T extends Enum&lt;T&gt;&gt; int getUint16(WmiResult&lt;T&gt; result, T property, int index) {
-<span class="nc bnc" id="L371" title="All 2 branches missed.">        if (result.getCIMType(property) == Wbemcli.CIM_UINT16) {</span>
-<span class="nc" id="L372">            return getInt(result, property, index);</span>
+<span class="nc bnc" id="L257" title="All 2 branches missed.">        if (result.getCIMType(property) == Wbemcli.CIM_UINT16) {</span>
+<span class="nc" id="L258">            return getInt(result, property, index);</span>
         }
-<span class="nc" id="L374">        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), &quot;UINT16&quot;,</span>
-<span class="nc" id="L375">                result.getCIMType(property), result.getVtType(property)));</span>
+<span class="nc" id="L260">        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), &quot;UINT16&quot;,</span>
+<span class="nc" id="L261">                result.getCIMType(property), result.getVtType(property)));</span>
     }
 
     private static &lt;T extends Enum&lt;T&gt;&gt; int getInt(WmiResult&lt;T&gt; result, T property, int index) {
-<span class="nc" id="L379">        Object o = result.getValue(property, index);</span>
-<span class="nc bnc" id="L380" title="All 2 branches missed.">        if (o == null) {</span>
-<span class="nc" id="L381">            return 0;</span>
-<span class="nc bnc" id="L382" title="All 2 branches missed.">        } else if (result.getVtType(property) == Variant.VT_I4) {</span>
-<span class="nc" id="L383">            return (int) o;</span>
+<span class="nc" id="L265">        Object o = result.getValue(property, index);</span>
+<span class="nc bnc" id="L266" title="All 2 branches missed.">        if (o == null) {</span>
+<span class="nc" id="L267">            return 0;</span>
+<span class="nc bnc" id="L268" title="All 2 branches missed.">        } else if (result.getVtType(property) == Variant.VT_I4) {</span>
+<span class="nc" id="L269">            return (int) o;</span>
         }
-<span class="nc" id="L385">        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), &quot;32-bit integer&quot;,</span>
-<span class="nc" id="L386">                result.getCIMType(property), result.getVtType(property)));</span>
+<span class="nc" id="L271">        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), &quot;32-bit integer&quot;,</span>
+<span class="nc" id="L272">                result.getCIMType(property), result.getVtType(property)));</span>
     }
 
     /**
@@ -400,106 +286,14 @@ public class WmiUtil {
      * @return The stored value if non-null, 0 otherwise
      */
     public static &lt;T extends Enum&lt;T&gt;&gt; float getFloat(WmiResult&lt;T&gt; result, T property, int index) {
-<span class="nc" id="L403">        Object o = result.getValue(property, index);</span>
-<span class="nc bnc" id="L404" title="All 2 branches missed.">        if (o == null) {</span>
-<span class="nc" id="L405">            return 0f;</span>
-<span class="nc bnc" id="L406" title="All 4 branches missed.">        } else if (result.getCIMType(property) == Wbemcli.CIM_REAL32 &amp;&amp; result.getVtType(property) == Variant.VT_R4) {</span>
-<span class="nc" id="L407">            return (float) o;</span>
+<span class="nc" id="L289">        Object o = result.getValue(property, index);</span>
+<span class="nc bnc" id="L290" title="All 2 branches missed.">        if (o == null) {</span>
+<span class="nc" id="L291">            return 0f;</span>
+<span class="nc bnc" id="L292" title="All 4 branches missed.">        } else if (result.getCIMType(property) == Wbemcli.CIM_REAL32 &amp;&amp; result.getVtType(property) == Variant.VT_R4) {</span>
+<span class="nc" id="L293">            return (float) o;</span>
         }
-<span class="nc" id="L409">        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), &quot;Float&quot;,</span>
-<span class="nc" id="L410">                result.getCIMType(property), result.getVtType(property)));</span>
+<span class="nc" id="L295">        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), &quot;Float&quot;,</span>
+<span class="nc" id="L296">                result.getCIMType(property), result.getVtType(property)));</span>
     }
-
-    /**
-     * Initializes COM library and sets security to impersonate the local user
-     */
-    public static void initCOM() {
-<span class="nc" id="L417">        HRESULT hres = null;</span>
-        // Step 1: --------------------------------------------------
-        // Initialize COM. ------------------------------------------
-<span class="nc bnc" id="L420" title="All 2 branches missed.">        if (!isComInitialized()) {</span>
-<span class="nc" id="L421">            hres = Ole32.INSTANCE.CoInitializeEx(null, Ole32.COINIT_MULTITHREADED);</span>
-<span class="nc bnc" id="L422" title="All 3 branches missed.">            switch (hres.intValue()) {</span>
-            // Successful local initialization
-            case COMUtils.S_OK:
-<span class="nc" id="L425">                comInitialized = true;</span>
-<span class="nc" id="L426">                break;</span>
-            // COM was already initialized
-            case COMUtils.S_FALSE:
-            case WinError.RPC_E_CHANGED_MODE:
-<span class="nc" id="L430">                break;</span>
-            // Any other results is an error
-            default:
-<span class="nc" id="L433">                throw new COMException(&quot;Failed to initialize COM library.&quot;, hres);</span>
-            }
-        }
-        // Step 2: --------------------------------------------------
-        // Set general COM security levels --------------------------
-<span class="nc bnc" id="L438" title="All 2 branches missed.">        if (!isSecurityInitialized()) {</span>
-<span class="nc" id="L439">            hres = Ole32.INSTANCE.CoInitializeSecurity(null, -1, null, null, Ole32.RPC_C_AUTHN_LEVEL_DEFAULT,</span>
-                    Ole32.RPC_C_IMP_LEVEL_IMPERSONATE, null, Ole32.EOAC_NONE, null);
-            // If security already initialized we get RPC_E_TOO_LATE
-            // This can be safely ignored
-<span class="nc bnc" id="L443" title="All 4 branches missed.">            if (COMUtils.FAILED(hres) &amp;&amp; hres.intValue() != WinError.RPC_E_TOO_LATE) {</span>
-<span class="nc" id="L444">                Ole32.INSTANCE.CoUninitialize();</span>
-<span class="nc" id="L445">                throw new COMException(&quot;Failed to initialize security.&quot;, hres);</span>
-            }
-<span class="nc" id="L447">            securityInitialized = true;</span>
-        }
-<span class="nc" id="L449">    }</span>
-
-    /**
-     * UnInitializes COM library if it was initialized by the {@link #initCOM()}
-     * method. Otherwise, does nothing.
-     */
-    public static void unInitCOM() {
-<span class="nc bnc" id="L456" title="All 2 branches missed.">        if (isComInitialized()) {</span>
-<span class="nc" id="L457">            Ole32.INSTANCE.CoUninitialize();</span>
-<span class="nc" id="L458">            comInitialized = false;</span>
-        }
-<span class="nc" id="L460">    }</span>
-
-    /**
-     * COM may already have been initialized outside this class. This boolean is
-     * a flag whether this class initialized it, to avoid uninitializing later
-     * and killing the external initialization
-     *
-     * @return Returns whether this class initialized COM
-     */
-    public static boolean isComInitialized() {
-<span class="nc" id="L470">        return comInitialized;</span>
-    }
-
-    /**
-     * Security only needs to be initialized once. This boolean identifies
-     * whether that has happened.
-     *
-     * @return Returns the securityInitialized.
-     */
-    public static boolean isSecurityInitialized() {
-<span class="nc" id="L480">        return securityInitialized;</span>
-    }
-
-    /**
-     * Gets the current WMI timeout. WMI queries will fail if they take longer
-     * than this number of milliseconds. A value of -1 is infinite (no timeout).
-     *
-     * @return Returns the current value of wmiTimeout.
-     */
-    public static int getWmiTimeout() {
-<span class="nc" id="L490">        return wmiTimeout;</span>
-    }
-
-    /**
-     * Sets the WMI timeout. WMI queries will fail if they take longer than this
-     * number of milliseconds.
-     *
-     * @param wmiTimeout
-     *            The wmiTimeout to set, in milliseconds. To disable timeouts,
-     *            set timeout as -1 (infinite).
-     */
-    public static void setWmiTimeout(int wmiTimeout) {
-<span class="nc" id="L502">        WmiUtil.wmiTimeout = wmiTimeout;</span>
-<span class="nc" id="L503">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

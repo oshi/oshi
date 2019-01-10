@@ -1,20 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>JsonUtil.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-json</a> &gt; <a href="index.source.html" class="el_package">oshi.json.util</a> &gt; <span class="el_source">JsonUtil.java</span></div><h1>JsonUtil.java</h1><pre class="source lang-java linenums">/**
- * Oshi (https://github.com/oshi/oshi)
+ * OSHI (https://github.com/oshi/oshi)
  *
- * Copyright (c) 2010 - 2018 The Oshi Project Team
- *
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- *
- * Maintainers:
- * dblock[at]dblock[dot]org
- * widdis[at]gmail[dot]com
- * enrico.bianchi[at]gmail[dot]com
- *
- * Contributors:
+ * Copyright (c) 2010 - 2019 The OSHI Project Team:
  * https://github.com/oshi/oshi/graphs/contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 package oshi.json.util;
 
@@ -48,17 +53,17 @@ public class JsonUtil {
     public static String jsonPrettyPrint(JsonObject json) {
         // Pretty printing using JsonWriterFactory
         // Output stream
-<span class="fc" id="L51">        StringWriter stringWriter = new StringWriter();</span>
+<span class="fc" id="L56">        StringWriter stringWriter = new StringWriter();</span>
         // Config
-<span class="fc" id="L53">        Map&lt;String, Boolean&gt; config = new HashMap&lt;&gt;();</span>
-<span class="fc" id="L54">        config.put(JsonGenerator.PRETTY_PRINTING, true);</span>
-<span class="fc" id="L55">        JsonWriterFactory writerFactory = Json.createWriterFactory(config);</span>
+<span class="fc" id="L58">        Map&lt;String, Boolean&gt; config = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L59">        config.put(JsonGenerator.PRETTY_PRINTING, true);</span>
+<span class="fc" id="L60">        JsonWriterFactory writerFactory = Json.createWriterFactory(config);</span>
         // Writer
-<span class="fc" id="L57">        try (JsonWriter jsonWriter = writerFactory.createWriter(stringWriter)) {</span>
-<span class="fc" id="L58">            jsonWriter.write(json);</span>
+<span class="fc" id="L62">        try (JsonWriter jsonWriter = writerFactory.createWriter(stringWriter)) {</span>
+<span class="fc" id="L63">            jsonWriter.write(json);</span>
         }
         // Return
-<span class="fc" id="L61">        return stringWriter.toString();</span>
+<span class="fc" id="L66">        return stringWriter.toString();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

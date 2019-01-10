@@ -1,20 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>GlobalMemoryImpl.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-json</a> &gt; <a href="index.source.html" class="el_package">oshi.json.hardware.impl</a> &gt; <span class="el_source">GlobalMemoryImpl.java</span></div><h1>GlobalMemoryImpl.java</h1><pre class="source lang-java linenums">/**
- * Oshi (https://github.com/oshi/oshi)
+ * OSHI (https://github.com/oshi/oshi)
  *
- * Copyright (c) 2010 - 2018 The Oshi Project Team
- *
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- *
- * Maintainers:
- * dblock[at]dblock[dot]org
- * widdis[at]gmail[dot]com
- * enrico.bianchi[at]gmail[dot]com
- *
- * Contributors:
+ * Copyright (c) 2010 - 2019 The OSHI Project Team:
  * https://github.com/oshi/oshi/graphs/contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 package oshi.json.hardware.impl;
 
@@ -38,7 +43,7 @@ public class GlobalMemoryImpl extends AbstractOshiJsonObject implements GlobalMe
 
     private static final long serialVersionUID = 1L;
 
-<span class="nc" id="L41">    private transient JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
+<span class="nc" id="L46">    private transient JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);</span>
 
     private oshi.hardware.GlobalMemory memory;
 
@@ -49,16 +54,16 @@ public class GlobalMemoryImpl extends AbstractOshiJsonObject implements GlobalMe
      * @param memory
      *            a platform-specific GlobalMemory object
      */
-<span class="nc" id="L52">    public GlobalMemoryImpl(oshi.hardware.GlobalMemory memory) {</span>
-<span class="nc" id="L53">        this.memory = memory;</span>
-<span class="nc" id="L54">    }</span>
+<span class="nc" id="L57">    public GlobalMemoryImpl(oshi.hardware.GlobalMemory memory) {</span>
+<span class="nc" id="L58">        this.memory = memory;</span>
+<span class="nc" id="L59">    }</span>
 
     /**
      * {@inheritDoc}
      */
     @Override
     public long getTotal() {
-<span class="nc" id="L61">        return this.memory.getTotal();</span>
+<span class="nc" id="L66">        return this.memory.getTotal();</span>
     }
 
     /**
@@ -66,7 +71,7 @@ public class GlobalMemoryImpl extends AbstractOshiJsonObject implements GlobalMe
      */
     @Override
     public long getAvailable() {
-<span class="nc" id="L69">        return this.memory.getAvailable();</span>
+<span class="nc" id="L74">        return this.memory.getAvailable();</span>
     }
 
     /**
@@ -74,7 +79,7 @@ public class GlobalMemoryImpl extends AbstractOshiJsonObject implements GlobalMe
      */
     @Override
     public long getSwapTotal() {
-<span class="nc" id="L77">        return this.memory.getSwapTotal();</span>
+<span class="nc" id="L82">        return this.memory.getSwapTotal();</span>
     }
 
     /**
@@ -82,7 +87,7 @@ public class GlobalMemoryImpl extends AbstractOshiJsonObject implements GlobalMe
      */
     @Override
     public long getSwapUsed() {
-<span class="nc" id="L85">        return this.memory.getSwapUsed();</span>
+<span class="nc" id="L90">        return this.memory.getSwapUsed();</span>
     }
 
     /**
@@ -90,7 +95,7 @@ public class GlobalMemoryImpl extends AbstractOshiJsonObject implements GlobalMe
      */
     @Override
     public long getSwapPagesIn() {
-<span class="nc" id="L93">        return this.memory.getSwapPagesIn();</span>
+<span class="nc" id="L98">        return this.memory.getSwapPagesIn();</span>
     }
 
     /**
@@ -98,7 +103,7 @@ public class GlobalMemoryImpl extends AbstractOshiJsonObject implements GlobalMe
      */
     @Override
     public long getSwapPagesOut() {
-<span class="nc" id="L101">        return this.memory.getSwapPagesOut();</span>
+<span class="nc" id="L106">        return this.memory.getSwapPagesOut();</span>
     }
 
     /**
@@ -106,7 +111,7 @@ public class GlobalMemoryImpl extends AbstractOshiJsonObject implements GlobalMe
      */
     @Override
     public long getPageSize() {
-<span class="nc" id="L109">        return this.memory.getPageSize();</span>
+<span class="nc" id="L114">        return this.memory.getPageSize();</span>
     }
 
     /**
@@ -114,29 +119,29 @@ public class GlobalMemoryImpl extends AbstractOshiJsonObject implements GlobalMe
      */
     @Override
     public JsonObject toJSON(Properties properties) {
-<span class="nc" id="L117">        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(this.jsonFactory.createObjectBuilder());</span>
-<span class="nc bnc" id="L118" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.memory.available&quot;)) {</span>
-<span class="nc" id="L119">            json.add(&quot;available&quot;, getAvailable());</span>
+<span class="nc" id="L122">        JsonObjectBuilder json = NullAwareJsonObjectBuilder.wrap(this.jsonFactory.createObjectBuilder());</span>
+<span class="nc bnc" id="L123" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.memory.available&quot;)) {</span>
+<span class="nc" id="L124">            json.add(&quot;available&quot;, getAvailable());</span>
         }
-<span class="nc bnc" id="L121" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.memory.total&quot;)) {</span>
-<span class="nc" id="L122">            json.add(&quot;total&quot;, getTotal());</span>
+<span class="nc bnc" id="L126" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.memory.total&quot;)) {</span>
+<span class="nc" id="L127">            json.add(&quot;total&quot;, getTotal());</span>
         }
-<span class="nc bnc" id="L124" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.memory.swapTotal&quot;)) {</span>
-<span class="nc" id="L125">            json.add(&quot;swapTotal&quot;, getSwapTotal());</span>
+<span class="nc bnc" id="L129" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.memory.swapTotal&quot;)) {</span>
+<span class="nc" id="L130">            json.add(&quot;swapTotal&quot;, getSwapTotal());</span>
         }
-<span class="nc bnc" id="L127" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.memory.swapUsed&quot;)) {</span>
-<span class="nc" id="L128">            json.add(&quot;swapUsed&quot;, getSwapUsed());</span>
+<span class="nc bnc" id="L132" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.memory.swapUsed&quot;)) {</span>
+<span class="nc" id="L133">            json.add(&quot;swapUsed&quot;, getSwapUsed());</span>
         }
-<span class="nc bnc" id="L130" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.memory.swapPagesIn&quot;)) {</span>
-<span class="nc" id="L131">            json.add(&quot;swapPagesIn&quot;, getSwapPagesIn());</span>
+<span class="nc bnc" id="L135" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.memory.swapPagesIn&quot;)) {</span>
+<span class="nc" id="L136">            json.add(&quot;swapPagesIn&quot;, getSwapPagesIn());</span>
         }
-<span class="nc bnc" id="L133" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.memory.swapPagesOut&quot;)) {</span>
-<span class="nc" id="L134">            json.add(&quot;swapPagesOut&quot;, getSwapPagesOut());</span>
+<span class="nc bnc" id="L138" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.memory.swapPagesOut&quot;)) {</span>
+<span class="nc" id="L139">            json.add(&quot;swapPagesOut&quot;, getSwapPagesOut());</span>
         }
-<span class="nc bnc" id="L136" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.memory.pageSize&quot;)) {</span>
-<span class="nc" id="L137">            json.add(&quot;pageSize&quot;, getPageSize());</span>
+<span class="nc bnc" id="L141" title="All 2 branches missed.">        if (PropertiesUtil.getBoolean(properties, &quot;hardware.memory.pageSize&quot;)) {</span>
+<span class="nc" id="L142">            json.add(&quot;pageSize&quot;, getPageSize());</span>
         }
-<span class="nc" id="L139">        return json.build();</span>
+<span class="nc" id="L144">        return json.build();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>
