@@ -124,11 +124,7 @@ public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstraction
     }
 
     /**
-     * Instantiates an array of {@link SoundCard} objects, representing the
-     * Sound cards.
-     *
-     * @return An array of SoundCard objects or an empty array if none are
-     *         present.
+     * {@inheritDoc}
      */
     @Override
     public SoundCard[] getSoundCards() {

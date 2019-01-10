@@ -49,8 +49,6 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsGlobalMemory.class);
 
-    private transient PERFORMANCE_INFORMATION perfInfo = new PERFORMANCE_INFORMATION();
-
     private long lastUpdate = 0L;
 
     /*
@@ -122,38 +120,42 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
      */
     @Override
     protected void updateMeminfo() {
+        PERFORMANCE_INFORMATION perfInfo = new PERFORMANCE_INFORMATION();
         long now = System.currentTimeMillis();
         if (now - this.lastUpdate > 100) {
-            if (!Psapi.INSTANCE.GetPerformanceInfo(this.perfInfo, this.perfInfo.size())) {
+            if (!Psapi.INSTANCE.GetPerformanceInfo(perfInfo, perfInfo.size())) {
                 LOG.error("Failed to get Performance Info. Error code: {}", Kernel32.INSTANCE.GetLastError());
                 return;
             }
-            this.pageSize = this.perfInfo.PageSize.longValue();
-            this.memAvailable = this.pageSize * this.perfInfo.PhysicalAvailable.longValue();
-            this.memTotal = this.pageSize * this.perfInfo.PhysicalTotal.longValue();
-            this.swapTotal = this.pageSize
-                    * (this.perfInfo.CommitLimit.longValue() - this.perfInfo.PhysicalTotal.longValue());
+            this.pageSize = perfInfo.PageSize.longValue();
+            this.memAvailable = this.pageSize * perfInfo.PhysicalAvailable.longValue();
+            this.memTotal = this.pageSize * perfInfo.PhysicalTotal.longValue();
+            this.swapTotal = this.pageSize * (perfInfo.CommitLimit.longValue() - perfInfo.PhysicalTotal.longValue());
             if (this.swapTotal > 0) {
-                if (this.pageSwapsQuery == null) {
-                    long timeStamp = PerfDataUtil.updateQuery(this.pagesInputPerSecCounter);
-                    if (timeStamp > 0) {
-                        this.swapPagesIn = PerfDataUtil.queryCounter(this.pagesInputPerSecCounter);
-                        this.swapPagesOut = PerfDataUtil.queryCounter(this.pagesOutputPerSecCounter);
-                    } else {
-                        // Zero timestamp means update failed after muliple
-                        // attempts; fallback to WMI
-                        initWmiSwapIoQuery();
-                    }
-                }
-                if (this.pageSwapsQuery != null) {
-                    WmiResult<PageSwapProperty> result = WmiQueryHandler.getInstance().queryWMI(this.pageSwapsQuery);
-                    if (result.getResultCount() > 0) {
-                        this.swapPagesIn = WmiUtil.getUint32(result, PageSwapProperty.PAGESINPUTPERSEC, 0);
-                        this.swapPagesOut = WmiUtil.getUint32(result, PageSwapProperty.PAGESOUTPUTPERSEC, 0);
-                    }
-                }
+                updateSwapCounters();
             }
             this.lastUpdate = now;
+        }
+    }
+
+    private void updateSwapCounters() {
+        if (this.pageSwapsQuery == null) {
+            long timeStamp = PerfDataUtil.updateQuery(this.pagesInputPerSecCounter);
+            if (timeStamp > 0) {
+                this.swapPagesIn = PerfDataUtil.queryCounter(this.pagesInputPerSecCounter);
+                this.swapPagesOut = PerfDataUtil.queryCounter(this.pagesOutputPerSecCounter);
+            } else {
+                // Zero timestamp means update failed after muliple
+                // attempts; fallback to WMI
+                initWmiSwapIoQuery();
+            }
+        }
+        if (this.pageSwapsQuery != null) {
+            WmiResult<PageSwapProperty> result = WmiQueryHandler.getInstance().queryWMI(this.pageSwapsQuery);
+            if (result.getResultCount() > 0) {
+                this.swapPagesIn = WmiUtil.getUint32(result, PageSwapProperty.PAGESINPUTPERSEC, 0);
+                this.swapPagesOut = WmiUtil.getUint32(result, PageSwapProperty.PAGESOUTPUTPERSEC, 0);
+            }
         }
     }
 
