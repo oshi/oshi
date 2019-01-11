@@ -20,7 +20,7 @@ Code in the platform-specific `oshi.jna.*` packages is intended to be temporary 
 
 What minimum Java version is required?
 ========
-OSHI is compatible with Java 7 and will remain so for the near future, using the [threetenbp](http://www.threeten.org/threetenbp/) dependency. A user has forked a much earlier version of the project to [Java 6](https://github.com/kaweesi/oshi).  
+OSHI 3.x is compatible with Java 7 and will remain so with bug fixes.  OSHI 4.x requires minimum Java 8 compatibility, and OSHI 5.x (envisioned in 2020) will require Java 11.  
 
 Which operating systems are supported?
 ========

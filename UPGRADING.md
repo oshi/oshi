@@ -1,3 +1,8 @@
+
+# Guide to upgrading from OSHI 3.x to 4.x
+
+Beginning with OSHI 4.0, minimum Java 8 compatibility is required.
+
 # Guide to upgrading from OSHI 2.x to 3.x
 
 The most significant change in OSHI 3.0 is the separation of JSON output to a

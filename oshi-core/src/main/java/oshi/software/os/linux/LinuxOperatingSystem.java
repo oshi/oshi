@@ -49,7 +49,6 @@ import oshi.software.os.OSProcess;
 import oshi.software.os.OSUser;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
-import oshi.util.MapUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.linux.ProcUtil;
 
@@ -255,8 +254,8 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         proc.setUserTime(statArray[ProcPidStat.USER_TIME.ordinal()] * 1000L / USER_HZ);
         proc.setUpTime(now - proc.getStartTime());
         // See man proc for how to parse /proc/[pid]/io
-        proc.setBytesRead(ParseUtil.parseLongOrDefault(MapUtil.getOrDefault(io, "read_bytes", ""), 0L));
-        proc.setBytesWritten(ParseUtil.parseLongOrDefault(MapUtil.getOrDefault(io, "write_bytes", ""), 0L));
+        proc.setBytesRead(ParseUtil.parseLongOrDefault(io.getOrDefault("read_bytes", ""), 0L));
+        proc.setBytesWritten(ParseUtil.parseLongOrDefault(io.getOrDefault("write_bytes", ""), 0L));
 
         // gets the open files count
         if (slowFields) {
@@ -265,9 +264,9 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         }
 
         Map<String, String> status = FileUtil.getKeyValueMapFromFile(String.format("/proc/%d/status", pid), ":");
-        proc.setName(MapUtil.getOrDefault(status, "Name", ""));
+        proc.setName(status.getOrDefault("Name", ""));
         proc.setPath(path);
-        switch (MapUtil.getOrDefault(status, "State", "U").charAt(0)) {
+        switch (status.getOrDefault("State", "U").charAt(0)) {
         case 'R':
             proc.setState(OSProcess.State.RUNNING);
             break;
@@ -287,8 +286,8 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
             proc.setState(OSProcess.State.OTHER);
             break;
         }
-        proc.setUserID(ParseUtil.whitespaces.split(MapUtil.getOrDefault(status, "Uid", ""))[0]);
-        proc.setGroupID(ParseUtil.whitespaces.split(MapUtil.getOrDefault(status, "Gid", ""))[0]);
+        proc.setUserID(ParseUtil.whitespaces.split(status.getOrDefault("Uid", ""))[0]);
+        proc.setGroupID(ParseUtil.whitespaces.split(status.getOrDefault("Gid", ""))[0]);
         OSUser user = this.userGroupInfo.getUser(proc.getUserID());
         if (user != null) {
             proc.setUser(user.getUserName());

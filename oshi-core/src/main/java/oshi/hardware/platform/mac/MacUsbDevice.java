@@ -40,7 +40,6 @@ import oshi.jna.platform.mac.CoreFoundation;
 import oshi.jna.platform.mac.CoreFoundation.CFMutableDictionaryRef;
 import oshi.jna.platform.mac.CoreFoundation.CFTypeRef;
 import oshi.jna.platform.mac.IOKit;
-import oshi.util.MapUtil;
 import oshi.util.platform.mac.CfUtil;
 import oshi.util.platform.mac.IOKitUtil;
 
@@ -148,7 +147,7 @@ public class MacUsbDevice extends AbstractUsbDevice {
                     IOKit.INSTANCE.IORegistryEntryGetRegistryEntryID(parent.getValue(), parentId);
                 }
                 // Store parent in map
-                MapUtil.createNewListIfAbsent(hubMap, parentId.getValue()).add(childId.getValue());
+                hubMap.computeIfAbsent(parentId.getValue(), x -> new ArrayList<>()).add(childId.getValue());
 
                 // Get device name and store in map
                 IOKit.INSTANCE.IORegistryEntryGetName(childDevice, buffer);
@@ -256,17 +255,17 @@ public class MacUsbDevice extends AbstractUsbDevice {
      * @return A MacUsbDevice corresponding to this device
      */
     private static MacUsbDevice getDeviceAndChildren(Long registryEntryId, String vid, String pid) {
-        String vendorId = MapUtil.getOrDefault(vendorIdMap, registryEntryId, vid);
-        String productId = MapUtil.getOrDefault(productIdMap, registryEntryId, pid);
-        List<Long> childIds = MapUtil.getOrDefault(hubMap, registryEntryId, new ArrayList<Long>());
+        String vendorId = vendorIdMap.getOrDefault(registryEntryId, vid);
+        String productId = productIdMap.getOrDefault(registryEntryId, pid);
+        List<Long> childIds = hubMap.getOrDefault(registryEntryId, new ArrayList<Long>());
         List<MacUsbDevice> usbDevices = new ArrayList<>();
         for (Long id : childIds) {
             usbDevices.add(getDeviceAndChildren(id, vendorId, productId));
         }
         Collections.sort(usbDevices);
-        return new MacUsbDevice(MapUtil.getOrDefault(nameMap, registryEntryId, vendorId + ":" + productId),
-                MapUtil.getOrDefault(vendorMap, registryEntryId, ""), vendorId, productId,
-                MapUtil.getOrDefault(serialMap, registryEntryId, ""),
+        return new MacUsbDevice(nameMap.getOrDefault(registryEntryId, vendorId + ":" + productId),
+                vendorMap.getOrDefault(registryEntryId, ""), vendorId, productId,
+                serialMap.getOrDefault(registryEntryId, ""),
                 usbDevices.toArray(new UsbDevice[usbDevices.size()]));
     }
 }

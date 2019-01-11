@@ -54,7 +54,6 @@ import oshi.jna.platform.mac.DiskArbitration.DADiskRef;
 import oshi.jna.platform.mac.DiskArbitration.DASessionRef;
 import oshi.jna.platform.mac.IOKit;
 import oshi.util.ExecutingCommand;
-import oshi.util.MapUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.mac.CfUtil;
 import oshi.util.platform.mac.IOKitUtil;
@@ -203,7 +202,7 @@ public class MacDisks implements Disks {
                             if (logicalVolumeMap.containsKey(partBsdName)) {
                                 mountPoint = "Logical Volume: " + logicalVolumeMap.get(partBsdName);
                             } else {
-                                mountPoint = MapUtil.getOrDefault(mountPointMap, partBsdName, "");
+                                mountPoint = mountPointMap.getOrDefault(partBsdName, "");
                             }
                             partitions.add(new HWPartition(partBsdName, name, type,
                                     IOKitUtil.getIORegistryStringProperty(sdService, "UUID"),
