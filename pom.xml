@@ -170,7 +170,7 @@
 		<maven-scm-provider-jgit.version>1.11.1</maven-scm-provider-jgit.version>
 		<JavaEWAH.version>1.1.6</JavaEWAH.version>
 		<jsch.version>0.1.55</jsch.version>
-		<jgit.version>5.2.0.201812061821-r</jgit.version>
+		<jgit.version>5.2.1.201812262042-r</jgit.version>
 		<plexus-utils.version>3.1.1</plexus-utils.version>
 		<!-- Misc. -->
 		<sonar-maven-plugin.version>3.6.0.1398</sonar-maven-plugin.version>
