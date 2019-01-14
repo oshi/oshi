@@ -49,7 +49,15 @@ public class PerfCountersWildcard<T extends Enum<T>> extends PerfCounters<T> {
      * @param propertyEnum
      *            An enum which implements {@link PdhCounterProperty} and
      *            contains the WMI field (Enum value) and PDH Counter string
-     *            (instance and counter)
+     *            (instance and counter).
+     *            <P>
+     *            The instance name in this case acts as a filter for PDH
+     *            instances only. If the instance is null or "*" then all
+     *            counters will be added to the PDH query, otherwise the PDH
+     *            counter will only match the included instance. If the counter
+     *            source is WMI, the instance filtering has no effect, and it is
+     *            the responsibility of the user to add filtering to the
+     *            perfWmiClass string.
      * @param perfObject
      *            The PDH object for this counter; all counters on this object
      *            will be refreshed at the same time
@@ -59,6 +67,17 @@ public class PerfCountersWildcard<T extends Enum<T>> extends PerfCounters<T> {
      */
     public PerfCountersWildcard(Class<T> propertyEnum, String perfObject, String perfWmiClass) {
         super(propertyEnum, perfObject, perfWmiClass);
+        // Try PDH first, fallback to WMI
+        if (!setDataSource(CounterDataSource.PDH)) {
+            setDataSource(CounterDataSource.WMI);
+        }
+        // Release handles on shutdown
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                unInitPdhCounters();
+            }
+        });
     }
 
     /**
@@ -77,6 +96,15 @@ public class PerfCountersWildcard<T extends Enum<T>> extends PerfCounters<T> {
         for (T prop : propertyEnum.getEnumConstants()) {
             List<PerfCounter> counterList = new ArrayList<>(instances.size());
             for (String instance : instances) {
+                // If user passed a non-wildcard instance, filter
+                // TODO: Actually use regexp to match wildcards and allow for
+                // negation
+                if (((PdhCounterProperty) prop).getInstance() != null
+                        && !"*".equals(((PdhCounterProperty) prop).getInstance())) {
+                    if (!((PdhCounterProperty) prop).getInstance().equalsIgnoreCase(instance)) {
+                        continue;
+                    }
+                }
                 PerfCounter counter = PerfDataUtil.createCounter(perfObject, instance,
                         ((PdhCounterProperty) prop).getCounter());
                 if (!PerfDataUtil.addCounterToQuery(counter)) {
@@ -87,7 +115,7 @@ public class PerfCountersWildcard<T extends Enum<T>> extends PerfCounters<T> {
             }
             this.counterListMap.put(prop, counterList);
         }
-        return true;
+        return this.counterListMap.size() > 0;
     }
 
     /**
@@ -96,9 +124,11 @@ public class PerfCountersWildcard<T extends Enum<T>> extends PerfCounters<T> {
      */
     @Override
     protected void unInitPdhCounters() {
-        for (List<PerfCounter> counterList : this.counterListMap.values()) {
-            for (PerfCounter counter : counterList) {
-                PerfDataUtil.removeCounterFromQuery(counter);
+        if (this.counterListMap != null) {
+            for (List<PerfCounter> counterList : this.counterListMap.values()) {
+                for (PerfCounter counter : counterList) {
+                    PerfDataUtil.removeCounterFromQuery(counter);
+                }
             }
         }
         this.counterListMap = null;
@@ -135,11 +165,12 @@ public class PerfCountersWildcard<T extends Enum<T>> extends PerfCounters<T> {
     }
 
     private void queryPdhWildcard(Map<T, List<Long>> valueMap, T[] props) {
-        long timeStamp;
-        if (counterListMap.get(props[0]).isEmpty()) {
-            timeStamp = 0;
-        } else {
-            timeStamp = PerfDataUtil.updateQuery(counterListMap.get(props[0]).get(0));
+        long timeStamp = 0L;
+        if (counterListMap != null && !counterListMap.get(props[0]).isEmpty()) {
+            List<PerfCounter> counterList = counterListMap.get(props[0]);
+            if (counterList != null) {
+                timeStamp = PerfDataUtil.updateQuery(counterList.get(0));
+            }
         }
         if (timeStamp > 0) {
             for (T prop : props) {

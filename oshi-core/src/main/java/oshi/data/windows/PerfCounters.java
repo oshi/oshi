@@ -72,6 +72,11 @@ public class PerfCounters<T extends Enum<T>> {
         this.propertyEnum = propertyEnum;
         this.perfObject = perfObject;
         this.perfWmiClass = perfWmiClass;
+
+        // Only continue if instantiating this class
+        if (!PerfCounters.class.equals(this.getClass())) {
+            return;
+        }
         // Try PDH first, fallback to WMI
         if (!setDataSource(CounterDataSource.PDH)) {
             setDataSource(CounterDataSource.WMI);
@@ -134,8 +139,10 @@ public class PerfCounters<T extends Enum<T>> {
      * counters from the PDH Query, releasing their handles.
      */
     protected void unInitPdhCounters() {
-        for (PerfCounter counter : this.counterMap.values()) {
-            PerfDataUtil.removeCounterFromQuery(counter);
+        if (this.counterMap != null) {
+            for (PerfCounter counter : this.counterMap.values()) {
+                PerfDataUtil.removeCounterFromQuery(counter);
+            }
         }
         this.counterMap = null;
     }

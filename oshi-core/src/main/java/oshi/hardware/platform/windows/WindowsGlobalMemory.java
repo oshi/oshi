@@ -33,6 +33,7 @@ import com.sun.jna.platform.win32.Psapi;
 import com.sun.jna.platform.win32.Psapi.PERFORMANCE_INFORMATION;
 
 import oshi.data.windows.PerfCounters;
+import oshi.data.windows.PerfCounters.PdhCounterProperty;
 import oshi.hardware.common.AbstractGlobalMemory;
 
 /**
@@ -51,7 +52,7 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
     /*
      * For pages in/out
      */
-    public enum PageSwapProperty implements PerfCounters.PdhCounterProperty {
+    public enum PageSwapProperty implements PdhCounterProperty {
         PAGESINPUTPERSEC(null, "Pages Input/sec"), //
         PAGESOUTPUTPERSEC(null, "Pages Output/sec");
 
@@ -86,7 +87,7 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
     /*
      * For swap file usage
      */
-    enum PagingPercentProperty implements PerfCounters.PdhCounterProperty {
+    enum PagingPercentProperty implements PdhCounterProperty {
         PERCENTUSAGE("_Total", "% Usage");
 
         private final String instance;
