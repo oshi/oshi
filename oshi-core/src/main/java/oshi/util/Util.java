@@ -167,4 +167,25 @@ public class Util {
         // Couldn't find VM, return empty string
         return "";
     }
+
+    /**
+     * Tests if a String matches another String with a wildcard pattern.
+     * 
+     * @param text
+     *            The String to test
+     * @param pattern
+     *            The String containing a wildcard pattern where ? represents a
+     *            single character and * represents any number of characters. If
+     *            the first character of the pattern is a carat (^) the test is
+     *            performed against the remaining characters and the result of
+     *            the test is the opposite.
+     * @return True if the String matches or if the first character is ^ and the
+     *         remainder of the String does not match.
+     */
+    public static boolean wildcardMatch(String text, String pattern) {
+        if (pattern.length() > 0 && pattern.charAt(0) == '^') {
+            return !wildcardMatch(text, pattern.substring(1));
+        }
+        return text.matches(pattern.replace("?", ".?").replace("*", ".*?"));
+    }
 }

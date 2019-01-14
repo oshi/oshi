@@ -33,6 +33,7 @@ import com.sun.jna.platform.win32.PdhUtil.PdhEnumObjectItems;
 import com.sun.jna.platform.win32.Variant;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
+import oshi.util.Util;
 import oshi.util.platform.windows.PerfDataUtil;
 import oshi.util.platform.windows.PerfDataUtil.PerfCounter;
 import oshi.util.platform.windows.WmiQueryHandler;
@@ -52,12 +53,15 @@ public class PerfCountersWildcard<T extends Enum<T>> extends PerfCounters<T> {
      *            (instance and counter).
      *            <P>
      *            The instance name in this case acts as a filter for PDH
-     *            instances only. If the instance is null or "*" then all
-     *            counters will be added to the PDH query, otherwise the PDH
-     *            counter will only match the included instance. If the counter
-     *            source is WMI, the instance filtering has no effect, and it is
-     *            the responsibility of the user to add filtering to the
-     *            perfWmiClass string.
+     *            instances only. If the instance is null then all counters will
+     *            be added to the PDH query, otherwise the PDH counter will only
+     *            include instances which are wildcard matches with the given
+     *            instance, replacing '?' with a single character, '*' with any
+     *            number of characters, and reversing the test if the first
+     *            character is '^'. If the counter source is WMI, the instance
+     *            filtering has no effect, and it is the responsibility of the
+     *            user to add filtering to the perfWmiClass string using a WHERE
+     *            clause.
      * @param perfObject
      *            The PDH object for this counter; all counters on this object
      *            will be refreshed at the same time
@@ -96,14 +100,10 @@ public class PerfCountersWildcard<T extends Enum<T>> extends PerfCounters<T> {
         for (T prop : propertyEnum.getEnumConstants()) {
             List<PerfCounter> counterList = new ArrayList<>(instances.size());
             for (String instance : instances) {
-                // If user passed a non-wildcard instance, filter
-                // TODO: Actually use regexp to match wildcards and allow for
-                // negation
-                if (((PdhCounterProperty) prop).getInstance() != null
-                        && !"*".equals(((PdhCounterProperty) prop).getInstance())) {
-                    if (!((PdhCounterProperty) prop).getInstance().equalsIgnoreCase(instance)) {
-                        continue;
-                    }
+                // Filter by instance
+                if (((PdhCounterProperty) prop).getInstance() != null && !Util.wildcardMatch(instance.toLowerCase(),
+                        ((PdhCounterProperty) prop).getInstance().toLowerCase())) {
+                    continue;
                 }
                 PerfCounter counter = PerfDataUtil.createCounter(perfObject, instance,
                         ((PdhCounterProperty) prop).getCounter());
