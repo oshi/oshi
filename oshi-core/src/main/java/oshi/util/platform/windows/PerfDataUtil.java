@@ -23,13 +23,13 @@
  */
 package oshi.util.platform.windows;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,8 +77,8 @@ public class PerfDataUtil {
     private static final int TZ_OFFSET = TimeZone.getDefault().getOffset(System.currentTimeMillis());
 
     // Maps to hold pointers to the relevant counter information
-    private static final Map<PerfCounter, HANDLEByReference> counterMap = new HashMap<>();
-    private static final Map<String, HANDLEByReference> queryMap = new HashMap<>();
+    private static final Map<PerfCounter, HANDLEByReference> counterMap = new ConcurrentHashMap<>();
+    private static final Map<String, HANDLEByReference> queryMap = new ConcurrentHashMap<>();
     private static final Set<String> disabledQueries = new HashSet<>();
 
     // Is AddEnglishCounter available?
