@@ -39,15 +39,15 @@ public class PerfCounters<T extends Enum<T>> {
     /*
      * Set on instantiation
      */
-    private final Class<T> propertyEnum;
-    private final String perfObject;
-    private final String perfWmiClass;
-    private CounterDataSource source;
+    protected final Class<T> propertyEnum;
+    protected final String perfObject;
+    protected final String perfWmiClass;
+    protected CounterDataSource source;
     /*
      * Only one will be non-null depending on source
      */
     private EnumMap<T, PerfCounter> counterMap = null;
-    private WmiQuery<T> counterQuery = null;
+    protected WmiQuery<T> counterQuery = null;
 
     /**
      * Construct a new object to hold performance counter data source and
@@ -176,7 +176,7 @@ public class PerfCounters<T extends Enum<T>> {
         return valueMap;
     }
 
-    private void queryPdh(EnumMap<T, Long> valueMap, T[] props) {
+    private void queryPdh(Map<T, Long> valueMap, T[] props) {
         long timeStamp = PerfDataUtil.updateQuery(counterMap.get(props[0]));
         if (timeStamp > 0) {
             for (T prop : props) {
@@ -189,7 +189,7 @@ public class PerfCounters<T extends Enum<T>> {
         }
     }
 
-    private void queryWmi(EnumMap<T, Long> valueMap, T[] props) {
+    private void queryWmi(Map<T, Long> valueMap, T[] props) {
         WmiResult<T> result = WmiQueryHandler.getInstance().queryWMI(this.counterQuery);
         if (result.getResultCount() > 0) {
             for (T prop : props) {
