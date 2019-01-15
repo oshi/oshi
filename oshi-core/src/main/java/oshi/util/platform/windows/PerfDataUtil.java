@@ -94,6 +94,27 @@ public class PerfDataUtil {
             this.instance = instanceName;
             this.counter = counterName;
         }
+
+        /**
+         * @return Returns the object.
+         */
+        public String getObject() {
+            return object;
+        }
+
+        /**
+         * @return Returns the instance.
+         */
+        public String getInstance() {
+            return instance;
+        }
+
+        /**
+         * @return Returns the counter.
+         */
+        public String getCounter() {
+            return counter;
+        }
     }
 
     private PerfDataUtil() {

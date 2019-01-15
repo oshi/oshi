@@ -33,10 +33,11 @@ import org.slf4j.LoggerFactory;
 
 import com.sun.jna.platform.win32.PdhUtil; //NOSONAR
 import com.sun.jna.platform.win32.PdhUtil.PdhEnumObjectItems;
-import com.sun.jna.platform.win32.Variant;
 import com.sun.jna.platform.win32.Win32Exception;
+import com.sun.jna.platform.win32.COM.Wbemcli;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
+import oshi.util.ParseUtil;
 import oshi.util.Util;
 import oshi.util.platform.windows.PdhUtilXP;
 import oshi.util.platform.windows.PerfDataUtil;
@@ -227,18 +228,27 @@ public class PerfCountersWildcard<T extends Enum<T>> extends PerfCounters<T> {
             for (T prop : props) {
                 List<Long> values = new ArrayList<>();
                 for (int i = 0; i < result.getResultCount(); i++) {
-                    switch (result.getVtType(prop)) {
-                    case Variant.VT_I2:
+                    switch (result.getCIMType(prop)) {
+                    case Wbemcli.CIM_UINT16:
                         values.add(Long.valueOf(WmiUtil.getUint16(result, prop, i)));
                         break;
-                    case Variant.VT_I4:
+                    case Wbemcli.CIM_UINT32:
                         values.add(WmiUtil.getUint32asLong(result, prop, i));
                         break;
-                    case Variant.VT_BSTR:
+                    case Wbemcli.CIM_UINT64:
                         values.add(WmiUtil.getUint64(result, prop, i));
                         break;
+                    case Wbemcli.CIM_STRING:
+                        String s = WmiUtil.getString(result, prop, i);
+                        if (s.length() > 8) {
+                            values.add(0L);
+                        } else {
+                            // Encode ASCII as a long
+                            values.add(ParseUtil.strToLong(s, 8));
+                        }
+                        break;
                     default:
-                        throw new ClassCastException("Unimplemented VT Type Mapping.");
+                        throw new ClassCastException("Unimplemented CIM Type Mapping.");
                     }
                 }
                 valueMap.put(prop, values);
