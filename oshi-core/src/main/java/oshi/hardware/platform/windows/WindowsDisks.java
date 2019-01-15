@@ -39,6 +39,7 @@ import com.sun.jna.platform.win32.Kernel32; // NOSONAR squid:S1191
 import com.sun.jna.platform.win32.PdhUtil;
 import com.sun.jna.platform.win32.PdhUtil.PdhEnumObjectItems;
 import com.sun.jna.platform.win32.PdhUtil.PdhException;
+import com.sun.jna.platform.win32.Win32Exception;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
@@ -128,10 +129,11 @@ public class WindowsDisks implements Disks {
     private static WmiQuery<PhysicalDiskProperty> physicalDiskQuery = null;
 
     static {
-        String physicalDisk = PdhUtilXP.PdhLookupPerfNameByIndex(null,
-                PdhUtil.PdhLookupPerfIndexByEnglishName(PHYSICAL_DISK));
+        String physicalDisk = PHYSICAL_DISK;
         boolean enumeration = true;
         try {
+            physicalDisk = PdhUtilXP.PdhLookupPerfNameByIndex(null,
+                    PdhUtil.PdhLookupPerfIndexByEnglishName(PHYSICAL_DISK));
             PdhEnumObjectItems objectItems = PdhUtil.PdhEnumObjectItems(null, null, physicalDisk, 100);
             if (!objectItems.getInstances().isEmpty()) {
                 List<String> instances = objectItems.getInstances();
@@ -175,7 +177,7 @@ public class WindowsDisks implements Disks {
                     }
                 }
             }
-        } catch (PdhException e) {
+        } catch (PdhException | Win32Exception e) {
             LOG.warn("Unable to enumerate performance counter instances for {}.", physicalDisk);
             enumeration = false;
         }
