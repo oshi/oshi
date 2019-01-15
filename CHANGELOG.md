@@ -1,6 +1,6 @@
-4.0.0 (in progress)
+3.12.3 (in progress)
 ================
-* Your contribution here.
+* [#764](https://github.com/oshi/oshi/pull/764): Prevent exception in WindowsDisks initializer. - [@dbwiddis](https://github.com/dbwiddis).
 
 3.12.1 (12/31/2018), 3.12.2 (1/10/2019)
 ================
