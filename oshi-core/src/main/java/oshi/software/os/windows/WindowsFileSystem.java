@@ -34,8 +34,8 @@ import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.data.windows.PerfCounters;
-import oshi.data.windows.PerfCounters.PdhCounterProperty;
 import oshi.data.windows.PerfCountersWildcard;
+import oshi.data.windows.PerfCountersWildcard.PdhCounterWildcardProperty;
 import oshi.software.os.FileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.ParseUtil;
@@ -68,23 +68,16 @@ public class WindowsFileSystem implements FileSystem {
     /*
      * For handle counts
      */
-    enum HandleCountProperty implements PdhCounterProperty {
-        HANDLECOUNT(PerfCounters.TOTAL_INSTANCE, "Handle Count");
+    enum HandleCountProperty implements PdhCounterWildcardProperty {
+        // First element defines WMI instance name field and PDH instance filter
+        NAME(PerfCounters.TOTAL_INSTANCE),
+        // Remaining elements define counters
+        HANDLECOUNT("Handle Count");
 
-        private final String instance;
         private final String counter;
 
-        HandleCountProperty(String instance, String counter) {
-            this.instance = instance;
+        HandleCountProperty(String counter) {
             this.counter = counter;
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public String getInstance() {
-            return instance;
         }
 
         /**

@@ -32,8 +32,8 @@ import org.slf4j.LoggerFactory;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery; // NOSONAR
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
-import oshi.data.windows.PerfCounters.PdhCounterProperty;
 import oshi.data.windows.PerfCountersWildcard;
+import oshi.data.windows.PerfCountersWildcard.PdhCounterWildcardProperty;
 import oshi.hardware.Sensors;
 import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
@@ -77,23 +77,16 @@ public class WindowsSensors implements Sensors {
     /*
      * For temperature query
      */
-    enum ThermalZoneProperty implements PdhCounterProperty {
-        TEMPERATURE("*cpu*", "Temperature");
+    enum ThermalZoneProperty implements PdhCounterWildcardProperty {
+        // First element defines WMI instance name field and PDH instance filter
+        NAME("*cpu*"),
+        // Remaining elements define counters
+        TEMPERATURE("Temperature");
 
-        private final String instance;
         private final String counter;
 
-        ThermalZoneProperty(String instance, String counter) {
-            this.instance = instance;
+        ThermalZoneProperty(String counter) {
             this.counter = counter;
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public String getInstance() {
-            return instance;
         }
 
         /**

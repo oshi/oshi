@@ -44,8 +44,10 @@ import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 import oshi.data.windows.PerfCounters;
 import oshi.data.windows.PerfCounters.PdhCounterProperty;
 import oshi.data.windows.PerfCountersWildcard;
+import oshi.data.windows.PerfCountersWildcard.PdhCounterWildcardProperty;
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.jna.platform.windows.VersionHelpers;
+import oshi.util.ParseUtil;
 import oshi.util.platform.windows.PerfDataUtil;
 import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
@@ -71,27 +73,20 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
     /*
      * For tick counts
      */
-    enum ProcessorTickCountProperty implements PdhCounterProperty {
-        PERCENTDPCTIME(PerfCounters.NOT_TOTAL_INSTANCE, "% DPC Time"), //
-        PERCENTINTERRUPTTIME(PerfCounters.NOT_TOTAL_INSTANCE, "% Interrupt Time"), //
-        PERCENTPRIVILEGEDTIME(PerfCounters.NOT_TOTAL_INSTANCE, "% Privileged Time"), //
-        PERCENTPROCESSORTIME(PerfCounters.NOT_TOTAL_INSTANCE, "% Processor Time"), //
-        PERCENTUSERTIME(PerfCounters.NOT_TOTAL_INSTANCE, "% User Time");
+    enum ProcessorTickCountProperty implements PdhCounterWildcardProperty {
+        // First element defines WMI instance name field and PDH instance filter
+        NAME(PerfCounters.NOT_TOTAL_INSTANCE),
+        // Remaining elements define counters
+        PERCENTDPCTIME("% DPC Time"), //
+        PERCENTINTERRUPTTIME("% Interrupt Time"), //
+        PERCENTPRIVILEGEDTIME("% Privileged Time"), //
+        PERCENTPROCESSORTIME("% Processor Time"), //
+        PERCENTUSERTIME("% User Time");
 
-        private final String instance;
         private final String counter;
 
-        ProcessorTickCountProperty(String instance, String counter) {
-            this.instance = instance;
+        ProcessorTickCountProperty(String counter) {
             this.counter = counter;
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public String getInstance() {
-            return instance;
         }
 
         /**
@@ -331,6 +326,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
     public long[][] getProcessorCpuLoadTicks() {
         refreshTickCounters();
         Map<ProcessorTickCountProperty, List<Long>> valueMap = this.processorTickPerfCounters.queryValuesWildcard();
+        List<String> instances = this.processorTickPerfCounters.getInstancesFromLastQuery();
         List<Long> systemList = valueMap.get(ProcessorTickCountProperty.PERCENTPRIVILEGEDTIME);
         List<Long> userList = valueMap.get(ProcessorTickCountProperty.PERCENTUSERTIME);
         List<Long> irqList = valueMap.get(ProcessorTickCountProperty.PERCENTINTERRUPTTIME);
@@ -339,7 +335,11 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
         List<Long> idleList = valueMap.get(ProcessorTickCountProperty.PERCENTPROCESSORTIME);
 
         long[][] ticks = new long[this.logicalProcessorCount][TickType.values().length];
-        for (int cpu = 0; cpu < systemList.size() && cpu < this.logicalProcessorCount; cpu++) {
+        for (int p = 0; p < instances.size(); p++) {
+            int cpu = ParseUtil.parseIntOrDefault(instances.get(p), 0);
+            if (cpu >= this.logicalProcessorCount) {
+                continue;
+            }
             ticks[cpu][TickType.SYSTEM.getIndex()] = systemList.get(cpu);
             ticks[cpu][TickType.USER.getIndex()] = userList.get(cpu);
             ticks[cpu][TickType.IRQ.getIndex()] = irqList.get(cpu);
