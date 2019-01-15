@@ -182,7 +182,7 @@ public class SolarisUsbDevice extends AbstractUsbDevice {
             usbDevices.add(getDeviceAndChildren(path, vendorId, productId));
         }
         Collections.sort(usbDevices);
-        return new SolarisUsbDevice(nameMap.getOrDefault(devPath, vendorId + ":" + productId), "", vendorId,
-                productId, "", usbDevices.toArray(new UsbDevice[usbDevices.size()]));
+        return new SolarisUsbDevice(nameMap.getOrDefault(devPath, vendorId + ":" + productId), "", vendorId, productId,
+                "", usbDevices.toArray(new UsbDevice[usbDevices.size()]));
     }
 }

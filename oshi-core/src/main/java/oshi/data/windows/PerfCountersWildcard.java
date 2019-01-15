@@ -28,12 +28,17 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sun.jna.platform.win32.PdhUtil; //NOSONAR
 import com.sun.jna.platform.win32.PdhUtil.PdhEnumObjectItems;
 import com.sun.jna.platform.win32.Variant;
+import com.sun.jna.platform.win32.Win32Exception;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.util.Util;
+import oshi.util.platform.windows.PdhUtilXP;
 import oshi.util.platform.windows.PerfDataUtil;
 import oshi.util.platform.windows.PerfDataUtil.PerfCounter;
 import oshi.util.platform.windows.WmiQueryHandler;
@@ -41,7 +46,10 @@ import oshi.util.platform.windows.WmiUtil;
 
 public class PerfCountersWildcard<T extends Enum<T>> extends PerfCounters<T> {
 
+    private static final Logger LOG = LoggerFactory.getLogger(PerfCountersWildcard.class);
+
     private EnumMap<T, List<PerfCounter>> counterListMap = null;
+    private final String perfObjectLocalized;
 
     /**
      * Construct a new object to hold performance counter data source and
@@ -71,8 +79,11 @@ public class PerfCountersWildcard<T extends Enum<T>> extends PerfCounters<T> {
      */
     public PerfCountersWildcard(Class<T> propertyEnum, String perfObject, String perfWmiClass) {
         super(propertyEnum, perfObject, perfWmiClass);
+
+        perfObjectLocalized = localize(this.perfObject);
         // Try PDH first, fallback to WMI
         if (!setDataSource(CounterDataSource.PDH)) {
+            LOG.debug("PDH Data Source failed for {}", perfObject);
             setDataSource(CounterDataSource.WMI);
         }
         // Release handles on shutdown
@@ -85,6 +96,33 @@ public class PerfCountersWildcard<T extends Enum<T>> extends PerfCounters<T> {
     }
 
     /**
+     * Localize a PerfCounter string. English counter names should normally be
+     * in HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows
+     * NT\CurrentVersion\Perflib\009\Counter, but language manipulations may
+     * delete the 009 index. In this case we can assume English must be the
+     * language and continue. We may still fail to match the name if the
+     * assumption is wrong but it's better than nothing.
+     * 
+     * @param perfObject
+     *            A String to localize
+     * @return The localized string if localization succussful, or the original
+     *         string otherwise.
+     */
+    private static String localize(String perfObject) {
+        String localized = null;
+        try {
+            localized = PdhUtilXP.PdhLookupPerfNameByIndex(null, PdhUtil.PdhLookupPerfIndexByEnglishName(perfObject));
+        } catch (Win32Exception e) {
+            LOG.error("Unable to locate English counter names in registry Perflib 009. Assuming English counters.");
+        }
+        if (localized == null || localized.length() == 0) {
+            return perfObject;
+        }
+        LOG.debug("Localized {} to {}", perfObject, localized);
+        return localized;
+    }
+
+    /**
      * Initialize PDH counters for this data source. Adds necessary counters to
      * a PDH Query.
      * 
@@ -93,7 +131,7 @@ public class PerfCountersWildcard<T extends Enum<T>> extends PerfCounters<T> {
     @Override
     protected boolean initPdhCounters() {
         // Get list of instances
-        PdhEnumObjectItems objectItems = PdhUtil.PdhEnumObjectItems(null, null, perfObject, 100);
+        PdhEnumObjectItems objectItems = PdhUtil.PdhEnumObjectItems(null, null, perfObjectLocalized, 100);
         List<String> instances = objectItems.getInstances();
         // Populate map
         this.counterListMap = new EnumMap<>(propertyEnum);
@@ -165,26 +203,22 @@ public class PerfCountersWildcard<T extends Enum<T>> extends PerfCounters<T> {
     }
 
     private void queryPdhWildcard(Map<T, List<Long>> valueMap, T[] props) {
-        long timeStamp = 0L;
         if (counterListMap != null && !counterListMap.get(props[0]).isEmpty()) {
             List<PerfCounter> counterList = counterListMap.get(props[0]);
-            if (counterList != null) {
-                timeStamp = PerfDataUtil.updateQuery(counterList.get(0));
-            }
-        }
-        if (timeStamp > 0) {
-            for (T prop : props) {
-                List<Long> values = new ArrayList<>();
-                for (PerfCounter counter : counterListMap.get(prop)) {
-                    values.add(PerfDataUtil.queryCounter(counter));
+            if (counterList != null && 0 < PerfDataUtil.updateQuery(counterList.get(0))) {
+                for (T prop : props) {
+                    List<Long> values = new ArrayList<>();
+                    for (PerfCounter counter : counterListMap.get(prop)) {
+                        values.add(PerfDataUtil.queryCounter(counter));
+                    }
+                    valueMap.put(prop, values);
                 }
-                valueMap.put(prop, values);
+                return;
             }
-        } else {
-            // Zero timestamp means update failed after muliple
-            // attempts; fallback to WMI
-            setDataSource(CounterDataSource.WMI);
         }
+        // Zero timestamp means update failed after muliple
+        // attempts; fallback to WMI
+        setDataSource(CounterDataSource.WMI);
     }
 
     private void queryWmiWildcard(Map<T, List<Long>> valueMap, T[] props) {

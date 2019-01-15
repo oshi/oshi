@@ -33,6 +33,7 @@ import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
+import oshi.data.windows.PerfCounters;
 import oshi.data.windows.PerfCounters.PdhCounterProperty;
 import oshi.data.windows.PerfCountersWildcard;
 import oshi.software.os.FileSystem;
@@ -61,14 +62,14 @@ public class WindowsFileSystem implements FileSystem {
         DESCRIPTION, DRIVETYPE, FILESYSTEM, FREESPACE, NAME, PROVIDERNAME, SIZE;
     }
 
-    private final transient WmiQuery<LogicalDiskProperty> LOGICAL_DISK_QUERY = new WmiQuery<>("Win32_LogicalDisk",
+    private final transient WmiQuery<LogicalDiskProperty> logicalDiskQuery = new WmiQuery<>("Win32_LogicalDisk",
             LogicalDiskProperty.class);
 
     /*
      * For handle counts
      */
     enum HandleCountProperty implements PdhCounterProperty {
-        HANDLECOUNT("_Total", "Handle Count");
+        HANDLECOUNT(PerfCounters.TOTAL_INSTANCE, "Handle Count");
 
         private final String instance;
         private final String counter;
@@ -95,9 +96,8 @@ public class WindowsFileSystem implements FileSystem {
         }
     }
 
-    private transient PerfCountersWildcard<HandleCountProperty> handlePerfCounters = new PerfCountersWildcard<>(
+    private final transient PerfCountersWildcard<HandleCountProperty> handlePerfCounters = new PerfCountersWildcard<>(
             HandleCountProperty.class, "Process", "Win32_Process");
-
 
     private static final long MAX_WINDOWS_HANDLES;
     static {
@@ -236,7 +236,7 @@ public class WindowsFileSystem implements FileSystem {
         long total;
         List<OSFileStore> fs = new ArrayList<>();
 
-        WmiResult<LogicalDiskProperty> drives = WmiQueryHandler.getInstance().queryWMI(this.LOGICAL_DISK_QUERY);
+        WmiResult<LogicalDiskProperty> drives = WmiQueryHandler.getInstance().queryWMI(this.logicalDiskQuery);
 
         for (int i = 0; i < drives.getResultCount(); i++) {
             free = WmiUtil.getUint64(drives, LogicalDiskProperty.FREESPACE, i);
@@ -298,11 +298,11 @@ public class WindowsFileSystem implements FileSystem {
 
     @Override
     public long getOpenFileDescriptors() {
-        Map<HandleCountProperty, List<Long>> valueMap = this.handlePerfCounters.queryValuesWildcard();
-        List<Long> values = valueMap.get(HandleCountProperty.HANDLECOUNT);
+        Map<HandleCountProperty, List<Long>> valueListMap = this.handlePerfCounters.queryValuesWildcard();
+        List<Long> valueList = valueListMap.get(HandleCountProperty.HANDLECOUNT);
         long descriptors = 0L;
-        for (int i = 0; i < values.size(); i++) {
-            descriptors += values.get(i);
+        for (int i = 0; i < valueList.size(); i++) {
+            descriptors += valueList.get(i);
         }
         return descriptors;
     }

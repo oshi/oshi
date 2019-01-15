@@ -88,7 +88,7 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
      * For swap file usage
      */
     enum PagingPercentProperty implements PdhCounterProperty {
-        PERCENTUSAGE("_Total", "% Usage");
+        PERCENTUSAGE(PerfCounters.TOTAL_INSTANCE, "% Usage");
 
         private final String instance;
         private final String counter;
@@ -143,8 +143,8 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
 
     private void updateSwapCounters() {
         Map<PageSwapProperty, Long> valueMap = this.memoryPerfCounters.queryValues();
-        this.swapPagesIn = valueMap.get(PageSwapProperty.PAGESINPUTPERSEC);
-        this.swapPagesOut = valueMap.get(PageSwapProperty.PAGESOUTPUTPERSEC);
+        this.swapPagesIn = valueMap.getOrDefault(PageSwapProperty.PAGESINPUTPERSEC, 0L);
+        this.swapPagesOut = valueMap.getOrDefault(PageSwapProperty.PAGESOUTPUTPERSEC, 0L);
     }
 
     /**
@@ -154,6 +154,6 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
     protected void updateSwap() {
         updateMeminfo();
         Map<PagingPercentProperty, Long> valueMap = this.pagingPerfCounters.queryValues();
-        this.swapUsed = valueMap.get(PagingPercentProperty.PERCENTUSAGE);
+        this.swapUsed = valueMap.getOrDefault(PagingPercentProperty.PERCENTUSAGE, 0L);
     }
 }

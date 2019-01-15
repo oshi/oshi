@@ -218,10 +218,10 @@ public class WindowsDisks implements Disks {
         if (readMap.containsKey(index)) {
             diskStore.setReads(readMap.getOrDefault(index, 0L));
             diskStore.setReadBytes(readByteMap.getOrDefault(index, 0L));
-            diskStore.setWrites(writeMap.getOrDefault( index, 0L));
-            diskStore.setWriteBytes(writeByteMap.getOrDefault( index, 0L));
-            diskStore.setCurrentQueueLength(queueLengthMap.getOrDefault( index, 0L));
-            diskStore.setTimeStamp(timeStampMap.getOrDefault( index, 0L));
+            diskStore.setWrites(writeMap.getOrDefault(index, 0L));
+            diskStore.setWriteBytes(writeByteMap.getOrDefault(index, 0L));
+            diskStore.setCurrentQueueLength(queueLengthMap.getOrDefault(index, 0L));
+            diskStore.setTimeStamp(timeStampMap.getOrDefault(index, 0L));
             diskStore.setTransferTime(diskStore.getTimeStamp() - xferTimeMap.getOrDefault(index, 0L));
             return true;
         } else {

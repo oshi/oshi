@@ -26,6 +26,9 @@ package oshi.data.windows;
 import java.util.EnumMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sun.jna.platform.win32.Variant; //NOSONAR
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
@@ -36,6 +39,9 @@ import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
 
 public class PerfCounters<T extends Enum<T>> {
+
+    private static final Logger LOG = LoggerFactory.getLogger(PerfCounter.class);
+
     /*
      * Set on instantiation
      */
@@ -48,6 +54,12 @@ public class PerfCounters<T extends Enum<T>> {
      */
     private EnumMap<T, PerfCounter> counterMap = null;
     protected WmiQuery<T> counterQuery = null;
+
+    /*
+     * Multiple classes use these constants
+     */
+    public static final String TOTAL_INSTANCE = "_Total";
+    public static final String NOT_TOTAL_INSTANCE = "^" + TOTAL_INSTANCE;
 
     /**
      * Construct a new object to hold performance counter data source and
@@ -79,6 +91,7 @@ public class PerfCounters<T extends Enum<T>> {
         }
         // Try PDH first, fallback to WMI
         if (!setDataSource(CounterDataSource.PDH)) {
+            LOG.debug("PDH Data Source failed for {}", perfObject);
             setDataSource(CounterDataSource.WMI);
         }
         // Release handles on shutdown
@@ -101,9 +114,11 @@ public class PerfCounters<T extends Enum<T>> {
         this.source = source;
         switch (source) {
         case PDH:
+            LOG.debug("Attempting to set PDH Data Source.");
             unInitWmiCounters();
             return initPdhCounters();
         case WMI:
+            LOG.debug("Attempting to set WMI Data Source.");
             unInitPdhCounters();
             initWmiCounters();
             return true;
@@ -184,16 +199,15 @@ public class PerfCounters<T extends Enum<T>> {
     }
 
     private void queryPdh(Map<T, Long> valueMap, T[] props) {
-        long timeStamp = PerfDataUtil.updateQuery(counterMap.get(props[0]));
-        if (timeStamp > 0) {
+        if (counterMap != null && 0 < PerfDataUtil.updateQuery(counterMap.get(props[0]))) {
             for (T prop : props) {
                 valueMap.put(prop, PerfDataUtil.queryCounter(counterMap.get(prop)));
             }
-        } else {
-            // Zero timestamp means update failed after muliple
-            // attempts; fallback to WMI
-            setDataSource(CounterDataSource.WMI);
+            return;
         }
+        // Zero timestamp means update failed after muliple
+        // attempts; fallback to WMI
+        setDataSource(CounterDataSource.WMI);
     }
 
     private void queryWmi(Map<T, Long> valueMap, T[] props) {

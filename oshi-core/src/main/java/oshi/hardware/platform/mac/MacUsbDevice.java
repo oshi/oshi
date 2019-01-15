@@ -265,7 +265,6 @@ public class MacUsbDevice extends AbstractUsbDevice {
         Collections.sort(usbDevices);
         return new MacUsbDevice(nameMap.getOrDefault(registryEntryId, vendorId + ":" + productId),
                 vendorMap.getOrDefault(registryEntryId, ""), vendorId, productId,
-                serialMap.getOrDefault(registryEntryId, ""),
-                usbDevices.toArray(new UsbDevice[usbDevices.size()]));
+                serialMap.getOrDefault(registryEntryId, ""), usbDevices.toArray(new UsbDevice[usbDevices.size()]));
     }
 }
