@@ -24,6 +24,7 @@
 package oshi.util;
 
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -266,14 +267,14 @@ public class ParseUtil {
      * Convert a string to an integer representation.
      *
      * @param str
-     *            A human readable string
+     *            A human readable ASCII string
      * @param size
      *            Number of characters to convert to the long. May not exceed 8.
      * @return An integer representing the string where each character is
      *         treated as a byte
      */
     public static long strToLong(String str, int size) {
-        return byteArrayToLong(str.getBytes(), size);
+        return byteArrayToLong(str.getBytes(StandardCharsets.US_ASCII), size);
     }
 
     /**

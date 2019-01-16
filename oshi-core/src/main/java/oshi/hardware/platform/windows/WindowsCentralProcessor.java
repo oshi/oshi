@@ -24,6 +24,7 @@
 package oshi.hardware.platform.windows;
 
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,10 +33,6 @@ import com.sun.jna.Native; // NOSONAR squid:S1191
 import com.sun.jna.platform.win32.Advapi32Util;
 import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.Kernel32Util;
-import com.sun.jna.platform.win32.PdhUtil;
-import com.sun.jna.platform.win32.PdhUtil.PdhEnumObjectItems;
-import com.sun.jna.platform.win32.PdhUtil.PdhException;
-import com.sun.jna.platform.win32.Win32Exception;
 import com.sun.jna.platform.win32.WinBase;
 import com.sun.jna.platform.win32.WinBase.SYSTEM_INFO;
 import com.sun.jna.platform.win32.WinNT;
@@ -44,20 +41,20 @@ import com.sun.jna.platform.win32.WinReg;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
+import oshi.data.windows.PerfCounterQuery;
+import oshi.data.windows.PerfCounterQuery.PdhCounterProperty;
+import oshi.data.windows.PerfCounterWildcardQuery;
+import oshi.data.windows.PerfCounterWildcardQuery.PdhCounterWildcardProperty;
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.jna.platform.windows.VersionHelpers;
-import oshi.util.platform.windows.PdhUtilXP;
+import oshi.util.ParseUtil;
 import oshi.util.platform.windows.PerfDataUtil;
-import oshi.util.platform.windows.PerfDataUtil.PerfCounter;
 import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
 
 /**
- * A CPU as defined in Windows registry.
- *
- * @author dblock[at]dblock[dot]org
- * @author alessio.fachechi[at]gmail[dot]com
- * @author widdis[at]gmail[dot]com
+ * A CPU, representing all of a system's processors. It may contain multiple
+ * individual Physical and Logical processors.
  */
 public class WindowsCentralProcessor extends AbstractCentralProcessor {
 
@@ -65,61 +62,144 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsCentralProcessor.class);
 
+    private static final boolean IS_VISTA_OR_GREATER = VersionHelpers.IsWindowsVistaOrGreater();
+
+    private static final String PROCESSOR = "Processor";
+
     enum ProcessorProperty {
         PROCESSORID;
     }
 
-    private static boolean IS_VISTA_OR_GREATER = VersionHelpers.IsWindowsVistaOrGreater();
+    /*
+     * For tick counts
+     */
+    enum ProcessorTickCountProperty implements PdhCounterWildcardProperty {
+        // First element defines WMI instance name field and PDH instance filter
+        NAME(PerfCounterQuery.NOT_TOTAL_INSTANCE),
+        // Remaining elements define counters
+        PERCENTDPCTIME("% DPC Time"), //
+        PERCENTINTERRUPTTIME("% Interrupt Time"), //
+        PERCENTPRIVILEGEDTIME("% Privileged Time"), //
+        PERCENTPROCESSORTIME("% Processor Time"), //
+        PERCENTUSERTIME("% User Time");
 
-    private static final String PROCESSOR = "Processor";
-    private static String processorLocalized = null;
-    private static final String TOTAL_INSTANCE = "_Total";
+        private final String counter;
+
+        ProcessorTickCountProperty(String counter) {
+            this.counter = counter;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public String getCounter() {
+            return counter;
+        }
+    }
+
+    private final transient PerfCounterWildcardQuery<ProcessorTickCountProperty> processorTickPerfCounters = new PerfCounterWildcardQuery<>(
+            ProcessorTickCountProperty.class, PROCESSOR,
+            "Win32_PerfRawData_PerfOS_Processor WHERE NOT Name=\"_Total\"");
+
+    enum SystemTickCountProperty implements PdhCounterProperty {
+        PERCENTDPCTIME(PerfCounterQuery.TOTAL_INSTANCE, "% DPC Time"), //
+        PERCENTINTERRUPTTIME(PerfCounterQuery.TOTAL_INSTANCE, "% Interrupt Time");
+
+        private final String instance;
+        private final String counter;
+
+        SystemTickCountProperty(String instance, String counter) {
+            this.instance = instance;
+            this.counter = counter;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public String getInstance() {
+            return instance;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public String getCounter() {
+            return counter;
+        }
+    }
+
+    private final transient PerfCounterQuery<SystemTickCountProperty> systemTickPerfCounters = new PerfCounterQuery<>(
+            SystemTickCountProperty.class, PROCESSOR, "Win32_PerfRawData_PerfOS_Processor WHERE Name=\"_Total\"");
+
+    enum InterruptsProperty implements PdhCounterProperty {
+        INTERRUPTSPERSEC(PerfCounterQuery.TOTAL_INSTANCE, "Interrupts/sec");
+
+        private final String instance;
+        private final String counter;
+
+        InterruptsProperty(String instance, String counter) {
+            this.instance = instance;
+            this.counter = counter;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public String getInstance() {
+            return instance;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public String getCounter() {
+            return counter;
+        }
+    }
+
+    private final transient PerfCounterQuery<InterruptsProperty> interruptsPerfCounters = new PerfCounterQuery<>(
+            InterruptsProperty.class, PROCESSOR, "Win32_PerfRawData_PerfOS_Processor WHERE Name=\"_Total\"");
 
     /*
      * For tick counts
      */
-    enum ProcessorTickCountProperty {
-        PERCENTDPCTIME, PERCENTINTERRUPTTIME, PERCENTPRIVILEGEDTIME, PERCENTPROCESSORTIME, PERCENTUSERTIME;
+    enum ContextSwitchProperty implements PdhCounterProperty {
+        CONTEXTSWITCHESPERSEC(null, "Context Switches/sec");
+
+        private final String instance;
+        private final String counter;
+
+        ContextSwitchProperty(String instance, String counter) {
+            this.instance = instance;
+            this.counter = counter;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public String getInstance() {
+            return instance;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public String getCounter() {
+            return counter;
+        }
     }
 
-    // Only counters or WMI will be used
-    // Per-processor
-    private transient PerfCounter[] dpcTickCounter = null;
-    private transient PerfCounter[] interruptTickCounter = null;
-    private transient PerfCounter[] privilegedTickCounter = null;
-    private transient PerfCounter[] processorTickCounter = null;
-    private transient PerfCounter[] userTickCounter = null;
+    private final transient PerfCounterQuery<ContextSwitchProperty> contextSwitchPerfCounters = new PerfCounterQuery<>(
+            ContextSwitchProperty.class, "System", "Win32_PerfRawData_PerfOS_System");
 
-    private transient WmiQuery<ProcessorTickCountProperty> processorTickCountQuery = null;
-
-    // _Total
-    enum SystemTickCountProperty {
-        PERCENTDPCTIME, PERCENTINTERRUPTTIME;
-    }
-
-    private transient PerfCounter irqTickCounter = null;
-    private transient PerfCounter softIrqTickCounter = null;
-
-    private transient WmiQuery<SystemTickCountProperty> systemTickCountQuery = null;
-
-    enum InterruptsProperty {
-        INTERRUPTSPERSEC;
-    }
-
-    private transient PerfCounter interruptsPerSecCounter = null;
-    private transient WmiQuery<InterruptsProperty> interruptsQuery = null;
-
-    /*
-     * For tick counts
-     */
-    enum ContextSwitchProperty {
-        CONTEXTSWITCHESPERSEC;
-    }
-
-    private transient PerfCounter contextSwitchesPerSecCounter = null;
-    private transient WmiQuery<ContextSwitchProperty> contextSwitchQuery = null;
-
-    private static long lastRefresh = 0L;
+    private long lastRefresh = 0L;
 
     /**
      * Create a Processor
@@ -128,8 +208,6 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
         super();
         // Initialize class variables
         initVars();
-        // Initialize pdh counters
-        initPdhCounters();
         // Initialize tick arrays
         initTicks();
 
@@ -165,114 +243,6 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
         if (processorId.getResultCount() > 0) {
             setProcessorID(WmiUtil.getString(processorId, ProcessorProperty.PROCESSORID, 0));
         }
-    }
-
-    /**
-     * Initializes PDH Tick Counters
-     */
-    private void initPdhCounters() {
-        this.contextSwitchesPerSecCounter = PerfDataUtil.createCounter("System", null, "Context Switches/sec");
-        if (!PerfDataUtil.addCounterToQuery(this.contextSwitchesPerSecCounter)) {
-            initWmiContextSwitchQuery();
-        }
-
-        boolean enumeration = true;
-        try {
-            PdhEnumObjectItems objectItems = PdhUtil.PdhEnumObjectItems(null, null, getProcessorLocalized(), 100);
-
-            if (!objectItems.getInstances().isEmpty()) {
-                // % Processor Time is actually Idle time
-                this.dpcTickCounter = new PerfCounter[this.logicalProcessorCount];
-                this.interruptTickCounter = new PerfCounter[this.logicalProcessorCount];
-                this.privilegedTickCounter = new PerfCounter[this.logicalProcessorCount];
-                this.processorTickCounter = new PerfCounter[this.logicalProcessorCount];
-                this.userTickCounter = new PerfCounter[this.logicalProcessorCount];
-
-                List<String> instances = objectItems.getInstances();
-                PerfCounter counter;
-                for (int i = 0; i < instances.size() && i < this.logicalProcessorCount; i++) {
-                    String instance = instances.get(i);
-
-                    counter = PerfDataUtil.createCounter(PROCESSOR, instance, "% DPC Time");
-                    this.dpcTickCounter[i] = counter;
-                    if (!PerfDataUtil.addCounterToQuery(counter)) {
-                        throw new PdhException(0);
-                    }
-
-                    counter = PerfDataUtil.createCounter(PROCESSOR, instance, "% Interrupt Time");
-                    this.interruptTickCounter[i] = counter;
-                    if (!PerfDataUtil.addCounterToQuery(counter)) {
-                        throw new PdhException(0);
-                    }
-
-                    counter = PerfDataUtil.createCounter(PROCESSOR, instance, "% Privileged Time");
-                    this.privilegedTickCounter[i] = counter;
-                    if (!PerfDataUtil.addCounterToQuery(counter)) {
-                        throw new PdhException(0);
-                    }
-
-                    counter = PerfDataUtil.createCounter(PROCESSOR, instance, "% Processor Time");
-                    this.processorTickCounter[i] = counter;
-                    if (!PerfDataUtil.addCounterToQuery(counter)) {
-                        throw new PdhException(0);
-                    }
-
-                    counter = PerfDataUtil.createCounter(PROCESSOR, instance, "% User Time");
-                    this.userTickCounter[i] = counter;
-                    if (!PerfDataUtil.addCounterToQuery(counter)) {
-                        throw new PdhException(0);
-                    }
-                }
-
-                counter = PerfDataUtil.createCounter(PROCESSOR, TOTAL_INSTANCE, "% Interrupt Time");
-                this.irqTickCounter = counter;
-                if (!PerfDataUtil.addCounterToQuery(counter)) {
-                    throw new PdhException(0);
-                }
-
-                counter = PerfDataUtil.createCounter(PROCESSOR, TOTAL_INSTANCE, "% DPC Time");
-                this.softIrqTickCounter = counter;
-                if (!PerfDataUtil.addCounterToQuery(counter)) {
-                    throw new PdhException(0);
-                }
-
-                counter = PerfDataUtil.createCounter(PROCESSOR, TOTAL_INSTANCE, "Interrupts/sec");
-                this.interruptsPerSecCounter = counter;
-                if (!PerfDataUtil.addCounterToQuery(counter)) {
-                    throw new PdhException(0);
-                }
-            }
-        } catch (PdhException e) {
-            LOG.warn("Unable to enumerate performance counter instances for {}.", getProcessorLocalized());
-            enumeration = false;
-        }
-        if (!enumeration) {
-            PerfDataUtil.removeAllCounters(PROCESSOR);
-            this.dpcTickCounter = null;
-            this.interruptTickCounter = null;
-            this.privilegedTickCounter = null;
-            this.processorTickCounter = null;
-            this.userTickCounter = null;
-            this.irqTickCounter = null;
-            this.softIrqTickCounter = null;
-            this.interruptsPerSecCounter = null;
-
-            this.processorTickCountQuery = new WmiQuery<>(
-                    "Win32_PerfRawData_PerfOS_Processor WHERE NOT Name=\"_Total\"", ProcessorTickCountProperty.class);
-            this.systemTickCountQuery = new WmiQuery<>("Win32_PerfRawData_PerfOS_Processor WHERE Name=\"_Total\"",
-                    SystemTickCountProperty.class);
-            this.interruptsQuery = new WmiQuery<>("Win32_PerfRawData_PerfOS_Processor WHERE Name=\"_Total\"",
-                    InterruptsProperty.class);
-        }
-    }
-
-    /**
-     * Nulls PDH counters and sets up WMI query for context switch counters.
-     */
-    private void initWmiContextSwitchQuery() {
-        PerfDataUtil.removeCounterFromQuery(this.contextSwitchesPerSecCounter);
-        this.contextSwitchesPerSecCounter = null;
-        this.contextSwitchQuery = new WmiQuery<>("Win32_PerfRawData_PerfOS_System", ContextSwitchProperty.class);
     }
 
     /**
@@ -313,23 +283,16 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
         // IOwait:
         // Windows does not measure IOWait.
 
-        // IRQ:
+        // IRQ and ticks:
         // Percent time raw value is cumulative 100NS-ticks
         // Divide by 10_000 to get milliseconds
-        if (this.systemTickCountQuery == null) {
-            refreshTickCounters();
-            ticks[TickType.IRQ.getIndex()] = PerfDataUtil.queryCounter(this.irqTickCounter) / 10_000L;
-            ticks[TickType.SOFTIRQ.getIndex()] = PerfDataUtil.queryCounter(this.softIrqTickCounter) / 10_000L;
-        } else {
-            WmiResult<SystemTickCountProperty> result = WmiQueryHandler.getInstance()
-                    .queryWMI(this.systemTickCountQuery);
-            if (result.getResultCount() > 0) {
-                ticks[TickType.IRQ.getIndex()] = WmiUtil.getUint64(result, SystemTickCountProperty.PERCENTINTERRUPTTIME,
-                        0) / 10_000L;
-                ticks[TickType.SOFTIRQ.getIndex()] = WmiUtil.getUint64(result, SystemTickCountProperty.PERCENTDPCTIME,
-                        0) / 10_000L;
-            }
-        }
+
+        refreshTickCounters();
+        Map<SystemTickCountProperty, Long> valueMap = this.systemTickPerfCounters.queryValues();
+        ticks[TickType.IRQ.getIndex()] = valueMap.getOrDefault(SystemTickCountProperty.PERCENTINTERRUPTTIME, 0L)
+                / 10_000L;
+        ticks[TickType.SOFTIRQ.getIndex()] = valueMap.getOrDefault(SystemTickCountProperty.PERCENTDPCTIME, 0L)
+                / 10_000L;
 
         ticks[TickType.IDLE.getIndex()] = lpIdleTime.toDWordLong().longValue() / 10_000L;
         ticks[TickType.SYSTEM.getIndex()] = lpKernelTime.toDWordLong().longValue() / 10_000L
@@ -361,36 +324,27 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public long[][] getProcessorCpuLoadTicks() {
+        Map<ProcessorTickCountProperty, List<Long>> valueMap = this.processorTickPerfCounters.queryValuesWildcard();
+        List<String> instances = this.processorTickPerfCounters.getInstancesFromLastQuery();
+        List<Long> systemList = valueMap.get(ProcessorTickCountProperty.PERCENTPRIVILEGEDTIME);
+        List<Long> userList = valueMap.get(ProcessorTickCountProperty.PERCENTUSERTIME);
+        List<Long> irqList = valueMap.get(ProcessorTickCountProperty.PERCENTINTERRUPTTIME);
+        List<Long> softIrqList = valueMap.get(ProcessorTickCountProperty.PERCENTDPCTIME);
+        // % Processor Time is actually Idle time
+        List<Long> idleList = valueMap.get(ProcessorTickCountProperty.PERCENTPROCESSORTIME);
+
         long[][] ticks = new long[this.logicalProcessorCount][TickType.values().length];
-        if (this.processorTickCountQuery == null) {
-            refreshTickCounters();
-            for (int cpu = 0; cpu < this.logicalProcessorCount; cpu++) {
-                ticks[cpu][TickType.SYSTEM.getIndex()] = PerfDataUtil.queryCounter(this.privilegedTickCounter[cpu]);
-                ticks[cpu][TickType.USER.getIndex()] = PerfDataUtil.queryCounter(this.userTickCounter[cpu]);
-                ticks[cpu][TickType.IRQ.getIndex()] = PerfDataUtil.queryCounter(this.interruptTickCounter[cpu]);
-                ticks[cpu][TickType.SOFTIRQ.getIndex()] = PerfDataUtil.queryCounter(this.dpcTickCounter[cpu]);
-                // % Processor Time is actually Idle time
-                ticks[cpu][TickType.IDLE.getIndex()] = PerfDataUtil.queryCounter(this.processorTickCounter[cpu]);
+        for (int p = 0; p < instances.size(); p++) {
+            int cpu = ParseUtil.parseIntOrDefault(instances.get(p), 0);
+            if (cpu >= this.logicalProcessorCount) {
+                continue;
             }
-        } else {
-            ticks = new long[this.logicalProcessorCount][TickType.values().length];
-            WmiResult<ProcessorTickCountProperty> result = WmiQueryHandler.getInstance()
-                    .queryWMI(this.processorTickCountQuery);
-            for (int cpu = 0; cpu < result.getResultCount() && cpu < this.logicalProcessorCount; cpu++) {
-                ticks[cpu][TickType.SYSTEM.getIndex()] = WmiUtil.getUint64(result,
-                        ProcessorTickCountProperty.PERCENTPRIVILEGEDTIME, cpu);
-                ticks[cpu][TickType.USER.getIndex()] = WmiUtil.getUint64(result,
-                        ProcessorTickCountProperty.PERCENTUSERTIME, cpu);
-                ticks[cpu][TickType.IRQ.getIndex()] = WmiUtil.getUint64(result,
-                        ProcessorTickCountProperty.PERCENTINTERRUPTTIME, cpu);
-                ticks[cpu][TickType.SOFTIRQ.getIndex()] = WmiUtil.getUint64(result,
-                        ProcessorTickCountProperty.PERCENTDPCTIME, cpu);
-                // % Processor Time is actually Idle time
-                ticks[cpu][TickType.IDLE.getIndex()] = WmiUtil.getUint64(result,
-                        ProcessorTickCountProperty.PERCENTPROCESSORTIME, cpu);
-            }
-        }
-        for (int cpu = 0; cpu < this.logicalProcessorCount; cpu++) {
+            ticks[cpu][TickType.SYSTEM.getIndex()] = systemList.get(cpu);
+            ticks[cpu][TickType.USER.getIndex()] = userList.get(cpu);
+            ticks[cpu][TickType.IRQ.getIndex()] = irqList.get(cpu);
+            ticks[cpu][TickType.SOFTIRQ.getIndex()] = softIrqList.get(cpu);
+            ticks[cpu][TickType.IDLE.getIndex()] = idleList.get(cpu);
+
             // Additional decrement to avoid double counting in the
             // total array
             ticks[cpu][TickType.SYSTEM.getIndex()] -= ticks[cpu][TickType.IRQ.getIndex()]
@@ -428,15 +382,8 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public long getContextSwitches() {
-        if (this.contextSwitchQuery == null) {
-            PerfDataUtil.updateQuery(this.contextSwitchesPerSecCounter);
-            return PerfDataUtil.queryCounter(this.contextSwitchesPerSecCounter);
-        }
-        WmiResult<ContextSwitchProperty> result = WmiQueryHandler.getInstance().queryWMI(this.contextSwitchQuery);
-        if (result.getResultCount() > 0) {
-            return WmiUtil.getUint32(result, ContextSwitchProperty.CONTEXTSWITCHESPERSEC, 0);
-        }
-        return 0L;
+        Map<ContextSwitchProperty, Long> valueMap = this.contextSwitchPerfCounters.queryValues();
+        return valueMap.getOrDefault(ContextSwitchProperty.CONTEXTSWITCHESPERSEC, 0L);
     }
 
     /**
@@ -444,47 +391,17 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public long getInterrupts() {
-        if (this.interruptsQuery == null) {
-            refreshTickCounters();
-            return PerfDataUtil.queryCounter(this.interruptsPerSecCounter);
-        }
-        WmiResult<InterruptsProperty> result = WmiQueryHandler.getInstance().queryWMI(this.interruptsQuery);
-        if (result.getResultCount() > 0) {
-            return WmiUtil.getUint32(result, InterruptsProperty.INTERRUPTSPERSEC, 0);
-        }
-        return 0L;
+        refreshTickCounters();
+        Map<InterruptsProperty, Long> valueMap = this.interruptsPerfCounters.queryValues();
+        return valueMap.getOrDefault(InterruptsProperty.INTERRUPTSPERSEC, 0L);
     }
 
     /**
      * Refresh PDH counters no more often than 100ms
      */
-    private static void refreshTickCounters() {
-        if (System.currentTimeMillis() - lastRefresh > 100L) {
-            lastRefresh = PerfDataUtil.updateQuery(PROCESSOR);
+    private void refreshTickCounters() {
+        if (System.currentTimeMillis() - this.lastRefresh > 100L) {
+            this.lastRefresh = PerfDataUtil.updateQuery(PROCESSOR);
         }
     }
-
-    /**
-     * Localize the "Processor" counter string. English counter names should
-     * normally be in HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows
-     * NT\CurrentVersion\Perflib\009\Counter, but language manipulations may
-     * delete the 009 index. In this case we can assume English must be the
-     * language and continue. We may still fail to match the name if the
-     * assumption is wrong but it's better than nothing.
-     */
-    private static String getProcessorLocalized() {
-        if (processorLocalized == null) {
-            try {
-                processorLocalized = PdhUtilXP.PdhLookupPerfNameByIndex(null,
-                        PdhUtil.PdhLookupPerfIndexByEnglishName(PROCESSOR));
-            } catch (Win32Exception e) {
-                LOG.error("Unable to locate English counter names in registry Perflib 009. Assuming English counters.");
-            }
-            if (processorLocalized == null || processorLocalized.length() == 0) {
-                processorLocalized = PROCESSOR;
-            }
-        }
-        return processorLocalized;
-    }
-
 }

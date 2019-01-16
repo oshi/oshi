@@ -1,5 +1,6 @@
 4.0.0 (in progress)
 ================
+* [#763](https://github.com/oshi/oshi/pull/763): Refactor PDH/WMI Fallback. - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here.
 
 3.12.1 (12/31/2018), 3.12.2 (1/10/2019)

@@ -33,11 +33,12 @@ import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
+import oshi.data.windows.PerfCounterQuery;
+import oshi.data.windows.PerfCounterWildcardQuery;
+import oshi.data.windows.PerfCounterWildcardQuery.PdhCounterWildcardProperty;
 import oshi.software.os.FileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.ParseUtil;
-import oshi.util.platform.windows.PerfDataUtil;
-import oshi.util.platform.windows.PerfDataUtil.PerfCounter;
 import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
 
@@ -61,19 +62,35 @@ public class WindowsFileSystem implements FileSystem {
         DESCRIPTION, DRIVETYPE, FILESYSTEM, FREESPACE, NAME, PROVIDERNAME, SIZE;
     }
 
-    private final transient WmiQuery<LogicalDiskProperty> LOGICAL_DISK_QUERY = new WmiQuery<>("Win32_LogicalDisk",
+    private final transient WmiQuery<LogicalDiskProperty> logicalDiskQuery = new WmiQuery<>("Win32_LogicalDisk",
             LogicalDiskProperty.class);
 
     /*
      * For handle counts
      */
-    enum HandleCountProperty {
-        HANDLECOUNT;
+    enum HandleCountProperty implements PdhCounterWildcardProperty {
+        // First element defines WMI instance name field and PDH instance filter
+        NAME(PerfCounterQuery.TOTAL_INSTANCE),
+        // Remaining elements define counters
+        HANDLECOUNT("Handle Count");
+
+        private final String counter;
+
+        HandleCountProperty(String counter) {
+            this.counter = counter;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public String getCounter() {
+            return counter;
+        }
     }
 
-    // Only one of these will be used
-    private transient PerfCounter handleCountCounter = null;
-    private transient WmiQuery<HandleCountProperty> handleCountQuery = null;
+    private final transient PerfCounterWildcardQuery<HandleCountProperty> handlePerfCounters = new PerfCounterWildcardQuery<>(
+            HandleCountProperty.class, "Process", "Win32_Process");
 
     private static final long MAX_WINDOWS_HANDLES;
     static {
@@ -90,15 +107,6 @@ public class WindowsFileSystem implements FileSystem {
     public WindowsFileSystem() {
         // Set error mode to fail rather than prompt for FLoppy/CD-Rom
         Kernel32.INSTANCE.SetErrorMode(SEM_FAILCRITICALERRORS);
-        initPdhCounters();
-    }
-
-    private void initPdhCounters() {
-        this.handleCountCounter = PerfDataUtil.createCounter("Process", "_Total", "Handle Count");
-        if (!PerfDataUtil.addCounterToQuery(this.handleCountCounter)) {
-            this.handleCountCounter = null;
-            this.handleCountQuery = new WmiQuery<>("Win32_Process", HandleCountProperty.class);
-        }
     }
 
     /**
@@ -221,7 +229,7 @@ public class WindowsFileSystem implements FileSystem {
         long total;
         List<OSFileStore> fs = new ArrayList<>();
 
-        WmiResult<LogicalDiskProperty> drives = WmiQueryHandler.getInstance().queryWMI(this.LOGICAL_DISK_QUERY);
+        WmiResult<LogicalDiskProperty> drives = WmiQueryHandler.getInstance().queryWMI(this.logicalDiskQuery);
 
         for (int i = 0; i < drives.getResultCount(); i++) {
             free = WmiUtil.getUint64(drives, LogicalDiskProperty.FREESPACE, i);
@@ -283,16 +291,11 @@ public class WindowsFileSystem implements FileSystem {
 
     @Override
     public long getOpenFileDescriptors() {
-        // Try PDH if counter exists
-        if (this.handleCountCounter != null) {
-            PerfDataUtil.updateQuery(this.handleCountCounter);
-            return PerfDataUtil.queryCounter(this.handleCountCounter);
-        }
-        // Use WMI instead
-        WmiResult<HandleCountProperty> result = WmiQueryHandler.getInstance().queryWMI(this.handleCountQuery);
+        Map<HandleCountProperty, List<Long>> valueListMap = this.handlePerfCounters.queryValuesWildcard();
+        List<Long> valueList = valueListMap.get(HandleCountProperty.HANDLECOUNT);
         long descriptors = 0L;
-        for (int i = 0; i < result.getResultCount(); i++) {
-            descriptors += WmiUtil.getUint32(result, HandleCountProperty.HANDLECOUNT, i);
+        for (int i = 0; i < valueList.size(); i++) {
+            descriptors += valueList.get(i);
         }
         return descriptors;
     }
