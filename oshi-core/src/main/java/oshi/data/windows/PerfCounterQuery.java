@@ -38,7 +38,7 @@ import oshi.util.platform.windows.PerfDataUtil.PerfCounter;
 import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
 
-public class PerfCounters<T extends Enum<T>> {
+public class PerfCounterQuery<T extends Enum<T>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(PerfCounter.class);
 
@@ -76,7 +76,7 @@ public class PerfCounters<T extends Enum<T>> {
      *            The WMI PerfData_RawData_* class corresponding to the PDH
      *            object
      */
-    public PerfCounters(Class<T> propertyEnum, String perfObject, String perfWmiClass) {
+    public PerfCounterQuery(Class<T> propertyEnum, String perfObject, String perfWmiClass) {
         if (PdhCounterProperty.class.isAssignableFrom(propertyEnum.getDeclaringClass())) {
             throw new IllegalArgumentException(
                     propertyEnum.getDeclaringClass().getName() + " must implement PdhCounterProperty.");
@@ -86,7 +86,7 @@ public class PerfCounters<T extends Enum<T>> {
         this.perfWmiClass = perfWmiClass;
 
         // Only continue if instantiating this class
-        if (!PerfCounters.class.equals(this.getClass())) {
+        if (!PerfCounterQuery.class.equals(this.getClass())) {
             return;
         }
         // Try PDH first, fallback to WMI

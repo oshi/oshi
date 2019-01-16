@@ -32,8 +32,8 @@ import com.sun.jna.platform.win32.Kernel32; // NOSONAR squid:S1191
 import com.sun.jna.platform.win32.Psapi;
 import com.sun.jna.platform.win32.Psapi.PERFORMANCE_INFORMATION;
 
-import oshi.data.windows.PerfCounters;
-import oshi.data.windows.PerfCounters.PdhCounterProperty;
+import oshi.data.windows.PerfCounterQuery;
+import oshi.data.windows.PerfCounterQuery.PdhCounterProperty;
 import oshi.hardware.common.AbstractGlobalMemory;
 
 /**
@@ -81,14 +81,14 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
         }
     }
 
-    private transient PerfCounters<PageSwapProperty> memoryPerfCounters = new PerfCounters<>(PageSwapProperty.class,
+    private transient PerfCounterQuery<PageSwapProperty> memoryPerfCounters = new PerfCounterQuery<>(PageSwapProperty.class,
             "Memory", "Win32_PerfRawData_PerfOS_Memory");
 
     /*
      * For swap file usage
      */
     enum PagingPercentProperty implements PdhCounterProperty {
-        PERCENTUSAGE(PerfCounters.TOTAL_INSTANCE, "% Usage");
+        PERCENTUSAGE(PerfCounterQuery.TOTAL_INSTANCE, "% Usage");
 
         private final String instance;
         private final String counter;
@@ -115,7 +115,7 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
         }
     }
 
-    private transient PerfCounters<PagingPercentProperty> pagingPerfCounters = new PerfCounters<>(
+    private transient PerfCounterQuery<PagingPercentProperty> pagingPerfCounters = new PerfCounterQuery<>(
             PagingPercentProperty.class, "Paging File", "Win32_PerfRawData_PerfOS_PagingFile");
 
     /**

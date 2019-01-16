@@ -37,9 +37,9 @@ import com.sun.jna.platform.win32.Kernel32; // NOSONAR squid:S1191
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
-import oshi.data.windows.PerfCounters;
-import oshi.data.windows.PerfCountersWildcard;
-import oshi.data.windows.PerfCountersWildcard.PdhCounterWildcardProperty;
+import oshi.data.windows.PerfCounterQuery;
+import oshi.data.windows.PerfCounterWildcardQuery;
+import oshi.data.windows.PerfCounterWildcardQuery.PdhCounterWildcardProperty;
 import oshi.hardware.Disks;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
@@ -93,7 +93,7 @@ public class WindowsDisks implements Disks {
      */
     enum PhysicalDiskProperty implements PdhCounterWildcardProperty {
         // First element defines WMI instance name field and PDH instance filter
-        NAME(PerfCounters.NOT_TOTAL_INSTANCE),
+        NAME(PerfCounterQuery.NOT_TOTAL_INSTANCE),
         // Remaining elements define counters
         DISKREADSPERSEC("Disk Reads/sec"), //
         DISKREADBYTESPERSEC("Disk Read Bytes/sec"), //
@@ -117,7 +117,7 @@ public class WindowsDisks implements Disks {
         }
     }
 
-    private static final PerfCountersWildcard<PhysicalDiskProperty> physicalDiskPerfCounters = new PerfCountersWildcard<>(
+    private static final PerfCounterWildcardQuery<PhysicalDiskProperty> physicalDiskPerfCounters = new PerfCounterWildcardQuery<>(
             PhysicalDiskProperty.class, PHYSICAL_DISK,
             "Win32_PerfRawData_PerfDisk_PhysicalDisk WHERE NOT Name=\"_Total\"");
 

@@ -32,8 +32,8 @@ import org.slf4j.LoggerFactory;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery; // NOSONAR
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
-import oshi.data.windows.PerfCountersWildcard;
-import oshi.data.windows.PerfCountersWildcard.PdhCounterWildcardProperty;
+import oshi.data.windows.PerfCounterWildcardQuery;
+import oshi.data.windows.PerfCounterWildcardQuery.PdhCounterWildcardProperty;
 import oshi.hardware.Sensors;
 import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
@@ -98,7 +98,7 @@ public class WindowsSensors implements Sensors {
         }
     }
 
-    private final transient PerfCountersWildcard<ThermalZoneProperty> thermalZonePerfCounters = new PerfCountersWildcard<>(
+    private final transient PerfCounterWildcardQuery<ThermalZoneProperty> thermalZonePerfCounters = new PerfCounterWildcardQuery<>(
             ThermalZoneProperty.class, "Thermal Zone Information",
             "Win32_PerfRawData_Counters_ThermalZoneInformation WHERE Name LIKE \"%cpu%\"");
 

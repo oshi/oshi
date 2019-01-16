@@ -47,9 +47,9 @@ import oshi.util.platform.windows.PerfDataUtil.PerfCounter;
 import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
 
-public class PerfCountersWildcard<T extends Enum<T>> extends PerfCounters<T> {
+public class PerfCounterWildcardQuery<T extends Enum<T>> extends PerfCounterQuery<T> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PerfCountersWildcard.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PerfCounterWildcardQuery.class);
 
     private EnumMap<T, List<PerfCounter>> counterListMap = null;
     private List<String> instancesFromLastQuery = new ArrayList<>();
@@ -84,7 +84,7 @@ public class PerfCountersWildcard<T extends Enum<T>> extends PerfCounters<T> {
      *            The WMI PerfData_RawData_* class corresponding to the PDH
      *            object
      */
-    public PerfCountersWildcard(Class<T> propertyEnum, String perfObject, String perfWmiClass) {
+    public PerfCounterWildcardQuery(Class<T> propertyEnum, String perfObject, String perfWmiClass) {
         super(propertyEnum, perfObject, perfWmiClass);
 
         if (propertyEnum.getEnumConstants().length < 2) {

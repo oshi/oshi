@@ -33,9 +33,9 @@ import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
-import oshi.data.windows.PerfCounters;
-import oshi.data.windows.PerfCountersWildcard;
-import oshi.data.windows.PerfCountersWildcard.PdhCounterWildcardProperty;
+import oshi.data.windows.PerfCounterQuery;
+import oshi.data.windows.PerfCounterWildcardQuery;
+import oshi.data.windows.PerfCounterWildcardQuery.PdhCounterWildcardProperty;
 import oshi.software.os.FileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.ParseUtil;
@@ -70,7 +70,7 @@ public class WindowsFileSystem implements FileSystem {
      */
     enum HandleCountProperty implements PdhCounterWildcardProperty {
         // First element defines WMI instance name field and PDH instance filter
-        NAME(PerfCounters.TOTAL_INSTANCE),
+        NAME(PerfCounterQuery.TOTAL_INSTANCE),
         // Remaining elements define counters
         HANDLECOUNT("Handle Count");
 
@@ -89,7 +89,7 @@ public class WindowsFileSystem implements FileSystem {
         }
     }
 
-    private final transient PerfCountersWildcard<HandleCountProperty> handlePerfCounters = new PerfCountersWildcard<>(
+    private final transient PerfCounterWildcardQuery<HandleCountProperty> handlePerfCounters = new PerfCounterWildcardQuery<>(
             HandleCountProperty.class, "Process", "Win32_Process");
 
     private static final long MAX_WINDOWS_HANDLES;

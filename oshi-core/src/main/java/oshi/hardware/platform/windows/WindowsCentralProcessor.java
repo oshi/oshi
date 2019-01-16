@@ -41,10 +41,10 @@ import com.sun.jna.platform.win32.WinReg;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
-import oshi.data.windows.PerfCounters;
-import oshi.data.windows.PerfCounters.PdhCounterProperty;
-import oshi.data.windows.PerfCountersWildcard;
-import oshi.data.windows.PerfCountersWildcard.PdhCounterWildcardProperty;
+import oshi.data.windows.PerfCounterQuery;
+import oshi.data.windows.PerfCounterQuery.PdhCounterProperty;
+import oshi.data.windows.PerfCounterWildcardQuery;
+import oshi.data.windows.PerfCounterWildcardQuery.PdhCounterWildcardProperty;
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.jna.platform.windows.VersionHelpers;
 import oshi.util.ParseUtil;
@@ -75,7 +75,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
      */
     enum ProcessorTickCountProperty implements PdhCounterWildcardProperty {
         // First element defines WMI instance name field and PDH instance filter
-        NAME(PerfCounters.NOT_TOTAL_INSTANCE),
+        NAME(PerfCounterQuery.NOT_TOTAL_INSTANCE),
         // Remaining elements define counters
         PERCENTDPCTIME("% DPC Time"), //
         PERCENTINTERRUPTTIME("% Interrupt Time"), //
@@ -98,13 +98,13 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
         }
     }
 
-    private final transient PerfCountersWildcard<ProcessorTickCountProperty> processorTickPerfCounters = new PerfCountersWildcard<>(
+    private final transient PerfCounterWildcardQuery<ProcessorTickCountProperty> processorTickPerfCounters = new PerfCounterWildcardQuery<>(
             ProcessorTickCountProperty.class, PROCESSOR,
             "Win32_PerfRawData_PerfOS_Processor WHERE NOT Name=\"_Total\"");
 
     enum SystemTickCountProperty implements PdhCounterProperty {
-        PERCENTDPCTIME(PerfCounters.TOTAL_INSTANCE, "% DPC Time"), //
-        PERCENTINTERRUPTTIME(PerfCounters.TOTAL_INSTANCE, "% Interrupt Time");
+        PERCENTDPCTIME(PerfCounterQuery.TOTAL_INSTANCE, "% DPC Time"), //
+        PERCENTINTERRUPTTIME(PerfCounterQuery.TOTAL_INSTANCE, "% Interrupt Time");
 
         private final String instance;
         private final String counter;
@@ -131,11 +131,11 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
         }
     }
 
-    private final transient PerfCounters<SystemTickCountProperty> systemTickPerfCounters = new PerfCounters<>(
+    private final transient PerfCounterQuery<SystemTickCountProperty> systemTickPerfCounters = new PerfCounterQuery<>(
             SystemTickCountProperty.class, PROCESSOR, "Win32_PerfRawData_PerfOS_Processor WHERE Name=\"_Total\"");
 
     enum InterruptsProperty implements PdhCounterProperty {
-        INTERRUPTSPERSEC(PerfCounters.TOTAL_INSTANCE, "Interrupts/sec");
+        INTERRUPTSPERSEC(PerfCounterQuery.TOTAL_INSTANCE, "Interrupts/sec");
 
         private final String instance;
         private final String counter;
@@ -162,7 +162,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
         }
     }
 
-    private final transient PerfCounters<InterruptsProperty> interruptsPerfCounters = new PerfCounters<>(
+    private final transient PerfCounterQuery<InterruptsProperty> interruptsPerfCounters = new PerfCounterQuery<>(
             InterruptsProperty.class, PROCESSOR, "Win32_PerfRawData_PerfOS_Processor WHERE Name=\"_Total\"");
 
     /*
@@ -196,7 +196,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
         }
     }
 
-    private final transient PerfCounters<ContextSwitchProperty> contextSwitchPerfCounters = new PerfCounters<>(
+    private final transient PerfCounterQuery<ContextSwitchProperty> contextSwitchPerfCounters = new PerfCounterQuery<>(
             ContextSwitchProperty.class, "System", "Win32_PerfRawData_PerfOS_System");
 
     private long lastRefresh = 0L;
