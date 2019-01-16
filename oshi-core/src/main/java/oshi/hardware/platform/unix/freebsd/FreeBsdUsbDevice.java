@@ -178,7 +178,7 @@ public class FreeBsdUsbDevice extends AbstractUsbDevice {
             usbDevices.add(getDeviceAndChildren(path, vendorId, productId));
         }
         Collections.sort(usbDevices);
-        return new FreeBsdUsbDevice(nameMap.getOrDefault(devPath, vendorId + ":" + productId), "", vendorId,
-                productId, "", usbDevices.toArray(new UsbDevice[usbDevices.size()]));
+        return new FreeBsdUsbDevice(nameMap.getOrDefault(devPath, vendorId + ":" + productId), "", vendorId, productId,
+                "", usbDevices.toArray(new UsbDevice[usbDevices.size()]));
     }
 }

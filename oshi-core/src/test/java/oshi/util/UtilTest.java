@@ -24,6 +24,7 @@
 package oshi.util;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -63,5 +64,27 @@ public class UtilTest {
     public void testIdentyVM() {
         String vm = Util.identifyVM();
         assertNotNull(vm);
+    }
+
+    @Test
+    public void testWildcardMatch() {
+        assertFalse(Util.wildcardMatch("Test", "est"));
+        assertTrue(Util.wildcardMatch("Test", "^est"));
+        assertFalse(Util.wildcardMatch("Test", "^^est"));
+        assertTrue(Util.wildcardMatch("Test", "?est"));
+        assertFalse(Util.wildcardMatch("Test", "^?est"));
+        assertTrue(Util.wildcardMatch("Test", "*est"));
+        assertFalse(Util.wildcardMatch("Test", "^*est"));
+
+        assertFalse(Util.wildcardMatch("Test", "T?t"));
+        assertTrue(Util.wildcardMatch("Test", "T??t"));
+        assertTrue(Util.wildcardMatch("Test", "T*t"));
+
+        assertFalse(Util.wildcardMatch("Test", "Tes"));
+        assertTrue(Util.wildcardMatch("Test", "Tes?"));
+        assertTrue(Util.wildcardMatch("Test", "Tes*"));
+
+        assertFalse(Util.wildcardMatch("Test", "Te?"));
+        assertTrue(Util.wildcardMatch("Test", "Te*"));
     }
 }
