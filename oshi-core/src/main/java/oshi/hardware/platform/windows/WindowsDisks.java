@@ -315,22 +315,22 @@ public class WindowsDisks implements Disks {
     /**
      * Maps to store read/write bytes per drive index
      */
-    private class DiskStats {
-        final Map<String, Long> readMap = new HashMap<>();
-        final Map<String, Long> readByteMap = new HashMap<>();
-        final Map<String, Long> writeMap = new HashMap<>();
-        final Map<String, Long> writeByteMap = new HashMap<>();
-        final Map<String, Long> queueLengthMap = new HashMap<>();
-        final Map<String, Long> xferTimeMap = new HashMap<>();
-        long timeStamp = 0;
+    private final class DiskStats {
+        private final Map<String, Long> readMap = new HashMap<>();
+        private final Map<String, Long> readByteMap = new HashMap<>();
+        private final Map<String, Long> writeMap = new HashMap<>();
+        private final Map<String, Long> writeByteMap = new HashMap<>();
+        private final Map<String, Long> queueLengthMap = new HashMap<>();
+        private final Map<String, Long> xferTimeMap = new HashMap<>();
+        private long timeStamp;
     }
 
     /**
      * Maps for the partition structure
      */
-    private class PartitionMaps {
-        final Map<String, List<String>> driveToPartitionMap = new HashMap<>();
-        final Map<String, String> partitionToLogicalDriveMap = new HashMap<>();
-        final Map<String, HWPartition> partitionMap = new HashMap<>();
+    private final class PartitionMaps {
+        private final Map<String, List<String>> driveToPartitionMap = new HashMap<>();
+        private final Map<String, String> partitionToLogicalDriveMap = new HashMap<>();
+        private final Map<String, HWPartition> partitionMap = new HashMap<>();
     }
 }

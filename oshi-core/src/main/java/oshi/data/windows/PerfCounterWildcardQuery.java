@@ -166,7 +166,7 @@ public class PerfCounterWildcardQuery<T extends Enum<T>> extends PerfCounterQuer
     /**
      * This method is not implemented on this class.
      * 
-     * @see {@link #queryValuesWildcard()}
+     * @see #queryValuesWildcard
      */
     @Override
     public Map<T, Long> queryValues() {
