@@ -43,6 +43,9 @@ matrix:
     - os: linux
       install: . ./install-jdk.sh -F 11 -L BCL
       env: JDK = "Oracle JDK 11 - Linux" 
+    - os: linux
+      install: . ./install-jdk.sh -F 12 -L GPL
+      env: JDK = "OpenJDK 12-ea - Linux" 
     - os: osx
       env: JDK = "Oracle JDK 8 - Mac" 
       osx_image: xcode9.3
