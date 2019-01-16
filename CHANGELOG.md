@@ -1,6 +1,7 @@
 3.12.3 (in progress)
 ================
 * [#764](https://github.com/oshi/oshi/pull/764): Prevent exception in WindowsDisks initializer. - [@dbwiddis](https://github.com/dbwiddis).
+* [#765](https://github.com/oshi/oshi/pull/765): Fix Disk transfer time counters. - [@dbwiddis](https://github.com/dbwiddis).
 
 3.12.1 (12/31/2018), 3.12.2 (1/10/2019)
 ================
