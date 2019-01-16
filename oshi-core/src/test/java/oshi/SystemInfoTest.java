@@ -182,6 +182,7 @@ public class SystemInfoTest {
         System.out.println(
                 "Context Switches/Interrupts: " + processor.getContextSwitches() + " / " + processor.getInterrupts());
         long[] prevTicks = processor.getSystemCpuLoadTicks();
+        processor.getProcessorCpuLoadTicks();
         System.out.println("CPU, IOWait, and IRQ ticks @ 0 sec:" + Arrays.toString(prevTicks));
         // Wait a second...
         Util.sleep(1000);
