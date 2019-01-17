@@ -70,18 +70,20 @@ public class PdhUtilXP {
                 return "";
             }
             // Allocate buffer and call again
-            mem = new Memory(pcchNameBufferSize.getValue().intValue() * CHAR_TO_BYTES);
+            mem = new Memory((long) pcchNameBufferSize.getValue().intValue() * CHAR_TO_BYTES);
             result = Pdh.INSTANCE.PdhLookupPerfNameByIndex(szMachineName, dwNameIndex, mem, pcchNameBufferSize);
         } else {
             // XP branch: try increasing buffer sizes until successful
-            for (int bufferSize = 32; bufferSize <= Pdh.PDH_MAX_COUNTER_NAME; bufferSize *= 2) {
+            int bufferSize = 32;
+            do {
                 pcchNameBufferSize = new DWORDByReference(new DWORD(bufferSize));
-                mem = new Memory(bufferSize * CHAR_TO_BYTES);
+                mem = new Memory((long) bufferSize * CHAR_TO_BYTES);
                 result = Pdh.INSTANCE.PdhLookupPerfNameByIndex(szMachineName, dwNameIndex, mem, pcchNameBufferSize);
                 if (result != PdhMsg.PDH_INVALID_ARGUMENT && result != PdhMsg.PDH_INSUFFICIENT_BUFFER) {
                     break;
                 }
-            }
+                bufferSize *= 2;
+            } while (bufferSize <= Pdh.PDH_MAX_COUNTER_NAME);
         }
         if (result != WinError.ERROR_SUCCESS) {
             throw new PdhException(result);
@@ -89,9 +91,9 @@ public class PdhUtilXP {
 
         // Convert buffer to Java String
         if (CHAR_TO_BYTES == 1) {
-            return mem.getString(0); // NOSONAR squid:S2259
+            return mem.getString(0);
         } else {
-            return mem.getWideString(0); // NOSONAR squid:S2259
+            return mem.getWideString(0);
         }
     }
 }

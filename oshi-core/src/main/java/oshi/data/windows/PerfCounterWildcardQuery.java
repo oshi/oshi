@@ -44,7 +44,6 @@ import oshi.util.Util;
 import oshi.util.platform.windows.PdhUtilXP;
 import oshi.util.platform.windows.PerfDataUtil;
 import oshi.util.platform.windows.PerfDataUtil.PerfCounter;
-import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
 
 public class PerfCounterWildcardQuery<T extends Enum<T>> extends PerfCounterQuery<T> {
@@ -85,7 +84,42 @@ public class PerfCounterWildcardQuery<T extends Enum<T>> extends PerfCounterQuer
      *            object
      */
     public PerfCounterWildcardQuery(Class<T> propertyEnum, String perfObject, String perfWmiClass) {
-        super(propertyEnum, perfObject, perfWmiClass);
+        this(propertyEnum, perfObject, perfWmiClass, perfObject);
+    }
+
+    /**
+     * Construct a new object to hold performance counter data source and
+     * results
+     * 
+     * @param propertyEnum
+     *            An enum which implements {@link PdhCounterWildcardProperty}
+     *            and contains the WMI field (Enum value) and PDH Counter string
+     *            (instance or counter).
+     *            <P>
+     *            The first element of the enum defines the instance filter,
+     *            rather than a counter name. This acts as a filter for PDH
+     *            instances only and should correlate with a WMI String field
+     *            defining the same name. If the instance is null then all
+     *            counters will be added to the PDH query, otherwise the PDH
+     *            counter will only include instances which are wildcard matches
+     *            with the given instance, replacing '?' with a single
+     *            character, '*' with any number of characters, and reversing
+     *            the test if the first character is '^'. If the counter source
+     *            is WMI, the instance filtering has no effect, and it is the
+     *            responsibility of the user to add filtering to the
+     *            perfWmiClass string using a WHERE clause.
+     * @param perfObject
+     *            The PDH object for this counter; all counters on this object
+     *            will be refreshed at the same time
+     * @param perfWmiClass
+     *            The WMI PerfData_RawData_* class corresponding to the PDH
+     *            object
+     * @param queryKey
+     *            An optional key for PDH counter updates; defaults to the PDH
+     *            object name
+     */
+    public PerfCounterWildcardQuery(Class<T> propertyEnum, String perfObject, String perfWmiClass, String queryKey) {
+        super(propertyEnum, perfObject, perfWmiClass, queryKey);
 
         if (propertyEnum.getEnumConstants().length < 2) {
             throw new IllegalArgumentException("Enum " + propertyEnum.getName()
@@ -156,7 +190,7 @@ public class PerfCounterWildcardQuery<T extends Enum<T>> extends PerfCounterQuer
         if (this.counterListMap != null) {
             for (List<PerfCounter> counterList : this.counterListMap.values()) {
                 for (PerfCounter counter : counterList) {
-                    PerfDataUtil.removeCounterFromQuery(counter);
+                    pdhQueryHandler.removeCounterFromQuery(counter, this.queryKey);
                 }
             }
         }
@@ -205,35 +239,27 @@ public class PerfCounterWildcardQuery<T extends Enum<T>> extends PerfCounterQuer
     }
 
     private void queryPdhWildcard(Map<T, List<Long>> valueMap, T[] props) {
-        if (counterListMap != null) {
-            refreshCounterListMap();
-            // Need to fetch a counter to refresh. Since index 0 is the filter
-            // and has no counters, use index 1
-            if (!counterListMap.get(props[1]).isEmpty()) {
-                List<PerfCounter> counterList = counterListMap.get(props[1]);
-                if (counterList != null && 0 < PerfDataUtil.updateQuery(counterList.get(0))) {
-                    for (int i = 1; i < props.length; i++) {
-                        T prop = props[i];
-                        List<Long> values = new ArrayList<>();
-                        for (PerfCounter counter : counterListMap.get(prop)) {
-                            values.add(PerfDataUtil.queryCounter(counter));
-                            if (i == 1) {
-                                instancesFromLastQuery.add(counter.getInstance());
-                            }
-                        }
-                        valueMap.put(prop, values);
+        if (this.counterListMap != null && refreshCounterListMap() && 0 < pdhQueryHandler.updateQuery(this.queryKey)) {
+            for (int i = 1; i < props.length; i++) {
+                T prop = props[i];
+                List<Long> values = new ArrayList<>();
+                for (PerfCounter counter : counterListMap.get(prop)) {
+                    values.add(pdhQueryHandler.queryCounter(counter));
+                    if (i == 1) {
+                        instancesFromLastQuery.add(counter.getInstance());
                     }
-                    return;
                 }
+                valueMap.put(prop, values);
             }
+            return;
         }
-        // Zero timestamp means update failed after muliple
-        // attempts; fallback to WMI
+        // Zero timestamp means update failed after multiple attempts; fall back
+        // to WMI
         setDataSource(CounterDataSource.WMI);
     }
 
     private void queryWmiWildcard(Map<T, List<Long>> valueMap, T[] props) {
-        WmiResult<T> result = WmiQueryHandler.getInstance().queryWMI(this.counterQuery);
+        WmiResult<T> result = wmiQueryHandler.queryWMI(this.counterQuery);
         if (result.getResultCount() > 0) {
             // First element is instance name
             for (int i = 0; i < result.getResultCount(); i++) {
@@ -269,7 +295,10 @@ public class PerfCounterWildcardQuery<T extends Enum<T>> extends PerfCounterQuer
         try {
             objectItems = PdhUtil.PdhEnumObjectItems(null, null, perfObjectLocalized, 100);
         } catch (PdhException e) {
-            LOG.warn("Could not enumerate counter instances for {}", perfObjectLocalized);
+            // Don't warn if the map was never initialized
+            if (!this.counterListMap.isEmpty()) {
+                LOG.warn("Could not enumerate counter instances for {}", perfObjectLocalized);
+            }
             return false;
         }
         List<String> instances = objectItems.getInstances();
@@ -282,7 +311,7 @@ public class PerfCounterWildcardQuery<T extends Enum<T>> extends PerfCounterQuer
             for (PerfCounter counter : counterList) {
                 instancesToAdd.remove(counter.getInstance());
                 if (!instances.contains(counter.getInstance())) {
-                    PerfDataUtil.removeCounterFromQuery(counter);
+                    pdhQueryHandler.removeCounterFromQuery(counter, this.queryKey);
                 }
             }
         }
@@ -290,11 +319,11 @@ public class PerfCounterWildcardQuery<T extends Enum<T>> extends PerfCounterQuer
         // instance filter
         for (int i = 1; i < propertyEnum.getEnumConstants().length; i++) {
             T prop = propertyEnum.getEnumConstants()[i];
-            List<PerfCounter> counterList = new ArrayList<>(instances.size());
+            List<PerfCounter> counterList = this.counterListMap.getOrDefault(prop, new ArrayList<>(instances.size()));
             for (String instance : instancesToAdd) {
                 PerfCounter counter = PerfDataUtil.createCounter(perfObject, instance,
                         ((PdhCounterWildcardProperty) prop).getCounter());
-                if (!PerfDataUtil.addCounterToQuery(counter)) {
+                if (!pdhQueryHandler.addCounterToQuery(counter, this.queryKey)) {
                     unInitPdhCounters();
                     return false;
                 }

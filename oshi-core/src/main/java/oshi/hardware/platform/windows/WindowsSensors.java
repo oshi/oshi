@@ -141,7 +141,7 @@ public class WindowsSensors implements Sensors {
         long tempK = 0L;
         Map<ThermalZoneProperty, List<Long>> valueListMap = this.thermalZonePerfCounters.queryValuesWildcard();
         List<Long> valueList = valueListMap.get(ThermalZoneProperty.TEMPERATURE);
-        if (!valueList.isEmpty()) {
+        if (valueList != null && !valueList.isEmpty()) {
             LOG.debug("Found Temperature data in PDH or WMI Counter");
             tempK = valueList.get(0);
         }

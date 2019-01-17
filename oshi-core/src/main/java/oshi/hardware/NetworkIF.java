@@ -41,7 +41,6 @@ import oshi.hardware.platform.mac.MacNetworks;
 import oshi.hardware.platform.unix.freebsd.FreeBsdNetworks;
 import oshi.hardware.platform.unix.solaris.SolarisNetworks;
 import oshi.hardware.platform.windows.WindowsNetworks;
-import oshi.util.FormatUtil;
 import oshi.util.ParseUtil;
 
 /**
@@ -95,7 +94,7 @@ public class NetworkIF implements Serializable {
                 for (byte b : hwmac) {
                     octets.add(String.format("%02x", b));
                 }
-                this.mac = FormatUtil.join(":", octets);
+                this.mac = String.join(":", octets);
             } else {
                 this.mac = "Unknown";
             }

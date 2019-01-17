@@ -81,8 +81,8 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
         }
     }
 
-    private transient PerfCounterQuery<PageSwapProperty> memoryPerfCounters = new PerfCounterQuery<>(PageSwapProperty.class,
-            "Memory", "Win32_PerfRawData_PerfOS_Memory");
+    private transient PerfCounterQuery<PageSwapProperty> memoryPerfCounters = new PerfCounterQuery<>(
+            PageSwapProperty.class, "Memory", "Win32_PerfRawData_PerfOS_Memory");
 
     /*
      * For swap file usage
