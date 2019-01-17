@@ -294,8 +294,10 @@ public class WindowsFileSystem implements FileSystem {
         Map<HandleCountProperty, List<Long>> valueListMap = this.handlePerfCounters.queryValuesWildcard();
         List<Long> valueList = valueListMap.get(HandleCountProperty.HANDLECOUNT);
         long descriptors = 0L;
-        for (int i = 0; i < valueList.size(); i++) {
-            descriptors += valueList.get(i);
+        if (valueList != null) {
+            for (int i = 0; i < valueList.size(); i++) {
+                descriptors += valueList.get(i);
+            }
         }
         return descriptors;
     }

@@ -48,7 +48,6 @@ import oshi.data.windows.PerfCounterWildcardQuery.PdhCounterWildcardProperty;
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.jna.platform.windows.VersionHelpers;
 import oshi.util.ParseUtil;
-import oshi.util.platform.windows.PerfDataUtil;
 import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
 
@@ -99,8 +98,8 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
     }
 
     private final transient PerfCounterWildcardQuery<ProcessorTickCountProperty> processorTickPerfCounters = new PerfCounterWildcardQuery<>(
-            ProcessorTickCountProperty.class, PROCESSOR,
-            "Win32_PerfRawData_PerfOS_Processor WHERE NOT Name=\"_Total\"");
+            ProcessorTickCountProperty.class, PROCESSOR, "Win32_PerfRawData_PerfOS_Processor WHERE NOT Name=\"_Total\"",
+            "Processor Tick Count");
 
     enum SystemTickCountProperty implements PdhCounterProperty {
         PERCENTDPCTIME(PerfCounterQuery.TOTAL_INSTANCE, "% DPC Time"), //
@@ -132,7 +131,8 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
     }
 
     private final transient PerfCounterQuery<SystemTickCountProperty> systemTickPerfCounters = new PerfCounterQuery<>(
-            SystemTickCountProperty.class, PROCESSOR, "Win32_PerfRawData_PerfOS_Processor WHERE Name=\"_Total\"");
+            SystemTickCountProperty.class, PROCESSOR, "Win32_PerfRawData_PerfOS_Processor WHERE Name=\"_Total\"",
+            "System Tick Count");
 
     enum InterruptsProperty implements PdhCounterProperty {
         INTERRUPTSPERSEC(PerfCounterQuery.TOTAL_INSTANCE, "Interrupts/sec");
@@ -163,7 +163,8 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
     }
 
     private final transient PerfCounterQuery<InterruptsProperty> interruptsPerfCounters = new PerfCounterQuery<>(
-            InterruptsProperty.class, PROCESSOR, "Win32_PerfRawData_PerfOS_Processor WHERE Name=\"_Total\"");
+            InterruptsProperty.class, PROCESSOR, "Win32_PerfRawData_PerfOS_Processor WHERE Name=\"_Total\"",
+            "Interrupt Count");
 
     /*
      * For tick counts
@@ -198,8 +199,6 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
 
     private final transient PerfCounterQuery<ContextSwitchProperty> contextSwitchPerfCounters = new PerfCounterQuery<>(
             ContextSwitchProperty.class, "System", "Win32_PerfRawData_PerfOS_System");
-
-    private long lastRefresh = 0L;
 
     /**
      * Create a Processor
@@ -287,7 +286,6 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
         // Percent time raw value is cumulative 100NS-ticks
         // Divide by 10_000 to get milliseconds
 
-        refreshTickCounters();
         Map<SystemTickCountProperty, Long> valueMap = this.systemTickPerfCounters.queryValues();
         ticks[TickType.IRQ.getIndex()] = valueMap.getOrDefault(SystemTickCountProperty.PERCENTINTERRUPTTIME, 0L)
                 / 10_000L;
@@ -334,6 +332,10 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
         List<Long> idleList = valueMap.get(ProcessorTickCountProperty.PERCENTPROCESSORTIME);
 
         long[][] ticks = new long[this.logicalProcessorCount][TickType.values().length];
+        if (instances.isEmpty() || systemList == null || userList == null || irqList == null || softIrqList == null
+                || idleList == null) {
+            return ticks;
+        }
         for (int p = 0; p < instances.size(); p++) {
             int cpu = ParseUtil.parseIntOrDefault(instances.get(p), 0);
             if (cpu >= this.logicalProcessorCount) {
@@ -391,17 +393,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public long getInterrupts() {
-        refreshTickCounters();
         Map<InterruptsProperty, Long> valueMap = this.interruptsPerfCounters.queryValues();
         return valueMap.getOrDefault(InterruptsProperty.INTERRUPTSPERSEC, 0L);
-    }
-
-    /**
-     * Refresh PDH counters no more often than 100ms
-     */
-    private void refreshTickCounters() {
-        if (System.currentTimeMillis() - this.lastRefresh > 100L) {
-            this.lastRefresh = PerfDataUtil.updateQuery(PROCESSOR);
-        }
     }
 }

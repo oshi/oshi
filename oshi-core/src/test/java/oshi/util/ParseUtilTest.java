@@ -355,4 +355,9 @@ public class ParseUtilTest {
         assertEquals("", ParseUtil.getTextBetweenStrings(text, before, after));
 
     }
+
+    @Test
+    public void testFiletimeToMs() {
+        assertEquals(1172163600306L, ParseUtil.filetimeToUtcMs(128166372003061629L, false));
+    }
 }

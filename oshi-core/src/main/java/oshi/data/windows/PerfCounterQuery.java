@@ -48,7 +48,10 @@ public class PerfCounterQuery<T extends Enum<T>> {
     protected final Class<T> propertyEnum;
     protected final String perfObject;
     protected final String perfWmiClass;
+    protected final String queryKey;
     protected CounterDataSource source;
+    protected PerfCounterQueryHandler pdhQueryHandler;
+    protected WmiQueryHandler wmiQueryHandler;
     /*
      * Only one will be non-null depending on source
      */
@@ -77,6 +80,28 @@ public class PerfCounterQuery<T extends Enum<T>> {
      *            object
      */
     public PerfCounterQuery(Class<T> propertyEnum, String perfObject, String perfWmiClass) {
+        this(propertyEnum, perfObject, perfWmiClass, perfObject);
+    }
+
+    /**
+     * Construct a new object to hold performance counter data source and
+     * results
+     * 
+     * @param propertyEnum
+     *            An enum which implements {@link PdhCounterProperty} and
+     *            contains the WMI field (Enum value) and PDH Counter string
+     *            (instance and counter)
+     * @param perfObject
+     *            The PDH object for this counter; all counters on this object
+     *            will be refreshed at the same time
+     * @param perfWmiClass
+     *            The WMI PerfData_RawData_* class corresponding to the PDH
+     *            object
+     * @param queryKey
+     *            An optional key for PDH counter updates; defaults to the PDH
+     *            object name
+     */
+    public PerfCounterQuery(Class<T> propertyEnum, String perfObject, String perfWmiClass, String queryKey) {
         if (PdhCounterProperty.class.isAssignableFrom(propertyEnum.getDeclaringClass())) {
             throw new IllegalArgumentException(
                     propertyEnum.getDeclaringClass().getName() + " must implement PdhCounterProperty.");
@@ -84,6 +109,9 @@ public class PerfCounterQuery<T extends Enum<T>> {
         this.propertyEnum = propertyEnum;
         this.perfObject = perfObject;
         this.perfWmiClass = perfWmiClass;
+        this.queryKey = queryKey;
+        this.pdhQueryHandler = PerfCounterQueryHandler.getInstance();
+        this.wmiQueryHandler = WmiQueryHandler.getInstance();
 
         // Only continue if instantiating this class
         if (!PerfCounterQuery.class.equals(this.getClass())) {
@@ -141,7 +169,7 @@ public class PerfCounterQuery<T extends Enum<T>> {
             PerfCounter counter = PerfDataUtil.createCounter(perfObject, ((PdhCounterProperty) prop).getInstance(),
                     ((PdhCounterProperty) prop).getCounter());
             counterMap.put(prop, counter);
-            if (!PerfDataUtil.addCounterToQuery(counter)) {
+            if (!pdhQueryHandler.addCounterToQuery(counter, this.queryKey)) {
                 unInitPdhCounters();
                 return false;
             }
@@ -156,7 +184,7 @@ public class PerfCounterQuery<T extends Enum<T>> {
     protected void unInitPdhCounters() {
         if (this.counterMap != null) {
             for (PerfCounter counter : this.counterMap.values()) {
-                PerfDataUtil.removeCounterFromQuery(counter);
+                pdhQueryHandler.removeCounterFromQuery(counter, this.queryKey);
             }
         }
         this.counterMap = null;
@@ -199,9 +227,9 @@ public class PerfCounterQuery<T extends Enum<T>> {
     }
 
     private void queryPdh(Map<T, Long> valueMap, T[] props) {
-        if (counterMap != null && 0 < PerfDataUtil.updateQuery(counterMap.get(props[0]))) {
+        if (counterMap != null && 0 < pdhQueryHandler.updateQuery(this.queryKey)) {
             for (T prop : props) {
-                valueMap.put(prop, PerfDataUtil.queryCounter(counterMap.get(prop)));
+                valueMap.put(prop, pdhQueryHandler.queryCounter(counterMap.get(prop)));
             }
             return;
         }
@@ -211,7 +239,7 @@ public class PerfCounterQuery<T extends Enum<T>> {
     }
 
     private void queryWmi(Map<T, Long> valueMap, T[] props) {
-        WmiResult<T> result = WmiQueryHandler.getInstance().queryWMI(this.counterQuery);
+        WmiResult<T> result = wmiQueryHandler.queryWMI(this.counterQuery);
         if (result.getResultCount() > 0) {
             for (T prop : props) {
                 switch (result.getVtType(prop)) {
