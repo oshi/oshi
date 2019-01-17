@@ -26,8 +26,6 @@ package oshi.util;
 import static org.junit.Assert.assertEquals;
 
 import java.text.DecimalFormatSymbols;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -170,23 +168,6 @@ public class FormatUtilTest {
         assertEquals("1", FormatUtil.toUnsignedString(0x0000000000000001L));
         assertEquals("9223372036854775808", FormatUtil.toUnsignedString(0x8000000000000000L));
         assertEquals("18446744073709551615", FormatUtil.toUnsignedString(0xffffffffffffffffL));
-    }
-
-    /**
-     * Test String Join
-     */
-    @Test
-    public void testStringJoin() {
-        String[] foo = { "foo", "bar" };
-        assertEquals("foo,bar", FormatUtil.join(",", foo));
-
-        List<String> fooList = new ArrayList<>();
-        fooList.add("do");
-        fooList.add("re");
-        fooList.add("mi");
-        assertEquals("do, re, mi", FormatUtil.join(", ", fooList));
-
-        assertEquals(":-)", FormatUtil.join("-", ":", ")"));
     }
 
     /**

@@ -26,7 +26,6 @@ package oshi.util;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
-import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -251,59 +250,6 @@ public class FormatUtil {
             return Long.toString(l);
         }
         return BigInteger.valueOf(l).add(TWOS_COMPLEMENT_REF).toString();
-    }
-
-    /**
-     * Returns a new String composed of copies of the CharSequence elements
-     * joined together with a copy of the specified delimiter.
-     *
-     * This is a Java 7 implementation of Java 8's String.join
-     *
-     * @param delimiter
-     *            the delimiter that separates each element
-     * @param elements
-     *            the elements to join together.
-     * @return a new String that is composed of the elements separated by the
-     *         delimiter
-     */
-    public static String join(CharSequence delimiter, CharSequence... elements) {
-        StringBuilder sb = new StringBuilder();
-        boolean first = true;
-        for (CharSequence cs : elements) {
-            if (first) {
-                first = false;
-            } else {
-                sb.append(delimiter);
-            }
-            sb.append(cs);
-        }
-        return sb.toString();
-    }
-
-    /**
-     * Returns a new String composed of copies of the CharSequence elements
-     * joined together with a copy of the specified delimiter.
-     *
-     * This is a Java 7 implementation of Java 8's String.join
-     *
-     * @param delimiter
-     *            a sequence of characters that is used to separate each of the
-     *            elements in the resulting String
-     * @param elements
-     *            an Iterable that will have its elements joined together.
-     * @return a new String that is composed from the elements argument
-     */
-    public static String join(CharSequence delimiter, Iterable<? extends CharSequence> elements) {
-        StringBuilder sb = new StringBuilder();
-        Iterator<?> iter = elements.iterator();
-        if (iter.hasNext()) {
-            sb.append(iter.next().toString());
-        }
-        while (iter.hasNext()) {
-            sb.append(delimiter);
-            sb.append(iter.next().toString());
-        }
-        return sb.toString();
     }
 
     /**
