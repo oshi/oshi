@@ -188,4 +188,12 @@ public class FormatUtilTest {
 
         assertEquals(":-)", FormatUtil.join("-", ":", ")"));
     }
+
+    /**
+     * Test format error
+     */
+    @Test
+    public void testFormatError() {
+        assertEquals("0xB66A00A8", FormatUtil.formatError(-1234567000));
+    }
 }

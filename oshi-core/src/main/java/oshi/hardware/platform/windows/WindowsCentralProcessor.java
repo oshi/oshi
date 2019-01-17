@@ -43,12 +43,12 @@ import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.data.windows.PerfCounterQuery;
 import oshi.data.windows.PerfCounterQuery.PdhCounterProperty;
+import oshi.data.windows.PerfCounterQueryHandler;
 import oshi.data.windows.PerfCounterWildcardQuery;
 import oshi.data.windows.PerfCounterWildcardQuery.PdhCounterWildcardProperty;
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.jna.platform.windows.VersionHelpers;
 import oshi.util.ParseUtil;
-import oshi.util.platform.windows.PerfDataUtil;
 import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
 
@@ -334,6 +334,10 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
         List<Long> idleList = valueMap.get(ProcessorTickCountProperty.PERCENTPROCESSORTIME);
 
         long[][] ticks = new long[this.logicalProcessorCount][TickType.values().length];
+        if (instances.isEmpty() || systemList == null || userList == null || irqList == null || softIrqList == null
+                || idleList == null) {
+            return ticks;
+        }
         for (int p = 0; p < instances.size(); p++) {
             int cpu = ParseUtil.parseIntOrDefault(instances.get(p), 0);
             if (cpu >= this.logicalProcessorCount) {
@@ -401,7 +405,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
      */
     private void refreshTickCounters() {
         if (System.currentTimeMillis() - this.lastRefresh > 100L) {
-            this.lastRefresh = PerfDataUtil.updateQuery(PROCESSOR);
+            this.lastRefresh = PerfCounterQueryHandler.getInstance().updateQuery(PROCESSOR);
         }
     }
 }

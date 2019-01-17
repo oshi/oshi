@@ -64,6 +64,8 @@ public class FormatUtil {
      */
     private static final BigInteger TWOS_COMPLEMENT_REF = BigInteger.ONE.shiftLeft(64);
 
+    public static final String HEX_ERROR = "0x%08X";
+
     private FormatUtil() {
     }
 
@@ -302,5 +304,16 @@ public class FormatUtil {
             sb.append(iter.next().toString());
         }
         return sb.toString();
+    }
+
+    /**
+     * Translate an integer error code to its hex notation
+     * 
+     * @param errorCode
+     *            The error code
+     * @return A string representing the error as 0x....
+     */
+    public static String formatError(int errorCode) {
+        return String.format(HEX_ERROR, errorCode);
     }
 }

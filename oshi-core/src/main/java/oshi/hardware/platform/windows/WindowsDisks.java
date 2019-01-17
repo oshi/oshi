@@ -223,6 +223,10 @@ public class WindowsDisks implements Disks {
         List<Long> queueLengthList = valueMap.get(PhysicalDiskProperty.CURRENTDISKQUEUELENGTH);
         List<Long> xferTimeList = valueMap.get(PhysicalDiskProperty.PERCENTDISKTIME);
 
+        if (instances.isEmpty() || readList == null || readByteList == null || writeList == null
+                || writeByteList == null || queueLengthList == null || xferTimeList == null) {
+            return stats;
+        }
         for (int i = 0; i < instances.size(); i++) {
             String name = getIndexFromName(instances.get(i));
             // If index arg passed, only update passed arg

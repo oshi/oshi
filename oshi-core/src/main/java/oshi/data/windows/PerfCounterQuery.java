@@ -49,6 +49,8 @@ public class PerfCounterQuery<T extends Enum<T>> {
     protected final String perfObject;
     protected final String perfWmiClass;
     protected CounterDataSource source;
+    protected PerfCounterQueryHandler pdhQueryHandler;
+    protected WmiQueryHandler wmiQueryHandler;
     /*
      * Only one will be non-null depending on source
      */
@@ -84,6 +86,8 @@ public class PerfCounterQuery<T extends Enum<T>> {
         this.propertyEnum = propertyEnum;
         this.perfObject = perfObject;
         this.perfWmiClass = perfWmiClass;
+        this.pdhQueryHandler = PerfCounterQueryHandler.getInstance();
+        this.wmiQueryHandler = WmiQueryHandler.getInstance();
 
         // Only continue if instantiating this class
         if (!PerfCounterQuery.class.equals(this.getClass())) {
@@ -141,7 +145,7 @@ public class PerfCounterQuery<T extends Enum<T>> {
             PerfCounter counter = PerfDataUtil.createCounter(perfObject, ((PdhCounterProperty) prop).getInstance(),
                     ((PdhCounterProperty) prop).getCounter());
             counterMap.put(prop, counter);
-            if (!PerfDataUtil.addCounterToQuery(counter)) {
+            if (!pdhQueryHandler.addCounterToQuery(counter)) {
                 unInitPdhCounters();
                 return false;
             }
@@ -156,7 +160,7 @@ public class PerfCounterQuery<T extends Enum<T>> {
     protected void unInitPdhCounters() {
         if (this.counterMap != null) {
             for (PerfCounter counter : this.counterMap.values()) {
-                PerfDataUtil.removeCounterFromQuery(counter);
+                pdhQueryHandler.removeCounterFromQuery(counter);
             }
         }
         this.counterMap = null;
@@ -199,9 +203,9 @@ public class PerfCounterQuery<T extends Enum<T>> {
     }
 
     private void queryPdh(Map<T, Long> valueMap, T[] props) {
-        if (counterMap != null && 0 < PerfDataUtil.updateQuery(counterMap.get(props[0]))) {
+        if (counterMap != null && 0 < pdhQueryHandler.updateQuery(counterMap.get(props[0]).getObject())) {
             for (T prop : props) {
-                valueMap.put(prop, PerfDataUtil.queryCounter(counterMap.get(prop)));
+                valueMap.put(prop, pdhQueryHandler.queryCounter(counterMap.get(prop)));
             }
             return;
         }
@@ -211,7 +215,7 @@ public class PerfCounterQuery<T extends Enum<T>> {
     }
 
     private void queryWmi(Map<T, Long> valueMap, T[] props) {
-        WmiResult<T> result = WmiQueryHandler.getInstance().queryWMI(this.counterQuery);
+        WmiResult<T> result = wmiQueryHandler.queryWMI(this.counterQuery);
         if (result.getResultCount() > 0) {
             for (T prop : props) {
                 switch (result.getVtType(prop)) {
