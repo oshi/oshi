@@ -248,7 +248,7 @@ public class PerfCounterQueryHandler {
      * that string. Multiple counters may be added to this string, but will all
      * be queried at the same time.
      *
-     * @param objectName
+     * @param key
      *            String to associate with the counter. Most code defaults to
      *            the English PDH object name so custom keys should avoid these
      *            strings.

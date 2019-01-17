@@ -224,7 +224,6 @@ public class WindowsDisks implements Disks {
 
         if (instances.isEmpty() || readList == null || readByteList == null || writeList == null
                 || writeByteList == null || queueLengthList == null || xferTimeList == null) {
-            System.out.println("OUCH");
             return stats;
         }
         for (int i = 0; i < instances.size(); i++) {

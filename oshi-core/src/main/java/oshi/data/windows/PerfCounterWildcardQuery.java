@@ -190,7 +190,7 @@ public class PerfCounterWildcardQuery<T extends Enum<T>> extends PerfCounterQuer
         if (this.counterListMap != null) {
             for (List<PerfCounter> counterList : this.counterListMap.values()) {
                 for (PerfCounter counter : counterList) {
-                    pdhQueryHandler.removeCounterFromQuery(counter, queryKey);
+                    pdhQueryHandler.removeCounterFromQuery(counter, this.queryKey);
                 }
             }
         }

@@ -184,7 +184,7 @@ public class PerfCounterQuery<T extends Enum<T>> {
     protected void unInitPdhCounters() {
         if (this.counterMap != null) {
             for (PerfCounter counter : this.counterMap.values()) {
-                pdhQueryHandler.removeCounterFromQuery(counter, queryKey);
+                pdhQueryHandler.removeCounterFromQuery(counter, this.queryKey);
             }
         }
         this.counterMap = null;
