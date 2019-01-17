@@ -122,9 +122,6 @@ public class PerfCounterQueryHandler {
      *
      * @param counter
      *            A PerfCounter object
-     * @param key
-     *            A string used as the key for the query. All counters with this
-     *            key will be updated when any single counter is updated.
      * @return True if the counter was successfully removed.
      */
     public boolean removeCounterFromQuery(PerfCounter counter) {
@@ -137,6 +134,9 @@ public class PerfCounterQueryHandler {
      *
      * @param counter
      *            A PerfCounter object
+     * @param key
+     *            A string used as the key for the query. All counters with this
+     *            key will be updated when any single counter is updated.
      * @return True if the counter was successfully removed.
      */
     public boolean removeCounterFromQuery(PerfCounter counter, String key) {
