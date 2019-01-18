@@ -128,18 +128,6 @@ public class PerfCounterWildcardQuery<T extends Enum<T>> extends PerfCounterQuer
         this.instanceFilter = ((PdhCounterWildcardProperty) propertyEnum.getEnumConstants()[0]).getCounter()
                 .toLowerCase();
         this.perfObjectLocalized = localize(this.perfObject);
-        // Try PDH first, fallback to WMI
-        if (!setDataSource(CounterDataSource.PDH)) {
-            LOG.debug("PDH Data Source failed for {}", perfObject);
-            setDataSource(CounterDataSource.WMI);
-        }
-        // Release handles on shutdown
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                unInitPdhCounters();
-            }
-        });
     }
 
     /**
@@ -177,8 +165,7 @@ public class PerfCounterWildcardQuery<T extends Enum<T>> extends PerfCounterQuer
      */
     @Override
     protected boolean initPdhCounters() {
-        this.counterListMap = new EnumMap<>(propertyEnum);
-        return refreshCounterListMap();
+        return fillCounterListMap();
     }
 
     /**
@@ -187,13 +174,7 @@ public class PerfCounterWildcardQuery<T extends Enum<T>> extends PerfCounterQuer
      */
     @Override
     protected void unInitPdhCounters() {
-        if (this.counterListMap != null) {
-            for (List<PerfCounter> counterList : this.counterListMap.values()) {
-                for (PerfCounter counter : counterList) {
-                    pdhQueryHandler.removeCounterFromQuery(counter, this.queryKey);
-                }
-            }
-        }
+        pdhQueryHandler.removeAllCountersFromQuery(this.queryKey);
         this.counterListMap = null;
     }
 
@@ -218,28 +199,24 @@ public class PerfCounterWildcardQuery<T extends Enum<T>> extends PerfCounterQuer
         this.instancesFromLastQuery.clear();
         T[] props = this.propertyEnum.getEnumConstants();
         if (source.equals(CounterDataSource.PDH)) {
-            queryPdhWildcard(valueMap, props);
+            // Set up the query and counter handles, and query
+            if (initPdhCounters() && queryPdhWildcard(valueMap, props)) {
+                // If both init and query return true, then valueMap contains
+                // the results. Release the handles.
+                unInitPdhCounters();
+            } else {
+                // If either init or query failed, switch to WMI
+                setDataSource(CounterDataSource.WMI);
+            }
         }
-        // The pdh query may fail and set the source to WMI, so this is
-        // intentionally not an "else"
         if (source.equals(CounterDataSource.WMI)) {
             queryWmiWildcard(valueMap, props);
         }
         return valueMap;
     }
 
-    /**
-     * List the instances corresponding to the value map lists
-     * 
-     * @return A list of the in the order they are returned in the value map
-     *         query
-     */
-    public List<String> getInstancesFromLastQuery() {
-        return this.instancesFromLastQuery;
-    }
-
-    private void queryPdhWildcard(Map<T, List<Long>> valueMap, T[] props) {
-        if (this.counterListMap != null && refreshCounterListMap() && 0 < pdhQueryHandler.updateQuery(this.queryKey)) {
+    private boolean queryPdhWildcard(Map<T, List<Long>> valueMap, T[] props) {
+        if (this.counterListMap != null && 0 < pdhQueryHandler.updateQuery(this.queryKey)) {
             for (int i = 1; i < props.length; i++) {
                 T prop = props[i];
                 List<Long> values = new ArrayList<>();
@@ -251,11 +228,11 @@ public class PerfCounterWildcardQuery<T extends Enum<T>> extends PerfCounterQuer
                 }
                 valueMap.put(prop, values);
             }
-            return;
+            return true;
         }
         // Zero timestamp means update failed after multiple attempts; fall back
         // to WMI
-        setDataSource(CounterDataSource.WMI);
+        return false;
     }
 
     private void queryWmiWildcard(Map<T, List<Long>> valueMap, T[] props) {
@@ -289,16 +266,22 @@ public class PerfCounterWildcardQuery<T extends Enum<T>> extends PerfCounterQuer
         }
     }
 
-    private boolean refreshCounterListMap() {
+    /**
+     * List the instances corresponding to the value map lists
+     * 
+     * @return A list of the in the order they are returned in the value map
+     *         query
+     */
+    public List<String> getInstancesFromLastQuery() {
+        return this.instancesFromLastQuery;
+    }
+
+    private boolean fillCounterListMap() {
         // Get list of instances
         final PdhEnumObjectItems objectItems;
         try {
             objectItems = PdhUtil.PdhEnumObjectItems(null, null, perfObjectLocalized, 100);
         } catch (PdhException e) {
-            // Don't warn if the map was never initialized
-            if (!this.counterListMap.isEmpty()) {
-                LOG.warn("Could not enumerate counter instances for {}", perfObjectLocalized);
-            }
             return false;
         }
         List<String> instances = objectItems.getInstances();
@@ -306,20 +289,12 @@ public class PerfCounterWildcardQuery<T extends Enum<T>> extends PerfCounterQuer
         instances.removeIf(i -> !Util.wildcardMatch(i.toLowerCase(), this.instanceFilter));
         // Track instances not in counter list, to add
         Set<String> instancesToAdd = new HashSet<>(instances);
-        // Remove counters not in the instance list
-        for (List<PerfCounter> counterList : this.counterListMap.values()) {
-            for (PerfCounter counter : counterList) {
-                instancesToAdd.remove(counter.getInstance());
-                if (!instances.contains(counter.getInstance())) {
-                    pdhQueryHandler.removeCounterFromQuery(counter, this.queryKey);
-                }
-            }
-        }
         // Populate map with instances to add. Skip first counter, which defines
         // instance filter
+        this.counterListMap = new EnumMap<>(propertyEnum);
         for (int i = 1; i < propertyEnum.getEnumConstants().length; i++) {
             T prop = propertyEnum.getEnumConstants()[i];
-            List<PerfCounter> counterList = this.counterListMap.getOrDefault(prop, new ArrayList<>(instances.size()));
+            List<PerfCounter> counterList = new ArrayList<>(instances.size());
             for (String instance : instancesToAdd) {
                 PerfCounter counter = PerfDataUtil.createCounter(perfObject, instance,
                         ((PdhCounterWildcardProperty) prop).getCounter());
