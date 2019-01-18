@@ -112,23 +112,9 @@ public class PerfCounterQuery<T extends Enum<T>> {
         this.queryKey = queryKey;
         this.pdhQueryHandler = PerfCounterQueryHandler.getInstance();
         this.wmiQueryHandler = WmiQueryHandler.createInstance();
-
-        // Only continue if instantiating this class
-        if (!PerfCounterQuery.class.equals(this.getClass())) {
-            return;
-        }
-        // Try PDH first, fallback to WMI
-        if (!setDataSource(CounterDataSource.PDH)) {
-            LOG.debug("PDH Data Source failed for {}", perfObject);
-            setDataSource(CounterDataSource.WMI);
-        }
-        // Release handles on shutdown
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                unInitPdhCounters();
-            }
-        });
+        // Start off with PDH as source; if query here fails we will permanently
+        // fall back to WMI
+        this.source = CounterDataSource.PDH;
     }
 
     /**
@@ -182,11 +168,7 @@ public class PerfCounterQuery<T extends Enum<T>> {
      * counters from the PDH Query, releasing their handles.
      */
     protected void unInitPdhCounters() {
-        if (this.counterMap != null) {
-            for (PerfCounter counter : this.counterMap.values()) {
-                pdhQueryHandler.removeCounterFromQuery(counter, this.queryKey);
-            }
-        }
+        pdhQueryHandler.removeAllCountersFromQuery(this.queryKey);
         this.counterMap = null;
     }
 
@@ -216,26 +198,32 @@ public class PerfCounterQuery<T extends Enum<T>> {
         EnumMap<T, Long> valueMap = new EnumMap<>(propertyEnum);
         T[] props = this.propertyEnum.getEnumConstants();
         if (source.equals(CounterDataSource.PDH)) {
-            queryPdh(valueMap, props);
+            // Set up the query and counter handles, and query
+            if (initPdhCounters() && queryPdh(valueMap, props)) {
+                // If both init and query return true, then valueMap contains
+                // the results. Release the handles.
+                unInitPdhCounters();
+            } else {
+                // If either init or query failed, switch to WMI
+                setDataSource(CounterDataSource.WMI);
+            }
         }
-        // The pdh query may fail and set the source to WMI, so this is
-        // intentionally not an "else"
         if (source.equals(CounterDataSource.WMI)) {
             queryWmi(valueMap, props);
         }
         return valueMap;
     }
 
-    private void queryPdh(Map<T, Long> valueMap, T[] props) {
+    private boolean queryPdh(Map<T, Long> valueMap, T[] props) {
         if (counterMap != null && 0 < pdhQueryHandler.updateQuery(this.queryKey)) {
             for (T prop : props) {
                 valueMap.put(prop, pdhQueryHandler.queryCounter(counterMap.get(prop)));
             }
-            return;
+            return true;
         }
         // Zero timestamp means update failed after muliple
         // attempts; fallback to WMI
-        setDataSource(CounterDataSource.WMI);
+        return false;
     }
 
     private void queryWmi(Map<T, Long> valueMap, T[] props) {
