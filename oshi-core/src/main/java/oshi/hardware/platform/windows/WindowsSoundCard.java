@@ -89,13 +89,13 @@ public class WindowsSoundCard extends AbstractSoundCard {
      */
     public static List<WindowsSoundCard> getSoundCards() {
         // Get the map of device manufacturer by name
-        Map<String, String> deviceManufacturerMap = getDeviceManufacturerMap();
+        WmiQueryHandler wmiQueryHandler = WmiQueryHandler.createInstance();
+        Map<String, String> deviceManufacturerMap = getDeviceManufacturerMap(wmiQueryHandler);
         String driverQuery = createClause(deviceManufacturerMap);
 
         WbemcliUtil.WmiQuery<SoundCardKernel> cardKernelQuery = new WbemcliUtil.WmiQuery<>(driverQuery,
                 SoundCardKernel.class);
-        WbemcliUtil.WmiResult<SoundCardKernel> cardKernelQueryResult = WmiQueryHandler.getInstance()
-                .queryWMI(cardKernelQuery);
+        WbemcliUtil.WmiResult<SoundCardKernel> cardKernelQueryResult = wmiQueryHandler.queryWMI(cardKernelQuery);
 
         List<WindowsSoundCard> soundCards = new ArrayList<>();
         for (int i = 0; i < cardKernelQueryResult.getResultCount(); i++) {
@@ -117,13 +117,15 @@ public class WindowsSoundCard extends AbstractSoundCard {
     /**
      * Gets the map of device manufacturer by name
      * 
+     * @param wmiQueryHandler
+     * 
      * @return THe map
      */
-    private static Map<String, String> getDeviceManufacturerMap() {
+    private static Map<String, String> getDeviceManufacturerMap(WmiQueryHandler wmiQueryHandler) {
         Map<String, String> deviceManufacturerMap = new HashMap<>();
         WbemcliUtil.WmiQuery<SoundCardName> soundCardQuery = new WbemcliUtil.WmiQuery<>("Win32_SoundDevice",
                 SoundCardName.class);
-        WbemcliUtil.WmiResult<SoundCardName> soundCardResult = WmiQueryHandler.getInstance().queryWMI(soundCardQuery);
+        WbemcliUtil.WmiResult<SoundCardName> soundCardResult = wmiQueryHandler.queryWMI(soundCardQuery);
         for (int i = 0; i < soundCardResult.getResultCount(); i++) {
             deviceManufacturerMap.put(WmiUtil.getString(soundCardResult, SoundCardName.NAME, i),
                     WmiUtil.getString(soundCardResult, SoundCardName.MANUFACTURER, i));

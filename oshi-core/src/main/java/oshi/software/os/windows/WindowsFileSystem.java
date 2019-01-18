@@ -65,6 +65,8 @@ public class WindowsFileSystem implements FileSystem {
     private final transient WmiQuery<LogicalDiskProperty> logicalDiskQuery = new WmiQuery<>("Win32_LogicalDisk",
             LogicalDiskProperty.class);
 
+    private final transient WmiQueryHandler wmiQueryHandler = WmiQueryHandler.createInstance();
+
     /*
      * For handle counts
      */
@@ -229,7 +231,7 @@ public class WindowsFileSystem implements FileSystem {
         long total;
         List<OSFileStore> fs = new ArrayList<>();
 
-        WmiResult<LogicalDiskProperty> drives = WmiQueryHandler.getInstance().queryWMI(this.logicalDiskQuery);
+        WmiResult<LogicalDiskProperty> drives = wmiQueryHandler.queryWMI(this.logicalDiskQuery);
 
         for (int i = 0; i < drives.getResultCount(); i++) {
             free = WmiUtil.getUint64(drives, LogicalDiskProperty.FREESPACE, i);

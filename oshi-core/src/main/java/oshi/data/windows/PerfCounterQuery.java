@@ -111,7 +111,7 @@ public class PerfCounterQuery<T extends Enum<T>> {
         this.perfWmiClass = perfWmiClass;
         this.queryKey = queryKey;
         this.pdhQueryHandler = PerfCounterQueryHandler.getInstance();
-        this.wmiQueryHandler = WmiQueryHandler.getInstance();
+        this.wmiQueryHandler = WmiQueryHandler.createInstance();
 
         // Only continue if instantiating this class
         if (!PerfCounterQuery.class.equals(this.getClass())) {

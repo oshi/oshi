@@ -23,6 +23,7 @@
  */
 package oshi.util.platform.windows;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
@@ -54,17 +55,44 @@ public class WmiQueryHandler {
     // Track initialization of Security
     private boolean securityInitialized = false;
 
-    // Singleton pattern
-    private static WmiQueryHandler instance;
+    private static final Class<?>[] EMPTY_CLASS_ARRAY = new Class<?>[0];
+    private static final Object[] EMPTY_OBJECT_ARRAY = new Object[0];
 
-    private WmiQueryHandler() {
+    // Factory to create this or a subclass
+    private static Class<? extends WmiQueryHandler> customClass = null;
+
+    /**
+     * Factory method to create an instance of this class. To override this
+     * class, use {@link #setInstanceClass(Class)} to define a sublcass which
+     * extends {@link WmiQueryHandler}.
+     * 
+     * @return An instance of this class or a class defined by
+     *         {@link #setInstanceClass(Class)}
+     */
+    public static WmiQueryHandler createInstance() {
+        if (customClass == null) {
+            return new WmiQueryHandler();
+        }
+        try {
+            return customClass.getConstructor(EMPTY_CLASS_ARRAY).newInstance(EMPTY_OBJECT_ARRAY);
+        } catch (NoSuchMethodException | SecurityException e) {
+            LOG.error("Failed to find or access a no-arg constructor for {}", customClass);
+        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException
+                | InvocationTargetException e) {
+            LOG.error("Failed to create a new instance of {}", customClass);
+        }
+        return null;
     }
 
-    public static synchronized WmiQueryHandler getInstance() {
-        if (instance == null) {
-            instance = new WmiQueryHandler();
-        }
-        return instance;
+    /**
+     * Define a subclass to be instantiated by {@link #createInstance()}. The
+     * class must extend {@link WmiQueryHandler}.
+     * 
+     * @param instanceClass
+     *            The class to instantiate with {@link #createInstance()}.
+     */
+    public static void setInstanceClass(Class<? extends WmiQueryHandler> instanceClass) {
+        customClass = instanceClass;
     }
 
     /**
@@ -153,7 +181,7 @@ public class WmiQueryHandler {
         return comInit;
     }
 
-    private boolean initCOM(int coInitThreading) {
+    protected boolean initCOM(int coInitThreading) {
         WinNT.HRESULT hres = Ole32.INSTANCE.CoInitializeEx(null, coInitThreading);
         switch (hres.intValue()) {
         // Successful local initialization (S_OK) or was already initialized
