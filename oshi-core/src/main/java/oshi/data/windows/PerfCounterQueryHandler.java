@@ -41,8 +41,6 @@ import oshi.util.platform.windows.PerfDataUtil.PerfCounter;
 public class PerfCounterQueryHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(PerfCounterQueryHandler.class);
-    private static final String LOG_COUNTER_NOT_EXISTS = "Counter {} does not exist.";
-    private static final String LOG_KEY_NOT_EXISTS = "Query key {} does not exist.";
 
     private Map<PerfCounter, HANDLEByReference> counterHandleMap = new ConcurrentHashMap<>();
     private Map<String, HANDLEByReference> queryHandleMap = new ConcurrentHashMap<>();
@@ -53,6 +51,8 @@ public class PerfCounterQueryHandler {
 
     private PerfCounterQueryHandler() {
         // Set up hook to close all queries on shutdown
+        // User is expected to release all queries so this should only be a
+        // backup
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
@@ -166,7 +166,6 @@ public class PerfCounterQueryHandler {
         // Remove counter list from queryCounter Map
         List<PerfCounter> counterList = queryCounterMap.remove(queryKey);
         if (counterList == null) {
-            LOG.error(LOG_KEY_NOT_EXISTS, queryKey);
             return;
         }
         // Remove all counters from counterHandle map
@@ -211,7 +210,7 @@ public class PerfCounterQueryHandler {
      */
     public long updateQuery(String key) {
         if (!queryHandleMap.containsKey(key)) {
-            LOG.error(LOG_KEY_NOT_EXISTS, key);
+            LOG.error("Query key {} does not exist to update.", key);
             return 0L;
         }
         return PerfDataUtil.updateQueryTimestamp(queryHandleMap.get(key));
@@ -228,7 +227,7 @@ public class PerfCounterQueryHandler {
     public long queryCounter(PerfCounter counter) {
         if (!counterHandleMap.containsKey(counter)) {
             if (LOG.isErrorEnabled()) {
-                LOG.error(LOG_COUNTER_NOT_EXISTS, counter.getCounterPath());
+                LOG.error("Counter {} does not exist to query.", counter.getCounterPath());
             }
             return 0;
         }
