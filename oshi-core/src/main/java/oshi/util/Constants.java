@@ -21,40 +21,13 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package oshi.hardware;
+package oshi.util;
 
-import java.io.Serializable;
+public class Constants {
 
-/**
- * The Baseboard represents the system board, also called motherboard, logic
- * board, etc.
- */
-public interface Baseboard extends Serializable {
-    /**
-     * Get the baseboard manufacturer.
-     *
-     * @return The manufacturer.
-     */
-    String getManufacturer();
+    private Constants() {
+    }
 
-    /**
-     * Get the baseboard model.
-     *
-     * @return The model.
-     */
-    String getModel();
+    public static final String UNKNOWN = "unknown";
 
-    /**
-     * Get the baseboard version.
-     *
-     * @return The version.
-     */
-    String getVersion();
-
-    /**
-     * Get the baseboard serial number.
-     *
-     * @return The serial number.
-     */
-    String getSerialNumber();
 }

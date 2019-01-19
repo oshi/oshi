@@ -24,17 +24,61 @@
 package oshi.hardware.platform.unix.freebsd;
 
 import oshi.hardware.common.AbstractBaseboard;
+import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 
+/**
+ * Baseboard data obtained by dmidecode
+ */
 final class FreeBsdBaseboard extends AbstractBaseboard {
 
     private static final long serialVersionUID = 1L;
 
-    FreeBsdBaseboard() {
-        init();
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getManufacturer() {
+        if (this.manufacturer == null) {
+            readDmiDecode();
+        }
+        return super.getManufacturer();
     }
 
-    private void init() {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getModel() {
+        if (this.model == null) {
+            readDmiDecode();
+        }
+        return super.getModel();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getVersion() {
+        if (this.version == null) {
+            readDmiDecode();
+        }
+        return super.getVersion();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getSerialNumber() {
+        if (this.serialNumber == null) {
+            readDmiDecode();
+        }
+        return super.getSerialNumber();
+    }
+
+    private void readDmiDecode() {
 
         // $ sudo dmidecode -t system
         // # dmidecode 3.0
@@ -57,41 +101,29 @@ final class FreeBsdBaseboard extends AbstractBaseboard {
         // System Boot Information
         // Status: No errors detected
 
-        String manufacturer = "";
         final String manufacturerMarker = "Manufacturer:";
-        String model = "";
         final String productNameMarker = "Product Name:";
-        String version = "";
         final String versionMarker = "Version:";
-        String serialNumber = "";
         final String serialNumMarker = "Serial Number:";
 
         // Only works with root permissions but it's all we've got
         for (final String checkLine : ExecutingCommand.runNative("dmidecode -t baseboard")) {
             if (checkLine.contains(manufacturerMarker)) {
-                manufacturer = checkLine.split(manufacturerMarker)[1].trim();
+                String manufacturer = checkLine.split(manufacturerMarker)[1].trim();
+                this.manufacturer = manufacturer.isEmpty() ? Constants.UNKNOWN : manufacturer;
             }
             if (checkLine.contains(productNameMarker)) {
-                model = checkLine.split(productNameMarker)[1].trim();
+                String model = checkLine.split(productNameMarker)[1].trim();
+                this.model = model.isEmpty() ? Constants.UNKNOWN : model;
             }
             if (checkLine.contains(versionMarker)) {
-                version = checkLine.split(versionMarker)[1].trim();
+                String version = checkLine.split(versionMarker)[1].trim();
+                this.version = version.isEmpty() ? Constants.UNKNOWN : version;
             }
             if (checkLine.contains(serialNumMarker)) {
-                serialNumber = checkLine.split(serialNumMarker)[1].trim();
+                String serialNumber = checkLine.split(serialNumMarker)[1].trim();
+                this.serialNumber = serialNumber.isEmpty() ? Constants.UNKNOWN : serialNumber;
             }
-        }
-        if (!manufacturer.isEmpty()) {
-            setManufacturer(manufacturer);
-        }
-        if (!model.isEmpty()) {
-            setModel(model);
-        }
-        if (!version.isEmpty()) {
-            setVersion(version);
-        }
-        if (!serialNumber.isEmpty()) {
-            setSerialNumber(serialNumber);
         }
     }
 }
