@@ -64,7 +64,6 @@
 			<!-- Now, select which projects to include in this module-set. -->
 			<includes>
 				<include>com.github.oshi:oshi-core</include>
-				<include>com.github.oshi:oshi-json</include>
 				<include>com.github.oshi:oshi-core-shaded</include>
 			</includes>
 			<binaries>
