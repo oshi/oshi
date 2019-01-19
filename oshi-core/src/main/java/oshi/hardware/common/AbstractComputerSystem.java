@@ -26,36 +26,29 @@ package oshi.hardware.common;
 import oshi.hardware.Baseboard;
 import oshi.hardware.ComputerSystem;
 import oshi.hardware.Firmware;
+import oshi.util.Constants;
 
 /**
- * Hardware data
- *
- * @author SchiTho1 [at] Securiton AG
- * @author widdis [at] gmail [dot] com
+ * Computer System data.
  */
 public abstract class AbstractComputerSystem implements ComputerSystem {
 
     private static final long serialVersionUID = 1L;
 
-    private String manufacturer;
-    private String model;
-    private String serialNumber;
-    private Firmware firmware;
-    private Baseboard baseboard;
-
-    protected AbstractComputerSystem() {
-        this.manufacturer = "unknown";
-        this.model = "unknown";
-        this.serialNumber = "unknown";
-        this.firmware = null;
-        this.baseboard = null;
-    }
+    protected String manufacturer;
+    protected String model;
+    protected String serialNumber;
+    protected Firmware firmware;
+    protected Baseboard baseboard;
 
     /**
      * {@inheritDoc}
      */
     @Override
     public String getManufacturer() {
+        if (this.manufacturer == null) {
+            this.manufacturer = Constants.UNKNOWN;
+        }
         return this.manufacturer;
     }
 
@@ -64,6 +57,9 @@ public abstract class AbstractComputerSystem implements ComputerSystem {
      */
     @Override
     public String getModel() {
+        if (this.model == null) {
+            this.model = Constants.UNKNOWN;
+        }
         return this.model;
     }
 
@@ -72,6 +68,9 @@ public abstract class AbstractComputerSystem implements ComputerSystem {
      */
     @Override
     public String getSerialNumber() {
+        if (this.serialNumber == null) {
+            this.serialNumber = Constants.UNKNOWN;
+        }
         return this.serialNumber;
     }
 
@@ -95,7 +94,7 @@ public abstract class AbstractComputerSystem implements ComputerSystem {
      * @param manufacturer
      *            The manufacturer to set.
      */
-    protected void setManufacturer(String manufacturer) {
+    private void setManufacturer(String manufacturer) {
         this.manufacturer = manufacturer;
     }
 
@@ -103,7 +102,7 @@ public abstract class AbstractComputerSystem implements ComputerSystem {
      * @param model
      *            The model to set.
      */
-    protected void setModel(String model) {
+    private void setModel(String model) {
         this.model = model;
     }
 
@@ -111,7 +110,7 @@ public abstract class AbstractComputerSystem implements ComputerSystem {
      * @param serialNumber
      *            The serialNumber to set.
      */
-    protected void setSerialNumber(String serialNumber) {
+    private void setSerialNumber(String serialNumber) {
         this.serialNumber = serialNumber;
     }
 
@@ -119,7 +118,7 @@ public abstract class AbstractComputerSystem implements ComputerSystem {
      * @param firmware
      *            The firmware to set.
      */
-    protected void setFirmware(Firmware firmware) {
+    private void setFirmware(Firmware firmware) {
         this.firmware = firmware;
     }
 
@@ -127,7 +126,7 @@ public abstract class AbstractComputerSystem implements ComputerSystem {
      * @param baseboard
      *            The baseboard to set.
      */
-    protected void setBaseboard(Baseboard baseboard) {
+    private void setBaseboard(Baseboard baseboard) {
         this.baseboard = baseboard;
     }
 

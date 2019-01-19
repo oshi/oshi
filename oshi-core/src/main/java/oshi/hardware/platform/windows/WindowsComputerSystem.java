@@ -26,15 +26,15 @@ package oshi.hardware.platform.windows;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery; // NOSONAR squid:S1191
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
+import oshi.hardware.Baseboard;
+import oshi.hardware.Firmware;
 import oshi.hardware.common.AbstractComputerSystem;
+import oshi.util.Constants;
 import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
 
 /**
- * Hardware data obtained from WMI
- *
- * @author SchiTho1 [at] Securiton AG
- * @author widdis [at] gmail [dot] com
+ * Hardware data obtained from WMI.
  */
 final class WindowsComputerSystem extends AbstractComputerSystem {
 
@@ -52,55 +52,97 @@ final class WindowsComputerSystem extends AbstractComputerSystem {
         IDENTIFYINGNUMBER;
     }
 
-    private final transient WmiQuery<ComputerSystemProductProperty> identifyingNumberQuery = new WmiQuery<>(
-            "Win32_ComputerSystemProduct", ComputerSystemProductProperty.class);
-
     private final transient WmiQueryHandler wmiQueryHandler = WmiQueryHandler.createInstance();
 
-    private String systemSerialNumber = "";
-
-    WindowsComputerSystem() {
-        init();
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getManufacturer() {
+        if (this.manufacturer == null) {
+            queryManufacturerAndModel();
+        }
+        return super.getManufacturer();
     }
 
-    private void init() {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getModel() {
+        if (this.model == null) {
+            queryManufacturerAndModel();
+        }
+        return super.getModel();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getSerialNumber() {
+        if (this.serialNumber == null) {
+            querySystemSerialNumber();
+        }
+        return this.serialNumber;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Firmware getFirmware() {
+        if (this.firmware == null) {
+            this.firmware = new WindowsFirmware();
+        }
+        return this.firmware;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Baseboard getBaseboard() {
+        if (this.baseboard == null) {
+            this.baseboard = new WindowsBaseboard();
+        }
+        return this.baseboard;
+    }
+
+    private void queryManufacturerAndModel() {
         WmiQuery<ComputerSystemProperty> computerSystemQuery = new WmiQuery<>("Win32_ComputerSystem",
                 ComputerSystemProperty.class);
         WmiResult<ComputerSystemProperty> win32ComputerSystem = wmiQueryHandler.queryWMI(computerSystemQuery);
         if (win32ComputerSystem.getResultCount() > 0) {
-            setManufacturer(WmiUtil.getString(win32ComputerSystem, ComputerSystemProperty.MANUFACTURER, 0));
-            setModel(WmiUtil.getString(win32ComputerSystem, ComputerSystemProperty.MODEL, 0));
+            this.manufacturer = WmiUtil.getString(win32ComputerSystem, ComputerSystemProperty.MANUFACTURER, 0);
+            this.model = WmiUtil.getString(win32ComputerSystem, ComputerSystemProperty.MODEL, 0);
         }
-
-        setSerialNumber(getSystemSerialNumber());
-        setFirmware(new WindowsFirmware());
-        setBaseboard(new WindowsBaseboard());
     }
 
-    private String getSystemSerialNumber() {
-        if (!"".equals(this.systemSerialNumber)) {
-            return this.systemSerialNumber;
+    private void querySystemSerialNumber() {
+        if (!querySerialFromBios() && !querySerialFromCsProduct()) {
+            this.serialNumber = Constants.UNKNOWN;
         }
-        // This should always work
+    }
+
+    private boolean querySerialFromBios() {
         WmiQuery<BiosProperty> serialNumberQuery = new WmiQuery<>("Win32_BIOS where PrimaryBIOS=true",
                 BiosProperty.class);
         WmiResult<BiosProperty> serialNumber = wmiQueryHandler.queryWMI(serialNumberQuery);
         if (serialNumber.getResultCount() > 0) {
-            this.systemSerialNumber = WmiUtil.getString(serialNumber, BiosProperty.SERIALNUMBER, 0);
+            this.serialNumber = WmiUtil.getString(serialNumber, BiosProperty.SERIALNUMBER, 0);
         }
-        // If the above doesn't work, this might
-        if ("".equals(this.systemSerialNumber)) {
-            WmiResult<ComputerSystemProductProperty> identifyingNumber = wmiQueryHandler
-                    .queryWMI(identifyingNumberQuery);
-            if (identifyingNumber.getResultCount() > 0) {
-                this.systemSerialNumber = WmiUtil.getString(identifyingNumber,
-                        ComputerSystemProductProperty.IDENTIFYINGNUMBER, 0);
-            }
+        return this.serialNumber != null && !this.serialNumber.isEmpty();
+    }
+
+    private boolean querySerialFromCsProduct() {
+        WmiQuery<ComputerSystemProductProperty> identifyingNumberQuery = new WmiQuery<>("Win32_ComputerSystemProduct",
+                ComputerSystemProductProperty.class);
+        WmiResult<ComputerSystemProductProperty> identifyingNumber = wmiQueryHandler.queryWMI(identifyingNumberQuery);
+        if (identifyingNumber.getResultCount() > 0) {
+            this.serialNumber = WmiUtil.getString(identifyingNumber, ComputerSystemProductProperty.IDENTIFYINGNUMBER,
+                    0);
         }
-        // Nothing worked. Default.
-        if ("".equals(this.systemSerialNumber)) {
-            this.systemSerialNumber = "unknown";
-        }
-        return this.systemSerialNumber;
+        return this.serialNumber != null && !this.serialNumber.isEmpty();
     }
 }

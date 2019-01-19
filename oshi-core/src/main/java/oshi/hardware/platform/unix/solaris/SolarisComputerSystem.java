@@ -23,26 +23,80 @@
  */
 package oshi.hardware.platform.unix.solaris;
 
+import oshi.hardware.Baseboard;
+import oshi.hardware.Firmware;
 import oshi.hardware.common.AbstractComputerSystem;
+import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
 /**
- * Hardware data obtained from smbios
- *
- * @author widdis [at] gmail [dot] com
+ * Hardware data obtained from smbios.
  */
 final class SolarisComputerSystem extends AbstractComputerSystem {
 
     private static final long serialVersionUID = 1L;
 
-    private static final String UNKNOWN = "unknown";
-
-    SolarisComputerSystem() {
-        init();
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getManufacturer() {
+        if (this.manufacturer == null) {
+            readSmbios();
+        }
+        return this.manufacturer;
     }
 
-    private void init() {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getModel() {
+        if (this.model == null) {
+            readSmbios();
+        }
+        return this.model;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getSerialNumber() {
+        if (this.serialNumber == null) {
+            this.serialNumber = getSystemSerialNumber();
+        }
+        return this.serialNumber;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Firmware getFirmware() {
+        if (this.firmware == null) {
+            readSmbios();
+        }
+        return this.firmware;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Baseboard getBaseboard() {
+        if (this.baseboard == null) {
+            readSmbios();
+        }
+        return this.baseboard;
+    }
+
+    private void readSmbios() {
+        SolarisFirmware firmware = new SolarisFirmware();
+        this.firmware = firmware;
+        SolarisBaseboard baseboard = new SolarisBaseboard();
+        this.baseboard = baseboard;
 
         // $ smbios
         // ID SIZE TYPE
@@ -80,27 +134,14 @@ final class SolarisComputerSystem extends AbstractComputerSystem {
         // ID SIZE TYPE
         // 3 .... <snip> ...
 
-        String vendor = "";
         final String vendorMarker = "Vendor:";
-        String biosDate = "";
         final String biosDateMarker = "Release Date:";
-        String biosVersion = "";
         final String biosVersionMarker = "VersionString:";
 
-        String manufacturer = "";
-        String boardManufacturer = "";
         final String manufacturerMarker = "Manufacturer:";
-        String product = "";
-        String model = "";
         final String productMarker = "Product:";
-        String version = "";
         final String versionMarker = "Version:";
-        String serialNumber = "";
-        String boardSerialNumber = "";
         final String serialNumMarker = "Serial Number:";
-
-        SolarisFirmware firmware = new SolarisFirmware();
-        SolarisBaseboard baseboard = new SolarisBaseboard();
 
         boolean smbTypeBIOS = false;
         boolean smbTypeSystem = false;
@@ -128,75 +169,59 @@ final class SolarisComputerSystem extends AbstractComputerSystem {
 
             if (smbTypeBIOS) {
                 if (checkLine.contains(vendorMarker)) {
-                    vendor = checkLine.split(vendorMarker)[1].trim();
+                    String vendor = checkLine.split(vendorMarker)[1].trim();
+                    if (!vendor.isEmpty()) {
+                        firmware.setManufacturer(vendor);
+                    }
                 } else if (checkLine.contains(biosVersionMarker)) {
-                    biosVersion = checkLine.split(biosVersionMarker)[1].trim();
+                    String biosVersion = checkLine.split(biosVersionMarker)[1].trim();
+                    if (!biosVersion.isEmpty()) {
+                        firmware.setVersion(biosVersion);
+                    }
                 } else if (checkLine.contains(biosDateMarker)) {
-                    biosDate = checkLine.split(biosDateMarker)[1].trim();
+                    String biosDate = checkLine.split(biosDateMarker)[1].trim();
+                    if (!biosDate.isEmpty()) {
+                        firmware.setReleaseDate(ParseUtil.parseMmDdYyyyToYyyyMmDD(biosDate));
+                    }
                 }
             } else if (smbTypeSystem) {
                 if (checkLine.contains(manufacturerMarker)) {
-                    manufacturer = checkLine.split(manufacturerMarker)[1].trim();
+                    String manufacturer = checkLine.split(manufacturerMarker)[1].trim();
+                    if (!manufacturer.isEmpty()) {
+                        this.manufacturer = manufacturer;
+                    }
                 } else if (checkLine.contains(productMarker)) {
-                    product = checkLine.split(productMarker)[1].trim();
+                    String product = checkLine.split(productMarker)[1].trim();
+                    if (!product.isEmpty()) {
+                        this.model = product;
+                    }
                 } else if (checkLine.contains(serialNumMarker)) {
                     serialNumber = checkLine.split(serialNumMarker)[1].trim();
                 }
             } else if (smbTypeBaseboard) {
                 if (checkLine.contains(manufacturerMarker)) {
-                    boardManufacturer = checkLine.split(manufacturerMarker)[1].trim();
+                    String boardManufacturer = checkLine.split(manufacturerMarker)[1].trim();
+                    if (!boardManufacturer.isEmpty()) {
+                        baseboard.setManufacturer(boardManufacturer);
+                    }
                 } else if (checkLine.contains(productMarker)) {
-                    model = checkLine.split(productMarker)[1].trim();
+                    String product = checkLine.split(productMarker)[1].trim();
+                    if (!product.isEmpty()) {
+                        baseboard.setModel(product);
+                    }
                 } else if (checkLine.contains(versionMarker)) {
-                    version = checkLine.split(versionMarker)[1].trim();
+                    String version = checkLine.split(versionMarker)[1].trim();
+                    if (!version.isEmpty()) {
+                        baseboard.setVersion(version);
+                    }
                 } else if (checkLine.contains(serialNumMarker)) {
-                    boardSerialNumber = checkLine.split(serialNumMarker)[1].trim();
+                    String boardSerialNumber = checkLine.split(serialNumMarker)[1].trim();
+                    if (!boardSerialNumber.isEmpty()) {
+                        baseboard.setSerialNumber(boardSerialNumber);
+                    }
                 }
             }
         }
-
-        if (!vendor.isEmpty()) {
-            firmware.setManufacturer(vendor);
-        }
-        if (!biosVersion.isEmpty()) {
-            firmware.setVersion(biosVersion);
-        }
-        if (!biosDate.isEmpty()) {
-            try {
-                // Date is MM-DD-YYYY, convert to YYYY-MM-DD
-                firmware.setReleaseDate(String.format("%s-%s-%s", biosDate.substring(6, 10), biosDate.substring(0, 2),
-                        biosDate.substring(3, 5)));
-            } catch (StringIndexOutOfBoundsException e) {
-                firmware.setReleaseDate(biosDate);
-            }
-        }
-
-        if (!manufacturer.isEmpty()) {
-            setManufacturer(manufacturer);
-        }
-        if (!product.isEmpty()) {
-            setModel(product);
-        }
-        if (serialNumber.isEmpty()) {
-            serialNumber = getSystemSerialNumber();
-        }
-        setSerialNumber(serialNumber);
-
-        if (!boardManufacturer.isEmpty()) {
-            baseboard.setManufacturer(boardManufacturer);
-        }
-        if (!model.isEmpty()) {
-            baseboard.setModel(model);
-        }
-        if (!version.isEmpty()) {
-            baseboard.setVersion(version);
-        }
-        if (!boardSerialNumber.isEmpty()) {
-            baseboard.setSerialNumber(boardSerialNumber);
-        }
-
-        setFirmware(firmware);
-        setBaseboard(baseboard);
     }
 
     private String getSystemSerialNumber() {
@@ -213,7 +238,7 @@ final class SolarisComputerSystem extends AbstractComputerSystem {
             }
         }
         if (serialNumber.isEmpty()) {
-            serialNumber = UNKNOWN;
+            serialNumber = Constants.UNKNOWN;
         }
         return serialNumber;
     }

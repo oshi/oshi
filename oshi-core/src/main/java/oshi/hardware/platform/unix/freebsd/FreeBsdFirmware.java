@@ -26,6 +26,7 @@ package oshi.hardware.platform.unix.freebsd;
 import oshi.hardware.common.AbstractFirmware;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
+import oshi.util.ParseUtil;
 
 final class FreeBsdFirmware extends AbstractFirmware {
 
@@ -98,7 +99,8 @@ final class FreeBsdFirmware extends AbstractFirmware {
                 this.version = version.isEmpty() ? Constants.UNKNOWN : version;
             } else if (checkLine.contains(releaseDateMarker)) {
                 String releaseDate = checkLine.split(releaseDateMarker)[1].trim();
-                this.releaseDate = releaseDate.isEmpty() ? Constants.UNKNOWN : parseReleaseDate(releaseDate);
+                this.releaseDate = releaseDate.isEmpty() ? Constants.UNKNOWN
+                        : ParseUtil.parseMmDdYyyyToYyyyMmDD(releaseDate);
             }
         }
     }

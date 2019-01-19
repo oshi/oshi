@@ -27,6 +27,7 @@ import oshi.hardware.common.AbstractFirmware;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
+import oshi.util.ParseUtil;
 
 /**
  * Firmware data obtained by sysfs.
@@ -34,10 +35,6 @@ import oshi.util.FileUtil;
 final class LinuxFirmware extends AbstractFirmware {
 
     private static final long serialVersionUID = 1L;
-
-    // Note: /sys/class/dmi/id symlinks here, but /sys/devices/* is the
-    // official/approved path for sysfs information
-    private static final String SYSFS_SERIAL_PATH = "/sys/devices/virtual/dmi/id/";
 
     // $ ls /sys/devices/virtual/dmi/id/
     // bios_date board_vendor chassis_version product_version
@@ -53,7 +50,7 @@ final class LinuxFirmware extends AbstractFirmware {
     @Override
     public String getManufacturer() {
         if (this.manufacturer == null) {
-            final String biosVendor = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + "bios_vendor").trim();
+            final String biosVendor = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "bios_vendor").trim();
             this.manufacturer = (biosVendor.isEmpty()) ? Constants.UNKNOWN : biosVendor;
         }
         return this.manufacturer;
@@ -65,7 +62,7 @@ final class LinuxFirmware extends AbstractFirmware {
     @Override
     public String getDescription() {
         if (this.description == null) {
-            final String modalias = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + "modalias").trim();
+            final String modalias = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "modalias").trim();
             this.description = (modalias.isEmpty()) ? Constants.UNKNOWN : modalias;
         }
         return this.description;
@@ -77,7 +74,7 @@ final class LinuxFirmware extends AbstractFirmware {
     @Override
     public String getVersion() {
         if (this.version == null) {
-            final String biosVersion = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + "bios_version").trim();
+            final String biosVersion = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "bios_version").trim();
             if (biosVersion.isEmpty()) {
                 this.version = Constants.UNKNOWN;
             } else {
@@ -94,8 +91,8 @@ final class LinuxFirmware extends AbstractFirmware {
     @Override
     public String getReleaseDate() {
         if (this.releaseDate == null) {
-            final String biosDate = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + "bios_date").trim();
-            this.releaseDate = biosDate.isEmpty() ? Constants.UNKNOWN : parseReleaseDate(biosDate);
+            final String biosDate = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "bios_date").trim();
+            this.releaseDate = biosDate.isEmpty() ? Constants.UNKNOWN : ParseUtil.parseMmDdYyyyToYyyyMmDD(biosDate);
         }
         return this.releaseDate;
     }

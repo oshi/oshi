@@ -134,21 +134,4 @@ public abstract class AbstractFirmware implements Firmware {
         this.releaseDate = releaseDate;
     }
 
-    /**
-     * Parse a release date in MM-DD-YYYY or MM/DD/YYYY to YYYY-MM-DD
-     * 
-     * @param releaseDate
-     *            The date in MM DD YYYY format
-     * @return The date in ISO YYYY-MM-DD format if parseable, or the original
-     *         string
-     */
-    protected String parseReleaseDate(String releaseDate) {
-        try {
-            // Date is MM-DD-YYYY, convert to YYYY-MM-DD
-            return String.format("%s-%s-%s", releaseDate.substring(6, 10), releaseDate.substring(0, 2),
-                    releaseDate.substring(3, 5));
-        } catch (StringIndexOutOfBoundsException e) {
-            return releaseDate;
-        }
-    }
 }

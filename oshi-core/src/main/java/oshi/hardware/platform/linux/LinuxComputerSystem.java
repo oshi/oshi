@@ -23,100 +23,133 @@
  */
 package oshi.hardware.platform.linux;
 
+import oshi.hardware.Baseboard;
+import oshi.hardware.Firmware;
 import oshi.hardware.common.AbstractComputerSystem;
+import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 
 /**
- * Hardware data obtained from sysfs
- *
- * @author SchiTho1 [at] Securiton AG
- * @author widdis [at] gmail [dot] com
+ * Hardware data obtained from sysfs.
  */
 final class LinuxComputerSystem extends AbstractComputerSystem {
 
     private static final long serialVersionUID = 1L;
 
-    // Note: /sys/class/dmi/id symlinks here, but /sys/devices/* is the
-    // official/approved path for sysfs information
-    private static final String SYSFS_SERIAL_PATH = "/sys/devices/virtual/dmi/id/";
-    private static final String UNKNOWN = "unknown";
-
-    LinuxComputerSystem() {
-        init();
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getManufacturer() {
+        if (this.manufacturer == null) {
+            final String sysVendor = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "sys_vendor").trim();
+            if (!sysVendor.isEmpty()) {
+                this.manufacturer = sysVendor;
+            }
+        }
+        return this.manufacturer;
     }
 
-    private void init() {
-
-        // $ ls /sys/devices/virtual/dmi/id/
-        // bios_date board_vendor chassis_version product_version
-        // bios_vendor board_version modalias subsystem
-        // bios_version chassis_asset_tag power sys_vendor
-        // board_asset_tag chassis_serial product_name uevent
-        // board_name chassis_type product_serial
-        // board_serial chassis_vendor product_uuid
-
-        final String sysVendor = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + "sys_vendor");
-        if (sysVendor != null && !sysVendor.trim().isEmpty()) {
-            setManufacturer(sysVendor.trim());
-        }
-
-        final String productName = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + "product_name");
-        final String productVersion = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + "product_version");
-
-        if (productName != null && !productName.trim().isEmpty()) {
-
-            if (productVersion != null && !productVersion.trim().isEmpty() && !"None".equals(productVersion.trim())) {
-
-                setModel(productName.trim() + " (version: " + productVersion.trim() + ")");
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getModel() {
+        if (this.model == null) {
+            final String productName = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "product_name").trim();
+            final String productVersion = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "product_version")
+                    .trim();
+            if (productName.isEmpty()) {
+                if (!productVersion.isEmpty()) {
+                    this.model = productVersion;
+                }
             } else {
-                setModel(productName.trim());
-            }
-        } else {
-            if (productVersion != null && !productVersion.trim().isEmpty()) {
-
-                setModel(productVersion.trim());
+                if (!productVersion.isEmpty() && !"None".equals(productVersion)) {
+                    this.model = productName + " (version: " + productVersion + ")";
+                } else {
+                    this.model = productName;
+                }
             }
         }
-
-        setSerialNumber(getSystemSerialNumber());
-
-        setFirmware(new LinuxFirmware());
-
-        setBaseboard(new LinuxBaseboard());
+        return super.getModel();
     }
 
-    private String getSystemSerialNumber() {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getSerialNumber() {
+        if (this.serialNumber == null) {
+            querySystemSerialNumber();
+        }
+        return this.serialNumber;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Firmware getFirmware() {
+        if (this.firmware == null) {
+            this.firmware = new LinuxFirmware();
+        }
+        return this.firmware;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Baseboard getBaseboard() {
+        if (this.baseboard == null) {
+            this.baseboard = new LinuxBaseboard();
+        }
+        return this.baseboard;
+    }
+
+    private void querySystemSerialNumber() {
+        if (!querySerialFromSysfs() && !querySerialFromDmiDecode() && !querySerialFromLshal()) {
+            this.serialNumber = Constants.UNKNOWN;
+        }
+    }
+
+    private boolean querySerialFromSysfs() {
         // These sysfs files accessible by root, or can be chmod'd at boot time
         // to enable access without root
-        String serialNumber = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + "product_serial");
+        String serialNumber = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "product_serial");
         if (serialNumber.isEmpty() || "None".equals(serialNumber)) {
-            serialNumber = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + "board_serial");
+            serialNumber = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "board_serial");
             if (serialNumber.isEmpty() || "None".equals(serialNumber)) {
-                serialNumber = UNKNOWN;
+                return false;
             }
+            this.serialNumber = serialNumber;
         }
+        return this.serialNumber != null && !this.serialNumber.isEmpty();
+    }
+
+    private boolean querySerialFromDmiDecode() {
         // If root privileges this will work
         String marker = "Serial Number:";
-        if (UNKNOWN.equals(serialNumber)) {
-            for (String checkLine : ExecutingCommand.runNative("dmidecode -t system")) {
-                if (checkLine.contains(marker)) {
-                    serialNumber = checkLine.split(marker)[1].trim();
-                    break;
-                }
+        for (String checkLine : ExecutingCommand.runNative("dmidecode -t system")) {
+            if (checkLine.contains(marker)) {
+                this.serialNumber = checkLine.split(marker)[1].trim();
+                break;
             }
         }
+        return this.serialNumber != null && !this.serialNumber.isEmpty();
+    }
+
+    private boolean querySerialFromLshal() {
         // if lshal command available (HAL deprecated in newer linuxes)
-        if (UNKNOWN.equals(serialNumber)) {
-            marker = "system.hardware.serial =";
-            for (String checkLine : ExecutingCommand.runNative("lshal")) {
-                if (checkLine.contains(marker)) {
-                    serialNumber = ParseUtil.getSingleQuoteStringValue(checkLine);
-                    break;
-                }
+        String marker = "system.hardware.serial =";
+        for (String checkLine : ExecutingCommand.runNative("lshal")) {
+            if (checkLine.contains(marker)) {
+                this.serialNumber = ParseUtil.getSingleQuoteStringValue(checkLine);
+                break;
             }
         }
-        return serialNumber;
+        return this.serialNumber != null && !this.serialNumber.isEmpty();
     }
 }
