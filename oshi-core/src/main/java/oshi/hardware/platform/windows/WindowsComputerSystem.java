@@ -40,18 +40,6 @@ final class WindowsComputerSystem extends AbstractComputerSystem {
 
     private static final long serialVersionUID = 1L;
 
-    enum ComputerSystemProperty {
-        MANUFACTURER, MODEL;
-    }
-
-    enum BiosProperty {
-        SERIALNUMBER;
-    }
-
-    enum ComputerSystemProductProperty {
-        IDENTIFYINGNUMBER;
-    }
-
     private final transient WmiQueryHandler wmiQueryHandler = WmiQueryHandler.createInstance();
 
     /**
@@ -144,5 +132,17 @@ final class WindowsComputerSystem extends AbstractComputerSystem {
                     0);
         }
         return this.serialNumber != null && !this.serialNumber.isEmpty();
+    }
+
+    enum ComputerSystemProperty {
+        MANUFACTURER, MODEL;
+    }
+
+    enum BiosProperty {
+        SERIALNUMBER;
+    }
+
+    enum ComputerSystemProductProperty {
+        IDENTIFYINGNUMBER;
     }
 }

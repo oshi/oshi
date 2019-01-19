@@ -31,9 +31,7 @@ import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
 /**
- * Hardware data obtained from dmidecode
- *
- * @author widdis [at] gmail [dot] com
+ * Hardware data obtained from dmidecode.
  */
 final class FreeBsdComputerSystem extends AbstractComputerSystem {
 

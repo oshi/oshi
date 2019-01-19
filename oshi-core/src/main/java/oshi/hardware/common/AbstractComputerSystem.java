@@ -89,45 +89,4 @@ public abstract class AbstractComputerSystem implements ComputerSystem {
     public Baseboard getBaseboard() {
         return this.baseboard;
     }
-
-    /**
-     * @param manufacturer
-     *            The manufacturer to set.
-     */
-    private void setManufacturer(String manufacturer) {
-        this.manufacturer = manufacturer;
-    }
-
-    /**
-     * @param model
-     *            The model to set.
-     */
-    private void setModel(String model) {
-        this.model = model;
-    }
-
-    /**
-     * @param serialNumber
-     *            The serialNumber to set.
-     */
-    private void setSerialNumber(String serialNumber) {
-        this.serialNumber = serialNumber;
-    }
-
-    /**
-     * @param firmware
-     *            The firmware to set.
-     */
-    private void setFirmware(Firmware firmware) {
-        this.firmware = firmware;
-    }
-
-    /**
-     * @param baseboard
-     *            The baseboard to set.
-     */
-    private void setBaseboard(Baseboard baseboard) {
-        this.baseboard = baseboard;
-    }
-
 }

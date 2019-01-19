@@ -76,7 +76,7 @@ final class SolarisComputerSystem extends AbstractComputerSystem {
     @Override
     public Firmware getFirmware() {
         if (this.firmware == null) {
-            readSmbios();
+            this.firmware = new SolarisFirmware();
         }
         return this.firmware;
     }
@@ -87,17 +87,12 @@ final class SolarisComputerSystem extends AbstractComputerSystem {
     @Override
     public Baseboard getBaseboard() {
         if (this.baseboard == null) {
-            readSmbios();
+            this.baseboard = new SolarisBaseboard();
         }
         return this.baseboard;
     }
 
     private void readSmbios() {
-        SolarisFirmware firmware = new SolarisFirmware();
-        this.firmware = firmware;
-        SolarisBaseboard baseboard = new SolarisBaseboard();
-        this.baseboard = baseboard;
-
         // $ smbios
         // ID SIZE TYPE
         // 0 87 SMB_TYPE_BIOS (BIOS Information)
@@ -134,92 +129,107 @@ final class SolarisComputerSystem extends AbstractComputerSystem {
         // ID SIZE TYPE
         // 3 .... <snip> ...
 
+        int smbTypeId = -1;
+        // Only works with root permissions but it's all we've got
+        for (final String checkLine : ExecutingCommand.runNative("smbios")) {
+            if (checkLine.contains("SMB_TYPE_")) {
+                if (checkLine.contains("SMB_TYPE_BIOS")) {
+                    smbTypeId = 0; // BIOS
+                } else if (checkLine.contains("SMB_TYPE_SYSTEM")) {
+                    smbTypeId = 1; // SYSTEM
+                } else if (checkLine.contains("SMB_TYPE_BASEBOARD")) {
+                    smbTypeId = 2; // BASEBOARD
+                } else {
+                    // First 3 SMB_TYPE_* options are what we need. After that
+                    // no need to continue processing
+                    break;
+                }
+            }
+            switch (smbTypeId) {
+            case 0: // BIOS
+                setFirmwareAttributes(checkLine);
+                break;
+            case 1: // SYSTEM
+                setComputerSystemAttributes(checkLine);
+                break;
+            case 2: // BASEBOARD
+                setBaseboardAttributes(checkLine);
+                break;
+            default:
+                // Do nothing; continue loop
+                break;
+            }
+        }
+    }
+
+    private void setComputerSystemAttributes(String checkLine) {
+        final String manufacturerMarker = "Manufacturer:";
+        final String productMarker = "Product:";
+        final String serialNumMarker = "Serial Number:";
+
+        if (checkLine.contains(manufacturerMarker)) {
+            String manufacturer = checkLine.split(manufacturerMarker)[1].trim();
+            if (!manufacturer.isEmpty()) {
+                this.manufacturer = manufacturer;
+            }
+        } else if (checkLine.contains(productMarker)) {
+            String product = checkLine.split(productMarker)[1].trim();
+            if (!product.isEmpty()) {
+                this.model = product;
+            }
+        } else if (checkLine.contains(serialNumMarker)) {
+            serialNumber = checkLine.split(serialNumMarker)[1].trim();
+        }
+    }
+
+    private void setFirmwareAttributes(String checkLine) {
         final String vendorMarker = "Vendor:";
         final String biosDateMarker = "Release Date:";
         final String biosVersionMarker = "VersionString:";
 
+        if (checkLine.contains(vendorMarker)) {
+            String vendor = checkLine.split(vendorMarker)[1].trim();
+            if (!vendor.isEmpty()) {
+                ((SolarisFirmware) getFirmware()).setManufacturer(vendor);
+            }
+        } else if (checkLine.contains(biosVersionMarker)) {
+            String biosVersion = checkLine.split(biosVersionMarker)[1].trim();
+            if (!biosVersion.isEmpty()) {
+                ((SolarisFirmware) getFirmware()).setVersion(biosVersion);
+            }
+        } else if (checkLine.contains(biosDateMarker)) {
+            String biosDate = checkLine.split(biosDateMarker)[1].trim();
+            if (!biosDate.isEmpty()) {
+                ((SolarisFirmware) getFirmware()).setReleaseDate(ParseUtil.parseMmDdYyyyToYyyyMmDD(biosDate));
+            }
+        }
+    }
+
+    private void setBaseboardAttributes(String checkLine) {
         final String manufacturerMarker = "Manufacturer:";
         final String productMarker = "Product:";
         final String versionMarker = "Version:";
         final String serialNumMarker = "Serial Number:";
 
-        boolean smbTypeBIOS = false;
-        boolean smbTypeSystem = false;
-        boolean smbTypeBaseboard = false;
-        // Only works with root permissions but it's all we've got
-        for (final String checkLine : ExecutingCommand.runNative("smbios")) {
-            // First 3 SMB_TYPE_* options are what we need. After that we quit
-            if (checkLine.contains("SMB_TYPE_")) {
-                if (checkLine.contains("SMB_TYPE_BIOS")) {
-                    smbTypeBIOS = true;
-                    smbTypeSystem = false;
-                    smbTypeBaseboard = false;
-                } else if (checkLine.contains("SMB_TYPE_SYSTEM")) {
-                    smbTypeBIOS = false;
-                    smbTypeSystem = true;
-                    smbTypeBaseboard = false;
-                } else if (checkLine.contains("SMB_TYPE_BASEBOARD")) {
-                    smbTypeBIOS = false;
-                    smbTypeSystem = false;
-                    smbTypeBaseboard = true;
-                } else {
-                    break;
-                }
+        if (checkLine.contains(manufacturerMarker)) {
+            String boardManufacturer = checkLine.split(manufacturerMarker)[1].trim();
+            if (!boardManufacturer.isEmpty()) {
+                ((SolarisBaseboard) getBaseboard()).setManufacturer(boardManufacturer);
             }
-
-            if (smbTypeBIOS) {
-                if (checkLine.contains(vendorMarker)) {
-                    String vendor = checkLine.split(vendorMarker)[1].trim();
-                    if (!vendor.isEmpty()) {
-                        firmware.setManufacturer(vendor);
-                    }
-                } else if (checkLine.contains(biosVersionMarker)) {
-                    String biosVersion = checkLine.split(biosVersionMarker)[1].trim();
-                    if (!biosVersion.isEmpty()) {
-                        firmware.setVersion(biosVersion);
-                    }
-                } else if (checkLine.contains(biosDateMarker)) {
-                    String biosDate = checkLine.split(biosDateMarker)[1].trim();
-                    if (!biosDate.isEmpty()) {
-                        firmware.setReleaseDate(ParseUtil.parseMmDdYyyyToYyyyMmDD(biosDate));
-                    }
-                }
-            } else if (smbTypeSystem) {
-                if (checkLine.contains(manufacturerMarker)) {
-                    String manufacturer = checkLine.split(manufacturerMarker)[1].trim();
-                    if (!manufacturer.isEmpty()) {
-                        this.manufacturer = manufacturer;
-                    }
-                } else if (checkLine.contains(productMarker)) {
-                    String product = checkLine.split(productMarker)[1].trim();
-                    if (!product.isEmpty()) {
-                        this.model = product;
-                    }
-                } else if (checkLine.contains(serialNumMarker)) {
-                    serialNumber = checkLine.split(serialNumMarker)[1].trim();
-                }
-            } else if (smbTypeBaseboard) {
-                if (checkLine.contains(manufacturerMarker)) {
-                    String boardManufacturer = checkLine.split(manufacturerMarker)[1].trim();
-                    if (!boardManufacturer.isEmpty()) {
-                        baseboard.setManufacturer(boardManufacturer);
-                    }
-                } else if (checkLine.contains(productMarker)) {
-                    String product = checkLine.split(productMarker)[1].trim();
-                    if (!product.isEmpty()) {
-                        baseboard.setModel(product);
-                    }
-                } else if (checkLine.contains(versionMarker)) {
-                    String version = checkLine.split(versionMarker)[1].trim();
-                    if (!version.isEmpty()) {
-                        baseboard.setVersion(version);
-                    }
-                } else if (checkLine.contains(serialNumMarker)) {
-                    String boardSerialNumber = checkLine.split(serialNumMarker)[1].trim();
-                    if (!boardSerialNumber.isEmpty()) {
-                        baseboard.setSerialNumber(boardSerialNumber);
-                    }
-                }
+        } else if (checkLine.contains(productMarker)) {
+            String product = checkLine.split(productMarker)[1].trim();
+            if (!product.isEmpty()) {
+                ((SolarisBaseboard) getBaseboard()).setModel(product);
+            }
+        } else if (checkLine.contains(versionMarker)) {
+            String version = checkLine.split(versionMarker)[1].trim();
+            if (!version.isEmpty()) {
+                ((SolarisBaseboard) getBaseboard()).setVersion(version);
+            }
+        } else if (checkLine.contains(serialNumMarker)) {
+            String boardSerialNumber = checkLine.split(serialNumMarker)[1].trim();
+            if (!boardSerialNumber.isEmpty()) {
+                ((SolarisBaseboard) getBaseboard()).setSerialNumber(boardSerialNumber);
             }
         }
     }
