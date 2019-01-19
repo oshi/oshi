@@ -1,6 +1,7 @@
 4.0.0 (in progress)
 ================
 * [#756](https://github.com/oshi/oshi/pull/756): Require Java 8. - [@dbwiddis](https://github.com/dbwiddis).
+* [#773](https://github.com/oshi/oshi/pull/773): Remove oshi-json artifact. - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here.
 
 3.13.0 (1/18/2019)
