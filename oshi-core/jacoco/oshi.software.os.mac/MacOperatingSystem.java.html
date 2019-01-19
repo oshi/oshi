@@ -47,8 +47,8 @@ import oshi.software.os.FileSystem;
 import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
 import oshi.util.ExecutingCommand;
-import oshi.util.FormatUtil;
 import oshi.util.ParseUtil;
+import oshi.util.StringUtil;
 import oshi.util.platform.mac.SysctlUtil;
 
 public class MacOperatingSystem extends AbstractOperatingSystem {
@@ -313,7 +313,7 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
 <span class="nc" id="L313">            offset += arg.length();</span>
 <span class="nc" id="L314">        }</span>
         // Return args null-delimited
-<span class="nc" id="L316">        return FormatUtil.join(&quot;\0&quot;, args);</span>
+<span class="nc" id="L316">        return StringUtil.join(&quot;\0&quot;, args);</span>
     }
 
     /**
