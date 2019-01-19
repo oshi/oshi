@@ -41,8 +41,8 @@ import oshi.hardware.platform.mac.MacNetworks;
 import oshi.hardware.platform.unix.freebsd.FreeBsdNetworks;
 import oshi.hardware.platform.unix.solaris.SolarisNetworks;
 import oshi.hardware.platform.windows.WindowsNetworks;
-import oshi.util.FormatUtil;
 import oshi.util.ParseUtil;
+import oshi.util.StringUtil;
 
 /**
  * A network interface in the machine, including statistics
@@ -95,7 +95,7 @@ import oshi.util.ParseUtil;
 <span class="fc bfc" id="L95" title="All 2 branches covered.">                for (byte b : hwmac) {</span>
 <span class="fc" id="L96">                    octets.add(String.format(&quot;%02x&quot;, b));</span>
                 }
-<span class="fc" id="L98">                this.mac = FormatUtil.join(&quot;:&quot;, octets);</span>
+<span class="fc" id="L98">                this.mac = StringUtil.join(&quot;:&quot;, octets);</span>
 <span class="fc" id="L99">            } else {</span>
 <span class="nc" id="L100">                this.mac = &quot;Unknown&quot;;</span>
             }
