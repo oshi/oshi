@@ -167,5 +167,26 @@ public class Util {
         // Couldn't find VM, return empty string
 <span class="nc" id="L168">        return &quot;&quot;;</span>
     }
+
+    /**
+     * Tests if a String matches another String with a wildcard pattern.
+     * 
+     * @param text
+     *            The String to test
+     * @param pattern
+     *            The String containing a wildcard pattern where ? represents a
+     *            single character and * represents any number of characters. If
+     *            the first character of the pattern is a carat (^) the test is
+     *            performed against the remaining characters and the result of
+     *            the test is the opposite.
+     * @return True if the String matches or if the first character is ^ and the
+     *         remainder of the String does not match.
+     */
+    public static boolean wildcardMatch(String text, String pattern) {
+<span class="pc bpc" id="L186" title="1 of 4 branches missed.">        if (pattern.length() &gt; 0 &amp;&amp; pattern.charAt(0) == '^') {</span>
+<span class="fc bfc" id="L187" title="All 2 branches covered.">            return !wildcardMatch(text, pattern.substring(1));</span>
+        }
+<span class="fc" id="L189">        return text.matches(pattern.replace(&quot;?&quot;, &quot;.?&quot;).replace(&quot;*&quot;, &quot;.*?&quot;));</span>
+    }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

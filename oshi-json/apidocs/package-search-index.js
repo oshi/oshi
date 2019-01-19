@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","url":"allpackages-index.html"},{"l":"oshi.json"},{"l":"oshi.json.hardware"},{"l":"oshi.json.hardware.impl"},{"l":"oshi.json.json"},{"l":"oshi.json.software.os"},{"l":"oshi.json.software.os.impl"},{"l":"oshi.json.util"}]

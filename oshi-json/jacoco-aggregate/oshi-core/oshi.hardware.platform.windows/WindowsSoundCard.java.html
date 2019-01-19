@@ -89,13 +89,13 @@ public class WindowsSoundCard extends AbstractSoundCard {
      */
     public static List&lt;WindowsSoundCard&gt; getSoundCards() {
         // Get the map of device manufacturer by name
-<span class="nc" id="L92">        Map&lt;String, String&gt; deviceManufacturerMap = getDeviceManufacturerMap();</span>
-<span class="nc" id="L93">        String driverQuery = createClause(deviceManufacturerMap);</span>
+<span class="nc" id="L92">        WmiQueryHandler wmiQueryHandler = WmiQueryHandler.createInstance();</span>
+<span class="nc" id="L93">        Map&lt;String, String&gt; deviceManufacturerMap = getDeviceManufacturerMap(wmiQueryHandler);</span>
+<span class="nc" id="L94">        String driverQuery = createClause(deviceManufacturerMap);</span>
 
-<span class="nc" id="L95">        WbemcliUtil.WmiQuery&lt;SoundCardKernel&gt; cardKernelQuery = new WbemcliUtil.WmiQuery&lt;&gt;(driverQuery,</span>
+<span class="nc" id="L96">        WbemcliUtil.WmiQuery&lt;SoundCardKernel&gt; cardKernelQuery = new WbemcliUtil.WmiQuery&lt;&gt;(driverQuery,</span>
                 SoundCardKernel.class);
-<span class="nc" id="L97">        WbemcliUtil.WmiResult&lt;SoundCardKernel&gt; cardKernelQueryResult = WmiQueryHandler.getInstance()</span>
-<span class="nc" id="L98">                .queryWMI(cardKernelQuery);</span>
+<span class="nc" id="L98">        WbemcliUtil.WmiResult&lt;SoundCardKernel&gt; cardKernelQueryResult = wmiQueryHandler.queryWMI(cardKernelQuery);</span>
 
 <span class="nc" id="L100">        List&lt;WindowsSoundCard&gt; soundCards = new ArrayList&lt;&gt;();</span>
 <span class="nc bnc" id="L101" title="All 2 branches missed.">        for (int i = 0; i &lt; cardKernelQueryResult.getResultCount(); i++) {</span>
@@ -117,18 +117,20 @@ public class WindowsSoundCard extends AbstractSoundCard {
     /**
      * Gets the map of device manufacturer by name
      * 
+     * @param wmiQueryHandler
+     * 
      * @return THe map
      */
-    private static Map&lt;String, String&gt; getDeviceManufacturerMap() {
-<span class="nc" id="L123">        Map&lt;String, String&gt; deviceManufacturerMap = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L124">        WbemcliUtil.WmiQuery&lt;SoundCardName&gt; soundCardQuery = new WbemcliUtil.WmiQuery&lt;&gt;(&quot;Win32_SoundDevice&quot;,</span>
+    private static Map&lt;String, String&gt; getDeviceManufacturerMap(WmiQueryHandler wmiQueryHandler) {
+<span class="nc" id="L125">        Map&lt;String, String&gt; deviceManufacturerMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L126">        WbemcliUtil.WmiQuery&lt;SoundCardName&gt; soundCardQuery = new WbemcliUtil.WmiQuery&lt;&gt;(&quot;Win32_SoundDevice&quot;,</span>
                 SoundCardName.class);
-<span class="nc" id="L126">        WbemcliUtil.WmiResult&lt;SoundCardName&gt; soundCardResult = WmiQueryHandler.getInstance().queryWMI(soundCardQuery);</span>
-<span class="nc bnc" id="L127" title="All 2 branches missed.">        for (int i = 0; i &lt; soundCardResult.getResultCount(); i++) {</span>
-<span class="nc" id="L128">            deviceManufacturerMap.put(WmiUtil.getString(soundCardResult, SoundCardName.NAME, i),</span>
-<span class="nc" id="L129">                    WmiUtil.getString(soundCardResult, SoundCardName.MANUFACTURER, i));</span>
+<span class="nc" id="L128">        WbemcliUtil.WmiResult&lt;SoundCardName&gt; soundCardResult = wmiQueryHandler.queryWMI(soundCardQuery);</span>
+<span class="nc bnc" id="L129" title="All 2 branches missed.">        for (int i = 0; i &lt; soundCardResult.getResultCount(); i++) {</span>
+<span class="nc" id="L130">            deviceManufacturerMap.put(WmiUtil.getString(soundCardResult, SoundCardName.NAME, i),</span>
+<span class="nc" id="L131">                    WmiUtil.getString(soundCardResult, SoundCardName.MANUFACTURER, i));</span>
         }
-<span class="nc" id="L131">        return deviceManufacturerMap;</span>
+<span class="nc" id="L133">        return deviceManufacturerMap;</span>
     }
 
     /**
@@ -140,18 +142,18 @@ public class WindowsSoundCard extends AbstractSoundCard {
      * @return The WHERE clause
      */
     private static String createClause(Map&lt;String, String&gt; deviceManufacturerMap) {
-<span class="nc" id="L143">        StringBuilder sb = new StringBuilder(&quot;Win32_PnPSignedDriver&quot;);</span>
-<span class="nc" id="L144">        boolean first = true;</span>
-<span class="nc bnc" id="L145" title="All 2 branches missed.">        for (String key : deviceManufacturerMap.keySet()) {</span>
-<span class="nc bnc" id="L146" title="All 2 branches missed.">            if (first) {</span>
-<span class="nc" id="L147">                sb.append(&quot; WHERE&quot;);</span>
-<span class="nc" id="L148">                first = false;</span>
+<span class="nc" id="L145">        StringBuilder sb = new StringBuilder(&quot;Win32_PnPSignedDriver&quot;);</span>
+<span class="nc" id="L146">        boolean first = true;</span>
+<span class="nc bnc" id="L147" title="All 2 branches missed.">        for (String key : deviceManufacturerMap.keySet()) {</span>
+<span class="nc bnc" id="L148" title="All 2 branches missed.">            if (first) {</span>
+<span class="nc" id="L149">                sb.append(&quot; WHERE&quot;);</span>
+<span class="nc" id="L150">                first = false;</span>
             } else {
-<span class="nc" id="L150">                sb.append(&quot; OR&quot;);</span>
+<span class="nc" id="L152">                sb.append(&quot; OR&quot;);</span>
             }
-<span class="nc" id="L152">            sb.append(&quot; DeviceName LIKE \&quot;%&quot;).append(key).append(&quot;%\&quot;&quot;);</span>
-<span class="nc" id="L153">        }</span>
-<span class="nc" id="L154">        return sb.toString();</span>
+<span class="nc" id="L154">            sb.append(&quot; DeviceName LIKE \&quot;%&quot;).append(key).append(&quot;%\&quot;&quot;);</span>
+<span class="nc" id="L155">        }</span>
+<span class="nc" id="L156">        return sb.toString();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

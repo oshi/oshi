@@ -50,7 +50,7 @@ final class WindowsFirmware extends AbstractFirmware {
     private void init() {
 <span class="nc" id="L51">        WmiQuery&lt;BiosProperty&gt; biosQuery = new WmiQuery&lt;&gt;(&quot;Win32_BIOS where PrimaryBIOS=true&quot;, BiosProperty.class);</span>
 
-<span class="nc" id="L53">        WmiResult&lt;BiosProperty&gt; win32BIOS = WmiQueryHandler.getInstance().queryWMI(biosQuery);</span>
+<span class="nc" id="L53">        WmiResult&lt;BiosProperty&gt; win32BIOS = WmiQueryHandler.createInstance().queryWMI(biosQuery);</span>
 <span class="nc bnc" id="L54" title="All 2 branches missed.">        if (win32BIOS.getResultCount() &gt; 0) {</span>
 <span class="nc" id="L55">            setManufacturer(WmiUtil.getString(win32BIOS, BiosProperty.MANUFACTURER, 0));</span>
 <span class="nc" id="L56">            setName(WmiUtil.getString(win32BIOS, BiosProperty.NAME, 0));</span>
