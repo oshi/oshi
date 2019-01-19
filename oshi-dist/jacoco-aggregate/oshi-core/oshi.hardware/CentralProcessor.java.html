@@ -39,44 +39,44 @@ public interface CentralProcessor extends Serializable {
      * {@link #getProcessorCpuLoadTicks()} arrays.
      */
 <span class="fc" id="L41">    enum TickType {</span>
-        /**
-         * CPU utilization that occurred while executing at the user level
-         * (application).
-         */
-<span class="fc" id="L46">        USER(0),</span>
-        /**
-         * CPU utilization that occurred while executing at the user level with
-         * nice priority.
-         */
-<span class="fc" id="L51">        NICE(1),</span>
-        /**
-         * CPU utilization that occurred while executing at the system level
-         * (kernel).
-         */
-<span class="fc" id="L56">        SYSTEM(2),</span>
-        /**
-         * Time that the CPU or CPUs were idle and the system did not have an
-         * outstanding disk I/O request.
-         */
-<span class="fc" id="L61">        IDLE(3),</span>
-        /**
-         * Time that the CPU or CPUs were idle during which the system had an
-         * outstanding disk I/O request.
-         */
-<span class="fc" id="L66">        IOWAIT(4),</span>
-        /**
-         * Time that the CPU used to service hardware IRQs
-         */
-<span class="fc" id="L70">        IRQ(5),</span>
-        /**
-         * Time that the CPU used to service soft IRQs
-         */
-<span class="fc" id="L74">        SOFTIRQ(6),</span>
-        /**
-         * Time which the hypervisor dedicated for other guests in the system.
-         * Only supported on Linux.
-         */
-<span class="fc" id="L79">        STEAL(7);</span>
+    /**
+     * CPU utilization that occurred while executing at the user level
+     * (application).
+     */
+<span class="fc" id="L46">    USER(0),</span>
+    /**
+     * CPU utilization that occurred while executing at the user level with nice
+     * priority.
+     */
+<span class="fc" id="L51">    NICE(1),</span>
+    /**
+     * CPU utilization that occurred while executing at the system level
+     * (kernel).
+     */
+<span class="fc" id="L56">    SYSTEM(2),</span>
+    /**
+     * Time that the CPU or CPUs were idle and the system did not have an
+     * outstanding disk I/O request.
+     */
+<span class="fc" id="L61">    IDLE(3),</span>
+    /**
+     * Time that the CPU or CPUs were idle during which the system had an
+     * outstanding disk I/O request.
+     */
+<span class="fc" id="L66">    IOWAIT(4),</span>
+    /**
+     * Time that the CPU used to service hardware IRQs
+     */
+<span class="fc" id="L70">    IRQ(5),</span>
+    /**
+     * Time that the CPU used to service soft IRQs
+     */
+<span class="fc" id="L74">    SOFTIRQ(6),</span>
+    /**
+     * Time which the hypervisor dedicated for other guests in the system. Only
+     * supported on Linux.
+     */
+<span class="fc" id="L79">    STEAL(7);</span>
 
         private int index;
 

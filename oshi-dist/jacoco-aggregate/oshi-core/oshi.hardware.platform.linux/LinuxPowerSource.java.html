@@ -133,8 +133,8 @@ public class LinuxPowerSource extends AbstractPowerSource {
                 }
 <span class="nc" id="L134">            }</span>
 <span class="nc bnc" id="L135" title="All 2 branches missed.">            if (isPresent) {</span>
-<span class="nc bnc" id="L136" title="All 2 branches missed.">                psList.add(new LinuxPowerSource(name, (double) energyNow / energyFull,</span>
-                        isCharging ? -2d : 3600d * energyNow / powerNow));
+<span class="nc" id="L136">                psList.add(new LinuxPowerSource(name, (double) energyNow / energyFull,</span>
+<span class="nc bnc" id="L137" title="All 2 branches missed.">                        isCharging ? -2d : 3600d * energyNow / powerNow));</span>
             }
         }
 
