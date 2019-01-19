@@ -111,7 +111,7 @@ public class PerfCounterQuery<T extends Enum<T>> {
         this.perfWmiClass = perfWmiClass;
         this.queryKey = queryKey;
         this.pdhQueryHandler = PerfCounterQueryHandler.getInstance();
-        this.wmiQueryHandler = WmiQueryHandler.getInstance();
+        this.wmiQueryHandler = WmiQueryHandler.createInstance();
         // Start off with PDH as source; if query here fails we will permanently
         // fall back to WMI
         this.source = CounterDataSource.PDH;

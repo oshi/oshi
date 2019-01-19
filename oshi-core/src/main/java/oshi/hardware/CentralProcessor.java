@@ -39,44 +39,44 @@ public interface CentralProcessor extends Serializable {
      * {@link #getProcessorCpuLoadTicks()} arrays.
      */
     enum TickType {
-        /**
-         * CPU utilization that occurred while executing at the user level
-         * (application).
-         */
-        USER(0),
-        /**
-         * CPU utilization that occurred while executing at the user level with
-         * nice priority.
-         */
-        NICE(1),
-        /**
-         * CPU utilization that occurred while executing at the system level
-         * (kernel).
-         */
-        SYSTEM(2),
-        /**
-         * Time that the CPU or CPUs were idle and the system did not have an
-         * outstanding disk I/O request.
-         */
-        IDLE(3),
-        /**
-         * Time that the CPU or CPUs were idle during which the system had an
-         * outstanding disk I/O request.
-         */
-        IOWAIT(4),
-        /**
-         * Time that the CPU used to service hardware IRQs
-         */
-        IRQ(5),
-        /**
-         * Time that the CPU used to service soft IRQs
-         */
-        SOFTIRQ(6),
-        /**
-         * Time which the hypervisor dedicated for other guests in the system.
-         * Only supported on Linux.
-         */
-        STEAL(7);
+    /**
+     * CPU utilization that occurred while executing at the user level
+     * (application).
+     */
+    USER(0),
+    /**
+     * CPU utilization that occurred while executing at the user level with nice
+     * priority.
+     */
+    NICE(1),
+    /**
+     * CPU utilization that occurred while executing at the system level
+     * (kernel).
+     */
+    SYSTEM(2),
+    /**
+     * Time that the CPU or CPUs were idle and the system did not have an
+     * outstanding disk I/O request.
+     */
+    IDLE(3),
+    /**
+     * Time that the CPU or CPUs were idle during which the system had an
+     * outstanding disk I/O request.
+     */
+    IOWAIT(4),
+    /**
+     * Time that the CPU used to service hardware IRQs
+     */
+    IRQ(5),
+    /**
+     * Time that the CPU used to service soft IRQs
+     */
+    SOFTIRQ(6),
+    /**
+     * Time which the hypervisor dedicated for other guests in the system. Only
+     * supported on Linux.
+     */
+    STEAL(7);
 
         private int index;
 

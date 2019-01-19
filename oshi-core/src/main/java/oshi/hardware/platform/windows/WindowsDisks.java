@@ -70,23 +70,23 @@ public class WindowsDisks implements Disks {
         INDEX, MANUFACTURER, MODEL, NAME, SERIALNUMBER, SIZE;
     }
 
-    private static final WmiQuery<DiskDriveProperty> DISK_DRIVE_QUERY = new WmiQuery<>("Win32_DiskDrive",
+    private final transient WmiQuery<DiskDriveProperty> diskDriveQuery = new WmiQuery<>("Win32_DiskDrive",
             DiskDriveProperty.class);
 
     enum DriveToPartitionProperty {
         ANTECEDENT, DEPENDENT;
     }
 
-    private static final WmiQuery<DriveToPartitionProperty> DRIVE_TO_PARTITION_QUERY = new WmiQuery<>(
+    private final transient WmiQuery<DriveToPartitionProperty> driveToPartitionQuery = new WmiQuery<>(
             "Win32_DiskDriveToDiskPartition", DriveToPartitionProperty.class);
-    private static final WmiQuery<DriveToPartitionProperty> DISK_TO_PARTITION_QUERY = new WmiQuery<>(
+    private final transient WmiQuery<DriveToPartitionProperty> diskToParitionQuery = new WmiQuery<>(
             "Win32_LogicalDiskToPartition", DriveToPartitionProperty.class);
 
     enum DiskPartitionProperty {
         DESCRIPTION, DEVICEID, DISKINDEX, INDEX, NAME, SIZE, TYPE;
     }
 
-    private static final WmiQuery<DiskPartitionProperty> PARTITION_QUERY = new WmiQuery<>("Win32_DiskPartition",
+    private final transient WmiQuery<DiskPartitionProperty> partitionQuery = new WmiQuery<>("Win32_DiskPartition",
             DiskPartitionProperty.class);
 
     /*
@@ -121,6 +121,8 @@ public class WindowsDisks implements Disks {
     private static final PerfCounterWildcardQuery<PhysicalDiskProperty> physicalDiskPerfCounters = new PerfCounterWildcardQuery<>(
             PhysicalDiskProperty.class, PHYSICAL_DISK,
             "Win32_PerfRawData_PerfDisk_PhysicalDisk WHERE NOT Name=\"_Total\"");
+
+    private final transient WmiQueryHandler wmiQueryHandler = WmiQueryHandler.createInstance();
 
     public static boolean updateDiskStats(HWDiskStore diskStore) {
         String index = null;
@@ -169,7 +171,7 @@ public class WindowsDisks implements Disks {
         DiskStats stats = queryReadWriteStats(null);
         PartitionMaps maps = queryPartitionMaps();
 
-        WmiResult<DiskDriveProperty> vals = WmiQueryHandler.getInstance().queryWMI(DISK_DRIVE_QUERY);
+        WmiResult<DiskDriveProperty> vals = wmiQueryHandler.queryWMI(diskDriveQuery);
 
         for (int i = 0; i < vals.getResultCount(); i++) {
             HWDiskStore ds = new HWDiskStore();
@@ -255,8 +257,7 @@ public class WindowsDisks implements Disks {
         Matcher mDep;
 
         // Map drives to partitions
-        WmiResult<DriveToPartitionProperty> drivePartitionMap = WmiQueryHandler.getInstance()
-                .queryWMI(DRIVE_TO_PARTITION_QUERY);
+        WmiResult<DriveToPartitionProperty> drivePartitionMap = wmiQueryHandler.queryWMI(driveToPartitionQuery);
         for (int i = 0; i < drivePartitionMap.getResultCount(); i++) {
             mAnt = DEVICE_ID.matcher(WmiUtil.getRefString(drivePartitionMap, DriveToPartitionProperty.ANTECEDENT, i));
             mDep = DEVICE_ID.matcher(WmiUtil.getRefString(drivePartitionMap, DriveToPartitionProperty.DEPENDENT, i));
@@ -267,8 +268,7 @@ public class WindowsDisks implements Disks {
         }
 
         // Map partitions to logical disks
-        WmiResult<DriveToPartitionProperty> diskPartitionMap = WmiQueryHandler.getInstance()
-                .queryWMI(DISK_TO_PARTITION_QUERY);
+        WmiResult<DriveToPartitionProperty> diskPartitionMap = wmiQueryHandler.queryWMI(diskToParitionQuery);
         for (int i = 0; i < diskPartitionMap.getResultCount(); i++) {
             mAnt = DEVICE_ID.matcher(WmiUtil.getRefString(diskPartitionMap, DriveToPartitionProperty.ANTECEDENT, i));
             mDep = DEVICE_ID.matcher(WmiUtil.getRefString(diskPartitionMap, DriveToPartitionProperty.DEPENDENT, i));
@@ -278,7 +278,7 @@ public class WindowsDisks implements Disks {
         }
 
         // Next, get all partitions and create objects
-        WmiResult<DiskPartitionProperty> hwPartitionQueryMap = WmiQueryHandler.getInstance().queryWMI(PARTITION_QUERY);
+        WmiResult<DiskPartitionProperty> hwPartitionQueryMap = wmiQueryHandler.queryWMI(partitionQuery);
         for (int i = 0; i < hwPartitionQueryMap.getResultCount(); i++) {
             String deviceID = WmiUtil.getString(hwPartitionQueryMap, DiskPartitionProperty.DEVICEID, i);
             String logicalDrive = MapUtil.getOrDefault(maps.partitionToLogicalDriveMap, deviceID, "");

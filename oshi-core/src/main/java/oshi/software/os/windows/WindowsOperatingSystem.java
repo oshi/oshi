@@ -129,6 +129,8 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
      */
     private final Map<Integer, OSProcess> processMap = new HashMap<>();
 
+    private final transient WmiQueryHandler wmiQueryHandler = WmiQueryHandler.createInstance();
+
     public WindowsOperatingSystem() {
         this.manufacturer = "Microsoft";
         this.family = "Windows";
@@ -255,7 +257,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                 this.bitness = 64;
             } else {
                 WmiQuery<BitnessProperty> bitnessQuery = new WmiQuery<>("Win32_Processor", BitnessProperty.class);
-                WmiResult<BitnessProperty> bitnessMap = WmiQueryHandler.getInstance().queryWMI(bitnessQuery);
+                WmiResult<BitnessProperty> bitnessMap = wmiQueryHandler.queryWMI(bitnessQuery);
                 if (bitnessMap.getResultCount() > 0) {
                     this.bitness = WmiUtil.getUint16(bitnessMap, BitnessProperty.ADDRESSWIDTH, 0);
                 }
@@ -384,7 +386,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                 }
             }
             PROCESS_QUERY_XP.setWmiClassName(sb.toString());
-            processWmiResult = WmiQueryHandler.getInstance().queryWMI(PROCESS_QUERY_XP);
+            processWmiResult = wmiQueryHandler.queryWMI(PROCESS_QUERY_XP);
         }
 
         // Store a subset of processes in a list to later return.
@@ -529,7 +531,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                 sb.append(pid);
             }
             PROCESS_QUERY.setWmiClassName(sb.toString());
-            WmiResult<ProcessProperty> commandLineProcs = WmiQueryHandler.getInstance().queryWMI(PROCESS_QUERY);
+            WmiResult<ProcessProperty> commandLineProcs = wmiQueryHandler.queryWMI(PROCESS_QUERY);
 
             for (int p = 0; p < commandLineProcs.getResultCount(); p++) {
                 int pid = WmiUtil.getUint32(commandLineProcs, ProcessProperty.PROCESSID, p);
