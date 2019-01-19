@@ -34,20 +34,17 @@ final class LinuxBaseboard extends AbstractBaseboard {
 
     private static final long serialVersionUID = 1L;
 
-    /*
-     * Note: /sys/class/dmi/id symlinks here, but /sys/devices/* is the
-     * official/approved path for sysfs information
-     */
+    // Note: /sys/class/dmi/id symlinks here, but /sys/devices/* is the
+    // official/approved path for sysfs information
     private static final String SYSFS_SERIAL_PATH = "/sys/devices/virtual/dmi/id/";
 
-    /*
-     * $ ls /sys/devices/virtual/dmi/id/
-     * 
-     * bios_date board_vendor chassis_version product_version bios_vendor
-     * board_version modalias subsystem bios_version chassis_asset_tag power
-     * sys_vendor board_asset_tag chassis_serial product_name uevent board_name
-     * chassis_type product_serial board_serial chassis_vendor product_uuid
-     */
+    // $ ls /sys/devices/virtual/dmi/id/
+    // bios_date board_vendor chassis_version product_version
+    // bios_vendor board_version modalias subsystem
+    // bios_version chassis_asset_tag power sys_vendor
+    // board_asset_tag chassis_serial product_name uevent
+    // board_name chassis_type product_serial
+    // board_serial chassis_vendor product_uuid
 
     /**
      * {@inheritDoc}
@@ -55,8 +52,8 @@ final class LinuxBaseboard extends AbstractBaseboard {
     @Override
     public String getManufacturer() {
         if (this.manufacturer == null) {
-            final String boardVendor = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + "board_vendor");
-            this.manufacturer = (boardVendor.trim().isEmpty()) ? Constants.UNKNOWN : boardVendor.trim();
+            final String boardVendor = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + "board_vendor").trim();
+            this.manufacturer = (boardVendor.isEmpty()) ? Constants.UNKNOWN : boardVendor;
         }
         return this.manufacturer;
     }
@@ -67,8 +64,8 @@ final class LinuxBaseboard extends AbstractBaseboard {
     @Override
     public String getModel() {
         if (this.model == null) {
-            final String boardName = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + "board_name");
-            this.model = (boardName.trim().isEmpty()) ? Constants.UNKNOWN : boardName.trim();
+            final String boardName = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + "board_name").trim();
+            this.model = (boardName.isEmpty()) ? Constants.UNKNOWN : boardName;
         }
         return this.model;
     }
@@ -79,8 +76,8 @@ final class LinuxBaseboard extends AbstractBaseboard {
     @Override
     public String getVersion() {
         if (this.version == null) {
-            final String boardVersion = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + "board_version");
-            this.version = (boardVersion.trim().isEmpty()) ? Constants.UNKNOWN : boardVersion.trim();
+            final String boardVersion = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + "board_version").trim();
+            this.version = (boardVersion.isEmpty()) ? Constants.UNKNOWN : boardVersion;
         }
         return this.version;
     }
@@ -91,8 +88,8 @@ final class LinuxBaseboard extends AbstractBaseboard {
     @Override
     public String getSerialNumber() {
         if (this.serialNumber == null) {
-            final String boardSerialNumber = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + "board_serial");
-            this.serialNumber = (boardSerialNumber.trim().isEmpty()) ? "" : boardSerialNumber.trim();
+            final String boardSerialNumber = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + "board_serial").trim();
+            this.serialNumber = (boardSerialNumber.isEmpty()) ? "" : boardSerialNumber;
         }
         return this.serialNumber;
     }

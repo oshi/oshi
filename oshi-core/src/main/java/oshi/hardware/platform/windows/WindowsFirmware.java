@@ -32,8 +32,6 @@ import oshi.util.platform.windows.WmiUtil;
 
 /**
  * Firmware data obtained from WMI
- *
- * @author SchiTho1 [at] Securiton AG
  */
 final class WindowsFirmware extends AbstractFirmware {
 
@@ -43,13 +41,63 @@ final class WindowsFirmware extends AbstractFirmware {
         MANUFACTURER, NAME, DESCRIPTION, VERSION, RELEASEDATE;
     }
 
-    WindowsFirmware() {
-        init();
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getManufacturer() {
+        if (this.manufacturer == null) {
+            queryWmi();
+        }
+        return super.getManufacturer();
     }
 
-    private void init() {
-        WmiQuery<BiosProperty> biosQuery = new WmiQuery<>("Win32_BIOS where PrimaryBIOS=true", BiosProperty.class);
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getName() {
+        if (this.name == null) {
+            queryWmi();
+        }
+        return super.getName();
+    }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getDescription() {
+        if (this.description == null) {
+            queryWmi();
+        }
+        return super.getDescription();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getVersion() {
+        if (this.version == null) {
+            queryWmi();
+        }
+        return super.getVersion();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getReleaseDate() {
+        if (this.releaseDate == null) {
+            queryWmi();
+        }
+        return super.getReleaseDate();
+    }
+
+    private void queryWmi() {
+        WmiQuery<BiosProperty> biosQuery = new WmiQuery<>("Win32_BIOS where PrimaryBIOS=true", BiosProperty.class);
         WmiResult<BiosProperty> win32BIOS = WmiQueryHandler.createInstance().queryWMI(biosQuery);
         if (win32BIOS.getResultCount() > 0) {
             setManufacturer(WmiUtil.getString(win32BIOS, BiosProperty.MANUFACTURER, 0));
