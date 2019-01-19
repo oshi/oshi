@@ -363,7 +363,12 @@
 <a class="jxr_linenumber" name="L355" href="#L355">355</a>         assertEquals(<span class="jxr_string">""</span>, ParseUtil.getTextBetweenStrings(text, before, after));
 <a class="jxr_linenumber" name="L356" href="#L356">356</a> 
 <a class="jxr_linenumber" name="L357" href="#L357">357</a>     }
-<a class="jxr_linenumber" name="L358" href="#L358">358</a> }
+<a class="jxr_linenumber" name="L358" href="#L358">358</a> 
+<a class="jxr_linenumber" name="L359" href="#L359">359</a>     @Test
+<a class="jxr_linenumber" name="L360" href="#L360">360</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testFiletimeToMs() {
+<a class="jxr_linenumber" name="L361" href="#L361">361</a>         assertEquals(1172163600306L, ParseUtil.filetimeToUtcMs(128166372003061629L, false));
+<a class="jxr_linenumber" name="L362" href="#L362">362</a>     }
+<a class="jxr_linenumber" name="L363" href="#L363">363</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2019 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

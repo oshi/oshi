@@ -25,8 +25,8 @@ under the License.
     <language>en-us</language>
     <copyright>&#169;2010 - 2019 oshi</copyright>
     <item>
-      <title>File: 232,
-             Errors: 5084,
+      <title>File: 235,
+             Errors: 5157,
              Warnings: 0,
              Infos: 0
       </title>
@@ -172,6 +172,20 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.data.windows.PerfCounterQuery.java">oshi/data/windows/PerfCounterQuery.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  66
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.json.hardware.HWPartition.java">oshi/json/hardware/HWPartition.java</a>
                 </td>
                 <td>
@@ -237,7 +251,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  50
+                  53
                 </td>
               </tr>
                           <tr>
@@ -424,6 +438,20 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.data.windows.PerfCounterWildcardQuery.java">oshi/data/windows/PerfCounterWildcardQuery.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  51
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.unix.solaris.SolarisFirmware.java">oshi/hardware/platform/unix/solaris/SolarisFirmware.java</a>
                 </td>
                 <td>
@@ -601,7 +629,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  44
+                  42
                 </td>
               </tr>
                           <tr>
@@ -615,7 +643,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  34
+                  13
                 </td>
               </tr>
                           <tr>
@@ -741,7 +769,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  20
+                  19
                 </td>
               </tr>
                           <tr>
@@ -755,7 +783,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  70
+                  64
                 </td>
               </tr>
                           <tr>
@@ -979,7 +1007,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  93
+                  56
                 </td>
               </tr>
                           <tr>
@@ -1077,7 +1105,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  133
+                  117
                 </td>
               </tr>
                           <tr>
@@ -1259,7 +1287,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  22
+                  24
                 </td>
               </tr>
                           <tr>
@@ -1483,7 +1511,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  151
+                  119
                 </td>
               </tr>
                           <tr>
@@ -1749,7 +1777,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  37
+                  45
                 </td>
               </tr>
                           <tr>
@@ -1945,7 +1973,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  37
+                  39
                 </td>
               </tr>
                           <tr>
@@ -2099,7 +2127,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  23
+                  26
                 </td>
               </tr>
                           <tr>
@@ -2505,7 +2533,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  150
+                  158
                 </td>
               </tr>
                           <tr>
@@ -2692,6 +2720,20 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.data.windows.PerfCounterQueryHandler.java">oshi/data/windows/PerfCounterQueryHandler.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  32
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.json.hardware.impl.UsbDeviceImpl.java">oshi/json/hardware/impl/UsbDeviceImpl.java</a>
                 </td>
                 <td>
@@ -2799,7 +2841,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  177
+                  178
                 </td>
               </tr>
                           <tr>
@@ -2939,7 +2981,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  33
+                  38
                 </td>
               </tr>
                           <tr>
@@ -3261,7 +3303,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  81
+                  88
                 </td>
               </tr>
                           <tr>

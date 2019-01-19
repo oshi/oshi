@@ -1,0 +1,9 @@
+oshi
+oshi.hardware
+oshi.json
+oshi.json.hardware
+oshi.json.json
+oshi.json.software.os
+oshi.json.util
+oshi.software.os
+oshi.util

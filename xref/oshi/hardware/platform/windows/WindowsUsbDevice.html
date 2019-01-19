@@ -128,186 +128,190 @@
 <a class="jxr_linenumber" name="L120" href="#L120">120</a> 
 <a class="jxr_linenumber" name="L121" href="#L121">121</a>         <em class="jxr_comment">// Navigate the device tree to track what devices are present</em>
 <a class="jxr_linenumber" name="L122" href="#L122">122</a>         List&lt;WindowsUsbDevice&gt; controllerDevices = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
-<a class="jxr_linenumber" name="L123" href="#L123">123</a>         <strong class="jxr_keyword">for</strong> (String controllerDeviceId : getControllerDeviceIdList()) {
-<a class="jxr_linenumber" name="L124" href="#L124">124</a>             putChildrenInDeviceTree(controllerDeviceId, 0, deviceTreeMap, devicesSeen);
-<a class="jxr_linenumber" name="L125" href="#L125">125</a>         }
-<a class="jxr_linenumber" name="L126" href="#L126">126</a>         <em class="jxr_comment">// remove from cache if no longer present and add to cache if present</em>
-<a class="jxr_linenumber" name="L127" href="#L127">127</a>         <em class="jxr_comment">// but not in cache</em>
-<a class="jxr_linenumber" name="L128" href="#L128">128</a>         updateDeviceCache(devicesSeen);
-<a class="jxr_linenumber" name="L129" href="#L129">129</a>         <em class="jxr_comment">// recursively build results</em>
-<a class="jxr_linenumber" name="L130" href="#L130">130</a>         <strong class="jxr_keyword">for</strong> (String controllerDeviceId : getControllerDeviceIdList()) {
-<a class="jxr_linenumber" name="L131" href="#L131">131</a>             <a name="WindowsUsbDevice" href="../../../../oshi/hardware/platform/windows/WindowsUsbDevice.html#WindowsUsbDevice">WindowsUsbDevice</a> deviceAndChildren = getDeviceAndChildren(controllerDeviceId, <span class="jxr_string">"0000"</span>, <span class="jxr_string">"0000"</span>,
-<a class="jxr_linenumber" name="L132" href="#L132">132</a>                     deviceTreeMap);
-<a class="jxr_linenumber" name="L133" href="#L133">133</a>             <strong class="jxr_keyword">if</strong> (deviceAndChildren != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L134" href="#L134">134</a>                 controllerDevices.add(deviceAndChildren);
-<a class="jxr_linenumber" name="L135" href="#L135">135</a>             }
-<a class="jxr_linenumber" name="L136" href="#L136">136</a>         }
-<a class="jxr_linenumber" name="L137" href="#L137">137</a>         <strong class="jxr_keyword">return</strong> controllerDevices.toArray(<strong class="jxr_keyword">new</strong> <a name="WindowsUsbDevice" href="../../../../oshi/hardware/platform/windows/WindowsUsbDevice.html#WindowsUsbDevice">WindowsUsbDevice</a>[controllerDevices.size()]);
-<a class="jxr_linenumber" name="L138" href="#L138">138</a>     }
-<a class="jxr_linenumber" name="L139" href="#L139">139</a> 
-<a class="jxr_linenumber" name="L140" href="#L140">140</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> updateDeviceCache(Set&lt;String&gt; devicesSeen) {
-<a class="jxr_linenumber" name="L141" href="#L141">141</a>         <em class="jxr_comment">// The deviceCache stores UsbDevices that we have already returned</em>
-<a class="jxr_linenumber" name="L142" href="#L142">142</a>         <em class="jxr_comment">// Remove devices no longer in tree</em>
-<a class="jxr_linenumber" name="L143" href="#L143">143</a>         Set&lt;String&gt; devicesToRemove = <strong class="jxr_keyword">new</strong> HashSet&lt;&gt;(usbDeviceCache.keySet());
-<a class="jxr_linenumber" name="L144" href="#L144">144</a>         devicesToRemove.removeAll(devicesSeen);
-<a class="jxr_linenumber" name="L145" href="#L145">145</a>         <strong class="jxr_keyword">for</strong> (String deviceID : devicesToRemove) {
-<a class="jxr_linenumber" name="L146" href="#L146">146</a>             usbDeviceCache.remove(deviceID);
-<a class="jxr_linenumber" name="L147" href="#L147">147</a>             LOG.debug(<span class="jxr_string">"Removing {} from USB device cache."</span>, deviceID);
-<a class="jxr_linenumber" name="L148" href="#L148">148</a>         }
-<a class="jxr_linenumber" name="L149" href="#L149">149</a> 
-<a class="jxr_linenumber" name="L150" href="#L150">150</a>         <em class="jxr_comment">// Add devices not in the tree</em>
-<a class="jxr_linenumber" name="L151" href="#L151">151</a>         Set&lt;String&gt; devicesToAdd = <strong class="jxr_keyword">new</strong> HashSet&lt;&gt;(devicesSeen);
-<a class="jxr_linenumber" name="L152" href="#L152">152</a>         devicesToAdd.removeAll(usbDeviceCache.keySet());
-<a class="jxr_linenumber" name="L153" href="#L153">153</a>         <strong class="jxr_keyword">if</strong> (!devicesToAdd.isEmpty()) {
-<a class="jxr_linenumber" name="L154" href="#L154">154</a>             StringBuilder sb = <strong class="jxr_keyword">new</strong> StringBuilder();
-<a class="jxr_linenumber" name="L155" href="#L155">155</a>             <strong class="jxr_keyword">boolean</strong> first = <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L156" href="#L156">156</a>             <strong class="jxr_keyword">for</strong> (String deviceID : devicesToAdd) {
-<a class="jxr_linenumber" name="L157" href="#L157">157</a>                 <strong class="jxr_keyword">if</strong> (first) {
-<a class="jxr_linenumber" name="L158" href="#L158">158</a>                     sb.append(<span class="jxr_string">" WHERE (PnPDeviceID=\&quot;"</span>);
-<a class="jxr_linenumber" name="L159" href="#L159">159</a>                     first = false;
-<a class="jxr_linenumber" name="L160" href="#L160">160</a>                 } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L161" href="#L161">161</a>                     sb.append(<span class="jxr_string">" OR (PnPDeviceID=\&quot;"</span>);
-<a class="jxr_linenumber" name="L162" href="#L162">162</a>                 }
-<a class="jxr_linenumber" name="L163" href="#L163">163</a>                 sb.append(deviceID).append(<span class="jxr_string">"\&quot;)"</span>);
-<a class="jxr_linenumber" name="L164" href="#L164">164</a>             }
-<a class="jxr_linenumber" name="L165" href="#L165">165</a>             String whereClause = sb.toString();
-<a class="jxr_linenumber" name="L166" href="#L166">166</a>             <em class="jxr_comment">// Query Win32_PnPEntity to populate the maps</em>
-<a class="jxr_linenumber" name="L167" href="#L167">167</a>             PNPENTITY_QUERY.setWmiClassName(PNPENTITY_BASE_CLASS + whereClause);
-<a class="jxr_linenumber" name="L168" href="#L168">168</a>             WmiResult&lt;PnPEntityProperty&gt; pnpEntity = WmiQueryHandler.getInstance().queryWMI(PNPENTITY_QUERY);
-<a class="jxr_linenumber" name="L169" href="#L169">169</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; pnpEntity.getResultCount(); i++) {
-<a class="jxr_linenumber" name="L170" href="#L170">170</a>                 String pnpDeviceID = WmiUtil.getString(pnpEntity, PnPEntityProperty.PNPDEVICEID, i);
-<a class="jxr_linenumber" name="L171" href="#L171">171</a>                 String name = WmiUtil.getString(pnpEntity, PnPEntityProperty.NAME, i);
-<a class="jxr_linenumber" name="L172" href="#L172">172</a>                 String vendor = WmiUtil.getString(pnpEntity, PnPEntityProperty.MANUFACTURER, i);
-<a class="jxr_linenumber" name="L173" href="#L173">173</a>                 <a name="WindowsUsbDevice" href="../../../../oshi/hardware/platform<a name="WindowsUsbDevice" href="../../../../oshi/hardware/platform/windows/WindowsUsbDevice.html#WindowsUsbDevice">WindowsUsbDevice</a>UsbDevice.html#WindowsUsbDevice">WindowsUsbDevice</a> device = <strong class="jxr_keyword">new</strong> <a name="WindowsUsbDevice" href="../../../../oshi/hardware/platform/windows/WindowsUsbDevice.html#WindowsUsbDevice">WindowsUsbDevice</a>(name, vendor, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, <span class="jxr_string">""</span>, <strong class="jxr_keyword">new</strong> <a name="WindowsUsbDevice" href="../../../../oshi/hardware/platform/windows/WindowsUsbDevice.html#WindowsUsbDevice">WindowsUsbDevice</a>[0]);
-<a class="jxr_linenumber" name="L174" href="#L174">174</a>                 usbDeviceCache.put(pnpDeviceID, device);
-<a class="jxr_linenumber" name="L175" href="#L175">175</a>                 LOG.debug(<span class="jxr_string">"Adding {} to USB device cache."</span>, pnpDeviceID);
-<a class="jxr_linenumber" name="L176" href="#L176">176</a>             }
-<a class="jxr_linenumber" name="L177" href="#L177">177</a>             <em class="jxr_comment">// Get serial # for disk drives or other physical media</em>
-<a class="jxr_linenumber" name="L178" href="#L178">178</a>             DISKDRIVE_QUERY.setWmiClassName(DISKDRIVE_BASE_CLASS + whereClause);
-<a class="jxr_linenumber" name="L179" href="#L179">179</a>             WmiResult&lt;DiskDriveProperty&gt; serialNumber = WmiQueryHandler.getInstance().queryWMI(DISKDRIVE_QUERY);
-<a class="jxr_linenumber" name="L180" href="#L180">180</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; serialNumber.getResultCount(); i++) {
-<a class="jxr_linenumber" name="L181" href="#L181">181</a>                 String pnpDeviceID = WmiUtil.getString(serialNumber, DiskDriveProperty.PNPDEVICEID, i);
-<a class="jxr_linenumber" name="L182" href="#L182">182</a>                 <strong class="jxr_keyword">if</strong> (usbDeviceCache.containsKey(pnpDeviceID)) {
-<a class="jxr_linenumber" name="L183" href="#L183">183</a>                     <a name="WindowsUsbDevice" href="../../../../oshi/hardware/platform/windows/WindowsUsbDevice.html#WindowsUsbDevice">WindowsUsbDevice</a> device = usbDeviceCache.get(pnpDeviceID);
-<a class="jxr_linenumber" name="L184" href="#L184">184</a>                     device.serialNumber = <a name="ParseUtil" href="../../../../oshi/util/ParseUtil.html#ParseUtil">ParseUtil</a>
-<a class="jxr_linenumber" name="L185" href="#L185">185</a>                             .hexStringToString(WmiUtil.getString(serialNumber, DiskDriveProperty.SERIALNUMBER, i));
-<a class="jxr_linenumber" name="L186" href="#L186">186</a>                 }
-<a class="jxr_linenumber" name="L187" href="#L187">187</a>             }
-<a class="jxr_linenumber" name="L188" href="#L188">188</a>         }
-<a class="jxr_linenumber" name="L189" href="#L189">189</a>     }
-<a class="jxr_linenumber" name="L190" href="#L190">190</a> 
-<a class="jxr_linenumber" name="L191" href="#L191">191</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L192" href="#L192">192</a> <em class="jxr_javadoccomment">     * Navigates the Device Tree to place all children PNPDeviceIDs into the map</em>
-<a class="jxr_linenumber" name="L193" href="#L193">193</a> <em class="jxr_javadoccomment">     * for the specified deviceID. Recursively adds children's children, etc.</em>
-<a class="jxr_linenumber" name="L194" href="#L194">194</a> <em class="jxr_javadoccomment">     * </em>
-<a class="jxr_linenumber" name="L195" href="#L195">195</a> <em class="jxr_javadoccomment">     * @param deviceId</em>
-<a class="jxr_linenumber" name="L196" href="#L196">196</a> <em class="jxr_javadoccomment">     *            The device to add respective children to the map</em>
-<a class="jxr_linenumber" name="L197" href="#L197">197</a> <em class="jxr_javadoccomment">     * @param deviceInstance</em>
-<a class="jxr_linenumber" name="L198" href="#L198">198</a> <em class="jxr_javadoccomment">     *            The device instance (devnode handle), if known. If set to 0,</em>
-<a class="jxr_linenumber" name="L199" href="#L199">199</a> <em class="jxr_javadoccomment">     *            the code will search for a match.</em>
-<a class="jxr_linenumber" name="L200" href="#L200">200</a> <em class="jxr_javadoccomment">     * @param deviceTreeMap</em>
-<a class="jxr_linenumber" name="L201" href="#L201">201</a> <em class="jxr_javadoccomment">     *            The overall device tree map that starts at the controllers</em>
-<a class="jxr_linenumber" name="L202" href="#L202">202</a> <em class="jxr_javadoccomment">     * @param devicesSeen</em>
-<a class="jxr_linenumber" name="L203" href="#L203">203</a> <em class="jxr_javadoccomment">     *            Devices we've seen so we can add/remove from cache later</em>
-<a class="jxr_linenumber" name="L204" href="#L204">204</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L205" href="#L205">205</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> putChildrenInDeviceTree(String deviceId, <strong class="jxr_keyword">int</strong> deviceInstance,
-<a class="jxr_linenumber" name="L206" href="#L206">206</a>             Map&lt;String, List&lt;String&gt;&gt; deviceTreeMap, Set&lt;String&gt; devicesSeen) {
-<a class="jxr_linenumber" name="L207" href="#L207">207</a>         devicesSeen.add(deviceId);
-<a class="jxr_linenumber" name="L208" href="#L208">208</a>         <em class="jxr_comment">// If no devInst provided, find it</em>
-<a class="jxr_linenumber" name="L209" href="#L209">209</a>         <strong class="jxr_keyword">int</strong> devInst = deviceInstance;
-<a class="jxr_linenumber" name="L210" href="#L210">210</a>         <strong class="jxr_keyword">if</strong> (devInst == 0) {
-<a class="jxr_linenumber" name="L211" href="#L211">211</a>             IntByReference pdnDevInst = <strong class="jxr_keyword">new</strong> IntByReference();
-<a class="jxr_linenumber" name="L212" href="#L212">212</a>             Cfgmgr32.INSTANCE.CM_Locate_DevNode(pdnDevInst, deviceId, 0);
-<a class="jxr_linenumber" name="L213" href="#L213">213</a>             devInst = pdnDevInst.getValue();
-<a class="jxr_linenumber" name="L214" href="#L214">214</a>         }
-<a class="jxr_linenumber" name="L215" href="#L215">215</a>         <em class="jxr_comment">// Now iterate the children. Call CM_Get_Child to get first child</em>
-<a class="jxr_linenumber" name="L216" href="#L216">216</a>         IntByReference child = <strong class="jxr_keyword">new</strong> IntByReference();
-<a class="jxr_linenumber" name="L217" href="#L217">217</a>         <strong class="jxr_keyword">if</strong> (0 == Cfgmgr32.INSTANCE.CM_Get_Child(child, devInst, 0)) {
-<a class="jxr_linenumber" name="L218" href="#L218">218</a>             <em class="jxr_comment">// Add first child to a list</em>
-<a class="jxr_linenumber" name="L219" href="#L219">219</a>             List&lt;String&gt; childList = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
-<a class="jxr_linenumber" name="L220" href="#L220">220</a>             String childId = Cfgmgr32Util.CM_Get_Device_ID(child.getValue());
-<a class="jxr_linenumber" name="L221" href="#L221">221</a>             childList.add(childId);
-<a class="jxr_linenumber" name="L222" href="#L222">222</a>             deviceTreeMap.put(deviceId, childList);
-<a class="jxr_linenumber" name="L223" href="#L223">223</a>             putChildrenInDeviceTree(childId, child.getValue(), deviceTreeMap, devicesSeen);
-<a class="jxr_linenumber" name="L224" href="#L224">224</a>             <em class="jxr_comment">// Find any other children</em>
-<a class="jxr_linenumber" name="L225" href="#L225">225</a>             IntByReference sibling = <strong class="jxr_keyword">new</strong> IntByReference();
-<a class="jxr_linenumber" name="L226" href="#L226">226</a>             <strong class="jxr_keyword">while</strong> (0 == Cfgmgr32.INSTANCE.CM_Get_Sibling(sibling, child.getValue(), 0)) {
-<a class="jxr_linenumber" name="L227" href="#L227">227</a>                 <em class="jxr_comment">// Add to the list</em>
-<a class="jxr_linenumber" name="L228" href="#L228">228</a>                 String siblingId = Cfgmgr32Util.CM_Get_Device_ID(sibling.getValue());
-<a class="jxr_linenumber" name="L229" href="#L229">229</a>                 deviceTreeMap.get(deviceId).add(siblingId);
-<a class="jxr_linenumber" name="L230" href="#L230">230</a>                 putChildrenInDeviceTree(siblingId, sibling.getValue(), deviceTreeMap, devicesSeen);
-<a class="jxr_linenumber" name="L231" href="#L231">231</a>                 <em class="jxr_comment">// Make this sibling the new child to find other siblings</em>
-<a class="jxr_linenumber" name="L232" href="#L232">232</a>                 child = sibling;
-<a class="jxr_linenumber" name="L233" href="#L233">233</a>             }
-<a class="jxr_linenumber" name="L234" href="#L234">234</a>         }
-<a class="jxr_linenumber" name="L235" href="#L235">235</a>     }
-<a class="jxr_linenumber" name="L236" href="#L236">236</a> 
-<a class="jxr_linenumber" name="L237" href="#L237">237</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L238" href="#L238">238</a> <em class="jxr_javadoccomment">     * Recursively creates WindowsUsbDevices by fetching information from maps</em>
-<a class="jxr_linenumber" name="L239" href="#L239">239</a> <em class="jxr_javadoccomment">     * to populate fields</em>
-<a class="jxr_linenumber" name="L240" href="#L240">240</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L241" href="#L241">241</a> <em class="jxr_javadoccomment">     * @param hubDeviceId</em>
-<a class="jxr_linenumber" name="L242" href="#L242">242</a> <em class="jxr_javadoccomment">     *            The PNPdeviceID of this device.</em>
-<a class="jxr_linenumber" name="L243" href="#L243">243</a> <em class="jxr_javadoccomment">     * @param vid</em>
-<a class="jxr_linenumber" name="L244" href="#L244">244</a> <em class="jxr_javadoccomment">     *            The default (parent) vendor ID</em>
-<a class="jxr_linenumber" name="L245" href="#L245">245</a> <em class="jxr_javadoccomment">     * @param pid</em>
-<a class="jxr_linenumber" name="L246" href="#L246">246</a> <em class="jxr_javadoccomment">     *            The default (parent) product ID</em>
-<a class="jxr_linenumber" name="L247" href="#L247">247</a> <em class="jxr_javadoccomment">     * @param deviceTreeMap</em>
-<a class="jxr_linenumber" name="L248" href="#L248">248</a> <em class="jxr_javadoccomment">     * @return A WindowsUsbDevice corresponding to this deviceID, or null if</em>
-<a class="jxr_linenumber" name="L249" href="#L249">249</a> <em class="jxr_javadoccomment">     *         unable to find</em>
-<a class="jxr_linenumber" name="L250" href="#L250">250</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L251" href="#L251">251</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <a name="WindowsUsbDevice" href="../../../../oshi/hardware/platform/windows/WindowsUsbDevice.html#WindowsUsbDevice">WindowsUsbDevice</a> getDeviceAndChildren(String hubDeviceId, String vid, String pid,
-<a class="jxr_linenumber" name="L252" href="#L252">252</a>             Map&lt;String, List&lt;String&gt;&gt; deviceTreeMap) {
-<a class="jxr_linenumber" name="L253" href="#L253">253</a>         String vendorId = vid;
-<a class="jxr_linenumber" name="L254" href="#L254">254</a>         String productId = pid;
-<a class="jxr_linenumber" name="L255" href="#L255">255</a>         Matcher m = VENDOR_PRODUCT_ID.matcher(hubDeviceId);
-<a class="jxr_linenumber" name="L256" href="#L256">256</a>         <strong class="jxr_keyword">if</strong> (m.matches()) {
-<a class="jxr_linenumber" name="L257" href="#L257">257</a>             vendorId = m.group(1).toLowerCase();
-<a class="jxr_linenumber" name="L258" href="#L258">258</a>             productId = m.group(2).toLowerCase();
-<a class="jxr_linenumber" name="L259" href="#L259">259</a>         }
-<a class="jxr_linenumber" name="L260" href="#L260">260</a>         List&lt;String&gt; pnpDeviceIds = MapUtil.getOrDefault(deviceTreeMap, hubDeviceId, <strong class="jxr_keyword">new</strong> ArrayList&lt;String&gt;());
-<a class="jxr_linenumber" name="L261" href="#L261">261</a>         List&lt;WindowsUsbDevice&gt; usbDevices = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
-<a class="jxr_linenumber" name="L262" href="#L262">262</a>         <strong class="jxr_keyword">for</strong> (String pnpDeviceId : pnpDeviceIds) {
-<a class="jxr_linenumber" name="L263" href="#L263">263</a>             <a name="WindowsUsbDevice" href="../../../../oshi/hardware/platform/windows/WindowsUsbDevice.html#WindowsUsbDevice">WindowsUsbDevice</a> deviceAndChildren = getDeviceAndChildren(pnpDeviceId, vendorId, productId, deviceTreeMap);
-<a class="jxr_linenumber" name="L264" href="#L264">264</a>             <strong class="jxr_keyword">if</strong> (deviceAndChildren != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L265" href="#L265">265</a>                 usbDevices.add(deviceAndChildren);
-<a class="jxr_linenumber" name="L266" href="#L266">266</a>             }
-<a class="jxr_linenumber" name="L267" href="#L267">267</a>         }
-<a class="jxr_linenumber" name="L268" href="#L268">268</a>         Collections.sort(usbDevices);
-<a class="jxr_linenumber" name="L269" href="#L269">269</a>         <strong class="jxr_keyword">if</strong> (usbDeviceCache.containsKey(hubDeviceId)) {
-<a class="jxr_linenumber" name="L270" href="#L270">270</a>             <a name="WindowsUsbDevice" href="../../../../oshi/hardware/platform/windows/WindowsUsbDevice.html#WindowsUsbDevice">WindowsUsbDevice</a> device = usbDeviceCache.get(hubDeviceId);
-<a class="jxr_linenumber" name="L271" href="#L271">271</a>             <strong class="jxr_keyword">if</strong> (device.name.isEmpty()) {
-<a class="jxr_linenumber" name="L272" href="#L272">272</a>                 device.name = vendorId + <span class="jxr_string">":"</span> + productId;
-<a class="jxr_linenumber" name="L273" href="#L273">273</a>             }
-<a class="jxr_linenumber" name="L274" href="#L274">274</a>             device.vendorId = vendorId;
-<a class="jxr_linenumber" name="L275" href="#L275">275</a>             device.productId = productId;
-<a class="jxr_linenumber" name="L276" href="#L276">276</a>             device.connectedDevices = usbDevices.toArray(<strong class="jxr_keyword">new</strong> <a name="WindowsUsbDevice" href="../../../../oshi/hardware/platform/windows/WindowsUsbDevice.html#WindowsUsbDevice">WindowsUsbDevice</a>[usbDevices.size()]);
-<a class="jxr_linenumber" name="L277" href="#L277">277</a>             <strong class="jxr_keyword">return</strong> device;
-<a class="jxr_linenumber" name="L278" href="#L278">278</a>         }
-<a class="jxr_linenumber" name="L279" href="#L279">279</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L280" href="#L280">280</a>     }
-<a class="jxr_linenumber" name="L281" href="#L281">281</a> 
-<a class="jxr_linenumber" name="L282" href="#L282">282</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L283" href="#L283">283</a> <em class="jxr_javadoccomment">     * Queries the USB Controller list, which doesn't change so we only need to</em>
-<a class="jxr_linenumber" name="L284" href="#L284">284</a> <em class="jxr_javadoccomment">     * query it once</em>
-<a class="jxr_linenumber" name="L285" href="#L285">285</a> <em class="jxr_javadoccomment">     * </em>
-<a class="jxr_linenumber" name="L286" href="#L286">286</a> <em class="jxr_javadoccomment">     * @return A list of Strings of USB Controller PNPDeviceIDs</em>
-<a class="jxr_linenumber" name="L287" href="#L287">287</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L288" href="#L288">288</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> List&lt;String&gt; getControllerDeviceIdList() {
-<a class="jxr_linenumber" name="L289" href="#L289">289</a>         <strong class="jxr_keyword">if</strong> (controllerDeviceIds == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L290" href="#L290">290</a>             controllerDeviceIds = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
-<a class="jxr_linenumber" name="L291" href="#L291">291</a>             <em class="jxr_comment">// One time lookup of USB Controller PnP Device IDs which don't</em>
-<a class="jxr_linenumber" name="L292" href="#L292">292</a>             <em class="jxr_comment">// change</em>
-<a class="jxr_linenumber" name="L293" href="#L293">293</a>             WmiQuery&lt;USBControllerProperty&gt; usbControllerQuery = <strong class="jxr_keyword">new</strong> WmiQuery&lt;&gt;(<span class="jxr_string">"Win32_USBController"</span>,
-<a class="jxr_linenumber" name="L294" href="#L294">294</a>                     USBControllerProperty.<strong class="jxr_keyword">class</strong>);
-<a class="jxr_linenumber" name="L295" href="#L295">295</a>             WmiResult&lt;USBControllerProperty&gt; usbController = WmiQueryHandler.getInstance().queryWMI(usbControllerQuery);
-<a class="jxr_linenumber" name="L296" href="#L296">296</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; usbController.getResultCount(); i++) {
-<a class="jxr_linenumber" name="L297" href="#L297">297</a>                 controllerDeviceIds.add(WmiUtil.getString(usbController, USBControllerProperty.PNPDEVICEID, i));
-<a class="jxr_linenumber" name="L298" href="#L298">298</a>             }
-<a class="jxr_linenumber" name="L299" href="#L299">299</a>         }
-<a class="jxr_linenumber" name="L300" href="#L300">300</a>         <strong class="jxr_keyword">return</strong> controllerDeviceIds;
-<a class="jxr_linenumber" name="L301" href="#L301">301</a>     }
-<a class="jxr_linenumber" name="L302" href="#L302">302</a> }
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>         <a name="WmiQueryHandler" href="../../../../oshi/util/platform/windows/WmiQueryHandler.html#WmiQueryHandler">WmiQueryHandler</a> wmiQueryHandler = WmiQueryHandler.createInstance();
+<a class="jxr_linenumber" name="L124" href="#L124">124</a>         List&lt;String&gt; controllerDeviceIdList = getControllerDeviceIdList(wmiQueryHandler);
+<a class="jxr_linenumber" name="L125" href="#L125">125</a>         <strong class="jxr_keyword">for</strong> (String controllerDeviceId : controllerDeviceIdList) {
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>             putChildrenInDeviceTree(controllerDeviceId, 0, deviceTreeMap, devicesSeen);
+<a class="jxr_linenumber" name="L127" href="#L127">127</a>         }
+<a class="jxr_linenumber" name="L128" href="#L128">128</a>         <em class="jxr_comment">// remove from cache if no longer present and add to cache if present</em>
+<a class="jxr_linenumber" name="L129" href="#L129">129</a>         <em class="jxr_comment">// but not in cache</em>
+<a class="jxr_linenumber" name="L130" href="#L130">130</a>         updateDeviceCache(devicesSeen, wmiQueryHandler);
+<a class="jxr_linenumber" name="L131" href="#L131">131</a>         <em class="jxr_comment">// recursively build results</em>
+<a class="jxr_linenumber" name="L132" href="#L132">132</a>         <strong class="jxr_keyword">for</strong> (String controllerDeviceId : controllerDeviceIdList) {
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>             <a name="WindowsUsbDevice" href="../../../../oshi/hardware/platform/windows/WindowsUsbDevice.html#WindowsUsbDevice">WindowsUsbDevice</a> deviceAndChildren = getDeviceAndChildren(controllerDeviceId, <span class="jxr_string">"0000"</span>, <span class="jxr_string">"0000"</span>,
+<a class="jxr_linenumber" name="L134" href="#L134">134</a>                     deviceTreeMap);
+<a class="jxr_linenumber" name="L135" href="#L135">135</a>             <strong class="jxr_keyword">if</strong> (deviceAndChildren != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L136" href="#L136">136</a>                 controllerDevices.add(deviceAndChildren);
+<a class="jxr_linenumber" name="L137" href="#L137">137</a>             }
+<a class="jxr_linenumber" name="L138" href="#L138">138</a>         }
+<a class="jxr_linenumber" name="L139" href="#L139">139</a>         <strong class="jxr_keyword">return</strong> controllerDevices.toArray(<strong class="jxr_keyword">new</strong> <a name="WindowsUsbDevice" href="../../../../oshi/hardware/platform/windows/WindowsUsbDevice.html#WindowsUsbDevice">WindowsUsbDevice</a>[controllerDevices.size()]);
+<a class="jxr_linenumber" name="L140" href="#L140">140</a>     }
+<a class="jxr_linenumber" name="L141" href="#L141">141</a> 
+<a class="jxr_linenumber" name="L142" href="#L142">142</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> updateDeviceCache(Set&lt;String&gt; devicesSeen, <a name="WmiQueryHandler" href="../../../../oshi/util/platform/windows/WmiQueryHandler.html#WmiQueryHandler">WmiQueryHandler</a> wmiQueryHandler) {
+<a class="jxr_linenumber" name="L143" href="#L143">143</a>         <em class="jxr_comment">// The deviceCache stores UsbDevices that we have already returned</em>
+<a class="jxr_linenumber" name="L144" href="#L144">144</a>         <em class="jxr_comment">// Remove devices no longer in tree</em>
+<a class="jxr_linenumber" name="L145" href="#L145">145</a>         Set&lt;String&gt; devicesToRemove = <strong class="jxr_keyword">new</strong> HashSet&lt;&gt;(usbDeviceCache.keySet());
+<a class="jxr_linenumber" name="L146" href="#L146">146</a>         devicesToRemove.removeAll(devicesSeen);
+<a class="jxr_linenumber" name="L147" href="#L147">147</a>         <strong class="jxr_keyword">for</strong> (String deviceID : devicesToRemove) {
+<a class="jxr_linenumber" name="L148" href="#L148">148</a>             usbDeviceCache.remove(deviceID);
+<a class="jxr_linenumber" name="L149" href="#L149">149</a>             LOG.debug(<span class="jxr_string">"Removing {} from USB device cache."</span>, deviceID);
+<a class="jxr_linenumber" name="L150" href="#L150">150</a>         }
+<a class="jxr_linenumber" name="L151" href="#L151">151</a> 
+<a class="jxr_linenumber" name="L152" href="#L152">152</a>         <em class="jxr_comment">// Add devices not in the tree</em>
+<a class="jxr_linenumber" name="L153" href="#L153">153</a>         Set&lt;String&gt; devicesToAdd = <strong class="jxr_keyword">new</strong> HashSet&lt;&gt;(devicesSeen);
+<a class="jxr_linenumber" name="L154" href="#L154">154</a>         devicesToAdd.removeAll(usbDeviceCache.keySet());
+<a class="jxr_linenumber" name="L155" href="#L155">155</a>         <strong class="jxr_keyword">if</strong> (!devicesToAdd.isEmpty()) {
+<a class="jxr_linenumber" name="L156" href="#L156">156</a>             StringBuilder sb = <strong class="jxr_keyword">new</strong> StringBuilder();
+<a class="jxr_linenumber" name="L157" href="#L157">157</a>             <strong class="jxr_keyword">boolean</strong> first = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L158" href="#L158">158</a>             <strong class="jxr_keyword">for</strong> (String deviceID : devicesToAdd) {
+<a class="jxr_linenumber" name="L159" href="#L159">159</a>                 <strong class="jxr_keyword">if</strong> (first) {
+<a class="jxr_linenumber" name="L160" href="#L160">160</a>                     sb.append(<span class="jxr_string">" WHERE (PnPDeviceID=\&quot;"</span>);
+<a class="jxr_linenumber" name="L161" href="#L161">161</a>                     first = false;
+<a class="jxr_linenumber" name="L162" href="#L162">162</a>                 } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L163" href="#L163">163</a>                     sb.append(<span class="jxr_string">" OR (PnPDeviceID=\&quot;"</span>);
+<a class="jxr_linenumber" name="L164" href="#L164">164</a>                 }
+<a class="jxr_linenumber" name="L165" href="#L165">165</a>                 sb.append(deviceID).append(<span class="jxr_string">"\&quot;)"</span>);
+<a class="jxr_linenumber" name="L166" href="#L166">166</a>             }
+<a class="jxr_linenumber" name="L167" href="#L167">167</a>             String whereClause = sb.toString();
+<a class="jxr_linenumber" name="L168" href="#L168">168</a>             <em class="jxr_comment">// Query Win32_PnPEntity to populate the maps</em>
+<a class="jxr_linenumber" name="L169" href="#L169">169</a>             PNPENTITY_QUERY.setWmiClassName(PNPENTITY_BASE_CLASS + whereClause);
+<a class="jxr_linenumber" name="L170" href="#L170">170</a>             WmiResult&lt;PnPEntityProperty&gt; pnpEntity = wmiQueryHandler.queryWMI(PNPENTITY_QUERY);
+<a class="jxr_linenumber" name="L171" href="#L171">171</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; pnpEntity.getResultCount(); i++) {
+<a class="jxr_linenumber" name="L172" href="#L172">172</a>                 String pnpDeviceID = WmiUtil.getString(pnpEntity, PnPEntityProperty.PNPDEVICEID, i);
+<a class="jxr_linenumber" name="L173" href="#L173">173</a>                 String name = WmiUtil.getString(pnpEntity, PnPEntityProperty.NAME, i);
+<a class="jxr_linenumber" name="L174" href="#L174">174</a>                 String vendor = WmiUtil.getString(pnpEntity, PnPEntityProperty.MANUFACTURER, i);
+<a class="jxr_linenumber" name="L175" href="#L175">175</a>                 <a name="WindowsUsbDevice" href="../../../../oshi/hardware/platform<a name="WindowsUsbDevice" href="../../../../oshi/hardware/platform/windows/WindowsUsbDevice.html#WindowsUsbDevice">WindowsUsbDevice</a>UsbDevice.html#WindowsUsbDevice">WindowsUsbDevice</a> device = <strong class="jxr_keyword">new</strong> <a name="WindowsUsbDevice" href="../../../../oshi/hardware/platform/windows/WindowsUsbDevice.html#WindowsUsbDevice">WindowsUsbDevice</a>(name, vendor, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, <span class="jxr_string">""</span>, <strong class="jxr_keyword">new</strong> <a name="WindowsUsbDevice" href="../../../../oshi/hardware/platform/windows/WindowsUsbDevice.html#WindowsUsbDevice">WindowsUsbDevice</a>[0]);
+<a class="jxr_linenumber" name="L176" href="#L176">176</a>                 usbDeviceCache.put(pnpDeviceID, device);
+<a class="jxr_linenumber" name="L177" href="#L177">177</a>                 LOG.debug(<span class="jxr_string">"Adding {} to USB device cache."</span>, pnpDeviceID);
+<a class="jxr_linenumber" name="L178" href="#L178">178</a>             }
+<a class="jxr_linenumber" name="L179" href="#L179">179</a>             <em class="jxr_comment">// Get serial # for disk drives or other physical media</em>
+<a class="jxr_linenumber" name="L180" href="#L180">180</a>             DISKDRIVE_QUERY.setWmiClassName(DISKDRIVE_BASE_CLASS + whereClause);
+<a class="jxr_linenumber" name="L181" href="#L181">181</a>             WmiResult&lt;DiskDriveProperty&gt; serialNumber = wmiQueryHandler.queryWMI(DISKDRIVE_QUERY);
+<a class="jxr_linenumber" name="L182" href="#L182">182</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; serialNumber.getResultCount(); i++) {
+<a class="jxr_linenumber" name="L183" href="#L183">183</a>                 String pnpDeviceID = WmiUtil.getString(serialNumber, DiskDriveProperty.PNPDEVICEID, i);
+<a class="jxr_linenumber" name="L184" href="#L184">184</a>                 <strong class="jxr_keyword">if</strong> (usbDeviceCache.containsKey(pnpDeviceID)) {
+<a class="jxr_linenumber" name="L185" href="#L185">185</a>                     <a name="WindowsUsbDevice" href="../../../../oshi/hardware/platform/windows/WindowsUsbDevice.html#WindowsUsbDevice">WindowsUsbDevice</a> device = usbDeviceCache.get(pnpDeviceID);
+<a class="jxr_linenumber" name="L186" href="#L186">186</a>                     device.serialNumber = <a name="ParseUtil" href="../../../../oshi/util/ParseUtil.html#ParseUtil">ParseUtil</a>
+<a class="jxr_linenumber" name="L187" href="#L187">187</a>                             .hexStringToString(WmiUtil.getString(serialNumber, DiskDriveProperty.SERIALNUMBER, i));
+<a class="jxr_linenumber" name="L188" href="#L188">188</a>                 }
+<a class="jxr_linenumber" name="L189" href="#L189">189</a>             }
+<a class="jxr_linenumber" name="L190" href="#L190">190</a>         }
+<a class="jxr_linenumber" name="L191" href="#L191">191</a>     }
+<a class="jxr_linenumber" name="L192" href="#L192">192</a> 
+<a class="jxr_linenumber" name="L193" href="#L193">193</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L194" href="#L194">194</a> <em class="jxr_javadoccomment">     * Navigates the Device Tree to place all children PNPDeviceIDs into the map</em>
+<a class="jxr_linenumber" name="L195" href="#L195">195</a> <em class="jxr_javadoccomment">     * for the specified deviceID. Recursively adds children's children, etc.</em>
+<a class="jxr_linenumber" name="L196" href="#L196">196</a> <em class="jxr_javadoccomment">     * </em>
+<a class="jxr_linenumber" name="L197" href="#L197">197</a> <em class="jxr_javadoccomment">     * @param deviceId</em>
+<a class="jxr_linenumber" name="L198" href="#L198">198</a> <em class="jxr_javadoccomment">     *            The device to add respective children to the map</em>
+<a class="jxr_linenumber" name="L199" href="#L199">199</a> <em class="jxr_javadoccomment">     * @param deviceInstance</em>
+<a class="jxr_linenumber" name="L200" href="#L200">200</a> <em class="jxr_javadoccomment">     *            The device instance (devnode handle), if known. If set to 0,</em>
+<a class="jxr_linenumber" name="L201" href="#L201">201</a> <em class="jxr_javadoccomment">     *            the code will search for a match.</em>
+<a class="jxr_linenumber" name="L202" href="#L202">202</a> <em class="jxr_javadoccomment">     * @param deviceTreeMap</em>
+<a class="jxr_linenumber" name="L203" href="#L203">203</a> <em class="jxr_javadoccomment">     *            The overall device tree map that starts at the controllers</em>
+<a class="jxr_linenumber" name="L204" href="#L204">204</a> <em class="jxr_javadoccomment">     * @param devicesSeen</em>
+<a class="jxr_linenumber" name="L205" href="#L205">205</a> <em class="jxr_javadoccomment">     *            Devices we've seen so we can add/remove from cache later</em>
+<a class="jxr_linenumber" name="L206" href="#L206">206</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L207" href="#L207">207</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> putChildrenInDeviceTree(String deviceId, <strong class="jxr_keyword">int</strong> deviceInstance,
+<a class="jxr_linenumber" name="L208" href="#L208">208</a>             Map&lt;String, List&lt;String&gt;&gt; deviceTreeMap, Set&lt;String&gt; devicesSeen) {
+<a class="jxr_linenumber" name="L209" href="#L209">209</a>         devicesSeen.add(deviceId);
+<a class="jxr_linenumber" name="L210" href="#L210">210</a>         <em class="jxr_comment">// If no devInst provided, find it</em>
+<a class="jxr_linenumber" name="L211" href="#L211">211</a>         <strong class="jxr_keyword">int</strong> devInst = deviceInstance;
+<a class="jxr_linenumber" name="L212" href="#L212">212</a>         <strong class="jxr_keyword">if</strong> (devInst == 0) {
+<a class="jxr_linenumber" name="L213" href="#L213">213</a>             IntByReference pdnDevInst = <strong class="jxr_keyword">new</strong> IntByReference();
+<a class="jxr_linenumber" name="L214" href="#L214">214</a>             Cfgmgr32.INSTANCE.CM_Locate_DevNode(pdnDevInst, deviceId, 0);
+<a class="jxr_linenumber" name="L215" href="#L215">215</a>             devInst = pdnDevInst.getValue();
+<a class="jxr_linenumber" name="L216" href="#L216">216</a>         }
+<a class="jxr_linenumber" name="L217" href="#L217">217</a>         <em class="jxr_comment">// Now iterate the children. Call CM_Get_Child to get first child</em>
+<a class="jxr_linenumber" name="L218" href="#L218">218</a>         IntByReference child = <strong class="jxr_keyword">new</strong> IntByReference();
+<a class="jxr_linenumber" name="L219" href="#L219">219</a>         <strong class="jxr_keyword">if</strong> (0 == Cfgmgr32.INSTANCE.CM_Get_Child(child, devInst, 0)) {
+<a class="jxr_linenumber" name="L220" href="#L220">220</a>             <em class="jxr_comment">// Add first child to a list</em>
+<a class="jxr_linenumber" name="L221" href="#L221">221</a>             List&lt;String&gt; childList = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L222" href="#L222">222</a>             String childId = Cfgmgr32Util.CM_Get_Device_ID(child.getValue());
+<a class="jxr_linenumber" name="L223" href="#L223">223</a>             childList.add(childId);
+<a class="jxr_linenumber" name="L224" href="#L224">224</a>             deviceTreeMap.put(deviceId, childList);
+<a class="jxr_linenumber" name="L225" href="#L225">225</a>             putChildrenInDeviceTree(childId, child.getValue(), deviceTreeMap, devicesSeen);
+<a class="jxr_linenumber" name="L226" href="#L226">226</a>             <em class="jxr_comment">// Find any other children</em>
+<a class="jxr_linenumber" name="L227" href="#L227">227</a>             IntByReference sibling = <strong class="jxr_keyword">new</strong> IntByReference();
+<a class="jxr_linenumber" name="L228" href="#L228">228</a>             <strong class="jxr_keyword">while</strong> (0 == Cfgmgr32.INSTANCE.CM_Get_Sibling(sibling, child.getValue(), 0)) {
+<a class="jxr_linenumber" name="L229" href="#L229">229</a>                 <em class="jxr_comment">// Add to the list</em>
+<a class="jxr_linenumber" name="L230" href="#L230">230</a>                 String siblingId = Cfgmgr32Util.CM_Get_Device_ID(sibling.getValue());
+<a class="jxr_linenumber" name="L231" href="#L231">231</a>                 deviceTreeMap.get(deviceId).add(siblingId);
+<a class="jxr_linenumber" name="L232" href="#L232">232</a>                 putChildrenInDeviceTree(siblingId, sibling.getValue(), deviceTreeMap, devicesSeen);
+<a class="jxr_linenumber" name="L233" href="#L233">233</a>                 <em class="jxr_comment">// Make this sibling the new child to find other siblings</em>
+<a class="jxr_linenumber" name="L234" href="#L234">234</a>                 child = sibling;
+<a class="jxr_linenumber" name="L235" href="#L235">235</a>             }
+<a class="jxr_linenumber" name="L236" href="#L236">236</a>         }
+<a class="jxr_linenumber" name="L237" href="#L237">237</a>     }
+<a class="jxr_linenumber" name="L238" href="#L238">238</a> 
+<a class="jxr_linenumber" name="L239" href="#L239">239</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L240" href="#L240">240</a> <em class="jxr_javadoccomment">     * Recursively creates WindowsUsbDevices by fetching information from maps</em>
+<a class="jxr_linenumber" name="L241" href="#L241">241</a> <em class="jxr_javadoccomment">     * to populate fields</em>
+<a class="jxr_linenumber" name="L242" href="#L242">242</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L243" href="#L243">243</a> <em class="jxr_javadoccomment">     * @param hubDeviceId</em>
+<a class="jxr_linenumber" name="L244" href="#L244">244</a> <em class="jxr_javadoccomment">     *            The PNPdeviceID of this device.</em>
+<a class="jxr_linenumber" name="L245" href="#L245">245</a> <em class="jxr_javadoccomment">     * @param vid</em>
+<a class="jxr_linenumber" name="L246" href="#L246">246</a> <em class="jxr_javadoccomment">     *            The default (parent) vendor ID</em>
+<a class="jxr_linenumber" name="L247" href="#L247">247</a> <em class="jxr_javadoccomment">     * @param pid</em>
+<a class="jxr_linenumber" name="L248" href="#L248">248</a> <em class="jxr_javadoccomment">     *            The default (parent) product ID</em>
+<a class="jxr_linenumber" name="L249" href="#L249">249</a> <em class="jxr_javadoccomment">     * @param deviceTreeMap</em>
+<a class="jxr_linenumber" name="L250" href="#L250">250</a> <em class="jxr_javadoccomment">     * @return A WindowsUsbDevice corresponding to this deviceID, or null if</em>
+<a class="jxr_linenumber" name="L251" href="#L251">251</a> <em class="jxr_javadoccomment">     *         unable to find</em>
+<a class="jxr_linenumber" name="L252" href="#L252">252</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L253" href="#L253">253</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <a name="WindowsUsbDevice" href="../../../../oshi/hardware/platform/windows/WindowsUsbDevice.html#WindowsUsbDevice">WindowsUsbDevice</a> getDeviceAndChildren(String hubDeviceId, String vid, String pid,
+<a class="jxr_linenumber" name="L254" href="#L254">254</a>             Map&lt;String, List&lt;String&gt;&gt; deviceTreeMap) {
+<a class="jxr_linenumber" name="L255" href="#L255">255</a>         String vendorId = vid;
+<a class="jxr_linenumber" name="L256" href="#L256">256</a>         String productId = pid;
+<a class="jxr_linenumber" name="L257" href="#L257">257</a>         Matcher m = VENDOR_PRODUCT_ID.matcher(hubDeviceId);
+<a class="jxr_linenumber" name="L258" href="#L258">258</a>         <strong class="jxr_keyword">if</strong> (m.matches()) {
+<a class="jxr_linenumber" name="L259" href="#L259">259</a>             vendorId = m.group(1).toLowerCase();
+<a class="jxr_linenumber" name="L260" href="#L260">260</a>             productId = m.group(2).toLowerCase();
+<a class="jxr_linenumber" name="L261" href="#L261">261</a>         }
+<a class="jxr_linenumber" name="L262" href="#L262">262</a>         List&lt;String&gt; pnpDeviceIds = MapUtil.getOrDefault(deviceTreeMap, hubDeviceId, <strong class="jxr_keyword">new</strong> ArrayList&lt;String&gt;());
+<a class="jxr_linenumber" name="L263" href="#L263">263</a>         List&lt;WindowsUsbDevice&gt; usbDevices = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L264" href="#L264">264</a>         <strong class="jxr_keyword">for</strong> (String pnpDeviceId : pnpDeviceIds) {
+<a class="jxr_linenumber" name="L265" href="#L265">265</a>             <a name="WindowsUsbDevice" href="../../../../oshi/hardware/platform/windows/WindowsUsbDevice.html#WindowsUsbDevice">WindowsUsbDevice</a> deviceAndChildren = getDeviceAndChildren(pnpDeviceId, vendorId, productId, deviceTreeMap);
+<a class="jxr_linenumber" name="L266" href="#L266">266</a>             <strong class="jxr_keyword">if</strong> (deviceAndChildren != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L267" href="#L267">267</a>                 usbDevices.add(deviceAndChildren);
+<a class="jxr_linenumber" name="L268" href="#L268">268</a>             }
+<a class="jxr_linenumber" name="L269" href="#L269">269</a>         }
+<a class="jxr_linenumber" name="L270" href="#L270">270</a>         Collections.sort(usbDevices);
+<a class="jxr_linenumber" name="L271" href="#L271">271</a>         <strong class="jxr_keyword">if</strong> (usbDeviceCache.containsKey(hubDeviceId)) {
+<a class="jxr_linenumber" name="L272" href="#L272">272</a>             <a name="WindowsUsbDevice" href="../../../../oshi/hardware/platform/windows/WindowsUsbDevice.html#WindowsUsbDevice">WindowsUsbDevice</a> device = usbDeviceCache.get(hubDeviceId);
+<a class="jxr_linenumber" name="L273" href="#L273">273</a>             <strong class="jxr_keyword">if</strong> (device.name.isEmpty()) {
+<a class="jxr_linenumber" name="L274" href="#L274">274</a>                 device.name = vendorId + <span class="jxr_string">":"</span> + productId;
+<a class="jxr_linenumber" name="L275" href="#L275">275</a>             }
+<a class="jxr_linenumber" name="L276" href="#L276">276</a>             device.vendorId = vendorId;
+<a class="jxr_linenumber" name="L277" href="#L277">277</a>             device.productId = productId;
+<a class="jxr_linenumber" name="L278" href="#L278">278</a>             device.connectedDevices = usbDevices.toArray(<strong class="jxr_keyword">new</strong> <a name="WindowsUsbDevice" href="../../../../oshi/hardware/platform/windows/WindowsUsbDevice.html#WindowsUsbDevice">WindowsUsbDevice</a>[usbDevices.size()]);
+<a class="jxr_linenumber" name="L279" href="#L279">279</a>             <strong class="jxr_keyword">return</strong> device;
+<a class="jxr_linenumber" name="L280" href="#L280">280</a>         }
+<a class="jxr_linenumber" name="L281" href="#L281">281</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L282" href="#L282">282</a>     }
+<a class="jxr_linenumber" name="L283" href="#L283">283</a> 
+<a class="jxr_linenumber" name="L284" href="#L284">284</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L285" href="#L285">285</a> <em class="jxr_javadoccomment">     * Queries the USB Controller list, which doesn't change so we only need to</em>
+<a class="jxr_linenumber" name="L286" href="#L286">286</a> <em class="jxr_javadoccomment">     * query it once</em>
+<a class="jxr_linenumber" name="L287" href="#L287">287</a> <em class="jxr_javadoccomment">     * </em>
+<a class="jxr_linenumber" name="L288" href="#L288">288</a> <em class="jxr_javadoccomment">     * @param wmiQueryHandler</em>
+<a class="jxr_linenumber" name="L289" href="#L289">289</a> <em class="jxr_javadoccomment">     * </em>
+<a class="jxr_linenumber" name="L290" href="#L290">290</a> <em class="jxr_javadoccomment">     * @return A list of Strings of USB Controller PNPDeviceIDs</em>
+<a class="jxr_linenumber" name="L291" href="#L291">291</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L292" href="#L292">292</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> List&lt;String&gt; getControllerDeviceIdList(<a name="WmiQueryHandler" href="../../../../oshi/util/platform/windows/WmiQueryHandler.html#WmiQueryHandler">WmiQueryHandler</a> wmiQueryHandler) {
+<a class="jxr_linenumber" name="L293" href="#L293">293</a>         <strong class="jxr_keyword">if</strong> (controllerDeviceIds == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L294" href="#L294">294</a>             controllerDeviceIds = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L295" href="#L295">295</a>             <em class="jxr_comment">// One time lookup of USB Controller PnP Device IDs which don't</em>
+<a class="jxr_linenumber" name="L296" href="#L296">296</a>             <em class="jxr_comment">// change</em>
+<a class="jxr_linenumber" name="L297" href="#L297">297</a>             WmiQuery&lt;USBControllerProperty&gt; usbControllerQuery = <strong class="jxr_keyword">new</strong> WmiQuery&lt;&gt;(<span class="jxr_string">"Win32_USBController"</span>,
+<a class="jxr_linenumber" name="L298" href="#L298">298</a>                     USBControllerProperty.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L299" href="#L299">299</a>             WmiResult&lt;USBControllerProperty&gt; usbController = wmiQueryHandler.queryWMI(usbControllerQuery);
+<a class="jxr_linenumber" name="L300" href="#L300">300</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; usbController.getResultCount(); i++) {
+<a class="jxr_linenumber" name="L301" href="#L301">301</a>                 controllerDeviceIds.add(WmiUtil.getString(usbController, USBControllerProperty.PNPDEVICEID, i));
+<a class="jxr_linenumber" name="L302" href="#L302">302</a>             }
+<a class="jxr_linenumber" name="L303" href="#L303">303</a>         }
+<a class="jxr_linenumber" name="L304" href="#L304">304</a>         <strong class="jxr_keyword">return</strong> controllerDeviceIds;
+<a class="jxr_linenumber" name="L305" href="#L305">305</a>     }
+<a class="jxr_linenumber" name="L306" href="#L306">306</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2019 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
