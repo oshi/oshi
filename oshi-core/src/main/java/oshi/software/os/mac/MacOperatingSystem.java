@@ -48,6 +48,7 @@ import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
+import oshi.util.StringUtil;
 import oshi.util.platform.mac.SysctlUtil;
 
 public class MacOperatingSystem extends AbstractOperatingSystem {
@@ -312,7 +313,7 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
             offset += arg.length();
         }
         // Return args null-delimited
-        return String.join("\0", args);
+        return StringUtil.join("\0", args);
     }
 
     /**

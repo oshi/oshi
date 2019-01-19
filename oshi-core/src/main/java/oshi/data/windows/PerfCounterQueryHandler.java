@@ -24,7 +24,6 @@
 package oshi.data.windows;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -260,7 +259,7 @@ public class PerfCounterQueryHandler {
         HANDLEByReference q = new HANDLEByReference();
         if (PerfDataUtil.openQuery(q)) {
             queryHandleMap.put(key, q);
-            List<PerfCounter> counterList = Collections.synchronizedList(new ArrayList<>());
+            List<PerfCounter> counterList = new ArrayList<>();
             queryCounterMap.put(key, counterList);
             return q;
         }

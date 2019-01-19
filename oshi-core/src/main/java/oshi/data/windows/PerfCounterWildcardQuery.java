@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -286,7 +287,12 @@ public class PerfCounterWildcardQuery<T extends Enum<T>> extends PerfCounterQuer
         }
         List<String> instances = objectItems.getInstances();
         // Filter out instances not matching filter
-        instances.removeIf(i -> !Util.wildcardMatch(i.toLowerCase(), this.instanceFilter));
+        ListIterator<String> iter = instances.listIterator();
+        while (iter.hasNext()) {
+            if (!Util.wildcardMatch(iter.next().toLowerCase(), this.instanceFilter)) {
+                iter.remove();
+            }
+        }
         // Track instances not in counter list, to add
         Set<String> instancesToAdd = new HashSet<>(instances);
         // Populate map with instances to add. Skip first counter, which defines

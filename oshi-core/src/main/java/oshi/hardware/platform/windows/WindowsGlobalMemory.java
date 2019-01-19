@@ -35,6 +35,7 @@ import com.sun.jna.platform.win32.Psapi.PERFORMANCE_INFORMATION;
 import oshi.data.windows.PerfCounterQuery;
 import oshi.data.windows.PerfCounterQuery.PdhCounterProperty;
 import oshi.hardware.common.AbstractGlobalMemory;
+import oshi.util.MapUtil;
 
 /**
  * Memory obtained by GlobalMemoryStatusEx.
@@ -143,8 +144,8 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
 
     private void updateSwapCounters() {
         Map<PageSwapProperty, Long> valueMap = this.memoryPerfCounters.queryValues();
-        this.swapPagesIn = valueMap.getOrDefault(PageSwapProperty.PAGESINPUTPERSEC, 0L);
-        this.swapPagesOut = valueMap.getOrDefault(PageSwapProperty.PAGESOUTPUTPERSEC, 0L);
+        this.swapPagesIn = MapUtil.getOrDefault(valueMap, PageSwapProperty.PAGESINPUTPERSEC, 0L);
+        this.swapPagesOut = MapUtil.getOrDefault(valueMap, PageSwapProperty.PAGESOUTPUTPERSEC, 0L);
     }
 
     /**
@@ -154,6 +155,6 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
     protected void updateSwap() {
         updateMeminfo();
         Map<PagingPercentProperty, Long> valueMap = this.pagingPerfCounters.queryValues();
-        this.swapUsed = valueMap.getOrDefault(PagingPercentProperty.PERCENTUSAGE, 0L);
+        this.swapUsed = MapUtil.getOrDefault(valueMap, PagingPercentProperty.PERCENTUSAGE, 0L);
     }
 }

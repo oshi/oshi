@@ -47,6 +47,7 @@ import oshi.data.windows.PerfCounterWildcardQuery;
 import oshi.data.windows.PerfCounterWildcardQuery.PdhCounterWildcardProperty;
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.jna.platform.windows.VersionHelpers;
+import oshi.util.MapUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
@@ -287,9 +288,9 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
         // Divide by 10_000 to get milliseconds
 
         Map<SystemTickCountProperty, Long> valueMap = this.systemTickPerfCounters.queryValues();
-        ticks[TickType.IRQ.getIndex()] = valueMap.getOrDefault(SystemTickCountProperty.PERCENTINTERRUPTTIME, 0L)
-                / 10_000L;
-        ticks[TickType.SOFTIRQ.getIndex()] = valueMap.getOrDefault(SystemTickCountProperty.PERCENTDPCTIME, 0L)
+        ticks[TickType.IRQ.getIndex()] = MapUtil.getOrDefault(valueMap, SystemTickCountProperty.PERCENTINTERRUPTTIME,
+                0L) / 10_000L;
+        ticks[TickType.SOFTIRQ.getIndex()] = MapUtil.getOrDefault(valueMap, SystemTickCountProperty.PERCENTDPCTIME, 0L)
                 / 10_000L;
 
         ticks[TickType.IDLE.getIndex()] = lpIdleTime.toDWordLong().longValue() / 10_000L;
@@ -385,7 +386,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
     @Override
     public long getContextSwitches() {
         Map<ContextSwitchProperty, Long> valueMap = this.contextSwitchPerfCounters.queryValues();
-        return valueMap.getOrDefault(ContextSwitchProperty.CONTEXTSWITCHESPERSEC, 0L);
+        return MapUtil.getOrDefault(valueMap, ContextSwitchProperty.CONTEXTSWITCHESPERSEC, 0L);
     }
 
     /**
@@ -394,6 +395,6 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
     @Override
     public long getInterrupts() {
         Map<InterruptsProperty, Long> valueMap = this.interruptsPerfCounters.queryValues();
-        return valueMap.getOrDefault(InterruptsProperty.INTERRUPTSPERSEC, 0L);
+        return MapUtil.getOrDefault(valueMap, InterruptsProperty.INTERRUPTSPERSEC, 0L);
     }
 }

@@ -73,6 +73,7 @@ import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
 import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
+import oshi.util.StringUtil;
 import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
 
@@ -470,8 +471,8 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                                 groupList.add(a.name);
                                 groupIDList.add(a.sidString);
                             }
-                            proc.setGroup(String.join(",", groupList));
-                            proc.setGroupID(String.join(",", groupIDList));
+                            proc.setGroup(StringUtil.join(",", groupList));
+                            proc.setGroupID(StringUtil.join(",", groupIDList));
                         }
                     } else {
                         int error = Kernel32.INSTANCE.GetLastError();
