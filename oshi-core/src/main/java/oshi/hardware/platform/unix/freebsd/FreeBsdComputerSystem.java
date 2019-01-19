@@ -23,24 +23,76 @@
  */
 package oshi.hardware.platform.unix.freebsd;
 
+import oshi.hardware.Baseboard;
+import oshi.hardware.Firmware;
 import oshi.hardware.common.AbstractComputerSystem;
+import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
 /**
- * Hardware data obtained from dmidecode
- *
- * @author widdis [at] gmail [dot] com
+ * Hardware data obtained from dmidecode.
  */
 final class FreeBsdComputerSystem extends AbstractComputerSystem {
 
     private static final long serialVersionUID = 1L;
 
-    FreeBsdComputerSystem() {
-        init();
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getManufacturer() {
+        if (this.manufacturer == null) {
+            readDmiDecode();
+        }
+        return this.manufacturer;
     }
 
-    private void init() {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getModel() {
+        if (this.model == null) {
+            readDmiDecode();
+        }
+        return this.model;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getSerialNumber() {
+        if (this.serialNumber == null) {
+            readDmiDecode();
+        }
+        return this.serialNumber;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Firmware getFirmware() {
+        if (this.firmware == null) {
+            this.firmware = new FreeBsdFirmware();
+        }
+        return this.firmware;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Baseboard getBaseboard() {
+        if (this.baseboard == null) {
+            this.baseboard = new FreeBsdBaseboard();
+        }
+        return this.baseboard;
+    }
+
+    private void readDmiDecode() {
 
         // $ sudo dmidecode -t system
         // # dmidecode 3.0
@@ -63,39 +115,33 @@ final class FreeBsdComputerSystem extends AbstractComputerSystem {
         // System Boot Information
         // Status: No errors detected
 
-        String manufacturer = "";
         final String manufacturerMarker = "Manufacturer:";
-        String productName = "";
         final String productNameMarker = "Product Name:";
-        String serialNumber = "";
         final String serialNumMarker = "Serial Number:";
 
         // Only works with root permissions but it's all we've got
         for (final String checkLine : ExecutingCommand.runNative("dmidecode -t system")) {
             if (checkLine.contains(manufacturerMarker)) {
-                manufacturer = checkLine.split(manufacturerMarker)[1].trim();
+                String manufacturer = checkLine.split(manufacturerMarker)[1].trim();
+                if (!manufacturer.isEmpty()) {
+                    this.manufacturer = manufacturer;
+                }
             }
             if (checkLine.contains(productNameMarker)) {
-                productName = checkLine.split(productNameMarker)[1].trim();
+                String productName = checkLine.split(productNameMarker)[1].trim();
+                if (!productName.isEmpty()) {
+                    this.model = productName;
+                }
             }
             if (checkLine.contains(serialNumMarker)) {
-                serialNumber = checkLine.split(serialNumMarker)[1].trim();
+                String serialNumber = checkLine.split(serialNumMarker)[1].trim();
+                this.serialNumber = serialNumber;
             }
         }
-        if (!manufacturer.isEmpty()) {
-            setManufacturer(manufacturer);
-        }
-        if (!productName.isEmpty()) {
-            setModel(productName);
-        }
-        if (serialNumber.isEmpty()) {
-            serialNumber = getSystemSerialNumber();
-        }
-        setSerialNumber(serialNumber);
 
-        setFirmware(new FreeBsdFirmware());
-
-        setBaseboard(new FreeBsdBaseboard());
+        if (this.serialNumber == null || serialNumber.isEmpty()) {
+            this.serialNumber = getSystemSerialNumber();
+        }
     }
 
     private String getSystemSerialNumber() {
@@ -105,6 +151,6 @@ final class FreeBsdComputerSystem extends AbstractComputerSystem {
                 return ParseUtil.getSingleQuoteStringValue(checkLine);
             }
         }
-        return "unknown";
+        return Constants.UNKNOWN;
     }
 }

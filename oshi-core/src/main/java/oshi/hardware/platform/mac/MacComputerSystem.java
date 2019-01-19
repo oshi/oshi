@@ -25,31 +25,77 @@ package oshi.hardware.platform.mac;
 
 import java.util.regex.Pattern;
 
+import oshi.hardware.Baseboard;
+import oshi.hardware.Firmware;
 import oshi.hardware.common.AbstractComputerSystem;
 import oshi.jna.platform.mac.IOKit;
+import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 import oshi.util.platform.mac.IOKitUtil;
 
 /**
- * Hardware data obtained by system_profiler
- *
- * @author SchiTho1 [at] Securiton AG
- * @author widdis [at] gmail [dot] com
+ * Hardware data obtained by system_profiler.
  */
 final class MacComputerSystem extends AbstractComputerSystem {
 
     private static final long serialVersionUID = 1L;
 
-    private static final String APPLE = "Apple Inc.";
-
-    MacComputerSystem() {
-        init();
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getManufacturer() {
+        if (this.manufacturer == null) {
+            this.manufacturer = "Apple Inc.";
+        }
+        return this.manufacturer;
     }
 
-    private void init() {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getModel() {
+        if (this.model == null) {
+            profileSystem();
+        }
+        return super.getModel();
+    }
 
-        setManufacturer(APPLE);
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getSerialNumber() {
+        if (this.serialNumber == null) {
+            profileSystem();
+        }
+        return super.getSerialNumber();
+    }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Firmware getFirmware() {
+        if (this.firmware == null) {
+            this.firmware = initFirmware();
+        }
+        return this.firmware;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Baseboard getBaseboard() {
+        if (this.baseboard == null) {
+            this.baseboard = initBaseboard();
+        }
+        return this.baseboard;
+    }
+
+    private void profileSystem() {
         // $ system_profiler SPHardwareDataType
         // Hardware:
         //
@@ -71,81 +117,83 @@ final class MacComputerSystem extends AbstractComputerSystem {
         // Sudden Motion Sensor:
         // State: Enabled
 
-        String modelName = "";
         final String modelNameMarker = "Model Name:";
-        String modelIdentifier = "";
         final String modelIdMarker = "Model Identifier:";
-        String serialNumberSystem = "";
-        final String serialNumMarker = "Serial Number (system):";
-        String smcVersion = "";
-        final String smcMarker = "SMC Version (system):";
-        String bootRomVersion = "";
-        final String bootRomMarker = "Boot ROM Version:";
 
-        final MacFirmware firmware = new MacFirmware();
-        firmware.setManufacturer(APPLE);
-        firmware.setName("EFI");
-
-        final MacBaseboard baseboard = new MacBaseboard();
-        baseboard.setManufacturer(APPLE);
-        baseboard.setModel("SMC");
-
-        // Populate name and ID
+        // Name and ID can be used together
+        String modelName = "";
+        String modelIdentifier = "";
         for (final String checkLine : ExecutingCommand.runNative("system_profiler SPHardwareDataType")) {
             if (checkLine.contains(modelNameMarker)) {
                 modelName = checkLine.split(modelNameMarker)[1].trim();
-            }
-            if (checkLine.contains(modelIdMarker)) {
+            } else if (checkLine.contains(modelIdMarker)) {
                 modelIdentifier = checkLine.split(modelIdMarker)[1].trim();
-            }
-            if (checkLine.contains(bootRomMarker)) {
-                bootRomVersion = checkLine.split(bootRomMarker)[1].trim();
-            }
-            if (checkLine.contains(smcMarker)) {
-                smcVersion = checkLine.split(Pattern.quote(smcMarker))[1].trim();
-            }
-            if (checkLine.contains(serialNumMarker)) {
-                serialNumberSystem = checkLine.split(Pattern.quote(serialNumMarker))[1].trim();
-            }
-        }
-        // Use name (id) if both available; else either one
-        if (!modelName.isEmpty()) {
-            if (!modelIdentifier.isEmpty()) {
-                setModel(modelName + " (" + modelIdentifier + ")");
             } else {
-                setModel(modelName);
-            }
-        } else {
-            if (!modelIdentifier.isEmpty()) {
-                setModel(modelIdentifier);
+                setVersionAndSerialNumber(checkLine);
             }
         }
-        if (serialNumberSystem.isEmpty()) {
-            serialNumberSystem = getSystemSerialNumber();
-        }
-        setSerialNumber(serialNumberSystem);
-        baseboard.setSerialNumber(serialNumberSystem);
-        if (!smcVersion.isEmpty()) {
-            baseboard.setVersion(smcVersion);
-        }
-        if (bootRomVersion != null && !bootRomVersion.isEmpty()) {
-            firmware.setVersion(bootRomVersion);
-        }
+        setModelNameAndIdentifier(modelName, modelIdentifier);
 
-        setFirmware(firmware);
-        setBaseboard(baseboard);
     }
 
-    private String getSystemSerialNumber() {
+    private void setVersionAndSerialNumber(String checkLine) {
+        final String serialNumMarker = "Serial Number (system):";
+        final String smcMarker = "SMC Version (system):";
+        final String bootRomMarker = "Boot ROM Version:";
+
+        if (checkLine.contains(bootRomMarker)) {
+            String bootRomVersion = checkLine.split(bootRomMarker)[1].trim();
+            if (!bootRomVersion.isEmpty()) {
+                ((MacFirmware) getFirmware()).setVersion(bootRomVersion);
+            }
+        }
+        if (checkLine.contains(smcMarker)) {
+            String smcVersion = checkLine.split(Pattern.quote(smcMarker))[1].trim();
+            if (!smcVersion.isEmpty()) {
+                ((MacBaseboard) getBaseboard()).setVersion(smcVersion);
+            }
+        }
+        if (checkLine.contains(serialNumMarker)) {
+            String serialNumberSystem = checkLine.split(Pattern.quote(serialNumMarker))[1].trim();
+            this.serialNumber = serialNumberSystem.isEmpty() ? getIORegistryPlatformSerialNumber() : serialNumberSystem;
+            ((MacBaseboard) getBaseboard()).setSerialNumber(this.serialNumber);
+        }
+    }
+
+    private MacFirmware initFirmware() {
+        MacFirmware firmware = new MacFirmware();
+        firmware.setManufacturer(getManufacturer());
+        firmware.setName("EFI");
+        return firmware;
+    }
+
+    private MacBaseboard initBaseboard() {
+        MacBaseboard baseboard = new MacBaseboard();
+        baseboard.setManufacturer(getManufacturer());
+        baseboard.setModel("SMC");
+        return baseboard;
+    }
+
+    private void setModelNameAndIdentifier(String modelName, String modelIdentifier) {
+        // Use name (id) if both available; else either one
+        if (modelName.isEmpty() && !modelIdentifier.isEmpty()) {
+            this.model = modelIdentifier;
+        } else {
+            if (!modelName.isEmpty() && !modelIdentifier.isEmpty()) {
+                this.model = modelName + " (" + modelIdentifier + ")";
+            } else {
+                this.model = modelName.isEmpty() ? Constants.UNKNOWN : modelName;
+            }
+        }
+    }
+
+    private String getIORegistryPlatformSerialNumber() {
         String serialNumber = null;
         int service = IOKitUtil.getMatchingService("IOPlatformExpertDevice");
         if (service != 0) {
             // Fetch the serial number
             serialNumber = IOKitUtil.getIORegistryStringProperty(service, "IOPlatformSerialNumber");
             IOKit.INSTANCE.IOObjectRelease(service);
-        }
-        if (serialNumber == null) {
-            serialNumber = "unknown";
         }
         return serialNumber;
     }

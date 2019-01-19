@@ -21,40 +21,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package oshi.hardware;
-
-import java.io.Serializable;
+package oshi.util;
 
 /**
- * The Baseboard represents the system board, also called motherboard, logic
- * board, etc.
+ * General constants used in multiple classes
  */
-public interface Baseboard extends Serializable {
-    /**
-     * Get the baseboard manufacturer.
-     *
-     * @return The manufacturer.
-     */
-    String getManufacturer();
+public class Constants {
 
     /**
-     * Get the baseboard model.
-     *
-     * @return The model.
+     * String to report for unknown information
      */
-    String getModel();
+    public static final String UNKNOWN = "unknown";
 
     /**
-     * Get the baseboard version.
-     *
-     * @return The version.
+     * Note: /sys/class/dmi/id symlinks here, but /sys/devices/ is the
+     * official/approved path for sysfs information
      */
-    String getVersion();
+    public static final String SYSFS_SERIAL_PATH = "/sys/devices/virtual/dmi/id/";
 
     /**
-     * Get the baseboard serial number.
-     *
-     * @return The serial number.
+     * Everything in this class is static, never instantiate it
      */
-    String getSerialNumber();
+    private Constants() {
+        throw new AssertionError();
+    }
 }

@@ -24,17 +24,52 @@
 package oshi.hardware.platform.unix.freebsd;
 
 import oshi.hardware.common.AbstractFirmware;
+import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
+import oshi.util.ParseUtil;
 
 final class FreeBsdFirmware extends AbstractFirmware {
 
     private static final long serialVersionUID = 1L;
 
-    FreeBsdFirmware() {
-        init();
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getManufacturer() {
+        if (this.manufacturer == null) {
+            readDmiDecode();
+        }
+        return super.getManufacturer();
     }
 
-    private void init() {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getVersion() {
+        if (this.version == null) {
+            readDmiDecode();
+        }
+        return super.getVersion();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getReleaseDate() {
+        if (this.releaseDate == null) {
+            readDmiDecode();
+        }
+        return super.getReleaseDate();
+    }
+
+    /*
+     * Name and Description not set
+     */
+
+    private void readDmiDecode() {
 
         // $ sudo dmidecode -t bios
         // # dmidecode 3.0
@@ -50,37 +85,24 @@ final class FreeBsdFirmware extends AbstractFirmware {
         // BIOS Revision: 11.2
         // Firmware Revision: 11.2
 
-        String manufacturer = "";
         final String manufacturerMarker = "Vendor:";
-        String version = "";
         final String versionMarker = "Version:";
-        String releaseDate = "";
         final String releaseDateMarker = "Release Date:";
 
         // Only works with root permissions but it's all we've got
         for (final String checkLine : ExecutingCommand.runNative("dmidecode -t bios")) {
             if (checkLine.contains(manufacturerMarker)) {
-                manufacturer = checkLine.split(manufacturerMarker)[1].trim();
+                String manufacturer = checkLine.split(manufacturerMarker)[1].trim();
+                this.manufacturer = manufacturer.isEmpty() ? Constants.UNKNOWN : manufacturer;
             } else if (checkLine.contains(versionMarker)) {
-                version = checkLine.split(versionMarker)[1].trim();
+                String version = checkLine.split(versionMarker)[1].trim();
+                this.version = version.isEmpty() ? Constants.UNKNOWN : version;
             } else if (checkLine.contains(releaseDateMarker)) {
-                releaseDate = checkLine.split(releaseDateMarker)[1].trim();
-            }
-        }
-        if (!manufacturer.isEmpty()) {
-            setManufacturer(manufacturer);
-        }
-        if (!version.isEmpty()) {
-            setVersion(version);
-        }
-        if (!releaseDate.isEmpty()) {
-            try {
-                // Date is MM-DD-YYYY, convert to YYYY-MM-DD
-                setReleaseDate(String.format("%s-%s-%s", releaseDate.substring(6, 10), releaseDate.substring(0, 2),
-                        releaseDate.substring(3, 5)));
-            } catch (StringIndexOutOfBoundsException e) {
-                setReleaseDate(releaseDate);
+                String releaseDate = checkLine.split(releaseDateMarker)[1].trim();
+                this.releaseDate = releaseDate.isEmpty() ? Constants.UNKNOWN
+                        : ParseUtil.parseMmDdYyyyToYyyyMmDD(releaseDate);
             }
         }
     }
+
 }

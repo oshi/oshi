@@ -26,9 +26,7 @@ package oshi.hardware;
 import java.io.Serializable;
 
 /**
- * The Firmware represents the low level BIOS or equivalent
- *
- * @author SchiTho1 [at] Securiton AG
+ * The Firmware represents the low level BIOS or equivalent.
  */
 public interface Firmware extends Serializable {
 
@@ -63,7 +61,7 @@ public interface Firmware extends Serializable {
     /**
      * Get the firmware release date.
      *
-     * @return The date in ISO 8601 YYYY-MM-DD format.
+     * @return The release date.
      */
     String getReleaseDate();
 }

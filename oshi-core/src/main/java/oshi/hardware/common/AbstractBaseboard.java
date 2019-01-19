@@ -24,6 +24,7 @@
 package oshi.hardware.common;
 
 import oshi.hardware.Baseboard;
+import oshi.util.Constants;
 
 /**
  * Baseboard data
@@ -34,23 +35,19 @@ public abstract class AbstractBaseboard implements Baseboard {
 
     private static final long serialVersionUID = 1L;
 
-    private String manufacturer;
-    private String model;
-    private String version;
-    private String serialNumber;
-
-    public AbstractBaseboard() {
-        this.manufacturer = "unknown";
-        this.model = "unknown";
-        this.version = "unknown";
-        this.serialNumber = "";
-    }
+    protected String manufacturer;
+    protected String model;
+    protected String version;
+    protected String serialNumber;
 
     /**
      * {@inheritDoc}
      */
     @Override
     public String getManufacturer() {
+        if (this.manufacturer == null) {
+            this.manufacturer = Constants.UNKNOWN;
+        }
         return this.manufacturer;
     }
 
@@ -59,6 +56,9 @@ public abstract class AbstractBaseboard implements Baseboard {
      */
     @Override
     public String getModel() {
+        if (this.model == null) {
+            this.model = Constants.UNKNOWN;
+        }
         return this.model;
     }
 
@@ -67,6 +67,9 @@ public abstract class AbstractBaseboard implements Baseboard {
      */
     @Override
     public String getVersion() {
+        if (this.version == null) {
+            this.version = Constants.UNKNOWN;
+        }
         return this.version;
     }
 
@@ -75,6 +78,9 @@ public abstract class AbstractBaseboard implements Baseboard {
      */
     @Override
     public String getSerialNumber() {
+        if (this.serialNumber == null) {
+            this.serialNumber = "";
+        }
         return this.serialNumber;
     }
 

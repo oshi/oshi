@@ -24,38 +24,29 @@
 package oshi.hardware.common;
 
 import oshi.hardware.Firmware;
+import oshi.util.Constants;
 
 /**
- * Firmware data
- *
- * @author SchiTho1 [at] Securiton AG
- * @author widdis [at] gmail [dot] com
+ * Firmware data.
  */
 public abstract class AbstractFirmware implements Firmware {
 
     private static final long serialVersionUID = 1L;
 
-    private String manufacturer;
-    private String name;
-    private String description;
-    private String version;
-    private String releaseDate;
-
-    private static final String UNKNOWN = "unknown";
-
-    public AbstractFirmware() {
-        this.manufacturer = UNKNOWN;
-        this.name = UNKNOWN;
-        this.description = UNKNOWN;
-        this.version = UNKNOWN;
-        this.releaseDate = UNKNOWN;
-    }
+    protected String manufacturer;
+    protected String name;
+    protected String description;
+    protected String version;
+    protected String releaseDate;
 
     /**
      * {@inheritDoc}
      */
     @Override
     public String getManufacturer() {
+        if (this.manufacturer == null) {
+            this.manufacturer = Constants.UNKNOWN;
+        }
         return this.manufacturer;
     }
 
@@ -64,6 +55,9 @@ public abstract class AbstractFirmware implements Firmware {
      */
     @Override
     public String getName() {
+        if (this.name == null) {
+            this.name = Constants.UNKNOWN;
+        }
         return this.name;
     }
 
@@ -72,6 +66,9 @@ public abstract class AbstractFirmware implements Firmware {
      */
     @Override
     public String getDescription() {
+        if (this.description == null) {
+            this.description = Constants.UNKNOWN;
+        }
         return this.description;
     }
 
@@ -80,6 +77,9 @@ public abstract class AbstractFirmware implements Firmware {
      */
     @Override
     public String getVersion() {
+        if (this.version == null) {
+            this.version = Constants.UNKNOWN;
+        }
         return this.version;
     }
 
@@ -88,6 +88,9 @@ public abstract class AbstractFirmware implements Firmware {
      */
     @Override
     public String getReleaseDate() {
+        if (this.releaseDate == null) {
+            this.releaseDate = Constants.UNKNOWN;
+        }
         return this.releaseDate;
     }
 
