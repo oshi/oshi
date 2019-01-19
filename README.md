@@ -23,9 +23,6 @@ It doesn't require the installation of any additional native libraries and aims 
 cross-platform implementation to retrieve system information, such as OS version, processes, 
 memory & CPU usage, disks & partitions, devices, sensors, etc.
 
-OSHI provides lightweight Java objects to enable the core functionality in the `oshi-core` module,
-and extends that with flexible, configurable JSON-formatted data in the `oshi-json` module.
-
 Supported platforms 
 --------------------------- 
 Windows • Linux • Mac OS X • Unix (Solaris, FreeBSD) 
@@ -58,21 +55,15 @@ Downloads
 ---------
 | Stable Release Version | Current Development Version | Dependencies |
 | ------------- | ------------- | ------------- |
-| [oshi-core-3.12.2](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.github.oshi&a=oshi-core&v=3.12.2&e=jar)  | [oshi-core-4.0.0-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=com.github.oshi&a=oshi-core&v=4.0.0-SNAPSHOT&e=jar) | [JNA](https://github.com/java-native-access/jna) • [SLF4J](http://www.slf4j.org/) |
-| [oshi-json-3.12.2](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.github.oshi&a=oshi-json&v=3.12.2&e=jar)   | [oshi-json-4.0.0-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=com.github.oshi&a=oshi-json&v=4.0.0-SNAPSHOT&e=jar)  | [javax.json](https://jsonp.java.net/download.html) |
+| [oshi-core-3.13.0](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.github.oshi&a=oshi-core&v=3.13.0&e=jar)  | [oshi-core-4.0.0-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=com.github.oshi&a=oshi-core&v=4.0.0-SNAPSHOT&e=jar) | [JNA](https://github.com/java-native-access/jna) • [SLF4J](http://www.slf4j.org/) |
 
 Output
 -------------
-OSHI provides output directly via java methods or, for the `oshi-json` project, in JSON format for each of its interfaces.
+OSHI provides output directly via java methods for each of its interfaces.  
 By periodically polling dynamic information (e.g., every second), users can calculate and track changes.
 
 The `main()` method of [SystemInfoTest](https://github.com/oshi/oshi/blob/master/oshi-core/src/test/java/oshi/SystemInfoTest.java) 
 provides sample code demonstrating the use of `oshi-core` interfaces to retrieve information and calculate additional metrics such as the below examples.
-
-For `oshi-json`, [SystemInfoTest](https://github.com/oshi/oshi/blob/master/oshi-json/src/test/java/oshi/SystemInfoTest.java) 
-enables the same capabilities via decorator classes. 
-See [oshi.json.properties](https://github.com/oshi/oshi/blob/master/oshi-json/src/test/resources/oshi.json.properties) 
-for a sample properties configuration file to customize JSON results.
 
 General information about the operating system and computer system.
 ```

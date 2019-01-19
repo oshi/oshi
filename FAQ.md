@@ -4,11 +4,7 @@ Users should create a new instance of [SystemInfo](http://dblock.github.io/oshi/
 
 Methods return a "snapshot" of current levels. To display values which change over time, it is intended that users poll for information no more frequently than one second. Disk and file system calls may incur some latency and should be polled less frequently.
 
-What is the intended use of the oshi-json API?
-========
-Users should create a new instance of [SystemInfo](http://dblock.github.io/oshi/apidocs/oshi-json/SystemInfo.html) and optionally use the `get*()` methods to retrieve specific information. The `toCompactJSON()` or `toPretyJSON()` methods may then be used appropriate to provides access to the platform-specific JSON objects.
-
-The `to*JSON()` methods take an optional `java.util.Properties` object as a parameter to filter or control the output. Users may use the provided `loadProperties()` method in the `PropertiesUtil` class to load a properties file from the classpath, or generate their own properties programmatically.  The property values will correspond exactly to the JSON object tree, e.g., the `hardware.processor` property corresponds to the JSON tree's `hardware` attribute, an object with a `processor` attribute. Setting these properties to `false` will suppress output of that attribute (and its children, if applicable). A [sample configuration file](https://github.com/dblock/oshi/blob/master/oshi-json/src/test/resources/oshi.json.properties) is provided.
+OSHI 4.X will overhaul this behavior; see the [UPGRADING.md](UPGRADING.md) document for more details.
 
 Is the API compatible between versions?
 ========
@@ -39,6 +35,6 @@ The following generally summarizes known exceptions. If you have missing data th
 * Windows sensor (temperature, fans, voltage) readings are drawn from Microsoft's Windows Management Instrumentation (WMI) API; however, most hardware manufacturers do not publish these readings to WMI. If a value is not available through the Microsoft API, Oshi will attempt to retrieve values as published by the [Open Hardware Monitor](http://openhardwaremonitor.org/) if it is running.  Only temperature sensors are detected on FreeBSD using `coretemp`.
 * Linux, Solaris, and FreeBSD may require either running as root/sudo or additional software installs for full capability, particularly HAL daemon (`hald`/`lshal`) and X (`xrandr`).
 
-Will you implement feature X?
+Will you implement ... ?
 ========
 Maybe!  If you can contribute all the code to implement the feature, it will almost certainly be added.  Even if you can't code but can provide pointers to where the information can be found cross-platform, your feature has a good chance. Otherwise, you can always submit an issue to ask, but are at the mercy of the developers' time, enthusiasm level, and the availability of documentation for the feature.
