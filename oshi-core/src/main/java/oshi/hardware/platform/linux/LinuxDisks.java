@@ -122,8 +122,9 @@ public class LinuxDisks implements Disks {
                         store.setName(Udev.INSTANCE.udev_device_get_devnode(device));
 
                         // Avoid model and serial in virtual environments
-                        store.setModel(Udev.INSTANCE.udev_device_get_property_value(device, "ID_MODEL") == null
-                                ? "Unknown" : Udev.INSTANCE.udev_device_get_property_value(device, "ID_MODEL"));
+                        store.setModel(
+                                Udev.INSTANCE.udev_device_get_property_value(device, "ID_MODEL") == null ? "Unknown"
+                                        : Udev.INSTANCE.udev_device_get_property_value(device, "ID_MODEL"));
                         store.setSerial(Udev.INSTANCE.udev_device_get_property_value(device, "ID_SERIAL_SHORT") == null
                                 ? "Unknown"
                                 : Udev.INSTANCE.udev_device_get_property_value(device, "ID_SERIAL_SHORT"));
