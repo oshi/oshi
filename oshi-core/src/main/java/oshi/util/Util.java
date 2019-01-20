@@ -23,18 +23,8 @@
  */
 package oshi.util;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import oshi.SystemInfo;
-import oshi.hardware.CentralProcessor;
-import oshi.hardware.ComputerSystem;
-import oshi.hardware.HardwareAbstractionLayer;
-import oshi.hardware.NetworkIF;
-import oshi.software.os.OperatingSystem;
 
 /**
  * General utility methods
@@ -43,24 +33,6 @@ import oshi.software.os.OperatingSystem;
  */
 public class Util {
     private static final Logger LOG = LoggerFactory.getLogger(Util.class);
-
-    // Constant for Mac address OUI portion, the first 24 bits of MAC address
-    // https://www.webopedia.com/TERM/O/OUI.html
-    private static final Map<String, String> vmMacAddressOUI = new HashMap<>();
-    static {
-        vmMacAddressOUI.put("00:50:56", "VMware ESX 3");
-        vmMacAddressOUI.put("00:0C:29", "VMware ESX 3");
-        vmMacAddressOUI.put("00:05:69", "VMware ESX 3");
-        vmMacAddressOUI.put("00:03:FF", "Microsoft Hyper-V");
-        vmMacAddressOUI.put("00:1C:42", "Parallels Desktop");
-        vmMacAddressOUI.put("00:0F:4B", "Virtual Iron 4");
-        vmMacAddressOUI.put("00:16:3E", "Xen or Oracle VM");
-        vmMacAddressOUI.put("08:00:27", "VirtualBox");
-    }
-
-    private static final String[] vmModelArray = new String[] { "Linux KVM", "Linux lguest", "OpenVZ", "Qemu",
-            "Microsoft Virtual PC", "VMWare", "linux-vserver", "Xen", "FreeBSD Jail", "VirtualBox", "Parallels",
-            "Linux Containers", "LXC" };
 
     private Util() {
     }
@@ -97,75 +69,6 @@ public class Util {
         if (now < until) {
             sleep(until - now);
         }
-    }
-
-    /**
-     * Generates a Computer Identifier, which may be part of a strategy to
-     * construct a licence key. (The identifier may not be unique as in one case
-     * hashcode could be same for multiple values, and the result may differ
-     * based on whether the program is running with sudo/root permission.) The
-     * identifier string is based upon the processor serial number, vendor,
-     * processor identifier, and total processor count.
-     * 
-     * @return A string containing four hyphen-delimited fields representing the
-     *         processor; the first 3 are 32-bit hexadecimal values and the last
-     *         one is an integer value.
-     */
-    public static String getComputerIdentifier() {
-        SystemInfo systemInfo = new SystemInfo();
-        OperatingSystem operatingSystem = systemInfo.getOperatingSystem();
-        HardwareAbstractionLayer hardwareAbstractionLayer = systemInfo.getHardware();
-        CentralProcessor centralProcessor = hardwareAbstractionLayer.getProcessor();
-        ComputerSystem computerSystem = hardwareAbstractionLayer.getComputerSystem();
-
-        String vendor = operatingSystem.getManufacturer();
-        String processorSerialNumber = computerSystem.getSerialNumber();
-        String processorIdentifier = centralProcessor.getIdentifier();
-        int processors = centralProcessor.getLogicalProcessorCount();
-
-        String delimiter = "-";
-
-        return String.format("%08x", vendor.hashCode()) + delimiter
-                + String.format("%08x", processorSerialNumber.hashCode()) + delimiter
-                + String.format("%08x", processorIdentifier.hashCode()) + delimiter + processors;
-    }
-
-    /**
-     * The function attempts to identify which Virtual Machine (VM) based on
-     * common VM signatures in MAC address and computer model.
-     * 
-     * @return A string indicating the machine's virtualization info if it can
-     *         be determined, or an emptry string otherwise.
-     */
-    public static String identifyVM() {
-
-        SystemInfo si = new SystemInfo();
-        HardwareAbstractionLayer hw = si.getHardware();
-
-        // Try well known MAC addresses
-        NetworkIF[] nifs = hw.getNetworkIFs();
-
-        for (NetworkIF nif : nifs) {
-            String mac = nif.getMacaddr().substring(0, 8).toUpperCase();
-            if (vmMacAddressOUI.containsKey(mac)) {
-                return vmMacAddressOUI.get(mac);
-            }
-        }
-
-        // Try well known models
-        String model = hw.getComputerSystem().getModel();
-        for (String vm : vmModelArray) {
-            if (model.contains(vm)) {
-                return vm;
-            }
-        }
-        String manufacturer = hw.getComputerSystem().getManufacturer();
-        if ("Microsoft Corporation".equals(manufacturer) && "Virtual Machine".equals(model)) {
-            return "Microsoft Hyper-V";
-        }
-
-        // Couldn't find VM, return empty string
-        return "";
     }
 
     /**

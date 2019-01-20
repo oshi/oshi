@@ -156,9 +156,6 @@ public class SystemInfoTest {
         System.out.println("  model: " + baseboard.getModel());
         System.out.println("  version: " + baseboard.getVersion());
         System.out.println("  serialnumber: " + baseboard.getSerialNumber());
-        if (Util.identifyVM().length() > 0) {
-            System.out.println("virtualization: " + Util.identifyVM());
-        }
     }
 
     private static void printProcessor(CentralProcessor processor) {

@@ -23,9 +23,7 @@
  */
 package oshi.util;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
@@ -51,19 +49,6 @@ public class UtilTest {
         then = System.currentTimeMillis() - 550;
         Util.sleepAfter(then, 500);
         assertTrue(System.nanoTime() - now < 500_000_000);
-    }
-
-    @Test
-    public void testComputerIdentifier() {
-        String computerIdentifier = Util.getComputerIdentifier();
-        String idParts[] = computerIdentifier.split("-");
-        assertEquals(4, idParts.length);
-    }
-
-    @Test
-    public void testIdentyVM() {
-        String vm = Util.identifyVM();
-        assertNotNull(vm);
     }
 
     @Test
