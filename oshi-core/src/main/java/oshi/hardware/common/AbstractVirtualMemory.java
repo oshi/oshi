@@ -21,74 +21,74 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package oshi.hardware.platform.unix.solaris;
-
-import com.sun.jna.platform.unix.solaris.LibKstat.Kstat; // NOSONAR
+package oshi.hardware.common;
 
 import oshi.hardware.VirtualMemory;
-import oshi.hardware.common.AbstractGlobalMemory;
-import oshi.util.ExecutingCommand;
-import oshi.util.ParseUtil;
-import oshi.util.platform.unix.solaris.KstatUtil;
 
 /**
- * Memory obtained by kstat
+ * Virtual Memory info.
  */
-public class SolarisGlobalMemory extends AbstractGlobalMemory {
+public abstract class AbstractVirtualMemory implements VirtualMemory {
 
     private static final long serialVersionUID = 1L;
 
+    protected long swapTotal = -1L;
+    protected long swapUsed = -1L;
+    protected long swapPagesIn = -1L;
+    protected long swapPagesOut = -1L;
+
     /**
      * {@inheritDoc}
      */
     @Override
-    public long getAvailable() {
-        if (this.memAvailable < 0) {
-            updateSystemPages();
+    public long getSwapUsed() {
+        if (this.swapUsed < 0) {
+            updateAttributes();
         }
-        return this.memAvailable;
+        return this.swapUsed;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public long getTotal() {
-        if (this.memTotal < 0) {
-            updateSystemPages();
+    public long getSwapTotal() {
+        if (this.swapTotal < 0) {
+            updateAttributes();
         }
-        return this.memTotal;
+        return this.swapTotal;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public long getPageSize() {
-        if (this.pageSize < 0) {
-            this.pageSize = ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer("pagesize"), 4096L);
+    public long getSwapPagesIn() {
+        if (this.swapPagesIn < 0) {
+            updateAttributes();
         }
-        return this.pageSize;
+        return this.swapPagesIn;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public VirtualMemory getVirtualMemory() {
-        if (this.virtualMemory == null) {
-            this.virtualMemory = new SolarisVirtualMemory();
+    public long getSwapPagesOut() {
+        if (this.swapPagesOut < 0) {
+            updateAttributes();
         }
-        return this.virtualMemory;
+        return this.swapPagesOut;
     }
 
-    private void updateSystemPages() {
-        // Get first result
-        Kstat ksp = KstatUtil.kstatLookup(null, -1, "system_pages");
-        // Set values
-        if (ksp != null && KstatUtil.kstatRead(ksp)) {
-            this.memAvailable = KstatUtil.kstatDataLookupLong(ksp, "availrmem") * getPageSize();
-            this.memTotal = KstatUtil.kstatDataLookupLong(ksp, "physmem") * getPageSize();
-        }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void updateAttributes() {
+        this.swapTotal = -1L;
+        this.swapUsed = -1L;
+        this.swapPagesIn = -1L;
+        this.swapPagesOut = -1L;
     }
 }

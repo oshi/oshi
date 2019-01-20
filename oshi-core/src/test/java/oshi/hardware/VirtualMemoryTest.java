@@ -21,61 +21,35 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package oshi.hardware.common;
+package oshi.hardware;
 
-import oshi.hardware.GlobalMemory;
-import oshi.hardware.VirtualMemory;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+import org.junit.Test;
+
+import oshi.SystemInfo;
 
 /**
- * Memory info.
+ * Test GlobalMemory
  */
-public abstract class AbstractGlobalMemory implements GlobalMemory {
-
-    private static final long serialVersionUID = 1L;
-
-    protected long memTotal = -1L;
-    protected long memAvailable = -1L;
-    protected long pageSize = -1L;
-    protected VirtualMemory virtualMemory;
-
+public class VirtualMemoryTest {
     /**
-     * {@inheritDoc}
+     * Test VirtualMemory.
      */
-    @Override
-    public long getAvailable() {
-        if (this.memAvailable < 0) {
-            updateAttributes();
-        }
-        return this.memAvailable;
-    }
+    @Test
+    public void testGlobalMemory() {
+        SystemInfo si = new SystemInfo();
+        HardwareAbstractionLayer hal = si.getHardware();
+        GlobalMemory memory = hal.getMemory();
+        VirtualMemory vm = memory.getVirtualMemory();
+        assertNotNull(vm);
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public long getTotal() {
-        if (this.memTotal < 0) {
-            updateAttributes();
-        }
-        return this.memTotal;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public long getPageSize() {
-        if (this.pageSize < 0) {
-            updateAttributes();
-        }
-        return this.pageSize;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void updateAttributes() {
-        this.memAvailable = -1;
+        // Swap tests
+        assertTrue(vm.getSwapPagesIn() >= 0);
+        assertTrue(vm.getSwapPagesOut() >= 0);
+        assertTrue(vm.getSwapTotal() >= 0);
+        assertTrue(vm.getSwapUsed() >= 0);
+        assertTrue(vm.getSwapUsed() <= vm.getSwapTotal());
     }
 }

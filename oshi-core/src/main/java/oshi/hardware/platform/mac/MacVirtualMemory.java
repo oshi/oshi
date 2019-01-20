@@ -29,77 +29,83 @@ import org.slf4j.LoggerFactory;
 import com.sun.jna.Native; // NOSONAR
 import com.sun.jna.platform.mac.SystemB;
 import com.sun.jna.platform.mac.SystemB.VMStatistics;
+import com.sun.jna.platform.mac.SystemB.XswUsage;
 import com.sun.jna.ptr.IntByReference;
-import com.sun.jna.ptr.LongByReference;
 
-import oshi.hardware.VirtualMemory;
-import oshi.hardware.common.AbstractGlobalMemory;
+import oshi.hardware.common.AbstractVirtualMemory;
+import oshi.util.ParseUtil;
 import oshi.util.platform.mac.SysctlUtil;
 
 /**
  * Memory obtained by host_statistics (vm_stat) and sysctl.
  */
-public class MacGlobalMemory extends AbstractGlobalMemory {
+public class MacVirtualMemory extends AbstractVirtualMemory {
 
     private static final long serialVersionUID = 1L;
 
-    private static final Logger LOG = LoggerFactory.getLogger(MacGlobalMemory.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MacVirtualMemory.class);
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public long getAvailable() {
-        if (this.memAvailable < 0) {
-            VMStatistics vmStats = new VMStatistics();
-            if (0 != SystemB.INSTANCE.host_statistics(SystemB.INSTANCE.mach_host_self(), SystemB.HOST_VM_INFO, vmStats,
-                    new IntByReference(vmStats.size() / SystemB.INT_SIZE))) {
-                LOG.error("Failed to get host VM info. Error code: {}", Native.getLastError());
-                return 0L;
-            }
-            this.memAvailable = (vmStats.free_count + vmStats.inactive_count) * getPageSize();
+    public long getSwapUsed() {
+        if (this.swapUsed < 0) {
+            updateSwapUsed();
         }
-        return this.memAvailable;
+        return this.swapUsed;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public long getTotal() {
-        if (this.memTotal < 0) {
-            long memory = SysctlUtil.sysctl("hw.memsize", -1L);
-            if (memory >= 0) {
-                this.memTotal = memory;
-            }
+    public long getSwapTotal() {
+        if (this.swapTotal < 0) {
+            updateSwapUsed();
         }
-        return this.memTotal;
+        return this.swapTotal;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public long getPageSize() {
-        if (this.pageSize < 0) {
-            LongByReference pPageSize = new LongByReference();
-            if (0 != SystemB.INSTANCE.host_page_size(SystemB.INSTANCE.mach_host_self(), pPageSize)) {
-                LOG.error("Failed to get host page size. Error code: {}", Native.getLastError());
-                return 0L;
-            }
-            this.pageSize = pPageSize.getValue();
+    public long getSwapPagesIn() {
+        if (this.swapPagesIn < 0) {
+            updateSwapInOut();
         }
-        return this.pageSize;
+        return this.swapPagesIn;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public VirtualMemory getVirtualMemory() {
-        if (this.virtualMemory == null) {
-            this.virtualMemory = new MacVirtualMemory();
+    public long getSwapPagesOut() {
+        if (this.swapPagesOut < 0) {
+            updateSwapInOut();
         }
-        return this.virtualMemory;
+        return this.swapPagesOut;
+    }
+
+    private void updateSwapUsed() {
+        XswUsage xswUsage = new XswUsage();
+        if (!SysctlUtil.sysctl("vm.swapusage", xswUsage)) {
+            return;
+        }
+        this.swapUsed = xswUsage.xsu_used;
+        this.swapTotal = xswUsage.xsu_total;
+    }
+
+    private void updateSwapInOut() {
+        VMStatistics vmStats = new VMStatistics();
+        if (0 != SystemB.INSTANCE.host_statistics(SystemB.INSTANCE.mach_host_self(), SystemB.HOST_VM_INFO, vmStats,
+                new IntByReference(vmStats.size() / SystemB.INT_SIZE))) {
+            LOG.error("Failed to get host VM info. Error code: {}", Native.getLastError());
+            return;
+        }
+        this.swapPagesIn = ParseUtil.unsignedIntToLong(vmStats.pageins);
+        this.swapPagesOut = ParseUtil.unsignedIntToLong(vmStats.pageouts);
     }
 }

@@ -7,20 +7,26 @@ The `oshi-json` artifact has been completely removed. It is trivial to obtain
 JSON output using [Jackson's ObjectMapper](http://www.mkyong.com/java/
 jackson-2-convert-java-object-to-from-json/).
 
+There is a new `oshi-demo` artifact which will contain many "how to" classes
+to demonstrate OSHI's capabilities and integration with other libraries.
+
 ## API Changes
+
+There is a new `VirtualMemory `class which is accessible with a getter from 
+`GlobalMemory`.  Methods associated with swap file usage were moved to this
+new class.
 
 Several changes in the API highlight which attributes do not change and which
 fetch dynamic information, as well as highlight operations with latency or
 expensive computations.  In general the following rules are followed:
  - getX() (and isX() for boolean) are lazy getters for the initial data
-query, and will store the value in an attribute, returning that value on
-subsequent calls.
- - queryX() will get the latest value.  Expensive queryX() methods will not
-have a corresponding getx() method.  For data that does not change, there
-will be no queryX() method.
+query, and will store the value in an attribute, returning that same value on
+subsequent calls.  When relevant, an updateAtrributes() method will be 
+available to cause the getters to return updated values.
+ - queryX() will get the latest value and typically identify more expensive
+ (in cpu or time) methods.
 
-The following getX() methods no longer provide updated values following the
-first call, and should be replaced with queryX():
+The following getX() methods are now queryX():
  - TBD
 
 # Guide to upgrading from OSHI 2.x to 3.x
