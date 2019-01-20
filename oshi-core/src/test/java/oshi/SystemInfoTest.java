@@ -47,6 +47,7 @@ import oshi.hardware.PowerSource;
 import oshi.hardware.Sensors;
 import oshi.hardware.SoundCard;
 import oshi.hardware.UsbDevice;
+import oshi.hardware.VirtualMemory;
 import oshi.software.os.FileSystem;
 import oshi.software.os.NetworkParams;
 import oshi.software.os.OSFileStore;
@@ -173,8 +174,9 @@ public class SystemInfoTest {
     private static void printMemory(GlobalMemory memory) {
         System.out.println("Memory: " + FormatUtil.formatBytes(memory.getAvailable()) + "/"
                 + FormatUtil.formatBytes(memory.getTotal()));
-        System.out.println("Swap used: " + FormatUtil.formatBytes(memory.getSwapUsed()) + "/"
-                + FormatUtil.formatBytes(memory.getSwapTotal()));
+        VirtualMemory vm = memory.getVirtualMemory();
+        System.out.println("Swap used: " + FormatUtil.formatBytes(vm.getSwapUsed()) + "/"
+                + FormatUtil.formatBytes(vm.getSwapTotal()));
     }
 
     private static void printCpu(CentralProcessor processor) {

@@ -23,50 +23,61 @@
  */
 package oshi.hardware.platform.unix.freebsd;
 
+import oshi.hardware.VirtualMemory;
 import oshi.hardware.common.AbstractGlobalMemory;
-import oshi.util.ExecutingCommand;
-import oshi.util.ParseUtil;
 import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
 
 /**
- * Memory obtained by /proc/meminfo and sysinfo.totalram
- *
- * @author alessandro[at]perucchi[dot]org
- * @author widdis[at]gmail[dot]com
+ * Memory obtained by sysctl vm.stats
  */
 public class FreeBsdGlobalMemory extends AbstractGlobalMemory {
 
     private static final long serialVersionUID = 1L;
 
-    public FreeBsdGlobalMemory() {
-        this.pageSize = BsdSysctlUtil.sysctl("hw.pagesize", 4096L);
-        this.memTotal = BsdSysctlUtil.sysctl("hw.physmem", 0L);
-    }
-
     /**
      * {@inheritDoc}
      */
     @Override
-    protected void updateMeminfo() {
-        long inactive = BsdSysctlUtil.sysctl("vm.stats.vm.v_inactive_count", 0L);
-        long cache = BsdSysctlUtil.sysctl("vm.stats.vm.v_cache_count", 0L);
-        long free = BsdSysctlUtil.sysctl("vm.stats.vm.v_free_count", 0L);
-        this.memAvailable = (inactive + cache + free) * this.pageSize;
-        this.swapPagesIn = BsdSysctlUtil.sysctl("vm.stats.vm.v_swappgsin", 0L);
-        this.swapPagesOut = BsdSysctlUtil.sysctl("vm.stats.vm.v_swappgsout", 0L);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void updateSwap() {
-        this.swapTotal = BsdSysctlUtil.sysctl("vm.swap_total", 0L);
-        String swapInfo = ExecutingCommand.getAnswerAt("swapinfo -k", 1);
-        String[] split = ParseUtil.whitespaces.split(swapInfo);
-        if (split.length < 5) {
-            return;
+    public long getAvailable() {
+        if (this.memAvailable < 0) {
+            long inactive = BsdSysctlUtil.sysctl("vm.stats.vm.v_inactive_count", 0L);
+            long cache = BsdSysctlUtil.sysctl("vm.stats.vm.v_cache_count", 0L);
+            long free = BsdSysctlUtil.sysctl("vm.stats.vm.v_free_count", 0L);
+            this.memAvailable = (inactive + cache + free) * getPageSize();
         }
-        this.swapUsed = ParseUtil.parseLongOrDefault(split[2], 0L) << 10;
+        return this.memAvailable;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getTotal() {
+        if (this.memTotal < 0) {
+            this.memTotal = BsdSysctlUtil.sysctl("hw.physmem", 0L);
+        }
+        return this.memTotal;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getPageSize() {
+        if (this.pageSize < 0) {
+            this.pageSize = BsdSysctlUtil.sysctl("hw.pagesize", 4096L);
+        }
+        return this.pageSize;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public VirtualMemory getVirtualMemory() {
+        if (this.virtualMemory == null) {
+            this.virtualMemory = new FreeBsdVirtualMemory();
+        }
+        return this.virtualMemory;
     }
 }

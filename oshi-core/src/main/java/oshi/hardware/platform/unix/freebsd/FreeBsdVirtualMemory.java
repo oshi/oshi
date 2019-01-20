@@ -21,20 +21,17 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package oshi.hardware.platform.unix.solaris;
+package oshi.hardware.platform.unix.freebsd;
 
-import com.sun.jna.platform.unix.solaris.LibKstat.Kstat; // NOSONAR
-
-import oshi.hardware.VirtualMemory;
-import oshi.hardware.common.AbstractGlobalMemory;
+import oshi.hardware.common.AbstractVirtualMemory;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
-import oshi.util.platform.unix.solaris.KstatUtil;
+import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
 
 /**
- * Memory obtained by kstat
+ * Memory obtained by sysctl vm.stats
  */
-public class SolarisGlobalMemory extends AbstractGlobalMemory {
+public class FreeBsdVirtualMemory extends AbstractVirtualMemory {
 
     private static final long serialVersionUID = 1L;
 
@@ -42,53 +39,52 @@ public class SolarisGlobalMemory extends AbstractGlobalMemory {
      * {@inheritDoc}
      */
     @Override
-    public long getAvailable() {
-        if (this.memAvailable < 0) {
-            updateSystemPages();
+    public long getSwapUsed() {
+        if (this.swapUsed < 0) {
+            updateSwapUsage();
         }
-        return this.memAvailable;
+        return this.swapUsed;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public long getTotal() {
-        if (this.memTotal < 0) {
-            updateSystemPages();
+    public long getSwapTotal() {
+        if (this.swapTotal < 0) {
+            this.swapTotal = BsdSysctlUtil.sysctl("vm.swap_total", 0L);
         }
-        return this.memTotal;
+        return this.swapTotal;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public long getPageSize() {
-        if (this.pageSize < 0) {
-            this.pageSize = ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer("pagesize"), 4096L);
+    public long getSwapPagesIn() {
+        if (this.swapPagesIn < 0) {
+            this.swapPagesIn = BsdSysctlUtil.sysctl("vm.stats.vm.v_swappgsin", 0L);
         }
-        return this.pageSize;
+        return this.swapPagesIn;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public VirtualMemory getVirtualMemory() {
-        if (this.virtualMemory == null) {
-            this.virtualMemory = new SolarisVirtualMemory();
+    public long getSwapPagesOut() {
+        if (this.swapPagesOut < 0) {
+            this.swapPagesOut = BsdSysctlUtil.sysctl("vm.stats.vm.v_swappgsout", 0L);
         }
-        return this.virtualMemory;
+        return this.swapPagesOut;
     }
 
-    private void updateSystemPages() {
-        // Get first result
-        Kstat ksp = KstatUtil.kstatLookup(null, -1, "system_pages");
-        // Set values
-        if (ksp != null && KstatUtil.kstatRead(ksp)) {
-            this.memAvailable = KstatUtil.kstatDataLookupLong(ksp, "availrmem") * getPageSize();
-            this.memTotal = KstatUtil.kstatDataLookupLong(ksp, "physmem") * getPageSize();
+    private void updateSwapUsage() {
+        String swapInfo = ExecutingCommand.getAnswerAt("swapinfo -k", 1);
+        String[] split = ParseUtil.whitespaces.split(swapInfo);
+        if (split.length < 5) {
+            return;
         }
+        this.swapUsed = ParseUtil.parseLongOrDefault(split[2], 0L) << 10;
     }
 }

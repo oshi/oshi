@@ -44,17 +44,9 @@ public class GlobalMemoryTest {
         GlobalMemory memory = hal.getMemory();
         assertNotNull(memory);
 
-        // RAM tests
         assertTrue(memory.getTotal() > 0);
         assertTrue(memory.getAvailable() >= 0);
         assertTrue(memory.getAvailable() <= memory.getTotal());
         assertTrue(memory.getPageSize() > 0);
-
-        // Swap tests
-        assertTrue(memory.getSwapPagesIn() >= 0);
-        assertTrue(memory.getSwapPagesOut() >= 0);
-        assertTrue(memory.getSwapTotal() >= 0);
-        assertTrue(memory.getSwapUsed() >= 0);
-        assertTrue(memory.getSwapUsed() <= memory.getSwapTotal());
     }
 }
