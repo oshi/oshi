@@ -61,8 +61,7 @@ public class Json {
             System.out.println(mapper.writeValueAsString(mem));
 
         } catch (JsonProcessingException e) {
-            // Rut roh...
-            e.printStackTrace();
+            System.out.println("Exception encountered: " + e.getMessage());
         }
     }
 }
