@@ -50,7 +50,7 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
         if (this.virtualMemory == null) {
             this.virtualMemory = new WindowsVirtualMemory();
         }
-        return null;
+        return this.virtualMemory;
     }
 
     /**
