@@ -49,7 +49,7 @@ final class LinuxComputerSystem extends AbstractComputerSystem {
                 this.manufacturer = sysVendor;
             }
         }
-        return this.manufacturer;
+        return super.getManufacturer();
     }
 
     /**
