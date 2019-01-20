@@ -46,18 +46,47 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
      * {@inheritDoc}
      */
     @Override
+    public long getAvailable() {
+        if (this.memAvailable < 0) {
+            updatePerfInfo();
+        }
+        return this.memAvailable;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getTotal() {
+        if (this.memTotal < 0) {
+            updatePerfInfo();
+        }
+        return this.memTotal;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getPageSize() {
+        if (this.pageSize < 0) {
+            updatePerfInfo();
+        }
+        return this.pageSize;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public VirtualMemory getVirtualMemory() {
         if (this.virtualMemory == null) {
-            this.virtualMemory = new WindowsVirtualMemory();
+            this.virtualMemory = new WindowsVirtualMemory(getPageSize());
         }
         return this.virtualMemory;
     }
 
-    /**
-     * Update the performance information no more frequently than every 100ms
-     */
-    @Override
-    public void updateAttributes() {
+    private void updatePerfInfo() {
         PERFORMANCE_INFORMATION perfInfo = new PERFORMANCE_INFORMATION();
         if (!Psapi.INSTANCE.GetPerformanceInfo(perfInfo, perfInfo.size())) {
             LOG.error("Failed to get Performance Info. Error code: {}", Kernel32.INSTANCE.GetLastError());

@@ -31,14 +31,10 @@ import org.slf4j.LoggerFactory;
 import com.sun.jna.platform.win32.Kernel32; // NOSONAR squid:S1191
 import com.sun.jna.platform.win32.Psapi;
 import com.sun.jna.platform.win32.Psapi.PERFORMANCE_INFORMATION;
-import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
-import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.data.windows.PerfCounterQuery;
 import oshi.data.windows.PerfCounterQuery.PdhCounterProperty;
 import oshi.hardware.common.AbstractVirtualMemory;
-import oshi.util.platform.windows.WmiQueryHandler;
-import oshi.util.platform.windows.WmiUtil;
 
 /**
  * Memory obtained from WMI
@@ -49,10 +45,16 @@ public class WindowsVirtualMemory extends AbstractVirtualMemory {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsVirtualMemory.class);
 
+    private transient long pageSize;
+    
     private transient PerfCounterQuery<PageSwapProperty> memoryPerfCounters = new PerfCounterQuery<>(
             PageSwapProperty.class, "Memory", "Win32_PerfRawData_PerfOS_Memory");
+    private transient PerfCounterQuery<PagingPercentProperty> pagingPerfCounters = new PerfCounterQuery<>(
+            PagingPercentProperty.class, "Paging File", "Win32_PerfRawData_PerfOS_PagingFile");
 
-    private final transient WmiQueryHandler wmiQueryHandler = WmiQueryHandler.createInstance();
+    public WindowsVirtualMemory(long pageSize) {
+        this.pageSize = pageSize;
+    }
 
     /**
      * {@inheritDoc}
@@ -76,7 +78,7 @@ public class WindowsVirtualMemory extends AbstractVirtualMemory {
                 LOG.error("Failed to get Performance Info. Error code: {}", Kernel32.INSTANCE.GetLastError());
                 return 0L;
             }
-            this.swapTotal = perfInfo.PageSize.longValue()
+            this.swapTotal = this.pageSize
                     * (perfInfo.CommitLimit.longValue() - perfInfo.PhysicalTotal.longValue());
         }
         return this.swapTotal;
@@ -111,20 +113,39 @@ public class WindowsVirtualMemory extends AbstractVirtualMemory {
     }
 
     private void updateSwapUsed() {
-        WmiQuery<PagingPercentProperty> pagingQuery = new WmiQuery<>("Win32_PerfRawData_PerfOS_PagingFile",
-                PagingPercentProperty.class);
-        WmiResult<PagingPercentProperty> paging = this.wmiQueryHandler.queryWMI(pagingQuery);
-        if (paging.getResultCount() > 0) {
-            this.swapUsed = WmiUtil.getUint32asLong(paging, PagingPercentProperty.PERCENTUSAGE, 0) * getSwapTotal()
-                    / WmiUtil.getUint32asLong(paging, PagingPercentProperty.PERCENTUSAGE_BASE, 0);
-        }
+        Map<PagingPercentProperty, Long> valueMap = this.pagingPerfCounters.queryValues();
+        this.swapUsed = valueMap.getOrDefault(PagingPercentProperty.PERCENTUSAGE, 0L) * this.pageSize;
     }
 
     /*
      * For swap file usage
      */
-    enum PagingPercentProperty {
-        PERCENTUSAGE, PERCENTUSAGE_BASE;
+    enum PagingPercentProperty implements PdhCounterProperty {
+        PERCENTUSAGE(PerfCounterQuery.TOTAL_INSTANCE, "% Usage");
+
+        private final String instance;
+        private final String counter;
+
+        PagingPercentProperty(String instance, String counter) {
+            this.instance = instance;
+            this.counter = counter;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public String getInstance() {
+            return instance;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public String getCounter() {
+            return counter;
+        }
     }
 
     /*
