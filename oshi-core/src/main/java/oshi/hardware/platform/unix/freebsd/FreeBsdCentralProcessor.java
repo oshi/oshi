@@ -175,7 +175,7 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
      * {@inheritDoc}
      */
     @Override
-    public synchronized long[] getSystemCpuLoadTicks() {
+    protected long[] querySystemCpuLoadTicks() {
         long[] ticks = new long[TickType.values().length];
         CpTime cpTime = new CpTime();
         BsdSysctlUtil.sysctl("kern.cp_time", cpTime);

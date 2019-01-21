@@ -26,72 +26,12 @@ package oshi.hardware;
 import java.io.Serializable;
 
 /**
- * The Central Processing Unit (CPU) or the processor is the portion of a
- * computer system that carries out the instructions of a computer program, and
- * is the primary element carrying out the computer's functions.
- *
- * @author dblock[at]dblock[dot]org
+ * This class represents the entire Central Processing Unit (CPU) of a computer
+ * system, which may contain one or more physical packages (sockets), one or
+ * more physical processors (cores), and one or more logical processors (what
+ * the Operating System sees, which may include hyperthreaded cores.)
  */
 public interface CentralProcessor extends Serializable {
-
-    /**
-     * Index of CPU tick counters in the {@link #getSystemCpuLoadTicks()} and
-     * {@link #getProcessorCpuLoadTicks()} arrays.
-     */
-    enum TickType {
-    /**
-     * CPU utilization that occurred while executing at the user level
-     * (application).
-     */
-    USER(0),
-    /**
-     * CPU utilization that occurred while executing at the user level with nice
-     * priority.
-     */
-    NICE(1),
-    /**
-     * CPU utilization that occurred while executing at the system level
-     * (kernel).
-     */
-    SYSTEM(2),
-    /**
-     * Time that the CPU or CPUs were idle and the system did not have an
-     * outstanding disk I/O request.
-     */
-    IDLE(3),
-    /**
-     * Time that the CPU or CPUs were idle during which the system had an
-     * outstanding disk I/O request.
-     */
-    IOWAIT(4),
-    /**
-     * Time that the CPU used to service hardware IRQs
-     */
-    IRQ(5),
-    /**
-     * Time that the CPU used to service soft IRQs
-     */
-    SOFTIRQ(6),
-    /**
-     * Time which the hypervisor dedicated for other guests in the system. Only
-     * supported on Linux.
-     */
-    STEAL(7);
-
-        private int index;
-
-        TickType(int value) {
-            this.index = value;
-        }
-
-        /**
-         * @return The integer index of this ENUM in the processor tick arrays,
-         *         which matches the output of Linux /proc/cpuinfo
-         */
-        public int getIndex() {
-            return index;
-        }
-    }
 
     /**
      * Processor vendor.
@@ -101,27 +41,11 @@ public interface CentralProcessor extends Serializable {
     String getVendor();
 
     /**
-     * Set processor vendor.
-     *
-     * @param vendor
-     *            Vendor.
-     */
-    void setVendor(String vendor);
-
-    /**
      * Name, eg. Intel(R) Core(TM)2 Duo CPU T7300 @ 2.00GHz
      *
      * @return Processor name.
      */
     String getName();
-
-    /**
-     * Set processor name.
-     *
-     * @param name
-     *            Name.
-     */
-    void setName(String name);
 
     /**
      * Vendor frequency (in Hz), eg. for processor named Intel(R) Core(TM)2 Duo
@@ -130,14 +54,6 @@ public interface CentralProcessor extends Serializable {
      * @return Processor frequency or -1 if unknown.
      */
     long getVendorFreq();
-
-    /**
-     * Set processor vendor frequency (in Hz).
-     *
-     * @param freq
-     *            Frequency.
-     */
-    void setVendorFreq(long freq);
 
     /**
      * Gets the Processor ID. This is a hexidecimal string representing an
@@ -155,27 +71,11 @@ public interface CentralProcessor extends Serializable {
     String getProcessorID();
 
     /**
-     * Set processor ID
-     *
-     * @param processorID
-     *            The processor ID
-     */
-    void setProcessorID(String processorID);
-
-    /**
      * Identifier, eg. x86 Family 6 Model 15 Stepping 10.
      *
      * @return Processor identifier.
      */
     String getIdentifier();
-
-    /**
-     * Set processor identifier.
-     *
-     * @param identifier
-     *            Identifier.
-     */
-    void setIdentifier(String identifier);
 
     /**
      * Is CPU 64bit?
@@ -185,23 +85,9 @@ public interface CentralProcessor extends Serializable {
     boolean isCpu64bit();
 
     /**
-     * Set flag is cpu is 64bit.
-     *
-     * @param cpu64
-     *            True if cpu is 64.
-     */
-    void setCpu64(boolean cpu64);
-
-    /**
      * @return the stepping
      */
     String getStepping();
-
-    /**
-     * @param stepping
-     *            the stepping to set
-     */
-    void setStepping(String stepping);
 
     /**
      * @return the model
@@ -209,36 +95,22 @@ public interface CentralProcessor extends Serializable {
     String getModel();
 
     /**
-     * @param model
-     *            the model to set
-     */
-    void setModel(String model);
-
-    /**
      * @return the family
      */
     String getFamily();
 
     /**
-     * @param family
-     *            the family to set
-     */
-    void setFamily(String family);
-
-    /**
      * Returns the "recent cpu usage" for the whole system by counting ticks
-     * from {@link #getSystemCpuLoadTicks()} between successive calls of this
-     * method, with a minimum interval slightly less than 1 second. If less than
-     * one second has elapsed since the last call of this method, it will return
-     * a calculation based on the tick counts and times of the previous two
-     * calls. If at least a second has elapsed, it will return the average CPU
-     * load for the interval and update the "last called" times. This method is
-     * intended to be used for periodic polling at intervals of 1 second or
-     * longer.
-     *
+     * from {@link #getSystemCpuLoadTicks()} between the user-provided value
+     * from a previous call.
+     * 
+     * @param oldTicks
+     *            A tick array from a previous call to
+     *            {@link #getSystemCpuLoadTicks()}
+     * 
      * @return CPU load between 0 and 1 (100%)
      */
-    double getSystemCpuLoadBetweenTicks();
+    double getSystemCpuLoadBetweenTicks(long[] oldTicks);
 
     /**
      * Get System-wide CPU Load tick counters. Returns an array with seven
@@ -271,28 +143,19 @@ public interface CentralProcessor extends Serializable {
      * period of time observed, while a value of 1.0 means that all CPUs were
      * actively running 100% of the time during the recent period being
      * observed. All values between 0.0 and 1.0 are possible depending of the
-     * activities going on in the system. If the system recent cpu usage is not
-     * available, the method returns a negative value. Calling this method
-     * immediately upon instantiating the {@link CentralProcessor} may give
-     * unreliable results. If a user is not running the Oracle JVM, this method
-     * will default to the behavior and return value of
-     * {@link #getSystemCpuLoadBetweenTicks()}.
+     * activities going on in the system.
+     * <P>
+     * If the system recent cpu usage is not available, the method returns a
+     * negative value. Calling this method immediately upon instantiating the
+     * {@link CentralProcessor} may give unreliable results. Calling this method
+     * too frequently may return {@link Double#NaN}. If a user is not running
+     * the Oracle JVM, this method will return a negative value.
      *
      * @return the "recent cpu usage" for the whole system; a negative value if
      *         not available.
      */
     @SuppressWarnings("restriction")
     double getSystemCpuLoad();
-
-    /**
-     * Returns the system load average for the last minute. This is equivalent
-     * to calling {@link CentralProcessor#getSystemLoadAverage(int)} with an
-     * argument of 1 and returning the first value, and is retained for
-     * compatibility.
-     *
-     * @return the system load average; or a negative value if not available.
-     */
-    double getSystemLoadAverage();
 
     /**
      * Returns the system load average for the number of elements specified, up
@@ -399,4 +262,68 @@ public interface CentralProcessor extends Serializable {
      * @return The number of interrupts
      */
     long getInterrupts();
+
+    /**
+     * Update the values for the next call to the getters on this class.
+     */
+    void updateAttributes();
+
+    /**
+     * Index of CPU tick counters in the {@link #getSystemCpuLoadTicks()} and
+     * {@link #getProcessorCpuLoadTicks()} arrays.
+     */
+    public enum TickType {
+        /**
+         * CPU utilization that occurred while executing at the user level
+         * (application).
+         */
+        USER(0),
+        /**
+         * CPU utilization that occurred while executing at the user level with
+         * nice priority.
+         */
+        NICE(1),
+        /**
+         * CPU utilization that occurred while executing at the system level
+         * (kernel).
+         */
+        SYSTEM(2),
+        /**
+         * Time that the CPU or CPUs were idle and the system did not have an
+         * outstanding disk I/O request.
+         */
+        IDLE(3),
+        /**
+         * Time that the CPU or CPUs were idle during which the system had an
+         * outstanding disk I/O request.
+         */
+        IOWAIT(4),
+        /**
+         * Time that the CPU used to service hardware IRQs
+         */
+        IRQ(5),
+        /**
+         * Time that the CPU used to service soft IRQs
+         */
+        SOFTIRQ(6),
+        /**
+         * Time which the hypervisor dedicated for other guests in the system.
+         * Only supported on Linux.
+         */
+        STEAL(7);
+
+        private int index;
+
+        TickType(int value) {
+            this.index = value;
+        }
+
+        /**
+         * @return The integer index of this ENUM in the processor tick arrays,
+         *         which matches the output of Linux /proc/cpuinfo
+         */
+        public int getIndex() {
+            return index;
+        }
+    }
 }

@@ -113,7 +113,7 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
      * {@inheritDoc}
      */
     @Override
-    public long[] getSystemCpuLoadTicks() {
+    protected long[] querySystemCpuLoadTicks() {
         long[] ticks = new long[TickType.values().length];
         int machPort = SystemB.INSTANCE.mach_host_self();
         HostCpuLoadInfo cpuLoadInfo = new HostCpuLoadInfo();

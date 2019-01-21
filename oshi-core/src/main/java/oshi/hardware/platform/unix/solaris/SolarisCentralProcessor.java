@@ -115,7 +115,7 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
      * {@inheritDoc}
      */
     @Override
-    public synchronized long[] getSystemCpuLoadTicks() {
+    protected long[] querySystemCpuLoadTicks() {
         long[] ticks = new long[TickType.values().length];
         // Average processor ticks
         long[][] procTicks = getProcessorCpuLoadTicks();

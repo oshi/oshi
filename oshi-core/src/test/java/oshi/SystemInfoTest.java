@@ -185,6 +185,7 @@ public class SystemInfoTest {
         System.out.println("CPU, IOWait, and IRQ ticks @ 0 sec:" + Arrays.toString(prevTicks));
         // Wait a second...
         Util.sleep(1000);
+        processor.updateAttributes();
         long[] ticks = processor.getSystemCpuLoadTicks();
         System.out.println("CPU, IOWait, and IRQ ticks @ 1 sec:" + Arrays.toString(ticks));
         long user = ticks[TickType.USER.getIndex()] - prevTicks[TickType.USER.getIndex()];
@@ -201,7 +202,8 @@ public class SystemInfoTest {
                 "User: %.1f%% Nice: %.1f%% System: %.1f%% Idle: %.1f%% IOwait: %.1f%% IRQ: %.1f%% SoftIRQ: %.1f%% Steal: %.1f%%%n",
                 100d * user / totalCpu, 100d * nice / totalCpu, 100d * sys / totalCpu, 100d * idle / totalCpu,
                 100d * iowait / totalCpu, 100d * irq / totalCpu, 100d * softirq / totalCpu, 100d * steal / totalCpu);
-        System.out.format("CPU load: %.1f%% (counting ticks)%n", processor.getSystemCpuLoadBetweenTicks() * 100);
+        System.out.format("CPU load: %.1f%% (counting ticks)%n",
+                processor.getSystemCpuLoadBetweenTicks(prevTicks) * 100);
         System.out.format("CPU load: %.1f%% (OS MXBean)%n", processor.getSystemCpuLoad() * 100);
         double[] loadAverage = processor.getSystemLoadAverage(3);
         System.out.println("CPU load averages:" + (loadAverage[0] < 0 ? " N/A" : String.format(" %.2f", loadAverage[0]))

@@ -157,8 +157,8 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
      * {@inheritDoc}
      */
     @Override
-    public synchronized long[] getSystemCpuLoadTicks() {
-        return ProcUtil.getSystemCpuLoadTicks();
+    protected long[] querySystemCpuLoadTicks() {
+        return ProcUtil.readSystemCpuLoadTicks();
     }
 
     /**
