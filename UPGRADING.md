@@ -12,10 +12,6 @@ to demonstrate OSHI's capabilities and integration with other libraries.
 
 ## API Changes
 
-There is a new `VirtualMemory `class which is accessible with a getter from 
-`GlobalMemory`.  Methods associated with swap file usage were moved to this
-new class.
-
 Several changes in the API highlight which attributes do not change and which
 fetch dynamic information, as well as highlight operations with latency or
 expensive computations.  In general the following rules are followed:
@@ -28,6 +24,20 @@ available to cause the getters to return updated values.
 
 The following getX() methods are now queryX():
  - TBD
+
+There is a new `VirtualMemory `class which is accessible with a getter from 
+`GlobalMemory`.  Methods associated with swap file usage were moved to this
+new class.
+
+The `CentralProcessor` setters were removed from the API. The methods
+`getSystemCpuLoadBetweenTicks()` and `getProcessorCpuLoadBetweenTicks()` now take
+an argument with the previous set of ticks, rather than internally saving the
+previous call. This enables users to measure over a longer period or multiple
+different periods.  The `getSystemCpuLoad()` method is now a direct passthrough
+to the `OperatingSystemMXBean` method if running an Oracle JVM, otherwise it
+returns a negative value.  The no-argument `getSystemLoadAverage()` has been 
+removed; users can call with an argument of 1 to obtain the same value. 
+
 
 # Guide to upgrading from OSHI 2.x to 3.x
 

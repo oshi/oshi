@@ -33,7 +33,6 @@ import org.slf4j.LoggerFactory;
 
 import com.sun.jna.platform.unix.solaris.LibKstat.Kstat; // NOSONAR
 
-import oshi.hardware.LogicalProcessor;
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.jna.platform.linux.Libc;
 import oshi.util.ExecutingCommand;

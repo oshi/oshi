@@ -34,7 +34,6 @@ import com.sun.jna.platform.mac.SystemB.VMMeter;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
 
-import oshi.hardware.LogicalProcessor;
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.util.ExecutingCommand;
 import oshi.util.FormatUtil;

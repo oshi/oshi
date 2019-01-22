@@ -45,7 +45,6 @@ import oshi.data.windows.PerfCounterQuery;
 import oshi.data.windows.PerfCounterQuery.PdhCounterProperty;
 import oshi.data.windows.PerfCounterWildcardQuery;
 import oshi.data.windows.PerfCounterWildcardQuery.PdhCounterWildcardProperty;
-import oshi.hardware.LogicalProcessor;
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.jna.platform.windows.VersionHelpers;
 import oshi.util.ParseUtil;
