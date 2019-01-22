@@ -27,6 +27,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import oshi.SystemInfo;
+import oshi.hardware.CentralProcessor;
 import oshi.hardware.ComputerSystem;
 import oshi.hardware.GlobalMemory;
 import oshi.hardware.HardwareAbstractionLayer;
@@ -47,9 +48,9 @@ public class Json {
 
         try {
             // Pretty print computer system
-            System.out.println("JSON for ComputerSystem:");
-            ComputerSystem cs = hal.getComputerSystem();
-            System.out.println(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(cs));
+            System.out.println("JSON for CPU:");
+            CentralProcessor cpu = hal.getProcessor();
+            System.out.println(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(cpu));
 
             // Print memory and then update it
             System.out.println("JSON for Memory:");

@@ -255,7 +255,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             // Try the easy way
             if (System.getenv("ProgramFiles(x86)") != null) {
                 this.bitness = 64;
-            } else {
+            } else if (IS_VISTA_OR_GREATER) {
                 WmiQuery<BitnessProperty> bitnessQuery = new WmiQuery<>("Win32_Processor", BitnessProperty.class);
                 WmiResult<BitnessProperty> bitnessMap = wmiQueryHandler.queryWMI(bitnessQuery);
                 if (bitnessMap.getResultCount() > 0) {

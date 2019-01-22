@@ -276,7 +276,7 @@ public interface CentralProcessor extends Serializable {
      * Index of CPU tick counters in the {@link #getSystemCpuLoadTicks()} and
      * {@link #getProcessorCpuLoadTicks()} arrays.
      */
-    public enum TickType {
+    enum TickType {
         /**
          * CPU utilization that occurred while executing at the user level
          * (application).
@@ -331,7 +331,7 @@ public interface CentralProcessor extends Serializable {
         }
     }
 
-    public class LogicalProcessor implements Serializable {
+    class LogicalProcessor implements Serializable {
 
         private static final long serialVersionUID = 1L;
 
