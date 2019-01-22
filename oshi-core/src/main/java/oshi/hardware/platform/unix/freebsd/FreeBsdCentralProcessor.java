@@ -35,6 +35,7 @@ import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 
+import oshi.hardware.LogicalProcessor;
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.jna.platform.unix.CLibrary.Timeval;
 import oshi.jna.platform.unix.freebsd.Libc;
@@ -128,46 +129,92 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
      * Updates logical and physical processor/package counts
      */
     @Override
-    protected void calculateProcessorCounts() {
-        String[] topology = BsdSysctlUtil.sysctl("kern.sched.topology_spec", "").split("\\n|\\r");
-        int physMask = 0;
-        int virtMask = 0;
-        int lastMask = 0;
-        int physPackage = 0;
-        for (String topo : topology) {
-            if (topo.contains("<cpu")) {
-                // Find <cpu> tag and extract bits
-                Matcher m = CPUMASK.matcher(topo);
-                if (m.matches()) {
-                    // Add this processor mask to cpus. Regex guarantees parsing
-                    lastMask = Integer.parseInt(m.group(1), 16);
-                    physMask |= lastMask;
-                    virtMask |= lastMask;
-                }
-            } else if (topo.contains("<flags>")
-                    && (topo.contains("HTT") || topo.contains("SMT") || topo.contains("THREAD"))) {
-                // These are virtual cpus, remove processor mask from physical
-                physMask &= ~lastMask;
-            } else if (topo.contains("<group level=\"2\"")) {
-                // This is a physical package
-                physPackage++;
-            }
-        }
-
-        this.logicalProcessorCount = Integer.bitCount(virtMask);
+    protected LogicalProcessor[] initProcessorCounts() {
+        // Get number of CPUs
+        this.logicalProcessorCount = BsdSysctlUtil.sysctl("hw.ncpu", 1);
+        // Force at least one processor
         if (this.logicalProcessorCount < 1) {
             LOG.error("Couldn't find logical processor count. Assuming 1.");
             this.logicalProcessorCount = 1;
         }
-        this.physicalProcessorCount = Integer.bitCount(physMask);
-        if (this.physicalProcessorCount < 1) {
-            LOG.error("Couldn't find physical processor count. Assuming 1.");
-            this.physicalProcessorCount = 1;
+        LogicalProcessor[] logProcs = new LogicalProcessor[this.logicalProcessorCount];
+        for (int i = 0; i < logProcs.length; i++) {
+            logProcs[i] = new LogicalProcessor();
+            logProcs[i].setProcessorNumber(i);
         }
-        this.physicalPackageCount = physPackage;
+
+        parseTopology(logProcs);
+
+        // Force at least one processor
+        if (this.physicalProcessorCount < 1) {
+            // We never found a group level 3; all logical processors are
+            // physical
+            this.physicalProcessorCount = this.logicalProcessorCount;
+            for (int i = 0; i < logProcs.length; i++) {
+                logProcs[i].setPhysicalProcessorNumber(i);
+            }
+        }
         if (this.physicalPackageCount < 1) {
-            LOG.error("Couldn't find physical package count. Assuming 1.");
+            // We never found a group level 2; assume one package
             this.physicalPackageCount = 1;
+        }
+        return logProcs;
+    }
+
+    private void parseTopology(LogicalProcessor[] logProcs) {
+        String[] topology = BsdSysctlUtil.sysctl("kern.sched.topology_spec", "").split("\\n|\\r");
+        /*-
+         * Sample output:
+        
+        <groups>
+        <group level="1" cache-level="0">
+         <cpu count="24" mask="ffffff">0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23</cpu>
+         <children>
+          <group level="2" cache-level="2">
+           <cpu count="12" mask="fff">0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11</cpu>
+           <children>
+            <group level="3" cache-level="1">
+             <cpu count="2" mask="3">0, 1</cpu>
+             <flags><flag name="THREAD">THREAD group</flag><flag name="SMT">SMT group</flag></flags>
+            </group>
+        
+        * Opens with <groups>
+        * <group> level 1 identifies all the processors via bitmask, should only be one
+        * <group> level 2 separates by physical package
+        * <group> level 3 puts hyperthreads together: if THREAD or SMT or HTT all the CPUs are one physical
+        * If there is no level 3, then all logical processors are physical
+        */
+        int groupLevel = 0;
+        for (String topo : topology) {
+            if (topo.contains("<group level=")) {
+                groupLevel++;
+            } else if (topo.contains("</group>")) {
+                groupLevel--;
+            } else if (topo.contains("<cpu") && (groupLevel == 2 || groupLevel == 3)) {
+                // Find <cpu> tag and extract bits
+                Matcher m = CPUMASK.matcher(topo);
+                if (m.matches()) {
+                    // Regex guarantees parsing digits so we won't get a
+                    // NumberFormatException
+                    assignIds(groupLevel, Long.parseLong(m.group(1), 16), logProcs);
+                }
+            }
+        }
+    }
+
+    private void assignIds(int groupLevel, long bitMask, LogicalProcessor[] logProcs) {
+        for (int i = 0; i < logProcs.length; i++) {
+            if ((bitMask & (1L << i)) > 0) {
+                if (groupLevel == 2) {
+                    // This group is a physical package
+                    logProcs[i].setPhysicalPackageNumber(getPhysicalPackageCount());
+                    this.physicalPackageCount++;
+                } else { // groupLevel == 3
+                    // This group is a physical processor
+                    logProcs[i].setPhysicalProcessorNumber(getPhysicalProcessorCount());
+                    this.physicalProcessorCount++;
+                }
+            }
         }
     }
 

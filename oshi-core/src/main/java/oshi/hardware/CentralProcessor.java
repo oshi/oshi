@@ -100,6 +100,13 @@ public interface CentralProcessor extends Serializable {
     String getFamily();
 
     /**
+     * Returns an array of the CPU's logical processors.
+     * 
+     * @return The logical processor array.
+     */
+    LogicalProcessor[] getLogicalProcessors();
+
+    /**
      * Returns the "recent cpu usage" for the whole system by counting ticks
      * from {@link #getSystemCpuLoadTicks()} between the user-provided value
      * from a previous call.

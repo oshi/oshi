@@ -23,6 +23,7 @@
  */
 package oshi.hardware.platform.unix.solaris;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -32,6 +33,7 @@ import org.slf4j.LoggerFactory;
 
 import com.sun.jna.platform.unix.solaris.LibKstat.Kstat; // NOSONAR
 
+import oshi.hardware.LogicalProcessor;
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.jna.platform.linux.Libc;
 import oshi.util.ExecutingCommand;
@@ -82,19 +84,34 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
      * Updates logical and physical processor counts from psrinfo
      */
     @Override
-    protected void calculateProcessorCounts() {
+    protected LogicalProcessor[] initProcessorCounts() {
         List<Kstat> kstats = KstatUtil.kstatLookupAll("cpu_info", -1, null);
         Set<String> chipIDs = new HashSet<>();
         Set<String> coreIDs = new HashSet<>();
         this.logicalProcessorCount = 0;
+
+        List<LogicalProcessor> logProcs = new ArrayList<>();
         for (Kstat ksp : kstats) {
             if (ksp != null && KstatUtil.kstatRead(ksp)) {
-                this.logicalProcessorCount++;
-                chipIDs.add(KstatUtil.kstatDataLookupString(ksp, "chip_id"));
-                coreIDs.add(KstatUtil.kstatDataLookupString(ksp, "core_id"));
+                LogicalProcessor logProc = new LogicalProcessor();
+                logProc.setProcessorNumber(logProcs.size());
+
+                String coreId = KstatUtil.kstatDataLookupString(ksp, "core_id");
+                logProc.setPhysicalProcessorNumber(ParseUtil.parseIntOrDefault(coreId, 0));
+                coreIDs.add(coreId);
+
+                String chipId = KstatUtil.kstatDataLookupString(ksp, "chip_id");
+                logProc.setPhysicalPackageNumber(ParseUtil.parseIntOrDefault(chipId, 0));
+                chipIDs.add(chipId);
             }
         }
 
+        this.logicalProcessorCount = logProcs.size();
+        if (this.logicalProcessorCount < 1) {
+            LOG.error("Couldn't find logical processor count. Assuming 1.");
+            this.logicalProcessorCount = 1;
+            logProcs.add(new LogicalProcessor());
+        }
         this.physicalPackageCount = chipIDs.size();
         if (this.physicalPackageCount < 1) {
             LOG.error("Couldn't find physical package count. Assuming 1.");
@@ -105,10 +122,7 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
             LOG.error("Couldn't find physical processor count. Assuming 1.");
             this.physicalProcessorCount = 1;
         }
-        if (this.logicalProcessorCount < 1) {
-            LOG.error("Couldn't find logical processor count. Assuming 1.");
-            this.logicalProcessorCount = 1;
-        }
+        return logProcs.toArray(new LogicalProcessor[0]);
     }
 
     /**

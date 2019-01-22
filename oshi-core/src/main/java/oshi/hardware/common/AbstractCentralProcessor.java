@@ -31,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.hardware.CentralProcessor;
+import oshi.hardware.LogicalProcessor;
 import oshi.util.ParseUtil;
 
 /**
@@ -84,13 +85,14 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
     private String cpuFamily;
     private Long cpuVendorFreq;
     private Boolean cpu64;
+    private LogicalProcessor[] logicalProcessors;
 
     /**
      * Create a Processor
      */
     public AbstractCentralProcessor() {
-        // Initialize processor counts
-        calculateProcessorCounts();
+        // Initialize processor counts and populate logical processor array
+        this.logicalProcessors = initProcessorCounts();
     }
 
     /**
@@ -102,9 +104,19 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
     }
 
     /**
-     * Updates logical and physical processor counts
+     * Updates logical and physical processor counts and arrays
+     * 
+     * @param logicalProcessors
      */
-    protected abstract void calculateProcessorCounts();
+    protected abstract LogicalProcessor[] initProcessorCounts();
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public LogicalProcessor[] getLogicalProcessors() {
+        return this.logicalProcessors;
+    }
 
     /**
      * {@inheritDoc}

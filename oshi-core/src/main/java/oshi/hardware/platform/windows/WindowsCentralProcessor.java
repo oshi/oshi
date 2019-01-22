@@ -45,6 +45,7 @@ import oshi.data.windows.PerfCounterQuery;
 import oshi.data.windows.PerfCounterQuery.PdhCounterProperty;
 import oshi.data.windows.PerfCounterWildcardQuery;
 import oshi.data.windows.PerfCounterWildcardQuery.PdhCounterWildcardProperty;
+import oshi.hardware.LogicalProcessor;
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.jna.platform.windows.VersionHelpers;
 import oshi.util.ParseUtil;
@@ -248,22 +249,34 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
      * Updates logical and physical processor counts
      */
     @Override
-    protected void calculateProcessorCounts() {
+    protected LogicalProcessor[] initProcessorCounts() {
         // Get number of logical processors
         SYSTEM_INFO sysinfo = new SYSTEM_INFO();
         Kernel32.INSTANCE.GetSystemInfo(sysinfo);
         this.logicalProcessorCount = sysinfo.dwNumberOfProcessors.intValue();
 
+        LogicalProcessor[] logProcs = new LogicalProcessor[this.logicalProcessorCount];
+        for (int i = 0; i < logProcs.length; i++) {
+            logProcs[i] = new LogicalProcessor();
+            logProcs[i].setProcessorNumber(i);
+        }
+
         // Get number of physical processors
         WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION[] processors = Kernel32Util.getLogicalProcessorInformation();
         for (SYSTEM_LOGICAL_PROCESSOR_INFORMATION proc : processors) {
-            if (proc.relationship == WinNT.LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorPackage) {
-                this.physicalPackageCount++;
-            }
-            if (proc.relationship == WinNT.LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorCore) {
-                this.physicalProcessorCount++;
+            for (int i = 0; i < logProcs.length; i++) {
+                if ((proc.processorMask.longValue() & (1L << i)) > 0) {
+                    if (proc.relationship == WinNT.LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorPackage) {
+                        logProcs[i].setPhysicalPackageNumber(getPhysicalPackageCount());
+                        this.physicalPackageCount++;
+                    } else if (proc.relationship == WinNT.LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorCore) {
+                        logProcs[i].setPhysicalProcessorNumber(getPhysicalProcessorCount());
+                        this.physicalProcessorCount++;
+                    }
+                }
             }
         }
+        return logProcs;
     }
 
     /**

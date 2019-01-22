@@ -34,6 +34,7 @@ import com.sun.jna.platform.mac.SystemB.VMMeter;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
 
+import oshi.hardware.LogicalProcessor;
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.util.ExecutingCommand;
 import oshi.util.FormatUtil;
@@ -103,10 +104,19 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
      * Updates logical and physical processor counts from sysctl calls
      */
     @Override
-    protected void calculateProcessorCounts() {
+    protected LogicalProcessor[] initProcessorCounts() {
         this.logicalProcessorCount = SysctlUtil.sysctl("hw.logicalcpu", 1);
         this.physicalProcessorCount = SysctlUtil.sysctl("hw.physicalcpu", 1);
         this.physicalPackageCount = SysctlUtil.sysctl("hw.packages", 1);
+
+        LogicalProcessor[] logProcs = new LogicalProcessor[this.logicalProcessorCount];
+        for (int i = 0; i < logProcs.length; i++) {
+            logProcs[i] = new LogicalProcessor();
+            logProcs[i].setProcessorNumber(i);
+            logProcs[i].setPhysicalProcessorNumber(i * this.physicalProcessorCount / this.logicalProcessorCount);
+            logProcs[i].setPhysicalPackageNumber(i * this.physicalPackageCount / this.logicalProcessorCount);
+        }
+        return logProcs;
     }
 
     /**

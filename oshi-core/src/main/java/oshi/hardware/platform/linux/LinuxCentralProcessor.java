@@ -30,6 +30,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import oshi.hardware.LogicalProcessor;
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.jna.platform.linux.Libc;
 import oshi.util.ExecutingCommand;
@@ -109,37 +110,46 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
      * Updates logical and physical processor counts from /proc/cpuinfo
      */
     @Override
-    protected void calculateProcessorCounts() {
-        int[] uniqueID = new int[2];
-        uniqueID[0] = -1;
-        uniqueID[1] = -1;
-
+    protected LogicalProcessor[] initProcessorCounts() {
         Set<String> processorIDs = new HashSet<>();
         Set<Integer> packageIDs = new HashSet<>();
 
         List<String> procCpu = FileUtil.readFile("/proc/cpuinfo");
+        // Iterate once to count logical processors
         for (String cpu : procCpu) {
-            // Count logical processors
             if (cpu.startsWith("processor")) {
                 this.logicalProcessorCount++;
             }
+        }
+        // Iterate again to populate
+        LogicalProcessor[] logProcs = new LogicalProcessor[this.logicalProcessorCount];
+        int currentProcessor = 0;
+        for (String cpu : procCpu) {
+            // Count logical processors
+            if (cpu.startsWith("processor")) {
+                currentProcessor = ParseUtil.parseLastInt(cpu, 0);
+                logProcs[currentProcessor] = new LogicalProcessor();
+                logProcs[currentProcessor].setProcessorNumber(currentProcessor);
+            }
             // Count unique combinations of core id and physical id.
             if (cpu.startsWith("core id") || cpu.startsWith("cpu number")) {
-                uniqueID[0] = ParseUtil.parseLastInt(cpu, 0);
+                logProcs[currentProcessor].setPhysicalProcessorNumber(ParseUtil.parseLastInt(cpu, 0));
             } else if (cpu.startsWith("physical id")) {
-                uniqueID[1] = ParseUtil.parseLastInt(cpu, 0);
+                logProcs[currentProcessor].setPhysicalPackageNumber(ParseUtil.parseLastInt(cpu, 0));
             }
-            if (uniqueID[0] >= 0 && uniqueID[1] >= 0) {
-                packageIDs.add(uniqueID[1]);
-                processorIDs.add(uniqueID[0] + " " + uniqueID[1]);
-                uniqueID[0] = -1;
-                uniqueID[1] = -1;
+            if (logProcs[currentProcessor].getPhysicalProcessorNumber() >= 0
+                    && logProcs[currentProcessor].getPhysicalPackageNumber() >= 0) {
+                packageIDs.add(logProcs[currentProcessor].getPhysicalPackageNumber());
+                processorIDs.add(logProcs[currentProcessor].getPhysicalProcessorNumber() + " "
+                        + logProcs[currentProcessor].getPhysicalPackageNumber());
             }
         }
         // Force at least one processor
         if (this.logicalProcessorCount < 1) {
             LOG.error("Couldn't find logical processor count. Assuming 1.");
             this.logicalProcessorCount = 1;
+            logProcs = new LogicalProcessor[1];
+            logProcs[0] = new LogicalProcessor();
         }
         this.physicalProcessorCount = processorIDs.size();
         if (this.physicalProcessorCount < 1) {
@@ -151,6 +161,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
             LOG.error("Couldn't find physical package count. Assuming 1.");
             this.physicalPackageCount = 1;
         }
+        return logProcs;
     }
 
     /**
