@@ -208,8 +208,6 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
         super();
         // Initialize class variables
         initVars();
-        // Initialize tick arrays
-        initTicks();
 
         LOG.debug("Initialized Processor");
     }
@@ -283,7 +281,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
      * {@inheritDoc}
      */
     @Override
-    protected long[] querySystemCpuLoadTicks() {
+    public long[] querySystemCpuLoadTicks() {
         long[] ticks = new long[TickType.values().length];
         WinBase.FILETIME lpIdleTime = new WinBase.FILETIME();
         WinBase.FILETIME lpKernelTime = new WinBase.FILETIME();
@@ -334,7 +332,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
      * {@inheritDoc}
      */
     @Override
-    public long[][] getProcessorCpuLoadTicks() {
+    public long[][] queryProcessorCpuLoadTicks() {
         Map<ProcessorTickCountProperty, List<Long>> valueMap = this.processorTickPerfCounters.queryValuesWildcard();
         List<String> instances = this.processorTickPerfCounters.getInstancesFromLastQuery();
         List<Long> systemList = valueMap.get(ProcessorTickCountProperty.PERCENTPRIVILEGEDTIME);

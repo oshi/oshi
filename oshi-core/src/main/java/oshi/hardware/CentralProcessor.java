@@ -187,19 +187,16 @@ public interface CentralProcessor extends Serializable {
 
     /**
      * Returns the "recent cpu usage" for all logical processors by counting
-     * ticks for the processors from {@link #getProcessorCpuLoadTicks()} between
-     * successive calls of this method, with a minimum interval slightly less
-     * than 1 second. If less than one second has elapsed since the last call of
-     * this method, it will return a calculation based on the tick counts and
-     * times of the previous two calls. If at least a second has elapsed, it
-     * will return the average CPU load for the interval and update the "last
-     * called" times. This method is intended to be used for periodic polling
-     * (iterating over all processors) at intervals of 1 second or longer.
+     * ticks from {@link #getProcessorCpuLoadTicks()} between the user-provided
+     * value from a previous call.
      *
+     * @param oldTicks
+     *            A tick array from a previous call to
+     *            {@link #getProcessorCpuLoadTicks()}
      * @return array of CPU load between 0 and 1 (100%) for each logical
      *         processor
      */
-    double[] getProcessorCpuLoadBetweenTicks();
+    double[] getProcessorCpuLoadBetweenTicks(long[][] oldTicks);
 
     /**
      * Get Processor CPU Load tick counters. Returns a two dimensional array,

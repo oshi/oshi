@@ -32,7 +32,6 @@ public class LogicalProcessor implements Serializable {
     private int processorNumber;
     private int physicalProcessorNumber;
     private int physicalPackageNumber;
-    private long[] cpuTicks;
     private long currentFrequency;
 
     /**
@@ -89,23 +88,6 @@ public class LogicalProcessor implements Serializable {
      */
     public void setPhysicalPackageNumber(int physicalPackageNumber) {
         this.physicalPackageNumber = physicalPackageNumber;
-    }
-
-    /**
-     * The CPU usage tick count for this logical processor.
-     * 
-     * @return the cpuTicks
-     */
-    public long[] getCpuTicks() {
-        return cpuTicks;
-    }
-
-    /**
-     * @param cpuTicks
-     *            the cpuTicks to set
-     */
-    public void setCpuTicks(long[] cpuTicks) {
-        this.cpuTicks = cpuTicks;
     }
 
     /**

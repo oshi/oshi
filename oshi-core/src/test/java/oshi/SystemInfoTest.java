@@ -181,7 +181,7 @@ public class SystemInfoTest {
         System.out.println(
                 "Context Switches/Interrupts: " + processor.getContextSwitches() + " / " + processor.getInterrupts());
         long[] prevTicks = processor.getSystemCpuLoadTicks();
-        processor.getProcessorCpuLoadTicks();
+        long[][] prevProcTicks = processor.getProcessorCpuLoadTicks();
         System.out.println("CPU, IOWait, and IRQ ticks @ 0 sec:" + Arrays.toString(prevTicks));
         // Wait a second...
         Util.sleep(1000);
@@ -211,7 +211,7 @@ public class SystemInfoTest {
                 + (loadAverage[2] < 0 ? " N/A" : String.format(" %.2f", loadAverage[2])));
         // per core CPU
         StringBuilder procCpu = new StringBuilder("CPU load per processor:");
-        double[] load = processor.getProcessorCpuLoadBetweenTicks();
+        double[] load = processor.getProcessorCpuLoadBetweenTicks(prevProcTicks);
         for (double avg : load) {
             procCpu.append(String.format(" %.1f%%", avg * 100));
         }

@@ -69,11 +69,10 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
     protected int physicalProcessorCount = 0;
     protected int logicalProcessorCount = 0;
 
+    // System ticks
     protected long[] systemCpuLoadTicks;
-
     // Per-processor ticks [cpu][type]
-    private long[][] prevProcTicks;
-    private long[][] curProcTicks;
+    private long[][] processorCpuLoadTicks;
 
     // Processor info
     private String cpuVendor;
@@ -93,14 +92,6 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
     public AbstractCentralProcessor() {
         // Initialize processor counts and populate logical processor array
         this.logicalProcessors = initProcessorCounts();
-    }
-
-    /**
-     * Initializes tick arrays
-     */
-    protected synchronized void initTicks() {
-        this.prevProcTicks = new long[this.logicalProcessorCount][TickType.values().length];
-        this.curProcTicks = new long[this.logicalProcessorCount][TickType.values().length];
     }
 
     /**
@@ -135,6 +126,24 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
      * @return The tick counters.
      */
     protected abstract long[] querySystemCpuLoadTicks();
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long[][] getProcessorCpuLoadTicks() {
+        if (processorCpuLoadTicks == null) {
+            this.processorCpuLoadTicks = queryProcessorCpuLoadTicks();
+        }
+        return this.processorCpuLoadTicks;
+    }
+
+    /**
+     * Get Per-Processor CPU Load tick counters.
+     * 
+     * @return The tick counters.
+     */
+    protected abstract long[][] queryProcessorCpuLoadTicks();
 
     /**
      * {@inheritDoc}
@@ -392,18 +401,22 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
      * {@inheritDoc}
      */
     @Override
-    public double[] getProcessorCpuLoadBetweenTicks() {
+    public double[] getProcessorCpuLoadBetweenTicks(long[][] oldTicks) {
+        if (oldTicks.length != this.logicalProcessorCount || oldTicks[0].length != TickType.values().length) {
+            throw new IllegalArgumentException(
+                    "Tick array " + oldTicks.length + " should have " + this.logicalProcessorCount
+                            + " arrays, each of which has " + TickType.values().length + " elements");
+        }
+        long[][] ticks = getProcessorCpuLoadTicks();
         double[] load = new double[this.logicalProcessorCount];
         for (int cpu = 0; cpu < this.logicalProcessorCount; cpu++) {
             long total = 0;
-            for (int i = 0; i < this.curProcTicks[cpu].length; i++) {
-                total += this.curProcTicks[cpu][i] - this.prevProcTicks[cpu][i];
+            for (int i = 0; i < ticks[cpu].length; i++) {
+                total += ticks[cpu][i] - oldTicks[cpu][i];
             }
             // Calculate idle from difference in idle and IOwait
-            long idle = this.curProcTicks[cpu][TickType.IDLE.getIndex()]
-                    + this.curProcTicks[cpu][TickType.IOWAIT.getIndex()]
-                    - this.prevProcTicks[cpu][TickType.IDLE.getIndex()]
-                    - this.prevProcTicks[cpu][TickType.IOWAIT.getIndex()];
+            long idle = ticks[cpu][TickType.IDLE.getIndex()] + ticks[cpu][TickType.IOWAIT.getIndex()]
+                    - oldTicks[cpu][TickType.IDLE.getIndex()] - oldTicks[cpu][TickType.IOWAIT.getIndex()];
             LOG.trace("CPU: {}  Total ticks: {}  Idle ticks: {}", cpu, total, idle);
             // update
             load[cpu] = total > 0 && idle >= 0 ? (double) (total - idle) / total : 0d;
@@ -573,6 +586,7 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
     @Override
     public void updateAttributes() {
         this.systemCpuLoadTicks = null;
+        this.processorCpuLoadTicks = null;
     }
 
 }

@@ -58,6 +58,7 @@ public class CentralProcessorTest {
         assertNotNull(p.getFamily());
 
         long[] ticks = p.getSystemCpuLoadTicks();
+        long[][] procTicks = p.getProcessorCpuLoadTicks();
         assertEquals(ticks.length, TickType.values().length);
 
         Util.sleep(500);
@@ -69,9 +70,10 @@ public class CentralProcessorTest {
         }
         assertEquals(3, p.getSystemLoadAverage(3).length);
 
-        assertEquals(p.getProcessorCpuLoadBetweenTicks().length, p.getLogicalProcessorCount());
+        assertEquals(p.getProcessorCpuLoadBetweenTicks(procTicks).length, p.getLogicalProcessorCount());
         for (int cpu = 0; cpu < p.getLogicalProcessorCount(); cpu++) {
-            assertTrue(p.getProcessorCpuLoadBetweenTicks()[cpu] >= 0 && p.getProcessorCpuLoadBetweenTicks()[cpu] <= 1);
+            assertTrue(p.getProcessorCpuLoadBetweenTicks(procTicks)[cpu] >= 0
+                    && p.getProcessorCpuLoadBetweenTicks(procTicks)[cpu] <= 1);
             assertEquals(p.getProcessorCpuLoadTicks()[cpu].length, TickType.values().length);
         }
 

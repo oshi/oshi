@@ -58,8 +58,6 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
         super();
         // Initialize class variables
         initVars();
-        // Initialize tick arrays
-        initTicks();
 
         LOG.debug("Initialized Processor");
     }
@@ -168,7 +166,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
      * {@inheritDoc}
      */
     @Override
-    protected long[] querySystemCpuLoadTicks() {
+    public long[] querySystemCpuLoadTicks() {
         return ProcUtil.readSystemCpuLoadTicks();
     }
 
@@ -194,7 +192,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
      * {@inheritDoc}
      */
     @Override
-    public long[][] getProcessorCpuLoadTicks() {
+    public long[][] queryProcessorCpuLoadTicks() {
         long[][] ticks = new long[this.logicalProcessorCount][TickType.values().length];
         // /proc/stat expected format
         // first line is overall user,nice,system,idle, etc.

@@ -86,8 +86,6 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
         super();
         // Initialize class variables
         initVars();
-        // Initialize tick arrays
-        initTicks();
 
         LOG.debug("Initialized Processor");
     }
@@ -222,7 +220,7 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
      * {@inheritDoc}
      */
     @Override
-    protected long[] querySystemCpuLoadTicks() {
+    public long[] querySystemCpuLoadTicks() {
         long[] ticks = new long[TickType.values().length];
         CpTime cpTime = new CpTime();
         BsdSysctlUtil.sysctl("kern.cp_time", cpTime);
@@ -256,7 +254,7 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
      * {@inheritDoc}
      */
     @Override
-    public long[][] getProcessorCpuLoadTicks() {
+    public long[][] queryProcessorCpuLoadTicks() {
         long[][] ticks = new long[this.logicalProcessorCount][TickType.values().length];
 
         // Allocate memory for array of CPTime
