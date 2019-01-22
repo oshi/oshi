@@ -81,7 +81,9 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
     private String cpuStepping;
     private String cpuModel;
     private String cpuFamily;
-    private Long cpuVendorFreq;
+    private long cpuVendorFreq;
+    private long[] cpuCurrentFreq;
+    private long[] cpuMaxFreq;
     private Boolean cpu64;
     private LogicalProcessor[] logicalProcessors;
 
@@ -95,8 +97,6 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
 
     /**
      * Updates logical and physical processor counts and arrays
-     * 
-     * @param logicalProcessors
      */
     protected abstract LogicalProcessor[] initProcessorCounts();
 
@@ -113,7 +113,7 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
      */
     @Override
     public long[] getSystemCpuLoadTicks() {
-        if (systemCpuLoadTicks == null) {
+        if (this.systemCpuLoadTicks == null) {
             this.systemCpuLoadTicks = querySystemCpuLoadTicks();
         }
         return this.systemCpuLoadTicks;
@@ -125,6 +125,42 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
      * @return The tick counters.
      */
     protected abstract long[] querySystemCpuLoadTicks();
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long[] getCurrentFreq() {
+        if (this.cpuCurrentFreq == null) {
+            this.cpuCurrentFreq = queryCurrentFreq();
+        }
+        return this.cpuCurrentFreq;
+    }
+
+    /**
+     * Get per processor current frequencies.
+     * 
+     * @return The current frequencies.
+     */
+    protected abstract long[] queryCurrentFreq();
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long[] getMaxFreq() {
+        if (this.cpuMaxFreq == null) {
+            this.cpuMaxFreq = queryMaxFreq();
+        }
+        return this.cpuMaxFreq;
+    }
+
+    /**
+     * Get per processor max frequencies.
+     * 
+     * @return The max frequencies.
+     */
+    protected abstract long[] queryMaxFreq();
 
     /**
      * {@inheritDoc}
@@ -182,18 +218,18 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
      */
     @Override
     public long getVendorFreq() {
-        if (this.cpuVendorFreq == null) {
+        if (this.cpuVendorFreq == 0) {
             Pattern pattern = Pattern.compile("@ (.*)$");
             Matcher matcher = pattern.matcher(getName());
 
             if (matcher.find()) {
                 String unit = matcher.group(1);
-                this.cpuVendorFreq = Long.valueOf(ParseUtil.parseHertz(unit));
+                this.cpuVendorFreq = ParseUtil.parseHertz(unit);
             } else {
-                this.cpuVendorFreq = Long.valueOf(-1L);
+                this.cpuVendorFreq = -1L;
             }
         }
-        return this.cpuVendorFreq.longValue();
+        return this.cpuVendorFreq;
     }
 
     /**
@@ -586,6 +622,7 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
     public void updateAttributes() {
         this.systemCpuLoadTicks = null;
         this.processorCpuLoadTicks = null;
+        this.cpuCurrentFreq = null;
     }
 
 }

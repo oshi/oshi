@@ -173,6 +173,22 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
      * {@inheritDoc}
      */
     @Override
+    public long[] queryCurrentFreq() {
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long[] queryMaxFreq() {
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public double[] getSystemLoadAverage(int nelem) {
         if (nelem < 1 || nelem > 3) {
             throw new IllegalArgumentException("Must include from one to three elements.");

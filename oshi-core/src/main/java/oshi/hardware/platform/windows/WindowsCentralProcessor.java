@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Native; // NOSONAR squid:S1191
+import com.sun.jna.NativeLong;
 import com.sun.jna.platform.win32.Advapi32Util;
 import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.Kernel32Util;
@@ -46,6 +47,8 @@ import oshi.data.windows.PerfCounterQuery.PdhCounterProperty;
 import oshi.data.windows.PerfCounterWildcardQuery;
 import oshi.data.windows.PerfCounterWildcardQuery.PdhCounterWildcardProperty;
 import oshi.hardware.common.AbstractCentralProcessor;
+import oshi.jna.platform.windows.PowrProf;
+import oshi.jna.platform.windows.PowrProf.ProcessorPowerInformation;
 import oshi.jna.platform.windows.VersionHelpers;
 import oshi.util.ParseUtil;
 import oshi.util.platform.windows.WmiQueryHandler;
@@ -309,6 +312,55 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
         // Additional decrement to avoid double counting in the total array
         ticks[TickType.SYSTEM.getIndex()] -= ticks[TickType.IRQ.getIndex()] + ticks[TickType.SOFTIRQ.getIndex()];
         return ticks;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long[] queryCurrentFreq() {
+        return queryNTPower(2);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long[] queryMaxFreq() {
+        return queryNTPower(1);
+    }
+
+    /**
+     * Call CallNTPowerInformation for Processor information and return an array
+     * of the specified index
+     * 
+     * @param fieldIndex
+     *            The field, in order as defined in the
+     *            {@link PowrProf#PROCESSOR_INFORMATION} structure.
+     * @return The array of values.
+     */
+    private long[] queryNTPower(int fieldIndex) {
+        long[] freqs = new long[getLogicalProcessorCount()];
+        ProcessorPowerInformation[] ppiArray = (ProcessorPowerInformation[]) new ProcessorPowerInformation()
+                .toArray(getLogicalProcessorCount());
+        if (0 != PowrProf.INSTANCE.CallNtPowerInformation(PowrProf.PROCESSOR_INFORMATION, null, new NativeLong(0),
+                ppiArray[0], new NativeLong(ppiArray[0].size() * ppiArray.length))) {
+            LOG.error("Unable to get Processor Information");
+            for (int i = 0; i < freqs.length; i++) {
+                freqs[i] = -1L;
+            }
+            return freqs;
+        }
+        for (int i = 0; i < freqs.length; i++) {
+            if (fieldIndex == 1) { // Max
+                freqs[i] = ppiArray[i].MaxMhz * 1_000_000L;
+            } else if (fieldIndex == 2) { // Current
+                freqs[i] = ppiArray[i].CurrentMhz * 1_000_000L;
+            } else {
+                freqs[i] = -1L;
+            }
+        }
+        return freqs;
     }
 
     /**

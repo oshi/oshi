@@ -56,6 +56,20 @@ public interface CentralProcessor extends Serializable {
     long getVendorFreq();
 
     /**
+     * Current frequeny (in Hz), of the logical processors on this CPU.
+     *
+     * @return An array of processor frequency or -1 if unknown.
+     */
+    long[] getCurrentFreq();
+
+    /**
+     * Maximum frequeny (in Hz), of the logical processors on this CPU.
+     *
+     * @return An array of processor frequency or -1 if unknown.
+     */
+    long[] getMaxFreq();
+
+    /**
      * Gets the Processor ID. This is a hexidecimal string representing an
      * 8-byte value, normally obtained using the CPUID opcode with the EAX
      * register set to 1. The first four bytes are the resulting contents of the
