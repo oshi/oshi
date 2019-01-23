@@ -231,7 +231,7 @@ public class LinuxFileSystem implements FileSystem {
             fsList.add(osStore);
         }
 
-        return fsList.toArray(new OSFileStore[fsList.size()]);
+        return fsList.toArray(new OSFileStore[0]);
     }
 
     @Override

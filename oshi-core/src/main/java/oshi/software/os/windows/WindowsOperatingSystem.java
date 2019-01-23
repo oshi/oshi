@@ -280,7 +280,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     public OSProcess[] getProcesses(int limit, ProcessSort sort, boolean slowFields) {
         List<OSProcess> procList = processMapToList(null, slowFields);
         List<OSProcess> sorted = processSort(procList, limit, sort);
-        return sorted.toArray(new OSProcess[sorted.size()]);
+        return sorted.toArray(new OSProcess[0]);
     }
 
     /**
@@ -303,7 +303,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         }
         List<OSProcess> procList = getProcesses(childPids);
         List<OSProcess> sorted = processSort(procList, limit, sort);
-        return sorted.toArray(new OSProcess[sorted.size()]);
+        return sorted.toArray(new OSProcess[0]);
     }
 
     /**

@@ -75,6 +75,6 @@ public abstract class AbstractNetworks implements Networks {
             }
         }
 
-        return result.toArray(new NetworkIF[result.size()]);
+        return result.toArray(new NetworkIF[0]);
     }
 }

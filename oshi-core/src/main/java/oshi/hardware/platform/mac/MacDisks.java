@@ -219,7 +219,7 @@ public class MacDisks implements Disks {
                         LOG.error("Unable to find properties for {}", bsdName);
                     }
                     Collections.sort(partitions);
-                    diskStore.setPartitions(partitions.toArray(new HWPartition[partitions.size()]));
+                    diskStore.setPartitions(partitions.toArray(new HWPartition[0]));
                     IOKit.INSTANCE.IOObjectRelease(parent.getValue());
                 } else {
                     LOG.error("Unable to find IOMedia device or parent for {}", bsdName);
@@ -395,7 +395,7 @@ public class MacDisks implements Disks {
         // Close DA session
         CfUtil.release(session);
         Collections.sort(result);
-        return result.toArray(new HWDiskStore[result.size()]);
+        return result.toArray(new HWDiskStore[0]);
     }
 
 }

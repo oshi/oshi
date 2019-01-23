@@ -82,6 +82,6 @@ public class SolarisDisplay extends AbstractDisplay {
             }
         }
 
-        return displays.toArray(new Display[displays.size()]);
+        return displays.toArray(new Display[0]);
     }
 }

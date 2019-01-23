@@ -76,7 +76,7 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
                 "ps -awwxo state,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etimes,systime,time,comm,args", -1,
                 slowFields);
         List<OSProcess> sorted = processSort(procs, limit, sort);
-        return sorted.toArray(new OSProcess[sorted.size()]);
+        return sorted.toArray(new OSProcess[0]);
     }
 
     /**
@@ -106,7 +106,7 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
                 "ps -awwxo state,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etimes,systime,time,comm,args --ppid",
                 parentPid, true);
         List<OSProcess> sorted = processSort(procs, limit, sort);
-        return sorted.toArray(new OSProcess[sorted.size()]);
+        return sorted.toArray(new OSProcess[0]);
     }
 
     private List<OSProcess> getProcessListFromPS(String psCommand, int pid, boolean slowFields) {

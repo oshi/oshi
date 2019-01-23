@@ -110,8 +110,8 @@ public class NetworkIF implements Serializable {
                     }
                 }
             }
-            this.ipv4 = ipv4list.toArray(new String[ipv4list.size()]);
-            this.ipv6 = ipv6list.toArray(new String[ipv6list.size()]);
+            this.ipv4 = ipv4list.toArray(new String[0]);
+            this.ipv6 = ipv6list.toArray(new String[0]);
         } catch (SocketException e) {
             LOG.error("Socket exception: {}", e);
         }

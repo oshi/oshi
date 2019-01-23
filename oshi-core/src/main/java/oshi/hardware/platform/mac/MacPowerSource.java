@@ -113,6 +113,6 @@ public class MacPowerSource extends AbstractPowerSource {
         // Release the blob
         CoreFoundation.INSTANCE.CFRelease(powerSourcesInfo);
 
-        return psList.toArray(new MacPowerSource[psList.size()]);
+        return psList.toArray(new MacPowerSource[0]);
     }
 }

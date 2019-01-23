@@ -230,7 +230,7 @@ public class FreeBsdDisks implements Disks {
         diskList.addAll(diskMap.values());
         Collections.sort(diskList);
 
-        return diskList.toArray(new HWDiskStore[diskList.size()]);
+        return diskList.toArray(new HWDiskStore[0]);
     }
 
     private void setPartitions(HWDiskStore store, List<HWPartition> partList) {

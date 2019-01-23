@@ -198,7 +198,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         }
         // Sort
         List<OSProcess> sorted = processSort(procs, limit, sort);
-        return sorted.toArray(new OSProcess[sorted.size()]);
+        return sorted.toArray(new OSProcess[0]);
     }
 
     /**
@@ -325,7 +325,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
             }
         }
         List<OSProcess> sorted = processSort(procs, limit, sort);
-        return sorted.toArray(new OSProcess[sorted.size()]);
+        return sorted.toArray(new OSProcess[0]);
     }
 
     private static int getParentPidFromProcFile(int pid) {

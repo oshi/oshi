@@ -339,7 +339,7 @@ public class SolarisDisks implements Disks {
                 }
                 partList.add(partition);
             }
-            store.setPartitions(partList.toArray(new HWPartition[partList.size()]));
+            store.setPartitions(partList.toArray(new HWPartition[0]));
         }
     }
 }
