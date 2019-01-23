@@ -169,6 +169,24 @@ public class ParseUtil {
     }
 
     /**
+     * Parse the last element of a space-delimited string to a value
+     *
+     * @param s
+     *            The string to parse
+     * @param d
+     *            Default double if not parsable
+     * @return value or the given default if not parsable
+     */
+    public static double parseLastDouble(String s, double d) {
+        try {
+            return Double.parseDouble(parseLastString(s));
+        } catch (NumberFormatException e) {
+            LOG.trace(DEFAULT_LOG_MSG, s, e);
+            return d;
+        }
+    }
+
+    /**
      * Parse the last element of a space-delimited string to a string
      *
      * @param s

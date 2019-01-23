@@ -23,6 +23,7 @@
  */
 package oshi.hardware.platform.linux;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -49,6 +50,9 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
     private static final long serialVersionUID = 1L;
 
     private static final Logger LOG = LoggerFactory.getLogger(LinuxCentralProcessor.class);
+
+    // See https://www.kernel.org/doc/Documentation/cpu-freq/user-guide.txt
+    private static final String CPUFREQ_PATH = "/sys/devices/system/cpu/cpu";
 
     /**
      * Create a Processor
@@ -174,7 +178,38 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public long[] queryCurrentFreq() {
-        return null;
+        long[] freqs = new long[getLogicalProcessorCount()];
+        // Attempt to fill array from cpu-freq source
+        long max = 0L;
+        for (int i = 0; i < freqs.length; i++) {
+            freqs[i] = FileUtil.getLongFromFile(CPUFREQ_PATH + i + "/cpufreq/scaling_cur_freq");
+            if (freqs[i] == 0) {
+                freqs[i] = FileUtil.getLongFromFile(CPUFREQ_PATH + i + "/cpufreq/cpuinfo_cur_freq");
+            }
+            if (max < freqs[i]) {
+                max = freqs[i];
+            }
+        }
+        if (max > 0L) {
+            // If successful, array is filled with values in KHz.
+            for (int i = 0; i < freqs.length; i++) {
+                freqs[i] *= 1000L;
+            }
+            return freqs;
+        }
+        // If unsuccessful, try from /proc/cpuinfo
+        Arrays.fill(freqs, -1);
+        List<String> cpuInfo = FileUtil.readFile("/proc/cpuinfo");
+        int proc = 0;
+        for (String s : cpuInfo) {
+            if (s.toLowerCase().contains("cpu mhz")) {
+                freqs[proc] = (long) (ParseUtil.parseLastDouble(s, 0d) * 1_000_000);
+                if (++proc >= freqs.length) {
+                    break;
+                }
+            }
+        }
+        return freqs;
     }
 
     /**
@@ -182,7 +217,21 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public long queryMaxFreq() {
-        return -1;
+        long max = 0L;
+        for (int i = 0; i < getLogicalProcessorCount(); i++) {
+            long freq = FileUtil.getLongFromFile(CPUFREQ_PATH + i + "/cpufreq/scaling_max_freq");
+            if (freq == 0) {
+                freq = FileUtil.getLongFromFile(CPUFREQ_PATH + i + "/cpufreq/cpuinfo_max_freq");
+            }
+            if (max < freq) {
+                max = freq;
+            }
+        }
+        if (max > 0L) {
+            // If successful, value is in KHz.
+            return max * 1000L;
+        }
+        return -1L;
     }
 
     /**
