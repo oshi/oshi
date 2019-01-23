@@ -179,7 +179,7 @@ public class SolarisFileSystem implements FileSystem {
             osStore.setTotalInodes(inodeTotalMap.containsKey(path) ? inodeTotalMap.get(path) : 0L);
             fsList.add(osStore);
         }
-        return fsList.toArray(new OSFileStore[fsList.size()]);
+        return fsList.toArray(new OSFileStore[0]);
     }
 
     @Override

@@ -100,7 +100,7 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
         for (UsbDevice device : devices) {
             addDevicesToList(deviceList, device.getConnectedDevices());
         }
-        return deviceList.toArray(new UsbDevice[deviceList.size()]);
+        return deviceList.toArray(new UsbDevice[0]);
     }
 
     private static void addDevicesToList(List<UsbDevice> deviceList, UsbDevice[] connectedDevices) {
@@ -135,7 +135,7 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
                 controllerDevices.add(deviceAndChildren);
             }
         }
-        return controllerDevices.toArray(new WindowsUsbDevice[controllerDevices.size()]);
+        return controllerDevices.toArray(new WindowsUsbDevice[0]);
     }
 
     private static void updateDeviceCache(Set<String> devicesSeen, WmiQueryHandler wmiQueryHandler) {
@@ -274,7 +274,7 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
             }
             device.vendorId = vendorId;
             device.productId = productId;
-            device.connectedDevices = usbDevices.toArray(new WindowsUsbDevice[usbDevices.size()]);
+            device.connectedDevices = usbDevices.toArray(new WindowsUsbDevice[0]);
             return device;
         }
         return null;

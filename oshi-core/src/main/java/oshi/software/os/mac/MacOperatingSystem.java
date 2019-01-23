@@ -119,7 +119,7 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
             }
         }
         List<OSProcess> sorted = processSort(procs, limit, sort);
-        return sorted.toArray(new OSProcess[sorted.size()]);
+        return sorted.toArray(new OSProcess[0]);
     }
 
     /**
@@ -255,7 +255,7 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
             }
         }
         List<OSProcess> sorted = processSort(procs, limit, sort);
-        return sorted.toArray(new OSProcess[sorted.size()]);
+        return sorted.toArray(new OSProcess[0]);
     }
 
     private int getParentProcessPid(int pid) {

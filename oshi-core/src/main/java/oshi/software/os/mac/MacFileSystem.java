@@ -187,7 +187,7 @@ public class MacFileSystem implements FileSystem {
         }
         // Close DA session
         CfUtil.release(session);
-        return fsList.toArray(new OSFileStore[fsList.size()]);
+        return fsList.toArray(new OSFileStore[0]);
     }
 
     @Override

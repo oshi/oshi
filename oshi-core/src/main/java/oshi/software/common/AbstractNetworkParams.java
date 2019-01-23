@@ -96,7 +96,7 @@ public abstract class AbstractNetworkParams implements NetworkParams {
                 }
             }
         }
-        return servers.toArray(new String[servers.size()]);
+        return servers.toArray(new String[0]);
     }
 
     /**

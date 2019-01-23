@@ -144,7 +144,7 @@ public class WindowsFileSystem implements FileSystem {
                 result.add(wmiVolume);
             }
         }
-        return result.toArray(new OSFileStore[result.size()]);
+        return result.toArray(new OSFileStore[0]);
     }
 
     /**
