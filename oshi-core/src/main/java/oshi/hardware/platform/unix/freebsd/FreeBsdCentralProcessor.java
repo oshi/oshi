@@ -23,6 +23,7 @@
  */
 package oshi.hardware.platform.unix.freebsd;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -236,7 +237,14 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public long[] queryCurrentFreq() {
-        return null;
+        long freq = BsdSysctlUtil.sysctl("dev.cpu.0.freq", -1L);
+        if (freq > 0) {
+            // If success, value is in MHz
+            freq *= 1_000_000L;
+        }
+        long[] freqs = new long[getLogicalProcessorCount()];
+        Arrays.fill(freqs, freq);
+        return freqs;
     }
 
     /**
@@ -244,7 +252,20 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public long queryMaxFreq() {
-        return -1;
+        long max = -1L;
+        String freqLevels = BsdSysctlUtil.sysctl("dev.cpu.0.freq_levels", "");
+        // MHz/Watts pairs like: 2501/32000 2187/27125 2000/24000
+        for (String s : ParseUtil.whitespaces.split(freqLevels)) {
+            long freq = ParseUtil.parseLongOrDefault(s.split("/")[0], -1L);
+            if (max < freq) {
+                max = freq;
+            }
+        }
+        if (max > 0) {
+            // If success, value is in MHz
+            max *= 1_000_000;
+        }
+        return max;
     }
 
     /**
