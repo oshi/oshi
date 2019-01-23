@@ -25,7 +25,6 @@ package oshi.jna.platform.windows;
 
 import com.sun.jna.Library;
 import com.sun.jna.Native;
-import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import com.sun.jna.Structure.FieldOrder;
@@ -58,12 +57,6 @@ public interface PowrProf extends Library {
         public int defaultAlert2; // unsigned 32 bit
     }
 
-    @FieldOrder({ "ints" })
-    class Foo extends Structure {
-        public int[] ints = new int[24];
-    }
-
-
     @FieldOrder({ "Number", "MaxMhz", "CurrentMhz", "MhzLimit", "MaxIdleState", "CurrentIdleState" })
     class ProcessorPowerInformation extends Structure {
         public int Number; // unsigned 32 bit
@@ -74,6 +67,6 @@ public interface PowrProf extends Library {
         public int CurrentIdleState; // unsigned 32 bit
     }
 
-    int CallNtPowerInformation(int informationLevel, Pointer lpInputBuffer, NativeLong nInputBufferSize,
-            Structure lpOutputBuffer, NativeLong nOutputBufferSize);
+    int CallNtPowerInformation(int informationLevel, Pointer lpInputBuffer, int nInputBufferSize,
+            Structure lpOutputBuffer, int nOutputBufferSize);
 }

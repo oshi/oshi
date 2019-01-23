@@ -23,6 +23,8 @@
  */
 package oshi.hardware.platform.mac;
 
+import java.util.Arrays;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -143,11 +145,8 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public long[] queryCurrentFreq() {
-        long freq = SysctlUtil.sysctl("hw.cpufrequency", -1L);
         long[] freqs = new long[getLogicalProcessorCount()];
-        for (int i = 0; i < freqs.length; i++) {
-            freqs[i] = freq;
-        }
+        Arrays.fill(freqs, SysctlUtil.sysctl("hw.cpufrequency", -1L));
         return freqs;
     }
 
@@ -170,9 +169,7 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
         double[] average = new double[nelem];
         int retval = SystemB.INSTANCE.getloadavg(average, nelem);
         if (retval < nelem) {
-            for (int i = Math.max(retval, 0); i < average.length; i++) {
-                average[i] = -1d;
-            }
+            Arrays.fill(average, -1d);
         }
         return average;
     }

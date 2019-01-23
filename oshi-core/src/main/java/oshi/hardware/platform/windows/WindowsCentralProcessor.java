@@ -23,6 +23,7 @@
  */
 package oshi.hardware.platform.windows;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -30,7 +31,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Native; // NOSONAR squid:S1191
-import com.sun.jna.NativeLong;
 import com.sun.jna.platform.win32.Advapi32Util;
 import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.Kernel32Util;
@@ -319,7 +319,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public long[] queryCurrentFreq() {
-        return queryNTPower(2);
+        return queryNTPower(2); // Current is field index 2
     }
 
     /**
@@ -327,14 +327,8 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public long queryMaxFreq() {
-        long max = -1L;
-        long[] freqs = queryNTPower(1);
-        for (int i = 0; i < freqs.length; i++) {
-            if (max < freqs[i]) {
-                max = freqs[i];
-            }
-        }
-        return max;
+        long[] freqs = queryNTPower(1); // Max is field index 1
+        return Arrays.stream(freqs).max().getAsLong();
     }
 
     /**
@@ -349,13 +343,11 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
     private long[] queryNTPower(int fieldIndex) {
         long[] freqs = new long[getLogicalProcessorCount()];
         ProcessorPowerInformation[] ppiArray = (ProcessorPowerInformation[]) new ProcessorPowerInformation()
-                .toArray(getLogicalProcessorCount());
-        if (0 != PowrProf.INSTANCE.CallNtPowerInformation(PowrProf.PROCESSOR_INFORMATION, null, new NativeLong(0),
-                ppiArray[0], new NativeLong(ppiArray[0].size() * ppiArray.length))) { // lgtm
+                .toArray(freqs.length);
+        if (0 != PowrProf.INSTANCE.CallNtPowerInformation(PowrProf.PROCESSOR_INFORMATION, null, 0, ppiArray[0],
+                ppiArray[0].size() * ppiArray.length)) {
             LOG.error("Unable to get Processor Information");
-            for (int i = 0; i < freqs.length; i++) {
-                freqs[i] = -1L;
-            }
+            Arrays.fill(freqs, -1L);
             return freqs;
         }
         for (int i = 0; i < freqs.length; i++) {
