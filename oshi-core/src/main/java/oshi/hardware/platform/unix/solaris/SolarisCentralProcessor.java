@@ -24,6 +24,7 @@
 package oshi.hardware.platform.unix.solaris;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -144,7 +145,16 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public long[] queryCurrentFreq() {
-        return null;
+        long[] freqs = new long[getLogicalProcessorCount()];
+        Arrays.fill(freqs, -1);
+        for (int i = 0; i < freqs.length; i++) {
+            for (Kstat ksp : KstatUtil.kstatLookupAll("cpuinfo", i, null)) {
+                if (KstatUtil.kstatRead(ksp)) {
+                    freqs[i] = KstatUtil.kstatDataLookupLong(ksp, "current_clock_Hz");
+                }
+            }
+        }
+        return freqs;
     }
 
     /**
@@ -152,7 +162,21 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public long queryMaxFreq() {
-        return -1;
+        long max = -1L;
+        for (Kstat ksp : KstatUtil.kstatLookupAll("cpuinfo", 0, null)) {
+            if (KstatUtil.kstatRead(ksp)) {
+                String suppFreq = KstatUtil.kstatDataLookupString(ksp, "supported_frequencies_Hz");
+                if (!suppFreq.isEmpty()) {
+                    for (String s : suppFreq.split(":")) {
+                        long freq = ParseUtil.parseLongOrDefault(s, -1L);
+                        if (max < freq) {
+                            max = freq;
+                        }
+                    }
+                }
+            }
+        }
+        return max;
     }
 
     /**
