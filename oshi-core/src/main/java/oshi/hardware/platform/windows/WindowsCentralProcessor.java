@@ -326,8 +326,15 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
      * {@inheritDoc}
      */
     @Override
-    public long[] queryMaxFreq() {
-        return queryNTPower(1);
+    public long queryMaxFreq() {
+        long max = -1L;
+        long[] freqs = queryNTPower(1);
+        for (int i = 0; i < freqs.length; i++) {
+            if (max < freqs[i]) {
+                max = freqs[i];
+            }
+        }
+        return max;
     }
 
     /**
@@ -344,7 +351,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
         ProcessorPowerInformation[] ppiArray = (ProcessorPowerInformation[]) new ProcessorPowerInformation()
                 .toArray(getLogicalProcessorCount());
         if (0 != PowrProf.INSTANCE.CallNtPowerInformation(PowrProf.PROCESSOR_INFORMATION, null, new NativeLong(0),
-                ppiArray[0], new NativeLong(ppiArray[0].size() * ppiArray.length))) {
+                ppiArray[0], new NativeLong(ppiArray[0].size() * ppiArray.length))) { // lgtm
             LOG.error("Unable to get Processor Information");
             for (int i = 0; i < freqs.length; i++) {
                 freqs[i] = -1L;

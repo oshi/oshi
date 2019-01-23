@@ -181,8 +181,8 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
      * {@inheritDoc}
      */
     @Override
-    public long[] queryMaxFreq() {
-        return null;
+    public long queryMaxFreq() {
+        return -1;
     }
 
     /**

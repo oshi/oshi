@@ -82,8 +82,8 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
     private String cpuModel;
     private String cpuFamily;
     private long cpuVendorFreq;
+    private long cpuMaxFreq;
     private long[] cpuCurrentFreq;
-    private long[] cpuMaxFreq;
     private Boolean cpu64;
     private LogicalProcessor[] logicalProcessors;
 
@@ -148,19 +148,19 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
      * {@inheritDoc}
      */
     @Override
-    public long[] getMaxFreq() {
-        if (this.cpuMaxFreq == null) {
+    public long getMaxFreq() {
+        if (this.cpuMaxFreq == 0) {
             this.cpuMaxFreq = queryMaxFreq();
         }
         return this.cpuMaxFreq;
     }
 
     /**
-     * Get per processor max frequencies.
+     * Get processor max frequency.
      * 
-     * @return The max frequencies.
+     * @return The max frequency.
      */
-    protected abstract long[] queryMaxFreq();
+    protected abstract long queryMaxFreq();
 
     /**
      * {@inheritDoc}

@@ -143,15 +143,20 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public long[] queryCurrentFreq() {
-        return null;
+        long freq = SysctlUtil.sysctl("hw.cpufrequency", -1L);
+        long[] freqs = new long[getLogicalProcessorCount()];
+        for (int i = 0; i < freqs.length; i++) {
+            freqs[i] = freq;
+        }
+        return freqs;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public long[] queryMaxFreq() {
-        return null;
+    public long queryMaxFreq() {
+        return SysctlUtil.sysctl("hw.cpufrequency_max", -1L);
     }
 
     /**

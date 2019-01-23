@@ -56,18 +56,18 @@ public interface CentralProcessor extends Serializable {
     long getVendorFreq();
 
     /**
+     * Maximum frequeny (in Hz), of the logical processors on this CPU.
+     *
+     * @return The max frequency or -1 if unknown.
+     */
+    long getMaxFreq();
+
+    /**
      * Current frequeny (in Hz), of the logical processors on this CPU.
      *
      * @return An array of processor frequency or -1 if unknown.
      */
     long[] getCurrentFreq();
-
-    /**
-     * Maximum frequeny (in Hz), of the logical processors on this CPU.
-     *
-     * @return An array of processor frequency or -1 if unknown.
-     */
-    long[] getMaxFreq();
 
     /**
      * Gets the Processor ID. This is a hexidecimal string representing an
@@ -352,7 +352,6 @@ public interface CentralProcessor extends Serializable {
         private int processorNumber;
         private int physicalProcessorNumber;
         private int physicalPackageNumber;
-        private long currentFrequency;
 
         /**
          * The Logical Processor number as seen by the Operating System. Used
@@ -409,24 +408,6 @@ public interface CentralProcessor extends Serializable {
          */
         public void setPhysicalPackageNumber(int physicalPackageNumber) {
             this.physicalPackageNumber = physicalPackageNumber;
-        }
-
-        /**
-         * The current operating frequency of this logical processor, if known.
-         * Defaults to the vendor frequency.
-         * 
-         * @return the currentFrequency
-         */
-        public long getCurrentFrequency() {
-            return currentFrequency;
-        }
-
-        /**
-         * @param currentFrequency
-         *            the currentFrequency to set
-         */
-        public void setCurrentFrequency(long currentFrequency) {
-            this.currentFrequency = currentFrequency;
         }
     }
 }
