@@ -71,7 +71,7 @@ public class FreeBsdUsbDevice extends AbstractUsbDevice {
                     device.getProductId(), device.getSerialNumber(), new FreeBsdUsbDevice[0]));
             addDevicesToList(deviceList, device.getConnectedDevices());
         }
-        return deviceList.toArray(new UsbDevice[deviceList.size()]);
+        return deviceList.toArray(new UsbDevice[0]);
     }
 
     private static void addDevicesToList(List<UsbDevice> deviceList, UsbDevice[] connectedDevices) {
@@ -154,7 +154,7 @@ public class FreeBsdUsbDevice extends AbstractUsbDevice {
             hubMap.put(parent, hubMap.get(usbus));
             controllerDevices.add(getDeviceAndChildren(parent, "0000", "0000"));
         }
-        return controllerDevices.toArray(new UsbDevice[controllerDevices.size()]);
+        return controllerDevices.toArray(new UsbDevice[0]);
     }
 
     /**
@@ -179,6 +179,6 @@ public class FreeBsdUsbDevice extends AbstractUsbDevice {
         }
         Collections.sort(usbDevices);
         return new FreeBsdUsbDevice(nameMap.getOrDefault(devPath, vendorId + ":" + productId), "", vendorId, productId,
-                "", usbDevices.toArray(new UsbDevice[usbDevices.size()]));
+                "", usbDevices.toArray(new UsbDevice[0]));
     }
 }

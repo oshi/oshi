@@ -76,7 +76,7 @@ public class MacUsbDevice extends AbstractUsbDevice {
         for (UsbDevice device : devices) {
             addDevicesToList(deviceList, device.getConnectedDevices());
         }
-        return deviceList.toArray(new UsbDevice[deviceList.size()]);
+        return deviceList.toArray(new UsbDevice[0]);
     }
 
     private static void addDevicesToList(List<UsbDevice> deviceList, UsbDevice[] connectedDevices) {
@@ -187,7 +187,7 @@ public class MacUsbDevice extends AbstractUsbDevice {
         for (Long controller : usbControllers) {
             controllerDevices.add(getDeviceAndChildren(controller, "0000", "0000"));
         }
-        return controllerDevices.toArray(new UsbDevice[controllerDevices.size()]);
+        return controllerDevices.toArray(new UsbDevice[0]);
     }
 
     /**
@@ -265,6 +265,6 @@ public class MacUsbDevice extends AbstractUsbDevice {
         Collections.sort(usbDevices);
         return new MacUsbDevice(nameMap.getOrDefault(registryEntryId, vendorId + ":" + productId),
                 vendorMap.getOrDefault(registryEntryId, ""), vendorId, productId,
-                serialMap.getOrDefault(registryEntryId, ""), usbDevices.toArray(new UsbDevice[usbDevices.size()]));
+                serialMap.getOrDefault(registryEntryId, ""), usbDevices.toArray(new UsbDevice[0]));
     }
 }

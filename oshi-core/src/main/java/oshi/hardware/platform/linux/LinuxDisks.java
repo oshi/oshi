@@ -171,7 +171,7 @@ public class LinuxDisks implements Disks {
         Udev.INSTANCE.udev_enumerate_unref(enumerate);
         Udev.INSTANCE.udev_unref(handle);
 
-        return result.toArray(new HWDiskStore[result.size()]);
+        return result.toArray(new HWDiskStore[0]);
     }
 
     /**

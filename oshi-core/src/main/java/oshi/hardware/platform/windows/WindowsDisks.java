@@ -196,11 +196,11 @@ public class WindowsDisks implements Disks {
                     }
                 }
             }
-            ds.setPartitions(partitions.toArray(new HWPartition[partitions.size()]));
+            ds.setPartitions(partitions.toArray(new HWPartition[0]));
             // Add to list
             result.add(ds);
         }
-        return result.toArray(new HWDiskStore[result.size()]);
+        return result.toArray(new HWDiskStore[0]);
     }
 
     /**

@@ -138,6 +138,6 @@ public class LinuxPowerSource extends AbstractPowerSource {
             }
         }
 
-        return psList.toArray(new LinuxPowerSource[psList.size()]);
+        return psList.toArray(new LinuxPowerSource[0]);
     }
 }
