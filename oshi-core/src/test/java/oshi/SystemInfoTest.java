@@ -216,6 +216,25 @@ public class SystemInfoTest {
             procCpu.append(String.format(" %.1f%%", avg * 100));
         }
         System.out.println(procCpu.toString());
+        long freq = processor.getVendorFreq();
+        if (freq > 0) {
+            System.out.println("Vendor Frequency: " + FormatUtil.formatHertz(freq));
+        }
+        freq = processor.getMaxFreq();
+        if (freq > 0) {
+            System.out.println("Max Frequency: " + FormatUtil.formatHertz(freq));
+        }
+        long[] freqs = processor.getCurrentFreq();
+        if (freqs[0] > 0) {
+            StringBuilder sb = new StringBuilder("Current Frequencies: ");
+            for (int i = 0; i < freqs.length; i++) {
+                if (i > 0) {
+                    sb.append(", ");
+                }
+                sb.append(FormatUtil.formatHertz(freqs[i]));
+            }
+            System.out.println(sb.toString());
+        }
     }
 
     private static void printProcesses(OperatingSystem os, GlobalMemory memory) {
