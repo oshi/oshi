@@ -23,6 +23,8 @@
  */
 package oshi.hardware.platform.mac;
 
+import java.util.Arrays;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,8 +79,6 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
         super();
         // Initialize class variables
         initVars();
-        // Initialize tick arrays
-        initTicks();
 
         LOG.debug("Initialized Processor");
     }
@@ -103,17 +103,26 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
      * Updates logical and physical processor counts from sysctl calls
      */
     @Override
-    protected void calculateProcessorCounts() {
+    protected LogicalProcessor[] initProcessorCounts() {
         this.logicalProcessorCount = SysctlUtil.sysctl("hw.logicalcpu", 1);
         this.physicalProcessorCount = SysctlUtil.sysctl("hw.physicalcpu", 1);
         this.physicalPackageCount = SysctlUtil.sysctl("hw.packages", 1);
+
+        LogicalProcessor[] logProcs = new LogicalProcessor[this.logicalProcessorCount];
+        for (int i = 0; i < logProcs.length; i++) {
+            logProcs[i] = new LogicalProcessor();
+            logProcs[i].setProcessorNumber(i);
+            logProcs[i].setPhysicalProcessorNumber(i * this.physicalProcessorCount / this.logicalProcessorCount);
+            logProcs[i].setPhysicalPackageNumber(i * this.physicalPackageCount / this.logicalProcessorCount);
+        }
+        return logProcs;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public long[] getSystemCpuLoadTicks() {
+    public long[] querySystemCpuLoadTicks() {
         long[] ticks = new long[TickType.values().length];
         int machPort = SystemB.INSTANCE.mach_host_self();
         HostCpuLoadInfo cpuLoadInfo = new HostCpuLoadInfo();
@@ -135,6 +144,24 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
      * {@inheritDoc}
      */
     @Override
+    public long[] queryCurrentFreq() {
+        long[] freqs = new long[getLogicalProcessorCount()];
+        Arrays.fill(freqs, SysctlUtil.sysctl("hw.cpufrequency", -1L));
+        return freqs;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long queryMaxFreq() {
+        return SysctlUtil.sysctl("hw.cpufrequency_max", -1L);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public double[] getSystemLoadAverage(int nelem) {
         if (nelem < 1 || nelem > 3) {
             throw new IllegalArgumentException("Must include from one to three elements.");
@@ -142,9 +169,7 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
         double[] average = new double[nelem];
         int retval = SystemB.INSTANCE.getloadavg(average, nelem);
         if (retval < nelem) {
-            for (int i = Math.max(retval, 0); i < average.length; i++) {
-                average[i] = -1d;
-            }
+            Arrays.fill(average, -1d);
         }
         return average;
     }
@@ -153,7 +178,7 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
      * {@inheritDoc}
      */
     @Override
-    public long[][] getProcessorCpuLoadTicks() {
+    public long[][] queryProcessorCpuLoadTicks() {
         long[][] ticks = new long[this.logicalProcessorCount][TickType.values().length];
 
         int machPort = SystemB.INSTANCE.mach_host_self();

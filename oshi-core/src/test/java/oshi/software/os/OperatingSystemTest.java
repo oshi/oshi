@@ -35,6 +35,7 @@ import java.util.Map;
 
 import org.junit.Test;
 
+import oshi.PlatformEnum;
 import oshi.SystemInfo;
 
 /**
@@ -180,22 +181,25 @@ public class OperatingSystemTest {
         if (zeroPid >= 0) {
             assertEquals(0, os.getChildProcesses(zeroPid, 0, null).length);
         }
-        // Due to race condition, a process may terminate before we count its
-        // children.
-        if (onePid >= 0) {
-            assertTrue(0 <= os.getChildProcesses(onePid, 0, null).length);
-        }
-        if (nPid >= 0) {
-            assertTrue(0 <= os.getChildProcesses(nPid, 0, null).length);
-        }
-        if (mPid >= 0) {
-            assertTrue(0 <= os.getChildProcesses(mPid, 0, null).length);
-        }
-        // At least one of these tests should work.
-        if (onePid >= 0 && nPid >= 0 && mPid >= 0) {
-            assertTrue(os.getChildProcesses(onePid, 0, null).length == 1
-                    || os.getChildProcesses(nPid, 0, null).length == nNum
-                    || os.getChildProcesses(mPid, 0, null).length == mNum);
+        if (SystemInfo.getCurrentPlatformEnum() != PlatformEnum.SOLARIS) {
+            // Due to race condition, a process may terminate before we count
+            // its
+            // children.
+            if (onePid >= 0) {
+                assertTrue(0 <= os.getChildProcesses(onePid, 0, null).length);
+            }
+            if (nPid >= 0) {
+                assertTrue(0 <= os.getChildProcesses(nPid, 0, null).length);
+            }
+            if (mPid >= 0) {
+                assertTrue(0 <= os.getChildProcesses(mPid, 0, null).length);
+            }
+            // At least one of these tests should work.
+            if (onePid >= 0 && nPid >= 0 && mPid >= 0) {
+                assertTrue(os.getChildProcesses(onePid, 0, null).length == 1
+                        || os.getChildProcesses(nPid, 0, null).length == nNum
+                        || os.getChildProcesses(mPid, 0, null).length == mNum);
+            }
         }
     }
 

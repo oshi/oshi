@@ -34,11 +34,7 @@ import oshi.hardware.CentralProcessor;
 import oshi.util.ParseUtil;
 
 /**
- * A CPU as defined in Linux /proc.
- *
- * @author alessandro[at]perucchi[dot]org
- * @author alessio.fachechi[at]gmail[dot]com
- * @author widdis[at]gmail[dot]com
+ * A CPU.
  */
 @SuppressWarnings("restriction")
 public abstract class AbstractCentralProcessor implements CentralProcessor {
@@ -54,103 +50,135 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
             .getOperatingSystemMXBean();
 
     /**
-     * Calling OperatingSystemMxBean too rapidly results in NaN. Store the
-     * latest value to return if polling is too rapid
-     */
-    private double lastCpuLoad = 0d;
-
-    /**
-     * Keep track of last CPU Load poll to OperatingSystemMXBean to ensure
-     * enough time has elapsed
-     */
-    private long lastCpuLoadTime = 0;
-
-    /**
      * Keep track whether MXBean supports Oracle JVM methods
      */
-    private boolean sunMXBean = false;
+    private static boolean sunMXBean = false;
+    static {
+        try {
+            Class.forName("com.sun.management.OperatingSystemMXBean");
+            LOG.debug("Oracle MXBean detected.");
+            sunMXBean = true;
+        } catch (ClassNotFoundException | ClassCastException e) {
+            LOG.debug("Oracle MXBean not detected.");
+        }
+    }
 
     // Logical and Physical Processor Counts
+    protected int physicalPackageCount = 0;
+    protected int physicalProcessorCount = 0;
     protected int logicalProcessorCount = 0;
 
-    protected int physicalProcessorCount = 0;
-
-    protected int physicalPackageCount = 0;
-
-    // Maintain previous ticks to be used for calculating usage between them.
     // System ticks
-    private long tickTime;
-
-    private long[] prevTicks;
-
-    private long[] curTicks;
-
+    protected long[] systemCpuLoadTicks;
     // Per-processor ticks [cpu][type]
-    private long procTickTime;
-
-    private long[][] prevProcTicks;
-
-    private long[][] curProcTicks;
+    private long[][] processorCpuLoadTicks;
 
     // Processor info
     private String cpuVendor;
-
     private String cpuName;
-
     private String processorID;
-
     private String cpuIdentifier;
-
     private String cpuStepping;
-
     private String cpuModel;
-
     private String cpuFamily;
-
-    private Long cpuVendorFreq;
-
+    private long cpuVendorFreq;
+    private long cpuMaxFreq;
+    private long[] cpuCurrentFreq;
     private Boolean cpu64;
+    private LogicalProcessor[] logicalProcessors;
 
     /**
      * Create a Processor
      */
     public AbstractCentralProcessor() {
-        initMXBean();
-        // Initialize processor counts
-        calculateProcessorCounts();
+        // Initialize processor counts and populate logical processor array
+        this.logicalProcessors = initProcessorCounts();
     }
 
     /**
-     * Initializes mxBean boolean
+     * Updates logical and physical processor counts and arrays
      */
-    private void initMXBean() {
-        try {
-            Class.forName("com.sun.management.OperatingSystemMXBean");
-            // Initialize CPU usage
-            this.lastCpuLoad = ((com.sun.management.OperatingSystemMXBean) OS_MXBEAN).getSystemCpuLoad();
-            this.lastCpuLoadTime = System.currentTimeMillis();
-            this.sunMXBean = true;
-            LOG.debug("Oracle MXBean detected.");
-        } catch (ClassNotFoundException | ClassCastException e) {
-            LOG.debug("Oracle MXBean not detected.");
-            LOG.trace("{}", e);
+    protected abstract LogicalProcessor[] initProcessorCounts();
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public LogicalProcessor[] getLogicalProcessors() {
+        return this.logicalProcessors;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long[] getSystemCpuLoadTicks() {
+        if (this.systemCpuLoadTicks == null) {
+            this.systemCpuLoadTicks = querySystemCpuLoadTicks();
         }
+        return this.systemCpuLoadTicks;
     }
 
     /**
-     * Initializes tick arrays
+     * Get System-wide CPU Load tick counters.
+     * 
+     * @return The tick counters.
      */
-    protected synchronized void initTicks() {
-        this.prevProcTicks = new long[this.logicalProcessorCount][TickType.values().length];
-        this.curProcTicks = new long[this.logicalProcessorCount][TickType.values().length];
-        this.prevTicks = new long[TickType.values().length];
-        this.curTicks = new long[TickType.values().length];
+    protected abstract long[] querySystemCpuLoadTicks();
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long[] getCurrentFreq() {
+        if (this.cpuCurrentFreq == null) {
+            this.cpuCurrentFreq = queryCurrentFreq();
+        }
+        return this.cpuCurrentFreq;
     }
 
     /**
-     * Updates logical and physical processor counts
+     * Get per processor current frequencies.
+     * 
+     * @return The current frequencies.
      */
-    protected abstract void calculateProcessorCounts();
+    protected abstract long[] queryCurrentFreq();
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getMaxFreq() {
+        if (this.cpuMaxFreq == 0) {
+            this.cpuMaxFreq = queryMaxFreq();
+        }
+        return this.cpuMaxFreq;
+    }
+
+    /**
+     * Get processor max frequency.
+     * 
+     * @return The max frequency.
+     */
+    protected abstract long queryMaxFreq();
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long[][] getProcessorCpuLoadTicks() {
+        if (processorCpuLoadTicks == null) {
+            this.processorCpuLoadTicks = queryProcessorCpuLoadTicks();
+        }
+        return this.processorCpuLoadTicks;
+    }
+
+    /**
+     * Get Per-Processor CPU Load tick counters.
+     * 
+     * @return The tick counters.
+     */
+    protected abstract long[][] queryProcessorCpuLoadTicks();
 
     /**
      * {@inheritDoc}
@@ -161,14 +189,6 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
             setVendor("");
         }
         return this.cpuVendor;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setVendor(String vendor) {
-        this.cpuVendor = vendor;
     }
 
     /**
@@ -186,14 +206,6 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
      * {@inheritDoc}
      */
     @Override
-    public void setName(String name) {
-        this.cpuName = name;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public String getProcessorID() {
         if (this.processorID == null) {
             setProcessorID("");
@@ -205,35 +217,19 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
      * {@inheritDoc}
      */
     @Override
-    public void setProcessorID(String processorID) {
-        this.processorID = processorID;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public long getVendorFreq() {
-        if (this.cpuVendorFreq == null) {
+        if (this.cpuVendorFreq == 0) {
             Pattern pattern = Pattern.compile("@ (.*)$");
             Matcher matcher = pattern.matcher(getName());
 
             if (matcher.find()) {
                 String unit = matcher.group(1);
-                this.cpuVendorFreq = Long.valueOf(ParseUtil.parseHertz(unit));
+                this.cpuVendorFreq = ParseUtil.parseHertz(unit);
             } else {
-                this.cpuVendorFreq = Long.valueOf(-1L);
+                this.cpuVendorFreq = -1L;
             }
         }
-        return this.cpuVendorFreq.longValue();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setVendorFreq(long freq) {
-        this.cpuVendorFreq = Long.valueOf(freq);
+        return this.cpuVendorFreq;
     }
 
     /**
@@ -260,27 +256,11 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
      * {@inheritDoc}
      */
     @Override
-    public void setIdentifier(String identifier) {
-        this.cpuIdentifier = identifier;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public boolean isCpu64bit() {
         if (this.cpu64 == null) {
             setCpu64(false);
         }
         return this.cpu64;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setCpu64(boolean value) {
-        this.cpu64 = Boolean.valueOf(value);
     }
 
     /**
@@ -301,14 +281,6 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
      * {@inheritDoc}
      */
     @Override
-    public void setStepping(String stepping) {
-        this.cpuStepping = stepping;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public String getModel() {
         if (this.cpuModel == null) {
             if (this.cpuIdentifier == null) {
@@ -317,14 +289,6 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
             setModel(parseIdentifier("Model"));
         }
         return this.cpuModel;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setModel(String model) {
-        this.cpuModel = model;
     }
 
     /**
@@ -342,11 +306,75 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
     }
 
     /**
-     * {@inheritDoc}
+     * @param cpuVendor
+     *            the cpuVendor to set
      */
-    @Override
-    public void setFamily(String family) {
-        this.cpuFamily = family;
+    protected void setVendor(String cpuVendor) {
+        this.cpuVendor = cpuVendor;
+    }
+
+    /**
+     * @param cpuName
+     *            the cpuName to set
+     */
+    protected void setName(String cpuName) {
+        this.cpuName = cpuName;
+    }
+
+    /**
+     * @param cpuIdentifier
+     *            the cpuIdentifier to set
+     */
+    protected void setIdentifier(String cpuIdentifier) {
+        this.cpuIdentifier = cpuIdentifier;
+    }
+
+    /**
+     * @param cpuStepping
+     *            the cpuStepping to set
+     */
+    protected void setStepping(String cpuStepping) {
+        this.cpuStepping = cpuStepping;
+    }
+
+    /**
+     * @param cpuModel
+     *            the cpuModel to set
+     */
+    protected void setModel(String cpuModel) {
+        this.cpuModel = cpuModel;
+    }
+
+    /**
+     * @param cpuFamily
+     *            the cpuFamily to set
+     */
+    protected void setFamily(String cpuFamily) {
+        this.cpuFamily = cpuFamily;
+    }
+
+    /**
+     * @param cpuVendorFreq
+     *            the cpuVendorFreq to set
+     */
+    protected void setVendorFreq(Long cpuVendorFreq) {
+        this.cpuVendorFreq = cpuVendorFreq;
+    }
+
+    /**
+     * @param cpu64
+     *            the cpu64 to set
+     */
+    protected void setCpu64(Boolean cpu64) {
+        this.cpu64 = cpu64;
+    }
+
+    /**
+     * @param processorID
+     *            the processorID to set
+     */
+    protected void setProcessorID(String processorID) {
+        this.processorID = processorID;
     }
 
     /**
@@ -374,51 +402,23 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
      * {@inheritDoc}
      */
     @Override
-    public synchronized double getSystemCpuLoadBetweenTicks() {
-        // Check if > ~ 0.95 seconds since last tick count.
-        long now = System.currentTimeMillis();
-        LOG.trace("Current time: {}  Last tick time: {}", now, this.tickTime);
-        if (now - this.tickTime > 950) {
-            // Enough time has elapsed.
-            updateSystemTicks();
+    public synchronized double getSystemCpuLoadBetweenTicks(long[] oldTicks) {
+        if (oldTicks.length != TickType.values().length) {
+            throw new IllegalArgumentException(
+                    "Tick array " + oldTicks.length + " should have " + TickType.values().length + " elements");
         }
+        long[] ticks = getSystemCpuLoadTicks();
         // Calculate total
         long total = 0;
-        for (int i = 0; i < this.curTicks.length; i++) {
-            total += this.curTicks[i] - this.prevTicks[i];
+        for (int i = 0; i < ticks.length; i++) {
+            total += ticks[i] - oldTicks[i];
         }
         // Calculate idle from difference in idle and IOwait
-        long idle = this.curTicks[TickType.IDLE.getIndex()] + this.curTicks[TickType.IOWAIT.getIndex()]
-                - this.prevTicks[TickType.IDLE.getIndex()] - this.prevTicks[TickType.IOWAIT.getIndex()];
+        long idle = ticks[TickType.IDLE.getIndex()] + ticks[TickType.IOWAIT.getIndex()]
+                - oldTicks[TickType.IDLE.getIndex()] - oldTicks[TickType.IOWAIT.getIndex()];
         LOG.trace("Total ticks: {}  Idle ticks: {}", total, idle);
 
         return total > 0 && idle >= 0 ? (double) (total - idle) / total : 0d;
-    }
-
-    /**
-     * Updates system tick information. Stores in array with seven elements
-     * representing clock ticks or milliseconds (platform dependent) spent in
-     * User (0), Nice (1), System (2), Idle (3), IOwait (4), IRQ (5), and
-     * SoftIRQ (6) states. By measuring the difference between ticks across a
-     * time interval, CPU load over that interval may be calculated.
-     */
-    protected void updateSystemTicks() {
-        LOG.trace("Updating System Ticks");
-        long[] ticks = getSystemCpuLoadTicks();
-        // Skip update if ticks is all zero.
-        // Iterate to find a nonzero tick value and return; this should quickly
-        // find a nonzero value if one exists and be fast in checking 0's
-        // through branch prediction if it doesn't
-        for (long tick : ticks) {
-            if (tick != 0) {
-                // We have a nonzero tick array, update and return!
-                this.tickTime = System.currentTimeMillis();
-                // Copy to previous
-                System.arraycopy(this.curTicks, 0, this.prevTicks, 0, this.curTicks.length);
-                System.arraycopy(ticks, 0, this.curTicks, 0, ticks.length);
-                return;
-            }
-        }
     }
 
     /**
@@ -426,90 +426,37 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
      */
     @Override
     public double getSystemCpuLoad() {
-        if (this.sunMXBean) {
-            long now = System.currentTimeMillis();
-            // If called too recently, return latest value
-            if (now - this.lastCpuLoadTime < 200) {
-                return this.lastCpuLoad;
-            }
-            this.lastCpuLoad = ((com.sun.management.OperatingSystemMXBean) OS_MXBEAN).getSystemCpuLoad();
-            this.lastCpuLoadTime = now;
-            return this.lastCpuLoad;
+        if (sunMXBean) {
+            return ((com.sun.management.OperatingSystemMXBean) OS_MXBEAN).getSystemCpuLoad();
         }
-        return getSystemCpuLoadBetweenTicks();
+        return -1.0;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public double getSystemLoadAverage() {
-        return getSystemLoadAverage(1)[0];
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public double[] getProcessorCpuLoadBetweenTicks() {
-        // Check if > ~ 0.95 seconds since last tick count.
-        long now = System.currentTimeMillis();
-        LOG.trace("Current time: {}  Last tick time: {}", now, this.procTickTime);
-        if (now - this.procTickTime > 950) {
-            // Enough time has elapsed.
-            // Update latest
-            updateProcessorTicks();
+    public double[] getProcessorCpuLoadBetweenTicks(long[][] oldTicks) {
+        if (oldTicks.length != this.logicalProcessorCount || oldTicks[0].length != TickType.values().length) {
+            throw new IllegalArgumentException(
+                    "Tick array " + oldTicks.length + " should have " + this.logicalProcessorCount
+                            + " arrays, each of which has " + TickType.values().length + " elements");
         }
+        long[][] ticks = getProcessorCpuLoadTicks();
         double[] load = new double[this.logicalProcessorCount];
         for (int cpu = 0; cpu < this.logicalProcessorCount; cpu++) {
             long total = 0;
-            for (int i = 0; i < this.curProcTicks[cpu].length; i++) {
-                total += this.curProcTicks[cpu][i] - this.prevProcTicks[cpu][i];
+            for (int i = 0; i < ticks[cpu].length; i++) {
+                total += ticks[cpu][i] - oldTicks[cpu][i];
             }
             // Calculate idle from difference in idle and IOwait
-            long idle = this.curProcTicks[cpu][TickType.IDLE.getIndex()]
-                    + this.curProcTicks[cpu][TickType.IOWAIT.getIndex()]
-                    - this.prevProcTicks[cpu][TickType.IDLE.getIndex()]
-                    - this.prevProcTicks[cpu][TickType.IOWAIT.getIndex()];
+            long idle = ticks[cpu][TickType.IDLE.getIndex()] + ticks[cpu][TickType.IOWAIT.getIndex()]
+                    - oldTicks[cpu][TickType.IDLE.getIndex()] - oldTicks[cpu][TickType.IOWAIT.getIndex()];
             LOG.trace("CPU: {}  Total ticks: {}  Idle ticks: {}", cpu, total, idle);
             // update
             load[cpu] = total > 0 && idle >= 0 ? (double) (total - idle) / total : 0d;
         }
         return load;
-    }
-
-    /**
-     * Updates per-processor tick information. Stores in 2D array; an array for
-     * each logical processor with with seven elements representing clock ticks
-     * or milliseconds (platform dependent) spent in User (0), Nice (1), System
-     * (2), Idle (3), IOwait (4), IRQ (5), and SoftIRQ (6) states. By measuring
-     * the difference between ticks across a time interval, CPU load over that
-     * interval may be calculated.
-     */
-    protected void updateProcessorTicks() {
-        LOG.trace("Updating Processor Ticks");
-        long[][] ticks = getProcessorCpuLoadTicks();
-        // Skip update if ticks is all zero.
-        // Iterate to find a nonzero tick value and return; this should quickly
-        // find a nonzero value if one exists and be fast in checking 0's
-        // through branch prediction if it doesn't
-        for (long[] tick : ticks) {
-            for (long element : tick) {
-                if (element != 0L) {
-                    // We have a nonzero tick array, update and return!
-                    this.procTickTime = System.currentTimeMillis();
-                    // Copy to previous
-                    for (int cpu = 0; cpu < this.logicalProcessorCount; cpu++) {
-                        System.arraycopy(this.curProcTicks[cpu], 0, this.prevProcTicks[cpu], 0,
-                                this.curProcTicks[cpu].length);
-                    }
-                    for (int cpu = 0; cpu < this.logicalProcessorCount; cpu++) {
-                        System.arraycopy(ticks[cpu], 0, this.curProcTicks[cpu], 0, ticks[cpu].length);
-                    }
-                    return;
-                }
-            }
-        }
     }
 
     /**
@@ -570,7 +517,7 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
         processorIdBytes |= (familyL & 0xf0) << 20;
         // 13:12 – Processor Type, assume 0
         for (String flag : flags) {
-            switch (flag) {
+            switch (flag) { // NOSONAR squid:S1479
             case "fpu":
                 processorIdBytes |= 1L << 32;
                 break;
@@ -667,4 +614,15 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
         }
         return String.format("%016X", processorIdBytes);
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void updateAttributes() {
+        this.systemCpuLoadTicks = null;
+        this.processorCpuLoadTicks = null;
+        this.cpuCurrentFreq = null;
+    }
+
 }

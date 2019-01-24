@@ -68,7 +68,7 @@ public class ProcUtil {
      *
      * @return Array of CPU ticks
      */
-    public static long[] getSystemCpuLoadTicks() {
+    public static long[] readSystemCpuLoadTicks() {
         long[] ticks = new long[TickType.values().length];
         // /proc/stat expected format
         // first line is overall user,nice,system,idle,iowait,irq, etc.

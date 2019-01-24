@@ -23,6 +23,8 @@
  */
 package oshi.hardware.platform.unix.solaris;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -56,8 +58,6 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
         super();
         // Initialize class variables
         initVars();
-        // Initialize tick arrays
-        initTicks();
 
         LOG.debug("Initialized Processor");
     }
@@ -82,19 +82,35 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
      * Updates logical and physical processor counts from psrinfo
      */
     @Override
-    protected void calculateProcessorCounts() {
+    protected LogicalProcessor[] initProcessorCounts() {
         List<Kstat> kstats = KstatUtil.kstatLookupAll("cpu_info", -1, null);
         Set<String> chipIDs = new HashSet<>();
         Set<String> coreIDs = new HashSet<>();
         this.logicalProcessorCount = 0;
+
+        List<LogicalProcessor> logProcs = new ArrayList<>();
         for (Kstat ksp : kstats) {
             if (ksp != null && KstatUtil.kstatRead(ksp)) {
-                this.logicalProcessorCount++;
-                chipIDs.add(KstatUtil.kstatDataLookupString(ksp, "chip_id"));
-                coreIDs.add(KstatUtil.kstatDataLookupString(ksp, "core_id"));
+                LogicalProcessor logProc = new LogicalProcessor();
+                logProc.setProcessorNumber(logProcs.size());
+                logProcs.add(logProc);
+
+                String coreId = KstatUtil.kstatDataLookupString(ksp, "core_id");
+                logProc.setPhysicalProcessorNumber(ParseUtil.parseIntOrDefault(coreId, 0));
+                coreIDs.add(coreId);
+
+                String chipId = KstatUtil.kstatDataLookupString(ksp, "chip_id");
+                logProc.setPhysicalPackageNumber(ParseUtil.parseIntOrDefault(chipId, 0));
+                chipIDs.add(chipId);
             }
         }
 
+        this.logicalProcessorCount = logProcs.size();
+        if (this.logicalProcessorCount < 1) {
+            LOG.error("Couldn't find logical processor count. Assuming 1.");
+            this.logicalProcessorCount = 1;
+            logProcs.add(new LogicalProcessor());
+        }
         this.physicalPackageCount = chipIDs.size();
         if (this.physicalPackageCount < 1) {
             LOG.error("Couldn't find physical package count. Assuming 1.");
@@ -105,20 +121,17 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
             LOG.error("Couldn't find physical processor count. Assuming 1.");
             this.physicalProcessorCount = 1;
         }
-        if (this.logicalProcessorCount < 1) {
-            LOG.error("Couldn't find logical processor count. Assuming 1.");
-            this.logicalProcessorCount = 1;
-        }
+        return logProcs.toArray(new LogicalProcessor[logProcs.size()]);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public synchronized long[] getSystemCpuLoadTicks() {
+    protected long[] querySystemCpuLoadTicks() {
         long[] ticks = new long[TickType.values().length];
         // Average processor ticks
-        long[][] procTicks = getProcessorCpuLoadTicks();
+        long[][] procTicks = queryProcessorCpuLoadTicks();
         for (int i = 0; i < ticks.length; i++) {
             for (long[] procTick : procTicks) {
                 ticks[i] += procTick[i];
@@ -126,6 +139,45 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
             ticks[i] /= procTicks.length;
         }
         return ticks;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long[] queryCurrentFreq() {
+        long[] freqs = new long[getLogicalProcessorCount()];
+        Arrays.fill(freqs, -1);
+        for (int i = 0; i < freqs.length; i++) {
+            for (Kstat ksp : KstatUtil.kstatLookupAll("cpu_info", i, null)) {
+                if (KstatUtil.kstatRead(ksp)) {
+                    freqs[i] = KstatUtil.kstatDataLookupLong(ksp, "current_clock_Hz");
+                }
+            }
+        }
+        return freqs;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long queryMaxFreq() {
+        long max = -1L;
+        for (Kstat ksp : KstatUtil.kstatLookupAll("cpu_info", 0, null)) {
+            if (KstatUtil.kstatRead(ksp)) {
+                String suppFreq = KstatUtil.kstatDataLookupString(ksp, "supported_frequencies_Hz");
+                if (!suppFreq.isEmpty()) {
+                    for (String s : suppFreq.split(":")) {
+                        long freq = ParseUtil.parseLongOrDefault(s, -1L);
+                        if (max < freq) {
+                            max = freq;
+                        }
+                    }
+                }
+            }
+        }
+        return max;
     }
 
     /**
@@ -150,7 +202,7 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
      * {@inheritDoc}
      */
     @Override
-    public long[][] getProcessorCpuLoadTicks() {
+    public long[][] queryProcessorCpuLoadTicks() {
         long[][] ticks = new long[this.logicalProcessorCount][TickType.values().length];
         int cpu = -1;
         for (Kstat ksp : KstatUtil.kstatLookupAll("cpu", -1, "sys")) {

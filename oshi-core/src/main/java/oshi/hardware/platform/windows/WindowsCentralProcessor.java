@@ -23,6 +23,7 @@
  */
 package oshi.hardware.platform.windows;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -46,6 +47,8 @@ import oshi.data.windows.PerfCounterQuery.PdhCounterProperty;
 import oshi.data.windows.PerfCounterWildcardQuery;
 import oshi.data.windows.PerfCounterWildcardQuery.PdhCounterWildcardProperty;
 import oshi.hardware.common.AbstractCentralProcessor;
+import oshi.jna.platform.windows.PowrProf;
+import oshi.jna.platform.windows.PowrProf.ProcessorPowerInformation;
 import oshi.jna.platform.windows.VersionHelpers;
 import oshi.util.ParseUtil;
 import oshi.util.platform.windows.WmiQueryHandler;
@@ -207,8 +210,6 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
         super();
         // Initialize class variables
         initVars();
-        // Initialize tick arrays
-        initTicks();
 
         LOG.debug("Initialized Processor");
     }
@@ -248,29 +249,41 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
      * Updates logical and physical processor counts
      */
     @Override
-    protected void calculateProcessorCounts() {
+    protected LogicalProcessor[] initProcessorCounts() {
         // Get number of logical processors
         SYSTEM_INFO sysinfo = new SYSTEM_INFO();
         Kernel32.INSTANCE.GetSystemInfo(sysinfo);
         this.logicalProcessorCount = sysinfo.dwNumberOfProcessors.intValue();
 
+        LogicalProcessor[] logProcs = new LogicalProcessor[this.logicalProcessorCount];
+        for (int i = 0; i < logProcs.length; i++) {
+            logProcs[i] = new LogicalProcessor();
+            logProcs[i].setProcessorNumber(i);
+        }
+
         // Get number of physical processors
         WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION[] processors = Kernel32Util.getLogicalProcessorInformation();
         for (SYSTEM_LOGICAL_PROCESSOR_INFORMATION proc : processors) {
-            if (proc.relationship == WinNT.LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorPackage) {
-                this.physicalPackageCount++;
-            }
-            if (proc.relationship == WinNT.LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorCore) {
-                this.physicalProcessorCount++;
+            for (int i = 0; i < logProcs.length; i++) {
+                if ((proc.processorMask.longValue() & (1L << i)) > 0) {
+                    if (proc.relationship == WinNT.LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorPackage) {
+                        logProcs[i].setPhysicalPackageNumber(getPhysicalPackageCount());
+                        this.physicalPackageCount++;
+                    } else if (proc.relationship == WinNT.LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorCore) {
+                        logProcs[i].setPhysicalProcessorNumber(getPhysicalProcessorCount());
+                        this.physicalProcessorCount++;
+                    }
+                }
             }
         }
+        return logProcs;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public long[] getSystemCpuLoadTicks() {
+    public long[] querySystemCpuLoadTicks() {
         long[] ticks = new long[TickType.values().length];
         WinBase.FILETIME lpIdleTime = new WinBase.FILETIME();
         WinBase.FILETIME lpKernelTime = new WinBase.FILETIME();
@@ -305,6 +318,54 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
      * {@inheritDoc}
      */
     @Override
+    public long[] queryCurrentFreq() {
+        return queryNTPower(2); // Current is field index 2
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long queryMaxFreq() {
+        long[] freqs = queryNTPower(1); // Max is field index 1
+        return Arrays.stream(freqs).max().getAsLong();
+    }
+
+    /**
+     * Call CallNTPowerInformation for Processor information and return an array
+     * of the specified index
+     * 
+     * @param fieldIndex
+     *            The field, in order as defined in the
+     *            {@link PowrProf#PROCESSOR_INFORMATION} structure.
+     * @return The array of values.
+     */
+    private long[] queryNTPower(int fieldIndex) {
+        long[] freqs = new long[getLogicalProcessorCount()];
+        ProcessorPowerInformation[] ppiArray = (ProcessorPowerInformation[]) new ProcessorPowerInformation()
+                .toArray(freqs.length);
+        if (0 != PowrProf.INSTANCE.CallNtPowerInformation(PowrProf.PROCESSOR_INFORMATION, null, 0, ppiArray[0],
+                ppiArray[0].size() * ppiArray.length)) {
+            LOG.error("Unable to get Processor Information");
+            Arrays.fill(freqs, -1L);
+            return freqs;
+        }
+        for (int i = 0; i < freqs.length; i++) {
+            if (fieldIndex == 1) { // Max
+                freqs[i] = ppiArray[i].MaxMhz * 1_000_000L;
+            } else if (fieldIndex == 2) { // Current
+                freqs[i] = ppiArray[i].CurrentMhz * 1_000_000L;
+            } else {
+                freqs[i] = -1L;
+            }
+        }
+        return freqs;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public double[] getSystemLoadAverage(int nelem) {
         if (nelem < 1 || nelem > 3) {
             throw new IllegalArgumentException("Must include from one to three elements.");
@@ -321,7 +382,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
      * {@inheritDoc}
      */
     @Override
-    public long[][] getProcessorCpuLoadTicks() {
+    public long[][] queryProcessorCpuLoadTicks() {
         Map<ProcessorTickCountProperty, List<Long>> valueMap = this.processorTickPerfCounters.queryValuesWildcard();
         List<String> instances = this.processorTickPerfCounters.getInstancesFromLastQuery();
         List<Long> systemList = valueMap.get(ProcessorTickCountProperty.PERCENTPRIVILEGEDTIME);

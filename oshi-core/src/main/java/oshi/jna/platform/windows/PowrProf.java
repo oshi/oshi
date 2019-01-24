@@ -25,7 +25,6 @@ package oshi.jna.platform.windows;
 
 import com.sun.jna.Library;
 import com.sun.jna.Native;
-import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import com.sun.jna.Structure.FieldOrder;
@@ -40,6 +39,7 @@ public interface PowrProf extends Library {
     PowrProf INSTANCE = Native.load("PowrProf", PowrProf.class);
 
     int SYSTEM_BATTERY_STATE = 5;
+    int PROCESSOR_INFORMATION = 11;
 
     @FieldOrder({ "acOnLine", "batteryPresent", "charging", "discharging", "spare1", "maxCapacity", "remainingCapacity",
             "rate", "estimatedTime", "defaultAlert1", "defaultAlert2" })
@@ -57,6 +57,16 @@ public interface PowrProf extends Library {
         public int defaultAlert2; // unsigned 32 bit
     }
 
-    int CallNtPowerInformation(int informationLevel, Pointer lpInputBuffer, NativeLong nInputBufferSize,
-            Structure lpOutputBuffer, NativeLong nOutputBufferSize);
+    @FieldOrder({ "Number", "MaxMhz", "CurrentMhz", "MhzLimit", "MaxIdleState", "CurrentIdleState" })
+    class ProcessorPowerInformation extends Structure {
+        public int Number; // unsigned 32 bit
+        public int MaxMhz; // unsigned 32 bit
+        public int CurrentMhz; // unsigned 32 bit
+        public int MhzLimit; // unsigned 32 bit
+        public int MaxIdleState; // unsigned 32 bit
+        public int CurrentIdleState; // unsigned 32 bit
+    }
+
+    int CallNtPowerInformation(int informationLevel, Pointer lpInputBuffer, int nInputBufferSize,
+            Structure lpOutputBuffer, int nOutputBufferSize);
 }

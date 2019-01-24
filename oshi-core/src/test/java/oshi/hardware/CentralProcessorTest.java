@@ -29,8 +29,6 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import com.sun.jna.Platform;
-
 import oshi.PlatformEnum;
 import oshi.SystemInfo;
 import oshi.hardware.CentralProcessor.TickType;
@@ -51,52 +49,31 @@ public class CentralProcessorTest {
 
         assertNotNull(p.getVendor());
         assertTrue(p.getVendorFreq() == -1 || p.getVendorFreq() > 0);
-        p.setVendor("v");
-        assertEquals("v", p.getVendor());
 
         assertNotNull(p.getName());
-        p.setName("n");
-        assertEquals("n", p.getName());
-
         assertNotNull(p.getIdentifier());
-        p.setIdentifier("i");
-        assertEquals("i", p.getIdentifier());
-
         assertNotNull(p.getProcessorID());
-        p.setProcessorID("p");
-        assertEquals("p", p.getProcessorID());
-
-        p.setCpu64(true);
-        assertTrue(p.isCpu64bit());
-
         assertNotNull(p.getStepping());
-        p.setStepping("s");
-        assertEquals("s", p.getStepping());
-
         assertNotNull(p.getModel());
-        p.setModel("m");
-        assertEquals("m", p.getModel());
-
         assertNotNull(p.getFamily());
-        p.setFamily("f");
-        assertEquals("f", p.getFamily());
 
-        assertTrue(p.getSystemCpuLoadBetweenTicks() >= 0 && p.getSystemCpuLoadBetweenTicks() <= 1);
-        assertEquals(p.getSystemCpuLoadTicks().length, TickType.values().length);
+        long[] ticks = p.getSystemCpuLoadTicks();
+        long[][] procTicks = p.getProcessorCpuLoadTicks();
+        assertEquals(ticks.length, TickType.values().length);
 
         Util.sleep(500);
+        p.updateAttributes();
+        assertTrue(p.getSystemCpuLoadBetweenTicks(ticks) >= 0 && p.getSystemCpuLoadBetweenTicks(ticks) <= 1);
         // This test fails on FreeBSD due to error in Java MXBean
         if (SystemInfo.getCurrentPlatformEnum() != PlatformEnum.FREEBSD) {
             assertTrue(p.getSystemCpuLoad() <= 1.0);
         }
         assertEquals(3, p.getSystemLoadAverage(3).length);
-        if (Platform.isMac() || Platform.isLinux()) {
-            assertTrue(p.getSystemLoadAverage() >= 0.0);
-        }
 
-        assertEquals(p.getProcessorCpuLoadBetweenTicks().length, p.getLogicalProcessorCount());
+        assertEquals(p.getProcessorCpuLoadBetweenTicks(procTicks).length, p.getLogicalProcessorCount());
         for (int cpu = 0; cpu < p.getLogicalProcessorCount(); cpu++) {
-            assertTrue(p.getProcessorCpuLoadBetweenTicks()[cpu] >= 0 && p.getProcessorCpuLoadBetweenTicks()[cpu] <= 1);
+            assertTrue(p.getProcessorCpuLoadBetweenTicks(procTicks)[cpu] >= 0
+                    && p.getProcessorCpuLoadBetweenTicks(procTicks)[cpu] <= 1);
             assertEquals(p.getProcessorCpuLoadTicks()[cpu].length, TickType.values().length);
         }
 
@@ -107,5 +84,14 @@ public class CentralProcessorTest {
         assertTrue(p.getPhysicalPackageCount() > 0);
         assertTrue(p.getContextSwitches() >= 0);
         assertTrue(p.getInterrupts() >= 0);
+        
+        long max = p.getMaxFreq();
+        long[] curr = p.getCurrentFreq();
+        assertEquals(curr.length,p.getLogicalProcessorCount());
+        if (max >= 0) {
+        for (int i = 0;i<curr.length;i++) {
+                assertTrue(curr[i] <= max);
+            }
+        }
     }
 }

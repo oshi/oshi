@@ -66,6 +66,11 @@ public class ParseUtilTest {
         assertEquals(1L, ParseUtil.parseLastLong("foo : 1", 0L));
         assertEquals(2L, ParseUtil.parseLastLong("foo", 2L));
         assertEquals(2147483648L, ParseUtil.parseLastLong("max_int plus one is 2147483648", 3L));
+
+        double epsilon = 1.1102230246251565E-16;
+        assertEquals(-1d, ParseUtil.parseLastDouble("foo : bar", -1d), epsilon);
+        assertEquals(1.0, ParseUtil.parseLastDouble("foo : 1.0", 0d), epsilon);
+        assertEquals(2d, ParseUtil.parseLastDouble("foo", 2d), epsilon);
     }
 
     /**
