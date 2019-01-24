@@ -84,5 +84,14 @@ public class CentralProcessorTest {
         assertTrue(p.getPhysicalPackageCount() > 0);
         assertTrue(p.getContextSwitches() >= 0);
         assertTrue(p.getInterrupts() >= 0);
+        
+        long max = p.getMaxFreq();
+        long[] curr = p.getCurrentFreq();
+        assertEquals(curr.length,p.getLogicalProcessorCount());
+        if (max >= 0) {
+        for (int i = 0;i<curr.length;i++) {
+                assertTrue(curr[i] <= max);
+            }
+        }
     }
 }

@@ -93,6 +93,7 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
             if (ksp != null && KstatUtil.kstatRead(ksp)) {
                 LogicalProcessor logProc = new LogicalProcessor();
                 logProc.setProcessorNumber(logProcs.size());
+                logProcs.add(logProc);
 
                 String coreId = KstatUtil.kstatDataLookupString(ksp, "core_id");
                 logProc.setPhysicalProcessorNumber(ParseUtil.parseIntOrDefault(coreId, 0));
