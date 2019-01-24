@@ -241,6 +241,8 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
         if (freq > 0) {
             // If success, value is in MHz
             freq *= 1_000_000L;
+        } else {
+            freq = BsdSysctlUtil.sysctl("machdep.tsc_freq", -1L);
         }
         long[] freqs = new long[getLogicalProcessorCount()];
         Arrays.fill(freqs, freq);
@@ -264,6 +266,8 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
         if (max > 0) {
             // If success, value is in MHz
             max *= 1_000_000;
+        } else {
+            max = BsdSysctlUtil.sysctl("machdep.tsc_freq", -1L);
         }
         return max;
     }

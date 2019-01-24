@@ -149,7 +149,7 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
         long[] freqs = new long[getLogicalProcessorCount()];
         Arrays.fill(freqs, -1);
         for (int i = 0; i < freqs.length; i++) {
-            for (Kstat ksp : KstatUtil.kstatLookupAll("cpuinfo", i, null)) {
+            for (Kstat ksp : KstatUtil.kstatLookupAll("cpu_info", i, null)) {
                 if (KstatUtil.kstatRead(ksp)) {
                     freqs[i] = KstatUtil.kstatDataLookupLong(ksp, "current_clock_Hz");
                 }
@@ -164,7 +164,7 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
     @Override
     public long queryMaxFreq() {
         long max = -1L;
-        for (Kstat ksp : KstatUtil.kstatLookupAll("cpuinfo", 0, null)) {
+        for (Kstat ksp : KstatUtil.kstatLookupAll("cpu_info", 0, null)) {
             if (KstatUtil.kstatRead(ksp)) {
                 String suppFreq = KstatUtil.kstatDataLookupString(ksp, "supported_frequencies_Hz");
                 if (!suppFreq.isEmpty()) {
