@@ -349,9 +349,29 @@ public interface CentralProcessor extends Serializable {
 
         private static final long serialVersionUID = 1L;
 
+        private int processorGroup;
         private int processorNumber;
         private int physicalProcessorNumber;
         private int physicalPackageNumber;
+
+        /**
+         * The Processor Group. Only applies to Windows systems with more than
+         * 64 logical processors. Set to 0 for other operating systems or
+         * Windows systems with 64 or fewer logical processors.
+         * 
+         * @return the processorGroup
+         */
+        public int getProcessorGroup() {
+            return processorGroup;
+        }
+
+        /**
+         * @param processorGroup
+         *            the processorGroup to set
+         */
+        public void setProcessorGroup(int processorGroup) {
+            this.processorGroup = processorGroup;
+        }
 
         /**
          * The Logical Processor number as seen by the Operating System. Used

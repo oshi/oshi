@@ -23,7 +23,11 @@
  */
 package oshi.jna.platform.windows;
 
+import com.sun.jna.Memory;
 import com.sun.jna.Native;
+import com.sun.jna.platform.win32.WinError;
+
+
 
 /**
  * Kernel32 and WinNT info submitted to JNA as #1050. This class should be
@@ -114,4 +118,42 @@ public interface Kernel32 extends com.sun.jna.platform.win32.Kernel32 {
      */
     long VerSetConditionMask(long conditionMask, int typeMask, byte condition);
 
+    /**
+     * Retrieves information about the relationships of logical processors and
+     * related hardware.
+     * 
+     * @param relationshipType
+     *            The type of relationship to retrieve. This parameter can be
+     *            one of the following values:
+     *            {@link LOGICAL_PROCESSOR_RELATIONSHIP#RelationCache},
+     *            {@link LOGICAL_PROCESSOR_RELATIONSHIP#RelationGroup},
+     *            {@link LOGICAL_PROCESSOR_RELATIONSHIP#RelationNumaNode},
+     *            {@link LOGICAL_PROCESSOR_RELATIONSHIP#RelationProcessorCore},
+     *            {@link LOGICAL_PROCESSOR_RELATIONSHIP#RelationProcessorPackage},
+     *            or {@link LOGICAL_PROCESSOR_RELATIONSHIP#RelationAll}
+     * @param buffer
+     *            A pointer to a buffer that receives an array of
+     *            {@link WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX}
+     *            structures. If the function fails, the contents of this buffer
+     *            are undefined.
+     * @param returnedLength
+     *            On input, specifies the length of the buffer pointed to by
+     *            Buffer, in bytes. If the buffer is large enough to contain all
+     *            of the data, this function succeeds and ReturnedLength is set
+     *            to the number of bytes returned. If the buffer is not large
+     *            enough to contain all of the data, the function fails,
+     *            GetLastError returns
+     *            {@link WinError#ERROR_INSUFFICIENT_BUFFER}, and ReturnedLength
+     *            is set to the buffer length required to contain all of the
+     *            data. If the function fails with an error other than
+     *            {@link WinError#ERROR_INSUFFICIENT_BUFFER}, the value of
+     *            ReturnedLength is undefined.
+     * @return If the function succeeds, the return value is {@code TRUE} and at
+     *         least one {@link WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX}
+     *         structure is written to the output buffer.
+     *         <p>
+     *         If the function fails, the return value is {@code FALSE}. To get
+     *         extended error information, call {@link #GetLastError()}.
+     */
+    boolean GetLogicalProcessorInformationEx(int relationshipType, Memory buffer, DWORDByReference returnedLength);
 }
