@@ -35,12 +35,17 @@ import com.sun.jna.Union;
 public interface WinNT extends com.sun.jna.platform.win32.WinNT {
 
     /**
+     * Flag identifying hyperthreading / simultaneous multithreading (SMT)
+     */
+    int LTP_PC_SMT = 0x1;
+
+    /**
      * Contains information about the relationships of logical processors and
      * related hardware. The {@link Kernel32#GetLogicalProcessorInformationEx}
      * function uses this structure.
      */
     @FieldOrder({ "relationship", "size", "payload" })
-    public static class SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX extends Structure {
+    class SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX extends Structure {
         /**
          * The type of relationship between the logical processors. This
          * parameter can be one of the following values:
@@ -59,6 +64,9 @@ public interface WinNT extends com.sun.jna.platform.win32.WinNT {
 
         /**
          * A union of fields which differs depending on {@link #relationship}.
+         * The type is either {@link PROCESSOR_RELATIONSHIP},
+         * {@link NUMA_NODE_RELATIONSHIP}, {@link CACHE_RELATIONSHIP}, or
+         * {@link GROUP_RELATIONSHIP}.
          */
         public AnonymousUnionPayload payload;
 
@@ -77,16 +85,16 @@ public interface WinNT extends com.sun.jna.platform.win32.WinNT {
             switch (relationship) {
             case LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorCore:
             case LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorPackage:
-                payload.setType(AnonymousStructProcessorRelationship.class);
+                payload.setType(PROCESSOR_RELATIONSHIP.class);
                 break;
             case LOGICAL_PROCESSOR_RELATIONSHIP.RelationNumaNode:
-                payload.setType(AnonymousStructNumaNodeRelationship.class);
+                payload.setType(NUMA_NODE_RELATIONSHIP.class);
                 break;
             case LOGICAL_PROCESSOR_RELATIONSHIP.RelationCache:
-                payload.setType(AnonymousStructCacheRelationship.class);
+                payload.setType(CACHE_RELATIONSHIP.class);
                 break;
             case LOGICAL_PROCESSOR_RELATIONSHIP.RelationGroup:
-                payload.setType(AnonymousStructGroupRelationship.class);
+                payload.setType(GROUP_RELATIONSHIP.class);
                 break;
             default:
                 break;
@@ -102,7 +110,7 @@ public interface WinNT extends com.sun.jna.platform.win32.WinNT {
              * {@link LOGICAL_PROCESSOR_RELATIONSHIP#RelationProcessorCore} or
              * {@link LOGICAL_PROCESSOR_RELATIONSHIP#RelationProcessorPackage}.
              */
-            public AnonymousStructProcessorRelationship Processor;
+            public PROCESSOR_RELATIONSHIP Processor;
 
             /**
              * A NUMA_NODE_RELATIONSHIP structure that describes a NUMA node.
@@ -110,21 +118,21 @@ public interface WinNT extends com.sun.jna.platform.win32.WinNT {
              * member is
              * {@link LOGICAL_PROCESSOR_RELATIONSHIP#RelationNumaNode}.
              */
-            public AnonymousStructNumaNodeRelationship NumaNode;
+            public NUMA_NODE_RELATIONSHIP NumaNode;
 
             /**
              * A CACHE_RELATIONSHIP structure that describes cache attributes.
              * This structure contains valid data only if the Relationship
              * member is {@link LOGICAL_PROCESSOR_RELATIONSHIP#RelationCache}.
              */
-            public AnonymousStructCacheRelationship Cache;
+            public CACHE_RELATIONSHIP Cache;
 
             /**
              * A GROUP_RELATIONSHIP structure that contains information about
              * the processor groups. This structure contains valid data only if
              * the Relationship member is RelationGroup.
              */
-            public AnonymousStructGroupRelationship Group;
+            public GROUP_RELATIONSHIP Group;
         }
 
         /**
@@ -132,12 +140,12 @@ public interface WinNT extends com.sun.jna.platform.win32.WinNT {
          * associated with either a processor core or a processor package.
          */
         @FieldOrder({ "flags", "efficiencyClass", "reserved", "groupCount", "groupMask" })
-        public static class AnonymousStructProcessorRelationship extends Structure {
+        public static class PROCESSOR_RELATIONSHIP extends Structure {
             /**
              * If the Relationship member of the
              * {@link SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX} structure is
              * {@link LOGICAL_PROCESSOR_RELATIONSHIP#RelationProcessorCore},
-             * this member is {@code LTP_PC_SMT} if the core has more than one
+             * this member is {@link #LTP_PC_SMT} if the core has more than one
              * logical processor, or 0 if the core has one logical processor.
              * <p>
              * If the Relationship member of the
@@ -145,7 +153,7 @@ public interface WinNT extends com.sun.jna.platform.win32.WinNT {
              * {@link LOGICAL_PROCESSOR_RELATIONSHIP#RelationProcessorPackage},
              * this member is always 0.
              */
-            public BYTE flags;
+            public byte flags;
 
             /**
              * If the Relationship member of the
@@ -166,12 +174,12 @@ public interface WinNT extends com.sun.jna.platform.win32.WinNT {
              * The minimum operating system version that supports this member is
              * Windows 10.
              */
-            public BYTE efficiencyClass;
+            public byte efficiencyClass;
 
             /**
              * This member is reserved.
              */
-            public BYTE[] reserved = new BYTE[20];
+            public byte[] reserved = new byte[20];
 
             /**
              * This member specifies the number of entries in the GroupMask
@@ -188,7 +196,7 @@ public interface WinNT extends com.sun.jna.platform.win32.WinNT {
              * is the number of groups to which NUMA nodes in the package are
              * assigned.
              */
-            public WORD groupCount;
+            public short groupCount;
 
             /**
              * An array of {@link GROUP_AFFINITY} structures. The
@@ -198,48 +206,43 @@ public interface WinNT extends com.sun.jna.platform.win32.WinNT {
              * <p>
              * This array will only contain a single element array when
              * instantiated. If {@link #groupCount} is greater than 1, use
-             * {@link #readGroupMask(Pointer p)} to populate the larger array.
+             * {@link #readGroupMask()} to populate the larger array.
              */
             public GROUP_AFFINITY[] groupMask = new GROUP_AFFINITY[1];
 
             /**
-             * Calculates and sets the groupMask array using the user-provided
-             * pointer to find the array in native memory. Intended to be called
-             * immediately after instantiation of the
+             * Calculates and sets the variable size groupMask array directly
+             * from allocated native memory. Intended to be called immediately
+             * after instantiation of the
              * {@link SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX} structure that
-             * this structure is a member of.
-             * 
-             * @param p
-             *            The pointer used to instantiate the
-             *            {@link SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX}
-             *            structure.
+             * this structure is a member of, in the case where
+             * {@link #groupCount} is higher than 1.
              */
-            public void readGroupMask(Pointer p) {
-                this.groupMask = new GROUP_AFFINITY[this.groupCount.intValue()];
-                // The user-provided Pointer is to the outer
-                // SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX structure. Offset is:
-                // Two 4-byte fields before this structure = 8 bytes
-                // Two BYTE fields, 20 bytes of padding, and a WORD in this
-                // structure = 24 bytes: total 32 byte offset
+            public void readGroupMask() {
+                // Get pointer to array in memory
+                int baseOffset = this.fieldOffset("groupMask");
                 for (int i = 0;i < this.groupMask.length; i++) {
-                    int offset = 32 + i * Native.getNativeSize(GROUP_AFFINITY.class);
-                    this.groupMask[i] = new GROUP_AFFINITY(p.share(offset));
+                    int offset = baseOffset + i * Native.getNativeSize(GROUP_AFFINITY.class);
+                    this.groupMask[i] = new GROUP_AFFINITY(this.getPointer().share(offset));
                 }
             }
         }
 
+        /**
+         * Represents information about a NUMA node in a processor group.
+         */
         @FieldOrder({ "nodeNumber", "reserved", "groupMask" })
-        public static class AnonymousStructNumaNodeRelationship extends Structure {
+        public static class NUMA_NODE_RELATIONSHIP extends Structure {
             /**
              * Identifies the NUMA node. Valid values are {@code 0} to the
              * highest NUMA node number inclusive. A non-NUMA multiprocessor
              * system will report that all processors belong to one NUMA node.
              */
-            public DWORD nodeNumber;
+            public int nodeNumber;
             /**
              * This member is reserved.
              */
-            public BYTE[] reserved = new BYTE[20];
+            public byte[] reserved = new byte[20];
             /**
              * A {@link GROUP_AFFINITY} structure that specifies a group number
              * and processor affinity within the group.
@@ -247,26 +250,29 @@ public interface WinNT extends com.sun.jna.platform.win32.WinNT {
             public GROUP_AFFINITY groupMask;
         }
 
+        /**
+         * Describes cache attributes.
+         */
         @FieldOrder({ "level", "associativity", "lineSize", "cacheSize", "type", "reserved", "groupMask" })
-        public static class AnonymousStructCacheRelationship extends Structure {
+        public static class CACHE_RELATIONSHIP extends Structure {
             /**
              * The cache level. This member can be 1 (L1), 2 (L2), or 3 (L3).
              */
-            public BYTE level;
+            public byte level;
             /**
              * The cache associativity. If this member is
              * {@code CACHE_FULLY_ASSOCIATIVE (0xFF)}, the cache is fully
              * associative.
              */
-            public BYTE associativity;
+            public byte associativity;
             /**
              * The cache line size, in bytes.
              */
-            public WORD lineSize;
+            public short lineSize;
             /**
              * The cache size, in bytes.
              */
-            public DWORD cacheSize;
+            public int cacheSize;
             /**
              * The cache type. This member is a {@link PROCESSOR_CACHE_TYPE}
              * value.
@@ -275,7 +281,7 @@ public interface WinNT extends com.sun.jna.platform.win32.WinNT {
             /**
              * This member is reserved.
              */
-            public BYTE[] reserved = new BYTE[20];
+            public byte[] reserved = new byte[20];
             /**
              * A {@link GROUP_AFFINITY} structure that specifies a group number
              * and processor affinity within the group.
@@ -283,22 +289,25 @@ public interface WinNT extends com.sun.jna.platform.win32.WinNT {
             public GROUP_AFFINITY groupMask;
         }
 
+        /**
+         * Represents information about processor groups.
+         */
         @FieldOrder({ "maximumGroupCount", "activeGroupCount", "reserved", "groupInfo" })
-        public static class AnonymousStructGroupRelationship extends Structure {
+        public static class GROUP_RELATIONSHIP extends Structure {
             /**
              * The maximum number of processor groups on the system.
              */
-            public WORD maximumGroupCount;
+            public short maximumGroupCount;
             /**
              * The number of active groups on the system. This member indicates
              * the number of {@link PROCESSOR_GROUP_INFO} structures in the
              * GroupInfo array.
              */
-            public WORD activeGroupCount;
+            public short activeGroupCount;
             /**
              * This member is reserved.
              */
-            public BYTE[] reserved = new BYTE[20];
+            public byte[] reserved = new byte[20];
             /**
              * An array of {@link PROCESSOR_GROUP_INFO} structures. Each
              * structure represents the number and affinity of processors in an
@@ -314,7 +323,7 @@ public interface WinNT extends com.sun.jna.platform.win32.WinNT {
              * @return An array of {@link PROCESSOR_GROUP_INFO} structures.
              */
             public PROCESSOR_GROUP_INFO[] getGroupInfo() {
-                Pointer[] array = groupInfo.getPointerArray(0L, activeGroupCount.intValue());
+                Pointer[] array = groupInfo.getPointerArray(0L, activeGroupCount);
                 PROCESSOR_GROUP_INFO[] groups = new PROCESSOR_GROUP_INFO[array.length];
                 for (int i = 0; i < groups.length; i++) {
                     groups[i] = new PROCESSOR_GROUP_INFO(array[i]);
@@ -323,11 +332,25 @@ public interface WinNT extends com.sun.jna.platform.win32.WinNT {
             }
         }
 
+        /**
+         * Represents a processor group-specific affinity, such as the affinity
+         * of a thread.
+         */
         @FieldOrder({ "mask", "group", "reserved" })
         public static class GROUP_AFFINITY extends Structure {
+            /**
+             * A bitmap that specifies the affinity for zero or more processors
+             * within the specified group.
+             */
             public ULONG_PTR /* KAFFINITY */ mask;
-            public WORD group;
-            public WORD[] reserved = new WORD[3];
+            /**
+             * The processor group number.
+             */
+            public short group;
+            /**
+             * This member is reserved.
+             */
+            public short[] reserved = new short[3];
 
             public GROUP_AFFINITY(Pointer memory) {
                 super(memory);
@@ -339,11 +362,28 @@ public interface WinNT extends com.sun.jna.platform.win32.WinNT {
             }
         }
 
+        /**
+         * Represents the number and affinity of processors in a processor
+         * group.
+         */
         @FieldOrder({ "maximumProcessorCount", "activeProcessorCount", "reserved", "activeProcessorMask" })
         public static class PROCESSOR_GROUP_INFO extends Structure {
-            BYTE maximumProcessorCount;
-            BYTE activeProcessorCount;
-            BYTE[] reserved = new BYTE[38];
+            /**
+             * The maximum number of processors in the group.
+             */
+            byte maximumProcessorCount;
+            /**
+             * The number of active processors in the group.
+             */
+            byte activeProcessorCount;
+            /**
+             * This member is reserved.
+             */
+            byte[] reserved = new byte[38];
+            /**
+             * A bitmap that specifies the affinity for zero or more active
+             * processors within the group.
+             */
             ULONG_PTR /* KAFFINITY */ activeProcessorMask;
 
             public PROCESSOR_GROUP_INFO(Pointer memory) {

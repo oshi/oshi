@@ -281,14 +281,14 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
         this.physicalPackageCount = packageMaskList.size();
         // Sort the list so core and package numbers
         // increment as expected
-        coreMaskList.sort(Comparator.comparing(c -> c.group.intValue() * 64 + c.mask.intValue()));
-        packageMaskList.sort(Comparator.comparing(p -> p[0].group.intValue() * 64 + p[0].mask.intValue()));
+        coreMaskList.sort(Comparator.comparing(c -> c.group * 64 + c.mask.longValue()));
+        packageMaskList.sort(Comparator.comparing(p -> p[0].group * 64 + p[0].mask.longValue()));
 
         // Assign logical processors to cores and packages
         List<LogicalProcessor> logProcs = new ArrayList<>();
         for (int core = 0; core < this.physicalProcessorCount; core++) {
             GROUP_AFFINITY coreMask = coreMaskList.get(core);
-            int group = coreMask.group.intValue();
+            int group = coreMask.group;
             long mask = coreMask.mask.longValue();
             // Lowest and Highest set bits, indexing from 0
             int lowBit = Long.numberOfTrailingZeros(mask);
@@ -385,7 +385,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
         for (int i = 0; i < packageMaskList.size(); i++) {
             for (int j = 0; j < packageMaskList.get(i).length; j++) {
                 if ((packageMaskList.get(i)[j].mask.longValue() & (1L << logProc)) > 0
-                        && packageMaskList.get(i)[j].group.intValue() == group) {
+                        && packageMaskList.get(i)[j].group == group) {
                     return i;
                 }
             }
@@ -570,5 +570,9 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
     public long getInterrupts() {
         Map<InterruptsProperty, Long> valueMap = this.interruptsPerfCounters.queryValues();
         return valueMap.getOrDefault(InterruptsProperty.INTERRUPTSPERSEC, 0L);
+    }
+
+    public static void main(String[] args) {
+        WindowsCentralProcessor wcp = new WindowsCentralProcessor();
     }
 }

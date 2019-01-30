@@ -72,11 +72,11 @@ public class Kernel32Util extends com.sun.jna.platform.win32.Kernel32Util {
         while (offset < memory.size()) {
             WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX information = new WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX(
                     memory.share(offset));
-            // Handle edge case of variable length array. Only occurs if a
-            // package is split across multiple processor groups.
+            // Handle edge case of variable length group mask array. Only occurs
+            // if a physical package is split across multiple processor groups.
             if (information.relationship == LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorPackage
-                    && information.payload.Processor.groupCount.intValue() > 1) {
-                information.payload.Processor.readGroupMask(memory.share(offset));
+                    && information.payload.Processor.groupCount > 1) {
+                information.payload.Processor.readGroupMask();
             }
             procInfoList.add(information);
             offset += information.size;
