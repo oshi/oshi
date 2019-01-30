@@ -281,8 +281,8 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
         this.physicalPackageCount = packageMaskList.size();
         // Sort the list so core and package numbers
         // increment as expected
-        coreMaskList.sort(Comparator.comparing(c -> c.group * 64 + c.mask.longValue()));
-        packageMaskList.sort(Comparator.comparing(p -> p[0].group * 64 + p[0].mask.longValue()));
+        coreMaskList.sort(Comparator.comparing(c -> c.group * 64L + c.mask.longValue()));
+        packageMaskList.sort(Comparator.comparing(p -> p[0].group * 64L + p[0].mask.longValue()));
 
         // Assign logical processors to cores and packages
         List<LogicalProcessor> logProcs = new ArrayList<>();
@@ -570,9 +570,5 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
     public long getInterrupts() {
         Map<InterruptsProperty, Long> valueMap = this.interruptsPerfCounters.queryValues();
         return valueMap.getOrDefault(InterruptsProperty.INTERRUPTSPERSEC, 0L);
-    }
-
-    public static void main(String[] args) {
-        WindowsCentralProcessor wcp = new WindowsCentralProcessor();
     }
 }

@@ -221,6 +221,8 @@ public interface WinNT extends com.sun.jna.platform.win32.WinNT {
             public void readGroupMask() {
                 // Get pointer to array in memory
                 int baseOffset = this.fieldOffset("groupMask");
+                // Instantiate new array
+                this.groupMask = new GROUP_AFFINITY[this.groupCount];
                 for (int i = 0;i < this.groupMask.length; i++) {
                     int offset = baseOffset + i * Native.getNativeSize(GROUP_AFFINITY.class);
                     this.groupMask[i] = new GROUP_AFFINITY(this.getPointer().share(offset));
@@ -261,8 +263,7 @@ public interface WinNT extends com.sun.jna.platform.win32.WinNT {
             public byte level;
             /**
              * The cache associativity. If this member is
-             * {@code CACHE_FULLY_ASSOCIATIVE (0xFF)}, the cache is fully
-             * associative.
+             * {@link #CACHE_FULLY_ASSOCIATIVE}, the cache is fully associative.
              */
             public byte associativity;
             /**
@@ -309,26 +310,34 @@ public interface WinNT extends com.sun.jna.platform.win32.WinNT {
              */
             public byte[] reserved = new byte[20];
             /**
-             * An array of {@link PROCESSOR_GROUP_INFO} structures. Each
-             * structure represents the number and affinity of processors in an
-             * active group on the system.
+             * An array of {@link PROCESSOR_GROUP_INFO} structures. The
+             * {@link #activeGroupCount} member specifies the number of
+             * structures in the array. Each structure in the array the number
+             * and affinity of processors in an active group on the system.
              * <p>
-             * To retrieve this array, use {@link getGroupInfo()}
+             * This array will only contain a single element array when
+             * instantiated. If {@link #activeGroupCount} is greater than 1, use
+             * {@link #readGroupInfo()} to populate the larger array.
              */
-            public Pointer groupInfo;
+            public PROCESSOR_GROUP_INFO[] groupInfo = new PROCESSOR_GROUP_INFO[1];
 
             /**
-             * Accessor method for the {@link groupInfo} member.
-             * 
-             * @return An array of {@link PROCESSOR_GROUP_INFO} structures.
+             * Calculates and sets the variable size groupInfo array directly
+             * from allocated native memory. Intended to be called immediately
+             * after instantiation of the
+             * {@link SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX} structure that
+             * this structure is a member of, in the case where
+             * {@link #activeGroupCount} is higher than 1.
              */
-            public PROCESSOR_GROUP_INFO[] getGroupInfo() {
-                Pointer[] array = groupInfo.getPointerArray(0L, activeGroupCount);
-                PROCESSOR_GROUP_INFO[] groups = new PROCESSOR_GROUP_INFO[array.length];
-                for (int i = 0; i < groups.length; i++) {
-                    groups[i] = new PROCESSOR_GROUP_INFO(array[i]);
+            public void readGroupInfo() {
+                // Get pointer to array in memory
+                int baseOffset = this.fieldOffset("groupInfo");
+                // Instantiate new array
+                this.groupInfo = new PROCESSOR_GROUP_INFO[this.activeGroupCount];
+                for (int i = 0; i < this.groupInfo.length; i++) {
+                    int offset = baseOffset + i * Native.getNativeSize(PROCESSOR_GROUP_INFO.class);
+                    this.groupInfo[i] = new PROCESSOR_GROUP_INFO(this.getPointer().share(offset));
                 }
-                return groups;
             }
         }
 

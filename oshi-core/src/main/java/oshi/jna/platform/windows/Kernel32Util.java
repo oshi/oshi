@@ -39,7 +39,8 @@ public class Kernel32Util extends com.sun.jna.platform.win32.Kernel32Util {
 
     /**
      * Convenience method to get the processor information. Takes care of
-     * auto-growing the array.
+     * auto-growing the array and populating variable-length arrays in
+     * structures.
      * 
      * @param relationshipType
      *            The type of relationship to retrieve. This parameter can be
@@ -72,11 +73,13 @@ public class Kernel32Util extends com.sun.jna.platform.win32.Kernel32Util {
         while (offset < memory.size()) {
             WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX information = new WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX(
                     memory.share(offset));
-            // Handle edge case of variable length group mask array. Only occurs
-            // if a physical package is split across multiple processor groups.
+            // Handle variable length group arrays.
             if (information.relationship == LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorPackage
                     && information.payload.Processor.groupCount > 1) {
                 information.payload.Processor.readGroupMask();
+            } else if (information.relationship == LOGICAL_PROCESSOR_RELATIONSHIP.RelationGroup
+                    && information.payload.Group.activeGroupCount > 1) {
+                information.payload.Group.readGroupInfo();
             }
             procInfoList.add(information);
             offset += information.size;
