@@ -23,7 +23,9 @@
  */
 package oshi.hardware.platform.windows;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -32,11 +34,8 @@ import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Native; // NOSONAR squid:S1191
 import com.sun.jna.platform.win32.Advapi32Util;
-import com.sun.jna.platform.win32.Kernel32;
-import com.sun.jna.platform.win32.Kernel32Util;
 import com.sun.jna.platform.win32.WinBase;
 import com.sun.jna.platform.win32.WinBase.SYSTEM_INFO;
-import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.platform.win32.WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION;
 import com.sun.jna.platform.win32.WinReg;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
@@ -47,9 +46,14 @@ import oshi.data.windows.PerfCounterQuery.PdhCounterProperty;
 import oshi.data.windows.PerfCounterWildcardQuery;
 import oshi.data.windows.PerfCounterWildcardQuery.PdhCounterWildcardProperty;
 import oshi.hardware.common.AbstractCentralProcessor;
+import oshi.jna.platform.windows.Kernel32;
+import oshi.jna.platform.windows.Kernel32Util;
 import oshi.jna.platform.windows.PowrProf;
 import oshi.jna.platform.windows.PowrProf.ProcessorPowerInformation;
 import oshi.jna.platform.windows.VersionHelpers;
+import oshi.jna.platform.windows.WinNT;
+import oshi.jna.platform.windows.WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX;
+import oshi.jna.platform.windows.WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX.GROUP_AFFINITY;
 import oshi.util.ParseUtil;
 import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
@@ -250,33 +254,143 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     protected LogicalProcessor[] initProcessorCounts() {
-        // Get number of logical processors
-        SYSTEM_INFO sysinfo = new SYSTEM_INFO();
-        Kernel32.INSTANCE.GetSystemInfo(sysinfo);
-        this.logicalProcessorCount = sysinfo.dwNumberOfProcessors.intValue();
-
-        LogicalProcessor[] logProcs = new LogicalProcessor[this.logicalProcessorCount];
-        for (int i = 0; i < logProcs.length; i++) {
-            logProcs[i] = new LogicalProcessor();
-            logProcs[i].setProcessorNumber(i);
+        if (VersionHelpers.IsWindows7OrGreater()) {
+            return getLogicalProcessorInformationEx();
+        } else {
+            return getLogicalProcessorInformation();
         }
+    }
 
-        // Get number of physical processors
-        WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION[] processors = Kernel32Util.getLogicalProcessorInformation();
-        for (SYSTEM_LOGICAL_PROCESSOR_INFORMATION proc : processors) {
-            for (int i = 0; i < logProcs.length; i++) {
-                if ((proc.processorMask.longValue() & (1L << i)) > 0) {
-                    if (proc.relationship == WinNT.LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorPackage) {
-                        logProcs[i].setPhysicalPackageNumber(getPhysicalPackageCount());
-                        this.physicalPackageCount++;
-                    } else if (proc.relationship == WinNT.LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorCore) {
-                        logProcs[i].setPhysicalProcessorNumber(getPhysicalProcessorCount());
-                        this.physicalProcessorCount++;
-                    }
+    private LogicalProcessor[] getLogicalProcessorInformationEx() {
+        // Collect a list of logical processors on each physical core and
+        // package. These will be 64-bit bitmasks.
+        List<GROUP_AFFINITY[]> packageMaskList = new ArrayList<>();
+        List<GROUP_AFFINITY> coreMaskList = new ArrayList<>();
+        SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX[] processors = Kernel32Util
+                .getLogicalProcessorInformationEx(WinNT.LOGICAL_PROCESSOR_RELATIONSHIP.RelationAll);
+        for (SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX proc : processors) {
+            if (proc.relationship == WinNT.LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorPackage) {
+                // Package may be on multiple processor groups
+                packageMaskList.add(proc.payload.Processor.groupMask);
+            } else if (proc.relationship == WinNT.LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorCore) {
+                // Exactly one element for the ProcessorCore relationship
+                coreMaskList.add(proc.payload.Processor.groupMask[0]);
+            }
+        }
+        this.physicalProcessorCount = coreMaskList.size();
+        this.physicalPackageCount = packageMaskList.size();
+        // Sort the list so core and package numbers
+        // increment as expected
+        coreMaskList.sort(Comparator.comparing(c -> c.group * 64L + c.mask.longValue()));
+        packageMaskList.sort(Comparator.comparing(p -> p[0].group * 64L + p[0].mask.longValue()));
+
+        // Assign logical processors to cores and packages
+        List<LogicalProcessor> logProcs = new ArrayList<>();
+        for (int core = 0; core < this.physicalProcessorCount; core++) {
+            GROUP_AFFINITY coreMask = coreMaskList.get(core);
+            int group = coreMask.group;
+            long mask = coreMask.mask.longValue();
+            // Lowest and Highest set bits, indexing from 0
+            int lowBit = Long.numberOfTrailingZeros(mask);
+            int hiBit = 63 - Long.numberOfLeadingZeros(mask);
+            // Create logical processors for this core
+            for (int i = lowBit; i <= hiBit; i++) {
+                if ((mask & (1L << i)) > 0) {
+                    LogicalProcessor logProc = new LogicalProcessor();
+                    logProc.setProcessorGroup(group);
+                    logProc.setProcessorNumber(i);
+                    logProc.setPhysicalProcessorNumber(core);
+                    logProc.setPhysicalPackageNumber(
+                            getBitMatchingPackageNumber(packageMaskList, i, group));
+                    logProcs.add(logProc);
                 }
             }
         }
-        return logProcs;
+        this.logicalProcessorCount = logProcs.size();
+        return logProcs.toArray(new LogicalProcessor[0]);
+    }
+
+    private LogicalProcessor[] getLogicalProcessorInformation() {
+        // Collect a list of logical processors on each physical core and
+        // package. These will be 64-bit bitmasks.
+        List<Long> packageMaskList = new ArrayList<>();
+        List<Long> coreMaskList = new ArrayList<>();
+        WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION[] processors = Kernel32Util.getLogicalProcessorInformation();
+        for (SYSTEM_LOGICAL_PROCESSOR_INFORMATION proc : processors) {
+            if (proc.relationship == WinNT.LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorPackage) {
+                packageMaskList.add(proc.processorMask.longValue());
+            } else if (proc.relationship == WinNT.LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorCore) {
+                coreMaskList.add(proc.processorMask.longValue());
+            }
+        }
+        this.physicalProcessorCount = coreMaskList.size();
+        this.physicalPackageCount = packageMaskList.size();
+        // Sort the list (natural ordering) so core and package numbers
+        // increment as expected.
+        coreMaskList.sort(null);
+        packageMaskList.sort(null);
+
+        // Assign logical processors to cores and packages
+        List<LogicalProcessor> logProcs = new ArrayList<>();
+        for (int core = 0; core < this.physicalProcessorCount; core++) {
+            long coreMask = coreMaskList.get(core);
+            // Lowest and Highest set bits, indexing from 0
+            int lowBit = Long.numberOfTrailingZeros(coreMask);
+            int hiBit = 63 - Long.numberOfLeadingZeros(coreMask);
+            // Create logical processors for this core
+            for (int i = lowBit; i <= hiBit; i++) {
+                if ((coreMask & (1L << i)) > 0) {
+                    LogicalProcessor logProc = new LogicalProcessor();
+                    logProc.setProcessorNumber(i);
+                    logProc.setPhysicalProcessorNumber(core);
+                    logProc.setPhysicalPackageNumber(getBitMatchingPackageNumber(packageMaskList, i));
+                    logProcs.add(logProc);
+                }
+            }
+        }
+        this.logicalProcessorCount = logProcs.size();
+        return logProcs.toArray(new LogicalProcessor[0]);
+    }
+
+    /**
+     * Iterate over the package mask list and find a matching mask index
+     * 
+     * @param packageMaskList
+     *            The list of bitmasks to iterate
+     * @param logProc
+     *            The bit to find matching mask
+     * @return The index of the list which matched the bit
+     */
+    private int getBitMatchingPackageNumber(List<Long> packageMaskList, int logProc) {
+        for (int i = 0; i < packageMaskList.size(); i++) {
+            if ((packageMaskList.get(i).longValue() & (1L << logProc)) > 0) {
+                return i;
+            }
+        }
+        return 0;
+    }
+
+    /**
+     * Iterate over the package mask list and find a matching mask index
+     * 
+     * @param packageMaskList
+     *            The list of bitmasks to iterate
+     * @param logProc
+     *            The bit to find matching mask
+     * @param group
+     *            The processor group to match
+     * @return The index of the list which matched the bit
+     */
+    private int getBitMatchingPackageNumber(List<GROUP_AFFINITY[]> packageMaskList, int logProc, int group) {
+        for (int i = 0; i < packageMaskList.size(); i++) {
+            for (int j = 0; j < packageMaskList.get(i).length; j++) {
+                if ((packageMaskList.get(i)[j].mask.longValue() & (1L << logProc)) > 0
+                        && packageMaskList.get(i)[j].group == group) {
+                    return i;
+                }
+            }
+        }
+        return 0;
     }
 
     /**

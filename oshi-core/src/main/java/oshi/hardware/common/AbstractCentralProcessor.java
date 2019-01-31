@@ -97,6 +97,8 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
 
     /**
      * Updates logical and physical processor counts and arrays
+     * 
+     * @return An array of initialized Logical Processors
      */
     protected abstract LogicalProcessor[] initProcessorCounts();
 
