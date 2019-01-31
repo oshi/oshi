@@ -271,10 +271,10 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
         for (SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX proc : processors) {
             if (proc.relationship == WinNT.LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorPackage) {
                 // Package may be on multiple processor groups
-                packageMaskList.add(proc.payload.Processor.groupMask);
+                packageMaskList.add(proc.payload.Processor.getGroupMask());
             } else if (proc.relationship == WinNT.LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorCore) {
                 // Exactly one element for the ProcessorCore relationship
-                coreMaskList.add(proc.payload.Processor.groupMask[0]);
+                coreMaskList.add(proc.payload.Processor.getGroupMask()[0]);
             }
         }
         this.physicalProcessorCount = coreMaskList.size();
