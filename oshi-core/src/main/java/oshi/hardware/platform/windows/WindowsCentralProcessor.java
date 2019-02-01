@@ -296,12 +296,9 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
             // Create logical processors for this core
             for (int i = lowBit; i <= hiBit; i++) {
                 if ((mask & (1L << i)) > 0) {
-                    LogicalProcessor logProc = new LogicalProcessor();
-                    logProc.setProcessorGroup(group);
-                    logProc.setProcessorNumber(i);
-                    logProc.setPhysicalProcessorNumber(core);
-                    logProc.setPhysicalPackageNumber(
-                            getBitMatchingPackageNumber(packageMaskList, i, group));
+                    int numaNode = 0; // TODO fetch
+                    LogicalProcessor logProc = new LogicalProcessor(i, core,
+                            getBitMatchingPackageNumber(packageMaskList, i, group), numaNode, group);
                     logProcs.add(logProc);
                 }
             }
@@ -340,10 +337,8 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
             // Create logical processors for this core
             for (int i = lowBit; i <= hiBit; i++) {
                 if ((coreMask & (1L << i)) > 0) {
-                    LogicalProcessor logProc = new LogicalProcessor();
-                    logProc.setProcessorNumber(i);
-                    logProc.setPhysicalProcessorNumber(core);
-                    logProc.setPhysicalPackageNumber(getBitMatchingPackageNumber(packageMaskList, i));
+                    LogicalProcessor logProc = new LogicalProcessor(i, core,
+                            getBitMatchingPackageNumber(packageMaskList, i));
                     logProcs.add(logProc);
                 }
             }
