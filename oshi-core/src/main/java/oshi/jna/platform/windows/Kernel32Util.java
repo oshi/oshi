@@ -32,6 +32,8 @@ import com.sun.jna.platform.win32.WinDef;
 import com.sun.jna.platform.win32.WinError;
 import com.sun.jna.platform.win32.WinNT.LOGICAL_PROCESSOR_RELATIONSHIP;
 
+import oshi.jna.platform.windows.WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX;
+
 /**
  * Kernel32Util.
  */
@@ -53,12 +55,17 @@ public class Kernel32Util extends com.sun.jna.platform.win32.Kernel32Util {
      *            or {@link LOGICAL_PROCESSOR_RELATIONSHIP#RelationAll}
      * @return the array of processor information.
      */
-    public static final WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX[] getLogicalProcessorInformationEx(
+    public static final SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX[] getLogicalProcessorInformationEx(
             int relationshipType) {
+        // Because JNA will ensure memory is allocated for the largest member of
+        // a Union it is necessary to over-allocate the Java-side buffer. Union
+        // member structure sizes are 48 and 56 bytes, so we pad with 8 bytes so
+        // the ensureAllocated() call requiring 56 bytes doesn't fail when
+        // populating a 48-byte structure.
         WinDef.DWORDByReference bufferSize = new WinDef.DWORDByReference(new WinDef.DWORD(1));
         Memory memory;
         while (true) {
-            memory = new Memory(bufferSize.getValue().intValue());
+            memory = new Memory(bufferSize.getValue().intValue() + SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX.AnonymousUnionPayload.UNION_ALLOCATION_PADDING);
             if (!Kernel32.INSTANCE.GetLogicalProcessorInformationEx(relationshipType, memory, bufferSize)) {
                 int err = Kernel32.INSTANCE.GetLastError();
                 if (err != WinError.ERROR_INSUFFICIENT_BUFFER)
@@ -68,22 +75,14 @@ public class Kernel32Util extends com.sun.jna.platform.win32.Kernel32Util {
             }
         }
         // Array elements have variable size; iterate to populate array
-        List<WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX> procInfoList = new ArrayList<>();
+        List<SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX> procInfoList = new ArrayList<>();
         int offset = 0;
-        while (offset < memory.size()) {
-            WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX information = new WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX(
+        while (offset < bufferSize.getValue().intValue()) {
+            SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX information = new SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX(
                     memory.share(offset));
-            // Handle variable length group arrays.
-            if (information.relationship == LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorPackage
-                    && information.payload.Processor.groupCount > 1) {
-                information.payload.Processor.readGroupMask();
-            } else if (information.relationship == LOGICAL_PROCESSOR_RELATIONSHIP.RelationGroup
-                    && information.payload.Group.activeGroupCount > 1) {
-                information.payload.Group.readGroupInfo();
-            }
             procInfoList.add(information);
             offset += information.size;
         }
-        return procInfoList.toArray(new WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX[procInfoList.size()]);
+        return procInfoList.toArray(new SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX[procInfoList.size()]);
     }
 }

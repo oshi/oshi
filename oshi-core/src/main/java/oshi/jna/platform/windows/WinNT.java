@@ -103,6 +103,21 @@ public interface WinNT extends com.sun.jna.platform.win32.WinNT {
         }
 
         public static class AnonymousUnionPayload extends Union {
+
+            /**
+             * JNA requires allocated memory for the largest structure in a
+             * Union. This padding value calculates the minimum extra Java-side
+             * allocation required beyond native memory requirements.
+             */
+            public static final int UNION_ALLOCATION_PADDING;
+            static {
+                int proc = new PROCESSOR_RELATIONSHIP().size();
+                int numa = new NUMA_NODE_RELATIONSHIP().size();
+                int cache = new CACHE_RELATIONSHIP().size();
+                int group = new GROUP_RELATIONSHIP().size();
+                UNION_ALLOCATION_PADDING = Math.max(Math.max(proc, numa), Math.max(cache, group))
+                        - Math.min(Math.min(proc, numa), Math.min(cache, group));
+            }
             /**
              * A PROCESSOR_RELATIONSHIP structure that describes processor
              * affinity. This structure contains valid data only if the
@@ -204,29 +219,28 @@ public interface WinNT extends com.sun.jna.platform.win32.WinNT {
              * the array. Each structure in the array specifies a group number
              * and processor affinity within the group.
              * <p>
-             * This array will only contain a single element array when
-             * instantiated. If {@link #groupCount} is greater than 1, use
-             * {@link #readGroupMask()} to populate the larger array.
+             * This Pointer is a placeholder. Use {@link #getGroupMask()} to
+             * return the array.
              */
-            public GROUP_AFFINITY[] groupMask = new GROUP_AFFINITY[1];
+            public Pointer groupMask;
 
             /**
-             * Calculates and sets the variable size groupMask array directly
-             * from allocated native memory. Intended to be called immediately
-             * after instantiation of the
-             * {@link SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX} structure that
-             * this structure is a member of, in the case where
-             * {@link #groupCount} is higher than 1.
+             * @return An array of {@link GROUP_AFFINITY} structures. The
+             *         {@link #groupCount} member specifies the number of
+             *         structures in the array. Each structure in the array
+             *         specifies a group number and processor affinity within
+             *         the group.
              */
-            public void readGroupMask() {
+            public GROUP_AFFINITY[] getGroupMask() {
                 // Get pointer to array in memory
                 int baseOffset = this.fieldOffset("groupMask");
                 // Instantiate new array
-                this.groupMask = new GROUP_AFFINITY[this.groupCount];
-                for (int i = 0;i < this.groupMask.length; i++) {
+                GROUP_AFFINITY[] mask = new GROUP_AFFINITY[this.groupCount];
+                for (int i = 0; i < mask.length; i++) {
                     int offset = baseOffset + i * Native.getNativeSize(GROUP_AFFINITY.class);
-                    this.groupMask[i] = new GROUP_AFFINITY(this.getPointer().share(offset));
+                    mask[i] = new GROUP_AFFINITY(this.getPointer().share(offset));
                 }
+                return mask;
             }
         }
 
@@ -312,32 +326,32 @@ public interface WinNT extends com.sun.jna.platform.win32.WinNT {
             /**
              * An array of {@link PROCESSOR_GROUP_INFO} structures. The
              * {@link #activeGroupCount} member specifies the number of
-             * structures in the array. Each structure in the array the number
-             * and affinity of processors in an active group on the system.
+             * structures in the array. Each structure in the array specifies
+             * the number and affinity of processors in an active group on the
+             * system.
              * <p>
-             * This array will only contain a single element array when
-             * instantiated. If {@link #activeGroupCount} is greater than 1, use
-             * {@link #readGroupInfo()} to populate the larger array.
+             * This Pointer is a placeholder. Use {@link #getGroupInfo()} to
+             * return the array.
              */
-            public PROCESSOR_GROUP_INFO[] groupInfo = new PROCESSOR_GROUP_INFO[1];
+            public Pointer groupInfo;
 
             /**
-             * Calculates and sets the variable size groupInfo array directly
-             * from allocated native memory. Intended to be called immediately
-             * after instantiation of the
-             * {@link SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX} structure that
-             * this structure is a member of, in the case where
-             * {@link #activeGroupCount} is higher than 1.
+             * @return An array of {@link PROCESSOR_GROUP_INFO} structures. The
+             *         {@link #activeGroupCount} member specifies the number of
+             *         structures in the array. Each structure in the array
+             *         specifies the number and affinity of processors in an
+             *         active group on the system.
              */
-            public void readGroupInfo() {
+            public PROCESSOR_GROUP_INFO[] getGroupInfo() {
                 // Get pointer to array in memory
                 int baseOffset = this.fieldOffset("groupInfo");
                 // Instantiate new array
-                this.groupInfo = new PROCESSOR_GROUP_INFO[this.activeGroupCount];
-                for (int i = 0; i < this.groupInfo.length; i++) {
+                PROCESSOR_GROUP_INFO[] info = new PROCESSOR_GROUP_INFO[this.activeGroupCount];
+                for (int i = 0; i < info.length; i++) {
                     int offset = baseOffset + i * Native.getNativeSize(PROCESSOR_GROUP_INFO.class);
-                    this.groupInfo[i] = new PROCESSOR_GROUP_INFO(this.getPointer().share(offset));
+                    info[i] = new PROCESSOR_GROUP_INFO(this.getPointer().share(offset));
                 }
+                return info;
             }
         }
 
@@ -380,20 +394,20 @@ public interface WinNT extends com.sun.jna.platform.win32.WinNT {
             /**
              * The maximum number of processors in the group.
              */
-            byte maximumProcessorCount;
+            public byte maximumProcessorCount;
             /**
              * The number of active processors in the group.
              */
-            byte activeProcessorCount;
+            public byte activeProcessorCount;
             /**
              * This member is reserved.
              */
-            byte[] reserved = new byte[38];
+            public byte[] reserved = new byte[38];
             /**
              * A bitmap that specifies the affinity for zero or more active
              * processors within the group.
              */
-            ULONG_PTR /* KAFFINITY */ activeProcessorMask;
+            public ULONG_PTR /* KAFFINITY */ activeProcessorMask;
 
             public PROCESSOR_GROUP_INFO(Pointer memory) {
                 super(memory);
