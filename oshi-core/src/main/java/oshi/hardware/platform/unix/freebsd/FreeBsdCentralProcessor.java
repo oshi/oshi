@@ -23,8 +23,11 @@
  */
 package oshi.hardware.platform.unix.freebsd;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -128,38 +131,25 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     protected LogicalProcessor[] initProcessorCounts() {
-        // Get number of CPUs
-        this.logicalProcessorCount = BsdSysctlUtil.sysctl("hw.ncpu", 1);
+        List<LogicalProcessor> logProcs = parseTopology();
         // Force at least one processor
-        if (this.logicalProcessorCount < 1) {
-            LOG.error("Couldn't find logical processor count. Assuming 1.");
-            this.logicalProcessorCount = 1;
+        if (logProcs.isEmpty()) {
+            logProcs.add(new LogicalProcessor(0, 0, 0));
         }
-        LogicalProcessor[] logProcs = new LogicalProcessor[this.logicalProcessorCount];
-        for (int i = 0; i < logProcs.length; i++) {
-            logProcs[i] = new LogicalProcessor();
-            logProcs[i].setProcessorNumber(i);
+        Set<Integer> physProcs = new HashSet<>();
+        Set<Integer> physPkgs = new HashSet<>();
+        for (LogicalProcessor logProc : logProcs) {
+            physProcs.add(logProc.getPhysicalProcessorNumber());
+            physPkgs.add(logProc.getPhysicalPackageNumber());
         }
+        this.logicalProcessorCount = logProcs.size();
+        this.physicalProcessorCount = physProcs.size();
+        this.physicalPackageCount = physPkgs.size();
 
-        parseTopology(logProcs);
-
-        // Force at least one processor
-        if (this.physicalProcessorCount < 1) {
-            // We never found a group level 3; all logical processors are
-            // physical
-            this.physicalProcessorCount = this.logicalProcessorCount;
-            for (int i = 0; i < logProcs.length; i++) {
-                logProcs[i].setPhysicalProcessorNumber(i);
-            }
-        }
-        if (this.physicalPackageCount < 1) {
-            // We never found a group level 2; assume one package
-            this.physicalPackageCount = 1;
-        }
-        return logProcs;
+        return logProcs.toArray(new LogicalProcessor[0]);
     }
 
-    private void parseTopology(LogicalProcessor[] logProcs) {
+    private List<LogicalProcessor> parseTopology() {
         String[] topology = BsdSysctlUtil.sysctl("kern.sched.topology_spec", "").split("\\n|\\r");
         /*-
          * Sample output:
@@ -182,38 +172,66 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
         * <group> level 3 puts hyperthreads together: if THREAD or SMT or HTT all the CPUs are one physical
         * If there is no level 3, then all logical processors are physical
         */
+        // Create lists of the group bitmasks
+        long group1 = 1L;
+        List<Long> group2 = new ArrayList<>();
+        List<Long> group3 = new ArrayList<>();
         int groupLevel = 0;
         for (String topo : topology) {
             if (topo.contains("<group level=")) {
                 groupLevel++;
             } else if (topo.contains("</group>")) {
                 groupLevel--;
-            } else if (topo.contains("<cpu") && (groupLevel == 2 || groupLevel == 3)) {
+            } else if (topo.contains("<cpu")) {
                 // Find <cpu> tag and extract bits
                 Matcher m = CPUMASK.matcher(topo);
                 if (m.matches()) {
                     // Regex guarantees parsing digits so we won't get a
                     // NumberFormatException
-                    assignIds(groupLevel, Long.parseLong(m.group(1), 16), logProcs);
+                    switch (groupLevel) {
+                    case 1:
+                        group1 = Long.parseLong(m.group(1), 16);
+                        break;
+                    case 2:
+                        group2.add(Long.parseLong(m.group(1), 16));
+                        break;
+                    case 3:
+                        group3.add(Long.parseLong(m.group(1), 16));
+                        break;
+                    default:
+                        break;
+                    }
                 }
             }
         }
+        return matchBitmasks(group1, group2, group3);
     }
 
-    private void assignIds(int groupLevel, long bitMask, LogicalProcessor[] logProcs) {
-        for (int i = 0; i < logProcs.length; i++) {
-            if ((bitMask & (1L << i)) > 0) {
-                if (groupLevel == 2) {
-                    // This group is a physical package
-                    logProcs[i].setPhysicalPackageNumber(getPhysicalPackageCount());
-                    this.physicalPackageCount++;
-                } else { // groupLevel == 3
-                    // This group is a physical processor
-                    logProcs[i].setPhysicalProcessorNumber(getPhysicalProcessorCount());
-                    this.physicalProcessorCount++;
-                }
+    private List<LogicalProcessor> matchBitmasks(long group1, List<Long> group2, List<Long> group3) {
+        List<LogicalProcessor> logProcs = new ArrayList<>();
+        // Lowest and Highest set bits, indexing from 0
+        int lowBit = Long.numberOfTrailingZeros(group1);
+        int hiBit = 63 - Long.numberOfLeadingZeros(group1);
+        // Create logical processors for this core
+        for (int i = lowBit; i <= hiBit; i++) {
+            if ((group1 & (1L << i)) > 0) {
+                int numaNode = 0; // TODO fetch
+                LogicalProcessor logProc = new LogicalProcessor(i,
+                        getMatchingBitmask(group3, i),
+                        getMatchingBitmask(group2, i), numaNode);
+                logProcs.add(logProc);
             }
         }
+        return logProcs;
+    }
+
+    private static int getMatchingBitmask(List<Long> bitmasks, int lp) {
+        for (int j = 0; j < bitmasks.size(); j++) {
+            if ((bitmasks.get(j).longValue() & (1L << lp)) > 0) {
+                return j;
+            }
+        }
+        return 0;
     }
 
     /**

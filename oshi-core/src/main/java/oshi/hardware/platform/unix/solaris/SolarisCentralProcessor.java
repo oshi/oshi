@@ -91,16 +91,12 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
         List<LogicalProcessor> logProcs = new ArrayList<>();
         for (Kstat ksp : kstats) {
             if (ksp != null && KstatUtil.kstatRead(ksp)) {
-                LogicalProcessor logProc = new LogicalProcessor();
-                logProc.setProcessorNumber(logProcs.size());
-                logProcs.add(logProc);
-
                 String coreId = KstatUtil.kstatDataLookupString(ksp, "core_id");
-                logProc.setPhysicalProcessorNumber(ParseUtil.parseIntOrDefault(coreId, 0));
-                coreIDs.add(coreId);
-
                 String chipId = KstatUtil.kstatDataLookupString(ksp, "chip_id");
-                logProc.setPhysicalPackageNumber(ParseUtil.parseIntOrDefault(chipId, 0));
+                LogicalProcessor logProc = new LogicalProcessor(logProcs.size(), ParseUtil.parseIntOrDefault(coreId, 0),
+                        ParseUtil.parseIntOrDefault(chipId, 0));
+                logProcs.add(logProc);
+                coreIDs.add(coreId);
                 chipIDs.add(chipId);
             }
         }
@@ -109,7 +105,7 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
         if (this.logicalProcessorCount < 1) {
             LOG.error("Couldn't find logical processor count. Assuming 1.");
             this.logicalProcessorCount = 1;
-            logProcs.add(new LogicalProcessor());
+            logProcs.add(new LogicalProcessor(0, 0, 0));
         }
         this.physicalPackageCount = chipIDs.size();
         if (this.physicalPackageCount < 1) {

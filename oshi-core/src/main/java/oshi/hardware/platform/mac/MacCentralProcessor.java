@@ -110,10 +110,8 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
 
         LogicalProcessor[] logProcs = new LogicalProcessor[this.logicalProcessorCount];
         for (int i = 0; i < logProcs.length; i++) {
-            logProcs[i] = new LogicalProcessor();
-            logProcs[i].setProcessorNumber(i);
-            logProcs[i].setPhysicalProcessorNumber(i * this.physicalProcessorCount / this.logicalProcessorCount);
-            logProcs[i].setPhysicalPackageNumber(i * this.physicalPackageCount / this.logicalProcessorCount);
+            logProcs[i] = new LogicalProcessor(i, i * this.physicalProcessorCount / this.logicalProcessorCount,
+                    i * this.physicalPackageCount / this.logicalProcessorCount);
         }
         return logProcs;
     }

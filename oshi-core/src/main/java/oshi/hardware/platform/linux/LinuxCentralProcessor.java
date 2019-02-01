@@ -23,6 +23,7 @@
  */
 package oshi.hardware.platform.linux;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -112,57 +113,40 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     protected LogicalProcessor[] initProcessorCounts() {
-        Set<String> processorIDs = new HashSet<>();
-        Set<Integer> packageIDs = new HashSet<>();
-
         List<String> procCpu = FileUtil.readFile("/proc/cpuinfo");
-        // Iterate once to count logical processors
-        for (String cpu : procCpu) {
-            if (cpu.startsWith("processor")) {
-                this.logicalProcessorCount++;
-            }
-        }
-        // Iterate again to populate
-        LogicalProcessor[] logProcs = new LogicalProcessor[this.logicalProcessorCount];
+        List<LogicalProcessor> logProcs = new ArrayList<>();
         int currentProcessor = 0;
+        int currentCore = 0;
+        int currentPackage = 0;
+        boolean first = true;
         for (String cpu : procCpu) {
             // Count logical processors
             if (cpu.startsWith("processor")) {
+                if (!first) {
+                    logProcs.add(new LogicalProcessor(currentProcessor, currentCore, currentPackage));
+                } else {
+                    first = false;
+                }
                 currentProcessor = ParseUtil.parseLastInt(cpu, 0);
-                logProcs[currentProcessor] = new LogicalProcessor();
-                logProcs[currentProcessor].setProcessorNumber(currentProcessor);
-            }
-            // Count unique combinations of core id and physical id.
-            if (cpu.startsWith("core id") || cpu.startsWith("cpu number")) {
-                logProcs[currentProcessor].setPhysicalProcessorNumber(ParseUtil.parseLastInt(cpu, 0));
+            } else if (cpu.startsWith("core id") || cpu.startsWith("cpu number")) {
+                // Count unique combinations of core id and physical id.
+                currentCore = ParseUtil.parseLastInt(cpu, 0);
             } else if (cpu.startsWith("physical id")) {
-                logProcs[currentProcessor].setPhysicalPackageNumber(ParseUtil.parseLastInt(cpu, 0));
-            }
-            if (logProcs[currentProcessor].getPhysicalProcessorNumber() >= 0
-                    && logProcs[currentProcessor].getPhysicalPackageNumber() >= 0) {
-                packageIDs.add(logProcs[currentProcessor].getPhysicalPackageNumber());
-                processorIDs.add(logProcs[currentProcessor].getPhysicalProcessorNumber() + " "
-                        + logProcs[currentProcessor].getPhysicalPackageNumber());
+                currentPackage = ParseUtil.parseLastInt(cpu, 0);
             }
         }
-        // Force at least one processor
-        if (this.logicalProcessorCount < 1) {
-            LOG.error("Couldn't find logical processor count. Assuming 1.");
-            this.logicalProcessorCount = 1;
-            logProcs = new LogicalProcessor[1];
-            logProcs[0] = new LogicalProcessor();
+        logProcs.add(new LogicalProcessor(currentProcessor, currentCore, currentPackage));
+        Set<Integer> physProcs = new HashSet<>();
+        Set<Integer> physPkgs = new HashSet<>();
+        for (LogicalProcessor logProc : logProcs) {
+            physProcs.add(logProc.getPhysicalProcessorNumber());
+            physPkgs.add(logProc.getPhysicalPackageNumber());
         }
-        this.physicalProcessorCount = processorIDs.size();
-        if (this.physicalProcessorCount < 1) {
-            LOG.error("Couldn't find physical processor count. Assuming 1.");
-            this.physicalProcessorCount = 1;
-        }
-        this.physicalPackageCount = packageIDs.size();
-        if (this.physicalPackageCount < 1) {
-            LOG.error("Couldn't find physical package count. Assuming 1.");
-            this.physicalPackageCount = 1;
-        }
-        return logProcs;
+        this.logicalProcessorCount = logProcs.size();
+        this.physicalProcessorCount = physProcs.size();
+        this.physicalPackageCount = physPkgs.size();
+
+        return logProcs.toArray(new LogicalProcessor[0]);
     }
 
     /**

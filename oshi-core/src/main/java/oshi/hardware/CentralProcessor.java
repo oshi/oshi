@@ -345,33 +345,57 @@ public interface CentralProcessor extends Serializable {
         }
     }
 
+    /**
+     * A class representing a Logical Processor and its replationship to
+     * physical processors, physical packages, and logical groupings such as
+     * NUMA Nodes and Processor groups, useful for identifying processor
+     * topology.
+     */
     class LogicalProcessor implements Serializable {
+
+        /**
+         * @param processorNumber
+         * @param physicalProcessorNumber
+         * @param physicalPackageNumber
+         */
+        public LogicalProcessor(int processorNumber, int physicalProcessorNumber, int physicalPackageNumber) {
+            this(processorNumber, physicalProcessorNumber, physicalPackageNumber, 0, 0);
+        }
+
+        /**
+         * @param processorNumber
+         * @param physicalProcessorNumber
+         * @param physicalPackageNumber
+         * @param numaNode
+         */
+        public LogicalProcessor(int processorNumber, int physicalProcessorNumber, int physicalPackageNumber,
+                int numaNode) {
+            this(processorNumber, physicalProcessorNumber, physicalPackageNumber, numaNode, 0);
+        }
+
+        /**
+         * @param processorNumber
+         * @param physicalProcessorNumber
+         * @param physicalPackageNumber
+         * @param numaNode
+         * @param processorGroup
+         */
+        public LogicalProcessor(int processorNumber, int physicalProcessorNumber, int physicalPackageNumber,
+                int numaNode, int processorGroup) {
+            this.processorNumber = processorNumber;
+            this.physicalProcessorNumber = physicalProcessorNumber;
+            this.physicalPackageNumber = physicalPackageNumber;
+            this.numaNode = numaNode;
+            this.processorGroup = processorGroup;
+        }
 
         private static final long serialVersionUID = 1L;
 
-        private int processorGroup;
         private int processorNumber;
         private int physicalProcessorNumber;
         private int physicalPackageNumber;
-
-        /**
-         * The Processor Group. Only applies to Windows systems with more than
-         * 64 logical processors. Set to 0 for other operating systems or
-         * Windows systems with 64 or fewer logical processors.
-         * 
-         * @return the processorGroup
-         */
-        public int getProcessorGroup() {
-            return processorGroup;
-        }
-
-        /**
-         * @param processorGroup
-         *            the processorGroup to set
-         */
-        public void setProcessorGroup(int processorGroup) {
-            this.processorGroup = processorGroup;
-        }
+        private int numaNode;
+        private int processorGroup;
 
         /**
          * The Logical Processor number as seen by the Operating System. Used
@@ -382,14 +406,6 @@ public interface CentralProcessor extends Serializable {
          */
         public int getProcessorNumber() {
             return processorNumber;
-        }
-
-        /**
-         * @param processorNumber
-         *            the processorNumber to set
-         */
-        public void setProcessorNumber(int processorNumber) {
-            this.processorNumber = processorNumber;
         }
 
         /**
@@ -404,14 +420,6 @@ public interface CentralProcessor extends Serializable {
         }
 
         /**
-         * @param physicalProcessorNumber
-         *            the physicalProcessorNumber to set
-         */
-        public void setPhysicalProcessorNumber(int physicalProcessorNumber) {
-            this.physicalProcessorNumber = physicalProcessorNumber;
-        }
-
-        /**
          * The physical package (socket) id number assigned to this logical
          * processor. Multicore CPU packages may have multiple physical
          * processors which share the same number.
@@ -423,11 +431,26 @@ public interface CentralProcessor extends Serializable {
         }
 
         /**
-         * @param physicalPackageNumber
-         *            the physicalPackageNumber to set
+         * The NUMA node. If the operating system supports Non-Uniform Memory
+         * Access this identifies the node number. Set to 0 if the operating
+         * system does not support NUMA.
+         * 
+         * @return the NUMA Node number
          */
-        public void setPhysicalPackageNumber(int physicalPackageNumber) {
-            this.physicalPackageNumber = physicalPackageNumber;
+        public int getNumaNode() {
+            return numaNode;
         }
+
+        /**
+         * The Processor Group. Only applies to Windows systems with more than
+         * 64 logical processors. Set to 0 for other operating systems or
+         * Windows systems with 64 or fewer logical processors.
+         * 
+         * @return the processorGroup
+         */
+        public int getProcessorGroup() {
+            return processorGroup;
+        }
+
     }
 }
