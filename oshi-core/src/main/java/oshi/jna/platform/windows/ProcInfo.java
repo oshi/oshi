@@ -30,12 +30,12 @@ import java.util.List;
 import com.sun.jna.platform.win32.WinNT.LOGICAL_PROCESSOR_RELATIONSHIP;
 
 import oshi.jna.platform.windows.WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX;
-import oshi.jna.platform.windows.WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX.CACHE_RELATIONSHIP;
-import oshi.jna.platform.windows.WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX.GROUP_AFFINITY;
-import oshi.jna.platform.windows.WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX.GROUP_RELATIONSHIP;
-import oshi.jna.platform.windows.WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX.NUMA_NODE_RELATIONSHIP;
-import oshi.jna.platform.windows.WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX.PROCESSOR_GROUP_INFO;
-import oshi.jna.platform.windows.WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX.PROCESSOR_RELATIONSHIP;
+import oshi.jna.platform.windows.WinNT.CACHE_RELATIONSHIP;
+import oshi.jna.platform.windows.WinNT.GROUP_AFFINITY;
+import oshi.jna.platform.windows.WinNT.GROUP_RELATIONSHIP;
+import oshi.jna.platform.windows.WinNT.NUMA_NODE_RELATIONSHIP;
+import oshi.jna.platform.windows.WinNT.PROCESSOR_GROUP_INFO;
+import oshi.jna.platform.windows.WinNT.PROCESSOR_RELATIONSHIP;
 
 /**
  * Temporary test case to verify code behaves as expected. These methods will be
@@ -65,13 +65,12 @@ public class ProcInfo {
         for (int i = 0; i < processors.length; i++) {
             System.out.format("Relationship should be %d, it is %d%n", LOGICAL_PROCESSOR_RELATIONSHIP.RelationGroup,
                     processors[i].relationship);
-            GROUP_RELATIONSHIP group = processors[i].payload.Group;
-            PROCESSOR_GROUP_INFO[] info = group.getGroupInfo();
-            System.out.format("Details for %d group(s):%n", info.length);
-            for (int j = 0; j < info.length; j++) {
+            GROUP_RELATIONSHIP group = (GROUP_RELATIONSHIP) processors[i];
+            System.out.format("Details for %d group(s):%n", group.activeGroupCount);
+            for (int j = 0; j < group.activeGroupCount; j++) {
                 System.out.format("Group %d had %d active of %d max processors with bitmask %s.%n", j,
-                        info[j].activeProcessorCount, info[j].maximumProcessorCount,
-                        Long.toBinaryString(info[j].activeProcessorMask.longValue()));
+                        group.groupInfo[j].activeProcessorCount, group.groupInfo[j].maximumProcessorCount,
+                        Long.toBinaryString(group.groupInfo[j].activeProcessorMask.longValue()));
             }
         }
     }
@@ -83,13 +82,12 @@ public class ProcInfo {
         for (int i = 0; i < processors.length; i++) {
             System.out.format("Relationship should be %d, it is %d%n",
                     LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorPackage, processors[i].relationship);
-            PROCESSOR_RELATIONSHIP pkg = processors[i].payload.Processor;
+            PROCESSOR_RELATIONSHIP pkg = (PROCESSOR_RELATIONSHIP) processors[i];
             System.out.format("Flags should be 0 for a package, it is %d. Efficiency class is %d. Group count is %d.%n",
                     pkg.flags, pkg.efficiencyClass, pkg.groupCount);
-            GROUP_AFFINITY[] mask = pkg.getGroupMask();
-            for (int j = 0; j < mask.length; j++) {
-                System.out.format("Mask %d is in group %d with bitmask %s.%n", j, mask[j].group,
-                        Long.toBinaryString(mask[j].mask.longValue()));
+            for (int j = 0; j < pkg.groupCount; j++) {
+                System.out.format("Mask %d is in group %d with bitmask %s.%n", j, pkg.groupMask[j].group,
+                        Long.toBinaryString(pkg.groupMask[j].mask.longValue()));
             }
         }
     }
@@ -101,7 +99,7 @@ public class ProcInfo {
         for (int i = 0; i < processors.length; i++) {
             System.out.format("Relationship should be %d, it is %d%n",
                     LOGICAL_PROCESSOR_RELATIONSHIP.RelationNumaNode, processors[i].relationship);
-            NUMA_NODE_RELATIONSHIP node = processors[i].payload.NumaNode;
+            NUMA_NODE_RELATIONSHIP node = (NUMA_NODE_RELATIONSHIP) processors[i];
             System.out.format("Node %d is in group %d with bitmask %s.%n", node.nodeNumber, node.groupMask.group,
                     Long.toBinaryString(node.groupMask.mask.longValue()));
         }
@@ -114,7 +112,7 @@ public class ProcInfo {
         for (int i = 0; i < processors.length; i++) {
             System.out.format("Relationship should be %d, it is %d%n", LOGICAL_PROCESSOR_RELATIONSHIP.RelationCache,
                     processors[i].relationship);
-            CACHE_RELATIONSHIP cache = processors[i].payload.Cache;
+            CACHE_RELATIONSHIP cache = (CACHE_RELATIONSHIP) processors[i];
             System.out.format(
                     "Cache is level %d with associativity %d and linesize %d. Type is %d and size is %d. It is in group %d with bitmask %s.%n",
                     cache.level, cache.associativity, cache.lineSize, cache.type, cache.cacheSize,
@@ -129,15 +127,14 @@ public class ProcInfo {
         for (int i = 0; i < processors.length; i++) {
             System.out.format("Relationship should be %d, it is %d%n",
                     LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorCore, processors[i].relationship);
-            PROCESSOR_RELATIONSHIP core = processors[i].payload.Processor;
+            PROCESSOR_RELATIONSHIP core = (PROCESSOR_RELATIONSHIP) processors[i];
             System.out.format("Efficiency class is %d. Group count is %d.%n", core.efficiencyClass, core.groupCount);
-            GROUP_AFFINITY[] mask = core.getGroupMask();
             System.out.format(
                     "Hyperthreading flag is %d, should be 1 only if bitmask bits %d > 1 or group count %d > 1.%n",
-                    core.flags, Long.bitCount(mask[0].mask.longValue()), core.groupCount);
-            for (int j = 0; j < mask.length; j++) {
-                System.out.format("Mask %d is in group %d with bitmask %s.%n", j, mask[0].group,
-                        Long.toBinaryString(mask[0].mask.longValue()));
+                    core.flags, Long.bitCount(core.groupMask[0].mask.longValue()), core.groupCount);
+            for (int j = 0; j < core.groupMask.length; j++) {
+                System.out.format("Mask %d is in group %d with bitmask %s.%n", j, core.groupMask[0].group,
+                        Long.toBinaryString(core.groupMask[0].mask.longValue()));
             }
         }
     }
@@ -156,19 +153,19 @@ public class ProcInfo {
         for (int i = 0; i < procInfo.length; i++) {
             switch (procInfo[i].relationship) {
             case LOGICAL_PROCESSOR_RELATIONSHIP.RelationGroup:
-                groups = Arrays.asList(procInfo[i].payload.Group.getGroupInfo());
+                groups = Arrays.asList(((GROUP_RELATIONSHIP) procInfo[i]).groupInfo);
                 break;
             case LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorPackage:
-                packages.add(procInfo[i].payload.Processor.getGroupMask());
+                packages.add(((PROCESSOR_RELATIONSHIP) procInfo[i]).groupMask);
                 break;
             case LOGICAL_PROCESSOR_RELATIONSHIP.RelationNumaNode:
-                numaNodes.add(procInfo[i].payload.NumaNode);
+                numaNodes.add(((NUMA_NODE_RELATIONSHIP)procInfo[i]));
                 break;
             case LOGICAL_PROCESSOR_RELATIONSHIP.RelationCache:
-                caches.add(procInfo[i].payload.Cache);
+                caches.add(((CACHE_RELATIONSHIP) procInfo[i]));
                 break;
             case LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorCore:
-                cores.add(procInfo[i].payload.Processor.getGroupMask()[0]);
+                cores.add(((PROCESSOR_RELATIONSHIP) procInfo[i]).groupMask[0]);
                 break;
             default:
                 System.out.println("You should never see this message.");
