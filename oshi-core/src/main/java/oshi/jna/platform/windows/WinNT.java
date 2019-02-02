@@ -161,9 +161,6 @@ public interface WinNT extends com.sun.jna.platform.win32.WinNT {
          * {@link #groupCount} member specifies the number of structures in the
          * array. Each structure in the array specifies a group number and
          * processor affinity within the group.
-         * <p>
-         * This Pointer is a placeholder. Use {@link #getGroupMask()} to return
-         * the array.
          */
         public GROUP_AFFINITY[] groupMask = new GROUP_AFFINITY[1];
 
@@ -282,9 +279,6 @@ public interface WinNT extends com.sun.jna.platform.win32.WinNT {
          * {@link #activeGroupCount} member specifies the number of structures
          * in the array. Each structure in the array specifies the number and
          * affinity of processors in an active group on the system.
-         * <p>
-         * This Pointer is a placeholder. Use {@link #getGroupInfo()} to return
-         * the array.
          */
         public PROCESSOR_GROUP_INFO[] groupInfo = new PROCESSOR_GROUP_INFO[1];
 

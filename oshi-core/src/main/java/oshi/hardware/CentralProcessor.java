@@ -355,8 +355,11 @@ public interface CentralProcessor extends Serializable {
 
         /**
          * @param processorNumber
+         *            the Processor number
          * @param physicalProcessorNumber
+         *            the core number
          * @param physicalPackageNumber
+         *            the package/socket number
          */
         public LogicalProcessor(int processorNumber, int physicalProcessorNumber, int physicalPackageNumber) {
             this(processorNumber, physicalProcessorNumber, physicalPackageNumber, 0, 0);
@@ -364,9 +367,13 @@ public interface CentralProcessor extends Serializable {
 
         /**
          * @param processorNumber
+         *            the Processor number
          * @param physicalProcessorNumber
+         *            the core number
          * @param physicalPackageNumber
+         *            the package/socket number
          * @param numaNode
+         *            the NUMA node number
          */
         public LogicalProcessor(int processorNumber, int physicalProcessorNumber, int physicalPackageNumber,
                 int numaNode) {
@@ -375,10 +382,15 @@ public interface CentralProcessor extends Serializable {
 
         /**
          * @param processorNumber
+         *            the Processor number
          * @param physicalProcessorNumber
+         *            the core number
          * @param physicalPackageNumber
+         *            the package/socket number
          * @param numaNode
+         *            the NUMA node number
          * @param processorGroup
+         *            the Processor Group number
          */
         public LogicalProcessor(int processorNumber, int physicalProcessorNumber, int physicalPackageNumber,
                 int numaNode, int processorGroup) {
