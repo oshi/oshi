@@ -57,15 +57,10 @@ public class Kernel32Util extends com.sun.jna.platform.win32.Kernel32Util {
      */
     public static final SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX[] getLogicalProcessorInformationEx(
             int relationshipType) {
-        // Because JNA will ensure memory is allocated for the largest member of
-        // a Union it is necessary to over-allocate the Java-side buffer. Union
-        // member structure sizes are 48 and 56 bytes, so we pad with 8 bytes so
-        // the ensureAllocated() call requiring 56 bytes doesn't fail when
-        // populating a 48-byte structure.
         WinDef.DWORDByReference bufferSize = new WinDef.DWORDByReference(new WinDef.DWORD(1));
         Memory memory;
         while (true) {
-            memory = new Memory(bufferSize.getValue().intValue() + SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX.AnonymousUnionPayload.UNION_ALLOCATION_PADDING);
+            memory = new Memory(bufferSize.getValue().intValue());
             if (!Kernel32.INSTANCE.GetLogicalProcessorInformationEx(relationshipType, memory, bufferSize)) {
                 int err = Kernel32.INSTANCE.GetLastError();
                 if (err != WinError.ERROR_INSUFFICIENT_BUFFER)
@@ -78,8 +73,7 @@ public class Kernel32Util extends com.sun.jna.platform.win32.Kernel32Util {
         List<SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX> procInfoList = new ArrayList<>();
         int offset = 0;
         while (offset < bufferSize.getValue().intValue()) {
-            SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX information = new SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX(
-                    memory.share(offset));
+            SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX information = SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX.fromPointer(memory.share(offset));
             procInfoList.add(information);
             offset += information.size;
         }

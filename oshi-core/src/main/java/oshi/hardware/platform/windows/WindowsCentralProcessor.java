@@ -53,7 +53,7 @@ import oshi.jna.platform.windows.PowrProf.ProcessorPowerInformation;
 import oshi.jna.platform.windows.VersionHelpers;
 import oshi.jna.platform.windows.WinNT;
 import oshi.jna.platform.windows.WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX;
-import oshi.jna.platform.windows.WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX.GROUP_AFFINITY;
+import oshi.jna.platform.windows.WinNT.GROUP_AFFINITY;
 import oshi.util.ParseUtil;
 import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
@@ -271,10 +271,10 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
         for (SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX proc : processors) {
             if (proc.relationship == WinNT.LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorPackage) {
                 // Package may be on multiple processor groups
-                packageMaskList.add(proc.payload.Processor.getGroupMask());
+                packageMaskList.add(((WinNT.PROCESSOR_RELATIONSHIP)proc).groupMask);
             } else if (proc.relationship == WinNT.LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorCore) {
                 // Exactly one element for the ProcessorCore relationship
-                coreMaskList.add(proc.payload.Processor.getGroupMask()[0]);
+                coreMaskList.add(((WinNT.PROCESSOR_RELATIONSHIP)proc).groupMask[0]);
             }
         }
         this.physicalProcessorCount = coreMaskList.size();
