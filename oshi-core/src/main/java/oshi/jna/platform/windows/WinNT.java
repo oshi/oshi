@@ -51,13 +51,16 @@ public interface WinNT extends com.sun.jna.platform.win32.WinNT {
          * {@link LOGICAL_PROCESSOR_RELATIONSHIP#RelationCache},
          * {@link LOGICAL_PROCESSOR_RELATIONSHIP#RelationGroup},
          * {@link LOGICAL_PROCESSOR_RELATIONSHIP#RelationNumaNode},
-         * {@link LOGICAL_PROCESSOR_RELATIONSHIP#RelationProcessorCore} or
+         * {@link LOGICAL_PROCESSOR_RELATIONSHIP#RelationProcessorCore}, or
          * {@link LOGICAL_PROCESSOR_RELATIONSHIP#RelationProcessorPackage}.
+         * <p>
+         * This field identifies which subclass will be instantiated by the
+         * {@link #fromPointer(Pointer)} method.
          */
         public int /* LOGICAL_PROCESSOR_RELATIONSHIP */ relationship;
 
         /**
-         * The size of the structure.
+         * The size of the structure, in bytes.
          */
         public int size;
 
@@ -65,10 +68,44 @@ public interface WinNT extends com.sun.jna.platform.win32.WinNT {
             super();
         }
 
-        public SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX(Pointer memory) {
+        /**
+         * This constructor should only be called by a subclass to ensure memory
+         * is properly allocated to the subclass fields.
+         * 
+         * @param memory
+         *            A pointer to the allocated native memory.
+         */
+        protected SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX(Pointer memory) {
             super(memory);
         }
 
+        /**
+         * Create a new instance of the appropriate subclass of
+         * {@link SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX} from the provided
+         * {@link Pointer} to native memory. Use this method rather than
+         * {@link #SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX(Pointer memory)} to
+         * properly cast the Pointer to the appropriate subclass and populate
+         * variable length arrays.
+         * 
+         * @param memory
+         *            A pointer to allocated memory to be cst to this class.
+         * @return An instance of the appropriate subclass depending on the
+         *         value of the {@link #relationship} field. If the
+         *         {@link #relationship} member is
+         *         {@link LOGICAL_PROCESSOR_RELATIONSHIP#RelationProcessorCore}
+         *         or
+         *         {@link LOGICAL_PROCESSOR_RELATIONSHIP#RelationProcessorPackage},
+         *         the return type will be {@link PROCESSOR_RELATIONSHIP}. If
+         *         the {@link #relationship} member is
+         *         {@link LOGICAL_PROCESSOR_RELATIONSHIP#RelationNumaNode}, the
+         *         return type will be {@link NUMA_NODE_RELATIONSHIP}. If the
+         *         {@link #relationship} member is
+         *         {@link LOGICAL_PROCESSOR_RELATIONSHIP#RelationCache}, the
+         *         return type will be {@link CACHE_RELATIONSHIP}. If the
+         *         {@link #relationship} member is
+         *         {@link LOGICAL_PROCESSOR_RELATIONSHIP#RelationGroup}, the
+         *         return type will be {@link GROUP_RELATIONSHIP}.
+         */
         public static SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX fromPointer(Pointer memory) {
             int relationship = memory.getInt(0);
             SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX result;
@@ -95,20 +132,20 @@ public interface WinNT extends com.sun.jna.platform.win32.WinNT {
     }
 
     /**
-     * The PROCESSOR_RELATIONSHIP structure describes the logical processors
-     * associated with either a processor core or a processor package.
+     * Describes the logical processors associated with either a processor core
+     * or a processor package.
      */
     @FieldOrder({"flags", "efficiencyClass", "reserved", "groupCount", "groupMask"})
     public static class PROCESSOR_RELATIONSHIP extends SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX {
 
         /**
-         * If the Relationship member of the
+         * If the {@link #relationship} member of the
          * {@link SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX} structure is
          * {@link LOGICAL_PROCESSOR_RELATIONSHIP#RelationProcessorCore}, this
          * member is {@link #LTP_PC_SMT} if the core has more than one logical
          * processor, or 0 if the core has one logical processor.
          * <p>
-         * If the Relationship member of the
+         * If the {@link #relationship} member of the
          * {@link SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX} structure is
          * {@link LOGICAL_PROCESSOR_RELATIONSHIP#RelationProcessorPackage}, this
          * member is always 0.
@@ -116,7 +153,7 @@ public interface WinNT extends com.sun.jna.platform.win32.WinNT {
         public byte flags;
 
         /**
-         * If the Relationship member of the
+         * If the {@link #relationship} member of the
          * {@link SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX} structure is
          * {@link LOGICAL_PROCESSOR_RELATIONSHIP#RelationProcessorCore},
          * EfficiencyClass specifies the intrinsic tradeoff between performance
@@ -126,7 +163,7 @@ public interface WinNT extends com.sun.jna.platform.win32.WinNT {
          * EfficiencyClass is only nonzero on systems with a heterogeneous set
          * of cores.
          * <p>
-         * If the Relationship member of the
+         * If the {@link #relationship} member of the
          * {@link SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX} structure is
          * {@link LOGICAL_PROCESSOR_RELATIONSHIP#RelationProcessorPackage},
          * EfficiencyClass is always 0.
@@ -147,12 +184,13 @@ public interface WinNT extends com.sun.jna.platform.win32.WinNT {
          * If the PROCESSOR_RELATIONSHIP structure represents a processor core,
          * the GroupCount member is always 1.
          * <p>
-         * If the PROCESSOR_RELATIONSHIP structure represents a processor
-         * package, the GroupCount member is 1 only if all processors are in the
-         * same processor group. If the package contains more than one NUMA
-         * node, the system might assign different NUMA nodes to different
-         * processor groups. In this case, the GroupCount member is the number
-         * of groups to which NUMA nodes in the package are assigned.
+         * If the {@link PROCESSOR_RELATIONSHIP} structure represents a
+         * processor package, the {@link #groupCount} member is 1 only if all
+         * processors are in the same processor group. If the package contains
+         * more than one NUMA node, the system might assign different NUMA nodes
+         * to different processor groups. In this case, the {@link #groupCount}
+         * member is the number of groups to which NUMA nodes in the package are
+         * assigned.
          */
         public short groupCount;
 
@@ -191,10 +229,12 @@ public interface WinNT extends com.sun.jna.platform.win32.WinNT {
          * report that all processors belong to one NUMA node.
          */
         public int nodeNumber;
+
         /**
          * This member is reserved.
          */
         public byte[] reserved = new byte[20];
+
         /**
          * A {@link GROUP_AFFINITY} structure that specifies a group number and
          * processor affinity within the group.
@@ -219,27 +259,33 @@ public interface WinNT extends com.sun.jna.platform.win32.WinNT {
          * The cache level. This member can be 1 (L1), 2 (L2), or 3 (L3).
          */
         public byte level;
+
         /**
          * The cache associativity. If this member is
          * {@link #CACHE_FULLY_ASSOCIATIVE}, the cache is fully associative.
          */
         public byte associativity;
+
         /**
          * The cache line size, in bytes.
          */
         public short lineSize;
+
         /**
          * The cache size, in bytes.
          */
         public int cacheSize;
+
         /**
          * The cache type. This member is a {@link PROCESSOR_CACHE_TYPE} value.
          */
         public int /* PROCESSOR_CACHE_TYPE */ type;
+
         /**
          * This member is reserved.
          */
         public byte[] reserved = new byte[20];
+
         /**
          * A {@link GROUP_AFFINITY} structure that specifies a group number and
          * processor affinity within the group.
@@ -264,16 +310,19 @@ public interface WinNT extends com.sun.jna.platform.win32.WinNT {
          * The maximum number of processor groups on the system.
          */
         public short maximumGroupCount;
+
         /**
          * The number of active groups on the system. This member indicates the
          * number of {@link PROCESSOR_GROUP_INFO} structures in the GroupInfo
          * array.
          */
         public short activeGroupCount;
+
         /**
          * This member is reserved.
          */
         public byte[] reserved = new byte[20];
+
         /**
          * An array of {@link PROCESSOR_GROUP_INFO} structures. The
          * {@link #activeGroupCount} member specifies the number of structures
@@ -309,10 +358,12 @@ public interface WinNT extends com.sun.jna.platform.win32.WinNT {
          * within the specified group.
          */
         public ULONG_PTR /* KAFFINITY */ mask;
+
         /**
          * The processor group number.
          */
         public short group;
+
         /**
          * This member is reserved.
          */
@@ -337,14 +388,17 @@ public interface WinNT extends com.sun.jna.platform.win32.WinNT {
          * The maximum number of processors in the group.
          */
         public byte maximumProcessorCount;
+
         /**
          * The number of active processors in the group.
          */
         public byte activeProcessorCount;
+
         /**
          * This member is reserved.
          */
         public byte[] reserved = new byte[38];
+
         /**
          * A bitmap that specifies the affinity for zero or more active
          * processors within the group.
