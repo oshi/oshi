@@ -41,6 +41,9 @@ public interface WinNT extends com.sun.jna.platform.win32.WinNT {
      * Contains information about the relationships of logical processors and
      * related hardware. The {@link Kernel32#GetLogicalProcessorInformationEx}
      * function uses this structure.
+     * <p>
+     * The native structure contains a union, which is mapped to JNA as
+     * subclasses.
      */
     @FieldOrder({ "relationship", "size" })
     public abstract class SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX extends Structure {
@@ -83,12 +86,12 @@ public interface WinNT extends com.sun.jna.platform.win32.WinNT {
          * Create a new instance of the appropriate subclass of
          * {@link SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX} from the provided
          * {@link Pointer} to native memory. Use this method rather than
-         * {@link #SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX(Pointer memory)} to
-         * properly cast the Pointer to the appropriate subclass and populate
-         * variable length arrays.
+         * {@link #SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX(Pointer)} to properly
+         * cast the Pointer to the appropriate subclass and populate variable
+         * length arrays.
          * 
          * @param memory
-         *            A pointer to allocated memory to be cst to this class.
+         *            A pointer to allocated memory to be cast to this class.
          * @return An instance of the appropriate subclass depending on the
          *         value of the {@link #relationship} field. If the
          *         {@link #relationship} member is
@@ -256,7 +259,8 @@ public interface WinNT extends com.sun.jna.platform.win32.WinNT {
     public static class CACHE_RELATIONSHIP extends SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX {
 
         /**
-         * The cache level. This member can be 1 (L1), 2 (L2), or 3 (L3).
+         * The cache level. This member can be 1 (L1), 2 (L2), 3 (L3), or 4
+         * (L4).
          */
         public byte level;
 
