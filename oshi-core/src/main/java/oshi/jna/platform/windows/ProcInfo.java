@@ -29,13 +29,13 @@ import java.util.List;
 
 import com.sun.jna.platform.win32.WinNT.LOGICAL_PROCESSOR_RELATIONSHIP;
 
-import oshi.jna.platform.windows.WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX;
 import oshi.jna.platform.windows.WinNT.CACHE_RELATIONSHIP;
 import oshi.jna.platform.windows.WinNT.GROUP_AFFINITY;
 import oshi.jna.platform.windows.WinNT.GROUP_RELATIONSHIP;
 import oshi.jna.platform.windows.WinNT.NUMA_NODE_RELATIONSHIP;
 import oshi.jna.platform.windows.WinNT.PROCESSOR_GROUP_INFO;
 import oshi.jna.platform.windows.WinNT.PROCESSOR_RELATIONSHIP;
+import oshi.jna.platform.windows.WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX;
 
 /**
  * Temporary test case to verify code behaves as expected. These methods will be
@@ -159,10 +159,10 @@ public class ProcInfo {
                 packages.add(((PROCESSOR_RELATIONSHIP) procInfo[i]).groupMask);
                 break;
             case LOGICAL_PROCESSOR_RELATIONSHIP.RelationNumaNode:
-                numaNodes.add(((NUMA_NODE_RELATIONSHIP)procInfo[i]));
+                numaNodes.add((NUMA_NODE_RELATIONSHIP) procInfo[i]);
                 break;
             case LOGICAL_PROCESSOR_RELATIONSHIP.RelationCache:
-                caches.add(((CACHE_RELATIONSHIP) procInfo[i]));
+                caches.add((CACHE_RELATIONSHIP) procInfo[i]);
                 break;
             case LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorCore:
                 cores.add(((PROCESSOR_RELATIONSHIP) procInfo[i]).groupMask[0]);
