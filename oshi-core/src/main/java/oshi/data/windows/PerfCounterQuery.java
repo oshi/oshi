@@ -62,7 +62,9 @@ public class PerfCounterQuery<T extends Enum<T>> {
      * Multiple classes use these constants
      */
     public static final String TOTAL_INSTANCE = "_Total";
+    public static final String TOTAL_INSTANCES = "*_Total";
     public static final String NOT_TOTAL_INSTANCE = "^" + TOTAL_INSTANCE;
+    public static final String NOT_TOTAL_INSTANCES = "^" + TOTAL_INSTANCES;
 
     /**
      * Construct a new object to hold performance counter data source and

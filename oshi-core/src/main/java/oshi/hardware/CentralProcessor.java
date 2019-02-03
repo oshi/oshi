@@ -352,6 +352,13 @@ public interface CentralProcessor extends Serializable {
      * topology.
      */
     class LogicalProcessor implements Serializable {
+        private static final long serialVersionUID = 1L;
+
+        private int processorNumber;
+        private int physicalProcessorNumber;
+        private int physicalPackageNumber;
+        private int numaNode;
+        private int processorGroup;
 
         /**
          * @param processorNumber
@@ -400,14 +407,6 @@ public interface CentralProcessor extends Serializable {
             this.numaNode = numaNode;
             this.processorGroup = processorGroup;
         }
-
-        private static final long serialVersionUID = 1L;
-
-        private int processorNumber;
-        private int physicalProcessorNumber;
-        private int physicalPackageNumber;
-        private int numaNode;
-        private int processorGroup;
 
         /**
          * The Logical Processor number as seen by the Operating System. Used
