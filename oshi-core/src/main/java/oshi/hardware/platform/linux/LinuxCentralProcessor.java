@@ -25,8 +25,10 @@ package oshi.hardware.platform.linux;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -113,6 +115,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     protected LogicalProcessor[] initProcessorCounts() {
+        Map<Integer, Integer> numaNodeMap = mapNumaNodes();
         List<String> procCpu = FileUtil.readFile("/proc/cpuinfo");
         List<LogicalProcessor> logProcs = new ArrayList<>();
         int currentProcessor = 0;
@@ -123,7 +126,8 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
             // Count logical processors
             if (cpu.startsWith("processor")) {
                 if (!first) {
-                    logProcs.add(new LogicalProcessor(currentProcessor, currentCore, currentPackage));
+                    logProcs.add(new LogicalProcessor(currentProcessor, currentCore, currentPackage,
+                            numaNodeMap.getOrDefault(currentProcessor, 0)));
                 } else {
                     first = false;
                 }
@@ -135,7 +139,8 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
                 currentPackage = ParseUtil.parseLastInt(cpu, 0);
             }
         }
-        logProcs.add(new LogicalProcessor(currentProcessor, currentCore, currentPackage));
+        logProcs.add(new LogicalProcessor(currentProcessor, currentCore, currentPackage,
+                numaNodeMap.getOrDefault(currentProcessor, 0)));
         Set<Integer> physProcs = new HashSet<>();
         Set<Integer> physPkgs = new HashSet<>();
         for (LogicalProcessor logProc : logProcs) {
@@ -147,6 +152,27 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
         this.physicalPackageCount = physPkgs.size();
 
         return logProcs.toArray(new LogicalProcessor[0]);
+    }
+
+    private Map<Integer, Integer> mapNumaNodes() {
+        Map<Integer, Integer> numaNodeMap = new HashMap<>();
+        // Get numa node info from lscpu
+        List<String> lscpu = ExecutingCommand.runNative("lscpu -p=cpu,node");
+        // Format:
+        // # comment lines starting with #
+        // # then comma-delimited cpu,node
+        // 0,0
+        // 1,0
+        for (String line : lscpu) {
+            if (line.startsWith("#")) {
+                continue;
+            }
+            String[] split = line.split(",");
+            if (split.length == 2) {
+                numaNodeMap.put(ParseUtil.parseIntOrDefault(split[0], 0), ParseUtil.parseIntOrDefault(split[1], 0));
+            }
+        }
+        return numaNodeMap;
     }
 
     /**
