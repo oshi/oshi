@@ -154,7 +154,7 @@
 		<maven-dependency-plugin.version>3.1.1</maven-dependency-plugin.version>
 		<maven-release-plugin.version>2.5.3</maven-release-plugin.version>
 		<maven-source-plugin.version>3.0.1</maven-source-plugin.version>
-		<spotbugs-maven-plugin.version>3.1.10</spotbugs-maven-plugin.version>
+		<spotbugs-maven-plugin.version>3.1.11</spotbugs-maven-plugin.version>
 		<jacoco-maven-plugin.version>0.8.3</jacoco-maven-plugin.version>
 		<coveralls-maven-plugin.version>4.3.0</coveralls-maven-plugin.version>
 		<tidy-maven-plugin.version>1.1.0</tidy-maven-plugin.version>
