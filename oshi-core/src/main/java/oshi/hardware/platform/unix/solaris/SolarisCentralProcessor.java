@@ -94,10 +94,11 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
         List<LogicalProcessor> logProcs = new ArrayList<>();
         for (Kstat ksp : kstats) {
             if (ksp != null && KstatUtil.kstatRead(ksp)) {
+                int procId = logProcs.size(); // 0-indexed
                 String coreId = KstatUtil.kstatDataLookupString(ksp, "core_id");
                 String chipId = KstatUtil.kstatDataLookupString(ksp, "chip_id");
-                LogicalProcessor logProc = new LogicalProcessor(logProcs.size(), ParseUtil.parseIntOrDefault(coreId, 0),
-                        ParseUtil.parseIntOrDefault(chipId, 0));
+                LogicalProcessor logProc = new LogicalProcessor(procId, ParseUtil.parseIntOrDefault(coreId, 0),
+                        ParseUtil.parseIntOrDefault(chipId, 0), numaNodeMap.getOrDefault(procId, 0));
                 logProcs.add(logProc);
                 coreIDs.add(coreId);
                 chipIDs.add(chipId);
@@ -136,7 +137,6 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
         for (String line : lgrpinfo) {
             if (line.startsWith("lgroup")) {
                 lgroup = ParseUtil.getFirstIntValue(line);
-                continue;
             } else if (line.contains("CPUs:")) {
                 String[] cpuList = ParseUtil.whitespaces.split(line.split(":")[1]);
                 for (String cpu : cpuList) {

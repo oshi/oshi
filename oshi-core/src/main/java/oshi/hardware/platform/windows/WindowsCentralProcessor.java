@@ -33,6 +33,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sun.jna.Memory;
 import com.sun.jna.Native; // NOSONAR squid:S1191
 import com.sun.jna.platform.win32.Advapi32Util;
 import com.sun.jna.platform.win32.WinBase;
@@ -51,6 +52,7 @@ import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.jna.platform.windows.Kernel32;
 import oshi.jna.platform.windows.Kernel32Util;
 import oshi.jna.platform.windows.PowrProf;
+import oshi.jna.platform.windows.PowrProf.POWER_INFORMATION_LEVEL;
 import oshi.jna.platform.windows.PowrProf.ProcessorPowerInformation;
 import oshi.jna.platform.windows.VersionHelpers;
 import oshi.jna.platform.windows.WinNT;
@@ -492,20 +494,22 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
      * @return The array of values.
      */
     private long[] queryNTPower(int fieldIndex) {
+        ProcessorPowerInformation ppi = new ProcessorPowerInformation();
         long[] freqs = new long[getLogicalProcessorCount()];
-        ProcessorPowerInformation[] ppiArray = (ProcessorPowerInformation[]) new ProcessorPowerInformation()
-                .toArray(freqs.length);
-        if (0 != PowrProf.INSTANCE.CallNtPowerInformation(PowrProf.PROCESSOR_INFORMATION, null, 0, ppiArray[0],
-                ppiArray[0].size() * ppiArray.length)) {
+        int bufferSize = ppi.size() * freqs.length;
+        Memory mem = new Memory(bufferSize);
+        if (0 != PowrProf.INSTANCE.CallNtPowerInformation(POWER_INFORMATION_LEVEL.PROCESSOR_INFORMATION, null, 0, mem,
+                bufferSize)) {
             LOG.error("Unable to get Processor Information");
             Arrays.fill(freqs, -1L);
             return freqs;
         }
         for (int i = 0; i < freqs.length; i++) {
+            ppi = new ProcessorPowerInformation(mem.share(i * (long) ppi.size()));
             if (fieldIndex == 1) { // Max
-                freqs[i] = ppiArray[i].MaxMhz * 1_000_000L;
+                freqs[i] = ppi.maxMhz * 1_000_000L;
             } else if (fieldIndex == 2) { // Current
-                freqs[i] = ppiArray[i].CurrentMhz * 1_000_000L;
+                freqs[i] = ppi.currentMhz * 1_000_000L;
             } else {
                 freqs[i] = -1L;
             }
