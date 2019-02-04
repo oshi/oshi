@@ -120,7 +120,7 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
             LOG.error("Couldn't find physical processor count. Assuming 1.");
             this.physicalProcessorCount = 1;
         }
-        return logProcs.toArray(new LogicalProcessor[logProcs.size()]);
+        return logProcs.toArray(new LogicalProcessor[0]);
     }
 
     private Map<Integer, Integer> mapNumaNodes() {

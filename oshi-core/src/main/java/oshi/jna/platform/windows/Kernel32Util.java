@@ -77,6 +77,6 @@ public class Kernel32Util extends com.sun.jna.platform.win32.Kernel32Util {
             procInfoList.add(information);
             offset += information.size;
         }
-        return procInfoList.toArray(new SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX[procInfoList.size()]);
+        return procInfoList.toArray(new SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX[0]);
     }
 }
