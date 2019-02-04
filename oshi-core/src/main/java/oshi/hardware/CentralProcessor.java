@@ -76,7 +76,7 @@ public interface CentralProcessor extends Serializable {
      * EAX register, which is the Processor signature, represented in
      * human-readable form by {@link #getIdentifier()} . The remaining four
      * bytes are the contents of the EDX register, containing feature flags.
-     *
+     * <p>
      * NOTE: The order of returned bytes is platform and software dependent.
      * Values may be in either Big Endian or Little Endian order.
      *
@@ -114,7 +114,10 @@ public interface CentralProcessor extends Serializable {
     String getFamily();
 
     /**
-     * Returns an array of the CPU's logical processors.
+     * Returns an array of the CPU's logical processors. The array will be
+     * sorted in order of increasing NUMA node number, and then processor
+     * number. This order is consistent with other methods providing
+     * per-processor results.
      * 
      * @return The logical processor array.
      */
@@ -135,17 +138,23 @@ public interface CentralProcessor extends Serializable {
 
     /**
      * Get System-wide CPU Load tick counters. Returns an array with seven
-     * elements representing either clock ticks or milliseconds (platform
-     * dependent) spent in User (0), Nice (1), System (2), Idle (3), IOwait (4),
-     * Hardware interrupts (IRQ) (5), Software interrupts/DPC (SoftIRQ) (6), or
-     * Steal (7) states. Use {@link TickType#getIndex()} to retrieve the
-     * appropriate index. By measuring the difference between ticks across a
-     * time interval, CPU load over that interval may be calculated.
-     *
+     * elements representing milliseconds spent in User (0), Nice (1), System
+     * (2), Idle (3), IOwait (4), Hardware interrupts (IRQ) (5), Software
+     * interrupts/DPC (SoftIRQ) (6), or Steal (7) states. Use
+     * {@link TickType#getIndex()} to retrieve the appropriate index. By
+     * measuring the difference between ticks across a time interval, CPU load
+     * over that interval may be calculated.
+     * <p>
+     * Note that while tick counters are in units of milliseconds, they may
+     * advance in larger increments (platform dependent). For example, by
+     * default Windows clock ticks are 1/64 of a second (about 15 or 16
+     * milliseconds) and Linux ticks are distribution and configuration
+     * dependent but usually 1/100 of a second (10 milliseconds).
+     * <p>
      * Nice and IOWait information is not available on Windows, and IOwait and
      * IRQ information is not available on macOS, so these ticks will always be
      * zero.
-     *
+     * <p>
      * To calculate overall Idle time using this method, include both Idle and
      * IOWait ticks. Similarly, IRQ, SoftIRQ, and Steal ticks should be added to
      * the System value to get the total. System ticks also include time
@@ -215,17 +224,23 @@ public interface CentralProcessor extends Serializable {
     /**
      * Get Processor CPU Load tick counters. Returns a two dimensional array,
      * with {@link #getLogicalProcessorCount()} arrays, each containing seven
-     * elements representing either clock ticks or milliseconds (platform
-     * dependent) spent in User (0), Nice (1), System (2), Idle (3), IOwait (4),
-     * Hardware interrupts (IRQ) (5), Software interrupts/DPC (SoftIRQ) (6), or
-     * Steal (7) states. Use {@link TickType#getIndex()} to retrieve the
-     * appropriate index. By measuring the difference between ticks across a
-     * time interval, CPU load over that interval may be calculated.
-     *
+     * elements representing milliseconds spent in User (0), Nice (1), System
+     * (2), Idle (3), IOwait (4), Hardware interrupts (IRQ) (5), Software
+     * interrupts/DPC (SoftIRQ) (6), or Steal (7) states. Use
+     * {@link TickType#getIndex()} to retrieve the appropriate index. By
+     * measuring the difference between ticks across a time interval, CPU load
+     * over that interval may be calculated.
+     * <p>
+     * Note that while tick counters are in units of milliseconds, they may
+     * advance in larger increments (platform dependent). For example, by
+     * default Windows clock ticks are 1/64 of a second (about 15 or 16
+     * milliseconds) and Linux ticks are distribution and configuration
+     * dependent but usually 1/100 of a second (10 milliseconds).
+     * <p>
      * Nice and IOwait per processor information is not available on Windows,
      * and IOwait and IRQ information is not available on macOS, so these ticks
      * will always be zero.
-     *
+     * <p>
      * To calculate overall Idle time using this method, include both Idle and
      * IOWait ticks. Similarly, IRQ, SoftIRQ and Steal ticks should be added to
      * the System value to get the total. System ticks also include time
@@ -444,7 +459,7 @@ public interface CentralProcessor extends Serializable {
         /**
          * The NUMA node. If the operating system supports Non-Uniform Memory
          * Access this identifies the node number. Set to 0 if the operating
-         * system does not support NUMA.
+         * system does not support NUMA. Not supported on macOS or FreeBSD.
          * 
          * @return the NUMA Node number
          */
