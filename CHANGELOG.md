@@ -6,6 +6,7 @@
 * [#775](https://github.com/oshi/oshi/pull/775): API overhaul - GlobalMemory, new VirtualMemory. - [@dbwiddis](https://github.com/dbwiddis).
 * [#776](https://github.com/oshi/oshi/pull/776): oshi-demo artifact. - [@dbwiddis](https://github.com/dbwiddis).
 * [#779](https://github.com/oshi/oshi/pull/779): API overhaul - CentralProcessor, new LogicalProcessor. - [@dbwiddis](https://github.com/dbwiddis).
+* [#794](https://github.com/oshi/oshi/pull/794): Add NUMA nodes to Logical Processors. - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here.
 
 3.13.0 (1/18/2019)

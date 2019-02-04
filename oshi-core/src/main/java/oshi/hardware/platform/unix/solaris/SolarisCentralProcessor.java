@@ -25,8 +25,10 @@ package oshi.hardware.platform.unix.solaris;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -83,6 +85,7 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     protected LogicalProcessor[] initProcessorCounts() {
+        Map<Integer, Integer> numaNodeMap = mapNumaNodes();
         List<Kstat> kstats = KstatUtil.kstatLookupAll("cpu_info", -1, null);
         Set<String> chipIDs = new HashSet<>();
         Set<String> coreIDs = new HashSet<>();
@@ -120,6 +123,38 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
         return logProcs.toArray(new LogicalProcessor[logProcs.size()]);
     }
 
+    private Map<Integer, Integer> mapNumaNodes() {
+        Map<Integer, Integer> numaNodeMap = new HashMap<>();
+        // Get numa node info from lgrpinfo
+        List<String> lgrpinfo = ExecutingCommand.runNative("lgrpinfo -c leaves");
+        // Format:
+        // lgroup 0 (root):
+        // CPUs 0 1
+        // CPUs 0-7
+        // CPUs 0-3 6 7 12 13
+        int lgroup = 0;
+        for (String line : lgrpinfo) {
+            if (line.startsWith("lgroup")) {
+                lgroup = ParseUtil.getFirstIntValue(line);
+                continue;
+            } else if (line.contains("CPUs:")) {
+                String[] cpuList = ParseUtil.whitespaces.split(line.split(":")[1]);
+                for (String cpu : cpuList) {
+                    // Will either be individual CPU or hyphen-delimited range
+                    if (cpu.contains("-")) {
+                        int first = ParseUtil.getFirstIntValue(cpu);
+                        int last = ParseUtil.getNthIntValue(line, 2);
+                        for (int i = first; i <= last; i++) {
+                            numaNodeMap.put(i, lgroup);
+                        }
+                    } else {
+                        numaNodeMap.put(ParseUtil.parseIntOrDefault(cpu, 0), lgroup);
+                    }
+                }
+            }
+        }
+        return numaNodeMap;
+    }
     /**
      * {@inheritDoc}
      */
