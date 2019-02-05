@@ -49,25 +49,7 @@ public class Util {
             Thread.sleep(ms);
         } catch (InterruptedException e) { // NOSONAR squid:S2142
             LOG.warn("Interrupted while sleeping for {} ms: {}", ms, e);
-        }
-    }
-
-    /**
-     * Sleeps for the specified number of milliseconds after the given system
-     * time in milliseconds. If that number of milliseconds has already elapsed,
-     * does nothing.
-     *
-     * @param startTime
-     *            System time in milliseconds to sleep after
-     * @param ms
-     *            How long after startTime to sleep
-     */
-    public static void sleepAfter(long startTime, long ms) {
-        long now = System.currentTimeMillis();
-        long until = startTime + ms;
-        LOG.trace("Sleeping until {}", until);
-        if (now < until) {
-            sleep(until - now);
+            Thread.currentThread().interrupt();
         }
     }
 

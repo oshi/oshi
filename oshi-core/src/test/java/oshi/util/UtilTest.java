@@ -39,16 +39,6 @@ public class UtilTest {
         long now = System.nanoTime();
         Util.sleep(100);
         assertTrue(System.nanoTime() - now >= 90_000_000);
-
-        now = System.nanoTime();
-        long then = System.currentTimeMillis() + 100;
-        Util.sleepAfter(then, 100);
-        assertTrue(System.nanoTime() - now >= 190_000_000);
-
-        now = System.nanoTime();
-        then = System.currentTimeMillis() - 550;
-        Util.sleepAfter(then, 500);
-        assertTrue(System.nanoTime() - now < 500_000_000);
     }
 
     @Test
