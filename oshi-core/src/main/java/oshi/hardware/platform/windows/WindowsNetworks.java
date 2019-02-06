@@ -58,10 +58,10 @@ public class WindowsNetworks extends AbstractNetworks {
         if (IS_VISTA_OR_GREATER) {
             // Create new MIB_IFROW2 and set index to this interface index
             MIB_IF_ROW2 ifRow = new MIB_IF_ROW2();
-            ifRow.InterfaceIndex = netIF.getNetworkInterface().getIndex();
+            ifRow.InterfaceIndex = netIF.queryNetworkInterface().getIndex();
             if (0 != IPHlpAPI.INSTANCE.GetIfEntry2(ifRow)) {
                 // Error, abort
-                LOG.error("Failed to retrieve data for interface {}, {}", netIF.getNetworkInterface().getIndex(),
+                LOG.error("Failed to retrieve data for interface {}, {}", netIF.queryNetworkInterface().getIndex(),
                         netIF.getName());
                 return;
             }
@@ -76,10 +76,10 @@ public class WindowsNetworks extends AbstractNetworks {
         } else {
             // Create new MIB_IFROW and set index to this interface index
             MIB_IFROW ifRow = new MIB_IFROW();
-            ifRow.dwIndex = netIF.getNetworkInterface().getIndex();
+            ifRow.dwIndex = netIF.queryNetworkInterface().getIndex();
             if (0 != IPHlpAPI.INSTANCE.GetIfEntry(ifRow)) {
                 // Error, abort
-                LOG.error("Failed to retrieve data for interface {}, {}", netIF.getNetworkInterface().getIndex(),
+                LOG.error("Failed to retrieve data for interface {}, {}", netIF.queryNetworkInterface().getIndex(),
                         netIF.getName());
                 return;
             }

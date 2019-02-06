@@ -23,7 +23,8 @@ available to cause the getters to return updated values.
  (in cpu or time) methods.
 
 The following getX() methods are now queryX():
- - TBD
+ - NetworkIF: getNetworkInterface() -> queryNetworkInterface() to prevent
+Jackson's ObjectMapper from attempting to serialize the returned object.
 
 There is a new `VirtualMemory `class which is accessible with a getter from 
 `GlobalMemory`.  Methods associated with swap file usage were moved to this

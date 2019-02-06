@@ -49,7 +49,7 @@ public class NetworksTest {
         SystemInfo si = new SystemInfo();
 
         for (NetworkIF net : si.getHardware().getNetworkIFs()) {
-            assertNotNull(net.getNetworkInterface());
+            assertNotNull(net.queryNetworkInterface());
             assertNotNull(net.getName());
             assertNotNull(net.getDisplayName());
             assertNotNull(net.getMacaddr());
@@ -83,7 +83,7 @@ public class NetworksTest {
             assertEquals(50L, net.getSpeed());
             assertEquals(timeStamp, net.getTimeStamp());
 
-            net.updateNetworkStats();
+            net.updateAttributes();
             assertTrue(net.getBytesRecv() >= 0);
             assertTrue(net.getBytesSent() >= 0);
             assertTrue(net.getPacketsRecv() >= 0);
