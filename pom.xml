@@ -121,7 +121,7 @@
 		<main.basedir>${project.basedir}</main.basedir>
 		<!-- Dependency versions -->
 		<slf4j.version>1.7.25</slf4j.version>
-		<junit-vintage-engine.version>5.4.0-RC2</junit-vintage-engine.version>
+		<junit-vintage-engine.version>5.4.0</junit-vintage-engine.version>
 		<!-- Compile versions -->
 		<maven-clean-plugin.version>3.1.0</maven-clean-plugin.version>
 		<maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
