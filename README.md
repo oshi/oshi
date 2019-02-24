@@ -19,7 +19,7 @@
 [![Say Thanks!](https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg)](https://saythanks.io/to/dbwiddis)
 
 OSHI is a free JNA-based (native) Operating System and Hardware Information library for Java.
-It doesn't require the installation of any additional native libraries and aims to provide a 
+It does not require the installation of any additional native libraries and aims to provide a 
 cross-platform implementation to retrieve system information, such as OS version, processes, 
 memory & CPU usage, disks & partitions, devices, sensors, etc.
 
@@ -41,7 +41,7 @@ Supported features
 * Physical (core) and Logical (hyperthreaded) CPUs 
 * System and per-processor load % and tick counters
 * CPU uptime, processes, and threads
-* Process uptime, cpu, memory usage
+* Process uptime, CPU, memory usage
 * Physical and virtual memory used/available
 * Mounted filesystems (type, usable and total space)
 * Disk drives (model, serial, size) and partitions
@@ -59,11 +59,11 @@ Downloads
 
 Output
 -------------
-OSHI provides output directly via java methods for each of its interfaces.  
+OSHI provides output directly via Java methods for each of its interfaces.  
 By periodically polling dynamic information (e.g., every second), users can calculate and track changes.
 
 The `main()` method of [SystemInfoTest](https://github.com/oshi/oshi/blob/master/oshi-core/src/test/java/oshi/SystemInfoTest.java) 
-provides sample code demonstrating the use of `oshi-core` interfaces to retrieve information and calculate additional metrics such as the below examples.
+provides sample code demonstrating the use of `oshi-core` interfaces to retrieve information and calculate additional metrics shown in the examples below.
 
 General information about the operating system and computer system.
 ```
@@ -183,9 +183,9 @@ Where are we?
 -------------
 [OSHI originated](http://code.dblock.org/2010/06/23/introducing-oshi-operating-system-and-hardware-information-java.html) 
 as a platform-independent library that did not require additional software and had a license compatible with 
-both open source and commercial products. We've developed a strong core of features on major Operating Systems, 
-but we would love *you* to help by:
-* Testing!  Download and test the program on different software and hardware and help identify gaps that our limited development and testing may have missed.
+both open source and commercial products. We have developed a strong core of features on major Operating Systems, 
+but we would love for *you* to help by:
+* Testing!  Download and test the program on various software and hardware and help identify gaps that our limited development and testing may have missed.
 * Contributing ports.  Have an OS that's not covered? It's likely one of the existing ports can be slightly modified.
 * Contributing code.  See something that's not working right or could work better?  Help us fix it!  New contributors welcome.
 * Documenting implementation.  Our Wiki is blank.  Want to help new users follow in your footsteps?
