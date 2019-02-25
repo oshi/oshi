@@ -217,6 +217,8 @@ Projects using OSHI
 * [360Suite](https://360suite.io/)
 * [GoMint](https://gomint.io/)
 * [Stefan's OS](https://BotCompany.de/)
+* [Eclipse Passage](https://projects.eclipse.org/projects/technology.passage)
+* [Eclipse Orbit](https://projects.eclipse.org/projects/tools.orbit)
 
 License
 -------
