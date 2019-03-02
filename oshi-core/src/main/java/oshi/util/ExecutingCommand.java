@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.sun.jna.Platform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +51,12 @@ public class ExecutingCommand {
      *         empty string if the command failed
      */
     public static List<String> runNative(String cmdToRun) {
-        String[] cmd = cmdToRun.split(" ");
+        String[] cmd;
+        if(Platform.isWindows() || Platform.isWindowsCE()){
+            cmd = new String[]{"cmd.exe","/c",cmdToRun};
+        }else {
+                cmd = cmdToRun.split(" ");
+        }
         return runNative(cmd);
     }
 
