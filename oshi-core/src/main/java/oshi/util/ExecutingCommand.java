@@ -53,6 +53,7 @@ public class ExecutingCommand {
     public static List<String> runNative(String cmdToRun) {
         String[] cmd;
         if(Platform.isWindows() || Platform.isWindowsCE()){
+                // we have windows
             cmd = new String[]{"cmd.exe","/c",cmdToRun};
         }else {
                 cmd = cmdToRun.split(" ");
