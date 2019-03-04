@@ -48,6 +48,10 @@ public class ExecutingCommand {
 
     /**
      * Executes a command on the native command line and returns the result.
+     * This is a convenience method to call {@link Runtime#exec(String)} and
+     * capture the resulting output in a list of Strings. On Windows, built-in
+     * commands not associated with an executable program may require
+     * {@code cmd.exe /c} to be prepended to the command.
      *
      * @param cmdToRun
      *            Command to run
@@ -61,7 +65,11 @@ public class ExecutingCommand {
 
     /**
      * Executes a command on the native command line and returns the result line
-     * by line.
+     * by line. This is a convenience method to call
+     * {@link Runtime#exec(String[])} and capture the resulting output in a list
+     * of Strings. On Windows, built-in commands not associated with an
+     * executable program may require the strings {@code cmd.exe} and {@code /c}
+     * to be prepended to the array.
      *
      * @param cmdToRunWithArgs
      *            Command to run and args, in an array
