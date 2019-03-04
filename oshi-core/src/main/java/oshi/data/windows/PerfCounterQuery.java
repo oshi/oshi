@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import com.sun.jna.platform.win32.Variant; //NOSONAR
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
+import com.sun.jna.platform.win32.COM.Wbemcli;
 
 import oshi.util.platform.windows.PerfDataUtil;
 import oshi.util.platform.windows.PerfDataUtil.PerfCounter;
@@ -106,7 +107,7 @@ public class PerfCounterQuery<T extends Enum<T>> {
     public PerfCounterQuery(Class<T> propertyEnum, String perfObject, String perfWmiClass, String queryKey) {
         if (PdhCounterProperty.class.isAssignableFrom(propertyEnum.getDeclaringClass())) {
             throw new IllegalArgumentException(
-                    propertyEnum.getDeclaringClass().getName() + " must implement PdhCounterProperty.");
+                    propertyEnum.getClass().getName() + " must implement PdhCounterProperty.");
         }
         this.propertyEnum = propertyEnum;
         this.perfObject = perfObject;
@@ -232,18 +233,18 @@ public class PerfCounterQuery<T extends Enum<T>> {
         WmiResult<T> result = wmiQueryHandler.queryWMI(this.counterQuery);
         if (result.getResultCount() > 0) {
             for (T prop : props) {
-                switch (result.getVtType(prop)) {
-                case Variant.VT_I2:
+                switch (result.getCIMType(prop)) {
+                case Wbemcli.CIM_UINT16:
                     valueMap.put(prop, Long.valueOf(WmiUtil.getUint16(result, prop, 0)));
                     break;
-                case Variant.VT_I4:
+                case Wbemcli.CIM_UINT32:
                     valueMap.put(prop, WmiUtil.getUint32asLong(result, prop, 0));
                     break;
-                case Variant.VT_BSTR:
+                case Wbemcli.CIM_UINT64:
                     valueMap.put(prop, WmiUtil.getUint64(result, prop, 0));
                     break;
                 default:
-                    throw new ClassCastException("Unimplemented VT Type Mapping.");
+                    throw new ClassCastException("Unimplemented CIM Type Mapping.");
                 }
             }
         }
