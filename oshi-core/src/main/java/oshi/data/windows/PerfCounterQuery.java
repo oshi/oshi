@@ -105,10 +105,6 @@ public class PerfCounterQuery<T extends Enum<T>> {
      *            object name
      */
     public PerfCounterQuery(Class<T> propertyEnum, String perfObject, String perfWmiClass, String queryKey) {
-        if (PdhCounterProperty.class.isAssignableFrom(propertyEnum.getDeclaringClass())) {
-            throw new IllegalArgumentException(
-                    propertyEnum.getClass().getName() + " must implement PdhCounterProperty.");
-        }
         this.propertyEnum = propertyEnum;
         this.perfObject = perfObject;
         this.perfWmiClass = perfWmiClass;
