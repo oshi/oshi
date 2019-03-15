@@ -206,7 +206,8 @@ public class WindowsFileSystem implements FileSystem {
                 osStore.setDescription(getDriveType(strMount));
                 osStore.setType(strFsType);
                 osStore.setUUID(uuid);
-                osStore.setUsableSpace(systemFreeBytes.getValue());
+                osStore.setFreeSpace(systemFreeBytes.getValue());
+                osStore.setUsableSpace(userFreeBytes.getValue());
                 osStore.setTotalSpace(totalBytes.getValue());
                 fs.add(osStore);
             }
@@ -259,6 +260,7 @@ public class WindowsFileSystem implements FileSystem {
             osStore.setDescription(getDriveType(name));
             osStore.setType(WmiUtil.getString(drives, LogicalDiskProperty.FILESYSTEM, i));
             osStore.setUUID("");
+            osStore.setFreeSpace(free); // no separate field, assume same
             osStore.setUsableSpace(free);
             osStore.setTotalSpace(total);
             fs.add(osStore);

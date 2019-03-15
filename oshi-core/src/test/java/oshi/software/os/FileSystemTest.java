@@ -62,6 +62,7 @@ public class FileSystemTest {
             assertNotNull(store.getUUID());
             assertTrue(store.getTotalSpace() >= 0);
             assertTrue(store.getUsableSpace() >= 0);
+            assertTrue(store.getFreeSpace() >= 0);
             if (SystemInfo.getCurrentPlatformEnum() != PlatformEnum.WINDOWS) {
                 assertTrue(store.getFreeInodes() >= 0);
                 assertTrue(store.getTotalInodes() >= store.getFreeInodes());
@@ -78,6 +79,7 @@ public class FileSystemTest {
             store.setMount("mount");
             store.setUUID("uuid");
             store.setTotalSpace(12345L);
+            store.setFreeSpace(2345L);
             store.setUsableSpace(1234L);
 
             assertEquals("name", store.getName());
@@ -88,6 +90,7 @@ public class FileSystemTest {
             assertEquals("mount", store.getMount());
             assertEquals("uuid", store.getUUID());
             assertEquals(12345L, store.getTotalSpace());
+            assertEquals(2345L, store.getFreeSpace());
             assertEquals(1234L, store.getUsableSpace());
         }
     }

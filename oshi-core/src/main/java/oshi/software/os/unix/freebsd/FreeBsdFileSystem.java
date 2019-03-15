@@ -160,8 +160,10 @@ public class FreeBsdFileSystem implements FileSystem {
             if (name.isEmpty()) {
                 name = volume.substring(volume.lastIndexOf('/') + 1);
             }
-            long totalSpace = new File(path).getTotalSpace();
-            long usableSpace = new File(path).getUsableSpace();
+            File f = new File(path);
+            long totalSpace = f.getTotalSpace();
+            long usableSpace = f.getUsableSpace();
+            long freeSpace = f.getFreeSpace();
 
             String description;
             if (volume.startsWith("/dev") || path.equals("/")) {
@@ -184,6 +186,7 @@ public class FreeBsdFileSystem implements FileSystem {
             osStore.setDescription(description);
             osStore.setType(type);
             osStore.setUUID(uuid);
+            osStore.setFreeSpace(freeSpace);
             osStore.setUsableSpace(usableSpace);
             osStore.setTotalSpace(totalSpace);
             osStore.setFreeInodes(inodeFreeMap.containsKey(path) ? inodeFreeMap.get(path) : 0L);

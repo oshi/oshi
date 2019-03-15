@@ -197,6 +197,7 @@ public class LinuxFileSystem implements FileSystem {
             long freeInodes = 0L;
             long totalSpace = 0L;
             long usableSpace = 0L;
+            long freeSpace = 0L;
 
             try {
                 LibC.Statvfs vfsStat = new LibC.Statvfs();
@@ -204,11 +205,13 @@ public class LinuxFileSystem implements FileSystem {
                     totalInodes = vfsStat.f_files.longValue();
                     freeInodes = vfsStat.f_ffree.longValue();
                     totalSpace = vfsStat.f_blocks.longValue() * vfsStat.f_bsize.longValue();
-                    usableSpace = vfsStat.f_bfree.longValue() * vfsStat.f_bsize.longValue();
+                    usableSpace = vfsStat.f_bavail.longValue() * vfsStat.f_bsize.longValue();
+                    freeSpace = vfsStat.f_bfree.longValue() * vfsStat.f_bsize.longValue();
                 } else {
                     File tmpFile = new File(path);
                     totalSpace = tmpFile.getTotalSpace();
                     usableSpace = tmpFile.getUsableSpace();
+                    freeSpace = tmpFile.getFreeSpace();
                     LOG.error("Failed to get statvfs. Error code: {}", Native.getLastError());
                 }
             } catch (UnsatisfiedLinkError | NoClassDefFoundError e) {
@@ -222,6 +225,7 @@ public class LinuxFileSystem implements FileSystem {
             osStore.setDescription(description);
             osStore.setType(type);
             osStore.setUUID(uuid);
+            osStore.setFreeSpace(freeSpace);
             osStore.setUsableSpace(usableSpace);
             osStore.setTotalSpace(totalSpace);
             osStore.setFreeInodes(freeInodes);
