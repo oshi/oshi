@@ -43,6 +43,7 @@ public class OSFileStore implements Serializable {
     private String description;
     private String fsType;
     private String uuid;
+    private long freeSpace;
     private long usableSpace;
     private long totalSpace;
     private long freeInodes = -1;
@@ -65,6 +66,7 @@ public class OSFileStore implements Serializable {
         setDescription(fileStore.getDescription());
         setType(fileStore.getType());
         setUUID(fileStore.getUUID());
+        setFreeSpace(fileStore.getFreeSpace());
         setUsableSpace(fileStore.getUsableSpace());
         setTotalSpace(fileStore.getTotalSpace());
         setFreeInodes(fileStore.getFreeInodes());
@@ -209,7 +211,27 @@ public class OSFileStore implements Serializable {
     }
 
     /**
-     * Usable space on the drive.
+     * Free space on the drive. This space is unallocated but may require
+     * elevated permissions to write.
+     *
+     * @return Free space on the drive (in bytes)
+     */
+    public long getFreeSpace() {
+        return this.freeSpace;
+    }
+
+    /**
+     * Sets free space on the drive.
+     *
+     * @param value
+     *            Bytes of free space.
+     */
+    public void setFreeSpace(long value) {
+        this.freeSpace = value;
+    }
+
+    /**
+     * Usable space on the drive. This is space available to unprivileged users.
      *
      * @return Usable space on the drive (in bytes)
      */
