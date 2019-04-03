@@ -288,8 +288,8 @@ public class SystemInfoTest {
                         (int) (timeRemaining / 60) % 60));
             }
         }
-        for (PowerSource pSource : powerSources) {
-            sb.append(String.format("%n %s @ %.1f%%", pSource.getName(), pSource.getRemainingCapacity() * 100d));
+        for (PowerSource powerSource : powerSources) {
+            sb.append(String.format("%n %s @ %.1f%%", powerSource.getName(), powerSource.getRemainingCapacity() * 100d));
         }
         oshi.add(sb.toString());
     }
