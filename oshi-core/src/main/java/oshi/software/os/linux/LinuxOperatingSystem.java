@@ -214,7 +214,8 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         Pointer buf = new Memory(1024);
         int size = Libc.INSTANCE.readlink(String.format("/proc/%d/exe", pid), buf, 1023);
         if (size > 0) {
-            path = buf.getString(0).substring(0, size);
+            String tmp = buf.getString(0);
+            path = tmp.substring(0, tmp.length() < size ? tmp.length() : size);
         }
         Map<String, String> io = FileUtil.getKeyValueMapFromFile(String.format("/proc/%d/io", pid), ":");
         // See man proc for how to parse /proc/[pid]/stat
