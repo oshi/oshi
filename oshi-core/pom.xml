@@ -46,7 +46,7 @@
 	</scm>
 
 	<properties>
-		<jna.version>5.2.0</jna.version>
+		<jna.version>5.3.0</jna.version>
 		<main.basedir>${project.parent.basedir}</main.basedir>
 	</properties>
 
