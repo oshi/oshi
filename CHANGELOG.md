@@ -7,14 +7,16 @@
 * [#776](https://github.com/oshi/oshi/pull/776): oshi-demo artifact. - [@dbwiddis](https://github.com/dbwiddis).
 * [#779](https://github.com/oshi/oshi/pull/779): API overhaul - CentralProcessor, new LogicalProcessor. - [@dbwiddis](https://github.com/dbwiddis).
 * [#794](https://github.com/oshi/oshi/pull/794): Add NUMA nodes to Logical Processors. - [@dbwiddis](https://github.com/dbwiddis).
+* [#838](https://github.com/oshi/oshi/pull/838): JNA 5.3.0. - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here.
 
-3.13.0 (1/18/2019)
+3.13.0 (1/18/2019), 3.13.1 (4/21/2019)
 ================
 * [#763](https://github.com/oshi/oshi/pull/763): Refactor PDH/WMI Fallback. - [@dbwiddis](https://github.com/dbwiddis).
 * [#766](https://github.com/oshi/oshi/pull/766): Use query key to update counters in groups. - [@dbwiddis](https://github.com/dbwiddis).
 * [#767](https://github.com/oshi/oshi/pull/767): Allow subclassing WmiQueryHandler with reflection. - [@dbwiddis](https://github.com/dbwiddis).
 * [#769](https://github.com/oshi/oshi/pull/769): Close PDH handles after each query. - [@dbwiddis](https://github.com/dbwiddis).
+* [#839](https://github.com/oshi/oshi/pull/838): JNA 5.3.0. - [@dbwiddis](https://github.com/dbwiddis).
 
 3.12.1 (12/31/2018), 3.12.2 (1/10/2019)
 ================
