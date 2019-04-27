@@ -310,7 +310,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
         }
         return ticks;
     }
-    
+
     /**
      * {@inheritDoc}
      */
