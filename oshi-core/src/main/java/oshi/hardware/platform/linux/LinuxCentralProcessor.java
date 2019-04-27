@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
 
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.jna.platform.linux.Libc;
+import oshi.software.os.linux.LinuxOperatingSystem;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
@@ -180,7 +181,13 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public long[] querySystemCpuLoadTicks() {
-        return ProcUtil.readSystemCpuLoadTicks();
+        // convert the Linux Jiffies to Milliseconds.
+        long[] ticks = ProcUtil.readSystemCpuLoadTicks();
+        long hz = LinuxOperatingSystem.getHz();
+        for (int i = 0; i < ticks.length; i++) {
+            ticks[i] = ticks[i] * 1000L / hz;
+        }
+        return ticks;
     }
 
     /**
@@ -292,6 +299,13 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
                 if (++cpu >= this.logicalProcessorCount) {
                     break;
                 }
+            }
+        }
+        // convert the Linux Jiffies to Milliseconds.
+        long hz = LinuxOperatingSystem.getHz();
+        for (int i = 0; i < ticks.length; i++) {
+            for (int j = 0; j < ticks[i].length; j++) {
+                ticks[i][j] = ticks[i][j] * 1000L / hz;
             }
         }
         return ticks;
