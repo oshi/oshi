@@ -278,7 +278,10 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
         IntByReference size = new IntByReference(argmax);
         // Fetch arguments
         if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, procargs, size, null, 0)) {
-            LOG.error("Failed syctl call: kern.procargs2, Error code: {}", Native.getLastError());
+            LOG.warn(
+                    "Failed syctl call for process arguments (kern.procargs2), process {} may not exist. Error code: {}",
+                    pid,
+                    Native.getLastError());
             return "";
         }
         // Procargs contains an int representing total # of args, followed by a
