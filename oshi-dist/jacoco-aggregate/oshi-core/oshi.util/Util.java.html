@@ -145,27 +145,27 @@ public class Util {
         // Try well known MAC addresses
 <span class="fc" id="L146">        NetworkIF[] nifs = hw.getNetworkIFs();</span>
 
-<span class="fc bfc" id="L148" title="All 2 branches covered.">        for (NetworkIF nif : nifs) {</span>
+<span class="pc bpc" id="L148" title="1 of 2 branches missed.">        for (NetworkIF nif : nifs) {</span>
 <span class="fc" id="L149">            String mac = nif.getMacaddr().substring(0, 8).toUpperCase();</span>
-<span class="pc bpc" id="L150" title="1 of 2 branches missed.">            if (vmMacAddressOUI.containsKey(mac)) {</span>
-<span class="nc" id="L151">                return vmMacAddressOUI.get(mac);</span>
+<span class="fc bfc" id="L150" title="All 2 branches covered.">            if (vmMacAddressOUI.containsKey(mac)) {</span>
+<span class="fc" id="L151">                return vmMacAddressOUI.get(mac);</span>
             }
         }
 
         // Try well known models
-<span class="fc" id="L156">        String model = hw.getComputerSystem().getModel();</span>
-<span class="fc bfc" id="L157" title="All 2 branches covered.">        for (String vm : vmModelArray) {</span>
-<span class="pc bpc" id="L158" title="1 of 2 branches missed.">            if (model.contains(vm)) {</span>
+<span class="nc" id="L156">        String model = hw.getComputerSystem().getModel();</span>
+<span class="nc bnc" id="L157" title="All 2 branches missed.">        for (String vm : vmModelArray) {</span>
+<span class="nc bnc" id="L158" title="All 2 branches missed.">            if (model.contains(vm)) {</span>
 <span class="nc" id="L159">                return vm;</span>
             }
         }
-<span class="fc" id="L162">        String manufacturer = hw.getComputerSystem().getManufacturer();</span>
-<span class="pc bpc" id="L163" title="3 of 4 branches missed.">        if (&quot;Microsoft Corporation&quot;.equals(manufacturer) &amp;&amp; &quot;Virtual Machine&quot;.equals(model)) {</span>
+<span class="nc" id="L162">        String manufacturer = hw.getComputerSystem().getManufacturer();</span>
+<span class="nc bnc" id="L163" title="All 4 branches missed.">        if (&quot;Microsoft Corporation&quot;.equals(manufacturer) &amp;&amp; &quot;Virtual Machine&quot;.equals(model)) {</span>
 <span class="nc" id="L164">            return &quot;Microsoft Hyper-V&quot;;</span>
         }
 
         // Couldn't find VM, return empty string
-<span class="fc" id="L168">        return &quot;&quot;;</span>
+<span class="nc" id="L168">        return &quot;&quot;;</span>
     }
 
     /**
