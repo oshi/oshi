@@ -206,7 +206,7 @@ oshi-json/oshi-core,oshi.jna.platform.mac,IOKit.SMCKeyDataPLimitData,3,0,0,0,1,0
 oshi-json/oshi-core,oshi.jna.platform.mac,CoreFoundation.CFArrayRef,3,0,0,0,1,0,1,0,1,0
 oshi-json/oshi-core,oshi.jna.platform.mac,CoreFoundation.CFBooleanRef,3,0,0,0,1,0,1,0,1,0
 oshi-json/oshi-core,oshi.jna.platform.mac,CoreFoundation.CFMutableDictionaryRef,3,0,0,0,1,0,1,0,1,0
-oshi-json/oshi-core,oshi.util,Util,20,307,6,14,5,49,5,11,0,6
+oshi-json/oshi-core,oshi.util,Util,49,278,10,10,10,44,6,10,0,6
 oshi-json/oshi-core,oshi.util,EdidUtil,32,521,7,16,2,63,6,25,0,17
 oshi-json/oshi-core,oshi.util,FormatUtil,0,377,0,36,0,57,0,30,0,12
 oshi-json/oshi-core,oshi.util,LsofUtil,65,0,9,0,13,0,6,0,1,0
