@@ -49,6 +49,9 @@ public abstract class AbstractDisplay implements Display {
         return Arrays.copyOf(this.edid, this.edid.length);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String toString() {
         return EdidUtil.toString(this.edid);

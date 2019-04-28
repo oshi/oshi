@@ -73,20 +73,4 @@ public abstract class AbstractComputerSystem implements ComputerSystem {
         }
         return this.serialNumber;
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Firmware getFirmware() {
-        return this.firmware;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Baseboard getBaseboard() {
-        return this.baseboard;
-    }
 }

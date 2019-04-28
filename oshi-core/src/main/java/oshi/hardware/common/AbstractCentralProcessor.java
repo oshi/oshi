@@ -36,7 +36,6 @@ import oshi.util.ParseUtil;
 /**
  * A CPU.
  */
-@SuppressWarnings("restriction")
 public abstract class AbstractCentralProcessor implements CentralProcessor {
 
     private static final long serialVersionUID = 1L;
