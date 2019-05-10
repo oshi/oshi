@@ -40,7 +40,7 @@ public class SensorsTest {
     public void testSensors() {
         SystemInfo si = new SystemInfo();
         Sensors s = si.getHardware().getSensors();
-        assertTrue(s.getCpuTemperature() >= 0d && s.getCpuTemperature() <= 100d);
+        assertTrue(s.getCpuTemperature() > 0d && s.getCpuTemperature() <= 100d);
         int[] speeds = s.getFanSpeeds();
         for (int speed : speeds) {
             assertTrue(speed >= 0);
