@@ -145,7 +145,7 @@
 		<bnd-maven-plugin.version>4.2.0</bnd-maven-plugin.version>
 		<maven-shade-plugin.version>3.2.1</maven-shade-plugin.version>
 		<!-- reporting plugins -->
-		<maven-checkstyle-plugin.version>3.0.0</maven-checkstyle-plugin.version>
+		<maven-checkstyle-plugin.version>3.1.0</maven-checkstyle-plugin.version>
 		<maven-javadoc-plugin.version>3.1.0</maven-javadoc-plugin.version>
 		<maven-pmd-plugin.version>3.12.0</maven-pmd-plugin.version>
 		<!-- tools -->
