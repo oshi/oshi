@@ -30,7 +30,7 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import oshi.SystemInfo;
 import oshi.hardware.Disks;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
@@ -124,10 +124,10 @@ public class LinuxDisks implements Disks {
 
                         // Avoid model and serial in virtual environments
                         store.setModel(
-                                Udev.INSTANCE.udev_device_get_property_value(device, "ID_MODEL") == null ? "Unknown"
+                                Udev.INSTANCE.udev_device_get_property_value(device, "ID_MODEL") == null ? SystemInfo.UNKNOWN
                                         : Udev.INSTANCE.udev_device_get_property_value(device, "ID_MODEL"));
                         store.setSerial(Udev.INSTANCE.udev_device_get_property_value(device, "ID_SERIAL_SHORT") == null
-                                ? "Unknown"
+                                ? SystemInfo.UNKNOWN
                                 : Udev.INSTANCE.udev_device_get_property_value(device, "ID_SERIAL_SHORT"));
 
                         store.setSize(ParseUtil.parseLongOrDefault(

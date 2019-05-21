@@ -23,6 +23,7 @@
  */
 package oshi.hardware.platform.linux;
 
+import oshi.SystemInfo;
 import oshi.hardware.common.AbstractComputerSystem;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
@@ -41,7 +42,6 @@ final class LinuxComputerSystem extends AbstractComputerSystem {
     // Note: /sys/class/dmi/id symlinks here, but /sys/devices/* is the
     // official/approved path for sysfs information
     private static final String SYSFS_SERIAL_PATH = "/sys/devices/virtual/dmi/id/";
-    private static final String UNKNOWN = "unknown";
 
     LinuxComputerSystem() {
         init();
@@ -94,12 +94,12 @@ final class LinuxComputerSystem extends AbstractComputerSystem {
         if (serialNumber.isEmpty() || "None".equals(serialNumber)) {
             serialNumber = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + "board_serial");
             if (serialNumber.isEmpty() || "None".equals(serialNumber)) {
-                serialNumber = UNKNOWN;
+                serialNumber = SystemInfo.UNKNOWN;
             }
         }
         // If root privileges this will work
         String marker = "Serial Number:";
-        if (UNKNOWN.equals(serialNumber)) {
+        if (SystemInfo.UNKNOWN.equals(serialNumber)) {
             for (String checkLine : ExecutingCommand.runNative("dmidecode -t system")) {
                 if (checkLine.contains(marker)) {
                     serialNumber = checkLine.split(marker)[1].trim();
@@ -108,7 +108,7 @@ final class LinuxComputerSystem extends AbstractComputerSystem {
             }
         }
         // if lshal command available (HAL deprecated in newer linuxes)
-        if (UNKNOWN.equals(serialNumber)) {
+        if (SystemInfo.UNKNOWN.equals(serialNumber)) {
             marker = "system.hardware.serial =";
             for (String checkLine : ExecutingCommand.runNative("lshal")) {
                 if (checkLine.contains(marker)) {

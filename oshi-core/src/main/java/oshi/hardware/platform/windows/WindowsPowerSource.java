@@ -27,7 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.NativeLong; // NOSONAR squid:S1191
-
+import oshi.SystemInfo;
 import oshi.hardware.PowerSource;
 import oshi.hardware.common.AbstractPowerSource;
 import oshi.jna.platform.windows.PowrProf;
@@ -63,7 +63,7 @@ public class WindowsPowerSource extends AbstractPowerSource {
         SystemBatteryState batteryState = new SystemBatteryState();
         if (0 != PowrProf.INSTANCE.CallNtPowerInformation(PowrProf.SYSTEM_BATTERY_STATE, null, new NativeLong(0),
                 batteryState, new NativeLong(batteryState.size())) || batteryState.batteryPresent == 0) {
-            psArray[0] = new WindowsPowerSource("Unknown", 0d, -1d);
+            psArray[0] = new WindowsPowerSource(SystemInfo.UNKNOWN, 0d, -1d);
         } else {
             int estimatedTime = -2; // -1 = unknown, -2 = unlimited
             if (batteryState.acOnLine == 0 && batteryState.charging == 0 && batteryState.discharging > 0) {

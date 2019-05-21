@@ -52,6 +52,8 @@ public class SystemInfo implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    public static final String UNKNOWN = "unknown";
+
     private OperatingSystem os = null;
 
     private HardwareAbstractionLayer hardware = null;

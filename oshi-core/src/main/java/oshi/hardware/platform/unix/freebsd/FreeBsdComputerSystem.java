@@ -23,6 +23,7 @@
  */
 package oshi.hardware.platform.unix.freebsd;
 
+import oshi.SystemInfo;
 import oshi.hardware.common.AbstractComputerSystem;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
@@ -105,6 +106,6 @@ final class FreeBsdComputerSystem extends AbstractComputerSystem {
                 return ParseUtil.getSingleQuoteStringValue(checkLine);
             }
         }
-        return "unknown";
+        return SystemInfo.UNKNOWN;
     }
 }

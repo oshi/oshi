@@ -97,7 +97,7 @@ public class NetworkIF implements Serializable {
                 }
                 this.mac = StringUtil.join(":", octets);
             } else {
-                this.mac = "Unknown";
+                this.mac = SystemInfo.UNKNOWN;
             }
             // Set IP arrays
             ArrayList<String> ipv4list = new ArrayList<>();

@@ -23,6 +23,7 @@
  */
 package oshi.hardware.common;
 
+import oshi.SystemInfo;
 import oshi.hardware.Firmware;
 
 /**
@@ -41,14 +42,12 @@ public abstract class AbstractFirmware implements Firmware {
     private String version;
     private String releaseDate;
 
-    private static final String UNKNOWN = "unknown";
-
     public AbstractFirmware() {
-        this.manufacturer = UNKNOWN;
-        this.name = UNKNOWN;
-        this.description = UNKNOWN;
-        this.version = UNKNOWN;
-        this.releaseDate = UNKNOWN;
+        this.manufacturer = SystemInfo.UNKNOWN;
+        this.name = SystemInfo.UNKNOWN;
+        this.description = SystemInfo.UNKNOWN;
+        this.version = SystemInfo.UNKNOWN;
+        this.releaseDate = SystemInfo.UNKNOWN;
     }
 
     /**

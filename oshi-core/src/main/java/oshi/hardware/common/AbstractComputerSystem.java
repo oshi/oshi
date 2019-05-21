@@ -23,6 +23,7 @@
  */
 package oshi.hardware.common;
 
+import oshi.SystemInfo;
 import oshi.hardware.Baseboard;
 import oshi.hardware.ComputerSystem;
 import oshi.hardware.Firmware;
@@ -44,9 +45,9 @@ public abstract class AbstractComputerSystem implements ComputerSystem {
     private Baseboard baseboard;
 
     protected AbstractComputerSystem() {
-        this.manufacturer = "unknown";
-        this.model = "unknown";
-        this.serialNumber = "unknown";
+        this.manufacturer = SystemInfo.UNKNOWN;
+        this.model = SystemInfo.UNKNOWN;
+        this.serialNumber = SystemInfo.UNKNOWN;
         this.firmware = null;
         this.baseboard = null;
     }

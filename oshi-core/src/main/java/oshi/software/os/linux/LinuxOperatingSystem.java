@@ -40,7 +40,7 @@ import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.platform.linux.LibC;
 import com.sun.jna.platform.linux.LibC.Sysinfo;
-
+import oshi.SystemInfo;
 import oshi.jna.platform.linux.Libc;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
@@ -688,7 +688,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
 
         // /etc/issue will end up here:
         case "issue":
-            return "Unknown";
+            return SystemInfo.UNKNOWN;
         // If not a special case just capitalize first letter
         default:
             return name.substring(0, 1).toUpperCase() + name.substring(1);

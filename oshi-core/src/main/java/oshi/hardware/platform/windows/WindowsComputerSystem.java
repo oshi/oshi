@@ -25,7 +25,7 @@ package oshi.hardware.platform.windows;
 
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery; // NOSONAR squid:S1191
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
-
+import oshi.SystemInfo;
 import oshi.hardware.common.AbstractComputerSystem;
 import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
@@ -99,7 +99,7 @@ final class WindowsComputerSystem extends AbstractComputerSystem {
         }
         // Nothing worked. Default.
         if ("".equals(this.systemSerialNumber)) {
-            this.systemSerialNumber = "unknown";
+            this.systemSerialNumber = SystemInfo.UNKNOWN;
         }
         return this.systemSerialNumber;
     }

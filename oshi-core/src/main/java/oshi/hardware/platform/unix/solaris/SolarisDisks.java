@@ -31,7 +31,7 @@ import java.util.Map.Entry;
 
 import com.sun.jna.platform.unix.solaris.LibKstat.Kstat; //NOSONAR
 import com.sun.jna.platform.unix.solaris.LibKstat.KstatIO;
-
+import oshi.SystemInfo;
 import oshi.hardware.Disks;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
@@ -313,7 +313,7 @@ public class SolarisDisks implements Disks {
                     partition.setName("private region");
                     break;
                 default:
-                    partition.setName("unknown");
+                    partition.setName(SystemInfo.UNKNOWN);
                     break;
                 }
                 // Third field is flags.

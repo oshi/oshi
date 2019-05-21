@@ -34,7 +34,7 @@ import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.platform.win32.WinUser;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
-
+import oshi.SystemInfo;
 import oshi.software.common.AbstractOSVersionInfoEx;
 import oshi.util.ParseUtil;
 import oshi.util.StringUtil;
@@ -146,7 +146,7 @@ public class WindowsOSVersionInfoEx extends AbstractOSVersionInfoEx {
         }
 
         String sp = WmiUtil.getString(versionInfo, OSVersionProperty.CSDVERSION, 0);
-        if (!sp.isEmpty() && !"unknown".equals(sp)) {
+        if (!sp.isEmpty() && !SystemInfo.UNKNOWN.equals(sp)) {
             version = version + " " + sp.replace("Service Pack ", "SP");
         }
 

@@ -23,6 +23,7 @@
  */
 package oshi.software.common;
 
+import oshi.SystemInfo;
 import oshi.software.os.OperatingSystemVersion;
 
 /**
@@ -93,7 +94,7 @@ public class AbstractOSVersionInfoEx implements OperatingSystemVersion {
     @Override
     public String toString() {
         if (this.versionStr == null) {
-            StringBuilder sb = new StringBuilder(getVersion() != null ? getVersion() : "Unknown");
+            StringBuilder sb = new StringBuilder(getVersion() != null ? getVersion() : SystemInfo.UNKNOWN);
             if (getCodeName().length() > 0) {
                 sb.append(" (").append(getCodeName()).append(')');
             }

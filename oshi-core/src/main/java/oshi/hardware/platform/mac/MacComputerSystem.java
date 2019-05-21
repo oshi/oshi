@@ -24,7 +24,7 @@
 package oshi.hardware.platform.mac;
 
 import java.util.regex.Pattern;
-
+import oshi.SystemInfo;
 import oshi.hardware.common.AbstractComputerSystem;
 import oshi.jna.platform.mac.IOKit;
 import oshi.util.ExecutingCommand;
@@ -145,7 +145,7 @@ final class MacComputerSystem extends AbstractComputerSystem {
             IOKit.INSTANCE.IOObjectRelease(service);
         }
         if (serialNumber == null) {
-            serialNumber = "unknown";
+            serialNumber = SystemInfo.UNKNOWN;
         }
         return serialNumber;
     }

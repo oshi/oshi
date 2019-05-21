@@ -23,6 +23,7 @@
  */
 package oshi.hardware.platform.unix.solaris;
 
+import oshi.SystemInfo;
 import oshi.hardware.common.AbstractComputerSystem;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
@@ -35,8 +36,6 @@ import oshi.util.ParseUtil;
 final class SolarisComputerSystem extends AbstractComputerSystem {
 
     private static final long serialVersionUID = 1L;
-
-    private static final String UNKNOWN = "unknown";
 
     SolarisComputerSystem() {
         init();
@@ -213,7 +212,7 @@ final class SolarisComputerSystem extends AbstractComputerSystem {
             }
         }
         if (serialNumber.isEmpty()) {
-            serialNumber = UNKNOWN;
+            serialNumber = SystemInfo.UNKNOWN;
         }
         return serialNumber;
     }

@@ -23,6 +23,7 @@
  */
 package oshi.hardware.common;
 
+import oshi.SystemInfo;
 import oshi.hardware.Baseboard;
 
 /**
@@ -40,9 +41,9 @@ public abstract class AbstractBaseboard implements Baseboard {
     private String serialNumber;
 
     public AbstractBaseboard() {
-        this.manufacturer = "unknown";
-        this.model = "unknown";
-        this.version = "unknown";
+        this.manufacturer = SystemInfo.UNKNOWN;
+        this.model = SystemInfo.UNKNOWN;
+        this.version = SystemInfo.UNKNOWN;
         this.serialNumber = "";
     }
 

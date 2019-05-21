@@ -29,7 +29,7 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import oshi.SystemInfo;
 import oshi.hardware.PowerSource;
 import oshi.hardware.common.AbstractPowerSource;
 import oshi.util.FileUtil;
@@ -81,7 +81,7 @@ public class LinuxPowerSource extends AbstractPowerSource {
             // Initialize defaults
             boolean isPresent = false;
             boolean isCharging = false;
-            String name = "Unknown";
+            String name = SystemInfo.UNKNOWN;
             int energyNow = 0;
             int energyFull = 1;
             int powerNow = 1;

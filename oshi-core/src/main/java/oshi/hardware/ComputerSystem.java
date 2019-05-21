@@ -24,6 +24,7 @@
 package oshi.hardware;
 
 import java.io.Serializable;
+import oshi.SystemInfo;
 
 /**
  * The ComputerSystem represents the physical hardware, of a computer
@@ -65,7 +66,7 @@ public interface ComputerSystem extends Serializable {
      * but may have permissions altered by the user.
      *
      * @return the System Serial Number, if available, otherwise returns
-     *         "unknown"
+     *         {@link SystemInfo#UNKNOWN}
      */
     String getSerialNumber();
 
