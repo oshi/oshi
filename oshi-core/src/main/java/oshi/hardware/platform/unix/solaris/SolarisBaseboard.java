@@ -29,4 +29,12 @@ final class SolarisBaseboard extends AbstractBaseboard {
 
     private static final long serialVersionUID = 1L;
 
+    public SolarisBaseboard(BaseboardInitializer initializer) {
+        super(initializer);
+    }
+
+    @Override
+    protected BaseboardInitializer getInitializer() {
+        return null;
+    }
 }

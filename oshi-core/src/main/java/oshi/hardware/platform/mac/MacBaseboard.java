@@ -29,4 +29,12 @@ final class MacBaseboard extends AbstractBaseboard {
 
     private static final long serialVersionUID = 1L;
 
+    public MacBaseboard(BaseboardInitializer initializer) {
+        super(initializer);
+    }
+
+    @Override
+    protected BaseboardInitializer getInitializer() {
+        return null;
+    }
 }

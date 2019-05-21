@@ -30,11 +30,9 @@ final class FreeBsdBaseboard extends AbstractBaseboard {
 
     private static final long serialVersionUID = 1L;
 
-    FreeBsdBaseboard() {
-        init();
-    }
-
-    private void init() {
+    @Override
+    protected BaseboardInitializer getInitializer() {
+        BaseboardInitializer result = new BaseboardInitializer();
 
         // $ sudo dmidecode -t system
         // # dmidecode 3.0
@@ -57,41 +55,26 @@ final class FreeBsdBaseboard extends AbstractBaseboard {
         // System Boot Information
         // Status: No errors detected
 
-        String manufacturer = "";
         final String manufacturerMarker = "Manufacturer:";
-        String model = "";
         final String productNameMarker = "Product Name:";
-        String version = "";
         final String versionMarker = "Version:";
-        String serialNumber = "";
         final String serialNumMarker = "Serial Number:";
 
         // Only works with root permissions but it's all we've got
         for (final String checkLine : ExecutingCommand.runNative("dmidecode -t baseboard")) {
             if (checkLine.contains(manufacturerMarker)) {
-                manufacturer = checkLine.split(manufacturerMarker)[1].trim();
+                result.manufacturer = checkLine.split(manufacturerMarker)[1].trim();
             }
             if (checkLine.contains(productNameMarker)) {
-                model = checkLine.split(productNameMarker)[1].trim();
+                result.model = checkLine.split(productNameMarker)[1].trim();
             }
             if (checkLine.contains(versionMarker)) {
-                version = checkLine.split(versionMarker)[1].trim();
+                result.version = checkLine.split(versionMarker)[1].trim();
             }
             if (checkLine.contains(serialNumMarker)) {
-                serialNumber = checkLine.split(serialNumMarker)[1].trim();
+                result.serialNumber = checkLine.split(serialNumMarker)[1].trim();
             }
         }
-        if (!manufacturer.isEmpty()) {
-            setManufacturer(manufacturer);
-        }
-        if (!model.isEmpty()) {
-            setModel(model);
-        }
-        if (!version.isEmpty()) {
-            setVersion(version);
-        }
-        if (!serialNumber.isEmpty()) {
-            setSerialNumber(serialNumber);
-        }
+        return result;
     }
 }

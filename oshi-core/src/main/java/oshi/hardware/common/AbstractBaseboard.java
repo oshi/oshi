@@ -23,11 +23,12 @@
  */
 package oshi.hardware.common;
 
-import oshi.SystemInfo;
+import static oshi.SystemInfo.UNKNOWN;
+import static oshi.util.StringUtil.isBlank;
 import oshi.hardware.Baseboard;
 
 /**
- * Baseboard data
+ * Baseboard data. This implementation is immutable.
  *
  * @author widdis [at] gmail [dot] com
  */
@@ -35,16 +36,31 @@ public abstract class AbstractBaseboard implements Baseboard {
 
     private static final long serialVersionUID = 1L;
 
-    private String manufacturer;
-    private String model;
-    private String version;
-    private String serialNumber;
+    private final String manufacturer;
+    private final String model;
+    private final String version;
+    private final String serialNumber;
 
     public AbstractBaseboard() {
-        this.manufacturer = SystemInfo.UNKNOWN;
-        this.model = SystemInfo.UNKNOWN;
-        this.version = SystemInfo.UNKNOWN;
-        this.serialNumber = "";
+        this(null);
+    }
+
+    public AbstractBaseboard(BaseboardInitializer initializer ) {
+        if (initializer == null) {
+            initializer = getInitializer();
+        }
+
+        if (initializer != null) {
+            manufacturer = isBlank(initializer.manufacturer) ? UNKNOWN : initializer.manufacturer;
+            model = isBlank(initializer.model) ? UNKNOWN : initializer.model;
+            version = isBlank(initializer.version) ? UNKNOWN : initializer.version;
+            serialNumber = isBlank(initializer.serialNumber) ? "" : initializer.serialNumber;
+        } else {
+            manufacturer = UNKNOWN;
+            model = UNKNOWN;
+            version = UNKNOWN;
+            serialNumber = "";
+        }
     }
 
     /**
@@ -79,36 +95,12 @@ public abstract class AbstractBaseboard implements Baseboard {
         return this.serialNumber;
     }
 
-    /**
-     * @param manufacturer
-     *            The manufacturer to set.
-     */
-    public void setManufacturer(String manufacturer) {
-        this.manufacturer = manufacturer;
-    }
+    protected abstract BaseboardInitializer getInitializer();
 
-    /**
-     * @param model
-     *            The model to set.
-     */
-    public void setModel(String model) {
-        this.model = model;
+    public static class BaseboardInitializer {
+        public String manufacturer;
+        public String model;
+        public String version;
+        public String serialNumber;
     }
-
-    /**
-     * @param version
-     *            The version to set.
-     */
-    public void setVersion(String version) {
-        this.version = version;
-    }
-
-    /**
-     * @param serialNumber
-     *            The serialNumber to set.
-     */
-    public void setSerialNumber(String serialNumber) {
-        this.serialNumber = serialNumber;
-    }
-
 }

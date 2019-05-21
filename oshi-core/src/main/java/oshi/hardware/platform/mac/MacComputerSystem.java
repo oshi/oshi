@@ -25,6 +25,7 @@ package oshi.hardware.platform.mac;
 
 import java.util.regex.Pattern;
 import oshi.SystemInfo;
+import oshi.hardware.common.AbstractBaseboard.BaseboardInitializer;
 import oshi.hardware.common.AbstractComputerSystem;
 import oshi.jna.platform.mac.IOKit;
 import oshi.util.ExecutingCommand;
@@ -86,9 +87,9 @@ final class MacComputerSystem extends AbstractComputerSystem {
         firmware.setManufacturer(APPLE);
         firmware.setName("EFI");
 
-        final MacBaseboard baseboard = new MacBaseboard();
-        baseboard.setManufacturer(APPLE);
-        baseboard.setModel("SMC");
+        BaseboardInitializer baseboardInitializer = new BaseboardInitializer();
+        baseboardInitializer.manufacturer = APPLE;
+        baseboardInitializer.model = "SMC";
 
         // Populate name and ID
         for (final String checkLine : ExecutingCommand.runNative("system_profiler SPHardwareDataType")) {
@@ -124,16 +125,16 @@ final class MacComputerSystem extends AbstractComputerSystem {
             serialNumberSystem = getSystemSerialNumber();
         }
         setSerialNumber(serialNumberSystem);
-        baseboard.setSerialNumber(serialNumberSystem);
+        baseboardInitializer.serialNumber = serialNumberSystem;
         if (!smcVersion.isEmpty()) {
-            baseboard.setVersion(smcVersion);
+            baseboardInitializer.version = smcVersion;
         }
         if (bootRomVersion != null && !bootRomVersion.isEmpty()) {
             firmware.setVersion(bootRomVersion);
         }
 
         setFirmware(firmware);
-        setBaseboard(baseboard);
+        setBaseboard(new MacBaseboard(baseboardInitializer));
     }
 
     private String getSystemSerialNumber() {

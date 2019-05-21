@@ -39,11 +39,9 @@ final class LinuxBaseboard extends AbstractBaseboard {
     // official/approved path for sysfs information
     private static final String SYSFS_SERIAL_PATH = "/sys/devices/virtual/dmi/id/";
 
-    LinuxBaseboard() {
-        init();
-    }
-
-    private void init() {
+    @Override
+    protected BaseboardInitializer getInitializer() {
+        BaseboardInitializer result = new BaseboardInitializer();
 
         // $ ls /sys/devices/virtual/dmi/id/
         // bios_date board_vendor chassis_version product_version
@@ -53,24 +51,17 @@ final class LinuxBaseboard extends AbstractBaseboard {
         // board_name chassis_type product_serial
         // board_serial chassis_vendor product_uuid
 
-        final String boardVendor = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + "board_vendor");
-        if (boardVendor != null && !boardVendor.trim().isEmpty()) {
-            setManufacturer(boardVendor.trim());
-        }
+        String boardVendor = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + "board_vendor");
+        result.manufacturer = boardVendor == null ? null : boardVendor.trim();
 
-        final String boardName = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + "board_name");
-        if (boardName != null && !boardName.trim().isEmpty()) {
-            setModel(boardName.trim());
-        }
+        String boardName = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + "board_name");
+        result.model = boardName == null ? null : boardName.trim();
 
-        final String boardVersion = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + "board_version");
-        if (boardVersion != null && !boardVersion.trim().isEmpty()) {
-            setVersion(boardVersion.trim());
-        }
+        String boardVersion = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + "board_version");
+        result.version = boardVersion == null ? null : boardVersion.trim();
 
-        final String boardSerialNumber = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + "board_serial");
-        if (boardSerialNumber != null && !boardSerialNumber.trim().isEmpty()) {
-            setSerialNumber(boardSerialNumber.trim());
-        }
+        String boardSerialNumber = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + "board_serial");
+        result.serialNumber = boardSerialNumber == null ? null : boardSerialNumber.trim();
+        return result;
     }
 }

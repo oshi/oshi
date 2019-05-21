@@ -24,6 +24,7 @@
 package oshi.hardware.platform.unix.solaris;
 
 import oshi.SystemInfo;
+import oshi.hardware.common.AbstractBaseboard.BaseboardInitializer;
 import oshi.hardware.common.AbstractComputerSystem;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
@@ -99,7 +100,7 @@ final class SolarisComputerSystem extends AbstractComputerSystem {
         final String serialNumMarker = "Serial Number:";
 
         SolarisFirmware firmware = new SolarisFirmware();
-        SolarisBaseboard baseboard = new SolarisBaseboard();
+        BaseboardInitializer baseboardInitializer = new BaseboardInitializer();
 
         boolean smbTypeBIOS = false;
         boolean smbTypeSystem = false;
@@ -181,21 +182,13 @@ final class SolarisComputerSystem extends AbstractComputerSystem {
         }
         setSerialNumber(serialNumber);
 
-        if (!boardManufacturer.isEmpty()) {
-            baseboard.setManufacturer(boardManufacturer);
-        }
-        if (!model.isEmpty()) {
-            baseboard.setModel(model);
-        }
-        if (!version.isEmpty()) {
-            baseboard.setVersion(version);
-        }
-        if (!boardSerialNumber.isEmpty()) {
-            baseboard.setSerialNumber(boardSerialNumber);
-        }
+        baseboardInitializer.manufacturer = boardManufacturer;
+        baseboardInitializer.model = model;
+        baseboardInitializer.version = version;
+        baseboardInitializer.serialNumber = boardSerialNumber;
 
         setFirmware(firmware);
-        setBaseboard(baseboard);
+        setBaseboard(new SolarisBaseboard(baseboardInitializer));
     }
 
     private String getSystemSerialNumber() {
