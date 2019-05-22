@@ -205,66 +205,58 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
      * Create a Processor
      */
     public WindowsCentralProcessor() {
-        super();
-        // Initialize class variables
-        initVars();
         // Initialize tick arrays
         initTicks();
 
         LOG.debug("Initialized Processor");
     }
 
-    /**
-     * Initializes Class variables
-     */
-    private void initVars() {
-        final String cpuRegistryRoot = "HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\";
+    @Override
+    protected CentralProcessorInitializer getInitializer() {
+        CentralProcessorInitializer result = new CentralProcessorInitializer();
+        String cpuRegistryRoot = "HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\";
         String[] processorIds = Advapi32Util.registryGetKeys(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryRoot);
         if (processorIds.length > 0) {
             String cpuRegistryPath = cpuRegistryRoot + processorIds[0];
-            setVendor(Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,
-                    "VendorIdentifier"));
-            setName(Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,
-                    "ProcessorNameString"));
-            setIdentifier(
-                    Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath, "Identifier"));
+            result.cpuVendor = Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,
+                    "VendorIdentifier");
+            result.cpuName = Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,
+                    "ProcessorNameString");
+            result.cpuIdentifier =
+                    Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath, "Identifier");
         }
         SYSTEM_INFO sysinfo = new SYSTEM_INFO();
         Kernel32.INSTANCE.GetNativeSystemInfo(sysinfo);
         if (sysinfo.processorArchitecture.pi.wProcessorArchitecture.intValue() == 9 // PROCESSOR_ARCHITECTURE_AMD64
                 || sysinfo.processorArchitecture.pi.wProcessorArchitecture.intValue() == 6) { // PROCESSOR_ARCHITECTURE_IA64
-            setCpu64(true);
+            result.cpu64 = true;
         } else if (sysinfo.processorArchitecture.pi.wProcessorArchitecture.intValue() == 0) { // PROCESSOR_ARCHITECTURE_INTEL
-            setCpu64(false);
+            result.cpu64 = false;
         }
 
         WmiQuery<ProcessorProperty> processorIdQuery = new WmiQuery<>("Win32_Processor", ProcessorProperty.class);
         WmiResult<ProcessorProperty> processorId = WmiQueryHandler.createInstance().queryWMI(processorIdQuery);
         if (processorId.getResultCount() > 0) {
-            setProcessorID(WmiUtil.getString(processorId, ProcessorProperty.PROCESSORID, 0));
+            result.processorID = WmiUtil.getString(processorId, ProcessorProperty.PROCESSORID, 0);
         }
-    }
 
-    /**
-     * Updates logical and physical processor counts
-     */
-    @Override
-    protected void calculateProcessorCounts() {
+        // Calculate processor counts
         // Get number of logical processors
-        SYSTEM_INFO sysinfo = new SYSTEM_INFO();
         Kernel32.INSTANCE.GetSystemInfo(sysinfo);
-        this.logicalProcessorCount = sysinfo.dwNumberOfProcessors.intValue();
+        result.logicalProcessorCount = sysinfo.dwNumberOfProcessors.intValue();
 
         // Get number of physical processors
         WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION[] processors = Kernel32Util.getLogicalProcessorInformation();
         for (SYSTEM_LOGICAL_PROCESSOR_INFORMATION proc : processors) {
             if (proc.relationship == WinNT.LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorPackage) {
-                this.physicalPackageCount++;
+                result.physicalPackageCount++;
             }
             if (proc.relationship == WinNT.LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorCore) {
-                this.physicalProcessorCount++;
+                result.physicalProcessorCount++;
             }
         }
+
+        return result;
     }
 
     /**

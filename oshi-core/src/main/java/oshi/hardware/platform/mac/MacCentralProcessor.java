@@ -74,39 +74,35 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
      * Create a Processor
      */
     public MacCentralProcessor() {
-        super();
-        // Initialize class variables
-        initVars();
         // Initialize tick arrays
         initTicks();
 
         LOG.debug("Initialized Processor");
     }
 
-    private void initVars() {
-        setVendor(SysctlUtil.sysctl("machdep.cpu.vendor", ""));
-        setName(SysctlUtil.sysctl("machdep.cpu.brand_string", ""));
-        setCpu64(SysctlUtil.sysctl("hw.cpu64bit_capable", 0) != 0);
+    @Override
+    protected CentralProcessorInitializer getInitializer() {
+        CentralProcessorInitializer result = new CentralProcessorInitializer();
+        result.cpuVendor = SysctlUtil.sysctl("machdep.cpu.vendor", "");
+        result.cpuName = SysctlUtil.sysctl("machdep.cpu.brand_string", "");
+        result.cpu64 = SysctlUtil.sysctl("hw.cpu64bit_capable", 0) != 0;
         int i = SysctlUtil.sysctl("machdep.cpu.stepping", -1);
-        setStepping(i < 0 ? "" : Integer.toString(i));
+        result.cpuStepping = i < 0 ? "" : Integer.toString(i);
         i = SysctlUtil.sysctl("machdep.cpu.model", -1);
-        setModel(i < 0 ? "" : Integer.toString(i));
+        result.cpuModel = i < 0 ? "" : Integer.toString(i);
         i = SysctlUtil.sysctl("machdep.cpu.family", -1);
-        setFamily(i < 0 ? "" : Integer.toString(i));
+        result.cpuFamily = i < 0 ? "" : Integer.toString(i);
         long processorID = 0L;
         processorID |= SysctlUtil.sysctl("machdep.cpu.signature", 0);
         processorID |= (SysctlUtil.sysctl("machdep.cpu.feature_bits", 0L) & 0xffffffff) << 32;
-        setProcessorID(String.format("%016X", processorID));
-    }
+        result.processorID = String.format("%016X", processorID);
 
-    /**
-     * Updates logical and physical processor counts from sysctl calls
-     */
-    @Override
-    protected void calculateProcessorCounts() {
-        this.logicalProcessorCount = SysctlUtil.sysctl("hw.logicalcpu", 1);
-        this.physicalProcessorCount = SysctlUtil.sysctl("hw.physicalcpu", 1);
-        this.physicalPackageCount = SysctlUtil.sysctl("hw.packages", 1);
+        // Calculate processor counts
+        result.logicalProcessorCount = SysctlUtil.sysctl("hw.logicalcpu", 1);
+        result.physicalProcessorCount = SysctlUtil.sysctl("hw.physicalcpu", 1);
+        result.physicalPackageCount = SysctlUtil.sysctl("hw.packages", 1);
+
+        return result;
     }
 
     /**

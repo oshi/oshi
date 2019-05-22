@@ -54,16 +54,15 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
      * Create a Processor
      */
     public LinuxCentralProcessor() {
-        super();
-        // Initialize class variables
-        initVars();
         // Initialize tick arrays
         initTicks();
 
         LOG.debug("Initialized Processor");
     }
 
-    private void initVars() {
+    @Override
+    protected CentralProcessorInitializer getInitializer() {
+        CentralProcessorInitializer result = new CentralProcessorInitializer();
         String[] flags = new String[0];
         List<String> cpuInfo = FileUtil.readFile("/proc/cpuinfo");
         for (String line : cpuInfo) {
@@ -73,10 +72,10 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
             }
             switch (splitLine[0]) {
             case "vendor_id":
-                setVendor(splitLine[1]);
+                result.cpuVendor = splitLine[1];
                 break;
             case "model name":
-                setName(splitLine[1]);
+                result.cpuName = splitLine[1];
                 break;
             case "flags":
                 flags = splitLine[1].toLowerCase().split(" ");
@@ -87,29 +86,24 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
                         break;
                     }
                 }
-                setCpu64(found);
+                result.cpu64 = found;
                 break;
             case "stepping":
-                setStepping(splitLine[1]);
+                result.cpuStepping = splitLine[1];
                 break;
             case "model":
-                setModel(splitLine[1]);
+                result.cpuModel = splitLine[1];
                 break;
             case "cpu family":
-                setFamily(splitLine[1]);
+                result.cpuFamily = splitLine[1];
                 break;
             default:
                 // Do nothing
             }
         }
-        setProcessorID(getProcessorID(getStepping(), getModel(), getFamily(), flags));
-    }
+        result.processorID = getProcessorID(result.cpuStepping, result.cpuModel, result.cpuFamily, flags);
 
-    /**
-     * Updates logical and physical processor counts from /proc/cpuinfo
-     */
-    @Override
-    protected void calculateProcessorCounts() {
+        // Calculate processor counts
         int[] uniqueID = new int[2];
         uniqueID[0] = -1;
         uniqueID[1] = -1;
@@ -121,7 +115,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
         for (String cpu : procCpu) {
             // Count logical processors
             if (cpu.startsWith("processor")) {
-                this.logicalProcessorCount++;
+                result.logicalProcessorCount++;
             }
             // Count unique combinations of core id and physical id.
             if (cpu.startsWith("core id") || cpu.startsWith("cpu number")) {
@@ -137,20 +131,22 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
             }
         }
         // Force at least one processor
-        if (this.logicalProcessorCount < 1) {
+        if (result.logicalProcessorCount < 1) {
             LOG.error("Couldn't find logical processor count. Assuming 1.");
-            this.logicalProcessorCount = 1;
+            result.logicalProcessorCount = 1;
         }
-        this.physicalProcessorCount = processorIDs.size();
-        if (this.physicalProcessorCount < 1) {
+        result.physicalProcessorCount = processorIDs.size();
+        if (result.physicalProcessorCount < 1) {
             LOG.error("Couldn't find physical processor count. Assuming 1.");
-            this.physicalProcessorCount = 1;
+            result.physicalProcessorCount = 1;
         }
-        this.physicalPackageCount = packageIDs.size();
-        if (this.physicalPackageCount < 1) {
+        result.physicalPackageCount = packageIDs.size();
+        if (result.physicalPackageCount < 1) {
             LOG.error("Couldn't find physical package count. Assuming 1.");
-            this.physicalPackageCount = 1;
+            result.physicalPackageCount = 1;
         }
+
+        return result;
     }
 
     /**

@@ -101,27 +101,11 @@ public interface CentralProcessor extends Serializable {
     String getVendor();
 
     /**
-     * Set processor vendor.
-     *
-     * @param vendor
-     *            Vendor.
-     */
-    void setVendor(String vendor);
-
-    /**
      * Name, eg. Intel(R) Core(TM)2 Duo CPU T7300 @ 2.00GHz
      *
      * @return Processor name.
      */
     String getName();
-
-    /**
-     * Set processor name.
-     *
-     * @param name
-     *            Name.
-     */
-    void setName(String name);
 
     /**
      * Vendor frequency (in Hz), eg. for processor named Intel(R) Core(TM)2 Duo
@@ -130,14 +114,6 @@ public interface CentralProcessor extends Serializable {
      * @return Processor frequency or -1 if unknown.
      */
     long getVendorFreq();
-
-    /**
-     * Set processor vendor frequency (in Hz).
-     *
-     * @param freq
-     *            Frequency.
-     */
-    void setVendorFreq(long freq);
 
     /**
      * Gets the Processor ID. This is a hexidecimal string representing an
@@ -155,27 +131,11 @@ public interface CentralProcessor extends Serializable {
     String getProcessorID();
 
     /**
-     * Set processor ID
-     *
-     * @param processorID
-     *            The processor ID
-     */
-    void setProcessorID(String processorID);
-
-    /**
      * Identifier, eg. x86 Family 6 Model 15 Stepping 10.
      *
      * @return Processor identifier.
      */
     String getIdentifier();
-
-    /**
-     * Set processor identifier.
-     *
-     * @param identifier
-     *            Identifier.
-     */
-    void setIdentifier(String identifier);
 
     /**
      * Is CPU 64bit?
@@ -185,23 +145,9 @@ public interface CentralProcessor extends Serializable {
     boolean isCpu64bit();
 
     /**
-     * Set flag is cpu is 64bit.
-     *
-     * @param cpu64
-     *            True if cpu is 64.
-     */
-    void setCpu64(boolean cpu64);
-
-    /**
      * @return the stepping
      */
     String getStepping();
-
-    /**
-     * @param stepping
-     *            the stepping to set
-     */
-    void setStepping(String stepping);
 
     /**
      * @return the model
@@ -209,21 +155,9 @@ public interface CentralProcessor extends Serializable {
     String getModel();
 
     /**
-     * @param model
-     *            the model to set
-     */
-    void setModel(String model);
-
-    /**
      * @return the family
      */
     String getFamily();
-
-    /**
-     * @param family
-     *            the family to set
-     */
-    void setFamily(String family);
 
     /**
      * Returns the "recent cpu usage" for the whole system by counting ticks

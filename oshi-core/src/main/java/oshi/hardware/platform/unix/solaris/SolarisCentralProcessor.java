@@ -53,62 +53,57 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
      * Create a Processor
      */
     public SolarisCentralProcessor() {
-        super();
-        // Initialize class variables
-        initVars();
         // Initialize tick arrays
         initTicks();
 
         LOG.debug("Initialized Processor");
     }
 
-    private void initVars() {
+    @Override
+    protected CentralProcessorInitializer getInitializer() {
+        CentralProcessorInitializer result = new CentralProcessorInitializer();
         // Get first result
         Kstat ksp = KstatUtil.kstatLookup("cpu_info", -1, null);
         // Set values
         if (ksp != null && KstatUtil.kstatRead(ksp)) {
-            setVendor(KstatUtil.kstatDataLookupString(ksp, "vendor_id"));
-            setName(KstatUtil.kstatDataLookupString(ksp, "brand"));
-            setStepping(KstatUtil.kstatDataLookupString(ksp, "stepping"));
-            setModel(KstatUtil.kstatDataLookupString(ksp, "model"));
-            setFamily(KstatUtil.kstatDataLookupString(ksp, "family"));
+            result.cpuVendor = KstatUtil.kstatDataLookupString(ksp, "vendor_id");
+            result.cpuName = KstatUtil.kstatDataLookupString(ksp, "brand");
+            result.cpuStepping = KstatUtil.kstatDataLookupString(ksp, "stepping");
+            result.cpuModel = KstatUtil.kstatDataLookupString(ksp, "model");
+            result.cpuFamily = KstatUtil.kstatDataLookupString(ksp, "family");
         }
-        setCpu64("64".equals(ExecutingCommand.getFirstAnswer("isainfo -b").trim()));
-        setProcessorID(getProcessorID(getStepping(), getModel(), getFamily()));
+        result.cpu64 = "64".equals(ExecutingCommand.getFirstAnswer("isainfo -b").trim());
+        result.processorID = getProcessorID(result.cpuStepping, result.cpuModel, result.cpuFamily);
 
-    }
-
-    /**
-     * Updates logical and physical processor counts from psrinfo
-     */
-    @Override
-    protected void calculateProcessorCounts() {
+        // Calculate processor counts
         List<Kstat> kstats = KstatUtil.kstatLookupAll("cpu_info", -1, null);
         Set<String> chipIDs = new HashSet<>();
         Set<String> coreIDs = new HashSet<>();
-        this.logicalProcessorCount = 0;
-        for (Kstat ksp : kstats) {
-            if (ksp != null && KstatUtil.kstatRead(ksp)) {
-                this.logicalProcessorCount++;
-                chipIDs.add(KstatUtil.kstatDataLookupString(ksp, "chip_id"));
-                coreIDs.add(KstatUtil.kstatDataLookupString(ksp, "core_id"));
+        result.logicalProcessorCount = 0;
+        for (Kstat tpmKsp : kstats) {
+            if (tpmKsp != null && KstatUtil.kstatRead(tpmKsp)) {
+                result.logicalProcessorCount++;
+                chipIDs.add(KstatUtil.kstatDataLookupString(tpmKsp, "chip_id"));
+                coreIDs.add(KstatUtil.kstatDataLookupString(tpmKsp, "core_id"));
             }
         }
 
-        this.physicalPackageCount = chipIDs.size();
-        if (this.physicalPackageCount < 1) {
+        result.physicalPackageCount = chipIDs.size();
+        if (result.physicalPackageCount < 1) {
             LOG.error("Couldn't find physical package count. Assuming 1.");
-            this.physicalPackageCount = 1;
+            result.physicalPackageCount = 1;
         }
-        this.physicalProcessorCount = coreIDs.size();
-        if (this.physicalProcessorCount < 1) {
+        result.physicalProcessorCount = coreIDs.size();
+        if (result.physicalProcessorCount < 1) {
             LOG.error("Couldn't find physical processor count. Assuming 1.");
-            this.physicalProcessorCount = 1;
+            result.physicalProcessorCount = 1;
         }
-        if (this.logicalProcessorCount < 1) {
+        if (result.logicalProcessorCount < 1) {
             LOG.error("Couldn't find logical processor count. Assuming 1.");
-            this.logicalProcessorCount = 1;
+            result.logicalProcessorCount = 1;
         }
+
+        return result;
     }
 
     /**

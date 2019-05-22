@@ -82,17 +82,16 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
      * Create a Processor
      */
     public FreeBsdCentralProcessor() {
-        super();
-        // Initialize class variables
-        initVars();
         // Initialize tick arrays
         initTicks();
 
         LOG.debug("Initialized Processor");
     }
 
-    private void initVars() {
-        setName(BsdSysctlUtil.sysctl("hw.model", ""));
+    @Override
+    protected CentralProcessorInitializer getInitializer() {
+        CentralProcessorInitializer result = new CentralProcessorInitializer();
+        result.cpuName = BsdSysctlUtil.sysctl("hw.model", "");
         // This is apparently the only reliable source for this stuff on
         // FreeBSD...
         long processorID = 0L;
@@ -101,15 +100,15 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
             line = line.trim();
             // Prefer hw.model to this one
             if (line.startsWith("CPU:") && getName().isEmpty()) {
-                setName(line.replace("CPU:", "").trim());
+                result.cpuName = line.replace("CPU:", "").trim();
             } else if (line.startsWith("Origin=")) {
                 Matcher m = CPUINFO.matcher(line);
                 if (m.matches()) {
-                    setVendor(m.group(1));
+                    result.cpuVendor = m.group(1);
                     processorID |= Long.decode(m.group(2));
-                    setFamily(Integer.decode(m.group(3)).toString());
-                    setModel(Integer.decode(m.group(4)).toString());
-                    setStepping(Integer.decode(m.group(5)).toString());
+                    result.cpuFamily = Integer.decode(m.group(3)).toString();
+                    result.cpuModel = Integer.decode(m.group(4)).toString();
+                    result.cpuStepping = Integer.decode(m.group(5)).toString();
                 }
             } else if (line.startsWith("Features=")) {
                 Matcher m = CPUINFO2.matcher(line);
@@ -120,15 +119,10 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
                 break;
             }
         }
-        setCpu64(ExecutingCommand.getFirstAnswer("uname -m").trim().contains("64"));
-        setProcessorID(getProcessorID(processorID));
-    }
+        result.cpu64 = ExecutingCommand.getFirstAnswer("uname -m").trim().contains("64");
+        result.processorID = getProcessorID(processorID);
 
-    /**
-     * Updates logical and physical processor/package counts
-     */
-    @Override
-    protected void calculateProcessorCounts() {
+        // Calculate processor counts
         String[] topology = BsdSysctlUtil.sysctl("kern.sched.topology_spec", "").split("\\n|\\r");
         int physMask = 0;
         int virtMask = 0;
@@ -154,21 +148,23 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
             }
         }
 
-        this.logicalProcessorCount = Integer.bitCount(virtMask);
-        if (this.logicalProcessorCount < 1) {
+        result.logicalProcessorCount = Integer.bitCount(virtMask);
+        if (result.logicalProcessorCount < 1) {
             LOG.error("Couldn't find logical processor count. Assuming 1.");
-            this.logicalProcessorCount = 1;
+            result.logicalProcessorCount = 1;
         }
-        this.physicalProcessorCount = Integer.bitCount(physMask);
-        if (this.physicalProcessorCount < 1) {
+        result.physicalProcessorCount = Integer.bitCount(physMask);
+        if (result.physicalProcessorCount < 1) {
             LOG.error("Couldn't find physical processor count. Assuming 1.");
-            this.physicalProcessorCount = 1;
+            result.physicalProcessorCount = 1;
         }
-        this.physicalPackageCount = physPackage;
-        if (this.physicalPackageCount < 1) {
+        result.physicalPackageCount = physPackage;
+        if (result.physicalPackageCount < 1) {
             LOG.error("Couldn't find physical package count. Assuming 1.");
-            this.physicalPackageCount = 1;
+            result.physicalPackageCount = 1;
         }
+
+        return result;
     }
 
     /**
