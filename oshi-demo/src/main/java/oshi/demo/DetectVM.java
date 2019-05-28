@@ -49,7 +49,7 @@ public class DetectVM {
         vmMacAddressOUI.put("00:0F:4B", "Virtual Iron 4");
         vmMacAddressOUI.put("00:16:3E", "Xen or Oracle VM");
         vmMacAddressOUI.put("08:00:27", "VirtualBox");
-        vmMacAddressOUI.put("02:42", "Docker Container");
+        vmMacAddressOUI.put("02:42:AC", "Docker Container");
     }
 
     private static final String[] vmModelArray = new String[] {"Linux KVM", "Linux lguest", "OpenVZ", "Qemu",
@@ -105,7 +105,7 @@ public class DetectVM {
         return "";
     }
 
-    static String findOuiByMacAddressIfPossible(String mac) {
+    public static String findOuiByMacAddressIfPossible(String mac) {
         return vmMacAddressOUI.entrySet().stream()
                 .filter(entry -> mac.startsWith(entry.getKey()))
                 .map(Map.Entry::getValue)
