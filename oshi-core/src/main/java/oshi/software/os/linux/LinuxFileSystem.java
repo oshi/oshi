@@ -86,6 +86,7 @@ public class LinuxFileSystem implements FileSystem {
             // "tmpfs", // Temporary file system
             // NOTE: tmpfs is evaluated apart, because Linux uses it for
             // RAMdisks
+            "overlay", //Overlay file system https://wiki.archlinux.org/index.php/Overlay_filesystem
     });
 
     // System path mounted as tmpfs
