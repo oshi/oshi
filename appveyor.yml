@@ -2,6 +2,10 @@ version: '{build}'
 
 image: Visual Studio 2017
 
+branches:
+  except:
+    - coverity_scan
+
 skip_tags: true
 
 environment:
@@ -21,6 +25,4 @@ build_script:
   - mvn clean package -Dmaven.test.skip=true
 
 test_script:
-  # Skip tests on coverity_scan branch
-  - if [[ "${APPVEYOR_REPO_BRANCH}" == "coverity_scan" ]]; then exit 0; fi
   - mvn test
