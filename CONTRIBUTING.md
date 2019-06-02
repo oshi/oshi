@@ -1,16 +1,16 @@
 Contributing to Oshi
 =====================
 
-Oshi is work of [many contributors](https://github.com/dblock/oshi/graphs/contributors). You're encouraged to submit [pull requests](https://github.com/dblock/oshi/pulls), [propose features and discuss issues](https://github.com/dblock/oshi/issues).
+Oshi is work of [many contributors](https://github.com/oshi/oshi/graphs/contributors). You're encouraged to submit [pull requests](https://github.com/oshi/oshi/pulls), [propose features and discuss issues](https://github.com/oshi/oshi/issues).
 
 #### Fork the Project
 
-Fork the [project on Github](https://github.com/dblock/oshi) and check out your copy.
+Fork the [project on Github](https://github.com/oshi/oshi) and check out your copy.
 
 ```
 git clone https://github.com/contributor/oshi.git
 cd oshi
-git remote add upstream https://github.com/dblock/oshi.git
+git remote add upstream https://github.com/oshi/oshi.git
 ```
 
 #### Create a Topic Branch
@@ -92,7 +92,7 @@ git push origin my-feature-branch -f
 Update the [CHANGELOG](CHANGELOG.md) with the pull request number. A typical entry looks as follows.
 
 ```
-* [#123](https://github.com/dblock/oshi/pull/123): Reticulated splines - [@contributor](https://github.com/contributor).
+* [#123](https://github.com/oshi/oshi/pull/123): Reticulated splines - [@contributor](https://github.com/contributor).
 ```
 
 Amend your previous commit and force push the changes.
