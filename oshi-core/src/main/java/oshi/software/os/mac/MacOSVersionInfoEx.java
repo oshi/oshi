@@ -53,6 +53,8 @@ public class MacOSVersionInfoEx extends AbstractOSVersionInfoEx {
             this.osxVersionNumber = ParseUtil.getNthIntValue(getVersion(), 2);
             switch (this.osxVersionNumber) {
             // MacOS
+            case 15:
+                return "Catalina";
             case 14:
                 return "Mojave";
             case 13:
