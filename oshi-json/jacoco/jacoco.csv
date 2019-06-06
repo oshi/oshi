@@ -80,7 +80,7 @@ oshi-json,oshi.software.os.windows,WindowsOSSystemInfo,64,0,4,0,21,0,7,0,5,0
 oshi-json,oshi.util.platform.unix.solaris,KstatUtil,319,0,52,0,60,0,36,0,6,0
 oshi-json,oshi.util.platform.unix.solaris,KstatUtil.new Thread() {...},8,0,0,0,3,0,2,0,2,0
 oshi-json,oshi.software.os.mac,MacNetworkParams,124,0,16,0,32,0,13,0,5,0
-oshi-json,oshi.software.os.mac,MacOSVersionInfoEx,77,0,18,0,28,0,20,0,4,0
+oshi-json,oshi.software.os.mac,MacOSVersionInfoEx,79,0,19,0,29,0,21,0,4,0
 oshi-json,oshi.software.os.mac,MacOperatingSystem,734,0,75,0,155,0,55,0,15,0
 oshi-json,oshi.software.os.mac,MacFileSystem,273,0,34,0,68,0,22,0,5,0
 oshi-json,oshi.json.json,NullAwareJsonObjectBuilder,6,172,1,17,1,42,1,22,0,14
@@ -95,10 +95,10 @@ oshi-json,oshi.jna.platform.linux,Udev.UdevEnumerate,7,0,0,0,4,0,2,0,2,0
 oshi-json,oshi.jna.platform.linux,Udev.UdevDevice,7,0,0,0,4,0,2,0,2,0
 oshi-json,oshi.jna.platform.linux,Udev.UdevListEntry,7,0,0,0,4,0,2,0,2,0
 oshi-json,oshi.jna.platform.linux,Libc,6,0,0,0,1,0,1,0,1,0
-oshi-json,oshi.software.os.linux,LinuxFileSystem,496,0,44,0,92,0,29,0,7,0
+oshi-json,oshi.software.os.linux,LinuxFileSystem,501,0,44,0,93,0,29,0,7,0
 oshi-json,oshi.software.os.linux,LinuxOSVersionInfoEx,448,0,92,0,102,0,55,0,9,0
 oshi-json,oshi.software.os.linux,LinuxUserGroupInfo.UsersCache,94,0,10,0,25,0,8,0,3,0
-oshi-json,oshi.software.os.linux,LinuxOperatingSystem,1294,0,172,0,262,0,122,0,22,0
+oshi-json,oshi.software.os.linux,LinuxOperatingSystem,1303,0,174,0,263,0,123,0,22,0
 oshi-json,oshi.software.os.linux,LinuxOperatingSystem.ProcPidStat,103,0,0,0,6,0,3,0,3,0
 oshi-json,oshi.software.os.linux,LinuxOperatingSystem.new FileFilter() {...},42,0,14,0,5,0,9,0,2,0
 oshi-json,oshi.software.os.linux,LinuxNetworkParams,203,0,32,0,48,0,21,0,5,0
@@ -189,7 +189,7 @@ oshi-json,oshi.hardware.platform.linux,LinuxDisplay,88,0,12,0,24,0,9,0,3,0
 oshi-json,oshi.hardware.platform.linux,LinuxNetworks,117,0,2,0,18,0,3,0,2,0
 oshi-json,oshi.hardware.platform.linux,LinuxUsbDevice,376,0,26,0,78,0,19,0,6,0
 oshi-json,oshi.hardware.platform.linux,LinuxBaseboard,58,0,16,0,16,0,10,0,2,0
-oshi-json,oshi.hardware.platform.linux,LinuxSoundCard,179,0,22,0,35,0,18,0,7,0
+oshi-json,oshi.hardware.platform.linux,LinuxSoundCard,222,0,32,0,42,0,23,0,7,0
 oshi-json,oshi.hardware.platform.mac,MacFirmware,3,0,0,0,1,0,1,0,1,0
 oshi-json,oshi.hardware.platform.mac,MacDisplay,96,0,6,0,24,0,6,0,3,0
 oshi-json,oshi.hardware.platform.mac,MacDisks,791,0,62,0,210,0,36,0,5,0
