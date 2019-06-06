@@ -101,6 +101,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
 
     // Is AddEnglishCounter available?
     private static final boolean IS_VISTA_OR_GREATER = VersionHelpers.IsWindowsVistaOrGreater();
+    private static final boolean IS_WINDOWS7_OR_GREATER = VersionHelpers.IsWindows7OrGreater();
 
     /*
      * Registry variables to persist
@@ -357,7 +358,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         WmiResult<ProcessXPProperty> processWmiResult = null;
 
         // Get processes from WTS (post-XP)
-        if (IS_VISTA_OR_GREATER) {
+        if (IS_WINDOWS7_OR_GREATER) {
             final PointerByReference ppProcessInfo = new PointerByReference();
             if (!Wtsapi32.INSTANCE.WTSEnumerateProcessesEx(Wtsapi32.WTS_CURRENT_SERVER_HANDLE,
                     new IntByReference(Wtsapi32.WTS_PROCESS_INFO_LEVEL_1), Wtsapi32.WTS_ANY_SESSION, ppProcessInfo,
@@ -392,7 +393,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         // Store a subset of processes in a list to later return.
         List<OSProcess> processList = new ArrayList<>();
 
-        int procCount = IS_VISTA_OR_GREATER ? processInfo.length : processWmiResult.getResultCount();
+        int procCount = IS_WINDOWS7_OR_GREATER ? processInfo.length : processWmiResult.getResultCount();
         for (int i = 0; i < procCount; i++) {
 
             // Skip if only updating a subset of pids, or if not in cache.
@@ -404,7 +405,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             // ignore
             // the cache completely.
 
-            int pid = IS_VISTA_OR_GREATER ? processInfo[i].ProcessId
+            int pid = IS_WINDOWS7_OR_GREATER ? processInfo[i].ProcessId
                     : WmiUtil.getUint32(processWmiResult, ProcessXPProperty.PROCESSID, i);
             OSProcess proc = null;
             if (this.processMap.isEmpty()) {
@@ -413,7 +414,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                 }
                 proc = new OSProcess();
                 proc.setProcessID(pid);
-                proc.setName(IS_VISTA_OR_GREATER ? processInfo[i].pProcessName
+                proc.setName(IS_WINDOWS7_OR_GREATER ? processInfo[i].pProcessName
                         : WmiUtil.getString(processWmiResult, ProcessXPProperty.NAME, i));
             } else {
                 proc = this.processMap.get(pid);
@@ -428,7 +429,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                 proc.setCurrentWorkingDirectory(cwd.isEmpty() ? "" : cwd.substring(0, cwd.length() - 1));
             }
 
-            if (IS_VISTA_OR_GREATER) {
+            if (IS_WINDOWS7_OR_GREATER) {
                 WTS_PROCESS_INFO_EX procInfo = processInfo[i];
                 proc.setKernelTime(procInfo.KernelTime.getValue() / 10000L);
                 proc.setUserTime(procInfo.UserTime.getValue() / 10000L);
@@ -453,7 +454,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                 // Full path
                 final HANDLEByReference phToken = new HANDLEByReference();
                 try {// EXECUTABLEPATH
-                    proc.setPath(IS_VISTA_OR_GREATER ? Kernel32Util.QueryFullProcessImageName(pHandle, 0)
+                    proc.setPath(IS_WINDOWS7_OR_GREATER ? Kernel32Util.QueryFullProcessImageName(pHandle, 0)
                             : WmiUtil.getString(processWmiResult, ProcessXPProperty.EXECUTABLEPATH, i));
                     if (Advapi32.INSTANCE.OpenProcessToken(pHandle, WinNT.TOKEN_DUPLICATE | WinNT.TOKEN_QUERY,
                             phToken)) {
