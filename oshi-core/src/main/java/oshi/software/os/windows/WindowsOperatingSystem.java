@@ -101,6 +101,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
 
     // Is AddEnglishCounter available?
     private static final boolean IS_VISTA_OR_GREATER = VersionHelpers.IsWindowsVistaOrGreater();
+    private static final boolean IS_WINDOWS7_OR_GREATER = VersionHelpers.IsWindows7OrGreater();
 
     /*
      * Registry variables to persist
@@ -357,7 +358,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         WmiResult<ProcessXPProperty> processWmiResult = null;
 
         // Get processes from WTS (post-XP)
-        if (IS_VISTA_OR_GREATER) {
+        if (IS_WINDOWS7_OR_GREATER) {
             final PointerByReference ppProcessInfo = new PointerByReference();
             if (!Wtsapi32.INSTANCE.WTSEnumerateProcessesEx(Wtsapi32.WTS_CURRENT_SERVER_HANDLE,
                     new IntByReference(Wtsapi32.WTS_PROCESS_INFO_LEVEL_1), Wtsapi32.WTS_ANY_SESSION, ppProcessInfo,
