@@ -106,7 +106,23 @@ public class LinuxSoundCard extends AbstractSoundCard {
         if (cardFiles != null) {
             for (File file : cardFiles) {
                 if (file.getName().startsWith("codec")) {
-                    cardCodec = FileUtil.getKeyValueMapFromFile(file.getPath(), ":").get("Codec");
+                    if (!file.isDirectory()) {
+                        cardCodec = FileUtil.getKeyValueMapFromFile(file.getPath(), ":").get("Codec");
+                    } else {
+                        // on various centos environments, this is a
+                        // subdirectory -- each file is usually named something
+                        // like codec#0-0
+                        // example : ac97#0-0
+                        File[] codecs = file.listFiles();
+                        if (codecs != null) {
+                            for (File codec : codecs) {
+                                if (!codec.isDirectory() && codec.getName().contains("#")) {
+                                    cardCodec = codec.getName().substring(0, codec.getName().indexOf("#"));
+                                    break;
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }

@@ -81,12 +81,14 @@ public class LinuxFileSystem implements FileSystem {
             "sunrpc", // Sun RPC file system
             "rpc_pipefs", // Sun RPC file system
             "fusectl", // FUSE control file system
-            // NOTE: FUSE's fuseblk is not evalued because used as file system
+            // NOTE: FUSE's fuseblk is not evaluated because used as file system
             // representation of a FUSE block storage
             // "fuseblk" // FUSE block file system
             // "tmpfs", // Temporary file system
             // NOTE: tmpfs is evaluated apart, because Linux uses it for
             // RAMdisks
+            "overlay", // Overlay file system
+                       // https://wiki.archlinux.org/index.php/Overlay_filesystem
     });
 
     // System path mounted as tmpfs
@@ -210,7 +212,8 @@ public class LinuxFileSystem implements FileSystem {
                     File tmpFile = new File(path);
                     totalSpace = tmpFile.getTotalSpace();
                     usableSpace = tmpFile.getUsableSpace();
-                    LOG.error("Failed to get statvfs. Error code: {}", Native.getLastError());
+                    LOG.warn("Failed to get information to use statvfs. path: {}, Error code: {}", path,
+                            Native.getLastError());
                 }
             } catch (UnsatisfiedLinkError | NoClassDefFoundError e) {
                 LOG.error("Failed to get file counts from statvfs. {}", e);
