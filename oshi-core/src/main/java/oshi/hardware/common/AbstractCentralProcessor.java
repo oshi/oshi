@@ -23,15 +23,15 @@
  */
 package oshi.hardware.common;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import oshi.hardware.CentralProcessor;
+import oshi.util.ArchitectureCodename;
+import oshi.util.ParseUtil;
+
 import java.lang.management.ManagementFactory;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import oshi.hardware.CentralProcessor;
-import oshi.util.ParseUtil;
 
 /**
  * A CPU.
@@ -306,6 +306,14 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
         return this.cpuFamily;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ArchitectureCodename getCodename(){
+        return ArchitectureCodename.getArchitecture(getFamily() + " " +
+                getModel());
+    }
     /**
      * @param cpuVendor
      *            the cpuVendor to set

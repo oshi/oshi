@@ -23,6 +23,8 @@
  */
 package oshi.hardware;
 
+import oshi.util.ArchitectureCodename;
+
 import java.io.Serializable;
 
 /**
@@ -112,6 +114,12 @@ public interface CentralProcessor extends Serializable {
      * @return the family
      */
     String getFamily();
+
+    /**
+     * @return the microarchitecture codename
+     */
+    ArchitectureCodename getCodename();
+
 
     /**
      * Returns an array of the CPU's logical processors. The array will be
