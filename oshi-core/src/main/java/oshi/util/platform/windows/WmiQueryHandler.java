@@ -48,8 +48,9 @@ public class WmiQueryHandler {
     private static int globalTimeout = GlobalConfig.get("oshi.util.wmi.timeout", -1);
 
     static {
-        if (globalTimeout == 0 || globalTimeout < -1)
+        if (globalTimeout == 0 || globalTimeout < -1) {
             throw new GlobalConfig.PropertyException("oshi.util.wmi.timeout");
+        }
     }
 
     // Timeout for WMI queries

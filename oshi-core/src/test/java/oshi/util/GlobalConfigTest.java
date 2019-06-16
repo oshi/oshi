@@ -25,6 +25,7 @@ package oshi.util;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static oshi.util.GlobalConfig.clear;
 import static oshi.util.GlobalConfig.get;
 import static oshi.util.GlobalConfig.load;
@@ -66,14 +67,14 @@ public class GlobalConfigTest {
 
     @Test
     public void testGetDouble() {
-        assertEquals(get("oshi.test.property", 0.0), Double.valueOf(0.0));
+        assertTrue(get("oshi.test.property", 0.0) == 0.0);
         set("oshi.test.property", 1.23d);
-        assertEquals(get("oshi.test.property", 0.0), Double.valueOf(1.23d));
+        assertTrue(get("oshi.test.property", 0.0) == 1.23);
         assertEquals(get("oshi.test.property", null), "1.23");
 
         // Invalid double
         set("oshi.test.property", "1.2.3");
-        assertEquals(get("oshi.test.property", 0.0), Double.valueOf(0.0));
+        assertTrue(get("oshi.test.property", 0.0) == 0.0);
     }
 
     @Test

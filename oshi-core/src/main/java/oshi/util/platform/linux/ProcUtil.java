@@ -51,13 +51,16 @@ public class ProcUtil {
 
     static {
         // Ensure prefix begins with path separator, but doesn't end with one too
-        if (proc.endsWith("/"))
+        if (proc.endsWith("/")) {
             proc = proc.substring(0, proc.length() - 1);
-        if (!proc.startsWith("/"))
+        }
+        if (!proc.startsWith("/")) {
             proc = "/" + proc;
+        }
 
-        if (!new File(proc).exists())
+        if (!new File(proc).exists()) {
             throw new GlobalConfig.PropertyException("oshi.util.proc.path", "The path does not exist");
+        }
     }
 
     /**

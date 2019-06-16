@@ -45,8 +45,9 @@ public final class GlobalConfig {
 
     static {
         try (InputStream in = GlobalConfig.class.getResourceAsStream("/default.properties")) {
-            if (in != null)
+            if (in != null) {
                 configuration.load(in);
+            }
         } catch (IOException e) {
             LOG.warn("Failed to load default configuration");
         }
@@ -64,7 +65,7 @@ public final class GlobalConfig {
     }
 
     /**
-     * Get the {@code Integer} property associated with the given key.
+     * Get the {@code int} property associated with the given key.
      * 
      * @param key The property key
      * @param def The default value
@@ -76,19 +77,19 @@ public final class GlobalConfig {
     }
 
     /**
-     * Get the {@code Double} property associated with the given key.
+     * Get the {@code double} property associated with the given key.
      * 
      * @param key The property key
      * @param def The default value
      * @return The property value or the given default if not found
      */
-    public static Double get(String key, double def) {
+    public static double get(String key, double def) {
         String value = configuration.getProperty(key);
         return value == null ? def : ParseUtil.parseDoubleOrDefault(value, def);
     }
 
     /**
-     * Get the {@code Boolean} property associated with the given key.
+     * Get the {@code boolean} property associated with the given key.
      * 
      * @param key The property key
      * @param def The default value
@@ -107,10 +108,11 @@ public final class GlobalConfig {
      * @param val The new value
      */
     public static void set(String key, Object val) {
-        if (val == null)
+        if (val == null) {
             configuration.remove(key);
-        else
+        } else {
             configuration.setProperty(key, val.toString());
+        }
     }
 
     /**
