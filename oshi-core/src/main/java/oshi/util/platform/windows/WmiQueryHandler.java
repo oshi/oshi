@@ -39,12 +39,14 @@ import com.sun.jna.platform.win32.COM.COMUtils;
 import com.sun.jna.platform.win32.COM.Wbemcli;
 import com.sun.jna.platform.win32.COM.WbemcliUtil;
 
+import oshi.util.ConfigUtil;
+
 public class WmiQueryHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(WmiQueryHandler.class);
 
     // Timeout for WMI queries
-    private int wmiTimeout = Wbemcli.WBEM_INFINITE;
+    private int wmiTimeout = ConfigUtil.getInteger("oshi.util.wmi.timeout");
 
     // Cache failed wmi classes
     private final Set<String> failedWmiClassNames = new HashSet<>();
