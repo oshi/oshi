@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import oshi.hardware.CentralProcessor.TickType;
-import oshi.util.ConfigUtil;
+import oshi.util.GlobalConfig;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 
@@ -43,11 +43,11 @@ public class ProcUtil {
 
     private ProcUtil() {
     }
-    
+
     /**
      * The /proc filesystem location.
      */
-    private static String proc = ConfigUtil.get("oshi.util.proc.path");
+    private static String proc = GlobalConfig.get("oshi.util.proc.path", "/proc");
 
     static {
         // Ensure prefix begins with path separator, but doesn't end with one too
@@ -55,6 +55,9 @@ public class ProcUtil {
             proc = proc.substring(0, proc.length() - 1);
         if (!proc.startsWith("/"))
             proc = "/" + proc;
+
+        if (!new File(proc).exists())
+            throw new GlobalConfig.PropertyException("oshi.util.proc.path", "The path does not exist");
     }
 
     /**

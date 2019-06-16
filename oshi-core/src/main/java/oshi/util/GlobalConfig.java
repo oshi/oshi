@@ -31,23 +31,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The global configuration utility.
+ * The global configuration utility. See
+ * {@code src/main/resources/default.properties} for default values.
  * 
  * @author cilki
  * @since 4.0.0
  */
-public final class ConfigUtil {
+public final class GlobalConfig {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ConfigUtil.class);
+    private static final Logger LOG = LoggerFactory.getLogger(GlobalConfig.class);
 
     private static final Properties configuration = new Properties();
 
     static {
-        try (InputStream in = ConfigUtil.class.getResourceAsStream("/default.properties")) {
+        try (InputStream in = GlobalConfig.class.getResourceAsStream("/default.properties")) {
             if (in != null)
                 configuration.load(in);
-            else
-                LOG.warn("Default configuration not found");
         } catch (IOException e) {
             LOG.warn("Failed to load default configuration");
         }
@@ -57,18 +56,8 @@ public final class ConfigUtil {
      * Get the {@code String} property associated with the given key.
      * 
      * @param key The property key
-     * @return The property value or {@code null} if not found
-     */
-    public static String get(String key) {
-        return configuration.getProperty(key);
-    }
-
-    /**
-     * Get the {@code String} property associated with the given key.
-     * 
-     * @param key The property key
      * @param def The default value
-     * @return The property value or the default if not found
+     * @return The property value or the given default if not found
      */
     public static String get(String key, String def) {
         return configuration.getProperty(key, def);
@@ -78,32 +67,12 @@ public final class ConfigUtil {
      * Get the {@code Integer} property associated with the given key.
      * 
      * @param key The property key
-     * @return The property value or {@code 0} if not found
-     */
-    public static int getInteger(String key) {
-        return getInteger(key, 0);
-    }
-
-    /**
-     * Get the {@code Integer} property associated with the given key.
-     * 
-     * @param key The property key
      * @param def The default value
-     * @return The property value or the default if not found
+     * @return The property value or the given default if not found
      */
-    public static int getInteger(String key, int def) {
+    public static int get(String key, int def) {
         String value = configuration.getProperty(key);
-        return value == null ? def : Integer.parseInt(value);
-    }
-
-    /**
-     * Get the {@code Double} property associated with the given key.
-     * 
-     * @param key The property key
-     * @return The property value or {@code 0.0} if not found
-     */
-    public static Double getDouble(String key) {
-        return getDouble(key, 0.0);
+        return value == null ? def : ParseUtil.parseIntOrDefault(value, def);
     }
 
     /**
@@ -111,21 +80,11 @@ public final class ConfigUtil {
      * 
      * @param key The property key
      * @param def The default value
-     * @return The property value or the default if not found
+     * @return The property value or the given default if not found
      */
-    public static Double getDouble(String key, double def) {
+    public static Double get(String key, double def) {
         String value = configuration.getProperty(key);
-        return value == null ? def : Double.parseDouble(value);
-    }
-
-    /**
-     * Get the {@code Boolean} property associated with the given key.
-     * 
-     * @param key The property key
-     * @return The property value or {@code false} if not found
-     */
-    public static boolean getBoolean(String key) {
-        return getBoolean(key, false);
+        return value == null ? def : ParseUtil.parseDoubleOrDefault(value, def);
     }
 
     /**
@@ -133,21 +92,41 @@ public final class ConfigUtil {
      * 
      * @param key The property key
      * @param def The default value
-     * @return The property value or the default if not found
+     * @return The property value or the given default if not found
      */
-    public static boolean getBoolean(String key, boolean def) {
+    public static boolean get(String key, boolean def) {
         String value = configuration.getProperty(key);
         return value == null ? def : Boolean.parseBoolean(value);
     }
 
     /**
-     * Set the given property, overwriting any existing value.
+     * Set the given property, overwriting any existing value. If the given value is
+     * {@code null}, the property is removed.
      * 
      * @param key The property key
      * @param val The new value
      */
     public static void set(String key, Object val) {
-        configuration.setProperty(key, val.toString());
+        if (val == null)
+            configuration.remove(key);
+        else
+            configuration.setProperty(key, val.toString());
+    }
+
+    /**
+     * Reset the given property to its default value.
+     * 
+     * @param key The property key
+     */
+    public static void remove(String key) {
+        configuration.remove(key);
+    }
+
+    /**
+     * Clear the configuration.
+     */
+    public static void clear() {
+        configuration.clear();
     }
 
     /**
@@ -159,6 +138,29 @@ public final class ConfigUtil {
         configuration.putAll(properties);
     }
 
-    private ConfigUtil() {
+    /**
+     * Indicates that a configuration value is invalid.
+     */
+    public static class PropertyException extends RuntimeException {
+
+        private static final long serialVersionUID = -7482581936621748005L;
+
+        /**
+         * @param property The property name
+         */
+        public PropertyException(String property) {
+            super("Invalid property: \"" + property + "\" = " + GlobalConfig.get(property, null));
+        }
+
+        /**
+         * @param property The property name
+         * @param message  An exception message
+         */
+        public PropertyException(String property, String message) {
+            super("Invalid property \"" + property + "\": " + message);
+        }
+    }
+
+    private GlobalConfig() {
     }
 }
