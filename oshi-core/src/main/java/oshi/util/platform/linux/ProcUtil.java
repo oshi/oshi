@@ -50,7 +50,7 @@ public class ProcUtil {
     private static String proc = GlobalConfig.get("oshi.util.proc.path", "/proc");
 
     static {
-        // Ensure prefix begins with path separator, but doesn't end with one too
+        // Ensure prefix begins with path separator, but doesn't end with one
         if (proc.endsWith("/")) {
             proc = proc.substring(0, proc.length() - 1);
         }

@@ -56,8 +56,10 @@ public final class GlobalConfig {
     /**
      * Get the {@code String} property associated with the given key.
      * 
-     * @param key The property key
-     * @param def The default value
+     * @param key
+     *            The property key
+     * @param def
+     *            The default value
      * @return The property value or the given default if not found
      */
     public static String get(String key, String def) {
@@ -67,8 +69,10 @@ public final class GlobalConfig {
     /**
      * Get the {@code int} property associated with the given key.
      * 
-     * @param key The property key
-     * @param def The default value
+     * @param key
+     *            The property key
+     * @param def
+     *            The default value
      * @return The property value or the given default if not found
      */
     public static int get(String key, int def) {
@@ -79,8 +83,10 @@ public final class GlobalConfig {
     /**
      * Get the {@code double} property associated with the given key.
      * 
-     * @param key The property key
-     * @param def The default value
+     * @param key
+     *            The property key
+     * @param def
+     *            The default value
      * @return The property value or the given default if not found
      */
     public static double get(String key, double def) {
@@ -91,8 +97,10 @@ public final class GlobalConfig {
     /**
      * Get the {@code boolean} property associated with the given key.
      * 
-     * @param key The property key
-     * @param def The default value
+     * @param key
+     *            The property key
+     * @param def
+     *            The default value
      * @return The property value or the given default if not found
      */
     public static boolean get(String key, boolean def) {
@@ -101,11 +109,13 @@ public final class GlobalConfig {
     }
 
     /**
-     * Set the given property, overwriting any existing value. If the given value is
-     * {@code null}, the property is removed.
+     * Set the given property, overwriting any existing value. If the given
+     * value is {@code null}, the property is removed.
      * 
-     * @param key The property key
-     * @param val The new value
+     * @param key
+     *            The property key
+     * @param val
+     *            The new value
      */
     public static void set(String key, Object val) {
         if (val == null) {
@@ -118,7 +128,8 @@ public final class GlobalConfig {
     /**
      * Reset the given property to its default value.
      * 
-     * @param key The property key
+     * @param key
+     *            The property key
      */
     public static void remove(String key) {
         configuration.remove(key);
@@ -134,7 +145,8 @@ public final class GlobalConfig {
     /**
      * Load the given {@link Properties} into the global configuration.
      * 
-     * @param properties The new properties
+     * @param properties
+     *            The new properties
      */
     public static void load(Properties properties) {
         configuration.putAll(properties);
@@ -148,15 +160,18 @@ public final class GlobalConfig {
         private static final long serialVersionUID = -7482581936621748005L;
 
         /**
-         * @param property The property name
+         * @param property
+         *            The property name
          */
         public PropertyException(String property) {
             super("Invalid property: \"" + property + "\" = " + GlobalConfig.get(property, null));
         }
 
         /**
-         * @param property The property name
-         * @param message  An exception message
+         * @param property
+         *            The property name
+         * @param message
+         *            An exception message
          */
         public PropertyException(String property, String message) {
             super("Invalid property \"" + property + "\": " + message);
