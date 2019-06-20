@@ -39,10 +39,8 @@ import oshi.util.ParseUtil;
  * @author widdis[at]gmail[dot]com
  */
 public class ProcUtil {
-    private static final Pattern DIGITS = Pattern.compile("\\d+"); // NOSONAR-squid:S1068
 
-    private ProcUtil() {
-    }
+    private static final Pattern DIGITS = Pattern.compile("\\d+"); // NOSONAR-squid:S1068
 
     /**
      * The /proc filesystem location.
@@ -61,6 +59,9 @@ public class ProcUtil {
         if (!new File(proc).exists()) {
             throw new GlobalConfig.PropertyException("oshi.util.proc.path", "The path does not exist");
         }
+    }
+
+    private ProcUtil() {
     }
 
     /**

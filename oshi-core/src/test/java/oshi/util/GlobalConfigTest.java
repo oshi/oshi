@@ -40,7 +40,7 @@ import org.junit.Test;
 public class GlobalConfigTest {
 
     @Before
-    public void setup() {
+    public void setUp() {
         clear();
     }
 
