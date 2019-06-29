@@ -142,14 +142,15 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
         }
         logProcs.add(new LogicalProcessor(currentProcessor, currentCore, currentPackage,
                 numaNodeMap.getOrDefault(currentProcessor, 0)));
-        Set<Integer> physProcs = new HashSet<>();
+        Set<String> physProcPkgs = new HashSet<>();
         Set<Integer> physPkgs = new HashSet<>();
         for (LogicalProcessor logProc : logProcs) {
-            physProcs.add(logProc.getPhysicalProcessorNumber());
-            physPkgs.add(logProc.getPhysicalPackageNumber());
+            int pkg = logProc.getPhysicalPackageNumber();
+            physProcPkgs.add("" + logProc.getPhysicalProcessorNumber() + ":" + pkg);
+            physPkgs.add(pkg);
         }
         this.logicalProcessorCount = logProcs.size();
-        this.physicalProcessorCount = physProcs.size();
+        this.physicalProcessorCount = physProcPkgs.size();
         this.physicalPackageCount = physPkgs.size();
 
         return logProcs.toArray(new LogicalProcessor[0]);

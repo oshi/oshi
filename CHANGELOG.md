@@ -9,6 +9,7 @@
 * [#794](https://github.com/oshi/oshi/pull/794): Add NUMA nodes to Logical Processors. - [@dbwiddis](https://github.com/dbwiddis).
 * [#838](https://github.com/oshi/oshi/pull/838): JNA 5.3.0. - [@dbwiddis](https://github.com/dbwiddis).
 * [#845](https://github.com/oshi/oshi/pull/845): JNA 5.3.1. - [@dbwiddis](https://github.com/dbwiddis).
+* [#900](https://github.com/oshi/oshi/pull/900): Fix incorrect physical processor count Linux/Unix. - [@ellesummer](https://github.com/ellesummer).
 * Your contribution here.
 
 3.13.0 (1/18/2019), 3.13.1 (4/21/2019), 3.13.2 (4/28/2019), 3.13.3 (6/5/2019)

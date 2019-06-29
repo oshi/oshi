@@ -88,19 +88,19 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
         Map<Integer, Integer> numaNodeMap = mapNumaNodes();
         List<Kstat> kstats = KstatUtil.kstatLookupAll("cpu_info", -1, null);
         Set<String> chipIDs = new HashSet<>();
-        Set<String> coreIDs = new HashSet<>();
+        Set<String> coreChipIDs = new HashSet<>();
         this.logicalProcessorCount = 0;
 
         List<LogicalProcessor> logProcs = new ArrayList<>();
         for (Kstat ksp : kstats) {
             if (ksp != null && KstatUtil.kstatRead(ksp)) {
                 int procId = logProcs.size(); // 0-indexed
-                String coreId = KstatUtil.kstatDataLookupString(ksp, "core_id");
                 String chipId = KstatUtil.kstatDataLookupString(ksp, "chip_id");
+                String coreId = KstatUtil.kstatDataLookupString(ksp, "core_id");
                 LogicalProcessor logProc = new LogicalProcessor(procId, ParseUtil.parseIntOrDefault(coreId, 0),
                         ParseUtil.parseIntOrDefault(chipId, 0), numaNodeMap.getOrDefault(procId, 0));
                 logProcs.add(logProc);
-                coreIDs.add(coreId);
+                coreChipIDs.add(coreId + ":" + chipId);
                 chipIDs.add(chipId);
             }
         }
@@ -116,7 +116,7 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
             LOG.error("Couldn't find physical package count. Assuming 1.");
             this.physicalPackageCount = 1;
         }
-        this.physicalProcessorCount = coreIDs.size();
+        this.physicalProcessorCount = coreChipIDs.size();
         if (this.physicalProcessorCount < 1) {
             LOG.error("Couldn't find physical processor count. Assuming 1.");
             this.physicalProcessorCount = 1;
