@@ -140,7 +140,7 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
         Set<Integer> physPkgs = new HashSet<>();
         for (LogicalProcessor logProc : logProcs) {
             int pkg = logProc.getPhysicalPackageNumber();
-            physProcPkgs.add("" + logProc.getPhysicalProcessorNumber() + ":" + pkg);
+            physProcPkgs.add(logProc.getPhysicalProcessorNumber() + ":" + pkg);
             physPkgs.add(pkg);
         }
         this.logicalProcessorCount = logProcs.size();
