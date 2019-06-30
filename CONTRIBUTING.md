@@ -5,10 +5,9 @@ Oshi is work of [many contributors](https://github.com/oshi/oshi/graphs/contribu
 
 #### Fork the Project
 
-Fork the [project on Github](https://github.com/oshi/oshi) and check out your copy.
-
+Fork the project on Github by clicking on the word "Fork" above and to the right of this page.  This will create your own fork at https://github.com/yournamehere/oshi.git.  Then clone your fork to your local repository on your machine using these commands:
 ```
-git clone https://github.com/contributor/oshi.git
+git clone https://github.com/yournamehere/oshi.git
 cd oshi
 git remote add upstream https://github.com/oshi/oshi.git
 ```
