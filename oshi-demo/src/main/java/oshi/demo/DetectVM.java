@@ -84,7 +84,7 @@ public class DetectVM {
         for (NetworkIF nif : nifs) {
             String mac = nif.getMacaddr().toUpperCase();
             String oui = findOuiByMacAddressIfPossible(mac);
-            if (oui != null && oui != "") {
+            if (oui != null && !oui.isEmpty()) {
                 return oui;
             }
         }
