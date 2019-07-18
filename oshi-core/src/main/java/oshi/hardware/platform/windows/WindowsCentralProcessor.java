@@ -79,6 +79,28 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
     private static final String PROCESSOR = "Processor";
 
     private Map<String, Integer> numaNodeProcToLogicalProcMap;
+    
+    private static final long BOOTTIME;
+    static {
+    	boolean found = false;
+        EventLogIterator iter = new EventLogIterator(null, "System", WinNT.EVENTLOG_BACKWARDS_READ);
+        while (iter.hasNext()) {
+            EventLogRecord record = iter.next();
+            if (record.getRecord().EventID.getLow().intValue() == 6005) {
+                if (found) {
+                    // Didn't find EventID 12, return first 6005
+                    break;
+                }
+                // First 6005; tentatively assign and look for EventID 12
+                BOOTTIME = record.getRecord().TimeGenerated.longValue();
+                found = true;
+            } else if (found && record.getRecord().EventID.getLow().intValue() == 12) {
+                // First 12 after 6005, this is boot time
+                BOOTTIME = record.getRecord().TimeGenerated.longValue();
+                break;
+            }
+        }
+    }
 
     enum ProcessorProperty {
         PROCESSORID;
@@ -594,6 +616,14 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
             // 32 bit rolls over at ~ 49 days
             return Kernel32.INSTANCE.GetTickCount() / 1000L;
         }
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getBootTime() {
+        return BOOTTIME;
     }
 
     /**

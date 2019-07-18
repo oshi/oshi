@@ -57,6 +57,21 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
 
     // See https://www.kernel.org/doc/Documentation/cpu-freq/user-guide.txt
     private static final String CPUFREQ_PATH = "/sys/devices/system/cpu/cpu";
+    
+    private static final long BOOTTIME;
+    static {
+    	// Boot time given by btime variable
+    	// in /proc/stat.
+        List<String> procStat = FileUtil.readFile("/proc/stat");
+        for (String stat : procStat) {
+            if (stat.startsWith("btime")) {
+                String[] bTime = ParseUtil.whitespaces.split(stat);
+                BOOTTIME = ParseUtil.parseLongOrDefault(bTime[1], 0L);
+                break;
+            }
+        }
+    	
+    }
 
     /**
      * Create a Processor
@@ -318,6 +333,14 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
     @Override
     public long getSystemUptime() {
         return (long) ProcUtil.getSystemUptimeSeconds();
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getBootTime() {
+    	return BOOTTIME;
     }
 
     /**

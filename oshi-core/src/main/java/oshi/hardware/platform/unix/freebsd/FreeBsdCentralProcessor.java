@@ -344,6 +344,14 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
     public long getSystemUptime() {
         return System.currentTimeMillis() / 1000 - BOOTTIME;
     }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getBootTime() {
+    	return BOOTTIME;
+    }
 
     /**
      * Fetches the ProcessorID from dmidecode (if possible with root

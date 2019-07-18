@@ -52,6 +52,15 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
     private static final long serialVersionUID = 1L;
 
     private static final Logger LOG = LoggerFactory.getLogger(SolarisCentralProcessor.class);
+    
+    private static final long BOOTTIME;
+    static {
+    	Kstat ksp = KstatUtil.kstatLookup("unix", 0, "system_misc");
+        if (ksp != null && KstatUtil.kstatRead(ksp)) {
+            BOOTTIME = KstatUtil.kstatDataLookupLong(ksp, "boot_time");
+            break;
+        }
+    }
 
     /**
      * Create a Processor
@@ -262,6 +271,14 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
         }
         // Snap Time is in nanoseconds; divide for seconds
         return ksp.ks_snaptime / 1000000000L;
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getBootTime() {
+    	return BOOTTIME;
     }
 
     /**
