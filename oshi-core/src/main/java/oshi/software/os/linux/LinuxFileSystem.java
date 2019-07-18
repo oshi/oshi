@@ -86,6 +86,7 @@ public class LinuxFileSystem implements FileSystem {
             // "tmpfs", // Temporary file system
             // NOTE: tmpfs is evaluated apart, because Linux uses it for
             // RAMdisks
+            "overlay", //Overlay file system https://wiki.archlinux.org/index.php/Overlay_filesystem
     });
 
     // System path mounted as tmpfs
@@ -212,7 +213,7 @@ public class LinuxFileSystem implements FileSystem {
                     totalSpace = tmpFile.getTotalSpace();
                     usableSpace = tmpFile.getUsableSpace();
                     freeSpace = tmpFile.getFreeSpace();
-                    LOG.error("Failed to get statvfs. Error code: {}", Native.getLastError());
+                    LOG.warn("Failed to get information to use statvfs. path: {}, Error code: {}", path, Native.getLastError());
                 }
             } catch (UnsatisfiedLinkError | NoClassDefFoundError e) {
                 LOG.error("Failed to get file counts from statvfs. {}", e);

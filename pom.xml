@@ -121,7 +121,7 @@
 		<main.basedir>${project.basedir}</main.basedir>
 		<!-- Dependency versions -->
 		<slf4j.version>1.7.26</slf4j.version>
-		<junit-vintage-engine.version>5.4.2</junit-vintage-engine.version>
+		<junit-vintage-engine.version>5.5.0</junit-vintage-engine.version>
 		<!-- Compile versions -->
 		<maven-clean-plugin.version>3.1.0</maven-clean-plugin.version>
 		<maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
@@ -133,29 +133,29 @@
 		<maven-site-plugin.version>3.7.1</maven-site-plugin.version>
 		<maven-surefire-plugin.version>3.0.0-M3</maven-surefire-plugin.version>
 		<!-- maven-site-plugin dependencies -->
-		<doxia-module-markdown.version>1.8</doxia-module-markdown.version>
+		<doxia-module-markdown.version>1.9</doxia-module-markdown.version>
 		<wagon-git.version>2.0.3</wagon-git.version><!-- https://github.com/trajano/wagon-git/issues/18 -->
-		<wagon-ssh.version>3.3.2</wagon-ssh.version>
+		<wagon-ssh.version>3.3.3</wagon-ssh.version>
 		<maven-fluido-skin.version>1.7</maven-fluido-skin.version>
 		<!-- build plugins -->
 		<git-commit-id-plugin.version>3.0.0</git-commit-id-plugin.version>
 		<build-helper-maven-plugin.version>3.0.0</build-helper-maven-plugin.version>
-		<maven-jar-plugin.version>3.1.1</maven-jar-plugin.version>
-		<maven-war-plugin.version>3.2.2</maven-war-plugin.version>
+		<maven-jar-plugin.version>3.1.2</maven-jar-plugin.version>
+		<maven-war-plugin.version>3.2.3</maven-war-plugin.version>
 		<bnd-maven-plugin.version>4.2.0</bnd-maven-plugin.version>
 		<maven-shade-plugin.version>3.2.1</maven-shade-plugin.version>
 		<!-- reporting plugins -->
-		<maven-checkstyle-plugin.version>3.0.0</maven-checkstyle-plugin.version>
-		<maven-javadoc-plugin.version>3.1.0</maven-javadoc-plugin.version>
+		<maven-checkstyle-plugin.version>3.1.0</maven-checkstyle-plugin.version>
+		<maven-javadoc-plugin.version>3.1.1</maven-javadoc-plugin.version>
 		<maven-pmd-plugin.version>3.12.0</maven-pmd-plugin.version>
 		<!-- tools -->
 		<maven-antrun-plugin.version>1.8</maven-antrun-plugin.version>
 		<maven-assembly-plugin.version>3.1.1</maven-assembly-plugin.version>
 		<maven-dependency-plugin.version>3.1.1</maven-dependency-plugin.version>
 		<maven-release-plugin.version>2.5.3</maven-release-plugin.version>
-		<maven-source-plugin.version>3.0.1</maven-source-plugin.version>
-		<spotbugs-maven-plugin.version>3.1.11</spotbugs-maven-plugin.version>
-		<jacoco-maven-plugin.version>0.8.3</jacoco-maven-plugin.version>
+		<maven-source-plugin.version>3.1.0</maven-source-plugin.version>
+		<spotbugs-maven-plugin.version>3.1.12</spotbugs-maven-plugin.version>
+		<jacoco-maven-plugin.version>0.8.4</jacoco-maven-plugin.version>
 		<coveralls-maven-plugin.version>4.3.0</coveralls-maven-plugin.version>
 		<tidy-maven-plugin.version>1.1.0</tidy-maven-plugin.version>
 		<license-maven-plugin.version>3.0</license-maven-plugin.version>
@@ -172,14 +172,14 @@
 		<maven-scm-provider-jgit.version>1.11.2</maven-scm-provider-jgit.version>
 		<JavaEWAH.version>1.1.6</JavaEWAH.version>
 		<jsch.version>0.1.55</jsch.version>
-		<jgit.version>5.3.1.201904271842-r</jgit.version>
-		<plexus-utils.version>3.2.0</plexus-utils.version>
+		<jgit.version>5.4.0.201906121030-r</jgit.version>
+		<plexus-utils.version>3.2.1</plexus-utils.version>
 		<!-- Misc. -->
 		<sonar-maven-plugin.version>3.6.0.1398</sonar-maven-plugin.version>
 		<wagon-maven-plugin.version>2.0.0</wagon-maven-plugin.version>
-		<animal-sniffer-maven-plugin.version>1.17</animal-sniffer-maven-plugin.version>
-		<dependency-check-maven.version>4.0.2</dependency-check-maven.version>
-		<puppycrawl.checkstyle.version>8.20</puppycrawl.checkstyle.version>
+		<animal-sniffer-maven-plugin.version>1.18</animal-sniffer-maven-plugin.version>
+		<dependency-check-maven.version>5.1.1</dependency-check-maven.version>
+		<puppycrawl.checkstyle.version>8.22</puppycrawl.checkstyle.version>
 		<m2e.lifecycle-mapping.version>1.0.0</m2e.lifecycle-mapping.version>
 	</properties>
 

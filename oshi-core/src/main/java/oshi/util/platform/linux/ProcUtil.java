@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import oshi.hardware.CentralProcessor.TickType;
+import oshi.util.GlobalConfig;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 
@@ -38,7 +39,27 @@ import oshi.util.ParseUtil;
  * @author widdis[at]gmail[dot]com
  */
 public class ProcUtil {
+
     private static final Pattern DIGITS = Pattern.compile("\\d+"); // NOSONAR-squid:S1068
+
+    /**
+     * The /proc filesystem location.
+     */
+    private static String proc = GlobalConfig.get("oshi.util.proc.path", "/proc");
+
+    static {
+        // Ensure prefix begins with path separator, but doesn't end with one
+        if (proc.endsWith("/")) {
+            proc = proc.substring(0, proc.length() - 1);
+        }
+        if (!proc.startsWith("/")) {
+            proc = "/" + proc;
+        }
+
+        if (!new File(proc).exists()) {
+            throw new GlobalConfig.PropertyException("oshi.util.proc.path", "The path does not exist");
+        }
+    }
 
     private ProcUtil() {
     }
@@ -49,7 +70,7 @@ public class ProcUtil {
      * @return Seconds since boot
      */
     public static double getSystemUptimeSeconds() {
-        String uptime = FileUtil.getStringFromFile("/proc/uptime");
+        String uptime = FileUtil.getStringFromFile(proc + "/uptime");
         int spaceIndex = uptime.indexOf(' ');
         try {
             if (spaceIndex < 0) {
@@ -74,7 +95,7 @@ public class ProcUtil {
         // first line is overall user,nice,system,idle,iowait,irq, etc.
         // cpu 3357 0 4313 1362393 ...
         String tickStr;
-        List<String> procStat = FileUtil.readFile("/proc/stat");
+        List<String> procStat = FileUtil.readFile(proc + "/stat");
         if (!procStat.isEmpty()) {
             tickStr = procStat.get(0);
         } else {
@@ -102,7 +123,7 @@ public class ProcUtil {
      * @return An array of File objects for the process files
      */
     public static File[] getPidFiles() {
-        File procdir = new File("/proc");
+        File procdir = new File(proc);
         File[] pids = procdir.listFiles(new FileFilter() {
             @Override
             public boolean accept(File file) {

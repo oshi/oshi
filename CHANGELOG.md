@@ -10,9 +10,10 @@
 * [#838](https://github.com/oshi/oshi/pull/838): JNA 5.3.0. - [@dbwiddis](https://github.com/dbwiddis).
 * [#845](https://github.com/oshi/oshi/pull/845): JNA 5.3.1. - [@dbwiddis](https://github.com/dbwiddis).
 * [#854](https://github.com/oshi/oshi/pull/855): Fix CPU temperature - [@rlouwerens](https://github.com/rlouwerens).
+* [#901](https://github.com/oshi/oshi/pull/901): Fix incorrect physical processor count on Linux. - [@ellesummer](https://github.com/ellesummer).
 * Your contribution here.
 
-3.13.0 (1/18/2019), 3.13.1 (4/21/2019), 3.13.2 (4/28/2019)
+3.13.0 (1/18/2019), 3.13.1 (4/21/2019), 3.13.2 (4/28/2019), 3.13.3 (6/5/2019)
 ================
 * [#763](https://github.com/oshi/oshi/pull/763): Refactor PDH/WMI Fallback. - [@dbwiddis](https://github.com/dbwiddis).
 * [#766](https://github.com/oshi/oshi/pull/766): Use query key to update counters in groups. - [@dbwiddis](https://github.com/dbwiddis).
