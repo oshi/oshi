@@ -1,9 +1,9 @@
 /**
  * OSHI (https://github.com/oshi/oshi)
- * <p>
+ *
  * Copyright (c) 2010 - 2019 The OSHI Project Team:
  * https://github.com/oshi/oshi/graphs/contributors
- * <p>
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -12,7 +12,7 @@
  * furnished to do so, subject to the following conditions:
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * <p>
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -23,23 +23,17 @@
  */
 package oshi.hardware;
 
-import org.junit.Test;
-import oshi.SystemInfo;
-
-import java.io.File;
-
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assume.assumeFalse;
-import static org.junit.Assume.assumeTrue;
+
+import org.junit.Test;
+
+import oshi.SystemInfo;
 
 /**
  * Test Sensors
  */
 public class SensorsTest {
-
-
     private SystemInfo si = new SystemInfo();
-
     private Sensors s = si.getHardware().getSensors();
 
     /**
@@ -50,7 +44,6 @@ public class SensorsTest {
         assertTrue(s.getCpuTemperature() >= 0d && s.getCpuTemperature() <= 100d);
         assertTrue(s.getCpuVoltage() >= 0);
     }
-
 
     @Test
     public void testFanSpeeds() {
