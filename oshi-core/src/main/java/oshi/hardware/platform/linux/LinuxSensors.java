@@ -25,6 +25,7 @@ package oshi.hardware.platform.linux;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -65,8 +66,7 @@ public class LinuxSensors implements Sensors {
                     try {
                         return f.getName().startsWith(sensorPrefix) && f.getName().endsWith("_input")
                                 && FileUtil.getIntFromFile(f.getCanonicalPath()) > 0;
-                    }
-                    catch(Exception e) {
+                    } catch (IOException e) {
                         return false;
                     }
                 }
