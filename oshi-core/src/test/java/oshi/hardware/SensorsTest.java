@@ -33,18 +33,23 @@ import oshi.SystemInfo;
  * Test Sensors
  */
 public class SensorsTest {
+    private SystemInfo si = new SystemInfo();
+    private Sensors s = si.getHardware().getSensors();
+
     /**
      * Test sensors
      */
     @Test
     public void testSensors() {
-        SystemInfo si = new SystemInfo();
-        Sensors s = si.getHardware().getSensors();
         assertTrue(s.getCpuTemperature() >= 0d && s.getCpuTemperature() <= 100d);
+        assertTrue(s.getCpuVoltage() >= 0);
+    }
+
+    @Test
+    public void testFanSpeeds() {
         int[] speeds = s.getFanSpeeds();
         for (int speed : speeds) {
             assertTrue(speed >= 0);
         }
-        assertTrue(s.getCpuVoltage() >= 0);
     }
 }
