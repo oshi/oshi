@@ -49,7 +49,7 @@
 
 	<properties>
 		<main.basedir>${project.parent.basedir}</main.basedir>
-		<jackson.version>2.9.9</jackson.version>
+		<jackson.version>2.9.9.1</jackson.version>
 	</properties>
 
 	<dependencies>
