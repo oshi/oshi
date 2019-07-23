@@ -209,13 +209,13 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
     public long getSystemUptime() {
         return System.currentTimeMillis() / 1000 - BOOTTIME;
     }
-    
+
     /**
      * {@inheritDoc}
      */
     @Override
     public long getBootTime() {
-    	return BOOTTIME;
+        return BOOTTIME;
     }
 
     /**
