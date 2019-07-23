@@ -46,7 +46,7 @@ install:
   - java -version
 
 build_script:
-  - mvn clean package -Dmaven.test.skip=true
+  - appveyor-retry mvn clean package -Dmaven.test.skip=true
 
 test_script:
   - mvn test
