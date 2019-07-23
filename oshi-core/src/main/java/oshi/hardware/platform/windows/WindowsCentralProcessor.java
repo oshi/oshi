@@ -24,6 +24,7 @@
 package oshi.hardware.platform.windows;
 
 import java.util.ArrayList;
+
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -33,9 +34,12 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
 import com.sun.jna.Memory;
 import com.sun.jna.Native; // NOSONAR squid:S1191
 import com.sun.jna.platform.win32.Advapi32Util;
+import com.sun.jna.platform.win32.Advapi32Util.EventLogIterator;
+import com.sun.jna.platform.win32.Advapi32Util.EventLogRecord;
 import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.Kernel32Util;
 import com.sun.jna.platform.win32.VersionHelpers;
@@ -83,6 +87,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
     private static final long BOOTTIME;
     static {
     	boolean found = false;
+    	long tempBT;
         EventLogIterator iter = new EventLogIterator(null, "System", WinNT.EVENTLOG_BACKWARDS_READ);
         while (iter.hasNext()) {
             EventLogRecord record = iter.next();
@@ -92,14 +97,69 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
                     break;
                 }
                 // First 6005; tentatively assign and look for EventID 12
-                BOOTTIME = record.getRecord().TimeGenerated.longValue();
+                tempBT = record.getRecord().TimeGenerated.longValue();
                 found = true;
             } else if (found && record.getRecord().EventID.getLow().intValue() == 12) {
                 // First 12 after 6005, this is boot time
-                BOOTTIME = record.getRecord().TimeGenerated.longValue();
+                tempBT = record.getRecord().TimeGenerated.longValue();
                 break;
             }
         }
+        if (tempBT != 0) {
+        	BOOTTIME = tempBT;
+        } else 
+            BOOTTIME = (long) System.currentTimeMillis() / 1000L - getSystemUptime();
+        }
+	@Override
+	public double[] getSystemLoadAverage(int nelem) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public long getSystemUptime() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+	@Override
+	public long getBootTime() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+	@Override
+	public long getContextSwitches() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+	@Override
+	public long getInterrupts() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+	@Override
+	protected LogicalProcessor[] initProcessorCounts() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	protected long[] querySystemCpuLoadTicks() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	protected long[] queryCurrentFreq() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	protected long queryMaxFreq() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+	@Override
+	protected long[][] queryProcessorCpuLoadTicks() {
+		// TODO Auto-generated method stub
+		return null;
+	}
     }
 
     enum ProcessorProperty {
@@ -136,7 +196,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
 
     private final transient PerfCounterWildcardQuery<ProcessorTickCountProperty> processorTickPerfCounters = 
             VersionHelpers.IsWindows7OrGreater() ?
-                    new PerfCounterWildcardQuery<>(
+            new PerfCounterWildcardQuery<>(
                             ProcessorTickCountProperty.class, "Processor Information",
                             // NAME field includes NUMA nodes
                             "Win32_PerfRawData_Counters_ProcessorInformation WHERE NOT Name LIKE\"%_Total\"",
