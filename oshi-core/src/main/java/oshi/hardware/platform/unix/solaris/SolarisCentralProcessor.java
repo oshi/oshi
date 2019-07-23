@@ -24,6 +24,7 @@
 package oshi.hardware.platform.unix.solaris;
 
 import java.util.ArrayList;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -58,7 +59,8 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
     	Kstat ksp = KstatUtil.kstatLookup("unix", 0, "system_misc");
         if (ksp != null && KstatUtil.kstatRead(ksp)) {
             BOOTTIME = KstatUtil.kstatDataLookupLong(ksp, "boot_time");
-            break;
+        } else {
+            BOOTTIME = (long) System.currentTimeMillis() / 1000L -  getSystemUptime();
         }
     }
 

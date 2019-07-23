@@ -254,14 +254,14 @@ public interface CentralProcessor extends Serializable {
     /**
      * Get the System uptime (time since boot).
      *
-     * @return Number of seconds since boot.
+     * @return Number of seconds since boot. 
      */
     long getSystemUptime();
     
     /**
-     * Get the System boot time.
+     * Get Unix time of boot.
      * 
-     * @return Number of seconds since system last booted.
+     * @return The approximate time at which the system booted, in seconds since the Unix epoch.
      */
     long getBootTime();
 
@@ -271,7 +271,6 @@ public interface CentralProcessor extends Serializable {
      *
      * @return The number of logical CPUs available.
      */
-
     int getLogicalProcessorCount();
 
     /**

@@ -60,17 +60,21 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
     
     private static final long BOOTTIME;
     static {
-    	// Boot time given by btime variable
-    	// in /proc/stat.
+    	// Boot time given by btime variable in /proc/stat.
         List<String> procStat = FileUtil.readFile("/proc/stat");
+        long tempBT = 0;
         for (String stat : procStat) {
             if (stat.startsWith("btime")) {
                 String[] bTime = ParseUtil.whitespaces.split(stat);
-                BOOTTIME = ParseUtil.parseLongOrDefault(bTime[1], 0L);
+                tempBT = ParseUtil.parseLongOrDefault(bTime[1], 0L);
                 break;
             }
         }
-    	
+        // If above fails, current time minus uptime.
+        if (tempBT == 0) {
+        	tempBT = System.currentTimeMillis() / 1000L - (long) ProcUtil.getSystemUptimeSeconds();
+        }
+        BOOTTIME = tempBT;
     }
 
     /**
