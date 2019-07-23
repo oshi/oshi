@@ -217,8 +217,7 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
         for (int i = lowBit; i <= hiBit; i++) {
             if ((group1 & (1L << i)) > 0) {
                 int numaNode = 0; // TODO fetch
-                LogicalProcessor logProc = new LogicalProcessor(i,
-                        getMatchingBitmask(group3, i),
+                LogicalProcessor logProc = new LogicalProcessor(i, getMatchingBitmask(group3, i),
                         getMatchingBitmask(group2, i), numaNode);
                 logProcs.add(logProc);
             }
@@ -344,13 +343,13 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
     public long getSystemUptime() {
         return System.currentTimeMillis() / 1000 - BOOTTIME;
     }
-    
+
     /**
      * {@inheritDoc}
      */
     @Override
     public long getBootTime() {
-    	return BOOTTIME;
+        return BOOTTIME;
     }
 
     /**

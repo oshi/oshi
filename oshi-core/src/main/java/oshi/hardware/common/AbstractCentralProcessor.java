@@ -85,7 +85,6 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
     private long[] cpuCurrentFreq;
     private Boolean cpu64;
     private LogicalProcessor[] logicalProcessors;
-    
 
     /**
      * Create a Processor
@@ -484,7 +483,6 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
     public int getPhysicalPackageCount() {
         return this.physicalPackageCount;
     }
-    
 
     @Override
     public String toString() {

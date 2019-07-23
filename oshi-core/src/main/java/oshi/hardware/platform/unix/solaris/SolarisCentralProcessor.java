@@ -24,7 +24,6 @@
 package oshi.hardware.platform.unix.solaris;
 
 import java.util.ArrayList;
-
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -53,14 +52,14 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
     private static final long serialVersionUID = 1L;
 
     private static final Logger LOG = LoggerFactory.getLogger(SolarisCentralProcessor.class);
-    
+
     private static final long BOOTTIME;
     static {
-    	Kstat ksp = KstatUtil.kstatLookup("unix", 0, "system_misc");
+        Kstat ksp = KstatUtil.kstatLookup("unix", 0, "system_misc");
         if (ksp != null && KstatUtil.kstatRead(ksp)) {
             BOOTTIME = KstatUtil.kstatDataLookupLong(ksp, "boot_time");
         } else {
-            BOOTTIME = (long) System.currentTimeMillis() / 1000L -  getSystemUptime();
+            BOOTTIME = System.currentTimeMillis() / 1000L - querySystemUptime();
         }
     }
 
@@ -166,6 +165,7 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
         }
         return numaNodeMap;
     }
+
     /**
      * {@inheritDoc}
      */
@@ -267,20 +267,24 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public long getSystemUptime() {
+        return querySystemUptime();
+    }
+
+    private static long querySystemUptime() {
         Kstat ksp = KstatUtil.kstatLookup("unix", 0, "system_misc");
         if (ksp == null) {
             return 0L;
         }
         // Snap Time is in nanoseconds; divide for seconds
-        return ksp.ks_snaptime / 1000000000L;
+        return ksp.ks_snaptime / 1_000_000_000L;
     }
-    
+
     /**
      * {@inheritDoc}
      */
     @Override
     public long getBootTime() {
-    	return BOOTTIME;
+        return BOOTTIME;
     }
 
     /**
