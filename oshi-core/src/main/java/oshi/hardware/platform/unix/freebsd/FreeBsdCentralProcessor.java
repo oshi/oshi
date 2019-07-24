@@ -345,14 +345,6 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
     }
 
     /**
-     * {@inheritDoc}
-     */
-    @Override
-    public long getBootTime() {
-        return BOOTTIME;
-    }
-
-    /**
      * Fetches the ProcessorID from dmidecode (if possible with root
      * permissions), otherwise uses the values from /var/run/dmesg.boot
      *

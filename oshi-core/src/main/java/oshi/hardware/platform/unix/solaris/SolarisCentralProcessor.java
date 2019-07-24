@@ -286,7 +286,11 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
     public long getBootTime() {
         return BOOTTIME;
     }
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> Updated wording in ChangeLog from Start Date to Boot Time, added two tests in Central ProcessorTest class for boottime > 0 and boottime > currentTimeMillis.
     /**
      * Fetches the ProcessorID by encoding the stepping, model, family, and
      * feature flags.

@@ -214,14 +214,6 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
      * {@inheritDoc}
      */
     @Override
-    public long getBootTime() {
-        return BOOTTIME;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public long getContextSwitches() {
         int machPort = SystemB.INSTANCE.mach_host_self();
         VMMeter vmstats = new VMMeter();

@@ -340,14 +340,6 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
     }
 
     /**
-     * {@inheritDoc}
-     */
-    @Override
-    public long getBootTime() {
-        return BOOTTIME;
-    }
-
-    /**
      * Fetches the ProcessorID from dmidecode (if possible with root
      * permissions), the cpuid command (if installed) or by encoding the
      * stepping, model, family, and feature flags.
