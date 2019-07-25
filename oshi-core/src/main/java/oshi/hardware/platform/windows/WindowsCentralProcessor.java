@@ -105,8 +105,9 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
         }
         if (tempBT != 0) {
             BOOTTIME = tempBT;
-        } else
+        } else {
             BOOTTIME = System.currentTimeMillis() / 1000L - querySystemUptime();
+        }
     }
 
     enum ProcessorProperty {
@@ -625,15 +626,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
             return Kernel32.INSTANCE.GetTickCount() / 1000L;
         }
     }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public long getBootTime() {
-        return BOOTTIME;
-    }
-    
+
     /**
      * {@inheritDoc}
      */
