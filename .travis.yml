@@ -35,23 +35,23 @@ addons:
 
 matrix:
   include:  
-    - os: linux
-      install: . ./install-jdk.sh -F 11 -L BCL
+    - os: osx
       env: 
-      - JDK = "Oracle JDK 11 - Linux" 
+      - JDK = "Oracle JDK 8 - Mac" 
       - MATRIX_ID="first"
+      osx_image: xcode9.3
+    - os: osx
+      env: JDK = "OpenJDK 11 - Mac" 
+      osx_image: xcode10.1
+    - os: linux
+      install: . ./install-jdk.sh -F 11 -L GPL
+      env: JDK = "OpenJDK 11 - Linux" 
     - os: linux
       install: . ./install-jdk.sh -F 12 -L GPL
       env: JDK = "OpenJDK 12 - Linux" 
     - os: linux
       install: . ./install-jdk.sh -F ea -L GPL
       env: JDK = "OpenJDK 13-ea - Linux" 
-    - os: osx
-      env: JDK = "Oracle JDK 8 - Mac" 
-      osx_image: xcode9.3
-    - os: osx
-      env: JDK = "OpenJDK 11 - Mac" 
-      osx_image: xcode10.1
 
 script: 
   # Skip tests on coverity_scan branch

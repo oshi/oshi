@@ -31,13 +31,11 @@ import org.slf4j.LoggerFactory;
 import com.sun.jna.Native; // NOSONAR
 import com.sun.jna.platform.mac.SystemB;
 import com.sun.jna.platform.mac.SystemB.HostCpuLoadInfo;
-import com.sun.jna.platform.mac.SystemB.Timeval;
 import com.sun.jna.platform.mac.SystemB.VMMeter;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
 
 import oshi.hardware.common.AbstractCentralProcessor;
-import oshi.util.ExecutingCommand;
 import oshi.util.FormatUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.mac.SysctlUtil;
@@ -54,23 +52,6 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
     private static final long serialVersionUID = 1L;
 
     private static final Logger LOG = LoggerFactory.getLogger(MacCentralProcessor.class);
-
-    private static final long BOOTTIME;
-    static {
-        Timeval tv = new Timeval();
-        if (!SysctlUtil.sysctl("kern.boottime", tv) || tv.tv_sec.longValue() == 0L) {
-            // Usually this works. If it doesn't, fall back to text parsing.
-            // Boot time will be the first consecutive string of digits.
-            BOOTTIME = ParseUtil.parseLongOrDefault(
-                    ExecutingCommand.getFirstAnswer("sysctl -n kern.boottime").split(",")[0].replaceAll("\\D", ""),
-                    System.currentTimeMillis() / 1000);
-        } else {
-            // tv now points to a 64-bit timeval structure for boot time.
-            // First 4 bytes are seconds, second 4 bytes are microseconds
-            // (we ignore)
-            BOOTTIME = tv.tv_sec.longValue();
-        }
-    }
 
     /**
      * Create a Processor
@@ -200,22 +181,6 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
             ticks[cpu][TickType.IDLE.getIndex()] = FormatUtil.getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_IDLE]);
         }
         return ticks;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public long getSystemUptime() {
-        return System.currentTimeMillis() / 1000 - BOOTTIME;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public long getBootTime() {
-        return BOOTTIME;
     }
 
     /**

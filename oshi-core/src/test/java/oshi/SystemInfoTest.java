@@ -25,6 +25,7 @@ package oshi;
 
 import static org.junit.Assert.assertFalse;
 
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 
@@ -90,7 +91,7 @@ public class SystemInfoTest {
         HardwareAbstractionLayer hal = si.getHardware();
         OperatingSystem os = si.getOperatingSystem();
 
-        System.out.println(os);
+        printOperatingSystem(os);
 
         LOG.info("Checking computer system...");
         printComputerSystem(hal.getComputerSystem());
@@ -137,6 +138,11 @@ public class SystemInfoTest {
         printSoundCards(hal.getSoundCards());
     }
 
+    private static void printOperatingSystem(final OperatingSystem os) {
+        System.out.println(os);
+        System.out.println("Booted: " + Instant.ofEpochSecond(os.getSystemBootTime()));
+        System.out.println("Uptime: " + FormatUtil.formatElapsedSecs(os.getSystemUptime()));
+    }
     private static void printComputerSystem(final ComputerSystem computerSystem) {
 
         System.out.println("manufacturer: " + computerSystem.getManufacturer());
@@ -177,7 +183,6 @@ public class SystemInfoTest {
     }
 
     private static void printCpu(CentralProcessor processor) {
-        System.out.println("Uptime: " + FormatUtil.formatElapsedSecs(processor.getSystemUptime()));
         System.out.println(
                 "Context Switches/Interrupts: " + processor.getContextSwitches() + " / " + processor.getInterrupts());
         long[] prevTicks = processor.getSystemCpuLoadTicks();

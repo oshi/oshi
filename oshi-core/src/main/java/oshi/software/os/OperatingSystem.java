@@ -185,6 +185,21 @@ public interface OperatingSystem extends Serializable {
     int getBitness();
 
     /**
+     * Get the System up time (time since boot).
+     *
+     * @return Number of seconds since boot.
+     */
+    long getSystemUptime();
+
+    /**
+     * Get Unix time of boot.
+     * 
+     * @return The approximate time at which the system booted, in seconds since
+     *         the Unix epoch.
+     */
+    long getSystemBootTime();
+
+    /**
      * Instantiates a {@link NetworkParams} object.
      *
      * @return A {@link NetworkParams} object.

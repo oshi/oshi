@@ -58,6 +58,10 @@ public class OperatingSystemTest {
         assertNotNull(version.getCodeName());
         assertNotNull(version.getBuildNumber());
 
+        assertTrue(os.getSystemUptime() > 0);
+        assertTrue(os.getSystemBootTime() > 0);
+        assertTrue(os.getSystemBootTime() < System.currentTimeMillis() / 1000L);
+
         assertTrue(os.getProcessCount() >= 1);
         assertTrue(os.getThreadCount() >= 1);
         assertTrue(os.getBitness() == 32 || os.getBitness() == 64);

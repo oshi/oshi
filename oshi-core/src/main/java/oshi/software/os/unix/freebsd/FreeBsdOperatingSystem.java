@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 import oshi.jna.platform.linux.Libc;
+import oshi.jna.platform.unix.CLibrary.Timeval;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
 import oshi.software.os.NetworkParams;
@@ -45,6 +46,23 @@ import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
  */
 public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
     private static final long serialVersionUID = 1L;
+
+    private static final long BOOTTIME;
+    static {
+        Timeval tv = new Timeval();
+        if (!BsdSysctlUtil.sysctl("kern.boottime", tv) || tv.tv_sec == 0) {
+            // Usually this works. If it doesn't, fall back to text parsing.
+            // Boot time will be the first consecutive string of digits.
+            BOOTTIME = ParseUtil.parseLongOrDefault(
+                    ExecutingCommand.getFirstAnswer("sysctl -n kern.boottime").split(",")[0].replaceAll("\\D", ""),
+                    System.currentTimeMillis() / 1000);
+        } else {
+            // tv now points to a 128-bit timeval structure for boot time.
+            // First 8 bytes are seconds, second 8 bytes are microseconds
+            // (we ignore)
+            BOOTTIME = tv.tv_sec;
+        }
+    }
 
     public FreeBsdOperatingSystem() {
         this.manufacturer = "Unix/BSD";
@@ -212,6 +230,22 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
             threads += ParseUtil.parseIntOrDefault(proc.trim(), 0);
         }
         return threads;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getSystemUptime() {
+        return System.currentTimeMillis() / 1000 - BOOTTIME;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getSystemBootTime() {
+        return BOOTTIME;
     }
 
     /**

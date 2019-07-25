@@ -157,6 +157,7 @@
 		<spotbugs-maven-plugin.version>3.1.12</spotbugs-maven-plugin.version>
 		<jacoco-maven-plugin.version>0.8.4</jacoco-maven-plugin.version>
 		<coveralls-maven-plugin.version>4.3.0</coveralls-maven-plugin.version>
+		<jaxb-api.version>2.3.1</jaxb-api.version>
 		<tidy-maven-plugin.version>1.1.0</tidy-maven-plugin.version>
 		<license-maven-plugin.version>3.0</license-maven-plugin.version>
 		<!-- report only -->
@@ -772,6 +773,13 @@
 			<plugin>
 				<groupId>org.eluder.coveralls</groupId>
 				<artifactId>coveralls-maven-plugin</artifactId>
+				<dependencies>
+					<dependency>
+						<groupId>javax.xml.bind</groupId>
+						<artifactId>jaxb-api</artifactId>
+						<version>${jaxb-api.version}</version>
+					</dependency>
+				</dependencies>
 			</plugin>
 			<!-- Checkstyle dependencies required here or they won't be used (per 
 				maven) -->

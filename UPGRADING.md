@@ -39,6 +39,8 @@ to the `OperatingSystemMXBean` method if running an Oracle JVM, otherwise it
 returns a negative value.  The no-argument `getSystemLoadAverage()` has been 
 removed; users can call with an argument of 1 to obtain the same value. 
 
+The `getSystemUptime()` method was moved from the `CentralProcessor` class to
+the `OperatingSystem` class.
 
 # Guide to upgrading from OSHI 2.x to 3.x
 
