@@ -36,13 +36,10 @@ addons:
 matrix:
   include:  
     - os: linux
-      jdk: oraclejdk8
-      env:
-      - JDK = "Oracle JDK 8 - Linux" 
-      - MATRIX_ID="first"
-    - os: linux
       install: . ./install-jdk.sh -F 11 -L BCL
-      env: JDK = "Oracle JDK 11 - Linux" 
+      env: 
+      - JDK = "Oracle JDK 11 - Linux" 
+      - MATRIX_ID="first"
     - os: linux
       install: . ./install-jdk.sh -F 12 -L GPL
       env: JDK = "OpenJDK 12 - Linux" 
