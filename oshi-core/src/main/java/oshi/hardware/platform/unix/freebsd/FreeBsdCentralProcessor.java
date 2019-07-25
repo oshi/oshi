@@ -40,7 +40,6 @@ import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 
 import oshi.hardware.common.AbstractCentralProcessor;
-import oshi.jna.platform.unix.CLibrary.Timeval;
 import oshi.jna.platform.unix.freebsd.Libc;
 import oshi.jna.platform.unix.freebsd.Libc.CpTime;
 import oshi.util.ExecutingCommand;
@@ -64,23 +63,6 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
     private static final Pattern CPUINFO = Pattern
             .compile("Origin=\"([^\"]*)\".*Id=(\\S+).*Family=(\\S+).*Model=(\\S+).*Stepping=(\\S+).*");
     private static final Pattern CPUINFO2 = Pattern.compile("Features=(\\S+)<.*");
-
-    private static final long BOOTTIME;
-    static {
-        Timeval tv = new Timeval();
-        if (!BsdSysctlUtil.sysctl("kern.boottime", tv) || tv.tv_sec == 0) {
-            // Usually this works. If it doesn't, fall back to text parsing.
-            // Boot time will be the first consecutive string of digits.
-            BOOTTIME = ParseUtil.parseLongOrDefault(
-                    ExecutingCommand.getFirstAnswer("sysctl -n kern.boottime").split(",")[0].replaceAll("\\D", ""),
-                    System.currentTimeMillis() / 1000);
-        } else {
-            // tv now points to a 128-bit timeval structure for boot time.
-            // First 8 bytes are seconds, second 8 bytes are microseconds
-            // (we ignore)
-            BOOTTIME = tv.tv_sec;
-        }
-    }
 
     /**
      * Create a Processor
@@ -334,22 +316,6 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
             ticks[cpu][TickType.IDLE.getIndex()] = p.getLong(size * cpu + Libc.CP_IDLE * Libc.UINT64_SIZE); // lgtm
         }
         return ticks;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public long getSystemUptime() {
-        return System.currentTimeMillis() / 1000 - BOOTTIME;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public long getBootTime() {
-        return BOOTTIME;
     }
 
     /**

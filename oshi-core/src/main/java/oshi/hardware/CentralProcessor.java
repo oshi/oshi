@@ -184,6 +184,7 @@ public interface CentralProcessor extends Serializable {
      * @return the "recent cpu usage" for the whole system; a negative value if
      *         not available.
      */
+    @SuppressWarnings("restriction")
     double getSystemCpuLoad();
 
     /**
@@ -250,20 +251,6 @@ public interface CentralProcessor extends Serializable {
      *         Steal states.
      */
     long[][] getProcessorCpuLoadTicks();
-
-    /**
-     * Get the System uptime (time since boot).
-     *
-     * @return Number of seconds since boot. 
-     */
-    long getSystemUptime();
-    
-    /**
-     * Get Unix time of boot.
-     * 
-     * @return The approximate time at which the system booted, in seconds since the Unix epoch.
-     */
-    long getBootTime();
 
     /**
      * Get the number of logical CPUs available for processing. This value may

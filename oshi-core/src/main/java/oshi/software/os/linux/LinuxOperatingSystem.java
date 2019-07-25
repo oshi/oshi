@@ -64,6 +64,25 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
 
     private static final Logger LOG = LoggerFactory.getLogger(LinuxOperatingSystem.class);
 
+    private static final long BOOTTIME;
+    static {
+        // Boot time given by btime variable in /proc/stat.
+        List<String> procStat = FileUtil.readFile("/proc/stat");
+        long tempBT = 0;
+        for (String stat : procStat) {
+            if (stat.startsWith("btime")) {
+                String[] bTime = ParseUtil.whitespaces.split(stat);
+                tempBT = ParseUtil.parseLongOrDefault(bTime[1], 0L);
+                break;
+            }
+        }
+        // If above fails, current time minus uptime.
+        if (tempBT == 0) {
+            tempBT = System.currentTimeMillis() / 1000L - (long) ProcUtil.getSystemUptimeSeconds();
+        }
+        BOOTTIME = tempBT;
+    }
+
     // Populated with results of reading /etc/os-release or other files
     protected String versionId;
 
@@ -367,6 +386,22 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
             LOG.error("Failed to get procs from sysinfo. {}", e);
         }
         return 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getSystemUptime() {
+        return (long) ProcUtil.getSystemUptimeSeconds();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getSystemBootTime() {
+        return BOOTTIME;
     }
 
     /**

@@ -27,6 +27,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.sun.jna.platform.unix.solaris.LibKstat.Kstat;
+
 import oshi.jna.platform.linux.Libc;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
@@ -36,6 +38,7 @@ import oshi.util.ExecutingCommand;
 import oshi.util.LsofUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.linux.ProcUtil;
+import oshi.util.platform.unix.solaris.KstatUtil;
 
 /**
  * Linux is a family of free operating systems most commonly used on personal
@@ -45,6 +48,16 @@ import oshi.util.platform.linux.ProcUtil;
  */
 public class SolarisOperatingSystem extends AbstractOperatingSystem {
     private static final long serialVersionUID = 1L;
+
+    private static final long BOOTTIME;
+    static {
+        Kstat ksp = KstatUtil.kstatLookup("unix", 0, "system_misc");
+        if (ksp != null && KstatUtil.kstatRead(ksp)) {
+            BOOTTIME = KstatUtil.kstatDataLookupLong(ksp, "boot_time");
+        } else {
+            BOOTTIME = System.currentTimeMillis() / 1000L - querySystemUptime();
+        }
+    }
 
     public SolarisOperatingSystem() {
         this.manufacturer = "Oracle";
@@ -204,6 +217,31 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
             return threadList.size() - 1;
         }
         return getProcessCount();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getSystemUptime() {
+        return querySystemUptime();
+    }
+
+    private static long querySystemUptime() {
+        Kstat ksp = KstatUtil.kstatLookup("unix", 0, "system_misc");
+        if (ksp == null) {
+            return 0L;
+        }
+        // Snap Time is in nanoseconds; divide for seconds
+        return ksp.ks_snaptime / 1_000_000_000L;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getSystemBootTime() {
+        return BOOTTIME;
     }
 
     /**

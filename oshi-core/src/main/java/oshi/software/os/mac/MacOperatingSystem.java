@@ -39,6 +39,7 @@ import com.sun.jna.platform.mac.SystemB.Passwd;
 import com.sun.jna.platform.mac.SystemB.ProcTaskAllInfo;
 import com.sun.jna.platform.mac.SystemB.ProcTaskInfo;
 import com.sun.jna.platform.mac.SystemB.RUsageInfoV2;
+import com.sun.jna.platform.mac.SystemB.Timeval;
 import com.sun.jna.platform.mac.SystemB.VnodePathInfo;
 import com.sun.jna.ptr.IntByReference;
 
@@ -67,6 +68,23 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
     private static final int SZOMB = 5; // intermediate state in process
                                         // termination
     private static final int SSTOP = 6; // process being traced
+
+    private static final long BOOTTIME;
+    static {
+        Timeval tv = new Timeval();
+        if (!SysctlUtil.sysctl("kern.boottime", tv) || tv.tv_sec.longValue() == 0L) {
+            // Usually this works. If it doesn't, fall back to text parsing.
+            // Boot time will be the first consecutive string of digits.
+            BOOTTIME = ParseUtil.parseLongOrDefault(
+                    ExecutingCommand.getFirstAnswer("sysctl -n kern.boottime").split(",")[0].replaceAll("\\D", ""),
+                    System.currentTimeMillis() / 1000);
+        } else {
+            // tv now points to a 64-bit timeval structure for boot time.
+            // First 4 bytes are seconds, second 4 bytes are microseconds
+            // (we ignore)
+            BOOTTIME = tv.tv_sec.longValue();
+        }
+    }
 
     public MacOperatingSystem() {
         this.manufacturer = "Apple";
@@ -280,8 +298,7 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
         if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, procargs, size, null, 0)) {
             LOG.warn(
                     "Failed syctl call for process arguments (kern.procargs2), process {} may not exist. Error code: {}",
-                    pid,
-                    Native.getLastError());
+                    pid, Native.getLastError());
             return "";
         }
         // Procargs contains an int representing total # of args, followed by a
@@ -359,6 +376,22 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
             numberOfThreads += taskInfo.pti_threadnum;
         }
         return numberOfThreads;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getSystemUptime() {
+        return System.currentTimeMillis() / 1000 - BOOTTIME;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getSystemBootTime() {
+        return BOOTTIME;
     }
 
     /**
