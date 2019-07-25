@@ -254,9 +254,16 @@ public interface CentralProcessor extends Serializable {
     /**
      * Get the System uptime (time since boot).
      *
-     * @return Number of seconds since boot.
+     * @return Number of seconds since boot. 
      */
     long getSystemUptime();
+    
+    /**
+     * Get Unix time of boot.
+     * 
+     * @return The approximate time at which the system booted, in seconds since the Unix epoch.
+     */
+    long getBootTime();
 
     /**
      * Get the number of logical CPUs available for processing. This value may

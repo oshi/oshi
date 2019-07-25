@@ -33,9 +33,11 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Memory;
-import com.sun.jna.Native; // NOSONAR squid:S1191
+import com.sun.jna.Memory; // NOSONAR squid:S1191
+import com.sun.jna.Native;
 import com.sun.jna.platform.win32.Advapi32Util;
+import com.sun.jna.platform.win32.Advapi32Util.EventLogIterator;
+import com.sun.jna.platform.win32.Advapi32Util.EventLogRecord;
 import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.Kernel32Util;
 import com.sun.jna.platform.win32.VersionHelpers;
@@ -80,6 +82,34 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
 
     private Map<String, Integer> numaNodeProcToLogicalProcMap;
 
+    private static final long BOOTTIME;
+    static {
+        boolean found = false;
+        long tempBT = 0L;
+        EventLogIterator iter = new EventLogIterator(null, "System", WinNT.EVENTLOG_BACKWARDS_READ);
+        while (iter.hasNext()) { // NOSONAR squid:S135
+            EventLogRecord record = iter.next();
+            if (record.getRecord().EventID.getLow().intValue() == 6005) {
+                if (found) {
+                    // Didn't find EventID 12, return first 6005
+                    break;
+                }
+                // First 6005; tentatively assign and look for EventID 12
+                tempBT = record.getRecord().TimeGenerated.longValue();
+                found = true;
+            } else if (found && record.getRecord().EventID.getLow().intValue() == 12) {
+                // First 12 after 6005, this is boot time
+                tempBT = record.getRecord().TimeGenerated.longValue();
+                break;
+            }
+        }
+        if (tempBT != 0) {
+            BOOTTIME = tempBT;
+        } else {
+            BOOTTIME = System.currentTimeMillis() / 1000L - querySystemUptime();
+        }
+    }
+
     enum ProcessorProperty {
         PROCESSORID;
     }
@@ -112,18 +142,15 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
         }
     }
 
-    private final transient PerfCounterWildcardQuery<ProcessorTickCountProperty> processorTickPerfCounters = 
-            VersionHelpers.IsWindows7OrGreater() ?
-                    new PerfCounterWildcardQuery<>(
-                            ProcessorTickCountProperty.class, "Processor Information",
+    private final transient PerfCounterWildcardQuery<ProcessorTickCountProperty> processorTickPerfCounters = VersionHelpers
+            .IsWindows7OrGreater()
+                    ? new PerfCounterWildcardQuery<>(ProcessorTickCountProperty.class, "Processor Information",
                             // NAME field includes NUMA nodes
                             "Win32_PerfRawData_Counters_ProcessorInformation WHERE NOT Name LIKE\"%_Total\"",
                             "Processor Tick Count")
-                    : new PerfCounterWildcardQuery<>(
-                            ProcessorTickCountProperty.class, PROCESSOR,
+                    : new PerfCounterWildcardQuery<>(ProcessorTickCountProperty.class, PROCESSOR,
                             // Older systems just have processor # in name
-                            "Win32_PerfRawData_PerfOS_Processor WHERE NOT Name=\"_Total\"",
-                            "Processor Tick Count");
+                            "Win32_PerfRawData_PerfOS_Processor WHERE NOT Name=\"_Total\"", "Processor Tick Count");
 
     enum SystemTickCountProperty implements PdhCounterProperty {
         PERCENTDPCTIME(PerfCounterQuery.TOTAL_INSTANCE, "% DPC Time"), //
@@ -373,6 +400,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
         }
         return 0;
     }
+
     private LogicalProcessor[] getLogicalProcessorInformation() {
         // Collect a list of logical processors on each physical core and
         // package. These will be 64-bit bitmasks.
@@ -430,7 +458,6 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
         }
         return 0;
     }
-
 
     /**
      * {@inheritDoc}
@@ -586,6 +613,10 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public long getSystemUptime() {
+        return querySystemUptime();
+    }
+
+    private static long querySystemUptime() {
         // Uptime is in seconds so divide milliseconds
         // GetTickCount64 requires Vista (6.0) or later
         if (IS_VISTA_OR_GREATER) {
@@ -594,6 +625,14 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
             // 32 bit rolls over at ~ 49 days
             return Kernel32.INSTANCE.GetTickCount() / 1000L;
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getBootTime() {
+        return BOOTTIME;
     }
 
     /**

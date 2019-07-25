@@ -53,6 +53,16 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(SolarisCentralProcessor.class);
 
+    private static final long BOOTTIME;
+    static {
+        Kstat ksp = KstatUtil.kstatLookup("unix", 0, "system_misc");
+        if (ksp != null && KstatUtil.kstatRead(ksp)) {
+            BOOTTIME = KstatUtil.kstatDataLookupLong(ksp, "boot_time");
+        } else {
+            BOOTTIME = System.currentTimeMillis() / 1000L - querySystemUptime();
+        }
+    }
+
     /**
      * Create a Processor
      */
@@ -155,6 +165,7 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
         }
         return numaNodeMap;
     }
+
     /**
      * {@inheritDoc}
      */
@@ -256,12 +267,24 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public long getSystemUptime() {
+        return querySystemUptime();
+    }
+
+    private static long querySystemUptime() {
         Kstat ksp = KstatUtil.kstatLookup("unix", 0, "system_misc");
         if (ksp == null) {
             return 0L;
         }
         // Snap Time is in nanoseconds; divide for seconds
-        return ksp.ks_snaptime / 1000000000L;
+        return ksp.ks_snaptime / 1_000_000_000L;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getBootTime() {
+        return BOOTTIME;
     }
 
     /**
