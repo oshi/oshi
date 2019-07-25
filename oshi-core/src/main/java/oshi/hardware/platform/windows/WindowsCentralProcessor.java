@@ -625,7 +625,15 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
             return Kernel32.INSTANCE.GetTickCount() / 1000L;
         }
     }
-
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getBootTime() {
+        return BOOTTIME;
+    }
+    
     /**
      * {@inheritDoc}
      */

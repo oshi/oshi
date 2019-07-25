@@ -11,6 +11,7 @@
 * [#845](https://github.com/oshi/oshi/pull/845): JNA 5.3.1. - [@dbwiddis](https://github.com/dbwiddis).
 * [#857](https://github.com/oshi/oshi/pull/857): Fix CPU temperature - [@rlouwerens](https://github.com/rlouwerens).
 * [#901](https://github.com/oshi/oshi/pull/901): Fix incorrect physical processor count on Linux. - [@ellesummer](https://github.com/ellesummer).
+* [#914](https://github.com/oshi/oshi/pull/914): Add query for System Boot Time. - [@shannondavid](https://github.com/shannondavid).
 * Your contribution here.
 
 3.13.0 (1/18/2019), 3.13.1 (4/21/2019), 3.13.2 (4/28/2019), 3.13.3 (6/5/2019)

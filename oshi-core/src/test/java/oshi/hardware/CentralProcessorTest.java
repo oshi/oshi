@@ -76,8 +76,10 @@ public class CentralProcessorTest {
                     && p.getProcessorCpuLoadBetweenTicks(procTicks)[cpu] <= 1);
             assertEquals(p.getProcessorCpuLoadTicks()[cpu].length, TickType.values().length);
         }
-
+        
         assertTrue(p.getSystemUptime() > 0);
+        assertTrue(p.getBootTime() > 0);
+        assertTrue(p.getBootTime() < System.currentTimeMillis() / 1000L);
         assertTrue(p.getLogicalProcessorCount() >= p.getPhysicalProcessorCount());
         assertTrue(p.getPhysicalProcessorCount() > 0);
         assertTrue(p.getPhysicalProcessorCount() >= p.getPhysicalPackageCount());
