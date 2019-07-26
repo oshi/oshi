@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import oshi.hardware.PowerSource;
 import oshi.hardware.common.AbstractPowerSource;
 import oshi.util.FileUtil;
+import oshi.util.ParseUtil;
 
 /**
  * A Power Source
@@ -90,7 +91,7 @@ public class LinuxPowerSource extends AbstractPowerSource {
                     // Skip if not present
                     String[] psSplit = checkLine.split("=");
                     if (psSplit.length > 1) {
-                        isPresent = Integer.parseInt(psSplit[1]) > 0;
+                        isPresent = ParseUtil.parseIntOrDefault(psSplit[1], 0) > 0;
                     }
                     if (!isPresent) {
                         break;
@@ -106,13 +107,16 @@ public class LinuxPowerSource extends AbstractPowerSource {
                     // Remaining Capacity = energyNow / energyFull
                     String[] psSplit = checkLine.split("=");
                     if (psSplit.length > 1) {
-                        energyNow = Integer.parseInt(psSplit[1]);
+                        energyNow = ParseUtil.parseIntOrDefault(psSplit[1], 0);
                     }
                 } else if (checkLine.startsWith("POWER_SUPPLY_ENERGY_FULL")
                         || checkLine.startsWith("POWER_SUPPLY_CHARGE_FULL")) {
                     String[] psSplit = checkLine.split("=");
                     if (psSplit.length > 1) {
-                        energyFull = Integer.parseInt(psSplit[1]);
+                        energyFull = ParseUtil.parseIntOrDefault(psSplit[1], 1);
+                        if (energyFull < 1) {
+                            energyFull = 1;
+                        }
                     }
                 } else if (checkLine.startsWith("POWER_SUPPLY_STATUS")) {
                     // Check if charging
@@ -125,9 +129,9 @@ public class LinuxPowerSource extends AbstractPowerSource {
                     // Time Remaining = energyNow / powerNow (hours)
                     String[] psSplit = checkLine.split("=");
                     if (psSplit.length > 1) {
-                        powerNow = Integer.parseInt(psSplit[1]);
+                        powerNow = ParseUtil.parseIntOrDefault(psSplit[1], 1);
                     }
-                    if (powerNow <= 0) {
+                    if (powerNow < 1) {
                         isCharging = true;
                     }
                 }
