@@ -23,60 +23,36 @@
  */
 package oshi.hardware.platform.mac;
 
-import java.util.Arrays;
-
-import oshi.hardware.Sensors;
+import oshi.hardware.common.AbstractSensors;
 import oshi.jna.platform.mac.IOKit;
 import oshi.util.platform.mac.SmcUtil;
 
-public class MacSensors implements Sensors {
+public class MacSensors extends AbstractSensors {
 
     private static final long serialVersionUID = 1L;
 
-    // Store some things to throttle SMC queries
-    private double lastTemp = 0d;
-
-    private long lastTempTime;
-
+    // This shouldn't change once determined
     private int numFans = 0;
-
-    private int[] lastFanSpeeds = new int[0];
-
-    private long lastFanSpeedsTime;
-
-    private double lastVolts = 0d;
-
-    private long lastVoltsTime;
-
-    public MacSensors() {
-        SmcUtil.smcOpen();
-        // Do an initial read of temperature and fan speeds. This caches initial
-        // dataInfo and improves success of future queries
-        this.lastTemp = getCpuTemperature();
-        this.lastFanSpeeds = getFanSpeeds();
-
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                SmcUtil.smcClose();
-            }
-        });
-    }
 
     /**
      * {@inheritDoc}
      */
     @Override
     public double getCpuTemperature() {
-        // Only update every second
-        if (System.currentTimeMillis() - this.lastTempTime > 900) {
-            double temp = SmcUtil.smcGetSp78(IOKit.SMC_KEY_CPU_TEMP, 50);
-            if (temp > 0d) {
-                this.lastTemp = temp;
-                this.lastTempTime = System.currentTimeMillis();
-            }
+        if (Double.isNaN(this.cpuTemperature)) {
+            this.cpuTemperature = queryCpuTemperature();
         }
-        return this.lastTemp;
+        return this.cpuTemperature;
+    }
+
+    private double queryCpuTemperature() {
+        SmcUtil.smcOpen();
+        double temp = SmcUtil.smcGetSp78(IOKit.SMC_KEY_CPU_TEMP, 50);
+        SmcUtil.smcClose();
+        if (temp > 0d) {
+            return temp;
+        }
+        return 0d;
     }
 
     /**
@@ -84,23 +60,24 @@ public class MacSensors implements Sensors {
      */
     @Override
     public int[] getFanSpeeds() {
-        // Only update every second
-        if (System.currentTimeMillis() - this.lastFanSpeedsTime > 900) {
-            // If we don't have fan # try to get it
-            if (this.numFans == 0) {
-                this.numFans = (int) SmcUtil.smcGetLong(IOKit.SMC_KEY_FAN_NUM, 50);
-                this.lastFanSpeeds = new int[this.numFans];
-            }
-            for (int i = 0; i < this.numFans; i++) {
-                int speed = (int) SmcUtil.smcGetFpe2(String.format(IOKit.SMC_KEY_FAN_SPEED, i), 50);
-                if (speed > 0) {
-                    this.lastFanSpeeds[i] = speed;
-                    this.lastFanSpeedsTime = System.currentTimeMillis();
-                }
-            }
+        if (this.fanSpeeds == null) {
+            this.fanSpeeds = queryFanSpeeds();
         }
-        // Make a copy to return
-        return Arrays.copyOf(this.lastFanSpeeds, this.lastFanSpeeds.length);
+        return this.fanSpeeds;
+    }
+
+    private int[] queryFanSpeeds() {
+        // If we don't have fan # try to get it
+        SmcUtil.smcOpen();
+        if (this.numFans == 0) {
+            this.numFans = (int) SmcUtil.smcGetLong(IOKit.SMC_KEY_FAN_NUM, 50);
+        }
+        int[] fanSpeeds = new int[this.numFans];
+        for (int i = 0; i < this.numFans; i++) {
+            fanSpeeds[i] = (int) SmcUtil.smcGetFpe2(String.format(IOKit.SMC_KEY_FAN_SPEED, i), 50);
+        }
+        SmcUtil.smcClose();
+        return fanSpeeds;
     }
 
     /**
@@ -108,14 +85,16 @@ public class MacSensors implements Sensors {
      */
     @Override
     public double getCpuVoltage() {
-        // Only update every second
-        if (System.currentTimeMillis() - this.lastVoltsTime > 900) {
-            double kiloVolts = SmcUtil.smcGetFpe2(IOKit.SMC_KEY_CPU_VOLTAGE, 50);
-            if (kiloVolts > 0d) {
-                this.lastVolts = kiloVolts / 1000d;
-                this.lastVoltsTime = System.currentTimeMillis();
-            }
+        if (Double.isNaN(this.cpuVoltage)) {
+            this.cpuVoltage = queryCpuVoltage();
         }
-        return this.lastVolts;
+        return this.cpuVoltage;
+    }
+
+    private double queryCpuVoltage() {
+        SmcUtil.smcOpen();
+        double volts = SmcUtil.smcGetFpe2(IOKit.SMC_KEY_CPU_VOLTAGE, 50) / 1000d;
+        SmcUtil.smcClose();
+        return volts;
     }
 }

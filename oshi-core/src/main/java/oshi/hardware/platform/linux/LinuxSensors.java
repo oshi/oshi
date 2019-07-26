@@ -32,10 +32,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import oshi.hardware.Sensors;
+import oshi.hardware.common.AbstractSensors;
 import oshi.util.FileUtil;
 
-public class LinuxSensors implements Sensors {
+public class LinuxSensors extends AbstractSensors {
 
     private static final long serialVersionUID = 1L;
 
@@ -54,8 +54,18 @@ public class LinuxSensors implements Sensors {
     private Map<String, String> sensorsMap = new HashMap<>();
 
     public LinuxSensors() {
-        // Iterate over all hwmon* directories and look for sensor files
-        // e.g. /sys/class/hwmon/hwmon0/temp1_input
+        iterateHwmon();
+        // if no temperature sensor is found in hwmon, try thermal_zone
+        if (!this.sensorsMap.containsKey(TEMP)) {
+            iterateThermalZone();
+        }
+    }
+
+    /*
+     * Iterate over all hwmon* directories and look for sensor files, e.g.,
+     * /sys/class/hwmon/hwmon0/temp1_input
+     */
+    private void iterateHwmon() {
         for (String sensor : SENSORS) {
             // Final to pass to anonymous class
             final String sensorPrefix = sensor;
@@ -72,18 +82,20 @@ public class LinuxSensors implements Sensors {
                 }
             });
         }
-        // Iterate over all thermal_zone* directories and look for sensor files
-        // if no temperature sensor is found
-        // e.g. /sys/class/thermal/thermal_zone0/temp
-        if (!this.sensorsMap.containsKey(TEMP)) {
-            getSensorFilesFromPath(THERMAL_ZONE, TEMP, new FileFilter() {
-                // Find any temp files in that path
-                @Override
-                public boolean accept(File f) {
-                    return f.getName().equals(TEMP);
-                }
-            });
-        }
+    }
+
+    /*
+     * Iterate over all thermal_zone* directories and look for sensor files,
+     * e.g., /sys/class/thermal/thermal_zone0/temp
+     */
+    private void iterateThermalZone() {
+        getSensorFilesFromPath(THERMAL_ZONE, TEMP, new FileFilter() {
+            // Find any temp files in that path
+            @Override
+            public boolean accept(File f) {
+                return f.getName().equals(TEMP);
+            }
+        });
     }
 
     /**
@@ -114,10 +126,17 @@ public class LinuxSensors implements Sensors {
      */
     @Override
     public double getCpuTemperature() {
-        long millidegrees = 0;
+        if (Double.isNaN(this.cpuTemperature)) {
+            this.cpuTemperature = queryCpuTemperature();
+        }
+        return this.cpuTemperature;
+    }
+
+    private double queryCpuTemperature() {
         if (!this.sensorsMap.containsKey(TEMP)) {
             return 0d;
         }
+        long millidegrees = 0;
         String hwmon = this.sensorsMap.get(TEMP);
         if (hwmon.contains("hwmon")) {
             // First attempt should be CPU temperature at index 1, if available
@@ -156,6 +175,13 @@ public class LinuxSensors implements Sensors {
      */
     @Override
     public int[] getFanSpeeds() {
+        if (this.fanSpeeds == null) {
+            this.fanSpeeds = queryFanSpeeds();
+        }
+        return this.fanSpeeds;
+    }
+
+    private int[] queryFanSpeeds() {
         if (this.sensorsMap.containsKey(FAN)) {
             String hwmon = this.sensorsMap.get(FAN);
             List<Integer> speeds = new ArrayList<>();
@@ -185,6 +211,13 @@ public class LinuxSensors implements Sensors {
      */
     @Override
     public double getCpuVoltage() {
+        if (Double.isNaN(this.cpuVoltage)) {
+            this.cpuVoltage = queryCpuVoltage();
+        }
+        return this.cpuVoltage;
+    }
+
+    private double queryCpuVoltage() {
         if (this.sensorsMap.containsKey(VOLTAGE)) {
             String hwmon = this.sensorsMap.get(VOLTAGE);
             // Should return a single line of millivolt

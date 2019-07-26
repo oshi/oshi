@@ -23,28 +23,26 @@
  */
 package oshi.hardware.common;
 
-import oshi.hardware.VirtualMemory;
+import oshi.hardware.Sensors;
 
 /**
- * Virtual Memory info.
+ * Sensor info.
  */
-public abstract class AbstractVirtualMemory implements VirtualMemory {
+public abstract class AbstractSensors implements Sensors {
 
     private static final long serialVersionUID = 1L;
 
-    protected long swapTotal = -1L;
-    protected long swapUsed = -1L;
-    protected long swapPagesIn = -1L;
-    protected long swapPagesOut = -1L;
+    protected double cpuTemperature = Double.NaN;
+    protected int[] fanSpeeds = null;
+    protected double cpuVoltage = Double.NaN;
 
     /**
      * {@inheritDoc}
      */
     @Override
     public void updateAttributes() {
-        this.swapTotal = -1L;
-        this.swapUsed = -1L;
-        this.swapPagesIn = -1L;
-        this.swapPagesOut = -1L;
+        this.cpuTemperature = Double.NaN;
+        this.fanSpeeds = null;
+        this.cpuVoltage = Double.NaN;
     }
 }

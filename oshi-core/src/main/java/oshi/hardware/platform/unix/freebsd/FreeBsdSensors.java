@@ -23,14 +23,14 @@
  */
 package oshi.hardware.platform.unix.freebsd;
 
-import com.sun.jna.Memory;
+import com.sun.jna.Memory; // NOSONAR squid:S1191
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 
-import oshi.hardware.Sensors;
+import oshi.hardware.common.AbstractSensors;
 import oshi.jna.platform.unix.freebsd.Libc;
 
-public class FreeBsdSensors implements Sensors {
+public class FreeBsdSensors extends AbstractSensors {
 
     private static final long serialVersionUID = 1L;
 
@@ -39,24 +39,30 @@ public class FreeBsdSensors implements Sensors {
      */
     @Override
     public double getCpuTemperature() {
-        // Try with kldload coretemp
-        double sumTemp = 0d;
-        int cpu = 0;
+        if (Double.isNaN(this.cpuTemperature)) {
+            this.cpuTemperature = queryKldloadCoretemp();
+            // TODO try other ways here
+        }
+        return Double.isNaN(this.cpuTemperature) ? 0d : this.cpuTemperature;
+    }
+
+    /*
+     * If user has loaded coretemp module via kldload coretemp, sysctl call will
+     * return temperature
+     * 
+     * @return Tempurature if successful, otherwise NaN
+     */
+    private double queryKldloadCoretemp() {
         String name = "dev.cpu.%d.temperature";
-        while (true) {
-            IntByReference size = new IntByReference(Libc.INT_SIZE);
-            Pointer p = new Memory(size.getValue());
-            if (0 != Libc.INSTANCE.sysctlbyname(String.format(name, cpu), p, size, null, 0)) {
-                break;
-            }
+        IntByReference size = new IntByReference(Libc.INT_SIZE);
+        Pointer p = new Memory(size.getValue());
+        int cpu = 0;
+        double sumTemp = 0d;
+        while (0 == Libc.INSTANCE.sysctlbyname(String.format(name, cpu), p, size, null, 0)) {
             sumTemp += p.getInt(0) / 10d - 273.15;
             cpu++;
         }
-        if (cpu > 0) {
-            return sumTemp / cpu;
-        }
-        // TODO try other ways here
-        return 0d;
+        return cpu > 0 ? sumTemp / cpu : Double.NaN;
     }
 
     /**
@@ -64,8 +70,11 @@ public class FreeBsdSensors implements Sensors {
      */
     @Override
     public int[] getFanSpeeds() {
-        // TODO try common software
-        return new int[0];
+        if (this.fanSpeeds == null) {
+            // TODO try common software
+            this.fanSpeeds = new int[0];
+        }
+        return this.fanSpeeds;
     }
 
     /**
@@ -73,7 +82,10 @@ public class FreeBsdSensors implements Sensors {
      */
     @Override
     public double getCpuVoltage() {
-        // TODO try common software
-        return 0d;
+        if (Double.isNaN(this.cpuVoltage)) {
+            // TODO try common software
+            this.cpuVoltage = 0d;
+        }
+        return this.cpuVoltage;
     }
 }
