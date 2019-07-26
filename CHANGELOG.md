@@ -11,9 +11,10 @@
 * [#845](https://github.com/oshi/oshi/pull/845): JNA 5.3.1. - [@dbwiddis](https://github.com/dbwiddis).
 * [#857](https://github.com/oshi/oshi/pull/857): Fix CPU temperature - [@rlouwerens](https://github.com/rlouwerens).
 * [#901](https://github.com/oshi/oshi/pull/901): Fix incorrect physical processor count on Linux. - [@ellesummer](https://github.com/ellesummer).
+* [#845](https://github.com/oshi/oshi/pull/911): JNA 5.4.0. - [@dbwiddis](https://github.com/dbwiddis).
 * [#914](https://github.com/oshi/oshi/pull/914): Add System Boot Time. - [@shannondavid](https://github.com/shannondavid).
 * [#916](https://github.com/oshi/oshi/pull/916): Move Uptime and Boot Time to OperatingSystem class. - [@dbwiddis](https://github.com/dbwiddis).
-* [#917](https://github.com/oshi/oshi/pull/917): Sensors API overhaul. - [@dbwiddis](https://github.com/dbwiddis).
+* [#917](https://github.com/oshi/oshi/pull/917): API overhaul - Sensors. - [@dbwiddis](https://github.com/dbwiddis).
 * [#918](https://github.com/oshi/oshi/pull/918): Remove Linux User/Group caching. - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here.
 

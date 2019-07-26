@@ -26,11 +26,11 @@ package oshi.hardware.platform.unix.solaris;
 import java.util.ArrayList;
 import java.util.List;
 
-import oshi.hardware.Sensors;
+import oshi.hardware.common.AbstractSensors;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
-public class SolarisSensors implements Sensors {
+public class SolarisSensors extends AbstractSensors {
 
     private static final long serialVersionUID = 1L;
 
@@ -39,6 +39,13 @@ public class SolarisSensors implements Sensors {
      */
     @Override
     public double getCpuTemperature() {
+        if (Double.isNaN(this.cpuTemperature)) {
+            this.cpuTemperature = queryCpuTemperature();
+        }
+        return this.cpuTemperature;
+    }
+
+    private double queryCpuTemperature() {
         double maxTemp = 0d;
         // Return max found temp
         for (String line : ExecutingCommand.runNative("/usr/sbin/prtpicl -v -c temperature-sensor")) {
@@ -61,6 +68,13 @@ public class SolarisSensors implements Sensors {
      */
     @Override
     public int[] getFanSpeeds() {
+        if (this.fanSpeeds == null) {
+            this.fanSpeeds = queryFanSpeeds();
+        }
+        return this.fanSpeeds;
+    }
+
+    private int[] queryFanSpeeds() {
         List<Integer> speedList = new ArrayList<>();
         // Return max found temp
         for (String line : ExecutingCommand.runNative("/usr/sbin/prtpicl -v -c fan")) {
@@ -80,8 +94,14 @@ public class SolarisSensors implements Sensors {
      */
     @Override
     public double getCpuVoltage() {
+        if (Double.isNaN(this.cpuVoltage)) {
+            this.cpuVoltage = queryCpuVoltage();
+        }
+        return this.cpuVoltage;
+    }
+
+    private double queryCpuVoltage() {
         double voltage = 0d;
-        // TODO This is entirely a guess!
         for (String line : ExecutingCommand.runNative("/usr/sbin/prtpicl -v -c voltage-sensor")) {
             if (line.trim().startsWith("Voltage:")) {
                 voltage = ParseUtil.parseDoubleOrDefault(line.replace("Voltage:", "").trim(), 0d);
