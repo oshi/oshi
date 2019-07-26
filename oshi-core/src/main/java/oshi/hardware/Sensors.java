@@ -26,21 +26,21 @@ package oshi.hardware;
 import java.io.Serializable;
 
 /**
- * Sensors include hardwore sensors to monitor temperature, fan speed, and other
- * information. Drivers may or may not exist to collect this data depending on
- * Operating System and CPU. In addition, software-hardware communication may
- * suffer intermittent errors when attempting to access this information, so it
- * should be considered for information only. Users should test for zero values
- * and empty arrays which will result if the OS is unable to provide the
+ * Sensors include hardware sensors to monitor temperature, fan speed, and other
  * information.
- *
+ * <p>
+ * Drivers may or may not exist to collect this data depending on Operating
+ * System and CPU. In addition, software-hardware communication may suffer
+ * intermittent errors when attempting to access this information. Users should
+ * test for and handle zero values and/or empty arrays which will result if the
+ * OS is unable to provide the information.
+ * <p>
  * Windows information is retrieved via Windows Management Instrumentation
  * (WMI). Unfortunately, most hardware providers do not publish values to WMI.
  * If a value is not available through the Microsoft API, Oshi will attempt to
- * retrieve values as published by the Open Hardware Monitor
- * (http://openhardwaremonitor.org/) if it is running.
- *
- * @author widdis[at]gmail[dot]com
+ * retrieve values as published to WMI by
+ * <a href="http://openhardwaremonitor.org/">Open Hardware Monitor</a> if it is
+ * running.
  */
 public interface Sensors extends Serializable {
     /**
@@ -64,4 +64,9 @@ public interface Sensors extends Serializable {
      * @return CPU Voltage in Volts if available, 0 otherwise.
      */
     double getCpuVoltage();
+
+    /**
+     * Update the values for the next call to the getters on this class.
+     */
+    void updateAttributes();
 }

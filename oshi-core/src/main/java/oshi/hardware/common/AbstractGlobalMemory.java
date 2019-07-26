@@ -42,39 +42,6 @@ public abstract class AbstractGlobalMemory implements GlobalMemory {
      * {@inheritDoc}
      */
     @Override
-    public long getAvailable() {
-        if (this.memAvailable < 0) {
-            updateAttributes();
-        }
-        return this.memAvailable;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public long getTotal() {
-        if (this.memTotal < 0) {
-            updateAttributes();
-        }
-        return this.memTotal;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public long getPageSize() {
-        if (this.pageSize < 0) {
-            updateAttributes();
-        }
-        return this.pageSize;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void updateAttributes() {
         this.memAvailable = -1;
     }
