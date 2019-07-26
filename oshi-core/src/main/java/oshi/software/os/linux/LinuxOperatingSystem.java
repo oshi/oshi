@@ -140,8 +140,6 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         }
     }
 
-    private transient LinuxUserGroupInfo userGroupInfo = new LinuxUserGroupInfo();
-
     // Jiffies per second, used for process time counters.
     private static final long USER_HZ = ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer("getconf CLK_TCK"),
             100L);
@@ -199,11 +197,12 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         List<OSProcess> procs = new ArrayList<>();
         File[] pids = ProcUtil.getPidFiles();
         List<Integer> pidsToKeep = new ArrayList<>();
+        LinuxUserGroupInfo userGroupInfo = new LinuxUserGroupInfo();
 
         // now for each file (with digit name) get process info
         for (File pidFile : pids) {
             int pid = ParseUtil.parseIntOrDefault(pidFile.getName(), 0);
-            OSProcess proc = getProcess(pid, slowFields);
+            OSProcess proc = getProcess(pid, userGroupInfo, slowFields);
             if (proc != null) {
                 procs.add(proc);
                 pidsToKeep.add(pid);
@@ -225,10 +224,10 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
      */
     @Override
     public OSProcess getProcess(int pid) {
-        return getProcess(pid, true);
+        return getProcess(pid, new LinuxUserGroupInfo(), true);
     }
 
-    private OSProcess getProcess(int pid, boolean slowFields) {
+    private OSProcess getProcess(int pid, LinuxUserGroupInfo userGroupInfo, boolean slowFields) {
         String path = "";
         Pointer buf = new Memory(1024);
         int size = Libc.INSTANCE.readlink(String.format("/proc/%d/exe", pid), buf, 1023);
@@ -308,11 +307,11 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         }
         proc.setUserID(ParseUtil.whitespaces.split(status.getOrDefault("Uid", ""))[0]);
         proc.setGroupID(ParseUtil.whitespaces.split(status.getOrDefault("Gid", ""))[0]);
-        OSUser user = this.userGroupInfo.getUser(proc.getUserID());
+        OSUser user = userGroupInfo.getUser(proc.getUserID());
         if (user != null) {
             proc.setUser(user.getUserName());
         }
-        proc.setGroup(this.userGroupInfo.getGroupName(proc.getGroupID()));
+        proc.setGroup(userGroupInfo.getGroupName(proc.getGroupID()));
 
         try {
             String cwdLink = String.format("/proc/%d/cwd", pid);
@@ -333,12 +332,13 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     public OSProcess[] getChildProcesses(int parentPid, int limit, ProcessSort sort) {
         List<OSProcess> procs = new ArrayList<>();
         File[] procFiles = ProcUtil.getPidFiles();
+        LinuxUserGroupInfo userGroupInfo = new LinuxUserGroupInfo();
 
         // now for each file (with digit name) get process info
         for (File procFile : procFiles) {
             int pid = ParseUtil.parseIntOrDefault(procFile.getName(), 0);
             if (parentPid == getParentPidFromProcFile(pid)) {
-                OSProcess proc = getProcess(pid, true);
+                OSProcess proc = getProcess(pid, userGroupInfo, true);
                 if (proc != null) {
                     procs.add(proc);
                 }
