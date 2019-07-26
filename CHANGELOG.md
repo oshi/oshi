@@ -13,6 +13,8 @@
 * [#901](https://github.com/oshi/oshi/pull/901): Fix incorrect physical processor count on Linux. - [@ellesummer](https://github.com/ellesummer).
 * [#914](https://github.com/oshi/oshi/pull/914): Add System Boot Time. - [@shannondavid](https://github.com/shannondavid).
 * [#916](https://github.com/oshi/oshi/pull/916): Move Uptime and Boot Time to OperatingSystem class. - [@dbwiddis](https://github.com/dbwiddis).
+* [#917](https://github.com/oshi/oshi/pull/917): Sensors API overhaul. - [@dbwiddis](https://github.com/dbwiddis).
+* [#918](https://github.com/oshi/oshi/pull/918): Remove Linux User/Group caching. - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here.
 
 3.13.0 (1/18/2019), 3.13.1 (4/21/2019), 3.13.2 (4/28/2019), 3.13.3 (6/5/2019)
