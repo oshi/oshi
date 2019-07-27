@@ -34,45 +34,36 @@ import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
 /**
- * Gets soundcard.
- *
- * @author : BilalAM
+ * FreeBSD soundcard.
  */
 public class FreeBsdSoundCard extends AbstractSoundCard {
 
     private static final String LSHAL = "lshal";
-
-    private static Map<String, String> vendorMap = new HashMap<>();
-    private static Map<String, String> productMap = new HashMap<>();
 
     public FreeBsdSoundCard(String kernelVersion, String name, String codec) {
         super(kernelVersion, name, codec);
     }
 
     public static List<SoundCard> getSoundCards() {
+        Map<String, String> vendorMap = new HashMap<>();
+        Map<String, String> productMap = new HashMap<>();
         vendorMap.clear();
         productMap.clear();
         List<String> sounds = new ArrayList<>();
         String key = "";
         for (String line : ExecutingCommand.runNative(LSHAL)) {
+            line = line.trim();
             if (line.startsWith("udi =")) {
                 // we have the key.
                 key = ParseUtil.getSingleQuoteStringValue(line);
-                continue;
-            }
-
-            line = line.trim();
-
-            if (key.isEmpty() || line.isEmpty()) {
-                continue;
-            }
-
-            if (line.contains("freebsd.driver =") && "pcm".equals(ParseUtil.getSingleQuoteStringValue(line))) {
-                sounds.add(key);
-            } else if (line.contains("info.product")) {
-                productMap.put(key, ParseUtil.getStringBetween(line, '\''));
-            } else if (line.contains("info.vendor")) {
-                vendorMap.put(key, ParseUtil.getStringBetween(line, '\''));
+            } else if (!key.isEmpty() && !line.isEmpty()) {
+                if (line.contains("freebsd.driver =") && "pcm".equals(ParseUtil.getSingleQuoteStringValue(line))) {
+                    sounds.add(key);
+                } else if (line.contains("info.product")) {
+                    productMap.put(key, ParseUtil.getStringBetween(line, '\''));
+                } else if (line.contains("info.vendor")) {
+                    vendorMap.put(key, ParseUtil.getStringBetween(line, '\''));
+                }
             }
         }
         List<SoundCard> soundCards = new ArrayList<>();
