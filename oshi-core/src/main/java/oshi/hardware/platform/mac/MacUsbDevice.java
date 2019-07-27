@@ -48,19 +48,9 @@ public class MacUsbDevice extends AbstractUsbDevice {
 
     private static final long serialVersionUID = 2L;
 
-    /*
-     * Maps to store information using RegistryEntryID as the key
-     */
-    private static Map<Long, String> nameMap = new HashMap<>();
-    private static Map<Long, String> vendorMap = new HashMap<>();
-    private static Map<Long, String> vendorIdMap = new HashMap<>();
-    private static Map<Long, String> productIdMap = new HashMap<>();
-    private static Map<Long, String> serialMap = new HashMap<>();
-    private static Map<Long, List<Long>> hubMap = new HashMap<>();
-
     public MacUsbDevice(String name, String vendor, String vendorId, String productId, String serialNumber,
-            UsbDevice[] connectedDevices) {
-        super(name, vendor, vendorId, productId, serialNumber, connectedDevices);
+            String uniqueDeviceId, UsbDevice[] connectedDevices) {
+        super(name, vendor, vendorId, productId, serialNumber, uniqueDeviceId, connectedDevices);
     }
 
     /**
@@ -83,7 +73,7 @@ public class MacUsbDevice extends AbstractUsbDevice {
     private static void addDevicesToList(List<UsbDevice> deviceList, UsbDevice[] connectedDevices) {
         for (UsbDevice device : connectedDevices) {
             deviceList.add(new MacUsbDevice(device.getName(), device.getVendor(), device.getVendorId(),
-                    device.getProductId(), device.getSerialNumber(), new MacUsbDevice[0]));
+                    device.getProductId(), device.getSerialNumber(), device.getUniqueDeviceId(), new MacUsbDevice[0]));
             addDevicesToList(deviceList, device.getConnectedDevices());
         }
     }
@@ -92,13 +82,13 @@ public class MacUsbDevice extends AbstractUsbDevice {
         // Reusable buffer for getting IO name strings
         Pointer buffer = new Memory(128); // io_name_t is char[128]
 
-        // Empty out maps
-        nameMap.clear();
-        vendorMap.clear();
-        vendorIdMap.clear();
-        productIdMap.clear();
-        serialMap.clear();
-        hubMap.clear();
+        // Maps to store information using RegistryEntryID as the key
+        Map<Long, String> nameMap = new HashMap<>();
+        Map<Long, String> vendorMap = new HashMap<>();
+        Map<Long, String> vendorIdMap = new HashMap<>();
+        Map<Long, String> productIdMap = new HashMap<>();
+        Map<Long, String> serialMap = new HashMap<>();
+        Map<Long, List<Long>> hubMap = new HashMap<>();
 
         // Define keys
         CFStringRef locationIDKey = CFStringRef.toCFString("locationID");
@@ -123,7 +113,8 @@ public class MacUsbDevice extends AbstractUsbDevice {
             // more information.
             CFTypeRef ref = IOKit.INSTANCE.IORegistryEntryCreateCFProperty(device, locationIDKey, CfUtil.ALLOCATOR, 0);
             if (ref != null && ref.getPointer() != null) {
-                getControllerIdByLocation(id.getValue(), ref, locationIDKey, ioPropertyMatchKey);
+                getControllerIdByLocation(id.getValue(), ref, locationIDKey, ioPropertyMatchKey, vendorIdMap,
+                        productIdMap);
             }
             CfUtil.release(ref);
 
@@ -190,7 +181,8 @@ public class MacUsbDevice extends AbstractUsbDevice {
         // Build tree and return
         List<UsbDevice> controllerDevices = new ArrayList<>();
         for (Long controller : usbControllers) {
-            controllerDevices.add(getDeviceAndChildren(controller, "0000", "0000"));
+            controllerDevices.add(getDeviceAndChildren(controller, "0000", "0000", nameMap, vendorMap, vendorIdMap,
+                    productIdMap, serialMap, hubMap));
         }
         return controllerDevices.toArray(new UsbDevice[0]);
     }
@@ -208,9 +200,11 @@ public class MacUsbDevice extends AbstractUsbDevice {
      *            A pointer to the locationID string
      * @param ioPropertyMatchKey
      *            A pointer to the IOPropertyMatch string
+     * @param productIdMap
+     * @param vendorIdMap
      */
     private static void getControllerIdByLocation(long id, CFTypeRef locationId, CFStringRef locationIDKey,
-            CFStringRef ioPropertyMatchKey) {
+            CFStringRef ioPropertyMatchKey, Map<Long, String> vendorIdMap, Map<Long, String> productIdMap) {
         // Create a matching property dictionary from the locationId
         CFMutableDictionaryRef propertyDict = CoreFoundation.INSTANCE.CFDictionaryCreateMutable(CfUtil.ALLOCATOR, 0,
                 null, null);
@@ -262,19 +256,29 @@ public class MacUsbDevice extends AbstractUsbDevice {
      *            The default (parent) vendor ID
      * @param pid
      *            The default (parent) product ID
+     * @param nameMap
+     * @param vendorMap
+     * @param vendorIdMap
+     * @param productIdMap
+     * @param serialMap
+     * @param hubMap
      * @return A MacUsbDevice corresponding to this device
      */
-    private static MacUsbDevice getDeviceAndChildren(Long registryEntryId, String vid, String pid) {
+    private static MacUsbDevice getDeviceAndChildren(Long registryEntryId, String vid, String pid,
+            Map<Long, String> nameMap, Map<Long, String> vendorMap, Map<Long, String> vendorIdMap,
+            Map<Long, String> productIdMap, Map<Long, String> serialMap, Map<Long, List<Long>> hubMap) {
         String vendorId = vendorIdMap.getOrDefault(registryEntryId, vid);
         String productId = productIdMap.getOrDefault(registryEntryId, pid);
         List<Long> childIds = hubMap.getOrDefault(registryEntryId, new ArrayList<Long>());
         List<MacUsbDevice> usbDevices = new ArrayList<>();
         for (Long id : childIds) {
-            usbDevices.add(getDeviceAndChildren(id, vendorId, productId));
+            usbDevices.add(getDeviceAndChildren(id, vendorId, productId, nameMap, vendorMap, vendorIdMap, productIdMap,
+                    serialMap, hubMap));
         }
         Collections.sort(usbDevices);
         return new MacUsbDevice(nameMap.getOrDefault(registryEntryId, vendorId + ":" + productId),
                 vendorMap.getOrDefault(registryEntryId, ""), vendorId, productId,
-                serialMap.getOrDefault(registryEntryId, ""), usbDevices.toArray(new UsbDevice[0]));
+                serialMap.getOrDefault(registryEntryId, ""), "0x" + Long.toHexString(registryEntryId),
+                usbDevices.toArray(new UsbDevice[0]));
     }
 }
