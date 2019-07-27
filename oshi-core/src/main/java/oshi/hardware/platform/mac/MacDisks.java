@@ -35,7 +35,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Pointer;
-import com.sun.jna.platform.mac.SystemB;
 import com.sun.jna.platform.mac.SystemB.Statfs;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
@@ -53,6 +52,7 @@ import oshi.jna.platform.mac.DiskArbitration;
 import oshi.jna.platform.mac.DiskArbitration.DADiskRef;
 import oshi.jna.platform.mac.DiskArbitration.DASessionRef;
 import oshi.jna.platform.mac.IOKit;
+import oshi.jna.platform.mac.SystemB;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.mac.CfUtil;
@@ -60,8 +60,6 @@ import oshi.util.platform.mac.IOKitUtil;
 
 /**
  * Mac hard disk implementation.
- *
- * @author enrico[dot]bianchi[at]gmail[dot]com
  */
 public class MacDisks implements Disks {
 
@@ -69,10 +67,59 @@ public class MacDisks implements Disks {
 
     private static final Logger LOG = LoggerFactory.getLogger(MacDisks.class);
 
-    private static final Map<String, String> mountPointMap = new HashMap<>();
-    private static final Map<String, String> logicalVolumeMap = new HashMap<>();
+    private static Map<String, String> queryMountPointMap() {
+        final Map<String, String> mountPointMap = new HashMap<>();
+        // Use statfs to populate mount point map
+        int numfs = SystemB.INSTANCE.getfsstat64(null, 0, 0);
+        // Create array to hold results
+        Statfs[] fs = new Statfs[numfs];
+        // Fill array with results
+        SystemB.INSTANCE.getfsstat64(fs, numfs * new Statfs().size(), SystemB.MNT_NOWAIT);
+        // Iterate all mounted file systems
+        for (Statfs f : fs) {
+            String mntFrom = new String(f.f_mntfromname).trim();
+            mountPointMap.put(mntFrom.replace("/dev/", ""), new String(f.f_mntonname).trim());
+        }
+        return mountPointMap;
+    }
 
-    private static boolean updateDiskStats(HWDiskStore diskStore, DASessionRef session) {
+    private static Map<String, String> queryLogicalVolumeMap() {
+        final Map<String, String> logicalVolumeMap = new HashMap<>();
+        // Parse `diskutil cs list` to populate logical volume map
+        Set<String> physicalVolumes = new HashSet<>();
+        boolean logicalVolume = false;
+        for (String line : ExecutingCommand.runNative("diskutil cs list")) {
+            if (line.contains("Logical Volume Group")) {
+                // Logical Volume Group defines beginning of grouping which will
+                // list multiple physical volumes followed by the logical volume
+                // they are associated with. Each physical volume will be a key
+                // with the logical volume as its value, but since the value
+                // doesn't appear until the end we collect the keys in a list
+                physicalVolumes.clear();
+                logicalVolume = false;
+            } else if (line.contains("Logical Volume Family")) {
+                // Done collecting physical volumes, prepare to store logical
+                // volume
+                logicalVolume = true;
+            } else if (line.contains("Disk:")) {
+                String volume = ParseUtil.parseLastString(line);
+                if (logicalVolume) {
+                    // Store this disk as the logical volume value for all the
+                    // physical volume keys
+                    for (String pv : physicalVolumes) {
+                        logicalVolumeMap.put(pv, volume);
+                    }
+                    physicalVolumes.clear();
+                } else {
+                    physicalVolumes.add(ParseUtil.parseLastString(line));
+                }
+            }
+        }
+        return logicalVolumeMap;
+    }
+
+    private static boolean updateDiskStats(HWDiskStore diskStore, DASessionRef session,
+            Map<String, String> mountPointMap, Map<String, String> logicalVolumeMap) {
         // Now look up the device using the BSD Name to get its
         // statistics
         String bsdName = diskStore.getName();
@@ -170,6 +217,8 @@ public class MacDisks implements Disks {
                         // getMatchingServices releases matchingDict
                         CfUtil.release(properties);
                         CfUtil.release(propertyDict);
+
+                        // Iterate disks
                         int sdService = IOKit.INSTANCE.IOIteratorNext(serviceIterator.getValue());
                         while (sdService != 0) {
                             // look up the BSD Name
@@ -240,7 +289,7 @@ public class MacDisks implements Disks {
             return false;
         }
 
-        boolean diskFound = updateDiskStats(diskStore, session);
+        boolean diskFound = updateDiskStats(diskStore, session, queryMountPointMap(), queryLogicalVolumeMap());
 
         CfUtil.release(session);
 
@@ -249,52 +298,10 @@ public class MacDisks implements Disks {
 
     @Override
     public HWDiskStore[] getDisks() {
-        mountPointMap.clear();
-        logicalVolumeMap.clear();
+        Map<String, String> mountPointMap = queryMountPointMap();
+        Map<String, String> logicalVolumeMap = queryLogicalVolumeMap();
+
         List<HWDiskStore> result = new ArrayList<>();
-
-        // Use statfs to populate mount point map
-        int numfs = SystemB.INSTANCE.getfsstat64(null, 0, 0);
-        // Create array to hold results
-        Statfs[] fs = new Statfs[numfs];
-        // Fill array with results
-        SystemB.INSTANCE.getfsstat64(fs, numfs * new Statfs().size(), SystemB.MNT_NOWAIT);
-        // Iterate all mounted file systems
-        for (Statfs f : fs) {
-            String mntFrom = new String(f.f_mntfromname).trim();
-            mountPointMap.put(mntFrom.replace("/dev/", ""), new String(f.f_mntonname).trim());
-        }
-
-        // Parse `diskutil cs list` to populate logical volume map
-        Set<String> physicalVolumes = new HashSet<>();
-        boolean logicalVolume = false;
-        for (String line : ExecutingCommand.runNative("diskutil cs list")) {
-            if (line.contains("Logical Volume Group")) {
-                // Logical Volume Group defines beginning of grouping which will
-                // list multiple physical volumes followed by the logical volume
-                // they are associated with. Each physical volume will be a key
-                // with the logical volume as its value, but since the value
-                // doesn't appear until the end we collect the keys in a list
-                physicalVolumes.clear();
-                logicalVolume = false;
-            } else if (line.contains("Logical Volume Family")) {
-                // Done collecting physical volumes, prepare to store logical
-                // volume
-                logicalVolume = true;
-            } else if (line.contains("Disk:")) {
-                String volume = ParseUtil.parseLastString(line);
-                if (logicalVolume) {
-                    // Store this disk as the logical volume value for all the
-                    // physical volume keys
-                    for (String pv : physicalVolumes) {
-                        logicalVolumeMap.put(pv, volume);
-                    }
-                    physicalVolumes.clear();
-                } else {
-                    physicalVolumes.add(ParseUtil.parseLastString(line));
-                }
-            }
-        }
 
         // Open a DiskArbitration session
         DASessionRef session = DiskArbitration.INSTANCE.DASessionCreate(CfUtil.ALLOCATOR);
@@ -388,7 +395,7 @@ public class MacDisks implements Disks {
                 diskStore.setSerial(serial.trim());
                 diskStore.setSize(size);
 
-                updateDiskStats(diskStore, session);
+                updateDiskStats(diskStore, session, mountPointMap, logicalVolumeMap);
                 result.add(diskStore);
             }
         }
