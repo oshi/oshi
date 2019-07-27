@@ -23,8 +23,7 @@
  */
 package oshi.util.platform.mac;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Collection;
 
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
@@ -34,7 +33,6 @@ import com.sun.jna.ptr.LongByReference;
 
 import oshi.jna.platform.mac.CoreFoundation;
 import oshi.jna.platform.mac.CoreFoundation.CFAllocatorRef;
-import oshi.jna.platform.mac.CoreFoundation.CFStringRef;
 
 /**
  * Provides utilities for Core Foundations
@@ -43,30 +41,6 @@ import oshi.jna.platform.mac.CoreFoundation.CFStringRef;
  */
 public class CfUtil {
     public static final CFAllocatorRef ALLOCATOR = CoreFoundation.INSTANCE.CFAllocatorGetDefault();
-
-    /**
-     * Cache cfStrings
-     */
-    private static Map<String, CFStringRef> cfStringMap = new ConcurrentHashMap<>();
-
-    /**
-     * Return a CFStringRef representing a string, caching the result
-     *
-     * @param key
-     *            The string, usually a registry key
-     * @return the corresponding CFString
-     */
-    public static CFStringRef getCFString(String key) {
-        synchronized (cfStringMap) {
-            CFStringRef value = cfStringMap.get(key);
-            if (value != null) {
-                return value;
-            }
-            value = CFStringRef.toCFString(key);
-            cfStringMap.put(key, value);
-            return value;
-        }
-    }
 
     /**
      * Enum values used for number type in CFNumberGetValue(). Use ordinal() to
@@ -148,4 +122,16 @@ public class CfUtil {
         }
     }
 
+    /**
+     * Releases a collection of CF references. Mandatory when an object is owned
+     * (using 'create' or 'copy' methods).
+     *
+     * @param refs
+     *            The collection of references to release
+     */
+    public static <T extends PointerType> void releaseAll(Collection<T> refs) {
+        for (PointerType ref : refs) {
+            release(ref);
+        }
+    }
 }

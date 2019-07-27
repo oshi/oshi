@@ -38,6 +38,7 @@ import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractUsbDevice;
 import oshi.jna.platform.mac.CoreFoundation;
 import oshi.jna.platform.mac.CoreFoundation.CFMutableDictionaryRef;
+import oshi.jna.platform.mac.CoreFoundation.CFStringRef;
 import oshi.jna.platform.mac.CoreFoundation.CFTypeRef;
 import oshi.jna.platform.mac.IOKit;
 import oshi.util.platform.mac.CfUtil;
@@ -99,6 +100,9 @@ public class MacUsbDevice extends AbstractUsbDevice {
         serialMap.clear();
         hubMap.clear();
 
+        // Define keys
+        CFStringRef locationIDKey = CFStringRef.toCFString("locationID");
+        CFStringRef ioPropertyMatchKey = CFStringRef.toCFString("IOPropertyMatch");
         // Iterate over USB Controllers. All devices are children of one of
         // these controllers in the "IOService" plane
         List<Long> usbControllers = new ArrayList<>();
@@ -117,10 +121,9 @@ public class MacUsbDevice extends AbstractUsbDevice {
             // The only information we have in registry for this device is the
             // locationID. Use that to search for matching PCI device to obtain
             // more information.
-            CFTypeRef ref = IOKit.INSTANCE.IORegistryEntryCreateCFProperty(device, CfUtil.getCFString("locationID"),
-                    CfUtil.ALLOCATOR, 0);
+            CFTypeRef ref = IOKit.INSTANCE.IORegistryEntryCreateCFProperty(device, locationIDKey, CfUtil.ALLOCATOR, 0);
             if (ref != null && ref.getPointer() != null) {
-                getControllerIdByLocation(id.getValue(), ref);
+                getControllerIdByLocation(id.getValue(), ref, locationIDKey, ioPropertyMatchKey);
             }
             CfUtil.release(ref);
 
@@ -181,6 +184,8 @@ public class MacUsbDevice extends AbstractUsbDevice {
             device = IOKit.INSTANCE.IOIteratorNext(iter.getValue());
         }
         IOKit.INSTANCE.IOObjectRelease(iter.getValue());
+        CfUtil.release(locationIDKey);
+        CfUtil.release(ioPropertyMatchKey);
 
         // Build tree and return
         List<UsbDevice> controllerDevices = new ArrayList<>();
@@ -199,15 +204,20 @@ public class MacUsbDevice extends AbstractUsbDevice {
      *            maps
      * @param locationId
      *            The locationID of this controller returned from the registry
+     * @param locationIDKey
+     *            A pointer to the locationID string
+     * @param ioPropertyMatchKey
+     *            A pointer to the IOPropertyMatch string
      */
-    private static void getControllerIdByLocation(long id, CFTypeRef locationId) {
+    private static void getControllerIdByLocation(long id, CFTypeRef locationId, CFStringRef locationIDKey,
+            CFStringRef ioPropertyMatchKey) {
         // Create a matching property dictionary from the locationId
         CFMutableDictionaryRef propertyDict = CoreFoundation.INSTANCE.CFDictionaryCreateMutable(CfUtil.ALLOCATOR, 0,
                 null, null);
-        CoreFoundation.INSTANCE.CFDictionarySetValue(propertyDict, CfUtil.getCFString("locationID"), locationId);
+        CoreFoundation.INSTANCE.CFDictionarySetValue(propertyDict, locationIDKey, locationId);
         CFMutableDictionaryRef matchingDict = CoreFoundation.INSTANCE.CFDictionaryCreateMutable(CfUtil.ALLOCATOR, 0,
                 null, null);
-        CoreFoundation.INSTANCE.CFDictionarySetValue(matchingDict, CfUtil.getCFString("IOPropertyMatch"), propertyDict);
+        CoreFoundation.INSTANCE.CFDictionarySetValue(matchingDict, ioPropertyMatchKey, propertyDict);
 
         // search for all IOservices that match the locationID
         IntByReference serviceIterator = new IntByReference();
