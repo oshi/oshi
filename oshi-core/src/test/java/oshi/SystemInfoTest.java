@@ -59,9 +59,7 @@ import oshi.util.FormatUtil;
 import oshi.util.Util;
 
 /**
- * The Class SystemInfoTest.
- *
- * @author dblock[at]dblock[dot]org
+ * A demonstration of access to many of OSHI's capabilities
  */
 public class SystemInfoTest {
 

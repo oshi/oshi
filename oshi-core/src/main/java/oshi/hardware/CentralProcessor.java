@@ -184,7 +184,6 @@ public interface CentralProcessor extends Serializable {
      * @return the "recent cpu usage" for the whole system; a negative value if
      *         not available.
      */
-    @SuppressWarnings("restriction")
     double getSystemCpuLoad();
 
     /**

@@ -568,8 +568,6 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     private Map<Integer, OSProcess> buildProcessMapFromRegistry(Collection<Integer> pids) {
         Map<Integer, OSProcess> processMap = new HashMap<>();
 
-        List<Integer> pidsToKeep = new ArrayList<>();
-
         // Grab the PERF_DATA_BLOCK from the registry.
         // Sequentially increase the buffer until everything fits.
         IntByReference lpcbData = new IntByReference(this.perfDataBufferSize);
@@ -625,8 +623,6 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
 
                     int pid = pPerfData.getInt(perfCounterBlockOffset + this.idProcessOffset);
                     if (pids == null || pids.contains(pid)) {
-                        pidsToKeep.add(pid);
-
                         OSProcess proc = new OSProcess();
                         processMap.put(pid, proc);
 
