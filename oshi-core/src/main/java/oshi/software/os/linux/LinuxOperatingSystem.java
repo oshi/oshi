@@ -27,8 +27,6 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -52,12 +50,6 @@ import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.linux.ProcUtil;
 
-/**
- * Linux is a family of free operating systems most commonly used on personal
- * computers.
- *
- * @author widdis[at]gmail[dot]com
- */
 public class LinuxOperatingSystem extends AbstractOperatingSystem {
 
     private static final long serialVersionUID = 1L;
@@ -160,11 +152,6 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         // be +/- 5 ms due to System Uptime rounding to nearest 10ms.
     }
 
-    /*
-     * This process map will cache process info to avoid repeated calls for data
-     */
-    private final Map<Integer, OSProcess> processMap = new HashMap<>();
-
     public LinuxOperatingSystem() {
         this.manufacturer = "GNU/Linux";
         setFamilyFromReleaseFiles();
@@ -196,7 +183,6 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     public OSProcess[] getProcesses(int limit, ProcessSort sort, boolean slowFields) {
         List<OSProcess> procs = new ArrayList<>();
         File[] pids = ProcUtil.getPidFiles();
-        List<Integer> pidsToKeep = new ArrayList<>();
         LinuxUserGroupInfo userGroupInfo = new LinuxUserGroupInfo();
 
         // now for each file (with digit name) get process info
@@ -205,13 +191,6 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
             OSProcess proc = getProcess(pid, userGroupInfo, slowFields);
             if (proc != null) {
                 procs.add(proc);
-                pidsToKeep.add(pid);
-            }
-        }
-        // Clear out anything not in cache
-        for (Integer pid : new HashSet<>(this.processMap.keySet())) {
-            if (!pidsToKeep.contains(pid)) {
-                this.processMap.remove(pid);
             }
         }
         // Sort
@@ -247,23 +226,17 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         // call later, so just get the numeric bits here
         long[] statArray = ParseUtil.parseStringToLongArray(stat, PROC_PID_STAT_ORDERS, PROC_PID_STAT_LENGTH, ' ');
         // Fetch cached process if it exists
-        OSProcess proc = processMap.get(pid);
+        OSProcess proc = new OSProcess();
+        proc.setProcessID(pid);
+        // The /proc/pid/cmdline value is null-delimited
+        proc.setCommandLine(FileUtil.getStringFromFile(String.format("/proc/%d/cmdline", pid)));
         long startTime = BOOT_TIME + statArray[ProcPidStat.START_TIME.ordinal()] * 1000L / USER_HZ;
         // BOOT_TIME could be up to 5ms off. In rare cases when a process has
         // started within 5ms of boot it is possible to get negative uptime.
         if (startTime >= now) {
             startTime = now - 1;
         }
-        // New process if start time differs by 200ms or more
-        if (proc == null || Math.abs(startTime - proc.getStartTime()) > 200) {
-            proc = new OSProcess();
-            proc.setProcessID(pid);
-            proc.setStartTime(startTime);
-            // The /proc/pid/cmdline value is null-delimited
-            proc.setCommandLine(FileUtil.getStringFromFile(String.format("/proc/%d/cmdline", pid)));
-            // Add or replace value in the map
-            processMap.put(pid, proc);
-        }
+        proc.setStartTime(startTime);
         proc.setParentProcessID((int) statArray[ProcPidStat.PPID.ordinal()]);
         proc.setThreadCount((int) statArray[ProcPidStat.THREAD_COUNT.ordinal()]);
         proc.setPriority((int) statArray[ProcPidStat.PRIORITY.ordinal()]);

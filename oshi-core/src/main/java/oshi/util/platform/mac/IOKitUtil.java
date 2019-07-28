@@ -38,8 +38,6 @@ import oshi.jna.platform.mac.IOKit.MachPort;
 
 /**
  * Provides utilities for IOKit
- *
- * @author widdis[at]gmail[dot]com
  */
 public class IOKitUtil {
     private static final Logger LOG = LoggerFactory.getLogger(IOKitUtil.class);
@@ -149,12 +147,13 @@ public class IOKitUtil {
      */
     public static String getIORegistryStringProperty(int entry, String key) {
         String value = null;
-        CFStringRef keyAsCFString = CfUtil.getCFString(key);
+        CFStringRef keyAsCFString = CFStringRef.toCFString(key);
         CFTypeRef valueAsCFString = IOKit.INSTANCE.IORegistryEntryCreateCFProperty(entry, keyAsCFString,
                 CoreFoundation.INSTANCE.CFAllocatorGetDefault(), 0);
         if (valueAsCFString != null && valueAsCFString.getPointer() != null) {
             value = CfUtil.cfPointerToString(valueAsCFString.getPointer());
         }
+        CfUtil.release(keyAsCFString);
         CfUtil.release(valueAsCFString);
         return value;
     }
@@ -170,12 +169,13 @@ public class IOKitUtil {
      */
     public static long getIORegistryLongProperty(int entry, String key) {
         long value = 0L;
-        CFStringRef keyAsCFString = CfUtil.getCFString(key);
+        CFStringRef keyAsCFString = CFStringRef.toCFString(key);
         CFTypeRef valueAsCFNumber = IOKit.INSTANCE.IORegistryEntryCreateCFProperty(entry, keyAsCFString,
                 CoreFoundation.INSTANCE.CFAllocatorGetDefault(), 0);
         if (valueAsCFNumber != null && valueAsCFNumber.getPointer() != null) {
             value = CfUtil.cfPointerToLong(valueAsCFNumber.getPointer());
         }
+        CfUtil.release(keyAsCFString);
         CfUtil.release(valueAsCFNumber);
         return value;
     }
@@ -191,12 +191,13 @@ public class IOKitUtil {
      */
     public static int getIORegistryIntProperty(int entry, String key) {
         int value = 0;
-        CFStringRef keyAsCFString = CfUtil.getCFString(key);
+        CFStringRef keyAsCFString = CFStringRef.toCFString(key);
         CFTypeRef valueAsCFNumber = IOKit.INSTANCE.IORegistryEntryCreateCFProperty(entry, keyAsCFString,
                 CoreFoundation.INSTANCE.CFAllocatorGetDefault(), 0);
         if (valueAsCFNumber != null && valueAsCFNumber.getPointer() != null) {
             value = CfUtil.cfPointerToInt(valueAsCFNumber.getPointer());
         }
+        CfUtil.release(keyAsCFString);
         CfUtil.release(valueAsCFNumber);
         return value;
     }
@@ -212,12 +213,13 @@ public class IOKitUtil {
      */
     public static boolean getIORegistryBooleanProperty(int entry, String key) {
         boolean value = false;
-        CFStringRef keyAsCFString = CfUtil.getCFString(key);
+        CFStringRef keyAsCFString = CFStringRef.toCFString(key);
         CFTypeRef valueAsCFBoolean = IOKit.INSTANCE.IORegistryEntryCreateCFProperty(entry, keyAsCFString,
                 CoreFoundation.INSTANCE.CFAllocatorGetDefault(), 0);
         if (valueAsCFBoolean != null && valueAsCFBoolean.getPointer() != null) {
             value = CfUtil.cfPointerToBoolean(valueAsCFBoolean.getPointer());
         }
+        CfUtil.release(keyAsCFString);
         CfUtil.release(valueAsCFBoolean);
         return value;
     }
@@ -233,7 +235,7 @@ public class IOKitUtil {
      */
     public static byte[] getIORegistryByteArrayProperty(int entry, String key) {
         byte[] value = null;
-        CFStringRef keyAsCFString = CfUtil.getCFString(key);
+        CFStringRef keyAsCFString = CFStringRef.toCFString(key);
         CFTypeRef valueAsCFData = IOKit.INSTANCE.IORegistryEntryCreateCFProperty(entry, keyAsCFString,
                 CoreFoundation.INSTANCE.CFAllocatorGetDefault(), 0);
         if (valueAsCFData != null && valueAsCFData.getPointer() != null) {
@@ -241,6 +243,7 @@ public class IOKitUtil {
             PointerByReference p = CoreFoundation.INSTANCE.CFDataGetBytePtr(valueAsCFData);
             value = p.getPointer().getByteArray(0, length);
         }
+        CfUtil.release(keyAsCFString);
         CfUtil.release(valueAsCFData);
         return value;
     }

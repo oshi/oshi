@@ -425,7 +425,6 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("restriction")
     @Override
     public double getSystemCpuLoad() {
         if (sunMXBean) {

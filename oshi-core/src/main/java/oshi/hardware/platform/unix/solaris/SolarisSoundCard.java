@@ -34,45 +34,35 @@ import oshi.util.ParseUtil;
 
 /**
  * Solaris Sound Card.
- *
- * @author : BilalAM
  */
 public class SolarisSoundCard extends AbstractSoundCard {
 
     private static final String LSHAL = "lshal";
     private static final String DEFAULT_AUDIO_DRIVER = "audio810";
-    private static Map<String, String> vendorMap = new HashMap<>();
-    private static Map<String, String> productMap = new HashMap<>();
 
     public SolarisSoundCard(String kernelVersion, String name, String codec) {
         super(kernelVersion, name, codec);
     }
 
     public static List<SolarisSoundCard> getSoundCards() {
-        vendorMap.clear();
-        productMap.clear();
+        Map<String, String> vendorMap = new HashMap<>();
+        Map<String, String> productMap = new HashMap<>();
         List<String> sounds = new ArrayList<>();
         String key = "";
         for (String line : ExecutingCommand.runNative(LSHAL)) {
+            line = line.trim();
             if (line.startsWith("udi =")) {
                 // we have the key.
                 key = ParseUtil.getSingleQuoteStringValue(line);
-                continue;
-            }
-
-            line = line.trim();
-
-            if (key.isEmpty() || line.isEmpty()) {
-                continue;
-            }
-
-            if (line.contains("info.solaris.driver =")
-                    && DEFAULT_AUDIO_DRIVER.equals(ParseUtil.getSingleQuoteStringValue(line))) {
-                sounds.add(key);
-            } else if (line.contains("info.product")) {
-                productMap.put(key, ParseUtil.getStringBetween(line, '\''));
-            } else if (line.contains("info.vendor")) {
-                vendorMap.put(key, ParseUtil.getStringBetween(line, '\''));
+            } else if (!key.isEmpty() && !line.isEmpty()) {
+                if (line.contains("info.solaris.driver =")
+                        && DEFAULT_AUDIO_DRIVER.equals(ParseUtil.getSingleQuoteStringValue(line))) {
+                    sounds.add(key);
+                } else if (line.contains("info.product")) {
+                    productMap.put(key, ParseUtil.getStringBetween(line, '\''));
+                } else if (line.contains("info.vendor")) {
+                    vendorMap.put(key, ParseUtil.getStringBetween(line, '\''));
+                }
             }
         }
         List<SolarisSoundCard> soundCards = new ArrayList<>();

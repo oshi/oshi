@@ -39,6 +39,7 @@ import com.sun.jna.ptr.IntByReference;
 import oshi.jna.platform.mac.CoreFoundation;
 import oshi.jna.platform.mac.CoreFoundation.CFDictionaryRef;
 import oshi.jna.platform.mac.CoreFoundation.CFMutableDictionaryRef;
+import oshi.jna.platform.mac.CoreFoundation.CFStringRef;
 import oshi.jna.platform.mac.DiskArbitration;
 import oshi.jna.platform.mac.DiskArbitration.DADiskRef;
 import oshi.jna.platform.mac.DiskArbitration.DASessionRef;
@@ -75,13 +76,6 @@ public class MacFileSystem implements FileSystem {
      */
     @Override
     public OSFileStore[] getFileStores() {
-        // Open a DiskArbitration session to get VolumeName of file systems with
-        // bsd names
-        DASessionRef session = DiskArbitration.INSTANCE.DASessionCreate(CfUtil.ALLOCATOR);
-        if (session == null) {
-            LOG.error("Unable to open session to DiskArbitration framework.");
-        }
-
         // List of file systems
         List<OSFileStore> fsList = new ArrayList<>();
 
@@ -89,6 +83,13 @@ public class MacFileSystem implements FileSystem {
         // Query with null to get total # required
         int numfs = SystemB.INSTANCE.getfsstat64(null, 0, 0);
         if (numfs > 0) {
+            // Open a DiskArbitration session to get VolumeName of file systems
+            // with bsd names
+            DASessionRef session = DiskArbitration.INSTANCE.DASessionCreate(CfUtil.ALLOCATOR);
+            if (session == null) {
+                LOG.error("Unable to open session to DiskArbitration framework.");
+            }
+            CFStringRef daVolumeNameKey = CFStringRef.toCFString("DAVolumeName");
 
             // Create array to hold results
             Statfs[] fs = new Statfs[numfs];
@@ -132,8 +133,7 @@ public class MacFileSystem implements FileSystem {
                         CFDictionaryRef diskInfo = DiskArbitration.INSTANCE.DADiskCopyDescription(disk);
                         if (diskInfo != null) {
                             // get volume name from its key
-                            Pointer volumePtr = CoreFoundation.INSTANCE.CFDictionaryGetValue(diskInfo,
-                                    CfUtil.getCFString("DAVolumeName"));
+                            Pointer volumePtr = CoreFoundation.INSTANCE.CFDictionaryGetValue(diskInfo, daVolumeNameKey);
                             name = CfUtil.cfPointerToString(volumePtr);
                             CfUtil.release(diskInfo);
                         }
@@ -185,9 +185,10 @@ public class MacFileSystem implements FileSystem {
                 osStore.setTotalInodes(fs[f].f_files);
                 fsList.add(osStore);
             }
+            // Close DA session
+            CfUtil.release(session);
+            CfUtil.release(daVolumeNameKey);
         }
-        // Close DA session
-        CfUtil.release(session);
         return fsList.toArray(new OSFileStore[0]);
     }
 

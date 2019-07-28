@@ -78,12 +78,9 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
     private static final Pattern VENDOR_PRODUCT_ID = Pattern
             .compile(".*(?:VID|VEN)_(\\p{XDigit}{4})&(?:PID|DEV)_(\\p{XDigit}{4}).*");
 
-    // Map to store information using PNPDeviceID as the key
-    private static Map<String, WindowsUsbDevice> usbDeviceCache = new HashMap<>();
-
     public WindowsUsbDevice(String name, String vendor, String vendorId, String productId, String serialNumber,
-            UsbDevice[] connectedDevices) {
-        super(name, vendor, vendorId, productId, serialNumber, connectedDevices);
+            String uniqueDeviceId, UsbDevice[] connectedDevices) {
+        super(name, vendor, vendorId, productId, serialNumber, uniqueDeviceId, connectedDevices);
     }
 
     /**
@@ -106,7 +103,7 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
     private static void addDevicesToList(List<UsbDevice> deviceList, UsbDevice[] connectedDevices) {
         for (UsbDevice device : connectedDevices) {
             deviceList.add(new WindowsUsbDevice(device.getName(), device.getVendor(), device.getVendorId(),
-                    device.getProductId(), device.getSerialNumber(), new UsbDevice[0]));
+                    device.getProductId(), device.getSerialNumber(), device.getUniqueDeviceId(), new UsbDevice[0]));
             addDevicesToList(deviceList, device.getConnectedDevices());
         }
     }
@@ -124,13 +121,12 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
         for (String controllerDeviceId : controllerDeviceIdList) {
             putChildrenInDeviceTree(controllerDeviceId, 0, deviceTreeMap, devicesSeen);
         }
-        // remove from cache if no longer present and add to cache if present
-        // but not in cache
-        updateDeviceCache(devicesSeen, wmiQueryHandler);
+        // Map to store information using PNPDeviceID as the key.
+        Map<String, WindowsUsbDevice> usbDeviceCache = populateDeviceCache(devicesSeen, wmiQueryHandler);
         // recursively build results
         for (String controllerDeviceId : controllerDeviceIdList) {
-            WindowsUsbDevice deviceAndChildren = getDeviceAndChildren(controllerDeviceId, "0000", "0000",
-                    deviceTreeMap);
+            WindowsUsbDevice deviceAndChildren = getDeviceAndChildren(controllerDeviceId, "0000", "0000", deviceTreeMap,
+                    usbDeviceCache);
             if (deviceAndChildren != null) {
                 controllerDevices.add(deviceAndChildren);
             }
@@ -138,19 +134,10 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
         return controllerDevices.toArray(new WindowsUsbDevice[0]);
     }
 
-    private static void updateDeviceCache(Set<String> devicesSeen, WmiQueryHandler wmiQueryHandler) {
-        // The deviceCache stores UsbDevices that we have already returned
-        // Remove devices no longer in tree
-        Set<String> devicesToRemove = new HashSet<>(usbDeviceCache.keySet());
-        devicesToRemove.removeAll(devicesSeen);
-        for (String deviceID : devicesToRemove) {
-            usbDeviceCache.remove(deviceID);
-            LOG.debug("Removing {} from USB device cache.", deviceID);
-        }
-
+    private static Map<String, WindowsUsbDevice> populateDeviceCache(Set<String> devicesToAdd,
+            WmiQueryHandler wmiQueryHandler) {
+        Map<String, WindowsUsbDevice> usbDeviceCache = new HashMap<>();
         // Add devices not in the tree
-        Set<String> devicesToAdd = new HashSet<>(devicesSeen);
-        devicesToAdd.removeAll(usbDeviceCache.keySet());
         if (!devicesToAdd.isEmpty()) {
             StringBuilder sb = new StringBuilder();
             boolean first = true;
@@ -171,7 +158,8 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
                 String pnpDeviceID = WmiUtil.getString(pnpEntity, PnPEntityProperty.PNPDEVICEID, i);
                 String name = WmiUtil.getString(pnpEntity, PnPEntityProperty.NAME, i);
                 String vendor = WmiUtil.getString(pnpEntity, PnPEntityProperty.MANUFACTURER, i);
-                WindowsUsbDevice device = new WindowsUsbDevice(name, vendor, null, null, "", new WindowsUsbDevice[0]);
+                WindowsUsbDevice device = new WindowsUsbDevice(name, vendor, null, null, "", pnpDeviceID,
+                        new WindowsUsbDevice[0]);
                 usbDeviceCache.put(pnpDeviceID, device);
                 LOG.debug("Adding {} to USB device cache.", pnpDeviceID);
             }
@@ -187,6 +175,7 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
                 }
             }
         }
+        return usbDeviceCache;
     }
 
     /**
@@ -246,11 +235,12 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
      * @param pid
      *            The default (parent) product ID
      * @param deviceTreeMap
+     * @param usbDeviceCache
      * @return A WindowsUsbDevice corresponding to this deviceID, or null if
      *         unable to find
      */
     private static WindowsUsbDevice getDeviceAndChildren(String hubDeviceId, String vid, String pid,
-            Map<String, List<String>> deviceTreeMap) {
+            Map<String, List<String>> deviceTreeMap, Map<String, WindowsUsbDevice> usbDeviceCache) {
         String vendorId = vid;
         String productId = pid;
         Matcher m = VENDOR_PRODUCT_ID.matcher(hubDeviceId);
@@ -261,7 +251,8 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
         List<String> pnpDeviceIds = deviceTreeMap.getOrDefault(hubDeviceId, new ArrayList<String>());
         List<WindowsUsbDevice> usbDevices = new ArrayList<>();
         for (String pnpDeviceId : pnpDeviceIds) {
-            WindowsUsbDevice deviceAndChildren = getDeviceAndChildren(pnpDeviceId, vendorId, productId, deviceTreeMap);
+            WindowsUsbDevice deviceAndChildren = getDeviceAndChildren(pnpDeviceId, vendorId, productId, deviceTreeMap,
+                    usbDeviceCache);
             if (deviceAndChildren != null) {
                 usbDevices.add(deviceAndChildren);
             }

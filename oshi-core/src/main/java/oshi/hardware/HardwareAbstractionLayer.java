@@ -28,8 +28,6 @@ import java.io.Serializable;
 /**
  * A hardware abstraction layer. Provides access to hardware items such as
  * processors, memory, battery, and disks.
- *
- * @author dblock[at]dblock[dot]org
  */
 public interface HardwareAbstractionLayer extends Serializable {
 
@@ -104,14 +102,14 @@ public interface HardwareAbstractionLayer extends Serializable {
     /**
      * Instantiates an array of {@link UsbDevice} objects, representing devices
      * connected via a usb port (including internal devices).
-     *
+     * <p>
      * If the value of tree is true, the top level devices returned from this
      * method are the USB Controllers; connected hubs and devices in its device
      * tree share that controller's bandwidth. If the value of tree is false,
      * USB devices (not controllers) are listed in a single flat array.
      *
      * @param tree
-     *            WHether to display devices in a nested tree format from their
+     *            Whether to display devices in a nested tree format from their
      *            controllers
      * @return An array of UsbDevice objects representing (optionally) the USB
      *         Controllers and devices connected to them, or an empty array if

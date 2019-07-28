@@ -29,8 +29,6 @@ import oshi.hardware.UsbDevice;
 
 /**
  * A USB device
- *
- * @author widdis[at]gmail[dot]com
  */
 public abstract class AbstractUsbDevice implements UsbDevice {
 
@@ -46,15 +44,18 @@ public abstract class AbstractUsbDevice implements UsbDevice {
 
     protected String serialNumber;
 
+    protected String uniqueDeviceId;
+
     protected UsbDevice[] connectedDevices;
 
     public AbstractUsbDevice(String name, String vendor, String vendorId, String productId, String serialNumber,
-            UsbDevice[] connectedDevices) {
+            String uniqueDeviceId, UsbDevice[] connectedDevices) {
         this.name = name;
         this.vendor = vendor;
         this.vendorId = vendorId;
         this.productId = productId;
         this.serialNumber = serialNumber;
+        this.uniqueDeviceId = uniqueDeviceId;
         this.connectedDevices = Arrays.copyOf(connectedDevices, connectedDevices.length);
     }
 
@@ -96,6 +97,14 @@ public abstract class AbstractUsbDevice implements UsbDevice {
     @Override
     public String getSerialNumber() {
         return this.serialNumber;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getUniqueDeviceId() {
+        return this.uniqueDeviceId;
     }
 
     /**
@@ -146,5 +155,4 @@ public abstract class AbstractUsbDevice implements UsbDevice {
         }
         return sb.toString();
     }
-
 }
