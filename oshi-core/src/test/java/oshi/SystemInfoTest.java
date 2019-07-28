@@ -74,8 +74,7 @@ public class SystemInfoTest {
     /**
      * The main method, demonstrating use of classes.
      *
-     * @param args
-     *            the arguments
+     * @param args the arguments
      */
     public static void main(String[] args) {
         // Options: ERROR > WARN > INFO > DEBUG > TRACE
@@ -141,6 +140,7 @@ public class SystemInfoTest {
         System.out.println("Booted: " + Instant.ofEpochSecond(os.getSystemBootTime()));
         System.out.println("Uptime: " + FormatUtil.formatElapsedSecs(os.getSystemUptime()));
     }
+
     private static void printComputerSystem(final ComputerSystem computerSystem) {
 
         System.out.println("manufacturer: " + computerSystem.getManufacturer());
@@ -323,8 +323,9 @@ public class SystemInfoTest {
                             + " and is mounted at %s%n",
                     fs.getName(), fs.getDescription().isEmpty() ? "file system" : fs.getDescription(), fs.getType(),
                     FormatUtil.formatBytes(usable), FormatUtil.formatBytes(fs.getTotalSpace()), 100d * usable / total,
-                    fs.getFreeInodes(), fs.getTotalInodes(), 100d * fs.getFreeInodes() / fs.getTotalInodes(),
-                    fs.getVolume(), fs.getLogicalVolume(), fs.getMount());
+                    FormatUtil.formatValue(fs.getFreeInodes(), ""), FormatUtil.formatValue(fs.getTotalInodes(), ""),
+                    100d * fs.getFreeInodes() / fs.getTotalInodes(), fs.getVolume(), fs.getLogicalVolume(),
+                    fs.getMount());
         }
     }
 
