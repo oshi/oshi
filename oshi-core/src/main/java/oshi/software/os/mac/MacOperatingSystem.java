@@ -58,6 +58,9 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
     private static final Logger LOG = LoggerFactory.getLogger(MacOperatingSystem.class);
 
     private int maxProc = 1024;
+
+    // 64-bit flag
+    int P_LP64 = 0x4;
     /*
      * OS X States:
      */
@@ -233,8 +236,8 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
         proc.setBytesRead(bytesRead);
         proc.setBytesWritten(bytesWritten);
         proc.setCommandLine(getCommandLine(pid));
-        // gets the open files count
         proc.setOpenFiles(taskAllInfo.pbsd.pbi_nfiles);
+        proc.setBitness((taskAllInfo.pbsd.pbi_flags & P_LP64) == 0 ? 32 : 64);
 
         VnodePathInfo vpi = new VnodePathInfo();
         if (0 < SystemB.INSTANCE.proc_pidinfo(pid, SystemB.PROC_PIDVNODEPATHINFO, 0, vpi, vpi.size())) {

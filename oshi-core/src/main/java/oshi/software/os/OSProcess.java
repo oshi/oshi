@@ -59,6 +59,7 @@ public class OSProcess implements Serializable {
     private long bytesRead;
     private long bytesWritten;
     private long openFiles;
+    private int bitness;
     // cache calculation for sorting
     private transient double cpuPercent = -1d;
 
@@ -577,5 +578,21 @@ public class OSProcess implements Serializable {
         builder.append("[processID=").append(this.processID);
         builder.append(", name=").append(this.name).append(']');
         return builder.toString();
+    }
+
+    /**
+     * Attempts to get the bitness (32 or 64) of the process.
+     *
+     * @return The bitness, if able to be determined, 0 otherwise.
+     */
+    public int getBitness() {
+        return this.bitness;
+    }
+
+    /**
+     * @param bitness The bitness to set.
+     */
+    public void setBitness(int bitness) {
+        this.bitness = bitness;
     }
 }

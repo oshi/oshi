@@ -468,6 +468,14 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             final HANDLE pHandle = Kernel32.INSTANCE.OpenProcess(WinNT.PROCESS_QUERY_INFORMATION, false,
                     proc.getProcessID());
             if (pHandle != null) {
+                proc.setBitness(this.getBitness());
+                // Only test for 32-bit process on 64-bit windows
+                if (IS_VISTA_OR_GREATER && this.getBitness() == 64) {
+                    IntByReference wow64 = new IntByReference(0);
+                    if (Kernel32.INSTANCE.IsWow64Process(pHandle, wow64)) {
+                        proc.setBitness(wow64.getValue() > 0 ? 32 : 64);
+                    }
+                }
                 // Full path
                 final HANDLEByReference phToken = new HANDLEByReference();
                 try {// EXECUTABLEPATH
@@ -556,7 +564,9 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                 }
             }
         }
-
+        for (OSProcess proc : processList) {
+            System.out.println(proc.getBitness() + " - " + proc.getName());
+        }
         return processList;
     }
 

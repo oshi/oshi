@@ -27,6 +27,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.sun.jna.Memory;
+import com.sun.jna.Pointer;
+import com.sun.jna.ptr.IntByReference;
+
 import oshi.jna.platform.linux.Libc;
 import oshi.jna.platform.unix.CLibrary.Timeval;
 import oshi.software.common.AbstractOperatingSystem;
@@ -183,10 +187,29 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
             fproc.setName(fproc.getPath().substring(fproc.getPath().lastIndexOf('/') + 1));
             fproc.setCommandLine(split[15]);
             fproc.setCurrentWorkingDirectory(cwdMap.getOrDefault(fproc.getProcessID(), ""));
-            // gets the open files count -- slow
+
             if (slowFields) {
                 List<String> openFilesList = ExecutingCommand.runNative(String.format("lsof -p %d", pid));
                 fproc.setOpenFiles(openFilesList.size() - 1L);
+
+                // Get process abi vector
+                int[] mib = new int[4];
+                mib[0] = 1; // CTL_KERN
+                mib[1] = 14; // KERN_PROC
+                mib[2] = 9; // KERN_PROC_SV_NAME
+                mib[3] = pid;
+                // Allocate memory for arguments
+                Pointer abi = new Memory(32);
+                IntByReference size = new IntByReference(32);
+                // Fetch abi vector
+                if (0 == Libc.INSTANCE.sysctl(mib, mib.length, abi, size, null, 0)) {
+                    String elf = abi.getString(0);
+                    if (elf.contains("ELF32")) {
+                        fproc.setBitness(32);
+                    } else if (elf.contains("ELF64")) {
+                        fproc.setBitness(64);
+                    }
+                }
             }
             procs.add(fproc);
         }

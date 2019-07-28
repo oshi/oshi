@@ -178,10 +178,21 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
             sproc.setCurrentWorkingDirectory(cwdMap.getOrDefault(sproc.getProcessID(), ""));
             // bytes read/written not easily available
 
-            // gets the open files count -- slow
             if (slowFields) {
                 List<String> openFilesList = ExecutingCommand.runNative(String.format("lsof -p %d", pid));
                 sproc.setOpenFiles(openFilesList.size() - 1L);
+                
+                List<String> pflags = ExecutingCommand.runNative("pflags " + pid);
+                for (String line : pflags) {
+                    if (line.contains("data model")) {
+                        if (line.contains("LP32")) {
+                            sproc.setBitness(32);
+                        } else if (line.contains("LP64")) {
+                            sproc.setBitness(64);
+                        }
+                        break;
+                    }
+                }
             }
             procs.add(sproc);
         }
