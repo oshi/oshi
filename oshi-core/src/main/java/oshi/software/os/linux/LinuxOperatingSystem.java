@@ -25,7 +25,9 @@ package oshi.software.os.linux;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -253,6 +255,17 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         if (slowFields) {
             List<String> openFilesList = ExecutingCommand.runNative(String.format("ls -f /proc/%d/fd", pid));
             proc.setOpenFiles(openFilesList.size() - 1L);
+
+            // get 5th byte of file for 64-bit check
+            // https://en.wikipedia.org/wiki/Executable_and_Linkable_Format#File_header
+            byte[] buffer = new byte[5];
+            try (InputStream is = new FileInputStream(path)) {
+                if (is.read(buffer) == buffer.length) {
+                    proc.setBitness(buffer[4] == 1 ? 32 : 64);
+                }
+            } catch (IOException e) {
+                LOG.warn("Failed to read process file: {}", path);
+            }
         }
 
         Map<String, String> status = FileUtil.getKeyValueMapFromFile(String.format("/proc/%d/status", pid), ":");
