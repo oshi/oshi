@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import com.sun.jna.platform.unix.solaris.LibKstat.Kstat;
+import com.sun.jna.platform.unix.solaris.LibKstat.Kstat; // NOSONAR squid:S1191
 
 import oshi.jna.platform.linux.Libc;
 import oshi.software.common.AbstractOperatingSystem;
@@ -43,8 +43,6 @@ import oshi.util.platform.unix.solaris.KstatUtil;
 /**
  * Linux is a family of free operating systems most commonly used on personal
  * computers.
- *
- * @author widdis[at]gmail[dot]com
  */
 public class SolarisOperatingSystem extends AbstractOperatingSystem {
     private static final long serialVersionUID = 1L;

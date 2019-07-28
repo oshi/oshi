@@ -155,11 +155,6 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         enableDebugPrivilege();
     }
 
-    /*
-     * This process map will cache process info to avoid repeated calls for data
-     */
-    private final Map<Integer, OSProcess> processMap = new HashMap<>();
-
     private final transient WmiQueryHandler wmiQueryHandler = WmiQueryHandler.createInstance();
 
     public WindowsOperatingSystem() {
@@ -371,8 +366,8 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
      * @return A corresponding list of processes
      */
     private List<OSProcess> processMapToList(Collection<Integer> pids, boolean slowFields) {
-        // Get data from the registry to update cache
-        updateProcessMapFromRegistry(pids);
+        // Get data from the registry
+        Map<Integer, OSProcess> processMap = buildProcessMapFromRegistry(pids);
 
         // define here to avoid object repeated creation overhead later
         List<String> groupList = new ArrayList<>();
@@ -425,20 +420,12 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
 
         int procCount = IS_WINDOWS7_OR_GREATER ? processInfo.length : processWmiResult.getResultCount();
         for (int i = 0; i < procCount; i++) {
-
-            // Skip if only updating a subset of pids, or if not in cache.
-            // (Cache should have just been updated from registry so this will
-            // only occur in a race condition for a just-started process.)
-            // However, when the cache is empty, there was a problem with
-            // filling
-            // the cache using performance information. When this happens, we
-            // ignore
-            // the cache completely.
-
             int pid = IS_WINDOWS7_OR_GREATER ? processInfo[i].ProcessId
                     : WmiUtil.getUint32(processWmiResult, ProcessXPProperty.PROCESSID, i);
             OSProcess proc = null;
-            if (this.processMap.isEmpty()) {
+            // If the cache is empty, there was a problem with
+            // filling the cache using performance information.
+            if (processMap.isEmpty()) {
                 if (pids != null && !pids.contains(pid)) {
                     continue;
                 }
@@ -447,7 +434,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                 proc.setName(IS_WINDOWS7_OR_GREATER ? processInfo[i].pProcessName
                         : WmiUtil.getString(processWmiResult, ProcessXPProperty.NAME, i));
             } else {
-                proc = this.processMap.get(pid);
+                proc = processMap.get(pid);
                 if (proc == null || pids != null && !pids.contains(pid)) {
                     continue;
                 }
@@ -533,26 +520,20 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         // Clean up memory allocated in C (only Vista+ but null pointer
         // effectively tests)
         if (pProcessInfo != null && !Wtsapi32.INSTANCE.WTSFreeMemoryEx(Wtsapi32.WTS_PROCESS_INFO_LEVEL_1, pProcessInfo,
-                pCount.getValue()))
-
-        {
+                pCount.getValue())) {
             LOG.error("Failed to Free Memory for Processes. Error code: {}", Kernel32.INSTANCE.GetLastError());
             return new ArrayList<>(0);
         }
 
         // Command Line only accessible via WMI.
-        // Utilize cache to only update new processes
-        Set<Integer> emptyCommandLines = new HashSet<>();
-        for (OSProcess cachedProcess : processList) {
-            // If the process in the cache has an empty command line.
-            if (cachedProcess.getCommandLine().isEmpty()) {
-                emptyCommandLines.add(cachedProcess.getProcessID());
-            }
+        Set<Integer> pidsToQuery = new HashSet<>();
+        for (OSProcess process : processList) {
+            pidsToQuery.add(process.getProcessID());
         }
-        if (!emptyCommandLines.isEmpty()) {
+        if (!pidsToQuery.isEmpty()) {
             StringBuilder sb = new StringBuilder(PROCESS_BASE_CLASS);
             boolean first = true;
-            for (Integer pid : emptyCommandLines) {
+            for (Integer pid : pidsToQuery) {
                 if (first) {
                     sb.append(" WHERE ProcessID=");
                     first = false;
@@ -566,11 +547,11 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
 
             for (int p = 0; p < commandLineProcs.getResultCount(); p++) {
                 int pid = WmiUtil.getUint32(commandLineProcs, ProcessProperty.PROCESSID, p);
-                // This should always be true because emptyCommandLines was
-                // built from a subset of the cache, but just in case, protect
-                // against dereferencing null
-                if (this.processMap.containsKey(pid)) {
-                    OSProcess proc = this.processMap.get(pid);
+                // This should always be true because pidsToQuery was
+                // built from the map, but just in case, protect against
+                // dereferencing null
+                if (processMap.containsKey(pid)) {
+                    OSProcess proc = processMap.get(pid);
                     proc.setCommandLine(WmiUtil.getString(commandLineProcs, ProcessProperty.COMMANDLINE, p));
                 }
             }
@@ -584,7 +565,9 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                 ex.getMessage());
     }
 
-    private void updateProcessMapFromRegistry(Collection<Integer> pids) {
+    private Map<Integer, OSProcess> buildProcessMapFromRegistry(Collection<Integer> pids) {
+        Map<Integer, OSProcess> processMap = new HashMap<>();
+
         List<Integer> pidsToKeep = new ArrayList<>();
 
         // Grab the PERF_DATA_BLOCK from the registry.
@@ -595,7 +578,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                 pPerfData, lpcbData);
         if (ret != WinError.ERROR_SUCCESS && ret != WinError.ERROR_MORE_DATA) {
             LOG.error("Error {} reading HKEY_PERFORMANCE_DATA from the registry.", ret);
-            return;
+            return processMap;
         }
         while (ret == WinError.ERROR_MORE_DATA) {
             this.perfDataBufferSize += 4096;
@@ -644,27 +627,15 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                     if (pids == null || pids.contains(pid)) {
                         pidsToKeep.add(pid);
 
-                        // If process exists fetch from cache
-                        OSProcess proc = null;
-                        if (this.processMap.containsKey(pid)) {
-                            proc = this.processMap.get(pid);
-                        }
-                        // If not in cache or if start time differs too much,
-                        // create new process to add/replace cache value
+                        OSProcess proc = new OSProcess();
+                        processMap.put(pid, proc);
+
+                        proc.setProcessID(pid);
+                        proc.setName(pPerfData.getWideString(perfInstanceOffset + perfInstance.NameOffset));
                         long upTime = (perfTime100nSec
                                 - pPerfData.getLong(perfCounterBlockOffset + this.elapsedTimeOffset)) / 10_000L;
-                        long startTime = now - upTime;
-                        if (proc == null || Math.abs(startTime - proc.getStartTime()) > 200) {
-                            proc = new OSProcess();
-                            proc.setProcessID(pid);
-                            proc.setStartTime(startTime);
-                            proc.setName(pPerfData.getWideString(perfInstanceOffset + perfInstance.NameOffset));
-                            // Adds or replaces previous
-                            this.processMap.put(pid, proc);
-                        }
-
-                        // Update stats
                         proc.setUpTime(upTime < 1L ? 1L : upTime);
+                        proc.setStartTime(now - upTime);
                         proc.setBytesRead(pPerfData.getLong(perfCounterBlockOffset + this.ioReadOffset));
                         proc.setBytesWritten(pPerfData.getLong(perfCounterBlockOffset + this.ioWriteOffset));
                         proc.setResidentSetSize(
@@ -685,15 +656,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             // Increment for next object (should never need this)
             perfObjectOffset += perfObject.TotalByteLength;
         }
-        // If this was a full update, delete any pid we didn't find from the
-        // cache.
-        if (pids == null) {
-            for (Integer pid : new HashSet<>(this.processMap.keySet())) {
-                if (!pidsToKeep.contains(pid)) {
-                    this.processMap.remove(pid);
-                }
-            }
-        }
+        return processMap;
     }
 
     /**

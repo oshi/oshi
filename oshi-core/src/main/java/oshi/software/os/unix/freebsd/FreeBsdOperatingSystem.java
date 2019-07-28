@@ -38,12 +38,6 @@ import oshi.util.LsofUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
 
-/**
- * Linux is a family of free operating systems most commonly used on personal
- * computers.
- *
- * @author widdis[at]gmail[dot]com
- */
 public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
     private static final long serialVersionUID = 1L;
 
