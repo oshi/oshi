@@ -47,7 +47,7 @@ public class MacSensors extends AbstractSensors {
 
     private double queryCpuTemperature() {
         SmcUtil.smcOpen();
-        double temp = SmcUtil.smcGetSp78(IOKit.SMC_KEY_CPU_TEMP, 50);
+        double temp = SmcUtil.smcGetFloat(IOKit.SMC_KEY_CPU_TEMP, 50);
         SmcUtil.smcClose();
         if (temp > 0d) {
             return temp;
@@ -74,7 +74,7 @@ public class MacSensors extends AbstractSensors {
         }
         int[] fanSpeeds = new int[this.numFans];
         for (int i = 0; i < this.numFans; i++) {
-            fanSpeeds[i] = (int) SmcUtil.smcGetFpe2(String.format(IOKit.SMC_KEY_FAN_SPEED, i), 50);
+            fanSpeeds[i] = (int) SmcUtil.smcGetFloat(String.format(IOKit.SMC_KEY_FAN_SPEED, i), 50);
         }
         SmcUtil.smcClose();
         return fanSpeeds;
@@ -93,7 +93,7 @@ public class MacSensors extends AbstractSensors {
 
     private double queryCpuVoltage() {
         SmcUtil.smcOpen();
-        double volts = SmcUtil.smcGetFpe2(IOKit.SMC_KEY_CPU_VOLTAGE, 50) / 1000d;
+        double volts = SmcUtil.smcGetFloat(IOKit.SMC_KEY_CPU_VOLTAGE, 50) / 1000d;
         SmcUtil.smcClose();
         return volts;
     }
