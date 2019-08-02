@@ -23,6 +23,8 @@
  */
 package oshi.hardware.platform.linux;
 
+import java.util.List;
+
 import oshi.hardware.Baseboard;
 import oshi.hardware.Firmware;
 import oshi.hardware.common.AbstractComputerSystem;
@@ -30,6 +32,7 @@ import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
+import oshi.util.platform.linux.ProcUtil;
 
 /**
  * Hardware data obtained from sysfs.
@@ -43,11 +46,8 @@ final class LinuxComputerSystem extends AbstractComputerSystem {
      */
     @Override
     public String getManufacturer() {
-        if (this.manufacturer == null) {
-            final String sysVendor = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "sys_vendor").trim();
-            if (!sysVendor.isEmpty()) {
-                this.manufacturer = sysVendor;
-            }
+        if (this.manufacturer == null && !queryManufacturerFromSysfs() && !queryManufacturerFromProcCpu()) {
+            this.manufacturer = Constants.UNKNOWN;
         }
         return super.getManufacturer();
     }
@@ -57,21 +57,9 @@ final class LinuxComputerSystem extends AbstractComputerSystem {
      */
     @Override
     public String getModel() {
-        if (this.model == null) {
-            final String productName = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "product_name").trim();
-            final String productVersion = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "product_version")
-                    .trim();
-            if (productName.isEmpty()) {
-                if (!productVersion.isEmpty()) {
-                    this.model = productVersion;
-                }
-            } else {
-                if (!productVersion.isEmpty() && !"None".equals(productVersion)) {
-                    this.model = productName + " (version: " + productVersion + ")";
-                } else {
-                    this.model = productName;
-                }
-            }
+        if (this.model == null && !queryModelFromSysfs() && !queryModelFromDeviceTree()
+                && !queryModelAndSerialFromLshw()) {
+            this.model = Constants.UNKNOWN;
         }
         return super.getModel();
     }
@@ -81,8 +69,9 @@ final class LinuxComputerSystem extends AbstractComputerSystem {
      */
     @Override
     public String getSerialNumber() {
-        if (this.serialNumber == null) {
-            querySystemSerialNumber();
+        if (this.serialNumber == null && !querySerialFromSysfs() && !querySerialFromDmiDecode()
+                && !querySerialFromLshal() && !queryModelAndSerialFromLshw()) {
+            this.serialNumber = Constants.UNKNOWN;
         }
         return this.serialNumber;
     }
@@ -109,10 +98,90 @@ final class LinuxComputerSystem extends AbstractComputerSystem {
         return this.baseboard;
     }
 
-    private void querySystemSerialNumber() {
-        if (!querySerialFromSysfs() && !querySerialFromDmiDecode() && !querySerialFromLshal()) {
-            this.serialNumber = Constants.UNKNOWN;
+    private boolean queryManufacturerFromSysfs() {
+        final String sysVendor = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "sys_vendor").trim();
+        if (!sysVendor.isEmpty()) {
+            this.manufacturer = sysVendor;
+            return true;
         }
+        return false;
+    }
+
+    private boolean queryManufacturerFromProcCpu() {
+        List<String> cpuInfo = FileUtil.readFile(ProcUtil.getProcPath() + "/cpuinfo");
+        for (String line : cpuInfo) {
+            if (line.startsWith("CPU implementer")) {
+                int part = ParseUtil.parseLastInt(line, 0);
+                switch (part) {
+                case 0x41:
+                    this.manufacturer = "ARM";
+                    return true;
+                case 0x42:
+                    this.manufacturer = "Broadcom";
+                    return true;
+                case 0x43:
+                    this.manufacturer = "Cavium";
+                    return true;
+                case 0x44:
+                    this.manufacturer = "DEC";
+                    return true;
+                case 0x4e:
+                    this.manufacturer = "Nvidia";
+                    return true;
+                case 0x50:
+                    this.manufacturer = "APM";
+                    return true;
+                case 0x51:
+                    this.manufacturer = "Qualcomm";
+                    return true;
+                case 0x53:
+                    this.manufacturer = "Samsung";
+                    return true;
+                case 0x56:
+                    this.manufacturer = "Marvell";
+                    return true;
+                case 0x66:
+                    this.manufacturer = "Faraday";
+                    return true;
+                case 0x69:
+                    this.manufacturer = "Intel";
+                    return true;
+                default:
+                    return false;
+                }
+            }
+        }
+        return false;
+    }
+
+    private boolean queryModelFromSysfs() {
+        final String productName = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "product_name").trim();
+        final String productVersion = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "product_version")
+                .trim();
+        if (productName.isEmpty()) {
+            if (!productVersion.isEmpty()) {
+                this.model = productVersion;
+                return true;
+            }
+        } else {
+            if (!productVersion.isEmpty() && !"None".equals(productVersion)) {
+                this.model = productName + " (version: " + productVersion + ")";
+                return true;
+            } else {
+                this.model = productName;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean queryModelFromDeviceTree() {
+        String modelStr = FileUtil.getStringFromFile("/sys/firmware/devicetree/base/model");
+        if (!modelStr.isEmpty()) {
+            this.model = modelStr.replace("Machine: ", "");
+            return true;
+        }
+        return false;
     }
 
     private boolean querySerialFromSysfs() {
@@ -148,6 +217,19 @@ final class LinuxComputerSystem extends AbstractComputerSystem {
             if (checkLine.contains(marker)) {
                 this.serialNumber = ParseUtil.getSingleQuoteStringValue(checkLine);
                 break;
+            }
+        }
+        return this.serialNumber != null && !this.serialNumber.isEmpty();
+    }
+
+    private boolean queryModelAndSerialFromLshw() {
+        String serialMarker = "serial:";
+        String modelMarker = "product:";
+        for (String checkLine : ExecutingCommand.runNative("lshw -C system")) {
+            if (checkLine.contains(serialMarker)) {
+                this.serialNumber = checkLine.split(serialMarker)[1].trim();
+            } else if (checkLine.contains(modelMarker)) {
+                this.model = checkLine.split(modelMarker)[1].trim();
             }
         }
         return this.serialNumber != null && !this.serialNumber.isEmpty();

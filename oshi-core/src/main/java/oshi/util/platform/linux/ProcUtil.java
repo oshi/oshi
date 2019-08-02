@@ -35,8 +35,6 @@ import oshi.util.ParseUtil;
 
 /**
  * Provides access to some /proc filesystem info on Linux
- *
- * @author widdis[at]gmail[dot]com
  */
 public class ProcUtil {
 
@@ -62,6 +60,17 @@ public class ProcUtil {
     }
 
     private ProcUtil() {
+    }
+
+    /**
+     * The proc filesystem location may be customized to allow alternative proc
+     * plugins, particularly useful for containers.
+     * 
+     * @return The proc filesystem path, with a leading / but not a trailing one,
+     *         e.g., "/proc"
+     */
+    public static String getProcPath() {
+        return proc;
     }
 
     /**

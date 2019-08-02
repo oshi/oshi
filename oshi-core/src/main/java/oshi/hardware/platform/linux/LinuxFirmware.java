@@ -23,6 +23,11 @@
  */
 package oshi.hardware.platform.linux;
 
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.List;
+import java.util.Locale;
+
 import oshi.hardware.common.AbstractFirmware;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
@@ -36,24 +41,19 @@ final class LinuxFirmware extends AbstractFirmware {
 
     private static final long serialVersionUID = 1L;
 
-    // $ ls /sys/devices/virtual/dmi/id/
-    // bios_date board_vendor chassis_version product_version
-    // bios_vendor board_version modalias subsystem
-    // bios_version chassis_asset_tag power sys_vendor
-    // board_asset_tag chassis_serial product_name uevent
-    // board_name chassis_type product_serial
-    // board_serial chassis_vendor product_uuid
+    // Jan 13 2013 16:24:29
+    private static final DateTimeFormatter VCGEN_FORMATTER = DateTimeFormatter.ofPattern("MMM d uuuu HH:mm:ss",
+            Locale.ENGLISH);
 
     /**
      * {@inheritDoc}
      */
     @Override
     public String getManufacturer() {
-        if (this.manufacturer == null) {
-            final String biosVendor = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "bios_vendor").trim();
-            this.manufacturer = (biosVendor.isEmpty()) ? Constants.UNKNOWN : biosVendor;
+        if (this.manufacturer == null && !queryManufacturerFromSysfs() && !queryVcGenCmd()) {
+            this.manufacturer = Constants.UNKNOWN;
         }
-        return this.manufacturer;
+        return super.getManufacturer();
     }
 
     /**
@@ -61,9 +61,8 @@ final class LinuxFirmware extends AbstractFirmware {
      */
     @Override
     public String getDescription() {
-        if (this.description == null) {
-            final String modalias = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "modalias").trim();
-            this.description = (modalias.isEmpty()) ? Constants.UNKNOWN : modalias;
+        if (this.description == null && !queryDescriptionFromSysfs() && !queryVcGenCmd()) {
+            this.description = Constants.UNKNOWN;
         }
         return this.description;
     }
@@ -73,14 +72,8 @@ final class LinuxFirmware extends AbstractFirmware {
      */
     @Override
     public String getVersion() {
-        if (this.version == null) {
-            final String biosVersion = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "bios_version").trim();
-            if (biosVersion.isEmpty()) {
-                this.version = Constants.UNKNOWN;
-            } else {
-                String biosRevision = getBiosRevision();
-                this.version = biosVersion + (biosRevision.isEmpty() ? "" : " (revision " + biosRevision + ")");
-            }
+        if (this.version == null && !queryVersionFromSysfs() && !queryVcGenCmd()) {
+            this.version = Constants.UNKNOWN;
         }
         return this.version;
     }
@@ -90,16 +83,67 @@ final class LinuxFirmware extends AbstractFirmware {
      */
     @Override
     public String getReleaseDate() {
-        if (this.releaseDate == null) {
-            final String biosDate = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "bios_date").trim();
-            this.releaseDate = biosDate.isEmpty() ? Constants.UNKNOWN : ParseUtil.parseMmDdYyyyToYyyyMmDD(biosDate);
+        if (this.releaseDate == null && !queryReleaseDateFromSysfs() && !queryVcGenCmd()) {
+            this.releaseDate = Constants.UNKNOWN;
         }
         return this.releaseDate;
     }
 
-    /*
-     * Name is not set
+    /**
+     * {@inheritDoc}
      */
+    @Override
+    public String getName() {
+        if (this.name == null && !queryVcGenCmd()) {
+            this.name = "BIOS";
+        }
+        return this.name;
+    }
+
+    // $ ls /sys/devices/virtual/dmi/id/
+    // bios_date board_vendor chassis_version product_version
+    // bios_vendor board_version modalias subsystem
+    // bios_version chassis_asset_tag power sys_vendor
+    // board_asset_tag chassis_serial product_name uevent
+    // board_name chassis_type product_serial
+    // board_serial chassis_vendor product_uuid
+
+    private boolean queryManufacturerFromSysfs() {
+        final String biosVendor = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "bios_vendor").trim();
+        if (!biosVendor.isEmpty()) {
+            this.manufacturer = biosVendor;
+            return true;
+        }
+        return false;
+    }
+
+    private boolean queryDescriptionFromSysfs() {
+        final String modalias = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "modalias").trim();
+        if (!modalias.isEmpty()) {
+            this.description = modalias;
+            return true;
+        }
+        return false;
+    }
+
+    private boolean queryVersionFromSysfs() {
+        final String biosVersion = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "bios_version").trim();
+        if (!biosVersion.isEmpty()) {
+            String biosRevision = queryBiosRevision();
+            this.version = biosVersion + (biosRevision.isEmpty() ? "" : " (revision " + biosRevision + ")");
+            return true;
+        }
+        return false;
+    }
+
+    private boolean queryReleaseDateFromSysfs() {
+        final String biosDate = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "bios_date").trim();
+        if (!biosDate.isEmpty()) {
+            this.releaseDate = ParseUtil.parseMmDdYyyyToYyyyMmDD(biosDate);
+            return true;
+        }
+        return false;
+    }
 
     // $ sudo dmidecode -t bios
     // # dmidecode 2.11
@@ -138,7 +182,7 @@ final class LinuxFirmware extends AbstractFirmware {
     // BIOS Revision: 4.6
     // Firmware Revision: 0.0
 
-    private String getBiosRevision() {
+    private String queryBiosRevision() {
         final String marker = "Bios Revision:";
         // Requires root, may not return anything
         for (final String checkLine : ExecutingCommand.runNative("dmidecode -t bios")) {
@@ -148,4 +192,26 @@ final class LinuxFirmware extends AbstractFirmware {
         }
         return "";
     }
+
+    private boolean queryVcGenCmd() {
+        List<String> vcgencmd = ExecutingCommand.runNative("vcgencmd version");
+        if (vcgencmd.size() >= 3) {
+            // First line is date
+            try {
+                this.releaseDate = DateTimeFormatter.ISO_LOCAL_DATE.format(VCGEN_FORMATTER.parse(vcgencmd.get(0)));
+            } catch (DateTimeParseException e) {
+                this.releaseDate = Constants.UNKNOWN;
+            }
+            // Second line is copyright
+            String[] copyright = ParseUtil.whitespaces.split(vcgencmd.get(1));
+            this.manufacturer = copyright[copyright.length - 1];
+            // Third line is version
+            this.version = vcgencmd.get(2).replace("version ", "");
+            this.name = "RPi";
+            this.description = "Bootloader";
+            return true;
+        }
+        return false;
+    }
+
 }

@@ -33,7 +33,9 @@ import java.util.List;
 import java.util.Map;
 
 import oshi.hardware.common.AbstractSensors;
+import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
+import oshi.util.ParseUtil;
 
 public class LinuxSensors extends AbstractSensors {
 
@@ -85,8 +87,8 @@ public class LinuxSensors extends AbstractSensors {
     }
 
     /*
-     * Iterate over all thermal_zone* directories and look for sensor files,
-     * e.g., /sys/class/thermal/thermal_zone0/temp
+     * Iterate over all thermal_zone* directories and look for sensor files, e.g.,
+     * /sys/class/thermal/thermal_zone0/temp
      */
     private void iterateThermalZone() {
         getSensorFilesFromPath(THERMAL_ZONE, TEMP, new FileFilter() {
@@ -167,6 +169,12 @@ public class LinuxSensors extends AbstractSensors {
                 return millidegrees / 1000d;
             }
         }
+        // For raspberry pi
+        String tempStr = ExecutingCommand.getFirstAnswer("vcgencmd measure_temp");
+        // temp=50.8'C
+        if (tempStr.startsWith("temp=") && tempStr.endsWith("'C")) {
+            return ParseUtil.parseDoubleOrDefault(tempStr.replaceAll("\\^[0-9]+(\\.[0-9]{1,4})?$", ""), 0d);
+        }
         return 0d;
     }
 
@@ -222,6 +230,12 @@ public class LinuxSensors extends AbstractSensors {
             String hwmon = this.sensorsMap.get(VOLTAGE);
             // Should return a single line of millivolt
             return FileUtil.getIntFromFile(String.format("%s1_input", hwmon)) / 1000d;
+        }
+        // For raspberry pi
+        String tempVolts = ExecutingCommand.getFirstAnswer("vcgencmd measure_volts core");
+        // volt=1.20V
+        if (tempVolts.startsWith("volt=") && tempVolts.endsWith("V")) {
+            return ParseUtil.parseDoubleOrDefault(tempVolts.replaceAll("\\^[0-9]+(\\.[0-9]{1,4})?$", ""), 0d);
         }
         return 0d;
     }
