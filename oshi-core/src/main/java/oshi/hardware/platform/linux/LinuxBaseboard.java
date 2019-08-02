@@ -23,9 +23,13 @@
  */
 package oshi.hardware.platform.linux;
 
+import java.util.List;
+
 import oshi.hardware.common.AbstractBaseboard;
 import oshi.util.Constants;
 import oshi.util.FileUtil;
+import oshi.util.ParseUtil;
+import oshi.util.platform.linux.ProcUtil;
 
 /**
  * Baseboard data obtained by sysfs
@@ -33,6 +37,50 @@ import oshi.util.FileUtil;
 final class LinuxBaseboard extends AbstractBaseboard {
 
     private static final long serialVersionUID = 1L;
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getManufacturer() {
+        if (this.manufacturer == null && !queryManufacturerFromSysfs() && !queryProcCpuinfo()) {
+            this.manufacturer = Constants.UNKNOWN;
+        }
+        return super.getManufacturer();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getModel() {
+        if (this.model == null && !queryModelFromSysfs() && !queryProcCpuinfo()) {
+            this.model = Constants.UNKNOWN;
+        }
+        return super.getModel();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getVersion() {
+        if (this.version == null && !queryVersionFromSysfs() && !queryProcCpuinfo()) {
+            this.version = Constants.UNKNOWN;
+        }
+        return super.getVersion();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getSerialNumber() {
+        if (this.serialNumber == null && !querySerialNumberFromSysfs() && !queryProcCpuinfo()) {
+            this.serialNumber = Constants.UNKNOWN;
+        }
+        return super.getSerialNumber();
+    }
 
     // Note: /sys/class/dmi/id symlinks here, but /sys/devices/* is the
     // official/approved path for sysfs information
@@ -45,53 +93,93 @@ final class LinuxBaseboard extends AbstractBaseboard {
     // board_name chassis_type product_serial
     // board_serial chassis_vendor product_uuid
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getManufacturer() {
-        if (this.manufacturer == null) {
-            final String boardVendor = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "board_vendor").trim();
-            this.manufacturer = (boardVendor.isEmpty()) ? Constants.UNKNOWN : boardVendor;
+    private boolean queryManufacturerFromSysfs() {
+        final String boardVendor = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "board_vendor").trim();
+        if (!boardVendor.isEmpty()) {
+            this.manufacturer = boardVendor;
+            return true;
         }
-        return this.manufacturer;
+        return false;
+
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getModel() {
-        if (this.model == null) {
-            final String boardName = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "board_name").trim();
-            this.model = (boardName.isEmpty()) ? Constants.UNKNOWN : boardName;
+    private boolean queryModelFromSysfs() {
+        final String boardName = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "board_name").trim();
+        if (!boardName.isEmpty()) {
+            this.model = boardName;
+            return true;
         }
-        return this.model;
+        return false;
+
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getVersion() {
-        if (this.version == null) {
-            final String boardVersion = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "board_version")
-                    .trim();
-            this.version = (boardVersion.isEmpty()) ? Constants.UNKNOWN : boardVersion;
+    private boolean queryVersionFromSysfs() {
+        final String boardVersion = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "board_version").trim();
+        if (!boardVersion.isEmpty()) {
+            this.version = boardVersion;
+            return true;
         }
-        return this.version;
+        return false;
+
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getSerialNumber() {
-        if (this.serialNumber == null) {
-            final String boardSerialNumber = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "board_serial")
-                    .trim();
-            this.serialNumber = (boardSerialNumber.isEmpty()) ? Constants.UNKNOWN : boardSerialNumber;
+    private boolean querySerialNumberFromSysfs() {
+        final String boardSerialNumber = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "board_serial")
+                .trim();
+        if (!boardSerialNumber.isEmpty()) {
+            this.serialNumber = boardSerialNumber;
+            return true;
         }
-        return this.serialNumber;
+        return false;
+
+    }
+
+    private boolean queryProcCpuinfo() {
+        List<String> cpuInfo = FileUtil.readFile(ProcUtil.getProcPath() + "/cpuinfo");
+        for (String line : cpuInfo) {
+            String[] splitLine = ParseUtil.whitespacesColonWhitespace.split(line);
+            if (splitLine.length < 2) {
+                continue;
+            }
+            switch (splitLine[0]) {
+            case "Hardware":
+                this.model = splitLine[1];
+                break;
+            case "Revision":
+                this.version = splitLine[1];
+                if (this.version.length() > 1) {
+                    this.manufacturer = queryBoardManufacturer(this.version.charAt(1));
+                }
+                break;
+            case "Serial":
+                this.serialNumber = splitLine[1];
+                break;
+            default:
+                // Do nothing
+            }
+            if (this.model != null && this.version != null && this.serialNumber != null) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private String queryBoardManufacturer(char digit) {
+        switch (digit) {
+        case '0':
+            return "Sony UK";
+        case '1':
+            return "Egoman";
+        case '2':
+            return "Embest";
+        case '3':
+            return "Sony Japan";
+        case '4':
+            return "Embest";
+        case '5':
+            return "Stadium";
+        default:
+            return Constants.UNKNOWN;
+        }
     }
 }

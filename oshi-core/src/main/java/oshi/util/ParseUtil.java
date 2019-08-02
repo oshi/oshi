@@ -37,8 +37,6 @@ import org.slf4j.LoggerFactory;
 
 /**
  * String parsing utility.
- *
- * @author alessio.fachechi[at]gmail[dot]com
  */
 public class ParseUtil {
 
@@ -143,7 +141,12 @@ public class ParseUtil {
      */
     public static int parseLastInt(String s, int i) {
         try {
-            return Integer.parseInt(parseLastString(s));
+            String ls = parseLastString(s);
+            if (ls.toLowerCase().startsWith("0x")) {
+                return Integer.decode(ls);
+            } else {
+                return Integer.parseInt(ls);
+            }
         } catch (NumberFormatException e) {
             LOG.trace(DEFAULT_LOG_MSG, s, e);
             return i;
@@ -161,7 +164,12 @@ public class ParseUtil {
      */
     public static long parseLastLong(String s, long li) {
         try {
-            return Long.parseLong(parseLastString(s));
+            String ls = parseLastString(s);
+            if (ls.toLowerCase().startsWith("0x")) {
+                return Long.decode(ls);
+            } else {
+                return Long.parseLong(ls);
+            }
         } catch (NumberFormatException e) {
             LOG.trace(DEFAULT_LOG_MSG, s, e);
             return li;
@@ -203,13 +211,12 @@ public class ParseUtil {
     }
 
     /**
-     * Parse a byte aray into a string of hexadecimal digits including leading
-     * zeros
+     * Parse a byte aray into a string of hexadecimal digits including leading zeros
      *
      * @param bytes
      *            The byte array to represent
-     * @return A string of hex characters corresponding to the bytes. The string
-     *         is upper case.
+     * @return A string of hex characters corresponding to the bytes. The string is
+     *         upper case.
      */
     public static String byteArrayToHexString(byte[] bytes) {
         // Solution copied from https://stackoverflow.com/questions/9655181
@@ -246,24 +253,24 @@ public class ParseUtil {
     }
 
     /**
-     * Parse a human readable string into a byte array, truncating or padding
-     * with zeros (if necessary) so the array has the specified length.
+     * Parse a human readable string into a byte array, truncating or padding with
+     * zeros (if necessary) so the array has the specified length.
      *
      * @param text
      *            The string to be parsed
      * @param length
      *            Length of the returned array.
      * @return A byte array of specified length, with each of the first length
-     *         characters converted to a byte. If length is longer than the
-     *         provided string length, will be filled with zeroes.
+     *         characters converted to a byte. If length is longer than the provided
+     *         string length, will be filled with zeroes.
      */
     public static byte[] stringToByteArray(String text, int length) {
         return Arrays.copyOf(text.getBytes(), length);
     }
 
     /**
-     * Convert a long value to a byte array using Big Endian, truncating or
-     * padding with zeros (if necessary) so the array has the specified length.
+     * Convert a long value to a byte array using Big Endian, truncating or padding
+     * with zeros (if necessary) so the array has the specified length.
      *
      * @param value
      *            The value to be converted
@@ -271,8 +278,8 @@ public class ParseUtil {
      *            Number of bytes representing the value
      * @param length
      *            Number of bytes to return
-     * @return A byte array of specified length representing the long in the
-     *         first valueSize bytes
+     * @return A byte array of specified length representing the long in the first
+     *         valueSize bytes
      */
     public static byte[] longToByteArray(long value, int valueSize, int length) {
         long val = value;
@@ -294,8 +301,8 @@ public class ParseUtil {
      *            A human readable ASCII string
      * @param size
      *            Number of characters to convert to the long. May not exceed 8.
-     * @return An integer representing the string where each character is
-     *         treated as a byte
+     * @return An integer representing the string where each character is treated as
+     *         a byte
      */
     public static long strToLong(String str, int size) {
         return byteArrayToLong(str.getBytes(StandardCharsets.US_ASCII), size);
@@ -334,20 +341,20 @@ public class ParseUtil {
      * @param fpBits
      *            Number of bits representing the decimal
      * @return A float; the integer portion representing the byte array as an
-     *         integer shifted by the bits specified in fpBits; with the
-     *         remaining bits used as a decimal
+     *         integer shifted by the bits specified in fpBits; with the remaining
+     *         bits used as a decimal
      */
     public static float byteArrayToFloat(byte[] bytes, int size, int fpBits) {
         return byteArrayToLong(bytes, size) / (float) (1 << fpBits);
     }
 
     /**
-     * Convert an unsigned integer to a long value. The method assumes that all
-     * bits in the specified integer value are 'data' bits, including the
+     * Convert an unsigned integer to a long value. The method assumes that all bits
+     * in the specified integer value are 'data' bits, including the
      * most-significant bit which Java normally considers a sign bit. The method
      * must be used only when it is certain that the integer value represents an
-     * unsigned integer, for example when the integer is returned by JNA library
-     * in a structure which holds unsigned integers.
+     * unsigned integer, for example when the integer is returned by JNA library in
+     * a structure which holds unsigned integers.
      *
      * @param unsignedValue
      *            The unsigned integer value to convert.
@@ -363,9 +370,9 @@ public class ParseUtil {
     }
 
     /**
-     * Convert an unsigned long to a signed long value by stripping the sign
-     * bit. This method "rolls over" long values greater than the max value but
-     * ensures the result is never negative.
+     * Convert an unsigned long to a signed long value by stripping the sign bit.
+     * This method "rolls over" long values greater than the max value but ensures
+     * the result is never negative.
      * 
      * @param unsignedValue
      *            The unsigned long value to convert.
@@ -444,8 +451,8 @@ public class ParseUtil {
     }
 
     /**
-     * Attempts to parse a string to an "unsigned" long. If it fails, returns
-     * the default
+     * Attempts to parse a string to an "unsigned" long. If it fails, returns the
+     * default
      *
      * @param s
      *            The string to parse
@@ -482,8 +489,8 @@ public class ParseUtil {
     }
 
     /**
-     * Attempts to parse a string of the form [DD-[hh:]]mm:ss[.ddd] to a number
-     * of milliseconds. If it fails, returns the default.
+     * Attempts to parse a string of the form [DD-[hh:]]mm:ss[.ddd] to a number of
+     * milliseconds. If it fails, returns the default.
      *
      * @param s
      *            The string to parse
@@ -549,12 +556,12 @@ public class ParseUtil {
     }
 
     /**
-     * Gets a value between two characters having multiple same characters
-     * between them. <b>Examples : </b>
+     * Gets a value between two characters having multiple same characters between
+     * them. <b>Examples : </b>
      * <ul>
      * <li>"name = 'James Gosling's Java'" returns "James Gosling's Java"</li>
-     * <li>"pci.name = 'Realtek AC'97 Audio Device'" returns "Realtek AC'97
-     * Audio Device"</li>
+     * <li>"pci.name = 'Realtek AC'97 Audio Device'" returns "Realtek AC'97 Audio
+     * Device"</li>
      * </ul>
      *
      * @param line
@@ -603,8 +610,7 @@ public class ParseUtil {
     }
 
     /**
-     * Removes all matching sub strings from the string. More efficient than
-     * regexp.
+     * Removes all matching sub strings from the string. More efficient than regexp.
      *
      * @param original
      *            source String to remove from
@@ -636,30 +642,29 @@ public class ParseUtil {
 
     /**
      * Parses a delimited string to an array of longs. Optimized for processing
-     * predictable-length arrays such as outputs of reliably formatted Linux
-     * proc or sys filesystem, minimizing new object creation. Users should
-     * perform other sanity checks of data.
+     * predictable-length arrays such as outputs of reliably formatted Linux proc or
+     * sys filesystem, minimizing new object creation. Users should perform other
+     * sanity checks of data.
      *
-     * The indices parameters are referenced assuming the length as specified,
-     * and leading characters are ignored. For example, if the string is "foo 12
-     * 34 5" and the length is 3, then index 0 is 12, index 1 is 34, and index 2
-     * is 5.
+     * The indices parameters are referenced assuming the length as specified, and
+     * leading characters are ignored. For example, if the string is "foo 12 34 5"
+     * and the length is 3, then index 0 is 12, index 1 is 34, and index 2 is 5.
      *
      * @param s
      *            The string to parse
      * @param indices
-     *            An array indicating which indexes should be populated in the
-     *            final array; other values will be skipped. This idex is
-     *            zero-referenced assuming the rightmost delimited fields of the
-     *            string contain the array.
+     *            An array indicating which indexes should be populated in the final
+     *            array; other values will be skipped. This idex is zero-referenced
+     *            assuming the rightmost delimited fields of the string contain the
+     *            array.
      * @param length
      *            The total number of elements in the string array. It is
      *            permissible for the string to have more elements than this;
      *            leading elements will be ignored.
      * @param delimiter
      *            The character to delimit by
-     * @return If successful, an array of parsed longs. If parsing errors
-     *         occurred, will be an array of zeros.
+     * @return If successful, an array of parsed longs. If parsing errors occurred,
+     *         will be an array of zeros.
      */
     public static long[] parseStringToLongArray(String s, int[] indices, int length, char delimiter) {
         long[] parsed = new long[indices.length];
@@ -717,8 +722,8 @@ public class ParseUtil {
      *            Start matching after this text
      * @param after
      *            End matching before this text
-     * @return Text between the strings before and after, or empty string if
-     *         either marker does not exist
+     * @return Text between the strings before and after, or empty string if either
+     *         marker does not exist
      */
     public static String getTextBetweenStrings(String text, String before, String after) {
 
@@ -732,14 +737,14 @@ public class ParseUtil {
     }
 
     /**
-     * Convert a long representing filetime (100-ns since 1601 epoch) to ms
-     * since 1970 epoch
+     * Convert a long representing filetime (100-ns since 1601 epoch) to ms since
+     * 1970 epoch
      *
      * @param filetime
      *            A 64-bit value equivalent to FILETIME
      * @param local
-     *            True if converting from a local filetime (PDH counter); false
-     *            if already UTC (WMI PerfRawData classes)
+     *            True if converting from a local filetime (PDH counter); false if
+     *            already UTC (WMI PerfRawData classes)
      * @return Equivalent milliseconds since the epoch
      */
     public static long filetimeToUtcMs(long filetime, boolean local) {
