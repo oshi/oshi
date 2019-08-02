@@ -77,6 +77,10 @@ public interface CentralProcessor extends Serializable {
      * human-readable form by {@link #getIdentifier()} . The remaining four
      * bytes are the contents of the EDX register, containing feature flags.
      * <p>
+     * For processors that do not support the CPUID opcode this field is
+     * populated with a comparable hex string. For example, ARM Processors will
+     * fill the first 32 bytes with the MIDR.
+     * <p>
      * NOTE: The order of returned bytes is platform and software dependent.
      * Values may be in either Big Endian or Little Endian order.
      *
@@ -85,7 +89,8 @@ public interface CentralProcessor extends Serializable {
     String getProcessorID();
 
     /**
-     * Identifier, eg. x86 Family 6 Model 15 Stepping 10.
+     * Identifier, eg. x86 Family 6 Model 15 Stepping 10. For non-Intel/AMD
+     * processors, this string is populated with comparable values.
      *
      * @return Processor identifier.
      */
@@ -99,16 +104,25 @@ public interface CentralProcessor extends Serializable {
     boolean isCpu64bit();
 
     /**
+     * Gets the stepping. For non-Intel/AMD processors, returns the comparable
+     * value, such as the rnpn composite of Variant and Revision.
+     * 
      * @return the stepping
      */
     String getStepping();
 
     /**
+     * Gets the model. For non-Intel/AMD processors, returns the comparable
+     * value, such as the Partnum.
+     * 
      * @return the model
      */
     String getModel();
 
     /**
+     * Gets the family. For non-Intel/AMD processors, returns the comparable
+     * value, such as the Architecture.
+     * 
      * @return the family
      */
     String getFamily();
