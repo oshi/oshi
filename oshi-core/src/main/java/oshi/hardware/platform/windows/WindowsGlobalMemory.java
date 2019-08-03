@@ -47,9 +47,7 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
      */
     @Override
     public long getAvailable() {
-        if (this.memAvailable < 0) {
-            updatePerfInfo();
-        }
+        updatePerfInfo();
         return this.memAvailable;
     }
 

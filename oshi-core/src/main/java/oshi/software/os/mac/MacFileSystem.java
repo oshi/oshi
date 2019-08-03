@@ -55,8 +55,6 @@ import oshi.util.platform.mac.SysctlUtil;
  * device, partition, volume, concrete file system or other implementation
  * specific means of file storage. In Mac OS X, these are found in the /Volumes
  * directory.
- *
- * @author widdis[at]gmail[dot]com
  */
 public class MacFileSystem implements FileSystem {
 
@@ -77,6 +75,11 @@ public class MacFileSystem implements FileSystem {
     @Override
     public OSFileStore[] getFileStores() {
         // List of file systems
+        List<OSFileStore> fsList = getFileStoreMatching(null);
+        return fsList.toArray(new OSFileStore[0]);
+    }
+
+    private List<OSFileStore> getFileStoreMatching(String nameToMatch) {
         List<OSFileStore> fsList = new ArrayList<>();
 
         // Use getfsstat to find fileSystems
@@ -118,8 +121,19 @@ public class MacFileSystem implements FileSystem {
                 String type = new String(fs[f].f_fstypename).trim();
                 String path = new String(fs[f].f_mntonname).trim();
 
-                // Set name and uuid
                 String name = "";
+                File file = new File(path);
+                if (name.isEmpty()) {
+                    name = file.getName();
+                    // getName() for / is still blank, so:
+                    if (name.isEmpty()) {
+                        name = file.getPath();
+                    }
+                }
+                if (nameToMatch != null && !nameToMatch.equals(name)) {
+                    continue;
+                }
+
                 String uuid = "";
                 // Use volume to find DiskArbitration volume name and search for
                 // the registry entry for UUID
@@ -161,14 +175,6 @@ public class MacFileSystem implements FileSystem {
                         IOKit.INSTANCE.IOObjectRelease(fsIter.getValue());
                     }
                 }
-                File file = new File(path);
-                if (name.isEmpty()) {
-                    name = file.getName();
-                    // getName() for / is still blank, so:
-                    if (name.isEmpty()) {
-                        name = file.getPath();
-                    }
-                }
 
                 // Add to the list
                 OSFileStore osStore = new OSFileStore();
@@ -189,7 +195,7 @@ public class MacFileSystem implements FileSystem {
             CfUtil.release(session);
             CfUtil.release(daVolumeNameKey);
         }
-        return fsList.toArray(new OSFileStore[0]);
+        return fsList;
     }
 
     @Override
@@ -200,5 +206,23 @@ public class MacFileSystem implements FileSystem {
     @Override
     public long getMaxFileDescriptors() {
         return SysctlUtil.sysctl("kern.maxfiles", 0);
+    }
+
+    public static boolean updateFileStoreStats(OSFileStore osFileStore) {
+        for (OSFileStore fileStore : new MacFileSystem().getFileStoreMatching(osFileStore.getName())) {
+            if (osFileStore.getVolume().equals(fileStore.getVolume())
+                    && osFileStore.getMount().equals(fileStore.getMount())) {
+                osFileStore.setLogicalVolume(fileStore.getLogicalVolume());
+                osFileStore.setDescription(fileStore.getDescription());
+                osFileStore.setType(fileStore.getType());
+                osFileStore.setFreeSpace(fileStore.getFreeSpace());
+                osFileStore.setUsableSpace(fileStore.getUsableSpace());
+                osFileStore.setTotalSpace(fileStore.getTotalSpace());
+                osFileStore.setFreeInodes(fileStore.getFreeInodes());
+                osFileStore.setTotalInodes(fileStore.getTotalInodes());
+                return true;
+            }
+        }
+        return false;
     }
 }

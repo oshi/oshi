@@ -30,7 +30,6 @@ import oshi.SystemInfo;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.GlobalMemory;
 import oshi.hardware.HardwareAbstractionLayer;
-import oshi.util.Util;
 
 /**
  * Demonstrates the use of Jackson's ObjectMapper to create JSON from OSHI
@@ -51,13 +50,9 @@ public class Json {
             CentralProcessor cpu = hal.getProcessor();
             System.out.println(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(cpu));
 
-            // Print memory and then update it
+            // Print memory
             System.out.println("JSON for Memory:");
             GlobalMemory mem = hal.getMemory();
-            System.out.println(mapper.writeValueAsString(mem));
-            Util.sleep(1000);
-            mem.updateAttributes();
-            mem.getVirtualMemory().updateAttributes();
             System.out.println(mapper.writeValueAsString(mem));
 
         } catch (JsonProcessingException e) {

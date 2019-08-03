@@ -160,10 +160,10 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
      * {@inheritDoc}
      */
     @Override
-    protected long[] querySystemCpuLoadTicks() {
+    public long[] getSystemCpuLoadTicks() {
         long[] ticks = new long[TickType.values().length];
         // Average processor ticks
-        long[][] procTicks = queryProcessorCpuLoadTicks();
+        long[][] procTicks = getProcessorCpuLoadTicks();
         for (int i = 0; i < ticks.length; i++) {
             for (long[] procTick : procTicks) {
                 ticks[i] += procTick[i];
@@ -177,7 +177,7 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
      * {@inheritDoc}
      */
     @Override
-    public long[] queryCurrentFreq() {
+    public long[] getCurrentFreq() {
         long[] freqs = new long[getLogicalProcessorCount()];
         Arrays.fill(freqs, -1);
         for (int i = 0; i < freqs.length; i++) {
@@ -234,7 +234,7 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
      * {@inheritDoc}
      */
     @Override
-    public long[][] queryProcessorCpuLoadTicks() {
+    public long[][] getProcessorCpuLoadTicks() {
         long[][] ticks = new long[this.logicalProcessorCount][TickType.values().length];
         int cpu = -1;
         for (Kstat ksp : KstatUtil.kstatLookupAll("cpu", -1, "sys")) {

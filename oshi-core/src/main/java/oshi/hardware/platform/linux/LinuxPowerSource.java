@@ -37,8 +37,6 @@ import oshi.util.ParseUtil;
 
 /**
  * A Power Source
- *
- * @author widdis[at]gmail[dot]com
  */
 public class LinuxPowerSource extends AbstractPowerSource {
 
@@ -143,5 +141,23 @@ public class LinuxPowerSource extends AbstractPowerSource {
         }
 
         return psList.toArray(new LinuxPowerSource[0]);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void updateAttributes() {
+        PowerSource[] psArr = getPowerSources();
+        for (PowerSource ps : psArr) {
+            if (ps.getName().equals(this.name)) {
+                this.remainingCapacity = ps.getRemainingCapacity();
+                this.timeRemaining = ps.getTimeRemaining();
+                return;
+            }
+        }
+        // Didn't find this battery
+        this.remainingCapacity = 0d;
+        this.timeRemaining = -1d;
     }
 }

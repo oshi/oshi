@@ -71,9 +71,4 @@ public interface VirtualMemory extends Serializable {
      * @return Pages swapped out
      */
     long getSwapPagesOut();
-
-    /**
-     * Update the values for the next call to the getters on this class.
-     */
-    void updateAttributes();
 }

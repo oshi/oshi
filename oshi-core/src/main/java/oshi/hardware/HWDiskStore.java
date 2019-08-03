@@ -42,8 +42,6 @@ import oshi.hardware.platform.windows.WindowsDisks;
  * constrast to a File System, defining the way an Operating system uses the
  * storage, the Disk Store represents the hardware which a FileSystem uses for
  * its File Stores.
- *
- * @author enrico[dot]bianchi[at]gmail[dot]com
  */
 public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
 
@@ -108,29 +106,23 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
      * @return True if the update was (probably) successful, false if the disk
      *         was not found
      */
-    public boolean updateDiskStats() {
-        boolean diskFound = false;
+    public boolean updateAtrributes() {
         switch (SystemInfo.getCurrentPlatformEnum()) {
         case WINDOWS:
-            diskFound = WindowsDisks.updateDiskStats(this);
-            break;
+            return WindowsDisks.updateDiskStats(this);
         case LINUX:
-            diskFound = LinuxDisks.updateDiskStats(this);
-            break;
+            return LinuxDisks.updateDiskStats(this);
         case MACOSX:
-            diskFound = MacDisks.updateDiskStats(this);
-            break;
+            return MacDisks.updateDiskStats(this);
         case SOLARIS:
-            diskFound = SolarisDisks.updateDiskStats(this);
-            break;
+            return SolarisDisks.updateDiskStats(this);
         case FREEBSD:
-            diskFound = FreeBsdDisks.updateDiskStats(this);
-            break;
+            return FreeBsdDisks.updateDiskStats(this);
         default:
             LOG.error("Unsupported platform. No update performed.");
             break;
         }
-        return diskFound;
+        return false;
     }
 
     /**

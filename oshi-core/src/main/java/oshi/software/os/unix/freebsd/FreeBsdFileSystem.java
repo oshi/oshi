@@ -41,8 +41,6 @@ import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
  * pool, device, partition, volume, concrete file system or other implementation
  * specific means of file storage. In Linux, these are found in the /proc/mount
  * filesystem, excluding temporary and kernel mounts.
- *
- * @author widdis[at]gmail[dot]com
  */
 public class FreeBsdFileSystem implements FileSystem {
 
@@ -74,8 +72,8 @@ public class FreeBsdFileSystem implements FileSystem {
      *            A list of path prefixes
      * @param charSeq
      *            a path to check
-     * @return true if the charSeq exactly equals, or starts with the directory
-     *         in aList
+     * @return true if the charSeq exactly equals, or starts with the directory in
+     *         aList
      */
     private boolean listElementStartsWith(List<String> aList, String charSeq) {
         for (String match : aList) {
@@ -89,8 +87,8 @@ public class FreeBsdFileSystem implements FileSystem {
     /**
      * Gets File System Information.
      *
-     * @return An array of {@link OSFileStore} objects representing mounted
-     *         volumes. May return disconnected volumes with
+     * @return An array of {@link OSFileStore} objects representing mounted volumes.
+     *         May return disconnected volumes with
      *         {@link OSFileStore#getTotalSpace()} = 0.
      */
     @Override
@@ -204,5 +202,26 @@ public class FreeBsdFileSystem implements FileSystem {
     @Override
     public long getMaxFileDescriptors() {
         return BsdSysctlUtil.sysctl("kern.maxfiles", 0);
+    }
+
+    public static boolean updateFileStoreStats(OSFileStore osFileStore) {
+        // Just as fast to query all of them
+        for (OSFileStore fileStore : new FreeBsdFileSystem().getFileStores()) {
+            if (osFileStore.getName().equals(fileStore.getName())
+                    && osFileStore.getVolume().equals(fileStore.getVolume())
+                    && osFileStore.getMount().equals(fileStore.getMount())) {
+                osFileStore.setLogicalVolume(fileStore.getLogicalVolume());
+                osFileStore.setDescription(fileStore.getDescription());
+                osFileStore.setType(fileStore.getType());
+                osFileStore.setUUID(fileStore.getUUID());
+                osFileStore.setFreeSpace(fileStore.getFreeSpace());
+                osFileStore.setUsableSpace(fileStore.getUsableSpace());
+                osFileStore.setTotalSpace(fileStore.getTotalSpace());
+                osFileStore.setFreeInodes(fileStore.getFreeInodes());
+                osFileStore.setTotalInodes(fileStore.getTotalInodes());
+                return true;
+            }
+        }
+        return false;
     }
 }

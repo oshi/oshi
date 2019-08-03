@@ -25,6 +25,16 @@ package oshi.software.os;
 
 import java.io.Serializable;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import oshi.SystemInfo;
+import oshi.software.os.linux.LinuxFileSystem;
+import oshi.software.os.mac.MacFileSystem;
+import oshi.software.os.unix.freebsd.FreeBsdFileSystem;
+import oshi.software.os.unix.solaris.SolarisFileSystem;
+import oshi.software.os.windows.WindowsFileSystem;
+
 /**
  * A File Store is a storage pool, device, partition, volume, concrete file
  * system or other implementation specific means of file storage. See subclasses
@@ -35,6 +45,8 @@ import java.io.Serializable;
 public class OSFileStore implements Serializable {
 
     private static final long serialVersionUID = 1L;
+
+    private static final Logger LOG = LoggerFactory.getLogger(OSFileStore.class);
 
     private String name;
     private String volume;
@@ -306,5 +318,31 @@ public class OSFileStore implements Serializable {
      */
     public void setTotalInodes(long value) {
         this.totalInodes = value;
+    }
+
+    /**
+     * Make a best effort to update all the statistics about the file store without
+     * needing to recreate the file store list. This method provides for more
+     * frequent periodic updates of file store statistics.
+     *
+     * @return True if the update was (probably) successful, false if the disk was
+     *         not found
+     */
+    public boolean updateAtrributes() {
+        switch (SystemInfo.getCurrentPlatformEnum()) {
+        case WINDOWS:
+            return WindowsFileSystem.updateFileStoreStats(this);
+        case LINUX:
+            return LinuxFileSystem.updateFileStoreStats(this);
+        case MACOSX:
+            return MacFileSystem.updateFileStoreStats(this);
+        case SOLARIS:
+            return SolarisFileSystem.updateFileStoreStats(this);
+        case FREEBSD:
+            return FreeBsdFileSystem.updateFileStoreStats(this);
+        default:
+            LOG.error("Unsupported platform. No update performed.");
+        }
+        return false;
     }
 }

@@ -41,8 +41,6 @@ import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
 
 /**
  * FreeBSD hard disk implementation.
- *
- * @author widdis[at]gmail[dot]com
  */
 public class FreeBsdDisks implements Disks {
 

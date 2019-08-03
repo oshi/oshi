@@ -39,13 +39,6 @@ public class SolarisSensors extends AbstractSensors {
      */
     @Override
     public double getCpuTemperature() {
-        if (Double.isNaN(this.cpuTemperature)) {
-            this.cpuTemperature = queryCpuTemperature();
-        }
-        return this.cpuTemperature;
-    }
-
-    private double queryCpuTemperature() {
         double maxTemp = 0d;
         // Return max found temp
         for (String line : ExecutingCommand.runNative("/usr/sbin/prtpicl -v -c temperature-sensor")) {
@@ -68,13 +61,6 @@ public class SolarisSensors extends AbstractSensors {
      */
     @Override
     public int[] getFanSpeeds() {
-        if (this.fanSpeeds == null) {
-            this.fanSpeeds = queryFanSpeeds();
-        }
-        return this.fanSpeeds;
-    }
-
-    private int[] queryFanSpeeds() {
         List<Integer> speedList = new ArrayList<>();
         // Return max found temp
         for (String line : ExecutingCommand.runNative("/usr/sbin/prtpicl -v -c fan")) {
@@ -94,13 +80,6 @@ public class SolarisSensors extends AbstractSensors {
      */
     @Override
     public double getCpuVoltage() {
-        if (Double.isNaN(this.cpuVoltage)) {
-            this.cpuVoltage = queryCpuVoltage();
-        }
-        return this.cpuVoltage;
-    }
-
-    private double queryCpuVoltage() {
         double voltage = 0d;
         for (String line : ExecutingCommand.runNative("/usr/sbin/prtpicl -v -c voltage-sensor")) {
             if (line.trim().startsWith("Voltage:")) {

@@ -220,7 +220,7 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
      * {@inheritDoc}
      */
     @Override
-    public long[] querySystemCpuLoadTicks() {
+    public long[] getSystemCpuLoadTicks() {
         long[] ticks = new long[TickType.values().length];
         CpTime cpTime = new CpTime();
         BsdSysctlUtil.sysctl("kern.cp_time", cpTime);
@@ -236,7 +236,7 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
      * {@inheritDoc}
      */
     @Override
-    public long[] queryCurrentFreq() {
+    public long[] getCurrentFreq() {
         long freq = BsdSysctlUtil.sysctl("dev.cpu.0.freq", -1L);
         if (freq > 0) {
             // If success, value is in MHz
@@ -294,7 +294,7 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
      * {@inheritDoc}
      */
     @Override
-    public long[][] queryProcessorCpuLoadTicks() {
+    public long[][] getProcessorCpuLoadTicks() {
         long[][] ticks = new long[this.logicalProcessorCount][TickType.values().length];
 
         // Allocate memory for array of CPTime

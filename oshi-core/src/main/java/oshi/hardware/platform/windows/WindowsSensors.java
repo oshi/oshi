@@ -109,13 +109,6 @@ public class WindowsSensors extends AbstractSensors {
      */
     @Override
     public double getCpuTemperature() {
-        if (Double.isNaN(this.cpuTemperature)) {
-            this.cpuTemperature = queryCpuTemperature();
-        }
-        return this.cpuTemperature;
-    }
-
-    private double queryCpuTemperature() {
         // Attempt to fetch value from Open Hardware Monitor if it is running,
         // as it will give the most accurate results and the time to query (or
         // attempt) is trivial
@@ -181,13 +174,6 @@ public class WindowsSensors extends AbstractSensors {
      */
     @Override
     public int[] getFanSpeeds() {
-        if (this.fanSpeeds == null) {
-            this.fanSpeeds = queryFanSpeeds();
-        }
-        return this.fanSpeeds;
-    }
-
-    private int[] queryFanSpeeds() {
         // Attempt to fetch value from Open Hardware Monitor if it is running
         int[] fanSpeeds = getFansFromOHM();
         if (fanSpeeds != null) {
@@ -247,13 +233,6 @@ public class WindowsSensors extends AbstractSensors {
      */
     @Override
     public double getCpuVoltage() {
-        if (Double.isNaN(this.cpuVoltage)) {
-            this.cpuVoltage = queryCpuVoltage();
-        }
-        return this.cpuVoltage;
-    }
-
-    private double queryCpuVoltage() {
         // Attempt to fetch value from Open Hardware Monitor if it is running
         double volts = getVoltsFromOHM();
         if (volts > 0d) {

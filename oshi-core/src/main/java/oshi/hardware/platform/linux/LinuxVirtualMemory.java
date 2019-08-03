@@ -28,6 +28,7 @@ import java.util.List;
 import oshi.hardware.common.AbstractVirtualMemory;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
+import oshi.util.platform.linux.ProcUtil;
 
 /**
  * Memory obtained by /proc/meminfo and /proc/vmstat
@@ -41,9 +42,7 @@ public class LinuxVirtualMemory extends AbstractVirtualMemory {
      */
     @Override
     public long getSwapUsed() {
-        if (this.swapUsed < 0) {
-            updateMemInfo();
-        }
+        updateMemInfo();
         return this.swapUsed;
     }
 
@@ -52,9 +51,7 @@ public class LinuxVirtualMemory extends AbstractVirtualMemory {
      */
     @Override
     public long getSwapTotal() {
-        if (this.swapTotal < 0) {
-            updateMemInfo();
-        }
+        updateMemInfo();
         return this.swapTotal;
     }
 
@@ -63,9 +60,7 @@ public class LinuxVirtualMemory extends AbstractVirtualMemory {
      */
     @Override
     public long getSwapPagesIn() {
-        if (this.swapPagesIn < 0) {
-            updateVmStat();
-        }
+        updateVmStat();
         return this.swapPagesIn;
     }
 
@@ -74,52 +69,58 @@ public class LinuxVirtualMemory extends AbstractVirtualMemory {
      */
     @Override
     public long getSwapPagesOut() {
-        if (this.swapPagesOut < 0) {
-            updateVmStat();
-        }
+        updateVmStat();
         return this.swapPagesOut;
     }
 
     private void updateMemInfo() {
-        long swapFree = 0;
+        // Only update once per 300ms
+        if (System.nanoTime() - this.lastSwapUsageNanos > 300_000_000L) {
+            long swapFree = 0;
 
-        List<String> memInfo = FileUtil.readFile("/proc/meminfo");
-        for (String checkLine : memInfo) {
-            String[] memorySplit = ParseUtil.whitespaces.split(checkLine);
-            if (memorySplit.length > 1) {
-                switch (memorySplit[0]) {
-                case "SwapTotal:":
-                    this.swapTotal = parseMeminfo(memorySplit);
-                    break;
-                case "SwapFree:":
-                    swapFree = parseMeminfo(memorySplit);
-                    break;
-                default:
-                    // do nothing with other lines
-                    break;
+            List<String> memInfo = FileUtil.readFile(ProcUtil.getProcPath() + "/meminfo");
+            for (String checkLine : memInfo) {
+                String[] memorySplit = ParseUtil.whitespaces.split(checkLine);
+                if (memorySplit.length > 1) {
+                    switch (memorySplit[0]) {
+                    case "SwapTotal:":
+                        this.swapTotal = parseMeminfo(memorySplit);
+                        break;
+                    case "SwapFree:":
+                        swapFree = parseMeminfo(memorySplit);
+                        break;
+                    default:
+                        // do nothing with other lines
+                        break;
+                    }
                 }
             }
+            this.swapUsed = this.swapTotal - swapFree;
+            this.lastSwapUsageNanos = System.nanoTime();
         }
-        this.swapUsed = this.swapTotal - swapFree;
     }
 
     private void updateVmStat() {
-        List<String> vmStat = FileUtil.readFile("/proc/vmstat");
-        for (String checkLine : vmStat) {
-            String[] memorySplit = ParseUtil.whitespaces.split(checkLine);
-            if (memorySplit.length > 1) {
-                switch (memorySplit[0]) {
-                case "pgpgin":
-                    this.swapPagesIn = ParseUtil.parseLongOrDefault(memorySplit[1], 0L);
-                    break;
-                case "pgpgout":
-                    this.swapPagesOut = ParseUtil.parseLongOrDefault(memorySplit[1], 0L);
-                    break;
-                default:
-                    // do nothing with other lines
-                    break;
+        // Only update once per 300ms
+        if (System.nanoTime() - this.lastSwapPagesNanos > 300_000_000L) {
+            List<String> vmStat = FileUtil.readFile(ProcUtil.getProcPath() + "/vmstat");
+            for (String checkLine : vmStat) {
+                String[] memorySplit = ParseUtil.whitespaces.split(checkLine);
+                if (memorySplit.length > 1) {
+                    switch (memorySplit[0]) {
+                    case "pgpgin":
+                        this.swapPagesIn = ParseUtil.parseLongOrDefault(memorySplit[1], 0L);
+                        break;
+                    case "pgpgout":
+                        this.swapPagesOut = ParseUtil.parseLongOrDefault(memorySplit[1], 0L);
+                        break;
+                    default:
+                        // do nothing with other lines
+                        break;
+                    }
                 }
             }
+            this.lastSwapPagesNanos = System.nanoTime();
         }
     }
 

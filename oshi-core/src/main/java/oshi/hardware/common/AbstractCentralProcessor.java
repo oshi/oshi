@@ -67,11 +67,6 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
     protected int physicalProcessorCount = 0;
     protected int logicalProcessorCount = 0;
 
-    // System ticks
-    protected long[] systemCpuLoadTicks;
-    // Per-processor ticks [cpu][type]
-    private long[][] processorCpuLoadTicks;
-
     // Processor info
     private String cpuVendor;
     private String cpuName;
@@ -82,7 +77,6 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
     private String cpuFamily;
     private long cpuVendorFreq;
     private long cpuMaxFreq;
-    private long[] cpuCurrentFreq;
     private Boolean cpu64;
     private LogicalProcessor[] logicalProcessors;
 
@@ -109,41 +103,6 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
         return this.logicalProcessors;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public long[] getSystemCpuLoadTicks() {
-        if (this.systemCpuLoadTicks == null) {
-            this.systemCpuLoadTicks = querySystemCpuLoadTicks();
-        }
-        return this.systemCpuLoadTicks;
-    }
-
-    /**
-     * Get System-wide CPU Load tick counters.
-     * 
-     * @return The tick counters.
-     */
-    protected abstract long[] querySystemCpuLoadTicks();
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public long[] getCurrentFreq() {
-        if (this.cpuCurrentFreq == null) {
-            this.cpuCurrentFreq = queryCurrentFreq();
-        }
-        return this.cpuCurrentFreq;
-    }
-
-    /**
-     * Get per processor current frequencies.
-     * 
-     * @return The current frequencies.
-     */
-    protected abstract long[] queryCurrentFreq();
 
     /**
      * {@inheritDoc}
@@ -162,24 +121,6 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
      * @return The max frequency.
      */
     protected abstract long queryMaxFreq();
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public long[][] getProcessorCpuLoadTicks() {
-        if (processorCpuLoadTicks == null) {
-            this.processorCpuLoadTicks = queryProcessorCpuLoadTicks();
-        }
-        return this.processorCpuLoadTicks;
-    }
-
-    /**
-     * Get Per-Processor CPU Load tick counters.
-     * 
-     * @return The tick counters.
-     */
-    protected abstract long[][] queryProcessorCpuLoadTicks();
 
     /**
      * {@inheritDoc}
@@ -616,15 +557,4 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
         }
         return String.format("%016X", processorIdBytes);
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void updateAttributes() {
-        this.systemCpuLoadTicks = null;
-        this.processorCpuLoadTicks = null;
-        this.cpuCurrentFreq = null;
-    }
-
 }

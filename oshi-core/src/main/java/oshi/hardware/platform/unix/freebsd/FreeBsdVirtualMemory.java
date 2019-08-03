@@ -40,10 +40,12 @@ public class FreeBsdVirtualMemory extends AbstractVirtualMemory {
      */
     @Override
     public long getSwapUsed() {
-        if (this.swapUsed < 0) {
-            updateSwapUsage();
+        String swapInfo = ExecutingCommand.getAnswerAt("swapinfo -k", 1);
+        String[] split = ParseUtil.whitespaces.split(swapInfo);
+        if (split.length < 5) {
+            return 0L;
         }
-        return this.swapUsed;
+        return ParseUtil.parseLongOrDefault(split[2], 0L) << 10;
     }
 
     /**
@@ -51,10 +53,7 @@ public class FreeBsdVirtualMemory extends AbstractVirtualMemory {
      */
     @Override
     public long getSwapTotal() {
-        if (this.swapTotal < 0) {
-            this.swapTotal = BsdSysctlUtil.sysctl("vm.swap_total", 0L);
-        }
-        return this.swapTotal;
+        return BsdSysctlUtil.sysctl("vm.swap_total", 0L);
     }
 
     /**
@@ -62,10 +61,7 @@ public class FreeBsdVirtualMemory extends AbstractVirtualMemory {
      */
     @Override
     public long getSwapPagesIn() {
-        if (this.swapPagesIn < 0) {
-            this.swapPagesIn = BsdSysctlUtil.sysctl("vm.stats.vm.v_swappgsin", 0L);
-        }
-        return this.swapPagesIn;
+        return BsdSysctlUtil.sysctl("vm.stats.vm.v_swappgsin", 0L);
     }
 
     /**
@@ -73,18 +69,6 @@ public class FreeBsdVirtualMemory extends AbstractVirtualMemory {
      */
     @Override
     public long getSwapPagesOut() {
-        if (this.swapPagesOut < 0) {
-            this.swapPagesOut = BsdSysctlUtil.sysctl("vm.stats.vm.v_swappgsout", 0L);
-        }
-        return this.swapPagesOut;
-    }
-
-    private void updateSwapUsage() {
-        String swapInfo = ExecutingCommand.getAnswerAt("swapinfo -k", 1);
-        String[] split = ParseUtil.whitespaces.split(swapInfo);
-        if (split.length < 5) {
-            return;
-        }
-        this.swapUsed = ParseUtil.parseLongOrDefault(split[2], 0L) << 10;
+        return BsdSysctlUtil.sysctl("vm.stats.vm.v_swappgsout", 0L);
     }
 }

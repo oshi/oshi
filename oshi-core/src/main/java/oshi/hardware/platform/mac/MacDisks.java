@@ -446,5 +446,4 @@ public class MacDisks implements Disks {
         Collections.sort(result);
         return result.toArray(new HWDiskStore[0]);
     }
-
 }

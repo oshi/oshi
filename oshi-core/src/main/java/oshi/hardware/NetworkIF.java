@@ -45,8 +45,6 @@ import oshi.util.ParseUtil;
 
 /**
  * A network interface in the machine, including statistics
- *
- * @author enrico[dot]bianchi[at]gmail[dot]com
  */
 public class NetworkIF implements Serializable {
 
@@ -331,5 +329,4 @@ public class NetworkIF implements Serializable {
             break;
         }
     }
-
 }

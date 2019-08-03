@@ -46,11 +46,13 @@ public class WindowsVirtualMemory extends AbstractVirtualMemory {
     private static final Logger LOG = LoggerFactory.getLogger(WindowsVirtualMemory.class);
 
     private transient long pageSize;
-    
+
     private transient PerfCounterQuery<PageSwapProperty> memoryPerfCounters = new PerfCounterQuery<>(
             PageSwapProperty.class, "Memory", "Win32_PerfRawData_PerfOS_Memory");
     private transient PerfCounterQuery<PagingPercentProperty> pagingPerfCounters = new PerfCounterQuery<>(
             PagingPercentProperty.class, "Paging File", "Win32_PerfRawData_PerfOS_PagingFile");
+
+    private transient long lastSwapUpdateNanos = 0L;
 
     public WindowsVirtualMemory(long pageSize) {
         this.pageSize = pageSize;
@@ -61,10 +63,8 @@ public class WindowsVirtualMemory extends AbstractVirtualMemory {
      */
     @Override
     public long getSwapUsed() {
-        if (this.swapUsed < 0) {
-            updateSwapUsed();
-        }
-        return this.swapUsed;
+        Map<PagingPercentProperty, Long> valueMap = this.pagingPerfCounters.queryValues();
+        return valueMap.getOrDefault(PagingPercentProperty.PERCENTUSAGE, 0L) * this.pageSize;
     }
 
     /**
@@ -78,8 +78,7 @@ public class WindowsVirtualMemory extends AbstractVirtualMemory {
                 LOG.error("Failed to get Performance Info. Error code: {}", Kernel32.INSTANCE.GetLastError());
                 return 0L;
             }
-            this.swapTotal = this.pageSize
-                    * (perfInfo.CommitLimit.longValue() - perfInfo.PhysicalTotal.longValue());
+            this.swapTotal = this.pageSize * (perfInfo.CommitLimit.longValue() - perfInfo.PhysicalTotal.longValue());
         }
         return this.swapTotal;
     }
@@ -89,9 +88,7 @@ public class WindowsVirtualMemory extends AbstractVirtualMemory {
      */
     @Override
     public long getSwapPagesIn() {
-        if (this.swapPagesIn < 0) {
-            updateSwapInOut();
-        }
+        updateSwapInOut();
         return this.swapPagesIn;
     }
 
@@ -100,21 +97,18 @@ public class WindowsVirtualMemory extends AbstractVirtualMemory {
      */
     @Override
     public long getSwapPagesOut() {
-        if (this.swapPagesOut < 0) {
-            updateSwapInOut();
-        }
+        updateSwapInOut();
         return this.swapPagesOut;
     }
 
     private void updateSwapInOut() {
-        Map<PageSwapProperty, Long> valueMap = this.memoryPerfCounters.queryValues();
-        this.swapPagesIn = valueMap.getOrDefault(PageSwapProperty.PAGESINPUTPERSEC, 0L);
-        this.swapPagesOut = valueMap.getOrDefault(PageSwapProperty.PAGESOUTPUTPERSEC, 0L);
-    }
-
-    private void updateSwapUsed() {
-        Map<PagingPercentProperty, Long> valueMap = this.pagingPerfCounters.queryValues();
-        this.swapUsed = valueMap.getOrDefault(PagingPercentProperty.PERCENTUSAGE, 0L) * this.pageSize;
+        // Only update once per 300ms
+        if (System.nanoTime() - this.lastSwapUpdateNanos > 300_000_000L) {
+            Map<PageSwapProperty, Long> valueMap = this.memoryPerfCounters.queryValues();
+            this.swapPagesIn = valueMap.getOrDefault(PageSwapProperty.PAGESINPUTPERSEC, 0L);
+            this.swapPagesOut = valueMap.getOrDefault(PageSwapProperty.PAGESOUTPUTPERSEC, 0L);
+            this.lastSwapUpdateNanos = System.nanoTime();
+        }
     }
 
     /*

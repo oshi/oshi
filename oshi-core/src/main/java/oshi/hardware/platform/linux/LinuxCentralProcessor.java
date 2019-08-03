@@ -195,7 +195,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
      * {@inheritDoc}
      */
     @Override
-    public long[] querySystemCpuLoadTicks() {
+    public long[] getSystemCpuLoadTicks() {
         // convert the Linux Jiffies to Milliseconds.
         long[] ticks = ProcUtil.readSystemCpuLoadTicks();
         long hz = LinuxOperatingSystem.getHz();
@@ -209,7 +209,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
      * {@inheritDoc}
      */
     @Override
-    public long[] queryCurrentFreq() {
+    public long[] getCurrentFreq() {
         long[] freqs = new long[getLogicalProcessorCount()];
         // Attempt to fill array from cpu-freq source
         long max = 0L;
@@ -288,7 +288,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
      * {@inheritDoc}
      */
     @Override
-    public long[][] queryProcessorCpuLoadTicks() {
+    public long[][] getProcessorCpuLoadTicks() {
         long[][] ticks = new long[this.logicalProcessorCount][TickType.values().length];
         // /proc/stat expected format
         // first line is overall user,nice,system,idle, etc.

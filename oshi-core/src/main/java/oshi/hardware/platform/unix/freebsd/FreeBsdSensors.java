@@ -39,11 +39,8 @@ public class FreeBsdSensors extends AbstractSensors {
      */
     @Override
     public double getCpuTemperature() {
-        if (Double.isNaN(this.cpuTemperature)) {
-            this.cpuTemperature = queryKldloadCoretemp();
-            // TODO try other ways here
-        }
-        return Double.isNaN(this.cpuTemperature) ? 0d : this.cpuTemperature;
+        return queryKldloadCoretemp();
+        // TODO try other ways here
     }
 
     /*
@@ -70,11 +67,8 @@ public class FreeBsdSensors extends AbstractSensors {
      */
     @Override
     public int[] getFanSpeeds() {
-        if (this.fanSpeeds == null) {
-            // TODO try common software
-            this.fanSpeeds = new int[0];
-        }
-        return this.fanSpeeds;
+        // TODO try common software
+        return new int[0];
     }
 
     /**
@@ -82,10 +76,7 @@ public class FreeBsdSensors extends AbstractSensors {
      */
     @Override
     public double getCpuVoltage() {
-        if (Double.isNaN(this.cpuVoltage)) {
             // TODO try common software
-            this.cpuVoltage = 0d;
-        }
-        return this.cpuVoltage;
+        return 0d;
     }
 }

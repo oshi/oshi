@@ -41,8 +41,6 @@ import oshi.util.platform.unix.solaris.KstatUtil;
 
 /**
  * Solaris hard disk implementation.
- *
- * @author widdis[at]gmail[dot]com
  */
 public class SolarisDisks implements Disks {
 

@@ -32,17 +32,4 @@ public abstract class AbstractSensors implements Sensors {
 
     private static final long serialVersionUID = 1L;
 
-    protected double cpuTemperature = Double.NaN;
-    protected int[] fanSpeeds = null;
-    protected double cpuVoltage = Double.NaN;
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void updateAttributes() {
-        this.cpuTemperature = Double.NaN;
-        this.fanSpeeds = null;
-        this.cpuVoltage = Double.NaN;
-    }
 }

@@ -39,12 +39,10 @@ public class FreeBsdGlobalMemory extends AbstractGlobalMemory {
      */
     @Override
     public long getAvailable() {
-        if (this.memAvailable < 0) {
-            long inactive = BsdSysctlUtil.sysctl("vm.stats.vm.v_inactive_count", 0L);
-            long cache = BsdSysctlUtil.sysctl("vm.stats.vm.v_cache_count", 0L);
-            long free = BsdSysctlUtil.sysctl("vm.stats.vm.v_free_count", 0L);
-            this.memAvailable = (inactive + cache + free) * getPageSize();
-        }
+        long inactive = BsdSysctlUtil.sysctl("vm.stats.vm.v_inactive_count", 0L);
+        long cache = BsdSysctlUtil.sysctl("vm.stats.vm.v_cache_count", 0L);
+        long free = BsdSysctlUtil.sysctl("vm.stats.vm.v_free_count", 0L);
+        this.memAvailable = (inactive + cache + free) * getPageSize();
         return this.memAvailable;
     }
 
