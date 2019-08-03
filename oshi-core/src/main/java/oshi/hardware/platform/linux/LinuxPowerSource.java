@@ -157,7 +157,7 @@ public class LinuxPowerSource extends AbstractPowerSource {
             }
         }
         // Didn't find this battery
-        this.remainingCapacity = Double.NaN;
-        this.timeRemaining = Double.NaN;
+        this.remainingCapacity = 0d;
+        this.timeRemaining = -1d;
     }
 }

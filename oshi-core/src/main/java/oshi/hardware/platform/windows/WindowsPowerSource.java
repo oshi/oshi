@@ -78,7 +78,7 @@ public class WindowsPowerSource extends AbstractPowerSource {
                 return new WindowsPowerSource(name, (double) remainingCapacity / maxCapacity, estimatedTime);
             }
         }
-        return new WindowsPowerSource("Unknown", Double.NaN, Double.NaN);
+        return new WindowsPowerSource("Unknown", 0d, -1d);
     }
 
     /**

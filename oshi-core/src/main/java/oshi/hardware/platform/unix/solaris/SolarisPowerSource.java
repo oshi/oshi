@@ -77,12 +77,12 @@ public class SolarisPowerSource extends AbstractPowerSource {
     private static SolarisPowerSource getPowerSource(String name) {
         // If no kstat info, return empty
         if (KSTAT_BATT_IDX == 0) {
-            return new SolarisPowerSource(name, Double.NaN, Double.NaN);
+            return new SolarisPowerSource(name, 0d, -1d);
         }
         // Get kstat for the battery information
         Kstat ksp = KstatUtil.kstatLookup(KSTAT_BATT_MOD[KSTAT_BATT_IDX], 0, "battery BIF0");
         if (ksp == null) {
-            return new SolarisPowerSource(name, Double.NaN, Double.NaN);
+            return new SolarisPowerSource(name, 0d, -1d);
         }
 
         // Predicted battery capacity when fully charged.
@@ -91,19 +91,19 @@ public class SolarisPowerSource extends AbstractPowerSource {
             energyFull = KstatUtil.kstatDataLookupLong(ksp, "bif_design_cap");
         }
         if (energyFull == 0xffffffff || energyFull <= 0) {
-            return new SolarisPowerSource(name, Double.NaN, Double.NaN);
+            return new SolarisPowerSource(name, 0d, -1d);
         }
 
         // Get kstat for the battery state
         ksp = KstatUtil.kstatLookup(KSTAT_BATT_MOD[KSTAT_BATT_IDX], 0, "battery BST0");
         if (ksp == null) {
-            return new SolarisPowerSource(name, Double.NaN, Double.NaN);
+            return new SolarisPowerSource(name, 0d, -1d);
         }
 
         // estimated remaining battery capacity
         long energyNow = KstatUtil.kstatDataLookupLong(ksp, "bst_rem_cap");
         if (energyNow < 0) {
-            return new SolarisPowerSource(name, Double.NaN, Double.NaN);
+            return new SolarisPowerSource(name, 0d, -1d);
         }
 
         // power or current supplied at battery terminal
