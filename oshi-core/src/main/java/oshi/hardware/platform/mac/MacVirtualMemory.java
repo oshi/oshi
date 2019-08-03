@@ -50,9 +50,7 @@ public class MacVirtualMemory extends AbstractVirtualMemory {
      */
     @Override
     public long getSwapUsed() {
-        if (this.swapUsed < 0) {
-            updateSwapUsed();
-        }
+        updateSwapUsed();
         return this.swapUsed;
     }
 
@@ -61,9 +59,7 @@ public class MacVirtualMemory extends AbstractVirtualMemory {
      */
     @Override
     public long getSwapTotal() {
-        if (this.swapTotal < 0) {
-            updateSwapUsed();
-        }
+        updateSwapUsed();
         return this.swapTotal;
     }
 
@@ -72,9 +68,7 @@ public class MacVirtualMemory extends AbstractVirtualMemory {
      */
     @Override
     public long getSwapPagesIn() {
-        if (this.swapPagesIn < 0) {
-            updateSwapInOut();
-        }
+        updateSwapInOut();
         return this.swapPagesIn;
     }
 
@@ -83,29 +77,35 @@ public class MacVirtualMemory extends AbstractVirtualMemory {
      */
     @Override
     public long getSwapPagesOut() {
-        if (this.swapPagesOut < 0) {
-            updateSwapInOut();
-        }
+        updateSwapInOut();
         return this.swapPagesOut;
     }
 
     private void updateSwapUsed() {
-        XswUsage xswUsage = new XswUsage();
-        if (!SysctlUtil.sysctl("vm.swapusage", xswUsage)) {
-            return;
+        // Only update once per 300ms
+        if (System.nanoTime() - this.lastSwapUsageNanos > 300_000_000L) {
+            XswUsage xswUsage = new XswUsage();
+            if (!SysctlUtil.sysctl("vm.swapusage", xswUsage)) {
+                return;
+            }
+            this.swapUsed = xswUsage.xsu_used;
+            this.swapTotal = xswUsage.xsu_total;
+            this.lastSwapUsageNanos = System.nanoTime();
         }
-        this.swapUsed = xswUsage.xsu_used;
-        this.swapTotal = xswUsage.xsu_total;
     }
 
     private void updateSwapInOut() {
-        VMStatistics vmStats = new VMStatistics();
-        if (0 != SystemB.INSTANCE.host_statistics(SystemB.INSTANCE.mach_host_self(), SystemB.HOST_VM_INFO, vmStats,
-                new IntByReference(vmStats.size() / SystemB.INT_SIZE))) {
-            LOG.error("Failed to get host VM info. Error code: {}", Native.getLastError());
-            return;
+        // Only update once per 300ms
+        if (System.nanoTime() - this.lastSwapPagesNanos > 300_000_000L) {
+            VMStatistics vmStats = new VMStatistics();
+            if (0 != SystemB.INSTANCE.host_statistics(SystemB.INSTANCE.mach_host_self(), SystemB.HOST_VM_INFO, vmStats,
+                    new IntByReference(vmStats.size() / SystemB.INT_SIZE))) {
+                LOG.error("Failed to get host VM info. Error code: {}", Native.getLastError());
+                return;
+            }
+            this.swapPagesIn = ParseUtil.unsignedIntToLong(vmStats.pageins);
+            this.swapPagesOut = ParseUtil.unsignedIntToLong(vmStats.pageouts);
+            this.lastSwapPagesNanos = System.nanoTime();
         }
-        this.swapPagesIn = ParseUtil.unsignedIntToLong(vmStats.pageins);
-        this.swapPagesOut = ParseUtil.unsignedIntToLong(vmStats.pageouts);
     }
 }

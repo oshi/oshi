@@ -37,6 +37,7 @@ import oshi.hardware.common.AbstractGlobalMemory;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
+import oshi.util.platform.linux.ProcUtil;
 
 /**
  * Memory obtained by /proc/meminfo and sysinfo.totalram
@@ -123,7 +124,7 @@ public class LinuxGlobalMemory extends AbstractGlobalMemory {
         long inactiveFile = 0;
         long sReclaimable = 0;
 
-        List<String> memInfo = FileUtil.readFile("/proc/meminfo");
+        List<String> memInfo = FileUtil.readFile(ProcUtil.getProcPath() + "/meminfo");
         for (String checkLine : memInfo) {
             String[] memorySplit = ParseUtil.whitespaces.split(checkLine);
             if (memorySplit.length > 1) {

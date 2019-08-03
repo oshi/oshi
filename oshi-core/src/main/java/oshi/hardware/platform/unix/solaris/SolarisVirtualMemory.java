@@ -44,9 +44,7 @@ public class SolarisVirtualMemory extends AbstractVirtualMemory {
      */
     @Override
     public long getSwapUsed() {
-        if (this.swapUsed < 0) {
-            updateSwapUsed();
-        }
+        updateSwapUsed();
         return this.swapUsed;
     }
 
@@ -55,9 +53,7 @@ public class SolarisVirtualMemory extends AbstractVirtualMemory {
      */
     @Override
     public long getSwapTotal() {
-        if (this.swapTotal < 0) {
-            updateSwapUsed();
-        }
+        updateSwapUsed();
         return this.swapTotal;
     }
 
@@ -66,11 +62,9 @@ public class SolarisVirtualMemory extends AbstractVirtualMemory {
      */
     @Override
     public long getSwapPagesIn() {
-        if (this.swapPagesIn < 0) {
-            this.swapPagesIn = 0L;
-            for (String s : ExecutingCommand.runNative("kstat -p cpu_stat:::pgpgin")) {
-                this.swapPagesIn += ParseUtil.parseLastLong(s, 0L);
-            }
+        this.swapPagesIn = 0L;
+        for (String s : ExecutingCommand.runNative("kstat -p cpu_stat:::pgpgin")) {
+            this.swapPagesIn += ParseUtil.parseLastLong(s, 0L);
         }
         return this.swapPagesIn;
     }
@@ -80,21 +74,22 @@ public class SolarisVirtualMemory extends AbstractVirtualMemory {
      */
     @Override
     public long getSwapPagesOut() {
-        if (this.swapPagesOut < 0) {
-            this.swapPagesOut = 0L;
-            for (String s : ExecutingCommand.runNative("kstat -p cpu_stat:::pgpgout")) {
-                this.swapPagesOut += ParseUtil.parseLastLong(s, 0L);
-            }
+        this.swapPagesOut = 0L;
+        for (String s : ExecutingCommand.runNative("kstat -p cpu_stat:::pgpgout")) {
+            this.swapPagesOut += ParseUtil.parseLastLong(s, 0L);
         }
         return this.swapPagesOut;
     }
 
     private void updateSwapUsed() {
-        String swapInfo = ExecutingCommand.getAnswerAt("swap -lk", 1);
-        Matcher m = SWAPINFO.matcher(swapInfo);
-        if (m.matches()) {
-            this.swapTotal = ParseUtil.parseLongOrDefault(m.group(1), 0L) << 10;
-            this.swapUsed = this.swapTotal - (ParseUtil.parseLongOrDefault(m.group(2), 0L) << 10);
+        if (System.nanoTime() - this.lastSwapUsageNanos > 300_000_000L) {
+            String swapInfo = ExecutingCommand.getAnswerAt("swap -lk", 1);
+            Matcher m = SWAPINFO.matcher(swapInfo);
+            if (m.matches()) {
+                this.swapTotal = ParseUtil.parseLongOrDefault(m.group(1), 0L) << 10;
+                this.swapUsed = this.swapTotal - (ParseUtil.parseLongOrDefault(m.group(2), 0L) << 10);
+                this.lastSwapUsageNanos = System.nanoTime();
+            }
         }
     }
 }
