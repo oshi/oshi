@@ -101,7 +101,7 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
      * {@inheritDoc}
      */
     @Override
-    public long[] querySystemCpuLoadTicks() {
+    public long[] getSystemCpuLoadTicks() {
         long[] ticks = new long[TickType.values().length];
         int machPort = SystemB.INSTANCE.mach_host_self();
         HostCpuLoadInfo cpuLoadInfo = new HostCpuLoadInfo();
@@ -123,7 +123,7 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
      * {@inheritDoc}
      */
     @Override
-    public long[] queryCurrentFreq() {
+    public long[] getCurrentFreq() {
         long[] freqs = new long[getLogicalProcessorCount()];
         Arrays.fill(freqs, SysctlUtil.sysctl("hw.cpufrequency", -1L));
         return freqs;
@@ -157,7 +157,7 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
      * {@inheritDoc}
      */
     @Override
-    public long[][] queryProcessorCpuLoadTicks() {
+    public long[][] getProcessorCpuLoadTicks() {
         long[][] ticks = new long[this.logicalProcessorCount][TickType.values().length];
 
         int machPort = SystemB.INSTANCE.mach_host_self();

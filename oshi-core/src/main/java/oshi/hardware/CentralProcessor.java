@@ -304,11 +304,6 @@ public interface CentralProcessor extends Serializable {
     long getInterrupts();
 
     /**
-     * Update the values for the next call to the getters on this class.
-     */
-    void updateAttributes();
-
-    /**
      * Index of CPU tick counters in the {@link #getSystemCpuLoadTicks()} and
      * {@link #getProcessorCpuLoadTicks()} arrays.
      */

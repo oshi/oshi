@@ -431,7 +431,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
      * {@inheritDoc}
      */
     @Override
-    public long[] querySystemCpuLoadTicks() {
+    public long[] getSystemCpuLoadTicks() {
         long[] ticks = new long[TickType.values().length];
         WinBase.FILETIME lpIdleTime = new WinBase.FILETIME();
         WinBase.FILETIME lpKernelTime = new WinBase.FILETIME();
@@ -466,7 +466,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
      * {@inheritDoc}
      */
     @Override
-    public long[] queryCurrentFreq() {
+    public long[] getCurrentFreq() {
         return queryNTPower(2); // Current is field index 2
     }
 
@@ -532,7 +532,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
      * {@inheritDoc}
      */
     @Override
-    public long[][] queryProcessorCpuLoadTicks() {
+    public long[][] getProcessorCpuLoadTicks() {
         Map<ProcessorTickCountProperty, List<Long>> valueMap = this.processorTickPerfCounters.queryValuesWildcard();
         List<String> instances = this.processorTickPerfCounters.getInstancesFromLastQuery();
         List<Long> systemList = valueMap.get(ProcessorTickCountProperty.PERCENTPRIVILEGEDTIME);
