@@ -37,12 +37,4 @@ public abstract class AbstractGlobalMemory implements GlobalMemory {
     protected long memAvailable = -1L;
     protected long pageSize = -1L;
     protected VirtualMemory virtualMemory;
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void updateAttributes() {
-        this.memAvailable = -1;
-    }
 }

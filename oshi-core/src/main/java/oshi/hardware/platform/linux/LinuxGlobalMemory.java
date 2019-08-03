@@ -52,9 +52,7 @@ public class LinuxGlobalMemory extends AbstractGlobalMemory {
      */
     @Override
     public long getAvailable() {
-        if (this.memAvailable < 0) {
-            updateMemInfo();
-        }
+        updateMemInfo();
         return this.memAvailable;
     }
 
@@ -110,9 +108,9 @@ public class LinuxGlobalMemory extends AbstractGlobalMemory {
     /**
      * Updates instance variables from reading /proc/meminfo. While most of the
      * information is available in the sysinfo structure, the most accurate
-     * calculation of MemAvailable is only available from reading this
-     * pseudo-file. The maintainers of the Linux Kernel have indicated this
-     * location will be kept up to date if the calculation changes: see
+     * calculation of MemAvailable is only available from reading this pseudo-file.
+     * The maintainers of the Linux Kernel have indicated this location will be kept
+     * up to date if the calculation changes: see
      * https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?
      * id=34e431b0ae398fc54ea69ff85ec700722c9da773
      *

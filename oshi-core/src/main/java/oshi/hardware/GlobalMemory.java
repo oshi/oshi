@@ -57,9 +57,4 @@ public interface GlobalMemory extends Serializable {
      * @return A VirtualMemory object.
      */
     VirtualMemory getVirtualMemory();
-
-    /**
-     * Update the values for the next call to the getters on this class.
-     */
-    void updateAttributes();
 }

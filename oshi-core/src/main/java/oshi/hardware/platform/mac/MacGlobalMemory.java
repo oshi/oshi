@@ -50,15 +50,13 @@ public class MacGlobalMemory extends AbstractGlobalMemory {
      */
     @Override
     public long getAvailable() {
-        if (this.memAvailable < 0) {
-            VMStatistics vmStats = new VMStatistics();
-            if (0 != SystemB.INSTANCE.host_statistics(SystemB.INSTANCE.mach_host_self(), SystemB.HOST_VM_INFO, vmStats,
-                    new IntByReference(vmStats.size() / SystemB.INT_SIZE))) {
-                LOG.error("Failed to get host VM info. Error code: {}", Native.getLastError());
-                return 0L;
-            }
-            this.memAvailable = (vmStats.free_count + vmStats.inactive_count) * getPageSize();
+        VMStatistics vmStats = new VMStatistics();
+        if (0 != SystemB.INSTANCE.host_statistics(SystemB.INSTANCE.mach_host_self(), SystemB.HOST_VM_INFO, vmStats,
+                new IntByReference(vmStats.size() / SystemB.INT_SIZE))) {
+            LOG.error("Failed to get host VM info. Error code: {}", Native.getLastError());
+            return 0L;
         }
+        this.memAvailable = (vmStats.free_count + vmStats.inactive_count) * getPageSize();
         return this.memAvailable;
     }
 

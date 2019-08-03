@@ -43,9 +43,7 @@ public class SolarisGlobalMemory extends AbstractGlobalMemory {
      */
     @Override
     public long getAvailable() {
-        if (this.memAvailable < 0) {
-            updateSystemPages();
-        }
+        updateSystemPages();
         return this.memAvailable;
     }
 
