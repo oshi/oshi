@@ -39,13 +39,6 @@ public class MacSensors extends AbstractSensors {
      */
     @Override
     public double getCpuTemperature() {
-        if (Double.isNaN(this.cpuTemperature)) {
-            this.cpuTemperature = queryCpuTemperature();
-        }
-        return this.cpuTemperature;
-    }
-
-    private double queryCpuTemperature() {
         SmcUtil.smcOpen();
         double temp = SmcUtil.smcGetFloat(IOKit.SMC_KEY_CPU_TEMP, 50);
         SmcUtil.smcClose();
@@ -60,13 +53,6 @@ public class MacSensors extends AbstractSensors {
      */
     @Override
     public int[] getFanSpeeds() {
-        if (this.fanSpeeds == null) {
-            this.fanSpeeds = queryFanSpeeds();
-        }
-        return this.fanSpeeds;
-    }
-
-    private int[] queryFanSpeeds() {
         // If we don't have fan # try to get it
         SmcUtil.smcOpen();
         if (this.numFans == 0) {
@@ -85,13 +71,6 @@ public class MacSensors extends AbstractSensors {
      */
     @Override
     public double getCpuVoltage() {
-        if (Double.isNaN(this.cpuVoltage)) {
-            this.cpuVoltage = queryCpuVoltage();
-        }
-        return this.cpuVoltage;
-    }
-
-    private double queryCpuVoltage() {
         SmcUtil.smcOpen();
         double volts = SmcUtil.smcGetFloat(IOKit.SMC_KEY_CPU_VOLTAGE, 50) / 1000d;
         SmcUtil.smcClose();

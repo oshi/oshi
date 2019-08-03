@@ -64,9 +64,4 @@ public interface Sensors extends Serializable {
      * @return CPU Voltage in Volts if available, 0 otherwise.
      */
     double getCpuVoltage();
-
-    /**
-     * Update the values for the next call to the getters on this class.
-     */
-    void updateAttributes();
 }

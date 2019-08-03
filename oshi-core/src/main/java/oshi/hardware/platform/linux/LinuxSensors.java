@@ -128,13 +128,6 @@ public class LinuxSensors extends AbstractSensors {
      */
     @Override
     public double getCpuTemperature() {
-        if (Double.isNaN(this.cpuTemperature)) {
-            this.cpuTemperature = queryCpuTemperature();
-        }
-        return this.cpuTemperature;
-    }
-
-    private double queryCpuTemperature() {
         if (!this.sensorsMap.containsKey(TEMP)) {
             return 0d;
         }
@@ -183,13 +176,6 @@ public class LinuxSensors extends AbstractSensors {
      */
     @Override
     public int[] getFanSpeeds() {
-        if (this.fanSpeeds == null) {
-            this.fanSpeeds = queryFanSpeeds();
-        }
-        return this.fanSpeeds;
-    }
-
-    private int[] queryFanSpeeds() {
         if (this.sensorsMap.containsKey(FAN)) {
             String hwmon = this.sensorsMap.get(FAN);
             List<Integer> speeds = new ArrayList<>();
@@ -219,13 +205,6 @@ public class LinuxSensors extends AbstractSensors {
      */
     @Override
     public double getCpuVoltage() {
-        if (Double.isNaN(this.cpuVoltage)) {
-            this.cpuVoltage = queryCpuVoltage();
-        }
-        return this.cpuVoltage;
-    }
-
-    private double queryCpuVoltage() {
         if (this.sensorsMap.containsKey(VOLTAGE)) {
             String hwmon = this.sensorsMap.get(VOLTAGE);
             // Should return a single line of millivolt
