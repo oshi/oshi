@@ -31,6 +31,10 @@ removed; users can call with an argument of 1 to obtain the same value.
 The `getSystemUptime()` method was moved from the `CentralProcessor` class to
 the `OperatingSystem` class.
 
+The `NetworkIF#updateNetworkStats()` and `HWDiskStore#updateDiskStats()` methods
+were renamed to `updateAttributes()` to conform to other similarly named methods
+to permit update of individual elements of arrays.
+
 # Guide to upgrading from OSHI 2.x to 3.x
 
 The most significant change in OSHI 3.0 is the separation of JSON output to a

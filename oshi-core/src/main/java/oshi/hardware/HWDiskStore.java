@@ -42,8 +42,6 @@ import oshi.hardware.platform.windows.WindowsDisks;
  * constrast to a File System, defining the way an Operating system uses the
  * storage, the Disk Store represents the hardware which a FileSystem uses for
  * its File Stores.
- *
- * @author enrico[dot]bianchi[at]gmail[dot]com
  */
 public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
 
@@ -108,7 +106,7 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
      * @return True if the update was (probably) successful, false if the disk
      *         was not found
      */
-    public boolean updateDiskStats() {
+    public boolean updateAtrributes() {
         boolean diskFound = false;
         switch (SystemInfo.getCurrentPlatformEnum()) {
         case WINDOWS:
