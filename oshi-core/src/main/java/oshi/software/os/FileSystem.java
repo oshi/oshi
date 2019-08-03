@@ -29,8 +29,6 @@ import java.io.Serializable;
  * The File System is a logical arrangement, usually in a hierarchial tree,
  * where files are placed for storage and retrieval. It may consist of one or
  * more file stores.
- *
- * @author widdis[at]gmail[dot]com
  */
 public interface FileSystem extends Serializable {
 

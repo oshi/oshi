@@ -211,4 +211,9 @@ public interface OperatingSystem extends Serializable {
      * @return A {@link NetworkParams} object.
      */
     NetworkParams getNetworkParams();
+
+    /**
+     * Update the values for the next call to the getters on this class.
+     */
+    void update();
 }

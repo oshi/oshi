@@ -28,8 +28,6 @@ import java.io.Serializable;
 /**
  * The Power Source is one or more batteries with some capacity, and some state
  * of charge/discharge
- *
- * @author widdis[at]gmail[dot]com
  */
 public interface PowerSource extends Serializable {
     /**

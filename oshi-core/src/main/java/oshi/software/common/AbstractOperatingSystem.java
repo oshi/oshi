@@ -197,4 +197,11 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
         }
         return this.elevated > 0;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void update() {
+    }
 }

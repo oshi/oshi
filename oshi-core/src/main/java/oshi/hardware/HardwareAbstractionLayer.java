@@ -125,4 +125,9 @@ public interface HardwareAbstractionLayer extends Serializable {
      *         present.
      */
     SoundCard[] getSoundCards();
+
+    /**
+     * Update the values for the next call to the getters on this class.
+     */
+    void update();
 }

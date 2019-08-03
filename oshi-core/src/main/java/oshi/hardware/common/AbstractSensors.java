@@ -40,7 +40,7 @@ public abstract class AbstractSensors implements Sensors {
      * {@inheritDoc}
      */
     @Override
-    public void updateAttributes() {
+    public void update() {
         this.cpuTemperature = Double.NaN;
         this.fanSpeeds = null;
         this.cpuVoltage = Double.NaN;

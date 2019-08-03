@@ -30,8 +30,6 @@ import java.io.Serializable;
  * contains the program code and its current activity. Depending on the
  * operating system (OS), a process may be made up of multiple threads of
  * execution that execute instructions concurrently.
- *
- * @author widdis[at]gmail[dot]com
  */
 public class OSProcess implements Serializable {
 

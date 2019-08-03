@@ -56,8 +56,7 @@ public class Json {
             GlobalMemory mem = hal.getMemory();
             System.out.println(mapper.writeValueAsString(mem));
             Util.sleep(1000);
-            mem.updateAttributes();
-            mem.getVirtualMemory().updateAttributes();
+            mem.update();
             System.out.println(mapper.writeValueAsString(mem));
 
         } catch (JsonProcessingException e) {

@@ -306,7 +306,7 @@ public interface CentralProcessor extends Serializable {
     /**
      * Update the values for the next call to the getters on this class.
      */
-    void updateAttributes();
+    void update();
 
     /**
      * Index of CPU tick counters in the {@link #getSystemCpuLoadTicks()} and

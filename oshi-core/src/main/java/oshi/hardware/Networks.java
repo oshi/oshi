@@ -27,8 +27,6 @@ import java.io.Serializable;
 
 /**
  * Networks refers to network interfaces installed in the machine.
- *
- * @author enrico[dot]bianchi[at]gmail[dot]com
  */
 public interface Networks extends Serializable {
 

@@ -30,8 +30,6 @@ import java.io.Serializable;
  * system can manage information in each region separately. A partition appears
  * in the operating system as a distinct "logical" disk that uses part of the
  * actual disk.
- *
- * @author widdis[at]gmail[dot]com
  */
 public class HWPartition implements Serializable, Comparable<HWPartition> {
 

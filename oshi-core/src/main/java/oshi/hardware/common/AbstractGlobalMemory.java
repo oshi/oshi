@@ -42,7 +42,7 @@ public abstract class AbstractGlobalMemory implements GlobalMemory {
      * {@inheritDoc}
      */
     @Override
-    public void updateAttributes() {
+    public void update() {
         this.memAvailable = -1;
     }
 }

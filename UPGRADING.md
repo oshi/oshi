@@ -1,7 +1,7 @@
 
 # Guide to upgrading from OSHI 3.x to 4.x
 
-OSHI 4.0 requires minimum Java 8 compatibility.
+OSHI 4.x requires minimum Java 8 compatibility.
 
 The `oshi-json` artifact has been completely removed. It is trivial to obtain
 JSON output using [Jackson's ObjectMapper](http://www.mkyong.com/java/
@@ -13,14 +13,13 @@ to demonstrate OSHI's capabilities and integration with other libraries.
 ## API Changes
 
 Several changes in the API highlight which attributes do not change and which
-fetch dynamic information, as well as highlight operations with latency or
-expensive computations.  In general the following rules are followed:
- - getX() (and isX() for boolean) are lazy getters for the initial data
-query, and will store the value in an attribute, returning that same value on
-subsequent calls.  When relevant, an updateAtrributes() method will be 
-available to cause the getters to return updated values.
- - queryX() will get the latest value and typically identify more expensive
- (in cpu or time) methods.
+fetch dynamic information.  The general pattern followed is that `getX()` 
+methods will return the same information (fetching lazily the first time).
+An `update()` method will cause the next calls to `getX()` on that object 
+to fetch updated information (operating recursively).
+
+In contrast, `queryX()` will get the latest value and typically identify more 
+expensive (in cpu or time) or non-serializable methods.
 
 The following getX() methods are now queryX():
  - NetworkIF: getNetworkInterface() -> queryNetworkInterface() to prevent

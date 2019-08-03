@@ -83,7 +83,7 @@ public class NetworksTest {
             assertEquals(50L, net.getSpeed());
             assertEquals(timeStamp, net.getTimeStamp());
 
-            net.updateAttributes();
+            net.update();
             assertTrue(net.getBytesRecv() >= 0);
             assertTrue(net.getBytesSent() >= 0);
             assertTrue(net.getPacketsRecv() >= 0);

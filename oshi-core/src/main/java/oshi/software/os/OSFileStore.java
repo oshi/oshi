@@ -29,8 +29,6 @@ import java.io.Serializable;
  * A File Store is a storage pool, device, partition, volume, concrete file
  * system or other implementation specific means of file storage. See subclasses
  * for definitions as they apply to specific platforms.
- *
- * @author widdis[at]gmail[dot]com
  */
 public class OSFileStore implements Serializable {
 

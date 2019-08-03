@@ -45,4 +45,15 @@ public abstract class AbstractHardwareAbstractionLayer implements HardwareAbstra
 
     protected Sensors sensors;
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void update() {
+        // computerSystem does not change
+        processor.update();
+        memory.update();
+        sensors.update();
+    }
+
 }

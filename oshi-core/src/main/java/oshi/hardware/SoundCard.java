@@ -24,7 +24,7 @@
 package oshi.hardware;
 
 /**
- * @author BilalAM
+ * A Sound Card
  */
 public interface SoundCard {
 

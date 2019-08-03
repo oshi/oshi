@@ -45,8 +45,6 @@ import oshi.util.ParseUtil;
 
 /**
  * A network interface in the machine, including statistics
- *
- * @author enrico[dot]bianchi[at]gmail[dot]com
  */
 public class NetworkIF implements Serializable {
 
@@ -172,7 +170,7 @@ public class NetworkIF implements Serializable {
     /**
      * @return The Bytes Received. This value is set when the {@link NetworkIF}
      *         is instantiated and may not be up to date. To update this value,
-     *         execute the {@link #updateAttributes()} method
+     *         execute the {@link #update()} method
      */
     public long getBytesRecv() {
         return this.bytesRecv;
@@ -189,7 +187,7 @@ public class NetworkIF implements Serializable {
     /**
      * @return The Bytes Sent. This value is set when the {@link NetworkIF} is
      *         instantiated and may not be up to date. To update this value,
-     *         execute the {@link #updateAttributes()} method
+     *         execute the {@link #update()} method
      */
     public long getBytesSent() {
         return this.bytesSent;
@@ -206,7 +204,7 @@ public class NetworkIF implements Serializable {
     /**
      * @return The Packets Received. This value is set when the
      *         {@link NetworkIF} is instantiated and may not be up to date. To
-     *         update this value, execute the {@link #updateAttributes()}
+     *         update this value, execute the {@link #update()}
      *         method
      */
     public long getPacketsRecv() {
@@ -224,7 +222,7 @@ public class NetworkIF implements Serializable {
     /**
      * @return The Packets Sent. This value is set when the {@link NetworkIF} is
      *         instantiated and may not be up to date. To update this value,
-     *         execute the {@link #updateAttributes()} method
+     *         execute the {@link #update()} method
      */
     public long getPacketsSent() {
         return this.packetsSent;
@@ -241,7 +239,7 @@ public class NetworkIF implements Serializable {
     /**
      * @return Input Errors. This value is set when the {@link NetworkIF} is
      *         instantiated and may not be up to date. To update this value,
-     *         execute the {@link #updateAttributes()} method
+     *         execute the {@link #update()} method
      */
     public long getInErrors() {
         return this.inErrors;
@@ -258,7 +256,7 @@ public class NetworkIF implements Serializable {
     /**
      * @return The Output Errors. This value is set when the {@link NetworkIF}
      *         is instantiated and may not be up to date. To update this value,
-     *         execute the {@link #updateAttributes()} method
+     *         execute the {@link #update()} method
      */
     public long getOutErrors() {
         return this.outErrors;
@@ -276,7 +274,7 @@ public class NetworkIF implements Serializable {
      * @return The speed of the network interface in bits per second. This value
      *         is set when the {@link NetworkIF} is instantiated and may not be
      *         up to date. To update this value, execute the
-     *         {@link #updateAttributes()} method
+     *         {@link #update()} method
      */
     public long getSpeed() {
         return this.speed;
@@ -306,10 +304,9 @@ public class NetworkIF implements Serializable {
     }
 
     /**
-     * Updates interface network statistics on this interface. Statistics
-     * include packets and bytes sent and received, and interface speed.
+     * Update the values for the next call to the getters on this class.
      */
-    public void updateAttributes() {
+    public void update() {
         switch (SystemInfo.getCurrentPlatformEnum()) {
         case WINDOWS:
             WindowsNetworks.updateNetworkStats(this);

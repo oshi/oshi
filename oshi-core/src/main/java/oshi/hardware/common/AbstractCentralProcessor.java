@@ -621,7 +621,7 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
      * {@inheritDoc}
      */
     @Override
-    public void updateAttributes() {
+    public void update() {
         this.systemCpuLoadTicks = null;
         this.processorCpuLoadTicks = null;
         this.cpuCurrentFreq = null;

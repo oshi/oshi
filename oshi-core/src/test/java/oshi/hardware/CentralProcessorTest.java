@@ -62,7 +62,7 @@ public class CentralProcessorTest {
         assertEquals(ticks.length, TickType.values().length);
 
         Util.sleep(500);
-        p.updateAttributes();
+        p.update();
         assertTrue(p.getSystemCpuLoadBetweenTicks(ticks) >= 0 && p.getSystemCpuLoadBetweenTicks(ticks) <= 1);
         // This test fails on FreeBSD due to error in Java MXBean
         if (SystemInfo.getCurrentPlatformEnum() != PlatformEnum.FREEBSD) {

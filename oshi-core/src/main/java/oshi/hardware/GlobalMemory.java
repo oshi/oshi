@@ -61,5 +61,5 @@ public interface GlobalMemory extends Serializable {
     /**
      * Update the values for the next call to the getters on this class.
      */
-    void updateAttributes();
+    void update();
 }

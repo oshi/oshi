@@ -41,7 +41,7 @@ public abstract class AbstractVirtualMemory implements VirtualMemory {
      * {@inheritDoc}
      */
     @Override
-    public void updateAttributes() {
+    public void update() {
         this.swapTotal = -1L;
         this.swapUsed = -1L;
         this.swapPagesIn = -1L;
