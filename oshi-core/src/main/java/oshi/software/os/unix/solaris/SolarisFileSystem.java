@@ -43,8 +43,6 @@ import oshi.util.platform.unix.solaris.KstatUtil;
  * pool, device, partition, volume, concrete file system or other implementation
  * specific means of file storage. In Solaris, these are found in the
  * /proc/mount filesystem, excluding temporary and kernel mounts.
- *
- * @author widdis[at]gmail[dot]com
  */
 public class SolarisFileSystem implements FileSystem {
 
@@ -75,8 +73,8 @@ public class SolarisFileSystem implements FileSystem {
      *            A list of path prefixes
      * @param charSeq
      *            a path to check
-     * @return true if the charSeq exactly equals, or starts with the directory
-     *         in aList
+     * @return true if the charSeq exactly equals, or starts with the directory in
+     *         aList
      */
     private boolean listElementStartsWith(List<String> aList, String charSeq) {
         for (String match : aList) {
@@ -90,12 +88,18 @@ public class SolarisFileSystem implements FileSystem {
     /**
      * Gets File System Information.
      *
-     * @return An array of {@link OSFileStore} objects representing mounted
-     *         volumes. May return disconnected volumes with
+     * @return An array of {@link OSFileStore} objects representing mounted volumes.
+     *         May return disconnected volumes with
      *         {@link OSFileStore#getTotalSpace()} = 0.
      */
     @Override
     public OSFileStore[] getFileStores() {
+        List<OSFileStore> fsList = getFileStoreMatching(null);
+
+        return fsList.toArray(new OSFileStore[0]);
+    }
+
+    private List<OSFileStore> getFileStoreMatching(String nameToMatch) {
         List<OSFileStore> fsList = new ArrayList<>();
 
         // Get inode usage data
@@ -151,6 +155,10 @@ public class SolarisFileSystem implements FileSystem {
             if (name.isEmpty()) {
                 name = volume.substring(volume.lastIndexOf('/') + 1);
             }
+
+            if (nameToMatch != null && !nameToMatch.equals(name)) {
+                continue;
+            }
             File f = new File(path);
             long totalSpace = f.getTotalSpace();
             long usableSpace = f.getUsableSpace();
@@ -182,7 +190,7 @@ public class SolarisFileSystem implements FileSystem {
             osStore.setTotalInodes(inodeTotalMap.containsKey(path) ? inodeTotalMap.get(path) : 0L);
             fsList.add(osStore);
         }
-        return fsList.toArray(new OSFileStore[0]);
+        return fsList;
     }
 
     @Override
@@ -203,5 +211,23 @@ public class SolarisFileSystem implements FileSystem {
             return KstatUtil.kstatDataLookupLong(ksp, "buf_max");
         }
         return 0L;
+    }
+
+    public static boolean updateFileStoreStats(OSFileStore osFileStore) {
+        for (OSFileStore fileStore : new SolarisFileSystem().getFileStoreMatching(osFileStore.getName())) {
+            if (osFileStore.getVolume().equals(fileStore.getVolume())
+                    && osFileStore.getMount().equals(fileStore.getMount())) {
+                osFileStore.setLogicalVolume(fileStore.getLogicalVolume());
+                osFileStore.setDescription(fileStore.getDescription());
+                osFileStore.setType(fileStore.getType());
+                osFileStore.setFreeSpace(fileStore.getFreeSpace());
+                osFileStore.setUsableSpace(fileStore.getUsableSpace());
+                osFileStore.setTotalSpace(fileStore.getTotalSpace());
+                osFileStore.setFreeInodes(fileStore.getFreeInodes());
+                osFileStore.setTotalInodes(fileStore.getTotalInodes());
+                return true;
+            }
+        }
+        return false;
     }
 }

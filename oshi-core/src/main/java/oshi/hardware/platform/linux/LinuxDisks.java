@@ -40,8 +40,6 @@ import oshi.util.ParseUtil;
 
 /**
  * Linux hard disk implementation.
- *
- * @author enrico[dot]bianchi[at]gmail[dot]com
  */
 public class LinuxDisks implements Disks {
 

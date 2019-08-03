@@ -50,8 +50,6 @@ import oshi.util.ParseUtil;
  * device, partition, volume, concrete file system or other implementation
  * specific means of file storage. In Linux, these are found in the /proc/mount
  * filesystem, excluding temporary and kernel mounts.
- *
- * @author widdis[at]gmail[dot]com
  */
 public class LinuxFileSystem implements FileSystem {
 
@@ -86,7 +84,7 @@ public class LinuxFileSystem implements FileSystem {
             // "tmpfs", // Temporary file system
             // NOTE: tmpfs is evaluated apart, because Linux uses it for
             // RAMdisks
-            "overlay", //Overlay file system https://wiki.archlinux.org/index.php/Overlay_filesystem
+            "overlay", // Overlay file system https://wiki.archlinux.org/index.php/Overlay_filesystem
     });
 
     // System path mounted as tmpfs
@@ -99,8 +97,8 @@ public class LinuxFileSystem implements FileSystem {
      *            A list of path prefixes
      * @param charSeq
      *            a path to check
-     * @return true if the charSeq exactly equals, or starts with the directory
-     *         in aList
+     * @return true if the charSeq exactly equals, or starts with the directory in
+     *         aList
      */
     private boolean listElementStartsWith(List<String> aList, String charSeq) {
         for (String match : aList) {
@@ -114,8 +112,8 @@ public class LinuxFileSystem implements FileSystem {
     /**
      * Gets File System Information.
      *
-     * @return An array of {@link OSFileStore} objects representing mounted
-     *         volumes. May return disconnected volumes with
+     * @return An array of {@link OSFileStore} objects representing mounted volumes.
+     *         May return disconnected volumes with
      *         {@link OSFileStore#getTotalSpace()} = 0.
      */
     @Override
@@ -135,6 +133,12 @@ public class LinuxFileSystem implements FileSystem {
         }
 
         // List file systems
+        List<OSFileStore> fsList = getFileStoreMatching(null, uuidMap);
+
+        return fsList.toArray(new OSFileStore[0]);
+    }
+
+    private List<OSFileStore> getFileStoreMatching(String nameToMatch, Map<String, String> uuidMap) {
         List<OSFileStore> fsList = new ArrayList<>();
 
         // Parse /proc/self/mounts to get fs types
@@ -163,8 +167,14 @@ public class LinuxFileSystem implements FileSystem {
             if (path.equals("/")) {
                 name = "/";
             }
+
+            // If only updating for one name, skip others
+            if (nameToMatch != null && !nameToMatch.equals(name)) {
+                continue;
+            }
+
             String volume = split[0].replaceAll("\\\\040", " ");
-            String uuid = uuidMap.getOrDefault(split[0], "");
+            String uuid = uuidMap != null ? uuidMap.getOrDefault(split[0], "") : "";
 
             String description;
             if (volume.startsWith("/dev")) {
@@ -213,7 +223,8 @@ public class LinuxFileSystem implements FileSystem {
                     totalSpace = tmpFile.getTotalSpace();
                     usableSpace = tmpFile.getUsableSpace();
                     freeSpace = tmpFile.getFreeSpace();
-                    LOG.warn("Failed to get information to use statvfs. path: {}, Error code: {}", path, Native.getLastError());
+                    LOG.warn("Failed to get information to use statvfs. path: {}, Error code: {}", path,
+                            Native.getLastError());
                 }
             } catch (UnsatisfiedLinkError | NoClassDefFoundError e) {
                 LOG.error("Failed to get file counts from statvfs. {}", e);
@@ -235,8 +246,7 @@ public class LinuxFileSystem implements FileSystem {
 
             fsList.add(osStore);
         }
-
-        return fsList.toArray(new OSFileStore[0]);
+        return fsList;
     }
 
     @Override
@@ -253,11 +263,11 @@ public class LinuxFileSystem implements FileSystem {
      * Returns a value from the Linux system file /proc/sys/fs/file-nr.
      *
      * @param index
-     *            The index of the value to retrieve. 0 returns the total
-     *            allocated file descriptors. 1 returns the number of used file
-     *            descriptors for kernel 2.4, or the number of unused file
-     *            descriptors for kernel 2.6. 2 returns the maximum number of
-     *            file descriptors that can be allocated.
+     *            The index of the value to retrieve. 0 returns the total allocated
+     *            file descriptors. 1 returns the number of used file descriptors
+     *            for kernel 2.4, or the number of unused file descriptors for
+     *            kernel 2.6. 2 returns the maximum number of file descriptors that
+     *            can be allocated.
      * @return Corresponding file descriptor value from the Linux system file.
      */
     private long getFileDescriptors(int index) {
@@ -271,5 +281,23 @@ public class LinuxFileSystem implements FileSystem {
             return ParseUtil.parseLongOrDefault(splittedLine[index], 0L);
         }
         return 0L;
+    }
+
+    public static boolean updateFileStoreStats(OSFileStore osFileStore) {
+        for (OSFileStore fileStore : new LinuxFileSystem().getFileStoreMatching(osFileStore.getName(), null)) {
+            if (osFileStore.getVolume().equals(fileStore.getVolume())
+                    && osFileStore.getMount().equals(fileStore.getMount())) {
+                osFileStore.setLogicalVolume(fileStore.getLogicalVolume());
+                osFileStore.setDescription(fileStore.getDescription());
+                osFileStore.setType(fileStore.getType());
+                osFileStore.setFreeSpace(fileStore.getFreeSpace());
+                osFileStore.setUsableSpace(fileStore.getUsableSpace());
+                osFileStore.setTotalSpace(fileStore.getTotalSpace());
+                osFileStore.setFreeInodes(fileStore.getFreeInodes());
+                osFileStore.setTotalInodes(fileStore.getTotalInodes());
+                return true;
+            }
+        }
+        return false;
     }
 }
