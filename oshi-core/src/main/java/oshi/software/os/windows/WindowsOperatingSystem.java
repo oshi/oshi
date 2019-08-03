@@ -564,9 +564,6 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                 }
             }
         }
-        for (OSProcess proc : processList) {
-            System.out.println(proc.getBitness() + " - " + proc.getName());
-        }
         return processList;
     }
 
@@ -724,6 +721,22 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     @Override
     public long getSystemBootTime() {
         return BOOTTIME;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isElevated() {
+        if (this.elevated < 0) {
+            try {
+                File dir = new File(System.getenv("windir") + "\\system32\\config\\systemprofile");
+                this.elevated = dir.isDirectory() ? 1 : 0;
+            } catch (SecurityException e) {
+                this.elevated = 0;
+            }
+        }
+        return this.elevated > 0;
     }
 
     /**

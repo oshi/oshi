@@ -139,6 +139,7 @@ public class SystemInfoTest {
         System.out.println(os);
         System.out.println("Booted: " + Instant.ofEpochSecond(os.getSystemBootTime()));
         System.out.println("Uptime: " + FormatUtil.formatElapsedSecs(os.getSystemUptime()));
+        System.out.println("Running with" + (os.isElevated() ? "" : "out") + " elevated permissions.");
     }
 
     private static void printComputerSystem(final ComputerSystem computerSystem) {

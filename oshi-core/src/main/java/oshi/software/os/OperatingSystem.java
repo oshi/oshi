@@ -198,6 +198,14 @@ public interface OperatingSystem extends Serializable {
     long getSystemBootTime();
 
     /**
+     * Determine whether the current process has elevated permissions such as sudo /
+     * Administrator
+     * 
+     * @return True if this process has elevated permissions
+     */
+    boolean isElevated();
+
+    /**
      * Instantiates a {@link NetworkParams} object.
      *
      * @return A {@link NetworkParams} object.
