@@ -42,6 +42,8 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
     // Initialize based on JVM Bitness. Individual OS implementations will test
     // if 32-bit JVM running on 64-bit OS
     protected int bitness = System.getProperty("os.arch").indexOf("64") != -1 ? 64 : 32;
+    // Test if sudo or admin privileges: 1 = unknown, 0 = no, 1 = yes
+    protected int elevated = -1;
 
     /*
      * Comparators for use in processSort().
@@ -183,5 +185,16 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
     @Override
     public int getBitness() {
         return this.bitness;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isElevated() {
+        if (this.elevated < 0) {
+            this.elevated = System.getenv("SUDO_COMMAND") == null ? 0 : 1;
+        }
+        return this.elevated > 0;
     }
 }

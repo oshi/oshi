@@ -66,6 +66,7 @@ public class OperatingSystemTest {
         assertTrue(os.getThreadCount() >= 1);
         assertTrue(os.getBitness() == 32 || os.getBitness() == 64);
         assertTrue(os.getProcessId() > 0);
+        assertEquals(os.isElevated(), os.isElevated());
 
         assertTrue(os.getProcesses(0, null).length > 0);
         OSProcess proc = os.getProcess(os.getProcessId());
