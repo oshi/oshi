@@ -34,8 +34,6 @@ import oshi.util.platform.unix.solaris.KstatUtil;
 
 /**
  * A Power Source
- *
- * @author widdis[at]gmail[dot]com
  */
 public class SolarisPowerSource extends AbstractPowerSource {
 
@@ -71,14 +69,20 @@ public class SolarisPowerSource extends AbstractPowerSource {
      * @return An array of PowerSource objects representing batteries, etc.
      */
     public static PowerSource[] getPowerSources() {
+        SolarisPowerSource[] ps = new SolarisPowerSource[1];
+        ps[0] = getPowerSource("BAT0");
+        return ps;
+    }
+
+    private static SolarisPowerSource getPowerSource(String name) {
         // If no kstat info, return empty
         if (KSTAT_BATT_IDX == 0) {
-            return new SolarisPowerSource[0];
+            return new SolarisPowerSource(name, Double.NaN, Double.NaN);
         }
         // Get kstat for the battery information
         Kstat ksp = KstatUtil.kstatLookup(KSTAT_BATT_MOD[KSTAT_BATT_IDX], 0, "battery BIF0");
         if (ksp == null) {
-            return new SolarisPowerSource[0];
+            return new SolarisPowerSource(name, Double.NaN, Double.NaN);
         }
 
         // Predicted battery capacity when fully charged.
@@ -87,19 +91,19 @@ public class SolarisPowerSource extends AbstractPowerSource {
             energyFull = KstatUtil.kstatDataLookupLong(ksp, "bif_design_cap");
         }
         if (energyFull == 0xffffffff || energyFull <= 0) {
-            return new SolarisPowerSource[0];
+            return new SolarisPowerSource(name, Double.NaN, Double.NaN);
         }
 
         // Get kstat for the battery state
         ksp = KstatUtil.kstatLookup(KSTAT_BATT_MOD[KSTAT_BATT_IDX], 0, "battery BST0");
         if (ksp == null) {
-            return new SolarisPowerSource[0];
+            return new SolarisPowerSource(name, Double.NaN, Double.NaN);
         }
 
         // estimated remaining battery capacity
         long energyNow = KstatUtil.kstatDataLookupLong(ksp, "bst_rem_cap");
         if (energyNow < 0) {
-            return new SolarisPowerSource[0];
+            return new SolarisPowerSource(name, Double.NaN, Double.NaN);
         }
 
         // power or current supplied at battery terminal
@@ -114,13 +118,20 @@ public class SolarisPowerSource extends AbstractPowerSource {
         // bit 2 = critical energy state
         boolean isCharging = (KstatUtil.kstatDataLookupLong(ksp, "bst_state") & 0x10) > 0;
 
-        // Set up single battery in array
-        SolarisPowerSource[] ps = new SolarisPowerSource[1];
         double timeRemaining = -2d;
         if (!isCharging) {
             timeRemaining = powerNow > 0 ? 3600d * energyNow / powerNow : -1d;
         }
-        ps[0] = new SolarisPowerSource("BAT0", (double) energyNow / energyFull, timeRemaining);
-        return ps;
+        return new SolarisPowerSource(name, (double) energyNow / energyFull, timeRemaining);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void updateAttributes() {
+        PowerSource ps = getPowerSource(this.name);
+        this.remainingCapacity = ps.getRemainingCapacity();
+        this.timeRemaining = ps.getTimeRemaining();
     }
 }

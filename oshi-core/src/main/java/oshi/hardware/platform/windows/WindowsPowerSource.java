@@ -37,8 +37,6 @@ import oshi.util.FormatUtil;
 
 /**
  * A Power Source
- *
- * @author widdis[at]gmail[dot]com
  */
 public class WindowsPowerSource extends AbstractPowerSource {
 
@@ -58,8 +56,12 @@ public class WindowsPowerSource extends AbstractPowerSource {
      */
     public static PowerSource[] getPowerSources() {
         // Windows provides a single unnamed battery
-        String name = "System Battery";
         WindowsPowerSource[] psArray = new WindowsPowerSource[1];
+        psArray[0] = getPowerSource("System Battery");
+        return psArray;
+    }
+
+    private static WindowsPowerSource getPowerSource(String name) {
         // Get structure
         int size = new SystemBatteryState().size();
         Memory mem = new Memory(size);
@@ -73,12 +75,19 @@ public class WindowsPowerSource extends AbstractPowerSource {
                 }
                 long maxCapacity = FormatUtil.getUnsignedInt(batteryState.maxCapacity);
                 long remainingCapacity = FormatUtil.getUnsignedInt(batteryState.remainingCapacity);
-                psArray[0] = new WindowsPowerSource(name, (double) remainingCapacity / maxCapacity, estimatedTime);
+                return new WindowsPowerSource(name, (double) remainingCapacity / maxCapacity, estimatedTime);
             }
         }
-        if (psArray[0] == null) {
-            psArray[0] = new WindowsPowerSource("Unknown", 0d, -1d);
-        }
-        return psArray;
+        return new WindowsPowerSource("Unknown", Double.NaN, Double.NaN);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void updateAttributes() {
+        PowerSource ps = getPowerSource(this.name);
+        this.remainingCapacity = ps.getRemainingCapacity();
+        this.timeRemaining = ps.getTimeRemaining();
     }
 }
