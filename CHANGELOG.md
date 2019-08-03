@@ -21,6 +21,7 @@
 * [#926](https://github.com/oshi/oshi/pull/926): Fix SMC datatype reading. - [@dbwiddis](https://github.com/dbwiddis).
 * [#928](https://github.com/oshi/oshi/pull/928): Raspberry Pi compatibility fixes. - [@dbwiddis](https://github.com/dbwiddis).
 * [#929](https://github.com/oshi/oshi/pull/929): Add isElevated check to OperatingSystem. - [@dbwiddis](https://github.com/dbwiddis).
+* [#931](https://github.com/oshi/oshi/pull/931): Standardize attribute updating. - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here.
 
 3.13.0 (1/18/2019), 3.13.1 (4/21/2019), 3.13.2 (4/28/2019), 3.13.3 (6/5/2019)
