@@ -502,6 +502,7 @@
 							<exclude>mvnw</exclude>
 							<exclude>mvnw.cmd</exclude>
 							<exclude>LICENSE_*</exclude>
+							<exclude>**/OSHIJavaFormatConventions.xml</exclude>
 						</excludes>
 					</configuration>
 				</plugin>
