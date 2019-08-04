@@ -45,60 +45,52 @@ import oshi.util.platform.mac.SysctlUtil;
 
 <span class="nc" id="L46">    private static final Logger LOG = LoggerFactory.getLogger(MacGlobalMemory.class);</span>
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getAvailable() {
-<span class="nc" id="L53">        VMStatistics vmStats = new VMStatistics();</span>
-<span class="nc bnc" id="L54" title="All 2 branches missed.">        if (0 != SystemB.INSTANCE.host_statistics(SystemB.INSTANCE.mach_host_self(), SystemB.HOST_VM_INFO, vmStats,</span>
-<span class="nc" id="L55">                new IntByReference(vmStats.size() / SystemB.INT_SIZE))) {</span>
-<span class="nc" id="L56">            LOG.error(&quot;Failed to get host VM info. Error code: {}&quot;, Native.getLastError());</span>
-<span class="nc" id="L57">            return 0L;</span>
+<span class="nc" id="L51">        VMStatistics vmStats = new VMStatistics();</span>
+<span class="nc bnc" id="L52" title="All 2 branches missed.">        if (0 != SystemB.INSTANCE.host_statistics(SystemB.INSTANCE.mach_host_self(), SystemB.HOST_VM_INFO, vmStats,</span>
+<span class="nc" id="L53">                new IntByReference(vmStats.size() / SystemB.INT_SIZE))) {</span>
+<span class="nc" id="L54">            LOG.error(&quot;Failed to get host VM info. Error code: {}&quot;, Native.getLastError());</span>
+<span class="nc" id="L55">            return 0L;</span>
         }
-<span class="nc" id="L59">        this.memAvailable = (vmStats.free_count + vmStats.inactive_count) * getPageSize();</span>
-<span class="nc" id="L60">        return this.memAvailable;</span>
+<span class="nc" id="L57">        this.memAvailable = (vmStats.free_count + vmStats.inactive_count) * getPageSize();</span>
+<span class="nc" id="L58">        return this.memAvailable;</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getTotal() {
-<span class="nc bnc" id="L68" title="All 2 branches missed.">        if (this.memTotal &lt; 0) {</span>
-<span class="nc" id="L69">            long memory = SysctlUtil.sysctl(&quot;hw.memsize&quot;, -1L);</span>
-<span class="nc bnc" id="L70" title="All 2 branches missed.">            if (memory &gt;= 0) {</span>
-<span class="nc" id="L71">                this.memTotal = memory;</span>
+<span class="nc bnc" id="L64" title="All 2 branches missed.">        if (this.memTotal &lt; 0) {</span>
+<span class="nc" id="L65">            long memory = SysctlUtil.sysctl(&quot;hw.memsize&quot;, -1L);</span>
+<span class="nc bnc" id="L66" title="All 2 branches missed.">            if (memory &gt;= 0) {</span>
+<span class="nc" id="L67">                this.memTotal = memory;</span>
             }
         }
-<span class="nc" id="L74">        return this.memTotal;</span>
+<span class="nc" id="L70">        return this.memTotal;</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getPageSize() {
-<span class="nc bnc" id="L82" title="All 2 branches missed.">        if (this.pageSize &lt; 0) {</span>
-<span class="nc" id="L83">            LongByReference pPageSize = new LongByReference();</span>
-<span class="nc bnc" id="L84" title="All 2 branches missed.">            if (0 != SystemB.INSTANCE.host_page_size(SystemB.INSTANCE.mach_host_self(), pPageSize)) {</span>
-<span class="nc" id="L85">                LOG.error(&quot;Failed to get host page size. Error code: {}&quot;, Native.getLastError());</span>
-<span class="nc" id="L86">                return 0L;</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">        if (this.pageSize &lt; 0) {</span>
+<span class="nc" id="L77">            LongByReference pPageSize = new LongByReference();</span>
+<span class="nc bnc" id="L78" title="All 2 branches missed.">            if (0 != SystemB.INSTANCE.host_page_size(SystemB.INSTANCE.mach_host_self(), pPageSize)) {</span>
+<span class="nc" id="L79">                LOG.error(&quot;Failed to get host page size. Error code: {}&quot;, Native.getLastError());</span>
+<span class="nc" id="L80">                return 0L;</span>
             }
-<span class="nc" id="L88">            this.pageSize = pPageSize.getValue();</span>
+<span class="nc" id="L82">            this.pageSize = pPageSize.getValue();</span>
         }
-<span class="nc" id="L90">        return this.pageSize;</span>
+<span class="nc" id="L84">        return this.pageSize;</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public VirtualMemory getVirtualMemory() {
-<span class="nc bnc" id="L98" title="All 2 branches missed.">        if (this.virtualMemory == null) {</span>
-<span class="nc" id="L99">            this.virtualMemory = new MacVirtualMemory();</span>
+<span class="nc bnc" id="L90" title="All 2 branches missed.">        if (this.virtualMemory == null) {</span>
+<span class="nc" id="L91">            this.virtualMemory = new MacVirtualMemory();</span>
         }
-<span class="nc" id="L101">        return this.virtualMemory;</span>
+<span class="nc" id="L93">        return this.virtualMemory;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

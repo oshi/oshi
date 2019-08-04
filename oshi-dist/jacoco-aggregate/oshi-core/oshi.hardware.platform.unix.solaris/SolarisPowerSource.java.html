@@ -58,10 +58,22 @@ public class SolarisPowerSource extends AbstractPowerSource {
         }
 <span class="nc" id="L59">    }</span>
 
+    /**
+     * &lt;p&gt;
+     * Constructor for SolarisPowerSource.
+     * &lt;/p&gt;
+     *
+     * @param newName
+     *            a {@link java.lang.String} object.
+     * @param newRemainingCapacity
+     *            a double.
+     * @param newTimeRemaining
+     *            a double.
+     */
     public SolarisPowerSource(String newName, double newRemainingCapacity, double newTimeRemaining) {
-<span class="nc" id="L62">        super(newName, newRemainingCapacity, newTimeRemaining);</span>
-<span class="nc" id="L63">        LOG.debug(&quot;Initialized SolarisPowerSource&quot;);</span>
-<span class="nc" id="L64">    }</span>
+<span class="nc" id="L74">        super(newName, newRemainingCapacity, newTimeRemaining);</span>
+<span class="nc" id="L75">        LOG.debug(&quot;Initialized SolarisPowerSource&quot;);</span>
+<span class="nc" id="L76">    }</span>
 
     /**
      * Gets Battery Information
@@ -69,70 +81,68 @@ public class SolarisPowerSource extends AbstractPowerSource {
      * @return An array of PowerSource objects representing batteries, etc.
      */
     public static PowerSource[] getPowerSources() {
-<span class="nc" id="L72">        SolarisPowerSource[] ps = new SolarisPowerSource[1];</span>
-<span class="nc" id="L73">        ps[0] = getPowerSource(&quot;BAT0&quot;);</span>
-<span class="nc" id="L74">        return ps;</span>
+<span class="nc" id="L84">        SolarisPowerSource[] ps = new SolarisPowerSource[1];</span>
+<span class="nc" id="L85">        ps[0] = getPowerSource(&quot;BAT0&quot;);</span>
+<span class="nc" id="L86">        return ps;</span>
     }
 
     private static SolarisPowerSource getPowerSource(String name) {
         // If no kstat info, return empty
-<span class="nc bnc" id="L79" title="All 2 branches missed.">        if (KSTAT_BATT_IDX == 0) {</span>
-<span class="nc" id="L80">            return new SolarisPowerSource(name, 0d, -1d);</span>
+<span class="nc bnc" id="L91" title="All 2 branches missed.">        if (KSTAT_BATT_IDX == 0) {</span>
+<span class="nc" id="L92">            return new SolarisPowerSource(name, 0d, -1d);</span>
         }
         // Get kstat for the battery information
-<span class="nc" id="L83">        Kstat ksp = KstatUtil.kstatLookup(KSTAT_BATT_MOD[KSTAT_BATT_IDX], 0, &quot;battery BIF0&quot;);</span>
-<span class="nc bnc" id="L84" title="All 2 branches missed.">        if (ksp == null) {</span>
-<span class="nc" id="L85">            return new SolarisPowerSource(name, 0d, -1d);</span>
+<span class="nc" id="L95">        Kstat ksp = KstatUtil.kstatLookup(KSTAT_BATT_MOD[KSTAT_BATT_IDX], 0, &quot;battery BIF0&quot;);</span>
+<span class="nc bnc" id="L96" title="All 2 branches missed.">        if (ksp == null) {</span>
+<span class="nc" id="L97">            return new SolarisPowerSource(name, 0d, -1d);</span>
         }
 
         // Predicted battery capacity when fully charged.
-<span class="nc" id="L89">        long energyFull = KstatUtil.kstatDataLookupLong(ksp, &quot;bif_last_cap&quot;);</span>
-<span class="nc bnc" id="L90" title="All 4 branches missed.">        if (energyFull == 0xffffffff || energyFull &lt;= 0) {</span>
-<span class="nc" id="L91">            energyFull = KstatUtil.kstatDataLookupLong(ksp, &quot;bif_design_cap&quot;);</span>
+<span class="nc" id="L101">        long energyFull = KstatUtil.kstatDataLookupLong(ksp, &quot;bif_last_cap&quot;);</span>
+<span class="nc bnc" id="L102" title="All 4 branches missed.">        if (energyFull == 0xffffffff || energyFull &lt;= 0) {</span>
+<span class="nc" id="L103">            energyFull = KstatUtil.kstatDataLookupLong(ksp, &quot;bif_design_cap&quot;);</span>
         }
-<span class="nc bnc" id="L93" title="All 4 branches missed.">        if (energyFull == 0xffffffff || energyFull &lt;= 0) {</span>
-<span class="nc" id="L94">            return new SolarisPowerSource(name, 0d, -1d);</span>
-        }
-
-        // Get kstat for the battery state
-<span class="nc" id="L98">        ksp = KstatUtil.kstatLookup(KSTAT_BATT_MOD[KSTAT_BATT_IDX], 0, &quot;battery BST0&quot;);</span>
-<span class="nc bnc" id="L99" title="All 2 branches missed.">        if (ksp == null) {</span>
-<span class="nc" id="L100">            return new SolarisPowerSource(name, 0d, -1d);</span>
-        }
-
-        // estimated remaining battery capacity
-<span class="nc" id="L104">        long energyNow = KstatUtil.kstatDataLookupLong(ksp, &quot;bst_rem_cap&quot;);</span>
-<span class="nc bnc" id="L105" title="All 2 branches missed.">        if (energyNow &lt; 0) {</span>
+<span class="nc bnc" id="L105" title="All 4 branches missed.">        if (energyFull == 0xffffffff || energyFull &lt;= 0) {</span>
 <span class="nc" id="L106">            return new SolarisPowerSource(name, 0d, -1d);</span>
         }
 
+        // Get kstat for the battery state
+<span class="nc" id="L110">        ksp = KstatUtil.kstatLookup(KSTAT_BATT_MOD[KSTAT_BATT_IDX], 0, &quot;battery BST0&quot;);</span>
+<span class="nc bnc" id="L111" title="All 2 branches missed.">        if (ksp == null) {</span>
+<span class="nc" id="L112">            return new SolarisPowerSource(name, 0d, -1d);</span>
+        }
+
+        // estimated remaining battery capacity
+<span class="nc" id="L116">        long energyNow = KstatUtil.kstatDataLookupLong(ksp, &quot;bst_rem_cap&quot;);</span>
+<span class="nc bnc" id="L117" title="All 2 branches missed.">        if (energyNow &lt; 0) {</span>
+<span class="nc" id="L118">            return new SolarisPowerSource(name, 0d, -1d);</span>
+        }
+
         // power or current supplied at battery terminal
-<span class="nc" id="L110">        long powerNow = KstatUtil.kstatDataLookupLong(ksp, &quot;bst_rate&quot;);</span>
-<span class="nc bnc" id="L111" title="All 2 branches missed.">        if (powerNow == 0xFFFFFFFF) {</span>
-<span class="nc" id="L112">            powerNow = 0L;</span>
+<span class="nc" id="L122">        long powerNow = KstatUtil.kstatDataLookupLong(ksp, &quot;bst_rate&quot;);</span>
+<span class="nc bnc" id="L123" title="All 2 branches missed.">        if (powerNow == 0xFFFFFFFF) {</span>
+<span class="nc" id="L124">            powerNow = 0L;</span>
         }
 
         // Battery State:
         // bit 0 = discharging
         // bit 1 = charging
         // bit 2 = critical energy state
-<span class="nc bnc" id="L119" title="All 2 branches missed.">        boolean isCharging = (KstatUtil.kstatDataLookupLong(ksp, &quot;bst_state&quot;) &amp; 0x10) &gt; 0;</span>
+<span class="nc bnc" id="L131" title="All 2 branches missed.">        boolean isCharging = (KstatUtil.kstatDataLookupLong(ksp, &quot;bst_state&quot;) &amp; 0x10) &gt; 0;</span>
 
-<span class="nc" id="L121">        double timeRemaining = -2d;</span>
-<span class="nc bnc" id="L122" title="All 2 branches missed.">        if (!isCharging) {</span>
-<span class="nc bnc" id="L123" title="All 2 branches missed.">            timeRemaining = powerNow &gt; 0 ? 3600d * energyNow / powerNow : -1d;</span>
+<span class="nc" id="L133">        double timeRemaining = -2d;</span>
+<span class="nc bnc" id="L134" title="All 2 branches missed.">        if (!isCharging) {</span>
+<span class="nc bnc" id="L135" title="All 2 branches missed.">            timeRemaining = powerNow &gt; 0 ? 3600d * energyNow / powerNow : -1d;</span>
         }
-<span class="nc" id="L125">        return new SolarisPowerSource(name, (double) energyNow / energyFull, timeRemaining);</span>
+<span class="nc" id="L137">        return new SolarisPowerSource(name, (double) energyNow / energyFull, timeRemaining);</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void updateAttributes() {
-<span class="nc" id="L133">        PowerSource ps = getPowerSource(this.name);</span>
-<span class="nc" id="L134">        this.remainingCapacity = ps.getRemainingCapacity();</span>
-<span class="nc" id="L135">        this.timeRemaining = ps.getTimeRemaining();</span>
-<span class="nc" id="L136">    }</span>
+<span class="nc" id="L143">        PowerSource ps = getPowerSource(this.name);</span>
+<span class="nc" id="L144">        this.remainingCapacity = ps.getRemainingCapacity();</span>
+<span class="nc" id="L145">        this.timeRemaining = ps.getTimeRemaining();</span>
+<span class="nc" id="L146">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

@@ -33,11 +33,10 @@ import com.sun.jna.platform.win32.NTStatus;
 /**
  * Power profile stats. This class should be considered non-API as it may be
  * removed if/when its code is incorporated into the JNA project.
- *
- * @author widdis[at]gmail[dot]com
  */
 public interface PowrProf extends Library {
-<span class="nc" id="L40">    PowrProf INSTANCE = Native.load(&quot;PowrProf&quot;, PowrProf.class);</span>
+    /** Constant &lt;code&gt;INSTANCE&lt;/code&gt; */
+<span class="nc" id="L39">    PowrProf INSTANCE = Native.load(&quot;PowrProf&quot;, PowrProf.class);</span>
 
     /**
      * Indicates power level information.
@@ -66,7 +65,7 @@ public interface PowrProf extends Library {
         public byte batteryPresent;
         public byte charging;
         public byte discharging;
-<span class="nc" id="L69">        public byte[] spare1 = new byte[3];</span>
+<span class="nc" id="L68">        public byte[] spare1 = new byte[3];</span>
         public byte tag;
         public int maxCapacity;
         public int remainingCapacity;
@@ -76,13 +75,13 @@ public interface PowrProf extends Library {
         public int defaultAlert2;
 
         public SystemBatteryState(Pointer p) {
-<span class="nc" id="L79">            super(p);</span>
-<span class="nc" id="L80">            read();</span>
-<span class="nc" id="L81">        }</span>
+<span class="nc" id="L78">            super(p);</span>
+<span class="nc" id="L79">            read();</span>
+<span class="nc" id="L80">        }</span>
 
         public SystemBatteryState() {
-<span class="nc" id="L84">            super();</span>
-<span class="nc" id="L85">        }</span>
+<span class="nc" id="L83">            super();</span>
+<span class="nc" id="L84">        }</span>
     }
 
     /**
@@ -98,43 +97,45 @@ public interface PowrProf extends Library {
         public int currentIdleState;
 
         public ProcessorPowerInformation(Pointer p) {
-<span class="nc" id="L101">            super(p);</span>
-<span class="nc" id="L102">            read();</span>
-<span class="nc" id="L103">        }</span>
+<span class="nc" id="L100">            super(p);</span>
+<span class="nc" id="L101">            read();</span>
+<span class="nc" id="L102">        }</span>
 
         public ProcessorPowerInformation() {
-<span class="nc" id="L106">            super();</span>
-<span class="nc" id="L107">        }</span>
+<span class="nc" id="L105">            super();</span>
+<span class="nc" id="L106">        }</span>
     }
 
     /**
      * Sets or retrieves power information.
      * &lt;p&gt;
      * Changes made to the current system power policy using
-     * {@link CallNtPowerInformation} are immediate, but they are not
-     * persistent; that is, the changes are not stored as part of a power
-     * scheme. Any changes to system power policy made with
-     * {@link CallNtPowerInformation} may be overwritten by changes to a policy
-     * scheme made by the user in the Power Options control panel program, or by
-     * subsequent calls to {@code WritePwrScheme}, {@code SetActivePwrScheme},
-     * or other power scheme functions.
-     * 
+     * {@link CallNtPowerInformation} are immediate, but they are not persistent;
+     * that is, the changes are not stored as part of a power scheme. Any changes to
+     * system power policy made with {@link CallNtPowerInformation} may be
+     * overwritten by changes to a policy scheme made by the user in the Power
+     * Options control panel program, or by subsequent calls to
+     * {@code WritePwrScheme}, {@code SetActivePwrScheme}, or other power scheme
+     * functions.
+     *
      * @param informationLevel
-     *            The information level requested. This value indicates the
-     *            specific power information to be set or retrieved. This
-     *            parameter must be one of the following
-     *            {@link POWER_INFORMATION_LEVEL} enumeration type values:
-     *            {@link POWER_INFORMATION_LEVEL#LAST_SLEEP_TIME},
-     *            {@link POWER_INFORMATION_LEVEL#LAST_WAKE_TIME},
-     *            {@link POWER_INFORMATION_LEVEL#PROCESSOR_INFORMATION},
-     *            {@link POWER_INFORMATION_LEVEL#SYSTEM_BATTERY_STATE},
-     *            {@link POWER_INFORMATION_LEVEL#SYSTEM_EXECUTION_STATE},
-     *            {@link POWER_INFORMATION_LEVEL#SYSTEM_POWER_CAPABILITIES},
-     *            {@link POWER_INFORMATION_LEVEL#SYSTEM_POWER_INFORMATION},
-     *            {@link POWER_INFORMATION_LEVEL#SYSTEM_POWER_POLICY_AC},
-     *            {@link POWER_INFORMATION_LEVEL#SYSTEM_POWER_POLICY_CURRENT},
-     *            {@link POWER_INFORMATION_LEVEL#SYSTEM_POWER_POLICY_DC}, or
-     *            {@link POWER_INFORMATION_LEVEL#SYSTEM_RESERVE_HIBER_FILE}.
+     *            The information level requested. This value indicates the specific
+     *            power information to be set or retrieved. This parameter must be
+     *            one of the following
+     *            {@link oshi.jna.platform.windows.PowrProf.POWER_INFORMATION_LEVEL}
+     *            enumeration type values:
+     *            {@link oshi.jna.platform.windows.PowrProf.POWER_INFORMATION_LEVEL#LAST_SLEEP_TIME},
+     *            {@link oshi.jna.platform.windows.PowrProf.POWER_INFORMATION_LEVEL#LAST_WAKE_TIME},
+     *            {@link oshi.jna.platform.windows.PowrProf.POWER_INFORMATION_LEVEL#PROCESSOR_INFORMATION},
+     *            {@link oshi.jna.platform.windows.PowrProf.POWER_INFORMATION_LEVEL#SYSTEM_BATTERY_STATE},
+     *            {@link oshi.jna.platform.windows.PowrProf.POWER_INFORMATION_LEVEL#SYSTEM_EXECUTION_STATE},
+     *            {@link oshi.jna.platform.windows.PowrProf.POWER_INFORMATION_LEVEL#SYSTEM_POWER_CAPABILITIES},
+     *            {@link oshi.jna.platform.windows.PowrProf.POWER_INFORMATION_LEVEL#SYSTEM_POWER_INFORMATION},
+     *            {@link oshi.jna.platform.windows.PowrProf.POWER_INFORMATION_LEVEL#SYSTEM_POWER_POLICY_AC},
+     *            {@link oshi.jna.platform.windows.PowrProf.POWER_INFORMATION_LEVEL#SYSTEM_POWER_POLICY_CURRENT},
+     *            {@link oshi.jna.platform.windows.PowrProf.POWER_INFORMATION_LEVEL#SYSTEM_POWER_POLICY_DC},
+     *            or
+     *            {@link oshi.jna.platform.windows.PowrProf.POWER_INFORMATION_LEVEL#SYSTEM_RESERVE_HIBER_FILE}.
      * @param lpInputBuffer
      *            A pointer to an optional input buffer. The data type of this
      *            buffer depends on the information level requested in the
@@ -144,20 +145,20 @@ public interface PowrProf extends Library {
      * @param lpOutputBuffer
      *            A pointer to an optional output buffer. The data type of this
      *            buffer depends on the information level requested in the
-     *            {@code informationLevel} parameter. If the buffer is too small
-     *            to contain the information, the function returns
-     *            {@link NTStatus#STATUS_BUFFER_TOO_SMALL}.
+     *            {@code informationLevel} parameter. If the buffer is too small to
+     *            contain the information, the function returns
+     *            {@link com.sun.jna.platform.win32.NTStatus#STATUS_BUFFER_TOO_SMALL}.
      * @param nOutputBufferSize
      *            The size of the output buffer, in bytes. Depending on the
-     *            information level requested, this may be a variably sized
-     *            buffer.
+     *            information level requested, this may be a variably sized buffer.
      * @return If the function succeeds, the return value is
-     *         {@link NTStatus#STATUS_SUCCESS}. If the function fails, the
-     *         return value can be one the following status codes:
-     *         {@link NTStatus#STATUS_BUFFER_TOO_SMALL} if the output buffer is
-     *         of insufficient size to contain the data to be returned.
-     *         {@code NTStatus#STATUS_ACCESS_DENIED} TODO if the caller had
-     *         insufficient access rights to perform the requested action.
+     *         {@link com.sun.jna.platform.win32.NTStatus#STATUS_SUCCESS}. If the
+     *         function fails, the return value can be one the following status
+     *         codes:
+     *         {@link com.sun.jna.platform.win32.NTStatus#STATUS_BUFFER_TOO_SMALL}
+     *         if the output buffer is of insufficient size to contain the data to
+     *         be returned. {@code NTStatus#STATUS_ACCESS_DENIED} TODO if the caller
+     *         had insufficient access rights to perform the requested action.
      */
     int CallNtPowerInformation(int informationLevel, Pointer lpInputBuffer, int nInputBufferSize,
             Pointer lpOutputBuffer, int nOutputBufferSize);

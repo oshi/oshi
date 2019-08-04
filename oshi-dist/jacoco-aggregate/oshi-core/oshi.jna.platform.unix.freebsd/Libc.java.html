@@ -32,31 +32,38 @@ import oshi.jna.platform.unix.CLibrary;
 /**
  * C library. This class should be considered non-API as it may be removed
  * if/when its code is incorporated into the JNA project.
- *
- * @author widdis[at]gmail[dot]com
  */
 public interface Libc extends CLibrary {
-<span class="nc" id="L39">    Libc INSTANCE = Native.load(&quot;libc&quot;, Libc.class);</span>
+    /** Constant &lt;code&gt;INSTANCE&lt;/code&gt; */
+<span class="nc" id="L38">    Libc INSTANCE = Native.load(&quot;libc&quot;, Libc.class);</span>
 
     /*
      * Data size
      */
+    /** Constant &lt;code&gt;UINT64_SIZE=Native.getNativeSize(long.class)&lt;/code&gt; */
 <span class="nc" id="L44">    int UINT64_SIZE = Native.getNativeSize(long.class);</span>
-<span class="nc" id="L45">    int INT_SIZE = Native.getNativeSize(int.class);</span>
+    /** Constant &lt;code&gt;INT_SIZE=Native.getNativeSize(int.class)&lt;/code&gt; */
+<span class="nc" id="L46">    int INT_SIZE = Native.getNativeSize(int.class);</span>
 
     /*
      * CPU state indices
      */
+    /** Constant &lt;code&gt;CPUSTATES=5&lt;/code&gt; */
     int CPUSTATES = 5;
+    /** Constant &lt;code&gt;CP_USER=0&lt;/code&gt; */
     int CP_USER = 0;
+    /** Constant &lt;code&gt;CP_NICE=1&lt;/code&gt; */
     int CP_NICE = 1;
+    /** Constant &lt;code&gt;CP_SYS=2&lt;/code&gt; */
     int CP_SYS = 2;
+    /** Constant &lt;code&gt;CP_INTR=3&lt;/code&gt; */
     int CP_INTR = 3;
+    /** Constant &lt;code&gt;CP_IDLE=4&lt;/code&gt; */
     int CP_IDLE = 4;
 
     @FieldOrder({ &quot;cpu_ticks&quot; })
-<span class="nc" id="L58">    class CpTime extends Structure {</span>
-<span class="nc" id="L59">        public long[] cpu_ticks = new long[CPUSTATES];</span>
+<span class="nc" id="L65">    class CpTime extends Structure {</span>
+<span class="nc" id="L66">        public long[] cpu_ticks = new long[CPUSTATES];</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

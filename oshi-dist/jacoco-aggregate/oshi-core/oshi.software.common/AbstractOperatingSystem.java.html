@@ -32,7 +32,12 @@ import oshi.software.os.OSProcess;
 import oshi.software.os.OperatingSystem;
 import oshi.software.os.OperatingSystemVersion;
 
-<span class="nc" id="L35">public abstract class AbstractOperatingSystem implements OperatingSystem {</span>
+/**
+ * &lt;p&gt;
+ * Abstract AbstractOperatingSystem class.
+ * &lt;/p&gt;
+ */
+<span class="nc" id="L40">public abstract class AbstractOperatingSystem implements OperatingSystem {</span>
 
     private static final long serialVersionUID = 1L;
 
@@ -41,114 +46,109 @@ import oshi.software.os.OperatingSystemVersion;
     protected OperatingSystemVersion version;
     // Initialize based on JVM Bitness. Individual OS implementations will test
     // if 32-bit JVM running on 64-bit OS
-<span class="nc bnc" id="L44" title="All 2 branches missed.">    protected int bitness = System.getProperty(&quot;os.arch&quot;).indexOf(&quot;64&quot;) != -1 ? 64 : 32;</span>
+<span class="nc bnc" id="L49" title="All 2 branches missed.">    protected int bitness = System.getProperty(&quot;os.arch&quot;).indexOf(&quot;64&quot;) != -1 ? 64 : 32;</span>
     // Test if sudo or admin privileges: 1 = unknown, 0 = no, 1 = yes
-<span class="nc" id="L46">    protected int elevated = -1;</span>
+<span class="nc" id="L51">    protected int elevated = -1;</span>
 
     /*
      * Comparators for use in processSort().
      */
-<span class="nc" id="L51">    private static final Comparator&lt;OSProcess&gt; CPU_DESC_SORT = Comparator</span>
-<span class="nc" id="L52">            .comparingDouble(OSProcess::calculateCpuPercent).reversed();</span>
+<span class="nc" id="L56">    private static final Comparator&lt;OSProcess&gt; CPU_DESC_SORT = Comparator</span>
+<span class="nc" id="L57">            .comparingDouble(OSProcess::calculateCpuPercent).reversed();</span>
 
-<span class="nc" id="L54">    private static final Comparator&lt;OSProcess&gt; RSS_DESC_SORT = Comparator.comparingLong(OSProcess::getResidentSetSize)</span>
-<span class="nc" id="L55">            .reversed();</span>
+<span class="nc" id="L59">    private static final Comparator&lt;OSProcess&gt; RSS_DESC_SORT = Comparator.comparingLong(OSProcess::getResidentSetSize)</span>
+<span class="nc" id="L60">            .reversed();</span>
 
-<span class="nc" id="L57">    private static final Comparator&lt;OSProcess&gt; UPTIME_ASC_SORT = Comparator.comparingLong(OSProcess::getUpTime);</span>
+<span class="nc" id="L62">    private static final Comparator&lt;OSProcess&gt; UPTIME_ASC_SORT = Comparator.comparingLong(OSProcess::getUpTime);</span>
 
-<span class="nc" id="L59">    private static final Comparator&lt;OSProcess&gt; UPTIME_DESC_SORT = UPTIME_ASC_SORT.reversed();</span>
+<span class="nc" id="L64">    private static final Comparator&lt;OSProcess&gt; UPTIME_DESC_SORT = UPTIME_ASC_SORT.reversed();</span>
 
-<span class="nc" id="L61">    private static final Comparator&lt;OSProcess&gt; PID_ASC_SORT = Comparator.comparingInt(OSProcess::getProcessID);</span>
+<span class="nc" id="L66">    private static final Comparator&lt;OSProcess&gt; PID_ASC_SORT = Comparator.comparingInt(OSProcess::getProcessID);</span>
 
-<span class="nc" id="L63">    private static final Comparator&lt;OSProcess&gt; PARENTPID_ASC_SORT = Comparator</span>
-<span class="nc" id="L64">            .comparingInt(OSProcess::getParentProcessID);</span>
+<span class="nc" id="L68">    private static final Comparator&lt;OSProcess&gt; PARENTPID_ASC_SORT = Comparator</span>
+<span class="nc" id="L69">            .comparingInt(OSProcess::getParentProcessID);</span>
 
-<span class="nc" id="L66">    private static final Comparator&lt;OSProcess&gt; NAME_ASC_SORT = Comparator.comparing(OSProcess::getName,</span>
+<span class="nc" id="L71">    private static final Comparator&lt;OSProcess&gt; NAME_ASC_SORT = Comparator.comparing(OSProcess::getName,</span>
             String.CASE_INSENSITIVE_ORDER);
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public OperatingSystemVersion getVersion() {
-<span class="nc" id="L74">        return this.version;</span>
+<span class="nc" id="L77">        return this.version;</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getFamily() {
-<span class="nc" id="L82">        return this.family;</span>
+<span class="nc" id="L83">        return this.family;</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getManufacturer() {
-<span class="nc" id="L90">        return this.manufacturer;</span>
+<span class="nc" id="L89">        return this.manufacturer;</span>
     }
 
     /**
-     * Sorts an array of processes using the specified sorting, returning an
-     * array with the top limit results if positive.
+     * Sorts an array of processes using the specified sorting, returning an array
+     * with the top limit results if positive.
      *
      * @param processes
      *            The array to sort
      * @param limit
-     *            The number of results to return if positive; if zero returns
-     *            all results
+     *            The number of results to return if positive; if zero returns all
+     *            results
      * @param sort
      *            The sorting to use, or null
-     * @return An array of size limit (if positive) or of all processes, sorted
-     *         as specified
+     * @return An array of size limit (if positive) or of all processes, sorted as
+     *         specified
      */
     protected List&lt;OSProcess&gt; processSort(List&lt;OSProcess&gt; processes, int limit, ProcessSort sort) {
-<span class="nc bnc" id="L108" title="All 2 branches missed.">        if (sort != null) {</span>
-<span class="nc bnc" id="L109" title="All 8 branches missed.">            switch (sort) {</span>
+<span class="nc bnc" id="L107" title="All 2 branches missed.">        if (sort != null) {</span>
+<span class="nc bnc" id="L108" title="All 8 branches missed.">            switch (sort) {</span>
             case CPU:
-<span class="nc" id="L111">                processes.sort(CPU_DESC_SORT);</span>
-<span class="nc" id="L112">                break;</span>
+<span class="nc" id="L110">                processes.sort(CPU_DESC_SORT);</span>
+<span class="nc" id="L111">                break;</span>
             case MEMORY:
-<span class="nc" id="L114">                processes.sort(RSS_DESC_SORT);</span>
-<span class="nc" id="L115">                break;</span>
+<span class="nc" id="L113">                processes.sort(RSS_DESC_SORT);</span>
+<span class="nc" id="L114">                break;</span>
             case OLDEST:
-<span class="nc" id="L117">                processes.sort(UPTIME_DESC_SORT);</span>
-<span class="nc" id="L118">                break;</span>
+<span class="nc" id="L116">                processes.sort(UPTIME_DESC_SORT);</span>
+<span class="nc" id="L117">                break;</span>
             case NEWEST:
-<span class="nc" id="L120">                processes.sort(UPTIME_ASC_SORT);</span>
-<span class="nc" id="L121">                break;</span>
+<span class="nc" id="L119">                processes.sort(UPTIME_ASC_SORT);</span>
+<span class="nc" id="L120">                break;</span>
             case PID:
-<span class="nc" id="L123">                processes.sort(PID_ASC_SORT);</span>
-<span class="nc" id="L124">                break;</span>
+<span class="nc" id="L122">                processes.sort(PID_ASC_SORT);</span>
+<span class="nc" id="L123">                break;</span>
             case PARENTPID:
-<span class="nc" id="L126">                processes.sort(PARENTPID_ASC_SORT);</span>
-<span class="nc" id="L127">                break;</span>
+<span class="nc" id="L125">                processes.sort(PARENTPID_ASC_SORT);</span>
+<span class="nc" id="L126">                break;</span>
             case NAME:
-<span class="nc" id="L129">                processes.sort(NAME_ASC_SORT);</span>
-<span class="nc" id="L130">                break;</span>
+<span class="nc" id="L128">                processes.sort(NAME_ASC_SORT);</span>
+<span class="nc" id="L129">                break;</span>
             default:
                 // Should never get here! If you get this exception you've
                 // added something to the enum without adding it here. Tsk.
-<span class="nc" id="L134">                throw new IllegalArgumentException(&quot;Unimplemented enum type: &quot; + sort.toString());</span>
+<span class="nc" id="L133">                throw new IllegalArgumentException(&quot;Unimplemented enum type: &quot; + sort.toString());</span>
             }
         }
         // Return max of limit or process size
         // Nonpositive limit means return all
-<span class="nc" id="L139">        int maxProcs = processes.size();</span>
-<span class="nc bnc" id="L140" title="All 4 branches missed.">        if (limit &gt; 0 &amp;&amp; maxProcs &gt; limit) {</span>
-<span class="nc" id="L141">            maxProcs = limit;</span>
+<span class="nc" id="L138">        int maxProcs = processes.size();</span>
+<span class="nc bnc" id="L139" title="All 4 branches missed.">        if (limit &gt; 0 &amp;&amp; maxProcs &gt; limit) {</span>
+<span class="nc" id="L140">            maxProcs = limit;</span>
         } else {
-<span class="nc" id="L143">            return processes;</span>
+<span class="nc" id="L142">            return processes;</span>
         }
-<span class="nc" id="L145">        List&lt;OSProcess&gt; procs = new ArrayList&lt;&gt;();</span>
-<span class="nc bnc" id="L146" title="All 2 branches missed.">        for (int i = 0; i &lt; maxProcs; i++) {</span>
-<span class="nc" id="L147">            procs.add(processes.get(i));</span>
+<span class="nc" id="L144">        List&lt;OSProcess&gt; procs = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L145" title="All 2 branches missed.">        for (int i = 0; i &lt; maxProcs; i++) {</span>
+<span class="nc" id="L146">            procs.add(processes.get(i));</span>
         }
-<span class="nc" id="L149">        return procs;</span>
+<span class="nc" id="L148">        return procs;</span>
     }
 
+    /** {@inheritDoc} */
     @Override
     public String toString() {
 <span class="nc" id="L154">        StringBuilder sb = new StringBuilder();</span>
@@ -156,46 +156,38 @@ import oshi.software.os.OperatingSystemVersion;
 <span class="nc" id="L156">        return sb.toString();</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public OSProcess[] getProcesses(int limit, ProcessSort sort) {
-<span class="nc" id="L164">        return getProcesses(limit, sort, false);</span>
+<span class="nc" id="L162">        return getProcesses(limit, sort, false);</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public List&lt;OSProcess&gt; getProcesses(Collection&lt;Integer&gt; pids) {
-<span class="nc" id="L172">        List&lt;OSProcess&gt; returnValue = new ArrayList&lt;&gt;(pids.size());</span>
-<span class="nc bnc" id="L173" title="All 2 branches missed.">        for (Integer pid : pids) {</span>
-<span class="nc" id="L174">            OSProcess process = getProcess(pid);</span>
-<span class="nc bnc" id="L175" title="All 2 branches missed.">            if (process != null) {</span>
-<span class="nc" id="L176">                returnValue.add(process);</span>
+<span class="nc" id="L168">        List&lt;OSProcess&gt; returnValue = new ArrayList&lt;&gt;(pids.size());</span>
+<span class="nc bnc" id="L169" title="All 2 branches missed.">        for (Integer pid : pids) {</span>
+<span class="nc" id="L170">            OSProcess process = getProcess(pid);</span>
+<span class="nc bnc" id="L171" title="All 2 branches missed.">            if (process != null) {</span>
+<span class="nc" id="L172">                returnValue.add(process);</span>
             }
-<span class="nc" id="L178">        }</span>
-<span class="nc" id="L179">        return returnValue;</span>
+<span class="nc" id="L174">        }</span>
+<span class="nc" id="L175">        return returnValue;</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public int getBitness() {
-<span class="nc" id="L187">        return this.bitness;</span>
+<span class="nc" id="L181">        return this.bitness;</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean isElevated() {
-<span class="nc bnc" id="L195" title="All 2 branches missed.">        if (this.elevated &lt; 0) {</span>
-<span class="nc bnc" id="L196" title="All 2 branches missed.">            this.elevated = System.getenv(&quot;SUDO_COMMAND&quot;) == null ? 0 : 1;</span>
+<span class="nc bnc" id="L187" title="All 2 branches missed.">        if (this.elevated &lt; 0) {</span>
+<span class="nc bnc" id="L188" title="All 2 branches missed.">            this.elevated = System.getenv(&quot;SUDO_COMMAND&quot;) == null ? 0 : 1;</span>
         }
-<span class="nc bnc" id="L198" title="All 2 branches missed.">        return this.elevated &gt; 0;</span>
+<span class="nc bnc" id="L190" title="All 2 branches missed.">        return this.elevated &gt; 0;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

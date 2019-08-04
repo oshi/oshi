@@ -39,100 +39,110 @@ import oshi.util.Constants;
     protected String version;
     protected String releaseDate;
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getManufacturer() {
-<span class="nc bnc" id="L47" title="All 2 branches missed.">        if (this.manufacturer == null) {</span>
-<span class="nc" id="L48">            this.manufacturer = Constants.UNKNOWN;</span>
+<span class="nc bnc" id="L45" title="All 2 branches missed.">        if (this.manufacturer == null) {</span>
+<span class="nc" id="L46">            this.manufacturer = Constants.UNKNOWN;</span>
         }
-<span class="nc" id="L50">        return this.manufacturer;</span>
+<span class="nc" id="L48">        return this.manufacturer;</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getName() {
-<span class="nc bnc" id="L58" title="All 2 branches missed.">        if (this.name == null) {</span>
-<span class="nc" id="L59">            this.name = Constants.UNKNOWN;</span>
+<span class="nc bnc" id="L54" title="All 2 branches missed.">        if (this.name == null) {</span>
+<span class="nc" id="L55">            this.name = Constants.UNKNOWN;</span>
         }
-<span class="nc" id="L61">        return this.name;</span>
+<span class="nc" id="L57">        return this.name;</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getDescription() {
-<span class="nc bnc" id="L69" title="All 2 branches missed.">        if (this.description == null) {</span>
-<span class="nc" id="L70">            this.description = Constants.UNKNOWN;</span>
+<span class="nc bnc" id="L63" title="All 2 branches missed.">        if (this.description == null) {</span>
+<span class="nc" id="L64">            this.description = Constants.UNKNOWN;</span>
         }
-<span class="nc" id="L72">        return this.description;</span>
+<span class="nc" id="L66">        return this.description;</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getVersion() {
-<span class="nc bnc" id="L80" title="All 2 branches missed.">        if (this.version == null) {</span>
-<span class="nc" id="L81">            this.version = Constants.UNKNOWN;</span>
+<span class="nc bnc" id="L72" title="All 2 branches missed.">        if (this.version == null) {</span>
+<span class="nc" id="L73">            this.version = Constants.UNKNOWN;</span>
         }
-<span class="nc" id="L83">        return this.version;</span>
+<span class="nc" id="L75">        return this.version;</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getReleaseDate() {
-<span class="nc bnc" id="L91" title="All 2 branches missed.">        if (this.releaseDate == null) {</span>
-<span class="nc" id="L92">            this.releaseDate = Constants.UNKNOWN;</span>
+<span class="nc bnc" id="L81" title="All 2 branches missed.">        if (this.releaseDate == null) {</span>
+<span class="nc" id="L82">            this.releaseDate = Constants.UNKNOWN;</span>
         }
-<span class="nc" id="L94">        return this.releaseDate;</span>
+<span class="nc" id="L84">        return this.releaseDate;</span>
     }
 
     /**
+     * &lt;p&gt;
+     * Setter for the field &lt;code&gt;manufacturer&lt;/code&gt;.
+     * &lt;/p&gt;
+     *
      * @param manufacturer
      *            The manufacturer to set.
      */
     public void setManufacturer(String manufacturer) {
-<span class="nc" id="L102">        this.manufacturer = manufacturer;</span>
-<span class="nc" id="L103">    }</span>
+<span class="nc" id="L96">        this.manufacturer = manufacturer;</span>
+<span class="nc" id="L97">    }</span>
 
     /**
+     * &lt;p&gt;
+     * Setter for the field &lt;code&gt;name&lt;/code&gt;.
+     * &lt;/p&gt;
+     *
      * @param name
      *            The name to set.
      */
     public void setName(String name) {
-<span class="nc" id="L110">        this.name = name;</span>
-<span class="nc" id="L111">    }</span>
+<span class="nc" id="L108">        this.name = name;</span>
+<span class="nc" id="L109">    }</span>
 
     /**
+     * &lt;p&gt;
+     * Setter for the field &lt;code&gt;description&lt;/code&gt;.
+     * &lt;/p&gt;
+     *
      * @param description
      *            The description to set.
      */
     public void setDescription(String description) {
-<span class="nc" id="L118">        this.description = description;</span>
-<span class="nc" id="L119">    }</span>
+<span class="nc" id="L120">        this.description = description;</span>
+<span class="nc" id="L121">    }</span>
 
     /**
+     * &lt;p&gt;
+     * Setter for the field &lt;code&gt;version&lt;/code&gt;.
+     * &lt;/p&gt;
+     *
      * @param version
      *            The version to set.
      */
     public void setVersion(String version) {
-<span class="nc" id="L126">        this.version = version;</span>
-<span class="nc" id="L127">    }</span>
+<span class="nc" id="L132">        this.version = version;</span>
+<span class="nc" id="L133">    }</span>
 
     /**
+     * &lt;p&gt;
+     * Setter for the field &lt;code&gt;releaseDate&lt;/code&gt;.
+     * &lt;/p&gt;
+     *
      * @param releaseDate
      *            The releaseDate to set.
      */
     public void setReleaseDate(String releaseDate) {
-<span class="nc" id="L134">        this.releaseDate = releaseDate;</span>
-<span class="nc" id="L135">    }</span>
+<span class="nc" id="L144">        this.releaseDate = releaseDate;</span>
+<span class="nc" id="L145">    }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

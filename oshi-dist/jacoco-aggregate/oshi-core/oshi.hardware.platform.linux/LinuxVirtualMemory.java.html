@@ -37,92 +37,84 @@ import oshi.util.platform.linux.ProcUtil;
 
     private static final long serialVersionUID = 1L;
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getSwapUsed() {
-<span class="nc" id="L45">        updateMemInfo();</span>
-<span class="nc" id="L46">        return this.swapUsed;</span>
+<span class="nc" id="L43">        updateMemInfo();</span>
+<span class="nc" id="L44">        return this.swapUsed;</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getSwapTotal() {
-<span class="nc" id="L54">        updateMemInfo();</span>
-<span class="nc" id="L55">        return this.swapTotal;</span>
+<span class="nc" id="L50">        updateMemInfo();</span>
+<span class="nc" id="L51">        return this.swapTotal;</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getSwapPagesIn() {
-<span class="nc" id="L63">        updateVmStat();</span>
-<span class="nc" id="L64">        return this.swapPagesIn;</span>
+<span class="nc" id="L57">        updateVmStat();</span>
+<span class="nc" id="L58">        return this.swapPagesIn;</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getSwapPagesOut() {
-<span class="nc" id="L72">        updateVmStat();</span>
-<span class="nc" id="L73">        return this.swapPagesOut;</span>
+<span class="nc" id="L64">        updateVmStat();</span>
+<span class="nc" id="L65">        return this.swapPagesOut;</span>
     }
 
     private void updateMemInfo() {
         // Only update once per 300ms
-<span class="nc bnc" id="L78" title="All 2 branches missed.">        if (System.nanoTime() - this.lastSwapUsageNanos &gt; 300_000_000L) {</span>
-<span class="nc" id="L79">            long swapFree = 0;</span>
+<span class="nc bnc" id="L70" title="All 2 branches missed.">        if (System.nanoTime() - this.lastSwapUsageNanos &gt; 300_000_000L) {</span>
+<span class="nc" id="L71">            long swapFree = 0;</span>
 
-<span class="nc" id="L81">            List&lt;String&gt; memInfo = FileUtil.readFile(ProcUtil.getProcPath() + &quot;/meminfo&quot;);</span>
-<span class="nc bnc" id="L82" title="All 2 branches missed.">            for (String checkLine : memInfo) {</span>
-<span class="nc" id="L83">                String[] memorySplit = ParseUtil.whitespaces.split(checkLine);</span>
-<span class="nc bnc" id="L84" title="All 2 branches missed.">                if (memorySplit.length &gt; 1) {</span>
-<span class="nc bnc" id="L85" title="All 3 branches missed.">                    switch (memorySplit[0]) {</span>
+<span class="nc" id="L73">            List&lt;String&gt; memInfo = FileUtil.readFile(ProcUtil.getProcPath() + &quot;/meminfo&quot;);</span>
+<span class="nc bnc" id="L74" title="All 2 branches missed.">            for (String checkLine : memInfo) {</span>
+<span class="nc" id="L75">                String[] memorySplit = ParseUtil.whitespaces.split(checkLine);</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">                if (memorySplit.length &gt; 1) {</span>
+<span class="nc bnc" id="L77" title="All 3 branches missed.">                    switch (memorySplit[0]) {</span>
                     case &quot;SwapTotal:&quot;:
-<span class="nc" id="L87">                        this.swapTotal = parseMeminfo(memorySplit);</span>
-<span class="nc" id="L88">                        break;</span>
+<span class="nc" id="L79">                        this.swapTotal = parseMeminfo(memorySplit);</span>
+<span class="nc" id="L80">                        break;</span>
                     case &quot;SwapFree:&quot;:
-<span class="nc" id="L90">                        swapFree = parseMeminfo(memorySplit);</span>
-<span class="nc" id="L91">                        break;</span>
+<span class="nc" id="L82">                        swapFree = parseMeminfo(memorySplit);</span>
+<span class="nc" id="L83">                        break;</span>
                     default:
                         // do nothing with other lines
                         break;
                     }
                 }
-<span class="nc" id="L97">            }</span>
-<span class="nc" id="L98">            this.swapUsed = this.swapTotal - swapFree;</span>
-<span class="nc" id="L99">            this.lastSwapUsageNanos = System.nanoTime();</span>
+<span class="nc" id="L89">            }</span>
+<span class="nc" id="L90">            this.swapUsed = this.swapTotal - swapFree;</span>
+<span class="nc" id="L91">            this.lastSwapUsageNanos = System.nanoTime();</span>
         }
-<span class="nc" id="L101">    }</span>
+<span class="nc" id="L93">    }</span>
 
     private void updateVmStat() {
         // Only update once per 300ms
-<span class="nc bnc" id="L105" title="All 2 branches missed.">        if (System.nanoTime() - this.lastSwapPagesNanos &gt; 300_000_000L) {</span>
-<span class="nc" id="L106">            List&lt;String&gt; vmStat = FileUtil.readFile(ProcUtil.getProcPath() + &quot;/vmstat&quot;);</span>
-<span class="nc bnc" id="L107" title="All 2 branches missed.">            for (String checkLine : vmStat) {</span>
-<span class="nc" id="L108">                String[] memorySplit = ParseUtil.whitespaces.split(checkLine);</span>
-<span class="nc bnc" id="L109" title="All 2 branches missed.">                if (memorySplit.length &gt; 1) {</span>
-<span class="nc bnc" id="L110" title="All 3 branches missed.">                    switch (memorySplit[0]) {</span>
+<span class="nc bnc" id="L97" title="All 2 branches missed.">        if (System.nanoTime() - this.lastSwapPagesNanos &gt; 300_000_000L) {</span>
+<span class="nc" id="L98">            List&lt;String&gt; vmStat = FileUtil.readFile(ProcUtil.getProcPath() + &quot;/vmstat&quot;);</span>
+<span class="nc bnc" id="L99" title="All 2 branches missed.">            for (String checkLine : vmStat) {</span>
+<span class="nc" id="L100">                String[] memorySplit = ParseUtil.whitespaces.split(checkLine);</span>
+<span class="nc bnc" id="L101" title="All 2 branches missed.">                if (memorySplit.length &gt; 1) {</span>
+<span class="nc bnc" id="L102" title="All 3 branches missed.">                    switch (memorySplit[0]) {</span>
                     case &quot;pgpgin&quot;:
-<span class="nc" id="L112">                        this.swapPagesIn = ParseUtil.parseLongOrDefault(memorySplit[1], 0L);</span>
-<span class="nc" id="L113">                        break;</span>
+<span class="nc" id="L104">                        this.swapPagesIn = ParseUtil.parseLongOrDefault(memorySplit[1], 0L);</span>
+<span class="nc" id="L105">                        break;</span>
                     case &quot;pgpgout&quot;:
-<span class="nc" id="L115">                        this.swapPagesOut = ParseUtil.parseLongOrDefault(memorySplit[1], 0L);</span>
-<span class="nc" id="L116">                        break;</span>
+<span class="nc" id="L107">                        this.swapPagesOut = ParseUtil.parseLongOrDefault(memorySplit[1], 0L);</span>
+<span class="nc" id="L108">                        break;</span>
                     default:
                         // do nothing with other lines
                         break;
                     }
                 }
-<span class="nc" id="L122">            }</span>
-<span class="nc" id="L123">            this.lastSwapPagesNanos = System.nanoTime();</span>
+<span class="nc" id="L114">            }</span>
+<span class="nc" id="L115">            this.lastSwapPagesNanos = System.nanoTime();</span>
         }
-<span class="nc" id="L125">    }</span>
+<span class="nc" id="L117">    }</span>
 
     /**
      * Parses lines from the display of /proc/meminfo
@@ -132,14 +124,14 @@ import oshi.util.platform.linux.ProcUtil;
      * @return value, multiplied by 1024 if kB is specified
      */
     private long parseMeminfo(String[] memorySplit) {
-<span class="nc bnc" id="L135" title="All 2 branches missed.">        if (memorySplit.length &lt; 2) {</span>
-<span class="nc" id="L136">            return 0l;</span>
+<span class="nc bnc" id="L127" title="All 2 branches missed.">        if (memorySplit.length &lt; 2) {</span>
+<span class="nc" id="L128">            return 0l;</span>
         }
-<span class="nc" id="L138">        long memory = ParseUtil.parseLongOrDefault(memorySplit[1], 0L);</span>
-<span class="nc bnc" id="L139" title="All 4 branches missed.">        if (memorySplit.length &gt; 2 &amp;&amp; &quot;kB&quot;.equals(memorySplit[2])) {</span>
-<span class="nc" id="L140">            memory *= 1024;</span>
+<span class="nc" id="L130">        long memory = ParseUtil.parseLongOrDefault(memorySplit[1], 0L);</span>
+<span class="nc bnc" id="L131" title="All 4 branches missed.">        if (memorySplit.length &gt; 2 &amp;&amp; &quot;kB&quot;.equals(memorySplit[2])) {</span>
+<span class="nc" id="L132">            memory *= 1024;</span>
         }
-<span class="nc" id="L142">        return memory;</span>
+<span class="nc" id="L134">        return memory;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

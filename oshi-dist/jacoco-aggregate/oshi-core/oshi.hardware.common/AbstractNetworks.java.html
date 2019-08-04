@@ -38,44 +38,40 @@ import oshi.hardware.Networks;
 
 /**
  * Network interfaces implementation.
- *
- * @author enrico[dot]bianchi[at]gmail[dot]com
  */
-<span class="nc" id="L44">public abstract class AbstractNetworks implements Networks {</span>
+<span class="nc" id="L42">public abstract class AbstractNetworks implements Networks {</span>
 
     private static final long serialVersionUID = 1L;
 
-<span class="nc" id="L48">    private static final Logger LOG = LoggerFactory.getLogger(AbstractNetworks.class);</span>
+<span class="nc" id="L46">    private static final Logger LOG = LoggerFactory.getLogger(AbstractNetworks.class);</span>
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public NetworkIF[] getNetworks() {
-<span class="nc" id="L55">        List&lt;NetworkIF&gt; result = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L51">        List&lt;NetworkIF&gt; result = new ArrayList&lt;&gt;();</span>
         Enumeration&lt;NetworkInterface&gt; interfaces;
 
         try {
-<span class="nc" id="L59">            interfaces = NetworkInterface.getNetworkInterfaces();</span>
-<span class="nc" id="L60">        } catch (SocketException ex) {</span>
-<span class="nc" id="L61">            LOG.error(&quot;Socket exception when retrieving interfaces: {}&quot;, ex);</span>
-<span class="nc" id="L62">            return new NetworkIF[0];</span>
-<span class="nc" id="L63">        }</span>
+<span class="nc" id="L55">            interfaces = NetworkInterface.getNetworkInterfaces();</span>
+<span class="nc" id="L56">        } catch (SocketException ex) {</span>
+<span class="nc" id="L57">            LOG.error(&quot;Socket exception when retrieving interfaces: {}&quot;, ex);</span>
+<span class="nc" id="L58">            return new NetworkIF[0];</span>
+<span class="nc" id="L59">        }</span>
 
-<span class="nc bnc" id="L65" title="All 2 branches missed.">        for (NetworkInterface netint : Collections.list(interfaces)) {</span>
+<span class="nc bnc" id="L61" title="All 2 branches missed.">        for (NetworkInterface netint : Collections.list(interfaces)) {</span>
             try {
-<span class="nc bnc" id="L67" title="All 4 branches missed.">                if (!netint.isLoopback() &amp;&amp; netint.getHardwareAddress() != null) {</span>
-<span class="nc" id="L68">                    NetworkIF netIF = new NetworkIF();</span>
-<span class="nc" id="L69">                    netIF.setNetworkInterface(netint);</span>
-<span class="nc" id="L70">                    netIF.updateAttributes();</span>
-<span class="nc" id="L71">                    result.add(netIF);</span>
+<span class="nc bnc" id="L63" title="All 4 branches missed.">                if (!netint.isLoopback() &amp;&amp; netint.getHardwareAddress() != null) {</span>
+<span class="nc" id="L64">                    NetworkIF netIF = new NetworkIF();</span>
+<span class="nc" id="L65">                    netIF.setNetworkInterface(netint);</span>
+<span class="nc" id="L66">                    netIF.updateAttributes();</span>
+<span class="nc" id="L67">                    result.add(netIF);</span>
                 }
-<span class="nc" id="L73">            } catch (SocketException ex) {</span>
-<span class="nc" id="L74">                LOG.error(&quot;Socket exception when retrieving interface \&quot;{}\&quot;: {}&quot;, netint.getName(), ex);</span>
-<span class="nc" id="L75">            }</span>
-<span class="nc" id="L76">        }</span>
+<span class="nc" id="L69">            } catch (SocketException ex) {</span>
+<span class="nc" id="L70">                LOG.error(&quot;Socket exception when retrieving interface \&quot;{}\&quot;: {}&quot;, netint.getName(), ex);</span>
+<span class="nc" id="L71">            }</span>
+<span class="nc" id="L72">        }</span>
 
-<span class="nc" id="L78">        return result.toArray(new NetworkIF[0]);</span>
+<span class="nc" id="L74">        return result.toArray(new NetworkIF[0]);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

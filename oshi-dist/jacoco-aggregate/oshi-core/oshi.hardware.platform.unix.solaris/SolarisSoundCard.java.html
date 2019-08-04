@@ -40,37 +40,56 @@ public class SolarisSoundCard extends AbstractSoundCard {
     private static final String LSHAL = &quot;lshal&quot;;
     private static final String DEFAULT_AUDIO_DRIVER = &quot;audio810&quot;;
 
+    /**
+     * &lt;p&gt;
+     * Constructor for SolarisSoundCard.
+     * &lt;/p&gt;
+     *
+     * @param kernelVersion
+     *            a {@link java.lang.String} object.
+     * @param name
+     *            a {@link java.lang.String} object.
+     * @param codec
+     *            a {@link java.lang.String} object.
+     */
     public SolarisSoundCard(String kernelVersion, String name, String codec) {
-<span class="nc" id="L44">        super(kernelVersion, name, codec);</span>
-<span class="nc" id="L45">    }</span>
+<span class="nc" id="L56">        super(kernelVersion, name, codec);</span>
+<span class="nc" id="L57">    }</span>
 
+    /**
+     * &lt;p&gt;
+     * getSoundCards.
+     * &lt;/p&gt;
+     *
+     * @return a {@link java.util.List} object.
+     */
     public static List&lt;SolarisSoundCard&gt; getSoundCards() {
-<span class="nc" id="L48">        Map&lt;String, String&gt; vendorMap = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L49">        Map&lt;String, String&gt; productMap = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L50">        List&lt;String&gt; sounds = new ArrayList&lt;&gt;();</span>
-<span class="nc" id="L51">        String key = &quot;&quot;;</span>
-<span class="nc bnc" id="L52" title="All 2 branches missed.">        for (String line : ExecutingCommand.runNative(LSHAL)) {</span>
-<span class="nc" id="L53">            line = line.trim();</span>
-<span class="nc bnc" id="L54" title="All 2 branches missed.">            if (line.startsWith(&quot;udi =&quot;)) {</span>
+<span class="nc" id="L67">        Map&lt;String, String&gt; vendorMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L68">        Map&lt;String, String&gt; productMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L69">        List&lt;String&gt; sounds = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L70">        String key = &quot;&quot;;</span>
+<span class="nc bnc" id="L71" title="All 2 branches missed.">        for (String line : ExecutingCommand.runNative(LSHAL)) {</span>
+<span class="nc" id="L72">            line = line.trim();</span>
+<span class="nc bnc" id="L73" title="All 2 branches missed.">            if (line.startsWith(&quot;udi =&quot;)) {</span>
                 // we have the key.
-<span class="nc" id="L56">                key = ParseUtil.getSingleQuoteStringValue(line);</span>
-<span class="nc bnc" id="L57" title="All 4 branches missed.">            } else if (!key.isEmpty() &amp;&amp; !line.isEmpty()) {</span>
-<span class="nc bnc" id="L58" title="All 2 branches missed.">                if (line.contains(&quot;info.solaris.driver =&quot;)</span>
-<span class="nc bnc" id="L59" title="All 2 branches missed.">                        &amp;&amp; DEFAULT_AUDIO_DRIVER.equals(ParseUtil.getSingleQuoteStringValue(line))) {</span>
-<span class="nc" id="L60">                    sounds.add(key);</span>
-<span class="nc bnc" id="L61" title="All 2 branches missed.">                } else if (line.contains(&quot;info.product&quot;)) {</span>
-<span class="nc" id="L62">                    productMap.put(key, ParseUtil.getStringBetween(line, '\''));</span>
-<span class="nc bnc" id="L63" title="All 2 branches missed.">                } else if (line.contains(&quot;info.vendor&quot;)) {</span>
-<span class="nc" id="L64">                    vendorMap.put(key, ParseUtil.getStringBetween(line, '\''));</span>
+<span class="nc" id="L75">                key = ParseUtil.getSingleQuoteStringValue(line);</span>
+<span class="nc bnc" id="L76" title="All 4 branches missed.">            } else if (!key.isEmpty() &amp;&amp; !line.isEmpty()) {</span>
+<span class="nc bnc" id="L77" title="All 2 branches missed.">                if (line.contains(&quot;info.solaris.driver =&quot;)</span>
+<span class="nc bnc" id="L78" title="All 2 branches missed.">                        &amp;&amp; DEFAULT_AUDIO_DRIVER.equals(ParseUtil.getSingleQuoteStringValue(line))) {</span>
+<span class="nc" id="L79">                    sounds.add(key);</span>
+<span class="nc bnc" id="L80" title="All 2 branches missed.">                } else if (line.contains(&quot;info.product&quot;)) {</span>
+<span class="nc" id="L81">                    productMap.put(key, ParseUtil.getStringBetween(line, '\''));</span>
+<span class="nc bnc" id="L82" title="All 2 branches missed.">                } else if (line.contains(&quot;info.vendor&quot;)) {</span>
+<span class="nc" id="L83">                    vendorMap.put(key, ParseUtil.getStringBetween(line, '\''));</span>
                 }
             }
-<span class="nc" id="L67">        }</span>
-<span class="nc" id="L68">        List&lt;SolarisSoundCard&gt; soundCards = new ArrayList&lt;&gt;();</span>
-<span class="nc bnc" id="L69" title="All 2 branches missed.">        for (String _key : sounds) {</span>
-<span class="nc" id="L70">            soundCards.add(new SolarisSoundCard(productMap.get(_key) + &quot; &quot; + DEFAULT_AUDIO_DRIVER,</span>
-<span class="nc" id="L71">                    vendorMap.get(_key) + &quot; &quot; + productMap.get(_key), productMap.get(_key)));</span>
-<span class="nc" id="L72">        }</span>
-<span class="nc" id="L73">        return soundCards;</span>
+<span class="nc" id="L86">        }</span>
+<span class="nc" id="L87">        List&lt;SolarisSoundCard&gt; soundCards = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L88" title="All 2 branches missed.">        for (String _key : sounds) {</span>
+<span class="nc" id="L89">            soundCards.add(new SolarisSoundCard(productMap.get(_key) + &quot; &quot; + DEFAULT_AUDIO_DRIVER,</span>
+<span class="nc" id="L90">                    vendorMap.get(_key) + &quot; &quot; + productMap.get(_key), productMap.get(_key)));</span>
+<span class="nc" id="L91">        }</span>
+<span class="nc" id="L92">        return soundCards;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

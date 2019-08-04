@@ -27,54 +27,53 @@ import oshi.hardware.common.AbstractSensors;
 import oshi.jna.platform.mac.IOKit;
 import oshi.util.platform.mac.SmcUtil;
 
-<span class="nc" id="L30">public class MacSensors extends AbstractSensors {</span>
+/**
+ * &lt;p&gt;
+ * MacSensors class.
+ * &lt;/p&gt;
+ */
+<span class="nc" id="L35">public class MacSensors extends AbstractSensors {</span>
 
     private static final long serialVersionUID = 1L;
 
     // This shouldn't change once determined
-<span class="nc" id="L35">    private int numFans = 0;</span>
+<span class="nc" id="L40">    private int numFans = 0;</span>
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public double getCpuTemperature() {
-<span class="nc" id="L42">        SmcUtil.smcOpen();</span>
-<span class="nc" id="L43">        double temp = SmcUtil.smcGetFloat(IOKit.SMC_KEY_CPU_TEMP, 50);</span>
-<span class="nc" id="L44">        SmcUtil.smcClose();</span>
-<span class="nc bnc" id="L45" title="All 2 branches missed.">        if (temp &gt; 0d) {</span>
-<span class="nc" id="L46">            return temp;</span>
+<span class="nc" id="L45">        SmcUtil.smcOpen();</span>
+<span class="nc" id="L46">        double temp = SmcUtil.smcGetFloat(IOKit.SMC_KEY_CPU_TEMP, 50);</span>
+<span class="nc" id="L47">        SmcUtil.smcClose();</span>
+<span class="nc bnc" id="L48" title="All 2 branches missed.">        if (temp &gt; 0d) {</span>
+<span class="nc" id="L49">            return temp;</span>
         }
-<span class="nc" id="L48">        return 0d;</span>
+<span class="nc" id="L51">        return 0d;</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public int[] getFanSpeeds() {
         // If we don't have fan # try to get it
-<span class="nc" id="L57">        SmcUtil.smcOpen();</span>
-<span class="nc bnc" id="L58" title="All 2 branches missed.">        if (this.numFans == 0) {</span>
-<span class="nc" id="L59">            this.numFans = (int) SmcUtil.smcGetLong(IOKit.SMC_KEY_FAN_NUM, 50);</span>
+<span class="nc" id="L58">        SmcUtil.smcOpen();</span>
+<span class="nc bnc" id="L59" title="All 2 branches missed.">        if (this.numFans == 0) {</span>
+<span class="nc" id="L60">            this.numFans = (int) SmcUtil.smcGetLong(IOKit.SMC_KEY_FAN_NUM, 50);</span>
         }
-<span class="nc" id="L61">        int[] fanSpeeds = new int[this.numFans];</span>
-<span class="nc bnc" id="L62" title="All 2 branches missed.">        for (int i = 0; i &lt; this.numFans; i++) {</span>
-<span class="nc" id="L63">            fanSpeeds[i] = (int) SmcUtil.smcGetFloat(String.format(IOKit.SMC_KEY_FAN_SPEED, i), 50);</span>
+<span class="nc" id="L62">        int[] fanSpeeds = new int[this.numFans];</span>
+<span class="nc bnc" id="L63" title="All 2 branches missed.">        for (int i = 0; i &lt; this.numFans; i++) {</span>
+<span class="nc" id="L64">            fanSpeeds[i] = (int) SmcUtil.smcGetFloat(String.format(IOKit.SMC_KEY_FAN_SPEED, i), 50);</span>
         }
-<span class="nc" id="L65">        SmcUtil.smcClose();</span>
-<span class="nc" id="L66">        return fanSpeeds;</span>
+<span class="nc" id="L66">        SmcUtil.smcClose();</span>
+<span class="nc" id="L67">        return fanSpeeds;</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public double getCpuVoltage() {
-<span class="nc" id="L74">        SmcUtil.smcOpen();</span>
-<span class="nc" id="L75">        double volts = SmcUtil.smcGetFloat(IOKit.SMC_KEY_CPU_VOLTAGE, 50) / 1000d;</span>
-<span class="nc" id="L76">        SmcUtil.smcClose();</span>
-<span class="nc" id="L77">        return volts;</span>
+<span class="nc" id="L73">        SmcUtil.smcOpen();</span>
+<span class="nc" id="L74">        double volts = SmcUtil.smcGetFloat(IOKit.SMC_KEY_CPU_VOLTAGE, 50) / 1000d;</span>
+<span class="nc" id="L75">        SmcUtil.smcClose();</span>
+<span class="nc" id="L76">        return volts;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>
