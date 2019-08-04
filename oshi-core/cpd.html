@@ -169,10 +169,10 @@
 <th>Line</th></tr>
 <tr class="b">
 <td>oshi/software/os/linux/LinuxNetworkParams.java</td>
-<td><a href="./xref/oshi/software/os/linux/LinuxNetworkParams.html#L52">52</a></td></tr>
+<td><a href="./xref/oshi/software/os/linux/LinuxNetworkParams.html#L55">55</a></td></tr>
 <tr class="a">
 <td>oshi/software/os/unix/freebsd/FreeBsdNetworkParams.java</td>
-<td><a href="./xref/oshi/software/os/unix/freebsd/FreeBsdNetworkParams.html#L47">47</a></td></tr>
+<td><a href="./xref/oshi/software/os/unix/freebsd/FreeBsdNetworkParams.html#L50">50</a></td></tr>
 <tr class="b"><td colspan='2'>
 <div>
 <pre>    @Override
@@ -200,9 +200,7 @@
         return canonname;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getIpv4DefaultGateway() {</pre></div></td></tr></table>
 <table border="0" class="table table-striped">
@@ -211,13 +209,13 @@
 <th>Line</th></tr>
 <tr class="b">
 <td>oshi/hardware/platform/linux/LinuxDisplay.java</td>
-<td><a href="./xref/oshi/hardware/platform/linux/LinuxDisplay.html#L50">50</a></td></tr>
+<td><a href="./xref/oshi/hardware/platform/linux/LinuxDisplay.html#L56">56</a></td></tr>
 <tr class="a">
 <td>oshi/hardware/platform/unix/freebsd/FreeBsdDisplay.java</td>
-<td><a href="./xref/oshi/hardware/platform/unix/freebsd/FreeBsdDisplay.html#L50">50</a></td></tr>
+<td><a href="./xref/oshi/hardware/platform/unix/freebsd/FreeBsdDisplay.html#L56">56</a></td></tr>
 <tr class="b">
 <td>oshi/hardware/platform/unix/solaris/SolarisDisplay.java</td>
-<td><a href="./xref/oshi/hardware/platform/unix/solaris/SolarisDisplay.html#L50">50</a></td></tr>
+<td><a href="./xref/oshi/hardware/platform/unix/solaris/SolarisDisplay.html#L56">56</a></td></tr>
 <tr class="a"><td colspan='2'>
 <div>
 <pre>        LOG.debug(&quot;Initialized LinuxDisplay&quot;);
@@ -256,10 +254,10 @@
 <th>Line</th></tr>
 <tr class="a">
 <td>oshi/software/os/unix/freebsd/FreeBsdOperatingSystem.java</td>
-<td><a href="./xref/oshi/software/os/unix/freebsd/FreeBsdOperatingSystem.html#L122">122</a></td></tr>
+<td><a href="./xref/oshi/software/os/unix/freebsd/FreeBsdOperatingSystem.html#L124">124</a></td></tr>
 <tr class="b">
 <td>oshi/software/os/unix/solaris/SolarisOperatingSystem.java</td>
-<td><a href="./xref/oshi/software/os/unix/solaris/SolarisOperatingSystem.html#L115">115</a></td></tr>
+<td><a href="./xref/oshi/software/os/unix/solaris/SolarisOperatingSystem.html#L112">112</a></td></tr>
 <tr class="a"><td colspan='2'>
 <div>
 <pre>                &quot;ps -awwxo state,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etimes,systime,time,comm,args --ppid&quot;,
@@ -286,10 +284,10 @@
 <th>Line</th></tr>
 <tr class="a">
 <td>oshi/hardware/platform/mac/MacUsbDevice.java</td>
-<td><a href="./xref/oshi/hardware/platform/mac/MacUsbDevice.html#L51">51</a></td></tr>
+<td><a href="./xref/oshi/hardware/platform/mac/MacUsbDevice.html#L76">76</a></td></tr>
 <tr class="b">
 <td>oshi/hardware/platform/windows/WindowsUsbDevice.java</td>
-<td><a href="./xref/oshi/hardware/platform/windows/WindowsUsbDevice.html#L81">81</a></td></tr>
+<td><a href="./xref/oshi/hardware/platform/windows/WindowsUsbDevice.html#L106">106</a></td></tr>
 <tr class="a"><td colspan='2'>
 <div>
 <pre>    public MacUsbDevice(String name, String vendor, String vendorId, String productId, String serialNumber,
@@ -299,6 +297,10 @@
 
     /**
      * {@inheritDoc}
+     *
+     * @param tree
+     *            a boolean.
+     * @return an array of {@link oshi.hardware.UsbDevice} objects.
      */
     public static UsbDevice[] getUsbDevices(boolean tree) {
         UsbDevice[] devices = getUsbDevices();
@@ -323,10 +325,10 @@
 <th>Line</th></tr>
 <tr class="a">
 <td>oshi/software/os/mac/MacFileSystem.java</td>
-<td><a href="./xref/oshi/software/os/mac/MacFileSystem.html#L212">212</a></td></tr>
+<td><a href="./xref/oshi/software/os/mac/MacFileSystem.html#L221">221</a></td></tr>
 <tr class="b">
 <td>oshi/software/os/unix/solaris/SolarisFileSystem.java</td>
-<td><a href="./xref/oshi/software/os/unix/solaris/SolarisFileSystem.html#L217">217</a></td></tr>
+<td><a href="./xref/oshi/software/os/unix/solaris/SolarisFileSystem.html#L226">226</a></td></tr>
 <tr class="a"><td colspan='2'>
 <div>
 <pre>        for (OSFileStore fileStore : new MacFileSystem().getFileStoreMatching(osFileStore.getName())) {
@@ -352,10 +354,10 @@
 <th>Line</th></tr>
 <tr class="a">
 <td>oshi/software/os/unix/freebsd/FreeBsdFileSystem.java</td>
-<td><a href="./xref/oshi/software/os/unix/freebsd/FreeBsdFileSystem.html#L137">137</a></td></tr>
+<td><a href="./xref/oshi/software/os/unix/freebsd/FreeBsdFileSystem.html#L135">135</a></td></tr>
 <tr class="b">
 <td>oshi/software/os/unix/solaris/SolarisFileSystem.java</td>
-<td><a href="./xref/oshi/software/os/unix/solaris/SolarisFileSystem.html#L134">134</a></td></tr>
+<td><a href="./xref/oshi/software/os/unix/solaris/SolarisFileSystem.html#L132">132</a></td></tr>
 <tr class="a"><td colspan='2'>
 <div>
 <pre>        for (String fs : ExecutingCommand.runNative(&quot;mount -p&quot;)) {
@@ -388,17 +390,15 @@
 <th>Line</th></tr>
 <tr class="a">
 <td>oshi/hardware/platform/linux/LinuxCentralProcessor.java</td>
-<td><a href="./xref/oshi/hardware/platform/linux/LinuxCentralProcessor.html#L267">267</a></td></tr>
+<td><a href="./xref/oshi/hardware/platform/linux/LinuxCentralProcessor.html#L263">263</a></td></tr>
 <tr class="b">
 <td>oshi/hardware/platform/unix/solaris/SolarisCentralProcessor.java</td>
-<td><a href="./xref/oshi/hardware/platform/unix/solaris/SolarisCentralProcessor.html#L213">213</a></td></tr>
+<td><a href="./xref/oshi/hardware/platform/unix/solaris/SolarisCentralProcessor.html#L207">207</a></td></tr>
 <tr class="a"><td colspan='2'>
 <div>
 <pre>    }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public double[] getSystemLoadAverage(int nelem) {
         if (nelem &lt; 1 || nelem &gt; 3) {
@@ -414,9 +414,7 @@
         return average;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long[][] getProcessorCpuLoadTicks() {
         long[][] ticks = new long[this.logicalProcessorCount][TickType.values().length];
@@ -431,19 +429,17 @@
 <th>Line</th></tr>
 <tr class="a">
 <td>oshi/hardware/platform/unix/freebsd/FreeBsdCentralProcessor.java</td>
-<td><a href="./xref/oshi/hardware/platform/unix/freebsd/FreeBsdCentralProcessor.html#L271">271</a></td></tr>
+<td><a href="./xref/oshi/hardware/platform/unix/freebsd/FreeBsdCentralProcessor.html#L265">265</a></td></tr>
 <tr class="b">
 <td>oshi/hardware/platform/unix/solaris/SolarisCentralProcessor.java</td>
-<td><a href="./xref/oshi/hardware/platform/unix/solaris/SolarisCentralProcessor.html#L211">211</a></td></tr>
+<td><a href="./xref/oshi/hardware/platform/unix/solaris/SolarisCentralProcessor.html#L205">205</a></td></tr>
 <tr class="a"><td colspan='2'>
 <div>
 <pre>        }
         return max;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public double[] getSystemLoadAverage(int nelem) {
         if (nelem &lt; 1 || nelem &gt; 3) {
@@ -459,9 +455,7 @@
         return average;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long[][] getProcessorCpuLoadTicks() {
         long[][] ticks = new long[this.logicalProcessorCount][TickType.values().length];</pre></div></td></tr></table>
@@ -471,17 +465,15 @@
 <th>Line</th></tr>
 <tr class="a">
 <td>oshi/hardware/platform/linux/LinuxCentralProcessor.java</td>
-<td><a href="./xref/oshi/hardware/platform/linux/LinuxCentralProcessor.html#L267">267</a></td></tr>
+<td><a href="./xref/oshi/hardware/platform/linux/LinuxCentralProcessor.html#L263">263</a></td></tr>
 <tr class="b">
 <td>oshi/hardware/platform/unix/freebsd/FreeBsdCentralProcessor.java</td>
-<td><a href="./xref/oshi/hardware/platform/unix/freebsd/FreeBsdCentralProcessor.html#L273">273</a></td></tr>
+<td><a href="./xref/oshi/hardware/platform/unix/freebsd/FreeBsdCentralProcessor.html#L267">267</a></td></tr>
 <tr class="a"><td colspan='2'>
 <div>
 <pre>    }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public double[] getSystemLoadAverage(int nelem) {
         if (nelem &lt; 1 || nelem &gt; 3) {
@@ -497,9 +489,7 @@
         return average;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long[][] getProcessorCpuLoadTicks() {
         long[][] ticks = new long[this.logicalProcessorCount][TickType.values().length];</pre></div></td></tr></table>
@@ -509,13 +499,13 @@
 <th>Line</th></tr>
 <tr class="a">
 <td>oshi/software/os/linux/LinuxFileSystem.java</td>
-<td><a href="./xref/oshi/software/os/linux/LinuxFileSystem.html#L287">287</a></td></tr>
+<td><a href="./xref/oshi/software/os/linux/LinuxFileSystem.html#L296">296</a></td></tr>
 <tr class="b">
 <td>oshi/software/os/mac/MacFileSystem.java</td>
-<td><a href="./xref/oshi/software/os/mac/MacFileSystem.html#L212">212</a></td></tr>
+<td><a href="./xref/oshi/software/os/mac/MacFileSystem.html#L221">221</a></td></tr>
 <tr class="a">
 <td>oshi/software/os/unix/solaris/SolarisFileSystem.java</td>
-<td><a href="./xref/oshi/software/os/unix/solaris/SolarisFileSystem.html#L217">217</a></td></tr>
+<td><a href="./xref/oshi/software/os/unix/solaris/SolarisFileSystem.html#L226">226</a></td></tr>
 <tr class="b"><td colspan='2'>
 <div>
 <pre>        for (OSFileStore fileStore : new LinuxFileSystem().getFileStoreMatching(osFileStore.getName(), null)) {
@@ -541,16 +531,16 @@
 <th>Line</th></tr>
 <tr class="b">
 <td>oshi/software/os/linux/LinuxFileSystem.java</td>
-<td><a href="./xref/oshi/software/os/linux/LinuxFileSystem.html#L287">287</a></td></tr>
+<td><a href="./xref/oshi/software/os/linux/LinuxFileSystem.html#L296">296</a></td></tr>
 <tr class="a">
 <td>oshi/software/os/mac/MacFileSystem.java</td>
-<td><a href="./xref/oshi/software/os/mac/MacFileSystem.html#L212">212</a></td></tr>
+<td><a href="./xref/oshi/software/os/mac/MacFileSystem.html#L221">221</a></td></tr>
 <tr class="b">
 <td>oshi/software/os/unix/solaris/SolarisFileSystem.java</td>
-<td><a href="./xref/oshi/software/os/unix/solaris/SolarisFileSystem.html#L217">217</a></td></tr>
+<td><a href="./xref/oshi/software/os/unix/solaris/SolarisFileSystem.html#L226">226</a></td></tr>
 <tr class="a">
 <td>oshi/software/os/windows/WindowsFileSystem.java</td>
-<td><a href="./xref/oshi/software/os/windows/WindowsFileSystem.html#L334">334</a></td></tr>
+<td><a href="./xref/oshi/software/os/windows/WindowsFileSystem.html#L348">348</a></td></tr>
 <tr class="b"><td colspan='2'>
 <div>
 <pre>        for (OSFileStore fileStore : new LinuxFileSystem().getFileStoreMatching(osFileStore.getName(), null)) {
@@ -576,10 +566,10 @@
 <th>Line</th></tr>
 <tr class="b">
 <td>oshi/hardware/platform/linux/LinuxUsbDevice.java</td>
-<td><a href="./xref/oshi/hardware/platform/linux/LinuxUsbDevice.html#L171">171</a></td></tr>
+<td><a href="./xref/oshi/hardware/platform/linux/LinuxUsbDevice.html#L200">200</a></td></tr>
 <tr class="a">
 <td>oshi/hardware/platform/unix/freebsd/FreeBsdUsbDevice.java</td>
-<td><a href="./xref/oshi/hardware/platform/unix/freebsd/FreeBsdUsbDevice.html#L168">168</a></td></tr>
+<td><a href="./xref/oshi/hardware/platform/unix/freebsd/FreeBsdUsbDevice.html#L197">197</a></td></tr>
 <tr class="b"><td colspan='2'>
 <div>
 <pre>    private static LinuxUsbDevice getDeviceAndChildren(String devPath, String vid, String pid,
@@ -595,10 +585,10 @@
 <th>Line</th></tr>
 <tr class="b">
 <td>oshi/hardware/platform/windows/WindowsCentralProcessor.java</td>
-<td><a href="./xref/oshi/hardware/platform/windows/WindowsCentralProcessor.html#L340">340</a></td></tr>
+<td><a href="./xref/oshi/hardware/platform/windows/WindowsCentralProcessor.html#L342">342</a></td></tr>
 <tr class="a">
 <td>oshi/jna/platform/windows/ProcInfo.java</td>
-<td><a href="./xref/oshi/jna/platform/windows/ProcInfo.html#L191">191</a></td></tr>
+<td><a href="./xref/oshi/jna/platform/windows/ProcInfo.html#L196">196</a></td></tr>
 <tr class="b"><td colspan='2'>
 <div>
 <pre>    }
@@ -618,7 +608,7 @@
 <th>Line</th></tr>
 <tr class="b">
 <td>oshi/hardware/platform/linux/LinuxCentralProcessor.java</td>
-<td><a href="./xref/oshi/hardware/platform/linux/LinuxCentralProcessor.html#L159">159</a></td></tr>
+<td><a href="./xref/oshi/hardware/platform/linux/LinuxCentralProcessor.html#L161">161</a></td></tr>
 <tr class="a">
 <td>oshi/hardware/platform/unix/freebsd/FreeBsdCentralProcessor.java</td>
 <td><a href="./xref/oshi/hardware/platform/unix/freebsd/FreeBsdCentralProcessor.html#L121">121</a></td></tr>
@@ -645,10 +635,10 @@
 <th>Line</th></tr>
 <tr class="b">
 <td>oshi/hardware/platform/unix/freebsd/FreeBsdUsbDevice.java</td>
-<td><a href="./xref/oshi/hardware/platform/unix/freebsd/FreeBsdUsbDevice.html#L60">60</a></td></tr>
+<td><a href="./xref/oshi/hardware/platform/unix/freebsd/FreeBsdUsbDevice.html#L89">89</a></td></tr>
 <tr class="a">
 <td>oshi/hardware/platform/unix/solaris/SolarisUsbDevice.java</td>
-<td><a href="./xref/oshi/hardware/platform/unix/solaris/SolarisUsbDevice.html#L64">64</a></td></tr>
+<td><a href="./xref/oshi/hardware/platform/unix/solaris/SolarisUsbDevice.html#L94">94</a></td></tr>
 <tr class="b"><td colspan='2'>
 <div>
 <pre>                    new FreeBsdUsbDevice[0]));

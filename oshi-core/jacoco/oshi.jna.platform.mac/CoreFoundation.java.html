@@ -35,41 +35,50 @@ import com.sun.jna.ptr.PointerByReference;
  * CoreFoundation framework for power supply stats. This class should be
  * considered non-API as it may be removed if/when its code is incorporated into
  * the JNA project.
- *
- * @author widdis[at]gmail[dot]com
  */
 public interface CoreFoundation extends Library {
-<span class="nc" id="L42">    CoreFoundation INSTANCE = Native.load(&quot;CoreFoundation&quot;, CoreFoundation.class);</span>
+    /** Constant &lt;code&gt;INSTANCE&lt;/code&gt; */
+<span class="nc" id="L41">    CoreFoundation INSTANCE = Native.load(&quot;CoreFoundation&quot;, CoreFoundation.class);</span>
 
+    /** Constant &lt;code&gt;UTF_8=0x08000100&lt;/code&gt; */
     int UTF_8 = 0x08000100;
 
+    /**
+     * &lt;p&gt;
+     * CFArrayGetCount.
+     * &lt;/p&gt;
+     *
+     * @param array
+     *            a {@link oshi.jna.platform.mac.CoreFoundation.CFArrayRef} object.
+     * @return a int.
+     */
     int CFArrayGetCount(CFArrayRef array);
 
     /*
      * Decorator class types for PointerType to better match ported code
      */
-<span class="nc" id="L51">    class CFTypeRef extends PointerType {</span>
+<span class="nc" id="L60">    class CFTypeRef extends PointerType {</span>
     }
 
-<span class="nc" id="L54">    class CFNumberRef extends PointerType {</span>
+<span class="nc" id="L63">    class CFNumberRef extends PointerType {</span>
     }
 
-<span class="nc" id="L57">    class CFBooleanRef extends PointerType {</span>
+<span class="nc" id="L66">    class CFBooleanRef extends PointerType {</span>
     }
 
-<span class="nc" id="L60">    class CFArrayRef extends PointerType {</span>
+<span class="nc" id="L69">    class CFArrayRef extends PointerType {</span>
     }
 
-<span class="nc" id="L63">    class CFDictionaryRef extends PointerType {</span>
+<span class="nc" id="L72">    class CFDictionaryRef extends PointerType {</span>
     }
 
-<span class="nc" id="L66">    class CFMutableDictionaryRef extends CFDictionaryRef {</span>
+<span class="nc" id="L75">    class CFMutableDictionaryRef extends CFDictionaryRef {</span>
     }
 
-<span class="nc" id="L69">    class CFAllocatorRef extends PointerType {</span>
+<span class="nc" id="L78">    class CFAllocatorRef extends PointerType {</span>
     }
 
-<span class="nc" id="L72">    class CFStringRef extends PointerType {</span>
+<span class="nc" id="L81">    class CFStringRef extends PointerType {</span>
         /**
          * Creates a new CFString from the given Java string.
          *
@@ -78,55 +87,225 @@ public interface CoreFoundation extends Library {
          * @return A reference to a CFString representing s
          */
         public static CFStringRef toCFString(String s) {
-<span class="nc" id="L81">            final char[] chars = s.toCharArray();</span>
-<span class="nc" id="L82">            int length = chars.length;</span>
-<span class="nc" id="L83">            return CoreFoundation.INSTANCE.CFStringCreateWithCharacters(null, chars, new NativeLong(length));</span>
+<span class="nc" id="L90">            final char[] chars = s.toCharArray();</span>
+<span class="nc" id="L91">            int length = chars.length;</span>
+<span class="nc" id="L92">            return CoreFoundation.INSTANCE.CFStringCreateWithCharacters(null, chars, new NativeLong(length));</span>
         }
     }
 
     /*
-     * References are owned if created by functions including &quot;Create&quot; or &quot;Copy&quot;
-     * and must be released with CFRelease to avoid leaking references
+     * References are owned if created by functions including &quot;Create&quot; or &quot;Copy&quot; and
+     * must be released with CFRelease to avoid leaking references
      */
 
+    /**
+     * &lt;p&gt;
+     * CFStringCreateWithCharacters.
+     * &lt;/p&gt;
+     *
+     * @param object
+     *            a {@link java.lang.Object} object.
+     * @param chars
+     *            an array of {@link char} objects.
+     * @param length
+     *            a {@link com.sun.jna.NativeLong} object.
+     * @return a {@link oshi.jna.platform.mac.CoreFoundation.CFStringRef} object.
+     */
     CFStringRef CFStringCreateWithCharacters(Object object, char[] chars, NativeLong length);
 
+    /**
+     * &lt;p&gt;
+     * CFDictionaryCreateMutable.
+     * &lt;/p&gt;
+     *
+     * @param allocator
+     *            a {@link oshi.jna.platform.mac.CoreFoundation.CFAllocatorRef}
+     *            object.
+     * @param capacity
+     *            a int.
+     * @param keyCallBacks
+     *            a {@link com.sun.jna.Pointer} object.
+     * @param valueCallBacks
+     *            a {@link com.sun.jna.Pointer} object.
+     * @return a {@link oshi.jna.platform.mac.CoreFoundation.CFMutableDictionaryRef}
+     *         object.
+     */
     CFMutableDictionaryRef CFDictionaryCreateMutable(CFAllocatorRef allocator, int capacity, Pointer keyCallBacks,
             Pointer valueCallBacks);
 
+    /**
+     * &lt;p&gt;
+     * CFRelease.
+     * &lt;/p&gt;
+     *
+     * @param blob
+     *            a {@link com.sun.jna.PointerType} object.
+     */
     void CFRelease(PointerType blob);
 
     /*
-     * References are not owned if created by functions using &quot;Get&quot;. Use
-     * CFRetain if object retention is required, and then CFRelease later. Do
-     * not use CFRelease if you do not own.
+     * References are not owned if created by functions using &quot;Get&quot;. Use CFRetain if
+     * object retention is required, and then CFRelease later. Do not use CFRelease
+     * if you do not own.
      */
 
+    /**
+     * &lt;p&gt;
+     * CFDictionarySetValue.
+     * &lt;/p&gt;
+     *
+     * @param dict
+     *            a
+     *            {@link oshi.jna.platform.mac.CoreFoundation.CFMutableDictionaryRef}
+     *            object.
+     * @param key
+     *            a {@link com.sun.jna.PointerType} object.
+     * @param value
+     *            a {@link com.sun.jna.PointerType} object.
+     */
     void CFDictionarySetValue(CFMutableDictionaryRef dict, PointerType key, PointerType value);
 
+    /**
+     * &lt;p&gt;
+     * CFDictionaryGetValue.
+     * &lt;/p&gt;
+     *
+     * @param dictionary
+     *            a {@link oshi.jna.platform.mac.CoreFoundation.CFDictionaryRef}
+     *            object.
+     * @param key
+     *            a {@link oshi.jna.platform.mac.CoreFoundation.CFStringRef} object.
+     * @return a {@link com.sun.jna.Pointer} object.
+     */
     Pointer CFDictionaryGetValue(CFDictionaryRef dictionary, CFStringRef key);
 
+    /**
+     * &lt;p&gt;
+     * CFDictionaryGetValueIfPresent.
+     * &lt;/p&gt;
+     *
+     * @param dictionary
+     *            a {@link oshi.jna.platform.mac.CoreFoundation.CFDictionaryRef}
+     *            object.
+     * @param key
+     *            a {@link oshi.jna.platform.mac.CoreFoundation.CFStringRef} object.
+     * @param value
+     *            a {@link com.sun.jna.PointerType} object.
+     * @return a boolean.
+     */
     boolean CFDictionaryGetValueIfPresent(CFDictionaryRef dictionary, CFStringRef key, PointerType value);
 
+    /**
+     * &lt;p&gt;
+     * CFStringGetCString.
+     * &lt;/p&gt;
+     *
+     * @param cfString
+     *            a {@link com.sun.jna.Pointer} object.
+     * @param bufferToFill
+     *            a {@link com.sun.jna.Pointer} object.
+     * @param maxSize
+     *            a long.
+     * @param encoding
+     *            a int.
+     * @return a boolean.
+     */
     boolean CFStringGetCString(Pointer cfString, Pointer bufferToFill, long maxSize, int encoding);
 
+    /**
+     * &lt;p&gt;
+     * CFBooleanGetValue.
+     * &lt;/p&gt;
+     *
+     * @param booleanRef
+     *            a {@link com.sun.jna.Pointer} object.
+     * @return a boolean.
+     */
     boolean CFBooleanGetValue(Pointer booleanRef);
 
+    /**
+     * &lt;p&gt;
+     * CFArrayGetValueAtIndex.
+     * &lt;/p&gt;
+     *
+     * @param array
+     *            a {@link oshi.jna.platform.mac.CoreFoundation.CFArrayRef} object.
+     * @param index
+     *            a int.
+     * @return a {@link oshi.jna.platform.mac.CoreFoundation.CFTypeRef} object.
+     */
     CFTypeRef CFArrayGetValueAtIndex(CFArrayRef array, int index);
 
+    /**
+     * &lt;p&gt;
+     * CFNumberGetValue.
+     * &lt;/p&gt;
+     *
+     * @param cfNumber
+     *            a {@link com.sun.jna.Pointer} object.
+     * @param intSize
+     *            a int.
+     * @param value
+     *            a {@link com.sun.jna.ptr.ByReference} object.
+     */
     void CFNumberGetValue(Pointer cfNumber, int intSize, ByReference value);
 
+    /**
+     * &lt;p&gt;
+     * CFStringGetLength.
+     * &lt;/p&gt;
+     *
+     * @param str
+     *            a {@link com.sun.jna.Pointer} object.
+     * @return a long.
+     */
     long CFStringGetLength(Pointer str);
 
+    /**
+     * &lt;p&gt;
+     * CFStringGetMaximumSizeForEncoding.
+     * &lt;/p&gt;
+     *
+     * @param length
+     *            a long.
+     * @param encoding
+     *            a int.
+     * @return a long.
+     */
     long CFStringGetMaximumSizeForEncoding(long length, int encoding);
 
+    /**
+     * &lt;p&gt;
+     * CFAllocatorGetDefault.
+     * &lt;/p&gt;
+     *
+     * @return a {@link oshi.jna.platform.mac.CoreFoundation.CFAllocatorRef} object.
+     */
     CFAllocatorRef CFAllocatorGetDefault();
 
-<span class="nc" id="L125">    class CFDataRef extends CFTypeRef {</span>
+<span class="nc" id="L286">    class CFDataRef extends CFTypeRef {</span>
     }
 
+    /**
+     * &lt;p&gt;
+     * CFDataGetLength.
+     * &lt;/p&gt;
+     *
+     * @param theData
+     *            a {@link oshi.jna.platform.mac.CoreFoundation.CFTypeRef} object.
+     * @return a int.
+     */
     int CFDataGetLength(CFTypeRef theData);
 
+    /**
+     * &lt;p&gt;
+     * CFDataGetBytePtr.
+     * &lt;/p&gt;
+     *
+     * @param theData
+     *            a {@link oshi.jna.platform.mac.CoreFoundation.CFTypeRef} object.
+     * @return a {@link com.sun.jna.ptr.PointerByReference} object.
+     */
     PointerByReference CFDataGetBytePtr(CFTypeRef theData);
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

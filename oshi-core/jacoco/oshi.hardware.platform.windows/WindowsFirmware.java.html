@@ -41,71 +41,61 @@ import oshi.util.platform.windows.WmiUtil;
 <span class="nc" id="L41">        MANUFACTURER, NAME, DESCRIPTION, VERSION, RELEASEDATE;</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getManufacturer() {
-<span class="nc bnc" id="L49" title="All 2 branches missed.">        if (this.manufacturer == null) {</span>
-<span class="nc" id="L50">            queryWmi();</span>
+<span class="nc bnc" id="L47" title="All 2 branches missed.">        if (this.manufacturer == null) {</span>
+<span class="nc" id="L48">            queryWmi();</span>
         }
-<span class="nc" id="L52">        return super.getManufacturer();</span>
+<span class="nc" id="L50">        return super.getManufacturer();</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getName() {
-<span class="nc bnc" id="L60" title="All 2 branches missed.">        if (this.name == null) {</span>
-<span class="nc" id="L61">            queryWmi();</span>
+<span class="nc bnc" id="L56" title="All 2 branches missed.">        if (this.name == null) {</span>
+<span class="nc" id="L57">            queryWmi();</span>
         }
-<span class="nc" id="L63">        return super.getName();</span>
+<span class="nc" id="L59">        return super.getName();</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getDescription() {
-<span class="nc bnc" id="L71" title="All 2 branches missed.">        if (this.description == null) {</span>
-<span class="nc" id="L72">            queryWmi();</span>
+<span class="nc bnc" id="L65" title="All 2 branches missed.">        if (this.description == null) {</span>
+<span class="nc" id="L66">            queryWmi();</span>
         }
-<span class="nc" id="L74">        return super.getDescription();</span>
+<span class="nc" id="L68">        return super.getDescription();</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getVersion() {
-<span class="nc bnc" id="L82" title="All 2 branches missed.">        if (this.version == null) {</span>
-<span class="nc" id="L83">            queryWmi();</span>
+<span class="nc bnc" id="L74" title="All 2 branches missed.">        if (this.version == null) {</span>
+<span class="nc" id="L75">            queryWmi();</span>
         }
-<span class="nc" id="L85">        return super.getVersion();</span>
+<span class="nc" id="L77">        return super.getVersion();</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getReleaseDate() {
-<span class="nc bnc" id="L93" title="All 2 branches missed.">        if (this.releaseDate == null) {</span>
-<span class="nc" id="L94">            queryWmi();</span>
+<span class="nc bnc" id="L83" title="All 2 branches missed.">        if (this.releaseDate == null) {</span>
+<span class="nc" id="L84">            queryWmi();</span>
         }
-<span class="nc" id="L96">        return super.getReleaseDate();</span>
+<span class="nc" id="L86">        return super.getReleaseDate();</span>
     }
 
     private void queryWmi() {
-<span class="nc" id="L100">        WmiQuery&lt;BiosProperty&gt; biosQuery = new WmiQuery&lt;&gt;(&quot;Win32_BIOS where PrimaryBIOS=true&quot;, BiosProperty.class);</span>
-<span class="nc" id="L101">        WmiResult&lt;BiosProperty&gt; win32BIOS = WmiQueryHandler.createInstance().queryWMI(biosQuery);</span>
-<span class="nc bnc" id="L102" title="All 2 branches missed.">        if (win32BIOS.getResultCount() &gt; 0) {</span>
-<span class="nc" id="L103">            setManufacturer(WmiUtil.getString(win32BIOS, BiosProperty.MANUFACTURER, 0));</span>
-<span class="nc" id="L104">            setName(WmiUtil.getString(win32BIOS, BiosProperty.NAME, 0));</span>
-<span class="nc" id="L105">            setDescription(WmiUtil.getString(win32BIOS, BiosProperty.DESCRIPTION, 0));</span>
-<span class="nc" id="L106">            setVersion(WmiUtil.getString(win32BIOS, BiosProperty.VERSION, 0));</span>
-<span class="nc" id="L107">            setReleaseDate(WmiUtil.getDateString(win32BIOS, BiosProperty.RELEASEDATE, 0));</span>
+<span class="nc" id="L90">        WmiQuery&lt;BiosProperty&gt; biosQuery = new WmiQuery&lt;&gt;(&quot;Win32_BIOS where PrimaryBIOS=true&quot;, BiosProperty.class);</span>
+<span class="nc" id="L91">        WmiResult&lt;BiosProperty&gt; win32BIOS = WmiQueryHandler.createInstance().queryWMI(biosQuery);</span>
+<span class="nc bnc" id="L92" title="All 2 branches missed.">        if (win32BIOS.getResultCount() &gt; 0) {</span>
+<span class="nc" id="L93">            setManufacturer(WmiUtil.getString(win32BIOS, BiosProperty.MANUFACTURER, 0));</span>
+<span class="nc" id="L94">            setName(WmiUtil.getString(win32BIOS, BiosProperty.NAME, 0));</span>
+<span class="nc" id="L95">            setDescription(WmiUtil.getString(win32BIOS, BiosProperty.DESCRIPTION, 0));</span>
+<span class="nc" id="L96">            setVersion(WmiUtil.getString(win32BIOS, BiosProperty.VERSION, 0));</span>
+<span class="nc" id="L97">            setReleaseDate(WmiUtil.getDateString(win32BIOS, BiosProperty.RELEASEDATE, 0));</span>
         }
-<span class="nc" id="L109">    }</span>
+<span class="nc" id="L99">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

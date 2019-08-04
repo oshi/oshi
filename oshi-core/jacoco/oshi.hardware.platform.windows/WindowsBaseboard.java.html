@@ -41,59 +41,51 @@ import oshi.util.platform.windows.WmiUtil;
 <span class="nc" id="L41">        MANUFACTURER, MODEL, VERSION, SERIALNUMBER;</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getManufacturer() {
-<span class="nc bnc" id="L49" title="All 2 branches missed.">        if (this.manufacturer == null) {</span>
-<span class="nc" id="L50">            queryWmi();</span>
+<span class="nc bnc" id="L47" title="All 2 branches missed.">        if (this.manufacturer == null) {</span>
+<span class="nc" id="L48">            queryWmi();</span>
         }
-<span class="nc" id="L52">        return super.getManufacturer();</span>
+<span class="nc" id="L50">        return super.getManufacturer();</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getModel() {
-<span class="nc bnc" id="L60" title="All 2 branches missed.">        if (this.model == null) {</span>
-<span class="nc" id="L61">            queryWmi();</span>
+<span class="nc bnc" id="L56" title="All 2 branches missed.">        if (this.model == null) {</span>
+<span class="nc" id="L57">            queryWmi();</span>
         }
-<span class="nc" id="L63">        return super.getModel();</span>
+<span class="nc" id="L59">        return super.getModel();</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getVersion() {
-<span class="nc bnc" id="L71" title="All 2 branches missed.">        if (this.version == null) {</span>
-<span class="nc" id="L72">            queryWmi();</span>
+<span class="nc bnc" id="L65" title="All 2 branches missed.">        if (this.version == null) {</span>
+<span class="nc" id="L66">            queryWmi();</span>
         }
-<span class="nc" id="L74">        return super.getVersion();</span>
+<span class="nc" id="L68">        return super.getVersion();</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getSerialNumber() {
-<span class="nc bnc" id="L82" title="All 2 branches missed.">        if (this.serialNumber == null) {</span>
-<span class="nc" id="L83">            queryWmi();</span>
+<span class="nc bnc" id="L74" title="All 2 branches missed.">        if (this.serialNumber == null) {</span>
+<span class="nc" id="L75">            queryWmi();</span>
         }
-<span class="nc" id="L85">        return super.getSerialNumber();</span>
+<span class="nc" id="L77">        return super.getSerialNumber();</span>
     }
 
     private void queryWmi() {
-<span class="nc" id="L89">        WmiQuery&lt;BaseboardProperty&gt; baseboardQuery = new WmiQuery&lt;&gt;(&quot;Win32_BaseBoard&quot;, BaseboardProperty.class);</span>
-<span class="nc" id="L90">        WmiResult&lt;BaseboardProperty&gt; win32BaseBoard = WmiQueryHandler.createInstance().queryWMI(baseboardQuery);</span>
-<span class="nc bnc" id="L91" title="All 2 branches missed.">        if (win32BaseBoard.getResultCount() &gt; 0) {</span>
-<span class="nc" id="L92">            this.manufacturer = WmiUtil.getString(win32BaseBoard, BaseboardProperty.MANUFACTURER, 0);</span>
-<span class="nc" id="L93">            this.model = WmiUtil.getString(win32BaseBoard, BaseboardProperty.MODEL, 0);</span>
-<span class="nc" id="L94">            this.version = WmiUtil.getString(win32BaseBoard, BaseboardProperty.VERSION, 0);</span>
-<span class="nc" id="L95">            this.serialNumber = WmiUtil.getString(win32BaseBoard, BaseboardProperty.SERIALNUMBER, 0);</span>
+<span class="nc" id="L81">        WmiQuery&lt;BaseboardProperty&gt; baseboardQuery = new WmiQuery&lt;&gt;(&quot;Win32_BaseBoard&quot;, BaseboardProperty.class);</span>
+<span class="nc" id="L82">        WmiResult&lt;BaseboardProperty&gt; win32BaseBoard = WmiQueryHandler.createInstance().queryWMI(baseboardQuery);</span>
+<span class="nc bnc" id="L83" title="All 2 branches missed.">        if (win32BaseBoard.getResultCount() &gt; 0) {</span>
+<span class="nc" id="L84">            this.manufacturer = WmiUtil.getString(win32BaseBoard, BaseboardProperty.MANUFACTURER, 0);</span>
+<span class="nc" id="L85">            this.model = WmiUtil.getString(win32BaseBoard, BaseboardProperty.MODEL, 0);</span>
+<span class="nc" id="L86">            this.version = WmiUtil.getString(win32BaseBoard, BaseboardProperty.VERSION, 0);</span>
+<span class="nc" id="L87">            this.serialNumber = WmiUtil.getString(win32BaseBoard, BaseboardProperty.SERIALNUMBER, 0);</span>
         }
-<span class="nc" id="L97">    }</span>
+<span class="nc" id="L89">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

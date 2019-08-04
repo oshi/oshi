@@ -37,95 +37,94 @@ import oshi.software.common.AbstractNetworkParams;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
-<span class="nc" id="L40">public class LinuxNetworkParams extends AbstractNetworkParams {</span>
+/**
+ * &lt;p&gt;
+ * LinuxNetworkParams class.
+ * &lt;/p&gt;
+ */
+<span class="nc" id="L45">public class LinuxNetworkParams extends AbstractNetworkParams {</span>
 
     private static final long serialVersionUID = 1L;
 
-<span class="nc" id="L44">    private static final Logger LOG = LoggerFactory.getLogger(LinuxNetworkParams.class);</span>
+<span class="nc" id="L49">    private static final Logger LOG = LoggerFactory.getLogger(LinuxNetworkParams.class);</span>
 
     private static final String IPV4_DEFAULT_DEST = &quot;0.0.0.0&quot;; // NOSONAR
     private static final String IPV6_DEFAULT_DEST = &quot;::/0&quot;;
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getDomainName() {
-<span class="nc" id="L54">        Libc.Addrinfo hint = new Libc.Addrinfo();</span>
-<span class="nc" id="L55">        hint.ai_flags = Libc.AI_CANONNAME;</span>
-<span class="nc" id="L56">        String hostname = &quot;&quot;;</span>
+<span class="nc" id="L57">        Libc.Addrinfo hint = new Libc.Addrinfo();</span>
+<span class="nc" id="L58">        hint.ai_flags = Libc.AI_CANONNAME;</span>
+<span class="nc" id="L59">        String hostname = &quot;&quot;;</span>
         try {
-<span class="nc" id="L58">            hostname = InetAddress.getLocalHost().getHostName();</span>
-<span class="nc" id="L59">        } catch (UnknownHostException e) {</span>
-<span class="nc" id="L60">            LOG.error(&quot;Unknown host exception when getting address of local host: {}&quot;, e);</span>
-<span class="nc" id="L61">            return &quot;&quot;;</span>
-<span class="nc" id="L62">        }</span>
-<span class="nc" id="L63">        PointerByReference ptr = new PointerByReference();</span>
-<span class="nc" id="L64">        int res = Libc.INSTANCE.getaddrinfo(hostname, null, hint, ptr);</span>
-<span class="nc bnc" id="L65" title="All 2 branches missed.">        if (res &gt; 0) {</span>
-<span class="nc bnc" id="L66" title="All 2 branches missed.">            if (LOG.isErrorEnabled()) {</span>
-<span class="nc" id="L67">                LOG.error(&quot;Failed getaddrinfo(): {}&quot;, Libc.INSTANCE.gai_strerror(res));</span>
+<span class="nc" id="L61">            hostname = InetAddress.getLocalHost().getHostName();</span>
+<span class="nc" id="L62">        } catch (UnknownHostException e) {</span>
+<span class="nc" id="L63">            LOG.error(&quot;Unknown host exception when getting address of local host: {}&quot;, e);</span>
+<span class="nc" id="L64">            return &quot;&quot;;</span>
+<span class="nc" id="L65">        }</span>
+<span class="nc" id="L66">        PointerByReference ptr = new PointerByReference();</span>
+<span class="nc" id="L67">        int res = Libc.INSTANCE.getaddrinfo(hostname, null, hint, ptr);</span>
+<span class="nc bnc" id="L68" title="All 2 branches missed.">        if (res &gt; 0) {</span>
+<span class="nc bnc" id="L69" title="All 2 branches missed.">            if (LOG.isErrorEnabled()) {</span>
+<span class="nc" id="L70">                LOG.error(&quot;Failed getaddrinfo(): {}&quot;, Libc.INSTANCE.gai_strerror(res));</span>
             }
-<span class="nc" id="L69">            return &quot;&quot;;</span>
+<span class="nc" id="L72">            return &quot;&quot;;</span>
         }
-<span class="nc" id="L71">        Libc.Addrinfo info = new Libc.Addrinfo(ptr.getValue());</span>
-<span class="nc" id="L72">        String canonname = info.ai_canonname.trim();</span>
-<span class="nc" id="L73">        Libc.INSTANCE.freeaddrinfo(ptr.getValue());</span>
-<span class="nc" id="L74">        return canonname;</span>
+<span class="nc" id="L74">        Libc.Addrinfo info = new Libc.Addrinfo(ptr.getValue());</span>
+<span class="nc" id="L75">        String canonname = info.ai_canonname.trim();</span>
+<span class="nc" id="L76">        Libc.INSTANCE.freeaddrinfo(ptr.getValue());</span>
+<span class="nc" id="L77">        return canonname;</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getIpv4DefaultGateway() {
-<span class="nc" id="L82">        List&lt;String&gt; routes = ExecutingCommand.runNative(&quot;route -A inet -n&quot;);</span>
-<span class="nc bnc" id="L83" title="All 2 branches missed.">        if (routes.size() &lt;= 2) {</span>
-<span class="nc" id="L84">            return &quot;&quot;;</span>
+<span class="nc" id="L83">        List&lt;String&gt; routes = ExecutingCommand.runNative(&quot;route -A inet -n&quot;);</span>
+<span class="nc bnc" id="L84" title="All 2 branches missed.">        if (routes.size() &lt;= 2) {</span>
+<span class="nc" id="L85">            return &quot;&quot;;</span>
         }
 
-<span class="nc" id="L87">        String gateway = &quot;&quot;;</span>
-<span class="nc" id="L88">        int minMetric = Integer.MAX_VALUE;</span>
+<span class="nc" id="L88">        String gateway = &quot;&quot;;</span>
+<span class="nc" id="L89">        int minMetric = Integer.MAX_VALUE;</span>
 
-<span class="nc bnc" id="L90" title="All 2 branches missed.">        for (int i = 2; i &lt; routes.size(); i++) {</span>
-<span class="nc" id="L91">            String[] fields = ParseUtil.whitespaces.split(routes.get(i));</span>
-<span class="nc bnc" id="L92" title="All 4 branches missed.">            if (fields.length &gt; 4 &amp;&amp; fields[0].equals(IPV4_DEFAULT_DEST)) {</span>
-<span class="nc bnc" id="L93" title="All 2 branches missed.">                boolean isGateway = fields[3].indexOf('G') != -1;</span>
-<span class="nc" id="L94">                int metric = ParseUtil.parseIntOrDefault(fields[4], Integer.MAX_VALUE);</span>
-<span class="nc bnc" id="L95" title="All 4 branches missed.">                if (isGateway &amp;&amp; metric &lt; minMetric) {</span>
-<span class="nc" id="L96">                    minMetric = metric;</span>
-<span class="nc" id="L97">                    gateway = fields[1];</span>
+<span class="nc bnc" id="L91" title="All 2 branches missed.">        for (int i = 2; i &lt; routes.size(); i++) {</span>
+<span class="nc" id="L92">            String[] fields = ParseUtil.whitespaces.split(routes.get(i));</span>
+<span class="nc bnc" id="L93" title="All 4 branches missed.">            if (fields.length &gt; 4 &amp;&amp; fields[0].equals(IPV4_DEFAULT_DEST)) {</span>
+<span class="nc bnc" id="L94" title="All 2 branches missed.">                boolean isGateway = fields[3].indexOf('G') != -1;</span>
+<span class="nc" id="L95">                int metric = ParseUtil.parseIntOrDefault(fields[4], Integer.MAX_VALUE);</span>
+<span class="nc bnc" id="L96" title="All 4 branches missed.">                if (isGateway &amp;&amp; metric &lt; minMetric) {</span>
+<span class="nc" id="L97">                    minMetric = metric;</span>
+<span class="nc" id="L98">                    gateway = fields[1];</span>
                 }
             }
         }
-<span class="nc" id="L101">        return gateway;</span>
+<span class="nc" id="L102">        return gateway;</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getIpv6DefaultGateway() {
-<span class="nc" id="L109">        List&lt;String&gt; routes = ExecutingCommand.runNative(&quot;route -A inet6 -n&quot;);</span>
-<span class="nc bnc" id="L110" title="All 2 branches missed.">        if (routes.size() &lt;= 2) {</span>
-<span class="nc" id="L111">            return &quot;&quot;;</span>
+<span class="nc" id="L108">        List&lt;String&gt; routes = ExecutingCommand.runNative(&quot;route -A inet6 -n&quot;);</span>
+<span class="nc bnc" id="L109" title="All 2 branches missed.">        if (routes.size() &lt;= 2) {</span>
+<span class="nc" id="L110">            return &quot;&quot;;</span>
         }
 
-<span class="nc" id="L114">        String gateway = &quot;&quot;;</span>
-<span class="nc" id="L115">        int minMetric = Integer.MAX_VALUE;</span>
+<span class="nc" id="L113">        String gateway = &quot;&quot;;</span>
+<span class="nc" id="L114">        int minMetric = Integer.MAX_VALUE;</span>
 
-<span class="nc bnc" id="L117" title="All 2 branches missed.">        for (int i = 2; i &lt; routes.size(); i++) {</span>
-<span class="nc" id="L118">            String[] fields = ParseUtil.whitespaces.split(routes.get(i));</span>
-<span class="nc bnc" id="L119" title="All 4 branches missed.">            if (fields.length &gt; 3 &amp;&amp; fields[0].equals(IPV6_DEFAULT_DEST)) {</span>
-<span class="nc bnc" id="L120" title="All 2 branches missed.">                boolean isGateway = fields[2].indexOf('G') != -1;</span>
-<span class="nc" id="L121">                int metric = ParseUtil.parseIntOrDefault(fields[3], Integer.MAX_VALUE);</span>
-<span class="nc bnc" id="L122" title="All 4 branches missed.">                if (isGateway &amp;&amp; metric &lt; minMetric) {</span>
-<span class="nc" id="L123">                    minMetric = metric;</span>
-<span class="nc" id="L124">                    gateway = fields[1];</span>
+<span class="nc bnc" id="L116" title="All 2 branches missed.">        for (int i = 2; i &lt; routes.size(); i++) {</span>
+<span class="nc" id="L117">            String[] fields = ParseUtil.whitespaces.split(routes.get(i));</span>
+<span class="nc bnc" id="L118" title="All 4 branches missed.">            if (fields.length &gt; 3 &amp;&amp; fields[0].equals(IPV6_DEFAULT_DEST)) {</span>
+<span class="nc bnc" id="L119" title="All 2 branches missed.">                boolean isGateway = fields[2].indexOf('G') != -1;</span>
+<span class="nc" id="L120">                int metric = ParseUtil.parseIntOrDefault(fields[3], Integer.MAX_VALUE);</span>
+<span class="nc bnc" id="L121" title="All 4 branches missed.">                if (isGateway &amp;&amp; metric &lt; minMetric) {</span>
+<span class="nc" id="L122">                    minMetric = metric;</span>
+<span class="nc" id="L123">                    gateway = fields[1];</span>
                 }
             }
         }
-<span class="nc" id="L128">        return gateway;</span>
+<span class="nc" id="L127">        return gateway;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

@@ -42,57 +42,49 @@ import oshi.hardware.common.AbstractGlobalMemory;
 
 <span class="nc" id="L43">    private static final Logger LOG = LoggerFactory.getLogger(WindowsGlobalMemory.class);</span>
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getAvailable() {
-<span class="nc" id="L50">        updatePerfInfo();</span>
-<span class="nc" id="L51">        return this.memAvailable;</span>
+<span class="nc" id="L48">        updatePerfInfo();</span>
+<span class="nc" id="L49">        return this.memAvailable;</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getTotal() {
-<span class="nc bnc" id="L59" title="All 2 branches missed.">        if (this.memTotal &lt; 0) {</span>
-<span class="nc" id="L60">            updatePerfInfo();</span>
+<span class="nc bnc" id="L55" title="All 2 branches missed.">        if (this.memTotal &lt; 0) {</span>
+<span class="nc" id="L56">            updatePerfInfo();</span>
         }
-<span class="nc" id="L62">        return this.memTotal;</span>
+<span class="nc" id="L58">        return this.memTotal;</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getPageSize() {
-<span class="nc bnc" id="L70" title="All 2 branches missed.">        if (this.pageSize &lt; 0) {</span>
-<span class="nc" id="L71">            updatePerfInfo();</span>
+<span class="nc bnc" id="L64" title="All 2 branches missed.">        if (this.pageSize &lt; 0) {</span>
+<span class="nc" id="L65">            updatePerfInfo();</span>
         }
-<span class="nc" id="L73">        return this.pageSize;</span>
+<span class="nc" id="L67">        return this.pageSize;</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public VirtualMemory getVirtualMemory() {
-<span class="nc bnc" id="L81" title="All 2 branches missed.">        if (this.virtualMemory == null) {</span>
-<span class="nc" id="L82">            this.virtualMemory = new WindowsVirtualMemory(getPageSize());</span>
+<span class="nc bnc" id="L73" title="All 2 branches missed.">        if (this.virtualMemory == null) {</span>
+<span class="nc" id="L74">            this.virtualMemory = new WindowsVirtualMemory(getPageSize());</span>
         }
-<span class="nc" id="L84">        return this.virtualMemory;</span>
+<span class="nc" id="L76">        return this.virtualMemory;</span>
     }
 
     private void updatePerfInfo() {
-<span class="nc" id="L88">        PERFORMANCE_INFORMATION perfInfo = new PERFORMANCE_INFORMATION();</span>
-<span class="nc bnc" id="L89" title="All 2 branches missed.">        if (!Psapi.INSTANCE.GetPerformanceInfo(perfInfo, perfInfo.size())) {</span>
-<span class="nc" id="L90">            LOG.error(&quot;Failed to get Performance Info. Error code: {}&quot;, Kernel32.INSTANCE.GetLastError());</span>
-<span class="nc" id="L91">            return;</span>
+<span class="nc" id="L80">        PERFORMANCE_INFORMATION perfInfo = new PERFORMANCE_INFORMATION();</span>
+<span class="nc bnc" id="L81" title="All 2 branches missed.">        if (!Psapi.INSTANCE.GetPerformanceInfo(perfInfo, perfInfo.size())) {</span>
+<span class="nc" id="L82">            LOG.error(&quot;Failed to get Performance Info. Error code: {}&quot;, Kernel32.INSTANCE.GetLastError());</span>
+<span class="nc" id="L83">            return;</span>
         }
-<span class="nc" id="L93">        this.pageSize = perfInfo.PageSize.longValue();</span>
-<span class="nc" id="L94">        this.memAvailable = this.pageSize * perfInfo.PhysicalAvailable.longValue();</span>
-<span class="nc" id="L95">        this.memTotal = this.pageSize * perfInfo.PhysicalTotal.longValue();</span>
-<span class="nc" id="L96">    }</span>
+<span class="nc" id="L85">        this.pageSize = perfInfo.PageSize.longValue();</span>
+<span class="nc" id="L86">        this.memAvailable = this.pageSize * perfInfo.PhysicalAvailable.longValue();</span>
+<span class="nc" id="L87">        this.memTotal = this.pageSize * perfInfo.PhysicalTotal.longValue();</span>
+<span class="nc" id="L88">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>
