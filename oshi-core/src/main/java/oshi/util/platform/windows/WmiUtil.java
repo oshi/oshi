@@ -51,6 +51,9 @@ public class WmiUtil {
     /**
      * Translate a WmiQuery to the actual query string
      *
+     * @param <T>
+     *            WMI queries use an Enum to identify the fields to query, and use
+     *            the enum values as keys to retrieve the results.
      * @param query
      *            The WmiQuery object
      * @return The string that is queried in WMI
@@ -69,6 +72,9 @@ public class WmiUtil {
     /**
      * Gets a String value from a WmiResult
      *
+     * @param <T>
+     *            WMI queries use an Enum to identify the fields to query, and use
+     *            the enum values as keys to retrieve the results.
      * @param result
      *            The WmiResult from which to fetch the value
      * @param property
@@ -88,6 +94,9 @@ public class WmiUtil {
     /**
      * Gets a Date value from a WmiResult as a String
      *
+     * @param <T>
+     *            WMI queries use an Enum to identify the fields to query, and use
+     *            the enum values as keys to retrieve the results.
      * @param result
      *            The WmiResult from which to fetch the value
      * @param property
@@ -108,6 +117,9 @@ public class WmiUtil {
     /**
      * Gets a Reference value from a WmiResult as a String
      *
+     * @param <T>
+     *            WMI queries use an Enum to identify the fields to query, and use
+     *            the enum values as keys to retrieve the results.
      * @param result
      *            The WmiResult from which to fetch the value
      * @param property
@@ -140,6 +152,9 @@ public class WmiUtil {
      * the CIM type is unsigned, the return type is signed and the parsing will
      * exclude any return values above Long.MAX_VALUE.
      *
+     * @param <T>
+     *            WMI queries use an Enum to identify the fields to query, and use
+     *            the enum values as keys to retrieve the results.
      * @param result
      *            The WmiResult from which to fetch the value
      * @param property
@@ -164,6 +179,9 @@ public class WmiUtil {
      * unsigned, the return type is signed and requires further processing by the
      * user if unsigned values are desired.
      *
+     * @param <T>
+     *            WMI queries use an Enum to identify the fields to query, and use
+     *            the enum values as keys to retrieve the results.
      * @param result
      *            The WmiResult from which to fetch the value
      * @param property
@@ -183,6 +201,9 @@ public class WmiUtil {
     /**
      * Gets an UINT32 value from a WmiResult as a long, preserving the unsignedness.
      *
+     * @param <T>
+     *            WMI queries use an Enum to identify the fields to query, and use
+     *            the enum values as keys to retrieve the results.
      * @param result
      *            The WmiResult from which to fetch the value
      * @param property
@@ -204,6 +225,9 @@ public class WmiUtil {
      * unsigned, the return type is signed and requires further processing by the
      * user if unsigned values are desired.
      *
+     * @param <T>
+     *            WMI queries use an Enum to identify the fields to query, and use
+     *            the enum values as keys to retrieve the results.
      * @param result
      *            The WmiResult from which to fetch the value
      * @param property
@@ -225,6 +249,9 @@ public class WmiUtil {
      * unsigned, the return type is signed and requires further processing by the
      * user if unsigned values are desired.
      *
+     * @param <T>
+     *            WMI queries use an Enum to identify the fields to query, and use
+     *            the enum values as keys to retrieve the results.
      * @param result
      *            The WmiResult from which to fetch the value
      * @param property
@@ -255,6 +282,9 @@ public class WmiUtil {
     /**
      * Gets a Float value from a WmiResult
      *
+     * @param <T>
+     *            WMI queries use an Enum to identify the fields to query, and use
+     *            the enum values as keys to retrieve the results.
      * @param result
      *            The WmiResult from which to fetch the value
      * @param property

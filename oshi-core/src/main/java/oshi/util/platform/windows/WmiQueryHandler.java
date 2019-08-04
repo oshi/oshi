@@ -113,6 +113,9 @@ public class WmiQueryHandler {
     /**
      * Query WMI for values, with no timeout.
      *
+     * @param <T>
+     *            WMI queries use an Enum to identify the fields to query, and use
+     *            the enum values as keys to retrieve the results.
      * @param query
      *            A WmiQuery object encapsulating the namespace, class, and
      *            properties

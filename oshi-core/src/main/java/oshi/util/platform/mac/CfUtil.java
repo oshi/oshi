@@ -126,7 +126,10 @@ public class CfUtil {
     /**
      * Releases a collection of CF references. Mandatory when an object is owned
      * (using 'create' or 'copy' methods).
-     *
+     * 
+     * @param <T>
+     *            The CF reference types in OSHI extend
+     *            {@link com.sun.jna.PointerType}.
      * @param refs
      *            The collection of references to release
      */
