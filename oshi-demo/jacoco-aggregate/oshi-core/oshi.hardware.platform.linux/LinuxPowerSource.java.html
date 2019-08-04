@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>LinuxPowerSource.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-demo</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.linux</a> &gt; <span class="el_source">LinuxPowerSource.java</span></div><h1>LinuxPowerSource.java</h1><pre class="source lang-java linenums">/**
+ * OSHI (https://github.com/oshi/oshi)
+ *
+ * Copyright (c) 2010 - 2019 The OSHI Project Team:
+ * https://github.com/oshi/oshi/graphs/contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+package oshi.hardware.platform.linux;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import oshi.hardware.PowerSource;
+import oshi.hardware.common.AbstractPowerSource;
+import oshi.util.FileUtil;
+import oshi.util.ParseUtil;
+
+/**
+ * A Power Source
+ */
+public class LinuxPowerSource extends AbstractPowerSource {
+
+    private static final long serialVersionUID = 1L;
+
+<span class="nc" id="L45">    private static final Logger LOG = LoggerFactory.getLogger(LinuxPowerSource.class);</span>
+
+    private static final String PS_PATH = &quot;/sys/class/power_supply/&quot;;
+
+    public LinuxPowerSource(String newName, double newRemainingCapacity, double newTimeRemaining) {
+<span class="nc" id="L50">        super(newName, newRemainingCapacity, newTimeRemaining);</span>
+<span class="nc" id="L51">        LOG.debug(&quot;Initialized LinuxPowerSource&quot;);</span>
+<span class="nc" id="L52">    }</span>
+
+    /**
+     * Gets Battery Information
+     *
+     * @return An array of PowerSource objects representing batteries, etc.
+     */
+    public static PowerSource[] getPowerSources() {
+        // Get list of power source names
+<span class="nc" id="L61">        File f = new File(PS_PATH);</span>
+<span class="nc" id="L62">        String[] psNames = f.list();</span>
+        // Empty directory will give null rather than empty array, so fix
+<span class="nc bnc" id="L64" title="All 2 branches missed.">        if (psNames == null) {</span>
+<span class="nc" id="L65">            psNames = new String[0];</span>
+        }
+<span class="nc" id="L67">        List&lt;LinuxPowerSource&gt; psList = new ArrayList&lt;&gt;(psNames.length);</span>
+        // For each power source, output various info
+<span class="nc bnc" id="L69" title="All 2 branches missed.">        for (String psName : psNames) {</span>
+            // Skip if name is ADP* or AC* (AC power supply)
+<span class="nc bnc" id="L71" title="All 4 branches missed.">            if (psName.startsWith(&quot;ADP&quot;) || psName.startsWith(&quot;AC&quot;)) {</span>
+<span class="nc" id="L72">                continue;</span>
+            }
+            // Skip if can't read uevent file
+            List&lt;String&gt; psInfo;
+<span class="nc" id="L76">            psInfo = FileUtil.readFile(PS_PATH + psName + &quot;/uevent&quot;, false);</span>
+<span class="nc bnc" id="L77" title="All 2 branches missed.">            if (psInfo.isEmpty()) {</span>
+<span class="nc" id="L78">                continue;</span>
+            }
+            // Initialize defaults
+<span class="nc" id="L81">            boolean isPresent = false;</span>
+<span class="nc" id="L82">            boolean isCharging = false;</span>
+<span class="nc" id="L83">            String name = &quot;Unknown&quot;;</span>
+<span class="nc" id="L84">            int energyNow = 0;</span>
+<span class="nc" id="L85">            int energyFull = 1;</span>
+<span class="nc" id="L86">            int powerNow = 1;</span>
+<span class="nc bnc" id="L87" title="All 2 branches missed.">            for (String checkLine : psInfo) {</span>
+<span class="nc bnc" id="L88" title="All 2 branches missed.">                if (checkLine.startsWith(&quot;POWER_SUPPLY_PRESENT&quot;)) {</span>
+                    // Skip if not present
+<span class="nc" id="L90">                    String[] psSplit = checkLine.split(&quot;=&quot;);</span>
+<span class="nc bnc" id="L91" title="All 2 branches missed.">                    if (psSplit.length &gt; 1) {</span>
+<span class="nc bnc" id="L92" title="All 2 branches missed.">                        isPresent = ParseUtil.parseIntOrDefault(psSplit[1], 0) &gt; 0;</span>
+                    }
+<span class="nc bnc" id="L94" title="All 2 branches missed.">                    if (!isPresent) {</span>
+<span class="nc" id="L95">                        break;</span>
+                    }
+<span class="nc bnc" id="L97" title="All 2 branches missed.">                } else if (checkLine.startsWith(&quot;POWER_SUPPLY_NAME&quot;)) {</span>
+                    // Name
+<span class="nc" id="L99">                    String[] psSplit = checkLine.split(&quot;=&quot;);</span>
+<span class="nc bnc" id="L100" title="All 2 branches missed.">                    if (psSplit.length &gt; 1) {</span>
+<span class="nc" id="L101">                        name = psSplit[1];</span>
+                    }
+<span class="nc bnc" id="L103" title="All 2 branches missed.">                } else if (checkLine.startsWith(&quot;POWER_SUPPLY_ENERGY_NOW&quot;)</span>
+<span class="nc bnc" id="L104" title="All 2 branches missed.">                        || checkLine.startsWith(&quot;POWER_SUPPLY_CHARGE_NOW&quot;)) {</span>
+                    // Remaining Capacity = energyNow / energyFull
+<span class="nc" id="L106">                    String[] psSplit = checkLine.split(&quot;=&quot;);</span>
+<span class="nc bnc" id="L107" title="All 2 branches missed.">                    if (psSplit.length &gt; 1) {</span>
+<span class="nc" id="L108">                        energyNow = ParseUtil.parseIntOrDefault(psSplit[1], 0);</span>
+                    }
+<span class="nc bnc" id="L110" title="All 2 branches missed.">                } else if (checkLine.startsWith(&quot;POWER_SUPPLY_ENERGY_FULL&quot;)</span>
+<span class="nc bnc" id="L111" title="All 2 branches missed.">                        || checkLine.startsWith(&quot;POWER_SUPPLY_CHARGE_FULL&quot;)) {</span>
+<span class="nc" id="L112">                    String[] psSplit = checkLine.split(&quot;=&quot;);</span>
+<span class="nc bnc" id="L113" title="All 2 branches missed.">                    if (psSplit.length &gt; 1) {</span>
+<span class="nc" id="L114">                        energyFull = ParseUtil.parseIntOrDefault(psSplit[1], 1);</span>
+<span class="nc bnc" id="L115" title="All 2 branches missed.">                        if (energyFull &lt; 1) {</span>
+<span class="nc" id="L116">                            energyFull = 1;</span>
+                        }
+                    }
+<span class="nc bnc" id="L119" title="All 2 branches missed.">                } else if (checkLine.startsWith(&quot;POWER_SUPPLY_STATUS&quot;)) {</span>
+                    // Check if charging
+<span class="nc" id="L121">                    String[] psSplit = checkLine.split(&quot;=&quot;);</span>
+<span class="nc bnc" id="L122" title="All 4 branches missed.">                    if (psSplit.length &gt; 1 &amp;&amp; &quot;Charging&quot;.equals(psSplit[1])) {</span>
+<span class="nc" id="L123">                        isCharging = true;</span>
+                    }
+<span class="nc bnc" id="L125" title="All 2 branches missed.">                } else if (checkLine.startsWith(&quot;POWER_SUPPLY_POWER_NOW&quot;)</span>
+<span class="nc bnc" id="L126" title="All 2 branches missed.">                        || checkLine.startsWith(&quot;POWER_SUPPLY_CURRENT_NOW&quot;)) {</span>
+                    // Time Remaining = energyNow / powerNow (hours)
+<span class="nc" id="L128">                    String[] psSplit = checkLine.split(&quot;=&quot;);</span>
+<span class="nc bnc" id="L129" title="All 2 branches missed.">                    if (psSplit.length &gt; 1) {</span>
+<span class="nc" id="L130">                        powerNow = ParseUtil.parseIntOrDefault(psSplit[1], 1);</span>
+                    }
+<span class="nc bnc" id="L132" title="All 2 branches missed.">                    if (powerNow &lt; 1) {</span>
+<span class="nc" id="L133">                        isCharging = true;</span>
+                    }
+                }
+<span class="nc" id="L136">            }</span>
+<span class="nc bnc" id="L137" title="All 2 branches missed.">            if (isPresent) {</span>
+<span class="nc bnc" id="L138" title="All 2 branches missed.">                psList.add(new LinuxPowerSource(name, (double) energyNow / energyFull,</span>
+                        isCharging ? -2d : 3600d * energyNow / powerNow));
+            }
+        }
+
+<span class="nc" id="L143">        return psList.toArray(new LinuxPowerSource[0]);</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void updateAttributes() {
+<span class="nc" id="L151">        PowerSource[] psArr = getPowerSources();</span>
+<span class="nc bnc" id="L152" title="All 2 branches missed.">        for (PowerSource ps : psArr) {</span>
+<span class="nc bnc" id="L153" title="All 2 branches missed.">            if (ps.getName().equals(this.name)) {</span>
+<span class="nc" id="L154">                this.remainingCapacity = ps.getRemainingCapacity();</span>
+<span class="nc" id="L155">                this.timeRemaining = ps.getTimeRemaining();</span>
+<span class="nc" id="L156">                return;</span>
+            }
+        }
+        // Didn't find this battery
+<span class="nc" id="L160">        this.remainingCapacity = 0d;</span>
+<span class="nc" id="L161">        this.timeRemaining = -1d;</span>
+<span class="nc" id="L162">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

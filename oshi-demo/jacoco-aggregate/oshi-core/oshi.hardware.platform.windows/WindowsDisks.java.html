@@ -1,0 +1,336 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>WindowsDisks.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-demo</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.windows</a> &gt; <span class="el_source">WindowsDisks.java</span></div><h1>WindowsDisks.java</h1><pre class="source lang-java linenums">/**
+ * OSHI (https://github.com/oshi/oshi)
+ *
+ * Copyright (c) 2010 - 2019 The OSHI Project Team:
+ * https://github.com/oshi/oshi/graphs/contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+package oshi.hardware.platform.windows;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.sun.jna.platform.win32.Kernel32; // NOSONAR squid:S1191
+import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
+import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
+
+import oshi.data.windows.PerfCounterQuery;
+import oshi.data.windows.PerfCounterWildcardQuery;
+import oshi.data.windows.PerfCounterWildcardQuery.PdhCounterWildcardProperty;
+import oshi.hardware.Disks;
+import oshi.hardware.HWDiskStore;
+import oshi.hardware.HWPartition;
+import oshi.util.ParseUtil;
+import oshi.util.platform.windows.WmiQueryHandler;
+import oshi.util.platform.windows.WmiUtil;
+
+/**
+ * Windows hard disk implementation.
+ *
+ * @author enrico[dot]bianchi[at]gmail[dot]com
+ */
+<span class="nc" id="L55">public class WindowsDisks implements Disks {</span>
+
+    private static final long serialVersionUID = 1L;
+
+<span class="nc" id="L59">    private static final Logger LOG = LoggerFactory.getLogger(WindowsDisks.class);</span>
+
+    private static final String PHYSICALDRIVE_PREFIX = &quot;\\\\.\\PHYSICALDRIVE&quot;;
+    private static final String PHYSICAL_DISK = &quot;PhysicalDisk&quot;;
+
+<span class="nc" id="L64">    private static final Pattern DEVICE_ID = Pattern.compile(&quot;.*\\.DeviceID=\&quot;(.*)\&quot;&quot;);</span>
+
+    private static final int BUFSIZE = 255;
+
+<span class="nc" id="L68">    enum DiskDriveProperty {</span>
+<span class="nc" id="L69">        INDEX, MANUFACTURER, MODEL, NAME, SERIALNUMBER, SIZE;</span>
+    }
+
+<span class="nc" id="L72">    private final transient WmiQuery&lt;DiskDriveProperty&gt; diskDriveQuery = new WmiQuery&lt;&gt;(&quot;Win32_DiskDrive&quot;,</span>
+            DiskDriveProperty.class);
+
+<span class="nc" id="L75">    enum DriveToPartitionProperty {</span>
+<span class="nc" id="L76">        ANTECEDENT, DEPENDENT;</span>
+    }
+
+<span class="nc" id="L79">    private final transient WmiQuery&lt;DriveToPartitionProperty&gt; driveToPartitionQuery = new WmiQuery&lt;&gt;(</span>
+            &quot;Win32_DiskDriveToDiskPartition&quot;, DriveToPartitionProperty.class);
+<span class="nc" id="L81">    private final transient WmiQuery&lt;DriveToPartitionProperty&gt; diskToParitionQuery = new WmiQuery&lt;&gt;(</span>
+            &quot;Win32_LogicalDiskToPartition&quot;, DriveToPartitionProperty.class);
+
+<span class="nc" id="L84">    enum DiskPartitionProperty {</span>
+<span class="nc" id="L85">        DESCRIPTION, DEVICEID, DISKINDEX, INDEX, NAME, SIZE, TYPE;</span>
+    }
+
+<span class="nc" id="L88">    private final transient WmiQuery&lt;DiskPartitionProperty&gt; partitionQuery = new WmiQuery&lt;&gt;(&quot;Win32_DiskPartition&quot;,</span>
+            DiskPartitionProperty.class);
+
+    /*
+     * For disk query
+     */
+<span class="nc" id="L94">    enum PhysicalDiskProperty implements PdhCounterWildcardProperty {</span>
+        // First element defines WMI instance name field and PDH instance filter
+<span class="nc" id="L96">        NAME(PerfCounterQuery.NOT_TOTAL_INSTANCE),</span>
+        // Remaining elements define counters
+<span class="nc" id="L98">        DISKREADSPERSEC(&quot;Disk Reads/sec&quot;), //</span>
+<span class="nc" id="L99">        DISKREADBYTESPERSEC(&quot;Disk Read Bytes/sec&quot;), //</span>
+<span class="nc" id="L100">        DISKWRITESPERSEC(&quot;Disk Writes/sec&quot;), //</span>
+<span class="nc" id="L101">        DISKWRITEBYTESPERSEC(&quot;Disk Write Bytes/sec&quot;), //</span>
+<span class="nc" id="L102">        CURRENTDISKQUEUELENGTH(&quot;Current Disk Queue Length&quot;), //</span>
+<span class="nc" id="L103">        PERCENTDISKTIME(&quot;% Disk Time&quot;);</span>
+
+        private final String counter;
+
+<span class="nc" id="L107">        PhysicalDiskProperty(String counter) {</span>
+<span class="nc" id="L108">            this.counter = counter;</span>
+<span class="nc" id="L109">        }</span>
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public String getCounter() {
+<span class="nc" id="L116">            return counter;</span>
+        }
+    }
+
+<span class="nc" id="L120">    private static final PerfCounterWildcardQuery&lt;PhysicalDiskProperty&gt; physicalDiskPerfCounters = new PerfCounterWildcardQuery&lt;&gt;(</span>
+            PhysicalDiskProperty.class, PHYSICAL_DISK,
+            &quot;Win32_PerfRawData_PerfDisk_PhysicalDisk WHERE NOT Name=\&quot;_Total\&quot;&quot;);
+
+<span class="nc" id="L124">    private final transient WmiQueryHandler wmiQueryHandler = WmiQueryHandler.createInstance();</span>
+
+    public static boolean updateDiskStats(HWDiskStore diskStore) {
+<span class="nc" id="L127">        String index = null;</span>
+<span class="nc" id="L128">        HWPartition[] partitions = diskStore.getPartitions();</span>
+<span class="nc bnc" id="L129" title="All 2 branches missed.">        if (partitions.length &gt; 0) {</span>
+            // If a partition exists on this drive, the major property
+            // corresponds to the disk index, so use it.
+<span class="nc" id="L132">            index = Integer.toString(partitions[0].getMajor());</span>
+<span class="nc bnc" id="L133" title="All 2 branches missed.">        } else if (diskStore.getName().startsWith(PHYSICALDRIVE_PREFIX)) {</span>
+            // If no partition exists, Windows reliably uses a name to match the
+            // disk index. That said, the skeptical person might wonder why a
+            // disk has read/write statistics without a partition, and wonder
+            // why this branch is even relevant as an option. The author of this
+            // comment does not have an answer for this valid question.
+<span class="nc" id="L139">            index = diskStore.getName().substring(PHYSICALDRIVE_PREFIX.length(), diskStore.getName().length());</span>
+        } else {
+            // The author of this comment cannot fathom a circumstance in which
+            // the code reaches this point, but just in case it does, here's the
+            // correct response. If you get this log warning, the circumstances
+            // would be of great interest to the project's maintainers.
+<span class="nc" id="L145">            LOG.warn(&quot;Couldn't match index for {}&quot;, diskStore.getName());</span>
+<span class="nc" id="L146">            return false;</span>
+        }
+<span class="nc" id="L148">        DiskStats stats = queryReadWriteStats(index);</span>
+<span class="nc bnc" id="L149" title="All 2 branches missed.">        if (stats.readMap.containsKey(index)) {</span>
+<span class="nc" id="L150">            diskStore.setReads(stats.readMap.getOrDefault(index, 0L));</span>
+<span class="nc" id="L151">            diskStore.setReadBytes(stats.readByteMap.getOrDefault(index, 0L));</span>
+<span class="nc" id="L152">            diskStore.setWrites(stats.writeMap.getOrDefault(index, 0L));</span>
+<span class="nc" id="L153">            diskStore.setWriteBytes(stats.writeByteMap.getOrDefault(index, 0L));</span>
+<span class="nc" id="L154">            diskStore.setCurrentQueueLength(stats.queueLengthMap.getOrDefault(index, 0L));</span>
+<span class="nc" id="L155">            diskStore.setTransferTime(stats.xferTimeMap.getOrDefault(index, 0L));</span>
+<span class="nc" id="L156">            diskStore.setTimeStamp(stats.timeStamp);</span>
+<span class="nc" id="L157">            return true;</span>
+        } else {
+<span class="nc" id="L159">            return false;</span>
+        }
+
+    }
+
+    @Override
+    public HWDiskStore[] getDisks() {
+        List&lt;HWDiskStore&gt; result;
+<span class="nc" id="L167">        result = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L168">        DiskStats stats = queryReadWriteStats(null);</span>
+<span class="nc" id="L169">        PartitionMaps maps = queryPartitionMaps();</span>
+
+<span class="nc" id="L171">        WmiResult&lt;DiskDriveProperty&gt; vals = wmiQueryHandler.queryWMI(diskDriveQuery);</span>
+
+<span class="nc bnc" id="L173" title="All 2 branches missed.">        for (int i = 0; i &lt; vals.getResultCount(); i++) {</span>
+<span class="nc" id="L174">            HWDiskStore ds = new HWDiskStore();</span>
+<span class="nc" id="L175">            ds.setName(WmiUtil.getString(vals, DiskDriveProperty.NAME, i));</span>
+<span class="nc" id="L176">            ds.setModel(String.format(&quot;%s %s&quot;, WmiUtil.getString(vals, DiskDriveProperty.MODEL, i),</span>
+<span class="nc" id="L177">                    WmiUtil.getString(vals, DiskDriveProperty.MANUFACTURER, i)).trim());</span>
+            // Most vendors store serial # as a hex string; convert
+<span class="nc" id="L179">            ds.setSerial(ParseUtil.hexStringToString(WmiUtil.getString(vals, DiskDriveProperty.SERIALNUMBER, i)));</span>
+<span class="nc" id="L180">            String index = Integer.toString(WmiUtil.getUint32(vals, DiskDriveProperty.INDEX, i));</span>
+<span class="nc" id="L181">            ds.setReads(stats.readMap.getOrDefault(index, 0L));</span>
+<span class="nc" id="L182">            ds.setReadBytes(stats.readByteMap.getOrDefault(index, 0L));</span>
+<span class="nc" id="L183">            ds.setWrites(stats.writeMap.getOrDefault(index, 0L));</span>
+<span class="nc" id="L184">            ds.setWriteBytes(stats.writeByteMap.getOrDefault(index, 0L));</span>
+<span class="nc" id="L185">            ds.setCurrentQueueLength(stats.queueLengthMap.getOrDefault(index, 0L));</span>
+<span class="nc" id="L186">            ds.setTransferTime(stats.xferTimeMap.getOrDefault(index, 0L));</span>
+<span class="nc" id="L187">            ds.setTimeStamp(stats.timeStamp);</span>
+<span class="nc" id="L188">            ds.setSize(WmiUtil.getUint64(vals, DiskDriveProperty.SIZE, i));</span>
+            // Get partitions
+<span class="nc" id="L190">            List&lt;HWPartition&gt; partitions = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L191">            List&lt;String&gt; partList = maps.driveToPartitionMap.get(ds.getName());</span>
+<span class="nc bnc" id="L192" title="All 4 branches missed.">            if (partList != null &amp;&amp; !partList.isEmpty()) {</span>
+<span class="nc bnc" id="L193" title="All 2 branches missed.">                for (String part : partList) {</span>
+<span class="nc bnc" id="L194" title="All 2 branches missed.">                    if (maps.partitionMap.containsKey(part)) {</span>
+<span class="nc" id="L195">                        partitions.add(maps.partitionMap.get(part));</span>
+                    }
+<span class="nc" id="L197">                }</span>
+            }
+<span class="nc" id="L199">            ds.setPartitions(partitions.toArray(new HWPartition[0]));</span>
+            // Add to list
+<span class="nc" id="L201">            result.add(ds);</span>
+        }
+<span class="nc" id="L203">        return result.toArray(new HWDiskStore[0]);</span>
+    }
+
+    /**
+     * Populates the maps for the specified index. If the index is null,
+     * populates all the maps
+     *
+     * @param index
+     *            The index to populate/update maps for
+     */
+    private static DiskStats queryReadWriteStats(String index) {
+        // Create object to hold and return results
+<span class="nc" id="L215">        DiskStats stats = (new WindowsDisks()).new DiskStats();</span>
+
+<span class="nc" id="L217">        Map&lt;PhysicalDiskProperty, List&lt;Long&gt;&gt; valueMap = physicalDiskPerfCounters.queryValuesWildcard();</span>
+<span class="nc" id="L218">        stats.timeStamp = System.currentTimeMillis();</span>
+<span class="nc" id="L219">        List&lt;String&gt; instances = physicalDiskPerfCounters.getInstancesFromLastQuery();</span>
+<span class="nc" id="L220">        List&lt;Long&gt; readList = valueMap.get(PhysicalDiskProperty.DISKREADSPERSEC);</span>
+<span class="nc" id="L221">        List&lt;Long&gt; readByteList = valueMap.get(PhysicalDiskProperty.DISKREADBYTESPERSEC);</span>
+<span class="nc" id="L222">        List&lt;Long&gt; writeList = valueMap.get(PhysicalDiskProperty.DISKWRITESPERSEC);</span>
+<span class="nc" id="L223">        List&lt;Long&gt; writeByteList = valueMap.get(PhysicalDiskProperty.DISKWRITEBYTESPERSEC);</span>
+<span class="nc" id="L224">        List&lt;Long&gt; queueLengthList = valueMap.get(PhysicalDiskProperty.CURRENTDISKQUEUELENGTH);</span>
+<span class="nc" id="L225">        List&lt;Long&gt; xferTimeList = valueMap.get(PhysicalDiskProperty.PERCENTDISKTIME);</span>
+
+<span class="nc bnc" id="L227" title="All 14 branches missed.">        if (instances.isEmpty() || readList == null || readByteList == null || writeList == null</span>
+                || writeByteList == null || queueLengthList == null || xferTimeList == null) {
+<span class="nc" id="L229">            return stats;</span>
+        }
+<span class="nc bnc" id="L231" title="All 2 branches missed.">        for (int i = 0; i &lt; instances.size(); i++) {</span>
+<span class="nc" id="L232">            String name = getIndexFromName(instances.get(i));</span>
+            // If index arg passed, only update passed arg
+<span class="nc bnc" id="L234" title="All 4 branches missed.">            if (index != null &amp;&amp; !index.equals(name)) {</span>
+<span class="nc" id="L235">                continue;</span>
+            }
+<span class="nc" id="L237">            stats.readMap.put(name, readList.get(i));</span>
+<span class="nc" id="L238">            stats.readByteMap.put(name, readByteList.get(i));</span>
+<span class="nc" id="L239">            stats.writeMap.put(name, writeList.get(i));</span>
+<span class="nc" id="L240">            stats.writeByteMap.put(name, writeByteList.get(i));</span>
+<span class="nc" id="L241">            stats.queueLengthMap.put(name, queueLengthList.get(i));</span>
+<span class="nc" id="L242">            stats.xferTimeMap.put(name, xferTimeList.get(i) / 10_000L);</span>
+        }
+<span class="nc" id="L244">        return stats;</span>
+    }
+
+    private PartitionMaps queryPartitionMaps() {
+        // Create object to hold and return results
+<span class="nc" id="L249">        PartitionMaps maps = (new WindowsDisks()).new PartitionMaps();</span>
+
+        // For Regexp matching DeviceIDs
+        Matcher mAnt;
+        Matcher mDep;
+
+        // Map drives to partitions
+<span class="nc" id="L256">        WmiResult&lt;DriveToPartitionProperty&gt; drivePartitionMap = wmiQueryHandler.queryWMI(driveToPartitionQuery);</span>
+<span class="nc bnc" id="L257" title="All 2 branches missed.">        for (int i = 0; i &lt; drivePartitionMap.getResultCount(); i++) {</span>
+<span class="nc" id="L258">            mAnt = DEVICE_ID.matcher(WmiUtil.getRefString(drivePartitionMap, DriveToPartitionProperty.ANTECEDENT, i));</span>
+<span class="nc" id="L259">            mDep = DEVICE_ID.matcher(WmiUtil.getRefString(drivePartitionMap, DriveToPartitionProperty.DEPENDENT, i));</span>
+<span class="nc bnc" id="L260" title="All 4 branches missed.">            if (mAnt.matches() &amp;&amp; mDep.matches()) {</span>
+<span class="nc" id="L261">                maps.driveToPartitionMap</span>
+<span class="nc" id="L262">                        .computeIfAbsent(mAnt.group(1).replaceAll(&quot;\\\\\\\\&quot;, &quot;\\\\&quot;), x -&gt; new ArrayList&lt;&gt;())</span>
+<span class="nc" id="L263">                        .add(mDep.group(1));</span>
+            }
+        }
+
+        // Map partitions to logical disks
+<span class="nc" id="L268">        WmiResult&lt;DriveToPartitionProperty&gt; diskPartitionMap = wmiQueryHandler.queryWMI(diskToParitionQuery);</span>
+<span class="nc bnc" id="L269" title="All 2 branches missed.">        for (int i = 0; i &lt; diskPartitionMap.getResultCount(); i++) {</span>
+<span class="nc" id="L270">            mAnt = DEVICE_ID.matcher(WmiUtil.getRefString(diskPartitionMap, DriveToPartitionProperty.ANTECEDENT, i));</span>
+<span class="nc" id="L271">            mDep = DEVICE_ID.matcher(WmiUtil.getRefString(diskPartitionMap, DriveToPartitionProperty.DEPENDENT, i));</span>
+<span class="nc bnc" id="L272" title="All 4 branches missed.">            if (mAnt.matches() &amp;&amp; mDep.matches()) {</span>
+<span class="nc" id="L273">                maps.partitionToLogicalDriveMap.put(mAnt.group(1), mDep.group(1) + &quot;\\&quot;);</span>
+            }
+        }
+
+        // Next, get all partitions and create objects
+<span class="nc" id="L278">        WmiResult&lt;DiskPartitionProperty&gt; hwPartitionQueryMap = wmiQueryHandler.queryWMI(partitionQuery);</span>
+<span class="nc bnc" id="L279" title="All 2 branches missed.">        for (int i = 0; i &lt; hwPartitionQueryMap.getResultCount(); i++) {</span>
+<span class="nc" id="L280">            String deviceID = WmiUtil.getString(hwPartitionQueryMap, DiskPartitionProperty.DEVICEID, i);</span>
+<span class="nc" id="L281">            String logicalDrive = maps.partitionToLogicalDriveMap.getOrDefault(deviceID, &quot;&quot;);</span>
+<span class="nc" id="L282">            String uuid = &quot;&quot;;</span>
+<span class="nc bnc" id="L283" title="All 2 branches missed.">            if (!logicalDrive.isEmpty()) {</span>
+                // Get matching volume for UUID
+<span class="nc" id="L285">                char[] volumeChr = new char[BUFSIZE];</span>
+<span class="nc" id="L286">                Kernel32.INSTANCE.GetVolumeNameForVolumeMountPoint(logicalDrive, volumeChr, BUFSIZE);</span>
+<span class="nc" id="L287">                uuid = ParseUtil.parseUuidOrDefault(new String(volumeChr).trim(), &quot;&quot;);</span>
+            }
+<span class="nc" id="L289">            maps.partitionMap.put(deviceID,</span>
+<span class="nc" id="L290">                    new HWPartition(WmiUtil.getString(hwPartitionQueryMap, DiskPartitionProperty.NAME, i),</span>
+<span class="nc" id="L291">                            WmiUtil.getString(hwPartitionQueryMap, DiskPartitionProperty.TYPE, i),</span>
+<span class="nc" id="L292">                            WmiUtil.getString(hwPartitionQueryMap, DiskPartitionProperty.DESCRIPTION, i), uuid,</span>
+<span class="nc" id="L293">                            WmiUtil.getUint64(hwPartitionQueryMap, DiskPartitionProperty.SIZE, i),</span>
+<span class="nc" id="L294">                            WmiUtil.getUint32(hwPartitionQueryMap, DiskPartitionProperty.DISKINDEX, i),</span>
+<span class="nc" id="L295">                            WmiUtil.getUint32(hwPartitionQueryMap, DiskPartitionProperty.INDEX, i), logicalDrive));</span>
+        }
+<span class="nc" id="L297">        return maps;</span>
+    }
+
+    /**
+     * Parse a drive name like &quot;0 C:&quot; to just the index &quot;0&quot;
+     *
+     * @param s
+     *            A drive name to parse
+     * @return The first space-delimited value
+     */
+    private static String getIndexFromName(String s) {
+<span class="nc bnc" id="L308" title="All 2 branches missed.">        if (s.isEmpty()) {</span>
+<span class="nc" id="L309">            return s;</span>
+        }
+<span class="nc" id="L311">        return s.split(&quot;\\s&quot;)[0];</span>
+    }
+
+    /**
+     * Maps to store read/write bytes per drive index
+     */
+<span class="nc" id="L317">    private final class DiskStats {</span>
+<span class="nc" id="L318">        private final Map&lt;String, Long&gt; readMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L319">        private final Map&lt;String, Long&gt; readByteMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L320">        private final Map&lt;String, Long&gt; writeMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L321">        private final Map&lt;String, Long&gt; writeByteMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L322">        private final Map&lt;String, Long&gt; queueLengthMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L323">        private final Map&lt;String, Long&gt; xferTimeMap = new HashMap&lt;&gt;();</span>
+        private long timeStamp;
+    }
+
+    /**
+     * Maps for the partition structure
+     */
+<span class="nc" id="L330">    private final class PartitionMaps {</span>
+<span class="nc" id="L331">        private final Map&lt;String, List&lt;String&gt;&gt; driveToPartitionMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L332">        private final Map&lt;String, String&gt; partitionToLogicalDriveMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L333">        private final Map&lt;String, HWPartition&gt; partitionMap = new HashMap&lt;&gt;();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

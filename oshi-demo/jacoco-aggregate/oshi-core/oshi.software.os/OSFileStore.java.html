@@ -1,0 +1,349 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>OSFileStore.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-demo</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.software.os</a> &gt; <span class="el_source">OSFileStore.java</span></div><h1>OSFileStore.java</h1><pre class="source lang-java linenums">/**
+ * OSHI (https://github.com/oshi/oshi)
+ *
+ * Copyright (c) 2010 - 2019 The OSHI Project Team:
+ * https://github.com/oshi/oshi/graphs/contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+package oshi.software.os;
+
+import java.io.Serializable;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import oshi.SystemInfo;
+import oshi.software.os.linux.LinuxFileSystem;
+import oshi.software.os.mac.MacFileSystem;
+import oshi.software.os.unix.freebsd.FreeBsdFileSystem;
+import oshi.software.os.unix.solaris.SolarisFileSystem;
+import oshi.software.os.windows.WindowsFileSystem;
+
+/**
+ * A File Store is a storage pool, device, partition, volume, concrete file
+ * system or other implementation specific means of file storage. See subclasses
+ * for definitions as they apply to specific platforms.
+ *
+ * @author widdis[at]gmail[dot]com
+ */
+public class OSFileStore implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+<span class="fc" id="L49">    private static final Logger LOG = LoggerFactory.getLogger(OSFileStore.class);</span>
+
+    private String name;
+    private String volume;
+<span class="pc" id="L53">    private String logicalVolume = &quot;&quot;;</span>
+    private String mount;
+    private String description;
+    private String fsType;
+    private String uuid;
+    private long freeSpace;
+    private long usableSpace;
+    private long totalSpace;
+<span class="pc" id="L61">    private long freeInodes = -1;</span>
+<span class="pc" id="L62">    private long totalInodes = -1;</span>
+
+<span class="fc" id="L64">    public OSFileStore() {</span>
+<span class="fc" id="L65">    }</span>
+
+    /**
+     * Creates a copy of an OSFileStore.
+     *
+     * @param fileStore
+     *            OSFileStore which is copied
+     */
+<span class="nc" id="L73">    public OSFileStore(OSFileStore fileStore) {</span>
+<span class="nc" id="L74">        setName(fileStore.getName());</span>
+<span class="nc" id="L75">        setVolume(fileStore.getVolume());</span>
+<span class="nc" id="L76">        setLogicalVolume(fileStore.getLogicalVolume());</span>
+<span class="nc" id="L77">        setMount(fileStore.getMount());</span>
+<span class="nc" id="L78">        setDescription(fileStore.getDescription());</span>
+<span class="nc" id="L79">        setType(fileStore.getType());</span>
+<span class="nc" id="L80">        setUUID(fileStore.getUUID());</span>
+<span class="nc" id="L81">        setFreeSpace(fileStore.getFreeSpace());</span>
+<span class="nc" id="L82">        setUsableSpace(fileStore.getUsableSpace());</span>
+<span class="nc" id="L83">        setTotalSpace(fileStore.getTotalSpace());</span>
+<span class="nc" id="L84">        setFreeInodes(fileStore.getFreeInodes());</span>
+<span class="nc" id="L85">        setTotalInodes(fileStore.getTotalInodes());</span>
+<span class="nc" id="L86">    }</span>
+
+    /**
+     * Name of the File System
+     *
+     * @return The file system name
+     */
+    public String getName() {
+<span class="fc" id="L94">        return this.name;</span>
+    }
+
+    /**
+     * Sets the File System name
+     *
+     * @param value
+     *            The name
+     */
+    public void setName(String value) {
+<span class="fc" id="L104">        this.name = value;</span>
+<span class="fc" id="L105">    }</span>
+
+    /**
+     * Volume of the File System
+     *
+     * @return The volume of the file system
+     */
+    public String getVolume() {
+<span class="fc" id="L113">        return this.volume;</span>
+    }
+
+    /**
+     * Logical volume of the File System
+     *
+     * Provides an optional alternative volume identifier for the file system.
+     * Only supported on Linux, provides symlink value via '/dev/mapper/' (used
+     * with LVM file systems).
+     *
+     * @return The logical volume of the file system
+     */
+    public String getLogicalVolume() {
+<span class="fc" id="L126">        return this.logicalVolume;</span>
+    }
+
+    /**
+     * Sets the volume of the File System
+     *
+     * @param value
+     *            The volume
+     */
+    public void setVolume(String value) {
+<span class="fc" id="L136">        this.volume = value;</span>
+<span class="fc" id="L137">    }</span>
+
+    /**
+     * Sets the logical volume of the File System
+     *
+     * @param value
+     *            The logical volume
+     */
+    public void setLogicalVolume(String value) {
+<span class="fc" id="L146">        this.logicalVolume = value;</span>
+<span class="fc" id="L147">    }</span>
+
+    /**
+     * Mountpoint of the File System
+     *
+     * @return The mountpoint of the file system
+     */
+    public String getMount() {
+<span class="fc" id="L155">        return this.mount;</span>
+    }
+
+    /**
+     * Sets the mountpoint of the File System
+     *
+     * @param value
+     *            The mountpoint
+     */
+    public void setMount(String value) {
+<span class="fc" id="L165">        this.mount = value;</span>
+<span class="fc" id="L166">    }</span>
+
+    /**
+     * Description of the File System
+     *
+     * @return The file system description
+     */
+    public String getDescription() {
+<span class="fc" id="L174">        return this.description;</span>
+    }
+
+    /**
+     * Sets the File System description
+     *
+     * @param value
+     *            The description
+     */
+    public void setDescription(String value) {
+<span class="fc" id="L184">        this.description = value;</span>
+<span class="fc" id="L185">    }</span>
+
+    /**
+     * Type of the File System (FAT, NTFS, etx2, ext4, etc)
+     *
+     * @return The file system type
+     */
+    public String getType() {
+<span class="fc" id="L193">        return this.fsType;</span>
+    }
+
+    /**
+     * Sets the File System type
+     *
+     * @param value
+     *            The type
+     */
+    public void setType(String value) {
+<span class="fc" id="L203">        this.fsType = value;</span>
+<span class="fc" id="L204">    }</span>
+
+    /**
+     * UUID/GUID of the File System
+     *
+     * @return The file system UUID/GUID
+     */
+    public String getUUID() {
+<span class="fc" id="L212">        return this.uuid;</span>
+    }
+
+    /**
+     * Sets the File System UUID/GUID
+     *
+     * @param value
+     *            The UUID/GUID
+     */
+    public void setUUID(String value) {
+<span class="fc" id="L222">        this.uuid = value;</span>
+<span class="fc" id="L223">    }</span>
+
+    /**
+     * Free space on the drive. This space is unallocated but may require
+     * elevated permissions to write.
+     *
+     * @return Free space on the drive (in bytes)
+     */
+    public long getFreeSpace() {
+<span class="fc" id="L232">        return this.freeSpace;</span>
+    }
+
+    /**
+     * Sets free space on the drive.
+     *
+     * @param value
+     *            Bytes of free space.
+     */
+    public void setFreeSpace(long value) {
+<span class="fc" id="L242">        this.freeSpace = value;</span>
+<span class="fc" id="L243">    }</span>
+
+    /**
+     * Usable space on the drive. This is space available to unprivileged users.
+     *
+     * @return Usable space on the drive (in bytes)
+     */
+    public long getUsableSpace() {
+<span class="fc" id="L251">        return this.usableSpace;</span>
+    }
+
+    /**
+     * Sets usable space on the drive.
+     *
+     * @param value
+     *            Bytes of writable space.
+     */
+    public void setUsableSpace(long value) {
+<span class="fc" id="L261">        this.usableSpace = value;</span>
+<span class="fc" id="L262">    }</span>
+
+    /**
+     * Total space/capacity of the drive.
+     *
+     * @return Total capacity of the drive (in bytes)
+     */
+    public long getTotalSpace() {
+<span class="fc" id="L270">        return this.totalSpace;</span>
+    }
+
+    /**
+     * Sets the total space on the drive.
+     *
+     * @param value
+     *            Bytes of total space.
+     */
+    public void setTotalSpace(long value) {
+<span class="fc" id="L280">        this.totalSpace = value;</span>
+<span class="fc" id="L281">    }</span>
+
+    /**
+     * Usable / free inodes on the drive. Not applicable on Windows.
+     *
+     * @return Usable / free inodes on the drive (count), or -1 if unimplemented
+     */
+    public long getFreeInodes() {
+<span class="fc" id="L289">        return this.freeInodes;</span>
+    }
+
+    /**
+     * Sets usable inodes on the drive.
+     *
+     * @param value
+     *            Number of free inodes.
+     */
+    public void setFreeInodes(long value) {
+<span class="fc" id="L299">        this.freeInodes = value;</span>
+<span class="fc" id="L300">    }</span>
+
+    /**
+     * Total / maximum number of inodes of the filesystem. Not applicable on
+     * Windows.
+     *
+     * @return Total / maximum number of inodes of the filesystem (count), or -1
+     *         if unimplemented
+     */
+    public long getTotalInodes() {
+<span class="fc" id="L310">        return this.totalInodes;</span>
+    }
+
+    /**
+     * Sets the total / maximum number of inodes on the filesystem.
+     *
+     * @param value
+     *            Total / maximum count of inodes
+     */
+    public void setTotalInodes(long value) {
+<span class="fc" id="L320">        this.totalInodes = value;</span>
+<span class="fc" id="L321">    }</span>
+
+    /**
+     * Make a best effort to update all the statistics about the file store without
+     * needing to recreate the file store list. This method provides for more
+     * frequent periodic updates of file store statistics.
+     *
+     * @return True if the update was (probably) successful, false if the disk was
+     *         not found
+     */
+    public boolean updateAtrributes() {
+<span class="nc bnc" id="L332" title="All 6 branches missed.">        switch (SystemInfo.getCurrentPlatformEnum()) {</span>
+        case WINDOWS:
+<span class="nc" id="L334">            return WindowsFileSystem.updateFileStoreStats(this);</span>
+        case LINUX:
+<span class="nc" id="L336">            return LinuxFileSystem.updateFileStoreStats(this);</span>
+        case MACOSX:
+<span class="nc" id="L338">            return MacFileSystem.updateFileStoreStats(this);</span>
+        case SOLARIS:
+<span class="nc" id="L340">            return SolarisFileSystem.updateFileStoreStats(this);</span>
+        case FREEBSD:
+<span class="nc" id="L342">            return FreeBsdFileSystem.updateFileStoreStats(this);</span>
+        default:
+<span class="nc" id="L344">            LOG.error(&quot;Unsupported platform. No update performed.&quot;);</span>
+        }
+<span class="nc" id="L346">        return false;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

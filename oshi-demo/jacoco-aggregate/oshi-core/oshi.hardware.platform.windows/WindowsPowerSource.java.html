@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>WindowsPowerSource.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-demo</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.windows</a> &gt; <span class="el_source">WindowsPowerSource.java</span></div><h1>WindowsPowerSource.java</h1><pre class="source lang-java linenums">/**
+ * OSHI (https://github.com/oshi/oshi)
+ *
+ * Copyright (c) 2010 - 2019 The OSHI Project Team:
+ * https://github.com/oshi/oshi/graphs/contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+package oshi.hardware.platform.windows;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.sun.jna.Memory; // NOSONAR
+
+import oshi.hardware.PowerSource;
+import oshi.hardware.common.AbstractPowerSource;
+import oshi.jna.platform.windows.PowrProf;
+import oshi.jna.platform.windows.PowrProf.POWER_INFORMATION_LEVEL;
+import oshi.jna.platform.windows.PowrProf.SystemBatteryState;
+import oshi.util.FormatUtil;
+
+/**
+ * A Power Source
+ */
+public class WindowsPowerSource extends AbstractPowerSource {
+
+    private static final long serialVersionUID = 1L;
+
+<span class="nc" id="L45">    private static final Logger LOG = LoggerFactory.getLogger(WindowsPowerSource.class);</span>
+
+    public WindowsPowerSource(String newName, double newRemainingCapacity, double newTimeRemaining) {
+<span class="nc" id="L48">        super(newName, newRemainingCapacity, newTimeRemaining);</span>
+<span class="nc" id="L49">        LOG.debug(&quot;Initialized WindowsPowerSource&quot;);</span>
+<span class="nc" id="L50">    }</span>
+
+    /**
+     * Gets Battery Information.
+     *
+     * @return An array of PowerSource objects representing batteries, etc.
+     */
+    public static PowerSource[] getPowerSources() {
+        // Windows provides a single unnamed battery
+<span class="nc" id="L59">        WindowsPowerSource[] psArray = new WindowsPowerSource[1];</span>
+<span class="nc" id="L60">        psArray[0] = getPowerSource(&quot;System Battery&quot;);</span>
+<span class="nc" id="L61">        return psArray;</span>
+    }
+
+    private static WindowsPowerSource getPowerSource(String name) {
+        // Get structure
+<span class="nc" id="L66">        int size = new SystemBatteryState().size();</span>
+<span class="nc" id="L67">        Memory mem = new Memory(size);</span>
+<span class="nc bnc" id="L68" title="All 2 branches missed.">        if (0 == PowrProf.INSTANCE.CallNtPowerInformation(POWER_INFORMATION_LEVEL.SYSTEM_BATTERY_STATE, null, 0, mem,</span>
+                size)) {
+<span class="nc" id="L70">            SystemBatteryState batteryState = new SystemBatteryState(mem);</span>
+<span class="nc bnc" id="L71" title="All 2 branches missed.">            if (batteryState.batteryPresent &gt; 0) {</span>
+<span class="nc" id="L72">                int estimatedTime = -2; // -1 = unknown, -2 = unlimited</span>
+<span class="nc bnc" id="L73" title="All 6 branches missed.">                if (batteryState.acOnLine == 0 &amp;&amp; batteryState.charging == 0 &amp;&amp; batteryState.discharging &gt; 0) {</span>
+<span class="nc" id="L74">                    estimatedTime = batteryState.estimatedTime;</span>
+                }
+<span class="nc" id="L76">                long maxCapacity = FormatUtil.getUnsignedInt(batteryState.maxCapacity);</span>
+<span class="nc" id="L77">                long remainingCapacity = FormatUtil.getUnsignedInt(batteryState.remainingCapacity);</span>
+<span class="nc" id="L78">                return new WindowsPowerSource(name, (double) remainingCapacity / maxCapacity, estimatedTime);</span>
+            }
+        }
+<span class="nc" id="L81">        return new WindowsPowerSource(&quot;Unknown&quot;, 0d, -1d);</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void updateAttributes() {
+<span class="nc" id="L89">        PowerSource ps = getPowerSource(this.name);</span>
+<span class="nc" id="L90">        this.remainingCapacity = ps.getRemainingCapacity();</span>
+<span class="nc" id="L91">        this.timeRemaining = ps.getTimeRemaining();</span>
+<span class="nc" id="L92">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

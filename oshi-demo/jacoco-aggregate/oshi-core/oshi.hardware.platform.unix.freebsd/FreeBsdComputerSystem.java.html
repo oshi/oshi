@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>FreeBsdComputerSystem.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-demo</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.unix.freebsd</a> &gt; <span class="el_source">FreeBsdComputerSystem.java</span></div><h1>FreeBsdComputerSystem.java</h1><pre class="source lang-java linenums">/**
+ * OSHI (https://github.com/oshi/oshi)
+ *
+ * Copyright (c) 2010 - 2019 The OSHI Project Team:
+ * https://github.com/oshi/oshi/graphs/contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+package oshi.hardware.platform.unix.freebsd;
+
+import oshi.hardware.Baseboard;
+import oshi.hardware.Firmware;
+import oshi.hardware.common.AbstractComputerSystem;
+import oshi.util.Constants;
+import oshi.util.ExecutingCommand;
+import oshi.util.ParseUtil;
+
+/**
+ * Hardware data obtained from dmidecode.
+ */
+<span class="nc" id="L36">final class FreeBsdComputerSystem extends AbstractComputerSystem {</span>
+
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getManufacturer() {
+<span class="nc bnc" id="L45" title="All 2 branches missed.">        if (this.manufacturer == null) {</span>
+<span class="nc" id="L46">            readDmiDecode();</span>
+        }
+<span class="nc" id="L48">        return this.manufacturer;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getModel() {
+<span class="nc bnc" id="L56" title="All 2 branches missed.">        if (this.model == null) {</span>
+<span class="nc" id="L57">            readDmiDecode();</span>
+        }
+<span class="nc" id="L59">        return this.model;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getSerialNumber() {
+<span class="nc bnc" id="L67" title="All 2 branches missed.">        if (this.serialNumber == null) {</span>
+<span class="nc" id="L68">            readDmiDecode();</span>
+        }
+<span class="nc" id="L70">        return this.serialNumber;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Firmware getFirmware() {
+<span class="nc bnc" id="L78" title="All 2 branches missed.">        if (this.firmware == null) {</span>
+<span class="nc" id="L79">            this.firmware = new FreeBsdFirmware();</span>
+        }
+<span class="nc" id="L81">        return this.firmware;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Baseboard getBaseboard() {
+<span class="nc bnc" id="L89" title="All 2 branches missed.">        if (this.baseboard == null) {</span>
+<span class="nc" id="L90">            this.baseboard = new FreeBsdBaseboard();</span>
+        }
+<span class="nc" id="L92">        return this.baseboard;</span>
+    }
+
+    private void readDmiDecode() {
+
+        // $ sudo dmidecode -t system
+        // # dmidecode 3.0
+        // Scanning /dev/mem for entry point.
+        // SMBIOS 2.7 present.
+        //
+        // Handle 0x0001, DMI type 1, 27 bytes
+        // System Information
+        // Manufacturer: Parallels Software International Inc.
+        // Product Name: Parallels Virtual Platform
+        // Version: None
+        // Serial Number: Parallels-47 EC 38 2A 33 1B 4C 75 94 0F F7 AF 86 63 C0
+        // C4
+        // UUID: 2A38EC47-1B33-854C-940F-F7AF8663C0C4
+        // Wake-up Type: Power Switch
+        // SKU Number: Undefined
+        // Family: Parallels VM
+        //
+        // Handle 0x0016, DMI type 32, 20 bytes
+        // System Boot Information
+        // Status: No errors detected
+
+<span class="nc" id="L118">        final String manufacturerMarker = &quot;Manufacturer:&quot;;</span>
+<span class="nc" id="L119">        final String productNameMarker = &quot;Product Name:&quot;;</span>
+<span class="nc" id="L120">        final String serialNumMarker = &quot;Serial Number:&quot;;</span>
+
+        // Only works with root permissions but it's all we've got
+<span class="nc bnc" id="L123" title="All 2 branches missed.">        for (final String checkLine : ExecutingCommand.runNative(&quot;dmidecode -t system&quot;)) {</span>
+<span class="nc bnc" id="L124" title="All 2 branches missed.">            if (checkLine.contains(manufacturerMarker)) {</span>
+<span class="nc" id="L125">                String manufacturer = checkLine.split(manufacturerMarker)[1].trim();</span>
+<span class="nc bnc" id="L126" title="All 2 branches missed.">                if (!manufacturer.isEmpty()) {</span>
+<span class="nc" id="L127">                    this.manufacturer = manufacturer;</span>
+                }
+            }
+<span class="nc bnc" id="L130" title="All 2 branches missed.">            if (checkLine.contains(productNameMarker)) {</span>
+<span class="nc" id="L131">                String productName = checkLine.split(productNameMarker)[1].trim();</span>
+<span class="nc bnc" id="L132" title="All 2 branches missed.">                if (!productName.isEmpty()) {</span>
+<span class="nc" id="L133">                    this.model = productName;</span>
+                }
+            }
+<span class="nc bnc" id="L136" title="All 2 branches missed.">            if (checkLine.contains(serialNumMarker)) {</span>
+<span class="nc" id="L137">                String serialNumber = checkLine.split(serialNumMarker)[1].trim();</span>
+<span class="nc" id="L138">                this.serialNumber = serialNumber;</span>
+            }
+<span class="nc" id="L140">        }</span>
+
+<span class="nc bnc" id="L142" title="All 4 branches missed.">        if (this.serialNumber == null || serialNumber.isEmpty()) {</span>
+<span class="nc" id="L143">            this.serialNumber = getSystemSerialNumber();</span>
+        }
+<span class="nc" id="L145">    }</span>
+
+    private String getSystemSerialNumber() {
+<span class="nc" id="L148">        String marker = &quot;system.hardware.serial =&quot;;</span>
+<span class="nc bnc" id="L149" title="All 2 branches missed.">        for (String checkLine : ExecutingCommand.runNative(&quot;lshal&quot;)) {</span>
+<span class="nc bnc" id="L150" title="All 2 branches missed.">            if (checkLine.contains(marker)) {</span>
+<span class="nc" id="L151">                return ParseUtil.getSingleQuoteStringValue(checkLine);</span>
+            }
+<span class="nc" id="L153">        }</span>
+<span class="nc" id="L154">        return Constants.UNKNOWN;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>
