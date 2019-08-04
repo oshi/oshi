@@ -44,43 +44,43 @@ import oshi.util.platform.unix.solaris.KstatUtil;
 
 /**
  * A CPU
- *
- * @author widdis[at]gmail[dot]com
  */
 public class SolarisCentralProcessor extends AbstractCentralProcessor {
 
     private static final long serialVersionUID = 1L;
 
-<span class="nc" id="L54">    private static final Logger LOG = LoggerFactory.getLogger(SolarisCentralProcessor.class);</span>
+<span class="nc" id="L52">    private static final Logger LOG = LoggerFactory.getLogger(SolarisCentralProcessor.class);</span>
 
     /**
      * Create a Processor
      */
     public SolarisCentralProcessor() {
-<span class="nc" id="L60">        super();</span>
+<span class="nc" id="L58">        super();</span>
         // Initialize class variables
-<span class="nc" id="L62">        initVars();</span>
+<span class="nc" id="L60">        initVars();</span>
 
-<span class="nc" id="L64">        LOG.debug(&quot;Initialized Processor&quot;);</span>
-<span class="nc" id="L65">    }</span>
+<span class="nc" id="L62">        LOG.debug(&quot;Initialized Processor&quot;);</span>
+<span class="nc" id="L63">    }</span>
 
     private void initVars() {
         // Get first result
-<span class="nc" id="L69">        Kstat ksp = KstatUtil.kstatLookup(&quot;cpu_info&quot;, -1, null);</span>
+<span class="nc" id="L67">        Kstat ksp = KstatUtil.kstatLookup(&quot;cpu_info&quot;, -1, null);</span>
         // Set values
-<span class="nc bnc" id="L71" title="All 4 branches missed.">        if (ksp != null &amp;&amp; KstatUtil.kstatRead(ksp)) {</span>
-<span class="nc" id="L72">            setVendor(KstatUtil.kstatDataLookupString(ksp, &quot;vendor_id&quot;));</span>
-<span class="nc" id="L73">            setName(KstatUtil.kstatDataLookupString(ksp, &quot;brand&quot;));</span>
-<span class="nc" id="L74">            setStepping(KstatUtil.kstatDataLookupString(ksp, &quot;stepping&quot;));</span>
-<span class="nc" id="L75">            setModel(KstatUtil.kstatDataLookupString(ksp, &quot;model&quot;));</span>
-<span class="nc" id="L76">            setFamily(KstatUtil.kstatDataLookupString(ksp, &quot;family&quot;));</span>
+<span class="nc bnc" id="L69" title="All 4 branches missed.">        if (ksp != null &amp;&amp; KstatUtil.kstatRead(ksp)) {</span>
+<span class="nc" id="L70">            setVendor(KstatUtil.kstatDataLookupString(ksp, &quot;vendor_id&quot;));</span>
+<span class="nc" id="L71">            setName(KstatUtil.kstatDataLookupString(ksp, &quot;brand&quot;));</span>
+<span class="nc" id="L72">            setStepping(KstatUtil.kstatDataLookupString(ksp, &quot;stepping&quot;));</span>
+<span class="nc" id="L73">            setModel(KstatUtil.kstatDataLookupString(ksp, &quot;model&quot;));</span>
+<span class="nc" id="L74">            setFamily(KstatUtil.kstatDataLookupString(ksp, &quot;family&quot;));</span>
         }
-<span class="nc" id="L78">        setCpu64(&quot;64&quot;.equals(ExecutingCommand.getFirstAnswer(&quot;isainfo -b&quot;).trim()));</span>
-<span class="nc" id="L79">        setProcessorID(getProcessorID(getStepping(), getModel(), getFamily()));</span>
+<span class="nc" id="L76">        setCpu64(&quot;64&quot;.equals(ExecutingCommand.getFirstAnswer(&quot;isainfo -b&quot;).trim()));</span>
+<span class="nc" id="L77">        setProcessorID(getProcessorID(getStepping(), getModel(), getFamily()));</span>
 
-<span class="nc" id="L81">    }</span>
+<span class="nc" id="L79">    }</span>
 
     /**
+     * {@inheritDoc}
+     *
      * Updates logical and physical processor counts from psrinfo
      */
     @Override
@@ -156,105 +156,95 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
 <span class="nc" id="L156">        return numaNodeMap;</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long[] getSystemCpuLoadTicks() {
-<span class="nc" id="L164">        long[] ticks = new long[TickType.values().length];</span>
+<span class="nc" id="L162">        long[] ticks = new long[TickType.values().length];</span>
         // Average processor ticks
-<span class="nc" id="L166">        long[][] procTicks = getProcessorCpuLoadTicks();</span>
-<span class="nc bnc" id="L167" title="All 2 branches missed.">        for (int i = 0; i &lt; ticks.length; i++) {</span>
-<span class="nc bnc" id="L168" title="All 2 branches missed.">            for (long[] procTick : procTicks) {</span>
-<span class="nc" id="L169">                ticks[i] += procTick[i];</span>
+<span class="nc" id="L164">        long[][] procTicks = getProcessorCpuLoadTicks();</span>
+<span class="nc bnc" id="L165" title="All 2 branches missed.">        for (int i = 0; i &lt; ticks.length; i++) {</span>
+<span class="nc bnc" id="L166" title="All 2 branches missed.">            for (long[] procTick : procTicks) {</span>
+<span class="nc" id="L167">                ticks[i] += procTick[i];</span>
             }
-<span class="nc" id="L171">            ticks[i] /= procTicks.length;</span>
+<span class="nc" id="L169">            ticks[i] /= procTicks.length;</span>
         }
-<span class="nc" id="L173">        return ticks;</span>
+<span class="nc" id="L171">        return ticks;</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long[] getCurrentFreq() {
-<span class="nc" id="L181">        long[] freqs = new long[getLogicalProcessorCount()];</span>
-<span class="nc" id="L182">        Arrays.fill(freqs, -1);</span>
-<span class="nc bnc" id="L183" title="All 2 branches missed.">        for (int i = 0; i &lt; freqs.length; i++) {</span>
-<span class="nc bnc" id="L184" title="All 2 branches missed.">            for (Kstat ksp : KstatUtil.kstatLookupAll(&quot;cpu_info&quot;, i, null)) {</span>
-<span class="nc bnc" id="L185" title="All 2 branches missed.">                if (KstatUtil.kstatRead(ksp)) {</span>
-<span class="nc" id="L186">                    freqs[i] = KstatUtil.kstatDataLookupLong(ksp, &quot;current_clock_Hz&quot;);</span>
+<span class="nc" id="L177">        long[] freqs = new long[getLogicalProcessorCount()];</span>
+<span class="nc" id="L178">        Arrays.fill(freqs, -1);</span>
+<span class="nc bnc" id="L179" title="All 2 branches missed.">        for (int i = 0; i &lt; freqs.length; i++) {</span>
+<span class="nc bnc" id="L180" title="All 2 branches missed.">            for (Kstat ksp : KstatUtil.kstatLookupAll(&quot;cpu_info&quot;, i, null)) {</span>
+<span class="nc bnc" id="L181" title="All 2 branches missed.">                if (KstatUtil.kstatRead(ksp)) {</span>
+<span class="nc" id="L182">                    freqs[i] = KstatUtil.kstatDataLookupLong(ksp, &quot;current_clock_Hz&quot;);</span>
                 }
-<span class="nc" id="L188">            }</span>
+<span class="nc" id="L184">            }</span>
         }
-<span class="nc" id="L190">        return freqs;</span>
+<span class="nc" id="L186">        return freqs;</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long queryMaxFreq() {
-<span class="nc" id="L198">        long max = -1L;</span>
-<span class="nc bnc" id="L199" title="All 2 branches missed.">        for (Kstat ksp : KstatUtil.kstatLookupAll(&quot;cpu_info&quot;, 0, null)) {</span>
-<span class="nc bnc" id="L200" title="All 2 branches missed.">            if (KstatUtil.kstatRead(ksp)) {</span>
-<span class="nc" id="L201">                String suppFreq = KstatUtil.kstatDataLookupString(ksp, &quot;supported_frequencies_Hz&quot;);</span>
-<span class="nc bnc" id="L202" title="All 2 branches missed.">                if (!suppFreq.isEmpty()) {</span>
-<span class="nc bnc" id="L203" title="All 2 branches missed.">                    for (String s : suppFreq.split(&quot;:&quot;)) {</span>
-<span class="nc" id="L204">                        long freq = ParseUtil.parseLongOrDefault(s, -1L);</span>
-<span class="nc bnc" id="L205" title="All 2 branches missed.">                        if (max &lt; freq) {</span>
-<span class="nc" id="L206">                            max = freq;</span>
+<span class="nc" id="L192">        long max = -1L;</span>
+<span class="nc bnc" id="L193" title="All 2 branches missed.">        for (Kstat ksp : KstatUtil.kstatLookupAll(&quot;cpu_info&quot;, 0, null)) {</span>
+<span class="nc bnc" id="L194" title="All 2 branches missed.">            if (KstatUtil.kstatRead(ksp)) {</span>
+<span class="nc" id="L195">                String suppFreq = KstatUtil.kstatDataLookupString(ksp, &quot;supported_frequencies_Hz&quot;);</span>
+<span class="nc bnc" id="L196" title="All 2 branches missed.">                if (!suppFreq.isEmpty()) {</span>
+<span class="nc bnc" id="L197" title="All 2 branches missed.">                    for (String s : suppFreq.split(&quot;:&quot;)) {</span>
+<span class="nc" id="L198">                        long freq = ParseUtil.parseLongOrDefault(s, -1L);</span>
+<span class="nc bnc" id="L199" title="All 2 branches missed.">                        if (max &lt; freq) {</span>
+<span class="nc" id="L200">                            max = freq;</span>
                         }
                     }
                 }
             }
-<span class="nc" id="L211">        }</span>
-<span class="nc" id="L212">        return max;</span>
+<span class="nc" id="L205">        }</span>
+<span class="nc" id="L206">        return max;</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public double[] getSystemLoadAverage(int nelem) {
-<span class="nc bnc" id="L220" title="All 4 branches missed.">        if (nelem &lt; 1 || nelem &gt; 3) {</span>
-<span class="nc" id="L221">            throw new IllegalArgumentException(&quot;Must include from one to three elements.&quot;);</span>
+<span class="nc bnc" id="L212" title="All 4 branches missed.">        if (nelem &lt; 1 || nelem &gt; 3) {</span>
+<span class="nc" id="L213">            throw new IllegalArgumentException(&quot;Must include from one to three elements.&quot;);</span>
         }
-<span class="nc" id="L223">        double[] average = new double[nelem];</span>
-<span class="nc" id="L224">        int retval = Libc.INSTANCE.getloadavg(average, nelem);</span>
-<span class="nc bnc" id="L225" title="All 2 branches missed.">        if (retval &lt; nelem) {</span>
-<span class="nc bnc" id="L226" title="All 2 branches missed.">            for (int i = Math.max(retval, 0); i &lt; average.length; i++) {</span>
-<span class="nc" id="L227">                average[i] = -1d;</span>
+<span class="nc" id="L215">        double[] average = new double[nelem];</span>
+<span class="nc" id="L216">        int retval = Libc.INSTANCE.getloadavg(average, nelem);</span>
+<span class="nc bnc" id="L217" title="All 2 branches missed.">        if (retval &lt; nelem) {</span>
+<span class="nc bnc" id="L218" title="All 2 branches missed.">            for (int i = Math.max(retval, 0); i &lt; average.length; i++) {</span>
+<span class="nc" id="L219">                average[i] = -1d;</span>
             }
         }
-<span class="nc" id="L230">        return average;</span>
+<span class="nc" id="L222">        return average;</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long[][] getProcessorCpuLoadTicks() {
-<span class="nc" id="L238">        long[][] ticks = new long[this.logicalProcessorCount][TickType.values().length];</span>
-<span class="nc" id="L239">        int cpu = -1;</span>
-<span class="nc bnc" id="L240" title="All 2 branches missed.">        for (Kstat ksp : KstatUtil.kstatLookupAll(&quot;cpu&quot;, -1, &quot;sys&quot;)) {</span>
+<span class="nc" id="L228">        long[][] ticks = new long[this.logicalProcessorCount][TickType.values().length];</span>
+<span class="nc" id="L229">        int cpu = -1;</span>
+<span class="nc bnc" id="L230" title="All 2 branches missed.">        for (Kstat ksp : KstatUtil.kstatLookupAll(&quot;cpu&quot;, -1, &quot;sys&quot;)) {</span>
             // This is a new CPU
-<span class="nc bnc" id="L242" title="All 2 branches missed.">            if (++cpu &gt;= ticks.length) {</span>
+<span class="nc bnc" id="L232" title="All 2 branches missed.">            if (++cpu &gt;= ticks.length) {</span>
                 // Shouldn't happen
-<span class="nc" id="L244">                break;</span>
+<span class="nc" id="L234">                break;</span>
             }
-<span class="nc bnc" id="L246" title="All 2 branches missed.">            if (KstatUtil.kstatRead(ksp)) {</span>
-<span class="nc" id="L247">                ticks[cpu][TickType.IDLE.getIndex()] = KstatUtil.kstatDataLookupLong(ksp, &quot;cpu_ticks_idle&quot;);</span>
-<span class="nc" id="L248">                ticks[cpu][TickType.SYSTEM.getIndex()] = KstatUtil.kstatDataLookupLong(ksp, &quot;cpu_ticks_kernel&quot;);</span>
-<span class="nc" id="L249">                ticks[cpu][TickType.USER.getIndex()] = KstatUtil.kstatDataLookupLong(ksp, &quot;cpu_ticks_user&quot;);</span>
+<span class="nc bnc" id="L236" title="All 2 branches missed.">            if (KstatUtil.kstatRead(ksp)) {</span>
+<span class="nc" id="L237">                ticks[cpu][TickType.IDLE.getIndex()] = KstatUtil.kstatDataLookupLong(ksp, &quot;cpu_ticks_idle&quot;);</span>
+<span class="nc" id="L238">                ticks[cpu][TickType.SYSTEM.getIndex()] = KstatUtil.kstatDataLookupLong(ksp, &quot;cpu_ticks_kernel&quot;);</span>
+<span class="nc" id="L239">                ticks[cpu][TickType.USER.getIndex()] = KstatUtil.kstatDataLookupLong(ksp, &quot;cpu_ticks_user&quot;);</span>
             }
-<span class="nc" id="L251">        }</span>
-<span class="nc" id="L252">        return ticks;</span>
+<span class="nc" id="L241">        }</span>
+<span class="nc" id="L242">        return ticks;</span>
     }
 
     /**
-     * Fetches the ProcessorID by encoding the stepping, model, family, and
-     * feature flags.
+     * Fetches the ProcessorID by encoding the stepping, model, family, and feature
+     * flags.
      *
      * @param stepping
      * @param model
@@ -262,42 +252,38 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
      * @return The Processor ID string
      */
     private String getProcessorID(String stepping, String model, String family) {
-<span class="nc" id="L265">        List&lt;String&gt; isainfo = ExecutingCommand.runNative(&quot;isainfo -v&quot;);</span>
-<span class="nc" id="L266">        StringBuilder flags = new StringBuilder();</span>
-<span class="nc bnc" id="L267" title="All 2 branches missed.">        for (String line : isainfo) {</span>
-<span class="nc bnc" id="L268" title="All 2 branches missed.">            if (line.startsWith(&quot;32-bit&quot;)) {</span>
-<span class="nc" id="L269">                break;</span>
-<span class="nc bnc" id="L270" title="All 2 branches missed.">            } else if (!line.startsWith(&quot;64-bit&quot;)) {</span>
-<span class="nc" id="L271">                flags.append(' ').append(line.trim());</span>
+<span class="nc" id="L255">        List&lt;String&gt; isainfo = ExecutingCommand.runNative(&quot;isainfo -v&quot;);</span>
+<span class="nc" id="L256">        StringBuilder flags = new StringBuilder();</span>
+<span class="nc bnc" id="L257" title="All 2 branches missed.">        for (String line : isainfo) {</span>
+<span class="nc bnc" id="L258" title="All 2 branches missed.">            if (line.startsWith(&quot;32-bit&quot;)) {</span>
+<span class="nc" id="L259">                break;</span>
+<span class="nc bnc" id="L260" title="All 2 branches missed.">            } else if (!line.startsWith(&quot;64-bit&quot;)) {</span>
+<span class="nc" id="L261">                flags.append(' ').append(line.trim());</span>
             }
-<span class="nc" id="L273">        }</span>
-<span class="nc" id="L274">        return createProcessorID(stepping, model, family, ParseUtil.whitespaces.split(flags.toString().toLowerCase()));</span>
+<span class="nc" id="L263">        }</span>
+<span class="nc" id="L264">        return createProcessorID(stepping, model, family, ParseUtil.whitespaces.split(flags.toString().toLowerCase()));</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getContextSwitches() {
-<span class="nc" id="L282">        long swtch = 0;</span>
-<span class="nc" id="L283">        List&lt;String&gt; kstat = ExecutingCommand.runNative(&quot;kstat -p cpu_stat:::/pswitch\\\\|inv_swtch/&quot;);</span>
-<span class="nc bnc" id="L284" title="All 2 branches missed.">        for (String s : kstat) {</span>
-<span class="nc" id="L285">            swtch += ParseUtil.parseLastLong(s, 0L);</span>
-<span class="nc" id="L286">        }</span>
-<span class="nc bnc" id="L287" title="All 2 branches missed.">        return swtch &gt; 0 ? swtch : -1L;</span>
+<span class="nc" id="L270">        long swtch = 0;</span>
+<span class="nc" id="L271">        List&lt;String&gt; kstat = ExecutingCommand.runNative(&quot;kstat -p cpu_stat:::/pswitch\\\\|inv_swtch/&quot;);</span>
+<span class="nc bnc" id="L272" title="All 2 branches missed.">        for (String s : kstat) {</span>
+<span class="nc" id="L273">            swtch += ParseUtil.parseLastLong(s, 0L);</span>
+<span class="nc" id="L274">        }</span>
+<span class="nc bnc" id="L275" title="All 2 branches missed.">        return swtch &gt; 0 ? swtch : -1L;</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getInterrupts() {
-<span class="nc" id="L295">        long intr = 0;</span>
-<span class="nc" id="L296">        List&lt;String&gt; kstat = ExecutingCommand.runNative(&quot;kstat -p cpu_stat:::/intr/&quot;);</span>
-<span class="nc bnc" id="L297" title="All 2 branches missed.">        for (String s : kstat) {</span>
-<span class="nc" id="L298">            intr += ParseUtil.parseLastLong(s, 0L);</span>
-<span class="nc" id="L299">        }</span>
-<span class="nc bnc" id="L300" title="All 2 branches missed.">        return intr &gt; 0 ? intr : -1L;</span>
+<span class="nc" id="L281">        long intr = 0;</span>
+<span class="nc" id="L282">        List&lt;String&gt; kstat = ExecutingCommand.runNative(&quot;kstat -p cpu_stat:::/intr/&quot;);</span>
+<span class="nc bnc" id="L283" title="All 2 branches missed.">        for (String s : kstat) {</span>
+<span class="nc" id="L284">            intr += ParseUtil.parseLastLong(s, 0L);</span>
+<span class="nc" id="L285">        }</span>
+<span class="nc bnc" id="L286" title="All 2 branches missed.">        return intr &gt; 0 ? intr : -1L;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

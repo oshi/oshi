@@ -35,97 +35,85 @@ import oshi.hardware.SoundCard;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
 
-<span class="nc" id="L38">public class LinuxHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {</span>
+/**
+ * &lt;p&gt;
+ * LinuxHardwareAbstractionLayer class.
+ * &lt;/p&gt;
+ */
+<span class="nc" id="L43">public class LinuxHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {</span>
 
     private static final long serialVersionUID = 1L;
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public ComputerSystem getComputerSystem() {
-<span class="nc bnc" id="L47" title="All 2 branches missed.">        if (this.computerSystem == null) {</span>
-<span class="nc" id="L48">            this.computerSystem = new LinuxComputerSystem();</span>
+<span class="nc bnc" id="L50" title="All 2 branches missed.">        if (this.computerSystem == null) {</span>
+<span class="nc" id="L51">            this.computerSystem = new LinuxComputerSystem();</span>
         }
-<span class="nc" id="L50">        return this.computerSystem;</span>
+<span class="nc" id="L53">        return this.computerSystem;</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public GlobalMemory getMemory() {
-<span class="nc bnc" id="L58" title="All 2 branches missed.">        if (this.memory == null) {</span>
-<span class="nc" id="L59">            this.memory = new LinuxGlobalMemory();</span>
+<span class="nc bnc" id="L59" title="All 2 branches missed.">        if (this.memory == null) {</span>
+<span class="nc" id="L60">            this.memory = new LinuxGlobalMemory();</span>
         }
-<span class="nc" id="L61">        return this.memory;</span>
+<span class="nc" id="L62">        return this.memory;</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public CentralProcessor getProcessor() {
-<span class="nc bnc" id="L69" title="All 2 branches missed.">        if (this.processor == null) {</span>
-<span class="nc" id="L70">            this.processor = new LinuxCentralProcessor();</span>
+<span class="nc bnc" id="L68" title="All 2 branches missed.">        if (this.processor == null) {</span>
+<span class="nc" id="L69">            this.processor = new LinuxCentralProcessor();</span>
         }
-<span class="nc" id="L72">        return this.processor;</span>
+<span class="nc" id="L71">        return this.processor;</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public PowerSource[] getPowerSources() {
-<span class="nc" id="L80">        return LinuxPowerSource.getPowerSources();</span>
+<span class="nc" id="L77">        return LinuxPowerSource.getPowerSources();</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public HWDiskStore[] getDiskStores() {
-<span class="nc" id="L88">        return new LinuxDisks().getDisks();</span>
+<span class="nc" id="L83">        return new LinuxDisks().getDisks();</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public Display[] getDisplays() {
-<span class="nc" id="L96">        return LinuxDisplay.getDisplays();</span>
+<span class="nc" id="L89">        return LinuxDisplay.getDisplays();</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public Sensors getSensors() {
-<span class="nc bnc" id="L104" title="All 2 branches missed.">        if (this.sensors == null) {</span>
-<span class="nc" id="L105">            this.sensors = new LinuxSensors();</span>
+<span class="nc bnc" id="L95" title="All 2 branches missed.">        if (this.sensors == null) {</span>
+<span class="nc" id="L96">            this.sensors = new LinuxSensors();</span>
         }
-<span class="nc" id="L107">        return this.sensors;</span>
+<span class="nc" id="L98">        return this.sensors;</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public NetworkIF[] getNetworkIFs() {
-<span class="nc" id="L115">        return new LinuxNetworks().getNetworks();</span>
+<span class="nc" id="L104">        return new LinuxNetworks().getNetworks();</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public UsbDevice[] getUsbDevices(boolean tree) {
-<span class="nc" id="L123">        return LinuxUsbDevice.getUsbDevices(tree);</span>
+<span class="nc" id="L110">        return LinuxUsbDevice.getUsbDevices(tree);</span>
     }
 
+    /** {@inheritDoc} */
     @Override
     public SoundCard[] getSoundCards() {
-<span class="nc" id="L128">        return LinuxSoundCard.getSoundCards().toArray(new SoundCard[0]);</span>
+<span class="nc" id="L116">        return LinuxSoundCard.getSoundCards().toArray(new SoundCard[0]);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

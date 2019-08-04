@@ -38,56 +38,48 @@ import oshi.util.platform.unix.solaris.KstatUtil;
 
     private static final long serialVersionUID = 1L;
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getAvailable() {
-<span class="nc" id="L46">        updateSystemPages();</span>
-<span class="nc" id="L47">        return this.memAvailable;</span>
+<span class="nc" id="L44">        updateSystemPages();</span>
+<span class="nc" id="L45">        return this.memAvailable;</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getTotal() {
-<span class="nc bnc" id="L55" title="All 2 branches missed.">        if (this.memTotal &lt; 0) {</span>
-<span class="nc" id="L56">            updateSystemPages();</span>
+<span class="nc bnc" id="L51" title="All 2 branches missed.">        if (this.memTotal &lt; 0) {</span>
+<span class="nc" id="L52">            updateSystemPages();</span>
         }
-<span class="nc" id="L58">        return this.memTotal;</span>
+<span class="nc" id="L54">        return this.memTotal;</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getPageSize() {
-<span class="nc bnc" id="L66" title="All 2 branches missed.">        if (this.pageSize &lt; 0) {</span>
-<span class="nc" id="L67">            this.pageSize = ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer(&quot;pagesize&quot;), 4096L);</span>
+<span class="nc bnc" id="L60" title="All 2 branches missed.">        if (this.pageSize &lt; 0) {</span>
+<span class="nc" id="L61">            this.pageSize = ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer(&quot;pagesize&quot;), 4096L);</span>
         }
-<span class="nc" id="L69">        return this.pageSize;</span>
+<span class="nc" id="L63">        return this.pageSize;</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public VirtualMemory getVirtualMemory() {
-<span class="nc bnc" id="L77" title="All 2 branches missed.">        if (this.virtualMemory == null) {</span>
-<span class="nc" id="L78">            this.virtualMemory = new SolarisVirtualMemory();</span>
+<span class="nc bnc" id="L69" title="All 2 branches missed.">        if (this.virtualMemory == null) {</span>
+<span class="nc" id="L70">            this.virtualMemory = new SolarisVirtualMemory();</span>
         }
-<span class="nc" id="L80">        return this.virtualMemory;</span>
+<span class="nc" id="L72">        return this.virtualMemory;</span>
     }
 
     private void updateSystemPages() {
         // Get first result
-<span class="nc" id="L85">        Kstat ksp = KstatUtil.kstatLookup(null, -1, &quot;system_pages&quot;);</span>
+<span class="nc" id="L77">        Kstat ksp = KstatUtil.kstatLookup(null, -1, &quot;system_pages&quot;);</span>
         // Set values
-<span class="nc bnc" id="L87" title="All 4 branches missed.">        if (ksp != null &amp;&amp; KstatUtil.kstatRead(ksp)) {</span>
-<span class="nc" id="L88">            this.memAvailable = KstatUtil.kstatDataLookupLong(ksp, &quot;availrmem&quot;) * getPageSize();</span>
-<span class="nc" id="L89">            this.memTotal = KstatUtil.kstatDataLookupLong(ksp, &quot;physmem&quot;) * getPageSize();</span>
+<span class="nc bnc" id="L79" title="All 4 branches missed.">        if (ksp != null &amp;&amp; KstatUtil.kstatRead(ksp)) {</span>
+<span class="nc" id="L80">            this.memAvailable = KstatUtil.kstatDataLookupLong(ksp, &quot;availrmem&quot;) * getPageSize();</span>
+<span class="nc" id="L81">            this.memTotal = KstatUtil.kstatDataLookupLong(ksp, &quot;physmem&quot;) * getPageSize();</span>
         }
-<span class="nc" id="L91">    }</span>
+<span class="nc" id="L83">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

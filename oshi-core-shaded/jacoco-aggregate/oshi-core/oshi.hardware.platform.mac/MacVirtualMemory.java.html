@@ -45,68 +45,60 @@ import oshi.util.platform.mac.SysctlUtil;
 
 <span class="nc" id="L46">    private static final Logger LOG = LoggerFactory.getLogger(MacVirtualMemory.class);</span>
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getSwapUsed() {
-<span class="nc" id="L53">        updateSwapUsed();</span>
-<span class="nc" id="L54">        return this.swapUsed;</span>
+<span class="nc" id="L51">        updateSwapUsed();</span>
+<span class="nc" id="L52">        return this.swapUsed;</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getSwapTotal() {
-<span class="nc" id="L62">        updateSwapUsed();</span>
-<span class="nc" id="L63">        return this.swapTotal;</span>
+<span class="nc" id="L58">        updateSwapUsed();</span>
+<span class="nc" id="L59">        return this.swapTotal;</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getSwapPagesIn() {
-<span class="nc" id="L71">        updateSwapInOut();</span>
-<span class="nc" id="L72">        return this.swapPagesIn;</span>
+<span class="nc" id="L65">        updateSwapInOut();</span>
+<span class="nc" id="L66">        return this.swapPagesIn;</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getSwapPagesOut() {
-<span class="nc" id="L80">        updateSwapInOut();</span>
-<span class="nc" id="L81">        return this.swapPagesOut;</span>
+<span class="nc" id="L72">        updateSwapInOut();</span>
+<span class="nc" id="L73">        return this.swapPagesOut;</span>
     }
 
     private void updateSwapUsed() {
         // Only update once per 300ms
-<span class="nc bnc" id="L86" title="All 2 branches missed.">        if (System.nanoTime() - this.lastSwapUsageNanos &gt; 300_000_000L) {</span>
-<span class="nc" id="L87">            XswUsage xswUsage = new XswUsage();</span>
-<span class="nc bnc" id="L88" title="All 2 branches missed.">            if (!SysctlUtil.sysctl(&quot;vm.swapusage&quot;, xswUsage)) {</span>
-<span class="nc" id="L89">                return;</span>
+<span class="nc bnc" id="L78" title="All 2 branches missed.">        if (System.nanoTime() - this.lastSwapUsageNanos &gt; 300_000_000L) {</span>
+<span class="nc" id="L79">            XswUsage xswUsage = new XswUsage();</span>
+<span class="nc bnc" id="L80" title="All 2 branches missed.">            if (!SysctlUtil.sysctl(&quot;vm.swapusage&quot;, xswUsage)) {</span>
+<span class="nc" id="L81">                return;</span>
             }
-<span class="nc" id="L91">            this.swapUsed = xswUsage.xsu_used;</span>
-<span class="nc" id="L92">            this.swapTotal = xswUsage.xsu_total;</span>
-<span class="nc" id="L93">            this.lastSwapUsageNanos = System.nanoTime();</span>
+<span class="nc" id="L83">            this.swapUsed = xswUsage.xsu_used;</span>
+<span class="nc" id="L84">            this.swapTotal = xswUsage.xsu_total;</span>
+<span class="nc" id="L85">            this.lastSwapUsageNanos = System.nanoTime();</span>
         }
-<span class="nc" id="L95">    }</span>
+<span class="nc" id="L87">    }</span>
 
     private void updateSwapInOut() {
         // Only update once per 300ms
-<span class="nc bnc" id="L99" title="All 2 branches missed.">        if (System.nanoTime() - this.lastSwapPagesNanos &gt; 300_000_000L) {</span>
-<span class="nc" id="L100">            VMStatistics vmStats = new VMStatistics();</span>
-<span class="nc bnc" id="L101" title="All 2 branches missed.">            if (0 != SystemB.INSTANCE.host_statistics(SystemB.INSTANCE.mach_host_self(), SystemB.HOST_VM_INFO, vmStats,</span>
-<span class="nc" id="L102">                    new IntByReference(vmStats.size() / SystemB.INT_SIZE))) {</span>
-<span class="nc" id="L103">                LOG.error(&quot;Failed to get host VM info. Error code: {}&quot;, Native.getLastError());</span>
-<span class="nc" id="L104">                return;</span>
+<span class="nc bnc" id="L91" title="All 2 branches missed.">        if (System.nanoTime() - this.lastSwapPagesNanos &gt; 300_000_000L) {</span>
+<span class="nc" id="L92">            VMStatistics vmStats = new VMStatistics();</span>
+<span class="nc bnc" id="L93" title="All 2 branches missed.">            if (0 != SystemB.INSTANCE.host_statistics(SystemB.INSTANCE.mach_host_self(), SystemB.HOST_VM_INFO, vmStats,</span>
+<span class="nc" id="L94">                    new IntByReference(vmStats.size() / SystemB.INT_SIZE))) {</span>
+<span class="nc" id="L95">                LOG.error(&quot;Failed to get host VM info. Error code: {}&quot;, Native.getLastError());</span>
+<span class="nc" id="L96">                return;</span>
             }
-<span class="nc" id="L106">            this.swapPagesIn = ParseUtil.unsignedIntToLong(vmStats.pageins);</span>
-<span class="nc" id="L107">            this.swapPagesOut = ParseUtil.unsignedIntToLong(vmStats.pageouts);</span>
-<span class="nc" id="L108">            this.lastSwapPagesNanos = System.nanoTime();</span>
+<span class="nc" id="L98">            this.swapPagesIn = ParseUtil.unsignedIntToLong(vmStats.pageins);</span>
+<span class="nc" id="L99">            this.swapPagesOut = ParseUtil.unsignedIntToLong(vmStats.pageouts);</span>
+<span class="nc" id="L100">            this.lastSwapPagesNanos = System.nanoTime();</span>
         }
-<span class="nc" id="L110">    }</span>
+<span class="nc" id="L102">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

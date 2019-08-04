@@ -35,41 +35,33 @@ import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
 
     private static final long serialVersionUID = 1L;
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getSwapUsed() {
-<span class="nc" id="L43">        String swapInfo = ExecutingCommand.getAnswerAt(&quot;swapinfo -k&quot;, 1);</span>
-<span class="nc" id="L44">        String[] split = ParseUtil.whitespaces.split(swapInfo);</span>
-<span class="nc bnc" id="L45" title="All 2 branches missed.">        if (split.length &lt; 5) {</span>
-<span class="nc" id="L46">            return 0L;</span>
+<span class="nc" id="L41">        String swapInfo = ExecutingCommand.getAnswerAt(&quot;swapinfo -k&quot;, 1);</span>
+<span class="nc" id="L42">        String[] split = ParseUtil.whitespaces.split(swapInfo);</span>
+<span class="nc bnc" id="L43" title="All 2 branches missed.">        if (split.length &lt; 5) {</span>
+<span class="nc" id="L44">            return 0L;</span>
         }
-<span class="nc" id="L48">        return ParseUtil.parseLongOrDefault(split[2], 0L) &lt;&lt; 10;</span>
+<span class="nc" id="L46">        return ParseUtil.parseLongOrDefault(split[2], 0L) &lt;&lt; 10;</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getSwapTotal() {
-<span class="nc" id="L56">        return BsdSysctlUtil.sysctl(&quot;vm.swap_total&quot;, 0L);</span>
+<span class="nc" id="L52">        return BsdSysctlUtil.sysctl(&quot;vm.swap_total&quot;, 0L);</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getSwapPagesIn() {
-<span class="nc" id="L64">        return BsdSysctlUtil.sysctl(&quot;vm.stats.vm.v_swappgsin&quot;, 0L);</span>
+<span class="nc" id="L58">        return BsdSysctlUtil.sysctl(&quot;vm.stats.vm.v_swappgsin&quot;, 0L);</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getSwapPagesOut() {
-<span class="nc" id="L72">        return BsdSysctlUtil.sysctl(&quot;vm.stats.vm.v_swappgsout&quot;, 0L);</span>
+<span class="nc" id="L64">        return BsdSysctlUtil.sysctl(&quot;vm.stats.vm.v_swappgsout&quot;, 0L);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>
