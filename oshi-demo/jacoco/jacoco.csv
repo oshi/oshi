@@ -1,7 +1,7 @@
 GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
 oshi-demo,oshi.demo,Json,51,0,0,0,14,0,2,0,2,0
 oshi-demo,oshi.demo,ComputerID,109,0,0,0,19,0,3,0,3,0
-oshi-demo,oshi.demo,DetectVM,105,123,16,0,22,15,11,3,3,3
+oshi-demo,oshi.demo,DetectVM,105,123,16,0,22,13,11,3,3,3
 oshi-demo,oshi.jna.platform.windows,PowrProf.SystemBatteryState,17,0,0,0,6,0,2,0,2,0
 oshi-demo,oshi.jna.platform.windows,PowrProf,6,0,0,0,1,0,1,0,1,0
 oshi-demo,oshi.jna.platform.windows,PowrProf.ProcessorPowerInformation,9,0,0,0,5,0,2,0,2,0
@@ -39,7 +39,7 @@ oshi-demo,oshi.hardware.platform.windows,WindowsSoundCard,96,0,6,0,18,0,5,0,2,0
 oshi-demo,oshi.hardware.platform.windows,WindowsCentralProcessor.ProcessorProperty,14,0,0,0,2,0,1,0,1,0
 oshi-demo,oshi.hardware.platform.windows,WindowsVirtualMemory.PageSwapProperty,45,0,0,0,9,0,4,0,4,0
 oshi-demo,oshi.hardware.platform.windows,WindowsFirmware.BiosProperty,54,0,0,0,2,0,1,0,1,0
-oshi-demo,oshi.hardware.platform.windows,WindowsSensors,477,0,60,0,112,0,41,0,11,0
+oshi-demo,oshi.hardware.platform.windows,WindowsSensors,481,0,60,0,112,0,41,0,11,0
 oshi-demo,oshi.hardware.platform.windows,WindowsUsbDevice.PnPEntityProperty,34,0,0,0,2,0,1,0,1,0
 oshi-demo,oshi.hardware.platform.windows,WindowsComputerSystem.BiosProperty,14,0,0,0,2,0,1,0,1,0
 oshi-demo,oshi.hardware.platform.windows,WindowsSensors.OhmSensorProperty,14,0,0,0,2,0,1,0,1,0
@@ -94,11 +94,10 @@ oshi-demo,oshi.jna.platform.linux,Udev.UdevEnumerate,7,0,0,0,4,0,2,0,2,0
 oshi-demo,oshi.jna.platform.linux,Udev.UdevDevice,7,0,0,0,4,0,2,0,2,0
 oshi-demo,oshi.jna.platform.linux,Udev.UdevListEntry,7,0,0,0,4,0,2,0,2,0
 oshi-demo,oshi.jna.platform.linux,Libc,6,0,0,0,1,0,1,0,1,0
-oshi-demo,oshi.software.os.linux,LinuxFileSystem,599,0,56,0,115,0,37,0,9,0
+oshi-demo,oshi.software.os.linux,LinuxFileSystem,597,0,56,0,115,0,37,0,9,0
 oshi-demo,oshi.software.os.linux,LinuxOSVersionInfoEx,448,0,92,0,102,0,55,0,9,0
-oshi-demo,oshi.software.os.linux,LinuxOperatingSystem,1325,0,176,0,274,0,126,0,24,0
+oshi-demo,oshi.software.os.linux,LinuxOperatingSystem,1362,0,190,0,281,0,134,0,25,0
 oshi-demo,oshi.software.os.linux,LinuxOperatingSystem.ProcPidStat,103,0,0,0,6,0,3,0,3,0
-oshi-demo,oshi.software.os.linux,LinuxOperatingSystem.new FileFilter() {...},42,0,14,0,5,0,9,0,2,0
 oshi-demo,oshi.software.os.linux,LinuxNetworkParams,203,0,32,0,48,0,21,0,5,0
 oshi-demo,oshi.software.os.linux,LinuxUserGroupInfo,155,0,20,0,41,0,15,0,5,0
 oshi-demo,oshi.jna.platform.unix.freebsd,Libc.CpTime,7,0,0,0,2,0,1,0,1,0
@@ -114,7 +113,7 @@ oshi-demo,oshi.util.platform.unix.freebsd,BsdSysctlUtil,147,0,10,0,27,0,10,0,5,0
 oshi-demo,oshi.util.platform.mac,IOKitUtil,261,0,40,0,81,0,32,0,12,0
 oshi-demo,oshi.util.platform.mac,CfUtil,92,0,8,0,25,0,12,0,8,0
 oshi-demo,oshi.util.platform.mac,SysctlUtil,147,0,10,0,27,0,10,0,5,0
-oshi-demo,oshi.util.platform.mac,CfUtil.CFNumberType,184,0,0,0,2,0,1,0,1,0
+oshi-demo,oshi.util.platform.mac,CfUtil.CFNumberType,184,0,0,0,5,0,1,0,1,0
 oshi-demo,oshi.util.platform.mac,SmcUtil,325,0,36,0,73,0,26,0,8,0
 oshi-demo,oshi.jna.platform.unix,CLibrary.Addrinfo.ByReference,3,0,0,0,1,0,1,0,1,0
 oshi-demo,oshi.jna.platform.unix,CLibrary.Addrinfo,9,0,0,0,5,0,2,0,2,0
@@ -154,10 +153,8 @@ oshi-demo,oshi.hardware.platform.unix.solaris,SolarisBaseboard,3,0,0,0,1,0,1,0,1
 oshi-demo,oshi.hardware.platform.unix.solaris,SolarisFirmware,3,0,0,0,1,0,1,0,1,0
 oshi-demo,oshi.hardware.platform.unix.solaris,SolarisHardwareAbstractionLayer,70,0,8,0,19,0,15,0,11,0
 oshi-demo,oshi.hardware.platform.linux,LinuxPowerSource,310,0,60,0,68,0,34,0,4,0
-oshi-demo,oshi.hardware.platform.linux,LinuxSensors,364,0,42,0,70,0,29,0,8,0
+oshi-demo,oshi.hardware.platform.linux,LinuxSensors,384,0,48,0,74,0,34,0,10,0
 oshi-demo,oshi.hardware.platform.linux,LinuxFirmware,244,0,44,0,57,0,35,0,13,0
-oshi-demo,oshi.hardware.platform.linux,LinuxSensors.new FileFilter() {...},11,0,0,0,2,0,2,0,2,0
-oshi-demo,oshi.hardware.platform.linux,LinuxSensors.new FileFilter() {...},31,0,6,0,5,0,5,0,2,0
 oshi-demo,oshi.hardware.platform.linux,LinuxComputerSystem,408,0,94,0,101,0,66,0,14,0
 oshi-demo,oshi.hardware.platform.linux,LinuxCentralProcessor,1047,0,133,0,198,0,84,0,14,0
 oshi-demo,oshi.hardware.platform.linux,LinuxHardwareAbstractionLayer,70,0,8,0,19,0,15,0,11,0
@@ -169,7 +166,7 @@ oshi-demo,oshi.hardware.platform.linux,LinuxDisplay,87,0,12,0,24,0,9,0,3,0
 oshi-demo,oshi.hardware.platform.linux,LinuxNetworks,117,0,2,0,18,0,3,0,2,0
 oshi-demo,oshi.hardware.platform.linux,LinuxUsbDevice,383,0,26,0,72,0,19,0,6,0
 oshi-demo,oshi.hardware.platform.linux,LinuxBaseboard,219,0,55,0,59,0,42,0,11,0
-oshi-demo,oshi.hardware.platform.linux,LinuxSoundCard,222,0,32,0,43,0,23,0,7,0
+oshi-demo,oshi.hardware.platform.linux,LinuxSoundCard,222,0,32,0,42,0,23,0,7,0
 oshi-demo,oshi.hardware.platform.mac,MacFirmware,3,0,0,0,1,0,1,0,1,0
 oshi-demo,oshi.hardware.platform.mac,MacDisplay,95,0,6,0,24,0,6,0,3,0
 oshi-demo,oshi.hardware.platform.mac,MacDisks,875,0,64,0,216,0,40,0,8,0

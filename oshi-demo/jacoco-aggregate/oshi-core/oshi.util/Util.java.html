@@ -28,11 +28,9 @@ import org.slf4j.LoggerFactory;
 
 /**
  * General utility methods
- *
- * @author widdis[at]gmail[dot]com
  */
 public class Util {
-<span class="fc" id="L35">    private static final Logger LOG = LoggerFactory.getLogger(Util.class);</span>
+<span class="fc" id="L33">    private static final Logger LOG = LoggerFactory.getLogger(Util.class);</span>
 
     private Util() {
     }
@@ -45,33 +43,33 @@ public class Util {
      */
     public static void sleep(long ms) {
         try {
-<span class="fc" id="L48">            LOG.trace(&quot;Sleeping for {} ms&quot;, ms);</span>
-<span class="fc" id="L49">            Thread.sleep(ms);</span>
-<span class="nc" id="L50">        } catch (InterruptedException e) { // NOSONAR squid:S2142</span>
-<span class="nc" id="L51">            LOG.warn(&quot;Interrupted while sleeping for {} ms: {}&quot;, ms, e);</span>
-<span class="nc" id="L52">            Thread.currentThread().interrupt();</span>
-<span class="fc" id="L53">        }</span>
-<span class="fc" id="L54">    }</span>
+<span class="fc" id="L46">            LOG.trace(&quot;Sleeping for {} ms&quot;, ms);</span>
+<span class="fc" id="L47">            Thread.sleep(ms);</span>
+<span class="nc" id="L48">        } catch (InterruptedException e) { // NOSONAR squid:S2142</span>
+<span class="nc" id="L49">            LOG.warn(&quot;Interrupted while sleeping for {} ms: {}&quot;, ms, e);</span>
+<span class="nc" id="L50">            Thread.currentThread().interrupt();</span>
+<span class="fc" id="L51">        }</span>
+<span class="fc" id="L52">    }</span>
 
     /**
      * Tests if a String matches another String with a wildcard pattern.
-     * 
+     *
      * @param text
      *            The String to test
      * @param pattern
      *            The String containing a wildcard pattern where ? represents a
-     *            single character and * represents any number of characters. If
-     *            the first character of the pattern is a carat (^) the test is
-     *            performed against the remaining characters and the result of
-     *            the test is the opposite.
+     *            single character and * represents any number of characters. If the
+     *            first character of the pattern is a carat (^) the test is
+     *            performed against the remaining characters and the result of the
+     *            test is the opposite.
      * @return True if the String matches or if the first character is ^ and the
      *         remainder of the String does not match.
      */
     public static boolean wildcardMatch(String text, String pattern) {
-<span class="pc bpc" id="L71" title="1 of 4 branches missed.">        if (pattern.length() &gt; 0 &amp;&amp; pattern.charAt(0) == '^') {</span>
-<span class="fc bfc" id="L72" title="All 2 branches covered.">            return !wildcardMatch(text, pattern.substring(1));</span>
+<span class="pc bpc" id="L69" title="1 of 4 branches missed.">        if (pattern.length() &gt; 0 &amp;&amp; pattern.charAt(0) == '^') {</span>
+<span class="fc bfc" id="L70" title="All 2 branches covered.">            return !wildcardMatch(text, pattern.substring(1));</span>
         }
-<span class="fc" id="L74">        return text.matches(pattern.replace(&quot;?&quot;, &quot;.?&quot;).replace(&quot;*&quot;, &quot;.*?&quot;));</span>
+<span class="fc" id="L72">        return text.matches(pattern.replace(&quot;?&quot;, &quot;.?&quot;).replace(&quot;*&quot;, &quot;.*?&quot;));</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

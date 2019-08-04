@@ -48,63 +48,55 @@ import oshi.util.platform.linux.ProcUtil;
 
 <span class="nc" id="L49">    private static final Logger LOG = LoggerFactory.getLogger(LinuxGlobalMemory.class);</span>
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getAvailable() {
-<span class="nc" id="L56">        updateMemInfo();</span>
-<span class="nc" id="L57">        return this.memAvailable;</span>
+<span class="nc" id="L54">        updateMemInfo();</span>
+<span class="nc" id="L55">        return this.memAvailable;</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getTotal() {
-<span class="nc bnc" id="L65" title="All 2 branches missed.">        if (this.memTotal &lt; 0) {</span>
-<span class="nc" id="L66">            readSysinfo();</span>
+<span class="nc bnc" id="L61" title="All 2 branches missed.">        if (this.memTotal &lt; 0) {</span>
+<span class="nc" id="L62">            readSysinfo();</span>
         }
-<span class="nc" id="L68">        return this.memTotal;</span>
+<span class="nc" id="L64">        return this.memTotal;</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getPageSize() {
-<span class="nc bnc" id="L76" title="All 2 branches missed.">        if (this.pageSize &lt; 0) {</span>
-<span class="nc" id="L77">            readSysinfo();</span>
+<span class="nc bnc" id="L70" title="All 2 branches missed.">        if (this.pageSize &lt; 0) {</span>
+<span class="nc" id="L71">            readSysinfo();</span>
         }
-<span class="nc" id="L79">        return this.pageSize;</span>
+<span class="nc" id="L73">        return this.pageSize;</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public VirtualMemory getVirtualMemory() {
-<span class="nc bnc" id="L87" title="All 2 branches missed.">        if (this.virtualMemory == null) {</span>
-<span class="nc" id="L88">            this.virtualMemory = new LinuxVirtualMemory();</span>
+<span class="nc bnc" id="L79" title="All 2 branches missed.">        if (this.virtualMemory == null) {</span>
+<span class="nc" id="L80">            this.virtualMemory = new LinuxVirtualMemory();</span>
         }
-<span class="nc" id="L90">        return this.virtualMemory;</span>
+<span class="nc" id="L82">        return this.virtualMemory;</span>
     }
 
     private void readSysinfo() {
         try {
-<span class="nc" id="L95">            Sysinfo info = new Sysinfo();</span>
-<span class="nc bnc" id="L96" title="All 2 branches missed.">            if (0 == LibC.INSTANCE.sysinfo(info)) {</span>
-<span class="nc" id="L97">                this.memTotal = info.totalram.longValue();</span>
-<span class="nc" id="L98">                this.pageSize = info.mem_unit;</span>
+<span class="nc" id="L87">            Sysinfo info = new Sysinfo();</span>
+<span class="nc bnc" id="L88" title="All 2 branches missed.">            if (0 == LibC.INSTANCE.sysinfo(info)) {</span>
+<span class="nc" id="L89">                this.memTotal = info.totalram.longValue();</span>
+<span class="nc" id="L90">                this.pageSize = info.mem_unit;</span>
             } else {
-<span class="nc" id="L100">                LOG.error(&quot;Failed to get sysinfo. Error code: {}&quot;, Native.getLastError());</span>
+<span class="nc" id="L92">                LOG.error(&quot;Failed to get sysinfo. Error code: {}&quot;, Native.getLastError());</span>
             }
-<span class="nc" id="L102">        } catch (UnsatisfiedLinkError | NoClassDefFoundError e) {</span>
-<span class="nc" id="L103">            LOG.error(&quot;Failed to get sysinfo. {}&quot;, e);</span>
-<span class="nc" id="L104">            this.pageSize = ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer(&quot;getconf PAGE_SIZE&quot;), 4096L);</span>
-<span class="nc" id="L105">            updateMemInfo();</span>
-<span class="nc" id="L106">        }</span>
-<span class="nc" id="L107">    }</span>
+<span class="nc" id="L94">        } catch (UnsatisfiedLinkError | NoClassDefFoundError e) {</span>
+<span class="nc" id="L95">            LOG.error(&quot;Failed to get sysinfo. {}&quot;, e);</span>
+<span class="nc" id="L96">            this.pageSize = ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer(&quot;getconf PAGE_SIZE&quot;), 4096L);</span>
+<span class="nc" id="L97">            updateMemInfo();</span>
+<span class="nc" id="L98">        }</span>
+<span class="nc" id="L99">    }</span>
 
     /**
      * Updates instance variables from reading /proc/meminfo. While most of the
@@ -119,44 +111,44 @@ import oshi.util.platform.linux.ProcUtil;
      * spends time populating the memory components of the sysinfo structure.
      */
     private void updateMemInfo() {
-<span class="nc" id="L122">        long memFree = 0;</span>
-<span class="nc" id="L123">        long activeFile = 0;</span>
-<span class="nc" id="L124">        long inactiveFile = 0;</span>
-<span class="nc" id="L125">        long sReclaimable = 0;</span>
+<span class="nc" id="L114">        long memFree = 0;</span>
+<span class="nc" id="L115">        long activeFile = 0;</span>
+<span class="nc" id="L116">        long inactiveFile = 0;</span>
+<span class="nc" id="L117">        long sReclaimable = 0;</span>
 
-<span class="nc" id="L127">        List&lt;String&gt; memInfo = FileUtil.readFile(ProcUtil.getProcPath() + &quot;/meminfo&quot;);</span>
-<span class="nc bnc" id="L128" title="All 2 branches missed.">        for (String checkLine : memInfo) {</span>
-<span class="nc" id="L129">            String[] memorySplit = ParseUtil.whitespaces.split(checkLine);</span>
-<span class="nc bnc" id="L130" title="All 2 branches missed.">            if (memorySplit.length &gt; 1) {</span>
-<span class="nc bnc" id="L131" title="All 7 branches missed.">                switch (memorySplit[0]) {</span>
+<span class="nc" id="L119">        List&lt;String&gt; memInfo = FileUtil.readFile(ProcUtil.getProcPath() + &quot;/meminfo&quot;);</span>
+<span class="nc bnc" id="L120" title="All 2 branches missed.">        for (String checkLine : memInfo) {</span>
+<span class="nc" id="L121">            String[] memorySplit = ParseUtil.whitespaces.split(checkLine);</span>
+<span class="nc bnc" id="L122" title="All 2 branches missed.">            if (memorySplit.length &gt; 1) {</span>
+<span class="nc bnc" id="L123" title="All 7 branches missed.">                switch (memorySplit[0]) {</span>
                 case &quot;MemTotal:&quot;:
-<span class="nc" id="L133">                    this.memTotal = parseMeminfo(memorySplit);</span>
-<span class="nc" id="L134">                    break;</span>
+<span class="nc" id="L125">                    this.memTotal = parseMeminfo(memorySplit);</span>
+<span class="nc" id="L126">                    break;</span>
                 case &quot;MemAvailable:&quot;:
-<span class="nc" id="L136">                    this.memAvailable = parseMeminfo(memorySplit);</span>
+<span class="nc" id="L128">                    this.memAvailable = parseMeminfo(memorySplit);</span>
                     // We're done!
-<span class="nc" id="L138">                    return;</span>
+<span class="nc" id="L130">                    return;</span>
                 case &quot;MemFree:&quot;:
-<span class="nc" id="L140">                    memFree = parseMeminfo(memorySplit);</span>
-<span class="nc" id="L141">                    break;</span>
+<span class="nc" id="L132">                    memFree = parseMeminfo(memorySplit);</span>
+<span class="nc" id="L133">                    break;</span>
                 case &quot;Active(file):&quot;:
-<span class="nc" id="L143">                    activeFile = parseMeminfo(memorySplit);</span>
-<span class="nc" id="L144">                    break;</span>
+<span class="nc" id="L135">                    activeFile = parseMeminfo(memorySplit);</span>
+<span class="nc" id="L136">                    break;</span>
                 case &quot;Inactive(file):&quot;:
-<span class="nc" id="L146">                    inactiveFile = parseMeminfo(memorySplit);</span>
-<span class="nc" id="L147">                    break;</span>
+<span class="nc" id="L138">                    inactiveFile = parseMeminfo(memorySplit);</span>
+<span class="nc" id="L139">                    break;</span>
                 case &quot;SReclaimable:&quot;:
-<span class="nc" id="L149">                    sReclaimable = parseMeminfo(memorySplit);</span>
-<span class="nc" id="L150">                    break;</span>
+<span class="nc" id="L141">                    sReclaimable = parseMeminfo(memorySplit);</span>
+<span class="nc" id="L142">                    break;</span>
                 default:
                     // do nothing with other lines
                     break;
                 }
             }
-<span class="nc" id="L156">        }</span>
+<span class="nc" id="L148">        }</span>
         // We didn't find MemAvailable so we estimate from other fields
-<span class="nc" id="L158">        this.memAvailable = memFree + activeFile + inactiveFile + sReclaimable;</span>
-<span class="nc" id="L159">    }</span>
+<span class="nc" id="L150">        this.memAvailable = memFree + activeFile + inactiveFile + sReclaimable;</span>
+<span class="nc" id="L151">    }</span>
 
     /**
      * Parses lines from the display of /proc/meminfo
@@ -166,14 +158,14 @@ import oshi.util.platform.linux.ProcUtil;
      * @return value, multiplied by 1024 if kB is specified
      */
     private long parseMeminfo(String[] memorySplit) {
-<span class="nc bnc" id="L169" title="All 2 branches missed.">        if (memorySplit.length &lt; 2) {</span>
-<span class="nc" id="L170">            return 0l;</span>
+<span class="nc bnc" id="L161" title="All 2 branches missed.">        if (memorySplit.length &lt; 2) {</span>
+<span class="nc" id="L162">            return 0l;</span>
         }
-<span class="nc" id="L172">        long memory = ParseUtil.parseLongOrDefault(memorySplit[1], 0L);</span>
-<span class="nc bnc" id="L173" title="All 4 branches missed.">        if (memorySplit.length &gt; 2 &amp;&amp; &quot;kB&quot;.equals(memorySplit[2])) {</span>
-<span class="nc" id="L174">            memory *= 1024;</span>
+<span class="nc" id="L164">        long memory = ParseUtil.parseLongOrDefault(memorySplit[1], 0L);</span>
+<span class="nc bnc" id="L165" title="All 4 branches missed.">        if (memorySplit.length &gt; 2 &amp;&amp; &quot;kB&quot;.equals(memorySplit[2])) {</span>
+<span class="nc" id="L166">            memory *= 1024;</span>
         }
-<span class="nc" id="L176">        return memory;</span>
+<span class="nc" id="L168">        return memory;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

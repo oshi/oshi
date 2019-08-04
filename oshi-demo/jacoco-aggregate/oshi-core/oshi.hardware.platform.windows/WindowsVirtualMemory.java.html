@@ -54,47 +54,47 @@ public class WindowsVirtualMemory extends AbstractVirtualMemory {
 
 <span class="nc" id="L55">    private transient long lastSwapUpdateNanos = 0L;</span>
 
-<span class="nc" id="L57">    public WindowsVirtualMemory(long pageSize) {</span>
-<span class="nc" id="L58">        this.pageSize = pageSize;</span>
-<span class="nc" id="L59">    }</span>
-
     /**
-     * {@inheritDoc}
+     * &lt;p&gt;
+     * Constructor for WindowsVirtualMemory.
+     * &lt;/p&gt;
+     *
+     * @param pageSize
+     *            a long.
      */
+<span class="nc" id="L65">    public WindowsVirtualMemory(long pageSize) {</span>
+<span class="nc" id="L66">        this.pageSize = pageSize;</span>
+<span class="nc" id="L67">    }</span>
+
+    /** {@inheritDoc} */
     @Override
     public long getSwapUsed() {
-<span class="nc" id="L66">        Map&lt;PagingPercentProperty, Long&gt; valueMap = this.pagingPerfCounters.queryValues();</span>
-<span class="nc" id="L67">        return valueMap.getOrDefault(PagingPercentProperty.PERCENTUSAGE, 0L) * this.pageSize;</span>
+<span class="nc" id="L72">        Map&lt;PagingPercentProperty, Long&gt; valueMap = this.pagingPerfCounters.queryValues();</span>
+<span class="nc" id="L73">        return valueMap.getOrDefault(PagingPercentProperty.PERCENTUSAGE, 0L) * this.pageSize;</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getSwapTotal() {
-<span class="nc bnc" id="L75" title="All 2 branches missed.">        if (this.swapTotal &lt; 0) {</span>
-<span class="nc" id="L76">            PERFORMANCE_INFORMATION perfInfo = new PERFORMANCE_INFORMATION();</span>
-<span class="nc bnc" id="L77" title="All 2 branches missed.">            if (!Psapi.INSTANCE.GetPerformanceInfo(perfInfo, perfInfo.size())) {</span>
-<span class="nc" id="L78">                LOG.error(&quot;Failed to get Performance Info. Error code: {}&quot;, Kernel32.INSTANCE.GetLastError());</span>
-<span class="nc" id="L79">                return 0L;</span>
+<span class="nc bnc" id="L79" title="All 2 branches missed.">        if (this.swapTotal &lt; 0) {</span>
+<span class="nc" id="L80">            PERFORMANCE_INFORMATION perfInfo = new PERFORMANCE_INFORMATION();</span>
+<span class="nc bnc" id="L81" title="All 2 branches missed.">            if (!Psapi.INSTANCE.GetPerformanceInfo(perfInfo, perfInfo.size())) {</span>
+<span class="nc" id="L82">                LOG.error(&quot;Failed to get Performance Info. Error code: {}&quot;, Kernel32.INSTANCE.GetLastError());</span>
+<span class="nc" id="L83">                return 0L;</span>
             }
-<span class="nc" id="L81">            this.swapTotal = this.pageSize * (perfInfo.CommitLimit.longValue() - perfInfo.PhysicalTotal.longValue());</span>
+<span class="nc" id="L85">            this.swapTotal = this.pageSize * (perfInfo.CommitLimit.longValue() - perfInfo.PhysicalTotal.longValue());</span>
         }
-<span class="nc" id="L83">        return this.swapTotal;</span>
+<span class="nc" id="L87">        return this.swapTotal;</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getSwapPagesIn() {
-<span class="nc" id="L91">        updateSwapInOut();</span>
-<span class="nc" id="L92">        return this.swapPagesIn;</span>
+<span class="nc" id="L93">        updateSwapInOut();</span>
+<span class="nc" id="L94">        return this.swapPagesIn;</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getSwapPagesOut() {
 <span class="nc" id="L100">        updateSwapInOut();</span>

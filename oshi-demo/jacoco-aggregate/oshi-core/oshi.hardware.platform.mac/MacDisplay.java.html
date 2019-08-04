@@ -43,21 +43,27 @@ import oshi.util.platform.mac.IOKitUtil;
 
 /**
  * A Display
- *
- * @author widdis[at]gmail[dot]com
  */
 public class MacDisplay extends AbstractDisplay {
 
     private static final long serialVersionUID = 1L;
 
-<span class="nc" id="L53">    private static final Logger LOG = LoggerFactory.getLogger(MacDisplay.class);</span>
+<span class="nc" id="L51">    private static final Logger LOG = LoggerFactory.getLogger(MacDisplay.class);</span>
 
-<span class="nc" id="L55">    private static final CFStringRef cfEdid = CFStringRef.toCFString(&quot;IODisplayEDID&quot;);</span>
+<span class="nc" id="L53">    private static final CFStringRef cfEdid = CFStringRef.toCFString(&quot;IODisplayEDID&quot;);</span>
 
+    /**
+     * &lt;p&gt;
+     * Constructor for MacDisplay.
+     * &lt;/p&gt;
+     *
+     * @param edid
+     *            an array of {@link byte} objects.
+     */
     public MacDisplay(byte[] edid) {
-<span class="nc" id="L58">        super(edid);</span>
-<span class="nc" id="L59">        LOG.debug(&quot;Initialized MacDisplay&quot;);</span>
-<span class="nc" id="L60">    }</span>
+<span class="nc" id="L64">        super(edid);</span>
+<span class="nc" id="L65">        LOG.debug(&quot;Initialized MacDisplay&quot;);</span>
+<span class="nc" id="L66">    }</span>
 
     /**
      * Gets Display Information
@@ -65,33 +71,33 @@ public class MacDisplay extends AbstractDisplay {
      * @return An array of Display objects representing monitors, etc.
      */
     public static Display[] getDisplays() {
-<span class="nc" id="L68">        List&lt;Display&gt; displays = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L74">        List&lt;Display&gt; displays = new ArrayList&lt;&gt;();</span>
         // Iterate IO Registry IODisplayConnect
-<span class="nc" id="L70">        IntByReference serviceIterator = new IntByReference();</span>
-<span class="nc" id="L71">        IOKitUtil.getMatchingServices(&quot;IODisplayConnect&quot;, serviceIterator);</span>
-<span class="nc" id="L72">        int sdService = IOKit.INSTANCE.IOIteratorNext(serviceIterator.getValue());</span>
-<span class="nc bnc" id="L73" title="All 2 branches missed.">        while (sdService != 0) {</span>
+<span class="nc" id="L76">        IntByReference serviceIterator = new IntByReference();</span>
+<span class="nc" id="L77">        IOKitUtil.getMatchingServices(&quot;IODisplayConnect&quot;, serviceIterator);</span>
+<span class="nc" id="L78">        int sdService = IOKit.INSTANCE.IOIteratorNext(serviceIterator.getValue());</span>
+<span class="nc bnc" id="L79" title="All 2 branches missed.">        while (sdService != 0) {</span>
             // Display properties are in a child entry
-<span class="nc" id="L75">            IntByReference properties = new IntByReference();</span>
-<span class="nc" id="L76">            int ret = IOKit.INSTANCE.IORegistryEntryGetChildEntry(sdService, &quot;IOService&quot;, properties);</span>
-<span class="nc bnc" id="L77" title="All 2 branches missed.">            if (ret == 0) {</span>
+<span class="nc" id="L81">            IntByReference properties = new IntByReference();</span>
+<span class="nc" id="L82">            int ret = IOKit.INSTANCE.IORegistryEntryGetChildEntry(sdService, &quot;IOService&quot;, properties);</span>
+<span class="nc bnc" id="L83" title="All 2 branches missed.">            if (ret == 0) {</span>
                 // look up the edid by key
-<span class="nc" id="L79">                CFTypeRef edid = IOKit.INSTANCE.IORegistryEntryCreateCFProperty(properties.getValue(), cfEdid,</span>
+<span class="nc" id="L85">                CFTypeRef edid = IOKit.INSTANCE.IORegistryEntryCreateCFProperty(properties.getValue(), cfEdid,</span>
                         CfUtil.ALLOCATOR, 0);
-<span class="nc bnc" id="L81" title="All 2 branches missed.">                if (edid != null) {</span>
+<span class="nc bnc" id="L87" title="All 2 branches missed.">                if (edid != null) {</span>
                     // Edid is a byte array of 128 bytes
-<span class="nc" id="L83">                    int length = CoreFoundation.INSTANCE.CFDataGetLength(edid);</span>
-<span class="nc" id="L84">                    PointerByReference p = CoreFoundation.INSTANCE.CFDataGetBytePtr(edid);</span>
-<span class="nc" id="L85">                    displays.add(new MacDisplay(p.getPointer().getByteArray(0, length)));</span>
-<span class="nc" id="L86">                    CfUtil.release(edid);</span>
+<span class="nc" id="L89">                    int length = CoreFoundation.INSTANCE.CFDataGetLength(edid);</span>
+<span class="nc" id="L90">                    PointerByReference p = CoreFoundation.INSTANCE.CFDataGetBytePtr(edid);</span>
+<span class="nc" id="L91">                    displays.add(new MacDisplay(p.getPointer().getByteArray(0, length)));</span>
+<span class="nc" id="L92">                    CfUtil.release(edid);</span>
                 }
             }
             // iterate
-<span class="nc" id="L90">            IOKit.INSTANCE.IOObjectRelease(sdService);</span>
-<span class="nc" id="L91">            sdService = IOKit.INSTANCE.IOIteratorNext(serviceIterator.getValue());</span>
-<span class="nc" id="L92">        }</span>
-<span class="nc" id="L93">        IOKit.INSTANCE.IOObjectRelease(serviceIterator.getValue());</span>
-<span class="nc" id="L94">        return displays.toArray(new Display[0]);</span>
+<span class="nc" id="L96">            IOKit.INSTANCE.IOObjectRelease(sdService);</span>
+<span class="nc" id="L97">            sdService = IOKit.INSTANCE.IOIteratorNext(serviceIterator.getValue());</span>
+<span class="nc" id="L98">        }</span>
+<span class="nc" id="L99">        IOKit.INSTANCE.IOObjectRelease(serviceIterator.getValue());</span>
+<span class="nc" id="L100">        return displays.toArray(new Display[0]);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

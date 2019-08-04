@@ -41,198 +41,188 @@ import oshi.util.platform.linux.ProcUtil;
 
     private static final long serialVersionUID = 1L;
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getManufacturer() {
-<span class="nc bnc" id="L49" title="All 6 branches missed.">        if (this.manufacturer == null &amp;&amp; !queryManufacturerFromSysfs() &amp;&amp; !queryManufacturerFromProcCpu()) {</span>
-<span class="nc" id="L50">            this.manufacturer = Constants.UNKNOWN;</span>
+<span class="nc bnc" id="L47" title="All 6 branches missed.">        if (this.manufacturer == null &amp;&amp; !queryManufacturerFromSysfs() &amp;&amp; !queryManufacturerFromProcCpu()) {</span>
+<span class="nc" id="L48">            this.manufacturer = Constants.UNKNOWN;</span>
         }
-<span class="nc" id="L52">        return super.getManufacturer();</span>
+<span class="nc" id="L50">        return super.getManufacturer();</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getModel() {
-<span class="nc bnc" id="L60" title="All 6 branches missed.">        if (this.model == null &amp;&amp; !queryModelFromSysfs() &amp;&amp; !queryModelFromDeviceTree()</span>
-<span class="nc bnc" id="L61" title="All 2 branches missed.">                &amp;&amp; !queryModelAndSerialFromLshw()) {</span>
-<span class="nc" id="L62">            this.model = Constants.UNKNOWN;</span>
+<span class="nc bnc" id="L56" title="All 6 branches missed.">        if (this.model == null &amp;&amp; !queryModelFromSysfs() &amp;&amp; !queryModelFromDeviceTree()</span>
+<span class="nc bnc" id="L57" title="All 2 branches missed.">                &amp;&amp; !queryModelAndSerialFromLshw()) {</span>
+<span class="nc" id="L58">            this.model = Constants.UNKNOWN;</span>
         }
-<span class="nc" id="L64">        return super.getModel();</span>
+<span class="nc" id="L60">        return super.getModel();</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getSerialNumber() {
-<span class="nc bnc" id="L72" title="All 6 branches missed.">        if (this.serialNumber == null &amp;&amp; !querySerialFromSysfs() &amp;&amp; !querySerialFromDmiDecode()</span>
-<span class="nc bnc" id="L73" title="All 4 branches missed.">                &amp;&amp; !querySerialFromLshal() &amp;&amp; !queryModelAndSerialFromLshw()) {</span>
-<span class="nc" id="L74">            this.serialNumber = Constants.UNKNOWN;</span>
+<span class="nc bnc" id="L66" title="All 6 branches missed.">        if (this.serialNumber == null &amp;&amp; !querySerialFromSysfs() &amp;&amp; !querySerialFromDmiDecode()</span>
+<span class="nc bnc" id="L67" title="All 4 branches missed.">                &amp;&amp; !querySerialFromLshal() &amp;&amp; !queryModelAndSerialFromLshw()) {</span>
+<span class="nc" id="L68">            this.serialNumber = Constants.UNKNOWN;</span>
         }
-<span class="nc" id="L76">        return this.serialNumber;</span>
+<span class="nc" id="L70">        return this.serialNumber;</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public Firmware getFirmware() {
-<span class="nc bnc" id="L84" title="All 2 branches missed.">        if (this.firmware == null) {</span>
-<span class="nc" id="L85">            this.firmware = new LinuxFirmware();</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">        if (this.firmware == null) {</span>
+<span class="nc" id="L77">            this.firmware = new LinuxFirmware();</span>
         }
-<span class="nc" id="L87">        return this.firmware;</span>
+<span class="nc" id="L79">        return this.firmware;</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public Baseboard getBaseboard() {
-<span class="nc bnc" id="L95" title="All 2 branches missed.">        if (this.baseboard == null) {</span>
-<span class="nc" id="L96">            this.baseboard = new LinuxBaseboard();</span>
+<span class="nc bnc" id="L85" title="All 2 branches missed.">        if (this.baseboard == null) {</span>
+<span class="nc" id="L86">            this.baseboard = new LinuxBaseboard();</span>
         }
-<span class="nc" id="L98">        return this.baseboard;</span>
+<span class="nc" id="L88">        return this.baseboard;</span>
     }
 
     private boolean queryManufacturerFromSysfs() {
-<span class="nc" id="L102">        final String sysVendor = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + &quot;sys_vendor&quot;).trim();</span>
-<span class="nc bnc" id="L103" title="All 2 branches missed.">        if (!sysVendor.isEmpty()) {</span>
-<span class="nc" id="L104">            this.manufacturer = sysVendor;</span>
-<span class="nc" id="L105">            return true;</span>
+<span class="nc" id="L92">        final String sysVendor = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + &quot;sys_vendor&quot;).trim();</span>
+<span class="nc bnc" id="L93" title="All 2 branches missed.">        if (!sysVendor.isEmpty()) {</span>
+<span class="nc" id="L94">            this.manufacturer = sysVendor;</span>
+<span class="nc" id="L95">            return true;</span>
         }
-<span class="nc" id="L107">        return false;</span>
+<span class="nc" id="L97">        return false;</span>
     }
 
     private boolean queryManufacturerFromProcCpu() {
-<span class="nc" id="L111">        List&lt;String&gt; cpuInfo = FileUtil.readFile(ProcUtil.getProcPath() + &quot;/cpuinfo&quot;);</span>
-<span class="nc bnc" id="L112" title="All 2 branches missed.">        for (String line : cpuInfo) {</span>
-<span class="nc bnc" id="L113" title="All 2 branches missed.">            if (line.startsWith(&quot;CPU implementer&quot;)) {</span>
-<span class="nc" id="L114">                int part = ParseUtil.parseLastInt(line, 0);</span>
-<span class="nc bnc" id="L115" title="All 12 branches missed.">                switch (part) {</span>
+<span class="nc" id="L101">        List&lt;String&gt; cpuInfo = FileUtil.readFile(ProcUtil.getProcPath() + &quot;/cpuinfo&quot;);</span>
+<span class="nc bnc" id="L102" title="All 2 branches missed.">        for (String line : cpuInfo) {</span>
+<span class="nc bnc" id="L103" title="All 2 branches missed.">            if (line.startsWith(&quot;CPU implementer&quot;)) {</span>
+<span class="nc" id="L104">                int part = ParseUtil.parseLastInt(line, 0);</span>
+<span class="nc bnc" id="L105" title="All 12 branches missed.">                switch (part) {</span>
                 case 0x41:
-<span class="nc" id="L117">                    this.manufacturer = &quot;ARM&quot;;</span>
-<span class="nc" id="L118">                    return true;</span>
+<span class="nc" id="L107">                    this.manufacturer = &quot;ARM&quot;;</span>
+<span class="nc" id="L108">                    return true;</span>
                 case 0x42:
-<span class="nc" id="L120">                    this.manufacturer = &quot;Broadcom&quot;;</span>
-<span class="nc" id="L121">                    return true;</span>
+<span class="nc" id="L110">                    this.manufacturer = &quot;Broadcom&quot;;</span>
+<span class="nc" id="L111">                    return true;</span>
                 case 0x43:
-<span class="nc" id="L123">                    this.manufacturer = &quot;Cavium&quot;;</span>
-<span class="nc" id="L124">                    return true;</span>
+<span class="nc" id="L113">                    this.manufacturer = &quot;Cavium&quot;;</span>
+<span class="nc" id="L114">                    return true;</span>
                 case 0x44:
-<span class="nc" id="L126">                    this.manufacturer = &quot;DEC&quot;;</span>
-<span class="nc" id="L127">                    return true;</span>
+<span class="nc" id="L116">                    this.manufacturer = &quot;DEC&quot;;</span>
+<span class="nc" id="L117">                    return true;</span>
                 case 0x4e:
-<span class="nc" id="L129">                    this.manufacturer = &quot;Nvidia&quot;;</span>
-<span class="nc" id="L130">                    return true;</span>
+<span class="nc" id="L119">                    this.manufacturer = &quot;Nvidia&quot;;</span>
+<span class="nc" id="L120">                    return true;</span>
                 case 0x50:
-<span class="nc" id="L132">                    this.manufacturer = &quot;APM&quot;;</span>
-<span class="nc" id="L133">                    return true;</span>
+<span class="nc" id="L122">                    this.manufacturer = &quot;APM&quot;;</span>
+<span class="nc" id="L123">                    return true;</span>
                 case 0x51:
-<span class="nc" id="L135">                    this.manufacturer = &quot;Qualcomm&quot;;</span>
-<span class="nc" id="L136">                    return true;</span>
+<span class="nc" id="L125">                    this.manufacturer = &quot;Qualcomm&quot;;</span>
+<span class="nc" id="L126">                    return true;</span>
                 case 0x53:
-<span class="nc" id="L138">                    this.manufacturer = &quot;Samsung&quot;;</span>
-<span class="nc" id="L139">                    return true;</span>
+<span class="nc" id="L128">                    this.manufacturer = &quot;Samsung&quot;;</span>
+<span class="nc" id="L129">                    return true;</span>
                 case 0x56:
-<span class="nc" id="L141">                    this.manufacturer = &quot;Marvell&quot;;</span>
-<span class="nc" id="L142">                    return true;</span>
+<span class="nc" id="L131">                    this.manufacturer = &quot;Marvell&quot;;</span>
+<span class="nc" id="L132">                    return true;</span>
                 case 0x66:
-<span class="nc" id="L144">                    this.manufacturer = &quot;Faraday&quot;;</span>
-<span class="nc" id="L145">                    return true;</span>
+<span class="nc" id="L134">                    this.manufacturer = &quot;Faraday&quot;;</span>
+<span class="nc" id="L135">                    return true;</span>
                 case 0x69:
-<span class="nc" id="L147">                    this.manufacturer = &quot;Intel&quot;;</span>
-<span class="nc" id="L148">                    return true;</span>
+<span class="nc" id="L137">                    this.manufacturer = &quot;Intel&quot;;</span>
+<span class="nc" id="L138">                    return true;</span>
                 default:
-<span class="nc" id="L150">                    return false;</span>
+<span class="nc" id="L140">                    return false;</span>
                 }
             }
-<span class="nc" id="L153">        }</span>
-<span class="nc" id="L154">        return false;</span>
+<span class="nc" id="L143">        }</span>
+<span class="nc" id="L144">        return false;</span>
     }
 
     private boolean queryModelFromSysfs() {
-<span class="nc" id="L158">        final String productName = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + &quot;product_name&quot;).trim();</span>
-<span class="nc" id="L159">        final String productVersion = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + &quot;product_version&quot;)</span>
-<span class="nc" id="L160">                .trim();</span>
-<span class="nc bnc" id="L161" title="All 2 branches missed.">        if (productName.isEmpty()) {</span>
-<span class="nc bnc" id="L162" title="All 2 branches missed.">            if (!productVersion.isEmpty()) {</span>
-<span class="nc" id="L163">                this.model = productVersion;</span>
-<span class="nc" id="L164">                return true;</span>
+<span class="nc" id="L148">        final String productName = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + &quot;product_name&quot;).trim();</span>
+<span class="nc" id="L149">        final String productVersion = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + &quot;product_version&quot;)</span>
+<span class="nc" id="L150">                .trim();</span>
+<span class="nc bnc" id="L151" title="All 2 branches missed.">        if (productName.isEmpty()) {</span>
+<span class="nc bnc" id="L152" title="All 2 branches missed.">            if (!productVersion.isEmpty()) {</span>
+<span class="nc" id="L153">                this.model = productVersion;</span>
+<span class="nc" id="L154">                return true;</span>
             }
         } else {
-<span class="nc bnc" id="L167" title="All 4 branches missed.">            if (!productVersion.isEmpty() &amp;&amp; !&quot;None&quot;.equals(productVersion)) {</span>
-<span class="nc" id="L168">                this.model = productName + &quot; (version: &quot; + productVersion + &quot;)&quot;;</span>
-<span class="nc" id="L169">                return true;</span>
+<span class="nc bnc" id="L157" title="All 4 branches missed.">            if (!productVersion.isEmpty() &amp;&amp; !&quot;None&quot;.equals(productVersion)) {</span>
+<span class="nc" id="L158">                this.model = productName + &quot; (version: &quot; + productVersion + &quot;)&quot;;</span>
+<span class="nc" id="L159">                return true;</span>
             } else {
-<span class="nc" id="L171">                this.model = productName;</span>
-<span class="nc" id="L172">                return true;</span>
+<span class="nc" id="L161">                this.model = productName;</span>
+<span class="nc" id="L162">                return true;</span>
             }
         }
-<span class="nc" id="L175">        return false;</span>
+<span class="nc" id="L165">        return false;</span>
     }
 
     private boolean queryModelFromDeviceTree() {
-<span class="nc" id="L179">        String modelStr = FileUtil.getStringFromFile(&quot;/sys/firmware/devicetree/base/model&quot;);</span>
-<span class="nc bnc" id="L180" title="All 2 branches missed.">        if (!modelStr.isEmpty()) {</span>
-<span class="nc" id="L181">            this.model = modelStr.replace(&quot;Machine: &quot;, &quot;&quot;);</span>
-<span class="nc" id="L182">            return true;</span>
+<span class="nc" id="L169">        String modelStr = FileUtil.getStringFromFile(&quot;/sys/firmware/devicetree/base/model&quot;);</span>
+<span class="nc bnc" id="L170" title="All 2 branches missed.">        if (!modelStr.isEmpty()) {</span>
+<span class="nc" id="L171">            this.model = modelStr.replace(&quot;Machine: &quot;, &quot;&quot;);</span>
+<span class="nc" id="L172">            return true;</span>
         }
-<span class="nc" id="L184">        return false;</span>
+<span class="nc" id="L174">        return false;</span>
     }
 
     private boolean querySerialFromSysfs() {
         // These sysfs files accessible by root, or can be chmod'd at boot time
         // to enable access without root
-<span class="nc" id="L190">        String serialNumber = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + &quot;product_serial&quot;);</span>
-<span class="nc bnc" id="L191" title="All 4 branches missed.">        if (serialNumber.isEmpty() || &quot;None&quot;.equals(serialNumber)) {</span>
-<span class="nc" id="L192">            serialNumber = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + &quot;board_serial&quot;);</span>
-<span class="nc bnc" id="L193" title="All 4 branches missed.">            if (serialNumber.isEmpty() || &quot;None&quot;.equals(serialNumber)) {</span>
-<span class="nc" id="L194">                return false;</span>
+<span class="nc" id="L180">        String serialNumber = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + &quot;product_serial&quot;);</span>
+<span class="nc bnc" id="L181" title="All 4 branches missed.">        if (serialNumber.isEmpty() || &quot;None&quot;.equals(serialNumber)) {</span>
+<span class="nc" id="L182">            serialNumber = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + &quot;board_serial&quot;);</span>
+<span class="nc bnc" id="L183" title="All 4 branches missed.">            if (serialNumber.isEmpty() || &quot;None&quot;.equals(serialNumber)) {</span>
+<span class="nc" id="L184">                return false;</span>
             }
-<span class="nc" id="L196">            this.serialNumber = serialNumber;</span>
+<span class="nc" id="L186">            this.serialNumber = serialNumber;</span>
         }
-<span class="nc bnc" id="L198" title="All 4 branches missed.">        return this.serialNumber != null &amp;&amp; !this.serialNumber.isEmpty();</span>
+<span class="nc bnc" id="L188" title="All 4 branches missed.">        return this.serialNumber != null &amp;&amp; !this.serialNumber.isEmpty();</span>
     }
 
     private boolean querySerialFromDmiDecode() {
         // If root privileges this will work
-<span class="nc" id="L203">        String marker = &quot;Serial Number:&quot;;</span>
-<span class="nc bnc" id="L204" title="All 2 branches missed.">        for (String checkLine : ExecutingCommand.runNative(&quot;dmidecode -t system&quot;)) {</span>
-<span class="nc bnc" id="L205" title="All 2 branches missed.">            if (checkLine.contains(marker)) {</span>
-<span class="nc" id="L206">                this.serialNumber = checkLine.split(marker)[1].trim();</span>
-<span class="nc" id="L207">                break;</span>
+<span class="nc" id="L193">        String marker = &quot;Serial Number:&quot;;</span>
+<span class="nc bnc" id="L194" title="All 2 branches missed.">        for (String checkLine : ExecutingCommand.runNative(&quot;dmidecode -t system&quot;)) {</span>
+<span class="nc bnc" id="L195" title="All 2 branches missed.">            if (checkLine.contains(marker)) {</span>
+<span class="nc" id="L196">                this.serialNumber = checkLine.split(marker)[1].trim();</span>
+<span class="nc" id="L197">                break;</span>
             }
-<span class="nc" id="L209">        }</span>
-<span class="nc bnc" id="L210" title="All 4 branches missed.">        return this.serialNumber != null &amp;&amp; !this.serialNumber.isEmpty();</span>
+<span class="nc" id="L199">        }</span>
+<span class="nc bnc" id="L200" title="All 4 branches missed.">        return this.serialNumber != null &amp;&amp; !this.serialNumber.isEmpty();</span>
     }
 
     private boolean querySerialFromLshal() {
         // if lshal command available (HAL deprecated in newer linuxes)
-<span class="nc" id="L215">        String marker = &quot;system.hardware.serial =&quot;;</span>
-<span class="nc bnc" id="L216" title="All 2 branches missed.">        for (String checkLine : ExecutingCommand.runNative(&quot;lshal&quot;)) {</span>
-<span class="nc bnc" id="L217" title="All 2 branches missed.">            if (checkLine.contains(marker)) {</span>
-<span class="nc" id="L218">                this.serialNumber = ParseUtil.getSingleQuoteStringValue(checkLine);</span>
-<span class="nc" id="L219">                break;</span>
+<span class="nc" id="L205">        String marker = &quot;system.hardware.serial =&quot;;</span>
+<span class="nc bnc" id="L206" title="All 2 branches missed.">        for (String checkLine : ExecutingCommand.runNative(&quot;lshal&quot;)) {</span>
+<span class="nc bnc" id="L207" title="All 2 branches missed.">            if (checkLine.contains(marker)) {</span>
+<span class="nc" id="L208">                this.serialNumber = ParseUtil.getSingleQuoteStringValue(checkLine);</span>
+<span class="nc" id="L209">                break;</span>
             }
-<span class="nc" id="L221">        }</span>
-<span class="nc bnc" id="L222" title="All 4 branches missed.">        return this.serialNumber != null &amp;&amp; !this.serialNumber.isEmpty();</span>
+<span class="nc" id="L211">        }</span>
+<span class="nc bnc" id="L212" title="All 4 branches missed.">        return this.serialNumber != null &amp;&amp; !this.serialNumber.isEmpty();</span>
     }
 
     private boolean queryModelAndSerialFromLshw() {
-<span class="nc" id="L226">        String serialMarker = &quot;serial:&quot;;</span>
-<span class="nc" id="L227">        String modelMarker = &quot;product:&quot;;</span>
-<span class="nc bnc" id="L228" title="All 2 branches missed.">        for (String checkLine : ExecutingCommand.runNative(&quot;lshw -C system&quot;)) {</span>
-<span class="nc bnc" id="L229" title="All 2 branches missed.">            if (checkLine.contains(serialMarker)) {</span>
-<span class="nc" id="L230">                this.serialNumber = checkLine.split(serialMarker)[1].trim();</span>
-<span class="nc bnc" id="L231" title="All 2 branches missed.">            } else if (checkLine.contains(modelMarker)) {</span>
-<span class="nc" id="L232">                this.model = checkLine.split(modelMarker)[1].trim();</span>
+<span class="nc" id="L216">        String serialMarker = &quot;serial:&quot;;</span>
+<span class="nc" id="L217">        String modelMarker = &quot;product:&quot;;</span>
+<span class="nc bnc" id="L218" title="All 2 branches missed.">        for (String checkLine : ExecutingCommand.runNative(&quot;lshw -C system&quot;)) {</span>
+<span class="nc bnc" id="L219" title="All 2 branches missed.">            if (checkLine.contains(serialMarker)) {</span>
+<span class="nc" id="L220">                this.serialNumber = checkLine.split(serialMarker)[1].trim();</span>
+<span class="nc bnc" id="L221" title="All 2 branches missed.">            } else if (checkLine.contains(modelMarker)) {</span>
+<span class="nc" id="L222">                this.model = checkLine.split(modelMarker)[1].trim();</span>
             }
-<span class="nc" id="L234">        }</span>
-<span class="nc bnc" id="L235" title="All 4 branches missed.">        return this.serialNumber != null &amp;&amp; !this.serialNumber.isEmpty();</span>
+<span class="nc" id="L224">        }</span>
+<span class="nc bnc" id="L225" title="All 4 branches missed.">        return this.serialNumber != null &amp;&amp; !this.serialNumber.isEmpty();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>
