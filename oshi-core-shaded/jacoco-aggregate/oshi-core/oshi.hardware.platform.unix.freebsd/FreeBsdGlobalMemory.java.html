@@ -23,51 +23,60 @@
  */
 package oshi.hardware.platform.unix.freebsd;
 
+import oshi.hardware.VirtualMemory;
 import oshi.hardware.common.AbstractGlobalMemory;
-import oshi.util.ExecutingCommand;
-import oshi.util.ParseUtil;
 import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
 
 /**
- * Memory obtained by /proc/meminfo and sysinfo.totalram
- *
- * @author alessandro[at]perucchi[dot]org
- * @author widdis[at]gmail[dot]com
+ * Memory obtained by sysctl vm.stats
  */
-public class FreeBsdGlobalMemory extends AbstractGlobalMemory {
+<span class="nc" id="L33">public class FreeBsdGlobalMemory extends AbstractGlobalMemory {</span>
 
     private static final long serialVersionUID = 1L;
 
-<span class="nc" id="L41">    public FreeBsdGlobalMemory() {</span>
-<span class="nc" id="L42">        this.pageSize = BsdSysctlUtil.sysctl(&quot;hw.pagesize&quot;, 4096L);</span>
-<span class="nc" id="L43">        this.memTotal = BsdSysctlUtil.sysctl(&quot;hw.physmem&quot;, 0L);</span>
-<span class="nc" id="L44">    }</span>
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getAvailable() {
+<span class="nc" id="L42">        long inactive = BsdSysctlUtil.sysctl(&quot;vm.stats.vm.v_inactive_count&quot;, 0L);</span>
+<span class="nc" id="L43">        long cache = BsdSysctlUtil.sysctl(&quot;vm.stats.vm.v_cache_count&quot;, 0L);</span>
+<span class="nc" id="L44">        long free = BsdSysctlUtil.sysctl(&quot;vm.stats.vm.v_free_count&quot;, 0L);</span>
+<span class="nc" id="L45">        this.memAvailable = (inactive + cache + free) * getPageSize();</span>
+<span class="nc" id="L46">        return this.memAvailable;</span>
+    }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    protected void updateMeminfo() {
-<span class="nc" id="L51">        long inactive = BsdSysctlUtil.sysctl(&quot;vm.stats.vm.v_inactive_count&quot;, 0L);</span>
-<span class="nc" id="L52">        long cache = BsdSysctlUtil.sysctl(&quot;vm.stats.vm.v_cache_count&quot;, 0L);</span>
-<span class="nc" id="L53">        long free = BsdSysctlUtil.sysctl(&quot;vm.stats.vm.v_free_count&quot;, 0L);</span>
-<span class="nc" id="L54">        this.memAvailable = (inactive + cache + free) * this.pageSize;</span>
-<span class="nc" id="L55">        this.swapPagesIn = BsdSysctlUtil.sysctl(&quot;vm.stats.vm.v_swappgsin&quot;, 0L);</span>
-<span class="nc" id="L56">        this.swapPagesOut = BsdSysctlUtil.sysctl(&quot;vm.stats.vm.v_swappgsout&quot;, 0L);</span>
-<span class="nc" id="L57">    }</span>
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void updateSwap() {
-<span class="nc" id="L64">        this.swapTotal = BsdSysctlUtil.sysctl(&quot;vm.swap_total&quot;, 0L);</span>
-<span class="nc" id="L65">        String swapInfo = ExecutingCommand.getAnswerAt(&quot;swapinfo -k&quot;, 1);</span>
-<span class="nc" id="L66">        String[] split = ParseUtil.whitespaces.split(swapInfo);</span>
-<span class="nc bnc" id="L67" title="All 2 branches missed.">        if (split.length &lt; 5) {</span>
-<span class="nc" id="L68">            return;</span>
+    public long getTotal() {
+<span class="nc bnc" id="L54" title="All 2 branches missed.">        if (this.memTotal &lt; 0) {</span>
+<span class="nc" id="L55">            this.memTotal = BsdSysctlUtil.sysctl(&quot;hw.physmem&quot;, 0L);</span>
         }
-<span class="nc" id="L70">        this.swapUsed = ParseUtil.parseLongOrDefault(split[2], 0L) &lt;&lt; 10;</span>
-<span class="nc" id="L71">    }</span>
+<span class="nc" id="L57">        return this.memTotal;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getPageSize() {
+<span class="nc bnc" id="L65" title="All 2 branches missed.">        if (this.pageSize &lt; 0) {</span>
+<span class="nc" id="L66">            this.pageSize = BsdSysctlUtil.sysctl(&quot;hw.pagesize&quot;, 4096L);</span>
+        }
+<span class="nc" id="L68">        return this.pageSize;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public VirtualMemory getVirtualMemory() {
+<span class="nc bnc" id="L76" title="All 2 branches missed.">        if (this.virtualMemory == null) {</span>
+<span class="nc" id="L77">            this.virtualMemory = new FreeBsdVirtualMemory();</span>
+        }
+<span class="nc" id="L79">        return this.virtualMemory;</span>
+    }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

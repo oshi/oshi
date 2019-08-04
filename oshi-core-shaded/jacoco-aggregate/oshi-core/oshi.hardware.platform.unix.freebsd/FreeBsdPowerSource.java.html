@@ -32,19 +32,17 @@ import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
 
 /**
  * A Power Source
- *
- * @author widdis[at]gmail[dot]com
  */
 public class FreeBsdPowerSource extends AbstractPowerSource {
 
     private static final long serialVersionUID = 1L;
 
-<span class="nc" id="L42">    private static final Logger LOG = LoggerFactory.getLogger(FreeBsdPowerSource.class);</span>
+<span class="nc" id="L40">    private static final Logger LOG = LoggerFactory.getLogger(FreeBsdPowerSource.class);</span>
 
     public FreeBsdPowerSource(String newName, double newRemainingCapacity, double newTimeRemaining) {
-<span class="nc" id="L45">        super(newName, newRemainingCapacity, newTimeRemaining);</span>
-<span class="nc" id="L46">        LOG.debug(&quot;Initialized FreeBsdPowerSource&quot;);</span>
-<span class="nc" id="L47">    }</span>
+<span class="nc" id="L43">        super(newName, newRemainingCapacity, newTimeRemaining);</span>
+<span class="nc" id="L44">        LOG.debug(&quot;Initialized FreeBsdPowerSource&quot;);</span>
+<span class="nc" id="L45">    }</span>
 
     /**
      * Gets Battery Information
@@ -52,20 +50,33 @@ public class FreeBsdPowerSource extends AbstractPowerSource {
      * @return An array of PowerSource objects representing batteries, etc.
      */
     public static PowerSource[] getPowerSources() {
-<span class="nc" id="L55">        FreeBsdPowerSource[] ps = new FreeBsdPowerSource[1];</span>
-        // state 0=full, 1=discharging, 2=charging
-<span class="nc" id="L57">        int state = BsdSysctlUtil.sysctl(&quot;hw.acpi.battery.state&quot;, 0);</span>
-        // time is in minutes
-<span class="nc" id="L59">        int time = BsdSysctlUtil.sysctl(&quot;hw.acpi.battery.time&quot;, -1);</span>
-        // life is in percent
-<span class="nc" id="L61">        int life = BsdSysctlUtil.sysctl(&quot;hw.acpi.battery.life&quot;, 100);</span>
-<span class="nc" id="L62">        String name = &quot;BAT0&quot;;</span>
-<span class="nc" id="L63">        double timeRemaining = -2d;</span>
-<span class="nc bnc" id="L64" title="All 2 branches missed.">        if (state &lt; 2) {</span>
-<span class="nc bnc" id="L65" title="All 2 branches missed.">            timeRemaining = time &lt; 0 ? -1d : 60d * time;</span>
-        }
-<span class="nc" id="L67">        ps[0] = new FreeBsdPowerSource(name, life / 100d, timeRemaining);</span>
-<span class="nc" id="L68">        return ps;</span>
+<span class="nc" id="L53">        FreeBsdPowerSource[] ps = new FreeBsdPowerSource[1];</span>
+<span class="nc" id="L54">        ps[0] = getPowerSource(&quot;BAT0&quot;);</span>
+<span class="nc" id="L55">        return ps;</span>
     }
+
+    private static FreeBsdPowerSource getPowerSource(String name) {
+        // state 0=full, 1=discharging, 2=charging
+<span class="nc" id="L60">        int state = BsdSysctlUtil.sysctl(&quot;hw.acpi.battery.state&quot;, 0);</span>
+        // time is in minutes
+<span class="nc" id="L62">        int time = BsdSysctlUtil.sysctl(&quot;hw.acpi.battery.time&quot;, -1);</span>
+        // life is in percent
+<span class="nc" id="L64">        int life = BsdSysctlUtil.sysctl(&quot;hw.acpi.battery.life&quot;, 100);</span>
+<span class="nc" id="L65">        double timeRemaining = -2d;</span>
+<span class="nc bnc" id="L66" title="All 2 branches missed.">        if (state &lt; 2) {</span>
+<span class="nc bnc" id="L67" title="All 2 branches missed.">            timeRemaining = time &lt; 0 ? -1d : 60d * time;</span>
+        }
+<span class="nc" id="L69">        return new FreeBsdPowerSource(name, life / 100d, timeRemaining);</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void updateAttributes() {
+<span class="nc" id="L77">        PowerSource ps = getPowerSource(this.name);</span>
+<span class="nc" id="L78">        this.remainingCapacity = ps.getRemainingCapacity();</span>
+<span class="nc" id="L79">        this.timeRemaining = ps.getTimeRemaining();</span>
+<span class="nc" id="L80">    }</span>
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

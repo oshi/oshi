@@ -67,7 +67,7 @@ import oshi.hardware.Networks;
 <span class="nc bnc" id="L67" title="All 4 branches missed.">                if (!netint.isLoopback() &amp;&amp; netint.getHardwareAddress() != null) {</span>
 <span class="nc" id="L68">                    NetworkIF netIF = new NetworkIF();</span>
 <span class="nc" id="L69">                    netIF.setNetworkInterface(netint);</span>
-<span class="nc" id="L70">                    netIF.updateNetworkStats();</span>
+<span class="nc" id="L70">                    netIF.updateAttributes();</span>
 <span class="nc" id="L71">                    result.add(netIF);</span>
                 }
 <span class="nc" id="L73">            } catch (SocketException ex) {</span>
@@ -75,7 +75,7 @@ import oshi.hardware.Networks;
 <span class="nc" id="L75">            }</span>
 <span class="nc" id="L76">        }</span>
 
-<span class="nc" id="L78">        return result.toArray(new NetworkIF[result.size()]);</span>
+<span class="nc" id="L78">        return result.toArray(new NetworkIF[0]);</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

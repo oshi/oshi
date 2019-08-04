@@ -29,10 +29,10 @@ import org.slf4j.LoggerFactory;
 import com.sun.jna.platform.win32.IPHlpAPI; // NOSONAR squid:S1191
 import com.sun.jna.platform.win32.IPHlpAPI.MIB_IFROW;
 import com.sun.jna.platform.win32.IPHlpAPI.MIB_IF_ROW2;
+import com.sun.jna.platform.win32.VersionHelpers;
 
 import oshi.hardware.NetworkIF;
 import oshi.hardware.common.AbstractNetworks;
-import oshi.jna.platform.windows.VersionHelpers;
 import oshi.util.ParseUtil;
 
 /**
@@ -58,10 +58,10 @@ import oshi.util.ParseUtil;
 <span class="nc bnc" id="L58" title="All 2 branches missed.">        if (IS_VISTA_OR_GREATER) {</span>
             // Create new MIB_IFROW2 and set index to this interface index
 <span class="nc" id="L60">            MIB_IF_ROW2 ifRow = new MIB_IF_ROW2();</span>
-<span class="nc" id="L61">            ifRow.InterfaceIndex = netIF.getNetworkInterface().getIndex();</span>
+<span class="nc" id="L61">            ifRow.InterfaceIndex = netIF.queryNetworkInterface().getIndex();</span>
 <span class="nc bnc" id="L62" title="All 2 branches missed.">            if (0 != IPHlpAPI.INSTANCE.GetIfEntry2(ifRow)) {</span>
                 // Error, abort
-<span class="nc" id="L64">                LOG.error(&quot;Failed to retrieve data for interface {}, {}&quot;, netIF.getNetworkInterface().getIndex(),</span>
+<span class="nc" id="L64">                LOG.error(&quot;Failed to retrieve data for interface {}, {}&quot;, netIF.queryNetworkInterface().getIndex(),</span>
 <span class="nc" id="L65">                        netIF.getName());</span>
 <span class="nc" id="L66">                return;</span>
             }
@@ -76,10 +76,10 @@ import oshi.util.ParseUtil;
 <span class="nc" id="L76">        } else {</span>
             // Create new MIB_IFROW and set index to this interface index
 <span class="nc" id="L78">            MIB_IFROW ifRow = new MIB_IFROW();</span>
-<span class="nc" id="L79">            ifRow.dwIndex = netIF.getNetworkInterface().getIndex();</span>
+<span class="nc" id="L79">            ifRow.dwIndex = netIF.queryNetworkInterface().getIndex();</span>
 <span class="nc bnc" id="L80" title="All 2 branches missed.">            if (0 != IPHlpAPI.INSTANCE.GetIfEntry(ifRow)) {</span>
                 // Error, abort
-<span class="nc" id="L82">                LOG.error(&quot;Failed to retrieve data for interface {}, {}&quot;, netIF.getNetworkInterface().getIndex(),</span>
+<span class="nc" id="L82">                LOG.error(&quot;Failed to retrieve data for interface {}, {}&quot;, netIF.queryNetworkInterface().getIndex(),</span>
 <span class="nc" id="L83">                        netIF.getName());</span>
 <span class="nc" id="L84">                return;</span>
             }
@@ -95,4 +95,4 @@ import oshi.util.ParseUtil;
 <span class="nc" id="L95">        netIF.setTimeStamp(System.currentTimeMillis());</span>
 <span class="nc" id="L96">    }</span>
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

@@ -109,16 +109,17 @@ public class LinuxSoundCard extends AbstractSoundCard {
 <span class="nc bnc" id="L109" title="All 2 branches missed.">                    if (!file.isDirectory()) {</span>
 <span class="nc" id="L110">                        cardCodec = FileUtil.getKeyValueMapFromFile(file.getPath(), &quot;:&quot;).get(&quot;Codec&quot;);</span>
                     } else {
-                        // on various centos environments, this is a
-                        // subdirectory -- each file is usually named something
-                        // like codec#0-0
-                        // example : ac97#0-0
+                        //on various centos environments, this is a subdirectory
+                        //each file is usually named something like
+                        //codec#0-0
+                        //example : ac97#0-0
 <span class="nc" id="L116">                        File[] codecs = file.listFiles();</span>
 <span class="nc bnc" id="L117" title="All 2 branches missed.">                        if (codecs != null) {</span>
 <span class="nc bnc" id="L118" title="All 2 branches missed.">                            for (File codec : codecs) {</span>
-<span class="nc bnc" id="L119" title="All 4 branches missed.">                                if (!codec.isDirectory() &amp;&amp; codec.getName().contains(&quot;#&quot;)) {</span>
-<span class="nc" id="L120">                                    cardCodec = codec.getName().substring(0, codec.getName().indexOf(&quot;#&quot;));</span>
-<span class="nc" id="L121">                                    break;</span>
+<span class="nc bnc" id="L119" title="All 2 branches missed.">                                if (!codec.isDirectory()</span>
+<span class="nc bnc" id="L120" title="All 2 branches missed.">                                        &amp;&amp; codec.getName().contains(&quot;#&quot;)) {</span>
+<span class="nc" id="L121">                                    cardCodec = codec.getName().substring(0, codec.getName().indexOf(&quot;#&quot;));</span>
+<span class="nc" id="L122">                                    break;</span>
                                 }
                             }
                         }
@@ -126,7 +127,7 @@ public class LinuxSoundCard extends AbstractSoundCard {
                 }
             }
         }
-<span class="nc" id="L129">        return cardCodec;</span>
+<span class="nc" id="L130">        return cardCodec;</span>
     }
 
     /**
@@ -143,16 +144,16 @@ public class LinuxSoundCard extends AbstractSoundCard {
      * @return The name of the sound card.
      */
     private static String getCardName(File file) {
-<span class="nc" id="L146">        String cardName = &quot;Not Found..&quot;;</span>
-<span class="nc" id="L147">        Map&lt;String, String&gt; cardNamePairs = FileUtil.getKeyValueMapFromFile(SC_PATH + &quot;/&quot; + CARDS_FILE, &quot;:&quot;);</span>
-<span class="nc" id="L148">        String cardId = FileUtil.getStringFromFile(file.getPath() + &quot;/&quot; + ID_FILE);</span>
-<span class="nc bnc" id="L149" title="All 2 branches missed.">        for (Map.Entry&lt;String, String&gt; entry : cardNamePairs.entrySet()) {</span>
-<span class="nc bnc" id="L150" title="All 2 branches missed.">            if (entry.getKey().contains(cardId)) {</span>
-<span class="nc" id="L151">                cardName = entry.getValue();</span>
-<span class="nc" id="L152">                return cardName;</span>
+<span class="nc" id="L147">        String cardName = &quot;Not Found..&quot;;</span>
+<span class="nc" id="L148">        Map&lt;String, String&gt; cardNamePairs = FileUtil.getKeyValueMapFromFile(SC_PATH + &quot;/&quot; + CARDS_FILE, &quot;:&quot;);</span>
+<span class="nc" id="L149">        String cardId = FileUtil.getStringFromFile(file.getPath() + &quot;/&quot; + ID_FILE);</span>
+<span class="nc bnc" id="L150" title="All 2 branches missed.">        for (Map.Entry&lt;String, String&gt; entry : cardNamePairs.entrySet()) {</span>
+<span class="nc bnc" id="L151" title="All 2 branches missed.">            if (entry.getKey().contains(cardId)) {</span>
+<span class="nc" id="L152">                cardName = entry.getValue();</span>
+<span class="nc" id="L153">                return cardName;</span>
             }
-<span class="nc" id="L154">        }</span>
-<span class="nc" id="L155">        return cardName;</span>
+<span class="nc" id="L155">        }</span>
+<span class="nc" id="L156">        return cardName;</span>
     }
 
     /**
@@ -163,11 +164,11 @@ public class LinuxSoundCard extends AbstractSoundCard {
      * @return List of {@link LinuxSoundCard} objects.
      */
     public static List&lt;LinuxSoundCard&gt; getSoundCards() {
-<span class="nc" id="L166">        List&lt;LinuxSoundCard&gt; soundCards = new ArrayList&lt;&gt;();</span>
-<span class="nc bnc" id="L167" title="All 2 branches missed.">        for (File cardFile : getCardFolders()) {</span>
-<span class="nc" id="L168">            soundCards.add(new LinuxSoundCard(getSoundCardVersion(), getCardName(cardFile), getCardCodec(cardFile)));</span>
-<span class="nc" id="L169">        }</span>
-<span class="nc" id="L170">        return soundCards;</span>
+<span class="nc" id="L167">        List&lt;LinuxSoundCard&gt; soundCards = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L168" title="All 2 branches missed.">        for (File cardFile : getCardFolders()) {</span>
+<span class="nc" id="L169">            soundCards.add(new LinuxSoundCard(getSoundCardVersion(), getCardName(cardFile), getCardCodec(cardFile)));</span>
+<span class="nc" id="L170">        }</span>
+<span class="nc" id="L171">        return soundCards;</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>
