@@ -43,47 +43,55 @@
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>  <em class="jxr_javadoccomment"> * won't work on Linux without user cooperation.</em>
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>  <em class="jxr_javadoccomment"> */</em>
 <a class="jxr_linenumber" name="L37" href="#L37">37</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="ComputerID" href="../../oshi/demo/ComputerID.html#ComputerID">ComputerID</a> {
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> main(String[] args) {
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>          String unknownHash = String.format(<span class="jxr_string">"%08x"</span>, Constants.UNKNOWN.hashCode());
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>  
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>          System.out.println(<span class="jxr_string">"Here's a unique (?) id for your computer."</span>);
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>          System.out.println(getComputerIdentifier());
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>          System.out.println(<span class="jxr_string">"If the second field is "</span> + unknownHash
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>                  + <span class="jxr_string">" then I couldn't find a serial number, and running as sudo might change this."</span>);
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>  
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>      }
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>  
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>      <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>  <em class="jxr_javadoccomment">     * Generates a Computer Identifier, which may be part of a strategy to</em>
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>  <em class="jxr_javadoccomment">     * construct a licence key. (The identifier may not be unique as in one case</em>
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>  <em class="jxr_javadoccomment">     * hashcode could be same for multiple values, and the result may differ</em>
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>  <em class="jxr_javadoccomment">     * based on whether the program is running with sudo/root permission.) The</em>
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>  <em class="jxr_javadoccomment">     * identifier string is based upon the processor serial number, vendor,</em>
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>  <em class="jxr_javadoccomment">     * processor identifier, and total processor count.</em>
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>  <em class="jxr_javadoccomment">     * </em>
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>  <em class="jxr_javadoccomment">     * @return A string containing four hyphen-delimited fields representing the</em>
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>  <em class="jxr_javadoccomment">     *         processor; the first 3 are 32-bit hexadecimal values and the last</em>
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>  <em class="jxr_javadoccomment">     *         one is an integer value.</em>
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String getComputerIdentifier() {
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>          <a name="SystemInfo" href="../../oshi/SystemInfo.html#SystemInfo"<a name="SystemInfo" href="../../oshi/SystemInfo.html#SystemInfo">SystemInfo</a>o</a> systemInfo = <strong class="jxr_keyword">new</strong> <a name="SystemInfo" href="../../oshi/SystemInfo.html#SystemInfo">SystemInfo</a>();
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>          <a name="OperatingSystem" href="../../oshi/software/os/OperatingSystem.html#OperatingSystem">OperatingSystem</a> operatingSystem = systemInfo.getOperatingSystem();
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>          <a name="HardwareAbstractionLayer" href="../../oshi/hardware/HardwareAbstractionLayer.html#HardwareAbstractionLayer">HardwareAbstractionLayer</a> hardwareAbstractionLayer = systemInfo.getHardware();
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>          <a name="CentralProcessor" href="../../oshi/hardware/CentralProcessor.html#CentralProcessor">CentralProcessor</a> centralProcessor = hardwareAbstractionLayer.getProcessor();
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>          <a name="ComputerSystem" href="../../oshi/hardware/ComputerSystem.html#ComputerSystem">ComputerSystem</a> computerSystem = hardwareAbstractionLayer.getComputerSystem();
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>  
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>          String vendor = operatingSystem.getManufacturer();
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>          String processorSerialNumber = computerSystem.getSerialNumber();
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>          String processorIdentifier = centralProcessor.getIdentifier();
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>          <strong class="jxr_keyword">int</strong> processors = centralProcessor.getLogicalProcessorCount();
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>  
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>          String delimiter = <span class="jxr_string">"-"</span>;
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>  
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>          <strong class="jxr_keyword">return</strong> String.format(<span class="jxr_string">"%08x"</span>, vendor.hashCode()) + delimiter
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>                  + String.format(<span class="jxr_string">"%08x"</span>, processorSerialNumber.hashCode()) + delimiter
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>                  + String.format(<span class="jxr_string">"%08x"</span>, processorIdentifier.hashCode()) + delimiter + processors;
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>      }
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>  }
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <em class="jxr_javadoccomment">     * main.</em>
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <em class="jxr_javadoccomment">     * &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>  <em class="jxr_javadoccomment">     * @param args</em>
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>  <em class="jxr_javadoccomment">     *            an array of {@link java.lang.String} objects.</em>
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> main(String[] args) {
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>          String unknownHash = String.format(<span class="jxr_string">"%08x"</span>, Constants.UNKNOWN.hashCode());
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>  
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>          System.out.println(<span class="jxr_string">"Here's a unique (?) id for your computer."</span>);
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>          System.out.println(getComputerIdentifier());
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>          System.out.println(<span class="jxr_string">"If the second field is "</span> + unknownHash
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>                  + <span class="jxr_string">" then I couldn't find a serial number, and running as sudo might change this."</span>);
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>  
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>      }
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>  
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>  <em class="jxr_javadoccomment">     * Generates a Computer Identifier, which may be part of a strategy to construct</em>
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>  <em class="jxr_javadoccomment">     * a licence key. (The identifier may not be unique as in one case hashcode</em>
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>  <em class="jxr_javadoccomment">     * could be same for multiple values, and the result may differ based on whether</em>
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>  <em class="jxr_javadoccomment">     * the program is running with sudo/root permission.) The identifier string is</em>
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>  <em class="jxr_javadoccomment">     * based upon the processor serial number, vendor, processor identifier, and</em>
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>  <em class="jxr_javadoccomment">     * total processor count.</em>
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>  <em class="jxr_javadoccomment">     * @return A string containing four hyphen-delimited fields representing the</em>
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>  <em class="jxr_javadoccomment">     *         processor; the first 3 are 32-bit hexadecimal values and the last one</em>
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>  <em class="jxr_javadoccomment">     *         is an integer value.</em>
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String getComputerIdentifier() {
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>          <a name="SystemInfo" href="../../oshi/SystemInfo.html#SystemInfo"<a name="SystemInfo" href="../../oshi/SystemInfo.html#SystemInfo">SystemInfo</a>o</a> systemInfo = <strong class="jxr_keyword">new</strong> <a name="SystemInfo" href="../../oshi/SystemInfo.html#SystemInfo">SystemInfo</a>();
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>          <a name="OperatingSystem" href="../../oshi/software/os/OperatingSystem.html#OperatingSystem">OperatingSystem</a> operatingSystem = systemInfo.getOperatingSystem();
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>          <a name="HardwareAbstractionLayer" href="../../oshi/hardware/HardwareAbstractionLayer.html#HardwareAbstractionLayer">HardwareAbstractionLayer</a> hardwareAbstractionLayer = systemInfo.getHardware();
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>          <a name="CentralProcessor" href="../../oshi/hardware/CentralProcessor.html#CentralProcessor">CentralProcessor</a> centralProcessor = hardwareAbstractionLayer.getProcessor();
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>          <a name="ComputerSystem" href="../../oshi/hardware/ComputerSystem.html#ComputerSystem">ComputerSystem</a> computerSystem = hardwareAbstractionLayer.getComputerSystem();
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>  
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>          String vendor = operatingSystem.getManufacturer();
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>          String processorSerialNumber = computerSystem.getSerialNumber();
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>          String processorIdentifier = centralProcessor.getIdentifier();
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>          <strong class="jxr_keyword">int</strong> processors = centralProcessor.getLogicalProcessorCount();
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>  
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>          String delimiter = <span class="jxr_string">"-"</span>;
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>  
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>          <strong class="jxr_keyword">return</strong> String.format(<span class="jxr_string">"%08x"</span>, vendor.hashCode()) + delimiter
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>                  + String.format(<span class="jxr_string">"%08x"</span>, processorSerialNumber.hashCode()) + delimiter
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>                  + String.format(<span class="jxr_string">"%08x"</span>, processorIdentifier.hashCode()) + delimiter + processors;
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>      }
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>  }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2019 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

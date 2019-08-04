@@ -51,57 +51,63 @@
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>  
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>  <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>  <em class="jxr_javadoccomment"> * A Display</em>
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>  <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>  <em class="jxr_javadoccomment"> * @author widdis[at]gmail[dot]com</em>
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="MacDisplay" href="../../../../oshi/hardware/platform/mac/MacDisplay.html#MacDisplay">MacDisplay</a> <strong class="jxr_keyword">extends</strong> <a name="AbstractDisplay" href="../../../../oshi/hardware/common/AbstractDisplay.html#AbstractDisplay">AbstractDisplay</a> {
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="MacDisplay" href="../../../../oshi/hardware/platform/mac/MacDisplay.html#MacDisplay">MacDisplay</a> <strong class="jxr_keyword">extends</strong> <a name="AbstractDisplay" href="../../../../oshi/hardware/common/AbstractDisplay.html#AbstractDisplay">AbstractDisplay</a> {
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>  
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> serialVersionUID = 1L;
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>  
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> serialVersionUID = 1L;
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Logger LOG = LoggerFactory.getLogger(MacDisplay.<strong class="jxr_keyword">class</strong>);
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>  
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Logger LOG = LoggerFactory.getLogger(MacDisplay.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> CFStringRef cfEdid = CFStringRef.toCFString(<span class="jxr_string">"IODisplayEDID"</span>);
 <a class="jxr_linenumber" name="L54" href="#L54">54</a>  
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> CFStringRef cfEdid = CFStringRef.toCFString(<span class="jxr_string">"IODisplayEDID"</span>);
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>  
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>      <strong class="jxr_keyword">public</strong> <a name="MacDisplay" href="../../../../oshi/hardware/platform/mac/MacDisplay.html#MacDisplay">MacDisplay</a>(byte[] edid) {
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>          <strong class="jxr_keyword">super</strong>(edid);
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>          LOG.debug(<span class="jxr_string">"Initialized MacDisplay"</span>);
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>      }
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>  
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>      <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>  <em class="jxr_javadoccomment">     * Gets Display Information</em>
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>  <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>  <em class="jxr_javadoccomment">     * @return An array of Display objects representing monitors, etc.</em>
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a name="Display" href="../../../../oshi/hardware/Display.html#Display">Display</a>[] getDisplays() {
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>          List&lt;Display&gt; displays = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>          <em class="jxr_comment">// Iterate IO Registry IODisplayConnect</em>
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>          IntByReference serviceIterator = <strong class="jxr_keyword">new</strong> IntByReference();
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>          IOKitUtil.getMatchingServices(<span class="jxr_string">"IODisplayConnect"</span>, serviceIterator);
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>          <strong class="jxr_keyword">int</strong> sdService = IOKit.INSTANCE.IOIteratorNext(serviceIterator.getValue());
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>          <strong class="jxr_keyword">while</strong> (sdService != 0) {
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>              <em class="jxr_comment">// Display properties are in a child entry</em>
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>              IntByReference properties = <strong class="jxr_keyword">new</strong> IntByReference();
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>              <strong class="jxr_keyword">int</strong> ret = IOKit.INSTANCE.IORegistryEntryGetChildEntry(sdService, <span class="jxr_string">"IOService"</span>, properties);
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>              <strong class="jxr_keyword">if</strong> (ret == 0) {
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>                  <em class="jxr_comment">// look up the edid by key</em>
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>                  CFTypeRef edid = IOKit.INSTANCE.IORegistryEntryCreateCFProperty(properties.getValue(), cfEdid,
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>                          CfUtil.ALLOCATOR, 0);
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>                  <strong class="jxr_keyword">if</strong> (edid != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>                      <em class="jxr_comment">// Edid is a byte array of 128 bytes</em>
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>                      <strong class="jxr_keyword">int</strong> length = CoreFoundation.INSTANCE.CFDataGetLength(edid);
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>                      PointerByReference p = CoreFoundation.INSTANCE.CFDataGetBytePtr(edid);
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>                      displays.add(<strong class="jxr_keyword">new</strong> <a name="MacDisplay" href="../../../../oshi/hardware/platform/mac/MacDisplay.html#MacDisplay">MacDisplay</a>(p.getPointer().getByteArray(0, length)));
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>                      CfUtil.release(edid);
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>                  }
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>              }
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>              <em class="jxr_comment">// iterate</em>
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>              IOKit.INSTANCE.IOObjectRelease(sdService);
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>              sdService = IOKit.INSTANCE.IOIteratorNext(serviceIterator.getValue());
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>          }
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>          IOKit.INSTANCE.IOObjectRelease(serviceIterator.getValue());
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>          <strong class="jxr_keyword">return</strong> displays.toArray(<strong class="jxr_keyword">new</strong> <a name="Display" href="../../../../oshi/hardware/Display.html#Display">Display</a>[0]);
-<a class="jxr_linenumber" name="L95" href="#L95">95</a>      }
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>  }
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>  <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>  <em class="jxr_javadoccomment">     * Constructor for MacDisplay.</em>
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>  <em class="jxr_javadoccomment">     * &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>  <em class="jxr_javadoccomment">     * @param edid</em>
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>  <em class="jxr_javadoccomment">     *            an array of {@link byte} objects.</em>
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>      <strong class="jxr_keyword">public</strong> <a name="MacDisplay" href="../../../../oshi/hardware/platform/mac/MacDisplay.html#MacDisplay">MacDisplay</a>(byte[] edid) {
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>          <strong class="jxr_keyword">super</strong>(edid);
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>          LOG.debug(<span class="jxr_string">"Initialized MacDisplay"</span>);
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>      }
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>  
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>  <em class="jxr_javadoccomment">     * Gets Display Information</em>
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>  <em class="jxr_javadoccomment">     * @return An array of Display objects representing monitors, etc.</em>
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a name="Display" href="../../../../oshi/hardware/Display.html#Display">Display</a>[] getDisplays() {
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>          List&lt;Display&gt; displays = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>          <em class="jxr_comment">// Iterate IO Registry IODisplayConnect</em>
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>          IntByReference serviceIterator = <strong class="jxr_keyword">new</strong> IntByReference();
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>          IOKitUtil.getMatchingServices(<span class="jxr_string">"IODisplayConnect"</span>, serviceIterator);
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>          <strong class="jxr_keyword">int</strong> sdService = IOKit.INSTANCE.IOIteratorNext(serviceIterator.getValue());
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>          <strong class="jxr_keyword">while</strong> (sdService != 0) {
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>              <em class="jxr_comment">// Display properties are in a child entry</em>
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>              IntByReference properties = <strong class="jxr_keyword">new</strong> IntByReference();
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>              <strong class="jxr_keyword">int</strong> ret = IOKit.INSTANCE.IORegistryEntryGetChildEntry(sdService, <span class="jxr_string">"IOService"</span>, properties);
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>              <strong class="jxr_keyword">if</strong> (ret == 0) {
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>                  <em class="jxr_comment">// look up the edid by key</em>
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>                  CFTypeRef edid = IOKit.INSTANCE.IORegistryEntryCreateCFProperty(properties.getValue(), cfEdid,
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>                          CfUtil.ALLOCATOR, 0);
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>                  <strong class="jxr_keyword">if</strong> (edid != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>                      <em class="jxr_comment">// Edid is a byte array of 128 bytes</em>
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>                      <strong class="jxr_keyword">int</strong> length = CoreFoundation.INSTANCE.CFDataGetLength(edid);
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>                      PointerByReference p = CoreFoundation.INSTANCE.CFDataGetBytePtr(edid);
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>                      displays.add(<strong class="jxr_keyword">new</strong> <a name="MacDisplay" href="../../../../oshi/hardware/platform/mac/MacDisplay.html#MacDisplay">MacDisplay</a>(p.getPointer().getByteArray(0, length)));
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>                      CfUtil.release(edid);
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>                  }
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>              }
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>              <em class="jxr_comment">// iterate</em>
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>              IOKit.INSTANCE.IOObjectRelease(sdService);
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>              sdService = IOKit.INSTANCE.IOIteratorNext(serviceIterator.getValue());
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>          }
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>          IOKit.INSTANCE.IOObjectRelease(serviceIterator.getValue());
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>         <strong class="jxr_keyword">return</strong> displays.toArray(<strong class="jxr_keyword">new</strong> <a name="Display" href="../../../../oshi/hardware/Display.html#Display">Display</a>[0]);
+<a class="jxr_linenumber" name="L101" href="#L101">101</a>     }
+<a class="jxr_linenumber" name="L102" href="#L102">102</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2019 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

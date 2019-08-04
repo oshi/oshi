@@ -44,65 +44,67 @@
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>  <strong class="jxr_keyword">import</strong> oshi.util.ParseUtil;
 <a class="jxr_linenumber" name="L37" href="#L37">37</a>  
 <a class="jxr_linenumber" name="L38" href="#L38">38</a>  <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <em class="jxr_javadoccomment"> * @author widdis[at]gmail[dot]com</em>
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="WindowsNetworks" href="../../../../oshi/hardware/platform/windows/WindowsNetworks.html#WindowsNetworks">WindowsNetworks</a> <strong class="jxr_keyword">extends</strong> <a name="AbstractNetworks" href="../../../../oshi/hardware/common/AbstractNetworks.html#AbstractNetworks">AbstractNetworks</a> {
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>  
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> serialVersionUID = 1L;
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <em class="jxr_javadoccomment"> * WindowsNetworks class.</em>
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <em class="jxr_javadoccomment"> * &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="WindowsNetworks" href="../../../../oshi/hardware/platform/windows/WindowsNetworks.html#WindowsNetworks">WindowsNetworks</a> <strong class="jxr_keyword">extends</strong> <a name="AbstractNetworks" href="../../../../oshi/hardware/common/AbstractNetworks.html#AbstractNetworks">AbstractNetworks</a> {
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>  
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Logger LOG = LoggerFactory.getLogger(WindowsNetworks.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> serialVersionUID = 1L;
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>  
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> IS_VISTA_OR_GREATER = VersionHelpers.IsWindowsVistaOrGreater();
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Logger LOG = LoggerFactory.getLogger(WindowsNetworks.<strong class="jxr_keyword">class</strong>);
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>  
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>      <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>  <em class="jxr_javadoccomment">     * Updates interface network statistics on the given interface. Statistics</em>
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>  <em class="jxr_javadoccomment">     * include packets and bytes sent and received, and interface speed.</em>
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>  <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>  <em class="jxr_javadoccomment">     * @param netIF</em>
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>  <em class="jxr_javadoccomment">     *            The interface on which to update statistics</em>
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> updateNetworkStats(<a name="NetworkIF" href="../../../../oshi/hardware/NetworkIF.html#NetworkIF">NetworkIF</a> netIF) {
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>          <em class="jxr_comment">// MIB_IFROW2 requires Vista (6.0) or later.</em>
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>          <strong class="jxr_keyword">if</strong> (IS_VISTA_OR_GREATER) {
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>              <em class="jxr_comment">// Create new MIB_IFROW2 and set index to this interface index</em>
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>              MIB_IF_ROW2 ifRow = <strong class="jxr_keyword">new</strong> MIB_IF_ROW2();
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>              ifRow.InterfaceIndex = netIF.queryNetworkInterface().getIndex();
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>              <strong class="jxr_keyword">if</strong> (0 != IPHlpAPI.INSTANCE.GetIfEntry2(ifRow)) {
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>                  <em class="jxr_comment">// Error, abort</em>
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>                  LOG.error(<span class="jxr_string">"Failed to retrieve data for interface {}, {}"</span>, netIF.queryNetworkInterface().getIndex(),
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>                          netIF.getName());
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>                  <strong class="jxr_keyword">return</strong>;
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>              }
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>              <em class="jxr_comment">// These are unsigned longs. netIF setter will mask sign bit.</em>
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>              netIF.setBytesSent(ifRow.OutOctets);
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>              netIF.setBytesRecv(ifRow.InOctets);
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>              netIF.setPacketsSent(ifRow.OutUcastPkts);
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>              netIF.setPacketsRecv(ifRow.InUcastPkts);
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>              netIF.setOutErrors(ifRow.OutErrors);
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>              netIF.setInErrors(ifRow.InErrors);
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>              netIF.setSpeed(ifRow.ReceiveLinkSpeed);
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>          } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>              <em class="jxr_comment">// Create new MIB_IFROW and set index to this interface index</em>
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>              MIB_IFROW ifRow = <strong class="jxr_keyword">new</strong> MIB_IFROW();
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>              ifRow.dwIndex = netIF.queryNetworkInterface().getIndex();
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>              <strong class="jxr_keyword">if</strong> (0 != IPHlpAPI.INSTANCE.GetIfEntry(ifRow)) {
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>                  <em class="jxr_comment">// Error, abort</em>
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>                  LOG.error(<span class="jxr_string">"Failed to retrieve data for interface {}, {}"</span>, netIF.queryNetworkInterface().getIndex(),
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>                          netIF.getName());
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>                  <strong class="jxr_keyword">return</strong>;
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>              }
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>              <em class="jxr_comment">// These are unsigned ints. Widen them to longs.</em>
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>              netIF.setBytesSent(ParseUtil.unsignedIntToLong(ifRow.dwOutOctets));
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>              netIF.setBytesRecv(ParseUtil.unsignedIntToLong(ifRow.dwInOctets));
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>              netIF.setPacketsSent(ParseUtil.unsignedIntToLong(ifRow.dwOutUcastPkts));
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>              netIF.setPacketsRecv(ParseUtil.unsignedIntToLong(ifRow.dwInUcastPkts));
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>              netIF.setOutErrors(ParseUtil.unsignedIntToLong(ifRow.dwOutErrors));
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>              netIF.setInErrors(ParseUtil.unsignedIntToLong(ifRow.dwInErrors));
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>              netIF.setSpeed(ParseUtil.unsignedIntToLong(ifRow.dwSpeed));
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>          }
-<a class="jxr_linenumber" name="L95" href="#L95">95</a>          netIF.setTimeStamp(System.currentTimeMillis());
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>      }
-<a class="jxr_linenumber" name="L97" href="#L97">97</a>  }
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> IS_VISTA_OR_GREATER = VersionHelpers.IsWindowsVistaOrGreater();
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>  
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>  <em class="jxr_javadoccomment">     * Updates interface network statistics on the given interface. Statistics</em>
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>  <em class="jxr_javadoccomment">     * include packets and bytes sent and received, and interface speed.</em>
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>  <em class="jxr_javadoccomment">     * @param netIF</em>
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>  <em class="jxr_javadoccomment">     *            The interface on which to update statistics</em>
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> updateNetworkStats(<a name="NetworkIF" href="../../../../oshi/hardware/NetworkIF.html#NetworkIF">NetworkIF</a> netIF) {
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>          <em class="jxr_comment">// MIB_IFROW2 requires Vista (6.0) or later.</em>
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>          <strong class="jxr_keyword">if</strong> (IS_VISTA_OR_GREATER) {
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>              <em class="jxr_comment">// Create new MIB_IFROW2 and set index to this interface index</em>
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>              MIB_IF_ROW2 ifRow = <strong class="jxr_keyword">new</strong> MIB_IF_ROW2();
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>              ifRow.InterfaceIndex = netIF.queryNetworkInterface().getIndex();
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>              <strong class="jxr_keyword">if</strong> (0 != IPHlpAPI.INSTANCE.GetIfEntry2(ifRow)) {
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>                  <em class="jxr_comment">// Error, abort</em>
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>                  LOG.error(<span class="jxr_string">"Failed to retrieve data for interface {}, {}"</span>, netIF.queryNetworkInterface().getIndex(),
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>                          netIF.getName());
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>                  <strong class="jxr_keyword">return</strong>;
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>              }
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>              <em class="jxr_comment">// These are unsigned longs. netIF setter will mask sign bit.</em>
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>              netIF.setBytesSent(ifRow.OutOctets);
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>              netIF.setBytesRecv(ifRow.InOctets);
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>              netIF.setPacketsSent(ifRow.OutUcastPkts);
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>              netIF.setPacketsRecv(ifRow.InUcastPkts);
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>              netIF.setOutErrors(ifRow.OutErrors);
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>              netIF.setInErrors(ifRow.InErrors);
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>              netIF.setSpeed(ifRow.ReceiveLinkSpeed);
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>          } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>              <em class="jxr_comment">// Create new MIB_IFROW and set index to this interface index</em>
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>              MIB_IFROW ifRow = <strong class="jxr_keyword">new</strong> MIB_IFROW();
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>              ifRow.dwIndex = netIF.queryNetworkInterface().getIndex();
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>              <strong class="jxr_keyword">if</strong> (0 != IPHlpAPI.INSTANCE.GetIfEntry(ifRow)) {
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>                  <em class="jxr_comment">// Error, abort</em>
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>                  LOG.error(<span class="jxr_string">"Failed to retrieve data for interface {}, {}"</span>, netIF.queryNetworkInterface().getIndex(),
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>                          netIF.getName());
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>                  <strong class="jxr_keyword">return</strong>;
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>              }
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>              <em class="jxr_comment">// These are unsigned ints. Widen them to longs.</em>
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>              netIF.setBytesSent(ParseUtil.unsignedIntToLong(ifRow.dwOutOctets));
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>              netIF.setBytesRecv(ParseUtil.unsignedIntToLong(ifRow.dwInOctets));
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>              netIF.setPacketsSent(ParseUtil.unsignedIntToLong(ifRow.dwOutUcastPkts));
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>              netIF.setPacketsRecv(ParseUtil.unsignedIntToLong(ifRow.dwInUcastPkts));
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>              netIF.setOutErrors(ParseUtil.unsignedIntToLong(ifRow.dwOutErrors));
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>              netIF.setInErrors(ParseUtil.unsignedIntToLong(ifRow.dwInErrors));
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>              netIF.setSpeed(ParseUtil.unsignedIntToLong(ifRow.dwSpeed));
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>          }
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>          netIF.setTimeStamp(System.currentTimeMillis());
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>      }
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>  }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2019 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

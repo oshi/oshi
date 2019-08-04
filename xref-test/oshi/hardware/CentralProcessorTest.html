@@ -84,19 +84,19 @@
 <a class="jxr_linenumber" name="L76" href="#L76">76</a>                      &amp;&amp; p.getProcessorCpuLoadBetweenTicks(procTicks)[cpu] &lt;= 1);
 <a class="jxr_linenumber" name="L77" href="#L77">77</a>              assertEquals(p.getProcessorCpuLoadTicks()[cpu].length, TickType.values().length);
 <a class="jxr_linenumber" name="L78" href="#L78">78</a>          }
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>          
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>  
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>          assertTrue(p.getLogicalProcessorCount() &gt;= p.getPhysicalProcessorCount());
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>          assertTrue(p.getPhysicalProcessorCount() &gt; 0);
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>          assertTrue(p.getPhysicalProcessorCount() &gt;= p.getPhysicalPackageCount());
 <a class="jxr_linenumber" name="L83" href="#L83">83</a>          assertTrue(p.getPhysicalPackageCount() &gt; 0);
 <a class="jxr_linenumber" name="L84" href="#L84">84</a>          assertTrue(p.getContextSwitches() &gt;= 0);
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>          assertTrue(p.getInterrupts() &gt;= 0);
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>          
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>  
 <a class="jxr_linenumber" name="L87" href="#L87">87</a>          <strong class="jxr_keyword">long</strong> max = p.getMaxFreq();
 <a class="jxr_linenumber" name="L88" href="#L88">88</a>          <strong class="jxr_keyword">long</strong>[] curr = p.getCurrentFreq();
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>          assertEquals(curr.length,p.getLogicalProcessorCount());
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>          assertEquals(curr.length, p.getLogicalProcessorCount());
 <a class="jxr_linenumber" name="L90" href="#L90">90</a>          <strong class="jxr_keyword">if</strong> (max &gt;= 0) {
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>          <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0;i&lt;curr.length;i++) {
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>              <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; curr.length; i++) {
 <a class="jxr_linenumber" name="L92" href="#L92">92</a>                  assertTrue(curr[i] &lt;= max);
 <a class="jxr_linenumber" name="L93" href="#L93">93</a>              }
 <a class="jxr_linenumber" name="L94" href="#L94">94</a>          }
