@@ -29,7 +29,9 @@ import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
 /**
- * @author widdis[at]gmail[dot]com
+ * <p>
+ * FreeBsdNetworks class.
+ * </p>
  */
 public class FreeBsdNetworks extends AbstractNetworks {
 

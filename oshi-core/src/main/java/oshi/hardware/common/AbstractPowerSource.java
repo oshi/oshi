@@ -54,25 +54,19 @@ public abstract class AbstractPowerSource implements PowerSource {
         this.timeRemaining = newTimeRemaining;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getName() {
         return this.name;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public double getRemainingCapacity() {
         return this.remainingCapacity;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public double getTimeRemaining() {
         return this.timeRemaining;

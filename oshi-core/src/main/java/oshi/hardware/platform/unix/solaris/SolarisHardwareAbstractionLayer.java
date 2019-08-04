@@ -35,13 +35,16 @@ import oshi.hardware.SoundCard;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
 
+/**
+ * <p>
+ * SolarisHardwareAbstractionLayer class.
+ * </p>
+ */
 public class SolarisHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {
 
     private static final long serialVersionUID = 1L;
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public ComputerSystem getComputerSystem() {
         if (this.computerSystem == null) {
@@ -50,9 +53,7 @@ public class SolarisHardwareAbstractionLayer extends AbstractHardwareAbstraction
         return this.computerSystem;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public GlobalMemory getMemory() {
         if (this.memory == null) {
@@ -61,9 +62,7 @@ public class SolarisHardwareAbstractionLayer extends AbstractHardwareAbstraction
         return this.memory;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public CentralProcessor getProcessor() {
         if (this.processor == null) {
@@ -72,33 +71,25 @@ public class SolarisHardwareAbstractionLayer extends AbstractHardwareAbstraction
         return this.processor;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public PowerSource[] getPowerSources() {
         return SolarisPowerSource.getPowerSources();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public HWDiskStore[] getDiskStores() {
         return new SolarisDisks().getDisks();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public Display[] getDisplays() {
         return SolarisDisplay.getDisplays();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public Sensors getSensors() {
         if (this.sensors == null) {
@@ -107,22 +98,19 @@ public class SolarisHardwareAbstractionLayer extends AbstractHardwareAbstraction
         return this.sensors;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public NetworkIF[] getNetworkIFs() {
         return new SolarisNetworks().getNetworks();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public UsbDevice[] getUsbDevices(boolean tree) {
         return SolarisUsbDevice.getUsbDevices(tree);
     }
 
+    /** {@inheritDoc} */
     @Override
     public SoundCard[] getSoundCards() {
         return SolarisSoundCard.getSoundCards().toArray(new SoundCard[0]);

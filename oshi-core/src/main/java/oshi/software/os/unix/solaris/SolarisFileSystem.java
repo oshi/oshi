@@ -39,10 +39,10 @@ import oshi.util.ParseUtil;
 import oshi.util.platform.unix.solaris.KstatUtil;
 
 /**
- * The Solaris File System contains {@link OSFileStore}s which are a storage
- * pool, device, partition, volume, concrete file system or other implementation
- * specific means of file storage. In Solaris, these are found in the
- * /proc/mount filesystem, excluding temporary and kernel mounts.
+ * The Solaris File System contains {@link oshi.software.os.OSFileStore}s which
+ * are a storage pool, device, partition, volume, concrete file system or other
+ * implementation specific means of file storage. In Solaris, these are found in
+ * the /proc/mount filesystem, excluding temporary and kernel mounts.
  */
 public class SolarisFileSystem implements FileSystem {
 
@@ -86,11 +86,9 @@ public class SolarisFileSystem implements FileSystem {
     }
 
     /**
-     * Gets File System Information.
+     * {@inheritDoc}
      *
-     * @return An array of {@link OSFileStore} objects representing mounted volumes.
-     *         May return disconnected volumes with
-     *         {@link OSFileStore#getTotalSpace()} = 0.
+     * Gets File System Information.
      */
     @Override
     public OSFileStore[] getFileStores() {
@@ -193,6 +191,7 @@ public class SolarisFileSystem implements FileSystem {
         return fsList;
     }
 
+    /** {@inheritDoc} */
     @Override
     public long getOpenFileDescriptors() {
         Kstat ksp = KstatUtil.kstatLookup(null, -1, "file_cache");
@@ -203,6 +202,7 @@ public class SolarisFileSystem implements FileSystem {
         return 0L;
     }
 
+    /** {@inheritDoc} */
     @Override
     public long getMaxFileDescriptors() {
         Kstat ksp = KstatUtil.kstatLookup(null, -1, "file_cache");
@@ -213,6 +213,15 @@ public class SolarisFileSystem implements FileSystem {
         return 0L;
     }
 
+    /**
+     * <p>
+     * updateFileStoreStats.
+     * </p>
+     *
+     * @param osFileStore
+     *            a {@link oshi.software.os.OSFileStore} object.
+     * @return a boolean.
+     */
     public static boolean updateFileStoreStats(OSFileStore osFileStore) {
         for (OSFileStore fileStore : new SolarisFileSystem().getFileStoreMatching(osFileStore.getName())) {
             if (osFileStore.getVolume().equals(fileStore.getVolume())

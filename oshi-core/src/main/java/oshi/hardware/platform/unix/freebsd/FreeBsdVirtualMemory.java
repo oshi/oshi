@@ -35,9 +35,7 @@ public class FreeBsdVirtualMemory extends AbstractVirtualMemory {
 
     private static final long serialVersionUID = 1L;
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getSwapUsed() {
         String swapInfo = ExecutingCommand.getAnswerAt("swapinfo -k", 1);
@@ -48,25 +46,19 @@ public class FreeBsdVirtualMemory extends AbstractVirtualMemory {
         return ParseUtil.parseLongOrDefault(split[2], 0L) << 10;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getSwapTotal() {
         return BsdSysctlUtil.sysctl("vm.swap_total", 0L);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getSwapPagesIn() {
         return BsdSysctlUtil.sysctl("vm.stats.vm.v_swappgsin", 0L);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getSwapPagesOut() {
         return BsdSysctlUtil.sysctl("vm.stats.vm.v_swappgsout", 0L);

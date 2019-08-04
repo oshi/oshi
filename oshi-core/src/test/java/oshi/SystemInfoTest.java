@@ -74,7 +74,8 @@ public class SystemInfoTest {
     /**
      * The main method, demonstrating use of classes.
      *
-     * @param args the arguments
+     * @param args
+     *            the arguments
      */
     public static void main(String[] args) {
         // Options: ERROR > WARN > INFO > DEBUG > TRACE

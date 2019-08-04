@@ -37,6 +37,11 @@ import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 
+/**
+ * <p>
+ * LinuxSensors class.
+ * </p>
+ */
 public class LinuxSensors extends AbstractSensors {
 
     private static final long serialVersionUID = 1L;
@@ -55,6 +60,11 @@ public class LinuxSensors extends AbstractSensors {
     // Map from sensor to path
     private Map<String, String> sensorsMap = new HashMap<>();
 
+    /**
+     * <p>
+     * Constructor for LinuxSensors.
+     * </p>
+     */
     public LinuxSensors() {
         iterateHwmon();
         // if no temperature sensor is found in hwmon, try thermal_zone
@@ -71,16 +81,13 @@ public class LinuxSensors extends AbstractSensors {
         for (String sensor : SENSORS) {
             // Final to pass to anonymous class
             final String sensorPrefix = sensor;
-            getSensorFilesFromPath(HWMON, sensor, new FileFilter() {
-                // Find any *_input files in that path
-                @Override
-                public boolean accept(File f) {
-                    try {
-                        return f.getName().startsWith(sensorPrefix) && f.getName().endsWith("_input")
-                                && FileUtil.getIntFromFile(f.getCanonicalPath()) > 0;
-                    } catch (IOException e) {
-                        return false;
-                    }
+            // Find any *_input files in that path
+            getSensorFilesFromPath(HWMON, sensor, f -> {
+                try {
+                    return f.getName().startsWith(sensorPrefix) && f.getName().endsWith("_input")
+                            && FileUtil.getIntFromFile(f.getCanonicalPath()) > 0;
+                } catch (IOException e) {
+                    return false;
                 }
             });
         }
@@ -91,13 +98,7 @@ public class LinuxSensors extends AbstractSensors {
      * /sys/class/thermal/thermal_zone0/temp
      */
     private void iterateThermalZone() {
-        getSensorFilesFromPath(THERMAL_ZONE, TEMP, new FileFilter() {
-            // Find any temp files in that path
-            @Override
-            public boolean accept(File f) {
-                return f.getName().equals(TEMP);
-            }
-        });
+        getSensorFilesFromPath(THERMAL_ZONE, TEMP, f -> f.getName().equals(TEMP));
     }
 
     /**
@@ -123,9 +124,7 @@ public class LinuxSensors extends AbstractSensors {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public double getCpuTemperature() {
         if (!this.sensorsMap.containsKey(TEMP)) {
@@ -171,9 +170,7 @@ public class LinuxSensors extends AbstractSensors {
         return 0d;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public int[] getFanSpeeds() {
         if (this.sensorsMap.containsKey(FAN)) {
@@ -200,9 +197,7 @@ public class LinuxSensors extends AbstractSensors {
         return new int[0];
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public double getCpuVoltage() {
         if (this.sensorsMap.containsKey(VOLTAGE)) {

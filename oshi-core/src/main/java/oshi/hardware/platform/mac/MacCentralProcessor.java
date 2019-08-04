@@ -81,6 +81,8 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
     }
 
     /**
+     * {@inheritDoc}
+     *
      * Updates logical and physical processor counts from sysctl calls
      */
     @Override
@@ -97,9 +99,7 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
         return logProcs;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long[] getSystemCpuLoadTicks() {
         long[] ticks = new long[TickType.values().length];
@@ -119,9 +119,7 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
         return ticks;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long[] getCurrentFreq() {
         long[] freqs = new long[getLogicalProcessorCount()];
@@ -129,17 +127,13 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
         return freqs;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long queryMaxFreq() {
         return SysctlUtil.sysctl("hw.cpufrequency_max", -1L);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public double[] getSystemLoadAverage(int nelem) {
         if (nelem < 1 || nelem > 3) {
@@ -153,9 +147,7 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
         return average;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long[][] getProcessorCpuLoadTicks() {
         long[][] ticks = new long[this.logicalProcessorCount][TickType.values().length];
@@ -183,9 +175,7 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
         return ticks;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getContextSwitches() {
         int machPort = SystemB.INSTANCE.mach_host_self();
@@ -198,9 +188,7 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
         return ParseUtil.unsignedIntToLong(vmstats.v_swtch);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getInterrupts() {
         int machPort = SystemB.INSTANCE.mach_host_self();

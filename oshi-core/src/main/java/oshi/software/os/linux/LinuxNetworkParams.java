@@ -37,6 +37,11 @@ import oshi.software.common.AbstractNetworkParams;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
+/**
+ * <p>
+ * LinuxNetworkParams class.
+ * </p>
+ */
 public class LinuxNetworkParams extends AbstractNetworkParams {
 
     private static final long serialVersionUID = 1L;
@@ -46,9 +51,7 @@ public class LinuxNetworkParams extends AbstractNetworkParams {
     private static final String IPV4_DEFAULT_DEST = "0.0.0.0"; // NOSONAR
     private static final String IPV6_DEFAULT_DEST = "::/0";
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getDomainName() {
         Libc.Addrinfo hint = new Libc.Addrinfo();
@@ -74,9 +77,7 @@ public class LinuxNetworkParams extends AbstractNetworkParams {
         return canonname;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getIpv4DefaultGateway() {
         List<String> routes = ExecutingCommand.runNative("route -A inet -n");
@@ -101,9 +102,7 @@ public class LinuxNetworkParams extends AbstractNetworkParams {
         return gateway;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getIpv6DefaultGateway() {
         List<String> routes = ExecutingCommand.runNative("route -A inet6 -n");

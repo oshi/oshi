@@ -28,8 +28,6 @@ import oshi.util.Constants;
 
 /**
  * Baseboard data
- *
- * @author widdis [at] gmail [dot] com
  */
 public abstract class AbstractBaseboard implements Baseboard {
 
@@ -40,9 +38,7 @@ public abstract class AbstractBaseboard implements Baseboard {
     protected String version;
     protected String serialNumber;
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getManufacturer() {
         if (this.manufacturer == null) {
@@ -51,9 +47,7 @@ public abstract class AbstractBaseboard implements Baseboard {
         return this.manufacturer;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getModel() {
         if (this.model == null) {
@@ -62,9 +56,7 @@ public abstract class AbstractBaseboard implements Baseboard {
         return this.model;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getVersion() {
         if (this.version == null) {
@@ -73,9 +65,7 @@ public abstract class AbstractBaseboard implements Baseboard {
         return this.version;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getSerialNumber() {
         if (this.serialNumber == null) {
@@ -85,6 +75,10 @@ public abstract class AbstractBaseboard implements Baseboard {
     }
 
     /**
+     * <p>
+     * Setter for the field <code>manufacturer</code>.
+     * </p>
+     *
      * @param manufacturer
      *            The manufacturer to set.
      */
@@ -93,6 +87,10 @@ public abstract class AbstractBaseboard implements Baseboard {
     }
 
     /**
+     * <p>
+     * Setter for the field <code>model</code>.
+     * </p>
+     *
      * @param model
      *            The model to set.
      */
@@ -101,6 +99,10 @@ public abstract class AbstractBaseboard implements Baseboard {
     }
 
     /**
+     * <p>
+     * Setter for the field <code>version</code>.
+     * </p>
+     *
      * @param version
      *            The version to set.
      */
@@ -109,6 +111,10 @@ public abstract class AbstractBaseboard implements Baseboard {
     }
 
     /**
+     * <p>
+     * Setter for the field <code>serialNumber</code>.
+     * </p>
+     *
      * @param serialNumber
      *            The serialNumber to set.
      */

@@ -37,9 +37,7 @@ final class SolarisComputerSystem extends AbstractComputerSystem {
 
     private static final long serialVersionUID = 1L;
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getManufacturer() {
         if (this.manufacturer == null) {
@@ -48,9 +46,7 @@ final class SolarisComputerSystem extends AbstractComputerSystem {
         return this.manufacturer;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getModel() {
         if (this.model == null) {
@@ -59,9 +55,7 @@ final class SolarisComputerSystem extends AbstractComputerSystem {
         return this.model;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getSerialNumber() {
         if (this.serialNumber == null) {
@@ -70,9 +64,7 @@ final class SolarisComputerSystem extends AbstractComputerSystem {
         return this.serialNumber;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public Firmware getFirmware() {
         if (this.firmware == null) {
@@ -81,9 +73,7 @@ final class SolarisComputerSystem extends AbstractComputerSystem {
         return this.firmware;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public Baseboard getBaseboard() {
         if (this.baseboard == null) {

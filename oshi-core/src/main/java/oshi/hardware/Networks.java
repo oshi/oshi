@@ -27,15 +27,13 @@ import java.io.Serializable;
 
 /**
  * Networks refers to network interfaces installed in the machine.
- *
- * @author enrico[dot]bianchi[at]gmail[dot]com
  */
 public interface Networks extends Serializable {
 
     /**
      * Get network interfaces on this machine
      *
-     * @return Array of {@link NetworkIF} objects
+     * @return Array of {@link oshi.hardware.NetworkIF} objects
      */
     NetworkIF[] getNetworks();
 }

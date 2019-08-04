@@ -76,19 +76,19 @@ public class CentralProcessorTest {
                     && p.getProcessorCpuLoadBetweenTicks(procTicks)[cpu] <= 1);
             assertEquals(p.getProcessorCpuLoadTicks()[cpu].length, TickType.values().length);
         }
-        
+
         assertTrue(p.getLogicalProcessorCount() >= p.getPhysicalProcessorCount());
         assertTrue(p.getPhysicalProcessorCount() > 0);
         assertTrue(p.getPhysicalProcessorCount() >= p.getPhysicalPackageCount());
         assertTrue(p.getPhysicalPackageCount() > 0);
         assertTrue(p.getContextSwitches() >= 0);
         assertTrue(p.getInterrupts() >= 0);
-        
+
         long max = p.getMaxFreq();
         long[] curr = p.getCurrentFreq();
-        assertEquals(curr.length,p.getLogicalProcessorCount());
+        assertEquals(curr.length, p.getLogicalProcessorCount());
         if (max >= 0) {
-        for (int i = 0;i<curr.length;i++) {
+            for (int i = 0; i < curr.length; i++) {
                 assertTrue(curr[i] <= max);
             }
         }

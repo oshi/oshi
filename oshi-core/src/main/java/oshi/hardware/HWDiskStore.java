@@ -70,7 +70,7 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
 
     /**
      * Copy constructor
-     * 
+     *
      * @param diskStore
      *            The object to copy
      */
@@ -98,13 +98,12 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
 
     /**
      * Make a best effort to update all the statistics about the drive without
-     * needing to recreate the drive list. This method provides for more
-     * frequent periodic updates of drive statistics. It will not detect if a
-     * removable drive has been removed and replaced by a different drive in
-     * between method calls.
+     * needing to recreate the drive list. This method provides for more frequent
+     * periodic updates of drive statistics. It will not detect if a removable drive
+     * has been removed and replaced by a different drive in between method calls.
      *
-     * @return True if the update was (probably) successful, false if the disk
-     *         was not found
+     * @return True if the update was (probably) successful, false if the disk was
+     *         not found
      */
     public boolean updateAtrributes() {
         switch (SystemInfo.getCurrentPlatformEnum()) {
@@ -126,6 +125,10 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
     }
 
     /**
+     * <p>
+     * Getter for the field <code>name</code>.
+     * </p>
+     *
      * @return the name
      */
     public String getName() {
@@ -133,6 +136,10 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
     }
 
     /**
+     * <p>
+     * Getter for the field <code>model</code>.
+     * </p>
+     *
      * @return the model
      */
     public String getModel() {
@@ -140,6 +147,10 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
     }
 
     /**
+     * <p>
+     * Getter for the field <code>serial</code>.
+     * </p>
+     *
      * @return the serial
      */
     public String getSerial() {
@@ -147,6 +158,10 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
     }
 
     /**
+     * <p>
+     * Getter for the field <code>size</code>.
+     * </p>
+     *
      * @return Get size of disk (in bytes)
      */
     public long getSize() {
@@ -154,6 +169,10 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
     }
 
     /**
+     * <p>
+     * Getter for the field <code>reads</code>.
+     * </p>
+     *
      * @return the reads
      */
     public long getReads() {
@@ -161,6 +180,10 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
     }
 
     /**
+     * <p>
+     * Getter for the field <code>readBytes</code>.
+     * </p>
+     *
      * @return the bytes read
      */
     public long getReadBytes() {
@@ -168,6 +191,10 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
     }
 
     /**
+     * <p>
+     * Getter for the field <code>writes</code>.
+     * </p>
+     *
      * @return the writes
      */
     public long getWrites() {
@@ -175,6 +202,10 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
     }
 
     /**
+     * <p>
+     * Getter for the field <code>writeBytes</code>.
+     * </p>
+     *
      * @return the bytes written
      */
     public long getWriteBytes() {
@@ -182,15 +213,23 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
     }
 
     /**
+     * <p>
+     * Getter for the field <code>currentQueueLength</code>.
+     * </p>
+     *
      * @return the length of the disk queue (#I/O's in progress). Includes I/O
-     *         requests that have been issued to the device driver but have not
-     *         yet completed. Not supported on macOS.
+     *         requests that have been issued to the device driver but have not yet
+     *         completed. Not supported on macOS.
      */
     public long getCurrentQueueLength() {
         return this.currentQueueLength;
     }
 
     /**
+     * <p>
+     * Getter for the field <code>transferTime</code>.
+     * </p>
+     *
      * @return the milliseconds spent reading or writing
      */
     public long getTransferTime() {
@@ -198,6 +237,10 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
     }
 
     /**
+     * <p>
+     * Getter for the field <code>partitions</code>.
+     * </p>
+     *
      * @return Returns the partitions on this drive.
      */
     public HWPartition[] getPartitions() {
@@ -205,6 +248,10 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
     }
 
     /**
+     * <p>
+     * Getter for the field <code>timeStamp</code>.
+     * </p>
+     *
      * @return Returns the timeStamp.
      */
     public long getTimeStamp() {
@@ -212,6 +259,10 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
     }
 
     /**
+     * <p>
+     * Setter for the field <code>name</code>.
+     * </p>
+     *
      * @param name
      *            the name to set
      */
@@ -220,6 +271,10 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
     }
 
     /**
+     * <p>
+     * Setter for the field <code>model</code>.
+     * </p>
+     *
      * @param model
      *            the model to set
      */
@@ -228,6 +283,10 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
     }
 
     /**
+     * <p>
+     * Setter for the field <code>serial</code>.
+     * </p>
+     *
      * @param serial
      *            the serial to set
      */
@@ -236,6 +295,10 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
     }
 
     /**
+     * <p>
+     * Setter for the field <code>size</code>.
+     * </p>
+     *
      * @param size
      *            Set size of disk (in bytes)
      */
@@ -244,6 +307,10 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
     }
 
     /**
+     * <p>
+     * Setter for the field <code>reads</code>.
+     * </p>
+     *
      * @param reads
      *            the reads to set
      */
@@ -252,6 +319,10 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
     }
 
     /**
+     * <p>
+     * Setter for the field <code>readBytes</code>.
+     * </p>
+     *
      * @param readBytes
      *            the bytes read to set
      */
@@ -260,6 +331,10 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
     }
 
     /**
+     * <p>
+     * Setter for the field <code>writes</code>.
+     * </p>
+     *
      * @param writes
      *            the writes to set
      */
@@ -268,6 +343,10 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
     }
 
     /**
+     * <p>
+     * Setter for the field <code>writeBytes</code>.
+     * </p>
+     *
      * @param writeBytes
      *            the bytes written to set
      */
@@ -276,6 +355,10 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
     }
 
     /**
+     * <p>
+     * Setter for the field <code>currentQueueLength</code>.
+     * </p>
+     *
      * @param currentQueueLength
      *            the length of the disk queue (#I/O's in progress) to set
      */
@@ -284,6 +367,10 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
     }
 
     /**
+     * <p>
+     * Setter for the field <code>transferTime</code>.
+     * </p>
+     *
      * @param transferTime
      *            milliseconds spent reading or writing to set
      */
@@ -292,6 +379,10 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
     }
 
     /**
+     * <p>
+     * Setter for the field <code>partitions</code>.
+     * </p>
+     *
      * @param partitions
      *            The partitions to set.
      */
@@ -300,6 +391,10 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
     }
 
     /**
+     * <p>
+     * Setter for the field <code>timeStamp</code>.
+     * </p>
+     *
      * @param timeStamp
      *            The timeStamp to set.
      */
@@ -307,18 +402,14 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
         this.timeStamp = timeStamp;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public int compareTo(HWDiskStore store) {
         // Naturally sort by device name
         return getName().compareTo(store.getName());
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -330,9 +421,7 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
         return result;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {

@@ -38,13 +38,20 @@ import com.sun.jna.platform.win32.WinNT.PROCESSOR_GROUP_INFO;
 import com.sun.jna.platform.win32.WinNT.PROCESSOR_RELATIONSHIP;
 import com.sun.jna.platform.win32.WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX;
 
-
 /**
  * Temporary test case to verify code behaves as expected. These methods will be
  * translated to junit tests prior to submission to JNA project.
  */
 public class ProcInfo {
 
+    /**
+     * <p>
+     * main.
+     * </p>
+     *
+     * @param args
+     *            an array of {@link java.lang.String} objects.
+     */
     public static void main(String[] args) {
         getGroups();
         System.out.println();
@@ -58,7 +65,6 @@ public class ProcInfo {
         System.out.println();
         getItAll();
     }
-
 
     private static void getGroups() {
         SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX[] processors = Kernel32Util
@@ -99,8 +105,8 @@ public class ProcInfo {
                 .getLogicalProcessorInformationEx(WinNT.LOGICAL_PROCESSOR_RELATIONSHIP.RelationNumaNode);
         System.out.format("Details of %d NUMA node(s):%n", processors.length);
         for (int i = 0; i < processors.length; i++) {
-            System.out.format("Relationship should be %d, it is %d%n",
-                    LOGICAL_PROCESSOR_RELATIONSHIP.RelationNumaNode, processors[i].relationship);
+            System.out.format("Relationship should be %d, it is %d%n", LOGICAL_PROCESSOR_RELATIONSHIP.RelationNumaNode,
+                    processors[i].relationship);
             NUMA_NODE_RELATIONSHIP node = (NUMA_NODE_RELATIONSHIP) processors[i];
             System.out.format("Node %d is in group %d with bitmask %s.%n", node.nodeNumber, node.groupMask.group,
                     Long.toBinaryString(node.groupMask.mask.longValue()));
@@ -140,7 +146,6 @@ public class ProcInfo {
             }
         }
     }
-
 
     private static void getItAll() {
         System.out.println("Grabbing all info using Kernel32Util...");
@@ -184,12 +189,11 @@ public class ProcInfo {
                 if (pkg < 0) {
                     continue;
                 }
-                System.out.format("%4d %8d %8d %8d %8d%n", g, pkg,
-                        getMatchingNumaNode(numaNodes, g, lp), getMatchingCore(cores, g, lp), lp);
+                System.out.format("%4d %8d %8d %8d %8d%n", g, pkg, getMatchingNumaNode(numaNodes, g, lp),
+                        getMatchingCore(cores, g, lp), lp);
             }
         }
     }
-
 
     private static int getMatchingPackage(List<GROUP_AFFINITY[]> packages, int g, int lp) {
         for (int i = 0; i < packages.size(); i++) {

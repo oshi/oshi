@@ -41,9 +41,7 @@ final class WindowsBaseboard extends AbstractBaseboard {
         MANUFACTURER, MODEL, VERSION, SERIALNUMBER;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getManufacturer() {
         if (this.manufacturer == null) {
@@ -52,9 +50,7 @@ final class WindowsBaseboard extends AbstractBaseboard {
         return super.getManufacturer();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getModel() {
         if (this.model == null) {
@@ -63,9 +59,7 @@ final class WindowsBaseboard extends AbstractBaseboard {
         return super.getModel();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getVersion() {
         if (this.version == null) {
@@ -74,9 +68,7 @@ final class WindowsBaseboard extends AbstractBaseboard {
         return super.getVersion();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getSerialNumber() {
         if (this.serialNumber == null) {

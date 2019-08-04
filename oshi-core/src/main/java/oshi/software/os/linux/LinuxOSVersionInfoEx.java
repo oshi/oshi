@@ -34,16 +34,36 @@ import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 
+/**
+ * <p>
+ * LinuxOSVersionInfoEx class.
+ * </p>
+ */
 public class LinuxOSVersionInfoEx extends AbstractOSVersionInfoEx {
 
     private static final long serialVersionUID = 1L;
 
     private static final Logger LOG = LoggerFactory.getLogger(LinuxOSVersionInfoEx.class);
 
+    /**
+     * <p>
+     * Constructor for LinuxOSVersionInfoEx.
+     * </p>
+     */
     public LinuxOSVersionInfoEx() {
         this(null, null);
     }
 
+    /**
+     * <p>
+     * Constructor for LinuxOSVersionInfoEx.
+     * </p>
+     *
+     * @param versionId
+     *            a {@link java.lang.String} object.
+     * @param codeName
+     *            a {@link java.lang.String} object.
+     */
     protected LinuxOSVersionInfoEx(String versionId, String codeName) {
         setVersion(versionId);
         setCodeName(codeName);
@@ -68,11 +88,11 @@ public class LinuxOSVersionInfoEx extends AbstractOSVersionInfoEx {
     }
 
     /*
-     * Code below this point is largely a copy of LinuxOperatingSystem class
-     * except family is not set. If this class has been called from that class
-     * then no new information would be added here. This is provided in the odd
-     * event someone wants to instantiate this class without having first gone
-     * through the LinuxOperatingSystem
+     * Code below this point is largely a copy of LinuxOperatingSystem class except
+     * family is not set. If this class has been called from that class then no new
+     * information would be added here. This is provided in the odd event someone
+     * wants to instantiate this class without having first gone through the
+     * LinuxOperatingSystem
      */
 
     private void setVersionFromReleaseFiles() {
@@ -234,8 +254,7 @@ public class LinuxOSVersionInfoEx extends AbstractOSVersionInfoEx {
     /**
      * Attempts to read /etc/distrib-release (for some value of distrib)
      *
-     * @return true if file successfully read and " release " or " VERSION "
-     *         found
+     * @return true if file successfully read and " release " or " VERSION " found
      */
     private boolean readDistribRelease(String filename) {
         if (new File(filename).exists()) {

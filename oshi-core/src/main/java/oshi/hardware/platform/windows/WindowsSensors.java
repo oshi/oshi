@@ -38,6 +38,11 @@ import oshi.hardware.common.AbstractSensors;
 import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
 
+/**
+ * <p>
+ * WindowsSensors class.
+ * </p>
+ */
 public class WindowsSensors extends AbstractSensors {
 
     private static final long serialVersionUID = 1L;
@@ -104,9 +109,7 @@ public class WindowsSensors extends AbstractSensors {
 
     private final transient WmiQueryHandler wmiQueryHandler = WmiQueryHandler.createInstance();
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public double getCpuTemperature() {
         // Attempt to fetch value from Open Hardware Monitor if it is running,
@@ -169,26 +172,24 @@ public class WindowsSensors extends AbstractSensors {
         return tempC < 0d ? 0d : tempC;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public int[] getFanSpeeds() {
         // Attempt to fetch value from Open Hardware Monitor if it is running
         int[] fanSpeeds = getFansFromOHM();
-        if (fanSpeeds != null) {
+        if (fanSpeeds.length > 0) {
             return fanSpeeds;
         }
 
         // If we get this far, OHM is not running.
         // Try to get from conventional WMI
         fanSpeeds = getFansFromWMI();
-        if (fanSpeeds != null) {
+        if (fanSpeeds.length > 0) {
             return fanSpeeds;
         }
 
         // Default
-        return new int[1];
+        return new int[0];
     }
 
     private int[] getFansFromOHM() {
@@ -212,7 +213,7 @@ public class WindowsSensors extends AbstractSensors {
                 }
             }
         }
-        return null;
+        return new int[0];
     }
 
     private int[] getFansFromWMI() {
@@ -225,12 +226,10 @@ public class WindowsSensors extends AbstractSensors {
             }
             return fanSpeeds;
         }
-        return null;
+        return new int[0];
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public double getCpuVoltage() {
         // Attempt to fetch value from Open Hardware Monitor if it is running
@@ -245,7 +244,6 @@ public class WindowsSensors extends AbstractSensors {
 
         return volts;
     }
-
 
     private double getVoltsFromOHM() {
         WmiResult<OhmHardwareProperty> ohmHardware = this.wmiQueryHandler.queryWMI(owhVoltageQuery);
@@ -273,7 +271,7 @@ public class WindowsSensors extends AbstractSensors {
             if (ohmSensors.getResultCount() > 0) {
                 return WmiUtil.getFloat(ohmSensors, OhmSensorProperty.VALUE, 0);
             }
-        }        
+        }
         return 0d;
     }
 

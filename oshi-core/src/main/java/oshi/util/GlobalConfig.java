@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 /**
  * The global configuration utility. See
  * {@code src/main/resources/default.properties} for default values.
- * 
+ *
  * @author cilki
  * @since 4.0.0
  */
@@ -55,7 +55,7 @@ public final class GlobalConfig {
 
     /**
      * Get the {@code String} property associated with the given key.
-     * 
+     *
      * @param key
      *            The property key
      * @param def
@@ -68,7 +68,7 @@ public final class GlobalConfig {
 
     /**
      * Get the {@code int} property associated with the given key.
-     * 
+     *
      * @param key
      *            The property key
      * @param def
@@ -82,7 +82,7 @@ public final class GlobalConfig {
 
     /**
      * Get the {@code double} property associated with the given key.
-     * 
+     *
      * @param key
      *            The property key
      * @param def
@@ -96,7 +96,7 @@ public final class GlobalConfig {
 
     /**
      * Get the {@code boolean} property associated with the given key.
-     * 
+     *
      * @param key
      *            The property key
      * @param def
@@ -109,9 +109,9 @@ public final class GlobalConfig {
     }
 
     /**
-     * Set the given property, overwriting any existing value. If the given
-     * value is {@code null}, the property is removed.
-     * 
+     * Set the given property, overwriting any existing value. If the given value is
+     * {@code null}, the property is removed.
+     *
      * @param key
      *            The property key
      * @param val
@@ -127,7 +127,7 @@ public final class GlobalConfig {
 
     /**
      * Reset the given property to its default value.
-     * 
+     *
      * @param key
      *            The property key
      */
@@ -143,8 +143,8 @@ public final class GlobalConfig {
     }
 
     /**
-     * Load the given {@link Properties} into the global configuration.
-     * 
+     * Load the given {@link java.util.Properties} into the global configuration.
+     *
      * @param properties
      *            The new properties
      */

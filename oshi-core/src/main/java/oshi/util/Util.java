@@ -28,8 +28,6 @@ import org.slf4j.LoggerFactory;
 
 /**
  * General utility methods
- *
- * @author widdis[at]gmail[dot]com
  */
 public class Util {
     private static final Logger LOG = LoggerFactory.getLogger(Util.class);
@@ -55,15 +53,15 @@ public class Util {
 
     /**
      * Tests if a String matches another String with a wildcard pattern.
-     * 
+     *
      * @param text
      *            The String to test
      * @param pattern
      *            The String containing a wildcard pattern where ? represents a
-     *            single character and * represents any number of characters. If
-     *            the first character of the pattern is a carat (^) the test is
-     *            performed against the remaining characters and the result of
-     *            the test is the opposite.
+     *            single character and * represents any number of characters. If the
+     *            first character of the pattern is a carat (^) the test is
+     *            performed against the remaining characters and the result of the
+     *            test is the opposite.
      * @return True if the String matches or if the first character is ^ and the
      *         remainder of the String does not match.
      */

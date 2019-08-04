@@ -41,9 +41,7 @@ final class WindowsFirmware extends AbstractFirmware {
         MANUFACTURER, NAME, DESCRIPTION, VERSION, RELEASEDATE;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getManufacturer() {
         if (this.manufacturer == null) {
@@ -52,9 +50,7 @@ final class WindowsFirmware extends AbstractFirmware {
         return super.getManufacturer();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getName() {
         if (this.name == null) {
@@ -63,9 +59,7 @@ final class WindowsFirmware extends AbstractFirmware {
         return super.getName();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getDescription() {
         if (this.description == null) {
@@ -74,9 +68,7 @@ final class WindowsFirmware extends AbstractFirmware {
         return super.getDescription();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getVersion() {
         if (this.version == null) {
@@ -85,9 +77,7 @@ final class WindowsFirmware extends AbstractFirmware {
         return super.getVersion();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getReleaseDate() {
         if (this.releaseDate == null) {

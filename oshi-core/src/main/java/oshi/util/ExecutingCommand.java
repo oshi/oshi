@@ -36,8 +36,6 @@ import org.slf4j.LoggerFactory;
 /**
  * A class for executing on the command line and returning the result of
  * execution.
- *
- * @author alessandro[at]perucchi[dot]org
  */
 public class ExecutingCommand {
 
@@ -47,16 +45,16 @@ public class ExecutingCommand {
     }
 
     /**
-     * Executes a command on the native command line and returns the result.
-     * This is a convenience method to call {@link Runtime#exec(String)} and
+     * Executes a command on the native command line and returns the result. This is
+     * a convenience method to call {@link java.lang.Runtime#exec(String)} and
      * capture the resulting output in a list of Strings. On Windows, built-in
      * commands not associated with an executable program may require
      * {@code cmd.exe /c} to be prepended to the command.
      *
      * @param cmdToRun
      *            Command to run
-     * @return A list of Strings representing the result of the command, or
-     *         empty string if the command failed
+     * @return A list of Strings representing the result of the command, or empty
+     *         string if the command failed
      */
     public static List<String> runNative(String cmdToRun) {
         String[] cmd = cmdToRun.split(" ");
@@ -64,17 +62,17 @@ public class ExecutingCommand {
     }
 
     /**
-     * Executes a command on the native command line and returns the result line
-     * by line. This is a convenience method to call
-     * {@link Runtime#exec(String[])} and capture the resulting output in a list
-     * of Strings. On Windows, built-in commands not associated with an
-     * executable program may require the strings {@code cmd.exe} and {@code /c}
-     * to be prepended to the array.
+     * Executes a command on the native command line and returns the result line by
+     * line. This is a convenience method to call
+     * {@link java.lang.Runtime#exec(String[])} and capture the resulting output in
+     * a list of Strings. On Windows, built-in commands not associated with an
+     * executable program may require the strings {@code cmd.exe} and {@code /c} to
+     * be prepended to the array.
      *
      * @param cmdToRunWithArgs
      *            Command to run and args, in an array
-     * @return A list of Strings representing the result of the command, or
-     *         empty string if the command failed
+     * @return A list of Strings representing the result of the command, or empty
+     *         string if the command failed
      */
     public static List<String> runNative(String[] cmdToRunWithArgs) {
         Process p = null;

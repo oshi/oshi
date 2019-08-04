@@ -39,8 +39,6 @@ import oshi.software.os.windows.WindowsFileSystem;
  * A File Store is a storage pool, device, partition, volume, concrete file
  * system or other implementation specific means of file storage. See subclasses
  * for definitions as they apply to specific platforms.
- *
- * @author widdis[at]gmail[dot]com
  */
 public class OSFileStore implements Serializable {
 
@@ -61,6 +59,11 @@ public class OSFileStore implements Serializable {
     private long freeInodes = -1;
     private long totalInodes = -1;
 
+    /**
+     * <p>
+     * Constructor for OSFileStore.
+     * </p>
+     */
     public OSFileStore() {
     }
 
@@ -116,9 +119,9 @@ public class OSFileStore implements Serializable {
     /**
      * Logical volume of the File System
      *
-     * Provides an optional alternative volume identifier for the file system.
-     * Only supported on Linux, provides symlink value via '/dev/mapper/' (used
-     * with LVM file systems).
+     * Provides an optional alternative volume identifier for the file system. Only
+     * supported on Linux, provides symlink value via '/dev/mapper/' (used with LVM
+     * file systems).
      *
      * @return The logical volume of the file system
      */
@@ -223,8 +226,8 @@ public class OSFileStore implements Serializable {
     }
 
     /**
-     * Free space on the drive. This space is unallocated but may require
-     * elevated permissions to write.
+     * Free space on the drive. This space is unallocated but may require elevated
+     * permissions to write.
      *
      * @return Free space on the drive (in bytes)
      */
@@ -303,8 +306,8 @@ public class OSFileStore implements Serializable {
      * Total / maximum number of inodes of the filesystem. Not applicable on
      * Windows.
      *
-     * @return Total / maximum number of inodes of the filesystem (count), or -1
-     *         if unimplemented
+     * @return Total / maximum number of inodes of the filesystem (count), or -1 if
+     *         unimplemented
      */
     public long getTotalInodes() {
         return this.totalInodes;
@@ -342,6 +345,7 @@ public class OSFileStore implements Serializable {
             return FreeBsdFileSystem.updateFileStoreStats(this);
         default:
             LOG.error("Unsupported platform. No update performed.");
+            break;
         }
         return false;
     }

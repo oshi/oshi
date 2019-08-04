@@ -54,22 +54,26 @@ public class WindowsVirtualMemory extends AbstractVirtualMemory {
 
     private transient long lastSwapUpdateNanos = 0L;
 
+    /**
+     * <p>
+     * Constructor for WindowsVirtualMemory.
+     * </p>
+     *
+     * @param pageSize
+     *            a long.
+     */
     public WindowsVirtualMemory(long pageSize) {
         this.pageSize = pageSize;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getSwapUsed() {
         Map<PagingPercentProperty, Long> valueMap = this.pagingPerfCounters.queryValues();
         return valueMap.getOrDefault(PagingPercentProperty.PERCENTUSAGE, 0L) * this.pageSize;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getSwapTotal() {
         if (this.swapTotal < 0) {
@@ -83,18 +87,14 @@ public class WindowsVirtualMemory extends AbstractVirtualMemory {
         return this.swapTotal;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getSwapPagesIn() {
         updateSwapInOut();
         return this.swapPagesIn;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getSwapPagesOut() {
         updateSwapInOut();

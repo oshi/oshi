@@ -41,9 +41,7 @@ public abstract class AbstractComputerSystem implements ComputerSystem {
     protected Firmware firmware;
     protected Baseboard baseboard;
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getManufacturer() {
         if (this.manufacturer == null) {
@@ -52,9 +50,7 @@ public abstract class AbstractComputerSystem implements ComputerSystem {
         return this.manufacturer;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getModel() {
         if (this.model == null) {
@@ -63,9 +59,7 @@ public abstract class AbstractComputerSystem implements ComputerSystem {
         return this.model;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getSerialNumber() {
         if (this.serialNumber == null) {

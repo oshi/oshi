@@ -52,12 +52,14 @@
 
 	<developers>
 		<developer>
+			<id>dblock</id>
 			<name>Daniel Doubrovkine</name>
 			<email>dblock@dblock.org</email>
 			<organization>dblock.org</organization>
 			<organizationUrl>http://code.dblock.org/</organizationUrl>
 		</developer>
 		<developer>
+			<id>dbwiddis</id>
 			<name>Daniel Widdis</name>
 			<email>widdis@gmail.com</email>
 			<organization>sometegroup.com</organization>

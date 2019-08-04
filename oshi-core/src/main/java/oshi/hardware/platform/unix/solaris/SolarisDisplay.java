@@ -36,8 +36,6 @@ import oshi.util.ParseUtil;
 
 /**
  * A Display
- *
- * @author widdis[at]gmail[dot]com
  */
 public class SolarisDisplay extends AbstractDisplay {
 
@@ -45,6 +43,14 @@ public class SolarisDisplay extends AbstractDisplay {
 
     private static final Logger LOG = LoggerFactory.getLogger(SolarisDisplay.class);
 
+    /**
+     * <p>
+     * Constructor for SolarisDisplay.
+     * </p>
+     *
+     * @param edid
+     *            an array of {@link byte} objects.
+     */
     public SolarisDisplay(byte[] edid) {
         super(edid);
         LOG.debug("Initialized SolarisDisplay");

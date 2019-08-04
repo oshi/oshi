@@ -32,6 +32,11 @@ import oshi.software.os.OSProcess;
 import oshi.software.os.OperatingSystem;
 import oshi.software.os.OperatingSystemVersion;
 
+/**
+ * <p>
+ * Abstract AbstractOperatingSystem class.
+ * </p>
+ */
 public abstract class AbstractOperatingSystem implements OperatingSystem {
 
     private static final long serialVersionUID = 1L;
@@ -66,43 +71,37 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
     private static final Comparator<OSProcess> NAME_ASC_SORT = Comparator.comparing(OSProcess::getName,
             String.CASE_INSENSITIVE_ORDER);
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public OperatingSystemVersion getVersion() {
         return this.version;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getFamily() {
         return this.family;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getManufacturer() {
         return this.manufacturer;
     }
 
     /**
-     * Sorts an array of processes using the specified sorting, returning an
-     * array with the top limit results if positive.
+     * Sorts an array of processes using the specified sorting, returning an array
+     * with the top limit results if positive.
      *
      * @param processes
      *            The array to sort
      * @param limit
-     *            The number of results to return if positive; if zero returns
-     *            all results
+     *            The number of results to return if positive; if zero returns all
+     *            results
      * @param sort
      *            The sorting to use, or null
-     * @return An array of size limit (if positive) or of all processes, sorted
-     *         as specified
+     * @return An array of size limit (if positive) or of all processes, sorted as
+     *         specified
      */
     protected List<OSProcess> processSort(List<OSProcess> processes, int limit, ProcessSort sort) {
         if (sort != null) {
@@ -149,6 +148,7 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
         return procs;
     }
 
+    /** {@inheritDoc} */
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -156,17 +156,13 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
         return sb.toString();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public OSProcess[] getProcesses(int limit, ProcessSort sort) {
         return getProcesses(limit, sort, false);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public List<OSProcess> getProcesses(Collection<Integer> pids) {
         List<OSProcess> returnValue = new ArrayList<>(pids.size());
@@ -179,17 +175,13 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
         return returnValue;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public int getBitness() {
         return this.bitness;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean isElevated() {
         if (this.elevated < 0) {

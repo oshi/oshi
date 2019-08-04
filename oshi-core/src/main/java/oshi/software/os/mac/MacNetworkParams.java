@@ -37,6 +37,11 @@ import oshi.software.common.AbstractNetworkParams;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
+/**
+ * <p>
+ * MacNetworkParams class.
+ * </p>
+ */
 public class MacNetworkParams extends AbstractNetworkParams {
 
     private static final Logger LOG = LoggerFactory.getLogger(MacNetworkParams.class);
@@ -47,9 +52,7 @@ public class MacNetworkParams extends AbstractNetworkParams {
 
     private static final String DEFAULT_GATEWAY = "default";
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getDomainName() {
         SystemB.Addrinfo hint = new SystemB.Addrinfo();
@@ -75,17 +78,13 @@ public class MacNetworkParams extends AbstractNetworkParams {
         return canonname;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getIpv4DefaultGateway() {
         return searchGateway(ExecutingCommand.runNative("route -n get default"));
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getIpv6DefaultGateway() {
         List<String> lines = ExecutingCommand.runNative("netstat -nr");

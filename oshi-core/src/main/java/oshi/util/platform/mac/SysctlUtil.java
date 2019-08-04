@@ -35,8 +35,6 @@ import com.sun.jna.ptr.IntByReference;
 
 /**
  * Provides access to sysctl calls on OS X
- *
- * @author widdis[at]gmail[dot]com
  */
 public class SysctlUtil {
     private static final Logger LOG = LoggerFactory.getLogger(SysctlUtil.class);
@@ -91,8 +89,7 @@ public class SysctlUtil {
      *            name of the sysctl
      * @param def
      *            default String value
-     * @return The String result of the call if successful; the default
-     *         otherwise
+     * @return The String result of the call if successful; the default otherwise
      */
     public static String sysctl(String name, String def) {
         // Call first time with null pointer to get value of size

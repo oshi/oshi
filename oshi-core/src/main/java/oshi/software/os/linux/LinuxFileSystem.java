@@ -46,10 +46,10 @@ import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 
 /**
- * The Linux File System contains {@link OSFileStore}s which are a storage pool,
- * device, partition, volume, concrete file system or other implementation
- * specific means of file storage. In Linux, these are found in the /proc/mount
- * filesystem, excluding temporary and kernel mounts.
+ * The Linux File System contains {@link oshi.software.os.OSFileStore}s which
+ * are a storage pool, device, partition, volume, concrete file system or other
+ * implementation specific means of file storage. In Linux, these are found in
+ * the /proc/mount filesystem, excluding temporary and kernel mounts.
  */
 public class LinuxFileSystem implements FileSystem {
 
@@ -58,7 +58,7 @@ public class LinuxFileSystem implements FileSystem {
     private static final Logger LOG = LoggerFactory.getLogger(LinuxFileSystem.class);
 
     // Linux defines a set of virtual file systems
-    private final List<String> pseudofs = Arrays.asList(new String[] { //
+    private final List<String> pseudofs = Arrays.asList(//
             "rootfs", // Minimal fs to support kernel boot
             "sysfs", // SysFS file system
             "proc", // Proc file system
@@ -84,11 +84,11 @@ public class LinuxFileSystem implements FileSystem {
             // "tmpfs", // Temporary file system
             // NOTE: tmpfs is evaluated apart, because Linux uses it for
             // RAMdisks
-            "overlay", // Overlay file system https://wiki.archlinux.org/index.php/Overlay_filesystem
-    });
+            "overlay" // Overlay file system https://wiki.archlinux.org/index.php/Overlay_filesystem
+    );
 
     // System path mounted as tmpfs
-    private final List<String> tmpfsPaths = Arrays.asList(new String[] { "/dev/shm", "/run", "/sys", "/proc" });
+    private final List<String> tmpfsPaths = Arrays.asList("/dev/shm", "/run", "/sys", "/proc");
 
     /**
      * Checks if file path equals or starts with an element in the given list
@@ -110,11 +110,9 @@ public class LinuxFileSystem implements FileSystem {
     }
 
     /**
-     * Gets File System Information.
+     * {@inheritDoc}
      *
-     * @return An array of {@link OSFileStore} objects representing mounted volumes.
-     *         May return disconnected volumes with
-     *         {@link OSFileStore#getTotalSpace()} = 0.
+     * Gets File System Information.
      */
     @Override
     public OSFileStore[] getFileStores() {
@@ -192,11 +190,11 @@ public class LinuxFileSystem implements FileSystem {
             String logicalVolume = "";
             String volumeMapperDirectory = "/dev/mapper/";
             Path link = Paths.get(volume);
-            if (Files.exists(link) && Files.isSymbolicLink(link)) {
+            if (link.toFile().exists() && Files.isSymbolicLink(link)) {
                 try {
                     Path slink = Files.readSymbolicLink(link);
                     Path full = Paths.get(volumeMapperDirectory + slink.toString());
-                    if (Files.exists(full)) {
+                    if (full.toFile().exists()) {
                         logicalVolume = full.normalize().toString();
                     }
                 } catch (IOException e) {
@@ -249,11 +247,13 @@ public class LinuxFileSystem implements FileSystem {
         return fsList;
     }
 
+    /** {@inheritDoc} */
     @Override
     public long getOpenFileDescriptors() {
         return getFileDescriptors(0);
     }
 
+    /** {@inheritDoc} */
     @Override
     public long getMaxFileDescriptors() {
         return getFileDescriptors(2);
@@ -283,6 +283,15 @@ public class LinuxFileSystem implements FileSystem {
         return 0L;
     }
 
+    /**
+     * <p>
+     * updateFileStoreStats.
+     * </p>
+     *
+     * @param osFileStore
+     *            a {@link oshi.software.os.OSFileStore} object.
+     * @return a boolean.
+     */
     public static boolean updateFileStoreStats(OSFileStore osFileStore) {
         for (OSFileStore fileStore : new LinuxFileSystem().getFileStoreMatching(osFileStore.getName(), null)) {
             if (osFileStore.getVolume().equals(fileStore.getVolume())

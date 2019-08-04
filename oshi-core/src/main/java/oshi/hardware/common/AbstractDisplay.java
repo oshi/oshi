@@ -37,21 +37,25 @@ public abstract class AbstractDisplay implements Display {
 
     protected byte[] edid;
 
+    /**
+     * <p>
+     * Constructor for AbstractDisplay.
+     * </p>
+     *
+     * @param edid
+     *            an array of {@link byte} objects.
+     */
     protected AbstractDisplay(byte[] edid) {
         this.edid = edid;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public byte[] getEdid() {
         return Arrays.copyOf(this.edid, this.edid.length);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String toString() {
         return EdidUtil.toString(this.edid);

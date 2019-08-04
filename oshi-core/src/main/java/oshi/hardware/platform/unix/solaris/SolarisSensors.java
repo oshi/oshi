@@ -30,13 +30,16 @@ import oshi.hardware.common.AbstractSensors;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
+/**
+ * <p>
+ * SolarisSensors class.
+ * </p>
+ */
 public class SolarisSensors extends AbstractSensors {
 
     private static final long serialVersionUID = 1L;
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public double getCpuTemperature() {
         double maxTemp = 0d;
@@ -56,9 +59,7 @@ public class SolarisSensors extends AbstractSensors {
         return maxTemp;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public int[] getFanSpeeds() {
         List<Integer> speedList = new ArrayList<>();
@@ -75,9 +76,7 @@ public class SolarisSensors extends AbstractSensors {
         return fans;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public double getCpuVoltage() {
         double voltage = 0d;

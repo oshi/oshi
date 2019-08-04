@@ -46,6 +46,15 @@ public class SolarisDisks implements Disks {
 
     private static final long serialVersionUID = 1L;
 
+    /**
+     * <p>
+     * updateDiskStats.
+     * </p>
+     *
+     * @param diskStore
+     *            a {@link oshi.hardware.HWDiskStore} object.
+     * @return a boolean.
+     */
     public static boolean updateDiskStats(HWDiskStore diskStore) {
         Kstat ksp = KstatUtil.kstatLookup(null, 0, diskStore.getName());
         if (ksp != null && KstatUtil.kstatRead(ksp)) {
@@ -64,6 +73,7 @@ public class SolarisDisks implements Disks {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public HWDiskStore[] getDisks() {
         // Create map indexed by device name for multiple command reference

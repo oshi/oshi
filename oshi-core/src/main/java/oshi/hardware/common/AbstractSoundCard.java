@@ -27,8 +27,6 @@ import oshi.hardware.SoundCard;
 
 /**
  * An abstract Sound Card
- *
- * @author BilalAM
  */
 public abstract class AbstractSoundCard implements SoundCard {
 
@@ -36,39 +34,79 @@ public abstract class AbstractSoundCard implements SoundCard {
     private String name;
     private String codec;
 
+    /**
+     * <p>
+     * Constructor for AbstractSoundCard.
+     * </p>
+     *
+     * @param kernelVersion
+     *            a {@link java.lang.String} object.
+     * @param name
+     *            a {@link java.lang.String} object.
+     * @param codec
+     *            a {@link java.lang.String} object.
+     */
     public AbstractSoundCard(String kernelVersion, String name, String codec) {
         this.kernelVersion = kernelVersion;
         this.name = name;
         this.codec = codec;
     }
 
+    /** {@inheritDoc} */
     @Override
     public String getDriverVersion() {
         return this.kernelVersion;
     }
 
+    /**
+     * <p>
+     * Setter for the field <code>kernelVersion</code>.
+     * </p>
+     *
+     * @param kernelVersion
+     *            a {@link java.lang.String} object.
+     */
     public void setKernelVersion(String kernelVersion) {
         this.kernelVersion = kernelVersion;
     }
 
+    /** {@inheritDoc} */
     @Override
     public String getName() {
         return this.name;
     }
 
+    /**
+     * <p>
+     * Setter for the field <code>name</code>.
+     * </p>
+     *
+     * @param name
+     *            a {@link java.lang.String} object.
+     */
     public void setName(String name) {
         this.name = name;
     }
 
+    /** {@inheritDoc} */
     @Override
     public String getCodec() {
         return this.codec;
     }
 
+    /**
+     * <p>
+     * Setter for the field <code>codec</code>.
+     * </p>
+     *
+     * @param codec
+     *            a {@link java.lang.String} object.
+     */
     public void setCodec(String codec) {
         this.codec = codec;
     }
 
+    /** {@inheritDoc} */
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();

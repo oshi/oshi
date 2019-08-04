@@ -44,6 +44,18 @@ public class WindowsPowerSource extends AbstractPowerSource {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsPowerSource.class);
 
+    /**
+     * <p>
+     * Constructor for WindowsPowerSource.
+     * </p>
+     *
+     * @param newName
+     *            a {@link java.lang.String} object.
+     * @param newRemainingCapacity
+     *            a double.
+     * @param newTimeRemaining
+     *            a double.
+     */
     public WindowsPowerSource(String newName, double newRemainingCapacity, double newTimeRemaining) {
         super(newName, newRemainingCapacity, newTimeRemaining);
         LOG.debug("Initialized WindowsPowerSource");
@@ -81,9 +93,7 @@ public class WindowsPowerSource extends AbstractPowerSource {
         return new WindowsPowerSource("Unknown", 0d, -1d);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void updateAttributes() {
         PowerSource ps = getPowerSource(this.name);

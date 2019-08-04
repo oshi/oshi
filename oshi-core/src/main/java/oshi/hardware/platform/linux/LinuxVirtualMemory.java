@@ -37,36 +37,28 @@ public class LinuxVirtualMemory extends AbstractVirtualMemory {
 
     private static final long serialVersionUID = 1L;
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getSwapUsed() {
         updateMemInfo();
         return this.swapUsed;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getSwapTotal() {
         updateMemInfo();
         return this.swapTotal;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getSwapPagesIn() {
         updateVmStat();
         return this.swapPagesIn;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getSwapPagesOut() {
         updateVmStat();

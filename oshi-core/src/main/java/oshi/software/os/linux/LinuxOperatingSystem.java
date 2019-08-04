@@ -24,7 +24,6 @@
 package oshi.software.os.linux;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,7 +34,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Memory;
+import com.sun.jna.Memory; // NOSONAR squid:S1191
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.platform.linux.LibC;
@@ -52,6 +51,11 @@ import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.linux.ProcUtil;
 
+/**
+ * <p>
+ * LinuxOperatingSystem class.
+ * </p>
+ */
 public class LinuxOperatingSystem extends AbstractOperatingSystem {
 
     private static final long serialVersionUID = 1L;
@@ -154,6 +158,11 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         // be +/- 5 ms due to System Uptime rounding to nearest 10ms.
     }
 
+    /**
+     * <p>
+     * Constructor for LinuxOperatingSystem.
+     * </p>
+     */
     public LinuxOperatingSystem() {
         this.manufacturer = "GNU/Linux";
         setFamilyFromReleaseFiles();
@@ -170,17 +179,13 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public FileSystem getFileSystem() {
         return new LinuxFileSystem();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public OSProcess[] getProcesses(int limit, ProcessSort sort, boolean slowFields) {
         List<OSProcess> procs = new ArrayList<>();
@@ -200,9 +205,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         return sorted.toArray(new OSProcess[0]);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public OSProcess getProcess(int pid) {
         return getProcess(pid, new LinuxUserGroupInfo(), true);
@@ -311,9 +314,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         return proc;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public OSProcess[] getChildProcesses(int parentPid, int limit, ProcessSort sort) {
         List<OSProcess> procs = new ArrayList<>();
@@ -340,25 +341,19 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         return (int) statArray[ProcPidStat.PPID.ordinal()];
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public int getProcessId() {
         return Libc.INSTANCE.getpid();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public int getProcessCount() {
         return ProcUtil.getPidFiles().length;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public int getThreadCount() {
         try {
@@ -374,25 +369,19 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         return 0;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getSystemUptime() {
         return (long) ProcUtil.getSystemUptimeSeconds();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getSystemBootTime() {
         return BOOTTIME;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public NetworkParams getNetworkParams() {
         return new LinuxNetworkParams();
@@ -538,8 +527,8 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     /**
      * Attempts to read /etc/lsb-release
      *
-     * @return true if file successfully read and DISTRIB_ID or
-     *         DISTRIB_DESCRIPTION found
+     * @return true if file successfully read and DISTRIB_ID or DISTRIB_DESCRIPTION
+     *         found
      */
     private boolean readLsbRelease() {
         if (new File("/etc/lsb-release").exists()) {
@@ -570,8 +559,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     /**
      * Attempts to read /etc/distrib-release (for some value of distrib)
      *
-     * @return true if file successfully read and " release " or " VERSION "
-     *         found
+     * @return true if file successfully read and " release " or " VERSION " found
      */
     private boolean readDistribRelease(String filename) {
         if (new File(filename).exists()) {
@@ -626,15 +614,14 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         // Look for any /etc/*-release, *-version, and variants
         File etc = new File("/etc");
         // Find any *_input files in that path
-        File[] matchingFiles = etc.listFiles(new FileFilter() {
-            @Override
-            public boolean accept(File f) {
-                return (f.getName().endsWith("-release") || f.getName().endsWith("-version")
-                        || f.getName().endsWith("_release") || f.getName().endsWith("_version"))
-                        && !(f.getName().endsWith("os-release") || f.getName().endsWith("lsb-release")
-                                || f.getName().endsWith("system-release"));
-            }
-        });
+        File[] matchingFiles = etc.listFiles(//
+                f -> (f.getName().endsWith("-release") || //
+                        f.getName().endsWith("-version") || //
+                        f.getName().endsWith("_release") || //
+                        f.getName().endsWith("_version")) //
+                        && !(f.getName().endsWith("os-release") || //
+                                f.getName().endsWith("lsb-release") || //
+                                f.getName().endsWith("system-release")));
         if (matchingFiles != null && matchingFiles.length > 0) {
             return matchingFiles[0].getPath();
         }
@@ -646,9 +633,8 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     }
 
     /**
-     * Converts a portion of a filename (e.g. the 'redhat' in
-     * /etc/redhat-release) to a mixed case string representing the family
-     * (e.g., Red Hat)
+     * Converts a portion of a filename (e.g. the 'redhat' in /etc/redhat-release)
+     * to a mixed case string representing the family (e.g., Red Hat)
      *
      * @param name
      *            Stripped version of filename after removing /etc and -release
@@ -717,8 +703,8 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     }
 
     /**
-     * Gets Jiffies per second, useful for converting ticks to milliseconds and
-     * vice versa.
+     * Gets Jiffies per second, useful for converting ticks to milliseconds and vice
+     * versa.
      *
      * @return Jiffies per second.
      */

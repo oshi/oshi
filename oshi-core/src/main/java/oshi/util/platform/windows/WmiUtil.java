@@ -32,13 +32,12 @@ import oshi.util.ParseUtil;
 
 /**
  * Helper class for WMI
- *
- * @author widdis[at]gmail[dot]com
  */
 public class WmiUtil {
 
     // Not a built in manespace, failed connections are normal and don't need
     // error logging
+    /** Constant <code>OHM_NAMESPACE="ROOT\\OpenHardwareMonitor"</code> */
     public static final String OHM_NAMESPACE = "ROOT\\OpenHardwareMonitor";
 
     private static final String CLASS_CAST_MSG = "%s is not a %s type. CIM Type is %d and VT type is %d";
@@ -51,9 +50,7 @@ public class WmiUtil {
 
     /**
      * Translate a WmiQuery to the actual query string
-     * 
-     * @param <T>
-     *            The properties enum
+     *
      * @param query
      *            The WmiQuery object
      * @return The string that is queried in WMI
@@ -72,8 +69,6 @@ public class WmiUtil {
     /**
      * Gets a String value from a WmiResult
      *
-     * @param <T>
-     *            The enum type containing the property keys
      * @param result
      *            The WmiResult from which to fetch the value
      * @param property
@@ -93,8 +88,6 @@ public class WmiUtil {
     /**
      * Gets a Date value from a WmiResult as a String
      *
-     * @param <T>
-     *            The enum type containing the property keys
      * @param result
      *            The WmiResult from which to fetch the value
      * @param property
@@ -115,8 +108,6 @@ public class WmiUtil {
     /**
      * Gets a Reference value from a WmiResult as a String
      *
-     * @param <T>
-     *            The enum type containing the property keys
      * @param result
      *            The WmiResult from which to fetch the value
      * @param property
@@ -145,12 +136,10 @@ public class WmiUtil {
     }
 
     /**
-     * Gets a Uint64 value from a WmiResult (parsing the String). Note that
-     * while the CIM type is unsigned, the return type is signed and the parsing
-     * will exclude any return values above Long.MAX_VALUE.
+     * Gets a Uint64 value from a WmiResult (parsing the String). Note that while
+     * the CIM type is unsigned, the return type is signed and the parsing will
+     * exclude any return values above Long.MAX_VALUE.
      *
-     * @param <T>
-     *            The enum type containing the property keys
      * @param result
      *            The WmiResult from which to fetch the value
      * @param property
@@ -171,12 +160,10 @@ public class WmiUtil {
     }
 
     /**
-     * Gets an UINT32 value from a WmiResult. Note that while a UINT32 CIM type
-     * is unsigned, the return type is signed and requires further processing by
-     * the user if unsigned values are desired.
+     * Gets an UINT32 value from a WmiResult. Note that while a UINT32 CIM type is
+     * unsigned, the return type is signed and requires further processing by the
+     * user if unsigned values are desired.
      *
-     * @param <T>
-     *            The enum type containing the property keys
      * @param result
      *            The WmiResult from which to fetch the value
      * @param property
@@ -194,11 +181,8 @@ public class WmiUtil {
     }
 
     /**
-     * Gets an UINT32 value from a WmiResult as a long, preserving the
-     * unsignedness.
+     * Gets an UINT32 value from a WmiResult as a long, preserving the unsignedness.
      *
-     * @param <T>
-     *            The enum type containing the property keys
      * @param result
      *            The WmiResult from which to fetch the value
      * @param property
@@ -217,11 +201,9 @@ public class WmiUtil {
 
     /**
      * Gets a Sint32 value from a WmiResult. Note that while the CIM type is
-     * unsigned, the return type is signed and requires further processing by
-     * the user if unsigned values are desired.
+     * unsigned, the return type is signed and requires further processing by the
+     * user if unsigned values are desired.
      *
-     * @param <T>
-     *            The enum type containing the property keys
      * @param result
      *            The WmiResult from which to fetch the value
      * @param property
@@ -240,11 +222,9 @@ public class WmiUtil {
 
     /**
      * Gets a Uint16 value from a WmiResult. Note that while the CIM type is
-     * unsigned, the return type is signed and requires further processing by
-     * the user if unsigned values are desired.
+     * unsigned, the return type is signed and requires further processing by the
+     * user if unsigned values are desired.
      *
-     * @param <T>
-     *            The enum type containing the property keys
      * @param result
      *            The WmiResult from which to fetch the value
      * @param property
@@ -275,8 +255,6 @@ public class WmiUtil {
     /**
      * Gets a Float value from a WmiResult
      *
-     * @param <T>
-     *            The enum type containing the property keys
      * @param result
      *            The WmiResult from which to fetch the value
      * @param property

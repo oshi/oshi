@@ -32,32 +32,32 @@ import java.io.Serializable;
 public interface HardwareAbstractionLayer extends Serializable {
 
     /**
-     * Instantiates a {@link ComputerSystem} object. This represents the
-     * physical hardware, including components such as BIOS/Firmware and a
+     * Instantiates a {@link oshi.hardware.ComputerSystem} object. This represents
+     * the physical hardware, including components such as BIOS/Firmware and a
      * motherboard, logic board, etc.
      *
-     * @return a {@link ComputerSystem} object.
+     * @return a {@link oshi.hardware.ComputerSystem} object.
      */
     ComputerSystem getComputerSystem();
 
     /**
-     * Instantiates a {@link CentralProcessor} object. This represents one or
-     * more Logical CPUs.
+     * Instantiates a {@link oshi.hardware.CentralProcessor} object. This represents
+     * one or more Logical CPUs.
      *
-     * @return A {@link CentralProcessor} object.
+     * @return A {@link oshi.hardware.CentralProcessor} object.
      */
     CentralProcessor getProcessor();
 
     /**
-     * Instantiates a {@link GlobalMemory} object.
+     * Instantiates a {@link oshi.hardware.GlobalMemory} object.
      *
      * @return A memory object.
      */
     GlobalMemory getMemory();
 
     /**
-     * Instantiates an array of {@link PowerSource} objects, representing
-     * batteries, etc.
+     * Instantiates an array of {@link oshi.hardware.PowerSource} objects,
+     * representing batteries, etc.
      *
      * @return An array of PowerSource objects or an empty array if none are
      *         present.
@@ -65,8 +65,8 @@ public interface HardwareAbstractionLayer extends Serializable {
     PowerSource[] getPowerSources();
 
     /**
-     * Instantiates an array of {@link HWDiskStore} objects, representing a
-     * physical hard disk or other similar storage device
+     * Instantiates an array of {@link oshi.hardware.HWDiskStore} objects,
+     * representing a physical hard disk or other similar storage device
      *
      * @return An array of HWDiskStore objects or an empty array if none are
      *         present.
@@ -74,8 +74,8 @@ public interface HardwareAbstractionLayer extends Serializable {
     HWDiskStore[] getDiskStores();
 
     /**
-     * Instantiates an array of {@link NetworkIF} objects, representing a
-     * network interface
+     * Instantiates an array of {@link oshi.hardware.NetworkIF} objects,
+     * representing a network interface
      *
      * @return An array of HWNetworkStore objects or an empty array if none are
      *         present.
@@ -83,46 +83,44 @@ public interface HardwareAbstractionLayer extends Serializable {
     NetworkIF[] getNetworkIFs();
 
     /**
-     * Instantiates an array of {@link Display} objects, representing monitors
-     * or other video output devices.
+     * Instantiates an array of {@link oshi.hardware.Display} objects, representing
+     * monitors or other video output devices.
      *
-     * @return An array of Display objects or an empty array if none are
-     *         present.
+     * @return An array of Display objects or an empty array if none are present.
      */
     Display[] getDisplays();
 
     /**
-     * Instantiates a {@link Sensors} object, representing CPU temperature and
-     * fan speed
+     * Instantiates a {@link oshi.hardware.Sensors} object, representing CPU
+     * temperature and fan speed
      *
      * @return A Sensors object
      */
     Sensors getSensors();
 
     /**
-     * Instantiates an array of {@link UsbDevice} objects, representing devices
-     * connected via a usb port (including internal devices).
+     * Instantiates an array of {@link oshi.hardware.UsbDevice} objects,
+     * representing devices connected via a usb port (including internal devices).
      * <p>
-     * If the value of tree is true, the top level devices returned from this
-     * method are the USB Controllers; connected hubs and devices in its device
-     * tree share that controller's bandwidth. If the value of tree is false,
-     * USB devices (not controllers) are listed in a single flat array.
+     * If the value of tree is true, the top level devices returned from this method
+     * are the USB Controllers; connected hubs and devices in its device tree share
+     * that controller's bandwidth. If the value of tree is false, USB devices (not
+     * controllers) are listed in a single flat array.
      *
      * @param tree
      *            Whether to display devices in a nested tree format from their
      *            controllers
      * @return An array of UsbDevice objects representing (optionally) the USB
-     *         Controllers and devices connected to them, or an empty array if
-     *         none are present
+     *         Controllers and devices connected to them, or an empty array if none
+     *         are present
      */
     UsbDevice[] getUsbDevices(boolean tree);
 
     /**
-     * Instantiates an array of {@link SoundCard} objects, representing the
-     * Sound cards.
+     * Instantiates an array of {@link oshi.hardware.SoundCard} objects,
+     * representing the Sound cards.
      *
-     * @return An array of SoundCard objects or an empty array if none are
-     *         present.
+     * @return An array of SoundCard objects or an empty array if none are present.
      */
     SoundCard[] getSoundCards();
 }

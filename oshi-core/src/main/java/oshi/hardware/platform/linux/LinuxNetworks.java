@@ -28,7 +28,9 @@ import oshi.hardware.common.AbstractNetworks;
 import oshi.util.FileUtil;
 
 /**
- * @author enrico[dot]bianchi[at]gmail[dot]com
+ * <p>
+ * LinuxNetworks class.
+ * </p>
  */
 public class LinuxNetworks extends AbstractNetworks {
 

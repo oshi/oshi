@@ -42,18 +42,14 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsGlobalMemory.class);
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getAvailable() {
         updatePerfInfo();
         return this.memAvailable;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getTotal() {
         if (this.memTotal < 0) {
@@ -62,9 +58,7 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
         return this.memTotal;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getPageSize() {
         if (this.pageSize < 0) {
@@ -73,9 +67,7 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
         return this.pageSize;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public VirtualMemory getVirtualMemory() {
         if (this.virtualMemory == null) {

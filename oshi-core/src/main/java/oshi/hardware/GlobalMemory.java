@@ -53,7 +53,7 @@ public interface GlobalMemory extends Serializable {
 
     /**
      * Virtual memory, such as a swap file.
-     * 
+     *
      * @return A VirtualMemory object.
      */
     VirtualMemory getVirtualMemory();

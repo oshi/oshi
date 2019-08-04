@@ -23,22 +23,57 @@
  */
 package oshi.software.os;
 
+/**
+ * <p>
+ * OSUser class.
+ * </p>
+ */
 public class OSUser {
     private String userId;
     private String userName;
 
+    /**
+     * <p>
+     * Getter for the field <code>userId</code>.
+     * </p>
+     *
+     * @return a {@link java.lang.String} object.
+     */
     public String getUserId() {
         return this.userId;
     }
 
+    /**
+     * <p>
+     * Setter for the field <code>userId</code>.
+     * </p>
+     *
+     * @param userId
+     *            a {@link java.lang.String} object.
+     */
     public void setUserId(String userId) {
         this.userId = userId;
     }
 
+    /**
+     * <p>
+     * Getter for the field <code>userName</code>.
+     * </p>
+     *
+     * @return a {@link java.lang.String} object.
+     */
     public String getUserName() {
         return this.userName;
     }
 
+    /**
+     * <p>
+     * Setter for the field <code>userName</code>.
+     * </p>
+     *
+     * @param userName
+     *            a {@link java.lang.String} object.
+     */
     public void setUserName(String userName) {
         this.userName = userName;
     }

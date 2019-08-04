@@ -25,7 +25,7 @@ package oshi.util.platform.mac;
 
 import java.util.Collection;
 
-import com.sun.jna.Memory;
+import com.sun.jna.Memory; // NOSONAR squid:S1191
 import com.sun.jna.Pointer;
 import com.sun.jna.PointerType;
 import com.sun.jna.ptr.IntByReference;
@@ -36,10 +36,9 @@ import oshi.jna.platform.mac.CoreFoundation.CFAllocatorRef;
 
 /**
  * Provides utilities for Core Foundations
- *
- * @author widdis[at]gmail[dot]com
  */
 public class CfUtil {
+    /** Constant <code>ALLOCATOR</code> */
     public static final CFAllocatorRef ALLOCATOR = CoreFoundation.INSTANCE.CFAllocatorGetDefault();
 
     /**
@@ -47,7 +46,10 @@ public class CfUtil {
      * fetch the corresponding constant.
      */
     public enum CFNumberType {
-        unusedZero, kCFNumberSInt8Type, kCFNumberSInt16Type, kCFNumberSInt32Type, kCFNumberSInt64Type, kCFNumberFloat32Type, kCFNumberFloat64Type, kCFNumberCharType, kCFNumberShortType, kCFNumberIntType, kCFNumberLongType, kCFNumberLongLongType, kCFNumberFloatType, kCFNumberDoubleType, kCFNumberCFIndexType, kCFNumberNSIntegerType, kCFNumberCGFloatType, kCFNumberMaxType
+        unusedZero, kCFNumberSInt8Type, kCFNumberSInt16Type, kCFNumberSInt32Type, kCFNumberSInt64Type,
+        kCFNumberFloat32Type, kCFNumberFloat64Type, kCFNumberCharType, kCFNumberShortType, kCFNumberIntType,
+        kCFNumberLongType, kCFNumberLongLongType, kCFNumberFloatType, kCFNumberDoubleType, kCFNumberCFIndexType,
+        kCFNumberNSIntegerType, kCFNumberCGFloatType, kCFNumberMaxType
     }
 
     /**
@@ -77,8 +79,7 @@ public class CfUtil {
     }
 
     /**
-     * Convert a pointer representing a Core Foundations Boolean into its
-     * boolean
+     * Convert a pointer representing a Core Foundations Boolean into its boolean
      *
      * @param p
      *            The pointer to a boolean
@@ -110,8 +111,8 @@ public class CfUtil {
     }
 
     /**
-     * Releases a CF reference. Mandatory when an object is owned (using
-     * 'create' or 'copy' methods).
+     * Releases a CF reference. Mandatory when an object is owned (using 'create' or
+     * 'copy' methods).
      *
      * @param ref
      *            The reference to release

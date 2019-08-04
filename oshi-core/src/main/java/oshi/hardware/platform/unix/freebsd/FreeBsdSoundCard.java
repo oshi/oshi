@@ -40,10 +40,29 @@ public class FreeBsdSoundCard extends AbstractSoundCard {
 
     private static final String LSHAL = "lshal";
 
+    /**
+     * <p>
+     * Constructor for FreeBsdSoundCard.
+     * </p>
+     *
+     * @param kernelVersion
+     *            a {@link java.lang.String} object.
+     * @param name
+     *            a {@link java.lang.String} object.
+     * @param codec
+     *            a {@link java.lang.String} object.
+     */
     public FreeBsdSoundCard(String kernelVersion, String name, String codec) {
         super(kernelVersion, name, codec);
     }
 
+    /**
+     * <p>
+     * getSoundCards.
+     * </p>
+     *
+     * @return a {@link java.util.List} object.
+     */
     public static List<SoundCard> getSoundCards() {
         Map<String, String> vendorMap = new HashMap<>();
         Map<String, String> productMap = new HashMap<>();

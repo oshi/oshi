@@ -43,12 +43,12 @@ public class PdhUtilXP {
      * Utility method to call Pdh's PdhLookupPerfNameByIndex that allocates the
      * required memory for the szNameBuffer parameter based on the type mapping
      * used, calls to PdhLookupPerfNameByIndex, and returns the received string.
-     * 
+     *
      * @param szMachineName
      *            Null-terminated string that specifies the name of the computer
-     *            where the specified performance object or counter is located.
-     *            The computer name can be specified by the DNS name or the IP
-     *            address. If NULL, the function uses the local computer.
+     *            where the specified performance object or counter is located. The
+     *            computer name can be specified by the DNS name or the IP address.
+     *            If NULL, the function uses the local computer.
      * @param dwNameIndex
      *            Index of the performance object or counter.
      * @return Returns the name of the performance object or counter.

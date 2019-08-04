@@ -36,7 +36,9 @@ import oshi.hardware.common.AbstractNetworks;
 import oshi.util.ParseUtil;
 
 /**
- * @author widdis[at]gmail[dot]com
+ * <p>
+ * WindowsNetworks class.
+ * </p>
  */
 public class WindowsNetworks extends AbstractNetworks {
 

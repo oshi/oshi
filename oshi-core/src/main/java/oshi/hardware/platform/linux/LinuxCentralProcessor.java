@@ -126,6 +126,8 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
     }
 
     /**
+     * {@inheritDoc}
+     *
      * Updates logical and physical processor counts from /proc/cpuinfo
      */
     @Override
@@ -191,9 +193,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
         return numaNodeMap;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long[] getSystemCpuLoadTicks() {
         // convert the Linux Jiffies to Milliseconds.
@@ -205,9 +205,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
         return ticks;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long[] getCurrentFreq() {
         long[] freqs = new long[getLogicalProcessorCount()];
@@ -244,9 +242,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
         return freqs;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long queryMaxFreq() {
         long max = 0L;
@@ -266,9 +262,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
         return -1L;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public double[] getSystemLoadAverage(int nelem) {
         if (nelem < 1 || nelem > 3) {
@@ -284,9 +278,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
         return average;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long[][] getProcessorCpuLoadTicks() {
         long[][] ticks = new long[this.logicalProcessorCount][TickType.values().length];
@@ -405,9 +397,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
         return String.format("%08X", midrBytes);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getContextSwitches() {
         List<String> procStat = FileUtil.readFile(ProcUtil.getProcPath() + "/stat");
@@ -422,9 +412,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
         return -1;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getInterrupts() {
         List<String> procStat = FileUtil.readFile(ProcUtil.getProcPath() + "/stat");

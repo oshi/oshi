@@ -38,9 +38,7 @@ final class LinuxBaseboard extends AbstractBaseboard {
 
     private static final long serialVersionUID = 1L;
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getManufacturer() {
         if (this.manufacturer == null && !queryManufacturerFromSysfs() && !queryProcCpuinfo()) {
@@ -49,9 +47,7 @@ final class LinuxBaseboard extends AbstractBaseboard {
         return super.getManufacturer();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getModel() {
         if (this.model == null && !queryModelFromSysfs() && !queryProcCpuinfo()) {
@@ -60,9 +56,7 @@ final class LinuxBaseboard extends AbstractBaseboard {
         return super.getModel();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getVersion() {
         if (this.version == null && !queryVersionFromSysfs() && !queryProcCpuinfo()) {
@@ -71,9 +65,7 @@ final class LinuxBaseboard extends AbstractBaseboard {
         return super.getVersion();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getSerialNumber() {
         if (this.serialNumber == null && !querySerialNumberFromSysfs() && !queryProcCpuinfo()) {

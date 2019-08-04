@@ -31,7 +31,7 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Pointer;
+import com.sun.jna.Pointer; // NOSONAR squid:S1191
 import com.sun.jna.platform.mac.SystemB;
 import com.sun.jna.platform.mac.SystemB.Statfs;
 import com.sun.jna.ptr.IntByReference;
@@ -51,10 +51,10 @@ import oshi.util.platform.mac.IOKitUtil;
 import oshi.util.platform.mac.SysctlUtil;
 
 /**
- * The Mac File System contains {@link OSFileStore}s which are a storage pool,
- * device, partition, volume, concrete file system or other implementation
- * specific means of file storage. In Mac OS X, these are found in the /Volumes
- * directory.
+ * The Mac File System contains {@link oshi.software.os.OSFileStore}s which are
+ * a storage pool, device, partition, volume, concrete file system or other
+ * implementation specific means of file storage. In Mac OS X, these are found
+ * in the /Volumes directory.
  */
 public class MacFileSystem implements FileSystem {
 
@@ -66,11 +66,9 @@ public class MacFileSystem implements FileSystem {
     private static final Pattern LOCAL_DISK = Pattern.compile("/dev/disk\\d");
 
     /**
-     * Gets File System Information.
+     * {@inheritDoc}
      *
-     * @return An array of {@link OSFileStore} objects representing mounted
-     *         volumes. May return disconnected volumes with
-     *         {@link OSFileStore#getTotalSpace()} = 0.
+     * Gets File System Information.
      */
     @Override
     public OSFileStore[] getFileStores() {
@@ -198,16 +196,27 @@ public class MacFileSystem implements FileSystem {
         return fsList;
     }
 
+    /** {@inheritDoc} */
     @Override
     public long getOpenFileDescriptors() {
         return SysctlUtil.sysctl("kern.num_files", 0);
     }
 
+    /** {@inheritDoc} */
     @Override
     public long getMaxFileDescriptors() {
         return SysctlUtil.sysctl("kern.maxfiles", 0);
     }
 
+    /**
+     * <p>
+     * updateFileStoreStats.
+     * </p>
+     *
+     * @param osFileStore
+     *            a {@link oshi.software.os.OSFileStore} object.
+     * @return a boolean.
+     */
     public static boolean updateFileStoreStats(OSFileStore osFileStore) {
         for (OSFileStore fileStore : new MacFileSystem().getFileStoreMatching(osFileStore.getName())) {
             if (osFileStore.getVolume().equals(fileStore.getVolume())

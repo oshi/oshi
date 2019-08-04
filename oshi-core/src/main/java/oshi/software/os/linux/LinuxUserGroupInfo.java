@@ -30,12 +30,26 @@ import java.util.Map;
 import oshi.software.os.OSUser;
 import oshi.util.ExecutingCommand;
 
+/**
+ * <p>
+ * LinuxUserGroupInfo class.
+ * </p>
+ */
 public class LinuxUserGroupInfo {
 
     // Temporarily cache users and groups
     private Map<String, OSUser> usersIdMap = new HashMap<>();
     private Map<String, String> groupsIdMap = new HashMap<>();
 
+    /**
+     * <p>
+     * getUser.
+     * </p>
+     *
+     * @param userId
+     *            a {@link java.lang.String} object.
+     * @return a {@link oshi.software.os.OSUser} object.
+     */
     public OSUser getUser(String userId) {
         if (this.usersIdMap.isEmpty()) {
             cacheUsers();
@@ -50,6 +64,15 @@ public class LinuxUserGroupInfo {
         return user;
     }
 
+    /**
+     * <p>
+     * getGroupName.
+     * </p>
+     *
+     * @param groupId
+     *            a {@link java.lang.String} object.
+     * @return a {@link java.lang.String} object.
+     */
     public String getGroupName(String groupId) {
         if (this.groupsIdMap.isEmpty()) {
             cacheGroups();

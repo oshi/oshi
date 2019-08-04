@@ -48,6 +48,11 @@ import oshi.util.ParseUtil;
 import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
 
+/**
+ * <p>
+ * WindowsUsbDevice class.
+ * </p>
+ */
 public class WindowsUsbDevice extends AbstractUsbDevice {
 
     private static final long serialVersionUID = 2L;
@@ -78,6 +83,26 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
     private static final Pattern VENDOR_PRODUCT_ID = Pattern
             .compile(".*(?:VID|VEN)_(\\p{XDigit}{4})&(?:PID|DEV)_(\\p{XDigit}{4}).*");
 
+    /**
+     * <p>
+     * Constructor for WindowsUsbDevice.
+     * </p>
+     *
+     * @param name
+     *            a {@link java.lang.String} object.
+     * @param vendor
+     *            a {@link java.lang.String} object.
+     * @param vendorId
+     *            a {@link java.lang.String} object.
+     * @param productId
+     *            a {@link java.lang.String} object.
+     * @param serialNumber
+     *            a {@link java.lang.String} object.
+     * @param uniqueDeviceId
+     *            a {@link java.lang.String} object.
+     * @param connectedDevices
+     *            an array of {@link oshi.hardware.UsbDevice} objects.
+     */
     public WindowsUsbDevice(String name, String vendor, String vendorId, String productId, String serialNumber,
             String uniqueDeviceId, UsbDevice[] connectedDevices) {
         super(name, vendor, vendorId, productId, serialNumber, uniqueDeviceId, connectedDevices);
@@ -85,6 +110,10 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
 
     /**
      * {@inheritDoc}
+     *
+     * @param tree
+     *            a boolean.
+     * @return an array of {@link oshi.hardware.UsbDevice} objects.
      */
     public static UsbDevice[] getUsbDevices(boolean tree) {
         UsbDevice[] devices = getUsbDevices();
@@ -179,14 +208,14 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
     }
 
     /**
-     * Navigates the Device Tree to place all children PNPDeviceIDs into the map
-     * for the specified deviceID. Recursively adds children's children, etc.
+     * Navigates the Device Tree to place all children PNPDeviceIDs into the map for
+     * the specified deviceID. Recursively adds children's children, etc.
      * 
      * @param deviceId
      *            The device to add respective children to the map
      * @param deviceInstance
-     *            The device instance (devnode handle), if known. If set to 0,
-     *            the code will search for a match.
+     *            The device instance (devnode handle), if known. If set to 0, the
+     *            code will search for a match.
      * @param deviceTreeMap
      *            The overall device tree map that starts at the controllers
      * @param devicesSeen
@@ -225,8 +254,8 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
     }
 
     /**
-     * Recursively creates WindowsUsbDevices by fetching information from maps
-     * to populate fields
+     * Recursively creates WindowsUsbDevices by fetching information from maps to
+     * populate fields
      *
      * @param hubDeviceId
      *            The PNPdeviceID of this device.
@@ -236,8 +265,8 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
      *            The default (parent) product ID
      * @param deviceTreeMap
      * @param usbDeviceCache
-     * @return A WindowsUsbDevice corresponding to this deviceID, or null if
-     *         unable to find
+     * @return A WindowsUsbDevice corresponding to this deviceID, or null if unable
+     *         to find
      */
     private static WindowsUsbDevice getDeviceAndChildren(String hubDeviceId, String vid, String pid,
             Map<String, List<String>> deviceTreeMap, Map<String, WindowsUsbDevice> usbDeviceCache) {

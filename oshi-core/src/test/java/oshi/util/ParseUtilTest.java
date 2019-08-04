@@ -62,7 +62,7 @@ public class ParseUtilTest {
         assertEquals(2, ParseUtil.parseLastInt("foo", 2));
         assertEquals(3, ParseUtil.parseLastInt("max_int plus one is 2147483648", 3));
         assertEquals(255, ParseUtil.parseLastInt("0xff", 4));
-        
+
         assertEquals(-1L, ParseUtil.parseLastLong("foo : bar", -1L));
         assertEquals(1L, ParseUtil.parseLastLong("foo : 1", 0L));
         assertEquals(2L, ParseUtil.parseLastLong("foo", 2L));

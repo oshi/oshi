@@ -29,14 +29,21 @@ import java.util.Map;
 
 /**
  * Reads from lsof into a map
- *
- * @author widdis[at]gmail[dot]com
  */
 public class LsofUtil {
 
     private LsofUtil() {
     }
 
+    /**
+     * <p>
+     * getCwdMap.
+     * </p>
+     *
+     * @param pid
+     *            a int.
+     * @return a {@link java.util.Map} object.
+     */
     public static Map<Integer, String> getCwdMap(int pid) {
         List<String> lsof = ExecutingCommand.runNative("lsof -Fn -d cwd" + (pid < 0 ? "" : " -p " + pid));
         Map<Integer, String> cwdMap = new HashMap<>();

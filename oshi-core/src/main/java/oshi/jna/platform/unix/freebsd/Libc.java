@@ -32,26 +32,33 @@ import oshi.jna.platform.unix.CLibrary;
 /**
  * C library. This class should be considered non-API as it may be removed
  * if/when its code is incorporated into the JNA project.
- *
- * @author widdis[at]gmail[dot]com
  */
 public interface Libc extends CLibrary {
+    /** Constant <code>INSTANCE</code> */
     Libc INSTANCE = Native.load("libc", Libc.class);
 
     /*
      * Data size
      */
+    /** Constant <code>UINT64_SIZE=Native.getNativeSize(long.class)</code> */
     int UINT64_SIZE = Native.getNativeSize(long.class);
+    /** Constant <code>INT_SIZE=Native.getNativeSize(int.class)</code> */
     int INT_SIZE = Native.getNativeSize(int.class);
 
     /*
      * CPU state indices
      */
+    /** Constant <code>CPUSTATES=5</code> */
     int CPUSTATES = 5;
+    /** Constant <code>CP_USER=0</code> */
     int CP_USER = 0;
+    /** Constant <code>CP_NICE=1</code> */
     int CP_NICE = 1;
+    /** Constant <code>CP_SYS=2</code> */
     int CP_SYS = 2;
+    /** Constant <code>CP_INTR=3</code> */
     int CP_INTR = 3;
+    /** Constant <code>CP_IDLE=4</code> */
     int CP_IDLE = 4;
 
     @FieldOrder({ "cpu_ticks" })

@@ -95,8 +95,8 @@ public class MacDisks implements Disks {
     }
 
     /**
-     * Temporarily cache pointers to keys. The values from this map must be
-     * released after use.}
+     * Temporarily cache pointers to keys. The values from this map must be released
+     * after use.}
      * 
      * @return A map of keys in the {@link CFKey} enum to corresponding
      *         {@link CFStringRef}.
@@ -319,6 +319,15 @@ public class MacDisks implements Disks {
         }
     }
 
+    /**
+     * <p>
+     * updateDiskStats.
+     * </p>
+     *
+     * @param diskStore
+     *            a {@link oshi.hardware.HWDiskStore} object.
+     * @return a boolean.
+     */
     public static boolean updateDiskStats(HWDiskStore diskStore) {
         DASessionRef session = DiskArbitration.INSTANCE.DASessionCreate(CfUtil.ALLOCATOR);
         if (session == null) {
@@ -336,6 +345,7 @@ public class MacDisks implements Disks {
         return diskFound;
     }
 
+    /** {@inheritDoc} */
     @Override
     public HWDiskStore[] getDisks() {
         Map<String, String> mountPointMap = queryMountPointMap();

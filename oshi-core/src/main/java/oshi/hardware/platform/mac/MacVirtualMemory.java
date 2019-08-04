@@ -45,36 +45,28 @@ public class MacVirtualMemory extends AbstractVirtualMemory {
 
     private static final Logger LOG = LoggerFactory.getLogger(MacVirtualMemory.class);
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getSwapUsed() {
         updateSwapUsed();
         return this.swapUsed;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getSwapTotal() {
         updateSwapUsed();
         return this.swapTotal;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getSwapPagesIn() {
         updateSwapInOut();
         return this.swapPagesIn;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getSwapPagesOut() {
         updateSwapInOut();

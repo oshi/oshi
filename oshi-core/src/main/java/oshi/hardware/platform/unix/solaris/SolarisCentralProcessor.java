@@ -44,8 +44,6 @@ import oshi.util.platform.unix.solaris.KstatUtil;
 
 /**
  * A CPU
- *
- * @author widdis[at]gmail[dot]com
  */
 public class SolarisCentralProcessor extends AbstractCentralProcessor {
 
@@ -81,6 +79,8 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
     }
 
     /**
+     * {@inheritDoc}
+     *
      * Updates logical and physical processor counts from psrinfo
      */
     @Override
@@ -156,9 +156,7 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
         return numaNodeMap;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long[] getSystemCpuLoadTicks() {
         long[] ticks = new long[TickType.values().length];
@@ -173,9 +171,7 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
         return ticks;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long[] getCurrentFreq() {
         long[] freqs = new long[getLogicalProcessorCount()];
@@ -190,9 +186,7 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
         return freqs;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long queryMaxFreq() {
         long max = -1L;
@@ -212,9 +206,7 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
         return max;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public double[] getSystemLoadAverage(int nelem) {
         if (nelem < 1 || nelem > 3) {
@@ -230,9 +222,7 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
         return average;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long[][] getProcessorCpuLoadTicks() {
         long[][] ticks = new long[this.logicalProcessorCount][TickType.values().length];
@@ -253,8 +243,8 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
     }
 
     /**
-     * Fetches the ProcessorID by encoding the stepping, model, family, and
-     * feature flags.
+     * Fetches the ProcessorID by encoding the stepping, model, family, and feature
+     * flags.
      *
      * @param stepping
      * @param model
@@ -274,9 +264,7 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
         return createProcessorID(stepping, model, family, ParseUtil.whitespaces.split(flags.toString().toLowerCase()));
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getContextSwitches() {
         long swtch = 0;
@@ -287,9 +275,7 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
         return swtch > 0 ? swtch : -1L;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getInterrupts() {
         long intr = 0;

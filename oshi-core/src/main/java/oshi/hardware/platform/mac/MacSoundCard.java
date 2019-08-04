@@ -32,24 +32,33 @@ import oshi.util.ParseUtil;
 
 /**
  * Sound card data obtained via system_profiler
- *
- * @author dbwiddis
  */
-
 public class MacSoundCard extends AbstractSoundCard {
 
     private static final String APPLE = "Apple Inc.";
 
+    /**
+     * <p>
+     * Constructor for MacSoundCard.
+     * </p>
+     *
+     * @param kernelVersion
+     *            a {@link java.lang.String} object.
+     * @param name
+     *            a {@link java.lang.String} object.
+     * @param codec
+     *            a {@link java.lang.String} object.
+     */
     public MacSoundCard(String kernelVersion, String name, String codec) {
         super(kernelVersion, name, codec);
     }
 
     /**
      * public method used by
-     * {@link oshi.hardware.common.AbstractHardwareAbstractionLayer} to access
-     * the sound cards.
+     * {@link oshi.hardware.common.AbstractHardwareAbstractionLayer} to access the
+     * sound cards.
      *
-     * @return List of {@link MacSoundCard} objects.
+     * @return List of {@link oshi.hardware.platform.mac.MacSoundCard} objects.
      */
     public static List<MacSoundCard> getSoundCards() {
         List<MacSoundCard> soundCards = new ArrayList<>();

@@ -33,18 +33,29 @@ import com.sun.jna.ptr.IntByReference;
 
 /**
  * Windows OS native system information.
- *
- * @author dblock[at]dblock[dot]org
  */
 public class WindowsOSSystemInfo {
     private static final Logger LOG = LoggerFactory.getLogger(WindowsOSSystemInfo.class);
 
     private SYSTEM_INFO _si = null;
 
+    /**
+     * <p>
+     * Constructor for WindowsOSSystemInfo.
+     * </p>
+     */
     public WindowsOSSystemInfo() {
         init();
     }
 
+    /**
+     * <p>
+     * Constructor for WindowsOSSystemInfo.
+     * </p>
+     *
+     * @param si
+     *            a {@link com.sun.jna.platform.win32.WinBase.SYSTEM_INFO} object.
+     */
     public WindowsOSSystemInfo(SYSTEM_INFO si) {
         this._si = si;
     }

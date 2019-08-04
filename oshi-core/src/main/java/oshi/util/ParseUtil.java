@@ -81,12 +81,16 @@ public class ParseUtil {
     private static final long EPOCH_DIFF = 11644473600000L;
     private static final int TZ_OFFSET = TimeZone.getDefault().getOffset(System.currentTimeMillis());
 
+    /** Constant <code>whitespacesColonWhitespace</code> */
     public static final Pattern whitespacesColonWhitespace = Pattern.compile("\\s+:\\s");
 
+    /** Constant <code>whitespaces</code> */
     public static final Pattern whitespaces = Pattern.compile("\\s+");
 
+    /** Constant <code>notDigits</code> */
     public static final Pattern notDigits = Pattern.compile("[^0-9]+");
 
+    /** Constant <code>startWithNotDigits</code> */
     public static final Pattern startWithNotDigits = Pattern.compile("^[^0-9]*");
 
     static {
@@ -116,7 +120,7 @@ public class ParseUtil {
      *
      * @param hertz
      *            Hertz size.
-     * @return {@link Long} Hertz value or -1 if not parsable.
+     * @return {@link java.lang.Long} Hertz value or -1 if not parsable.
      */
     public static long parseHertz(String hertz) {
         Matcher matcher = HERTZ_PATTERN.matcher(hertz.trim());
@@ -373,7 +377,7 @@ public class ParseUtil {
      * Convert an unsigned long to a signed long value by stripping the sign bit.
      * This method "rolls over" long values greater than the max value but ensures
      * the result is never negative.
-     * 
+     *
      * @param unsignedValue
      *            The unsigned long value to convert.
      * @return The signed long value.
@@ -546,7 +550,7 @@ public class ParseUtil {
 
     /**
      * Parse a string key = "value" (string)
-     * 
+     *
      * @param line
      *            the entire string
      * @return the value contained between double tick marks
@@ -753,7 +757,7 @@ public class ParseUtil {
 
     /**
      * Parse a date in MM-DD-YYYY or MM/DD/YYYY to YYYY-MM-DD
-     * 
+     *
      * @param dateString
      *            The date in MM DD YYYY format
      * @return The date in ISO YYYY-MM-DD format if parseable, or the original

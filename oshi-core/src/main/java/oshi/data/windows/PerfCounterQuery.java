@@ -38,6 +38,11 @@ import oshi.util.platform.windows.PerfDataUtil.PerfCounter;
 import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
 
+/**
+ * <p>
+ * PerfCounterQuery class.
+ * </p>
+ */
 public class PerfCounterQuery<T extends Enum<T>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(PerfCounter.class);
@@ -61,44 +66,46 @@ public class PerfCounterQuery<T extends Enum<T>> {
     /*
      * Multiple classes use these constants
      */
+    /** Constant <code>TOTAL_INSTANCE="_Total"</code> */
     public static final String TOTAL_INSTANCE = "_Total";
+    /** Constant <code>TOTAL_INSTANCES="*_Total"</code> */
     public static final String TOTAL_INSTANCES = "*_Total";
+    /** Constant <code>NOT_TOTAL_INSTANCE="^ + TOTAL_INSTANCE"</code> */
     public static final String NOT_TOTAL_INSTANCE = "^" + TOTAL_INSTANCE;
+    /** Constant <code>NOT_TOTAL_INSTANCES="^ + TOTAL_INSTANCES"</code> */
     public static final String NOT_TOTAL_INSTANCES = "^" + TOTAL_INSTANCES;
 
     /**
-     * Construct a new object to hold performance counter data source and
-     * results
-     * 
+     * Construct a new object to hold performance counter data source and results
+     *
      * @param propertyEnum
-     *            An enum which implements {@link PdhCounterProperty} and
+     *            An enum which implements
+     *            {@link oshi.data.windows.PerfCounterQuery.PdhCounterProperty} and
      *            contains the WMI field (Enum value) and PDH Counter string
      *            (instance and counter)
      * @param perfObject
-     *            The PDH object for this counter; all counters on this object
-     *            will be refreshed at the same time
+     *            The PDH object for this counter; all counters on this object will
+     *            be refreshed at the same time
      * @param perfWmiClass
-     *            The WMI PerfData_RawData_* class corresponding to the PDH
-     *            object
+     *            The WMI PerfData_RawData_* class corresponding to the PDH object
      */
     public PerfCounterQuery(Class<T> propertyEnum, String perfObject, String perfWmiClass) {
         this(propertyEnum, perfObject, perfWmiClass, perfObject);
     }
 
     /**
-     * Construct a new object to hold performance counter data source and
-     * results
-     * 
+     * Construct a new object to hold performance counter data source and results
+     *
      * @param propertyEnum
-     *            An enum which implements {@link PdhCounterProperty} and
+     *            An enum which implements
+     *            {@link oshi.data.windows.PerfCounterQuery.PdhCounterProperty} and
      *            contains the WMI field (Enum value) and PDH Counter string
      *            (instance and counter)
      * @param perfObject
-     *            The PDH object for this counter; all counters on this object
-     *            will be refreshed at the same time
+     *            The PDH object for this counter; all counters on this object will
+     *            be refreshed at the same time
      * @param perfWmiClass
-     *            The WMI PerfData_RawData_* class corresponding to the PDH
-     *            object
+     *            The WMI PerfData_RawData_* class corresponding to the PDH object
      * @param queryKey
      *            An optional key for PDH counter updates; defaults to the PDH
      *            object name
@@ -117,7 +124,7 @@ public class PerfCounterQuery<T extends Enum<T>> {
 
     /**
      * Set the Data Source for these counters
-     * 
+     *
      * @param source
      *            The source of data
      * @return Whether the data source was successfully set
@@ -142,9 +149,9 @@ public class PerfCounterQuery<T extends Enum<T>> {
     }
 
     /**
-     * Initialize PDH counters for this data source. Adds necessary counters to
-     * a PDH Query.
-     * 
+     * Initialize PDH counters for this data source. Adds necessary counters to a
+     * PDH Query.
+     *
      * @return True if the counters were successfully added.
      */
     protected boolean initPdhCounters() {
@@ -162,8 +169,8 @@ public class PerfCounterQuery<T extends Enum<T>> {
     }
 
     /**
-     * Uninitialize PDH counters for this data source. Removes necessary
-     * counters from the PDH Query, releasing their handles.
+     * Uninitialize PDH counters for this data source. Removes necessary counters
+     * from the PDH Query, releasing their handles.
      */
     protected void unInitPdhCounters() {
         pdhQueryHandler.removeAllCountersFromQuery(this.queryKey);
@@ -179,17 +186,17 @@ public class PerfCounterQuery<T extends Enum<T>> {
     }
 
     /**
-     * Uninitializes the WMI query object needed to retrieve counters for this
-     * data source, allowing it to be garbage collected.
+     * Uninitializes the WMI query object needed to retrieve counters for this data
+     * source, allowing it to be garbage collected.
      */
     protected void unInitWmiCounters() {
         this.counterQuery = null;
     }
 
     /**
-     * Query the current data source (PDH or WMI) for the Performance Counter
-     * values corresponding to the property enum.
-     * 
+     * Query the current data source (PDH or WMI) for the Performance Counter values
+     * corresponding to the property enum.
+     *
      * @return A map of the values by the counter enum.
      */
     public Map<T, Long> queryValues() {
@@ -254,8 +261,7 @@ public class PerfCounterQuery<T extends Enum<T>> {
          */
         PDH,
         /**
-         * Performance Counter data will be pulled from a WMI PerfData_RawData_*
-         * table
+         * Performance Counter data will be pulled from a WMI PerfData_RawData_* table
          */
         WMI;
     }

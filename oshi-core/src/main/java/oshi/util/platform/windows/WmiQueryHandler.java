@@ -41,6 +41,11 @@ import com.sun.jna.platform.win32.COM.WbemcliUtil;
 
 import oshi.util.GlobalConfig;
 
+/**
+ * <p>
+ * WmiQueryHandler class.
+ * </p>
+ */
 public class WmiQueryHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(WmiQueryHandler.class);
@@ -72,10 +77,10 @@ public class WmiQueryHandler {
     private static Class<? extends WmiQueryHandler> customClass = null;
 
     /**
-     * Factory method to create an instance of this class. To override this
-     * class, use {@link #setInstanceClass(Class)} to define a sublcass which
-     * extends {@link WmiQueryHandler}.
-     * 
+     * Factory method to create an instance of this class. To override this class,
+     * use {@link #setInstanceClass(Class)} to define a sublcass which extends
+     * {@link oshi.util.platform.windows.WmiQueryHandler}.
+     *
      * @return An instance of this class or a class defined by
      *         {@link #setInstanceClass(Class)}
      */
@@ -95,9 +100,9 @@ public class WmiQueryHandler {
     }
 
     /**
-     * Define a subclass to be instantiated by {@link #createInstance()}. The
-     * class must extend {@link WmiQueryHandler}.
-     * 
+     * Define a subclass to be instantiated by {@link #createInstance()}. The class
+     * must extend {@link oshi.util.platform.windows.WmiQueryHandler}.
+     *
      * @param instanceClass
      *            The class to instantiate with {@link #createInstance()}.
      */
@@ -108,13 +113,10 @@ public class WmiQueryHandler {
     /**
      * Query WMI for values, with no timeout.
      *
-     * @param <T>
-     *            The properties enum
      * @param query
      *            A WmiQuery object encapsulating the namespace, class, and
      *            properties
-     * @return a WmiResult object containing the query results, wrapping an
-     *         EnumMap
+     * @return a WmiResult object containing the query results, wrapping an EnumMap
      */
     public <T extends Enum<T>> WbemcliUtil.WmiResult<T> queryWMI(WbemcliUtil.WmiQuery<T> query) {
 
@@ -155,6 +157,17 @@ public class WmiQueryHandler {
         return result;
     }
 
+    /**
+     * <p>
+     * handleComException.
+     * </p>
+     *
+     * @param query
+     *            a {@link com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery}
+     *            object.
+     * @param ex
+     *            a {@link com.sun.jna.platform.win32.COM.COMException} object.
+     */
     protected void handleComException(WbemcliUtil.WmiQuery<?> query, COMException ex) {
         LOG.warn(
                 "COM exception querying {}, which might not be on your system. Will not attempt to query it again. Error was: {}:",
@@ -163,7 +176,7 @@ public class WmiQueryHandler {
 
     /**
      * Initializes COM library and sets security to impersonate the local user
-     * 
+     *
      * @return True if COM was initialized and needs to be uninitialized, false
      *         otherwise
      */
@@ -191,6 +204,15 @@ public class WmiQueryHandler {
         return comInit;
     }
 
+    /**
+     * <p>
+     * initCOM.
+     * </p>
+     *
+     * @param coInitThreading
+     *            a int.
+     * @return a boolean.
+     */
     protected boolean initCOM(int coInitThreading) {
         WinNT.HRESULT hres = Ole32.INSTANCE.CoInitializeEx(null, coInitThreading);
         switch (hres.intValue()) {
@@ -209,8 +231,8 @@ public class WmiQueryHandler {
     }
 
     /**
-     * UnInitializes COM library. This should be called once for every
-     * successful call to initCOM.
+     * UnInitializes COM library. This should be called once for every successful
+     * call to initCOM.
      */
     public void unInitCOM() {
         Ole32.INSTANCE.CoUninitialize();
@@ -219,7 +241,7 @@ public class WmiQueryHandler {
     /**
      * Returns the current threading model for COM initialization, as OSHI is
      * required to match if an external program has COM initialized already.
-     * 
+     *
      * @return The current threading model
      */
     public int getComThreading() {
@@ -229,7 +251,7 @@ public class WmiQueryHandler {
     /**
      * Switches the current threading model for COM initialization, as OSHI is
      * required to match if an external program has COM initialized already.
-     * 
+     *
      * @return The new threading model after switching
      */
     public int switchComThreading() {
@@ -242,8 +264,8 @@ public class WmiQueryHandler {
     }
 
     /**
-     * Security only needs to be initialized once. This boolean identifies
-     * whether that has happened.
+     * Security only needs to be initialized once. This boolean identifies whether
+     * that has happened.
      *
      * @return Returns the securityInitialized.
      */
@@ -252,8 +274,8 @@ public class WmiQueryHandler {
     }
 
     /**
-     * Gets the current WMI timeout. WMI queries will fail if they take longer
-     * than this number of milliseconds. A value of -1 is infinite (no timeout).
+     * Gets the current WMI timeout. WMI queries will fail if they take longer than
+     * this number of milliseconds. A value of -1 is infinite (no timeout).
      *
      * @return Returns the current value of wmiTimeout.
      */
@@ -266,8 +288,8 @@ public class WmiQueryHandler {
      * number of milliseconds.
      *
      * @param wmiTimeout
-     *            The wmiTimeout to set, in milliseconds. To disable timeouts,
-     *            set timeout as -1 (infinite).
+     *            The wmiTimeout to set, in milliseconds. To disable timeouts, set
+     *            timeout as -1 (infinite).
      */
     public void setWmiTimeout(int wmiTimeout) {
         this.wmiTimeout = wmiTimeout;

@@ -36,8 +36,6 @@ import oshi.util.ParseUtil;
 
 /**
  * A Display
- *
- * @author widdis[at]gmail[dot]com
  */
 public class FreeBsdDisplay extends AbstractDisplay {
 
@@ -45,6 +43,14 @@ public class FreeBsdDisplay extends AbstractDisplay {
 
     private static final Logger LOG = LoggerFactory.getLogger(FreeBsdDisplay.class);
 
+    /**
+     * <p>
+     * Constructor for FreeBsdDisplay.
+     * </p>
+     *
+     * @param edid
+     *            an array of {@link byte} objects.
+     */
     public FreeBsdDisplay(byte[] edid) {
         super(edid);
         LOG.debug("Initialized FreeBSDDisplay");

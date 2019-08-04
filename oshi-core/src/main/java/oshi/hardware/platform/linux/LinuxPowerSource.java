@@ -46,6 +46,18 @@ public class LinuxPowerSource extends AbstractPowerSource {
 
     private static final String PS_PATH = "/sys/class/power_supply/";
 
+    /**
+     * <p>
+     * Constructor for LinuxPowerSource.
+     * </p>
+     *
+     * @param newName
+     *            a {@link java.lang.String} object.
+     * @param newRemainingCapacity
+     *            a double.
+     * @param newTimeRemaining
+     *            a double.
+     */
     public LinuxPowerSource(String newName, double newRemainingCapacity, double newTimeRemaining) {
         super(newName, newRemainingCapacity, newTimeRemaining);
         LOG.debug("Initialized LinuxPowerSource");
@@ -143,9 +155,7 @@ public class LinuxPowerSource extends AbstractPowerSource {
         return psList.toArray(new LinuxPowerSource[0]);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void updateAttributes() {
         PowerSource[] psArr = getPowerSources();

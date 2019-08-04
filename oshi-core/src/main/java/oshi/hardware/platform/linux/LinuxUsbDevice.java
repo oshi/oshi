@@ -37,10 +37,35 @@ import oshi.jna.platform.linux.Udev.UdevDevice;
 import oshi.jna.platform.linux.Udev.UdevEnumerate;
 import oshi.jna.platform.linux.Udev.UdevListEntry;
 
+/**
+ * <p>
+ * LinuxUsbDevice class.
+ * </p>
+ */
 public class LinuxUsbDevice extends AbstractUsbDevice {
 
     private static final long serialVersionUID = 2L;
 
+    /**
+     * <p>
+     * Constructor for LinuxUsbDevice.
+     * </p>
+     *
+     * @param name
+     *            a {@link java.lang.String} object.
+     * @param vendor
+     *            a {@link java.lang.String} object.
+     * @param vendorId
+     *            a {@link java.lang.String} object.
+     * @param productId
+     *            a {@link java.lang.String} object.
+     * @param serialNumber
+     *            a {@link java.lang.String} object.
+     * @param uniqueDeviceId
+     *            a {@link java.lang.String} object.
+     * @param connectedDevices
+     *            an array of {@link oshi.hardware.UsbDevice} objects.
+     */
     public LinuxUsbDevice(String name, String vendor, String vendorId, String productId, String serialNumber,
             String uniqueDeviceId, UsbDevice[] connectedDevices) {
         super(name, vendor, vendorId, productId, serialNumber, uniqueDeviceId, connectedDevices);
@@ -48,6 +73,10 @@ public class LinuxUsbDevice extends AbstractUsbDevice {
 
     /**
      * {@inheritDoc}
+     *
+     * @param tree
+     *            a boolean.
+     * @return an array of {@link oshi.hardware.UsbDevice} objects.
      */
     public static UsbDevice[] getUsbDevices(boolean tree) {
         UsbDevice[] devices = getUsbDevices();

@@ -45,9 +45,7 @@ public class MacGlobalMemory extends AbstractGlobalMemory {
 
     private static final Logger LOG = LoggerFactory.getLogger(MacGlobalMemory.class);
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getAvailable() {
         VMStatistics vmStats = new VMStatistics();
@@ -60,9 +58,7 @@ public class MacGlobalMemory extends AbstractGlobalMemory {
         return this.memAvailable;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getTotal() {
         if (this.memTotal < 0) {
@@ -74,9 +70,7 @@ public class MacGlobalMemory extends AbstractGlobalMemory {
         return this.memTotal;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getPageSize() {
         if (this.pageSize < 0) {
@@ -90,9 +84,7 @@ public class MacGlobalMemory extends AbstractGlobalMemory {
         return this.pageSize;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public VirtualMemory getVirtualMemory() {
         if (this.virtualMemory == null) {

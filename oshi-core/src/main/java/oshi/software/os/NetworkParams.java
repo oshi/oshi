@@ -32,29 +32,49 @@ import java.io.Serializable;
 public interface NetworkParams extends Serializable {
 
     /**
+     * <p>
+     * getHostName.
+     * </p>
+     *
      * @return Gets host name
      */
     String getHostName();
 
     /**
+     * <p>
+     * getDomainName.
+     * </p>
+     *
      * @return Gets domain name
      */
     String getDomainName();
 
     /**
+     * <p>
+     * getDnsServers.
+     * </p>
+     *
      * @return Gets DNS servers
      */
     String[] getDnsServers();
 
     /**
+     * <p>
+     * getIpv4DefaultGateway.
+     * </p>
+     *
      * @return Gets default gateway(routing destination for 0.0.0.0/0) for IPv4,
      *         empty string if not defined.
      */
     String getIpv4DefaultGateway();
 
     /**
-     * @return Gets default gateway(routing destination for ::/0) for IPv6,
-     *         empty string if not defined.
+     * <p>
+     * getIpv6DefaultGateway.
+     * </p>
+     *
+     * @return Gets default gateway(routing destination for ::/0) for IPv6, empty
+     *         string if not defined.
      */
     String getIpv6DefaultGateway();
 }

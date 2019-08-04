@@ -41,8 +41,6 @@ import oshi.util.Util;
 
 /**
  * Provides access to kstat information on Solaris
- *
- * @author widdis[at]gmail[dot]com
  */
 public class KstatUtil {
     private static final Logger LOG = LoggerFactory.getLogger(KstatUtil.class);
@@ -65,9 +63,9 @@ public class KstatUtil {
     /**
      * Convenience method for kstat_data_lookup() with String return values.
      * Searches the kstat's data section for the record with the specified name.
-     * This operation is valid only for kstat types which have named data
-     * records. Currently, only the KSTAT_TYPE_NAMED and KSTAT_TYPE_TIMER kstats
-     * have named data records.
+     * This operation is valid only for kstat types which have named data records.
+     * Currently, only the KSTAT_TYPE_NAMED and KSTAT_TYPE_TIMER kstats have named
+     * data records.
      *
      * @param ksp
      *            The kstat to search
@@ -108,17 +106,17 @@ public class KstatUtil {
     /**
      * Convenience method for kstat_data_lookup() with numeric return values.
      * Searches the kstat's data section for the record with the specified name.
-     * This operation is valid only for kstat types which have named data
-     * records. Currently, only the KSTAT_TYPE_NAMED and KSTAT_TYPE_TIMER kstats
-     * have named data records.
+     * This operation is valid only for kstat types which have named data records.
+     * Currently, only the KSTAT_TYPE_NAMED and KSTAT_TYPE_TIMER kstats have named
+     * data records.
      *
      * @param ksp
      *            The kstat to search
      * @param name
      *            The key for the name-value pair, or name of the timer as
      *            applicable
-     * @return The value as a long. If the data type is a character or string
-     *         type, returns 0 and logs an error.
+     * @return The value as a long. If the data type is a character or string type,
+     *         returns 0 and logs an error.
      */
     public static synchronized long kstatDataLookupLong(Kstat ksp, String name) {
         if (ksp.ks_type != LibKstat.KSTAT_TYPE_NAMED && ksp.ks_type != LibKstat.KSTAT_TYPE_TIMER) {
@@ -149,12 +147,12 @@ public class KstatUtil {
     }
 
     /**
-     * Convenience method for kstat_read() which gets data from the kernel for
-     * the kstat pointed to by ksp. ksp.ks_data is automatically allocated (or
-     * reallocated) to be large enough to hold all of the data. ksp.ks_ndata is
-     * set to the number of data fields, ksp.ks_data_size is set to the total
-     * size of the data, and ksp.ks_snaptime is set to the high-resolution time
-     * at which the data snapshot was taken.
+     * Convenience method for kstat_read() which gets data from the kernel for the
+     * kstat pointed to by ksp. ksp.ks_data is automatically allocated (or
+     * reallocated) to be large enough to hold all of the data. ksp.ks_ndata is set
+     * to the number of data fields, ksp.ks_data_size is set to the total size of
+     * the data, and ksp.ks_snaptime is set to the high-resolution time at which the
+     * data snapshot was taken.
      *
      * @param ksp
      *            The kstat from which to retrieve data
@@ -176,11 +174,10 @@ public class KstatUtil {
     }
 
     /**
-     * Convenience method for kstat_lookup(). Traverses the kstat chain,
-     * searching for a kstat with the same ks_module, ks_instance, and ks_name
-     * fields; this triplet uniquely identifies a kstat. If ks_module is NULL,
-     * ks_instance is -1, or ks_name is NULL, then those fields will be ignored
-     * in the search.
+     * Convenience method for kstat_lookup(). Traverses the kstat chain, searching
+     * for a kstat with the same ks_module, ks_instance, and ks_name fields; this
+     * triplet uniquely identifies a kstat. If ks_module is NULL, ks_instance is -1,
+     * or ks_name is NULL, then those fields will be ignored in the search.
      *
      * @param module
      *            The module, or null to ignore
@@ -188,8 +185,7 @@ public class KstatUtil {
      *            The instance, or -1 to ignore
      * @param name
      *            The name, or null to ignore
-     * @return The first match of the requested Kstat structure if found, or
-     *         null
+     * @return The first match of the requested Kstat structure if found, or null
      */
     public static synchronized Kstat kstatLookup(String module, int instance, String name) {
         int ret = LibKstat.INSTANCE.kstat_chain_update(kc);
@@ -201,11 +197,10 @@ public class KstatUtil {
     }
 
     /**
-     * Convenience method for kstat_lookup(). Traverses the kstat chain,
-     * searching for all kstats with the same ks_module, ks_instance, and
-     * ks_name fields; this triplet uniquely identifies a kstat. If ks_module is
-     * NULL, ks_instance is -1, or ks_name is NULL, then those fields will be
-     * ignored in the search.
+     * Convenience method for kstat_lookup(). Traverses the kstat chain, searching
+     * for all kstats with the same ks_module, ks_instance, and ks_name fields; this
+     * triplet uniquely identifies a kstat. If ks_module is NULL, ks_instance is -1,
+     * or ks_name is NULL, then those fields will be ignored in the search.
      *
      * @param module
      *            The module, or null to ignore
@@ -213,8 +208,8 @@ public class KstatUtil {
      *            The instance, or -1 to ignore
      * @param name
      *            The name, or null to ignore
-     * @return All matches of the requested Kstat structure if found, or an
-     *         empty list otherwise
+     * @return All matches of the requested Kstat structure if found, or an empty
+     *         list otherwise
      */
     public static synchronized List<Kstat> kstatLookupAll(String module, int instance, String name) {
         List<Kstat> kstats = new ArrayList<>();

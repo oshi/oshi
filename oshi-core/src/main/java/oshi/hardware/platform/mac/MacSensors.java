@@ -27,6 +27,11 @@ import oshi.hardware.common.AbstractSensors;
 import oshi.jna.platform.mac.IOKit;
 import oshi.util.platform.mac.SmcUtil;
 
+/**
+ * <p>
+ * MacSensors class.
+ * </p>
+ */
 public class MacSensors extends AbstractSensors {
 
     private static final long serialVersionUID = 1L;
@@ -34,9 +39,7 @@ public class MacSensors extends AbstractSensors {
     // This shouldn't change once determined
     private int numFans = 0;
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public double getCpuTemperature() {
         SmcUtil.smcOpen();
@@ -48,9 +51,7 @@ public class MacSensors extends AbstractSensors {
         return 0d;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public int[] getFanSpeeds() {
         // If we don't have fan # try to get it
@@ -66,9 +67,7 @@ public class MacSensors extends AbstractSensors {
         return fanSpeeds;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public double getCpuVoltage() {
         SmcUtil.smcOpen();

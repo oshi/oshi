@@ -82,9 +82,7 @@ public class LinuxDisks implements Disks {
     // 12 but we want the last 11. ParseUtil works from the right
     private static final int UDEV_STAT_LENGTH = 11;
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public HWDiskStore[] getDisks() {
         HWDiskStore store = null;
@@ -170,6 +168,10 @@ public class LinuxDisks implements Disks {
 
     /**
      * {@inheritDoc}
+     *
+     * @param diskStore
+     *            a {@link oshi.hardware.HWDiskStore} object.
+     * @return a boolean.
      */
     public static boolean updateDiskStats(HWDiskStore diskStore) {
         String path = hashCodeToPathMap.get(diskStore.hashCode());

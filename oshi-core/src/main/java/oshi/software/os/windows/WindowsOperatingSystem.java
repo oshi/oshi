@@ -78,6 +78,11 @@ import oshi.software.os.OSProcess;
 import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
 
+/**
+ * <p>
+ * WindowsOperatingSystem class.
+ * </p>
+ */
 public class WindowsOperatingSystem extends AbstractOperatingSystem {
     private static final long serialVersionUID = 1L;
 
@@ -157,6 +162,11 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
 
     private final transient WmiQueryHandler wmiQueryHandler = WmiQueryHandler.createInstance();
 
+    /**
+     * <p>
+     * Constructor for WindowsOperatingSystem.
+     * </p>
+     */
     public WindowsOperatingSystem() {
         this.manufacturer = "Microsoft";
         this.family = "Windows";
@@ -291,17 +301,13 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public FileSystem getFileSystem() {
         return new WindowsFileSystem();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public OSProcess[] getProcesses(int limit, ProcessSort sort, boolean slowFields) {
         List<OSProcess> procList = processMapToList(null, slowFields);
@@ -309,9 +315,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         return sorted.toArray(new OSProcess[0]);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public OSProcess[] getChildProcesses(int parentPid, int limit, ProcessSort sort) {
         Set<Integer> childPids = new HashSet<>();
@@ -332,9 +336,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         return sorted.toArray(new OSProcess[0]);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public OSProcess getProcess(int pid) {
         return getProcess(pid, true);
@@ -347,9 +349,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         return procList.isEmpty() ? null : procList.get(0);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public List<OSProcess> getProcesses(Collection<Integer> pids) {
         return processMapToList(pids, true);
@@ -359,8 +359,8 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
      * Private method to do the heavy lifting for all the getProcess functions.
      *
      * @param pids
-     *            A collection of pids to query. If null, the entire process
-     *            list will be queried.
+     *            A collection of pids to query. If null, the entire process list
+     *            will be queried.
      * @param slowFields
      *            Whether to include fields that incur processor latency
      * @return A corresponding list of processes
@@ -567,6 +567,16 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         return processList;
     }
 
+    /**
+     * <p>
+     * handleWin32ExceptionOnGetProcessInfo.
+     * </p>
+     *
+     * @param proc
+     *            a {@link oshi.software.os.OSProcess} object.
+     * @param ex
+     *            a {@link com.sun.jna.platform.win32.Win32Exception} object.
+     */
     protected void handleWin32ExceptionOnGetProcessInfo(OSProcess proc, Win32Exception ex) {
         LOG.warn("Failed to set path or get user/group on PID {}. It may have terminated. {}", proc.getProcessID(),
                 ex.getMessage());
@@ -662,17 +672,13 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         return processMap;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public int getProcessId() {
         return Kernel32.INSTANCE.GetCurrentProcessId();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public int getProcessCount() {
         PERFORMANCE_INFORMATION perfInfo = new PERFORMANCE_INFORMATION();
@@ -683,9 +689,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         return perfInfo.ProcessCount.intValue();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public int getThreadCount() {
         PERFORMANCE_INFORMATION perfInfo = new PERFORMANCE_INFORMATION();
@@ -696,9 +700,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         return perfInfo.ThreadCount.intValue();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getSystemUptime() {
         return querySystemUptime();
@@ -715,17 +717,13 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getSystemBootTime() {
         return BOOTTIME;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean isElevated() {
         if (this.elevated < 0) {
@@ -739,17 +737,15 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         return this.elevated > 0;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public NetworkParams getNetworkParams() {
         return new WindowsNetworkParams();
     }
 
     /**
-     * Enables debug privileges for this process, required for OpenProcess() to
-     * get processes other than the current user
+     * Enables debug privileges for this process, required for OpenProcess() to get
+     * processes other than the current user
      */
     private static void enableDebugPrivilege() {
         HANDLEByReference hToken = new HANDLEByReference();

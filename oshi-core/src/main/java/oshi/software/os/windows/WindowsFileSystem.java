@@ -43,10 +43,10 @@ import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
 
 /**
- * The Windows File System contains {@link OSFileStore}s which are a storage
- * pool, device, partition, volume, concrete file system or other implementation
- * specific means of file storage. In Windows, these are represented by a drive
- * letter, e.g., "A:\" and "C:\"
+ * The Windows File System contains {@link oshi.software.os.OSFileStore}s which
+ * are a storage pool, device, partition, volume, concrete file system or other
+ * implementation specific means of file storage. In Windows, these are
+ * represented by a drive letter, e.g., "A:\" and "C:\"
  */
 public class WindowsFileSystem implements FileSystem {
 
@@ -104,17 +104,20 @@ public class WindowsFileSystem implements FileSystem {
         }
     }
 
+    /**
+     * <p>
+     * Constructor for WindowsFileSystem.
+     * </p>
+     */
     public WindowsFileSystem() {
         // Set error mode to fail rather than prompt for FLoppy/CD-Rom
         Kernel32.INSTANCE.SetErrorMode(SEM_FAILCRITICALERRORS);
     }
 
     /**
-     * Gets File System Information.
+     * {@inheritDoc}
      *
-     * @return An array of {@link OSFileStore} objects representing mounted volumes.
-     *         May return disconnected volumes with
-     *         {@link OSFileStore#getTotalSpace()} = 0.
+     * Gets File System Information.
      */
     @Override
     public OSFileStore[] getFileStores() {
@@ -305,6 +308,7 @@ public class WindowsFileSystem implements FileSystem {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public long getOpenFileDescriptors() {
         Map<HandleCountProperty, List<Long>> valueListMap = this.handlePerfCounters.queryValuesWildcard();
@@ -318,11 +322,21 @@ public class WindowsFileSystem implements FileSystem {
         return descriptors;
     }
 
+    /** {@inheritDoc} */
     @Override
     public long getMaxFileDescriptors() {
         return MAX_WINDOWS_HANDLES;
     }
 
+    /**
+     * <p>
+     * updateFileStoreStats.
+     * </p>
+     *
+     * @param osFileStore
+     *            a {@link oshi.software.os.OSFileStore} object.
+     * @return a boolean.
+     */
     public static boolean updateFileStoreStats(OSFileStore osFileStore) {
         WindowsFileSystem wfs = new WindowsFileSystem();
         // Check if we have the volume locally

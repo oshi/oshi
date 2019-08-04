@@ -25,35 +25,64 @@ package oshi.software.os;
 
 import java.io.Serializable;
 
+/**
+ * <p>
+ * OperatingSystemVersion interface.
+ * </p>
+ */
 public interface OperatingSystemVersion extends Serializable {
     /**
+     * <p>
+     * getVersion.
+     * </p>
+     *
      * @return the version
      */
     String getVersion();
 
     /**
+     * <p>
+     * setVersion.
+     * </p>
+     *
      * @param version
      *            the version to set
      */
     void setVersion(String version);
 
     /**
+     * <p>
+     * getCodeName.
+     * </p>
+     *
      * @return the codeName
      */
     String getCodeName();
 
     /**
+     * <p>
+     * setCodeName.
+     * </p>
+     *
      * @param codeName
      *            the codeName to set
      */
     void setCodeName(String codeName);
 
     /**
+     * <p>
+     * getBuildNumber.
+     * </p>
+     *
      * @return the build number
      */
     String getBuildNumber();
 
     /**
+     * <p>
+     * setBuildNumber.
+     * </p>
+     *
      * @param buildNumber
      *            the build number to set
      */

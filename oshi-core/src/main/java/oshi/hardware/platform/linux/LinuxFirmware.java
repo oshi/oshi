@@ -45,9 +45,7 @@ final class LinuxFirmware extends AbstractFirmware {
     private static final DateTimeFormatter VCGEN_FORMATTER = DateTimeFormatter.ofPattern("MMM d uuuu HH:mm:ss",
             Locale.ENGLISH);
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getManufacturer() {
         if (this.manufacturer == null && !queryManufacturerFromSysfs() && !queryVcGenCmd()) {
@@ -56,9 +54,7 @@ final class LinuxFirmware extends AbstractFirmware {
         return super.getManufacturer();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getDescription() {
         if (this.description == null && !queryDescriptionFromSysfs() && !queryVcGenCmd()) {
@@ -67,9 +63,7 @@ final class LinuxFirmware extends AbstractFirmware {
         return this.description;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getVersion() {
         if (this.version == null && !queryVersionFromSysfs() && !queryVcGenCmd()) {
@@ -78,9 +72,7 @@ final class LinuxFirmware extends AbstractFirmware {
         return this.version;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getReleaseDate() {
         if (this.releaseDate == null && !queryReleaseDateFromSysfs() && !queryVcGenCmd()) {
@@ -89,9 +81,7 @@ final class LinuxFirmware extends AbstractFirmware {
         return this.releaseDate;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getName() {
         if (this.name == null && !queryVcGenCmd()) {

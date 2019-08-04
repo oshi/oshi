@@ -40,10 +40,29 @@ public class SolarisSoundCard extends AbstractSoundCard {
     private static final String LSHAL = "lshal";
     private static final String DEFAULT_AUDIO_DRIVER = "audio810";
 
+    /**
+     * <p>
+     * Constructor for SolarisSoundCard.
+     * </p>
+     *
+     * @param kernelVersion
+     *            a {@link java.lang.String} object.
+     * @param name
+     *            a {@link java.lang.String} object.
+     * @param codec
+     *            a {@link java.lang.String} object.
+     */
     public SolarisSoundCard(String kernelVersion, String name, String codec) {
         super(kernelVersion, name, codec);
     }
 
+    /**
+     * <p>
+     * getSoundCards.
+     * </p>
+     *
+     * @return a {@link java.util.List} object.
+     */
     public static List<SolarisSoundCard> getSoundCards() {
         Map<String, String> vendorMap = new HashMap<>();
         Map<String, String> productMap = new HashMap<>();

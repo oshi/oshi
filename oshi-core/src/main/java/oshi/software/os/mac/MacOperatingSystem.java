@@ -30,7 +30,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Memory;
+import com.sun.jna.Memory; // NOSONAR squid:s1191
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.platform.mac.SystemB;
@@ -51,6 +51,11 @@ import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.mac.SysctlUtil;
 
+/**
+ * <p>
+ * MacOperatingSystem class.
+ * </p>
+ */
 public class MacOperatingSystem extends AbstractOperatingSystem {
 
     private static final long serialVersionUID = 1L;
@@ -89,6 +94,11 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
         }
     }
 
+    /**
+     * <p>
+     * Constructor for MacOperatingSystem.
+     * </p>
+     */
     public MacOperatingSystem() {
         this.manufacturer = "Apple";
         this.version = new MacOSVersionInfoEx();
@@ -110,17 +120,13 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public FileSystem getFileSystem() {
         return new MacFileSystem();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public OSProcess[] getProcesses(int limit, ProcessSort sort, boolean slowFields) {
         List<OSProcess> procs = new ArrayList<>();
@@ -143,9 +149,7 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
         return sorted.toArray(new OSProcess[0]);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public OSProcess getProcess(int pid) {
         return getProcess(pid, true);
@@ -253,9 +257,7 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
         return proc;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public OSProcess[] getChildProcesses(int parentPid, int limit, ProcessSort sort) {
         List<OSProcess> procs = new ArrayList<>();
@@ -338,33 +340,25 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
         return String.join("\0", args);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public MacOSVersionInfoEx getVersion() {
         return (MacOSVersionInfoEx) this.version;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public int getProcessId() {
         return SystemB.INSTANCE.getpid();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public int getProcessCount() {
         return SystemB.INSTANCE.proc_listpids(SystemB.PROC_ALL_PIDS, 0, null, 0) / SystemB.INT_SIZE;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public int getThreadCount() {
         // Get current pids, then slightly pad in case new process starts while
@@ -381,25 +375,19 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
         return numberOfThreads;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getSystemUptime() {
         return System.currentTimeMillis() / 1000 - BOOTTIME;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getSystemBootTime() {
         return BOOTTIME;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public NetworkParams getNetworkParams() {
         return new MacNetworkParams();

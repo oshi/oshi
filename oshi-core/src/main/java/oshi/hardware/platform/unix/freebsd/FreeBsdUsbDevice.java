@@ -34,10 +34,35 @@ import oshi.hardware.common.AbstractUsbDevice;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
+/**
+ * <p>
+ * FreeBsdUsbDevice class.
+ * </p>
+ */
 public class FreeBsdUsbDevice extends AbstractUsbDevice {
 
     private static final long serialVersionUID = 2L;
 
+    /**
+     * <p>
+     * Constructor for FreeBsdUsbDevice.
+     * </p>
+     *
+     * @param name
+     *            a {@link java.lang.String} object.
+     * @param vendor
+     *            a {@link java.lang.String} object.
+     * @param vendorId
+     *            a {@link java.lang.String} object.
+     * @param productId
+     *            a {@link java.lang.String} object.
+     * @param serialNumber
+     *            a {@link java.lang.String} object.
+     * @param uniqueDeviceId
+     *            a {@link java.lang.String} object.
+     * @param connectedDevices
+     *            an array of {@link oshi.hardware.UsbDevice} objects.
+     */
     public FreeBsdUsbDevice(String name, String vendor, String vendorId, String productId, String serialNumber,
             String uniqueDeviceId, UsbDevice[] connectedDevices) {
         super(name, vendor, vendorId, productId, serialNumber, uniqueDeviceId, connectedDevices);
@@ -45,6 +70,10 @@ public class FreeBsdUsbDevice extends AbstractUsbDevice {
 
     /**
      * {@inheritDoc}
+     *
+     * @param tree
+     *            a boolean.
+     * @return an array of {@link oshi.hardware.UsbDevice} objects.
      */
     public static UsbDevice[] getUsbDevices(boolean tree) {
         UsbDevice[] devices = getUsbDevices();
@@ -149,8 +178,8 @@ public class FreeBsdUsbDevice extends AbstractUsbDevice {
     }
 
     /**
-     * Recursively creates SolarisUsbDevices by fetching information from maps
-     * to populate fields
+     * Recursively creates SolarisUsbDevices by fetching information from maps to
+     * populate fields
      *
      * @param devPath
      *            The device node path.

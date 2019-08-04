@@ -40,6 +40,11 @@ import oshi.util.ParseUtil;
 import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
 
+/**
+ * <p>
+ * WindowsOSVersionInfoEx class.
+ * </p>
+ */
 public class WindowsOSVersionInfoEx extends AbstractOSVersionInfoEx {
 
     private static final long serialVersionUID = 1L;
@@ -50,6 +55,11 @@ public class WindowsOSVersionInfoEx extends AbstractOSVersionInfoEx {
         VERSION, PRODUCTTYPE, BUILDNUMBER, CSDVERSION, SUITEMASK;
     }
 
+    /**
+     * <p>
+     * Constructor for WindowsOSVersionInfoEx.
+     * </p>
+     */
     public WindowsOSVersionInfoEx() {
         init();
     }
@@ -71,6 +81,11 @@ public class WindowsOSVersionInfoEx extends AbstractOSVersionInfoEx {
         }
     }
 
+    /**
+     * <p>
+     * handleNoVersionInfo.
+     * </p>
+     */
     protected void handleNoVersionInfo() {
         LOG.warn("No version data available.");
         setVersion(System.getProperty("os.version"));

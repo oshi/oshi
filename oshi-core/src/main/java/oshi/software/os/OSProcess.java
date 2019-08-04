@@ -30,8 +30,6 @@ import java.io.Serializable;
  * contains the program code and its current activity. Depending on the
  * operating system (OS), a process may be made up of multiple threads of
  * execution that execute instructions concurrently.
- *
- * @author widdis[at]gmail[dot]com
  */
 public class OSProcess implements Serializable {
 
@@ -98,6 +96,10 @@ public class OSProcess implements Serializable {
     }
 
     /**
+     * <p>
+     * Getter for the field <code>name</code>.
+     * </p>
+     *
      * @return Returns the name of the process.
      */
     public String getName() {
@@ -105,6 +107,10 @@ public class OSProcess implements Serializable {
     }
 
     /**
+     * <p>
+     * Getter for the field <code>path</code>.
+     * </p>
+     *
      * @return Returns the full path of the executing process.
      */
     public String getPath() {
@@ -112,22 +118,28 @@ public class OSProcess implements Serializable {
     }
 
     /**
-     * @return Returns the process command line. The format of this string is
-     *         platform-dependent and may require the end user to parse the
-     *         result.
+     * <p>
+     * Getter for the field <code>commandLine</code>.
+     * </p>
      *
-     *         On Linux and macOS systems, the string is
-     *         null-character-delimited, to permit the end user to parse the
-     *         executable and arguments if desired. Further, the macOS variant
-     *         may include environment variables which the end user may wish to
-     *         exclude from display. On Solaris, the string is truncated to 80
-     *         characters.
+     * @return Returns the process command line. The format of this string is
+     *         platform-dependent and may require the end user to parse the result.
+     *
+     *         On Linux and macOS systems, the string is null-character-delimited,
+     *         to permit the end user to parse the executable and arguments if
+     *         desired. Further, the macOS variant may include environment variables
+     *         which the end user may wish to exclude from display. On Solaris, the
+     *         string is truncated to 80 characters.
      */
     public String getCommandLine() {
         return this.commandLine;
     }
 
     /**
+     * <p>
+     * Getter for the field <code>currentWorkingDirectory</code>.
+     * </p>
+     *
      * @return Returns the process current working directory.
      *
      *         On Windows, this value is only populated for the current process.
@@ -137,54 +149,71 @@ public class OSProcess implements Serializable {
     }
 
     /**
-     * @return Returns the user name. On Windows systems, also returns the
-     *         domain prepended to the username.
+     * <p>
+     * Getter for the field <code>user</code>.
+     * </p>
+     *
+     * @return Returns the user name. On Windows systems, also returns the domain
+     *         prepended to the username.
      */
     public String getUser() {
         return this.user;
     }
 
     /**
-     * @return Returns the userID. On Windows systems, returns the Security ID
-     *         (SID)
+     * <p>
+     * Getter for the field <code>userID</code>.
+     * </p>
+     *
+     * @return Returns the userID. On Windows systems, returns the Security ID (SID)
      */
     public String getUserID() {
         return this.userID;
     }
 
     /**
+     * <p>
+     * Getter for the field <code>group</code>.
+     * </p>
+     *
      * @return Returns the group.
      *
-     *         On Windows systems, populating this value for processes other
-     *         than the current user requires administrative privileges (and
-     *         still may fail for some system processes) and can incur
-     *         significant latency. The value is only calculated for single
-     *         process queries using {@link OperatingSystem#getProcess(int)}.
-     *         When successful, returns a comma-delimited list of groups with
-     *         access to this process, corresponding to the SIDs in
-     *         {@link #getGroupID()}.
+     *         On Windows systems, populating this value for processes other than
+     *         the current user requires administrative privileges (and still may
+     *         fail for some system processes) and can incur significant latency.
+     *         The value is only calculated for single process queries using
+     *         {@link oshi.software.os.OperatingSystem#getProcess(int)}. When
+     *         successful, returns a comma-delimited list of groups with access to
+     *         this process, corresponding to the SIDs in {@link #getGroupID()}.
      */
     public String getGroup() {
         return this.group;
     }
 
     /**
+     * <p>
+     * Getter for the field <code>groupID</code>.
+     * </p>
+     *
      * @return Returns the groupID.
      *
-     *         On Windows systems, populating this value for processes other
-     *         than the current user requires administrative privileges (and
-     *         still may fail for some system processes) and can incur
-     *         significant latency. The value is only calculated for single
-     *         process queries using {@link OperatingSystem#getProcess(int)}.
-     *         When successful, returns a comma-delimited list of group SIDs
-     *         with access to this process, corresponding to the names in
-     *         {@link #getGroup()}.
+     *         On Windows systems, populating this value for processes other than
+     *         the current user requires administrative privileges (and still may
+     *         fail for some system processes) and can incur significant latency.
+     *         The value is only calculated for single process queries using
+     *         {@link oshi.software.os.OperatingSystem#getProcess(int)}. When
+     *         successful, returns a comma-delimited list of group SIDs with access
+     *         to this process, corresponding to the names in {@link #getGroup()}.
      */
     public String getGroupID() {
         return this.groupID;
     }
 
     /**
+     * <p>
+     * Getter for the field <code>state</code>.
+     * </p>
+     *
      * @return Returns the execution state of the process.
      */
     public State getState() {
@@ -192,6 +221,10 @@ public class OSProcess implements Serializable {
     }
 
     /**
+     * <p>
+     * Getter for the field <code>processID</code>.
+     * </p>
+     *
      * @return Returns the processID.
      */
     public int getProcessID() {
@@ -199,6 +232,10 @@ public class OSProcess implements Serializable {
     }
 
     /**
+     * <p>
+     * Getter for the field <code>parentProcessID</code>.
+     * </p>
+     *
      * @return Returns the parentProcessID, if any; 0 otherwise.
      */
     public int getParentProcessID() {
@@ -206,6 +243,10 @@ public class OSProcess implements Serializable {
     }
 
     /**
+     * <p>
+     * Getter for the field <code>threadCount</code>.
+     * </p>
+     *
      * @return Returns the number of threads in this process.
      */
     public int getThreadCount() {
@@ -213,49 +254,65 @@ public class OSProcess implements Serializable {
     }
 
     /**
+     * <p>
+     * Getter for the field <code>priority</code>.
+     * </p>
+     *
      * @return Returns the priority of this process.
      *
-     *         For Linux and Unix, priority is a value in the range -20 to 19
-     *         (20 on some systems). The default priority is 0; lower priorities
-     *         cause more favorable scheduling.
+     *         For Linux and Unix, priority is a value in the range -20 to 19 (20 on
+     *         some systems). The default priority is 0; lower priorities cause more
+     *         favorable scheduling.
      *
-     *         For Windows, priority values can range from 0 (lowest priority)
-     *         to 31 (highest priority).
+     *         For Windows, priority values can range from 0 (lowest priority) to 31
+     *         (highest priority).
      *
-     *         Mac OS X has 128 priority levels, ranging from 0 (lowest
-     *         priority) to 127 (highest priority). They are divided into
-     *         several major bands: 0 through 51 are the normal levels; the
-     *         default priority is 31. 52 through 79 are the highest priority
-     *         regular threads; 80 through 95 are for kernel mode threads; and
-     *         96 through 127 correspond to real-time threads, which are treated
-     *         differently than other threads by the scheduler.
+     *         Mac OS X has 128 priority levels, ranging from 0 (lowest priority) to
+     *         127 (highest priority). They are divided into several major bands: 0
+     *         through 51 are the normal levels; the default priority is 31. 52
+     *         through 79 are the highest priority regular threads; 80 through 95
+     *         are for kernel mode threads; and 96 through 127 correspond to
+     *         real-time threads, which are treated differently than other threads
+     *         by the scheduler.
      */
     public int getPriority() {
         return this.priority;
     }
 
     /**
-     * @return Returns the Virtual Memory Size (VSZ). It includes all memory
-     *         that the process can access, including memory that is swapped out
-     *         and memory that is from shared libraries.
+     * <p>
+     * Getter for the field <code>virtualSize</code>.
+     * </p>
+     *
+     * @return Returns the Virtual Memory Size (VSZ). It includes all memory that
+     *         the process can access, including memory that is swapped out and
+     *         memory that is from shared libraries.
      */
     public long getVirtualSize() {
         return this.virtualSize;
     }
 
     /**
-     * @return Returns the Resident Set Size (RSS). On Windows, returns the
-     *         Private Working Set size. It is used to show how much memory is
-     *         allocated to that process and is in RAM. It does not include
-     *         memory that is swapped out. It does include memory from shared
-     *         libraries as long as the pages from those libraries are actually
-     *         in memory. It does include all stack and heap memory.
+     * <p>
+     * Getter for the field <code>residentSetSize</code>.
+     * </p>
+     *
+     * @return Returns the Resident Set Size (RSS). On Windows, returns the Private
+     *         Working Set size. It is used to show how much memory is allocated to
+     *         that process and is in RAM. It does not include memory that is
+     *         swapped out. It does include memory from shared libraries as long as
+     *         the pages from those libraries are actually in memory. It does
+     *         include all stack and heap memory.
      */
     public long getResidentSetSize() {
         return this.residentSetSize;
     }
 
     /**
+     * <p>
+     * Getter for the field <code>kernelTime</code>.
+     * </p>
+     *
      * @return Returns the number of milliseconds the process has executed in
      *         kernel/system mode.
      */
@@ -264,14 +321,22 @@ public class OSProcess implements Serializable {
     }
 
     /**
-     * @return Returns the number of milliseconds the process has executed in
-     *         user mode.
+     * <p>
+     * Getter for the field <code>userTime</code>.
+     * </p>
+     *
+     * @return Returns the number of milliseconds the process has executed in user
+     *         mode.
      */
     public long getUserTime() {
         return this.userTime;
     }
 
     /**
+     * <p>
+     * Getter for the field <code>upTime</code>.
+     * </p>
+     *
      * @return Returns the number of milliseconds since the process started.
      */
     public long getUpTime() {
@@ -279,14 +344,22 @@ public class OSProcess implements Serializable {
     }
 
     /**
-     * @return Returns the start time of the process in number of milliseconds
-     *         since January 1, 1970.
+     * <p>
+     * Getter for the field <code>startTime</code>.
+     * </p>
+     *
+     * @return Returns the start time of the process in number of milliseconds since
+     *         January 1, 1970.
      */
     public long getStartTime() {
         return this.startTime;
     }
 
     /**
+     * <p>
+     * Getter for the field <code>bytesRead</code>.
+     * </p>
+     *
      * @return Returns the number of bytes the process has read from disk.
      */
     public long getBytesRead() {
@@ -294,6 +367,10 @@ public class OSProcess implements Serializable {
     }
 
     /**
+     * <p>
+     * Getter for the field <code>bytesWritten</code>.
+     * </p>
+     *
      * @return Returns the number of bytes the process has written to disk.
      */
     public long getBytesWritten() {
@@ -423,19 +500,18 @@ public class OSProcess implements Serializable {
     /**
      * Set the priority of this process.
      *
-     * For Linux, priority is a value in the range -20 to 19 (20 on some
-     * systems). The default priority is 0; lower priorities cause more
-     * favorable scheduling.
+     * For Linux, priority is a value in the range -20 to 19 (20 on some systems).
+     * The default priority is 0; lower priorities cause more favorable scheduling.
      *
      * For Windows, priority values can range from 0 (lowest priority) to 31
      * (highest priority).
      *
      * Mac OS X has 128 priority levels, ranging from 0 (lowest priority) to 127
-     * (highest priority). They are divided into several major bands: 0 through
-     * 51 are the normal levels; the default priority is 31. 52 through 79 are
-     * the highest priority regular threads; 80 through 95 are for kernel mode
-     * threads; and 96 through 127 correspond to real-time threads, which are
-     * treated differently than other threads by the scheduler.
+     * (highest priority). They are divided into several major bands: 0 through 51
+     * are the normal levels; the default priority is 31. 52 through 79 are the
+     * highest priority regular threads; 80 through 95 are for kernel mode threads;
+     * and 96 through 127 correspond to real-time threads, which are treated
+     * differently than other threads by the scheduler.
      *
      * @param priority
      *            priority
@@ -445,9 +521,9 @@ public class OSProcess implements Serializable {
     }
 
     /**
-     * Set the Virtual Memory Size (VSZ). It includes all memory that the
-     * process can access, including memory that is swapped out and memory that
-     * is from shared libraries.
+     * Set the Virtual Memory Size (VSZ). It includes all memory that the process
+     * can access, including memory that is swapped out and memory that is from
+     * shared libraries.
      *
      * @param virtualSize
      *            virtual size
@@ -458,10 +534,10 @@ public class OSProcess implements Serializable {
 
     /**
      * Set the Resident Set Size (RSS). It is used to show how much memory is
-     * allocated to that process and is in RAM. It does not include memory that
-     * is swapped out. It does include memory from shared libraries as long as
-     * the pages from those libraries are actually in memory. It does include
-     * all stack and heap memory.
+     * allocated to that process and is in RAM. It does not include memory that is
+     * swapped out. It does include memory from shared libraries as long as the
+     * pages from those libraries are actually in memory. It does include all stack
+     * and heap memory.
      *
      * @param residentSetSize
      *            resident set size
@@ -491,8 +567,8 @@ public class OSProcess implements Serializable {
     }
 
     /**
-     * Set the start time of the process in number of milliseconds since January
-     * 1, 1970.
+     * Set the start time of the process in number of milliseconds since January 1,
+     * 1970.
      *
      * @param startTime
      *            start time
@@ -532,8 +608,8 @@ public class OSProcess implements Serializable {
     }
 
     /**
-     * Sets the number of open file handles (or network connections) that
-     * belongs to the process
+     * Sets the number of open file handles (or network connections) that belongs to
+     * the process
      *
      * @param count
      *            The number of handles
@@ -543,8 +619,8 @@ public class OSProcess implements Serializable {
     }
 
     /**
-     * Sets the number of open file handles (or network connections) that
-     * belongs to the process
+     * Sets the number of open file handles (or network connections) that belongs to
+     * the process
      *
      * On FreeBSD and Solaris, this value is only populated if information for a
      * single process id is requested.
@@ -558,8 +634,8 @@ public class OSProcess implements Serializable {
     /**
      * Calculates CPU usage of this process.
      *
-     * @return The proportion of up time that the process was executing in
-     *         kernel or user mode.
+     * @return The proportion of up time that the process was executing in kernel or
+     *         user mode.
      */
     public double calculateCpuPercent() {
         if (this.cpuPercent < 0d) {
@@ -568,9 +644,7 @@ public class OSProcess implements Serializable {
         return this.cpuPercent;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder("OSProcess@");
@@ -590,7 +664,12 @@ public class OSProcess implements Serializable {
     }
 
     /**
-     * @param bitness The bitness to set.
+     * <p>
+     * Setter for the field <code>bitness</code>.
+     * </p>
+     *
+     * @param bitness
+     *            The bitness to set.
      */
     public void setBitness(int bitness) {
         this.bitness = bitness;

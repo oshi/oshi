@@ -30,6 +30,11 @@ import oshi.software.common.AbstractOSVersionInfoEx;
 import oshi.util.ParseUtil;
 import oshi.util.platform.mac.SysctlUtil;
 
+/**
+ * <p>
+ * MacOSVersionInfoEx class.
+ * </p>
+ */
 public class MacOSVersionInfoEx extends AbstractOSVersionInfoEx {
 
     private static final long serialVersionUID = 1L;
@@ -38,12 +43,24 @@ public class MacOSVersionInfoEx extends AbstractOSVersionInfoEx {
 
     private int osxVersionNumber = -1;
 
+    /**
+     * <p>
+     * Constructor for MacOSVersionInfoEx.
+     * </p>
+     */
     public MacOSVersionInfoEx() {
         setVersion(System.getProperty("os.version"));
         setCodeName(parseCodeName());
         setBuildNumber(SysctlUtil.sysctl("kern.osversion", ""));
     }
 
+    /**
+     * <p>
+     * Getter for the field <code>osxVersionNumber</code>.
+     * </p>
+     *
+     * @return a int.
+     */
     public int getOsxVersionNumber() {
         return this.osxVersionNumber;
     }

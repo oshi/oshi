@@ -39,6 +39,18 @@ public class FreeBsdPowerSource extends AbstractPowerSource {
 
     private static final Logger LOG = LoggerFactory.getLogger(FreeBsdPowerSource.class);
 
+    /**
+     * <p>
+     * Constructor for FreeBsdPowerSource.
+     * </p>
+     *
+     * @param newName
+     *            a {@link java.lang.String} object.
+     * @param newRemainingCapacity
+     *            a double.
+     * @param newTimeRemaining
+     *            a double.
+     */
     public FreeBsdPowerSource(String newName, double newRemainingCapacity, double newTimeRemaining) {
         super(newName, newRemainingCapacity, newTimeRemaining);
         LOG.debug("Initialized FreeBsdPowerSource");
@@ -69,9 +81,7 @@ public class FreeBsdPowerSource extends AbstractPowerSource {
         return new FreeBsdPowerSource(name, life / 100d, timeRemaining);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void updateAttributes() {
         PowerSource ps = getPowerSource(this.name);

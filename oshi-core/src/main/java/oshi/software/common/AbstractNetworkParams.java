@@ -45,9 +45,7 @@ public abstract class AbstractNetworkParams implements NetworkParams {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractNetworkParams.class);
     private static final String NAMESERVER = "nameserver";
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getDomainName() {
         try {
@@ -58,9 +56,7 @@ public abstract class AbstractNetworkParams implements NetworkParams {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getHostName() {
         try {
@@ -77,9 +73,7 @@ public abstract class AbstractNetworkParams implements NetworkParams {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String[] getDnsServers() {
         List<String> resolv = FileUtil.readFile("/etc/resolv.conf");

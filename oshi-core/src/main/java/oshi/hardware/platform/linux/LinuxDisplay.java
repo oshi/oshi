@@ -36,8 +36,6 @@ import oshi.util.ParseUtil;
 
 /**
  * A Display
- *
- * @author widdis[at]gmail[dot]com
  */
 public class LinuxDisplay extends AbstractDisplay {
 
@@ -45,6 +43,14 @@ public class LinuxDisplay extends AbstractDisplay {
 
     private static final Logger LOG = LoggerFactory.getLogger(LinuxDisplay.class);
 
+    /**
+     * <p>
+     * Constructor for LinuxDisplay.
+     * </p>
+     *
+     * @param edid
+     *            an array of {@link byte} objects.
+     */
     public LinuxDisplay(byte[] edid) {
         super(edid);
         LOG.debug("Initialized LinuxDisplay");

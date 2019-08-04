@@ -35,15 +35,18 @@ import oshi.jna.platform.unix.freebsd.Libc;
 import oshi.software.common.AbstractNetworkParams;
 import oshi.util.ExecutingCommand;
 
+/**
+ * <p>
+ * FreeBsdNetworkParams class.
+ * </p>
+ */
 public class FreeBsdNetworkParams extends AbstractNetworkParams {
 
     private static final long serialVersionUID = 1L;
 
     private static final Logger LOG = LoggerFactory.getLogger(FreeBsdNetworkParams.class);
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getDomainName() {
         Libc.Addrinfo hint = new Libc.Addrinfo();
@@ -69,17 +72,13 @@ public class FreeBsdNetworkParams extends AbstractNetworkParams {
         return canonname;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getIpv4DefaultGateway() {
         return searchGateway(ExecutingCommand.runNative("route -4 get default"));
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getIpv6DefaultGateway() {
         return searchGateway(ExecutingCommand.runNative("route -6 get default"));

@@ -36,8 +36,6 @@ import oshi.jna.platform.unix.freebsd.Libc;
 
 /**
  * Provides access to sysctl calls on FreeBSD
- *
- * @author widdis[at]gmail[dot]com
  */
 public class BsdSysctlUtil {
     private static final Logger LOG = LoggerFactory.getLogger(BsdSysctlUtil.class);
@@ -92,8 +90,7 @@ public class BsdSysctlUtil {
      *            name of the sysctl
      * @param def
      *            default String value
-     * @return The String result of the call if successful; the default
-     *         otherwise
+     * @return The String result of the call if successful; the default otherwise
      */
     public static String sysctl(String name, String def) {
         // Call first time with null pointer to get value of size

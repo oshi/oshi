@@ -26,10 +26,20 @@ package oshi.software.os.unix.freebsd;
 import oshi.software.common.AbstractOSVersionInfoEx;
 import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
 
+/**
+ * <p>
+ * FreeBsdOSVersionInfoEx class.
+ * </p>
+ */
 public class FreeBsdOSVersionInfoEx extends AbstractOSVersionInfoEx {
 
     private static final long serialVersionUID = 1L;
 
+    /**
+     * <p>
+     * Constructor for FreeBsdOSVersionInfoEx.
+     * </p>
+     */
     public FreeBsdOSVersionInfoEx() {
         setVersion(BsdSysctlUtil.sysctl("kern.osrelease", ""));
         String versionInfo = BsdSysctlUtil.sysctl("kern.version", "");

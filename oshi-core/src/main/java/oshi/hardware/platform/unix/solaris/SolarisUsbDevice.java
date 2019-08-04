@@ -34,6 +34,11 @@ import oshi.hardware.common.AbstractUsbDevice;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
+/**
+ * <p>
+ * SolarisUsbDevice class.
+ * </p>
+ */
 public class SolarisUsbDevice extends AbstractUsbDevice {
 
     private static final long serialVersionUID = 2L;
@@ -43,6 +48,26 @@ public class SolarisUsbDevice extends AbstractUsbDevice {
      */
     private static Map<Integer, String> lastParent = new HashMap<>();
 
+    /**
+     * <p>
+     * Constructor for SolarisUsbDevice.
+     * </p>
+     *
+     * @param name
+     *            a {@link java.lang.String} object.
+     * @param vendor
+     *            a {@link java.lang.String} object.
+     * @param vendorId
+     *            a {@link java.lang.String} object.
+     * @param productId
+     *            a {@link java.lang.String} object.
+     * @param serialNumber
+     *            a {@link java.lang.String} object.
+     * @param uniqueDeviceId
+     *            a {@link java.lang.String} object.
+     * @param connectedDevices
+     *            an array of {@link oshi.hardware.UsbDevice} objects.
+     */
     public SolarisUsbDevice(String name, String vendor, String vendorId, String productId, String serialNumber,
             String uniqueDeviceId, UsbDevice[] connectedDevices) {
         super(name, vendor, vendorId, productId, serialNumber, uniqueDeviceId, connectedDevices);
@@ -50,6 +75,10 @@ public class SolarisUsbDevice extends AbstractUsbDevice {
 
     /**
      * {@inheritDoc}
+     *
+     * @param tree
+     *            a boolean.
+     * @return an array of {@link oshi.hardware.UsbDevice} objects.
      */
     public static UsbDevice[] getUsbDevices(boolean tree) {
         UsbDevice[] devices = getUsbDevices();
@@ -61,7 +90,8 @@ public class SolarisUsbDevice extends AbstractUsbDevice {
         // their connected devices will be
         for (UsbDevice device : devices) {
             deviceList.add(new SolarisUsbDevice(device.getName(), device.getVendor(), device.getVendorId(),
-                    device.getProductId(), device.getSerialNumber(), device.getUniqueDeviceId(), new SolarisUsbDevice[0]));
+                    device.getProductId(), device.getSerialNumber(), device.getUniqueDeviceId(),
+                    new SolarisUsbDevice[0]));
             addDevicesToList(deviceList, device.getConnectedDevices());
         }
         return deviceList.toArray(new UsbDevice[0]);
@@ -156,8 +186,8 @@ public class SolarisUsbDevice extends AbstractUsbDevice {
     }
 
     /**
-     * Recursively creates SolarisUsbDevices by fetching information from maps
-     * to populate fields
+     * Recursively creates SolarisUsbDevices by fetching information from maps to
+     * populate fields
      *
      * @param devPath
      *            The device node path.

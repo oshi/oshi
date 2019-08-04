@@ -90,23 +90,18 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
 
     /**
      * Updates logical and physical processor counts and arrays
-     * 
+     *
      * @return An array of initialized Logical Processors
      */
     protected abstract LogicalProcessor[] initProcessorCounts();
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public LogicalProcessor[] getLogicalProcessors() {
         return this.logicalProcessors;
     }
 
-
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getMaxFreq() {
         if (this.cpuMaxFreq == 0) {
@@ -117,14 +112,12 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
 
     /**
      * Get processor max frequency.
-     * 
+     *
      * @return The max frequency.
      */
     protected abstract long queryMaxFreq();
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getVendor() {
         if (this.cpuVendor == null) {
@@ -133,9 +126,7 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
         return this.cpuVendor;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getName() {
         if (this.cpuName == null) {
@@ -144,9 +135,7 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
         return this.cpuName;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getProcessorID() {
         if (this.processorID == null) {
@@ -155,9 +144,7 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
         return this.processorID;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getVendorFreq() {
         if (this.cpuVendorFreq == 0) {
@@ -174,9 +161,7 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
         return this.cpuVendorFreq;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getIdentifier() {
         if (this.cpuIdentifier == null) {
@@ -194,9 +179,7 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
         return this.cpuIdentifier;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean isCpu64bit() {
         if (this.cpu64 == null) {
@@ -205,9 +188,7 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
         return this.cpu64;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getStepping() {
         if (this.cpuStepping == null) {
@@ -219,9 +200,7 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
         return this.cpuStepping;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getModel() {
         if (this.cpuModel == null) {
@@ -233,9 +212,7 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
         return this.cpuModel;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getFamily() {
         if (this.cpuFamily == null) {
@@ -248,6 +225,10 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
     }
 
     /**
+     * <p>
+     * setVendor.
+     * </p>
+     *
      * @param cpuVendor
      *            the cpuVendor to set
      */
@@ -256,6 +237,10 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
     }
 
     /**
+     * <p>
+     * setName.
+     * </p>
+     *
      * @param cpuName
      *            the cpuName to set
      */
@@ -264,6 +249,10 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
     }
 
     /**
+     * <p>
+     * setIdentifier.
+     * </p>
+     *
      * @param cpuIdentifier
      *            the cpuIdentifier to set
      */
@@ -272,6 +261,10 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
     }
 
     /**
+     * <p>
+     * setStepping.
+     * </p>
+     *
      * @param cpuStepping
      *            the cpuStepping to set
      */
@@ -280,6 +273,10 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
     }
 
     /**
+     * <p>
+     * setModel.
+     * </p>
+     *
      * @param cpuModel
      *            the cpuModel to set
      */
@@ -288,6 +285,10 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
     }
 
     /**
+     * <p>
+     * setFamily.
+     * </p>
+     *
      * @param cpuFamily
      *            the cpuFamily to set
      */
@@ -296,6 +297,10 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
     }
 
     /**
+     * <p>
+     * setVendorFreq.
+     * </p>
+     *
      * @param cpuVendorFreq
      *            the cpuVendorFreq to set
      */
@@ -304,6 +309,10 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
     }
 
     /**
+     * <p>
+     * Setter for the field <code>cpu64</code>.
+     * </p>
+     *
      * @param cpu64
      *            the cpu64 to set
      */
@@ -312,6 +321,10 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
     }
 
     /**
+     * <p>
+     * Setter for the field <code>processorID</code>.
+     * </p>
+     *
      * @param processorID
      *            the processorID to set
      */
@@ -340,9 +353,7 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
         return "";
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public synchronized double getSystemCpuLoadBetweenTicks(long[] oldTicks) {
         if (oldTicks.length != TickType.values().length) {
@@ -363,9 +374,7 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
         return total > 0 && idle >= 0 ? (double) (total - idle) / total : 0d;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @SuppressWarnings("restriction")
     @Override
     public double getSystemCpuLoad() {
@@ -375,9 +384,7 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
         return -1.0;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public double[] getProcessorCpuLoadBetweenTicks(long[][] oldTicks) {
         if (oldTicks.length != this.logicalProcessorCount || oldTicks[0].length != TickType.values().length) {
@@ -402,38 +409,33 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
         return load;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public int getLogicalProcessorCount() {
         return this.logicalProcessorCount;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public int getPhysicalProcessorCount() {
         return this.physicalProcessorCount;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public int getPhysicalPackageCount() {
         return this.physicalPackageCount;
     }
 
+    /** {@inheritDoc} */
     @Override
     public String toString() {
         return getName();
     }
 
     /**
-     * Creates a Processor ID by encoding the stepping, model, family, and
-     * feature flags.
+     * Creates a Processor ID by encoding the stepping, model, family, and feature
+     * flags.
      *
      * @param stepping
      *            The CPU stepping

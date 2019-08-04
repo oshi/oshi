@@ -40,9 +40,7 @@ final class MacComputerSystem extends AbstractComputerSystem {
 
     private static final long serialVersionUID = 1L;
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getManufacturer() {
         if (this.manufacturer == null) {
@@ -51,9 +49,7 @@ final class MacComputerSystem extends AbstractComputerSystem {
         return this.manufacturer;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getModel() {
         if (this.model == null) {
@@ -62,9 +58,7 @@ final class MacComputerSystem extends AbstractComputerSystem {
         return super.getModel();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getSerialNumber() {
         if (this.serialNumber == null) {
@@ -73,9 +67,7 @@ final class MacComputerSystem extends AbstractComputerSystem {
         return super.getSerialNumber();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public Firmware getFirmware() {
         if (this.firmware == null) {
@@ -84,9 +76,7 @@ final class MacComputerSystem extends AbstractComputerSystem {
         return this.firmware;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public Baseboard getBaseboard() {
         if (this.baseboard == null) {

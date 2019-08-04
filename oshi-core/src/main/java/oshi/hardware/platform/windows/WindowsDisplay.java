@@ -44,8 +44,6 @@ import oshi.hardware.common.AbstractDisplay;
 
 /**
  * A Display
- *
- * @author widdis[at]gmail[dot]com
  */
 public class WindowsDisplay extends AbstractDisplay {
 
@@ -53,6 +51,14 @@ public class WindowsDisplay extends AbstractDisplay {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsDisplay.class);
 
+    /**
+     * <p>
+     * Constructor for WindowsDisplay.
+     * </p>
+     *
+     * @param edid
+     *            an array of {@link byte} objects.
+     */
     public WindowsDisplay(byte[] edid) {
         super(edid);
         LOG.debug("Initialized WindowsDisplay");

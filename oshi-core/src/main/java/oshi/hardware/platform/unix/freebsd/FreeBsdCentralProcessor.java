@@ -34,7 +34,7 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Memory;
+import com.sun.jna.Memory; // NOSONAR squid:S1191
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
@@ -49,8 +49,6 @@ import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
 
 /**
  * A CPU
- *
- * @author widdis[at]gmail[dot]com
  */
 public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
 
@@ -109,6 +107,8 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
     }
 
     /**
+     * {@inheritDoc}
+     *
      * Updates logical and physical processor/package counts
      */
     @Override
@@ -216,9 +216,7 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
         return 0;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long[] getSystemCpuLoadTicks() {
         long[] ticks = new long[TickType.values().length];
@@ -232,9 +230,7 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
         return ticks;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long[] getCurrentFreq() {
         long freq = BsdSysctlUtil.sysctl("dev.cpu.0.freq", -1L);
@@ -249,9 +245,7 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
         return freqs;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long queryMaxFreq() {
         long max = -1L;
@@ -272,9 +266,7 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
         return max;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public double[] getSystemLoadAverage(int nelem) {
         if (nelem < 1 || nelem > 3) {
@@ -290,9 +282,7 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
         return average;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long[][] getProcessorCpuLoadTicks() {
         long[][] ticks = new long[this.logicalProcessorCount][TickType.values().length];
@@ -319,8 +309,8 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
     }
 
     /**
-     * Fetches the ProcessorID from dmidecode (if possible with root
-     * permissions), otherwise uses the values from /var/run/dmesg.boot
+     * Fetches the ProcessorID from dmidecode (if possible with root permissions),
+     * otherwise uses the values from /var/run/dmesg.boot
      *
      * @param processorID
      * @return The ProcessorID string
@@ -340,9 +330,7 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
         return String.format("%016X", processorID);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getContextSwitches() {
         String name = "vm.stats.sys.v_swtch";
@@ -354,9 +342,7 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
         return ParseUtil.unsignedIntToLong(p.getInt(0));
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getInterrupts() {
         String name = "vm.stats.sys.v_intr";

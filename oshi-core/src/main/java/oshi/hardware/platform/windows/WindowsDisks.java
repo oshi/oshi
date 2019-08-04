@@ -49,8 +49,6 @@ import oshi.util.platform.windows.WmiUtil;
 
 /**
  * Windows hard disk implementation.
- *
- * @author enrico[dot]bianchi[at]gmail[dot]com
  */
 public class WindowsDisks implements Disks {
 
@@ -123,6 +121,15 @@ public class WindowsDisks implements Disks {
 
     private final transient WmiQueryHandler wmiQueryHandler = WmiQueryHandler.createInstance();
 
+    /**
+     * <p>
+     * updateDiskStats.
+     * </p>
+     *
+     * @param diskStore
+     *            a {@link oshi.hardware.HWDiskStore} object.
+     * @return a boolean.
+     */
     public static boolean updateDiskStats(HWDiskStore diskStore) {
         String index = null;
         HWPartition[] partitions = diskStore.getPartitions();
@@ -161,6 +168,7 @@ public class WindowsDisks implements Disks {
 
     }
 
+    /** {@inheritDoc} */
     @Override
     public HWDiskStore[] getDisks() {
         List<HWDiskStore> result;
@@ -204,8 +212,8 @@ public class WindowsDisks implements Disks {
     }
 
     /**
-     * Populates the maps for the specified index. If the index is null,
-     * populates all the maps
+     * Populates the maps for the specified index. If the index is null, populates
+     * all the maps
      *
      * @param index
      *            The index to populate/update maps for

@@ -42,54 +42,43 @@ public class AbstractOSVersionInfoEx implements OperatingSystemVersion {
 
     protected String buildNumber;
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getVersion() {
         return this.version;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void setVersion(String version) {
         this.version = version;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getCodeName() {
         return this.codeName;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void setCodeName(String codeName) {
         this.codeName = codeName;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getBuildNumber() {
         return this.buildNumber;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void setBuildNumber(String buildNumber) {
         this.buildNumber = buildNumber;
     }
 
+    /** {@inheritDoc} */
     @Override
     public String toString() {
         if (this.versionStr == null) {

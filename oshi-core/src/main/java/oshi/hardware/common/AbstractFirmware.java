@@ -39,9 +39,7 @@ public abstract class AbstractFirmware implements Firmware {
     protected String version;
     protected String releaseDate;
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getManufacturer() {
         if (this.manufacturer == null) {
@@ -50,9 +48,7 @@ public abstract class AbstractFirmware implements Firmware {
         return this.manufacturer;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getName() {
         if (this.name == null) {
@@ -61,9 +57,7 @@ public abstract class AbstractFirmware implements Firmware {
         return this.name;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getDescription() {
         if (this.description == null) {
@@ -72,9 +66,7 @@ public abstract class AbstractFirmware implements Firmware {
         return this.description;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getVersion() {
         if (this.version == null) {
@@ -83,9 +75,7 @@ public abstract class AbstractFirmware implements Firmware {
         return this.version;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getReleaseDate() {
         if (this.releaseDate == null) {
@@ -95,6 +85,10 @@ public abstract class AbstractFirmware implements Firmware {
     }
 
     /**
+     * <p>
+     * Setter for the field <code>manufacturer</code>.
+     * </p>
+     *
      * @param manufacturer
      *            The manufacturer to set.
      */
@@ -103,6 +97,10 @@ public abstract class AbstractFirmware implements Firmware {
     }
 
     /**
+     * <p>
+     * Setter for the field <code>name</code>.
+     * </p>
+     *
      * @param name
      *            The name to set.
      */
@@ -111,6 +109,10 @@ public abstract class AbstractFirmware implements Firmware {
     }
 
     /**
+     * <p>
+     * Setter for the field <code>description</code>.
+     * </p>
+     *
      * @param description
      *            The description to set.
      */
@@ -119,6 +121,10 @@ public abstract class AbstractFirmware implements Firmware {
     }
 
     /**
+     * <p>
+     * Setter for the field <code>version</code>.
+     * </p>
+     *
      * @param version
      *            The version to set.
      */
@@ -127,6 +133,10 @@ public abstract class AbstractFirmware implements Firmware {
     }
 
     /**
+     * <p>
+     * Setter for the field <code>releaseDate</code>.
+     * </p>
+     *
      * @param releaseDate
      *            The releaseDate to set.
      */

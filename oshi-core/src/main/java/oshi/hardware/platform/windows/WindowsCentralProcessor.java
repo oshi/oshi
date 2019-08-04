@@ -263,6 +263,8 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
     }
 
     /**
+     * {@inheritDoc}
+     *
      * Updates logical and physical processor counts
      */
     @Override
@@ -427,9 +429,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
         return 0;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long[] getSystemCpuLoadTicks() {
         long[] ticks = new long[TickType.values().length];
@@ -462,17 +462,13 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
         return ticks;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long[] getCurrentFreq() {
         return queryNTPower(2); // Current is field index 2
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long queryMaxFreq() {
         long[] freqs = queryNTPower(1); // Max is field index 1
@@ -480,8 +476,8 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
     }
 
     /**
-     * Call CallNTPowerInformation for Processor information and return an array
-     * of the specified index
+     * Call CallNTPowerInformation for Processor information and return an array of
+     * the specified index
      * 
      * @param fieldIndex
      *            The field, in order as defined in the
@@ -512,9 +508,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
         return freqs;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public double[] getSystemLoadAverage(int nelem) {
         if (nelem < 1 || nelem > 3) {
@@ -528,9 +522,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
         return average;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long[][] getProcessorCpuLoadTicks() {
         Map<ProcessorTickCountProperty, List<Long>> valueMap = this.processorTickPerfCounters.queryValuesWildcard();
@@ -576,18 +568,14 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
         return ticks;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getContextSwitches() {
         Map<ContextSwitchProperty, Long> valueMap = this.contextSwitchPerfCounters.queryValues();
         return valueMap.getOrDefault(ContextSwitchProperty.CONTEXTSWITCHESPERSEC, 0L);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getInterrupts() {
         Map<InterruptsProperty, Long> valueMap = this.interruptsPerfCounters.queryValues();

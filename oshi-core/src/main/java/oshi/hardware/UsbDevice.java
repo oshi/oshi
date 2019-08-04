@@ -68,8 +68,8 @@ public interface UsbDevice extends Serializable, Comparable<UsbDevice> {
 
     /**
      * A Unique Device ID of the USB device, such as the PnPDeviceID (Windows),
-     * Device Node Path (Linux), Registry Entry ID (macOS), or Device Node
-     * number (Unix)
+     * Device Node Path (Linux), Registry Entry ID (macOS), or Device Node number
+     * (Unix)
      *
      * @return The Unique Device ID
      */
@@ -78,8 +78,8 @@ public interface UsbDevice extends Serializable, Comparable<UsbDevice> {
     /**
      * Other devices connected to this hub
      *
-     * @return An array of other devices connected to this hub, if any, or an
-     *         empty array if none
+     * @return An array of other devices connected to this hub, if any, or an empty
+     *         array if none
      */
     UsbDevice[] getConnectedDevices();
 }

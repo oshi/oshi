@@ -38,8 +38,6 @@ import oshi.hardware.Networks;
 
 /**
  * Network interfaces implementation.
- *
- * @author enrico[dot]bianchi[at]gmail[dot]com
  */
 public abstract class AbstractNetworks implements Networks {
 
@@ -47,9 +45,7 @@ public abstract class AbstractNetworks implements Networks {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractNetworks.class);
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public NetworkIF[] getNetworks() {
         List<NetworkIF> result = new ArrayList<>();

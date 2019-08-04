@@ -34,9 +34,7 @@ public class FreeBsdGlobalMemory extends AbstractGlobalMemory {
 
     private static final long serialVersionUID = 1L;
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getAvailable() {
         long inactive = BsdSysctlUtil.sysctl("vm.stats.vm.v_inactive_count", 0L);
@@ -46,9 +44,7 @@ public class FreeBsdGlobalMemory extends AbstractGlobalMemory {
         return this.memAvailable;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getTotal() {
         if (this.memTotal < 0) {
@@ -57,9 +53,7 @@ public class FreeBsdGlobalMemory extends AbstractGlobalMemory {
         return this.memTotal;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getPageSize() {
         if (this.pageSize < 0) {
@@ -68,9 +62,7 @@ public class FreeBsdGlobalMemory extends AbstractGlobalMemory {
         return this.pageSize;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public VirtualMemory getVirtualMemory() {
         if (this.virtualMemory == null) {

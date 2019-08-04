@@ -52,10 +52,18 @@ public class DetectVM {
         vmMacAddressOUI.put("02:42:AC", "Docker Container");
     }
 
-    private static final String[] vmModelArray = new String[] {"Linux KVM", "Linux lguest", "OpenVZ", "Qemu",
+    private static final String[] vmModelArray = new String[] { "Linux KVM", "Linux lguest", "OpenVZ", "Qemu",
             "Microsoft Virtual PC", "VMWare", "linux-vserver", "Xen", "FreeBSD Jail", "VirtualBox", "Parallels",
-            "Linux Containers", "LXC"};
+            "Linux Containers", "LXC" };
 
+    /**
+     * <p>
+     * main.
+     * </p>
+     *
+     * @param args
+     *            an array of {@link java.lang.String} objects.
+     */
     public static void main(String[] args) {
         String vmString = identifyVM();
 
@@ -67,11 +75,11 @@ public class DetectVM {
     }
 
     /**
-     * The function attempts to identify which Virtual Machine (VM) based on
-     * common VM signatures in MAC address and computer model.
+     * The function attempts to identify which Virtual Machine (VM) based on common
+     * VM signatures in MAC address and computer model.
      *
-     * @return A string indicating the machine's virtualization info if it can
-     * be determined, or an emptry string otherwise.
+     * @return A string indicating the machine's virtualization info if it can be
+     *         determined, or an emptry string otherwise.
      */
     public static String identifyVM() {
 
@@ -105,10 +113,17 @@ public class DetectVM {
         return "";
     }
 
+    /**
+     * <p>
+     * findOuiByMacAddressIfPossible.
+     * </p>
+     *
+     * @param mac
+     *            a {@link java.lang.String} object.
+     * @return a {@link java.lang.String} object.
+     */
     public static String findOuiByMacAddressIfPossible(String mac) {
-        return vmMacAddressOUI.entrySet().stream()
-                .filter(entry -> mac.startsWith(entry.getKey()))
-                .map(Map.Entry::getValue)
-                .collect(Collectors.joining());
+        return vmMacAddressOUI.entrySet().stream().filter(entry -> mac.startsWith(entry.getKey()))
+                .map(Map.Entry::getValue).collect(Collectors.joining());
     }
 }

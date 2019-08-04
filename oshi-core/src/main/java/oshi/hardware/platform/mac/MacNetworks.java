@@ -37,7 +37,9 @@ import oshi.hardware.NetworkIF;
 import oshi.hardware.common.AbstractNetworks;
 
 /**
- * @author widdis[at]gmail[dot]com
+ * <p>
+ * MacNetworks class.
+ * </p>
  */
 public class MacNetworks extends AbstractNetworks {
 
@@ -84,8 +86,7 @@ public class MacNetworks extends AbstractNetworks {
      * @param index
      *            The network interface index to query
      * @return an {@link IFData} object encapsulating the stats if the index
-     *         matches, or null if there was no match or an error reading the
-     *         stats
+     *         matches, or null if there was no match or an error reading the stats
      */
     private static synchronized IFdata queryIFdata(int index) {
         // Get buffer of all interface information

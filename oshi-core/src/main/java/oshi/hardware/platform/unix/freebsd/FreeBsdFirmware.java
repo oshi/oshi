@@ -32,9 +32,7 @@ final class FreeBsdFirmware extends AbstractFirmware {
 
     private static final long serialVersionUID = 1L;
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getManufacturer() {
         if (this.manufacturer == null) {
@@ -43,9 +41,7 @@ final class FreeBsdFirmware extends AbstractFirmware {
         return super.getManufacturer();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getVersion() {
         if (this.version == null) {
@@ -54,9 +50,7 @@ final class FreeBsdFirmware extends AbstractFirmware {
         return super.getVersion();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getReleaseDate() {
         if (this.releaseDate == null) {

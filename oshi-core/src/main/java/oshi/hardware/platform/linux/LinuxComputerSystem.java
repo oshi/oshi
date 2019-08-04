@@ -41,9 +41,7 @@ final class LinuxComputerSystem extends AbstractComputerSystem {
 
     private static final long serialVersionUID = 1L;
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getManufacturer() {
         if (this.manufacturer == null && !queryManufacturerFromSysfs() && !queryManufacturerFromProcCpu()) {
@@ -52,9 +50,7 @@ final class LinuxComputerSystem extends AbstractComputerSystem {
         return super.getManufacturer();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getModel() {
         if (this.model == null && !queryModelFromSysfs() && !queryModelFromDeviceTree()
@@ -64,9 +60,7 @@ final class LinuxComputerSystem extends AbstractComputerSystem {
         return super.getModel();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getSerialNumber() {
         if (this.serialNumber == null && !querySerialFromSysfs() && !querySerialFromDmiDecode()
@@ -76,9 +70,7 @@ final class LinuxComputerSystem extends AbstractComputerSystem {
         return this.serialNumber;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public Firmware getFirmware() {
         if (this.firmware == null) {
@@ -87,9 +79,7 @@ final class LinuxComputerSystem extends AbstractComputerSystem {
         return this.firmware;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public Baseboard getBaseboard() {
         if (this.baseboard == null) {

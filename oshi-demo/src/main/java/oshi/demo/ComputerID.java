@@ -35,6 +35,14 @@ import oshi.util.Constants;
  * won't work on Linux without user cooperation.
  */
 public class ComputerID {
+    /**
+     * <p>
+     * main.
+     * </p>
+     *
+     * @param args
+     *            an array of {@link java.lang.String} objects.
+     */
     public static void main(String[] args) {
         String unknownHash = String.format("%08x", Constants.UNKNOWN.hashCode());
 
@@ -46,16 +54,16 @@ public class ComputerID {
     }
 
     /**
-     * Generates a Computer Identifier, which may be part of a strategy to
-     * construct a licence key. (The identifier may not be unique as in one case
-     * hashcode could be same for multiple values, and the result may differ
-     * based on whether the program is running with sudo/root permission.) The
-     * identifier string is based upon the processor serial number, vendor,
-     * processor identifier, and total processor count.
-     * 
+     * Generates a Computer Identifier, which may be part of a strategy to construct
+     * a licence key. (The identifier may not be unique as in one case hashcode
+     * could be same for multiple values, and the result may differ based on whether
+     * the program is running with sudo/root permission.) The identifier string is
+     * based upon the processor serial number, vendor, processor identifier, and
+     * total processor count.
+     *
      * @return A string containing four hyphen-delimited fields representing the
-     *         processor; the first 3 are 32-bit hexadecimal values and the last
-     *         one is an integer value.
+     *         processor; the first 3 are 32-bit hexadecimal values and the last one
+     *         is an integer value.
      */
     public static String getComputerIdentifier() {
         SystemInfo systemInfo = new SystemInfo();

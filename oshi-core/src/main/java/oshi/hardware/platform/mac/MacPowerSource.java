@@ -50,6 +50,18 @@ public class MacPowerSource extends AbstractPowerSource {
 
     private static final Logger LOG = LoggerFactory.getLogger(MacPowerSource.class);
 
+    /**
+     * <p>
+     * Constructor for MacPowerSource.
+     * </p>
+     *
+     * @param newName
+     *            a {@link java.lang.String} object.
+     * @param newRemainingCapacity
+     *            a double.
+     * @param newTimeRemaining
+     *            a double.
+     */
     public MacPowerSource(String newName, double newRemainingCapacity, double newTimeRemaining) {
         super(newName, newRemainingCapacity, newTimeRemaining);
         LOG.debug("Initialized MacPowerSource");
@@ -114,9 +126,7 @@ public class MacPowerSource extends AbstractPowerSource {
         return psList.toArray(new MacPowerSource[0]);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void updateAttributes() {
         PowerSource[] psArr = getPowerSources();

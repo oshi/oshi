@@ -43,8 +43,6 @@ import oshi.util.platform.mac.IOKitUtil;
 
 /**
  * A Display
- *
- * @author widdis[at]gmail[dot]com
  */
 public class MacDisplay extends AbstractDisplay {
 
@@ -54,6 +52,14 @@ public class MacDisplay extends AbstractDisplay {
 
     private static final CFStringRef cfEdid = CFStringRef.toCFString("IODisplayEDID");
 
+    /**
+     * <p>
+     * Constructor for MacDisplay.
+     * </p>
+     *
+     * @param edid
+     *            an array of {@link byte} objects.
+     */
     public MacDisplay(byte[] edid) {
         super(edid);
         LOG.debug("Initialized MacDisplay");

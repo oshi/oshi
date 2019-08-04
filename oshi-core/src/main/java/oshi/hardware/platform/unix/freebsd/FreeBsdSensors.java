@@ -30,13 +30,16 @@ import com.sun.jna.ptr.IntByReference;
 import oshi.hardware.common.AbstractSensors;
 import oshi.jna.platform.unix.freebsd.Libc;
 
+/**
+ * <p>
+ * FreeBsdSensors class.
+ * </p>
+ */
 public class FreeBsdSensors extends AbstractSensors {
 
     private static final long serialVersionUID = 1L;
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public double getCpuTemperature() {
         return queryKldloadCoretemp();
@@ -62,21 +65,17 @@ public class FreeBsdSensors extends AbstractSensors {
         return cpu > 0 ? sumTemp / cpu : Double.NaN;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public int[] getFanSpeeds() {
         // TODO try common software
         return new int[0];
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public double getCpuVoltage() {
-            // TODO try common software
+        // TODO try common software
         return 0d;
     }
 }

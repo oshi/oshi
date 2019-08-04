@@ -30,7 +30,9 @@ import oshi.hardware.common.AbstractNetworks;
 import oshi.util.platform.unix.solaris.KstatUtil;
 
 /**
- * @author widdis[at]gmail[dot]com
+ * <p>
+ * SolarisNetworks class.
+ * </p>
  */
 public class SolarisNetworks extends AbstractNetworks {
 

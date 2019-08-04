@@ -45,8 +45,6 @@ import oshi.util.Util;
 
 /**
  * Provides access to SMC calls on OS X
- *
- * @author widdis[at]gmail[dot]com
  */
 public class SmcUtil {
     private static final Logger LOG = LoggerFactory.getLogger(SmcUtil.class);

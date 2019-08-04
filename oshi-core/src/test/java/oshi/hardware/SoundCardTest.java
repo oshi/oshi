@@ -31,8 +31,6 @@ import oshi.SystemInfo;
 
 /**
  * Test SoundCard
- *
- * @author BilalAM
  */
 public class SoundCardTest {
 

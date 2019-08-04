@@ -39,27 +39,21 @@ public class SolarisVirtualMemory extends AbstractVirtualMemory {
 
     private static final Pattern SWAPINFO = Pattern.compile(".+\\s(\\d+)K\\s+(\\d+)K$");
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getSwapUsed() {
         updateSwapUsed();
         return this.swapUsed;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getSwapTotal() {
         updateSwapUsed();
         return this.swapTotal;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getSwapPagesIn() {
         this.swapPagesIn = 0L;
@@ -69,9 +63,7 @@ public class SolarisVirtualMemory extends AbstractVirtualMemory {
         return this.swapPagesIn;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public long getSwapPagesOut() {
         this.swapPagesOut = 0L;

@@ -42,9 +42,7 @@ final class WindowsComputerSystem extends AbstractComputerSystem {
 
     private final transient WmiQueryHandler wmiQueryHandler = WmiQueryHandler.createInstance();
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getManufacturer() {
         if (this.manufacturer == null) {
@@ -53,9 +51,7 @@ final class WindowsComputerSystem extends AbstractComputerSystem {
         return super.getManufacturer();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getModel() {
         if (this.model == null) {
@@ -64,9 +60,7 @@ final class WindowsComputerSystem extends AbstractComputerSystem {
         return super.getModel();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getSerialNumber() {
         if (this.serialNumber == null) {
@@ -75,9 +69,7 @@ final class WindowsComputerSystem extends AbstractComputerSystem {
         return this.serialNumber;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public Firmware getFirmware() {
         if (this.firmware == null) {
@@ -86,9 +78,7 @@ final class WindowsComputerSystem extends AbstractComputerSystem {
         return this.firmware;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public Baseboard getBaseboard() {
         if (this.baseboard == null) {

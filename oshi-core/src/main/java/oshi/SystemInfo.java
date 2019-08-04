@@ -43,10 +43,8 @@ import oshi.software.os.windows.WindowsOperatingSystem;
 /**
  * System information. This is the main entry point to Oshi. This object
  * provides getters which instantiate the appropriate platform-specific
- * implementations of {@link OperatingSystem} (software) and
- * {@link HardwareAbstractionLayer} (hardware).
- *
- * @author dblock[at]dblock[dot]org
+ * implementations of {@link oshi.software.os.OperatingSystem} (software) and
+ * {@link oshi.hardware.HardwareAbstractionLayer} (hardware).
  */
 public class SystemInfo implements Serializable {
 
@@ -77,6 +75,10 @@ public class SystemInfo implements Serializable {
     }
 
     /**
+     * <p>
+     * Getter for the field <code>currentPlatformEnum</code>.
+     * </p>
+     *
      * @return Returns the currentPlatformEnum.
      */
     public static PlatformEnum getCurrentPlatformEnum() {
@@ -85,9 +87,9 @@ public class SystemInfo implements Serializable {
 
     /**
      * Creates a new instance of the appropriate platform-specific
-     * {@link OperatingSystem}.
+     * {@link oshi.software.os.OperatingSystem}.
      *
-     * @return A new instance of {@link OperatingSystem}.
+     * @return A new instance of {@link oshi.software.os.OperatingSystem}.
      */
     public OperatingSystem getOperatingSystem() {
         if (this.os == null) {
@@ -117,9 +119,9 @@ public class SystemInfo implements Serializable {
 
     /**
      * Creates a new instance of the appropriate platform-specific
-     * {@link HardwareAbstractionLayer}.
+     * {@link oshi.hardware.HardwareAbstractionLayer}.
      *
-     * @return A new instance of {@link HardwareAbstractionLayer}.
+     * @return A new instance of {@link oshi.hardware.HardwareAbstractionLayer}.
      */
     public HardwareAbstractionLayer getHardware() {
         if (this.hardware == null) {

@@ -35,13 +35,16 @@ import oshi.hardware.SoundCard;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
 
+/**
+ * <p>
+ * LinuxHardwareAbstractionLayer class.
+ * </p>
+ */
 public class LinuxHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {
 
     private static final long serialVersionUID = 1L;
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public ComputerSystem getComputerSystem() {
         if (this.computerSystem == null) {
@@ -50,9 +53,7 @@ public class LinuxHardwareAbstractionLayer extends AbstractHardwareAbstractionLa
         return this.computerSystem;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public GlobalMemory getMemory() {
         if (this.memory == null) {
@@ -61,9 +62,7 @@ public class LinuxHardwareAbstractionLayer extends AbstractHardwareAbstractionLa
         return this.memory;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public CentralProcessor getProcessor() {
         if (this.processor == null) {
@@ -72,33 +71,25 @@ public class LinuxHardwareAbstractionLayer extends AbstractHardwareAbstractionLa
         return this.processor;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public PowerSource[] getPowerSources() {
         return LinuxPowerSource.getPowerSources();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public HWDiskStore[] getDiskStores() {
         return new LinuxDisks().getDisks();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public Display[] getDisplays() {
         return LinuxDisplay.getDisplays();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public Sensors getSensors() {
         if (this.sensors == null) {
@@ -107,22 +98,19 @@ public class LinuxHardwareAbstractionLayer extends AbstractHardwareAbstractionLa
         return this.sensors;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public NetworkIF[] getNetworkIFs() {
         return new LinuxNetworks().getNetworks();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public UsbDevice[] getUsbDevices(boolean tree) {
         return LinuxUsbDevice.getUsbDevices(tree);
     }
 
+    /** {@inheritDoc} */
     @Override
     public SoundCard[] getSoundCards() {
         return LinuxSoundCard.getSoundCards().toArray(new SoundCard[0]);

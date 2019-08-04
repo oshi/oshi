@@ -38,6 +38,11 @@ import oshi.util.FormatUtil;
 import oshi.util.platform.windows.PerfDataUtil;
 import oshi.util.platform.windows.PerfDataUtil.PerfCounter;
 
+/**
+ * <p>
+ * PerfCounterQueryHandler class.
+ * </p>
+ */
 public class PerfCounterQueryHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(PerfCounterQueryHandler.class);
@@ -63,7 +68,7 @@ public class PerfCounterQueryHandler {
 
     /**
      * Instantiate this class as a singleton
-     * 
+     *
      * @return The singleton instance
      */
     public static synchronized PerfCounterQueryHandler getInstance() {
@@ -74,8 +79,8 @@ public class PerfCounterQueryHandler {
     }
 
     /**
-     * Begin monitoring a Performance Data counter, attached to a query whose
-     * key is the counter's object.
+     * Begin monitoring a Performance Data counter, attached to a query whose key is
+     * the counter's object.
      *
      * @param counter
      *            A PerfCounter object.
@@ -86,14 +91,14 @@ public class PerfCounterQueryHandler {
     }
 
     /**
-     * Begin monitoring a Performance Data counter, attached to a query whose
-     * key is the specified string.
+     * Begin monitoring a Performance Data counter, attached to a query whose key is
+     * the specified string.
      *
      * @param counter
      *            A PerfCounter object.
      * @param key
-     *            A string used as the key for the query. All counters with this
-     *            key will be updated when any single counter is updated.
+     *            A string used as the key for the query. All counters with this key
+     *            will be updated when any single counter is updated.
      * @return True if the counter was successfully added.
      */
     public boolean addCounterToQuery(PerfCounter counter, String key) {
@@ -117,8 +122,8 @@ public class PerfCounterQueryHandler {
     }
 
     /**
-     * Stop monitoring a Performance Data counter, attached to a query whose key
-     * is the counter's object.
+     * Stop monitoring a Performance Data counter, attached to a query whose key is
+     * the counter's object.
      *
      * @param counter
      *            A PerfCounter object
@@ -129,14 +134,14 @@ public class PerfCounterQueryHandler {
     }
 
     /**
-     * Stop monitoring a Performance Data counter, attached to a query whose key
-     * is the specified string..
+     * Stop monitoring a Performance Data counter, attached to a query whose key is
+     * the specified string..
      *
      * @param counter
      *            A PerfCounter object
      * @param key
-     *            A string used as the key for the query. All counters with this
-     *            key will be updated when any single counter is updated.
+     *            A string used as the key for the query. All counters with this key
+     *            will be updated when any single counter is updated.
      * @return True if the counter was successfully removed.
      */
     public boolean removeCounterFromQuery(PerfCounter counter, String key) {
@@ -202,7 +207,7 @@ public class PerfCounterQueryHandler {
 
     /**
      * Update all counters on a query.
-     * 
+     *
      * @param key
      *            The key of the query to update.
      * @return The timestamp for the update of all the counters, in milliseconds
@@ -244,13 +249,12 @@ public class PerfCounterQueryHandler {
 
     /**
      * Open a query for the given string, or confirm a query is already open for
-     * that string. Multiple counters may be added to this string, but will all
-     * be queried at the same time.
+     * that string. Multiple counters may be added to this string, but will all be
+     * queried at the same time.
      *
      * @param key
-     *            String to associate with the counter. Most code defaults to
-     *            the English PDH object name so custom keys should avoid these
-     *            strings.
+     *            String to associate with the counter. Most code defaults to the
+     *            English PDH object name so custom keys should avoid these strings.
      * @return A handle to the query, or null if an error occurred.
      */
     private HANDLEByReference getOrOpenQuery(String key) {
