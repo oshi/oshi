@@ -42,11 +42,11 @@
 <a class="jxr_linenumber" name="L34" href="#L34">34</a>  
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>  <strong class="jxr_keyword">import</strong> oshi.data.windows.PerfCounterWildcardQuery;
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>  <strong class="jxr_keyword">import</strong> oshi.data.windows.PerfCounterWildcardQuery.PdhCounterWildcardProperty;
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.Sensors;
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.common.AbstractSensors;
 <a class="jxr_linenumber" name="L38" href="#L38">38</a>  <strong class="jxr_keyword">import</strong> oshi.util.platform.windows.WmiQueryHandler;
 <a class="jxr_linenumber" name="L39" href="#L39">39</a>  <strong class="jxr_keyword">import</strong> oshi.util.platform.windows.WmiUtil;
 <a class="jxr_linenumber" name="L40" href="#L40">40</a>  
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="WindowsSensors" href="../../../../oshi/hardware/platform/windows/WindowsSensors.html#WindowsSensors">WindowsSensors</a> <strong class="jxr_keyword">implements</strong> <a name="Sensors" href="../../../../oshi/hardware/Sensors.html#Sensors">Sensors</a> {
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="WindowsSensors" href="../../../../oshi/hardware/platform/windows/WindowsSensors.html#WindowsSensors">WindowsSensors</a> <strong class="jxr_keyword">extends</strong> <a name="AbstractSensors" href="../../../../oshi/hardware/common/AbstractSensors.html#AbstractSensors">AbstractSensors</a> {
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>  
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> serialVersionUID = 1L;
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>  
@@ -117,167 +117,202 @@
 <a class="jxr_linenumber" name="L109" href="#L109">109</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L110" href="#L110">110</a>     @Override
 <a class="jxr_linenumber" name="L111" href="#L111">111</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getCpuTemperature() {
-<a class="jxr_linenumber" name="L112" href="#L112">112</a>         <em class="jxr_comment">// Initialize default</em>
-<a class="jxr_linenumber" name="L113" href="#L113">113</a>         <strong class="jxr_keyword">double</strong> tempC = 0d;
-<a class="jxr_linenumber" name="L114" href="#L114">114</a> 
-<a class="jxr_linenumber" name="L115" href="#L115">115</a>         <em class="jxr_comment">// Attempt to fetch value from Open Hardware Monitor if it is running,</em>
-<a class="jxr_linenumber" name="L116" href="#L116">116</a>         <em class="jxr_comment">// as it will give the most accurate results and the time to query (or</em>
-<a class="jxr_linenumber" name="L117" href="#L117">117</a>         <em class="jxr_comment">// attempt) is trivial</em>
-<a class="jxr_linenumber" name="L118" href="#L118">118</a>         WmiResult&lt;OhmHardwareProperty&gt; ohmHardware = <strong class="jxr_keyword">this</strong>.wmiQueryHandler.queryWMI(ohmHardwareQuery);
-<a class="jxr_linenumber" name="L119" href="#L119">119</a>         <strong class="jxr_keyword">if</strong> (ohmHardware.getResultCount() &gt; 0) {
-<a class="jxr_linenumber" name="L120" href="#L120">120</a>             LOG.debug(<span class="jxr_string">"Found Temperature data in Open Hardware Monitor"</span>);
-<a class="jxr_linenumber" name="L121" href="#L121">121</a>             String cpuIdentifier = WmiUtil.getString(ohmHardware, OhmHardwareProperty.IDENTIFIER, 0);
-<a class="jxr_linenumber" name="L122" href="#L122">122</a>             <strong class="jxr_keyword">if</strong> (cpuIdentifier.length() &gt; 0) {
-<a class="jxr_linenumber" name="L123" href="#L123">123</a>                 StringBuilder sb = <strong class="jxr_keyword">new</strong> StringBuilder(BASE_SENSOR_CLASS);
-<a class="jxr_linenumber" name="L124" href="#L124">124</a>                 sb.append(<span class="jxr_string">" WHERE Parent = \&quot;"</span>).append(cpuIdentifier);
-<a class="jxr_linenumber" name="L125" href="#L125">125</a>                 sb.append(<span class="jxr_string">"\&quot; AND SensorType=\&quot;Temperature\&quot;"</span>);
-<a class="jxr_linenumber" name="L126" href="#L126">126</a>                 ohmSensorQuery.setWmiClassName(sb.toString());
-<a class="jxr_linenumber" name="L127" href="#L127">127</a>                 WmiResult&lt;OhmSensorProperty&gt; ohmSensors = <strong class="jxr_keyword">this</strong>.wmiQueryHandler.queryWMI(ohmSensorQuery);
-<a class="jxr_linenumber" name="L128" href="#L128">128</a> 
-<a class="jxr_linenumber" name="L129" href="#L129">129</a>                 <strong class="jxr_keyword">if</strong> (ohmSensors.getResultCount() &gt; 0) {
-<a class="jxr_linenumber" name="L130" href="#L130">130</a>                     <strong class="jxr_keyword">double</strong> sum = 0;
-<a class="jxr_linenumber" name="L131" href="#L131">131</a>                     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; ohmSensors.getResultCount(); i++) {
-<a class="jxr_linenumber" name="L132" href="#L132">132</a>                         sum += WmiUtil.getFloat(ohmSensors, OhmSensorProperty.VALUE, i);
-<a class="jxr_linenumber" name="L133" href="#L133">133</a>                     }
-<a class="jxr_linenumber" name="L134" href="#L134">134</a>                     tempC = sum / ohmSensors.getResultCount();
-<a class="jxr_linenumber" name="L135" href="#L135">135</a>                 }
-<a class="jxr_linenumber" name="L136" href="#L136">136</a>                 <strong class="jxr_keyword">if</strong> (tempC &gt; 0) {
-<a class="jxr_linenumber" name="L137" href="#L137">137</a>                     <strong class="jxr_keyword">return</strong> tempC;
-<a class="jxr_linenumber" name="L138" href="#L138">138</a>                 }
-<a class="jxr_linenumber" name="L139" href="#L139">139</a>             }
-<a class="jxr_linenumber" name="L140" href="#L140">140</a>         }
-<a class="jxr_linenumber" name="L141" href="#L141">141</a> 
-<a class="jxr_linenumber" name="L142" href="#L142">142</a>         <em class="jxr_comment">// If we get this far, OHM is not running. Try from PDH/WMI</em>
-<a class="jxr_linenumber" name="L143" href="#L143">143</a>         <strong class="jxr_keyword">long</strong> tempK = 0L;
-<a class="jxr_linenumber" name="L144" href="#L144">144</a>         Map&lt;ThermalZoneProperty, List&lt;Long&gt;&gt; valueListMap = <strong class="jxr_keyword">this</strong>.thermalZonePerfCounters.queryValuesWildcard();
-<a class="jxr_linenumber" name="L145" href="#L145">145</a>         List&lt;Long&gt; valueList = valueListMap.get(ThermalZoneProperty.TEMPERATURE);
-<a class="jxr_linenumber" name="L146" href="#L146">146</a>         <strong class="jxr_keyword">if</strong> (valueList != <strong class="jxr_keyword">null</strong> &amp;&amp; !valueList.isEmpty()) {
-<a class="jxr_linenumber" name="L147" href="#L147">147</a>             LOG.debug(<span class="jxr_string">"Found Temperature data in PDH or WMI Counter"</span>);
-<a class="jxr_linenumber" name="L148" href="#L148">148</a>             tempK = valueList.get(0);
-<a class="jxr_linenumber" name="L149" href="#L149">149</a>         }
-<a class="jxr_linenumber" name="L150" href="#L150">150</a> 
-<a class="jxr_linenumber" name="L151" href="#L151">151</a>         <strong class="jxr_keyword">if</strong> (tempK &gt; 2732L) {
-<a class="jxr_linenumber" name="L152" href="#L152">152</a>             tempC = tempK / 10d - 273.15;
-<a class="jxr_linenumber" name="L153" href="#L153">153</a>         } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (tempK &gt; 274L) {
-<a class="jxr_linenumber" name="L154" href="#L154">154</a>             tempC = tempK - 273d;
-<a class="jxr_linenumber" name="L155" href="#L155">155</a>         }
-<a class="jxr_linenumber" name="L156" href="#L156">156</a>         <strong class="jxr_keyword">if</strong> (tempC &lt; 0d) {
-<a class="jxr_linenumber" name="L157" href="#L157">157</a>             tempC = 0d;
-<a class="jxr_linenumber" name="L158" href="#L158">158</a>         }
-<a class="jxr_linenumber" name="L159" href="#L159">159</a> 
-<a class="jxr_linenumber" name="L160" href="#L160">160</a>         <em class="jxr_comment">// Other fallbacks to WMI are unreliable so we omit them</em>
-<a class="jxr_linenumber" name="L161" href="#L161">161</a>         <em class="jxr_comment">// Win32_TemperatureProbe is the official location but is not currently</em>
-<a class="jxr_linenumber" name="L162" href="#L162">162</a>         <em class="jxr_comment">// populated and is "reserved for future use"</em>
-<a class="jxr_linenumber" name="L163" href="#L163">163</a>         <em class="jxr_comment">// MSAcpu_ThermalZoneTemperature only updates during a high temperature</em>
-<a class="jxr_linenumber" name="L164" href="#L164">164</a>         <em class="jxr_comment">// event and is otherwise unchanged/misleading.</em>
-<a class="jxr_linenumber" name="L165" href="#L165">165</a>         <strong class="jxr_keyword">return</strong> tempC;
-<a class="jxr_linenumber" name="L166" href="#L166">166</a>     }
-<a class="jxr_linenumber" name="L167" href="#L167">167</a> 
-<a class="jxr_linenumber" name="L168" href="#L168">168</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L169" href="#L169">169</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
-<a class="jxr_linenumber" name="L170" href="#L170">170</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L171" href="#L171">171</a>     @Override
-<a class="jxr_linenumber" name="L172" href="#L172">172</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong>[] getFanSpeeds() {
-<a class="jxr_linenumber" name="L173" href="#L173">173</a>         <em class="jxr_comment">// Attempt to fetch value from Open Hardware Monitor if it is running</em>
-<a class="jxr_linenumber" name="L174" href="#L174">174</a>         WmiResult&lt;OhmHardwareProperty&gt; ohmHardware = <strong class="jxr_keyword">this</strong>.wmiQueryHandler.queryWMI(ohmHardwareQuery);
-<a class="jxr_linenumber" name="L175" href="#L175">175</a>         <strong class="jxr_keyword">if</strong> (ohmHardware.getResultCount() &gt; 0) {
-<a class="jxr_linenumber" name="L176" href="#L176">176</a>             LOG.debug(<span class="jxr_string">"Found Fan data in Open Hardware Monitor"</span>);
-<a class="jxr_linenumber" name="L177" href="#L177">177</a>             String cpuIdentifier = WmiUtil.getString(ohmHardware, OhmHardwareProperty.IDENTIFIER, 0);
-<a class="jxr_linenumber" name="L178" href="#L178">178</a>             <strong class="jxr_keyword">if</strong> (cpuIdentifier.length() &gt; 0) {
-<a class="jxr_linenumber" name="L179" href="#L179">179</a>                 StringBuilder sb = <strong class="jxr_keyword">new</strong> StringBuilder(BASE_SENSOR_CLASS);
-<a class="jxr_linenumber" name="L180" href="#L180">180</a>                 sb.append(<span class="jxr_string">" WHERE Parent = \&quot;"</span>).append(cpuIdentifier);
-<a class="jxr_linenumber" name="L181" href="#L181">181</a>                 sb.append(<span class="jxr_string">"\&quot; AND SensorType=\&quot;Fan\&quot;"</span>);
-<a class="jxr_linenumber" name="L182" href="#L182">182</a>                 ohmSensorQuery.setWmiClassName(sb.toString());
-<a class="jxr_linenumber" name="L183" href="#L183">183</a>                 WmiResult&lt;OhmSensorProperty&gt; ohmSensors = <strong class="jxr_keyword">this</strong>.wmiQueryHandler.queryWMI(ohmSensorQuery);
-<a class="jxr_linenumber" name="L184" href="#L184">184</a> 
-<a class="jxr_linenumber" name="L185" href="#L185">185</a>                 <strong class="jxr_keyword">if</strong> (ohmSensors.getResultCount() &gt; 0) {
-<a class="jxr_linenumber" name="L186" href="#L186">186</a>                     <strong class="jxr_keyword">int</strong>[] fanSpeeds = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">int</strong>[ohmSensors.getResultCount()];
-<a class="jxr_linenumber" name="L187" href="#L187">187</a>                     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; ohmSensors.getResultCount(); i++) {
-<a class="jxr_linenumber" name="L188" href="#L188">188</a>                         fanSpeeds[i] = (<strong class="jxr_keyword">int</strong>) WmiUtil.getFloat(ohmSensors, OhmSensorProperty.VALUE, i);
-<a class="jxr_linenumber" name="L189" href="#L189">189</a>                     }
-<a class="jxr_linenumber" name="L190" href="#L190">190</a>                     <strong class="jxr_keyword">return</strong> fanSpeeds;
-<a class="jxr_linenumber" name="L191" href="#L191">191</a>                 }
-<a class="jxr_linenumber" name="L192" href="#L192">192</a>             }
-<a class="jxr_linenumber" name="L193" href="#L193">193</a>         }
-<a class="jxr_linenumber" name="L194" href="#L194">194</a> 
-<a class="jxr_linenumber" name="L195" href="#L195">195</a>         <em class="jxr_comment">// If we get this far, OHM is not running.</em>
-<a class="jxr_linenumber" name="L196" href="#L196">196</a>         <em class="jxr_comment">// Try to get from conventional WMI</em>
-<a class="jxr_linenumber" name="L197" href="#L197">197</a>         WmiResult&lt;FanProperty&gt; fan = <strong class="jxr_keyword">this</strong>.wmiQueryHandler.queryWMI(fanQuery);
-<a class="jxr_linenumber" name="L198" href="#L198">198</a>         <strong class="jxr_keyword">if</strong> (fan.getResultCount() &gt; 1) {
-<a class="jxr_linenumber" name="L199" href="#L199">199</a>             LOG.debug(<span class="jxr_string">"Found Fan data in WMI"</span>);
-<a class="jxr_linenumber" name="L200" href="#L200">200</a>             <strong class="jxr_keyword">int</strong>[] fanSpeeds = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">int</strong>[fan.getResultCount()];
-<a class="jxr_linenumber" name="L201" href="#L201">201</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; fan.getResultCount(); i++) {
-<a class="jxr_linenumber" name="L202" href="#L202">202</a>                 fanSpeeds[i] = (<strong class="jxr_keyword">int</strong>) WmiUtil.getUint64(fan, FanProperty.DESIREDSPEED, i);
-<a class="jxr_linenumber" name="L203" href="#L203">203</a>             }
-<a class="jxr_linenumber" name="L204" href="#L204">204</a>             <strong class="jxr_keyword">return</strong> fanSpeeds;
-<a class="jxr_linenumber" name="L205" href="#L205">205</a>         }
-<a class="jxr_linenumber" name="L206" href="#L206">206</a>         <em class="jxr_comment">// Default</em>
-<a class="jxr_linenumber" name="L207" href="#L207">207</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">int</strong>[1];
-<a class="jxr_linenumber" name="L208" href="#L208">208</a>     }
-<a class="jxr_linenumber" name="L209" href="#L209">209</a> 
-<a class="jxr_linenumber" name="L210" href="#L210">210</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L211" href="#L211">211</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
-<a class="jxr_linenumber" name="L212" href="#L212">212</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L213" href="#L213">213</a>     @Override
-<a class="jxr_linenumber" name="L214" href="#L214">214</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getCpuVoltage() {
-<a class="jxr_linenumber" name="L215" href="#L215">215</a>         <em class="jxr_comment">// Attempt to fetch value from Open Hardware Monitor if it is running</em>
-<a class="jxr_linenumber" name="L216" href="#L216">216</a>         WmiResult&lt;OhmHardwareProperty&gt; ohmHardware = <strong class="jxr_keyword">this</strong>.wmiQueryHandler.queryWMI(owhVoltageQuery);
-<a class="jxr_linenumber" name="L217" href="#L217">217</a>         <strong class="jxr_keyword">if</strong> (ohmHardware.getResultCount() &gt; 0) {
-<a class="jxr_linenumber" name="L218" href="#L218">218</a>             LOG.debug(<span class="jxr_string">"Found Voltage data in Open Hardware Monitor"</span>);
-<a class="jxr_linenumber" name="L219" href="#L219">219</a>             <em class="jxr_comment">// Look for identifier containing "cpu"</em>
-<a class="jxr_linenumber" name="L220" href="#L220">220</a>             String voltIdentifierStr = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L221" href="#L221">221</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; ohmHardware.getResultCount(); i++) {
-<a class="jxr_linenumber" name="L222" href="#L222">222</a>                 String id = WmiUtil.getString(ohmHardware, OhmHardwareProperty.IDENTIFIER, i);
-<a class="jxr_linenumber" name="L223" href="#L223">223</a>                 <strong class="jxr_keyword">if</strong> (id.toLowerCase().contains(<span class="jxr_string">"cpu"</span>)) {
-<a class="jxr_linenumber" name="L224" href="#L224">224</a>                     voltIdentifierStr = id;
-<a class="jxr_linenumber" name="L225" href="#L225">225</a>                     <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L226" href="#L226">226</a>                 }
-<a class="jxr_linenumber" name="L227" href="#L227">227</a>             }
-<a class="jxr_linenumber" name="L228" href="#L228">228</a>             <em class="jxr_comment">// If none found, just get the first one</em>
-<a class="jxr_linenumber" name="L229" href="#L229">229</a>             <strong class="jxr_keyword">if</strong> (voltIdentifierStr == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L230" href="#L230">230</a>                 voltIdentifierStr = WmiUtil.getString(ohmHardware, OhmHardwareProperty.IDENTIFIER, 0);
-<a class="jxr_linenumber" name="L231" href="#L231">231</a>             }
-<a class="jxr_linenumber" name="L232" href="#L232">232</a>             <em class="jxr_comment">// Now fetch sensor</em>
-<a class="jxr_linenumber" name="L233" href="#L233">233</a>             StringBuilder sb = <strong class="jxr_keyword">new</strong> StringBuilder(BASE_SENSOR_CLASS);
-<a class="jxr_linenumber" name="L234" href="#L234">234</a>             sb.append(<span class="jxr_string">" WHERE Parent = \&quot;"</span>).append(voltIdentifierStr);
-<a class="jxr_linenumber" name="L235" href="#L235">235</a>             sb.append(<span class="jxr_string">"\&quot; AND SensorType=\&quot;Voltage\&quot;"</span>);
-<a class="jxr_linenumber" name="L236" href="#L236">236</a>             ohmSensorQuery.setWmiClassName(sb.toString());
-<a class="jxr_linenumber" name="L237" href="#L237">237</a>             WmiResult&lt;OhmSensorProperty&gt; ohmSensors = <strong class="jxr_keyword">this</strong>.wmiQueryHandler.queryWMI(ohmSensorQuery);
-<a class="jxr_linenumber" name="L238" href="#L238">238</a>             <strong class="jxr_keyword">if</strong> (ohmSensors.getResultCount() &gt; 0) {
-<a class="jxr_linenumber" name="L239" href="#L239">239</a>                 <strong class="jxr_keyword">return</strong> WmiUtil.getFloat(ohmSensors, OhmSensorProperty.VALUE, 0);
-<a class="jxr_linenumber" name="L240" href="#L240">240</a>             }
-<a class="jxr_linenumber" name="L241" href="#L241">241</a>         }
-<a class="jxr_linenumber" name="L242" href="#L242">242</a> 
-<a class="jxr_linenumber" name="L243" href="#L243">243</a>         <em class="jxr_comment">// If we get this far, OHM is not running.</em>
-<a class="jxr_linenumber" name="L244" href="#L244">244</a>         <em class="jxr_comment">// Try to get from conventional WMI</em>
-<a class="jxr_linenumber" name="L245" href="#L245">245</a>         WmiResult&lt;VoltProperty&gt; voltage = wmiQueryHandler.queryWMI(voltQuery);
-<a class="jxr_linenumber" name="L246" href="#L246">246</a>         <strong class="jxr_keyword">if</strong> (voltage.getResultCount() &gt; 1) {
-<a class="jxr_linenumber" name="L247" href="#L247">247</a>             LOG.debug(<span class="jxr_string">"Found Voltage data in WMI"</span>);
-<a class="jxr_linenumber" name="L248" href="#L248">248</a>             <strong class="jxr_keyword">int</strong> decivolts = WmiUtil.getUint16(voltage, VoltProperty.CURRENTVOLTAGE, 0);
-<a class="jxr_linenumber" name="L249" href="#L249">249</a>             <em class="jxr_comment">// If the eighth bit is set, bits 0-6 contain the voltage</em>
-<a class="jxr_linenumber" name="L250" href="#L250">250</a>             <em class="jxr_comment">// multiplied by 10. If the eighth bit is not set, then the bit</em>
-<a class="jxr_linenumber" name="L251" href="#L251">251</a>             <em class="jxr_comment">// setting in VoltageCaps represents the voltage value.</em>
-<a class="jxr_linenumber" name="L252" href="#L252">252</a>             <strong class="jxr_keyword">if</strong> (decivolts &gt; 0) {
-<a class="jxr_linenumber" name="L253" href="#L253">253</a>                 <strong class="jxr_keyword">if</strong> ((decivolts &amp; 0x80) == 0) {
-<a class="jxr_linenumber" name="L254" href="#L254">254</a>                     decivolts = WmiUtil.getUint32(voltage, VoltProperty.VOLTAGECAPS, 0);
-<a class="jxr_linenumber" name="L255" href="#L255">255</a>                     <em class="jxr_comment">// This value is really a bit setting, not decivolts</em>
-<a class="jxr_linenumber" name="L256" href="#L256">256</a>                     <strong class="jxr_keyword">if</strong> ((decivolts &amp; 0x1) &gt; 0) {
-<a class="jxr_linenumber" name="L257" href="#L257">257</a>                         <strong class="jxr_keyword">return</strong> 5.0;
-<a class="jxr_linenumber" name="L258" href="#L258">258</a>                     } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> ((decivolts &amp; 0x2) &gt; 0) {
-<a class="jxr_linenumber" name="L259" href="#L259">259</a>                         <strong class="jxr_keyword">return</strong> 3.3;
-<a class="jxr_linenumber" name="L260" href="#L260">260</a>                     } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> ((decivolts &amp; 0x4) &gt; 0) {
-<a class="jxr_linenumber" name="L261" href="#L261">261</a>                         <strong class="jxr_keyword">return</strong> 2.9;
-<a class="jxr_linenumber" name="L262" href="#L262">262</a>                     }
-<a class="jxr_linenumber" name="L263" href="#L263">263</a>                 } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L264" href="#L264">264</a>                     <em class="jxr_comment">// Value from bits 0-6, divided by 10</em>
-<a class="jxr_linenumber" name="L265" href="#L265">265</a>                     <strong class="jxr_keyword">return</strong> (decivolts &amp; 0x7F) / 10d;
-<a class="jxr_linenumber" name="L266" href="#L266">266</a>                 }
-<a class="jxr_linenumber" name="L267" href="#L267">267</a>             }
-<a class="jxr_linenumber" name="L268" href="#L268">268</a>         }
-<a class="jxr_linenumber" name="L269" href="#L269">269</a>         <em class="jxr_comment">// Default</em>
-<a class="jxr_linenumber" name="L270" href="#L270">270</a>         <strong class="jxr_keyword">return</strong> 0d;
-<a class="jxr_linenumber" name="L271" href="#L271">271</a>     }
-<a class="jxr_linenumber" name="L272" href="#L272">272</a> }
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>         <em class="jxr_comment">// Attempt to fetch value from Open Hardware Monitor if it is running,</em>
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>         <em class="jxr_comment">// as it will give the most accurate results and the time to query (or</em>
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>         <em class="jxr_comment">// attempt) is trivial</em>
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>         <strong class="jxr_keyword">double</strong> tempC = getTempFromOHM();
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>         <strong class="jxr_keyword">if</strong> (tempC &gt; 0d) {
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>             <strong class="jxr_keyword">return</strong> tempC;
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>         }
+<a class="jxr_linenumber" name="L119" href="#L119">119</a> 
+<a class="jxr_linenumber" name="L120" href="#L120">120</a>         <em class="jxr_comment">// If we get this far, OHM is not running. Try from PDH/WMI</em>
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>         tempC = getTempFromPerfCounters();
+<a class="jxr_linenumber" name="L122" href="#L122">122</a> 
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>         <em class="jxr_comment">// Other fallbacks to WMI are unreliable so we omit them</em>
+<a class="jxr_linenumber" name="L124" href="#L124">124</a>         <em class="jxr_comment">// Win32_TemperatureProbe is the official location but is not currently</em>
+<a class="jxr_linenumber" name="L125" href="#L125">125</a>         <em class="jxr_comment">// populated and is "reserved for future use"</em>
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>         <em class="jxr_comment">// MSAcpu_ThermalZoneTemperature only updates during a high temperature</em>
+<a class="jxr_linenumber" name="L127" href="#L127">127</a>         <em class="jxr_comment">// event and is otherwise unchanged/misleading.</em>
+<a class="jxr_linenumber" name="L128" href="#L128">128</a>         <strong class="jxr_keyword">return</strong> tempC;
+<a class="jxr_linenumber" name="L129" href="#L129">129</a>     }
+<a class="jxr_linenumber" name="L130" href="#L130">130</a> 
+<a class="jxr_linenumber" name="L131" href="#L131">131</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> getTempFromOHM() {
+<a class="jxr_linenumber" name="L132" href="#L132">132</a>         WmiResult&lt;OhmHardwareProperty&gt; ohmHardware = <strong class="jxr_keyword">this</strong>.wmiQueryHandler.queryWMI(ohmHardwareQuery);
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>         <strong class="jxr_keyword">if</strong> (ohmHardware.getResultCount() &gt; 0) {
+<a class="jxr_linenumber" name="L134" href="#L134">134</a>             LOG.debug(<span class="jxr_string">"Found Temperature data in Open Hardware Monitor"</span>);
+<a class="jxr_linenumber" name="L135" href="#L135">135</a>             String cpuIdentifier = WmiUtil.getString(ohmHardware, OhmHardwareProperty.IDENTIFIER, 0);
+<a class="jxr_linenumber" name="L136" href="#L136">136</a>             <strong class="jxr_keyword">if</strong> (cpuIdentifier.length() &gt; 0) {
+<a class="jxr_linenumber" name="L137" href="#L137">137</a>                 StringBuilder sb = <strong class="jxr_keyword">new</strong> StringBuilder(BASE_SENSOR_CLASS);
+<a class="jxr_linenumber" name="L138" href="#L138">138</a>                 sb.append(<span class="jxr_string">" WHERE Parent = \&quot;"</span>).append(cpuIdentifier);
+<a class="jxr_linenumber" name="L139" href="#L139">139</a>                 sb.append(<span class="jxr_string">"\&quot; AND SensorType=\&quot;Temperature\&quot;"</span>);
+<a class="jxr_linenumber" name="L140" href="#L140">140</a>                 ohmSensorQuery.setWmiClassName(sb.toString());
+<a class="jxr_linenumber" name="L141" href="#L141">141</a>                 WmiResult&lt;OhmSensorProperty&gt; ohmSensors = <strong class="jxr_keyword">this</strong>.wmiQueryHandler.queryWMI(ohmSensorQuery);
+<a class="jxr_linenumber" name="L142" href="#L142">142</a>                 <strong class="jxr_keyword">if</strong> (ohmSensors.getResultCount() &gt; 0) {
+<a class="jxr_linenumber" name="L143" href="#L143">143</a>                     <strong class="jxr_keyword">double</strong> sum = 0;
+<a class="jxr_linenumber" name="L144" href="#L144">144</a>                     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; ohmSensors.getResultCount(); i++) {
+<a class="jxr_linenumber" name="L145" href="#L145">145</a>                         sum += WmiUtil.getFloat(ohmSensors, OhmSensorProperty.VALUE, i);
+<a class="jxr_linenumber" name="L146" href="#L146">146</a>                     }
+<a class="jxr_linenumber" name="L147" href="#L147">147</a>                     <strong class="jxr_keyword">return</strong> sum / ohmSensors.getResultCount();
+<a class="jxr_linenumber" name="L148" href="#L148">148</a>                 }
+<a class="jxr_linenumber" name="L149" href="#L149">149</a>             }
+<a class="jxr_linenumber" name="L150" href="#L150">150</a>         }
+<a class="jxr_linenumber" name="L151" href="#L151">151</a>         <strong class="jxr_keyword">return</strong> 0;
+<a class="jxr_linenumber" name="L152" href="#L152">152</a>     }
+<a class="jxr_linenumber" name="L153" href="#L153">153</a> 
+<a class="jxr_linenumber" name="L154" href="#L154">154</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> getTempFromPerfCounters() {
+<a class="jxr_linenumber" name="L155" href="#L155">155</a>         <strong class="jxr_keyword">double</strong> tempC = 0d;
+<a class="jxr_linenumber" name="L156" href="#L156">156</a>         <strong class="jxr_keyword">long</strong> tempK = 0L;
+<a class="jxr_linenumber" name="L157" href="#L157">157</a>         Map&lt;ThermalZoneProperty, List&lt;Long&gt;&gt; valueListMap = <strong class="jxr_keyword">this</strong>.thermalZonePerfCounters.queryValuesWildcard();
+<a class="jxr_linenumber" name="L158" href="#L158">158</a>         List&lt;Long&gt; valueList = valueListMap.get(ThermalZoneProperty.TEMPERATURE);
+<a class="jxr_linenumber" name="L159" href="#L159">159</a>         <strong class="jxr_keyword">if</strong> (valueList != <strong class="jxr_keyword">null</strong> &amp;&amp; !valueList.isEmpty()) {
+<a class="jxr_linenumber" name="L160" href="#L160">160</a>             LOG.debug(<span class="jxr_string">"Found Temperature data in PDH or WMI Counter"</span>);
+<a class="jxr_linenumber" name="L161" href="#L161">161</a>             tempK = valueList.get(0);
+<a class="jxr_linenumber" name="L162" href="#L162">162</a>         }
+<a class="jxr_linenumber" name="L163" href="#L163">163</a> 
+<a class="jxr_linenumber" name="L164" href="#L164">164</a>         <strong class="jxr_keyword">if</strong> (tempK &gt; 2732L) {
+<a class="jxr_linenumber" name="L165" href="#L165">165</a>             tempC = tempK / 10d - 273.15;
+<a class="jxr_linenumber" name="L166" href="#L166">166</a>         } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (tempK &gt; 274L) {
+<a class="jxr_linenumber" name="L167" href="#L167">167</a>             tempC = tempK - 273d;
+<a class="jxr_linenumber" name="L168" href="#L168">168</a>         }
+<a class="jxr_linenumber" name="L169" href="#L169">169</a>         <strong class="jxr_keyword">return</strong> tempC &lt; 0d ? 0d : tempC;
+<a class="jxr_linenumber" name="L170" href="#L170">170</a>     }
+<a class="jxr_linenumber" name="L171" href="#L171">171</a> 
+<a class="jxr_linenumber" name="L172" href="#L172">172</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L173" href="#L173">173</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L174" href="#L174">174</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L175" href="#L175">175</a>     @Override
+<a class="jxr_linenumber" name="L176" href="#L176">176</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong>[] getFanSpeeds() {
+<a class="jxr_linenumber" name="L177" href="#L177">177</a>         <em class="jxr_comment">// Attempt to fetch value from Open Hardware Monitor if it is running</em>
+<a class="jxr_linenumber" name="L178" href="#L178">178</a>         <strong class="jxr_keyword">int</strong>[] fanSpeeds = getFansFromOHM();
+<a class="jxr_linenumber" name="L179" href="#L179">179</a>         <strong class="jxr_keyword">if</strong> (fanSpeeds != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L180" href="#L180">180</a>             <strong class="jxr_keyword">return</strong> fanSpeeds;
+<a class="jxr_linenumber" name="L181" href="#L181">181</a>         }
+<a class="jxr_linenumber" name="L182" href="#L182">182</a> 
+<a class="jxr_linenumber" name="L183" href="#L183">183</a>         <em class="jxr_comment">// If we get this far, OHM is not running.</em>
+<a class="jxr_linenumber" name="L184" href="#L184">184</a>         <em class="jxr_comment">// Try to get from conventional WMI</em>
+<a class="jxr_linenumber" name="L185" href="#L185">185</a>         fanSpeeds = getFansFromWMI();
+<a class="jxr_linenumber" name="L186" href="#L186">186</a>         <strong class="jxr_keyword">if</strong> (fanSpeeds != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L187" href="#L187">187</a>             <strong class="jxr_keyword">return</strong> fanSpeeds;
+<a class="jxr_linenumber" name="L188" href="#L188">188</a>         }
+<a class="jxr_linenumber" name="L189" href="#L189">189</a> 
+<a class="jxr_linenumber" name="L190" href="#L190">190</a>         <em class="jxr_comment">// Default</em>
+<a class="jxr_linenumber" name="L191" href="#L191">191</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">int</strong>[1];
+<a class="jxr_linenumber" name="L192" href="#L192">192</a>     }
+<a class="jxr_linenumber" name="L193" href="#L193">193</a> 
+<a class="jxr_linenumber" name="L194" href="#L194">194</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong>[] getFansFromOHM() {
+<a class="jxr_linenumber" name="L195" href="#L195">195</a>         WmiResult&lt;OhmHardwareProperty&gt; ohmHardware = <strong class="jxr_keyword">this</strong>.wmiQueryHandler.queryWMI(ohmHardwareQuery);
+<a class="jxr_linenumber" name="L196" href="#L196">196</a>         <strong class="jxr_keyword">if</strong> (ohmHardware.getResultCount() &gt; 0) {
+<a class="jxr_linenumber" name="L197" href="#L197">197</a>             LOG.debug(<span class="jxr_string">"Found Fan data in Open Hardware Monitor"</span>);
+<a class="jxr_linenumber" name="L198" href="#L198">198</a>             String cpuIdentifier = WmiUtil.getString(ohmHardware, OhmHardwareProperty.IDENTIFIER, 0);
+<a class="jxr_linenumber" name="L199" href="#L199">199</a>             <strong class="jxr_keyword">if</strong> (cpuIdentifier.length() &gt; 0) {
+<a class="jxr_linenumber" name="L200" href="#L200">200</a>                 StringBuilder sb = <strong class="jxr_keyword">new</strong> StringBuilder(BASE_SENSOR_CLASS);
+<a class="jxr_linenumber" name="L201" href="#L201">201</a>                 sb.append(<span class="jxr_string">" WHERE Parent = \&quot;"</span>).append(cpuIdentifier);
+<a class="jxr_linenumber" name="L202" href="#L202">202</a>                 sb.append(<span class="jxr_string">"\&quot; AND SensorType=\&quot;Fan\&quot;"</span>);
+<a class="jxr_linenumber" name="L203" href="#L203">203</a>                 ohmSensorQuery.setWmiClassName(sb.toString());
+<a class="jxr_linenumber" name="L204" href="#L204">204</a>                 WmiResult&lt;OhmSensorProperty&gt; ohmSensors = <strong class="jxr_keyword">this</strong>.wmiQueryHandler.queryWMI(ohmSensorQuery);
+<a class="jxr_linenumber" name="L205" href="#L205">205</a> 
+<a class="jxr_linenumber" name="L206" href="#L206">206</a>                 <strong class="jxr_keyword">if</strong> (ohmSensors.getResultCount() &gt; 0) {
+<a class="jxr_linenumber" name="L207" href="#L207">207</a>                     <strong class="jxr_keyword">int</strong>[] fanSpeeds = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">int</strong>[ohmSensors.getResultCount()];
+<a class="jxr_linenumber" name="L208" href="#L208">208</a>                     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; ohmSensors.getResultCount(); i++) {
+<a class="jxr_linenumber" name="L209" href="#L209">209</a>                         fanSpeeds[i] = (<strong class="jxr_keyword">int</strong>) WmiUtil.getFloat(ohmSensors, OhmSensorProperty.VALUE, i);
+<a class="jxr_linenumber" name="L210" href="#L210">210</a>                     }
+<a class="jxr_linenumber" name="L211" href="#L211">211</a>                     <strong class="jxr_keyword">return</strong> fanSpeeds;
+<a class="jxr_linenumber" name="L212" href="#L212">212</a>                 }
+<a class="jxr_linenumber" name="L213" href="#L213">213</a>             }
+<a class="jxr_linenumber" name="L214" href="#L214">214</a>         }
+<a class="jxr_linenumber" name="L215" href="#L215">215</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L216" href="#L216">216</a>     }
+<a class="jxr_linenumber" name="L217" href="#L217">217</a> 
+<a class="jxr_linenumber" name="L218" href="#L218">218</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong>[] getFansFromWMI() {
+<a class="jxr_linenumber" name="L219" href="#L219">219</a>         WmiResult&lt;FanProperty&gt; fan = <strong class="jxr_keyword">this</strong>.wmiQueryHandler.queryWMI(fanQuery);
+<a class="jxr_linenumber" name="L220" href="#L220">220</a>         <strong class="jxr_keyword">if</strong> (fan.getResultCount() &gt; 1) {
+<a class="jxr_linenumber" name="L221" href="#L221">221</a>             LOG.debug(<span class="jxr_string">"Found Fan data in WMI"</span>);
+<a class="jxr_linenumber" name="L222" href="#L222">222</a>             <strong class="jxr_keyword">int</strong>[] fanSpeeds = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">int</strong>[fan.getResultCount()];
+<a class="jxr_linenumber" name="L223" href="#L223">223</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; fan.getResultCount(); i++) {
+<a class="jxr_linenumber" name="L224" href="#L224">224</a>                 fanSpeeds[i] = (<strong class="jxr_keyword">int</strong>) WmiUtil.getUint64(fan, FanProperty.DESIREDSPEED, i);
+<a class="jxr_linenumber" name="L225" href="#L225">225</a>             }
+<a class="jxr_linenumber" name="L226" href="#L226">226</a>             <strong class="jxr_keyword">return</strong> fanSpeeds;
+<a class="jxr_linenumber" name="L227" href="#L227">227</a>         }
+<a class="jxr_linenumber" name="L228" href="#L228">228</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L229" href="#L229">229</a>     }
+<a class="jxr_linenumber" name="L230" href="#L230">230</a> 
+<a class="jxr_linenumber" name="L231" href="#L231">231</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L232" href="#L232">232</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L233" href="#L233">233</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L234" href="#L234">234</a>     @Override
+<a class="jxr_linenumber" name="L235" href="#L235">235</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getCpuVoltage() {
+<a class="jxr_linenumber" name="L236" href="#L236">236</a>         <em class="jxr_comment">// Attempt to fetch value from Open Hardware Monitor if it is running</em>
+<a class="jxr_linenumber" name="L237" href="#L237">237</a>         <strong class="jxr_keyword">double</strong> volts = getVoltsFromOHM();
+<a class="jxr_linenumber" name="L238" href="#L238">238</a>         <strong class="jxr_keyword">if</strong> (volts &gt; 0d) {
+<a class="jxr_linenumber" name="L239" href="#L239">239</a>             <strong class="jxr_keyword">return</strong> volts;
+<a class="jxr_linenumber" name="L240" href="#L240">240</a>         }
+<a class="jxr_linenumber" name="L241" href="#L241">241</a> 
+<a class="jxr_linenumber" name="L242" href="#L242">242</a>         <em class="jxr_comment">// If we get this far, OHM is not running.</em>
+<a class="jxr_linenumber" name="L243" href="#L243">243</a>         <em class="jxr_comment">// Try to get from conventional WMI</em>
+<a class="jxr_linenumber" name="L244" href="#L244">244</a>         volts = getVoltsFromWMI();
+<a class="jxr_linenumber" name="L245" href="#L245">245</a> 
+<a class="jxr_linenumber" name="L246" href="#L246">246</a>         <strong class="jxr_keyword">return</strong> volts;
+<a class="jxr_linenumber" name="L247" href="#L247">247</a>     }
+<a class="jxr_linenumber" name="L248" href="#L248">248</a> 
+<a class="jxr_linenumber" name="L249" href="#L249">249</a> 
+<a class="jxr_linenumber" name="L250" href="#L250">250</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> getVoltsFromOHM() {
+<a class="jxr_linenumber" name="L251" href="#L251">251</a>         WmiResult&lt;OhmHardwareProperty&gt; ohmHardware = <strong class="jxr_keyword">this</strong>.wmiQueryHandler.queryWMI(owhVoltageQuery);
+<a class="jxr_linenumber" name="L252" href="#L252">252</a>         <strong class="jxr_keyword">if</strong> (ohmHardware.getResultCount() &gt; 0) {
+<a class="jxr_linenumber" name="L253" href="#L253">253</a>             LOG.debug(<span class="jxr_string">"Found Voltage data in Open Hardware Monitor"</span>);
+<a class="jxr_linenumber" name="L254" href="#L254">254</a>             <em class="jxr_comment">// Look for identifier containing "cpu"</em>
+<a class="jxr_linenumber" name="L255" href="#L255">255</a>             String voltIdentifierStr = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L256" href="#L256">256</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; ohmHardware.getResultCount(); i++) {
+<a class="jxr_linenumber" name="L257" href="#L257">257</a>                 String id = WmiUtil.getString(ohmHardware, OhmHardwareProperty.IDENTIFIER, i);
+<a class="jxr_linenumber" name="L258" href="#L258">258</a>                 <strong class="jxr_keyword">if</strong> (id.toLowerCase().contains(<span class="jxr_string">"cpu"</span>)) {
+<a class="jxr_linenumber" name="L259" href="#L259">259</a>                     voltIdentifierStr = id;
+<a class="jxr_linenumber" name="L260" href="#L260">260</a>                     <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L261" href="#L261">261</a>                 }
+<a class="jxr_linenumber" name="L262" href="#L262">262</a>             }
+<a class="jxr_linenumber" name="L263" href="#L263">263</a>             <em class="jxr_comment">// If none found, just get the first one</em>
+<a class="jxr_linenumber" name="L264" href="#L264">264</a>             <strong class="jxr_keyword">if</strong> (voltIdentifierStr == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L265" href="#L265">265</a>                 voltIdentifierStr = WmiUtil.getString(ohmHardware, OhmHardwareProperty.IDENTIFIER, 0);
+<a class="jxr_linenumber" name="L266" href="#L266">266</a>             }
+<a class="jxr_linenumber" name="L267" href="#L267">267</a>             <em class="jxr_comment">// Now fetch sensor</em>
+<a class="jxr_linenumber" name="L268" href="#L268">268</a>             StringBuilder sb = <strong class="jxr_keyword">new</strong> StringBuilder(BASE_SENSOR_CLASS);
+<a class="jxr_linenumber" name="L269" href="#L269">269</a>             sb.append(<span class="jxr_string">" WHERE Parent = \&quot;"</span>).append(voltIdentifierStr);
+<a class="jxr_linenumber" name="L270" href="#L270">270</a>             sb.append(<span class="jxr_string">"\&quot; AND SensorType=\&quot;Voltage\&quot;"</span>);
+<a class="jxr_linenumber" name="L271" href="#L271">271</a>             ohmSensorQuery.setWmiClassName(sb.toString());
+<a class="jxr_linenumber" name="L272" href="#L272">272</a>             WmiResult&lt;OhmSensorProperty&gt; ohmSensors = <strong class="jxr_keyword">this</strong>.wmiQueryHandler.queryWMI(ohmSensorQuery);
+<a class="jxr_linenumber" name="L273" href="#L273">273</a>             <strong class="jxr_keyword">if</strong> (ohmSensors.getResultCount() &gt; 0) {
+<a class="jxr_linenumber" name="L274" href="#L274">274</a>                 <strong class="jxr_keyword">return</strong> WmiUtil.getFloat(ohmSensors, OhmSensorProperty.VALUE, 0);
+<a class="jxr_linenumber" name="L275" href="#L275">275</a>             }
+<a class="jxr_linenumber" name="L276" href="#L276">276</a>         }        
+<a class="jxr_linenumber" name="L277" href="#L277">277</a>         <strong class="jxr_keyword">return</strong> 0d;
+<a class="jxr_linenumber" name="L278" href="#L278">278</a>     }
+<a class="jxr_linenumber" name="L279" href="#L279">279</a> 
+<a class="jxr_linenumber" name="L280" href="#L280">280</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> getVoltsFromWMI() {
+<a class="jxr_linenumber" name="L281" href="#L281">281</a>         WmiResult&lt;VoltProperty&gt; voltage = wmiQueryHandler.queryWMI(voltQuery);
+<a class="jxr_linenumber" name="L282" href="#L282">282</a>         <strong class="jxr_keyword">if</strong> (voltage.getResultCount() &gt; 1) {
+<a class="jxr_linenumber" name="L283" href="#L283">283</a>             LOG.debug(<span class="jxr_string">"Found Voltage data in WMI"</span>);
+<a class="jxr_linenumber" name="L284" href="#L284">284</a>             <strong class="jxr_keyword">int</strong> decivolts = WmiUtil.getUint16(voltage, VoltProperty.CURRENTVOLTAGE, 0);
+<a class="jxr_linenumber" name="L285" href="#L285">285</a>             <em class="jxr_comment">// If the eighth bit is set, bits 0-6 contain the voltage</em>
+<a class="jxr_linenumber" name="L286" href="#L286">286</a>             <em class="jxr_comment">// multiplied by 10. If the eighth bit is not set, then the bit</em>
+<a class="jxr_linenumber" name="L287" href="#L287">287</a>             <em class="jxr_comment">// setting in VoltageCaps represents the voltage value.</em>
+<a class="jxr_linenumber" name="L288" href="#L288">288</a>             <strong class="jxr_keyword">if</strong> (decivolts &gt; 0) {
+<a class="jxr_linenumber" name="L289" href="#L289">289</a>                 <strong class="jxr_keyword">if</strong> ((decivolts &amp; 0x80) == 0) {
+<a class="jxr_linenumber" name="L290" href="#L290">290</a>                     decivolts = WmiUtil.getUint32(voltage, VoltProperty.VOLTAGECAPS, 0);
+<a class="jxr_linenumber" name="L291" href="#L291">291</a>                     <em class="jxr_comment">// This value is really a bit setting, not decivolts</em>
+<a class="jxr_linenumber" name="L292" href="#L292">292</a>                     <strong class="jxr_keyword">if</strong> ((decivolts &amp; 0x1) &gt; 0) {
+<a class="jxr_linenumber" name="L293" href="#L293">293</a>                         <strong class="jxr_keyword">return</strong> 5.0;
+<a class="jxr_linenumber" name="L294" href="#L294">294</a>                     } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> ((decivolts &amp; 0x2) &gt; 0) {
+<a class="jxr_linenumber" name="L295" href="#L295">295</a>                         <strong class="jxr_keyword">return</strong> 3.3;
+<a class="jxr_linenumber" name="L296" href="#L296">296</a>                     } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> ((decivolts &amp; 0x4) &gt; 0) {
+<a class="jxr_linenumber" name="L297" href="#L297">297</a>                         <strong class="jxr_keyword">return</strong> 2.9;
+<a class="jxr_linenumber" name="L298" href="#L298">298</a>                     }
+<a class="jxr_linenumber" name="L299" href="#L299">299</a>                 } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L300" href="#L300">300</a>                     <em class="jxr_comment">// Value from bits 0-6, divided by 10</em>
+<a class="jxr_linenumber" name="L301" href="#L301">301</a>                     <strong class="jxr_keyword">return</strong> (decivolts &amp; 0x7F) / 10d;
+<a class="jxr_linenumber" name="L302" href="#L302">302</a>                 }
+<a class="jxr_linenumber" name="L303" href="#L303">303</a>             }
+<a class="jxr_linenumber" name="L304" href="#L304">304</a>         }
+<a class="jxr_linenumber" name="L305" href="#L305">305</a>         <strong class="jxr_keyword">return</strong> 0d;
+<a class="jxr_linenumber" name="L306" href="#L306">306</a>     }
+<a class="jxr_linenumber" name="L307" href="#L307">307</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2019 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

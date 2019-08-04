@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LinuxVirtualMemory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.linux</a> &gt; <span class="el_source">LinuxVirtualMemory.java</span></div><h1>LinuxVirtualMemory.java</h1><pre class="source lang-java linenums">/**
+ * OSHI (https://github.com/oshi/oshi)
+ *
+ * Copyright (c) 2010 - 2019 The OSHI Project Team:
+ * https://github.com/oshi/oshi/graphs/contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+package oshi.hardware.platform.linux;
+
+import java.util.List;
+
+import oshi.hardware.common.AbstractVirtualMemory;
+import oshi.util.FileUtil;
+import oshi.util.ParseUtil;
+import oshi.util.platform.linux.ProcUtil;
+
+/**
+ * Memory obtained by /proc/meminfo and /proc/vmstat
+ */
+<span class="nc" id="L36">public class LinuxVirtualMemory extends AbstractVirtualMemory {</span>
+
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getSwapUsed() {
+<span class="nc" id="L45">        updateMemInfo();</span>
+<span class="nc" id="L46">        return this.swapUsed;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getSwapTotal() {
+<span class="nc" id="L54">        updateMemInfo();</span>
+<span class="nc" id="L55">        return this.swapTotal;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getSwapPagesIn() {
+<span class="nc" id="L63">        updateVmStat();</span>
+<span class="nc" id="L64">        return this.swapPagesIn;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getSwapPagesOut() {
+<span class="nc" id="L72">        updateVmStat();</span>
+<span class="nc" id="L73">        return this.swapPagesOut;</span>
+    }
+
+    private void updateMemInfo() {
+        // Only update once per 300ms
+<span class="nc bnc" id="L78" title="All 2 branches missed.">        if (System.nanoTime() - this.lastSwapUsageNanos &gt; 300_000_000L) {</span>
+<span class="nc" id="L79">            long swapFree = 0;</span>
+
+<span class="nc" id="L81">            List&lt;String&gt; memInfo = FileUtil.readFile(ProcUtil.getProcPath() + &quot;/meminfo&quot;);</span>
+<span class="nc bnc" id="L82" title="All 2 branches missed.">            for (String checkLine : memInfo) {</span>
+<span class="nc" id="L83">                String[] memorySplit = ParseUtil.whitespaces.split(checkLine);</span>
+<span class="nc bnc" id="L84" title="All 2 branches missed.">                if (memorySplit.length &gt; 1) {</span>
+<span class="nc bnc" id="L85" title="All 3 branches missed.">                    switch (memorySplit[0]) {</span>
+                    case &quot;SwapTotal:&quot;:
+<span class="nc" id="L87">                        this.swapTotal = parseMeminfo(memorySplit);</span>
+<span class="nc" id="L88">                        break;</span>
+                    case &quot;SwapFree:&quot;:
+<span class="nc" id="L90">                        swapFree = parseMeminfo(memorySplit);</span>
+<span class="nc" id="L91">                        break;</span>
+                    default:
+                        // do nothing with other lines
+                        break;
+                    }
+                }
+<span class="nc" id="L97">            }</span>
+<span class="nc" id="L98">            this.swapUsed = this.swapTotal - swapFree;</span>
+<span class="nc" id="L99">            this.lastSwapUsageNanos = System.nanoTime();</span>
+        }
+<span class="nc" id="L101">    }</span>
+
+    private void updateVmStat() {
+        // Only update once per 300ms
+<span class="nc bnc" id="L105" title="All 2 branches missed.">        if (System.nanoTime() - this.lastSwapPagesNanos &gt; 300_000_000L) {</span>
+<span class="nc" id="L106">            List&lt;String&gt; vmStat = FileUtil.readFile(ProcUtil.getProcPath() + &quot;/vmstat&quot;);</span>
+<span class="nc bnc" id="L107" title="All 2 branches missed.">            for (String checkLine : vmStat) {</span>
+<span class="nc" id="L108">                String[] memorySplit = ParseUtil.whitespaces.split(checkLine);</span>
+<span class="nc bnc" id="L109" title="All 2 branches missed.">                if (memorySplit.length &gt; 1) {</span>
+<span class="nc bnc" id="L110" title="All 3 branches missed.">                    switch (memorySplit[0]) {</span>
+                    case &quot;pgpgin&quot;:
+<span class="nc" id="L112">                        this.swapPagesIn = ParseUtil.parseLongOrDefault(memorySplit[1], 0L);</span>
+<span class="nc" id="L113">                        break;</span>
+                    case &quot;pgpgout&quot;:
+<span class="nc" id="L115">                        this.swapPagesOut = ParseUtil.parseLongOrDefault(memorySplit[1], 0L);</span>
+<span class="nc" id="L116">                        break;</span>
+                    default:
+                        // do nothing with other lines
+                        break;
+                    }
+                }
+<span class="nc" id="L122">            }</span>
+<span class="nc" id="L123">            this.lastSwapPagesNanos = System.nanoTime();</span>
+        }
+<span class="nc" id="L125">    }</span>
+
+    /**
+     * Parses lines from the display of /proc/meminfo
+     *
+     * @param memorySplit
+     *            Array of Strings representing the 3 columns of /proc/meminfo
+     * @return value, multiplied by 1024 if kB is specified
+     */
+    private long parseMeminfo(String[] memorySplit) {
+<span class="nc bnc" id="L135" title="All 2 branches missed.">        if (memorySplit.length &lt; 2) {</span>
+<span class="nc" id="L136">            return 0l;</span>
+        }
+<span class="nc" id="L138">        long memory = ParseUtil.parseLongOrDefault(memorySplit[1], 0L);</span>
+<span class="nc bnc" id="L139" title="All 4 branches missed.">        if (memorySplit.length &gt; 2 &amp;&amp; &quot;kB&quot;.equals(memorySplit[2])) {</span>
+<span class="nc" id="L140">            memory *= 1024;</span>
+        }
+<span class="nc" id="L142">        return memory;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

@@ -34,53 +34,44 @@ import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
 /**
- * Gets soundcard.
- *
- * @author : BilalAM
+ * FreeBSD soundcard.
  */
 public class FreeBsdSoundCard extends AbstractSoundCard {
 
     private static final String LSHAL = &quot;lshal&quot;;
 
-<span class="nc" id="L45">    private static Map&lt;String, String&gt; vendorMap = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L46">    private static Map&lt;String, String&gt; productMap = new HashMap&lt;&gt;();</span>
-
     public FreeBsdSoundCard(String kernelVersion, String name, String codec) {
-<span class="nc" id="L49">        super(kernelVersion, name, codec);</span>
-<span class="nc" id="L50">    }</span>
+<span class="nc" id="L44">        super(kernelVersion, name, codec);</span>
+<span class="nc" id="L45">    }</span>
 
     public static List&lt;SoundCard&gt; getSoundCards() {
-<span class="nc" id="L53">        vendorMap.clear();</span>
-<span class="nc" id="L54">        productMap.clear();</span>
-<span class="nc" id="L55">        List&lt;String&gt; sounds = new ArrayList&lt;&gt;();</span>
-<span class="nc" id="L56">        String key = &quot;&quot;;</span>
-<span class="nc bnc" id="L57" title="All 2 branches missed.">        for (String line : ExecutingCommand.runNative(LSHAL)) {</span>
-<span class="nc bnc" id="L58" title="All 2 branches missed.">            if (line.startsWith(&quot;udi =&quot;)) {</span>
+<span class="nc" id="L48">        Map&lt;String, String&gt; vendorMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L49">        Map&lt;String, String&gt; productMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L50">        vendorMap.clear();</span>
+<span class="nc" id="L51">        productMap.clear();</span>
+<span class="nc" id="L52">        List&lt;String&gt; sounds = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L53">        String key = &quot;&quot;;</span>
+<span class="nc bnc" id="L54" title="All 2 branches missed.">        for (String line : ExecutingCommand.runNative(LSHAL)) {</span>
+<span class="nc" id="L55">            line = line.trim();</span>
+<span class="nc bnc" id="L56" title="All 2 branches missed.">            if (line.startsWith(&quot;udi =&quot;)) {</span>
                 // we have the key.
-<span class="nc" id="L60">                key = ParseUtil.getSingleQuoteStringValue(line);</span>
-<span class="nc" id="L61">                continue;</span>
+<span class="nc" id="L58">                key = ParseUtil.getSingleQuoteStringValue(line);</span>
+<span class="nc bnc" id="L59" title="All 4 branches missed.">            } else if (!key.isEmpty() &amp;&amp; !line.isEmpty()) {</span>
+<span class="nc bnc" id="L60" title="All 4 branches missed.">                if (line.contains(&quot;freebsd.driver =&quot;) &amp;&amp; &quot;pcm&quot;.equals(ParseUtil.getSingleQuoteStringValue(line))) {</span>
+<span class="nc" id="L61">                    sounds.add(key);</span>
+<span class="nc bnc" id="L62" title="All 2 branches missed.">                } else if (line.contains(&quot;info.product&quot;)) {</span>
+<span class="nc" id="L63">                    productMap.put(key, ParseUtil.getStringBetween(line, '\''));</span>
+<span class="nc bnc" id="L64" title="All 2 branches missed.">                } else if (line.contains(&quot;info.vendor&quot;)) {</span>
+<span class="nc" id="L65">                    vendorMap.put(key, ParseUtil.getStringBetween(line, '\''));</span>
+                }
             }
-
-<span class="nc" id="L64">            line = line.trim();</span>
-
-<span class="nc bnc" id="L66" title="All 4 branches missed.">            if (key.isEmpty() || line.isEmpty()) {</span>
-<span class="nc" id="L67">                continue;</span>
-            }
-
-<span class="nc bnc" id="L70" title="All 4 branches missed.">            if (line.contains(&quot;freebsd.driver =&quot;) &amp;&amp; &quot;pcm&quot;.equals(ParseUtil.getSingleQuoteStringValue(line))) {</span>
-<span class="nc" id="L71">                sounds.add(key);</span>
-<span class="nc bnc" id="L72" title="All 2 branches missed.">            } else if (line.contains(&quot;info.product&quot;)) {</span>
-<span class="nc" id="L73">                productMap.put(key, ParseUtil.getStringBetween(line, '\''));</span>
-<span class="nc bnc" id="L74" title="All 2 branches missed.">            } else if (line.contains(&quot;info.vendor&quot;)) {</span>
-<span class="nc" id="L75">                vendorMap.put(key, ParseUtil.getStringBetween(line, '\''));</span>
-            }
-<span class="nc" id="L77">        }</span>
-<span class="nc" id="L78">        List&lt;SoundCard&gt; soundCards = new ArrayList&lt;&gt;();</span>
-<span class="nc bnc" id="L79" title="All 2 branches missed.">        for (String _key : sounds) {</span>
-<span class="nc" id="L80">            soundCards.add(new FreeBsdSoundCard(productMap.get(_key), vendorMap.get(_key) + &quot; &quot; + productMap.get(_key),</span>
-<span class="nc" id="L81">                    productMap.get(_key)));</span>
-<span class="nc" id="L82">        }</span>
-<span class="nc" id="L83">        return soundCards;</span>
+<span class="nc" id="L68">        }</span>
+<span class="nc" id="L69">        List&lt;SoundCard&gt; soundCards = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L70" title="All 2 branches missed.">        for (String _key : sounds) {</span>
+<span class="nc" id="L71">            soundCards.add(new FreeBsdSoundCard(productMap.get(_key), vendorMap.get(_key) + &quot; &quot; + productMap.get(_key),</span>
+<span class="nc" id="L72">                    productMap.get(_key)));</span>
+<span class="nc" id="L73">        }</span>
+<span class="nc" id="L74">        return soundCards;</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

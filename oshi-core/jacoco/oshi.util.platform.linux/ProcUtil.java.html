@@ -29,18 +29,48 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import oshi.hardware.CentralProcessor.TickType;
+import oshi.util.GlobalConfig;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 
 /**
  * Provides access to some /proc filesystem info on Linux
- *
- * @author widdis[at]gmail[dot]com
  */
 public class ProcUtil {
+
 <span class="nc" id="L41">    private static final Pattern DIGITS = Pattern.compile(&quot;\\d+&quot;); // NOSONAR-squid:S1068</span>
 
+    /**
+     * The /proc filesystem location.
+     */
+<span class="nc" id="L46">    private static String proc = GlobalConfig.get(&quot;oshi.util.proc.path&quot;, &quot;/proc&quot;);</span>
+
+    static {
+        // Ensure prefix begins with path separator, but doesn't end with one
+<span class="nc bnc" id="L50" title="All 2 branches missed.">        if (proc.endsWith(&quot;/&quot;)) {</span>
+<span class="nc" id="L51">            proc = proc.substring(0, proc.length() - 1);</span>
+        }
+<span class="nc bnc" id="L53" title="All 2 branches missed.">        if (!proc.startsWith(&quot;/&quot;)) {</span>
+<span class="nc" id="L54">            proc = &quot;/&quot; + proc;</span>
+        }
+
+<span class="nc bnc" id="L57" title="All 2 branches missed.">        if (!new File(proc).exists()) {</span>
+<span class="nc" id="L58">            throw new GlobalConfig.PropertyException(&quot;oshi.util.proc.path&quot;, &quot;The path does not exist&quot;);</span>
+        }
+<span class="nc" id="L60">    }</span>
+
     private ProcUtil() {
+    }
+
+    /**
+     * The proc filesystem location may be customized to allow alternative proc
+     * plugins, particularly useful for containers.
+     * 
+     * @return The proc filesystem path, with a leading / but not a trailing one,
+     *         e.g., &quot;/proc&quot;
+     */
+    public static String getProcPath() {
+<span class="nc" id="L73">        return proc;</span>
     }
 
     /**
@@ -49,17 +79,17 @@ public class ProcUtil {
      * @return Seconds since boot
      */
     public static double getSystemUptimeSeconds() {
-<span class="nc" id="L52">        String uptime = FileUtil.getStringFromFile(&quot;/proc/uptime&quot;);</span>
-<span class="nc" id="L53">        int spaceIndex = uptime.indexOf(' ');</span>
+<span class="nc" id="L82">        String uptime = FileUtil.getStringFromFile(proc + &quot;/uptime&quot;);</span>
+<span class="nc" id="L83">        int spaceIndex = uptime.indexOf(' ');</span>
         try {
-<span class="nc bnc" id="L55" title="All 2 branches missed.">            if (spaceIndex &lt; 0) {</span>
+<span class="nc bnc" id="L85" title="All 2 branches missed.">            if (spaceIndex &lt; 0) {</span>
                 // No space, error
-<span class="nc" id="L57">                return 0d;</span>
+<span class="nc" id="L87">                return 0d;</span>
             } else {
-<span class="nc" id="L59">                return Double.parseDouble(uptime.substring(0, spaceIndex));</span>
+<span class="nc" id="L89">                return Double.parseDouble(uptime.substring(0, spaceIndex));</span>
             }
-<span class="nc" id="L61">        } catch (NumberFormatException nfe) {</span>
-<span class="nc" id="L62">            return 0d;</span>
+<span class="nc" id="L91">        } catch (NumberFormatException nfe) {</span>
+<span class="nc" id="L92">            return 0d;</span>
         }
     }
 
@@ -68,31 +98,31 @@ public class ProcUtil {
      *
      * @return Array of CPU ticks
      */
-    public static long[] getSystemCpuLoadTicks() {
-<span class="nc" id="L72">        long[] ticks = new long[TickType.values().length];</span>
+    public static long[] readSystemCpuLoadTicks() {
+<span class="nc" id="L102">        long[] ticks = new long[TickType.values().length];</span>
         // /proc/stat expected format
         // first line is overall user,nice,system,idle,iowait,irq, etc.
         // cpu 3357 0 4313 1362393 ...
         String tickStr;
-<span class="nc" id="L77">        List&lt;String&gt; procStat = FileUtil.readFile(&quot;/proc/stat&quot;);</span>
-<span class="nc bnc" id="L78" title="All 2 branches missed.">        if (!procStat.isEmpty()) {</span>
-<span class="nc" id="L79">            tickStr = procStat.get(0);</span>
+<span class="nc" id="L107">        List&lt;String&gt; procStat = FileUtil.readFile(proc + &quot;/stat&quot;);</span>
+<span class="nc bnc" id="L108" title="All 2 branches missed.">        if (!procStat.isEmpty()) {</span>
+<span class="nc" id="L109">            tickStr = procStat.get(0);</span>
         } else {
-<span class="nc" id="L81">            return ticks;</span>
+<span class="nc" id="L111">            return ticks;</span>
         }
         // Split the line. Note the first (0) element is &quot;cpu&quot; so remaining
         // elements are offset by 1 from the enum index
-<span class="nc" id="L85">        String[] tickArr = ParseUtil.whitespaces.split(tickStr);</span>
-<span class="nc bnc" id="L86" title="All 2 branches missed.">        if (tickArr.length &lt;= TickType.IDLE.getIndex()) {</span>
+<span class="nc" id="L115">        String[] tickArr = ParseUtil.whitespaces.split(tickStr);</span>
+<span class="nc bnc" id="L116" title="All 2 branches missed.">        if (tickArr.length &lt;= TickType.IDLE.getIndex()) {</span>
             // If ticks don't at least go user/nice/system/idle, abort
-<span class="nc" id="L88">            return ticks;</span>
+<span class="nc" id="L118">            return ticks;</span>
         }
         // Note tickArr is offset by 1 because first element is &quot;cpu&quot;
-<span class="nc bnc" id="L91" title="All 2 branches missed.">        for (int i = 0; i &lt; TickType.values().length; i++) {</span>
-<span class="nc" id="L92">            ticks[i] = ParseUtil.parseLongOrDefault(tickArr[i + 1], 0L);</span>
+<span class="nc bnc" id="L121" title="All 2 branches missed.">        for (int i = 0; i &lt; TickType.values().length; i++) {</span>
+<span class="nc" id="L122">            ticks[i] = ParseUtil.parseLongOrDefault(tickArr[i + 1], 0L);</span>
         }
         // Ignore guest or guest_nice, they are included in user/nice
-<span class="nc" id="L95">        return ticks;</span>
+<span class="nc" id="L125">        return ticks;</span>
     }
 
     /**
@@ -102,14 +132,14 @@ public class ProcUtil {
      * @return An array of File objects for the process files
      */
     public static File[] getPidFiles() {
-<span class="nc" id="L105">        File procdir = new File(&quot;/proc&quot;);</span>
-<span class="nc" id="L106">        File[] pids = procdir.listFiles(new FileFilter() {</span>
+<span class="nc" id="L135">        File procdir = new File(proc);</span>
+<span class="nc" id="L136">        File[] pids = procdir.listFiles(new FileFilter() {</span>
             @Override
             public boolean accept(File file) {
-<span class="nc" id="L109">                return DIGITS.matcher(file.getName()).matches();</span>
+<span class="nc" id="L139">                return DIGITS.matcher(file.getName()).matches();</span>
             }
         });
-<span class="nc bnc" id="L112" title="All 2 branches missed.">        return pids != null ? pids : new File[0];</span>
+<span class="nc bnc" id="L142" title="All 2 branches missed.">        return pids != null ? pids : new File[0];</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

@@ -26,37 +26,30 @@ package oshi.hardware.common;
 import oshi.hardware.Baseboard;
 import oshi.hardware.ComputerSystem;
 import oshi.hardware.Firmware;
+import oshi.util.Constants;
 
 /**
- * Hardware data
- *
- * @author SchiTho1 [at] Securiton AG
- * @author widdis [at] gmail [dot] com
+ * Computer System data.
  */
-public abstract class AbstractComputerSystem implements ComputerSystem {
+<span class="nc" id="L34">public abstract class AbstractComputerSystem implements ComputerSystem {</span>
 
     private static final long serialVersionUID = 1L;
 
-    private String manufacturer;
-    private String model;
-    private String serialNumber;
-    private Firmware firmware;
-    private Baseboard baseboard;
-
-<span class="nc" id="L46">    protected AbstractComputerSystem() {</span>
-<span class="nc" id="L47">        this.manufacturer = &quot;unknown&quot;;</span>
-<span class="nc" id="L48">        this.model = &quot;unknown&quot;;</span>
-<span class="nc" id="L49">        this.serialNumber = &quot;unknown&quot;;</span>
-<span class="nc" id="L50">        this.firmware = null;</span>
-<span class="nc" id="L51">        this.baseboard = null;</span>
-<span class="nc" id="L52">    }</span>
+    protected String manufacturer;
+    protected String model;
+    protected String serialNumber;
+    protected Firmware firmware;
+    protected Baseboard baseboard;
 
     /**
      * {@inheritDoc}
      */
     @Override
     public String getManufacturer() {
-<span class="nc" id="L59">        return this.manufacturer;</span>
+<span class="nc bnc" id="L49" title="All 2 branches missed.">        if (this.manufacturer == null) {</span>
+<span class="nc" id="L50">            this.manufacturer = Constants.UNKNOWN;</span>
+        }
+<span class="nc" id="L52">        return this.manufacturer;</span>
     }
 
     /**
@@ -64,7 +57,10 @@ public abstract class AbstractComputerSystem implements ComputerSystem {
      */
     @Override
     public String getModel() {
-<span class="nc" id="L67">        return this.model;</span>
+<span class="nc bnc" id="L60" title="All 2 branches missed.">        if (this.model == null) {</span>
+<span class="nc" id="L61">            this.model = Constants.UNKNOWN;</span>
+        }
+<span class="nc" id="L63">        return this.model;</span>
     }
 
     /**
@@ -72,64 +68,10 @@ public abstract class AbstractComputerSystem implements ComputerSystem {
      */
     @Override
     public String getSerialNumber() {
-<span class="nc" id="L75">        return this.serialNumber;</span>
+<span class="nc bnc" id="L71" title="All 2 branches missed.">        if (this.serialNumber == null) {</span>
+<span class="nc" id="L72">            this.serialNumber = Constants.UNKNOWN;</span>
+        }
+<span class="nc" id="L74">        return this.serialNumber;</span>
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Firmware getFirmware() {
-<span class="nc" id="L83">        return this.firmware;</span>
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Baseboard getBaseboard() {
-<span class="nc" id="L91">        return this.baseboard;</span>
-    }
-
-    /**
-     * @param manufacturer
-     *            The manufacturer to set.
-     */
-    protected void setManufacturer(String manufacturer) {
-<span class="nc" id="L99">        this.manufacturer = manufacturer;</span>
-<span class="nc" id="L100">    }</span>
-
-    /**
-     * @param model
-     *            The model to set.
-     */
-    protected void setModel(String model) {
-<span class="nc" id="L107">        this.model = model;</span>
-<span class="nc" id="L108">    }</span>
-
-    /**
-     * @param serialNumber
-     *            The serialNumber to set.
-     */
-    protected void setSerialNumber(String serialNumber) {
-<span class="nc" id="L115">        this.serialNumber = serialNumber;</span>
-<span class="nc" id="L116">    }</span>
-
-    /**
-     * @param firmware
-     *            The firmware to set.
-     */
-    protected void setFirmware(Firmware firmware) {
-<span class="nc" id="L123">        this.firmware = firmware;</span>
-<span class="nc" id="L124">    }</span>
-
-    /**
-     * @param baseboard
-     *            The baseboard to set.
-     */
-    protected void setBaseboard(Baseboard baseboard) {
-<span class="nc" id="L131">        this.baseboard = baseboard;</span>
-<span class="nc" id="L132">    }</span>
-
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

@@ -34,58 +34,71 @@
 <a class="jxr_linenumber" name="L26" href="#L26">26</a>  <strong class="jxr_keyword">import</strong> org.slf4j.Logger;
 <a class="jxr_linenumber" name="L27" href="#L27">27</a>  <strong class="jxr_keyword">import</strong> org.slf4j.LoggerFactory;
 <a class="jxr_linenumber" name="L28" href="#L28">28</a>  
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.NativeLong; <em class="jxr_comment">// NOSONAR squid:S1191</em>
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.Memory; <em class="jxr_comment">// NOSONAR</em>
 <a class="jxr_linenumber" name="L30" href="#L30">30</a>  
 <a class="jxr_linenumber" name="L31" href="#L31">31</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.PowerSource;
 <a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.common.AbstractPowerSource;
 <a class="jxr_linenumber" name="L33" href="#L33">33</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.windows.PowrProf;
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.windows.PowrProf.SystemBatteryState;
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <strong class="jxr_keyword">import</strong> oshi.util.FormatUtil;
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>  
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <em class="jxr_javadoccomment"> * A Power Source</em>
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <em class="jxr_javadoccomment"> * @author widdis[at]gmail[dot]com</em>
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="WindowsPowerSource" href="../../../../oshi/hardware/platform/windows/WindowsPowerSource.html#WindowsPowerSource">WindowsPowerSource</a> <strong class="jxr_keyword">extends</strong> <a name="AbstractPowerSource" href="../../../../oshi/hardware/common/AbstractPowerSource.html#AbstractPowerSource">AbstractPowerSource</a> {
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>  
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> serialVersionUID = 1L;
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>  
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Logger LOG = LoggerFactory.getLogger(WindowsPowerSource.<strong class="jxr_keyword">class</strong>);
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>  
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>      <strong class="jxr_keyword">public</strong> <a name="WindowsPowerSource" href="../../../../oshi/hardware/platform/windows/WindowsPowerSource.html#WindowsPowerSource">WindowsPowerSource</a>(String newName, <strong class="jxr_keyword">double</strong> newRemainingCapacity, <strong class="jxr_keyword">double</strong> newTimeRemaining) {
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>          <strong class="jxr_keyword">super</strong>(newName, newRemainingCapacity, newTimeRemaining);
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>          LOG.debug(<span class="jxr_string">"Initialized WindowsPowerSource"</span>);
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>      }
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>  
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>      <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>  <em class="jxr_javadoccomment">     * Gets Battery Information.</em>
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>  <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>  <em class="jxr_javadoccomment">     * @return An array of PowerSource objects representing batteries, etc.</em>
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a name="PowerSource" href="../../../../oshi/hardware/PowerSource.html#PowerSource">PowerSource</a>[] getPowerSources() {
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>          <em class="jxr_comment">// Windows provides a single unnamed battery</em>
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>          String name = <span class="jxr_string">"System Battery"</span>;
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>          <a name="WindowsPowerSource" href="../../../../oshi/hardware/platform/wi<a name="WindowsPowerSource" href="../../../../oshi/hardware/platform/windows/WindowsPowerSource.html#WindowsPowerSource">WindowsPowerSource</a>Source.html#WindowsPowerSource">WindowsPowerSource</a>[] psArray = <strong class="jxr_keyword">new</strong> <a name="WindowsPowerSource" href="../../../../oshi/hardware/platform/windows/WindowsPowerSource.html#WindowsPowerSource">WindowsPowerSource</a>[1];
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>          <em class="jxr_comment">// Get structure</em>
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>          SystemBatteryState batteryState = <strong class="jxr_keyword">new</strong> SystemBatteryState();
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>          <strong class="jxr_keyword">if</strong> (0 != PowrProf.INSTANCE.CallNtPowerInformation(PowrProf.SYSTEM_BATTERY_STATE, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">new</strong> NativeLong(0),
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>                  batteryState, <strong class="jxr_keyword">new</strong> NativeLong(batteryState.size())) || batteryState.batteryPresent == 0) {
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>              psArray[0] = <strong class="jxr_keyword">new</strong> <a name="WindowsPowerSource" href="../../../../oshi/hardware/platform/windows/WindowsPowerSource.html#WindowsPowerSource">WindowsPowerSource</a>(<span class="jxr_string">"Unknown"</span>, 0d, -1d);
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>          } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>              <strong class="jxr_keyword">int</strong> estimatedTime = -2; <em class="jxr_comment">// -1 = unknown, -2 = unlimited</em>
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>              <strong class="jxr_keyword">if</strong> (batteryState.acOnLine == 0 &amp;&amp; batteryState.charging == 0 &amp;&amp; batteryState.discharging &gt; 0) {
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>                  estimatedTime = batteryState.estimatedTime;
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>              }
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>              <strong class="jxr_keyword">long</strong> maxCapacity = FormatUtil.getUnsignedInt(batteryState.maxCapacity);
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>              <strong class="jxr_keyword">long</strong> remainingCapacity = FormatUtil.getUnsignedInt(batteryState.remainingCapacity);
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>  
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>              psArray[0] = <strong class="jxr_keyword">new</strong> <a name="WindowsPowerSource" href="../../../../oshi/hardware/platform/windows/WindowsPowerSource.html#WindowsPowerSource">WindowsPowerSource</a>(name, (<strong class="jxr_keyword">double</strong>) remainingCapacity / maxCapacity, estimatedTime);
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>          }
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>  
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>          <strong class="jxr_keyword">return</strong> psArray;
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>      }
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>  }
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.windows.PowrProf.POWER_INFORMATION_LEVEL;
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.windows.PowrProf.SystemBatteryState;
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <strong class="jxr_keyword">import</strong> oshi.util.FormatUtil;
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>  
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <em class="jxr_javadoccomment"> * A Power Source</em>
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="WindowsPowerSource" href="../../../../oshi/hardware/platform/windows/WindowsPowerSource.html#WindowsPowerSource">WindowsPowerSource</a> <strong class="jxr_keyword">extends</strong> <a name="AbstractPowerSource" href="../../../../oshi/hardware/common/AbstractPowerSource.html#AbstractPowerSource">AbstractPowerSource</a> {
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>  
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> serialVersionUID = 1L;
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>  
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Logger LOG = LoggerFactory.getLogger(WindowsPowerSource.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>  
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>      <strong class="jxr_keyword">public</strong> <a name="WindowsPowerSource" href="../../../../oshi/hardware/platform/windows/WindowsPowerSource.html#WindowsPowerSource">WindowsPowerSource</a>(String newName, <strong class="jxr_keyword">double</strong> newRemainingCapacity, <strong class="jxr_keyword">double</strong> newTimeRemaining) {
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>          <strong class="jxr_keyword">super</strong>(newName, newRemainingCapacity, newTimeRemaining);
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>          LOG.debug(<span class="jxr_string">"Initialized WindowsPowerSource"</span>);
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>      }
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>  
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>  <em class="jxr_javadoccomment">     * Gets Battery Information.</em>
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>  <em class="jxr_javadoccomment">     * @return An array of PowerSource objects representing batteries, etc.</em>
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a name="PowerSource" href="../../../../oshi/hardware/PowerSource.html#PowerSource">PowerSource</a>[] getPowerSources() {
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>          <em class="jxr_comment">// Windows provides a single unnamed battery</em>
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>          <a name="WindowsPowerSource" href="../../../../oshi/hardware/platform/wi<a name="WindowsPowerSource" href="../../../../oshi/hardware/platform/windows/WindowsPowerSource.html#WindowsPowerSource">WindowsPowerSource</a>Source.html#WindowsPowerSource">WindowsPowerSource</a>[] psArray = <strong class="jxr_keyword">new</strong> <a name="WindowsPowerSource" href="../../../../oshi/hardware/platform/windows/WindowsPowerSource.html#WindowsPowerSource">WindowsPowerSource</a>[1];
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>          psArray[0] = getPowerSource(<span class="jxr_string">"System Battery"</span>);
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>          <strong class="jxr_keyword">return</strong> psArray;
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>      }
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>  
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <a name="WindowsPowerSource" href="../../../../oshi/hardware/platform/windows/WindowsPowerSource.html#WindowsPowerSource">WindowsPowerSource</a> getPowerSource(String name) {
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>          <em class="jxr_comment">// Get structure</em>
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>          <strong class="jxr_keyword">int</strong> size = <strong class="jxr_keyword">new</strong> SystemBatteryState().size();
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>          Memory mem = <strong class="jxr_keyword">new</strong> Memory(size);
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>          <strong class="jxr_keyword">if</strong> (0 == PowrProf.INSTANCE.CallNtPowerInformation(POWER_INFORMATION_LEVEL.SYSTEM_BATTERY_STATE, <strong class="jxr_keyword">null</strong>, 0, mem,
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>                  size)) {
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>              SystemBatteryState batteryState = <strong class="jxr_keyword">new</strong> SystemBatteryState(mem);
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>              <strong class="jxr_keyword">if</strong> (batteryState.batteryPresent &gt; 0) {
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>                  <strong class="jxr_keyword">int</strong> estimatedTime = -2; <em class="jxr_comment">// -1 = unknown, -2 = unlimited</em>
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>                  <strong class="jxr_keyword">if</strong> (batteryState.acOnLine == 0 &amp;&amp; batteryState.charging == 0 &amp;&amp; batteryState.discharging &gt; 0) {
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>                      estimatedTime = batteryState.estimatedTime;
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>                  }
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>                  <strong class="jxr_keyword">long</strong> maxCapacity = FormatUtil.getUnsignedInt(batteryState.maxCapacity);
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>                  <strong class="jxr_keyword">long</strong> remainingCapacity = FormatUtil.getUnsignedInt(batteryState.remainingCapacity);
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>                  <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a name="WindowsPowerSource" href="../../../../oshi/hardware/platform/windows/WindowsPowerSource.html#WindowsPowerSource">WindowsPowerSource</a>(name, (<strong class="jxr_keyword">double</strong>) remainingCapacity / maxCapacity, estimatedTime);
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>              }
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>          }
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a name="WindowsPowerSource" href="../../../../oshi/hardware/platform/windows/WindowsPowerSource.html#WindowsPowerSource">WindowsPowerSource</a>(<span class="jxr_string">"Unknown"</span>, 0d, -1d);
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>      }
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>  
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>  <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>      @Override
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> updateAttributes() {
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>          <a name="PowerSource" href="../../../../oshi/hardware/PowerSource.html#PowerSource">PowerSource</a> ps = getPowerSource(<strong class="jxr_keyword">this</strong>.name);
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>          <strong class="jxr_keyword">this</strong>.remainingCapacity = ps.getRemainingCapacity();
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>          <strong class="jxr_keyword">this</strong>.timeRemaining = ps.getTimeRemaining();
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>      }
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>  }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2019 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

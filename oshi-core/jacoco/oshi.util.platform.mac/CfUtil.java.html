@@ -23,8 +23,7 @@
  */
 package oshi.util.platform.mac;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Collection;
 
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
@@ -34,46 +33,21 @@ import com.sun.jna.ptr.LongByReference;
 
 import oshi.jna.platform.mac.CoreFoundation;
 import oshi.jna.platform.mac.CoreFoundation.CFAllocatorRef;
-import oshi.jna.platform.mac.CoreFoundation.CFStringRef;
 
 /**
  * Provides utilities for Core Foundations
  *
  * @author widdis[at]gmail[dot]com
  */
-<span class="nc" id="L44">public class CfUtil {</span>
-<span class="nc" id="L45">    public static final CFAllocatorRef ALLOCATOR = CoreFoundation.INSTANCE.CFAllocatorGetDefault();</span>
-
-    /**
-     * Cache cfStrings
-     */
-<span class="nc" id="L50">    private static Map&lt;String, CFStringRef&gt; cfStringMap = new ConcurrentHashMap&lt;&gt;();</span>
-
-    /**
-     * Return a CFStringRef representing a string, caching the result
-     *
-     * @param key
-     *            The string, usually a registry key
-     * @return the corresponding CFString
-     */
-    public static CFStringRef getCFString(String key) {
-<span class="nc" id="L60">        synchronized (cfStringMap) {</span>
-<span class="nc" id="L61">            CFStringRef value = cfStringMap.get(key);</span>
-<span class="nc bnc" id="L62" title="All 2 branches missed.">            if (value != null) {</span>
-<span class="nc" id="L63">                return value;</span>
-            }
-<span class="nc" id="L65">            value = CFStringRef.toCFString(key);</span>
-<span class="nc" id="L66">            cfStringMap.put(key, value);</span>
-<span class="nc" id="L67">            return value;</span>
-        }
-    }
+<span class="nc" id="L42">public class CfUtil {</span>
+<span class="nc" id="L43">    public static final CFAllocatorRef ALLOCATOR = CoreFoundation.INSTANCE.CFAllocatorGetDefault();</span>
 
     /**
      * Enum values used for number type in CFNumberGetValue(). Use ordinal() to
      * fetch the corresponding constant.
      */
-<span class="nc" id="L75">    public enum CFNumberType {</span>
-<span class="nc" id="L76">        unusedZero, kCFNumberSInt8Type, kCFNumberSInt16Type, kCFNumberSInt32Type, kCFNumberSInt64Type, kCFNumberFloat32Type, kCFNumberFloat64Type, kCFNumberCharType, kCFNumberShortType, kCFNumberIntType, kCFNumberLongType, kCFNumberLongLongType, kCFNumberFloatType, kCFNumberDoubleType, kCFNumberCFIndexType, kCFNumberNSIntegerType, kCFNumberCGFloatType, kCFNumberMaxType</span>
+<span class="nc" id="L49">    public enum CFNumberType {</span>
+<span class="nc" id="L50">        unusedZero, kCFNumberSInt8Type, kCFNumberSInt16Type, kCFNumberSInt32Type, kCFNumberSInt64Type, kCFNumberFloat32Type, kCFNumberFloat64Type, kCFNumberCharType, kCFNumberShortType, kCFNumberIntType, kCFNumberLongType, kCFNumberLongLongType, kCFNumberFloatType, kCFNumberDoubleType, kCFNumberCFIndexType, kCFNumberNSIntegerType, kCFNumberCGFloatType, kCFNumberMaxType</span>
     }
 
     /**
@@ -84,9 +58,9 @@ import oshi.jna.platform.mac.CoreFoundation.CFStringRef;
      * @return The corresponding long
      */
     public static long cfPointerToLong(Pointer p) {
-<span class="nc" id="L87">        LongByReference lbr = new LongByReference();</span>
-<span class="nc" id="L88">        CoreFoundation.INSTANCE.CFNumberGetValue(p, CFNumberType.kCFNumberLongLongType.ordinal(), lbr);</span>
-<span class="nc" id="L89">        return lbr.getValue();</span>
+<span class="nc" id="L61">        LongByReference lbr = new LongByReference();</span>
+<span class="nc" id="L62">        CoreFoundation.INSTANCE.CFNumberGetValue(p, CFNumberType.kCFNumberLongLongType.ordinal(), lbr);</span>
+<span class="nc" id="L63">        return lbr.getValue();</span>
     }
 
     /**
@@ -97,9 +71,9 @@ import oshi.jna.platform.mac.CoreFoundation.CFStringRef;
      * @return The corresponding int
      */
     public static int cfPointerToInt(Pointer p) {
-<span class="nc" id="L100">        IntByReference ibr = new IntByReference();</span>
-<span class="nc" id="L101">        CoreFoundation.INSTANCE.CFNumberGetValue(p, CFNumberType.kCFNumberIntType.ordinal(), ibr);</span>
-<span class="nc" id="L102">        return ibr.getValue();</span>
+<span class="nc" id="L74">        IntByReference ibr = new IntByReference();</span>
+<span class="nc" id="L75">        CoreFoundation.INSTANCE.CFNumberGetValue(p, CFNumberType.kCFNumberIntType.ordinal(), ibr);</span>
+<span class="nc" id="L76">        return ibr.getValue();</span>
     }
 
     /**
@@ -111,7 +85,7 @@ import oshi.jna.platform.mac.CoreFoundation.CFStringRef;
      * @return The corresponding boolean
      */
     public static boolean cfPointerToBoolean(Pointer p) {
-<span class="nc" id="L114">        return CoreFoundation.INSTANCE.CFBooleanGetValue(p);</span>
+<span class="nc" id="L88">        return CoreFoundation.INSTANCE.CFBooleanGetValue(p);</span>
     }
 
     /**
@@ -122,17 +96,17 @@ import oshi.jna.platform.mac.CoreFoundation.CFStringRef;
      * @return The corresponding string
      */
     public static String cfPointerToString(Pointer p) {
-<span class="nc bnc" id="L125" title="All 2 branches missed.">        if (p == null) {</span>
-<span class="nc" id="L126">            return &quot;null&quot;;</span>
+<span class="nc bnc" id="L99" title="All 2 branches missed.">        if (p == null) {</span>
+<span class="nc" id="L100">            return &quot;null&quot;;</span>
         }
-<span class="nc" id="L128">        long length = CoreFoundation.INSTANCE.CFStringGetLength(p);</span>
-<span class="nc" id="L129">        long maxSize = CoreFoundation.INSTANCE.CFStringGetMaximumSizeForEncoding(length, CoreFoundation.UTF_8);</span>
-<span class="nc bnc" id="L130" title="All 2 branches missed.">        if (maxSize == 0) {</span>
-<span class="nc" id="L131">            maxSize = 1;</span>
+<span class="nc" id="L102">        long length = CoreFoundation.INSTANCE.CFStringGetLength(p);</span>
+<span class="nc" id="L103">        long maxSize = CoreFoundation.INSTANCE.CFStringGetMaximumSizeForEncoding(length, CoreFoundation.UTF_8);</span>
+<span class="nc bnc" id="L104" title="All 2 branches missed.">        if (maxSize == 0) {</span>
+<span class="nc" id="L105">            maxSize = 1;</span>
         }
-<span class="nc" id="L133">        Pointer buf = new Memory(maxSize);</span>
-<span class="nc" id="L134">        CoreFoundation.INSTANCE.CFStringGetCString(p, buf, maxSize, CoreFoundation.UTF_8);</span>
-<span class="nc" id="L135">        return buf.getString(0);</span>
+<span class="nc" id="L107">        Pointer buf = new Memory(maxSize);</span>
+<span class="nc" id="L108">        CoreFoundation.INSTANCE.CFStringGetCString(p, buf, maxSize, CoreFoundation.UTF_8);</span>
+<span class="nc" id="L109">        return buf.getString(0);</span>
     }
 
     /**
@@ -143,10 +117,22 @@ import oshi.jna.platform.mac.CoreFoundation.CFStringRef;
      *            The reference to release
      */
     public static void release(PointerType ref) {
-<span class="nc bnc" id="L146" title="All 2 branches missed.">        if (ref != null) {</span>
-<span class="nc" id="L147">            CoreFoundation.INSTANCE.CFRelease(ref);</span>
+<span class="nc bnc" id="L120" title="All 2 branches missed.">        if (ref != null) {</span>
+<span class="nc" id="L121">            CoreFoundation.INSTANCE.CFRelease(ref);</span>
         }
-<span class="nc" id="L149">    }</span>
+<span class="nc" id="L123">    }</span>
 
+    /**
+     * Releases a collection of CF references. Mandatory when an object is owned
+     * (using 'create' or 'copy' methods).
+     *
+     * @param refs
+     *            The collection of references to release
+     */
+    public static &lt;T extends PointerType&gt; void releaseAll(Collection&lt;T&gt; refs) {
+<span class="nc bnc" id="L133" title="All 2 branches missed.">        for (PointerType ref : refs) {</span>
+<span class="nc" id="L134">            release(ref);</span>
+<span class="nc" id="L135">        }</span>
+<span class="nc" id="L136">    }</span>
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

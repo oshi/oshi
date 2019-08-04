@@ -34,11 +34,11 @@
 <a class="jxr_linenumber" name="L26" href="#L26">26</a>  <strong class="jxr_keyword">import</strong> java.util.ArrayList;
 <a class="jxr_linenumber" name="L27" href="#L27">27</a>  <strong class="jxr_keyword">import</strong> java.util.List;
 <a class="jxr_linenumber" name="L28" href="#L28">28</a>  
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.Sensors;
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.common.AbstractSensors;
 <a class="jxr_linenumber" name="L30" href="#L30">30</a>  <strong class="jxr_keyword">import</strong> oshi.util.ExecutingCommand;
 <a class="jxr_linenumber" name="L31" href="#L31">31</a>  <strong class="jxr_keyword">import</strong> oshi.util.ParseUtil;
 <a class="jxr_linenumber" name="L32" href="#L32">32</a>  
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="SolarisSensors" href="../../../../../oshi/hardware/platform/unix/solaris/SolarisSensors.html#SolarisSensors">SolarisSensors</a> <strong class="jxr_keyword">implements</strong> <a name="Sensors" href="../../../../../oshi/hardware/Sensors.html#Sensors">Sensors</a> {
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="SolarisSensors" href="../../../../../oshi/hardware/platform/unix/solaris/SolarisSensors.html#SolarisSensors">SolarisSensors</a> <strong class="jxr_keyword">extends</strong> <a name="AbstractSensors" href="../../../../../oshi/hardware/common/AbstractSensors.html#AbstractSensors">AbstractSensors</a> {
 <a class="jxr_linenumber" name="L34" href="#L34">34</a>  
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> serialVersionUID = 1L;
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>  
@@ -89,16 +89,15 @@
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>      @Override
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getCpuVoltage() {
 <a class="jxr_linenumber" name="L83" href="#L83">83</a>          <strong class="jxr_keyword">double</strong> voltage = 0d;
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>          <em class="jxr_comment">// TODO This is entirely a guess!</em>
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>          <strong class="jxr_keyword">for</strong> (String line : ExecutingCommand.runNative(<span class="jxr_string">"/usr/sbin/prtpicl -v -c voltage-sensor"</span>)) {
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>              <strong class="jxr_keyword">if</strong> (line.trim().startsWith(<span class="jxr_string">"Voltage:"</span>)) {
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>                  voltage = ParseUtil.parseDoubleOrDefault(line.replace(<span class="jxr_string">"Voltage:"</span>, <span class="jxr_string">""</span>).trim(), 0d);
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>                  <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>              }
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>          }
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>          <strong class="jxr_keyword">return</strong> voltage;
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>      }
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>  }
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>          <strong class="jxr_keyword">for</strong> (String line : ExecutingCommand.runNative(<span class="jxr_string">"/usr/sbin/prtpicl -v -c voltage-sensor"</span>)) {
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>              <strong class="jxr_keyword">if</strong> (line.trim().startsWith(<span class="jxr_string">"Voltage:"</span>)) {
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>                  voltage = ParseUtil.parseDoubleOrDefault(line.replace(<span class="jxr_string">"Voltage:"</span>, <span class="jxr_string">""</span>).trim(), 0d);
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>                  <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>              }
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>          }
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>          <strong class="jxr_keyword">return</strong> voltage;
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>      }
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>  }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2019 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

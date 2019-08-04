@@ -37,10 +37,10 @@
 <a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.IPHlpAPI; <em class="jxr_comment">// NOSONAR squid:S1191</em>
 <a class="jxr_linenumber" name="L30" href="#L30">30</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.IPHlpAPI.MIB_IFROW;
 <a class="jxr_linenumber" name="L31" href="#L31">31</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.IPHlpAPI.MIB_IF_ROW2;
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>  
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.NetworkIF;
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.common.AbstractNetworks;
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.windows.VersionHelpers;
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.VersionHelpers;
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>  
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.NetworkIF;
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.common.AbstractNetworks;
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>  <strong class="jxr_keyword">import</strong> oshi.util.ParseUtil;
 <a class="jxr_linenumber" name="L37" href="#L37">37</a>  
 <a class="jxr_linenumber" name="L38" href="#L38">38</a>  <em class="jxr_javadoccomment">/**</em>
@@ -66,10 +66,10 @@
 <a class="jxr_linenumber" name="L58" href="#L58">58</a>          <strong class="jxr_keyword">if</strong> (IS_VISTA_OR_GREATER) {
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>              <em class="jxr_comment">// Create new MIB_IFROW2 and set index to this interface index</em>
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>              MIB_IF_ROW2 ifRow = <strong class="jxr_keyword">new</strong> MIB_IF_ROW2();
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>              ifRow.InterfaceIndex = netIF.getNetworkInterface().getIndex();
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>              ifRow.InterfaceIndex = netIF.queryNetworkInterface().getIndex();
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>              <strong class="jxr_keyword">if</strong> (0 != IPHlpAPI.INSTANCE.GetIfEntry2(ifRow)) {
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>                  <em class="jxr_comment">// Error, abort</em>
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>                  LOG.error(<span class="jxr_string">"Failed to retrieve data for interface {}, {}"</span>, netIF.getNetworkInterface().getIndex(),
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>                  LOG.error(<span class="jxr_string">"Failed to retrieve data for interface {}, {}"</span>, netIF.queryNetworkInterface().getIndex(),
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>                          netIF.getName());
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>                  <strong class="jxr_keyword">return</strong>;
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>              }
@@ -84,10 +84,10 @@
 <a class="jxr_linenumber" name="L76" href="#L76">76</a>          } <strong class="jxr_keyword">else</strong> {
 <a class="jxr_linenumber" name="L77" href="#L77">77</a>              <em class="jxr_comment">// Create new MIB_IFROW and set index to this interface index</em>
 <a class="jxr_linenumber" name="L78" href="#L78">78</a>              MIB_IFROW ifRow = <strong class="jxr_keyword">new</strong> MIB_IFROW();
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>              ifRow.dwIndex = netIF.getNetworkInterface().getIndex();
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>              ifRow.dwIndex = netIF.queryNetworkInterface().getIndex();
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>              <strong class="jxr_keyword">if</strong> (0 != IPHlpAPI.INSTANCE.GetIfEntry(ifRow)) {
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>                  <em class="jxr_comment">// Error, abort</em>
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>                  LOG.error(<span class="jxr_string">"Failed to retrieve data for interface {}, {}"</span>, netIF.getNetworkInterface().getIndex(),
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>                  LOG.error(<span class="jxr_string">"Failed to retrieve data for interface {}, {}"</span>, netIF.queryNetworkInterface().getIndex(),
 <a class="jxr_linenumber" name="L83" href="#L83">83</a>                          netIF.getName());
 <a class="jxr_linenumber" name="L84" href="#L84">84</a>                  <strong class="jxr_keyword">return</strong>;
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>              }

@@ -23,14 +23,14 @@
  */
 package oshi.hardware.platform.unix.freebsd;
 
-import com.sun.jna.Memory;
+import com.sun.jna.Memory; // NOSONAR squid:S1191
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 
-import oshi.hardware.Sensors;
+import oshi.hardware.common.AbstractSensors;
 import oshi.jna.platform.unix.freebsd.Libc;
 
-<span class="nc" id="L33">public class FreeBsdSensors implements Sensors {</span>
+<span class="nc" id="L33">public class FreeBsdSensors extends AbstractSensors {</span>
 
     private static final long serialVersionUID = 1L;
 
@@ -39,24 +39,27 @@ import oshi.jna.platform.unix.freebsd.Libc;
      */
     @Override
     public double getCpuTemperature() {
-        // Try with kldload coretemp
-<span class="nc" id="L43">        double sumTemp = 0d;</span>
-<span class="nc" id="L44">        int cpu = 0;</span>
-<span class="nc" id="L45">        String name = &quot;dev.cpu.%d.temperature&quot;;</span>
-        while (true) {
-<span class="nc" id="L47">            IntByReference size = new IntByReference(Libc.INT_SIZE);</span>
-<span class="nc" id="L48">            Pointer p = new Memory(size.getValue());</span>
-<span class="nc bnc" id="L49" title="All 2 branches missed.">            if (0 != Libc.INSTANCE.sysctlbyname(String.format(name, cpu), p, size, null, 0)) {</span>
-<span class="nc" id="L50">                break;</span>
-            }
-<span class="nc" id="L52">            sumTemp += p.getInt(0) / 10d - 273.15;</span>
-<span class="nc" id="L53">            cpu++;</span>
-<span class="nc" id="L54">        }</span>
-<span class="nc bnc" id="L55" title="All 2 branches missed.">        if (cpu &gt; 0) {</span>
-<span class="nc" id="L56">            return sumTemp / cpu;</span>
-        }
+<span class="nc" id="L42">        return queryKldloadCoretemp();</span>
         // TODO try other ways here
-<span class="nc" id="L59">        return 0d;</span>
+    }
+
+    /*
+     * If user has loaded coretemp module via kldload coretemp, sysctl call will
+     * return temperature
+     * 
+     * @return Tempurature if successful, otherwise NaN
+     */
+    private double queryKldloadCoretemp() {
+<span class="nc" id="L53">        String name = &quot;dev.cpu.%d.temperature&quot;;</span>
+<span class="nc" id="L54">        IntByReference size = new IntByReference(Libc.INT_SIZE);</span>
+<span class="nc" id="L55">        Pointer p = new Memory(size.getValue());</span>
+<span class="nc" id="L56">        int cpu = 0;</span>
+<span class="nc" id="L57">        double sumTemp = 0d;</span>
+<span class="nc bnc" id="L58" title="All 2 branches missed.">        while (0 == Libc.INSTANCE.sysctlbyname(String.format(name, cpu), p, size, null, 0)) {</span>
+<span class="nc" id="L59">            sumTemp += p.getInt(0) / 10d - 273.15;</span>
+<span class="nc" id="L60">            cpu++;</span>
+        }
+<span class="nc bnc" id="L62" title="All 2 branches missed.">        return cpu &gt; 0 ? sumTemp / cpu : Double.NaN;</span>
     }
 
     /**
@@ -65,7 +68,7 @@ import oshi.jna.platform.unix.freebsd.Libc;
     @Override
     public int[] getFanSpeeds() {
         // TODO try common software
-<span class="nc" id="L68">        return new int[0];</span>
+<span class="nc" id="L71">        return new int[0];</span>
     }
 
     /**
@@ -73,8 +76,8 @@ import oshi.jna.platform.unix.freebsd.Libc;
      */
     @Override
     public double getCpuVoltage() {
-        // TODO try common software
-<span class="nc" id="L77">        return 0d;</span>
+            // TODO try common software
+<span class="nc" id="L80">        return 0d;</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>
