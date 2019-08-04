@@ -49,7 +49,7 @@ public class SolarisFileSystem implements FileSystem {
     private static final long serialVersionUID = 1L;
 
     // Solaris defines a set of virtual file systems
-    private final List<String> pseudofs = Arrays.asList(new String[] { //
+    private final List<String> pseudofs = Arrays.asList(//
             "proc", // Proc file system
             "devfs", // Dev temporary file system
             "ctfs", // Contract file system
@@ -61,10 +61,10 @@ public class SolarisFileSystem implements FileSystem {
             // "tmpfs", // Temporary file system
             // NOTE: tmpfs is evaluated apart, because Solaris uses it for
             // RAMdisks
-    });
+    );
 
     // System path mounted as tmpfs
-    private final List<String> tmpfsPaths = Arrays.asList(new String[] { "/system", "/tmp", "/dev/fd" });
+    private final List<String> tmpfsPaths = Arrays.asList("/system", "/tmp", "/dev/fd");
 
     /**
      * Checks if file path equals or starts with an element in the given list

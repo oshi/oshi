@@ -25,7 +25,7 @@ package oshi;
 
 import java.io.Serializable;
 
-import com.sun.jna.Platform;
+import com.sun.jna.Platform; // NOSONAR squid:S1191
 
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.platform.linux.LinuxHardwareAbstractionLayer;

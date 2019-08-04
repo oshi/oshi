@@ -23,12 +23,11 @@
  */
 package oshi.jna.platform.windows;
 
-import com.sun.jna.Library;
+import com.sun.jna.Library; // NOSONAR squid:S1191
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import com.sun.jna.Structure.FieldOrder;
-import com.sun.jna.platform.win32.NTStatus;
 
 /**
  * Power profile stats. This class should be considered non-API as it may be

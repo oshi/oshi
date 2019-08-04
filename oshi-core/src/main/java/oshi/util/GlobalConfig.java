@@ -33,9 +33,6 @@ import org.slf4j.LoggerFactory;
 /**
  * The global configuration utility. See
  * {@code src/main/resources/default.properties} for default values.
- *
- * @author cilki
- * @since 4.0.0
  */
 public final class GlobalConfig {
 

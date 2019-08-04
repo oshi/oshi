@@ -42,10 +42,6 @@ import oshi.util.platform.mac.SysctlUtil;
 
 /**
  * A CPU.
- *
- * @author alessandro[at]perucchi[dot]org
- * @author alessio.fachechi[at]gmail[dot]com
- * @author widdis[at]gmail[dot]com
  */
 public class MacCentralProcessor extends AbstractCentralProcessor {
 
