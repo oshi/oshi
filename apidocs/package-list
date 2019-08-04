@@ -1,4 +1,6 @@
 oshi
+oshi.data.windows
+oshi.demo
 oshi.hardware
 oshi.hardware.common
 oshi.hardware.platform.linux
@@ -12,13 +14,6 @@ oshi.jna.platform.unix
 oshi.jna.platform.unix.freebsd
 oshi.jna.platform.unix.solaris
 oshi.jna.platform.windows
-oshi.json
-oshi.json.hardware
-oshi.json.hardware.impl
-oshi.json.json
-oshi.json.software.os
-oshi.json.software.os.impl
-oshi.json.util
 oshi.software.common
 oshi.software.os
 oshi.software.os.linux

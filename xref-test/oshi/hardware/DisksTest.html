@@ -93,7 +93,7 @@
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>  
 <a class="jxr_linenumber" name="L86" href="#L86">86</a>              <strong class="jxr_keyword">long</strong> oldReads = disk.getReads();
 <a class="jxr_linenumber" name="L87" href="#L87">87</a>              <strong class="jxr_keyword">long</strong> oldReadBytes = disk.getReadBytes();
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>              assertTrue(disk.updateDiskStats());
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>              assertTrue(disk.updateAtrributes());
 <a class="jxr_linenumber" name="L89" href="#L89">89</a>              assertTrue(disk.getReads() &gt;= oldReads);
 <a class="jxr_linenumber" name="L90" href="#L90">90</a>              assertTrue(disk.getReadBytes() &gt;= oldReadBytes);
 <a class="jxr_linenumber" name="L91" href="#L91">91</a>  
