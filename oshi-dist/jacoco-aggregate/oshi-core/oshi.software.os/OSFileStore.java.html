@@ -25,6 +25,16 @@ package oshi.software.os;
 
 import java.io.Serializable;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import oshi.SystemInfo;
+import oshi.software.os.linux.LinuxFileSystem;
+import oshi.software.os.mac.MacFileSystem;
+import oshi.software.os.unix.freebsd.FreeBsdFileSystem;
+import oshi.software.os.unix.solaris.SolarisFileSystem;
+import oshi.software.os.windows.WindowsFileSystem;
+
 /**
  * A File Store is a storage pool, device, partition, volume, concrete file
  * system or other implementation specific means of file storage. See subclasses
@@ -36,20 +46,23 @@ public class OSFileStore implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+<span class="fc" id="L49">    private static final Logger LOG = LoggerFactory.getLogger(OSFileStore.class);</span>
+
     private String name;
     private String volume;
-<span class="fc" id="L41">    private String logicalVolume = &quot;&quot;;</span>
+<span class="pc" id="L53">    private String logicalVolume = &quot;&quot;;</span>
     private String mount;
     private String description;
     private String fsType;
     private String uuid;
+    private long freeSpace;
     private long usableSpace;
     private long totalSpace;
-<span class="fc" id="L48">    private long freeInodes = -1;</span>
-<span class="fc" id="L49">    private long totalInodes = -1;</span>
+<span class="pc" id="L61">    private long freeInodes = -1;</span>
+<span class="pc" id="L62">    private long totalInodes = -1;</span>
 
-<span class="fc" id="L51">    public OSFileStore() {</span>
-<span class="fc" id="L52">    }</span>
+<span class="fc" id="L64">    public OSFileStore() {</span>
+<span class="fc" id="L65">    }</span>
 
     /**
      * Creates a copy of an OSFileStore.
@@ -57,19 +70,20 @@ public class OSFileStore implements Serializable {
      * @param fileStore
      *            OSFileStore which is copied
      */
-<span class="fc" id="L60">    public OSFileStore(OSFileStore fileStore) {</span>
-<span class="fc" id="L61">        setName(fileStore.getName());</span>
-<span class="fc" id="L62">        setVolume(fileStore.getVolume());</span>
-<span class="fc" id="L63">        setLogicalVolume(fileStore.getLogicalVolume());</span>
-<span class="fc" id="L64">        setMount(fileStore.getMount());</span>
-<span class="fc" id="L65">        setDescription(fileStore.getDescription());</span>
-<span class="fc" id="L66">        setType(fileStore.getType());</span>
-<span class="fc" id="L67">        setUUID(fileStore.getUUID());</span>
-<span class="fc" id="L68">        setUsableSpace(fileStore.getUsableSpace());</span>
-<span class="fc" id="L69">        setTotalSpace(fileStore.getTotalSpace());</span>
-<span class="fc" id="L70">        setFreeInodes(fileStore.getFreeInodes());</span>
-<span class="fc" id="L71">        setTotalInodes(fileStore.getTotalInodes());</span>
-<span class="fc" id="L72">    }</span>
+<span class="nc" id="L73">    public OSFileStore(OSFileStore fileStore) {</span>
+<span class="nc" id="L74">        setName(fileStore.getName());</span>
+<span class="nc" id="L75">        setVolume(fileStore.getVolume());</span>
+<span class="nc" id="L76">        setLogicalVolume(fileStore.getLogicalVolume());</span>
+<span class="nc" id="L77">        setMount(fileStore.getMount());</span>
+<span class="nc" id="L78">        setDescription(fileStore.getDescription());</span>
+<span class="nc" id="L79">        setType(fileStore.getType());</span>
+<span class="nc" id="L80">        setUUID(fileStore.getUUID());</span>
+<span class="nc" id="L81">        setFreeSpace(fileStore.getFreeSpace());</span>
+<span class="nc" id="L82">        setUsableSpace(fileStore.getUsableSpace());</span>
+<span class="nc" id="L83">        setTotalSpace(fileStore.getTotalSpace());</span>
+<span class="nc" id="L84">        setFreeInodes(fileStore.getFreeInodes());</span>
+<span class="nc" id="L85">        setTotalInodes(fileStore.getTotalInodes());</span>
+<span class="nc" id="L86">    }</span>
 
     /**
      * Name of the File System
@@ -77,7 +91,7 @@ public class OSFileStore implements Serializable {
      * @return The file system name
      */
     public String getName() {
-<span class="fc" id="L80">        return this.name;</span>
+<span class="fc" id="L94">        return this.name;</span>
     }
 
     /**
@@ -87,8 +101,8 @@ public class OSFileStore implements Serializable {
      *            The name
      */
     public void setName(String value) {
-<span class="fc" id="L90">        this.name = value;</span>
-<span class="fc" id="L91">    }</span>
+<span class="fc" id="L104">        this.name = value;</span>
+<span class="fc" id="L105">    }</span>
 
     /**
      * Volume of the File System
@@ -96,7 +110,7 @@ public class OSFileStore implements Serializable {
      * @return The volume of the file system
      */
     public String getVolume() {
-<span class="fc" id="L99">        return this.volume;</span>
+<span class="fc" id="L113">        return this.volume;</span>
     }
 
     /**
@@ -109,7 +123,7 @@ public class OSFileStore implements Serializable {
      * @return The logical volume of the file system
      */
     public String getLogicalVolume() {
-<span class="fc" id="L112">        return this.logicalVolume;</span>
+<span class="fc" id="L126">        return this.logicalVolume;</span>
     }
 
     /**
@@ -119,8 +133,8 @@ public class OSFileStore implements Serializable {
      *            The volume
      */
     public void setVolume(String value) {
-<span class="fc" id="L122">        this.volume = value;</span>
-<span class="fc" id="L123">    }</span>
+<span class="fc" id="L136">        this.volume = value;</span>
+<span class="fc" id="L137">    }</span>
 
     /**
      * Sets the logical volume of the File System
@@ -129,8 +143,8 @@ public class OSFileStore implements Serializable {
      *            The logical volume
      */
     public void setLogicalVolume(String value) {
-<span class="fc" id="L132">        this.logicalVolume = value;</span>
-<span class="fc" id="L133">    }</span>
+<span class="fc" id="L146">        this.logicalVolume = value;</span>
+<span class="fc" id="L147">    }</span>
 
     /**
      * Mountpoint of the File System
@@ -138,7 +152,7 @@ public class OSFileStore implements Serializable {
      * @return The mountpoint of the file system
      */
     public String getMount() {
-<span class="fc" id="L141">        return this.mount;</span>
+<span class="fc" id="L155">        return this.mount;</span>
     }
 
     /**
@@ -148,8 +162,8 @@ public class OSFileStore implements Serializable {
      *            The mountpoint
      */
     public void setMount(String value) {
-<span class="fc" id="L151">        this.mount = value;</span>
-<span class="fc" id="L152">    }</span>
+<span class="fc" id="L165">        this.mount = value;</span>
+<span class="fc" id="L166">    }</span>
 
     /**
      * Description of the File System
@@ -157,7 +171,7 @@ public class OSFileStore implements Serializable {
      * @return The file system description
      */
     public String getDescription() {
-<span class="fc" id="L160">        return this.description;</span>
+<span class="fc" id="L174">        return this.description;</span>
     }
 
     /**
@@ -167,8 +181,8 @@ public class OSFileStore implements Serializable {
      *            The description
      */
     public void setDescription(String value) {
-<span class="fc" id="L170">        this.description = value;</span>
-<span class="fc" id="L171">    }</span>
+<span class="fc" id="L184">        this.description = value;</span>
+<span class="fc" id="L185">    }</span>
 
     /**
      * Type of the File System (FAT, NTFS, etx2, ext4, etc)
@@ -176,7 +190,7 @@ public class OSFileStore implements Serializable {
      * @return The file system type
      */
     public String getType() {
-<span class="fc" id="L179">        return this.fsType;</span>
+<span class="fc" id="L193">        return this.fsType;</span>
     }
 
     /**
@@ -186,8 +200,8 @@ public class OSFileStore implements Serializable {
      *            The type
      */
     public void setType(String value) {
-<span class="fc" id="L189">        this.fsType = value;</span>
-<span class="fc" id="L190">    }</span>
+<span class="fc" id="L203">        this.fsType = value;</span>
+<span class="fc" id="L204">    }</span>
 
     /**
      * UUID/GUID of the File System
@@ -195,7 +209,7 @@ public class OSFileStore implements Serializable {
      * @return The file system UUID/GUID
      */
     public String getUUID() {
-<span class="fc" id="L198">        return this.uuid;</span>
+<span class="fc" id="L212">        return this.uuid;</span>
     }
 
     /**
@@ -205,16 +219,36 @@ public class OSFileStore implements Serializable {
      *            The UUID/GUID
      */
     public void setUUID(String value) {
-<span class="fc" id="L208">        this.uuid = value;</span>
-<span class="fc" id="L209">    }</span>
+<span class="fc" id="L222">        this.uuid = value;</span>
+<span class="fc" id="L223">    }</span>
 
     /**
-     * Usable space on the drive.
+     * Free space on the drive. This space is unallocated but may require
+     * elevated permissions to write.
+     *
+     * @return Free space on the drive (in bytes)
+     */
+    public long getFreeSpace() {
+<span class="fc" id="L232">        return this.freeSpace;</span>
+    }
+
+    /**
+     * Sets free space on the drive.
+     *
+     * @param value
+     *            Bytes of free space.
+     */
+    public void setFreeSpace(long value) {
+<span class="fc" id="L242">        this.freeSpace = value;</span>
+<span class="fc" id="L243">    }</span>
+
+    /**
+     * Usable space on the drive. This is space available to unprivileged users.
      *
      * @return Usable space on the drive (in bytes)
      */
     public long getUsableSpace() {
-<span class="fc" id="L217">        return this.usableSpace;</span>
+<span class="fc" id="L251">        return this.usableSpace;</span>
     }
 
     /**
@@ -224,8 +258,8 @@ public class OSFileStore implements Serializable {
      *            Bytes of writable space.
      */
     public void setUsableSpace(long value) {
-<span class="fc" id="L227">        this.usableSpace = value;</span>
-<span class="fc" id="L228">    }</span>
+<span class="fc" id="L261">        this.usableSpace = value;</span>
+<span class="fc" id="L262">    }</span>
 
     /**
      * Total space/capacity of the drive.
@@ -233,7 +267,7 @@ public class OSFileStore implements Serializable {
      * @return Total capacity of the drive (in bytes)
      */
     public long getTotalSpace() {
-<span class="fc" id="L236">        return this.totalSpace;</span>
+<span class="fc" id="L270">        return this.totalSpace;</span>
     }
 
     /**
@@ -243,8 +277,8 @@ public class OSFileStore implements Serializable {
      *            Bytes of total space.
      */
     public void setTotalSpace(long value) {
-<span class="fc" id="L246">        this.totalSpace = value;</span>
-<span class="fc" id="L247">    }</span>
+<span class="fc" id="L280">        this.totalSpace = value;</span>
+<span class="fc" id="L281">    }</span>
 
     /**
      * Usable / free inodes on the drive. Not applicable on Windows.
@@ -252,7 +286,7 @@ public class OSFileStore implements Serializable {
      * @return Usable / free inodes on the drive (count), or -1 if unimplemented
      */
     public long getFreeInodes() {
-<span class="fc" id="L255">        return this.freeInodes;</span>
+<span class="fc" id="L289">        return this.freeInodes;</span>
     }
 
     /**
@@ -262,8 +296,8 @@ public class OSFileStore implements Serializable {
      *            Number of free inodes.
      */
     public void setFreeInodes(long value) {
-<span class="fc" id="L265">        this.freeInodes = value;</span>
-<span class="fc" id="L266">    }</span>
+<span class="fc" id="L299">        this.freeInodes = value;</span>
+<span class="fc" id="L300">    }</span>
 
     /**
      * Total / maximum number of inodes of the filesystem. Not applicable on
@@ -273,7 +307,7 @@ public class OSFileStore implements Serializable {
      *         if unimplemented
      */
     public long getTotalInodes() {
-<span class="fc" id="L276">        return this.totalInodes;</span>
+<span class="fc" id="L310">        return this.totalInodes;</span>
     }
 
     /**
@@ -283,7 +317,33 @@ public class OSFileStore implements Serializable {
      *            Total / maximum count of inodes
      */
     public void setTotalInodes(long value) {
-<span class="fc" id="L286">        this.totalInodes = value;</span>
-<span class="fc" id="L287">    }</span>
+<span class="fc" id="L320">        this.totalInodes = value;</span>
+<span class="fc" id="L321">    }</span>
+
+    /**
+     * Make a best effort to update all the statistics about the file store without
+     * needing to recreate the file store list. This method provides for more
+     * frequent periodic updates of file store statistics.
+     *
+     * @return True if the update was (probably) successful, false if the disk was
+     *         not found
+     */
+    public boolean updateAtrributes() {
+<span class="nc bnc" id="L332" title="All 6 branches missed.">        switch (SystemInfo.getCurrentPlatformEnum()) {</span>
+        case WINDOWS:
+<span class="nc" id="L334">            return WindowsFileSystem.updateFileStoreStats(this);</span>
+        case LINUX:
+<span class="nc" id="L336">            return LinuxFileSystem.updateFileStoreStats(this);</span>
+        case MACOSX:
+<span class="nc" id="L338">            return MacFileSystem.updateFileStoreStats(this);</span>
+        case SOLARIS:
+<span class="nc" id="L340">            return SolarisFileSystem.updateFileStoreStats(this);</span>
+        case FREEBSD:
+<span class="nc" id="L342">            return FreeBsdFileSystem.updateFileStoreStats(this);</span>
+        default:
+<span class="nc" id="L344">            LOG.error(&quot;Unsupported platform. No update performed.&quot;);</span>
+        }
+<span class="nc" id="L346">        return false;</span>
+    }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

@@ -31,16 +31,14 @@ import java.util.List;
  * An operating system (OS) is the software on a computer that manages the way
  * different programs use its hardware, and regulates the ways that a user
  * controls the computer.
- *
- * @author dblock[at]dblock[dot]org
  */
 public interface OperatingSystem extends Serializable {
 
     /**
      * Controls sorting of Process output
      */
-<span class="fc" id="L42">    enum ProcessSort {</span>
-<span class="fc" id="L43">    CPU, MEMORY, OLDEST, NEWEST, PID, PARENTPID, NAME</span>
+<span class="nc" id="L40">    enum ProcessSort {</span>
+<span class="nc" id="L41">    CPU, MEMORY, OLDEST, NEWEST, PID, PARENTPID, NAME</span>
     }
 
     /**
@@ -185,10 +183,33 @@ public interface OperatingSystem extends Serializable {
     int getBitness();
 
     /**
+     * Get the System up time (time since boot).
+     *
+     * @return Number of seconds since boot.
+     */
+    long getSystemUptime();
+
+    /**
+     * Get Unix time of boot.
+     * 
+     * @return The approximate time at which the system booted, in seconds since
+     *         the Unix epoch.
+     */
+    long getSystemBootTime();
+
+    /**
+     * Determine whether the current process has elevated permissions such as sudo /
+     * Administrator
+     * 
+     * @return True if this process has elevated permissions
+     */
+    boolean isElevated();
+
+    /**
      * Instantiates a {@link NetworkParams} object.
      *
      * @return A {@link NetworkParams} object.
      */
     NetworkParams getNetworkParams();
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

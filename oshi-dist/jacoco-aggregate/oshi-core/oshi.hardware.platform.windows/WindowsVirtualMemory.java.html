@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>WindowsVirtualMemory.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.windows</a> &gt; <span class="el_source">WindowsVirtualMemory.java</span></div><h1>WindowsVirtualMemory.java</h1><pre class="source lang-java linenums">/**
+ * OSHI (https://github.com/oshi/oshi)
+ *
+ * Copyright (c) 2010 - 2019 The OSHI Project Team:
+ * https://github.com/oshi/oshi/graphs/contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+package oshi.hardware.platform.windows;
+
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.sun.jna.platform.win32.Kernel32; // NOSONAR squid:S1191
+import com.sun.jna.platform.win32.Psapi;
+import com.sun.jna.platform.win32.Psapi.PERFORMANCE_INFORMATION;
+
+import oshi.data.windows.PerfCounterQuery;
+import oshi.data.windows.PerfCounterQuery.PdhCounterProperty;
+import oshi.hardware.common.AbstractVirtualMemory;
+
+/**
+ * Memory obtained from WMI
+ */
+public class WindowsVirtualMemory extends AbstractVirtualMemory {
+
+    private static final long serialVersionUID = 1L;
+
+<span class="nc" id="L46">    private static final Logger LOG = LoggerFactory.getLogger(WindowsVirtualMemory.class);</span>
+
+    private transient long pageSize;
+
+<span class="nc" id="L50">    private transient PerfCounterQuery&lt;PageSwapProperty&gt; memoryPerfCounters = new PerfCounterQuery&lt;&gt;(</span>
+            PageSwapProperty.class, &quot;Memory&quot;, &quot;Win32_PerfRawData_PerfOS_Memory&quot;);
+<span class="nc" id="L52">    private transient PerfCounterQuery&lt;PagingPercentProperty&gt; pagingPerfCounters = new PerfCounterQuery&lt;&gt;(</span>
+            PagingPercentProperty.class, &quot;Paging File&quot;, &quot;Win32_PerfRawData_PerfOS_PagingFile&quot;);
+
+<span class="nc" id="L55">    private transient long lastSwapUpdateNanos = 0L;</span>
+
+<span class="nc" id="L57">    public WindowsVirtualMemory(long pageSize) {</span>
+<span class="nc" id="L58">        this.pageSize = pageSize;</span>
+<span class="nc" id="L59">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getSwapUsed() {
+<span class="nc" id="L66">        Map&lt;PagingPercentProperty, Long&gt; valueMap = this.pagingPerfCounters.queryValues();</span>
+<span class="nc" id="L67">        return valueMap.getOrDefault(PagingPercentProperty.PERCENTUSAGE, 0L) * this.pageSize;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getSwapTotal() {
+<span class="nc bnc" id="L75" title="All 2 branches missed.">        if (this.swapTotal &lt; 0) {</span>
+<span class="nc" id="L76">            PERFORMANCE_INFORMATION perfInfo = new PERFORMANCE_INFORMATION();</span>
+<span class="nc bnc" id="L77" title="All 2 branches missed.">            if (!Psapi.INSTANCE.GetPerformanceInfo(perfInfo, perfInfo.size())) {</span>
+<span class="nc" id="L78">                LOG.error(&quot;Failed to get Performance Info. Error code: {}&quot;, Kernel32.INSTANCE.GetLastError());</span>
+<span class="nc" id="L79">                return 0L;</span>
+            }
+<span class="nc" id="L81">            this.swapTotal = this.pageSize * (perfInfo.CommitLimit.longValue() - perfInfo.PhysicalTotal.longValue());</span>
+        }
+<span class="nc" id="L83">        return this.swapTotal;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getSwapPagesIn() {
+<span class="nc" id="L91">        updateSwapInOut();</span>
+<span class="nc" id="L92">        return this.swapPagesIn;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getSwapPagesOut() {
+<span class="nc" id="L100">        updateSwapInOut();</span>
+<span class="nc" id="L101">        return this.swapPagesOut;</span>
+    }
+
+    private void updateSwapInOut() {
+        // Only update once per 300ms
+<span class="nc bnc" id="L106" title="All 2 branches missed.">        if (System.nanoTime() - this.lastSwapUpdateNanos &gt; 300_000_000L) {</span>
+<span class="nc" id="L107">            Map&lt;PageSwapProperty, Long&gt; valueMap = this.memoryPerfCounters.queryValues();</span>
+<span class="nc" id="L108">            this.swapPagesIn = valueMap.getOrDefault(PageSwapProperty.PAGESINPUTPERSEC, 0L);</span>
+<span class="nc" id="L109">            this.swapPagesOut = valueMap.getOrDefault(PageSwapProperty.PAGESOUTPUTPERSEC, 0L);</span>
+<span class="nc" id="L110">            this.lastSwapUpdateNanos = System.nanoTime();</span>
+        }
+<span class="nc" id="L112">    }</span>
+
+    /*
+     * For swap file usage
+     */
+<span class="nc" id="L117">    enum PagingPercentProperty implements PdhCounterProperty {</span>
+<span class="nc" id="L118">        PERCENTUSAGE(PerfCounterQuery.TOTAL_INSTANCE, &quot;% Usage&quot;);</span>
+
+        private final String instance;
+        private final String counter;
+
+<span class="nc" id="L123">        PagingPercentProperty(String instance, String counter) {</span>
+<span class="nc" id="L124">            this.instance = instance;</span>
+<span class="nc" id="L125">            this.counter = counter;</span>
+<span class="nc" id="L126">        }</span>
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public String getInstance() {
+<span class="nc" id="L133">            return instance;</span>
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public String getCounter() {
+<span class="nc" id="L141">            return counter;</span>
+        }
+    }
+
+    /*
+     * For pages in/out
+     */
+<span class="nc" id="L148">    public enum PageSwapProperty implements PdhCounterProperty {</span>
+<span class="nc" id="L149">        PAGESINPUTPERSEC(null, &quot;Pages Input/sec&quot;), //</span>
+<span class="nc" id="L150">        PAGESOUTPUTPERSEC(null, &quot;Pages Output/sec&quot;);</span>
+
+        private final String instance;
+        private final String counter;
+
+<span class="nc" id="L155">        PageSwapProperty(String instance, String counter) {</span>
+<span class="nc" id="L156">            this.instance = instance;</span>
+<span class="nc" id="L157">            this.counter = counter;</span>
+<span class="nc" id="L158">        }</span>
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public String getInstance() {
+<span class="nc" id="L165">            return instance;</span>
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public String getCounter() {
+<span class="nc" id="L173">            return counter;</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

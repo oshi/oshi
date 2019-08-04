@@ -24,39 +24,30 @@
 package oshi.hardware.common;
 
 import oshi.hardware.Firmware;
+import oshi.util.Constants;
 
 /**
- * Firmware data
- *
- * @author SchiTho1 [at] Securiton AG
- * @author widdis [at] gmail [dot] com
+ * Firmware data.
  */
-public abstract class AbstractFirmware implements Firmware {
+<span class="nc" id="L32">public abstract class AbstractFirmware implements Firmware {</span>
 
     private static final long serialVersionUID = 1L;
 
-    private String manufacturer;
-    private String name;
-    private String description;
-    private String version;
-    private String releaseDate;
-
-    private static final String UNKNOWN = &quot;unknown&quot;;
-
-<span class="nc" id="L46">    public AbstractFirmware() {</span>
-<span class="nc" id="L47">        this.manufacturer = UNKNOWN;</span>
-<span class="nc" id="L48">        this.name = UNKNOWN;</span>
-<span class="nc" id="L49">        this.description = UNKNOWN;</span>
-<span class="nc" id="L50">        this.version = UNKNOWN;</span>
-<span class="nc" id="L51">        this.releaseDate = UNKNOWN;</span>
-<span class="nc" id="L52">    }</span>
+    protected String manufacturer;
+    protected String name;
+    protected String description;
+    protected String version;
+    protected String releaseDate;
 
     /**
      * {@inheritDoc}
      */
     @Override
     public String getManufacturer() {
-<span class="nc" id="L59">        return this.manufacturer;</span>
+<span class="nc bnc" id="L47" title="All 2 branches missed.">        if (this.manufacturer == null) {</span>
+<span class="nc" id="L48">            this.manufacturer = Constants.UNKNOWN;</span>
+        }
+<span class="nc" id="L50">        return this.manufacturer;</span>
     }
 
     /**
@@ -64,7 +55,10 @@ public abstract class AbstractFirmware implements Firmware {
      */
     @Override
     public String getName() {
-<span class="nc" id="L67">        return this.name;</span>
+<span class="nc bnc" id="L58" title="All 2 branches missed.">        if (this.name == null) {</span>
+<span class="nc" id="L59">            this.name = Constants.UNKNOWN;</span>
+        }
+<span class="nc" id="L61">        return this.name;</span>
     }
 
     /**
@@ -72,7 +66,10 @@ public abstract class AbstractFirmware implements Firmware {
      */
     @Override
     public String getDescription() {
-<span class="nc" id="L75">        return this.description;</span>
+<span class="nc bnc" id="L69" title="All 2 branches missed.">        if (this.description == null) {</span>
+<span class="nc" id="L70">            this.description = Constants.UNKNOWN;</span>
+        }
+<span class="nc" id="L72">        return this.description;</span>
     }
 
     /**
@@ -80,6 +77,9 @@ public abstract class AbstractFirmware implements Firmware {
      */
     @Override
     public String getVersion() {
+<span class="nc bnc" id="L80" title="All 2 branches missed.">        if (this.version == null) {</span>
+<span class="nc" id="L81">            this.version = Constants.UNKNOWN;</span>
+        }
 <span class="nc" id="L83">        return this.version;</span>
     }
 
@@ -88,7 +88,10 @@ public abstract class AbstractFirmware implements Firmware {
      */
     @Override
     public String getReleaseDate() {
-<span class="nc" id="L91">        return this.releaseDate;</span>
+<span class="nc bnc" id="L91" title="All 2 branches missed.">        if (this.releaseDate == null) {</span>
+<span class="nc" id="L92">            this.releaseDate = Constants.UNKNOWN;</span>
+        }
+<span class="nc" id="L94">        return this.releaseDate;</span>
     }
 
     /**
@@ -96,40 +99,40 @@ public abstract class AbstractFirmware implements Firmware {
      *            The manufacturer to set.
      */
     public void setManufacturer(String manufacturer) {
-<span class="nc" id="L99">        this.manufacturer = manufacturer;</span>
-<span class="nc" id="L100">    }</span>
+<span class="nc" id="L102">        this.manufacturer = manufacturer;</span>
+<span class="nc" id="L103">    }</span>
 
     /**
      * @param name
      *            The name to set.
      */
     public void setName(String name) {
-<span class="nc" id="L107">        this.name = name;</span>
-<span class="nc" id="L108">    }</span>
+<span class="nc" id="L110">        this.name = name;</span>
+<span class="nc" id="L111">    }</span>
 
     /**
      * @param description
      *            The description to set.
      */
     public void setDescription(String description) {
-<span class="nc" id="L115">        this.description = description;</span>
-<span class="nc" id="L116">    }</span>
+<span class="nc" id="L118">        this.description = description;</span>
+<span class="nc" id="L119">    }</span>
 
     /**
      * @param version
      *            The version to set.
      */
     public void setVersion(String version) {
-<span class="nc" id="L123">        this.version = version;</span>
-<span class="nc" id="L124">    }</span>
+<span class="nc" id="L126">        this.version = version;</span>
+<span class="nc" id="L127">    }</span>
 
     /**
      * @param releaseDate
      *            The releaseDate to set.
      */
     public void setReleaseDate(String releaseDate) {
-<span class="nc" id="L131">        this.releaseDate = releaseDate;</span>
-<span class="nc" id="L132">    }</span>
+<span class="nc" id="L134">        this.releaseDate = releaseDate;</span>
+<span class="nc" id="L135">    }</span>
 
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

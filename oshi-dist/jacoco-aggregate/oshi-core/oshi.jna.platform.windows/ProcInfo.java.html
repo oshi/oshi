@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>ProcInfo.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.jna.platform.windows</a> &gt; <span class="el_source">ProcInfo.java</span></div><h1>ProcInfo.java</h1><pre class="source lang-java linenums">/**
+ * OSHI (https://github.com/oshi/oshi)
+ *
+ * Copyright (c) 2010 - 2019 The OSHI Project Team:
+ * https://github.com/oshi/oshi/graphs/contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+package oshi.jna.platform.windows;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import com.sun.jna.platform.win32.Kernel32Util;
+import com.sun.jna.platform.win32.WinNT;
+import com.sun.jna.platform.win32.WinNT.CACHE_RELATIONSHIP;
+import com.sun.jna.platform.win32.WinNT.GROUP_AFFINITY;
+import com.sun.jna.platform.win32.WinNT.GROUP_RELATIONSHIP;
+import com.sun.jna.platform.win32.WinNT.LOGICAL_PROCESSOR_RELATIONSHIP;
+import com.sun.jna.platform.win32.WinNT.NUMA_NODE_RELATIONSHIP;
+import com.sun.jna.platform.win32.WinNT.PROCESSOR_GROUP_INFO;
+import com.sun.jna.platform.win32.WinNT.PROCESSOR_RELATIONSHIP;
+import com.sun.jna.platform.win32.WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX;
+
+
+/**
+ * Temporary test case to verify code behaves as expected. These methods will be
+ * translated to junit tests prior to submission to JNA project.
+ */
+<span class="nc" id="L46">public class ProcInfo {</span>
+
+    public static void main(String[] args) {
+<span class="nc" id="L49">        getGroups();</span>
+<span class="nc" id="L50">        System.out.println();</span>
+<span class="nc" id="L51">        getPackages();</span>
+<span class="nc" id="L52">        System.out.println();</span>
+<span class="nc" id="L53">        getNumaNodes();</span>
+<span class="nc" id="L54">        System.out.println();</span>
+<span class="nc" id="L55">        getCaches();</span>
+<span class="nc" id="L56">        System.out.println();</span>
+<span class="nc" id="L57">        getCores();</span>
+<span class="nc" id="L58">        System.out.println();</span>
+<span class="nc" id="L59">        getItAll();</span>
+<span class="nc" id="L60">    }</span>
+
+
+    private static void getGroups() {
+<span class="nc" id="L64">        SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX[] processors = Kernel32Util</span>
+<span class="nc" id="L65">                .getLogicalProcessorInformationEx(WinNT.LOGICAL_PROCESSOR_RELATIONSHIP.RelationGroup);</span>
+<span class="nc" id="L66">        System.out.format(&quot;Info for %d group structure (should only be 1):%n&quot;, processors.length);</span>
+<span class="nc bnc" id="L67" title="All 2 branches missed.">        for (int i = 0; i &lt; processors.length; i++) {</span>
+<span class="nc" id="L68">            System.out.format(&quot;Relationship should be %d, it is %d%n&quot;, LOGICAL_PROCESSOR_RELATIONSHIP.RelationGroup,</span>
+<span class="nc" id="L69">                    processors[i].relationship);</span>
+<span class="nc" id="L70">            GROUP_RELATIONSHIP group = (GROUP_RELATIONSHIP) processors[i];</span>
+<span class="nc" id="L71">            System.out.format(&quot;Details for %d group(s):%n&quot;, group.activeGroupCount);</span>
+<span class="nc bnc" id="L72" title="All 2 branches missed.">            for (int j = 0; j &lt; group.activeGroupCount; j++) {</span>
+<span class="nc" id="L73">                System.out.format(&quot;Group %d had %d active of %d max processors with bitmask %s.%n&quot;, j,</span>
+<span class="nc" id="L74">                        group.groupInfo[j].activeProcessorCount, group.groupInfo[j].maximumProcessorCount,</span>
+<span class="nc" id="L75">                        Long.toBinaryString(group.groupInfo[j].activeProcessorMask.longValue()));</span>
+            }
+        }
+<span class="nc" id="L78">    }</span>
+
+    private static void getPackages() {
+<span class="nc" id="L81">        SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX[] processors = Kernel32Util</span>
+<span class="nc" id="L82">                .getLogicalProcessorInformationEx(WinNT.LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorPackage);</span>
+<span class="nc" id="L83">        System.out.format(&quot;Details of %d package(s):%n&quot;, processors.length);</span>
+<span class="nc bnc" id="L84" title="All 2 branches missed.">        for (int i = 0; i &lt; processors.length; i++) {</span>
+<span class="nc" id="L85">            System.out.format(&quot;Relationship should be %d, it is %d%n&quot;,</span>
+<span class="nc" id="L86">                    LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorPackage, processors[i].relationship);</span>
+<span class="nc" id="L87">            PROCESSOR_RELATIONSHIP pkg = (PROCESSOR_RELATIONSHIP) processors[i];</span>
+<span class="nc" id="L88">            System.out.format(&quot;Flags should be 0 for a package, it is %d. Efficiency class is %d. Group count is %d.%n&quot;,</span>
+<span class="nc" id="L89">                    pkg.flags, pkg.efficiencyClass, pkg.groupCount);</span>
+<span class="nc bnc" id="L90" title="All 2 branches missed.">            for (int j = 0; j &lt; pkg.groupCount; j++) {</span>
+<span class="nc" id="L91">                System.out.format(&quot;Mask %d is in group %d with bitmask %s.%n&quot;, j, pkg.groupMask[j].group,</span>
+<span class="nc" id="L92">                        Long.toBinaryString(pkg.groupMask[j].mask.longValue()));</span>
+            }
+        }
+<span class="nc" id="L95">    }</span>
+
+    private static void getNumaNodes() {
+<span class="nc" id="L98">        SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX[] processors = Kernel32Util</span>
+<span class="nc" id="L99">                .getLogicalProcessorInformationEx(WinNT.LOGICAL_PROCESSOR_RELATIONSHIP.RelationNumaNode);</span>
+<span class="nc" id="L100">        System.out.format(&quot;Details of %d NUMA node(s):%n&quot;, processors.length);</span>
+<span class="nc bnc" id="L101" title="All 2 branches missed.">        for (int i = 0; i &lt; processors.length; i++) {</span>
+<span class="nc" id="L102">            System.out.format(&quot;Relationship should be %d, it is %d%n&quot;,</span>
+<span class="nc" id="L103">                    LOGICAL_PROCESSOR_RELATIONSHIP.RelationNumaNode, processors[i].relationship);</span>
+<span class="nc" id="L104">            NUMA_NODE_RELATIONSHIP node = (NUMA_NODE_RELATIONSHIP) processors[i];</span>
+<span class="nc" id="L105">            System.out.format(&quot;Node %d is in group %d with bitmask %s.%n&quot;, node.nodeNumber, node.groupMask.group,</span>
+<span class="nc" id="L106">                    Long.toBinaryString(node.groupMask.mask.longValue()));</span>
+        }
+<span class="nc" id="L108">    }</span>
+
+    private static void getCaches() {
+<span class="nc" id="L111">        SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX[] processors = Kernel32Util</span>
+<span class="nc" id="L112">                .getLogicalProcessorInformationEx(WinNT.LOGICAL_PROCESSOR_RELATIONSHIP.RelationCache);</span>
+<span class="nc" id="L113">        System.out.format(&quot;Details of %d Cache(s):%n&quot;, processors.length);</span>
+<span class="nc bnc" id="L114" title="All 2 branches missed.">        for (int i = 0; i &lt; processors.length; i++) {</span>
+<span class="nc" id="L115">            System.out.format(&quot;Relationship should be %d, it is %d%n&quot;, LOGICAL_PROCESSOR_RELATIONSHIP.RelationCache,</span>
+<span class="nc" id="L116">                    processors[i].relationship);</span>
+<span class="nc" id="L117">            CACHE_RELATIONSHIP cache = (CACHE_RELATIONSHIP) processors[i];</span>
+<span class="nc" id="L118">            System.out.format(</span>
+                    &quot;Cache is level %d with associativity %d and linesize %d. Type is %d and size is %d. It is in group %d with bitmask %s.%n&quot;,
+<span class="nc" id="L120">                    cache.level, cache.associativity, cache.lineSize, cache.type, cache.cacheSize,</span>
+<span class="nc" id="L121">                    cache.groupMask.group, Long.toBinaryString(cache.groupMask.mask.longValue()));</span>
+        }
+<span class="nc" id="L123">    }</span>
+
+    private static void getCores() {
+<span class="nc" id="L126">        SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX[] processors = Kernel32Util</span>
+<span class="nc" id="L127">                .getLogicalProcessorInformationEx(WinNT.LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorCore);</span>
+<span class="nc" id="L128">        System.out.format(&quot;Details of %d core(s):%n&quot;, processors.length);</span>
+<span class="nc bnc" id="L129" title="All 2 branches missed.">        for (int i = 0; i &lt; processors.length; i++) {</span>
+<span class="nc" id="L130">            System.out.format(&quot;Relationship should be %d, it is %d%n&quot;,</span>
+<span class="nc" id="L131">                    LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorCore, processors[i].relationship);</span>
+<span class="nc" id="L132">            PROCESSOR_RELATIONSHIP core = (PROCESSOR_RELATIONSHIP) processors[i];</span>
+<span class="nc" id="L133">            System.out.format(&quot;Efficiency class is %d. Group count is %d.%n&quot;, core.efficiencyClass, core.groupCount);</span>
+<span class="nc" id="L134">            System.out.format(</span>
+                    &quot;Hyperthreading flag is %d, should be 1 only if bitmask bits %d &gt; 1 or group count %d &gt; 1.%n&quot;,
+<span class="nc" id="L136">                    core.flags, Long.bitCount(core.groupMask[0].mask.longValue()), core.groupCount);</span>
+<span class="nc bnc" id="L137" title="All 2 branches missed.">            for (int j = 0; j &lt; core.groupMask.length; j++) {</span>
+<span class="nc" id="L138">                System.out.format(&quot;Mask %d is in group %d with bitmask %s.%n&quot;, j, core.groupMask[0].group,</span>
+<span class="nc" id="L139">                        Long.toBinaryString(core.groupMask[0].mask.longValue()));</span>
+            }
+        }
+<span class="nc" id="L142">    }</span>
+
+
+    private static void getItAll() {
+<span class="nc" id="L146">        System.out.println(&quot;Grabbing all info using Kernel32Util...&quot;);</span>
+<span class="nc" id="L147">        SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX[] procInfo = Kernel32Util</span>
+<span class="nc" id="L148">                .getLogicalProcessorInformationEx(WinNT.LOGICAL_PROCESSOR_RELATIONSHIP.RelationAll);</span>
+<span class="nc" id="L149">        List&lt;PROCESSOR_GROUP_INFO&gt; groups = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L150">        List&lt;GROUP_AFFINITY[]&gt; packages = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L151">        List&lt;NUMA_NODE_RELATIONSHIP&gt; numaNodes = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L152">        List&lt;CACHE_RELATIONSHIP&gt; caches = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L153">        List&lt;GROUP_AFFINITY&gt; cores = new ArrayList&lt;&gt;();</span>
+
+<span class="nc bnc" id="L155" title="All 2 branches missed.">        for (int i = 0; i &lt; procInfo.length; i++) {</span>
+<span class="nc bnc" id="L156" title="All 6 branches missed.">            switch (procInfo[i].relationship) {</span>
+            case LOGICAL_PROCESSOR_RELATIONSHIP.RelationGroup:
+<span class="nc" id="L158">                groups = Arrays.asList(((GROUP_RELATIONSHIP) procInfo[i]).groupInfo);</span>
+<span class="nc" id="L159">                break;</span>
+            case LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorPackage:
+<span class="nc" id="L161">                packages.add(((PROCESSOR_RELATIONSHIP) procInfo[i]).groupMask);</span>
+<span class="nc" id="L162">                break;</span>
+            case LOGICAL_PROCESSOR_RELATIONSHIP.RelationNumaNode:
+<span class="nc" id="L164">                numaNodes.add((NUMA_NODE_RELATIONSHIP) procInfo[i]);</span>
+<span class="nc" id="L165">                break;</span>
+            case LOGICAL_PROCESSOR_RELATIONSHIP.RelationCache:
+<span class="nc" id="L167">                caches.add((CACHE_RELATIONSHIP) procInfo[i]);</span>
+<span class="nc" id="L168">                break;</span>
+            case LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorCore:
+<span class="nc" id="L170">                cores.add(((PROCESSOR_RELATIONSHIP) procInfo[i]).groupMask[0]);</span>
+<span class="nc" id="L171">                break;</span>
+            default:
+<span class="nc" id="L173">                System.out.println(&quot;You should never see this message.&quot;);</span>
+                break;
+            }
+        }
+<span class="nc" id="L177">        System.out.format(&quot;Retrieved %d structures: %d groups, %d packages, %d numa nodes, %d caches, %d cores%n&quot;,</span>
+<span class="nc" id="L178">                procInfo.length, groups.size(), packages.size(), numaNodes.size(), caches.size(), cores.size());</span>
+<span class="nc" id="L179">        System.out.println(&quot;Topology:&quot;);</span>
+<span class="nc" id="L180">        System.out.format(&quot;%6s %7s %11s %5s %9s%n&quot;, &quot;Group&quot;, &quot;package&quot;, &quot;NUMA node&quot;, &quot;core&quot;, &quot;logical processor&quot;);</span>
+<span class="nc bnc" id="L181" title="All 2 branches missed.">        for (int g = 0; g &lt; groups.size(); g++) {</span>
+<span class="nc bnc" id="L182" title="All 2 branches missed.">            for (int lp = 0; lp &lt; 64; lp++) {</span>
+<span class="nc" id="L183">                int pkg = getMatchingPackage(packages, g, lp);</span>
+<span class="nc bnc" id="L184" title="All 2 branches missed.">                if (pkg &lt; 0) {</span>
+<span class="nc" id="L185">                    continue;</span>
+                }
+<span class="nc" id="L187">                System.out.format(&quot;%4d %8d %8d %8d %8d%n&quot;, g, pkg,</span>
+<span class="nc" id="L188">                        getMatchingNumaNode(numaNodes, g, lp), getMatchingCore(cores, g, lp), lp);</span>
+            }
+        }
+<span class="nc" id="L191">    }</span>
+
+
+    private static int getMatchingPackage(List&lt;GROUP_AFFINITY[]&gt; packages, int g, int lp) {
+<span class="nc bnc" id="L195" title="All 2 branches missed.">        for (int i = 0; i &lt; packages.size(); i++) {</span>
+<span class="nc bnc" id="L196" title="All 2 branches missed.">            for (int j = 0; j &lt; packages.get(i).length; j++) {</span>
+<span class="nc bnc" id="L197" title="All 4 branches missed.">                if ((packages.get(i)[j].mask.longValue() &amp; (1L &lt;&lt; lp)) &gt; 0 &amp;&amp; packages.get(i)[j].group == g) {</span>
+<span class="nc" id="L198">                    return i;</span>
+                }
+            }
+        }
+<span class="nc" id="L202">        return -1;</span>
+    }
+
+    private static int getMatchingNumaNode(List&lt;NUMA_NODE_RELATIONSHIP&gt; numaNodes, int g, int lp) {
+<span class="nc bnc" id="L206" title="All 2 branches missed.">        for (int j = 0; j &lt; numaNodes.size(); j++) {</span>
+<span class="nc bnc" id="L207" title="All 2 branches missed.">            if ((numaNodes.get(j).groupMask.mask.longValue() &amp; (1L &lt;&lt; lp)) &gt; 0</span>
+<span class="nc bnc" id="L208" title="All 2 branches missed.">                    &amp;&amp; numaNodes.get(j).groupMask.group == g) {</span>
+<span class="nc" id="L209">                return numaNodes.get(j).nodeNumber;</span>
+            }
+        }
+<span class="nc" id="L212">        return -1;</span>
+    }
+
+    private static int getMatchingCore(List&lt;GROUP_AFFINITY&gt; cores, int g, int lp) {
+<span class="nc bnc" id="L216" title="All 2 branches missed.">        for (int j = 0; j &lt; cores.size(); j++) {</span>
+<span class="nc bnc" id="L217" title="All 4 branches missed.">            if ((cores.get(j).mask.longValue() &amp; (1L &lt;&lt; lp)) &gt; 0 &amp;&amp; cores.get(j).group == g) {</span>
+<span class="nc" id="L218">                return j;</span>
+            }
+        }
+<span class="nc" id="L221">        return -1;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

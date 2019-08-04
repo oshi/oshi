@@ -27,8 +27,6 @@ import oshi.hardware.PowerSource;
 
 /**
  * A Power Source
- *
- * @author widdis[at]gmail[dot]com
  */
 public abstract class AbstractPowerSource implements PowerSource {
 
@@ -41,8 +39,7 @@ public abstract class AbstractPowerSource implements PowerSource {
     protected double timeRemaining;
 
     /**
-     * Super constructor used by platform-specific implementations of
-     * PowerSource
+     * Super constructor used by platform-specific implementations of PowerSource
      *
      * @param newName
      *            The name to assign
@@ -51,18 +48,18 @@ public abstract class AbstractPowerSource implements PowerSource {
      * @param newTimeRemaining
      *            Seconds of time remaining
      */
-<span class="nc" id="L54">    public AbstractPowerSource(String newName, double newRemainingCapacity, double newTimeRemaining) {</span>
-<span class="nc" id="L55">        this.name = newName;</span>
-<span class="nc" id="L56">        this.remainingCapacity = newRemainingCapacity;</span>
-<span class="nc" id="L57">        this.timeRemaining = newTimeRemaining;</span>
-<span class="nc" id="L58">    }</span>
+<span class="nc" id="L51">    public AbstractPowerSource(String newName, double newRemainingCapacity, double newTimeRemaining) {</span>
+<span class="nc" id="L52">        this.name = newName;</span>
+<span class="nc" id="L53">        this.remainingCapacity = newRemainingCapacity;</span>
+<span class="nc" id="L54">        this.timeRemaining = newTimeRemaining;</span>
+<span class="nc" id="L55">    }</span>
 
     /**
      * {@inheritDoc}
      */
     @Override
     public String getName() {
-<span class="nc" id="L65">        return this.name;</span>
+<span class="nc" id="L62">        return this.name;</span>
     }
 
     /**
@@ -70,7 +67,7 @@ public abstract class AbstractPowerSource implements PowerSource {
      */
     @Override
     public double getRemainingCapacity() {
-<span class="nc" id="L73">        return this.remainingCapacity;</span>
+<span class="nc" id="L70">        return this.remainingCapacity;</span>
     }
 
     /**
@@ -78,7 +75,7 @@ public abstract class AbstractPowerSource implements PowerSource {
      */
     @Override
     public double getTimeRemaining() {
-<span class="nc" id="L81">        return this.timeRemaining;</span>
+<span class="nc" id="L78">        return this.timeRemaining;</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

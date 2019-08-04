@@ -26,11 +26,11 @@ package oshi.hardware.platform.unix.solaris;
 import java.util.ArrayList;
 import java.util.List;
 
-import oshi.hardware.Sensors;
+import oshi.hardware.common.AbstractSensors;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
-<span class="nc" id="L33">public class SolarisSensors implements Sensors {</span>
+<span class="nc" id="L33">public class SolarisSensors extends AbstractSensors {</span>
 
     private static final long serialVersionUID = 1L;
 
@@ -81,14 +81,13 @@ import oshi.util.ParseUtil;
     @Override
     public double getCpuVoltage() {
 <span class="nc" id="L83">        double voltage = 0d;</span>
-        // TODO This is entirely a guess!
-<span class="nc bnc" id="L85" title="All 2 branches missed.">        for (String line : ExecutingCommand.runNative(&quot;/usr/sbin/prtpicl -v -c voltage-sensor&quot;)) {</span>
-<span class="nc bnc" id="L86" title="All 2 branches missed.">            if (line.trim().startsWith(&quot;Voltage:&quot;)) {</span>
-<span class="nc" id="L87">                voltage = ParseUtil.parseDoubleOrDefault(line.replace(&quot;Voltage:&quot;, &quot;&quot;).trim(), 0d);</span>
-<span class="nc" id="L88">                break;</span>
+<span class="nc bnc" id="L84" title="All 2 branches missed.">        for (String line : ExecutingCommand.runNative(&quot;/usr/sbin/prtpicl -v -c voltage-sensor&quot;)) {</span>
+<span class="nc bnc" id="L85" title="All 2 branches missed.">            if (line.trim().startsWith(&quot;Voltage:&quot;)) {</span>
+<span class="nc" id="L86">                voltage = ParseUtil.parseDoubleOrDefault(line.replace(&quot;Voltage:&quot;, &quot;&quot;).trim(), 0d);</span>
+<span class="nc" id="L87">                break;</span>
             }
-<span class="nc" id="L90">        }</span>
-<span class="nc" id="L91">        return voltage;</span>
+<span class="nc" id="L89">        }</span>
+<span class="nc" id="L90">        return voltage;</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>
