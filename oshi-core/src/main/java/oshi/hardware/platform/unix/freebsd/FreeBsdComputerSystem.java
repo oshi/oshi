@@ -43,7 +43,7 @@ final class FreeBsdComputerSystem extends AbstractComputerSystem {
         if (this.manufacturer == null) {
             readDmiDecode();
         }
-        return this.manufacturer;
+        return super.getManufacturer();
     }
 
     /** {@inheritDoc} */
@@ -52,7 +52,7 @@ final class FreeBsdComputerSystem extends AbstractComputerSystem {
         if (this.model == null) {
             readDmiDecode();
         }
-        return this.model;
+        return super.getModel();
     }
 
     /** {@inheritDoc} */
@@ -61,7 +61,7 @@ final class FreeBsdComputerSystem extends AbstractComputerSystem {
         if (this.serialNumber == null) {
             readDmiDecode();
         }
-        return this.serialNumber;
+        return super.getSerialNumber();
     }
 
     /** {@inheritDoc} */

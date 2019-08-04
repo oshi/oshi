@@ -56,8 +56,8 @@ public class OSFileStore implements Serializable {
     private long freeSpace;
     private long usableSpace;
     private long totalSpace;
-    private long freeInodes = -1;
-    private long totalInodes = -1;
+    private long freeInodes;
+    private long totalInodes;
 
     /**
      * <p>
