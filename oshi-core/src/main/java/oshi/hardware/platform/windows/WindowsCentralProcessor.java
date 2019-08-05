@@ -54,15 +54,14 @@ import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.jna.platform.windows.PowrProf;
-import oshi.jna.platform.windows.PowrProf.POWER_INFORMATION_LEVEL;
 import oshi.jna.platform.windows.PowrProf.ProcessorPowerInformation;
 import oshi.util.ParseUtil;
 import oshi.util.platform.windows.PerfCounterQuery;
+import oshi.util.platform.windows.PerfCounterQuery.PdhCounterProperty;
 import oshi.util.platform.windows.PerfCounterWildcardQuery;
+import oshi.util.platform.windows.PerfCounterWildcardQuery.PdhCounterWildcardProperty;
 import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
-import oshi.util.platform.windows.PerfCounterQuery.PdhCounterProperty;
-import oshi.util.platform.windows.PerfCounterWildcardQuery.PdhCounterWildcardProperty;
 
 /**
  * A CPU, representing all of a system's processors. It may contain multiple
@@ -489,7 +488,8 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
         long[] freqs = new long[getLogicalProcessorCount()];
         int bufferSize = ppi.size() * freqs.length;
         Memory mem = new Memory(bufferSize);
-        if (0 != PowrProf.INSTANCE.CallNtPowerInformation(POWER_INFORMATION_LEVEL.PROCESSOR_INFORMATION, null, 0, mem,
+        if (0 != PowrProf.INSTANCE.CallNtPowerInformation(PowrProf.POWER_INFORMATION_LEVEL.ProcessorInformation, null,
+                0, mem,
                 bufferSize)) {
             LOG.error("Unable to get Processor Information");
             Arrays.fill(freqs, -1L);

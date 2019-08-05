@@ -27,11 +27,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Memory; // NOSONAR
+import com.sun.jna.platform.win32.PowrProf.POWER_INFORMATION_LEVEL;
 
 import oshi.hardware.PowerSource;
 import oshi.hardware.common.AbstractPowerSource;
 import oshi.jna.platform.windows.PowrProf;
-import oshi.jna.platform.windows.PowrProf.POWER_INFORMATION_LEVEL;
 import oshi.jna.platform.windows.PowrProf.SystemBatteryState;
 import oshi.util.FormatUtil;
 
@@ -77,7 +77,7 @@ public class WindowsPowerSource extends AbstractPowerSource {
         // Get structure
         int size = new SystemBatteryState().size();
         Memory mem = new Memory(size);
-        if (0 == PowrProf.INSTANCE.CallNtPowerInformation(POWER_INFORMATION_LEVEL.SYSTEM_BATTERY_STATE, null, 0, mem,
+        if (0 == PowrProf.INSTANCE.CallNtPowerInformation(POWER_INFORMATION_LEVEL.SystemBatteryState, null, 0, mem,
                 size)) {
             SystemBatteryState batteryState = new SystemBatteryState(mem);
             if (batteryState.batteryPresent > 0) {
