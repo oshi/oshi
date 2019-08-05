@@ -51,7 +51,7 @@ public abstract class AbstractNetworkParams implements NetworkParams {
         try {
             return InetAddress.getLocalHost().getCanonicalHostName();
         } catch (UnknownHostException e) {
-            LOG.error("Unknown host exception when getting address of local host: " + e);
+            LOG.error("Unknown host exception when getting address of local host: {}", e);
             return "";
         }
     }
@@ -68,7 +68,7 @@ public abstract class AbstractNetworkParams implements NetworkParams {
                 return hn.substring(0, dot);
             }
         } catch (UnknownHostException e) {
-            LOG.error("Unknown host exception when getting address of local host: " + e);
+            LOG.error("Unknown host exception when getting address of local host: {}", e);
             return "";
         }
     }

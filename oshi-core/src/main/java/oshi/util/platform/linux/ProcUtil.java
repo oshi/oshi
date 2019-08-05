@@ -24,13 +24,12 @@
 package oshi.util.platform.linux;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.util.List;
 import java.util.regex.Pattern;
 
 import oshi.hardware.CentralProcessor.TickType;
-import oshi.util.GlobalConfig;
 import oshi.util.FileUtil;
+import oshi.util.GlobalConfig;
 import oshi.util.ParseUtil;
 
 /**
@@ -133,12 +132,7 @@ public class ProcUtil {
      */
     public static File[] getPidFiles() {
         File procdir = new File(proc);
-        File[] pids = procdir.listFiles(new FileFilter() {
-            @Override
-            public boolean accept(File file) {
-                return DIGITS.matcher(file.getName()).matches();
-            }
-        });
+        File[] pids = procdir.listFiles(f -> DIGITS.matcher(f.getName()).matches());
         return pids != null ? pids : new File[0];
     }
 }

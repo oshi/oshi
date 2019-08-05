@@ -43,7 +43,7 @@ final class SolarisComputerSystem extends AbstractComputerSystem {
         if (this.manufacturer == null) {
             readSmbios();
         }
-        return this.manufacturer;
+        return super.getManufacturer();
     }
 
     /** {@inheritDoc} */
@@ -52,7 +52,7 @@ final class SolarisComputerSystem extends AbstractComputerSystem {
         if (this.model == null) {
             readSmbios();
         }
-        return this.model;
+        return super.getModel();
     }
 
     /** {@inheritDoc} */
@@ -61,7 +61,7 @@ final class SolarisComputerSystem extends AbstractComputerSystem {
         if (this.serialNumber == null) {
             this.serialNumber = getSystemSerialNumber();
         }
-        return this.serialNumber;
+        return super.getSerialNumber();
     }
 
     /** {@inheritDoc} */

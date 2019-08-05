@@ -65,7 +65,7 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
     private int maxProc = 1024;
 
     // 64-bit flag
-    int P_LP64 = 0x4;
+    private static final int P_LP64 = 0x4;
     /*
      * OS X States:
      */

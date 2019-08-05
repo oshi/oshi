@@ -45,7 +45,7 @@ import oshi.util.platform.windows.WmiUtil;
  */
 public class PerfCounterQuery<T extends Enum<T>> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PerfCounter.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PerfCounterQuery.class);
 
     /*
      * Set on instantiation
