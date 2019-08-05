@@ -46,7 +46,7 @@ final class MacComputerSystem extends AbstractComputerSystem {
         if (this.manufacturer == null) {
             this.manufacturer = "Apple Inc.";
         }
-        return this.manufacturer;
+        return super.getManufacturer();
     }
 
     /** {@inheritDoc} */

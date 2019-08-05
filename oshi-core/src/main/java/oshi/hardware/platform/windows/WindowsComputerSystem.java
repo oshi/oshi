@@ -66,7 +66,7 @@ final class WindowsComputerSystem extends AbstractComputerSystem {
         if (this.serialNumber == null) {
             querySystemSerialNumber();
         }
-        return this.serialNumber;
+        return super.getSerialNumber();
     }
 
     /** {@inheritDoc} */

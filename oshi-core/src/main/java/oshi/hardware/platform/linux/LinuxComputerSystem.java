@@ -67,7 +67,7 @@ final class LinuxComputerSystem extends AbstractComputerSystem {
                 && !querySerialFromLshal() && !queryModelAndSerialFromLshw()) {
             this.serialNumber = Constants.UNKNOWN;
         }
-        return this.serialNumber;
+        return super.getSerialNumber();
     }
 
     /** {@inheritDoc} */

@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package oshi.data.windows;
+package oshi.util.platform.windows;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -35,7 +35,6 @@ import org.slf4j.LoggerFactory;
 import com.sun.jna.platform.win32.WinNT.HANDLEByReference; // NOSONAR
 
 import oshi.util.FormatUtil;
-import oshi.util.platform.windows.PerfDataUtil;
 import oshi.util.platform.windows.PerfDataUtil.PerfCounter;
 
 /**

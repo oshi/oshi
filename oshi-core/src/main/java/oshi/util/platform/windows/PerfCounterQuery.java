@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package oshi.data.windows;
+package oshi.util.platform.windows;
 
 import java.util.EnumMap;
 import java.util.Map;
@@ -33,10 +33,7 @@ import com.sun.jna.platform.win32.COM.Wbemcli; //NOSONAR
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
-import oshi.util.platform.windows.PerfDataUtil;
 import oshi.util.platform.windows.PerfDataUtil.PerfCounter;
-import oshi.util.platform.windows.WmiQueryHandler;
-import oshi.util.platform.windows.WmiUtil;
 
 /**
  * <p>
@@ -80,7 +77,7 @@ public class PerfCounterQuery<T extends Enum<T>> {
      *
      * @param propertyEnum
      *            An enum which implements
-     *            {@link oshi.data.windows.PerfCounterQuery.PdhCounterProperty} and
+     *            {@link oshi.util.platform.windows.PerfCounterQuery.PdhCounterProperty} and
      *            contains the WMI field (Enum value) and PDH Counter string
      *            (instance and counter)
      * @param perfObject
@@ -98,7 +95,7 @@ public class PerfCounterQuery<T extends Enum<T>> {
      *
      * @param propertyEnum
      *            An enum which implements
-     *            {@link oshi.data.windows.PerfCounterQuery.PdhCounterProperty} and
+     *            {@link oshi.util.platform.windows.PerfCounterQuery.PdhCounterProperty} and
      *            contains the WMI field (Enum value) and PDH Counter string
      *            (instance and counter)
      * @param perfObject

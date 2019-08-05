@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package oshi.data.windows;
+package oshi.util.platform.windows;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -41,10 +41,7 @@ import com.sun.jna.platform.win32.COM.Wbemcli;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.util.Util;
-import oshi.util.platform.windows.PdhUtilXP;
-import oshi.util.platform.windows.PerfDataUtil;
 import oshi.util.platform.windows.PerfDataUtil.PerfCounter;
-import oshi.util.platform.windows.WmiUtil;
 
 /**
  * <p>
@@ -65,7 +62,7 @@ public class PerfCounterWildcardQuery<T extends Enum<T>> extends PerfCounterQuer
      *
      * @param propertyEnum
      *            An enum which implements
-     *            {@link oshi.data.windows.PerfCounterWildcardQuery.PdhCounterWildcardProperty}
+     *            {@link oshi.util.platform.windows.PerfCounterWildcardQuery.PdhCounterWildcardProperty}
      *            and contains the WMI field (Enum value) and PDH Counter string
      *            (instance or counter).
      *            <P>
@@ -95,7 +92,7 @@ public class PerfCounterWildcardQuery<T extends Enum<T>> extends PerfCounterQuer
      *
      * @param propertyEnum
      *            An enum which implements
-     *            {@link oshi.data.windows.PerfCounterWildcardQuery.PdhCounterWildcardProperty}
+     *            {@link oshi.util.platform.windows.PerfCounterWildcardQuery.PdhCounterWildcardProperty}
      *            and contains the WMI field (Enum value) and PDH Counter string
      *            (instance or counter).
      *            <P>
@@ -147,7 +144,7 @@ public class PerfCounterWildcardQuery<T extends Enum<T>> extends PerfCounterQuer
     private static String localize(String perfObject) {
         String localized = null;
         try {
-            localized = PdhUtilXP.PdhLookupPerfNameByIndex(null, PdhUtil.PdhLookupPerfIndexByEnglishName(perfObject));
+            localized = PdhUtil.PdhLookupPerfNameByIndex(null, PdhUtil.PdhLookupPerfIndexByEnglishName(perfObject));
         } catch (Win32Exception e) {
             LOG.error("Unable to locate English counter names in registry Perflib 009. Assuming English counters.");
         }
