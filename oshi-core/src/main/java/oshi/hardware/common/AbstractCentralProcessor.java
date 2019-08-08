@@ -23,7 +23,6 @@
  */
 package oshi.hardware.common;
 
-import java.lang.management.ManagementFactory;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -41,26 +40,6 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
     private static final long serialVersionUID = 1L;
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractCentralProcessor.class);
-
-    /**
-     * Instantiate an OperatingSystemMXBean for future convenience
-     */
-    private static final java.lang.management.OperatingSystemMXBean OS_MXBEAN = ManagementFactory
-            .getOperatingSystemMXBean();
-
-    /**
-     * Keep track whether MXBean supports Oracle JVM methods
-     */
-    private static boolean sunMXBean = false;
-    static {
-        try {
-            Class.forName("com.sun.management.OperatingSystemMXBean");
-            LOG.debug("Oracle MXBean detected.");
-            sunMXBean = true;
-        } catch (ClassNotFoundException | ClassCastException e) {
-            LOG.debug("Oracle MXBean not detected.");
-        }
-    }
 
     // Logical and Physical Processor Counts
     protected int physicalPackageCount = 0;
@@ -372,16 +351,6 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
         LOG.trace("Total ticks: {}  Idle ticks: {}", total, idle);
 
         return total > 0 && idle >= 0 ? (double) (total - idle) / total : 0d;
-    }
-
-    /** {@inheritDoc} */
-    @SuppressWarnings("restriction")
-    @Override
-    public double getSystemCpuLoad() {
-        if (sunMXBean) {
-            return ((com.sun.management.OperatingSystemMXBean) OS_MXBEAN).getSystemCpuLoad();
-        }
-        return -1.0;
     }
 
     /** {@inheritDoc} */

@@ -29,11 +29,11 @@ import java.io.Serializable;
  * Sensors include hardware sensors to monitor temperature, fan speed, and other
  * information.
  * <p>
- * Drivers may or may not exist to collect this data depending on Operating
- * System and CPU. In addition, software-hardware communication may suffer
- * intermittent errors when attempting to access this information. Users should
- * test for and handle zero values and/or empty arrays which will result if the
- * OS is unable to provide the information.
+ * Drivers may or may not exist to collect this data depending on the installed
+ * hardware and Operating System. In addition, software-hardware communication
+ * may suffer intermittent errors when attempting to access this information.
+ * Users should expect, test for, and handle zero values and/or empty arrays
+ * which will result if the OS is unable to provide the information.
  * <p>
  * Windows information is retrieved via Windows Management Instrumentation
  * (WMI). Unfortunately, most hardware providers do not publish values to WMI.

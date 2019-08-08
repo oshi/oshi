@@ -41,10 +41,11 @@ import oshi.software.os.unix.solaris.SolarisOperatingSystem;
 import oshi.software.os.windows.WindowsOperatingSystem;
 
 /**
- * System information. This is the main entry point to Oshi. This object
- * provides getters which instantiate the appropriate platform-specific
- * implementations of {@link oshi.software.os.OperatingSystem} (software) and
- * {@link oshi.hardware.HardwareAbstractionLayer} (hardware).
+ * System information. This is the main entry point to Oshi.
+ * <p>
+ * This object provides getters which instantiate the appropriate
+ * platform-specific implementations of {@link oshi.software.os.OperatingSystem}
+ * (software) and {@link oshi.hardware.HardwareAbstractionLayer} (hardware).
  */
 public class SystemInfo implements Serializable {
 

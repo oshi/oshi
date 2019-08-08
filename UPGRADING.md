@@ -23,9 +23,9 @@ The `CentralProcessor` setters were removed from the API. The methods
 `getSystemCpuLoadBetweenTicks()` and `getProcessorCpuLoadBetweenTicks()` now take
 an argument with the previous set of ticks, rather than internally saving the
 previous call. This enables users to measure over a longer period or multiple
-different periods.  The `getSystemCpuLoad()` method is now a direct passthrough
-to the `OperatingSystemMXBean` method if running an Oracle JVM, otherwise it
-returns a negative value.  The no-argument `getSystemLoadAverage()` has been 
+different periods.  The `getSystemCpuLoad()` method has been removed; users
+running the Oracle JVM should use the  `OperatingSystemMXBean` method if 
+they desire this value.  The no-argument `getSystemLoadAverage()` has been 
 removed; users can call with an argument of 1 to obtain the same value. 
 
 The `getSystemUptime()` method was moved from the `CentralProcessor` class to

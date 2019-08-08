@@ -68,10 +68,11 @@ public class NetworkIF implements Serializable {
 
     /**
      * <p>
-     * queryNetworkInterface.
+     * The NetworkInterface object. The returned object is not serializable.
      * </p>
      *
-     * @return the network interface
+     * @return the network interface, an instance of
+     *         {@link java.net.NetworkInterface}.
      */
     public NetworkInterface queryNetworkInterface() {
         return this.networkInterface;
@@ -120,7 +121,7 @@ public class NetworkIF implements Serializable {
 
     /**
      * <p>
-     * getName.
+     * Interface name.
      * </p>
      *
      * @return The interface name.
@@ -131,7 +132,7 @@ public class NetworkIF implements Serializable {
 
     /**
      * <p>
-     * getDisplayName.
+     * Interface description.
      * </p>
      *
      * @return The description of the network interface. On some platforms, this is
@@ -143,7 +144,7 @@ public class NetworkIF implements Serializable {
 
     /**
      * <p>
-     * getMTU.
+     * The interface Maximum Transmission Unit (MTU).
      * </p>
      *
      * @return The MTU of the network interface. This value is set when the
@@ -157,7 +158,7 @@ public class NetworkIF implements Serializable {
 
     /**
      * <p>
-     * getMacaddr.
+     * The Media Access Control (MAC) address.
      * </p>
      *
      * @return The MAC Address. This value is set when the
@@ -171,7 +172,7 @@ public class NetworkIF implements Serializable {
 
     /**
      * <p>
-     * getIPv4addr.
+     * The Internet Protocol (IP) v4 address.
      * </p>
      *
      * @return The IPv4 Addresses. This value is set when the
@@ -185,7 +186,7 @@ public class NetworkIF implements Serializable {
 
     /**
      * <p>
-     * getIPv6addr.
+     * The Internet Protocol (IP) v6 address.
      * </p>
      *
      * @return The IPv6 Addresses. This value is set when the

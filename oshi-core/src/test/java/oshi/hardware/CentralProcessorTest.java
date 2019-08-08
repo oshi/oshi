@@ -29,7 +29,6 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import oshi.PlatformEnum;
 import oshi.SystemInfo;
 import oshi.hardware.CentralProcessor.TickType;
 import oshi.util.Util;
@@ -64,10 +63,6 @@ public class CentralProcessorTest {
         Util.sleep(500);
 
         assertTrue(p.getSystemCpuLoadBetweenTicks(ticks) >= 0 && p.getSystemCpuLoadBetweenTicks(ticks) <= 1);
-        // This test fails on FreeBSD due to error in Java MXBean
-        if (SystemInfo.getCurrentPlatformEnum() != PlatformEnum.FREEBSD) {
-            assertTrue(p.getSystemCpuLoad() <= 1.0);
-        }
         assertEquals(3, p.getSystemLoadAverage(3).length);
 
         assertEquals(p.getProcessorCpuLoadBetweenTicks(procTicks).length, p.getLogicalProcessorCount());

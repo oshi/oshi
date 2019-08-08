@@ -83,6 +83,10 @@ public interface CentralProcessor extends Serializable {
      * <p>
      * NOTE: The order of returned bytes is platform and software dependent. Values
      * may be in either Big Endian or Little Endian order.
+     * <p>
+     * NOTE: If OSHI is unable to determine the ProcessorID from native sources, it
+     * will attempt to reconstruct one from available information in the processor
+     * identifier.
      *
      * @return A string representing the Processor ID
      */
@@ -158,10 +162,10 @@ public interface CentralProcessor extends Serializable {
      * interval, CPU load over that interval may be calculated.
      * <p>
      * Note that while tick counters are in units of milliseconds, they may advance
-     * in larger increments (platform dependent). For example, by default Windows
-     * clock ticks are 1/64 of a second (about 15 or 16 milliseconds) and Linux
-     * ticks are distribution and configuration dependent but usually 1/100 of a
-     * second (10 milliseconds).
+     * in larger increments along with (platform dependent) clock ticks. For
+     * example, by default Windows clock ticks are 1/64 of a second (about 15 or 16
+     * milliseconds) and Linux ticks are distribution and configuration dependent
+     * but usually 1/100 of a second (10 milliseconds).
      * <p>
      * Nice and IOWait information is not available on Windows, and IOwait and IRQ
      * information is not available on macOS, so these ticks will always be zero.
@@ -175,27 +179,6 @@ public interface CentralProcessor extends Serializable {
      *         System, Idle, IOwait, IRQ, SoftIRQ, and Steal states.
      */
     long[] getSystemCpuLoadTicks();
-
-    /**
-     * Returns the "recent cpu usage" for the whole system from
-     * {@link com.sun.management.OperatingSystemMXBean#getSystemCpuLoad()} if a user
-     * is running the Oracle JVM. This value is a double in the [0.0,1.0] interval.
-     * A value of 0.0 means that all CPUs were idle during the recent period of time
-     * observed, while a value of 1.0 means that all CPUs were actively running 100%
-     * of the time during the recent period being observed. All values between 0.0
-     * and 1.0 are possible depending of the activities going on in the system.
-     * <P>
-     * If the system recent cpu usage is not available, the method returns a
-     * negative value. Calling this method immediately upon instantiating the
-     * {@link oshi.hardware.CentralProcessor} may give unreliable results. Calling
-     * this method too frequently may return {@link java.lang.Double#NaN}. If a user
-     * is not running the Oracle JVM, this method will return a negative value.
-     *
-     * @return the "recent cpu usage" for the whole system; a negative value if not
-     *         available.
-     */
-    @SuppressWarnings("restriction")
-    double getSystemCpuLoad();
 
     /**
      * Returns the system load average for the number of elements specified, up to
@@ -240,10 +223,10 @@ public interface CentralProcessor extends Serializable {
      * interval, CPU load over that interval may be calculated.
      * <p>
      * Note that while tick counters are in units of milliseconds, they may advance
-     * in larger increments (platform dependent). For example, by default Windows
-     * clock ticks are 1/64 of a second (about 15 or 16 milliseconds) and Linux
-     * ticks are distribution and configuration dependent but usually 1/100 of a
-     * second (10 milliseconds).
+     * in larger increments along with (platform dependent) clock ticks. For
+     * example, by default Windows clock ticks are 1/64 of a second (about 15 or 16
+     * milliseconds) and Linux ticks are distribution and configuration dependent
+     * but usually 1/100 of a second (10 milliseconds).
      * <p>
      * Nice and IOwait per processor information is not available on Windows, and
      * IOwait and IRQ information is not available on macOS, so these ticks will
