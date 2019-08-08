@@ -68,29 +68,36 @@ provides sample code demonstrating the use of `oshi-core` interfaces to retrieve
 
 General information about the operating system and computer system.
 ```
-Apple macOS 10.12.3 (Sierra) build 16D32
+Apple macOS 10.14.6 (Mojave) build 18G84
+Booted: 2019-07-28T20:27:49Z
+Uptime: 10 days, 08:24:03
+Running without elevated permissions.
+
 manufacturer: Apple Inc.
-model: MacBook Pro (MacBookPro8,2)
-serialnumber: C02FG6XYDF71
+model: MacBook Pro (MacBookPro15,1)
+serialnumber: C03Z53B7LVDR
 ```
 Processor identification.
 ```
-Intel(R) Core(TM)2 Duo CPU T7300  @ 2.00GHz
- 4 physical CPU(s)
- 8 logical CPU(s)
-Identifier: Intel64 Family 6 Model 42 Stepping 7
-ProcessorID: BFEBFBFF000206A7
+Intel(R) Core(TM) i9-9880H CPU @ 2.30GHz
+ 1 physical CPU package(s)
+ 8 physical CPU core(s)
+ 16 logical CPU(s)
+Identifier: Intel64 Family 6 Model 158 Stepping 13
+ProcessorID: BFEBFBFF000906ED
 ```
 By measuring ticks (user, nice, system, idle, iowait, and irq) between time intervals, percent usage can be calculated.
-Java MXBean and per-processor information is also provided.
+Per-processor information is also provided.
 ```
 CPU, IOWait, and IRQ ticks @ 0 sec:[967282, 15484, 195343, 124216619], 6176, [4054, 2702]
 CPU, IOWait, and IRQ ticks @ 1 sec:[967308, 15484, 195346, 124216790], 6177, [4057, 2705]
 User: 13.0% Nice: 0.0% System: 1.5% Idle: 85.5%
-CPU load: 8.8% (counting ticks)
-CPU load: 9.0% (OS MXBean)
+CPU load: 8.8%
 CPU load averages: 2.69 2.47 2.38
 CPU load per processor: 23.6% 1.3% 18.2% 0.7% 12.9% 0.7% 12.1% 1.3%
+Vendor Frequency: 2.3 GHz
+Max Frequency: 2.3 GHz
+Current Frequencies: 2.3 GHz, 2.3 GHz, 2.3 GHz, 2.3 GHz, 2.3 GHz, 2.3 GHz, 2.3 GHz, 2.3 GHz
 ```
 Process information including CPU and memory per process is available.
 ```
@@ -104,8 +111,8 @@ Processes: 401, Threads: 1159
  ```
 Memory and swapfile information is available.
 ```
-Memory: 2.9 GiB/16 GiB
-Swap used: 90.8 MiB/1 GiB
+Memory: 11.6 GiB/32 GiB
+Swap used: 3.6 GiB/5 GiB
 ```
 The EDID for each Display is provided. This can be parsed with various utilities for detailed information. OSHI provides a summary of selected data.
 ```
@@ -180,16 +187,17 @@ mvn test-compile -pl oshi-core -q exec:java \
   -Dexec.classpathScope="test"
 ```
 
-Where are we?
--------------
+Where are we? How can I help?
+-----------------------------
 [OSHI originated](http://code.dblock.org/2010/06/23/introducing-oshi-operating-system-and-hardware-information-java.html) 
 as a platform-independent library that did not require additional software and had a license compatible with 
 both open source and commercial products. We have developed a strong core of features on major Operating Systems, 
 but we would love for *you* to help by:
 * Testing!  Our CI testing is limited.  Download and test the program on various operating systems/versions and hardware and help identify gaps that our limited development and testing may have missed.
 * Contributing ports.  Have an OS that's not covered? It's likely one of the existing ports can be slightly modified. 
+* Offering access to an unsupported OS.  An AIX port will be written if access for development/testing can be provided!
 * Contributing code.  See something that's not working right or could work better?  Help us fix it!  New contributors welcome.
-* Documenting implementation.  Our Wiki is blank.  Want to help new users follow in your footsteps?
+* Documenting implementation.  Our Wiki is sparse.  Want to help new users follow in your footsteps?
 * Suggesting new features.  Do you need OSHI to do something it doesn't currently do?  Let us know.
 
 Acknowledgements
