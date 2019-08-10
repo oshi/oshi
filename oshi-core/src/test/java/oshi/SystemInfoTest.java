@@ -64,16 +64,15 @@ import oshi.util.Util;
  */
 public class SystemInfoTest {
 
-    /** The Constant logger. */
     private static final Logger logger = LoggerFactory.getLogger(SystemInfoTest.class);
 
     static List<String> oshi = new ArrayList<>();
 
     /**
-     * Test system info.
+     * Test that this platform is implemented..
      */
     @Test
-    public void testCentralProcessor() {
+    public void testPlatformEnum() {
         assertFalse(PlatformEnum.UNKNOWN.equals(SystemInfo.getCurrentPlatformEnum()));
     }
 
@@ -81,7 +80,7 @@ public class SystemInfoTest {
      * The main method, demonstrating use of classes.
      *
      * @param args
-     *            the arguments
+     *            the arguments (unused)
      */
     public static void main(String[] args) {
         logger.info("Initializing System...");
@@ -139,11 +138,11 @@ public class SystemInfoTest {
         StringBuilder output = new StringBuilder();
         for (int i = 0; i < oshi.size(); i++) {
             output.append(oshi.get(i));
-            if (!"\n".equals(oshi.get(i))) {
+            if (oshi.get(i) != null && !oshi.get(i).endsWith("\n")) {
                 output.append('\n');
             }
         }
-        logger.info("Printing List: {}", output);
+        logger.info("Printing Operating System and Hardware Info:{}{}", '\n', output);
     }
 
     private static void printOperatingSystem(final OperatingSystem os) {

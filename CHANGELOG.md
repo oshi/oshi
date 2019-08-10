@@ -2,7 +2,7 @@
 ================
 * Your contribution here.
 
-4.0.0 (8/10/2018)
+4.0.0 (8/10/2019)
 ================
 * [#756](https://github.com/oshi/oshi/pull/756): Require Java 8. - [@dbwiddis](https://github.com/dbwiddis).
 * [#773](https://github.com/oshi/oshi/pull/773): Remove oshi-json artifact. - [@dbwiddis](https://github.com/dbwiddis).
