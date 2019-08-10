@@ -116,7 +116,6 @@
 				<configuration>
 					<bnd><![CDATA[
 					Export-Package: oshi.*;-noimport:=true;-split-package:=merge-first
-					Import-Package: com.sun.management.*;resolution:=optional, !org.slf4j.*, *
 					Bundle-SymbolicName: ${project.groupId}.${project.artifactId}
 					-snapshot: SNAPSHOT
 				]]></bnd>

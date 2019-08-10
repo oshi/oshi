@@ -1,7 +1,7 @@
 Contributing to Oshi
 =====================
 
-Oshi is work of [many contributors](https://github.com/oshi/oshi/graphs/contributors). You're encouraged to submit [pull requests](https://github.com/oshi/oshi/pulls), [propose features and discuss issues](https://github.com/oshi/oshi/issues).
+OSHI is work of [many contributors](https://github.com/oshi/oshi/graphs/contributors). You're encouraged to submit [pull requests](https://github.com/oshi/oshi/pulls), [propose features and discuss issues](https://github.com/oshi/oshi/issues).
 
 OSHI is [first-timers-only](https://www.firsttimersonly.com/) friendly.  If you're new to open source, or coding, or git, we're happy to help you get started! Look for the `first-timers-only` or `good first issue` tags on issues, or simply post a new issue asking how you can help.  We'll walk you through the steps needed to contribute to the project.
 

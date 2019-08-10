@@ -350,7 +350,6 @@
 					<configuration>
 						<bnd><![CDATA[
 						Export-Package: oshi.*;-noimport:=true;-split-package:=merge-first
-						Import-Package: com.sun.management.*;resolution:=optional, *
 						Bundle-SymbolicName: ${project.groupId}.${project.artifactId}
 						-snapshot: SNAPSHOT
 					]]></bnd>
@@ -677,11 +676,6 @@
 						</goals>
 					</execution>
 				</executions>
-				<configuration>
-					<ignores>
-						<ignore>com.sun.management.OperatingSystemMXBean</ignore>
-					</ignores>
-				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>com.mycila</groupId>
