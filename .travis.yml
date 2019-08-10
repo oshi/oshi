@@ -37,7 +37,7 @@ matrix:
   include:  
     - os: osx
       env: 
-      - JDK = "Oracle JDK 8 - Mac" 
+      - JDK = "OpenJDK 8 - Mac" 
       - MATRIX_ID="first"
       osx_image: xcode9.3
     - os: osx
