@@ -37,24 +37,32 @@ matrix:
       env: 
       - JDK = "OpenJDK 8 - Mac" 
       - MATRIX_ID="first"
+      jdk: openjdk8
       osx_image: xcode9.3
     - os: osx
       env: JDK = "OpenJDK 11 - Mac" 
+      jdk: openjdk11
       osx_image: xcode10.1
     - os: osx
       env: JDK = "OpenJDK 12 - Mac" 
+      jdk: openjdk12
       osx_image: xcode11
     - os: linux
       env: JDK = "OpenJDK 11 - Linux" 
+      jdk: openjdk11
     - os: linux
       env: JDK = "OpenJDK 12 - Linux" 
+      jdk: openjdk12
     - os: linux
       env: JDK = "OpenJDK 13 - Linux" 
+      jdk: openjdk13
     - os: linux
       env: JDK = "OpenJDK 14 - Linux" 
+      jdk: openjdk14
   allow_failures:
     - os: linux
-      env: JDK = "OpenJDK 14 - Linux" 
+      env: JDK = "OpenJDK 14 - Linux"
+      jdk: openjdk14
 
 script: 
   # Skip tests on coverity_scan branch
