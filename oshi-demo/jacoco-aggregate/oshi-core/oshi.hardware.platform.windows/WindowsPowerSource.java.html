@@ -27,11 +27,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Memory; // NOSONAR
+import com.sun.jna.platform.win32.PowrProf.POWER_INFORMATION_LEVEL;
 
 import oshi.hardware.PowerSource;
 import oshi.hardware.common.AbstractPowerSource;
 import oshi.jna.platform.windows.PowrProf;
-import oshi.jna.platform.windows.PowrProf.POWER_INFORMATION_LEVEL;
 import oshi.jna.platform.windows.PowrProf.SystemBatteryState;
 import oshi.util.FormatUtil;
 
@@ -77,7 +77,7 @@ public class WindowsPowerSource extends AbstractPowerSource {
         // Get structure
 <span class="nc" id="L78">        int size = new SystemBatteryState().size();</span>
 <span class="nc" id="L79">        Memory mem = new Memory(size);</span>
-<span class="nc bnc" id="L80" title="All 2 branches missed.">        if (0 == PowrProf.INSTANCE.CallNtPowerInformation(POWER_INFORMATION_LEVEL.SYSTEM_BATTERY_STATE, null, 0, mem,</span>
+<span class="nc bnc" id="L80" title="All 2 branches missed.">        if (0 == PowrProf.INSTANCE.CallNtPowerInformation(POWER_INFORMATION_LEVEL.SystemBatteryState, null, 0, mem,</span>
                 size)) {
 <span class="nc" id="L82">            SystemBatteryState batteryState = new SystemBatteryState(mem);</span>
 <span class="nc bnc" id="L83" title="All 2 branches missed.">            if (batteryState.batteryPresent &gt; 0) {</span>

@@ -5,12 +5,15 @@ oshi-demo,oshi.demo,DetectVM,105,123,16,0,22,13,11,3,3,3
 oshi-demo,oshi.jna.platform.windows,PowrProf.SystemBatteryState,17,0,0,0,6,0,2,0,2,0
 oshi-demo,oshi.jna.platform.windows,PowrProf,6,0,0,0,1,0,1,0,1,0
 oshi-demo,oshi.jna.platform.windows,PowrProf.ProcessorPowerInformation,9,0,0,0,5,0,2,0,2,0
-oshi-demo,oshi.jna.platform.windows,ProcInfo,880,0,50,0,121,0,38,0,11,0
+oshi-demo,oshi.util.platform.windows,PerfCounterQueryHandler.new Thread() {...},10,0,0,0,3,0,2,0,2,0
+oshi-demo,oshi.util.platform.windows,PerfCounterQuery,301,0,29,0,66,0,27,0,11,0
 oshi-demo,oshi.util.platform.windows,WmiQueryHandler,269,0,33,0,77,0,32,0,14,0
 oshi-demo,oshi.util.platform.windows,PerfDataUtil.PerfCounter,57,0,2,0,14,0,6,0,5,0
+oshi-demo,oshi.util.platform.windows,PerfCounterQuery.CounterDataSource,24,0,0,0,3,0,1,0,1,0
+oshi-demo,oshi.util.platform.windows,PerfCounterQueryHandler,321,0,42,0,79,0,33,0,12,0
 oshi-demo,oshi.util.platform.windows,PerfDataUtil,215,0,32,0,44,0,24,0,8,0
-oshi-demo,oshi.util.platform.windows,PdhUtilXP,126,0,20,0,25,0,13,0,3,0
 oshi-demo,oshi.util.platform.windows,WmiUtil,564,0,36,0,64,0,30,0,12,0
+oshi-demo,oshi.util.platform.windows,PerfCounterWildcardQuery,428,0,46,0,88,0,37,0,13,0
 oshi-demo,oshi.hardware.platform.windows,WindowsComputerSystem.ComputerSystemProperty,24,0,0,0,2,0,1,0,1,0
 oshi-demo,oshi.hardware.platform.windows,WindowsComputerSystem,151,0,28,0,36,0,24,0,10,0
 oshi-demo,oshi.hardware.platform.windows,WindowsDisplay,117,0,8,0,25,0,7,0,3,0
@@ -54,7 +57,7 @@ oshi-demo,oshi.hardware.platform.windows,WindowsCentralProcessor.ContextSwitchPr
 oshi-demo,oshi.software.os,OSUser,17,0,0,0,7,0,5,0,5,0
 oshi-demo,oshi.software.os,OperatingSystem.ProcessSort,74,0,0,0,2,0,1,0,1,0
 oshi-demo,oshi.software.os,OSProcess.State,74,0,0,0,8,0,1,0,1,0
-oshi-demo,oshi.software.os,OSFileStore,185,0,6,0,64,0,33,0,28,0
+oshi-demo,oshi.software.os,OSFileStore,173,0,6,0,62,0,33,0,28,0
 oshi-demo,oshi.software.os,OSProcess,244,0,2,0,88,0,50,0,49,0
 oshi-demo,oshi.hardware.common,AbstractVirtualMemory,21,0,0,0,7,0,1,0,1,0
 oshi-demo,oshi.hardware.common,AbstractUsbDevice,162,0,8,0,28,0,15,0,11,0
@@ -63,7 +66,7 @@ oshi-demo,oshi.hardware.common,AbstractSoundCard,81,0,0,0,25,0,8,0,8,0
 oshi-demo,oshi.hardware.common,AbstractBaseboard,55,0,8,0,21,0,13,0,9,0
 oshi-demo,oshi.hardware.common,AbstractPowerSource,21,0,0,0,8,0,4,0,4,0
 oshi-demo,oshi.hardware.common,AbstractFirmware,68,0,10,0,26,0,16,0,11,0
-oshi-demo,oshi.hardware.common,AbstractCentralProcessor,791,0,91,0,195,0,91,0,31,0
+oshi-demo,oshi.hardware.common,AbstractCentralProcessor,766,0,89,0,183,0,89,0,30,0
 oshi-demo,oshi.hardware.common,AbstractSensors,3,0,0,0,1,0,1,0,1,0
 oshi-demo,oshi.hardware.common,AbstractHardwareAbstractionLayer,3,0,0,0,1,0,1,0,1,0
 oshi-demo,oshi.hardware.common,AbstractComputerSystem,30,0,6,0,10,0,7,0,4,0
@@ -84,7 +87,7 @@ oshi-demo,oshi.util.platform.unix.solaris,KstatUtil,319,0,52,0,60,0,36,0,6,0
 oshi-demo,oshi.util.platform.unix.solaris,KstatUtil.new Thread() {...},8,0,0,0,3,0,2,0,2,0
 oshi-demo,oshi.software.os.mac,MacNetworkParams,124,0,16,0,32,0,13,0,5,0
 oshi-demo,oshi.software.os.mac,MacOSVersionInfoEx,79,0,19,0,29,0,21,0,4,0
-oshi-demo,oshi.software.os.mac,MacOperatingSystem,790,0,81,0,167,0,60,0,17,0
+oshi-demo,oshi.software.os.mac,MacOperatingSystem,786,0,81,0,166,0,60,0,17,0
 oshi-demo,oshi.software.os.mac,MacFileSystem,357,0,44,0,88,0,29,0,7,0
 oshi-demo,oshi,PlatformEnum,64,0,0,0,7,0,1,0,1,0
 oshi-demo,oshi,SystemInfo,145,0,26,0,44,0,22,0,5,0
@@ -102,13 +105,7 @@ oshi-demo,oshi.software.os.linux,LinuxNetworkParams,203,0,32,0,48,0,21,0,5,0
 oshi-demo,oshi.software.os.linux,LinuxUserGroupInfo,155,0,20,0,41,0,15,0,5,0
 oshi-demo,oshi.jna.platform.unix.freebsd,Libc.CpTime,7,0,0,0,2,0,1,0,1,0
 oshi-demo,oshi.jna.platform.unix.freebsd,Libc,12,0,0,0,3,0,1,0,1,0
-oshi-demo,oshi.data.windows,PerfCounterQuery.CounterDataSource,24,0,0,0,3,0,1,0,1,0
-oshi-demo,oshi.data.windows,PerfCounterQueryHandler.new Thread() {...},10,0,0,0,3,0,2,0,2,0
-oshi-demo,oshi.data.windows,PerfCounterQuery,301,0,29,0,66,0,27,0,11,0
-oshi-demo,oshi.data.windows,PerfCounterWildcardQuery,428,0,46,0,88,0,37,0,13,0
-oshi-demo,oshi.data.windows,PerfCounterQueryHandler,321,0,42,0,79,0,33,0,12,0
-oshi-demo,oshi.util.platform.linux,ProcUtil,148,0,16,0,31,0,13,0,5,0
-oshi-demo,oshi.util.platform.linux,ProcUtil.new FileFilter() {...},9,0,0,0,2,0,2,0,2,0
+oshi-demo,oshi.util.platform.linux,ProcUtil,152,0,16,0,31,0,14,0,6,0
 oshi-demo,oshi.util.platform.unix.freebsd,BsdSysctlUtil,147,0,10,0,27,0,10,0,5,0
 oshi-demo,oshi.util.platform.mac,IOKitUtil,261,0,40,0,81,0,32,0,12,0
 oshi-demo,oshi.util.platform.mac,CfUtil,92,0,8,0,25,0,12,0,8,0
@@ -219,7 +216,7 @@ oshi-demo,oshi.util,Constants,6,0,0,0,2,0,1,0,1,0
 oshi-demo,oshi.util,ParseUtil,990,0,92,0,193,0,78,0,32,0
 oshi-demo,oshi.util,ExecutingCommand,102,0,6,0,27,0,8,0,5,0
 oshi-demo,oshi.util,FileUtil,225,0,38,0,58,0,27,0,8,0
-oshi-demo,oshi.software.common,AbstractNetworkParams,163,0,20,0,35,0,16,0,6,0
+oshi-demo,oshi.software.common,AbstractNetworkParams,151,0,20,0,35,0,16,0,6,0
 oshi-demo,oshi.software.common,AbstractOperatingSystem,211,0,28,0,56,0,28,0,11,0
 oshi-demo,oshi.software.common,AbstractOSVersionInfoEx,69,0,8,0,18,0,12,0,8,0
 oshi-demo,oshi.hardware,NetworkIF,247,0,16,0,70,0,37,0,27,0

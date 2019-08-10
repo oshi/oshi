@@ -65,7 +65,7 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
 <span class="nc" id="L65">    private int maxProc = 1024;</span>
 
     // 64-bit flag
-<span class="nc" id="L68">    int P_LP64 = 0x4;</span>
+    private static final int P_LP64 = 0x4;
     /*
      * OS X States:
      */
@@ -155,7 +155,7 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
 <span class="nc" id="L155">        return getProcess(pid, true);</span>
     }
 
-    private OSProcess getProcess(int pid, boolean slowFields) {
+    private OSProcess getProcess(int pid, boolean slowFields) { // NOSONAR squid:S1172
 <span class="nc" id="L159">        ProcTaskAllInfo taskAllInfo = new ProcTaskAllInfo();</span>
 <span class="nc bnc" id="L160" title="All 2 branches missed.">        if (0 &gt; SystemB.INSTANCE.proc_pidinfo(pid, SystemB.PROC_PIDTASKALLINFO, 0, taskAllInfo, taskAllInfo.size())) {</span>
 <span class="nc" id="L161">            return null;</span>

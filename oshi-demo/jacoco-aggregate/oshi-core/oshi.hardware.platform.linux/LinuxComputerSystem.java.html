@@ -67,7 +67,7 @@ import oshi.util.platform.linux.ProcUtil;
 <span class="nc bnc" id="L67" title="All 4 branches missed.">                &amp;&amp; !querySerialFromLshal() &amp;&amp; !queryModelAndSerialFromLshw()) {</span>
 <span class="nc" id="L68">            this.serialNumber = Constants.UNKNOWN;</span>
         }
-<span class="nc" id="L70">        return this.serialNumber;</span>
+<span class="nc" id="L70">        return super.getSerialNumber();</span>
     }
 
     /** {@inheritDoc} */

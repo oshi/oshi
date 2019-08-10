@@ -51,24 +51,30 @@ public class WmiUtil {
     /**
      * Translate a WmiQuery to the actual query string
      *
+     * @param &lt;T&gt;
+     *            WMI queries use an Enum to identify the fields to query, and use
+     *            the enum values as keys to retrieve the results.
      * @param query
      *            The WmiQuery object
      * @return The string that is queried in WMI
      */
     public static &lt;T extends Enum&lt;T&gt;&gt; String queryToString(WmiQuery&lt;T&gt; query) {
-<span class="nc" id="L59">        T[] props = query.getPropertyEnum().getEnumConstants();</span>
-<span class="nc" id="L60">        StringBuilder sb = new StringBuilder(&quot;SELECT &quot;);</span>
-<span class="nc" id="L61">        sb.append(props[0].name());</span>
-<span class="nc bnc" id="L62" title="All 2 branches missed.">        for (int i = 1; i &lt; props.length; i++) {</span>
-<span class="nc" id="L63">            sb.append(',').append(props[i].name());</span>
+<span class="nc" id="L62">        T[] props = query.getPropertyEnum().getEnumConstants();</span>
+<span class="nc" id="L63">        StringBuilder sb = new StringBuilder(&quot;SELECT &quot;);</span>
+<span class="nc" id="L64">        sb.append(props[0].name());</span>
+<span class="nc bnc" id="L65" title="All 2 branches missed.">        for (int i = 1; i &lt; props.length; i++) {</span>
+<span class="nc" id="L66">            sb.append(',').append(props[i].name());</span>
         }
-<span class="nc" id="L65">        sb.append(&quot; FROM &quot;).append(query.getWmiClassName());</span>
-<span class="nc" id="L66">        return sb.toString();</span>
+<span class="nc" id="L68">        sb.append(&quot; FROM &quot;).append(query.getWmiClassName());</span>
+<span class="nc" id="L69">        return sb.toString();</span>
     }
 
     /**
      * Gets a String value from a WmiResult
      *
+     * @param &lt;T&gt;
+     *            WMI queries use an Enum to identify the fields to query, and use
+     *            the enum values as keys to retrieve the results.
      * @param result
      *            The WmiResult from which to fetch the value
      * @param property
@@ -78,16 +84,19 @@ public class WmiUtil {
      * @return The stored value if non-null, an empty-string otherwise
      */
     public static &lt;T extends Enum&lt;T&gt;&gt; String getString(WmiResult&lt;T&gt; result, T property, int index) {
-<span class="nc bnc" id="L81" title="All 2 branches missed.">        if (result.getCIMType(property) == Wbemcli.CIM_STRING) {</span>
-<span class="nc" id="L82">            return getStr(result, property, index);</span>
+<span class="nc bnc" id="L87" title="All 2 branches missed.">        if (result.getCIMType(property) == Wbemcli.CIM_STRING) {</span>
+<span class="nc" id="L88">            return getStr(result, property, index);</span>
         }
-<span class="nc" id="L84">        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), &quot;String&quot;,</span>
-<span class="nc" id="L85">                result.getCIMType(property), result.getVtType(property)));</span>
+<span class="nc" id="L90">        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), &quot;String&quot;,</span>
+<span class="nc" id="L91">                result.getCIMType(property), result.getVtType(property)));</span>
     }
 
     /**
      * Gets a Date value from a WmiResult as a String
      *
+     * @param &lt;T&gt;
+     *            WMI queries use an Enum to identify the fields to query, and use
+     *            the enum values as keys to retrieve the results.
      * @param result
      *            The WmiResult from which to fetch the value
      * @param property
@@ -97,17 +106,20 @@ public class WmiUtil {
      * @return The stored value if non-null, an empty-string otherwise
      */
     public static &lt;T extends Enum&lt;T&gt;&gt; String getDateString(WmiResult&lt;T&gt; result, T property, int index) {
-<span class="nc bnc" id="L100" title="All 2 branches missed.">        if (result.getCIMType(property) == Wbemcli.CIM_DATETIME) {</span>
-<span class="nc" id="L101">            String date = getStr(result, property, index);</span>
-<span class="nc" id="L102">            return date.substring(0, 4) + '-' + date.substring(4, 6) + '-' + date.substring(6, 8);</span>
+<span class="nc bnc" id="L109" title="All 2 branches missed.">        if (result.getCIMType(property) == Wbemcli.CIM_DATETIME) {</span>
+<span class="nc" id="L110">            String date = getStr(result, property, index);</span>
+<span class="nc" id="L111">            return date.substring(0, 4) + '-' + date.substring(4, 6) + '-' + date.substring(6, 8);</span>
         }
-<span class="nc" id="L104">        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), &quot;DateTime&quot;,</span>
-<span class="nc" id="L105">                result.getCIMType(property), result.getVtType(property)));</span>
+<span class="nc" id="L113">        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), &quot;DateTime&quot;,</span>
+<span class="nc" id="L114">                result.getCIMType(property), result.getVtType(property)));</span>
     }
 
     /**
      * Gets a Reference value from a WmiResult as a String
      *
+     * @param &lt;T&gt;
+     *            WMI queries use an Enum to identify the fields to query, and use
+     *            the enum values as keys to retrieve the results.
      * @param result
      *            The WmiResult from which to fetch the value
      * @param property
@@ -117,22 +129,22 @@ public class WmiUtil {
      * @return The stored value if non-null, an empty-string otherwise
      */
     public static &lt;T extends Enum&lt;T&gt;&gt; String getRefString(WmiResult&lt;T&gt; result, T property, int index) {
-<span class="nc bnc" id="L120" title="All 2 branches missed.">        if (result.getCIMType(property) == Wbemcli.CIM_REFERENCE) {</span>
-<span class="nc" id="L121">            return getStr(result, property, index);</span>
+<span class="nc bnc" id="L132" title="All 2 branches missed.">        if (result.getCIMType(property) == Wbemcli.CIM_REFERENCE) {</span>
+<span class="nc" id="L133">            return getStr(result, property, index);</span>
         }
-<span class="nc" id="L123">        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), &quot;Reference&quot;,</span>
-<span class="nc" id="L124">                result.getCIMType(property), result.getVtType(property)));</span>
+<span class="nc" id="L135">        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), &quot;Reference&quot;,</span>
+<span class="nc" id="L136">                result.getCIMType(property), result.getVtType(property)));</span>
     }
 
     private static &lt;T extends Enum&lt;T&gt;&gt; String getStr(WmiResult&lt;T&gt; result, T property, int index) {
-<span class="nc" id="L128">        Object o = result.getValue(property, index);</span>
-<span class="nc bnc" id="L129" title="All 2 branches missed.">        if (o == null) {</span>
-<span class="nc" id="L130">            return &quot;&quot;;</span>
-<span class="nc bnc" id="L131" title="All 2 branches missed.">        } else if (result.getVtType(property) == Variant.VT_BSTR) {</span>
-<span class="nc" id="L132">            return (String) o;</span>
+<span class="nc" id="L140">        Object o = result.getValue(property, index);</span>
+<span class="nc bnc" id="L141" title="All 2 branches missed.">        if (o == null) {</span>
+<span class="nc" id="L142">            return &quot;&quot;;</span>
+<span class="nc bnc" id="L143" title="All 2 branches missed.">        } else if (result.getVtType(property) == Variant.VT_BSTR) {</span>
+<span class="nc" id="L144">            return (String) o;</span>
         }
-<span class="nc" id="L134">        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), &quot;String-mapped&quot;,</span>
-<span class="nc" id="L135">                result.getCIMType(property), result.getVtType(property)));</span>
+<span class="nc" id="L146">        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), &quot;String-mapped&quot;,</span>
+<span class="nc" id="L147">                result.getCIMType(property), result.getVtType(property)));</span>
     }
 
     /**
@@ -140,6 +152,9 @@ public class WmiUtil {
      * the CIM type is unsigned, the return type is signed and the parsing will
      * exclude any return values above Long.MAX_VALUE.
      *
+     * @param &lt;T&gt;
+     *            WMI queries use an Enum to identify the fields to query, and use
+     *            the enum values as keys to retrieve the results.
      * @param result
      *            The WmiResult from which to fetch the value
      * @param property
@@ -149,14 +164,14 @@ public class WmiUtil {
      * @return The stored value if non-null and parseable as a long, 0 otherwise
      */
     public static &lt;T extends Enum&lt;T&gt;&gt; long getUint64(WmiResult&lt;T&gt; result, T property, int index) {
-<span class="nc" id="L152">        Object o = result.getValue(property, index);</span>
-<span class="nc bnc" id="L153" title="All 2 branches missed.">        if (o == null) {</span>
-<span class="nc" id="L154">            return 0L;</span>
-<span class="nc bnc" id="L155" title="All 4 branches missed.">        } else if (result.getCIMType(property) == Wbemcli.CIM_UINT64 &amp;&amp; result.getVtType(property) == Variant.VT_BSTR) {</span>
-<span class="nc" id="L156">            return ParseUtil.parseLongOrDefault((String) o, 0L);</span>
+<span class="nc" id="L167">        Object o = result.getValue(property, index);</span>
+<span class="nc bnc" id="L168" title="All 2 branches missed.">        if (o == null) {</span>
+<span class="nc" id="L169">            return 0L;</span>
+<span class="nc bnc" id="L170" title="All 4 branches missed.">        } else if (result.getCIMType(property) == Wbemcli.CIM_UINT64 &amp;&amp; result.getVtType(property) == Variant.VT_BSTR) {</span>
+<span class="nc" id="L171">            return ParseUtil.parseLongOrDefault((String) o, 0L);</span>
         }
-<span class="nc" id="L158">        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), &quot;UINT64&quot;,</span>
-<span class="nc" id="L159">                result.getCIMType(property), result.getVtType(property)));</span>
+<span class="nc" id="L173">        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), &quot;UINT64&quot;,</span>
+<span class="nc" id="L174">                result.getCIMType(property), result.getVtType(property)));</span>
     }
 
     /**
@@ -164,6 +179,9 @@ public class WmiUtil {
      * unsigned, the return type is signed and requires further processing by the
      * user if unsigned values are desired.
      *
+     * @param &lt;T&gt;
+     *            WMI queries use an Enum to identify the fields to query, and use
+     *            the enum values as keys to retrieve the results.
      * @param result
      *            The WmiResult from which to fetch the value
      * @param property
@@ -173,16 +191,19 @@ public class WmiUtil {
      * @return The stored value if non-null, 0 otherwise
      */
     public static &lt;T extends Enum&lt;T&gt;&gt; int getUint32(WmiResult&lt;T&gt; result, T property, int index) {
-<span class="nc bnc" id="L176" title="All 2 branches missed.">        if (result.getCIMType(property) == Wbemcli.CIM_UINT32) {</span>
-<span class="nc" id="L177">            return getInt(result, property, index);</span>
+<span class="nc bnc" id="L194" title="All 2 branches missed.">        if (result.getCIMType(property) == Wbemcli.CIM_UINT32) {</span>
+<span class="nc" id="L195">            return getInt(result, property, index);</span>
         }
-<span class="nc" id="L179">        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), &quot;UINT32&quot;,</span>
-<span class="nc" id="L180">                result.getCIMType(property), result.getVtType(property)));</span>
+<span class="nc" id="L197">        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), &quot;UINT32&quot;,</span>
+<span class="nc" id="L198">                result.getCIMType(property), result.getVtType(property)));</span>
     }
 
     /**
      * Gets an UINT32 value from a WmiResult as a long, preserving the unsignedness.
      *
+     * @param &lt;T&gt;
+     *            WMI queries use an Enum to identify the fields to query, and use
+     *            the enum values as keys to retrieve the results.
      * @param result
      *            The WmiResult from which to fetch the value
      * @param property
@@ -192,11 +213,11 @@ public class WmiUtil {
      * @return The stored value if non-null, 0 otherwise
      */
     public static &lt;T extends Enum&lt;T&gt;&gt; long getUint32asLong(WmiResult&lt;T&gt; result, T property, int index) {
-<span class="nc bnc" id="L195" title="All 2 branches missed.">        if (result.getCIMType(property) == Wbemcli.CIM_UINT32) {</span>
-<span class="nc" id="L196">            return getInt(result, property, index) &amp; 0xFFFFFFFFL;</span>
+<span class="nc bnc" id="L216" title="All 2 branches missed.">        if (result.getCIMType(property) == Wbemcli.CIM_UINT32) {</span>
+<span class="nc" id="L217">            return getInt(result, property, index) &amp; 0xFFFFFFFFL;</span>
         }
-<span class="nc" id="L198">        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), &quot;UINT32&quot;,</span>
-<span class="nc" id="L199">                result.getCIMType(property), result.getVtType(property)));</span>
+<span class="nc" id="L219">        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), &quot;UINT32&quot;,</span>
+<span class="nc" id="L220">                result.getCIMType(property), result.getVtType(property)));</span>
     }
 
     /**
@@ -204,6 +225,9 @@ public class WmiUtil {
      * unsigned, the return type is signed and requires further processing by the
      * user if unsigned values are desired.
      *
+     * @param &lt;T&gt;
+     *            WMI queries use an Enum to identify the fields to query, and use
+     *            the enum values as keys to retrieve the results.
      * @param result
      *            The WmiResult from which to fetch the value
      * @param property
@@ -213,11 +237,11 @@ public class WmiUtil {
      * @return The stored value if non-null, 0 otherwise
      */
     public static &lt;T extends Enum&lt;T&gt;&gt; int getSint32(WmiResult&lt;T&gt; result, T property, int index) {
-<span class="nc bnc" id="L216" title="All 2 branches missed.">        if (result.getCIMType(property) == Wbemcli.CIM_SINT32) {</span>
-<span class="nc" id="L217">            return getInt(result, property, index);</span>
+<span class="nc bnc" id="L240" title="All 2 branches missed.">        if (result.getCIMType(property) == Wbemcli.CIM_SINT32) {</span>
+<span class="nc" id="L241">            return getInt(result, property, index);</span>
         }
-<span class="nc" id="L219">        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), &quot;SINT32&quot;,</span>
-<span class="nc" id="L220">                result.getCIMType(property), result.getVtType(property)));</span>
+<span class="nc" id="L243">        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), &quot;SINT32&quot;,</span>
+<span class="nc" id="L244">                result.getCIMType(property), result.getVtType(property)));</span>
     }
 
     /**
@@ -225,6 +249,9 @@ public class WmiUtil {
      * unsigned, the return type is signed and requires further processing by the
      * user if unsigned values are desired.
      *
+     * @param &lt;T&gt;
+     *            WMI queries use an Enum to identify the fields to query, and use
+     *            the enum values as keys to retrieve the results.
      * @param result
      *            The WmiResult from which to fetch the value
      * @param property
@@ -234,27 +261,30 @@ public class WmiUtil {
      * @return The stored value if non-null, 0 otherwise
      */
     public static &lt;T extends Enum&lt;T&gt;&gt; int getUint16(WmiResult&lt;T&gt; result, T property, int index) {
-<span class="nc bnc" id="L237" title="All 2 branches missed.">        if (result.getCIMType(property) == Wbemcli.CIM_UINT16) {</span>
-<span class="nc" id="L238">            return getInt(result, property, index);</span>
+<span class="nc bnc" id="L264" title="All 2 branches missed.">        if (result.getCIMType(property) == Wbemcli.CIM_UINT16) {</span>
+<span class="nc" id="L265">            return getInt(result, property, index);</span>
         }
-<span class="nc" id="L240">        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), &quot;UINT16&quot;,</span>
-<span class="nc" id="L241">                result.getCIMType(property), result.getVtType(property)));</span>
+<span class="nc" id="L267">        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), &quot;UINT16&quot;,</span>
+<span class="nc" id="L268">                result.getCIMType(property), result.getVtType(property)));</span>
     }
 
     private static &lt;T extends Enum&lt;T&gt;&gt; int getInt(WmiResult&lt;T&gt; result, T property, int index) {
-<span class="nc" id="L245">        Object o = result.getValue(property, index);</span>
-<span class="nc bnc" id="L246" title="All 2 branches missed.">        if (o == null) {</span>
-<span class="nc" id="L247">            return 0;</span>
-<span class="nc bnc" id="L248" title="All 2 branches missed.">        } else if (result.getVtType(property) == Variant.VT_I4) {</span>
-<span class="nc" id="L249">            return (int) o;</span>
+<span class="nc" id="L272">        Object o = result.getValue(property, index);</span>
+<span class="nc bnc" id="L273" title="All 2 branches missed.">        if (o == null) {</span>
+<span class="nc" id="L274">            return 0;</span>
+<span class="nc bnc" id="L275" title="All 2 branches missed.">        } else if (result.getVtType(property) == Variant.VT_I4) {</span>
+<span class="nc" id="L276">            return (int) o;</span>
         }
-<span class="nc" id="L251">        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), &quot;32-bit integer&quot;,</span>
-<span class="nc" id="L252">                result.getCIMType(property), result.getVtType(property)));</span>
+<span class="nc" id="L278">        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), &quot;32-bit integer&quot;,</span>
+<span class="nc" id="L279">                result.getCIMType(property), result.getVtType(property)));</span>
     }
 
     /**
      * Gets a Float value from a WmiResult
      *
+     * @param &lt;T&gt;
+     *            WMI queries use an Enum to identify the fields to query, and use
+     *            the enum values as keys to retrieve the results.
      * @param result
      *            The WmiResult from which to fetch the value
      * @param property
@@ -264,14 +294,14 @@ public class WmiUtil {
      * @return The stored value if non-null, 0 otherwise
      */
     public static &lt;T extends Enum&lt;T&gt;&gt; float getFloat(WmiResult&lt;T&gt; result, T property, int index) {
-<span class="nc" id="L267">        Object o = result.getValue(property, index);</span>
-<span class="nc bnc" id="L268" title="All 2 branches missed.">        if (o == null) {</span>
-<span class="nc" id="L269">            return 0f;</span>
-<span class="nc bnc" id="L270" title="All 4 branches missed.">        } else if (result.getCIMType(property) == Wbemcli.CIM_REAL32 &amp;&amp; result.getVtType(property) == Variant.VT_R4) {</span>
-<span class="nc" id="L271">            return (float) o;</span>
+<span class="nc" id="L297">        Object o = result.getValue(property, index);</span>
+<span class="nc bnc" id="L298" title="All 2 branches missed.">        if (o == null) {</span>
+<span class="nc" id="L299">            return 0f;</span>
+<span class="nc bnc" id="L300" title="All 4 branches missed.">        } else if (result.getCIMType(property) == Wbemcli.CIM_REAL32 &amp;&amp; result.getVtType(property) == Variant.VT_R4) {</span>
+<span class="nc" id="L301">            return (float) o;</span>
         }
-<span class="nc" id="L273">        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), &quot;Float&quot;,</span>
-<span class="nc" id="L274">                result.getCIMType(property), result.getVtType(property)));</span>
+<span class="nc" id="L303">        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), &quot;Float&quot;,</span>
+<span class="nc" id="L304">                result.getCIMType(property), result.getVtType(property)));</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>
