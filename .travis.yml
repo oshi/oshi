@@ -49,6 +49,8 @@ matrix:
     - os: linux
       env: JDK = "OpenJDK 12 - Linux" 
     - os: linux
+      env: JDK = "OpenJDK 13 - Linux" 
+    - os: linux
       env: JDK = "OpenJDK 14-ea - Linux" 
   allow_failures:
     - os: linux
