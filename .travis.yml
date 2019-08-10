@@ -3,8 +3,6 @@ language: java
 before_install:
   # When building the coverity_scan branch, allow only the first job to continue.
   - if [[ "${TRAVIS_BRANCH}" == "coverity_scan" && "$MATRIX_ID" != "first" ]]; then exit 0; fi
-  # Get most recent JDK versions on-the-fly
-  - wget https://github.com/sormuras/bach/raw/master/install-jdk.sh
   
 after_success:
   - bash <(curl -s https://codecov.io/bash)
@@ -37,27 +35,33 @@ matrix:
   include:  
     - os: osx
       env: 
-      - JDK = "Oracle JDK 8 - Mac" 
+      - JDK = "OracleJDK 8 - Mac"
       - MATRIX_ID="first"
       osx_image: xcode9.3
     - os: osx
-      env: JDK = "OpenJDK 11 - Mac" 
+      env: JDK = "OpenJDK 11 - Mac"
+      jdk: openjdk11
       osx_image: xcode10.1
     - os: osx
-      env: JDK = "OpenJDK 12 - Mac" 
+      env: JDK = "OpenJDK 12 - Mac"
+      jdk: openjdk12
       osx_image: xcode11
     - os: linux
-      install: . ./install-jdk.sh -F 11 -L GPL
-      env: JDK = "OpenJDK 11 - Linux" 
+      env: JDK = "OpenJDK 11 - Linux"
+      jdk: openjdk11
     - os: linux
-      install: . ./install-jdk.sh -F 12 -L GPL
-      env: JDK = "OpenJDK 12 - Linux" 
+      env: JDK = "OpenJDK 12 - Linux"
+      jdk: openjdk12
     - os: linux
-      install: . ./install-jdk.sh -F ea -L GPL
-      env: JDK = "OpenJDK 14-ea - Linux" 
+      env: JDK = "OpenJDK 13 - Linux"
+      jdk: openjdk13
+    - os: linux
+      env: JDK = "OpenJDK 14 - Linux"
+      jdk: openjdk14
   allow_failures:
     - os: linux
-      env: JDK = "OpenJDK 14-ea - Linux" 
+      env: JDK = "OpenJDK 14 - Linux"
+      jdk: openjdk14
 
 script: 
   # Skip tests on coverity_scan branch
