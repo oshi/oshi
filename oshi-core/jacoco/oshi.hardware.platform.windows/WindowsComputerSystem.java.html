@@ -66,7 +66,7 @@ import oshi.util.platform.windows.WmiUtil;
 <span class="nc bnc" id="L66" title="All 2 branches missed.">        if (this.serialNumber == null) {</span>
 <span class="nc" id="L67">            querySystemSerialNumber();</span>
         }
-<span class="nc" id="L69">        return this.serialNumber;</span>
+<span class="nc" id="L69">        return super.getSerialNumber();</span>
     }
 
     /** {@inheritDoc} */

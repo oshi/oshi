@@ -25,8 +25,8 @@ under the License.
     <language>en-us</language>
     <copyright>&#169;2010 - 2019 oshi</copyright>
     <item>
-      <title>File: 195,
-             Errors: 4765,
+      <title>File: 193,
+             Errors: 4644,
              Warnings: 0,
              Infos: 0
       </title>
@@ -172,20 +172,6 @@ under the License.
               </tr>
                           <tr>
                 <td>
-                  <a href="https://github.com/oshi/oshi/oshi-core/checkstyle.html#oshi.data.windows.PerfCounterQuery.java">oshi/data/windows/PerfCounterQuery.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  72
-                </td>
-              </tr>
-                          <tr>
-                <td>
                   <a href="https://github.com/oshi/oshi/oshi-core/checkstyle.html#oshi.hardware.package-info.java">oshi/hardware/package-info.java</a>
                 </td>
                 <td>
@@ -321,7 +307,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  24
+                  22
                 </td>
               </tr>
                           <tr>
@@ -378,20 +364,6 @@ under the License.
                 </td>
                 <td>
                   51
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/oshi-core/checkstyle.html#oshi.data.windows.PerfCounterWildcardQuery.java">oshi/data/windows/PerfCounterWildcardQuery.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  70
                 </td>
               </tr>
                           <tr>
@@ -662,20 +634,6 @@ under the License.
               </tr>
                           <tr>
                 <td>
-                  <a href="https://github.com/oshi/oshi/oshi-core/checkstyle.html#oshi.util.platform.windows.PdhUtilXP.java">oshi/util/platform/windows/PdhUtilXP.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  19
-                </td>
-              </tr>
-                          <tr>
-                <td>
                   <a href="https://github.com/oshi/oshi/oshi-core/checkstyle.html#oshi.hardware.platform.windows.WindowsSensors.java">oshi/hardware/platform/windows/WindowsSensors.java</a>
                 </td>
                 <td>
@@ -839,7 +797,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  102
+                  98
                 </td>
               </tr>
                           <tr>
@@ -1488,20 +1446,6 @@ under the License.
               </tr>
                           <tr>
                 <td>
-                  <a href="https://github.com/oshi/oshi/oshi-core/checkstyle.html#oshi.jna.platform.windows.ProcInfo.java">oshi/jna/platform/windows/ProcInfo.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  51
-                </td>
-              </tr>
-                          <tr>
-                <td>
                   <a href="https://github.com/oshi/oshi/oshi-core/checkstyle.html#oshi.hardware.platform.linux.LinuxFirmware.java">oshi/hardware/platform/linux/LinuxFirmware.java</a>
                 </td>
                 <td>
@@ -1526,6 +1470,20 @@ under the License.
                 </td>
                 <td>
                   44
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-core/checkstyle.html#oshi.util.platform.windows.PerfCounterQuery.java">oshi/util/platform/windows/PerfCounterQuery.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  72
                 </td>
               </tr>
                           <tr>
@@ -1791,7 +1749,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  119
+                  115
                 </td>
               </tr>
                           <tr>
@@ -1876,6 +1834,20 @@ under the License.
                 </td>
                 <td>
                   11
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-core/checkstyle.html#oshi.util.platform.windows.PerfCounterQueryHandler.java">oshi/util/platform/windows/PerfCounterQueryHandler.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  37
                 </td>
               </tr>
                           <tr>
@@ -1992,6 +1964,20 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="https://github.com/oshi/oshi/oshi-core/checkstyle.html#oshi.util.platform.windows.PerfCounterWildcardQuery.java">oshi/util/platform/windows/PerfCounterWildcardQuery.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  69
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/oshi/oshi/oshi-core/checkstyle.html#oshi.software.common.AbstractOperatingSystem.java">oshi/software/common/AbstractOperatingSystem.java</a>
                 </td>
                 <td>
@@ -2015,7 +2001,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  82
+                  44
                 </td>
               </tr>
                           <tr>
@@ -2272,20 +2258,6 @@ under the License.
               </tr>
                           <tr>
                 <td>
-                  <a href="https://github.com/oshi/oshi/oshi-core/checkstyle.html#oshi.data.windows.PerfCounterQueryHandler.java">oshi/data/windows/PerfCounterQueryHandler.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  37
-                </td>
-              </tr>
-                          <tr>
-                <td>
                   <a href="https://github.com/oshi/oshi/oshi-core/checkstyle.html#oshi.hardware.platform.unix.solaris.SolarisCentralProcessor.java">oshi/hardware/platform/unix/solaris/SolarisCentralProcessor.java</a>
                 </td>
                 <td>
@@ -2365,7 +2337,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  68
+                  66
                 </td>
               </tr>
                           <tr>

@@ -59,7 +59,7 @@
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>          <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>              <strong class="jxr_keyword">return</strong> InetAddress.getLocalHost().getCanonicalHostName();
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>          } <strong class="jxr_keyword">catch</strong> (UnknownHostException e) {
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>              LOG.error(<span class="jxr_string">"Unknown host exception when getting address of local host: "</span> + e);
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>              LOG.error(<span class="jxr_string">"Unknown host exception when getting address of local host: {}"</span>, e);
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>              <strong class="jxr_keyword">return</strong> <span class="jxr_string">""</span>;
 <a class="jxr_linenumber" name="L56" href="#L56">56</a>          }
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>      }
@@ -76,7 +76,7 @@
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>                  <strong class="jxr_keyword">return</strong> hn.substring(0, dot);
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>              }
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>          } <strong class="jxr_keyword">catch</strong> (UnknownHostException e) {
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>              LOG.error(<span class="jxr_string">"Unknown host exception when getting address of local host: "</span> + e);
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>              LOG.error(<span class="jxr_string">"Unknown host exception when getting address of local host: {}"</span>, e);
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>              <strong class="jxr_keyword">return</strong> <span class="jxr_string">""</span>;
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>          }
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>      }

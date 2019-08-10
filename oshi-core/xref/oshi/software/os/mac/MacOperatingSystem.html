@@ -73,7 +73,7 @@
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> maxProc = 1024;
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>  
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>      <em class="jxr_comment">// 64-bit flag</em>
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>      <strong class="jxr_keyword">int</strong> P_LP64 = 0x4;
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> P_LP64 = 0x4;
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>      <em class="jxr_comment">/*</em>
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>  <em class="jxr_comment">     * OS X States:</em>
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>  <em class="jxr_comment">     */</em>
@@ -163,7 +163,7 @@
 <a class="jxr_linenumber" name="L155" href="#L155">155</a>         <strong class="jxr_keyword">return</strong> getProcess(pid, <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L156" href="#L156">156</a>     }
 <a class="jxr_linenumber" name="L157" href="#L157">157</a> 
-<a class="jxr_linenumber" name="L158" href="#L158">158</a>     <strong class="jxr_keyword">private</strong> <a name="OSProcess" href="../../../../oshi/software/os/OSProcess.html#OSProcess">OSProcess</a> getProcess(<strong class="jxr_keyword">int</strong> pid, <strong class="jxr_keyword">boolean</strong> slowFields) {
+<a class="jxr_linenumber" name="L158" href="#L158">158</a>     <strong class="jxr_keyword">private</strong> <a name="OSProcess" href="../../../../oshi/software/os/OSProcess.html#OSProcess">OSProcess</a> getProcess(<strong class="jxr_keyword">int</strong> pid, <strong class="jxr_keyword">boolean</strong> slowFields) { <em class="jxr_comment">// NOSONAR squid:S1172</em>
 <a class="jxr_linenumber" name="L159" href="#L159">159</a>         ProcTaskAllInfo taskAllInfo = <strong class="jxr_keyword">new</strong> ProcTaskAllInfo();
 <a class="jxr_linenumber" name="L160" href="#L160">160</a>         <strong class="jxr_keyword">if</strong> (0 &gt; SystemB.INSTANCE.proc_pidinfo(pid, SystemB.PROC_PIDTASKALLINFO, 0, taskAllInfo, taskAllInfo.size())) {
 <a class="jxr_linenumber" name="L161" href="#L161">161</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
