@@ -35,11 +35,11 @@
 <a class="jxr_linenumber" name="L27" href="#L27">27</a>  <strong class="jxr_keyword">import</strong> org.slf4j.LoggerFactory;
 <a class="jxr_linenumber" name="L28" href="#L28">28</a>  
 <a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.Memory; <em class="jxr_comment">// NOSONAR</em>
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>  
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.PowerSource;
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.common.AbstractPowerSource;
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.windows.PowrProf;
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.windows.PowrProf.POWER_INFORMATION_LEVEL;
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.PowrProf.POWER_INFORMATION_LEVEL;
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>  
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.PowerSource;
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.common.AbstractPowerSource;
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.windows.PowrProf;
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.windows.PowrProf.SystemBatteryState;
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>  <strong class="jxr_keyword">import</strong> oshi.util.FormatUtil;
 <a class="jxr_linenumber" name="L37" href="#L37">37</a>  
@@ -85,7 +85,7 @@
 <a class="jxr_linenumber" name="L77" href="#L77">77</a>          <em class="jxr_comment">// Get structure</em>
 <a class="jxr_linenumber" name="L78" href="#L78">78</a>          <strong class="jxr_keyword">int</strong> size = <strong class="jxr_keyword">new</strong> SystemBatteryState().size();
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>          Memory mem = <strong class="jxr_keyword">new</strong> Memory(size);
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>          <strong class="jxr_keyword">if</strong> (0 == PowrProf.INSTANCE.CallNtPowerInformation(POWER_INFORMATION_LEVEL.SYSTEM_BATTERY_STATE, <strong class="jxr_keyword">null</strong>, 0, mem,
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>          <strong class="jxr_keyword">if</strong> (0 == PowrProf.INSTANCE.CallNtPowerInformation(POWER_INFORMATION_LEVEL.SystemBatteryState, <strong class="jxr_keyword">null</strong>, 0, mem,
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>                  size)) {
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>              SystemBatteryState batteryState = <strong class="jxr_keyword">new</strong> SystemBatteryState(mem);
 <a class="jxr_linenumber" name="L83" href="#L83">83</a>              <strong class="jxr_keyword">if</strong> (batteryState.batteryPresent &gt; 0) {
