@@ -46,7 +46,7 @@ import oshi.util.platform.mac.IOKitUtil;
 <span class="nc bnc" id="L46" title="All 2 branches missed.">        if (this.manufacturer == null) {</span>
 <span class="nc" id="L47">            this.manufacturer = &quot;Apple Inc.&quot;;</span>
         }
-<span class="nc" id="L49">        return this.manufacturer;</span>
+<span class="nc" id="L49">        return super.getManufacturer();</span>
     }
 
     /** {@inheritDoc} */

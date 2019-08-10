@@ -2,12 +2,15 @@ GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_
 oshi-core-shaded/oshi-core,oshi.jna.platform.windows,PowrProf.SystemBatteryState,17,0,0,0,6,0,2,0,2,0
 oshi-core-shaded/oshi-core,oshi.jna.platform.windows,PowrProf,6,0,0,0,1,0,1,0,1,0
 oshi-core-shaded/oshi-core,oshi.jna.platform.windows,PowrProf.ProcessorPowerInformation,9,0,0,0,5,0,2,0,2,0
-oshi-core-shaded/oshi-core,oshi.jna.platform.windows,ProcInfo,880,0,50,0,121,0,38,0,11,0
+oshi-core-shaded/oshi-core,oshi.util.platform.windows,PerfCounterQueryHandler.new Thread() {...},10,0,0,0,3,0,2,0,2,0
+oshi-core-shaded/oshi-core,oshi.util.platform.windows,PerfCounterQuery,301,0,29,0,66,0,27,0,11,0
 oshi-core-shaded/oshi-core,oshi.util.platform.windows,WmiQueryHandler,269,0,33,0,77,0,32,0,14,0
 oshi-core-shaded/oshi-core,oshi.util.platform.windows,PerfDataUtil.PerfCounter,57,0,2,0,14,0,6,0,5,0
+oshi-core-shaded/oshi-core,oshi.util.platform.windows,PerfCounterQuery.CounterDataSource,24,0,0,0,3,0,1,0,1,0
+oshi-core-shaded/oshi-core,oshi.util.platform.windows,PerfCounterQueryHandler,321,0,42,0,79,0,33,0,12,0
 oshi-core-shaded/oshi-core,oshi.util.platform.windows,PerfDataUtil,215,0,32,0,44,0,24,0,8,0
-oshi-core-shaded/oshi-core,oshi.util.platform.windows,PdhUtilXP,126,0,20,0,25,0,13,0,3,0
 oshi-core-shaded/oshi-core,oshi.util.platform.windows,WmiUtil,564,0,36,0,64,0,30,0,12,0
+oshi-core-shaded/oshi-core,oshi.util.platform.windows,PerfCounterWildcardQuery,428,0,46,0,88,0,37,0,13,0
 oshi-core-shaded/oshi-core,oshi.hardware.platform.windows,WindowsComputerSystem.ComputerSystemProperty,24,0,0,0,2,0,1,0,1,0
 oshi-core-shaded/oshi-core,oshi.hardware.platform.windows,WindowsComputerSystem,151,0,28,0,36,0,24,0,10,0
 oshi-core-shaded/oshi-core,oshi.hardware.platform.windows,WindowsDisplay,117,0,8,0,25,0,7,0,3,0
@@ -51,7 +54,7 @@ oshi-core-shaded/oshi-core,oshi.hardware.platform.windows,WindowsCentralProcesso
 oshi-core-shaded/oshi-core,oshi.software.os,OSUser,17,0,0,0,7,0,5,0,5,0
 oshi-core-shaded/oshi-core,oshi.software.os,OperatingSystem.ProcessSort,74,0,0,0,2,0,1,0,1,0
 oshi-core-shaded/oshi-core,oshi.software.os,OSProcess.State,0,74,0,0,0,8,0,1,0,1
-oshi-core-shaded/oshi-core,oshi.software.os,OSFileStore,85,100,6,0,22,42,7,26,2,26
+oshi-core-shaded/oshi-core,oshi.software.os,OSFileStore,79,94,6,0,22,40,7,26,2,26
 oshi-core-shaded/oshi-core,oshi.software.os,OSProcess,30,214,1,1,5,83,2,48,1,48
 oshi-core-shaded/oshi-core,oshi.hardware.common,AbstractVirtualMemory,21,0,0,0,7,0,1,0,1,0
 oshi-core-shaded/oshi-core,oshi.hardware.common,AbstractUsbDevice,162,0,8,0,28,0,15,0,11,0
@@ -60,7 +63,7 @@ oshi-core-shaded/oshi-core,oshi.hardware.common,AbstractSoundCard,81,0,0,0,25,0,
 oshi-core-shaded/oshi-core,oshi.hardware.common,AbstractBaseboard,55,0,8,0,21,0,13,0,9,0
 oshi-core-shaded/oshi-core,oshi.hardware.common,AbstractPowerSource,21,0,0,0,8,0,4,0,4,0
 oshi-core-shaded/oshi-core,oshi.hardware.common,AbstractFirmware,68,0,10,0,26,0,16,0,11,0
-oshi-core-shaded/oshi-core,oshi.hardware.common,AbstractCentralProcessor,791,0,91,0,195,0,91,0,31,0
+oshi-core-shaded/oshi-core,oshi.hardware.common,AbstractCentralProcessor,766,0,89,0,183,0,89,0,30,0
 oshi-core-shaded/oshi-core,oshi.hardware.common,AbstractSensors,3,0,0,0,1,0,1,0,1,0
 oshi-core-shaded/oshi-core,oshi.hardware.common,AbstractHardwareAbstractionLayer,3,0,0,0,1,0,1,0,1,0
 oshi-core-shaded/oshi-core,oshi.hardware.common,AbstractComputerSystem,30,0,6,0,10,0,7,0,4,0
@@ -81,7 +84,7 @@ oshi-core-shaded/oshi-core,oshi.util.platform.unix.solaris,KstatUtil,319,0,52,0,
 oshi-core-shaded/oshi-core,oshi.util.platform.unix.solaris,KstatUtil.new Thread() {...},8,0,0,0,3,0,2,0,2,0
 oshi-core-shaded/oshi-core,oshi.software.os.mac,MacNetworkParams,124,0,16,0,32,0,13,0,5,0
 oshi-core-shaded/oshi-core,oshi.software.os.mac,MacOSVersionInfoEx,79,0,19,0,29,0,21,0,4,0
-oshi-core-shaded/oshi-core,oshi.software.os.mac,MacOperatingSystem,790,0,81,0,167,0,60,0,17,0
+oshi-core-shaded/oshi-core,oshi.software.os.mac,MacOperatingSystem,786,0,81,0,166,0,60,0,17,0
 oshi-core-shaded/oshi-core,oshi.software.os.mac,MacFileSystem,357,0,44,0,88,0,29,0,7,0
 oshi-core-shaded/oshi-core,oshi,PlatformEnum,0,64,0,0,0,7,0,1,0,1
 oshi-core-shaded/oshi-core,oshi,SystemInfo,90,55,19,7,25,19,17,5,0,5
@@ -99,13 +102,7 @@ oshi-core-shaded/oshi-core,oshi.software.os.linux,LinuxNetworkParams,203,0,32,0,
 oshi-core-shaded/oshi-core,oshi.software.os.linux,LinuxUserGroupInfo,155,0,20,0,41,0,15,0,5,0
 oshi-core-shaded/oshi-core,oshi.jna.platform.unix.freebsd,Libc.CpTime,7,0,0,0,2,0,1,0,1,0
 oshi-core-shaded/oshi-core,oshi.jna.platform.unix.freebsd,Libc,12,0,0,0,3,0,1,0,1,0
-oshi-core-shaded/oshi-core,oshi.data.windows,PerfCounterQuery.CounterDataSource,24,0,0,0,3,0,1,0,1,0
-oshi-core-shaded/oshi-core,oshi.data.windows,PerfCounterQueryHandler.new Thread() {...},10,0,0,0,3,0,2,0,2,0
-oshi-core-shaded/oshi-core,oshi.data.windows,PerfCounterQuery,301,0,29,0,66,0,27,0,11,0
-oshi-core-shaded/oshi-core,oshi.data.windows,PerfCounterWildcardQuery,428,0,46,0,88,0,37,0,13,0
-oshi-core-shaded/oshi-core,oshi.data.windows,PerfCounterQueryHandler,321,0,42,0,79,0,33,0,12,0
-oshi-core-shaded/oshi-core,oshi.util.platform.linux,ProcUtil,148,0,16,0,31,0,13,0,5,0
-oshi-core-shaded/oshi-core,oshi.util.platform.linux,ProcUtil.new FileFilter() {...},9,0,0,0,2,0,2,0,2,0
+oshi-core-shaded/oshi-core,oshi.util.platform.linux,ProcUtil,152,0,16,0,31,0,14,0,6,0
 oshi-core-shaded/oshi-core,oshi.util.platform.unix.freebsd,BsdSysctlUtil,147,0,10,0,27,0,10,0,5,0
 oshi-core-shaded/oshi-core,oshi.util.platform.mac,IOKitUtil,261,0,40,0,81,0,32,0,12,0
 oshi-core-shaded/oshi-core,oshi.util.platform.mac,CfUtil,92,0,8,0,25,0,12,0,8,0
@@ -216,7 +213,7 @@ oshi-core-shaded/oshi-core,oshi.util,Constants,6,0,0,0,2,0,1,0,1,0
 oshi-core-shaded/oshi-core,oshi.util,ParseUtil,34,956,9,83,5,188,10,68,1,31
 oshi-core-shaded/oshi-core,oshi.util,ExecutingCommand,21,81,1,5,6,21,1,7,0,5
 oshi-core-shaded/oshi-core,oshi.util,FileUtil,57,168,13,25,14,44,12,15,0,8
-oshi-core-shaded/oshi-core,oshi.software.common,AbstractNetworkParams,163,0,20,0,35,0,16,0,6,0
+oshi-core-shaded/oshi-core,oshi.software.common,AbstractNetworkParams,151,0,20,0,35,0,16,0,6,0
 oshi-core-shaded/oshi-core,oshi.software.common,AbstractOperatingSystem,211,0,28,0,56,0,28,0,11,0
 oshi-core-shaded/oshi-core,oshi.software.common,AbstractOSVersionInfoEx,69,0,8,0,18,0,12,0,8,0
 oshi-core-shaded/oshi-core,oshi.hardware,NetworkIF,23,224,7,9,12,58,7,30,0,27

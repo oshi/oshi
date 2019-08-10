@@ -83,6 +83,10 @@ public interface CentralProcessor extends Serializable {
      * &lt;p&gt;
      * NOTE: The order of returned bytes is platform and software dependent. Values
      * may be in either Big Endian or Little Endian order.
+     * &lt;p&gt;
+     * NOTE: If OSHI is unable to determine the ProcessorID from native sources, it
+     * will attempt to reconstruct one from available information in the processor
+     * identifier.
      *
      * @return A string representing the Processor ID
      */
@@ -158,10 +162,10 @@ public interface CentralProcessor extends Serializable {
      * interval, CPU load over that interval may be calculated.
      * &lt;p&gt;
      * Note that while tick counters are in units of milliseconds, they may advance
-     * in larger increments (platform dependent). For example, by default Windows
-     * clock ticks are 1/64 of a second (about 15 or 16 milliseconds) and Linux
-     * ticks are distribution and configuration dependent but usually 1/100 of a
-     * second (10 milliseconds).
+     * in larger increments along with (platform dependent) clock ticks. For
+     * example, by default Windows clock ticks are 1/64 of a second (about 15 or 16
+     * milliseconds) and Linux ticks are distribution and configuration dependent
+     * but usually 1/100 of a second (10 milliseconds).
      * &lt;p&gt;
      * Nice and IOWait information is not available on Windows, and IOwait and IRQ
      * information is not available on macOS, so these ticks will always be zero.
@@ -175,27 +179,6 @@ public interface CentralProcessor extends Serializable {
      *         System, Idle, IOwait, IRQ, SoftIRQ, and Steal states.
      */
     long[] getSystemCpuLoadTicks();
-
-    /**
-     * Returns the &quot;recent cpu usage&quot; for the whole system from
-     * {@link com.sun.management.OperatingSystemMXBean#getSystemCpuLoad()} if a user
-     * is running the Oracle JVM. This value is a double in the [0.0,1.0] interval.
-     * A value of 0.0 means that all CPUs were idle during the recent period of time
-     * observed, while a value of 1.0 means that all CPUs were actively running 100%
-     * of the time during the recent period being observed. All values between 0.0
-     * and 1.0 are possible depending of the activities going on in the system.
-     * &lt;P&gt;
-     * If the system recent cpu usage is not available, the method returns a
-     * negative value. Calling this method immediately upon instantiating the
-     * {@link oshi.hardware.CentralProcessor} may give unreliable results. Calling
-     * this method too frequently may return {@link java.lang.Double#NaN}. If a user
-     * is not running the Oracle JVM, this method will return a negative value.
-     *
-     * @return the &quot;recent cpu usage&quot; for the whole system; a negative value if not
-     *         available.
-     */
-    @SuppressWarnings(&quot;restriction&quot;)
-    double getSystemCpuLoad();
 
     /**
      * Returns the system load average for the number of elements specified, up to
@@ -240,10 +223,10 @@ public interface CentralProcessor extends Serializable {
      * interval, CPU load over that interval may be calculated.
      * &lt;p&gt;
      * Note that while tick counters are in units of milliseconds, they may advance
-     * in larger increments (platform dependent). For example, by default Windows
-     * clock ticks are 1/64 of a second (about 15 or 16 milliseconds) and Linux
-     * ticks are distribution and configuration dependent but usually 1/100 of a
-     * second (10 milliseconds).
+     * in larger increments along with (platform dependent) clock ticks. For
+     * example, by default Windows clock ticks are 1/64 of a second (about 15 or 16
+     * milliseconds) and Linux ticks are distribution and configuration dependent
+     * but usually 1/100 of a second (10 milliseconds).
      * &lt;p&gt;
      * Nice and IOwait per processor information is not available on Windows, and
      * IOwait and IRQ information is not available on macOS, so these ticks will
@@ -301,57 +284,57 @@ public interface CentralProcessor extends Serializable {
      * Index of CPU tick counters in the {@link #getSystemCpuLoadTicks()} and
      * {@link #getProcessorCpuLoadTicks()} arrays.
      */
-<span class="fc" id="L304">    enum TickType {</span>
+<span class="fc" id="L287">    enum TickType {</span>
         /**
          * CPU utilization that occurred while executing at the user level
          * (application).
          */
-<span class="fc" id="L309">        USER(0),</span>
+<span class="fc" id="L292">        USER(0),</span>
         /**
          * CPU utilization that occurred while executing at the user level with nice
          * priority.
          */
-<span class="fc" id="L314">        NICE(1),</span>
+<span class="fc" id="L297">        NICE(1),</span>
         /**
          * CPU utilization that occurred while executing at the system level (kernel).
          */
-<span class="fc" id="L318">        SYSTEM(2),</span>
+<span class="fc" id="L301">        SYSTEM(2),</span>
         /**
          * Time that the CPU or CPUs were idle and the system did not have an
          * outstanding disk I/O request.
          */
-<span class="fc" id="L323">        IDLE(3),</span>
+<span class="fc" id="L306">        IDLE(3),</span>
         /**
          * Time that the CPU or CPUs were idle during which the system had an
          * outstanding disk I/O request.
          */
-<span class="fc" id="L328">        IOWAIT(4),</span>
+<span class="fc" id="L311">        IOWAIT(4),</span>
         /**
          * Time that the CPU used to service hardware IRQs
          */
-<span class="fc" id="L332">        IRQ(5),</span>
+<span class="fc" id="L315">        IRQ(5),</span>
         /**
          * Time that the CPU used to service soft IRQs
          */
-<span class="fc" id="L336">        SOFTIRQ(6),</span>
+<span class="fc" id="L319">        SOFTIRQ(6),</span>
         /**
          * Time which the hypervisor dedicated for other guests in the system. Only
          * supported on Linux.
          */
-<span class="fc" id="L341">        STEAL(7);</span>
+<span class="fc" id="L324">        STEAL(7);</span>
 
         private int index;
 
-<span class="fc" id="L345">        TickType(int value) {</span>
-<span class="fc" id="L346">            this.index = value;</span>
-<span class="fc" id="L347">        }</span>
+<span class="fc" id="L328">        TickType(int value) {</span>
+<span class="fc" id="L329">            this.index = value;</span>
+<span class="fc" id="L330">        }</span>
 
         /**
          * @return The integer index of this ENUM in the processor tick arrays, which
          *         matches the output of Linux /proc/cpuinfo
          */
         public int getIndex() {
-<span class="fc" id="L354">            return index;</span>
+<span class="fc" id="L337">            return index;</span>
         }
     }
 
@@ -378,8 +361,8 @@ public interface CentralProcessor extends Serializable {
          *            the package/socket number
          */
         public LogicalProcessor(int processorNumber, int physicalProcessorNumber, int physicalPackageNumber) {
-<span class="fc" id="L381">            this(processorNumber, physicalProcessorNumber, physicalPackageNumber, 0, 0);</span>
-<span class="fc" id="L382">        }</span>
+<span class="fc" id="L364">            this(processorNumber, physicalProcessorNumber, physicalPackageNumber, 0, 0);</span>
+<span class="fc" id="L365">        }</span>
 
         /**
          * @param processorNumber
@@ -393,8 +376,8 @@ public interface CentralProcessor extends Serializable {
          */
         public LogicalProcessor(int processorNumber, int physicalProcessorNumber, int physicalPackageNumber,
                 int numaNode) {
-<span class="nc" id="L396">            this(processorNumber, physicalProcessorNumber, physicalPackageNumber, numaNode, 0);</span>
-<span class="nc" id="L397">        }</span>
+<span class="nc" id="L379">            this(processorNumber, physicalProcessorNumber, physicalPackageNumber, numaNode, 0);</span>
+<span class="nc" id="L380">        }</span>
 
         /**
          * @param processorNumber
@@ -409,13 +392,13 @@ public interface CentralProcessor extends Serializable {
          *            the Processor Group number
          */
         public LogicalProcessor(int processorNumber, int physicalProcessorNumber, int physicalPackageNumber,
-<span class="fc" id="L412">                int numaNode, int processorGroup) {</span>
-<span class="fc" id="L413">            this.processorNumber = processorNumber;</span>
-<span class="fc" id="L414">            this.physicalProcessorNumber = physicalProcessorNumber;</span>
-<span class="fc" id="L415">            this.physicalPackageNumber = physicalPackageNumber;</span>
-<span class="fc" id="L416">            this.numaNode = numaNode;</span>
-<span class="fc" id="L417">            this.processorGroup = processorGroup;</span>
-<span class="fc" id="L418">        }</span>
+<span class="fc" id="L395">                int numaNode, int processorGroup) {</span>
+<span class="fc" id="L396">            this.processorNumber = processorNumber;</span>
+<span class="fc" id="L397">            this.physicalProcessorNumber = physicalProcessorNumber;</span>
+<span class="fc" id="L398">            this.physicalPackageNumber = physicalPackageNumber;</span>
+<span class="fc" id="L399">            this.numaNode = numaNode;</span>
+<span class="fc" id="L400">            this.processorGroup = processorGroup;</span>
+<span class="fc" id="L401">        }</span>
 
         /**
          * The Logical Processor number as seen by the Operating System. Used for
@@ -424,7 +407,7 @@ public interface CentralProcessor extends Serializable {
          * @return the processorNumber
          */
         public int getProcessorNumber() {
-<span class="nc" id="L427">            return processorNumber;</span>
+<span class="nc" id="L410">            return processorNumber;</span>
         }
 
         /**
@@ -435,7 +418,7 @@ public interface CentralProcessor extends Serializable {
          * @return the physicalProcessorNumber
          */
         public int getPhysicalProcessorNumber() {
-<span class="nc" id="L438">            return physicalProcessorNumber;</span>
+<span class="nc" id="L421">            return physicalProcessorNumber;</span>
         }
 
         /**
@@ -446,7 +429,7 @@ public interface CentralProcessor extends Serializable {
          * @return the physicalPackageNumber
          */
         public int getPhysicalPackageNumber() {
-<span class="nc" id="L449">            return physicalPackageNumber;</span>
+<span class="nc" id="L432">            return physicalPackageNumber;</span>
         }
 
         /**
@@ -457,7 +440,7 @@ public interface CentralProcessor extends Serializable {
          * @return the NUMA Node number
          */
         public int getNumaNode() {
-<span class="nc" id="L460">            return numaNode;</span>
+<span class="nc" id="L443">            return numaNode;</span>
         }
 
         /**
@@ -468,7 +451,7 @@ public interface CentralProcessor extends Serializable {
          * @return the processorGroup
          */
         public int getProcessorGroup() {
-<span class="nc" id="L471">            return processorGroup;</span>
+<span class="nc" id="L454">            return processorGroup;</span>
         }
 
     }

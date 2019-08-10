@@ -49,7 +49,7 @@ import oshi.util.platform.unix.solaris.KstatUtil;
     private static final long serialVersionUID = 1L;
 
     // Solaris defines a set of virtual file systems
-<span class="nc" id="L52">    private final List&lt;String&gt; pseudofs = Arrays.asList(new String[] { //</span>
+<span class="nc" id="L52">    private final List&lt;String&gt; pseudofs = Arrays.asList(//</span>
             &quot;proc&quot;, // Proc file system
             &quot;devfs&quot;, // Dev temporary file system
             &quot;ctfs&quot;, // Contract file system
@@ -61,10 +61,10 @@ import oshi.util.platform.unix.solaris.KstatUtil;
             // &quot;tmpfs&quot;, // Temporary file system
             // NOTE: tmpfs is evaluated apart, because Solaris uses it for
             // RAMdisks
-    });
+    );
 
     // System path mounted as tmpfs
-<span class="nc" id="L67">    private final List&lt;String&gt; tmpfsPaths = Arrays.asList(new String[] { &quot;/system&quot;, &quot;/tmp&quot;, &quot;/dev/fd&quot; });</span>
+<span class="nc" id="L67">    private final List&lt;String&gt; tmpfsPaths = Arrays.asList(&quot;/system&quot;, &quot;/tmp&quot;, &quot;/dev/fd&quot;);</span>
 
     /**
      * Checks if file path equals or starts with an element in the given list
