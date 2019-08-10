@@ -171,10 +171,7 @@
 		<!-- SCM -->
 		<maven-scm-plugin.version>1.11.2</maven-scm-plugin.version>
 		<maven-scm-provider-jgit.version>1.11.2</maven-scm-provider-jgit.version>
-		<JavaEWAH.version>1.1.6</JavaEWAH.version>
-		<jsch.version>0.1.55</jsch.version>
 		<jgit.version>5.4.0.201906121030-r</jgit.version>
-		<plexus-utils.version>3.2.1</plexus-utils.version>
 		<!-- Misc. -->
 		<sonar-maven-plugin.version>3.6.0.1398</sonar-maven-plugin.version>
 		<wagon-maven-plugin.version>2.0.0</wagon-maven-plugin.version>
@@ -549,29 +546,14 @@
 					<version>${maven-scm-plugin.version}</version>
 					<dependencies>
 						<dependency>
-							<groupId>org.apache.maven.scm</groupId>
-							<artifactId>maven-scm-provider-jgit</artifactId>
-							<version>${maven-scm-provider-jgit.version}</version>
-						</dependency>
-						<dependency>
-							<groupId>com.googlecode.javaewah</groupId>
-							<artifactId>JavaEWAH</artifactId>
-							<version>${JavaEWAH.version}</version>
-						</dependency>
-						<dependency>
-							<groupId>com.jcraft</groupId>
-							<artifactId>jsch</artifactId>
-							<version>${jsch.version}</version>
-						</dependency>
-						<dependency>
 							<groupId>org.eclipse.jgit</groupId>
 							<artifactId>org.eclipse.jgit</artifactId>
 							<version>${jgit.version}</version>
 						</dependency>
 						<dependency>
-							<groupId>org.codehaus.plexus</groupId>
-							<artifactId>plexus-utils</artifactId>
-							<version>${plexus-utils.version}</version>
+							<groupId>org.apache.maven.scm</groupId>
+							<artifactId>maven-scm-provider-jgit</artifactId>
+							<version>${maven-scm-provider-jgit.version}</version>
 						</dependency>
 					</dependencies>
 				</plugin>
