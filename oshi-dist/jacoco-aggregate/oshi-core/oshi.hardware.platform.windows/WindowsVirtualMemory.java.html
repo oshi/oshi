@@ -32,9 +32,9 @@ import com.sun.jna.platform.win32.Kernel32; // NOSONAR squid:S1191
 import com.sun.jna.platform.win32.Psapi;
 import com.sun.jna.platform.win32.Psapi.PERFORMANCE_INFORMATION;
 
-import oshi.data.windows.PerfCounterQuery;
-import oshi.data.windows.PerfCounterQuery.PdhCounterProperty;
 import oshi.hardware.common.AbstractVirtualMemory;
+import oshi.util.platform.windows.PerfCounterQuery;
+import oshi.util.platform.windows.PerfCounterQuery.PdhCounterProperty;
 
 /**
  * Memory obtained from WMI
