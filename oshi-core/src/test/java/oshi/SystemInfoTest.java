@@ -192,8 +192,7 @@ public class SystemInfoTest {
     }
 
     private static void printCpu(CentralProcessor processor) {
-        oshi.add(
-                "Context Switches/Interrupts: " + processor.getContextSwitches() + " / " + processor.getInterrupts());
+        oshi.add("Context Switches/Interrupts: " + processor.getContextSwitches() + " / " + processor.getInterrupts());
 
         long[] prevTicks = processor.getSystemCpuLoadTicks();
         long[][] prevProcTicks = processor.getProcessorCpuLoadTicks();
@@ -213,11 +212,10 @@ public class SystemInfoTest {
         long totalCpu = user + nice + sys + idle + iowait + irq + softirq + steal;
 
         oshi.add(String.format(
-                "User: %.1f%% Nice: %.1f%% System: %.1f%% Idle: %.1f%% IOwait: %.1f%% IRQ: %.1f%% SoftIRQ: %.1f%% Steal: %.1f%%%n",
+                "User: %.1f%% Nice: %.1f%% System: %.1f%% Idle: %.1f%% IOwait: %.1f%% IRQ: %.1f%% SoftIRQ: %.1f%% Steal: %.1f%%",
                 100d * user / totalCpu, 100d * nice / totalCpu, 100d * sys / totalCpu, 100d * idle / totalCpu,
                 100d * iowait / totalCpu, 100d * irq / totalCpu, 100d * softirq / totalCpu, 100d * steal / totalCpu));
-        oshi.add(String.format("CPU load: %.1f%%%n",
-                processor.getSystemCpuLoadBetweenTicks(prevTicks) * 100));
+        oshi.add(String.format("CPU load: %.1f%%", processor.getSystemCpuLoadBetweenTicks(prevTicks) * 100));
         double[] loadAverage = processor.getSystemLoadAverage(3);
         oshi.add("CPU load averages:" + (loadAverage[0] < 0 ? " N/A" : String.format(" %.2f", loadAverage[0]))
                 + (loadAverage[1] < 0 ? " N/A" : String.format(" %.2f", loadAverage[1]))
@@ -258,7 +256,7 @@ public class SystemInfoTest {
         oshi.add("   PID  %CPU %MEM       VSZ       RSS Name");
         for (int i = 0; i < procs.size() && i < 5; i++) {
             OSProcess p = procs.get(i);
-            oshi.add(String.format(" %5d %5.1f %4.1f %9s %9s %s%n", p.getProcessID(),
+            oshi.add(String.format(" %5d %5.1f %4.1f %9s %9s %s", p.getProcessID(),
                     100d * (p.getKernelTime() + p.getUserTime()) / p.getUpTime(),
                     100d * p.getResidentSetSize() / memory.getTotal(), FormatUtil.formatBytes(p.getVirtualSize()),
                     FormatUtil.formatBytes(p.getResidentSetSize()), p.getName()));
@@ -288,7 +286,8 @@ public class SystemInfoTest {
             }
         }
         for (PowerSource powerSource : powerSources) {
-            sb.append(String.format("%n %s @ %.1f%%", powerSource.getName(), powerSource.getRemainingCapacity() * 100d));
+            sb.append(
+                    String.format("%n %s @ %.1f%%", powerSource.getName(), powerSource.getRemainingCapacity() * 100d));
         }
         oshi.add(sb.toString());
     }
@@ -296,16 +295,11 @@ public class SystemInfoTest {
     private static void printDisks(HWDiskStore[] diskStores) {
         oshi.add("Disks:");
         for (HWDiskStore disk : diskStores) {
-            boolean readwrite = disk.getReads() > 0 || disk.getWrites() > 0;
-            oshi.add(" " + disk.toString() + "\n");
+            oshi.add(" " + disk.toString());
 
             HWPartition[] partitions = disk.getPartitions();
-            if (partitions == null) {
-                // TODO Remove when all OS's implemented
-                continue;
-            }
             for (HWPartition part : partitions) {
-                oshi.add(" |-- " + part.toString() + "\n");
+                oshi.add(" |-- " + part.toString());
             }
         }
 
@@ -314,16 +308,17 @@ public class SystemInfoTest {
     private static void printFileSystem(FileSystem fileSystem) {
         oshi.add("File System:");
 
-        oshi.add(String.format(" File Descriptors: %d/%d%n", fileSystem.getOpenFileDescriptors(),
+        oshi.add(String.format(" File Descriptors: %d/%d", fileSystem.getOpenFileDescriptors(),
                 fileSystem.getMaxFileDescriptors()));
 
         OSFileStore[] fsArray = fileSystem.getFileStores();
         for (OSFileStore fs : fsArray) {
             long usable = fs.getUsableSpace();
             long total = fs.getTotalSpace();
-            oshi.add(String.format(" %s (%s) [%s] %s of %s free (%.1f%%), %s of %s files free (%.1f%%) is %s " +
-                            (fs.getLogicalVolume() != null && fs.getLogicalVolume().length() > 0 ? "[%s]" : "%s") +
-                            " and is mounted at %s%n",
+            oshi.add(String.format(
+                    " %s (%s) [%s] %s of %s free (%.1f%%), %s of %s files free (%.1f%%) is %s "
+                            + (fs.getLogicalVolume() != null && fs.getLogicalVolume().length() > 0 ? "[%s]" : "%s")
+                            + " and is mounted at %s",
                     fs.getName(), fs.getDescription().isEmpty() ? "file system" : fs.getDescription(), fs.getType(),
                     FormatUtil.formatBytes(usable), FormatUtil.formatBytes(fs.getTotalSpace()), 100d * usable / total,
                     FormatUtil.formatValue(fs.getFreeInodes(), ""), FormatUtil.formatValue(fs.getTotalInodes(), ""),
@@ -337,12 +332,13 @@ public class SystemInfoTest {
         for (NetworkIF net : networkIFs) {
             oshi.add(String.format(" Name: %s (%s)%n", net.getName(), net.getDisplayName()));
             oshi.add(String.format("   MAC Address: %s %n", net.getMacaddr()));
-            oshi.add(String.format("   MTU: %s, Speed: %s %n", net.getMTU(), FormatUtil.formatValue(net.getSpeed(), "bps")));
+            oshi.add(String.format("   MTU: %s, Speed: %s %n", net.getMTU(),
+                    FormatUtil.formatValue(net.getSpeed(), "bps")));
             oshi.add(String.format("   IPv4: %s %n", Arrays.toString(net.getIPv4addr())));
             oshi.add(String.format("   IPv6: %s %n", Arrays.toString(net.getIPv6addr())));
             boolean hasData = net.getBytesRecv() > 0 || net.getBytesSent() > 0 || net.getPacketsRecv() > 0
                     || net.getPacketsSent() > 0;
-            oshi.add(String.format("   Traffic: received %s/%s%s; transmitted %s/%s%s %n",
+            oshi.add(String.format("   Traffic: received %s/%s%s; transmitted %s/%s%s",
                     hasData ? net.getPacketsRecv() + " packets" : "?",
                     hasData ? FormatUtil.formatBytes(net.getBytesRecv()) : "?",
                     hasData ? " (" + net.getInErrors() + " err)" : "",

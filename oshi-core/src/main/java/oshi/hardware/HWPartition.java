@@ -24,6 +24,7 @@
 package oshi.hardware;
 
 import java.io.Serializable;
+
 import oshi.util.FormatUtil;
 
 /**
@@ -363,5 +364,4 @@ public class HWPartition implements Serializable, Comparable<HWPartition> {
         sb.append(getMountPoint().isEmpty() ? "" : " @ " + getMountPoint());
         return sb.toString();
     }
-
 }

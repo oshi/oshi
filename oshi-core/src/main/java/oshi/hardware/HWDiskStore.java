@@ -475,5 +475,4 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
         sb.append("xfer: ").append(readwrite ? getTransferTime() : "?");
         return sb.toString();
     }
-
 }
