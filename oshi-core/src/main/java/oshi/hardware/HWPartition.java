@@ -24,6 +24,7 @@
 package oshi.hardware;
 
 import java.io.Serializable;
+import oshi.util.FormatUtil;
 
 /**
  * A region on a hard disk or other secondary storage, so that an operating

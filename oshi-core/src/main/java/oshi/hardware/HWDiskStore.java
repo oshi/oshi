@@ -34,6 +34,7 @@ import oshi.hardware.platform.mac.MacDisks;
 import oshi.hardware.platform.unix.freebsd.FreeBsdDisks;
 import oshi.hardware.platform.unix.solaris.SolarisDisks;
 import oshi.hardware.platform.windows.WindowsDisks;
+import oshi.util.FormatUtil;
 
 /**
  * A storage mechanism where data are recorded by various electronic, magnetic,
