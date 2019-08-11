@@ -297,14 +297,15 @@ public class SystemInfoTest {
         oshi.add("Disks:");
         for (HWDiskStore disk : diskStores) {
             boolean readwrite = disk.getReads() > 0 || disk.getWrites() > 0;
-            oshi.add(disk.toString());
+            oshi.add(" " + disk.toString() + "\n");
+
             HWPartition[] partitions = disk.getPartitions();
             if (partitions == null) {
                 // TODO Remove when all OS's implemented
                 continue;
             }
             for (HWPartition part : partitions) {
-                oshi.add(part.toString());
+                oshi.add(" |-- " + part.toString() + "\n");
             }
         }
 

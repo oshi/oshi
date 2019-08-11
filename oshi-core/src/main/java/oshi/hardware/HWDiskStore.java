@@ -464,7 +464,7 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
     public String toString() {
         boolean readwrite = getReads() > 0 || getWrites() > 0;
         StringBuilder sb = new StringBuilder();
-        sb.append(' ').append(getName()).append(": ");
+        sb.append(getName()).append(": ");
         sb.append("(model: ").append(getModel());
         sb.append(" - S/N: ").append(getSerial()).append(") ");
         sb.append("size: ").append(getSize() > 0 ? FormatUtil.formatBytesDecimal(getSize()) : "?").append(", ");
@@ -472,7 +472,7 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
         sb.append(" (").append(readwrite ? FormatUtil.formatBytes(getReadBytes()) : "?").append("), ");
         sb.append("writes: ").append(readwrite ? getWrites() : "?");
         sb.append(" (").append(readwrite ? FormatUtil.formatBytes(getWriteBytes()) : "?").append("), ");
-        sb.append("xfer: ").append(readwrite ? getTransferTime() : "?").append("\n");
+        sb.append("xfer: ").append(readwrite ? getTransferTime() : "?");
         return sb.toString();
     }
 
