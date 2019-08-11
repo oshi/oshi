@@ -350,4 +350,17 @@ public class HWPartition implements Serializable, Comparable<HWPartition> {
         return true;
     }
 
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(" |-- ").append(getIdentification()).append(": ");
+        sb.append(getName()).append(" ");
+        sb.append("(").append(getType()).append(") ");
+        sb.append("Maj:Min=").append(getMajor()).append(":").append(getMinor()).append(", ");
+        sb.append("size: ").append(FormatUtil.formatBytesDecimal(getSize()));
+        sb.append(getMountPoint().isEmpty() ? "" : " @ " + getMountPoint()).append("\n");
+        return sb.toString();
+    }
+
 }

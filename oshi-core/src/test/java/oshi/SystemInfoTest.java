@@ -297,24 +297,17 @@ public class SystemInfoTest {
         oshi.add("Disks:");
         for (HWDiskStore disk : diskStores) {
             boolean readwrite = disk.getReads() > 0 || disk.getWrites() > 0;
-            oshi.add(String.format(" %s: (model: %s - S/N: %s) size: %s, reads: %s (%s), writes: %s (%s), xfer: %s ms%n",
-                    disk.getName(), disk.getModel(), disk.getSerial(),
-                    disk.getSize() > 0 ? FormatUtil.formatBytesDecimal(disk.getSize()) : "?",
-                    readwrite ? disk.getReads() : "?", readwrite ? FormatUtil.formatBytes(disk.getReadBytes()) : "?",
-                    readwrite ? disk.getWrites() : "?", readwrite ? FormatUtil.formatBytes(disk.getWriteBytes()) : "?",
-                    readwrite ? disk.getTransferTime() : "?"));
+            oshi.add(disk.toString());
             HWPartition[] partitions = disk.getPartitions();
             if (partitions == null) {
                 // TODO Remove when all OS's implemented
                 continue;
             }
             for (HWPartition part : partitions) {
-                oshi.add(String.format(" |-- %s: %s (%s) Maj:Min=%d:%d, size: %s%s%n", part.getIdentification(),
-                        part.getName(), part.getType(), part.getMajor(), part.getMinor(),
-                        FormatUtil.formatBytesDecimal(part.getSize()),
-                        part.getMountPoint().isEmpty() ? "" : " @ " + part.getMountPoint()));
+                oshi.add(part.toString());
             }
         }
+
     }
 
     private static void printFileSystem(FileSystem fileSystem) {
