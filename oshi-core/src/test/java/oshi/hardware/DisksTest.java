@@ -82,6 +82,7 @@ public class DisksTest {
             assertTrue(disk.getWriteBytes() >= 0);
             assertTrue(disk.getTransferTime() >= 0);
             assertTrue(disk.getTimeStamp() >= 0);
+            assertTrue(disk.toString().contains(disk.getName()));
 
             long oldReads = disk.getReads();
             long oldReadBytes = disk.getReadBytes();
@@ -160,6 +161,7 @@ public class DisksTest {
                 assertTrue(partition.getSize() >= 0);
                 assertTrue(partition.getMajor() >= 0);
                 assertTrue(partition.getMinor() >= 0);
+                assertTrue(partition.toString().contains(partition.getIdentification()));
             }
             HWPartition[] partitions = new HWPartition[2];
             partitions[0] = new HWPartition();
