@@ -40,15 +40,16 @@ public abstract class AbstractVirtualMemory implements VirtualMemory {
     protected long swapUsed = -1L;
     protected long swapPagesIn = -1L;
     protected long swapPagesOut = -1L;
-    
+
+    /** {@inheritDoc} */
     @Override
     public String toString() {
-    	StringBuilder sb = new StringBuilder();
-    	sb.append(" Used: ");
-    	sb.append(FormatUtil.formatBytes(getSwapUsed()));
-    	sb.append("/");
-    	sb.append(FormatUtil.formatBytes(getSwapTotal()));
-    	return sb.toString();
+        StringBuilder sb = new StringBuilder();
+        sb.append("Used: ");
+        sb.append(FormatUtil.formatBytes(getSwapUsed()));
+        sb.append("/");
+        sb.append(FormatUtil.formatBytes(getSwapTotal()));
+        return sb.toString();
     }
-    
+
 }

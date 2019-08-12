@@ -38,15 +38,16 @@ public abstract class AbstractGlobalMemory implements GlobalMemory {
     protected long memAvailable = -1L;
     protected long pageSize = -1L;
     protected VirtualMemory virtualMemory;
-    
+
+    /** {@inheritDoc} */
     @Override
     public String toString() {
-    	StringBuilder sb = new StringBuilder();
-    	sb.append(" Available: ");
-    	sb.append(FormatUtil.formatBytes(getAvailable()));
-    	sb.append("/");
-    	sb.append(FormatUtil.formatBytes(getTotal()));
-    	return sb.toString();
+        StringBuilder sb = new StringBuilder();
+        sb.append("Available: ");
+        sb.append(FormatUtil.formatBytes(getAvailable()));
+        sb.append("/");
+        sb.append(FormatUtil.formatBytes(getTotal()));
+        return sb.toString();
     }
-    
+
 }

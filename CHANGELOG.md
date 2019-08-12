@@ -1,6 +1,9 @@
 4.1.0 (in progress)
 ================
-* [#943](https://github.com/oshi/oshi/pull/943): Add toString methods to API interface implementations - [@agithyogendra](https://github.com/agithyogendra).
+* [#943](https://github.com/oshi/oshi/pull/943),
+  [#944](https://github.com/oshi/oshi/pull/944): Add toString methods to API interface implementations -
+  [@agithyogendra](https://github.com/agithyogendra), 
+  [@rohitkukreja1508](https://github.com/rohitkukreja1508).
 * Your contribution here.
 
 4.0.0 (8/10/2019)

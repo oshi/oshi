@@ -158,7 +158,7 @@ public class SystemInfoTest {
         oshi.add("model: " + computerSystem.getModel());
         oshi.add("serialnumber: " + computerSystem.getSerialNumber());
         final Firmware firmware = computerSystem.getFirmware();
-        oshi.add(firmware.toString());
+        oshi.add("firmware: " + firmware.toString());
         final Baseboard baseboard = computerSystem.getBaseboard();
         oshi.add("baseboard:");
         oshi.add("  manufacturer: " + baseboard.getManufacturer());
@@ -178,11 +178,9 @@ public class SystemInfoTest {
     }
 
     private static void printMemory(GlobalMemory memory) {
-	oshi.add("Memory:");
-    	oshi.add(memory.toString());
+        oshi.add("Memory: \n " + memory.toString());
         VirtualMemory vm = memory.getVirtualMemory();
-        oshi.add("Swap:");
-        oshi.add(vm.toString());
+        oshi.add("Swap: \n " + vm.toString());
     }
 
     private static void printCpu(CentralProcessor processor) {
