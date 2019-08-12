@@ -144,4 +144,16 @@ public abstract class AbstractFirmware implements Firmware {
         this.releaseDate = releaseDate;
     }
 
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("manufacturer=").append(getManufacturer()).append(", ");
+        sb.append("name=").append(getName()).append(", ");
+        sb.append("description=").append(getDescription()).append(", ");
+        sb.append("version=").append(getVersion()).append(", ");
+        sb.append("release date=").append(getReleaseDate() == null ? "unknown" : getReleaseDate());
+        return sb.toString();
+    }
+
 }

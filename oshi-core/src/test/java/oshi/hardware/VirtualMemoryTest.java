@@ -51,5 +51,6 @@ public class VirtualMemoryTest {
         assertTrue(vm.getSwapTotal() >= 0);
         assertTrue(vm.getSwapUsed() >= 0);
         assertTrue(vm.getSwapUsed() <= vm.getSwapTotal());
+        assertTrue(vm.toString().contains("Used"));
     }
 }

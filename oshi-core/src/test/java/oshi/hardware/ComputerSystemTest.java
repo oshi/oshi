@@ -24,6 +24,7 @@
 package oshi.hardware;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -52,6 +53,7 @@ public class ComputerSystemTest {
         assertNotNull(fw.getDescription());
         assertNotNull(fw.getVersion());
         assertNotNull(fw.getReleaseDate());
+        assertTrue(fw.toString().contains(fw.getManufacturer()));
 
         Baseboard bb = cs.getBaseboard();
         assertNotNull(bb);

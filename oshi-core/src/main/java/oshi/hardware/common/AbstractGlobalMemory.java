@@ -25,6 +25,7 @@ package oshi.hardware.common;
 
 import oshi.hardware.GlobalMemory;
 import oshi.hardware.VirtualMemory;
+import oshi.util.FormatUtil;
 
 /**
  * Memory info.
@@ -37,4 +38,16 @@ public abstract class AbstractGlobalMemory implements GlobalMemory {
     protected long memAvailable = -1L;
     protected long pageSize = -1L;
     protected VirtualMemory virtualMemory;
+
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Available: ");
+        sb.append(FormatUtil.formatBytes(getAvailable()));
+        sb.append("/");
+        sb.append(FormatUtil.formatBytes(getTotal()));
+        return sb.toString();
+    }
+
 }
