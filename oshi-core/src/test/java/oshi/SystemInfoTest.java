@@ -178,8 +178,10 @@ public class SystemInfoTest {
     }
 
     private static void printMemory(GlobalMemory memory) {
+	oshi.add("Memory:");
     	oshi.add(memory.toString());
         VirtualMemory vm = memory.getVirtualMemory();
+        oshi.add("Swap:");
         oshi.add(vm.toString());
     }
 

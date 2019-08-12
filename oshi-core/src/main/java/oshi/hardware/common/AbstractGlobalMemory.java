@@ -42,7 +42,7 @@ public abstract class AbstractGlobalMemory implements GlobalMemory {
     @Override
     public String toString() {
     	StringBuilder sb = new StringBuilder();
-    	sb.append("Memory: ");
+    	sb.append(" Available: ");
     	sb.append(FormatUtil.formatBytes(getAvailable()));
     	sb.append("/");
     	sb.append(FormatUtil.formatBytes(getTotal()));

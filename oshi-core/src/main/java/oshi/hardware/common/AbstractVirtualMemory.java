@@ -44,7 +44,7 @@ public abstract class AbstractVirtualMemory implements VirtualMemory {
     @Override
     public String toString() {
     	StringBuilder sb = new StringBuilder();
-    	sb.append("Swaps used: ");
+    	sb.append(" Used: ");
     	sb.append(FormatUtil.formatBytes(getSwapUsed()));
     	sb.append("/");
     	sb.append(FormatUtil.formatBytes(getSwapTotal()));
