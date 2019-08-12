@@ -158,13 +158,7 @@ public class SystemInfoTest {
         oshi.add("model: " + computerSystem.getModel());
         oshi.add("serialnumber: " + computerSystem.getSerialNumber());
         final Firmware firmware = computerSystem.getFirmware();
-        oshi.add("firmware:");
-        oshi.add("  manufacturer: " + firmware.getManufacturer());
-        oshi.add("  name: " + firmware.getName());
-        oshi.add("  description: " + firmware.getDescription());
-        oshi.add("  version: " + firmware.getVersion());
-        oshi.add("  release date: " + (firmware.getReleaseDate() == null ? "unknown"
-                : firmware.getReleaseDate() == null ? "unknown" : firmware.getReleaseDate()));
+        oshi.add(firmware.toString());
         final Baseboard baseboard = computerSystem.getBaseboard();
         oshi.add("baseboard:");
         oshi.add("  manufacturer: " + baseboard.getManufacturer());
@@ -184,11 +178,9 @@ public class SystemInfoTest {
     }
 
     private static void printMemory(GlobalMemory memory) {
-        oshi.add("Memory: " + FormatUtil.formatBytes(memory.getAvailable()) + "/"
-                + FormatUtil.formatBytes(memory.getTotal()));
+    	oshi.add(memory.toString());
         VirtualMemory vm = memory.getVirtualMemory();
-        oshi.add("Swap used: " + FormatUtil.formatBytes(vm.getSwapUsed()) + "/"
-                + FormatUtil.formatBytes(vm.getSwapTotal()));
+        oshi.add(vm.toString());
     }
 
     private static void printCpu(CentralProcessor processor) {

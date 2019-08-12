@@ -24,6 +24,7 @@
 package oshi.hardware.common;
 
 import oshi.hardware.VirtualMemory;
+import oshi.util.FormatUtil;
 
 /**
  * Virtual Memory info.
@@ -39,4 +40,15 @@ public abstract class AbstractVirtualMemory implements VirtualMemory {
     protected long swapUsed = -1L;
     protected long swapPagesIn = -1L;
     protected long swapPagesOut = -1L;
+    
+    @Override
+    public String toString() {
+    	StringBuilder sb = new StringBuilder();
+    	sb.append("Swaps used: ");
+    	sb.append(FormatUtil.formatBytes(getSwapUsed()));
+    	sb.append("/");
+    	sb.append(FormatUtil.formatBytes(getSwapTotal()));
+    	return sb.toString();
+    }
+    
 }
