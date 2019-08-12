@@ -71,4 +71,10 @@ public abstract class AbstractPowerSource implements PowerSource {
     public double getTimeRemaining() {
         return this.timeRemaining;
     }
+
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+        return String.format("%n %s @ %.1f%%", this.getName(), this.getRemainingCapacity() * 100d);
+    }
 }
