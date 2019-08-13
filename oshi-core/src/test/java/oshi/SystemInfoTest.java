@@ -266,21 +266,11 @@ public class SystemInfoTest {
         StringBuilder sb = new StringBuilder("Power: ");
         if (powerSources.length == 0) {
             sb.append("Unknown");
-        } else {
-            double timeRemaining = powerSources[0].getTimeRemaining();
-            if (timeRemaining < -1d) {
-                sb.append("Charging");
-            } else if (timeRemaining < 0d) {
-                sb.append("Calculating time remaining");
-            } else {
-                sb.append(String.format("%d:%02d remaining", (int) (timeRemaining / 3600),
-                        (int) (timeRemaining / 60) % 60));
-            }
+        }
+        for (PowerSource powerSource : powerSources) {
+            sb.append("\n ").append(powerSource.toString());
         }
         oshi.add(sb.toString());
-        for (PowerSource powerSource : powerSources) {
-            oshi.add("  " + powerSource.toString());
-        }
     }
 
     private static void printDisks(HWDiskStore[] diskStores) {
