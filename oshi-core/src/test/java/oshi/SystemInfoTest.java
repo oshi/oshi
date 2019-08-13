@@ -277,10 +277,10 @@ public class SystemInfoTest {
                         (int) (timeRemaining / 60) % 60));
             }
         }
-        for (PowerSource powerSource : powerSources) {
-            sb.append(powerSource.toString());
-        }
         oshi.add(sb.toString());
+        for (PowerSource powerSource : powerSources) {
+            oshi.add("  " + powerSource.toString());
+        }
     }
 
     private static void printDisks(HWDiskStore[] diskStores) {
