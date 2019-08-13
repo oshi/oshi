@@ -71,4 +71,34 @@ public abstract class AbstractPowerSource implements PowerSource {
     public double getTimeRemaining() {
         return this.timeRemaining;
     }
+
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Name: ").append(getName()).append(", ");
+        sb.append("Remaining Capacity: ").append(getRemainingCapacity() * 100d).append("%, ");
+        sb.append("Time Remaining: ").append(getFormattedTimeRemaining());
+        return sb.toString();
+    }
+
+    /**
+     * Estimated time remaining on power source, formatted as HH:mm
+     *
+     * @return formatted String of time remaining
+     */
+    private String getFormattedTimeRemaining() {
+        double timeInSeconds = getTimeRemaining();
+        String formattedTimeRemaining;
+        if (timeInSeconds < 1.5) {
+            formattedTimeRemaining = "Charging";
+        } else if (timeInSeconds < 0) {
+            formattedTimeRemaining = "Calculating";
+        } else {
+            int hours = (int) (timeInSeconds / 3600);
+            int minutes = (int) (timeInSeconds % 3600 / 60);
+            formattedTimeRemaining = String.format("%d:%02d", hours, minutes);
+        }
+        return formattedTimeRemaining;
+    }
 }
