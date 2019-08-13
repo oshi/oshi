@@ -168,13 +168,7 @@ public class SystemInfoTest {
     }
 
     private static void printProcessor(CentralProcessor processor) {
-        oshi.add(String.valueOf(processor));
-        oshi.add(" " + processor.getPhysicalPackageCount() + " physical CPU package(s)");
-        oshi.add(" " + processor.getPhysicalProcessorCount() + " physical CPU core(s)");
-        oshi.add(" " + processor.getLogicalProcessorCount() + " logical CPU(s)");
-
-        oshi.add("Identifier: " + processor.getIdentifier());
-        oshi.add("ProcessorID: " + processor.getProcessorID());
+        oshi.add(processor.toString());
     }
 
     private static void printMemory(GlobalMemory memory) {

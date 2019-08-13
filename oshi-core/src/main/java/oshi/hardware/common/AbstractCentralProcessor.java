@@ -399,7 +399,13 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return getName();
+        StringBuilder sb = new StringBuilder(getName());
+        sb.append("\n ").append(getPhysicalPackageCount()).append(" physical CPU package(s)");
+        sb.append("\n ").append(getPhysicalProcessorCount()).append(" physical CPU core(s)");
+        sb.append("\n ").append(getLogicalProcessorCount()).append(" logical CPU(s)");
+        sb.append('\n').append("Identifier: ").append(getIdentifier());
+        sb.append('\n').append("ProcessorID: ").append(getProcessorID());
+        return sb.toString();
     }
 
     /**
