@@ -154,17 +154,11 @@ public class SystemInfoTest {
 
     private static void printComputerSystem(final ComputerSystem computerSystem) {
 
-        oshi.add("manufacturer: " + computerSystem.getManufacturer());
-        oshi.add("model: " + computerSystem.getModel());
-        oshi.add("serialnumber: " + computerSystem.getSerialNumber());
+        oshi.add(computerSystem.toString());
         final Firmware firmware = computerSystem.getFirmware();
         oshi.add("firmware: " + firmware.toString());
         final Baseboard baseboard = computerSystem.getBaseboard();
-        oshi.add("baseboard:");
-        oshi.add("  manufacturer: " + baseboard.getManufacturer());
-        oshi.add("  model: " + baseboard.getModel());
-        oshi.add("  version: " + baseboard.getVersion());
-        oshi.add("  serialnumber: " + baseboard.getSerialNumber());
+        oshi.add("baseboard: " + baseboard.toString());
     }
 
     private static void printProcessor(CentralProcessor processor) {

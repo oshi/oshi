@@ -122,4 +122,15 @@ public abstract class AbstractBaseboard implements Baseboard {
         this.serialNumber = serialNumber;
     }
 
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("manufacturer: ").append(getManufacturer()).append(", ");
+        sb.append("model: ").append(getModel()).append(", ");
+        sb.append("version: ").append(getVersion()).append(", ");
+        sb.append("serial number: ").append(getSerialNumber());
+        return sb.toString();
+    }
+
 }
