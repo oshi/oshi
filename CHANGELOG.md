@@ -3,10 +3,12 @@
 * [#943](https://github.com/oshi/oshi/pull/943),
   [#944](https://github.com/oshi/oshi/pull/944),
   [#948](https://github.com/oshi/oshi/pull/948),
-  [#949](https://github.com/oshi/oshi/pull/949): Add toString methods to API interface implementations -
+  [#949](https://github.com/oshi/oshi/pull/949),
+  [#950](https://github.com/oshi/oshi/pull/950): Add toString methods to API interface implementations -
   [@agithyogendra](https://github.com/agithyogendra), 
   [@rohitkukreja1508](https://github.com/rohitkukreja1508),
   [@colinbobolin](https://github.com/colinbobolin),
+  [@	phillips0616](https://github.com/phillips0616),
   [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here.
 
