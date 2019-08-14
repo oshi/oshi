@@ -209,4 +209,12 @@ public interface OperatingSystem extends Serializable {
      * @return A {@link oshi.software.os.NetworkParams} object.
      */
     NetworkParams getNetworkParams();
+
+    /**
+     * Gets the all services running on system
+     *
+     * @return OSService object 
+     */
+    OSService[] getServices();
+
 }

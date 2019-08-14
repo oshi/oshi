@@ -89,6 +89,12 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
         return this.manufacturer;
     }
 
+    /** {@inheritDoc} */
+    @Override
+    public OSService[] getServices() {
+        return new OSService[0] ;
+    }
+
     /**
      * Sorts an array of processes using the specified sorting, returning an array
      * with the top limit results if positive.
