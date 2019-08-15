@@ -125,14 +125,11 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     }
 
     private static final String PROCESS_BASE_CLASS = "Win32_Process";
-    private static final WmiQuery<ProcessProperty> PROCESS_QUERY = new WmiQuery<>(null, ProcessProperty.class);
 
     // Properties to get from WMI if WTSEnumerateProcesses doesn't work
     enum ProcessXPProperty {
         PROCESSID, NAME, KERNELMODETIME, USERMODETIME, THREADCOUNT, PAGEFILEUSAGE, HANDLECOUNT, EXECUTABLEPATH;
     }
-
-    private static final WmiQuery<ProcessXPProperty> PROCESS_QUERY_XP = new WmiQuery<>(null, ProcessXPProperty.class);
 
     // Is AddEnglishCounter available?
     private static final boolean IS_VISTA_OR_GREATER = VersionHelpers.IsWindowsVistaOrGreater();
@@ -411,8 +408,8 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                     sb.append(pid);
                 }
             }
-            PROCESS_QUERY_XP.setWmiClassName(sb.toString());
-            processWmiResult = wmiQueryHandler.queryWMI(PROCESS_QUERY_XP);
+            WmiQuery<ProcessXPProperty> processQueryXP = new WmiQuery<>(sb.toString(), ProcessXPProperty.class);
+            processWmiResult = wmiQueryHandler.queryWMI(processQueryXP);
         }
 
         // Store a subset of processes in a list to later return.
@@ -550,8 +547,8 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                 }
                 sb.append(pid);
             }
-            PROCESS_QUERY.setWmiClassName(sb.toString());
-            WmiResult<ProcessProperty> commandLineProcs = wmiQueryHandler.queryWMI(PROCESS_QUERY);
+            WmiQuery<ProcessProperty> processQuery = new WmiQuery<>(sb.toString(), ProcessProperty.class);
+            WmiResult<ProcessProperty> commandLineProcs = wmiQueryHandler.queryWMI(processQuery);
 
             for (int p = 0; p < commandLineProcs.getResultCount(); p++) {
                 int pid = WmiUtil.getUint32(commandLineProcs, ProcessProperty.PROCESSID, p);

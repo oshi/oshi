@@ -71,14 +71,12 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
     }
 
     private static final String PNPENTITY_BASE_CLASS = "Win32_PnPEntity";
-    private static final WmiQuery<PnPEntityProperty> PNPENTITY_QUERY = new WmiQuery<>(null, PnPEntityProperty.class);
 
     enum DiskDriveProperty {
         PNPDEVICEID, SERIALNUMBER;
     }
 
     private static final String DISKDRIVE_BASE_CLASS = "Win32_DiskDrive";
-    private static final WmiQuery<DiskDriveProperty> DISKDRIVE_QUERY = new WmiQuery<>(null, DiskDriveProperty.class);
 
     private static final Pattern VENDOR_PRODUCT_ID = Pattern
             .compile(".*(?:VID|VEN)_(\\p{XDigit}{4})&(?:PID|DEV)_(\\p{XDigit}{4}).*");
@@ -181,8 +179,9 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
             }
             String whereClause = sb.toString();
             // Query Win32_PnPEntity to populate the maps
-            PNPENTITY_QUERY.setWmiClassName(PNPENTITY_BASE_CLASS + whereClause);
-            WmiResult<PnPEntityProperty> pnpEntity = wmiQueryHandler.queryWMI(PNPENTITY_QUERY);
+            WmiQuery<PnPEntityProperty> pnpEntityQuery = new WmiQuery<>(PNPENTITY_BASE_CLASS + whereClause,
+                    PnPEntityProperty.class);
+            WmiResult<PnPEntityProperty> pnpEntity = wmiQueryHandler.queryWMI(pnpEntityQuery);
             for (int i = 0; i < pnpEntity.getResultCount(); i++) {
                 String pnpDeviceID = WmiUtil.getString(pnpEntity, PnPEntityProperty.PNPDEVICEID, i);
                 String name = WmiUtil.getString(pnpEntity, PnPEntityProperty.NAME, i);
@@ -193,8 +192,9 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
                 LOG.debug("Adding {} to USB device cache.", pnpDeviceID);
             }
             // Get serial # for disk drives or other physical media
-            DISKDRIVE_QUERY.setWmiClassName(DISKDRIVE_BASE_CLASS + whereClause);
-            WmiResult<DiskDriveProperty> serialNumber = wmiQueryHandler.queryWMI(DISKDRIVE_QUERY);
+            WmiQuery<DiskDriveProperty> diskDriveQuery = new WmiQuery<>(DISKDRIVE_BASE_CLASS + whereClause,
+                    DiskDriveProperty.class);
+            WmiResult<DiskDriveProperty> serialNumber = wmiQueryHandler.queryWMI(diskDriveQuery);
             for (int i = 0; i < serialNumber.getResultCount(); i++) {
                 String pnpDeviceID = WmiUtil.getString(serialNumber, DiskDriveProperty.PNPDEVICEID, i);
                 if (usbDeviceCache.containsKey(pnpDeviceID)) {
