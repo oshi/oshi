@@ -25,6 +25,7 @@ package oshi;
 
 import static org.junit.Assert.assertFalse;
 
+import java.nio.file.FileStore;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -118,6 +119,10 @@ public class SystemInfoTest {
         logger.info("Checking File System...");
         printFileSystem(os.getFileSystem());
 
+        logger.info("Checking OSFileStore...");
+        //Struggling with the parameter here!
+        //printOSFileStore();
+
         logger.info("Checking Network interfaces...");
         printNetworkInterfaces(hal.getNetworkIFs());
 
@@ -171,6 +176,10 @@ public class SystemInfoTest {
         oshi.add("Swap: \n " + vm.toString());
     }
 
+    private static void printOSFileStore(OSFileStore OSfileStore)
+    {
+        oshi.add("OSFileStore: \n " + OSfileStore.toString());
+    }
     private static void printCpu(CentralProcessor processor) {
         oshi.add("Context Switches/Interrupts: " + processor.getContextSwitches() + " / " + processor.getInterrupts());
 

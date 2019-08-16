@@ -27,13 +27,13 @@ import java.io.Serializable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import oshi.SystemInfo;
 import oshi.software.os.linux.LinuxFileSystem;
 import oshi.software.os.mac.MacFileSystem;
 import oshi.software.os.unix.freebsd.FreeBsdFileSystem;
 import oshi.software.os.unix.solaris.SolarisFileSystem;
 import oshi.software.os.windows.WindowsFileSystem;
+import oshi.util.FormatUtil;
 
 /**
  * A File Store is a storage pool, device, partition, volume, concrete file
@@ -348,5 +348,23 @@ public class OSFileStore implements Serializable {
             break;
         }
         return false;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(getName()).append(": ");
+        sb.append("(volume: ").append(getVolume());
+        sb.append("logicalVolume: ").append(getLogicalVolume());
+        sb.append("mount: ").append(getMount());
+        sb.append("description: ").append(getDescription());
+        sb.append("fileSystemType: ").append(getType());
+        sb.append("total space: ").append(getTotalSpace());
+        sb.append("free Space available: ").append(getFreeSpace());
+        sb.append("usable space available: ").append(getUsableSpace());
+        sb.append("total Inodes: ").append(getTotalInodes());
+        sb.append("free Inodes: ").append(getFreeInodes());
+        return sb.toString();
     }
 }
