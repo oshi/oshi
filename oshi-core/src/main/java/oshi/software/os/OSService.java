@@ -30,12 +30,12 @@ public class OSService implements Serializable {
 
 	private String name = "";
 	private int processID;
-	private Status status = Status.OTHER;
+	private State state = State.OTHER;
 
     /**
      * Service Execution Statuses
      */
-    public enum Status {
+    public enum State {
         RUNNING, STOPPED, OTHER
     }
 
@@ -68,8 +68,8 @@ public class OSService implements Serializable {
      *
      * @return Returns the status of the service.
      */
-    public Status getStatus() {
-    	return this.status;
+    public Status getState() {
+    	return this.state;
     }
 
     /**
@@ -98,7 +98,7 @@ public class OSService implements Serializable {
      * @param status
      *            status
      */
-    public void setStatus(Status status) {
-        this.status = status;
+    public void setState(Status state) {
+        this.state = state;
     }
 }
