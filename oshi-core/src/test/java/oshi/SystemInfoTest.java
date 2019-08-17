@@ -244,10 +244,7 @@ public class SystemInfoTest {
     }
 
     private static void printSensors(Sensors sensors) {
-        oshi.add("Sensors:");
-        oshi.add(String.format(" CPU Temperature: %.1f°C%n", sensors.getCpuTemperature()));
-        oshi.add(" Fan Speeds: " + Arrays.toString(sensors.getFanSpeeds()));
-        oshi.add(String.format(" CPU Voltage: %.1fV%n", sensors.getCpuVoltage()));
+        oshi.add("Sensors: " + sensors.toString());
     }
 
     private static void printPowerSources(PowerSource[] powerSources) {

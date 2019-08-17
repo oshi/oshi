@@ -23,6 +23,8 @@
  */
 package oshi.hardware.common;
 
+import java.util.Arrays;
+
 import oshi.hardware.Sensors;
 
 /**
@@ -32,4 +34,13 @@ public abstract class AbstractSensors implements Sensors {
 
     private static final long serialVersionUID = 1L;
 
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("CPU Temperature=").append(getCpuTemperature()).append(", ");
+        sb.append("Fan Speeds=").append(Arrays.toString(getFanSpeeds())).append(", ");
+        sb.append("CPU Voltage=").append(getCpuVoltage());
+        return sb.toString();
+    }
 }
