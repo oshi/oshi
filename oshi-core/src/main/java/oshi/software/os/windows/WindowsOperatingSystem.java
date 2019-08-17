@@ -784,7 +784,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
           svcArray[i].setProcessId(services[i].ServiceStatusProcess.dwProcessId);
           int state = services[i].ServiceStatusProcess.dwCurrentState;
           switch(state) {
-            case 0:
+            case 1:
                 svcArray[i].setState(OSService.State.STOPPED);
                 break;
             case 4:
