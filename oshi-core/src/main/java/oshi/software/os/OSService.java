@@ -31,6 +31,7 @@ public class OSService implements Serializable {
 	private String name = "";
 	private int processID;
 	private State state = State.OTHER;
+    private String pathName = "";
 
     /**
      * Service Execution Statuses
@@ -73,6 +74,17 @@ public class OSService implements Serializable {
     }
 
     /**
+     * <p>
+     * Getter for the field <code>pathName</code>.
+     * </p>
+     *
+     * @return Returns the pathName of the service.
+     */
+    public Status getPathName() {
+        return this.pathName;
+    }
+
+    /**
      * Set the name of the service.
      *
      * @param name
@@ -100,5 +112,15 @@ public class OSService implements Serializable {
      */
     public void setState(Status state) {
         this.state = state;
+    }
+
+    /**
+     * Set the pathName of the service.
+     *
+     * @param pathName
+     *            pathName
+     */
+    public void setPathName(String pathName) {
+        this.pathName = pathName;
     }
 }
