@@ -14,7 +14,7 @@ cd oshi
 git remote add upstream https://github.com/oshi/oshi.git
 ```
 
-#### Create a Topic Branch
+#### Create a Branch for your feature
 
 Make sure your fork is up-to-date and create a topic branch for your feature or bug fix.
 
@@ -34,7 +34,8 @@ mvn test
 
 #### Write Tests
 
-Try to write a test that reproduces the problem you're trying to fix or describes a feature that you want to build.
+For bug fixes, try to write a test that reproduces the problem you're trying to fix (and fails).
+For new features, write a test that produces results for a feature that you want to build.
 
 We definitely appreciate pull requests that highlight or reproduce a problem, even without a fix.
 
@@ -44,9 +45,6 @@ Implement your feature or bug fix.
 
 Make sure that `mvn test` completes without errors.
 
-#### Write Documentation
-
-Document any external behavior in the [README](README.md).
 
 #### Update Changelog
 
@@ -76,11 +74,11 @@ git push origin my-feature-branch
 
 #### Make a Pull Request
 
-Go to https://github.com/contributor/oshi and select your feature branch. Click the 'Pull Request' button and fill out the form. Pull requests are usually reviewed within a few days.
+Go to https://github.com/yournamehere/oshi and select your feature branch. Click the 'Pull Request' button and fill out the form. Pull requests are usually reviewed within a few days.
 
 #### Rebase
 
-If you've been working on a change for a while, rebase with upstream/master.
+If you've been working on a change for a while and other commits have been made to the project, rebase with upstream/master.
 
 ```
 git fetch upstream
@@ -96,7 +94,7 @@ Update the [CHANGELOG](CHANGELOG.md) with the pull request number. A typical ent
 * [#123](https://github.com/oshi/oshi/pull/123): Reticulated splines - [@contributor](https://github.com/contributor).
 ```
 
-Amend your previous commit and force push the changes.
+You may amend your previous commit and force push the changes, or just submit a changelog commit.
 
 ```
 git commit --amend
@@ -105,7 +103,9 @@ git push origin my-feature-branch -f
 
 #### Check on Your Pull Request
 
-Go back to your pull request after a few minutes and see whether it passed muster with Travis-CI. Everything should look green, otherwise fix issues and amend your commit as described above.
+Go back to your pull request after a few minutes and see whether it passed muster with Travis-CI. 
+Everything should look green, otherwise read the Travis log to identify failed tests or compile erros.
+Fix issues and amend your commit as described above.
 
 #### Be Patient
 

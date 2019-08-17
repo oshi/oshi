@@ -495,6 +495,7 @@
 							<exclude>mvnw</exclude>
 							<exclude>mvnw.cmd</exclude>
 							<exclude>LICENSE_*</exclude>
+							<exclude>**/issue_label_bot.yaml</exclude>
 							<exclude>**/OSHIJavaFormatConventions.xml</exclude>
 						</excludes>
 					</configuration>
