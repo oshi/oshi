@@ -770,4 +770,35 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         }
         Kernel32.INSTANCE.CloseHandle(hToken.getValue());
     }
+
+    /** {@inheritDoc} */
+    @Override
+    public OSService[] getServices() {
+        W32ServiceManager sm = new W32ServiceManager();
+        sm.open(Winsvc.SC_MANAGER_ALL_ACCESS);
+        Winsvc.ENUM_SERVICE_STATUS_PROCESS[] services = sm.enumServicesStatusExProcess(WinNT.SERVICE_WIN32, Winsvc.SERVICE_STATE_ALL, null);
+        OSService[] svcArray = new OSService[services.length];
+        for (int i = 0; i < services.length; i++) {
+          svcArray[i] = new OSService();
+          svcArray[i].setName(services[i].lpDisplayName);
+          svcArray[i].setProcessId(services[i].ServiceStatusProcess.dwProcessId);
+          int state = services[i].ServiceStatusProcess.dwCurrentState;
+          switch(state) {
+            0:
+                svcArray[i].setState(State.STOPPED);
+                break;
+            4:
+                svcArray[i].setState(State.RUNNING);
+                break;
+            default: 
+                svcArray[i].setState(State.OTHER);
+                break;
+          }
+          svcArray[i].setState(services[i].ServiceStatusProcess.dwCurrentState);
+        }
+        sm.close();
+        return svcArray;
+    }
+
+
 }
