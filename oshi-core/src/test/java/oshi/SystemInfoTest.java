@@ -244,7 +244,7 @@ public class SystemInfoTest {
     }
 
     private static void printSensors(Sensors sensors) {
-        oshi.add("Sensors:"+ sensors.toString());
+        oshi.add("Sensors: " + sensors.toString());
     }
 
     private static void printPowerSources(PowerSource[] powerSources) {
