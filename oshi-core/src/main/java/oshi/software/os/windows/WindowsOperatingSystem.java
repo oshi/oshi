@@ -794,7 +794,6 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                 svcArray[i].setState(State.OTHER);
                 break;
           }
-          svcArray[i].setState(services[i].ServiceStatusProcess.dwCurrentState);
         }
         sm.close();
         return svcArray;
