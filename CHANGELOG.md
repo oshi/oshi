@@ -10,7 +10,8 @@
   [@colinbobolin](https://github.com/colinbobolin),
   [@	phillips0616](https://github.com/phillips0616),
   [@dbwiddis](https://github.com/dbwiddis).
-* Your contribution here.
+* [#953](https://github.com/oshi/oshi/pull/953),
+  [@BooSandy1994](https://github.com/BooSandy1994).
 
 4.0.0 (8/10/2019)
 ================
