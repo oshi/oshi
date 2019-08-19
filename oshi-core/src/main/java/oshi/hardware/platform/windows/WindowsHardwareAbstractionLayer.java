@@ -41,34 +41,30 @@ import oshi.hardware.common.AbstractHardwareAbstractionLayer;
  * </p>
  */
 public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {
-
     private static final long serialVersionUID = 1L;
 
     /** {@inheritDoc} */
     @Override
-    public ComputerSystem getComputerSystem() {
-        if (this.computerSystem == null) {
-            this.computerSystem = new WindowsComputerSystem();
-        }
-        return this.computerSystem;
+    public ComputerSystem createComputerSystem() {
+        return new WindowsComputerSystem();
     }
 
     /** {@inheritDoc} */
     @Override
-    public GlobalMemory getMemory() {
-        if (this.memory == null) {
-            this.memory = new WindowsGlobalMemory();
-        }
-        return this.memory;
+    public GlobalMemory createMemory() {
+        return new WindowsGlobalMemory();
     }
 
     /** {@inheritDoc} */
     @Override
-    public CentralProcessor getProcessor() {
-        if (this.processor == null) {
-            this.processor = new WindowsCentralProcessor();
-        }
-        return this.processor;
+    public CentralProcessor createProcessor() {
+        return new WindowsCentralProcessor();
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public Sensors createSensors() {
+        return new WindowsSensors();
     }
 
     /** {@inheritDoc} */
@@ -87,15 +83,6 @@ public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstraction
     @Override
     public Display[] getDisplays() {
         return WindowsDisplay.getDisplays();
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public Sensors getSensors() {
-        if (this.sensors == null) {
-            this.sensors = new WindowsSensors();
-        }
-        return this.sensors;
     }
 
     /** {@inheritDoc} */

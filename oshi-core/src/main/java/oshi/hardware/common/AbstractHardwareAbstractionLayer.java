@@ -37,12 +37,99 @@ public abstract class AbstractHardwareAbstractionLayer implements HardwareAbstra
 
     private static final long serialVersionUID = 1L;
 
-    protected ComputerSystem computerSystem;
+    private volatile ComputerSystem computerSystem;
 
-    protected CentralProcessor processor;
+    private volatile CentralProcessor processor;
 
-    protected GlobalMemory memory;
+    private volatile GlobalMemory memory;
 
-    protected Sensors sensors;
+    private volatile Sensors sensors;
 
+    /** {@inheritDoc} */
+    @Override
+    public ComputerSystem getComputerSystem() {
+        ComputerSystem localRef = this.computerSystem;
+        if (localRef == null) {
+            synchronized (this) {
+                localRef = this.computerSystem;
+                if (localRef == null) {
+                    this.computerSystem = localRef = createComputerSystem();
+                }
+            }
+        }
+        return localRef;
+    }
+
+    /**
+     * Instantiates the platform-specific {@link ComputerSystem} object
+     * 
+     * @return platform-specific {@link ComputerSystem} object
+     */
+    protected abstract ComputerSystem createComputerSystem();
+
+    /** {@inheritDoc} */
+    @Override
+    public CentralProcessor getProcessor() {
+        CentralProcessor localRef = this.processor;
+        if (localRef == null) {
+            synchronized (this) {
+                localRef = this.processor;
+                if (localRef == null) {
+                    this.processor = localRef = createProcessor();
+                }
+            }
+        }
+        return localRef;
+    }
+
+    /**
+     * Instantiates the platform-specific {@link CentralProcessor} object
+     * 
+     * @return platform-specific {@link CentralProcessor} object
+     */
+    protected abstract CentralProcessor createProcessor();
+
+    /** {@inheritDoc} */
+    @Override
+    public GlobalMemory getMemory() {
+        GlobalMemory localRef = this.memory;
+        if (localRef == null) {
+            synchronized (this) {
+                localRef = this.memory;
+                if (localRef == null) {
+                    this.memory = localRef = createMemory();
+                }
+            }
+        }
+        return localRef;
+    }
+
+    /**
+     * Instantiates the platform-specific {@link GlobalMemory} object
+     * 
+     * @return platform-specific {@link GlobalMemory} object
+     */
+    protected abstract GlobalMemory createMemory();
+
+    /** {@inheritDoc} */
+    @Override
+    public Sensors getSensors() {
+        Sensors localRef = this.sensors;
+        if (localRef == null) {
+            synchronized (this) {
+                localRef = this.sensors;
+                if (localRef == null) {
+                    this.sensors = localRef = createSensors();
+                }
+            }
+        }
+        return localRef;
+    }
+
+    /**
+     * Instantiates the platform-specific {@link Sensors} object
+     * 
+     * @return platform-specific {@link Sensors} object
+     */
+    protected abstract Sensors createSensors();
 }

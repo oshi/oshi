@@ -46,29 +46,26 @@ public class FreeBsdHardwareAbstractionLayer extends AbstractHardwareAbstraction
 
     /** {@inheritDoc} */
     @Override
-    public ComputerSystem getComputerSystem() {
-        if (this.computerSystem == null) {
-            this.computerSystem = new FreeBsdComputerSystem();
-        }
-        return this.computerSystem;
+    public ComputerSystem createComputerSystem() {
+        return new FreeBsdComputerSystem();
     }
 
     /** {@inheritDoc} */
     @Override
-    public GlobalMemory getMemory() {
-        if (this.memory == null) {
-            this.memory = new FreeBsdGlobalMemory();
-        }
-        return this.memory;
+    public GlobalMemory createMemory() {
+        return new FreeBsdGlobalMemory();
     }
 
     /** {@inheritDoc} */
     @Override
-    public CentralProcessor getProcessor() {
-        if (this.processor == null) {
-            this.processor = new FreeBsdCentralProcessor();
-        }
-        return this.processor;
+    public CentralProcessor createProcessor() {
+        return new FreeBsdCentralProcessor();
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public Sensors createSensors() {
+        return new FreeBsdSensors();
     }
 
     /** {@inheritDoc} */
@@ -91,15 +88,6 @@ public class FreeBsdHardwareAbstractionLayer extends AbstractHardwareAbstraction
 
     /** {@inheritDoc} */
     @Override
-    public Sensors getSensors() {
-        if (this.sensors == null) {
-            this.sensors = new FreeBsdSensors();
-        }
-        return this.sensors;
-    }
-
-    /** {@inheritDoc} */
-    @Override
     public NetworkIF[] getNetworkIFs() {
         return new FreeBsdNetworks().getNetworks();
     }
@@ -110,12 +98,7 @@ public class FreeBsdHardwareAbstractionLayer extends AbstractHardwareAbstraction
         return FreeBsdUsbDevice.getUsbDevices(tree);
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * Instantiates an array of {@link SoundCard} objects, representing the Sound
-     * cards.
-     */
+    /** {@inheritDoc} */
     @Override
     public SoundCard[] getSoundCards() {
         return FreeBsdSoundCard.getSoundCards().toArray(new SoundCard[0]);

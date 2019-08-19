@@ -46,29 +46,26 @@ public class SolarisHardwareAbstractionLayer extends AbstractHardwareAbstraction
 
     /** {@inheritDoc} */
     @Override
-    public ComputerSystem getComputerSystem() {
-        if (this.computerSystem == null) {
-            this.computerSystem = new SolarisComputerSystem();
-        }
-        return this.computerSystem;
+    public ComputerSystem createComputerSystem() {
+        return new SolarisComputerSystem();
     }
 
     /** {@inheritDoc} */
     @Override
-    public GlobalMemory getMemory() {
-        if (this.memory == null) {
-            this.memory = new SolarisGlobalMemory();
-        }
-        return this.memory;
+    public GlobalMemory createMemory() {
+        return new SolarisGlobalMemory();
     }
 
     /** {@inheritDoc} */
     @Override
-    public CentralProcessor getProcessor() {
-        if (this.processor == null) {
-            this.processor = new SolarisCentralProcessor();
-        }
-        return this.processor;
+    public CentralProcessor createProcessor() {
+        return new SolarisCentralProcessor();
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public Sensors createSensors() {
+        return new SolarisSensors();
     }
 
     /** {@inheritDoc} */
@@ -87,15 +84,6 @@ public class SolarisHardwareAbstractionLayer extends AbstractHardwareAbstraction
     @Override
     public Display[] getDisplays() {
         return SolarisDisplay.getDisplays();
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public Sensors getSensors() {
-        if (this.sensors == null) {
-            this.sensors = new SolarisSensors();
-        }
-        return this.sensors;
     }
 
     /** {@inheritDoc} */

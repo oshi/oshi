@@ -51,10 +51,6 @@ public class SystemInfo implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private OperatingSystem os = null;
-
-    private HardwareAbstractionLayer hardware = null;
-
     // The platform isn't going to change, and making this static enables easy
     // access from outside this class
     private static final PlatformEnum currentPlatformEnum;
@@ -75,6 +71,10 @@ public class SystemInfo implements Serializable {
         }
     }
 
+    private volatile OperatingSystem os = null;
+
+    private volatile HardwareAbstractionLayer hardware = null;
+
     /**
      * <p>
      * Getter for the field <code>currentPlatformEnum</code>.
@@ -93,29 +93,34 @@ public class SystemInfo implements Serializable {
      * @return A new instance of {@link oshi.software.os.OperatingSystem}.
      */
     public OperatingSystem getOperatingSystem() {
-        if (this.os == null) {
-            switch (currentPlatformEnum) {
-
-            case WINDOWS:
-                this.os = new WindowsOperatingSystem();
-                break;
-            case LINUX:
-                this.os = new LinuxOperatingSystem();
-                break;
-            case MACOSX:
-                this.os = new MacOperatingSystem();
-                break;
-            case SOLARIS:
-                this.os = new SolarisOperatingSystem();
-                break;
-            case FREEBSD:
-                this.os = new FreeBsdOperatingSystem();
-                break;
-            default:
-                throw new UnsupportedOperationException("Operating system not supported: " + Platform.getOSType());
+        OperatingSystem localRef = this.os;
+        if (localRef == null) {
+            synchronized (this) {
+                localRef = this.os;
+                if (localRef == null) {
+                    this.os = localRef = createOperatingSystem();
+                }
             }
         }
-        return this.os;
+        return localRef;
+    }
+
+    private OperatingSystem createOperatingSystem() {
+        switch (currentPlatformEnum) {
+
+        case WINDOWS:
+            return new WindowsOperatingSystem();
+        case LINUX:
+            return new LinuxOperatingSystem();
+        case MACOSX:
+            return new MacOperatingSystem();
+        case SOLARIS:
+            return new SolarisOperatingSystem();
+        case FREEBSD:
+            return new FreeBsdOperatingSystem();
+        default:
+            throw new UnsupportedOperationException("Operating system not supported: " + Platform.getOSType());
+        }
     }
 
     /**
@@ -125,28 +130,33 @@ public class SystemInfo implements Serializable {
      * @return A new instance of {@link oshi.hardware.HardwareAbstractionLayer}.
      */
     public HardwareAbstractionLayer getHardware() {
-        if (this.hardware == null) {
-            switch (currentPlatformEnum) {
-
-            case WINDOWS:
-                this.hardware = new WindowsHardwareAbstractionLayer();
-                break;
-            case LINUX:
-                this.hardware = new LinuxHardwareAbstractionLayer();
-                break;
-            case MACOSX:
-                this.hardware = new MacHardwareAbstractionLayer();
-                break;
-            case SOLARIS:
-                this.hardware = new SolarisHardwareAbstractionLayer();
-                break;
-            case FREEBSD:
-                this.hardware = new FreeBsdHardwareAbstractionLayer();
-                break;
-            default:
-                throw new UnsupportedOperationException("Operating system not supported: " + Platform.getOSType());
+        HardwareAbstractionLayer localRef = this.hardware;
+        if (localRef == null) {
+            synchronized (this) {
+                localRef = this.hardware;
+                if (localRef == null) {
+                    this.hardware = localRef = createHardware();
+                }
             }
         }
-        return this.hardware;
+        return localRef;
+    }
+
+    private HardwareAbstractionLayer createHardware() {
+        switch (currentPlatformEnum) {
+
+        case WINDOWS:
+            return new WindowsHardwareAbstractionLayer();
+        case LINUX:
+            return new LinuxHardwareAbstractionLayer();
+        case MACOSX:
+            return new MacHardwareAbstractionLayer();
+        case SOLARIS:
+            return new SolarisHardwareAbstractionLayer();
+        case FREEBSD:
+            return new FreeBsdHardwareAbstractionLayer();
+        default:
+            throw new UnsupportedOperationException("Operating system not supported: " + Platform.getOSType());
+        }
     }
 }

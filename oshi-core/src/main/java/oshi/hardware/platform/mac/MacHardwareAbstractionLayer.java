@@ -46,29 +46,26 @@ public class MacHardwareAbstractionLayer extends AbstractHardwareAbstractionLaye
 
     /** {@inheritDoc} */
     @Override
-    public ComputerSystem getComputerSystem() {
-        if (this.computerSystem == null) {
-            this.computerSystem = new MacComputerSystem();
-        }
-        return this.computerSystem;
+    public ComputerSystem createComputerSystem() {
+        return new MacComputerSystem();
     }
 
     /** {@inheritDoc} */
     @Override
-    public CentralProcessor getProcessor() {
-        if (this.processor == null) {
-            this.processor = new MacCentralProcessor();
-        }
-        return this.processor;
+    public GlobalMemory createMemory() {
+        return new MacGlobalMemory();
     }
 
     /** {@inheritDoc} */
     @Override
-    public GlobalMemory getMemory() {
-        if (this.memory == null) {
-            this.memory = new MacGlobalMemory();
-        }
-        return this.memory;
+    public CentralProcessor createProcessor() {
+        return new MacCentralProcessor();
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public Sensors createSensors() {
+        return new MacSensors();
     }
 
     /** {@inheritDoc} */
@@ -91,15 +88,6 @@ public class MacHardwareAbstractionLayer extends AbstractHardwareAbstractionLaye
 
     /** {@inheritDoc} */
     @Override
-    public Sensors getSensors() {
-        if (this.sensors == null) {
-            this.sensors = new MacSensors();
-        }
-        return this.sensors;
-    }
-
-    /** {@inheritDoc} */
-    @Override
     public NetworkIF[] getNetworkIFs() {
         return new MacNetworks().getNetworks();
     }
@@ -110,12 +98,7 @@ public class MacHardwareAbstractionLayer extends AbstractHardwareAbstractionLaye
         return MacUsbDevice.getUsbDevices(tree);
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * Instantiates an array of {@link SoundCard} objects, representing the Sound
-     * cards.
-     */
+    /** {@inheritDoc} */
     @Override
     public SoundCard[] getSoundCards() {
         return MacSoundCard.getSoundCards().toArray(new SoundCard[0]);

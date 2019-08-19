@@ -46,29 +46,26 @@ public class LinuxHardwareAbstractionLayer extends AbstractHardwareAbstractionLa
 
     /** {@inheritDoc} */
     @Override
-    public ComputerSystem getComputerSystem() {
-        if (this.computerSystem == null) {
-            this.computerSystem = new LinuxComputerSystem();
-        }
-        return this.computerSystem;
+    public ComputerSystem createComputerSystem() {
+        return new LinuxComputerSystem();
     }
 
     /** {@inheritDoc} */
     @Override
-    public GlobalMemory getMemory() {
-        if (this.memory == null) {
-            this.memory = new LinuxGlobalMemory();
-        }
-        return this.memory;
+    public GlobalMemory createMemory() {
+        return new LinuxGlobalMemory();
     }
 
     /** {@inheritDoc} */
     @Override
-    public CentralProcessor getProcessor() {
-        if (this.processor == null) {
-            this.processor = new LinuxCentralProcessor();
-        }
-        return this.processor;
+    public CentralProcessor createProcessor() {
+        return new LinuxCentralProcessor();
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public Sensors createSensors() {
+        return new LinuxSensors();
     }
 
     /** {@inheritDoc} */
@@ -87,15 +84,6 @@ public class LinuxHardwareAbstractionLayer extends AbstractHardwareAbstractionLa
     @Override
     public Display[] getDisplays() {
         return LinuxDisplay.getDisplays();
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public Sensors getSensors() {
-        if (this.sensors == null) {
-            this.sensors = new LinuxSensors();
-        }
-        return this.sensors;
     }
 
     /** {@inheritDoc} */
