@@ -92,13 +92,6 @@ public class FreeBsdUsbDevice extends AbstractUsbDevice {
         return deviceList.toArray(new UsbDevice[0]);
     }
 
-    private static void addDevicesToList(List<UsbDevice> deviceList, UsbDevice[] connectedDevices) {
-        for (UsbDevice device : connectedDevices) {
-            deviceList.add(device);
-            addDevicesToList(deviceList, device.getConnectedDevices());
-        }
-    }
-
     private static UsbDevice[] getUsbDevices() {
         // Maps to store information using node # as the key
         Map<String, String> nameMap = new HashMap<>();
@@ -175,6 +168,13 @@ public class FreeBsdUsbDevice extends AbstractUsbDevice {
                     productIdMap, serialMap, hubMap));
         }
         return controllerDevices.toArray(new UsbDevice[0]);
+    }
+
+    private static void addDevicesToList(List<UsbDevice> deviceList, UsbDevice[] connectedDevices) {
+        for (UsbDevice device : connectedDevices) {
+            deviceList.add(device);
+            addDevicesToList(deviceList, device.getConnectedDevices());
+        }
     }
 
     /**

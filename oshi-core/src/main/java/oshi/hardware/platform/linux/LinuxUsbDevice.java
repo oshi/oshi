@@ -94,13 +94,6 @@ public class LinuxUsbDevice extends AbstractUsbDevice {
         return deviceList.toArray(new UsbDevice[0]);
     }
 
-    private static void addDevicesToList(List<UsbDevice> deviceList, UsbDevice[] connectedDevices) {
-        for (UsbDevice device : connectedDevices) {
-            deviceList.add(device);
-            addDevicesToList(deviceList, device.getConnectedDevices());
-        }
-    }
-
     private static UsbDevice[] getUsbDevices() {
         // Enumerate all usb devices and build information maps
         Udev.UdevHandle udev = Udev.INSTANCE.udev_new();
@@ -177,6 +170,13 @@ public class LinuxUsbDevice extends AbstractUsbDevice {
                     productIdMap, serialMap, hubMap));
         }
         return controllerDevices.toArray(new UsbDevice[0]);
+    }
+
+    private static void addDevicesToList(List<UsbDevice> deviceList, UsbDevice[] connectedDevices) {
+        for (UsbDevice device : connectedDevices) {
+            deviceList.add(device);
+            addDevicesToList(deviceList, device.getConnectedDevices());
+        }
     }
 
     /**

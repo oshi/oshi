@@ -127,14 +127,6 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
         return deviceList.toArray(new UsbDevice[0]);
     }
 
-    private static void addDevicesToList(List<UsbDevice> deviceList, UsbDevice[] connectedDevices) {
-        for (UsbDevice device : connectedDevices) {
-            deviceList.add(new WindowsUsbDevice(device.getName(), device.getVendor(), device.getVendorId(),
-                    device.getProductId(), device.getSerialNumber(), device.getUniqueDeviceId(), new UsbDevice[0]));
-            addDevicesToList(deviceList, device.getConnectedDevices());
-        }
-    }
-
     private static UsbDevice[] getUsbDevices() {
         // Map to build the recursive tree structure
         Map<String, List<String>> deviceTreeMap = new HashMap<>();
@@ -159,6 +151,14 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
             }
         }
         return controllerDevices.toArray(new WindowsUsbDevice[0]);
+    }
+
+    private static void addDevicesToList(List<UsbDevice> deviceList, UsbDevice[] connectedDevices) {
+        for (UsbDevice device : connectedDevices) {
+            deviceList.add(new WindowsUsbDevice(device.getName(), device.getVendor(), device.getVendorId(),
+                    device.getProductId(), device.getSerialNumber(), device.getUniqueDeviceId(), new UsbDevice[0]));
+            addDevicesToList(deviceList, device.getConnectedDevices());
+        }
     }
 
     private static Map<String, WindowsUsbDevice> populateDeviceCache(Set<String> devicesToAdd,
@@ -210,7 +210,7 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
     /**
      * Navigates the Device Tree to place all children PNPDeviceIDs into the map for
      * the specified deviceID. Recursively adds children's children, etc.
-     * 
+     *
      * @param deviceId
      *            The device to add respective children to the map
      * @param deviceInstance
@@ -303,9 +303,9 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
     /**
      * Queries the USB Controller list, which doesn't change so we only need to
      * query it once
-     * 
+     *
      * @param wmiQueryHandler
-     * 
+     *
      * @return A list of Strings of USB Controller PNPDeviceIDs
      */
     private static List<String> getControllerDeviceIdList(WmiQueryHandler wmiQueryHandler) {
