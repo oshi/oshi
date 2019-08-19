@@ -125,7 +125,7 @@ public class LinuxVirtualMemory extends AbstractVirtualMemory {
      */
     private long parseMeminfo(String[] memorySplit) {
         if (memorySplit.length < 2) {
-            return 0l;
+            return 0L;
         }
         long memory = ParseUtil.parseLongOrDefault(memorySplit[1], 0L);
         if (memorySplit.length > 2 && "kB".equals(memorySplit[2])) {
