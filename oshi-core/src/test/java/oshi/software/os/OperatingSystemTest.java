@@ -279,4 +279,17 @@ public class OperatingSystemTest {
 
         assertTrue(processesWithNonEmptyCmdLine >= 1);
     }
+
+    @Test
+    public void testConstructProcessWithGivenPid() {
+        SystemInfo si = new SystemInfo();
+        OperatingSystem os = si.getOperatingSystem();
+        OSProcess oldProcess = os.getProcess(os.getProcessId());
+        int givenPid = oldProcess.getProcessID();
+
+        OSProcess newProcess = new OSProcess(givenPid);
+
+        assertEquals(oldProcess.getPath(), newProcess.getPath());
+        assertEquals(oldProcess.getProcessID(), newProcess.getProcessID());
+    }
 }

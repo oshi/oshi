@@ -23,6 +23,15 @@
  */
 package oshi.software.os;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import oshi.SystemInfo;
+import oshi.software.os.linux.LinuxOperatingSystem;
+import oshi.software.os.mac.MacOperatingSystem;
+import oshi.software.os.unix.freebsd.FreeBsdOperatingSystem;
+import oshi.software.os.unix.solaris.SolarisOperatingSystem;
+import oshi.software.os.windows.WindowsOperatingSystem;
+
 import java.io.Serializable;
 
 /**
@@ -34,6 +43,8 @@ import java.io.Serializable;
 public class OSProcess implements Serializable {
 
     private static final long serialVersionUID = 3L;
+
+    private static final Logger LOG = LoggerFactory.getLogger(OSProcess.class);
 
     private String name = "";
     private String path = "";
@@ -93,6 +104,44 @@ public class OSProcess implements Serializable {
          * Other or unknown states not defined
          */
         OTHER
+    }
+
+    /**
+     * <p>
+     * Constructor for OSProcess.
+     * </p>
+     */
+    public OSProcess() {
+    }
+
+    /**
+     * <p>
+     * Constructor for OSProcess.
+     * </p>
+     *
+     * @param processID
+     *                 process ID
+     */
+    public OSProcess(int processID) {
+        this.processID = processID;
+        updateAttributes();
+    }
+
+    /**
+     * Updates all process attributes.
+     */
+    public void updateAttributes() {
+        OperatingSystem operatingSystem = getCurrentOperatingSystem();
+        if (operatingSystem != null) {
+            OSProcess process = operatingSystem.getProcess(this.processID);
+            if (process != null) {
+                copyValuesToThisProcess(process);
+            } else {
+                LOG.error("No process found: {}", this.processID);
+            }
+        } else {
+            LOG.error("Unsupported platform. No update performed.");
+        }
     }
 
     /**
@@ -673,5 +722,49 @@ public class OSProcess implements Serializable {
      */
     public void setBitness(int bitness) {
         this.bitness = bitness;
+    }
+
+    private OperatingSystem getCurrentOperatingSystem() {
+        switch (SystemInfo.getCurrentPlatformEnum()) {
+            case WINDOWS:
+                return new WindowsOperatingSystem();
+            case LINUX:
+                return new LinuxOperatingSystem();
+            case MACOSX:
+                return new MacOperatingSystem();
+            case SOLARIS:
+                return new SolarisOperatingSystem();
+            case FREEBSD:
+                return new FreeBsdOperatingSystem();
+            default:
+                return null;
+        }
+    }
+
+    private void copyValuesToThisProcess(OSProcess sourceProcess) {
+        this.name = sourceProcess.name;
+        this.path = sourceProcess.path;
+        this.commandLine = sourceProcess.commandLine;
+        this.currentWorkingDirectory = sourceProcess.currentWorkingDirectory;
+        this.user = sourceProcess.user;
+        this.userID = sourceProcess.userID;
+        this.group = sourceProcess.group;
+        this.groupID = sourceProcess.groupID;
+        this.state = sourceProcess.state;
+        this.processID = sourceProcess.processID;
+        this.parentProcessID = sourceProcess.parentProcessID;
+        this.threadCount = sourceProcess.threadCount;
+        this.priority = sourceProcess.priority;
+        this.virtualSize = sourceProcess.virtualSize;
+        this.residentSetSize = sourceProcess.residentSetSize;
+        this.kernelTime = sourceProcess.kernelTime;
+        this.userTime = sourceProcess.userTime;
+        this.startTime = sourceProcess.startTime;
+        this.upTime = sourceProcess.upTime;
+        this.bytesRead = sourceProcess.bytesRead;
+        this.bytesWritten = sourceProcess.bytesWritten;
+        this.openFiles = sourceProcess.openFiles;
+        this.bitness = sourceProcess.bitness;
+        this.cpuPercent = sourceProcess.cpuPercent;
     }
 }
