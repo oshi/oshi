@@ -43,46 +43,66 @@ final class MacComputerSystem extends AbstractComputerSystem {
     /** {@inheritDoc} */
     @Override
     public String getManufacturer() {
-        if (this.manufacturer == null) {
-            this.manufacturer = "Apple Inc.";
+        String localRef = this.manufacturer;
+        if (localRef == null) {
+            synchronized (this) {
+                localRef = this.manufacturer;
+                if (localRef == null) {
+                    this.manufacturer = localRef = "Apple Inc.";
+                }
+            }
         }
-        return super.getManufacturer();
+        return localRef;
     }
 
     /** {@inheritDoc} */
     @Override
     public String getModel() {
-        if (this.model == null) {
-            profileSystem();
+        String localRef = this.model;
+        if (localRef == null) {
+            synchronized (this) {
+                localRef = this.model;
+                if (localRef == null) {
+                    profileSystem();
+                    localRef = this.model;
+                }
+            }
         }
-        return super.getModel();
+        return localRef;
     }
 
     /** {@inheritDoc} */
     @Override
     public String getSerialNumber() {
-        if (this.serialNumber == null) {
-            profileSystem();
+        String localRef = this.serialNumber;
+        if (localRef == null) {
+            synchronized (this) {
+                localRef = this.serialNumber;
+                if (localRef == null) {
+                    profileSystem();
+                    localRef = this.serialNumber;
+                }
+            }
         }
-        return super.getSerialNumber();
+        return localRef;
     }
 
     /** {@inheritDoc} */
     @Override
-    public Firmware getFirmware() {
-        if (this.firmware == null) {
-            this.firmware = initFirmware();
-        }
-        return this.firmware;
+    public Firmware createFirmware() {
+        MacFirmware firmware = new MacFirmware();
+        firmware.setManufacturer(getManufacturer());
+        firmware.setName("EFI");
+        return firmware;
     }
 
     /** {@inheritDoc} */
     @Override
-    public Baseboard getBaseboard() {
-        if (this.baseboard == null) {
-            this.baseboard = initBaseboard();
-        }
-        return this.baseboard;
+    public Baseboard createBaseboard() {
+        MacBaseboard baseboard = new MacBaseboard();
+        baseboard.setManufacturer(getManufacturer());
+        baseboard.setModel("SMC");
+        return baseboard;
     }
 
     private void profileSystem() {
@@ -123,7 +143,6 @@ final class MacComputerSystem extends AbstractComputerSystem {
             }
         }
         setModelNameAndIdentifier(modelName, modelIdentifier);
-
     }
 
     private void setVersionAndSerialNumber(String checkLine) {
@@ -148,20 +167,6 @@ final class MacComputerSystem extends AbstractComputerSystem {
             this.serialNumber = serialNumberSystem.isEmpty() ? getIORegistryPlatformSerialNumber() : serialNumberSystem;
             ((MacBaseboard) getBaseboard()).setSerialNumber(this.serialNumber);
         }
-    }
-
-    private MacFirmware initFirmware() {
-        MacFirmware firmware = new MacFirmware();
-        firmware.setManufacturer(getManufacturer());
-        firmware.setName("EFI");
-        return firmware;
-    }
-
-    private MacBaseboard initBaseboard() {
-        MacBaseboard baseboard = new MacBaseboard();
-        baseboard.setManufacturer(getManufacturer());
-        baseboard.setModel("SMC");
-        return baseboard;
     }
 
     private void setModelNameAndIdentifier(String modelName, String modelIdentifier) {

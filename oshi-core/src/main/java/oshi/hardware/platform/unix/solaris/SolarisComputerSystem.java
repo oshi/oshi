@@ -40,46 +40,60 @@ final class SolarisComputerSystem extends AbstractComputerSystem {
     /** {@inheritDoc} */
     @Override
     public String getManufacturer() {
-        if (this.manufacturer == null) {
-            readSmbios();
+        String localRef = this.manufacturer;
+        if (localRef == null) {
+            synchronized (this) {
+                localRef = this.manufacturer;
+                if (localRef == null) {
+                    readSmbios();
+                    localRef = this.manufacturer;
+                }
+            }
         }
-        return super.getManufacturer();
+        return localRef;
     }
 
     /** {@inheritDoc} */
     @Override
     public String getModel() {
-        if (this.model == null) {
-            readSmbios();
+        String localRef = this.model;
+        if (localRef == null) {
+            synchronized (this) {
+                localRef = this.model;
+                if (localRef == null) {
+                    readSmbios();
+                    localRef = this.model;
+                }
+            }
         }
-        return super.getModel();
+        return localRef;
     }
 
     /** {@inheritDoc} */
     @Override
     public String getSerialNumber() {
-        if (this.serialNumber == null) {
-            this.serialNumber = getSystemSerialNumber();
+        String localRef = this.serialNumber;
+        if (localRef == null) {
+            synchronized (this) {
+                localRef = this.serialNumber;
+                if (localRef == null) {
+                    this.serialNumber = localRef = getSystemSerialNumber();
+                }
+            }
         }
-        return super.getSerialNumber();
+        return localRef;
     }
 
     /** {@inheritDoc} */
     @Override
-    public Firmware getFirmware() {
-        if (this.firmware == null) {
-            this.firmware = new SolarisFirmware();
-        }
-        return this.firmware;
+    public Firmware createFirmware() {
+        return new SolarisFirmware();
     }
 
     /** {@inheritDoc} */
     @Override
-    public Baseboard getBaseboard() {
-        if (this.baseboard == null) {
-            this.baseboard = new SolarisBaseboard();
-        }
-        return this.baseboard;
+    public Baseboard createBaseboard() {
+        return new SolarisBaseboard();
     }
 
     private void readSmbios() {
@@ -149,6 +163,13 @@ final class SolarisComputerSystem extends AbstractComputerSystem {
                 // Do nothing; continue loop
                 break;
             }
+        }
+        // If we get to end and haven't assigned, use fallback
+        if (this.manufacturer == null || manufacturer.isEmpty()) {
+            this.manufacturer = Constants.UNKNOWN;
+        }
+        if (this.model == null || model.isEmpty()) {
+            this.model = Constants.UNKNOWN;
         }
     }
 

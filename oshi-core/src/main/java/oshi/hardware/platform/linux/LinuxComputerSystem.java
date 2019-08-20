@@ -44,48 +44,68 @@ final class LinuxComputerSystem extends AbstractComputerSystem {
     /** {@inheritDoc} */
     @Override
     public String getManufacturer() {
-        if (this.manufacturer == null && !queryManufacturerFromSysfs() && !queryManufacturerFromProcCpu()) {
-            this.manufacturer = Constants.UNKNOWN;
+        String localRef = this.manufacturer;
+        if (localRef == null) {
+            synchronized (this) {
+                localRef = this.manufacturer;
+                if (localRef == null) {
+                    if (!queryManufacturerFromSysfs() && !queryManufacturerFromProcCpu()) {
+                        this.manufacturer = Constants.UNKNOWN;
+                    }
+                    localRef = this.manufacturer;
+                }
+            }
         }
-        return super.getManufacturer();
+        return localRef;
     }
 
     /** {@inheritDoc} */
     @Override
     public String getModel() {
-        if (this.model == null && !queryModelFromSysfs() && !queryModelFromDeviceTree()
-                && !queryModelAndSerialFromLshw()) {
-            this.model = Constants.UNKNOWN;
+        String localRef = this.model;
+        if (localRef == null) {
+            synchronized (this) {
+                localRef = this.model;
+                if (localRef == null) {
+                    if (!queryModelFromSysfs() && !queryModelFromDeviceTree() && !queryModelAndSerialFromLshw()) {
+                        this.model = Constants.UNKNOWN;
+                    }
+                    localRef = this.model;
+                }
+            }
         }
-        return super.getModel();
+        return localRef;
     }
 
     /** {@inheritDoc} */
     @Override
     public String getSerialNumber() {
-        if (this.serialNumber == null && !querySerialFromSysfs() && !querySerialFromDmiDecode()
-                && !querySerialFromLshal() && !queryModelAndSerialFromLshw()) {
-            this.serialNumber = Constants.UNKNOWN;
+        String localRef = this.serialNumber;
+        if (localRef == null) {
+            synchronized (this) {
+                localRef = this.serialNumber;
+                if (localRef == null) {
+                    if (!querySerialFromSysfs() && !querySerialFromDmiDecode() && !querySerialFromLshal()
+                            && !queryModelAndSerialFromLshw()) {
+                        this.serialNumber = Constants.UNKNOWN;
+                    }
+                    localRef = this.serialNumber;
+                }
+            }
         }
-        return super.getSerialNumber();
+        return localRef;
     }
 
     /** {@inheritDoc} */
     @Override
-    public Firmware getFirmware() {
-        if (this.firmware == null) {
-            this.firmware = new LinuxFirmware();
-        }
-        return this.firmware;
+    public Firmware createFirmware() {
+        return new LinuxFirmware();
     }
 
     /** {@inheritDoc} */
     @Override
-    public Baseboard getBaseboard() {
-        if (this.baseboard == null) {
-            this.baseboard = new LinuxBaseboard();
-        }
-        return this.baseboard;
+    public Baseboard createBaseboard() {
+        return new LinuxBaseboard();
     }
 
     private boolean queryManufacturerFromSysfs() {

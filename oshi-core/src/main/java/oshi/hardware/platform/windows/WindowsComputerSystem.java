@@ -45,46 +45,61 @@ final class WindowsComputerSystem extends AbstractComputerSystem {
     /** {@inheritDoc} */
     @Override
     public String getManufacturer() {
-        if (this.manufacturer == null) {
-            queryManufacturerAndModel();
+        String localRef = this.manufacturer;
+        if (localRef == null) {
+            synchronized (this) {
+                localRef = this.manufacturer;
+                if (localRef == null) {
+                    queryManufacturerAndModel();
+                    localRef = this.manufacturer;
+                }
+            }
         }
-        return super.getManufacturer();
+        return localRef;
     }
 
     /** {@inheritDoc} */
     @Override
     public String getModel() {
-        if (this.model == null) {
-            queryManufacturerAndModel();
+        String localRef = this.model;
+        if (localRef == null) {
+            synchronized (this) {
+                localRef = this.model;
+                if (localRef == null) {
+                    queryManufacturerAndModel();
+                    localRef = this.model;
+                }
+            }
         }
-        return super.getModel();
+        return localRef;
     }
 
     /** {@inheritDoc} */
     @Override
     public String getSerialNumber() {
-        if (this.serialNumber == null) {
-            querySystemSerialNumber();
+        String localRef = this.serialNumber;
+        if (localRef == null) {
+            synchronized (this) {
+                localRef = this.serialNumber;
+                if (localRef == null) {
+                    querySystemSerialNumber();
+                    localRef = this.serialNumber;
+                }
+            }
         }
-        return super.getSerialNumber();
+        return localRef;
     }
 
     /** {@inheritDoc} */
     @Override
-    public Firmware getFirmware() {
-        if (this.firmware == null) {
-            this.firmware = new WindowsFirmware();
-        }
-        return this.firmware;
+    public Firmware createFirmware() {
+        return new WindowsFirmware();
     }
 
     /** {@inheritDoc} */
     @Override
-    public Baseboard getBaseboard() {
-        if (this.baseboard == null) {
-            this.baseboard = new WindowsBaseboard();
-        }
-        return this.baseboard;
+    public Baseboard createBaseboard() {
+        return new WindowsBaseboard();
     }
 
     private void queryManufacturerAndModel() {
@@ -93,7 +108,16 @@ final class WindowsComputerSystem extends AbstractComputerSystem {
         WmiResult<ComputerSystemProperty> win32ComputerSystem = wmiQueryHandler.queryWMI(computerSystemQuery);
         if (win32ComputerSystem.getResultCount() > 0) {
             this.manufacturer = WmiUtil.getString(win32ComputerSystem, ComputerSystemProperty.MANUFACTURER, 0);
+            if (this.manufacturer.isEmpty()) {
+                this.manufacturer = Constants.UNKNOWN;
+            }
             this.model = WmiUtil.getString(win32ComputerSystem, ComputerSystemProperty.MODEL, 0);
+            if (this.model.isEmpty()) {
+                this.model = Constants.UNKNOWN;
+            }
+        } else {
+            this.manufacturer = Constants.UNKNOWN;
+            this.model = Constants.UNKNOWN;
         }
     }
 

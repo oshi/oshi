@@ -26,7 +26,6 @@ package oshi.hardware.common;
 import oshi.hardware.Baseboard;
 import oshi.hardware.ComputerSystem;
 import oshi.hardware.Firmware;
-import oshi.util.Constants;
 
 /**
  * Computer System data.
@@ -35,38 +34,59 @@ public abstract class AbstractComputerSystem implements ComputerSystem {
 
     private static final long serialVersionUID = 1L;
 
-    protected String manufacturer;
-    protected String model;
-    protected String serialNumber;
-    protected Firmware firmware;
-    protected Baseboard baseboard;
+    protected volatile String manufacturer;
+
+    protected volatile String model;
+
+    protected volatile String serialNumber;
+
+    private volatile Firmware firmware;
+
+    private volatile Baseboard baseboard;
 
     /** {@inheritDoc} */
     @Override
-    public String getManufacturer() {
-        if (this.manufacturer == null) {
-            this.manufacturer = Constants.UNKNOWN;
+    public Firmware getFirmware() {
+        Firmware localRef = this.firmware;
+        if (localRef == null) {
+            synchronized (this) {
+                localRef = this.firmware;
+                if (localRef == null) {
+                    this.firmware = localRef = createFirmware();
+                }
+            }
         }
-        return this.manufacturer;
+        return localRef;
     }
+
+    /**
+     * Instantiates the platform-specific {@link Firmware} object
+     * 
+     * @return platform-specific {@link Firmware} object
+     */
+    protected abstract Firmware createFirmware();
 
     /** {@inheritDoc} */
     @Override
-    public String getModel() {
-        if (this.model == null) {
-            this.model = Constants.UNKNOWN;
+    public Baseboard getBaseboard() {
+        Baseboard localRef = this.baseboard;
+        if (localRef == null) {
+            synchronized (this) {
+                localRef = this.baseboard;
+                if (localRef == null) {
+                    this.baseboard = localRef = createBaseboard();
+                }
+            }
         }
-        return this.model;
+        return localRef;
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public String getSerialNumber() {
-        if (this.serialNumber == null) {
-            this.serialNumber = Constants.UNKNOWN;
-        }
-        return this.serialNumber;
-    }
+    /**
+     * Instantiates the platform-specific {@link Baseboard} object
+     * 
+     * @return platform-specific {@link Baseboard} object
+     */
+    protected abstract Baseboard createBaseboard();
 
     /** {@inheritDoc} */
     @Override

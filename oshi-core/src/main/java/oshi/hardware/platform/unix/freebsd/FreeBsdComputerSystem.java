@@ -40,46 +40,62 @@ final class FreeBsdComputerSystem extends AbstractComputerSystem {
     /** {@inheritDoc} */
     @Override
     public String getManufacturer() {
-        if (this.manufacturer == null) {
-            readDmiDecode();
+        String localRef = this.manufacturer;
+        if (localRef == null) {
+            synchronized (this) {
+                localRef = this.manufacturer;
+                if (localRef == null) {
+                    readDmiDecode();
+                    localRef = this.manufacturer;
+                }
+            }
         }
-        return super.getManufacturer();
+        return localRef;
     }
+
 
     /** {@inheritDoc} */
     @Override
     public String getModel() {
-        if (this.model == null) {
-            readDmiDecode();
+        String localRef = this.model;
+        if (localRef == null) {
+            synchronized (this) {
+                localRef = this.model;
+                if (localRef == null) {
+                    readDmiDecode();
+                    localRef = this.model;
+                }
+            }
         }
-        return super.getModel();
+        return localRef;
     }
 
     /** {@inheritDoc} */
     @Override
     public String getSerialNumber() {
-        if (this.serialNumber == null) {
-            readDmiDecode();
+        String localRef = this.serialNumber;
+        if (localRef == null) {
+            synchronized (this) {
+                localRef = this.serialNumber;
+                if (localRef == null) {
+                    readDmiDecode();
+                    localRef = this.serialNumber;
+                }
+            }
         }
-        return super.getSerialNumber();
+        return localRef;
     }
 
     /** {@inheritDoc} */
     @Override
-    public Firmware getFirmware() {
-        if (this.firmware == null) {
-            this.firmware = new FreeBsdFirmware();
-        }
-        return this.firmware;
+    public Firmware createFirmware() {
+        return new FreeBsdFirmware();
     }
 
     /** {@inheritDoc} */
     @Override
-    public Baseboard getBaseboard() {
-        if (this.baseboard == null) {
-            this.baseboard = new FreeBsdBaseboard();
-        }
-        return this.baseboard;
+    public Baseboard createBaseboard() {
+        return new FreeBsdBaseboard();
     }
 
     private void readDmiDecode() {
@@ -128,7 +144,13 @@ final class FreeBsdComputerSystem extends AbstractComputerSystem {
                 this.serialNumber = serialNumber;
             }
         }
-
+        // If we get to end and haven't assigned, use fallback
+        if (this.manufacturer == null || manufacturer.isEmpty()) {
+            this.manufacturer = Constants.UNKNOWN;
+        }
+        if (this.model == null || model.isEmpty()) {
+            this.model = Constants.UNKNOWN;
+        }
         if (this.serialNumber == null || serialNumber.isEmpty()) {
             this.serialNumber = getSystemSerialNumber();
         }
