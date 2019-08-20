@@ -284,12 +284,13 @@ public class OperatingSystemTest {
     public void testConstructProcessWithGivenPid() {
         SystemInfo si = new SystemInfo();
         OperatingSystem os = si.getOperatingSystem();
-        OSProcess oldProcess = os.getProcess(os.getProcessId());
-        int givenPid = oldProcess.getProcessID();
+        int givenPid = os.getProcessId();
+        OSProcess oldProcess = os.getProcess(givenPid);
 
         OSProcess newProcess = new OSProcess(givenPid);
 
         assertEquals(oldProcess.getPath(), newProcess.getPath());
         assertEquals(oldProcess.getProcessID(), newProcess.getProcessID());
+        assertTrue(newProcess.updateAttributes());
     }
 }

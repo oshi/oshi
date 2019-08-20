@@ -23,6 +23,7 @@
  */
 package oshi.software.os;
 
+import com.sun.jna.Platform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import oshi.SystemInfo;
@@ -117,6 +118,8 @@ public class OSProcess implements Serializable {
     /**
      * <p>
      * Constructor for OSProcess.
+     * Created object is populated with current process stats.
+     * This is equivalent to {@link oshi.software.os.OperatingSystem#getProcess(int)}
      * </p>
      *
      * @param processID
@@ -130,18 +133,15 @@ public class OSProcess implements Serializable {
     /**
      * Updates all process attributes.
      */
-    public void updateAttributes() {
+    public boolean updateAttributes() {
         OperatingSystem operatingSystem = getCurrentOperatingSystem();
-        if (operatingSystem != null) {
-            OSProcess process = operatingSystem.getProcess(this.processID);
-            if (process != null) {
-                copyValuesToThisProcess(process);
-            } else {
-                LOG.error("No process found: {}", this.processID);
-            }
-        } else {
-            LOG.error("Unsupported platform. No update performed.");
+        OSProcess process = operatingSystem.getProcess(this.processID);
+        if (process == null) {
+            LOG.debug("No process found: {}", this.processID);
+            return false;
         }
+        copyValuesToThisProcess(process);
+        return true;
     }
 
     /**
@@ -737,7 +737,7 @@ public class OSProcess implements Serializable {
             case FREEBSD:
                 return new FreeBsdOperatingSystem();
             default:
-                return null;
+                throw new UnsupportedOperationException("Operating system not supported: " + Platform.getOSType());
         }
     }
 
