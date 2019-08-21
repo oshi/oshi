@@ -24,8 +24,10 @@
 package oshi.software.os;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -190,17 +192,7 @@ public class OperatingSystemTest {
         }
         if (SystemInfo.getCurrentPlatformEnum() != PlatformEnum.SOLARIS) {
             // Due to race condition, a process may terminate before we count
-            // its
-            // children.
-            if (onePid >= 0) {
-                assertTrue(0 <= os.getChildProcesses(onePid, 0, null).length);
-            }
-            if (nPid >= 0) {
-                assertTrue(0 <= os.getChildProcesses(nPid, 0, null).length);
-            }
-            if (mPid >= 0) {
-                assertTrue(0 <= os.getChildProcesses(mPid, 0, null).length);
-            }
+            // its children. Play the odds.
             // At least one of these tests should work.
             if (onePid >= 0 && nPid >= 0 && mPid >= 0) {
                 assertTrue(os.getChildProcesses(onePid, 0, null).length == 1
@@ -219,7 +211,7 @@ public class OperatingSystemTest {
         OperatingSystem os = si.getOperatingSystem();
         OSProcess oldProcess = os.getProcess(os.getProcessId());
 
-        OSProcess newProcess = new OSProcess();
+        OSProcess newProcess = new OSProcess(os);
         newProcess.setName(oldProcess.getName());
         newProcess.setPath(oldProcess.getPath());
         newProcess.setCommandLine(oldProcess.getCommandLine());
@@ -278,5 +270,33 @@ public class OperatingSystemTest {
         }
 
         assertTrue(processesWithNonEmptyCmdLine >= 1);
+    }
+
+    @Test
+    public void testConstructProcessWithGivenPid() throws InstantiationException {
+        SystemInfo si = new SystemInfo();
+        OperatingSystem os = si.getOperatingSystem();
+
+        // Test using current process ID, which we are sure will exist during
+        // this test
+        int givenPid = os.getProcessId();
+        OSProcess oldProcess = os.getProcess(givenPid);
+        OSProcess newProcess = new OSProcess(os, givenPid);
+
+        assertEquals(oldProcess.getPath(), newProcess.getPath());
+        assertEquals(oldProcess.getProcessID(), newProcess.getProcessID());
+        assertTrue(newProcess.updateAttributes());
+
+        // Change the pid to a nonexistent one
+        oldProcess.setProcessID(-1);
+        assertFalse(oldProcess.updateAttributes());
+
+        // Try to instantiate with a nonexistent PID
+        try {
+            newProcess = new OSProcess(os, -1);
+            fail("Expected an InstantiationException");
+        } catch (InstantiationException expected) {
+            assertEquals("A process with ID -1 does not exist.", expected.getMessage());
+        }
     }
 }

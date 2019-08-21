@@ -12,6 +12,7 @@
   [@phillips0616](https://github.com/phillips0616),
   [@BooSandy1994](https://github.com/BooSandy1994).
   [@dbwiddis](https://github.com/dbwiddis).
+* [#960](https://github.com/oshi/oshi/pull/960): OSProcess constructor with PID. - [@Potat0x](https://github.com/Potat0x).
 * [#962](https://github.com/oshi/oshi/pull/962): Properly handle null WMI DateTime results. - [@dbwiddis](https://github.com/dbwiddis).  
 * Your contribution here
 
