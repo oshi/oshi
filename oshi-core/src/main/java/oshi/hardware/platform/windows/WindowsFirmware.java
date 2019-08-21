@@ -35,8 +35,6 @@ import oshi.util.platform.windows.WmiUtil;
  */
 final class WindowsFirmware extends AbstractFirmware {
 
-    private static final long serialVersionUID = 1L;
-
     enum BiosProperty {
         MANUFACTURER, NAME, DESCRIPTION, VERSION, RELEASEDATE;
     }

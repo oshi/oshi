@@ -38,9 +38,6 @@ import oshi.util.ParseUtil;
  * Firmware data obtained by sysfs.
  */
 final class LinuxFirmware extends AbstractFirmware {
-
-    private static final long serialVersionUID = 1L;
-
     // Jan 13 2013 16:24:29
     private static final DateTimeFormatter VCGEN_FORMATTER = DateTimeFormatter.ofPattern("MMM d uuuu HH:mm:ss",
             Locale.ENGLISH);

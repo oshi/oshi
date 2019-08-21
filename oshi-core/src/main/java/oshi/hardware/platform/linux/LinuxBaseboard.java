@@ -36,8 +36,6 @@ import oshi.util.platform.linux.ProcUtil;
  */
 final class LinuxBaseboard extends AbstractBaseboard {
 
-    private static final long serialVersionUID = 1L;
-
     /** {@inheritDoc} */
     @Override
     public String getManufacturer() {

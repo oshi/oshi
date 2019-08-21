@@ -31,8 +31,6 @@ import oshi.util.Constants;
  */
 public abstract class AbstractBaseboard implements Baseboard {
 
-    private static final long serialVersionUID = 1L;
-
     protected String manufacturer;
     protected String model;
     protected String version;

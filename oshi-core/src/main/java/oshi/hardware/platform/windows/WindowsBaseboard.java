@@ -35,8 +35,6 @@ import oshi.util.platform.windows.WmiUtil;
  */
 final class WindowsBaseboard extends AbstractBaseboard {
 
-    private static final long serialVersionUID = 1L;
-
     enum BaseboardProperty {
         MANUFACTURER, MODEL, VERSION, SERIALNUMBER;
     }

@@ -23,13 +23,11 @@
  */
 package oshi.hardware;
 
-import java.io.Serializable;
-
 /**
  * The Baseboard represents the system board, also called motherboard, logic
  * board, etc.
  */
-public interface Baseboard extends Serializable {
+public interface Baseboard {
     /**
      * Get the baseboard manufacturer.
      *

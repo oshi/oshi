@@ -71,4 +71,15 @@ public class Util {
         }
         return text.matches(pattern.replace("?", ".?").replace("*", ".*?"));
     }
+
+    /**
+     * Tests if a String is either null or empty.
+     * 
+     * @param s
+     *            The string to test
+     * @return True if the String is either null or empty.
+     */
+    public static boolean isBlank(String s) {
+        return (s == null || s.isEmpty());
+    }
 }

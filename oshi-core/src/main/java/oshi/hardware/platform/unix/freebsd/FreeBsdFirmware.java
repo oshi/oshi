@@ -30,8 +30,6 @@ import oshi.util.ParseUtil;
 
 final class FreeBsdFirmware extends AbstractFirmware {
 
-    private static final long serialVersionUID = 1L;
-
     /** {@inheritDoc} */
     @Override
     public String getManufacturer() {

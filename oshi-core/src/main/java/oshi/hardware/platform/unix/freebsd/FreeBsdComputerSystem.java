@@ -23,86 +23,53 @@
  */
 package oshi.hardware.platform.unix.freebsd;
 
+import java.util.function.Supplier;
+
 import oshi.hardware.Baseboard;
 import oshi.hardware.Firmware;
 import oshi.hardware.common.AbstractComputerSystem;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
+import oshi.util.Memoizer;
 import oshi.util.ParseUtil;
+import oshi.util.Util;
 
 /**
  * Hardware data obtained from dmidecode.
  */
 final class FreeBsdComputerSystem extends AbstractComputerSystem {
 
-    private volatile String manufacturer;
+    private final Supplier<ManufacturerModelSerial> manufacturerModelSerial = Memoizer.memoize(this::readDmiDecode);
 
-    private volatile String model;
-
-    private volatile String serialNumber;
-
-    /** {@inheritDoc} */
     @Override
     public String getManufacturer() {
-        String localRef = this.manufacturer;
-        if (localRef == null) {
-            synchronized (this) {
-                localRef = this.manufacturer;
-                if (localRef == null) {
-                    readDmiDecode();
-                    localRef = this.manufacturer;
-                }
-            }
-        }
-        return localRef;
+        return manufacturerModelSerial.get().manufacturer;
     }
 
-
-    /** {@inheritDoc} */
     @Override
     public String getModel() {
-        String localRef = this.model;
-        if (localRef == null) {
-            synchronized (this) {
-                localRef = this.model;
-                if (localRef == null) {
-                    readDmiDecode();
-                    localRef = this.model;
-                }
-            }
-        }
-        return localRef;
+        return manufacturerModelSerial.get().model;
     }
 
-    /** {@inheritDoc} */
     @Override
     public String getSerialNumber() {
-        String localRef = this.serialNumber;
-        if (localRef == null) {
-            synchronized (this) {
-                localRef = this.serialNumber;
-                if (localRef == null) {
-                    readDmiDecode();
-                    localRef = this.serialNumber;
-                }
-            }
-        }
-        return localRef;
+        return manufacturerModelSerial.get().serialNumber;
     }
 
-    /** {@inheritDoc} */
     @Override
     public Firmware createFirmware() {
         return new FreeBsdFirmware();
     }
 
-    /** {@inheritDoc} */
     @Override
     public Baseboard createBaseboard() {
         return new FreeBsdBaseboard();
     }
 
-    private void readDmiDecode() {
+    private ManufacturerModelSerial readDmiDecode() {
+        String manufacturer = null;
+        String model = null;
+        String serialNumber = null;
 
         // $ sudo dmidecode -t system
         // # dmidecode 3.0
@@ -132,32 +99,26 @@ final class FreeBsdComputerSystem extends AbstractComputerSystem {
         // Only works with root permissions but it's all we've got
         for (final String checkLine : ExecutingCommand.runNative("dmidecode -t system")) {
             if (checkLine.contains(manufacturerMarker)) {
-                String manufacturer = checkLine.split(manufacturerMarker)[1].trim();
-                if (!manufacturer.isEmpty()) {
-                    this.manufacturer = manufacturer;
-                }
+                manufacturer = checkLine.split(manufacturerMarker)[1].trim();
             }
             if (checkLine.contains(productNameMarker)) {
-                String productName = checkLine.split(productNameMarker)[1].trim();
-                if (!productName.isEmpty()) {
-                    this.model = productName;
-                }
+                model = checkLine.split(productNameMarker)[1].trim();
             }
             if (checkLine.contains(serialNumMarker)) {
-                String serialNumber = checkLine.split(serialNumMarker)[1].trim();
-                this.serialNumber = serialNumber;
+                serialNumber = checkLine.split(serialNumMarker)[1].trim();
             }
         }
         // If we get to end and haven't assigned, use fallback
-        if (this.manufacturer == null || manufacturer.isEmpty()) {
-            this.manufacturer = Constants.UNKNOWN;
+        if (Util.isBlank(manufacturer)) {
+            manufacturer = Constants.UNKNOWN;
         }
-        if (this.model == null || model.isEmpty()) {
-            this.model = Constants.UNKNOWN;
+        if (Util.isBlank(model)) {
+            model = Constants.UNKNOWN;
         }
-        if (this.serialNumber == null || serialNumber.isEmpty()) {
-            this.serialNumber = getSystemSerialNumber();
+        if (Util.isBlank(serialNumber)) {
+            serialNumber = getSystemSerialNumber();
         }
+        return new ManufacturerModelSerial(manufacturer, model, serialNumber);
     }
 
     private String getSystemSerialNumber() {
@@ -168,5 +129,17 @@ final class FreeBsdComputerSystem extends AbstractComputerSystem {
             }
         }
         return Constants.UNKNOWN;
+    }
+
+    private static final class ManufacturerModelSerial {
+        private final String manufacturer;
+        private final String model;
+        private final String serialNumber;
+
+        private ManufacturerModelSerial(String manufacturer, String model, String serialNumber) {
+            this.manufacturer = manufacturer;
+            this.model = model;
+            this.serialNumber = serialNumber;
+        }
     }
 }
