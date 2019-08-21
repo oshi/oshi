@@ -23,6 +23,10 @@
  */
 package oshi.util;
 
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+
 /**
  * General constants used in multiple classes
  */
@@ -34,10 +38,15 @@ public class Constants {
     public static final String UNKNOWN = "unknown";
 
     /**
-     * Note: /sys/class/dmi/id symlinks here, but /sys/devices/ is the
-     * official/approved path for sysfs information
+     * The official/approved path for sysfs information. Note: /sys/class/dmi/id
+     * symlinks here
      */
     public static final String SYSFS_SERIAL_PATH = "/sys/devices/virtual/dmi/id/";
+
+    /**
+     * The Unix Epoch, a default value when WMI DateTime queries return no value.
+     */
+    public static final OffsetDateTime UNIX_EPOCH = OffsetDateTime.ofInstant(Instant.EPOCH, ZoneOffset.UTC);
 
     /**
      * Everything in this class is static, never instantiate it
