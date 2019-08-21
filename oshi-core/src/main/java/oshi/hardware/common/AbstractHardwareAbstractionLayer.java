@@ -23,11 +23,14 @@
  */
 package oshi.hardware.common;
 
+import java.util.function.Supplier;
+
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.ComputerSystem;
 import oshi.hardware.GlobalMemory;
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.Sensors;
+import oshi.util.Memoizer;
 
 /**
  * Common fields or methods used by platform-specific implementations of
@@ -37,27 +40,17 @@ public abstract class AbstractHardwareAbstractionLayer implements HardwareAbstra
 
     private static final long serialVersionUID = 1L;
 
-    private volatile ComputerSystem computerSystem;
+    private final Supplier<ComputerSystem> computerSystem = Memoizer.memoize(this::createComputerSystem);
 
-    private volatile CentralProcessor processor;
+    private final Supplier<CentralProcessor> processor = Memoizer.memoize(this::createProcessor);
 
-    private volatile GlobalMemory memory;
+    private final Supplier<GlobalMemory> memory = Memoizer.memoize(this::createMemory);
 
-    private volatile Sensors sensors;
+    private final Supplier<Sensors> sensors = Memoizer.memoize(this::createSensors);
 
-    /** {@inheritDoc} */
     @Override
     public ComputerSystem getComputerSystem() {
-        ComputerSystem localRef = this.computerSystem;
-        if (localRef == null) {
-            synchronized (this) {
-                localRef = this.computerSystem;
-                if (localRef == null) {
-                    this.computerSystem = localRef = createComputerSystem();
-                }
-            }
-        }
-        return localRef;
+        return computerSystem.get();
     }
 
     /**
@@ -67,19 +60,9 @@ public abstract class AbstractHardwareAbstractionLayer implements HardwareAbstra
      */
     protected abstract ComputerSystem createComputerSystem();
 
-    /** {@inheritDoc} */
     @Override
     public CentralProcessor getProcessor() {
-        CentralProcessor localRef = this.processor;
-        if (localRef == null) {
-            synchronized (this) {
-                localRef = this.processor;
-                if (localRef == null) {
-                    this.processor = localRef = createProcessor();
-                }
-            }
-        }
-        return localRef;
+        return processor.get();
     }
 
     /**
@@ -89,19 +72,9 @@ public abstract class AbstractHardwareAbstractionLayer implements HardwareAbstra
      */
     protected abstract CentralProcessor createProcessor();
 
-    /** {@inheritDoc} */
     @Override
     public GlobalMemory getMemory() {
-        GlobalMemory localRef = this.memory;
-        if (localRef == null) {
-            synchronized (this) {
-                localRef = this.memory;
-                if (localRef == null) {
-                    this.memory = localRef = createMemory();
-                }
-            }
-        }
-        return localRef;
+        return memory.get();
     }
 
     /**
@@ -111,19 +84,9 @@ public abstract class AbstractHardwareAbstractionLayer implements HardwareAbstra
      */
     protected abstract GlobalMemory createMemory();
 
-    /** {@inheritDoc} */
     @Override
     public Sensors getSensors() {
-        Sensors localRef = this.sensors;
-        if (localRef == null) {
-            synchronized (this) {
-                localRef = this.sensors;
-                if (localRef == null) {
-                    this.sensors = localRef = createSensors();
-                }
-            }
-        }
-        return localRef;
+        return sensors.get();
     }
 
     /**

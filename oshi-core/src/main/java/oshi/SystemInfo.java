@@ -23,7 +23,7 @@
  */
 package oshi;
 
-import java.io.Serializable;
+import java.util.function.Supplier;
 
 import com.sun.jna.Platform; // NOSONAR squid:S1191
 
@@ -39,6 +39,7 @@ import oshi.software.os.mac.MacOperatingSystem;
 import oshi.software.os.unix.freebsd.FreeBsdOperatingSystem;
 import oshi.software.os.unix.solaris.SolarisOperatingSystem;
 import oshi.software.os.windows.WindowsOperatingSystem;
+import oshi.util.Memoizer;
 
 /**
  * System information. This is the main entry point to Oshi.
@@ -47,9 +48,7 @@ import oshi.software.os.windows.WindowsOperatingSystem;
  * platform-specific implementations of {@link oshi.software.os.OperatingSystem}
  * (software) and {@link oshi.hardware.HardwareAbstractionLayer} (hardware).
  */
-public class SystemInfo implements Serializable {
-
-    private static final long serialVersionUID = 1L;
+public class SystemInfo {
 
     // The platform isn't going to change, and making this static enables easy
     // access from outside this class
@@ -71,9 +70,10 @@ public class SystemInfo implements Serializable {
         }
     }
 
-    private volatile OperatingSystem os = null;
+    private final Supplier<OperatingSystem> os = Memoizer.memoize(this::createOperatingSystem);
 
-    private volatile HardwareAbstractionLayer hardware = null;
+    private final Supplier<HardwareAbstractionLayer> hardware = Memoizer.memoize(this::createHardware);
+
 
     /**
      * <p>
@@ -93,16 +93,7 @@ public class SystemInfo implements Serializable {
      * @return A new instance of {@link oshi.software.os.OperatingSystem}.
      */
     public OperatingSystem getOperatingSystem() {
-        OperatingSystem localRef = this.os;
-        if (localRef == null) {
-            synchronized (this) {
-                localRef = this.os;
-                if (localRef == null) {
-                    this.os = localRef = createOperatingSystem();
-                }
-            }
-        }
-        return localRef;
+        return os.get();
     }
 
     private OperatingSystem createOperatingSystem() {
@@ -130,16 +121,7 @@ public class SystemInfo implements Serializable {
      * @return A new instance of {@link oshi.hardware.HardwareAbstractionLayer}.
      */
     public HardwareAbstractionLayer getHardware() {
-        HardwareAbstractionLayer localRef = this.hardware;
-        if (localRef == null) {
-            synchronized (this) {
-                localRef = this.hardware;
-                if (localRef == null) {
-                    this.hardware = localRef = createHardware();
-                }
-            }
-        }
-        return localRef;
+        return hardware.get();
     }
 
     private HardwareAbstractionLayer createHardware() {

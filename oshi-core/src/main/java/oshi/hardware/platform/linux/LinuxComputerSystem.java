@@ -39,7 +39,11 @@ import oshi.util.platform.linux.ProcUtil;
  */
 final class LinuxComputerSystem extends AbstractComputerSystem {
 
-    private static final long serialVersionUID = 1L;
+    private volatile String manufacturer;
+
+    private volatile String model;
+
+    private volatile String serialNumber;
 
     /** {@inheritDoc} */
     @Override

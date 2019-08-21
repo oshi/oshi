@@ -38,7 +38,11 @@ import oshi.util.platform.mac.IOKitUtil;
  */
 final class MacComputerSystem extends AbstractComputerSystem {
 
-    private static final long serialVersionUID = 1L;
+    private volatile String manufacturer;
+
+    private volatile String model;
+
+    private volatile String serialNumber;
 
     /** {@inheritDoc} */
     @Override

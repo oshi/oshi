@@ -23,40 +23,25 @@
  */
 package oshi.hardware.common;
 
+import java.util.function.Supplier;
+
 import oshi.hardware.Baseboard;
 import oshi.hardware.ComputerSystem;
 import oshi.hardware.Firmware;
+import oshi.util.Memoizer;
 
 /**
  * Computer System data.
  */
 public abstract class AbstractComputerSystem implements ComputerSystem {
 
-    private static final long serialVersionUID = 1L;
+    private final Supplier<Firmware> firmware = Memoizer.memoize(this::createFirmware);
 
-    protected volatile String manufacturer;
+    private final Supplier<Baseboard> baseboard = Memoizer.memoize(this::createBaseboard);
 
-    protected volatile String model;
-
-    protected volatile String serialNumber;
-
-    private volatile Firmware firmware;
-
-    private volatile Baseboard baseboard;
-
-    /** {@inheritDoc} */
     @Override
     public Firmware getFirmware() {
-        Firmware localRef = this.firmware;
-        if (localRef == null) {
-            synchronized (this) {
-                localRef = this.firmware;
-                if (localRef == null) {
-                    this.firmware = localRef = createFirmware();
-                }
-            }
-        }
-        return localRef;
+        return firmware.get();
     }
 
     /**
@@ -66,19 +51,9 @@ public abstract class AbstractComputerSystem implements ComputerSystem {
      */
     protected abstract Firmware createFirmware();
 
-    /** {@inheritDoc} */
     @Override
     public Baseboard getBaseboard() {
-        Baseboard localRef = this.baseboard;
-        if (localRef == null) {
-            synchronized (this) {
-                localRef = this.baseboard;
-                if (localRef == null) {
-                    this.baseboard = localRef = createBaseboard();
-                }
-            }
-        }
-        return localRef;
+        return baseboard.get();
     }
 
     /**
@@ -88,7 +63,6 @@ public abstract class AbstractComputerSystem implements ComputerSystem {
      */
     protected abstract Baseboard createBaseboard();
 
-    /** {@inheritDoc} */
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

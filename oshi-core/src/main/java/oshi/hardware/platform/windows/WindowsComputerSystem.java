@@ -23,6 +23,8 @@
  */
 package oshi.hardware.platform.windows;
 
+import java.util.function.Supplier;
+
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery; // NOSONAR squid:S1191
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
@@ -30,6 +32,7 @@ import oshi.hardware.Baseboard;
 import oshi.hardware.Firmware;
 import oshi.hardware.common.AbstractComputerSystem;
 import oshi.util.Constants;
+import oshi.util.Memoizer;
 import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
 
@@ -38,56 +41,29 @@ import oshi.util.platform.windows.WmiUtil;
  */
 final class WindowsComputerSystem extends AbstractComputerSystem {
 
-    private static final long serialVersionUID = 1L;
+    private final Supplier<ManufacturerAndModel> manufacturerAndModel = Memoizer
+            .memoize(this::queryManufacturerAndModel);
 
-    private final transient WmiQueryHandler wmiQueryHandler = WmiQueryHandler.createInstance();
+    private final Supplier<String> serialNumber = Memoizer.memoize(this::querySystemSerialNumber);
+
+    private final WmiQueryHandler wmiQueryHandler = WmiQueryHandler.createInstance();
 
     /** {@inheritDoc} */
     @Override
     public String getManufacturer() {
-        String localRef = this.manufacturer;
-        if (localRef == null) {
-            synchronized (this) {
-                localRef = this.manufacturer;
-                if (localRef == null) {
-                    queryManufacturerAndModel();
-                    localRef = this.manufacturer;
-                }
-            }
-        }
-        return localRef;
+        return manufacturerAndModel.get().manufacturer;
     }
 
     /** {@inheritDoc} */
     @Override
     public String getModel() {
-        String localRef = this.model;
-        if (localRef == null) {
-            synchronized (this) {
-                localRef = this.model;
-                if (localRef == null) {
-                    queryManufacturerAndModel();
-                    localRef = this.model;
-                }
-            }
-        }
-        return localRef;
+        return manufacturerAndModel.get().model;
     }
 
     /** {@inheritDoc} */
     @Override
     public String getSerialNumber() {
-        String localRef = this.serialNumber;
-        if (localRef == null) {
-            synchronized (this) {
-                localRef = this.serialNumber;
-                if (localRef == null) {
-                    querySystemSerialNumber();
-                    localRef = this.serialNumber;
-                }
-            }
-        }
-        return localRef;
+        return serialNumber.get();
     }
 
     /** {@inheritDoc} */
@@ -102,50 +78,56 @@ final class WindowsComputerSystem extends AbstractComputerSystem {
         return new WindowsBaseboard();
     }
 
-    private void queryManufacturerAndModel() {
+    private ManufacturerAndModel queryManufacturerAndModel() {
+        String manufacturer;
+        String model;
         WmiQuery<ComputerSystemProperty> computerSystemQuery = new WmiQuery<>("Win32_ComputerSystem",
                 ComputerSystemProperty.class);
         WmiResult<ComputerSystemProperty> win32ComputerSystem = wmiQueryHandler.queryWMI(computerSystemQuery);
         if (win32ComputerSystem.getResultCount() > 0) {
-            this.manufacturer = WmiUtil.getString(win32ComputerSystem, ComputerSystemProperty.MANUFACTURER, 0);
-            if (this.manufacturer.isEmpty()) {
-                this.manufacturer = Constants.UNKNOWN;
+            manufacturer = WmiUtil.getString(win32ComputerSystem, ComputerSystemProperty.MANUFACTURER, 0);
+            if (manufacturer.isEmpty()) {
+                manufacturer = Constants.UNKNOWN;
             }
-            this.model = WmiUtil.getString(win32ComputerSystem, ComputerSystemProperty.MODEL, 0);
-            if (this.model.isEmpty()) {
-                this.model = Constants.UNKNOWN;
+            model = WmiUtil.getString(win32ComputerSystem, ComputerSystemProperty.MODEL, 0);
+            if (model.isEmpty()) {
+                model = Constants.UNKNOWN;
             }
         } else {
-            this.manufacturer = Constants.UNKNOWN;
-            this.model = Constants.UNKNOWN;
+            manufacturer = Constants.UNKNOWN;
+            model = Constants.UNKNOWN;
         }
+        return new ManufacturerAndModel(manufacturer, model);
     }
 
-    private void querySystemSerialNumber() {
-        if (!querySerialFromBios() && !querySerialFromCsProduct()) {
-            this.serialNumber = Constants.UNKNOWN;
+    private String querySystemSerialNumber() {
+        String result;
+        if ((result = querySerialFromBios()) == null && (result = querySerialFromCsProduct()) == null) {
+            return Constants.UNKNOWN;
         }
+        return result.isEmpty() ? Constants.UNKNOWN : result;
     }
 
-    private boolean querySerialFromBios() {
-        WmiQuery<BiosProperty> serialNumberQuery = new WmiQuery<>("Win32_BIOS where PrimaryBIOS=true",
+    private String querySerialFromBios() {
+        String result = null;
+        WmiQuery<BiosProperty> serialNumQuery = new WmiQuery<>("Win32_BIOS where PrimaryBIOS=true",
                 BiosProperty.class);
-        WmiResult<BiosProperty> serialNumber = wmiQueryHandler.queryWMI(serialNumberQuery);
-        if (serialNumber.getResultCount() > 0) {
-            this.serialNumber = WmiUtil.getString(serialNumber, BiosProperty.SERIALNUMBER, 0);
+        WmiResult<BiosProperty> serialNum = wmiQueryHandler.queryWMI(serialNumQuery);
+        if (serialNum.getResultCount() > 0) {
+            result = WmiUtil.getString(serialNum, BiosProperty.SERIALNUMBER, 0);
         }
-        return this.serialNumber != null && !this.serialNumber.isEmpty();
+        return result;
     }
 
-    private boolean querySerialFromCsProduct() {
+    private String querySerialFromCsProduct() {
+        String result = null;
         WmiQuery<ComputerSystemProductProperty> identifyingNumberQuery = new WmiQuery<>("Win32_ComputerSystemProduct",
                 ComputerSystemProductProperty.class);
         WmiResult<ComputerSystemProductProperty> identifyingNumber = wmiQueryHandler.queryWMI(identifyingNumberQuery);
         if (identifyingNumber.getResultCount() > 0) {
-            this.serialNumber = WmiUtil.getString(identifyingNumber, ComputerSystemProductProperty.IDENTIFYINGNUMBER,
-                    0);
+            result = WmiUtil.getString(identifyingNumber, ComputerSystemProductProperty.IDENTIFYINGNUMBER, 0);
         }
-        return this.serialNumber != null && !this.serialNumber.isEmpty();
+        return result;
     }
 
     enum ComputerSystemProperty {
@@ -158,5 +140,15 @@ final class WindowsComputerSystem extends AbstractComputerSystem {
 
     enum ComputerSystemProductProperty {
         IDENTIFYINGNUMBER;
+    }
+
+    private static final class ManufacturerAndModel {
+        private final String manufacturer;
+        private final String model;
+
+        private ManufacturerAndModel(String manufacturer, String model) {
+            this.manufacturer = manufacturer;
+            this.model = model;
+        }
     }
 }
