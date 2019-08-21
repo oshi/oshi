@@ -28,15 +28,6 @@ import java.io.Serializable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Platform;
-
-import oshi.SystemInfo;
-import oshi.software.os.linux.LinuxOperatingSystem;
-import oshi.software.os.mac.MacOperatingSystem;
-import oshi.software.os.unix.freebsd.FreeBsdOperatingSystem;
-import oshi.software.os.unix.solaris.SolarisOperatingSystem;
-import oshi.software.os.windows.WindowsOperatingSystem;
-
 /**
  * A process is an instance of a computer program that is being executed. It
  * contains the program code and its current activity. Depending on the
@@ -109,16 +100,6 @@ public class OSProcess implements Serializable {
          * Other or unknown states not defined
          */
         OTHER
-    }
-
-    /**
-     * <p>
-     * Constructor for OSProcess. This constructor is not intended for public
-     * use.
-     * </p>
-     */
-    private OSProcess() {
-        this.operatingSystem = getCurrentOperatingSystem();
     }
 
     /**
@@ -761,23 +742,6 @@ public class OSProcess implements Serializable {
      */
     public void setBitness(int bitness) {
         this.bitness = bitness;
-    }
-
-    private OperatingSystem getCurrentOperatingSystem() {
-        switch (SystemInfo.getCurrentPlatformEnum()) {
-        case WINDOWS:
-            return new WindowsOperatingSystem();
-        case LINUX:
-            return new LinuxOperatingSystem();
-        case MACOSX:
-            return new MacOperatingSystem();
-        case SOLARIS:
-            return new SolarisOperatingSystem();
-        case FREEBSD:
-            return new FreeBsdOperatingSystem();
-        default:
-            throw new UnsupportedOperationException("Operating system not supported: " + Platform.getOSType());
-        }
     }
 
     private void copyValuesToThisProcess(OSProcess sourceProcess) {
