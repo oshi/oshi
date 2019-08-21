@@ -131,7 +131,7 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
                 continue;
             }
             long now = System.currentTimeMillis();
-            OSProcess sproc = new OSProcess();
+            OSProcess sproc = new OSProcess(this);
             switch (split[0].charAt(0)) {
             case 'O':
                 sproc.setState(OSProcess.State.RUNNING);

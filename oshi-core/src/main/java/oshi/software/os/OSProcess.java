@@ -49,6 +49,8 @@ public class OSProcess implements Serializable {
 
     private static final Logger LOG = LoggerFactory.getLogger(OSProcess.class);
 
+    private final OperatingSystem operatingSystem;
+
     private String name = "";
     private String path = "";
     private String commandLine = "";
@@ -115,7 +117,20 @@ public class OSProcess implements Serializable {
      * use.
      * </p>
      */
-    public OSProcess() {
+    private OSProcess() {
+        this.operatingSystem = getCurrentOperatingSystem();
+    }
+
+    /**
+     * <p>
+     * Constructor for OSProcess.
+     * </p>
+     *
+     * @param operatingSystem
+     *            a {@link oshi.software.os.OperatingSystem} instance
+     */
+    public OSProcess(OperatingSystem operatingSystem) {
+        this.operatingSystem = operatingSystem;
     }
 
     /**
@@ -129,13 +144,16 @@ public class OSProcess implements Serializable {
      * {@link java.lang.InstantiationException}.
      * </p>
      * 
+     * @param operatingSystem
+     *            a {@link oshi.software.os.OperatingSystem} instance
      * @param processID
      *            process ID
      * @throws InstantiationException
      *             If a process by that ID does not exist.
      */
-    public OSProcess(int processID) throws InstantiationException {
+    public OSProcess(OperatingSystem operatingSystem, int processID) throws InstantiationException {
         this.processID = processID;
+        this.operatingSystem = operatingSystem;
         if (!updateAttributes()) {
             throw new InstantiationException("A process with ID " + processID + " does not exist.");
         }
@@ -148,7 +166,6 @@ public class OSProcess implements Serializable {
      * @return True if the update was successful, false if the update failed
      */
     public boolean updateAttributes() {
-        OperatingSystem operatingSystem = getCurrentOperatingSystem();
         OSProcess process = operatingSystem.getProcess(this.processID);
         if (process == null) {
             LOG.debug("No process found: {}", this.processID);

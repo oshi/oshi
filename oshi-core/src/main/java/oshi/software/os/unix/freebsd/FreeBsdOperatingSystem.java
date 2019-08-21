@@ -144,7 +144,7 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
                 continue;
             }
             long now = System.currentTimeMillis();
-            OSProcess fproc = new OSProcess();
+            OSProcess fproc = new OSProcess(this);
             switch (split[0].charAt(0)) {
             case 'R':
                 fproc.setState(OSProcess.State.RUNNING);

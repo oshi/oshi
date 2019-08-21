@@ -211,7 +211,7 @@ public class OperatingSystemTest {
         OperatingSystem os = si.getOperatingSystem();
         OSProcess oldProcess = os.getProcess(os.getProcessId());
 
-        OSProcess newProcess = new OSProcess();
+        OSProcess newProcess = new OSProcess(os);
         newProcess.setName(oldProcess.getName());
         newProcess.setPath(oldProcess.getPath());
         newProcess.setCommandLine(oldProcess.getCommandLine());
@@ -281,7 +281,7 @@ public class OperatingSystemTest {
         // this test
         int givenPid = os.getProcessId();
         OSProcess oldProcess = os.getProcess(givenPid);
-        OSProcess newProcess = new OSProcess(givenPid);
+        OSProcess newProcess = new OSProcess(os, givenPid);
 
         assertEquals(oldProcess.getPath(), newProcess.getPath());
         assertEquals(oldProcess.getProcessID(), newProcess.getProcessID());
@@ -293,7 +293,7 @@ public class OperatingSystemTest {
 
         // Try to instantiate with a nonexistent PID
         try {
-            newProcess = new OSProcess(-1);
+            newProcess = new OSProcess(os, -1);
             fail("Expected an InstantiationException");
         } catch (InstantiationException expected) {
             assertEquals("A process with ID -1 does not exist.", expected.getMessage());

@@ -195,7 +195,7 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
             }
         }
         long now = System.currentTimeMillis();
-        OSProcess proc = new OSProcess();
+        OSProcess proc = new OSProcess(this);
         proc.setName(name);
         proc.setPath(path);
         switch (taskAllInfo.pbsd.pbi_status) {

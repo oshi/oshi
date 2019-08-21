@@ -426,7 +426,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                 if (pids != null && !pids.contains(pid)) {
                     continue;
                 }
-                proc = new OSProcess();
+                proc = new OSProcess(this);
                 proc.setProcessID(pid);
                 proc.setName(IS_WINDOWS7_OR_GREATER ? processInfo[i].pProcessName
                         : WmiUtil.getString(processWmiResult, ProcessXPProperty.NAME, i));
@@ -637,7 +637,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
 
                     int pid = pPerfData.getInt(perfCounterBlockOffset + this.idProcessOffset);
                     if (pids == null || pids.contains(pid)) {
-                        OSProcess proc = new OSProcess();
+                        OSProcess proc = new OSProcess(this);
                         processMap.put(pid, proc);
 
                         proc.setProcessID(pid);
