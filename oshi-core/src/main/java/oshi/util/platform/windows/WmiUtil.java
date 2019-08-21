@@ -23,11 +23,14 @@
  */
 package oshi.util.platform.windows;
 
+import java.time.OffsetDateTime;
+
 import com.sun.jna.platform.win32.Variant; // NOSONAR
 import com.sun.jna.platform.win32.COM.Wbemcli;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
+import oshi.util.Constants;
 import oshi.util.ParseUtil;
 
 /**
@@ -35,9 +38,12 @@ import oshi.util.ParseUtil;
  */
 public class WmiUtil {
 
-    // Not a built in manespace, failed connections are normal and don't need
-    // error logging
-    /** Constant <code>OHM_NAMESPACE="ROOT\\OpenHardwareMonitor"</code> */
+    /**
+     * The namespace where Open Hardware Monitor publishes to WMI,
+     * <code>OHM_NAMESPACE="ROOT\\OpenHardwareMonitor"</code>. This namespace is not
+     * built-in to WMI, so if OHM is not running would result in unnecessary log
+     * messages.
+     */
     public static final String OHM_NAMESPACE = "ROOT\\OpenHardwareMonitor";
 
     private static final String CLASS_CAST_MSG = "%s is not a %s type. CIM Type is %d and VT type is %d";
@@ -92,7 +98,7 @@ public class WmiUtil {
     }
 
     /**
-     * Gets a Date value from a WmiResult as a String
+     * Gets a Date value from a WmiResult as a String in ISO 8601 format
      *
      * @param <T>
      *            WMI queries use an Enum to identify the fields to query, and use
@@ -106,9 +112,32 @@ public class WmiUtil {
      * @return The stored value if non-null, an empty-string otherwise
      */
     public static <T extends Enum<T>> String getDateString(WmiResult<T> result, T property, int index) {
+        OffsetDateTime dateTime = getDateTime(result, property, index);
+        // Null result returns the Epoch
+        if (dateTime.equals(Constants.UNIX_EPOCH)) {
+            return "";
+        }
+        return dateTime.toLocalDate().toString();
+    }
+
+    /**
+     * Gets a DateTime value from a WmiResult as an OffsetDateTime
+     *
+     * @param <T>
+     *            WMI queries use an Enum to identify the fields to query, and use
+     *            the enum values as keys to retrieve the results.
+     * @param result
+     *            The WmiResult from which to fetch the value
+     * @param property
+     *            The property (column) to fetch
+     * @param index
+     *            The index (row) to fetch
+     * @return The stored value if non-null, otherwise the constant
+     *         {@link oshi.util.Constants#UNIX_EPOCH}
+     */
+    public static <T extends Enum<T>> OffsetDateTime getDateTime(WmiResult<T> result, T property, int index) {
         if (result.getCIMType(property) == Wbemcli.CIM_DATETIME) {
-            String date = getStr(result, property, index);
-            return date.substring(0, 4) + '-' + date.substring(4, 6) + '-' + date.substring(6, 8);
+            return ParseUtil.parseCimDateTimeToOffset(getStr(result, property, index));
         }
         throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), "DateTime",
                 result.getCIMType(property), result.getVtType(property)));
