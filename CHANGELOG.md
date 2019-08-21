@@ -12,6 +12,7 @@
   [@phillips0616](https://github.com/phillips0616),
   [@BooSandy1994](https://github.com/BooSandy1994).
   [@dbwiddis](https://github.com/dbwiddis).
+* [#962](https://github.com/oshi/oshi/pull/962): Properly handle null WMI DateTime results. - [@dbwiddis](https://github.com/dbwiddis).  
 * Your contribution here
 
 4.0.0 (8/10/2019)

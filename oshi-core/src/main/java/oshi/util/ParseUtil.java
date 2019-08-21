@@ -25,8 +25,13 @@ package oshi.util;
 
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalTime;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
@@ -111,6 +116,10 @@ public class ParseUtil {
 
     // Fast hex character lookup
     private static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
+
+    // Format returned by WMI for DateTime
+    private static final DateTimeFormatter CIM_FORMAT = DateTimeFormatter.ofPattern("yyyyMMddHHmmss.SSSSSSZZZZZ",
+            Locale.US);
 
     private ParseUtil() {
     }
@@ -770,6 +779,35 @@ public class ParseUtil {
                     dateString.substring(3, 5));
         } catch (StringIndexOutOfBoundsException e) {
             return dateString;
+        }
+    }
+
+    /**
+     * Converts a string in CIM Date Format, as returned by WMI for DateTime types,
+     * into a {@link java.time.OffsetDateTime}.
+     * 
+     * @param cimDateTime
+     *            A non-null DateTime String in CIM date format, e.g.,
+     *            <code>20160513072950.782000-420</code>
+     * @return The parsed {@link java.time.OffsetDateTime} if the string is
+     *         parsable, otherwise {@link oshi.util.Constants#UNIX_EPOCH}.
+     */
+    public static OffsetDateTime parseCimDateTimeToOffset(String cimDateTime) {
+        // Keep first 22 characters: digits, decimal, and + or - sign
+        // But alter last 3 characters from a minute offset to hh:mm
+        try {
+            // From WMI as 20160513072950.782000-420,
+            int tzInMinutes = Integer.parseInt(cimDateTime.substring(22));
+            // modified to 20160513072950.782000-07:00 which can be parsed
+            LocalTime offsetAsLocalTime = LocalTime.MIDNIGHT.plusMinutes(tzInMinutes);
+            return OffsetDateTime.parse(
+                    cimDateTime.substring(0, 22) + offsetAsLocalTime.format(DateTimeFormatter.ISO_LOCAL_TIME),
+                    ParseUtil.CIM_FORMAT);
+        } catch (IndexOutOfBoundsException // if cimDate not 22+ chars
+                | NumberFormatException // if TZ minutes doesn't parse
+                | DateTimeParseException e) {
+            LOG.trace("Unable to parse {} to CIM DateTime.", cimDateTime);
+            return Constants.UNIX_EPOCH;
         }
     }
 }
