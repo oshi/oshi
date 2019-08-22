@@ -231,7 +231,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         // call later, so just get the numeric bits here
         long[] statArray = ParseUtil.parseStringToLongArray(stat, PROC_PID_STAT_ORDERS, PROC_PID_STAT_LENGTH, ' ');
         // Fetch cached process if it exists
-        OSProcess proc = new OSProcess();
+        OSProcess proc = new OSProcess(this);
         proc.setProcessID(pid);
         // The /proc/pid/cmdline value is null-delimited
         proc.setCommandLine(FileUtil.getStringFromFile(String.format("/proc/%d/cmdline", pid)));

@@ -26,6 +26,7 @@ package oshi.util;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.time.Instant;
 import java.util.Arrays;
 
 import org.junit.Test;
@@ -366,5 +367,15 @@ public class ParseUtilTest {
     @Test
     public void testFiletimeToMs() {
         assertEquals(1172163600306L, ParseUtil.filetimeToUtcMs(128166372003061629L, false));
+    }
+
+    @Test
+    public void testParseCimDateTimeToOffset() {
+        String cimDateTime = "20160513072950.782000-420";
+        // 2016-05-13T07:29:50 == 1463124590
+        // Add 420 minutes to get unix seconds
+        Instant timeInst = Instant.ofEpochMilli(1463124590_782L + 60 * 420_000L);
+        assertEquals(timeInst, ParseUtil.parseCimDateTimeToOffset(cimDateTime).toInstant());
+        assertEquals(Instant.EPOCH, ParseUtil.parseCimDateTimeToOffset("Not a datetime").toInstant());
     }
 }
