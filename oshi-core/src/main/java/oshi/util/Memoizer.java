@@ -23,8 +23,6 @@
  */
 package oshi.util;
 
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -35,19 +33,45 @@ import java.util.function.Supplier;
  */
 public final class Memoizer {
 
-    private Memoizer() {
+    /**
+     * Store a supplier in a delegate function to be computed only once, or
+     * after ttl has expired
+     * 
+     * @param original
+     *            The {@link java.util.function.Supplier} to memoize
+     * @param ttlNanos
+     *            Time in nanoseconds to retain calculation
+     * @return A memoized version of the supplier
+     */
+    public static <T> Supplier<T> memoize(Supplier<T> original, long ttlNanos) {
+        // Adapted from Guava's ExpiringMemoizingSupplier
+        return new Supplier<T>() {
+            final Supplier<T> delegate = original;
+            volatile T value;
+            volatile long expirationNanos;
+
+            @Override
+            public T get() {
+              long nanos = expirationNanos;
+              long now = System.nanoTime();
+              if (nanos == 0 || now - nanos >= 0) {
+                synchronized (this) {
+                  if (nanos == expirationNanos) { // recheck for lost race
+                    T t = delegate.get();
+                    value = t;
+                    nanos = now + ttlNanos;
+                    expirationNanos = (nanos == 0) ? 1 : nanos;
+                    return t;
+                  }
+                }
+              }
+              return value;
+            }
+        };
     }
 
-    /**
-     * Store the function in a thread-safe map to be computed only once.
-     * 
-     * @param f
-     *            The {@link java.util.function.Function} to memoize
-     * @return A memoized version of the function
-     */
-    public static <I, O> Function<I, O> memoize(Function<I, O> f) {
-        ConcurrentMap<I, O> lookup = new ConcurrentHashMap<>();
-        return input -> lookup.computeIfAbsent(input, f);
+    public static <T> Supplier<T> memoize2(Supplier<T> original) {
+        return memoize(original, Integer.MAX_VALUE);
     }
 
     /**
@@ -77,5 +101,67 @@ public final class Memoizer {
                 return delegate.get();
             }
         };
+    }
+
+    /*
+     * Methods suggested but don't work
+     */
+    public static <I, O> Function<I, O> memoize1(Function<I, O> f) {
+        return new Function<I, O>() {
+            private volatile O value;
+
+            public O apply(I i) {
+                O value = this.value;
+                if (value == null) {
+                    synchronized (this) {
+                        value = this.value;
+                        if (value == null) {
+                            this.value = value = f.apply(i);
+                            if (value == null) {
+                                throw new AssertionError("Internal error. Function must not return null");
+                            }
+                        }
+                    }
+                }
+                return value;
+            }
+        };
+    }
+
+    public static <T> Supplier<T> memoize1(Supplier<T> s) {
+        return () -> memoize1(i -> s.get()).apply(null);
+    }
+
+    public static void main(String[] args) {
+
+        Supplier<Long> nanoTime = memoize(System::nanoTime);
+
+        System.out.println("Delegate version from SO post:");
+        long base = System.nanoTime();
+        for (int i = 0; i < 10; i++) {
+            System.out.println(i + ": " + (nanoTime.get() - base));
+        }
+
+        nanoTime = memoize1(System::nanoTime);
+        System.out.println("DCL version from PR comments:");
+        base = System.nanoTime();
+        for (int i = 0; i < 10; i++) {
+            System.out.println(i + ": " + (nanoTime.get() - base));
+        }
+
+        nanoTime = memoize(System::nanoTime, 100_000);
+        System.out.println("Expiring version 100,000 ns:");
+        base = System.nanoTime();
+        for (int i = 0; i < 10; i++) {
+            System.out.println(i + ": " + (nanoTime.get() - base));
+        }
+
+        nanoTime = memoize2(System::nanoTime);
+        System.out.println("Expiring version using max int:");
+        base = System.nanoTime();
+        for (int i = 0; i < 10; i++) {
+            System.out.println(i + ": " + (nanoTime.get() - base));
+        }
+
     }
 }
