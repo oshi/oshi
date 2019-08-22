@@ -63,12 +63,8 @@ final class FreeBsdComputerSystem extends AbstractComputerSystem {
 
     @Override
     public Baseboard createBaseboard() {
-        FreeBsdBaseboard baseboard = new FreeBsdBaseboard();
-        baseboard.setManufacturer(readDmiDecode.get().manufacturer);
-        baseboard.setModel(readDmiDecode.get().model);
-        baseboard.setSerialNumber(readDmiDecode.get().serialNumber);
-        baseboard.setVersion(readDmiDecode.get().version);
-        return baseboard;
+        return new FreeBsdBaseboard(readDmiDecode.get().manufacturer, readDmiDecode.get().model,
+                readDmiDecode.get().serialNumber, readDmiDecode.get().version);
     }
 
     private DmidecodeStrings readDmiDecode() {

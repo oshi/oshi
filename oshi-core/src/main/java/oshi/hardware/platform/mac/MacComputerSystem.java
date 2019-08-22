@@ -65,12 +65,7 @@ final class MacComputerSystem extends AbstractComputerSystem {
 
     @Override
     public Baseboard createBaseboard() {
-        MacBaseboard baseboard = new MacBaseboard();
-        baseboard.setManufacturer(getManufacturer());
-        baseboard.setModel("SMC");
-        baseboard.setSerialNumber(getSerialNumber());
-        baseboard.setVersion(profileSystem.get().smcVersion);
-        return baseboard;
+        return new MacBaseboard(getManufacturer(), getSerialNumber(), profileSystem.get().smcVersion);
     }
 
     private ModelSerialSmcBootrom profileSystem() {

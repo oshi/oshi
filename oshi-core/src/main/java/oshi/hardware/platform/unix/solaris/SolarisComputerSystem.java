@@ -64,12 +64,8 @@ final class SolarisComputerSystem extends AbstractComputerSystem {
 
     @Override
     public Baseboard createBaseboard() {
-        SolarisBaseboard baseboard = new SolarisBaseboard();
-        baseboard.setManufacturer(smbiosStrings.get().boardManufacturer);
-        baseboard.setModel(smbiosStrings.get().boardModel);
-        baseboard.setSerialNumber(smbiosStrings.get().boardSerialNumber);
-        baseboard.setVersion(smbiosStrings.get().boardVersion);
-        return baseboard;
+        return new SolarisBaseboard(smbiosStrings.get().boardManufacturer, smbiosStrings.get().boardModel,
+                smbiosStrings.get().boardSerialNumber, smbiosStrings.get().boardVersion);
     }
 
     private SmbiosStrings readSmbios() {
