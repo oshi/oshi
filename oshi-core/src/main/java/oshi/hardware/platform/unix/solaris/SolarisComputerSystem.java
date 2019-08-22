@@ -58,13 +58,8 @@ final class SolarisComputerSystem extends AbstractComputerSystem {
 
     @Override
     public Firmware createFirmware() {
-        SolarisFirmware firmware = new SolarisFirmware();
-        firmware.setName(Constants.UNKNOWN);
-        firmware.setDescription(Constants.UNKNOWN);
-        firmware.setManufacturer(smbiosStrings.get().biosVendor);
-        firmware.setVersion(smbiosStrings.get().biosVersion);
-        firmware.setReleaseDate(smbiosStrings.get().biosDate);
-        return firmware;
+        return new SolarisFirmware(smbiosStrings.get().biosVendor, smbiosStrings.get().biosVersion,
+                smbiosStrings.get().biosDate);
     }
 
     @Override
@@ -140,18 +135,9 @@ final class SolarisComputerSystem extends AbstractComputerSystem {
         // Only works with root permissions but it's all we've got
         for (final String checkLine : ExecutingCommand.runNative("smbios")) {
             // Change the smbTypeId when hitting a new header
-            if (checkLine.contains("SMB_TYPE_")) {
-                if (checkLine.contains("SMB_TYPE_BIOS")) {
-                    smbTypeId = 0; // BIOS
-                } else if (checkLine.contains("SMB_TYPE_SYSTEM")) {
-                    smbTypeId = 1; // SYSTEM
-                } else if (checkLine.contains("SMB_TYPE_BASEBOARD")) {
-                    smbTypeId = 2; // BASEBOARD
-                } else {
-                    // First 3 SMB_TYPEs are what we need. After that no need to
-                    // continue processing the output
-                    break;
-                }
+            if (checkLine.contains("SMB_TYPE_")&& (smbTypeId = getSmbType(checkLine)) == Integer.MAX_VALUE) {
+                // If we get past what we need, stop iterating
+                break;
             }
             // Based on the smbTypeID we are processing for
             switch (smbTypeId) {
@@ -223,6 +209,20 @@ final class SolarisComputerSystem extends AbstractComputerSystem {
         }
         return new SmbiosStrings(biosVendor, biosVersion, biosDate, manufacturer, model, serialNumber,
                 boardManufacturer, boardModel, boardVersion, boardSerialNumber);
+    }
+
+    private int getSmbType(String checkLine) {
+        if (checkLine.contains("SMB_TYPE_BIOS")) {
+            return 0; // BIOS
+        } else if (checkLine.contains("SMB_TYPE_SYSTEM")) {
+            return 1; // SYSTEM
+        } else if (checkLine.contains("SMB_TYPE_BASEBOARD")) {
+            return 2; // BASEBOARD
+        } else {
+            // First 3 SMB_TYPEs are what we need. After that no need to
+            // continue processing the output
+            return Integer.MAX_VALUE;
+        }
     }
 
     private String readSerialNumber() {

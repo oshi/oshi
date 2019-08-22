@@ -47,20 +47,16 @@ final class LinuxComputerSystem extends AbstractComputerSystem {
 
     private final Supplier<String> serialNumber = Memoizer.memoize(this::querySerialNumber);
 
-    /** {@inheritDoc} */
     @Override
     public String getManufacturer() {
         return manufacturer.get();
     }
 
-
-    /** {@inheritDoc} */
     @Override
     public String getModel() {
         return model.get();
     }
 
-    /** {@inheritDoc} */
     @Override
     public String getSerialNumber() {
         return serialNumber.get();

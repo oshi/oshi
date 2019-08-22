@@ -58,17 +58,11 @@ final class MacComputerSystem extends AbstractComputerSystem {
         return profileSystem.get().serialNumber;
     }
 
-    /** {@inheritDoc} */
     @Override
     public Firmware createFirmware() {
-        MacFirmware firmware = new MacFirmware();
-        firmware.setManufacturer(getManufacturer());
-        firmware.setName("EFI");
-        firmware.setVersion(profileSystem.get().bootRomVersion);
-        return firmware;
+        return new MacFirmware(getManufacturer(), profileSystem.get().bootRomVersion);
     }
 
-    /** {@inheritDoc} */
     @Override
     public Baseboard createBaseboard() {
         MacBaseboard baseboard = new MacBaseboard();

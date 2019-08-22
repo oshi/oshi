@@ -53,22 +53,24 @@ public final class Memoizer {
     /**
      * Store a supplier in a delegate function to be computed only once.
      * 
-     * @param s
+     * @param original
      *            The {@link java.util.function.Supplier} to memoize
      * @return A memoized version of the supplier
      */
-    public static <T> Supplier<T> memoize(Supplier<T> s) {
+    public static <T> Supplier<T> memoize(Supplier<T> original) {
+        // Method copied from:
+        // https://stackoverflow.com/questions/35331327/
+        // does-java-8-have-cached-support-for-suppliers/35335467#35335467
         return new Supplier<T>() {
-            Supplier<T> delegate = this::getFirst;
+            Supplier<T> delegate = this::firstTime;
             boolean initialized;
-
             public T get() {
                 return delegate.get();
             }
 
-            private synchronized T getFirst() {
+            private synchronized T firstTime() {
                 if (!initialized) {
-                    T value = s.get();
+                    T value = original.get();
                     delegate = () -> value;
                     initialized = true;
                 }

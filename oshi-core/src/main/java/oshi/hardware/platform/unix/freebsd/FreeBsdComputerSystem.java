@@ -39,21 +39,21 @@ import oshi.util.Util;
  */
 final class FreeBsdComputerSystem extends AbstractComputerSystem {
 
-    private final Supplier<ManufacturerModelSerial> manufacturerModelSerial = Memoizer.memoize(this::readDmiDecode);
+    private final Supplier<DmidecodeStrings> readDmiDecode = Memoizer.memoize(this::readDmiDecode);
 
     @Override
     public String getManufacturer() {
-        return manufacturerModelSerial.get().manufacturer;
+        return readDmiDecode.get().manufacturer;
     }
 
     @Override
     public String getModel() {
-        return manufacturerModelSerial.get().model;
+        return readDmiDecode.get().model;
     }
 
     @Override
     public String getSerialNumber() {
-        return manufacturerModelSerial.get().serialNumber;
+        return readDmiDecode.get().serialNumber;
     }
 
     @Override
@@ -63,12 +63,18 @@ final class FreeBsdComputerSystem extends AbstractComputerSystem {
 
     @Override
     public Baseboard createBaseboard() {
-        return new FreeBsdBaseboard();
+        FreeBsdBaseboard baseboard = new FreeBsdBaseboard();
+        baseboard.setManufacturer(readDmiDecode.get().manufacturer);
+        baseboard.setModel(readDmiDecode.get().model);
+        baseboard.setSerialNumber(readDmiDecode.get().serialNumber);
+        baseboard.setVersion(readDmiDecode.get().version);
+        return baseboard;
     }
 
-    private ManufacturerModelSerial readDmiDecode() {
+    private DmidecodeStrings readDmiDecode() {
         String manufacturer = null;
         String model = null;
+        String version = null;
         String serialNumber = null;
 
         // $ sudo dmidecode -t system
@@ -94,6 +100,7 @@ final class FreeBsdComputerSystem extends AbstractComputerSystem {
 
         final String manufacturerMarker = "Manufacturer:";
         final String productNameMarker = "Product Name:";
+        final String versionMarker = "Version:";
         final String serialNumMarker = "Serial Number:";
 
         // Only works with root permissions but it's all we've got
@@ -103,6 +110,9 @@ final class FreeBsdComputerSystem extends AbstractComputerSystem {
             }
             if (checkLine.contains(productNameMarker)) {
                 model = checkLine.split(productNameMarker)[1].trim();
+            }
+            if (checkLine.contains(versionMarker)) {
+                version = checkLine.split(versionMarker)[1].trim();
             }
             if (checkLine.contains(serialNumMarker)) {
                 serialNumber = checkLine.split(serialNumMarker)[1].trim();
@@ -115,10 +125,13 @@ final class FreeBsdComputerSystem extends AbstractComputerSystem {
         if (Util.isBlank(model)) {
             model = Constants.UNKNOWN;
         }
+        if (Util.isBlank(version)) {
+            version = Constants.UNKNOWN;
+        }
         if (Util.isBlank(serialNumber)) {
             serialNumber = getSystemSerialNumber();
         }
-        return new ManufacturerModelSerial(manufacturer, model, serialNumber);
+        return new DmidecodeStrings(manufacturer, model, version, serialNumber);
     }
 
     private String getSystemSerialNumber() {
@@ -131,14 +144,16 @@ final class FreeBsdComputerSystem extends AbstractComputerSystem {
         return Constants.UNKNOWN;
     }
 
-    private static final class ManufacturerModelSerial {
+    private static final class DmidecodeStrings {
         private final String manufacturer;
         private final String model;
+        private final String version;
         private final String serialNumber;
 
-        private ManufacturerModelSerial(String manufacturer, String model, String serialNumber) {
+        private DmidecodeStrings(String manufacturer, String model, String version, String serialNumber) {
             this.manufacturer = manufacturer;
             this.model = model;
+            this.version = version;
             this.serialNumber = serialNumber;
         }
     }
