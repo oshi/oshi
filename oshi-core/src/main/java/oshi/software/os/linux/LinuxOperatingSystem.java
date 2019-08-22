@@ -745,7 +745,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
             svcArray[i] = new OSService();
             Map.Entry mapElement = (Map.Entry)it.next(); 
 
-            //svcArray[i].setProcessId(pid);
+            svcArray[i].setProcessId(null);
             svcArray[i].setName(mapElement.getKey());
 
             Stirng state = mapElement.getValue(); 
@@ -761,7 +761,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
                     svcArray[i].setState(OSService.State.OTHER);
                     break;
             }
-            
+
             i++;
         } 
         return svcArray;
