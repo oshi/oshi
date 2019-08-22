@@ -30,6 +30,9 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.lang.reflect.Field;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -710,6 +713,70 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
      */
     public static long getHz() {
         return USER_HZ;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public OSService[] getServices() throws IOException {
+        
+        // creating list of commands  
+        List<String> commands = new ArrayList<String>(); 
+        commands.add("systemctl"); 
+        commands.add("list-unit-files"); 
+          
+        // creating the process 
+        ProcessBuilder pb = new ProcessBuilder(commands); 
+          
+        // starting the process 
+        Process process = pb.start(); 
+          
+        BufferedReader stdInput = new BufferedReader(new InputStreamReader(process.getInputStream())); 
+        
+        String s = null; 
+        HashMap<String, String> services = new HashMap<String,String>();
+
+        while ((s = stdInput.readLine()) != null) 
+        {   
+            String[] input = s.split(" ");
+            services.put(input[0], input[1]);
+        } 
+
+        OSService[] svcArray = new OSService[services.size()];
+
+        Iterator it = services.entrySet().iterator(); 
+        
+        //Skip header
+        it.next();
+        
+        while (it.hasNext()) { 
+            int i = 0;
+            svcArray[i] = new OSService();
+            Map.Entry mapElement = (Map.Entry)it.next(); 
+
+            Field f = process.getClass().getDeclaredField("pid");
+            f.setAccessible(true);
+            long pid = f.getLong(process);
+            f.setAccessible(false);
+
+            svcArray[i].setProcessId(pid);
+            svcArray[i].setName(mapElement.getKey());
+
+            Stirng state = mapElement.getValue(); 
+
+            switch(state) {
+                case "disabled":
+                    svcArray[i].setState(OSService.State.STOPPED);
+                    break;
+                case "enabled":
+                    svcArray[i].setState(OSService.State.RUNNING);
+                    break;
+                default: 
+                    svcArray[i].setState(OSService.State.OTHER);
+                    break;
+            }
+            i++;
+        } 
+        return svcArray;
     }
 
 }
