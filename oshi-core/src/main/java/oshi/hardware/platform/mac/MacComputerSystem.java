@@ -23,6 +23,8 @@
  */
 package oshi.hardware.platform.mac;
 
+import static oshi.util.Memoizer.memoize;
+
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
@@ -32,7 +34,6 @@ import oshi.hardware.common.AbstractComputerSystem;
 import oshi.jna.platform.mac.IOKit;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
-import static oshi.util.Memoizer.memoize;
 import oshi.util.Util;
 import oshi.util.platform.mac.IOKitUtil;
 
@@ -120,12 +121,6 @@ final class MacComputerSystem extends AbstractComputerSystem {
         if (Util.isBlank(serialNumber)) {
             serialNumber = getIORegistryPlatformSerialNumber();
         }
-        if (Util.isBlank(bootRomVersion)) {
-            bootRomVersion = Constants.UNKNOWN;
-        }
-        if (Util.isBlank(smcVersion)) {
-            smcVersion = Constants.UNKNOWN;
-        }
         return new ModelSerialSmcBootrom(model, serialNumber, smcVersion, bootRomVersion);
     }
 
@@ -160,10 +155,10 @@ final class MacComputerSystem extends AbstractComputerSystem {
         private final String bootRomVersion;
 
         private ModelSerialSmcBootrom(String model, String serialNumber, String smcVersion, String bootRomVersion) {
-            this.model = model;
-            this.serialNumber = serialNumber;
-            this.smcVersion = smcVersion;
-            this.bootRomVersion = bootRomVersion;
+            this.model = Util.isBlank(model) ? Constants.UNKNOWN : model;
+            this.serialNumber = Util.isBlank(serialNumber) ? Constants.UNKNOWN : serialNumber;
+            this.smcVersion = Util.isBlank(smcVersion) ? Constants.UNKNOWN : smcVersion;
+            this.bootRomVersion = Util.isBlank(bootRomVersion) ? Constants.UNKNOWN : bootRomVersion;
         }
     }
 }

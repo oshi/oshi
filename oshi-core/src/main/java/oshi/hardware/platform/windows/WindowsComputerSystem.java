@@ -23,6 +23,8 @@
  */
 package oshi.hardware.platform.windows;
 
+import static oshi.util.Memoizer.memoize;
+
 import java.util.function.Supplier;
 
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery; // NOSONAR squid:S1191
@@ -32,7 +34,6 @@ import oshi.hardware.Baseboard;
 import oshi.hardware.Firmware;
 import oshi.hardware.common.AbstractComputerSystem;
 import oshi.util.Constants;
-import static oshi.util.Memoizer.memoize;
 import oshi.util.Util;
 import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
@@ -88,12 +89,6 @@ final class WindowsComputerSystem extends AbstractComputerSystem {
             manufacturer = WmiUtil.getString(win32ComputerSystem, ComputerSystemProperty.MANUFACTURER, 0);
             model = WmiUtil.getString(win32ComputerSystem, ComputerSystemProperty.MODEL, 0);
         }
-        if (Util.isBlank(manufacturer)) {
-            manufacturer = Constants.UNKNOWN;
-        }
-        if (Util.isBlank(model)) {
-            model = Constants.UNKNOWN;
-        }
         return new ManufacturerModel(manufacturer, model);
     }
 
@@ -144,8 +139,8 @@ final class WindowsComputerSystem extends AbstractComputerSystem {
         private final String model;
 
         private ManufacturerModel(String manufacturer, String model) {
-            this.manufacturer = manufacturer;
-            this.model = model;
+            this.manufacturer = Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer;
+            this.model = Util.isBlank(model) ? Constants.UNKNOWN : model;
         }
     }
 }

@@ -23,6 +23,8 @@
  */
 package oshi.hardware.platform.unix.solaris;
 
+import static oshi.util.Memoizer.memoize;
+
 import java.util.function.Supplier;
 
 import oshi.hardware.Baseboard;
@@ -30,7 +32,6 @@ import oshi.hardware.Firmware;
 import oshi.hardware.common.AbstractComputerSystem;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
-import static oshi.util.Memoizer.memoize;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
 
@@ -171,37 +172,8 @@ final class SolarisComputerSystem extends AbstractComputerSystem {
             }
         }
         // If we get to end and haven't assigned, use fallback
-        if (Util.isBlank(biosVendor)) {
-            biosVendor = Constants.UNKNOWN;
-        }
-        if (Util.isBlank(biosVersion)) {
-            biosVersion = Constants.UNKNOWN;
-        }
-        if (Util.isBlank(biosDate)) {
-            biosDate = Constants.UNKNOWN;
-        }
-
-        if (Util.isBlank(manufacturer)) {
-            manufacturer = Constants.UNKNOWN;
-        }
-        if (Util.isBlank(model)) {
-            model = Constants.UNKNOWN;
-        }
         if (Util.isBlank(serialNumber)) {
             serialNumber = readSerialNumber();
-        }
-
-        if (Util.isBlank(boardManufacturer)) {
-            boardManufacturer = Constants.UNKNOWN;
-        }
-        if (Util.isBlank(boardModel)) {
-            boardModel = Constants.UNKNOWN;
-        }
-        if (Util.isBlank(boardVersion)) {
-            boardVersion = Constants.UNKNOWN;
-        }
-        if (Util.isBlank(boardSerialNumber)) {
-            boardSerialNumber = Constants.UNKNOWN;
         }
         return new SmbiosStrings(biosVendor, biosVersion, biosDate, manufacturer, model, serialNumber,
                 boardManufacturer, boardModel, boardVersion, boardSerialNumber);
@@ -234,7 +206,7 @@ final class SolarisComputerSystem extends AbstractComputerSystem {
                 }
             }
         }
-        return (serialNumber.isEmpty()) ? Constants.UNKNOWN : serialNumber;
+        return serialNumber;
     }
 
     private static final class SmbiosStrings {
@@ -254,18 +226,18 @@ final class SolarisComputerSystem extends AbstractComputerSystem {
         public SmbiosStrings(String biosVendor, String biosVersion, String biosDate, //
                 String manufacturer, String model, String serialNumber, //
                 String boardManufacturer, String boardModel, String boardVersion, String boardSerialNumber) {
-            this.biosVendor = biosVendor;
-            this.biosVersion = biosVersion;
-            this.biosDate = biosDate;
+            this.biosVendor = Util.isBlank(biosVendor) ? Constants.UNKNOWN : biosVendor;
+            this.biosVersion = Util.isBlank(biosVersion) ? Constants.UNKNOWN : biosVersion;
+            this.biosDate = Util.isBlank(biosDate) ? Constants.UNKNOWN : biosDate;
 
-            this.manufacturer = manufacturer;
-            this.model = model;
-            this.serialNumber = serialNumber;
+            this.manufacturer = Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer;
+            this.model = Util.isBlank(model) ? Constants.UNKNOWN : model;
+            this.serialNumber = Util.isBlank(serialNumber) ? Constants.UNKNOWN : serialNumber;
 
-            this.boardManufacturer = boardManufacturer;
-            this.boardModel = boardModel;
-            this.boardVersion = boardVersion;
-            this.boardSerialNumber = boardSerialNumber;
+            this.boardManufacturer = Util.isBlank(boardManufacturer) ? Constants.UNKNOWN : boardManufacturer;
+            this.boardModel = Util.isBlank(boardModel) ? Constants.UNKNOWN : boardModel;
+            this.boardVersion = Util.isBlank(boardVersion) ? Constants.UNKNOWN : boardVersion;
+            this.boardSerialNumber = Util.isBlank(boardSerialNumber) ? Constants.UNKNOWN : boardSerialNumber;
         }
     }
 }

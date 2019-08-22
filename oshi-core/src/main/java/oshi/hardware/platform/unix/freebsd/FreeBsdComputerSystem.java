@@ -23,6 +23,8 @@
  */
 package oshi.hardware.platform.unix.freebsd;
 
+import static oshi.util.Memoizer.memoize;
+
 import java.util.function.Supplier;
 
 import oshi.hardware.Baseboard;
@@ -30,7 +32,6 @@ import oshi.hardware.Firmware;
 import oshi.hardware.common.AbstractComputerSystem;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
-import static oshi.util.Memoizer.memoize;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
 
@@ -115,15 +116,6 @@ final class FreeBsdComputerSystem extends AbstractComputerSystem {
             }
         }
         // If we get to end and haven't assigned, use fallback
-        if (Util.isBlank(manufacturer)) {
-            manufacturer = Constants.UNKNOWN;
-        }
-        if (Util.isBlank(model)) {
-            model = Constants.UNKNOWN;
-        }
-        if (Util.isBlank(version)) {
-            version = Constants.UNKNOWN;
-        }
         if (Util.isBlank(serialNumber)) {
             serialNumber = getSystemSerialNumber();
         }
@@ -147,10 +139,10 @@ final class FreeBsdComputerSystem extends AbstractComputerSystem {
         private final String serialNumber;
 
         private DmidecodeStrings(String manufacturer, String model, String version, String serialNumber) {
-            this.manufacturer = manufacturer;
-            this.model = model;
-            this.version = version;
-            this.serialNumber = serialNumber;
+            this.manufacturer = Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer;
+            this.model = Util.isBlank(model) ? Constants.UNKNOWN : model;
+            this.version = Util.isBlank(version) ? Constants.UNKNOWN : version;
+            this.serialNumber = Util.isBlank(serialNumber) ? Constants.UNKNOWN : serialNumber;
         }
     }
 }

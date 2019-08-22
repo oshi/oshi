@@ -23,13 +23,14 @@
  */
 package oshi.hardware.platform.linux;
 
+import static oshi.util.Memoizer.memoize;
+
 import java.util.List;
 import java.util.function.Supplier;
 
 import oshi.hardware.common.AbstractBaseboard;
 import oshi.util.Constants;
 import oshi.util.FileUtil;
-import static oshi.util.Memoizer.memoize;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
 import oshi.util.platform.linux.ProcUtil;
@@ -171,18 +172,6 @@ final class LinuxBaseboard extends AbstractBaseboard {
                 // Do nothing
             }
         }
-        if (Util.isBlank(pcManufacturer)) {
-            pcManufacturer = Constants.UNKNOWN;
-        }
-        if (Util.isBlank(pcModel)) {
-            pcModel = Constants.UNKNOWN;
-        }
-        if (Util.isBlank(pcVersion)) {
-            pcVersion = Constants.UNKNOWN;
-        }
-        if (Util.isBlank(pcSerialNumber)) {
-            pcSerialNumber = Constants.UNKNOWN;
-        }
         return new ProcCpuStrings(pcManufacturer, pcModel, pcVersion, pcSerialNumber);
     }
 
@@ -212,10 +201,10 @@ final class LinuxBaseboard extends AbstractBaseboard {
         private final String serialNumber;
 
         private ProcCpuStrings(String manufacturer, String model, String version, String serialNumber) {
-            this.manufacturer = manufacturer;
-            this.model = model;
-            this.version = version;
-            this.serialNumber = serialNumber;
+            this.manufacturer = Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer;
+            this.model = Util.isBlank(model) ? Constants.UNKNOWN : model;
+            this.version = Util.isBlank(version) ? Constants.UNKNOWN : version;
+            this.serialNumber = Util.isBlank(serialNumber) ? Constants.UNKNOWN : serialNumber;
         }
     }
 }

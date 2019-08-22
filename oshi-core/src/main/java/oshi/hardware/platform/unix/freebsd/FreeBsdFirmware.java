@@ -23,12 +23,13 @@
  */
 package oshi.hardware.platform.unix.freebsd;
 
+import static oshi.util.Memoizer.memoize;
+
 import java.util.function.Supplier;
 
 import oshi.hardware.common.AbstractFirmware;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
-import static oshi.util.Memoizer.memoize;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
 
@@ -88,18 +89,7 @@ final class FreeBsdFirmware extends AbstractFirmware {
                 releaseDate = checkLine.split(releaseDateMarker)[1].trim();
             }
         }
-        // If we get to end and haven't assigned, use fallback
-        if (Util.isBlank(manufacturer)) {
-            manufacturer = Constants.UNKNOWN;
-        }
-        if (Util.isBlank(version)) {
-            version = Constants.UNKNOWN;
-        }
-        if (Util.isBlank(releaseDate)) {
-            releaseDate = Constants.UNKNOWN;
-        } else {
-            releaseDate = ParseUtil.parseMmDdYyyyToYyyyMmDD(releaseDate);
-        }
+        releaseDate = ParseUtil.parseMmDdYyyyToYyyyMmDD(releaseDate);
         return new DmidecodeStrings(manufacturer, version, releaseDate);
     }
 
@@ -109,9 +99,9 @@ final class FreeBsdFirmware extends AbstractFirmware {
         private final String releaseDate;
 
         private DmidecodeStrings(String manufacturer, String version, String releaseDate) {
-            this.manufacturer = manufacturer;
-            this.version = version;
-            this.releaseDate = releaseDate;
+            this.manufacturer = Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer;
+            this.version = Util.isBlank(version) ? Constants.UNKNOWN : version;
+            this.releaseDate = Util.isBlank(releaseDate) ? Constants.UNKNOWN : releaseDate;
         }
     }
 

@@ -23,6 +23,8 @@
  */
 package oshi.hardware.platform.windows;
 
+import static oshi.util.Memoizer.memoize;
+
 import java.util.function.Supplier;
 
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery; // NOSONAR squid:S1191
@@ -30,7 +32,7 @@ import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.hardware.common.AbstractBaseboard;
 import oshi.util.Constants;
-import static oshi.util.Memoizer.memoize;
+import oshi.util.Util;
 import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
 
@@ -83,10 +85,10 @@ final class WindowsBaseboard extends AbstractBaseboard {
         private final String serialNumber;
 
         private WmiStrings(String manufacturer, String model, String version, String serialNumber) {
-            this.manufacturer = manufacturer;
-            this.model = model;
-            this.version = version;
-            this.serialNumber = serialNumber;
+            this.manufacturer = Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer;
+            this.model = Util.isBlank(model) ? Constants.UNKNOWN : model;
+            this.version = Util.isBlank(version) ? Constants.UNKNOWN : version;
+            this.serialNumber = Util.isBlank(serialNumber) ? Constants.UNKNOWN : serialNumber;
         }
     }
 

@@ -23,6 +23,8 @@
  */
 package oshi.hardware.platform.windows;
 
+import static oshi.util.Memoizer.memoize;
+
 import java.util.function.Supplier;
 
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery; // NOSONAR squid:S1191
@@ -30,7 +32,7 @@ import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.hardware.common.AbstractFirmware;
 import oshi.util.Constants;
-import static oshi.util.Memoizer.memoize;
+import oshi.util.Util;
 import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
 
@@ -93,11 +95,11 @@ final class WindowsFirmware extends AbstractFirmware {
 
         private WmiStrings(String releaseDate, String manufacturer, String version, String name,
                 String description) {
-            this.releaseDate = releaseDate;
-            this.manufacturer = manufacturer;
-            this.version = version;
-            this.name = name;
-            this.description = description;
+            this.releaseDate = Util.isBlank(releaseDate) ? Constants.UNKNOWN : releaseDate;
+            this.manufacturer = Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer;
+            this.version = Util.isBlank(version) ? Constants.UNKNOWN : version;
+            this.name = Util.isBlank(name) ? Constants.UNKNOWN : name;
+            this.description = Util.isBlank(description) ? Constants.UNKNOWN : description;
         }
     }
 }
