@@ -30,7 +30,7 @@ import oshi.hardware.ComputerSystem;
 import oshi.hardware.GlobalMemory;
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.Sensors;
-import oshi.util.Memoizer;
+import static oshi.util.Memoizer.memoize;
 
 /**
  * Common fields or methods used by platform-specific implementations of
@@ -38,13 +38,13 @@ import oshi.util.Memoizer;
  */
 public abstract class AbstractHardwareAbstractionLayer implements HardwareAbstractionLayer {
 
-    private final Supplier<ComputerSystem> computerSystem = Memoizer.memoize(this::createComputerSystem);
+    private final Supplier<ComputerSystem> computerSystem = memoize(this::createComputerSystem);
 
-    private final Supplier<CentralProcessor> processor = Memoizer.memoize(this::createProcessor);
+    private final Supplier<CentralProcessor> processor = memoize(this::createProcessor);
 
-    private final Supplier<GlobalMemory> memory = Memoizer.memoize(this::createMemory);
+    private final Supplier<GlobalMemory> memory = memoize(this::createMemory);
 
-    private final Supplier<Sensors> sensors = Memoizer.memoize(this::createSensors);
+    private final Supplier<Sensors> sensors = memoize(this::createSensors);
 
     @Override
     public ComputerSystem getComputerSystem() {

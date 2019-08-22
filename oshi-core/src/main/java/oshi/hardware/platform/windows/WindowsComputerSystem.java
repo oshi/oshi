@@ -32,7 +32,7 @@ import oshi.hardware.Baseboard;
 import oshi.hardware.Firmware;
 import oshi.hardware.common.AbstractComputerSystem;
 import oshi.util.Constants;
-import oshi.util.Memoizer;
+import static oshi.util.Memoizer.memoize;
 import oshi.util.Util;
 import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
@@ -42,9 +42,9 @@ import oshi.util.platform.windows.WmiUtil;
  */
 final class WindowsComputerSystem extends AbstractComputerSystem {
 
-    private final Supplier<ManufacturerModel> manufacturerModel = Memoizer.memoize(this::queryManufacturerModel);
+    private final Supplier<ManufacturerModel> manufacturerModel = memoize(this::queryManufacturerModel);
 
-    private final Supplier<String> serialNumber = Memoizer.memoize(this::querySystemSerialNumber);
+    private final Supplier<String> serialNumber = memoize(this::querySystemSerialNumber);
 
     private final WmiQueryHandler wmiQueryHandler = WmiQueryHandler.createInstance();
 

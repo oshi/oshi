@@ -32,7 +32,7 @@ import oshi.hardware.common.AbstractComputerSystem;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
-import oshi.util.Memoizer;
+import static oshi.util.Memoizer.memoize;
 import oshi.util.ParseUtil;
 import oshi.util.platform.linux.ProcUtil;
 
@@ -41,11 +41,11 @@ import oshi.util.platform.linux.ProcUtil;
  */
 final class LinuxComputerSystem extends AbstractComputerSystem {
 
-    private final Supplier<String> manufacturer = Memoizer.memoize(this::queryManufacturer);
+    private final Supplier<String> manufacturer = memoize(this::queryManufacturer);
 
-    private final Supplier<String> model = Memoizer.memoize(this::queryModel);
+    private final Supplier<String> model = memoize(this::queryModel);
 
-    private final Supplier<String> serialNumber = Memoizer.memoize(this::querySerialNumber);
+    private final Supplier<String> serialNumber = memoize(this::querySerialNumber);
 
     @Override
     public String getManufacturer() {

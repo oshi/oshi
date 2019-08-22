@@ -30,7 +30,7 @@ import oshi.hardware.Firmware;
 import oshi.hardware.common.AbstractComputerSystem;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
-import oshi.util.Memoizer;
+import static oshi.util.Memoizer.memoize;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
 
@@ -39,7 +39,7 @@ import oshi.util.Util;
  */
 final class SolarisComputerSystem extends AbstractComputerSystem {
 
-    private final Supplier<SmbiosStrings> smbiosStrings = Memoizer.memoize(this::readSmbios);
+    private final Supplier<SmbiosStrings> smbiosStrings = memoize(this::readSmbios);
 
     @Override
     public String getManufacturer() {

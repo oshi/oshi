@@ -39,7 +39,7 @@ import oshi.software.os.mac.MacOperatingSystem;
 import oshi.software.os.unix.freebsd.FreeBsdOperatingSystem;
 import oshi.software.os.unix.solaris.SolarisOperatingSystem;
 import oshi.software.os.windows.WindowsOperatingSystem;
-import oshi.util.Memoizer;
+import static oshi.util.Memoizer.memoize;
 
 /**
  * System information. This is the main entry point to Oshi.
@@ -70,9 +70,9 @@ public class SystemInfo {
         }
     }
 
-    private final Supplier<OperatingSystem> os = Memoizer.memoize(this::createOperatingSystem);
+    private final Supplier<OperatingSystem> os = memoize(this::createOperatingSystem);
 
-    private final Supplier<HardwareAbstractionLayer> hardware = Memoizer.memoize(this::createHardware);
+    private final Supplier<HardwareAbstractionLayer> hardware = memoize(this::createHardware);
 
 
     /**

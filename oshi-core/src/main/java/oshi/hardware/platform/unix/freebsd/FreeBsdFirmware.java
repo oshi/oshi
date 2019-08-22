@@ -28,13 +28,13 @@ import java.util.function.Supplier;
 import oshi.hardware.common.AbstractFirmware;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
-import oshi.util.Memoizer;
+import static oshi.util.Memoizer.memoize;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
 
 final class FreeBsdFirmware extends AbstractFirmware {
 
-    private final Supplier<DmidecodeStrings> readDmiDecode = Memoizer.memoize(this::readDmiDecode);
+    private final Supplier<DmidecodeStrings> readDmiDecode = memoize(this::readDmiDecode);
 
     @Override
     public String getManufacturer() {

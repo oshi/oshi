@@ -28,16 +28,16 @@ import java.util.function.Supplier;
 import oshi.hardware.Baseboard;
 import oshi.hardware.ComputerSystem;
 import oshi.hardware.Firmware;
-import oshi.util.Memoizer;
+import static oshi.util.Memoizer.memoize;
 
 /**
  * Computer System data.
  */
 public abstract class AbstractComputerSystem implements ComputerSystem {
 
-    private final Supplier<Firmware> firmware = Memoizer.memoize(this::createFirmware);
+    private final Supplier<Firmware> firmware = memoize(this::createFirmware);
 
-    private final Supplier<Baseboard> baseboard = Memoizer.memoize(this::createBaseboard);
+    private final Supplier<Baseboard> baseboard = memoize(this::createBaseboard);
 
     @Override
     public Firmware getFirmware() {

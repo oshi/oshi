@@ -30,7 +30,7 @@ import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.hardware.common.AbstractBaseboard;
 import oshi.util.Constants;
-import oshi.util.Memoizer;
+import static oshi.util.Memoizer.memoize;
 import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
 
@@ -38,7 +38,7 @@ import oshi.util.platform.windows.WmiUtil;
  * Baseboard data obtained from WMI
  */
 final class WindowsBaseboard extends AbstractBaseboard {
-    private final Supplier<WmiStrings> wmi = Memoizer.memoize(this::queryWmi);
+    private final Supplier<WmiStrings> wmi = memoize(this::queryWmi);
 
     @Override
     public String getManufacturer() {

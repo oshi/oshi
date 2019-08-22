@@ -32,7 +32,7 @@ import oshi.hardware.common.AbstractComputerSystem;
 import oshi.jna.platform.mac.IOKit;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
-import oshi.util.Memoizer;
+import static oshi.util.Memoizer.memoize;
 import oshi.util.Util;
 import oshi.util.platform.mac.IOKitUtil;
 
@@ -41,7 +41,7 @@ import oshi.util.platform.mac.IOKitUtil;
  */
 final class MacComputerSystem extends AbstractComputerSystem {
 
-    private final Supplier<ModelSerialSmcBootrom> profileSystem = Memoizer.memoize(this::profileSystem);
+    private final Supplier<ModelSerialSmcBootrom> profileSystem = memoize(this::profileSystem);
 
     @Override
     public String getManufacturer() {

@@ -33,7 +33,7 @@ import oshi.hardware.common.AbstractFirmware;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
-import oshi.util.Memoizer;
+import static oshi.util.Memoizer.memoize;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
 
@@ -45,19 +45,19 @@ final class LinuxFirmware extends AbstractFirmware {
     private static final DateTimeFormatter VCGEN_FORMATTER = DateTimeFormatter.ofPattern("MMM d uuuu HH:mm:ss",
             Locale.ENGLISH);
 
-    private final Supplier<String> manufacturer = Memoizer.memoize(this::queryManufacturer);
+    private final Supplier<String> manufacturer = memoize(this::queryManufacturer);
 
-    private final Supplier<String> description = Memoizer.memoize(this::queryDescription);
+    private final Supplier<String> description = memoize(this::queryDescription);
 
-    private final Supplier<String> version = Memoizer.memoize(this::queryVersion);
+    private final Supplier<String> version = memoize(this::queryVersion);
 
-    private final Supplier<String> releaseDate = Memoizer.memoize(this::queryReleaseDate);
+    private final Supplier<String> releaseDate = memoize(this::queryReleaseDate);
 
-    private final Supplier<String> name = Memoizer.memoize(this::queryName);
+    private final Supplier<String> name = memoize(this::queryName);
 
-    private final Supplier<VcGenCmdStrings> vcGenCmd = Memoizer.memoize(this::queryVcGenCmd);
+    private final Supplier<VcGenCmdStrings> vcGenCmd = memoize(this::queryVcGenCmd);
 
-    private final Supplier<BiosStrings> bios = Memoizer.memoize(this::queryBios);
+    private final Supplier<BiosStrings> bios = memoize(this::queryBios);
 
     @Override
     public String getManufacturer() {
