@@ -42,8 +42,6 @@ import oshi.hardware.common.AbstractHardwareAbstractionLayer;
  */
 public class LinuxHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {
 
-    private static final long serialVersionUID = 1L;
-
     /** {@inheritDoc} */
     @Override
     public ComputerSystem createComputerSystem() {

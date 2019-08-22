@@ -38,8 +38,6 @@ import oshi.util.Memoizer;
  */
 public abstract class AbstractHardwareAbstractionLayer implements HardwareAbstractionLayer {
 
-    private static final long serialVersionUID = 1L;
-
     private final Supplier<ComputerSystem> computerSystem = Memoizer.memoize(this::createComputerSystem);
 
     private final Supplier<CentralProcessor> processor = Memoizer.memoize(this::createProcessor);

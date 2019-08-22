@@ -41,7 +41,6 @@ import oshi.hardware.common.AbstractHardwareAbstractionLayer;
  * </p>
  */
 public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {
-    private static final long serialVersionUID = 1L;
 
     /** {@inheritDoc} */
     @Override
