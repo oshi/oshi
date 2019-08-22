@@ -717,48 +717,35 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
 
     /** {@inheritDoc} */
     @Override
-    public OSService[] getServices() throws IOException {
+    public OSService[] getServices() {
         
         // creating list of commands  
-        List<String> commands = new ArrayList<String>(); 
-        commands.add("systemctl"); 
-        commands.add("list-unit-files"); 
+        ExecutingCommand ec = null;
+
+        ArrayList<String> output = (ArrayList<String>) ec.runNative("systemctl list-unit-files"); 
           
-        // creating the process 
-        ProcessBuilder pb = new ProcessBuilder(commands); 
-          
-        // starting the process 
-        Process process = pb.start(); 
-          
-        BufferedReader stdInput = new BufferedReader(new InputStreamReader(process.getInputStream())); 
-        
-        String s = null; 
         HashMap<String, String> services = new HashMap<String,String>();
 
-        while ((s = stdInput.readLine()) != null) 
+        for (String i : output) 
         {   
-            String[] input = s.split(" ");
+            String[] input = i.split(" ");
             services.put(input[0], input[1]);
         } 
 
-        OSService[] svcArray = new OSService[services.size()];
+        OSService[] svcArray = new OSService[output.size()];
 
         Iterator it = services.entrySet().iterator(); 
         
         //Skip header
         it.next();
-        
+
+        int i = 0;
         while (it.hasNext()) { 
-            int i = 0;
+            
             svcArray[i] = new OSService();
             Map.Entry mapElement = (Map.Entry)it.next(); 
 
-            Field f = process.getClass().getDeclaredField("pid");
-            f.setAccessible(true);
-            long pid = f.getLong(process);
-            f.setAccessible(false);
-
-            svcArray[i].setProcessId(pid);
+            //svcArray[i].setProcessId(pid);
             svcArray[i].setName(mapElement.getKey());
 
             Stirng state = mapElement.getValue(); 
@@ -774,6 +761,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
                     svcArray[i].setState(OSService.State.OTHER);
                     break;
             }
+            
             i++;
         } 
         return svcArray;
