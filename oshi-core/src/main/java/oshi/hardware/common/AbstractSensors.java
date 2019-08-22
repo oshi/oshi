@@ -38,7 +38,7 @@ public abstract class AbstractSensors implements Sensors {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("CPU Temperature=").append(getCpuTemperature()).append(", ");
+        sb.append("CPU Temperature=").append(getCpuTemperature()).append("°C, ");
         sb.append("Fan Speeds=").append(Arrays.toString(getFanSpeeds())).append(", ");
         sb.append("CPU Voltage=").append(getCpuVoltage());
         return sb.toString();
