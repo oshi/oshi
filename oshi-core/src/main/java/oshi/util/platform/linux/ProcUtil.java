@@ -77,7 +77,7 @@ public class ProcUtil {
      * @return Seconds since boot
      */
     public static double getSystemUptimeSeconds() {
-        String uptime = FileUtil.getStringFromFile(proc + "/uptime");
+        String uptime = FileUtil.getStringFromFile(getProcPath() + "/uptime");
         int spaceIndex = uptime.indexOf(' ');
         try {
             if (spaceIndex < 0) {
@@ -102,7 +102,7 @@ public class ProcUtil {
         // first line is overall user,nice,system,idle,iowait,irq, etc.
         // cpu 3357 0 4313 1362393 ...
         String tickStr;
-        List<String> procStat = FileUtil.readFile(proc + "/stat");
+        List<String> procStat = FileUtil.readFile(getProcPath() + "/stat");
         if (!procStat.isEmpty()) {
             tickStr = procStat.get(0);
         } else {
