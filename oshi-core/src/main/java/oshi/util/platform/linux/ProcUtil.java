@@ -23,40 +23,28 @@
  */
 package oshi.util.platform.linux;
 
+import static oshi.util.Memoizer.memoize;
+
 import java.io.File;
 import java.util.List;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 import oshi.hardware.CentralProcessor.TickType;
 import oshi.util.FileUtil;
 import oshi.util.GlobalConfig;
 import oshi.util.ParseUtil;
-
 /**
  * Provides access to some /proc filesystem info on Linux
  */
 public class ProcUtil {
 
-    private static final Pattern DIGITS = Pattern.compile("\\d+"); // NOSONAR-squid:S1068
+    private static final Pattern DIGITS = Pattern.compile("\\d+");
 
     /**
-     * The /proc filesystem location.
+     * The /proc filesystem location. Update hourly.
      */
-    private static String proc = GlobalConfig.get("oshi.util.proc.path", "/proc");
-
-    static {
-        // Ensure prefix begins with path separator, but doesn't end with one
-        if (proc.endsWith("/")) {
-            proc = proc.substring(0, proc.length() - 1);
-        }
-        if (!proc.startsWith("/")) {
-            proc = "/" + proc;
-        }
-
-        if (!new File(proc).exists()) {
-            throw new GlobalConfig.PropertyException("oshi.util.proc.path", "The path does not exist");
-        }
-    }
+    private static Supplier<String> proc = memoize(ProcUtil::queryProcConfig, 3_600_000_000_000L);
 
     private ProcUtil() {
     }
@@ -65,12 +53,23 @@ public class ProcUtil {
      * The proc filesystem location may be customized to allow alternative proc
      * plugins, particularly useful for containers.
      *
-     * @return The proc filesystem path, with a leading / but not a trailing one,
-     *         e.g., "/proc"
+     * @return The proc filesystem path, with a leading / but not a trailing
+     *         one, e.g., "/proc"
      */
     public static String getProcPath() {
-        return proc;
+        return proc.get();
     }
+
+    private static String queryProcConfig() {
+        String procPath = GlobalConfig.get("oshi.util.proc.path", "/proc");
+        // Ensure prefix begins with path separator, but doesn't end with one
+        procPath = '/' + procPath.replaceAll("/$|^/", "");
+        if (!new File(procPath).exists()) {
+            throw new GlobalConfig.PropertyException("oshi.util.proc.path", "The path does not exist");
+        }
+        return procPath;
+    }
+
 
     /**
      * Parses the first value in /proc/uptime for seconds since boot
@@ -131,7 +130,7 @@ public class ProcUtil {
      * @return An array of File objects for the process files
      */
     public static File[] getPidFiles() {
-        File procdir = new File(proc);
+        File procdir = new File(getProcPath());
         File[] pids = procdir.listFiles(f -> DIGITS.matcher(f.getName()).matches());
         return pids != null ? pids : new File[0];
     }
