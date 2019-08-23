@@ -75,6 +75,9 @@ public final class MemoizerTest {
                 while ((System.nanoTime() - beginNanos < iterationDurationNanos
                         && !Thread.currentThread().isInterrupted())
                         || (guaranteedLastIteration = !guaranteedLastIteration)) {
+                    if (Thread.currentThread().isInterrupted()) {
+                        throw new InterruptedException();
+                    }
                     final Long newValue = m.get();
                     assertNotNull(newValue);// check that we never get uninitialized value
                     assertTrue(String.format("newValue=%s, previousValue=%s", newValue, previousValue),
