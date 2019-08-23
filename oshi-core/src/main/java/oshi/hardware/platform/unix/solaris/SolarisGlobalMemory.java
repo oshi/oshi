@@ -23,6 +23,10 @@
  */
 package oshi.hardware.platform.unix.solaris;
 
+import static oshi.util.Memoizer.memoize;
+
+import java.util.function.Supplier;
+
 import com.sun.jna.platform.unix.solaris.LibKstat.Kstat; // NOSONAR
 
 import oshi.hardware.VirtualMemory;
@@ -36,49 +40,60 @@ import oshi.util.platform.unix.solaris.KstatUtil;
  */
 public class SolarisGlobalMemory extends AbstractGlobalMemory {
 
-    private static final long serialVersionUID = 1L;
+    private final Supplier<SystemPages> systemPages = memoize(this::readSystemPages, 300_000_000L);
 
-    /** {@inheritDoc} */
+    private final Supplier<Long> pageSize = memoize(this::queryPageSize);
+
+    private final Supplier<VirtualMemory> vm = memoize(this::createVirtualMemory);
+
     @Override
     public long getAvailable() {
-        updateSystemPages();
-        return this.memAvailable;
+        return systemPages.get().available;
     }
 
-    /** {@inheritDoc} */
     @Override
     public long getTotal() {
-        if (this.memTotal < 0) {
-            updateSystemPages();
-        }
-        return this.memTotal;
+        return systemPages.get().total;
     }
 
-    /** {@inheritDoc} */
     @Override
     public long getPageSize() {
-        if (this.pageSize < 0) {
-            this.pageSize = ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer("pagesize"), 4096L);
-        }
-        return this.pageSize;
+        return pageSize.get();
     }
 
-    /** {@inheritDoc} */
     @Override
     public VirtualMemory getVirtualMemory() {
-        if (this.virtualMemory == null) {
-            this.virtualMemory = new SolarisVirtualMemory();
-        }
-        return this.virtualMemory;
+        return vm.get();
     }
 
-    private void updateSystemPages() {
+    private long queryPageSize() {
+        return ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer("pagesize"), 4096L);
+    }
+
+    private VirtualMemory createVirtualMemory() {
+        return new SolarisVirtualMemory();
+    }
+
+    private SystemPages readSystemPages() {
+        long memAvailable = 0;
+        long memTotal = 0;
         // Get first result
         Kstat ksp = KstatUtil.kstatLookup(null, -1, "system_pages");
         // Set values
         if (ksp != null && KstatUtil.kstatRead(ksp)) {
-            this.memAvailable = KstatUtil.kstatDataLookupLong(ksp, "availrmem") * getPageSize();
-            this.memTotal = KstatUtil.kstatDataLookupLong(ksp, "physmem") * getPageSize();
+            memAvailable = KstatUtil.kstatDataLookupLong(ksp, "availrmem") * getPageSize();
+            memTotal = KstatUtil.kstatDataLookupLong(ksp, "physmem") * getPageSize();
+        }
+        return new SystemPages(memTotal, memAvailable);
+    }
+    
+    private static final class SystemPages {
+        private final long total;
+        private final long available;
+
+        private SystemPages(long total, long available) {
+            this.total = total;
+            this.available = available;
         }
     }
 }
