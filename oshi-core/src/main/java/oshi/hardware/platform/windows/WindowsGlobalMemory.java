@@ -76,14 +76,14 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
         long pageSize;
         long memAvailable;
         long memTotal;
-        PERFORMANCE_INFORMATION perfInfo = new PERFORMANCE_INFORMATION();
-        if (!Psapi.INSTANCE.GetPerformanceInfo(perfInfo, perfInfo.size())) {
+        PERFORMANCE_INFORMATION performanceInfo = new PERFORMANCE_INFORMATION();
+        if (!Psapi.INSTANCE.GetPerformanceInfo(performanceInfo, performanceInfo.size())) {
             LOG.error("Failed to get Performance Info. Error code: {}", Kernel32.INSTANCE.GetLastError());
             return new PerfInfo(0, 0, 4098);
         }
-        pageSize = perfInfo.PageSize.longValue();
-        memAvailable = pageSize * perfInfo.PhysicalAvailable.longValue();
-        memTotal = pageSize * perfInfo.PhysicalTotal.longValue();
+        pageSize = performanceInfo.PageSize.longValue();
+        memAvailable = pageSize * performanceInfo.PhysicalAvailable.longValue();
+        memTotal = pageSize * performanceInfo.PhysicalTotal.longValue();
         return new PerfInfo(memTotal, memAvailable, pageSize);
     }
 

@@ -38,7 +38,7 @@ import oshi.util.ParseUtil;
  */
 public class SolarisVirtualMemory extends AbstractVirtualMemory {
 
-    private static final Pattern SWAPINFO = Pattern.compile(".+\\s(\\d+)K\\s+(\\d+)K$");
+    private static final Pattern SWAP_INFO = Pattern.compile(".+\\s(\\d+)K\\s+(\\d+)K$");
 
     private final Supplier<SwapInfo> swapInfo = memoize(this::querySwapInfo, 300_000_000L);
 
@@ -85,8 +85,8 @@ public class SolarisVirtualMemory extends AbstractVirtualMemory {
     private SwapInfo querySwapInfo() {
         long swapTotal = 0L;
         long swapUsed = 0L;
-            String swapInfo = ExecutingCommand.getAnswerAt("swap -lk", 1);
-            Matcher m = SWAPINFO.matcher(swapInfo);
+            String swap = ExecutingCommand.getAnswerAt("swap -lk", 1);
+            Matcher m = SWAP_INFO.matcher(swap);
             if (m.matches()) {
             swapTotal = ParseUtil.parseLongOrDefault(m.group(1), 0L) << 10;
             swapUsed = swapTotal - (ParseUtil.parseLongOrDefault(m.group(2), 0L) << 10);

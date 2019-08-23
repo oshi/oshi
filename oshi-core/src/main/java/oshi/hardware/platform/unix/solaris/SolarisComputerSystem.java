@@ -132,7 +132,7 @@ final class SolarisComputerSystem extends AbstractComputerSystem {
         // Only works with root permissions but it's all we've got
         for (final String checkLine : ExecutingCommand.runNative("smbios")) {
             // Change the smbTypeId when hitting a new header
-            if (checkLine.contains("SMB_TYPE_")&& (smbTypeId = getSmbType(checkLine)) == Integer.MAX_VALUE) {
+            if (checkLine.contains("SMB_TYPE_") && (smbTypeId = getSmbType(checkLine)) == Integer.MAX_VALUE) {
                 // If we get past what we need, stop iterating
                 break;
             }

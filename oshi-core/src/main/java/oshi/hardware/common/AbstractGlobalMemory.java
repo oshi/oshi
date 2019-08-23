@@ -40,5 +40,4 @@ public abstract class AbstractGlobalMemory implements GlobalMemory {
         sb.append(FormatUtil.formatBytes(getTotal()));
         return sb.toString();
     }
-
 }

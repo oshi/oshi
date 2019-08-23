@@ -49,31 +49,26 @@ final class WindowsComputerSystem extends AbstractComputerSystem {
 
     private final WmiQueryHandler wmiQueryHandler = WmiQueryHandler.createInstance();
 
-    /** {@inheritDoc} */
     @Override
     public String getManufacturer() {
         return manufacturerModel.get().manufacturer;
     }
 
-    /** {@inheritDoc} */
     @Override
     public String getModel() {
         return manufacturerModel.get().model;
     }
 
-    /** {@inheritDoc} */
     @Override
     public String getSerialNumber() {
         return serialNumber.get();
     }
 
-    /** {@inheritDoc} */
     @Override
     public Firmware createFirmware() {
         return new WindowsFirmware();
     }
 
-    /** {@inheritDoc} */
     @Override
     public Baseboard createBaseboard() {
         return new WindowsBaseboard();

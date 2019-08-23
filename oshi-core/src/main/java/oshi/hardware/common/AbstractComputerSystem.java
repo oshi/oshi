@@ -23,12 +23,13 @@
  */
 package oshi.hardware.common;
 
+import static oshi.util.Memoizer.memoize;
+
 import java.util.function.Supplier;
 
 import oshi.hardware.Baseboard;
 import oshi.hardware.ComputerSystem;
 import oshi.hardware.Firmware;
-import static oshi.util.Memoizer.memoize;
 
 /**
  * Computer System data.

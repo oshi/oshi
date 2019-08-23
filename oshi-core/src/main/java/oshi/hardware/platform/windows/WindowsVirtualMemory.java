@@ -46,7 +46,7 @@ public class WindowsVirtualMemory extends AbstractVirtualMemory {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsVirtualMemory.class);
 
-    private long pageSize;
+    private final long pageSize;
 
     private final Supplier<Long> used = memoize(this::querySwapUsed, 300_000_000L);
 
@@ -54,8 +54,8 @@ public class WindowsVirtualMemory extends AbstractVirtualMemory {
 
     private final Supplier<PagingFile> pagingFile = memoize(this::queryPagingFile, 300_000_000L);
 
-    private PerfCounterQuery<PageSwapProperty> memoryPerfCounters = new PerfCounterQuery<>(
-            PageSwapProperty.class, "Memory", "Win32_PerfRawData_PerfOS_Memory");
+    private PerfCounterQuery<PageSwapProperty> memoryPerfCounters = new PerfCounterQuery<>(PageSwapProperty.class,
+            "Memory", "Win32_PerfRawData_PerfOS_Memory");
     private PerfCounterQuery<PagingPercentProperty> pagingPerfCounters = new PerfCounterQuery<>(
             PagingPercentProperty.class, "Paging File", "Win32_PerfRawData_PerfOS_PagingFile");
 
@@ -106,19 +106,9 @@ public class WindowsVirtualMemory extends AbstractVirtualMemory {
     }
 
     private PagingFile queryPagingFile() {
-            Map<PageSwapProperty, Long> valueMap = this.memoryPerfCounters.queryValues();
+        Map<PageSwapProperty, Long> valueMap = this.memoryPerfCounters.queryValues();
         return new PagingFile(valueMap.getOrDefault(PageSwapProperty.PAGESINPUTPERSEC, 0L),
                 valueMap.getOrDefault(PageSwapProperty.PAGESOUTPUTPERSEC, 0L));
-    }
-
-    private static final class PagingFile {
-        private final long pagesIn;
-        private final long pagesOut;
-
-        private PagingFile(long pagesIn, long pagesOut) {
-            this.pagesIn = pagesIn;
-            this.pagesOut = pagesOut;
-        }
     }
 
     /*
@@ -181,6 +171,16 @@ public class WindowsVirtualMemory extends AbstractVirtualMemory {
         @Override
         public String getCounter() {
             return counter;
+        }
+    }
+
+    private static final class PagingFile {
+        private final long pagesIn;
+        private final long pagesOut;
+
+        private PagingFile(long pagesIn, long pagesOut) {
+            this.pagesIn = pagesIn;
+            this.pagesOut = pagesOut;
         }
     }
 }

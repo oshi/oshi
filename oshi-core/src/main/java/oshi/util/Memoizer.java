@@ -32,6 +32,9 @@ import java.util.function.Supplier;
  */
 public final class Memoizer {
 
+    private Memoizer() {
+    }
+
     /**
      * Store a supplier in a delegate function to be computed once, and only again
      * after time to live (ttl) has expired

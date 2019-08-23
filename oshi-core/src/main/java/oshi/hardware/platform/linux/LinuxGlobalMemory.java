@@ -31,7 +31,7 @@ import java.util.function.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.platform.linux.LibC;
+import com.sun.jna.platform.linux.LibC; // NOSONAR squid:S1191
 import com.sun.jna.platform.linux.LibC.Sysinfo;
 
 import oshi.hardware.VirtualMemory;
@@ -100,16 +100,16 @@ public class LinuxGlobalMemory extends AbstractGlobalMemory {
      * spends time populating the memory components of the sysinfo structure.
      */
     private MemInfo readMemInfo() {
-        long memFree = 0;
-        long activeFile = 0;
-        long inactiveFile = 0;
-        long sReclaimable = 0;
+        long memFree = 0L;
+        long activeFile = 0L;
+        long inactiveFile = 0L;
+        long sReclaimable = 0L;
 
-        long memTotal = 0;
+        long memTotal = 0L;
         long memAvailable;
 
-        List<String> memInfo = FileUtil.readFile(ProcUtil.getProcPath() + "/meminfo");
-        for (String checkLine : memInfo) {
+        List<String> procMemInfo = FileUtil.readFile(ProcUtil.getProcPath() + "/meminfo");
+        for (String checkLine : procMemInfo) {
             String[] memorySplit = ParseUtil.whitespaces.split(checkLine);
             if (memorySplit.length > 1) {
                 switch (memorySplit[0]) {
