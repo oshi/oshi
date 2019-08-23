@@ -37,7 +37,6 @@ import com.sun.jna.platform.linux.LibC.Sysinfo;
 
 import oshi.hardware.VirtualMemory;
 import oshi.hardware.common.AbstractGlobalMemory;
-import oshi.hardware.platform.unix.freebsd.FreeBsdVirtualMemory;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
@@ -162,7 +161,7 @@ public class LinuxGlobalMemory extends AbstractGlobalMemory {
     }
 
     private VirtualMemory createVirtualMemory() {
-        return new FreeBsdVirtualMemory();
+        return new LinuxVirtualMemory();
     }
 
     private static final class MemInfo {

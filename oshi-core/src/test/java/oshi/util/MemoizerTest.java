@@ -17,6 +17,7 @@ import java.util.function.Supplier;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Test;
 
 public final class MemoizerTest {
     private static final int numberOfThreads = Math.max(5, Runtime.getRuntime().availableProcessors());
@@ -39,7 +40,7 @@ public final class MemoizerTest {
         ex.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
     }
 
-    // @Test
+    @Test
     public void get() throws Throwable {
         long iterationDurationNanos = TimeUnit.MILLISECONDS.toNanos(1);
         for (int r = 0; r < 20_000; r++) {
