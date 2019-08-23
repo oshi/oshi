@@ -23,6 +23,7 @@
  */
 package oshi.hardware.platform.windows;
 
+import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
 
 import java.util.function.Supplier;
@@ -44,7 +45,7 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsGlobalMemory.class);
 
-    private final Supplier<PerfInfo> perfInfo = memoize(this::readPerfInfo, 300_000_000L);
+    private final Supplier<PerfInfo> perfInfo = memoize(this::readPerfInfo, defaultExpiration());
 
     private final Supplier<VirtualMemory> vm = memoize(this::createVirtualMemory);
 

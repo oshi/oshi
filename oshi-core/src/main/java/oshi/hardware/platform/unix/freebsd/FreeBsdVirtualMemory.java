@@ -23,6 +23,7 @@
  */
 package oshi.hardware.platform.unix.freebsd;
 
+import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
 
 import java.util.function.Supplier;
@@ -37,13 +38,13 @@ import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
  */
 public class FreeBsdVirtualMemory extends AbstractVirtualMemory {
 
-    private final Supplier<Long> used = memoize(this::querySwapUsed, 300_000_000L);
+    private final Supplier<Long> used = memoize(this::querySwapUsed, defaultExpiration());
 
-    private final Supplier<Long> total = memoize(this::querySwapTotal, 300_000_000L);
+    private final Supplier<Long> total = memoize(this::querySwapTotal, defaultExpiration());
 
-    private final Supplier<Long> pagesIn = memoize(this::queryPagesIn, 300_000_000L);
+    private final Supplier<Long> pagesIn = memoize(this::queryPagesIn, defaultExpiration());
 
-    private final Supplier<Long> pagesOut = memoize(this::queryPagesOut, 300_000_000L);
+    private final Supplier<Long> pagesOut = memoize(this::queryPagesOut, defaultExpiration());
 
     @Override
     public long getSwapUsed() {

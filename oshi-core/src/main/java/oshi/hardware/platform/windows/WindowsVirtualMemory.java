@@ -23,6 +23,7 @@
  */
 package oshi.hardware.platform.windows;
 
+import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
 
 import java.util.Map;
@@ -48,11 +49,11 @@ public class WindowsVirtualMemory extends AbstractVirtualMemory {
 
     private final long pageSize;
 
-    private final Supplier<Long> used = memoize(this::querySwapUsed, 300_000_000L);
+    private final Supplier<Long> used = memoize(this::querySwapUsed, defaultExpiration());
 
-    private final Supplier<Long> total = memoize(this::querySwapTotal, 300_000_000L);
+    private final Supplier<Long> total = memoize(this::querySwapTotal, defaultExpiration());
 
-    private final Supplier<PagingFile> pagingFile = memoize(this::queryPagingFile, 300_000_000L);
+    private final Supplier<PagingFile> pagingFile = memoize(this::queryPagingFile, defaultExpiration());
 
     private PerfCounterQuery<PageSwapProperty> memoryPerfCounters = new PerfCounterQuery<>(PageSwapProperty.class,
             "Memory", "Win32_PerfRawData_PerfOS_Memory");

@@ -23,6 +23,7 @@
  */
 package oshi.hardware.platform.mac;
 
+import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
 
 import java.util.function.Supplier;
@@ -47,7 +48,7 @@ public class MacGlobalMemory extends AbstractGlobalMemory {
 
     private static final Logger LOG = LoggerFactory.getLogger(MacGlobalMemory.class);
 
-    private final Supplier<Long> available = memoize(this::queryVmStats, 300_000_000L);
+    private final Supplier<Long> available = memoize(this::queryVmStats, defaultExpiration());
 
     private final Supplier<Long> total = memoize(this::queryPhysMem);
 

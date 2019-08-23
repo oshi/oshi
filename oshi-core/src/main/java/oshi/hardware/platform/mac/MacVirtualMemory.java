@@ -23,6 +23,7 @@
  */
 package oshi.hardware.platform.mac;
 
+import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
 
 import java.util.function.Supplier;
@@ -47,9 +48,9 @@ public class MacVirtualMemory extends AbstractVirtualMemory {
 
     private static final Logger LOG = LoggerFactory.getLogger(MacVirtualMemory.class);
 
-    private final Supplier<SwapUsage> swapUsage = memoize(this::querySwapUsage, 300_000_000L);
+    private final Supplier<SwapUsage> swapUsage = memoize(this::querySwapUsage, defaultExpiration());
 
-    private final Supplier<VmStat> vmStat = memoize(this::queryVmStat, 300_000_000L);
+    private final Supplier<VmStat> vmStat = memoize(this::queryVmStat, defaultExpiration());
 
     @Override
     public long getSwapUsed() {

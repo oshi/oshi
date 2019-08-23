@@ -23,6 +23,7 @@
  */
 package oshi.hardware.platform.linux;
 
+import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
 
 import java.util.List;
@@ -38,9 +39,9 @@ import oshi.util.platform.linux.ProcUtil;
  */
 public class LinuxVirtualMemory extends AbstractVirtualMemory {
 
-    private final Supplier<MemInfo> memInfo = memoize(this::queryMemInfo, 300_000_000L);
+    private final Supplier<MemInfo> memInfo = memoize(this::queryMemInfo, defaultExpiration());
 
-    private final Supplier<VmStat> vmStat = memoize(this::queryVmStat, 300_000_000L);
+    private final Supplier<VmStat> vmStat = memoize(this::queryVmStat, defaultExpiration());
 
     @Override
     public long getSwapUsed() {

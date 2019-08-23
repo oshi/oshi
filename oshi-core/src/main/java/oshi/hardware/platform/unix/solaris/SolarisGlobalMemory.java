@@ -23,6 +23,7 @@
  */
 package oshi.hardware.platform.unix.solaris;
 
+import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
 
 import java.util.function.Supplier;
@@ -40,7 +41,7 @@ import oshi.util.platform.unix.solaris.KstatUtil;
  */
 public class SolarisGlobalMemory extends AbstractGlobalMemory {
 
-    private final Supplier<SystemPages> systemPages = memoize(this::readSystemPages, 300_000_000L);
+    private final Supplier<SystemPages> systemPages = memoize(this::readSystemPages, defaultExpiration());
 
     private final Supplier<Long> pageSize = memoize(this::queryPageSize);
 

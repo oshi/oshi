@@ -23,6 +23,7 @@
  */
 package oshi.util;
 
+import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
 /**
@@ -33,6 +34,22 @@ import java.util.function.Supplier;
 public final class Memoizer {
 
     private Memoizer() {
+    }
+
+    private static final Supplier<Long> defaultExpirationNanos = memoize(Memoizer::queryExpirationConfig,
+            60_000_000_000L);
+
+    private static long queryExpirationConfig() {
+        return TimeUnit.MILLISECONDS.toNanos(GlobalConfig.get("oshi.util.memoizer.expiration", 300));
+    }
+
+    /**
+     * Default exipiration of memoized values in nanoseconds, which will refresh
+     * after this time elapses. Update by setting {@link GlobalConfig} property
+     * <code>oshi.util.memoizer.expiration</code> to a value in milliseconds.
+     */
+    public static final long defaultExpiration() {
+        return defaultExpirationNanos.get();
     }
 
     /**

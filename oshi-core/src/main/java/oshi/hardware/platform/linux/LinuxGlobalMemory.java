@@ -23,6 +23,7 @@
  */
 package oshi.hardware.platform.linux;
 
+import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
 
 import java.util.List;
@@ -49,7 +50,7 @@ public class LinuxGlobalMemory extends AbstractGlobalMemory {
 
     private static final Logger LOG = LoggerFactory.getLogger(LinuxGlobalMemory.class);
 
-    private final Supplier<MemInfo> memInfo = memoize(this::readMemInfo, 300_000_000L);
+    private final Supplier<MemInfo> memInfo = memoize(this::readMemInfo, defaultExpiration());
 
     private final Supplier<Long> pageSize = memoize(this::queryPageSize);
 

@@ -23,6 +23,7 @@
  */
 package oshi.hardware.platform.unix.solaris;
 
+import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
 
 import java.util.function.Supplier;
@@ -40,11 +41,11 @@ public class SolarisVirtualMemory extends AbstractVirtualMemory {
 
     private static final Pattern SWAP_INFO = Pattern.compile(".+\\s(\\d+)K\\s+(\\d+)K$");
 
-    private final Supplier<SwapInfo> swapInfo = memoize(this::querySwapInfo, 300_000_000L);
+    private final Supplier<SwapInfo> swapInfo = memoize(this::querySwapInfo, defaultExpiration());
 
-    private final Supplier<Long> pagesIn = memoize(this::queryPagesIn, 300_000_000L);
+    private final Supplier<Long> pagesIn = memoize(this::queryPagesIn, defaultExpiration());
 
-    private final Supplier<Long> pagesOut = memoize(this::queryPagesOut, 300_000_000L);
+    private final Supplier<Long> pagesOut = memoize(this::queryPagesOut, defaultExpiration());
 
     @Override
     public long getSwapUsed() {

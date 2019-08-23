@@ -23,6 +23,7 @@
  */
 package oshi.hardware.platform.unix.freebsd;
 
+import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
 
 import java.util.function.Supplier;
@@ -36,7 +37,7 @@ import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
  */
 public class FreeBsdGlobalMemory extends AbstractGlobalMemory {
 
-    private final Supplier<Long> available = memoize(this::queryVmStats, 300_000_000L);
+    private final Supplier<Long> available = memoize(this::queryVmStats, defaultExpiration());
 
     private final Supplier<Long> total = memoize(this::queryPhysMem);
 
