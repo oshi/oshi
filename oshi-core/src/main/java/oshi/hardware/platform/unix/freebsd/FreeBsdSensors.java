@@ -28,7 +28,7 @@ import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 
 import oshi.hardware.common.AbstractSensors;
-import oshi.jna.platform.unix.freebsd.Libc;
+import oshi.jna.platform.unix.freebsd.FreeBsdLibc;
 
 /**
  * <p>
@@ -54,11 +54,11 @@ public class FreeBsdSensors extends AbstractSensors {
      */
     private double queryKldloadCoretemp() {
         String name = "dev.cpu.%d.temperature";
-        IntByReference size = new IntByReference(Libc.INT_SIZE);
+        IntByReference size = new IntByReference(FreeBsdLibc.INT_SIZE);
         Pointer p = new Memory(size.getValue());
         int cpu = 0;
         double sumTemp = 0d;
-        while (0 == Libc.INSTANCE.sysctlbyname(String.format(name, cpu), p, size, null, 0)) {
+        while (0 == FreeBsdLibc.INSTANCE.sysctlbyname(String.format(name, cpu), p, size, null, 0)) {
             sumTemp += p.getInt(0) / 10d - 273.15;
             cpu++;
         }

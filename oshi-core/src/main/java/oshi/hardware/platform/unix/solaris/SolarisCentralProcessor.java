@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
 import com.sun.jna.platform.unix.solaris.LibKstat.Kstat; // NOSONAR
 
 import oshi.hardware.common.AbstractCentralProcessor;
-import oshi.jna.platform.unix.solaris.Libc;
+import oshi.jna.platform.unix.solaris.SolarisLibc;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.solaris.KstatUtil;
@@ -213,7 +213,7 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
             throw new IllegalArgumentException("Must include from one to three elements.");
         }
         double[] average = new double[nelem];
-        int retval = Libc.INSTANCE.getloadavg(average, nelem);
+        int retval = SolarisLibc.INSTANCE.getloadavg(average, nelem);
         if (retval < nelem) {
             for (int i = Math.max(retval, 0); i < average.length; i++) {
                 average[i] = -1d;

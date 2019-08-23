@@ -40,8 +40,8 @@ import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 
 import oshi.hardware.common.AbstractCentralProcessor;
-import oshi.jna.platform.unix.freebsd.Libc;
-import oshi.jna.platform.unix.freebsd.Libc.CpTime;
+import oshi.jna.platform.unix.freebsd.FreeBsdLibc;
+import oshi.jna.platform.unix.freebsd.FreeBsdLibc.CpTime;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
@@ -222,11 +222,11 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
         long[] ticks = new long[TickType.values().length];
         CpTime cpTime = new CpTime();
         BsdSysctlUtil.sysctl("kern.cp_time", cpTime);
-        ticks[TickType.USER.getIndex()] = cpTime.cpu_ticks[Libc.CP_USER];
-        ticks[TickType.NICE.getIndex()] = cpTime.cpu_ticks[Libc.CP_NICE];
-        ticks[TickType.SYSTEM.getIndex()] = cpTime.cpu_ticks[Libc.CP_SYS];
-        ticks[TickType.IRQ.getIndex()] = cpTime.cpu_ticks[Libc.CP_INTR];
-        ticks[TickType.IDLE.getIndex()] = cpTime.cpu_ticks[Libc.CP_IDLE];
+        ticks[TickType.USER.getIndex()] = cpTime.cpu_ticks[FreeBsdLibc.CP_USER];
+        ticks[TickType.NICE.getIndex()] = cpTime.cpu_ticks[FreeBsdLibc.CP_NICE];
+        ticks[TickType.SYSTEM.getIndex()] = cpTime.cpu_ticks[FreeBsdLibc.CP_SYS];
+        ticks[TickType.IRQ.getIndex()] = cpTime.cpu_ticks[FreeBsdLibc.CP_INTR];
+        ticks[TickType.IDLE.getIndex()] = cpTime.cpu_ticks[FreeBsdLibc.CP_IDLE];
         return ticks;
     }
 
@@ -273,7 +273,7 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
             throw new IllegalArgumentException("Must include from one to three elements.");
         }
         double[] average = new double[nelem];
-        int retval = Libc.INSTANCE.getloadavg(average, nelem);
+        int retval = FreeBsdLibc.INSTANCE.getloadavg(average, nelem);
         if (retval < nelem) {
             for (int i = Math.max(retval, 0); i < average.length; i++) {
                 average[i] = -1d;
@@ -293,17 +293,17 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
         Pointer p = new Memory(arraySize);
         String name = "kern.cp_times";
         // Fetch
-        if (0 != Libc.INSTANCE.sysctlbyname(name, p, new IntByReference((int) arraySize), null, 0)) {
+        if (0 != FreeBsdLibc.INSTANCE.sysctlbyname(name, p, new IntByReference((int) arraySize), null, 0)) {
             LOG.error("Failed syctl call: {}, Error code: {}", name, Native.getLastError());
             return ticks;
         }
         // p now points to the data; need to copy each element
         for (int cpu = 0; cpu < this.logicalProcessorCount; cpu++) {
-            ticks[cpu][TickType.USER.getIndex()] = p.getLong(size * cpu + Libc.CP_USER * Libc.UINT64_SIZE); // lgtm
-            ticks[cpu][TickType.NICE.getIndex()] = p.getLong(size * cpu + Libc.CP_NICE * Libc.UINT64_SIZE); // lgtm
-            ticks[cpu][TickType.SYSTEM.getIndex()] = p.getLong(size * cpu + Libc.CP_SYS * Libc.UINT64_SIZE); // lgtm
-            ticks[cpu][TickType.IRQ.getIndex()] = p.getLong(size * cpu + Libc.CP_INTR * Libc.UINT64_SIZE); // lgtm
-            ticks[cpu][TickType.IDLE.getIndex()] = p.getLong(size * cpu + Libc.CP_IDLE * Libc.UINT64_SIZE); // lgtm
+            ticks[cpu][TickType.USER.getIndex()] = p.getLong(size * cpu + FreeBsdLibc.CP_USER * FreeBsdLibc.UINT64_SIZE); // lgtm
+            ticks[cpu][TickType.NICE.getIndex()] = p.getLong(size * cpu + FreeBsdLibc.CP_NICE * FreeBsdLibc.UINT64_SIZE); // lgtm
+            ticks[cpu][TickType.SYSTEM.getIndex()] = p.getLong(size * cpu + FreeBsdLibc.CP_SYS * FreeBsdLibc.UINT64_SIZE); // lgtm
+            ticks[cpu][TickType.IRQ.getIndex()] = p.getLong(size * cpu + FreeBsdLibc.CP_INTR * FreeBsdLibc.UINT64_SIZE); // lgtm
+            ticks[cpu][TickType.IDLE.getIndex()] = p.getLong(size * cpu + FreeBsdLibc.CP_IDLE * FreeBsdLibc.UINT64_SIZE); // lgtm
         }
         return ticks;
     }
@@ -334,9 +334,9 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
     @Override
     public long getContextSwitches() {
         String name = "vm.stats.sys.v_swtch";
-        IntByReference size = new IntByReference(Libc.INT_SIZE);
+        IntByReference size = new IntByReference(FreeBsdLibc.INT_SIZE);
         Pointer p = new Memory(size.getValue());
-        if (0 != Libc.INSTANCE.sysctlbyname(name, p, size, null, 0)) {
+        if (0 != FreeBsdLibc.INSTANCE.sysctlbyname(name, p, size, null, 0)) {
             return -1;
         }
         return ParseUtil.unsignedIntToLong(p.getInt(0));
@@ -346,9 +346,9 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
     @Override
     public long getInterrupts() {
         String name = "vm.stats.sys.v_intr";
-        IntByReference size = new IntByReference(Libc.INT_SIZE);
+        IntByReference size = new IntByReference(FreeBsdLibc.INT_SIZE);
         Pointer p = new Memory(size.getValue());
-        if (0 != Libc.INSTANCE.sysctlbyname(name, p, size, null, 0)) {
+        if (0 != FreeBsdLibc.INSTANCE.sysctlbyname(name, p, size, null, 0)) {
             return -1;
         }
         return ParseUtil.unsignedIntToLong(p.getInt(0));

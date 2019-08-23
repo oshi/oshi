@@ -29,7 +29,7 @@ import java.util.Map;
 
 import com.sun.jna.platform.unix.solaris.LibKstat.Kstat; // NOSONAR squid:S1191
 
-import oshi.jna.platform.unix.solaris.Libc;
+import oshi.jna.platform.unix.solaris.SolarisLibc;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
 import oshi.software.os.NetworkParams;
@@ -199,7 +199,7 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
     /** {@inheritDoc} */
     @Override
     public int getProcessId() {
-        return Libc.INSTANCE.getpid();
+        return SolarisLibc.INSTANCE.getpid();
     }
 
     /** {@inheritDoc} */

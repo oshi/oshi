@@ -40,7 +40,7 @@ import com.sun.jna.Pointer;
 import com.sun.jna.platform.linux.LibC;
 import com.sun.jna.platform.linux.LibC.Sysinfo;
 
-import oshi.jna.platform.linux.Libc;
+import oshi.jna.platform.linux.LinuxLibc;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
 import oshi.software.os.NetworkParams;
@@ -214,7 +214,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     private OSProcess getProcess(int pid, LinuxUserGroupInfo userGroupInfo, boolean slowFields) {
         String path = "";
         Pointer buf = new Memory(1024);
-        int size = Libc.INSTANCE.readlink(String.format("/proc/%d/exe", pid), buf, 1023);
+        int size = LinuxLibc.INSTANCE.readlink(String.format("/proc/%d/exe", pid), buf, 1023);
         if (size > 0) {
             String tmp = buf.getString(0);
             path = tmp.substring(0, tmp.length() < size ? tmp.length() : size);
@@ -344,7 +344,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     /** {@inheritDoc} */
     @Override
     public int getProcessId() {
-        return Libc.INSTANCE.getpid();
+        return LinuxLibc.INSTANCE.getpid();
     }
 
     /** {@inheritDoc} */

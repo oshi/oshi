@@ -31,9 +31,9 @@ import oshi.jna.platform.unix.CLibrary;
  * Linux C Library. This class should be considered non-API as it may be removed
  * if/when its code is incorporated into the JNA project.
  */
-public interface Libc extends CLibrary {
+public interface LinuxLibc extends CLibrary {
 
     /** Constant <code>INSTANCE</code> */
-    Libc INSTANCE = Native.load("c", Libc.class);
+    LinuxLibc INSTANCE = Native.load("c", LinuxLibc.class);
 
 }

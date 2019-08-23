@@ -31,8 +31,8 @@ import oshi.jna.platform.unix.CLibrary;
  * C library. This class should be considered non-API as it may be removed
  * if/when its code is incorporated into the JNA project.
  */
-public interface Libc extends CLibrary {
+public interface SolarisLibc extends CLibrary {
     /** Constant <code>INSTANCE</code> */
-    Libc INSTANCE = Native.load("libc", Libc.class);
+    SolarisLibc INSTANCE = Native.load("libc", SolarisLibc.class);
 
 }

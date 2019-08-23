@@ -35,9 +35,9 @@ import oshi.jna.platform.unix.CLibrary;
  * C library. This class should be considered non-API as it may be removed
  * if/when its code is incorporated into the JNA project.
  */
-public interface Libc extends CLibrary {
+public interface FreeBsdLibc extends CLibrary {
     /** Constant <code>INSTANCE</code> */
-    Libc INSTANCE = Native.load("libc", Libc.class);
+    FreeBsdLibc INSTANCE = Native.load("libc", FreeBsdLibc.class);
 
     /*
      * Data size

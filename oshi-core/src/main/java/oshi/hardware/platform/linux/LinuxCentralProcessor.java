@@ -35,7 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.hardware.common.AbstractCentralProcessor;
-import oshi.jna.platform.linux.Libc;
+import oshi.jna.platform.linux.LinuxLibc;
 import oshi.software.os.linux.LinuxOperatingSystem;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
@@ -269,7 +269,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
             throw new IllegalArgumentException("Must include from one to three elements.");
         }
         double[] average = new double[nelem];
-        int retval = Libc.INSTANCE.getloadavg(average, nelem);
+        int retval = LinuxLibc.INSTANCE.getloadavg(average, nelem);
         if (retval < nelem) {
             for (int i = Math.max(retval, 0); i < average.length; i++) {
                 average[i] = -1d;
