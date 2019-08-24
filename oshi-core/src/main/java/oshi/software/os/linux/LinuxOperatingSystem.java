@@ -718,52 +718,22 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     /** {@inheritDoc} */
     @Override
     public OSService[] getServices() {
-        
-        // creating list of commands  
-        ExecutingCommand ec = null;
-
-        ArrayList<String> output = (ArrayList<String>) ec.runNative("systemctl list-unit-files"); 
-          
-        HashMap<String, String> services = new HashMap<String,String>();
-
-        for (String i : output) 
-        {   
-            String[] input = i.split(" ");
-            services.put(input[0], input[1]);
-        } 
-
-        OSService[] svcArray = new OSService[output.size()];
-
-        Iterator it = services.entrySet().iterator(); 
-        
-        //Skip header
-        it.next();
-
-        int i = 0;
-        while (it.hasNext()) { 
-            
-            svcArray[i] = new OSService();
-            Map.Entry mapElement = (Map.Entry)it.next(); 
-
-            svcArray[i].setProcessId(null);
-            svcArray[i].setName(mapElement.getKey());
-
-            Stirng state = mapElement.getValue(); 
-
-            switch(state) {
-                case "disabled":
-                    svcArray[i].setState(OSService.State.STOPPED);
-                    break;
-                case "enabled":
+        //Sort by PID
+        OSProcess[] process =  getChildProcesses(1, 0, OperatingSystem.ProcessSort.PID)
+        File etc = new File("/etc/init");
+        File[] files = etc.listFiles();
+        OSService[] svcArray = new OSService[files.size()];
+        for (int i = 0; i < files.length; i++) {
+            svcArray[i].setName(files[i].getName());  
+            for (int j = 0; j < process.length; j++) {
+                if(process[j].getName().equals(files[i].getName())) {
+                    svcArray[i].setProcessId(process[j].getProcessID());
                     svcArray[i].setState(OSService.State.RUNNING);
-                    break;
-                default: 
-                    svcArray[i].setState(OSService.State.OTHER);
-                    break;
+                } else {
+                    svcArray[i].setState(OSService.State.STOPPED);
+                }
             }
-
-            i++;
-        } 
+        }
         return svcArray;
     }
 
