@@ -73,8 +73,7 @@ public final class MemoizerTest {
                 boolean guaranteedLastIteration = false;
                 // this loop is guaranteed to be executed at least once regardless of the values
                 // returned by System.nanoTime
-                while ((System.nanoTime() - beginNanos < iterationDurationNanos
-                        && !Thread.currentThread().isInterrupted())
+                while (System.nanoTime() - beginNanos < iterationDurationNanos
                         || (guaranteedLastIteration = !guaranteedLastIteration)) {
                     if (Thread.currentThread().isInterrupted()) {
                         throw new InterruptedException();
@@ -122,9 +121,9 @@ public final class MemoizerTest {
                 : 1;
         // all the writes to s.value field happened-before this read because of all the
         // result.get() invocations
-        // s.get() will increment before returning, so subtract 1 to get what the
-        // internal value is
-        final long actualNumberOfRefreshes = s.get() - 1; // s.value;
+        // Want to test s.value but it's private. s.get() will increment before
+        // returning, so subtract 1 to get what the internal value was
+        final long actualNumberOfRefreshes = s.get() - 1;
         assertTrue(String.format(
                 "ttlNanos=%s, minExpectedNumberOfRefreshes=%s, maxExpectedNumberOfRefreshes=%s, actualNumberOfRefreshes=%s",
                 ttlNanos, minExpectedNumberOfRefreshes, maxExpectedNumberOfRefreshes, actualNumberOfRefreshes),
