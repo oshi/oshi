@@ -34,9 +34,9 @@ import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.hardware.common.AbstractSensors;
 import oshi.util.platform.windows.PerfCounterWildcardQuery;
+import oshi.util.platform.windows.PerfCounterWildcardQuery.PdhCounterWildcardProperty;
 import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
-import oshi.util.platform.windows.PerfCounterWildcardQuery.PdhCounterWildcardProperty;
 
 /**
  * <p>
@@ -44,8 +44,6 @@ import oshi.util.platform.windows.PerfCounterWildcardQuery.PdhCounterWildcardPro
  * </p>
  */
 public class WindowsSensors extends AbstractSensors {
-
-    private static final long serialVersionUID = 1L;
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsSensors.class);
 
@@ -55,29 +53,29 @@ public class WindowsSensors extends AbstractSensors {
         IDENTIFIER;
     }
 
-    private final transient WmiQuery<OhmHardwareProperty> ohmHardwareQuery = new WmiQuery<>(WmiUtil.OHM_NAMESPACE,
+    private final WmiQuery<OhmHardwareProperty> ohmHardwareQuery = new WmiQuery<>(WmiUtil.OHM_NAMESPACE,
             "Hardware WHERE HardwareType=\"CPU\"", OhmHardwareProperty.class);
-    private final transient WmiQuery<OhmHardwareProperty> owhVoltageQuery = new WmiQuery<>(WmiUtil.OHM_NAMESPACE,
+    private final WmiQuery<OhmHardwareProperty> owhVoltageQuery = new WmiQuery<>(WmiUtil.OHM_NAMESPACE,
             "Hardware WHERE SensorType=\"Voltage\"", OhmHardwareProperty.class);
 
     enum OhmSensorProperty {
         VALUE;
     }
 
-    private final transient WmiQuery<OhmSensorProperty> ohmSensorQuery = new WmiQuery<>(WmiUtil.OHM_NAMESPACE, null,
+    private final WmiQuery<OhmSensorProperty> ohmSensorQuery = new WmiQuery<>(WmiUtil.OHM_NAMESPACE, null,
             OhmSensorProperty.class);
 
     enum FanProperty {
         DESIREDSPEED;
     }
 
-    private final transient WmiQuery<FanProperty> fanQuery = new WmiQuery<>("Win32_Fan", FanProperty.class);
+    private final WmiQuery<FanProperty> fanQuery = new WmiQuery<>("Win32_Fan", FanProperty.class);
 
     enum VoltProperty {
         CURRENTVOLTAGE, VOLTAGECAPS;
     }
 
-    private final transient WmiQuery<VoltProperty> voltQuery = new WmiQuery<>("Win32_Processor", VoltProperty.class);
+    private final WmiQuery<VoltProperty> voltQuery = new WmiQuery<>("Win32_Processor", VoltProperty.class);
 
     /*
      * For temperature query
@@ -103,15 +101,14 @@ public class WindowsSensors extends AbstractSensors {
         }
     }
 
-    private final transient PerfCounterWildcardQuery<ThermalZoneProperty> thermalZonePerfCounters = new PerfCounterWildcardQuery<>(
+    private final PerfCounterWildcardQuery<ThermalZoneProperty> thermalZonePerfCounters = new PerfCounterWildcardQuery<>(
             ThermalZoneProperty.class, "Thermal Zone Information",
             "Win32_PerfRawData_Counters_ThermalZoneInformation WHERE Name LIKE \"%cpu%\"");
 
-    private final transient WmiQueryHandler wmiQueryHandler = WmiQueryHandler.createInstance();
+    private final WmiQueryHandler wmiQueryHandler = WmiQueryHandler.createInstance();
 
-    /** {@inheritDoc} */
     @Override
-    public double getCpuTemperature() {
+    public double queryCpuTemperature() {
         // Attempt to fetch value from Open Hardware Monitor if it is running,
         // as it will give the most accurate results and the time to query (or
         // attempt) is trivial
@@ -172,9 +169,8 @@ public class WindowsSensors extends AbstractSensors {
         return tempC < 0d ? 0d : tempC;
     }
 
-    /** {@inheritDoc} */
     @Override
-    public int[] getFanSpeeds() {
+    public int[] queryFanSpeeds() {
         // Attempt to fetch value from Open Hardware Monitor if it is running
         int[] fanSpeeds = getFansFromOHM();
         if (fanSpeeds.length > 0) {
@@ -229,9 +225,8 @@ public class WindowsSensors extends AbstractSensors {
         return new int[0];
     }
 
-    /** {@inheritDoc} */
     @Override
-    public double getCpuVoltage() {
+    public double queryCpuVoltage() {
         // Attempt to fetch value from Open Hardware Monitor if it is running
         double volts = getVoltsFromOHM();
         if (volts > 0d) {

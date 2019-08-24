@@ -37,13 +37,9 @@ import oshi.jna.platform.unix.freebsd.FreeBsdLibc;
  */
 public class FreeBsdSensors extends AbstractSensors {
 
-    private static final long serialVersionUID = 1L;
-
-    /** {@inheritDoc} */
     @Override
-    public double getCpuTemperature() {
+    public double queryCpuTemperature() {
         return queryKldloadCoretemp();
-        // TODO try other ways here
     }
 
     /*
@@ -65,17 +61,16 @@ public class FreeBsdSensors extends AbstractSensors {
         return cpu > 0 ? sumTemp / cpu : Double.NaN;
     }
 
-    /** {@inheritDoc} */
     @Override
-    public int[] getFanSpeeds() {
-        // TODO try common software
+    public int[] queryFanSpeeds() {
+        // Nothing known on FreeBSD for this.
         return new int[0];
     }
 
     /** {@inheritDoc} */
     @Override
-    public double getCpuVoltage() {
-        // TODO try common software
+    public double queryCpuVoltage() {
+        // Nothing known on FreeBSD for this.
         return 0d;
     }
 }
