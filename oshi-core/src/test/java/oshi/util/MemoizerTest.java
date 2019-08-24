@@ -68,13 +68,13 @@ public final class MemoizerTest {
         for (int tid = 0; tid < numberOfThreads; tid++) {
             results.add(ex.submit(() -> {
                 Long previousValue = m.get();
+                final long firstSupplierCallNanos = System.nanoTime();
                 assertNotNull(previousValue);
                 assertTrue(previousValue > 0);
-                boolean guaranteedLastIteration = false;
                 // this loop is guaranteed to be executed at least once regardless of the values
                 // returned by System.nanoTime
-                while (System.nanoTime() - beginNanos < iterationDurationNanos
-                        || (guaranteedLastIteration = !guaranteedLastIteration)) {
+                long now;
+                do {
                     if (Thread.currentThread().isInterrupted()) {
                         throw new InterruptedException();
                     }
@@ -83,10 +83,9 @@ public final class MemoizerTest {
                     assertTrue(String.format("newValue=%s, previousValue=%s", newValue, previousValue),
                             newValue >= previousValue);// check that the counter never goes down
                     previousValue = newValue;
-                    if (guaranteedLastIteration) {
-                        break;
-                    }
-                }
+                } while ((now = System.nanoTime()) - beginNanos < iterationDurationNanos
+                        // always loop enough to make sure newValue increments
+                        || now - firstSupplierCallNanos < ttlNanos);
                 return null;
             }));
         }
@@ -101,19 +100,19 @@ public final class MemoizerTest {
          * Calculation of expectedNumberOfRefreshes is a bit tricky because there is no
          * such thing. We can only talk about min and max possible values.
          *
-         * Min: Only two refreshes are guaranteed: the initial one, because it does not
-         * depend on timings, and the one caused by the last iteration of the loop (see
-         * guaranteedLastIteration). All other refreshes may or may not happen depending
-         * on the timings. Therefore the min is 2.
+         * Min: Two refreshes are guaranteed: the initial one, because it does not
+         * depend on timings, and a second one which ensures at least ttlNanos have
+         * elapsed since the first one. All other refreshes may or may not happen
+         * depending on the timings. Therefore the min is 2.
          *
          * Max: Each thread has a chance to refresh one more time after
          * (iterationDurationNanos / ttlNanos) refreshes have been collectively done.
          * This happens because an arbitrary amount of time may elapse between the
          * instant when a thread enters the while cycle body for the last time (the last
          * iteration), and the instant that is observed by the MemoizedObject.get
-         * method. Additionally, each thread is guaranteed to refresh one more time
-         * because of the last iteration of the loop caused by guaranteedLastIteration.
-         * Therefore each thread may do up to 2 additional refreshes.
+         * method. Additionally, each thread may refresh one more time because of the
+         * last iteration of the loop caused by ttl expiration. Therefore each thread
+         * may do up to 2 additional refreshes.
          */
         final double minExpectedNumberOfRefreshes = ttlNanos > 0 ? 2 : 1;
         final double maxExpectedNumberOfRefreshes = ttlNanos > 0
