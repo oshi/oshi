@@ -393,4 +393,26 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
         return new MacNetworkParams();
     }
 
+    /** {@inheritDoc} */
+    @Override
+    public OSService[] getServices() {
+        //Sort by PID
+        OSProcess[] process =  getChildProcesses(1, 0, OperatingSystem.ProcessSort.PID)
+        File etc = new File("/System/Library/LaunchDaemons");
+        File[] files = etc.listFiles();
+        OSService[] svcArray = new OSService[files.size()];
+        for (int i = 0; i < files.length; i++) {
+            svcArray[i].setName(files[i].getName());  
+            for (int j = 0; j < process.length; j++) {
+                if(process[j].getName().equals(files[i].getName())) {
+                    svcArray[i].setProcessId(process[j].getProcessID());
+                    svcArray[i].setState(OSService.State.RUNNING);
+                } else {
+                    svcArray[i].setState(OSService.State.STOPPED);
+                }
+            }
+        }
+        return svcArray;
+    }    
+
 }
