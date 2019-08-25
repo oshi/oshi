@@ -116,10 +116,10 @@ public final class MemoizerTest {
                 long now;
                 while ((now = System.nanoTime()) < beginNanos + iterationDurationNanos
                         || now < firstSupplierCallNanos + ttlNanos
-                        || (guaranteedIteration = true)) {
-                    // guaranteedIteration makes the while condition always true but because of
-                    // short circuit evaluation this will never be set until the elapsed time
-                    // conditions above return false. Use this flag to exit loop at the end.
+                        || (guaranteedIteration = !guaranteedIteration)) {
+                    // guaranteedIteration will only be set true when the first two timing
+                    // conditions are false, which will allow at least one iteration. After that
+                    // final iteration the boolean will toggle false again to stop the loop.
                     if (Thread.currentThread().isInterrupted()) {
                         throw new InterruptedException();
                     }
@@ -128,10 +128,6 @@ public final class MemoizerTest {
                     assertTrue(String.format("newValue=%s, previousValue=%s", newValue, previousValue),
                             newValue >= previousValue);// check that the counter never goes down
                     previousValue = newValue;
-
-                    if (guaranteedIteration) {
-                        break;
-                    }
                 }
                 return null;
             }));
