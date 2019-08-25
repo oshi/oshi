@@ -101,8 +101,8 @@ public final class MemoizerTest {
         final long beginNanos = System.nanoTime();
         for (int tid = 0; tid < numberOfThreads; tid++) {
             results.add(ex.submit(() -> {
-                // First read from the memoizer. Only one thread will win this race but all
-                // should read after the first increment
+                // First read from the memoizer. Only one thread will win this race to increment
+                // 0 to 1, but all threads should read at least 1, if not increment further
                 Long previousValue = m.get();
                 assertNotNull(previousValue);
                 assertTrue(previousValue > 0);
@@ -135,13 +135,7 @@ public final class MemoizerTest {
         /*
          * Make sure all the submitted tasks finished correctly
          */
-        for (final Future<Void> result : results) {
-            try {
-                result.get();
-            } catch (final ExecutionException e) {
-                throw e.getCause();
-            }
-        }
+        finishAllThreads(results);
         /*
          * All the writes to s.value field happened-before this read because of all the
          * result.get() invocations, so it holds the final/max value returned by any
@@ -150,6 +144,21 @@ public final class MemoizerTest {
          * internal s.value was before this call increments it.
          */
         final long actualNumberOfIncrements = s.get() - 1;
+        testIncrementCounts(actualNumberOfIncrements, iterationDurationNanos, ttlNanos);
+
+    }
+
+    private void finishAllThreads(Collection<Future<Void>> results) throws Throwable {
+        for (final Future<Void> result : results) {
+            try {
+                result.get();
+            } catch (final ExecutionException e) {
+                throw e.getCause();
+            }
+        }
+    }
+
+    private void testIncrementCounts(long actualNumberOfIncrements, long iterationDurationNanos, long ttlNanos) {
         if (ttlNanos < 0) {
             assertEquals(String.format("ttlNanos=%d, expectedNumberOfIncrements=%d, actualNumberOfIncrements=%s",
                     ttlNanos, 1, actualNumberOfIncrements), 1, actualNumberOfIncrements);
