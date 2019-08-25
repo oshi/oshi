@@ -27,6 +27,7 @@ import java.io.Serializable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import oshi.SystemInfo;
 import oshi.software.os.linux.LinuxFileSystem;
 import oshi.software.os.mac.MacFileSystem;
@@ -350,21 +351,16 @@ public class OSFileStore implements Serializable {
         return false;
     }
 
-    /** {@inheritDoc} */
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getName()).append(": ");
-        sb.append("(volume: ").append(getVolume());
-        sb.append("logicalVolume: ").append(getLogicalVolume());
-        sb.append("mount: ").append(getMount());
-        sb.append("description: ").append(getDescription());
-        sb.append("fileSystemType: ").append(getType());
-        sb.append("total space: ").append(getTotalSpace());
-        sb.append("free Space available: ").append(getFreeSpace());
-        sb.append("usable space available: ").append(getUsableSpace());
-        sb.append("total Inodes: ").append(getTotalInodes());
-        sb.append("free Inodes: ").append(getFreeInodes());
-        return sb.toString();
+        return String.format(
+                " %s (%s) [%s] %s of %s free (%.1f%%), %s of %s files free (%.1f%%) is %s "
+                        + (getLogicalVolume() != null && getLogicalVolume().length() > 0 ? "[%s]" : "%s")
+                        + " and is mounted at %s",
+                getName(), getDescription().isEmpty() ? "file system" : getDescription(), getType(),
+                FormatUtil.formatBytes(getUsableSpace()), FormatUtil.formatBytes(getTotalSpace()),
+                100d * getUsableSpace() / getTotalSpace(), FormatUtil.formatValue(getFreeInodes(), ""),
+                FormatUtil.formatValue(getTotalInodes(), ""), 100d * getFreeInodes() / getTotalInodes(), getVolume(),
+                getLogicalVolume(), getMount());
     }
 }

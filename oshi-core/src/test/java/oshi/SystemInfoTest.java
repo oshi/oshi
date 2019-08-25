@@ -25,7 +25,6 @@ package oshi;
 
 import static org.junit.Assert.assertFalse;
 
-import java.nio.file.FileStore;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -119,10 +118,6 @@ public class SystemInfoTest {
         logger.info("Checking File System...");
         printFileSystem(os.getFileSystem());
 
-        logger.info("Checking OSFileStore...");
-        //Struggling with the parameter here!
-        //printOSFileStore();
-
         logger.info("Checking Network interfaces...");
         printNetworkInterfaces(hal.getNetworkIFs());
 
@@ -176,10 +171,6 @@ public class SystemInfoTest {
         oshi.add("Swap: \n " + vm.toString());
     }
 
-    private static void printOSFileStore(OSFileStore OSfileStore)
-    {
-        oshi.add("OSFileStore: \n " + OSfileStore.toString());
-    }
     private static void printCpu(CentralProcessor processor) {
         oshi.add("Context Switches/Interrupts: " + processor.getContextSwitches() + " / " + processor.getInterrupts());
 
@@ -291,17 +282,7 @@ public class SystemInfoTest {
 
         OSFileStore[] fsArray = fileSystem.getFileStores();
         for (OSFileStore fs : fsArray) {
-            long usable = fs.getUsableSpace();
-            long total = fs.getTotalSpace();
-            oshi.add(String.format(
-                    " %s (%s) [%s] %s of %s free (%.1f%%), %s of %s files free (%.1f%%) is %s "
-                            + (fs.getLogicalVolume() != null && fs.getLogicalVolume().length() > 0 ? "[%s]" : "%s")
-                            + " and is mounted at %s",
-                    fs.getName(), fs.getDescription().isEmpty() ? "file system" : fs.getDescription(), fs.getType(),
-                    FormatUtil.formatBytes(usable), FormatUtil.formatBytes(fs.getTotalSpace()), 100d * usable / total,
-                    FormatUtil.formatValue(fs.getFreeInodes(), ""), FormatUtil.formatValue(fs.getTotalInodes(), ""),
-                    100d * fs.getFreeInodes() / fs.getTotalInodes(), fs.getVolume(), fs.getLogicalVolume(),
-                    fs.getMount()));
+            oshi.add(" " + fs.toString());
         }
     }
 
