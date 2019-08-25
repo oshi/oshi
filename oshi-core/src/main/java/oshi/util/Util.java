@@ -80,6 +80,6 @@ public class Util {
      * @return True if the String is either null or empty.
      */
     public static boolean isBlank(String s) {
-        return (s == null || s.isEmpty());
+        return s == null || s.isEmpty();
     }
 }

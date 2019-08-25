@@ -24,6 +24,7 @@
 package oshi.hardware.platform.linux;
 
 import static oshi.util.Memoizer.memoize;
+import static oshi.util.platform.linux.ProcUtil.CPUINFO;
 
 import java.util.List;
 import java.util.function.Supplier;
@@ -149,7 +150,7 @@ final class LinuxBaseboard extends AbstractBaseboard {
         String pcVersion = null;
         String pcSerialNumber = null;
 
-        List<String> cpuInfo = FileUtil.readFile(ProcUtil.getProcPath() + "/cpuinfo");
+        List<String> cpuInfo = FileUtil.readFile(ProcUtil.getProcPath() + CPUINFO);
         for (String line : cpuInfo) {
             String[] splitLine = ParseUtil.whitespacesColonWhitespace.split(line);
             if (splitLine.length < 2) {

@@ -38,6 +38,16 @@ import oshi.util.ParseUtil;
  * Provides access to some /proc filesystem info on Linux
  */
 public class ProcUtil {
+    
+    /**
+     * The proc path for CPU information
+     */
+    public static final String CPUINFO = "/cpuinfo";
+    
+    /**
+     * The proc path for CPU statistics
+     */
+    public static final String STAT = "/stat";
 
     private static final Pattern DIGITS = Pattern.compile("\\d+");
 
@@ -102,7 +112,7 @@ public class ProcUtil {
         // first line is overall user,nice,system,idle,iowait,irq, etc.
         // cpu 3357 0 4313 1362393 ...
         String tickStr;
-        List<String> procStat = FileUtil.readFile(getProcPath() + "/stat");
+        List<String> procStat = FileUtil.readFile(getProcPath() + STAT);
         if (!procStat.isEmpty()) {
             tickStr = procStat.get(0);
         } else {

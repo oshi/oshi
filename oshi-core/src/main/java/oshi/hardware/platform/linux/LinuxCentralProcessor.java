@@ -23,16 +23,14 @@
  */
 package oshi.hardware.platform.linux;
 
+import static oshi.util.platform.linux.ProcUtil.CPUINFO;
+import static oshi.util.platform.linux.ProcUtil.STAT;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.jna.platform.linux.LinuxLibc;
@@ -41,34 +39,27 @@ import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.linux.ProcUtil;
-
 /**
  * A CPU as defined in Linux /proc.
  */
 public class LinuxCentralProcessor extends AbstractCentralProcessor {
 
-    private static final long serialVersionUID = 1L;
-
-    private static final Logger LOG = LoggerFactory.getLogger(LinuxCentralProcessor.class);
-
     // See https://www.kernel.org/doc/Documentation/cpu-freq/user-guide.txt
     private static final String CPUFREQ_PATH = "/sys/devices/system/cpu/cpu";
 
-    /**
-     * Create a Processor
-     */
-    public LinuxCentralProcessor() {
-        super();
-        // Initialize class variables
-        initVars();
+    @Override
+    protected final ProcessorIdentifier queryProcessorId() {
+        String cpuVendor = "";
+        String cpuName = "";
+        String cpuFamily = "";
+        String cpuModel = "";
+        String cpuStepping = "";
+        String processorID;
+        boolean cpu64bit = false;
 
-        LOG.debug("Initialized Processor");
-    }
-
-    private void initVars() {
-        String armStepping = ""; // For ARM equivalent
+        StringBuilder armStepping = new StringBuilder(); // For ARM equivalent
         String[] flags = new String[0];
-        List<String> cpuInfo = FileUtil.readFile(ProcUtil.getProcPath() + "/cpuinfo");
+        List<String> cpuInfo = FileUtil.readFile(ProcUtil.getProcPath() + CPUINFO);
         for (String line : cpuInfo) {
             String[] splitLine = ParseUtil.whitespacesColonWhitespace.split(line);
             if (splitLine.length < 2) {
@@ -77,63 +68,61 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
             switch (splitLine[0]) {
             case "vendor_id":
             case "CPU implementer":
-                setVendor(splitLine[1]);
+                cpuVendor = splitLine[1];
                 break;
             case "model name":
-                setName(splitLine[1]);
+                cpuName = splitLine[1];
                 break;
             case "flags":
                 flags = splitLine[1].toLowerCase().split(" ");
-                boolean found = false;
                 for (String flag : flags) {
                     if ("lm".equals(flag)) {
-                        found = true;
+                        cpu64bit = true;
                         break;
                     }
                 }
-                setCpu64(found);
                 break;
             case "stepping":
-                setStepping(splitLine[1]);
+                cpuStepping = splitLine[1];
                 break;
             case "CPU variant":
-                armStepping = "r" + splitLine[1] + armStepping; // NOSONAR squid:S1643
+                armStepping.insert(0, "r" + splitLine[1]);
                 break;
             case "CPU revision":
-                armStepping = armStepping + "p" + splitLine[1]; // NOSONAR squid:S1643
+                armStepping.append('p').append(splitLine[1]);
                 break;
             case "model":
             case "CPU part":
-                setModel(splitLine[1]);
+                cpuModel = splitLine[1];
                 break;
             case "cpu family":
             case "CPU architecture":
-                setFamily(splitLine[1]);
+                cpuFamily = splitLine[1];
                 break;
             default:
                 // Do nothing
             }
         }
-        setProcessorID(getProcessorID(getVendor(), getStepping(), getModel(), getFamily(), flags));
+        if (cpuStepping.isEmpty()) {
+            cpuStepping = armStepping.toString();
+        }
+        processorID = getProcessorID(getVendor(), getStepping(), getModel(), getFamily(), flags);
         if (getVendor().startsWith("0x")) {
             List<String> lscpu = ExecutingCommand.runNative("lscpu");
             for (String line : lscpu) {
                 if (line.startsWith("Architecture:")) {
-                    setVendor(line.replace("Architecture:", "").trim());
+                    cpuVendor = line.replace("Architecture:", "").trim();
                 }
             }
         }
+        return new ProcessorIdentifier(cpuVendor, cpuName, cpuFamily, cpuModel, cpuStepping, processorID, 
+                cpu64bit);
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * Updates logical and physical processor counts from /proc/cpuinfo
-     */
     @Override
     protected LogicalProcessor[] initProcessorCounts() {
         Map<Integer, Integer> numaNodeMap = mapNumaNodes();
-        List<String> procCpu = FileUtil.readFile(ProcUtil.getProcPath() + "/cpuinfo");
+        List<String> procCpu = FileUtil.readFile(ProcUtil.getProcPath() + CPUINFO);
         List<LogicalProcessor> logProcs = new ArrayList<>();
         int currentProcessor = 0;
         int currentCore = 0;
@@ -158,16 +147,6 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
         }
         logProcs.add(new LogicalProcessor(currentProcessor, currentCore, currentPackage,
                 numaNodeMap.getOrDefault(currentProcessor, 0)));
-        Set<String> physProcPkgs = new HashSet<>();
-        Set<Integer> physPkgs = new HashSet<>();
-        for (LogicalProcessor logProc : logProcs) {
-            int pkg = logProc.getPhysicalPackageNumber();
-            physProcPkgs.add(logProc.getPhysicalProcessorNumber() + ":" + pkg);
-            physPkgs.add(pkg);
-        }
-        this.logicalProcessorCount = logProcs.size();
-        this.physicalProcessorCount = physProcPkgs.size();
-        this.physicalPackageCount = physPkgs.size();
 
         return logProcs.toArray(new LogicalProcessor[0]);
     }
@@ -193,9 +172,8 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
         return numaNodeMap;
     }
 
-    /** {@inheritDoc} */
     @Override
-    public long[] getSystemCpuLoadTicks() {
+    public long[] querySystemCpuLoadTicks() {
         // convert the Linux Jiffies to Milliseconds.
         long[] ticks = ProcUtil.readSystemCpuLoadTicks();
         long hz = LinuxOperatingSystem.getHz();
@@ -205,9 +183,8 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
         return ticks;
     }
 
-    /** {@inheritDoc} */
     @Override
-    public long[] getCurrentFreq() {
+    public long[] queryCurrentFreq() {
         long[] freqs = new long[getLogicalProcessorCount()];
         // Attempt to fill array from cpu-freq source
         long max = 0L;
@@ -229,7 +206,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
         }
         // If unsuccessful, try from /proc/cpuinfo
         Arrays.fill(freqs, -1);
-        List<String> cpuInfo = FileUtil.readFile(ProcUtil.getProcPath() + "/cpuinfo");
+        List<String> cpuInfo = FileUtil.readFile(ProcUtil.getProcPath() + CPUINFO);
         int proc = 0;
         for (String s : cpuInfo) {
             if (s.toLowerCase().contains("cpu mhz")) {
@@ -242,7 +219,6 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
         return freqs;
     }
 
-    /** {@inheritDoc} */
     @Override
     public long queryMaxFreq() {
         long max = 0L;
@@ -262,7 +238,6 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
         return -1L;
     }
 
-    /** {@inheritDoc} */
     @Override
     public double[] getSystemLoadAverage(int nelem) {
         if (nelem < 1 || nelem > 3) {
@@ -278,16 +253,15 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
         return average;
     }
 
-    /** {@inheritDoc} */
     @Override
-    public long[][] getProcessorCpuLoadTicks() {
-        long[][] ticks = new long[this.logicalProcessorCount][TickType.values().length];
+    public long[][] queryProcessorCpuLoadTicks() {
+        long[][] ticks = new long[getLogicalProcessorCount()][TickType.values().length];
         // /proc/stat expected format
         // first line is overall user,nice,system,idle, etc.
         // cpu 3357 0 4313 1362393 ...
         // per-processor subsequent lines for cpu0, cpu1, etc.
         int cpu = 0;
-        List<String> procStat = FileUtil.readFile(ProcUtil.getProcPath() + "/stat");
+        List<String> procStat = FileUtil.readFile(ProcUtil.getProcPath() + STAT);
         for (String stat : procStat) {
             if (stat.startsWith("cpu") && !stat.startsWith("cpu ")) {
                 // Split the line. Note the first (0) element is "cpu" so
@@ -303,7 +277,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
                     ticks[cpu][i] = ParseUtil.parseLongOrDefault(tickArr[i + 1], 0L);
                 }
                 // Ignore guest or guest_nice, they are included in
-                if (++cpu >= this.logicalProcessorCount) {
+                if (++cpu >= getLogicalProcessorCount()) {
                     break;
                 }
             }
@@ -397,10 +371,9 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
         return String.format("%08X", midrBytes);
     }
 
-    /** {@inheritDoc} */
     @Override
-    public long getContextSwitches() {
-        List<String> procStat = FileUtil.readFile(ProcUtil.getProcPath() + "/stat");
+    public long queryContextSwitches() {
+        List<String> procStat = FileUtil.readFile(ProcUtil.getProcPath() + STAT);
         for (String stat : procStat) {
             if (stat.startsWith("ctxt ")) {
                 String[] ctxtArr = ParseUtil.whitespaces.split(stat);
@@ -412,10 +385,9 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
         return -1;
     }
 
-    /** {@inheritDoc} */
     @Override
-    public long getInterrupts() {
-        List<String> procStat = FileUtil.readFile(ProcUtil.getProcPath() + "/stat");
+    public long queryInterrupts() {
+        List<String> procStat = FileUtil.readFile(ProcUtil.getProcPath() + STAT);
         for (String stat : procStat) {
             if (stat.startsWith("intr ")) {
                 String[] intrArr = ParseUtil.whitespaces.split(stat);

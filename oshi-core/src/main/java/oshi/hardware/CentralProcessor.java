@@ -23,15 +23,13 @@
  */
 package oshi.hardware;
 
-import java.io.Serializable;
-
 /**
  * This class represents the entire Central Processing Unit (CPU) of a computer
  * system, which may contain one or more physical packages (sockets), one or
  * more physical processors (cores), and one or more logical processors (what
  * the Operating System sees, which may include hyperthreaded cores.)
  */
-public interface CentralProcessor extends Serializable {
+public interface CentralProcessor {
 
     /**
      * Processor vendor.
@@ -48,26 +46,28 @@ public interface CentralProcessor extends Serializable {
     String getName();
 
     /**
-     * Vendor frequency (in Hz), eg. for processor named Intel(R) Core(TM)2 Duo CPU
-     * T7300 @ 2.00GHz the vendor frequency is 2000000000.
+     * Gets the family. For non-Intel/AMD processors, returns the comparable value,
+     * such as the Architecture.
      *
-     * @return Processor frequency or -1 if unknown.
+     * @return the family
      */
-    long getVendorFreq();
+    String getFamily();
 
     /**
-     * Maximum frequeny (in Hz), of the logical processors on this CPU.
+     * Gets the model. For non-Intel/AMD processors, returns the comparable value,
+     * such as the Partnum.
      *
-     * @return The max frequency or -1 if unknown.
+     * @return the model
      */
-    long getMaxFreq();
+    String getModel();
 
     /**
-     * Current frequeny (in Hz), of the logical processors on this CPU.
+     * Gets the stepping. For non-Intel/AMD processors, returns the comparable
+     * value, such as the rnpn composite of Variant and Revision.
      *
-     * @return An array of processor frequency or -1 if unknown.
+     * @return the stepping
      */
-    long[] getCurrentFreq();
+    String getStepping();
 
     /**
      * Gets the Processor ID. This is a hexidecimal string representing an 8-byte
@@ -108,28 +108,27 @@ public interface CentralProcessor extends Serializable {
     boolean isCpu64bit();
 
     /**
-     * Gets the stepping. For non-Intel/AMD processors, returns the comparable
-     * value, such as the rnpn composite of Variant and Revision.
+     * Vendor frequency (in Hz), eg. for processor named Intel(R) Core(TM)2 Duo CPU
+     * T7300 @ 2.00GHz the vendor frequency is 2000000000.
      *
-     * @return the stepping
+     * @return Processor frequency or -1 if unknown.
      */
-    String getStepping();
+    long getVendorFreq();
 
     /**
-     * Gets the model. For non-Intel/AMD processors, returns the comparable value,
-     * such as the Partnum.
+     * Maximum frequeny (in Hz), of the logical processors on this CPU.
      *
-     * @return the model
+     * @return The max frequency or -1 if unknown.
      */
-    String getModel();
+    long getMaxFreq();
 
     /**
-     * Gets the family. For non-Intel/AMD processors, returns the comparable value,
-     * such as the Architecture.
+     * Current frequeny (in Hz), of the logical processors on this CPU.
      *
-     * @return the family
+     * @return An array of processor frequency or -1 if unknown.
      */
-    String getFamily();
+    long[] getCurrentFreq();
+
 
     /**
      * Returns an array of the CPU's logical processors. The array will be sorted in
@@ -189,8 +188,10 @@ public interface CentralProcessor extends Serializable {
      * operating system specific but is typically a damped time-dependent average.
      * If the load average is not available, a negative value is returned. This
      * method is designed to provide a hint about the system load and may be queried
-     * frequently. The load average may be unavailable on some platforms (e.g.,
-     * Windows) where it is expensive to implement this method.
+     * frequently.
+     * <p>
+     * The load average may be unavailable on some platforms (e.g., Windows) where
+     * it is expensive to implement this method.
      *
      * @param nelem
      *            Number of elements to return.
@@ -343,14 +344,12 @@ public interface CentralProcessor extends Serializable {
      * processors, physical packages, and logical groupings such as NUMA Nodes and
      * Processor groups, useful for identifying processor topology.
      */
-    class LogicalProcessor implements Serializable {
-        private static final long serialVersionUID = 1L;
-
-        private int processorNumber;
-        private int physicalProcessorNumber;
-        private int physicalPackageNumber;
-        private int numaNode;
-        private int processorGroup;
+    class LogicalProcessor {
+        private final int processorNumber;
+        private final int physicalProcessorNumber;
+        private final int physicalPackageNumber;
+        private final int numaNode;
+        private final int processorGroup;
 
         /**
          * @param processorNumber
@@ -453,6 +452,5 @@ public interface CentralProcessor extends Serializable {
         public int getProcessorGroup() {
             return processorGroup;
         }
-
     }
 }

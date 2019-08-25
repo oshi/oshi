@@ -23,6 +23,9 @@
  */
 package oshi.hardware.platform.linux;
 
+import static oshi.util.Memoizer.memoize;
+import static oshi.util.platform.linux.ProcUtil.CPUINFO;
+
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -32,10 +35,8 @@ import oshi.hardware.common.AbstractComputerSystem;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
-import static oshi.util.Memoizer.memoize;
 import oshi.util.ParseUtil;
 import oshi.util.platform.linux.ProcUtil;
-
 /**
  * Hardware data obtained from sysfs.
  */
@@ -107,7 +108,7 @@ final class LinuxComputerSystem extends AbstractComputerSystem {
     }
 
     private String queryManufacturerFromProcCpu() {
-        List<String> cpuInfo = FileUtil.readFile(ProcUtil.getProcPath() + "/cpuinfo");
+        List<String> cpuInfo = FileUtil.readFile(ProcUtil.getProcPath() + CPUINFO);
         for (String line : cpuInfo) {
             if (line.startsWith("CPU implementer")) {
                 int part = ParseUtil.parseLastInt(line, 0);

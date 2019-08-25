@@ -223,7 +223,7 @@ final class SolarisComputerSystem extends AbstractComputerSystem {
         private final String boardVersion;
         private final String boardSerialNumber;
 
-        public SmbiosStrings(String biosVendor, String biosVersion, String biosDate, //
+        private SmbiosStrings(String biosVendor, String biosVersion, String biosDate, //
                 String manufacturer, String model, String serialNumber, //
                 String boardManufacturer, String boardModel, String boardVersion, String boardSerialNumber) {
             this.biosVendor = Util.isBlank(biosVendor) ? Constants.UNKNOWN : biosVendor;
