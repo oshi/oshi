@@ -62,4 +62,11 @@ public class UtilTest {
         assertFalse(Util.wildcardMatch("Test", "Te?"));
         assertTrue(Util.wildcardMatch("Test", "Te*"));
     }
+
+    @Test
+    public void testIsBlank() {
+        assertTrue(Util.isBlank(""));
+        assertTrue(Util.isBlank(null));
+        assertFalse(Util.isBlank("Not blank"));
+    }
 }

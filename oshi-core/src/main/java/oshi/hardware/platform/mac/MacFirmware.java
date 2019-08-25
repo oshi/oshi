@@ -27,6 +27,26 @@ import oshi.hardware.common.AbstractFirmware;
 
 final class MacFirmware extends AbstractFirmware {
 
-    private static final long serialVersionUID = 1L;
+    private final String manufacturer;
+    private final String version;
 
+    public MacFirmware(String manufacturer, String version) {
+        this.manufacturer = manufacturer;
+        this.version = version;
+    }
+
+    @Override
+    public String getName() {
+        return "EFI";
+    }
+
+    @Override
+    public String getManufacturer() {
+        return manufacturer;
+    }
+
+    @Override
+    public String getVersion() {
+        return version;
+    }
 }

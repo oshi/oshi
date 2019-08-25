@@ -23,52 +23,47 @@
  */
 package oshi.hardware.common;
 
+import static oshi.util.Memoizer.memoize;
+
+import java.util.function.Supplier;
+
 import oshi.hardware.Baseboard;
 import oshi.hardware.ComputerSystem;
 import oshi.hardware.Firmware;
-import oshi.util.Constants;
 
 /**
  * Computer System data.
  */
 public abstract class AbstractComputerSystem implements ComputerSystem {
 
-    private static final long serialVersionUID = 1L;
+    private final Supplier<Firmware> firmware = memoize(this::createFirmware);
 
-    protected String manufacturer;
-    protected String model;
-    protected String serialNumber;
-    protected Firmware firmware;
-    protected Baseboard baseboard;
+    private final Supplier<Baseboard> baseboard = memoize(this::createBaseboard);
 
-    /** {@inheritDoc} */
     @Override
-    public String getManufacturer() {
-        if (this.manufacturer == null) {
-            this.manufacturer = Constants.UNKNOWN;
-        }
-        return this.manufacturer;
+    public Firmware getFirmware() {
+        return firmware.get();
     }
 
-    /** {@inheritDoc} */
+    /**
+     * Instantiates the platform-specific {@link Firmware} object
+     * 
+     * @return platform-specific {@link Firmware} object
+     */
+    protected abstract Firmware createFirmware();
+
     @Override
-    public String getModel() {
-        if (this.model == null) {
-            this.model = Constants.UNKNOWN;
-        }
-        return this.model;
+    public Baseboard getBaseboard() {
+        return baseboard.get();
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public String getSerialNumber() {
-        if (this.serialNumber == null) {
-            this.serialNumber = Constants.UNKNOWN;
-        }
-        return this.serialNumber;
-    }
+    /**
+     * Instantiates the platform-specific {@link Baseboard} object
+     * 
+     * @return platform-specific {@link Baseboard} object
+     */
+    protected abstract Baseboard createBaseboard();
 
-    /** {@inheritDoc} */
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

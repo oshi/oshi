@@ -31,117 +31,23 @@ import oshi.util.Constants;
  */
 public abstract class AbstractFirmware implements Firmware {
 
-    private static final long serialVersionUID = 1L;
+    /*
+     * Multiple classes don't have these, set defaults here
+     */
 
-    protected String manufacturer;
-    protected String name;
-    protected String description;
-    protected String version;
-    protected String releaseDate;
-
-    /** {@inheritDoc} */
-    @Override
-    public String getManufacturer() {
-        if (this.manufacturer == null) {
-            this.manufacturer = Constants.UNKNOWN;
-        }
-        return this.manufacturer;
-    }
-
-    /** {@inheritDoc} */
     @Override
     public String getName() {
-        if (this.name == null) {
-            this.name = Constants.UNKNOWN;
-        }
-        return this.name;
+        return Constants.UNKNOWN;
     }
 
-    /** {@inheritDoc} */
     @Override
     public String getDescription() {
-        if (this.description == null) {
-            this.description = Constants.UNKNOWN;
-        }
-        return this.description;
+        return Constants.UNKNOWN;
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public String getVersion() {
-        if (this.version == null) {
-            this.version = Constants.UNKNOWN;
-        }
-        return this.version;
-    }
-
-    /** {@inheritDoc} */
     @Override
     public String getReleaseDate() {
-        if (this.releaseDate == null) {
-            this.releaseDate = Constants.UNKNOWN;
-        }
-        return this.releaseDate;
-    }
-
-    /**
-     * <p>
-     * Setter for the field <code>manufacturer</code>.
-     * </p>
-     *
-     * @param manufacturer
-     *            The manufacturer to set.
-     */
-    public void setManufacturer(String manufacturer) {
-        this.manufacturer = manufacturer;
-    }
-
-    /**
-     * <p>
-     * Setter for the field <code>name</code>.
-     * </p>
-     *
-     * @param name
-     *            The name to set.
-     */
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    /**
-     * <p>
-     * Setter for the field <code>description</code>.
-     * </p>
-     *
-     * @param description
-     *            The description to set.
-     */
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    /**
-     * <p>
-     * Setter for the field <code>version</code>.
-     * </p>
-     *
-     * @param version
-     *            The version to set.
-     */
-    public void setVersion(String version) {
-        this.version = version;
-    }
-
-    /**
-     * <p>
-     * Setter for the field <code>releaseDate</code>.
-     * </p>
-     *
-     * @param releaseDate
-     *            The releaseDate to set.
-     */
-    public void setReleaseDate(String releaseDate) {
-        this.releaseDate = releaseDate;
+        return Constants.UNKNOWN;
     }
 
     /** {@inheritDoc} */

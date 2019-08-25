@@ -34,12 +34,10 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import oshi.hardware.Baseboard;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.CentralProcessor.TickType;
 import oshi.hardware.ComputerSystem;
 import oshi.hardware.Display;
-import oshi.hardware.Firmware;
 import oshi.hardware.GlobalMemory;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
@@ -153,12 +151,9 @@ public class SystemInfoTest {
     }
 
     private static void printComputerSystem(final ComputerSystem computerSystem) {
-
-        oshi.add(computerSystem.toString());
-        final Firmware firmware = computerSystem.getFirmware();
-        oshi.add("firmware: " + firmware.toString());
-        final Baseboard baseboard = computerSystem.getBaseboard();
-        oshi.add("baseboard: " + baseboard.toString());
+        oshi.add("system: " + computerSystem.toString());
+        oshi.add(" firmware: " + computerSystem.getFirmware().toString());
+        oshi.add(" baseboard: " + computerSystem.getBaseboard().toString());
     }
 
     private static void printProcessor(CentralProcessor processor) {

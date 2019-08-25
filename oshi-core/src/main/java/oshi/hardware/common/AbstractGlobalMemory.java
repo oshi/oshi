@@ -24,7 +24,6 @@
 package oshi.hardware.common;
 
 import oshi.hardware.GlobalMemory;
-import oshi.hardware.VirtualMemory;
 import oshi.util.FormatUtil;
 
 /**
@@ -32,14 +31,6 @@ import oshi.util.FormatUtil;
  */
 public abstract class AbstractGlobalMemory implements GlobalMemory {
 
-    private static final long serialVersionUID = 1L;
-
-    protected long memTotal = -1L;
-    protected long memAvailable = -1L;
-    protected long pageSize = -1L;
-    protected VirtualMemory virtualMemory;
-
-    /** {@inheritDoc} */
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -49,5 +40,4 @@ public abstract class AbstractGlobalMemory implements GlobalMemory {
         sb.append(FormatUtil.formatBytes(getTotal()));
         return sb.toString();
     }
-
 }

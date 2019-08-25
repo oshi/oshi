@@ -23,47 +23,43 @@
  */
 package oshi.hardware.platform.unix.freebsd;
 
+import static oshi.util.Memoizer.memoize;
+
+import java.util.function.Supplier;
+
 import oshi.hardware.common.AbstractFirmware;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
+import oshi.util.Util;
 
 final class FreeBsdFirmware extends AbstractFirmware {
 
-    private static final long serialVersionUID = 1L;
+    private final Supplier<DmidecodeStrings> readDmiDecode = memoize(this::readDmiDecode);
 
-    /** {@inheritDoc} */
     @Override
     public String getManufacturer() {
-        if (this.manufacturer == null) {
-            readDmiDecode();
-        }
-        return super.getManufacturer();
+        return readDmiDecode.get().manufacturer;
     }
 
-    /** {@inheritDoc} */
     @Override
     public String getVersion() {
-        if (this.version == null) {
-            readDmiDecode();
-        }
-        return super.getVersion();
+        return readDmiDecode.get().version;
     }
 
-    /** {@inheritDoc} */
     @Override
     public String getReleaseDate() {
-        if (this.releaseDate == null) {
-            readDmiDecode();
-        }
-        return super.getReleaseDate();
+        return readDmiDecode.get().releaseDate;
     }
 
     /*
      * Name and Description not set
      */
 
-    private void readDmiDecode() {
+    private DmidecodeStrings readDmiDecode() {
+        String manufacturer = null;
+        String version = null;
+        String releaseDate = null;
 
         // $ sudo dmidecode -t bios
         // # dmidecode 3.0
@@ -86,16 +82,26 @@ final class FreeBsdFirmware extends AbstractFirmware {
         // Only works with root permissions but it's all we've got
         for (final String checkLine : ExecutingCommand.runNative("dmidecode -t bios")) {
             if (checkLine.contains(manufacturerMarker)) {
-                String manufacturer = checkLine.split(manufacturerMarker)[1].trim();
-                this.manufacturer = manufacturer.isEmpty() ? Constants.UNKNOWN : manufacturer;
+                manufacturer = checkLine.split(manufacturerMarker)[1].trim();
             } else if (checkLine.contains(versionMarker)) {
-                String version = checkLine.split(versionMarker)[1].trim();
-                this.version = version.isEmpty() ? Constants.UNKNOWN : version;
+                version = checkLine.split(versionMarker)[1].trim();
             } else if (checkLine.contains(releaseDateMarker)) {
-                String releaseDate = checkLine.split(releaseDateMarker)[1].trim();
-                this.releaseDate = releaseDate.isEmpty() ? Constants.UNKNOWN
-                        : ParseUtil.parseMmDdYyyyToYyyyMmDD(releaseDate);
+                releaseDate = checkLine.split(releaseDateMarker)[1].trim();
             }
+        }
+        releaseDate = ParseUtil.parseMmDdYyyyToYyyyMmDD(releaseDate);
+        return new DmidecodeStrings(manufacturer, version, releaseDate);
+    }
+
+    private static final class DmidecodeStrings {
+        private final String manufacturer;
+        private final String version;
+        private final String releaseDate;
+
+        private DmidecodeStrings(String manufacturer, String version, String releaseDate) {
+            this.manufacturer = Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer;
+            this.version = Util.isBlank(version) ? Constants.UNKNOWN : version;
+            this.releaseDate = Util.isBlank(releaseDate) ? Constants.UNKNOWN : releaseDate;
         }
     }
 

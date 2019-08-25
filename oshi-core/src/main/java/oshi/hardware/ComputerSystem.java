@@ -23,14 +23,12 @@
  */
 package oshi.hardware;
 
-import java.io.Serializable;
-
 /**
  * The ComputerSystem represents the physical hardware, of a computer
  * system/product and includes BIOS/firmware and a motherboard, logic board,
  * etc.
  */
-public interface ComputerSystem extends Serializable {
+public interface ComputerSystem {
     /**
      * Get the computer system manufacturer.
      *

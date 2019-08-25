@@ -23,13 +23,16 @@
  */
 package oshi.hardware.platform.linux;
 
+import static oshi.util.Memoizer.defaultExpiration;
+import static oshi.util.Memoizer.memoize;
+
 import java.util.List;
+import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Native; // NOSONAR
-import com.sun.jna.platform.linux.LibC;
+import com.sun.jna.platform.linux.LibC; // NOSONAR squid:S1191
 import com.sun.jna.platform.linux.LibC.Sysinfo;
 
 import oshi.hardware.VirtualMemory;
@@ -44,58 +47,44 @@ import oshi.util.platform.linux.ProcUtil;
  */
 public class LinuxGlobalMemory extends AbstractGlobalMemory {
 
-    private static final long serialVersionUID = 1L;
-
     private static final Logger LOG = LoggerFactory.getLogger(LinuxGlobalMemory.class);
 
-    /** {@inheritDoc} */
+    private final Supplier<MemInfo> memInfo = memoize(this::readMemInfo, defaultExpiration());
+
+    private final Supplier<Long> pageSize = memoize(this::queryPageSize);
+
+    private final Supplier<VirtualMemory> vm = memoize(this::createVirtualMemory);
+
     @Override
     public long getAvailable() {
-        updateMemInfo();
-        return this.memAvailable;
+        return memInfo.get().available;
     }
 
-    /** {@inheritDoc} */
     @Override
     public long getTotal() {
-        if (this.memTotal < 0) {
-            readSysinfo();
-        }
-        return this.memTotal;
+        return memInfo.get().total;
     }
 
-    /** {@inheritDoc} */
     @Override
     public long getPageSize() {
-        if (this.pageSize < 0) {
-            readSysinfo();
-        }
-        return this.pageSize;
+        return pageSize.get();
     }
 
-    /** {@inheritDoc} */
     @Override
     public VirtualMemory getVirtualMemory() {
-        if (this.virtualMemory == null) {
-            this.virtualMemory = new LinuxVirtualMemory();
-        }
-        return this.virtualMemory;
+        return vm.get();
     }
 
-    private void readSysinfo() {
+    private long queryPageSize() {
         try {
             Sysinfo info = new Sysinfo();
             if (0 == LibC.INSTANCE.sysinfo(info)) {
-                this.memTotal = info.totalram.longValue();
-                this.pageSize = info.mem_unit;
-            } else {
-                LOG.error("Failed to get sysinfo. Error code: {}", Native.getLastError());
+                return info.mem_unit;
             }
         } catch (UnsatisfiedLinkError | NoClassDefFoundError e) {
-            LOG.error("Failed to get sysinfo. {}", e);
-            this.pageSize = ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer("getconf PAGE_SIZE"), 4096L);
-            updateMemInfo();
+            LOG.debug("Failed to get sysinfo. {}", e);
         }
+        return ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer("getconf PAGE_SIZE"), 4096L);
     }
 
     /**
@@ -110,24 +99,27 @@ public class LinuxGlobalMemory extends AbstractGlobalMemory {
      * Internally, reading /proc/meminfo is faster than sysinfo because it only
      * spends time populating the memory components of the sysinfo structure.
      */
-    private void updateMemInfo() {
-        long memFree = 0;
-        long activeFile = 0;
-        long inactiveFile = 0;
-        long sReclaimable = 0;
+    private MemInfo readMemInfo() {
+        long memFree = 0L;
+        long activeFile = 0L;
+        long inactiveFile = 0L;
+        long sReclaimable = 0L;
 
-        List<String> memInfo = FileUtil.readFile(ProcUtil.getProcPath() + "/meminfo");
-        for (String checkLine : memInfo) {
+        long memTotal = 0L;
+        long memAvailable;
+
+        List<String> procMemInfo = FileUtil.readFile(ProcUtil.getProcPath() + "/meminfo");
+        for (String checkLine : procMemInfo) {
             String[] memorySplit = ParseUtil.whitespaces.split(checkLine);
             if (memorySplit.length > 1) {
                 switch (memorySplit[0]) {
                 case "MemTotal:":
-                    this.memTotal = parseMeminfo(memorySplit);
+                    memTotal = parseMeminfo(memorySplit);
                     break;
                 case "MemAvailable:":
-                    this.memAvailable = parseMeminfo(memorySplit);
+                    memAvailable = parseMeminfo(memorySplit);
                     // We're done!
-                    return;
+                    return new MemInfo(memTotal, memAvailable);
                 case "MemFree:":
                     memFree = parseMeminfo(memorySplit);
                     break;
@@ -147,7 +139,7 @@ public class LinuxGlobalMemory extends AbstractGlobalMemory {
             }
         }
         // We didn't find MemAvailable so we estimate from other fields
-        this.memAvailable = memFree + activeFile + inactiveFile + sReclaimable;
+        return new MemInfo(memTotal, memFree + activeFile + inactiveFile + sReclaimable);
     }
 
     /**
@@ -166,5 +158,19 @@ public class LinuxGlobalMemory extends AbstractGlobalMemory {
             memory *= 1024;
         }
         return memory;
+    }
+
+    private VirtualMemory createVirtualMemory() {
+        return new LinuxVirtualMemory();
+    }
+
+    private static final class MemInfo {
+        private final long total;
+        private final long available;
+
+        private MemInfo(long total, long available) {
+            this.total = total;
+            this.available = available;
+        }
     }
 }

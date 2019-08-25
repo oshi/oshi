@@ -24,105 +24,12 @@
 package oshi.hardware.common;
 
 import oshi.hardware.Baseboard;
-import oshi.util.Constants;
 
 /**
  * Baseboard data
  */
 public abstract class AbstractBaseboard implements Baseboard {
 
-    private static final long serialVersionUID = 1L;
-
-    protected String manufacturer;
-    protected String model;
-    protected String version;
-    protected String serialNumber;
-
-    /** {@inheritDoc} */
-    @Override
-    public String getManufacturer() {
-        if (this.manufacturer == null) {
-            this.manufacturer = Constants.UNKNOWN;
-        }
-        return this.manufacturer;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public String getModel() {
-        if (this.model == null) {
-            this.model = Constants.UNKNOWN;
-        }
-        return this.model;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public String getVersion() {
-        if (this.version == null) {
-            this.version = Constants.UNKNOWN;
-        }
-        return this.version;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public String getSerialNumber() {
-        if (this.serialNumber == null) {
-            this.serialNumber = "";
-        }
-        return this.serialNumber;
-    }
-
-    /**
-     * <p>
-     * Setter for the field <code>manufacturer</code>.
-     * </p>
-     *
-     * @param manufacturer
-     *            The manufacturer to set.
-     */
-    public void setManufacturer(String manufacturer) {
-        this.manufacturer = manufacturer;
-    }
-
-    /**
-     * <p>
-     * Setter for the field <code>model</code>.
-     * </p>
-     *
-     * @param model
-     *            The model to set.
-     */
-    public void setModel(String model) {
-        this.model = model;
-    }
-
-    /**
-     * <p>
-     * Setter for the field <code>version</code>.
-     * </p>
-     *
-     * @param version
-     *            The version to set.
-     */
-    public void setVersion(String version) {
-        this.version = version;
-    }
-
-    /**
-     * <p>
-     * Setter for the field <code>serialNumber</code>.
-     * </p>
-     *
-     * @param serialNumber
-     *            The serialNumber to set.
-     */
-    public void setSerialNumber(String serialNumber) {
-        this.serialNumber = serialNumber;
-    }
-
-    /** {@inheritDoc} */
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

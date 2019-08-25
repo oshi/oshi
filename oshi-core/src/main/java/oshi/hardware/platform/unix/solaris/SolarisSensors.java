@@ -37,11 +37,8 @@ import oshi.util.ParseUtil;
  */
 public class SolarisSensors extends AbstractSensors {
 
-    private static final long serialVersionUID = 1L;
-
-    /** {@inheritDoc} */
     @Override
-    public double getCpuTemperature() {
+    public double queryCpuTemperature() {
         double maxTemp = 0d;
         // Return max found temp
         for (String line : ExecutingCommand.runNative("/usr/sbin/prtpicl -v -c temperature-sensor")) {
@@ -59,9 +56,8 @@ public class SolarisSensors extends AbstractSensors {
         return maxTemp;
     }
 
-    /** {@inheritDoc} */
     @Override
-    public int[] getFanSpeeds() {
+    public int[] queryFanSpeeds() {
         List<Integer> speedList = new ArrayList<>();
         // Return max found temp
         for (String line : ExecutingCommand.runNative("/usr/sbin/prtpicl -v -c fan")) {
@@ -76,9 +72,8 @@ public class SolarisSensors extends AbstractSensors {
         return fans;
     }
 
-    /** {@inheritDoc} */
     @Override
-    public double getCpuVoltage() {
+    public double queryCpuVoltage() {
         double voltage = 0d;
         for (String line : ExecutingCommand.runNative("/usr/sbin/prtpicl -v -c voltage-sensor")) {
             if (line.trim().startsWith("Voltage:")) {

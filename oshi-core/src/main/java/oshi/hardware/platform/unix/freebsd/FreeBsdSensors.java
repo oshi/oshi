@@ -28,7 +28,7 @@ import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 
 import oshi.hardware.common.AbstractSensors;
-import oshi.jna.platform.unix.freebsd.Libc;
+import oshi.jna.platform.unix.freebsd.FreeBsdLibc;
 
 /**
  * <p>
@@ -37,13 +37,9 @@ import oshi.jna.platform.unix.freebsd.Libc;
  */
 public class FreeBsdSensors extends AbstractSensors {
 
-    private static final long serialVersionUID = 1L;
-
-    /** {@inheritDoc} */
     @Override
-    public double getCpuTemperature() {
+    public double queryCpuTemperature() {
         return queryKldloadCoretemp();
-        // TODO try other ways here
     }
 
     /*
@@ -54,28 +50,27 @@ public class FreeBsdSensors extends AbstractSensors {
      */
     private double queryKldloadCoretemp() {
         String name = "dev.cpu.%d.temperature";
-        IntByReference size = new IntByReference(Libc.INT_SIZE);
+        IntByReference size = new IntByReference(FreeBsdLibc.INT_SIZE);
         Pointer p = new Memory(size.getValue());
         int cpu = 0;
         double sumTemp = 0d;
-        while (0 == Libc.INSTANCE.sysctlbyname(String.format(name, cpu), p, size, null, 0)) {
+        while (0 == FreeBsdLibc.INSTANCE.sysctlbyname(String.format(name, cpu), p, size, null, 0)) {
             sumTemp += p.getInt(0) / 10d - 273.15;
             cpu++;
         }
         return cpu > 0 ? sumTemp / cpu : Double.NaN;
     }
 
-    /** {@inheritDoc} */
     @Override
-    public int[] getFanSpeeds() {
-        // TODO try common software
+    public int[] queryFanSpeeds() {
+        // Nothing known on FreeBSD for this.
         return new int[0];
     }
 
     /** {@inheritDoc} */
     @Override
-    public double getCpuVoltage() {
-        // TODO try common software
+    public double queryCpuVoltage() {
+        // Nothing known on FreeBSD for this.
         return 0d;
     }
 }

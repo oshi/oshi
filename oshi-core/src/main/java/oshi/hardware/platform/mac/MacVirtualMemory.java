@@ -23,6 +23,11 @@
  */
 package oshi.hardware.platform.mac;
 
+import static oshi.util.Memoizer.defaultExpiration;
+import static oshi.util.Memoizer.memoize;
+
+import java.util.function.Supplier;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,63 +46,74 @@ import oshi.util.platform.mac.SysctlUtil;
  */
 public class MacVirtualMemory extends AbstractVirtualMemory {
 
-    private static final long serialVersionUID = 1L;
-
     private static final Logger LOG = LoggerFactory.getLogger(MacVirtualMemory.class);
 
-    /** {@inheritDoc} */
+    private final Supplier<SwapUsage> swapUsage = memoize(this::querySwapUsage, defaultExpiration());
+
+    private final Supplier<VmStat> vmStat = memoize(this::queryVmStat, defaultExpiration());
+
     @Override
     public long getSwapUsed() {
-        updateSwapUsed();
-        return this.swapUsed;
+        return swapUsage.get().used;
     }
 
-    /** {@inheritDoc} */
     @Override
     public long getSwapTotal() {
-        updateSwapUsed();
-        return this.swapTotal;
+        return swapUsage.get().total;
     }
 
-    /** {@inheritDoc} */
     @Override
     public long getSwapPagesIn() {
-        updateSwapInOut();
-        return this.swapPagesIn;
+        return vmStat.get().pagesIn;
     }
 
-    /** {@inheritDoc} */
     @Override
     public long getSwapPagesOut() {
-        updateSwapInOut();
-        return this.swapPagesOut;
+        return vmStat.get().pagesOut;
     }
 
-    private void updateSwapUsed() {
-        // Only update once per 300ms
-        if (System.nanoTime() - this.lastSwapUsageNanos > 300_000_000L) {
-            XswUsage xswUsage = new XswUsage();
-            if (!SysctlUtil.sysctl("vm.swapusage", xswUsage)) {
-                return;
+    private SwapUsage querySwapUsage() {
+        long swapUsed = 0L;
+        long swapTotal = 0L;
+        XswUsage xswUsage = new XswUsage();
+        if (SysctlUtil.sysctl("vm.swapusage", xswUsage)) {
+            swapUsed = xswUsage.xsu_used;
+            swapTotal = xswUsage.xsu_total;
+        }
+        return new SwapUsage(swapTotal, swapUsed);
+    }
+
+    private VmStat queryVmStat() {
+        long swapPagesIn = 0L;
+        long swapPagesOut = 0L;
+            VMStatistics vmStats = new VMStatistics();
+        if (0 == SystemB.INSTANCE.host_statistics(SystemB.INSTANCE.mach_host_self(), SystemB.HOST_VM_INFO, vmStats,
+                    new IntByReference(vmStats.size() / SystemB.INT_SIZE))) {
+            swapPagesIn = ParseUtil.unsignedIntToLong(vmStats.pageins);
+            swapPagesOut = ParseUtil.unsignedIntToLong(vmStats.pageouts);
+        } else {
+            LOG.error("Failed to get host VM info. Error code: {}", Native.getLastError());
             }
-            this.swapUsed = xswUsage.xsu_used;
-            this.swapTotal = xswUsage.xsu_total;
-            this.lastSwapUsageNanos = System.nanoTime();
+        return new VmStat(swapPagesIn, swapPagesOut);
+    }
+
+    private static final class SwapUsage {
+        private final long total;
+        private final long used;
+
+        private SwapUsage(long total, long used) {
+            this.total = total;
+            this.used = used;
         }
     }
 
-    private void updateSwapInOut() {
-        // Only update once per 300ms
-        if (System.nanoTime() - this.lastSwapPagesNanos > 300_000_000L) {
-            VMStatistics vmStats = new VMStatistics();
-            if (0 != SystemB.INSTANCE.host_statistics(SystemB.INSTANCE.mach_host_self(), SystemB.HOST_VM_INFO, vmStats,
-                    new IntByReference(vmStats.size() / SystemB.INT_SIZE))) {
-                LOG.error("Failed to get host VM info. Error code: {}", Native.getLastError());
-                return;
-            }
-            this.swapPagesIn = ParseUtil.unsignedIntToLong(vmStats.pageins);
-            this.swapPagesOut = ParseUtil.unsignedIntToLong(vmStats.pageouts);
-            this.lastSwapPagesNanos = System.nanoTime();
+    private static final class VmStat {
+        private final long pagesIn;
+        private final long pagesOut;
+
+        private VmStat(long pagesIn, long pagesOut) {
+            this.pagesIn = pagesIn;
+            this.pagesOut = pagesOut;
         }
     }
 }

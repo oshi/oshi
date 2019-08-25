@@ -25,8 +25,37 @@ package oshi.hardware.platform.mac;
 
 import oshi.hardware.common.AbstractBaseboard;
 
+/**
+ * Baseboard data obtained by system profiler
+ */
 final class MacBaseboard extends AbstractBaseboard {
+    private final String manufacturer;
+    private final String serialNumber;
+    private final String version;
 
-    private static final long serialVersionUID = 1L;
+    public MacBaseboard(String manufacturer, String serialNumber, String version) {
+        this.manufacturer = manufacturer;
+        this.serialNumber = serialNumber;
+        this.version = version;
+    }
 
+    @Override
+    public String getManufacturer() {
+        return this.manufacturer;
+    }
+
+    @Override
+    public String getModel() {
+        return "SMC";
+    }
+
+    @Override
+    public String getSerialNumber() {
+        return this.serialNumber;
+    }
+
+    @Override
+    public String getVersion() {
+        return this.version;
+    }
 }

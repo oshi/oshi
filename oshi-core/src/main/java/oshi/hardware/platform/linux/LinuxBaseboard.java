@@ -23,12 +23,17 @@
  */
 package oshi.hardware.platform.linux;
 
+import static oshi.util.Memoizer.memoize;
+import static oshi.util.platform.linux.ProcUtil.CPUINFO;
+
 import java.util.List;
+import java.util.function.Supplier;
 
 import oshi.hardware.common.AbstractBaseboard;
 import oshi.util.Constants;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
+import oshi.util.Util;
 import oshi.util.platform.linux.ProcUtil;
 
 /**
@@ -36,42 +41,64 @@ import oshi.util.platform.linux.ProcUtil;
  */
 final class LinuxBaseboard extends AbstractBaseboard {
 
-    private static final long serialVersionUID = 1L;
+    private final Supplier<String> manufacturer = memoize(this::queryManufacturer);
 
-    /** {@inheritDoc} */
+    private final Supplier<String> model = memoize(this::queryModel);
+
+    private final Supplier<String> version = memoize(this::queryVersion);
+
+    private final Supplier<String> serialNumber = memoize(this::querySerialNumber);
+
     @Override
     public String getManufacturer() {
-        if (this.manufacturer == null && !queryManufacturerFromSysfs() && !queryProcCpuinfo()) {
-            this.manufacturer = Constants.UNKNOWN;
-        }
-        return super.getManufacturer();
+        return manufacturer.get();
     }
 
-    /** {@inheritDoc} */
     @Override
     public String getModel() {
-        if (this.model == null && !queryModelFromSysfs() && !queryProcCpuinfo()) {
-            this.model = Constants.UNKNOWN;
-        }
-        return super.getModel();
+        return model.get();
     }
 
-    /** {@inheritDoc} */
     @Override
     public String getVersion() {
-        if (this.version == null && !queryVersionFromSysfs() && !queryProcCpuinfo()) {
-            this.version = Constants.UNKNOWN;
-        }
-        return super.getVersion();
+        return version.get();
     }
 
-    /** {@inheritDoc} */
     @Override
     public String getSerialNumber() {
-        if (this.serialNumber == null && !querySerialNumberFromSysfs() && !queryProcCpuinfo()) {
-            this.serialNumber = Constants.UNKNOWN;
+        return serialNumber.get();
+    }
+
+    private String queryManufacturer() {
+        String result = null;
+        if ((result = queryManufacturerFromSysfs()) == null && (result = queryProcCpu().manufacturer) == null) {
+            return Constants.UNKNOWN;
         }
-        return super.getSerialNumber();
+        return result;
+    }
+
+    private String queryModel() {
+        String result = null;
+        if ((result = queryModelFromSysfs()) == null && (result = queryProcCpu().model) == null) {
+            return Constants.UNKNOWN;
+        }
+        return result;
+    }
+
+    private String queryVersion() {
+        String result = null;
+        if ((result = queryVersionFromSysfs()) == null && (result = queryProcCpu().version) == null) {
+            return Constants.UNKNOWN;
+        }
+        return result;
+    }
+
+    private String querySerialNumber() {
+        String result = null;
+        if ((result = querySerialFromSysfs()) == null && (result = queryProcCpu().serialNumber) == null) {
+            return Constants.UNKNOWN;
+        }
+        return result;
     }
 
     // Note: /sys/class/dmi/id symlinks here, but /sys/devices/* is the
@@ -85,49 +112,45 @@ final class LinuxBaseboard extends AbstractBaseboard {
     // board_name chassis_type product_serial
     // board_serial chassis_vendor product_uuid
 
-    private boolean queryManufacturerFromSysfs() {
+    private String queryManufacturerFromSysfs() {
         final String boardVendor = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "board_vendor").trim();
         if (!boardVendor.isEmpty()) {
-            this.manufacturer = boardVendor;
-            return true;
+            return boardVendor;
         }
-        return false;
-
+        return null;
     }
 
-    private boolean queryModelFromSysfs() {
+    private String queryModelFromSysfs() {
         final String boardName = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "board_name").trim();
         if (!boardName.isEmpty()) {
-            this.model = boardName;
-            return true;
+            return boardName;
         }
-        return false;
-
+        return null;
     }
 
-    private boolean queryVersionFromSysfs() {
+    private String queryVersionFromSysfs() {
         final String boardVersion = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "board_version").trim();
         if (!boardVersion.isEmpty()) {
-            this.version = boardVersion;
-            return true;
+            return boardVersion;
         }
-        return false;
-
+        return null;
     }
 
-    private boolean querySerialNumberFromSysfs() {
-        final String boardSerialNumber = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "board_serial")
-                .trim();
-        if (!boardSerialNumber.isEmpty()) {
-            this.serialNumber = boardSerialNumber;
-            return true;
+    private String querySerialFromSysfs() {
+        final String boardSerial = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "board_serial").trim();
+        if (!boardSerial.isEmpty()) {
+            return boardSerial;
         }
-        return false;
-
+        return null;
     }
 
-    private boolean queryProcCpuinfo() {
-        List<String> cpuInfo = FileUtil.readFile(ProcUtil.getProcPath() + "/cpuinfo");
+    private ProcCpuStrings queryProcCpu() {
+        String pcManufacturer = null;
+        String pcModel = null;
+        String pcVersion = null;
+        String pcSerialNumber = null;
+
+        List<String> cpuInfo = FileUtil.readFile(ProcUtil.getProcPath() + CPUINFO);
         for (String line : cpuInfo) {
             String[] splitLine = ParseUtil.whitespacesColonWhitespace.split(line);
             if (splitLine.length < 2) {
@@ -135,25 +158,22 @@ final class LinuxBaseboard extends AbstractBaseboard {
             }
             switch (splitLine[0]) {
             case "Hardware":
-                this.model = splitLine[1];
+                pcModel = splitLine[1];
                 break;
             case "Revision":
-                this.version = splitLine[1];
-                if (this.version.length() > 1) {
-                    this.manufacturer = queryBoardManufacturer(this.version.charAt(1));
+                pcVersion = splitLine[1];
+                if (pcVersion.length() > 1) {
+                    pcManufacturer = queryBoardManufacturer(pcVersion.charAt(1));
                 }
                 break;
             case "Serial":
-                this.serialNumber = splitLine[1];
+                pcSerialNumber = splitLine[1];
                 break;
             default:
                 // Do nothing
             }
-            if (this.model != null && this.version != null && this.serialNumber != null) {
-                return true;
-            }
         }
-        return false;
+        return new ProcCpuStrings(pcManufacturer, pcModel, pcVersion, pcSerialNumber);
     }
 
     private String queryBoardManufacturer(char digit) {
@@ -172,6 +192,20 @@ final class LinuxBaseboard extends AbstractBaseboard {
             return "Stadium";
         default:
             return Constants.UNKNOWN;
+        }
+    }
+
+    private static final class ProcCpuStrings {
+        private final String manufacturer;
+        private final String model;
+        private final String version;
+        private final String serialNumber;
+
+        private ProcCpuStrings(String manufacturer, String model, String version, String serialNumber) {
+            this.manufacturer = Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer;
+            this.model = Util.isBlank(model) ? Constants.UNKNOWN : model;
+            this.version = Util.isBlank(version) ? Constants.UNKNOWN : version;
+            this.serialNumber = Util.isBlank(serialNumber) ? Constants.UNKNOWN : serialNumber;
         }
     }
 }

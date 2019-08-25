@@ -1,5 +1,8 @@
 4.1.0 (in progress)
 ================
+API CHANGE: This version implements thread-safe getters for OSHI attributes. 
+As part of this change, support for serialization has been removed. 
+In addition, setters have been removed from the API, as they were never intended for end user use.
 * [#943](https://github.com/oshi/oshi/pull/943),
   [#944](https://github.com/oshi/oshi/pull/944),
   [#948](https://github.com/oshi/oshi/pull/948),
@@ -12,6 +15,7 @@
   [@phillips0616](https://github.com/phillips0616),
   [@BooSandy1994](https://github.com/BooSandy1994).
   [@dbwiddis](https://github.com/dbwiddis).
+* [#959](https://github.com/oshi/oshi/pull/959): Implement thread safety -- Hardware API overhaul. - [@dbwiddis](https://github.com/dbwiddis).
 * [#960](https://github.com/oshi/oshi/pull/960): OSProcess constructor with PID. - [@Potat0x](https://github.com/Potat0x).
 * [#962](https://github.com/oshi/oshi/pull/962): Properly handle null WMI DateTime results. - [@dbwiddis](https://github.com/dbwiddis).  
 * Your contribution here
