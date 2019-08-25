@@ -23,10 +23,11 @@
  */
 package oshi.util;
 
-
-
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static oshi.util.Memoizer.memoize;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -43,7 +44,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 public final class MemoizerTest {
-    private static final int numberOfThreads = Math.max(5, Runtime.getRuntime().availableProcessors());
+    // We want enough threads that some of them are forced to wait
+    private static final int numberOfThreads = Math.max(5, Runtime.getRuntime().availableProcessors() + 2);
 
     private ExecutorService ex;
 
@@ -52,7 +54,7 @@ public final class MemoizerTest {
         final ThreadPoolExecutor ex = new ThreadPoolExecutor(numberOfThreads, numberOfThreads, 0L,
                 TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
         ex.allowCoreThreadTimeOut(false);
-        ex.prestartAllCoreThreads();// make sure we don't loose refreshes in tests because of spending time to start
+        ex.prestartAllCoreThreads();// make sure we don't lose refreshes in tests because of spending time to start
                                     // threads
         this.ex = ex;
     }
@@ -65,39 +67,59 @@ public final class MemoizerTest {
 
     @Test
     public void get() throws Throwable {
+        // Do 20+ seconds of tests with no refresh.
         long iterationDurationNanos = TimeUnit.MILLISECONDS.toNanos(1);
+        long ttlNanos = -1;
         for (int r = 0; r < 20_000; r++) {
-            assertTrue(run(iterationDurationNanos, -1));
+            run(iterationDurationNanos, ttlNanos);
         }
+        // Do 40+ seconds of tests with refresh after 0.1 ms.
         iterationDurationNanos = TimeUnit.MILLISECONDS.toNanos(10);
+        ttlNanos = iterationDurationNanos / 100;
+        assertNotEquals(0, ttlNanos); // avoid div/0 later
         for (int r = 0; r < 4000; r++) {
-            assertTrue(run(iterationDurationNanos, iterationDurationNanos / 100));
+            run(iterationDurationNanos, ttlNanos);
         }
     }
 
-    private boolean run(final long iterationDurationNanos, final long ttlNanos) throws Throwable {
+    private void run(final long iterationDurationNanos, final long ttlNanos) throws Throwable {
         final Supplier<Long> s = new Supplier<Long>() {
             private long value;
 
+            // this method is not thread-safe, the returned value of the counter may go down
+            // if this method is called concurrently from different threads
             @Override
-            public Long get() {// this method is not thread-safe, the counter may go down if MemoizedObject
-                                     // calls this method concurrently
+            public Long get() {
                 return ++value;
             }
         };
-        final Supplier<Long> m = Memoizer.memoize(s, ttlNanos);
+        // The memoizer we are testing
+        final Supplier<Long> m = memoize(s, ttlNanos);
+        // Hold the results until all threads terminate
         final Collection<Future<Void>> results = new ArrayList<>();
+        // Mark the start time, end after iterationDuration
         final long beginNanos = System.nanoTime();
         for (int tid = 0; tid < numberOfThreads; tid++) {
             results.add(ex.submit(() -> {
+                // First read from the memoizer. Only one thread will win this race but all
+                // should read after the first increment
                 Long previousValue = m.get();
-                final long firstSupplierCallNanos = System.nanoTime();
                 assertNotNull(previousValue);
                 assertTrue(previousValue > 0);
-                // this loop is guaranteed to be executed at least once regardless of the values
-                // returned by System.nanoTime
+                // Memoizer's ttl was set during previous call (for race winning thread) or
+                // earlier (for losing threads) but if we delay for at least ttl from now, we
+                // are sure to get at least one increment if ttl is nonnegative
+                final long firstSupplierCallNanos = System.nanoTime();
+                // using guaranteedIteration this loop is guaranteed to be executed at
+                // least once regardless of whether we have exceeded time delays
+                boolean guaranteedIteration = false;
                 long now;
-                do {
+                while ((now = System.nanoTime()) < beginNanos + iterationDurationNanos
+                        || now < firstSupplierCallNanos + ttlNanos
+                        || (guaranteedIteration = true)) {
+                    // guaranteedIteration makes the while condition always true but because of
+                    // short circuit evaluation this will never be set until the elapsed time
+                    // conditions above return false. Use this flag to exit loop at the end.
                     if (Thread.currentThread().isInterrupted()) {
                         throw new InterruptedException();
                     }
@@ -106,13 +128,18 @@ public final class MemoizerTest {
                     assertTrue(String.format("newValue=%s, previousValue=%s", newValue, previousValue),
                             newValue >= previousValue);// check that the counter never goes down
                     previousValue = newValue;
-                } while ((now = System.nanoTime()) - beginNanos < iterationDurationNanos
-                        // always loop enough to make sure newValue increments
-                        || now - firstSupplierCallNanos < ttlNanos);
+
+                    if (guaranteedIteration) {
+                        break;
+                    }
+                }
                 return null;
             }));
         }
-        for (final Future<Void> result : results) {// make sure all the submitted tasks finished correctly
+        /*
+         * Make sure all the submitted tasks finished correctly
+         */
+        for (final Future<Void> result : results) {
             try {
                 result.get();
             } catch (final ExecutionException e) {
@@ -120,37 +147,46 @@ public final class MemoizerTest {
             }
         }
         /*
-         * Calculation of expectedNumberOfRefreshes is a bit tricky because there is no
-         * such thing. We can only talk about min and max possible values.
+         * All the writes to s.value field happened-before this read because of all the
+         * result.get() invocations, so it holds the final/max value returned by any
+         * thread. We cannot access s.value but it's private, and s.get() will increment
+         * before returning, so here we subtract 1 from the result to determine what the
+         * internal s.value was before this call increments it.
+         */
+        final long actualNumberOfIncrements = s.get() - 1;
+        if (ttlNanos < 0) {
+            assertEquals(String.format("ttlNanos=%d, expectedNumberOfIncrements=%d, actualNumberOfIncrements=%s",
+                    ttlNanos, 1, actualNumberOfIncrements), 1, actualNumberOfIncrements);
+        }
+        /*
+         * Calculation of expectedNumberOfIncrements is a bit tricky because there is no
+         * such thing. We can only talk about min and max possible values when ttl > 0.
          *
-         * Min: Two refreshes are guaranteed: the initial one, because it does not
+         * Min: Two increments are guaranteed: the initial one, because it does not
          * depend on timings, and a second one which ensures at least ttlNanos have
          * elapsed since the first one. All other refreshes may or may not happen
-         * depending on the timings. Therefore the min is 2.
+         * depending on the timings. Therefore the min is 2. In the case of negative ttl
+         * we should get only one increment ever; otherwise we must have at least 2
+         * increments.
          *
          * Max: Each thread has a chance to refresh one more time after
-         * (iterationDurationNanos / ttlNanos) refreshes have been collectively done.
-         * This happens because an arbitrary amount of time may elapse between the
-         * instant when a thread enters the while cycle body for the last time (the last
-         * iteration), and the instant that is observed by the MemoizedObject.get
-         * method. Additionally, each thread may refresh one more time because of the
-         * last iteration of the loop caused by ttl expiration. Therefore each thread
-         * may do up to 2 additional refreshes.
+         * (iterationDurationNanos / ttlNanos) refreshes have been collectively done,
+         * which will increment again. This happens because an arbitrary amount of time
+         * may elapse between the instant when a thread enters the while cycle body for
+         * the last time (the last iteration), and the instant that is observed by the
+         * MemoizedObject.get method. Additionally, each thread may refresh one more
+         * time because of the last iteration of the loop caused by guaranteedIteration.
+         * Therefore each thread may do up to 2 additional refreshes.
          */
-        final double minExpectedNumberOfRefreshes = ttlNanos > 0 ? 2 : 1;
-        final double maxExpectedNumberOfRefreshes = ttlNanos > 0
-                ? ((double) iterationDurationNanos / ttlNanos) + 2 * numberOfThreads
-                : 1;
-        // all the writes to s.value field happened-before this read because of all the
-        // result.get() invocations
-        // Want to test s.value but it's private. s.get() will increment before
-        // returning, so subtract 1 to get what the internal value was
-        final long actualNumberOfRefreshes = s.get() - 1;
-        assertTrue(String.format(
-                "ttlNanos=%s, minExpectedNumberOfRefreshes=%s, maxExpectedNumberOfRefreshes=%s, actualNumberOfRefreshes=%s",
-                ttlNanos, minExpectedNumberOfRefreshes, maxExpectedNumberOfRefreshes, actualNumberOfRefreshes),
-                minExpectedNumberOfRefreshes <= actualNumberOfRefreshes
-                        && actualNumberOfRefreshes <= maxExpectedNumberOfRefreshes);
-        return true;
+        else {
+            final int minExpectedNumberOfIncrements = 2;
+            final long maxExpectedNumberOfIncrements = (iterationDurationNanos / ttlNanos) + 2 * numberOfThreads;
+
+            assertTrue(String.format(
+                    "ttlNanos=%s, minExpectedNumberOfRefreshes=%s, maxExpectedNumberOfRefreshes=%s, actualNumberOfRefreshes=%s",
+                    ttlNanos, minExpectedNumberOfIncrements, maxExpectedNumberOfIncrements, actualNumberOfIncrements),
+                    minExpectedNumberOfIncrements <= actualNumberOfIncrements
+                            && actualNumberOfIncrements <= maxExpectedNumberOfIncrements);
+        }
     }
 }
