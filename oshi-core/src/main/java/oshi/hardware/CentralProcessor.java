@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 package oshi.hardware;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import oshi.util.ParseUtil;
 
 /**
  * This class represents the entire Central Processing Unit (CPU) of a computer
@@ -362,7 +365,7 @@ public interface CentralProcessor {
      *		   and family information (also called the signature of a CPU)
      */
     ProcessorIdentifier getProcessorIdentifier();
-    
+
 
     /**
      * A class representing a Logical Processor and its replationship to physical
