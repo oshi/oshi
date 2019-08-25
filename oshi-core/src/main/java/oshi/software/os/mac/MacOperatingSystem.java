@@ -398,21 +398,49 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
     public OSService[] getServices() {
         //Sort by PID
         OSProcess[] process =  getChildProcesses(1, 0, OperatingSystem.ProcessSort.PID)
-        File etc = new File("/System/Library/LaunchDaemons");
-        File[] files = etc.listFiles();
-        OSService[] svcArray = new OSService[files.size()];
-        for (int i = 0; i < files.length; i++) {
-            svcArray[i].setName(files[i].getName());  
-            for (int j = 0; j < process.length; j++) {
-                if(process[j].getName().equals(files[i].getName())) {
-                    svcArray[i].setProcessId(process[j].getProcessID());
-                    svcArray[i].setState(OSService.State.RUNNING);
-                } else {
-                    svcArray[i].setState(OSService.State.STOPPED);
+        //Get Directories
+        File ua = new File("~/Library/LaunchAgents");
+        File ga = new File("/Library/LaunchAgents");      
+        File gd = new File("/Library/LaunchDaemons");      
+        File sa = new File("/System/Library/LaunchAgents");      
+        File sd = new File("/System/Library/LaunchDaemons");
+
+        ArrayList<File> files = new ArrayList<File>();
+        int numOfFiles = 0;
+
+        try {
+            File[] uaFiles = ua.listFiles((dir, name) -> name.toLowerCase().endsWith(".plist"));
+            File[] gaFiles = ga.listFiles((dir, name) -> name.toLowerCase().endsWith(".plist"));
+            File[] gdFiles = gd.listFiles((dir, name) -> name.toLowerCase().endsWith(".plist"));
+            File[] saFiles = sa.listFiles((dir, name) -> name.toLowerCase().endsWith(".plist"));
+            File[] sdFiles = sd.listFiles((dir, name) -> name.toLowerCase().endsWith(".plist"));
+
+            for(File file : uaFiles) files.add(file);
+            for(File file : gaFiles) files.add(file);
+            for(File file : gdFiles) files.add(file);
+            for(File file : saFiles) files.add(file);
+            for(File file : sdFiles) files.add(file);
+
+            OSService[] svcArray = new OSService[files.size()];
+            for (int i = 0; i < svcArray.length; i++) {
+                svcArray[i].setName(files.get(i).getName());  
+                for (int j = 0; j < process.length; j++) {
+                    if(process[j].getName().equals(files.get(i).getName())) {
+                        svcArray[i].setProcessId(process[j].getProcessID());
+                        svcArray[i].setState(OSService.State.RUNNING);
+                    } else {
+                        svcArray[i].setState(OSService.State.STOPPED);
+                    }
                 }
             }
+
+            return svcArray;
+
+        } catch(NullPointerException ex) {
+            LOG.error("Directory does not exist");
+            return new OSService[0];
         }
-        return svcArray;
+
     }    
 
 }
