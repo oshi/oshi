@@ -30,7 +30,7 @@ final class MacFirmware extends AbstractFirmware {
     private final String manufacturer;
     private final String version;
 
-    public MacFirmware(String manufacturer, String version) {
+    MacFirmware(String manufacturer, String version) {
         this.manufacturer = manufacturer;
         this.version = version;
     }

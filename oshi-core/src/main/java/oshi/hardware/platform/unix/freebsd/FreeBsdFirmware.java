@@ -59,7 +59,7 @@ final class FreeBsdFirmware extends AbstractFirmware {
     private DmidecodeStrings readDmiDecode() {
         String manufacturer = null;
         String version = null;
-        String releaseDate = null;
+        String releaseDate = "";
 
         // $ sudo dmidecode -t bios
         // # dmidecode 3.0

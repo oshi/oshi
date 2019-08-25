@@ -34,7 +34,7 @@ final class FreeBsdBaseboard extends AbstractBaseboard {
     private final String serialNumber;
     private final String version;
 
-    public FreeBsdBaseboard(String manufacturer, String model, String serialNumber, String version) {
+    FreeBsdBaseboard(String manufacturer, String model, String serialNumber, String version) {
         this.manufacturer = manufacturer;
         this.model = model;
         this.serialNumber = serialNumber;

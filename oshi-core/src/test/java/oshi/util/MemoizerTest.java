@@ -44,20 +44,20 @@ public final class MemoizerTest {
     public void get() throws Throwable {
         long iterationDurationNanos = TimeUnit.MILLISECONDS.toNanos(1);
         for (int r = 0; r < 20_000; r++) {
-            run(iterationDurationNanos, -1);
+            assertTrue(run(iterationDurationNanos, -1));
         }
         iterationDurationNanos = TimeUnit.MILLISECONDS.toNanos(10);
         for (int r = 0; r < 4000; r++) {
-            run(iterationDurationNanos, iterationDurationNanos / 100);
+            assertTrue(run(iterationDurationNanos, iterationDurationNanos / 100));
         }
     }
 
-    private final void run(final long iterationDurationNanos, final long ttlNanos) throws Throwable {
+    private boolean run(final long iterationDurationNanos, final long ttlNanos) throws Throwable {
         final Supplier<Long> s = new Supplier<Long>() {
             private long value;
 
             @Override
-            public final Long get() {// this method is not thread-safe, the counter may go down if MemoizedObject
+            public Long get() {// this method is not thread-safe, the counter may go down if MemoizedObject
                                      // calls this method concurrently
                 return ++value;
             }
@@ -128,5 +128,6 @@ public final class MemoizerTest {
                 ttlNanos, minExpectedNumberOfRefreshes, maxExpectedNumberOfRefreshes, actualNumberOfRefreshes),
                 minExpectedNumberOfRefreshes <= actualNumberOfRefreshes
                         && actualNumberOfRefreshes <= maxExpectedNumberOfRefreshes);
+        return true;
     }
 }

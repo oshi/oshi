@@ -33,11 +33,11 @@ import java.util.function.Supplier;
  */
 public final class Memoizer {
 
-    private Memoizer() {
-    }
-
     private static final Supplier<Long> defaultExpirationNanos = memoize(Memoizer::queryExpirationConfig,
             60_000_000_000L);
+
+    private Memoizer() {
+    }
 
     private static long queryExpirationConfig() {
         return TimeUnit.MILLISECONDS.toNanos(GlobalConfig.get("oshi.util.memoizer.expiration", 300));
@@ -48,7 +48,7 @@ public final class Memoizer {
      * after this time elapses. Update by setting {@link GlobalConfig} property
      * <code>oshi.util.memoizer.expiration</code> to a value in milliseconds.
      */
-    public static final long defaultExpiration() {
+    public static long defaultExpiration() {
         return defaultExpirationNanos.get();
     }
 
