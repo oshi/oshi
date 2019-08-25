@@ -98,47 +98,56 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
 
     @Override
     public String getVendor() {
-        return cpuid.get().cpuVendor;
+        return getProcessorIdentifier().getVendor();
+        // return cpuid.get().cpuVendor;
     }
 
     @Override
     public String getName() {
-        return cpuid.get().cpuName;
+        return getProcessorIdentifier().getName();
+        // return cpuid.get().cpuName;
     }
 
     @Override
     public String getFamily() {
-        return cpuid.get().cpuFamily;
+        return getProcessorIdentifier().getFamily();
+        // return cpuid.get().cpuFamily;
     }
 
     @Override
     public String getModel() {
-        return cpuid.get().cpuModel;
+        return getProcessorIdentifier().getModel();
+        // return cpuid.get().cpuModel;
     }
 
     @Override
     public String getStepping() {
-        return cpuid.get().cpuStepping;
+        return getProcessorIdentifier().getStepping();
+        // return cpuid.get().cpuStepping;
     }
 
     @Override
     public String getProcessorID() {
-        return cpuid.get().processorID;
+        return getProcessorIdentifier().getProcessorID();
+        // return cpuid.get().processorID;
     }
 
     @Override
     public String getIdentifier() {
-        return cpuid.get().cpuIdentifier;
+        return getProcessorIdentifier().getIdentifier();
+        // return cpuid.get().cpuIdentifier;
     }
 
     @Override
     public boolean isCpu64bit() {
-        return cpuid.get().cpu64bit;
+        return getProcessorIdentifier().isCpu64bit();
+        // return cpuid.get().cpu64bit;
     }
 
     @Override
     public long getVendorFreq() {
-        return cpuid.get().cpuVendorFreq;
+        return getProcessorIdentifier().getVendorFreq();
+        // return cpuid.get().cpuVendorFreq;
     }
 
     @Override
@@ -415,49 +424,5 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
         return sb.toString();
     }
 
-    protected static final class ProcessorIdentifier {
-        // Provided in constructor
-        private final String cpuVendor;
-        private final String cpuName;
-        private final String cpuFamily;
-        private final String cpuModel;
-        private final String cpuStepping;
-        private final String processorID;
-        private final String cpuIdentifier;
-        private final boolean cpu64bit;
-        private final long cpuVendorFreq;
-
-        public ProcessorIdentifier(String cpuVendor, String cpuName, String cpuFamily, String cpuModel,
-                String cpuStepping, String processorID, boolean cpu64bit) {
-            this.cpuVendor = cpuVendor;
-            this.cpuName = cpuName;
-            this.cpuFamily = cpuFamily;
-            this.cpuModel = cpuModel;
-            this.cpuStepping = cpuStepping;
-            this.processorID = processorID;
-            this.cpu64bit = cpu64bit;
-
-            // Build Identifier
-            StringBuilder sb = new StringBuilder();
-            if (cpuVendor.contentEquals("GenuineIntel")) {
-                sb.append(cpu64bit ? "Intel64" : "x86");
-            } else {
-                sb.append(cpuVendor);
-            }
-            sb.append(" Family ").append(cpuFamily);
-            sb.append(" Model ").append(cpuModel);
-            sb.append(" Stepping ").append(cpuStepping);
-            this.cpuIdentifier = sb.toString();
-
-            // Parse Freq from name string
-            Pattern pattern = Pattern.compile("@ (.*)$");
-            Matcher matcher = pattern.matcher(cpuName);
-            if (matcher.find()) {
-                String unit = matcher.group(1);
-                this.cpuVendorFreq = ParseUtil.parseHertz(unit);
-            } else {
-                this.cpuVendorFreq = -1L;
-            }
-        }
-    }
+    
 }

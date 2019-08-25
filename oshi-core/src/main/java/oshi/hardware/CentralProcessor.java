@@ -36,14 +36,14 @@ public interface CentralProcessor {
      *
      * @return vendor string.
      */
-    String getVendor();
+    @Deprecated String getVendor();
 
     /**
      * Name, eg. Intel(R) Core(TM)2 Duo CPU T7300 @ 2.00GHz
      *
      * @return Processor name.
      */
-    String getName();
+    @Deprecated String getName();
 
     /**
      * Gets the family. For non-Intel/AMD processors, returns the comparable value,
@@ -51,7 +51,7 @@ public interface CentralProcessor {
      *
      * @return the family
      */
-    String getFamily();
+    @Deprecated String getFamily();
 
     /**
      * Gets the model. For non-Intel/AMD processors, returns the comparable value,
@@ -59,7 +59,7 @@ public interface CentralProcessor {
      *
      * @return the model
      */
-    String getModel();
+    @Deprecated String getModel();
 
     /**
      * Gets the stepping. For non-Intel/AMD processors, returns the comparable
@@ -67,7 +67,7 @@ public interface CentralProcessor {
      *
      * @return the stepping
      */
-    String getStepping();
+    @Deprecated String getStepping();
 
     /**
      * Gets the Processor ID. This is a hexidecimal string representing an 8-byte
@@ -90,7 +90,7 @@ public interface CentralProcessor {
      *
      * @return A string representing the Processor ID
      */
-    String getProcessorID();
+    @Deprecated String getProcessorID();
 
     /**
      * Identifier, eg. x86 Family 6 Model 15 Stepping 10. For non-Intel/AMD
@@ -98,14 +98,14 @@ public interface CentralProcessor {
      *
      * @return Processor identifier.
      */
-    String getIdentifier();
+    @Deprecated String getIdentifier();
 
     /**
      * Is CPU 64bit?
      *
      * @return True if cpu is 64bit.
      */
-    boolean isCpu64bit();
+    @Deprecated boolean isCpu64bit();
 
     /**
      * Vendor frequency (in Hz), eg. for processor named Intel(R) Core(TM)2 Duo CPU
@@ -113,7 +113,7 @@ public interface CentralProcessor {
      *
      * @return Processor frequency or -1 if unknown.
      */
-    long getVendorFreq();
+    @Deprecated long getVendorFreq();
 
     /**
      * Maximum frequeny (in Hz), of the logical processors on this CPU.
@@ -339,6 +339,11 @@ public interface CentralProcessor {
         }
     }
 
+
+    ProcessorIdentifier getProcessorIdentifier();
+
+
+
     /**
      * A class representing a Logical Processor and its replationship to physical
      * processors, physical packages, and logical groupings such as NUMA Nodes and
@@ -453,4 +458,84 @@ public interface CentralProcessor {
             return processorGroup;
         }
     }
+
+
+    public static final class ProcessorIdentifier {
+        // Provided in constructor
+        private final String cpuVendor;
+        private final String cpuName;
+        private final String cpuFamily;
+        private final String cpuModel;
+        private final String cpuStepping;
+        private final String processorID;
+        private final String cpuIdentifier;
+        private final boolean cpu64bit;
+        private final long cpuVendorFreq;
+
+        public ProcessorIdentifier(String cpuVendor, String cpuName, String cpuFamily, String cpuModel,
+                String cpuStepping, String processorID, boolean cpu64bit) {
+            this.cpuVendor = cpuVendor;
+            this.cpuName = cpuName;
+            this.cpuFamily = cpuFamily;
+            this.cpuModel = cpuModel;
+            this.cpuStepping = cpuStepping;
+            this.processorID = processorID;
+            this.cpu64bit = cpu64bit;
+
+            // Build Identifier
+            StringBuilder sb = new StringBuilder();
+            if (cpuVendor.contentEquals("GenuineIntel")) {
+                sb.append(cpu64bit ? "Intel64" : "x86");
+            } else {
+                sb.append(cpuVendor);
+            }
+            sb.append(" Family ").append(cpuFamily);
+            sb.append(" Model ").append(cpuModel);
+            sb.append(" Stepping ").append(cpuStepping);
+            this.cpuIdentifier = sb.toString();
+
+            // Parse Freq from name string
+            Pattern pattern = Pattern.compile("@ (.*)$");
+            Matcher matcher = pattern.matcher(cpuName);
+            if (matcher.find()) {
+                String unit = matcher.group(1);
+                this.cpuVendorFreq = ParseUtil.parseHertz(unit);
+            } else {
+                this.cpuVendorFreq = -1L;
+            }
+        }
+
+        public String getVendor() {
+            return cpuVendor;
+        }
+
+        public String getName() {
+            return cpuName;
+        }
+
+        public String getFamily() {
+            return cpuFamily;
+        }
+
+        public String getStepping() {
+            return cpuStepping;
+        }
+
+        public String getProcessorID() {
+            return processorID;
+        }
+
+        public boolean isCpu64bit() {
+            return cpu64bit;
+        }
+
+        public long getVendorFreq() {
+            return cpuVendorFreq;
+        }
+
+
+    }
+
+
+
 }
