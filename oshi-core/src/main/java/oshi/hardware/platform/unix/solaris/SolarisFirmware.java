@@ -31,7 +31,7 @@ final class SolarisFirmware extends AbstractFirmware {
     private final String version;
     private final String releaseDate;
 
-    public SolarisFirmware(String manufacturer, String version, String releaseDate) {
+    SolarisFirmware(String manufacturer, String version, String releaseDate) {
         this.manufacturer = manufacturer;
         this.version = version;
         this.releaseDate = releaseDate;

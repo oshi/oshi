@@ -34,7 +34,7 @@ final class SolarisBaseboard extends AbstractBaseboard {
     private final String serialNumber;
     private final String version;
 
-    public SolarisBaseboard(String manufacturer, String model, String serialNumber, String version) {
+    SolarisBaseboard(String manufacturer, String model, String serialNumber, String version) {
         this.manufacturer = manufacturer;
         this.model = model;
         this.serialNumber = serialNumber;

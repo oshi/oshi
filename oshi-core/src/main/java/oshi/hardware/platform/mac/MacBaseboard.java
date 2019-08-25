@@ -33,7 +33,7 @@ final class MacBaseboard extends AbstractBaseboard {
     private final String serialNumber;
     private final String version;
 
-    public MacBaseboard(String manufacturer, String serialNumber, String version) {
+    MacBaseboard(String manufacturer, String serialNumber, String version) {
         this.manufacturer = manufacturer;
         this.serialNumber = serialNumber;
         this.version = version;
