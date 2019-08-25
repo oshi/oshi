@@ -202,7 +202,7 @@ public class SystemInfoTest {
             procCpu.append(String.format(" %.1f%%", avg * 100));
         }
         oshi.add(procCpu.toString());
-        long freq = processor.getVendorFreq();
+        long freq = processor.getProcessorIdentifier().getVendorFreq();
         if (freq > 0) {
             oshi.add("Vendor Frequency: " + FormatUtil.formatHertz(freq));
         }

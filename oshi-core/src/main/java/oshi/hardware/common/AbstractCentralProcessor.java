@@ -29,8 +29,6 @@ import static oshi.util.Memoizer.memoize;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Supplier;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -96,11 +94,7 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
      */
     protected abstract ProcessorIdentifier queryProcessorId();
 
-    /**
-     * Implementation of abstract method in CentralProcessor
-     *
-     * @return signature of a CPU
-     */
+    @Override
     public ProcessorIdentifier getProcessorIdentifier(){
         return cpuid.get();
     }
@@ -108,55 +102,46 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
     @Override
     public String getVendor() {
         return getProcessorIdentifier().getVendor();
-        // return cpuid.get().cpuVendor;
     }
 
     @Override
     public String getName() {
         return getProcessorIdentifier().getName();
-        // return cpuid.get().cpuName;
     }
 
     @Override
     public String getFamily() {
         return getProcessorIdentifier().getFamily();
-        // return cpuid.get().cpuFamily;
     }
 
     @Override
     public String getModel() {
         return getProcessorIdentifier().getModel();
-        // return cpuid.get().cpuModel;
     }
 
     @Override
     public String getStepping() {
         return getProcessorIdentifier().getStepping();
-        // return cpuid.get().cpuStepping;
     }
 
     @Override
     public String getProcessorID() {
         return getProcessorIdentifier().getProcessorID();
-        // return cpuid.get().processorID;
     }
 
     @Override
     public String getIdentifier() {
         return getProcessorIdentifier().getIdentifier();
-        // return cpuid.get().cpuIdentifier;
     }
 
     @Override
     public boolean isCpu64bit() {
         return getProcessorIdentifier().isCpu64bit();
-        // return cpuid.get().cpu64bit;
     }
 
     @Override
     public long getVendorFreq() {
         return getProcessorIdentifier().getVendorFreq();
-        // return cpuid.get().cpuVendorFreq;
     }
 
     @Override
@@ -428,8 +413,8 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
         sb.append("\n ").append(getPhysicalPackageCount()).append(" physical CPU package(s)");
         sb.append("\n ").append(getPhysicalProcessorCount()).append(" physical CPU core(s)");
         sb.append("\n ").append(getLogicalProcessorCount()).append(" logical CPU(s)");
-        sb.append('\n').append("Identifier: ").append(getIdentifier());
-        sb.append('\n').append("ProcessorID: ").append(getProcessorID());
+        sb.append('\n').append("Identifier: ").append(getProcessorIdentifier().getIdentifier());
+        sb.append('\n').append("ProcessorID: ").append(getProcessorIdentifier().getProcessorID());
         return sb.toString();
     }
 

@@ -30,6 +30,7 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 import oshi.SystemInfo;
+import oshi.hardware.CentralProcessor.ProcessorIdentifier;
 import oshi.hardware.CentralProcessor.TickType;
 import oshi.util.Util;
 
@@ -46,15 +47,15 @@ public class CentralProcessorTest {
         SystemInfo si = new SystemInfo();
         CentralProcessor p = si.getHardware().getProcessor();
 
-        assertNotNull(p.getVendor());
-        assertTrue(p.getVendorFreq() == -1 || p.getVendorFreq() > 0);
-
-        assertNotNull(p.getName());
-        assertNotNull(p.getIdentifier());
-        assertNotNull(p.getProcessorID());
-        assertNotNull(p.getStepping());
-        assertNotNull(p.getModel());
-        assertNotNull(p.getFamily());
+        ProcessorIdentifier pi = p.getProcessorIdentifier();
+        assertNotNull(pi.getVendor());
+        assertTrue(pi.getVendorFreq() == -1 || pi.getVendorFreq() > 0);
+        assertNotNull(pi.getName());
+        assertNotNull(pi.getIdentifier());
+        assertNotNull(pi.getProcessorID());
+        assertNotNull(pi.getStepping());
+        assertNotNull(pi.getModel());
+        assertNotNull(pi.getFamily());
 
         long[] ticks = p.getSystemCpuLoadTicks();
         long[][] procTicks = p.getProcessorCpuLoadTicks();
