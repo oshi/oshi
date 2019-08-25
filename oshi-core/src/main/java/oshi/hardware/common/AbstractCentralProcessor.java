@@ -96,6 +96,15 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
      */
     protected abstract ProcessorIdentifier queryProcessorId();
 
+    /**
+     * Implementation of abstract method in CentralProcessor
+     *
+     * @return signature of a CPU
+     */
+    public ProcessorIdentifier getProcessorIdentifier(){
+        return cpuid.get();
+    }
+
     @Override
     public String getVendor() {
         return getProcessorIdentifier().getVendor();
