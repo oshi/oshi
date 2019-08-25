@@ -114,8 +114,8 @@ public final class MemoizerTest {
                 // least once regardless of whether we have exceeded time delays
                 boolean guaranteedIteration = false;
                 long now;
-                while ((now = System.nanoTime()) < beginNanos + iterationDurationNanos
-                        || now < firstSupplierCallNanos + ttlNanos || (guaranteedIteration = !guaranteedIteration)) {
+                while ((now = System.nanoTime()) - beginNanos < iterationDurationNanos
+                        || now - firstSupplierCallNanos < ttlNanos || (guaranteedIteration = !guaranteedIteration)) {
                     // guaranteedIteration will only be set true when the first two timing
                     // conditions are false, which will allow at least one iteration. After that
                     // final iteration the boolean will toggle false again to stop the loop.
@@ -147,13 +147,14 @@ public final class MemoizerTest {
 
     }
 
-    private void finishAllThreads(Collection<Future<Void>> results) throws InterruptedException, ExecutionException {
+    private static void finishAllThreads(Collection<Future<Void>> results)
+            throws InterruptedException, ExecutionException {
         for (final Future<Void> result : results) {
             result.get();
         }
     }
 
-    private void testIncrementCounts(long actualNumberOfIncrements, long iterationDurationNanos, long ttlNanos) {
+    private static void testIncrementCounts(long actualNumberOfIncrements, long iterationDurationNanos, long ttlNanos) {
         if (ttlNanos < 0) {
             assertEquals(String.format("ttlNanos=%d, expectedNumberOfIncrements=%d, actualNumberOfIncrements=%s",
                     ttlNanos, 1, actualNumberOfIncrements), 1, actualNumberOfIncrements);
