@@ -406,7 +406,6 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
         File sd = new File("/System/Library/LaunchDaemons");
 
         ArrayList<File> files = new ArrayList<File>();
-        int numOfFiles = 0;
 
         try {
             File[] uaFiles = ua.listFiles((dir, name) -> name.toLowerCase().endsWith(".plist"));
