@@ -220,9 +220,9 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
                     "Identifier");
         }
         if (!cpuIdentifier.isEmpty()) {
-            cpuFamily = parseIdentifier("Family");
-            cpuModel = parseIdentifier("Model");
-            cpuStepping = parseIdentifier("Stepping");
+            cpuFamily = parseIdentifier(cpuIdentifier, "Family");
+            cpuModel = parseIdentifier(cpuIdentifier, "Model");
+            cpuStepping = parseIdentifier(cpuIdentifier, "Stepping");
         }
         SYSTEM_INFO sysinfo = new SYSTEM_INFO();
         Kernel32.INSTANCE.GetNativeSystemInfo(sysinfo);
@@ -245,22 +245,24 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
 
     /**
      * Parses identifier string
-     *
-     * @param id
-     *            the id to retrieve
+     * 
+     * @param identifier
+     *            the full identifier string
+     * @param key
+     *            the key to retrieve
      * @return the string following id
      */
-    private String parseIdentifier(String id) {
-        String[] idSplit = ParseUtil.whitespaces.split(getIdentifier());
+    private String parseIdentifier(String identifier, String key) {
+        String[] idSplit = ParseUtil.whitespaces.split(identifier);
         boolean found = false;
         for (String s : idSplit) {
-            // If id string found, return next value
+            // If key string found, return next value
             if (found) {
                 return s;
             }
-            found = s.equals(id);
+            found = s.equals(key);
         }
-        // If id string not found, return empty string
+        // If key string not found, return empty string
         return "";
     }
 

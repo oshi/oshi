@@ -72,7 +72,6 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
     protected LogicalProcessor[] initProcessorCounts() {
         Map<Integer, Integer> numaNodeMap = mapNumaNodes();
         List<Kstat> kstats = KstatUtil.kstatLookupAll(CPU_INFO, -1, null);
-        int logicalProcessorCount = 0;
 
         List<LogicalProcessor> logProcs = new ArrayList<>();
         for (Kstat ksp : kstats) {
@@ -85,7 +84,7 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
                 logProcs.add(logProc);
             }
         }
-        if (logicalProcessorCount < 1) {
+        if (logProcs.isEmpty()) {
             logProcs.add(new LogicalProcessor(0, 0, 0));
         }
         return logProcs.toArray(new LogicalProcessor[0]);
@@ -123,7 +122,6 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
         return numaNodeMap;
     }
 
-    /** {@inheritDoc} */
     @Override
     public long[] querySystemCpuLoadTicks() {
         long[] ticks = new long[TickType.values().length];
