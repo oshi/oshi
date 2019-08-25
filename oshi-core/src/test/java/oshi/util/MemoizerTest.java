@@ -115,8 +115,7 @@ public final class MemoizerTest {
                 boolean guaranteedIteration = false;
                 long now;
                 while ((now = System.nanoTime()) < beginNanos + iterationDurationNanos
-                        || now < firstSupplierCallNanos + ttlNanos
-                        || (guaranteedIteration = !guaranteedIteration)) {
+                        || now < firstSupplierCallNanos + ttlNanos || (guaranteedIteration = !guaranteedIteration)) {
                     // guaranteedIteration will only be set true when the first two timing
                     // conditions are false, which will allow at least one iteration. After that
                     // final iteration the boolean will toggle false again to stop the loop.
@@ -148,13 +147,9 @@ public final class MemoizerTest {
 
     }
 
-    private void finishAllThreads(Collection<Future<Void>> results) throws Throwable {
+    private void finishAllThreads(Collection<Future<Void>> results) throws InterruptedException, ExecutionException {
         for (final Future<Void> result : results) {
-            try {
-                result.get();
-            } catch (final ExecutionException e) {
-                throw e.getCause();
-            }
+            result.get();
         }
     }
 
