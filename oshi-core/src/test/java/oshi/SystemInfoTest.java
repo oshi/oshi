@@ -310,12 +310,7 @@ public class SystemInfoTest {
     }
 
     private static void printNetworkParameters(NetworkParams networkParams) {
-        oshi.add("Network parameters:");
-        oshi.add(String.format(" Host name: %s%n", networkParams.getHostName()));
-        oshi.add(String.format(" Domain name: %s%n", networkParams.getDomainName()));
-        oshi.add(String.format(" DNS servers: %s%n", Arrays.toString(networkParams.getDnsServers())));
-        oshi.add(String.format(" IPv4 Gateway: %s%n", networkParams.getIpv4DefaultGateway()));
-        oshi.add(String.format(" IPv6 Gateway: %s%n", networkParams.getIpv6DefaultGateway()));
+        oshi.add("Network parameters:" + networkParams.toString());
     }
 
     private static void printDisplays(Display[] displays) {

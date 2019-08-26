@@ -26,6 +26,7 @@ package oshi.software.common;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -113,5 +114,13 @@ public abstract class AbstractNetworkParams implements NetworkParams {
             }
         }
         return "";
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public String toString(){
+        return String.format(" Host name: %s%n, Domain name: %s%n, DNS servers: %s%n, IPv4 Gateway: %s%n, IPv6 Gateway: %s%n"
+                ,this.getHostName(),this.getDomainName(),this.getDnsServers(),this.getIpv4DefaultGateway(),this.getIpv6DefaultGateway());
+
     }
 }
