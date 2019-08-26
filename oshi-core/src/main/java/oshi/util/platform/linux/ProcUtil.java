@@ -27,6 +27,7 @@ import static oshi.util.Memoizer.memoize;
 
 import java.io.File;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
@@ -54,7 +55,7 @@ public class ProcUtil {
     /**
      * The /proc filesystem location. Update hourly.
      */
-    private static Supplier<String> proc = memoize(ProcUtil::queryProcConfig, 3_600_000_000_000L);
+    private static Supplier<String> proc = memoize(ProcUtil::queryProcConfig, TimeUnit.HOURS.toNanos(1));
 
     private ProcUtil() {
     }
