@@ -310,7 +310,7 @@ public class SystemInfoTest {
     }
 
     private static void printNetworkParameters(NetworkParams networkParams) {
-        oshi.add("Network parameters:" + networkParams.toString());
+        oshi.add("Network parameters:\n" + networkParams.toString());
     }
 
     private static void printDisplays(Display[] displays) {
