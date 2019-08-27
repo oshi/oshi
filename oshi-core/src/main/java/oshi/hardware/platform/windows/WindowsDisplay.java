@@ -102,8 +102,8 @@ public class WindowsDisplay extends AbstractDisplay {
                 }
                 Advapi32.INSTANCE.RegCloseKey(key);
             }
+            SetupApi.INSTANCE.SetupDiDestroyDeviceInfoList(hDevInfo);
         }
-        SetupApi.INSTANCE.SetupDiDestroyDeviceInfoList(hDevInfo);
         return displays.toArray(new Display[0]);
     }
 }
