@@ -41,8 +41,8 @@ import oshi.hardware.platform.mac.MacNetworks;
 import oshi.hardware.platform.unix.freebsd.FreeBsdNetworks;
 import oshi.hardware.platform.unix.solaris.SolarisNetworks;
 import oshi.hardware.platform.windows.WindowsNetworks;
-import oshi.util.ParseUtil;
 import oshi.util.FormatUtil;
+import oshi.util.ParseUtil;
 
 /**
  * A network interface in the machine, including statistics
@@ -430,6 +430,7 @@ public class NetworkIF implements Serializable {
             break;
         }
     }
+
     @Override
     public String toString(){
     	StringBuilder sb = new StringBuilder();

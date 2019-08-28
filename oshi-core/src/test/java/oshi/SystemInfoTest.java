@@ -72,6 +72,8 @@ public class SystemInfoTest {
     @Test
     public void testPlatformEnum() {
         assertFalse(PlatformEnum.UNKNOWN.equals(SystemInfo.getCurrentPlatformEnum()));
+        // Exercise the main method
+        main(null);
     }
 
     /**
@@ -289,15 +291,14 @@ public class SystemInfoTest {
     }
 
     private static void printNetworkInterfaces(NetworkIF[] networkIFs) {
-    	StringBuilder sb = new StringBuilder("Network Interfaces:");
+        StringBuilder sb = new StringBuilder("Network Interfaces:");
         if (networkIFs.length == 0) {
-            sb.append("Unknown");
+            sb.append(" Unknown");
         }
         for (NetworkIF net : networkIFs) {
             sb.append("\n").append(net.toString());
         }
         oshi.add(sb.toString());
-        }
     }
 
     private static void printNetworkParameters(NetworkParams networkParams) {
