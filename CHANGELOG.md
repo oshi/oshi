@@ -9,13 +9,15 @@ In addition, setters have been removed from the API, as they were never intended
   [#949](https://github.com/oshi/oshi/pull/949),
   [#950](https://github.com/oshi/oshi/pull/950),
   [#953](https://github.com/oshi/oshi/pull/953),
-  [#968](https://github.com/oshi/oshi/pull/968): Add toString methods to API interface implementations -
+  [#968](https://github.com/oshi/oshi/pull/968),
+  [#972](https://github.com/oshi/oshi/pull/972): Add toString methods to API interface implementations -
   [@agithyogendra](https://github.com/agithyogendra), 
   [@rohitkukreja1508](https://github.com/rohitkukreja1508),
   [@colinbobolin](https://github.com/colinbobolin),
   [@phillips0616](https://github.com/phillips0616),
   [@BooSandy1994](https://github.com/BooSandy1994),
   [@shivangi14](https://github.com/shivangi14),
+  [@fdmcneill2019](https://github.com/fdmcneill2019,
   [@dbwiddis](https://github.com/dbwiddis).
 * [#959](https://github.com/oshi/oshi/pull/959): Implement thread safety -- Hardware API overhaul. - [@dbwiddis](https://github.com/dbwiddis).
 * [#960](https://github.com/oshi/oshi/pull/960): OSProcess constructor with PID. - [@Potat0x](https://github.com/Potat0x).
