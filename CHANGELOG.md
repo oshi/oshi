@@ -20,6 +20,7 @@ In addition, setters have been removed from the API, as they were never intended
 * [#960](https://github.com/oshi/oshi/pull/960): OSProcess constructor with PID. - [@Potat0x](https://github.com/Potat0x).
 * [#962](https://github.com/oshi/oshi/pull/962): Properly handle null WMI DateTime results. - [@dbwiddis](https://github.com/dbwiddis).
 * [#963](https://github.com/oshi/oshi/pull/964): Move the ProcessorIdentifier inner class to the CentralProcessor class - [@Praveen101997](https://github.com/Praveen101997).  
+* [#972](https://github.com/oshi/oshi/pull/972): Add toString method to NetworkIF - [@fdmcneill2019](https://github.com/fdmcneill2019).
 * Your contribution here
 
 4.0.0 (8/10/2019)
