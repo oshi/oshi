@@ -289,7 +289,7 @@ public class SystemInfoTest {
     }
 
     private static void printNetworkInterfaces(NetworkIF[] networkIFs) {
-    	StringBuilder sb = new StringBuilder();
+    	StringBuilder sb = new StringBuilder("Network Interfaces:");
         if (networkIFs.length == 0) {
             sb.append("Unknown");
         }
