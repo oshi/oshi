@@ -34,7 +34,7 @@ import java.util.function.Supplier;
 public final class Memoizer {
 
     private static final Supplier<Long> defaultExpirationNanos = memoize(Memoizer::queryExpirationConfig,
-            60_000_000_000L);
+            TimeUnit.MINUTES.toNanos(1));
 
     private Memoizer() {
     }
@@ -47,6 +47,8 @@ public final class Memoizer {
      * Default exipiration of memoized values in nanoseconds, which will refresh
      * after this time elapses. Update by setting {@link GlobalConfig} property
      * <code>oshi.util.memoizer.expiration</code> to a value in milliseconds.
+     * 
+     * @return The number of nanoseconds to keep memoized values before refreshing
      */
     public static long defaultExpiration() {
         return defaultExpirationNanos.get();
@@ -54,8 +56,10 @@ public final class Memoizer {
 
     /**
      * Store a supplier in a delegate function to be computed once, and only again
-     * after time to live (ttl) has expired
+     * after time to live (ttl) has expired.
      * 
+     * @param <T>
+     *            The type of object supplied
      * @param original
      *            The {@link java.util.function.Supplier} to memoize
      * @param ttlNanos
@@ -93,6 +97,8 @@ public final class Memoizer {
     /**
      * Store a supplier in a delegate function to be computed only once.
      * 
+     * @param <T>
+     *            The type of object supplied
      * @param original
      *            The {@link java.util.function.Supplier} to memoize
      * @return A memoized version of the supplier

@@ -171,7 +171,7 @@
 		<!-- SCM -->
 		<maven-scm-plugin.version>1.11.2</maven-scm-plugin.version>
 		<maven-scm-provider-jgit.version>1.11.2</maven-scm-provider-jgit.version>
-		<jgit.version>5.4.0.201906121030-r</jgit.version>
+		<jgit.version>5.4.2.201908231537-r</jgit.version>
 		<!-- Misc. -->
 		<sonar-maven-plugin.version>3.6.0.1398</sonar-maven-plugin.version>
 		<wagon-maven-plugin.version>2.0.0</wagon-maven-plugin.version>
