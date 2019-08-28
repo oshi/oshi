@@ -199,17 +199,6 @@
 			<version>${junit-vintage-engine.version}</version>
 			<scope>test</scope>
 		</dependency>
-                <dependency>
-                         <groupId>junit</groupId>
-                         <artifactId>junit</artifactId>
-                         <version>4.12</version>
-                         <scope>test</scope>
-                </dependency>
-                <dependency>
-                         <groupId>junit4</groupId>
-                         <artifactId>junit4</artifactId>
-                         <version>4.13-beta-3</version>
-                </dependency>
 	</dependencies>
 
 	<build>
