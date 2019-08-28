@@ -289,14 +289,23 @@ public class SystemInfoTest {
     }
 
     private static void printNetworkInterfaces(NetworkIF[] networkIFs) {
-    	StringBuilder sb = new StringBuilder();
-        if (networkIFs.length == 0) {
-            sb.append("Unknown");
-        }
+        oshi.add("Network interfaces:");
         for (NetworkIF net : networkIFs) {
-            sb.append("\n").append(net.toString());
-        }
-        oshi.add(sb.toString());
+            oshi.add(String.format(" Name: %s (%s)%n", net.getName(), net.getDisplayName()));
+            oshi.add(String.format("   MAC Address: %s %n", net.getMacaddr()));
+            oshi.add(String.format("   MTU: %s, Speed: %s %n", net.getMTU(),
+                    FormatUtil.formatValue(net.getSpeed(), "bps")));
+            oshi.add(String.format("   IPv4: %s %n", Arrays.toString(net.getIPv4addr())));
+            oshi.add(String.format("   IPv6: %s %n", Arrays.toString(net.getIPv6addr())));
+            boolean hasData = net.getBytesRecv() > 0 || net.getBytesSent() > 0 || net.getPacketsRecv() > 0
+                    || net.getPacketsSent() > 0;
+            oshi.add(String.format("   Traffic: received %s/%s%s; transmitted %s/%s%s",
+                    hasData ? net.getPacketsRecv() + " packets" : "?",
+                    hasData ? FormatUtil.formatBytes(net.getBytesRecv()) : "?",
+                    hasData ? " (" + net.getInErrors() + " err)" : "",
+                    hasData ? net.getPacketsSent() + " packets" : "?",
+                    hasData ? FormatUtil.formatBytes(net.getBytesSent()) : "?",
+                    hasData ? " (" + net.getOutErrors() + " err)" : ""));
         }
     }
 
