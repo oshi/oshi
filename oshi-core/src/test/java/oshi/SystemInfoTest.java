@@ -245,7 +245,7 @@ public class SystemInfoTest {
     }
 
     private static void printPowerSources(PowerSource[] powerSources) {
-        StringBuilder sb = new StringBuilder("Power: ");
+        StringBuilder sb = new StringBuilder("Power Sources: ");
         if (powerSources.length == 0) {
             sb.append("Unknown");
         }
@@ -296,13 +296,13 @@ public class SystemInfoTest {
             sb.append(" Unknown");
         }
         for (NetworkIF net : networkIFs) {
-            sb.append("\n").append(net.toString());
+            sb.append("\n ").append(net.toString());
         }
         oshi.add(sb.toString());
     }
 
     private static void printNetworkParameters(NetworkParams networkParams) {
-        oshi.add("Network parameters:\n" + networkParams.toString());
+        oshi.add("Network parameters:\n " + networkParams.toString());
     }
 
     private static void printDisplays(Display[] displays) {
@@ -325,7 +325,7 @@ public class SystemInfoTest {
     private static void printSoundCards(SoundCard[] cards) {
         oshi.add("Sound Cards:");
         for (SoundCard card : cards) {
-            oshi.add(String.valueOf(card));
+            oshi.add(" " + String.valueOf(card));
         }
     }
 }

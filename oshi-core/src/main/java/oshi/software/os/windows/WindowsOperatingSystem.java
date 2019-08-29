@@ -512,8 +512,8 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                         Kernel32.INSTANCE.CloseHandle(token);
                     }
                 }
+                Kernel32.INSTANCE.CloseHandle(pHandle);
             }
-            Kernel32.INSTANCE.CloseHandle(pHandle);
 
             // There is no easy way to get ExecutuionState for a process.
             // The WMI value is null. It's possible to get thread Execution

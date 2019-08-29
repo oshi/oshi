@@ -26,7 +26,7 @@ package oshi.software.os.windows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.platform.win32.Kernel32;
+import com.sun.jna.platform.win32.Kernel32; // NOSONAR squid:S1191
 import com.sun.jna.platform.win32.WinBase.SYSTEM_INFO;
 import com.sun.jna.platform.win32.WinNT.HANDLE;
 import com.sun.jna.ptr.IntByReference;
@@ -37,27 +37,24 @@ import com.sun.jna.ptr.IntByReference;
 public class WindowsOSSystemInfo {
     private static final Logger LOG = LoggerFactory.getLogger(WindowsOSSystemInfo.class);
 
-    private SYSTEM_INFO _si = null;
+    // Populated during call to init
+    private SYSTEM_INFO systemInfo = null;
 
     /**
-     * <p>
      * Constructor for WindowsOSSystemInfo.
-     * </p>
      */
     public WindowsOSSystemInfo() {
         init();
     }
 
     /**
-     * <p>
      * Constructor for WindowsOSSystemInfo.
-     * </p>
      *
      * @param si
      *            a {@link com.sun.jna.platform.win32.WinBase.SYSTEM_INFO} object.
      */
     public WindowsOSSystemInfo(SYSTEM_INFO si) {
-        this._si = si;
+        this.systemInfo = si;
     }
 
     private void init() {
@@ -66,8 +63,13 @@ public class WindowsOSSystemInfo {
 
         try {
             IntByReference isWow64 = new IntByReference();
+            // This returns a pseudo handle, currently (HANDLE)-1, that is
+            // interpreted as the current process handle. The pseudo handle need
+            // not be closed when it is no longer needed. Calling the
+            // CloseHandle function with a pseudo handle has no effect.
             HANDLE hProcess = Kernel32.INSTANCE.GetCurrentProcess();
             if (Kernel32.INSTANCE.IsWow64Process(hProcess, isWow64) && isWow64.getValue() > 0) {
+                // Populates the class variable with information
                 Kernel32.INSTANCE.GetNativeSystemInfo(si);
             }
         } catch (UnsatisfiedLinkError e) {
@@ -75,7 +77,7 @@ public class WindowsOSSystemInfo {
             LOG.trace("No WOW64 support: {}", e);
         }
 
-        this._si = si;
+        this.systemInfo = si;
         LOG.debug("Initialized OSNativeSystemInfo");
     }
 
@@ -85,6 +87,6 @@ public class WindowsOSSystemInfo {
      * @return Integer.
      */
     public int getNumberOfProcessors() {
-        return this._si.dwNumberOfProcessors.intValue();
+        return this.systemInfo.dwNumberOfProcessors.intValue();
     }
 }

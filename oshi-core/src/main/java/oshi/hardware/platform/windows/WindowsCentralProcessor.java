@@ -227,6 +227,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
         SYSTEM_INFO sysinfo = new SYSTEM_INFO();
         Kernel32.INSTANCE.GetNativeSystemInfo(sysinfo);
         if (sysinfo.processorArchitecture.pi.wProcessorArchitecture.intValue() == 9 // PROCESSOR_ARCHITECTURE_AMD64
+                || sysinfo.processorArchitecture.pi.wProcessorArchitecture.intValue() == 12 // PROCESSOR_ARCHITECTURE_ARM64
                 || sysinfo.processorArchitecture.pi.wProcessorArchitecture.intValue() == 6) { // PROCESSOR_ARCHITECTURE_IA64
             cpu64bit = true;
         }
