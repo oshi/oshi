@@ -139,7 +139,7 @@ final class MacComputerSystem extends AbstractComputerSystem {
 
     private String getIORegistryPlatformSerialNumber() {
         String serialNumber = null;
-        int service = IOKitUtil.getMatchingService("IOPlatformExpertDevice");
+        long service = IOKitUtil.getMatchingService("IOPlatformExpertDevice");
         if (service != 0) {
             // Fetch the serial number
             serialNumber = IOKitUtil.getIORegistryStringProperty(service, "IOPlatformSerialNumber");

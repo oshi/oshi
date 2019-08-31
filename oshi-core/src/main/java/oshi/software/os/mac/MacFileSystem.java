@@ -31,22 +31,22 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Pointer; // NOSONAR squid:S1191
+import com.sun.jna.Pointer;
+import com.sun.jna.platform.mac.CoreFoundation;
+import com.sun.jna.platform.mac.CoreFoundation.CFDictionaryRef;
+import com.sun.jna.platform.mac.CoreFoundation.CFMutableDictionaryRef;
+import com.sun.jna.platform.mac.CoreFoundation.CFStringRef;
+import com.sun.jna.platform.mac.DiskArbitration;
+import com.sun.jna.platform.mac.DiskArbitration.DADiskRef;
+import com.sun.jna.platform.mac.DiskArbitration.DASessionRef;
 import com.sun.jna.platform.mac.SystemB;
 import com.sun.jna.platform.mac.SystemB.Statfs;
-import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.ptr.LongByReference;
 
-import oshi.jna.platform.mac.CoreFoundation;
-import oshi.jna.platform.mac.CoreFoundation.CFDictionaryRef;
-import oshi.jna.platform.mac.CoreFoundation.CFMutableDictionaryRef;
-import oshi.jna.platform.mac.CoreFoundation.CFStringRef;
-import oshi.jna.platform.mac.DiskArbitration;
-import oshi.jna.platform.mac.DiskArbitration.DADiskRef;
-import oshi.jna.platform.mac.DiskArbitration.DASessionRef;
 import oshi.jna.platform.mac.IOKit;
 import oshi.software.os.FileSystem;
 import oshi.software.os.OSFileStore;
-import oshi.util.platform.mac.CfUtil;
+import oshi.util.Constants;
 import oshi.util.platform.mac.IOKitUtil;
 import oshi.util.platform.mac.SysctlUtil;
 
@@ -86,11 +86,12 @@ public class MacFileSystem implements FileSystem {
         if (numfs > 0) {
             // Open a DiskArbitration session to get VolumeName of file systems
             // with bsd names
-            DASessionRef session = DiskArbitration.INSTANCE.DASessionCreate(CfUtil.ALLOCATOR);
+            DASessionRef session = DiskArbitration.INSTANCE
+                    .DASessionCreate(CoreFoundation.INSTANCE.CFAllocatorGetDefault());
             if (session == null) {
                 LOG.error("Unable to open session to DiskArbitration framework.");
             }
-            CFStringRef daVolumeNameKey = CFStringRef.toCFString("DAVolumeName");
+            CFStringRef daVolumeNameKey = CFStringRef.createCFString("DAVolumeName");
 
             // Create array to hold results
             Statfs[] fs = new Statfs[numfs];
@@ -139,27 +140,33 @@ public class MacFileSystem implements FileSystem {
                 if (bsdName.startsWith("disk")) {
                     // Get the DiskArbitration dictionary for this disk,
                     // which has volumename
-                    DADiskRef disk = DiskArbitration.INSTANCE.DADiskCreateFromBSDName(CfUtil.ALLOCATOR, session,
+                    DADiskRef disk = DiskArbitration.INSTANCE
+                            .DADiskCreateFromBSDName(CoreFoundation.INSTANCE.CFAllocatorGetDefault(), session,
                             volume);
                     if (disk != null) {
                         CFDictionaryRef diskInfo = DiskArbitration.INSTANCE.DADiskCopyDescription(disk);
                         if (diskInfo != null) {
                             // get volume name from its key
-                            Pointer volumePtr = CoreFoundation.INSTANCE.CFDictionaryGetValue(diskInfo, daVolumeNameKey);
-                            name = CfUtil.cfPointerToString(volumePtr);
-                            CfUtil.release(diskInfo);
+                            Pointer result = CoreFoundation.INSTANCE.CFDictionaryGetValue(diskInfo,
+                                    daVolumeNameKey);
+                            CFStringRef volumePtr = new CFStringRef(result);
+                            name = volumePtr.stringValue();
+                            if (name == null) {
+                                name = Constants.UNKNOWN;
+                            }
+                            diskInfo.release();
                         }
-                        CfUtil.release(disk);
+                        disk.release();
                     }
                     // Search for bsd name in IOKit registry for UUID
                     CFMutableDictionaryRef matchingDict = IOKitUtil.getBSDNameMatchingDict(bsdName);
                     if (matchingDict != null) {
                         // search for all IOservices that match the bsd name
-                        IntByReference fsIter = new IntByReference();
+                        LongByReference fsIter = new LongByReference();
                         IOKitUtil.getMatchingServices(matchingDict, fsIter);
                         // getMatchingServices releases matchingDict
                         // Should only match one logical drive
-                        int fsEntry = IOKit.INSTANCE.IOIteratorNext(fsIter.getValue());
+                        long fsEntry = IOKit.INSTANCE.IOIteratorNext(fsIter.getValue());
                         if (fsEntry != 0 && IOKit.INSTANCE.IOObjectConformsTo(fsEntry, "IOMedia")) {
                             // Now get the UUID
                             uuid = IOKitUtil.getIORegistryStringProperty(fsEntry, "UUID");
@@ -190,8 +197,8 @@ public class MacFileSystem implements FileSystem {
                 fsList.add(osStore);
             }
             // Close DA session
-            CfUtil.release(session);
-            CfUtil.release(daVolumeNameKey);
+            session.release();
+            daVolumeNameKey.release();
         }
         return fsList;
     }

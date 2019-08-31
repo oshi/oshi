@@ -21,70 +21,82 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package oshi.jna.platform.mac;
+
+package com.sun.jna.platform.mac;
 
 import com.sun.jna.Library;
 import com.sun.jna.Native;
-import com.sun.jna.PointerType;
-
-import oshi.jna.platform.mac.CoreFoundation.CFAllocatorRef;
-import oshi.jna.platform.mac.CoreFoundation.CFDictionaryRef;
+import com.sun.jna.platform.mac.CoreFoundation.CFAllocatorRef;
+import com.sun.jna.platform.mac.CoreFoundation.CFDictionaryRef;
+import com.sun.jna.platform.mac.CoreFoundation.CFTypeRef;
 
 /**
- * DiskArbitration framework for disk stats. This class should be considered
- * non-API as it may be removed if/when its code is incorporated into the JNA
- * project.
+ * Disk Arbitration is a low-level framework based on Core Foundation. The Disk
+ * Arbitration framework provides the ability to get various pieces of
+ * information about a volume.
  */
 public interface DiskArbitration extends Library {
-    /** Constant <code>INSTANCE</code> */
+
     DiskArbitration INSTANCE = Native.load("DiskArbitration", DiskArbitration.class);
 
-    class DASessionRef extends PointerType {
+    /**
+     * Type of a reference to {@code DASession} instances.
+     */
+    class DASessionRef extends CFTypeRef {
     }
 
-    class DADiskRef extends PointerType {
+    /**
+     * Type of a reference to {@code DADisk} instances.
+     */
+    class DADiskRef extends CFTypeRef {
     }
 
     /**
      * Creates a new session. The caller of this function receives a reference to
-     * the returned object. The caller also implicitly retains the object and is
-     * responsible for releasing it with CFRelease().
+     * the returned object.
+     * <p>
+     * The caller also implicitly retains the object and is responsible for
+     * releasing it with {@link CoreFoundation#CFRelease}.
      *
-     * @param allocator
+     * @param alloc
      *            The allocator object to be used to allocate memory.
-     * @return A reference to a new DASession.
+     * @return A reference to a new {@code DASession}.
      */
-    DASessionRef DASessionCreate(CFAllocatorRef allocator);
+    DASessionRef DASessionCreate(CFAllocatorRef alloc);
 
     /**
      * Creates a new disk object. The caller of this function receives a reference
-     * to the returned object. The caller also implicitly retains the object and is
-     * responsible for releasing it with CFRelease().
+     * to the returned object.
+     * <p>
+     * The caller also implicitly retains the object and is responsible for
+     * releasing it with {@link CoreFoundation#CFRelease}.
      *
-     * @param allocator
+     * @param alloc
      *            The allocator object to be used to allocate memory.
      * @param session
-     *            The DASession in which to contact Disk Arbitration.
+     *            The {@code DASession} in which to contact Disk Arbitration.
      * @param diskName
-     *            he BSD device name.
-     * @return A reference to a new DADisk.
+     *            the BSD device name.
+     * @return A reference to a new {@code DADisk}.
      */
-    DADiskRef DADiskCreateFromBSDName(CFAllocatorRef allocator, DASessionRef session, String diskName);
+    DADiskRef DADiskCreateFromBSDName(CFAllocatorRef alloc, DASessionRef session, String diskName);
 
     /**
      * Creates a new disk object. The caller of this function receives a reference
-     * to the returned object. The caller also implicitly retains the object and is
-     * responsible for releasing it with CFRelease().
+     * to the returned object.
+     * <p>
+     * The caller also implicitly retains the object and is responsible for
+     * releasing it with {@link CoreFoundation#CFRelease}.
      *
      * @param allocator
      *            The allocator object to be used to allocate memory.
      * @param session
-     *            The DASession in which to contact Disk Arbitration.
+     *            The {@code DASession} in which to contact Disk Arbitration.
      * @param media
      *            The I/O Kit media object.
-     * @return A reference to a new DADisk.
+     * @return A reference to a new {@code DADisk}.
      */
-    DADiskRef DADiskCreateFromIOMedia(CFAllocatorRef allocator, DASessionRef session, int media);
+    DADiskRef DADiskCreateFromIOMedia(CFAllocatorRef allocator, DASessionRef session, long media);
 
     /**
      * Obtains the Disk Arbitration description of the specified disk. This function
@@ -92,13 +104,14 @@ public interface DiskArbitration extends Library {
      * specified disk, unless this function is called on a disk object passed within
      * the context of a registered callback, in which case the description is
      * current as of that callback event.
-     *
+     * <p>
      * The caller of this function receives a reference to the returned object. The
      * caller also implicitly retains the object and is responsible for releasing it
-     * with CFRelease().
+     * with {@link CoreFoundation#CFRelease}.
      *
      * @param disk
-     *            The DADisk for which to obtain the Disk Arbitration description.
+     *            The {@code DADisk} for which to obtain the Disk Arbitration
+     *            description.
      * @return The disk's Disk Arbitration description.
      */
     CFDictionaryRef DADiskCopyDescription(DADiskRef disk);
@@ -107,7 +120,7 @@ public interface DiskArbitration extends Library {
      * Obtains the BSD device name for the specified disk.
      *
      * @param disk
-     *            The DADisk for which to obtain the BSD device name.
+     *            The {@code DADisk} for which to obtain the BSD device name.
      * @return The disk's BSD device name.
      */
     String DADiskGetBSDName(DADiskRef disk);

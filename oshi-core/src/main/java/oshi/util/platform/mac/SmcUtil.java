@@ -32,14 +32,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sun.jna.Structure;
+import com.sun.jna.Structure.FieldOrder;
 import com.sun.jna.platform.mac.SystemB; // NOSONAR
 import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.ptr.LongByReference;
 
 import oshi.jna.platform.mac.IOKit;
-import oshi.jna.platform.mac.IOKit.IOConnect;
-import oshi.jna.platform.mac.IOKit.SMCKeyData;
-import oshi.jna.platform.mac.IOKit.SMCKeyDataKeyInfo;
-import oshi.jna.platform.mac.IOKit.SMCVal;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
 
@@ -47,14 +46,81 @@ import oshi.util.Util;
  * Provides access to SMC calls on OS X
  */
 public class SmcUtil {
+    /**
+     * Holds the return value of SMC version query.
+     */
+    @FieldOrder({ "major", "minor", "build", "reserved", "release" })
+    public static
+    class SMCKeyDataVers extends Structure {
+        public byte major;
+        public byte minor;
+        public byte build;
+        public byte[] reserved = new byte[1];
+        public short release;
+
+    }
+
+    /**
+     * Holds the return value of SMC pLimit query.
+     */
+    @FieldOrder({ "version", "length", "cpuPLimit", "gpuPLimit", "memPLimit" })
+    public static
+    class SMCKeyDataPLimitData extends Structure {
+        public short version;
+        public short length;
+        public int cpuPLimit;
+        public int gpuPLimit;
+        public int memPLimit;
+    }
+
+    /**
+     * Holds the return value of SMC KeyInfo query.
+     */
+    @FieldOrder({ "dataSize", "dataType", "dataAttributes" })
+    public static
+    class SMCKeyDataKeyInfo extends Structure {
+        public int dataSize;
+        public int dataType;
+        public byte dataAttributes;
+    }
+
+    /**
+     * Holds the return value of SMC query.
+     */
+    @FieldOrder({ "key", "vers", "pLimitData", "keyInfo", "result", "status", "data8", "data32", "bytes" })
+    public static
+    class SMCKeyData extends Structure {
+        public int key;
+        public SMCKeyDataVers vers;
+        public SMCKeyDataPLimitData pLimitData;
+        public SMCKeyDataKeyInfo keyInfo;
+        public byte result;
+        public byte status;
+        public byte data8;
+        public int data32;
+        public byte[] bytes = new byte[32];
+    }
+
+    /**
+     * Holds an SMC value
+     */
+    @FieldOrder({ "key", "dataSize", "dataType", "bytes" })
+    public static
+    class SMCVal extends Structure {
+        public byte[] key = new byte[5];
+        public int dataSize;
+        public byte[] dataType = new byte[5];
+        public byte[] bytes = new byte[32];
+    }
+
     private static final Logger LOG = LoggerFactory.getLogger(SmcUtil.class);
 
-    private static IOConnect conn = new IOConnect();
+    private static LongByReference conn = new LongByReference();
 
     /**
      * Map for caching info retrieved by a key necessary for subsequent calls.
      */
-    private static Map<Integer, SMCKeyDataKeyInfo> keyInfoCache = new ConcurrentHashMap<>();
+    private static Map<Integer, SmcUtil.SMCKeyDataKeyInfo> keyInfoCache = new ConcurrentHashMap<>();
 
     /**
      * Byte array used for matching return type
@@ -62,6 +128,20 @@ public class SmcUtil {
     private static final byte[] DATATYPE_SP78 = ParseUtil.stringToByteArray("sp78", 5);
     private static final byte[] DATATYPE_FPE2 = ParseUtil.stringToByteArray("fpe2", 5);
     private static final byte[] DATATYPE_FLT = ParseUtil.stringToByteArray("flt ", 5);
+
+    public static final String SMC_KEY_FAN_NUM = "FNum";
+
+    public static final String SMC_KEY_FAN_SPEED = "F%dAc";
+
+    public static final String SMC_KEY_CPU_TEMP = "TC0P";
+
+    public static final String SMC_KEY_CPU_VOLTAGE = "VC0C";
+
+    public static final byte SMC_CMD_READ_BYTES = 5;
+
+    public static final byte SMC_CMD_READ_KEYINFO = 9;
+
+    public static final int KERNEL_INDEX_SMC = 2;
 
     private SmcUtil() {
     }
@@ -72,7 +152,7 @@ public class SmcUtil {
      * @return 0 if successful, nonzero if failure
      */
     public static int smcOpen() {
-        int service = IOKitUtil.getMatchingService("AppleSMC");
+        long service = IOKitUtil.getMatchingService("AppleSMC");
         if (service == 0) {
             LOG.error("Error: no SMC found");
             return 1;
@@ -110,7 +190,7 @@ public class SmcUtil {
      * @return Double representing the value
      */
     public static double smcGetFloat(String key, int retries) {
-        SMCVal val = new SMCVal();
+        SmcUtil.SMCVal val = new SmcUtil.SMCVal();
         int result = smcReadKey(key, val, retries);
         if (result == 0 && val.dataSize > 0) {
             if (Arrays.equals(val.dataType, DATATYPE_SP78) && val.dataSize == 2) {
@@ -139,7 +219,7 @@ public class SmcUtil {
      * @return Long representing the value
      */
     public static long smcGetLong(String key, int retries) {
-        SMCVal val = new SMCVal();
+        SmcUtil.SMCVal val = new SmcUtil.SMCVal();
         int result = smcReadKey(key, val, retries);
         if (result == 0) {
             return ParseUtil.byteArrayToLong(val.bytes, val.dataSize);
@@ -157,20 +237,20 @@ public class SmcUtil {
      *            Key data output
      * @return 0 if successful, nonzero if failure
      */
-    public static int smcGetKeyInfo(SMCKeyData inputStructure, SMCKeyData outputStructure) {
+    public static int smcGetKeyInfo(SmcUtil.SMCKeyData inputStructure, SmcUtil.SMCKeyData outputStructure) {
         if (keyInfoCache.containsKey(inputStructure.key)) {
-            SMCKeyDataKeyInfo keyInfo = keyInfoCache.get(inputStructure.key);
+            SmcUtil.SMCKeyDataKeyInfo keyInfo = keyInfoCache.get(inputStructure.key);
             outputStructure.keyInfo.dataSize = keyInfo.dataSize;
             outputStructure.keyInfo.dataType = keyInfo.dataType;
             outputStructure.keyInfo.dataAttributes = keyInfo.dataAttributes;
         } else {
-            inputStructure.data8 = IOKit.SMC_CMD_READ_KEYINFO;
+            inputStructure.data8 = SmcUtil.SMC_CMD_READ_KEYINFO;
             Util.sleep(4);
-            int result = smcCall(IOKit.KERNEL_INDEX_SMC, inputStructure, outputStructure);
+            int result = smcCall(SmcUtil.KERNEL_INDEX_SMC, inputStructure, outputStructure);
             if (result != 0) {
                 return result;
             }
-            SMCKeyDataKeyInfo keyInfo = new SMCKeyDataKeyInfo();
+            SmcUtil.SMCKeyDataKeyInfo keyInfo = new SmcUtil.SMCKeyDataKeyInfo();
             keyInfo.dataSize = outputStructure.keyInfo.dataSize;
             keyInfo.dataType = outputStructure.keyInfo.dataType;
             keyInfo.dataAttributes = outputStructure.keyInfo.dataAttributes;
@@ -190,9 +270,9 @@ public class SmcUtil {
      *            Number of attempts to try
      * @return 0 if successful, nonzero if failure
      */
-    public static int smcReadKey(String key, SMCVal val, int retries) {
-        SMCKeyData inputStructure = new SMCKeyData();
-        SMCKeyData outputStructure = new SMCKeyData();
+    public static int smcReadKey(String key, SmcUtil.SMCVal val, int retries) {
+        SmcUtil.SMCKeyData inputStructure = new SmcUtil.SMCKeyData();
+        SmcUtil.SMCKeyData outputStructure = new SmcUtil.SMCKeyData();
 
         inputStructure.key = (int) ParseUtil.strToLong(key, 4);
         int result;
@@ -209,10 +289,10 @@ public class SmcUtil {
             val.dataType = ParseUtil.longToByteArray(outputStructure.keyInfo.dataType, 4, 5);
 
             inputStructure.keyInfo.dataSize = val.dataSize;
-            inputStructure.data8 = IOKit.SMC_CMD_READ_BYTES;
+            inputStructure.data8 = SmcUtil.SMC_CMD_READ_BYTES;
 
             Util.sleep(4);
-            result = smcCall(IOKit.KERNEL_INDEX_SMC, inputStructure, outputStructure);
+            result = smcCall(SmcUtil.KERNEL_INDEX_SMC, inputStructure, outputStructure);
             // If we got success, exit!
             if (result == 0) {
                 break;
@@ -239,7 +319,7 @@ public class SmcUtil {
      *            Key data output
      * @return 0 if successful, nonzero if failure
      */
-    public static int smcCall(int index, SMCKeyData inputStructure, SMCKeyData outputStructure) {
+    public static int smcCall(int index, SmcUtil.SMCKeyData inputStructure, SmcUtil.SMCKeyData outputStructure) {
         return IOKit.INSTANCE.IOConnectCallStructMethod(conn.getValue(), index, inputStructure, inputStructure.size(),
                 outputStructure, new IntByReference(outputStructure.size()));
     }
