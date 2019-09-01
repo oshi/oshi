@@ -46,7 +46,8 @@ public final class GlobalConfig {
     static {
         // Load the configuration file from the classpath
         try {
-            List<URL> resources = Collections.list(GlobalConfig.class.getClassLoader().getResources("oshi.properties"));
+            List<URL> resources = Collections
+                    .list(Thread.currentThread().getContextClassLoader().getResources("oshi.properties"));
             if (resources.size() == 0) {
                 LOG.warn("No default configuration found");
             } else {
