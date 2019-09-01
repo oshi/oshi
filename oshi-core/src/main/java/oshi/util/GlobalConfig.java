@@ -25,6 +25,9 @@ package oshi.util;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
+import java.util.Collections;
+import java.util.List;
 import java.util.Properties;
 
 import org.slf4j.Logger;
@@ -32,7 +35,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * The global configuration utility. See
- * {@code src/main/resources/default.properties} for default values.
+ * {@code src/main/resources/oshi.properties} for default values.
  */
 public final class GlobalConfig {
 
@@ -41,9 +44,21 @@ public final class GlobalConfig {
     private static final Properties configuration = new Properties();
 
     static {
-        try (InputStream in = GlobalConfig.class.getResourceAsStream("/default.properties")) {
-            if (in != null) {
-                configuration.load(in);
+        // Load the configuration file from the classpath
+        try {
+            List<URL> resources = Collections.list(GlobalConfig.class.getClassLoader().getResources("oshi.properties"));
+            if (resources.size() == 0) {
+                LOG.warn("No default configuration found");
+            } else {
+                if (resources.size() > 1) {
+                    LOG.warn("Configuration conflict: there is more than one oshi.properties file on the classpath");
+                }
+
+                try (InputStream in = resources.get(0).openStream()) {
+                    if (in != null) {
+                        configuration.load(in);
+                    }
+                }
             }
         } catch (IOException e) {
             LOG.warn("Failed to load default configuration");
