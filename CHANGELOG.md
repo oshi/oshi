@@ -3,6 +3,8 @@
 API CHANGE: This version implements thread-safe getters for OSHI attributes. 
 As part of this change, support for serialization has been removed. 
 In addition, setters have been removed from the API, as they were never intended for end user use.
+
+The default configuration file has been renamed to `oshi.properties` to prevent classpath conflicts.
 * [#943](https://github.com/oshi/oshi/pull/943),
   [#944](https://github.com/oshi/oshi/pull/944),
   [#948](https://github.com/oshi/oshi/pull/948),
@@ -24,6 +26,7 @@ In addition, setters have been removed from the API, as they were never intended
 * [#962](https://github.com/oshi/oshi/pull/962): Properly handle null WMI DateTime results. - [@dbwiddis](https://github.com/dbwiddis).
 * [#963](https://github.com/oshi/oshi/pull/964): Move the ProcessorIdentifier inner class to the CentralProcessor class - [@Praveen101997](https://github.com/Praveen101997).  
 * [#971](https://github.com/oshi/oshi/pull/971): Fix handle leak in WindowsDisplay.java - [@r10a](https://github.com/r10a).
+* [#977](https://github.com/oshi/oshi/pull/977): Rename default configuration - [@cilki](https://github.com/cilki).
 * Your contribution here
 
 4.0.0 (8/10/2019)
