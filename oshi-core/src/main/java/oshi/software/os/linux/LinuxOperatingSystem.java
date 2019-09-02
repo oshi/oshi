@@ -719,7 +719,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     @Override
     public OSService[] getServices() {
         //Sort by PID
-        OSProcess[] process =  getChildProcesses(1, 0, OperatingSystem.ProcessSort.PID)
+        OSProcess[] process =  getChildProcesses(1, 0, OperatingSystem.ProcessSort.PID);
         File etc = new File("/etc/init");
         File[] files = etc.listFiles();
         OSService[] svcArray = new OSService[files.size()];
