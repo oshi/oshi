@@ -250,7 +250,7 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
     @Override
     public OSService[] getServices() {
         //Sort by PID
-        OSProcess[] process =  getChildProcesses(1, 0, OperatingSystem.ProcessSort.PID)
+        OSProcess[] process =  getChildProcesses(1, 0, OperatingSystem.ProcessSort.PID);
         File etc = new File("/etc/inittab");
         File[] files = etc.listFiles();
         OSService[] svcArray = new OSService[files.size()];
@@ -267,6 +267,4 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
         }
         return svcArray;
     }
-
-
 }
