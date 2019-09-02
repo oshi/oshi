@@ -422,19 +422,46 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
 
             OSService[] svcArray = new OSService[files.size()];
             for (int i = 0; i < svcArray.length; i++) {
-                svcArray[i].setName(files.get(i).getName());  
                 for (int j = 0; j < process.length; j++) {
-                    if(process[j].getName().equals(files.get(i).getName())) {
+                    svcArray[i].setName(files.get(i).getName()); 
+                    svcArray[i].setState(OSService.State.STOPPED);
+                    ProcTaskAllInfo taskAllInfo = new ProcTaskAllInfo();
+                    if (0 > SystemB.INSTANCE.proc_pidinfo(process[j].getProcessID(), SystemB.PROC_PIDTASKALLINFO, 0, taskAllInfo, taskAllInfo.size())) {
+                        continue;
+                    }
+                    String name = null;
+                    String path = "";
+                    Pointer buf = new Memory(SystemB.PROC_PIDPATHINFO_MAXSIZE);
+                    if (0 < SystemB.INSTANCE.proc_pidpath(process[j].getProcessID(), buf, SystemB.PROC_PIDPATHINFO_MAXSIZE)) {
+                        path = buf.getString(0).trim();
+                        // Overwrite name with last part of path
+                        String[] pathSplit = path.split("/");
+                        if (pathSplit.length > 0) {
+                            name = pathSplit[pathSplit.length - 1];
+                        }
+                    }
+                    // If process is gone, return null
+                    if (taskAllInfo.ptinfo.pti_threadnum < 1) {
+                        continue;
+                    }
+                    if (name == null) {
+                        // pbi_comm contains first 16 characters of name
+                        // null terminated
+                        for (int t = 0; t < taskAllInfo.pbsd.pbi_comm.length; t++) {
+                            if (taskAllInfo.pbsd.pbi_comm[t] == 0) {
+                                name = new String(taskAllInfo.pbsd.pbi_comm, 0, t);
+                                break;
+                            }
+                        }
+                    }
+                    svcArray.setPathName(path);
+                    if(name.equals(files.get(i).getName())) {
                         svcArray[i].setProcessId(process[j].getProcessID());
                         svcArray[i].setState(OSService.State.RUNNING);
-                    } else {
-                        svcArray[i].setState(OSService.State.STOPPED);
-                    }
+                    } 
                 }
             }
-
             return svcArray;
-
         } catch(NullPointerException ex) {
             LOG.error("Directory does not exist");
             return new OSService[0];
