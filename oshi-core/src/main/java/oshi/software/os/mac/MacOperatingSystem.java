@@ -463,7 +463,19 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
             }
             return svcArray;
         } catch(NullPointerException ex) {
-            LOG.error("Directory does not exist");
+            String error = "";
+            if (ua == null) {
+                error = "~/Library/LaunchAgents";
+            } else if (ga == null) {
+                error = "/Library/LaunchAgents"; 
+            } else if (gd == null) {
+                error = "/Library/LaunchDaemons"; 
+            } else if (sa == null) {
+                error = "/System/Library/LaunchAgents"; 
+            } else if (sd == null) {
+                error = "/System/Library/LaunchDaemons"; 
+            }
+            LOG.error("Directory: " + error + " does not exist");
             return new OSService[0];
         }
 
