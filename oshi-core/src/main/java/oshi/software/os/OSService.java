@@ -69,7 +69,7 @@ public class OSService implements Serializable {
      *
      * @return Returns the status of the service.
      */
-    public Status getState() {
+    public State getState() {
     	return this.state;
     }
 
@@ -80,7 +80,7 @@ public class OSService implements Serializable {
      *
      * @return Returns the pathName of the service.
      */
-    public Status getPathName() {
+    public State getPathName() {
         return this.pathName;
     }
 
