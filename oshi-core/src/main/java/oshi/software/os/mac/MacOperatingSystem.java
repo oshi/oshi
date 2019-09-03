@@ -397,7 +397,7 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
     @Override
     public OSService[] getServices() {
         //Sort by PID
-        OSProcess[] process =  getChildProcesses(1, 0, OperatingSystem.ProcessSort.PID)
+        OSProcess[] process =  getChildProcesses(1, 0, OperatingSystem.ProcessSort.PID);
         //Get Directories
         File ua = new File("~/Library/LaunchAgents");
         File ga = new File("/Library/LaunchAgents");      

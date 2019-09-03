@@ -111,16 +111,6 @@ public interface OperatingSystem extends Serializable {
     OSProcess[] getProcesses(int limit, ProcessSort sort, boolean slowFields);
 
     /**
-     * Gets information on a currently running process
-     *
-     * @param pid
-     *            A process ID
-     * @return An {@link oshi.software.os.OSProcess} object for the specified
-     *         process id if it is running; null otherwise
-     */
-    OSProcess getProcess(int pid);
-
-    /**
      * Gets information on a currently running processes. This has improved
      * performance on Windows based operating systems vs. iterating individual
      * processes.
@@ -131,6 +121,16 @@ public interface OperatingSystem extends Serializable {
      *         process ids if it is running
      */
     List<OSProcess> getProcesses(Collection<Integer> pids);
+
+    /**
+     * Gets information on a currently running process
+     *
+     * @param pid
+     *            A process ID
+     * @return An {@link oshi.software.os.OSProcess} object for the specified
+     *         process id if it is running; null otherwise
+     */
+    OSProcess getProcess(int pid);
 
     /**
      * Gets currently running child processes of provided PID. If a positive limit

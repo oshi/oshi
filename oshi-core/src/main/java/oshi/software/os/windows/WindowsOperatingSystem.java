@@ -317,6 +317,12 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
 
     /** {@inheritDoc} */
     @Override
+    public List<OSProcess> getProcesses(Collection<Integer> pids) {
+        return processMapToList(pids, true);
+    }
+
+    /** {@inheritDoc} */
+    @Override
     public OSProcess[] getChildProcesses(int parentPid, int limit, ProcessSort sort) {
         Set<Integer> childPids = new HashSet<>();
         // Get processes from ToolHelp API for parent PID
@@ -347,12 +353,6 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         pids.add(pid);
         List<OSProcess> procList = processMapToList(pids, slowFields);
         return procList.isEmpty() ? null : procList.get(0);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public List<OSProcess> getProcesses(Collection<Integer> pids) {
-        return processMapToList(pids, true);
     }
 
     /**
