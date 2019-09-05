@@ -47,6 +47,7 @@ import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
 import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
+import oshi.software.os.OSService;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.mac.SysctlUtil;
@@ -454,15 +455,15 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
                             }
                         }
                     }
-                    svcArray.setPathName(path);
+                    svcArray[i].setPathName(path);
                     if(name.equals(files.get(i).getName())) {
-                        svcArray[i].setProcessId(process[j].getProcessID());
+                        svcArray[i].setProcessID(process[j].getProcessID());
                         svcArray[i].setState(OSService.State.RUNNING);
                     } 
                 }
             }
             return svcArray;
-        } catch(NullPointerException ex) {
+        } catch (NullPointerException ex) {
             String error = "";
             if (ua == null) {
                 error = "~/Library/LaunchAgents";

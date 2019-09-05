@@ -48,6 +48,7 @@ import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
 import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
+import oshi.software.os.OSService;
 import oshi.software.os.OSUser;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
@@ -721,20 +722,26 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         //Sort by PID
         OSProcess[] process =  getChildProcesses(1, 0, OperatingSystem.ProcessSort.PID);
         File etc = new File("/etc/init");
-        File[] files = etc.listFiles();
-        OSService[] svcArray = new OSService[files.size()];
-        for (int i = 0; i < files.length; i++) {
-            svcArray[i].setName(files[i].getName());  
-            for (int j = 0; j < process.length; j++) {
-                if(process[j].getName().equals(files[i].getName())) {
-                    svcArray[i].setProcessId(process[j].getProcessID());
-                    svcArray[i].setState(OSService.State.RUNNING);
-                } else {
-                    svcArray[i].setState(OSService.State.STOPPED);
+        try {
+            File[] files = etc.listFiles();
+            OSService[] svcArray = new OSService[files.length];
+            for (int i = 0; i < files.length; i++) {
+                svcArray[i].setName(files[i].getName());  
+                for (int j = 0; j < process.length; j++) {
+                    if(process[j].getName().equals(files[i].getName())) {
+                        svcArray[i].setProcessID(process[j].getProcessID());
+                        svcArray[i].setState(OSService.State.RUNNING);
+                    } else {
+                        svcArray[i].setState(OSService.State.STOPPED);
+                    }
                 }
             }
+            return svcArray;
+        } catch (NullPointerException ex) {
+            LOG.error("Directory: /etc/init does not exist");
+            return new OSService[0];
         }
-        return svcArray;
+        
     }
 
 }

@@ -31,6 +31,7 @@ import java.util.List;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OperatingSystem;
 import oshi.software.os.OperatingSystemVersion;
+import oshi.software.os.OSService;
 
 /**
  * <p>
