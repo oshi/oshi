@@ -49,7 +49,7 @@ import oshi.software.os.FileSystem;
 import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OSService;
-import oshi.software.os.OperatingSystem.ProcessSort;
+import oshi.software.os.OperatingSystem;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.mac.SysctlUtil;

@@ -39,7 +39,7 @@ import oshi.software.os.FileSystem;
 import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OSService;
-import oshi.software.os.OperatingSystem.ProcessSort;
+import oshi.software.os.OperatingSystem;
 import oshi.util.ExecutingCommand;
 import oshi.util.LsofUtil;
 import oshi.util.ParseUtil;
@@ -52,6 +52,8 @@ import oshi.util.platform.unix.solaris.KstatUtil;
  */
 public class SolarisOperatingSystem extends AbstractOperatingSystem {
     private static final long serialVersionUID = 1L;
+
+    private static final Logger LOG = LoggerFactory.getLogger(SolarisOperatingSystem.class);
 
     private static final long BOOTTIME;
     static {
