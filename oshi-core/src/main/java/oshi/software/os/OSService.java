@@ -34,7 +34,7 @@ public class OSService implements Serializable {
     private String pathName = "";
 
     /**
-     * Service Execution Statuses
+     * Service Execution States
      */
     public enum State {
         RUNNING, STOPPED, OTHER
@@ -64,10 +64,10 @@ public class OSService implements Serializable {
 
     /**
      * <p>
-     * Getter for the field <code>status</code>.
+     * Getter for the field <code>state</code>.
      * </p>
      *
-     * @return Returns the status of the service.
+     * @return Returns the state of the service.
      */
     public State getState() {
     	return this.state;
@@ -105,10 +105,10 @@ public class OSService implements Serializable {
     }
 
     /**
-     * Set the status of the service.
+     * Set the state of the service.
      *
-     * @param status
-     *            status
+     * @param state
+     *            state
      */
     public void setState(State state) {
         this.state = state;
