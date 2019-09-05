@@ -122,16 +122,10 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     // Check /proc/self/stat to find its length
     private static final int PROC_PID_STAT_LENGTH;
     static {
-        List<String> stat = FileUtil.readFile("/proc/self/stat", false);
-        if (!stat.isEmpty() && stat.get(0).contains(")")) {
-            String procPidStat = stat.get(0);
-            // 2nd elment is process name and may contain spaces, but is
-            // within parenthesis. Split from the ')' index.
-            int parenIndex = procPidStat.lastIndexOf(')');
-            String[] split = ParseUtil.whitespaces.split(procPidStat.substring(parenIndex));
-            // ')' is split index 0 but stat element 2.
-            // Add 1 to account for pid that didn't make the split
-            PROC_PID_STAT_LENGTH = split.length + 1;
+        String stat = FileUtil.getStringFromFile(ProcUtil.getProcPath() + "/self/stat");
+        if (!stat.isEmpty() && stat.contains(")")) {
+            // add 3 to account for pid, process name in prarenthesis, and state
+            PROC_PID_STAT_LENGTH = ParseUtil.countStringToLongArray(stat, ' ') + 3;
         } else {
             // Default assuming recent kernel
             PROC_PID_STAT_LENGTH = 52;
