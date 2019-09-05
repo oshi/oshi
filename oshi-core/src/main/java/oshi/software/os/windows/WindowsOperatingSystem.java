@@ -68,6 +68,8 @@ import com.sun.jna.platform.win32.Wtsapi32;
 import com.sun.jna.platform.win32.Wtsapi32.WTS_PROCESS_INFO_EX;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
+import com.sun.jna.platform.win32.W32ServiceManager;
+import com.sun.jna.platform.win32.Winsvc;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
 
@@ -798,10 +800,12 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
               }
             }
             sm.close();
+            return svcArray;
         } catch(com.sun.jna.platform.win32.Win32Exception ex) {
             LOG.error("Win32Exception");
+            return new OSService[0];
         }
-        return svcArray;
+        
     }
 
 
