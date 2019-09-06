@@ -30,260 +30,92 @@ import com.sun.jna.PointerType;
 
 /**
  * Interface for talking with Udev.
+ *
+ * @author enrico[dot]bianchi[at]gmail[dot]com
  */
 public interface Udev extends Library {
 
-    /** Constant &lt;code&gt;INSTANCE&lt;/code&gt; */
-<span class="nc" id="L37">    Udev INSTANCE = Native.load(&quot;udev&quot;, Udev.class);</span>
+<span class="nc" id="L38">    Udev INSTANCE = Native.load(&quot;udev&quot;, Udev.class);</span>
 
     final class UdevHandle extends PointerType {
 
         public UdevHandle(Pointer address) {
-<span class="nc" id="L42">            super(address);</span>
-<span class="nc" id="L43">        }</span>
+<span class="nc" id="L43">            super(address);</span>
+<span class="nc" id="L44">        }</span>
 
         public UdevHandle() {
-<span class="nc" id="L46">            super();</span>
-<span class="nc" id="L47">        }</span>
+<span class="nc" id="L47">            super();</span>
+<span class="nc" id="L48">        }</span>
     }
 
     final class UdevDevice extends PointerType {
 
         public UdevDevice(Pointer address) {
-<span class="nc" id="L53">            super(address);</span>
-<span class="nc" id="L54">        }</span>
+<span class="nc" id="L54">            super(address);</span>
+<span class="nc" id="L55">        }</span>
 
         public UdevDevice() {
-<span class="nc" id="L57">            super();</span>
-<span class="nc" id="L58">        }</span>
+<span class="nc" id="L58">            super();</span>
+<span class="nc" id="L59">        }</span>
     }
 
     final class UdevEnumerate extends PointerType {
 
         public UdevEnumerate(Pointer address) {
-<span class="nc" id="L64">            super(address);</span>
-<span class="nc" id="L65">        }</span>
+<span class="nc" id="L65">            super(address);</span>
+<span class="nc" id="L66">        }</span>
 
         public UdevEnumerate() {
-<span class="nc" id="L68">            super();</span>
-<span class="nc" id="L69">        }</span>
+<span class="nc" id="L69">            super();</span>
+<span class="nc" id="L70">        }</span>
     }
 
     final class UdevListEntry extends PointerType {
 
         public UdevListEntry(Pointer address) {
-<span class="nc" id="L75">            super(address);</span>
-<span class="nc" id="L76">        }</span>
+<span class="nc" id="L76">            super(address);</span>
+<span class="nc" id="L77">        }</span>
 
         public UdevListEntry() {
-<span class="nc" id="L79">            super();</span>
-<span class="nc" id="L80">        }</span>
+<span class="nc" id="L80">            super();</span>
+<span class="nc" id="L81">        }</span>
     }
 
-    /**
-     * &lt;p&gt;
-     * udev_new.
-     * &lt;/p&gt;
-     *
-     * @return a {@link oshi.jna.platform.linux.Udev.UdevHandle} object.
-     */
     Udev.UdevHandle udev_new();
 
-    /**
-     * &lt;p&gt;
-     * udev_unref.
-     * &lt;/p&gt;
-     *
-     * @param udev
-     *            a {@link oshi.jna.platform.linux.Udev.UdevHandle} object.
-     */
     void udev_unref(Udev.UdevHandle udev);
 
-    /**
-     * &lt;p&gt;
-     * udev_device_unref.
-     * &lt;/p&gt;
-     *
-     * @param udev_device
-     *            a {@link oshi.jna.platform.linux.Udev.UdevDevice} object.
-     */
     void udev_device_unref(Udev.UdevDevice udev_device);
 
-    /**
-     * &lt;p&gt;
-     * udev_enumerate_unref.
-     * &lt;/p&gt;
-     *
-     * @param udev_enumerate
-     *            a {@link oshi.jna.platform.linux.Udev.UdevEnumerate} object.
-     */
     void udev_enumerate_unref(Udev.UdevEnumerate udev_enumerate);
 
-    /**
-     * &lt;p&gt;
-     * udev_enumerate_new.
-     * &lt;/p&gt;
-     *
-     * @param udev
-     *            a {@link oshi.jna.platform.linux.Udev.UdevHandle} object.
-     * @return a {@link oshi.jna.platform.linux.Udev.UdevEnumerate} object.
-     */
     Udev.UdevEnumerate udev_enumerate_new(Udev.UdevHandle udev);
 
-    /**
-     * &lt;p&gt;
-     * udev_device_get_parent_with_subsystem_devtype.
-     * &lt;/p&gt;
-     *
-     * @param udev_device
-     *            a {@link oshi.jna.platform.linux.Udev.UdevDevice} object.
-     * @param subsystem
-     *            a {@link java.lang.String} object.
-     * @param devtype
-     *            a {@link java.lang.String} object.
-     * @return a {@link oshi.jna.platform.linux.Udev.UdevDevice} object.
-     */
     Udev.UdevDevice udev_device_get_parent_with_subsystem_devtype(Udev.UdevDevice udev_device, String subsystem,
             String devtype);
 
-    /**
-     * &lt;p&gt;
-     * udev_device_new_from_syspath.
-     * &lt;/p&gt;
-     *
-     * @param udev
-     *            a {@link oshi.jna.platform.linux.Udev.UdevHandle} object.
-     * @param syspath
-     *            a {@link java.lang.String} object.
-     * @return a {@link oshi.jna.platform.linux.Udev.UdevDevice} object.
-     */
     Udev.UdevDevice udev_device_new_from_syspath(Udev.UdevHandle udev, String syspath);
 
-    /**
-     * &lt;p&gt;
-     * udev_list_entry_get_next.
-     * &lt;/p&gt;
-     *
-     * @param list_entry
-     *            a {@link oshi.jna.platform.linux.Udev.UdevListEntry} object.
-     * @return a {@link oshi.jna.platform.linux.Udev.UdevListEntry} object.
-     */
     Udev.UdevListEntry udev_list_entry_get_next(Udev.UdevListEntry list_entry);
 
-    /**
-     * &lt;p&gt;
-     * udev_device_get_sysattr_value.
-     * &lt;/p&gt;
-     *
-     * @param udev_device
-     *            a {@link oshi.jna.platform.linux.Udev.UdevDevice} object.
-     * @param sysattr
-     *            a {@link java.lang.String} object.
-     * @return a {@link java.lang.String} object.
-     */
     String udev_device_get_sysattr_value(Udev.UdevDevice udev_device, String sysattr);
 
-    /**
-     * &lt;p&gt;
-     * udev_enumerate_add_match_subsystem.
-     * &lt;/p&gt;
-     *
-     * @param udev_enumerate
-     *            a {@link oshi.jna.platform.linux.Udev.UdevEnumerate} object.
-     * @param subsystem
-     *            a {@link java.lang.String} object.
-     * @return a int.
-     */
     int udev_enumerate_add_match_subsystem(Udev.UdevEnumerate udev_enumerate, String subsystem);
 
-    /**
-     * &lt;p&gt;
-     * udev_enumerate_scan_devices.
-     * &lt;/p&gt;
-     *
-     * @param udev_enumerate
-     *            a {@link oshi.jna.platform.linux.Udev.UdevEnumerate} object.
-     * @return a int.
-     */
     int udev_enumerate_scan_devices(Udev.UdevEnumerate udev_enumerate);
 
-    /**
-     * &lt;p&gt;
-     * udev_enumerate_get_list_entry.
-     * &lt;/p&gt;
-     *
-     * @param udev_enumerate
-     *            a {@link oshi.jna.platform.linux.Udev.UdevEnumerate} object.
-     * @return a {@link oshi.jna.platform.linux.Udev.UdevListEntry} object.
-     */
     Udev.UdevListEntry udev_enumerate_get_list_entry(Udev.UdevEnumerate udev_enumerate);
 
-    /**
-     * &lt;p&gt;
-     * udev_list_entry_get_name.
-     * &lt;/p&gt;
-     *
-     * @param list_entry
-     *            a {@link oshi.jna.platform.linux.Udev.UdevListEntry} object.
-     * @return a {@link java.lang.String} object.
-     */
     String udev_list_entry_get_name(Udev.UdevListEntry list_entry);
 
-    /**
-     * &lt;p&gt;
-     * udev_device_get_devtype.
-     * &lt;/p&gt;
-     *
-     * @param udev_device
-     *            a {@link oshi.jna.platform.linux.Udev.UdevDevice} object.
-     * @return a {@link java.lang.String} object.
-     */
     String udev_device_get_devtype(Udev.UdevDevice udev_device);
 
-    /**
-     * &lt;p&gt;
-     * udev_device_get_devnode.
-     * &lt;/p&gt;
-     *
-     * @param udev_device
-     *            a {@link oshi.jna.platform.linux.Udev.UdevDevice} object.
-     * @return a {@link java.lang.String} object.
-     */
     String udev_device_get_devnode(Udev.UdevDevice udev_device);
 
-    /**
-     * &lt;p&gt;
-     * udev_device_get_syspath.
-     * &lt;/p&gt;
-     *
-     * @param udev_device
-     *            a {@link oshi.jna.platform.linux.Udev.UdevDevice} object.
-     * @return a {@link java.lang.String} object.
-     */
     String udev_device_get_syspath(Udev.UdevDevice udev_device);
 
-    /**
-     * &lt;p&gt;
-     * udev_device_get_property_value.
-     * &lt;/p&gt;
-     *
-     * @param udev_device
-     *            a {@link oshi.jna.platform.linux.Udev.UdevDevice} object.
-     * @param key
-     *            a {@link java.lang.String} object.
-     * @return a {@link java.lang.String} object.
-     */
     String udev_device_get_property_value(Udev.UdevDevice udev_device, String key);
 
-    /**
-     * &lt;p&gt;
-     * udev_device_get_sysname.
-     * &lt;/p&gt;
-     *
-     * @param udev_device
-     *            a {@link oshi.jna.platform.linux.Udev.UdevDevice} object.
-     * @return a {@link java.lang.String} object.
-     */
     String udev_device_get_sysname(UdevDevice udev_device);
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

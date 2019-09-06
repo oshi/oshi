@@ -24,53 +24,17 @@
 package oshi.hardware.platform.unix.freebsd;
 
 import oshi.hardware.common.AbstractBaseboard;
-import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 
-/**
- * Baseboard data obtained by dmidecode
- */
-<span class="nc" id="L33">final class FreeBsdBaseboard extends AbstractBaseboard {</span>
+final class FreeBsdBaseboard extends AbstractBaseboard {
 
     private static final long serialVersionUID = 1L;
 
-    /** {@inheritDoc} */
-    @Override
-    public String getManufacturer() {
-<span class="nc bnc" id="L40" title="All 2 branches missed.">        if (this.manufacturer == null) {</span>
-<span class="nc" id="L41">            readDmiDecode();</span>
-        }
-<span class="nc" id="L43">        return super.getManufacturer();</span>
-    }
+<span class="nc" id="L33">    FreeBsdBaseboard() {</span>
+<span class="nc" id="L34">        init();</span>
+<span class="nc" id="L35">    }</span>
 
-    /** {@inheritDoc} */
-    @Override
-    public String getModel() {
-<span class="nc bnc" id="L49" title="All 2 branches missed.">        if (this.model == null) {</span>
-<span class="nc" id="L50">            readDmiDecode();</span>
-        }
-<span class="nc" id="L52">        return super.getModel();</span>
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public String getVersion() {
-<span class="nc bnc" id="L58" title="All 2 branches missed.">        if (this.version == null) {</span>
-<span class="nc" id="L59">            readDmiDecode();</span>
-        }
-<span class="nc" id="L61">        return super.getVersion();</span>
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public String getSerialNumber() {
-<span class="nc bnc" id="L67" title="All 2 branches missed.">        if (this.serialNumber == null) {</span>
-<span class="nc" id="L68">            readDmiDecode();</span>
-        }
-<span class="nc" id="L70">        return super.getSerialNumber();</span>
-    }
-
-    private void readDmiDecode() {
+    private void init() {
 
         // $ sudo dmidecode -t system
         // # dmidecode 3.0
@@ -93,30 +57,42 @@ import oshi.util.ExecutingCommand;
         // System Boot Information
         // Status: No errors detected
 
-<span class="nc" id="L96">        final String manufacturerMarker = &quot;Manufacturer:&quot;;</span>
-<span class="nc" id="L97">        final String productNameMarker = &quot;Product Name:&quot;;</span>
-<span class="nc" id="L98">        final String versionMarker = &quot;Version:&quot;;</span>
-<span class="nc" id="L99">        final String serialNumMarker = &quot;Serial Number:&quot;;</span>
+<span class="nc" id="L60">        String manufacturer = &quot;&quot;;</span>
+<span class="nc" id="L61">        final String manufacturerMarker = &quot;Manufacturer:&quot;;</span>
+<span class="nc" id="L62">        String model = &quot;&quot;;</span>
+<span class="nc" id="L63">        final String productNameMarker = &quot;Product Name:&quot;;</span>
+<span class="nc" id="L64">        String version = &quot;&quot;;</span>
+<span class="nc" id="L65">        final String versionMarker = &quot;Version:&quot;;</span>
+<span class="nc" id="L66">        String serialNumber = &quot;&quot;;</span>
+<span class="nc" id="L67">        final String serialNumMarker = &quot;Serial Number:&quot;;</span>
 
         // Only works with root permissions but it's all we've got
-<span class="nc bnc" id="L102" title="All 2 branches missed.">        for (final String checkLine : ExecutingCommand.runNative(&quot;dmidecode -t baseboard&quot;)) {</span>
-<span class="nc bnc" id="L103" title="All 2 branches missed.">            if (checkLine.contains(manufacturerMarker)) {</span>
-<span class="nc" id="L104">                String manufacturer = checkLine.split(manufacturerMarker)[1].trim();</span>
-<span class="nc bnc" id="L105" title="All 2 branches missed.">                this.manufacturer = manufacturer.isEmpty() ? Constants.UNKNOWN : manufacturer;</span>
+<span class="nc bnc" id="L70" title="All 2 branches missed.">        for (final String checkLine : ExecutingCommand.runNative(&quot;dmidecode -t baseboard&quot;)) {</span>
+<span class="nc bnc" id="L71" title="All 2 branches missed.">            if (checkLine.contains(manufacturerMarker)) {</span>
+<span class="nc" id="L72">                manufacturer = checkLine.split(manufacturerMarker)[1].trim();</span>
             }
-<span class="nc bnc" id="L107" title="All 2 branches missed.">            if (checkLine.contains(productNameMarker)) {</span>
-<span class="nc" id="L108">                String model = checkLine.split(productNameMarker)[1].trim();</span>
-<span class="nc bnc" id="L109" title="All 2 branches missed.">                this.model = model.isEmpty() ? Constants.UNKNOWN : model;</span>
+<span class="nc bnc" id="L74" title="All 2 branches missed.">            if (checkLine.contains(productNameMarker)) {</span>
+<span class="nc" id="L75">                model = checkLine.split(productNameMarker)[1].trim();</span>
             }
-<span class="nc bnc" id="L111" title="All 2 branches missed.">            if (checkLine.contains(versionMarker)) {</span>
-<span class="nc" id="L112">                String version = checkLine.split(versionMarker)[1].trim();</span>
-<span class="nc bnc" id="L113" title="All 2 branches missed.">                this.version = version.isEmpty() ? Constants.UNKNOWN : version;</span>
+<span class="nc bnc" id="L77" title="All 2 branches missed.">            if (checkLine.contains(versionMarker)) {</span>
+<span class="nc" id="L78">                version = checkLine.split(versionMarker)[1].trim();</span>
             }
-<span class="nc bnc" id="L115" title="All 2 branches missed.">            if (checkLine.contains(serialNumMarker)) {</span>
-<span class="nc" id="L116">                String serialNumber = checkLine.split(serialNumMarker)[1].trim();</span>
-<span class="nc bnc" id="L117" title="All 2 branches missed.">                this.serialNumber = serialNumber.isEmpty() ? Constants.UNKNOWN : serialNumber;</span>
+<span class="nc bnc" id="L80" title="All 2 branches missed.">            if (checkLine.contains(serialNumMarker)) {</span>
+<span class="nc" id="L81">                serialNumber = checkLine.split(serialNumMarker)[1].trim();</span>
             }
-<span class="nc" id="L119">        }</span>
-<span class="nc" id="L120">    }</span>
+<span class="nc" id="L83">        }</span>
+<span class="nc bnc" id="L84" title="All 2 branches missed.">        if (!manufacturer.isEmpty()) {</span>
+<span class="nc" id="L85">            setManufacturer(manufacturer);</span>
+        }
+<span class="nc bnc" id="L87" title="All 2 branches missed.">        if (!model.isEmpty()) {</span>
+<span class="nc" id="L88">            setModel(model);</span>
+        }
+<span class="nc bnc" id="L90" title="All 2 branches missed.">        if (!version.isEmpty()) {</span>
+<span class="nc" id="L91">            setVersion(version);</span>
+        }
+<span class="nc bnc" id="L93" title="All 2 branches missed.">        if (!serialNumber.isEmpty()) {</span>
+<span class="nc" id="L94">            setSerialNumber(serialNumber);</span>
+        }
+<span class="nc" id="L96">    }</span>
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

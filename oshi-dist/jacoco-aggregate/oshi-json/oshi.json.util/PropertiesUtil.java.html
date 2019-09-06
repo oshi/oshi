@@ -63,7 +63,7 @@ public class PropertiesUtil {
             }
 <span class="fc" id="L64">            props.load(input);</span>
 <span class="fc" id="L65">            LOG.debug(&quot;Loaded properties: {}&quot;, props);</span>
-<span class="pc bpc" id="L66" title="1 of 2 branches missed.">        } catch (IOException ex) {</span>
+<span class="nc" id="L66">        } catch (IOException ex) {</span>
 <span class="nc" id="L67">            LOG.error(&quot;Error reading properties file {}. {}&quot;, propertiesFile, ex);</span>
 <span class="fc" id="L68">        }</span>
 <span class="fc" id="L69">        return props;</span>

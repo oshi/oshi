@@ -29,6 +29,8 @@ import oshi.hardware.UsbDevice;
 
 /**
  * A USB device
+ *
+ * @author widdis[at]gmail[dot]com
  */
 public abstract class AbstractUsbDevice implements UsbDevice {
 
@@ -44,94 +46,81 @@ public abstract class AbstractUsbDevice implements UsbDevice {
 
     protected String serialNumber;
 
-    protected String uniqueDeviceId;
-
     protected UsbDevice[] connectedDevices;
 
-    /**
-     * &lt;p&gt;
-     * Constructor for AbstractUsbDevice.
-     * &lt;/p&gt;
-     *
-     * @param name
-     *            a {@link java.lang.String} object.
-     * @param vendor
-     *            a {@link java.lang.String} object.
-     * @param vendorId
-     *            a {@link java.lang.String} object.
-     * @param productId
-     *            a {@link java.lang.String} object.
-     * @param serialNumber
-     *            a {@link java.lang.String} object.
-     * @param uniqueDeviceId
-     *            a {@link java.lang.String} object.
-     * @param connectedDevices
-     *            an array of {@link oshi.hardware.UsbDevice} objects.
-     */
     public AbstractUsbDevice(String name, String vendor, String vendorId, String productId, String serialNumber,
-<span class="nc" id="L72">            String uniqueDeviceId, UsbDevice[] connectedDevices) {</span>
-<span class="nc" id="L73">        this.name = name;</span>
-<span class="nc" id="L74">        this.vendor = vendor;</span>
-<span class="nc" id="L75">        this.vendorId = vendorId;</span>
-<span class="nc" id="L76">        this.productId = productId;</span>
-<span class="nc" id="L77">        this.serialNumber = serialNumber;</span>
-<span class="nc" id="L78">        this.uniqueDeviceId = uniqueDeviceId;</span>
-<span class="nc" id="L79">        this.connectedDevices = Arrays.copyOf(connectedDevices, connectedDevices.length);</span>
-<span class="nc" id="L80">    }</span>
+<span class="nc" id="L52">            UsbDevice[] connectedDevices) {</span>
+<span class="nc" id="L53">        this.name = name;</span>
+<span class="nc" id="L54">        this.vendor = vendor;</span>
+<span class="nc" id="L55">        this.vendorId = vendorId;</span>
+<span class="nc" id="L56">        this.productId = productId;</span>
+<span class="nc" id="L57">        this.serialNumber = serialNumber;</span>
+<span class="nc" id="L58">        this.connectedDevices = Arrays.copyOf(connectedDevices, connectedDevices.length);</span>
+<span class="nc" id="L59">    }</span>
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getName() {
-<span class="nc" id="L85">        return this.name;</span>
+<span class="nc" id="L66">        return this.name;</span>
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getVendor() {
-<span class="nc" id="L91">        return this.vendor;</span>
+<span class="nc" id="L74">        return this.vendor;</span>
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getVendorId() {
-<span class="nc" id="L97">        return this.vendorId;</span>
+<span class="nc" id="L82">        return this.vendorId;</span>
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getProductId() {
-<span class="nc" id="L103">        return this.productId;</span>
+<span class="nc" id="L90">        return this.productId;</span>
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getSerialNumber() {
-<span class="nc" id="L109">        return this.serialNumber;</span>
+<span class="nc" id="L98">        return this.serialNumber;</span>
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public String getUniqueDeviceId() {
-<span class="nc" id="L115">        return this.uniqueDeviceId;</span>
-    }
-
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public UsbDevice[] getConnectedDevices() {
-<span class="nc" id="L121">        return Arrays.copyOf(this.connectedDevices, this.connectedDevices.length);</span>
+<span class="nc" id="L106">        return Arrays.copyOf(this.connectedDevices, this.connectedDevices.length);</span>
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int compareTo(UsbDevice usb) {
         // Naturally sort by device name
-<span class="nc" id="L128">        return getName().compareTo(usb.getName());</span>
+<span class="nc" id="L115">        return getName().compareTo(usb.getName());</span>
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String toString() {
-<span class="nc" id="L134">        return indentUsb(this, 1);</span>
+<span class="nc" id="L123">        return indentUsb(this, 1);</span>
     }
 
     /**
@@ -143,19 +132,20 @@ public abstract class AbstractUsbDevice implements UsbDevice {
      *            number of spaces to indent
      */
     private static String indentUsb(UsbDevice usbDevice, int indent) {
-<span class="nc bnc" id="L146" title="All 2 branches missed.">        String indentFmt = indent &gt; 2 ? String.format(&quot;%%%ds|-- &quot;, indent - 4) : String.format(&quot;%%%ds&quot;, indent);</span>
-<span class="nc" id="L147">        StringBuilder sb = new StringBuilder(String.format(indentFmt, &quot;&quot;));</span>
-<span class="nc" id="L148">        sb.append(usbDevice.getName());</span>
-<span class="nc bnc" id="L149" title="All 2 branches missed.">        if (usbDevice.getVendor().length() &gt; 0) {</span>
-<span class="nc" id="L150">            sb.append(&quot; (&quot;).append(usbDevice.getVendor()).append(')');</span>
+<span class="nc bnc" id="L135" title="All 2 branches missed.">        String indentFmt = indent &gt; 2 ? String.format(&quot;%%%ds|-- &quot;, indent - 4) : String.format(&quot;%%%ds&quot;, indent);</span>
+<span class="nc" id="L136">        StringBuilder sb = new StringBuilder(String.format(indentFmt, &quot;&quot;));</span>
+<span class="nc" id="L137">        sb.append(usbDevice.getName());</span>
+<span class="nc bnc" id="L138" title="All 2 branches missed.">        if (usbDevice.getVendor().length() &gt; 0) {</span>
+<span class="nc" id="L139">            sb.append(&quot; (&quot;).append(usbDevice.getVendor()).append(')');</span>
         }
-<span class="nc bnc" id="L152" title="All 2 branches missed.">        if (usbDevice.getSerialNumber().length() &gt; 0) {</span>
-<span class="nc" id="L153">            sb.append(&quot; [s/n: &quot;).append(usbDevice.getSerialNumber()).append(']');</span>
+<span class="nc bnc" id="L141" title="All 2 branches missed.">        if (usbDevice.getSerialNumber().length() &gt; 0) {</span>
+<span class="nc" id="L142">            sb.append(&quot; [s/n: &quot;).append(usbDevice.getSerialNumber()).append(']');</span>
         }
-<span class="nc bnc" id="L155" title="All 2 branches missed.">        for (UsbDevice connected : usbDevice.getConnectedDevices()) {</span>
-<span class="nc" id="L156">            sb.append('\n').append(indentUsb(connected, indent + 4));</span>
+<span class="nc bnc" id="L144" title="All 2 branches missed.">        for (UsbDevice connected : usbDevice.getConnectedDevices()) {</span>
+<span class="nc" id="L145">            sb.append('\n').append(indentUsb(connected, indent + 4));</span>
         }
-<span class="nc" id="L158">        return sb.toString();</span>
+<span class="nc" id="L147">        return sb.toString();</span>
     }
+
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

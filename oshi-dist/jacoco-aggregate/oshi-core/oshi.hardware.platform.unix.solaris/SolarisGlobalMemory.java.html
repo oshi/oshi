@@ -23,63 +23,70 @@
  */
 package oshi.hardware.platform.unix.solaris;
 
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import com.sun.jna.platform.unix.solaris.LibKstat.Kstat; // NOSONAR
 
-import oshi.hardware.VirtualMemory;
 import oshi.hardware.common.AbstractGlobalMemory;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.solaris.KstatUtil;
 
 /**
- * Memory obtained by kstat
+ * Memory obtained by /proc/meminfo and sysinfo.totalram
+ *
+ * @author alessandro[at]perucchi[dot]org
+ * @author widdis[at]gmail[dot]com
  */
-<span class="nc" id="L37">public class SolarisGlobalMemory extends AbstractGlobalMemory {</span>
+public class SolarisGlobalMemory extends AbstractGlobalMemory {
 
     private static final long serialVersionUID = 1L;
 
-    /** {@inheritDoc} */
-    @Override
-    public long getAvailable() {
-<span class="nc" id="L44">        updateSystemPages();</span>
-<span class="nc" id="L45">        return this.memAvailable;</span>
-    }
+<span class="nc" id="L47">    private static final Pattern SWAPINFO = Pattern.compile(&quot;.+\\s(\\d+)K\\s+(\\d+)K$&quot;);</span>
 
-    /** {@inheritDoc} */
-    @Override
-    public long getTotal() {
-<span class="nc bnc" id="L51" title="All 2 branches missed.">        if (this.memTotal &lt; 0) {</span>
-<span class="nc" id="L52">            updateSystemPages();</span>
-        }
-<span class="nc" id="L54">        return this.memTotal;</span>
-    }
+<span class="nc" id="L49">    public SolarisGlobalMemory() {</span>
+<span class="nc" id="L50">        this.pageSize = ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer(&quot;pagesize&quot;), 4096L);</span>
+<span class="nc" id="L51">    }</span>
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public long getPageSize() {
-<span class="nc bnc" id="L60" title="All 2 branches missed.">        if (this.pageSize &lt; 0) {</span>
-<span class="nc" id="L61">            this.pageSize = ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer(&quot;pagesize&quot;), 4096L);</span>
-        }
-<span class="nc" id="L63">        return this.pageSize;</span>
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public VirtualMemory getVirtualMemory() {
-<span class="nc bnc" id="L69" title="All 2 branches missed.">        if (this.virtualMemory == null) {</span>
-<span class="nc" id="L70">            this.virtualMemory = new SolarisVirtualMemory();</span>
-        }
-<span class="nc" id="L72">        return this.virtualMemory;</span>
-    }
-
-    private void updateSystemPages() {
+    protected void updateMeminfo() {
         // Get first result
-<span class="nc" id="L77">        Kstat ksp = KstatUtil.kstatLookup(null, -1, &quot;system_pages&quot;);</span>
+<span class="nc" id="L59">        Kstat ksp = KstatUtil.kstatLookup(null, -1, &quot;system_pages&quot;);</span>
         // Set values
-<span class="nc bnc" id="L79" title="All 4 branches missed.">        if (ksp != null &amp;&amp; KstatUtil.kstatRead(ksp)) {</span>
-<span class="nc" id="L80">            this.memAvailable = KstatUtil.kstatDataLookupLong(ksp, &quot;availrmem&quot;) * getPageSize();</span>
-<span class="nc" id="L81">            this.memTotal = KstatUtil.kstatDataLookupLong(ksp, &quot;physmem&quot;) * getPageSize();</span>
+<span class="nc bnc" id="L61" title="All 4 branches missed.">        if (ksp != null &amp;&amp; KstatUtil.kstatRead(ksp)) {</span>
+<span class="nc" id="L62">            this.memAvailable = KstatUtil.kstatDataLookupLong(ksp, &quot;availrmem&quot;) * this.pageSize;</span>
+<span class="nc" id="L63">            this.memTotal = KstatUtil.kstatDataLookupLong(ksp, &quot;physmem&quot;) * this.pageSize;</span>
         }
-<span class="nc" id="L83">    }</span>
+
+<span class="nc" id="L66">        this.swapPagesIn = 0L;</span>
+<span class="nc" id="L67">        List&lt;String&gt; kstat = ExecutingCommand.runNative(&quot;kstat -p cpu_stat:::pgpgin&quot;);</span>
+<span class="nc bnc" id="L68" title="All 2 branches missed.">        for (String s : kstat) {</span>
+<span class="nc" id="L69">            this.swapPagesIn += ParseUtil.parseLastLong(s, 0L);</span>
+<span class="nc" id="L70">        }</span>
+
+<span class="nc" id="L72">        this.swapPagesOut = 0L;</span>
+<span class="nc" id="L73">        kstat = ExecutingCommand.runNative(&quot;kstat -p cpu_stat:::pgpgout&quot;);</span>
+<span class="nc bnc" id="L74" title="All 2 branches missed.">        for (String s : kstat) {</span>
+<span class="nc" id="L75">            this.swapPagesOut += ParseUtil.parseLastLong(s, 0L);</span>
+<span class="nc" id="L76">        }</span>
+<span class="nc" id="L77">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void updateSwap() {
+<span class="nc" id="L84">        String swapInfo = ExecutingCommand.getAnswerAt(&quot;swap -lk&quot;, 1);</span>
+<span class="nc" id="L85">        Matcher m = SWAPINFO.matcher(swapInfo);</span>
+<span class="nc bnc" id="L86" title="All 2 branches missed.">        if (m.matches()) {</span>
+<span class="nc" id="L87">            this.swapTotal = ParseUtil.parseLongOrDefault(m.group(1), 0L) &lt;&lt; 10;</span>
+<span class="nc" id="L88">            this.swapUsed = this.swapTotal - (ParseUtil.parseLongOrDefault(m.group(2), 0L) &lt;&lt; 10);</span>
+        }
+<span class="nc" id="L90">    }</span>
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

@@ -37,14 +37,9 @@ import oshi.software.common.AbstractNetworkParams;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
-/**
- * &lt;p&gt;
- * MacNetworkParams class.
- * &lt;/p&gt;
- */
-<span class="nc" id="L45">public class MacNetworkParams extends AbstractNetworkParams {</span>
+<span class="nc" id="L40">public class MacNetworkParams extends AbstractNetworkParams {</span>
 
-<span class="nc" id="L47">    private static final Logger LOG = LoggerFactory.getLogger(MacNetworkParams.class);</span>
+<span class="nc" id="L42">    private static final Logger LOG = LoggerFactory.getLogger(MacNetworkParams.class);</span>
 
     private static final long serialVersionUID = 1L;
 
@@ -52,54 +47,60 @@ import oshi.util.ParseUtil;
 
     private static final String DEFAULT_GATEWAY = &quot;default&quot;;
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getDomainName() {
-<span class="nc" id="L58">        SystemB.Addrinfo hint = new SystemB.Addrinfo();</span>
-<span class="nc" id="L59">        hint.ai_flags = SystemB.AI_CANONNAME;</span>
-<span class="nc" id="L60">        String hostname = &quot;&quot;;</span>
+<span class="nc" id="L55">        SystemB.Addrinfo hint = new SystemB.Addrinfo();</span>
+<span class="nc" id="L56">        hint.ai_flags = SystemB.AI_CANONNAME;</span>
+<span class="nc" id="L57">        String hostname = &quot;&quot;;</span>
         try {
-<span class="nc" id="L62">            hostname = InetAddress.getLocalHost().getHostName();</span>
-<span class="nc" id="L63">        } catch (UnknownHostException e) {</span>
-<span class="nc" id="L64">            LOG.error(&quot;Unknown host exception when getting address of local host: {}&quot;, e);</span>
-<span class="nc" id="L65">            return &quot;&quot;;</span>
-<span class="nc" id="L66">        }</span>
-<span class="nc" id="L67">        PointerByReference ptr = new PointerByReference();</span>
-<span class="nc" id="L68">        int res = SystemB.INSTANCE.getaddrinfo(hostname, null, hint, ptr);</span>
-<span class="nc bnc" id="L69" title="All 2 branches missed.">        if (res &gt; 0) {</span>
-<span class="nc bnc" id="L70" title="All 2 branches missed.">            if (LOG.isErrorEnabled()) {</span>
-<span class="nc" id="L71">                LOG.error(&quot;Failed getaddrinfo(): {}&quot;, SystemB.INSTANCE.gai_strerror(res));</span>
+<span class="nc" id="L59">            hostname = InetAddress.getLocalHost().getHostName();</span>
+<span class="nc" id="L60">        } catch (UnknownHostException e) {</span>
+<span class="nc" id="L61">            LOG.error(&quot;Unknown host exception when getting address of local host: {}&quot;, e);</span>
+<span class="nc" id="L62">            return &quot;&quot;;</span>
+<span class="nc" id="L63">        }</span>
+<span class="nc" id="L64">        PointerByReference ptr = new PointerByReference();</span>
+<span class="nc" id="L65">        int res = SystemB.INSTANCE.getaddrinfo(hostname, null, hint, ptr);</span>
+<span class="nc bnc" id="L66" title="All 2 branches missed.">        if (res &gt; 0) {</span>
+<span class="nc bnc" id="L67" title="All 2 branches missed.">            if (LOG.isErrorEnabled()) {</span>
+<span class="nc" id="L68">                LOG.error(&quot;Failed getaddrinfo(): {}&quot;, SystemB.INSTANCE.gai_strerror(res));</span>
             }
-<span class="nc" id="L73">            return &quot;&quot;;</span>
+<span class="nc" id="L70">            return &quot;&quot;;</span>
         }
-<span class="nc" id="L75">        SystemB.Addrinfo info = new SystemB.Addrinfo(ptr.getValue());</span>
-<span class="nc" id="L76">        String canonname = info.ai_canonname.trim();</span>
-<span class="nc" id="L77">        SystemB.INSTANCE.freeaddrinfo(ptr.getValue());</span>
-<span class="nc" id="L78">        return canonname;</span>
+<span class="nc" id="L72">        SystemB.Addrinfo info = new SystemB.Addrinfo(ptr.getValue());</span>
+<span class="nc" id="L73">        String canonname = info.ai_canonname.trim();</span>
+<span class="nc" id="L74">        SystemB.INSTANCE.freeaddrinfo(ptr.getValue());</span>
+<span class="nc" id="L75">        return canonname;</span>
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getIpv4DefaultGateway() {
-<span class="nc" id="L84">        return searchGateway(ExecutingCommand.runNative(&quot;route -n get default&quot;));</span>
+<span class="nc" id="L83">        return searchGateway(ExecutingCommand.runNative(&quot;route -n get default&quot;));</span>
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getIpv6DefaultGateway() {
-<span class="nc" id="L90">        List&lt;String&gt; lines = ExecutingCommand.runNative(&quot;netstat -nr&quot;);</span>
-<span class="nc" id="L91">        boolean v6Table = false;</span>
-<span class="nc bnc" id="L92" title="All 2 branches missed.">        for (String line : lines) {</span>
-<span class="nc bnc" id="L93" title="All 4 branches missed.">            if (v6Table &amp;&amp; line.startsWith(DEFAULT_GATEWAY)) {</span>
-<span class="nc" id="L94">                String[] fields = ParseUtil.whitespaces.split(line);</span>
-<span class="nc bnc" id="L95" title="All 4 branches missed.">                if (fields.length &gt; 2 &amp;&amp; fields[2].contains(&quot;G&quot;)) {</span>
-<span class="nc" id="L96">                    return fields[1].split(&quot;%&quot;)[0];</span>
+<span class="nc" id="L91">        List&lt;String&gt; lines = ExecutingCommand.runNative(&quot;netstat -nr&quot;);</span>
+<span class="nc" id="L92">        boolean v6Table = false;</span>
+<span class="nc bnc" id="L93" title="All 2 branches missed.">        for (String line : lines) {</span>
+<span class="nc bnc" id="L94" title="All 4 branches missed.">            if (v6Table &amp;&amp; line.startsWith(DEFAULT_GATEWAY)) {</span>
+<span class="nc" id="L95">                String[] fields = ParseUtil.whitespaces.split(line);</span>
+<span class="nc bnc" id="L96" title="All 4 branches missed.">                if (fields.length &gt; 2 &amp;&amp; fields[2].contains(&quot;G&quot;)) {</span>
+<span class="nc" id="L97">                    return fields[1].split(&quot;%&quot;)[0];</span>
                 }
-<span class="nc bnc" id="L98" title="All 2 branches missed.">            } else if (line.startsWith(IPV6_ROUTE_HEADER)) {</span>
-<span class="nc" id="L99">                v6Table = true;</span>
+<span class="nc bnc" id="L99" title="All 2 branches missed.">            } else if (line.startsWith(IPV6_ROUTE_HEADER)) {</span>
+<span class="nc" id="L100">                v6Table = true;</span>
             }
-<span class="nc" id="L101">        }</span>
-<span class="nc" id="L102">        return &quot;&quot;;</span>
+<span class="nc" id="L102">        }</span>
+<span class="nc" id="L103">        return &quot;&quot;;</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

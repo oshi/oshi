@@ -26,25 +26,24 @@ package oshi.software.os.unix.solaris;
 import oshi.software.common.AbstractNetworkParams;
 import oshi.util.ExecutingCommand;
 
-/**
- * &lt;p&gt;
- * SolarisNetworkParams class.
- * &lt;/p&gt;
- */
-<span class="nc" id="L34">public class SolarisNetworkParams extends AbstractNetworkParams {</span>
+<span class="nc" id="L29">public class SolarisNetworkParams extends AbstractNetworkParams {</span>
 
     private static final long serialVersionUID = 1L;
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getIpv4DefaultGateway() {
-<span class="nc" id="L41">        return searchGateway(ExecutingCommand.runNative(&quot;route get -inet default&quot;));</span>
+<span class="nc" id="L38">        return searchGateway(ExecutingCommand.runNative(&quot;route get -inet default&quot;));</span>
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getIpv6DefaultGateway() {
-<span class="nc" id="L47">        return searchGateway(ExecutingCommand.runNative(&quot;route get -inet6 default&quot;));</span>
+<span class="nc" id="L46">        return searchGateway(ExecutingCommand.runNative(&quot;route get -inet6 default&quot;));</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

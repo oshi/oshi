@@ -33,51 +33,40 @@ import com.sun.jna.ptr.IntByReference;
 
 /**
  * Windows OS native system information.
+ *
+ * @author dblock[at]dblock[dot]org
  */
 public class WindowsOSSystemInfo {
-<span class="nc" id="L38">    private static final Logger LOG = LoggerFactory.getLogger(WindowsOSSystemInfo.class);</span>
+<span class="nc" id="L40">    private static final Logger LOG = LoggerFactory.getLogger(WindowsOSSystemInfo.class);</span>
 
-<span class="nc" id="L40">    private SYSTEM_INFO _si = null;</span>
+<span class="nc" id="L42">    private SYSTEM_INFO _si = null;</span>
 
-    /**
-     * &lt;p&gt;
-     * Constructor for WindowsOSSystemInfo.
-     * &lt;/p&gt;
-     */
-<span class="nc" id="L47">    public WindowsOSSystemInfo() {</span>
-<span class="nc" id="L48">        init();</span>
-<span class="nc" id="L49">    }</span>
+<span class="nc" id="L44">    public WindowsOSSystemInfo() {</span>
+<span class="nc" id="L45">        init();</span>
+<span class="nc" id="L46">    }</span>
 
-    /**
-     * &lt;p&gt;
-     * Constructor for WindowsOSSystemInfo.
-     * &lt;/p&gt;
-     *
-     * @param si
-     *            a {@link com.sun.jna.platform.win32.WinBase.SYSTEM_INFO} object.
-     */
-<span class="nc" id="L59">    public WindowsOSSystemInfo(SYSTEM_INFO si) {</span>
-<span class="nc" id="L60">        this._si = si;</span>
-<span class="nc" id="L61">    }</span>
+<span class="nc" id="L48">    public WindowsOSSystemInfo(SYSTEM_INFO si) {</span>
+<span class="nc" id="L49">        this._si = si;</span>
+<span class="nc" id="L50">    }</span>
 
     private void init() {
-<span class="nc" id="L64">        SYSTEM_INFO si = new SYSTEM_INFO();</span>
-<span class="nc" id="L65">        Kernel32.INSTANCE.GetSystemInfo(si);</span>
+<span class="nc" id="L53">        SYSTEM_INFO si = new SYSTEM_INFO();</span>
+<span class="nc" id="L54">        Kernel32.INSTANCE.GetSystemInfo(si);</span>
 
         try {
-<span class="nc" id="L68">            IntByReference isWow64 = new IntByReference();</span>
-<span class="nc" id="L69">            HANDLE hProcess = Kernel32.INSTANCE.GetCurrentProcess();</span>
-<span class="nc bnc" id="L70" title="All 4 branches missed.">            if (Kernel32.INSTANCE.IsWow64Process(hProcess, isWow64) &amp;&amp; isWow64.getValue() &gt; 0) {</span>
-<span class="nc" id="L71">                Kernel32.INSTANCE.GetNativeSystemInfo(si);</span>
+<span class="nc" id="L57">            IntByReference isWow64 = new IntByReference();</span>
+<span class="nc" id="L58">            HANDLE hProcess = Kernel32.INSTANCE.GetCurrentProcess();</span>
+<span class="nc bnc" id="L59" title="All 4 branches missed.">            if (Kernel32.INSTANCE.IsWow64Process(hProcess, isWow64) &amp;&amp; isWow64.getValue() &gt; 0) {</span>
+<span class="nc" id="L60">                Kernel32.INSTANCE.GetNativeSystemInfo(si);</span>
             }
-<span class="nc" id="L73">        } catch (UnsatisfiedLinkError e) {</span>
+<span class="nc" id="L62">        } catch (UnsatisfiedLinkError e) {</span>
             // no WOW64 support
-<span class="nc" id="L75">            LOG.trace(&quot;No WOW64 support: {}&quot;, e);</span>
-<span class="nc" id="L76">        }</span>
+<span class="nc" id="L64">            LOG.trace(&quot;No WOW64 support: {}&quot;, e);</span>
+<span class="nc" id="L65">        }</span>
 
-<span class="nc" id="L78">        this._si = si;</span>
-<span class="nc" id="L79">        LOG.debug(&quot;Initialized OSNativeSystemInfo&quot;);</span>
-<span class="nc" id="L80">    }</span>
+<span class="nc" id="L67">        this._si = si;</span>
+<span class="nc" id="L68">        LOG.debug(&quot;Initialized OSNativeSystemInfo&quot;);</span>
+<span class="nc" id="L69">    }</span>
 
     /**
      * Number of processors.
@@ -85,7 +74,7 @@ public class WindowsOSSystemInfo {
      * @return Integer.
      */
     public int getNumberOfProcessors() {
-<span class="nc" id="L88">        return this._si.dwNumberOfProcessors.intValue();</span>
+<span class="nc" id="L77">        return this._si.dwNumberOfProcessors.intValue();</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

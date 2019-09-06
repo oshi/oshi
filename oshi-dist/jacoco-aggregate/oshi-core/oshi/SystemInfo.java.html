@@ -25,7 +25,7 @@ package oshi;
 
 import java.io.Serializable;
 
-import com.sun.jna.Platform; // NOSONAR squid:S1191
+import com.sun.jna.Platform;
 
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.platform.linux.LinuxHardwareAbstractionLayer;
@@ -41,113 +41,110 @@ import oshi.software.os.unix.solaris.SolarisOperatingSystem;
 import oshi.software.os.windows.WindowsOperatingSystem;
 
 /**
- * System information. This is the main entry point to Oshi.
- * &lt;p&gt;
- * This object provides getters which instantiate the appropriate
- * platform-specific implementations of {@link oshi.software.os.OperatingSystem}
- * (software) and {@link oshi.hardware.HardwareAbstractionLayer} (hardware).
+ * System information. This is the main entry point to Oshi. This object
+ * provides getters which instantiate the appropriate platform-specific
+ * implementations of {@link OperatingSystem} (software) and
+ * {@link HardwareAbstractionLayer} (hardware).
+ *
+ * @author dblock[at]dblock[dot]org
  */
-<span class="fc" id="L50">public class SystemInfo implements Serializable {</span>
+<span class="fc" id="L51">public class SystemInfo implements Serializable {</span>
 
     private static final long serialVersionUID = 1L;
 
-<span class="fc" id="L54">    private OperatingSystem os = null;</span>
+<span class="fc" id="L55">    private OperatingSystem os = null;</span>
 
-<span class="fc" id="L56">    private HardwareAbstractionLayer hardware = null;</span>
+<span class="fc" id="L57">    private HardwareAbstractionLayer hardware = null;</span>
 
     // The platform isn't going to change, and making this static enables easy
     // access from outside this class
     private static final PlatformEnum currentPlatformEnum;
 
     static {
-<span class="pc bpc" id="L63" title="1 of 2 branches missed.">        if (Platform.isWindows()) {</span>
-<span class="nc" id="L64">            currentPlatformEnum = PlatformEnum.WINDOWS;</span>
-<span class="pc bpc" id="L65" title="1 of 2 branches missed.">        } else if (Platform.isLinux()) {</span>
-<span class="nc" id="L66">            currentPlatformEnum = PlatformEnum.LINUX;</span>
-<span class="pc bpc" id="L67" title="1 of 2 branches missed.">        } else if (Platform.isMac()) {</span>
-<span class="fc" id="L68">            currentPlatformEnum = PlatformEnum.MACOSX;</span>
-<span class="nc bnc" id="L69" title="All 2 branches missed.">        } else if (Platform.isSolaris()) {</span>
-<span class="nc" id="L70">            currentPlatformEnum = PlatformEnum.SOLARIS;</span>
-<span class="nc bnc" id="L71" title="All 2 branches missed.">        } else if (Platform.isFreeBSD()) {</span>
-<span class="nc" id="L72">            currentPlatformEnum = PlatformEnum.FREEBSD;</span>
+<span class="pc bpc" id="L64" title="1 of 2 branches missed.">        if (Platform.isWindows()) {</span>
+<span class="nc" id="L65">            currentPlatformEnum = PlatformEnum.WINDOWS;</span>
+<span class="pc bpc" id="L66" title="1 of 2 branches missed.">        } else if (Platform.isLinux()) {</span>
+<span class="nc" id="L67">            currentPlatformEnum = PlatformEnum.LINUX;</span>
+<span class="pc bpc" id="L68" title="1 of 2 branches missed.">        } else if (Platform.isMac()) {</span>
+<span class="fc" id="L69">            currentPlatformEnum = PlatformEnum.MACOSX;</span>
+<span class="nc bnc" id="L70" title="All 2 branches missed.">        } else if (Platform.isSolaris()) {</span>
+<span class="nc" id="L71">            currentPlatformEnum = PlatformEnum.SOLARIS;</span>
+<span class="nc bnc" id="L72" title="All 2 branches missed.">        } else if (Platform.isFreeBSD()) {</span>
+<span class="nc" id="L73">            currentPlatformEnum = PlatformEnum.FREEBSD;</span>
         } else {
-<span class="nc" id="L74">            currentPlatformEnum = PlatformEnum.UNKNOWN;</span>
+<span class="nc" id="L75">            currentPlatformEnum = PlatformEnum.UNKNOWN;</span>
         }
-<span class="fc" id="L76">    }</span>
+<span class="fc" id="L77">    }</span>
 
     /**
-     * &lt;p&gt;
-     * Getter for the field &lt;code&gt;currentPlatformEnum&lt;/code&gt;.
-     * &lt;/p&gt;
-     *
      * @return Returns the currentPlatformEnum.
      */
     public static PlatformEnum getCurrentPlatformEnum() {
-<span class="fc" id="L86">        return currentPlatformEnum;</span>
+<span class="fc" id="L83">        return currentPlatformEnum;</span>
     }
 
     /**
      * Creates a new instance of the appropriate platform-specific
-     * {@link oshi.software.os.OperatingSystem}.
+     * {@link OperatingSystem}.
      *
-     * @return A new instance of {@link oshi.software.os.OperatingSystem}.
+     * @return A new instance of {@link OperatingSystem}.
      */
     public OperatingSystem getOperatingSystem() {
-<span class="pc bpc" id="L96" title="1 of 2 branches missed.">        if (this.os == null) {</span>
-<span class="pc bpc" id="L97" title="5 of 6 branches missed.">            switch (currentPlatformEnum) {</span>
+<span class="pc bpc" id="L93" title="1 of 2 branches missed.">        if (this.os == null) {</span>
+<span class="pc bpc" id="L94" title="5 of 6 branches missed.">            switch (currentPlatformEnum) {</span>
 
             case WINDOWS:
-<span class="nc" id="L100">                this.os = new WindowsOperatingSystem();</span>
-<span class="nc" id="L101">                break;</span>
+<span class="nc" id="L97">                this.os = new WindowsOperatingSystem();</span>
+<span class="nc" id="L98">                break;</span>
             case LINUX:
-<span class="nc" id="L103">                this.os = new LinuxOperatingSystem();</span>
-<span class="nc" id="L104">                break;</span>
+<span class="nc" id="L100">                this.os = new LinuxOperatingSystem();</span>
+<span class="nc" id="L101">                break;</span>
             case MACOSX:
-<span class="fc" id="L106">                this.os = new MacOperatingSystem();</span>
-<span class="fc" id="L107">                break;</span>
+<span class="fc" id="L103">                this.os = new MacOperatingSystem();</span>
+<span class="fc" id="L104">                break;</span>
             case SOLARIS:
-<span class="nc" id="L109">                this.os = new SolarisOperatingSystem();</span>
-<span class="nc" id="L110">                break;</span>
+<span class="nc" id="L106">                this.os = new SolarisOperatingSystem();</span>
+<span class="nc" id="L107">                break;</span>
             case FREEBSD:
-<span class="nc" id="L112">                this.os = new FreeBsdOperatingSystem();</span>
-<span class="nc" id="L113">                break;</span>
+<span class="nc" id="L109">                this.os = new FreeBsdOperatingSystem();</span>
+<span class="nc" id="L110">                break;</span>
             default:
-<span class="nc" id="L115">                throw new UnsupportedOperationException(&quot;Operating system not supported: &quot; + Platform.getOSType());</span>
+<span class="nc" id="L112">                throw new UnsupportedOperationException(&quot;Operating system not supported: &quot; + Platform.getOSType());</span>
             }
         }
-<span class="fc" id="L118">        return this.os;</span>
+<span class="fc" id="L115">        return this.os;</span>
     }
 
     /**
      * Creates a new instance of the appropriate platform-specific
-     * {@link oshi.hardware.HardwareAbstractionLayer}.
+     * {@link HardwareAbstractionLayer}.
      *
-     * @return A new instance of {@link oshi.hardware.HardwareAbstractionLayer}.
+     * @return A new instance of {@link HardwareAbstractionLayer}.
      */
     public HardwareAbstractionLayer getHardware() {
-<span class="pc bpc" id="L128" title="1 of 2 branches missed.">        if (this.hardware == null) {</span>
-<span class="pc bpc" id="L129" title="5 of 6 branches missed.">            switch (currentPlatformEnum) {</span>
+<span class="pc bpc" id="L125" title="1 of 2 branches missed.">        if (this.hardware == null) {</span>
+<span class="pc bpc" id="L126" title="5 of 6 branches missed.">            switch (currentPlatformEnum) {</span>
 
             case WINDOWS:
-<span class="nc" id="L132">                this.hardware = new WindowsHardwareAbstractionLayer();</span>
-<span class="nc" id="L133">                break;</span>
+<span class="nc" id="L129">                this.hardware = new WindowsHardwareAbstractionLayer();</span>
+<span class="nc" id="L130">                break;</span>
             case LINUX:
-<span class="nc" id="L135">                this.hardware = new LinuxHardwareAbstractionLayer();</span>
-<span class="nc" id="L136">                break;</span>
+<span class="nc" id="L132">                this.hardware = new LinuxHardwareAbstractionLayer();</span>
+<span class="nc" id="L133">                break;</span>
             case MACOSX:
-<span class="fc" id="L138">                this.hardware = new MacHardwareAbstractionLayer();</span>
-<span class="fc" id="L139">                break;</span>
+<span class="fc" id="L135">                this.hardware = new MacHardwareAbstractionLayer();</span>
+<span class="fc" id="L136">                break;</span>
             case SOLARIS:
-<span class="nc" id="L141">                this.hardware = new SolarisHardwareAbstractionLayer();</span>
-<span class="nc" id="L142">                break;</span>
+<span class="nc" id="L138">                this.hardware = new SolarisHardwareAbstractionLayer();</span>
+<span class="nc" id="L139">                break;</span>
             case FREEBSD:
-<span class="nc" id="L144">                this.hardware = new FreeBsdHardwareAbstractionLayer();</span>
-<span class="nc" id="L145">                break;</span>
+<span class="nc" id="L141">                this.hardware = new FreeBsdHardwareAbstractionLayer();</span>
+<span class="nc" id="L142">                break;</span>
             default:
-<span class="nc" id="L147">                throw new UnsupportedOperationException(&quot;Operating system not supported: &quot; + Platform.getOSType());</span>
+<span class="nc" id="L144">                throw new UnsupportedOperationException(&quot;Operating system not supported: &quot; + Platform.getOSType());</span>
             }
         }
-<span class="fc" id="L150">        return this.hardware;</span>
+<span class="fc" id="L147">        return this.hardware;</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>
