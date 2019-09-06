@@ -92,7 +92,7 @@ public class LinuxFileSystem implements FileSystem {
     });
 
     // System path mounted as tmpfs
-    private final List<String> tmpfsPaths = Arrays.asList(new String[] { "/dev/shm", "/run", "/sys", "/proc" });
+    private final List<String> tmpfsPaths = Arrays.asList(new String[] { "/run", "/sys", "/proc" });
 
     /**
      * Checks if file path equals or starts with an element in the given list
@@ -157,7 +157,11 @@ public class LinuxFileSystem implements FileSystem {
             // Exclude pseudo file systems
             String path = split[1].replaceAll("\\\\040", " ");
             String type = split[2];
-            if (this.pseudofs.contains(type) || path.equals("/dev") || listElementStartsWith(this.tmpfsPaths, path)) {
+            if (this.pseudofs.contains(type) // exclude non-fs types
+                    || path.equals("/dev") // exclude plain dev directory
+                    || listElementStartsWith(this.tmpfsPaths, path) 
+                    || path.endsWith("/shm") // exclude shared memory
+            ) {
                 continue;
             }
 
