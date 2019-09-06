@@ -70,7 +70,7 @@ public class MacSensors implements Sensors {
     public double getCpuTemperature() {
         // Only update every second
 <span class="nc bnc" id="L72" title="All 2 branches missed.">        if (System.currentTimeMillis() - this.lastTempTime &gt; 900) {</span>
-<span class="nc" id="L73">            double temp = SmcUtil.smcGetSp78(IOKit.SMC_KEY_CPU_TEMP, 50);</span>
+<span class="nc" id="L73">            double temp = SmcUtil.smcGetFloat(IOKit.SMC_KEY_CPU_TEMP, 50);</span>
 <span class="nc bnc" id="L74" title="All 2 branches missed.">            if (temp &gt; 0d) {</span>
 <span class="nc" id="L75">                this.lastTemp = temp;</span>
 <span class="nc" id="L76">                this.lastTempTime = System.currentTimeMillis();</span>
@@ -92,7 +92,7 @@ public class MacSensors implements Sensors {
 <span class="nc" id="L92">                this.lastFanSpeeds = new int[this.numFans];</span>
             }
 <span class="nc bnc" id="L94" title="All 2 branches missed.">            for (int i = 0; i &lt; this.numFans; i++) {</span>
-<span class="nc" id="L95">                int speed = (int) SmcUtil.smcGetFpe2(String.format(IOKit.SMC_KEY_FAN_SPEED, i), 50);</span>
+<span class="nc" id="L95">                int speed = (int) SmcUtil.smcGetFloat(String.format(IOKit.SMC_KEY_FAN_SPEED, i), 50);</span>
 <span class="nc bnc" id="L96" title="All 2 branches missed.">                if (speed &gt; 0) {</span>
 <span class="nc" id="L97">                    this.lastFanSpeeds[i] = speed;</span>
 <span class="nc" id="L98">                    this.lastFanSpeedsTime = System.currentTimeMillis();</span>
@@ -110,7 +110,7 @@ public class MacSensors implements Sensors {
     public double getCpuVoltage() {
         // Only update every second
 <span class="nc bnc" id="L112" title="All 2 branches missed.">        if (System.currentTimeMillis() - this.lastVoltsTime &gt; 900) {</span>
-<span class="nc" id="L113">            double kiloVolts = SmcUtil.smcGetFpe2(IOKit.SMC_KEY_CPU_VOLTAGE, 50);</span>
+<span class="nc" id="L113">            double kiloVolts = SmcUtil.smcGetFloat(IOKit.SMC_KEY_CPU_VOLTAGE, 50);</span>
 <span class="nc bnc" id="L114" title="All 2 branches missed.">            if (kiloVolts &gt; 0d) {</span>
 <span class="nc" id="L115">                this.lastVolts = kiloVolts / 1000d;</span>
 <span class="nc" id="L116">                this.lastVoltsTime = System.currentTimeMillis();</span>

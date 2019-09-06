@@ -95,8 +95,9 @@ public class WindowsDisplay extends AbstractDisplay {
                 }
 <span class="nc" id="L96">                Advapi32.INSTANCE.RegCloseKey(key);</span>
             }
+<span class="nc" id="L98">            SetupApi.INSTANCE.SetupDiDestroyDeviceInfoList(hDevInfo);</span>
         }
-<span class="nc" id="L99">        return displays.toArray(new Display[displays.size()]);</span>
+<span class="nc" id="L100">        return displays.toArray(new Display[displays.size()]);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

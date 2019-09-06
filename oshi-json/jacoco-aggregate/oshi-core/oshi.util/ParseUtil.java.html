@@ -637,57 +637,98 @@ public class ParseUtil {
      * @param length
      *            The total number of elements in the string array. It is
      *            permissible for the string to have more elements than this;
-     *            leading elements will be ignored.
+     *            leading elements will be ignored. This should be calculated
+     *            once per text format by {@link #countStringToLongArray}.
      * @param delimiter
-     *            The character to delimit by
+     *            The character to delimit by.
      * @return If successful, an array of parsed longs. If parsing errors
      *         occurred, will be an array of zeros.
      */
     public static long[] parseStringToLongArray(String s, int[] indices, int length, char delimiter) {
-<span class="fc" id="L647">        long[] parsed = new long[indices.length];</span>
+<span class="fc" id="L648">        long[] parsed = new long[indices.length];</span>
         // Iterate from right-to-left of String
         // Fill right to left of result array using index array
-<span class="fc" id="L650">        int charIndex = s.length() - 1;</span>
-<span class="fc" id="L651">        int parsedIndex = indices.length - 1;</span>
-<span class="fc" id="L652">        int stringIndex = length - 1;</span>
+<span class="fc" id="L651">        int charIndex = s.length();</span>
+<span class="fc" id="L652">        int parsedIndex = indices.length - 1;</span>
+<span class="fc" id="L653">        int stringIndex = length - 1;</span>
 
-<span class="fc" id="L654">        int power = 0;</span>
+<span class="fc" id="L655">        int power = 0;</span>
         int c;
-<span class="fc" id="L656">        boolean delimCurrent = false;</span>
-<span class="fc bfc" id="L657" title="All 4 branches covered.">        while (charIndex &gt; 0 &amp;&amp; parsedIndex &gt;= 0) {</span>
-<span class="fc" id="L658">            c = s.charAt(charIndex--);</span>
-<span class="fc bfc" id="L659" title="All 2 branches covered.">            if (c == delimiter) {</span>
-<span class="pc bpc" id="L660" title="1 of 2 branches missed.">                if (!delimCurrent) {</span>
-<span class="fc" id="L661">                    power = 0;</span>
-<span class="fc bfc" id="L662" title="All 2 branches covered.">                    if (indices[parsedIndex] == stringIndex--) {</span>
-<span class="fc" id="L663">                        parsedIndex--;</span>
+<span class="fc" id="L657">        boolean delimCurrent = false;</span>
+<span class="fc bfc" id="L658" title="All 4 branches covered.">        while (--charIndex &gt; 0 &amp;&amp; parsedIndex &gt;= 0) {</span>
+<span class="fc" id="L659">            c = s.charAt(charIndex);</span>
+<span class="fc bfc" id="L660" title="All 2 branches covered.">            if (c == delimiter) {</span>
+<span class="pc bpc" id="L661" title="1 of 2 branches missed.">                if (!delimCurrent) {</span>
+<span class="fc" id="L662">                    power = 0;</span>
+<span class="fc bfc" id="L663" title="All 2 branches covered.">                    if (indices[parsedIndex] == stringIndex--) {</span>
+<span class="fc" id="L664">                        parsedIndex--;</span>
                     }
-<span class="fc" id="L665">                    delimCurrent = true;</span>
+<span class="fc" id="L666">                    delimCurrent = true;</span>
                 }
-<span class="fc bfc" id="L667" title="All 4 branches covered.">            } else if (indices[parsedIndex] != stringIndex || c == '+') {</span>
+<span class="fc bfc" id="L668" title="All 4 branches covered.">            } else if (indices[parsedIndex] != stringIndex || c == '+') {</span>
                 // Doesn't impact parsing, ignore
-<span class="fc" id="L669">                delimCurrent = false;</span>
-<span class="fc bfc" id="L670" title="All 4 branches covered.">            } else if (c &gt;= '0' &amp;&amp; c &lt;= '9') {</span>
-<span class="fc bfc" id="L671" title="All 2 branches covered.">                if (power &gt; 18) {</span>
-<span class="fc" id="L672">                    LOG.error(&quot;Number is too big for a long parsing string '{}' to long array&quot;, s);</span>
-<span class="fc" id="L673">                    return new long[indices.length];</span>
+<span class="fc" id="L670">                delimCurrent = false;</span>
+<span class="fc bfc" id="L671" title="All 4 branches covered.">            } else if (c &gt;= '0' &amp;&amp; c &lt;= '9') {</span>
+<span class="fc bfc" id="L672" title="All 2 branches covered.">                if (power &gt; 18) {</span>
+<span class="fc" id="L673">                    LOG.error(&quot;Number is too big for a long parsing string '{}' to long array&quot;, s);</span>
+<span class="fc" id="L674">                    return new long[indices.length];</span>
                 }
-<span class="fc" id="L675">                parsed[parsedIndex] += (c - '0') * ParseUtil.POWERS_OF_TEN[power++];</span>
-<span class="fc" id="L676">                delimCurrent = false;</span>
-<span class="fc bfc" id="L677" title="All 2 branches covered.">            } else if (c == '-') {</span>
-<span class="fc" id="L678">                parsed[parsedIndex] *= -1L;</span>
-<span class="fc" id="L679">                delimCurrent = false;</span>
+<span class="fc" id="L676">                parsed[parsedIndex] += (c - '0') * ParseUtil.POWERS_OF_TEN[power++];</span>
+<span class="fc" id="L677">                delimCurrent = false;</span>
+<span class="fc bfc" id="L678" title="All 2 branches covered.">            } else if (c == '-') {</span>
+<span class="fc" id="L679">                parsed[parsedIndex] *= -1L;</span>
+<span class="fc" id="L680">                delimCurrent = false;</span>
             } else {
                 // error on everything else
-<span class="fc" id="L682">                LOG.error(&quot;Illegal character parsing string '{}' to long array: {}&quot;, s, s.charAt(charIndex));</span>
-<span class="fc" id="L683">                return new long[indices.length];</span>
+<span class="fc" id="L683">                LOG.error(&quot;Illegal character parsing string '{}' to long array: {}&quot;, s, s.charAt(charIndex));</span>
+<span class="fc" id="L684">                return new long[indices.length];</span>
             }
         }
-<span class="fc bfc" id="L686" title="All 2 branches covered.">        if (parsedIndex &gt; 0) {</span>
-<span class="fc" id="L687">            LOG.error(&quot;Not enough fields in string '{}' parsing to long array: {}&quot;, s, indices.length - parsedIndex);</span>
-<span class="fc" id="L688">            return new long[indices.length];</span>
+<span class="fc bfc" id="L687" title="All 2 branches covered.">        if (parsedIndex &gt; 0) {</span>
+<span class="fc" id="L688">            LOG.error(&quot;Not enough fields in string '{}' parsing to long array: {}&quot;, s, indices.length - parsedIndex);</span>
+<span class="fc" id="L689">            return new long[indices.length];</span>
         }
-<span class="fc" id="L690">        return parsed;</span>
+<span class="fc" id="L691">        return parsed;</span>
+    }
+
+    /**
+     * Parses a delimited string to count elements of an array of longs.
+     * Intended to be called once to calculate the {@code length} field for
+     * {@link #parseStringToLongArray}.
+     *
+     * @param s
+     *            The string to parse
+     * @param delimiter
+     *            The character to delimit by
+     * @return The number of parsable long values which follow the last
+     *         unparsable value.
+     */
+    public static int countStringToLongArray(String s, char delimiter) {
+        // Iterate from right-to-left of String
+        // Fill right to left of result array using index array
+<span class="nc" id="L709">        int charIndex = s.length();</span>
+<span class="nc" id="L710">        int numbers = 0;</span>
+
+        int c;
+<span class="nc" id="L713">        boolean delimCurrent = false;</span>
+<span class="nc bnc" id="L714" title="All 2 branches missed.">        while (--charIndex &gt; 0) {</span>
+<span class="nc" id="L715">            c = s.charAt(charIndex);</span>
+<span class="nc bnc" id="L716" title="All 2 branches missed.">            if (c == delimiter) {</span>
+<span class="nc bnc" id="L717" title="All 2 branches missed.">                if (!delimCurrent) {</span>
+<span class="nc" id="L718">                    numbers++;</span>
+<span class="nc" id="L719">                    delimCurrent = true;</span>
+                }
+<span class="nc bnc" id="L721" title="All 8 branches missed.">            } else if (c &gt;= '0' &amp;&amp; c &lt;= '9' || c == '-' || c == '+') {</span>
+<span class="nc" id="L722">                delimCurrent = false;</span>
+            } else {
+                // we found non-digit or delimiter, exit
+<span class="nc" id="L725">                return numbers;</span>
+            }
+        }
+        // We got to beginning of string with only numbers, count start as a
+        // delimiter
+        // and exit
+<span class="nc" id="L731">        return numbers + 1;</span>
     }
 
     /**
@@ -704,13 +745,13 @@ public class ParseUtil {
      */
     public static String getTextBetweenStrings(String text, String before, String after) {
 
-<span class="fc" id="L707">        String result = &quot;&quot;;</span>
+<span class="fc" id="L748">        String result = &quot;&quot;;</span>
 
-<span class="fc bfc" id="L709" title="All 4 branches covered.">        if (text.indexOf(before) &gt;= 0 &amp;&amp; text.indexOf(after) &gt;= 0) {</span>
-<span class="fc" id="L710">            result = text.substring(text.indexOf(before) + before.length(), text.length());</span>
-<span class="fc" id="L711">            result = result.substring(0, result.indexOf(after));</span>
+<span class="fc bfc" id="L750" title="All 4 branches covered.">        if (text.indexOf(before) &gt;= 0 &amp;&amp; text.indexOf(after) &gt;= 0) {</span>
+<span class="fc" id="L751">            result = text.substring(text.indexOf(before) + before.length(), text.length());</span>
+<span class="fc" id="L752">            result = result.substring(0, result.indexOf(after));</span>
         }
-<span class="fc" id="L713">        return result;</span>
+<span class="fc" id="L754">        return result;</span>
     }
 
     /**
@@ -725,7 +766,7 @@ public class ParseUtil {
      * @return Equivalent milliseconds since the epoch
      */
     public static long filetimeToUtcMs(long filetime, boolean local) {
-<span class="pc bpc" id="L728" title="1 of 2 branches missed.">        return filetime / 10000L - EPOCH_DIFF - (local ? TZ_OFFSET : 0L);</span>
+<span class="pc bpc" id="L769" title="1 of 2 branches missed.">        return filetime / 10000L - EPOCH_DIFF - (local ? TZ_OFFSET : 0L);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>
