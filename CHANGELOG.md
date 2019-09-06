@@ -54,7 +54,7 @@ The default configuration file has been renamed to `oshi.properties` to prevent 
 * [#929](https://github.com/oshi/oshi/pull/929): Add isElevated check to OperatingSystem. - [@dbwiddis](https://github.com/dbwiddis).
 * [#931](https://github.com/oshi/oshi/pull/931): Standardize attribute updating. - [@dbwiddis](https://github.com/dbwiddis).
 
-3.13.0 (1/18/2019), 3.13.1 (4/21/2019), 3.13.2 (4/28/2019), 3.13.3 (6/5/2019)
+3.13.0 (1/18/2019), 3.13.1 (4/21/2019), 3.13.2 (4/28/2019), 3.13.3 (6/5/2019), 3.13.4 (9/6/2019)
 ================
 * [#763](https://github.com/oshi/oshi/pull/763): Refactor PDH/WMI Fallback. - [@dbwiddis](https://github.com/dbwiddis).
 * [#766](https://github.com/oshi/oshi/pull/766): Use query key to update counters in groups. - [@dbwiddis](https://github.com/dbwiddis).
