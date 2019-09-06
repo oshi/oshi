@@ -42,56 +42,67 @@ import oshi.software.os.OperatingSystemVersion;
 
     protected String buildNumber;
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getVersion() {
-<span class="nc" id="L48">        return this.version;</span>
+<span class="nc" id="L50">        return this.version;</span>
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void setVersion(String version) {
-<span class="nc" id="L54">        this.version = version;</span>
-<span class="nc" id="L55">    }</span>
+<span class="nc" id="L58">        this.version = version;</span>
+<span class="nc" id="L59">    }</span>
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getCodeName() {
-<span class="nc" id="L60">        return this.codeName;</span>
+<span class="nc" id="L66">        return this.codeName;</span>
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void setCodeName(String codeName) {
-<span class="nc" id="L66">        this.codeName = codeName;</span>
-<span class="nc" id="L67">    }</span>
+<span class="nc" id="L74">        this.codeName = codeName;</span>
+<span class="nc" id="L75">    }</span>
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getBuildNumber() {
-<span class="nc" id="L72">        return this.buildNumber;</span>
+<span class="nc" id="L82">        return this.buildNumber;</span>
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void setBuildNumber(String buildNumber) {
-<span class="nc" id="L78">        this.buildNumber = buildNumber;</span>
-<span class="nc" id="L79">    }</span>
+<span class="nc" id="L90">        this.buildNumber = buildNumber;</span>
+<span class="nc" id="L91">    }</span>
 
-    /** {@inheritDoc} */
     @Override
     public String toString() {
-<span class="nc bnc" id="L84" title="All 2 branches missed.">        if (this.versionStr == null) {</span>
-<span class="nc bnc" id="L85" title="All 2 branches missed.">            StringBuilder sb = new StringBuilder(getVersion() != null ? getVersion() : &quot;Unknown&quot;);</span>
-<span class="nc bnc" id="L86" title="All 2 branches missed.">            if (getCodeName().length() &gt; 0) {</span>
-<span class="nc" id="L87">                sb.append(&quot; (&quot;).append(getCodeName()).append(')');</span>
+<span class="nc bnc" id="L95" title="All 2 branches missed.">        if (this.versionStr == null) {</span>
+<span class="nc bnc" id="L96" title="All 2 branches missed.">            StringBuilder sb = new StringBuilder(getVersion() != null ? getVersion() : &quot;Unknown&quot;);</span>
+<span class="nc bnc" id="L97" title="All 2 branches missed.">            if (getCodeName().length() &gt; 0) {</span>
+<span class="nc" id="L98">                sb.append(&quot; (&quot;).append(getCodeName()).append(')');</span>
             }
-<span class="nc bnc" id="L89" title="All 2 branches missed.">            if (getBuildNumber().length() &gt; 0) {</span>
-<span class="nc" id="L90">                sb.append(&quot; build &quot;).append(getBuildNumber());</span>
+<span class="nc bnc" id="L100" title="All 2 branches missed.">            if (getBuildNumber().length() &gt; 0) {</span>
+<span class="nc" id="L101">                sb.append(&quot; build &quot;).append(getBuildNumber());</span>
             }
-<span class="nc" id="L92">            this.versionStr = sb.toString();</span>
+<span class="nc" id="L103">            this.versionStr = sb.toString();</span>
         }
-<span class="nc" id="L94">        return this.versionStr;</span>
+<span class="nc" id="L105">        return this.versionStr;</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

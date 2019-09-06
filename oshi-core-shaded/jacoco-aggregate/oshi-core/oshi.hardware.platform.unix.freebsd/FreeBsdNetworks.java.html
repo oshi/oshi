@@ -29,11 +29,9 @@ import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
 /**
- * &lt;p&gt;
- * FreeBsdNetworks class.
- * &lt;/p&gt;
+ * @author widdis[at]gmail[dot]com
  */
-<span class="nc" id="L36">public class FreeBsdNetworks extends AbstractNetworks {</span>
+<span class="nc" id="L34">public class FreeBsdNetworks extends AbstractNetworks {</span>
 
     private static final long serialVersionUID = 1L;
 
@@ -45,19 +43,19 @@ import oshi.util.ParseUtil;
      *            The interface on which to update statistics
      */
     public static void updateNetworkStats(NetworkIF netIF) {
-<span class="nc" id="L48">        String stats = ExecutingCommand.getAnswerAt(&quot;netstat -bI &quot; + netIF.getName(), 1);</span>
-<span class="nc" id="L49">        netIF.setTimeStamp(System.currentTimeMillis());</span>
-<span class="nc" id="L50">        String[] split = ParseUtil.whitespaces.split(stats);</span>
-<span class="nc bnc" id="L51" title="All 2 branches missed.">        if (split.length &lt; 12) {</span>
+<span class="nc" id="L46">        String stats = ExecutingCommand.getAnswerAt(&quot;netstat -bI &quot; + netIF.getName(), 1);</span>
+<span class="nc" id="L47">        netIF.setTimeStamp(System.currentTimeMillis());</span>
+<span class="nc" id="L48">        String[] split = ParseUtil.whitespaces.split(stats);</span>
+<span class="nc bnc" id="L49" title="All 2 branches missed.">        if (split.length &lt; 12) {</span>
             // No update
-<span class="nc" id="L53">            return;</span>
+<span class="nc" id="L51">            return;</span>
         }
-<span class="nc" id="L55">        netIF.setBytesSent(ParseUtil.parseUnsignedLongOrDefault(split[10], 0L));</span>
-<span class="nc" id="L56">        netIF.setBytesRecv(ParseUtil.parseUnsignedLongOrDefault(split[7], 0L));</span>
-<span class="nc" id="L57">        netIF.setPacketsSent(ParseUtil.parseUnsignedLongOrDefault(split[8], 0L));</span>
-<span class="nc" id="L58">        netIF.setPacketsRecv(ParseUtil.parseUnsignedLongOrDefault(split[4], 0L));</span>
-<span class="nc" id="L59">        netIF.setOutErrors(ParseUtil.parseUnsignedLongOrDefault(split[9], 0L));</span>
-<span class="nc" id="L60">        netIF.setInErrors(ParseUtil.parseUnsignedLongOrDefault(split[5], 0L));</span>
-<span class="nc" id="L61">    }</span>
+<span class="nc" id="L53">        netIF.setBytesSent(ParseUtil.parseUnsignedLongOrDefault(split[10], 0L));</span>
+<span class="nc" id="L54">        netIF.setBytesRecv(ParseUtil.parseUnsignedLongOrDefault(split[7], 0L));</span>
+<span class="nc" id="L55">        netIF.setPacketsSent(ParseUtil.parseUnsignedLongOrDefault(split[8], 0L));</span>
+<span class="nc" id="L56">        netIF.setPacketsRecv(ParseUtil.parseUnsignedLongOrDefault(split[4], 0L));</span>
+<span class="nc" id="L57">        netIF.setOutErrors(ParseUtil.parseUnsignedLongOrDefault(split[9], 0L));</span>
+<span class="nc" id="L58">        netIF.setInErrors(ParseUtil.parseUnsignedLongOrDefault(split[5], 0L));</span>
+<span class="nc" id="L59">    }</span>
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

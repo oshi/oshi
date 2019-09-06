@@ -27,29 +27,19 @@ import oshi.software.common.AbstractOSVersionInfoEx;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
-/**
- * &lt;p&gt;
- * SolarisOSVersionInfoEx class.
- * &lt;/p&gt;
- */
 public class SolarisOSVersionInfoEx extends AbstractOSVersionInfoEx {
 
     private static final long serialVersionUID = 1L;
 
-    /**
-     * &lt;p&gt;
-     * Constructor for SolarisOSVersionInfoEx.
-     * &lt;/p&gt;
-     */
-<span class="nc" id="L44">    public SolarisOSVersionInfoEx() {</span>
+<span class="nc" id="L34">    public SolarisOSVersionInfoEx() {</span>
         // TODO use sysinfo() instead of commandline
-<span class="nc" id="L46">        String versionInfo = ExecutingCommand.getFirstAnswer(&quot;uname -rv&quot;);</span>
-<span class="nc" id="L47">        String[] split = ParseUtil.whitespaces.split(versionInfo);</span>
-<span class="nc" id="L48">        setVersion(split[0]);</span>
-<span class="nc bnc" id="L49" title="All 2 branches missed.">        if (split.length &gt; 1) {</span>
-<span class="nc" id="L50">            setBuildNumber(split[1]);</span>
+<span class="nc" id="L36">        String versionInfo = ExecutingCommand.getFirstAnswer(&quot;uname -rv&quot;);</span>
+<span class="nc" id="L37">        String[] split = ParseUtil.whitespaces.split(versionInfo);</span>
+<span class="nc" id="L38">        setVersion(split[0]);</span>
+<span class="nc bnc" id="L39" title="All 2 branches missed.">        if (split.length &gt; 1) {</span>
+<span class="nc" id="L40">            setBuildNumber(split[1]);</span>
         }
-<span class="nc" id="L52">        setCodeName(&quot;Solaris&quot;);</span>
-<span class="nc" id="L53">    }</span>
+<span class="nc" id="L42">        setCodeName(&quot;Solaris&quot;);</span>
+<span class="nc" id="L43">    }</span>
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>
