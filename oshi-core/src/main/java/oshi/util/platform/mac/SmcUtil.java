@@ -23,6 +23,8 @@
  */
 package oshi.util.platform.mac;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -60,6 +62,8 @@ public class SmcUtil {
      * Byte array used for matching return type
      */
     private static final byte[] DATATYPE_SP78 = ParseUtil.stringToByteArray("sp78", 5);
+    private static final byte[] DATATYPE_FPE2 = ParseUtil.stringToByteArray("fpe2", 5);
+    private static final byte[] DATATYPE_FLT = ParseUtil.stringToByteArray("flt ", 5);
 
     private SmcUtil() {
     }
@@ -99,9 +103,8 @@ public class SmcUtil {
     }
 
     /**
-     * Get a value from SMC which is in SP78 datatype (used for Temperature)
-     * First bit is sign, next 7 bits are integer portion, last 8 bits are
-     * fractional portion
+     * Get a value from SMC which is in a floating point datatype (SP78, FPE2,
+     * FLT)
      *
      * @param key
      *            The key to retrieve
@@ -109,11 +112,23 @@ public class SmcUtil {
      *            Number of times to retry the key
      * @return Double representing the value
      */
-    public static double smcGetSp78(String key, int retries) {
+    public static double smcGetFloat(String key, int retries) {
         SMCVal val = new SMCVal();
         int result = smcReadKey(key, val, retries);
-        if (result == 0 && val.dataSize > 0 && Arrays.equals(val.dataType, DATATYPE_SP78)) {
-            return val.bytes[0] + val.bytes[1] / 256d;
+        if (result == 0 && val.dataSize > 0) {
+            if (Arrays.equals(val.dataType, DATATYPE_SP78) && val.dataSize == 2) {
+                // First bit is sign, next 7 bits are integer portion, last 8
+                // bits are
+                // fractional portion
+                return val.bytes[0] + val.bytes[1] / 256d;
+            } else if (Arrays.equals(val.dataType, DATATYPE_FPE2) && val.dataSize == 2) {
+                // First E (14) bits are integer portion last 2 bits are
+                // fractional portion
+                return ParseUtil.byteArrayToFloat(val.bytes, val.dataSize, 2);
+            } else if (Arrays.equals(val.dataType, DATATYPE_FLT) && val.dataSize == 4) {
+                // Standard 32-bit floating point
+                return ByteBuffer.wrap(val.bytes).order(ByteOrder.LITTLE_ENDIAN).getFloat();
+            }
         }
         // Read failed
         return 0d;
@@ -136,26 +151,6 @@ public class SmcUtil {
         }
         // Read failed
         return 0;
-    }
-
-    /**
-     * Get a value from SMC which is in FPE2 datatype. First E (14) bits are
-     * unsigned integer portion, Last 2 bits are fractional portion
-     *
-     * @param key
-     *            The key to retrieve
-     * @param retries
-     *            Number of times to retry the key
-     * @return Float representing the value
-     */
-    public static float smcGetFpe2(String key, int retries) {
-        SMCVal val = new SMCVal();
-        int result = smcReadKey(key, val, retries);
-        if (result == 0) {
-            return ParseUtil.byteArrayToFloat(val.bytes, val.dataSize, 2);
-        }
-        // Read failed
-        return 0f;
     }
 
     /**
