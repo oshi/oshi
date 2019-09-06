@@ -90,8 +90,10 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
         for (Kstat ksp : kstats) {
             if (ksp != null && KstatUtil.kstatRead(ksp)) {
                 this.logicalProcessorCount++;
-                chipIDs.add(KstatUtil.kstatDataLookupString(ksp, "chip_id"));
-                coreIDs.add(KstatUtil.kstatDataLookupString(ksp, "core_id"));
+                String chipId = KstatUtil.kstatDataLookupString(ksp, "chip_id");
+                String coreId = KstatUtil.kstatDataLookupString(ksp, "core_id");
+                chipIDs.add(chipId);
+                coreIDs.add(coreId + ":" + chipId);
             }
         }
 

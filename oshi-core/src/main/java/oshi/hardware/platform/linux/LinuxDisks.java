@@ -81,9 +81,17 @@ public class LinuxDisks implements Disks {
         }
     }
 
-    // There are at least 11 elements in udev stat output. Some platforms have
-    // 12 but we want the last 11. ParseUtil works from the right
-    private static final int UDEV_STAT_LENGTH = 11;
+    // There are at least 11 elements in udev stat output or sometimes 15. We
+    // want the rightmost 11 or 15 if there is leading text.
+    private static final int UDEV_STAT_LENGTH;
+    static {
+        String stat = FileUtil.getStringFromFile("/proc/diskstats");
+        int statLength = 11;
+        if (!stat.isEmpty()) {
+            statLength = ParseUtil.countStringToLongArray(stat, ' ');
+        }
+        UDEV_STAT_LENGTH = statLength;
+    }
 
     /**
      * {@inheritDoc}
@@ -111,64 +119,59 @@ public class LinuxDisks implements Disks {
 
         entry = Udev.INSTANCE.udev_enumerate_get_list_entry(enumerate);
         while (true) {
-            try {
-                oldEntry = entry;
-                device = Udev.INSTANCE.udev_device_new_from_syspath(handle,
-                        Udev.INSTANCE.udev_list_entry_get_name(entry));
-                // Ignore loopback and ram disks; do nothing
-                if (!Udev.INSTANCE.udev_device_get_devnode(device).startsWith("/dev/loop")
-                        && !Udev.INSTANCE.udev_device_get_devnode(device).startsWith("/dev/ram")) {
-                    if ("disk".equals(Udev.INSTANCE.udev_device_get_devtype(device))) {
-                        store = new HWDiskStore();
-                        store.setName(Udev.INSTANCE.udev_device_get_devnode(device));
-
-                        // Avoid model and serial in virtual environments
-                        store.setModel(
-                                Udev.INSTANCE.udev_device_get_property_value(device, "ID_MODEL") == null ? "Unknown"
-                                        : Udev.INSTANCE.udev_device_get_property_value(device, "ID_MODEL"));
-                        store.setSerial(Udev.INSTANCE.udev_device_get_property_value(device, "ID_SERIAL_SHORT") == null
-                                ? "Unknown"
-                                : Udev.INSTANCE.udev_device_get_property_value(device, "ID_SERIAL_SHORT"));
-
-                        store.setSize(ParseUtil.parseLongOrDefault(
-                                Udev.INSTANCE.udev_device_get_sysattr_value(device, "size"), 0L) * SECTORSIZE);
-                        store.setPartitions(new HWPartition[0]);
-                        computeDiskStats(store, device);
-
-                        hashCodeToPathMap.put(store.hashCode(), Udev.INSTANCE.udev_list_entry_get_name(entry));
-                        result.add(store);
-                    } else if ("partition".equals(Udev.INSTANCE.udev_device_get_devtype(device)) && store != null) {
-                        // `store` should still point to the HWDiskStore this
-                        // partition is attached to. If not, it's an error, so
-                        // skip.
-                        HWPartition[] partArray = new HWPartition[store.getPartitions().length + 1];
-                        System.arraycopy(store.getPartitions(), 0, partArray, 0, store.getPartitions().length);
-                        String name = Udev.INSTANCE.udev_device_get_devnode(device);
-                        partArray[partArray.length - 1] = new HWPartition(name,
-                                Udev.INSTANCE.udev_device_get_sysname(device),
-                                Udev.INSTANCE.udev_device_get_property_value(device, "ID_FS_TYPE") == null ? "partition"
-                                        : Udev.INSTANCE.udev_device_get_property_value(device, "ID_FS_TYPE"),
-                                Udev.INSTANCE.udev_device_get_property_value(device, "ID_FS_UUID") == null ? ""
-                                        : Udev.INSTANCE.udev_device_get_property_value(device, "ID_FS_UUID"),
-                                ParseUtil.parseLongOrDefault(
-                                        Udev.INSTANCE.udev_device_get_sysattr_value(device, "size"), 0L) * SECTORSIZE,
-                                ParseUtil.parseIntOrDefault(
-                                        Udev.INSTANCE.udev_device_get_property_value(device, "MAJOR"), 0),
-                                ParseUtil.parseIntOrDefault(
-                                        Udev.INSTANCE.udev_device_get_property_value(device, "MINOR"), 0),
-                                MapUtil.getOrDefault(this.mountsMap, name, ""));
-                        store.setPartitions(partArray);
-                    }
-                }
-                entry = Udev.INSTANCE.udev_list_entry_get_next(oldEntry);
-            } catch (NullPointerException ex) { // NOSONAR squid:S1166
+            oldEntry = entry;
+            device = Udev.INSTANCE.udev_device_new_from_syspath(handle, Udev.INSTANCE.udev_list_entry_get_name(entry));
+            if (device == null) {
                 LOG.debug("Reached all disks. Exiting ");
                 break;
-            } finally {
-                Udev.INSTANCE.udev_device_unref(device);
             }
-        }
+            // Ignore loopback and ram disks; do nothing
+            if (!Udev.INSTANCE.udev_device_get_devnode(device).startsWith("/dev/loop")
+                    && !Udev.INSTANCE.udev_device_get_devnode(device).startsWith("/dev/ram")) {
+                if ("disk".equals(Udev.INSTANCE.udev_device_get_devtype(device))) {
+                    store = new HWDiskStore();
+                    store.setName(Udev.INSTANCE.udev_device_get_devnode(device));
 
+                    // Avoid model and serial in virtual environments
+                    store.setModel(Udev.INSTANCE.udev_device_get_property_value(device, "ID_MODEL") == null ? "Unknown"
+                            : Udev.INSTANCE.udev_device_get_property_value(device, "ID_MODEL"));
+                    store.setSerial(
+                            Udev.INSTANCE.udev_device_get_property_value(device, "ID_SERIAL_SHORT") == null ? "Unknown"
+                                    : Udev.INSTANCE.udev_device_get_property_value(device, "ID_SERIAL_SHORT"));
+
+                    store.setSize(ParseUtil.parseLongOrDefault(
+                            Udev.INSTANCE.udev_device_get_sysattr_value(device, "size"), 0L) * SECTORSIZE);
+                    store.setPartitions(new HWPartition[0]);
+                    computeDiskStats(store, device);
+
+                    hashCodeToPathMap.put(store.hashCode(), Udev.INSTANCE.udev_list_entry_get_name(entry));
+                    result.add(store);
+                } else if ("partition".equals(Udev.INSTANCE.udev_device_get_devtype(device)) && store != null) {
+                    // `store` should still point to the HWDiskStore this
+                    // partition is attached to. If not, it's an error, so
+                    // skip.
+                    HWPartition[] partArray = new HWPartition[store.getPartitions().length + 1];
+                    System.arraycopy(store.getPartitions(), 0, partArray, 0, store.getPartitions().length);
+                    String name = Udev.INSTANCE.udev_device_get_devnode(device);
+                    partArray[partArray.length - 1] = new HWPartition(name,
+                            Udev.INSTANCE.udev_device_get_sysname(device),
+                            Udev.INSTANCE.udev_device_get_property_value(device, "ID_FS_TYPE") == null ? "partition"
+                                    : Udev.INSTANCE.udev_device_get_property_value(device, "ID_FS_TYPE"),
+                            Udev.INSTANCE.udev_device_get_property_value(device, "ID_FS_UUID") == null ? ""
+                                    : Udev.INSTANCE.udev_device_get_property_value(device, "ID_FS_UUID"),
+                            ParseUtil.parseLongOrDefault(Udev.INSTANCE.udev_device_get_sysattr_value(device, "size"),
+                                    0L) * SECTORSIZE,
+                            ParseUtil.parseIntOrDefault(Udev.INSTANCE.udev_device_get_property_value(device, "MAJOR"),
+                                    0),
+                            ParseUtil.parseIntOrDefault(Udev.INSTANCE.udev_device_get_property_value(device, "MINOR"),
+                                    0),
+                            MapUtil.getOrDefault(this.mountsMap, name, ""));
+                    store.setPartitions(partArray);
+                }
+            }
+            entry = Udev.INSTANCE.udev_list_entry_get_next(oldEntry);
+            Udev.INSTANCE.udev_device_unref(device);
+        }
         Udev.INSTANCE.udev_enumerate_unref(enumerate);
         Udev.INSTANCE.udev_unref(handle);
 

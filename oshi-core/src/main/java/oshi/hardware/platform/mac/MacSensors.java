@@ -70,7 +70,7 @@ public class MacSensors implements Sensors {
     public double getCpuTemperature() {
         // Only update every second
         if (System.currentTimeMillis() - this.lastTempTime > 900) {
-            double temp = SmcUtil.smcGetSp78(IOKit.SMC_KEY_CPU_TEMP, 50);
+            double temp = SmcUtil.smcGetFloat(IOKit.SMC_KEY_CPU_TEMP, 50);
             if (temp > 0d) {
                 this.lastTemp = temp;
                 this.lastTempTime = System.currentTimeMillis();
@@ -92,7 +92,7 @@ public class MacSensors implements Sensors {
                 this.lastFanSpeeds = new int[this.numFans];
             }
             for (int i = 0; i < this.numFans; i++) {
-                int speed = (int) SmcUtil.smcGetFpe2(String.format(IOKit.SMC_KEY_FAN_SPEED, i), 50);
+                int speed = (int) SmcUtil.smcGetFloat(String.format(IOKit.SMC_KEY_FAN_SPEED, i), 50);
                 if (speed > 0) {
                     this.lastFanSpeeds[i] = speed;
                     this.lastFanSpeedsTime = System.currentTimeMillis();
@@ -110,7 +110,7 @@ public class MacSensors implements Sensors {
     public double getCpuVoltage() {
         // Only update every second
         if (System.currentTimeMillis() - this.lastVoltsTime > 900) {
-            double kiloVolts = SmcUtil.smcGetFpe2(IOKit.SMC_KEY_CPU_VOLTAGE, 50);
+            double kiloVolts = SmcUtil.smcGetFloat(IOKit.SMC_KEY_CPU_VOLTAGE, 50);
             if (kiloVolts > 0d) {
                 this.lastVolts = kiloVolts / 1000d;
                 this.lastVoltsTime = System.currentTimeMillis();
