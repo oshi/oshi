@@ -42,53 +42,43 @@ import oshi.jna.platform.mac.CoreFoundation.CFTypeRef;
 /**
  * Power Supply stats. This class should be considered non-API as it may be
  * removed if/when its code is incorporated into the JNA project.
+ *
+ * @author widdis[at]gmail[dot]com
  */
 public interface IOKit extends Library {
-    /** Constant &lt;code&gt;INSTANCE&lt;/code&gt; */
-<span class="nc" id="L48">    IOKit INSTANCE = Native.load(&quot;IOKit&quot;, IOKit.class);</span>
+<span class="nc" id="L49">    IOKit INSTANCE = Native.load(&quot;IOKit&quot;, IOKit.class);</span>
 
-    /** Constant &lt;code&gt;IOPS_NAME_KEY&lt;/code&gt; */
 <span class="nc" id="L51">    CFStringRef IOPS_NAME_KEY = CFStringRef.toCFString(&quot;Name&quot;);</span>
 
-    /** Constant &lt;code&gt;IOPS_IS_PRESENT_KEY&lt;/code&gt; */
-<span class="nc" id="L54">    CFStringRef IOPS_IS_PRESENT_KEY = CFStringRef.toCFString(&quot;Is Present&quot;);</span>
+<span class="nc" id="L53">    CFStringRef IOPS_IS_PRESENT_KEY = CFStringRef.toCFString(&quot;Is Present&quot;);</span>
 
-    /** Constant &lt;code&gt;IOPS_CURRENT_CAPACITY_KEY&lt;/code&gt; */
-<span class="nc" id="L57">    CFStringRef IOPS_CURRENT_CAPACITY_KEY = CFStringRef.toCFString(&quot;Current Capacity&quot;);</span>
+<span class="nc" id="L55">    CFStringRef IOPS_CURRENT_CAPACITY_KEY = CFStringRef.toCFString(&quot;Current Capacity&quot;);</span>
 
-    /** Constant &lt;code&gt;IOPS_MAX_CAPACITY_KEY&lt;/code&gt; */
-<span class="nc" id="L60">    CFStringRef IOPS_MAX_CAPACITY_KEY = CFStringRef.toCFString(&quot;Max Capacity&quot;);</span>
+<span class="nc" id="L57">    CFStringRef IOPS_MAX_CAPACITY_KEY = CFStringRef.toCFString(&quot;Max Capacity&quot;);</span>
 
-    /** Constant &lt;code&gt;SMC_KEY_FAN_NUM=&quot;FNum&quot;&lt;/code&gt; */
     String SMC_KEY_FAN_NUM = &quot;FNum&quot;;
 
-    /** Constant &lt;code&gt;SMC_KEY_FAN_SPEED=&quot;F%dAc&quot;&lt;/code&gt; */
     String SMC_KEY_FAN_SPEED = &quot;F%dAc&quot;;
 
-    /** Constant &lt;code&gt;SMC_KEY_CPU_TEMP=&quot;TC0P&quot;&lt;/code&gt; */
     String SMC_KEY_CPU_TEMP = &quot;TC0P&quot;;
 
-    /** Constant &lt;code&gt;SMC_KEY_CPU_VOLTAGE=&quot;VC0C&quot;&lt;/code&gt; */
     String SMC_KEY_CPU_VOLTAGE = &quot;VC0C&quot;;
 
-    /** Constant &lt;code&gt;SMC_CMD_READ_BYTES=5&lt;/code&gt; */
     byte SMC_CMD_READ_BYTES = 5;
 
-    /** Constant &lt;code&gt;SMC_CMD_READ_KEYINFO=9&lt;/code&gt; */
     byte SMC_CMD_READ_KEYINFO = 9;
 
-    /** Constant &lt;code&gt;KERNEL_INDEX_SMC=2&lt;/code&gt; */
     int KERNEL_INDEX_SMC = 2;
 
     /**
      * Holds the return value of SMC version query.
      */
     @FieldOrder({ &quot;major&quot;, &quot;minor&quot;, &quot;build&quot;, &quot;reserved&quot;, &quot;release&quot; })
-<span class="nc" id="L87">    class SMCKeyDataVers extends Structure {</span>
+<span class="nc" id="L77">    class SMCKeyDataVers extends Structure {</span>
         public byte major;
         public byte minor;
         public byte build;
-<span class="nc" id="L91">        public byte[] reserved = new byte[1];</span>
+<span class="nc" id="L81">        public byte[] reserved = new byte[1];</span>
         public short release;
 
     }
@@ -97,7 +87,7 @@ public interface IOKit extends Library {
      * Holds the return value of SMC pLimit query.
      */
     @FieldOrder({ &quot;version&quot;, &quot;length&quot;, &quot;cpuPLimit&quot;, &quot;gpuPLimit&quot;, &quot;memPLimit&quot; })
-<span class="nc" id="L100">    class SMCKeyDataPLimitData extends Structure {</span>
+<span class="nc" id="L90">    class SMCKeyDataPLimitData extends Structure {</span>
         public short version;
         public short length;
         public int cpuPLimit;
@@ -109,7 +99,7 @@ public interface IOKit extends Library {
      * Holds the return value of SMC KeyInfo query.
      */
     @FieldOrder({ &quot;dataSize&quot;, &quot;dataType&quot;, &quot;dataAttributes&quot; })
-<span class="nc" id="L112">    class SMCKeyDataKeyInfo extends Structure {</span>
+<span class="nc" id="L102">    class SMCKeyDataKeyInfo extends Structure {</span>
         public int dataSize;
         public int dataType;
         public byte dataAttributes;
@@ -119,7 +109,7 @@ public interface IOKit extends Library {
      * Holds the return value of SMC query.
      */
     @FieldOrder({ &quot;key&quot;, &quot;vers&quot;, &quot;pLimitData&quot;, &quot;keyInfo&quot;, &quot;result&quot;, &quot;status&quot;, &quot;data8&quot;, &quot;data32&quot;, &quot;bytes&quot; })
-<span class="nc" id="L122">    class SMCKeyData extends Structure {</span>
+<span class="nc" id="L112">    class SMCKeyData extends Structure {</span>
         public int key;
         public SMCKeyDataVers vers;
         public SMCKeyDataPLimitData pLimitData;
@@ -128,376 +118,78 @@ public interface IOKit extends Library {
         public byte status;
         public byte data8;
         public int data32;
-<span class="nc" id="L131">        public byte[] bytes = new byte[32];</span>
+<span class="nc" id="L121">        public byte[] bytes = new byte[32];</span>
     }
 
     /**
      * Holds an SMC value
      */
     @FieldOrder({ &quot;key&quot;, &quot;dataSize&quot;, &quot;dataType&quot;, &quot;bytes&quot; })
-<span class="nc" id="L138">    class SMCVal extends Structure {</span>
-<span class="nc" id="L139">        public byte[] key = new byte[5];</span>
+<span class="nc" id="L128">    class SMCVal extends Structure {</span>
+<span class="nc" id="L129">        public byte[] key = new byte[5];</span>
         public int dataSize;
-<span class="nc" id="L141">        public byte[] dataType = new byte[5];</span>
-<span class="nc" id="L142">        public byte[] bytes = new byte[32];</span>
+<span class="nc" id="L131">        public byte[] dataType = new byte[5];</span>
+<span class="nc" id="L132">        public byte[] bytes = new byte[32];</span>
     }
 
-<span class="nc" id="L145">    class IOConnect extends IntByReference {</span>
+<span class="nc" id="L135">    class IOConnect extends IntByReference {</span>
     }
 
-<span class="nc" id="L148">    class MachPort extends IntByReference {</span>
+<span class="nc" id="L138">    class MachPort extends IntByReference {</span>
     }
 
-    /**
-     * &lt;p&gt;
-     * IOPSCopyPowerSourcesInfo.
-     * &lt;/p&gt;
-     *
-     * @return a {@link oshi.jna.platform.mac.CoreFoundation.CFTypeRef} object.
-     */
     CFTypeRef IOPSCopyPowerSourcesInfo();
 
-    /**
-     * &lt;p&gt;
-     * IOPSCopyPowerSourcesList.
-     * &lt;/p&gt;
-     *
-     * @param blob
-     *            a {@link oshi.jna.platform.mac.CoreFoundation.CFTypeRef} object.
-     * @return a {@link oshi.jna.platform.mac.CoreFoundation.CFArrayRef} object.
-     */
     CFArrayRef IOPSCopyPowerSourcesList(CFTypeRef blob);
 
-    /**
-     * &lt;p&gt;
-     * IOPSGetPowerSourceDescription.
-     * &lt;/p&gt;
-     *
-     * @param blob
-     *            a {@link oshi.jna.platform.mac.CoreFoundation.CFTypeRef} object.
-     * @param ps
-     *            a {@link oshi.jna.platform.mac.CoreFoundation.CFTypeRef} object.
-     * @return a {@link oshi.jna.platform.mac.CoreFoundation.CFDictionaryRef}
-     *         object.
-     */
     CFDictionaryRef IOPSGetPowerSourceDescription(CFTypeRef blob, CFTypeRef ps);
 
-    /**
-     * &lt;p&gt;
-     * IOPSGetTimeRemainingEstimate.
-     * &lt;/p&gt;
-     *
-     * @return a double.
-     */
     double IOPSGetTimeRemainingEstimate();
 
-    /**
-     * &lt;p&gt;
-     * IOMasterPort.
-     * &lt;/p&gt;
-     *
-     * @param unused
-     *            a int.
-     * @param masterPort
-     *            a {@link com.sun.jna.ptr.IntByReference} object.
-     * @return a int.
-     */
     int IOMasterPort(int unused, IntByReference masterPort);
 
-    /**
-     * &lt;p&gt;
-     * IOServiceMatching.
-     * &lt;/p&gt;
-     *
-     * @param name
-     *            a {@link java.lang.String} object.
-     * @return a {@link oshi.jna.platform.mac.CoreFoundation.CFMutableDictionaryRef}
-     *         object.
-     */
     CFMutableDictionaryRef IOServiceMatching(String name);
 
-    /**
-     * &lt;p&gt;
-     * IOBSDNameMatching.
-     * &lt;/p&gt;
-     *
-     * @param masterPort
-     *            a int.
-     * @param options
-     *            a int.
-     * @param bsdName
-     *            a {@link java.lang.String} object.
-     * @return a {@link oshi.jna.platform.mac.CoreFoundation.CFMutableDictionaryRef}
-     *         object.
-     */
     CFMutableDictionaryRef IOBSDNameMatching(int masterPort, int options, String bsdName);
 
-    /**
-     * &lt;p&gt;
-     * IOServiceGetMatchingService.
-     * &lt;/p&gt;
-     *
-     * @param port
-     *            a int.
-     * @param matchingDictionary
-     *            a
-     *            {@link oshi.jna.platform.mac.CoreFoundation.CFMutableDictionaryRef}
-     *            object.
-     * @return a int.
-     */
     int IOServiceGetMatchingService(int port, CFMutableDictionaryRef matchingDictionary);
 
-    /**
-     * &lt;p&gt;
-     * IOServiceGetMatchingServices.
-     * &lt;/p&gt;
-     *
-     * @param port
-     *            a int.
-     * @param matchingDictionary
-     *            a
-     *            {@link oshi.jna.platform.mac.CoreFoundation.CFMutableDictionaryRef}
-     *            object.
-     * @param iterator
-     *            a {@link com.sun.jna.ptr.IntByReference} object.
-     * @return a int.
-     */
     int IOServiceGetMatchingServices(int port, CFMutableDictionaryRef matchingDictionary, IntByReference iterator);
 
-    /**
-     * &lt;p&gt;
-     * IOServiceOpen.
-     * &lt;/p&gt;
-     *
-     * @param service
-     *            a int.
-     * @param owningTask
-     *            a int.
-     * @param type
-     *            a int.
-     * @param connect
-     *            a {@link com.sun.jna.ptr.IntByReference} object.
-     * @return a int.
-     */
     int IOServiceOpen(int service, int owningTask, int type, IntByReference connect);
 
-    /**
-     * &lt;p&gt;
-     * IOServiceClose.
-     * &lt;/p&gt;
-     *
-     * @param connect
-     *            a int.
-     * @return a int.
-     */
     int IOServiceClose(int connect);
 
-    /**
-     * &lt;p&gt;
-     * IOObjectRelease.
-     * &lt;/p&gt;
-     *
-     * @param object
-     *            a int.
-     */
     void IOObjectRelease(int object);
 
-    /**
-     * &lt;p&gt;
-     * IOIteratorNext.
-     * &lt;/p&gt;
-     *
-     * @param iterator
-     *            a int.
-     * @return a int.
-     */
     int IOIteratorNext(int iterator);
 
-    /**
-     * &lt;p&gt;
-     * IOObjectConformsTo.
-     * &lt;/p&gt;
-     *
-     * @param object
-     *            a int.
-     * @param className
-     *            a {@link java.lang.String} object.
-     * @return a boolean.
-     */
     boolean IOObjectConformsTo(int object, String className);
 
     // Requires OS X 10.5+
-    /**
-     * &lt;p&gt;
-     * IOConnectCallStructMethod.
-     * &lt;/p&gt;
-     *
-     * @param connection
-     *            a int.
-     * @param selector
-     *            a int.
-     * @param inputStructure
-     *            a {@link com.sun.jna.Structure} object.
-     * @param structureInputSize
-     *            a int.
-     * @param outputStructure
-     *            a {@link com.sun.jna.Structure} object.
-     * @param structureOutputSize
-     *            a {@link com.sun.jna.ptr.IntByReference} object.
-     * @return a int.
-     */
     int IOConnectCallStructMethod(int connection, int selector, Structure inputStructure, int structureInputSize,
             Structure outputStructure, IntByReference structureOutputSize);
 
-    /**
-     * &lt;p&gt;
-     * IORegistryEntryCreateCFProperty.
-     * &lt;/p&gt;
-     *
-     * @param entry
-     *            a int.
-     * @param key
-     *            a {@link oshi.jna.platform.mac.CoreFoundation.CFStringRef} object.
-     * @param allocator
-     *            a {@link oshi.jna.platform.mac.CoreFoundation.CFAllocatorRef}
-     *            object.
-     * @param options
-     *            a int.
-     * @return a {@link oshi.jna.platform.mac.CoreFoundation.CFTypeRef} object.
-     */
     CFTypeRef IORegistryEntryCreateCFProperty(int entry, CFStringRef key, CFAllocatorRef allocator, int options);
 
-    /**
-     * &lt;p&gt;
-     * IORegistryEntrySearchCFProperty.
-     * &lt;/p&gt;
-     *
-     * @param entry
-     *            a int.
-     * @param plane
-     *            a {@link java.lang.String} object.
-     * @param key
-     *            a {@link oshi.jna.platform.mac.CoreFoundation.CFStringRef} object.
-     * @param allocator
-     *            a {@link oshi.jna.platform.mac.CoreFoundation.CFAllocatorRef}
-     *            object.
-     * @param options
-     *            a int.
-     * @return a {@link oshi.jna.platform.mac.CoreFoundation.CFTypeRef} object.
-     */
     CFTypeRef IORegistryEntrySearchCFProperty(int entry, String plane, CFStringRef key, CFAllocatorRef allocator,
             int options);
 
-    /**
-     * &lt;p&gt;
-     * IORegistryEntryCreateCFProperties.
-     * &lt;/p&gt;
-     *
-     * @param entry
-     *            a int.
-     * @param propsPtr
-     *            a {@link com.sun.jna.ptr.PointerByReference} object.
-     * @param allocator
-     *            a {@link oshi.jna.platform.mac.CoreFoundation.CFAllocatorRef}
-     *            object.
-     * @param options
-     *            a int.
-     * @return a int.
-     */
     int IORegistryEntryCreateCFProperties(int entry, PointerByReference propsPtr, CFAllocatorRef allocator,
             int options);
 
-    /**
-     * &lt;p&gt;
-     * CFCopyDescription.
-     * &lt;/p&gt;
-     *
-     * @param type
-     *            a {@link oshi.jna.platform.mac.CoreFoundation.CFTypeRef} object.
-     * @return a {@link oshi.jna.platform.mac.CoreFoundation.CFStringRef} object.
-     */
     CFStringRef CFCopyDescription(CFTypeRef type);
 
-    /**
-     * &lt;p&gt;
-     * IORegistryEntryGetName.
-     * &lt;/p&gt;
-     *
-     * @param entry
-     *            a int.
-     * @param name
-     *            a {@link com.sun.jna.Pointer} object.
-     * @return a int.
-     */
     int IORegistryEntryGetName(int entry, Pointer name);
 
-    /**
-     * &lt;p&gt;
-     * IORegistryEntryGetRegistryEntryID.
-     * &lt;/p&gt;
-     *
-     * @param entry
-     *            a int.
-     * @param id
-     *            a {@link com.sun.jna.ptr.LongByReference} object.
-     * @return a int.
-     */
     int IORegistryEntryGetRegistryEntryID(int entry, LongByReference id);
 
-    /**
-     * &lt;p&gt;
-     * IORegistryEntryGetParentEntry.
-     * &lt;/p&gt;
-     *
-     * @param entry
-     *            a int.
-     * @param plane
-     *            a {@link java.lang.String} object.
-     * @param parent
-     *            a {@link com.sun.jna.ptr.IntByReference} object.
-     * @return a int.
-     */
     int IORegistryEntryGetParentEntry(int entry, String plane, IntByReference parent);
 
-    /**
-     * &lt;p&gt;
-     * IORegistryEntryGetChildEntry.
-     * &lt;/p&gt;
-     *
-     * @param entry
-     *            a int.
-     * @param plane
-     *            a {@link java.lang.String} object.
-     * @param child
-     *            a {@link com.sun.jna.ptr.IntByReference} object.
-     * @return a int.
-     */
     int IORegistryEntryGetChildEntry(int entry, String plane, IntByReference child);
 
-    /**
-     * &lt;p&gt;
-     * IORegistryEntryGetChildIterator.
-     * &lt;/p&gt;
-     *
-     * @param entry
-     *            a int.
-     * @param plane
-     *            a {@link java.lang.String} object.
-     * @param iter
-     *            a {@link com.sun.jna.ptr.IntByReference} object.
-     * @return a int.
-     */
     int IORegistryEntryGetChildIterator(int entry, String plane, IntByReference iter);
 
-    /**
-     * &lt;p&gt;
-     * IORegistryGetRootEntry.
-     * &lt;/p&gt;
-     *
-     * @param masterPort
-     *            a int.
-     * @return a int.
-     */
     int IORegistryGetRootEntry(int masterPort);
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>
