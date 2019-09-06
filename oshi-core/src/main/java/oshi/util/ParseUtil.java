@@ -637,9 +637,10 @@ public class ParseUtil {
      * @param length
      *            The total number of elements in the string array. It is
      *            permissible for the string to have more elements than this;
-     *            leading elements will be ignored.
+     *            leading elements will be ignored. This should be calculated
+     *            once per text format by {@link #countStringToLongArray}.
      * @param delimiter
-     *            The character to delimit by
+     *            The character to delimit by.
      * @return If successful, an array of parsed longs. If parsing errors
      *         occurred, will be an array of zeros.
      */
@@ -647,15 +648,15 @@ public class ParseUtil {
         long[] parsed = new long[indices.length];
         // Iterate from right-to-left of String
         // Fill right to left of result array using index array
-        int charIndex = s.length() - 1;
+        int charIndex = s.length();
         int parsedIndex = indices.length - 1;
         int stringIndex = length - 1;
 
         int power = 0;
         int c;
         boolean delimCurrent = false;
-        while (charIndex > 0 && parsedIndex >= 0) {
-            c = s.charAt(charIndex--);
+        while (--charIndex > 0 && parsedIndex >= 0) {
+            c = s.charAt(charIndex);
             if (c == delimiter) {
                 if (!delimCurrent) {
                     power = 0;
@@ -688,6 +689,46 @@ public class ParseUtil {
             return new long[indices.length];
         }
         return parsed;
+    }
+
+    /**
+     * Parses a delimited string to count elements of an array of longs.
+     * Intended to be called once to calculate the {@code length} field for
+     * {@link #parseStringToLongArray}.
+     *
+     * @param s
+     *            The string to parse
+     * @param delimiter
+     *            The character to delimit by
+     * @return The number of parsable long values which follow the last
+     *         unparsable value.
+     */
+    public static int countStringToLongArray(String s, char delimiter) {
+        // Iterate from right-to-left of String
+        // Fill right to left of result array using index array
+        int charIndex = s.length();
+        int numbers = 0;
+
+        int c;
+        boolean delimCurrent = false;
+        while (--charIndex > 0) {
+            c = s.charAt(charIndex);
+            if (c == delimiter) {
+                if (!delimCurrent) {
+                    numbers++;
+                    delimCurrent = true;
+                }
+            } else if (c >= '0' && c <= '9' || c == '-' || c == '+') {
+                delimCurrent = false;
+            } else {
+                // we found non-digit or delimiter, exit
+                return numbers;
+            }
+        }
+        // We got to beginning of string with only numbers, count start as a
+        // delimiter
+        // and exit
+        return numbers + 1;
     }
 
     /**
