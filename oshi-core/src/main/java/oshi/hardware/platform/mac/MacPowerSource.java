@@ -64,7 +64,7 @@ public class MacPowerSource extends AbstractPowerSource {
         // Get the blob containing current power source state
         CFTypeRef powerSourcesInfo = IO.IOPSCopyPowerSourcesInfo();
         CFArrayRef powerSourcesList = IO.IOPSCopyPowerSourcesList(powerSourcesInfo);
-        int powerSourcesCount = CF.CFArrayGetCount(powerSourcesList);
+        int powerSourcesCount = (int) CF.CFArrayGetCount(powerSourcesList);
 
         // Get time remaining
         // -1 = unknown, -2 = unlimited
@@ -78,7 +78,9 @@ public class MacPowerSource extends AbstractPowerSource {
         List<MacPowerSource> psList = new ArrayList<>(powerSourcesCount);
         for (int ps = 0; ps < powerSourcesCount; ps++) {
             // Get the dictionary for that Power Source
-            CFTypeRef powerSource = CF.CFArrayGetValueAtIndex(powerSourcesList, ps);
+            Pointer pwrSrcPtr = CoreFoundation.INSTANCE.CFArrayGetValueAtIndex(powerSourcesList, ps);
+            CFTypeRef powerSource = new CFTypeRef();
+            powerSource.setPointer(pwrSrcPtr);
             CFDictionaryRef dictionary = IO.IOPSGetPowerSourceDescription(powerSourcesInfo, powerSource);
 
             // Get values from dictionary (See IOPSKeys.h)
