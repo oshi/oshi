@@ -446,7 +446,7 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
             for (int i = 0; i < svcArray.length; i++) {
                 svcArray[i].setName(files.get(i).getName()); 
                 svcArray[i].setState(OSService.State.STOPPED);
-                if(processMap.contiansKey(svcArray[i].getName())) {
+                if(processMap.containsKey(svcArray[i].getName())) {
                     int pid = Integer.valueOf(processMap.get(svcArray[i].getName())[0]);
                     String path = processMap.get(svcArray[i].getName())[1];
                     svcArray[i].setProcessID(pid);
