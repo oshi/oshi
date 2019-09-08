@@ -34,7 +34,10 @@ import com.sun.jna.platform.mac.CoreFoundation;
 import com.sun.jna.platform.mac.CoreFoundation.CFDataRef;
 import com.sun.jna.platform.mac.CoreFoundation.CFStringRef;
 import com.sun.jna.platform.mac.CoreFoundation.CFTypeRef;
-import com.sun.jna.ptr.LongByReference;
+import com.sun.jna.platform.mac.IOKit.IOIterator;
+import com.sun.jna.platform.mac.IOKit.IOObject;
+import com.sun.jna.platform.mac.IOKit.IORegistryEntry;
+import com.sun.jna.ptr.PointerByReference;
 
 import oshi.hardware.Display;
 import oshi.hardware.common.AbstractDisplay;
@@ -73,16 +76,19 @@ public class MacDisplay extends AbstractDisplay {
     public static Display[] getDisplays() {
         List<Display> displays = new ArrayList<>();
         // Iterate IO Registry IODisplayConnect
-        LongByReference serviceIterator = new LongByReference();
-        IOKitUtil.getMatchingServices("IODisplayConnect", serviceIterator);
-        long sdService = IOKit.INSTANCE.IOIteratorNext(serviceIterator.getValue());
-        while (sdService != 0) {
+        PointerByReference serviceIteratorPtr = new PointerByReference();
+        IOKitUtil.getMatchingServices("IODisplayConnect", serviceIteratorPtr);
+        IOIterator serviceIterator = new IOIterator(serviceIteratorPtr.getValue());
+        IOObject sdServiceObj = IOKit.INSTANCE.IOIteratorNext(serviceIterator);
+        while (sdServiceObj != null) {
+            IORegistryEntry sdService = new IORegistryEntry(sdServiceObj.getPointer());
             // Display properties are in a child entry
-            LongByReference properties = new LongByReference();
-            int ret = IOKit.INSTANCE.IORegistryEntryGetChildEntry(sdService, "IOService", properties);
+            PointerByReference propertiesPtr = new PointerByReference();
+            int ret = IOKit.INSTANCE.IORegistryEntryGetChildEntry(sdService, "IOService", propertiesPtr);
             if (ret == 0) {
+                IORegistryEntry properties = new IORegistryEntry(propertiesPtr.getValue());
                 // look up the edid by key
-                CFTypeRef edidRaw = IOKit.INSTANCE.IORegistryEntryCreateCFProperty(properties.getValue(), cfEdid,
+                CFTypeRef edidRaw = IOKit.INSTANCE.IORegistryEntryCreateCFProperty(properties, cfEdid,
                         CoreFoundation.INSTANCE.CFAllocatorGetDefault(), 0);
                 CFDataRef edid = new CFDataRef(edidRaw.getPointer());
                 if (edid != null) {
@@ -95,9 +101,9 @@ public class MacDisplay extends AbstractDisplay {
             }
             // iterate
             IOKit.INSTANCE.IOObjectRelease(sdService);
-            sdService = IOKit.INSTANCE.IOIteratorNext(serviceIterator.getValue());
+            sdServiceObj = IOKit.INSTANCE.IOIteratorNext(serviceIterator);
         }
-        IOKit.INSTANCE.IOObjectRelease(serviceIterator.getValue());
+        IOKit.INSTANCE.IOObjectRelease(serviceIterator);
         return displays.toArray(new Display[0]);
     }
 }

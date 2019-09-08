@@ -32,11 +32,15 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import com.sun.jna.Structure.FieldOrder;
+import com.sun.jna.platform.mac.IOKit.IOConnect;
+import com.sun.jna.platform.mac.IOKit.IOService;
+import com.sun.jna.platform.mac.IOKit.MachPort;
 import com.sun.jna.platform.mac.SystemB; // NOSONAR
 import com.sun.jna.ptr.IntByReference;
-import com.sun.jna.ptr.LongByReference;
+import com.sun.jna.ptr.PointerByReference;
 
 import oshi.jna.platform.mac.IOKit;
 import oshi.util.ParseUtil;
@@ -115,7 +119,7 @@ public class SmcUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(SmcUtil.class);
 
-    private static LongByReference conn = new LongByReference();
+    private static PointerByReference conn = new PointerByReference();
 
     /**
      * Map for caching info retrieved by a key necessary for subsequent calls.
@@ -152,13 +156,13 @@ public class SmcUtil {
      * @return 0 if successful, nonzero if failure
      */
     public static int smcOpen() {
-        long service = IOKitUtil.getMatchingService("AppleSMC");
-        if (service == 0) {
+        IOService service = IOKitUtil.getMatchingService("AppleSMC");
+        if (service == null) {
             LOG.error("Error: no SMC found");
             return 1;
         }
-
-        int result = IOKit.INSTANCE.IOServiceOpen(service, SystemB.INSTANCE.mach_task_self(), 0, conn);
+        MachPort taskSelf = new MachPort(Pointer.createConstant(SystemB.INSTANCE.mach_task_self()));
+        int result = IOKit.INSTANCE.IOServiceOpen(service, taskSelf, 0, conn);
         IOKit.INSTANCE.IOObjectRelease(service);
         if (result != 0) {
             if (LOG.isErrorEnabled()) {
@@ -177,7 +181,8 @@ public class SmcUtil {
      * @return 0 if successful, nonzero if failure
      */
     public static int smcClose() {
-        return IOKit.INSTANCE.IOServiceClose(conn.getValue());
+        IOConnect connect = new IOConnect(conn.getValue());
+        return IOKit.INSTANCE.IOServiceClose(connect);
     }
 
     /**
@@ -320,7 +325,8 @@ public class SmcUtil {
      * @return 0 if successful, nonzero if failure
      */
     public static int smcCall(int index, SmcUtil.SMCKeyData inputStructure, SmcUtil.SMCKeyData outputStructure) {
-        return IOKit.INSTANCE.IOConnectCallStructMethod(conn.getValue(), index, inputStructure, inputStructure.size(),
+        IOConnect connect = new IOConnect(conn.getValue());
+        return IOKit.INSTANCE.IOConnectCallStructMethod(connect, index, inputStructure, inputStructure.size(),
                 outputStructure, new IntByReference(outputStructure.size()));
     }
 }

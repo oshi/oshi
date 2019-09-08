@@ -35,6 +35,6 @@ public interface IOKit extends com.sun.jna.platform.mac.IOKit {
     /*
      * Beta/Non-API do not commit to JNA
      */
-    int IOConnectCallStructMethod(long connection, int selector, Structure inputStructure, int structureInputSize,
+    int IOConnectCallStructMethod(IOConnect connection, int selector, Structure inputStructure, int structureInputSize,
             Structure outputStructure, IntByReference structureOutputSize);
 }
