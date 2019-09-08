@@ -429,14 +429,17 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
             for(File file : saFiles) files.add(file);
             for(File file : sdFiles) files.add(file);
 
-            Map<String, Entry<Integer, String>> processMap = new HashMap<String, Entry<Integer, String>>();
+            Map<String, String[]> processMap = new HashMap<String, String[]>();
             for (int i = 0; i < process.length; i++) {
                 String name = null;
                 String[] pathSplit = process[i].getPath().split("/");
                 if (pathSplit.length > 0) {
                     name = pathSplit[pathSplit.length - 1];
                 }
-                processMap.put(name, new SimpleEntry(process[i].getProcessID, process[i].getPath()));
+                String pidPath = new String[2];
+                pidPath[0] = String.valueOf(process[i].getProcessID);
+                pidPath[1] = process[i].getPath();
+                processMap.put(name, pidPath);
             }
 
             OSService[] svcArray = new OSService[files.size()];
@@ -444,9 +447,10 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
                 svcArray[i].setName(files.get(i).getName()); 
                 svcArray[i].setState(OSService.State.STOPPED);
                 if(processMap.contiansKey(svcArray[i].getName())) {
-                    Entry<Integer, String> pidPathMap = pidPathMap.get(svcArray[i].getName());
-                    svcArray[i].setProcessID(pidPathMap.getKey());
-                    svcArray[i].setPathName(pidPathMap.getValue());
+                    int pid = Integer.valueOf(processMap.get(svcArray[i].getName())[0]);
+                    String path = processMap.get(svcArray[i].getName())[1];
+                    svcArray[i].setProcessID(pid);
+                    svcArray[i].setPathName(path);
                     svcArray[i].setState(OSService.State.RUNNING);
                 } 
             }
