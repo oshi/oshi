@@ -24,9 +24,7 @@
 
 package oshi.software.os;
 
-import java.io.Serializable;
-
-public class OSService implements Serializable {
+public class OSService {
 
 	private String name = "";
 	private int processID;

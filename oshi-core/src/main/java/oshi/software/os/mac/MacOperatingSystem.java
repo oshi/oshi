@@ -27,6 +27,9 @@ import java.nio.charset.StandardCharsets;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.lang.System;
+import java.util.AbstractMap;
+import java.util.HashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -402,7 +405,8 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
         //Sort by PID
         OSProcess[] process =  getChildProcesses(1, 0, OperatingSystem.ProcessSort.PID);
         //Get Directories
-        File ua = new File("~/Library/LaunchAgents");
+        String relativePath = System.getProperty("user.home");
+        File ua = new File(relativePath + "/Library/LaunchAgents");
         File ga = new File("/Library/LaunchAgents");      
         File gd = new File("/Library/LaunchDaemons");      
         File sa = new File("/System/Library/LaunchAgents");      
@@ -423,52 +427,32 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
             for(File file : saFiles) files.add(file);
             for(File file : sdFiles) files.add(file);
 
+            Map<String, Entry<Integer, String>> processMap = new HashMap<String, Entry<Integer, String>>();
+            for (int i = 0; i < process.length; i++) {
+                String name = null;
+                String[] pathSplit = process[i].getPath().split("/");
+                if (pathSplit.length > 0) {
+                    name = pathSplit[pathSplit.length - 1];
+                }
+                processMap.put(name, new SimpleEntry(process[i].getProcessID, process[i].getPath()));
+            }
+
             OSService[] svcArray = new OSService[files.size()];
             for (int i = 0; i < svcArray.length; i++) {
-                for (int j = 0; j < process.length; j++) {
-                    svcArray[i].setName(files.get(i).getName()); 
-                    svcArray[i].setState(OSService.State.STOPPED);
-                    ProcTaskAllInfo taskAllInfo = new ProcTaskAllInfo();
-                    if (0 > SystemB.INSTANCE.proc_pidinfo(process[j].getProcessID(), SystemB.PROC_PIDTASKALLINFO, 0, taskAllInfo, taskAllInfo.size())) {
-                        continue;
-                    }
-                    String name = null;
-                    String path = "";
-                    Pointer buf = new Memory(SystemB.PROC_PIDPATHINFO_MAXSIZE);
-                    if (0 < SystemB.INSTANCE.proc_pidpath(process[j].getProcessID(), buf, SystemB.PROC_PIDPATHINFO_MAXSIZE)) {
-                        path = buf.getString(0).trim();
-                        // Overwrite name with last part of path
-                        String[] pathSplit = path.split("/");
-                        if (pathSplit.length > 0) {
-                            name = pathSplit[pathSplit.length - 1];
-                        }
-                    }
-                    // If process is gone, return null
-                    if (taskAllInfo.ptinfo.pti_threadnum < 1) {
-                        continue;
-                    }
-                    if (name == null) {
-                        // pbi_comm contains first 16 characters of name
-                        // null terminated
-                        for (int t = 0; t < taskAllInfo.pbsd.pbi_comm.length; t++) {
-                            if (taskAllInfo.pbsd.pbi_comm[t] == 0) {
-                                name = new String(taskAllInfo.pbsd.pbi_comm, 0, t);
-                                break;
-                            }
-                        }
-                    }
-                    svcArray[i].setPathName(path);
-                    if(name.equals(files.get(i).getName())) {
-                        svcArray[i].setProcessID(process[j].getProcessID());
-                        svcArray[i].setState(OSService.State.RUNNING);
-                    } 
-                }
+                svcArray[i].setName(files.get(i).getName()); 
+                svcArray[i].setState(OSService.State.STOPPED);
+                if(processMap.contiansKey(svcArray[i].getName())) {
+                    Entry<Integer, String> pidPathMap = pidPathMap.get(svcArray[i].getName());
+                    svcArray[i].setProcessID(pidPathMap.getKey());
+                    svcArray[i].setPathName(pidPathMap.getValue());
+                    svcArray[i].setState(OSService.State.RUNNING);
+                } 
             }
             return svcArray;
         } catch (NullPointerException ex) {
             String error = "";
             if (!ua.exists()) {
-                error = "~/Library/LaunchAgents";
+                error = relativePath + "/Library/LaunchAgents";
             } else if (!ga.exists()) {
                 error = "/Library/LaunchAgents"; 
             } else if (!gd.exists()) {
