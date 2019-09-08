@@ -60,7 +60,7 @@ public interface IOKit extends Library {
      * families may provide API that is more specific.
      * <p>
      * IOKitLib represents IOKit objects outside the kernel with the types
-     * io_object_t, io_registry_entry_t, io_service_t, & io_connect_t. Function
+     * io_object_t, io_registry_entry_t, io_service_t, and io_connect_t. Function
      * names usually begin with the type of object they are compatible with - e.g.,
      * IOObjectRelease can be used with any io_object_t. Inside the kernel, the c++
      * class hierarchy allows the subclasses of each object type to receive the same
