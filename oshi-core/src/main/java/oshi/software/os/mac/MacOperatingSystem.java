@@ -436,7 +436,7 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
                 if (pathSplit.length > 0) {
                     name = pathSplit[pathSplit.length - 1];
                 }
-                String pidPath = new String[2];
+                String[] pidPath = new String[2];
                 pidPath[0] = String.valueOf(process[i].getProcessID);
                 pidPath[1] = process[i].getPath();
                 processMap.put(name, pidPath);
