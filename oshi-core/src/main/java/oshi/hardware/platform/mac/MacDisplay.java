@@ -79,7 +79,7 @@ public class MacDisplay extends AbstractDisplay {
         PointerByReference serviceIteratorPtr = new PointerByReference();
         IOKitUtil.getMatchingServices("IODisplayConnect", serviceIteratorPtr);
         IOIterator serviceIterator = new IOIterator(serviceIteratorPtr.getValue());
-        IOObject sdServiceObj = IOKit.INSTANCE.IOIteratorNext(serviceIterator);
+        IOObject sdServiceObj = serviceIterator.next();
         while (sdServiceObj != null) {
             IORegistryEntry sdService = new IORegistryEntry(sdServiceObj.getPointer());
             // Display properties are in a child entry
@@ -100,10 +100,10 @@ public class MacDisplay extends AbstractDisplay {
                 }
             }
             // iterate
-            IOKit.INSTANCE.IOObjectRelease(sdService);
-            sdServiceObj = IOKit.INSTANCE.IOIteratorNext(serviceIterator);
+            sdService.release();
+            sdServiceObj = serviceIterator.next();
         }
-        IOKit.INSTANCE.IOObjectRelease(serviceIterator);
+        serviceIterator.release();
         return displays.toArray(new Display[0]);
     }
 }

@@ -175,7 +175,7 @@ public class MacDisks implements Disks {
             IOKitUtil.getMatchingServices(matchingDict, driveList);
             IOIterator driveListIter = new IOIterator(driveList.getValue());
             // getMatchingServices releases matchingDict
-            IOObject driveObj = IOKit.INSTANCE.IOIteratorNext(driveListIter);
+            IOObject driveObj = driveListIter.next();
             // Should only match one drive
             if (driveObj != null) {
                 IORegistryEntry drive = new IORegistryEntry(driveObj.getPointer());
@@ -396,7 +396,7 @@ public class MacDisks implements Disks {
         PointerByReference iterPtr = new PointerByReference();
         IOKitUtil.getMatchingServices("IOMedia", iterPtr);
         IOIterator iter = new IOIterator(iterPtr.getValue());
-        IOObject mediaObj = IOKit.INSTANCE.IOIteratorNext(iter);
+        IOObject mediaObj = iter.next();
         while (mediaObj != null) {
             IORegistryEntry media = new IORegistryEntry(mediaObj.getPointer());
             if (IOKitUtil.getIORegistryBooleanProperty(media, "Whole")) {
@@ -405,9 +405,10 @@ public class MacDisks implements Disks {
                 bsdNames.add(DiskArbitration.INSTANCE.DADiskGetBSDName(disk));
                 disk.release();
             }
-            IOKit.INSTANCE.IOObjectRelease(media);
-            mediaObj = IOKit.INSTANCE.IOIteratorNext(iter);
+            media.release();
+            mediaObj = iter.next();
         }
+        iter.release();
 
         // Now iterate the bsdNames
         for (String bsdName : bsdNames) {
@@ -460,7 +461,7 @@ public class MacDisks implements Disks {
                         modelNameRef.release();
                         propertyDict.release();
                         IOIterator serviceIterator = new IOIterator(serviceIteratorPtr.getValue());
-                        IOObject sdServiceObj = IOKit.INSTANCE.IOIteratorNext(serviceIterator);
+                        IOObject sdServiceObj = serviceIterator.next();
                         while (sdServiceObj != null) {
                             IORegistryEntry sdService = new IORegistryEntry(sdServiceObj.getPointer());
                             // look up the serial number
@@ -470,12 +471,13 @@ public class MacDisks implements Disks {
                                 break;
                             }
                             // iterate
-                            sdServiceObj = IOKit.INSTANCE.IOIteratorNext(serviceIterator);
+                            sdService.release();
+                            sdServiceObj = serviceIterator.next();
                         }
+                        serviceIterator.release();
                         if (serial == null) {
                             serial = "";
                         }
-                        IOKit.INSTANCE.IOObjectRelease(serviceIterator);
                     }
                 }
                 disk.release();

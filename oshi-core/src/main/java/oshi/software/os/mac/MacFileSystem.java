@@ -170,7 +170,7 @@ public class MacFileSystem implements FileSystem {
                         IOIterator fsIter = new IOIterator(fsIterPtr.getValue());
                         // getMatchingServices releases matchingDict
                         // Should only match one logical drive
-                        IOObject fsEntryObj = IOKit.INSTANCE.IOIteratorNext(fsIter);
+                        IOObject fsEntryObj = fsIter.next();
                         if (fsEntryObj != null && IOKit.INSTANCE.IOObjectConformsTo(fsEntryObj, "IOMedia")) {
                             IORegistryEntry fsEntry = new IORegistryEntry(fsEntryObj.getPointer());
                             // Now get the UUID
@@ -180,9 +180,9 @@ public class MacFileSystem implements FileSystem {
                             } else {
                                 uuid = uuid.toLowerCase();
                             }
-                            IOKit.INSTANCE.IOObjectRelease(fsEntry);
+                            fsEntry.release();
                         }
-                        IOKit.INSTANCE.IOObjectRelease(fsIter);
+                        fsIter.release();
                     }
                 }
 

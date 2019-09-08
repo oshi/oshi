@@ -79,6 +79,15 @@ public interface IOKit extends Library {
         public IOObject(Pointer p) {
             super(p);
         }
+
+        /**
+         * Convenience method for {@link IOKit#IOObjectRelease} on this object.
+         *
+         * @return 0 if successful, otherwise a {@code kern_return_t} error code.
+         */
+        public int release() {
+            return INSTANCE.IOObjectRelease(this);
+        }
     }
 
     /**
@@ -91,6 +100,17 @@ public interface IOKit extends Library {
 
         public IOIterator(Pointer p) {
             super(p);
+        }
+
+        /**
+         * Convenience method for {@link IOKit#IOIteratorNext} on this object.
+         *
+         * @return If the iterator handle is valid, the next element in the iteration is
+         *         returned, otherwise zero is returned. The element should be released
+         *         by the caller when it is finished.
+         */
+        public IOObject next() {
+            return INSTANCE.IOIteratorNext(this);
         }
     }
 
@@ -146,7 +166,6 @@ public interface IOKit extends Library {
             super(p);
         }
     }
-
 
     /**
      * Returns the mach port used to initiate communication with IOKit.
