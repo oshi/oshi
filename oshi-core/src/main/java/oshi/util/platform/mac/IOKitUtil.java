@@ -70,7 +70,6 @@ public class IOKitUtil {
     public static IORegistryEntry getRoot() {
         MachPort masterPort = getMasterPort();
         IORegistryEntry root = IOKit.INSTANCE.IORegistryGetRootEntry(masterPort);
-        IOKit.INSTANCE.IOObjectRelease(masterPort);
         return root;
     }
 
@@ -86,7 +85,6 @@ public class IOKitUtil {
         MachPort masterPort = getMasterPort();
         IOService service = IOKit.INSTANCE.IOServiceGetMatchingService(masterPort,
                 IOKit.INSTANCE.IOServiceMatching(serviceName));
-        IOKit.INSTANCE.IOObjectRelease(masterPort);
         if (service.getPointer() == null) {
             LOG.error("No service found: {}", serviceName);
         }
@@ -107,7 +105,6 @@ public class IOKitUtil {
         MachPort masterPort = getMasterPort();
         int result = IOKit.INSTANCE.IOServiceGetMatchingServices(masterPort,
                 IOKit.INSTANCE.IOServiceMatching(serviceName), serviceIterator);
-        IOKit.INSTANCE.IOObjectRelease(masterPort);
         return result;
     }
 
@@ -125,7 +122,6 @@ public class IOKitUtil {
             PointerByReference serviceIterator) {
         MachPort masterPort = getMasterPort();
         int result = IOKit.INSTANCE.IOServiceGetMatchingServices(masterPort, matchingDictionary, serviceIterator);
-        IOKit.INSTANCE.IOObjectRelease(masterPort);
         return result;
     }
 
@@ -139,7 +135,6 @@ public class IOKitUtil {
     public static CFMutableDictionaryRef getBSDNameMatchingDict(String bsdName) {
         MachPort masterPort = getMasterPort();
         CFMutableDictionaryRef result = IOKit.INSTANCE.IOBSDNameMatching(masterPort, 0, bsdName);
-        IOKit.INSTANCE.IOObjectRelease(masterPort);
         return result;
     }
 
