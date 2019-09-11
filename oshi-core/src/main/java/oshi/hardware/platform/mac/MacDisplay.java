@@ -75,9 +75,8 @@ public class MacDisplay extends AbstractDisplay {
     public static Display[] getDisplays() {
         List<Display> displays = new ArrayList<>();
         // Iterate IO Registry IODisplayConnect
-        PointerByReference serviceIteratorPtr = new PointerByReference();
-        IOKitUtil.getMatchingServices("IODisplayConnect", serviceIteratorPtr);
-        IOIterator serviceIterator = new IOIterator(serviceIteratorPtr.getValue());
+        IOIterator serviceIterator = IOKitUtil.getMatchingServices("IODisplayConnect");
+
         IORegistryEntry sdService = serviceIterator.next();
         while (sdService != null) {
             // Display properties are in a child entry
@@ -91,7 +90,7 @@ public class MacDisplay extends AbstractDisplay {
                 CFDataRef edid = new CFDataRef(edidRaw.getPointer());
                 if (edid != null) {
                     // Edid is a byte array of 128 bytes
-                    int length = (int) CoreFoundation.INSTANCE.CFDataGetLength(edid);
+                    int length = CoreFoundation.INSTANCE.CFDataGetLength(edid).intValue();
                     Pointer p = CoreFoundation.INSTANCE.CFDataGetBytePtr(edid);
                     displays.add(new MacDisplay(p.getByteArray(0, length)));
                     edid.release();

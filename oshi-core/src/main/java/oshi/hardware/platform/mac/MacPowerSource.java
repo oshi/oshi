@@ -34,6 +34,7 @@ import com.sun.jna.platform.mac.CoreFoundation;
 import com.sun.jna.platform.mac.CoreFoundation.CFArrayRef;
 import com.sun.jna.platform.mac.CoreFoundation.CFBooleanRef;
 import com.sun.jna.platform.mac.CoreFoundation.CFDictionaryRef;
+import com.sun.jna.platform.mac.CoreFoundation.CFIndex;
 import com.sun.jna.platform.mac.CoreFoundation.CFNumberRef;
 import com.sun.jna.platform.mac.CoreFoundation.CFStringRef;
 import com.sun.jna.platform.mac.CoreFoundation.CFTypeRef;
@@ -64,7 +65,7 @@ public class MacPowerSource extends AbstractPowerSource {
         // Get the blob containing current power source state
         CFTypeRef powerSourcesInfo = IO.IOPSCopyPowerSourcesInfo();
         CFArrayRef powerSourcesList = IO.IOPSCopyPowerSourcesList(powerSourcesInfo);
-        int powerSourcesCount = (int) CF.CFArrayGetCount(powerSourcesList);
+        int powerSourcesCount = CF.CFArrayGetCount(powerSourcesList).intValue();
 
         // Get time remaining
         // -1 = unknown, -2 = unlimited
@@ -78,7 +79,7 @@ public class MacPowerSource extends AbstractPowerSource {
         List<MacPowerSource> psList = new ArrayList<>(powerSourcesCount);
         for (int ps = 0; ps < powerSourcesCount; ps++) {
             // Get the dictionary for that Power Source
-            Pointer pwrSrcPtr = CoreFoundation.INSTANCE.CFArrayGetValueAtIndex(powerSourcesList, ps);
+            Pointer pwrSrcPtr = CoreFoundation.INSTANCE.CFArrayGetValueAtIndex(powerSourcesList, new CFIndex(ps));
             CFTypeRef powerSource = new CFTypeRef();
             powerSource.setPointer(pwrSrcPtr);
             CFDictionaryRef dictionary = IO.IOPSGetPowerSourceDescription(powerSourcesInfo, powerSource);

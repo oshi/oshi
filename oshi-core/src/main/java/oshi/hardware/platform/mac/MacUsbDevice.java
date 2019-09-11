@@ -32,6 +32,7 @@ import java.util.Map;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.platform.mac.CoreFoundation;
+import com.sun.jna.platform.mac.CoreFoundation.CFIndex;
 import com.sun.jna.platform.mac.CoreFoundation.CFMutableDictionaryRef;
 import com.sun.jna.platform.mac.CoreFoundation.CFStringRef;
 import com.sun.jna.platform.mac.CoreFoundation.CFTypeRef;
@@ -118,9 +119,8 @@ public class MacUsbDevice extends AbstractUsbDevice {
         // Iterate over USB Controllers. All devices are children of one of
         // these controllers in the "IOService" plane
         List<Long> usbControllers = new ArrayList<>();
-        PointerByReference iterPtr = new PointerByReference();
-        IOKitUtil.getMatchingServices("IOUSBController", iterPtr);
-        IOIterator iter = new IOIterator(iterPtr.getValue());
+        IOIterator iter = IOKitUtil.getMatchingServices("IOUSBController");
+
         IORegistryEntry device = iter.next();
         while (device != null) {
             // Unique global identifier for this device
@@ -178,12 +178,12 @@ public class MacUsbDevice extends AbstractUsbDevice {
                     vendorMap.put(childId.getValue(), vendor);
                 }
                 // Get vendorId and store in map
-                long vendorId = IOKitUtil.getIORegistryLongProperty(childDevice, "idVendor");
+                long vendorId = IOKitUtil.getIORegistryLongProperty(childDevice, "idVendor", 0L);
                 if (vendorId != 0) {
                     vendorIdMap.put(childId.getValue(), String.format("%04x", 0xffff & vendorId));
                 }
                 // Get productId and store in map
-                long productId = IOKitUtil.getIORegistryLongProperty(childDevice, "idProduct");
+                long productId = IOKitUtil.getIORegistryLongProperty(childDevice, "idProduct", 0L);
                 if (productId != 0) {
                     productIdMap.put(childId.getValue(), String.format("%04x", 0xffff & productId));
                 }
@@ -239,19 +239,15 @@ public class MacUsbDevice extends AbstractUsbDevice {
     private static void getControllerIdByLocation(long id, CFTypeRef locationId, CFStringRef locationIDKey,
             CFStringRef ioPropertyMatchKey, Map<Long, String> vendorIdMap, Map<Long, String> productIdMap) {
         // Create a matching property dictionary from the locationId
-        CFMutableDictionaryRef propertyDict = CoreFoundation.INSTANCE.CFDictionaryCreateMutable(
-                CoreFoundation.INSTANCE.CFAllocatorGetDefault(), 0,
-                null, null);
+        CFMutableDictionaryRef propertyDict = CoreFoundation.INSTANCE
+                .CFDictionaryCreateMutable(CoreFoundation.INSTANCE.CFAllocatorGetDefault(), new CFIndex(0), null, null);
         CoreFoundation.INSTANCE.CFDictionarySetValue(propertyDict, locationIDKey, locationId);
         CFMutableDictionaryRef matchingDict = CoreFoundation.INSTANCE
-                .CFDictionaryCreateMutable(CoreFoundation.INSTANCE.CFAllocatorGetDefault(), 0,
-                null, null);
+                .CFDictionaryCreateMutable(CoreFoundation.INSTANCE.CFAllocatorGetDefault(), new CFIndex(0), null, null);
         CoreFoundation.INSTANCE.CFDictionarySetValue(matchingDict, ioPropertyMatchKey, propertyDict);
 
         // search for all IOservices that match the locationID
-        PointerByReference serviceIteratorPtr = new PointerByReference();
-        IOKitUtil.getMatchingServices(matchingDict, serviceIteratorPtr);
-        IOIterator serviceIterator = new IOIterator(serviceIteratorPtr.getValue());
+        IOIterator serviceIterator = IOKitUtil.getMatchingServices(matchingDict);
         // getMatchingServices releases matchingDict
         propertyDict.release();
 

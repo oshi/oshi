@@ -43,7 +43,6 @@ import com.sun.jna.platform.mac.IOKit.IOIterator;
 import com.sun.jna.platform.mac.IOKit.IORegistryEntry;
 import com.sun.jna.platform.mac.SystemB;
 import com.sun.jna.platform.mac.SystemB.Statfs;
-import com.sun.jna.ptr.PointerByReference;
 
 import oshi.jna.platform.mac.IOKit;
 import oshi.software.os.FileSystem;
@@ -164,9 +163,7 @@ public class MacFileSystem implements FileSystem {
                     CFMutableDictionaryRef matchingDict = IOKitUtil.getBSDNameMatchingDict(bsdName);
                     if (matchingDict != null) {
                         // search for all IOservices that match the bsd name
-                        PointerByReference fsIterPtr = new PointerByReference();
-                        IOKitUtil.getMatchingServices(matchingDict, fsIterPtr);
-                        IOIterator fsIter = new IOIterator(fsIterPtr.getValue());
+                        IOIterator fsIter = IOKitUtil.getMatchingServices(matchingDict);
                         // getMatchingServices releases matchingDict
                         // Should only match one logical drive
                         IORegistryEntry fsEntry = fsIter.next();

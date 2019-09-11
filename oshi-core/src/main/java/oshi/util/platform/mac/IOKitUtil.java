@@ -24,9 +24,6 @@
  */
 package oshi.util.platform.mac;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.sun.jna.Pointer;
 import com.sun.jna.platform.mac.CoreFoundation;
 import com.sun.jna.platform.mac.CoreFoundation.CFBooleanRef;
@@ -35,6 +32,7 @@ import com.sun.jna.platform.mac.CoreFoundation.CFMutableDictionaryRef;
 import com.sun.jna.platform.mac.CoreFoundation.CFNumberRef;
 import com.sun.jna.platform.mac.CoreFoundation.CFStringRef;
 import com.sun.jna.platform.mac.CoreFoundation.CFTypeRef;
+import com.sun.jna.platform.mac.IOKit.IOIterator;
 import com.sun.jna.platform.mac.IOKit.IORegistryEntry;
 import com.sun.jna.platform.mac.IOKit.IOService;
 import com.sun.jna.platform.mac.IOKit.MachPort;
@@ -43,22 +41,22 @@ import com.sun.jna.ptr.PointerByReference;
 import oshi.jna.platform.mac.IOKit;
 
 /**
- * Provides utilities for IOKit
+ * Provides utilities for IOKit.
  */
 public class IOKitUtil {
-    private static final Logger LOG = LoggerFactory.getLogger(IOKitUtil.class);
-
     private IOKitUtil() {
     }
 
     /**
-     * Gets the masterPort value
-     *
-     * @return The master port. Multiple calls to IOMasterPort will not result in
-     *         leaking ports (each call to IOMasterPort adds another send right to
-     *         the port) but it is considered good programming practice to
-     *         deallocate the port when you are finished with it using
-     *         {@link IOKit#IOObjectRelease}
+     * Gets a pointer to the Mach Master Port.
+     * 
+     * @return The master port.
+     *         <p>
+     *         Multiple calls to getMasterPort will not result in leaking ports
+     *         (each call to {@link IOKit#IOMasterPort} adds another send right
+     *         to the port) but it is considered good programming practice to
+     *         deallocate the port when you are finished with it, using
+     *         {@link IOKit#IOObjectRelease}.
      */
     private static MachPort getMasterPort() {
         PointerByReference port = new PointerByReference();
@@ -67,78 +65,89 @@ public class IOKitUtil {
     }
 
     /**
-     * Gets the IO Registry root
+     * Gets the IO Registry root.
      *
-     * @return an int handle to the IORoot. Callers should release when finished.
+     * @return a handle to the IORoot. Callers should release when finished,
+     *         using {@link IOKit#IOObjectRelease}.
      */
     public static IORegistryEntry getRoot() {
         MachPort masterPort = getMasterPort();
         IORegistryEntry root = IOKit.INSTANCE.IORegistryGetRootEntry(masterPort);
+        masterPort.release();
         return root;
     }
 
     /**
-     * Opens an IOService matching the given name
+     * Opens a the first IOService matching a service name.
      *
      * @param serviceName
      *            The service name to match
-     * @return an int handle to an IOService if successful, a pointer to null if
-     *         failed. Callers should release when finished.
+     * @return a handle to an IOService if successful, {@code null} if failed.
+     *         Callers should release when finished, using
+     *         {@link IOKit#IOObjectRelease}.
      */
     public static IOService getMatchingService(String serviceName) {
         MachPort masterPort = getMasterPort();
         IOService service = IOKit.INSTANCE.IOServiceGetMatchingService(masterPort,
                 IOKit.INSTANCE.IOServiceMatching(serviceName));
-        if (service.getPointer() == null) {
-            LOG.error("No service found: {}", serviceName);
-        }
+        masterPort.release();
         return service;
     }
 
     /**
-     * Convenience method to get matching IOService objects
+     * Convenience method to get IOService objects matching a service name.
      *
      * @param serviceName
      *            The service name to match
-     * @param serviceIterator
-     *            An interator over matching items, set on return. Callers should
-     *            release when finished.
-     * @return 0 if successful, an error code if failed.
+     * @return a handle to an IOIterator if successful, {@code null} if failed.
+     *         Callers should release when finished, using
+     *         {@link IOKit#IOObjectRelease}.
      */
-    public static int getMatchingServices(String serviceName, PointerByReference serviceIterator) {
+    public static IOIterator getMatchingServices(String serviceName) {
         MachPort masterPort = getMasterPort();
+        PointerByReference serviceIterator = new PointerByReference();
         int result = IOKit.INSTANCE.IOServiceGetMatchingServices(masterPort,
                 IOKit.INSTANCE.IOServiceMatching(serviceName), serviceIterator);
-        return result;
+        masterPort.release();
+        if (result == 0 && serviceIterator.getValue() != null) {
+            return new IOIterator(serviceIterator.getValue());
+        }
+        return null;
     }
 
     /**
-     * Convenience method to get matching IOService objects
+     * Convenience method to get IOService objects matching a dictionary.
      *
      * @param matchingDictionary
      *            The dictionary to match
-     * @param serviceIterator
-     *            An interator over matching items, set on return. Callers should
-     *            release when finished.
-     * @return 0 if successful, an error code if failed.
+     * @return a handle to an IOIterator if successful, {@code null} if failed.
+     *         Callers should release when finished, using
+     *         {@link IOKit#IOObjectRelease}.
      */
-    public static int getMatchingServices(CFMutableDictionaryRef matchingDictionary,
-            PointerByReference serviceIterator) {
+    public static IOIterator getMatchingServices(CFMutableDictionaryRef matchingDictionary) {
         MachPort masterPort = getMasterPort();
+        PointerByReference serviceIterator = new PointerByReference();
         int result = IOKit.INSTANCE.IOServiceGetMatchingServices(masterPort, matchingDictionary, serviceIterator);
-        return result;
+        masterPort.release();
+        if (result == 0 && serviceIterator.getValue() != null) {
+            return new IOIterator(serviceIterator.getValue());
+        }
+        return null;
     }
 
     /**
-     * Convenience method to get the IO dictionary matching a bsd name
+     * Convenience method to get the IO dictionary matching a bsd name.
      *
      * @param bsdName
      *            The bsd name of the registry entry
-     * @return The dictionary ref. Callers should release when finished.
+     * @return The dictionary ref if successful, {@code null} if failed. Callers
+     *         should release when finished, using
+     *         {@link IOKit#IOObjectRelease}.
      */
     public static CFMutableDictionaryRef getBSDNameMatchingDict(String bsdName) {
         MachPort masterPort = getMasterPort();
         CFMutableDictionaryRef result = IOKit.INSTANCE.IOBSDNameMatching(masterPort, 0, bsdName);
+        masterPort.release();
         return result;
     }
 
@@ -149,7 +158,8 @@ public class IOKitUtil {
      *            A handle to the registry entry
      * @param key
      *            The string name of the key to retrieve
-     * @return The value of the registry entry if it exists; null otherwise
+     * @return The value of the registry entry if it exists;{@code null}
+     *         otherwise
      */
     public static String getIORegistryStringProperty(IORegistryEntry entry, String key) {
         String value = null;
@@ -168,16 +178,24 @@ public class IOKitUtil {
     }
 
     /**
-     * Convenience method to get a Long value from an IO Registry
-     *
+     * Convenience method to get a {@code long} value from an IO Registry.
+     * 
      * @param entry
      *            A handle to the registry entry
      * @param key
      *            The string name of the key to retrieve
-     * @return The value of the registry entry if it exists; 0 otherwise
+     * @param defaultValue
+     *            The value to return if unsuccessful
+     * @return The value of the registry entry if it exists.
+     *         <p>
+     *         This method assumes a 64-bit integer is stored and does not do
+     *         type checking. If this object's type differs from the return
+     *         type, and the conversion is lossy or the return value is out of
+     *         range, then this method returns an approximate value. If the
+     *         value does not exist, the {@code defaultValue} is returned.
      */
-    public static long getIORegistryLongProperty(IORegistryEntry entry, String key) {
-        long value = 0L;
+    public static long getIORegistryLongProperty(IORegistryEntry entry, String key, long defaultValue) {
+        long value = defaultValue;
         CFStringRef keyAsCFString = CFStringRef.createCFString(key);
         CFTypeRef valueAsCFType = IOKit.INSTANCE.IORegistryEntryCreateCFProperty(entry, keyAsCFString,
                 CoreFoundation.INSTANCE.CFAllocatorGetDefault(), 0);
@@ -193,16 +211,24 @@ public class IOKitUtil {
     }
 
     /**
-     * Convenience method to get an Int value from an IO Registry
+     * Convenience method to get an {@code int} value from an IO Registry.
      *
      * @param entry
      *            A handle to the registry entry
      * @param key
      *            The string name of the key to retrieve
-     * @return The value of the registry entry if it exists; 0 otherwise
+     * @param defaultValue
+     *            The value to return if unsuccessful
+     * @return The value of the registry entry if it exists.
+     *         <p>
+     *         This method assumes a 32-bit integer is stored and does not do
+     *         type checking. If this object's type differs from the return
+     *         type, and the conversion is lossy or the return value is out of
+     *         range, then this method returns an approximate value. If the
+     *         value does not exist, the {@code defaultValue} is returned.
      */
-    public static int getIORegistryIntProperty(IORegistryEntry entry, String key) {
-        int value = 0;
+    public static int getIORegistryIntProperty(IORegistryEntry entry, String key, int defaultValue) {
+        int value = defaultValue;
         CFStringRef keyAsCFString = CFStringRef.createCFString(key);
         CFTypeRef valueAsCFType = IOKit.INSTANCE.IORegistryEntryCreateCFProperty(entry, keyAsCFString,
                 CoreFoundation.INSTANCE.CFAllocatorGetDefault(), 0);
@@ -218,16 +244,52 @@ public class IOKitUtil {
     }
 
     /**
-     * Convenience method to get a Boolean value from an IO Registry
+     * Convenience method to get a {@code double} value from an IO Registry.
      *
      * @param entry
      *            A handle to the registry entry
      * @param key
      *            The string name of the key to retrieve
-     * @return The value of the registry entry if it exists; false otherwise
+     * @param defaultValue
+     *            The value to return if unsuccessful
+     * @return The value of the registry entry if it exists.
+     *         <p>
+     *         This method assumes a floating point value is stored and does not
+     *         do type checking. If this object's type differs from the return
+     *         type, and the conversion is lossy or the return value is out of
+     *         range, then this method returns an approximate value. If the
+     *         value does not exist, the {@code defaultValue} is returned.
      */
-    public static boolean getIORegistryBooleanProperty(IORegistryEntry entry, String key) {
-        boolean value = false;
+    public static double getIORegistryIntProperty(IORegistryEntry entry, String key, double defaultValue) {
+        double value = defaultValue;
+        CFStringRef keyAsCFString = CFStringRef.createCFString(key);
+        CFTypeRef valueAsCFType = IOKit.INSTANCE.IORegistryEntryCreateCFProperty(entry, keyAsCFString,
+                CoreFoundation.INSTANCE.CFAllocatorGetDefault(), 0);
+        if (valueAsCFType != null && valueAsCFType.getPointer() != null) {
+            CFNumberRef valueAsCFNumber = new CFNumberRef(valueAsCFType.getPointer());
+            value = valueAsCFNumber.doubleValue();
+        }
+        keyAsCFString.release();
+        if (valueAsCFType != null) {
+            valueAsCFType.release();
+        }
+        return value;
+    }
+
+    /**
+     * Convenience method to get a Boolean value from an IO Registry.
+     *
+     * @param entry
+     *            A handle to the registry entry
+     * @param key
+     *            The string name of the key to retrieve
+     * @param defaultValue
+     *            The value to return if unsuccessful
+     * @return The value of the registry entry if it exists;
+     *         {@code defaultValue} otherwise
+     */
+    public static boolean getIORegistryBooleanProperty(IORegistryEntry entry, String key, boolean defaultValue) {
+        boolean value = defaultValue;
         CFStringRef keyAsCFString = CFStringRef.createCFString(key);
         CFTypeRef valueAsCFType = IOKit.INSTANCE.IORegistryEntryCreateCFProperty(entry, keyAsCFString,
                 CoreFoundation.INSTANCE.CFAllocatorGetDefault(), 0);
@@ -243,13 +305,14 @@ public class IOKitUtil {
     }
 
     /**
-     * Convenience method to get a byte array value from an IO Registry
+     * Convenience method to get a byte array value from an IO Registry.
      *
      * @param entry
      *            A handle to the registry entry
      * @param key
      *            The string name of the key to retrieve
-     * @return The value of the registry entry if it exists; null otherwise
+     * @return The value of the registry entry if it exists; {@code null}
+     *         otherwise
      */
     public static byte[] getIORegistryByteArrayProperty(IORegistryEntry entry, String key) {
         byte[] value = null;
@@ -258,7 +321,7 @@ public class IOKitUtil {
                 CoreFoundation.INSTANCE.CFAllocatorGetDefault(), 0);
         if (valueAsCFType != null && valueAsCFType.getPointer() != null) {
             CFDataRef valueAsCFData = new CFDataRef(valueAsCFType.getPointer());
-            int length = (int) CoreFoundation.INSTANCE.CFDataGetLength(valueAsCFData);
+            int length = CoreFoundation.INSTANCE.CFDataGetLength(valueAsCFData).intValue();
             Pointer p = CoreFoundation.INSTANCE.CFDataGetBytePtr(valueAsCFData);
             value = p.getByteArray(0, length);
         }
