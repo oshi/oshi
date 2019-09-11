@@ -29,12 +29,10 @@ import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 import com.sun.jna.platform.mac.IOKit.IORegistryEntry;
-import com.sun.jna.platform.mac.IOKit.IOService;
 
 import oshi.hardware.Baseboard;
 import oshi.hardware.Firmware;
 import oshi.hardware.common.AbstractComputerSystem;
-import oshi.jna.platform.mac.IOKit;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 import oshi.util.Util;
@@ -142,12 +140,11 @@ final class MacComputerSystem extends AbstractComputerSystem {
 
     private String getIORegistryPlatformSerialNumber() {
         String serialNumber = null;
-        IOService service = IOKitUtil.getMatchingService("IOPlatformExpertDevice");
-        if (service != null) {
+        IORegistryEntry platformExpert = IOKitUtil.getMatchingService("IOPlatformExpertDevice");
+        if (platformExpert != null) {
             // Fetch the serial number
-            IORegistryEntry entry = new IORegistryEntry(service.getPointer());
-            serialNumber = IOKitUtil.getIORegistryStringProperty(entry, "IOPlatformSerialNumber");
-            IOKit.INSTANCE.IOObjectRelease(service);
+            serialNumber = IOKitUtil.getIORegistryStringProperty(platformExpert, "IOPlatformSerialNumber");
+            platformExpert.release();
         }
         return serialNumber;
     }

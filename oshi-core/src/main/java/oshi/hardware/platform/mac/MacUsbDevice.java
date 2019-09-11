@@ -36,7 +36,6 @@ import com.sun.jna.platform.mac.CoreFoundation.CFMutableDictionaryRef;
 import com.sun.jna.platform.mac.CoreFoundation.CFStringRef;
 import com.sun.jna.platform.mac.CoreFoundation.CFTypeRef;
 import com.sun.jna.platform.mac.IOKit.IOIterator;
-import com.sun.jna.platform.mac.IOKit.IOObject;
 import com.sun.jna.platform.mac.IOKit.IORegistryEntry;
 import com.sun.jna.ptr.LongByReference;
 import com.sun.jna.ptr.PointerByReference;
@@ -122,9 +121,8 @@ public class MacUsbDevice extends AbstractUsbDevice {
         PointerByReference iterPtr = new PointerByReference();
         IOKitUtil.getMatchingServices("IOUSBController", iterPtr);
         IOIterator iter = new IOIterator(iterPtr.getValue());
-        IOObject deviceObj = iter.next();
-        while (deviceObj != null) {
-            IORegistryEntry device = new IORegistryEntry(deviceObj.getPointer());
+        IORegistryEntry device = iter.next();
+        while (device != null) {
             // Unique global identifier for this device
             LongByReference id = new LongByReference();
             IOKit.INSTANCE.IORegistryEntryGetRegistryEntryID(device, id);
@@ -149,9 +147,8 @@ public class MacUsbDevice extends AbstractUsbDevice {
             PointerByReference childIterPtr = new PointerByReference();
             IOKit.INSTANCE.IORegistryEntryGetChildIterator(device, "IOService", childIterPtr);
             IOIterator childIter = new IOIterator(childIterPtr.getValue());
-            IOObject childDeviceObj = childIter.next();
-            while (childDeviceObj != null) {
-                IORegistryEntry childDevice = new IORegistryEntry(childDeviceObj.getPointer());
+            IORegistryEntry childDevice = childIter.next();
+            while (childDevice != null) {
                 // Unique global identifier for this device
                 LongByReference childId = new LongByReference();
                 IOKit.INSTANCE.IORegistryEntryGetRegistryEntryID(childDevice, childId);
@@ -196,11 +193,11 @@ public class MacUsbDevice extends AbstractUsbDevice {
                     serialMap.put(childId.getValue(), serial);
                 }
                 childDevice.release();
-                childDeviceObj = childIter.next();
+                childDevice = childIter.next();
             }
             childIter.release();
             device.release();
-            deviceObj = iter.next();
+            device = iter.next();
         }
         iter.release();
         locationIDKey.release();
@@ -261,9 +258,8 @@ public class MacUsbDevice extends AbstractUsbDevice {
         // Iterate matching services looking for devices whose parents have the
         // vendor and device ids
         boolean found = false;
-        IOObject matchingServiceObj = serviceIterator.next();
-        while (matchingServiceObj != null && !found) {
-            IORegistryEntry matchingService = new IORegistryEntry(matchingServiceObj.getPointer());
+        IORegistryEntry matchingService = serviceIterator.next();
+        while (matchingService != null && !found) {
             // Get the parent, which contains the keys we need
             PointerByReference parentPtr = new PointerByReference();
             IOKit.INSTANCE.IORegistryEntryGetParentEntry(matchingService, "IOService", parentPtr);
@@ -284,7 +280,7 @@ public class MacUsbDevice extends AbstractUsbDevice {
             }
             // iterate
             matchingService.release();
-            matchingServiceObj = serviceIterator.next();
+            matchingService = serviceIterator.next();
         }
         serviceIterator.release();
 

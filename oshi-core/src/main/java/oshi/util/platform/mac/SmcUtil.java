@@ -32,13 +32,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import com.sun.jna.Structure.FieldOrder;
 import com.sun.jna.platform.mac.IOKit.IOConnect;
 import com.sun.jna.platform.mac.IOKit.IOService;
 import com.sun.jna.platform.mac.IOKit.MachPort;
-import com.sun.jna.platform.mac.SystemB; // NOSONAR
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
 
@@ -161,9 +159,9 @@ public class SmcUtil {
             LOG.error("Error: no SMC found");
             return 1;
         }
-        MachPort taskSelf = new MachPort(Pointer.createConstant(SystemB.INSTANCE.mach_task_self()));
+        MachPort taskSelf = oshi.jna.platform.mac.SystemB.INSTANCE.mach_task_self_ptr();
         int result = IOKit.INSTANCE.IOServiceOpen(service, taskSelf, 0, conn);
-        IOKit.INSTANCE.IOObjectRelease(service);
+        service.release();
         if (result != 0) {
             if (LOG.isErrorEnabled()) {
                 LOG.error(String.format("Error: IOServiceOpen() = 0x%08x", result));

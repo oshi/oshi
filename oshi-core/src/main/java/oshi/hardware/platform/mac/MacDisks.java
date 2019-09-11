@@ -47,7 +47,6 @@ import com.sun.jna.platform.mac.DiskArbitration;
 import com.sun.jna.platform.mac.DiskArbitration.DADiskRef;
 import com.sun.jna.platform.mac.DiskArbitration.DASessionRef;
 import com.sun.jna.platform.mac.IOKit.IOIterator;
-import com.sun.jna.platform.mac.IOKit.IOObject;
 import com.sun.jna.platform.mac.IOKit.IORegistryEntry;
 import com.sun.jna.platform.mac.SystemB; // NOSONAR squid:S1191
 import com.sun.jna.platform.mac.SystemB.Statfs;
@@ -175,10 +174,9 @@ public class MacDisks implements Disks {
             IOKitUtil.getMatchingServices(matchingDict, driveList);
             IOIterator driveListIter = new IOIterator(driveList.getValue());
             // getMatchingServices releases matchingDict
-            IOObject driveObj = driveListIter.next();
+            IORegistryEntry drive = driveListIter.next();
             // Should only match one drive
-            if (driveObj != null) {
-                IORegistryEntry drive = new IORegistryEntry(driveObj.getPointer());
+            if (drive != null) {
                 // Should be an IOMedia object with a parent
                 // IOBlockStorageDriver object
                 // Get the properties from the parent
@@ -275,9 +273,8 @@ public class MacDisks implements Disks {
 
                         // Iterate disks
                         IOIterator serviceIterator = new IOIterator(serviceIteratorPtr.getValue());
-                        IOObject sdServiceObj = IOKit.INSTANCE.IOIteratorNext(serviceIterator);
-                        while (sdServiceObj != null) {
-                            IORegistryEntry sdService = new IORegistryEntry(sdServiceObj.getPointer());
+                        IORegistryEntry sdService = IOKit.INSTANCE.IOIteratorNext(serviceIterator);
+                        while (sdService != null) {
                             // look up the BSD Name
                             String partBsdName = IOKitUtil.getIORegistryStringProperty(sdService, "BSD Name");
                             String name = partBsdName;
@@ -321,24 +318,24 @@ public class MacDisks implements Disks {
                                     IOKitUtil.getIORegistryLongProperty(sdService, "Size"),
                                     IOKitUtil.getIORegistryIntProperty(sdService, "BSD Major"),
                                     IOKitUtil.getIORegistryIntProperty(sdService, "BSD Minor"), mountPoint));
-                            IOKit.INSTANCE.IOObjectRelease(sdService);
                             // iterate
-                            sdServiceObj = IOKit.INSTANCE.IOIteratorNext(serviceIterator);
+                            sdService.release();
+                            sdService = IOKit.INSTANCE.IOIteratorNext(serviceIterator);
                         }
-                        IOKit.INSTANCE.IOObjectRelease(serviceIterator);
+                        serviceIterator.release();
 
                     } else {
                         LOG.error("Unable to find properties for {}", bsdName);
                     }
                     Collections.sort(partitions);
                     diskStore.setPartitions(partitions.toArray(new HWPartition[0]));
-                    IOKit.INSTANCE.IOObjectRelease(parent);
+                    parent.release();
                 } else {
                     LOG.error("Unable to find IOMedia device or parent for {}", bsdName);
                 }
-                IOKit.INSTANCE.IOObjectRelease(drive);
+                drive.release();
             }
-            IOKit.INSTANCE.IOObjectRelease(driveListIter);
+            driveListIter.release();
             return true;
         } else {
             return false;
@@ -396,9 +393,8 @@ public class MacDisks implements Disks {
         PointerByReference iterPtr = new PointerByReference();
         IOKitUtil.getMatchingServices("IOMedia", iterPtr);
         IOIterator iter = new IOIterator(iterPtr.getValue());
-        IOObject mediaObj = iter.next();
-        while (mediaObj != null) {
-            IORegistryEntry media = new IORegistryEntry(mediaObj.getPointer());
+        IORegistryEntry media = iter.next();
+        while (media != null) {
             if (IOKitUtil.getIORegistryBooleanProperty(media, "Whole")) {
                 DADiskRef disk = DiskArbitration.INSTANCE
                         .DADiskCreateFromIOMedia(CoreFoundation.INSTANCE.CFAllocatorGetDefault(), session, media);
@@ -406,7 +402,7 @@ public class MacDisks implements Disks {
                 disk.release();
             }
             media.release();
-            mediaObj = iter.next();
+            media = iter.next();
         }
         iter.release();
 
@@ -461,18 +457,17 @@ public class MacDisks implements Disks {
                         modelNameRef.release();
                         propertyDict.release();
                         IOIterator serviceIterator = new IOIterator(serviceIteratorPtr.getValue());
-                        IOObject sdServiceObj = serviceIterator.next();
-                        while (sdServiceObj != null) {
-                            IORegistryEntry sdService = new IORegistryEntry(sdServiceObj.getPointer());
+                        IORegistryEntry sdService = serviceIterator.next();
+                        while (sdService != null) {
                             // look up the serial number
                             serial = IOKitUtil.getIORegistryStringProperty(sdService, "Serial Number");
-                            IOKit.INSTANCE.IOObjectRelease(sdService);
+                            sdService.release();
                             if (serial != null) {
                                 break;
                             }
                             // iterate
                             sdService.release();
-                            sdServiceObj = serviceIterator.next();
+                            sdService = serviceIterator.next();
                         }
                         serviceIterator.release();
                         if (serial == null) {

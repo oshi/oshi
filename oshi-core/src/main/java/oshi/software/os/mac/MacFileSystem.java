@@ -40,7 +40,6 @@ import com.sun.jna.platform.mac.DiskArbitration;
 import com.sun.jna.platform.mac.DiskArbitration.DADiskRef;
 import com.sun.jna.platform.mac.DiskArbitration.DASessionRef;
 import com.sun.jna.platform.mac.IOKit.IOIterator;
-import com.sun.jna.platform.mac.IOKit.IOObject;
 import com.sun.jna.platform.mac.IOKit.IORegistryEntry;
 import com.sun.jna.platform.mac.SystemB;
 import com.sun.jna.platform.mac.SystemB.Statfs;
@@ -170,9 +169,8 @@ public class MacFileSystem implements FileSystem {
                         IOIterator fsIter = new IOIterator(fsIterPtr.getValue());
                         // getMatchingServices releases matchingDict
                         // Should only match one logical drive
-                        IOObject fsEntryObj = fsIter.next();
-                        if (fsEntryObj != null && IOKit.INSTANCE.IOObjectConformsTo(fsEntryObj, "IOMedia")) {
-                            IORegistryEntry fsEntry = new IORegistryEntry(fsEntryObj.getPointer());
+                        IORegistryEntry fsEntry = fsIter.next();
+                        if (fsEntry != null && IOKit.INSTANCE.IOObjectConformsTo(fsEntry, "IOMedia")) {
                             // Now get the UUID
                             uuid = IOKitUtil.getIORegistryStringProperty(fsEntry, "UUID");
                             if (uuid == null) {

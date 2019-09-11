@@ -35,7 +35,6 @@ import com.sun.jna.platform.mac.CoreFoundation.CFDataRef;
 import com.sun.jna.platform.mac.CoreFoundation.CFStringRef;
 import com.sun.jna.platform.mac.CoreFoundation.CFTypeRef;
 import com.sun.jna.platform.mac.IOKit.IOIterator;
-import com.sun.jna.platform.mac.IOKit.IOObject;
 import com.sun.jna.platform.mac.IOKit.IORegistryEntry;
 import com.sun.jna.ptr.PointerByReference;
 
@@ -79,9 +78,8 @@ public class MacDisplay extends AbstractDisplay {
         PointerByReference serviceIteratorPtr = new PointerByReference();
         IOKitUtil.getMatchingServices("IODisplayConnect", serviceIteratorPtr);
         IOIterator serviceIterator = new IOIterator(serviceIteratorPtr.getValue());
-        IOObject sdServiceObj = serviceIterator.next();
-        while (sdServiceObj != null) {
-            IORegistryEntry sdService = new IORegistryEntry(sdServiceObj.getPointer());
+        IORegistryEntry sdService = serviceIterator.next();
+        while (sdService != null) {
             // Display properties are in a child entry
             PointerByReference propertiesPtr = new PointerByReference();
             int ret = IOKit.INSTANCE.IORegistryEntryGetChildEntry(sdService, "IOService", propertiesPtr);
@@ -101,7 +99,7 @@ public class MacDisplay extends AbstractDisplay {
             }
             // iterate
             sdService.release();
-            sdServiceObj = serviceIterator.next();
+            sdService = serviceIterator.next();
         }
         serviceIterator.release();
         return displays.toArray(new Display[0]);
