@@ -54,7 +54,11 @@ public class IOKitUtil {
     /**
      * Gets the masterPort value
      *
-     * @return The master port. Callers should release when finished.
+     * @return The master port. Multiple calls to IOMasterPort will not result in
+     *         leaking ports (each call to IOMasterPort adds another send right to
+     *         the port) but it is considered good programming practice to
+     *         deallocate the port when you are finished with it using
+     *         {@link IOKit#IOObjectRelease}
      */
     private static MachPort getMasterPort() {
         PointerByReference port = new PointerByReference();
