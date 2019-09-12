@@ -257,7 +257,7 @@ public interface IOKit extends Library {
      *         <p>
      *         The service must be released by the caller.
      */
-    IOService IOServiceGetMatchingService(MachPort masterPort, CFMutableDictionaryRef matchingDictionary);
+    IOService IOServiceGetMatchingService(MachPort masterPort, CFDictionaryRef matchingDictionary);
 
     /**
      * Look up registered IOService objects that match a matching dictionary.
@@ -275,7 +275,7 @@ public interface IOKit extends Library {
      *            by the caller when the iteration is finished.
      * @return 0 if successful, otherwise a {@code kern_return_t} error code.
      */
-    int IOServiceGetMatchingServices(MachPort masterPort, CFMutableDictionaryRef matchingDictionary,
+    int IOServiceGetMatchingServices(MachPort masterPort, CFDictionaryRef matchingDictionary,
             PointerByReference iterator);
 
     /**

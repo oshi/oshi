@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Pointer;
 import com.sun.jna.platform.mac.CoreFoundation;
+import com.sun.jna.platform.mac.IOKitUtil;
 import com.sun.jna.platform.mac.CoreFoundation.CFDataRef;
 import com.sun.jna.platform.mac.CoreFoundation.CFStringRef;
 import com.sun.jna.platform.mac.CoreFoundation.CFTypeRef;
@@ -41,7 +42,6 @@ import com.sun.jna.ptr.PointerByReference;
 import oshi.hardware.Display;
 import oshi.hardware.common.AbstractDisplay;
 import oshi.jna.platform.mac.IOKit;
-import oshi.util.platform.mac.IOKitUtil;
 
 /**
  * A Display

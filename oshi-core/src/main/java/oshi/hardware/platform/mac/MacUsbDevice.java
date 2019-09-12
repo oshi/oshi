@@ -32,6 +32,7 @@ import java.util.Map;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.platform.mac.CoreFoundation;
+import com.sun.jna.platform.mac.IOKitUtil;
 import com.sun.jna.platform.mac.CoreFoundation.CFIndex;
 import com.sun.jna.platform.mac.CoreFoundation.CFMutableDictionaryRef;
 import com.sun.jna.platform.mac.CoreFoundation.CFStringRef;
@@ -44,7 +45,6 @@ import com.sun.jna.ptr.PointerByReference;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractUsbDevice;
 import oshi.jna.platform.mac.IOKit;
-import oshi.util.platform.mac.IOKitUtil;
 
 /**
  * <p>

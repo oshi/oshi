@@ -28,6 +28,7 @@ import static oshi.util.Memoizer.memoize;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
+import com.sun.jna.platform.mac.IOKitUtil;
 import com.sun.jna.platform.mac.IOKit.IORegistryEntry;
 
 import oshi.hardware.Baseboard;
@@ -36,7 +37,6 @@ import oshi.hardware.common.AbstractComputerSystem;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 import oshi.util.Util;
-import oshi.util.platform.mac.IOKitUtil;
 
 /**
  * Hardware data obtained by system_profiler.
