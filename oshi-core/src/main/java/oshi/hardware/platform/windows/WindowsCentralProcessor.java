@@ -195,6 +195,31 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
     private final PerfCounterQuery<ContextSwitchProperty> contextSwitchPerfCounters = new PerfCounterQuery<>(
             ContextSwitchProperty.class, "System", "Win32_PerfRawData_PerfOS_System");
 
+    // Requires Win7 or greater
+    enum ProcessorFrequencyProperty implements PdhCounterWildcardProperty {
+        // First element defines WMI instance name field and PDH instance filter
+        Name(PerfCounterQuery.NOT_TOTAL_INSTANCES),
+        // Remaining elements define counters
+        PercentofMaximumFrequency("% of Maximum Frequency");
+
+        private final String counter;
+
+        ProcessorFrequencyProperty(String counter) {
+            this.counter = counter;
+        }
+
+        @Override
+        public String getCounter() {
+            return counter;
+        }
+    }
+
+    // Requires Win7 or greater
+    private final PerfCounterWildcardQuery<ProcessorFrequencyProperty> processorFrequencyCounters = new PerfCounterWildcardQuery<>(
+            ProcessorFrequencyProperty.class, "Processor Information",
+            // NAME field includes NUMA nodes
+            "Win32_PerfRawData_Counters_ProcessorInformation WHERE NOT Name LIKE\"%_Total\"", "Processor Frequency");
+
     /**
      * Initializes Class variables
      */
@@ -457,6 +482,27 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
 
     @Override
     public long[] queryCurrentFreq() {
+        if (VersionHelpers.IsWindows7OrGreater()) {
+            Map<ProcessorFrequencyProperty, List<Long>> valueMap = this.processorFrequencyCounters
+                    .queryValuesWildcard();
+            List<String> instances = this.processorTickPerfCounters.getInstancesFromLastQuery();
+            List<Long> percentMaxList = valueMap.get(ProcessorFrequencyProperty.PercentofMaximumFrequency);
+            if (!instances.isEmpty()) {
+                long maxFreq = this.getMaxFreq();
+                long[] freqs = new long[getLogicalProcessorCount()];
+                for (int p = 0; p < instances.size(); p++) {
+                    int cpu = instances.get(p).contains(",")
+                            ? numaNodeProcToLogicalProcMap.getOrDefault(instances.get(p), 0)
+                            : ParseUtil.parseIntOrDefault(instances.get(p), 0);
+                    if (cpu >= getLogicalProcessorCount()) {
+                        continue;
+                    }
+                    freqs[cpu] = percentMaxList.get(cpu) * maxFreq / 100L;
+                }
+                return freqs;
+            }
+        }
+        // If <Win7 or anything failed in PDH/WMI, use the native call
         return queryNTPower(2); // Current is field index 2
     }
 
@@ -467,8 +513,8 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
     }
 
     /**
-     * Call CallNTPowerInformation for Processor information and return an array of
-     * the specified index
+     * Call CallNTPowerInformation for Processor information and return an array
+     * of the specified index
      * 
      * @param fieldIndex
      *            The field, in order as defined in the
