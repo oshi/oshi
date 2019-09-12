@@ -31,12 +31,12 @@ import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Pointer;
 import com.sun.jna.platform.mac.CoreFoundation;
-import com.sun.jna.platform.mac.IOKitUtil;
 import com.sun.jna.platform.mac.CoreFoundation.CFDataRef;
 import com.sun.jna.platform.mac.CoreFoundation.CFStringRef;
 import com.sun.jna.platform.mac.CoreFoundation.CFTypeRef;
 import com.sun.jna.platform.mac.IOKit.IOIterator;
 import com.sun.jna.platform.mac.IOKit.IORegistryEntry;
+import com.sun.jna.platform.mac.IOKitUtil;
 import com.sun.jna.ptr.PointerByReference;
 
 import oshi.hardware.Display;
@@ -76,31 +76,32 @@ public class MacDisplay extends AbstractDisplay {
         List<Display> displays = new ArrayList<>();
         // Iterate IO Registry IODisplayConnect
         IOIterator serviceIterator = IOKitUtil.getMatchingServices("IODisplayConnect");
-
-        IORegistryEntry sdService = serviceIterator.next();
-        while (sdService != null) {
-            // Display properties are in a child entry
-            PointerByReference propertiesPtr = new PointerByReference();
-            int ret = IOKit.INSTANCE.IORegistryEntryGetChildEntry(sdService, "IOService", propertiesPtr);
-            if (ret == 0) {
-                IORegistryEntry properties = new IORegistryEntry(propertiesPtr.getValue());
-                // look up the edid by key
-                CFTypeRef edidRaw = IOKit.INSTANCE.IORegistryEntryCreateCFProperty(properties, cfEdid,
-                        CoreFoundation.INSTANCE.CFAllocatorGetDefault(), 0);
-                CFDataRef edid = new CFDataRef(edidRaw.getPointer());
-                if (edid != null) {
-                    // Edid is a byte array of 128 bytes
-                    int length = CoreFoundation.INSTANCE.CFDataGetLength(edid).intValue();
-                    Pointer p = CoreFoundation.INSTANCE.CFDataGetBytePtr(edid);
-                    displays.add(new MacDisplay(p.getByteArray(0, length)));
-                    edid.release();
+        if (serviceIterator != null) {
+            IORegistryEntry sdService = serviceIterator.next();
+            while (sdService != null) {
+                // Display properties are in a child entry
+                PointerByReference propertiesPtr = new PointerByReference();
+                int ret = IOKit.INSTANCE.IORegistryEntryGetChildEntry(sdService, "IOService", propertiesPtr);
+                if (ret == 0) {
+                    IORegistryEntry properties = new IORegistryEntry(propertiesPtr.getValue());
+                    // look up the edid by key
+                    CFTypeRef edidRaw = IOKit.INSTANCE.IORegistryEntryCreateCFProperty(properties, cfEdid,
+                            CoreFoundation.INSTANCE.CFAllocatorGetDefault(), 0);
+                    CFDataRef edid = new CFDataRef(edidRaw.getPointer());
+                    if (edid != null) {
+                        // Edid is a byte array of 128 bytes
+                        int length = CoreFoundation.INSTANCE.CFDataGetLength(edid).intValue();
+                        Pointer p = CoreFoundation.INSTANCE.CFDataGetBytePtr(edid);
+                        displays.add(new MacDisplay(p.getByteArray(0, length)));
+                        edid.release();
+                    }
                 }
+                // iterate
+                sdService.release();
+                sdService = serviceIterator.next();
             }
-            // iterate
-            sdService.release();
-            sdService = serviceIterator.next();
+            serviceIterator.release();
         }
-        serviceIterator.release();
         return displays.toArray(new Display[0]);
     }
 }

@@ -219,9 +219,9 @@ public interface CoreFoundation extends Library {
     }
 
     /**
-     * Enum of values used for {@link CFNumberType} in {@link #CFNumberGetValue}
-     * and {@link #CFNumberGetType}. Use {@link CFNumberType#typeIndex} for the
-     * expected integer value corresponding to the C-style enum.
+     * Enum of values used for {@link CFNumberType} in {@link #CFNumberGetValue} and
+     * {@link #CFNumberGetType}. Use {@link CFNumberType#typeIndex} for the expected
+     * integer value corresponding to the C-style enum.
      */
     enum CFNumberType {
         unusedZero, kCFNumberSInt8Type, kCFNumberSInt16Type, kCFNumberSInt32Type, kCFNumberSInt64Type,
@@ -372,8 +372,7 @@ public interface CoreFoundation extends Library {
 
     /**
      * A wrapper for the {@link NativeLong} type, used for {@link CFNumberRef}
-     * types, {@link CFStringRef} lengths, and {@link CFArrayRef} sizes and
-     * indices.
+     * types, {@link CFStringRef} lengths, and {@link CFArrayRef} sizes and indices.
      */
     class CFIndex extends NativeLong {
         private static final long serialVersionUID = 1L;

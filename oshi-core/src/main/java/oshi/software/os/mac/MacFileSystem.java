@@ -37,11 +37,11 @@ import com.sun.jna.platform.mac.CoreFoundation.CFDictionaryRef;
 import com.sun.jna.platform.mac.CoreFoundation.CFMutableDictionaryRef;
 import com.sun.jna.platform.mac.CoreFoundation.CFStringRef;
 import com.sun.jna.platform.mac.DiskArbitration;
-import com.sun.jna.platform.mac.IOKitUtil;
 import com.sun.jna.platform.mac.DiskArbitration.DADiskRef;
 import com.sun.jna.platform.mac.DiskArbitration.DASessionRef;
 import com.sun.jna.platform.mac.IOKit.IOIterator;
 import com.sun.jna.platform.mac.IOKit.IORegistryEntry;
+import com.sun.jna.platform.mac.IOKitUtil;
 import com.sun.jna.platform.mac.SystemB;
 import com.sun.jna.platform.mac.SystemB.Statfs;
 
@@ -142,14 +142,12 @@ public class MacFileSystem implements FileSystem {
                     // Get the DiskArbitration dictionary for this disk,
                     // which has volumename
                     DADiskRef disk = DiskArbitration.INSTANCE
-                            .DADiskCreateFromBSDName(CoreFoundation.INSTANCE.CFAllocatorGetDefault(), session,
-                            volume);
+                            .DADiskCreateFromBSDName(CoreFoundation.INSTANCE.CFAllocatorGetDefault(), session, volume);
                     if (disk != null) {
                         CFDictionaryRef diskInfo = DiskArbitration.INSTANCE.DADiskCopyDescription(disk);
                         if (diskInfo != null) {
                             // get volume name from its key
-                            Pointer result = CoreFoundation.INSTANCE.CFDictionaryGetValue(diskInfo,
-                                    daVolumeNameKey);
+                            Pointer result = CoreFoundation.INSTANCE.CFDictionaryGetValue(diskInfo, daVolumeNameKey);
                             CFStringRef volumePtr = new CFStringRef(result);
                             name = volumePtr.stringValue();
                             if (name == null) {
@@ -164,20 +162,20 @@ public class MacFileSystem implements FileSystem {
                     if (matchingDict != null) {
                         // search for all IOservices that match the bsd name
                         IOIterator fsIter = IOKitUtil.getMatchingServices(matchingDict);
-                        // getMatchingServices releases matchingDict
-                        // Should only match one logical drive
-                        IORegistryEntry fsEntry = fsIter.next();
-                        if (fsEntry != null && IOKit.INSTANCE.IOObjectConformsTo(fsEntry, "IOMedia")) {
-                            // Now get the UUID
-                            uuid = IOKitUtil.getIORegistryStringProperty(fsEntry, "UUID");
-                            if (uuid == null) {
-                                uuid = "";
-                            } else {
-                                uuid = uuid.toLowerCase();
+                        if (fsIter != null) {
+                            // getMatchingServices releases matchingDict
+                            // Should only match one logical drive
+                            IORegistryEntry fsEntry = fsIter.next();
+                            if (fsEntry != null && IOKit.INSTANCE.IOObjectConformsTo(fsEntry, "IOMedia")) {
+                                // Now get the UUID
+                                uuid = IOKitUtil.getIORegistryStringProperty(fsEntry, "UUID");
+                                if (uuid != null) {
+                                    uuid = uuid.toLowerCase();
+                                }
+                                fsEntry.release();
                             }
-                            fsEntry.release();
+                            fsIter.release();
                         }
-                        fsIter.release();
                     }
                 }
 
@@ -188,7 +186,7 @@ public class MacFileSystem implements FileSystem {
                 osStore.setMount(path);
                 osStore.setDescription(description);
                 osStore.setType(type);
-                osStore.setUUID(uuid);
+                osStore.setUUID(uuid == null ? "" : uuid);
                 osStore.setFreeSpace(file.getFreeSpace());
                 osStore.setUsableSpace(file.getUsableSpace());
                 osStore.setTotalSpace(file.getTotalSpace());

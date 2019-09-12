@@ -147,6 +147,7 @@ public class IOKitTest {
         // Iterate over USB Controllers. All devices are children of one of
         // these controllers in the "IOService" plane
         IOIterator iter = IOKitUtil.getMatchingServices("IOUSBController");
+        assertNotNull(iter);
         IORegistryEntry controllerDevice = iter.next();
         while (controllerDevice != null) {
             LongByReference id = new LongByReference();

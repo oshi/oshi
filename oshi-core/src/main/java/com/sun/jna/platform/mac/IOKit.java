@@ -54,8 +54,6 @@ public interface IOKit extends Library {
 
     MachPort MACH_PORT_NULL = new MachPort();
 
-
-
     /**
      * IOKitLib implements non-kernel task access to common IOKit object types -
      * IORegistryEntry, IOService, IOIterator etc. These functions are generic -
@@ -322,8 +320,7 @@ public interface IOKit extends Library {
      * @return 0 if successful, otherwise a {@code kern_return_t} error code.
      */
     int IORegistryEntryCreateCFProperties(IORegistryEntry entry, PointerByReference properties,
-            CFAllocatorRef allocator,
-            int options);
+            CFAllocatorRef allocator, int options);
 
     /**
      * Create a CF representation of a registry entry's property.
@@ -348,8 +345,7 @@ public interface IOKit extends Library {
      *         caller should release with CFRelease.
      */
     CFTypeRef IORegistryEntrySearchCFProperty(IORegistryEntry entry, String plane, CFStringRef key,
-            CFAllocatorRef allocator,
-            int options);
+            CFAllocatorRef allocator, int options);
 
     /**
      * Returns an ID for the registry entry that is global to all tasks.
