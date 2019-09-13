@@ -223,6 +223,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
     /**
      * Initializes Class variables
      */
+    @Override
     protected ProcessorIdentifier queryProcessorId() {
         String cpuVendor = "";
         String cpuName = "";
@@ -251,9 +252,15 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
         }
         SYSTEM_INFO sysinfo = new SYSTEM_INFO();
         Kernel32.INSTANCE.GetNativeSystemInfo(sysinfo);
-        if (sysinfo.processorArchitecture.pi.wProcessorArchitecture.intValue() == 9 // PROCESSOR_ARCHITECTURE_AMD64
-                || sysinfo.processorArchitecture.pi.wProcessorArchitecture.intValue() == 12 // PROCESSOR_ARCHITECTURE_ARM64
-                || sysinfo.processorArchitecture.pi.wProcessorArchitecture.intValue() == 6) { // PROCESSOR_ARCHITECTURE_IA64
+        int processorArchitecture = sysinfo.processorArchitecture.pi.wProcessorArchitecture.intValue();
+        // JNA reads wrong union member. Temporarily override.
+        // See https://github.com/java-native-access/jna/pull/1134
+        if (sysinfo.processorArchitecture.dwOemID.intValue() > 0) {
+            processorArchitecture = sysinfo.processorArchitecture.dwOemID.intValue() & 0xffff;
+        }
+        if (processorArchitecture == 9 // PROCESSOR_ARCHITECTURE_AMD64
+                || processorArchitecture == 12 // PROCESSOR_ARCHITECTURE_ARM64
+                || processorArchitecture == 6) { // PROCESSOR_ARCHITECTURE_IA64
             cpu64bit = true;
         }
 
@@ -271,7 +278,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
 
     /**
      * Parses identifier string
-     * 
+     *
      * @param identifier
      *            the full identifier string
      * @param key
@@ -432,7 +439,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
 
     /**
      * Iterate over the package mask list and find a matching mask index
-     * 
+     *
      * @param packageMaskList
      *            The list of bitmasks to iterate
      * @param logProc
@@ -515,7 +522,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
     /**
      * Call CallNTPowerInformation for Processor information and return an array
      * of the specified index
-     * 
+     *
      * @param fieldIndex
      *            The field, in order as defined in the
      *            {@link PowrProf#PROCESSOR_INFORMATION} structure.
