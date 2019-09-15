@@ -51,10 +51,12 @@ import com.sun.jna.platform.mac.IOKit.IOIterator;
 import com.sun.jna.platform.mac.IOKit.IOObject;
 import com.sun.jna.platform.mac.IOKit.IORegistryEntry;
 import com.sun.jna.platform.mac.IOKit.IOService;
-import com.sun.jna.platform.mac.IOKit.MachPort;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.LongByReference;
 import com.sun.jna.ptr.PointerByReference;
+
+import oshi.jna.platform.mac.SystemB;
+import oshi.jna.platform.mac.SystemB.MachPort;
 
 public class IOKitTest {
 
@@ -136,7 +138,7 @@ public class IOKitTest {
         cfSerialAsType.release();
 
         assertEquals(0, root.release());
-        assertEquals(0, masterPort.release());
+        assertEquals(0, masterPort.deallocate());
     }
 
     @Test
@@ -211,7 +213,7 @@ public class IOKitTest {
             controllerDevice = iter.next();
         }
         assertEquals(0, iter.release());
-        assertEquals(0, masterPort.release());
+        assertEquals(0, masterPort.deallocate());
     }
 
     @Test
@@ -222,7 +224,7 @@ public class IOKitTest {
         assertNotNull(smcService);
 
         PointerByReference connPtr = new PointerByReference();
-        MachPort taskSelf = oshi.jna.platform.mac.SystemB.INSTANCE.mach_task_self_ptr();
+        SystemB.TaskPort taskSelf = oshi.jna.platform.mac.SystemB.INSTANCE.mach_task_self_ptr();
         assertEquals(0, IO.IOServiceOpen(smcService, taskSelf, 0, connPtr));
         IOConnect conn = new IOConnect(connPtr.getValue());
 
@@ -232,7 +234,7 @@ public class IOKitTest {
 
         IO.IOServiceClose(conn);
         assertEquals(0, smcService.release());
-        assertEquals(0, masterPort.release());
+        assertEquals(0, masterPort.deallocate());
     }
 
     @Test

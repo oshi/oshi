@@ -46,8 +46,9 @@ import com.sun.jna.platform.mac.DiskArbitration.DADiskRef;
 import com.sun.jna.platform.mac.DiskArbitration.DASessionRef;
 import com.sun.jna.platform.mac.IOKit.IOIterator;
 import com.sun.jna.platform.mac.IOKit.IORegistryEntry;
-import com.sun.jna.platform.mac.IOKit.MachPort;
 import com.sun.jna.ptr.PointerByReference;
+
+import oshi.jna.platform.mac.SystemB.MachPort;
 
 public class DiskArbitrationTest {
 
@@ -58,7 +59,7 @@ public class DiskArbitrationTest {
     @Test
     public void testDiskCreate() {
         PointerByReference masterPortPtr = new PointerByReference();
-        assertEquals(0, IO.IOMasterPort(IOKit.MACH_PORT_NULL, masterPortPtr));
+        assertEquals(0, IO.IOMasterPort(oshi.jna.platform.mac.SystemB.MACH_PORT_NULL, masterPortPtr));
         MachPort masterPort = new MachPort(masterPortPtr.getValue());
 
         // Create some keys we'll need
@@ -146,6 +147,6 @@ public class DiskArbitrationTest {
         daMediaBlockSize.release();
 
         session.release();
-        assertEquals(0, masterPort.release());
+        assertEquals(0, masterPort.deallocate());
     }
 }

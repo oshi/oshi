@@ -34,14 +34,14 @@ import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Structure;
 import com.sun.jna.Structure.FieldOrder;
-import com.sun.jna.platform.mac.IOKitUtil;
 import com.sun.jna.platform.mac.IOKit.IOConnect;
 import com.sun.jna.platform.mac.IOKit.IOService;
-import com.sun.jna.platform.mac.IOKit.MachPort;
+import com.sun.jna.platform.mac.IOKitUtil;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
 
 import oshi.jna.platform.mac.IOKit;
+import oshi.jna.platform.mac.SystemB;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
 
@@ -160,7 +160,7 @@ public class SmcUtil {
             LOG.error("Error: no SMC found");
             return 1;
         }
-        MachPort taskSelf = oshi.jna.platform.mac.SystemB.INSTANCE.mach_task_self_ptr();
+        SystemB.TaskPort taskSelf = oshi.jna.platform.mac.SystemB.INSTANCE.mach_task_self_ptr();
         int result = IOKit.INSTANCE.IOServiceOpen(service, taskSelf, 0, conn);
         service.release();
         if (result != 0) {
