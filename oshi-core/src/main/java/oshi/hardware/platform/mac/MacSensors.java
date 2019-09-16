@@ -23,6 +23,8 @@
  */
 package oshi.hardware.platform.mac;
 
+import com.sun.jna.platform.mac.IOKit.IOConnect;
+
 import oshi.hardware.common.AbstractSensors;
 import oshi.util.platform.mac.SmcUtil;
 
@@ -38,9 +40,9 @@ public class MacSensors extends AbstractSensors {
 
     @Override
     public double queryCpuTemperature() {
-        SmcUtil.smcOpen();
-        double temp = SmcUtil.smcGetFloat(SmcUtil.SMC_KEY_CPU_TEMP, 50);
-        SmcUtil.smcClose();
+        IOConnect conn = SmcUtil.smcOpen();
+        double temp = SmcUtil.smcGetFloat(conn, SmcUtil.SMC_KEY_CPU_TEMP, 50);
+        SmcUtil.smcClose(conn);
         if (temp > 0d) {
             return temp;
         }
@@ -50,23 +52,28 @@ public class MacSensors extends AbstractSensors {
     @Override
     public int[] queryFanSpeeds() {
         // If we don't have fan # try to get it
-        SmcUtil.smcOpen();
+        IOConnect conn = SmcUtil.smcOpen();
         if (this.numFans == 0) {
-            this.numFans = (int) SmcUtil.smcGetLong(SmcUtil.SMC_KEY_FAN_NUM, 50);
+            this.numFans = (int) SmcUtil.smcGetLong(conn, SmcUtil.SMC_KEY_FAN_NUM, 50);
         }
         int[] fanSpeeds = new int[this.numFans];
         for (int i = 0; i < this.numFans; i++) {
-            fanSpeeds[i] = (int) SmcUtil.smcGetFloat(String.format(SmcUtil.SMC_KEY_FAN_SPEED, i), 50);
+            fanSpeeds[i] = (int) SmcUtil.smcGetFloat(conn, String.format(SmcUtil.SMC_KEY_FAN_SPEED, i), 50);
         }
-        SmcUtil.smcClose();
+        SmcUtil.smcClose(conn);
         return fanSpeeds;
     }
 
     @Override
     public double queryCpuVoltage() {
-        SmcUtil.smcOpen();
-        double volts = SmcUtil.smcGetFloat(SmcUtil.SMC_KEY_CPU_VOLTAGE, 50) / 1000d;
-        SmcUtil.smcClose();
+        IOConnect conn = SmcUtil.smcOpen();
+        double volts = SmcUtil.smcGetFloat(conn, SmcUtil.SMC_KEY_CPU_VOLTAGE, 50) / 1000d;
+        SmcUtil.smcClose(conn);
         return volts;
+    }
+
+    public static void main(String[] args) {
+        MacSensors ms = new MacSensors();
+        System.out.println(ms.queryCpuTemperature());
     }
 }
