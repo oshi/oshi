@@ -41,7 +41,7 @@ public class MacSensors extends AbstractSensors {
     @Override
     public double queryCpuTemperature() {
         IOConnect conn = SmcUtil.smcOpen();
-        double temp = SmcUtil.smcGetFloat(conn, SmcUtil.SMC_KEY_CPU_TEMP, 50);
+        double temp = SmcUtil.smcGetFloat(conn, SmcUtil.SMC_KEY_CPU_TEMP);
         SmcUtil.smcClose(conn);
         if (temp > 0d) {
             return temp;
@@ -54,11 +54,11 @@ public class MacSensors extends AbstractSensors {
         // If we don't have fan # try to get it
         IOConnect conn = SmcUtil.smcOpen();
         if (this.numFans == 0) {
-            this.numFans = (int) SmcUtil.smcGetLong(conn, SmcUtil.SMC_KEY_FAN_NUM, 50);
+            this.numFans = (int) SmcUtil.smcGetLong(conn, SmcUtil.SMC_KEY_FAN_NUM);
         }
         int[] fanSpeeds = new int[this.numFans];
         for (int i = 0; i < this.numFans; i++) {
-            fanSpeeds[i] = (int) SmcUtil.smcGetFloat(conn, String.format(SmcUtil.SMC_KEY_FAN_SPEED, i), 50);
+            fanSpeeds[i] = (int) SmcUtil.smcGetFloat(conn, String.format(SmcUtil.SMC_KEY_FAN_SPEED, i));
         }
         SmcUtil.smcClose(conn);
         return fanSpeeds;
@@ -67,13 +67,8 @@ public class MacSensors extends AbstractSensors {
     @Override
     public double queryCpuVoltage() {
         IOConnect conn = SmcUtil.smcOpen();
-        double volts = SmcUtil.smcGetFloat(conn, SmcUtil.SMC_KEY_CPU_VOLTAGE, 50) / 1000d;
+        double volts = SmcUtil.smcGetFloat(conn, SmcUtil.SMC_KEY_CPU_VOLTAGE) / 1000d;
         SmcUtil.smcClose(conn);
         return volts;
-    }
-
-    public static void main(String[] args) {
-        MacSensors ms = new MacSensors();
-        System.out.println(ms.queryCpuTemperature());
     }
 }

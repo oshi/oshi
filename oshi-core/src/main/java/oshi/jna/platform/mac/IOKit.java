@@ -25,8 +25,9 @@
 package oshi.jna.platform.mac;
 
 import com.sun.jna.Native;
+import com.sun.jna.NativeLong;
 import com.sun.jna.Structure;
-import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.ptr.NativeLongByReference;
 
 public interface IOKit extends com.sun.jna.platform.mac.IOKit {
 
@@ -35,6 +36,6 @@ public interface IOKit extends com.sun.jna.platform.mac.IOKit {
     /*
      * Beta/Non-API do not commit to JNA
      */
-    int IOConnectCallStructMethod(IOConnect connection, int selector, Structure inputStructure, int structureInputSize,
-            Structure outputStructure, IntByReference structureOutputSize);
+    int IOConnectCallStructMethod(IOConnect connection, int selector, Structure inputStructure,
+            NativeLong structureInputSize, Structure outputStructure, NativeLongByReference structureOutputSize);
 }
