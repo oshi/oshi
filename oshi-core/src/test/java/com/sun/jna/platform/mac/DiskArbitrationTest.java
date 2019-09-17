@@ -46,21 +46,23 @@ import com.sun.jna.platform.mac.DiskArbitration.DADiskRef;
 import com.sun.jna.platform.mac.DiskArbitration.DASessionRef;
 import com.sun.jna.platform.mac.IOKit.IOIterator;
 import com.sun.jna.platform.mac.IOKit.IORegistryEntry;
+import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
 
-import oshi.jna.platform.mac.SystemB.MachPort;
+import oshi.jna.platform.mac.SystemB;
 
 public class DiskArbitrationTest {
 
     private static final DiskArbitration DA = DiskArbitration.INSTANCE;
     private static final CoreFoundation CF = CoreFoundation.INSTANCE;
     private static final IOKit IO = IOKit.INSTANCE;
+    private static final SystemB SYS = SystemB.INSTANCE;
 
     @Test
     public void testDiskCreate() {
-        PointerByReference masterPortPtr = new PointerByReference();
-        assertEquals(0, IO.IOMasterPort(oshi.jna.platform.mac.SystemB.MACH_PORT_NULL, masterPortPtr));
-        MachPort masterPort = new MachPort(masterPortPtr.getValue());
+        IntByReference masterPortPtr = new IntByReference();
+        assertEquals(0, IO.IOMasterPort(0, masterPortPtr));
+        int masterPort = masterPortPtr.getValue();
 
         // Create some keys we'll need
         CFStringRef daMediaBSDName = CFStringRef.createCFString("DAMediaBSDName");
@@ -68,13 +70,14 @@ public class DiskArbitrationTest {
         CFStringRef daMediaLeaf = CFStringRef.createCFString("DAMediaLeaf");
         CFStringRef daMediaSize = CFStringRef.createCFString("DAMediaSize");
         CFStringRef daMediaBlockSize = CFStringRef.createCFString("DAMediaBlockSize");
+        CFStringRef wholeKey = CFStringRef.createCFString("Whole");
 
         // Open a DiskArbitration session
         DASessionRef session = DA.DASessionCreate(CF.CFAllocatorGetDefault());
         assertNotNull(session);
 
         // Get IOMedia objects representing whole drives and save the BSD Name
-        List<String> bsdNames = new ArrayList<>();
+        List<String> bsdNames = new ArrayList<String>();
         PointerByReference iterPtr = new PointerByReference();
 
         CFMutableDictionaryRef dict = IOKit.INSTANCE.IOServiceMatching("IOMedia");
@@ -83,24 +86,27 @@ public class DiskArbitrationTest {
         IOIterator iter = new IOIterator(iterPtr.getValue());
         IORegistryEntry media = iter.next();
         while (media != null) {
-            CFStringRef wholeKey = CFStringRef.createCFString("Whole");
             CFTypeRef cfWhole = IO.IORegistryEntryCreateCFProperty(media, wholeKey, CF.CFAllocatorGetDefault(), 0);
-            wholeKey.release();
             assertNotNull(cfWhole);
             CFBooleanRef cfWholeBool = new CFBooleanRef(cfWhole.getPointer());
             if (cfWholeBool.booleanValue()) {
                 // check that util boolean matches
-                assertTrue(IOKitUtil.getIORegistryBooleanProperty(media, "Whole", false));
-                // check long and int values for major
-                long majorLong = IOKitUtil.getIORegistryLongProperty(media, "BSD Major", Long.MAX_VALUE);
-                int majorInt = IOKitUtil.getIORegistryIntProperty(media, "BSD Major", Integer.MAX_VALUE);
-                assertEquals(majorLong, majorInt);
+                assertTrue(IOKitUtil.getIORegistryBooleanProperty(media, "Whole"));
+                // check long, int, double values for major
+                Long majorLong = IOKitUtil.getIORegistryLongProperty(media, "BSD Major");
+                Integer majorInt = IOKitUtil.getIORegistryIntProperty(media, "BSD Major");
+                Double majorDouble = IOKitUtil.getIORegistryDoubleProperty(media, "BSD Major");
+                assertNotNull(majorLong);
+                assertNotNull(majorInt);
+                assertNotNull(majorDouble);
+                assertEquals(majorLong.intValue(), majorInt.intValue());
+                assertEquals(majorDouble.doubleValue(), majorInt.doubleValue(), 1e-15);
 
                 DADiskRef disk = DA.DADiskCreateFromIOMedia(CF.CFAllocatorGetDefault(), session, media);
                 bsdNames.add(DA.DADiskGetBSDName(disk));
                 disk.release();
             } else {
-                assertFalse(IOKitUtil.getIORegistryBooleanProperty(media, "Whole", true));
+                assertFalse(IOKitUtil.getIORegistryBooleanProperty(media, "Whole"));
             }
             cfWhole.release();
             assertEquals(0, media.release());
@@ -140,6 +146,7 @@ public class DiskArbitrationTest {
             diskInfo.release();
             disk.release();
         }
+        wholeKey.release();
         daMediaBSDName.release();
         daMediaWhole.release();
         daMediaLeaf.release();
@@ -147,6 +154,6 @@ public class DiskArbitrationTest {
         daMediaBlockSize.release();
 
         session.release();
-        assertEquals(0, masterPort.deallocate());
+        assertEquals(0, SYS.mach_port_deallocate(SYS.mach_task_self(), masterPort));
     }
 }

@@ -179,13 +179,13 @@ public class MacUsbDevice extends AbstractUsbDevice {
                         vendorMap.put(childId.getValue(), vendor);
                     }
                     // Get vendorId and store in map
-                    long vendorId = IOKitUtil.getIORegistryLongProperty(childDevice, "idVendor", 0L);
-                    if (vendorId != 0) {
+                    Long vendorId = IOKitUtil.getIORegistryLongProperty(childDevice, "idVendor");
+                    if (vendorId != null) {
                         vendorIdMap.put(childId.getValue(), String.format("%04x", 0xffff & vendorId));
                     }
                     // Get productId and store in map
-                    long productId = IOKitUtil.getIORegistryLongProperty(childDevice, "idProduct", 0L);
-                    if (productId != 0) {
+                    Long productId = IOKitUtil.getIORegistryLongProperty(childDevice, "idProduct");
+                    if (productId != null) {
                         productIdMap.put(childId.getValue(), String.format("%04x", 0xffff & productId));
                     }
                     // Get serial and store in map

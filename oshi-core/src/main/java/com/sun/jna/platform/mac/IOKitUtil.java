@@ -35,10 +35,8 @@ import com.sun.jna.platform.mac.CoreFoundation.CFTypeRef;
 import com.sun.jna.platform.mac.IOKit.IOIterator;
 import com.sun.jna.platform.mac.IOKit.IORegistryEntry;
 import com.sun.jna.platform.mac.IOKit.IOService;
+import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
-
-import oshi.jna.platform.mac.IOKit;
-import oshi.jna.platform.mac.SystemB;
 
 /**
  * Provides utilities for IOKit.
@@ -46,6 +44,7 @@ import oshi.jna.platform.mac.SystemB;
 public class IOKitUtil {
     private static final IOKit IO = IOKit.INSTANCE;
     private static final CoreFoundation CF = CoreFoundation.INSTANCE;
+    private static final oshi.jna.platform.mac.SystemB SYS = oshi.jna.platform.mac.SystemB.INSTANCE;
 
     private IOKitUtil() {
     }
@@ -59,12 +58,12 @@ public class IOKitUtil {
      *         ports (each call to {@link IOKit#IOMasterPort} adds another send
      *         right to the port) but it is considered good programming practice to
      *         deallocate the port when you are finished with it, using
-     *         {@link IOKit#IOObjectRelease}.
+     *         {@link SystemB#mach_port_deallocate}.
      */
-    public static SystemB.MachPort getMasterPort() {
-        PointerByReference port = new PointerByReference();
-        IO.IOMasterPort(SystemB.MACH_PORT_NULL, port);
-        return new SystemB.MachPort(port.getValue());
+    public static int getMasterPort() {
+        IntByReference port = new IntByReference();
+        IO.IOMasterPort(0, port);
+        return port.getValue();
     }
 
     /**
@@ -74,9 +73,9 @@ public class IOKitUtil {
      *         {@link IOKit#IOObjectRelease}.
      */
     public static IORegistryEntry getRoot() {
-        SystemB.MachPort masterPort = getMasterPort();
+        int masterPort = getMasterPort();
         IORegistryEntry root = IO.IORegistryGetRootEntry(masterPort);
-        masterPort.deallocate();
+        SYS.mach_port_deallocate(SYS.mach_task_self(), masterPort);
         return root;
     }
 
@@ -108,9 +107,9 @@ public class IOKitUtil {
      *         {@link IOKit#IOObjectRelease}.
      */
     public static IOService getMatchingService(CFDictionaryRef matchingDictionary) {
-        SystemB.MachPort masterPort = getMasterPort();
+        int masterPort = getMasterPort();
         IOService service = IO.IOServiceGetMatchingService(masterPort, matchingDictionary);
-        masterPort.deallocate();
+        SYS.mach_port_deallocate(SYS.mach_task_self(), masterPort);
         return service;
     }
 
@@ -142,10 +141,10 @@ public class IOKitUtil {
      *         {@link IOKit#IOObjectRelease}.
      */
     public static IOIterator getMatchingServices(CFDictionaryRef matchingDictionary) {
-        SystemB.MachPort masterPort = getMasterPort();
+        int masterPort = getMasterPort();
         PointerByReference serviceIterator = new PointerByReference();
         int result = IO.IOServiceGetMatchingServices(masterPort, matchingDictionary, serviceIterator);
-        masterPort.deallocate();
+        SYS.mach_port_deallocate(SYS.mach_task_self(), masterPort);
         if (result == 0 && serviceIterator.getValue() != null) {
             return new IOIterator(serviceIterator.getValue());
         }
@@ -161,9 +160,9 @@ public class IOKitUtil {
      *         should release when finished, using {@link IOKit#IOObjectRelease}.
      */
     public static CFMutableDictionaryRef getBSDNameMatchingDict(String bsdName) {
-        SystemB.MachPort masterPort = getMasterPort();
+        int masterPort = getMasterPort();
         CFMutableDictionaryRef result = IO.IOBSDNameMatching(masterPort, 0, bsdName);
-        masterPort.deallocate();
+        SYS.mach_port_deallocate(SYS.mach_task_self(), masterPort);
         return result;
     }
 
@@ -174,7 +173,8 @@ public class IOKitUtil {
      *            A handle to the registry entry
      * @param key
      *            The string name of the key to retrieve
-     * @return The value of the registry entry if it exists;{@code null} otherwise
+     * @return The value of the registry entry if it exists; {@code null}
+     *         otherwise
      */
     public static String getIORegistryStringProperty(IORegistryEntry entry, String key) {
         String value = null;
@@ -199,18 +199,16 @@ public class IOKitUtil {
      *            A handle to the registry entry
      * @param key
      *            The string name of the key to retrieve
-     * @param defaultValue
-     *            The value to return if unsuccessful
-     * @return The value of the registry entry if it exists.
+     * @return The value of the registry entry if it exists; {@code null}
+     *         otherwise
      *         <p>
-     *         This method assumes a 64-bit integer is stored and does not do type
-     *         checking. If this object's type differs from the return type, and the
-     *         conversion is lossy or the return value is out of range, then this
-     *         method returns an approximate value. If the value does not exist, the
-     *         {@code defaultValue} is returned.
+     *         This method assumes a 64-bit integer is stored and does not do
+     *         type checking. If this object's type differs from the return
+     *         type, and the conversion is lossy or the return value is out of
+     *         range, then this method returns an approximate value.
      */
-    public static long getIORegistryLongProperty(IORegistryEntry entry, String key, long defaultValue) {
-        long value = defaultValue;
+    public static Long getIORegistryLongProperty(IORegistryEntry entry, String key) {
+        Long value = null;
         CFStringRef keyAsCFString = CFStringRef.createCFString(key);
         CFTypeRef valueAsCFType = IO.IORegistryEntryCreateCFProperty(entry, keyAsCFString, CF.CFAllocatorGetDefault(),
                 0);
@@ -232,18 +230,16 @@ public class IOKitUtil {
      *            A handle to the registry entry
      * @param key
      *            The string name of the key to retrieve
-     * @param defaultValue
-     *            The value to return if unsuccessful
-     * @return The value of the registry entry if it exists.
+     * @return The value of the registry entry if it exists; {@code null}
+     *         otherwise
      *         <p>
-     *         This method assumes a 32-bit integer is stored and does not do type
-     *         checking. If this object's type differs from the return type, and the
-     *         conversion is lossy or the return value is out of range, then this
-     *         method returns an approximate value. If the value does not exist, the
-     *         {@code defaultValue} is returned.
+     *         This method assumes a 32-bit integer is stored and does not do
+     *         type checking. If this object's type differs from the return
+     *         type, and the conversion is lossy or the return value is out of
+     *         range, then this method returns an approximate value.
      */
-    public static int getIORegistryIntProperty(IORegistryEntry entry, String key, int defaultValue) {
-        int value = defaultValue;
+    public static Integer getIORegistryIntProperty(IORegistryEntry entry, String key) {
+        Integer value = null;
         CFStringRef keyAsCFString = CFStringRef.createCFString(key);
         CFTypeRef valueAsCFType = IO.IORegistryEntryCreateCFProperty(entry, keyAsCFString, CF.CFAllocatorGetDefault(),
                 0);
@@ -265,18 +261,16 @@ public class IOKitUtil {
      *            A handle to the registry entry
      * @param key
      *            The string name of the key to retrieve
-     * @param defaultValue
-     *            The value to return if unsuccessful
-     * @return The value of the registry entry if it exists.
+     * @return The value of the registry entry if it exists; {@code null}
+     *         otherwise
      *         <p>
-     *         This method assumes a floating point value is stored and does not do
-     *         type checking. If this object's type differs from the return type,
-     *         and the conversion is lossy or the return value is out of range, then
-     *         this method returns an approximate value. If the value does not
-     *         exist, the {@code defaultValue} is returned.
+     *         This method assumes a floating point value is stored and does not
+     *         do type checking. If this object's type differs from the return
+     *         type, and the conversion is lossy or the return value is out of
+     *         range, then this method returns an approximate value.
      */
-    public static double getIORegistryIntProperty(IORegistryEntry entry, String key, double defaultValue) {
-        double value = defaultValue;
+    public static Double getIORegistryDoubleProperty(IORegistryEntry entry, String key) {
+        Double value = null;
         CFStringRef keyAsCFString = CFStringRef.createCFString(key);
         CFTypeRef valueAsCFType = IO.IORegistryEntryCreateCFProperty(entry, keyAsCFString, CF.CFAllocatorGetDefault(),
                 0);
@@ -298,13 +292,11 @@ public class IOKitUtil {
      *            A handle to the registry entry
      * @param key
      *            The string name of the key to retrieve
-     * @param defaultValue
-     *            The value to return if unsuccessful
-     * @return The value of the registry entry if it exists; {@code defaultValue}
+     * @return The value of the registry entry if it exists; {@code null}
      *         otherwise
      */
-    public static boolean getIORegistryBooleanProperty(IORegistryEntry entry, String key, boolean defaultValue) {
-        boolean value = defaultValue;
+    public static Boolean getIORegistryBooleanProperty(IORegistryEntry entry, String key) {
+        Boolean value = null;
         CFStringRef keyAsCFString = CFStringRef.createCFString(key);
         CFTypeRef valueAsCFType = IO.IORegistryEntryCreateCFProperty(entry, keyAsCFString, CF.CFAllocatorGetDefault(),
                 0);

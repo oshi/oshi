@@ -308,11 +308,13 @@ public class MacDisks implements Disks {
                                 } else {
                                     mountPoint = mountPointMap.getOrDefault(partBsdName, "");
                                 }
+                                Long size = IOKitUtil.getIORegistryLongProperty(sdService, "Size");
+                                Integer bsdMajor = IOKitUtil.getIORegistryIntProperty(sdService, "BSD Major");
+                                Integer bsdMinor = IOKitUtil.getIORegistryIntProperty(sdService, "BSD Minor");
                                 partitions.add(new HWPartition(partBsdName, name, type,
                                         IOKitUtil.getIORegistryStringProperty(sdService, "UUID"),
-                                        IOKitUtil.getIORegistryLongProperty(sdService, "Size", 0L),
-                                        IOKitUtil.getIORegistryIntProperty(sdService, "BSD Major", 0),
-                                        IOKitUtil.getIORegistryIntProperty(sdService, "BSD Minor", 0), mountPoint));
+                                        size == null ? 0L : size, bsdMajor == null ? 0 : bsdMajor,
+                                        bsdMinor == null ? 0 : bsdMinor, mountPoint));
                                 // iterate
                                 sdService.release();
                                 sdService = IOKit.INSTANCE.IOIteratorNext(serviceIterator);
@@ -389,7 +391,8 @@ public class MacDisks implements Disks {
         if (iter != null) {
             IORegistryEntry media = iter.next();
             while (media != null) {
-                if (IOKitUtil.getIORegistryBooleanProperty(media, "Whole", false)) {
+                Boolean whole = IOKitUtil.getIORegistryBooleanProperty(media, "Whole");
+                if (whole != null && whole) {
                     DADiskRef disk = DiskArbitration.INSTANCE
                             .DADiskCreateFromIOMedia(CoreFoundation.INSTANCE.CFAllocatorGetDefault(), session, media);
                     bsdNames.add(DiskArbitration.INSTANCE.DADiskGetBSDName(disk));
@@ -421,7 +424,7 @@ public class MacDisks implements Disks {
                     Pointer result = CoreFoundation.INSTANCE.CFDictionaryGetValue(diskInfo,
                             cfKeyMap.get(CFKey.DA_DEVICE_MODEL));
                     CFStringRef modelPtr = new CFStringRef(result);
-                    model = modelPtr.toString();
+                    model = modelPtr.stringValue();
                     if (model == null) {
                         model = Constants.UNKNOWN;
                     }

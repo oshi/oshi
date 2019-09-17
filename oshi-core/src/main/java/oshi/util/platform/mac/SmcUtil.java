@@ -148,7 +148,7 @@ public class SmcUtil {
         IOService smcService = IOKitUtil.getMatchingService("AppleSMC");
         if (smcService != null) {
             PointerByReference connPtr = new PointerByReference();
-            int result = IO.IOServiceOpen(smcService, SystemB.INSTANCE.mach_task_self_ptr(), 0, connPtr);
+            int result = IO.IOServiceOpen(smcService, SystemB.INSTANCE.mach_task_self(), 0, connPtr);
             smcService.release();
             if (result == 0) {
                 return new IOConnect(connPtr.getValue());
