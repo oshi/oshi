@@ -45,7 +45,6 @@ import com.sun.jna.platform.mac.IOKitUtil;
 import com.sun.jna.platform.mac.SystemB;
 import com.sun.jna.platform.mac.SystemB.Statfs;
 
-import oshi.jna.platform.mac.IOKit;
 import oshi.software.os.FileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.Constants;
@@ -166,7 +165,7 @@ public class MacFileSystem implements FileSystem {
                             // getMatchingServices releases matchingDict
                             // Should only match one logical drive
                             IORegistryEntry fsEntry = fsIter.next();
-                            if (fsEntry != null && IOKit.INSTANCE.IOObjectConformsTo(fsEntry, "IOMedia")) {
+                            if (fsEntry != null && fsEntry.conformsTo("IOMedia")) {
                                 // Now get the UUID
                                 uuid = fsEntry.getStringProperty("UUID");
                                 if (uuid != null) {

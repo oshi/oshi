@@ -181,13 +181,12 @@ public class MacDisks implements Disks {
                     // IOBlockStorageDriver object
                     // Get the properties from the parent
                     PointerByReference parentPtr = new PointerByReference();
-                    if (IOKit.INSTANCE.IOObjectConformsTo(drive, "IOMedia")
-                            && IOKit.INSTANCE.IORegistryEntryGetParentEntry(drive, "IOService", parentPtr) == 0) {
+                    if (drive.conformsTo("IOMedia")
+                            && drive.getParentEntry("IOService", parentPtr) == 0) {
                         IORegistryEntry parent = new IORegistryEntry(parentPtr.getValue());
                         PointerByReference propsPtr = new PointerByReference();
-                        if (IOKit.INSTANCE.IOObjectConformsTo(parent, "IOBlockStorageDriver")
-                                && IOKit.INSTANCE.IORegistryEntryCreateCFProperties(parent, propsPtr,
-                                        CoreFoundation.INSTANCE.CFAllocatorGetDefault(), 0) == 0) {
+                        if (parent.conformsTo("IOBlockStorageDriver")
+                                && parent.createCFProperties(propsPtr) == 0) {
                             CFMutableDictionaryRef properties = new CFMutableDictionaryRef();
                             properties.setPointer(propsPtr.getValue());
                             // We now have a properties object with the
@@ -229,8 +228,7 @@ public class MacDisks implements Disks {
                         }
                         // Now get partitions for this disk.
                         List<HWPartition> partitions = new ArrayList<>();
-                        if (IOKit.INSTANCE.IORegistryEntryCreateCFProperties(drive, propsPtr,
-                                CoreFoundation.INSTANCE.CFAllocatorGetDefault(), 0) == 0) {
+                        if (drive.createCFProperties(propsPtr) == 0) {
                             CFMutableDictionaryRef properties = new CFMutableDictionaryRef();
                             properties.setPointer(propsPtr.getValue());
                             // Partitions will match BSD Unit property

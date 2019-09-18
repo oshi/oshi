@@ -30,7 +30,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Pointer;
-import com.sun.jna.platform.mac.CoreFoundation;
 import com.sun.jna.platform.mac.CoreFoundation.CFDataRef;
 import com.sun.jna.platform.mac.CoreFoundation.CFStringRef;
 import com.sun.jna.platform.mac.CoreFoundation.CFTypeRef;
@@ -41,7 +40,6 @@ import com.sun.jna.ptr.PointerByReference;
 
 import oshi.hardware.Display;
 import oshi.hardware.common.AbstractDisplay;
-import oshi.jna.platform.mac.IOKit;
 
 /**
  * A Display
@@ -81,12 +79,11 @@ public class MacDisplay extends AbstractDisplay {
             while (sdService != null) {
                 // Display properties are in a child entry
                 PointerByReference propertiesPtr = new PointerByReference();
-                int ret = IOKit.INSTANCE.IORegistryEntryGetChildEntry(sdService, "IOService", propertiesPtr);
+                int ret = sdService.getChildEntry("IOService", propertiesPtr);
                 if (ret == 0) {
                     IORegistryEntry properties = new IORegistryEntry(propertiesPtr.getValue());
                     // look up the edid by key
-                    CFTypeRef edidRaw = IOKit.INSTANCE.IORegistryEntryCreateCFProperty(properties, cfEdid,
-                            CoreFoundation.INSTANCE.CFAllocatorGetDefault(), 0);
+                    CFTypeRef edidRaw = properties.createCFProperty(cfEdid);
                     CFDataRef edid = new CFDataRef(edidRaw.getPointer());
                     if (edid != null) {
                         // Edid is a byte array of 128 bytes
