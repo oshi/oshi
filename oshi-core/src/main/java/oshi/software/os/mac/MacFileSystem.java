@@ -147,7 +147,7 @@ public class MacFileSystem implements FileSystem {
                         CFDictionaryRef diskInfo = DiskArbitration.INSTANCE.DADiskCopyDescription(disk);
                         if (diskInfo != null) {
                             // get volume name from its key
-                            Pointer result = CoreFoundation.INSTANCE.CFDictionaryGetValue(diskInfo, daVolumeNameKey);
+                            Pointer result = diskInfo.getValue(daVolumeNameKey);
                             CFStringRef volumePtr = new CFStringRef(result);
                             name = volumePtr.stringValue();
                             if (name == null) {

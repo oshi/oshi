@@ -65,7 +65,7 @@ public class MacPowerSource extends AbstractPowerSource {
         // Get the blob containing current power source state
         CFTypeRef powerSourcesInfo = IO.IOPSCopyPowerSourcesInfo();
         CFArrayRef powerSourcesList = IO.IOPSCopyPowerSourcesList(powerSourcesInfo);
-        int powerSourcesCount = CF.CFArrayGetCount(powerSourcesList).intValue();
+        int powerSourcesCount = powerSourcesList.getCount().intValue();
 
         // Get time remaining
         // -1 = unknown, -2 = unlimited
@@ -79,19 +79,19 @@ public class MacPowerSource extends AbstractPowerSource {
         List<MacPowerSource> psList = new ArrayList<>(powerSourcesCount);
         for (int ps = 0; ps < powerSourcesCount; ps++) {
             // Get the dictionary for that Power Source
-            Pointer pwrSrcPtr = CoreFoundation.INSTANCE.CFArrayGetValueAtIndex(powerSourcesList, new CFIndex(ps));
+            Pointer pwrSrcPtr = powerSourcesList.getValueAtIndex(new CFIndex(ps));
             CFTypeRef powerSource = new CFTypeRef();
             powerSource.setPointer(pwrSrcPtr);
             CFDictionaryRef dictionary = IO.IOPSGetPowerSourceDescription(powerSourcesInfo, powerSource);
 
             // Get values from dictionary (See IOPSKeys.h)
             // Skip if not present
-            Pointer result = CF.CFDictionaryGetValue(dictionary, isPresentKey);
+            Pointer result = dictionary.getValue(isPresentKey);
             if (result != null) {
                 CFBooleanRef isPresentRef = new CFBooleanRef(result);
                 if (0 != CF.CFBooleanGetValue(isPresentRef)) {
                     // Get name
-                    result = CF.CFDictionaryGetValue(dictionary, nameKey);
+                    result = dictionary.getValue(nameKey);
                     CFStringRef cfName = new CFStringRef(result);
                     String name = cfName.stringValue();
                     if (name == null) {
@@ -99,14 +99,14 @@ public class MacPowerSource extends AbstractPowerSource {
                     }
                     // Remaining Capacity = current / max
                     int currentCapacity = 0;
-                    if (0 != CF.CFDictionaryGetValueIfPresent(dictionary, currentCapacityKey, null)) {
-                        result = CF.CFDictionaryGetValue(dictionary, currentCapacityKey);
+                    if (0 != dictionary.getValueIfPresent(currentCapacityKey, null)) {
+                        result = dictionary.getValue(currentCapacityKey);
                         CFNumberRef cap = new CFNumberRef(result);
                         currentCapacity = cap.intValue();
                     }
                     int maxCapacity = 100;
-                    if (0 != CF.CFDictionaryGetValueIfPresent(dictionary, maxCapacityKey, null)) {
-                        result = CF.CFDictionaryGetValue(dictionary, maxCapacityKey);
+                    if (0 != dictionary.getValueIfPresent(maxCapacityKey, null)) {
+                        result = dictionary.getValue(maxCapacityKey);
                         CFNumberRef cap = new CFNumberRef(result);
                         maxCapacity = cap.intValue();
                     }

@@ -243,10 +243,10 @@ public class MacUsbDevice extends AbstractUsbDevice {
         // Create a matching property dictionary from the locationId
         CFMutableDictionaryRef propertyDict = CoreFoundation.INSTANCE
                 .CFDictionaryCreateMutable(CoreFoundation.INSTANCE.CFAllocatorGetDefault(), new CFIndex(0), null, null);
-        CoreFoundation.INSTANCE.CFDictionarySetValue(propertyDict, locationIDKey, locationId);
+        propertyDict.setValue(locationIDKey, locationId);
         CFMutableDictionaryRef matchingDict = CoreFoundation.INSTANCE
                 .CFDictionaryCreateMutable(CoreFoundation.INSTANCE.CFAllocatorGetDefault(), new CFIndex(0), null, null);
-        CoreFoundation.INSTANCE.CFDictionarySetValue(matchingDict, ioPropertyMatchKey, propertyDict);
+        matchingDict.setValue(ioPropertyMatchKey, propertyDict);
 
         // search for all IOservices that match the locationID
         IOIterator serviceIterator = IOKitUtil.getMatchingServices(matchingDict);

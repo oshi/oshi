@@ -90,8 +90,8 @@ public class MacDisplay extends AbstractDisplay {
                     CFDataRef edid = new CFDataRef(edidRaw.getPointer());
                     if (edid != null) {
                         // Edid is a byte array of 128 bytes
-                        int length = CoreFoundation.INSTANCE.CFDataGetLength(edid).intValue();
-                        Pointer p = CoreFoundation.INSTANCE.CFDataGetBytePtr(edid);
+                        int length = edid.getLength().intValue();
+                        Pointer p = edid.getBytePtr();
                         displays.add(new MacDisplay(p.getByteArray(0, length)));
                         edid.release();
                     }
