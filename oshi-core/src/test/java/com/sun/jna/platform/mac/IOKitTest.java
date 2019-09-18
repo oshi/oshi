@@ -105,7 +105,7 @@ public class IOKitTest {
         String serialNumber = cfSerial.stringValue();
 
         // Test util method for the same thing
-        String serialNumberViaUtil = IOKitUtil.getIORegistryStringProperty(platformExpert, "IOPlatformSerialNumber");
+        String serialNumberViaUtil = platformExpert.getStringProperty("IOPlatformSerialNumber");
         assertEquals(serialNumber, serialNumberViaUtil);
 
         assertEquals(12, serialNumber.length());

@@ -174,22 +174,22 @@ public class MacUsbDevice extends AbstractUsbDevice {
                     IOKit.INSTANCE.IORegistryEntryGetName(childDevice, buffer);
                     nameMap.put(childId.getValue(), buffer.getString(0));
                     // Get vendor and store in map
-                    String vendor = IOKitUtil.getIORegistryStringProperty(childDevice, "USB Vendor Name");
+                    String vendor = childDevice.getStringProperty("USB Vendor Name");
                     if (vendor != null) {
                         vendorMap.put(childId.getValue(), vendor);
                     }
                     // Get vendorId and store in map
-                    Long vendorId = IOKitUtil.getIORegistryLongProperty(childDevice, "idVendor");
+                    Long vendorId = childDevice.getLongProperty("idVendor");
                     if (vendorId != null) {
                         vendorIdMap.put(childId.getValue(), String.format("%04x", 0xffff & vendorId));
                     }
                     // Get productId and store in map
-                    Long productId = IOKitUtil.getIORegistryLongProperty(childDevice, "idProduct");
+                    Long productId = childDevice.getLongProperty("idProduct");
                     if (productId != null) {
                         productIdMap.put(childId.getValue(), String.format("%04x", 0xffff & productId));
                     }
                     // Get serial and store in map
-                    String serial = IOKitUtil.getIORegistryStringProperty(childDevice, "USB Serial Number");
+                    String serial = childDevice.getStringProperty("USB Serial Number");
                     if (serial != null) {
                         serialMap.put(childId.getValue(), serial);
                     }
@@ -265,14 +265,14 @@ public class MacUsbDevice extends AbstractUsbDevice {
                 IORegistryEntry parent = new IORegistryEntry(parentPtr.getValue());
                 // look up the vendor-id by key
                 // vendor-id is a byte array of 4 bytes
-                byte[] vid = IOKitUtil.getIORegistryByteArrayProperty(parent, "vendor-id");
+                byte[] vid = parent.getByteArrayProperty("vendor-id");
                 if (vid != null && vid.length >= 2) {
                     vendorIdMap.put(id, String.format("%02x%02x", vid[1], vid[0]));
                     found = true;
                 }
                 // look up the device-id by key
                 // device-id is a byte array of 4 bytes
-                byte[] pid = IOKitUtil.getIORegistryByteArrayProperty(parent, "device-id");
+                byte[] pid = parent.getByteArrayProperty("device-id");
                 if (pid != null && pid.length >= 2) {
                     productIdMap.put(id, String.format("%02x%02x", pid[1], pid[0]));
                     found = true;

@@ -168,7 +168,7 @@ public class MacFileSystem implements FileSystem {
                             IORegistryEntry fsEntry = fsIter.next();
                             if (fsEntry != null && IOKit.INSTANCE.IOObjectConformsTo(fsEntry, "IOMedia")) {
                                 // Now get the UUID
-                                uuid = IOKitUtil.getIORegistryStringProperty(fsEntry, "UUID");
+                                uuid = fsEntry.getStringProperty("UUID");
                                 if (uuid != null) {
                                     uuid = uuid.toLowerCase();
                                 }

@@ -272,7 +272,7 @@ public class MacDisks implements Disks {
                             IORegistryEntry sdService = IOKit.INSTANCE.IOIteratorNext(serviceIterator);
                             while (sdService != null) {
                                 // look up the BSD Name
-                                String partBsdName = IOKitUtil.getIORegistryStringProperty(sdService, "BSD Name");
+                                String partBsdName = sdService.getStringProperty("BSD Name");
                                 String name = partBsdName;
                                 String type = "";
                                 // Get the DiskArbitration dictionary for
@@ -308,11 +308,11 @@ public class MacDisks implements Disks {
                                 } else {
                                     mountPoint = mountPointMap.getOrDefault(partBsdName, "");
                                 }
-                                Long size = IOKitUtil.getIORegistryLongProperty(sdService, "Size");
-                                Integer bsdMajor = IOKitUtil.getIORegistryIntProperty(sdService, "BSD Major");
-                                Integer bsdMinor = IOKitUtil.getIORegistryIntProperty(sdService, "BSD Minor");
+                                Long size = sdService.getLongProperty("Size");
+                                Integer bsdMajor = sdService.getIntegerProperty("BSD Major");
+                                Integer bsdMinor = sdService.getIntegerProperty("BSD Minor");
                                 partitions.add(new HWPartition(partBsdName, name, type,
-                                        IOKitUtil.getIORegistryStringProperty(sdService, "UUID"),
+                                        sdService.getStringProperty("UUID"),
                                         size == null ? 0L : size, bsdMajor == null ? 0 : bsdMajor,
                                         bsdMinor == null ? 0 : bsdMinor, mountPoint));
                                 // iterate
@@ -391,7 +391,7 @@ public class MacDisks implements Disks {
         if (iter != null) {
             IORegistryEntry media = iter.next();
             while (media != null) {
-                Boolean whole = IOKitUtil.getIORegistryBooleanProperty(media, "Whole");
+                Boolean whole = media.getBooleanProperty("Whole");
                 if (whole != null && whole) {
                     DADiskRef disk = DiskArbitration.INSTANCE
                             .DADiskCreateFromIOMedia(CoreFoundation.INSTANCE.CFAllocatorGetDefault(), session, media);
@@ -455,7 +455,7 @@ public class MacDisks implements Disks {
                             IORegistryEntry sdService = serviceIterator.next();
                             while (sdService != null) {
                                 // look up the serial number
-                                serial = IOKitUtil.getIORegistryStringProperty(sdService, "Serial Number");
+                                serial = sdService.getStringProperty("Serial Number");
                                 sdService.release();
                                 if (serial != null) {
                                     break;

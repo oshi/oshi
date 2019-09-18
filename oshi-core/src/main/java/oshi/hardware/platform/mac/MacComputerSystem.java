@@ -28,8 +28,8 @@ import static oshi.util.Memoizer.memoize;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
-import com.sun.jna.platform.mac.IOKitUtil;
 import com.sun.jna.platform.mac.IOKit.IORegistryEntry;
+import com.sun.jna.platform.mac.IOKitUtil;
 
 import oshi.hardware.Baseboard;
 import oshi.hardware.Firmware;
@@ -143,7 +143,7 @@ final class MacComputerSystem extends AbstractComputerSystem {
         IORegistryEntry platformExpert = IOKitUtil.getMatchingService("IOPlatformExpertDevice");
         if (platformExpert != null) {
             // Fetch the serial number
-            serialNumber = IOKitUtil.getIORegistryStringProperty(platformExpert, "IOPlatformSerialNumber");
+            serialNumber = platformExpert.getStringProperty("IOPlatformSerialNumber");
             platformExpert.release();
         }
         return serialNumber;
