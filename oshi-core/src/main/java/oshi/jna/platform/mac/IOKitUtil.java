@@ -22,15 +22,17 @@
  * A copy is also included in the downloadable source code package
  * containing JNA, in file "AL2.0".
  */
-package com.sun.jna.platform.mac;
+package oshi.jna.platform.mac;
 
-import com.sun.jna.platform.mac.CoreFoundation.CFDictionaryRef;
-import com.sun.jna.platform.mac.CoreFoundation.CFMutableDictionaryRef;
-import com.sun.jna.platform.mac.IOKit.IOIterator;
-import com.sun.jna.platform.mac.IOKit.IORegistryEntry;
-import com.sun.jna.platform.mac.IOKit.IOService;
+import com.sun.jna.platform.mac.SystemB;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
+
+import oshi.jna.platform.mac.CoreFoundation.CFDictionaryRef;
+import oshi.jna.platform.mac.CoreFoundation.CFMutableDictionaryRef;
+import oshi.jna.platform.mac.IOKit.IOIterator;
+import oshi.jna.platform.mac.IOKit.IORegistryEntry;
+import oshi.jna.platform.mac.IOKit.IOService;
 
 /**
  * Provides utilities for IOKit.

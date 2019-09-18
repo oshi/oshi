@@ -23,9 +23,8 @@
  */
 package oshi.hardware.platform.mac;
 
-import com.sun.jna.platform.mac.IOKit.IOConnect;
-
 import oshi.hardware.common.AbstractSensors;
+import oshi.jna.platform.mac.IOKit.IOConnect;
 import oshi.util.platform.mac.SmcUtil;
 
 /**

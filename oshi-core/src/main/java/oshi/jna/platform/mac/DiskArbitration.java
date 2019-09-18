@@ -22,14 +22,15 @@
  * A copy is also included in the downloadable source code package
  * containing JNA, in file "AL2.0".
  */
-package com.sun.jna.platform.mac;
+package oshi.jna.platform.mac;
 
 import com.sun.jna.Library;
 import com.sun.jna.Native;
-import com.sun.jna.platform.mac.CoreFoundation.CFAllocatorRef;
-import com.sun.jna.platform.mac.CoreFoundation.CFDictionaryRef;
-import com.sun.jna.platform.mac.CoreFoundation.CFTypeRef;
-import com.sun.jna.platform.mac.IOKit.IOObject;
+
+import oshi.jna.platform.mac.CoreFoundation.CFAllocatorRef;
+import oshi.jna.platform.mac.CoreFoundation.CFDictionaryRef;
+import oshi.jna.platform.mac.CoreFoundation.CFTypeRef;
+import oshi.jna.platform.mac.IOKit.IOObject;
 
 /**
  * Disk Arbitration is a low-level framework based on Core Foundation. The Disk

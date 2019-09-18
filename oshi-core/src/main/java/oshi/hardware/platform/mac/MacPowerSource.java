@@ -30,18 +30,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Pointer;
-import com.sun.jna.platform.mac.CoreFoundation;
-import com.sun.jna.platform.mac.CoreFoundation.CFArrayRef;
-import com.sun.jna.platform.mac.CoreFoundation.CFBooleanRef;
-import com.sun.jna.platform.mac.CoreFoundation.CFDictionaryRef;
-import com.sun.jna.platform.mac.CoreFoundation.CFIndex;
-import com.sun.jna.platform.mac.CoreFoundation.CFNumberRef;
-import com.sun.jna.platform.mac.CoreFoundation.CFStringRef;
-import com.sun.jna.platform.mac.CoreFoundation.CFTypeRef;
 
 import oshi.hardware.PowerSource;
 import oshi.hardware.common.AbstractPowerSource;
+import oshi.jna.platform.mac.CoreFoundation;
 import oshi.jna.platform.mac.IOKit;
+import oshi.jna.platform.mac.CoreFoundation.CFArrayRef;
+import oshi.jna.platform.mac.CoreFoundation.CFBooleanRef;
+import oshi.jna.platform.mac.CoreFoundation.CFDictionaryRef;
+import oshi.jna.platform.mac.CoreFoundation.CFNumberRef;
+import oshi.jna.platform.mac.CoreFoundation.CFStringRef;
+import oshi.jna.platform.mac.CoreFoundation.CFTypeRef;
 import oshi.util.Constants;
 
 /**
@@ -65,7 +64,7 @@ public class MacPowerSource extends AbstractPowerSource {
         // Get the blob containing current power source state
         CFTypeRef powerSourcesInfo = IO.IOPSCopyPowerSourcesInfo();
         CFArrayRef powerSourcesList = IO.IOPSCopyPowerSourcesList(powerSourcesInfo);
-        int powerSourcesCount = powerSourcesList.getCount().intValue();
+        int powerSourcesCount = powerSourcesList.getCount();
 
         // Get time remaining
         // -1 = unknown, -2 = unlimited
@@ -79,7 +78,7 @@ public class MacPowerSource extends AbstractPowerSource {
         List<MacPowerSource> psList = new ArrayList<>(powerSourcesCount);
         for (int ps = 0; ps < powerSourcesCount; ps++) {
             // Get the dictionary for that Power Source
-            Pointer pwrSrcPtr = powerSourcesList.getValueAtIndex(new CFIndex(ps));
+            Pointer pwrSrcPtr = powerSourcesList.getValueAtIndex(ps);
             CFTypeRef powerSource = new CFTypeRef();
             powerSource.setPointer(pwrSrcPtr);
             CFDictionaryRef dictionary = IO.IOPSGetPowerSourceDescription(powerSourcesInfo, powerSource);
@@ -99,13 +98,13 @@ public class MacPowerSource extends AbstractPowerSource {
                     }
                     // Remaining Capacity = current / max
                     int currentCapacity = 0;
-                    if (0 != dictionary.getValueIfPresent(currentCapacityKey, null)) {
+                    if (dictionary.getValueIfPresent(currentCapacityKey, null)) {
                         result = dictionary.getValue(currentCapacityKey);
                         CFNumberRef cap = new CFNumberRef(result);
                         currentCapacity = cap.intValue();
                     }
                     int maxCapacity = 100;
-                    if (0 != dictionary.getValueIfPresent(maxCapacityKey, null)) {
+                    if (dictionary.getValueIfPresent(maxCapacityKey, null)) {
                         result = dictionary.getValue(maxCapacityKey);
                         CFNumberRef cap = new CFNumberRef(result);
                         maxCapacity = cap.intValue();

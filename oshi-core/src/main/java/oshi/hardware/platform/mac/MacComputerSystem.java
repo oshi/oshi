@@ -28,12 +28,11 @@ import static oshi.util.Memoizer.memoize;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
-import com.sun.jna.platform.mac.IOKit.IORegistryEntry;
-import com.sun.jna.platform.mac.IOKitUtil;
-
 import oshi.hardware.Baseboard;
 import oshi.hardware.Firmware;
 import oshi.hardware.common.AbstractComputerSystem;
+import oshi.jna.platform.mac.IOKitUtil;
+import oshi.jna.platform.mac.IOKit.IORegistryEntry;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 import oshi.util.Util;
