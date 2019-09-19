@@ -33,12 +33,12 @@ import com.sun.jna.Pointer;
 
 import oshi.hardware.Display;
 import oshi.hardware.common.AbstractDisplay;
-import oshi.jna.platform.mac.IOKitUtil;
 import oshi.jna.platform.mac.CoreFoundation.CFDataRef;
 import oshi.jna.platform.mac.CoreFoundation.CFStringRef;
 import oshi.jna.platform.mac.CoreFoundation.CFTypeRef;
 import oshi.jna.platform.mac.IOKit.IOIterator;
 import oshi.jna.platform.mac.IOKit.IORegistryEntry;
+import oshi.jna.platform.mac.IOKitUtil;
 
 /**
  * A Display
@@ -76,12 +76,12 @@ public class MacDisplay extends AbstractDisplay {
             IORegistryEntry sdService = serviceIterator.next();
             while (sdService != null) {
                 // Display properties are in a child entry
-                IORegistryEntry properties =  sdService.getChildEntry("IOService");
+                IORegistryEntry properties = sdService.getChildEntry("IOService");
                 if (properties != null) {
                     // look up the edid by key
                     CFTypeRef edidRaw = properties.createCFProperty(cfEdid);
-                    CFDataRef edid = new CFDataRef(edidRaw.getPointer());
-                    if (edid != null) {
+                    if (edidRaw != null) {
+                        CFDataRef edid = new CFDataRef(edidRaw.getPointer());
                         // Edid is a byte array of 128 bytes
                         int length = edid.getLength();
                         Pointer p = edid.getBytePtr();
