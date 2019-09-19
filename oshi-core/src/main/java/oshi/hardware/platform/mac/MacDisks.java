@@ -43,9 +43,6 @@ import oshi.hardware.Disks;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
 import oshi.jna.platform.mac.CoreFoundation;
-import oshi.jna.platform.mac.DiskArbitration;
-import oshi.jna.platform.mac.IOKit;
-import oshi.jna.platform.mac.IOKitUtil;
 import oshi.jna.platform.mac.CoreFoundation.CFBooleanRef;
 import oshi.jna.platform.mac.CoreFoundation.CFDictionaryRef;
 import oshi.jna.platform.mac.CoreFoundation.CFIndex;
@@ -53,10 +50,13 @@ import oshi.jna.platform.mac.CoreFoundation.CFMutableDictionaryRef;
 import oshi.jna.platform.mac.CoreFoundation.CFNumberRef;
 import oshi.jna.platform.mac.CoreFoundation.CFStringRef;
 import oshi.jna.platform.mac.CoreFoundation.CFTypeRef;
+import oshi.jna.platform.mac.DiskArbitration;
 import oshi.jna.platform.mac.DiskArbitration.DADiskRef;
 import oshi.jna.platform.mac.DiskArbitration.DASessionRef;
+import oshi.jna.platform.mac.IOKit;
 import oshi.jna.platform.mac.IOKit.IOIterator;
 import oshi.jna.platform.mac.IOKit.IORegistryEntry;
+import oshi.jna.platform.mac.IOKitUtil;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
@@ -302,7 +302,9 @@ public class MacDisks implements Disks {
                         serviceIterator.release();
                         Collections.sort(partitions);
                         diskStore.setPartitions(partitions.toArray(new HWPartition[0]));
-                        parent.release();
+                        if (parent != null) {
+                            parent.release();
+                        }
                     } else {
                         LOG.error("Unable to find IOMedia device or parent for {}", bsdName);
                     }

@@ -36,15 +36,15 @@ import com.sun.jna.platform.mac.SystemB;
 import com.sun.jna.platform.mac.SystemB.Statfs;
 
 import oshi.jna.platform.mac.CoreFoundation;
-import oshi.jna.platform.mac.DiskArbitration;
-import oshi.jna.platform.mac.IOKitUtil;
 import oshi.jna.platform.mac.CoreFoundation.CFDictionaryRef;
 import oshi.jna.platform.mac.CoreFoundation.CFMutableDictionaryRef;
 import oshi.jna.platform.mac.CoreFoundation.CFStringRef;
+import oshi.jna.platform.mac.DiskArbitration;
 import oshi.jna.platform.mac.DiskArbitration.DADiskRef;
 import oshi.jna.platform.mac.DiskArbitration.DASessionRef;
 import oshi.jna.platform.mac.IOKit.IOIterator;
 import oshi.jna.platform.mac.IOKit.IORegistryEntry;
+import oshi.jna.platform.mac.IOKitUtil;
 import oshi.software.os.FileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.Constants;
@@ -90,112 +90,113 @@ public class MacFileSystem implements FileSystem {
                     .DASessionCreate(CoreFoundation.INSTANCE.CFAllocatorGetDefault());
             if (session == null) {
                 LOG.error("Unable to open session to DiskArbitration framework.");
-            }
-            CFStringRef daVolumeNameKey = CFStringRef.createCFString("DAVolumeName");
+            } else {
+                CFStringRef daVolumeNameKey = CFStringRef.createCFString("DAVolumeName");
 
-            // Create array to hold results
-            Statfs[] fs = new Statfs[numfs];
-            // Fill array with results
-            numfs = SystemB.INSTANCE.getfsstat64(fs, numfs * new Statfs().size(), SystemB.MNT_NOWAIT);
-            for (int f = 0; f < numfs; f++) {
-                // Mount on name will match mounted path, e.g. /Volumes/foo
-                // Mount to name will match canonical path., e.g., /dev/disk0s2
-                // Byte arrays are null-terminated strings
+                // Create array to hold results
+                Statfs[] fs = new Statfs[numfs];
+                // Fill array with results
+                numfs = SystemB.INSTANCE.getfsstat64(fs, numfs * new Statfs().size(), SystemB.MNT_NOWAIT);
+                for (int f = 0; f < numfs; f++) {
+                    // Mount on name will match mounted path, e.g. /Volumes/foo
+                    // Mount to name will match canonical path., e.g., /dev/disk0s2
+                    // Byte arrays are null-terminated strings
 
-                // Get volume name
-                String volume = new String(fs[f].f_mntfromname).trim();
-                // Skip system types
-                if (volume.equals("devfs") || volume.startsWith("map ")) {
-                    continue;
-                }
-                // Set description
-                String description = "Volume";
-                if (LOCAL_DISK.matcher(volume).matches()) {
-                    description = "Local Disk";
-                }
-                if (volume.startsWith("localhost:") || volume.startsWith("//")) {
-                    description = "Network Drive";
-                }
-                // Set type and path
-                String type = new String(fs[f].f_fstypename).trim();
-                String path = new String(fs[f].f_mntonname).trim();
+                    // Get volume name
+                    String volume = new String(fs[f].f_mntfromname).trim();
+                    // Skip system types
+                    if (volume.equals("devfs") || volume.startsWith("map ")) {
+                        continue;
+                    }
+                    // Set description
+                    String description = "Volume";
+                    if (LOCAL_DISK.matcher(volume).matches()) {
+                        description = "Local Disk";
+                    }
+                    if (volume.startsWith("localhost:") || volume.startsWith("//")) {
+                        description = "Network Drive";
+                    }
+                    // Set type and path
+                    String type = new String(fs[f].f_fstypename).trim();
+                    String path = new String(fs[f].f_mntonname).trim();
 
-                String name = "";
-                File file = new File(path);
-                if (name.isEmpty()) {
-                    name = file.getName();
-                    // getName() for / is still blank, so:
+                    String name = "";
+                    File file = new File(path);
                     if (name.isEmpty()) {
-                        name = file.getPath();
-                    }
-                }
-                if (nameToMatch != null && !nameToMatch.equals(name)) {
-                    continue;
-                }
-
-                String uuid = "";
-                // Use volume to find DiskArbitration volume name and search for
-                // the registry entry for UUID
-                String bsdName = volume.replace("/dev/disk", "disk");
-                if (bsdName.startsWith("disk")) {
-                    // Get the DiskArbitration dictionary for this disk,
-                    // which has volumename
-                    DADiskRef disk = DiskArbitration.INSTANCE
-                            .DADiskCreateFromBSDName(CoreFoundation.INSTANCE.CFAllocatorGetDefault(), session, volume);
-                    if (disk != null) {
-                        CFDictionaryRef diskInfo = DiskArbitration.INSTANCE.DADiskCopyDescription(disk);
-                        if (diskInfo != null) {
-                            // get volume name from its key
-                            Pointer result = diskInfo.getValue(daVolumeNameKey);
-                            CFStringRef volumePtr = new CFStringRef(result);
-                            name = volumePtr.stringValue();
-                            if (name == null) {
-                                name = Constants.UNKNOWN;
-                            }
-                            diskInfo.release();
+                        name = file.getName();
+                        // getName() for / is still blank, so:
+                        if (name.isEmpty()) {
+                            name = file.getPath();
                         }
-                        disk.release();
                     }
-                    // Search for bsd name in IOKit registry for UUID
-                    CFMutableDictionaryRef matchingDict = IOKitUtil.getBSDNameMatchingDict(bsdName);
-                    if (matchingDict != null) {
-                        // search for all IOservices that match the bsd name
-                        IOIterator fsIter = IOKitUtil.getMatchingServices(matchingDict);
-                        if (fsIter != null) {
-                            // getMatchingServices releases matchingDict
-                            // Should only match one logical drive
-                            IORegistryEntry fsEntry = fsIter.next();
-                            if (fsEntry != null && fsEntry.conformsTo("IOMedia")) {
-                                // Now get the UUID
-                                uuid = fsEntry.getStringProperty("UUID");
-                                if (uuid != null) {
-                                    uuid = uuid.toLowerCase();
+                    if (nameToMatch != null && !nameToMatch.equals(name)) {
+                        continue;
+                    }
+
+                    String uuid = "";
+                    // Use volume to find DiskArbitration volume name and search for
+                    // the registry entry for UUID
+                    String bsdName = volume.replace("/dev/disk", "disk");
+                    if (bsdName.startsWith("disk")) {
+                        // Get the DiskArbitration dictionary for this disk,
+                        // which has volumename
+                        DADiskRef disk = DiskArbitration.INSTANCE.DADiskCreateFromBSDName(
+                                CoreFoundation.INSTANCE.CFAllocatorGetDefault(), session, volume);
+                        if (disk != null) {
+                            CFDictionaryRef diskInfo = DiskArbitration.INSTANCE.DADiskCopyDescription(disk);
+                            if (diskInfo != null) {
+                                // get volume name from its key
+                                Pointer result = diskInfo.getValue(daVolumeNameKey);
+                                CFStringRef volumePtr = new CFStringRef(result);
+                                name = volumePtr.stringValue();
+                                if (name == null) {
+                                    name = Constants.UNKNOWN;
                                 }
-                                fsEntry.release();
+                                diskInfo.release();
                             }
-                            fsIter.release();
+                            disk.release();
+                        }
+                        // Search for bsd name in IOKit registry for UUID
+                        CFMutableDictionaryRef matchingDict = IOKitUtil.getBSDNameMatchingDict(bsdName);
+                        if (matchingDict != null) {
+                            // search for all IOservices that match the bsd name
+                            IOIterator fsIter = IOKitUtil.getMatchingServices(matchingDict);
+                            if (fsIter != null) {
+                                // getMatchingServices releases matchingDict
+                                // Should only match one logical drive
+                                IORegistryEntry fsEntry = fsIter.next();
+                                if (fsEntry != null && fsEntry.conformsTo("IOMedia")) {
+                                    // Now get the UUID
+                                    uuid = fsEntry.getStringProperty("UUID");
+                                    if (uuid != null) {
+                                        uuid = uuid.toLowerCase();
+                                    }
+                                    fsEntry.release();
+                                }
+                                fsIter.release();
+                            }
                         }
                     }
-                }
 
-                // Add to the list
-                OSFileStore osStore = new OSFileStore();
-                osStore.setName(name);
-                osStore.setVolume(volume);
-                osStore.setMount(path);
-                osStore.setDescription(description);
-                osStore.setType(type);
-                osStore.setUUID(uuid == null ? "" : uuid);
-                osStore.setFreeSpace(file.getFreeSpace());
-                osStore.setUsableSpace(file.getUsableSpace());
-                osStore.setTotalSpace(file.getTotalSpace());
-                osStore.setFreeInodes(fs[f].f_ffree);
-                osStore.setTotalInodes(fs[f].f_files);
-                fsList.add(osStore);
+                    // Add to the list
+                    OSFileStore osStore = new OSFileStore();
+                    osStore.setName(name);
+                    osStore.setVolume(volume);
+                    osStore.setMount(path);
+                    osStore.setDescription(description);
+                    osStore.setType(type);
+                    osStore.setUUID(uuid == null ? "" : uuid);
+                    osStore.setFreeSpace(file.getFreeSpace());
+                    osStore.setUsableSpace(file.getUsableSpace());
+                    osStore.setTotalSpace(file.getTotalSpace());
+                    osStore.setFreeInodes(fs[f].f_ffree);
+                    osStore.setTotalInodes(fs[f].f_files);
+                    fsList.add(osStore);
+                }
+                daVolumeNameKey.release();
+                // Close DA session
+                session.release();
             }
-            // Close DA session
-            session.release();
-            daVolumeNameKey.release();
         }
         return fsList;
     }
