@@ -23,7 +23,6 @@
  */
 package oshi.jna.platform.mac;
 
-import com.sun.jna.platform.mac.SystemB;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
 
@@ -52,7 +51,7 @@ public class IOKitUtil {
      *         ports (each call to {@link IOKit#IOMasterPort} adds another send
      *         right to the port) but it is considered good programming practice to
      *         deallocate the port when you are finished with it, using
-     *         {@link SystemB#mach_port_deallocate}.
+     *         {@link oshi.jna.platform.mac.SystemB#mach_port_deallocate}.
      */
     public static int getMasterPort() {
         IntByReference port = new IntByReference();
