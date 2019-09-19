@@ -28,6 +28,7 @@ The default configuration file has been renamed to `oshi.properties` to prevent 
 * [#971](https://github.com/oshi/oshi/pull/971): Fix handle leak in WindowsDisplay.java - [@r10a](https://github.com/r10a).
 * [#977](https://github.com/oshi/oshi/pull/977): Rename default configuration - [@cilki](https://github.com/cilki).
 * [#989](https://github.com/oshi/oshi/pull/989): Improve Windows current frequency stats. - [@dbwiddis](https://github.com/dbwiddis).
+* [#995](https://github.com/oshi/oshi/pull/995): CoreFoundation, IOKit, DiskArbitration API overhaul. - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here
 
 4.0.0 (8/10/2019)

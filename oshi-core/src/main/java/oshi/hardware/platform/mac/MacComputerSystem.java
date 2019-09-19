@@ -31,11 +31,11 @@ import java.util.regex.Pattern;
 import oshi.hardware.Baseboard;
 import oshi.hardware.Firmware;
 import oshi.hardware.common.AbstractComputerSystem;
-import oshi.jna.platform.mac.IOKit;
+import oshi.jna.platform.mac.IOKitUtil;
+import oshi.jna.platform.mac.IOKit.IORegistryEntry;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 import oshi.util.Util;
-import oshi.util.platform.mac.IOKitUtil;
 
 /**
  * Hardware data obtained by system_profiler.
@@ -139,11 +139,11 @@ final class MacComputerSystem extends AbstractComputerSystem {
 
     private String getIORegistryPlatformSerialNumber() {
         String serialNumber = null;
-        int service = IOKitUtil.getMatchingService("IOPlatformExpertDevice");
-        if (service != 0) {
+        IORegistryEntry platformExpert = IOKitUtil.getMatchingService("IOPlatformExpertDevice");
+        if (platformExpert != null) {
             // Fetch the serial number
-            serialNumber = IOKitUtil.getIORegistryStringProperty(service, "IOPlatformSerialNumber");
-            IOKit.INSTANCE.IOObjectRelease(service);
+            serialNumber = platformExpert.getStringProperty("IOPlatformSerialNumber");
+            platformExpert.release();
         }
         return serialNumber;
     }
