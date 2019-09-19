@@ -1,26 +1,25 @@
-/*
- * Copyright (c) 2019 Daniel Widdis
+/**
+ * OSHI (https://github.com/oshi/oshi)
  *
- * The contents of this file is dual-licensed under 2
- * alternative Open Source/Free licenses: LGPL 2.1 or later and
- * Apache License 2.0. (starting with JNA version 4.0.0).
+ * Copyright (c) 2010 - 2019 The OSHI Project Team:
+ * https://github.com/oshi/oshi/graphs/contributors
  *
- * You can freely decide which license you want to apply to
- * the project.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  *
- * You may obtain a copy of the LGPL License at:
- *
- * http://www.gnu.org/licenses/licenses.html
- *
- * A copy is also included in the downloadable source code package
- * containing JNA, in file "LGPL2.1".
- *
- * You may obtain a copy of the Apache License at:
- *
- * http://www.apache.org/licenses/
- *
- * A copy is also included in the downloadable source code package
- * containing JNA, in file "AL2.0".
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 package oshi.jna.platform.mac;
 
@@ -31,7 +30,6 @@ import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
 import com.sun.jna.PointerType;
 import com.sun.jna.Structure;
-import com.sun.jna.platform.mac.SystemB;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.LongByReference;
 import com.sun.jna.ptr.NativeLongByReference;
@@ -431,8 +429,8 @@ public interface IOKit extends Library {
         }
 
         /**
-         * Convenience method to get a {@link java.lang.byte} array value from this IO
-         * Registry Entry.
+         * Convenience method to get a {@code byte} array value from this IO Registry
+         * Entry.
          *
          * @param key
          *            The string name of the key to retrieve
@@ -493,7 +491,7 @@ public interface IOKit extends Library {
      *            IOMasterPort adds another send right to the port) but it is
      *            considered good programming practice to deallocate the port when
      *            you are finished with it using
-     *            {@link SystemB#mach_port_deallocate}.
+     *            {@link oshi.jna.platform.mac.SystemB#mach_port_deallocate}.
      * @return 0 if successful, otherwise a {@code kern_return_t} error code.
      */
     int IOMasterPort(int bootstrapPort, IntByReference port);
