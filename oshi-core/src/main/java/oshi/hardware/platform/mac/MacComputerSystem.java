@@ -26,27 +26,25 @@ package oshi.hardware.platform.mac;
 import static oshi.util.Memoizer.memoize;
 
 import java.util.function.Supplier;
-import java.util.regex.Pattern;
 
 import oshi.hardware.Baseboard;
 import oshi.hardware.Firmware;
 import oshi.hardware.common.AbstractComputerSystem;
-import oshi.jna.platform.mac.IOKitUtil;
 import oshi.jna.platform.mac.IOKit.IORegistryEntry;
+import oshi.jna.platform.mac.IOKitUtil;
 import oshi.util.Constants;
-import oshi.util.ExecutingCommand;
 import oshi.util.Util;
 
 /**
- * Hardware data obtained by system_profiler.
+ * Hardware data obtained from ioreg.
  */
 final class MacComputerSystem extends AbstractComputerSystem {
 
-    private final Supplier<ModelSerialSmcBootrom> profileSystem = memoize(this::profileSystem);
+    private final Supplier<ManufacturerModelSerial> profileSystem = memoize(this::platformExpert);
 
     @Override
     public String getManufacturer() {
-        return "Apple Inc.";
+        return profileSystem.get().manufacturer;
     }
 
     @Override
@@ -61,104 +59,43 @@ final class MacComputerSystem extends AbstractComputerSystem {
 
     @Override
     public Firmware createFirmware() {
-        return new MacFirmware(getManufacturer(), profileSystem.get().bootRomVersion);
+        return new MacFirmware();
     }
 
     @Override
     public Baseboard createBaseboard() {
-        return new MacBaseboard(getManufacturer(), getSerialNumber(), profileSystem.get().smcVersion);
+        return new MacBaseboard();
     }
 
-    private ModelSerialSmcBootrom profileSystem() {
+    private ManufacturerModelSerial platformExpert() {
+        String manufacturer = null;
         String model = null;
-        String serialNumber = null;
-        String smcVersion = null;
-        String bootRomVersion = null;
-        // $ system_profiler SPHardwareDataType
-        // Hardware:
-        //
-        // Hardware Overview:
-        //
-        // Model Name: MacBook Pro
-        // Model Identifier: MacBookPro8,2
-        // Processor Name: Intel Core i7
-        // Processor Speed: 2.3 GHz
-        // Number of Processors: 1
-        // Total Number of Cores: 4
-        // L2 Cache (per Core): 256 KB
-        // L3 Cache: 8 MB
-        // Memory: 16 GB
-        // Boot ROM Version: MBP81.0047.B2C
-        // SMC Version (system): 1.69f4
-        // Serial Number (system): C02FH4XYCB71
-        // Hardware UUID: D92CE829-65AD-58FA-9C32-88968791B7BD
-        // Sudden Motion Sensor:
-        // State: Enabled
-
-        final String modelNameMarker = "Model Name:";
-        final String modelIdMarker = "Model Identifier:";
-        final String serialNumMarker = "Serial Number (system):";
-        final String smcMarker = "SMC Version (system):";
-        final String bootRomMarker = "Boot ROM Version:";
-
-        // Name and ID can be used together
-        String modelName = "";
-        String modelIdentifier = "";
-        for (final String checkLine : ExecutingCommand.runNative("system_profiler SPHardwareDataType")) {
-            if (checkLine.contains(modelNameMarker)) {
-                modelName = checkLine.split(modelNameMarker)[1].trim();
-            } else if (checkLine.contains(modelIdMarker)) {
-                modelIdentifier = checkLine.split(modelIdMarker)[1].trim();
-            } else if (checkLine.contains(serialNumMarker)) {
-                serialNumber = checkLine.split(Pattern.quote(serialNumMarker))[1].trim();
-            } else if (checkLine.contains(bootRomMarker)) {
-                bootRomVersion = checkLine.split(bootRomMarker)[1].trim();
-            } else if (checkLine.contains(smcMarker)) {
-                smcVersion = checkLine.split(Pattern.quote(smcMarker))[1].trim();
-            }
-        }
-        model = modelNameAndIdentifier(modelName, modelIdentifier);
-        if (Util.isBlank(serialNumber)) {
-            serialNumber = getIORegistryPlatformSerialNumber();
-        }
-        return new ModelSerialSmcBootrom(model, serialNumber, smcVersion, bootRomVersion);
-    }
-
-    private String modelNameAndIdentifier(String modelName, String modelIdentifier) {
-        // Use name (id) if both available; else either one
-        if (modelName.isEmpty() && !modelIdentifier.isEmpty()) {
-            return modelIdentifier;
-        } else {
-            if (!modelName.isEmpty() && !modelIdentifier.isEmpty()) {
-                return modelName + " (" + modelIdentifier + ")";
-            } else {
-                return modelName.isEmpty() ? Constants.UNKNOWN : modelName;
-            }
-        }
-    }
-
-    private String getIORegistryPlatformSerialNumber() {
         String serialNumber = null;
         IORegistryEntry platformExpert = IOKitUtil.getMatchingService("IOPlatformExpertDevice");
         if (platformExpert != null) {
-            // Fetch the serial number
+            byte[] data = platformExpert.getByteArrayProperty("manufacturer");
+            if (data != null) {
+                manufacturer = new String(data);
+            }
+            data = platformExpert.getByteArrayProperty("model");
+            if (data != null) {
+                model = new String(data);
+            }
             serialNumber = platformExpert.getStringProperty("IOPlatformSerialNumber");
             platformExpert.release();
         }
-        return serialNumber;
+        return new ManufacturerModelSerial(manufacturer, model, serialNumber);
     }
 
-    private static final class ModelSerialSmcBootrom {
+    private static final class ManufacturerModelSerial {
+        private final String manufacturer;
         private final String model;
         private final String serialNumber;
-        private final String smcVersion;
-        private final String bootRomVersion;
 
-        private ModelSerialSmcBootrom(String model, String serialNumber, String smcVersion, String bootRomVersion) {
+        private ManufacturerModelSerial(String manufacturer, String model, String serialNumber) {
+            this.manufacturer = Util.isBlank(manufacturer) ? "Apple Inc." : manufacturer;
             this.model = Util.isBlank(model) ? Constants.UNKNOWN : model;
             this.serialNumber = Util.isBlank(serialNumber) ? Constants.UNKNOWN : serialNumber;
-            this.smcVersion = Util.isBlank(smcVersion) ? Constants.UNKNOWN : smcVersion;
-            this.bootRomVersion = Util.isBlank(bootRomVersion) ? Constants.UNKNOWN : bootRomVersion;
         }
     }
 }
