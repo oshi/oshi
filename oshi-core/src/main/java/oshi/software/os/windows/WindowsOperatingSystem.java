@@ -25,6 +25,7 @@ package oshi.software.os.windows;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -346,9 +347,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     }
 
     private OSProcess getProcess(int pid, boolean slowFields) {
-        Set<Integer> pids = new HashSet<>(1);
-        pids.add(pid);
-        List<OSProcess> procList = processMapToList(pids, slowFields);
+        List<OSProcess> procList = processMapToList(Arrays.asList(pid), slowFields);
         return procList.isEmpty() ? null : procList.get(0);
     }
 
@@ -356,8 +355,8 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
      * Private method to do the heavy lifting for all the getProcess functions.
      *
      * @param pids
-     *            A collection of pids to query. If null, the entire process list
-     *            will be queried.
+     *            A collection of pids to query. If null, the entire process
+     *            list will be queried.
      * @param slowFields
      *            Whether to include fields that incur processor latency
      * @return A corresponding list of processes
@@ -531,12 +530,12 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         }
 
         // Command Line only accessible via WMI.
-        Set<Integer> pidsToQuery = new HashSet<>();
-        for (OSProcess process : processList) {
-            pidsToQuery.add(process.getProcessID());
-        }
-        if (!pidsToQuery.isEmpty()) {
-            StringBuilder sb = new StringBuilder(PROCESS_BASE_CLASS);
+        StringBuilder sb = new StringBuilder(PROCESS_BASE_CLASS);
+        if (pids != null) {
+            Set<Integer> pidsToQuery = new HashSet<>();
+            for (OSProcess process : processList) {
+                pidsToQuery.add(process.getProcessID());
+            }
             boolean first = true;
             for (Integer pid : pidsToQuery) {
                 if (first) {
@@ -547,18 +546,18 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                 }
                 sb.append(pid);
             }
-            WmiQuery<ProcessProperty> processQuery = new WmiQuery<>(sb.toString(), ProcessProperty.class);
-            WmiResult<ProcessProperty> commandLineProcs = wmiQueryHandler.queryWMI(processQuery);
+        }
+        WmiQuery<ProcessProperty> processQuery = new WmiQuery<>(sb.toString(), ProcessProperty.class);
+        WmiResult<ProcessProperty> commandLineProcs = wmiQueryHandler.queryWMI(processQuery);
 
-            for (int p = 0; p < commandLineProcs.getResultCount(); p++) {
-                int pid = WmiUtil.getUint32(commandLineProcs, ProcessProperty.PROCESSID, p);
-                // This should always be true because pidsToQuery was
-                // built from the map, but just in case, protect against
-                // dereferencing null
-                if (processMap.containsKey(pid)) {
-                    OSProcess proc = processMap.get(pid);
-                    proc.setCommandLine(WmiUtil.getString(commandLineProcs, ProcessProperty.COMMANDLINE, p));
-                }
+        for (int p = 0; p < commandLineProcs.getResultCount(); p++) {
+            int pid = WmiUtil.getUint32(commandLineProcs, ProcessProperty.PROCESSID, p);
+            // This should always be true because pidsToQuery was
+            // built from the map, but just in case, protect against
+            // dereferencing null
+            if (processMap.containsKey(pid)) {
+                OSProcess proc = processMap.get(pid);
+                proc.setCommandLine(WmiUtil.getString(commandLineProcs, ProcessProperty.COMMANDLINE, p));
             }
         }
         return processList;
@@ -741,8 +740,8 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     }
 
     /**
-     * Enables debug privileges for this process, required for OpenProcess() to get
-     * processes other than the current user
+     * Enables debug privileges for this process, required for OpenProcess() to
+     * get processes other than the current user
      */
     private static void enableDebugPrivilege() {
         HANDLEByReference hToken = new HANDLEByReference();
