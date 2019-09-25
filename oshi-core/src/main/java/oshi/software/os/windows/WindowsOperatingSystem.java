@@ -36,8 +36,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Memory; // NOSONAR squid:S1191
-import com.sun.jna.Native;
+import com.sun.jna.Native; // NOSONAR squid:S1191
 import com.sun.jna.Pointer;
 import com.sun.jna.platform.win32.Advapi32;
 import com.sun.jna.platform.win32.Advapi32Util;
@@ -46,25 +45,17 @@ import com.sun.jna.platform.win32.Advapi32Util.EventLogIterator;
 import com.sun.jna.platform.win32.Advapi32Util.EventLogRecord;
 import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.Kernel32Util;
-import com.sun.jna.platform.win32.Pdh;
-import com.sun.jna.platform.win32.PdhUtil;
 import com.sun.jna.platform.win32.Psapi;
 import com.sun.jna.platform.win32.Psapi.PERFORMANCE_INFORMATION;
 import com.sun.jna.platform.win32.Tlhelp32;
 import com.sun.jna.platform.win32.VersionHelpers;
 import com.sun.jna.platform.win32.Win32Exception;
+import com.sun.jna.platform.win32.WinBase;
 import com.sun.jna.platform.win32.WinDef.DWORD;
-import com.sun.jna.platform.win32.WinDef.DWORDByReference;
 import com.sun.jna.platform.win32.WinError;
 import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.platform.win32.WinNT.HANDLE;
 import com.sun.jna.platform.win32.WinNT.HANDLEByReference;
-import com.sun.jna.platform.win32.WinPerf.PERF_COUNTER_BLOCK;
-import com.sun.jna.platform.win32.WinPerf.PERF_COUNTER_DEFINITION;
-import com.sun.jna.platform.win32.WinPerf.PERF_DATA_BLOCK;
-import com.sun.jna.platform.win32.WinPerf.PERF_INSTANCE_DEFINITION;
-import com.sun.jna.platform.win32.WinPerf.PERF_OBJECT_TYPE;
-import com.sun.jna.platform.win32.WinReg;
 import com.sun.jna.platform.win32.Wtsapi32;
 import com.sun.jna.platform.win32.Wtsapi32.WTS_PROCESS_INFO_EX;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
@@ -76,14 +67,12 @@ import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
 import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
+import oshi.util.platform.windows.PerfCounterQuery;
+import oshi.util.platform.windows.PerfCounterWildcardQuery;
+import oshi.util.platform.windows.PerfCounterWildcardQuery.PdhCounterWildcardProperty;
 import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
 
-/**
- * <p>
- * WindowsOperatingSystem class.
- * </p>
- */
 public class WindowsOperatingSystem extends AbstractOperatingSystem {
     private static final long serialVersionUID = 1L;
 
@@ -118,41 +107,50 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     }
 
     enum BitnessProperty {
-        ADDRESSWIDTH;
+        AddressWidth;
     }
 
     enum ProcessProperty {
-        PROCESSID, COMMANDLINE;
+        ProcessId, CommandLine;
     }
 
     private static final String PROCESS_BASE_CLASS = "Win32_Process";
 
     // Properties to get from WMI if WTSEnumerateProcesses doesn't work
     enum ProcessXPProperty {
-        PROCESSID, NAME, KERNELMODETIME, USERMODETIME, THREADCOUNT, PAGEFILEUSAGE, HANDLECOUNT, EXECUTABLEPATH;
+        ProcessId, Name, KernelModeTime, UserModeTime, ThreadCount, PageFileUsage, HandleCount, ExecutablePath;
     }
 
-    // Is AddEnglishCounter available?
+    enum ProcessPerformanceProperty implements PdhCounterWildcardProperty {
+        // First element defines WMI instance name field and PDH instance filter
+        Name(PerfCounterQuery.NOT_TOTAL_INSTANCES),
+        // Remaining elements define counters
+        Priority("Priority Base"), //
+        CreationDate("Elapsed Time"), //
+        ProcessId("ID Process"), //
+        ParentProcessId("Creating Process ID"), //
+        ReadTransferCount("IO Read Bytes/sec"), //
+        WriteTransferCount("IO Write Bytes/sec"), //
+        PrivatePageCount("Working Set - Private");
+
+        private final String counter;
+
+        ProcessPerformanceProperty(String counter) {
+            this.counter = counter;
+        }
+
+        @Override
+        public String getCounter() {
+            return counter;
+        }
+    }
+
+    private final PerfCounterWildcardQuery<ProcessPerformanceProperty> processPerformancePerfCounters = new PerfCounterWildcardQuery<>(
+            ProcessPerformanceProperty.class, "Process", "Win32_Process WHERE NOT Name LIKE\"%_Total\"",
+            "Process Information");
+
     private static final boolean IS_VISTA_OR_GREATER = VersionHelpers.IsWindowsVistaOrGreater();
     private static final boolean IS_WINDOWS7_OR_GREATER = VersionHelpers.IsWindows7OrGreater();
-
-    /*
-     * Registry variables to persist
-     */
-    private int perfDataBufferSize = 8192;
-    private int processIndex;
-    private String processIndexStr;
-
-    /*
-     * Registry counter block offsets
-     */
-    private int priorityBaseOffset; // 92
-    private int elapsedTimeOffset; // 96
-    private int idProcessOffset; // 104
-    private int creatingProcessIdOffset; // 108
-    private int ioReadOffset; // 160
-    private int ioWriteOffset; // 168
-    private int workingSetPrivateOffset; // 192
 
     static {
         enableDebugPrivilege();
@@ -169,117 +167,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         this.manufacturer = "Microsoft";
         this.family = "Windows";
         this.version = new WindowsOSVersionInfoEx();
-        initRegistry();
         initBitness();
-    }
-
-    private void initRegistry() {
-        // Get the title indices
-        int priorityBaseIndex;
-        int elapsedTimeIndex;
-        int idProcessIndex;
-        int creatingProcessIdIndex;
-        int ioReadIndex;
-        int ioWriteIndex;
-        int workingSetPrivateIndex;
-        try {
-            this.processIndex = PdhUtil.PdhLookupPerfIndexByEnglishName("Process");
-            priorityBaseIndex = PdhUtil.PdhLookupPerfIndexByEnglishName("Priority Base");
-            elapsedTimeIndex = PdhUtil.PdhLookupPerfIndexByEnglishName("Elapsed Time");
-            idProcessIndex = PdhUtil.PdhLookupPerfIndexByEnglishName("ID Process");
-            creatingProcessIdIndex = PdhUtil.PdhLookupPerfIndexByEnglishName("Creating Process ID");
-            ioReadIndex = PdhUtil.PdhLookupPerfIndexByEnglishName("IO Read Bytes/sec");
-            ioWriteIndex = PdhUtil.PdhLookupPerfIndexByEnglishName("IO Write Bytes/sec");
-            workingSetPrivateIndex = PdhUtil.PdhLookupPerfIndexByEnglishName("Working Set - Private");
-        } catch (Win32Exception e) {
-            LOG.error("Unable to locate English counter names in registry Perflib 009. Assuming English counters.");
-            DWORDByReference index = new DWORDByReference();
-            Pdh.INSTANCE.PdhLookupPerfIndexByName(null, "Process", index);
-            this.processIndex = index.getValue().intValue();
-            Pdh.INSTANCE.PdhLookupPerfIndexByName(null, "Priority Base", index);
-            priorityBaseIndex = index.getValue().intValue();
-            Pdh.INSTANCE.PdhLookupPerfIndexByName(null, "Elapsed Time", index);
-            elapsedTimeIndex = index.getValue().intValue();
-            Pdh.INSTANCE.PdhLookupPerfIndexByName(null, "ID Process", index);
-            idProcessIndex = index.getValue().intValue();
-            Pdh.INSTANCE.PdhLookupPerfIndexByName(null, "Creating Process ID", index);
-            creatingProcessIdIndex = index.getValue().intValue();
-            Pdh.INSTANCE.PdhLookupPerfIndexByName(null, "IO Read Bytes/sec", index);
-            ioReadIndex = index.getValue().intValue();
-            Pdh.INSTANCE.PdhLookupPerfIndexByName(null, "IO Write Bytes/sec", index);
-            ioWriteIndex = index.getValue().intValue();
-            Pdh.INSTANCE.PdhLookupPerfIndexByName(null, "Working Set - Private", index);
-            workingSetPrivateIndex = index.getValue().intValue();
-        }
-        this.processIndexStr = Integer.toString(this.processIndex);
-
-        // now load the Process registry to match up the offsets
-        // Sequentially increase the buffer until everything fits.
-        // Save this buffer size for later use
-        IntByReference lpcbData = new IntByReference(this.perfDataBufferSize);
-        Pointer pPerfData = new Memory(this.perfDataBufferSize);
-        int ret = Advapi32.INSTANCE.RegQueryValueEx(WinReg.HKEY_PERFORMANCE_DATA, this.processIndexStr, 0, null,
-                pPerfData, lpcbData);
-        if (ret != WinError.ERROR_SUCCESS && ret != WinError.ERROR_MORE_DATA) {
-            LOG.error("Error {} reading HKEY_PERFORMANCE_DATA from the registry.", ret);
-            return;
-        }
-        while (ret == WinError.ERROR_MORE_DATA) {
-            this.perfDataBufferSize += 4096;
-            lpcbData.setValue(this.perfDataBufferSize);
-            pPerfData = new Memory(this.perfDataBufferSize);
-            ret = Advapi32.INSTANCE.RegQueryValueEx(WinReg.HKEY_PERFORMANCE_DATA, this.processIndexStr, 0, null,
-                    pPerfData, lpcbData);
-        }
-
-        PERF_DATA_BLOCK perfData = new PERF_DATA_BLOCK(pPerfData.share(0));
-
-        // See format at
-        // https://msdn.microsoft.com/en-us/library/windows/desktop/aa373105(v=vs.85).aspx
-        // [ ] Object Type
-        // [ ][ ][ ] Multiple counter definitions
-        // Then multiple:
-        // [ ] Instance Definition
-        // [ ] Instance name
-        // [ ] Counter Block
-        // [ ][ ][ ] Counter data for each definition above
-
-        long perfObjectOffset = perfData.HeaderLength;
-
-        // Iterate object types. For Process should only be one here
-        for (int obj = 0; obj < perfData.NumObjectTypes; obj++) {
-            PERF_OBJECT_TYPE perfObject = new PERF_OBJECT_TYPE(pPerfData.share(perfObjectOffset));
-            // Identify where counter definitions start
-            long perfCounterOffset = perfObjectOffset + perfObject.HeaderLength;
-            // If this isn't the Process object, ignore
-            if (perfObject.ObjectNameTitleIndex == this.processIndex) {
-                for (int counter = 0; counter < perfObject.NumCounters; counter++) {
-                    PERF_COUNTER_DEFINITION perfCounter = new PERF_COUNTER_DEFINITION(
-                            pPerfData.share(perfCounterOffset));
-                    if (perfCounter.CounterNameTitleIndex == priorityBaseIndex) {
-                        this.priorityBaseOffset = perfCounter.CounterOffset;
-                    } else if (perfCounter.CounterNameTitleIndex == elapsedTimeIndex) {
-                        this.elapsedTimeOffset = perfCounter.CounterOffset;
-                    } else if (perfCounter.CounterNameTitleIndex == creatingProcessIdIndex) {
-                        this.creatingProcessIdOffset = perfCounter.CounterOffset;
-                    } else if (perfCounter.CounterNameTitleIndex == idProcessIndex) {
-                        this.idProcessOffset = perfCounter.CounterOffset;
-                    } else if (perfCounter.CounterNameTitleIndex == ioReadIndex) {
-                        this.ioReadOffset = perfCounter.CounterOffset;
-                    } else if (perfCounter.CounterNameTitleIndex == ioWriteIndex) {
-                        this.ioWriteOffset = perfCounter.CounterOffset;
-                    } else if (perfCounter.CounterNameTitleIndex == workingSetPrivateIndex) {
-                        this.workingSetPrivateOffset = perfCounter.CounterOffset;
-                    }
-                    // Increment for next Counter
-                    perfCounterOffset += perfCounter.ByteLength;
-                }
-                // We're done, break the loop
-                break;
-            }
-            // Increment for next object (should never need this)
-            perfObjectOffset += perfObject.TotalByteLength;
-        }
     }
 
     private void initBitness() {
@@ -293,19 +181,17 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                 WmiQuery<BitnessProperty> bitnessQuery = new WmiQuery<>("Win32_Processor", BitnessProperty.class);
                 WmiResult<BitnessProperty> bitnessMap = wmiQueryHandler.queryWMI(bitnessQuery);
                 if (bitnessMap.getResultCount() > 0) {
-                    this.bitness = WmiUtil.getUint16(bitnessMap, BitnessProperty.ADDRESSWIDTH, 0);
+                    this.bitness = WmiUtil.getUint16(bitnessMap, BitnessProperty.AddressWidth, 0);
                 }
             }
         }
     }
 
-    /** {@inheritDoc} */
     @Override
     public FileSystem getFileSystem() {
         return new WindowsFileSystem();
     }
 
-    /** {@inheritDoc} */
     @Override
     public OSProcess[] getProcesses(int limit, ProcessSort sort, boolean slowFields) {
         List<OSProcess> procList = processMapToList(null, slowFields);
@@ -313,13 +199,11 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         return sorted.toArray(new OSProcess[0]);
     }
 
-    /** {@inheritDoc} */
     @Override
     public List<OSProcess> getProcesses(Collection<Integer> pids) {
         return processMapToList(pids, true);
     }
 
-    /** {@inheritDoc} */
     @Override
     public OSProcess[] getChildProcesses(int parentPid, int limit, ProcessSort sort) {
         Set<Integer> childPids = new HashSet<>();
@@ -340,7 +224,6 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         return sorted.toArray(new OSProcess[0]);
     }
 
-    /** {@inheritDoc} */
     @Override
     public OSProcess getProcess(int pid) {
         return getProcess(pid, true);
@@ -355,15 +238,15 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
      * Private method to do the heavy lifting for all the getProcess functions.
      *
      * @param pids
-     *            A collection of pids to query. If null, the entire process
-     *            list will be queried.
+     *            A collection of pids to query. If null, the entire process list
+     *            will be queried.
      * @param slowFields
      *            Whether to include fields that incur processor latency
      * @return A corresponding list of processes
      */
     private List<OSProcess> processMapToList(Collection<Integer> pids, boolean slowFields) {
         // Get data from the registry
-        Map<Integer, OSProcess> processMap = buildProcessMapFromRegistry(pids);
+        Map<Integer, OSProcess> processMap = buildProcessMapFromPerfCounters(pids);
 
         // define here to avoid object repeated creation overhead later
         List<String> groupList = new ArrayList<>();
@@ -417,7 +300,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         int procCount = IS_WINDOWS7_OR_GREATER ? processInfo.length : processWmiResult.getResultCount();
         for (int i = 0; i < procCount; i++) {
             int pid = IS_WINDOWS7_OR_GREATER ? processInfo[i].ProcessId
-                    : WmiUtil.getUint32(processWmiResult, ProcessXPProperty.PROCESSID, i);
+                    : WmiUtil.getUint32(processWmiResult, ProcessXPProperty.ProcessId, i);
             OSProcess proc = null;
             // If the cache is empty, there was a problem with
             // filling the cache using performance information.
@@ -428,7 +311,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                 proc = new OSProcess(this);
                 proc.setProcessID(pid);
                 proc.setName(IS_WINDOWS7_OR_GREATER ? processInfo[i].pProcessName
-                        : WmiUtil.getString(processWmiResult, ProcessXPProperty.NAME, i));
+                        : WmiUtil.getString(processWmiResult, ProcessXPProperty.Name, i));
             } else {
                 proc = processMap.get(pid);
                 if (proc == null || pids != null && !pids.contains(pid)) {
@@ -450,13 +333,13 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                 proc.setVirtualSize(procInfo.PagefileUsage & 0xffff_ffffL);
                 proc.setOpenFiles(procInfo.HandleCount);
             } else {
-                proc.setKernelTime(WmiUtil.getUint64(processWmiResult, ProcessXPProperty.KERNELMODETIME, i) / 10000L);
-                proc.setUserTime(WmiUtil.getUint64(processWmiResult, ProcessXPProperty.USERMODETIME, i) / 10000L);
-                proc.setThreadCount(WmiUtil.getUint32(processWmiResult, ProcessXPProperty.THREADCOUNT, i));
+                proc.setKernelTime(WmiUtil.getUint64(processWmiResult, ProcessXPProperty.KernelModeTime, i) / 10000L);
+                proc.setUserTime(WmiUtil.getUint64(processWmiResult, ProcessXPProperty.UserModeTime, i) / 10000L);
+                proc.setThreadCount(WmiUtil.getUint32(processWmiResult, ProcessXPProperty.ThreadCount, i));
                 // WMI Pagefile usage is in KB
                 proc.setVirtualSize(1024
-                        * (WmiUtil.getUint32(processWmiResult, ProcessXPProperty.PAGEFILEUSAGE, i) & 0xffff_ffffL));
-                proc.setOpenFiles(WmiUtil.getUint32(processWmiResult, ProcessXPProperty.HANDLECOUNT, i));
+                        * (WmiUtil.getUint32(processWmiResult, ProcessXPProperty.PageFileUsage, i) & 0xffff_ffffL));
+                proc.setOpenFiles(WmiUtil.getUint32(processWmiResult, ProcessXPProperty.HandleCount, i));
             }
 
             // Get a handle to the process for various extended info. Only gets
@@ -476,7 +359,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                 final HANDLEByReference phToken = new HANDLEByReference();
                 try {// EXECUTABLEPATH
                     proc.setPath(IS_WINDOWS7_OR_GREATER ? Kernel32Util.QueryFullProcessImageName(pHandle, 0)
-                            : WmiUtil.getString(processWmiResult, ProcessXPProperty.EXECUTABLEPATH, i));
+                            : WmiUtil.getString(processWmiResult, ProcessXPProperty.ExecutablePath, i));
                     if (Advapi32.INSTANCE.OpenProcessToken(pHandle, WinNT.TOKEN_DUPLICATE | WinNT.TOKEN_QUERY,
                             phToken)) {
                         Account account = Advapi32Util.getTokenAccount(phToken.getValue());
@@ -551,13 +434,13 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         WmiResult<ProcessProperty> commandLineProcs = wmiQueryHandler.queryWMI(processQuery);
 
         for (int p = 0; p < commandLineProcs.getResultCount(); p++) {
-            int pid = WmiUtil.getUint32(commandLineProcs, ProcessProperty.PROCESSID, p);
+            int pid = WmiUtil.getUint32(commandLineProcs, ProcessProperty.ProcessId, p);
             // This should always be true because pidsToQuery was
             // built from the map, but just in case, protect against
             // dereferencing null
             if (processMap.containsKey(pid)) {
                 OSProcess proc = processMap.get(pid);
-                proc.setCommandLine(WmiUtil.getString(commandLineProcs, ProcessProperty.COMMANDLINE, p));
+                proc.setCommandLine(WmiUtil.getString(commandLineProcs, ProcessProperty.CommandLine, p));
             }
         }
         return processList;
@@ -578,103 +461,52 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                 ex.getMessage());
     }
 
-    private Map<Integer, OSProcess> buildProcessMapFromRegistry(Collection<Integer> pids) {
+    private Map<Integer, OSProcess> buildProcessMapFromPerfCounters(Collection<Integer> pids) {
         Map<Integer, OSProcess> processMap = new HashMap<>();
-
-        // Grab the PERF_DATA_BLOCK from the registry.
-        // Sequentially increase the buffer until everything fits.
-        IntByReference lpcbData = new IntByReference(this.perfDataBufferSize);
-        Pointer pPerfData = new Memory(this.perfDataBufferSize);
-        int ret = Advapi32.INSTANCE.RegQueryValueEx(WinReg.HKEY_PERFORMANCE_DATA, this.processIndexStr, 0, null,
-                pPerfData, lpcbData);
-        if (ret != WinError.ERROR_SUCCESS && ret != WinError.ERROR_MORE_DATA) {
-            LOG.error("Error {} reading HKEY_PERFORMANCE_DATA from the registry.", ret);
-            return processMap;
-        }
-        while (ret == WinError.ERROR_MORE_DATA) {
-            this.perfDataBufferSize += 4096;
-            lpcbData.setValue(this.perfDataBufferSize);
-            pPerfData = new Memory(this.perfDataBufferSize);
-            ret = Advapi32.INSTANCE.RegQueryValueEx(WinReg.HKEY_PERFORMANCE_DATA, this.processIndexStr, 0, null,
-                    pPerfData, lpcbData);
-        }
-
-        PERF_DATA_BLOCK perfData = new PERF_DATA_BLOCK(pPerfData.share(0));
-        long perfTime100nSec = perfData.PerfTime100nSec.getValue(); // 1601
+        Map<ProcessPerformanceProperty, List<Long>> valueMap = this.processPerformancePerfCounters
+                .queryValuesWildcard();
         long now = System.currentTimeMillis(); // 1970 epoch
+        List<String> instances = this.processPerformancePerfCounters.getInstancesFromLastQuery();
+        List<Long> pidList = valueMap.get(ProcessPerformanceProperty.ProcessId);
+        List<Long> ppidList = valueMap.get(ProcessPerformanceProperty.ParentProcessId);
+        List<Long> priorityList = valueMap.get(ProcessPerformanceProperty.Priority);
+        List<Long> ioReadList = valueMap.get(ProcessPerformanceProperty.ReadTransferCount);
+        List<Long> ioWriteList = valueMap.get(ProcessPerformanceProperty.WriteTransferCount);
+        List<Long> workingSetSizeList = valueMap.get(ProcessPerformanceProperty.PrivatePageCount);
+        List<Long> creationTimeList = valueMap.get(ProcessPerformanceProperty.CreationDate);
 
-        // See format at
-        // https://msdn.microsoft.com/en-us/library/windows/desktop/aa373105(v=vs.85).aspx
-        // [ ] Object Type
-        // [ ][ ][ ] Multiple counter definitions
-        // Then multiple:
-        // [ ] Instance Definition
-        // [ ] Instance name
-        // [ ] Counter Block
-        // [ ][ ][ ] Counter data for each definition above
+        for (int inst = 0; inst < instances.size(); inst++) {
+            int pid = pidList.get(inst).intValue();
+            if (pids == null || pids.contains(pid)) {
+                OSProcess proc = new OSProcess(this);
+                processMap.put(pid, proc);
 
-        long perfObjectOffset = perfData.HeaderLength;
-
-        // Iterate object types. For Process should only be one here
-        for (int obj = 0; obj < perfData.NumObjectTypes; obj++) {
-            PERF_OBJECT_TYPE perfObject = new PERF_OBJECT_TYPE(pPerfData.share(perfObjectOffset));
-            // If this isn't the Process object, ignore
-            if (perfObject.ObjectNameTitleIndex == this.processIndex) {
-                // Skip over counter definitions
-                // There will be many of these, this points to the first one
-                long perfInstanceOffset = perfObjectOffset + perfObject.DefinitionLength;
-
-                // We need this for every process, initialize outside loop to
-                // save overhead
-                PERF_COUNTER_BLOCK perfCounterBlock = null;
-                // Iterate instances.
-                // The last instance is _Total so subtract 1 from max
-                for (int inst = 0; inst < perfObject.NumInstances - 1; inst++) {
-                    PERF_INSTANCE_DEFINITION perfInstance = new PERF_INSTANCE_DEFINITION(
-                            pPerfData.share(perfInstanceOffset));
-                    long perfCounterBlockOffset = perfInstanceOffset + perfInstance.ByteLength;
-
-                    int pid = pPerfData.getInt(perfCounterBlockOffset + this.idProcessOffset);
-                    if (pids == null || pids.contains(pid)) {
-                        OSProcess proc = new OSProcess(this);
-                        processMap.put(pid, proc);
-
-                        proc.setProcessID(pid);
-                        proc.setName(pPerfData.getWideString(perfInstanceOffset + perfInstance.NameOffset));
-                        long upTime = (perfTime100nSec
-                                - pPerfData.getLong(perfCounterBlockOffset + this.elapsedTimeOffset)) / 10_000L;
-                        proc.setUpTime(upTime < 1L ? 1L : upTime);
-                        proc.setStartTime(now - upTime);
-                        proc.setBytesRead(pPerfData.getLong(perfCounterBlockOffset + this.ioReadOffset));
-                        proc.setBytesWritten(pPerfData.getLong(perfCounterBlockOffset + this.ioWriteOffset));
-                        proc.setResidentSetSize(
-                                pPerfData.getLong(perfCounterBlockOffset + this.workingSetPrivateOffset));
-                        proc.setParentProcessID(
-                                pPerfData.getInt(perfCounterBlockOffset + this.creatingProcessIdOffset));
-                        proc.setPriority(pPerfData.getInt(perfCounterBlockOffset + this.priorityBaseOffset));
-                    }
-
-                    // Increment to next instance
-                    perfCounterBlock = new PERF_COUNTER_BLOCK(pPerfData.share(perfCounterBlockOffset));
-                    perfInstanceOffset = perfCounterBlockOffset + perfCounterBlock.ByteLength;
+                proc.setProcessID(pid);
+                proc.setName(instances.get(inst));
+                proc.setParentProcessID(ppidList.get(inst).intValue());
+                proc.setPriority(priorityList.get(inst).intValue());
+                // if creation time value is less than current millis, it's in 1970 epoch,
+                // otherwise it's 1601 epoch and we must convert
+                long ctime = creationTimeList.get(inst);
+                if (ctime > now) {
+                    ctime = WinBase.FILETIME.filetimeToDate((int) (ctime >> 32), (int) (ctime & 0xffffffffL)).getTime();
                 }
-                // We've found the process object and are done, no need to look
-                // at any other objects (shouldn't be any). Break the loop
-                break;
+                proc.setUpTime(now - ctime);
+                proc.setStartTime(ctime);
+                proc.setBytesRead(ioReadList.get(inst));
+                proc.setBytesWritten(ioWriteList.get(inst));
+                proc.setResidentSetSize(workingSetSizeList.get(inst));
             }
-            // Increment for next object (should never need this)
-            perfObjectOffset += perfObject.TotalByteLength;
         }
+
         return processMap;
     }
 
-    /** {@inheritDoc} */
     @Override
     public int getProcessId() {
         return Kernel32.INSTANCE.GetCurrentProcessId();
     }
 
-    /** {@inheritDoc} */
     @Override
     public int getProcessCount() {
         PERFORMANCE_INFORMATION perfInfo = new PERFORMANCE_INFORMATION();
@@ -685,7 +517,6 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         return perfInfo.ProcessCount.intValue();
     }
 
-    /** {@inheritDoc} */
     @Override
     public int getThreadCount() {
         PERFORMANCE_INFORMATION perfInfo = new PERFORMANCE_INFORMATION();
@@ -696,7 +527,6 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         return perfInfo.ThreadCount.intValue();
     }
 
-    /** {@inheritDoc} */
     @Override
     public long getSystemUptime() {
         return querySystemUptime();
@@ -713,13 +543,11 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         }
     }
 
-    /** {@inheritDoc} */
     @Override
     public long getSystemBootTime() {
         return BOOTTIME;
     }
 
-    /** {@inheritDoc} */
     @Override
     public boolean isElevated() {
         if (this.elevated < 0) {
@@ -733,15 +561,14 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         return this.elevated > 0;
     }
 
-    /** {@inheritDoc} */
     @Override
     public NetworkParams getNetworkParams() {
         return new WindowsNetworkParams();
     }
 
     /**
-     * Enables debug privileges for this process, required for OpenProcess() to
-     * get processes other than the current user
+     * Enables debug privileges for this process, required for OpenProcess() to get
+     * processes other than the current user
      */
     private static void enableDebugPrivilege() {
         HANDLEByReference hToken = new HANDLEByReference();
