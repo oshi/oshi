@@ -492,7 +492,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
         if (VersionHelpers.IsWindows7OrGreater()) {
             Map<ProcessorFrequencyProperty, List<Long>> valueMap = this.processorFrequencyCounters
                     .queryValuesWildcard();
-            List<String> instances = this.processorTickPerfCounters.getInstancesFromLastQuery();
+            List<String> instances = this.processorFrequencyCounters.getInstancesFromLastQuery();
             List<Long> percentMaxList = valueMap.get(ProcessorFrequencyProperty.PercentofMaximumFrequency);
             if (!instances.isEmpty()) {
                 long maxFreq = this.getMaxFreq();
@@ -520,8 +520,8 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
     }
 
     /**
-     * Call CallNTPowerInformation for Processor information and return an array
-     * of the specified index
+     * Call CallNTPowerInformation for Processor information and return an array of
+     * the specified index
      *
      * @param fieldIndex
      *            The field, in order as defined in the
