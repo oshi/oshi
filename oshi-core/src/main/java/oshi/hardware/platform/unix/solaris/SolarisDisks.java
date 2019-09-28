@@ -38,6 +38,7 @@ import oshi.hardware.HWPartition;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.solaris.KstatUtil;
+import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
 
 /**
  * Solaris hard disk implementation.
@@ -53,11 +54,13 @@ public class SolarisDisks implements Disks {
      *
      * @param diskStore
      *            a {@link oshi.hardware.HWDiskStore} object.
-     * @return a boolean.
+     * @return true if the update was successful
      */
     public static boolean updateDiskStats(HWDiskStore diskStore) {
-        Kstat ksp = KstatUtil.kstatLookup(null, 0, diskStore.getName());
-        if (ksp != null && KstatUtil.kstatRead(ksp)) {
+        KstatChain kc = KstatUtil.getChain();
+        Kstat ksp = kc.lookup(null, 0, diskStore.getName());
+        boolean updated = false;
+        if (ksp != null && kc.read(ksp)) {
             KstatIO data = new KstatIO(ksp.ks_data);
             diskStore.setReads(data.reads);
             diskStore.setWrites(data.writes);
@@ -67,10 +70,10 @@ public class SolarisDisks implements Disks {
             // rtime and snaptime are nanoseconds, convert to millis
             diskStore.setTransferTime(data.rtime / 1_000_000L);
             diskStore.setTimeStamp(ksp.ks_snaptime / 1_000_000L);
-            return true;
-        } else {
-            return false;
+            updated = true;
         }
+        kc.close();
+        return updated;
     }
 
     /** {@inheritDoc} */
@@ -100,19 +103,17 @@ public class SolarisDisks implements Disks {
             // Map disk
             disk = disks.get(i);
             String[] diskSplit = disk.split(",");
-            if (diskSplit.length < 5 || "device".equals(diskSplit[0])) {
-                continue;
+            if (diskSplit.length >= 5 && !"device".equals(diskSplit[0])) {
+                HWDiskStore store = new HWDiskStore();
+                store.setName(diskSplit[0]);
+                diskMap.put(diskSplit[0], store);
+                // Map mount
+                String mount = mountpoints.get(i);
+                String[] mountSplit = mount.split(",");
+                if (mountSplit.length >= 5 && !"device".equals(mountSplit[4])) {
+                    deviceMap.put(diskSplit[0], mountSplit[4]);
+                }
             }
-            HWDiskStore store = new HWDiskStore();
-            store.setName(diskSplit[0]);
-            diskMap.put(diskSplit[0], store);
-            // Map mount
-            String mount = mountpoints.get(i);
-            String[] mountSplit = mount.split(",");
-            if (mountSplit.length < 5 || "device".equals(mountSplit[4])) {
-                continue;
-            }
-            deviceMap.put(diskSplit[0], mountSplit[4]);
         }
 
         // Create map to correlate disk name with blick device mount point for
@@ -254,98 +255,94 @@ public class SolarisDisks implements Disks {
                             bytesPerSector = ParseUtil.parseIntOrDefault(split[1], 0);
                         }
                     }
-                    continue;
+                } else if (bytesPerSector > 0) {
+                    // If bytes/sector is still 0, these are not real partitions so
+                    // ignore.
+                    // Lines without asterisk have 6 or 7 whitespaces-split values
+                    // representing (last field optional):
+                    // Partition Tag Flags Sector Count Sector Mount
+                    split = ParseUtil.whitespaces.split(line.trim());
+                    // Partition 2 is always the whole disk so we ignore it
+                    if (split.length >= 6 && !"2".equals(split[0])) {
+                        HWPartition partition = new HWPartition();
+                        // First field is partition number
+                        partition.setIdentification(mount + "s" + split[0]);
+                        partition.setMajor(major);
+                        partition.setMinor(ParseUtil.parseIntOrDefault(split[0], 0));
+                        // Second field is tag. Parse:
+                        switch (ParseUtil.parseIntOrDefault(split[1], 0)) {
+                        case 0x01:
+                        case 0x18:
+                            partition.setName("boot");
+                            break;
+                        case 0x02:
+                            partition.setName("root");
+                            break;
+                        case 0x03:
+                            partition.setName("swap");
+                            break;
+                        case 0x04:
+                            partition.setName("usr");
+                            break;
+                        case 0x05:
+                            partition.setName("backup");
+                            break;
+                        case 0x06:
+                            partition.setName("stand");
+                            break;
+                        case 0x07:
+                            partition.setName("var");
+                            break;
+                        case 0x08:
+                            partition.setName("home");
+                            break;
+                        case 0x09:
+                            partition.setName("altsctr");
+                            break;
+                        case 0x0a:
+                            partition.setName("cache");
+                            break;
+                        case 0x0b:
+                            partition.setName("reserved");
+                            break;
+                        case 0x0c:
+                            partition.setName("system");
+                            break;
+                        case 0x0e:
+                            partition.setName("public region");
+                            break;
+                        case 0x0f:
+                            partition.setName("private region");
+                            break;
+                        default:
+                            partition.setName("unknown");
+                            break;
+                        }
+                        // Third field is flags.
+                        // First character writable, second is mountable
+                        switch (split[2]) {
+                        case "00":
+                            partition.setType("wm");
+                            break;
+                        case "10":
+                            partition.setType("rm");
+                            break;
+                        case "01":
+                            partition.setType("wu");
+                            break;
+                        default:
+                            partition.setType("ru");
+                            break;
+                        }
+                        // Fifth field is sector count
+                        partition.setSize(bytesPerSector * ParseUtil.parseLongOrDefault(split[4], 0L));
+                        // Seventh field (if present) is mount point
+                        if (split.length > 6) {
+                            partition.setMountPoint(split[6]);
+                        }
+                        partList.add(partition);
+                    }
                 }
-                // If bytes/sector is still 0, these are not real partitions so
-                // ignore.
-                if (bytesPerSector == 0) {
-                    continue;
-                }
-                // Lines without asterisk have 6 or 7 whitespaces-split values
-                // representing (last field optional):
-                // Partition Tag Flags Sector Count Sector Mount
-                split = ParseUtil.whitespaces.split(line.trim());
-                // Partition 2 is always the whole disk so we ignore it
-                if (split.length < 6 || "2".equals(split[0])) {
-                    continue;
-                }
-                HWPartition partition = new HWPartition();
-                // First field is partition number
-                partition.setIdentification(mount + "s" + split[0]);
-                partition.setMajor(major);
-                partition.setMinor(ParseUtil.parseIntOrDefault(split[0], 0));
-                // Second field is tag. Parse:
-                switch (ParseUtil.parseIntOrDefault(split[1], 0)) {
-                case 0x01:
-                case 0x18:
-                    partition.setName("boot");
-                    break;
-                case 0x02:
-                    partition.setName("root");
-                    break;
-                case 0x03:
-                    partition.setName("swap");
-                    break;
-                case 0x04:
-                    partition.setName("usr");
-                    break;
-                case 0x05:
-                    partition.setName("backup");
-                    break;
-                case 0x06:
-                    partition.setName("stand");
-                    break;
-                case 0x07:
-                    partition.setName("var");
-                    break;
-                case 0x08:
-                    partition.setName("home");
-                    break;
-                case 0x09:
-                    partition.setName("altsctr");
-                    break;
-                case 0x0a:
-                    partition.setName("cache");
-                    break;
-                case 0x0b:
-                    partition.setName("reserved");
-                    break;
-                case 0x0c:
-                    partition.setName("system");
-                    break;
-                case 0x0e:
-                    partition.setName("public region");
-                    break;
-                case 0x0f:
-                    partition.setName("private region");
-                    break;
-                default:
-                    partition.setName("unknown");
-                    break;
-                }
-                // Third field is flags.
-                // First character writable, second is mountable
-                switch (split[2]) {
-                case "00":
-                    partition.setType("wm");
-                    break;
-                case "10":
-                    partition.setType("rm");
-                    break;
-                case "01":
-                    partition.setType("wu");
-                    break;
-                default:
-                    partition.setType("ru");
-                    break;
-                }
-                // Fifth field is sector count
-                partition.setSize(bytesPerSector * ParseUtil.parseLongOrDefault(split[4], 0L));
-                // Seventh field (if present) is mount point
-                if (split.length > 6) {
-                    partition.setMountPoint(split[6]);
-                }
-                partList.add(partition);
             }
             store.setPartitions(partList.toArray(new HWPartition[0]));
         }

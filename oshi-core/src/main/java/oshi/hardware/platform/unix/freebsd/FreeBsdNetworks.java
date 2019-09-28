@@ -35,8 +35,6 @@ import oshi.util.ParseUtil;
  */
 public class FreeBsdNetworks extends AbstractNetworks {
 
-    private static final long serialVersionUID = 1L;
-
     /**
      * Updates interface network statistics on the given interface. Statistics
      * include packets and bytes sent and received, and interface speed.

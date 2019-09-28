@@ -35,6 +35,7 @@ import oshi.hardware.common.AbstractGlobalMemory;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.solaris.KstatUtil;
+import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
 
 /**
  * Memory obtained by kstat
@@ -79,15 +80,17 @@ public class SolarisGlobalMemory extends AbstractGlobalMemory {
         long memAvailable = 0;
         long memTotal = 0;
         // Get first result
-        Kstat ksp = KstatUtil.kstatLookup(null, -1, "system_pages");
+        KstatChain kc = KstatUtil.getChain();
+        Kstat ksp = kc.lookup(null, -1, "system_pages");
         // Set values
-        if (ksp != null && KstatUtil.kstatRead(ksp)) {
-            memAvailable = KstatUtil.kstatDataLookupLong(ksp, "availrmem") * getPageSize();
-            memTotal = KstatUtil.kstatDataLookupLong(ksp, "physmem") * getPageSize();
+        if (ksp != null && kc.read(ksp)) {
+            memAvailable = KstatUtil.dataLookupLong(ksp, "availrmem") * getPageSize();
+            memTotal = KstatUtil.dataLookupLong(ksp, "physmem") * getPageSize();
         }
+        kc.close();
         return new SystemPages(memTotal, memAvailable);
     }
-    
+
     private static final class SystemPages {
         private final long total;
         private final long available;

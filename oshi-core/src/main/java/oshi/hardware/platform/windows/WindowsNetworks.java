@@ -42,8 +42,6 @@ import oshi.util.ParseUtil;
  */
 public class WindowsNetworks extends AbstractNetworks {
 
-    private static final long serialVersionUID = 1L;
-
     private static final Logger LOG = LoggerFactory.getLogger(WindowsNetworks.class);
 
     private static final boolean IS_VISTA_OR_GREATER = VersionHelpers.IsWindowsVistaOrGreater();
