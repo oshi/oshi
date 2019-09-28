@@ -48,13 +48,10 @@ import oshi.util.ParseUtil;
  */
 public class WindowsNetworkParams extends AbstractNetworkParams {
 
-    private static final long serialVersionUID = 1L;
-
     private static final Logger LOG = LoggerFactory.getLogger(WindowsNetworkParams.class);
 
     private static final int COMPUTER_NAME_DNS_DOMAIN_FULLY_QUALIFIED = 3;
 
-    /** {@inheritDoc} */
     @Override
     public String getDomainName() {
         char[] buffer = new char[256];
@@ -66,7 +63,6 @@ public class WindowsNetworkParams extends AbstractNetworkParams {
         return new String(buffer).trim();
     }
 
-    /** {@inheritDoc} */
     @Override
     public String[] getDnsServers() {
         IntByReference bufferSize = new IntByReference();
@@ -98,13 +94,11 @@ public class WindowsNetworkParams extends AbstractNetworkParams {
         return list.toArray(new String[0]);
     }
 
-    /** {@inheritDoc} */
     @Override
     public String getIpv4DefaultGateway() {
         return parseIpv4Route();
     }
 
-    /** {@inheritDoc} */
     @Override
     public String getIpv6DefaultGateway() {
         return parseIpv6Route();
@@ -131,5 +125,4 @@ public class WindowsNetworkParams extends AbstractNetworkParams {
         }
         return "";
     }
-
 }

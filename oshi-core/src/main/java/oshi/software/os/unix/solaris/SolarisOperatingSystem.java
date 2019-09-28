@@ -46,7 +46,6 @@ import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
  * computers.
  */
 public class SolarisOperatingSystem extends AbstractOperatingSystem {
-    private static final long serialVersionUID = 1L;
 
     private static final long BOOTTIME;
     static {

@@ -58,8 +58,6 @@ import oshi.util.platform.mac.SysctlUtil;
  */
 public class MacOperatingSystem extends AbstractOperatingSystem {
 
-    private static final long serialVersionUID = 1L;
-
     private static final Logger LOG = LoggerFactory.getLogger(MacOperatingSystem.class);
 
     private int maxProc = 1024;

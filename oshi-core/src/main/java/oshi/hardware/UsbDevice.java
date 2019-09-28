@@ -23,14 +23,12 @@
  */
 package oshi.hardware;
 
-import java.io.Serializable;
-
 /**
  * A USB device is a device connected via a USB port, possibly
  * internally/permanently. Hubs may contain ports to which other devices connect
  * in a recursive fashion.
  */
-public interface UsbDevice extends Serializable, Comparable<UsbDevice> {
+public interface UsbDevice extends Comparable<UsbDevice> {
     /**
      * Name of the USB device
      *

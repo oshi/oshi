@@ -23,7 +23,6 @@
  */
 package oshi.software.os;
 
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 
@@ -32,7 +31,7 @@ import java.util.List;
  * different programs use its hardware, and regulates the ways that a user
  * controls the computer.
  */
-public interface OperatingSystem extends Serializable {
+public interface OperatingSystem {
 
     /**
      * Controls sorting of Process output

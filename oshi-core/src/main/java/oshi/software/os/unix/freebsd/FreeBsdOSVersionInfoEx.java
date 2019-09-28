@@ -33,13 +33,6 @@ import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
  */
 public class FreeBsdOSVersionInfoEx extends AbstractOSVersionInfoEx {
 
-    private static final long serialVersionUID = 1L;
-
-    /**
-     * <p>
-     * Constructor for FreeBsdOSVersionInfoEx.
-     * </p>
-     */
     public FreeBsdOSVersionInfoEx() {
         setVersion(BsdSysctlUtil.sysctl("kern.osrelease", ""));
         String versionInfo = BsdSysctlUtil.sysctl("kern.version", "");

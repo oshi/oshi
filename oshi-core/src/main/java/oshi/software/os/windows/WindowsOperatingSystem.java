@@ -74,7 +74,6 @@ import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
 
 public class WindowsOperatingSystem extends AbstractOperatingSystem {
-    private static final long serialVersionUID = 1L;
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsOperatingSystem.class);
 

@@ -27,14 +27,7 @@ import oshi.software.common.AbstractOSVersionInfoEx;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
-/**
- * <p>
- * SolarisOSVersionInfoEx class.
- * </p>
- */
 public class SolarisOSVersionInfoEx extends AbstractOSVersionInfoEx {
-
-    private static final long serialVersionUID = 1L;
 
     /**
      * <p>

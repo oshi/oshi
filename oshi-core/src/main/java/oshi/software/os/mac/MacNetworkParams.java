@@ -46,13 +46,10 @@ public class MacNetworkParams extends AbstractNetworkParams {
 
     private static final Logger LOG = LoggerFactory.getLogger(MacNetworkParams.class);
 
-    private static final long serialVersionUID = 1L;
-
     private static final String IPV6_ROUTE_HEADER = "Internet6:";
 
     private static final String DEFAULT_GATEWAY = "default";
 
-    /** {@inheritDoc} */
     @Override
     public String getDomainName() {
         SystemB.Addrinfo hint = new SystemB.Addrinfo();
@@ -78,13 +75,11 @@ public class MacNetworkParams extends AbstractNetworkParams {
         return canonname;
     }
 
-    /** {@inheritDoc} */
     @Override
     public String getIpv4DefaultGateway() {
         return searchGateway(ExecutingCommand.runNative("route -n get default"));
     }
 
-    /** {@inheritDoc} */
     @Override
     public String getIpv6DefaultGateway() {
         List<String> lines = ExecutingCommand.runNative("netstat -nr");

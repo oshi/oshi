@@ -48,7 +48,6 @@ import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
  * </p>
  */
 public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
-    private static final long serialVersionUID = 1L;
 
     private static final long BOOTTIME;
     static {

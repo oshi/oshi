@@ -32,14 +32,7 @@ import oshi.software.os.OSProcess;
 import oshi.software.os.OperatingSystem;
 import oshi.software.os.OperatingSystemVersion;
 
-/**
- * <p>
- * Abstract AbstractOperatingSystem class.
- * </p>
- */
 public abstract class AbstractOperatingSystem implements OperatingSystem {
-
-    private static final long serialVersionUID = 1L;
 
     protected String manufacturer;
     protected String family;

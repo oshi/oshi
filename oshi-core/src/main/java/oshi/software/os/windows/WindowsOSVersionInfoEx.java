@@ -47,8 +47,6 @@ import oshi.util.platform.windows.WmiUtil;
  */
 public class WindowsOSVersionInfoEx extends AbstractOSVersionInfoEx {
 
-    private static final long serialVersionUID = 1L;
-
     private static final Logger LOG = LoggerFactory.getLogger(WindowsOSVersionInfoEx.class);
 
     enum OSVersionProperty {

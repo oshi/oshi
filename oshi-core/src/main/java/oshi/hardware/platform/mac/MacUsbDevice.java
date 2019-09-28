@@ -32,13 +32,13 @@ import java.util.Map;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractUsbDevice;
 import oshi.jna.platform.mac.CoreFoundation;
-import oshi.jna.platform.mac.IOKitUtil;
 import oshi.jna.platform.mac.CoreFoundation.CFIndex;
 import oshi.jna.platform.mac.CoreFoundation.CFMutableDictionaryRef;
 import oshi.jna.platform.mac.CoreFoundation.CFStringRef;
 import oshi.jna.platform.mac.CoreFoundation.CFTypeRef;
 import oshi.jna.platform.mac.IOKit.IOIterator;
 import oshi.jna.platform.mac.IOKit.IORegistryEntry;
+import oshi.jna.platform.mac.IOKitUtil;
 
 /**
  * <p>
@@ -46,8 +46,6 @@ import oshi.jna.platform.mac.IOKit.IORegistryEntry;
  * </p>
  */
 public class MacUsbDevice extends AbstractUsbDevice {
-
-    private static final long serialVersionUID = 2L;
 
     private static final CoreFoundation CF = CoreFoundation.INSTANCE;
 
