@@ -35,8 +35,8 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Pointer;
-import com.sun.jna.platform.mac.SystemB; // NOSONAR squid:S1191
+import com.sun.jna.Pointer; // NOSONAR squid:S1191
+import com.sun.jna.platform.mac.SystemB;
 import com.sun.jna.platform.mac.SystemB.Statfs;
 
 import oshi.hardware.Disks;
@@ -100,8 +100,8 @@ public class MacDisks implements Disks {
     }
 
     /**
-     * Temporarily cache pointers to keys. The values from this map must be
-     * released after use.}
+     * Temporarily cache pointers to keys. The values from this map must be released
+     * after use.}
      *
      * @return A map of keys in the {@link CFKey} enum to corresponding
      *         {@link CFStringRef}.
@@ -251,55 +251,57 @@ public class MacDisks implements Disks {
                         properties.release();
                         propertyDict.release();
 
-                        // Iterate disks
-                        IORegistryEntry sdService = IOKit.INSTANCE.IOIteratorNext(serviceIterator);
-                        while (sdService != null) {
-                            // look up the BSD Name
-                            String partBsdName = sdService.getStringProperty("BSD Name");
-                            String name = partBsdName;
-                            String type = "";
-                            // Get the DiskArbitration dictionary for
-                            // this partition
-                            DADiskRef disk = DA.DADiskCreateFromBSDName(CF.CFAllocatorGetDefault(), session,
-                                    partBsdName);
-                            if (disk != null) {
-                                CFDictionaryRef diskInfo = DA.DADiskCopyDescription(disk);
-                                if (diskInfo != null) {
-                                    // get volume name from its key
-                                    result = diskInfo.getValue(cfKeyMap.get(CFKey.DA_MEDIA_NAME));
-                                    CFStringRef volumePtr = new CFStringRef(result);
-                                    type = volumePtr.stringValue();
-                                    if (type == null) {
-                                        type = Constants.UNKNOWN;
+                        if (serviceIterator != null) {
+                            // Iterate disks
+                            IORegistryEntry sdService = IOKit.INSTANCE.IOIteratorNext(serviceIterator);
+                            while (sdService != null) {
+                                // look up the BSD Name
+                                String partBsdName = sdService.getStringProperty("BSD Name");
+                                String name = partBsdName;
+                                String type = "";
+                                // Get the DiskArbitration dictionary for
+                                // this partition
+                                DADiskRef disk = DA.DADiskCreateFromBSDName(CF.CFAllocatorGetDefault(), session,
+                                        partBsdName);
+                                if (disk != null) {
+                                    CFDictionaryRef diskInfo = DA.DADiskCopyDescription(disk);
+                                    if (diskInfo != null) {
+                                        // get volume name from its key
+                                        result = diskInfo.getValue(cfKeyMap.get(CFKey.DA_MEDIA_NAME));
+                                        CFStringRef volumePtr = new CFStringRef(result);
+                                        type = volumePtr.stringValue();
+                                        if (type == null) {
+                                            type = Constants.UNKNOWN;
+                                        }
+                                        result = diskInfo.getValue(cfKeyMap.get(CFKey.DA_VOLUME_NAME));
+                                        if (result == null) {
+                                            name = type;
+                                        } else {
+                                            volumePtr.setPointer(result);
+                                            name = volumePtr.stringValue();
+                                        }
+                                        diskInfo.release();
                                     }
-                                    result = diskInfo.getValue(cfKeyMap.get(CFKey.DA_VOLUME_NAME));
-                                    if (result == null) {
-                                        name = type;
-                                    } else {
-                                        volumePtr.setPointer(result);
-                                        name = volumePtr.stringValue();
-                                    }
-                                    diskInfo.release();
+                                    disk.release();
                                 }
-                                disk.release();
+                                String mountPoint;
+                                if (logicalVolumeMap.containsKey(partBsdName)) {
+                                    mountPoint = "Logical Volume: " + logicalVolumeMap.get(partBsdName);
+                                } else {
+                                    mountPoint = mountPointMap.getOrDefault(partBsdName, "");
+                                }
+                                Long size = sdService.getLongProperty("Size");
+                                Integer bsdMajor = sdService.getIntegerProperty("BSD Major");
+                                Integer bsdMinor = sdService.getIntegerProperty("BSD Minor");
+                                partitions.add(new HWPartition(partBsdName, name, type,
+                                        sdService.getStringProperty("UUID"), size == null ? 0L : size,
+                                        bsdMajor == null ? 0 : bsdMajor, bsdMinor == null ? 0 : bsdMinor, mountPoint));
+                                // iterate
+                                sdService.release();
+                                sdService = IOKit.INSTANCE.IOIteratorNext(serviceIterator);
                             }
-                            String mountPoint;
-                            if (logicalVolumeMap.containsKey(partBsdName)) {
-                                mountPoint = "Logical Volume: " + logicalVolumeMap.get(partBsdName);
-                            } else {
-                                mountPoint = mountPointMap.getOrDefault(partBsdName, "");
-                            }
-                            Long size = sdService.getLongProperty("Size");
-                            Integer bsdMajor = sdService.getIntegerProperty("BSD Major");
-                            Integer bsdMinor = sdService.getIntegerProperty("BSD Minor");
-                            partitions.add(new HWPartition(partBsdName, name, type, sdService.getStringProperty("UUID"),
-                                    size == null ? 0L : size, bsdMajor == null ? 0 : bsdMajor,
-                                    bsdMinor == null ? 0 : bsdMinor, mountPoint));
-                            // iterate
-                            sdService.release();
-                            sdService = IOKit.INSTANCE.IOIteratorNext(serviceIterator);
+                            serviceIterator.release();
                         }
-                        serviceIterator.release();
                         Collections.sort(partitions);
                         diskStore.setPartitions(partitions.toArray(new HWPartition[0]));
                         if (parent != null) {
