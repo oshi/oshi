@@ -37,6 +37,7 @@ import oshi.software.os.OSFileStore;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.solaris.KstatUtil;
+import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
 
 /**
  * The Solaris File System contains {@link oshi.software.os.OSFileStore}s which
@@ -58,9 +59,9 @@ public class SolarisFileSystem implements FileSystem {
             "sharefs", // Share file system
             "lofs", // Library file system
             "autofs" // Auto mounting fs
-            // "tmpfs", // Temporary file system
-            // NOTE: tmpfs is evaluated apart, because Solaris uses it for
-            // RAMdisks
+    // "tmpfs", // Temporary file system
+    // NOTE: tmpfs is evaluated apart, because Solaris uses it for
+    // RAMdisks
     );
 
     // System path mounted as tmpfs
@@ -129,7 +130,7 @@ public class SolarisFileSystem implements FileSystem {
         }
 
         // Get mount table
-        for (String fs : ExecutingCommand.runNative("cat /etc/mnttab")) {
+        for (String fs : ExecutingCommand.runNative("cat /etc/mnttab")) { // NOSONAR squid:S135
             String[] split = ParseUtil.whitespaces.split(fs);
             if (split.length < 5) {
                 continue;
@@ -191,26 +192,30 @@ public class SolarisFileSystem implements FileSystem {
         return fsList;
     }
 
-    /** {@inheritDoc} */
     @Override
     public long getOpenFileDescriptors() {
-        Kstat ksp = KstatUtil.kstatLookup(null, -1, "file_cache");
+        KstatChain kc = KstatUtil.getChain();
+        Kstat ksp = kc.lookup(null, -1, "file_cache");
         // Set values
-        if (ksp != null && KstatUtil.kstatRead(ksp)) {
-            return KstatUtil.kstatDataLookupLong(ksp, "buf_inuse");
+        long bufInuse = 0L;
+        if (ksp != null && kc.read(ksp)) {
+            bufInuse = KstatUtil.dataLookupLong(ksp, "buf_inuse");
         }
-        return 0L;
+        kc.close();
+        return bufInuse;
     }
 
-    /** {@inheritDoc} */
     @Override
     public long getMaxFileDescriptors() {
-        Kstat ksp = KstatUtil.kstatLookup(null, -1, "file_cache");
+        KstatChain kc = KstatUtil.getChain();
+        Kstat ksp = kc.lookup(null, -1, "file_cache");
         // Set values
-        if (ksp != null && KstatUtil.kstatRead(ksp)) {
-            return KstatUtil.kstatDataLookupLong(ksp, "buf_max");
+        long bufMax = 0L;
+        if (ksp != null && kc.read(ksp)) {
+            bufMax = KstatUtil.dataLookupLong(ksp, "buf_max");
         }
-        return 0L;
+        kc.close();
+        return bufMax;
     }
 
     /**

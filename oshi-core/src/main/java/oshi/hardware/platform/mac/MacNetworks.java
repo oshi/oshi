@@ -43,8 +43,6 @@ import oshi.hardware.common.AbstractNetworks;
  */
 public class MacNetworks extends AbstractNetworks {
 
-    private static final long serialVersionUID = 1L;
-
     private static final Logger LOG = LoggerFactory.getLogger(MacNetworks.class);
 
     private static final int CTL_NET = 4;
