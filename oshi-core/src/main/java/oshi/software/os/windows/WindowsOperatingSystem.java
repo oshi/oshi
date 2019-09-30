@@ -48,6 +48,7 @@ import com.sun.jna.platform.win32.Kernel32Util;
 import com.sun.jna.platform.win32.Psapi;
 import com.sun.jna.platform.win32.Psapi.PERFORMANCE_INFORMATION;
 import com.sun.jna.platform.win32.Tlhelp32;
+import com.sun.jna.platform.win32.User32;
 import com.sun.jna.platform.win32.VersionHelpers;
 import com.sun.jna.platform.win32.Win32Exception;
 import com.sun.jna.platform.win32.WinBase;
@@ -56,6 +57,7 @@ import com.sun.jna.platform.win32.WinError;
 import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.platform.win32.WinNT.HANDLE;
 import com.sun.jna.platform.win32.WinNT.HANDLEByReference;
+import com.sun.jna.platform.win32.WinUser;
 import com.sun.jna.platform.win32.Wtsapi32;
 import com.sun.jna.platform.win32.Wtsapi32.WTS_PROCESS_INFO_EX;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
@@ -67,6 +69,7 @@ import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
 import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
+import oshi.util.ParseUtil;
 import oshi.util.platform.windows.PerfCounterQuery;
 import oshi.util.platform.windows.PerfCounterWildcardQuery;
 import oshi.util.platform.windows.PerfCounterWildcardQuery.PdhCounterWildcardProperty;
@@ -103,6 +106,10 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         } else {
             BOOTTIME = System.currentTimeMillis() / 1000L - querySystemUptime();
         }
+    }
+
+    enum OSVersionProperty {
+        Version, ProductType, BuildNumber, CSDVersion, SuiteMask;
     }
 
     enum BitnessProperty {
@@ -162,27 +169,155 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
      * Constructor for WindowsOperatingSystem.
      * </p>
      */
+    @SuppressWarnings("deprecation")
     public WindowsOperatingSystem() {
-        this.manufacturer = "Microsoft";
-        this.family = "Windows";
         this.version = new WindowsOSVersionInfoEx();
-        initBitness();
     }
 
-    private void initBitness() {
-        // If bitness is 64 we are 64 bit.
-        // If 32 test if we are on 64-bit OS
-        if (this.bitness < 64) {
-            // Try the easy way
-            if (System.getenv("ProgramFiles(x86)") != null) {
-                this.bitness = 64;
-            } else if (IS_VISTA_OR_GREATER) {
-                WmiQuery<BitnessProperty> bitnessQuery = new WmiQuery<>("Win32_Processor", BitnessProperty.class);
-                WmiResult<BitnessProperty> bitnessMap = wmiQueryHandler.queryWMI(bitnessQuery);
-                if (bitnessMap.getResultCount() > 0) {
-                    this.bitness = WmiUtil.getUint16(bitnessMap, BitnessProperty.AddressWidth, 0);
+    @Override
+    public String queryManufacturer() {
+        return "Microsoft";
+    }
+
+    @Override
+    public FamilyVersionInfo queryFamilyVersionInfo() {
+        WmiQuery<OSVersionProperty> osVersionQuery = new WmiQuery<>("Win32_OperatingSystem", OSVersionProperty.class);
+        WmiResult<OSVersionProperty> versionInfo = WmiQueryHandler.createInstance().queryWMI(osVersionQuery);
+        if (versionInfo.getResultCount() < 1) {
+            return new FamilyVersionInfo("Windows", new OSVersionInfo(System.getProperty("os.version"), null, null));
+        }
+        // Guaranteed that versionInfo is not null and lists non-empty
+        // before calling the parse*() methods
+        int suiteMask = WmiUtil.getUint32(versionInfo, OSVersionProperty.SuiteMask, 0);
+        String buildNumber = WmiUtil.getString(versionInfo, OSVersionProperty.BuildNumber, 0);
+        String version = parseVersion(versionInfo, suiteMask, buildNumber);
+        String codeName = parseCodeName(suiteMask);
+        return new FamilyVersionInfo("Windows", new OSVersionInfo(version, codeName, buildNumber));
+    }
+
+    private String parseVersion(WmiResult<OSVersionProperty> versionInfo, int suiteMask, String buildNumber) {
+
+        // Initialize a default, sane value
+        String version = System.getProperty("os.version");
+
+        // Version is major.minor.build. Parse the version string for
+        // major/minor and get the build number separately
+        String[] verSplit = WmiUtil.getString(versionInfo, OSVersionProperty.Version, 0).split("\\D");
+        int major = verSplit.length > 0 ? ParseUtil.parseIntOrDefault(verSplit[0], 0) : 0;
+        int minor = verSplit.length > 1 ? ParseUtil.parseIntOrDefault(verSplit[1], 0) : 0;
+
+        // see
+        // http://msdn.microsoft.com/en-us/library/windows/desktop/ms724833%28v=vs.85%29.aspx
+        boolean ntWorkstation = WmiUtil.getUint32(versionInfo, OSVersionProperty.ProductType,
+                0) == WinNT.VER_NT_WORKSTATION;
+        switch (major) {
+        case 10:
+            if (minor == 0) {
+                if (ntWorkstation) {
+                    version = "10";
+                } else {
+                    // Build numbers greater than 17762 is Server 2019 for OS
+                    // Version 10.0
+                    version = (ParseUtil.parseLongOrDefault(buildNumber, 0L) > 17762) ? "Server 2019"
+                            : "Server 2016";
                 }
             }
+            break;
+        case 6:
+            if (minor == 3) {
+                version = ntWorkstation ? "8.1" : "Server 2012 R2";
+            } else if (minor == 2) {
+                version = ntWorkstation ? "8" : "Server 2012";
+            } else if (minor == 1) {
+                version = ntWorkstation ? "7" : "Server 2008 R2";
+            } else if (minor == 0) {
+                version = ntWorkstation ? "Vista" : "Server 2008";
+            }
+            break;
+        case 5:
+            if (minor == 2) {
+                if ((suiteMask & 0x00008000) != 0) {// VER_SUITE_WH_SERVER
+                    version = "Home Server";
+                } else if (ntWorkstation) {
+                    version = "XP"; // 64 bits
+                } else {
+                    version = User32.INSTANCE.GetSystemMetrics(WinUser.SM_SERVERR2) != 0 ? "Server 2003"
+                            : "Server 2003 R2";
+                }
+            } else if (minor == 1) {
+                version = "XP"; // 32 bits
+            } else if (minor == 0) {
+                version = "2000";
+            }
+            break;
+        default:
+            break;
+        }
+
+        String sp = WmiUtil.getString(versionInfo, OSVersionProperty.CSDVersion, 0);
+        if (!sp.isEmpty() && !"unknown".equals(sp)) {
+            version = version + " " + sp.replace("Service Pack ", "SP");
+        }
+
+        return version;
+    }
+
+    /**
+     * Gets suites available on the system and return as a codename
+     *
+     * @param suiteMask
+     *
+     * @return Suites
+     */
+    private String parseCodeName(int suiteMask) {
+        List<String> suites = new ArrayList<>();
+        if ((suiteMask & 0x00000002) != 0) {
+            suites.add("Enterprise");
+        }
+        if ((suiteMask & 0x00000004) != 0) {
+            suites.add("BackOffice");
+        }
+        if ((suiteMask & 0x00000008) != 0) {
+            suites.add("Communication Server");
+        }
+        if ((suiteMask & 0x00000080) != 0) {
+            suites.add("Datacenter");
+        }
+        if ((suiteMask & 0x00000200) != 0) {
+            suites.add("Home");
+        }
+        if ((suiteMask & 0x00000400) != 0) {
+            suites.add("Web Server");
+        }
+        if ((suiteMask & 0x00002000) != 0) {
+            suites.add("Storage Server");
+        }
+        if ((suiteMask & 0x00004000) != 0) {
+            suites.add("Compute Cluster");
+        }
+        // 0x8000, Home Server, is included in main version name
+        return String.join(",", suites);
+    }
+
+    @Override
+    protected int queryBitness() {
+        if (this.jvmBitness < 64 && System.getenv("ProgramFiles(x86)") == null && IS_VISTA_OR_GREATER) {
+            WmiQuery<BitnessProperty> bitnessQuery = new WmiQuery<>("Win32_Processor", BitnessProperty.class);
+            WmiResult<BitnessProperty> bitnessMap = wmiQueryHandler.queryWMI(bitnessQuery);
+            if (bitnessMap.getResultCount() > 0) {
+                return WmiUtil.getUint16(bitnessMap, BitnessProperty.AddressWidth, 0);
+            }
+        }
+        return this.jvmBitness;
+    }
+
+    @Override
+    public boolean queryElevated() {
+        try {
+            File dir = new File(System.getenv("windir") + "\\system32\\config\\systemprofile");
+            return dir.isDirectory();
+        } catch (SecurityException e) {
+            return false;
         }
     }
 
@@ -545,19 +680,6 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     @Override
     public long getSystemBootTime() {
         return BOOTTIME;
-    }
-
-    @Override
-    public boolean isElevated() {
-        if (this.elevated < 0) {
-            try {
-                File dir = new File(System.getenv("windir") + "\\system32\\config\\systemprofile");
-                this.elevated = dir.isDirectory() ? 1 : 0;
-            } catch (SecurityException e) {
-                this.elevated = 0;
-            }
-        }
-        return this.elevated > 0;
     }
 
     @Override
