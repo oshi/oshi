@@ -44,8 +44,6 @@ import oshi.jna.platform.linux.Udev.UdevListEntry;
  */
 public class LinuxUsbDevice extends AbstractUsbDevice {
 
-    private static final long serialVersionUID = 2L;
-
     /**
      * <p>
      * Constructor for LinuxUsbDevice.

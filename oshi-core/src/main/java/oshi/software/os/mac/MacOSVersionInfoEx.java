@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.software.common.AbstractOSVersionInfoEx;
+import oshi.software.os.OperatingSystem;
 import oshi.util.ParseUtil;
 import oshi.util.platform.mac.SysctlUtil;
 
@@ -34,10 +35,11 @@ import oshi.util.platform.mac.SysctlUtil;
  * <p>
  * MacOSVersionInfoEx class.
  * </p>
+ * 
+ * @deprecated Use {@link OperatingSystem.OSVersionInfo}
  */
+@Deprecated
 public class MacOSVersionInfoEx extends AbstractOSVersionInfoEx {
-
-    private static final long serialVersionUID = 1L;
 
     private static final Logger LOG = LoggerFactory.getLogger(MacOSVersionInfoEx.class);
 

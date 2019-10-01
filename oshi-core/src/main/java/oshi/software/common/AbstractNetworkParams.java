@@ -41,8 +41,6 @@ import oshi.util.ParseUtil;
  */
 public abstract class AbstractNetworkParams implements NetworkParams {
 
-    private static final long serialVersionUID = 1L;
-
     private static final Logger LOG = LoggerFactory.getLogger(AbstractNetworkParams.class);
     private static final String NAMESERVER = "nameserver";
 

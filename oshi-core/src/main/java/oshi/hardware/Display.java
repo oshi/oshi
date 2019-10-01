@@ -23,13 +23,11 @@
  */
 package oshi.hardware;
 
-import java.io.Serializable;
-
 /**
  * Display refers to the information regarding a video source and monitor
  * identified by the EDID standard.
  */
-public interface Display extends Serializable {
+public interface Display {
     /**
      * The EDID byte array.
      *

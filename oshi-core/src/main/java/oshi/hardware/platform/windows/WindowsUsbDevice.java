@@ -55,8 +55,6 @@ import oshi.util.platform.windows.WmiUtil;
  */
 public class WindowsUsbDevice extends AbstractUsbDevice {
 
-    private static final long serialVersionUID = 2L;
-
     private static final Logger LOG = LoggerFactory.getLogger(WindowsUsbDevice.class);
 
     enum USBControllerProperty {

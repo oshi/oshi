@@ -43,11 +43,6 @@ import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 import oshi.util.Util;
 import oshi.util.platform.windows.PerfDataUtil.PerfCounter;
 
-/**
- * <p>
- * PerfCounterWildcardQuery class.
- * </p>
- */
 public class PerfCounterWildcardQuery<T extends Enum<T>> extends PerfCounterQuery<T> {
 
     private static final Logger LOG = LoggerFactory.getLogger(PerfCounterWildcardQuery.class);
@@ -135,7 +130,7 @@ public class PerfCounterWildcardQuery<T extends Enum<T>> extends PerfCounterQuer
      * the 009 index. In this case we can assume English must be the language and
      * continue. We may still fail to match the name if the assumption is wrong but
      * it's better than nothing.
-     * 
+     *
      * @param perfObject
      *            A String to localize
      * @return The localized string if localization succussful, or the original
@@ -182,7 +177,7 @@ public class PerfCounterWildcardQuery<T extends Enum<T>> extends PerfCounterQuer
      * {@inheritDoc}
      *
      * This method is not implemented on this class.
-     * 
+     *
      * @see #queryValuesWildcard
      */
     @Override
@@ -258,6 +253,9 @@ public class PerfCounterWildcardQuery<T extends Enum<T>> extends PerfCounterQuer
                         break;
                     case Wbemcli.CIM_UINT64:
                         values.add(WmiUtil.getUint64(result, prop, i));
+                        break;
+                    case Wbemcli.CIM_DATETIME:
+                        values.add(WmiUtil.getDateTime(result, prop, i).toInstant().toEpochMilli());
                         break;
                     default:
                         throw new ClassCastException("Unimplemented CIM Type Mapping.");

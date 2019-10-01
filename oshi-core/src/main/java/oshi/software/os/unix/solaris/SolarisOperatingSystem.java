@@ -39,22 +39,24 @@ import oshi.util.LsofUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.linux.ProcUtil;
 import oshi.util.platform.unix.solaris.KstatUtil;
+import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
 
 /**
  * Linux is a family of free operating systems most commonly used on personal
  * computers.
  */
 public class SolarisOperatingSystem extends AbstractOperatingSystem {
-    private static final long serialVersionUID = 1L;
 
     private static final long BOOTTIME;
     static {
-        Kstat ksp = KstatUtil.kstatLookup("unix", 0, "system_misc");
-        if (ksp != null && KstatUtil.kstatRead(ksp)) {
-            BOOTTIME = KstatUtil.kstatDataLookupLong(ksp, "boot_time");
+        KstatChain kc = KstatUtil.getChain();
+        Kstat ksp = kc.lookup("unix", 0, "system_misc");
+        if (ksp != null && kc.read(ksp)) {
+            BOOTTIME = KstatUtil.dataLookupLong(ksp, "boot_time");
         } else {
             BOOTTIME = System.currentTimeMillis() / 1000L - querySystemUptime();
         }
+        kc.close();
     }
 
     /**
@@ -62,26 +64,45 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
      * Constructor for SolarisOperatingSystem.
      * </p>
      */
+    @SuppressWarnings("deprecation")
     public SolarisOperatingSystem() {
-        this.manufacturer = "Oracle";
-        this.family = "SunOS";
         this.version = new SolarisOSVersionInfoEx();
-        initBitness();
     }
 
-    private void initBitness() {
-        if (this.bitness < 64) {
-            this.bitness = ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer("isainfo -b"), 32);
+    @Override
+    public String queryManufacturer() {
+        return "Oracle";
+    }
+
+    @Override
+    public FamilyVersionInfo queryFamilyVersionInfo() {
+        String[] split = ParseUtil.whitespaces.split(ExecutingCommand.getFirstAnswer("uname -rv"));
+        String version = split[0];
+        String buildNumber = null;
+        if (split.length > 1) {
+            buildNumber = split[1];
         }
+        return new FamilyVersionInfo("SunOS", new OSVersionInfo(version,"Solaris",buildNumber));
     }
 
-    /** {@inheritDoc} */
+    @Override
+    protected int queryBitness() {
+        if (this.jvmBitness < 64) {
+            return ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer("isainfo -b"), 32);
+        }
+        return 64;
+    }
+
+    @Override
+    protected boolean queryElevated() {
+        return System.getenv("SUDO_COMMAND") != null;
+    }
+
     @Override
     public FileSystem getFileSystem() {
         return new SolarisFileSystem();
     }
 
-    /** {@inheritDoc} */
     @Override
     public OSProcess[] getProcesses(int limit, ProcessSort sort, boolean slowFields) {
         List<OSProcess> procs = getProcessListFromPS(
@@ -90,7 +111,6 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
         return sorted.toArray(new OSProcess[0]);
     }
 
-    /** {@inheritDoc} */
     @Override
     public OSProcess getProcess(int pid) {
         return getProcess(pid, true);
@@ -105,7 +125,6 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
         return procs.get(0);
     }
 
-    /** {@inheritDoc} */
     @Override
     public OSProcess[] getChildProcesses(int parentPid, int limit, ProcessSort sort) {
         List<OSProcess> procs = getProcessListFromPS(
@@ -196,19 +215,16 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
         return procs;
     }
 
-    /** {@inheritDoc} */
     @Override
     public int getProcessId() {
         return SolarisLibc.INSTANCE.getpid();
     }
 
-    /** {@inheritDoc} */
     @Override
     public int getProcessCount() {
         return ProcUtil.getPidFiles().length;
     }
 
-    /** {@inheritDoc} */
     @Override
     public int getThreadCount() {
         List<String> threadList = ExecutingCommand.runNative("ps -eLo pid");
@@ -219,28 +235,28 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
         return getProcessCount();
     }
 
-    /** {@inheritDoc} */
     @Override
     public long getSystemUptime() {
         return querySystemUptime();
     }
 
     private static long querySystemUptime() {
-        Kstat ksp = KstatUtil.kstatLookup("unix", 0, "system_misc");
-        if (ksp == null) {
-            return 0L;
+        KstatChain kc = KstatUtil.getChain();
+        Kstat ksp = kc.lookup("unix", 0, "system_misc");
+        long snaptime = 0L;
+        if (ksp != null) {
+            // Snap Time is in nanoseconds; divide for seconds
+            snaptime = ksp.ks_snaptime / 1_000_000_000L;
         }
-        // Snap Time is in nanoseconds; divide for seconds
-        return ksp.ks_snaptime / 1_000_000_000L;
+        kc.close();
+        return snaptime;
     }
 
-    /** {@inheritDoc} */
     @Override
     public long getSystemBootTime() {
         return BOOTTIME;
     }
 
-    /** {@inheritDoc} */
     @Override
     public NetworkParams getNetworkParams() {
         return new SolarisNetworkParams();

@@ -23,14 +23,13 @@
  */
 package oshi.software.os;
 
-import java.io.Serializable;
-
 /**
- * <p>
  * OperatingSystemVersion interface.
- * </p>
+ * 
+ * @deprecated Use {@link OperatingSystem.OSVersionInfo}
  */
-public interface OperatingSystemVersion extends Serializable {
+@Deprecated
+public interface OperatingSystemVersion {
     /**
      * <p>
      * getVersion.

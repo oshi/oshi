@@ -58,11 +58,13 @@ import oshi.util.platform.mac.SysctlUtil;
  */
 public class MacOperatingSystem extends AbstractOperatingSystem {
 
-    private static final long serialVersionUID = 1L;
-
     private static final Logger LOG = LoggerFactory.getLogger(MacOperatingSystem.class);
 
     private int maxProc = 1024;
+
+    private final String osXVersion;
+    private final int major;
+    private final int minor;
 
     // 64-bit flag
     private static final int P_LP64 = 0x4;
@@ -99,34 +101,91 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
      * Constructor for MacOperatingSystem.
      * </p>
      */
+    @SuppressWarnings("deprecation")
     public MacOperatingSystem() {
-        this.manufacturer = "Apple";
         this.version = new MacOSVersionInfoEx();
-        this.family = ParseUtil.getFirstIntValue(this.version.getVersion()) == 10
-                && ParseUtil.getNthIntValue(this.version.getVersion(), 2) >= 12 ? "macOS"
-                        : System.getProperty("os.name");
+        this.osXVersion = System.getProperty("os.version");
+        this.major = ParseUtil.getFirstIntValue(this.osXVersion);
+        this.minor = ParseUtil.getNthIntValue(this.osXVersion, 2);
         // Set max processes
         this.maxProc = SysctlUtil.sysctl("kern.maxproc", 0x1000);
-        initBitness();
     }
 
-    private void initBitness() {
-        if (this.bitness < 64) {
-            if (getVersion().getOsxVersionNumber() > 7) {
-                this.bitness = 64;
-            } else {
-                this.bitness = ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer("getconf LONG_BIT"), 32);
+    @Override
+    public String queryManufacturer() {
+        return "Apple";
+    }
+
+    @Override
+    public FamilyVersionInfo queryFamilyVersionInfo() {
+        String family = this.major == 10 && this.minor >= 12 ? "macOS" : System.getProperty("os.name");
+        String codeName = parseCodeName();
+        String buildNumber = SysctlUtil.sysctl("kern.osversion", "");
+        return new FamilyVersionInfo(family, new OSVersionInfo(this.osXVersion, codeName, buildNumber));
+    }
+
+    private String parseCodeName() {
+        if (this.major == 10) {
+            switch (this.minor) {
+            // MacOS
+            case 15:
+                return "Catalina";
+            case 14:
+                return "Mojave";
+            case 13:
+                return "High Sierra";
+            case 12:
+                return "Sierra";
+            // OS X
+            case 11:
+                return "El Capitan";
+            case 10:
+                return "Yosemite";
+            case 9:
+                return "Mavericks";
+            case 8:
+                return "Mountain Lion";
+            case 7:
+                return "Lion";
+            case 6:
+                return "Snow Leopard";
+            case 5:
+                return "Leopard";
+            case 4:
+                return "Tiger";
+            case 3:
+                return "Panther";
+            case 2:
+                return "Jaguar";
+            case 1:
+                return "Puma";
+            case 0:
+                return "Cheetah";
+            default:
             }
         }
+        LOG.warn("Unable to parse version {}.{} to a codename.", this.major, this.minor);
+        return "";
     }
 
-    /** {@inheritDoc} */
+    @Override
+    protected int queryBitness() {
+        if (this.jvmBitness == 64 || (this.major == 10 && this.minor > 6)) {
+            return 64;
+        }
+        return ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer("getconf LONG_BIT"), 32);
+    }
+
+    @Override
+    protected boolean queryElevated() {
+        return System.getenv("SUDO_COMMAND") != null;
+    }
+
     @Override
     public FileSystem getFileSystem() {
         return new MacFileSystem();
     }
 
-    /** {@inheritDoc} */
     @Override
     public OSProcess[] getProcesses(int limit, ProcessSort sort, boolean slowFields) {
         List<OSProcess> procs = new ArrayList<>();
@@ -149,7 +208,6 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
         return sorted.toArray(new OSProcess[0]);
     }
 
-    /** {@inheritDoc} */
     @Override
     public OSProcess getProcess(int pid) {
         return getProcess(pid, true);
@@ -187,7 +245,7 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
         }
         long bytesRead = 0;
         long bytesWritten = 0;
-        if (getVersion().getOsxVersionNumber() >= 9) {
+        if (this.minor >= 9) {
             RUsageInfoV2 rUsageInfoV2 = new RUsageInfoV2();
             if (0 == SystemB.INSTANCE.proc_pid_rusage(pid, SystemB.RUSAGE_INFO_V2, rUsageInfoV2)) {
                 bytesRead = rUsageInfoV2.ri_diskio_bytesread;
@@ -257,7 +315,6 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
         return proc;
     }
 
-    /** {@inheritDoc} */
     @Override
     public OSProcess[] getChildProcesses(int parentPid, int limit, ProcessSort sort) {
         List<OSProcess> procs = new ArrayList<>();
@@ -340,25 +397,16 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
         return String.join("\0", args);
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public MacOSVersionInfoEx getVersion() {
-        return (MacOSVersionInfoEx) this.version;
-    }
-
-    /** {@inheritDoc} */
     @Override
     public int getProcessId() {
         return SystemB.INSTANCE.getpid();
     }
 
-    /** {@inheritDoc} */
     @Override
     public int getProcessCount() {
         return SystemB.INSTANCE.proc_listpids(SystemB.PROC_ALL_PIDS, 0, null, 0) / SystemB.INT_SIZE;
     }
 
-    /** {@inheritDoc} */
     @Override
     public int getThreadCount() {
         // Get current pids, then slightly pad in case new process starts while
@@ -375,19 +423,16 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
         return numberOfThreads;
     }
 
-    /** {@inheritDoc} */
     @Override
     public long getSystemUptime() {
         return System.currentTimeMillis() / 1000 - BOOTTIME;
     }
 
-    /** {@inheritDoc} */
     @Override
     public long getSystemBootTime() {
         return BOOTTIME;
     }
 
-    /** {@inheritDoc} */
     @Override
     public NetworkParams getNetworkParams() {
         return new MacNetworkParams();

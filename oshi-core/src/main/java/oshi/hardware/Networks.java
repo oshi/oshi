@@ -23,12 +23,10 @@
  */
 package oshi.hardware;
 
-import java.io.Serializable;
-
 /**
  * Networks refers to network interfaces installed in the machine.
  */
-public interface Networks extends Serializable {
+public interface Networks {
 
     /**
      * Get network interfaces on this machine

@@ -33,9 +33,6 @@ import oshi.util.FileUtil;
  * </p>
  */
 public class LinuxNetworks extends AbstractNetworks {
-
-    private static final long serialVersionUID = 1L;
-
     /**
      * Updates interface network statistics on the given interface. Statistics
      * include packets and bytes sent and received, and interface speed.

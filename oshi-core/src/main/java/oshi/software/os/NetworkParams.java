@@ -23,13 +23,11 @@
  */
 package oshi.software.os;
 
-import java.io.Serializable;
-
 /**
  * NetworkParams presents network parameters of running OS, such as DNS, host
  * name etc.
  */
-public interface NetworkParams extends Serializable {
+public interface NetworkParams {
 
     /**
      * <p>

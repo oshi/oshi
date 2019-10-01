@@ -33,9 +33,7 @@ import oshi.util.EdidUtil;
  */
 public abstract class AbstractDisplay implements Display {
 
-    private static final long serialVersionUID = 1L;
-
-    protected byte[] edid;
+    private byte[] edid;
 
     /**
      * <p>
@@ -49,13 +47,11 @@ public abstract class AbstractDisplay implements Display {
         this.edid = edid;
     }
 
-    /** {@inheritDoc} */
     @Override
     public byte[] getEdid() {
         return Arrays.copyOf(this.edid, this.edid.length);
     }
 
-    /** {@inheritDoc} */
     @Override
     public String toString() {
         return EdidUtil.toString(this.edid);

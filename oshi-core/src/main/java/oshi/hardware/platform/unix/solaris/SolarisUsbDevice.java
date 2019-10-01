@@ -41,13 +41,6 @@ import oshi.util.ParseUtil;
  */
 public class SolarisUsbDevice extends AbstractUsbDevice {
 
-    private static final long serialVersionUID = 2L;
-
-    /*
-     * For parsing tree
-     */
-    private static Map<Integer, String> lastParent = new HashMap<>();
-
     /**
      * <p>
      * Constructor for SolarisUsbDevice.
@@ -98,7 +91,6 @@ public class SolarisUsbDevice extends AbstractUsbDevice {
     }
 
     private static UsbDevice[] getUsbDevices() {
-        // Maps to store information using node # as the key
         Map<String, String> nameMap = new HashMap<>();
         Map<String, String> vendorIdMap = new HashMap<>();
         Map<String, String> productIdMap = new HashMap<>();
@@ -111,6 +103,7 @@ public class SolarisUsbDevice extends AbstractUsbDevice {
             return new SolarisUsbDevice[0];
         }
         // For each item enumerated, store information in the maps
+        Map<Integer, String> lastParent = new HashMap<>();
         String key = "";
         int indent = 0;
         List<String> usbControllers = new ArrayList<>();
@@ -135,34 +128,31 @@ public class SolarisUsbDevice extends AbstractUsbDevice {
                     // No parent, add to controllers list
                     usbControllers.add(key);
                 }
-                continue;
-            } else if (key.isEmpty()) {
-                // Ignore everything preceding the first node
-                continue;
-            }
-            // We are currently processing for node identified by key. Save
-            // approrpriate variables to maps.
-            line = line.trim();
-            if (line.startsWith("model:")) {
-                nameMap.put(key, ParseUtil.getSingleQuoteStringValue(line));
-            } else if (line.startsWith("name:")) {
-                // Name is backup for model if model doesn't exist, so only
-                // put if key doesn't yet exist
-                nameMap.putIfAbsent(key, ParseUtil.getSingleQuoteStringValue(line));
-            } else if (line.startsWith("vendor-id:")) {
-                // Format: vendor-id: 00008086
-                if (line.length() > 4) {
-                    vendorIdMap.put(key, line.substring(line.length() - 4));
+            } else if (!key.isEmpty()) {
+                // We are currently processing for node identified by key. Save
+                // approrpriate variables to maps.
+                line = line.trim();
+                if (line.startsWith("model:")) {
+                    nameMap.put(key, ParseUtil.getSingleQuoteStringValue(line));
+                } else if (line.startsWith("name:")) {
+                    // Name is backup for model if model doesn't exist, so only
+                    // put if key doesn't yet exist
+                    nameMap.putIfAbsent(key, ParseUtil.getSingleQuoteStringValue(line));
+                } else if (line.startsWith("vendor-id:")) {
+                    // Format: vendor-id: 00008086
+                    if (line.length() > 4) {
+                        vendorIdMap.put(key, line.substring(line.length() - 4));
+                    }
+                } else if (line.startsWith("device-id:")) {
+                    // Format: device-id: 00002440
+                    if (line.length() > 4) {
+                        productIdMap.put(key, line.substring(line.length() - 4));
+                    }
+                } else if (line.startsWith("device_type:")) {
+                    // Name is backup for model if model doesn't exist, so only
+                    // put if key doesn't yet exist
+                    deviceTypeMap.putIfAbsent(key, ParseUtil.getSingleQuoteStringValue(line));
                 }
-            } else if (line.startsWith("device-id:")) {
-                // Format: device-id: 00002440
-                if (line.length() > 4) {
-                    productIdMap.put(key, line.substring(line.length() - 4));
-                }
-            } else if (line.startsWith("device_type:")) {
-                // Name is backup for model if model doesn't exist, so only
-                // put if key doesn't yet exist
-                deviceTypeMap.putIfAbsent(key, ParseUtil.getSingleQuoteStringValue(line));
             }
         }
 

@@ -39,6 +39,7 @@ import org.junit.Test;
 
 import oshi.PlatformEnum;
 import oshi.SystemInfo;
+import oshi.software.os.OperatingSystem.OSVersionInfo;
 
 /**
  * Test OS
@@ -54,11 +55,8 @@ public class OperatingSystemTest {
         OperatingSystem os = si.getOperatingSystem();
         assertNotNull(os.getFamily());
         assertNotNull(os.getManufacturer());
-        OperatingSystemVersion version = os.getVersion();
-        assertNotNull(version);
-        assertNotNull(version.getVersion());
-        assertNotNull(version.getCodeName());
-        assertNotNull(version.getBuildNumber());
+        OSVersionInfo versionInfo = os.getVersionInfo();
+        assertNotNull(versionInfo);
 
         assertTrue(os.getSystemUptime() > 0);
         assertTrue(os.getSystemBootTime() > 0);
@@ -74,7 +72,7 @@ public class OperatingSystemTest {
         OSProcess proc = os.getProcess(os.getProcessId());
         assertTrue(proc.getName().length() > 0);
         assertTrue(proc.getPath().length() > 0);
-        assertTrue(proc.getCommandLine().length() > 0);
+        assertNotNull(proc.getCommandLine());
         assertNotNull(proc.getCurrentWorkingDirectory());
         assertNotNull(proc.getUser());
         assertNotNull(proc.getUserID());
@@ -82,7 +80,7 @@ public class OperatingSystemTest {
         assertNotNull(proc.getGroupID());
         assertNotNull(proc.getState());
         assertEquals(proc.getProcessID(), os.getProcessId());
-        assertTrue(proc.getParentProcessID() > 0);
+        assertTrue(proc.getParentProcessID() >= 0);
         assertTrue(proc.getThreadCount() > 0);
         assertTrue(proc.getPriority() >= -20 && proc.getPriority() <= 128);
         assertTrue(proc.getVirtualSize() >= 0);
@@ -108,11 +106,8 @@ public class OperatingSystemTest {
         OperatingSystem os = si.getOperatingSystem();
         assertNotNull(os.getFamily());
         assertNotNull(os.getManufacturer());
-        OperatingSystemVersion version = os.getVersion();
-        assertNotNull(version);
-        assertNotNull(version.getVersion());
-        assertNotNull(version.getCodeName());
-        assertNotNull(version.getBuildNumber());
+        OSVersionInfo versionInfo = os.getVersionInfo();
+        assertNotNull(versionInfo);
 
         assertTrue(os.getProcessCount() >= 1);
         assertTrue(os.getThreadCount() >= 1);
@@ -129,7 +124,7 @@ public class OperatingSystemTest {
         }
         // query for just those processes
         Collection<OSProcess> processes1 = os.getProcesses(pids);
-        // theres a potential for a race condition here, if a process we queried
+        // there's a potential for a race condition here, if a process we queried
         // for initially wasn't running during the second query. In this case,
         // try again with the shorter list
         while (processes1.size() < pids.size()) {

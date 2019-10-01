@@ -28,6 +28,7 @@ import com.sun.jna.platform.unix.solaris.LibKstat.Kstat; // NOSONAR
 import oshi.hardware.NetworkIF;
 import oshi.hardware.common.AbstractNetworks;
 import oshi.util.platform.unix.solaris.KstatUtil;
+import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
 
 /**
  * <p>
@@ -35,9 +36,6 @@ import oshi.util.platform.unix.solaris.KstatUtil;
  * </p>
  */
 public class SolarisNetworks extends AbstractNetworks {
-
-    private static final long serialVersionUID = 1L;
-
     /**
      * Updates interface network statistics on the given interface. Statistics
      * include packets and bytes sent and received, and interface speed.
@@ -46,20 +44,22 @@ public class SolarisNetworks extends AbstractNetworks {
      *            The interface on which to update statistics
      */
     public static void updateNetworkStats(NetworkIF netIF) {
-        Kstat ksp = KstatUtil.kstatLookup("link", -1, netIF.getName());
+        KstatChain kc = KstatUtil.getChain();
+        Kstat ksp = kc.lookup("link", -1, netIF.getName());
         if (ksp == null) { // Solaris 10 compatibility
-            ksp = KstatUtil.kstatLookup(null, -1, netIF.getName());
+            ksp = kc.lookup(null, -1, netIF.getName());
         }
-        if (ksp != null && KstatUtil.kstatRead(ksp)) {
-            netIF.setBytesSent(KstatUtil.kstatDataLookupLong(ksp, "obytes64"));
-            netIF.setBytesRecv(KstatUtil.kstatDataLookupLong(ksp, "rbytes64"));
-            netIF.setPacketsSent(KstatUtil.kstatDataLookupLong(ksp, "opackets64"));
-            netIF.setPacketsRecv(KstatUtil.kstatDataLookupLong(ksp, "ipackets64"));
-            netIF.setOutErrors(KstatUtil.kstatDataLookupLong(ksp, "oerrors"));
-            netIF.setInErrors(KstatUtil.kstatDataLookupLong(ksp, "ierrors"));
-            netIF.setSpeed(KstatUtil.kstatDataLookupLong(ksp, "ifspeed"));
+        if (ksp != null && kc.read(ksp)) {
+            netIF.setBytesSent(KstatUtil.dataLookupLong(ksp, "obytes64"));
+            netIF.setBytesRecv(KstatUtil.dataLookupLong(ksp, "rbytes64"));
+            netIF.setPacketsSent(KstatUtil.dataLookupLong(ksp, "opackets64"));
+            netIF.setPacketsRecv(KstatUtil.dataLookupLong(ksp, "ipackets64"));
+            netIF.setOutErrors(KstatUtil.dataLookupLong(ksp, "oerrors"));
+            netIF.setInErrors(KstatUtil.dataLookupLong(ksp, "ierrors"));
+            netIF.setSpeed(KstatUtil.dataLookupLong(ksp, "ifspeed"));
             // Snap time in ns; convert to ms
             netIF.setTimeStamp(ksp.ks_snaptime / 1_000_000L);
         }
+        kc.close();
     }
 }

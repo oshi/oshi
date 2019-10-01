@@ -36,6 +36,7 @@ import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.software.common.AbstractOSVersionInfoEx;
+import oshi.software.os.OperatingSystem;
 import oshi.util.ParseUtil;
 import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
@@ -44,10 +45,11 @@ import oshi.util.platform.windows.WmiUtil;
  * <p>
  * WindowsOSVersionInfoEx class.
  * </p>
+ * 
+ * @deprecated Use {@link OperatingSystem.OSVersionInfo}
  */
+@Deprecated
 public class WindowsOSVersionInfoEx extends AbstractOSVersionInfoEx {
-
-    private static final long serialVersionUID = 1L;
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsOSVersionInfoEx.class);
 
@@ -61,10 +63,6 @@ public class WindowsOSVersionInfoEx extends AbstractOSVersionInfoEx {
      * </p>
      */
     public WindowsOSVersionInfoEx() {
-        init();
-    }
-
-    private void init() {
         // Populate a key-value map from WMI
         WmiQuery<OSVersionProperty> osVersionQuery = new WmiQuery<>("Win32_OperatingSystem", OSVersionProperty.class);
         WmiResult<OSVersionProperty> versionInfo = WmiQueryHandler.createInstance().queryWMI(osVersionQuery);

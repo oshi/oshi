@@ -32,8 +32,6 @@ import oshi.hardware.UsbDevice;
  */
 public abstract class AbstractUsbDevice implements UsbDevice {
 
-    private static final long serialVersionUID = 2L;
-
     protected String name;
 
     protected String vendor;
