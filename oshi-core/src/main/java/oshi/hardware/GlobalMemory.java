@@ -23,6 +23,8 @@
  */
 package oshi.hardware;
 
+import java.util.List;
+
 /**
  * The GlobalMemory class tracks information about the use of a computer's
  * physical memory (RAM) as well as any available virtual memory.
@@ -55,4 +57,11 @@ public interface GlobalMemory {
      * @return A VirtualMemory object.
      */
     VirtualMemory getVirtualMemory();
+    
+    /**
+     * Physical memory, such as banks of memory.
+     *
+     * @return A list of PhysicalMemory objects.
+     */
+    List<PhysicalMemory> getPhysicalMemory();
 }

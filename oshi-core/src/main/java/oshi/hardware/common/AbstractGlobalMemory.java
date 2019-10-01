@@ -23,13 +23,23 @@
  */
 package oshi.hardware.common;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import oshi.hardware.GlobalMemory;
+import oshi.hardware.PhysicalMemory;
 import oshi.util.FormatUtil;
 
 /**
  * Memory info.
  */
 public abstract class AbstractGlobalMemory implements GlobalMemory {
+        
+    @Override
+    // Temporarily override in all classes until implemented.
+    public List<PhysicalMemory> getPhysicalMemory() {
+	return new ArrayList<PhysicalMemory>();
+    }
 
     @Override
     public String toString() {

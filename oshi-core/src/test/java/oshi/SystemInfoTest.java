@@ -43,6 +43,7 @@ import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.NetworkIF;
+import oshi.hardware.PhysicalMemory;
 import oshi.hardware.PowerSource;
 import oshi.hardware.Sensors;
 import oshi.hardware.SoundCard;
@@ -166,6 +167,11 @@ public class SystemInfoTest {
         oshi.add("Memory: \n " + memory.toString());
         VirtualMemory vm = memory.getVirtualMemory();
         oshi.add("Swap: \n " + vm.toString());
+        List<PhysicalMemory> pmArray = memory.getPhysicalMemory();
+        oshi.add("Physical Memory: ");
+        for(PhysicalMemory pm: pmArray) {
+            oshi.add(pm.toString());
+        }
     }
 
     private static void printCpu(CentralProcessor processor) {
