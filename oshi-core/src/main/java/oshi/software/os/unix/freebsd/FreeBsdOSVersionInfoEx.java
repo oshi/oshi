@@ -24,13 +24,17 @@
 package oshi.software.os.unix.freebsd;
 
 import oshi.software.common.AbstractOSVersionInfoEx;
+import oshi.software.os.OperatingSystem;
 import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
 
 /**
  * <p>
  * FreeBsdOSVersionInfoEx class.
  * </p>
+ * 
+ * @deprecated Use {@link OperatingSystem.OSVersionInfo}
  */
+@Deprecated
 public class FreeBsdOSVersionInfoEx extends AbstractOSVersionInfoEx {
 
     public FreeBsdOSVersionInfoEx() {

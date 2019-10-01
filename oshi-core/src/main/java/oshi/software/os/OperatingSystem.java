@@ -26,6 +26,9 @@ package oshi.software.os;
 import java.util.Collection;
 import java.util.List;
 
+import oshi.util.Constants;
+import oshi.util.Util;
+
 /**
  * An operating system (OS) is the software on a computer that manages the way
  * different programs use its hardware, and regulates the ways that a user
@@ -58,8 +61,17 @@ public interface OperatingSystem {
      * Operating system version.
      *
      * @return Version.
+     * @deprecated Use {@link #getVersionInfo}
      */
+    @Deprecated
     OperatingSystemVersion getVersion();
+
+    /**
+     * Operating system version information.
+     *
+     * @return Version information.
+     */
+    OSVersionInfo getVersionInfo();
 
     /**
      * Instantiates a {@link oshi.software.os.FileSystem} object.
@@ -208,4 +220,63 @@ public interface OperatingSystem {
      * @return A {@link oshi.software.os.NetworkParams} object.
      */
     NetworkParams getNetworkParams();
+
+    /**
+     * A class representing a Logical Processor and its replationship to physical
+     * processors, physical packages, and logical groupings such as NUMA Nodes and
+     * Processor groups, useful for identifying processor topology.
+     */
+    class OSVersionInfo {
+        private final String version;
+        private final String codeName;
+        private final String buildNumber;
+        private final String versionStr;
+
+        public OSVersionInfo(String version, String codeName, String buildNumber) {
+            this.version = version;
+            this.codeName = codeName;
+            this.buildNumber = buildNumber;
+
+            StringBuilder sb = new StringBuilder(getVersion() != null ? getVersion() : Constants.UNKNOWN);
+            if (!Util.isBlank(getCodeName())) {
+                sb.append(" (").append(getCodeName()).append(')');
+            }
+            if (!Util.isBlank(getBuildNumber())) {
+                sb.append(" build ").append(getBuildNumber());
+            }
+            this.versionStr = sb.toString();
+        }
+
+        /**
+         * Gets the operating system version.
+         *
+         * @return The version, if any. May be {@code null}.
+         */
+        public String getVersion() {
+            return version;
+        }
+
+        /**
+         * Gets the operating system codename.
+         *
+         * @return The code name, if any. May be {@code null}.
+         */
+        public String getCodeName() {
+            return codeName;
+        }
+
+        /**
+         * Gets the operating system build number.
+         *
+         * @return The build number, if any. May be {@code null}.
+         */
+        public String getBuildNumber() {
+            return buildNumber;
+        }
+
+        @Override
+        public String toString() {
+            return this.versionStr;
+        }
+    }
 }

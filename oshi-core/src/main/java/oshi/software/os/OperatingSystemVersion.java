@@ -24,10 +24,11 @@
 package oshi.software.os;
 
 /**
- * <p>
  * OperatingSystemVersion interface.
- * </p>
+ * 
+ * @deprecated Use {@link OperatingSystem.OSVersionInfo}
  */
+@Deprecated
 public interface OperatingSystemVersion {
     /**
      * <p>

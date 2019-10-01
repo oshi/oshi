@@ -24,9 +24,14 @@
 package oshi.software.os.unix.solaris;
 
 import oshi.software.common.AbstractOSVersionInfoEx;
+import oshi.software.os.OperatingSystem;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
+/**
+ * @deprecated Use {@link OperatingSystem.OSVersionInfo}
+ */
+@Deprecated
 public class SolarisOSVersionInfoEx extends AbstractOSVersionInfoEx {
 
     /**
@@ -35,7 +40,6 @@ public class SolarisOSVersionInfoEx extends AbstractOSVersionInfoEx {
      * </p>
      */
     public SolarisOSVersionInfoEx() {
-        // TODO use sysinfo() instead of commandline
         String versionInfo = ExecutingCommand.getFirstAnswer("uname -rv");
         String[] split = ParseUtil.whitespaces.split(versionInfo);
         setVersion(split[0]);

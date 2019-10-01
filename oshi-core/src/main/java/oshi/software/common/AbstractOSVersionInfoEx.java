@@ -23,13 +23,17 @@
  */
 package oshi.software.common;
 
+import oshi.software.os.OperatingSystem;
 import oshi.software.os.OperatingSystemVersion;
 
 /**
  * Contains operating system version information. The information includes major
  * and minor version numbers, a build number, a platform identifier, and
  * descriptive text about the operating system.
+ * 
+ * @deprecated Use {@link OperatingSystem.OSVersionInfo}
  */
+@Deprecated
 public class AbstractOSVersionInfoEx implements OperatingSystemVersion {
 
     protected String version;
@@ -40,43 +44,43 @@ public class AbstractOSVersionInfoEx implements OperatingSystemVersion {
 
     protected String buildNumber;
 
-    /** {@inheritDoc} */
+
     @Override
     public String getVersion() {
         return this.version;
     }
 
-    /** {@inheritDoc} */
+
     @Override
     public void setVersion(String version) {
         this.version = version;
     }
 
-    /** {@inheritDoc} */
+
     @Override
     public String getCodeName() {
         return this.codeName;
     }
 
-    /** {@inheritDoc} */
+
     @Override
     public void setCodeName(String codeName) {
         this.codeName = codeName;
     }
 
-    /** {@inheritDoc} */
+
     @Override
     public String getBuildNumber() {
         return this.buildNumber;
     }
 
-    /** {@inheritDoc} */
+
     @Override
     public void setBuildNumber(String buildNumber) {
         this.buildNumber = buildNumber;
     }
 
-    /** {@inheritDoc} */
+
     @Override
     public String toString() {
         if (this.versionStr == null) {

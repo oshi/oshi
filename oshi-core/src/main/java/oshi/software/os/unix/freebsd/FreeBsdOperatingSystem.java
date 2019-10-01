@@ -71,26 +71,45 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
      * Constructor for FreeBsdOperatingSystem.
      * </p>
      */
+    @SuppressWarnings("deprecation")
     public FreeBsdOperatingSystem() {
-        this.manufacturer = "Unix/BSD";
-        this.family = BsdSysctlUtil.sysctl("kern.ostype", "FreeBSD");
         this.version = new FreeBsdOSVersionInfoEx();
-        initBitness();
     }
 
-    private void initBitness() {
-        if (this.bitness < 64 && ExecutingCommand.getFirstAnswer("uname -m").indexOf("64") != -1) {
-            this.bitness = 64;
+    @Override
+    public String queryManufacturer() {
+        return "Unix/BSD";
+    }
+
+    @Override
+    public FamilyVersionInfo queryFamilyVersionInfo() {
+        String family = BsdSysctlUtil.sysctl("kern.ostype", "FreeBSD");
+
+        String version = BsdSysctlUtil.sysctl("kern.osrelease", "");
+        String versionInfo = BsdSysctlUtil.sysctl("kern.version", "");
+        String buildNumber = versionInfo.split(":")[0].replace(family, "").replace(version, "").trim();
+
+        return new FamilyVersionInfo(family, new OSVersionInfo(version, null, buildNumber));
+    }
+
+    @Override
+    protected int queryBitness() {
+        if (this.jvmBitness < 64 && ExecutingCommand.getFirstAnswer("uname -m").indexOf("64") == -1) {
+            return this.jvmBitness;
         }
+        return 64;
     }
 
-    /** {@inheritDoc} */
+    @Override
+    protected boolean queryElevated() {
+        return System.getenv("SUDO_COMMAND") != null;
+    }
+
     @Override
     public FileSystem getFileSystem() {
         return new FreeBsdFileSystem();
     }
 
-    /** {@inheritDoc} */
     @Override
     public OSProcess[] getProcesses(int limit, ProcessSort sort, boolean slowFields) {
         List<OSProcess> procs = getProcessListFromPS(
@@ -100,7 +119,6 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
         return sorted.toArray(new OSProcess[0]);
     }
 
-    /** {@inheritDoc} */
     @Override
     public OSProcess getProcess(int pid) {
         return getProcess(pid, true);
@@ -116,7 +134,6 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
         return procs.get(0);
     }
 
-    /** {@inheritDoc} */
     @Override
     public OSProcess[] getChildProcesses(int parentPid, int limit, ProcessSort sort) {
         List<OSProcess> procs = getProcessListFromPS(
@@ -217,13 +234,11 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
         return procs;
     }
 
-    /** {@inheritDoc} */
     @Override
     public int getProcessId() {
         return FreeBsdLibc.INSTANCE.getpid();
     }
 
-    /** {@inheritDoc} */
     @Override
     public int getProcessCount() {
         List<String> procList = ExecutingCommand.runNative("ps -axo pid");
@@ -234,7 +249,6 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
         return 0;
     }
 
-    /** {@inheritDoc} */
     @Override
     public int getThreadCount() {
         int threads = 0;
@@ -244,19 +258,16 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
         return threads;
     }
 
-    /** {@inheritDoc} */
     @Override
     public long getSystemUptime() {
         return System.currentTimeMillis() / 1000 - BOOTTIME;
     }
 
-    /** {@inheritDoc} */
     @Override
     public long getSystemBootTime() {
         return BOOTTIME;
     }
 
-    /** {@inheritDoc} */
     @Override
     public NetworkParams getNetworkParams() {
         return new FreeBsdNetworkParams();

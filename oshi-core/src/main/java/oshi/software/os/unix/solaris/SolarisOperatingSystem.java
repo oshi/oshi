@@ -64,17 +64,38 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
      * Constructor for SolarisOperatingSystem.
      * </p>
      */
+    @SuppressWarnings("deprecation")
     public SolarisOperatingSystem() {
-        this.manufacturer = "Oracle";
-        this.family = "SunOS";
         this.version = new SolarisOSVersionInfoEx();
-        initBitness();
     }
 
-    private void initBitness() {
-        if (this.bitness < 64) {
-            this.bitness = ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer("isainfo -b"), 32);
+    @Override
+    public String queryManufacturer() {
+        return "Oracle";
+    }
+
+    @Override
+    public FamilyVersionInfo queryFamilyVersionInfo() {
+        String[] split = ParseUtil.whitespaces.split(ExecutingCommand.getFirstAnswer("uname -rv"));
+        String version = split[0];
+        String buildNumber = null;
+        if (split.length > 1) {
+            buildNumber = split[1];
         }
+        return new FamilyVersionInfo("SunOS", new OSVersionInfo(version,"Solaris",buildNumber));
+    }
+
+    @Override
+    protected int queryBitness() {
+        if (this.jvmBitness < 64) {
+            return ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer("isainfo -b"), 32);
+        }
+        return 64;
+    }
+
+    @Override
+    protected boolean queryElevated() {
+        return System.getenv("SUDO_COMMAND") != null;
     }
 
     @Override
