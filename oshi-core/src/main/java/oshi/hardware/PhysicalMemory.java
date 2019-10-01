@@ -1,8 +1,5 @@
 package oshi.hardware;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import oshi.util.FormatUtil;
 
 /**
@@ -18,14 +15,14 @@ public class PhysicalMemory {
     private final String bankLabel;
     
     /*
-     * The capacity of memory bank
+     * The capacity of memory bank in bytes
      * 
      * @return the capacity
      */
     private final long capacity;
     
     /*
-     * The configured memory clock speed in Hertz
+     * The configured memory clock speed in  mega Hertz
      * 
      * @return the clock speed
      */
@@ -45,43 +42,12 @@ public class PhysicalMemory {
      */
     private final String memoryType;
     
-    /*
-     * Mapping from integer memory type to actual String value
-     */
-    private static Map<Integer,String> memoryTypeMapping;
-    
-    public PhysicalMemory(String bankLabel,long capacity,long clockSpeed,String manufacturer,int memoryType){
+    public PhysicalMemory(String bankLabel,long capacity,long clockSpeed,String manufacturer,String memoryType){
 	this.bankLabel = bankLabel;
 	this.capacity = capacity;
 	this.clockSpeed = clockSpeed;
 	this.manufacturer = manufacturer;
-	memoryTypeMapping = new HashMap<>();
-	memoryTypeMapping.put(0, "Unknown");
-	memoryTypeMapping.put(1, "Other");
-	memoryTypeMapping.put(2, "DRAM");
-	memoryTypeMapping.put(3, "Synchronous DRAM");
-	memoryTypeMapping.put(4, "Cache DRAM");
-	memoryTypeMapping.put(5, "EDO");
-	memoryTypeMapping.put(6, "EDRAM");
-	memoryTypeMapping.put(7, "VRAM");
-	memoryTypeMapping.put(8, "SRAM");
-	memoryTypeMapping.put(9, "RAM");
-	memoryTypeMapping.put(10, "ROM");
-	memoryTypeMapping.put(11, "Flash");
-	memoryTypeMapping.put(12, "EEPROM");
-	memoryTypeMapping.put(13, "FEPROM");
-	memoryTypeMapping.put(14, "EPROM");
-	memoryTypeMapping.put(15, "CDRAM");
-	memoryTypeMapping.put(16, "3DRAM");
-	memoryTypeMapping.put(17, "SDRAM");
-	memoryTypeMapping.put(18, "SGRAM");
-	memoryTypeMapping.put(19, "RDRAM");
-	memoryTypeMapping.put(20, "DDR");
-	memoryTypeMapping.put(21, "DDR2");
-	memoryTypeMapping.put(22, "DDR2-FB-DIMM");
-	memoryTypeMapping.put(24, "DDR3");
-	memoryTypeMapping.put(25, "FBD2");
-	this.memoryType = convertMemoryTypeToString(memoryType);
+	this.memoryType = memoryType;
     }
     
     public String getBankLabel() {
@@ -93,7 +59,7 @@ public class PhysicalMemory {
     }
 
     public long getClockSpeed() {
-        return clockSpeed;
+        return clockSpeed * 1000000L;
     }
 
     public String getManufacturer() {
@@ -102,12 +68,6 @@ public class PhysicalMemory {
 
     public String getMemoryType() {
         return memoryType;
-    }
-    
-    public static String convertMemoryTypeToString(int memoryType) {
-	if(memoryTypeMapping.get(memoryType) != null)
-	    return memoryTypeMapping.get(memoryType);
-	return "Unknown";
     }
 
     @Override
