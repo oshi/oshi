@@ -37,8 +37,8 @@ public abstract class AbstractGlobalMemory implements GlobalMemory {
         
     @Override
     // Temporarily override in all classes until implemented.
-    public List<PhysicalMemory> getPhysicalMemory() {
-	return new ArrayList<>();
+    public PhysicalMemory[] getPhysicalMemory() {
+	return new PhysicalMemory[1];
     }
 
     @Override

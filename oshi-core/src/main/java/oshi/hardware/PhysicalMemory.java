@@ -97,10 +97,10 @@ public class PhysicalMemory {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append(" Bank label: " + getBankLabel());
-        sb.append("\n Capacity: " + FormatUtil.formatBytes(getCapacity()));
-        sb.append("\n Clock speed: " + FormatUtil.formatHertz(getClockSpeed()));
-    	sb.append("\n Manufacturer: " + getManufacturer());
-        sb.append("\n Memory type: " + getMemoryType());
+        sb.append(", Capacity: " + FormatUtil.formatBytes(getCapacity()));
+        sb.append(", Clock speed: " + FormatUtil.formatHertz(getClockSpeed()));
+    	sb.append(", Manufacturer: " + getManufacturer());
+        sb.append(", Memory type: " + getMemoryType());
         return sb.toString();
     }
 }

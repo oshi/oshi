@@ -26,8 +26,6 @@ package oshi.hardware.platform.windows;
 import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Supplier;
 
 import org.slf4j.Logger;
@@ -86,15 +84,16 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
     }
     
     @Override
-    public List<PhysicalMemory> getPhysicalMemory() {
+    public PhysicalMemory[] getPhysicalMemory() {
 	WmiQuery<PhysicalMemoryProperty> physicalMemoryQuery = new WmiQuery<>("Win32_PhysicalMemory", PhysicalMemoryProperty.class);
 	WmiQueryHandler wmiQueryHandler = WmiQueryHandler.createInstance();
 	WmiResult<PhysicalMemoryProperty> bankMap = wmiQueryHandler.queryWMI(physicalMemoryQuery);
-	List<PhysicalMemory> physicalMemoryArray =new ArrayList<>();
+	int bankCount = bankMap.getResultCount();
+	PhysicalMemory[] physicalMemoryArray =new PhysicalMemory[bankCount];
 	PhysicalMemory memory = null;
-	if (bankMap.getResultCount() > 0) {
+	if (bankCount > 0) {
 	    //loop over the results if memory consists of more than one bank
-	    for(int index =0;index < bankMap.getResultCount();index++) {
+	    for(int index = 0;index < bankCount;index++) {
 		String bankLabel = WmiUtil.getString(bankMap, PhysicalMemoryProperty.BANKLABEL, index);
 		long capacity = WmiUtil.getUint64(bankMap, PhysicalMemoryProperty.CAPACITY, index);
 		long speed = WmiUtil.getUint32(bankMap, PhysicalMemoryProperty.CONFIGUREDCLOCKSPEED, index);
@@ -102,13 +101,13 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
 		int type = WmiUtil.getUint16(bankMap, PhysicalMemoryProperty.MEMORYTYPE, index);
 		String memoryType = convertMemoryTypeToString(type);
 		memory = new PhysicalMemory(bankLabel, capacity, speed, manufacturer, memoryType);
-		physicalMemoryArray.add(memory);
+		physicalMemoryArray[index] = memory;
     	   }
 	}
    	return physicalMemoryArray;
    }
     
-    public static String convertMemoryTypeToString(int type) {
+    private static String convertMemoryTypeToString(int type) {
 	switch(type) {
         	case 0:
         	    return "Unknown";

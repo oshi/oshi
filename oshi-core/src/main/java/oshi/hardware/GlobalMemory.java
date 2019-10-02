@@ -23,7 +23,6 @@
  */
 package oshi.hardware;
 
-import java.util.List;
 
 /**
  * The GlobalMemory class tracks information about the use of a computer's
@@ -63,5 +62,5 @@ public interface GlobalMemory {
      *
      * @return A list of PhysicalMemory objects.
      */
-    List<PhysicalMemory> getPhysicalMemory();
+    PhysicalMemory[] getPhysicalMemory();
 }
