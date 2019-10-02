@@ -84,12 +84,13 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
 	
         return new WindowsVirtualMemory(getPageSize());
     }
-
+    
+    @Override
     public List<PhysicalMemory> getPhysicalMemory() {
 	WmiQuery<PhysicalMemoryProperty> physicalMemoryQuery = new WmiQuery<>("Win32_PhysicalMemory", PhysicalMemoryProperty.class);
 	WmiQueryHandler wmiQueryHandler = WmiQueryHandler.createInstance();
 	WmiResult<PhysicalMemoryProperty> bankMap = wmiQueryHandler.queryWMI(physicalMemoryQuery);
-	List<PhysicalMemory> physicalMemoryArray =new ArrayList<PhysicalMemory>();;
+	List<PhysicalMemory> physicalMemoryArray =new ArrayList<>();
 	PhysicalMemory memory = null;
 	if (bankMap.getResultCount() > 0) {
 	    //loop over the results if memory consists of more than one bank
