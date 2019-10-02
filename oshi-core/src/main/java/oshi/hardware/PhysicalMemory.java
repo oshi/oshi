@@ -65,6 +65,15 @@ public class PhysicalMemory {
      */
     private final String memoryType;
     
+    //default values if field values are not known
+    public PhysicalMemory() {
+	this.bankLabel = "Unknown";
+	this.capacity = 0L;
+	this.clockSpeed = 0;
+	this.manufacturer = "Unknown";
+	this.memoryType = "Unknown";
+    }
+    
     public PhysicalMemory(String bankLabel,long capacity,long clockSpeed,String manufacturer,String memoryType){
 	this.bankLabel = bankLabel;
 	this.capacity = capacity;

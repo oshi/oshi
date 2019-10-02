@@ -23,9 +23,6 @@
  */
 package oshi.hardware.common;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import oshi.hardware.GlobalMemory;
 import oshi.hardware.PhysicalMemory;
 import oshi.util.FormatUtil;
@@ -38,7 +35,9 @@ public abstract class AbstractGlobalMemory implements GlobalMemory {
     @Override
     // Temporarily override in all classes until implemented.
     public PhysicalMemory[] getPhysicalMemory() {
-	return new PhysicalMemory[1];
+	PhysicalMemory[] physicalMemoryArray = new PhysicalMemory[1];
+	physicalMemoryArray[0] = new PhysicalMemory();
+	return physicalMemoryArray;
     }
 
     @Override
