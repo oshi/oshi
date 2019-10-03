@@ -31,13 +31,12 @@ import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 import org.junit.Test;
 
-import oshi.PlatformEnum;
 import oshi.SystemInfo;
 import oshi.software.os.OperatingSystem.OSVersionInfo;
 
@@ -124,7 +123,8 @@ public class OperatingSystemTest {
         }
         // query for just those processes
         Collection<OSProcess> processes1 = os.getProcesses(pids);
-        // there's a potential for a race condition here, if a process we queried
+        // there's a potential for a race condition here, if a process we
+        // queried
         // for initially wasn't running during the second query. In this case,
         // try again with the shorter list
         while (processes1.size() < pids.size()) {
@@ -144,56 +144,87 @@ public class OperatingSystemTest {
      */
     @Test
     public void testGetChildProcesses() {
-        // Get list of PIDS
+        // Testing child processes is tricky because we don't really know a
+        // priori what processes might have children, and if we do test the full
+        // list vs. individual processes, we run into a race condition where
+        // child processes can start or stop before we measure a second time. So
+        // we can't really test for one-to-one correspondence of child process
+        // lists.
+        //
+        // We can expect code logic failures to occur all/most of the time for
+        // categories of processes, however, and allow occasional differences
+        // due to race conditions. So we will test three categories of
+        // processes: Those with 0 children, those with exactly 1 child process,
+        // and those with multiple child processes. On the second poll, we
+        // expect at least half of those categories to still be in the same
+        // category.
+        //
         SystemInfo si = new SystemInfo();
         OperatingSystem os = si.getOperatingSystem();
         OSProcess[] processes = os.getProcesses(0, null);
-        Map<Integer, Integer> childMap = new HashMap<>();
-        // First iteration to set all 0's
+        Set<Integer> zeroChildSet = new HashSet<>();
+        Set<Integer> oneChildSet = new HashSet<>();
+        Set<Integer> manyChildSet = new HashSet<>();
+        // Initialize all processes with no children
         for (OSProcess p : processes) {
-            childMap.put(p.getProcessID(), 0);
-            childMap.put(p.getParentProcessID(), 0);
+            zeroChildSet.add(p.getProcessID());
         }
-        // Second iteration to count children
+        // Move parents with 1 or more children to other set
         for (OSProcess p : processes) {
-            childMap.put(p.getParentProcessID(), childMap.get(p.getParentProcessID()) + 1);
-        }
-        // Find a PID with 0, 1, and N>1 children
-        int zeroPid = -1;
-        int onePid = -1;
-        int nPid = -1;
-        int nNum = 0;
-        int mPid = -1;
-        int mNum = 0;
-        for (Integer i : childMap.keySet()) {
-            if (zeroPid < 0 && childMap.get(i) == 0) {
-                zeroPid = i;
-            } else if (onePid < 0 && childMap.get(i) == 1) {
-                onePid = i;
-            } else if (nPid < 0 && childMap.get(i) > 1) {
-                // nPid is probably PID=1 with all PIDs with no other parent
-                nPid = i;
-                nNum = childMap.get(i);
-            } else if (mPid < 0 && childMap.get(i) > 1) {
-                mPid = i;
-                mNum = childMap.get(i);
+            if (zeroChildSet.contains(p.getParentProcessID())) {
+                // Zero to One
+                zeroChildSet.remove(p.getParentProcessID());
+                oneChildSet.add(p.getParentProcessID());
+            } else if (oneChildSet.contains(p.getParentProcessID())) {
+                // One to many
+                oneChildSet.remove(p.getParentProcessID());
+                manyChildSet.add(p.getParentProcessID());
             }
-            if (zeroPid >= 0 && onePid >= 0 && nPid >= 0 && mPid >= 0) {
+        }
+        // Now test that majority of each set is in same category
+        int matched = 0;
+        int total = 0;
+        for (Integer i : zeroChildSet) {
+            if (os.getChildProcesses(i, 0, null).length == 0) {
+                matched++;
+            }
+            // Quit if enough to test
+            if (++total > 9) {
                 break;
             }
         }
-        if (zeroPid >= 0) {
-            assertEquals(0, os.getChildProcesses(zeroPid, 0, null).length);
+        if (total > 4) {
+            assertTrue("Most processes with no children should not suddenly have them.", matched > total / 2);
         }
-        if (SystemInfo.getCurrentPlatformEnum() != PlatformEnum.SOLARIS) {
-            // Due to race condition, a process may terminate before we count
-            // its children. Play the odds.
-            // At least one of these tests should work.
-            if (onePid >= 0 && nPid >= 0 && mPid >= 0) {
-                assertTrue(os.getChildProcesses(onePid, 0, null).length == 1
-                        || os.getChildProcesses(nPid, 0, null).length == nNum
-                        || os.getChildProcesses(mPid, 0, null).length == mNum);
+        matched = 0;
+        total = 0;
+        for (Integer i : oneChildSet) {
+            if (os.getChildProcesses(i, 0, null).length == 1) {
+                matched++;
             }
+            // Quit if enough to test
+            if (++total > 9) {
+                break;
+            }
+        }
+        if (total > 4) {
+            assertTrue("Most processes with one child should not suddenly have zero or more than one.",
+                    matched > total / 2);
+        }
+        matched = 0;
+        total = 0;
+        for (Integer i : manyChildSet) {
+            if (os.getChildProcesses(i, 0, null).length > 1) {
+                matched++;
+            }
+            // Quit if enough to test
+            if (++total > 9) {
+                break;
+            }
+        }
+        if (total > 4) {
+            assertTrue("Most processes with more than one child should not suddenly have one or less.",
+                    matched > total / 2);
         }
     }
 
