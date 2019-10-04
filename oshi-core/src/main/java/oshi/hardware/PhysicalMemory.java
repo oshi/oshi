@@ -36,52 +36,52 @@ public class PhysicalMemory {
      * @return the bank label
      */
     private final String bankLabel;
-    
+
     /*
      * The capacity of memory bank in bytes
      * 
      * @return the capacity
      */
     private final long capacity;
-    
+
     /*
-     * The configured memory clock speed in  mega Hertz
+     * The configured memory clock speed in mega Hertz
      * 
      * @return the clock speed
      */
     private final long clockSpeed;
-    
+
     /*
      * The manufacturer of the physical memory
      * 
      * @return the manufacturer
      */
     private final String manufacturer;
-    
+
     /*
      * The type of physical memory
      * 
      * @return the memory type
      */
     private final String memoryType;
-    
-    //default values if field values are not known
+
+    // default values if field values are not known
     public PhysicalMemory() {
-	this.bankLabel = "Unknown";
-	this.capacity = 0L;
-	this.clockSpeed = 0;
-	this.manufacturer = "Unknown";
-	this.memoryType = "Unknown";
+        this.bankLabel = "Unknown";
+        this.capacity = 0L;
+        this.clockSpeed = 0;
+        this.manufacturer = "Unknown";
+        this.memoryType = "Unknown";
     }
-    
-    public PhysicalMemory(String bankLabel,long capacity,long clockSpeed,String manufacturer,String memoryType){
-	this.bankLabel = bankLabel;
-	this.capacity = capacity;
-	this.clockSpeed = clockSpeed;
-	this.manufacturer = manufacturer;
-	this.memoryType = memoryType;
+
+    public PhysicalMemory(String bankLabel, long capacity, long clockSpeed, String manufacturer, String memoryType) {
+        this.bankLabel = bankLabel;
+        this.capacity = capacity;
+        this.clockSpeed = clockSpeed;
+        this.manufacturer = manufacturer;
+        this.memoryType = memoryType;
     }
-    
+
     public String getBankLabel() {
         return bankLabel;
     }
@@ -91,7 +91,7 @@ public class PhysicalMemory {
     }
 
     public long getClockSpeed() {
-        return clockSpeed * 1000000L;
+        return clockSpeed * 1_000_000L;
     }
 
     public String getManufacturer() {
@@ -105,10 +105,10 @@ public class PhysicalMemory {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append(" Bank label: " + getBankLabel());
+        sb.append("Bank label: " + getBankLabel());
         sb.append(", Capacity: " + FormatUtil.formatBytes(getCapacity()));
         sb.append(", Clock speed: " + FormatUtil.formatHertz(getClockSpeed()));
-    	sb.append(", Manufacturer: " + getManufacturer());
+        sb.append(", Manufacturer: " + getManufacturer());
         sb.append(", Memory type: " + getMemoryType());
         return sb.toString();
     }

@@ -168,9 +168,11 @@ public class SystemInfoTest {
         VirtualMemory vm = memory.getVirtualMemory();
         oshi.add("Swap: \n " + vm.toString());
         PhysicalMemory[] pmArray = memory.getPhysicalMemory();
-        oshi.add("Physical Memory: ");
-        for(PhysicalMemory pm: pmArray) {
-            oshi.add(pm.toString());
+        if (pmArray.length > 0) {
+            oshi.add("Physical Memory: ");
+            for (PhysicalMemory pm : pmArray) {
+                oshi.add(" " + pm.toString());
+            }
         }
     }
 

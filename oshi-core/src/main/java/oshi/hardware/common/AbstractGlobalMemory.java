@@ -31,13 +31,13 @@ import oshi.util.FormatUtil;
  * Memory info.
  */
 public abstract class AbstractGlobalMemory implements GlobalMemory {
-        
+
     @Override
     // Temporarily override in all classes until implemented.
     public PhysicalMemory[] getPhysicalMemory() {
-	PhysicalMemory[] physicalMemoryArray = new PhysicalMemory[1];
-	physicalMemoryArray[0] = new PhysicalMemory();
-	return physicalMemoryArray;
+        PhysicalMemory[] physicalMemoryArray = new PhysicalMemory[1];
+        physicalMemoryArray[0] = new PhysicalMemory();
+        return physicalMemoryArray;
     }
 
     @Override
