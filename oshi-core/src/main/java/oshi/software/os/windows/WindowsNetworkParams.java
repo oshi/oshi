@@ -34,6 +34,7 @@ import com.sun.jna.platform.win32.IPHlpAPI;
 import com.sun.jna.platform.win32.IPHlpAPI.FIXED_INFO;
 import com.sun.jna.platform.win32.IPHlpAPI.IP_ADDR_STRING;
 import com.sun.jna.platform.win32.Kernel32;
+import com.sun.jna.platform.win32.Kernel32Util;
 import com.sun.jna.platform.win32.WinError;
 import com.sun.jna.ptr.IntByReference;
 
@@ -92,6 +93,11 @@ public class WindowsNetworkParams extends AbstractNetworkParams {
             dns = dns.Next;
         }
         return list.toArray(new String[0]);
+    }
+
+    @Override
+    public String getHostName() {
+        return Kernel32Util.getComputerName();
     }
 
     @Override

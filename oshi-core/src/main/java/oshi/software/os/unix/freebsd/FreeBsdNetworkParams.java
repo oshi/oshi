@@ -29,7 +29,8 @@ import java.net.UnknownHostException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.ptr.PointerByReference; // NOSONAR
+import com.sun.jna.Native; 
+import com.sun.jna.ptr.PointerByReference; 
 
 import oshi.jna.platform.unix.freebsd.FreeBsdLibc;
 import oshi.software.common.AbstractNetworkParams;
@@ -69,6 +70,17 @@ public class FreeBsdNetworkParams extends AbstractNetworkParams {
         FreeBsdLibc.INSTANCE.freeaddrinfo(ptr.getValue());
         return canonname;
     }
+
+    @Override
+    public String getHostName() {
+        byte[] hostnameBuffer = new byte[FreeBsdLibc.HOST_NAME_MAX + 1];
+        int result = FreeBsdLibc.INSTANCE.gethostname(hostnameBuffer, hostnameBuffer.length);
+        if (result != 0) {
+            return super.getHostName();
+        }
+        return Native.toString(hostnameBuffer);
+    }
+
 
     /** {@inheritDoc} */
     @Override

@@ -30,7 +30,8 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.ptr.PointerByReference; // NOSONAR
+import com.sun.jna.Native; // NOSONAR
+import com.sun.jna.ptr.PointerByReference;
 
 import oshi.jna.platform.mac.SystemB;
 import oshi.software.common.AbstractNetworkParams;
@@ -73,6 +74,16 @@ public class MacNetworkParams extends AbstractNetworkParams {
         String canonname = info.ai_canonname.trim();
         SystemB.INSTANCE.freeaddrinfo(ptr.getValue());
         return canonname;
+    }
+
+    @Override
+    public String getHostName() {
+        byte[] hostnameBuffer = new byte[SystemB.HOST_NAME_MAX + 1];
+        int result = SystemB.INSTANCE.gethostname(hostnameBuffer, hostnameBuffer.length);
+        if (result != 0) {
+            return super.getHostName();
+        }
+        return Native.toString(hostnameBuffer);
     }
 
     @Override

@@ -61,5 +61,5 @@
 			<artifactId>jna-platform</artifactId>
 			<version>${jna.version}</version>
 		</dependency>
-	</dependencies>
+ 	</dependencies>
 </project>

@@ -27,7 +27,9 @@ import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import com.sun.jna.Structure.FieldOrder;
+import com.sun.jna.platform.unix.LibCAPI;
 import com.sun.jna.ptr.IntByReference;
+
 
 import oshi.jna.platform.unix.CLibrary;
 
@@ -35,7 +37,7 @@ import oshi.jna.platform.unix.CLibrary;
  * C library. This class should be considered non-API as it may be removed
  * if/when its code is incorporated into the JNA project.
  */
-public interface FreeBsdLibc extends CLibrary {
+public interface FreeBsdLibc extends CLibrary, LibCAPI {
     /** Constant <code>INSTANCE</code> */
     FreeBsdLibc INSTANCE = Native.load("libc", FreeBsdLibc.class);
 

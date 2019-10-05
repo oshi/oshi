@@ -30,7 +30,9 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.ptr.PointerByReference; // NOSONAR
+import com.sun.jna.Native; // NOSONAR
+import com.sun.jna.platform.linux.LibC;
+import com.sun.jna.ptr.PointerByReference; 
 
 import oshi.jna.platform.linux.LinuxLibc;
 import oshi.software.common.AbstractNetworkParams;
@@ -72,6 +74,16 @@ public class LinuxNetworkParams extends AbstractNetworkParams {
         String canonname = info.ai_canonname.trim();
         LinuxLibc.INSTANCE.freeaddrinfo(ptr.getValue());
         return canonname;
+    }
+
+    @Override
+    public String getHostName() {
+        byte[] hostnameBuffer = new byte[LibC.HOST_NAME_MAX + 1];
+        int result = LibC.INSTANCE.gethostname(hostnameBuffer, hostnameBuffer.length);
+        if (result != 0) {
+            return super.getHostName();
+        }
+        return Native.toString(hostnameBuffer);
     }
 
     @Override

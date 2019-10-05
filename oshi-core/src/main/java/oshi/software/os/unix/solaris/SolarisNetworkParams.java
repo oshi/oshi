@@ -23,10 +23,23 @@
  */
 package oshi.software.os.unix.solaris;
 
+import com.sun.jna.Native;
+
+import oshi.jna.platform.unix.solaris.SolarisLibc;
 import oshi.software.common.AbstractNetworkParams;
 import oshi.util.ExecutingCommand;
 
 public class SolarisNetworkParams extends AbstractNetworkParams {
+
+    @Override
+    public String getHostName() {
+        byte[] hostnameBuffer = new byte[SolarisLibc.HOST_NAME_MAX + 1];
+        int result = SolarisLibc.INSTANCE.gethostname(hostnameBuffer, hostnameBuffer.length);
+        if (result != 0) {
+            return super.getHostName();
+        }
+        return Native.toString(hostnameBuffer);
+    }
 
     @Override
     public String getIpv4DefaultGateway() {

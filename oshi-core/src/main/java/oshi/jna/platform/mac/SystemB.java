@@ -24,6 +24,7 @@
 package oshi.jna.platform.mac;
 
 import com.sun.jna.Native;
+import com.sun.jna.platform.unix.LibCAPI;
 
 import oshi.jna.platform.unix.CLibrary;
 
@@ -31,7 +32,7 @@ import oshi.jna.platform.unix.CLibrary;
  * System class. This class should be considered non-API as it may be removed
  * if/when its code is incorporated into the JNA project.
  */
-public interface SystemB extends CLibrary, com.sun.jna.platform.mac.SystemB {
+public interface SystemB extends CLibrary, com.sun.jna.platform.mac.SystemB, LibCAPI {
 
     SystemB INSTANCE = Native.load("System", SystemB.class);
 
