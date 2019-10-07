@@ -173,7 +173,7 @@
 		<maven-scm-provider-jgit.version>1.11.2</maven-scm-provider-jgit.version>
 		<jgit.version>5.5.0.201909110433-r</jgit.version>
 		<!-- Misc. -->
-		<sonar-maven-plugin.version>3.6.1.1688</sonar-maven-plugin.version>
+		<sonar-maven-plugin.version>3.7.0.1746</sonar-maven-plugin.version>
 		<wagon-maven-plugin.version>2.0.0</wagon-maven-plugin.version>
 		<animal-sniffer-maven-plugin.version>1.18</animal-sniffer-maven-plugin.version>
 		<dependency-check-maven.version>5.2.2</dependency-check-maven.version>
