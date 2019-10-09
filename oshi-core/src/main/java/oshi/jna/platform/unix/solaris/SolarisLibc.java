@@ -23,8 +23,7 @@
  */
 package oshi.jna.platform.unix.solaris;
 
-import com.sun.jna.Native;
-import com.sun.jna.platform.unix.LibCAPI;
+import com.sun.jna.Native; // NOSONAR squid:S1191
 
 import oshi.jna.platform.unix.CLibrary;
 
@@ -32,7 +31,7 @@ import oshi.jna.platform.unix.CLibrary;
  * C library. This class should be considered non-API as it may be removed
  * if/when its code is incorporated into the JNA project.
  */
-public interface SolarisLibc extends CLibrary, LibCAPI {
+public interface SolarisLibc extends CLibrary {
     /** Constant <code>INSTANCE</code> */
     SolarisLibc INSTANCE = Native.load("libc", SolarisLibc.class);
 
