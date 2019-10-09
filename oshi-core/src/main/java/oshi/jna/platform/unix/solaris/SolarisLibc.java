@@ -23,7 +23,7 @@
  */
 package oshi.jna.platform.unix.solaris;
 
-import com.sun.jna.Native;
+import com.sun.jna.Native; // NOSONAR squid:S1191
 
 import oshi.jna.platform.unix.CLibrary;
 

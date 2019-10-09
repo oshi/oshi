@@ -29,7 +29,8 @@ The default configuration file has been renamed to `oshi.properties` to prevent 
 * [#977](https://github.com/oshi/oshi/pull/977): Rename default configuration - [@cilki](https://github.com/cilki).
 * [#989](https://github.com/oshi/oshi/pull/989): Improve Windows current frequency stats. - [@dbwiddis](https://github.com/dbwiddis).
 * [#995](https://github.com/oshi/oshi/pull/995): CoreFoundation, IOKit, DiskArbitration API overhaul. - [@dbwiddis](https://github.com/dbwiddis).
-* Your contribution here
+* [#1008](https://github.com/oshi/oshi/pull/1008): Specialize getHostName() - [@2kindsofcs](https://github.com/2kindsofcs).
+* Your contribution here.
 
 4.0.0 (8/10/2019)
 ================

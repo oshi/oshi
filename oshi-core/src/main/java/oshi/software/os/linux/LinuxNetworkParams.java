@@ -23,6 +23,8 @@
  */
 package oshi.software.os.linux;
 
+import static com.sun.jna.platform.unix.LibCAPI.HOST_NAME_MAX; // NOSONAR squid:S1191
+
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.List;
@@ -30,9 +32,13 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.ptr.PointerByReference; // NOSONAR
+import com.sun.jna.Native;
+import com.sun.jna.platform.linux.LibC;
+import com.sun.jna.ptr.PointerByReference;
 
 import oshi.jna.platform.linux.LinuxLibc;
+import oshi.jna.platform.unix.CLibrary;
+import oshi.jna.platform.unix.CLibrary.Addrinfo;
 import oshi.software.common.AbstractNetworkParams;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
@@ -46,13 +52,15 @@ public class LinuxNetworkParams extends AbstractNetworkParams {
 
     private static final Logger LOG = LoggerFactory.getLogger(LinuxNetworkParams.class);
 
+    private static final LinuxLibc LIBC = LinuxLibc.INSTANCE;
+
     private static final String IPV4_DEFAULT_DEST = "0.0.0.0"; // NOSONAR
     private static final String IPV6_DEFAULT_DEST = "::/0";
 
     @Override
     public String getDomainName() {
-        LinuxLibc.Addrinfo hint = new LinuxLibc.Addrinfo();
-        hint.ai_flags = LinuxLibc.AI_CANONNAME;
+        Addrinfo hint = new Addrinfo();
+        hint.ai_flags = CLibrary.AI_CANONNAME;
         String hostname = "";
         try {
             hostname = InetAddress.getLocalHost().getHostName();
@@ -61,17 +69,26 @@ public class LinuxNetworkParams extends AbstractNetworkParams {
             return "";
         }
         PointerByReference ptr = new PointerByReference();
-        int res = LinuxLibc.INSTANCE.getaddrinfo(hostname, null, hint, ptr);
+        int res = LIBC.getaddrinfo(hostname, null, hint, ptr);
         if (res > 0) {
             if (LOG.isErrorEnabled()) {
-                LOG.error("Failed getaddrinfo(): {}", LinuxLibc.INSTANCE.gai_strerror(res));
+                LOG.error("Failed getaddrinfo(): {}", LIBC.gai_strerror(res));
             }
             return "";
         }
-        LinuxLibc.Addrinfo info = new LinuxLibc.Addrinfo(ptr.getValue());
+        Addrinfo info = new Addrinfo(ptr.getValue());
         String canonname = info.ai_canonname.trim();
-        LinuxLibc.INSTANCE.freeaddrinfo(ptr.getValue());
+        LIBC.freeaddrinfo(ptr.getValue());
         return canonname;
+    }
+
+    @Override
+    public String getHostName() {
+        byte[] hostnameBuffer = new byte[HOST_NAME_MAX + 1];
+        if (0 != LibC.INSTANCE.gethostname(hostnameBuffer, hostnameBuffer.length)) {
+            return super.getHostName();
+        }
+        return Native.toString(hostnameBuffer);
     }
 
     @Override

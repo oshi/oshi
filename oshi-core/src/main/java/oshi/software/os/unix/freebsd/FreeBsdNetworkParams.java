@@ -23,14 +23,18 @@
  */
 package oshi.software.os.unix.freebsd;
 
+import static com.sun.jna.platform.unix.LibCAPI.HOST_NAME_MAX; // NOSONAR squid:S1191
+
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.ptr.PointerByReference; // NOSONAR
+import com.sun.jna.Native;
+import com.sun.jna.ptr.PointerByReference;
 
+import oshi.jna.platform.unix.CLibrary;
 import oshi.jna.platform.unix.freebsd.FreeBsdLibc;
 import oshi.software.common.AbstractNetworkParams;
 import oshi.util.ExecutingCommand;
@@ -44,11 +48,12 @@ public class FreeBsdNetworkParams extends AbstractNetworkParams {
 
     private static final Logger LOG = LoggerFactory.getLogger(FreeBsdNetworkParams.class);
 
-    /** {@inheritDoc} */
+    private static final FreeBsdLibc LIBC = FreeBsdLibc.INSTANCE;
+
     @Override
     public String getDomainName() {
         FreeBsdLibc.Addrinfo hint = new FreeBsdLibc.Addrinfo();
-        hint.ai_flags = FreeBsdLibc.AI_CANONNAME;
+        hint.ai_flags = CLibrary.AI_CANONNAME;
         String hostname = "";
         try {
             hostname = InetAddress.getLocalHost().getHostName();
@@ -57,26 +62,33 @@ public class FreeBsdNetworkParams extends AbstractNetworkParams {
             return "";
         }
         PointerByReference ptr = new PointerByReference();
-        int res = FreeBsdLibc.INSTANCE.getaddrinfo(hostname, null, hint, ptr);
+        int res = LIBC.getaddrinfo(hostname, null, hint, ptr);
         if (res > 0) {
             if (LOG.isErrorEnabled()) {
-                LOG.error("Failed getaddrinfo(): {}", FreeBsdLibc.INSTANCE.gai_strerror(res));
+                LOG.error("Failed getaddrinfo(): {}", LIBC.gai_strerror(res));
             }
             return "";
         }
         FreeBsdLibc.Addrinfo info = new FreeBsdLibc.Addrinfo(ptr.getValue());
         String canonname = info.ai_canonname.trim();
-        FreeBsdLibc.INSTANCE.freeaddrinfo(ptr.getValue());
+        LIBC.freeaddrinfo(ptr.getValue());
         return canonname;
     }
 
-    /** {@inheritDoc} */
+    @Override
+    public String getHostName() {
+        byte[] hostnameBuffer = new byte[HOST_NAME_MAX + 1];
+        if (0 != LIBC.gethostname(hostnameBuffer, hostnameBuffer.length)) {
+            return super.getHostName();
+        }
+        return Native.toString(hostnameBuffer);
+    }
+
     @Override
     public String getIpv4DefaultGateway() {
         return searchGateway(ExecutingCommand.runNative("route -4 get default"));
     }
 
-    /** {@inheritDoc} */
     @Override
     public String getIpv6DefaultGateway() {
         return searchGateway(ExecutingCommand.runNative("route -6 get default"));
