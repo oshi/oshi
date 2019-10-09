@@ -23,7 +23,7 @@
  */
 package oshi.software.os.unix.solaris;
 
-import com.sun.jna.Native;
+import com.sun.jna.Native; // NOSONAR
 
 import oshi.jna.platform.unix.solaris.SolarisLibc;
 import oshi.software.common.AbstractNetworkParams;

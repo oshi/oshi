@@ -29,7 +29,7 @@ import java.net.UnknownHostException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Native; 
+import com.sun.jna.Native; // NOSONAR
 import com.sun.jna.ptr.PointerByReference; 
 
 import oshi.jna.platform.unix.freebsd.FreeBsdLibc;
