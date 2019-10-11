@@ -40,7 +40,7 @@ import com.sun.jna.Pointer;
 import com.sun.jna.platform.linux.LibC;
 import com.sun.jna.platform.linux.LibC.Sysinfo;
 
-import oshi.jna.platform.linux.Libc;
+import oshi.jna.platform.linux.LinuxLibc;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
 import oshi.software.os.NetworkParams;
@@ -59,8 +59,6 @@ import oshi.util.platform.linux.ProcUtil;
  * </p>
  */
 public class LinuxOperatingSystem extends AbstractOperatingSystem {
-
-    private static final long serialVersionUID = 1L;
 
     private static final Logger LOG = LoggerFactory.getLogger(LinuxOperatingSystem.class);
 
@@ -84,9 +82,8 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     }
 
     // Populated with results of reading /etc/os-release or other files
-    protected String versionId;
-
-    protected String codeName;
+    private String versionId;
+    private String codeName;
 
     // Resident Set Size is given as number of pages the process has in real
     // memory.
@@ -124,16 +121,10 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     // Check /proc/self/stat to find its length
     private static final int PROC_PID_STAT_LENGTH;
     static {
-        List<String> stat = FileUtil.readFile("/proc/self/stat", false);
-        if (!stat.isEmpty() && stat.get(0).contains(")")) {
-            String procPidStat = stat.get(0);
-            // 2nd elment is process name and may contain spaces, but is
-            // within parenthesis. Split from the ')' index.
-            int parenIndex = procPidStat.lastIndexOf(')');
-            String[] split = ParseUtil.whitespaces.split(procPidStat.substring(parenIndex));
-            // ')' is split index 0 but stat element 2.
-            // Add 1 to account for pid that didn't make the split
-            PROC_PID_STAT_LENGTH = split.length + 1;
+        String stat = FileUtil.getStringFromFile(ProcUtil.getProcPath() + "/self/stat");
+        if (!stat.isEmpty() && stat.contains(")")) {
+            // add 3 to account for pid, process name in prarenthesis, and state
+            PROC_PID_STAT_LENGTH = ParseUtil.countStringToLongArray(stat, ' ') + 3;
         } else {
             // Default assuming recent kernel
             PROC_PID_STAT_LENGTH = 52;
@@ -165,20 +156,38 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
      * Constructor for LinuxOperatingSystem.
      * </p>
      */
+    @SuppressWarnings("deprecation")
     public LinuxOperatingSystem() {
-        this.manufacturer = "GNU/Linux";
-        setFamilyFromReleaseFiles();
+        super.getVersionInfo();
         // The above call may also populate versionId and codeName
         // to pass to version constructor
         this.version = new LinuxOSVersionInfoEx(this.versionId, this.codeName);
         this.memoryPageSize = ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer("getconf PAGESIZE"), 4096);
-        initBitness();
     }
 
-    private void initBitness() {
-        if (this.bitness < 64 && ExecutingCommand.getFirstAnswer("uname -m").indexOf("64") != -1) {
-            this.bitness = 64;
+    @Override
+    public String queryManufacturer() {
+        return "GNU/Linux";
+    }
+
+    @Override
+    public FamilyVersionInfo queryFamilyVersionInfo() {
+        String family = queryFamilyFromReleaseFiles();
+        OSVersionInfo versionInfo = new OSVersionInfo(this.versionId, this.codeName, null);
+        return new FamilyVersionInfo(family, versionInfo);
+    }
+
+    @Override
+    protected int queryBitness() {
+        if (this.jvmBitness < 64 && ExecutingCommand.getFirstAnswer("uname -m").indexOf("64") == -1) {
+            return this.jvmBitness;
         }
+        return 64;
+    }
+
+    @Override
+    protected boolean queryElevated() {
+        return System.getenv("SUDO_COMMAND") != null;
     }
 
     @Override
@@ -213,7 +222,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     private OSProcess getProcess(int pid, LinuxUserGroupInfo userGroupInfo, boolean slowFields) {
         String path = "";
         Pointer buf = new Memory(1024);
-        int size = Libc.INSTANCE.readlink(String.format("/proc/%d/exe", pid), buf, 1023);
+        int size = LinuxLibc.INSTANCE.readlink(String.format("/proc/%d/exe", pid), buf, 1023);
         if (size > 0) {
             String tmp = buf.getString(0);
             path = tmp.substring(0, tmp.length() < size ? tmp.length() : size);
@@ -230,7 +239,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         // call later, so just get the numeric bits here
         long[] statArray = ParseUtil.parseStringToLongArray(stat, PROC_PID_STAT_ORDERS, PROC_PID_STAT_LENGTH, ' ');
         // Fetch cached process if it exists
-        OSProcess proc = new OSProcess();
+        OSProcess proc = new OSProcess(this);
         proc.setProcessID(pid);
         // The /proc/pid/cmdline value is null-delimited
         proc.setCommandLine(FileUtil.getStringFromFile(String.format("/proc/%d/cmdline", pid)));
@@ -341,7 +350,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public int getProcessId() {
-        return Libc.INSTANCE.getpid();
+        return LinuxLibc.INSTANCE.getpid();
     }
 
     @Override
@@ -379,67 +388,66 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         return new LinuxNetworkParams();
     }
 
-    private void setFamilyFromReleaseFiles() {
-        if (this.family == null) {
-            // There are two competing options for family/version information.
-            // Newer systems are adopting a standard /etc/os-release file:
-            // https://www.freedesktop.org/software/systemd/man/os-release.html
-            //
-            // Some systems are still using the lsb standard which parses a
-            // variety of /etc/*-release files and is most easily accessed via
-            // the commandline lsb_release -a, see here:
-            // http://linux.die.net/man/1/lsb_release
-            // In this case, the /etc/lsb-release file (if it exists) has
-            // optional overrides to the information in the /etc/distrib-release
-            // files, which show: "Distributor release x.x (Codename)"
-            //
+    private String queryFamilyFromReleaseFiles() {
+        String family;
+        // There are two competing options for family/version information.
+        // Newer systems are adopting a standard /etc/os-release file:
+        // https://www.freedesktop.org/software/systemd/man/os-release.html
+        //
+        // Some systems are still using the lsb standard which parses a
+        // variety of /etc/*-release files and is most easily accessed via
+        // the commandline lsb_release -a, see here:
+        // http://linux.die.net/man/1/lsb_release
+        // In this case, the /etc/lsb-release file (if it exists) has
+        // optional overrides to the information in the /etc/distrib-release
+        // files, which show: "Distributor release x.x (Codename)"
+        //
 
-            // Attempt to read /etc/system-release which has more details than
-            // os-release on (CentOS and Fedora)
-            if (readDistribRelease("/etc/system-release")) {
-                // If successful, we're done. this.family has been set and
-                // possibly the versionID and codeName
-                return;
-            }
-
-            // Attempt to read /etc/os-release file.
-            if (readOsRelease()) {
-                // If successful, we're done. this.family has been set and
-                // possibly the versionID and codeName
-                return;
-            }
-
-            // Attempt to execute the `lsb_release` command
-            if (execLsbRelease()) {
-                // If successful, we're done. this.family has been set and
-                // possibly the versionID and codeName
-                return;
-            }
-
-            // The above two options should hopefully work on most
-            // distributions. If not, we keep having fun.
-            // Attempt to read /etc/lsb-release file
-            if (readLsbRelease()) {
-                // If successful, we're done. this.family has been set and
-                // possibly the versionID and codeName
-                return;
-            }
-
-            // If we're still looking, we search for any /etc/*-release (or
-            // similar) filename, for which the first line should be of the
-            // "Distributor release x.x (Codename)" format or possibly a
-            // "Distributor VERSION x.x (Codename)" format
-            String etcDistribRelease = getReleaseFilename();
-            if (readDistribRelease(etcDistribRelease)) {
-                // If successful, we're done. this.family has been set and
-                // possibly the versionID and codeName
-                return;
-            }
-            // If we've gotten this far with no match, use the distrib-release
-            // filename (defaults will eventually give "Unknown")
-            this.family = filenameToFamily(etcDistribRelease.replace("/etc/", "").replace("release", "")
-                    .replace("version", "").replace("-", "").replace("_", ""));
+        // Attempt to read /etc/system-release which has more details than
+        // os-release on (CentOS and Fedora)
+        if ((family = readDistribRelease("/etc/system-release")) != null) {
+            // If successful, we're done. this.family has been set and
+            // possibly the versionID and codeName
+            return family;
         }
+
+        // Attempt to read /etc/os-release file.
+        if ((family = readOsRelease()) != null) {
+            // If successful, we're done. this.family has been set and
+            // possibly the versionID and codeName
+            return family;
+        }
+
+        // Attempt to execute the `lsb_release` command
+        if ((family = execLsbRelease()) != null) {
+            // If successful, we're done. this.family has been set and
+            // possibly the versionID and codeName
+            return family;
+        }
+
+        // The above two options should hopefully work on most
+        // distributions. If not, we keep having fun.
+        // Attempt to read /etc/lsb-release file
+        if ((family = readLsbRelease()) != null) {
+            // If successful, we're done. this.family has been set and
+            // possibly the versionID and codeName
+            return family;
+        }
+
+        // If we're still looking, we search for any /etc/*-release (or
+        // similar) filename, for which the first line should be of the
+        // "Distributor release x.x (Codename)" format or possibly a
+        // "Distributor VERSION x.x (Codename)" format
+        String etcDistribRelease = getReleaseFilename();
+        if ((family = readDistribRelease(etcDistribRelease)) != null) {
+            // If successful, we're done. this.family has been set and
+            // possibly the versionID and codeName
+            return family;
+        }
+        // If we've gotten this far with no match, use the distrib-release
+        // filename (defaults will eventually give "Unknown")
+        return filenameToFamily(etcDistribRelease.replace("/etc/", "").replace("release", "").replace("version", "")
+                .replace("-", "").replace("_", ""));
     }
 
     /**
@@ -447,7 +455,8 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
      *
      * @return true if file successfully read and NAME= found
      */
-    private boolean readOsRelease() {
+    private String readOsRelease() {
+        String family = null;
         if (new File("/etc/os-release").exists()) {
             List<String> osRelease = FileUtil.readFile("/etc/os-release");
             // Search for NAME=
@@ -469,11 +478,11 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
                     if (split.length > 1) {
                         this.codeName = split[1].trim();
                     }
-                } else if (line.startsWith("NAME=") && this.family == null) {
+                } else if (line.startsWith("NAME=") && family == null) {
                     LOG.debug("os-release: {}", line);
                     // remove beginning and ending '"' characters, etc from
                     // NAME="Ubuntu"
-                    this.family = line.replace("NAME=", "").replaceAll("^\"|\"$", "").trim();
+                    family = line.replace("NAME=", "").replaceAll("^\"|\"$", "").trim();
                 } else if (line.startsWith("VERSION_ID=") && this.versionId == null) {
                     LOG.debug("os-release: {}", line);
                     // remove beginning and ending '"' characters, etc from
@@ -482,7 +491,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
                 }
             }
         }
-        return this.family != null;
+        return family;
     }
 
     /**
@@ -491,7 +500,8 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
      * @return true if the command successfully executed and Distributor ID: or
      *         Description: found
      */
-    private boolean execLsbRelease() {
+    private String execLsbRelease() {
+        String family = null;
         // If description is of the format Distrib release x.x (Codename)
         // that is primary, otherwise use Distributor ID: which returns the
         // distribution concatenated, e.g., RedHat instead of Red Hat
@@ -500,11 +510,11 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
                 LOG.debug("lsb_release -a: {}", line);
                 line = line.replace("Description:", "").trim();
                 if (line.contains(" release ")) {
-                    this.family = parseRelease(line, " release ");
+                    family = parseRelease(line, " release ");
                 }
-            } else if (line.startsWith("Distributor ID:") && this.family == null) {
+            } else if (line.startsWith("Distributor ID:") && family == null) {
                 LOG.debug("lsb_release -a: {}", line);
-                this.family = line.replace("Distributor ID:", "").trim();
+                family = line.replace("Distributor ID:", "").trim();
             } else if (line.startsWith("Release:") && this.versionId == null) {
                 LOG.debug("lsb_release -a: {}", line);
                 this.versionId = line.replace("Release:", "").trim();
@@ -513,7 +523,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
                 this.codeName = line.replace("Codename:", "").trim();
             }
         }
-        return this.family != null;
+        return family;
     }
 
     /**
@@ -522,7 +532,8 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
      * @return true if file successfully read and DISTRIB_ID or DISTRIB_DESCRIPTION
      *         found
      */
-    private boolean readLsbRelease() {
+    private String readLsbRelease() {
+        String family = null;
         if (new File("/etc/lsb-release").exists()) {
             List<String> osRelease = FileUtil.readFile("/etc/lsb-release");
             // Search for NAME=
@@ -531,11 +542,11 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
                     LOG.debug("lsb-release: {}", line);
                     line = line.replace("DISTRIB_DESCRIPTION=", "").replaceAll("^\"|\"$", "").trim();
                     if (line.contains(" release ")) {
-                        this.family = parseRelease(line, " release ");
+                        family = parseRelease(line, " release ");
                     }
-                } else if (line.startsWith("DISTRIB_ID=") && this.family == null) {
+                } else if (line.startsWith("DISTRIB_ID=") && family == null) {
                     LOG.debug("lsb-release: {}", line);
-                    this.family = line.replace("DISTRIB_ID=", "").replaceAll("^\"|\"$", "").trim();
+                    family = line.replace("DISTRIB_ID=", "").replaceAll("^\"|\"$", "").trim();
                 } else if (line.startsWith("DISTRIB_RELEASE=") && this.versionId == null) {
                     LOG.debug("lsb-release: {}", line);
                     this.versionId = line.replace("DISTRIB_RELEASE=", "").replaceAll("^\"|\"$", "").trim();
@@ -545,7 +556,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
                 }
             }
         }
-        return this.family != null;
+        return family;
     }
 
     /**
@@ -553,24 +564,25 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
      *
      * @return true if file successfully read and " release " or " VERSION " found
      */
-    private boolean readDistribRelease(String filename) {
+    private String readDistribRelease(String filename) {
+        String family = null;
         if (new File(filename).exists()) {
             List<String> osRelease = FileUtil.readFile(filename);
             // Search for Distrib release x.x (Codename)
             for (String line : osRelease) {
                 LOG.debug("{}: {}", filename, line);
                 if (line.contains(" release ")) {
-                    this.family = parseRelease(line, " release ");
+                    family = parseRelease(line, " release ");
                     // If this parses properly we're done
                     break;
                 } else if (line.contains(" VERSION ")) {
-                    this.family = parseRelease(line, " VERSION ");
+                    family = parseRelease(line, " VERSION ");
                     // If this parses properly we're done
                     break;
                 }
             }
         }
-        return this.family != null;
+        return family;
     }
 
     /**

@@ -25,6 +25,8 @@ package oshi.hardware;
 
 import java.io.Serializable;
 
+import oshi.util.FormatUtil;
+
 /**
  * A region on a hard disk or other secondary storage, so that an operating
  * system can manage information in each region separately. A partition appears
@@ -350,4 +352,16 @@ public class HWPartition implements Serializable, Comparable<HWPartition> {
         return true;
     }
 
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(getIdentification()).append(": ");
+        sb.append(getName()).append(" ");
+        sb.append("(").append(getType()).append(") ");
+        sb.append("Maj:Min=").append(getMajor()).append(":").append(getMinor()).append(", ");
+        sb.append("size: ").append(FormatUtil.formatBytesDecimal(getSize()));
+        sb.append(getMountPoint().isEmpty() ? "" : " @ " + getMountPoint());
+        return sb.toString();
+    }
 }

@@ -23,13 +23,11 @@
  */
 package oshi.hardware;
 
-import java.io.Serializable;
-
 /**
  * A hardware abstraction layer. Provides access to hardware items such as
  * processors, memory, battery, and disks.
  */
-public interface HardwareAbstractionLayer extends Serializable {
+public interface HardwareAbstractionLayer {
 
     /**
      * Instantiates a {@link oshi.hardware.ComputerSystem} object. This represents

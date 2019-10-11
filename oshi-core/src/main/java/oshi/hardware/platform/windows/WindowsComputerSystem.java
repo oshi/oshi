@@ -23,6 +23,10 @@
  */
 package oshi.hardware.platform.windows;
 
+import static oshi.util.Memoizer.memoize;
+
+import java.util.function.Supplier;
+
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery; // NOSONAR squid:S1191
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
@@ -30,6 +34,7 @@ import oshi.hardware.Baseboard;
 import oshi.hardware.Firmware;
 import oshi.hardware.common.AbstractComputerSystem;
 import oshi.util.Constants;
+import oshi.util.Util;
 import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
 
@@ -38,90 +43,78 @@ import oshi.util.platform.windows.WmiUtil;
  */
 final class WindowsComputerSystem extends AbstractComputerSystem {
 
-    private static final long serialVersionUID = 1L;
+    private final Supplier<ManufacturerModel> manufacturerModel = memoize(this::queryManufacturerModel);
 
-    private final transient WmiQueryHandler wmiQueryHandler = WmiQueryHandler.createInstance();
+    private final Supplier<String> serialNumber = memoize(this::querySystemSerialNumber);
 
-    /** {@inheritDoc} */
+    private final WmiQueryHandler wmiQueryHandler = WmiQueryHandler.createInstance();
+
     @Override
     public String getManufacturer() {
-        if (this.manufacturer == null) {
-            queryManufacturerAndModel();
-        }
-        return super.getManufacturer();
+        return manufacturerModel.get().manufacturer;
     }
 
-    /** {@inheritDoc} */
     @Override
     public String getModel() {
-        if (this.model == null) {
-            queryManufacturerAndModel();
-        }
-        return super.getModel();
+        return manufacturerModel.get().model;
     }
 
-    /** {@inheritDoc} */
     @Override
     public String getSerialNumber() {
-        if (this.serialNumber == null) {
-            querySystemSerialNumber();
-        }
-        return super.getSerialNumber();
+        return serialNumber.get();
     }
 
-    /** {@inheritDoc} */
     @Override
-    public Firmware getFirmware() {
-        if (this.firmware == null) {
-            this.firmware = new WindowsFirmware();
-        }
-        return this.firmware;
+    public Firmware createFirmware() {
+        return new WindowsFirmware();
     }
 
-    /** {@inheritDoc} */
     @Override
-    public Baseboard getBaseboard() {
-        if (this.baseboard == null) {
-            this.baseboard = new WindowsBaseboard();
-        }
-        return this.baseboard;
+    public Baseboard createBaseboard() {
+        return new WindowsBaseboard();
     }
 
-    private void queryManufacturerAndModel() {
+    private ManufacturerModel queryManufacturerModel() {
+        String manufacturer = null;
+        String model = null;
         WmiQuery<ComputerSystemProperty> computerSystemQuery = new WmiQuery<>("Win32_ComputerSystem",
                 ComputerSystemProperty.class);
         WmiResult<ComputerSystemProperty> win32ComputerSystem = wmiQueryHandler.queryWMI(computerSystemQuery);
         if (win32ComputerSystem.getResultCount() > 0) {
-            this.manufacturer = WmiUtil.getString(win32ComputerSystem, ComputerSystemProperty.MANUFACTURER, 0);
-            this.model = WmiUtil.getString(win32ComputerSystem, ComputerSystemProperty.MODEL, 0);
+            manufacturer = WmiUtil.getString(win32ComputerSystem, ComputerSystemProperty.MANUFACTURER, 0);
+            model = WmiUtil.getString(win32ComputerSystem, ComputerSystemProperty.MODEL, 0);
         }
+        return new ManufacturerModel(manufacturer, model);
     }
 
-    private void querySystemSerialNumber() {
-        if (!querySerialFromBios() && !querySerialFromCsProduct()) {
-            this.serialNumber = Constants.UNKNOWN;
+    private String querySystemSerialNumber() {
+        String result;
+        if ((result = querySerialFromBios()) == null && (result = querySerialFromCsProduct()) == null) {
+            return Constants.UNKNOWN;
         }
+        return Util.isBlank(result) ? Constants.UNKNOWN : result;
     }
 
-    private boolean querySerialFromBios() {
-        WmiQuery<BiosProperty> serialNumberQuery = new WmiQuery<>("Win32_BIOS where PrimaryBIOS=true",
+    private String querySerialFromBios() {
+        String result = null;
+        WmiQuery<BiosProperty> serialNumQuery = new WmiQuery<>("Win32_BIOS where PrimaryBIOS=true",
                 BiosProperty.class);
-        WmiResult<BiosProperty> serialNumber = wmiQueryHandler.queryWMI(serialNumberQuery);
-        if (serialNumber.getResultCount() > 0) {
-            this.serialNumber = WmiUtil.getString(serialNumber, BiosProperty.SERIALNUMBER, 0);
+        WmiResult<BiosProperty> serialNum = wmiQueryHandler.queryWMI(serialNumQuery);
+        if (serialNum.getResultCount() > 0) {
+            result = WmiUtil.getString(serialNum, BiosProperty.SERIALNUMBER, 0);
         }
-        return this.serialNumber != null && !this.serialNumber.isEmpty();
+        return result;
     }
 
-    private boolean querySerialFromCsProduct() {
+    private String querySerialFromCsProduct() {
+        String result = null;
         WmiQuery<ComputerSystemProductProperty> identifyingNumberQuery = new WmiQuery<>("Win32_ComputerSystemProduct",
                 ComputerSystemProductProperty.class);
         WmiResult<ComputerSystemProductProperty> identifyingNumber = wmiQueryHandler.queryWMI(identifyingNumberQuery);
         if (identifyingNumber.getResultCount() > 0) {
-            this.serialNumber = WmiUtil.getString(identifyingNumber, ComputerSystemProductProperty.IDENTIFYINGNUMBER,
-                    0);
+            result = WmiUtil.getString(identifyingNumber, ComputerSystemProductProperty.IDENTIFYINGNUMBER, 0);
         }
-        return this.serialNumber != null && !this.serialNumber.isEmpty();
+        return result;
     }
 
     enum ComputerSystemProperty {
@@ -134,5 +127,15 @@ final class WindowsComputerSystem extends AbstractComputerSystem {
 
     enum ComputerSystemProductProperty {
         IDENTIFYINGNUMBER;
+    }
+
+    private static final class ManufacturerModel {
+        private final String manufacturer;
+        private final String model;
+
+        private ManufacturerModel(String manufacturer, String model) {
+            this.manufacturer = Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer;
+            this.model = Util.isBlank(model) ? Constants.UNKNOWN : model;
+        }
     }
 }

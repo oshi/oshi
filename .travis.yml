@@ -3,7 +3,7 @@ language: java
 before_install:
   # When building the coverity_scan branch, allow only the first job to continue.
   - if [[ "${TRAVIS_BRANCH}" == "coverity_scan" && "$MATRIX_ID" != "first" ]]; then exit 0; fi
-  
+
 after_success:
   - bash <(curl -s https://codecov.io/bash)
   - if [ "$MATRIX_ID" == "first" ]; then
@@ -32,9 +32,9 @@ addons:
   hostname: oshi
 
 matrix:
-  include:  
+  include:
     - os: osx
-      env: 
+      env:
       - JDK = "OracleJDK 8 - Mac"
       - MATRIX_ID="first"
       osx_image: xcode9.3
@@ -43,15 +43,12 @@ matrix:
       jdk: openjdk11
       osx_image: xcode10.1
     - os: osx
-      env: JDK = "OpenJDK 12 - Mac"
+      env: JDK = "OpenJDK 13 - Mac"
       jdk: openjdk12
-      osx_image: xcode11
+      osx_image: xcode11.2
     - os: linux
       env: JDK = "OpenJDK 11 - Linux"
       jdk: openjdk11
-    - os: linux
-      env: JDK = "OpenJDK 12 - Linux"
-      jdk: openjdk12
     - os: linux
       env: JDK = "OpenJDK 13 - Linux"
       jdk: openjdk13
@@ -63,7 +60,7 @@ matrix:
       env: JDK = "OpenJDK 14 - Linux"
       jdk: openjdk14
 
-script: 
+script:
   # Skip tests on coverity_scan branch
   - if [[ "${TRAVIS_BRANCH}" == "coverity_scan" ]]; then exit 0; fi
   - java -version

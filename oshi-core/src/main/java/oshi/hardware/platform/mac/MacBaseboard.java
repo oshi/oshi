@@ -23,10 +23,79 @@
  */
 package oshi.hardware.platform.mac;
 
+import static oshi.util.Memoizer.memoize;
+
+import java.util.function.Supplier;
+
 import oshi.hardware.common.AbstractBaseboard;
+import oshi.jna.platform.mac.IOKit.IORegistryEntry;
+import oshi.jna.platform.mac.IOKitUtil;
+import oshi.util.Constants;
+import oshi.util.Util;
 
+/**
+ * Baseboard data obtained from ioreg
+ */
 final class MacBaseboard extends AbstractBaseboard {
+    private final Supplier<PlatformStrings> platform = memoize(this::queryPlatform);
 
-    private static final long serialVersionUID = 1L;
+    @Override
+    public String getManufacturer() {
+        return platform.get().manufacturer;
+    }
 
+    @Override
+    public String getModel() {
+        return platform.get().model;
+    }
+
+    @Override
+    public String getVersion() {
+        return platform.get().version;
+    }
+
+    @Override
+    public String getSerialNumber() {
+        return platform.get().serialNumber;
+    }
+
+    private PlatformStrings queryPlatform() {
+        String manufacturer = null;
+        String model = null;
+        String version = null;
+        String serialNumber = null;
+
+        IORegistryEntry platformExpert = IOKitUtil.getMatchingService("IOPlatformExpertDevice");
+        if (platformExpert != null) {
+            byte[] data = platformExpert.getByteArrayProperty("manufacturer");
+            if (data != null) {
+                manufacturer = new String(data);
+            }
+            data = platformExpert.getByteArrayProperty("board-id");
+            if (data != null) {
+                model = new String(data);
+            }
+            data = platformExpert.getByteArrayProperty("version");
+            if (data != null) {
+                version = new String(data);
+            }
+            serialNumber = platformExpert.getStringProperty("IOPlatformSerialNumber");
+            platformExpert.release();
+        }
+        return new PlatformStrings(manufacturer, model, version, serialNumber);
+    }
+
+    private static final class PlatformStrings {
+        private final String manufacturer;
+        private final String model;
+        private final String version;
+        private final String serialNumber;
+
+        private PlatformStrings(String manufacturer, String model, String version, String serialNumber) {
+            this.manufacturer = Util.isBlank(manufacturer) ? "Apple Inc." : manufacturer;
+            this.model = Util.isBlank(model) ? Constants.UNKNOWN : model;
+            this.version = Util.isBlank(version) ? Constants.UNKNOWN : version;
+            this.serialNumber = Util.isBlank(serialNumber) ? Constants.UNKNOWN : serialNumber;
+        }
+    }
 }

@@ -41,11 +41,8 @@ import oshi.hardware.Networks;
  */
 public abstract class AbstractNetworks implements Networks {
 
-    private static final long serialVersionUID = 1L;
-
     private static final Logger LOG = LoggerFactory.getLogger(AbstractNetworks.class);
 
-    /** {@inheritDoc} */
     @Override
     public NetworkIF[] getNetworks() {
         List<NetworkIF> result = new ArrayList<>();

@@ -23,12 +23,10 @@
  */
 package oshi.hardware;
 
-import java.io.Serializable;
-
 /**
  * The Firmware represents the low level BIOS or equivalent.
  */
-public interface Firmware extends Serializable {
+public interface Firmware {
 
     /**
      * Get the firmware manufacturer.

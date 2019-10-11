@@ -23,6 +23,11 @@
  */
 package oshi.hardware.platform.mac;
 
+import static oshi.util.Memoizer.defaultExpiration;
+import static oshi.util.Memoizer.memoize;
+
+import java.util.function.Supplier;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,55 +46,60 @@ import oshi.util.platform.mac.SysctlUtil;
  */
 public class MacGlobalMemory extends AbstractGlobalMemory {
 
-    private static final long serialVersionUID = 1L;
-
     private static final Logger LOG = LoggerFactory.getLogger(MacGlobalMemory.class);
 
-    /** {@inheritDoc} */
+    private final Supplier<Long> available = memoize(this::queryVmStats, defaultExpiration());
+
+    private final Supplier<Long> total = memoize(this::queryPhysMem);
+
+    private final Supplier<Long> pageSize = memoize(this::queryPageSize);
+
+    private final Supplier<VirtualMemory> vm = memoize(this::createVirtualMemory);
+
     @Override
     public long getAvailable() {
+        return available.get();
+    }
+
+    @Override
+    public long getTotal() {
+        return total.get();
+    }
+
+    @Override
+    public long getPageSize() {
+        return pageSize.get();
+    }
+
+    @Override
+    public VirtualMemory getVirtualMemory() {
+        return vm.get();
+    }
+
+    private long queryVmStats() {
         VMStatistics vmStats = new VMStatistics();
         if (0 != SystemB.INSTANCE.host_statistics(SystemB.INSTANCE.mach_host_self(), SystemB.HOST_VM_INFO, vmStats,
                 new IntByReference(vmStats.size() / SystemB.INT_SIZE))) {
             LOG.error("Failed to get host VM info. Error code: {}", Native.getLastError());
             return 0L;
         }
-        this.memAvailable = (vmStats.free_count + vmStats.inactive_count) * getPageSize();
-        return this.memAvailable;
+        return (vmStats.free_count + vmStats.inactive_count) * getPageSize();
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public long getTotal() {
-        if (this.memTotal < 0) {
-            long memory = SysctlUtil.sysctl("hw.memsize", -1L);
-            if (memory >= 0) {
-                this.memTotal = memory;
-            }
-        }
-        return this.memTotal;
+    private long queryPhysMem() {
+        return SysctlUtil.sysctl("hw.memsize", 0L);
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public long getPageSize() {
-        if (this.pageSize < 0) {
-            LongByReference pPageSize = new LongByReference();
-            if (0 != SystemB.INSTANCE.host_page_size(SystemB.INSTANCE.mach_host_self(), pPageSize)) {
-                LOG.error("Failed to get host page size. Error code: {}", Native.getLastError());
-                return 0L;
-            }
-            this.pageSize = pPageSize.getValue();
+    private long queryPageSize() {
+        LongByReference pPageSize = new LongByReference();
+        if (0 == SystemB.INSTANCE.host_page_size(SystemB.INSTANCE.mach_host_self(), pPageSize)) {
+            return pPageSize.getValue();
         }
-        return this.pageSize;
+        LOG.error("Failed to get host page size. Error code: {}", Native.getLastError());
+        return 4098L;
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public VirtualMemory getVirtualMemory() {
-        if (this.virtualMemory == null) {
-            this.virtualMemory = new MacVirtualMemory();
-        }
-        return this.virtualMemory;
+    private VirtualMemory createVirtualMemory() {
+        return new MacVirtualMemory();
     }
 }

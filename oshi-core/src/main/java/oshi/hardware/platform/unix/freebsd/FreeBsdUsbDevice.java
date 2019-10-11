@@ -41,28 +41,6 @@ import oshi.util.ParseUtil;
  */
 public class FreeBsdUsbDevice extends AbstractUsbDevice {
 
-    private static final long serialVersionUID = 2L;
-
-    /**
-     * <p>
-     * Constructor for FreeBsdUsbDevice.
-     * </p>
-     *
-     * @param name
-     *            a {@link java.lang.String} object.
-     * @param vendor
-     *            a {@link java.lang.String} object.
-     * @param vendorId
-     *            a {@link java.lang.String} object.
-     * @param productId
-     *            a {@link java.lang.String} object.
-     * @param serialNumber
-     *            a {@link java.lang.String} object.
-     * @param uniqueDeviceId
-     *            a {@link java.lang.String} object.
-     * @param connectedDevices
-     *            an array of {@link oshi.hardware.UsbDevice} objects.
-     */
     public FreeBsdUsbDevice(String name, String vendor, String vendorId, String productId, String serialNumber,
             String uniqueDeviceId, UsbDevice[] connectedDevices) {
         super(name, vendor, vendorId, productId, serialNumber, uniqueDeviceId, connectedDevices);
@@ -92,13 +70,6 @@ public class FreeBsdUsbDevice extends AbstractUsbDevice {
         return deviceList.toArray(new UsbDevice[0]);
     }
 
-    private static void addDevicesToList(List<UsbDevice> deviceList, UsbDevice[] connectedDevices) {
-        for (UsbDevice device : connectedDevices) {
-            deviceList.add(device);
-            addDevicesToList(deviceList, device.getConnectedDevices());
-        }
-    }
-
     private static UsbDevice[] getUsbDevices() {
         // Maps to store information using node # as the key
         Map<String, String> nameMap = new HashMap<>();
@@ -115,7 +86,6 @@ public class FreeBsdUsbDevice extends AbstractUsbDevice {
         // results with those
         List<String> devices = ExecutingCommand.runNative("lshal");
         if (devices.isEmpty()) {
-            // TODO usbconfig, works as root
             return new FreeBsdUsbDevice[0];
         }
         // For each item enumerated, store information in the maps
@@ -126,41 +96,39 @@ public class FreeBsdUsbDevice extends AbstractUsbDevice {
             if (line.startsWith("udi =")) {
                 // Remove indent for key
                 key = ParseUtil.getSingleQuoteStringValue(line);
-                continue;
-            } else if (key.isEmpty()) {
-                // Ignore everything preceding the first node
-                continue;
-            }
-            // We are currently processing for node identified by key. Save
-            // approrpriate variables to maps.
-            line = line.trim();
-            if (line.isEmpty()) {
-                continue;
-            } else if (line.startsWith("freebsd.driver =")
-                    && "usbus".equals(ParseUtil.getSingleQuoteStringValue(line))) {
-                usBuses.add(key);
-            } else if (line.contains(".parent =")) {
-                String parent = ParseUtil.getSingleQuoteStringValue(line);
-                // If this is interface of parent, skip
-                if (key.replace(parent, "").startsWith("_if")) {
-                    continue;
+            } else if (!key.isEmpty()) {
+                // We are currently processing for node identified by key. Save
+                // approrpriate variables to maps.
+                line = line.trim();
+                if (!line.isEmpty()) {
+                    if (line.startsWith("freebsd.driver =")
+                            && "usbus".equals(ParseUtil.getSingleQuoteStringValue(line))) {
+                        usBuses.add(key);
+                    } else if (line.contains(".parent =")) {
+                        String parent = ParseUtil.getSingleQuoteStringValue(line);
+                        // If this is interface of parent, skip
+                        if (key.replace(parent, "").startsWith("_if")) {
+                            continue;
+                        }
+                        // Store parent for later usbus-skipping
+                        parentMap.put(key, parent);
+                        // Add this key to the parent's hubmap list
+                        hubMap.computeIfAbsent(parent, x -> new ArrayList<>()).add(key);
+                    } else if (line.contains(".product =")) {
+                        nameMap.put(key, ParseUtil.getSingleQuoteStringValue(line));
+                    } else if (line.contains(".vendor =")) {
+                        vendorMap.put(key, ParseUtil.getSingleQuoteStringValue(line));
+                    } else if (line.contains(".serial =")) {
+                        String serial = ParseUtil.getSingleQuoteStringValue(line);
+                        serialMap.put(key,
+                                serial.startsWith("0x") ? ParseUtil.hexStringToString(serial.replace("0x", ""))
+                                        : serial);
+                    } else if (line.contains(".vendor_id =")) {
+                        vendorIdMap.put(key, String.format("%04x", ParseUtil.getFirstIntValue(line)));
+                    } else if (line.contains(".product_id =")) {
+                        productIdMap.put(key, String.format("%04x", ParseUtil.getFirstIntValue(line)));
+                    }
                 }
-                // Store parent for later usbus-skipping
-                parentMap.put(key, parent);
-                // Add this key to the parent's hubmap list
-                hubMap.computeIfAbsent(parent, x -> new ArrayList<>()).add(key);
-            } else if (line.contains(".product =")) {
-                nameMap.put(key, ParseUtil.getSingleQuoteStringValue(line));
-            } else if (line.contains(".vendor =")) {
-                vendorMap.put(key, ParseUtil.getSingleQuoteStringValue(line));
-            } else if (line.contains(".serial =")) {
-                String serial = ParseUtil.getSingleQuoteStringValue(line);
-                serialMap.put(key,
-                        serial.startsWith("0x") ? ParseUtil.hexStringToString(serial.replace("0x", "")) : serial);
-            } else if (line.contains(".vendor_id =")) {
-                vendorIdMap.put(key, String.format("%04x", ParseUtil.getFirstIntValue(line)));
-            } else if (line.contains(".product_id =")) {
-                productIdMap.put(key, String.format("%04x", ParseUtil.getFirstIntValue(line)));
             }
         }
 
@@ -175,6 +143,13 @@ public class FreeBsdUsbDevice extends AbstractUsbDevice {
                     productIdMap, serialMap, hubMap));
         }
         return controllerDevices.toArray(new UsbDevice[0]);
+    }
+
+    private static void addDevicesToList(List<UsbDevice> deviceList, UsbDevice[] connectedDevices) {
+        for (UsbDevice device : connectedDevices) {
+            deviceList.add(device);
+            addDevicesToList(deviceList, device.getConnectedDevices());
+        }
     }
 
     /**

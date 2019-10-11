@@ -23,8 +23,6 @@
  */
 package oshi.hardware;
 
-import java.io.Serializable;
-
 /**
  * Sensors include hardware sensors to monitor temperature, fan speed, and other
  * information.
@@ -42,7 +40,7 @@ import java.io.Serializable;
  * <a href="http://openhardwaremonitor.org/">Open Hardware Monitor</a> if it is
  * running.
  */
-public interface Sensors extends Serializable {
+public interface Sensors {
     /**
      * CPU Temperature
      *

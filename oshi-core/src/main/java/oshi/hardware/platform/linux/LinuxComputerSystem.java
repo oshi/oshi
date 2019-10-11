@@ -23,7 +23,11 @@
  */
 package oshi.hardware.platform.linux;
 
+import static oshi.util.Memoizer.memoize;
+import static oshi.util.platform.linux.ProcUtil.CPUINFO;
+
 import java.util.List;
+import java.util.function.Supplier;
 
 import oshi.hardware.Baseboard;
 import oshi.hardware.Firmware;
@@ -33,195 +37,191 @@ import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.linux.ProcUtil;
-
 /**
  * Hardware data obtained from sysfs.
  */
 final class LinuxComputerSystem extends AbstractComputerSystem {
 
-    private static final long serialVersionUID = 1L;
+    private final Supplier<String> manufacturer = memoize(this::queryManufacturer);
 
-    /** {@inheritDoc} */
+    private final Supplier<String> model = memoize(this::queryModel);
+
+    private final Supplier<String> serialNumber = memoize(this::querySerialNumber);
+
     @Override
     public String getManufacturer() {
-        if (this.manufacturer == null && !queryManufacturerFromSysfs() && !queryManufacturerFromProcCpu()) {
-            this.manufacturer = Constants.UNKNOWN;
-        }
-        return super.getManufacturer();
+        return manufacturer.get();
     }
 
-    /** {@inheritDoc} */
     @Override
     public String getModel() {
-        if (this.model == null && !queryModelFromSysfs() && !queryModelFromDeviceTree()
-                && !queryModelAndSerialFromLshw()) {
-            this.model = Constants.UNKNOWN;
-        }
-        return super.getModel();
+        return model.get();
     }
 
-    /** {@inheritDoc} */
     @Override
     public String getSerialNumber() {
-        if (this.serialNumber == null && !querySerialFromSysfs() && !querySerialFromDmiDecode()
-                && !querySerialFromLshal() && !queryModelAndSerialFromLshw()) {
-            this.serialNumber = Constants.UNKNOWN;
-        }
-        return super.getSerialNumber();
+        return serialNumber.get();
     }
 
-    /** {@inheritDoc} */
     @Override
-    public Firmware getFirmware() {
-        if (this.firmware == null) {
-            this.firmware = new LinuxFirmware();
-        }
-        return this.firmware;
+    public Firmware createFirmware() {
+        return new LinuxFirmware();
     }
 
-    /** {@inheritDoc} */
     @Override
-    public Baseboard getBaseboard() {
-        if (this.baseboard == null) {
-            this.baseboard = new LinuxBaseboard();
-        }
-        return this.baseboard;
+    public Baseboard createBaseboard() {
+        return new LinuxBaseboard();
     }
 
-    private boolean queryManufacturerFromSysfs() {
+    private String queryManufacturer() {
+        String result = null;
+        if ((result = queryManufacturerFromSysfs()) == null && (result = queryManufacturerFromProcCpu()) == null) {
+            return Constants.UNKNOWN;
+        }
+        return result;
+    }
+
+    private String queryModel() {
+        String result = null;
+        if ((result = queryModelFromSysfs()) == null && (result = queryModelFromDeviceTree()) == null
+                && (result = queryModelFromLshw()) == null) {
+            return Constants.UNKNOWN;
+        }
+        return result;
+    }
+
+    private String querySerialNumber() {
+        String result = null;
+        if ((result = querySerialFromSysfs()) == null && (result = querySerialFromDmiDecode()) == null
+                && (result = querySerialFromLshal()) == null && (result = querySerialFromLshw()) == null) {
+            return Constants.UNKNOWN;
+        }
+        return result;
+    }
+
+    private String queryManufacturerFromSysfs() {
         final String sysVendor = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "sys_vendor").trim();
         if (!sysVendor.isEmpty()) {
-            this.manufacturer = sysVendor;
-            return true;
+            return sysVendor;
         }
-        return false;
+        return null;
     }
 
-    private boolean queryManufacturerFromProcCpu() {
-        List<String> cpuInfo = FileUtil.readFile(ProcUtil.getProcPath() + "/cpuinfo");
+    private String queryManufacturerFromProcCpu() {
+        List<String> cpuInfo = FileUtil.readFile(ProcUtil.getProcPath() + CPUINFO);
         for (String line : cpuInfo) {
             if (line.startsWith("CPU implementer")) {
                 int part = ParseUtil.parseLastInt(line, 0);
                 switch (part) {
                 case 0x41:
-                    this.manufacturer = "ARM";
-                    return true;
+                    return "ARM";
                 case 0x42:
-                    this.manufacturer = "Broadcom";
-                    return true;
+                    return "Broadcom";
                 case 0x43:
-                    this.manufacturer = "Cavium";
-                    return true;
+                    return "Cavium";
                 case 0x44:
-                    this.manufacturer = "DEC";
-                    return true;
+                    return "DEC";
                 case 0x4e:
-                    this.manufacturer = "Nvidia";
-                    return true;
+                    return "Nvidia";
                 case 0x50:
-                    this.manufacturer = "APM";
-                    return true;
+                    return "APM";
                 case 0x51:
-                    this.manufacturer = "Qualcomm";
-                    return true;
+                    return "Qualcomm";
                 case 0x53:
-                    this.manufacturer = "Samsung";
-                    return true;
+                    return "Samsung";
                 case 0x56:
-                    this.manufacturer = "Marvell";
-                    return true;
+                    return "Marvell";
                 case 0x66:
-                    this.manufacturer = "Faraday";
-                    return true;
+                    return "Faraday";
                 case 0x69:
-                    this.manufacturer = "Intel";
-                    return true;
+                    return "Intel";
                 default:
-                    return false;
+                    return null;
                 }
             }
         }
-        return false;
+        return null;
     }
 
-    private boolean queryModelFromSysfs() {
+    private String queryModelFromSysfs() {
         final String productName = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "product_name").trim();
         final String productVersion = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "product_version")
                 .trim();
         if (productName.isEmpty()) {
             if (!productVersion.isEmpty()) {
-                this.model = productVersion;
-                return true;
+                return productVersion;
             }
         } else {
             if (!productVersion.isEmpty() && !"None".equals(productVersion)) {
-                this.model = productName + " (version: " + productVersion + ")";
-                return true;
+                return productName + " (version: " + productVersion + ")";
             } else {
-                this.model = productName;
-                return true;
+                return productName;
             }
         }
-        return false;
+        return null;
     }
 
-    private boolean queryModelFromDeviceTree() {
+    private String queryModelFromDeviceTree() {
         String modelStr = FileUtil.getStringFromFile("/sys/firmware/devicetree/base/model");
         if (!modelStr.isEmpty()) {
-            this.model = modelStr.replace("Machine: ", "");
-            return true;
+            return modelStr.replace("Machine: ", "");
         }
-        return false;
+        return null;
     }
 
-    private boolean querySerialFromSysfs() {
+    private String queryModelFromLshw() {
+        String modelMarker = "product:";
+        for (String checkLine : ExecutingCommand.runNative("lshw -C system")) {
+            if (checkLine.contains(modelMarker)) {
+                return checkLine.split(modelMarker)[1].trim();
+            }
+        }
+        return null;
+    }
+
+    private String querySerialFromSysfs() {
         // These sysfs files accessible by root, or can be chmod'd at boot time
         // to enable access without root
-        String serialNumber = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "product_serial");
-        if (serialNumber.isEmpty() || "None".equals(serialNumber)) {
-            serialNumber = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "board_serial");
-            if (serialNumber.isEmpty() || "None".equals(serialNumber)) {
-                return false;
+        String serial = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "product_serial");
+        if (serial.isEmpty() || "None".equals(serial)) {
+            serial = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "board_serial");
+            if (serial.isEmpty() || "None".equals(serial)) {
+                return null;
             }
-            this.serialNumber = serialNumber;
+            return serial;
         }
-        return this.serialNumber != null && !this.serialNumber.isEmpty();
+        return null;
     }
 
-    private boolean querySerialFromDmiDecode() {
+    private String querySerialFromDmiDecode() {
         // If root privileges this will work
         String marker = "Serial Number:";
         for (String checkLine : ExecutingCommand.runNative("dmidecode -t system")) {
             if (checkLine.contains(marker)) {
-                this.serialNumber = checkLine.split(marker)[1].trim();
-                break;
+                return checkLine.split(marker)[1].trim();
             }
         }
-        return this.serialNumber != null && !this.serialNumber.isEmpty();
+        return null;
     }
 
-    private boolean querySerialFromLshal() {
+    private String querySerialFromLshal() {
         // if lshal command available (HAL deprecated in newer linuxes)
         String marker = "system.hardware.serial =";
         for (String checkLine : ExecutingCommand.runNative("lshal")) {
             if (checkLine.contains(marker)) {
-                this.serialNumber = ParseUtil.getSingleQuoteStringValue(checkLine);
-                break;
+                return ParseUtil.getSingleQuoteStringValue(checkLine);
             }
         }
-        return this.serialNumber != null && !this.serialNumber.isEmpty();
+        return null;
     }
 
-    private boolean queryModelAndSerialFromLshw() {
+    private String querySerialFromLshw() {
         String serialMarker = "serial:";
-        String modelMarker = "product:";
         for (String checkLine : ExecutingCommand.runNative("lshw -C system")) {
             if (checkLine.contains(serialMarker)) {
-                this.serialNumber = checkLine.split(serialMarker)[1].trim();
-            } else if (checkLine.contains(modelMarker)) {
-                this.model = checkLine.split(modelMarker)[1].trim();
+                return checkLine.split(serialMarker)[1].trim();
             }
         }
-        return this.serialNumber != null && !this.serialNumber.isEmpty();
+        return null;
     }
 }

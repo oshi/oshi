@@ -35,8 +35,8 @@ import com.sun.jna.Memory; //NOSONAR squid:S1191
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 
-import oshi.jna.platform.linux.Libc;
 import oshi.jna.platform.unix.CLibrary.Timeval;
+import oshi.jna.platform.unix.freebsd.FreeBsdLibc;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
 import oshi.software.os.NetworkParams;
@@ -54,7 +54,7 @@ import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
  * </p>
  */
 public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
-    private static final long serialVersionUID = 1L;
+
     private static final Logger LOG = LoggerFactory.getLogger(FreeBsdOperatingSystem.class);
 
     private static final long BOOTTIME;
@@ -79,17 +79,38 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
      * Constructor for FreeBsdOperatingSystem.
      * </p>
      */
+    @SuppressWarnings("deprecation")
     public FreeBsdOperatingSystem() {
-        this.manufacturer = "Unix/BSD";
-        this.family = BsdSysctlUtil.sysctl("kern.ostype", "FreeBSD");
         this.version = new FreeBsdOSVersionInfoEx();
-        initBitness();
     }
 
-    private void initBitness() {
-        if (this.bitness < 64 && ExecutingCommand.getFirstAnswer("uname -m").indexOf("64") != -1) {
-            this.bitness = 64;
+    @Override
+    public String queryManufacturer() {
+        return "Unix/BSD";
+    }
+
+    @Override
+    public FamilyVersionInfo queryFamilyVersionInfo() {
+        String family = BsdSysctlUtil.sysctl("kern.ostype", "FreeBSD");
+
+        String version = BsdSysctlUtil.sysctl("kern.osrelease", "");
+        String versionInfo = BsdSysctlUtil.sysctl("kern.version", "");
+        String buildNumber = versionInfo.split(":")[0].replace(family, "").replace(version, "").trim();
+
+        return new FamilyVersionInfo(family, new OSVersionInfo(version, null, buildNumber));
+    }
+
+    @Override
+    protected int queryBitness() {
+        if (this.jvmBitness < 64 && ExecutingCommand.getFirstAnswer("uname -m").indexOf("64") == -1) {
+            return this.jvmBitness;
         }
+        return 64;
+    }
+
+    @Override
+    protected boolean queryElevated() {
+        return System.getenv("SUDO_COMMAND") != null;
     }
 
     @Override
@@ -147,7 +168,7 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
                 continue;
             }
             long now = System.currentTimeMillis();
-            OSProcess fproc = new OSProcess();
+            OSProcess fproc = new OSProcess(this);
             switch (split[0].charAt(0)) {
             case 'R':
                 fproc.setState(OSProcess.State.RUNNING);
@@ -207,7 +228,7 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
                 Pointer abi = new Memory(32);
                 IntByReference size = new IntByReference(32);
                 // Fetch abi vector
-                if (0 == Libc.INSTANCE.sysctl(mib, mib.length, abi, size, null, 0)) {
+                if (0 == FreeBsdLibc.INSTANCE.sysctl(mib, mib.length, abi, size, null, 0)) {
                     String elf = abi.getString(0);
                     if (elf.contains("ELF32")) {
                         fproc.setBitness(32);
@@ -223,7 +244,7 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public int getProcessId() {
-        return Libc.INSTANCE.getpid();
+        return FreeBsdLibc.INSTANCE.getpid();
     }
 
     @Override

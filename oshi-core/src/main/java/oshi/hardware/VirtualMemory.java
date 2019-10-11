@@ -23,14 +23,12 @@
  */
 package oshi.hardware;
 
-import java.io.Serializable;
-
 /**
  * The VirtuallMemory class tracks information about the use of a computer's
  * virtual memory (swap file) which temporarily moves rarely accessed
  * information to a disk or other storage device.
  */
-public interface VirtualMemory extends Serializable {
+public interface VirtualMemory {
 
     /**
      * The current size of the paging/swap file(s), in bytes. If the paging/swap

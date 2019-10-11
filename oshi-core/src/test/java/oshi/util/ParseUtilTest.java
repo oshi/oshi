@@ -26,6 +26,7 @@ package oshi.util;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.time.Instant;
 import java.util.Arrays;
 
 import org.junit.Test;
@@ -318,16 +319,22 @@ public class ParseUtilTest {
         long now = System.currentTimeMillis();
 
         String foo = String.format("The numbers are %d %d %d %d", 123, 456, 789, now);
+        int count = ParseUtil.countStringToLongArray(foo, ' ');
+        assertEquals(4, count);
         long[] result = ParseUtil.parseStringToLongArray(foo, indices, 4, ' ');
         assertEquals(456L, result[0]);
         assertEquals(now, result[1]);
 
         foo = String.format("The numbers are %d -%d %d +%d", 123, 456, 789, now);
+        count = ParseUtil.countStringToLongArray(foo, ' ');
+        assertEquals(4, count);
         result = ParseUtil.parseStringToLongArray(foo, indices, 4, ' ');
         assertEquals(-456L, result[0]);
         assertEquals(now, result[1]);
 
         foo = String.format("Invalid character %d %s %d %d", 123, "4v6", 789, now);
+        count = ParseUtil.countStringToLongArray(foo, ' ');
+        assertEquals(2, count);
         result = ParseUtil.parseStringToLongArray(foo, indices, 4, ' ');
         assertEquals(0, result[1]);
 
@@ -342,6 +349,10 @@ public class ParseUtilTest {
         foo = String.format("Array too short %d %d %d %d", 123, 456, 789, now);
         result = ParseUtil.parseStringToLongArray(foo, indices, 2, ' ');
         assertEquals(0, result[1]);
+
+        foo = String.format("%d %d %d %d", 123, 456, 789, now);
+        count = ParseUtil.countStringToLongArray(foo, ' ');
+        assertEquals(4, count);
     }
 
     @Test
@@ -366,5 +377,15 @@ public class ParseUtilTest {
     @Test
     public void testFiletimeToMs() {
         assertEquals(1172163600306L, ParseUtil.filetimeToUtcMs(128166372003061629L, false));
+    }
+
+    @Test
+    public void testParseCimDateTimeToOffset() {
+        String cimDateTime = "20160513072950.782000-420";
+        // 2016-05-13T07:29:50 == 1463124590
+        // Add 420 minutes to get unix seconds
+        Instant timeInst = Instant.ofEpochMilli(1463124590_782L + 60 * 420_000L);
+        assertEquals(timeInst, ParseUtil.parseCimDateTimeToOffset(cimDateTime).toInstant());
+        assertEquals(Instant.EPOCH, ParseUtil.parseCimDateTimeToOffset("Not a datetime").toInstant());
     }
 }

@@ -48,5 +48,6 @@ public class GlobalMemoryTest {
         assertTrue(memory.getAvailable() >= 0);
         assertTrue(memory.getAvailable() <= memory.getTotal());
         assertTrue(memory.getPageSize() > 0);
+        assertTrue(memory.toString().contains("Available"));
     }
 }

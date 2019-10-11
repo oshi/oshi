@@ -23,7 +23,7 @@
  */
 package oshi.jna.platform.mac;
 
-import com.sun.jna.Native;
+import com.sun.jna.Native; // NOSONAR squid:S1191
 
 import oshi.jna.platform.unix.CLibrary;
 
@@ -32,6 +32,17 @@ import oshi.jna.platform.unix.CLibrary;
  * if/when its code is incorporated into the JNA project.
  */
 public interface SystemB extends CLibrary, com.sun.jna.platform.mac.SystemB {
-    /** Constant <code>INSTANCE</code> */
+
     SystemB INSTANCE = Native.load("System", SystemB.class);
+
+    /**
+     * Decrement the target port right's user reference count.
+     *
+     * @param port
+     *            The port holding the right.
+     * @param name
+     *            The port's name for the right.
+     * @return 0 if successful, a {@code kern_return_t} code otherwise.
+     */
+    int mach_port_deallocate(int port, int name);
 }

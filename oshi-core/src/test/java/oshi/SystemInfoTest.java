@@ -34,12 +34,10 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import oshi.hardware.Baseboard;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.CentralProcessor.TickType;
 import oshi.hardware.ComputerSystem;
 import oshi.hardware.Display;
-import oshi.hardware.Firmware;
 import oshi.hardware.GlobalMemory;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
@@ -74,6 +72,8 @@ public class SystemInfoTest {
     @Test
     public void testPlatformEnum() {
         assertFalse(PlatformEnum.UNKNOWN.equals(SystemInfo.getCurrentPlatformEnum()));
+        // Exercise the main method
+        main(null);
     }
 
     /**
@@ -153,47 +153,23 @@ public class SystemInfoTest {
     }
 
     private static void printComputerSystem(final ComputerSystem computerSystem) {
-
-        oshi.add("manufacturer: " + computerSystem.getManufacturer());
-        oshi.add("model: " + computerSystem.getModel());
-        oshi.add("serialnumber: " + computerSystem.getSerialNumber());
-        final Firmware firmware = computerSystem.getFirmware();
-        oshi.add("firmware:");
-        oshi.add("  manufacturer: " + firmware.getManufacturer());
-        oshi.add("  name: " + firmware.getName());
-        oshi.add("  description: " + firmware.getDescription());
-        oshi.add("  version: " + firmware.getVersion());
-        oshi.add("  release date: " + (firmware.getReleaseDate() == null ? "unknown"
-                : firmware.getReleaseDate() == null ? "unknown" : firmware.getReleaseDate()));
-        final Baseboard baseboard = computerSystem.getBaseboard();
-        oshi.add("baseboard:");
-        oshi.add("  manufacturer: " + baseboard.getManufacturer());
-        oshi.add("  model: " + baseboard.getModel());
-        oshi.add("  version: " + baseboard.getVersion());
-        oshi.add("  serialnumber: " + baseboard.getSerialNumber());
+        oshi.add("system: " + computerSystem.toString());
+        oshi.add(" firmware: " + computerSystem.getFirmware().toString());
+        oshi.add(" baseboard: " + computerSystem.getBaseboard().toString());
     }
 
     private static void printProcessor(CentralProcessor processor) {
-        oshi.add(String.valueOf(processor));
-        oshi.add(" " + processor.getPhysicalPackageCount() + " physical CPU package(s)");
-        oshi.add(" " + processor.getPhysicalProcessorCount() + " physical CPU core(s)");
-        oshi.add(" " + processor.getLogicalProcessorCount() + " logical CPU(s)");
-
-        oshi.add("Identifier: " + processor.getIdentifier());
-        oshi.add("ProcessorID: " + processor.getProcessorID());
+        oshi.add(processor.toString());
     }
 
     private static void printMemory(GlobalMemory memory) {
-        oshi.add("Memory: " + FormatUtil.formatBytes(memory.getAvailable()) + "/"
-                + FormatUtil.formatBytes(memory.getTotal()));
+        oshi.add("Memory: \n " + memory.toString());
         VirtualMemory vm = memory.getVirtualMemory();
-        oshi.add("Swap used: " + FormatUtil.formatBytes(vm.getSwapUsed()) + "/"
-                + FormatUtil.formatBytes(vm.getSwapTotal()));
+        oshi.add("Swap: \n " + vm.toString());
     }
 
     private static void printCpu(CentralProcessor processor) {
-        oshi.add(
-                "Context Switches/Interrupts: " + processor.getContextSwitches() + " / " + processor.getInterrupts());
+        oshi.add("Context Switches/Interrupts: " + processor.getContextSwitches() + " / " + processor.getInterrupts());
 
         long[] prevTicks = processor.getSystemCpuLoadTicks();
         long[][] prevProcTicks = processor.getProcessorCpuLoadTicks();
@@ -213,11 +189,10 @@ public class SystemInfoTest {
         long totalCpu = user + nice + sys + idle + iowait + irq + softirq + steal;
 
         oshi.add(String.format(
-                "User: %.1f%% Nice: %.1f%% System: %.1f%% Idle: %.1f%% IOwait: %.1f%% IRQ: %.1f%% SoftIRQ: %.1f%% Steal: %.1f%%%n",
+                "User: %.1f%% Nice: %.1f%% System: %.1f%% Idle: %.1f%% IOwait: %.1f%% IRQ: %.1f%% SoftIRQ: %.1f%% Steal: %.1f%%",
                 100d * user / totalCpu, 100d * nice / totalCpu, 100d * sys / totalCpu, 100d * idle / totalCpu,
                 100d * iowait / totalCpu, 100d * irq / totalCpu, 100d * softirq / totalCpu, 100d * steal / totalCpu));
-        oshi.add(String.format("CPU load: %.1f%%%n",
-                processor.getSystemCpuLoadBetweenTicks(prevTicks) * 100));
+        oshi.add(String.format("CPU load: %.1f%%", processor.getSystemCpuLoadBetweenTicks(prevTicks) * 100));
         double[] loadAverage = processor.getSystemLoadAverage(3);
         oshi.add("CPU load averages:" + (loadAverage[0] < 0 ? " N/A" : String.format(" %.2f", loadAverage[0]))
                 + (loadAverage[1] < 0 ? " N/A" : String.format(" %.2f", loadAverage[1]))
@@ -229,7 +204,7 @@ public class SystemInfoTest {
             procCpu.append(String.format(" %.1f%%", avg * 100));
         }
         oshi.add(procCpu.toString());
-        long freq = processor.getVendorFreq();
+        long freq = processor.getProcessorIdentifier().getVendorFreq();
         if (freq > 0) {
             oshi.add("Vendor Frequency: " + FormatUtil.formatHertz(freq));
         }
@@ -258,7 +233,7 @@ public class SystemInfoTest {
         oshi.add("   PID  %CPU %MEM       VSZ       RSS Name");
         for (int i = 0; i < procs.size() && i < 5; i++) {
             OSProcess p = procs.get(i);
-            oshi.add(String.format(" %5d %5.1f %4.1f %9s %9s %s%n", p.getProcessID(),
+            oshi.add(String.format(" %5d %5.1f %4.1f %9s %9s %s", p.getProcessID(),
                     100d * (p.getKernelTime() + p.getUserTime()) / p.getUpTime(),
                     100d * p.getResidentSetSize() / memory.getTotal(), FormatUtil.formatBytes(p.getVirtualSize()),
                     FormatUtil.formatBytes(p.getResidentSetSize()), p.getName()));
@@ -266,29 +241,16 @@ public class SystemInfoTest {
     }
 
     private static void printSensors(Sensors sensors) {
-        oshi.add("Sensors:");
-        oshi.add(String.format(" CPU Temperature: %.1f°C%n", sensors.getCpuTemperature()));
-        oshi.add(" Fan Speeds: " + Arrays.toString(sensors.getFanSpeeds()));
-        oshi.add(String.format(" CPU Voltage: %.1fV%n", sensors.getCpuVoltage()));
+        oshi.add("Sensors: " + sensors.toString());
     }
 
     private static void printPowerSources(PowerSource[] powerSources) {
-        StringBuilder sb = new StringBuilder("Power: ");
+        StringBuilder sb = new StringBuilder("Power Sources: ");
         if (powerSources.length == 0) {
             sb.append("Unknown");
-        } else {
-            double timeRemaining = powerSources[0].getTimeRemaining();
-            if (timeRemaining < -1d) {
-                sb.append("Charging");
-            } else if (timeRemaining < 0d) {
-                sb.append("Calculating time remaining");
-            } else {
-                sb.append(String.format("%d:%02d remaining", (int) (timeRemaining / 3600),
-                        (int) (timeRemaining / 60) % 60));
-            }
         }
         for (PowerSource powerSource : powerSources) {
-            sb.append(String.format("%n %s @ %.1f%%", powerSource.getName(), powerSource.getRemainingCapacity() * 100d));
+            sb.append("\n ").append(powerSource.toString());
         }
         oshi.add(sb.toString());
     }
@@ -296,40 +258,30 @@ public class SystemInfoTest {
     private static void printDisks(HWDiskStore[] diskStores) {
         oshi.add("Disks:");
         for (HWDiskStore disk : diskStores) {
-            boolean readwrite = disk.getReads() > 0 || disk.getWrites() > 0;
-            oshi.add(String.format(" %s: (model: %s - S/N: %s) size: %s, reads: %s (%s), writes: %s (%s), xfer: %s ms%n",
-                    disk.getName(), disk.getModel(), disk.getSerial(),
-                    disk.getSize() > 0 ? FormatUtil.formatBytesDecimal(disk.getSize()) : "?",
-                    readwrite ? disk.getReads() : "?", readwrite ? FormatUtil.formatBytes(disk.getReadBytes()) : "?",
-                    readwrite ? disk.getWrites() : "?", readwrite ? FormatUtil.formatBytes(disk.getWriteBytes()) : "?",
-                    readwrite ? disk.getTransferTime() : "?"));
+            oshi.add(" " + disk.toString());
+
             HWPartition[] partitions = disk.getPartitions();
-            if (partitions == null) {
-                // TODO Remove when all OS's implemented
-                continue;
-            }
             for (HWPartition part : partitions) {
-                oshi.add(String.format(" |-- %s: %s (%s) Maj:Min=%d:%d, size: %s%s%n", part.getIdentification(),
-                        part.getName(), part.getType(), part.getMajor(), part.getMinor(),
-                        FormatUtil.formatBytesDecimal(part.getSize()),
-                        part.getMountPoint().isEmpty() ? "" : " @ " + part.getMountPoint()));
+                oshi.add(" |-- " + part.toString());
             }
         }
+
     }
 
     private static void printFileSystem(FileSystem fileSystem) {
         oshi.add("File System:");
 
-        oshi.add(String.format(" File Descriptors: %d/%d%n", fileSystem.getOpenFileDescriptors(),
+        oshi.add(String.format(" File Descriptors: %d/%d", fileSystem.getOpenFileDescriptors(),
                 fileSystem.getMaxFileDescriptors()));
 
         OSFileStore[] fsArray = fileSystem.getFileStores();
         for (OSFileStore fs : fsArray) {
             long usable = fs.getUsableSpace();
             long total = fs.getTotalSpace();
-            oshi.add(String.format(" %s (%s) [%s] %s of %s free (%.1f%%), %s of %s files free (%.1f%%) is %s " +
-                            (fs.getLogicalVolume() != null && fs.getLogicalVolume().length() > 0 ? "[%s]" : "%s") +
-                            " and is mounted at %s%n",
+            oshi.add(String.format(
+                    " %s (%s) [%s] %s of %s free (%.1f%%), %s of %s files free (%.1f%%) is %s "
+                            + (fs.getLogicalVolume() != null && fs.getLogicalVolume().length() > 0 ? "[%s]" : "%s")
+                            + " and is mounted at %s",
                     fs.getName(), fs.getDescription().isEmpty() ? "file system" : fs.getDescription(), fs.getType(),
                     FormatUtil.formatBytes(usable), FormatUtil.formatBytes(fs.getTotalSpace()), 100d * usable / total,
                     FormatUtil.formatValue(fs.getFreeInodes(), ""), FormatUtil.formatValue(fs.getTotalInodes(), ""),
@@ -339,32 +291,18 @@ public class SystemInfoTest {
     }
 
     private static void printNetworkInterfaces(NetworkIF[] networkIFs) {
-        oshi.add("Network interfaces:");
-        for (NetworkIF net : networkIFs) {
-            oshi.add(String.format(" Name: %s (%s)%n", net.getName(), net.getDisplayName()));
-            oshi.add(String.format("   MAC Address: %s %n", net.getMacaddr()));
-            oshi.add(String.format("   MTU: %s, Speed: %s %n", net.getMTU(), FormatUtil.formatValue(net.getSpeed(), "bps")));
-            oshi.add(String.format("   IPv4: %s %n", Arrays.toString(net.getIPv4addr())));
-            oshi.add(String.format("   IPv6: %s %n", Arrays.toString(net.getIPv6addr())));
-            boolean hasData = net.getBytesRecv() > 0 || net.getBytesSent() > 0 || net.getPacketsRecv() > 0
-                    || net.getPacketsSent() > 0;
-            oshi.add(String.format("   Traffic: received %s/%s%s; transmitted %s/%s%s %n",
-                    hasData ? net.getPacketsRecv() + " packets" : "?",
-                    hasData ? FormatUtil.formatBytes(net.getBytesRecv()) : "?",
-                    hasData ? " (" + net.getInErrors() + " err)" : "",
-                    hasData ? net.getPacketsSent() + " packets" : "?",
-                    hasData ? FormatUtil.formatBytes(net.getBytesSent()) : "?",
-                    hasData ? " (" + net.getOutErrors() + " err)" : ""));
+        StringBuilder sb = new StringBuilder("Network Interfaces:");
+        if (networkIFs.length == 0) {
+            sb.append(" Unknown");
         }
+        for (NetworkIF net : networkIFs) {
+            sb.append("\n ").append(net.toString());
+        }
+        oshi.add(sb.toString());
     }
 
     private static void printNetworkParameters(NetworkParams networkParams) {
-        oshi.add("Network parameters:");
-        oshi.add(String.format(" Host name: %s%n", networkParams.getHostName()));
-        oshi.add(String.format(" Domain name: %s%n", networkParams.getDomainName()));
-        oshi.add(String.format(" DNS servers: %s%n", Arrays.toString(networkParams.getDnsServers())));
-        oshi.add(String.format(" IPv4 Gateway: %s%n", networkParams.getIpv4DefaultGateway()));
-        oshi.add(String.format(" IPv6 Gateway: %s%n", networkParams.getIpv6DefaultGateway()));
+        oshi.add("Network parameters:\n " + networkParams.toString());
     }
 
     private static void printDisplays(Display[] displays) {
@@ -387,7 +325,7 @@ public class SystemInfoTest {
     private static void printSoundCards(SoundCard[] cards) {
         oshi.add("Sound Cards:");
         for (SoundCard card : cards) {
-            oshi.add(String.valueOf(card));
+            oshi.add(" " + String.valueOf(card));
         }
     }
 }

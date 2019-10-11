@@ -23,6 +23,11 @@
  */
 package oshi.hardware.platform.windows;
 
+import static oshi.util.Memoizer.defaultExpiration;
+import static oshi.util.Memoizer.memoize;
+
+import java.util.function.Supplier;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,52 +43,60 @@ import oshi.hardware.common.AbstractGlobalMemory;
  */
 public class WindowsGlobalMemory extends AbstractGlobalMemory {
 
-    private static final long serialVersionUID = 1L;
-
     private static final Logger LOG = LoggerFactory.getLogger(WindowsGlobalMemory.class);
 
-    /** {@inheritDoc} */
+    private final Supplier<PerfInfo> perfInfo = memoize(this::readPerfInfo, defaultExpiration());
+
+    private final Supplier<VirtualMemory> vm = memoize(this::createVirtualMemory);
+
     @Override
     public long getAvailable() {
-        updatePerfInfo();
-        return this.memAvailable;
+        return perfInfo.get().available;
     }
 
-    /** {@inheritDoc} */
     @Override
     public long getTotal() {
-        if (this.memTotal < 0) {
-            updatePerfInfo();
-        }
-        return this.memTotal;
+        return perfInfo.get().total;
     }
 
-    /** {@inheritDoc} */
     @Override
     public long getPageSize() {
-        if (this.pageSize < 0) {
-            updatePerfInfo();
-        }
-        return this.pageSize;
+        return perfInfo.get().pageSize;
     }
 
-    /** {@inheritDoc} */
     @Override
     public VirtualMemory getVirtualMemory() {
-        if (this.virtualMemory == null) {
-            this.virtualMemory = new WindowsVirtualMemory(getPageSize());
-        }
-        return this.virtualMemory;
+        return vm.get();
     }
 
-    private void updatePerfInfo() {
-        PERFORMANCE_INFORMATION perfInfo = new PERFORMANCE_INFORMATION();
-        if (!Psapi.INSTANCE.GetPerformanceInfo(perfInfo, perfInfo.size())) {
+    private VirtualMemory createVirtualMemory() {
+        return new WindowsVirtualMemory(getPageSize());
+    }
+
+    private PerfInfo readPerfInfo() {
+        long pageSize;
+        long memAvailable;
+        long memTotal;
+        PERFORMANCE_INFORMATION performanceInfo = new PERFORMANCE_INFORMATION();
+        if (!Psapi.INSTANCE.GetPerformanceInfo(performanceInfo, performanceInfo.size())) {
             LOG.error("Failed to get Performance Info. Error code: {}", Kernel32.INSTANCE.GetLastError());
-            return;
+            return new PerfInfo(0, 0, 4098);
         }
-        this.pageSize = perfInfo.PageSize.longValue();
-        this.memAvailable = this.pageSize * perfInfo.PhysicalAvailable.longValue();
-        this.memTotal = this.pageSize * perfInfo.PhysicalTotal.longValue();
+        pageSize = performanceInfo.PageSize.longValue();
+        memAvailable = pageSize * performanceInfo.PhysicalAvailable.longValue();
+        memTotal = pageSize * performanceInfo.PhysicalTotal.longValue();
+        return new PerfInfo(memTotal, memAvailable, pageSize);
+    }
+
+    private static final class PerfInfo {
+        private final long total;
+        private final long available;
+        private final long pageSize;
+
+        private PerfInfo(long total, long available, long pageSize) {
+            this.total = total;
+            this.available = available;
+            this.pageSize = pageSize;
+        }
     }
 }

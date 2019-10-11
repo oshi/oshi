@@ -120,8 +120,8 @@
 		<!-- Base directory, overwrite in submodules -->
 		<main.basedir>${project.basedir}</main.basedir>
 		<!-- Dependency versions -->
-		<slf4j.version>1.7.26</slf4j.version>
-		<junit-vintage-engine.version>5.5.1</junit-vintage-engine.version>
+		<slf4j.version>1.7.28</slf4j.version>
+		<junit-vintage-engine.version>5.5.2</junit-vintage-engine.version>
 		<!-- Compile versions -->
 		<maven-clean-plugin.version>3.1.0</maven-clean-plugin.version>
 		<maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
@@ -138,11 +138,11 @@
 		<wagon-ssh.version>3.3.3</wagon-ssh.version>
 		<maven-fluido-skin.version>1.8</maven-fluido-skin.version>
 		<!-- build plugins -->
-		<git-commit-id-plugin.version>3.0.0</git-commit-id-plugin.version>
+		<git-commit-id-plugin.version>3.0.1</git-commit-id-plugin.version>
 		<build-helper-maven-plugin.version>3.0.0</build-helper-maven-plugin.version>
 		<maven-jar-plugin.version>3.1.2</maven-jar-plugin.version>
 		<maven-war-plugin.version>3.2.3</maven-war-plugin.version>
-		<bnd-maven-plugin.version>4.2.0</bnd-maven-plugin.version>
+		<bnd-maven-plugin.version>4.3.0</bnd-maven-plugin.version>
 		<maven-shade-plugin.version>3.2.1</maven-shade-plugin.version>
 		<!-- reporting plugins -->
 		<maven-checkstyle-plugin.version>3.1.0</maven-checkstyle-plugin.version>
@@ -171,13 +171,13 @@
 		<!-- SCM -->
 		<maven-scm-plugin.version>1.11.2</maven-scm-plugin.version>
 		<maven-scm-provider-jgit.version>1.11.2</maven-scm-provider-jgit.version>
-		<jgit.version>5.4.0.201906121030-r</jgit.version>
+		<jgit.version>5.5.0.201909110433-r</jgit.version>
 		<!-- Misc. -->
-		<sonar-maven-plugin.version>3.6.0.1398</sonar-maven-plugin.version>
+		<sonar-maven-plugin.version>3.7.0.1746</sonar-maven-plugin.version>
 		<wagon-maven-plugin.version>2.0.0</wagon-maven-plugin.version>
 		<animal-sniffer-maven-plugin.version>1.18</animal-sniffer-maven-plugin.version>
-		<dependency-check-maven.version>5.2.1</dependency-check-maven.version>
-		<puppycrawl.checkstyle.version>8.23</puppycrawl.checkstyle.version>
+		<dependency-check-maven.version>5.2.2</dependency-check-maven.version>
+		<puppycrawl.checkstyle.version>8.25</puppycrawl.checkstyle.version>
 		<m2e.lifecycle-mapping.version>1.0.0</m2e.lifecycle-mapping.version>
 	</properties>
 
@@ -495,6 +495,7 @@
 							<exclude>mvnw</exclude>
 							<exclude>mvnw.cmd</exclude>
 							<exclude>LICENSE_*</exclude>
+							<exclude>**/issue_label_bot.yaml</exclude>
 							<exclude>**/OSHIJavaFormatConventions.xml</exclude>
 						</excludes>
 					</configuration>

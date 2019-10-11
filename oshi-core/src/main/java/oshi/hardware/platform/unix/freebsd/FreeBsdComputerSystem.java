@@ -23,66 +23,56 @@
  */
 package oshi.hardware.platform.unix.freebsd;
 
+import static oshi.util.Memoizer.memoize;
+
+import java.util.function.Supplier;
+
 import oshi.hardware.Baseboard;
 import oshi.hardware.Firmware;
 import oshi.hardware.common.AbstractComputerSystem;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
+import oshi.util.Util;
 
 /**
  * Hardware data obtained from dmidecode.
  */
 final class FreeBsdComputerSystem extends AbstractComputerSystem {
 
-    private static final long serialVersionUID = 1L;
+    private final Supplier<DmidecodeStrings> readDmiDecode = memoize(this::readDmiDecode);
 
-    /** {@inheritDoc} */
     @Override
     public String getManufacturer() {
-        if (this.manufacturer == null) {
-            readDmiDecode();
-        }
-        return super.getManufacturer();
+        return readDmiDecode.get().manufacturer;
     }
 
-    /** {@inheritDoc} */
     @Override
     public String getModel() {
-        if (this.model == null) {
-            readDmiDecode();
-        }
-        return super.getModel();
+        return readDmiDecode.get().model;
     }
 
-    /** {@inheritDoc} */
     @Override
     public String getSerialNumber() {
-        if (this.serialNumber == null) {
-            readDmiDecode();
-        }
-        return super.getSerialNumber();
+        return readDmiDecode.get().serialNumber;
     }
 
-    /** {@inheritDoc} */
     @Override
-    public Firmware getFirmware() {
-        if (this.firmware == null) {
-            this.firmware = new FreeBsdFirmware();
-        }
-        return this.firmware;
+    public Firmware createFirmware() {
+        return new FreeBsdFirmware();
     }
 
-    /** {@inheritDoc} */
     @Override
-    public Baseboard getBaseboard() {
-        if (this.baseboard == null) {
-            this.baseboard = new FreeBsdBaseboard();
-        }
-        return this.baseboard;
+    public Baseboard createBaseboard() {
+        return new FreeBsdBaseboard(readDmiDecode.get().manufacturer, readDmiDecode.get().model,
+                readDmiDecode.get().serialNumber, readDmiDecode.get().version);
     }
 
-    private void readDmiDecode() {
+    private DmidecodeStrings readDmiDecode() {
+        String manufacturer = null;
+        String model = null;
+        String version = null;
+        String serialNumber = null;
 
         // $ sudo dmidecode -t system
         // # dmidecode 3.0
@@ -107,31 +97,29 @@ final class FreeBsdComputerSystem extends AbstractComputerSystem {
 
         final String manufacturerMarker = "Manufacturer:";
         final String productNameMarker = "Product Name:";
+        final String versionMarker = "Version:";
         final String serialNumMarker = "Serial Number:";
 
         // Only works with root permissions but it's all we've got
         for (final String checkLine : ExecutingCommand.runNative("dmidecode -t system")) {
             if (checkLine.contains(manufacturerMarker)) {
-                String manufacturer = checkLine.split(manufacturerMarker)[1].trim();
-                if (!manufacturer.isEmpty()) {
-                    this.manufacturer = manufacturer;
-                }
+                manufacturer = checkLine.split(manufacturerMarker)[1].trim();
             }
             if (checkLine.contains(productNameMarker)) {
-                String productName = checkLine.split(productNameMarker)[1].trim();
-                if (!productName.isEmpty()) {
-                    this.model = productName;
-                }
+                model = checkLine.split(productNameMarker)[1].trim();
+            }
+            if (checkLine.contains(versionMarker)) {
+                version = checkLine.split(versionMarker)[1].trim();
             }
             if (checkLine.contains(serialNumMarker)) {
-                String serialNumber = checkLine.split(serialNumMarker)[1].trim();
-                this.serialNumber = serialNumber;
+                serialNumber = checkLine.split(serialNumMarker)[1].trim();
             }
         }
-
-        if (this.serialNumber == null || serialNumber.isEmpty()) {
-            this.serialNumber = getSystemSerialNumber();
+        // If we get to end and haven't assigned, use fallback
+        if (Util.isBlank(serialNumber)) {
+            serialNumber = getSystemSerialNumber();
         }
+        return new DmidecodeStrings(manufacturer, model, version, serialNumber);
     }
 
     private String getSystemSerialNumber() {
@@ -142,5 +130,19 @@ final class FreeBsdComputerSystem extends AbstractComputerSystem {
             }
         }
         return Constants.UNKNOWN;
+    }
+
+    private static final class DmidecodeStrings {
+        private final String manufacturer;
+        private final String model;
+        private final String version;
+        private final String serialNumber;
+
+        private DmidecodeStrings(String manufacturer, String model, String version, String serialNumber) {
+            this.manufacturer = Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer;
+            this.model = Util.isBlank(model) ? Constants.UNKNOWN : model;
+            this.version = Util.isBlank(version) ? Constants.UNKNOWN : version;
+            this.serialNumber = Util.isBlank(serialNumber) ? Constants.UNKNOWN : serialNumber;
+        }
     }
 }

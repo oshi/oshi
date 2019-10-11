@@ -23,11 +23,14 @@
  */
 package oshi.hardware.common;
 
+import java.util.function.Supplier;
+
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.ComputerSystem;
 import oshi.hardware.GlobalMemory;
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.Sensors;
+import static oshi.util.Memoizer.memoize;
 
 /**
  * Common fields or methods used by platform-specific implementations of
@@ -35,14 +38,59 @@ import oshi.hardware.Sensors;
  */
 public abstract class AbstractHardwareAbstractionLayer implements HardwareAbstractionLayer {
 
-    private static final long serialVersionUID = 1L;
+    private final Supplier<ComputerSystem> computerSystem = memoize(this::createComputerSystem);
 
-    protected ComputerSystem computerSystem;
+    private final Supplier<CentralProcessor> processor = memoize(this::createProcessor);
 
-    protected CentralProcessor processor;
+    private final Supplier<GlobalMemory> memory = memoize(this::createMemory);
 
-    protected GlobalMemory memory;
+    private final Supplier<Sensors> sensors = memoize(this::createSensors);
 
-    protected Sensors sensors;
+    @Override
+    public ComputerSystem getComputerSystem() {
+        return computerSystem.get();
+    }
 
+    /**
+     * Instantiates the platform-specific {@link ComputerSystem} object
+     * 
+     * @return platform-specific {@link ComputerSystem} object
+     */
+    protected abstract ComputerSystem createComputerSystem();
+
+    @Override
+    public CentralProcessor getProcessor() {
+        return processor.get();
+    }
+
+    /**
+     * Instantiates the platform-specific {@link CentralProcessor} object
+     * 
+     * @return platform-specific {@link CentralProcessor} object
+     */
+    protected abstract CentralProcessor createProcessor();
+
+    @Override
+    public GlobalMemory getMemory() {
+        return memory.get();
+    }
+
+    /**
+     * Instantiates the platform-specific {@link GlobalMemory} object
+     * 
+     * @return platform-specific {@link GlobalMemory} object
+     */
+    protected abstract GlobalMemory createMemory();
+
+    @Override
+    public Sensors getSensors() {
+        return sensors.get();
+    }
+
+    /**
+     * Instantiates the platform-specific {@link Sensors} object
+     * 
+     * @return platform-specific {@link Sensors} object
+     */
+    protected abstract Sensors createSensors();
 }
