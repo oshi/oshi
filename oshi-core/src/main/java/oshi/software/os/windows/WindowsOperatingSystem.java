@@ -80,33 +80,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsOperatingSystem.class);
 
-    private static final long BOOTTIME;
-    static {
-        boolean found = false;
-        long tempBT = 0L;
-        EventLogIterator iter = new EventLogIterator(null, "System", WinNT.EVENTLOG_BACKWARDS_READ);
-        while (iter.hasNext()) { // NOSONAR squid:S135
-            EventLogRecord record = iter.next();
-            if (record.getRecord().EventID.getLow().intValue() == 6005) {
-                if (found) {
-                    // Didn't find EventID 12, return first 6005
-                    break;
-                }
-                // First 6005; tentatively assign and look for EventID 12
-                tempBT = record.getRecord().TimeGenerated.longValue();
-                found = true;
-            } else if (found && record.getRecord().EventID.getLow().intValue() == 12) {
-                // First 12 after 6005, this is boot time
-                tempBT = record.getRecord().TimeGenerated.longValue();
-                break;
-            }
-        }
-        if (tempBT != 0) {
-            BOOTTIME = tempBT;
-        } else {
-            BOOTTIME = System.currentTimeMillis() / 1000L - querySystemUptime();
-        }
-    }
+    private static final long BOOTTIME = querySystemBootTime();
 
     enum OSVersionProperty {
         Version, ProductType, BuildNumber, CSDVersion, SuiteMask;
@@ -218,8 +192,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                 } else {
                     // Build numbers greater than 17762 is Server 2019 for OS
                     // Version 10.0
-                    version = (ParseUtil.parseLongOrDefault(buildNumber, 0L) > 17762) ? "Server 2019"
-                            : "Server 2016";
+                    version = (ParseUtil.parseLongOrDefault(buildNumber, 0L) > 17762) ? "Server 2019" : "Server 2016";
                 }
             }
             break;
@@ -680,6 +653,33 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     @Override
     public long getSystemBootTime() {
         return BOOTTIME;
+    }
+
+    private static long querySystemBootTime() {
+        // Get the most recent boot event (ID 12) from the Event log. If Windows "Fast
+        // Startup" is enabled we may not see event 12, so also check for most recent ID
+        // 6005 (Event log startup) as a reasonably close backup.
+        long event6005Time = 0L;
+        EventLogIterator iter = new EventLogIterator(null, "System", WinNT.EVENTLOG_BACKWARDS_READ);
+        while (iter.hasNext()) {
+            EventLogRecord record = iter.next();
+            if (record.getStatusCode() == 12) {
+                // Event 12 is system boot. We want this value unless we find two 6005 events
+                // first (may occur with Fast Boot)
+                return record.getRecord().TimeGenerated.longValue();
+            } else if (record.getStatusCode() == 6005) {
+                // If we already found one, this means we've found a second one without finding
+                // an event 12. Return the latest one.
+                if (event6005Time > 0) {
+                    return event6005Time;
+                }
+                // First 6005; tentatively assign
+                event6005Time = record.getRecord().TimeGenerated.longValue();
+            }
+        }
+        // If we get this far, event log reading has failed. Subtract up time from
+        // current time as a reasonable proxy.
+        return event6005Time > 0 ? event6005Time : System.currentTimeMillis() / 1000L - querySystemUptime();
     }
 
     @Override
