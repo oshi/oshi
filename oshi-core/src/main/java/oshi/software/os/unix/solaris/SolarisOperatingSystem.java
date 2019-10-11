@@ -23,10 +23,10 @@
  */
 package oshi.software.os.unix.solaris;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.io.File;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,13 +83,11 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
         }
     }
 
-    /** {@inheritDoc} */
     @Override
     public FileSystem getFileSystem() {
         return new SolarisFileSystem();
     }
 
-    /** {@inheritDoc} */
     @Override
     public OSProcess[] getProcesses(int limit, ProcessSort sort, boolean slowFields) {
         List<OSProcess> procs = getProcessListFromPS(
@@ -98,7 +96,6 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
         return sorted.toArray(new OSProcess[0]);
     }
 
-    /** {@inheritDoc} */
     @Override
     public OSProcess getProcess(int pid) {
         return getProcess(pid, true);
@@ -113,7 +110,6 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
         return procs.get(0);
     }
 
-    /** {@inheritDoc} */
     @Override
     public OSProcess[] getChildProcesses(int parentPid, int limit, ProcessSort sort) {
         List<OSProcess> procs = getProcessListFromPS(
@@ -204,19 +200,16 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
         return procs;
     }
 
-    /** {@inheritDoc} */
     @Override
     public int getProcessId() {
         return Libc.INSTANCE.getpid();
     }
 
-    /** {@inheritDoc} */
     @Override
     public int getProcessCount() {
         return ProcUtil.getPidFiles().length;
     }
 
-    /** {@inheritDoc} */
     @Override
     public int getThreadCount() {
         List<String> threadList = ExecutingCommand.runNative("ps -eLo pid");
@@ -227,7 +220,6 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
         return getProcessCount();
     }
 
-    /** {@inheritDoc} */
     @Override
     public long getSystemUptime() {
         return querySystemUptime();
@@ -242,31 +234,28 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
         return ksp.ks_snaptime / 1_000_000_000L;
     }
 
-    /** {@inheritDoc} */
     @Override
     public long getSystemBootTime() {
         return BOOTTIME;
     }
 
-    /** {@inheritDoc} */
     @Override
     public NetworkParams getNetworkParams() {
         return new SolarisNetworkParams();
     }
 
-    /** {@inheritDoc} */
     @Override
     public OSService[] getServices() {
-        //Sort by PID
-        OSProcess[] process =  getChildProcesses(1, 0, OperatingSystem.ProcessSort.PID);
+        // Sort by PID
+        OSProcess[] process = getChildProcesses(1, 0, OperatingSystem.ProcessSort.PID);
         File etc = new File("/etc/inittab");
         try {
             File[] files = etc.listFiles();
             OSService[] svcArray = new OSService[files.length];
             for (int i = 0; i < files.length; i++) {
-                svcArray[i].setName(files[i].getName());  
+                svcArray[i].setName(files[i].getName());
                 for (int j = 0; j < process.length; j++) {
-                    if(process[j].getName().equals(files[i].getName())) {
+                    if (process[j].getName().equals(files[i].getName())) {
                         svcArray[i].setProcessID(process[j].getProcessID());
                         svcArray[i].setState(OSService.State.RUNNING);
                     } else {

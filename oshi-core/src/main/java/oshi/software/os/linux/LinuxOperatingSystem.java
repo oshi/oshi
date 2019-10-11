@@ -30,9 +30,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.lang.reflect.Field;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,8 +46,8 @@ import oshi.software.os.FileSystem;
 import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OSService;
-import oshi.software.os.OperatingSystem;
 import oshi.software.os.OSUser;
+import oshi.software.os.OperatingSystem;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
@@ -184,13 +181,11 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         }
     }
 
-    /** {@inheritDoc} */
     @Override
     public FileSystem getFileSystem() {
         return new LinuxFileSystem();
     }
 
-    /** {@inheritDoc} */
     @Override
     public OSProcess[] getProcesses(int limit, ProcessSort sort, boolean slowFields) {
         List<OSProcess> procs = new ArrayList<>();
@@ -210,7 +205,6 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         return sorted.toArray(new OSProcess[0]);
     }
 
-    /** {@inheritDoc} */
     @Override
     public OSProcess getProcess(int pid) {
         return getProcess(pid, new LinuxUserGroupInfo(), true);
@@ -319,7 +313,6 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         return proc;
     }
 
-    /** {@inheritDoc} */
     @Override
     public OSProcess[] getChildProcesses(int parentPid, int limit, ProcessSort sort) {
         List<OSProcess> procs = new ArrayList<>();
@@ -346,19 +339,16 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         return (int) statArray[ProcPidStat.PPID.ordinal()];
     }
 
-    /** {@inheritDoc} */
     @Override
     public int getProcessId() {
         return Libc.INSTANCE.getpid();
     }
 
-    /** {@inheritDoc} */
     @Override
     public int getProcessCount() {
         return ProcUtil.getPidFiles().length;
     }
 
-    /** {@inheritDoc} */
     @Override
     public int getThreadCount() {
         try {
@@ -374,19 +364,16 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         return 0;
     }
 
-    /** {@inheritDoc} */
     @Override
     public long getSystemUptime() {
         return (long) ProcUtil.getSystemUptimeSeconds();
     }
 
-    /** {@inheritDoc} */
     @Override
     public long getSystemBootTime() {
         return BOOTTIME;
     }
 
-    /** {@inheritDoc} */
     @Override
     public NetworkParams getNetworkParams() {
         return new LinuxNetworkParams();
@@ -717,19 +704,18 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         return USER_HZ;
     }
 
-    /** {@inheritDoc} */
     @Override
     public OSService[] getServices() {
-        //Sort by PID
-        OSProcess[] process =  getChildProcesses(1, 0, OperatingSystem.ProcessSort.PID);
+        // Sort by PID
+        OSProcess[] process = getChildProcesses(1, 0, OperatingSystem.ProcessSort.PID);
         File etc = new File("/etc/init");
         try {
             File[] files = etc.listFiles();
             OSService[] svcArray = new OSService[files.length];
             for (int i = 0; i < files.length; i++) {
-                svcArray[i].setName(files[i].getName());  
+                svcArray[i].setName(files[i].getName());
                 for (int j = 0; j < process.length; j++) {
-                    if(process[j].getName().equals(files[i].getName())) {
+                    if (process[j].getName().equals(files[i].getName())) {
                         svcArray[i].setProcessID(process[j].getProcessID());
                         svcArray[i].setState(OSService.State.RUNNING);
                     } else {
@@ -742,7 +728,5 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
             LOG.error("Directory: /etc/init does not exist");
             return new OSService[0];
         }
-        
     }
-
 }

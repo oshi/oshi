@@ -26,9 +26,9 @@ package oshi.software.os;
 
 public class OSService {
 
-	private String name = "";
-	private int processID;
-	private State state = State.OTHER;
+    private String name = "";
+    private int processID;
+    private State state = State.OTHER;
     private String pathName = "";
 
     /**
@@ -46,7 +46,7 @@ public class OSService {
      * @return Returns the name of the service.
      */
     public String getName() {
-    	return this.name;
+        return this.name;
     }
 
     /**
@@ -57,7 +57,7 @@ public class OSService {
      * @return Returns the processID.
      */
     public int getProcessID() {
-    	return this.processID;
+        return this.processID;
     }
 
     /**
@@ -68,7 +68,7 @@ public class OSService {
      * @return Returns the state of the service.
      */
     public State getState() {
-    	return this.state;
+        return this.state;
     }
 
     /**

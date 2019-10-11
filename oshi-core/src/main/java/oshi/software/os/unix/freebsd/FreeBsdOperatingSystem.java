@@ -23,10 +23,10 @@
  */
 package oshi.software.os.unix.freebsd;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.io.File;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,7 +56,7 @@ import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
 public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = LoggerFactory.getLogger(FreeBsdOperatingSystem.class);
-    
+
     private static final long BOOTTIME;
     static {
         Timeval tv = new Timeval();
@@ -92,13 +92,11 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
         }
     }
 
-    /** {@inheritDoc} */
     @Override
     public FileSystem getFileSystem() {
         return new FreeBsdFileSystem();
     }
 
-    /** {@inheritDoc} */
     @Override
     public OSProcess[] getProcesses(int limit, ProcessSort sort, boolean slowFields) {
         List<OSProcess> procs = getProcessListFromPS(
@@ -108,7 +106,6 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
         return sorted.toArray(new OSProcess[0]);
     }
 
-    /** {@inheritDoc} */
     @Override
     public OSProcess getProcess(int pid) {
         return getProcess(pid, true);
@@ -124,7 +121,6 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
         return procs.get(0);
     }
 
-    /** {@inheritDoc} */
     @Override
     public OSProcess[] getChildProcesses(int parentPid, int limit, ProcessSort sort) {
         List<OSProcess> procs = getProcessListFromPS(
@@ -225,13 +221,11 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
         return procs;
     }
 
-    /** {@inheritDoc} */
     @Override
     public int getProcessId() {
         return Libc.INSTANCE.getpid();
     }
 
-    /** {@inheritDoc} */
     @Override
     public int getProcessCount() {
         List<String> procList = ExecutingCommand.runNative("ps -axo pid");
@@ -242,7 +236,6 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
         return 0;
     }
 
-    /** {@inheritDoc} */
     @Override
     public int getThreadCount() {
         int threads = 0;
@@ -252,37 +245,33 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
         return threads;
     }
 
-    /** {@inheritDoc} */
     @Override
     public long getSystemUptime() {
         return System.currentTimeMillis() / 1000 - BOOTTIME;
     }
 
-    /** {@inheritDoc} */
     @Override
     public long getSystemBootTime() {
         return BOOTTIME;
     }
 
-    /** {@inheritDoc} */
     @Override
     public NetworkParams getNetworkParams() {
         return new FreeBsdNetworkParams();
     }
 
-    /** {@inheritDoc} */
     @Override
     public OSService[] getServices() {
-        //Sort by PID
-        OSProcess[] process =  getChildProcesses(1, 0, OperatingSystem.ProcessSort.PID);
+        // Sort by PID
+        OSProcess[] process = getChildProcesses(1, 0, OperatingSystem.ProcessSort.PID);
         File etc = new File("/etc/init");
-        try {    
+        try {
             File[] files = etc.listFiles();
             OSService[] svcArray = new OSService[files.length];
             for (int i = 0; i < files.length; i++) {
-                svcArray[i].setName(files[i].getName());  
+                svcArray[i].setName(files[i].getName());
                 for (int j = 0; j < process.length; j++) {
-                    if(process[j].getName().equals(files[i].getName())) {
+                    if (process[j].getName().equals(files[i].getName())) {
                         svcArray[i].setProcessID(process[j].getProcessID());
                         svcArray[i].setState(OSService.State.RUNNING);
                     } else {
@@ -295,8 +284,5 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
             LOG.error("Directory: /etc/init does not exist");
             return new OSService[0];
         }
-        
     }
-
-
 }

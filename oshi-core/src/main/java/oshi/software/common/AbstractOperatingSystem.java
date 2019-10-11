@@ -29,9 +29,9 @@ import java.util.Comparator;
 import java.util.List;
 
 import oshi.software.os.OSProcess;
+import oshi.software.os.OSService;
 import oshi.software.os.OperatingSystem;
 import oshi.software.os.OperatingSystemVersion;
-import oshi.software.os.OSService;
 
 /**
  * <p>
@@ -72,28 +72,24 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
     private static final Comparator<OSProcess> NAME_ASC_SORT = Comparator.comparing(OSProcess::getName,
             String.CASE_INSENSITIVE_ORDER);
 
-    /** {@inheritDoc} */
     @Override
     public OperatingSystemVersion getVersion() {
         return this.version;
     }
 
-    /** {@inheritDoc} */
     @Override
     public String getFamily() {
         return this.family;
     }
 
-    /** {@inheritDoc} */
     @Override
     public String getManufacturer() {
         return this.manufacturer;
     }
 
-    /** {@inheritDoc} */
     @Override
     public OSService[] getServices() {
-        return new OSService[0] ;
+        return new OSService[0];
     }
 
     /**
@@ -155,7 +151,6 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
         return procs;
     }
 
-    /** {@inheritDoc} */
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -163,13 +158,11 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
         return sb.toString();
     }
 
-    /** {@inheritDoc} */
     @Override
     public OSProcess[] getProcesses(int limit, ProcessSort sort) {
         return getProcesses(limit, sort, false);
     }
 
-    /** {@inheritDoc} */
     @Override
     public List<OSProcess> getProcesses(Collection<Integer> pids) {
         List<OSProcess> returnValue = new ArrayList<>(pids.size());
@@ -182,13 +175,11 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
         return returnValue;
     }
 
-    /** {@inheritDoc} */
     @Override
     public int getBitness() {
         return this.bitness;
     }
 
-    /** {@inheritDoc} */
     @Override
     public boolean isElevated() {
         if (this.elevated < 0) {

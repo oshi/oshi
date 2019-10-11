@@ -213,8 +213,7 @@ public interface OperatingSystem extends Serializable {
     /**
      * Gets the all services running on system
      *
-     * @return OSService object 
+     * @return OSService object
      */
     OSService[] getServices();
-
 }

@@ -23,15 +23,12 @@
  */
 package oshi.software.os.mac;
 
-import java.nio.charset.StandardCharsets;
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.List;
-import java.lang.System;
-import java.util.AbstractMap.SimpleEntry;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -128,13 +125,11 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
         }
     }
 
-    /** {@inheritDoc} */
     @Override
     public FileSystem getFileSystem() {
         return new MacFileSystem();
     }
 
-    /** {@inheritDoc} */
     @Override
     public OSProcess[] getProcesses(int limit, ProcessSort sort, boolean slowFields) {
         List<OSProcess> procs = new ArrayList<>();
@@ -157,7 +152,6 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
         return sorted.toArray(new OSProcess[0]);
     }
 
-    /** {@inheritDoc} */
     @Override
     public OSProcess getProcess(int pid) {
         return getProcess(pid, true);
@@ -265,7 +259,6 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
         return proc;
     }
 
-    /** {@inheritDoc} */
     @Override
     public OSProcess[] getChildProcesses(int parentPid, int limit, ProcessSort sort) {
         List<OSProcess> procs = new ArrayList<>();
@@ -348,25 +341,21 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
         return String.join("\0", args);
     }
 
-    /** {@inheritDoc} */
     @Override
     public MacOSVersionInfoEx getVersion() {
         return (MacOSVersionInfoEx) this.version;
     }
 
-    /** {@inheritDoc} */
     @Override
     public int getProcessId() {
         return SystemB.INSTANCE.getpid();
     }
 
-    /** {@inheritDoc} */
     @Override
     public int getProcessCount() {
         return SystemB.INSTANCE.proc_listpids(SystemB.PROC_ALL_PIDS, 0, null, 0) / SystemB.INT_SIZE;
     }
 
-    /** {@inheritDoc} */
     @Override
     public int getThreadCount() {
         // Get current pids, then slightly pad in case new process starts while
@@ -383,35 +372,31 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
         return numberOfThreads;
     }
 
-    /** {@inheritDoc} */
     @Override
     public long getSystemUptime() {
         return System.currentTimeMillis() / 1000 - BOOTTIME;
     }
 
-    /** {@inheritDoc} */
     @Override
     public long getSystemBootTime() {
         return BOOTTIME;
     }
 
-    /** {@inheritDoc} */
     @Override
     public NetworkParams getNetworkParams() {
         return new MacNetworkParams();
     }
 
-    /** {@inheritDoc} */
     @Override
     public OSService[] getServices() {
-        //Sort by PID
-        OSProcess[] process =  getChildProcesses(1, 0, OperatingSystem.ProcessSort.PID);
-        //Get Directories
+        // Sort by PID
+        OSProcess[] process = getChildProcesses(1, 0, OperatingSystem.ProcessSort.PID);
+        // Get Directories
         String relativePath = System.getProperty("user.home");
         File ua = new File(relativePath + "/Library/LaunchAgents");
-        File ga = new File("/Library/LaunchAgents");      
-        File gd = new File("/Library/LaunchDaemons");      
-        File sa = new File("/System/Library/LaunchAgents");      
+        File ga = new File("/Library/LaunchAgents");
+        File gd = new File("/Library/LaunchDaemons");
+        File sa = new File("/System/Library/LaunchAgents");
         File sd = new File("/System/Library/LaunchDaemons");
 
         ArrayList<File> files = new ArrayList<File>();
@@ -423,11 +408,16 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
             File[] saFiles = sa.listFiles((dir, name) -> name.toLowerCase().endsWith(".plist"));
             File[] sdFiles = sd.listFiles((dir, name) -> name.toLowerCase().endsWith(".plist"));
 
-            for(File file : uaFiles) files.add(file);
-            for(File file : gaFiles) files.add(file);
-            for(File file : gdFiles) files.add(file);
-            for(File file : saFiles) files.add(file);
-            for(File file : sdFiles) files.add(file);
+            for (File file : uaFiles)
+                files.add(file);
+            for (File file : gaFiles)
+                files.add(file);
+            for (File file : gdFiles)
+                files.add(file);
+            for (File file : saFiles)
+                files.add(file);
+            for (File file : sdFiles)
+                files.add(file);
 
             Map<String, String[]> processMap = new HashMap<String, String[]>();
             for (int i = 0; i < process.length; i++) {
@@ -444,15 +434,15 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
 
             OSService[] svcArray = new OSService[files.size()];
             for (int i = 0; i < svcArray.length; i++) {
-                svcArray[i].setName(files.get(i).getName()); 
+                svcArray[i].setName(files.get(i).getName());
                 svcArray[i].setState(OSService.State.STOPPED);
-                if(processMap.containsKey(svcArray[i].getName())) {
+                if (processMap.containsKey(svcArray[i].getName())) {
                     int pid = Integer.valueOf(processMap.get(svcArray[i].getName())[0]);
                     String path = processMap.get(svcArray[i].getName())[1];
                     svcArray[i].setProcessID(pid);
                     svcArray[i].setPathName(path);
                     svcArray[i].setState(OSService.State.RUNNING);
-                } 
+                }
             }
             return svcArray;
         } catch (NullPointerException ex) {
@@ -460,18 +450,16 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
             if (!ua.exists()) {
                 error = relativePath + "/Library/LaunchAgents";
             } else if (!ga.exists()) {
-                error = "/Library/LaunchAgents"; 
+                error = "/Library/LaunchAgents";
             } else if (!gd.exists()) {
-                error = "/Library/LaunchDaemons"; 
+                error = "/Library/LaunchDaemons";
             } else if (!sa.exists()) {
-                error = "/System/Library/LaunchAgents"; 
+                error = "/System/Library/LaunchAgents";
             } else if (!sd.exists()) {
-                error = "/System/Library/LaunchDaemons"; 
+                error = "/System/Library/LaunchDaemons";
             }
             LOG.error("Directory: " + error + " does not exist");
             return new OSService[0];
         }
-
-    }    
-
+    }
 }

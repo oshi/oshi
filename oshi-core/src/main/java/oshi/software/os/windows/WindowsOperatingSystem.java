@@ -51,6 +51,7 @@ import com.sun.jna.platform.win32.Psapi;
 import com.sun.jna.platform.win32.Psapi.PERFORMANCE_INFORMATION;
 import com.sun.jna.platform.win32.Tlhelp32;
 import com.sun.jna.platform.win32.VersionHelpers;
+import com.sun.jna.platform.win32.W32ServiceManager;
 import com.sun.jna.platform.win32.Win32Exception;
 import com.sun.jna.platform.win32.WinDef.DWORD;
 import com.sun.jna.platform.win32.WinDef.DWORDByReference;
@@ -64,12 +65,11 @@ import com.sun.jna.platform.win32.WinPerf.PERF_DATA_BLOCK;
 import com.sun.jna.platform.win32.WinPerf.PERF_INSTANCE_DEFINITION;
 import com.sun.jna.platform.win32.WinPerf.PERF_OBJECT_TYPE;
 import com.sun.jna.platform.win32.WinReg;
+import com.sun.jna.platform.win32.Winsvc;
 import com.sun.jna.platform.win32.Wtsapi32;
 import com.sun.jna.platform.win32.Wtsapi32.WTS_PROCESS_INFO_EX;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
-import com.sun.jna.platform.win32.W32ServiceManager;
-import com.sun.jna.platform.win32.Winsvc;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
 
@@ -304,13 +304,11 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         }
     }
 
-    /** {@inheritDoc} */
     @Override
     public FileSystem getFileSystem() {
         return new WindowsFileSystem();
     }
 
-    /** {@inheritDoc} */
     @Override
     public OSProcess[] getProcesses(int limit, ProcessSort sort, boolean slowFields) {
         List<OSProcess> procList = processMapToList(null, slowFields);
@@ -318,13 +316,11 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         return sorted.toArray(new OSProcess[0]);
     }
 
-    /** {@inheritDoc} */
     @Override
     public List<OSProcess> getProcesses(Collection<Integer> pids) {
         return processMapToList(pids, true);
     }
 
-    /** {@inheritDoc} */
     @Override
     public OSProcess[] getChildProcesses(int parentPid, int limit, ProcessSort sort) {
         Set<Integer> childPids = new HashSet<>();
@@ -345,7 +341,6 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         return sorted.toArray(new OSProcess[0]);
     }
 
-    /** {@inheritDoc} */
     @Override
     public OSProcess getProcess(int pid) {
         return getProcess(pid, true);
@@ -675,13 +670,11 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         return processMap;
     }
 
-    /** {@inheritDoc} */
     @Override
     public int getProcessId() {
         return Kernel32.INSTANCE.GetCurrentProcessId();
     }
 
-    /** {@inheritDoc} */
     @Override
     public int getProcessCount() {
         PERFORMANCE_INFORMATION perfInfo = new PERFORMANCE_INFORMATION();
@@ -692,7 +685,6 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         return perfInfo.ProcessCount.intValue();
     }
 
-    /** {@inheritDoc} */
     @Override
     public int getThreadCount() {
         PERFORMANCE_INFORMATION perfInfo = new PERFORMANCE_INFORMATION();
@@ -703,7 +695,6 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         return perfInfo.ThreadCount.intValue();
     }
 
-    /** {@inheritDoc} */
     @Override
     public long getSystemUptime() {
         return querySystemUptime();
@@ -720,13 +711,11 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         }
     }
 
-    /** {@inheritDoc} */
     @Override
     public long getSystemBootTime() {
         return BOOTTIME;
     }
 
-    /** {@inheritDoc} */
     @Override
     public boolean isElevated() {
         if (this.elevated < 0) {
@@ -740,7 +729,6 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         return this.elevated > 0;
     }
 
-    /** {@inheritDoc} */
     @Override
     public NetworkParams getNetworkParams() {
         return new WindowsNetworkParams();
@@ -774,39 +762,36 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         Kernel32.INSTANCE.CloseHandle(hToken.getValue());
     }
 
-    /** {@inheritDoc} */
     @Override
     public OSService[] getServices() {
         W32ServiceManager sm = new W32ServiceManager();
         try {
             sm.open(Winsvc.SC_MANAGER_ENUMERATE_SERVICE);
-            Winsvc.ENUM_SERVICE_STATUS_PROCESS[] services = sm.enumServicesStatusExProcess(WinNT.SERVICE_WIN32, Winsvc.SERVICE_STATE_ALL, null);
+            Winsvc.ENUM_SERVICE_STATUS_PROCESS[] services = sm.enumServicesStatusExProcess(WinNT.SERVICE_WIN32,
+                    Winsvc.SERVICE_STATE_ALL, null);
             OSService[] svcArray = new OSService[services.length];
             for (int i = 0; i < services.length; i++) {
-              svcArray[i] = new OSService();
-              svcArray[i].setName(services[i].lpDisplayName);
-              svcArray[i].setProcessID(services[i].ServiceStatusProcess.dwProcessId);
-              int state = services[i].ServiceStatusProcess.dwCurrentState;
-              switch(state) {
+                svcArray[i] = new OSService();
+                svcArray[i].setName(services[i].lpDisplayName);
+                svcArray[i].setProcessID(services[i].ServiceStatusProcess.dwProcessId);
+                int state = services[i].ServiceStatusProcess.dwCurrentState;
+                switch (state) {
                 case 1:
                     svcArray[i].setState(OSService.State.STOPPED);
                     break;
                 case 4:
                     svcArray[i].setState(OSService.State.RUNNING);
                     break;
-                default: 
+                default:
                     svcArray[i].setState(OSService.State.OTHER);
                     break;
-              }
+                }
             }
             sm.close();
             return svcArray;
-        } catch(com.sun.jna.platform.win32.Win32Exception ex) {
+        } catch (com.sun.jna.platform.win32.Win32Exception ex) {
             LOG.error("Win32Exception");
             return new OSService[0];
         }
-        
     }
-
-
 }
