@@ -403,11 +403,6 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
     }
 
     @Override
-    public MacOSVersionInfoEx getVersion() {
-        return (MacOSVersionInfoEx) this.version;
-    }
-
-    @Override
     public int getProcessId() {
         return SystemB.INSTANCE.getpid();
     }
@@ -460,7 +455,7 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
         File sa = new File("/System/Library/LaunchAgents");
         File sd = new File("/System/Library/LaunchDaemons");
 
-        ArrayList<File> files = new ArrayList<File>();
+        ArrayList<File> files = new ArrayList<>();
 
         try {
             File[] uaFiles = ua.listFiles((dir, name) -> name.toLowerCase().endsWith(".plist"));
@@ -495,7 +490,9 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
 
             OSService[] svcArray = new OSService[files.size()];
             for (int i = 0; i < svcArray.length; i++) {
-                svcArray[i].setName(files.get(i).getName());
+                String name = files.get(i).getName();
+                // remove .plist extension
+                svcArray[i].setName(name.substring(0, name.length() - 6));
                 svcArray[i].setState(OSService.State.STOPPED);
                 if (processMap.containsKey(svcArray[i].getName())) {
                     int pid = Integer.valueOf(processMap.get(svcArray[i].getName())[0]);
@@ -518,6 +515,9 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
                 error = "/System/Library/LaunchAgents";
             } else if (!sd.exists()) {
                 error = "/System/Library/LaunchDaemons";
+            } else {
+                // Some other NPE, re-throw
+                throw ex;
             }
             LOG.error("Directory: " + error + " does not exist");
             return new OSService[0];

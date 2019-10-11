@@ -725,6 +725,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
             File[] files = etc.listFiles();
             OSService[] svcArray = new OSService[files.length];
             for (int i = 0; i < files.length; i++) {
+                svcArray[i] = new OSService();
                 svcArray[i].setName(files[i].getName());
                 for (int j = 0; j < process.length; j++) {
                     if (process[j].getName().equals(files[i].getName())) {
