@@ -272,8 +272,9 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
         // Get legacy RC service name possibilities
         List<String> legacySvcs = new ArrayList<>();
         File dir = new File("/etc/init.d");
-        if (dir.exists() && dir.isDirectory()) {
-            for (File f : dir.listFiles()) {
+        File[] listFiles;
+        if (dir.exists() && dir.isDirectory() && (listFiles = dir.listFiles()) != null) {
+            for (File f : listFiles) {
                 legacySvcs.add(f.getName());
             }
         }

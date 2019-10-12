@@ -61,22 +61,7 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
 
     private static final Logger LOG = LoggerFactory.getLogger(FreeBsdOperatingSystem.class);
 
-    private static final long BOOTTIME;
-    static {
-        Timeval tv = new Timeval();
-        if (!BsdSysctlUtil.sysctl("kern.boottime", tv) || tv.tv_sec == 0) {
-            // Usually this works. If it doesn't, fall back to text parsing.
-            // Boot time will be the first consecutive string of digits.
-            BOOTTIME = ParseUtil.parseLongOrDefault(
-                    ExecutingCommand.getFirstAnswer("sysctl -n kern.boottime").split(",")[0].replaceAll("\\D", ""),
-                    System.currentTimeMillis() / 1000);
-        } else {
-            // tv now points to a 128-bit timeval structure for boot time.
-            // First 8 bytes are seconds, second 8 bytes are microseconds
-            // (we ignore)
-            BOOTTIME = tv.tv_sec;
-        }
-    }
+    private static final long BOOTTIME = querySystemBootTime();
 
     /**
      * <p>
@@ -283,6 +268,20 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
         return BOOTTIME;
     }
 
+    private static long querySystemBootTime() {
+        Timeval tv = new Timeval();
+        if (!BsdSysctlUtil.sysctl("kern.boottime", tv) || tv.tv_sec == 0) {
+            // Usually this works. If it doesn't, fall back to text parsing.
+            // Boot time will be the first consecutive string of digits.
+            return ParseUtil.parseLongOrDefault(
+                    ExecutingCommand.getFirstAnswer("sysctl -n kern.boottime").split(",")[0].replaceAll("\\D", ""),
+                    System.currentTimeMillis() / 1000);
+        }
+        // tv now points to a 128-bit timeval structure for boot time.
+        // First 8 bytes are seconds, second 8 bytes are microseconds (we ignore)
+        return tv.tv_sec;
+    }
+
     @Override
     public NetworkParams getNetworkParams() {
         return new FreeBsdNetworkParams();
@@ -300,8 +299,9 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
         }
         // Get Directories for stopped services
         File dir = new File("/etc/rc.d");
-        if (dir.exists() && dir.isDirectory()) {
-            for (File f : dir.listFiles()) {
+        File[] listFiles;
+        if (dir.exists() && dir.isDirectory() && (listFiles = dir.listFiles()) != null) {
+            for (File f : listFiles) {
                 String name = f.getName();
                 if (!running.contains(name)) {
                     OSService s = new OSService(name, 0, STOPPED);
