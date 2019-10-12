@@ -148,9 +148,12 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public OSProcess[] getChildProcesses(int parentPid, int limit, ProcessSort sort) {
-        List<OSProcess> procs = getProcessListFromPS(
-                "ps -awwxo state,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etimes,systime,time,comm,args --ppid",
-                parentPid, true);
+        List<OSProcess> procs = new ArrayList<>();
+        for (OSProcess p : getProcesses(0, null)) {
+            if (p.getParentProcessID() == parentPid) {
+                procs.add(p);
+            }
+        }
         List<OSProcess> sorted = processSort(procs, limit, sort);
         return sorted.toArray(new OSProcess[0]);
     }
@@ -292,19 +295,15 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
         Set<String> running = new HashSet<>();
         for (OSProcess p : getChildProcesses(1, 0, ProcessSort.PID)) {
             OSService s = new OSService(p.getName(), p.getProcessID(), RUNNING);
-            ;
             services.add(s);
             running.add(p.getName());
         }
         // Get Directories for stopped services
-        File dir = new File("/etc/init");
+        File dir = new File("/etc/rc.d");
         if (dir.exists() && dir.isDirectory()) {
-            for (File f : dir.listFiles((f, name) -> name.toLowerCase().endsWith(".conf"))) {
-                // remove .conf extension
-                String name = f.getName().substring(0, f.getName().length() - 5);
-                int index = name.lastIndexOf('.');
-                String shortName = (index < 0 && index < name.length()) ? name : name.substring(index + 1);
-                if (!running.contains(name) && !running.contains(shortName)) {
+            for (File f : dir.listFiles()) {
+                String name = f.getName();
+                if (!running.contains(name)) {
                     OSService s = new OSService(name, 0, STOPPED);
                     services.add(s);
                 }
