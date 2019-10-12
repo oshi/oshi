@@ -247,12 +247,16 @@ public class SystemInfoTest {
     private static void printServices(OperatingSystem os) {
         oshi.add("Services: ");
         oshi.add("   PID   State   Name");
+        // DO 5 each of running and stopped
         int i = 0;
-        int j = 0;
         for (OSService s : os.getServices()) {
-            if (i++ < 5) {
+            if (s.getState().equals(OSService.State.RUNNING) && i++ < 5) {
                 oshi.add(String.format(" %5d  %7s  %s", s.getProcessID(), s.getState(), s.getName()));
-            } else if (s.getState().equals(OSService.State.STOPPED) && j++ < 5) {
+            }
+        }
+        i = 0;
+        for (OSService s : os.getServices()) {
+            if (s.getState().equals(OSService.State.STOPPED) && i++ < 5) {
                 oshi.add(String.format(" %5d  %7s  %s", s.getProcessID(), s.getState(), s.getName()));
             }
         }

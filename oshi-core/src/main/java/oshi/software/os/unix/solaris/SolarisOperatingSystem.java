@@ -279,7 +279,7 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
             }
         }
         // Iterate service list
-        List<String> svcs = ExecutingCommand.runNative("svcs -av");
+        List<String> svcs = ExecutingCommand.runNative("svcs -p");
         /*-
          Output:
          STATE          STIME    FRMI
@@ -293,9 +293,13 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
          */
         for (String line : svcs) {
             if (line.startsWith("online")) {
-                int slash = line.lastIndexOf('/');
-                if (slash > 0 && slash < line.length()) {
-                    services.add(new OSService(line.substring(slash + 1), 0, STOPPED));
+                int delim = line.lastIndexOf(":/");
+                if (delim > 0) {
+                    String name = line.substring(delim + 1);
+                    if (name.endsWith(":default")) {
+                        name = name.substring(0, name.length() - 8);
+                    }
+                    services.add(new OSService(name, 0, STOPPED));
                 }
             } else if (line.startsWith(" ")) {
                 String[] split = ParseUtil.whitespaces.split(line.trim());
