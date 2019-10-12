@@ -67,9 +67,8 @@ public class KstatUtil {
      * used as an equivalent method of controlling access to the chain.
      * <p>
      * Instantiating this object locks and updates the chain and is the equivalent
-     * of calling {@link LibKstat#kstat_open()}. The control object should be
-     * unlocked with {@link #unlock}, the equivalent of calling
-     * {@link LibKstat#kstat_close()}
+     * of calling {@link LibKstat#kstat_open}. The control object should be unlocked
+     * with {@link #unlock}, the equivalent of calling {@link LibKstat#kstat_close}
      */
     public class KstatChain {
 
