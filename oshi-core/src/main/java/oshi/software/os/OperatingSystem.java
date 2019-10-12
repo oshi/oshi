@@ -222,12 +222,13 @@ public interface OperatingSystem {
     NetworkParams getNetworkParams();
 
     /**
-     * Gets the all services running on system
+     * Gets the all services on the system. The definition of what is a service is
+     * platform-dependent.
      *
-     * @return OSService object
+     * @return An array of {@link OSService} objects
      */
     OSService[] getServices();
-    
+
     /*
      * A class representing a Logical Processor and its replationship to physical
      * processors, physical packages, and logical groupings such as NUMA Nodes and

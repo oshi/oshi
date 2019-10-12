@@ -44,22 +44,22 @@ public class SolarisNetworks extends AbstractNetworks {
      *            The interface on which to update statistics
      */
     public static void updateNetworkStats(NetworkIF netIF) {
-        KstatChain kc = KstatUtil.getAndLockChain();
-        Kstat ksp = kc.lookup("link", -1, netIF.getName());
-        if (ksp == null) { // Solaris 10 compatibility
-            ksp = kc.lookup(null, -1, netIF.getName());
+        try (KstatChain kc = KstatUtil.openChain()) {
+            Kstat ksp = kc.lookup("link", -1, netIF.getName());
+            if (ksp == null) { // Solaris 10 compatibility
+                ksp = kc.lookup(null, -1, netIF.getName());
+            }
+            if (ksp != null && kc.read(ksp)) {
+                netIF.setBytesSent(KstatUtil.dataLookupLong(ksp, "obytes64"));
+                netIF.setBytesRecv(KstatUtil.dataLookupLong(ksp, "rbytes64"));
+                netIF.setPacketsSent(KstatUtil.dataLookupLong(ksp, "opackets64"));
+                netIF.setPacketsRecv(KstatUtil.dataLookupLong(ksp, "ipackets64"));
+                netIF.setOutErrors(KstatUtil.dataLookupLong(ksp, "oerrors"));
+                netIF.setInErrors(KstatUtil.dataLookupLong(ksp, "ierrors"));
+                netIF.setSpeed(KstatUtil.dataLookupLong(ksp, "ifspeed"));
+                // Snap time in ns; convert to ms
+                netIF.setTimeStamp(ksp.ks_snaptime / 1_000_000L);
+            }
         }
-        if (ksp != null && kc.read(ksp)) {
-            netIF.setBytesSent(KstatUtil.dataLookupLong(ksp, "obytes64"));
-            netIF.setBytesRecv(KstatUtil.dataLookupLong(ksp, "rbytes64"));
-            netIF.setPacketsSent(KstatUtil.dataLookupLong(ksp, "opackets64"));
-            netIF.setPacketsRecv(KstatUtil.dataLookupLong(ksp, "ipackets64"));
-            netIF.setOutErrors(KstatUtil.dataLookupLong(ksp, "oerrors"));
-            netIF.setInErrors(KstatUtil.dataLookupLong(ksp, "ierrors"));
-            netIF.setSpeed(KstatUtil.dataLookupLong(ksp, "ifspeed"));
-            // Snap time in ns; convert to ms
-            netIF.setTimeStamp(ksp.ks_snaptime / 1_000_000L);
-        }
-        kc.unlock();
     }
 }

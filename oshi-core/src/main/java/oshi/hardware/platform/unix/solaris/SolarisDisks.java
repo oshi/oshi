@@ -57,23 +57,22 @@ public class SolarisDisks implements Disks {
      * @return true if the update was successful
      */
     public static boolean updateDiskStats(HWDiskStore diskStore) {
-        KstatChain kc = KstatUtil.getAndLockChain();
-        Kstat ksp = kc.lookup(null, 0, diskStore.getName());
-        boolean updated = false;
-        if (ksp != null && kc.read(ksp)) {
-            KstatIO data = new KstatIO(ksp.ks_data);
-            diskStore.setReads(data.reads);
-            diskStore.setWrites(data.writes);
-            diskStore.setReadBytes(data.nread);
-            diskStore.setWriteBytes(data.nwritten);
-            diskStore.setCurrentQueueLength((long) data.wcnt + data.rcnt);
-            // rtime and snaptime are nanoseconds, convert to millis
-            diskStore.setTransferTime(data.rtime / 1_000_000L);
-            diskStore.setTimeStamp(ksp.ks_snaptime / 1_000_000L);
-            updated = true;
+        try (KstatChain kc = KstatUtil.openChain()) {
+            Kstat ksp = kc.lookup(null, 0, diskStore.getName());
+            if (ksp != null && kc.read(ksp)) {
+                KstatIO data = new KstatIO(ksp.ks_data);
+                diskStore.setReads(data.reads);
+                diskStore.setWrites(data.writes);
+                diskStore.setReadBytes(data.nread);
+                diskStore.setWriteBytes(data.nwritten);
+                diskStore.setCurrentQueueLength((long) data.wcnt + data.rcnt);
+                // rtime and snaptime are nanoseconds, convert to millis
+                diskStore.setTransferTime(data.rtime / 1_000_000L);
+                diskStore.setTimeStamp(ksp.ks_snaptime / 1_000_000L);
+                return true;
+            }
         }
-        kc.unlock();
-        return updated;
+        return false;
     }
 
     /** {@inheritDoc} */

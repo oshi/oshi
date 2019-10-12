@@ -80,14 +80,14 @@ public class SolarisGlobalMemory extends AbstractGlobalMemory {
         long memAvailable = 0;
         long memTotal = 0;
         // Get first result
-        KstatChain kc = KstatUtil.getAndLockChain();
-        Kstat ksp = kc.lookup(null, -1, "system_pages");
-        // Set values
-        if (ksp != null && kc.read(ksp)) {
-            memAvailable = KstatUtil.dataLookupLong(ksp, "availrmem") * getPageSize();
-            memTotal = KstatUtil.dataLookupLong(ksp, "physmem") * getPageSize();
+        try (KstatChain kc = KstatUtil.openChain()) {
+            Kstat ksp = kc.lookup(null, -1, "system_pages");
+            // Set values
+            if (ksp != null && kc.read(ksp)) {
+                memAvailable = KstatUtil.dataLookupLong(ksp, "availrmem") * getPageSize();
+                memTotal = KstatUtil.dataLookupLong(ksp, "physmem") * getPageSize();
+            }
         }
-        kc.unlock();
         return new SystemPages(memTotal, memAvailable);
     }
 

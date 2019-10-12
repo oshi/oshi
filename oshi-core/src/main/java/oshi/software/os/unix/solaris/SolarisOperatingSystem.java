@@ -52,17 +52,7 @@ import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
  */
 public class SolarisOperatingSystem extends AbstractOperatingSystem {
 
-    private static final long BOOTTIME;
-    static {
-        KstatChain kc = KstatUtil.getAndLockChain();
-        Kstat ksp = kc.lookup("unix", 0, "system_misc");
-        if (ksp != null && kc.read(ksp)) {
-            BOOTTIME = KstatUtil.dataLookupLong(ksp, "boot_time");
-        } else {
-            BOOTTIME = System.currentTimeMillis() / 1000L - querySystemUptime();
-        }
-        kc.unlock();
-    }
+    private static final long BOOTTIME = querySystemBootTime();
 
     /**
      * <p>
@@ -246,20 +236,29 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
     }
 
     private static long querySystemUptime() {
-        KstatChain kc = KstatUtil.getAndLockChain();
-        Kstat ksp = kc.lookup("unix", 0, "system_misc");
-        long snaptime = 0L;
-        if (ksp != null) {
-            // Snap Time is in nanoseconds; divide for seconds
-            snaptime = ksp.ks_snaptime / 1_000_000_000L;
+        try (KstatChain kc = KstatUtil.openChain()) {
+            Kstat ksp = kc.lookup("unix", 0, "system_misc");
+            if (ksp != null) {
+                // Snap Time is in nanoseconds; divide for seconds
+                return ksp.ks_snaptime / 1_000_000_000L;
+            }
         }
-        kc.unlock();
-        return snaptime;
+        return 0L;
     }
 
     @Override
     public long getSystemBootTime() {
         return BOOTTIME;
+    }
+
+    private static long querySystemBootTime() {
+        try (KstatChain kc = KstatUtil.openChain()) {
+            Kstat ksp = kc.lookup("unix", 0, "system_misc");
+            if (ksp != null && kc.read(ksp)) {
+                return KstatUtil.dataLookupLong(ksp, "boot_time");
+            }
+        }
+        return System.currentTimeMillis() / 1000L - querySystemUptime();
     }
 
     @Override
