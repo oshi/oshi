@@ -65,7 +65,7 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
             cpuStepping = KstatUtil.dataLookupString(ksp, "stepping");
         }
         boolean cpu64bit ="64".equals(ExecutingCommand.getFirstAnswer("isainfo -b").trim());
-        String processorID=getProcessorID(getStepping(), getModel(), getFamily());
+        String processorID = getProcessorID(cpuStepping, cpuModel, cpuFamily);
 
         return new ProcessorIdentifier(cpuVendor, cpuName, cpuFamily, cpuModel, cpuStepping, processorID,
                 cpu64bit);
