@@ -221,8 +221,7 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
         return getProcess(pid, true);
     }
 
-    private OSProcess getProcess(int pid, boolean slowFields) { // NOSONAR
-                                                                // squid:S1172
+    private OSProcess getProcess(int pid, boolean slowFields) { // NOSONAR squid:S1172
         ProcTaskAllInfo taskAllInfo = new ProcTaskAllInfo();
         if (0 > SystemB.INSTANCE.proc_pidinfo(pid, SystemB.PROC_PIDTASKALLINFO, 0, taskAllInfo, taskAllInfo.size())) {
             return null;
@@ -475,7 +474,7 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
             // remove .plist extension
             String name = f.getName().substring(0, f.getName().length() - 6);
             int index = name.lastIndexOf('.');
-            String shortName = (index < 0 && index < name.length()) ? name : name.substring(index + 1);
+            String shortName = (index < 0 || index > name.length() - 2) ? name : name.substring(index + 1);
             if (!running.contains(name) && !running.contains(shortName)) {
                 OSService s = new OSService(name, 0, STOPPED);
                 services.add(s);

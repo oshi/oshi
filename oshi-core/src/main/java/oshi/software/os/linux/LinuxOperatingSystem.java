@@ -742,7 +742,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
                 // remove .conf extension
                 String name = f.getName().substring(0, f.getName().length() - 5);
                 int index = name.lastIndexOf('.');
-                String shortName = (index < 0 && index < name.length()) ? name : name.substring(index + 1);
+                String shortName = (index < 0 || index > name.length() - 2) ? name : name.substring(index + 1);
                 if (!running.contains(name) && !running.contains(shortName)) {
                     OSService s = new OSService(name, 0, STOPPED);
                     services.add(s);
