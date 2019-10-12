@@ -28,13 +28,8 @@ import static oshi.software.os.OSService.State.STOPPED;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.sun.jna.platform.unix.solaris.LibKstat.Kstat; // NOSONAR squid:S1191
 
@@ -56,8 +51,6 @@ import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
  * computers.
  */
 public class SolarisOperatingSystem extends AbstractOperatingSystem {
-
-    private static final Logger LOG = LoggerFactory.getLogger(SolarisOperatingSystem.class);
 
     private static final long BOOTTIME;
     static {
@@ -94,7 +87,7 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
         if (split.length > 1) {
             buildNumber = split[1];
         }
-        return new FamilyVersionInfo("SunOS", new OSVersionInfo(version,"Solaris",buildNumber));
+        return new FamilyVersionInfo("SunOS", new OSVersionInfo(version, "Solaris", buildNumber));
     }
 
     @Override
@@ -276,30 +269,47 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public OSService[] getServices() {
-        // Get running services
         List<OSService> services = new ArrayList<>();
-        Set<String> running = new HashSet<>();
-        for (OSProcess p : getChildProcesses(1, 0, ProcessSort.PID)) {
-            OSService s = new OSService(p.getName(), p.getProcessID(), RUNNING);
-            ;
-            services.add(s);
-            running.add(p.getName());
-        }
-        // Get Directories for stopped services
-        File dir = new File("/etc/inittab");
+        // Get legacy RC service name possibilities
+        List<String> legacySvcs = new ArrayList<>();
+        File dir = new File("/etc/init.d");
         if (dir.exists() && dir.isDirectory()) {
-            for (File f : dir.listFiles((f, name) -> name.toLowerCase().endsWith(".conf"))) {
-                // remove .conf extension
-                String name = f.getName().substring(0, f.getName().length() - 5);
-                int index = name.lastIndexOf('.');
-                String shortName = (index < 0 && index < name.length()) ? name : name.substring(index + 1);
-                if (!running.contains(name) && !running.contains(shortName)) {
-                    OSService s = new OSService(name, 0, STOPPED);
-                    services.add(s);
+            for (File f : dir.listFiles()) {
+                legacySvcs.add(f.getName());
+            }
+        }
+        // Iterate service list
+        List<String> svcs = ExecutingCommand.runNative("svcs -av");
+        /*-
+         Output:
+         STATE          STIME    FRMI
+         legacy_run     23:56:49 lrc:/etc/rc2_d/S47pppd
+         legacy_run     23:56:49 lrc:/etc/rc2_d/S81dodatadm_udaplt
+         legacy_run     23:56:49 lrc:/etc/rc2_d/S89PRESERVE
+         online         23:56:25 svc:/system/early-manifest-import:default
+         online         23:56:25 svc:/system/svc/restarter:default
+                        23:56:24       13 svc.startd
+                        ...
+         */
+        for (String line : svcs) {
+            if (line.startsWith("online")) {
+                int slash = line.lastIndexOf('/');
+                if (slash > 0 && slash < line.length()) {
+                    services.add(new OSService(line.substring(slash + 1), 0, STOPPED));
+                }
+            } else if (line.startsWith(" ")) {
+                String[] split = ParseUtil.whitespaces.split(line.trim());
+                if (split.length == 3) {
+                    services.add(new OSService(split[2], ParseUtil.parseIntOrDefault(split[1], 0), RUNNING));
+                }
+            } else if (line.startsWith("legacy_run")) {
+                for (String svc : legacySvcs) {
+                    if (line.endsWith(svc)) {
+                        services.add(new OSService(svc, 0, STOPPED));
+                        break;
+                    }
                 }
             }
-        } else {
-            LOG.error("Directory: /etc/inittab does not exist");
         }
         return services.toArray(new OSService[0]);
     }
