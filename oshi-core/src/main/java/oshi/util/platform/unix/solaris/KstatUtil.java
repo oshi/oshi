@@ -67,8 +67,8 @@ public class KstatUtil {
      * used as an equivalent method of controlling access to the chain.
      * <p>
      * Instantiating this object locks and updates the chain and is the equivalent
-     * of calling {@link LibKstat#kstat_open}. The control object should be unlocked
-     * with {@link #unlock}, the equivalent of calling {@link LibKstat#kstat_close}
+     * of calling {@link LibKstat#kstat_open}. The control object should be closed
+     * with {@link #close}, the equivalent of calling {@link LibKstat#kstat_close}
      */
     public class KstatChain implements AutoCloseable {
 
@@ -181,7 +181,7 @@ public class KstatUtil {
      * Create a copy of the Kstat chain and lock it for use by this object.
      *
      * @return A locked copy of the chain. It should be unlocked/released when you
-     *         are done with it with {@link #close()}.
+     *         are done with it with {@link KstatChain#close()}.
      */
     public static KstatChain openChain() {
         return INSTANCE.new KstatChain();
