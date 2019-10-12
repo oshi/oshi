@@ -725,8 +725,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public OSService[] getServices() {
-        W32ServiceManager sm = new W32ServiceManager();
-        try {
+        try (W32ServiceManager sm = new W32ServiceManager()) {
             sm.open(Winsvc.SC_MANAGER_ENUMERATE_SERVICE);
             Winsvc.ENUM_SERVICE_STATUS_PROCESS[] services = sm.enumServicesStatusExProcess(WinNT.SERVICE_WIN32,
                     Winsvc.SERVICE_STATE_ALL, null);
@@ -747,7 +746,6 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                 svcArray[i] = new OSService(services[i].lpDisplayName, services[i].ServiceStatusProcess.dwProcessId,
                         state);
             }
-            sm.close();
             return svcArray;
         } catch (com.sun.jna.platform.win32.Win32Exception ex) {
             LOG.error("Win32Exception: {}", ex.getMessage());

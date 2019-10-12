@@ -731,7 +731,6 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         Set<String> running = new HashSet<>();
         for (OSProcess p : getChildProcesses(1, 0, ProcessSort.PID)) {
             OSService s = new OSService(p.getName(), p.getProcessID(), RUNNING);
-            ;
             services.add(s);
             running.add(p.getName());
         }
