@@ -25,6 +25,7 @@ package oshi.software.os;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -324,5 +325,32 @@ public class OperatingSystemTest {
         } catch (InstantiationException expected) {
             assertEquals("A process with ID -1 does not exist.", expected.getMessage());
         }
+    }
+
+    /**
+     * Tests services getter
+     */
+    @Test
+    public void testGetServices() {
+        SystemInfo si = new SystemInfo();
+        OperatingSystem os = si.getOperatingSystem();
+        int stopped = 0;
+        int running = 0;
+        for (OSService svc : os.getServices()) {
+            assertTrue(svc.getName().length() > 0);
+            switch (svc.getState()) {
+            case STOPPED:
+                stopped++;
+                break;
+            case RUNNING:
+                running++;
+                break;
+            default:
+                break;
+            }
+        }
+        // Should be at least one of each
+        assertNotEquals(0, stopped);
+        assertNotEquals(0, running);
     }
 }

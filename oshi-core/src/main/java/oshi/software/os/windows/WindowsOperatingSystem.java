@@ -23,6 +23,10 @@
  */
 package oshi.software.os.windows;
 
+import static oshi.software.os.OSService.State.OTHER;
+import static oshi.software.os.OSService.State.RUNNING;
+import static oshi.software.os.OSService.State.STOPPED;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -50,6 +54,7 @@ import com.sun.jna.platform.win32.Psapi.PERFORMANCE_INFORMATION;
 import com.sun.jna.platform.win32.Tlhelp32;
 import com.sun.jna.platform.win32.User32;
 import com.sun.jna.platform.win32.VersionHelpers;
+import com.sun.jna.platform.win32.W32ServiceManager;
 import com.sun.jna.platform.win32.Win32Exception;
 import com.sun.jna.platform.win32.WinBase;
 import com.sun.jna.platform.win32.WinDef.DWORD;
@@ -58,6 +63,7 @@ import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.platform.win32.WinNT.HANDLE;
 import com.sun.jna.platform.win32.WinNT.HANDLEByReference;
 import com.sun.jna.platform.win32.WinUser;
+import com.sun.jna.platform.win32.Winsvc;
 import com.sun.jna.platform.win32.Wtsapi32;
 import com.sun.jna.platform.win32.Wtsapi32.WTS_PROCESS_INFO_EX;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
@@ -69,6 +75,8 @@ import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
 import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
+import oshi.software.os.OSService;
+import oshi.software.os.OSService.State;
 import oshi.util.ParseUtil;
 import oshi.util.platform.windows.PerfCounterQuery;
 import oshi.util.platform.windows.PerfCounterWildcardQuery;
@@ -713,5 +721,37 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             LOG.error("AdjustTokenPrivileges failed. Error: {}", Native.getLastError());
         }
         Kernel32.INSTANCE.CloseHandle(hToken.getValue());
+    }
+
+    @Override
+    public OSService[] getServices() {
+        W32ServiceManager sm = new W32ServiceManager();
+        try {
+            sm.open(Winsvc.SC_MANAGER_ENUMERATE_SERVICE);
+            Winsvc.ENUM_SERVICE_STATUS_PROCESS[] services = sm.enumServicesStatusExProcess(WinNT.SERVICE_WIN32,
+                    Winsvc.SERVICE_STATE_ALL, null);
+            OSService[] svcArray = new OSService[services.length];
+            for (int i = 0; i < services.length; i++) {
+                State state;
+                switch (services[i].ServiceStatusProcess.dwCurrentState) {
+                case 1:
+                    state = STOPPED;
+                    break;
+                case 4:
+                    state = RUNNING;
+                    break;
+                default:
+                    state = OTHER;
+                    break;
+                }
+                svcArray[i] = new OSService(services[i].lpDisplayName, services[i].ServiceStatusProcess.dwProcessId,
+                        state);
+            }
+            sm.close();
+            return svcArray;
+        } catch (com.sun.jna.platform.win32.Win32Exception ex) {
+            LOG.error("Win32Exception: {}", ex.getMessage());
+            return new OSService[0];
+        }
     }
 }

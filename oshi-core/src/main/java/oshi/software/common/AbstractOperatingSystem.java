@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import oshi.software.os.OSProcess;
+import oshi.software.os.OSService;
 import oshi.software.os.OperatingSystem;
 import oshi.software.os.OperatingSystemVersion;
 
@@ -104,6 +105,11 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
     @Override
     public boolean isElevated() {
         return elevated.get();
+    }
+
+    @Override
+    public OSService[] getServices() {
+        return new OSService[0];
     }
 
     protected abstract boolean queryElevated();

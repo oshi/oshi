@@ -23,9 +23,18 @@
  */
 package oshi.software.os.unix.freebsd;
 
+import static oshi.software.os.OSService.State.RUNNING;
+import static oshi.software.os.OSService.State.STOPPED;
+
+import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Memory; //NOSONAR squid:S1191
 import com.sun.jna.Pointer;
@@ -37,6 +46,7 @@ import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
 import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
+import oshi.software.os.OSService;
 import oshi.util.ExecutingCommand;
 import oshi.util.LsofUtil;
 import oshi.util.ParseUtil;
@@ -48,6 +58,8 @@ import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
  * </p>
  */
 public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
+
+    private static final Logger LOG = LoggerFactory.getLogger(FreeBsdOperatingSystem.class);
 
     private static final long BOOTTIME;
     static {
@@ -136,9 +148,12 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public OSProcess[] getChildProcesses(int parentPid, int limit, ProcessSort sort) {
-        List<OSProcess> procs = getProcessListFromPS(
-                "ps -awwxo state,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etimes,systime,time,comm,args --ppid",
-                parentPid, true);
+        List<OSProcess> procs = new ArrayList<>();
+        for (OSProcess p : getProcesses(0, null)) {
+            if (p.getParentProcessID() == parentPid) {
+                procs.add(p);
+            }
+        }
         List<OSProcess> sorted = processSort(procs, limit, sort);
         return sorted.toArray(new OSProcess[0]);
     }
@@ -273,4 +288,29 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
         return new FreeBsdNetworkParams();
     }
 
+    @Override
+    public OSService[] getServices() {
+        // Get running services
+        List<OSService> services = new ArrayList<>();
+        Set<String> running = new HashSet<>();
+        for (OSProcess p : getChildProcesses(1, 0, ProcessSort.PID)) {
+            OSService s = new OSService(p.getName(), p.getProcessID(), RUNNING);
+            services.add(s);
+            running.add(p.getName());
+        }
+        // Get Directories for stopped services
+        File dir = new File("/etc/rc.d");
+        if (dir.exists() && dir.isDirectory()) {
+            for (File f : dir.listFiles()) {
+                String name = f.getName();
+                if (!running.contains(name)) {
+                    OSService s = new OSService(name, 0, STOPPED);
+                    services.add(s);
+                }
+            }
+        } else {
+            LOG.error("Directory: /etc/init does not exist");
+        }
+        return services.toArray(new OSService[0]);
+    }
 }
