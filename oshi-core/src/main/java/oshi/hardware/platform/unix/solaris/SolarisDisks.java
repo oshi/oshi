@@ -57,7 +57,7 @@ public class SolarisDisks implements Disks {
      * @return true if the update was successful
      */
     public static boolean updateDiskStats(HWDiskStore diskStore) {
-        KstatChain kc = KstatUtil.getChain();
+        KstatChain kc = KstatUtil.getAndLockChain();
         Kstat ksp = kc.lookup(null, 0, diskStore.getName());
         boolean updated = false;
         if (ksp != null && kc.read(ksp)) {
@@ -72,7 +72,7 @@ public class SolarisDisks implements Disks {
             diskStore.setTimeStamp(ksp.ks_snaptime / 1_000_000L);
             updated = true;
         }
-        kc.close();
+        kc.unlock();
         return updated;
     }
 

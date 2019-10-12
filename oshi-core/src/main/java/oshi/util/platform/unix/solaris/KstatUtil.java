@@ -25,6 +25,7 @@ package oshi.util.platform.unix.solaris;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,6 +50,12 @@ public class KstatUtil {
 
     private static final KstatUtil INSTANCE = new KstatUtil();
 
+    // Opens the kstat chain, must be locked when in use.
+    // Automatically closed on exit.
+    private static final KstatCtl KC = KS.kstat_open();
+    // Use this lock for the chain
+    private static final ReentrantLock CHAIN = new ReentrantLock();
+
     private KstatUtil() {
     }
 
@@ -56,12 +63,20 @@ public class KstatUtil {
      * A copy of the Kstat chain, encapsulating a {@code kstat_ctl_t} object. Only
      * one thread may actively use this object at any time.
      * <p>
-     * Instantiating this object calls {@link LibKstat#kstat_open()} and
-     * encapsulates the result. The control object should be closed with
-     * {@link #close}
+     * The JVM doesn't play nice with opening and closing the chain, so locks are
+     * used as an equivalent method of controlling access to the chain.
+     * <p>
+     * Instantiating this object locks and updates the chain and is the equivalent
+     * of calling {@link LibKstat#kstat_open()}. The control object should be
+     * unlocked with {@link #unlock}, the equivalent of calling
+     * {@link LibKstat#kstat_close()}
      */
     public class KstatChain {
-        private final KstatCtl kc = KS.kstat_open();
+
+        public KstatChain() {
+            this.lock();
+            this.update();
+        }
 
         /**
          * Convenience method for {@link LibKstat#kstat_read} which gets data from the
@@ -78,7 +93,7 @@ public class KstatUtil {
          */
         public boolean read(Kstat ksp) {
             int retry = 0;
-            while (0 > KS.kstat_read(kc, ksp, null)) {
+            while (0 > KS.kstat_read(KC, ksp, null)) {
                 if (LibKstat.EAGAIN != Native.getLastError() || 5 <= ++retry) {
                     if (LOG.isErrorEnabled()) {
                         LOG.error("Failed to read kstat {}:{}:{}", new String(ksp.ks_module).trim(), ksp.ks_instance,
@@ -108,12 +123,7 @@ public class KstatUtil {
          *         {@code null}
          */
         public Kstat lookup(String module, int instance, String name) {
-            int ret = KS.kstat_chain_update(kc);
-            if (ret < 0) {
-                LOG.error("Failed to update kstat chain");
-                return null;
-            }
-            return KS.kstat_lookup(kc, module, instance, name);
+            return KS.kstat_lookup(KC, module, instance, name);
         }
 
         /**
@@ -135,12 +145,7 @@ public class KstatUtil {
          */
         public List<Kstat> lookupAll(String module, int instance, String name) {
             List<Kstat> kstats = new ArrayList<>();
-            int ret = KS.kstat_chain_update(kc);
-            if (ret < 0) {
-                LOG.error("Failed to update kstat chain");
-                return kstats;
-            }
-            for (Kstat ksp = KS.kstat_lookup(kc, module, instance, name); ksp != null; ksp = ksp.next()) {
+            for (Kstat ksp = KS.kstat_lookup(KC, module, instance, name); ksp != null; ksp = ksp.next()) {
                 if ((module == null || module.equals(new String(ksp.ks_module).trim()))
                         && (instance < 0 || instance == ksp.ks_instance)
                         && (name == null || name.equals(new String(ksp.ks_name).trim()))) {
@@ -161,23 +166,31 @@ public class KstatUtil {
          *         failure.
          */
         public int update() {
-            return KS.kstat_chain_update(kc);
+            return KS.kstat_chain_update(KC);
         }
 
         /**
-         * Convenience method for {@link LibKstat#kstat_close}.
+         * Locks the chain
          */
-        public void close() {
-            KS.kstat_close(kc);
+        public void lock() {
+            CHAIN.lock();
+        }
+
+        /**
+         * Releases the chain
+         */
+        public void unlock() {
+            CHAIN.unlock();
         }
     }
 
     /**
      * Create a copy of the Kstat chain.
      *
-     * @return A copy of the chain. It should be closed when you are done with it.
+     * @return A locked copy of the chain. It should be unlocked when you are done
+     *         with it.
      */
-    public static KstatChain getChain() {
+    public static KstatChain getAndLockChain() {
         return INSTANCE.new KstatChain();
     }
 

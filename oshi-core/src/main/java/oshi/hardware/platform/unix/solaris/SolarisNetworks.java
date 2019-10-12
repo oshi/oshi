@@ -44,7 +44,7 @@ public class SolarisNetworks extends AbstractNetworks {
      *            The interface on which to update statistics
      */
     public static void updateNetworkStats(NetworkIF netIF) {
-        KstatChain kc = KstatUtil.getChain();
+        KstatChain kc = KstatUtil.getAndLockChain();
         Kstat ksp = kc.lookup("link", -1, netIF.getName());
         if (ksp == null) { // Solaris 10 compatibility
             ksp = kc.lookup(null, -1, netIF.getName());
@@ -60,6 +60,6 @@ public class SolarisNetworks extends AbstractNetworks {
             // Snap time in ns; convert to ms
             netIF.setTimeStamp(ksp.ks_snaptime / 1_000_000L);
         }
-        kc.close();
+        kc.unlock();
     }
 }

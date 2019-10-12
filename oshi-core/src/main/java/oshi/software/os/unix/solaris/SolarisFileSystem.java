@@ -194,27 +194,27 @@ public class SolarisFileSystem implements FileSystem {
 
     @Override
     public long getOpenFileDescriptors() {
-        KstatChain kc = KstatUtil.getChain();
+        KstatChain kc = KstatUtil.getAndLockChain();
         Kstat ksp = kc.lookup(null, -1, "file_cache");
         // Set values
         long bufInuse = 0L;
         if (ksp != null && kc.read(ksp)) {
             bufInuse = KstatUtil.dataLookupLong(ksp, "buf_inuse");
         }
-        kc.close();
+        kc.unlock();
         return bufInuse;
     }
 
     @Override
     public long getMaxFileDescriptors() {
-        KstatChain kc = KstatUtil.getChain();
+        KstatChain kc = KstatUtil.getAndLockChain();
         Kstat ksp = kc.lookup(null, -1, "file_cache");
         // Set values
         long bufMax = 0L;
         if (ksp != null && kc.read(ksp)) {
             bufMax = KstatUtil.dataLookupLong(ksp, "buf_max");
         }
-        kc.close();
+        kc.unlock();
         return bufMax;
     }
 

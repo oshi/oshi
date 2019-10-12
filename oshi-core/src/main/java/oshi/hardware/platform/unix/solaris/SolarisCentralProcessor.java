@@ -54,7 +54,7 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
         String cpuStepping = "";
 
         // Get first result
-        KstatChain kc = KstatUtil.getChain();
+        KstatChain kc = KstatUtil.getAndLockChain();
         Kstat ksp = kc.lookup(CPU_INFO, -1, null);
         // Set values
         if (ksp != null && kc.read(ksp)) {
@@ -64,6 +64,7 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
             cpuModel = KstatUtil.dataLookupString(ksp, "model");
             cpuStepping = KstatUtil.dataLookupString(ksp, "stepping");
         }
+        kc.unlock();
         boolean cpu64bit ="64".equals(ExecutingCommand.getFirstAnswer("isainfo -b").trim());
         String processorID = getProcessorID(cpuStepping, cpuModel, cpuFamily);
 
@@ -74,7 +75,7 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
     @Override
     protected LogicalProcessor[] initProcessorCounts() {
         Map<Integer, Integer> numaNodeMap = mapNumaNodes();
-        KstatChain kc = KstatUtil.getChain();
+        KstatChain kc = KstatUtil.getAndLockChain();
         List<Kstat> kstats = kc.lookupAll(CPU_INFO, -1, null);
 
         List<LogicalProcessor> logProcs = new ArrayList<>();
@@ -88,7 +89,7 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
                 logProcs.add(logProc);
             }
         }
-        kc.close();
+        kc.unlock();
         if (logProcs.isEmpty()) {
             logProcs.add(new LogicalProcessor(0, 0, 0));
         }
@@ -145,7 +146,7 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
     public long[] queryCurrentFreq() {
         long[] freqs = new long[getLogicalProcessorCount()];
         Arrays.fill(freqs, -1);
-        KstatChain kc = KstatUtil.getChain();
+        KstatChain kc = KstatUtil.getAndLockChain();
         for (int i = 0; i < freqs.length; i++) {
             for (Kstat ksp : kc.lookupAll(CPU_INFO, i, null)) {
                 if (kc.read(ksp)) {
@@ -153,14 +154,14 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
                 }
             }
         }
-        kc.close();
+        kc.unlock();
         return freqs;
     }
 
     @Override
     public long queryMaxFreq() {
         long max = -1L;
-        KstatChain kc = KstatUtil.getChain();
+        KstatChain kc = KstatUtil.getAndLockChain();
         for (Kstat ksp : kc.lookupAll(CPU_INFO, 0, null)) {
             if (kc.read(ksp)) {
                 String suppFreq = KstatUtil.dataLookupString(ksp, "supported_frequencies_Hz");
@@ -174,7 +175,7 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
                 }
             }
         }
-        kc.close();
+        kc.unlock();
         return max;
     }
 
@@ -197,7 +198,7 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
     public long[][] queryProcessorCpuLoadTicks() {
         long[][] ticks = new long[getLogicalProcessorCount()][TickType.values().length];
         int cpu = -1;
-        KstatChain kc = KstatUtil.getChain();
+        KstatChain kc = KstatUtil.getAndLockChain();
         for (Kstat ksp : kc.lookupAll("cpu", -1, "sys")) {
             // This is a new CPU
             if (++cpu >= ticks.length) {
@@ -210,7 +211,7 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
                 ticks[cpu][TickType.USER.getIndex()] = KstatUtil.dataLookupLong(ksp, "cpu_ticks_user");
             }
         }
-        kc.close();
+        kc.unlock();
         return ticks;
     }
 

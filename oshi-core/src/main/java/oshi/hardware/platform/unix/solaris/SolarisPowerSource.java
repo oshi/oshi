@@ -50,7 +50,7 @@ public class SolarisPowerSource extends AbstractPowerSource {
     private static final int KSTAT_BATT_IDX;
 
     static {
-        KstatChain kc = KstatUtil.getChain();
+        KstatChain kc = KstatUtil.getAndLockChain();
         if (kc.lookup(KSTAT_BATT_MOD[1], 0, null) != null) {
             KSTAT_BATT_IDX = 1;
         } else if (kc.lookup(KSTAT_BATT_MOD[2], 0, null) != null) {
@@ -58,7 +58,7 @@ public class SolarisPowerSource extends AbstractPowerSource {
         } else {
             KSTAT_BATT_IDX = 0;
         }
-        kc.close();
+        kc.unlock();
     }
 
     /**
@@ -95,10 +95,10 @@ public class SolarisPowerSource extends AbstractPowerSource {
             return new SolarisPowerSource(name, 0d, -1d);
         }
         // Get kstat for the battery information
-        KstatChain kc = KstatUtil.getChain();
+        KstatChain kc = KstatUtil.getAndLockChain();
         Kstat ksp = kc.lookup(KSTAT_BATT_MOD[KSTAT_BATT_IDX], 0, "battery BIF0");
         if (ksp == null) {
-            kc.close();
+            kc.unlock();
             return new SolarisPowerSource(name, 0d, -1d);
         }
 
@@ -108,21 +108,21 @@ public class SolarisPowerSource extends AbstractPowerSource {
             energyFull = KstatUtil.dataLookupLong(ksp, "bif_design_cap");
         }
         if (energyFull == 0xffffffff || energyFull <= 0) {
-            kc.close();
+            kc.unlock();
             return new SolarisPowerSource(name, 0d, -1d);
         }
 
         // Get kstat for the battery state
         ksp = kc.lookup(KSTAT_BATT_MOD[KSTAT_BATT_IDX], 0, "battery BST0");
         if (ksp == null) {
-            kc.close();
+            kc.unlock();
             return new SolarisPowerSource(name, 0d, -1d);
         }
 
         // estimated remaining battery capacity
         long energyNow = KstatUtil.dataLookupLong(ksp, "bst_rem_cap");
         if (energyNow < 0) {
-            kc.close();
+            kc.unlock();
             return new SolarisPowerSource(name, 0d, -1d);
         }
 
@@ -142,7 +142,7 @@ public class SolarisPowerSource extends AbstractPowerSource {
         if (!isCharging) {
             timeRemaining = powerNow > 0 ? 3600d * energyNow / powerNow : -1d;
         }
-        kc.close();
+        kc.unlock();
         return new SolarisPowerSource(name, (double) energyNow / energyFull, timeRemaining);
     }
 

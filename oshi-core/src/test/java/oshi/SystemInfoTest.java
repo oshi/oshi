@@ -241,7 +241,6 @@ public class SystemInfoTest {
                     100d * (p.getKernelTime() + p.getUserTime()) / p.getUpTime(),
                     100d * p.getResidentSetSize() / memory.getTotal(), FormatUtil.formatBytes(p.getVirtualSize()),
                     FormatUtil.formatBytes(p.getResidentSetSize()), p.getName()));
-            oshi.add(String.format("   %d + %d / %d", p.getKernelTime(), p.getUserTime(), p.getUpTime()));
         }
     }
 
