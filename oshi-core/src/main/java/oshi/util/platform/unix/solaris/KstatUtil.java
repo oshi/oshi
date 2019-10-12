@@ -48,12 +48,10 @@ public class KstatUtil {
 
     private static final LibKstat KS = LibKstat.INSTANCE;
 
-    private static final KstatUtil INSTANCE = new KstatUtil();
-
-    // Opens the kstat chain, must be locked when in use.
-    // Automatically closed on exit.
+    // Opens the kstat chain. Automatically closed on exit.
+    // Only one thread may access the chain at any time, so we wrap this object in
+    // the KstatChain class which locks the class until closed.
     private static final KstatCtl KC = KS.kstat_open();
-    // Use this lock for the chain
     private static final ReentrantLock CHAIN = new ReentrantLock();
 
     private KstatUtil() {
@@ -63,16 +61,15 @@ public class KstatUtil {
      * A copy of the Kstat chain, encapsulating a {@code kstat_ctl_t} object. Only
      * one thread may actively use this object at any time.
      * <p>
-     * The JVM doesn't play nice with opening and closing the chain, so locks are
-     * used as an equivalent method of controlling access to the chain.
-     * <p>
-     * Instantiating this object locks and updates the chain and is the equivalent
-     * of calling {@link LibKstat#kstat_open}. The control object should be closed
-     * with {@link #close}, the equivalent of calling {@link LibKstat#kstat_close}
+     * Instantiating this object is accomplished using the
+     * {@link KstatUtil#openChain} method. It locks and updates the chain and is the
+     * equivalent of calling {@link LibKstat#kstat_open}. The control object should
+     * be closed with {@link #close}, the equivalent of calling
+     * {@link LibKstat#kstat_close}
      */
-    public class KstatChain implements AutoCloseable {
+    public static class KstatChain implements AutoCloseable {
 
-        public KstatChain() {
+        private KstatChain() {
             CHAIN.lock();
             this.update();
         }
@@ -184,7 +181,7 @@ public class KstatUtil {
      *         are done with it with {@link KstatChain#close()}.
      */
     public static KstatChain openChain() {
-        return INSTANCE.new KstatChain();
+        return new KstatChain();
     }
 
     /**
