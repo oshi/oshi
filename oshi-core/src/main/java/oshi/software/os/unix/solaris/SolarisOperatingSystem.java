@@ -23,6 +23,9 @@
  */
 package oshi.software.os.unix.solaris;
 
+import static oshi.software.os.OSService.State.RUNNING;
+import static oshi.software.os.OSService.State.STOPPED;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -275,24 +278,21 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
         // Sort by PID
         OSProcess[] process = getChildProcesses(1, 0, OperatingSystem.ProcessSort.PID);
         File etc = new File("/etc/inittab");
-        try {
+        if (etc.exists()) {
             File[] files = etc.listFiles();
             OSService[] svcArray = new OSService[files.length];
             for (int i = 0; i < files.length; i++) {
-                svcArray[i].setName(files[i].getName());
                 for (int j = 0; j < process.length; j++) {
                     if (process[j].getName().equals(files[i].getName())) {
-                        svcArray[i].setProcessID(process[j].getProcessID());
-                        svcArray[i].setState(OSService.State.RUNNING);
+                        svcArray[i] = new OSService(process[j].getName(), process[j].getProcessID(), RUNNING);
                     } else {
-                        svcArray[i].setState(OSService.State.STOPPED);
+                        svcArray[i] = new OSService(files[i].getName(), 0, STOPPED);
                     }
                 }
             }
             return svcArray;
-        } catch (NullPointerException ex) {
-            LOG.error("Directory: /etc/inittab does not exist");
-            return new OSService[0];
         }
+        LOG.error("Directory: /etc/inittab does not exist");
+        return new OSService[0];
     }
 }

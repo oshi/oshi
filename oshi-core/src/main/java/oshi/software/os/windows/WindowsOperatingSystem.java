@@ -23,6 +23,10 @@
  */
 package oshi.software.os.windows;
 
+import static oshi.software.os.OSService.State.OTHER;
+import static oshi.software.os.OSService.State.RUNNING;
+import static oshi.software.os.OSService.State.STOPPED;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -72,6 +76,7 @@ import oshi.software.os.FileSystem;
 import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OSService;
+import oshi.software.os.OSService.State;
 import oshi.util.ParseUtil;
 import oshi.util.platform.windows.PerfCounterQuery;
 import oshi.util.platform.windows.PerfCounterWildcardQuery;
@@ -727,26 +732,25 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                     Winsvc.SERVICE_STATE_ALL, null);
             OSService[] svcArray = new OSService[services.length];
             for (int i = 0; i < services.length; i++) {
-                svcArray[i] = new OSService();
-                svcArray[i].setName(services[i].lpDisplayName);
-                svcArray[i].setProcessID(services[i].ServiceStatusProcess.dwProcessId);
-                int state = services[i].ServiceStatusProcess.dwCurrentState;
-                switch (state) {
+                State state;
+                switch (services[i].ServiceStatusProcess.dwCurrentState) {
                 case 1:
-                    svcArray[i].setState(OSService.State.STOPPED);
+                    state = STOPPED;
                     break;
                 case 4:
-                    svcArray[i].setState(OSService.State.RUNNING);
+                    state = RUNNING;
                     break;
                 default:
-                    svcArray[i].setState(OSService.State.OTHER);
+                    state = OTHER;
                     break;
                 }
+                svcArray[i] = new OSService(services[i].lpDisplayName, services[i].ServiceStatusProcess.dwProcessId,
+                        state);
             }
             sm.close();
             return svcArray;
         } catch (com.sun.jna.platform.win32.Win32Exception ex) {
-            LOG.error("Win32Exception");
+            LOG.error("Win32Exception: {}", ex.getMessage());
             return new OSService[0];
         }
     }

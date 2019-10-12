@@ -23,12 +23,16 @@
  */
 package oshi.software.os.mac;
 
+import static oshi.software.os.OSService.State.RUNNING;
+import static oshi.software.os.OSService.State.STOPPED;
+
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +55,6 @@ import oshi.software.os.FileSystem;
 import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OSService;
-import oshi.software.os.OperatingSystem;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.mac.SysctlUtil;
@@ -445,82 +448,35 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public OSService[] getServices() {
-        // Sort by PID
-        OSProcess[] process = getChildProcesses(1, 0, OperatingSystem.ProcessSort.PID);
-        // Get Directories
-        String relativePath = System.getProperty("user.home");
-        File ua = new File(relativePath + "/Library/LaunchAgents");
-        File ga = new File("/Library/LaunchAgents");
-        File gd = new File("/Library/LaunchDaemons");
-        File sa = new File("/System/Library/LaunchAgents");
-        File sd = new File("/System/Library/LaunchDaemons");
-
-        ArrayList<File> files = new ArrayList<>();
-
-        try {
-            File[] uaFiles = ua.listFiles((dir, name) -> name.toLowerCase().endsWith(".plist"));
-            File[] gaFiles = ga.listFiles((dir, name) -> name.toLowerCase().endsWith(".plist"));
-            File[] gdFiles = gd.listFiles((dir, name) -> name.toLowerCase().endsWith(".plist"));
-            File[] saFiles = sa.listFiles((dir, name) -> name.toLowerCase().endsWith(".plist"));
-            File[] sdFiles = sd.listFiles((dir, name) -> name.toLowerCase().endsWith(".plist"));
-
-            for (File file : uaFiles)
-                files.add(file);
-            for (File file : gaFiles)
-                files.add(file);
-            for (File file : gdFiles)
-                files.add(file);
-            for (File file : saFiles)
-                files.add(file);
-            for (File file : sdFiles)
-                files.add(file);
-
-            Map<String, String[]> processMap = new HashMap<String, String[]>();
-            for (int i = 0; i < process.length; i++) {
-                String name = null;
-                String[] pathSplit = process[i].getPath().split("/");
-                if (pathSplit.length > 0) {
-                    name = pathSplit[pathSplit.length - 1];
-                }
-                String[] pidPath = new String[2];
-                pidPath[0] = String.valueOf(process[i].getProcessID());
-                pidPath[1] = process[i].getPath();
-                processMap.put(name, pidPath);
-            }
-
-            OSService[] svcArray = new OSService[files.size()];
-            for (int i = 0; i < svcArray.length; i++) {
-                String name = files.get(i).getName();
-                // remove .plist extension
-                svcArray[i].setName(name.substring(0, name.length() - 6));
-                svcArray[i].setState(OSService.State.STOPPED);
-                if (processMap.containsKey(svcArray[i].getName())) {
-                    int pid = Integer.valueOf(processMap.get(svcArray[i].getName())[0]);
-                    String path = processMap.get(svcArray[i].getName())[1];
-                    svcArray[i].setProcessID(pid);
-                    svcArray[i].setPathName(path);
-                    svcArray[i].setState(OSService.State.RUNNING);
-                }
-            }
-            return svcArray;
-        } catch (NullPointerException ex) {
-            String error = "";
-            if (!ua.exists()) {
-                error = relativePath + "/Library/LaunchAgents";
-            } else if (!ga.exists()) {
-                error = "/Library/LaunchAgents";
-            } else if (!gd.exists()) {
-                error = "/Library/LaunchDaemons";
-            } else if (!sa.exists()) {
-                error = "/System/Library/LaunchAgents";
-            } else if (!sd.exists()) {
-                error = "/System/Library/LaunchDaemons";
-            } else {
-                // Some other NPE, re-throw
-                throw ex;
-            }
-            LOG.error("Directory: " + error + " does not exist");
-            return new OSService[0];
+        // Get running services
+        List<OSService> services = new ArrayList<>();
+        Set<String> running = new HashSet<>();
+        for (OSProcess p : getChildProcesses(1, 0, ProcessSort.PID)) {
+            OSService s = new OSService(p.getName(), p.getProcessID(), RUNNING);
+            services.add(s);
+            running.add(p.getName());
         }
+        // Get Directories for stopped services
+        ArrayList<File> files = new ArrayList<>();
+        File sa = new File("/System/Library/LaunchAgentss");
+        if (sa.exists()) {
+            files.addAll(Arrays.asList(sa.listFiles((dir, name) -> name.toLowerCase().endsWith(".plist"))));
+        }
+        File sd = new File("/System/Library/LaunchDaemons");
+        if (sd.exists()) {
+            files.addAll(Arrays.asList(sd.listFiles((dir, name) -> name.toLowerCase().endsWith(".plist"))));
+        }
+
+        for (File f : files) {
+            // remove .plist extension
+            String name = f.getName().substring(0, f.getName().length() - 6);
+            int index = name.lastIndexOf('.');
+            String shortName = (index < 0 && index < name.length()) ? name : name.substring(index + 1);
+            if (!running.contains(name) && !running.contains(shortName)) {
+                OSService s = new OSService(name, 0, STOPPED);
+                services.add(s);
+            }
+        }
+        return services.toArray(new OSService[0]);
     }
 }

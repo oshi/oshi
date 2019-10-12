@@ -26,16 +26,31 @@ package oshi.software.os;
 
 public class OSService {
 
-    private String name = "";
-    private int processID;
-    private State state = State.OTHER;
-    private String pathName = "";
+    private final String name;
+    private final int processID;
+    private final State state;
 
     /**
      * Service Execution States
      */
     public enum State {
         RUNNING, STOPPED, OTHER
+    }
+
+    /**
+     * Instantiate a new {@link OSService}.
+     * 
+     * @param name
+     *            The service name.
+     * @param processID
+     *            The process ID if running, or 0 if stopped.
+     * @param state
+     *            The service {@link State}.
+     */
+    public OSService(String name, int processID, State state) {
+        this.name = name;
+        this.processID = processID;
+        this.state = state;
     }
 
     /**
@@ -71,54 +86,4 @@ public class OSService {
         return this.state;
     }
 
-    /**
-     * <p>
-     * Getter for the field <code>pathName</code>.
-     * </p>
-     *
-     * @return Returns the pathName of the service.
-     */
-    public String getPathName() {
-        return this.pathName;
-    }
-
-    /**
-     * Set the name of the service.
-     *
-     * @param name
-     *            service name
-     */
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    /**
-     * Set the processID of the service.
-     *
-     * @param processID
-     *            process ID
-     */
-    public void setProcessID(int processID) {
-        this.processID = processID;
-    }
-
-    /**
-     * Set the state of the service.
-     *
-     * @param state
-     *            state
-     */
-    public void setState(State state) {
-        this.state = state;
-    }
-
-    /**
-     * Set the pathName of the service.
-     *
-     * @param pathName
-     *            pathName
-     */
-    public void setPathName(String pathName) {
-        this.pathName = pathName;
-    }
 }
