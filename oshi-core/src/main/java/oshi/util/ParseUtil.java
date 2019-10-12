@@ -61,7 +61,7 @@ public class ParseUtil {
     /*
      * Pattern for [dd-[hh:[mm:[ss[.sss]]]]]
      */
-    private static final Pattern DHMS = Pattern.compile("(?:(\\d+)-)?(?:(\\d+):)?(?:(\\\\d+):)?(\\d+)(?:\\.(\\d+))?");
+    private static final Pattern DHMS = Pattern.compile("(?:(\\d+)-)?(?:(\\d+):)??(?:(\\d+):)?(\\d+)(?:\\.(\\d+))?");
 
     /*
      * Pattern for a UUID
