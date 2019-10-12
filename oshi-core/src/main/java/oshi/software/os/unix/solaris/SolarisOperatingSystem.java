@@ -28,8 +28,10 @@ import static oshi.software.os.OSService.State.STOPPED;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +44,6 @@ import oshi.software.os.FileSystem;
 import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OSService;
-import oshi.software.os.OperatingSystem;
 import oshi.util.ExecutingCommand;
 import oshi.util.LsofUtil;
 import oshi.util.ParseUtil;
@@ -275,24 +276,31 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public OSService[] getServices() {
-        // Sort by PID
-        OSProcess[] process = getChildProcesses(1, 0, OperatingSystem.ProcessSort.PID);
-        File etc = new File("/etc/inittab");
-        if (etc.exists()) {
-            File[] files = etc.listFiles();
-            OSService[] svcArray = new OSService[files.length];
-            for (int i = 0; i < files.length; i++) {
-                for (int j = 0; j < process.length; j++) {
-                    if (process[j].getName().equals(files[i].getName())) {
-                        svcArray[i] = new OSService(process[j].getName(), process[j].getProcessID(), RUNNING);
-                    } else {
-                        svcArray[i] = new OSService(files[i].getName(), 0, STOPPED);
-                    }
+        // Get running services
+        List<OSService> services = new ArrayList<>();
+        Set<String> running = new HashSet<>();
+        for (OSProcess p : getChildProcesses(1, 0, ProcessSort.PID)) {
+            OSService s = new OSService(p.getName(), p.getProcessID(), RUNNING);
+            ;
+            services.add(s);
+            running.add(p.getName());
+        }
+        // Get Directories for stopped services
+        File dir = new File("/etc/inittab");
+        if (dir.exists() && dir.isDirectory()) {
+            for (File f : dir.listFiles((f, name) -> name.toLowerCase().endsWith(".conf"))) {
+                // remove .conf extension
+                String name = f.getName().substring(0, f.getName().length() - 5);
+                int index = name.lastIndexOf('.');
+                String shortName = (index < 0 && index < name.length()) ? name : name.substring(index + 1);
+                if (!running.contains(name) && !running.contains(shortName)) {
+                    OSService s = new OSService(name, 0, STOPPED);
+                    services.add(s);
                 }
             }
-            return svcArray;
+        } else {
+            LOG.error("Directory: /etc/inittab does not exist");
         }
-        LOG.error("Directory: /etc/inittab does not exist");
-        return new OSService[0];
+        return services.toArray(new OSService[0]);
     }
 }

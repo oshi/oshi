@@ -31,8 +31,10 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,7 +52,6 @@ import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OSService;
 import oshi.software.os.OSUser;
-import oshi.software.os.OperatingSystem;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
@@ -273,12 +274,14 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
             // get 5th byte of file for 64-bit check
             // https://en.wikipedia.org/wiki/Executable_and_Linkable_Format#File_header
             byte[] buffer = new byte[5];
-            try (InputStream is = new FileInputStream(path)) {
-                if (is.read(buffer) == buffer.length) {
-                    proc.setBitness(buffer[4] == 1 ? 32 : 64);
+            if (!path.isEmpty()) {
+                try (InputStream is = new FileInputStream(path)) {
+                    if (is.read(buffer) == buffer.length) {
+                        proc.setBitness(buffer[4] == 1 ? 32 : 64);
+                    }
+                } catch (IOException e) {
+                    LOG.warn("Failed to read process file: {}", path);
                 }
-            } catch (IOException e) {
-                LOG.warn("Failed to read process file: {}", path);
             }
         }
 
@@ -532,8 +535,8 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     /**
      * Attempts to read /etc/lsb-release
      *
-     * @return true if file successfully read and DISTRIB_ID or DISTRIB_DESCRIPTION
-     *         found
+     * @return true if file successfully read and DISTRIB_ID or
+     *         DISTRIB_DESCRIPTION found
      */
     private String readLsbRelease() {
         String family = null;
@@ -565,7 +568,8 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     /**
      * Attempts to read /etc/distrib-release (for some value of distrib)
      *
-     * @return true if file successfully read and " release " or " VERSION " found
+     * @return true if file successfully read and " release " or " VERSION "
+     *         found
      */
     private String readDistribRelease(String filename) {
         String family = null;
@@ -640,8 +644,9 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     }
 
     /**
-     * Converts a portion of a filename (e.g. the 'redhat' in /etc/redhat-release)
-     * to a mixed case string representing the family (e.g., Red Hat)
+     * Converts a portion of a filename (e.g. the 'redhat' in
+     * /etc/redhat-release) to a mixed case string representing the family
+     * (e.g., Red Hat)
      *
      * @param name
      *            Stripped version of filename after removing /etc and -release
@@ -710,8 +715,8 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     }
 
     /**
-     * Gets Jiffies per second, useful for converting ticks to milliseconds and vice
-     * versa.
+     * Gets Jiffies per second, useful for converting ticks to milliseconds and
+     * vice versa.
      *
      * @return Jiffies per second.
      */
@@ -721,24 +726,31 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public OSService[] getServices() {
-        // Sort by PID
-        OSProcess[] process = getChildProcesses(1, 0, OperatingSystem.ProcessSort.PID);
-        File etc = new File("/etc/init");
-        if (etc.exists()) {
-            File[] files = etc.listFiles();
-            OSService[] svcArray = new OSService[files.length];
-            for (int i = 0; i < files.length; i++) {
-                for (int j = 0; j < process.length; j++) {
-                    if (process[j].getName().equals(files[i].getName())) {
-                        svcArray[i] = new OSService(process[j].getName(), process[j].getProcessID(), RUNNING);
-                    } else {
-                        svcArray[i] = new OSService(files[i].getName(), 0, STOPPED);
-                    }
+        // Get running services
+        List<OSService> services = new ArrayList<>();
+        Set<String> running = new HashSet<>();
+        for (OSProcess p : getChildProcesses(1, 0, ProcessSort.PID)) {
+            OSService s = new OSService(p.getName(), p.getProcessID(), RUNNING);
+            ;
+            services.add(s);
+            running.add(p.getName());
+        }
+        // Get Directories for stopped services
+        File dir = new File("/etc/init");
+        if (dir.exists() && dir.isDirectory()) {
+            for (File f : dir.listFiles((f, name) -> name.toLowerCase().endsWith(".conf"))) {
+                // remove .conf extension
+                String name = f.getName().substring(0, f.getName().length() - 5);
+                int index = name.lastIndexOf('.');
+                String shortName = (index < 0 && index < name.length()) ? name : name.substring(index + 1);
+                if (!running.contains(name) && !running.contains(shortName)) {
+                    OSService s = new OSService(name, 0, STOPPED);
+                    services.add(s);
                 }
             }
-            return svcArray;
+        } else {
+            LOG.error("Directory: /etc/init does not exist");
         }
-        LOG.error("Directory: /etc/init does not exist");
-        return new OSService[0];
+        return services.toArray(new OSService[0]);
     }
 }

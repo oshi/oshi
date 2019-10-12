@@ -221,7 +221,8 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
         return getProcess(pid, true);
     }
 
-    private OSProcess getProcess(int pid, boolean slowFields) { // NOSONAR squid:S1172
+    private OSProcess getProcess(int pid, boolean slowFields) { // NOSONAR
+                                                                // squid:S1172
         ProcTaskAllInfo taskAllInfo = new ProcTaskAllInfo();
         if (0 > SystemB.INSTANCE.proc_pidinfo(pid, SystemB.PROC_PIDTASKALLINFO, 0, taskAllInfo, taskAllInfo.size())) {
             return null;
@@ -458,15 +459,18 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
         }
         // Get Directories for stopped services
         ArrayList<File> files = new ArrayList<>();
-        File sa = new File("/System/Library/LaunchAgentss");
-        if (sa.exists()) {
-            files.addAll(Arrays.asList(sa.listFiles((dir, name) -> name.toLowerCase().endsWith(".plist"))));
+        File dir = new File("/System/Library/LaunchAgents");
+        if (dir.exists() && dir.isDirectory()) {
+            files.addAll(Arrays.asList(dir.listFiles((f, name) -> name.toLowerCase().endsWith(".plist"))));
+        } else {
+            LOG.error("Directory: /System/Library/LaunchAgents does not exist");
         }
-        File sd = new File("/System/Library/LaunchDaemons");
-        if (sd.exists()) {
-            files.addAll(Arrays.asList(sd.listFiles((dir, name) -> name.toLowerCase().endsWith(".plist"))));
+        dir = new File("/System/Library/LaunchDaemons");
+        if (dir.exists() && dir.isDirectory()) {
+            files.addAll(Arrays.asList(dir.listFiles((f, name) -> name.toLowerCase().endsWith(".plist"))));
+        } else {
+            LOG.error("Directory: /System/Library/LaunchDaemons does not exist");
         }
-
         for (File f : files) {
             // remove .plist extension
             String name = f.getName().substring(0, f.getName().length() - 6);
