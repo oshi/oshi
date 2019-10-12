@@ -33,6 +33,6 @@ import oshi.jna.platform.unix.CLibrary;
  */
 public interface SolarisLibc extends CLibrary {
     /** Constant <code>INSTANCE</code> */
-    SolarisLibc INSTANCE = Native.load("libc", SolarisLibc.class);
+    SolarisLibc INSTANCE = Native.load("c", SolarisLibc.class);
 
 }
