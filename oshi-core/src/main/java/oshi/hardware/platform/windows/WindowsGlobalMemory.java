@@ -79,90 +79,27 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
     }
 
     private VirtualMemory createVirtualMemory() {
-
         return new WindowsVirtualMemory(getPageSize());
     }
 
     @Override
     public PhysicalMemory[] getPhysicalMemory() {
+        WmiQueryHandler wmiQueryHandler = WmiQueryHandler.createInstance();
         WmiQuery<PhysicalMemoryProperty> physicalMemoryQuery = new WmiQuery<>("Win32_PhysicalMemory",
                 PhysicalMemoryProperty.class);
-        WmiQueryHandler wmiQueryHandler = WmiQueryHandler.createInstance();
         WmiResult<PhysicalMemoryProperty> bankMap = wmiQueryHandler.queryWMI(physicalMemoryQuery);
-        int bankCount = bankMap.getResultCount();
-        PhysicalMemory[] physicalMemoryArray = new PhysicalMemory[bankCount];
-        PhysicalMemory memory = null;
-        if (bankCount > 0) {
-            // loop over the results if memory consists of more than one bank
-            for (int index = 0; index < bankCount; index++) {
-                String bankLabel = WmiUtil.getString(bankMap, PhysicalMemoryProperty.BANKLABEL, index);
-                long capacity = WmiUtil.getUint64(bankMap, PhysicalMemoryProperty.CAPACITY, index);
-                long speed = WmiUtil.getUint32(bankMap, PhysicalMemoryProperty.CONFIGUREDCLOCKSPEED, index);
-                String manufacturer = WmiUtil.getString(bankMap, PhysicalMemoryProperty.MANUFACTURER, index);
-                int type = WmiUtil.getUint32(bankMap, PhysicalMemoryProperty.SMBIOSMEMORYTYPE, index);
-                String memoryType = convertMemoryTypeToString(type);
-                memory = new PhysicalMemory(bankLabel, capacity, speed, manufacturer, memoryType);
-                physicalMemoryArray[index] = memory;
-            }
+
+        PhysicalMemory[] physicalMemoryArray = new PhysicalMemory[bankMap.getResultCount()];
+        for (int index = 0; index < bankMap.getResultCount(); index++) {
+            String bankLabel = WmiUtil.getString(bankMap, PhysicalMemoryProperty.BANKLABEL, index);
+            long capacity = WmiUtil.getUint64(bankMap, PhysicalMemoryProperty.CAPACITY, index);
+            long speed = WmiUtil.getUint32(bankMap, PhysicalMemoryProperty.CONFIGUREDCLOCKSPEED, index);
+            String manufacturer = WmiUtil.getString(bankMap, PhysicalMemoryProperty.MANUFACTURER, index);
+            int type = WmiUtil.getUint32(bankMap, PhysicalMemoryProperty.SMBIOSMEMORYTYPE, index);
+            String memoryType = smBiosMemoryType(type);
+            physicalMemoryArray[index] = new PhysicalMemory(bankLabel, capacity, speed, manufacturer, memoryType);
         }
         return physicalMemoryArray;
-    }
-
-    private static String convertMemoryTypeToString(int type) {
-        switch (type) {
-        case 0:
-            return "Unknown";
-        case 1:
-            return "Other";
-        case 2:
-            return "DRAM";
-        case 3:
-            return "Synchronous DRAM";
-        case 4:
-            return "Cache DRAM";
-        case 5:
-            return "EDO";
-        case 6:
-            return "EDRAM";
-        case 7:
-            return "VRAM";
-        case 8:
-            return "SRAM";
-        case 9:
-            return "RAM";
-        case 10:
-            return "ROM";
-        case 11:
-            return "Flash";
-        case 12:
-            return "EEPROM";
-        case 13:
-            return "FEPROM";
-        case 14:
-            return "EPROM";
-        case 15:
-            return "CDRAM";
-        case 16:
-            return "3DRAM";
-        case 17:
-            return "SDRAM";
-        case 18:
-            return "SGRAM";
-        case 19:
-            return "RDRAM";
-        case 20:
-            return "DDR";
-        case 21:
-            return "DDR2";
-        case 22:
-            return "DDR2-FB-DIMM";
-        case 24:
-            return "DDR3";
-        case 25:
-            return "FBD2";
-        default:
-            return "Unknown type " + type;
-        }
     }
 
     private PerfInfo readPerfInfo() {

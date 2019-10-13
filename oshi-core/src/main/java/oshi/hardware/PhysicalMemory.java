@@ -23,6 +23,7 @@
  */
 package oshi.hardware;
 
+import oshi.util.Constants;
 import oshi.util.FormatUtil;
 
 /**
@@ -32,46 +33,46 @@ import oshi.util.FormatUtil;
 public class PhysicalMemory {
     /*
      * The bank or slots label
-     * 
+     *
      * @return the bank label
      */
     private final String bankLabel;
 
     /*
      * The capacity of memory bank in bytes
-     * 
+     *
      * @return the capacity
      */
     private final long capacity;
 
     /*
      * The configured memory clock speed in mega Hertz
-     * 
+     *
      * @return the clock speed
      */
     private final long clockSpeed;
 
     /*
      * The manufacturer of the physical memory
-     * 
+     *
      * @return the manufacturer
      */
     private final String manufacturer;
 
     /*
      * The type of physical memory
-     * 
+     *
      * @return the memory type
      */
     private final String memoryType;
 
     // default values if field values are not known
     public PhysicalMemory() {
-        this.bankLabel = "Unknown";
+        this.bankLabel = Constants.UNKNOWN;
         this.capacity = 0L;
         this.clockSpeed = 0;
-        this.manufacturer = "Unknown";
-        this.memoryType = "Unknown";
+        this.manufacturer = Constants.UNKNOWN;
+        this.memoryType = Constants.UNKNOWN;
     }
 
     public PhysicalMemory(String bankLabel, long capacity, long clockSpeed, String manufacturer, String memoryType) {
