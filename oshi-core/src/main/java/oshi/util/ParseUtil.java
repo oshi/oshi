@@ -125,11 +125,11 @@ public class ParseUtil {
     }
 
     /**
-     * Parse hertz from a string, eg. "2.00MHz" in 2000000L.
+     * Parse hertz from a string, eg. "2.00MHz" is 2000000L.
      *
      * @param hertz
      *            Hertz size.
-     * @return {@link java.lang.Long} Hertz value or -1 if not parsable.
+     * @return {@link java.lang.Long} Hertz value or -1 if not parseable.
      */
     public static long parseHertz(String hertz) {
         Matcher matcher = HERTZ_PATTERN.matcher(hertz.trim());

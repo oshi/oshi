@@ -26,6 +26,8 @@ package oshi.hardware.platform.mac;
 import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Supplier;
 
 import org.slf4j.Logger;
@@ -37,8 +39,12 @@ import com.sun.jna.platform.mac.SystemB.VMStatistics;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.LongByReference;
 
+import oshi.hardware.PhysicalMemory;
 import oshi.hardware.VirtualMemory;
 import oshi.hardware.common.AbstractGlobalMemory;
+import oshi.util.Constants;
+import oshi.util.ExecutingCommand;
+import oshi.util.ParseUtil;
 import oshi.util.platform.mac.SysctlUtil;
 
 /**
@@ -74,6 +80,74 @@ public class MacGlobalMemory extends AbstractGlobalMemory {
     @Override
     public VirtualMemory getVirtualMemory() {
         return vm.get();
+    }
+
+    @Override
+    public PhysicalMemory[] getPhysicalMemory() {
+        List<PhysicalMemory> pmList = new ArrayList<>();
+        List<String> sp = ExecutingCommand.runNative("system_profiler SPMemoryDataType");
+        int bank = 0;
+        String bankLabel = Constants.UNKNOWN;
+        long capacity = 0L;
+        long speed = 0L;
+        String manufacturer = Constants.UNKNOWN;
+        String memoryType = Constants.UNKNOWN;
+        for (String line : sp) {
+            if (line.trim().startsWith("BANK")) {
+                // Save previous bank
+                if (bank++ > 0) {
+                    pmList.add(new PhysicalMemory(bankLabel, capacity, speed, manufacturer, memoryType));
+                }
+                bankLabel = line.trim();
+                int colon = bankLabel.lastIndexOf(':');
+                if (colon > 0) {
+                    bankLabel = bankLabel.substring(0, colon - 1);
+                }
+            } else if (bank > 0) {
+                String[] split = line.trim().split(":");
+                if (split.length == 2) {
+                    switch (split[0]) {
+                    case "Size":
+                        String[] mem = ParseUtil.whitespaces.split(split[1].trim());
+                        if (mem.length == 2 && mem[1].length() > 1) {
+                            capacity = ParseUtil.parseLongOrDefault(mem[0], 0L);
+                            switch (mem[1].charAt(0)) {
+                            case 'T':
+                                capacity <<= 40;
+                                break;
+                            case 'G':
+                                capacity <<= 30;
+                                break;
+                            case 'M':
+                                capacity <<= 20;
+                                break;
+                            case 'K':
+                            case 'k':
+                                capacity <<= 10;
+                                break;
+                            default:
+                                break;
+                            }
+                        }
+                        break;
+                    case "Type":
+                        memoryType = split[1].trim();
+                        break;
+                    case "Speed":
+                        speed = ParseUtil.parseHertz(split[1]);
+                        break;
+                    case "Manufacturer":
+                        manufacturer = split[1].trim();
+                        break;
+                    default:
+                        break;
+                    }
+                }
+            }
+        }
+        pmList.add(new PhysicalMemory(bankLabel, capacity, speed, manufacturer, memoryType));
+
+        return pmList.toArray(new PhysicalMemory[0]);
     }
 
     private long queryVmStats() {
