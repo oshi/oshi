@@ -98,9 +98,9 @@ public abstract class AbstractGlobalMemory implements GlobalMemory {
     }
 
     /**
-     * Parses a string such as "4096 MB" to its long. Used to parse macOS and
-     * *nix memory chip sizes. Although the units given are decimal they must
-     * parse to binary units.
+     * Parses a string such as "4096 MB" to its long. Used to parse macOS and *nix
+     * memory chip sizes. Although the units given are decimal they must parse to
+     * binary units.
      *
      * @param size
      *            A string of memory sizes like "4096 MB"
