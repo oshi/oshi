@@ -23,6 +23,8 @@
  */
 package oshi.hardware.platform.windows;
 
+import static oshi.util.Memoizer.memoize;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -42,7 +44,7 @@ import com.sun.jna.platform.win32.Cfgmgr32Util;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 import com.sun.jna.ptr.IntByReference;
-import static oshi.util.Memoizer.memoize;
+
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractUsbDevice;
 import oshi.util.ParseUtil;
@@ -62,7 +64,6 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
         PNPDEVICEID;
     }
 
-    // List of controllers
     private static Supplier<List<String>> controllerDeviceIds = memoize(WindowsUsbDevice::getControllerDeviceIdList);
 
     enum PnPEntityProperty {
@@ -80,26 +81,6 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
     private static final Pattern VENDOR_PRODUCT_ID = Pattern
             .compile(".*(?:VID|VEN)_(\\p{XDigit}{4})&(?:PID|DEV)_(\\p{XDigit}{4}).*");
 
-    /**
-     * <p>
-     * Constructor for WindowsUsbDevice.
-     * </p>
-     *
-     * @param name
-     *            a {@link java.lang.String} object.
-     * @param vendor
-     *            a {@link java.lang.String} object.
-     * @param vendorId
-     *            a {@link java.lang.String} object.
-     * @param productId
-     *            a {@link java.lang.String} object.
-     * @param serialNumber
-     *            a {@link java.lang.String} object.
-     * @param uniqueDeviceId
-     *            a {@link java.lang.String} object.
-     * @param connectedDevices
-     *            an array of {@link oshi.hardware.UsbDevice} objects.
-     */
     public WindowsUsbDevice(String name, String vendor, String vendorId, String productId, String serialNumber,
             String uniqueDeviceId, UsbDevice[] connectedDevices) {
         super(name, vendor, vendorId, productId, serialNumber, uniqueDeviceId, connectedDevices);
