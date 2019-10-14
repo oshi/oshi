@@ -23,7 +23,6 @@
  */
 package oshi.hardware;
 
-import oshi.util.Constants;
 import oshi.util.FormatUtil;
 
 /**
@@ -31,49 +30,12 @@ import oshi.util.FormatUtil;
  * computer system and available to the operating system.
  */
 public class PhysicalMemory {
-    /*
-     * The bank or slots label
-     *
-     * @return the bank label
-     */
+
     private final String bankLabel;
-
-    /*
-     * The capacity of memory bank in bytes
-     *
-     * @return the capacity
-     */
     private final long capacity;
-
-    /*
-     * The configured memory clock speed in mega Hertz
-     *
-     * @return the clock speed
-     */
     private final long clockSpeed;
-
-    /*
-     * The manufacturer of the physical memory
-     *
-     * @return the manufacturer
-     */
     private final String manufacturer;
-
-    /*
-     * The type of physical memory
-     *
-     * @return the memory type
-     */
     private final String memoryType;
-
-    // default values if field values are not known
-    public PhysicalMemory() {
-        this.bankLabel = Constants.UNKNOWN;
-        this.capacity = 0L;
-        this.clockSpeed = 0;
-        this.manufacturer = Constants.UNKNOWN;
-        this.memoryType = Constants.UNKNOWN;
-    }
 
     public PhysicalMemory(String bankLabel, long capacity, long clockSpeed, String manufacturer, String memoryType) {
         this.bankLabel = bankLabel;
@@ -83,22 +45,50 @@ public class PhysicalMemory {
         this.memoryType = memoryType;
     }
 
+    /**
+     * The bank and/or slot label.
+     *
+     * @return the bank label
+     */
     public String getBankLabel() {
         return bankLabel;
     }
 
+    /**
+     * The capacity of memory bank in bytes.
+     *
+     * @return the capacity
+     */
     public long getCapacity() {
         return capacity;
     }
 
+    /**
+     * The configured memory clock speed in hertz.
+     * <p>
+     * For DDR memory, this is the data transfer rate, which is a multiple of the
+     * actual bus clock speed.
+     *
+     * @return the clock speed
+     */
     public long getClockSpeed() {
-        return clockSpeed * 1_000_000L;
+        return clockSpeed;
     }
 
+    /**
+     * The manufacturer of the physical memory.
+     *
+     * @return the manufacturer
+     */
     public String getManufacturer() {
         return manufacturer;
     }
 
+    /**
+     * The type of physical memory
+     *
+     * @return the memory type
+     */
     public String getMemoryType() {
         return memoryType;
     }

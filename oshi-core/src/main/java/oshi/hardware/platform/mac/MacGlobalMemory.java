@@ -108,27 +108,7 @@ public class MacGlobalMemory extends AbstractGlobalMemory {
                 if (split.length == 2) {
                     switch (split[0]) {
                     case "Size":
-                        String[] mem = ParseUtil.whitespaces.split(split[1].trim());
-                        if (mem.length == 2 && mem[1].length() > 1) {
-                            capacity = ParseUtil.parseLongOrDefault(mem[0], 0L);
-                            switch (mem[1].charAt(0)) {
-                            case 'T':
-                                capacity <<= 40;
-                                break;
-                            case 'G':
-                                capacity <<= 30;
-                                break;
-                            case 'M':
-                                capacity <<= 20;
-                                break;
-                            case 'K':
-                            case 'k':
-                                capacity <<= 10;
-                                break;
-                            default:
-                                break;
-                            }
-                        }
+                        capacity = parsePhysicalMemorySize(split[1].trim());
                         break;
                     case "Type":
                         memoryType = split[1].trim();
