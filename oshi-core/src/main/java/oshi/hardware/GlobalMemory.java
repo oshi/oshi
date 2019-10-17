@@ -55,4 +55,14 @@ public interface GlobalMemory {
      * @return A VirtualMemory object.
      */
     VirtualMemory getVirtualMemory();
+
+    /**
+     * Physical memory, such as banks of memory.
+     * <p>
+     * On Linux, requires elevated permissions. On FreeBSD and Solaris, requires
+     * installation of dmidecode.
+     *
+     * @return A list of PhysicalMemory objects.
+     */
+    PhysicalMemory[] getPhysicalMemory();
 }

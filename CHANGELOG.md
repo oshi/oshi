@@ -1,8 +1,8 @@
 4.1.0 (in progress)
 ================
-API CHANGE: This version implements thread-safe getters for OSHI attributes. 
+API CHANGE: This version implements thread-safe getters for OSHI attributes.
 As part of this change, support for serialization has been removed. 
-In addition, setters have been removed from the API, as they were never intended for end user use.
+In addition, some setters have been removed from the API, as they were never intended for end user use.
 
 The default configuration file has been renamed to `oshi.properties` to prevent classpath conflicts.
 * [#943](https://github.com/oshi/oshi/pull/943),
@@ -30,6 +30,7 @@ The default configuration file has been renamed to `oshi.properties` to prevent 
 * [#981](https://github.com/oshi/oshi/pull/981): List Services - [@agithyogendra](https://github.com/agithyogendra).
 * [#989](https://github.com/oshi/oshi/pull/989): Improve Windows current frequency stats. - [@dbwiddis](https://github.com/dbwiddis).
 * [#995](https://github.com/oshi/oshi/pull/995): CoreFoundation, IOKit, DiskArbitration API overhaul. - [@dbwiddis](https://github.com/dbwiddis).
+* [#1005](https://github.com/oshi/oshi/pull/1005): PhysicalMemory class - [@rohitkukreja1508](https://github.com/rohitkukreja1508).
 * [#1008](https://github.com/oshi/oshi/pull/1008): Specialize getHostName() - [@2kindsofcs](https://github.com/2kindsofcs).
 * Your contribution here.
 

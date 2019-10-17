@@ -16,7 +16,9 @@ Is OSHI Thread Safe?
 ========
 Short answer: No, but multi-thread implementations can be constructed to avoid problems.
 
-Longer answer: In the normal use case of OSHI (using getters to retrieve information) there will be no thread safety issues if each thread is attempting to get information from a different object.  There are generally two ways to do this: (1) Have each thread instantiate a new instance of `SystemInfo`, or (2) have each thread deal only with access from objects not used by other threads, e.g., one thread can fetch memory information while another thread fetches Disks, and another fetches file system information. Util classes accessed by multiple objects use synchronized access or factory patterns to prevent conflicts.  We would love to improve the thread safety, but the effort required exceeds the available bandwidth of the sole maintainer.
+Longer answer: Prior to version 4.1.0, there is no guarantee of thread safety.  In the normal use case of OSHI (using getters to retrieve information) there will be no thread safety issues if each thread is attempting to get information from a different object.  There are generally two ways to do this: (1) Have each thread instantiate a new instance of `SystemInfo`, or (2) have each thread deal only with access from objects not used by other threads, e.g., one thread can fetch memory information while another thread fetches Disks, and another fetches file system information. 
+
+In version 4.1.0, attempts have been made to ensure thread safety, but users are cautioned to inspect the code if this requirement is critical, as a full audit of the code has not yet been conducted.  
 
 What minimum Java version is required?
 ========

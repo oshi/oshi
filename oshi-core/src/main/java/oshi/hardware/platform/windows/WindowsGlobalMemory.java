@@ -34,9 +34,14 @@ import org.slf4j.LoggerFactory;
 import com.sun.jna.platform.win32.Kernel32; // NOSONAR squid:S1191
 import com.sun.jna.platform.win32.Psapi;
 import com.sun.jna.platform.win32.Psapi.PERFORMANCE_INFORMATION;
+import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
+import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
+import oshi.hardware.PhysicalMemory;
 import oshi.hardware.VirtualMemory;
 import oshi.hardware.common.AbstractGlobalMemory;
+import oshi.util.platform.windows.WmiQueryHandler;
+import oshi.util.platform.windows.WmiUtil;
 
 /**
  * Memory obtained by Performance Info.
@@ -48,6 +53,10 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
     private final Supplier<PerfInfo> perfInfo = memoize(this::readPerfInfo, defaultExpiration());
 
     private final Supplier<VirtualMemory> vm = memoize(this::createVirtualMemory);
+
+    enum PhysicalMemoryProperty {
+        BANKLABEL, CAPACITY, CONFIGUREDCLOCKSPEED, MANUFACTURER, SMBIOSMEMORYTYPE
+    }
 
     @Override
     public long getAvailable() {
@@ -71,6 +80,26 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
 
     private VirtualMemory createVirtualMemory() {
         return new WindowsVirtualMemory(getPageSize());
+    }
+
+    @Override
+    public PhysicalMemory[] getPhysicalMemory() {
+        WmiQueryHandler wmiQueryHandler = WmiQueryHandler.createInstance();
+        WmiQuery<PhysicalMemoryProperty> physicalMemoryQuery = new WmiQuery<>("Win32_PhysicalMemory",
+                PhysicalMemoryProperty.class);
+        WmiResult<PhysicalMemoryProperty> bankMap = wmiQueryHandler.queryWMI(physicalMemoryQuery);
+
+        PhysicalMemory[] physicalMemoryArray = new PhysicalMemory[bankMap.getResultCount()];
+        for (int index = 0; index < bankMap.getResultCount(); index++) {
+            String bankLabel = WmiUtil.getString(bankMap, PhysicalMemoryProperty.BANKLABEL, index);
+            long capacity = WmiUtil.getUint64(bankMap, PhysicalMemoryProperty.CAPACITY, index);
+            long speed = WmiUtil.getUint32(bankMap, PhysicalMemoryProperty.CONFIGUREDCLOCKSPEED, index) * 1_000_000L;
+            String manufacturer = WmiUtil.getString(bankMap, PhysicalMemoryProperty.MANUFACTURER, index);
+            int type = WmiUtil.getUint32(bankMap, PhysicalMemoryProperty.SMBIOSMEMORYTYPE, index);
+            String memoryType = smBiosMemoryType(type);
+            physicalMemoryArray[index] = new PhysicalMemory(bankLabel, capacity, speed, manufacturer, memoryType);
+        }
+        return physicalMemoryArray;
     }
 
     private PerfInfo readPerfInfo() {
