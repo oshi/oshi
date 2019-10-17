@@ -266,8 +266,8 @@ public class ParseUtil {
     }
 
     /**
-     * Parse a human readable string into a byte array, truncating or padding with
-     * zeros (if necessary) so the array has the specified length.
+     * Parse a human readable ASCII string into a byte array, truncating or padding
+     * with zeros (if necessary) so the array has the specified length.
      *
      * @param text
      *            The string to be parsed
@@ -277,8 +277,8 @@ public class ParseUtil {
      *         characters converted to a byte. If length is longer than the provided
      *         string length, will be filled with zeroes.
      */
-    public static byte[] stringToByteArray(String text, int length) {
-        return Arrays.copyOf(text.getBytes(), length);
+    public static byte[] asciiStringToByteArray(String text, int length) {
+        return Arrays.copyOf(text.getBytes(StandardCharsets.US_ASCII), length);
     }
 
     /**

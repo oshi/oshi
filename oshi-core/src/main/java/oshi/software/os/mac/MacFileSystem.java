@@ -59,8 +59,6 @@ import oshi.util.platform.mac.SysctlUtil;
  */
 public class MacFileSystem implements FileSystem {
 
-    private static final long serialVersionUID = 1L;
-
     private static final Logger LOG = LoggerFactory.getLogger(MacFileSystem.class);
 
     // Regexp matcher for /dev/disk1 etc.

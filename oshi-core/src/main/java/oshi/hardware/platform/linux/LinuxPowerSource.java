@@ -40,8 +40,6 @@ import oshi.util.ParseUtil;
  */
 public class LinuxPowerSource extends AbstractPowerSource {
 
-    private static final long serialVersionUID = 1L;
-
     private static final Logger LOG = LoggerFactory.getLogger(LinuxPowerSource.class);
 
     private static final String PS_PATH = "/sys/class/power_supply/";

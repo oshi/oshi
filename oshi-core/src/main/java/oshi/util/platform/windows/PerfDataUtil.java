@@ -46,7 +46,7 @@ import oshi.util.Util;
  * Helper class to centralize the boilerplate portions of PDH counter setup and
  * allow applications to easily add, query, and remove counters.
  */
-public class PerfDataUtil {
+public final class PerfDataUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(PerfDataUtil.class);
 
@@ -54,7 +54,6 @@ public class PerfDataUtil {
     private static final DWORDByReference PDH_FMT_RAW = new DWORDByReference(new DWORD(Pdh.PDH_FMT_RAW));
     private static final Pdh PDH = Pdh.INSTANCE;
 
-    // Is AddEnglishCounter available?
     private static final boolean IS_VISTA_OR_GREATER = VersionHelpers.IsWindowsVistaOrGreater();
 
     public static class PerfCounter {

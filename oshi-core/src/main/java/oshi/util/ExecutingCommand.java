@@ -26,6 +26,7 @@ package oshi.util;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -84,7 +85,8 @@ public class ExecutingCommand {
         }
 
         ArrayList<String> sa = new ArrayList<>();
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()))) {
+        try (BufferedReader reader = new BufferedReader(
+                new InputStreamReader(p.getInputStream(), Charset.defaultCharset()))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 sa.add(line);

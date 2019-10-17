@@ -38,8 +38,6 @@ import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
  */
 public class SolarisPowerSource extends AbstractPowerSource {
 
-    private static final long serialVersionUID = 1L;
-
     private static final Logger LOG = LoggerFactory.getLogger(SolarisPowerSource.class);
 
     /*

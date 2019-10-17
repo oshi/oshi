@@ -40,8 +40,6 @@ import oshi.util.FormatUtil;
  */
 public class WindowsPowerSource extends AbstractPowerSource {
 
-    private static final long serialVersionUID = 1L;
-
     private static final Logger LOG = LoggerFactory.getLogger(WindowsPowerSource.class);
 
     /**

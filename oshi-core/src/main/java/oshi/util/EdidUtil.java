@@ -25,6 +25,7 @@ package oshi.util;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 import org.slf4j.Logger;
@@ -226,7 +227,7 @@ public class EdidUtil {
      * @return Plain text starting at the 4th byte
      */
     public static String getDescriptorText(byte[] desc) {
-        return new String(Arrays.copyOfRange(desc, 4, 18)).trim();
+        return new String(Arrays.copyOfRange(desc, 4, 18), StandardCharsets.US_ASCII).trim();
     }
 
     /**

@@ -47,8 +47,6 @@ import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
  */
 public class SolarisFileSystem implements FileSystem {
 
-    private static final long serialVersionUID = 1L;
-
     // Solaris defines a set of virtual file systems
     private final List<String> pseudofs = Arrays.asList(//
             "proc", // Proc file system

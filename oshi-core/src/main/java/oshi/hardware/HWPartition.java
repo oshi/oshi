@@ -23,8 +23,6 @@
  */
 package oshi.hardware;
 
-import java.io.Serializable;
-
 import oshi.util.FormatUtil;
 
 /**
@@ -33,9 +31,7 @@ import oshi.util.FormatUtil;
  * in the operating system as a distinct "logical" disk that uses part of the
  * actual disk.
  */
-public class HWPartition implements Serializable, Comparable<HWPartition> {
-
-    private static final long serialVersionUID = 1L;
+public class HWPartition implements Comparable<HWPartition> {
 
     private String identification;
     private String name;

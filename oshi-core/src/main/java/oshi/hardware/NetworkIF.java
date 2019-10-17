@@ -66,7 +66,7 @@ public class NetworkIF {
 
     /**
      * <p>
-     * The NetworkInterface object. The returned object is not serializable.
+     * The NetworkInterface object.
      * </p>
      *
      * @return the network interface, an instance of

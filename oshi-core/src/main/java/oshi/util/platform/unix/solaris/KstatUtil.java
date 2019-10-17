@@ -23,6 +23,7 @@
  */
 package oshi.util.platform.unix.solaris;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
@@ -92,8 +93,9 @@ public class KstatUtil {
             while (0 > KS.kstat_read(KC, ksp, null)) {
                 if (LibKstat.EAGAIN != Native.getLastError() || 5 <= ++retry) {
                     if (LOG.isErrorEnabled()) {
-                        LOG.error("Failed to read kstat {}:{}:{}", new String(ksp.ks_module).trim(), ksp.ks_instance,
-                                new String(ksp.ks_name).trim());
+                        LOG.error("Failed to read kstat {}:{}:{}",
+                                new String(ksp.ks_module, StandardCharsets.US_ASCII).trim(), ksp.ks_instance,
+                                new String(ksp.ks_name, StandardCharsets.US_ASCII).trim());
                     }
                     return false;
                 }
@@ -142,9 +144,9 @@ public class KstatUtil {
         public List<Kstat> lookupAll(String module, int instance, String name) {
             List<Kstat> kstats = new ArrayList<>();
             for (Kstat ksp = KS.kstat_lookup(KC, module, instance, name); ksp != null; ksp = ksp.next()) {
-                if ((module == null || module.equals(new String(ksp.ks_module).trim()))
+                if ((module == null || module.equals(new String(ksp.ks_module, StandardCharsets.US_ASCII).trim()))
                         && (instance < 0 || instance == ksp.ks_instance)
-                        && (name == null || name.equals(new String(ksp.ks_name).trim()))) {
+                        && (name == null || name.equals(new String(ksp.ks_name, StandardCharsets.US_ASCII).trim()))) {
                     kstats.add(ksp);
                 }
             }
@@ -210,7 +212,7 @@ public class KstatUtil {
         KstatNamed data = new KstatNamed(p);
         switch (data.data_type) {
         case LibKstat.KSTAT_DATA_CHAR:
-            return new String(data.value.charc).trim();
+            return new String(data.value.charc, StandardCharsets.UTF_8).trim();
         case LibKstat.KSTAT_DATA_INT32:
             return Integer.toString(data.value.i32);
         case LibKstat.KSTAT_DATA_UINT32:
@@ -249,8 +251,9 @@ public class KstatUtil {
         Pointer p = KS.kstat_data_lookup(ksp, name);
         if (p == null) {
             if (LOG.isErrorEnabled()) {
-                LOG.error("Failed lo lookup kstat value on {}:{}:{} for key {}", new String(ksp.ks_module).trim(),
-                        ksp.ks_instance, new String(ksp.ks_name).trim(), name);
+                LOG.error("Failed lo lookup kstat value on {}:{}:{} for key {}",
+                        new String(ksp.ks_module, StandardCharsets.US_ASCII).trim(), ksp.ks_instance,
+                        new String(ksp.ks_name, StandardCharsets.US_ASCII).trim(), name);
             }
             return 0L;
         }

@@ -23,14 +23,12 @@
  */
 package oshi.software.os;
 
-import java.io.Serializable;
-
 /**
  * The File System is a logical arrangement, usually in a hierarchial tree,
  * where files are placed for storage and retrieval. It may consist of one or
  * more file stores.
  */
-public interface FileSystem extends Serializable {
+public interface FileSystem {
 
     /**
      * Get file stores on this machine

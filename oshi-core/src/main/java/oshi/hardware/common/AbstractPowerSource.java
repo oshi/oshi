@@ -30,8 +30,6 @@ import oshi.hardware.PowerSource;
  */
 public abstract class AbstractPowerSource implements PowerSource {
 
-    private static final long serialVersionUID = 1L;
-
     protected String name;
 
     protected double remainingCapacity;

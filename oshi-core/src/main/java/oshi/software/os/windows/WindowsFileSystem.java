@@ -38,9 +38,9 @@ import oshi.software.os.OSFileStore;
 import oshi.util.ParseUtil;
 import oshi.util.platform.windows.PerfCounterQuery;
 import oshi.util.platform.windows.PerfCounterWildcardQuery;
+import oshi.util.platform.windows.PerfCounterWildcardQuery.PdhCounterWildcardProperty;
 import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
-import oshi.util.platform.windows.PerfCounterWildcardQuery.PdhCounterWildcardProperty;
 
 /**
  * The Windows File System contains {@link oshi.software.os.OSFileStore}s which
@@ -50,8 +50,6 @@ import oshi.util.platform.windows.PerfCounterWildcardQuery.PdhCounterWildcardPro
  */
 public class WindowsFileSystem implements FileSystem {
 
-    private static final long serialVersionUID = 1L;
-
     private static final int BUFSIZE = 255;
 
     private static final int SEM_FAILCRITICALERRORS = 0x0001;
@@ -60,10 +58,10 @@ public class WindowsFileSystem implements FileSystem {
         DESCRIPTION, DRIVETYPE, FILESYSTEM, FREESPACE, NAME, PROVIDERNAME, SIZE;
     }
 
-    private final transient WmiQuery<LogicalDiskProperty> logicalDiskQuery = new WmiQuery<>("Win32_LogicalDisk",
+    private final WmiQuery<LogicalDiskProperty> logicalDiskQuery = new WmiQuery<>("Win32_LogicalDisk",
             LogicalDiskProperty.class);
 
-    private final transient WmiQueryHandler wmiQueryHandler = WmiQueryHandler.createInstance();
+    private final WmiQueryHandler wmiQueryHandler = WmiQueryHandler.createInstance();
 
     /*
      * For handle counts
@@ -89,7 +87,7 @@ public class WindowsFileSystem implements FileSystem {
         }
     }
 
-    private final transient PerfCounterWildcardQuery<HandleCountProperty> handlePerfCounters = new PerfCounterWildcardQuery<>(
+    private final PerfCounterWildcardQuery<HandleCountProperty> handlePerfCounters = new PerfCounterWildcardQuery<>(
             HandleCountProperty.class, "Process", "Win32_Process");
 
     private static final long MAX_WINDOWS_HANDLES;
@@ -150,7 +148,7 @@ public class WindowsFileSystem implements FileSystem {
 
     /**
      * Private method for getting all mounted local drives.
-     * 
+     *
      * @param nameToMatch
      *            an optional string to filter match, null otherwise
      * @return A list of {@link OSFileStore} objects representing all local mounted
@@ -229,7 +227,7 @@ public class WindowsFileSystem implements FileSystem {
 
     /**
      * Private method for getting logical drives listed in WMI.
-     * 
+     *
      * @param nameToMatch
      *            an optional string to filter match, null otherwise
      * @return A list of {@link OSFileStore} objects representing all network
