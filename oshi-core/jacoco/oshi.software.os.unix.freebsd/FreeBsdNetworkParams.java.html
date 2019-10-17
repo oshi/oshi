@@ -23,66 +23,67 @@
  */
 package oshi.software.os.unix.freebsd;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
+import static com.sun.jna.platform.unix.LibCAPI.HOST_NAME_MAX; // NOSONAR squid:S1191
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.ptr.PointerByReference; // NOSONAR
+import com.sun.jna.Native;
+import com.sun.jna.ptr.PointerByReference;
 
-import oshi.jna.platform.unix.freebsd.Libc;
+import oshi.jna.platform.unix.CLibrary;
+import oshi.jna.platform.unix.freebsd.FreeBsdLibc;
 import oshi.software.common.AbstractNetworkParams;
 import oshi.util.ExecutingCommand;
 
-<span class="nc" id="L38">public class FreeBsdNetworkParams extends AbstractNetworkParams {</span>
+/**
+ * &lt;p&gt;
+ * FreeBsdNetworkParams class.
+ * &lt;/p&gt;
+ */
+<span class="nc" id="L44">public class FreeBsdNetworkParams extends AbstractNetworkParams {</span>
 
-    private static final long serialVersionUID = 1L;
+<span class="nc" id="L46">    private static final Logger LOG = LoggerFactory.getLogger(FreeBsdNetworkParams.class);</span>
 
-<span class="nc" id="L42">    private static final Logger LOG = LoggerFactory.getLogger(FreeBsdNetworkParams.class);</span>
+<span class="nc" id="L48">    private static final FreeBsdLibc LIBC = FreeBsdLibc.INSTANCE;</span>
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public String getDomainName() {
-<span class="nc" id="L49">        Libc.Addrinfo hint = new Libc.Addrinfo();</span>
-<span class="nc" id="L50">        hint.ai_flags = Libc.AI_CANONNAME;</span>
-<span class="nc" id="L51">        String hostname = &quot;&quot;;</span>
-        try {
-<span class="nc" id="L53">            hostname = InetAddress.getLocalHost().getHostName();</span>
-<span class="nc" id="L54">        } catch (UnknownHostException e) {</span>
-<span class="nc" id="L55">            LOG.error(&quot;Unknown host exception when getting address of local host: {}&quot;, e);</span>
-<span class="nc" id="L56">            return &quot;&quot;;</span>
-<span class="nc" id="L57">        }</span>
-<span class="nc" id="L58">        PointerByReference ptr = new PointerByReference();</span>
-<span class="nc" id="L59">        int res = Libc.INSTANCE.getaddrinfo(hostname, null, hint, ptr);</span>
-<span class="nc bnc" id="L60" title="All 2 branches missed.">        if (res &gt; 0) {</span>
-<span class="nc bnc" id="L61" title="All 2 branches missed.">            if (LOG.isErrorEnabled()) {</span>
-<span class="nc" id="L62">                LOG.error(&quot;Failed getaddrinfo(): {}&quot;, Libc.INSTANCE.gai_strerror(res));</span>
+<span class="nc" id="L52">        FreeBsdLibc.Addrinfo hint = new FreeBsdLibc.Addrinfo();</span>
+<span class="nc" id="L53">        hint.ai_flags = CLibrary.AI_CANONNAME;</span>
+<span class="nc" id="L54">        String hostname = getHostName();</span>
+
+<span class="nc" id="L56">        PointerByReference ptr = new PointerByReference();</span>
+<span class="nc" id="L57">        int res = LIBC.getaddrinfo(hostname, null, hint, ptr);</span>
+<span class="nc bnc" id="L58" title="All 2 branches missed.">        if (res &gt; 0) {</span>
+<span class="nc bnc" id="L59" title="All 2 branches missed.">            if (LOG.isErrorEnabled()) {</span>
+<span class="nc" id="L60">                LOG.warn(&quot;Failed getaddrinfo(): {}&quot;, LIBC.gai_strerror(res));</span>
             }
-<span class="nc" id="L64">            return &quot;&quot;;</span>
+<span class="nc" id="L62">            return &quot;&quot;;</span>
         }
-<span class="nc" id="L66">        Libc.Addrinfo info = new Libc.Addrinfo(ptr.getValue());</span>
-<span class="nc" id="L67">        String canonname = info.ai_canonname.trim();</span>
-<span class="nc" id="L68">        Libc.INSTANCE.freeaddrinfo(ptr.getValue());</span>
-<span class="nc" id="L69">        return canonname;</span>
+<span class="nc" id="L64">        FreeBsdLibc.Addrinfo info = new FreeBsdLibc.Addrinfo(ptr.getValue());</span>
+<span class="nc" id="L65">        String canonname = info.ai_canonname.trim();</span>
+<span class="nc" id="L66">        LIBC.freeaddrinfo(ptr.getValue());</span>
+<span class="nc" id="L67">        return canonname;</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
+    public String getHostName() {
+<span class="nc" id="L72">        byte[] hostnameBuffer = new byte[HOST_NAME_MAX + 1];</span>
+<span class="nc bnc" id="L73" title="All 2 branches missed.">        if (0 != LIBC.gethostname(hostnameBuffer, hostnameBuffer.length)) {</span>
+<span class="nc" id="L74">            return super.getHostName();</span>
+        }
+<span class="nc" id="L76">        return Native.toString(hostnameBuffer);</span>
+    }
+
     @Override
     public String getIpv4DefaultGateway() {
-<span class="nc" id="L77">        return searchGateway(ExecutingCommand.runNative(&quot;route -4 get default&quot;));</span>
+<span class="nc" id="L81">        return searchGateway(ExecutingCommand.runNative(&quot;route -4 get default&quot;));</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public String getIpv6DefaultGateway() {
-<span class="nc" id="L85">        return searchGateway(ExecutingCommand.runNative(&quot;route -6 get default&quot;));</span>
+<span class="nc" id="L86">        return searchGateway(ExecutingCommand.runNative(&quot;route -6 get default&quot;));</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

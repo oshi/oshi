@@ -23,11 +23,117 @@
  */
 package oshi.hardware.platform.mac;
 
+import static oshi.util.Memoizer.memoize;
+
+import java.nio.charset.StandardCharsets;
+import java.util.function.Supplier;
+
 import oshi.hardware.common.AbstractFirmware;
+import oshi.jna.platform.mac.IOKit.IOIterator;
+import oshi.jna.platform.mac.IOKit.IORegistryEntry;
+import oshi.jna.platform.mac.IOKitUtil;
+import oshi.util.Constants;
+import oshi.util.Util;
 
-<span class="nc" id="L28">final class MacFirmware extends AbstractFirmware {</span>
+/**
+ * Firmware data obtained from ioreg.
+ */
+<span class="nc" id="L41">final class MacFirmware extends AbstractFirmware {</span>
 
-    private static final long serialVersionUID = 1L;
+<span class="nc" id="L43">    private final Supplier&lt;EfiStrings&gt; efi = memoize(this::queryEfi);</span>
 
+    @Override
+    public String getManufacturer() {
+<span class="nc" id="L47">        return efi.get().manufacturer;</span>
+    }
+
+    @Override
+    public String getName() {
+<span class="nc" id="L52">        return efi.get().name;</span>
+    }
+
+    @Override
+    public String getDescription() {
+<span class="nc" id="L57">        return efi.get().description;</span>
+    }
+
+    @Override
+    public String getVersion() {
+<span class="nc" id="L62">        return efi.get().version;</span>
+    }
+
+    @Override
+    public String getReleaseDate() {
+<span class="nc" id="L67">        return efi.get().releaseDate;</span>
+    }
+
+    private EfiStrings queryEfi() {
+<span class="nc" id="L71">        String releaseDate = null;</span>
+<span class="nc" id="L72">        String manufacturer = null;</span>
+<span class="nc" id="L73">        String version = null;</span>
+<span class="nc" id="L74">        String name = null;</span>
+<span class="nc" id="L75">        String description = null;</span>
+
+<span class="nc" id="L77">        IORegistryEntry platformExpert = IOKitUtil.getMatchingService(&quot;IOPlatformExpertDevice&quot;);</span>
+<span class="nc bnc" id="L78" title="All 2 branches missed.">        if (platformExpert != null) {</span>
+<span class="nc" id="L79">            IOIterator iter = platformExpert.getChildIterator(&quot;IODeviceTree&quot;);</span>
+<span class="nc bnc" id="L80" title="All 2 branches missed.">            if (iter != null) {</span>
+<span class="nc" id="L81">                IORegistryEntry entry = iter.next();</span>
+<span class="nc bnc" id="L82" title="All 2 branches missed.">                while (entry != null) {</span>
+<span class="nc bnc" id="L83" title="All 4 branches missed.">                    switch (entry.getName()) {</span>
+                    case &quot;rom&quot;:
+<span class="nc" id="L85">                        byte[] data = entry.getByteArrayProperty(&quot;vendor&quot;);</span>
+<span class="nc bnc" id="L86" title="All 2 branches missed.">                        if (data != null) {</span>
+<span class="nc" id="L87">                            manufacturer = new String(data, StandardCharsets.UTF_8);</span>
+                        }
+<span class="nc" id="L89">                        data = entry.getByteArrayProperty(&quot;version&quot;);</span>
+<span class="nc bnc" id="L90" title="All 2 branches missed.">                        if (data != null) {</span>
+<span class="nc" id="L91">                            version = new String(data, StandardCharsets.UTF_8);</span>
+                        }
+<span class="nc" id="L93">                        data = entry.getByteArrayProperty(&quot;release-date&quot;);</span>
+<span class="nc bnc" id="L94" title="All 2 branches missed.">                        if (data != null) {</span>
+<span class="nc" id="L95">                            releaseDate = new String(data, StandardCharsets.UTF_8);</span>
+                        }
+                        break;
+                    case &quot;chosen&quot;:
+<span class="nc" id="L99">                        data = entry.getByteArrayProperty(&quot;booter-name&quot;);</span>
+<span class="nc bnc" id="L100" title="All 2 branches missed.">                        if (data != null) {</span>
+<span class="nc" id="L101">                            name = new String(data, StandardCharsets.UTF_8);</span>
+                        }
+                        break;
+                    case &quot;efi&quot;:
+<span class="nc" id="L105">                        data = entry.getByteArrayProperty(&quot;firmware-abi&quot;);</span>
+<span class="nc bnc" id="L106" title="All 2 branches missed.">                        if (data != null) {</span>
+<span class="nc" id="L107">                            description = new String(data, StandardCharsets.UTF_8);</span>
+                        }
+                        break;
+                    default:
+                        break;
+                    }
+<span class="nc" id="L113">                    entry.release();</span>
+<span class="nc" id="L114">                    entry = iter.next();</span>
+                }
+<span class="nc" id="L116">                iter.release();</span>
+            }
+<span class="nc" id="L118">            platformExpert.release();</span>
+        }
+<span class="nc" id="L120">        return new EfiStrings(releaseDate, manufacturer, version, name, description);</span>
+    }
+
+    private static final class EfiStrings {
+        private final String releaseDate;
+        private final String manufacturer;
+        private final String version;
+        private final String name;
+        private final String description;
+
+<span class="nc" id="L130">        private EfiStrings(String releaseDate, String manufacturer, String version, String name, String description) {</span>
+<span class="nc bnc" id="L131" title="All 2 branches missed.">            this.releaseDate = Util.isBlank(releaseDate) ? Constants.UNKNOWN : releaseDate;</span>
+<span class="nc bnc" id="L132" title="All 2 branches missed.">            this.manufacturer = Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer;</span>
+<span class="nc bnc" id="L133" title="All 2 branches missed.">            this.version = Util.isBlank(version) ? Constants.UNKNOWN : version;</span>
+<span class="nc bnc" id="L134" title="All 2 branches missed.">            this.name = Util.isBlank(name) ? Constants.UNKNOWN : name;</span>
+<span class="nc bnc" id="L135" title="All 2 branches missed.">            this.description = Util.isBlank(description) ? Constants.UNKNOWN : description;</span>
+<span class="nc" id="L136">        }</span>
+    }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

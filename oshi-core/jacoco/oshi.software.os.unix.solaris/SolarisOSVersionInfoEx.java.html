@@ -24,22 +24,29 @@
 package oshi.software.os.unix.solaris;
 
 import oshi.software.common.AbstractOSVersionInfoEx;
+import oshi.software.os.OperatingSystem;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
+/**
+ * @deprecated Use {@link OperatingSystem.OSVersionInfo}
+ */
+@Deprecated
 public class SolarisOSVersionInfoEx extends AbstractOSVersionInfoEx {
 
-    private static final long serialVersionUID = 1L;
-
-<span class="nc" id="L34">    public SolarisOSVersionInfoEx() {</span>
-        // TODO use sysinfo() instead of commandline
-<span class="nc" id="L36">        String versionInfo = ExecutingCommand.getFirstAnswer(&quot;uname -rv&quot;);</span>
-<span class="nc" id="L37">        String[] split = ParseUtil.whitespaces.split(versionInfo);</span>
-<span class="nc" id="L38">        setVersion(split[0]);</span>
-<span class="nc bnc" id="L39" title="All 2 branches missed.">        if (split.length &gt; 1) {</span>
-<span class="nc" id="L40">            setBuildNumber(split[1]);</span>
+    /**
+     * &lt;p&gt;
+     * Constructor for SolarisOSVersionInfoEx.
+     * &lt;/p&gt;
+     */
+<span class="nc" id="L42">    public SolarisOSVersionInfoEx() {</span>
+<span class="nc" id="L43">        String versionInfo = ExecutingCommand.getFirstAnswer(&quot;uname -rv&quot;);</span>
+<span class="nc" id="L44">        String[] split = ParseUtil.whitespaces.split(versionInfo);</span>
+<span class="nc" id="L45">        setVersion(split[0]);</span>
+<span class="nc bnc" id="L46" title="All 2 branches missed.">        if (split.length &gt; 1) {</span>
+<span class="nc" id="L47">            setBuildNumber(split[1]);</span>
         }
-<span class="nc" id="L42">        setCodeName(&quot;Solaris&quot;);</span>
-<span class="nc" id="L43">    }</span>
+<span class="nc" id="L49">        setCodeName(&quot;Solaris&quot;);</span>
+<span class="nc" id="L50">    }</span>
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

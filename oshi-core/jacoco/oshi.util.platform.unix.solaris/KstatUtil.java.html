@@ -23,8 +23,10 @@
  */
 package oshi.util.platform.unix.solaris;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,31 +43,153 @@ import oshi.util.Util;
 
 /**
  * Provides access to kstat information on Solaris
- *
- * @author widdis[at]gmail[dot]com
  */
 public class KstatUtil {
 <span class="nc" id="L48">    private static final Logger LOG = LoggerFactory.getLogger(KstatUtil.class);</span>
 
-    // All active use of this variable must be synchronized
-<span class="nc" id="L51">    private static final KstatCtl kc = LibKstat.INSTANCE.kstat_open();</span>
+<span class="nc" id="L50">    private static final LibKstat KS = LibKstat.INSTANCE;</span>
 
-    static {
-<span class="nc" id="L54">        Runtime.getRuntime().addShutdownHook(new Thread() {</span>
-            @Override
-            public void run() {
-<span class="nc" id="L57">                LibKstat.INSTANCE.kstat_close(kc);</span>
-<span class="nc" id="L58">            }</span>
-        });
-<span class="nc" id="L60">    }</span>
+    // Opens the kstat chain. Automatically closed on exit.
+    // Only one thread may access the chain at any time, so we wrap this object in
+    // the KstatChain class which locks the class until closed.
+<span class="nc" id="L55">    private static final KstatCtl KC = KS.kstat_open();</span>
+<span class="nc" id="L56">    private static final ReentrantLock CHAIN = new ReentrantLock();</span>
 
     private KstatUtil() {
     }
 
     /**
-     * Convenience method for kstat_data_lookup() with String return values.
-     * Searches the kstat's data section for the record with the specified name.
-     * This operation is valid only for kstat types which have named data
+     * A copy of the Kstat chain, encapsulating a {@code kstat_ctl_t} object. Only
+     * one thread may actively use this object at any time.
+     * &lt;p&gt;
+     * Instantiating this object is accomplished using the
+     * {@link KstatUtil#openChain} method. It locks and updates the chain and is the
+     * equivalent of calling {@link LibKstat#kstat_open}. The control object should
+     * be closed with {@link #close}, the equivalent of calling
+     * {@link LibKstat#kstat_close}
+     */
+    public static class KstatChain implements AutoCloseable {
+
+<span class="nc" id="L73">        private KstatChain() {</span>
+<span class="nc" id="L74">            CHAIN.lock();</span>
+<span class="nc" id="L75">            this.update();</span>
+<span class="nc" id="L76">        }</span>
+
+        /**
+         * Convenience method for {@link LibKstat#kstat_read} which gets data from the
+         * kernel for the kstat pointed to by {@code ksp}. {@code ksp.ks_data} is
+         * automatically allocated (or reallocated) to be large enough to hold all of
+         * the data. {@code ksp.ks_ndata} is set to the number of data fields,
+         * {@code ksp.ks_data_size} is set to the total size of the data, and
+         * ksp.ks_snaptime is set to the high-resolution time at which the data snapshot
+         * was taken.
+         *
+         * @param ksp
+         *            The kstat from which to retrieve data
+         * @return {@code true} if successful; {@code false} otherwise
+         */
+        public boolean read(Kstat ksp) {
+<span class="nc" id="L92">            int retry = 0;</span>
+<span class="nc bnc" id="L93" title="All 2 branches missed.">            while (0 &gt; KS.kstat_read(KC, ksp, null)) {</span>
+<span class="nc bnc" id="L94" title="All 4 branches missed.">                if (LibKstat.EAGAIN != Native.getLastError() || 5 &lt;= ++retry) {</span>
+<span class="nc bnc" id="L95" title="All 2 branches missed.">                    if (LOG.isErrorEnabled()) {</span>
+<span class="nc" id="L96">                        LOG.error(&quot;Failed to read kstat {}:{}:{}&quot;,</span>
+<span class="nc" id="L97">                                new String(ksp.ks_module, StandardCharsets.US_ASCII).trim(), ksp.ks_instance,</span>
+<span class="nc" id="L98">                                new String(ksp.ks_name, StandardCharsets.US_ASCII).trim());</span>
+                    }
+<span class="nc" id="L100">                    return false;</span>
+                }
+<span class="nc" id="L102">                Util.sleep(8 &lt;&lt; retry);</span>
+            }
+<span class="nc" id="L104">            return true;</span>
+        }
+
+        /**
+         * Convenience method for {@link LibKstat#kstat_lookup}. Traverses the kstat
+         * chain, searching for a kstat with the same {@code module}, {@code instance},
+         * and {@code name} fields; this triplet uniquely identifies a kstat. If
+         * {@code module} is {@code null}, {@code instance} is -1, or {@code name} is
+         * {@code null}, then those fields will be ignored in the search.
+         *
+         * @param module
+         *            The module, or null to ignore
+         * @param instance
+         *            The instance, or -1 to ignore
+         * @param name
+         *            The name, or null to ignore
+         * @return The first match of the requested Kstat structure if found, or
+         *         {@code null}
+         */
+        public Kstat lookup(String module, int instance, String name) {
+<span class="nc" id="L124">            return KS.kstat_lookup(KC, module, instance, name);</span>
+        }
+
+        /**
+         * Convenience method for {@link LibKstat#kstat_lookup}. Traverses the kstat
+         * chain, searching for all kstats with the same {@code module},
+         * {@code instance}, and {@code name} fields; this triplet uniquely identifies a
+         * kstat. If {@code module} is {@code null}, {@code instance} is -1, or
+         * {@code name} is {@code null}, then those fields will be ignored in the
+         * search.
+         *
+         * @param module
+         *            The module, or null to ignore
+         * @param instance
+         *            The instance, or -1 to ignore
+         * @param name
+         *            The name, or null to ignore
+         * @return All matches of the requested Kstat structure if found, or an empty
+         *         list otherwise
+         */
+        public List&lt;Kstat&gt; lookupAll(String module, int instance, String name) {
+<span class="nc" id="L145">            List&lt;Kstat&gt; kstats = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L146" title="All 2 branches missed.">            for (Kstat ksp = KS.kstat_lookup(KC, module, instance, name); ksp != null; ksp = ksp.next()) {</span>
+<span class="nc bnc" id="L147" title="All 10 branches missed.">                if ((module == null || module.equals(new String(ksp.ks_module, StandardCharsets.US_ASCII).trim()))</span>
+                        &amp;&amp; (instance &lt; 0 || instance == ksp.ks_instance)
+<span class="nc bnc" id="L149" title="All 2 branches missed.">                        &amp;&amp; (name == null || name.equals(new String(ksp.ks_name, StandardCharsets.US_ASCII).trim()))) {</span>
+<span class="nc" id="L150">                    kstats.add(ksp);</span>
+                }
+            }
+<span class="nc" id="L153">            return kstats;</span>
+        }
+
+        /**
+         * Convenience method for {@link LibKstat#kstat_chain_update}. Brings this kstat
+         * header chain in sync with that of the kernel.
+         * &lt;p&gt;
+         * This function compares the kernel's current kstat chain ID(KCID), which is
+         * incremented every time the kstat chain changes, to this object's KCID.
+         *
+         * @return the new KCID if the kstat chain has changed, 0 if it hasn't, or -1 on
+         *         failure.
+         */
+        public int update() {
+<span class="nc" id="L167">            return KS.kstat_chain_update(KC);</span>
+        }
+
+        /**
+         * Release the lock on the chain.
+         */
+        @Override
+        public void close() {
+<span class="nc" id="L175">            CHAIN.unlock();</span>
+<span class="nc" id="L176">        }</span>
+    }
+
+    /**
+     * Create a copy of the Kstat chain and lock it for use by this object.
+     *
+     * @return A locked copy of the chain. It should be unlocked/released when you
+     *         are done with it with {@link KstatChain#close()}.
+     */
+    public static KstatChain openChain() {
+<span class="nc" id="L186">        return new KstatChain();</span>
+    }
+
+    /**
+     * Convenience method for {@link LibKstat#kstat_data_lookup} with String return
+     * values. Searches the kstat's data section for the record with the specified
+     * name. This operation is valid only for kstat types which have named data
      * records. Currently, only the KSTAT_TYPE_NAMED and KSTAT_TYPE_TIMER kstats
      * have named data records.
      *
@@ -76,39 +200,39 @@ public class KstatUtil {
      *            applicable
      * @return The value as a String.
      */
-    public static synchronized String kstatDataLookupString(Kstat ksp, String name) {
-<span class="nc bnc" id="L80" title="All 4 branches missed.">        if (ksp.ks_type != LibKstat.KSTAT_TYPE_NAMED &amp;&amp; ksp.ks_type != LibKstat.KSTAT_TYPE_TIMER) {</span>
-<span class="nc" id="L81">            throw new IllegalArgumentException(&quot;Not a kstat_named or kstat_timer kstat.&quot;);</span>
+    public static String dataLookupString(Kstat ksp, String name) {
+<span class="nc bnc" id="L204" title="All 4 branches missed.">        if (ksp.ks_type != LibKstat.KSTAT_TYPE_NAMED &amp;&amp; ksp.ks_type != LibKstat.KSTAT_TYPE_TIMER) {</span>
+<span class="nc" id="L205">            throw new IllegalArgumentException(&quot;Not a kstat_named or kstat_timer kstat.&quot;);</span>
         }
-<span class="nc" id="L83">        Pointer p = LibKstat.INSTANCE.kstat_data_lookup(ksp, name);</span>
-<span class="nc bnc" id="L84" title="All 2 branches missed.">        if (p == null) {</span>
-<span class="nc" id="L85">            LOG.error(&quot;Failed lo lookup kstat value for key {}&quot;, name);</span>
-<span class="nc" id="L86">            return &quot;&quot;;</span>
+<span class="nc" id="L207">        Pointer p = KS.kstat_data_lookup(ksp, name);</span>
+<span class="nc bnc" id="L208" title="All 2 branches missed.">        if (p == null) {</span>
+<span class="nc" id="L209">            LOG.error(&quot;Failed lo lookup kstat value for key {}&quot;, name);</span>
+<span class="nc" id="L210">            return &quot;&quot;;</span>
         }
-<span class="nc" id="L88">        KstatNamed data = new KstatNamed(p);</span>
-<span class="nc bnc" id="L89" title="All 7 branches missed.">        switch (data.data_type) {</span>
+<span class="nc" id="L212">        KstatNamed data = new KstatNamed(p);</span>
+<span class="nc bnc" id="L213" title="All 7 branches missed.">        switch (data.data_type) {</span>
         case LibKstat.KSTAT_DATA_CHAR:
-<span class="nc" id="L91">            return new String(data.value.charc).trim();</span>
+<span class="nc" id="L215">            return new String(data.value.charc, StandardCharsets.UTF_8).trim();</span>
         case LibKstat.KSTAT_DATA_INT32:
-<span class="nc" id="L93">            return Integer.toString(data.value.i32);</span>
+<span class="nc" id="L217">            return Integer.toString(data.value.i32);</span>
         case LibKstat.KSTAT_DATA_UINT32:
-<span class="nc" id="L95">            return FormatUtil.toUnsignedString(data.value.ui32);</span>
+<span class="nc" id="L219">            return FormatUtil.toUnsignedString(data.value.ui32);</span>
         case LibKstat.KSTAT_DATA_INT64:
-<span class="nc" id="L97">            return Long.toString(data.value.i64);</span>
+<span class="nc" id="L221">            return Long.toString(data.value.i64);</span>
         case LibKstat.KSTAT_DATA_UINT64:
-<span class="nc" id="L99">            return FormatUtil.toUnsignedString(data.value.ui64);</span>
+<span class="nc" id="L223">            return FormatUtil.toUnsignedString(data.value.ui64);</span>
         case LibKstat.KSTAT_DATA_STRING:
-<span class="nc" id="L101">            return data.value.str.addr.getString(0);</span>
+<span class="nc" id="L225">            return data.value.str.addr.getString(0);</span>
         default:
-<span class="nc" id="L103">            LOG.error(&quot;Unimplemented kstat data type {}&quot;, data.data_type);</span>
-<span class="nc" id="L104">            return &quot;&quot;;</span>
+<span class="nc" id="L227">            LOG.error(&quot;Unimplemented kstat data type {}&quot;, data.data_type);</span>
+<span class="nc" id="L228">            return &quot;&quot;;</span>
         }
     }
 
     /**
-     * Convenience method for kstat_data_lookup() with numeric return values.
-     * Searches the kstat's data section for the record with the specified name.
-     * This operation is valid only for kstat types which have named data
+     * Convenience method for {@link LibKstat#kstat_data_lookup} with numeric return
+     * values. Searches the kstat's data section for the record with the specified
+     * name. This operation is valid only for kstat types which have named data
      * records. Currently, only the KSTAT_TYPE_NAMED and KSTAT_TYPE_TIMER kstats
      * have named data records.
      *
@@ -117,120 +241,36 @@ public class KstatUtil {
      * @param name
      *            The key for the name-value pair, or name of the timer as
      *            applicable
-     * @return The value as a long. If the data type is a character or string
-     *         type, returns 0 and logs an error.
+     * @return The value as a long. If the data type is a character or string type,
+     *         returns 0 and logs an error.
      */
-    public static synchronized long kstatDataLookupLong(Kstat ksp, String name) {
-<span class="nc bnc" id="L124" title="All 4 branches missed.">        if (ksp.ks_type != LibKstat.KSTAT_TYPE_NAMED &amp;&amp; ksp.ks_type != LibKstat.KSTAT_TYPE_TIMER) {</span>
-<span class="nc" id="L125">            throw new IllegalArgumentException(&quot;Not a kstat_named or kstat_timer kstat.&quot;);</span>
+    public static long dataLookupLong(Kstat ksp, String name) {
+<span class="nc bnc" id="L248" title="All 4 branches missed.">        if (ksp.ks_type != LibKstat.KSTAT_TYPE_NAMED &amp;&amp; ksp.ks_type != LibKstat.KSTAT_TYPE_TIMER) {</span>
+<span class="nc" id="L249">            throw new IllegalArgumentException(&quot;Not a kstat_named or kstat_timer kstat.&quot;);</span>
         }
-<span class="nc" id="L127">        Pointer p = LibKstat.INSTANCE.kstat_data_lookup(ksp, name);</span>
-<span class="nc bnc" id="L128" title="All 2 branches missed.">        if (p == null) {</span>
-<span class="nc bnc" id="L129" title="All 2 branches missed.">            if (LOG.isErrorEnabled()) {</span>
-<span class="nc" id="L130">                LOG.error(&quot;Failed lo lookup kstat value on {}:{}:{} for key {}&quot;, new String(ksp.ks_module).trim(),</span>
-<span class="nc" id="L131">                        ksp.ks_instance, new String(ksp.ks_name).trim(), name);</span>
+<span class="nc" id="L251">        Pointer p = KS.kstat_data_lookup(ksp, name);</span>
+<span class="nc bnc" id="L252" title="All 2 branches missed.">        if (p == null) {</span>
+<span class="nc bnc" id="L253" title="All 2 branches missed.">            if (LOG.isErrorEnabled()) {</span>
+<span class="nc" id="L254">                LOG.error(&quot;Failed lo lookup kstat value on {}:{}:{} for key {}&quot;,</span>
+<span class="nc" id="L255">                        new String(ksp.ks_module, StandardCharsets.US_ASCII).trim(), ksp.ks_instance,</span>
+<span class="nc" id="L256">                        new String(ksp.ks_name, StandardCharsets.US_ASCII).trim(), name);</span>
             }
-<span class="nc" id="L133">            return 0L;</span>
+<span class="nc" id="L258">            return 0L;</span>
         }
-<span class="nc" id="L135">        KstatNamed data = new KstatNamed(p);</span>
-<span class="nc bnc" id="L136" title="All 5 branches missed.">        switch (data.data_type) {</span>
+<span class="nc" id="L260">        KstatNamed data = new KstatNamed(p);</span>
+<span class="nc bnc" id="L261" title="All 5 branches missed.">        switch (data.data_type) {</span>
         case LibKstat.KSTAT_DATA_INT32:
-<span class="nc" id="L138">            return data.value.i32;</span>
+<span class="nc" id="L263">            return data.value.i32;</span>
         case LibKstat.KSTAT_DATA_UINT32:
-<span class="nc" id="L140">            return FormatUtil.getUnsignedInt(data.value.ui32);</span>
+<span class="nc" id="L265">            return FormatUtil.getUnsignedInt(data.value.ui32);</span>
         case LibKstat.KSTAT_DATA_INT64:
-<span class="nc" id="L142">            return data.value.i64;</span>
+<span class="nc" id="L267">            return data.value.i64;</span>
         case LibKstat.KSTAT_DATA_UINT64:
-<span class="nc" id="L144">            return data.value.ui64;</span>
+<span class="nc" id="L269">            return data.value.ui64;</span>
         default:
-<span class="nc" id="L146">            LOG.error(&quot;Unimplemented or non-numeric kstat data type {}&quot;, data.data_type);</span>
-<span class="nc" id="L147">            return 0L;</span>
+<span class="nc" id="L271">            LOG.error(&quot;Unimplemented or non-numeric kstat data type {}&quot;, data.data_type);</span>
+<span class="nc" id="L272">            return 0L;</span>
         }
-    }
-
-    /**
-     * Convenience method for kstat_read() which gets data from the kernel for
-     * the kstat pointed to by ksp. ksp.ks_data is automatically allocated (or
-     * reallocated) to be large enough to hold all of the data. ksp.ks_ndata is
-     * set to the number of data fields, ksp.ks_data_size is set to the total
-     * size of the data, and ksp.ks_snaptime is set to the high-resolution time
-     * at which the data snapshot was taken.
-     *
-     * @param ksp
-     *            The kstat from which to retrieve data
-     * @return True if successful; false otherwise
-     */
-    public static synchronized boolean kstatRead(Kstat ksp) {
-<span class="nc" id="L164">        int retry = 0;</span>
-<span class="nc bnc" id="L165" title="All 2 branches missed.">        while (0 &gt; LibKstat.INSTANCE.kstat_read(kc, ksp, null)) {</span>
-<span class="nc bnc" id="L166" title="All 4 branches missed.">            if (LibKstat.EAGAIN != Native.getLastError() || 5 &lt;= ++retry) {</span>
-<span class="nc bnc" id="L167" title="All 2 branches missed.">                if (LOG.isErrorEnabled()) {</span>
-<span class="nc" id="L168">                    LOG.error(&quot;Failed to read kstat {}:{}:{}&quot;, new String(ksp.ks_module).trim(), ksp.ks_instance,</span>
-<span class="nc" id="L169">                            new String(ksp.ks_name).trim());</span>
-                }
-<span class="nc" id="L171">                return false;</span>
-            }
-<span class="nc" id="L173">            Util.sleep(8 &lt;&lt; retry);</span>
-        }
-<span class="nc" id="L175">        return true;</span>
-    }
-
-    /**
-     * Convenience method for kstat_lookup(). Traverses the kstat chain,
-     * searching for a kstat with the same ks_module, ks_instance, and ks_name
-     * fields; this triplet uniquely identifies a kstat. If ks_module is NULL,
-     * ks_instance is -1, or ks_name is NULL, then those fields will be ignored
-     * in the search.
-     *
-     * @param module
-     *            The module, or null to ignore
-     * @param instance
-     *            The instance, or -1 to ignore
-     * @param name
-     *            The name, or null to ignore
-     * @return The first match of the requested Kstat structure if found, or
-     *         null
-     */
-    public static synchronized Kstat kstatLookup(String module, int instance, String name) {
-<span class="nc" id="L195">        int ret = LibKstat.INSTANCE.kstat_chain_update(kc);</span>
-<span class="nc bnc" id="L196" title="All 2 branches missed.">        if (ret &lt; 0) {</span>
-<span class="nc" id="L197">            LOG.error(&quot;Failed to update kstat chain&quot;);</span>
-<span class="nc" id="L198">            return null;</span>
-        }
-<span class="nc" id="L200">        return LibKstat.INSTANCE.kstat_lookup(kc, module, instance, name);</span>
-    }
-
-    /**
-     * Convenience method for kstat_lookup(). Traverses the kstat chain,
-     * searching for all kstats with the same ks_module, ks_instance, and
-     * ks_name fields; this triplet uniquely identifies a kstat. If ks_module is
-     * NULL, ks_instance is -1, or ks_name is NULL, then those fields will be
-     * ignored in the search.
-     *
-     * @param module
-     *            The module, or null to ignore
-     * @param instance
-     *            The instance, or -1 to ignore
-     * @param name
-     *            The name, or null to ignore
-     * @return All matches of the requested Kstat structure if found, or an
-     *         empty list otherwise
-     */
-    public static synchronized List&lt;Kstat&gt; kstatLookupAll(String module, int instance, String name) {
-<span class="nc" id="L220">        List&lt;Kstat&gt; kstats = new ArrayList&lt;&gt;();</span>
-<span class="nc" id="L221">        int ret = LibKstat.INSTANCE.kstat_chain_update(kc);</span>
-<span class="nc bnc" id="L222" title="All 2 branches missed.">        if (ret &lt; 0) {</span>
-<span class="nc" id="L223">            LOG.error(&quot;Failed to update kstat chain&quot;);</span>
-<span class="nc" id="L224">            return kstats;</span>
-        }
-<span class="nc bnc" id="L226" title="All 2 branches missed.">        for (Kstat ksp = LibKstat.INSTANCE.kstat_lookup(kc, module, instance, name); ksp != null; ksp = ksp.next()) {</span>
-<span class="nc bnc" id="L227" title="All 10 branches missed.">            if ((module == null || module.equals(new String(ksp.ks_module).trim()))</span>
-                    &amp;&amp; (instance &lt; 0 || instance == ksp.ks_instance)
-<span class="nc bnc" id="L229" title="All 2 branches missed.">                    &amp;&amp; (name == null || name.equals(new String(ksp.ks_name).trim()))) {</span>
-<span class="nc" id="L230">                kstats.add(ksp);</span>
-            }
-        }
-<span class="nc" id="L233">        return kstats;</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
