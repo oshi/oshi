@@ -77,7 +77,7 @@ public class BsdSysctlUtil {
         IntByReference size = new IntByReference(FreeBsdLibc.UINT64_SIZE);
         Pointer p = new Memory(size.getValue());
         if (0 != FreeBsdLibc.INSTANCE.sysctlbyname(name, p, size, null, 0)) {
-            LOG.error(SYSCTL_FAIL, name, Native.getLastError());
+            LOG.warn(SYSCTL_FAIL, name, Native.getLastError());
             return def;
         }
         return p.getLong(0);
@@ -96,13 +96,13 @@ public class BsdSysctlUtil {
         // Call first time with null pointer to get value of size
         IntByReference size = new IntByReference();
         if (0 != FreeBsdLibc.INSTANCE.sysctlbyname(name, null, size, null, 0)) {
-            LOG.error(SYSCTL_FAIL, name, Native.getLastError());
+            LOG.warn(SYSCTL_FAIL, name, Native.getLastError());
             return def;
         }
         // Add 1 to size for null terminated string
         Pointer p = new Memory(size.getValue() + 1);
         if (0 != FreeBsdLibc.INSTANCE.sysctlbyname(name, p, size, null, 0)) {
-            LOG.error(SYSCTL_FAIL, name, Native.getLastError());
+            LOG.warn(SYSCTL_FAIL, name, Native.getLastError());
             return def;
         }
         return p.getString(0);

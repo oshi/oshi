@@ -25,9 +25,6 @@ package oshi.software.os.unix.freebsd;
 
 import static com.sun.jna.platform.unix.LibCAPI.HOST_NAME_MAX; // NOSONAR squid:S1191
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,18 +51,13 @@ public class FreeBsdNetworkParams extends AbstractNetworkParams {
     public String getDomainName() {
         FreeBsdLibc.Addrinfo hint = new FreeBsdLibc.Addrinfo();
         hint.ai_flags = CLibrary.AI_CANONNAME;
-        String hostname = "";
-        try {
-            hostname = InetAddress.getLocalHost().getHostName();
-        } catch (UnknownHostException e) {
-            LOG.error("Unknown host exception when getting address of local host: {}", e);
-            return "";
-        }
+        String hostname = getHostName();
+
         PointerByReference ptr = new PointerByReference();
         int res = LIBC.getaddrinfo(hostname, null, hint, ptr);
         if (res > 0) {
             if (LOG.isErrorEnabled()) {
-                LOG.error("Failed getaddrinfo(): {}", LIBC.gai_strerror(res));
+                LOG.warn("Failed getaddrinfo(): {}", LIBC.gai_strerror(res));
             }
             return "";
         }
