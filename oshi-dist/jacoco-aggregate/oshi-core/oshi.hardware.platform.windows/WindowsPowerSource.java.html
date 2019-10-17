@@ -26,7 +26,8 @@ package oshi.hardware.platform.windows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.NativeLong; // NOSONAR squid:S1191
+import com.sun.jna.Memory; // NOSONAR
+import com.sun.jna.platform.win32.PowrProf.POWER_INFORMATION_LEVEL;
 
 import oshi.hardware.PowerSource;
 import oshi.hardware.common.AbstractPowerSource;
@@ -36,19 +37,27 @@ import oshi.util.FormatUtil;
 
 /**
  * A Power Source
- *
- * @author widdis[at]gmail[dot]com
  */
 public class WindowsPowerSource extends AbstractPowerSource {
 
-    private static final long serialVersionUID = 1L;
+<span class="nc" id="L43">    private static final Logger LOG = LoggerFactory.getLogger(WindowsPowerSource.class);</span>
 
-<span class="nc" id="L46">    private static final Logger LOG = LoggerFactory.getLogger(WindowsPowerSource.class);</span>
-
+    /**
+     * &lt;p&gt;
+     * Constructor for WindowsPowerSource.
+     * &lt;/p&gt;
+     *
+     * @param newName
+     *            a {@link java.lang.String} object.
+     * @param newRemainingCapacity
+     *            a double.
+     * @param newTimeRemaining
+     *            a double.
+     */
     public WindowsPowerSource(String newName, double newRemainingCapacity, double newTimeRemaining) {
-<span class="nc" id="L49">        super(newName, newRemainingCapacity, newTimeRemaining);</span>
-<span class="nc" id="L50">        LOG.debug(&quot;Initialized WindowsPowerSource&quot;);</span>
-<span class="nc" id="L51">    }</span>
+<span class="nc" id="L58">        super(newName, newRemainingCapacity, newTimeRemaining);</span>
+<span class="nc" id="L59">        LOG.debug(&quot;Initialized WindowsPowerSource&quot;);</span>
+<span class="nc" id="L60">    }</span>
 
     /**
      * Gets Battery Information.
@@ -57,25 +66,37 @@ public class WindowsPowerSource extends AbstractPowerSource {
      */
     public static PowerSource[] getPowerSources() {
         // Windows provides a single unnamed battery
-<span class="nc" id="L60">        String name = &quot;System Battery&quot;;</span>
-<span class="nc" id="L61">        WindowsPowerSource[] psArray = new WindowsPowerSource[1];</span>
-        // Get structure
-<span class="nc" id="L63">        SystemBatteryState batteryState = new SystemBatteryState();</span>
-<span class="nc bnc" id="L64" title="All 4 branches missed.">        if (0 != PowrProf.INSTANCE.CallNtPowerInformation(PowrProf.SYSTEM_BATTERY_STATE, null, new NativeLong(0),</span>
-<span class="nc" id="L65">                batteryState, new NativeLong(batteryState.size())) || batteryState.batteryPresent == 0) {</span>
-<span class="nc" id="L66">            psArray[0] = new WindowsPowerSource(&quot;Unknown&quot;, 0d, -1d);</span>
-        } else {
-<span class="nc" id="L68">            int estimatedTime = -2; // -1 = unknown, -2 = unlimited</span>
-<span class="nc bnc" id="L69" title="All 6 branches missed.">            if (batteryState.acOnLine == 0 &amp;&amp; batteryState.charging == 0 &amp;&amp; batteryState.discharging &gt; 0) {</span>
-<span class="nc" id="L70">                estimatedTime = batteryState.estimatedTime;</span>
-            }
-<span class="nc" id="L72">            long maxCapacity = FormatUtil.getUnsignedInt(batteryState.maxCapacity);</span>
-<span class="nc" id="L73">            long remainingCapacity = FormatUtil.getUnsignedInt(batteryState.remainingCapacity);</span>
-
-<span class="nc" id="L75">            psArray[0] = new WindowsPowerSource(name, (double) remainingCapacity / maxCapacity, estimatedTime);</span>
-        }
-
-<span class="nc" id="L78">        return psArray;</span>
+<span class="nc" id="L69">        WindowsPowerSource[] psArray = new WindowsPowerSource[1];</span>
+<span class="nc" id="L70">        psArray[0] = getPowerSource(&quot;System Battery&quot;);</span>
+<span class="nc" id="L71">        return psArray;</span>
     }
+
+    private static WindowsPowerSource getPowerSource(String name) {
+        // Get structure
+<span class="nc" id="L76">        int size = new SystemBatteryState().size();</span>
+<span class="nc" id="L77">        Memory mem = new Memory(size);</span>
+<span class="nc bnc" id="L78" title="All 2 branches missed.">        if (0 == PowrProf.INSTANCE.CallNtPowerInformation(POWER_INFORMATION_LEVEL.SystemBatteryState, null, 0, mem,</span>
+                size)) {
+<span class="nc" id="L80">            SystemBatteryState batteryState = new SystemBatteryState(mem);</span>
+<span class="nc bnc" id="L81" title="All 2 branches missed.">            if (batteryState.batteryPresent &gt; 0) {</span>
+<span class="nc" id="L82">                int estimatedTime = -2; // -1 = unknown, -2 = unlimited</span>
+<span class="nc bnc" id="L83" title="All 6 branches missed.">                if (batteryState.acOnLine == 0 &amp;&amp; batteryState.charging == 0 &amp;&amp; batteryState.discharging &gt; 0) {</span>
+<span class="nc" id="L84">                    estimatedTime = batteryState.estimatedTime;</span>
+                }
+<span class="nc" id="L86">                long maxCapacity = FormatUtil.getUnsignedInt(batteryState.maxCapacity);</span>
+<span class="nc" id="L87">                long remainingCapacity = FormatUtil.getUnsignedInt(batteryState.remainingCapacity);</span>
+<span class="nc" id="L88">                return new WindowsPowerSource(name, (double) remainingCapacity / maxCapacity, estimatedTime);</span>
+            }
+        }
+<span class="nc" id="L91">        return new WindowsPowerSource(&quot;Unknown&quot;, 0d, -1d);</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void updateAttributes() {
+<span class="nc" id="L97">        PowerSource ps = getPowerSource(this.name);</span>
+<span class="nc" id="L98">        this.remainingCapacity = ps.getRemainingCapacity();</span>
+<span class="nc" id="L99">        this.timeRemaining = ps.getTimeRemaining();</span>
+<span class="nc" id="L100">    }</span>
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

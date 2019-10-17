@@ -25,9 +25,40 @@ package oshi.hardware.platform.unix.solaris;
 
 import oshi.hardware.common.AbstractBaseboard;
 
-<span class="nc" id="L28">final class SolarisBaseboard extends AbstractBaseboard {</span>
+/**
+ * Baseboard data obtained by smbios
+ */
+final class SolarisBaseboard extends AbstractBaseboard {
+    private final String manufacturer;
+    private final String model;
+    private final String serialNumber;
+    private final String version;
 
-    private static final long serialVersionUID = 1L;
+<span class="nc" id="L37">    SolarisBaseboard(String manufacturer, String model, String serialNumber, String version) {</span>
+<span class="nc" id="L38">        this.manufacturer = manufacturer;</span>
+<span class="nc" id="L39">        this.model = model;</span>
+<span class="nc" id="L40">        this.serialNumber = serialNumber;</span>
+<span class="nc" id="L41">        this.version = version;</span>
+<span class="nc" id="L42">    }</span>
 
+    @Override
+    public String getManufacturer() {
+<span class="nc" id="L46">        return this.manufacturer;</span>
+    }
+
+    @Override
+    public String getModel() {
+<span class="nc" id="L51">        return this.model;</span>
+    }
+
+    @Override
+    public String getSerialNumber() {
+<span class="nc" id="L56">        return this.serialNumber;</span>
+    }
+
+    @Override
+    public String getVersion() {
+<span class="nc" id="L61">        return this.version;</span>
+    }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

@@ -25,9 +25,31 @@ package oshi.hardware.platform.unix.solaris;
 
 import oshi.hardware.common.AbstractFirmware;
 
-<span class="nc" id="L28">final class SolarisFirmware extends AbstractFirmware {</span>
+final class SolarisFirmware extends AbstractFirmware {
 
-    private static final long serialVersionUID = 1L;
+    private final String manufacturer;
+    private final String version;
+    private final String releaseDate;
 
+<span class="nc" id="L34">    SolarisFirmware(String manufacturer, String version, String releaseDate) {</span>
+<span class="nc" id="L35">        this.manufacturer = manufacturer;</span>
+<span class="nc" id="L36">        this.version = version;</span>
+<span class="nc" id="L37">        this.releaseDate = releaseDate;</span>
+<span class="nc" id="L38">    }</span>
+
+    @Override
+    public String getManufacturer() {
+<span class="nc" id="L42">        return manufacturer;</span>
+    }
+
+    @Override
+    public String getVersion() {
+<span class="nc" id="L47">        return version;</span>
+    }
+
+    @Override
+    public String getReleaseDate() {
+<span class="nc" id="L52">        return releaseDate;</span>
+    }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

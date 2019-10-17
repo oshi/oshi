@@ -23,14 +23,53 @@
  */
 package oshi.hardware.common;
 
+import static oshi.util.Memoizer.defaultExpiration;
+import static oshi.util.Memoizer.memoize;
+
+import java.util.Arrays;
+import java.util.function.Supplier;
+
 import oshi.hardware.Sensors;
 
 /**
  * Sensor info.
  */
-<span class="nc" id="L31">public abstract class AbstractSensors implements Sensors {</span>
+<span class="nc" id="L37">public abstract class AbstractSensors implements Sensors {</span>
 
-    private static final long serialVersionUID = 1L;
+<span class="nc" id="L39">    private final Supplier&lt;Double&gt; cpuTemperature = memoize(this::queryCpuTemperature, defaultExpiration());</span>
 
+<span class="nc" id="L41">    private final Supplier&lt;int[]&gt; fanSpeeds = memoize(this::queryFanSpeeds, defaultExpiration());</span>
+
+<span class="nc" id="L43">    private final Supplier&lt;Double&gt; cpuVoltage = memoize(this::queryCpuVoltage, defaultExpiration());</span>
+
+    @Override
+    public double getCpuTemperature() {
+<span class="nc" id="L47">        return cpuTemperature.get();</span>
+    }
+
+    protected abstract double queryCpuTemperature();
+
+    @Override
+    public int[] getFanSpeeds() {
+<span class="nc" id="L54">        return fanSpeeds.get();</span>
+    }
+
+    protected abstract int[] queryFanSpeeds();
+
+    @Override
+    public double getCpuVoltage() {
+<span class="nc" id="L61">        return cpuVoltage.get();</span>
+    }
+
+    protected abstract double queryCpuVoltage();
+
+    @Override
+    public String toString() {
+<span class="nc" id="L68">        StringBuilder sb = new StringBuilder();</span>
+<span class="nc" id="L69">        sb.append(&quot;CPU Temperature=&quot;).append(getCpuTemperature()).append(&quot;°C, &quot;);</span>
+<span class="nc" id="L70">        sb.append(&quot;Fan Speeds=&quot;).append(Arrays.toString(getFanSpeeds())).append(&quot;, &quot;);</span>
+<span class="nc" id="L71">        sb.append(&quot;CPU Voltage=&quot;).append(getCpuVoltage());</span>
+<span class="nc" id="L72">        return sb.toString();</span>
+    }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

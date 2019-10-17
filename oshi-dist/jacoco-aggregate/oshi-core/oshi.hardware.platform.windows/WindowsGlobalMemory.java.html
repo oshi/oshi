@@ -23,7 +23,10 @@
  */
 package oshi.hardware.platform.windows;
 
-import java.util.Map;
+import static oshi.util.Memoizer.defaultExpiration;
+import static oshi.util.Memoizer.memoize;
+
+import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,131 +34,99 @@ import org.slf4j.LoggerFactory;
 import com.sun.jna.platform.win32.Kernel32; // NOSONAR squid:S1191
 import com.sun.jna.platform.win32.Psapi;
 import com.sun.jna.platform.win32.Psapi.PERFORMANCE_INFORMATION;
+import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
+import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
-import oshi.data.windows.PerfCounterQuery;
-import oshi.data.windows.PerfCounterQuery.PdhCounterProperty;
+import oshi.hardware.PhysicalMemory;
+import oshi.hardware.VirtualMemory;
 import oshi.hardware.common.AbstractGlobalMemory;
-import oshi.util.MapUtil;
+import oshi.util.platform.windows.WmiQueryHandler;
+import oshi.util.platform.windows.WmiUtil;
 
 /**
- * Memory obtained by GlobalMemoryStatusEx.
- *
- * @author dblock[at]dblock[dot]org
+ * Memory obtained by Performance Info.
  */
-<span class="nc" id="L45">public class WindowsGlobalMemory extends AbstractGlobalMemory {</span>
+<span class="nc" id="L49">public class WindowsGlobalMemory extends AbstractGlobalMemory {</span>
 
-    private static final long serialVersionUID = 1L;
+<span class="nc" id="L51">    private static final Logger LOG = LoggerFactory.getLogger(WindowsGlobalMemory.class);</span>
 
-<span class="nc" id="L49">    private static final Logger LOG = LoggerFactory.getLogger(WindowsGlobalMemory.class);</span>
+<span class="nc" id="L53">    private final Supplier&lt;PerfInfo&gt; perfInfo = memoize(this::readPerfInfo, defaultExpiration());</span>
 
-<span class="nc" id="L51">    private long lastUpdate = 0L;</span>
+<span class="nc" id="L55">    private final Supplier&lt;VirtualMemory&gt; vm = memoize(this::createVirtualMemory);</span>
 
-    /*
-     * For pages in/out
-     */
-<span class="nc" id="L56">    public enum PageSwapProperty implements PdhCounterProperty {</span>
-<span class="nc" id="L57">        PAGESINPUTPERSEC(null, &quot;Pages Input/sec&quot;), //</span>
-<span class="nc" id="L58">        PAGESOUTPUTPERSEC(null, &quot;Pages Output/sec&quot;);</span>
-
-        private final String instance;
-        private final String counter;
-
-<span class="nc" id="L63">        PageSwapProperty(String instance, String counter) {</span>
-<span class="nc" id="L64">            this.instance = instance;</span>
-<span class="nc" id="L65">            this.counter = counter;</span>
-<span class="nc" id="L66">        }</span>
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public String getInstance() {
-<span class="nc" id="L73">            return instance;</span>
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public String getCounter() {
-<span class="nc" id="L81">            return counter;</span>
-        }
+<span class="nc" id="L57">    enum PhysicalMemoryProperty {</span>
+<span class="nc" id="L58">        BANKLABEL, CAPACITY, CONFIGUREDCLOCKSPEED, MANUFACTURER, SMBIOSMEMORYTYPE</span>
     }
 
-<span class="nc" id="L85">    private transient PerfCounterQuery&lt;PageSwapProperty&gt; memoryPerfCounters = new PerfCounterQuery&lt;&gt;(</span>
-            PageSwapProperty.class, &quot;Memory&quot;, &quot;Win32_PerfRawData_PerfOS_Memory&quot;);
-
-    /*
-     * For swap file usage
-     */
-<span class="nc" id="L91">    enum PagingPercentProperty implements PdhCounterProperty {</span>
-<span class="nc" id="L92">        PERCENTUSAGE(PerfCounterQuery.TOTAL_INSTANCE, &quot;% Usage&quot;);</span>
-
-        private final String instance;
-        private final String counter;
-
-<span class="nc" id="L97">        PagingPercentProperty(String instance, String counter) {</span>
-<span class="nc" id="L98">            this.instance = instance;</span>
-<span class="nc" id="L99">            this.counter = counter;</span>
-<span class="nc" id="L100">        }</span>
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public String getInstance() {
-<span class="nc" id="L107">            return instance;</span>
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public String getCounter() {
-<span class="nc" id="L115">            return counter;</span>
-        }
+    @Override
+    public long getAvailable() {
+<span class="nc" id="L63">        return perfInfo.get().available;</span>
     }
 
-<span class="nc" id="L119">    private transient PerfCounterQuery&lt;PagingPercentProperty&gt; pagingPerfCounters = new PerfCounterQuery&lt;&gt;(</span>
-            PagingPercentProperty.class, &quot;Paging File&quot;, &quot;Win32_PerfRawData_PerfOS_PagingFile&quot;);
-
-    /**
-     * Update the performance information no more frequently than every 100ms
-     */
     @Override
-    protected void updateMeminfo() {
-<span class="nc" id="L127">        PERFORMANCE_INFORMATION perfInfo = new PERFORMANCE_INFORMATION();</span>
-<span class="nc" id="L128">        long now = System.currentTimeMillis();</span>
-<span class="nc bnc" id="L129" title="All 2 branches missed.">        if (now - this.lastUpdate &gt; 100) {</span>
-<span class="nc bnc" id="L130" title="All 2 branches missed.">            if (!Psapi.INSTANCE.GetPerformanceInfo(perfInfo, perfInfo.size())) {</span>
-<span class="nc" id="L131">                LOG.error(&quot;Failed to get Performance Info. Error code: {}&quot;, Kernel32.INSTANCE.GetLastError());</span>
-<span class="nc" id="L132">                return;</span>
-            }
-<span class="nc" id="L134">            this.pageSize = perfInfo.PageSize.longValue();</span>
-<span class="nc" id="L135">            this.memAvailable = this.pageSize * perfInfo.PhysicalAvailable.longValue();</span>
-<span class="nc" id="L136">            this.memTotal = this.pageSize * perfInfo.PhysicalTotal.longValue();</span>
-<span class="nc" id="L137">            this.swapTotal = this.pageSize * (perfInfo.CommitLimit.longValue() - perfInfo.PhysicalTotal.longValue());</span>
-<span class="nc bnc" id="L138" title="All 2 branches missed.">            if (this.swapTotal &gt; 0) {</span>
-<span class="nc" id="L139">                updateSwapCounters();</span>
-            }
-<span class="nc" id="L141">            this.lastUpdate = now;</span>
+    public long getTotal() {
+<span class="nc" id="L68">        return perfInfo.get().total;</span>
+    }
+
+    @Override
+    public long getPageSize() {
+<span class="nc" id="L73">        return perfInfo.get().pageSize;</span>
+    }
+
+    @Override
+    public VirtualMemory getVirtualMemory() {
+<span class="nc" id="L78">        return vm.get();</span>
+    }
+
+    private VirtualMemory createVirtualMemory() {
+<span class="nc" id="L82">        return new WindowsVirtualMemory(getPageSize());</span>
+    }
+
+    @Override
+    public PhysicalMemory[] getPhysicalMemory() {
+<span class="nc" id="L87">        WmiQueryHandler wmiQueryHandler = WmiQueryHandler.createInstance();</span>
+<span class="nc" id="L88">        WmiQuery&lt;PhysicalMemoryProperty&gt; physicalMemoryQuery = new WmiQuery&lt;&gt;(&quot;Win32_PhysicalMemory&quot;,</span>
+                PhysicalMemoryProperty.class);
+<span class="nc" id="L90">        WmiResult&lt;PhysicalMemoryProperty&gt; bankMap = wmiQueryHandler.queryWMI(physicalMemoryQuery);</span>
+
+<span class="nc" id="L92">        PhysicalMemory[] physicalMemoryArray = new PhysicalMemory[bankMap.getResultCount()];</span>
+<span class="nc bnc" id="L93" title="All 2 branches missed.">        for (int index = 0; index &lt; bankMap.getResultCount(); index++) {</span>
+<span class="nc" id="L94">            String bankLabel = WmiUtil.getString(bankMap, PhysicalMemoryProperty.BANKLABEL, index);</span>
+<span class="nc" id="L95">            long capacity = WmiUtil.getUint64(bankMap, PhysicalMemoryProperty.CAPACITY, index);</span>
+<span class="nc" id="L96">            long speed = WmiUtil.getUint32(bankMap, PhysicalMemoryProperty.CONFIGUREDCLOCKSPEED, index) * 1_000_000L;</span>
+<span class="nc" id="L97">            String manufacturer = WmiUtil.getString(bankMap, PhysicalMemoryProperty.MANUFACTURER, index);</span>
+<span class="nc" id="L98">            int type = WmiUtil.getUint32(bankMap, PhysicalMemoryProperty.SMBIOSMEMORYTYPE, index);</span>
+<span class="nc" id="L99">            String memoryType = smBiosMemoryType(type);</span>
+<span class="nc" id="L100">            physicalMemoryArray[index] = new PhysicalMemory(bankLabel, capacity, speed, manufacturer, memoryType);</span>
         }
-<span class="nc" id="L143">    }</span>
+<span class="nc" id="L102">        return physicalMemoryArray;</span>
+    }
 
-    private void updateSwapCounters() {
-<span class="nc" id="L146">        Map&lt;PageSwapProperty, Long&gt; valueMap = this.memoryPerfCounters.queryValues();</span>
-<span class="nc" id="L147">        this.swapPagesIn = MapUtil.getOrDefault(valueMap, PageSwapProperty.PAGESINPUTPERSEC, 0L);</span>
-<span class="nc" id="L148">        this.swapPagesOut = MapUtil.getOrDefault(valueMap, PageSwapProperty.PAGESOUTPUTPERSEC, 0L);</span>
-<span class="nc" id="L149">    }</span>
+    private PerfInfo readPerfInfo() {
+        long pageSize;
+        long memAvailable;
+        long memTotal;
+<span class="nc" id="L109">        PERFORMANCE_INFORMATION performanceInfo = new PERFORMANCE_INFORMATION();</span>
+<span class="nc bnc" id="L110" title="All 2 branches missed.">        if (!Psapi.INSTANCE.GetPerformanceInfo(performanceInfo, performanceInfo.size())) {</span>
+<span class="nc" id="L111">            LOG.error(&quot;Failed to get Performance Info. Error code: {}&quot;, Kernel32.INSTANCE.GetLastError());</span>
+<span class="nc" id="L112">            return new PerfInfo(0, 0, 4098);</span>
+        }
+<span class="nc" id="L114">        pageSize = performanceInfo.PageSize.longValue();</span>
+<span class="nc" id="L115">        memAvailable = pageSize * performanceInfo.PhysicalAvailable.longValue();</span>
+<span class="nc" id="L116">        memTotal = pageSize * performanceInfo.PhysicalTotal.longValue();</span>
+<span class="nc" id="L117">        return new PerfInfo(memTotal, memAvailable, pageSize);</span>
+    }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void updateSwap() {
-<span class="nc" id="L156">        updateMeminfo();</span>
-<span class="nc" id="L157">        Map&lt;PagingPercentProperty, Long&gt; valueMap = this.pagingPerfCounters.queryValues();</span>
-<span class="nc" id="L158">        this.swapUsed = MapUtil.getOrDefault(valueMap, PagingPercentProperty.PERCENTUSAGE, 0L);</span>
-<span class="nc" id="L159">    }</span>
+    private static final class PerfInfo {
+        private final long total;
+        private final long available;
+        private final long pageSize;
+
+<span class="nc" id="L125">        private PerfInfo(long total, long available, long pageSize) {</span>
+<span class="nc" id="L126">            this.total = total;</span>
+<span class="nc" id="L127">            this.available = available;</span>
+<span class="nc" id="L128">            this.pageSize = pageSize;</span>
+<span class="nc" id="L129">        }</span>
+    }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

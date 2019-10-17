@@ -26,19 +26,19 @@ package oshi.hardware.platform.unix.solaris;
 import java.util.ArrayList;
 import java.util.List;
 
-import oshi.hardware.Sensors;
+import oshi.hardware.common.AbstractSensors;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
-<span class="nc" id="L33">public class SolarisSensors implements Sensors {</span>
+/**
+ * &lt;p&gt;
+ * SolarisSensors class.
+ * &lt;/p&gt;
+ */
+<span class="nc" id="L38">public class SolarisSensors extends AbstractSensors {</span>
 
-    private static final long serialVersionUID = 1L;
-
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public double getCpuTemperature() {
+    public double queryCpuTemperature() {
 <span class="nc" id="L42">        double maxTemp = 0d;</span>
         // Return max found temp
 <span class="nc bnc" id="L44" title="All 2 branches missed.">        for (String line : ExecutingCommand.runNative(&quot;/usr/sbin/prtpicl -v -c temperature-sensor&quot;)) {</span>
@@ -56,39 +56,32 @@ import oshi.util.ParseUtil;
 <span class="nc" id="L56">        return maxTemp;</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public int[] getFanSpeeds() {
-<span class="nc" id="L64">        List&lt;Integer&gt; speedList = new ArrayList&lt;&gt;();</span>
+    public int[] queryFanSpeeds() {
+<span class="nc" id="L61">        List&lt;Integer&gt; speedList = new ArrayList&lt;&gt;();</span>
         // Return max found temp
-<span class="nc bnc" id="L66" title="All 2 branches missed.">        for (String line : ExecutingCommand.runNative(&quot;/usr/sbin/prtpicl -v -c fan&quot;)) {</span>
-<span class="nc bnc" id="L67" title="All 2 branches missed.">            if (line.trim().startsWith(&quot;Speed:&quot;)) {</span>
-<span class="nc" id="L68">                speedList.add(ParseUtil.parseLastInt(line, 0));</span>
+<span class="nc bnc" id="L63" title="All 2 branches missed.">        for (String line : ExecutingCommand.runNative(&quot;/usr/sbin/prtpicl -v -c fan&quot;)) {</span>
+<span class="nc bnc" id="L64" title="All 2 branches missed.">            if (line.trim().startsWith(&quot;Speed:&quot;)) {</span>
+<span class="nc" id="L65">                speedList.add(ParseUtil.parseLastInt(line, 0));</span>
             }
-<span class="nc" id="L70">        }</span>
-<span class="nc" id="L71">        int[] fans = new int[speedList.size()];</span>
-<span class="nc bnc" id="L72" title="All 2 branches missed.">        for (int i = 0; i &lt; speedList.size(); i++) {</span>
-<span class="nc" id="L73">            fans[i] = speedList.get(i);</span>
+<span class="nc" id="L67">        }</span>
+<span class="nc" id="L68">        int[] fans = new int[speedList.size()];</span>
+<span class="nc bnc" id="L69" title="All 2 branches missed.">        for (int i = 0; i &lt; speedList.size(); i++) {</span>
+<span class="nc" id="L70">            fans[i] = speedList.get(i);</span>
         }
-<span class="nc" id="L75">        return fans;</span>
+<span class="nc" id="L72">        return fans;</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public double getCpuVoltage() {
-<span class="nc" id="L83">        double voltage = 0d;</span>
-        // TODO This is entirely a guess!
-<span class="nc bnc" id="L85" title="All 2 branches missed.">        for (String line : ExecutingCommand.runNative(&quot;/usr/sbin/prtpicl -v -c voltage-sensor&quot;)) {</span>
-<span class="nc bnc" id="L86" title="All 2 branches missed.">            if (line.trim().startsWith(&quot;Voltage:&quot;)) {</span>
-<span class="nc" id="L87">                voltage = ParseUtil.parseDoubleOrDefault(line.replace(&quot;Voltage:&quot;, &quot;&quot;).trim(), 0d);</span>
-<span class="nc" id="L88">                break;</span>
+    public double queryCpuVoltage() {
+<span class="nc" id="L77">        double voltage = 0d;</span>
+<span class="nc bnc" id="L78" title="All 2 branches missed.">        for (String line : ExecutingCommand.runNative(&quot;/usr/sbin/prtpicl -v -c voltage-sensor&quot;)) {</span>
+<span class="nc bnc" id="L79" title="All 2 branches missed.">            if (line.trim().startsWith(&quot;Voltage:&quot;)) {</span>
+<span class="nc" id="L80">                voltage = ParseUtil.parseDoubleOrDefault(line.replace(&quot;Voltage:&quot;, &quot;&quot;).trim(), 0d);</span>
+<span class="nc" id="L81">                break;</span>
             }
-<span class="nc" id="L90">        }</span>
-<span class="nc" id="L91">        return voltage;</span>
+<span class="nc" id="L83">        }</span>
+<span class="nc" id="L84">        return voltage;</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
