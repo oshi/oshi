@@ -74,7 +74,6 @@ public class SystemInfo {
 
     private final Supplier<HardwareAbstractionLayer> hardware = memoize(this::createHardware);
 
-
     /**
      * <p>
      * Getter for the field <code>currentPlatformEnum</code>.

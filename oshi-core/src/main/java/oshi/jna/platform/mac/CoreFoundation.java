@@ -401,16 +401,15 @@ public interface CoreFoundation extends Library {
         }
 
         /**
-         * Convenience method for
-         * {@link CoreFoundation#CFDictionaryGetValueIfPresent} on this object.
+         * Convenience method for {@link CoreFoundation#CFDictionaryGetValueIfPresent}
+         * on this object.
          *
          * @param key
          *            The key for which to find a match.
          * @param value
          *            A pointer to memory which, on return, is filled with the
          *            pointer-sized value if a matching key is found.
-         * @return {@code true} if a matching key was found, otherwise
-         *         {@code false}
+         * @return {@code true} if a matching key was found, otherwise {@code false}
          */
         public boolean getValueIfPresent(PointerType key, PointerByReference value) {
             return INSTANCE.CFDictionaryGetValueIfPresent(this, key, value) > 0;

@@ -98,8 +98,7 @@ public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
         cpu64bit = ExecutingCommand.getFirstAnswer("uname -m").trim().contains("64");
         processorID = getProcessorIDfromDmiDecode(processorIdBits);
 
-        return new ProcessorIdentifier(cpuVendor, cpuName, cpuFamily, cpuModel, cpuStepping, processorID,
-                cpu64bit);
+        return new ProcessorIdentifier(cpuVendor, cpuName, cpuFamily, cpuModel, cpuStepping, processorID, cpu64bit);
     }
 
     @Override

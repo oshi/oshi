@@ -86,14 +86,14 @@ public class MacVirtualMemory extends AbstractVirtualMemory {
     private VmStat queryVmStat() {
         long swapPagesIn = 0L;
         long swapPagesOut = 0L;
-            VMStatistics vmStats = new VMStatistics();
+        VMStatistics vmStats = new VMStatistics();
         if (0 == SystemB.INSTANCE.host_statistics(SystemB.INSTANCE.mach_host_self(), SystemB.HOST_VM_INFO, vmStats,
-                    new IntByReference(vmStats.size() / SystemB.INT_SIZE))) {
+                new IntByReference(vmStats.size() / SystemB.INT_SIZE))) {
             swapPagesIn = ParseUtil.unsignedIntToLong(vmStats.pageins);
             swapPagesOut = ParseUtil.unsignedIntToLong(vmStats.pageouts);
         } else {
             LOG.error("Failed to get host VM info. Error code: {}", Native.getLastError());
-            }
+        }
         return new VmStat(swapPagesIn, swapPagesOut);
     }
 

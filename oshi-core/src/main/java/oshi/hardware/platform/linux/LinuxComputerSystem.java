@@ -37,6 +37,7 @@ import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.linux.ProcUtil;
+
 /**
  * Hardware data obtained from sysfs.
  */

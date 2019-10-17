@@ -97,8 +97,7 @@ final class WindowsComputerSystem extends AbstractComputerSystem {
 
     private String querySerialFromBios() {
         String result = null;
-        WmiQuery<BiosProperty> serialNumQuery = new WmiQuery<>("Win32_BIOS where PrimaryBIOS=true",
-                BiosProperty.class);
+        WmiQuery<BiosProperty> serialNumQuery = new WmiQuery<>("Win32_BIOS where PrimaryBIOS=true", BiosProperty.class);
         WmiResult<BiosProperty> serialNum = wmiQueryHandler.queryWMI(serialNumQuery);
         if (serialNum.getResultCount() > 0) {
             result = WmiUtil.getString(serialNum, BiosProperty.SERIALNUMBER, 0);

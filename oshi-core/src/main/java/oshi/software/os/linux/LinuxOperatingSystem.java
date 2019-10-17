@@ -535,8 +535,8 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     /**
      * Attempts to read /etc/lsb-release
      *
-     * @return true if file successfully read and DISTRIB_ID or
-     *         DISTRIB_DESCRIPTION found
+     * @return true if file successfully read and DISTRIB_ID or DISTRIB_DESCRIPTION
+     *         found
      */
     private String readLsbRelease() {
         String family = null;
@@ -568,8 +568,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     /**
      * Attempts to read /etc/distrib-release (for some value of distrib)
      *
-     * @return true if file successfully read and " release " or " VERSION "
-     *         found
+     * @return true if file successfully read and " release " or " VERSION " found
      */
     private String readDistribRelease(String filename) {
         String family = null;
@@ -644,9 +643,8 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     }
 
     /**
-     * Converts a portion of a filename (e.g. the 'redhat' in
-     * /etc/redhat-release) to a mixed case string representing the family
-     * (e.g., Red Hat)
+     * Converts a portion of a filename (e.g. the 'redhat' in /etc/redhat-release)
+     * to a mixed case string representing the family (e.g., Red Hat)
      *
      * @param name
      *            Stripped version of filename after removing /etc and -release
@@ -715,8 +713,8 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     }
 
     /**
-     * Gets Jiffies per second, useful for converting ticks to milliseconds and
-     * vice versa.
+     * Gets Jiffies per second, useful for converting ticks to milliseconds and vice
+     * versa.
      *
      * @return Jiffies per second.
      */

@@ -35,16 +35,17 @@ import oshi.hardware.CentralProcessor.TickType;
 import oshi.util.FileUtil;
 import oshi.util.GlobalConfig;
 import oshi.util.ParseUtil;
+
 /**
  * Provides access to some /proc filesystem info on Linux
  */
 public class ProcUtil {
-    
+
     /**
      * The proc path for CPU information
      */
     public static final String CPUINFO = "/cpuinfo";
-    
+
     /**
      * The proc path for CPU statistics
      */
@@ -64,8 +65,8 @@ public class ProcUtil {
      * The proc filesystem location may be customized to allow alternative proc
      * plugins, particularly useful for containers.
      *
-     * @return The proc filesystem path, with a leading / but not a trailing
-     *         one, e.g., "/proc"
+     * @return The proc filesystem path, with a leading / but not a trailing one,
+     *         e.g., "/proc"
      */
     public static String getProcPath() {
         return proc.get();
@@ -80,7 +81,6 @@ public class ProcUtil {
         }
         return procPath;
     }
-
 
     /**
      * Parses the first value in /proc/uptime for seconds since boot

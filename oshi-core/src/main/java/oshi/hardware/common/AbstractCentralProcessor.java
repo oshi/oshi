@@ -95,7 +95,7 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
     protected abstract ProcessorIdentifier queryProcessorId();
 
     @Override
-    public ProcessorIdentifier getProcessorIdentifier(){
+    public ProcessorIdentifier getProcessorIdentifier() {
         return cpuid.get();
     }
 
@@ -418,5 +418,4 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
         return sb.toString();
     }
 
-    
 }

@@ -225,7 +225,7 @@ final class LinuxFirmware extends AbstractFirmware {
         }
         return new BiosStrings(biosName, revision);
     }
-    
+
     private VcGenCmdStrings queryVcGenCmd() {
         String vcReleaseDate = null;
         String vcManufacturer = null;

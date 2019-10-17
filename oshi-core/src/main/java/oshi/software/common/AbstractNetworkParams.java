@@ -116,9 +116,10 @@ public abstract class AbstractNetworkParams implements NetworkParams {
 
     /** {@inheritDoc} */
     @Override
-    public String toString(){
-        return String.format("Host name: %s, Domain name: %s, DNS servers: %s, IPv4 Gateway: %s, IPv6 Gateway: %s"
-                ,this.getHostName(),this.getDomainName(),Arrays.toString(this.getDnsServers()),this.getIpv4DefaultGateway(),this.getIpv6DefaultGateway());
+    public String toString() {
+        return String.format("Host name: %s, Domain name: %s, DNS servers: %s, IPv4 Gateway: %s, IPv6 Gateway: %s",
+                this.getHostName(), this.getDomainName(), Arrays.toString(this.getDnsServers()),
+                this.getIpv4DefaultGateway(), this.getIpv6DefaultGateway());
 
     }
 }

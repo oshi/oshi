@@ -164,19 +164,19 @@ public interface CentralProcessor {
     long getMaxFreq();
 
     /**
-     * Attempts to return the current frequency (in Hz), of the logical
-     * processors on this CPU.
+     * Attempts to return the current frequency (in Hz), of the logical processors
+     * on this CPU.
      * <p>
      * May not be implemented on all Operating Systems.
      * <p>
-     * On Windows, returns an estimate based on the percent of maximum
-     * frequency. On Windows systems with more than 64 logical processors, may
-     * only return frequencies for the current processor group in the first
-     * portion of the array.
+     * On Windows, returns an estimate based on the percent of maximum frequency. On
+     * Windows systems with more than 64 logical processors, may only return
+     * frequencies for the current processor group in the first portion of the
+     * array.
      *
-     * @return An array of processor frequencies for each logical processor on
-     *         the system. Use the {@link #getLogicalProcessors()} to correlate
-     *         these frequencies with physical packages and processors.
+     * @return An array of processor frequencies for each logical processor on the
+     *         system. Use the {@link #getLogicalProcessors()} to correlate these
+     *         frequencies with physical packages and processors.
      */
     long[] getCurrentFreq();
 

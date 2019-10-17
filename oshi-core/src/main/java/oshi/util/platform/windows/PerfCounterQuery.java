@@ -77,8 +77,8 @@ public class PerfCounterQuery<T extends Enum<T>> {
      *
      * @param propertyEnum
      *            An enum which implements
-     *            {@link oshi.util.platform.windows.PerfCounterQuery.PdhCounterProperty} and
-     *            contains the WMI field (Enum value) and PDH Counter string
+     *            {@link oshi.util.platform.windows.PerfCounterQuery.PdhCounterProperty}
+     *            and contains the WMI field (Enum value) and PDH Counter string
      *            (instance and counter)
      * @param perfObject
      *            The PDH object for this counter; all counters on this object will
@@ -95,8 +95,8 @@ public class PerfCounterQuery<T extends Enum<T>> {
      *
      * @param propertyEnum
      *            An enum which implements
-     *            {@link oshi.util.platform.windows.PerfCounterQuery.PdhCounterProperty} and
-     *            contains the WMI field (Enum value) and PDH Counter string
+     *            {@link oshi.util.platform.windows.PerfCounterQuery.PdhCounterProperty}
+     *            and contains the WMI field (Enum value) and PDH Counter string
      *            (instance and counter)
      * @param perfObject
      *            The PDH object for this counter; all counters on this object will

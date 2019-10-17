@@ -93,8 +93,7 @@ final class WindowsFirmware extends AbstractFirmware {
         private final String name;
         private final String description;
 
-        private WmiStrings(String releaseDate, String manufacturer, String version, String name,
-                String description) {
+        private WmiStrings(String releaseDate, String manufacturer, String version, String name, String description) {
             this.releaseDate = Util.isBlank(releaseDate) ? Constants.UNKNOWN : releaseDate;
             this.manufacturer = Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer;
             this.version = Util.isBlank(version) ? Constants.UNKNOWN : version;

@@ -86,12 +86,12 @@ public class SolarisVirtualMemory extends AbstractVirtualMemory {
     private SwapInfo querySwapInfo() {
         long swapTotal = 0L;
         long swapUsed = 0L;
-            String swap = ExecutingCommand.getAnswerAt("swap -lk", 1);
-            Matcher m = SWAP_INFO.matcher(swap);
-            if (m.matches()) {
+        String swap = ExecutingCommand.getAnswerAt("swap -lk", 1);
+        Matcher m = SWAP_INFO.matcher(swap);
+        if (m.matches()) {
             swapTotal = ParseUtil.parseLongOrDefault(m.group(1), 0L) << 10;
             swapUsed = swapTotal - (ParseUtil.parseLongOrDefault(m.group(2), 0L) << 10);
-            }
+        }
         return new SwapInfo(swapTotal, swapUsed);
     }
 

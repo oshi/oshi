@@ -39,6 +39,7 @@ import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.linux.ProcUtil;
+
 /**
  * A CPU as defined in Linux /proc.
  */
@@ -115,8 +116,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
                 }
             }
         }
-        return new ProcessorIdentifier(cpuVendor, cpuName, cpuFamily, cpuModel, cpuStepping, processorID, 
-                cpu64bit);
+        return new ProcessorIdentifier(cpuVendor, cpuName, cpuFamily, cpuModel, cpuStepping, processorID, cpu64bit);
     }
 
     @Override

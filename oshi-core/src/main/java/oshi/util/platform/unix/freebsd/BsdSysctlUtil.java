@@ -118,7 +118,8 @@ public class BsdSysctlUtil {
      * @return True if structure is successfuly populated, false otherwise
      */
     public static boolean sysctl(String name, Structure struct) {
-        if (0 != FreeBsdLibc.INSTANCE.sysctlbyname(name, struct.getPointer(), new IntByReference(struct.size()), null, 0)) {
+        if (0 != FreeBsdLibc.INSTANCE.sysctlbyname(name, struct.getPointer(), new IntByReference(struct.size()), null,
+                0)) {
             LOG.error(SYSCTL_FAIL, name, Native.getLastError());
             return false;
         }

@@ -150,8 +150,8 @@ public interface IOKit extends Library {
         }
 
         /**
-         * Convenience method for {@link #IORegistryEntryGetRegistryEntryID} to
-         * return an ID for this registry entry that is global to all tasks.
+         * Convenience method for {@link #IORegistryEntryGetRegistryEntryID} to return
+         * an ID for this registry entry that is global to all tasks.
          *
          * @return the ID.
          * @throws IOReturnException
@@ -167,8 +167,8 @@ public interface IOKit extends Library {
         }
 
         /**
-         * Convenience method for {@link #IORegistryEntryGetName} to return a
-         * name assigned to this registry entry.
+         * Convenience method for {@link #IORegistryEntryGetName} to return a name
+         * assigned to this registry entry.
          *
          * @return The name
          * @throws IOReturnException
@@ -184,14 +184,12 @@ public interface IOKit extends Library {
         }
 
         /**
-         * Convenience method for {@link #IORegistryEntryGetChildIterator} to
-         * return an iterator over this registry entry’s child entries in a
-         * plane.
+         * Convenience method for {@link #IORegistryEntryGetChildIterator} to return an
+         * iterator over this registry entry’s child entries in a plane.
          *
          * @param plane
-         *            The name of an existing registry plane. Plane names are
-         *            defined in {@code IOKitKeys.h}, for example,
-         *            {@code kIOServicePlane}.
+         *            The name of an existing registry plane. Plane names are defined in
+         *            {@code IOKitKeys.h}, for example, {@code kIOServicePlane}.
          * @return The iterator
          * @throws IOReturnException
          *             if the iterator could not be retrieved.
@@ -206,8 +204,8 @@ public interface IOKit extends Library {
         }
 
         /**
-         * Convenience method for {@link #IORegistryEntryGetChildEntry} to
-         * return the first child of this registry entry in a plane.
+         * Convenience method for {@link #IORegistryEntryGetChildEntry} to return the
+         * first child of this registry entry in a plane.
          *
          * @param plane
          *            The name of an existing registry plane.
@@ -227,8 +225,8 @@ public interface IOKit extends Library {
         }
 
         /**
-         * Convenience method for {@link #IORegistryEntryGetParentEntry} to
-         * return the first parent of this registry entry in a plane.
+         * Convenience method for {@link #IORegistryEntryGetParentEntry} to return the
+         * first parent of this registry entry in a plane.
          *
          * @param plane
          *            The name of an existing registry plane.
@@ -263,14 +261,12 @@ public interface IOKit extends Library {
         }
 
         /**
-         * Convenience method for {@link #IORegistryEntryCreateCFProperties} to
-         * create a CF dictionary representation of this registry entry's
-         * property table.
+         * Convenience method for {@link #IORegistryEntryCreateCFProperties} to create a
+         * CF dictionary representation of this registry entry's property table.
          *
          * @return The property table.
          *         <p>
-         *         The caller should release with
-         *         {@link CoreFoundation#CFRelease}.
+         *         The caller should release with {@link CoreFoundation#CFRelease}.
          * @throws IOReturnException
          *             if the entry could not be retrieved.
          */

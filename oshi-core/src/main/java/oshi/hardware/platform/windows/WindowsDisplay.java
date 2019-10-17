@@ -51,7 +51,7 @@ public class WindowsDisplay extends AbstractDisplay {
 
     private static final SetupApi SU = SetupApi.INSTANCE;
     private static final Advapi32 ADV = Advapi32.INSTANCE;
-    
+
     private static final Guid.GUID GUID_DEVINTERFACE_MONITOR = new Guid.GUID("E6F07B5F-EE97-4a90-B076-33F57BF4EAA7");
 
     /**
@@ -84,10 +84,9 @@ public class WindowsDisplay extends AbstractDisplay {
             // build a DevInfo Data structure
             SP_DEVINFO_DATA info = new SetupApi.SP_DEVINFO_DATA();
 
-            for (int memberIndex = 0; SU.SetupDiEnumDeviceInfo(hDevInfo, memberIndex,
-                    info); memberIndex++) {
-                HKEY key = SU.SetupDiOpenDevRegKey(hDevInfo, info, SetupApi.DICS_FLAG_GLOBAL, 0,
-                        SetupApi.DIREG_DEV, WinNT.KEY_QUERY_VALUE);
+            for (int memberIndex = 0; SU.SetupDiEnumDeviceInfo(hDevInfo, memberIndex, info); memberIndex++) {
+                HKEY key = SU.SetupDiOpenDevRegKey(hDevInfo, info, SetupApi.DICS_FLAG_GLOBAL, 0, SetupApi.DIREG_DEV,
+                        WinNT.KEY_QUERY_VALUE);
 
                 byte[] edid = new byte[1];
 
