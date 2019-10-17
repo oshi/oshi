@@ -24,18 +24,25 @@
 package oshi.software.os.unix.freebsd;
 
 import oshi.software.common.AbstractOSVersionInfoEx;
+import oshi.software.os.OperatingSystem;
 import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
 
+/**
+ * &lt;p&gt;
+ * FreeBsdOSVersionInfoEx class.
+ * &lt;/p&gt;
+ * 
+ * @deprecated Use {@link OperatingSystem.OSVersionInfo}
+ */
+@Deprecated
 public class FreeBsdOSVersionInfoEx extends AbstractOSVersionInfoEx {
 
-    private static final long serialVersionUID = 1L;
-
-<span class="nc" id="L33">    public FreeBsdOSVersionInfoEx() {</span>
-<span class="nc" id="L34">        setVersion(BsdSysctlUtil.sysctl(&quot;kern.osrelease&quot;, &quot;&quot;));</span>
-<span class="nc" id="L35">        String versionInfo = BsdSysctlUtil.sysctl(&quot;kern.version&quot;, &quot;&quot;);</span>
-<span class="nc" id="L36">        String osType = BsdSysctlUtil.sysctl(&quot;kern.ostype&quot;, &quot;FreeBSD&quot;);</span>
-<span class="nc" id="L37">        setBuildNumber(versionInfo.split(&quot;:&quot;)[0].replace(osType, &quot;&quot;).replace(getVersion(), &quot;&quot;).trim());</span>
-<span class="nc" id="L38">        setCodeName(&quot;&quot;);</span>
-<span class="nc" id="L39">    }</span>
+<span class="nc" id="L40">    public FreeBsdOSVersionInfoEx() {</span>
+<span class="nc" id="L41">        setVersion(BsdSysctlUtil.sysctl(&quot;kern.osrelease&quot;, &quot;&quot;));</span>
+<span class="nc" id="L42">        String versionInfo = BsdSysctlUtil.sysctl(&quot;kern.version&quot;, &quot;&quot;);</span>
+<span class="nc" id="L43">        String osType = BsdSysctlUtil.sysctl(&quot;kern.ostype&quot;, &quot;FreeBSD&quot;);</span>
+<span class="nc" id="L44">        setBuildNumber(versionInfo.split(&quot;:&quot;)[0].replace(osType, &quot;&quot;).replace(getVersion(), &quot;&quot;).trim());</span>
+<span class="nc" id="L45">        setCodeName(&quot;&quot;);</span>
+<span class="nc" id="L46">    }</span>
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

@@ -27,12 +27,8 @@ import oshi.hardware.PowerSource;
 
 /**
  * A Power Source
- *
- * @author widdis[at]gmail[dot]com
  */
 public abstract class AbstractPowerSource implements PowerSource {
-
-    private static final long serialVersionUID = 1L;
 
     protected String name;
 
@@ -41,8 +37,7 @@ public abstract class AbstractPowerSource implements PowerSource {
     protected double timeRemaining;
 
     /**
-     * Super constructor used by platform-specific implementations of
-     * PowerSource
+     * Super constructor used by platform-specific implementations of PowerSource
      *
      * @param newName
      *            The name to assign
@@ -51,34 +46,58 @@ public abstract class AbstractPowerSource implements PowerSource {
      * @param newTimeRemaining
      *            Seconds of time remaining
      */
-<span class="nc" id="L54">    public AbstractPowerSource(String newName, double newRemainingCapacity, double newTimeRemaining) {</span>
-<span class="nc" id="L55">        this.name = newName;</span>
-<span class="nc" id="L56">        this.remainingCapacity = newRemainingCapacity;</span>
-<span class="nc" id="L57">        this.timeRemaining = newTimeRemaining;</span>
-<span class="nc" id="L58">    }</span>
+<span class="nc" id="L49">    public AbstractPowerSource(String newName, double newRemainingCapacity, double newTimeRemaining) {</span>
+<span class="nc" id="L50">        this.name = newName;</span>
+<span class="nc" id="L51">        this.remainingCapacity = newRemainingCapacity;</span>
+<span class="nc" id="L52">        this.timeRemaining = newTimeRemaining;</span>
+<span class="nc" id="L53">    }</span>
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getName() {
-<span class="nc" id="L65">        return this.name;</span>
+<span class="nc" id="L58">        return this.name;</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public double getRemainingCapacity() {
-<span class="nc" id="L73">        return this.remainingCapacity;</span>
+<span class="nc" id="L64">        return this.remainingCapacity;</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public double getTimeRemaining() {
+<span class="nc" id="L70">        return this.timeRemaining;</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+<span class="nc" id="L76">        StringBuilder sb = new StringBuilder();</span>
+<span class="nc" id="L77">        sb.append(&quot;Name: &quot;).append(getName()).append(&quot;, &quot;);</span>
+<span class="nc" id="L78">        sb.append(&quot;Remaining Capacity: &quot;).append(getRemainingCapacity() * 100d).append(&quot;%, &quot;);</span>
+<span class="nc" id="L79">        sb.append(&quot;Time Remaining: &quot;).append(getFormattedTimeRemaining());</span>
+<span class="nc" id="L80">        return sb.toString();</span>
     }
 
     /**
-     * {@inheritDoc}
+     * Estimated time remaining on power source, formatted as HH:mm
+     *
+     * @return formatted String of time remaining
      */
-    @Override
-    public double getTimeRemaining() {
-<span class="nc" id="L81">        return this.timeRemaining;</span>
+    private String getFormattedTimeRemaining() {
+<span class="nc" id="L89">        double timeInSeconds = getTimeRemaining();</span>
+        String formattedTimeRemaining;
+<span class="nc bnc" id="L91" title="All 2 branches missed.">        if (timeInSeconds &lt; 1.5) {</span>
+<span class="nc" id="L92">            formattedTimeRemaining = &quot;Charging&quot;;</span>
+<span class="nc bnc" id="L93" title="All 2 branches missed.">        } else if (timeInSeconds &lt; 0) {</span>
+<span class="nc" id="L94">            formattedTimeRemaining = &quot;Calculating&quot;;</span>
+        } else {
+<span class="nc" id="L96">            int hours = (int) (timeInSeconds / 3600);</span>
+<span class="nc" id="L97">            int minutes = (int) (timeInSeconds % 3600 / 60);</span>
+<span class="nc" id="L98">            formattedTimeRemaining = String.format(&quot;%d:%02d&quot;, hours, minutes);</span>
+        }
+<span class="nc" id="L100">        return formattedTimeRemaining;</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

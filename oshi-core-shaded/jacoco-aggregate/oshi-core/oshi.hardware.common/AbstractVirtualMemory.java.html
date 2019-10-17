@@ -24,20 +24,21 @@
 package oshi.hardware.common;
 
 import oshi.hardware.VirtualMemory;
+import oshi.util.FormatUtil;
 
 /**
  * Virtual Memory info.
  */
-<span class="nc" id="L31">public abstract class AbstractVirtualMemory implements VirtualMemory {</span>
+<span class="nc" id="L32">public abstract class AbstractVirtualMemory implements VirtualMemory {</span>
 
-    private static final long serialVersionUID = 1L;
-
-<span class="nc" id="L35">    protected transient long lastSwapUsageNanos = 0L;</span>
-<span class="nc" id="L36">    protected transient long lastSwapPagesNanos = 0L;</span>
-
-<span class="nc" id="L38">    protected long swapTotal = -1L;</span>
-<span class="nc" id="L39">    protected long swapUsed = -1L;</span>
-<span class="nc" id="L40">    protected long swapPagesIn = -1L;</span>
-<span class="nc" id="L41">    protected long swapPagesOut = -1L;</span>
+    @Override
+    public String toString() {
+<span class="nc" id="L36">        StringBuilder sb = new StringBuilder();</span>
+<span class="nc" id="L37">        sb.append(&quot;Used: &quot;);</span>
+<span class="nc" id="L38">        sb.append(FormatUtil.formatBytes(getSwapUsed()));</span>
+<span class="nc" id="L39">        sb.append(&quot;/&quot;);</span>
+<span class="nc" id="L40">        sb.append(FormatUtil.formatBytes(getSwapTotal()));</span>
+<span class="nc" id="L41">        return sb.toString();</span>
+    }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

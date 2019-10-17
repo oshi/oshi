@@ -29,36 +29,43 @@ import java.util.Map;
 
 /**
  * Reads from lsof into a map
- *
- * @author widdis[at]gmail[dot]com
  */
 public class LsofUtil {
 
     private LsofUtil() {
     }
 
+    /**
+     * &lt;p&gt;
+     * getCwdMap.
+     * &lt;/p&gt;
+     *
+     * @param pid
+     *            a int.
+     * @return a {@link java.util.Map} object.
+     */
     public static Map&lt;Integer, String&gt; getCwdMap(int pid) {
-<span class="nc bnc" id="L41" title="All 2 branches missed.">        List&lt;String&gt; lsof = ExecutingCommand.runNative(&quot;lsof -Fn -d cwd&quot; + (pid &lt; 0 ? &quot;&quot; : &quot; -p &quot; + pid));</span>
-<span class="nc" id="L42">        Map&lt;Integer, String&gt; cwdMap = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L43">        Integer key = -1;</span>
-<span class="nc bnc" id="L44" title="All 2 branches missed.">        for (String line : lsof) {</span>
-<span class="nc bnc" id="L45" title="All 2 branches missed.">            if (line.isEmpty()) {</span>
-<span class="nc" id="L46">                continue;</span>
+<span class="nc bnc" id="L48" title="All 2 branches missed.">        List&lt;String&gt; lsof = ExecutingCommand.runNative(&quot;lsof -Fn -d cwd&quot; + (pid &lt; 0 ? &quot;&quot; : &quot; -p &quot; + pid));</span>
+<span class="nc" id="L49">        Map&lt;Integer, String&gt; cwdMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L50">        Integer key = -1;</span>
+<span class="nc bnc" id="L51" title="All 2 branches missed.">        for (String line : lsof) {</span>
+<span class="nc bnc" id="L52" title="All 2 branches missed.">            if (line.isEmpty()) {</span>
+<span class="nc" id="L53">                continue;</span>
             }
-<span class="nc bnc" id="L48" title="All 3 branches missed.">            switch (line.charAt(0)) {</span>
+<span class="nc bnc" id="L55" title="All 3 branches missed.">            switch (line.charAt(0)) {</span>
             case 'p':
-<span class="nc" id="L50">                key = ParseUtil.parseIntOrDefault(line.substring(1), -1);</span>
-<span class="nc" id="L51">                break;</span>
+<span class="nc" id="L57">                key = ParseUtil.parseIntOrDefault(line.substring(1), -1);</span>
+<span class="nc" id="L58">                break;</span>
             case 'n':
-<span class="nc" id="L53">                cwdMap.put(key, line.substring(1));</span>
-<span class="nc" id="L54">                break;</span>
+<span class="nc" id="L60">                cwdMap.put(key, line.substring(1));</span>
+<span class="nc" id="L61">                break;</span>
             case 'f':
                 // ignore the 'cwd' file descriptor
             default:
                 break;
             }
-<span class="nc" id="L60">        }</span>
-<span class="nc" id="L61">        return cwdMap;</span>
+<span class="nc" id="L67">        }</span>
+<span class="nc" id="L68">        return cwdMap;</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

@@ -23,7 +23,11 @@
  */
 package oshi.hardware.platform.windows;
 
+import static oshi.util.Memoizer.defaultExpiration;
+import static oshi.util.Memoizer.memoize;
+
 import java.util.Map;
+import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,18 +45,20 @@ import oshi.util.platform.windows.PerfCounterQuery.PdhCounterProperty;
  */
 public class WindowsVirtualMemory extends AbstractVirtualMemory {
 
-    private static final long serialVersionUID = 1L;
+<span class="nc" id="L48">    private static final Logger LOG = LoggerFactory.getLogger(WindowsVirtualMemory.class);</span>
 
-<span class="nc" id="L46">    private static final Logger LOG = LoggerFactory.getLogger(WindowsVirtualMemory.class);</span>
+    private final long pageSize;
 
-    private transient long pageSize;
+<span class="nc" id="L52">    private final Supplier&lt;Long&gt; used = memoize(this::querySwapUsed, defaultExpiration());</span>
 
-<span class="nc" id="L50">    private transient PerfCounterQuery&lt;PageSwapProperty&gt; memoryPerfCounters = new PerfCounterQuery&lt;&gt;(</span>
-            PageSwapProperty.class, &quot;Memory&quot;, &quot;Win32_PerfRawData_PerfOS_Memory&quot;);
-<span class="nc" id="L52">    private transient PerfCounterQuery&lt;PagingPercentProperty&gt; pagingPerfCounters = new PerfCounterQuery&lt;&gt;(</span>
+<span class="nc" id="L54">    private final Supplier&lt;Long&gt; total = memoize(this::querySwapTotal, defaultExpiration());</span>
+
+<span class="nc" id="L56">    private final Supplier&lt;PagingFile&gt; pagingFile = memoize(this::queryPagingFile, defaultExpiration());</span>
+
+<span class="nc" id="L58">    private PerfCounterQuery&lt;PageSwapProperty&gt; memoryPerfCounters = new PerfCounterQuery&lt;&gt;(PageSwapProperty.class,</span>
+            &quot;Memory&quot;, &quot;Win32_PerfRawData_PerfOS_Memory&quot;);
+<span class="nc" id="L60">    private PerfCounterQuery&lt;PagingPercentProperty&gt; pagingPerfCounters = new PerfCounterQuery&lt;&gt;(</span>
             PagingPercentProperty.class, &quot;Paging File&quot;, &quot;Win32_PerfRawData_PerfOS_PagingFile&quot;);
-
-<span class="nc" id="L55">    private transient long lastSwapUpdateNanos = 0L;</span>
 
     /**
      * &lt;p&gt;
@@ -60,77 +66,72 @@ public class WindowsVirtualMemory extends AbstractVirtualMemory {
      * &lt;/p&gt;
      *
      * @param pageSize
-     *            a long.
+     *            The size in bites of memory pages
      */
-<span class="nc" id="L65">    public WindowsVirtualMemory(long pageSize) {</span>
-<span class="nc" id="L66">        this.pageSize = pageSize;</span>
-<span class="nc" id="L67">    }</span>
+<span class="nc" id="L71">    public WindowsVirtualMemory(long pageSize) {</span>
+<span class="nc" id="L72">        this.pageSize = pageSize;</span>
+<span class="nc" id="L73">    }</span>
 
-    /** {@inheritDoc} */
     @Override
     public long getSwapUsed() {
-<span class="nc" id="L72">        Map&lt;PagingPercentProperty, Long&gt; valueMap = this.pagingPerfCounters.queryValues();</span>
-<span class="nc" id="L73">        return valueMap.getOrDefault(PagingPercentProperty.PERCENTUSAGE, 0L) * this.pageSize;</span>
+<span class="nc" id="L77">        return used.get();</span>
     }
 
-    /** {@inheritDoc} */
     @Override
     public long getSwapTotal() {
-<span class="nc bnc" id="L79" title="All 2 branches missed.">        if (this.swapTotal &lt; 0) {</span>
-<span class="nc" id="L80">            PERFORMANCE_INFORMATION perfInfo = new PERFORMANCE_INFORMATION();</span>
-<span class="nc bnc" id="L81" title="All 2 branches missed.">            if (!Psapi.INSTANCE.GetPerformanceInfo(perfInfo, perfInfo.size())) {</span>
-<span class="nc" id="L82">                LOG.error(&quot;Failed to get Performance Info. Error code: {}&quot;, Kernel32.INSTANCE.GetLastError());</span>
-<span class="nc" id="L83">                return 0L;</span>
-            }
-<span class="nc" id="L85">            this.swapTotal = this.pageSize * (perfInfo.CommitLimit.longValue() - perfInfo.PhysicalTotal.longValue());</span>
-        }
-<span class="nc" id="L87">        return this.swapTotal;</span>
+<span class="nc" id="L82">        return total.get();</span>
     }
 
-    /** {@inheritDoc} */
     @Override
     public long getSwapPagesIn() {
-<span class="nc" id="L93">        updateSwapInOut();</span>
-<span class="nc" id="L94">        return this.swapPagesIn;</span>
+<span class="nc" id="L87">        return pagingFile.get().pagesIn;</span>
     }
 
-    /** {@inheritDoc} */
     @Override
     public long getSwapPagesOut() {
-<span class="nc" id="L100">        updateSwapInOut();</span>
-<span class="nc" id="L101">        return this.swapPagesOut;</span>
+<span class="nc" id="L92">        return pagingFile.get().pagesOut;</span>
     }
 
-    private void updateSwapInOut() {
-        // Only update once per 300ms
-<span class="nc bnc" id="L106" title="All 2 branches missed.">        if (System.nanoTime() - this.lastSwapUpdateNanos &gt; 300_000_000L) {</span>
-<span class="nc" id="L107">            Map&lt;PageSwapProperty, Long&gt; valueMap = this.memoryPerfCounters.queryValues();</span>
-<span class="nc" id="L108">            this.swapPagesIn = valueMap.getOrDefault(PageSwapProperty.PAGESINPUTPERSEC, 0L);</span>
-<span class="nc" id="L109">            this.swapPagesOut = valueMap.getOrDefault(PageSwapProperty.PAGESOUTPUTPERSEC, 0L);</span>
-<span class="nc" id="L110">            this.lastSwapUpdateNanos = System.nanoTime();</span>
+    private long querySwapUsed() {
+<span class="nc" id="L96">        Map&lt;PagingPercentProperty, Long&gt; valueMap = this.pagingPerfCounters.queryValues();</span>
+<span class="nc" id="L97">        return valueMap.getOrDefault(PagingPercentProperty.PERCENTUSAGE, 0L) * this.pageSize;</span>
+    }
+
+    private long querySwapTotal() {
+<span class="nc" id="L101">        PERFORMANCE_INFORMATION perfInfo = new PERFORMANCE_INFORMATION();</span>
+<span class="nc bnc" id="L102" title="All 2 branches missed.">        if (!Psapi.INSTANCE.GetPerformanceInfo(perfInfo, perfInfo.size())) {</span>
+<span class="nc" id="L103">            LOG.error(&quot;Failed to get Performance Info. Error code: {}&quot;, Kernel32.INSTANCE.GetLastError());</span>
+<span class="nc" id="L104">            return 0L;</span>
         }
-<span class="nc" id="L112">    }</span>
+<span class="nc" id="L106">        return this.pageSize * (perfInfo.CommitLimit.longValue() - perfInfo.PhysicalTotal.longValue());</span>
+    }
+
+    private PagingFile queryPagingFile() {
+<span class="nc" id="L110">        Map&lt;PageSwapProperty, Long&gt; valueMap = this.memoryPerfCounters.queryValues();</span>
+<span class="nc" id="L111">        return new PagingFile(valueMap.getOrDefault(PageSwapProperty.PAGESINPUTPERSEC, 0L),</span>
+<span class="nc" id="L112">                valueMap.getOrDefault(PageSwapProperty.PAGESOUTPUTPERSEC, 0L));</span>
+    }
 
     /*
      * For swap file usage
      */
-<span class="nc" id="L117">    enum PagingPercentProperty implements PdhCounterProperty {</span>
-<span class="nc" id="L118">        PERCENTUSAGE(PerfCounterQuery.TOTAL_INSTANCE, &quot;% Usage&quot;);</span>
+<span class="nc" id="L118">    enum PagingPercentProperty implements PdhCounterProperty {</span>
+<span class="nc" id="L119">        PERCENTUSAGE(PerfCounterQuery.TOTAL_INSTANCE, &quot;% Usage&quot;);</span>
 
         private final String instance;
         private final String counter;
 
-<span class="nc" id="L123">        PagingPercentProperty(String instance, String counter) {</span>
-<span class="nc" id="L124">            this.instance = instance;</span>
-<span class="nc" id="L125">            this.counter = counter;</span>
-<span class="nc" id="L126">        }</span>
+<span class="nc" id="L124">        PagingPercentProperty(String instance, String counter) {</span>
+<span class="nc" id="L125">            this.instance = instance;</span>
+<span class="nc" id="L126">            this.counter = counter;</span>
+<span class="nc" id="L127">        }</span>
 
         /**
          * {@inheritDoc}
          */
         @Override
         public String getInstance() {
-<span class="nc" id="L133">            return instance;</span>
+<span class="nc" id="L134">            return instance;</span>
         }
 
         /**
@@ -138,31 +139,31 @@ public class WindowsVirtualMemory extends AbstractVirtualMemory {
          */
         @Override
         public String getCounter() {
-<span class="nc" id="L141">            return counter;</span>
+<span class="nc" id="L142">            return counter;</span>
         }
     }
 
     /*
      * For pages in/out
      */
-<span class="nc" id="L148">    public enum PageSwapProperty implements PdhCounterProperty {</span>
-<span class="nc" id="L149">        PAGESINPUTPERSEC(null, &quot;Pages Input/sec&quot;), //</span>
-<span class="nc" id="L150">        PAGESOUTPUTPERSEC(null, &quot;Pages Output/sec&quot;);</span>
+<span class="nc" id="L149">    public enum PageSwapProperty implements PdhCounterProperty {</span>
+<span class="nc" id="L150">        PAGESINPUTPERSEC(null, &quot;Pages Input/sec&quot;), //</span>
+<span class="nc" id="L151">        PAGESOUTPUTPERSEC(null, &quot;Pages Output/sec&quot;);</span>
 
         private final String instance;
         private final String counter;
 
-<span class="nc" id="L155">        PageSwapProperty(String instance, String counter) {</span>
-<span class="nc" id="L156">            this.instance = instance;</span>
-<span class="nc" id="L157">            this.counter = counter;</span>
-<span class="nc" id="L158">        }</span>
+<span class="nc" id="L156">        PageSwapProperty(String instance, String counter) {</span>
+<span class="nc" id="L157">            this.instance = instance;</span>
+<span class="nc" id="L158">            this.counter = counter;</span>
+<span class="nc" id="L159">        }</span>
 
         /**
          * {@inheritDoc}
          */
         @Override
         public String getInstance() {
-<span class="nc" id="L165">            return instance;</span>
+<span class="nc" id="L166">            return instance;</span>
         }
 
         /**
@@ -170,8 +171,18 @@ public class WindowsVirtualMemory extends AbstractVirtualMemory {
          */
         @Override
         public String getCounter() {
-<span class="nc" id="L173">            return counter;</span>
+<span class="nc" id="L174">            return counter;</span>
         }
     }
+
+    private static final class PagingFile {
+        private final long pagesIn;
+        private final long pagesOut;
+
+<span class="nc" id="L182">        private PagingFile(long pagesIn, long pagesOut) {</span>
+<span class="nc" id="L183">            this.pagesIn = pagesIn;</span>
+<span class="nc" id="L184">            this.pagesOut = pagesOut;</span>
+<span class="nc" id="L185">        }</span>
+    }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
