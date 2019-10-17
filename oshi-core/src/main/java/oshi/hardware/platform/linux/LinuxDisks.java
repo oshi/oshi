@@ -44,8 +44,6 @@ import oshi.util.platform.linux.ProcUtil;
  */
 public class LinuxDisks implements Disks {
 
-    private static final long serialVersionUID = 1L;
-
     private static final Logger LOG = LoggerFactory.getLogger(LinuxDisks.class);
 
     private static final int SECTORSIZE = 512;

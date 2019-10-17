@@ -301,7 +301,7 @@ public class HWPartition implements Serializable, Comparable<HWPartition> {
         if (obj == null) {
             return false;
         }
-        if (!(obj instanceof HWPartition)) {
+        if (!(obj.getClass().equals(this.getClass()))) {
             return false;
         }
         HWPartition other = (HWPartition) obj;

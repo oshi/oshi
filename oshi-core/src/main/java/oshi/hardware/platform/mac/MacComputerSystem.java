@@ -25,6 +25,7 @@ package oshi.hardware.platform.mac;
 
 import static oshi.util.Memoizer.memoize;
 
+import java.nio.charset.StandardCharsets;
 import java.util.function.Supplier;
 
 import oshi.hardware.Baseboard;
@@ -75,11 +76,11 @@ final class MacComputerSystem extends AbstractComputerSystem {
         if (platformExpert != null) {
             byte[] data = platformExpert.getByteArrayProperty("manufacturer");
             if (data != null) {
-                manufacturer = new String(data);
+                manufacturer = new String(data, StandardCharsets.UTF_8);
             }
             data = platformExpert.getByteArrayProperty("model");
             if (data != null) {
-                model = new String(data);
+                model = new String(data, StandardCharsets.UTF_8);
             }
             serialNumber = platformExpert.getStringProperty("IOPlatformSerialNumber");
             platformExpert.release();

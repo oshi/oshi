@@ -44,8 +44,6 @@ import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
  */
 public class FreeBsdDisks implements Disks {
 
-    private static final long serialVersionUID = 1L;
-
     private static final Pattern MOUNT_PATTERN = Pattern.compile("/dev/(\\S+p\\d+) on (\\S+) .*");
 
     // Create map indexed by device name to populate data from multiple commands

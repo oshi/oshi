@@ -39,7 +39,7 @@ public interface CentralProcessor {
     /**
      * The CPU's identifier strings ,including name, vendor, stepping, model, and
      * family information (also called the signature of a CPU)
-     * 
+     *
      * @return a {@link ProcessorIdentifier} object encapsulating CPU identifier
      *         information.
      */
@@ -47,7 +47,7 @@ public interface CentralProcessor {
 
     /**
      * Processor vendor.
-     * 
+     *
      * @return vendor string.
      * @deprecated As of 4.1.0, replaced by
      *             {@link #getProcessorIdentifier}.{@link ProcessorIdentifier#getVendor()}
@@ -452,7 +452,7 @@ public interface CentralProcessor {
         /**
          * The Logical Processor number as seen by the Operating System. Used for
          * assigning process affinity and reporting CPU usage and other statistics.
-         * 
+         *
          * @return the processorNumber
          */
         public int getProcessorNumber() {
@@ -463,7 +463,7 @@ public interface CentralProcessor {
          * The physical processor (core) id number assigned to this logical processor.
          * Hyperthreaded logical processors which share the same physical processor will
          * have the same number.
-         * 
+         *
          * @return the physicalProcessorNumber
          */
         public int getPhysicalProcessorNumber() {
@@ -474,7 +474,7 @@ public interface CentralProcessor {
          * The physical package (socket) id number assigned to this logical processor.
          * Multicore CPU packages may have multiple physical processors which share the
          * same number.
-         * 
+         *
          * @return the physicalPackageNumber
          */
         public int getPhysicalPackageNumber() {
@@ -485,7 +485,7 @@ public interface CentralProcessor {
          * The NUMA node. If the operating system supports Non-Uniform Memory Access
          * this identifies the node number. Set to 0 if the operating system does not
          * support NUMA. Not supported on macOS or FreeBSD.
-         * 
+         *
          * @return the NUMA Node number
          */
         public int getNumaNode() {
@@ -496,7 +496,7 @@ public interface CentralProcessor {
          * The Processor Group. Only applies to Windows systems with more than 64
          * logical processors. Set to 0 for other operating systems or Windows systems
          * with 64 or fewer logical processors.
-         * 
+         *
          * @return the processorGroup
          */
         public int getProcessorGroup() {
@@ -508,7 +508,7 @@ public interface CentralProcessor {
      * A class encapsulating ghe CPU's identifier strings ,including name, vendor,
      * stepping, model, and family information (also called the signature of a CPU)
      */
-    public static final class ProcessorIdentifier {
+    static final class ProcessorIdentifier {
         // Provided in constructor
         private final String cpuVendor;
         private final String cpuName;

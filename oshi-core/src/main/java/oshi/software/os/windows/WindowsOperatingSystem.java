@@ -144,7 +144,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         enableDebugPrivilege();
     }
 
-    private final transient WmiQueryHandler wmiQueryHandler = WmiQueryHandler.createInstance();
+    private final WmiQueryHandler wmiQueryHandler = WmiQueryHandler.createInstance();
 
     /**
      * <p>
@@ -177,7 +177,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         return new FamilyVersionInfo("Windows", new OSVersionInfo(version, codeName, buildNumber));
     }
 
-    private String parseVersion(WmiResult<OSVersionProperty> versionInfo, int suiteMask, String buildNumber) {
+    private static String parseVersion(WmiResult<OSVersionProperty> versionInfo, int suiteMask, String buildNumber) {
 
         // Initialize a default, sane value
         String version = System.getProperty("os.version");
@@ -250,7 +250,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
      *
      * @return Suites
      */
-    private String parseCodeName(int suiteMask) {
+    private static String parseCodeName(int suiteMask) {
         List<String> suites = new ArrayList<>();
         if ((suiteMask & 0x00000002) != 0) {
             suites.add("Enterprise");

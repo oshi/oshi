@@ -44,7 +44,7 @@ public abstract class AbstractDisplay implements Display {
      *            an array of {@link byte} objects.
      */
     protected AbstractDisplay(byte[] edid) {
-        this.edid = edid;
+        this.edid = Arrays.copyOf(edid, edid.length);
     }
 
     @Override

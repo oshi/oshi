@@ -25,6 +25,7 @@ package oshi.hardware.platform.mac;
 
 import static oshi.util.Memoizer.memoize;
 
+import java.nio.charset.StandardCharsets;
 import java.util.function.Supplier;
 
 import oshi.hardware.common.AbstractFirmware;
@@ -83,27 +84,27 @@ final class MacFirmware extends AbstractFirmware {
                     case "rom":
                         byte[] data = entry.getByteArrayProperty("vendor");
                         if (data != null) {
-                            manufacturer = new String(data);
+                            manufacturer = new String(data, StandardCharsets.UTF_8);
                         }
                         data = entry.getByteArrayProperty("version");
                         if (data != null) {
-                            version = new String(data);
+                            version = new String(data, StandardCharsets.UTF_8);
                         }
                         data = entry.getByteArrayProperty("release-date");
                         if (data != null) {
-                            releaseDate = new String(data);
+                            releaseDate = new String(data, StandardCharsets.UTF_8);
                         }
                         break;
                     case "chosen":
                         data = entry.getByteArrayProperty("booter-name");
                         if (data != null) {
-                            name = new String(data);
+                            name = new String(data, StandardCharsets.UTF_8);
                         }
                         break;
                     case "efi":
                         data = entry.getByteArrayProperty("firmware-abi");
                         if (data != null) {
-                            description = new String(data);
+                            description = new String(data, StandardCharsets.UTF_8);
                         }
                         break;
                     default:

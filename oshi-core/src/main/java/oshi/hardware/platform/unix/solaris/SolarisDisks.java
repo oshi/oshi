@@ -45,8 +45,6 @@ import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
  */
 public class SolarisDisks implements Disks {
 
-    private static final long serialVersionUID = 1L;
-
     /**
      * <p>
      * updateDiskStats.

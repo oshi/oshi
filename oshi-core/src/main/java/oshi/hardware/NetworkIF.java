@@ -23,7 +23,6 @@
  */
 package oshi.hardware;
 
-import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
@@ -47,13 +46,11 @@ import oshi.util.ParseUtil;
 /**
  * A network interface in the machine, including statistics
  */
-public class NetworkIF implements Serializable {
-
-    private static final long serialVersionUID = 2L;
+public class NetworkIF {
 
     private static final Logger LOG = LoggerFactory.getLogger(NetworkIF.class);
 
-    private transient NetworkInterface networkInterface;
+    private NetworkInterface networkInterface;
     private int mtu;
     private String mac;
     private String[] ipv4;
@@ -432,15 +429,17 @@ public class NetworkIF implements Serializable {
     }
 
     @Override
-    public String toString(){
-    	StringBuilder sb = new StringBuilder();
-	sb.append("Name: ").append(getName()).append(" ").append("(").append(getDisplayName()).append(")").append("\n");
-	sb.append("  MAC Address: ").append(getMacaddr()).append("\n");
-	sb.append("  MTU: ").append(getMTU()).append(", ").append("Speed: ").append(getSpeed()).append("\n");
-	sb.append("  IPv4: ").append(Arrays.toString(getIPv4addr())).append("\n");
-	sb.append("  IPv6: ").append(Arrays.toString(getIPv6addr())).append("\n");
-	sb.append("  Traffic: received ").append(getPacketsRecv()).append(" packets/").append(FormatUtil.formatBytes(getBytesRecv())).append(" (" + getInErrors() + " err);");
-	sb.append(" transmitted ").append(getPacketsSent()).append(" packets/").append(FormatUtil.formatBytes(getBytesSent())).append(" (" + getOutErrors() + " err)");
-	return sb.toString();
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Name: ").append(getName()).append(" ").append("(").append(getDisplayName()).append(")").append("\n");
+        sb.append("  MAC Address: ").append(getMacaddr()).append("\n");
+        sb.append("  MTU: ").append(getMTU()).append(", ").append("Speed: ").append(getSpeed()).append("\n");
+        sb.append("  IPv4: ").append(Arrays.toString(getIPv4addr())).append("\n");
+        sb.append("  IPv6: ").append(Arrays.toString(getIPv6addr())).append("\n");
+        sb.append("  Traffic: received ").append(getPacketsRecv()).append(" packets/")
+                .append(FormatUtil.formatBytes(getBytesRecv())).append(" (" + getInErrors() + " err);");
+        sb.append(" transmitted ").append(getPacketsSent()).append(" packets/")
+                .append(FormatUtil.formatBytes(getBytesSent())).append(" (" + getOutErrors() + " err)");
+        return sb.toString();
     }
 }

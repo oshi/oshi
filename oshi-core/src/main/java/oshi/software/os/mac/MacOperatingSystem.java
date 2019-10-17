@@ -246,7 +246,7 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
             // null terminated
             for (int t = 0; t < taskAllInfo.pbsd.pbi_comm.length; t++) {
                 if (taskAllInfo.pbsd.pbi_comm[t] == 0) {
-                    name = new String(taskAllInfo.pbsd.pbi_comm, 0, t);
+                    name = new String(taskAllInfo.pbsd.pbi_comm, 0, t, StandardCharsets.UTF_8);
                     break;
                 }
             }
