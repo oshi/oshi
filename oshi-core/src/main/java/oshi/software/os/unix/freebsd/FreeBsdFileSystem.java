@@ -44,8 +44,6 @@ import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
  */
 public class FreeBsdFileSystem implements FileSystem {
 
-    private static final long serialVersionUID = 1L;
-
     // Linux defines a set of virtual file systems
     private final List<String> pseudofs = Arrays.asList( //
             "procfs", // Proc file system

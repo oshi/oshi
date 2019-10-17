@@ -23,8 +23,10 @@
  */
 package oshi.util.platform.unix.solaris;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +49,11 @@ public class KstatUtil {
 
     private static final LibKstat KS = LibKstat.INSTANCE;
 
-    private static final KstatUtil INSTANCE = new KstatUtil();
+    // Opens the kstat chain. Automatically closed on exit.
+    // Only one thread may access the chain at any time, so we wrap this object in
+    // the KstatChain class which locks the class until closed.
+    private static final KstatCtl KC = KS.kstat_open();
+    private static final ReentrantLock CHAIN = new ReentrantLock();
 
     private KstatUtil() {
     }
@@ -56,12 +62,18 @@ public class KstatUtil {
      * A copy of the Kstat chain, encapsulating a {@code kstat_ctl_t} object. Only
      * one thread may actively use this object at any time.
      * <p>
-     * Instantiating this object calls {@link LibKstat#kstat_open()} and
-     * encapsulates the result. The control object should be closed with
-     * {@link #close}
+     * Instantiating this object is accomplished using the
+     * {@link KstatUtil#openChain} method. It locks and updates the chain and is the
+     * equivalent of calling {@link LibKstat#kstat_open}. The control object should
+     * be closed with {@link #close}, the equivalent of calling
+     * {@link LibKstat#kstat_close}
      */
-    public class KstatChain {
-        private final KstatCtl kc = KS.kstat_open();
+    public static class KstatChain implements AutoCloseable {
+
+        private KstatChain() {
+            CHAIN.lock();
+            this.update();
+        }
 
         /**
          * Convenience method for {@link LibKstat#kstat_read} which gets data from the
@@ -78,11 +90,12 @@ public class KstatUtil {
          */
         public boolean read(Kstat ksp) {
             int retry = 0;
-            while (0 > KS.kstat_read(kc, ksp, null)) {
+            while (0 > KS.kstat_read(KC, ksp, null)) {
                 if (LibKstat.EAGAIN != Native.getLastError() || 5 <= ++retry) {
                     if (LOG.isErrorEnabled()) {
-                        LOG.error("Failed to read kstat {}:{}:{}", new String(ksp.ks_module).trim(), ksp.ks_instance,
-                                new String(ksp.ks_name).trim());
+                        LOG.error("Failed to read kstat {}:{}:{}",
+                                new String(ksp.ks_module, StandardCharsets.US_ASCII).trim(), ksp.ks_instance,
+                                new String(ksp.ks_name, StandardCharsets.US_ASCII).trim());
                     }
                     return false;
                 }
@@ -108,12 +121,7 @@ public class KstatUtil {
          *         {@code null}
          */
         public Kstat lookup(String module, int instance, String name) {
-            int ret = KS.kstat_chain_update(kc);
-            if (ret < 0) {
-                LOG.error("Failed to update kstat chain");
-                return null;
-            }
-            return KS.kstat_lookup(kc, module, instance, name);
+            return KS.kstat_lookup(KC, module, instance, name);
         }
 
         /**
@@ -135,15 +143,10 @@ public class KstatUtil {
          */
         public List<Kstat> lookupAll(String module, int instance, String name) {
             List<Kstat> kstats = new ArrayList<>();
-            int ret = KS.kstat_chain_update(kc);
-            if (ret < 0) {
-                LOG.error("Failed to update kstat chain");
-                return kstats;
-            }
-            for (Kstat ksp = KS.kstat_lookup(kc, module, instance, name); ksp != null; ksp = ksp.next()) {
-                if ((module == null || module.equals(new String(ksp.ks_module).trim()))
+            for (Kstat ksp = KS.kstat_lookup(KC, module, instance, name); ksp != null; ksp = ksp.next()) {
+                if ((module == null || module.equals(new String(ksp.ks_module, StandardCharsets.US_ASCII).trim()))
                         && (instance < 0 || instance == ksp.ks_instance)
-                        && (name == null || name.equals(new String(ksp.ks_name).trim()))) {
+                        && (name == null || name.equals(new String(ksp.ks_name, StandardCharsets.US_ASCII).trim()))) {
                     kstats.add(ksp);
                 }
             }
@@ -161,24 +164,26 @@ public class KstatUtil {
          *         failure.
          */
         public int update() {
-            return KS.kstat_chain_update(kc);
+            return KS.kstat_chain_update(KC);
         }
 
         /**
-         * Convenience method for {@link LibKstat#kstat_close}.
+         * Release the lock on the chain.
          */
+        @Override
         public void close() {
-            KS.kstat_close(kc);
+            CHAIN.unlock();
         }
     }
 
     /**
-     * Create a copy of the Kstat chain.
+     * Create a copy of the Kstat chain and lock it for use by this object.
      *
-     * @return A copy of the chain. It should be closed when you are done with it.
+     * @return A locked copy of the chain. It should be unlocked/released when you
+     *         are done with it with {@link KstatChain#close()}.
      */
-    public static KstatChain getChain() {
-        return INSTANCE.new KstatChain();
+    public static KstatChain openChain() {
+        return new KstatChain();
     }
 
     /**
@@ -207,7 +212,7 @@ public class KstatUtil {
         KstatNamed data = new KstatNamed(p);
         switch (data.data_type) {
         case LibKstat.KSTAT_DATA_CHAR:
-            return new String(data.value.charc).trim();
+            return new String(data.value.charc, StandardCharsets.UTF_8).trim();
         case LibKstat.KSTAT_DATA_INT32:
             return Integer.toString(data.value.i32);
         case LibKstat.KSTAT_DATA_UINT32:
@@ -246,8 +251,9 @@ public class KstatUtil {
         Pointer p = KS.kstat_data_lookup(ksp, name);
         if (p == null) {
             if (LOG.isErrorEnabled()) {
-                LOG.error("Failed lo lookup kstat value on {}:{}:{} for key {}", new String(ksp.ks_module).trim(),
-                        ksp.ks_instance, new String(ksp.ks_name).trim(), name);
+                LOG.error("Failed lo lookup kstat value on {}:{}:{} for key {}",
+                        new String(ksp.ks_module, StandardCharsets.US_ASCII).trim(), ksp.ks_instance,
+                        new String(ksp.ks_name, StandardCharsets.US_ASCII).trim(), name);
             }
             return 0L;
         }

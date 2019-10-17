@@ -24,6 +24,7 @@
 package oshi.jna.platform.linux;
 
 import com.sun.jna.Native;
+import com.sun.jna.platform.linux.LibC;
 
 import oshi.jna.platform.unix.CLibrary;
 
@@ -31,7 +32,7 @@ import oshi.jna.platform.unix.CLibrary;
  * Linux C Library. This class should be considered non-API as it may be removed
  * if/when its code is incorporated into the JNA project.
  */
-public interface LinuxLibc extends CLibrary {
+public interface LinuxLibc extends LibC, CLibrary {
 
     /** Constant <code>INSTANCE</code> */
     LinuxLibc INSTANCE = Native.load("c", LinuxLibc.class);

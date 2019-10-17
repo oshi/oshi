@@ -59,9 +59,9 @@ public class ParseUtil {
     private static final Pattern VALID_HEX = Pattern.compile("[0-9a-fA-F]+");
 
     /*
-     * Pattern for [dd-[hh:[mm:ss]]]
+     * Pattern for [dd-[hh:[mm:[ss[.sss]]]]]
      */
-    private static final Pattern DHMS = Pattern.compile("(?:(\\d+)-)?(?:(\\d+):)?(\\d+):(\\d+)(?:\\.(\\d+))?");
+    private static final Pattern DHMS = Pattern.compile("(?:(\\d+)-)?(?:(\\d+):)??(?:(\\d+):)?(\\d+)(?:\\.(\\d+))?");
 
     /*
      * Pattern for a UUID
@@ -266,8 +266,8 @@ public class ParseUtil {
     }
 
     /**
-     * Parse a human readable string into a byte array, truncating or padding with
-     * zeros (if necessary) so the array has the specified length.
+     * Parse a human readable ASCII string into a byte array, truncating or padding
+     * with zeros (if necessary) so the array has the specified length.
      *
      * @param text
      *            The string to be parsed
@@ -277,8 +277,8 @@ public class ParseUtil {
      *         characters converted to a byte. If length is longer than the provided
      *         string length, will be filled with zeroes.
      */
-    public static byte[] stringToByteArray(String text, int length) {
-        return Arrays.copyOf(text.getBytes(), length);
+    public static byte[] asciiStringToByteArray(String text, int length) {
+        return Arrays.copyOf(text.getBytes(StandardCharsets.US_ASCII), length);
     }
 
     /**
@@ -521,7 +521,9 @@ public class ParseUtil {
             if (m.group(2) != null) {
                 milliseconds += parseLongOrDefault(m.group(2), 0L) * 3600000L;
             }
-            milliseconds += parseLongOrDefault(m.group(3), 0L) * 60000L;
+            if (m.group(3) != null) {
+                milliseconds += parseLongOrDefault(m.group(3), 0L) * 60000L;
+            }
             milliseconds += parseLongOrDefault(m.group(4), 0L) * 1000L;
             milliseconds += (long) (1000 * parseDoubleOrDefault("0." + m.group(5), 0d));
             return milliseconds;

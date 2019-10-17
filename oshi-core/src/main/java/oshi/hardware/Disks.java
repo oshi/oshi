@@ -23,12 +23,10 @@
  */
 package oshi.hardware;
 
-import java.io.Serializable;
-
 /**
  * Disks refers to hard drives installed in the machine.
  */
-public interface Disks extends Serializable {
+public interface Disks {
 
     /**
      * Get hard drives on this machine

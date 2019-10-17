@@ -123,9 +123,9 @@ public class SmcUtil {
     /**
      * Byte array used for matching return type
      */
-    private static final byte[] DATATYPE_SP78 = ParseUtil.stringToByteArray("sp78", 5);
-    private static final byte[] DATATYPE_FPE2 = ParseUtil.stringToByteArray("fpe2", 5);
-    private static final byte[] DATATYPE_FLT = ParseUtil.stringToByteArray("flt ", 5);
+    private static final byte[] DATATYPE_SP78 = ParseUtil.asciiStringToByteArray("sp78", 5);
+    private static final byte[] DATATYPE_FPE2 = ParseUtil.asciiStringToByteArray("fpe2", 5);
+    private static final byte[] DATATYPE_FLT = ParseUtil.asciiStringToByteArray("flt ", 5);
 
     public static final String SMC_KEY_FAN_NUM = "FNum";
     public static final String SMC_KEY_FAN_SPEED = "F%dAc";

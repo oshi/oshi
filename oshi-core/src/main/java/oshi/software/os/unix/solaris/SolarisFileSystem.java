@@ -47,8 +47,6 @@ import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
  */
 public class SolarisFileSystem implements FileSystem {
 
-    private static final long serialVersionUID = 1L;
-
     // Solaris defines a set of virtual file systems
     private final List<String> pseudofs = Arrays.asList(//
             "proc", // Proc file system
@@ -194,28 +192,26 @@ public class SolarisFileSystem implements FileSystem {
 
     @Override
     public long getOpenFileDescriptors() {
-        KstatChain kc = KstatUtil.getChain();
-        Kstat ksp = kc.lookup(null, -1, "file_cache");
-        // Set values
-        long bufInuse = 0L;
-        if (ksp != null && kc.read(ksp)) {
-            bufInuse = KstatUtil.dataLookupLong(ksp, "buf_inuse");
+        try (KstatChain kc = KstatUtil.openChain()) {
+            Kstat ksp = kc.lookup(null, -1, "file_cache");
+            // Set values
+            if (ksp != null && kc.read(ksp)) {
+                return KstatUtil.dataLookupLong(ksp, "buf_inuse");
+            }
         }
-        kc.close();
-        return bufInuse;
+        return 0L;
     }
 
     @Override
     public long getMaxFileDescriptors() {
-        KstatChain kc = KstatUtil.getChain();
-        Kstat ksp = kc.lookup(null, -1, "file_cache");
-        // Set values
-        long bufMax = 0L;
-        if (ksp != null && kc.read(ksp)) {
-            bufMax = KstatUtil.dataLookupLong(ksp, "buf_max");
+        try (KstatChain kc = KstatUtil.openChain()) {
+            Kstat ksp = kc.lookup(null, -1, "file_cache");
+            // Set values
+            if (ksp != null && kc.read(ksp)) {
+                return KstatUtil.dataLookupLong(ksp, "buf_max");
+            }
         }
-        kc.close();
-        return bufMax;
+        return 0L;
     }
 
     /**

@@ -46,11 +46,7 @@ import oshi.util.Util;
  * Helper class to centralize the boilerplate portions of PDH counter setup and
  * allow applications to easily add, query, and remove counters.
  */
-public class PerfDataUtil {
-    /**
-     * Instance to generate the PerfCounter class.
-     */
-    public static final PerfDataUtil INSTANCE = new PerfDataUtil();
+public final class PerfDataUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(PerfDataUtil.class);
 
@@ -58,10 +54,9 @@ public class PerfDataUtil {
     private static final DWORDByReference PDH_FMT_RAW = new DWORDByReference(new DWORD(Pdh.PDH_FMT_RAW));
     private static final Pdh PDH = Pdh.INSTANCE;
 
-    // Is AddEnglishCounter available?
     private static final boolean IS_VISTA_OR_GREATER = VersionHelpers.IsWindowsVistaOrGreater();
 
-    public class PerfCounter {
+    public static class PerfCounter {
         private String object;
         private String instance;
         private String counter;
@@ -95,7 +90,7 @@ public class PerfDataUtil {
 
         /**
          * Returns the path for this counter
-         * 
+         *
          * @return A string representing the counter path
          */
         public String getCounterPath() {
@@ -124,7 +119,7 @@ public class PerfDataUtil {
      * @return A PerfCounter object encapsulating the object, instance, and counter
      */
     public static PerfCounter createCounter(String object, String instance, String counter) {
-        return INSTANCE.new PerfCounter(object, instance, counter);
+        return new PerfCounter(object, instance, counter);
     }
 
     /**

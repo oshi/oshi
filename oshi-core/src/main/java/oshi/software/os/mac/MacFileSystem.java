@@ -24,6 +24,7 @@
 package oshi.software.os.mac;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -57,8 +58,6 @@ import oshi.util.platform.mac.SysctlUtil;
  * in the /Volumes directory.
  */
 public class MacFileSystem implements FileSystem {
-
-    private static final long serialVersionUID = 1L;
 
     private static final Logger LOG = LoggerFactory.getLogger(MacFileSystem.class);
 
@@ -103,7 +102,7 @@ public class MacFileSystem implements FileSystem {
                     // Byte arrays are null-terminated strings
 
                     // Get volume name
-                    String volume = new String(fs[f].f_mntfromname).trim();
+                    String volume = new String(fs[f].f_mntfromname, StandardCharsets.UTF_8).trim();
                     // Skip system types
                     if (volume.equals("devfs") || volume.startsWith("map ")) {
                         continue;
@@ -117,8 +116,8 @@ public class MacFileSystem implements FileSystem {
                         description = "Network Drive";
                     }
                     // Set type and path
-                    String type = new String(fs[f].f_fstypename).trim();
-                    String path = new String(fs[f].f_mntonname).trim();
+                    String type = new String(fs[f].f_fstypename, StandardCharsets.UTF_8).trim();
+                    String path = new String(fs[f].f_mntonname, StandardCharsets.UTF_8).trim();
 
                     String name = "";
                     File file = new File(path);

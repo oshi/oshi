@@ -23,6 +23,7 @@
  */
 package oshi.hardware.platform.mac;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
@@ -65,8 +66,6 @@ import oshi.util.ParseUtil;
  * Mac hard disk implementation.
  */
 public class MacDisks implements Disks {
-
-    private static final long serialVersionUID = 1L;
 
     private static final CoreFoundation CF = CoreFoundation.INSTANCE;
     private static final DiskArbitration DA = DiskArbitration.INSTANCE;
@@ -124,8 +123,8 @@ public class MacDisks implements Disks {
         SystemB.INSTANCE.getfsstat64(fs, numfs * new Statfs().size(), SystemB.MNT_NOWAIT);
         // Iterate all mounted file systems
         for (Statfs f : fs) {
-            String mntFrom = new String(f.f_mntfromname).trim();
-            mountPointMap.put(mntFrom.replace("/dev/", ""), new String(f.f_mntonname).trim());
+            String mntFrom = new String(f.f_mntfromname, StandardCharsets.UTF_8).trim();
+            mountPointMap.put(mntFrom.replace("/dev/", ""), new String(f.f_mntonname, StandardCharsets.UTF_8).trim());
         }
         return mountPointMap;
     }

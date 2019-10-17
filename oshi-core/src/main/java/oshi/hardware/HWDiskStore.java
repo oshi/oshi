@@ -23,8 +23,6 @@
  */
 package oshi.hardware;
 
-import java.io.Serializable;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,9 +42,7 @@ import oshi.util.FormatUtil;
  * storage, the Disk Store represents the hardware which a FileSystem uses for
  * its File Stores.
  */
-public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
-
-    private static final long serialVersionUID = 1L;
+public class HWDiskStore implements Comparable<HWDiskStore> {
 
     private static final Logger LOG = LoggerFactory.getLogger(HWDiskStore.class);
 
@@ -431,7 +427,7 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
         if (obj == null) {
             return false;
         }
-        if (!(obj instanceof HWDiskStore)) {
+        if (!(obj.getClass().equals(this.getClass()))) {
             return false;
         }
         HWDiskStore other = (HWDiskStore) obj;

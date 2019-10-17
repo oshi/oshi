@@ -23,13 +23,11 @@
  */
 package oshi.hardware;
 
-import java.io.Serializable;
-
 /**
  * The Power Source is one or more batteries with some capacity, and some state
  * of charge/discharge
  */
-public interface PowerSource extends Serializable {
+public interface PowerSource {
     /**
      * Name of the power source (e.g., InternalBattery-0)
      *

@@ -23,8 +23,6 @@
  */
 package oshi.software.os;
 
-import java.io.Serializable;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,9 +38,7 @@ import oshi.software.os.windows.WindowsFileSystem;
  * system or other implementation specific means of file storage. See subclasses
  * for definitions as they apply to specific platforms.
  */
-public class OSFileStore implements Serializable {
-
-    private static final long serialVersionUID = 1L;
+public class OSFileStore {
 
     private static final Logger LOG = LoggerFactory.getLogger(OSFileStore.class);
 

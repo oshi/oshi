@@ -53,8 +53,6 @@ import oshi.util.ParseUtil;
  */
 public class LinuxFileSystem implements FileSystem {
 
-    private static final long serialVersionUID = 1L;
-
     private static final Logger LOG = LoggerFactory.getLogger(LinuxFileSystem.class);
 
     // Linux defines a set of virtual file systems

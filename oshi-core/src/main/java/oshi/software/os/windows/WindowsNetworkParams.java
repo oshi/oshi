@@ -23,6 +23,7 @@
  */
 package oshi.software.os.windows;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,6 +35,7 @@ import com.sun.jna.platform.win32.IPHlpAPI;
 import com.sun.jna.platform.win32.IPHlpAPI.FIXED_INFO;
 import com.sun.jna.platform.win32.IPHlpAPI.IP_ADDR_STRING;
 import com.sun.jna.platform.win32.Kernel32;
+import com.sun.jna.platform.win32.Kernel32Util;
 import com.sun.jna.platform.win32.WinError;
 import com.sun.jna.ptr.IntByReference;
 
@@ -83,7 +85,9 @@ public class WindowsNetworkParams extends AbstractNetworkParams {
         List<String> list = new ArrayList<>();
         IP_ADDR_STRING dns = fixedInfo.DnsServerList;
         while (dns != null) {
-            String addr = new String(dns.IpAddress.String);
+            // a char array of size 16.
+            // This array holds an IPv4 address in dotted decimal notation.
+            String addr = new String(dns.IpAddress.String, StandardCharsets.US_ASCII);
             int nullPos = addr.indexOf(0);
             if (nullPos != -1) {
                 addr = addr.substring(0, nullPos);
@@ -92,6 +96,11 @@ public class WindowsNetworkParams extends AbstractNetworkParams {
             dns = dns.Next;
         }
         return list.toArray(new String[0]);
+    }
+
+    @Override
+    public String getHostName() {
+        return Kernel32Util.getComputerName();
     }
 
     @Override

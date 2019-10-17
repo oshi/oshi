@@ -25,6 +25,7 @@ package oshi.hardware.platform.mac;
 
 import static oshi.util.Memoizer.memoize;
 
+import java.nio.charset.StandardCharsets;
 import java.util.function.Supplier;
 
 import oshi.hardware.common.AbstractBaseboard;
@@ -69,15 +70,15 @@ final class MacBaseboard extends AbstractBaseboard {
         if (platformExpert != null) {
             byte[] data = platformExpert.getByteArrayProperty("manufacturer");
             if (data != null) {
-                manufacturer = new String(data);
+                manufacturer = new String(data, StandardCharsets.UTF_8);
             }
             data = platformExpert.getByteArrayProperty("board-id");
             if (data != null) {
-                model = new String(data);
+                model = new String(data, StandardCharsets.UTF_8);
             }
             data = platformExpert.getByteArrayProperty("version");
             if (data != null) {
-                version = new String(data);
+                version = new String(data, StandardCharsets.UTF_8);
             }
             serialNumber = platformExpert.getStringProperty("IOPlatformSerialNumber");
             platformExpert.release();

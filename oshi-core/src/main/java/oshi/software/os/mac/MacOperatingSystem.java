@@ -23,9 +23,16 @@
  */
 package oshi.software.os.mac;
 
+import static oshi.software.os.OSService.State.RUNNING;
+import static oshi.software.os.OSService.State.STOPPED;
+
+import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +54,7 @@ import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
 import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
+import oshi.software.os.OSService;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.mac.SysctlUtil;
@@ -238,7 +246,7 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
             // null terminated
             for (int t = 0; t < taskAllInfo.pbsd.pbi_comm.length; t++) {
                 if (taskAllInfo.pbsd.pbi_comm[t] == 0) {
-                    name = new String(taskAllInfo.pbsd.pbi_comm, 0, t);
+                    name = new String(taskAllInfo.pbsd.pbi_comm, 0, t, StandardCharsets.UTF_8);
                     break;
                 }
             }
@@ -438,4 +446,40 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
         return new MacNetworkParams();
     }
 
+    @Override
+    public OSService[] getServices() {
+        // Get running services
+        List<OSService> services = new ArrayList<>();
+        Set<String> running = new HashSet<>();
+        for (OSProcess p : getChildProcesses(1, 0, ProcessSort.PID)) {
+            OSService s = new OSService(p.getName(), p.getProcessID(), RUNNING);
+            services.add(s);
+            running.add(p.getName());
+        }
+        // Get Directories for stopped services
+        ArrayList<File> files = new ArrayList<>();
+        File dir = new File("/System/Library/LaunchAgents");
+        if (dir.exists() && dir.isDirectory()) {
+            files.addAll(Arrays.asList(dir.listFiles((f, name) -> name.toLowerCase().endsWith(".plist"))));
+        } else {
+            LOG.error("Directory: /System/Library/LaunchAgents does not exist");
+        }
+        dir = new File("/System/Library/LaunchDaemons");
+        if (dir.exists() && dir.isDirectory()) {
+            files.addAll(Arrays.asList(dir.listFiles((f, name) -> name.toLowerCase().endsWith(".plist"))));
+        } else {
+            LOG.error("Directory: /System/Library/LaunchDaemons does not exist");
+        }
+        for (File f : files) {
+            // remove .plist extension
+            String name = f.getName().substring(0, f.getName().length() - 6);
+            int index = name.lastIndexOf('.');
+            String shortName = (index < 0 || index > name.length() - 2) ? name : name.substring(index + 1);
+            if (!running.contains(name) && !running.contains(shortName)) {
+                OSService s = new OSService(name, 0, STOPPED);
+                services.add(s);
+            }
+        }
+        return services.toArray(new OSService[0]);
+    }
 }

@@ -105,7 +105,7 @@ public class ParseUtilTest {
     @Test
     public void testStringToByteArray() {
         byte[] temp = { (byte) '1', (byte) '2', (byte) 'a', (byte) 'f', (byte) 0 };
-        assertTrue(Arrays.equals(temp, ParseUtil.stringToByteArray("12af", 5)));
+        assertTrue(Arrays.equals(temp, ParseUtil.asciiStringToByteArray("12af", 5)));
     }
 
     /**
@@ -236,7 +236,8 @@ public class ParseUtilTest {
         assertEquals(7384000L, ParseUtil.parseDHMSOrDefault("02:03:04", 0L));
         assertEquals(184050L, ParseUtil.parseDHMSOrDefault("03:04.05", 0L));
         assertEquals(184000L, ParseUtil.parseDHMSOrDefault("03:04", 0L));
-        assertEquals(0L, ParseUtil.parseDHMSOrDefault("04", 0L));
+        assertEquals(4000L, ParseUtil.parseDHMSOrDefault("04", 0L));
+        assertEquals(0L, ParseUtil.parseDHMSOrDefault("04:05-06", 0L));
     }
 
     /**

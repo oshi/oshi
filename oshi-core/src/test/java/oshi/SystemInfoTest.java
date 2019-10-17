@@ -53,6 +53,7 @@ import oshi.software.os.FileSystem;
 import oshi.software.os.NetworkParams;
 import oshi.software.os.OSFileStore;
 import oshi.software.os.OSProcess;
+import oshi.software.os.OSService;
 import oshi.software.os.OperatingSystem;
 import oshi.software.os.OperatingSystem.ProcessSort;
 import oshi.util.FormatUtil;
@@ -106,6 +107,9 @@ public class SystemInfoTest {
 
         logger.info("Checking Processes...");
         printProcesses(os, hal.getMemory());
+
+        logger.info("Checking Services...");
+        printServices(os);
 
         logger.info("Checking Sensors...");
         printSensors(hal.getSensors());
@@ -245,6 +249,24 @@ public class SystemInfoTest {
                     100d * (p.getKernelTime() + p.getUserTime()) / p.getUpTime(),
                     100d * p.getResidentSetSize() / memory.getTotal(), FormatUtil.formatBytes(p.getVirtualSize()),
                     FormatUtil.formatBytes(p.getResidentSetSize()), p.getName()));
+        }
+    }
+
+    private static void printServices(OperatingSystem os) {
+        oshi.add("Services: ");
+        oshi.add("   PID   State   Name");
+        // DO 5 each of running and stopped
+        int i = 0;
+        for (OSService s : os.getServices()) {
+            if (s.getState().equals(OSService.State.RUNNING) && i++ < 5) {
+                oshi.add(String.format(" %5d  %7s  %s", s.getProcessID(), s.getState(), s.getName()));
+            }
+        }
+        i = 0;
+        for (OSService s : os.getServices()) {
+            if (s.getState().equals(OSService.State.STOPPED) && i++ < 5) {
+                oshi.add(String.format(" %5d  %7s  %s", s.getProcessID(), s.getState(), s.getName()));
+            }
         }
     }
 

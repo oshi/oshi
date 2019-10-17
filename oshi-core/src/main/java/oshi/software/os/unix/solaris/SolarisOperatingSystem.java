@@ -23,6 +23,10 @@
  */
 package oshi.software.os.unix.solaris;
 
+import static oshi.software.os.OSService.State.RUNNING;
+import static oshi.software.os.OSService.State.STOPPED;
+
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +38,7 @@ import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
 import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
+import oshi.software.os.OSService;
 import oshi.util.ExecutingCommand;
 import oshi.util.LsofUtil;
 import oshi.util.ParseUtil;
@@ -47,17 +52,7 @@ import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
  */
 public class SolarisOperatingSystem extends AbstractOperatingSystem {
 
-    private static final long BOOTTIME;
-    static {
-        KstatChain kc = KstatUtil.getChain();
-        Kstat ksp = kc.lookup("unix", 0, "system_misc");
-        if (ksp != null && kc.read(ksp)) {
-            BOOTTIME = KstatUtil.dataLookupLong(ksp, "boot_time");
-        } else {
-            BOOTTIME = System.currentTimeMillis() / 1000L - querySystemUptime();
-        }
-        kc.close();
-    }
+    private static final long BOOTTIME = querySystemBootTime();
 
     /**
      * <p>
@@ -82,7 +77,7 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
         if (split.length > 1) {
             buildNumber = split[1];
         }
-        return new FamilyVersionInfo("SunOS", new OSVersionInfo(version,"Solaris",buildNumber));
+        return new FamilyVersionInfo("SunOS", new OSVersionInfo(version, "Solaris", buildNumber));
     }
 
     @Override
@@ -241,15 +236,14 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
     }
 
     private static long querySystemUptime() {
-        KstatChain kc = KstatUtil.getChain();
-        Kstat ksp = kc.lookup("unix", 0, "system_misc");
-        long snaptime = 0L;
-        if (ksp != null) {
-            // Snap Time is in nanoseconds; divide for seconds
-            snaptime = ksp.ks_snaptime / 1_000_000_000L;
+        try (KstatChain kc = KstatUtil.openChain()) {
+            Kstat ksp = kc.lookup("unix", 0, "system_misc");
+            if (ksp != null) {
+                // Snap Time is in nanoseconds; divide for seconds
+                return ksp.ks_snaptime / 1_000_000_000L;
+            }
         }
-        kc.close();
-        return snaptime;
+        return 0L;
     }
 
     @Override
@@ -257,9 +251,70 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
         return BOOTTIME;
     }
 
+    private static long querySystemBootTime() {
+        try (KstatChain kc = KstatUtil.openChain()) {
+            Kstat ksp = kc.lookup("unix", 0, "system_misc");
+            if (ksp != null && kc.read(ksp)) {
+                return KstatUtil.dataLookupLong(ksp, "boot_time");
+            }
+        }
+        return System.currentTimeMillis() / 1000L - querySystemUptime();
+    }
+
     @Override
     public NetworkParams getNetworkParams() {
         return new SolarisNetworkParams();
     }
 
+    @Override
+    public OSService[] getServices() {
+        List<OSService> services = new ArrayList<>();
+        // Get legacy RC service name possibilities
+        List<String> legacySvcs = new ArrayList<>();
+        File dir = new File("/etc/init.d");
+        File[] listFiles;
+        if (dir.exists() && dir.isDirectory() && (listFiles = dir.listFiles()) != null) {
+            for (File f : listFiles) {
+                legacySvcs.add(f.getName());
+            }
+        }
+        // Iterate service list
+        List<String> svcs = ExecutingCommand.runNative("svcs -p");
+        /*-
+         Output:
+         STATE          STIME    FRMI
+         legacy_run     23:56:49 lrc:/etc/rc2_d/S47pppd
+         legacy_run     23:56:49 lrc:/etc/rc2_d/S81dodatadm_udaplt
+         legacy_run     23:56:49 lrc:/etc/rc2_d/S89PRESERVE
+         online         23:56:25 svc:/system/early-manifest-import:default
+         online         23:56:25 svc:/system/svc/restarter:default
+                        23:56:24       13 svc.startd
+                        ...
+         */
+        for (String line : svcs) {
+            if (line.startsWith("online")) {
+                int delim = line.lastIndexOf(":/");
+                if (delim > 0) {
+                    String name = line.substring(delim + 1);
+                    if (name.endsWith(":default")) {
+                        name = name.substring(0, name.length() - 8);
+                    }
+                    services.add(new OSService(name, 0, STOPPED));
+                }
+            } else if (line.startsWith(" ")) {
+                String[] split = ParseUtil.whitespaces.split(line.trim());
+                if (split.length == 3) {
+                    services.add(new OSService(split[2], ParseUtil.parseIntOrDefault(split[1], 0), RUNNING));
+                }
+            } else if (line.startsWith("legacy_run")) {
+                for (String svc : legacySvcs) {
+                    if (line.endsWith(svc)) {
+                        services.add(new OSService(svc, 0, STOPPED));
+                        break;
+                    }
+                }
+            }
+        }
+        return services.toArray(new OSService[0]);
+    }
 }
