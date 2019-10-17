@@ -1,4 +1,8 @@
-4.1.0 (in progress)
+4.2.0 (in progress)
+================
+* Your contribution here.
+
+4.1.0 (10/16/2019)
 ================
 API CHANGE: This version implements thread-safe getters for OSHI attributes.
 As part of this change, support for serialization has been removed. 
