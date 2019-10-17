@@ -23,27 +23,75 @@
  */
 package oshi.hardware.common;
 
+import java.util.function.Supplier;
+
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.ComputerSystem;
 import oshi.hardware.GlobalMemory;
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.Sensors;
+import static oshi.util.Memoizer.memoize;
 
 /**
  * Common fields or methods used by platform-specific implementations of
  * HardwareAbstractionLayer
  */
-<span class="nc" id="L36">public abstract class AbstractHardwareAbstractionLayer implements HardwareAbstractionLayer {</span>
+<span class="nc" id="L39">public abstract class AbstractHardwareAbstractionLayer implements HardwareAbstractionLayer {</span>
 
-    private static final long serialVersionUID = 1L;
+<span class="nc" id="L41">    private final Supplier&lt;ComputerSystem&gt; computerSystem = memoize(this::createComputerSystem);</span>
 
-    protected ComputerSystem computerSystem;
+<span class="nc" id="L43">    private final Supplier&lt;CentralProcessor&gt; processor = memoize(this::createProcessor);</span>
 
-    protected CentralProcessor processor;
+<span class="nc" id="L45">    private final Supplier&lt;GlobalMemory&gt; memory = memoize(this::createMemory);</span>
 
-    protected GlobalMemory memory;
+<span class="nc" id="L47">    private final Supplier&lt;Sensors&gt; sensors = memoize(this::createSensors);</span>
 
-    protected Sensors sensors;
+    @Override
+    public ComputerSystem getComputerSystem() {
+<span class="nc" id="L51">        return computerSystem.get();</span>
+    }
 
+    /**
+     * Instantiates the platform-specific {@link ComputerSystem} object
+     * 
+     * @return platform-specific {@link ComputerSystem} object
+     */
+    protected abstract ComputerSystem createComputerSystem();
+
+    @Override
+    public CentralProcessor getProcessor() {
+<span class="nc" id="L63">        return processor.get();</span>
+    }
+
+    /**
+     * Instantiates the platform-specific {@link CentralProcessor} object
+     * 
+     * @return platform-specific {@link CentralProcessor} object
+     */
+    protected abstract CentralProcessor createProcessor();
+
+    @Override
+    public GlobalMemory getMemory() {
+<span class="nc" id="L75">        return memory.get();</span>
+    }
+
+    /**
+     * Instantiates the platform-specific {@link GlobalMemory} object
+     * 
+     * @return platform-specific {@link GlobalMemory} object
+     */
+    protected abstract GlobalMemory createMemory();
+
+    @Override
+    public Sensors getSensors() {
+<span class="nc" id="L87">        return sensors.get();</span>
+    }
+
+    /**
+     * Instantiates the platform-specific {@link Sensors} object
+     * 
+     * @return platform-specific {@link Sensors} object
+     */
+    protected abstract Sensors createSensors();
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

@@ -35,9 +35,7 @@ import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
  */
 public class FreeBsdPowerSource extends AbstractPowerSource {
 
-    private static final long serialVersionUID = 1L;
-
-<span class="nc" id="L40">    private static final Logger LOG = LoggerFactory.getLogger(FreeBsdPowerSource.class);</span>
+<span class="nc" id="L38">    private static final Logger LOG = LoggerFactory.getLogger(FreeBsdPowerSource.class);</span>
 
     /**
      * &lt;p&gt;
@@ -52,9 +50,9 @@ public class FreeBsdPowerSource extends AbstractPowerSource {
      *            a double.
      */
     public FreeBsdPowerSource(String newName, double newRemainingCapacity, double newTimeRemaining) {
-<span class="nc" id="L55">        super(newName, newRemainingCapacity, newTimeRemaining);</span>
-<span class="nc" id="L56">        LOG.debug(&quot;Initialized FreeBsdPowerSource&quot;);</span>
-<span class="nc" id="L57">    }</span>
+<span class="nc" id="L53">        super(newName, newRemainingCapacity, newTimeRemaining);</span>
+<span class="nc" id="L54">        LOG.debug(&quot;Initialized FreeBsdPowerSource&quot;);</span>
+<span class="nc" id="L55">    }</span>
 
     /**
      * Gets Battery Information
@@ -62,31 +60,31 @@ public class FreeBsdPowerSource extends AbstractPowerSource {
      * @return An array of PowerSource objects representing batteries, etc.
      */
     public static PowerSource[] getPowerSources() {
-<span class="nc" id="L65">        FreeBsdPowerSource[] ps = new FreeBsdPowerSource[1];</span>
-<span class="nc" id="L66">        ps[0] = getPowerSource(&quot;BAT0&quot;);</span>
-<span class="nc" id="L67">        return ps;</span>
+<span class="nc" id="L63">        FreeBsdPowerSource[] ps = new FreeBsdPowerSource[1];</span>
+<span class="nc" id="L64">        ps[0] = getPowerSource(&quot;BAT0&quot;);</span>
+<span class="nc" id="L65">        return ps;</span>
     }
 
     private static FreeBsdPowerSource getPowerSource(String name) {
         // state 0=full, 1=discharging, 2=charging
-<span class="nc" id="L72">        int state = BsdSysctlUtil.sysctl(&quot;hw.acpi.battery.state&quot;, 0);</span>
+<span class="nc" id="L70">        int state = BsdSysctlUtil.sysctl(&quot;hw.acpi.battery.state&quot;, 0);</span>
         // time is in minutes
-<span class="nc" id="L74">        int time = BsdSysctlUtil.sysctl(&quot;hw.acpi.battery.time&quot;, -1);</span>
+<span class="nc" id="L72">        int time = BsdSysctlUtil.sysctl(&quot;hw.acpi.battery.time&quot;, -1);</span>
         // life is in percent
-<span class="nc" id="L76">        int life = BsdSysctlUtil.sysctl(&quot;hw.acpi.battery.life&quot;, 100);</span>
-<span class="nc" id="L77">        double timeRemaining = -2d;</span>
-<span class="nc bnc" id="L78" title="All 2 branches missed.">        if (state &lt; 2) {</span>
-<span class="nc bnc" id="L79" title="All 2 branches missed.">            timeRemaining = time &lt; 0 ? -1d : 60d * time;</span>
+<span class="nc" id="L74">        int life = BsdSysctlUtil.sysctl(&quot;hw.acpi.battery.life&quot;, 100);</span>
+<span class="nc" id="L75">        double timeRemaining = -2d;</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">        if (state &lt; 2) {</span>
+<span class="nc bnc" id="L77" title="All 2 branches missed.">            timeRemaining = time &lt; 0 ? -1d : 60d * time;</span>
         }
-<span class="nc" id="L81">        return new FreeBsdPowerSource(name, life / 100d, timeRemaining);</span>
+<span class="nc" id="L79">        return new FreeBsdPowerSource(name, life / 100d, timeRemaining);</span>
     }
 
     /** {@inheritDoc} */
     @Override
     public void updateAttributes() {
-<span class="nc" id="L87">        PowerSource ps = getPowerSource(this.name);</span>
-<span class="nc" id="L88">        this.remainingCapacity = ps.getRemainingCapacity();</span>
-<span class="nc" id="L89">        this.timeRemaining = ps.getTimeRemaining();</span>
-<span class="nc" id="L90">    }</span>
+<span class="nc" id="L85">        PowerSource ps = getPowerSource(this.name);</span>
+<span class="nc" id="L86">        this.remainingCapacity = ps.getRemainingCapacity();</span>
+<span class="nc" id="L87">        this.timeRemaining = ps.getTimeRemaining();</span>
+<span class="nc" id="L88">    }</span>
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

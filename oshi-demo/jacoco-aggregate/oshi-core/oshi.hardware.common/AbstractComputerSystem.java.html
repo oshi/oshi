@@ -23,49 +23,54 @@
  */
 package oshi.hardware.common;
 
+import static oshi.util.Memoizer.memoize;
+
+import java.util.function.Supplier;
+
 import oshi.hardware.Baseboard;
 import oshi.hardware.ComputerSystem;
 import oshi.hardware.Firmware;
-import oshi.util.Constants;
 
 /**
  * Computer System data.
  */
-<span class="nc" id="L34">public abstract class AbstractComputerSystem implements ComputerSystem {</span>
+<span class="nc" id="L37">public abstract class AbstractComputerSystem implements ComputerSystem {</span>
 
-    private static final long serialVersionUID = 1L;
+<span class="nc" id="L39">    private final Supplier&lt;Firmware&gt; firmware = memoize(this::createFirmware);</span>
 
-    protected String manufacturer;
-    protected String model;
-    protected String serialNumber;
-    protected Firmware firmware;
-    protected Baseboard baseboard;
+<span class="nc" id="L41">    private final Supplier&lt;Baseboard&gt; baseboard = memoize(this::createBaseboard);</span>
 
-    /** {@inheritDoc} */
     @Override
-    public String getManufacturer() {
-<span class="nc bnc" id="L47" title="All 2 branches missed.">        if (this.manufacturer == null) {</span>
-<span class="nc" id="L48">            this.manufacturer = Constants.UNKNOWN;</span>
-        }
-<span class="nc" id="L50">        return this.manufacturer;</span>
+    public Firmware getFirmware() {
+<span class="nc" id="L45">        return firmware.get();</span>
     }
 
-    /** {@inheritDoc} */
+    /**
+     * Instantiates the platform-specific {@link Firmware} object
+     * 
+     * @return platform-specific {@link Firmware} object
+     */
+    protected abstract Firmware createFirmware();
+
     @Override
-    public String getModel() {
-<span class="nc bnc" id="L56" title="All 2 branches missed.">        if (this.model == null) {</span>
-<span class="nc" id="L57">            this.model = Constants.UNKNOWN;</span>
-        }
-<span class="nc" id="L59">        return this.model;</span>
+    public Baseboard getBaseboard() {
+<span class="nc" id="L57">        return baseboard.get();</span>
     }
 
-    /** {@inheritDoc} */
+    /**
+     * Instantiates the platform-specific {@link Baseboard} object
+     * 
+     * @return platform-specific {@link Baseboard} object
+     */
+    protected abstract Baseboard createBaseboard();
+
     @Override
-    public String getSerialNumber() {
-<span class="nc bnc" id="L65" title="All 2 branches missed.">        if (this.serialNumber == null) {</span>
-<span class="nc" id="L66">            this.serialNumber = Constants.UNKNOWN;</span>
-        }
-<span class="nc" id="L68">        return this.serialNumber;</span>
+    public String toString() {
+<span class="nc" id="L69">        StringBuilder sb = new StringBuilder();</span>
+<span class="nc" id="L70">        sb.append(&quot;manufacturer=&quot;).append(getManufacturer()).append(&quot;, &quot;);</span>
+<span class="nc" id="L71">        sb.append(&quot;model=&quot;).append(getModel()).append(&quot;, &quot;);</span>
+<span class="nc" id="L72">        sb.append(&quot;serial number=&quot;).append(getSerialNumber());</span>
+<span class="nc" id="L73">        return sb.toString();</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

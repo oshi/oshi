@@ -31,118 +31,36 @@ import oshi.util.Constants;
  */
 <span class="nc" id="L32">public abstract class AbstractFirmware implements Firmware {</span>
 
-    private static final long serialVersionUID = 1L;
+    /*
+     * Multiple classes don't have these, set defaults here
+     */
 
-    protected String manufacturer;
-    protected String name;
-    protected String description;
-    protected String version;
-    protected String releaseDate;
-
-    /** {@inheritDoc} */
-    @Override
-    public String getManufacturer() {
-<span class="nc bnc" id="L45" title="All 2 branches missed.">        if (this.manufacturer == null) {</span>
-<span class="nc" id="L46">            this.manufacturer = Constants.UNKNOWN;</span>
-        }
-<span class="nc" id="L48">        return this.manufacturer;</span>
-    }
-
-    /** {@inheritDoc} */
     @Override
     public String getName() {
-<span class="nc bnc" id="L54" title="All 2 branches missed.">        if (this.name == null) {</span>
-<span class="nc" id="L55">            this.name = Constants.UNKNOWN;</span>
-        }
-<span class="nc" id="L57">        return this.name;</span>
+<span class="nc" id="L40">        return Constants.UNKNOWN;</span>
     }
 
-    /** {@inheritDoc} */
     @Override
     public String getDescription() {
-<span class="nc bnc" id="L63" title="All 2 branches missed.">        if (this.description == null) {</span>
-<span class="nc" id="L64">            this.description = Constants.UNKNOWN;</span>
-        }
-<span class="nc" id="L66">        return this.description;</span>
+<span class="nc" id="L45">        return Constants.UNKNOWN;</span>
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public String getVersion() {
-<span class="nc bnc" id="L72" title="All 2 branches missed.">        if (this.version == null) {</span>
-<span class="nc" id="L73">            this.version = Constants.UNKNOWN;</span>
-        }
-<span class="nc" id="L75">        return this.version;</span>
-    }
-
-    /** {@inheritDoc} */
     @Override
     public String getReleaseDate() {
-<span class="nc bnc" id="L81" title="All 2 branches missed.">        if (this.releaseDate == null) {</span>
-<span class="nc" id="L82">            this.releaseDate = Constants.UNKNOWN;</span>
-        }
-<span class="nc" id="L84">        return this.releaseDate;</span>
+<span class="nc" id="L50">        return Constants.UNKNOWN;</span>
     }
 
-    /**
-     * &lt;p&gt;
-     * Setter for the field &lt;code&gt;manufacturer&lt;/code&gt;.
-     * &lt;/p&gt;
-     *
-     * @param manufacturer
-     *            The manufacturer to set.
-     */
-    public void setManufacturer(String manufacturer) {
-<span class="nc" id="L96">        this.manufacturer = manufacturer;</span>
-<span class="nc" id="L97">    }</span>
-
-    /**
-     * &lt;p&gt;
-     * Setter for the field &lt;code&gt;name&lt;/code&gt;.
-     * &lt;/p&gt;
-     *
-     * @param name
-     *            The name to set.
-     */
-    public void setName(String name) {
-<span class="nc" id="L108">        this.name = name;</span>
-<span class="nc" id="L109">    }</span>
-
-    /**
-     * &lt;p&gt;
-     * Setter for the field &lt;code&gt;description&lt;/code&gt;.
-     * &lt;/p&gt;
-     *
-     * @param description
-     *            The description to set.
-     */
-    public void setDescription(String description) {
-<span class="nc" id="L120">        this.description = description;</span>
-<span class="nc" id="L121">    }</span>
-
-    /**
-     * &lt;p&gt;
-     * Setter for the field &lt;code&gt;version&lt;/code&gt;.
-     * &lt;/p&gt;
-     *
-     * @param version
-     *            The version to set.
-     */
-    public void setVersion(String version) {
-<span class="nc" id="L132">        this.version = version;</span>
-<span class="nc" id="L133">    }</span>
-
-    /**
-     * &lt;p&gt;
-     * Setter for the field &lt;code&gt;releaseDate&lt;/code&gt;.
-     * &lt;/p&gt;
-     *
-     * @param releaseDate
-     *            The releaseDate to set.
-     */
-    public void setReleaseDate(String releaseDate) {
-<span class="nc" id="L144">        this.releaseDate = releaseDate;</span>
-<span class="nc" id="L145">    }</span>
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+<span class="nc" id="L56">        StringBuilder sb = new StringBuilder();</span>
+<span class="nc" id="L57">        sb.append(&quot;manufacturer=&quot;).append(getManufacturer()).append(&quot;, &quot;);</span>
+<span class="nc" id="L58">        sb.append(&quot;name=&quot;).append(getName()).append(&quot;, &quot;);</span>
+<span class="nc" id="L59">        sb.append(&quot;description=&quot;).append(getDescription()).append(&quot;, &quot;);</span>
+<span class="nc" id="L60">        sb.append(&quot;version=&quot;).append(getVersion()).append(&quot;, &quot;);</span>
+<span class="nc bnc" id="L61" title="All 2 branches missed.">        sb.append(&quot;release date=&quot;).append(getReleaseDate() == null ? &quot;unknown&quot; : getReleaseDate());</span>
+<span class="nc" id="L62">        return sb.toString();</span>
+    }
 
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

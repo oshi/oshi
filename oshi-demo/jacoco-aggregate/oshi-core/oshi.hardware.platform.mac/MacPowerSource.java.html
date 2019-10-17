@@ -29,117 +29,113 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Pointer; // NOSONAR
-import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.Pointer; // NOSONAR squid:S1191
 
 import oshi.hardware.PowerSource;
 import oshi.hardware.common.AbstractPowerSource;
 import oshi.jna.platform.mac.CoreFoundation;
 import oshi.jna.platform.mac.CoreFoundation.CFArrayRef;
+import oshi.jna.platform.mac.CoreFoundation.CFBooleanRef;
 import oshi.jna.platform.mac.CoreFoundation.CFDictionaryRef;
+import oshi.jna.platform.mac.CoreFoundation.CFNumberRef;
+import oshi.jna.platform.mac.CoreFoundation.CFStringRef;
 import oshi.jna.platform.mac.CoreFoundation.CFTypeRef;
 import oshi.jna.platform.mac.IOKit;
-import oshi.util.platform.mac.CfUtil;
+import oshi.util.Constants;
 
 /**
  * A Power Source
  */
 public class MacPowerSource extends AbstractPowerSource {
 
-    private static final long serialVersionUID = 1L;
-
 <span class="nc" id="L51">    private static final Logger LOG = LoggerFactory.getLogger(MacPowerSource.class);</span>
 
-    /**
-     * &lt;p&gt;
-     * Constructor for MacPowerSource.
-     * &lt;/p&gt;
-     *
-     * @param newName
-     *            a {@link java.lang.String} object.
-     * @param newRemainingCapacity
-     *            a double.
-     * @param newTimeRemaining
-     *            a double.
-     */
-    public MacPowerSource(String newName, double newRemainingCapacity, double newTimeRemaining) {
-<span class="nc" id="L66">        super(newName, newRemainingCapacity, newTimeRemaining);</span>
-<span class="nc" id="L67">        LOG.debug(&quot;Initialized MacPowerSource&quot;);</span>
-<span class="nc" id="L68">    }</span>
+<span class="nc" id="L53">    private static final CoreFoundation CF = CoreFoundation.INSTANCE;</span>
+<span class="nc" id="L54">    private static final IOKit IO = IOKit.INSTANCE;</span>
 
-    /**
-     * Gets Battery Information
-     *
-     * @return An array of PowerSource objects representing batteries, etc.
-     */
+    public MacPowerSource(String newName, double newRemainingCapacity, double newTimeRemaining) {
+<span class="nc" id="L57">        super(newName, newRemainingCapacity, newTimeRemaining);</span>
+<span class="nc" id="L58">        LOG.debug(&quot;Initialized MacPowerSource&quot;);</span>
+<span class="nc" id="L59">    }</span>
+
     public static PowerSource[] getPowerSources() {
         // Get the blob containing current power source state
-<span class="nc" id="L77">        CFTypeRef powerSourcesInfo = IOKit.INSTANCE.IOPSCopyPowerSourcesInfo();</span>
-<span class="nc" id="L78">        CFArrayRef powerSourcesList = IOKit.INSTANCE.IOPSCopyPowerSourcesList(powerSourcesInfo);</span>
-<span class="nc" id="L79">        int powerSourcesCount = CoreFoundation.INSTANCE.CFArrayGetCount(powerSourcesList);</span>
+<span class="nc" id="L63">        CFTypeRef powerSourcesInfo = IO.IOPSCopyPowerSourcesInfo();</span>
+<span class="nc" id="L64">        CFArrayRef powerSourcesList = IO.IOPSCopyPowerSourcesList(powerSourcesInfo);</span>
+<span class="nc" id="L65">        int powerSourcesCount = powerSourcesList.getCount();</span>
 
         // Get time remaining
         // -1 = unknown, -2 = unlimited
-<span class="nc" id="L83">        double timeRemaining = IOKit.INSTANCE.IOPSGetTimeRemainingEstimate();</span>
+<span class="nc" id="L69">        double timeRemaining = IO.IOPSGetTimeRemainingEstimate();</span>
 
+<span class="nc" id="L71">        CFStringRef nameKey = CFStringRef.createCFString(&quot;Name&quot;);</span>
+<span class="nc" id="L72">        CFStringRef isPresentKey = CFStringRef.createCFString(&quot;Is Present&quot;);</span>
+<span class="nc" id="L73">        CFStringRef currentCapacityKey = CFStringRef.createCFString(&quot;Current Capacity&quot;);</span>
+<span class="nc" id="L74">        CFStringRef maxCapacityKey = CFStringRef.createCFString(&quot;Max Capacity&quot;);</span>
         // For each power source, output various info
-<span class="nc" id="L86">        List&lt;MacPowerSource&gt; psList = new ArrayList&lt;&gt;(powerSourcesCount);</span>
-<span class="nc bnc" id="L87" title="All 2 branches missed.">        for (int ps = 0; ps &lt; powerSourcesCount; ps++) {</span>
+<span class="nc" id="L76">        List&lt;MacPowerSource&gt; psList = new ArrayList&lt;&gt;(powerSourcesCount);</span>
+<span class="nc bnc" id="L77" title="All 2 branches missed.">        for (int ps = 0; ps &lt; powerSourcesCount; ps++) {</span>
             // Get the dictionary for that Power Source
-<span class="nc" id="L89">            CFTypeRef powerSource = CoreFoundation.INSTANCE.CFArrayGetValueAtIndex(powerSourcesList, ps);</span>
-<span class="nc" id="L90">            CFDictionaryRef dictionary = IOKit.INSTANCE.IOPSGetPowerSourceDescription(powerSourcesInfo, powerSource);</span>
+<span class="nc" id="L79">            Pointer pwrSrcPtr = powerSourcesList.getValueAtIndex(ps);</span>
+<span class="nc" id="L80">            CFTypeRef powerSource = new CFTypeRef();</span>
+<span class="nc" id="L81">            powerSource.setPointer(pwrSrcPtr);</span>
+<span class="nc" id="L82">            CFDictionaryRef dictionary = IO.IOPSGetPowerSourceDescription(powerSourcesInfo, powerSource);</span>
 
             // Get values from dictionary (See IOPSKeys.h)
             // Skip if not present
-<span class="nc" id="L94">            boolean isPresent = false;</span>
-<span class="nc" id="L95">            Pointer isPresentRef = CoreFoundation.INSTANCE.CFDictionaryGetValue(dictionary, IOKit.IOPS_IS_PRESENT_KEY);</span>
-<span class="nc bnc" id="L96" title="All 2 branches missed.">            if (isPresentRef != null) {</span>
-<span class="nc" id="L97">                isPresent = CoreFoundation.INSTANCE.CFBooleanGetValue(isPresentRef);</span>
+<span class="nc" id="L86">            Pointer result = dictionary.getValue(isPresentKey);</span>
+<span class="nc bnc" id="L87" title="All 2 branches missed.">            if (result != null) {</span>
+<span class="nc" id="L88">                CFBooleanRef isPresentRef = new CFBooleanRef(result);</span>
+<span class="nc bnc" id="L89" title="All 2 branches missed.">                if (0 != CF.CFBooleanGetValue(isPresentRef)) {</span>
+                    // Get name
+<span class="nc" id="L91">                    result = dictionary.getValue(nameKey);</span>
+<span class="nc" id="L92">                    CFStringRef cfName = new CFStringRef(result);</span>
+<span class="nc" id="L93">                    String name = cfName.stringValue();</span>
+<span class="nc bnc" id="L94" title="All 2 branches missed.">                    if (name == null) {</span>
+<span class="nc" id="L95">                        name = Constants.UNKNOWN;</span>
+                    }
+                    // Remaining Capacity = current / max
+<span class="nc" id="L98">                    int currentCapacity = 0;</span>
+<span class="nc bnc" id="L99" title="All 2 branches missed.">                    if (dictionary.getValueIfPresent(currentCapacityKey, null)) {</span>
+<span class="nc" id="L100">                        result = dictionary.getValue(currentCapacityKey);</span>
+<span class="nc" id="L101">                        CFNumberRef cap = new CFNumberRef(result);</span>
+<span class="nc" id="L102">                        currentCapacity = cap.intValue();</span>
+                    }
+<span class="nc" id="L104">                    int maxCapacity = 100;</span>
+<span class="nc bnc" id="L105" title="All 2 branches missed.">                    if (dictionary.getValueIfPresent(maxCapacityKey, null)) {</span>
+<span class="nc" id="L106">                        result = dictionary.getValue(maxCapacityKey);</span>
+<span class="nc" id="L107">                        CFNumberRef cap = new CFNumberRef(result);</span>
+<span class="nc" id="L108">                        maxCapacity = cap.intValue();</span>
+                    }
+                    // Add to list
+<span class="nc" id="L111">                    psList.add(new MacPowerSource(name, (double) currentCapacity / maxCapacity, timeRemaining));</span>
+                }
             }
-<span class="nc bnc" id="L99" title="All 2 branches missed.">            if (!isPresent) {</span>
-<span class="nc" id="L100">                continue;</span>
-            }
-
-            // Get name
-<span class="nc" id="L104">            String name = CfUtil</span>
-<span class="nc" id="L105">                    .cfPointerToString(CoreFoundation.INSTANCE.CFDictionaryGetValue(dictionary, IOKit.IOPS_NAME_KEY));</span>
-
-            // Remaining Capacity = current / max
-<span class="nc" id="L108">            IntByReference currentCapacity = new IntByReference();</span>
-<span class="nc bnc" id="L109" title="All 2 branches missed.">            if (!CoreFoundation.INSTANCE.CFDictionaryGetValueIfPresent(dictionary, IOKit.IOPS_CURRENT_CAPACITY_KEY,</span>
-                    currentCapacity)) {
-<span class="nc" id="L111">                currentCapacity = new IntByReference(0);</span>
-            }
-<span class="nc" id="L113">            IntByReference maxCapacity = new IntByReference();</span>
-<span class="nc bnc" id="L114" title="All 2 branches missed.">            if (!CoreFoundation.INSTANCE.CFDictionaryGetValueIfPresent(dictionary, IOKit.IOPS_MAX_CAPACITY_KEY,</span>
-                    maxCapacity)) {
-<span class="nc" id="L116">                maxCapacity = new IntByReference(1);</span>
-            }
-
-            // Add to list
-<span class="nc" id="L120">            psList.add(new MacPowerSource(name, (double) currentCapacity.getValue() / maxCapacity.getValue(),</span>
-                    timeRemaining));
         }
+<span class="nc" id="L115">        isPresentKey.release();</span>
+<span class="nc" id="L116">        nameKey.release();</span>
+<span class="nc" id="L117">        currentCapacityKey.release();</span>
+<span class="nc" id="L118">        maxCapacityKey.release();</span>
         // Release the blob
-<span class="nc" id="L124">        CoreFoundation.INSTANCE.CFRelease(powerSourcesInfo);</span>
+<span class="nc" id="L120">        powerSourcesList.release();</span>
+<span class="nc" id="L121">        powerSourcesInfo.release();</span>
 
-<span class="nc" id="L126">        return psList.toArray(new MacPowerSource[0]);</span>
+<span class="nc" id="L123">        return psList.toArray(new MacPowerSource[0]);</span>
     }
 
-    /** {@inheritDoc} */
     @Override
     public void updateAttributes() {
-<span class="nc" id="L132">        PowerSource[] psArr = getPowerSources();</span>
-<span class="nc bnc" id="L133" title="All 2 branches missed.">        for (PowerSource ps : psArr) {</span>
-<span class="nc bnc" id="L134" title="All 2 branches missed.">            if (ps.getName().equals(this.name)) {</span>
-<span class="nc" id="L135">                this.remainingCapacity = ps.getRemainingCapacity();</span>
-<span class="nc" id="L136">                this.timeRemaining = ps.getTimeRemaining();</span>
-<span class="nc" id="L137">                return;</span>
+<span class="nc" id="L128">        PowerSource[] psArr = getPowerSources();</span>
+<span class="nc bnc" id="L129" title="All 2 branches missed.">        for (PowerSource ps : psArr) {</span>
+<span class="nc bnc" id="L130" title="All 2 branches missed.">            if (ps.getName().equals(this.name)) {</span>
+<span class="nc" id="L131">                this.remainingCapacity = ps.getRemainingCapacity();</span>
+<span class="nc" id="L132">                this.timeRemaining = ps.getTimeRemaining();</span>
+<span class="nc" id="L133">                return;</span>
             }
         }
         // Didn't find this battery
-<span class="nc" id="L141">        this.remainingCapacity = 0d;</span>
-<span class="nc" id="L142">        this.timeRemaining = -1d;</span>
-<span class="nc" id="L143">    }</span>
+<span class="nc" id="L137">        this.remainingCapacity = 0d;</span>
+<span class="nc" id="L138">        this.timeRemaining = -1d;</span>
+<span class="nc" id="L139">    }</span>
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

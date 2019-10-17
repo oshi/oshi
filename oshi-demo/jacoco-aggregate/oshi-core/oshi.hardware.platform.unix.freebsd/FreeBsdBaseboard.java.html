@@ -24,99 +24,41 @@
 package oshi.hardware.platform.unix.freebsd;
 
 import oshi.hardware.common.AbstractBaseboard;
-import oshi.util.Constants;
-import oshi.util.ExecutingCommand;
 
 /**
  * Baseboard data obtained by dmidecode
  */
-<span class="nc" id="L33">final class FreeBsdBaseboard extends AbstractBaseboard {</span>
+final class FreeBsdBaseboard extends AbstractBaseboard {
+    private final String manufacturer;
+    private final String model;
+    private final String serialNumber;
+    private final String version;
 
-    private static final long serialVersionUID = 1L;
+<span class="nc" id="L37">    FreeBsdBaseboard(String manufacturer, String model, String serialNumber, String version) {</span>
+<span class="nc" id="L38">        this.manufacturer = manufacturer;</span>
+<span class="nc" id="L39">        this.model = model;</span>
+<span class="nc" id="L40">        this.serialNumber = serialNumber;</span>
+<span class="nc" id="L41">        this.version = version;</span>
+<span class="nc" id="L42">    }</span>
 
-    /** {@inheritDoc} */
     @Override
     public String getManufacturer() {
-<span class="nc bnc" id="L40" title="All 2 branches missed.">        if (this.manufacturer == null) {</span>
-<span class="nc" id="L41">            readDmiDecode();</span>
-        }
-<span class="nc" id="L43">        return super.getManufacturer();</span>
+<span class="nc" id="L46">        return this.manufacturer;</span>
     }
 
-    /** {@inheritDoc} */
     @Override
     public String getModel() {
-<span class="nc bnc" id="L49" title="All 2 branches missed.">        if (this.model == null) {</span>
-<span class="nc" id="L50">            readDmiDecode();</span>
-        }
-<span class="nc" id="L52">        return super.getModel();</span>
+<span class="nc" id="L51">        return this.model;</span>
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public String getVersion() {
-<span class="nc bnc" id="L58" title="All 2 branches missed.">        if (this.version == null) {</span>
-<span class="nc" id="L59">            readDmiDecode();</span>
-        }
-<span class="nc" id="L61">        return super.getVersion();</span>
-    }
-
-    /** {@inheritDoc} */
     @Override
     public String getSerialNumber() {
-<span class="nc bnc" id="L67" title="All 2 branches missed.">        if (this.serialNumber == null) {</span>
-<span class="nc" id="L68">            readDmiDecode();</span>
-        }
-<span class="nc" id="L70">        return super.getSerialNumber();</span>
+<span class="nc" id="L56">        return this.serialNumber;</span>
     }
 
-    private void readDmiDecode() {
-
-        // $ sudo dmidecode -t system
-        // # dmidecode 3.0
-        // Scanning /dev/mem for entry point.
-        // SMBIOS 2.7 present.
-        //
-        // Handle 0x0001, DMI type 1, 27 bytes
-        // System Information
-        // Manufacturer: Parallels Software International Inc.
-        // Product Name: Parallels Virtual Platform
-        // Version: None
-        // Serial Number: Parallels-47 EC 38 2A 33 1B 4C 75 94 0F F7 AF 86 63 C0
-        // C4
-        // UUID: 2A38EC47-1B33-854C-940F-F7AF8663C0C4
-        // Wake-up Type: Power Switch
-        // SKU Number: Undefined
-        // Family: Parallels VM
-        //
-        // Handle 0x0016, DMI type 32, 20 bytes
-        // System Boot Information
-        // Status: No errors detected
-
-<span class="nc" id="L96">        final String manufacturerMarker = &quot;Manufacturer:&quot;;</span>
-<span class="nc" id="L97">        final String productNameMarker = &quot;Product Name:&quot;;</span>
-<span class="nc" id="L98">        final String versionMarker = &quot;Version:&quot;;</span>
-<span class="nc" id="L99">        final String serialNumMarker = &quot;Serial Number:&quot;;</span>
-
-        // Only works with root permissions but it's all we've got
-<span class="nc bnc" id="L102" title="All 2 branches missed.">        for (final String checkLine : ExecutingCommand.runNative(&quot;dmidecode -t baseboard&quot;)) {</span>
-<span class="nc bnc" id="L103" title="All 2 branches missed.">            if (checkLine.contains(manufacturerMarker)) {</span>
-<span class="nc" id="L104">                String manufacturer = checkLine.split(manufacturerMarker)[1].trim();</span>
-<span class="nc bnc" id="L105" title="All 2 branches missed.">                this.manufacturer = manufacturer.isEmpty() ? Constants.UNKNOWN : manufacturer;</span>
-            }
-<span class="nc bnc" id="L107" title="All 2 branches missed.">            if (checkLine.contains(productNameMarker)) {</span>
-<span class="nc" id="L108">                String model = checkLine.split(productNameMarker)[1].trim();</span>
-<span class="nc bnc" id="L109" title="All 2 branches missed.">                this.model = model.isEmpty() ? Constants.UNKNOWN : model;</span>
-            }
-<span class="nc bnc" id="L111" title="All 2 branches missed.">            if (checkLine.contains(versionMarker)) {</span>
-<span class="nc" id="L112">                String version = checkLine.split(versionMarker)[1].trim();</span>
-<span class="nc bnc" id="L113" title="All 2 branches missed.">                this.version = version.isEmpty() ? Constants.UNKNOWN : version;</span>
-            }
-<span class="nc bnc" id="L115" title="All 2 branches missed.">            if (checkLine.contains(serialNumMarker)) {</span>
-<span class="nc" id="L116">                String serialNumber = checkLine.split(serialNumMarker)[1].trim();</span>
-<span class="nc bnc" id="L117" title="All 2 branches missed.">                this.serialNumber = serialNumber.isEmpty() ? Constants.UNKNOWN : serialNumber;</span>
-            }
-<span class="nc" id="L119">        }</span>
-<span class="nc" id="L120">    }</span>
+    @Override
+    public String getVersion() {
+<span class="nc" id="L61">        return this.version;</span>
+    }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

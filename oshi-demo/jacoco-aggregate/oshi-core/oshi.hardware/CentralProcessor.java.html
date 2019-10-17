@@ -23,7 +23,10 @@
  */
 package oshi.hardware;
 
-import java.io.Serializable;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import oshi.util.ParseUtil;
 
 /**
  * This class represents the entire Central Processing Unit (CPU) of a computer
@@ -31,43 +34,69 @@ import java.io.Serializable;
  * more physical processors (cores), and one or more logical processors (what
  * the Operating System sees, which may include hyperthreaded cores.)
  */
-public interface CentralProcessor extends Serializable {
+public interface CentralProcessor {
+
+    /**
+     * The CPU's identifier strings ,including name, vendor, stepping, model, and
+     * family information (also called the signature of a CPU)
+     *
+     * @return a {@link ProcessorIdentifier} object encapsulating CPU identifier
+     *         information.
+     */
+    ProcessorIdentifier getProcessorIdentifier();
 
     /**
      * Processor vendor.
      *
      * @return vendor string.
+     * @deprecated As of 4.1.0, replaced by
+     *             {@link #getProcessorIdentifier}.{@link ProcessorIdentifier#getVendor()}
      */
-    String getVendor();
+    @Deprecated
+    String getVendor(); // NOSONAR squid:S1133
 
     /**
      * Name, eg. Intel(R) Core(TM)2 Duo CPU T7300 @ 2.00GHz
      *
      * @return Processor name.
+     * @deprecated As of 4.1.0, replaced by
+     *             {@link #getProcessorIdentifier}.{@link ProcessorIdentifier#getName()}
      */
-    String getName();
+    @Deprecated
+    String getName(); // NOSONAR squid:S1133
 
     /**
-     * Vendor frequency (in Hz), eg. for processor named Intel(R) Core(TM)2 Duo CPU
-     * T7300 @ 2.00GHz the vendor frequency is 2000000000.
+     * Gets the family. For non-Intel/AMD processors, returns the comparable value,
+     * such as the Architecture.
      *
-     * @return Processor frequency or -1 if unknown.
+     * @return the family
+     * @deprecated As of 4.1.0, replaced by
+     *             {@link #getProcessorIdentifier}.{@link ProcessorIdentifier#getFamily()}
      */
-    long getVendorFreq();
+    @Deprecated
+    String getFamily(); // NOSONAR squid:S1133
 
     /**
-     * Maximum frequeny (in Hz), of the logical processors on this CPU.
+     * Gets the model. For non-Intel/AMD processors, returns the comparable value,
+     * such as the Partnum.
      *
-     * @return The max frequency or -1 if unknown.
+     * @return the model
+     * @deprecated As of 4.1.0, replaced by
+     *             {@link #getProcessorIdentifier}.{@link ProcessorIdentifier#getModel()}
      */
-    long getMaxFreq();
+    @Deprecated
+    String getModel(); // NOSONAR squid:S1133
 
     /**
-     * Current frequeny (in Hz), of the logical processors on this CPU.
+     * Gets the stepping. For non-Intel/AMD processors, returns the comparable
+     * value, such as the rnpn composite of Variant and Revision.
      *
-     * @return An array of processor frequency or -1 if unknown.
+     * @return the stepping
+     * @deprecated As of 4.1.0, replaced by
+     *             {@link #getProcessorIdentifier}.{@link ProcessorIdentifier#getStepping()}
      */
-    long[] getCurrentFreq();
+    @Deprecated
+    String getStepping(); // NOSONAR squid:S1133
 
     /**
      * Gets the Processor ID. This is a hexidecimal string representing an 8-byte
@@ -89,47 +118,67 @@ public interface CentralProcessor extends Serializable {
      * identifier.
      *
      * @return A string representing the Processor ID
+     * @deprecated As of 4.1.0, replaced by
+     *             {@link #getProcessorIdentifier}.{@link ProcessorIdentifier#getProcessorID()}
      */
-    String getProcessorID();
+    @Deprecated
+    String getProcessorID(); // NOSONAR squid:S1133
 
     /**
      * Identifier, eg. x86 Family 6 Model 15 Stepping 10. For non-Intel/AMD
      * processors, this string is populated with comparable values.
      *
      * @return Processor identifier.
+     * @deprecated As of 4.1.0, replaced by
+     *             {@link #getProcessorIdentifier}.{@link ProcessorIdentifier#getIdentifier()}
      */
-    String getIdentifier();
+    @Deprecated
+    String getIdentifier(); // NOSONAR squid:S1133
 
     /**
      * Is CPU 64bit?
      *
      * @return True if cpu is 64bit.
+     * @deprecated As of 4.1.0, replaced by
+     *             {@link #getProcessorIdentifier}.{@link ProcessorIdentifier#isCpu64bit()}
      */
-    boolean isCpu64bit();
+    @Deprecated
+    boolean isCpu64bit(); // NOSONAR squid:S1133
 
     /**
-     * Gets the stepping. For non-Intel/AMD processors, returns the comparable
-     * value, such as the rnpn composite of Variant and Revision.
+     * Vendor frequency (in Hz), eg. for processor named Intel(R) Core(TM)2 Duo CPU
+     * T7300 @ 2.00GHz the vendor frequency is 2000000000.
      *
-     * @return the stepping
+     * @return Processor frequency or -1 if unknown.
+     * @deprecated As of 4.1.0, replaced by
+     *             {@link #getProcessorIdentifier}.{@link ProcessorIdentifier#getVendorFreq()}
      */
-    String getStepping();
+    @Deprecated
+    long getVendorFreq(); // NOSONAR squid:S1133
 
     /**
-     * Gets the model. For non-Intel/AMD processors, returns the comparable value,
-     * such as the Partnum.
+     * Maximum frequeny (in Hz), of the logical processors on this CPU.
      *
-     * @return the model
+     * @return The max frequency or -1 if unknown.
      */
-    String getModel();
+    long getMaxFreq();
 
     /**
-     * Gets the family. For non-Intel/AMD processors, returns the comparable value,
-     * such as the Architecture.
+     * Attempts to return the current frequency (in Hz), of the logical processors
+     * on this CPU.
+     * &lt;p&gt;
+     * May not be implemented on all Operating Systems.
+     * &lt;p&gt;
+     * On Windows, returns an estimate based on the percent of maximum frequency. On
+     * Windows systems with more than 64 logical processors, may only return
+     * frequencies for the current processor group in the first portion of the
+     * array.
      *
-     * @return the family
+     * @return An array of processor frequencies for each logical processor on the
+     *         system. Use the {@link #getLogicalProcessors()} to correlate these
+     *         frequencies with physical packages and processors.
      */
-    String getFamily();
+    long[] getCurrentFreq();
 
     /**
      * Returns an array of the CPU's logical processors. The array will be sorted in
@@ -189,8 +238,10 @@ public interface CentralProcessor extends Serializable {
      * operating system specific but is typically a damped time-dependent average.
      * If the load average is not available, a negative value is returned. This
      * method is designed to provide a hint about the system load and may be queried
-     * frequently. The load average may be unavailable on some platforms (e.g.,
-     * Windows) where it is expensive to implement this method.
+     * frequently.
+     * &lt;p&gt;
+     * The load average may be unavailable on some platforms (e.g., Windows) where
+     * it is expensive to implement this method.
      *
      * @param nelem
      *            Number of elements to return.
@@ -284,57 +335,57 @@ public interface CentralProcessor extends Serializable {
      * Index of CPU tick counters in the {@link #getSystemCpuLoadTicks()} and
      * {@link #getProcessorCpuLoadTicks()} arrays.
      */
-<span class="fc" id="L287">    enum TickType {</span>
+<span class="fc" id="L338">    enum TickType {</span>
         /**
          * CPU utilization that occurred while executing at the user level
          * (application).
          */
-<span class="fc" id="L292">        USER(0),</span>
+<span class="fc" id="L343">        USER(0),</span>
         /**
          * CPU utilization that occurred while executing at the user level with nice
          * priority.
          */
-<span class="fc" id="L297">        NICE(1),</span>
+<span class="fc" id="L348">        NICE(1),</span>
         /**
          * CPU utilization that occurred while executing at the system level (kernel).
          */
-<span class="fc" id="L301">        SYSTEM(2),</span>
+<span class="fc" id="L352">        SYSTEM(2),</span>
         /**
          * Time that the CPU or CPUs were idle and the system did not have an
          * outstanding disk I/O request.
          */
-<span class="fc" id="L306">        IDLE(3),</span>
+<span class="fc" id="L357">        IDLE(3),</span>
         /**
          * Time that the CPU or CPUs were idle during which the system had an
          * outstanding disk I/O request.
          */
-<span class="fc" id="L311">        IOWAIT(4),</span>
+<span class="fc" id="L362">        IOWAIT(4),</span>
         /**
          * Time that the CPU used to service hardware IRQs
          */
-<span class="fc" id="L315">        IRQ(5),</span>
+<span class="fc" id="L366">        IRQ(5),</span>
         /**
          * Time that the CPU used to service soft IRQs
          */
-<span class="fc" id="L319">        SOFTIRQ(6),</span>
+<span class="fc" id="L370">        SOFTIRQ(6),</span>
         /**
          * Time which the hypervisor dedicated for other guests in the system. Only
          * supported on Linux.
          */
-<span class="fc" id="L324">        STEAL(7);</span>
+<span class="fc" id="L375">        STEAL(7);</span>
 
         private int index;
 
-<span class="fc" id="L328">        TickType(int value) {</span>
-<span class="fc" id="L329">            this.index = value;</span>
-<span class="fc" id="L330">        }</span>
+<span class="fc" id="L379">        TickType(int value) {</span>
+<span class="fc" id="L380">            this.index = value;</span>
+<span class="fc" id="L381">        }</span>
 
         /**
          * @return The integer index of this ENUM in the processor tick arrays, which
          *         matches the output of Linux /proc/cpuinfo
          */
         public int getIndex() {
-<span class="fc" id="L337">            return index;</span>
+<span class="fc" id="L388">            return index;</span>
         }
     }
 
@@ -343,14 +394,12 @@ public interface CentralProcessor extends Serializable {
      * processors, physical packages, and logical groupings such as NUMA Nodes and
      * Processor groups, useful for identifying processor topology.
      */
-    class LogicalProcessor implements Serializable {
-        private static final long serialVersionUID = 1L;
-
-        private int processorNumber;
-        private int physicalProcessorNumber;
-        private int physicalPackageNumber;
-        private int numaNode;
-        private int processorGroup;
+    class LogicalProcessor {
+        private final int processorNumber;
+        private final int physicalProcessorNumber;
+        private final int physicalPackageNumber;
+        private final int numaNode;
+        private final int processorGroup;
 
         /**
          * @param processorNumber
@@ -361,8 +410,8 @@ public interface CentralProcessor extends Serializable {
          *            the package/socket number
          */
         public LogicalProcessor(int processorNumber, int physicalProcessorNumber, int physicalPackageNumber) {
-<span class="fc" id="L364">            this(processorNumber, physicalProcessorNumber, physicalPackageNumber, 0, 0);</span>
-<span class="fc" id="L365">        }</span>
+<span class="fc" id="L413">            this(processorNumber, physicalProcessorNumber, physicalPackageNumber, 0, 0);</span>
+<span class="fc" id="L414">        }</span>
 
         /**
          * @param processorNumber
@@ -376,8 +425,8 @@ public interface CentralProcessor extends Serializable {
          */
         public LogicalProcessor(int processorNumber, int physicalProcessorNumber, int physicalPackageNumber,
                 int numaNode) {
-<span class="nc" id="L379">            this(processorNumber, physicalProcessorNumber, physicalPackageNumber, numaNode, 0);</span>
-<span class="nc" id="L380">        }</span>
+<span class="nc" id="L428">            this(processorNumber, physicalProcessorNumber, physicalPackageNumber, numaNode, 0);</span>
+<span class="nc" id="L429">        }</span>
 
         /**
          * @param processorNumber
@@ -392,68 +441,224 @@ public interface CentralProcessor extends Serializable {
          *            the Processor Group number
          */
         public LogicalProcessor(int processorNumber, int physicalProcessorNumber, int physicalPackageNumber,
-<span class="fc" id="L395">                int numaNode, int processorGroup) {</span>
-<span class="fc" id="L396">            this.processorNumber = processorNumber;</span>
-<span class="fc" id="L397">            this.physicalProcessorNumber = physicalProcessorNumber;</span>
-<span class="fc" id="L398">            this.physicalPackageNumber = physicalPackageNumber;</span>
-<span class="fc" id="L399">            this.numaNode = numaNode;</span>
-<span class="fc" id="L400">            this.processorGroup = processorGroup;</span>
-<span class="fc" id="L401">        }</span>
+<span class="fc" id="L444">                int numaNode, int processorGroup) {</span>
+<span class="fc" id="L445">            this.processorNumber = processorNumber;</span>
+<span class="fc" id="L446">            this.physicalProcessorNumber = physicalProcessorNumber;</span>
+<span class="fc" id="L447">            this.physicalPackageNumber = physicalPackageNumber;</span>
+<span class="fc" id="L448">            this.numaNode = numaNode;</span>
+<span class="fc" id="L449">            this.processorGroup = processorGroup;</span>
+<span class="fc" id="L450">        }</span>
 
         /**
          * The Logical Processor number as seen by the Operating System. Used for
          * assigning process affinity and reporting CPU usage and other statistics.
-         * 
+         *
          * @return the processorNumber
          */
         public int getProcessorNumber() {
-<span class="nc" id="L410">            return processorNumber;</span>
+<span class="nc" id="L459">            return processorNumber;</span>
         }
 
         /**
          * The physical processor (core) id number assigned to this logical processor.
          * Hyperthreaded logical processors which share the same physical processor will
          * have the same number.
-         * 
+         *
          * @return the physicalProcessorNumber
          */
         public int getPhysicalProcessorNumber() {
-<span class="nc" id="L421">            return physicalProcessorNumber;</span>
+<span class="fc" id="L470">            return physicalProcessorNumber;</span>
         }
 
         /**
          * The physical package (socket) id number assigned to this logical processor.
          * Multicore CPU packages may have multiple physical processors which share the
          * same number.
-         * 
+         *
          * @return the physicalPackageNumber
          */
         public int getPhysicalPackageNumber() {
-<span class="nc" id="L432">            return physicalPackageNumber;</span>
+<span class="fc" id="L481">            return physicalPackageNumber;</span>
         }
 
         /**
          * The NUMA node. If the operating system supports Non-Uniform Memory Access
          * this identifies the node number. Set to 0 if the operating system does not
          * support NUMA. Not supported on macOS or FreeBSD.
-         * 
+         *
          * @return the NUMA Node number
          */
         public int getNumaNode() {
-<span class="nc" id="L443">            return numaNode;</span>
+<span class="nc" id="L492">            return numaNode;</span>
         }
 
         /**
          * The Processor Group. Only applies to Windows systems with more than 64
          * logical processors. Set to 0 for other operating systems or Windows systems
          * with 64 or fewer logical processors.
-         * 
+         *
          * @return the processorGroup
          */
         public int getProcessorGroup() {
-<span class="nc" id="L454">            return processorGroup;</span>
+<span class="nc" id="L503">            return processorGroup;</span>
+        }
+    }
+
+    /**
+     * A class encapsulating ghe CPU's identifier strings ,including name, vendor,
+     * stepping, model, and family information (also called the signature of a CPU)
+     */
+    static final class ProcessorIdentifier {
+        // Provided in constructor
+        private final String cpuVendor;
+        private final String cpuName;
+        private final String cpuFamily;
+        private final String cpuModel;
+        private final String cpuStepping;
+        private final String processorID;
+        private final String cpuIdentifier;
+        private final boolean cpu64bit;
+        private final long cpuVendorFreq;
+
+        public ProcessorIdentifier(String cpuVendor, String cpuName, String cpuFamily, String cpuModel,
+<span class="fc" id="L524">                String cpuStepping, String processorID, boolean cpu64bit) {</span>
+<span class="fc" id="L525">            this.cpuVendor = cpuVendor;</span>
+<span class="fc" id="L526">            this.cpuName = cpuName;</span>
+<span class="fc" id="L527">            this.cpuFamily = cpuFamily;</span>
+<span class="fc" id="L528">            this.cpuModel = cpuModel;</span>
+<span class="fc" id="L529">            this.cpuStepping = cpuStepping;</span>
+<span class="fc" id="L530">            this.processorID = processorID;</span>
+<span class="fc" id="L531">            this.cpu64bit = cpu64bit;</span>
+
+            // Build Identifier
+<span class="fc" id="L534">            StringBuilder sb = new StringBuilder();</span>
+<span class="pc bpc" id="L535" title="1 of 2 branches missed.">            if (cpuVendor.contentEquals(&quot;GenuineIntel&quot;)) {</span>
+<span class="pc bpc" id="L536" title="1 of 2 branches missed.">                sb.append(cpu64bit ? &quot;Intel64&quot; : &quot;x86&quot;);</span>
+            } else {
+<span class="nc" id="L538">                sb.append(cpuVendor);</span>
+            }
+<span class="fc" id="L540">            sb.append(&quot; Family &quot;).append(cpuFamily);</span>
+<span class="fc" id="L541">            sb.append(&quot; Model &quot;).append(cpuModel);</span>
+<span class="fc" id="L542">            sb.append(&quot; Stepping &quot;).append(cpuStepping);</span>
+<span class="fc" id="L543">            this.cpuIdentifier = sb.toString();</span>
+
+            // Parse Freq from name string
+<span class="fc" id="L546">            Pattern pattern = Pattern.compile(&quot;@ (.*)$&quot;);</span>
+<span class="fc" id="L547">            Matcher matcher = pattern.matcher(cpuName);</span>
+<span class="pc bpc" id="L548" title="1 of 2 branches missed.">            if (matcher.find()) {</span>
+<span class="fc" id="L549">                String unit = matcher.group(1);</span>
+<span class="fc" id="L550">                this.cpuVendorFreq = ParseUtil.parseHertz(unit);</span>
+<span class="fc" id="L551">            } else {</span>
+<span class="nc" id="L552">                this.cpuVendorFreq = -1L;</span>
+            }
+<span class="fc" id="L554">        }</span>
+
+        /**
+         * Processor vendor.
+         *
+         * @return vendor string.
+         */
+        public String getVendor() {
+<span class="fc" id="L562">            return cpuVendor;</span>
         }
 
+        /**
+         * Name, eg. Intel(R) Core(TM)2 Duo CPU T7300 @ 2.00GHz
+         *
+         * @return Processor name.
+         */
+        public String getName() {
+<span class="fc" id="L571">            return cpuName;</span>
+        }
+
+        /**
+         * Gets the family. For non-Intel/AMD processors, returns the comparable value,
+         * such as the Architecture.
+         *
+         * @return the family
+         */
+        public String getFamily() {
+<span class="fc" id="L581">            return cpuFamily;</span>
+        }
+
+        /**
+         * Gets the model. For non-Intel/AMD processors, returns the comparable value,
+         * such as the Partnum.
+         *
+         * @return the model
+         */
+        public String getModel() {
+<span class="fc" id="L591">            return cpuModel;</span>
+        }
+
+        /**
+         * Gets the stepping. For non-Intel/AMD processors, returns the comparable
+         * value, such as the rnpn composite of Variant and Revision.
+         *
+         * @return the stepping
+         */
+        public String getStepping() {
+<span class="fc" id="L601">            return cpuStepping;</span>
+        }
+
+        /**
+         * Gets the Processor ID. This is a hexidecimal string representing an 8-byte
+         * value, normally obtained using the CPUID opcode with the EAX register set to
+         * 1. The first four bytes are the resulting contents of the EAX register, which
+         * is the Processor signature, represented in human-readable form by
+         * {@link #getIdentifier()} . The remaining four bytes are the contents of the
+         * EDX register, containing feature flags.
+         * &lt;p&gt;
+         * For processors that do not support the CPUID opcode this field is populated
+         * with a comparable hex string. For example, ARM Processors will fill the first
+         * 32 bytes with the MIDR.
+         * &lt;p&gt;
+         * NOTE: The order of returned bytes is platform and software dependent. Values
+         * may be in either Big Endian or Little Endian order.
+         * &lt;p&gt;
+         * NOTE: If OSHI is unable to determine the ProcessorID from native sources, it
+         * will attempt to reconstruct one from available information in the processor
+         * identifier.
+         *
+         * @return A string representing the Processor ID
+         */
+        public String getProcessorID() {
+<span class="fc" id="L626">            return processorID;</span>
+        }
+
+        /**
+         * Identifier, eg. x86 Family 6 Model 15 Stepping 10. For non-Intel/AMD
+         * processors, this string is populated with comparable values.
+         *
+         * @return Processor identifier.
+         */
+        public String getIdentifier() {
+<span class="fc" id="L636">            return cpuIdentifier;</span>
+        }
+
+        /**
+         * Is CPU 64bit?
+         *
+         * @return True if cpu is 64bit.
+         */
+        public boolean isCpu64bit() {
+<span class="nc" id="L645">            return cpu64bit;</span>
+        }
+
+        /**
+         * Vendor frequency (in Hz), eg. for processor named Intel(R) Core(TM)2 Duo CPU
+         * T7300 @ 2.00GHz the vendor frequency is 2000000000.
+         *
+         * @return Processor frequency or -1 if unknown.
+         */
+        public long getVendorFreq() {
+<span class="fc" id="L655">            return cpuVendorFreq;</span>
+        }
+
+        @Override
+        public String toString() {
+<span class="nc" id="L660">            return getIdentifier();</span>
+        }
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

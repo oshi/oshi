@@ -71,5 +71,16 @@ public class Util {
         }
 <span class="fc" id="L72">        return text.matches(pattern.replace(&quot;?&quot;, &quot;.?&quot;).replace(&quot;*&quot;, &quot;.*?&quot;));</span>
     }
+
+    /**
+     * Tests if a String is either null or empty.
+     * 
+     * @param s
+     *            The string to test
+     * @return True if the String is either null or empty.
+     */
+    public static boolean isBlank(String s) {
+<span class="fc bfc" id="L83" title="All 4 branches covered.">        return s == null || s.isEmpty();</span>
+    }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

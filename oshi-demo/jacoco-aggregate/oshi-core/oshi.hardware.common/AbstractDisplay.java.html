@@ -33,9 +33,7 @@ import oshi.util.EdidUtil;
  */
 public abstract class AbstractDisplay implements Display {
 
-    private static final long serialVersionUID = 1L;
-
-    protected byte[] edid;
+    private byte[] edid;
 
     /**
      * &lt;p&gt;
@@ -45,20 +43,18 @@ public abstract class AbstractDisplay implements Display {
      * @param edid
      *            an array of {@link byte} objects.
      */
-<span class="nc" id="L48">    protected AbstractDisplay(byte[] edid) {</span>
-<span class="nc" id="L49">        this.edid = edid;</span>
-<span class="nc" id="L50">    }</span>
+<span class="nc" id="L46">    protected AbstractDisplay(byte[] edid) {</span>
+<span class="nc" id="L47">        this.edid = Arrays.copyOf(edid, edid.length);</span>
+<span class="nc" id="L48">    }</span>
 
-    /** {@inheritDoc} */
     @Override
     public byte[] getEdid() {
-<span class="nc" id="L55">        return Arrays.copyOf(this.edid, this.edid.length);</span>
+<span class="nc" id="L52">        return Arrays.copyOf(this.edid, this.edid.length);</span>
     }
 
-    /** {@inheritDoc} */
     @Override
     public String toString() {
-<span class="nc" id="L61">        return EdidUtil.toString(this.edid);</span>
+<span class="nc" id="L57">        return EdidUtil.toString(this.edid);</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

@@ -37,56 +37,51 @@ import oshi.util.ParseUtil;
  */
 <span class="nc" id="L38">public class SolarisSensors extends AbstractSensors {</span>
 
-    private static final long serialVersionUID = 1L;
-
-    /** {@inheritDoc} */
     @Override
-    public double getCpuTemperature() {
-<span class="nc" id="L45">        double maxTemp = 0d;</span>
+    public double queryCpuTemperature() {
+<span class="nc" id="L42">        double maxTemp = 0d;</span>
         // Return max found temp
-<span class="nc bnc" id="L47" title="All 2 branches missed.">        for (String line : ExecutingCommand.runNative(&quot;/usr/sbin/prtpicl -v -c temperature-sensor&quot;)) {</span>
-<span class="nc bnc" id="L48" title="All 2 branches missed.">            if (line.trim().startsWith(&quot;Temperature:&quot;)) {</span>
-<span class="nc" id="L49">                int temp = ParseUtil.parseLastInt(line, 0);</span>
-<span class="nc bnc" id="L50" title="All 2 branches missed.">                if (temp &gt; maxTemp) {</span>
-<span class="nc" id="L51">                    maxTemp = temp;</span>
+<span class="nc bnc" id="L44" title="All 2 branches missed.">        for (String line : ExecutingCommand.runNative(&quot;/usr/sbin/prtpicl -v -c temperature-sensor&quot;)) {</span>
+<span class="nc bnc" id="L45" title="All 2 branches missed.">            if (line.trim().startsWith(&quot;Temperature:&quot;)) {</span>
+<span class="nc" id="L46">                int temp = ParseUtil.parseLastInt(line, 0);</span>
+<span class="nc bnc" id="L47" title="All 2 branches missed.">                if (temp &gt; maxTemp) {</span>
+<span class="nc" id="L48">                    maxTemp = temp;</span>
                 }
             }
-<span class="nc" id="L54">        }</span>
+<span class="nc" id="L51">        }</span>
         // If it's in millidegrees:
-<span class="nc bnc" id="L56" title="All 2 branches missed.">        if (maxTemp &gt; 1000) {</span>
-<span class="nc" id="L57">            maxTemp /= 1000;</span>
+<span class="nc bnc" id="L53" title="All 2 branches missed.">        if (maxTemp &gt; 1000) {</span>
+<span class="nc" id="L54">            maxTemp /= 1000;</span>
         }
-<span class="nc" id="L59">        return maxTemp;</span>
+<span class="nc" id="L56">        return maxTemp;</span>
     }
 
-    /** {@inheritDoc} */
     @Override
-    public int[] getFanSpeeds() {
-<span class="nc" id="L65">        List&lt;Integer&gt; speedList = new ArrayList&lt;&gt;();</span>
+    public int[] queryFanSpeeds() {
+<span class="nc" id="L61">        List&lt;Integer&gt; speedList = new ArrayList&lt;&gt;();</span>
         // Return max found temp
-<span class="nc bnc" id="L67" title="All 2 branches missed.">        for (String line : ExecutingCommand.runNative(&quot;/usr/sbin/prtpicl -v -c fan&quot;)) {</span>
-<span class="nc bnc" id="L68" title="All 2 branches missed.">            if (line.trim().startsWith(&quot;Speed:&quot;)) {</span>
-<span class="nc" id="L69">                speedList.add(ParseUtil.parseLastInt(line, 0));</span>
+<span class="nc bnc" id="L63" title="All 2 branches missed.">        for (String line : ExecutingCommand.runNative(&quot;/usr/sbin/prtpicl -v -c fan&quot;)) {</span>
+<span class="nc bnc" id="L64" title="All 2 branches missed.">            if (line.trim().startsWith(&quot;Speed:&quot;)) {</span>
+<span class="nc" id="L65">                speedList.add(ParseUtil.parseLastInt(line, 0));</span>
             }
-<span class="nc" id="L71">        }</span>
-<span class="nc" id="L72">        int[] fans = new int[speedList.size()];</span>
-<span class="nc bnc" id="L73" title="All 2 branches missed.">        for (int i = 0; i &lt; speedList.size(); i++) {</span>
-<span class="nc" id="L74">            fans[i] = speedList.get(i);</span>
+<span class="nc" id="L67">        }</span>
+<span class="nc" id="L68">        int[] fans = new int[speedList.size()];</span>
+<span class="nc bnc" id="L69" title="All 2 branches missed.">        for (int i = 0; i &lt; speedList.size(); i++) {</span>
+<span class="nc" id="L70">            fans[i] = speedList.get(i);</span>
         }
-<span class="nc" id="L76">        return fans;</span>
+<span class="nc" id="L72">        return fans;</span>
     }
 
-    /** {@inheritDoc} */
     @Override
-    public double getCpuVoltage() {
-<span class="nc" id="L82">        double voltage = 0d;</span>
-<span class="nc bnc" id="L83" title="All 2 branches missed.">        for (String line : ExecutingCommand.runNative(&quot;/usr/sbin/prtpicl -v -c voltage-sensor&quot;)) {</span>
-<span class="nc bnc" id="L84" title="All 2 branches missed.">            if (line.trim().startsWith(&quot;Voltage:&quot;)) {</span>
-<span class="nc" id="L85">                voltage = ParseUtil.parseDoubleOrDefault(line.replace(&quot;Voltage:&quot;, &quot;&quot;).trim(), 0d);</span>
-<span class="nc" id="L86">                break;</span>
+    public double queryCpuVoltage() {
+<span class="nc" id="L77">        double voltage = 0d;</span>
+<span class="nc bnc" id="L78" title="All 2 branches missed.">        for (String line : ExecutingCommand.runNative(&quot;/usr/sbin/prtpicl -v -c voltage-sensor&quot;)) {</span>
+<span class="nc bnc" id="L79" title="All 2 branches missed.">            if (line.trim().startsWith(&quot;Voltage:&quot;)) {</span>
+<span class="nc" id="L80">                voltage = ParseUtil.parseDoubleOrDefault(line.replace(&quot;Voltage:&quot;, &quot;&quot;).trim(), 0d);</span>
+<span class="nc" id="L81">                break;</span>
             }
-<span class="nc" id="L88">        }</span>
-<span class="nc" id="L89">        return voltage;</span>
+<span class="nc" id="L83">        }</span>
+<span class="nc" id="L84">        return voltage;</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

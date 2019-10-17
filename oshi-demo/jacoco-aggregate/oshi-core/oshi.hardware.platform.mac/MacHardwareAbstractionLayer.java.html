@@ -42,83 +42,64 @@ import oshi.hardware.common.AbstractHardwareAbstractionLayer;
  */
 <span class="nc" id="L43">public class MacHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {</span>
 
-    private static final long serialVersionUID = 1L;
-
     /** {@inheritDoc} */
     @Override
-    public ComputerSystem getComputerSystem() {
-<span class="nc bnc" id="L50" title="All 2 branches missed.">        if (this.computerSystem == null) {</span>
-<span class="nc" id="L51">            this.computerSystem = new MacComputerSystem();</span>
-        }
-<span class="nc" id="L53">        return this.computerSystem;</span>
+    public ComputerSystem createComputerSystem() {
+<span class="nc" id="L48">        return new MacComputerSystem();</span>
     }
 
     /** {@inheritDoc} */
     @Override
-    public CentralProcessor getProcessor() {
-<span class="nc bnc" id="L59" title="All 2 branches missed.">        if (this.processor == null) {</span>
-<span class="nc" id="L60">            this.processor = new MacCentralProcessor();</span>
-        }
-<span class="nc" id="L62">        return this.processor;</span>
+    public GlobalMemory createMemory() {
+<span class="nc" id="L54">        return new MacGlobalMemory();</span>
     }
 
     /** {@inheritDoc} */
     @Override
-    public GlobalMemory getMemory() {
-<span class="nc bnc" id="L68" title="All 2 branches missed.">        if (this.memory == null) {</span>
-<span class="nc" id="L69">            this.memory = new MacGlobalMemory();</span>
-        }
-<span class="nc" id="L71">        return this.memory;</span>
+    public CentralProcessor createProcessor() {
+<span class="nc" id="L60">        return new MacCentralProcessor();</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public Sensors createSensors() {
+<span class="nc" id="L66">        return new MacSensors();</span>
     }
 
     /** {@inheritDoc} */
     @Override
     public PowerSource[] getPowerSources() {
-<span class="nc" id="L77">        return MacPowerSource.getPowerSources();</span>
+<span class="nc" id="L72">        return MacPowerSource.getPowerSources();</span>
     }
 
     /** {@inheritDoc} */
     @Override
     public HWDiskStore[] getDiskStores() {
-<span class="nc" id="L83">        return new MacDisks().getDisks();</span>
+<span class="nc" id="L78">        return new MacDisks().getDisks();</span>
     }
 
     /** {@inheritDoc} */
     @Override
     public Display[] getDisplays() {
-<span class="nc" id="L89">        return MacDisplay.getDisplays();</span>
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public Sensors getSensors() {
-<span class="nc bnc" id="L95" title="All 2 branches missed.">        if (this.sensors == null) {</span>
-<span class="nc" id="L96">            this.sensors = new MacSensors();</span>
-        }
-<span class="nc" id="L98">        return this.sensors;</span>
+<span class="nc" id="L84">        return MacDisplay.getDisplays();</span>
     }
 
     /** {@inheritDoc} */
     @Override
     public NetworkIF[] getNetworkIFs() {
-<span class="nc" id="L104">        return new MacNetworks().getNetworks();</span>
+<span class="nc" id="L90">        return new MacNetworks().getNetworks();</span>
     }
 
     /** {@inheritDoc} */
     @Override
     public UsbDevice[] getUsbDevices(boolean tree) {
-<span class="nc" id="L110">        return MacUsbDevice.getUsbDevices(tree);</span>
+<span class="nc" id="L96">        return MacUsbDevice.getUsbDevices(tree);</span>
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * Instantiates an array of {@link SoundCard} objects, representing the Sound
-     * cards.
-     */
+    /** {@inheritDoc} */
     @Override
     public SoundCard[] getSoundCards() {
-<span class="nc" id="L121">        return MacSoundCard.getSoundCards().toArray(new SoundCard[0]);</span>
+<span class="nc" id="L102">        return MacSoundCard.getSoundCards().toArray(new SoundCard[0]);</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

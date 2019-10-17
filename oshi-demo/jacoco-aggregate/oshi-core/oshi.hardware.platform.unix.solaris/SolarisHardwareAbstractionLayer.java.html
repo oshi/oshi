@@ -42,78 +42,64 @@ import oshi.hardware.common.AbstractHardwareAbstractionLayer;
  */
 <span class="nc" id="L43">public class SolarisHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {</span>
 
-    private static final long serialVersionUID = 1L;
-
     /** {@inheritDoc} */
     @Override
-    public ComputerSystem getComputerSystem() {
-<span class="nc bnc" id="L50" title="All 2 branches missed.">        if (this.computerSystem == null) {</span>
-<span class="nc" id="L51">            this.computerSystem = new SolarisComputerSystem();</span>
-        }
-<span class="nc" id="L53">        return this.computerSystem;</span>
+    public ComputerSystem createComputerSystem() {
+<span class="nc" id="L48">        return new SolarisComputerSystem();</span>
     }
 
     /** {@inheritDoc} */
     @Override
-    public GlobalMemory getMemory() {
-<span class="nc bnc" id="L59" title="All 2 branches missed.">        if (this.memory == null) {</span>
-<span class="nc" id="L60">            this.memory = new SolarisGlobalMemory();</span>
-        }
-<span class="nc" id="L62">        return this.memory;</span>
+    public GlobalMemory createMemory() {
+<span class="nc" id="L54">        return new SolarisGlobalMemory();</span>
     }
 
     /** {@inheritDoc} */
     @Override
-    public CentralProcessor getProcessor() {
-<span class="nc bnc" id="L68" title="All 2 branches missed.">        if (this.processor == null) {</span>
-<span class="nc" id="L69">            this.processor = new SolarisCentralProcessor();</span>
-        }
-<span class="nc" id="L71">        return this.processor;</span>
+    public CentralProcessor createProcessor() {
+<span class="nc" id="L60">        return new SolarisCentralProcessor();</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public Sensors createSensors() {
+<span class="nc" id="L66">        return new SolarisSensors();</span>
     }
 
     /** {@inheritDoc} */
     @Override
     public PowerSource[] getPowerSources() {
-<span class="nc" id="L77">        return SolarisPowerSource.getPowerSources();</span>
+<span class="nc" id="L72">        return SolarisPowerSource.getPowerSources();</span>
     }
 
     /** {@inheritDoc} */
     @Override
     public HWDiskStore[] getDiskStores() {
-<span class="nc" id="L83">        return new SolarisDisks().getDisks();</span>
+<span class="nc" id="L78">        return new SolarisDisks().getDisks();</span>
     }
 
     /** {@inheritDoc} */
     @Override
     public Display[] getDisplays() {
-<span class="nc" id="L89">        return SolarisDisplay.getDisplays();</span>
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public Sensors getSensors() {
-<span class="nc bnc" id="L95" title="All 2 branches missed.">        if (this.sensors == null) {</span>
-<span class="nc" id="L96">            this.sensors = new SolarisSensors();</span>
-        }
-<span class="nc" id="L98">        return this.sensors;</span>
+<span class="nc" id="L84">        return SolarisDisplay.getDisplays();</span>
     }
 
     /** {@inheritDoc} */
     @Override
     public NetworkIF[] getNetworkIFs() {
-<span class="nc" id="L104">        return new SolarisNetworks().getNetworks();</span>
+<span class="nc" id="L90">        return new SolarisNetworks().getNetworks();</span>
     }
 
     /** {@inheritDoc} */
     @Override
     public UsbDevice[] getUsbDevices(boolean tree) {
-<span class="nc" id="L110">        return SolarisUsbDevice.getUsbDevices(tree);</span>
+<span class="nc" id="L96">        return SolarisUsbDevice.getUsbDevices(tree);</span>
     }
 
     /** {@inheritDoc} */
     @Override
     public SoundCard[] getSoundCards() {
-<span class="nc" id="L116">        return SolarisSoundCard.getSoundCards().toArray(new SoundCard[0]);</span>
+<span class="nc" id="L102">        return SolarisSoundCard.getSoundCards().toArray(new SoundCard[0]);</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

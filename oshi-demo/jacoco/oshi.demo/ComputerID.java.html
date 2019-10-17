@@ -74,7 +74,7 @@ import oshi.util.Constants;
 
 <span class="nc" id="L75">        String vendor = operatingSystem.getManufacturer();</span>
 <span class="nc" id="L76">        String processorSerialNumber = computerSystem.getSerialNumber();</span>
-<span class="nc" id="L77">        String processorIdentifier = centralProcessor.getIdentifier();</span>
+<span class="nc" id="L77">        String processorIdentifier = centralProcessor.getProcessorIdentifier().getIdentifier();</span>
 <span class="nc" id="L78">        int processors = centralProcessor.getLogicalProcessorCount();</span>
 
 <span class="nc" id="L80">        String delimiter = &quot;-&quot;;</span>
@@ -84,4 +84,4 @@ import oshi.util.Constants;
 <span class="nc" id="L84">                + String.format(&quot;%08x&quot;, processorIdentifier.hashCode()) + delimiter + processors;</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

@@ -23,68 +23,110 @@
  */
 package oshi.hardware.platform.windows;
 
+import static oshi.util.Memoizer.defaultExpiration;
+import static oshi.util.Memoizer.memoize;
+
+import java.util.function.Supplier;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.platform.win32.Kernel32; // NOSONAR squid:S1191
 import com.sun.jna.platform.win32.Psapi;
 import com.sun.jna.platform.win32.Psapi.PERFORMANCE_INFORMATION;
+import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
+import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
+import oshi.hardware.PhysicalMemory;
 import oshi.hardware.VirtualMemory;
 import oshi.hardware.common.AbstractGlobalMemory;
+import oshi.util.platform.windows.WmiQueryHandler;
+import oshi.util.platform.windows.WmiUtil;
 
 /**
  * Memory obtained by Performance Info.
  */
-<span class="nc" id="L39">public class WindowsGlobalMemory extends AbstractGlobalMemory {</span>
+<span class="nc" id="L49">public class WindowsGlobalMemory extends AbstractGlobalMemory {</span>
 
-    private static final long serialVersionUID = 1L;
+<span class="nc" id="L51">    private static final Logger LOG = LoggerFactory.getLogger(WindowsGlobalMemory.class);</span>
 
-<span class="nc" id="L43">    private static final Logger LOG = LoggerFactory.getLogger(WindowsGlobalMemory.class);</span>
+<span class="nc" id="L53">    private final Supplier&lt;PerfInfo&gt; perfInfo = memoize(this::readPerfInfo, defaultExpiration());</span>
 
-    /** {@inheritDoc} */
+<span class="nc" id="L55">    private final Supplier&lt;VirtualMemory&gt; vm = memoize(this::createVirtualMemory);</span>
+
+<span class="nc" id="L57">    enum PhysicalMemoryProperty {</span>
+<span class="nc" id="L58">        BANKLABEL, CAPACITY, CONFIGUREDCLOCKSPEED, MANUFACTURER, SMBIOSMEMORYTYPE</span>
+    }
+
     @Override
     public long getAvailable() {
-<span class="nc" id="L48">        updatePerfInfo();</span>
-<span class="nc" id="L49">        return this.memAvailable;</span>
+<span class="nc" id="L63">        return perfInfo.get().available;</span>
     }
 
-    /** {@inheritDoc} */
     @Override
     public long getTotal() {
-<span class="nc bnc" id="L55" title="All 2 branches missed.">        if (this.memTotal &lt; 0) {</span>
-<span class="nc" id="L56">            updatePerfInfo();</span>
-        }
-<span class="nc" id="L58">        return this.memTotal;</span>
+<span class="nc" id="L68">        return perfInfo.get().total;</span>
     }
 
-    /** {@inheritDoc} */
     @Override
     public long getPageSize() {
-<span class="nc bnc" id="L64" title="All 2 branches missed.">        if (this.pageSize &lt; 0) {</span>
-<span class="nc" id="L65">            updatePerfInfo();</span>
-        }
-<span class="nc" id="L67">        return this.pageSize;</span>
+<span class="nc" id="L73">        return perfInfo.get().pageSize;</span>
     }
 
-    /** {@inheritDoc} */
     @Override
     public VirtualMemory getVirtualMemory() {
-<span class="nc bnc" id="L73" title="All 2 branches missed.">        if (this.virtualMemory == null) {</span>
-<span class="nc" id="L74">            this.virtualMemory = new WindowsVirtualMemory(getPageSize());</span>
-        }
-<span class="nc" id="L76">        return this.virtualMemory;</span>
+<span class="nc" id="L78">        return vm.get();</span>
     }
 
-    private void updatePerfInfo() {
-<span class="nc" id="L80">        PERFORMANCE_INFORMATION perfInfo = new PERFORMANCE_INFORMATION();</span>
-<span class="nc bnc" id="L81" title="All 2 branches missed.">        if (!Psapi.INSTANCE.GetPerformanceInfo(perfInfo, perfInfo.size())) {</span>
-<span class="nc" id="L82">            LOG.error(&quot;Failed to get Performance Info. Error code: {}&quot;, Kernel32.INSTANCE.GetLastError());</span>
-<span class="nc" id="L83">            return;</span>
+    private VirtualMemory createVirtualMemory() {
+<span class="nc" id="L82">        return new WindowsVirtualMemory(getPageSize());</span>
+    }
+
+    @Override
+    public PhysicalMemory[] getPhysicalMemory() {
+<span class="nc" id="L87">        WmiQueryHandler wmiQueryHandler = WmiQueryHandler.createInstance();</span>
+<span class="nc" id="L88">        WmiQuery&lt;PhysicalMemoryProperty&gt; physicalMemoryQuery = new WmiQuery&lt;&gt;(&quot;Win32_PhysicalMemory&quot;,</span>
+                PhysicalMemoryProperty.class);
+<span class="nc" id="L90">        WmiResult&lt;PhysicalMemoryProperty&gt; bankMap = wmiQueryHandler.queryWMI(physicalMemoryQuery);</span>
+
+<span class="nc" id="L92">        PhysicalMemory[] physicalMemoryArray = new PhysicalMemory[bankMap.getResultCount()];</span>
+<span class="nc bnc" id="L93" title="All 2 branches missed.">        for (int index = 0; index &lt; bankMap.getResultCount(); index++) {</span>
+<span class="nc" id="L94">            String bankLabel = WmiUtil.getString(bankMap, PhysicalMemoryProperty.BANKLABEL, index);</span>
+<span class="nc" id="L95">            long capacity = WmiUtil.getUint64(bankMap, PhysicalMemoryProperty.CAPACITY, index);</span>
+<span class="nc" id="L96">            long speed = WmiUtil.getUint32(bankMap, PhysicalMemoryProperty.CONFIGUREDCLOCKSPEED, index) * 1_000_000L;</span>
+<span class="nc" id="L97">            String manufacturer = WmiUtil.getString(bankMap, PhysicalMemoryProperty.MANUFACTURER, index);</span>
+<span class="nc" id="L98">            int type = WmiUtil.getUint32(bankMap, PhysicalMemoryProperty.SMBIOSMEMORYTYPE, index);</span>
+<span class="nc" id="L99">            String memoryType = smBiosMemoryType(type);</span>
+<span class="nc" id="L100">            physicalMemoryArray[index] = new PhysicalMemory(bankLabel, capacity, speed, manufacturer, memoryType);</span>
         }
-<span class="nc" id="L85">        this.pageSize = perfInfo.PageSize.longValue();</span>
-<span class="nc" id="L86">        this.memAvailable = this.pageSize * perfInfo.PhysicalAvailable.longValue();</span>
-<span class="nc" id="L87">        this.memTotal = this.pageSize * perfInfo.PhysicalTotal.longValue();</span>
-<span class="nc" id="L88">    }</span>
+<span class="nc" id="L102">        return physicalMemoryArray;</span>
+    }
+
+    private PerfInfo readPerfInfo() {
+        long pageSize;
+        long memAvailable;
+        long memTotal;
+<span class="nc" id="L109">        PERFORMANCE_INFORMATION performanceInfo = new PERFORMANCE_INFORMATION();</span>
+<span class="nc bnc" id="L110" title="All 2 branches missed.">        if (!Psapi.INSTANCE.GetPerformanceInfo(performanceInfo, performanceInfo.size())) {</span>
+<span class="nc" id="L111">            LOG.error(&quot;Failed to get Performance Info. Error code: {}&quot;, Kernel32.INSTANCE.GetLastError());</span>
+<span class="nc" id="L112">            return new PerfInfo(0, 0, 4098);</span>
+        }
+<span class="nc" id="L114">        pageSize = performanceInfo.PageSize.longValue();</span>
+<span class="nc" id="L115">        memAvailable = pageSize * performanceInfo.PhysicalAvailable.longValue();</span>
+<span class="nc" id="L116">        memTotal = pageSize * performanceInfo.PhysicalTotal.longValue();</span>
+<span class="nc" id="L117">        return new PerfInfo(memTotal, memAvailable, pageSize);</span>
+    }
+
+    private static final class PerfInfo {
+        private final long total;
+        private final long available;
+        private final long pageSize;
+
+<span class="nc" id="L125">        private PerfInfo(long total, long available, long pageSize) {</span>
+<span class="nc" id="L126">            this.total = total;</span>
+<span class="nc" id="L127">            this.available = available;</span>
+<span class="nc" id="L128">            this.pageSize = pageSize;</span>
+<span class="nc" id="L129">        }</span>
+    }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

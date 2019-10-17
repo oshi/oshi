@@ -23,8 +23,6 @@
  */
 package oshi.hardware;
 
-import java.io.Serializable;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,6 +32,7 @@ import oshi.hardware.platform.mac.MacDisks;
 import oshi.hardware.platform.unix.freebsd.FreeBsdDisks;
 import oshi.hardware.platform.unix.solaris.SolarisDisks;
 import oshi.hardware.platform.windows.WindowsDisks;
+import oshi.util.FormatUtil;
 
 /**
  * A storage mechanism where data are recorded by various electronic, magnetic,
@@ -43,30 +42,28 @@ import oshi.hardware.platform.windows.WindowsDisks;
  * storage, the Disk Store represents the hardware which a FileSystem uses for
  * its File Stores.
  */
-public class HWDiskStore implements Serializable, Comparable&lt;HWDiskStore&gt; {
+public class HWDiskStore implements Comparable&lt;HWDiskStore&gt; {
 
-    private static final long serialVersionUID = 1L;
+<span class="fc" id="L47">    private static final Logger LOG = LoggerFactory.getLogger(HWDiskStore.class);</span>
 
-<span class="fc" id="L50">    private static final Logger LOG = LoggerFactory.getLogger(HWDiskStore.class);</span>
-
-<span class="pc" id="L52">    private String model = &quot;&quot;;</span>
-<span class="pc" id="L53">    private String name = &quot;&quot;;</span>
-<span class="pc" id="L54">    private String serial = &quot;&quot;;</span>
-<span class="pc" id="L55">    private long size = 0L;</span>
-<span class="pc" id="L56">    private long reads = 0L;</span>
-<span class="pc" id="L57">    private long readBytes = 0L;</span>
-<span class="pc" id="L58">    private long writes = 0L;</span>
-<span class="pc" id="L59">    private long writeBytes = 0L;</span>
-<span class="pc" id="L60">    private long currentQueueLength = 0L;</span>
-<span class="pc" id="L61">    private long transferTime = 0L;</span>
-<span class="pc" id="L62">    private HWPartition[] partitions = new HWPartition[0];</span>
-<span class="pc" id="L63">    private long timeStamp = 0L;</span>
+<span class="pc" id="L49">    private String model = &quot;&quot;;</span>
+<span class="pc" id="L50">    private String name = &quot;&quot;;</span>
+<span class="pc" id="L51">    private String serial = &quot;&quot;;</span>
+<span class="pc" id="L52">    private long size = 0L;</span>
+<span class="pc" id="L53">    private long reads = 0L;</span>
+<span class="pc" id="L54">    private long readBytes = 0L;</span>
+<span class="pc" id="L55">    private long writes = 0L;</span>
+<span class="pc" id="L56">    private long writeBytes = 0L;</span>
+<span class="pc" id="L57">    private long currentQueueLength = 0L;</span>
+<span class="pc" id="L58">    private long transferTime = 0L;</span>
+<span class="pc" id="L59">    private HWPartition[] partitions = new HWPartition[0];</span>
+<span class="pc" id="L60">    private long timeStamp = 0L;</span>
 
     /**
      * Create an object with empty/default values
      */
-<span class="fc" id="L68">    public HWDiskStore() {</span>
-<span class="fc" id="L69">    }</span>
+<span class="fc" id="L65">    public HWDiskStore() {</span>
+<span class="fc" id="L66">    }</span>
 
     /**
      * Copy constructor
@@ -74,27 +71,27 @@ public class HWDiskStore implements Serializable, Comparable&lt;HWDiskStore&gt; 
      * @param diskStore
      *            The object to copy
      */
-<span class="nc" id="L77">    public HWDiskStore(HWDiskStore diskStore) {</span>
-<span class="nc" id="L78">        HWPartition[] partsOrig = diskStore.getPartitions();</span>
-<span class="nc" id="L79">        HWPartition[] partsCopy = new HWPartition[partsOrig.length];</span>
-<span class="nc bnc" id="L80" title="All 2 branches missed.">        for (int i = 0; i &lt; partsOrig.length; i++) {</span>
-<span class="nc" id="L81">            partsCopy[i] = new HWPartition(partsOrig[i].getIdentification(), partsOrig[i].getName(),</span>
-<span class="nc" id="L82">                    partsOrig[i].getType(), partsOrig[i].getUuid(), partsOrig[i].getSize(), partsOrig[i].getMajor(),</span>
-<span class="nc" id="L83">                    partsOrig[i].getMinor(), partsOrig[i].getMountPoint());</span>
+<span class="nc" id="L74">    public HWDiskStore(HWDiskStore diskStore) {</span>
+<span class="nc" id="L75">        HWPartition[] partsOrig = diskStore.getPartitions();</span>
+<span class="nc" id="L76">        HWPartition[] partsCopy = new HWPartition[partsOrig.length];</span>
+<span class="nc bnc" id="L77" title="All 2 branches missed.">        for (int i = 0; i &lt; partsOrig.length; i++) {</span>
+<span class="nc" id="L78">            partsCopy[i] = new HWPartition(partsOrig[i].getIdentification(), partsOrig[i].getName(),</span>
+<span class="nc" id="L79">                    partsOrig[i].getType(), partsOrig[i].getUuid(), partsOrig[i].getSize(), partsOrig[i].getMajor(),</span>
+<span class="nc" id="L80">                    partsOrig[i].getMinor(), partsOrig[i].getMountPoint());</span>
         }
-<span class="nc" id="L85">        this.name = diskStore.name;</span>
-<span class="nc" id="L86">        this.model = diskStore.model;</span>
-<span class="nc" id="L87">        this.serial = diskStore.serial;</span>
-<span class="nc" id="L88">        this.size = diskStore.size;</span>
-<span class="nc" id="L89">        this.reads = diskStore.reads;</span>
-<span class="nc" id="L90">        this.readBytes = diskStore.readBytes;</span>
-<span class="nc" id="L91">        this.writes = diskStore.writes;</span>
-<span class="nc" id="L92">        this.writeBytes = diskStore.writeBytes;</span>
-<span class="nc" id="L93">        this.currentQueueLength = diskStore.currentQueueLength;</span>
-<span class="nc" id="L94">        this.transferTime = diskStore.transferTime;</span>
-<span class="nc" id="L95">        this.partitions = partsCopy;</span>
-<span class="nc" id="L96">        this.timeStamp = diskStore.timeStamp;</span>
-<span class="nc" id="L97">    }</span>
+<span class="nc" id="L82">        this.name = diskStore.name;</span>
+<span class="nc" id="L83">        this.model = diskStore.model;</span>
+<span class="nc" id="L84">        this.serial = diskStore.serial;</span>
+<span class="nc" id="L85">        this.size = diskStore.size;</span>
+<span class="nc" id="L86">        this.reads = diskStore.reads;</span>
+<span class="nc" id="L87">        this.readBytes = diskStore.readBytes;</span>
+<span class="nc" id="L88">        this.writes = diskStore.writes;</span>
+<span class="nc" id="L89">        this.writeBytes = diskStore.writeBytes;</span>
+<span class="nc" id="L90">        this.currentQueueLength = diskStore.currentQueueLength;</span>
+<span class="nc" id="L91">        this.transferTime = diskStore.transferTime;</span>
+<span class="nc" id="L92">        this.partitions = partsCopy;</span>
+<span class="nc" id="L93">        this.timeStamp = diskStore.timeStamp;</span>
+<span class="nc" id="L94">    }</span>
 
     /**
      * Make a best effort to update all the statistics about the drive without
@@ -106,22 +103,22 @@ public class HWDiskStore implements Serializable, Comparable&lt;HWDiskStore&gt; 
      *         not found
      */
     public boolean updateAtrributes() {
-<span class="pc bpc" id="L109" title="5 of 6 branches missed.">        switch (SystemInfo.getCurrentPlatformEnum()) {</span>
+<span class="pc bpc" id="L106" title="5 of 6 branches missed.">        switch (SystemInfo.getCurrentPlatformEnum()) {</span>
         case WINDOWS:
-<span class="nc" id="L111">            return WindowsDisks.updateDiskStats(this);</span>
+<span class="nc" id="L108">            return WindowsDisks.updateDiskStats(this);</span>
         case LINUX:
-<span class="nc" id="L113">            return LinuxDisks.updateDiskStats(this);</span>
+<span class="nc" id="L110">            return LinuxDisks.updateDiskStats(this);</span>
         case MACOSX:
-<span class="fc" id="L115">            return MacDisks.updateDiskStats(this);</span>
+<span class="fc" id="L112">            return MacDisks.updateDiskStats(this);</span>
         case SOLARIS:
-<span class="nc" id="L117">            return SolarisDisks.updateDiskStats(this);</span>
+<span class="nc" id="L114">            return SolarisDisks.updateDiskStats(this);</span>
         case FREEBSD:
-<span class="nc" id="L119">            return FreeBsdDisks.updateDiskStats(this);</span>
+<span class="nc" id="L116">            return FreeBsdDisks.updateDiskStats(this);</span>
         default:
-<span class="nc" id="L121">            LOG.error(&quot;Unsupported platform. No update performed.&quot;);</span>
+<span class="nc" id="L118">            LOG.error(&quot;Unsupported platform. No update performed.&quot;);</span>
             break;
         }
-<span class="nc" id="L124">        return false;</span>
+<span class="nc" id="L121">        return false;</span>
     }
 
     /**
@@ -132,7 +129,7 @@ public class HWDiskStore implements Serializable, Comparable&lt;HWDiskStore&gt; 
      * @return the name
      */
     public String getName() {
-<span class="fc" id="L135">        return this.name;</span>
+<span class="fc" id="L132">        return this.name;</span>
     }
 
     /**
@@ -143,7 +140,7 @@ public class HWDiskStore implements Serializable, Comparable&lt;HWDiskStore&gt; 
      * @return the model
      */
     public String getModel() {
-<span class="fc" id="L146">        return this.model;</span>
+<span class="fc" id="L143">        return this.model;</span>
     }
 
     /**
@@ -154,7 +151,7 @@ public class HWDiskStore implements Serializable, Comparable&lt;HWDiskStore&gt; 
      * @return the serial
      */
     public String getSerial() {
-<span class="fc" id="L157">        return this.serial;</span>
+<span class="fc" id="L154">        return this.serial;</span>
     }
 
     /**
@@ -165,7 +162,7 @@ public class HWDiskStore implements Serializable, Comparable&lt;HWDiskStore&gt; 
      * @return Get size of disk (in bytes)
      */
     public long getSize() {
-<span class="fc" id="L168">        return this.size;</span>
+<span class="fc" id="L165">        return this.size;</span>
     }
 
     /**
@@ -176,7 +173,7 @@ public class HWDiskStore implements Serializable, Comparable&lt;HWDiskStore&gt; 
      * @return the reads
      */
     public long getReads() {
-<span class="fc" id="L179">        return this.reads;</span>
+<span class="fc" id="L176">        return this.reads;</span>
     }
 
     /**
@@ -187,7 +184,7 @@ public class HWDiskStore implements Serializable, Comparable&lt;HWDiskStore&gt; 
      * @return the bytes read
      */
     public long getReadBytes() {
-<span class="fc" id="L190">        return this.readBytes;</span>
+<span class="fc" id="L187">        return this.readBytes;</span>
     }
 
     /**
@@ -198,7 +195,7 @@ public class HWDiskStore implements Serializable, Comparable&lt;HWDiskStore&gt; 
      * @return the writes
      */
     public long getWrites() {
-<span class="fc" id="L201">        return this.writes;</span>
+<span class="fc" id="L198">        return this.writes;</span>
     }
 
     /**
@@ -209,7 +206,7 @@ public class HWDiskStore implements Serializable, Comparable&lt;HWDiskStore&gt; 
      * @return the bytes written
      */
     public long getWriteBytes() {
-<span class="fc" id="L212">        return this.writeBytes;</span>
+<span class="fc" id="L209">        return this.writeBytes;</span>
     }
 
     /**
@@ -222,7 +219,7 @@ public class HWDiskStore implements Serializable, Comparable&lt;HWDiskStore&gt; 
      *         completed. Not supported on macOS.
      */
     public long getCurrentQueueLength() {
-<span class="nc" id="L225">        return this.currentQueueLength;</span>
+<span class="nc" id="L222">        return this.currentQueueLength;</span>
     }
 
     /**
@@ -233,7 +230,7 @@ public class HWDiskStore implements Serializable, Comparable&lt;HWDiskStore&gt; 
      * @return the milliseconds spent reading or writing
      */
     public long getTransferTime() {
-<span class="fc" id="L236">        return this.transferTime;</span>
+<span class="fc" id="L233">        return this.transferTime;</span>
     }
 
     /**
@@ -244,7 +241,7 @@ public class HWDiskStore implements Serializable, Comparable&lt;HWDiskStore&gt; 
      * @return Returns the partitions on this drive.
      */
     public HWPartition[] getPartitions() {
-<span class="fc" id="L247">        return this.partitions;</span>
+<span class="fc" id="L244">        return this.partitions;</span>
     }
 
     /**
@@ -255,7 +252,7 @@ public class HWDiskStore implements Serializable, Comparable&lt;HWDiskStore&gt; 
      * @return Returns the timeStamp.
      */
     public long getTimeStamp() {
-<span class="fc" id="L258">        return this.timeStamp;</span>
+<span class="fc" id="L255">        return this.timeStamp;</span>
     }
 
     /**
@@ -267,8 +264,8 @@ public class HWDiskStore implements Serializable, Comparable&lt;HWDiskStore&gt; 
      *            the name to set
      */
     public void setName(String name) {
-<span class="pc bpc" id="L270" title="1 of 2 branches missed.">        this.name = name == null ? &quot;&quot; : name;</span>
-<span class="fc" id="L271">    }</span>
+<span class="pc bpc" id="L267" title="1 of 2 branches missed.">        this.name = name == null ? &quot;&quot; : name;</span>
+<span class="fc" id="L268">    }</span>
 
     /**
      * &lt;p&gt;
@@ -279,8 +276,8 @@ public class HWDiskStore implements Serializable, Comparable&lt;HWDiskStore&gt; 
      *            the model to set
      */
     public void setModel(String model) {
-<span class="pc bpc" id="L282" title="1 of 2 branches missed.">        this.model = model == null ? &quot;&quot; : model;</span>
-<span class="fc" id="L283">    }</span>
+<span class="pc bpc" id="L279" title="1 of 2 branches missed.">        this.model = model == null ? &quot;&quot; : model;</span>
+<span class="fc" id="L280">    }</span>
 
     /**
      * &lt;p&gt;
@@ -291,8 +288,8 @@ public class HWDiskStore implements Serializable, Comparable&lt;HWDiskStore&gt; 
      *            the serial to set
      */
     public void setSerial(String serial) {
-<span class="pc bpc" id="L294" title="1 of 2 branches missed.">        this.serial = serial == null ? &quot;&quot; : serial;</span>
-<span class="fc" id="L295">    }</span>
+<span class="pc bpc" id="L291" title="1 of 2 branches missed.">        this.serial = serial == null ? &quot;&quot; : serial;</span>
+<span class="fc" id="L292">    }</span>
 
     /**
      * &lt;p&gt;
@@ -303,8 +300,8 @@ public class HWDiskStore implements Serializable, Comparable&lt;HWDiskStore&gt; 
      *            Set size of disk (in bytes)
      */
     public void setSize(long size) {
-<span class="fc" id="L306">        this.size = size;</span>
-<span class="fc" id="L307">    }</span>
+<span class="fc" id="L303">        this.size = size;</span>
+<span class="fc" id="L304">    }</span>
 
     /**
      * &lt;p&gt;
@@ -315,8 +312,8 @@ public class HWDiskStore implements Serializable, Comparable&lt;HWDiskStore&gt; 
      *            the reads to set
      */
     public void setReads(long reads) {
-<span class="fc" id="L318">        this.reads = reads;</span>
-<span class="fc" id="L319">    }</span>
+<span class="fc" id="L315">        this.reads = reads;</span>
+<span class="fc" id="L316">    }</span>
 
     /**
      * &lt;p&gt;
@@ -327,8 +324,8 @@ public class HWDiskStore implements Serializable, Comparable&lt;HWDiskStore&gt; 
      *            the bytes read to set
      */
     public void setReadBytes(long readBytes) {
-<span class="fc" id="L330">        this.readBytes = readBytes;</span>
-<span class="fc" id="L331">    }</span>
+<span class="fc" id="L327">        this.readBytes = readBytes;</span>
+<span class="fc" id="L328">    }</span>
 
     /**
      * &lt;p&gt;
@@ -339,8 +336,8 @@ public class HWDiskStore implements Serializable, Comparable&lt;HWDiskStore&gt; 
      *            the writes to set
      */
     public void setWrites(long writes) {
-<span class="fc" id="L342">        this.writes = writes;</span>
-<span class="fc" id="L343">    }</span>
+<span class="fc" id="L339">        this.writes = writes;</span>
+<span class="fc" id="L340">    }</span>
 
     /**
      * &lt;p&gt;
@@ -351,8 +348,8 @@ public class HWDiskStore implements Serializable, Comparable&lt;HWDiskStore&gt; 
      *            the bytes written to set
      */
     public void setWriteBytes(long writeBytes) {
-<span class="fc" id="L354">        this.writeBytes = writeBytes;</span>
-<span class="fc" id="L355">    }</span>
+<span class="fc" id="L351">        this.writeBytes = writeBytes;</span>
+<span class="fc" id="L352">    }</span>
 
     /**
      * &lt;p&gt;
@@ -363,8 +360,8 @@ public class HWDiskStore implements Serializable, Comparable&lt;HWDiskStore&gt; 
      *            the length of the disk queue (#I/O's in progress) to set
      */
     public void setCurrentQueueLength(long currentQueueLength) {
-<span class="nc" id="L366">        this.currentQueueLength = currentQueueLength;</span>
-<span class="nc" id="L367">    }</span>
+<span class="nc" id="L363">        this.currentQueueLength = currentQueueLength;</span>
+<span class="nc" id="L364">    }</span>
 
     /**
      * &lt;p&gt;
@@ -375,8 +372,8 @@ public class HWDiskStore implements Serializable, Comparable&lt;HWDiskStore&gt; 
      *            milliseconds spent reading or writing to set
      */
     public void setTransferTime(long transferTime) {
-<span class="fc" id="L378">        this.transferTime = transferTime;</span>
-<span class="fc" id="L379">    }</span>
+<span class="fc" id="L375">        this.transferTime = transferTime;</span>
+<span class="fc" id="L376">    }</span>
 
     /**
      * &lt;p&gt;
@@ -387,8 +384,8 @@ public class HWDiskStore implements Serializable, Comparable&lt;HWDiskStore&gt; 
      *            The partitions to set.
      */
     public void setPartitions(HWPartition[] partitions) {
-<span class="fc" id="L390">        this.partitions = partitions;</span>
-<span class="fc" id="L391">    }</span>
+<span class="fc" id="L387">        this.partitions = partitions;</span>
+<span class="fc" id="L388">    }</span>
 
     /**
      * &lt;p&gt;
@@ -399,64 +396,80 @@ public class HWDiskStore implements Serializable, Comparable&lt;HWDiskStore&gt; 
      *            The timeStamp to set.
      */
     public void setTimeStamp(long timeStamp) {
-<span class="fc" id="L402">        this.timeStamp = timeStamp;</span>
-<span class="fc" id="L403">    }</span>
+<span class="fc" id="L399">        this.timeStamp = timeStamp;</span>
+<span class="fc" id="L400">    }</span>
 
     /** {@inheritDoc} */
     @Override
     public int compareTo(HWDiskStore store) {
         // Naturally sort by device name
-<span class="fc" id="L409">        return getName().compareTo(store.getName());</span>
+<span class="fc" id="L406">        return getName().compareTo(store.getName());</span>
     }
 
     /** {@inheritDoc} */
     @Override
     public int hashCode() {
-<span class="fc" id="L415">        final int prime = 31;</span>
-<span class="fc" id="L416">        int result = 1;</span>
-<span class="pc bpc" id="L417" title="1 of 2 branches missed.">        result = prime * result + (this.model == null ? 0 : this.model.hashCode());</span>
-<span class="pc bpc" id="L418" title="1 of 2 branches missed.">        result = prime * result + (this.name == null ? 0 : this.name.hashCode());</span>
-<span class="pc bpc" id="L419" title="1 of 2 branches missed.">        result = prime * result + (this.serial == null ? 0 : this.serial.hashCode());</span>
-<span class="fc" id="L420">        result = prime * result + (int) (this.size ^ this.size &gt;&gt;&gt; 32);</span>
-<span class="fc" id="L421">        return result;</span>
+<span class="fc" id="L412">        final int prime = 31;</span>
+<span class="fc" id="L413">        int result = 1;</span>
+<span class="pc bpc" id="L414" title="1 of 2 branches missed.">        result = prime * result + (this.model == null ? 0 : this.model.hashCode());</span>
+<span class="pc bpc" id="L415" title="1 of 2 branches missed.">        result = prime * result + (this.name == null ? 0 : this.name.hashCode());</span>
+<span class="pc bpc" id="L416" title="1 of 2 branches missed.">        result = prime * result + (this.serial == null ? 0 : this.serial.hashCode());</span>
+<span class="fc" id="L417">        result = prime * result + (int) (this.size ^ this.size &gt;&gt;&gt; 32);</span>
+<span class="fc" id="L418">        return result;</span>
     }
 
     /** {@inheritDoc} */
     @Override
     public boolean equals(Object obj) {
-<span class="fc bfc" id="L427" title="All 2 branches covered.">        if (this == obj) {</span>
-<span class="fc" id="L428">            return true;</span>
+<span class="fc bfc" id="L424" title="All 2 branches covered.">        if (this == obj) {</span>
+<span class="fc" id="L425">            return true;</span>
         }
-<span class="fc bfc" id="L430" title="All 2 branches covered.">        if (obj == null) {</span>
+<span class="fc bfc" id="L427" title="All 2 branches covered.">        if (obj == null) {</span>
+<span class="fc" id="L428">            return false;</span>
+        }
+<span class="fc bfc" id="L430" title="All 2 branches covered.">        if (!(obj.getClass().equals(this.getClass()))) {</span>
 <span class="fc" id="L431">            return false;</span>
         }
-<span class="fc bfc" id="L433" title="All 2 branches covered.">        if (!(obj instanceof HWDiskStore)) {</span>
-<span class="fc" id="L434">            return false;</span>
-        }
-<span class="fc" id="L436">        HWDiskStore other = (HWDiskStore) obj;</span>
-<span class="pc bpc" id="L437" title="1 of 2 branches missed.">        if (this.model == null) {</span>
-<span class="nc bnc" id="L438" title="All 2 branches missed.">            if (other.model != null) {</span>
-<span class="nc" id="L439">                return false;</span>
+<span class="fc" id="L433">        HWDiskStore other = (HWDiskStore) obj;</span>
+<span class="pc bpc" id="L434" title="1 of 2 branches missed.">        if (this.model == null) {</span>
+<span class="nc bnc" id="L435" title="All 2 branches missed.">            if (other.model != null) {</span>
+<span class="nc" id="L436">                return false;</span>
             }
-<span class="fc bfc" id="L441" title="All 2 branches covered.">        } else if (!this.model.equals(other.model)) {</span>
-<span class="fc" id="L442">            return false;</span>
+<span class="fc bfc" id="L438" title="All 2 branches covered.">        } else if (!this.model.equals(other.model)) {</span>
+<span class="fc" id="L439">            return false;</span>
         }
-<span class="pc bpc" id="L444" title="1 of 2 branches missed.">        if (this.name == null) {</span>
-<span class="nc bnc" id="L445" title="All 2 branches missed.">            if (other.name != null) {</span>
-<span class="nc" id="L446">                return false;</span>
+<span class="pc bpc" id="L441" title="1 of 2 branches missed.">        if (this.name == null) {</span>
+<span class="nc bnc" id="L442" title="All 2 branches missed.">            if (other.name != null) {</span>
+<span class="nc" id="L443">                return false;</span>
             }
-<span class="fc bfc" id="L448" title="All 2 branches covered.">        } else if (!this.name.equals(other.name)) {</span>
-<span class="fc" id="L449">            return false;</span>
+<span class="fc bfc" id="L445" title="All 2 branches covered.">        } else if (!this.name.equals(other.name)) {</span>
+<span class="fc" id="L446">            return false;</span>
         }
-<span class="pc bpc" id="L451" title="1 of 2 branches missed.">        if (this.serial == null) {</span>
-<span class="nc bnc" id="L452" title="All 2 branches missed.">            if (other.serial != null) {</span>
-<span class="nc" id="L453">                return false;</span>
+<span class="pc bpc" id="L448" title="1 of 2 branches missed.">        if (this.serial == null) {</span>
+<span class="nc bnc" id="L449" title="All 2 branches missed.">            if (other.serial != null) {</span>
+<span class="nc" id="L450">                return false;</span>
             }
-<span class="fc bfc" id="L455" title="All 2 branches covered.">        } else if (!this.serial.equals(other.serial)) {</span>
-<span class="fc" id="L456">            return false;</span>
+<span class="fc bfc" id="L452" title="All 2 branches covered.">        } else if (!this.serial.equals(other.serial)) {</span>
+<span class="fc" id="L453">            return false;</span>
         }
-<span class="fc bfc" id="L458" title="All 2 branches covered.">        return this.size == other.size;</span>
+<span class="fc bfc" id="L455" title="All 2 branches covered.">        return this.size == other.size;</span>
     }
 
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+<span class="pc bpc" id="L461" title="1 of 4 branches missed.">        boolean readwrite = getReads() &gt; 0 || getWrites() &gt; 0;</span>
+<span class="fc" id="L462">        StringBuilder sb = new StringBuilder();</span>
+<span class="fc" id="L463">        sb.append(getName()).append(&quot;: &quot;);</span>
+<span class="fc" id="L464">        sb.append(&quot;(model: &quot;).append(getModel());</span>
+<span class="fc" id="L465">        sb.append(&quot; - S/N: &quot;).append(getSerial()).append(&quot;) &quot;);</span>
+<span class="pc bpc" id="L466" title="1 of 2 branches missed.">        sb.append(&quot;size: &quot;).append(getSize() &gt; 0 ? FormatUtil.formatBytesDecimal(getSize()) : &quot;?&quot;).append(&quot;, &quot;);</span>
+<span class="fc bfc" id="L467" title="All 2 branches covered.">        sb.append(&quot;reads: &quot;).append(readwrite ? getReads() : &quot;?&quot;);</span>
+<span class="fc bfc" id="L468" title="All 2 branches covered.">        sb.append(&quot; (&quot;).append(readwrite ? FormatUtil.formatBytes(getReadBytes()) : &quot;?&quot;).append(&quot;), &quot;);</span>
+<span class="fc bfc" id="L469" title="All 2 branches covered.">        sb.append(&quot;writes: &quot;).append(readwrite ? getWrites() : &quot;?&quot;);</span>
+<span class="fc bfc" id="L470" title="All 2 branches covered.">        sb.append(&quot; (&quot;).append(readwrite ? FormatUtil.formatBytes(getWriteBytes()) : &quot;?&quot;).append(&quot;), &quot;);</span>
+<span class="fc bfc" id="L471" title="All 2 branches covered.">        sb.append(&quot;xfer: &quot;).append(readwrite ? getTransferTime() : &quot;?&quot;);</span>
+<span class="fc" id="L472">        return sb.toString();</span>
+    }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

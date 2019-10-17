@@ -23,6 +23,11 @@
  */
 package oshi.hardware.platform.unix.solaris;
 
+import static oshi.util.Memoizer.defaultExpiration;
+import static oshi.util.Memoizer.memoize;
+
+import java.util.function.Supplier;
+
 import com.sun.jna.platform.unix.solaris.LibKstat.Kstat; // NOSONAR
 
 import oshi.hardware.VirtualMemory;
@@ -30,56 +35,70 @@ import oshi.hardware.common.AbstractGlobalMemory;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.solaris.KstatUtil;
+import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
 
 /**
  * Memory obtained by kstat
  */
-<span class="nc" id="L37">public class SolarisGlobalMemory extends AbstractGlobalMemory {</span>
+<span class="nc" id="L43">public class SolarisGlobalMemory extends AbstractGlobalMemory {</span>
 
-    private static final long serialVersionUID = 1L;
+<span class="nc" id="L45">    private final Supplier&lt;SystemPages&gt; systemPages = memoize(this::readSystemPages, defaultExpiration());</span>
 
-    /** {@inheritDoc} */
+<span class="nc" id="L47">    private final Supplier&lt;Long&gt; pageSize = memoize(this::queryPageSize);</span>
+
+<span class="nc" id="L49">    private final Supplier&lt;VirtualMemory&gt; vm = memoize(this::createVirtualMemory);</span>
+
     @Override
     public long getAvailable() {
-<span class="nc" id="L44">        updateSystemPages();</span>
-<span class="nc" id="L45">        return this.memAvailable;</span>
+<span class="nc" id="L53">        return systemPages.get().available;</span>
     }
 
-    /** {@inheritDoc} */
     @Override
     public long getTotal() {
-<span class="nc bnc" id="L51" title="All 2 branches missed.">        if (this.memTotal &lt; 0) {</span>
-<span class="nc" id="L52">            updateSystemPages();</span>
-        }
-<span class="nc" id="L54">        return this.memTotal;</span>
+<span class="nc" id="L58">        return systemPages.get().total;</span>
     }
 
-    /** {@inheritDoc} */
     @Override
     public long getPageSize() {
-<span class="nc bnc" id="L60" title="All 2 branches missed.">        if (this.pageSize &lt; 0) {</span>
-<span class="nc" id="L61">            this.pageSize = ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer(&quot;pagesize&quot;), 4096L);</span>
-        }
-<span class="nc" id="L63">        return this.pageSize;</span>
+<span class="nc" id="L63">        return pageSize.get();</span>
     }
 
-    /** {@inheritDoc} */
     @Override
     public VirtualMemory getVirtualMemory() {
-<span class="nc bnc" id="L69" title="All 2 branches missed.">        if (this.virtualMemory == null) {</span>
-<span class="nc" id="L70">            this.virtualMemory = new SolarisVirtualMemory();</span>
-        }
-<span class="nc" id="L72">        return this.virtualMemory;</span>
+<span class="nc" id="L68">        return vm.get();</span>
     }
 
-    private void updateSystemPages() {
+    private long queryPageSize() {
+<span class="nc" id="L72">        return ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer(&quot;pagesize&quot;), 4096L);</span>
+    }
+
+    private VirtualMemory createVirtualMemory() {
+<span class="nc" id="L76">        return new SolarisVirtualMemory();</span>
+    }
+
+    private SystemPages readSystemPages() {
+<span class="nc" id="L80">        long memAvailable = 0;</span>
+<span class="nc" id="L81">        long memTotal = 0;</span>
         // Get first result
-<span class="nc" id="L77">        Kstat ksp = KstatUtil.kstatLookup(null, -1, &quot;system_pages&quot;);</span>
-        // Set values
-<span class="nc bnc" id="L79" title="All 4 branches missed.">        if (ksp != null &amp;&amp; KstatUtil.kstatRead(ksp)) {</span>
-<span class="nc" id="L80">            this.memAvailable = KstatUtil.kstatDataLookupLong(ksp, &quot;availrmem&quot;) * getPageSize();</span>
-<span class="nc" id="L81">            this.memTotal = KstatUtil.kstatDataLookupLong(ksp, &quot;physmem&quot;) * getPageSize();</span>
+<span class="nc" id="L83">        try (KstatChain kc = KstatUtil.openChain()) {</span>
+<span class="nc" id="L84">            Kstat ksp = kc.lookup(null, -1, &quot;system_pages&quot;);</span>
+            // Set values
+<span class="nc bnc" id="L86" title="All 4 branches missed.">            if (ksp != null &amp;&amp; kc.read(ksp)) {</span>
+<span class="nc" id="L87">                memAvailable = KstatUtil.dataLookupLong(ksp, &quot;availrmem&quot;) * getPageSize();</span>
+<span class="nc" id="L88">                memTotal = KstatUtil.dataLookupLong(ksp, &quot;physmem&quot;) * getPageSize();</span>
+            }
         }
-<span class="nc" id="L83">    }</span>
+<span class="nc" id="L91">        return new SystemPages(memTotal, memAvailable);</span>
+    }
+
+    private static final class SystemPages {
+        private final long total;
+        private final long available;
+
+<span class="nc" id="L98">        private SystemPages(long total, long available) {</span>
+<span class="nc" id="L99">            this.total = total;</span>
+<span class="nc" id="L100">            this.available = available;</span>
+<span class="nc" id="L101">        }</span>
+    }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

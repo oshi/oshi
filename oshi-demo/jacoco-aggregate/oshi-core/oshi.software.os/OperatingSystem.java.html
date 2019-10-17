@@ -23,22 +23,24 @@
  */
 package oshi.software.os;
 
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
+
+import oshi.util.Constants;
+import oshi.util.Util;
 
 /**
  * An operating system (OS) is the software on a computer that manages the way
  * different programs use its hardware, and regulates the ways that a user
  * controls the computer.
  */
-public interface OperatingSystem extends Serializable {
+public interface OperatingSystem {
 
     /**
      * Controls sorting of Process output
      */
-<span class="nc" id="L40">    enum ProcessSort {</span>
-<span class="nc" id="L41">    CPU, MEMORY, OLDEST, NEWEST, PID, PARENTPID, NAME</span>
+<span class="fc" id="L42">    enum ProcessSort {</span>
+<span class="fc" id="L43">    CPU, MEMORY, OLDEST, NEWEST, PID, PARENTPID, NAME</span>
     }
 
     /**
@@ -59,8 +61,17 @@ public interface OperatingSystem extends Serializable {
      * Operating system version.
      *
      * @return Version.
+     * @deprecated Use {@link #getVersionInfo}
      */
+    @Deprecated
     OperatingSystemVersion getVersion();
+
+    /**
+     * Operating system version information.
+     *
+     * @return Version information.
+     */
+    OSVersionInfo getVersionInfo();
 
     /**
      * Instantiates a {@link oshi.software.os.FileSystem} object.
@@ -111,16 +122,6 @@ public interface OperatingSystem extends Serializable {
     OSProcess[] getProcesses(int limit, ProcessSort sort, boolean slowFields);
 
     /**
-     * Gets information on a currently running process
-     *
-     * @param pid
-     *            A process ID
-     * @return An {@link oshi.software.os.OSProcess} object for the specified
-     *         process id if it is running; null otherwise
-     */
-    OSProcess getProcess(int pid);
-
-    /**
      * Gets information on a currently running processes. This has improved
      * performance on Windows based operating systems vs. iterating individual
      * processes.
@@ -131,6 +132,16 @@ public interface OperatingSystem extends Serializable {
      *         process ids if it is running
      */
     List&lt;OSProcess&gt; getProcesses(Collection&lt;Integer&gt; pids);
+
+    /**
+     * Gets information on a currently running process
+     *
+     * @param pid
+     *            A process ID
+     * @return An {@link oshi.software.os.OSProcess} object for the specified
+     *         process id if it is running; null otherwise
+     */
+    OSProcess getProcess(int pid);
 
     /**
      * Gets currently running child processes of provided PID. If a positive limit
@@ -209,5 +220,72 @@ public interface OperatingSystem extends Serializable {
      * @return A {@link oshi.software.os.NetworkParams} object.
      */
     NetworkParams getNetworkParams();
+
+    /**
+     * Gets the all services on the system. The definition of what is a service is
+     * platform-dependent.
+     *
+     * @return An array of {@link OSService} objects
+     */
+    OSService[] getServices();
+
+    /*
+     * A class representing a Logical Processor and its replationship to physical
+     * processors, physical packages, and logical groupings such as NUMA Nodes and
+     * Processor groups, useful for identifying processor topology.
+     */
+    class OSVersionInfo {
+        private final String version;
+        private final String codeName;
+        private final String buildNumber;
+        private final String versionStr;
+
+<span class="fc" id="L243">        public OSVersionInfo(String version, String codeName, String buildNumber) {</span>
+<span class="fc" id="L244">            this.version = version;</span>
+<span class="fc" id="L245">            this.codeName = codeName;</span>
+<span class="fc" id="L246">            this.buildNumber = buildNumber;</span>
+
+<span class="pc bpc" id="L248" title="1 of 2 branches missed.">            StringBuilder sb = new StringBuilder(getVersion() != null ? getVersion() : Constants.UNKNOWN);</span>
+<span class="pc bpc" id="L249" title="1 of 2 branches missed.">            if (!Util.isBlank(getCodeName())) {</span>
+<span class="fc" id="L250">                sb.append(&quot; (&quot;).append(getCodeName()).append(')');</span>
+            }
+<span class="pc bpc" id="L252" title="1 of 2 branches missed.">            if (!Util.isBlank(getBuildNumber())) {</span>
+<span class="fc" id="L253">                sb.append(&quot; build &quot;).append(getBuildNumber());</span>
+            }
+<span class="fc" id="L255">            this.versionStr = sb.toString();</span>
+<span class="fc" id="L256">        }</span>
+
+        /**
+         * Gets the operating system version.
+         *
+         * @return The version, if any. May be {@code null}.
+         */
+        public String getVersion() {
+<span class="fc" id="L264">            return version;</span>
+        }
+
+        /**
+         * Gets the operating system codename.
+         *
+         * @return The code name, if any. May be {@code null}.
+         */
+        public String getCodeName() {
+<span class="fc" id="L273">            return codeName;</span>
+        }
+
+        /**
+         * Gets the operating system build number.
+         *
+         * @return The build number, if any. May be {@code null}.
+         */
+        public String getBuildNumber() {
+<span class="fc" id="L282">            return buildNumber;</span>
+        }
+
+        @Override
+        public String toString() {
+<span class="nc" id="L287">            return this.versionStr;</span>
+        }
+    }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

@@ -24,288 +24,1004 @@
 package oshi.jna.platform.mac;
 
 import com.sun.jna.Library;
+import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
 import com.sun.jna.PointerType;
 import com.sun.jna.ptr.ByReference;
+import com.sun.jna.ptr.ByteByReference;
+import com.sun.jna.ptr.DoubleByReference;
+import com.sun.jna.ptr.FloatByReference;
+import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.ptr.LongByReference;
 import com.sun.jna.ptr.PointerByReference;
+import com.sun.jna.ptr.ShortByReference;
 
 /**
- * CoreFoundation framework for power supply stats. This class should be
- * considered non-API as it may be removed if/when its code is incorporated into
- * the JNA project.
+ * Core Foundation is a framework that provides fundamental software services
+ * useful to application services, application environments, and to applications
+ * themselves. Core Foundation also provides abstractions for common data types.
+ * &lt;p&gt;
+ * Core Foundation functions have names that indicate when you own a returned
+ * object: Object-creation functions have “Create” embedded in the name, and
+ * Object-duplication functions that have “Copy” embedded in the name. If you
+ * own an object, it is your responsibility to relinquish ownership (using
+ * {@link #CFRelease}) when you have finished with it.
+ * &lt;p&gt;
+ * If you receive an object from any Core Foundation function other than a
+ * creation or copy function—such as a Get function—you do not own it and cannot
+ * be certain of the object’s life span. If you want to ensure that such an
+ * object is not disposed of while you are using it, you must claim ownership
+ * (with the {@link #CFRetain} function).
  */
 public interface CoreFoundation extends Library {
-    /** Constant &lt;code&gt;INSTANCE&lt;/code&gt; */
-<span class="nc" id="L41">    CoreFoundation INSTANCE = Native.load(&quot;CoreFoundation&quot;, CoreFoundation.class);</span>
 
-    /** Constant &lt;code&gt;UTF_8=0x08000100&lt;/code&gt; */
-    int UTF_8 = 0x08000100;
+<span class="nc" id="L60">    CoreFoundation INSTANCE = Native.load(&quot;CoreFoundation&quot;, CoreFoundation.class);</span>
+
+    int kCFNotFound = -1;
+
+    int kCFStringEncodingASCII = 0x0600;
+    int kCFStringEncodingUTF8 = 0x08000100;
+
+<span class="nc" id="L67">    CFTypeID ARRAY_TYPE_ID = INSTANCE.CFArrayGetTypeID();</span>
+<span class="nc" id="L68">    CFTypeID BOOLEAN_TYPE_ID = INSTANCE.CFBooleanGetTypeID();</span>
+<span class="nc" id="L69">    CFTypeID DATA_TYPE_ID = INSTANCE.CFDataGetTypeID();</span>
+<span class="nc" id="L70">    CFTypeID DATE_TYPE_ID = INSTANCE.CFDateGetTypeID();</span>
+<span class="nc" id="L71">    CFTypeID DICTIONARY_TYPE_ID = INSTANCE.CFDictionaryGetTypeID();</span>
+<span class="nc" id="L72">    CFTypeID NUMBER_TYPE_ID = INSTANCE.CFNumberGetTypeID();</span>
+<span class="nc" id="L73">    CFTypeID STRING_TYPE_ID = INSTANCE.CFStringGetTypeID();</span>
 
     /**
-     * &lt;p&gt;
-     * CFArrayGetCount.
-     * &lt;/p&gt;
-     *
-     * @param array
-     *            a {@link oshi.jna.platform.mac.CoreFoundation.CFArrayRef} object.
-     * @return a int.
+     * The {@code CFTypeRef} type is the base type defined in Core Foundation. It is
+     * used as the type and return value in several polymorphic functions. It is a
+     * generic object reference that acts as a placeholder for other true Core
+     * Foundation objects.
      */
-    int CFArrayGetCount(CFArrayRef array);
+    class CFTypeRef extends PointerType {
+        public CFTypeRef() {
+<span class="nc" id="L83">            super();</span>
+<span class="nc" id="L84">        }</span>
 
-    /*
-     * Decorator class types for PointerType to better match ported code
-     */
-<span class="nc" id="L60">    class CFTypeRef extends PointerType {</span>
-    }
+        public CFTypeRef(Pointer p) {
+<span class="nc" id="L87">            super(p);</span>
+<span class="nc" id="L88">        }</span>
 
-<span class="nc" id="L63">    class CFNumberRef extends PointerType {</span>
-    }
-
-<span class="nc" id="L66">    class CFBooleanRef extends PointerType {</span>
-    }
-
-<span class="nc" id="L69">    class CFArrayRef extends PointerType {</span>
-    }
-
-<span class="nc" id="L72">    class CFDictionaryRef extends PointerType {</span>
-    }
-
-<span class="nc" id="L75">    class CFMutableDictionaryRef extends CFDictionaryRef {</span>
-    }
-
-<span class="nc" id="L78">    class CFAllocatorRef extends PointerType {</span>
-    }
-
-<span class="nc" id="L81">    class CFStringRef extends PointerType {</span>
         /**
-         * Creates a new CFString from the given Java string.
+         * Convenience method for {@link CoreFoundation#CFGetTypeID} on this object.
          *
-         * @param s
-         *            A string
-         * @return A reference to a CFString representing s
+         * @return The {@link CFTypeID}
          */
-        public static CFStringRef toCFString(String s) {
-<span class="nc" id="L90">            final char[] chars = s.toCharArray();</span>
-<span class="nc" id="L91">            int length = chars.length;</span>
-<span class="nc" id="L92">            return CoreFoundation.INSTANCE.CFStringCreateWithCharacters(null, chars, new NativeLong(length));</span>
+        public CFTypeID getTypeID() {
+<span class="nc bnc" id="L96" title="All 2 branches missed.">            if (this.getPointer() == null) {</span>
+<span class="nc" id="L97">                return new CFTypeID(0);</span>
+            }
+<span class="nc" id="L99">            return INSTANCE.CFGetTypeID(this);</span>
+        }
+
+        /**
+         * Test whether this object has the specified ID
+         *
+         * @param typeID
+         *            The {@link CFTypeID} for the class to test
+         * @return true if this object has the same ID as {@code typeID}
+         */
+        public boolean isTypeID(CFTypeID typeID) {
+<span class="nc" id="L110">            return getTypeID().equals(typeID);</span>
+        }
+
+        /**
+         * Convenience method for {@link CoreFoundation#CFRetain} on this object.
+         */
+        public void retain() {
+<span class="nc" id="L117">            INSTANCE.CFRetain(this);</span>
+<span class="nc" id="L118">        }</span>
+
+        /**
+         * Convenience method for {@link CoreFoundation#CFRelease} on this object.
+         */
+        public void release() {
+<span class="nc" id="L124">            INSTANCE.CFRelease(this);</span>
+<span class="nc" id="L125">        }</span>
+    }
+
+    /**
+     * A reference type used in many Core Foundation parameters and function
+     * results. It refers to a {@code CFAllocator} object, which allocates,
+     * reallocates, and deallocates memory for Core Foundation objects.
+     */
+<span class="nc" id="L133">    class CFAllocatorRef extends CFTypeRef {</span>
+    }
+
+    /**
+     * A reference to a {@code CFNumber} object.
+     */
+    class CFNumberRef extends CFTypeRef {
+        public CFNumberRef() {
+<span class="nc" id="L141">            super();</span>
+<span class="nc" id="L142">        }</span>
+
+        public CFNumberRef(Pointer p) {
+<span class="nc" id="L145">            super(p);</span>
+<span class="nc bnc" id="L146" title="All 2 branches missed.">            if (!isTypeID(NUMBER_TYPE_ID)) {</span>
+<span class="nc" id="L147">                throw new ClassCastException(&quot;Unable to cast to CFNumber. Type ID: &quot; + getTypeID());</span>
+            }
+<span class="nc" id="L149">        }</span>
+
+        /**
+         * Convert this {@code CFNumber} to a {@code long}.
+         * &lt;p&gt;
+         * This method assumes a 64-bit integer is stored and does not do type checking.
+         * Users should use {@link #CFNumberGetType} to determine the appropriate type
+         * conversion. If this object's type differs from the return type, and the
+         * conversion is lossy or the return value is out of range, then this method
+         * returns an approximate value.
+         *
+         * @return The corresponding {@code long}
+         */
+        public long longValue() {
+<span class="nc" id="L163">            LongByReference lbr = new LongByReference();</span>
+<span class="nc" id="L164">            INSTANCE.CFNumberGetValue(this, CFNumberType.kCFNumberLongLongType.typeIndex(), lbr);</span>
+<span class="nc" id="L165">            return lbr.getValue();</span>
+        }
+
+        /**
+         * Convert this {@code CFNumber} to an {@code int}.
+         * &lt;p&gt;
+         * This method assumes a 32-bit integer is stored and does not do type checking.
+         * Users should use {@link #CFNumberGetType} to determine the appropriate type
+         * conversion. If this object's type differs from the return type, and the
+         * conversion is lossy or the return value is out of range, then this method
+         * returns an approximate value.
+         *
+         * @return The corresponding {@code int}
+         */
+        public int intValue() {
+<span class="nc" id="L180">            IntByReference ibr = new IntByReference();</span>
+<span class="nc" id="L181">            INSTANCE.CFNumberGetValue(this, CFNumberType.kCFNumberIntType.typeIndex(), ibr);</span>
+<span class="nc" id="L182">            return ibr.getValue();</span>
+        }
+
+        /**
+         * Convert this {@code CFNumber} to a {@code short}.
+         * &lt;p&gt;
+         * This method assumes a 16-bit integer is stored and does not do type checking.
+         * Users should use {@link #CFNumberGetType} to determine the appropriate type
+         * conversion. If this object's type differs from the return type, and the
+         * conversion is lossy or the return value is out of range, then this method
+         * returns an approximate value.
+         *
+         * @return The corresponding {@code short}
+         */
+        public short shortValue() {
+<span class="nc" id="L197">            ShortByReference sbr = new ShortByReference();</span>
+<span class="nc" id="L198">            INSTANCE.CFNumberGetValue(this, CFNumberType.kCFNumberShortType.typeIndex(), sbr);</span>
+<span class="nc" id="L199">            return sbr.getValue();</span>
+        }
+
+        /**
+         * Convert this {@code CFNumber} to a {@code byte}.
+         * &lt;p&gt;
+         * This method assumes an 8-bit integer is stored and does not do type checking.
+         * Users should use {@link #CFNumberGetType} to determine the appropriate type
+         * conversion. If this object's type differs from the return type, and the
+         * conversion is lossy or the return value is out of range, then this method
+         * returns an approximate value.
+         *
+         * @return The corresponding {@code byte}
+         */
+        public byte byteValue() {
+<span class="nc" id="L214">            ByteByReference bbr = new ByteByReference();</span>
+<span class="nc" id="L215">            INSTANCE.CFNumberGetValue(this, CFNumberType.kCFNumberCharType.typeIndex(), bbr);</span>
+<span class="nc" id="L216">            return bbr.getValue();</span>
+        }
+
+        /**
+         * Convert this {@code CFNumber} to a {@code double}.
+         * &lt;p&gt;
+         * This method assumes a 64-bit floating point value is stored and does not do
+         * type checking. Users should use {@link #CFNumberGetType} to determine the
+         * appropriate type conversion. If this object's type differs from the return
+         * type, and the conversion is lossy or the return value is out of range, then
+         * this method returns an approximate value.
+         *
+         * @return The corresponding {@code double}
+         */
+        public double doubleValue() {
+<span class="nc" id="L231">            DoubleByReference dbr = new DoubleByReference();</span>
+<span class="nc" id="L232">            INSTANCE.CFNumberGetValue(this, CFNumberType.kCFNumberDoubleType.typeIndex(), dbr);</span>
+<span class="nc" id="L233">            return dbr.getValue();</span>
+        }
+
+        /**
+         * Convert this {@code CFNumber} to a {@code float}.
+         * &lt;p&gt;
+         * This method assumes a 32-bit floating point value is stored and does not do
+         * type checking. Users should use {@link #CFNumberGetType} to determine the
+         * appropriate type conversion. If this object's type differs from the return
+         * type, and the conversion is lossy or the return value is out of range, then
+         * this method returns an approximate value.
+         *
+         * @return The corresponding {@code float}
+         */
+        public float floatValue() {
+<span class="nc" id="L248">            FloatByReference fbr = new FloatByReference();</span>
+<span class="nc" id="L249">            INSTANCE.CFNumberGetValue(this, CFNumberType.kCFNumberFloatType.typeIndex(), fbr);</span>
+<span class="nc" id="L250">            return fbr.getValue();</span>
         }
     }
 
-    /*
-     * References are owned if created by functions including &quot;Create&quot; or &quot;Copy&quot; and
-     * must be released with CFRelease to avoid leaking references
-     */
-
     /**
-     * &lt;p&gt;
-     * CFStringCreateWithCharacters.
-     * &lt;/p&gt;
-     *
-     * @param object
-     *            a {@link java.lang.Object} object.
-     * @param chars
-     *            an array of {@link char} objects.
-     * @param length
-     *            a {@link com.sun.jna.NativeLong} object.
-     * @return a {@link oshi.jna.platform.mac.CoreFoundation.CFStringRef} object.
+     * Enum of values used for {@link CFNumberType} in {@link #CFNumberGetValue} and
+     * {@link #CFNumberGetType}. Use {@link CFNumberType#typeIndex} for the expected
+     * integer value corresponding to the C-style enum.
      */
-    CFStringRef CFStringCreateWithCharacters(Object object, char[] chars, NativeLong length);
+<span class="nc" id="L259">    enum CFNumberType {</span>
+<span class="nc" id="L260">        unusedZero, kCFNumberSInt8Type, kCFNumberSInt16Type, kCFNumberSInt32Type, kCFNumberSInt64Type,</span>
+<span class="nc" id="L261">        kCFNumberFloat32Type, kCFNumberFloat64Type, kCFNumberCharType, kCFNumberShortType, kCFNumberIntType,</span>
+<span class="nc" id="L262">        kCFNumberLongType, kCFNumberLongLongType, kCFNumberFloatType, kCFNumberDoubleType, kCFNumberCFIndexType,</span>
+<span class="nc" id="L263">        kCFNumberNSIntegerType, kCFNumberCGFloatType, kCFNumberMaxType;</span>
 
-    /**
-     * &lt;p&gt;
-     * CFDictionaryCreateMutable.
-     * &lt;/p&gt;
-     *
-     * @param allocator
-     *            a {@link oshi.jna.platform.mac.CoreFoundation.CFAllocatorRef}
-     *            object.
-     * @param capacity
-     *            a int.
-     * @param keyCallBacks
-     *            a {@link com.sun.jna.Pointer} object.
-     * @param valueCallBacks
-     *            a {@link com.sun.jna.Pointer} object.
-     * @return a {@link oshi.jna.platform.mac.CoreFoundation.CFMutableDictionaryRef}
-     *         object.
-     */
-    CFMutableDictionaryRef CFDictionaryCreateMutable(CFAllocatorRef allocator, int capacity, Pointer keyCallBacks,
-            Pointer valueCallBacks);
-
-    /**
-     * &lt;p&gt;
-     * CFRelease.
-     * &lt;/p&gt;
-     *
-     * @param blob
-     *            a {@link com.sun.jna.PointerType} object.
-     */
-    void CFRelease(PointerType blob);
-
-    /*
-     * References are not owned if created by functions using &quot;Get&quot;. Use CFRetain if
-     * object retention is required, and then CFRelease later. Do not use CFRelease
-     * if you do not own.
-     */
-
-    /**
-     * &lt;p&gt;
-     * CFDictionarySetValue.
-     * &lt;/p&gt;
-     *
-     * @param dict
-     *            a
-     *            {@link oshi.jna.platform.mac.CoreFoundation.CFMutableDictionaryRef}
-     *            object.
-     * @param key
-     *            a {@link com.sun.jna.PointerType} object.
-     * @param value
-     *            a {@link com.sun.jna.PointerType} object.
-     */
-    void CFDictionarySetValue(CFMutableDictionaryRef dict, PointerType key, PointerType value);
-
-    /**
-     * &lt;p&gt;
-     * CFDictionaryGetValue.
-     * &lt;/p&gt;
-     *
-     * @param dictionary
-     *            a {@link oshi.jna.platform.mac.CoreFoundation.CFDictionaryRef}
-     *            object.
-     * @param key
-     *            a {@link oshi.jna.platform.mac.CoreFoundation.CFStringRef} object.
-     * @return a {@link com.sun.jna.Pointer} object.
-     */
-    Pointer CFDictionaryGetValue(CFDictionaryRef dictionary, CFStringRef key);
-
-    /**
-     * &lt;p&gt;
-     * CFDictionaryGetValueIfPresent.
-     * &lt;/p&gt;
-     *
-     * @param dictionary
-     *            a {@link oshi.jna.platform.mac.CoreFoundation.CFDictionaryRef}
-     *            object.
-     * @param key
-     *            a {@link oshi.jna.platform.mac.CoreFoundation.CFStringRef} object.
-     * @param value
-     *            a {@link com.sun.jna.PointerType} object.
-     * @return a boolean.
-     */
-    boolean CFDictionaryGetValueIfPresent(CFDictionaryRef dictionary, CFStringRef key, PointerType value);
-
-    /**
-     * &lt;p&gt;
-     * CFStringGetCString.
-     * &lt;/p&gt;
-     *
-     * @param cfString
-     *            a {@link com.sun.jna.Pointer} object.
-     * @param bufferToFill
-     *            a {@link com.sun.jna.Pointer} object.
-     * @param maxSize
-     *            a long.
-     * @param encoding
-     *            a int.
-     * @return a boolean.
-     */
-    boolean CFStringGetCString(Pointer cfString, Pointer bufferToFill, long maxSize, int encoding);
-
-    /**
-     * &lt;p&gt;
-     * CFBooleanGetValue.
-     * &lt;/p&gt;
-     *
-     * @param booleanRef
-     *            a {@link com.sun.jna.Pointer} object.
-     * @return a boolean.
-     */
-    boolean CFBooleanGetValue(Pointer booleanRef);
-
-    /**
-     * &lt;p&gt;
-     * CFArrayGetValueAtIndex.
-     * &lt;/p&gt;
-     *
-     * @param array
-     *            a {@link oshi.jna.platform.mac.CoreFoundation.CFArrayRef} object.
-     * @param index
-     *            a int.
-     * @return a {@link oshi.jna.platform.mac.CoreFoundation.CFTypeRef} object.
-     */
-    CFTypeRef CFArrayGetValueAtIndex(CFArrayRef array, int index);
-
-    /**
-     * &lt;p&gt;
-     * CFNumberGetValue.
-     * &lt;/p&gt;
-     *
-     * @param cfNumber
-     *            a {@link com.sun.jna.Pointer} object.
-     * @param intSize
-     *            a int.
-     * @param value
-     *            a {@link com.sun.jna.ptr.ByReference} object.
-     */
-    void CFNumberGetValue(Pointer cfNumber, int intSize, ByReference value);
-
-    /**
-     * &lt;p&gt;
-     * CFStringGetLength.
-     * &lt;/p&gt;
-     *
-     * @param str
-     *            a {@link com.sun.jna.Pointer} object.
-     * @return a long.
-     */
-    long CFStringGetLength(Pointer str);
-
-    /**
-     * &lt;p&gt;
-     * CFStringGetMaximumSizeForEncoding.
-     * &lt;/p&gt;
-     *
-     * @param length
-     *            a long.
-     * @param encoding
-     *            a int.
-     * @return a long.
-     */
-    long CFStringGetMaximumSizeForEncoding(long length, int encoding);
-
-    /**
-     * &lt;p&gt;
-     * CFAllocatorGetDefault.
-     * &lt;/p&gt;
-     *
-     * @return a {@link oshi.jna.platform.mac.CoreFoundation.CFAllocatorRef} object.
-     */
-    CFAllocatorRef CFAllocatorGetDefault();
-
-<span class="nc" id="L286">    class CFDataRef extends CFTypeRef {</span>
+        /**
+         * Index for the type of {@link CFNumberRef} stored.
+         *
+         * @return a {@link CFIndex} representing the enum ordinal.
+         */
+        public CFIndex typeIndex() {
+<span class="nc" id="L271">            return new CFIndex(this.ordinal());</span>
+        }
     }
 
     /**
-     * &lt;p&gt;
-     * CFDataGetLength.
-     * &lt;/p&gt;
-     *
-     * @param theData
-     *            a {@link oshi.jna.platform.mac.CoreFoundation.CFTypeRef} object.
-     * @return a int.
+     * A reference to a {@code CFBoolean} object.
      */
-    int CFDataGetLength(CFTypeRef theData);
+    class CFBooleanRef extends CFTypeRef {
+        public CFBooleanRef() {
+<span class="nc" id="L280">            super();</span>
+<span class="nc" id="L281">        }</span>
+
+        public CFBooleanRef(Pointer p) {
+<span class="nc" id="L284">            super(p);</span>
+<span class="nc bnc" id="L285" title="All 2 branches missed.">            if (!isTypeID(BOOLEAN_TYPE_ID)) {</span>
+<span class="nc" id="L286">                throw new ClassCastException(&quot;Unable to cast to CFBoolean. Type ID: &quot; + getTypeID());</span>
+            }
+<span class="nc" id="L288">        }</span>
+
+        /**
+         * Convert a reference to a Core Foundations Boolean into its {@code boolean}
+         *
+         * @return The corresponding {@code boolean}
+         */
+        public boolean booleanValue() {
+<span class="nc bnc" id="L296" title="All 2 branches missed.">            return 0 != INSTANCE.CFBooleanGetValue(this);</span>
+        }
+    }
 
     /**
+     * A reference to an immutable {@code CFArray} object.
      * &lt;p&gt;
-     * CFDataGetBytePtr.
-     * &lt;/p&gt;
+     * CFArray is “toll-free bridged” with its Cocoa Foundation counterpart,
+     * {@code NSArray}. Therefore, in a method where you see an {@code NSArray *}
+     * parameter, you can pass in a {@link #CFArrayRef}.
+     */
+    class CFArrayRef extends CFTypeRef {
+        public CFArrayRef() {
+<span class="nc" id="L309">            super();</span>
+<span class="nc" id="L310">        }</span>
+
+        public CFArrayRef(Pointer p) {
+<span class="nc" id="L313">            super(p);</span>
+<span class="nc bnc" id="L314" title="All 2 branches missed.">            if (!isTypeID(ARRAY_TYPE_ID)) {</span>
+<span class="nc" id="L315">                throw new ClassCastException(&quot;Unable to cast to CFArray. Type ID: &quot; + getTypeID());</span>
+            }
+<span class="nc" id="L317">        }</span>
+
+        /**
+         * Convenience method for {@link #CFArrayGetCount} on this object
+         *
+         * @return The number of values in this array.
+         */
+        public int getCount() {
+<span class="nc" id="L325">            return INSTANCE.CFArrayGetCount(this).intValue();</span>
+        }
+
+        /**
+         * Convenience method for {@link #CFArrayGetValueAtIndex} on this object
+         *
+         * @param idx
+         *            The index of the value to retrieve.
+         * @return The value at the {@code idx} index.
+         */
+        public Pointer getValueAtIndex(int idx) {
+<span class="nc" id="L336">            return INSTANCE.CFArrayGetValueAtIndex(this, new CFIndex(idx));</span>
+        }
+    }
+
+    /**
+     * A reference to an immutable {@code CFData} object.
+     */
+    class CFDataRef extends CFTypeRef {
+        public CFDataRef() {
+<span class="nc" id="L345">            super();</span>
+<span class="nc" id="L346">        }</span>
+
+        public CFDataRef(Pointer p) {
+<span class="nc" id="L349">            super(p);</span>
+<span class="nc bnc" id="L350" title="All 2 branches missed.">            if (!isTypeID(DATA_TYPE_ID)) {</span>
+<span class="nc" id="L351">                throw new ClassCastException(&quot;Unable to cast to CFData. Type ID: &quot; + getTypeID());</span>
+            }
+<span class="nc" id="L353">        }</span>
+
+        /**
+         * Convenience method for {@link #CFDataGetLength} on this object
+         *
+         * @return An index that specifies the number of bytes associated with this
+         *         object.
+         */
+        public int getLength() {
+<span class="nc" id="L362">            return INSTANCE.CFDataGetLength(this).intValue();</span>
+        }
+
+        /**
+         * Convenience method for {@link #CFDataGetBytePtr} on this object
+         *
+         * @return A read-only pointer to the bytes associated with this object.
+         */
+        public Pointer getBytePtr() {
+<span class="nc" id="L371">            return INSTANCE.CFDataGetBytePtr(this);</span>
+        }
+    }
+
+    /**
+     * A reference to an immutable {@code CFDictionary} object.
+     */
+    class CFDictionaryRef extends CFTypeRef {
+        public CFDictionaryRef() {
+<span class="nc" id="L380">            super();</span>
+<span class="nc" id="L381">        }</span>
+
+        public CFDictionaryRef(Pointer p) {
+<span class="nc" id="L384">            super(p);</span>
+<span class="nc bnc" id="L385" title="All 2 branches missed.">            if (!isTypeID(DICTIONARY_TYPE_ID)) {</span>
+<span class="nc" id="L386">                throw new ClassCastException(&quot;Unable to cast to CFDictionary. Type ID: &quot; + getTypeID());</span>
+            }
+<span class="nc" id="L388">        }</span>
+
+        /**
+         * Convenience method for {@link CoreFoundation#CFDictionaryGetValue} on this
+         * object.
+         *
+         * @param key
+         *            The key for which to find a match.
+         * @return The value associated with key, or {@code null} if no key-value pair
+         *         matching key exists.
+         */
+        public Pointer getValue(PointerType key) {
+<span class="nc" id="L400">            return INSTANCE.CFDictionaryGetValue(this, key);</span>
+        }
+
+        /**
+         * Convenience method for {@link CoreFoundation#CFDictionaryGetValueIfPresent}
+         * on this object.
+         *
+         * @param key
+         *            The key for which to find a match.
+         * @param value
+         *            A pointer to memory which, on return, is filled with the
+         *            pointer-sized value if a matching key is found.
+         * @return {@code true} if a matching key was found, otherwise {@code false}
+         */
+        public boolean getValueIfPresent(PointerType key, PointerByReference value) {
+<span class="nc bnc" id="L415" title="All 2 branches missed.">            return INSTANCE.CFDictionaryGetValueIfPresent(this, key, value) &gt; 0;</span>
+        }
+    }
+
+    /**
+     * A reference to a mutable {@code CFDictionary} object.
+     */
+    class CFMutableDictionaryRef extends CFDictionaryRef {
+        public CFMutableDictionaryRef() {
+<span class="nc" id="L424">            super();</span>
+<span class="nc" id="L425">        }</span>
+
+        public CFMutableDictionaryRef(Pointer p) {
+<span class="nc" id="L428">            super(p);</span>
+<span class="nc" id="L429">        }</span>
+
+        /**
+         * Convenience method for {@link CoreFoundation#CFDictionarySetValue} on this
+         * object.
+         *
+         * @param key
+         *            The key of the value to set.
+         * @param value
+         *            The value to add to or replace .
+         */
+        public void setValue(PointerType key, PointerType value) {
+<span class="nc" id="L441">            INSTANCE.CFDictionarySetValue(this, key, value);</span>
+<span class="nc" id="L442">        }</span>
+    }
+
+    /**
+     * A reference to a {@code CFString} object, which “encapsulates” a Unicode
+     * string along with its length. {@code CFString} is an opaque type that defines
+     * the characteristics and behavior of {@code CFString} objects.
+     */
+    class CFStringRef extends CFTypeRef {
+        public CFStringRef() {
+<span class="nc" id="L452">            super();</span>
+<span class="nc" id="L453">        }</span>
+
+        public CFStringRef(Pointer p) {
+<span class="nc" id="L456">            super(p);</span>
+<span class="nc bnc" id="L457" title="All 2 branches missed.">            if (!isTypeID(STRING_TYPE_ID)) {</span>
+<span class="nc" id="L458">                throw new ClassCastException(&quot;Unable to cast to CFString. Type ID: &quot; + getTypeID());</span>
+            }
+<span class="nc" id="L460">        }</span>
+
+        /**
+         * Convenience function which calls {@link #CFStringCreateWithCharacters} to
+         * create a new {@link CFStringRef} from the given Java {@link java.lang.String}
+         * and returns its reference pointer.
+         * &lt;p&gt;
+         * This reference must be released with {@link #CFRelease} to avoid leaking
+         * references.
+         *
+         * @param s
+         *            A {@link java.lang.String}.
+         * @return An immutable string containing {@code s}, or {@code null} if there
+         *         was a problem creating the object.
+         */
+        public static CFStringRef createCFString(String s) {
+<span class="nc" id="L476">            final char[] chars = s.toCharArray();</span>
+<span class="nc" id="L477">            return INSTANCE.CFStringCreateWithCharacters(null, chars, new CFIndex(chars.length));</span>
+        }
+
+        /**
+         * Convert a reference to a Core Foundations String into its
+         * {@link java.lang.String}
+         *
+         * @return The corresponding {@link java.lang.String}, or null if the conversion
+         *         failed.
+         */
+        public String stringValue() {
+<span class="nc" id="L488">            CFIndex length = INSTANCE.CFStringGetLength(this);</span>
+<span class="nc" id="L489">            CFIndex maxSize = INSTANCE.CFStringGetMaximumSizeForEncoding(length, kCFStringEncodingUTF8);</span>
+<span class="nc bnc" id="L490" title="All 2 branches missed.">            if (maxSize.intValue() == kCFNotFound) {</span>
+<span class="nc" id="L491">                return null;</span>
+            }
+<span class="nc" id="L493">            Memory buf = new Memory(maxSize.longValue());</span>
+<span class="nc bnc" id="L494" title="All 2 branches missed.">            if (0 != INSTANCE.CFStringGetCString(this, buf, maxSize, kCFStringEncodingUTF8)) {</span>
+<span class="nc" id="L495">                return buf.getString(0, &quot;UTF8&quot;);</span>
+            }
+<span class="nc" id="L497">            return null;</span>
+        }
+    }
+
+    /**
+     * A wrapper for the {@link NativeLong} type, used for {@link CFNumberRef}
+     * types, {@link CFStringRef} lengths, and {@link CFArrayRef} sizes and indices.
+     */
+    class CFIndex extends NativeLong {
+        private static final long serialVersionUID = 1L;
+
+        public CFIndex() {
+<span class="nc" id="L509">            super();</span>
+<span class="nc" id="L510">        }</span>
+
+        public CFIndex(long value) {
+<span class="nc" id="L513">            super(value);</span>
+<span class="nc" id="L514">        }</span>
+    }
+
+    /**
+     * A type for unique, constant integer values that identify particular Core
+     * Foundation opaque types.
+     * &lt;p&gt;
+     * Because the value for a type ID can change from release to release, your code
+     * should not rely on stored or hard-coded type IDs nor should it hard-code any
+     * observed properties of a type ID (such as, for example, it being a small
+     * integer).
+     */
+    class CFTypeID extends NativeLong {
+        private static final long serialVersionUID = 1L;
+
+        public CFTypeID() {
+<span class="nc" id="L530">            super();</span>
+<span class="nc" id="L531">        }</span>
+
+        public CFTypeID(long value) {
+<span class="nc" id="L534">            super(value);</span>
+<span class="nc" id="L535">        }</span>
+
+        @Override
+        public String toString() {
+<span class="nc bnc" id="L539" title="All 2 branches missed.">            if (this.equals(ARRAY_TYPE_ID)) {</span>
+<span class="nc" id="L540">                return &quot;CFArray&quot;;</span>
+<span class="nc bnc" id="L541" title="All 2 branches missed.">            } else if (this.equals(BOOLEAN_TYPE_ID)) {</span>
+<span class="nc" id="L542">                return &quot;CFBoolean&quot;;</span>
+<span class="nc bnc" id="L543" title="All 2 branches missed.">            } else if (this.equals(DATA_TYPE_ID)) {</span>
+<span class="nc" id="L544">                return &quot;CFData&quot;;</span>
+<span class="nc bnc" id="L545" title="All 2 branches missed.">            } else if (this.equals(DATE_TYPE_ID)) {</span>
+<span class="nc" id="L546">                return &quot;CFDate&quot;;</span>
+<span class="nc bnc" id="L547" title="All 2 branches missed.">            } else if (this.equals(DICTIONARY_TYPE_ID)) {</span>
+<span class="nc" id="L548">                return &quot;CFDictionary&quot;;</span>
+<span class="nc bnc" id="L549" title="All 2 branches missed.">            } else if (this.equals(NUMBER_TYPE_ID)) {</span>
+<span class="nc" id="L550">                return &quot;CFNumber&quot;;</span>
+<span class="nc bnc" id="L551" title="All 2 branches missed.">            } else if (this.equals(STRING_TYPE_ID)) {</span>
+<span class="nc" id="L552">                return &quot;CFString&quot;;</span>
+            } else {
+<span class="nc" id="L554">                return super.toString();</span>
+            }
+        }
+    }
+
+    /**
+     * Creates a string from a buffer of Unicode characters.
+     * &lt;p&gt;
+     * This reference must be released with {@link #CFRelease} to avoid leaking
+     * references.
+     *
+     * @param alloc
+     *            The allocator to use to allocate memory for the new string. Pass
+     *            {@code null} or {@code kCFAllocatorDefault} to use the current
+     *            default allocator.
+     * @param chars
+     *            The buffer of Unicode characters to copy into the new string.
+     * @param length
+     *            The number of characters in the buffer pointed to by chars. Only
+     *            this number of characters will be copied to internal storage.
+     * @return An immutable string containing {@code chars}, or {@code null} if
+     *         there was a problem creating the object.
+     */
+    CFStringRef CFStringCreateWithCharacters(CFAllocatorRef alloc, char[] chars, CFIndex length);
+
+    /**
+     * Creates a {@code CFNumber} object using a specified value.
+     * &lt;p&gt;
+     * This reference must be released with {@link #CFRelease} to avoid leaking
+     * references.
+     *
+     * @param alloc
+     *            The allocator to use to allocate memory for the new object. Pass
+     *            {@code null} or {@code kCFAllocatorDefault} to use the current
+     *            default allocator.
+     * @param theType
+     *            A constant that specifies the data type of the value to convert.
+     *            The ordinal value of the enum.
+     *            &lt;p&gt;
+     *            The {@code theType} parameter is not necessarily preserved when
+     *            creating a new {@code CFNumber} object. The {@code CFNumber}
+     *            object will be created using whatever internal storage type the
+     *            creation function deems appropriate. Use the function
+     *            {@link #CFNumberGetType} to find out what type the
+     *            {@code CFNumber} object used to store your value.
+     * @param valuePtr
+     *            A pointer to the value for the returned number object.
+     * @return A new number with the value specified by {@code valuePtr}.
+     */
+    CFNumberRef CFNumberCreate(CFAllocatorRef alloc, CFIndex theType, ByReference valuePtr);
+
+    /**
+     * Creates a new immutable array with the given values.
+     * &lt;p&gt;
+     * This reference must be released with {@link #CFRelease} to avoid leaking
+     * references.
+     *
+     * @param alloc
+     *            The allocator to use to allocate memory for the new array and its
+     *            storage for values. Pass {@code null} or
+     *            {@code kCFAllocatorDefault} to use the current default allocator.
+     * @param values
+     *            A C array of the pointer-sized values to be in the new array. The
+     *            values in the new array are ordered in the same order in which
+     *            they appear in this C array. This value may be {@code null} if
+     *            {@code numValues} is 0. This C array is not changed or freed by
+     *            this function. If {@code values} is not a valid pointer to a C
+     *            array of at least {@code numValues} elements, the behavior is
+     *            undefined.
+     * @param numValues
+     *            The number of values to copy from the {@code values} C array into
+     *            the new array. This number will be the count of the new array—it
+     *            must not be negative or greater than the number of elements in
+     *            values.
+     * @param callBacks
+     *            A pointer to a {@code CFArrayCallBacks} structure initialized with
+     *            the callbacks for the array to use on each value in the
+     *            collection. The retain callback is used within this function, for
+     *            example, to retain all of the new values from the {@code values} C
+     *            array. A copy of the contents of the callbacks structure is made,
+     *            so that a pointer to a structure on the stack can be passed in or
+     *            can be reused for multiple collection creations.
+     *            &lt;p&gt;
+     *            This value may be {@code null}, which is treated as if a valid
+     *            structure of version 0 with all fields {@code null} had been
+     *            passed in.
+     * @return A new immutable array containing {@code numValues} from
+     *         {@code values}, or {@code null} if there was a problem creating the
+     *         object.
+     */
+    CFArrayRef CFArrayCreate(CFAllocatorRef alloc, Pointer values, CFIndex numValues, Pointer callBacks);
+
+    /**
+     * Creates an immutable {@code CFData} object using data copied from a specified
+     * byte buffer.
+     * &lt;p&gt;
+     * This reference must be released with {@link #CFRelease} to avoid leaking
+     * references.
+     *
+     * @param alloc
+     *            The allocator to use to allocate memory for the new object. Pass
+     *            {@code null} or {@code kCFAllocatorDefault} to use the current
+     *            default allocator.
+     * @param bytes
+     *            A pointer to the byte buffer that contains the raw data to be
+     *            copied into the Data.
+     * @param length
+     *            The number of bytes in the buffer ({@code bytes}).
+     * @return A new {@code CFData} object, or {@code null} if there was a problem
+     *         creating the object.
+     */
+    CFDataRef CFDataCreate(CFAllocatorRef alloc, Pointer bytes, CFIndex length);
+
+    /**
+     * Creates a new mutable dictionary.
+     * &lt;p&gt;
+     * This reference must be released with {@link #CFRelease} to avoid leaking
+     * references.
+     *
+     * @param alloc
+     *            The allocator to use to allocate memory for the new string. Pass
+     *            {@code null} or {@code kCFAllocatorDefault} to use the current
+     *            default allocator.
+     * @param capacity
+     *            The maximum number of key-value pairs that can be contained by the
+     *            new dictionary. The dictionary starts empty and can grow to this
+     *            number of key-value pairs (and it can have less).
+     *            &lt;p&gt;
+     *            Pass 0 to specify that the maximum capacity is not limited. The
+     *            value must not be negative.
+     * @param keyCallBacks
+     *            A pointer to a {@code CFDictionaryKeyCallBacks} structure
+     *            initialized with the callbacks to use to retain, release,
+     *            describe, and compare keys in the dictionary. A copy of the
+     *            contents of the callbacks structure is made, so that a pointer to
+     *            a structure on the stack can be passed in or can be reused for
+     *            multiple collection creations.
+     *            &lt;p&gt;
+     *            This value may be {@code null}, which is treated as a valid
+     *            structure of version 0 with all fields {@code null}.
+     * @param valueCallBacks
+     *            A pointer to a {@code CFDictionaryValueCallBacks} structure
+     *            initialized with the callbacks to use to retain, release,
+     *            describe, and compare values in the dictionary. A copy of the
+     *            contents of the callbacks structure is made, so that a pointer to
+     *            a structure on the stack can be passed in or can be reused for
+     *            multiple collection creations.
+     *            &lt;p&gt;
+     *            This value may be {@code null}, which is treated as a valid
+     *            structure of version 0 with all fields {@code null}.
+     * @return A new dictionary, or {@code null} if there was a problem creating the
+     *         object.
+     */
+    CFMutableDictionaryRef CFDictionaryCreateMutable(CFAllocatorRef alloc, CFIndex capacity, Pointer keyCallBacks,
+            Pointer valueCallBacks);
+
+    /**
+     * Returns a textual description of a Core Foundation object.
+     * &lt;p&gt;
+     * The nature of the description differs by object. For example, a description
+     * of a CFArray object would include descriptions of each of the elements in the
+     * collection.
+     * &lt;p&gt;
+     * You can use this function for debugging Core Foundation objects in your code.
+     * Note, however, that the description for a given object may be different in
+     * different releases of the operating system. Do not create dependencies in
+     * your code on the content or format of the information returned by this
+     * function.
+     *
+     * @param cf
+     *            The {@code CFType} object (a generic reference of type
+     *            {@code CFTypeRef}) from which to derive a description.
+     * @return A string that contains a description of {@code cf}.
+     */
+    CFStringRef CFCopyDescription(CFTypeRef cf);
+
+    /**
+     * Releases a Core Foundation object.
+     * &lt;p&gt;
+     * If the retain count of {@code cf} becomes zero the memory allocated to the
+     * object is deallocated and the object is destroyed. If you create, copy, or
+     * explicitly retain (see the {@link #CFRetain} function) a Core Foundation
+     * object, you are responsible for releasing it when you no longer need it.
+     *
+     * @param cf
+     *            A {@code CFType} object to release. This value must not be
+     *            {@code null}.
+     */
+    void CFRelease(CFTypeRef cf);
+
+    /**
+     * Retains a Core Foundation object. You should retain a Core Foundation object
+     * when you receive it from elsewhere (that is, you did not create or copy it)
+     * and you want it to persist.
+     * &lt;p&gt;
+     * If you retain a Core Foundation object you are responsible for releasing it
+     * with {@link #CFRelease}.
+     *
+     * @param cf
+     *            The {@code CFType} object to retain. This value must not be
+     *            {@code null}.
+     * @return The input value, {code cf}.
+     */
+    CFTypeRef CFRetain(CFTypeRef cf);
+
+    /**
+     * Returns the reference count of a Core Foundation object.
+     *
+     * @param cf
+     *            The {@code CFType} object to examine.
+     * @return A number representing the reference count of {code cf}.
+     */
+    CFIndex CFGetRetainCount(CFTypeRef cf);
+
+    /**
+     * Returns the value associated with a given key.
+     *
+     * @param theDict
+     *            The dictionary to examine.
+     * @param key
+     *            The key for which to find a match in {@code theDict}. The key hash
+     *            and equal callbacks provided when the dictionary was created are
+     *            used to compare. If the hash callback was {@code null}, the key is
+     *            treated as a pointer and converted to an integer. If the equal
+     *            callback was {@code null}, pointer equality (in C, ==) is used. If
+     *            {@code key}, or any of the keys in {@code theDict}, is not
+     *            understood by the equal callback, the behavior is undefined.
+     * @return The value associated with key in {@code theDict}, or {@code null} if
+     *         no key-value pair matching key exists. Since {@code null} is also a
+     *         valid value in some dictionaries, use
+     *         {@link #CFDictionaryGetValueIfPresent} to distinguish between a value
+     *         that is not found, and a {@code null} value.
+     */
+    Pointer CFDictionaryGetValue(CFDictionaryRef theDict, PointerType key);
+
+    /**
+     * Returns a boolean value that indicates whether a given value for a given key
+     * is in a dictionary, and returns that value indirectly if it exists.
+     *
+     * @param theDict
+     *            The dictionary to examine.
+     * @param key
+     *            The key for which to find a match in {@code theDict}. The key hash
+     *            and equal callbacks provided when the dictionary was created are
+     *            used to compare. If the hash callback was {@code null}, the key is
+     *            treated as a pointer and converted to an integer. If the equal
+     *            callback was {@code null}, pointer equality (in C, ==) is used. If
+     *            {@code key}, or any of the keys in {@code theDict}, is not
+     *            understood by the equal callback, the behavior is undefined.
+     * @param value
+     *            A pointer to memory which, on return, is filled with the
+     *            pointer-sized value if a matching key is found. If no key match is
+     *            found, the contents of the storage pointed to by this parameter
+     *            are undefined. This value may be {@code null}, in which case the
+     *            value from the dictionary is not returned (but the return value of
+     *            this function still indicates whether or not the key-value pair
+     *            was present).
+     * @return 1 if a matching key was found, otherwise 0.
+     */
+    byte CFDictionaryGetValueIfPresent(CFDictionaryRef theDict, PointerType key, PointerByReference value);
+
+    /**
+     * Sets the value corresponding to a given key.
+     *
+     * @param theDict
+     *            The dictionary to modify. If this parameter is a fixed-capacity
+     *            dictionary and it is full before this operation, and the key does
+     *            not exist in the dictionary, the behavior is undefined.
+     * @param key
+     *            The key of the value to set in {@code theDict}. If a key which
+     *            matches {@code key} is already present in the dictionary, only the
+     *            value for the key is changed (&quot;add if absent, replace if
+     *            present&quot;). If no key matches {@code key}, the key-value pair is
+     *            added to the dictionary.
+     *            &lt;p&gt;
+     *            If a key-value pair is added, both key and value are retained by
+     *            the dictionary, using the retain callback provided when
+     *            {@code theDict} was created. {@code key} must be of the type
+     *            expected by the key retain callback.
+     * @param value
+     *            The value to add to or replace in {@code theDict}. {@code value}
+     *            is retained using the value retain callback provided when
+     *            {@code theDict} was created, and the previous value if any is
+     *            released. {@code value} must be of the type expected by the retain
+     *            and release callbacks.
+     */
+    void CFDictionarySetValue(CFMutableDictionaryRef theDict, PointerType key, PointerType value);
+
+    /**
+     * Copies the character contents of a string to a local C string buffer after
+     * converting the characters to a given encoding.
+     *
+     * @param theString
+     *            The string whose contents you wish to access.
+     * @param bufferToFill
+     *            The C string buffer into which to copy the string. On return, the
+     *            buffer contains the converted characters. If there is an error in
+     *            conversion, the buffer contains only partial results.
+     *            &lt;p&gt;
+     *            The buffer must be large enough to contain the converted
+     *            characters and a NUL terminator.
+     * @param bufferSize
+     *            The length of {@code buffer} in bytes.
+     * @param encoding
+     *            The string encoding to which the character contents of
+     *            {@code theString} should be converted. The encoding must specify
+     *            an 8-bit encoding.
+     * @return 1 upon success or 0 if the conversion fails or the provided buffer is
+     *         too small.
+     */
+    byte CFStringGetCString(CFStringRef theString, Pointer bufferToFill, CFIndex bufferSize, int encoding);
+
+    /**
+     * Returns the value of a {@code CFBoolean} object.
+     *
+     * @param bool
+     *            The boolean to examine.
+     * @return 1 if the value of {@code bool} is {@code true}, 0 otherwise.
+     */
+    byte CFBooleanGetValue(CFBooleanRef bool);
+
+    /**
+     * Returns the number of values currently in an array.
+     *
+     * @param theArray
+     *            a {@link CFArrayRef} object.
+     * @return The number of values in {@code array}.
+     */
+    CFIndex CFArrayGetCount(CFArrayRef theArray);
+
+    /**
+     * Retrieves a value at a given index.
+     *
+     * @param theArray
+     *            The array to examine.
+     * @param idx
+     *            The index of the value to retrieve. If the index is outside the
+     *            index space of {@code theArray} (0 to N-1 inclusive (where N is
+     *            the count of {@code theArray})), the behavior is undefined.
+     * @return The value at the {@code idx} index in {@code theArray}).
+     */
+    Pointer CFArrayGetValueAtIndex(CFArrayRef theArray, CFIndex idx);
+
+    /**
+     * Returns the type used by a {@code CFNumber} object to store its value.
+     *
+     * @param number
+     *            The {@code CFNumber} object to examine.
+     * @return A constant that indicates the data type of the value contained in
+     *         number. See {@link CFNumberType} for a list of possible values.
+     */
+    CFIndex CFNumberGetType(CFNumberRef number);
+
+    /**
+     * Obtains the value of a {@code CFNumber} object cast to a specified type.
+     *
+     * @param number
+     *            The {@code CFNumber} object to examine.
+     * @param theType
+     *            A constant that specifies the data type to return. See
+     *            {@link CFNumberType} for a list of possible values.
+     * @param valuePtr
+     *            On return, contains the value of {@code number}.
+     * @return 1 if the operation was successful, otherwise 0.
+     */
+    byte CFNumberGetValue(CFNumberRef number, CFIndex theType, ByReference valuePtr);
+
+    /**
+     * Returns the number (in terms of UTF-16 code pairs) of Unicode characters in a
+     * string.
+     *
+     * @param theString
+     *            The string to examine.
+     * @return The number (in terms of UTF-16 code pairs) of characters stored in
+     *         {@code theString}.
+     */
+    CFIndex CFStringGetLength(CFStringRef theString);
+
+    /**
+     * Returns the maximum number of bytes a string of a specified length (in
+     * Unicode characters) will take up if encoded in a specified encoding.
+     *
+     * @param length
+     *            The number of Unicode characters to evaluate.
+     * @param encoding
+     *            The string encoding for the number of characters specified by
+     *            length.
+     * @return The maximum number of bytes that could be needed to represent length
+     *         number of Unicode characters with the string encoding encoding, or
+     *         {@link #kCFNotFound} if the number exceeds {@link Long#MAX_VALUE}.
+     */
+    CFIndex CFStringGetMaximumSizeForEncoding(CFIndex length, int encoding);
+
+    /**
+     * Gets the default allocator object for the current thread.
+     *
+     * @return A reference to the default allocator for the current thread. If none
+     *         has been explicitly set, returns the generic system allocator.
+     *         &lt;p&gt;
+     *         The default allocator can never be released, so it is not necessary
+     *         to {@link #CFRetain} this reference.
+     */
+    CFAllocatorRef CFAllocatorGetDefault();
+
+    /**
+     * Returns the number of bytes contained by a {@code CFData} object.
      *
      * @param theData
-     *            a {@link oshi.jna.platform.mac.CoreFoundation.CFTypeRef} object.
-     * @return a {@link com.sun.jna.ptr.PointerByReference} object.
+     *            The {@code CFData} object to examine.
+     * @return An index that specifies the number of bytes in {@code theData}.
      */
-    PointerByReference CFDataGetBytePtr(CFTypeRef theData);
+    CFIndex CFDataGetLength(CFDataRef theData);
+
+    /**
+     * Returns a read-only pointer to the bytes of a {@code CFData} object.
+     *
+     * @param theData
+     *            The {@code CFData} object to examine.
+     * @return A read-only pointer to the bytes associated with {@code theData}.
+     */
+    Pointer CFDataGetBytePtr(CFDataRef theData);
+
+    /**
+     * Returns the type of a {@code CFType} object.
+     *
+     * @param theObject
+     *            The {@code CFData} object to examine.
+     * @return A value of type {@link CFTypeID} that identifies the opaque type of
+     *         {@code cf}.
+     */
+    CFTypeID CFGetTypeID(CFTypeRef theObject);
+
+    /**
+     * @return The type identifier for the {@code CFArray} opaque type.
+     */
+    CFTypeID CFArrayGetTypeID();
+
+    /**
+     * @return The type identifier for the {@code CFBoolean} opaque type.
+     */
+    CFTypeID CFBooleanGetTypeID();
+
+    /**
+     * @return The type identifier for the {@code CFDate} opaque type.
+     */
+    CFTypeID CFDateGetTypeID();
+
+    /**
+     * @return The type identifier for the {@code CFData} opaque type.
+     *         &lt;p&gt;
+     *         {@code CFMutableData} objects have the same type identifier as
+     *         {@code CFData} objects.
+     */
+    CFTypeID CFDataGetTypeID();
+
+    /**
+     * @return The type identifier for the {@code CFDictionary} opaque type.
+     *         &lt;p&gt;
+     *         {@code CFMutableDictionary} objects have the same type identifier as
+     *         {@code CFDictionary} objects.
+     */
+    CFTypeID CFDictionaryGetTypeID();
+
+    /**
+     * @return The type identifier for the {@code CFNumber} opaque type.
+     */
+    CFTypeID CFNumberGetTypeID();
+
+    /**
+     * @return The type identifier for the {@code CFString} opaque type.
+     */
+    CFTypeID CFStringGetTypeID();
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.software.common.AbstractOSVersionInfoEx;
+import oshi.software.os.OperatingSystem;
 import oshi.util.ParseUtil;
 import oshi.util.platform.mac.SysctlUtil;
 
@@ -34,25 +35,26 @@ import oshi.util.platform.mac.SysctlUtil;
  * &lt;p&gt;
  * MacOSVersionInfoEx class.
  * &lt;/p&gt;
+ * 
+ * @deprecated Use {@link OperatingSystem.OSVersionInfo}
  */
+@Deprecated
 public class MacOSVersionInfoEx extends AbstractOSVersionInfoEx {
 
-    private static final long serialVersionUID = 1L;
+<span class="nc" id="L44">    private static final Logger LOG = LoggerFactory.getLogger(MacOSVersionInfoEx.class);</span>
 
-<span class="nc" id="L42">    private static final Logger LOG = LoggerFactory.getLogger(MacOSVersionInfoEx.class);</span>
-
-<span class="nc" id="L44">    private int osxVersionNumber = -1;</span>
+<span class="nc" id="L46">    private int osxVersionNumber = -1;</span>
 
     /**
      * &lt;p&gt;
      * Constructor for MacOSVersionInfoEx.
      * &lt;/p&gt;
      */
-<span class="nc" id="L51">    public MacOSVersionInfoEx() {</span>
-<span class="nc" id="L52">        setVersion(System.getProperty(&quot;os.version&quot;));</span>
-<span class="nc" id="L53">        setCodeName(parseCodeName());</span>
-<span class="nc" id="L54">        setBuildNumber(SysctlUtil.sysctl(&quot;kern.osversion&quot;, &quot;&quot;));</span>
-<span class="nc" id="L55">    }</span>
+<span class="nc" id="L53">    public MacOSVersionInfoEx() {</span>
+<span class="nc" id="L54">        setVersion(System.getProperty(&quot;os.version&quot;));</span>
+<span class="nc" id="L55">        setCodeName(parseCodeName());</span>
+<span class="nc" id="L56">        setBuildNumber(SysctlUtil.sysctl(&quot;kern.osversion&quot;, &quot;&quot;));</span>
+<span class="nc" id="L57">    }</span>
 
     /**
      * &lt;p&gt;
@@ -62,53 +64,53 @@ public class MacOSVersionInfoEx extends AbstractOSVersionInfoEx {
      * @return a int.
      */
     public int getOsxVersionNumber() {
-<span class="nc" id="L65">        return this.osxVersionNumber;</span>
+<span class="nc" id="L67">        return this.osxVersionNumber;</span>
     }
 
     private String parseCodeName() {
-<span class="nc bnc" id="L69" title="All 2 branches missed.">        if (ParseUtil.getFirstIntValue(getVersion()) == 10) {</span>
-<span class="nc" id="L70">            this.osxVersionNumber = ParseUtil.getNthIntValue(getVersion(), 2);</span>
-<span class="nc bnc" id="L71" title="All 17 branches missed.">            switch (this.osxVersionNumber) {</span>
+<span class="nc bnc" id="L71" title="All 2 branches missed.">        if (ParseUtil.getFirstIntValue(getVersion()) == 10) {</span>
+<span class="nc" id="L72">            this.osxVersionNumber = ParseUtil.getNthIntValue(getVersion(), 2);</span>
+<span class="nc bnc" id="L73" title="All 17 branches missed.">            switch (this.osxVersionNumber) {</span>
             // MacOS
             case 15:
-<span class="nc" id="L74">                return &quot;Catalina&quot;;</span>
+<span class="nc" id="L76">                return &quot;Catalina&quot;;</span>
             case 14:
-<span class="nc" id="L76">                return &quot;Mojave&quot;;</span>
+<span class="nc" id="L78">                return &quot;Mojave&quot;;</span>
             case 13:
-<span class="nc" id="L78">                return &quot;High Sierra&quot;;</span>
+<span class="nc" id="L80">                return &quot;High Sierra&quot;;</span>
             case 12:
-<span class="nc" id="L80">                return &quot;Sierra&quot;;</span>
+<span class="nc" id="L82">                return &quot;Sierra&quot;;</span>
             // OS X
             case 11:
-<span class="nc" id="L83">                return &quot;El Capitan&quot;;</span>
+<span class="nc" id="L85">                return &quot;El Capitan&quot;;</span>
             case 10:
-<span class="nc" id="L85">                return &quot;Yosemite&quot;;</span>
+<span class="nc" id="L87">                return &quot;Yosemite&quot;;</span>
             case 9:
-<span class="nc" id="L87">                return &quot;Mavericks&quot;;</span>
+<span class="nc" id="L89">                return &quot;Mavericks&quot;;</span>
             case 8:
-<span class="nc" id="L89">                return &quot;Mountain Lion&quot;;</span>
+<span class="nc" id="L91">                return &quot;Mountain Lion&quot;;</span>
             case 7:
-<span class="nc" id="L91">                return &quot;Lion&quot;;</span>
+<span class="nc" id="L93">                return &quot;Lion&quot;;</span>
             case 6:
-<span class="nc" id="L93">                return &quot;Snow Leopard&quot;;</span>
+<span class="nc" id="L95">                return &quot;Snow Leopard&quot;;</span>
             case 5:
-<span class="nc" id="L95">                return &quot;Leopard&quot;;</span>
+<span class="nc" id="L97">                return &quot;Leopard&quot;;</span>
             case 4:
-<span class="nc" id="L97">                return &quot;Tiger&quot;;</span>
+<span class="nc" id="L99">                return &quot;Tiger&quot;;</span>
             case 3:
-<span class="nc" id="L99">                return &quot;Panther&quot;;</span>
+<span class="nc" id="L101">                return &quot;Panther&quot;;</span>
             case 2:
-<span class="nc" id="L101">                return &quot;Jaguar&quot;;</span>
+<span class="nc" id="L103">                return &quot;Jaguar&quot;;</span>
             case 1:
-<span class="nc" id="L103">                return &quot;Puma&quot;;</span>
+<span class="nc" id="L105">                return &quot;Puma&quot;;</span>
             case 0:
-<span class="nc" id="L105">                return &quot;Cheetah&quot;;</span>
+<span class="nc" id="L107">                return &quot;Cheetah&quot;;</span>
             // Not OS X
             default:
             }
         }
-<span class="nc" id="L110">        LOG.warn(&quot;Unable to parse version {} to a codename.&quot;, getVersion());</span>
-<span class="nc" id="L111">        return &quot;&quot;;</span>
+<span class="nc" id="L112">        LOG.warn(&quot;Unable to parse version {} to a codename.&quot;, getVersion());</span>
+<span class="nc" id="L113">        return &quot;&quot;;</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

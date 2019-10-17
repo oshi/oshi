@@ -23,7 +23,7 @@
  */
 package oshi.hardware;
 
-import java.io.Serializable;
+import oshi.util.FormatUtil;
 
 /**
  * A region on a hard disk or other secondary storage, so that an operating
@@ -31,9 +31,7 @@ import java.io.Serializable;
  * in the operating system as a distinct &quot;logical&quot; disk that uses part of the
  * actual disk.
  */
-public class HWPartition implements Serializable, Comparable&lt;HWPartition&gt; {
-
-    private static final long serialVersionUID = 1L;
+public class HWPartition implements Comparable&lt;HWPartition&gt; {
 
     private String identification;
     private String name;
@@ -65,23 +63,23 @@ public class HWPartition implements Serializable, Comparable&lt;HWPartition&gt; 
      *            Where the partition is mounted
      */
     public HWPartition(String identification, String name, String type, String uuid, long size, int major, int minor,
-<span class="fc" id="L68">            String mountPoint) {</span>
-<span class="fc" id="L69">        setIdentification(identification);</span>
-<span class="fc" id="L70">        setName(name);</span>
-<span class="fc" id="L71">        setType(type);</span>
-<span class="fc" id="L72">        setUuid(uuid);</span>
-<span class="fc" id="L73">        setSize(size);</span>
-<span class="fc" id="L74">        setMajor(major);</span>
-<span class="fc" id="L75">        setMinor(minor);</span>
-<span class="fc" id="L76">        setMountPoint(mountPoint);</span>
-<span class="fc" id="L77">    }</span>
+<span class="fc" id="L66">            String mountPoint) {</span>
+<span class="fc" id="L67">        setIdentification(identification);</span>
+<span class="fc" id="L68">        setName(name);</span>
+<span class="fc" id="L69">        setType(type);</span>
+<span class="fc" id="L70">        setUuid(uuid);</span>
+<span class="fc" id="L71">        setSize(size);</span>
+<span class="fc" id="L72">        setMajor(major);</span>
+<span class="fc" id="L73">        setMinor(minor);</span>
+<span class="fc" id="L74">        setMountPoint(mountPoint);</span>
+<span class="fc" id="L75">    }</span>
 
     /**
      * Creates a new HWPartition
      */
     public HWPartition() {
-<span class="fc" id="L83">        this(&quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, 0L, 0, 0, &quot;&quot;);</span>
-<span class="fc" id="L84">    }</span>
+<span class="fc" id="L81">        this(&quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, 0L, 0, 0, &quot;&quot;);</span>
+<span class="fc" id="L82">    }</span>
 
     /**
      * &lt;p&gt;
@@ -91,7 +89,7 @@ public class HWPartition implements Serializable, Comparable&lt;HWPartition&gt; 
      * @return Returns the identification.
      */
     public String getIdentification() {
-<span class="fc" id="L94">        return this.identification;</span>
+<span class="fc" id="L92">        return this.identification;</span>
     }
 
     /**
@@ -102,7 +100,7 @@ public class HWPartition implements Serializable, Comparable&lt;HWPartition&gt; 
      * @return Returns the name.
      */
     public String getName() {
-<span class="fc" id="L105">        return this.name;</span>
+<span class="fc" id="L103">        return this.name;</span>
     }
 
     /**
@@ -113,7 +111,7 @@ public class HWPartition implements Serializable, Comparable&lt;HWPartition&gt; 
      * @return Returns the type.
      */
     public String getType() {
-<span class="fc" id="L116">        return this.type;</span>
+<span class="fc" id="L114">        return this.type;</span>
     }
 
     /**
@@ -124,7 +122,7 @@ public class HWPartition implements Serializable, Comparable&lt;HWPartition&gt; 
      * @return Returns the uuid.
      */
     public String getUuid() {
-<span class="fc" id="L127">        return this.uuid;</span>
+<span class="fc" id="L125">        return this.uuid;</span>
     }
 
     /**
@@ -135,7 +133,7 @@ public class HWPartition implements Serializable, Comparable&lt;HWPartition&gt; 
      * @return Returns the size in bytes.
      */
     public long getSize() {
-<span class="fc" id="L138">        return this.size;</span>
+<span class="fc" id="L136">        return this.size;</span>
     }
 
     /**
@@ -146,7 +144,7 @@ public class HWPartition implements Serializable, Comparable&lt;HWPartition&gt; 
      * @return Returns the major device ID.
      */
     public int getMajor() {
-<span class="fc" id="L149">        return this.major;</span>
+<span class="fc" id="L147">        return this.major;</span>
     }
 
     /**
@@ -157,7 +155,7 @@ public class HWPartition implements Serializable, Comparable&lt;HWPartition&gt; 
      * @return Returns the minor device ID.
      */
     public int getMinor() {
-<span class="fc" id="L160">        return this.minor;</span>
+<span class="fc" id="L158">        return this.minor;</span>
     }
 
     /**
@@ -168,7 +166,7 @@ public class HWPartition implements Serializable, Comparable&lt;HWPartition&gt; 
      * @return Returns the mount point.
      */
     public String getMountPoint() {
-<span class="fc" id="L171">        return this.mountPoint;</span>
+<span class="fc" id="L169">        return this.mountPoint;</span>
     }
 
     /**
@@ -180,8 +178,8 @@ public class HWPartition implements Serializable, Comparable&lt;HWPartition&gt; 
      *            The identification to set.
      */
     public void setIdentification(String identification) {
-<span class="fc bfc" id="L183" title="All 2 branches covered.">        this.identification = identification == null ? &quot;&quot; : identification;</span>
-<span class="fc" id="L184">    }</span>
+<span class="fc bfc" id="L181" title="All 2 branches covered.">        this.identification = identification == null ? &quot;&quot; : identification;</span>
+<span class="fc" id="L182">    }</span>
 
     /**
      * &lt;p&gt;
@@ -192,8 +190,8 @@ public class HWPartition implements Serializable, Comparable&lt;HWPartition&gt; 
      *            The name to set.
      */
     public void setName(String name) {
-<span class="fc bfc" id="L195" title="All 2 branches covered.">        this.name = name == null ? &quot;&quot; : name;</span>
-<span class="fc" id="L196">    }</span>
+<span class="fc bfc" id="L193" title="All 2 branches covered.">        this.name = name == null ? &quot;&quot; : name;</span>
+<span class="fc" id="L194">    }</span>
 
     /**
      * &lt;p&gt;
@@ -204,8 +202,8 @@ public class HWPartition implements Serializable, Comparable&lt;HWPartition&gt; 
      *            The type to set.
      */
     public void setType(String type) {
-<span class="fc bfc" id="L207" title="All 2 branches covered.">        this.type = type == null ? &quot;&quot; : type;</span>
-<span class="fc" id="L208">    }</span>
+<span class="fc bfc" id="L205" title="All 2 branches covered.">        this.type = type == null ? &quot;&quot; : type;</span>
+<span class="fc" id="L206">    }</span>
 
     /**
      * &lt;p&gt;
@@ -216,8 +214,8 @@ public class HWPartition implements Serializable, Comparable&lt;HWPartition&gt; 
      *            The uuid to set.
      */
     public void setUuid(String uuid) {
-<span class="fc bfc" id="L219" title="All 2 branches covered.">        this.uuid = uuid == null ? &quot;&quot; : uuid;</span>
-<span class="fc" id="L220">    }</span>
+<span class="fc bfc" id="L217" title="All 2 branches covered.">        this.uuid = uuid == null ? &quot;&quot; : uuid;</span>
+<span class="fc" id="L218">    }</span>
 
     /**
      * &lt;p&gt;
@@ -228,8 +226,8 @@ public class HWPartition implements Serializable, Comparable&lt;HWPartition&gt; 
      *            The size (in bytes) to set.
      */
     public void setSize(long size) {
-<span class="fc" id="L231">        this.size = size;</span>
-<span class="fc" id="L232">    }</span>
+<span class="fc" id="L229">        this.size = size;</span>
+<span class="fc" id="L230">    }</span>
 
     /**
      * &lt;p&gt;
@@ -240,8 +238,8 @@ public class HWPartition implements Serializable, Comparable&lt;HWPartition&gt; 
      *            The major device ID to set.
      */
     public void setMajor(int major) {
-<span class="fc" id="L243">        this.major = major;</span>
-<span class="fc" id="L244">    }</span>
+<span class="fc" id="L241">        this.major = major;</span>
+<span class="fc" id="L242">    }</span>
 
     /**
      * &lt;p&gt;
@@ -252,8 +250,8 @@ public class HWPartition implements Serializable, Comparable&lt;HWPartition&gt; 
      *            The minor device ID to set.
      */
     public void setMinor(int minor) {
-<span class="fc" id="L255">        this.minor = minor;</span>
-<span class="fc" id="L256">    }</span>
+<span class="fc" id="L253">        this.minor = minor;</span>
+<span class="fc" id="L254">    }</span>
 
     /**
      * &lt;p&gt;
@@ -264,91 +262,103 @@ public class HWPartition implements Serializable, Comparable&lt;HWPartition&gt; 
      *            Mount point of the partition
      */
     public void setMountPoint(String mountPoint) {
-<span class="fc bfc" id="L267" title="All 2 branches covered.">        this.mountPoint = mountPoint == null ? &quot;&quot; : mountPoint;</span>
-<span class="fc" id="L268">    }</span>
+<span class="fc bfc" id="L265" title="All 2 branches covered.">        this.mountPoint = mountPoint == null ? &quot;&quot; : mountPoint;</span>
+<span class="fc" id="L266">    }</span>
 
     /** {@inheritDoc} */
     @Override
     public int compareTo(HWPartition part) {
         // Naturally sort by device ID
-<span class="fc" id="L274">        return getIdentification().compareTo(part.getIdentification());</span>
+<span class="fc" id="L272">        return getIdentification().compareTo(part.getIdentification());</span>
     }
 
     /** {@inheritDoc} */
     @Override
     public int hashCode() {
-<span class="fc" id="L280">        final int prime = 31;</span>
-<span class="fc" id="L281">        int result = 1;</span>
-<span class="pc bpc" id="L282" title="1 of 2 branches missed.">        result = prime * result + (this.identification == null ? 0 : this.identification.hashCode());</span>
-<span class="fc" id="L283">        result = prime * result + this.major;</span>
-<span class="fc" id="L284">        result = prime * result + this.minor;</span>
-<span class="pc bpc" id="L285" title="1 of 2 branches missed.">        result = prime * result + (this.mountPoint == null ? 0 : this.mountPoint.hashCode());</span>
-<span class="pc bpc" id="L286" title="1 of 2 branches missed.">        result = prime * result + (this.name == null ? 0 : this.name.hashCode());</span>
-<span class="fc" id="L287">        result = prime * result + (int) (this.size ^ this.size &gt;&gt;&gt; 32);</span>
-<span class="pc bpc" id="L288" title="1 of 2 branches missed.">        result = prime * result + (this.type == null ? 0 : this.type.hashCode());</span>
-<span class="pc bpc" id="L289" title="1 of 2 branches missed.">        result = prime * result + (this.uuid == null ? 0 : this.uuid.hashCode());</span>
-<span class="fc" id="L290">        return result;</span>
+<span class="fc" id="L278">        final int prime = 31;</span>
+<span class="fc" id="L279">        int result = 1;</span>
+<span class="pc bpc" id="L280" title="1 of 2 branches missed.">        result = prime * result + (this.identification == null ? 0 : this.identification.hashCode());</span>
+<span class="fc" id="L281">        result = prime * result + this.major;</span>
+<span class="fc" id="L282">        result = prime * result + this.minor;</span>
+<span class="pc bpc" id="L283" title="1 of 2 branches missed.">        result = prime * result + (this.mountPoint == null ? 0 : this.mountPoint.hashCode());</span>
+<span class="pc bpc" id="L284" title="1 of 2 branches missed.">        result = prime * result + (this.name == null ? 0 : this.name.hashCode());</span>
+<span class="fc" id="L285">        result = prime * result + (int) (this.size ^ this.size &gt;&gt;&gt; 32);</span>
+<span class="pc bpc" id="L286" title="1 of 2 branches missed.">        result = prime * result + (this.type == null ? 0 : this.type.hashCode());</span>
+<span class="pc bpc" id="L287" title="1 of 2 branches missed.">        result = prime * result + (this.uuid == null ? 0 : this.uuid.hashCode());</span>
+<span class="fc" id="L288">        return result;</span>
     }
 
     /** {@inheritDoc} */
     @Override
     public boolean equals(Object obj) {
-<span class="fc bfc" id="L296" title="All 2 branches covered.">        if (this == obj) {</span>
-<span class="fc" id="L297">            return true;</span>
+<span class="fc bfc" id="L294" title="All 2 branches covered.">        if (this == obj) {</span>
+<span class="fc" id="L295">            return true;</span>
         }
-<span class="fc bfc" id="L299" title="All 2 branches covered.">        if (obj == null) {</span>
-<span class="fc" id="L300">            return false;</span>
+<span class="fc bfc" id="L297" title="All 2 branches covered.">        if (obj == null) {</span>
+<span class="fc" id="L298">            return false;</span>
         }
-<span class="fc bfc" id="L302" title="All 2 branches covered.">        if (!(obj instanceof HWPartition)) {</span>
-<span class="fc" id="L303">            return false;</span>
+<span class="fc bfc" id="L300" title="All 2 branches covered.">        if (!(obj.getClass().equals(this.getClass()))) {</span>
+<span class="fc" id="L301">            return false;</span>
         }
-<span class="fc" id="L305">        HWPartition other = (HWPartition) obj;</span>
-<span class="pc bpc" id="L306" title="1 of 2 branches missed.">        if (this.identification == null) {</span>
-<span class="nc bnc" id="L307" title="All 2 branches missed.">            if (other.identification != null) {</span>
-<span class="nc" id="L308">                return false;</span>
+<span class="fc" id="L303">        HWPartition other = (HWPartition) obj;</span>
+<span class="pc bpc" id="L304" title="1 of 2 branches missed.">        if (this.identification == null) {</span>
+<span class="nc bnc" id="L305" title="All 2 branches missed.">            if (other.identification != null) {</span>
+<span class="nc" id="L306">                return false;</span>
             }
-<span class="fc bfc" id="L310" title="All 2 branches covered.">        } else if (!this.identification.equals(other.identification)) {</span>
-<span class="fc" id="L311">            return false;</span>
+<span class="fc bfc" id="L308" title="All 2 branches covered.">        } else if (!this.identification.equals(other.identification)) {</span>
+<span class="fc" id="L309">            return false;</span>
         }
-<span class="fc bfc" id="L313" title="All 2 branches covered.">        if (this.major != other.major) {</span>
-<span class="fc" id="L314">            return false;</span>
+<span class="fc bfc" id="L311" title="All 2 branches covered.">        if (this.major != other.major) {</span>
+<span class="fc" id="L312">            return false;</span>
         }
-<span class="fc bfc" id="L316" title="All 2 branches covered.">        if (this.minor != other.minor) {</span>
-<span class="fc" id="L317">            return false;</span>
+<span class="fc bfc" id="L314" title="All 2 branches covered.">        if (this.minor != other.minor) {</span>
+<span class="fc" id="L315">            return false;</span>
         }
-<span class="pc bpc" id="L319" title="1 of 2 branches missed.">        if (this.mountPoint == null) {</span>
-<span class="nc bnc" id="L320" title="All 2 branches missed.">            if (other.mountPoint != null) {</span>
-<span class="nc" id="L321">                return false;</span>
+<span class="pc bpc" id="L317" title="1 of 2 branches missed.">        if (this.mountPoint == null) {</span>
+<span class="nc bnc" id="L318" title="All 2 branches missed.">            if (other.mountPoint != null) {</span>
+<span class="nc" id="L319">                return false;</span>
             }
-<span class="fc bfc" id="L323" title="All 2 branches covered.">        } else if (!this.mountPoint.equals(other.mountPoint)) {</span>
-<span class="fc" id="L324">            return false;</span>
+<span class="fc bfc" id="L321" title="All 2 branches covered.">        } else if (!this.mountPoint.equals(other.mountPoint)) {</span>
+<span class="fc" id="L322">            return false;</span>
         }
-<span class="pc bpc" id="L326" title="1 of 2 branches missed.">        if (this.name == null) {</span>
-<span class="nc bnc" id="L327" title="All 2 branches missed.">            if (other.name != null) {</span>
-<span class="nc" id="L328">                return false;</span>
+<span class="pc bpc" id="L324" title="1 of 2 branches missed.">        if (this.name == null) {</span>
+<span class="nc bnc" id="L325" title="All 2 branches missed.">            if (other.name != null) {</span>
+<span class="nc" id="L326">                return false;</span>
             }
-<span class="fc bfc" id="L330" title="All 2 branches covered.">        } else if (!this.name.equals(other.name)) {</span>
-<span class="fc" id="L331">            return false;</span>
+<span class="fc bfc" id="L328" title="All 2 branches covered.">        } else if (!this.name.equals(other.name)) {</span>
+<span class="fc" id="L329">            return false;</span>
         }
-<span class="fc bfc" id="L333" title="All 2 branches covered.">        if (this.size != other.size) {</span>
-<span class="fc" id="L334">            return false;</span>
+<span class="fc bfc" id="L331" title="All 2 branches covered.">        if (this.size != other.size) {</span>
+<span class="fc" id="L332">            return false;</span>
         }
-<span class="pc bpc" id="L336" title="1 of 2 branches missed.">        if (this.type == null) {</span>
-<span class="nc bnc" id="L337" title="All 2 branches missed.">            if (other.type != null) {</span>
-<span class="nc" id="L338">                return false;</span>
+<span class="pc bpc" id="L334" title="1 of 2 branches missed.">        if (this.type == null) {</span>
+<span class="nc bnc" id="L335" title="All 2 branches missed.">            if (other.type != null) {</span>
+<span class="nc" id="L336">                return false;</span>
             }
-<span class="fc bfc" id="L340" title="All 2 branches covered.">        } else if (!this.type.equals(other.type)) {</span>
-<span class="fc" id="L341">            return false;</span>
+<span class="fc bfc" id="L338" title="All 2 branches covered.">        } else if (!this.type.equals(other.type)) {</span>
+<span class="fc" id="L339">            return false;</span>
         }
-<span class="pc bpc" id="L343" title="1 of 2 branches missed.">        if (this.uuid == null) {</span>
-<span class="nc bnc" id="L344" title="All 2 branches missed.">            if (other.uuid != null) {</span>
-<span class="nc" id="L345">                return false;</span>
+<span class="pc bpc" id="L341" title="1 of 2 branches missed.">        if (this.uuid == null) {</span>
+<span class="nc bnc" id="L342" title="All 2 branches missed.">            if (other.uuid != null) {</span>
+<span class="nc" id="L343">                return false;</span>
             }
-<span class="fc bfc" id="L347" title="All 2 branches covered.">        } else if (!this.uuid.equals(other.uuid)) {</span>
-<span class="fc" id="L348">            return false;</span>
+<span class="fc bfc" id="L345" title="All 2 branches covered.">        } else if (!this.uuid.equals(other.uuid)) {</span>
+<span class="fc" id="L346">            return false;</span>
         }
-<span class="fc" id="L350">        return true;</span>
+<span class="fc" id="L348">        return true;</span>
     }
 
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+<span class="fc" id="L354">        StringBuilder sb = new StringBuilder();</span>
+<span class="fc" id="L355">        sb.append(getIdentification()).append(&quot;: &quot;);</span>
+<span class="fc" id="L356">        sb.append(getName()).append(&quot; &quot;);</span>
+<span class="fc" id="L357">        sb.append(&quot;(&quot;).append(getType()).append(&quot;) &quot;);</span>
+<span class="fc" id="L358">        sb.append(&quot;Maj:Min=&quot;).append(getMajor()).append(&quot;:&quot;).append(getMinor()).append(&quot;, &quot;);</span>
+<span class="fc" id="L359">        sb.append(&quot;size: &quot;).append(FormatUtil.formatBytesDecimal(getSize()));</span>
+<span class="fc bfc" id="L360" title="All 2 branches covered.">        sb.append(getMountPoint().isEmpty() ? &quot;&quot; : &quot; @ &quot; + getMountPoint());</span>
+<span class="fc" id="L361">        return sb.toString();</span>
+    }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

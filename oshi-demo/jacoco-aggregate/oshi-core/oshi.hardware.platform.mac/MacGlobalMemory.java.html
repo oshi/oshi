@@ -23,6 +23,13 @@
  */
 package oshi.hardware.platform.mac;
 
+import static oshi.util.Memoizer.defaultExpiration;
+import static oshi.util.Memoizer.memoize;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Supplier;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,65 +39,122 @@ import com.sun.jna.platform.mac.SystemB.VMStatistics;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.LongByReference;
 
+import oshi.hardware.PhysicalMemory;
 import oshi.hardware.VirtualMemory;
 import oshi.hardware.common.AbstractGlobalMemory;
+import oshi.util.Constants;
+import oshi.util.ExecutingCommand;
+import oshi.util.ParseUtil;
 import oshi.util.platform.mac.SysctlUtil;
 
 /**
  * Memory obtained by host_statistics (vm_stat) and sysctl.
  */
-<span class="nc" id="L42">public class MacGlobalMemory extends AbstractGlobalMemory {</span>
+<span class="nc" id="L53">public class MacGlobalMemory extends AbstractGlobalMemory {</span>
 
-    private static final long serialVersionUID = 1L;
+<span class="nc" id="L55">    private static final Logger LOG = LoggerFactory.getLogger(MacGlobalMemory.class);</span>
 
-<span class="nc" id="L46">    private static final Logger LOG = LoggerFactory.getLogger(MacGlobalMemory.class);</span>
+<span class="nc" id="L57">    private final Supplier&lt;Long&gt; available = memoize(this::queryVmStats, defaultExpiration());</span>
 
-    /** {@inheritDoc} */
+<span class="nc" id="L59">    private final Supplier&lt;Long&gt; total = memoize(this::queryPhysMem);</span>
+
+<span class="nc" id="L61">    private final Supplier&lt;Long&gt; pageSize = memoize(this::queryPageSize);</span>
+
+<span class="nc" id="L63">    private final Supplier&lt;VirtualMemory&gt; vm = memoize(this::createVirtualMemory);</span>
+
     @Override
     public long getAvailable() {
-<span class="nc" id="L51">        VMStatistics vmStats = new VMStatistics();</span>
-<span class="nc bnc" id="L52" title="All 2 branches missed.">        if (0 != SystemB.INSTANCE.host_statistics(SystemB.INSTANCE.mach_host_self(), SystemB.HOST_VM_INFO, vmStats,</span>
-<span class="nc" id="L53">                new IntByReference(vmStats.size() / SystemB.INT_SIZE))) {</span>
-<span class="nc" id="L54">            LOG.error(&quot;Failed to get host VM info. Error code: {}&quot;, Native.getLastError());</span>
-<span class="nc" id="L55">            return 0L;</span>
-        }
-<span class="nc" id="L57">        this.memAvailable = (vmStats.free_count + vmStats.inactive_count) * getPageSize();</span>
-<span class="nc" id="L58">        return this.memAvailable;</span>
+<span class="nc" id="L67">        return available.get();</span>
     }
 
-    /** {@inheritDoc} */
     @Override
     public long getTotal() {
-<span class="nc bnc" id="L64" title="All 2 branches missed.">        if (this.memTotal &lt; 0) {</span>
-<span class="nc" id="L65">            long memory = SysctlUtil.sysctl(&quot;hw.memsize&quot;, -1L);</span>
-<span class="nc bnc" id="L66" title="All 2 branches missed.">            if (memory &gt;= 0) {</span>
-<span class="nc" id="L67">                this.memTotal = memory;</span>
-            }
-        }
-<span class="nc" id="L70">        return this.memTotal;</span>
+<span class="nc" id="L72">        return total.get();</span>
     }
 
-    /** {@inheritDoc} */
     @Override
     public long getPageSize() {
-<span class="nc bnc" id="L76" title="All 2 branches missed.">        if (this.pageSize &lt; 0) {</span>
-<span class="nc" id="L77">            LongByReference pPageSize = new LongByReference();</span>
-<span class="nc bnc" id="L78" title="All 2 branches missed.">            if (0 != SystemB.INSTANCE.host_page_size(SystemB.INSTANCE.mach_host_self(), pPageSize)) {</span>
-<span class="nc" id="L79">                LOG.error(&quot;Failed to get host page size. Error code: {}&quot;, Native.getLastError());</span>
-<span class="nc" id="L80">                return 0L;</span>
-            }
-<span class="nc" id="L82">            this.pageSize = pPageSize.getValue();</span>
-        }
-<span class="nc" id="L84">        return this.pageSize;</span>
+<span class="nc" id="L77">        return pageSize.get();</span>
     }
 
-    /** {@inheritDoc} */
     @Override
     public VirtualMemory getVirtualMemory() {
-<span class="nc bnc" id="L90" title="All 2 branches missed.">        if (this.virtualMemory == null) {</span>
-<span class="nc" id="L91">            this.virtualMemory = new MacVirtualMemory();</span>
+<span class="nc" id="L82">        return vm.get();</span>
+    }
+
+    @Override
+    public PhysicalMemory[] getPhysicalMemory() {
+<span class="nc" id="L87">        List&lt;PhysicalMemory&gt; pmList = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L88">        List&lt;String&gt; sp = ExecutingCommand.runNative(&quot;system_profiler SPMemoryDataType&quot;);</span>
+<span class="nc" id="L89">        int bank = 0;</span>
+<span class="nc" id="L90">        String bankLabel = Constants.UNKNOWN;</span>
+<span class="nc" id="L91">        long capacity = 0L;</span>
+<span class="nc" id="L92">        long speed = 0L;</span>
+<span class="nc" id="L93">        String manufacturer = Constants.UNKNOWN;</span>
+<span class="nc" id="L94">        String memoryType = Constants.UNKNOWN;</span>
+<span class="nc bnc" id="L95" title="All 2 branches missed.">        for (String line : sp) {</span>
+<span class="nc bnc" id="L96" title="All 2 branches missed.">            if (line.trim().startsWith(&quot;BANK&quot;)) {</span>
+                // Save previous bank
+<span class="nc bnc" id="L98" title="All 2 branches missed.">                if (bank++ &gt; 0) {</span>
+<span class="nc" id="L99">                    pmList.add(new PhysicalMemory(bankLabel, capacity, speed, manufacturer, memoryType));</span>
+                }
+<span class="nc" id="L101">                bankLabel = line.trim();</span>
+<span class="nc" id="L102">                int colon = bankLabel.lastIndexOf(':');</span>
+<span class="nc bnc" id="L103" title="All 2 branches missed.">                if (colon &gt; 0) {</span>
+<span class="nc" id="L104">                    bankLabel = bankLabel.substring(0, colon - 1);</span>
+                }
+<span class="nc bnc" id="L106" title="All 2 branches missed.">            } else if (bank &gt; 0) {</span>
+<span class="nc" id="L107">                String[] split = line.trim().split(&quot;:&quot;);</span>
+<span class="nc bnc" id="L108" title="All 2 branches missed.">                if (split.length == 2) {</span>
+<span class="nc bnc" id="L109" title="All 5 branches missed.">                    switch (split[0]) {</span>
+                    case &quot;Size&quot;:
+<span class="nc" id="L111">                        capacity = parsePhysicalMemorySize(split[1].trim());</span>
+<span class="nc" id="L112">                        break;</span>
+                    case &quot;Type&quot;:
+<span class="nc" id="L114">                        memoryType = split[1].trim();</span>
+<span class="nc" id="L115">                        break;</span>
+                    case &quot;Speed&quot;:
+<span class="nc" id="L117">                        speed = ParseUtil.parseHertz(split[1]);</span>
+<span class="nc" id="L118">                        break;</span>
+                    case &quot;Manufacturer&quot;:
+<span class="nc" id="L120">                        manufacturer = split[1].trim();</span>
+<span class="nc" id="L121">                        break;</span>
+                    default:
+                        break;
+                    }
+                }
+            }
+<span class="nc" id="L127">        }</span>
+<span class="nc" id="L128">        pmList.add(new PhysicalMemory(bankLabel, capacity, speed, manufacturer, memoryType));</span>
+
+<span class="nc" id="L130">        return pmList.toArray(new PhysicalMemory[0]);</span>
+    }
+
+    private long queryVmStats() {
+<span class="nc" id="L134">        VMStatistics vmStats = new VMStatistics();</span>
+<span class="nc bnc" id="L135" title="All 2 branches missed.">        if (0 != SystemB.INSTANCE.host_statistics(SystemB.INSTANCE.mach_host_self(), SystemB.HOST_VM_INFO, vmStats,</span>
+<span class="nc" id="L136">                new IntByReference(vmStats.size() / SystemB.INT_SIZE))) {</span>
+<span class="nc" id="L137">            LOG.error(&quot;Failed to get host VM info. Error code: {}&quot;, Native.getLastError());</span>
+<span class="nc" id="L138">            return 0L;</span>
         }
-<span class="nc" id="L93">        return this.virtualMemory;</span>
+<span class="nc" id="L140">        return (vmStats.free_count + vmStats.inactive_count) * getPageSize();</span>
+    }
+
+    private long queryPhysMem() {
+<span class="nc" id="L144">        return SysctlUtil.sysctl(&quot;hw.memsize&quot;, 0L);</span>
+    }
+
+    private long queryPageSize() {
+<span class="nc" id="L148">        LongByReference pPageSize = new LongByReference();</span>
+<span class="nc bnc" id="L149" title="All 2 branches missed.">        if (0 == SystemB.INSTANCE.host_page_size(SystemB.INSTANCE.mach_host_self(), pPageSize)) {</span>
+<span class="nc" id="L150">            return pPageSize.getValue();</span>
+        }
+<span class="nc" id="L152">        LOG.error(&quot;Failed to get host page size. Error code: {}&quot;, Native.getLastError());</span>
+<span class="nc" id="L153">        return 4098L;</span>
+    }
+
+    private VirtualMemory createVirtualMemory() {
+<span class="nc" id="L157">        return new MacVirtualMemory();</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

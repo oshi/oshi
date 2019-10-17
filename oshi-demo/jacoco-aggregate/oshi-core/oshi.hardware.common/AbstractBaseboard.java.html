@@ -24,103 +24,21 @@
 package oshi.hardware.common;
 
 import oshi.hardware.Baseboard;
-import oshi.util.Constants;
 
 /**
  * Baseboard data
  */
-<span class="nc" id="L32">public abstract class AbstractBaseboard implements Baseboard {</span>
+<span class="nc" id="L31">public abstract class AbstractBaseboard implements Baseboard {</span>
 
-    private static final long serialVersionUID = 1L;
-
-    protected String manufacturer;
-    protected String model;
-    protected String version;
-    protected String serialNumber;
-
-    /** {@inheritDoc} */
     @Override
-    public String getManufacturer() {
-<span class="nc bnc" id="L44" title="All 2 branches missed.">        if (this.manufacturer == null) {</span>
-<span class="nc" id="L45">            this.manufacturer = Constants.UNKNOWN;</span>
-        }
-<span class="nc" id="L47">        return this.manufacturer;</span>
+    public String toString() {
+<span class="nc" id="L35">        StringBuilder sb = new StringBuilder();</span>
+<span class="nc" id="L36">        sb.append(&quot;manufacturer=&quot;).append(getManufacturer()).append(&quot;, &quot;);</span>
+<span class="nc" id="L37">        sb.append(&quot;model=&quot;).append(getModel()).append(&quot;, &quot;);</span>
+<span class="nc" id="L38">        sb.append(&quot;version=&quot;).append(getVersion()).append(&quot;, &quot;);</span>
+<span class="nc" id="L39">        sb.append(&quot;serial number=&quot;).append(getSerialNumber());</span>
+<span class="nc" id="L40">        return sb.toString();</span>
     }
-
-    /** {@inheritDoc} */
-    @Override
-    public String getModel() {
-<span class="nc bnc" id="L53" title="All 2 branches missed.">        if (this.model == null) {</span>
-<span class="nc" id="L54">            this.model = Constants.UNKNOWN;</span>
-        }
-<span class="nc" id="L56">        return this.model;</span>
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public String getVersion() {
-<span class="nc bnc" id="L62" title="All 2 branches missed.">        if (this.version == null) {</span>
-<span class="nc" id="L63">            this.version = Constants.UNKNOWN;</span>
-        }
-<span class="nc" id="L65">        return this.version;</span>
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public String getSerialNumber() {
-<span class="nc bnc" id="L71" title="All 2 branches missed.">        if (this.serialNumber == null) {</span>
-<span class="nc" id="L72">            this.serialNumber = &quot;&quot;;</span>
-        }
-<span class="nc" id="L74">        return this.serialNumber;</span>
-    }
-
-    /**
-     * &lt;p&gt;
-     * Setter for the field &lt;code&gt;manufacturer&lt;/code&gt;.
-     * &lt;/p&gt;
-     *
-     * @param manufacturer
-     *            The manufacturer to set.
-     */
-    public void setManufacturer(String manufacturer) {
-<span class="nc" id="L86">        this.manufacturer = manufacturer;</span>
-<span class="nc" id="L87">    }</span>
-
-    /**
-     * &lt;p&gt;
-     * Setter for the field &lt;code&gt;model&lt;/code&gt;.
-     * &lt;/p&gt;
-     *
-     * @param model
-     *            The model to set.
-     */
-    public void setModel(String model) {
-<span class="nc" id="L98">        this.model = model;</span>
-<span class="nc" id="L99">    }</span>
-
-    /**
-     * &lt;p&gt;
-     * Setter for the field &lt;code&gt;version&lt;/code&gt;.
-     * &lt;/p&gt;
-     *
-     * @param version
-     *            The version to set.
-     */
-    public void setVersion(String version) {
-<span class="nc" id="L110">        this.version = version;</span>
-<span class="nc" id="L111">    }</span>
-
-    /**
-     * &lt;p&gt;
-     * Setter for the field &lt;code&gt;serialNumber&lt;/code&gt;.
-     * &lt;/p&gt;
-     *
-     * @param serialNumber
-     *            The serialNumber to set.
-     */
-    public void setSerialNumber(String serialNumber) {
-<span class="nc" id="L122">        this.serialNumber = serialNumber;</span>
-<span class="nc" id="L123">    }</span>
 
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

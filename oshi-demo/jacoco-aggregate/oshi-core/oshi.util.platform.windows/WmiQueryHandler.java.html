@@ -173,8 +173,8 @@ import oshi.util.GlobalConfig;
      */
     protected void handleComException(WbemcliUtil.WmiQuery&lt;?&gt; query, COMException ex) {
 <span class="nc" id="L175">        LOG.warn(</span>
-                &quot;COM exception querying {}, which might not be on your system. Will not attempt to query it again. Error was: {}:&quot;,
-<span class="nc" id="L177">                query.getWmiClassName(), ex.getMessage());</span>
+                &quot;COM exception querying {}, which might not be on your system. Will not attempt to query it again. Error was {}: {}&quot;,
+<span class="nc" id="L177">                query.getWmiClassName(), ex.getHresult().intValue(), ex.getMessage());</span>
 <span class="nc" id="L178">    }</span>
 
     /**
@@ -298,4 +298,4 @@ import oshi.util.GlobalConfig;
 <span class="nc" id="L298">        this.wmiTimeout = wmiTimeout;</span>
 <span class="nc" id="L299">    }</span>
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

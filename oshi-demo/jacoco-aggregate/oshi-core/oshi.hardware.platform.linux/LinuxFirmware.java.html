@@ -27,67 +27,101 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Locale;
+import java.util.function.Supplier;
 
 import oshi.hardware.common.AbstractFirmware;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
+import static oshi.util.Memoizer.memoize;
 import oshi.util.ParseUtil;
+import oshi.util.Util;
 
 /**
  * Firmware data obtained by sysfs.
  */
-<span class="nc" id="L40">final class LinuxFirmware extends AbstractFirmware {</span>
-
-    private static final long serialVersionUID = 1L;
-
+<span class="nc" id="L43">final class LinuxFirmware extends AbstractFirmware {</span>
     // Jan 13 2013 16:24:29
 <span class="nc" id="L45">    private static final DateTimeFormatter VCGEN_FORMATTER = DateTimeFormatter.ofPattern(&quot;MMM d uuuu HH:mm:ss&quot;,</span>
             Locale.ENGLISH);
 
-    /** {@inheritDoc} */
+<span class="nc" id="L48">    private final Supplier&lt;String&gt; manufacturer = memoize(this::queryManufacturer);</span>
+
+<span class="nc" id="L50">    private final Supplier&lt;String&gt; description = memoize(this::queryDescription);</span>
+
+<span class="nc" id="L52">    private final Supplier&lt;String&gt; version = memoize(this::queryVersion);</span>
+
+<span class="nc" id="L54">    private final Supplier&lt;String&gt; releaseDate = memoize(this::queryReleaseDate);</span>
+
+<span class="nc" id="L56">    private final Supplier&lt;String&gt; name = memoize(this::queryName);</span>
+
+<span class="nc" id="L58">    private final Supplier&lt;VcGenCmdStrings&gt; vcGenCmd = memoize(this::queryVcGenCmd);</span>
+
+<span class="nc" id="L60">    private final Supplier&lt;BiosStrings&gt; bios = memoize(this::queryBios);</span>
+
     @Override
     public String getManufacturer() {
-<span class="nc bnc" id="L51" title="All 6 branches missed.">        if (this.manufacturer == null &amp;&amp; !queryManufacturerFromSysfs() &amp;&amp; !queryVcGenCmd()) {</span>
-<span class="nc" id="L52">            this.manufacturer = Constants.UNKNOWN;</span>
-        }
-<span class="nc" id="L54">        return super.getManufacturer();</span>
+<span class="nc" id="L64">        return manufacturer.get();</span>
     }
 
-    /** {@inheritDoc} */
     @Override
     public String getDescription() {
-<span class="nc bnc" id="L60" title="All 6 branches missed.">        if (this.description == null &amp;&amp; !queryDescriptionFromSysfs() &amp;&amp; !queryVcGenCmd()) {</span>
-<span class="nc" id="L61">            this.description = Constants.UNKNOWN;</span>
-        }
-<span class="nc" id="L63">        return this.description;</span>
+<span class="nc" id="L69">        return description.get();</span>
     }
 
-    /** {@inheritDoc} */
     @Override
     public String getVersion() {
-<span class="nc bnc" id="L69" title="All 6 branches missed.">        if (this.version == null &amp;&amp; !queryVersionFromSysfs() &amp;&amp; !queryVcGenCmd()) {</span>
-<span class="nc" id="L70">            this.version = Constants.UNKNOWN;</span>
-        }
-<span class="nc" id="L72">        return this.version;</span>
+<span class="nc" id="L74">        return version.get();</span>
     }
 
-    /** {@inheritDoc} */
     @Override
     public String getReleaseDate() {
-<span class="nc bnc" id="L78" title="All 6 branches missed.">        if (this.releaseDate == null &amp;&amp; !queryReleaseDateFromSysfs() &amp;&amp; !queryVcGenCmd()) {</span>
-<span class="nc" id="L79">            this.releaseDate = Constants.UNKNOWN;</span>
-        }
-<span class="nc" id="L81">        return this.releaseDate;</span>
+<span class="nc" id="L79">        return releaseDate.get();</span>
     }
 
-    /** {@inheritDoc} */
     @Override
     public String getName() {
-<span class="nc bnc" id="L87" title="All 4 branches missed.">        if (this.name == null &amp;&amp; !queryVcGenCmd()) {</span>
-<span class="nc" id="L88">            this.name = &quot;BIOS&quot;;</span>
+<span class="nc" id="L84">        return name.get();</span>
+    }
+
+    private String queryManufacturer() {
+<span class="nc" id="L88">        String result = null;</span>
+<span class="nc bnc" id="L89" title="All 4 branches missed.">        if ((result = queryManufacturerFromSysfs()) == null &amp;&amp; (result = vcGenCmd.get().manufacturer) == null) {</span>
+<span class="nc" id="L90">            return Constants.UNKNOWN;</span>
         }
-<span class="nc" id="L90">        return this.name;</span>
+<span class="nc" id="L92">        return result;</span>
+    }
+
+    private String queryDescription() {
+<span class="nc" id="L96">        String result = null;</span>
+<span class="nc bnc" id="L97" title="All 4 branches missed.">        if ((result = queryDescriptionFromSysfs()) == null &amp;&amp; (result = vcGenCmd.get().description) == null) {</span>
+<span class="nc" id="L98">            return Constants.UNKNOWN;</span>
+        }
+<span class="nc" id="L100">        return result;</span>
+    }
+
+    private String queryVersion() {
+<span class="nc" id="L104">        String result = null;</span>
+<span class="nc bnc" id="L105" title="All 4 branches missed.">        if ((result = queryVersionFromSysfs()) == null &amp;&amp; (result = vcGenCmd.get().version) == null) {</span>
+<span class="nc" id="L106">            return Constants.UNKNOWN;</span>
+        }
+<span class="nc" id="L108">        return result;</span>
+    }
+
+    private String queryReleaseDate() {
+<span class="nc" id="L112">        String result = null;</span>
+<span class="nc bnc" id="L113" title="All 4 branches missed.">        if ((result = queryReleaseDateFromSysfs()) == null &amp;&amp; (result = vcGenCmd.get().releaseDate) == null) {</span>
+<span class="nc" id="L114">            return Constants.UNKNOWN;</span>
+        }
+<span class="nc" id="L116">        return result;</span>
+    }
+
+    private String queryName() {
+<span class="nc" id="L120">        String result = null;</span>
+<span class="nc bnc" id="L121" title="All 4 branches missed.">        if ((result = bios.get().biosName) == null &amp;&amp; (result = vcGenCmd.get().name) == null) {</span>
+<span class="nc" id="L122">            return Constants.UNKNOWN;</span>
+        }
+<span class="nc" id="L124">        return result;</span>
     }
 
     // $ ls /sys/devices/virtual/dmi/id/
@@ -98,41 +132,37 @@ import oshi.util.ParseUtil;
     // board_name chassis_type product_serial
     // board_serial chassis_vendor product_uuid
 
-    private boolean queryManufacturerFromSysfs() {
-<span class="nc" id="L102">        final String biosVendor = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + &quot;bios_vendor&quot;).trim();</span>
-<span class="nc bnc" id="L103" title="All 2 branches missed.">        if (!biosVendor.isEmpty()) {</span>
-<span class="nc" id="L104">            this.manufacturer = biosVendor;</span>
-<span class="nc" id="L105">            return true;</span>
+    private String queryManufacturerFromSysfs() {
+<span class="nc" id="L136">        final String biosVendor = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + &quot;bios_vendor&quot;).trim();</span>
+<span class="nc bnc" id="L137" title="All 2 branches missed.">        if (biosVendor.isEmpty()) {</span>
+<span class="nc" id="L138">            return biosVendor;</span>
         }
-<span class="nc" id="L107">        return false;</span>
+<span class="nc" id="L140">        return null;</span>
     }
 
-    private boolean queryDescriptionFromSysfs() {
-<span class="nc" id="L111">        final String modalias = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + &quot;modalias&quot;).trim();</span>
-<span class="nc bnc" id="L112" title="All 2 branches missed.">        if (!modalias.isEmpty()) {</span>
-<span class="nc" id="L113">            this.description = modalias;</span>
-<span class="nc" id="L114">            return true;</span>
+    private String queryDescriptionFromSysfs() {
+<span class="nc" id="L144">        final String modalias = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + &quot;modalias&quot;).trim();</span>
+<span class="nc bnc" id="L145" title="All 2 branches missed.">        if (!modalias.isEmpty()) {</span>
+<span class="nc" id="L146">            return modalias;</span>
         }
-<span class="nc" id="L116">        return false;</span>
+<span class="nc" id="L148">        return null;</span>
     }
 
-    private boolean queryVersionFromSysfs() {
-<span class="nc" id="L120">        final String biosVersion = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + &quot;bios_version&quot;).trim();</span>
-<span class="nc bnc" id="L121" title="All 2 branches missed.">        if (!biosVersion.isEmpty()) {</span>
-<span class="nc" id="L122">            String biosRevision = queryBiosRevision();</span>
-<span class="nc bnc" id="L123" title="All 2 branches missed.">            this.version = biosVersion + (biosRevision.isEmpty() ? &quot;&quot; : &quot; (revision &quot; + biosRevision + &quot;)&quot;);</span>
-<span class="nc" id="L124">            return true;</span>
+    private String queryVersionFromSysfs() {
+<span class="nc" id="L152">        final String biosVersion = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + &quot;bios_version&quot;).trim();</span>
+<span class="nc bnc" id="L153" title="All 2 branches missed.">        if (!biosVersion.isEmpty()) {</span>
+<span class="nc" id="L154">            String biosRevision = bios.get().biosRevision;</span>
+<span class="nc bnc" id="L155" title="All 2 branches missed.">            return biosVersion + (Util.isBlank(biosRevision) ? &quot;&quot; : &quot; (revision &quot; + biosRevision + &quot;)&quot;);</span>
         }
-<span class="nc" id="L126">        return false;</span>
+<span class="nc" id="L157">        return null;</span>
     }
 
-    private boolean queryReleaseDateFromSysfs() {
-<span class="nc" id="L130">        final String biosDate = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + &quot;bios_date&quot;).trim();</span>
-<span class="nc bnc" id="L131" title="All 2 branches missed.">        if (!biosDate.isEmpty()) {</span>
-<span class="nc" id="L132">            this.releaseDate = ParseUtil.parseMmDdYyyyToYyyyMmDD(biosDate);</span>
-<span class="nc" id="L133">            return true;</span>
+    private String queryReleaseDateFromSysfs() {
+<span class="nc" id="L161">        final String biosDate = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + &quot;bios_date&quot;).trim();</span>
+<span class="nc bnc" id="L162" title="All 2 branches missed.">        if (!biosDate.isEmpty()) {</span>
+<span class="nc" id="L163">            return ParseUtil.parseMmDdYyyyToYyyyMmDD(biosDate);</span>
         }
-<span class="nc" id="L135">        return false;</span>
+<span class="nc" id="L165">        return null;</span>
     }
 
     // $ sudo dmidecode -t bios
@@ -172,37 +202,78 @@ import oshi.util.ParseUtil;
     // BIOS Revision: 4.6
     // Firmware Revision: 0.0
 
-    private String queryBiosRevision() {
-<span class="nc" id="L176">        final String marker = &quot;Bios Revision:&quot;;</span>
+    private BiosStrings queryBios() {
+<span class="nc" id="L206">        String biosName = null;</span>
+<span class="nc" id="L207">        String revision = null;</span>
+
+<span class="nc" id="L209">        final String biosMarker = &quot;SMBIOS&quot;;</span>
+<span class="nc" id="L210">        final String revMarker = &quot;Bios Revision:&quot;;</span>
+
         // Requires root, may not return anything
-<span class="nc bnc" id="L178" title="All 2 branches missed.">        for (final String checkLine : ExecutingCommand.runNative(&quot;dmidecode -t bios&quot;)) {</span>
-<span class="nc bnc" id="L179" title="All 2 branches missed.">            if (checkLine.contains(marker)) {</span>
-<span class="nc" id="L180">                return checkLine.split(marker)[1].trim();</span>
+<span class="nc bnc" id="L213" title="All 2 branches missed.">        for (final String checkLine : ExecutingCommand.runNative(&quot;dmidecode -t bios&quot;)) {</span>
+<span class="nc bnc" id="L214" title="All 2 branches missed.">            if (checkLine.contains(biosMarker)) {</span>
+<span class="nc" id="L215">                String[] biosArr = ParseUtil.whitespaces.split(checkLine);</span>
+<span class="nc bnc" id="L216" title="All 2 branches missed.">                if (biosArr.length &gt;= 2) {</span>
+<span class="nc" id="L217">                    biosName = biosArr[0] + &quot; &quot; + biosArr[1];</span>
+                }
             }
-<span class="nc" id="L182">        }</span>
-<span class="nc" id="L183">        return &quot;&quot;;</span>
+<span class="nc bnc" id="L220" title="All 2 branches missed.">            if (checkLine.contains(revMarker)) {</span>
+<span class="nc" id="L221">                revision = checkLine.split(revMarker)[1].trim();</span>
+                // SMBIOS should be first line so if we're here we are done iterating
+<span class="nc" id="L223">                break;</span>
+            }
+<span class="nc" id="L225">        }</span>
+<span class="nc" id="L226">        return new BiosStrings(biosName, revision);</span>
     }
 
-    private boolean queryVcGenCmd() {
-<span class="nc" id="L187">        List&lt;String&gt; vcgencmd = ExecutingCommand.runNative(&quot;vcgencmd version&quot;);</span>
-<span class="nc bnc" id="L188" title="All 2 branches missed.">        if (vcgencmd.size() &gt;= 3) {</span>
+    private VcGenCmdStrings queryVcGenCmd() {
+<span class="nc" id="L230">        String vcReleaseDate = null;</span>
+<span class="nc" id="L231">        String vcManufacturer = null;</span>
+<span class="nc" id="L232">        String vcVersion = null;</span>
+
+<span class="nc" id="L234">        List&lt;String&gt; vcgencmd = ExecutingCommand.runNative(&quot;vcgencmd version&quot;);</span>
+<span class="nc bnc" id="L235" title="All 2 branches missed.">        if (vcgencmd.size() &gt;= 3) {</span>
             // First line is date
             try {
-<span class="nc" id="L191">                this.releaseDate = DateTimeFormatter.ISO_LOCAL_DATE.format(VCGEN_FORMATTER.parse(vcgencmd.get(0)));</span>
-<span class="nc" id="L192">            } catch (DateTimeParseException e) {</span>
-<span class="nc" id="L193">                this.releaseDate = Constants.UNKNOWN;</span>
-<span class="nc" id="L194">            }</span>
+<span class="nc" id="L238">                vcReleaseDate = DateTimeFormatter.ISO_LOCAL_DATE.format(VCGEN_FORMATTER.parse(vcgencmd.get(0)));</span>
+<span class="nc" id="L239">            } catch (DateTimeParseException e) {</span>
+<span class="nc" id="L240">                vcReleaseDate = Constants.UNKNOWN;</span>
+<span class="nc" id="L241">            }</span>
             // Second line is copyright
-<span class="nc" id="L196">            String[] copyright = ParseUtil.whitespaces.split(vcgencmd.get(1));</span>
-<span class="nc" id="L197">            this.manufacturer = copyright[copyright.length - 1];</span>
+<span class="nc" id="L243">            String[] copyright = ParseUtil.whitespaces.split(vcgencmd.get(1));</span>
+<span class="nc" id="L244">            vcManufacturer = copyright[copyright.length - 1];</span>
             // Third line is version
-<span class="nc" id="L199">            this.version = vcgencmd.get(2).replace(&quot;version &quot;, &quot;&quot;);</span>
-<span class="nc" id="L200">            this.name = &quot;RPi&quot;;</span>
-<span class="nc" id="L201">            this.description = &quot;Bootloader&quot;;</span>
-<span class="nc" id="L202">            return true;</span>
+<span class="nc" id="L246">            vcVersion = vcgencmd.get(2).replace(&quot;version &quot;, &quot;&quot;);</span>
+<span class="nc" id="L247">            return new VcGenCmdStrings(vcReleaseDate, vcManufacturer, vcVersion, &quot;RPi&quot;, &quot;Bootloader&quot;);</span>
         }
-<span class="nc" id="L204">        return false;</span>
+<span class="nc" id="L249">        return new VcGenCmdStrings(null, null, null, null, null);</span>
     }
 
+    private static final class BiosStrings {
+        private final String biosName;
+        private final String biosRevision;
+
+<span class="nc" id="L256">        private BiosStrings(String biosName, String biosRevision) {</span>
+<span class="nc" id="L257">            this.biosName = biosName;</span>
+<span class="nc" id="L258">            this.biosRevision = biosRevision;</span>
+<span class="nc" id="L259">        }</span>
+    }
+
+    private static final class VcGenCmdStrings {
+        private final String releaseDate;
+        private final String manufacturer;
+        private final String version;
+        private final String name;
+        private final String description;
+
+        private VcGenCmdStrings(String releaseDate, String manufacturer, String version, String name,
+<span class="nc" id="L270">                String description) {</span>
+<span class="nc" id="L271">            this.releaseDate = releaseDate;</span>
+<span class="nc" id="L272">            this.manufacturer = manufacturer;</span>
+<span class="nc" id="L273">            this.version = version;</span>
+<span class="nc" id="L274">            this.name = name;</span>
+<span class="nc" id="L275">            this.description = description;</span>
+<span class="nc" id="L276">        }</span>
+    }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
