@@ -72,7 +72,44 @@ public class WindowsPowerSource extends AbstractPowerSource {
     }
 
     private static WindowsPowerSource getPowerSource(String name) {
-        // Get structure
+        long maxCapacity = -1; // mWh
+        long remainingCapacity = -1; // mWh
+        long estimatedTimeRaw = -1; // Seconds
+        long rate = 0; // mW, signed, charging or discharging
+        // AcOnLine
+        // BatteryPresent
+        // Charging
+        // Discharging
+        // TODO: IOCTL_BATTERY_QUERY_INFORMATION
+        // Capabilities -- units flag
+        // Chemistry (NiMH etc.)
+        // Design & FullCharge
+        // CycleCount
+        // TODO:
+        // Manufacture Date
+        // Manufacturer
+        // SerialNumber
+        // Temperature
+        // #define FILE_DEVICE_BATTERY 0x00000029
+        // #define METHOD_BUFFERED 0
+        // #define FILE_READ_ACCESS 0x0001
+        // CTL_CODE (((DeviceType) << 16) | ((Access) << 14) | ((Function) << 2) |
+        // (Method))
+        // IOCTL_BATTERY_QUERY_INFORMATION
+        // #define IOCTL_BATTERY_QUERY_TAG CTL_CODE(FILE_DEVICE_BATTERY, 0x10,
+        // METHOD_BUFFERED, FILE_READ_ACCESS)
+        // #define IOCTL_BATTERY_QUERY_INFORMATION CTL_CODE(FILE_DEVICE_BATTERY, 0x11,
+        // METHOD_BUFFERED, FILE_READ_ACCESS)
+        // #define IOCTL_BATTERY_SET_INFORMATION CTL_CODE(FILE_DEVICE_BATTERY, 0x12,
+        // METHOD_BUFFERED, FILE_WRITE_ACCESS)
+        // #define IOCTL_BATTERY_QUERY_STATUS CTL_CODE(FILE_DEVICE_BATTERY, 0x13,
+        // METHOD_BUFFERED, FILE_READ_ACCESS)
+
+        // Kernel32.INSTANCE.DeviceIoControl(hBattery, dwIoControlCode, lpInBuffer,
+        // nInBufferSize, lpOutBuffer, nOutBufferSize, lpBytesReturned, lpOverlapped)
+
+        // Enumerate battery services:
+        // https://docs.microsoft.com/en-us/windows/win32/power/enumerating-battery-devices
         int size = new SystemBatteryState().size();
         Memory mem = new Memory(size);
         if (0 == PowrProf.INSTANCE.CallNtPowerInformation(POWER_INFORMATION_LEVEL.SystemBatteryState, null, 0, mem,
@@ -83,8 +120,10 @@ public class WindowsPowerSource extends AbstractPowerSource {
                 if (batteryState.acOnLine == 0 && batteryState.charging == 0 && batteryState.discharging > 0) {
                     estimatedTime = batteryState.estimatedTime;
                 }
-                long maxCapacity = FormatUtil.getUnsignedInt(batteryState.maxCapacity);
-                long remainingCapacity = FormatUtil.getUnsignedInt(batteryState.remainingCapacity);
+                maxCapacity = FormatUtil.getUnsignedInt(batteryState.maxCapacity);
+                remainingCapacity = FormatUtil.getUnsignedInt(batteryState.remainingCapacity);
+                estimatedTimeRaw = FormatUtil.getUnsignedInt(batteryState.estimatedTime);
+                rate = batteryState.rate;
                 return new WindowsPowerSource(name, (double) remainingCapacity / maxCapacity, estimatedTime);
             }
         }
