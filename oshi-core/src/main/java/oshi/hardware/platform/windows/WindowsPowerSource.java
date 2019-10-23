@@ -246,21 +246,28 @@ public class WindowsPowerSource extends AbstractPowerSource {
                                                 }
                                             }
                                         }
+
                                         bqi.InformationLevel = PowrProf.BATTERY_QUERY_INFORMATION_LEVEL.BatteryDeviceName
                                                 .ordinal();
                                         bqi.write();
                                         Kernel32.INSTANCE.DeviceIoControl(hBattery, IOCTL_BATTERY_QUERY_INFORMATION,
                                                 bqi.getPointer(), bqi.size(), null, 0, dwOut, null);
                                         int nameLen = dwOut.getValue();
-                                        Memory nameBuf = new Memory(nameLen);
+                                        Memory nameBuf = new Memory(nameLen + charwidth);
                                         if (Kernel32.INSTANCE.DeviceIoControl(hBattery, IOCTL_BATTERY_QUERY_INFORMATION,
-                                                bqi.getPointer(), bqi.size(), nameBuf, nameLen, dwOut, null)) {
+                                                bqi.getPointer(), bqi.size(), nameBuf, (int) nameBuf.size(), dwOut,
+                                                null)) {
                                             String batteryName = charwidth > 1 ? nameBuf.getWideString(0)
                                                     : nameBuf.getString(0);
                                             System.out.println("Battery name: " + batteryName);
                                         }
+                                        // TODO, other info levels
+                                        // BatteryEstimatedTime: Time remaining in s
+                                        // BatteryManufactureDate: D, M, Y
+                                        // BatteryManufactureName: Manufacturer
+                                        // BatterySerialNumber
+                                        // BatteryTemperature: 1/10 degree K
                                     }
-
                                 }
                                 Kernel32.INSTANCE.CloseHandle(hBattery);
                             }

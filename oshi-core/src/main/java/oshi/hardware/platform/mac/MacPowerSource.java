@@ -41,6 +41,8 @@ import oshi.jna.platform.mac.CoreFoundation.CFNumberRef;
 import oshi.jna.platform.mac.CoreFoundation.CFStringRef;
 import oshi.jna.platform.mac.CoreFoundation.CFTypeRef;
 import oshi.jna.platform.mac.IOKit;
+import oshi.jna.platform.mac.IOKit.IORegistryEntry;
+import oshi.jna.platform.mac.IOKitUtil;
 import oshi.util.Constants;
 
 /**
@@ -123,6 +125,52 @@ public class MacPowerSource extends AbstractPowerSource {
         return psList.toArray(new MacPowerSource[0]);
     }
 
+    private static int GetBatteryState() {
+        String manufacturer;
+        String serialNumber;
+        String deviceName;
+        IORegistryEntry smartBattery = IOKitUtil.getMatchingService("AppleSmartBattery");
+        if (smartBattery != null) {
+            deviceName = smartBattery.getStringProperty("DeviceName");
+            manufacturer = smartBattery.getStringProperty("Manufacturer");
+            serialNumber = smartBattery.getStringProperty("BatterySerialNumber");
+            System.out.println(manufacturer + "/" + serialNumber);
+            int manufactureDate = smartBattery.getIntegerProperty("ManufactureDate");
+            // Bits 0...4 => day (value 1-31; 5 bits)
+            // Bits 5...8 => month (value 1-12; 4 bits)
+            // Bits 9...15 => years since 1980 (value 0-127; 7 bits)
+            int day = manufactureDate & 0x1f;
+            int month = (manufactureDate >> 5) & 0xf;
+            int year80 = (manufactureDate >> 9) & 0x7f;
+            System.out.format("%4d-%02d-%02d%n", 1980 + year80, month, day);
+
+            int designCapacity = smartBattery.getIntegerProperty("DesignCapacity");
+            int maxCapacity = smartBattery.getIntegerProperty("MaxCapacity");
+            int curCapacity = smartBattery.getIntegerProperty("CurrentCapacity");
+            System.out.println(curCapacity + "/" + maxCapacity + " of " + designCapacity + "mAh");
+            int timeRemaining = smartBattery.getIntegerProperty("TimeRemaining");
+            System.out.println("Remaining " + timeRemaining / 3600d + " hrs");
+
+            int cycleCount = smartBattery.getIntegerProperty("CycleCount");
+            int temp = smartBattery.getIntegerProperty("Temperature");
+            System.out.println("temp " + temp / 100d + "C, cycles " + cycleCount);
+
+            int voltage = smartBattery.getIntegerProperty("Voltage");
+            int amperage = smartBattery.getIntegerProperty("Amperage");
+            System.out
+                    .println(voltage / 1000d + "V, " + amperage / 1000d + "A, power " + voltage / 1000000d * amperage
+                            + "W");
+
+            // TODO
+            // ExternalConnected - true if drawing power
+            // BatteryInstalled - true if present
+            // IsCharging - true if charging
+
+            smartBattery.release();
+        }
+        return 0;
+    }
+
     @Override
     public void updateAttributes() {
         PowerSource[] psArr = getPowerSources();
@@ -137,4 +185,9 @@ public class MacPowerSource extends AbstractPowerSource {
         this.remainingCapacity = 0d;
         this.timeRemaining = -1d;
     }
+
+    public static void main(String[] args) {
+        System.out.println("RESULT: " + MacPowerSource.GetBatteryState());
+    }
+
 }
