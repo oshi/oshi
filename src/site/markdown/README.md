@@ -55,7 +55,7 @@ Downloads
 ---------
 | Stable Release Version | Current Development Version | Dependencies |
 | ------------- | ------------- | ------------- |
-| [oshi-core-4.0.0](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&amp;amp;g=com.github.oshi&amp;amp;a=oshi-core&amp;amp;v=4.0.0&amp;amp;e=jar)  | [oshi-core-4.1.0-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;amp;g=com.github.oshi&amp;amp;a=oshi-core&amp;amp;v=4.1.0-SNAPSHOT&amp;amp;e=jar) | [JNA](https://github.com/java-native-access/jna) • [SLF4J](http://www.slf4j.org/) |
+| [oshi-core-4.1.1](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&amp;amp;g=com.github.oshi&amp;amp;a=oshi-core&amp;amp;v=4.1.1&amp;amp;e=jar)  | [oshi-core-4.2.0-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;amp;g=com.github.oshi&amp;amp;a=oshi-core&amp;amp;v=4.2.0-SNAPSHOT&amp;amp;e=jar) | [JNA](https://github.com/java-native-access/jna) • [SLF4J](http://www.slf4j.org/) |
 
 Output
 -------------
