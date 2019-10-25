@@ -57,6 +57,9 @@ public class LinuxSensors extends AbstractSensors {
     private static final String THERMAL_ZONE = "thermal_zone";
     private static final String THERMAL_ZONE_PATH = "/sys/class/thermal/" + THERMAL_ZONE;
 
+    // Initial test to see if we are running on a Pi
+    private static final boolean IS_PI = queryCpuTemperatureFromVcGenCmd() > 0;
+
     // Map from sensor to path. Built by constructor, so thread safe
     private final Map<String, String> sensorsMap = new HashMap<>();
 
@@ -66,10 +69,12 @@ public class LinuxSensors extends AbstractSensors {
      * </p>
      */
     public LinuxSensors() {
-        iterateHwmon();
-        // if no temperature sensor is found in hwmon, try thermal_zone
-        if (!this.sensorsMap.containsKey(TEMP)) {
-            iterateThermalZone();
+        if (!IS_PI) {
+            populateSensorsMapFromHwmon();
+            // if no temperature sensor is found in hwmon, try thermal_zone
+            if (!this.sensorsMap.containsKey(TEMP)) {
+                populateSensorsMapFromThermalZone();
+            }
         }
     }
 
@@ -77,7 +82,7 @@ public class LinuxSensors extends AbstractSensors {
      * Iterate over all hwmon* directories and look for sensor files, e.g.,
      * /sys/class/hwmon/hwmon0/temp1_input
      */
-    private void iterateHwmon() {
+    private void populateSensorsMapFromHwmon() {
         for (String sensor : SENSORS) {
             // Final to pass to anonymous class
             final String sensorPrefix = sensor;
@@ -97,7 +102,7 @@ public class LinuxSensors extends AbstractSensors {
      * Iterate over all thermal_zone* directories and look for sensor files, e.g.,
      * /sys/class/thermal/thermal_zone0/temp
      */
-    private void iterateThermalZone() {
+    private void populateSensorsMapFromThermalZone() {
         getSensorFilesFromPath(THERMAL_ZONE_PATH, TEMP, f -> f.getName().equals(TEMP));
     }
 
@@ -126,6 +131,9 @@ public class LinuxSensors extends AbstractSensors {
 
     @Override
     public double queryCpuTemperature() {
+        if (IS_PI) {
+            return queryCpuTemperatureFromVcGenCmd();
+        }
         String tempStr = this.sensorsMap.get(TEMP);
         if (tempStr != null) {
             long millidegrees = 0;
@@ -159,8 +167,16 @@ public class LinuxSensors extends AbstractSensors {
                 }
             }
         }
-        // For raspberry pi
-        tempStr = ExecutingCommand.getFirstAnswer("vcgencmd measure_temp");
+        return 0d;
+    }
+
+    /**
+     * Retrieves temperature from Raspberry Pi
+     *
+     * @return The temperature on a Pi, 0 otherwise
+     */
+    private static double queryCpuTemperatureFromVcGenCmd() {
+        String tempStr = ExecutingCommand.getFirstAnswer("vcgencmd measure_temp");
         // temp=50.8'C
         if (tempStr.startsWith("temp=") && tempStr.endsWith("'C")) {
             return ParseUtil.parseDoubleOrDefault(tempStr.replaceAll("\\^[0-9]+(\\.[0-9]{1,4})?$", ""), 0d);
@@ -170,43 +186,58 @@ public class LinuxSensors extends AbstractSensors {
 
     @Override
     public int[] queryFanSpeeds() {
-        String fanStr = this.sensorsMap.get(FAN);
-        if (fanStr != null) {
-            List<Integer> speeds = new ArrayList<>();
-            int fan = 1;
-            for (;;) {
-                String fanPath = String.format("%s%d_input", fanStr, fan);
-                if (!new File(fanPath).exists()) {
-                    // No file found, we've reached max fans
-                    break;
+        if (!IS_PI) {
+            String fanStr = this.sensorsMap.get(FAN);
+            if (fanStr != null) {
+                List<Integer> speeds = new ArrayList<>();
+                int fan = 1;
+                for (;;) {
+                    String fanPath = String.format("%s%d_input", fanStr, fan);
+                    if (!new File(fanPath).exists()) {
+                        // No file found, we've reached max fans
+                        break;
+                    }
+                    // Should return a single line of RPM
+                    speeds.add(FileUtil.getIntFromFile(fanPath));
+                    // Done reading data for current fan, read next fan
+                    fan++;
                 }
-                // Should return a single line of RPM
-                speeds.add(FileUtil.getIntFromFile(fanPath));
-                // Done reading data for current fan, read next fan
-                fan++;
+                int[] fanSpeeds = new int[speeds.size()];
+                for (int i = 0; i < speeds.size(); i++) {
+                    fanSpeeds[i] = speeds.get(i);
+                }
+                return fanSpeeds;
             }
-            int[] fanSpeeds = new int[speeds.size()];
-            for (int i = 0; i < speeds.size(); i++) {
-                fanSpeeds[i] = speeds.get(i);
-            }
-            return fanSpeeds;
         }
         return new int[0];
     }
 
     @Override
     public double queryCpuVoltage() {
+        if (IS_PI) {
+            return queryCpuVoltageFromVcGenCmd();
+        }
         String voltageStr = this.sensorsMap.get(VOLTAGE);
         if (voltageStr != null) {
             // Should return a single line of millivolt
             return FileUtil.getIntFromFile(String.format("%s1_input", voltageStr)) / 1000d;
         }
+        return 0d;
+    }
+
+    /**
+     * Retrieves voltage from Raspberry Pi
+     *
+     * @return The temperature on a Pi, 0 otherwise
+     */
+    private static double queryCpuVoltageFromVcGenCmd() {
         // For raspberry pi
-        voltageStr = ExecutingCommand.getFirstAnswer("vcgencmd measure_volts core");
+        String voltageStr = ExecutingCommand.getFirstAnswer("vcgencmd measure_volts core");
         // volt=1.20V
         if (voltageStr.startsWith("volt=") && voltageStr.endsWith("V")) {
             return ParseUtil.parseDoubleOrDefault(voltageStr.replaceAll("\\^[0-9]+(\\.[0-9]{1,4})?$", ""), 0d);
         }
         return 0d;
     }
+
 }

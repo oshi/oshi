@@ -2,11 +2,12 @@
 ================
 * Your contribution here.
 
-4.1.0 (10/16/2019)
+4.1.0 (10/16/2019), 4.1.1 (10/24/2019)
 ================
 API CHANGE: This version implements thread-safe getters for OSHI attributes.
 As part of this change, support for serialization has been removed. 
 In addition, some setters have been removed from the API, as they were never intended for end user use.
+Additional setter removal may occur in future versions.
 
 The default configuration file has been renamed to `oshi.properties` to prevent classpath conflicts.
 * [#943](https://github.com/oshi/oshi/pull/943),

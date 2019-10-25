@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import com.sun.jna.platform.win32.Kernel32; // NOSONAR squid:S1191
 import com.sun.jna.platform.win32.Psapi;
 import com.sun.jna.platform.win32.Psapi.PERFORMANCE_INFORMATION;
+import com.sun.jna.platform.win32.VersionHelpers;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
@@ -50,12 +51,19 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsGlobalMemory.class);
 
+    private static final boolean IS_WINDOWS10_OR_GREATER = VersionHelpers.IsWindows10OrGreater();
+
     private final Supplier<PerfInfo> perfInfo = memoize(this::readPerfInfo, defaultExpiration());
 
     private final Supplier<VirtualMemory> vm = memoize(this::createVirtualMemory);
 
     enum PhysicalMemoryProperty {
-        BANKLABEL, CAPACITY, CONFIGUREDCLOCKSPEED, MANUFACTURER, SMBIOSMEMORYTYPE
+        BANKLABEL, CAPACITY, SPEED, MANUFACTURER, SMBIOSMEMORYTYPE
+    }
+
+    // Pre-Win10
+    enum PhysicalMemoryPropertyWin8 {
+        BANKLABEL, CAPACITY, SPEED, MANUFACTURER, MEMORYTYPE
     }
 
     @Override
@@ -84,22 +92,173 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
 
     @Override
     public PhysicalMemory[] getPhysicalMemory() {
+        PhysicalMemory[] physicalMemoryArray;
         WmiQueryHandler wmiQueryHandler = WmiQueryHandler.createInstance();
-        WmiQuery<PhysicalMemoryProperty> physicalMemoryQuery = new WmiQuery<>("Win32_PhysicalMemory",
-                PhysicalMemoryProperty.class);
-        WmiResult<PhysicalMemoryProperty> bankMap = wmiQueryHandler.queryWMI(physicalMemoryQuery);
+        if (IS_WINDOWS10_OR_GREATER) {
+            WmiQuery<PhysicalMemoryProperty> physicalMemoryQuery = new WmiQuery<>("Win32_PhysicalMemory",
+                    PhysicalMemoryProperty.class);
+            WmiResult<PhysicalMemoryProperty> bankMap = wmiQueryHandler.queryWMI(physicalMemoryQuery);
 
-        PhysicalMemory[] physicalMemoryArray = new PhysicalMemory[bankMap.getResultCount()];
-        for (int index = 0; index < bankMap.getResultCount(); index++) {
-            String bankLabel = WmiUtil.getString(bankMap, PhysicalMemoryProperty.BANKLABEL, index);
-            long capacity = WmiUtil.getUint64(bankMap, PhysicalMemoryProperty.CAPACITY, index);
-            long speed = WmiUtil.getUint32(bankMap, PhysicalMemoryProperty.CONFIGUREDCLOCKSPEED, index) * 1_000_000L;
-            String manufacturer = WmiUtil.getString(bankMap, PhysicalMemoryProperty.MANUFACTURER, index);
-            int type = WmiUtil.getUint32(bankMap, PhysicalMemoryProperty.SMBIOSMEMORYTYPE, index);
-            String memoryType = smBiosMemoryType(type);
-            physicalMemoryArray[index] = new PhysicalMemory(bankLabel, capacity, speed, manufacturer, memoryType);
+            physicalMemoryArray = new PhysicalMemory[bankMap.getResultCount()];
+            for (int index = 0; index < bankMap.getResultCount(); index++) {
+                String bankLabel = WmiUtil.getString(bankMap, PhysicalMemoryProperty.BANKLABEL, index);
+                long capacity = WmiUtil.getUint64(bankMap, PhysicalMemoryProperty.CAPACITY, index);
+                long speed = WmiUtil.getUint32(bankMap, PhysicalMemoryProperty.SPEED, index) * 1_000_000L;
+                String manufacturer = WmiUtil.getString(bankMap, PhysicalMemoryProperty.MANUFACTURER, index);
+                String memoryType = smBiosMemoryType(
+                        WmiUtil.getUint32(bankMap, PhysicalMemoryProperty.SMBIOSMEMORYTYPE, index));
+                physicalMemoryArray[index] = new PhysicalMemory(bankLabel, capacity, speed, manufacturer, memoryType);
+            }
+        } else {
+            WmiQuery<PhysicalMemoryPropertyWin8> physicalMemoryQuery = new WmiQuery<>("Win32_PhysicalMemory",
+                    PhysicalMemoryPropertyWin8.class);
+            WmiResult<PhysicalMemoryPropertyWin8> bankMap = wmiQueryHandler.queryWMI(physicalMemoryQuery);
+
+            physicalMemoryArray = new PhysicalMemory[bankMap.getResultCount()];
+            for (int index = 0; index < bankMap.getResultCount(); index++) {
+                String bankLabel = WmiUtil.getString(bankMap, PhysicalMemoryPropertyWin8.BANKLABEL, index);
+                long capacity = WmiUtil.getUint64(bankMap, PhysicalMemoryPropertyWin8.CAPACITY, index);
+                long speed = WmiUtil.getUint32(bankMap, PhysicalMemoryPropertyWin8.SPEED, index) * 1_000_000L;
+                String manufacturer = WmiUtil.getString(bankMap, PhysicalMemoryPropertyWin8.MANUFACTURER, index);
+                String memoryType = memoryType(
+                        WmiUtil.getUint16(bankMap, PhysicalMemoryPropertyWin8.MEMORYTYPE, index));
+                physicalMemoryArray[index] = new PhysicalMemory(bankLabel, capacity, speed, manufacturer, memoryType);
+            }
         }
         return physicalMemoryArray;
+    }
+
+    /**
+     * Convert memory type number to a human readable string
+     *
+     * @param type
+     *            The memory type
+     * @return A string describing the type
+     */
+    private static String memoryType(int type) {
+        switch (type) {
+        case 1:
+            return "Other";
+        case 2:
+            return "DRAM";
+        case 3:
+            return "Synchronous DRAM";
+        case 4:
+            return "Cache DRAM";
+        case 5:
+            return "EDO";
+        case 6:
+            return "EDRAM";
+        case 7:
+            return "VRAM";
+        case 8:
+            return "SRAM";
+        case 9:
+            return "RAM";
+        case 10:
+            return "ROM";
+        case 11:
+            return "Flash";
+        case 12:
+            return "EEPROM";
+        case 13:
+            return "FEPROM";
+        case 14:
+            return "EPROM";
+        case 15:
+            return "CDRAM";
+        case 16:
+            return "3DRAM";
+        case 17:
+            return "SDRAM";
+        case 18:
+            return "SGRAM";
+        case 19:
+            return "RDRAM";
+        case 20:
+            return "DDR";
+        case 21:
+            return "DDR2";
+        case 22:
+            return "DDR2-FB-DIMM";
+        case 24:
+            return "DDR3";
+        case 25:
+            return "FBD2";
+        default:
+            return "Unknown";
+        }
+    }
+
+    /**
+     * Convert SMBIOS type number to a human readable string
+     *
+     * @param type
+     *            The SMBIOS type
+     * @return A string describing the type
+     */
+    private static String smBiosMemoryType(int type) {
+        // https://www.dmtf.org/sites/default/files/standards/documents/DSP0134_3.2.0.pdf
+        // table 76
+        switch (type) {
+        case 0x01:
+            return "Other";
+        case 0x03:
+            return "DRAM";
+        case 0x04:
+            return "EDRAM";
+        case 0x05:
+            return "VRAM";
+        case 0x06:
+            return "SRAM";
+        case 0x07:
+            return "RAM";
+        case 0x08:
+            return "ROM";
+        case 0x09:
+            return "FLASH";
+        case 0x0A:
+            return "EEPROM";
+        case 0x0B:
+            return "FEPROM";
+        case 0x0C:
+            return "EPROM";
+        case 0x0D:
+            return "CDRAM";
+        case 0x0E:
+            return "3DRAM";
+        case 0x0F:
+            return "SDRAM";
+        case 0x10:
+            return "SGRAM";
+        case 0x11:
+            return "RDRAM";
+        case 0x12:
+            return "DDR";
+        case 0x13:
+            return "DDR2";
+        case 0x14:
+            return "DDR2 FB-DIMM";
+        case 0x18:
+            return "DDR3";
+        case 0x19:
+            return "FBD2";
+        case 0x1A:
+            return "DDR4";
+        case 0x1B:
+            return "LPDDR";
+        case 0x1C:
+            return "LPDDR2";
+        case 0x1D:
+            return "LPDDR3";
+        case 0x1E:
+            return "LPDDR4";
+        case 0x1F:
+            return "Logical non-volatile device";
+        case 0x02:
+        default:
+            return "Unknown";
+        }
     }
 
     private PerfInfo readPerfInfo() {

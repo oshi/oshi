@@ -14,7 +14,7 @@ Code in the platform-specific `oshi.jna.*` packages is intended to be temporary 
 
 Is OSHI Thread Safe?
 ========
-Short answer: No, but multi-thread implementations can be constructed to avoid problems.
+Short answer: Not yet, but multi-thread implementations can be constructed to avoid problems.
 
 Longer answer: Prior to version 4.1.0, there is no guarantee of thread safety.  In the normal use case of OSHI (using getters to retrieve information) there will be no thread safety issues if each thread is attempting to get information from a different object.  There are generally two ways to do this: (1) Have each thread instantiate a new instance of `SystemInfo`, or (2) have each thread deal only with access from objects not used by other threads, e.g., one thread can fetch memory information while another thread fetches Disks, and another fetches file system information. 
 
@@ -23,8 +23,8 @@ In version 4.1.0, attempts have been made to ensure thread safety, but users are
 What minimum Java version is required?
 ========
 OSHI 3.x is compatible with Java 7, but will not see any added features.  
-OSHI 4.x requires minimum Java 8 compatibility, although backporting to Java 7 would not be difficult on a fork.
-OSHI 5.x's requirements have not yet been finalized but will likely require at least Java 11.  
+OSHI 4.x and 5.x (planned) require minimum Java 8 compatibility, although backporting to Java 7 would not be difficult on a fork.
+OSHI 6.x's requirements have not yet been finalized but will likely require at least Java 11.  
 
 Which operating systems are supported?
 ========
