@@ -32,7 +32,7 @@ oshi-core-shaded/oshi-core,oshi.hardware.platform.windows,WindowsBaseboard,75,0,
 oshi-core-shaded/oshi-core,oshi.hardware.platform.windows,WindowsCentralProcessor.InterruptsProperty,33,0,0,0,8,0,4,0,4,0
 oshi-core-shaded/oshi-core,oshi.hardware.platform.windows,WindowsUsbDevice,542,0,42,0,114,0,30,0,9,0
 oshi-core-shaded/oshi-core,oshi.hardware.platform.windows,WindowsNetworks,127,0,6,0,33,0,6,0,3,0
-oshi-core-shaded/oshi-core,oshi.hardware.platform.windows,WindowsGlobalMemory,163,0,4,0,30,0,11,0,9,0
+oshi-core-shaded/oshi-core,oshi.hardware.platform.windows,WindowsGlobalMemory,338,0,61,0,99,0,66,0,11,0
 oshi-core-shaded/oshi-core,oshi.hardware.platform.windows,WindowsGlobalMemory.PhysicalMemoryProperty,54,0,0,0,2,0,1,0,1,0
 oshi-core-shaded/oshi-core,oshi.hardware.platform.windows,WindowsDisks.PhysicalDiskProperty,92,0,0,0,12,0,3,0,3,0
 oshi-core-shaded/oshi-core,oshi.hardware.platform.windows,WindowsUsbDevice.USBControllerProperty,14,0,0,0,2,0,1,0,1,0
@@ -52,6 +52,7 @@ oshi-core-shaded/oshi-core,oshi.hardware.platform.windows,WindowsSensors.VoltPro
 oshi-core-shaded/oshi-core,oshi.hardware.platform.windows,WindowsComputerSystem.ManufacturerModel,19,0,4,0,4,0,3,0,1,0
 oshi-core-shaded/oshi-core,oshi.hardware.platform.windows,WindowsCentralProcessor.ProcessorTickCountProperty,81,0,0,0,11,0,3,0,3,0
 oshi-core-shaded/oshi-core,oshi.hardware.platform.windows,WindowsPowerSource,105,0,10,0,23,0,10,0,5,0
+oshi-core-shaded/oshi-core,oshi.hardware.platform.windows,WindowsGlobalMemory.PhysicalMemoryPropertyWin8,54,0,0,0,2,0,1,0,1,0
 oshi-core-shaded/oshi-core,oshi.hardware.platform.windows,WindowsGlobalMemory.PerfInfo,12,0,0,0,5,0,1,0,1,0
 oshi-core-shaded/oshi-core,oshi.hardware.platform.windows,WindowsSensors.FanProperty,14,0,0,0,2,0,1,0,1,0
 oshi-core-shaded/oshi-core,oshi.hardware.platform.windows,WindowsSensors.ThermalZoneProperty,37,0,0,0,7,0,3,0,3,0
@@ -68,7 +69,7 @@ oshi-core-shaded/oshi-core,oshi.software.os,OSFileStore,79,94,6,0,22,40,7,26,2,2
 oshi-core-shaded/oshi-core,oshi.software.os,OSProcess,30,395,0,6,5,123,1,55,1,52
 oshi-core-shaded/oshi-core,oshi.hardware.common,AbstractVirtualMemory,30,0,0,0,7,0,2,0,2,0
 oshi-core-shaded/oshi-core,oshi.hardware.common,AbstractUsbDevice,162,0,8,0,28,0,15,0,11,0
-oshi-core-shaded/oshi-core,oshi.hardware.common,AbstractGlobalMemory,301,0,58,0,87,0,51,0,5,0
+oshi-core-shaded/oshi-core,oshi.hardware.common,AbstractGlobalMemory,243,0,30,0,58,0,23,0,4,0
 oshi-core-shaded/oshi-core,oshi.hardware.common,AbstractSoundCard,81,0,0,0,25,0,8,0,8,0
 oshi-core-shaded/oshi-core,oshi.hardware.common,AbstractBaseboard,44,0,0,0,7,0,2,0,2,0
 oshi-core-shaded/oshi-core,oshi.hardware.common,AbstractPowerSource,101,0,4,0,22,0,8,0,6,0
@@ -167,7 +168,7 @@ oshi-core-shaded/oshi-core,oshi.hardware.platform.unix.solaris,SolarisFirmware,2
 oshi-core-shaded/oshi-core,oshi.hardware.platform.unix.solaris,SolarisHardwareAbstractionLayer,42,0,0,0,11,0,11,0,11,0
 oshi-core-shaded/oshi-core,oshi.hardware.platform.linux,LinuxPowerSource,310,0,60,0,68,0,34,0,4,0
 oshi-core-shaded/oshi-core,oshi.hardware.platform.linux,LinuxGlobalMemory.MemInfo,9,0,0,0,4,0,1,0,1,0
-oshi-core-shaded/oshi-core,oshi.hardware.platform.linux,LinuxSensors,373,0,48,0,73,0,34,0,10,0
+oshi-core-shaded/oshi-core,oshi.hardware.platform.linux,LinuxSensors,397,0,58,0,82,0,41,0,12,0
 oshi-core-shaded/oshi-core,oshi.hardware.platform.linux,LinuxFirmware.BiosStrings,9,0,0,0,4,0,1,0,1,0
 oshi-core-shaded/oshi-core,oshi.hardware.platform.linux,LinuxFirmware,372,0,40,0,79,0,38,0,18,0
 oshi-core-shaded/oshi-core,oshi.hardware.platform.linux,LinuxComputerSystem,355,0,70,0,91,0,58,0,18,0
