@@ -290,7 +290,7 @@
 <a class="jxr_linenumber" name="L282" href="#L282">282</a> 
 <a class="jxr_linenumber" name="L283" href="#L283">283</a>     @Override
 <a class="jxr_linenumber" name="L284" href="#L284">284</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">int</strong> queryBitness() {
-<a class="jxr_linenumber" name="L285" href="#L285">285</a>         <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.jvmBitness &lt; 64 &amp;&amp; System.getenv(<span class="jxr_string">"ProgramFiles(x86)"</span>) == <strong class="jxr_keyword">null</strong> &amp;&amp; IS_VISTA_OR_GREATER) {
+<a class="jxr_linenumber" name="L285" href="#L285">285</a>         <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.jvmBitness &lt; 64 &amp;&amp; System.getenv(<span class="jxr_string">"ProgramFiles(x86)"</span>) != <strong class="jxr_keyword">null</strong> &amp;&amp; IS_VISTA_OR_GREATER) {
 <a class="jxr_linenumber" name="L286" href="#L286">286</a>             WmiQuery&lt;BitnessProperty&gt; bitnessQuery = <strong class="jxr_keyword">new</strong> WmiQuery&lt;&gt;(<span class="jxr_string">"Win32_Processor"</span>, BitnessProperty.<strong class="jxr_keyword">class</strong>);
 <a class="jxr_linenumber" name="L287" href="#L287">287</a>             WmiResult&lt;BitnessProperty&gt; bitnessMap = wmiQueryHandler.queryWMI(bitnessQuery);
 <a class="jxr_linenumber" name="L288" href="#L288">288</a>             <strong class="jxr_keyword">if</strong> (bitnessMap.getResultCount() &gt; 0) {
