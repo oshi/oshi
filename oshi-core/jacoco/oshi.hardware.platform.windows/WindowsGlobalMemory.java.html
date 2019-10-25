@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import com.sun.jna.platform.win32.Kernel32; // NOSONAR squid:S1191
 import com.sun.jna.platform.win32.Psapi;
 import com.sun.jna.platform.win32.Psapi.PERFORMANCE_INFORMATION;
+import com.sun.jna.platform.win32.VersionHelpers;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
@@ -46,75 +47,233 @@ import oshi.util.platform.windows.WmiUtil;
 /**
  * Memory obtained by Performance Info.
  */
-<span class="nc" id="L49">public class WindowsGlobalMemory extends AbstractGlobalMemory {</span>
+<span class="nc" id="L50">public class WindowsGlobalMemory extends AbstractGlobalMemory {</span>
 
-<span class="nc" id="L51">    private static final Logger LOG = LoggerFactory.getLogger(WindowsGlobalMemory.class);</span>
+<span class="nc" id="L52">    private static final Logger LOG = LoggerFactory.getLogger(WindowsGlobalMemory.class);</span>
 
-<span class="nc" id="L53">    private final Supplier&lt;PerfInfo&gt; perfInfo = memoize(this::readPerfInfo, defaultExpiration());</span>
+<span class="nc" id="L54">    private static final boolean IS_WINDOWS10_OR_GREATER = VersionHelpers.IsWindows10OrGreater();</span>
 
-<span class="nc" id="L55">    private final Supplier&lt;VirtualMemory&gt; vm = memoize(this::createVirtualMemory);</span>
+<span class="nc" id="L56">    private final Supplier&lt;PerfInfo&gt; perfInfo = memoize(this::readPerfInfo, defaultExpiration());</span>
 
-<span class="nc" id="L57">    enum PhysicalMemoryProperty {</span>
-<span class="nc" id="L58">        BANKLABEL, CAPACITY, CONFIGUREDCLOCKSPEED, MANUFACTURER, SMBIOSMEMORYTYPE</span>
+<span class="nc" id="L58">    private final Supplier&lt;VirtualMemory&gt; vm = memoize(this::createVirtualMemory);</span>
+
+<span class="nc" id="L60">    enum PhysicalMemoryProperty {</span>
+<span class="nc" id="L61">        BANKLABEL, CAPACITY, SPEED, MANUFACTURER, SMBIOSMEMORYTYPE</span>
+    }
+
+    // Pre-Win10
+<span class="nc" id="L65">    enum PhysicalMemoryPropertyWin8 {</span>
+<span class="nc" id="L66">        BANKLABEL, CAPACITY, SPEED, MANUFACTURER, MEMORYTYPE</span>
     }
 
     @Override
     public long getAvailable() {
-<span class="nc" id="L63">        return perfInfo.get().available;</span>
+<span class="nc" id="L71">        return perfInfo.get().available;</span>
     }
 
     @Override
     public long getTotal() {
-<span class="nc" id="L68">        return perfInfo.get().total;</span>
+<span class="nc" id="L76">        return perfInfo.get().total;</span>
     }
 
     @Override
     public long getPageSize() {
-<span class="nc" id="L73">        return perfInfo.get().pageSize;</span>
+<span class="nc" id="L81">        return perfInfo.get().pageSize;</span>
     }
 
     @Override
     public VirtualMemory getVirtualMemory() {
-<span class="nc" id="L78">        return vm.get();</span>
+<span class="nc" id="L86">        return vm.get();</span>
     }
 
     private VirtualMemory createVirtualMemory() {
-<span class="nc" id="L82">        return new WindowsVirtualMemory(getPageSize());</span>
+<span class="nc" id="L90">        return new WindowsVirtualMemory(getPageSize());</span>
     }
 
     @Override
     public PhysicalMemory[] getPhysicalMemory() {
-<span class="nc" id="L87">        WmiQueryHandler wmiQueryHandler = WmiQueryHandler.createInstance();</span>
-<span class="nc" id="L88">        WmiQuery&lt;PhysicalMemoryProperty&gt; physicalMemoryQuery = new WmiQuery&lt;&gt;(&quot;Win32_PhysicalMemory&quot;,</span>
-                PhysicalMemoryProperty.class);
-<span class="nc" id="L90">        WmiResult&lt;PhysicalMemoryProperty&gt; bankMap = wmiQueryHandler.queryWMI(physicalMemoryQuery);</span>
+        PhysicalMemory[] physicalMemoryArray;
+<span class="nc" id="L96">        WmiQueryHandler wmiQueryHandler = WmiQueryHandler.createInstance();</span>
+<span class="nc bnc" id="L97" title="All 2 branches missed.">        if (IS_WINDOWS10_OR_GREATER) {</span>
+<span class="nc" id="L98">            WmiQuery&lt;PhysicalMemoryProperty&gt; physicalMemoryQuery = new WmiQuery&lt;&gt;(&quot;Win32_PhysicalMemory&quot;,</span>
+                    PhysicalMemoryProperty.class);
+<span class="nc" id="L100">            WmiResult&lt;PhysicalMemoryProperty&gt; bankMap = wmiQueryHandler.queryWMI(physicalMemoryQuery);</span>
 
-<span class="nc" id="L92">        PhysicalMemory[] physicalMemoryArray = new PhysicalMemory[bankMap.getResultCount()];</span>
-<span class="nc bnc" id="L93" title="All 2 branches missed.">        for (int index = 0; index &lt; bankMap.getResultCount(); index++) {</span>
-<span class="nc" id="L94">            String bankLabel = WmiUtil.getString(bankMap, PhysicalMemoryProperty.BANKLABEL, index);</span>
-<span class="nc" id="L95">            long capacity = WmiUtil.getUint64(bankMap, PhysicalMemoryProperty.CAPACITY, index);</span>
-<span class="nc" id="L96">            long speed = WmiUtil.getUint32(bankMap, PhysicalMemoryProperty.CONFIGUREDCLOCKSPEED, index) * 1_000_000L;</span>
-<span class="nc" id="L97">            String manufacturer = WmiUtil.getString(bankMap, PhysicalMemoryProperty.MANUFACTURER, index);</span>
-<span class="nc" id="L98">            int type = WmiUtil.getUint32(bankMap, PhysicalMemoryProperty.SMBIOSMEMORYTYPE, index);</span>
-<span class="nc" id="L99">            String memoryType = smBiosMemoryType(type);</span>
-<span class="nc" id="L100">            physicalMemoryArray[index] = new PhysicalMemory(bankLabel, capacity, speed, manufacturer, memoryType);</span>
+<span class="nc" id="L102">            physicalMemoryArray = new PhysicalMemory[bankMap.getResultCount()];</span>
+<span class="nc bnc" id="L103" title="All 2 branches missed.">            for (int index = 0; index &lt; bankMap.getResultCount(); index++) {</span>
+<span class="nc" id="L104">                String bankLabel = WmiUtil.getString(bankMap, PhysicalMemoryProperty.BANKLABEL, index);</span>
+<span class="nc" id="L105">                long capacity = WmiUtil.getUint64(bankMap, PhysicalMemoryProperty.CAPACITY, index);</span>
+<span class="nc" id="L106">                long speed = WmiUtil.getUint32(bankMap, PhysicalMemoryProperty.SPEED, index) * 1_000_000L;</span>
+<span class="nc" id="L107">                String manufacturer = WmiUtil.getString(bankMap, PhysicalMemoryProperty.MANUFACTURER, index);</span>
+<span class="nc" id="L108">                String memoryType = smBiosMemoryType(</span>
+<span class="nc" id="L109">                        WmiUtil.getUint32(bankMap, PhysicalMemoryProperty.SMBIOSMEMORYTYPE, index));</span>
+<span class="nc" id="L110">                physicalMemoryArray[index] = new PhysicalMemory(bankLabel, capacity, speed, manufacturer, memoryType);</span>
+            }
+<span class="nc" id="L112">        } else {</span>
+<span class="nc" id="L113">            WmiQuery&lt;PhysicalMemoryPropertyWin8&gt; physicalMemoryQuery = new WmiQuery&lt;&gt;(&quot;Win32_PhysicalMemory&quot;,</span>
+                    PhysicalMemoryPropertyWin8.class);
+<span class="nc" id="L115">            WmiResult&lt;PhysicalMemoryPropertyWin8&gt; bankMap = wmiQueryHandler.queryWMI(physicalMemoryQuery);</span>
+
+<span class="nc" id="L117">            physicalMemoryArray = new PhysicalMemory[bankMap.getResultCount()];</span>
+<span class="nc bnc" id="L118" title="All 2 branches missed.">            for (int index = 0; index &lt; bankMap.getResultCount(); index++) {</span>
+<span class="nc" id="L119">                String bankLabel = WmiUtil.getString(bankMap, PhysicalMemoryPropertyWin8.BANKLABEL, index);</span>
+<span class="nc" id="L120">                long capacity = WmiUtil.getUint64(bankMap, PhysicalMemoryPropertyWin8.CAPACITY, index);</span>
+<span class="nc" id="L121">                long speed = WmiUtil.getUint32(bankMap, PhysicalMemoryPropertyWin8.SPEED, index) * 1_000_000L;</span>
+<span class="nc" id="L122">                String manufacturer = WmiUtil.getString(bankMap, PhysicalMemoryPropertyWin8.MANUFACTURER, index);</span>
+<span class="nc" id="L123">                String memoryType = memoryType(</span>
+<span class="nc" id="L124">                        WmiUtil.getUint16(bankMap, PhysicalMemoryPropertyWin8.MEMORYTYPE, index));</span>
+<span class="nc" id="L125">                physicalMemoryArray[index] = new PhysicalMemory(bankLabel, capacity, speed, manufacturer, memoryType);</span>
+            }
         }
-<span class="nc" id="L102">        return physicalMemoryArray;</span>
+<span class="nc" id="L128">        return physicalMemoryArray;</span>
+    }
+
+    /**
+     * Convert memory type number to a human readable string
+     *
+     * @param type
+     *            The memory type
+     * @return A string describing the type
+     */
+    private static String memoryType(int type) {
+<span class="nc bnc" id="L139" title="All 25 branches missed.">        switch (type) {</span>
+        case 1:
+<span class="nc" id="L141">            return &quot;Other&quot;;</span>
+        case 2:
+<span class="nc" id="L143">            return &quot;DRAM&quot;;</span>
+        case 3:
+<span class="nc" id="L145">            return &quot;Synchronous DRAM&quot;;</span>
+        case 4:
+<span class="nc" id="L147">            return &quot;Cache DRAM&quot;;</span>
+        case 5:
+<span class="nc" id="L149">            return &quot;EDO&quot;;</span>
+        case 6:
+<span class="nc" id="L151">            return &quot;EDRAM&quot;;</span>
+        case 7:
+<span class="nc" id="L153">            return &quot;VRAM&quot;;</span>
+        case 8:
+<span class="nc" id="L155">            return &quot;SRAM&quot;;</span>
+        case 9:
+<span class="nc" id="L157">            return &quot;RAM&quot;;</span>
+        case 10:
+<span class="nc" id="L159">            return &quot;ROM&quot;;</span>
+        case 11:
+<span class="nc" id="L161">            return &quot;Flash&quot;;</span>
+        case 12:
+<span class="nc" id="L163">            return &quot;EEPROM&quot;;</span>
+        case 13:
+<span class="nc" id="L165">            return &quot;FEPROM&quot;;</span>
+        case 14:
+<span class="nc" id="L167">            return &quot;EPROM&quot;;</span>
+        case 15:
+<span class="nc" id="L169">            return &quot;CDRAM&quot;;</span>
+        case 16:
+<span class="nc" id="L171">            return &quot;3DRAM&quot;;</span>
+        case 17:
+<span class="nc" id="L173">            return &quot;SDRAM&quot;;</span>
+        case 18:
+<span class="nc" id="L175">            return &quot;SGRAM&quot;;</span>
+        case 19:
+<span class="nc" id="L177">            return &quot;RDRAM&quot;;</span>
+        case 20:
+<span class="nc" id="L179">            return &quot;DDR&quot;;</span>
+        case 21:
+<span class="nc" id="L181">            return &quot;DDR2&quot;;</span>
+        case 22:
+<span class="nc" id="L183">            return &quot;DDR2-FB-DIMM&quot;;</span>
+        case 24:
+<span class="nc" id="L185">            return &quot;DDR3&quot;;</span>
+        case 25:
+<span class="nc" id="L187">            return &quot;FBD2&quot;;</span>
+        default:
+<span class="nc" id="L189">            return &quot;Unknown&quot;;</span>
+        }
+    }
+
+    /**
+     * Convert SMBIOS type number to a human readable string
+     *
+     * @param type
+     *            The SMBIOS type
+     * @return A string describing the type
+     */
+    private static String smBiosMemoryType(int type) {
+        // https://www.dmtf.org/sites/default/files/standards/documents/DSP0134_3.2.0.pdf
+        // table 76
+<span class="nc bnc" id="L203" title="All 28 branches missed.">        switch (type) {</span>
+        case 0x01:
+<span class="nc" id="L205">            return &quot;Other&quot;;</span>
+        case 0x03:
+<span class="nc" id="L207">            return &quot;DRAM&quot;;</span>
+        case 0x04:
+<span class="nc" id="L209">            return &quot;EDRAM&quot;;</span>
+        case 0x05:
+<span class="nc" id="L211">            return &quot;VRAM&quot;;</span>
+        case 0x06:
+<span class="nc" id="L213">            return &quot;SRAM&quot;;</span>
+        case 0x07:
+<span class="nc" id="L215">            return &quot;RAM&quot;;</span>
+        case 0x08:
+<span class="nc" id="L217">            return &quot;ROM&quot;;</span>
+        case 0x09:
+<span class="nc" id="L219">            return &quot;FLASH&quot;;</span>
+        case 0x0A:
+<span class="nc" id="L221">            return &quot;EEPROM&quot;;</span>
+        case 0x0B:
+<span class="nc" id="L223">            return &quot;FEPROM&quot;;</span>
+        case 0x0C:
+<span class="nc" id="L225">            return &quot;EPROM&quot;;</span>
+        case 0x0D:
+<span class="nc" id="L227">            return &quot;CDRAM&quot;;</span>
+        case 0x0E:
+<span class="nc" id="L229">            return &quot;3DRAM&quot;;</span>
+        case 0x0F:
+<span class="nc" id="L231">            return &quot;SDRAM&quot;;</span>
+        case 0x10:
+<span class="nc" id="L233">            return &quot;SGRAM&quot;;</span>
+        case 0x11:
+<span class="nc" id="L235">            return &quot;RDRAM&quot;;</span>
+        case 0x12:
+<span class="nc" id="L237">            return &quot;DDR&quot;;</span>
+        case 0x13:
+<span class="nc" id="L239">            return &quot;DDR2&quot;;</span>
+        case 0x14:
+<span class="nc" id="L241">            return &quot;DDR2 FB-DIMM&quot;;</span>
+        case 0x18:
+<span class="nc" id="L243">            return &quot;DDR3&quot;;</span>
+        case 0x19:
+<span class="nc" id="L245">            return &quot;FBD2&quot;;</span>
+        case 0x1A:
+<span class="nc" id="L247">            return &quot;DDR4&quot;;</span>
+        case 0x1B:
+<span class="nc" id="L249">            return &quot;LPDDR&quot;;</span>
+        case 0x1C:
+<span class="nc" id="L251">            return &quot;LPDDR2&quot;;</span>
+        case 0x1D:
+<span class="nc" id="L253">            return &quot;LPDDR3&quot;;</span>
+        case 0x1E:
+<span class="nc" id="L255">            return &quot;LPDDR4&quot;;</span>
+        case 0x1F:
+<span class="nc" id="L257">            return &quot;Logical non-volatile device&quot;;</span>
+        case 0x02:
+        default:
+<span class="nc" id="L260">            return &quot;Unknown&quot;;</span>
+        }
     }
 
     private PerfInfo readPerfInfo() {
         long pageSize;
         long memAvailable;
         long memTotal;
-<span class="nc" id="L109">        PERFORMANCE_INFORMATION performanceInfo = new PERFORMANCE_INFORMATION();</span>
-<span class="nc bnc" id="L110" title="All 2 branches missed.">        if (!Psapi.INSTANCE.GetPerformanceInfo(performanceInfo, performanceInfo.size())) {</span>
-<span class="nc" id="L111">            LOG.error(&quot;Failed to get Performance Info. Error code: {}&quot;, Kernel32.INSTANCE.GetLastError());</span>
-<span class="nc" id="L112">            return new PerfInfo(0, 0, 4098);</span>
+<span class="nc" id="L268">        PERFORMANCE_INFORMATION performanceInfo = new PERFORMANCE_INFORMATION();</span>
+<span class="nc bnc" id="L269" title="All 2 branches missed.">        if (!Psapi.INSTANCE.GetPerformanceInfo(performanceInfo, performanceInfo.size())) {</span>
+<span class="nc" id="L270">            LOG.error(&quot;Failed to get Performance Info. Error code: {}&quot;, Kernel32.INSTANCE.GetLastError());</span>
+<span class="nc" id="L271">            return new PerfInfo(0, 0, 4098);</span>
         }
-<span class="nc" id="L114">        pageSize = performanceInfo.PageSize.longValue();</span>
-<span class="nc" id="L115">        memAvailable = pageSize * performanceInfo.PhysicalAvailable.longValue();</span>
-<span class="nc" id="L116">        memTotal = pageSize * performanceInfo.PhysicalTotal.longValue();</span>
-<span class="nc" id="L117">        return new PerfInfo(memTotal, memAvailable, pageSize);</span>
+<span class="nc" id="L273">        pageSize = performanceInfo.PageSize.longValue();</span>
+<span class="nc" id="L274">        memAvailable = pageSize * performanceInfo.PhysicalAvailable.longValue();</span>
+<span class="nc" id="L275">        memTotal = pageSize * performanceInfo.PhysicalTotal.longValue();</span>
+<span class="nc" id="L276">        return new PerfInfo(memTotal, memAvailable, pageSize);</span>
     }
 
     private static final class PerfInfo {
@@ -122,11 +281,11 @@ import oshi.util.platform.windows.WmiUtil;
         private final long available;
         private final long pageSize;
 
-<span class="nc" id="L125">        private PerfInfo(long total, long available, long pageSize) {</span>
-<span class="nc" id="L126">            this.total = total;</span>
-<span class="nc" id="L127">            this.available = available;</span>
-<span class="nc" id="L128">            this.pageSize = pageSize;</span>
-<span class="nc" id="L129">        }</span>
+<span class="nc" id="L284">        private PerfInfo(long total, long available, long pageSize) {</span>
+<span class="nc" id="L285">            this.total = total;</span>
+<span class="nc" id="L286">            this.available = available;</span>
+<span class="nc" id="L287">            this.pageSize = pageSize;</span>
+<span class="nc" id="L288">        }</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
