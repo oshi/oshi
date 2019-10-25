@@ -282,7 +282,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     protected int queryBitness() {
-<span class="nc bnc" id="L285" title="All 6 branches missed.">        if (this.jvmBitness &lt; 64 &amp;&amp; System.getenv(&quot;ProgramFiles(x86)&quot;) == null &amp;&amp; IS_VISTA_OR_GREATER) {</span>
+<span class="nc bnc" id="L285" title="All 6 branches missed.">        if (this.jvmBitness &lt; 64 &amp;&amp; System.getenv(&quot;ProgramFiles(x86)&quot;) != null &amp;&amp; IS_VISTA_OR_GREATER) {</span>
 <span class="nc" id="L286">            WmiQuery&lt;BitnessProperty&gt; bitnessQuery = new WmiQuery&lt;&gt;(&quot;Win32_Processor&quot;, BitnessProperty.class);</span>
 <span class="nc" id="L287">            WmiResult&lt;BitnessProperty&gt; bitnessMap = wmiQueryHandler.queryWMI(bitnessQuery);</span>
 <span class="nc bnc" id="L288" title="All 2 branches missed.">            if (bitnessMap.getResultCount() &gt; 0) {</span>

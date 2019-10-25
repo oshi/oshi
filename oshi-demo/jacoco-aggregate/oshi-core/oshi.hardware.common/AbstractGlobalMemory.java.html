@@ -131,85 +131,14 @@ import oshi.util.ParseUtil;
 <span class="nc" id="L131">        return capacity;</span>
     }
 
-    /**
-     * Convert SMBIOS type number to a human readable string
-     *
-     * @param type
-     *            The SMBIOS type
-     * @return A string describing the type
-     */
-    protected static String smBiosMemoryType(int type) {
-        // https://www.dmtf.org/sites/default/files/standards/documents/DSP0134_3.2.0.pdf
-        // table 76
-<span class="nc bnc" id="L144" title="All 28 branches missed.">        switch (type) {</span>
-        case 0x01:
-<span class="nc" id="L146">            return &quot;Other&quot;;</span>
-        case 0x03:
-<span class="nc" id="L148">            return &quot;DRAM&quot;;</span>
-        case 0x04:
-<span class="nc" id="L150">            return &quot;EDRAM&quot;;</span>
-        case 0x05:
-<span class="nc" id="L152">            return &quot;VRAM&quot;;</span>
-        case 0x06:
-<span class="nc" id="L154">            return &quot;SRAM&quot;;</span>
-        case 0x07:
-<span class="nc" id="L156">            return &quot;RAM&quot;;</span>
-        case 0x08:
-<span class="nc" id="L158">            return &quot;ROM&quot;;</span>
-        case 0x09:
-<span class="nc" id="L160">            return &quot;FLASH&quot;;</span>
-        case 0x0A:
-<span class="nc" id="L162">            return &quot;EEPROM&quot;;</span>
-        case 0x0B:
-<span class="nc" id="L164">            return &quot;FEPROM&quot;;</span>
-        case 0x0C:
-<span class="nc" id="L166">            return &quot;EPROM&quot;;</span>
-        case 0x0D:
-<span class="nc" id="L168">            return &quot;CDRAM&quot;;</span>
-        case 0x0E:
-<span class="nc" id="L170">            return &quot;3DRAM&quot;;</span>
-        case 0x0F:
-<span class="nc" id="L172">            return &quot;SDRAM&quot;;</span>
-        case 0x10:
-<span class="nc" id="L174">            return &quot;SGRAM&quot;;</span>
-        case 0x11:
-<span class="nc" id="L176">            return &quot;RDRAM&quot;;</span>
-        case 0x12:
-<span class="nc" id="L178">            return &quot;DDR&quot;;</span>
-        case 0x13:
-<span class="nc" id="L180">            return &quot;DDR2&quot;;</span>
-        case 0x14:
-<span class="nc" id="L182">            return &quot;DDR2 FB-DIMM&quot;;</span>
-        case 0x18:
-<span class="nc" id="L184">            return &quot;DDR3&quot;;</span>
-        case 0x19:
-<span class="nc" id="L186">            return &quot;FBD2&quot;;</span>
-        case 0x1A:
-<span class="nc" id="L188">            return &quot;DDR4&quot;;</span>
-        case 0x1B:
-<span class="nc" id="L190">            return &quot;LPDDR&quot;;</span>
-        case 0x1C:
-<span class="nc" id="L192">            return &quot;LPDDR2&quot;;</span>
-        case 0x1D:
-<span class="nc" id="L194">            return &quot;LPDDR3&quot;;</span>
-        case 0x1E:
-<span class="nc" id="L196">            return &quot;LPDDR4&quot;;</span>
-        case 0x1F:
-<span class="nc" id="L198">            return &quot;Logical non-volatile device&quot;;</span>
-        case 0x02:
-        default:
-<span class="nc" id="L201">            return &quot;Unknown&quot;;</span>
-        }
-    }
-
     @Override
     public String toString() {
-<span class="nc" id="L207">        StringBuilder sb = new StringBuilder();</span>
-<span class="nc" id="L208">        sb.append(&quot;Available: &quot;);</span>
-<span class="nc" id="L209">        sb.append(FormatUtil.formatBytes(getAvailable()));</span>
-<span class="nc" id="L210">        sb.append(&quot;/&quot;);</span>
-<span class="nc" id="L211">        sb.append(FormatUtil.formatBytes(getTotal()));</span>
-<span class="nc" id="L212">        return sb.toString();</span>
+<span class="nc" id="L136">        StringBuilder sb = new StringBuilder();</span>
+<span class="nc" id="L137">        sb.append(&quot;Available: &quot;);</span>
+<span class="nc" id="L138">        sb.append(FormatUtil.formatBytes(getAvailable()));</span>
+<span class="nc" id="L139">        sb.append(&quot;/&quot;);</span>
+<span class="nc" id="L140">        sb.append(FormatUtil.formatBytes(getTotal()));</span>
+<span class="nc" id="L141">        return sb.toString();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
