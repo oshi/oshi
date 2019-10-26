@@ -81,11 +81,11 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
     }
 
     @Override
-    protected int queryBitness() {
-        if (this.jvmBitness < 64) {
-            return ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer("isainfo -b"), 32);
+    protected int queryBitness(int jvmBitness) {
+        if (jvmBitness == 64) {
+            return 64;
         }
-        return 64;
+        return ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer("isainfo -b"), 32);
     }
 
     @Override

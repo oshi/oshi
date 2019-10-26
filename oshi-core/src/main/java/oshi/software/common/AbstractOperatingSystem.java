@@ -31,6 +31,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.function.Supplier;
 
+import com.sun.jna.Platform;
+
 import oshi.software.os.OSProcess;
 import oshi.software.os.OSService;
 import oshi.software.os.OperatingSystem;
@@ -41,10 +43,7 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
 
     private final Supplier<String> manufacturer = memoize(this::queryManufacturer);
     private final Supplier<FamilyVersionInfo> familyVersionInfo = memoize(this::queryFamilyVersionInfo);
-    // Initialize based on JVM Bitness. Individual OS implementations will test
-    // if 32-bit JVM running on 64-bit OS
-    protected final int jvmBitness = System.getProperty("os.arch").indexOf("64") != -1 ? 64 : 32;
-    private final Supplier<Integer> bitness = memoize(this::queryBitness);
+    private final Supplier<Integer> bitness = memoize(this::queryPlatformBitness);
     // Test if sudo or admin privileges: 1 = unknown, 0 = no, 1 = yes
     private final Supplier<Boolean> elevated = memoize(this::queryElevated);
 
@@ -100,7 +99,17 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
         return bitness.get();
     }
 
-    protected abstract int queryBitness();
+    private int queryPlatformBitness() {
+        if (Platform.is64Bit()) {
+            return 64;
+        } else {
+            // Initialize based on JVM Bitness. Individual OS implementations will test
+            // if 32-bit JVM running on 64-bit OS
+            return queryBitness(System.getProperty("os.arch").indexOf("64") != -1 ? 64 : 32);
+        }
+    }
+
+    protected abstract int queryBitness(int jvmBitness);
 
     @Override
     public boolean isElevated() {

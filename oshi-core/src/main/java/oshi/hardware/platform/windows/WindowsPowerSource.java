@@ -29,7 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Memory; // NOSONAR
-import com.sun.jna.Native;
+import com.sun.jna.Platform;
 import com.sun.jna.platform.win32.Guid.GUID;
 import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.PowrProf.POWER_INFORMATION_LEVEL;
@@ -159,8 +159,8 @@ public class WindowsPowerSource extends AbstractPowerSource {
     }
 
     static int GetBatteryState() {
-        int charwidth = W32APITypeMapper.DEFAULT == W32APITypeMapper.UNICODE ? Native.WCHAR_SIZE : 1;
-        boolean x64 = Native.POINTER_SIZE == 8;
+        int charwidth = W32APITypeMapper.DEFAULT == W32APITypeMapper.UNICODE ? 2 : 1;
+        boolean x64 = Platform.is64Bit();
 
         // enumerate the batteries and ask each one for information.
         // Ported from:
@@ -290,7 +290,6 @@ public class WindowsPowerSource extends AbstractPowerSource {
         return dwResult;
     }
 
-    /** {@inheritDoc} */
     @Override
     public void updateAttributes() {
         PowerSource ps = getPowerSource(this.name);
