@@ -26,9 +26,6 @@ package oshi.hardware.platform.mac;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.sun.jna.Pointer; // NOSONAR squid:S1191
 
 import oshi.hardware.PowerSource;
@@ -50,16 +47,51 @@ import oshi.util.Constants;
  */
 public class MacPowerSource extends AbstractPowerSource {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MacPowerSource.class);
-
     private static final CoreFoundation CF = CoreFoundation.INSTANCE;
     private static final IOKit IO = IOKit.INSTANCE;
 
+    private String name;
+    private double remainingCapacity;
+    private double timeRemaining;
+
     public MacPowerSource(String newName, double newRemainingCapacity, double newTimeRemaining) {
-        super(newName, newRemainingCapacity, newTimeRemaining);
-        LOG.debug("Initialized MacPowerSource");
+        this.name = newName;
+        this.remainingCapacity = newRemainingCapacity;
+        this.timeRemaining = newTimeRemaining;
     }
 
+    @Override
+    public String getName() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public double getTimeRemaining() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    @Override
+    public void updateAttributes() {
+        PowerSource[] psArr = getPowerSources();
+        for (PowerSource ps : psArr) {
+            if (ps.getName().equals(this.name)) {
+                this.remainingCapacity = ps.getRemainingCapacity();
+                this.timeRemaining = ps.getTimeRemaining();
+                return;
+            }
+        }
+        // Didn't find this battery
+        this.remainingCapacity = 0d;
+        this.timeRemaining = -1d;
+    }
+
+    /**
+     * Gets Battery Information.
+     *
+     * @return An array of PowerSource objects representing batteries, etc.
+     */
     public static PowerSource[] getPowerSources() {
         // Get the blob containing current power source state
         CFTypeRef powerSourcesInfo = IO.IOPSCopyPowerSourcesInfo();
@@ -157,9 +189,8 @@ public class MacPowerSource extends AbstractPowerSource {
 
             int voltage = smartBattery.getIntegerProperty("Voltage");
             int amperage = smartBattery.getIntegerProperty("Amperage");
-            System.out
-                    .println(voltage / 1000d + "V, " + amperage / 1000d + "A, power " + voltage / 1000000d * amperage
-                            + "W");
+            System.out.println(
+                    voltage / 1000d + "V, " + amperage / 1000d + "A, power " + voltage / 1000000d * amperage + "W");
 
             // TODO
             // ExternalConnected - true if drawing power
@@ -171,23 +202,7 @@ public class MacPowerSource extends AbstractPowerSource {
         return 0;
     }
 
-    @Override
-    public void updateAttributes() {
-        PowerSource[] psArr = getPowerSources();
-        for (PowerSource ps : psArr) {
-            if (ps.getName().equals(this.name)) {
-                this.remainingCapacity = ps.getRemainingCapacity();
-                this.timeRemaining = ps.getTimeRemaining();
-                return;
-            }
-        }
-        // Didn't find this battery
-        this.remainingCapacity = 0d;
-        this.timeRemaining = -1d;
-    }
-
     public static void main(String[] args) {
         System.out.println("RESULT: " + MacPowerSource.GetBatteryState());
     }
-
 }

@@ -23,9 +23,6 @@
  */
 package oshi.hardware.platform.unix.solaris;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.sun.jna.platform.unix.solaris.LibKstat.Kstat; // NOSONAR
 
 import oshi.hardware.PowerSource;
@@ -38,11 +35,7 @@ import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
  */
 public class SolarisPowerSource extends AbstractPowerSource {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SolarisPowerSource.class);
-
-    /*
-     * One-time lookup to see which kstat module to use
-     */
+    // One-time lookup to see which kstat module to use
     private static final String[] KSTAT_BATT_MOD = { null, "battery", "acpi_drv" };
 
     private static final int KSTAT_BATT_IDX;
@@ -59,21 +52,33 @@ public class SolarisPowerSource extends AbstractPowerSource {
         }
     }
 
-    /**
-     * <p>
-     * Constructor for SolarisPowerSource.
-     * </p>
-     *
-     * @param newName
-     *            a {@link java.lang.String} object.
-     * @param newRemainingCapacity
-     *            a double.
-     * @param newTimeRemaining
-     *            a double.
-     */
+    private String name;
+    private double remainingCapacity;
+    private double timeRemaining;
+
     public SolarisPowerSource(String newName, double newRemainingCapacity, double newTimeRemaining) {
-        super(newName, newRemainingCapacity, newTimeRemaining);
-        LOG.debug("Initialized SolarisPowerSource");
+        this.name = newName;
+        this.remainingCapacity = newRemainingCapacity;
+        this.timeRemaining = newTimeRemaining;
+    }
+
+    @Override
+    public String getName() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public double getTimeRemaining() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    @Override
+    public void updateAttributes() {
+        PowerSource ps = getPowerSource(this.name);
+        this.remainingCapacity = ps.getRemainingCapacity();
+        this.timeRemaining = ps.getTimeRemaining();
     }
 
     /**
@@ -141,13 +146,5 @@ public class SolarisPowerSource extends AbstractPowerSource {
         }
 
         return new SolarisPowerSource(name, (double) energyNow / energyFull, timeRemaining);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void updateAttributes() {
-        PowerSource ps = getPowerSource(this.name);
-        this.remainingCapacity = ps.getRemainingCapacity();
-        this.timeRemaining = ps.getTimeRemaining();
     }
 }

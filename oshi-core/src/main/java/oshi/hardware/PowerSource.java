@@ -51,7 +51,7 @@ public interface PowerSource {
     double getTimeRemaining();
 
     /**
-     * Updates remaining capacity and time remaining.
+     * Updates statistics on this battery.
      */
     void updateAttributes();
 }

@@ -25,9 +25,6 @@ package oshi.hardware.platform.windows;
 
 import java.nio.charset.StandardCharsets;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.sun.jna.Memory; // NOSONAR
 import com.sun.jna.Platform;
 import com.sun.jna.platform.win32.Guid.GUID;
@@ -55,7 +52,6 @@ import oshi.util.FormatUtil;
  */
 public class WindowsPowerSource extends AbstractPowerSource {
 
-    private static final Logger LOG = LoggerFactory.getLogger(WindowsPowerSource.class);
     private static final GUID GUID_DEVCLASS_BATTERY = GUID.fromString("{72631E54-78A4-11D0-BCF7-00AA00B7B32A}");
 
     // Returned value includes GBS_HASBATTERY if the system has a
@@ -72,21 +68,33 @@ public class WindowsPowerSource extends AbstractPowerSource {
     private static final int IOCTL_BATTERY_QUERY_STATUS = 0x29404c;
     private static final int IOCTL_BATTERY_QUERY_INFORMATION = 0x294044;
 
-    /**
-     * <p>
-     * Constructor for WindowsPowerSource.
-     * </p>
-     *
-     * @param newName
-     *            a {@link java.lang.String} object.
-     * @param newRemainingCapacity
-     *            a double.
-     * @param newTimeRemaining
-     *            a double.
-     */
+    private String name;
+    private double remainingCapacity;
+    private double timeRemaining;
+
     public WindowsPowerSource(String newName, double newRemainingCapacity, double newTimeRemaining) {
-        super(newName, newRemainingCapacity, newTimeRemaining);
-        LOG.debug("Initialized WindowsPowerSource");
+        this.name = newName;
+        this.remainingCapacity = newRemainingCapacity;
+        this.timeRemaining = newTimeRemaining;
+    }
+
+    @Override
+    public String getName() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public double getTimeRemaining() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    @Override
+    public void updateAttributes() {
+        PowerSource ps = getPowerSource(this.name);
+        this.remainingCapacity = ps.getRemainingCapacity();
+        this.timeRemaining = ps.getTimeRemaining();
     }
 
     /**
@@ -288,13 +296,6 @@ public class WindowsPowerSource extends AbstractPowerSource {
         }
 
         return dwResult;
-    }
-
-    @Override
-    public void updateAttributes() {
-        PowerSource ps = getPowerSource(this.name);
-        this.remainingCapacity = ps.getRemainingCapacity();
-        this.timeRemaining = ps.getTimeRemaining();
     }
 
     public static void main(String[] args) {

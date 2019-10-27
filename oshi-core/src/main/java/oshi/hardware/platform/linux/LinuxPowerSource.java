@@ -27,9 +27,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import oshi.hardware.PowerSource;
 import oshi.hardware.common.AbstractPowerSource;
 import oshi.util.FileUtil;
@@ -40,25 +37,43 @@ import oshi.util.ParseUtil;
  */
 public class LinuxPowerSource extends AbstractPowerSource {
 
-    private static final Logger LOG = LoggerFactory.getLogger(LinuxPowerSource.class);
-
     private static final String PS_PATH = "/sys/class/power_supply/";
 
-    /**
-     * <p>
-     * Constructor for LinuxPowerSource.
-     * </p>
-     *
-     * @param newName
-     *            a {@link java.lang.String} object.
-     * @param newRemainingCapacity
-     *            a double.
-     * @param newTimeRemaining
-     *            a double.
-     */
+    private String name;
+    private double remainingCapacity;
+    private double timeRemaining;
+
     public LinuxPowerSource(String newName, double newRemainingCapacity, double newTimeRemaining) {
-        super(newName, newRemainingCapacity, newTimeRemaining);
-        LOG.debug("Initialized LinuxPowerSource");
+        this.name = newName;
+        this.remainingCapacity = newRemainingCapacity;
+        this.timeRemaining = newTimeRemaining;
+    }
+
+    @Override
+    public String getName() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public double getTimeRemaining() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    @Override
+    public void updateAttributes() {
+        PowerSource[] psArr = getPowerSources();
+        for (PowerSource ps : psArr) {
+            if (ps.getName().equals(this.name)) {
+                this.remainingCapacity = ps.getRemainingCapacity();
+                this.timeRemaining = ps.getTimeRemaining();
+                return;
+            }
+        }
+        // Didn't find this battery
+        this.remainingCapacity = 0d;
+        this.timeRemaining = -1d;
     }
 
     /**
@@ -151,21 +166,5 @@ public class LinuxPowerSource extends AbstractPowerSource {
         }
 
         return psList.toArray(new LinuxPowerSource[0]);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void updateAttributes() {
-        PowerSource[] psArr = getPowerSources();
-        for (PowerSource ps : psArr) {
-            if (ps.getName().equals(this.name)) {
-                this.remainingCapacity = ps.getRemainingCapacity();
-                this.timeRemaining = ps.getTimeRemaining();
-                return;
-            }
-        }
-        // Didn't find this battery
-        this.remainingCapacity = 0d;
-        this.timeRemaining = -1d;
     }
 }

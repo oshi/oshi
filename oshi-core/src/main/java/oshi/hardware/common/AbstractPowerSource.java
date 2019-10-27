@@ -30,47 +30,11 @@ import oshi.hardware.PowerSource;
  */
 public abstract class AbstractPowerSource implements PowerSource {
 
-    protected String name;
-
-    protected double remainingCapacity;
-
-    protected double timeRemaining;
-
-    /**
-     * Super constructor used by platform-specific implementations of PowerSource
-     *
-     * @param newName
-     *            The name to assign
-     * @param newRemainingCapacity
-     *            Fraction of remaining capacity
-     * @param newTimeRemaining
-     *            Seconds of time remaining
-     */
-    public AbstractPowerSource(String newName, double newRemainingCapacity, double newTimeRemaining) {
-        this.name = newName;
-        this.remainingCapacity = newRemainingCapacity;
-        this.timeRemaining = newTimeRemaining;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public String getName() {
-        return this.name;
-    }
-
-    /** {@inheritDoc} */
     @Override
     public double getRemainingCapacity() {
-        return this.remainingCapacity;
+        return 0d;
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public double getTimeRemaining() {
-        return this.timeRemaining;
-    }
-
-    /** {@inheritDoc} */
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

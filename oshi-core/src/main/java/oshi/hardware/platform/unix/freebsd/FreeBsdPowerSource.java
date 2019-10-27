@@ -23,9 +23,6 @@
  */
 package oshi.hardware.platform.unix.freebsd;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import oshi.hardware.PowerSource;
 import oshi.hardware.common.AbstractPowerSource;
 import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
@@ -35,23 +32,26 @@ import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
  */
 public class FreeBsdPowerSource extends AbstractPowerSource {
 
-    private static final Logger LOG = LoggerFactory.getLogger(FreeBsdPowerSource.class);
+    private String name;
+    private double remainingCapacity;
+    private double timeRemaining;
 
-    /**
-     * <p>
-     * Constructor for FreeBsdPowerSource.
-     * </p>
-     *
-     * @param newName
-     *            a {@link java.lang.String} object.
-     * @param newRemainingCapacity
-     *            a double.
-     * @param newTimeRemaining
-     *            a double.
-     */
     public FreeBsdPowerSource(String newName, double newRemainingCapacity, double newTimeRemaining) {
-        super(newName, newRemainingCapacity, newTimeRemaining);
-        LOG.debug("Initialized FreeBsdPowerSource");
+        this.name = newName;
+        this.remainingCapacity = newRemainingCapacity;
+        this.timeRemaining = newTimeRemaining;
+    }
+
+    @Override
+    public String getName() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public double getTimeRemaining() {
+        // TODO Auto-generated method stub
+        return 0;
     }
 
     /**
@@ -79,7 +79,6 @@ public class FreeBsdPowerSource extends AbstractPowerSource {
         return new FreeBsdPowerSource(name, life / 100d, timeRemaining);
     }
 
-    /** {@inheritDoc} */
     @Override
     public void updateAttributes() {
         PowerSource ps = getPowerSource(this.name);
