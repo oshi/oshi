@@ -177,8 +177,8 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
     }
 
     @Override
-    protected int queryBitness() {
-        if (this.jvmBitness == 64 || (this.major == 10 && this.minor > 6)) {
+    protected int queryBitness(int jvmBitness) {
+        if (jvmBitness == 64 || (this.major == 10 && this.minor > 6)) {
             return 64;
         }
         return ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer("getconf LONG_BIT"), 32);

@@ -281,15 +281,15 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     }
 
     @Override
-    protected int queryBitness() {
-        if (this.jvmBitness < 64 && System.getenv("ProgramFiles(x86)") != null && IS_VISTA_OR_GREATER) {
+    protected int queryBitness(int jvmBitness) {
+        if (jvmBitness < 64 && System.getenv("ProgramFiles(x86)") != null && IS_VISTA_OR_GREATER) {
             WmiQuery<BitnessProperty> bitnessQuery = new WmiQuery<>("Win32_Processor", BitnessProperty.class);
             WmiResult<BitnessProperty> bitnessMap = wmiQueryHandler.queryWMI(bitnessQuery);
             if (bitnessMap.getResultCount() > 0) {
                 return WmiUtil.getUint16(bitnessMap, BitnessProperty.AddressWidth, 0);
             }
         }
-        return this.jvmBitness;
+        return jvmBitness;
     }
 
     @Override
