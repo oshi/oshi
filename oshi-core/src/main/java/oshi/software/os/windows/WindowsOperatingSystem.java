@@ -99,14 +99,18 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     private static final long BOOTTIME = querySystemBootTime();
 
     /*
-     * Associated with registry process counter buffer reading
+     * Associated with registry process counter buffer reading. If we can't read
+     * these, we won't use HKEY_PERFORMANCE_DATA
      */
-    private boolean readHkeyPerformanceData;
-    private int perfDataBufferSize = 8192;
-    private int processIndex;
-    private String processIndexStr;
+    private boolean readHkeyPerformanceData; // True on success populating these
+    private int perfDataBufferSize = 8192; // Grow as needed but persist
     /*
-     * Registry counter offsets
+     * Process counter index in integer and string form
+     */
+    private int processIndex; // 6
+    private String processIndexStr; // "6"
+    /*
+     * Registry counter data byte offsets
      */
     private int priorityBaseOffset; // 92
     private int elapsedTimeOffset; // 96
@@ -172,11 +176,6 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
 
     private final WmiQueryHandler wmiQueryHandler = WmiQueryHandler.createInstance();
 
-    /**
-     * <p>
-     * Constructor for WindowsOperatingSystem.
-     * </p>
-     */
     @SuppressWarnings("deprecation")
     public WindowsOperatingSystem() {
         this.version = new WindowsOSVersionInfoEx();
@@ -205,6 +204,12 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         } catch (Win32Exception e) {
             LOG.warn(
                     "Unable to locate English counter names in registry Perflib 009. Process statistics will be read from PDH or WMI.");
+            return false;
+        }
+        // If any of the indices are 0, we failed
+        if (this.processIndex == 0 || priorityBaseIndex == 0 || elapsedTimeIndex == 0 || idProcessIndex == 0
+                || creatingProcessIdIndex == 0 || ioReadIndex == 0 || ioWriteIndex == 0
+                || workingSetPrivateIndex == 0) {
             return false;
         }
         this.processIndexStr = Integer.toString(this.processIndex);
@@ -687,16 +692,6 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         return processList;
     }
 
-    /**
-     * <p>
-     * handleWin32ExceptionOnGetProcessInfo.
-     * </p>
-     *
-     * @param proc
-     *            a {@link oshi.software.os.OSProcess} object.
-     * @param ex
-     *            a {@link com.sun.jna.platform.win32.Win32Exception} object.
-     */
     protected void handleWin32ExceptionOnGetProcessInfo(OSProcess proc, Win32Exception ex) {
         LOG.warn("Failed to set path or get user/group on PID {}. It may have terminated. {}", proc.getProcessID(),
                 ex.getMessage());
@@ -827,7 +822,6 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                 proc.setResidentSetSize(workingSetSizeList.get(inst));
             }
         }
-
         return processMap;
     }
 
