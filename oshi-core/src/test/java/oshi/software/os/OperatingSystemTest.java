@@ -290,7 +290,7 @@ public class OperatingSystemTest {
 
         SystemInfo si = new SystemInfo();
         OperatingSystem os = si.getOperatingSystem();
-        for (OSProcess process : os.getProcesses(0, null)) {
+        for (OSProcess process : os.getProcesses(0, null, true)) {
             if (!process.getCommandLine().trim().isEmpty()) {
                 processesWithNonEmptyCmdLine++;
             }

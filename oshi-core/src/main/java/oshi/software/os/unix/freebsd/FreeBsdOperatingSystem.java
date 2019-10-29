@@ -117,11 +117,7 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
     }
 
     @Override
-    public OSProcess getProcess(int pid) {
-        return getProcess(pid, true);
-    }
-
-    private OSProcess getProcess(int pid, boolean slowFields) {
+    public OSProcess getProcess(int pid, boolean slowFields) {
         List<OSProcess> procs = getProcessListFromPS(
                 "ps -awwxo state,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etimes,systime,time,comm,args -p ", pid,
                 slowFields);

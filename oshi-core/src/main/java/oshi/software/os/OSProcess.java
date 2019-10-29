@@ -131,7 +131,7 @@ public class OSProcess {
     public OSProcess(OperatingSystem operatingSystem, int processID) throws InstantiationException {
         this.processID = processID;
         this.operatingSystem = operatingSystem;
-        if (!updateAttributes()) {
+        if (!updateAttributes(false)) {
             throw new InstantiationException("A process with ID " + processID + " does not exist.");
         }
     }
@@ -143,7 +143,23 @@ public class OSProcess {
      * @return True if the update was successful, false if the update failed
      */
     public boolean updateAttributes() {
-        OSProcess process = operatingSystem.getProcess(this.processID);
+        return updateAttributes(true);
+    }
+
+    /**
+     * Attempts to updates all process attributes. Returns false if the update
+     * fails, which will occur if the process no longer exists.
+     *
+     * @param slowFields
+     *            If false, skip fields that are slow to retrieve (e.g., group
+     *            information on Windows, open files on Unix and Linux). If true,
+     *            include all fields, regardless of how long it takes to retrieve
+     *            the data.
+     *
+     * @return True if the update was successful, false if the update failed
+     */
+    public boolean updateAttributes(boolean slowFields) {
+        OSProcess process = operatingSystem.getProcess(this.processID, slowFields);
         if (process == null) {
             LOG.debug("No process found: {}", this.processID);
             return false;
@@ -735,12 +751,18 @@ public class OSProcess {
     private void copyValuesToThisProcess(OSProcess sourceProcess) {
         this.name = sourceProcess.name;
         this.path = sourceProcess.path;
-        this.commandLine = sourceProcess.commandLine;
+        if (!sourceProcess.commandLine.isEmpty()) {
+            this.commandLine = sourceProcess.commandLine;
+        }
         this.currentWorkingDirectory = sourceProcess.currentWorkingDirectory;
         this.user = sourceProcess.user;
         this.userID = sourceProcess.userID;
-        this.group = sourceProcess.group;
-        this.groupID = sourceProcess.groupID;
+        if (!sourceProcess.group.isEmpty()) {
+            this.group = sourceProcess.group;
+        }
+        if (!sourceProcess.groupID.isEmpty()) {
+            this.groupID = sourceProcess.groupID;
+        }
         this.state = sourceProcess.state;
         this.processID = sourceProcess.processID;
         this.parentProcessID = sourceProcess.parentProcessID;
@@ -754,7 +776,9 @@ public class OSProcess {
         this.upTime = sourceProcess.upTime;
         this.bytesRead = sourceProcess.bytesRead;
         this.bytesWritten = sourceProcess.bytesWritten;
-        this.openFiles = sourceProcess.openFiles;
+        if (sourceProcess.openFiles > 0) {
+            this.openFiles = sourceProcess.openFiles;
+        }
         this.bitness = sourceProcess.bitness;
         this.cpuPercent = sourceProcess.cpuPercent;
     }

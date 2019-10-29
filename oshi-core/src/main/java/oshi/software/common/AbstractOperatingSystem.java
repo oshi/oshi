@@ -102,13 +102,20 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
     private int queryPlatformBitness() {
         if (Platform.is64Bit()) {
             return 64;
-        } else {
-            // Initialize based on JVM Bitness. Individual OS implementations will test
-            // if 32-bit JVM running on 64-bit OS
-            return queryBitness(System.getProperty("os.arch").indexOf("64") != -1 ? 64 : 32);
         }
+        // Initialize based on JVM Bitness. Individual OS implementations will test
+        // if 32-bit JVM running on 64-bit OS
+        int jvmBitness = System.getProperty("os.arch").indexOf("64") != -1 ? 64 : 32;
+        return queryBitness(jvmBitness);
     }
 
+    /**
+     * Backup OS-specific query to determine bitness if previous checks fail
+     *
+     * @param jvmBitness
+     *            The bitness of the JVM
+     * @return
+     */
     protected abstract int queryBitness(int jvmBitness);
 
     @Override
@@ -183,20 +190,35 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
     }
 
     @Override
+    public OSProcess[] getProcesses() {
+        return getProcesses(0, null, false);
+    }
+
+    @Override
     public OSProcess[] getProcesses(int limit, ProcessSort sort) {
         return getProcesses(limit, sort, false);
     }
 
     @Override
     public List<OSProcess> getProcesses(Collection<Integer> pids) {
+        return getProcesses(pids, true);
+    }
+
+    @Override
+    public List<OSProcess> getProcesses(Collection<Integer> pids, boolean slowFields) {
         List<OSProcess> returnValue = new ArrayList<>(pids.size());
         for (Integer pid : pids) {
-            OSProcess process = getProcess(pid);
+            OSProcess process = getProcess(pid, slowFields);
             if (process != null) {
                 returnValue.add(process);
             }
         }
         return returnValue;
+    }
+
+    @Override
+    public OSProcess getProcess(int pid) {
+        return getProcess(pid, true);
     }
 
     @Override

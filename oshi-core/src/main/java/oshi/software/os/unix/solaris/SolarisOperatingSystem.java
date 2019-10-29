@@ -107,11 +107,7 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
     }
 
     @Override
-    public OSProcess getProcess(int pid) {
-        return getProcess(pid, true);
-    }
-
-    private OSProcess getProcess(int pid, boolean slowFields) {
+    public OSProcess getProcess(int pid, boolean slowFields) {
         List<OSProcess> procs = getProcessListFromPS(
                 "ps -o s,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etime,time,comm,args -p ", pid, slowFields);
         if (procs.isEmpty()) {

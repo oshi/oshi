@@ -219,8 +219,8 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     }
 
     @Override
-    public OSProcess getProcess(int pid) {
-        return getProcess(pid, new LinuxUserGroupInfo(), true);
+    public OSProcess getProcess(int pid, boolean slowFields) {
+        return getProcess(pid, new LinuxUserGroupInfo(), slowFields);
     }
 
     private OSProcess getProcess(int pid, LinuxUserGroupInfo userGroupInfo, boolean slowFields) {
