@@ -182,9 +182,9 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     }
 
     @Override
-    protected int queryBitness() {
-        if (this.jvmBitness < 64 && ExecutingCommand.getFirstAnswer("uname -m").indexOf("64") == -1) {
-            return this.jvmBitness;
+    protected int queryBitness(int jvmBitness) {
+        if (jvmBitness < 64 && ExecutingCommand.getFirstAnswer("uname -m").indexOf("64") == -1) {
+            return jvmBitness;
         }
         return 64;
     }
@@ -219,8 +219,8 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     }
 
     @Override
-    public OSProcess getProcess(int pid) {
-        return getProcess(pid, new LinuxUserGroupInfo(), true);
+    public OSProcess getProcess(int pid, boolean slowFields) {
+        return getProcess(pid, new LinuxUserGroupInfo(), slowFields);
     }
 
     private OSProcess getProcess(int pid, LinuxUserGroupInfo userGroupInfo, boolean slowFields) {

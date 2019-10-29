@@ -281,15 +281,15 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     }
 
     @Override
-    protected int queryBitness() {
-        if (this.jvmBitness < 64 && System.getenv("ProgramFiles(x86)") != null && IS_VISTA_OR_GREATER) {
+    protected int queryBitness(int jvmBitness) {
+        if (jvmBitness < 64 && System.getenv("ProgramFiles(x86)") != null && IS_VISTA_OR_GREATER) {
             WmiQuery<BitnessProperty> bitnessQuery = new WmiQuery<>("Win32_Processor", BitnessProperty.class);
             WmiResult<BitnessProperty> bitnessMap = wmiQueryHandler.queryWMI(bitnessQuery);
             if (bitnessMap.getResultCount() > 0) {
                 return WmiUtil.getUint16(bitnessMap, BitnessProperty.AddressWidth, 0);
             }
         }
-        return this.jvmBitness;
+        return jvmBitness;
     }
 
     @Override
@@ -340,11 +340,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     }
 
     @Override
-    public OSProcess getProcess(int pid) {
-        return getProcess(pid, true);
-    }
-
-    private OSProcess getProcess(int pid, boolean slowFields) {
+    public OSProcess getProcess(int pid, boolean slowFields) {
         List<OSProcess> procList = processMapToList(Arrays.asList(pid), slowFields);
         return procList.isEmpty() ? null : procList.get(0);
     }
@@ -517,6 +513,9 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             // State and possibly roll up.
             proc.setState(OSProcess.State.RUNNING);
 
+            // Initialize default
+            proc.setCommandLine("");
+
             processList.add(proc);
         }
         // Clean up memory allocated in C (only Vista+ but null pointer
@@ -528,34 +527,33 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         }
 
         // Command Line only accessible via WMI.
-        StringBuilder sb = new StringBuilder(PROCESS_BASE_CLASS);
-        if (pids != null) {
-            Set<Integer> pidsToQuery = new HashSet<>();
-            for (OSProcess process : processList) {
-                pidsToQuery.add(process.getProcessID());
-            }
-            boolean first = true;
-            for (Integer pid : pidsToQuery) {
-                if (first) {
-                    sb.append(" WHERE ProcessID=");
-                    first = false;
-                } else {
-                    sb.append(" OR ProcessID=");
+        if (slowFields) {
+            StringBuilder sb = new StringBuilder(PROCESS_BASE_CLASS);
+            if (pids != null) {
+                Set<Integer> pidsToQuery = new HashSet<>();
+                for (OSProcess process : processList) {
+                    pidsToQuery.add(process.getProcessID());
                 }
-                sb.append(pid);
+                boolean first = true;
+                for (Integer pid : pidsToQuery) {
+                    if (first) {
+                        sb.append(" WHERE ProcessID=");
+                        first = false;
+                    } else {
+                        sb.append(" OR ProcessID=");
+                    }
+                    sb.append(pid);
+                }
             }
-        }
-        WmiQuery<ProcessProperty> processQuery = new WmiQuery<>(sb.toString(), ProcessProperty.class);
-        WmiResult<ProcessProperty> commandLineProcs = wmiQueryHandler.queryWMI(processQuery);
+            WmiQuery<ProcessProperty> processQuery = new WmiQuery<>(sb.toString(), ProcessProperty.class);
+            WmiResult<ProcessProperty> commandLineProcs = wmiQueryHandler.queryWMI(processQuery);
 
-        for (int p = 0; p < commandLineProcs.getResultCount(); p++) {
-            int pid = WmiUtil.getUint32(commandLineProcs, ProcessProperty.ProcessId, p);
-            // This should always be true because pidsToQuery was
-            // built from the map, but just in case, protect against
-            // dereferencing null
-            if (processMap.containsKey(pid)) {
-                OSProcess proc = processMap.get(pid);
-                proc.setCommandLine(WmiUtil.getString(commandLineProcs, ProcessProperty.CommandLine, p));
+            for (int p = 0; p < commandLineProcs.getResultCount(); p++) {
+                int pid = WmiUtil.getUint32(commandLineProcs, ProcessProperty.ProcessId, p);
+                if (processMap.containsKey(pid)) {
+                    OSProcess proc = processMap.get(pid);
+                    proc.setCommandLine(WmiUtil.getString(commandLineProcs, ProcessProperty.CommandLine, p));
+                }
             }
         }
         return processList;

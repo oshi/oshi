@@ -177,8 +177,8 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
     }
 
     @Override
-    protected int queryBitness() {
-        if (this.jvmBitness == 64 || (this.major == 10 && this.minor > 6)) {
+    protected int queryBitness(int jvmBitness) {
+        if (jvmBitness == 64 || (this.major == 10 && this.minor > 6)) {
             return 64;
         }
         return ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer("getconf LONG_BIT"), 32);
@@ -217,11 +217,7 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
     }
 
     @Override
-    public OSProcess getProcess(int pid) {
-        return getProcess(pid, true);
-    }
-
-    private OSProcess getProcess(int pid, boolean slowFields) { // NOSONAR squid:S1172
+    public OSProcess getProcess(int pid, boolean slowFields) {
         ProcTaskAllInfo taskAllInfo = new ProcTaskAllInfo();
         if (0 > SystemB.INSTANCE.proc_pidinfo(pid, SystemB.PROC_PIDTASKALLINFO, 0, taskAllInfo, taskAllInfo.size())) {
             return null;
