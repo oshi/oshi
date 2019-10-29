@@ -217,11 +217,7 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
     }
 
     @Override
-    public OSProcess getProcess(int pid) {
-        return getProcess(pid, true);
-    }
-
-    private OSProcess getProcess(int pid, boolean slowFields) { // NOSONAR squid:S1172
+    public OSProcess getProcess(int pid, boolean slowFields) {
         ProcTaskAllInfo taskAllInfo = new ProcTaskAllInfo();
         if (0 > SystemB.INSTANCE.proc_pidinfo(pid, SystemB.PROC_PIDTASKALLINFO, 0, taskAllInfo, taskAllInfo.size())) {
             return null;
