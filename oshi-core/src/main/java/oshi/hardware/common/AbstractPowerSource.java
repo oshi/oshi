@@ -31,16 +31,39 @@ import oshi.hardware.PowerSource;
 public abstract class AbstractPowerSource implements PowerSource {
 
     @Override
+    public double getTimeRemaining() {
+        return getTimeRemainingEstimated();
+    }
+
+    @Override
     public double getRemainingCapacity() {
-        return 0d;
+        return getRemainingCapacityPercent();
     }
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("Name: ").append(getName()).append(", ");
-        sb.append("Remaining Capacity: ").append(getRemainingCapacity() * 100d).append("%, ");
-        sb.append("Time Remaining: ").append(getFormattedTimeRemaining());
+        sb.append("Device Name: ").append(getDeviceName()).append(",\n ");
+        sb.append("RemainingCapacityPercent: ").append(getRemainingCapacityPercent() * 100).append("%, ");
+        sb.append("Time Remaining: ").append(formatTimeRemaining(getTimeRemainingEstimated())).append(", ");
+        sb.append("Time Remaining Instant: ").append(formatTimeRemaining(getTimeRemainingInstant())).append(",\n ");
+        sb.append("Power Usage Rate: ").append(getPowerUsageRate()).append("mW, ");
+        sb.append("Voltage: ").append(getVoltage()).append("V, ");
+        sb.append("Amperage: ").append(getAmperage()).append("mA,\n ");
+        sb.append("Power OnLine: ").append(isPowerOnLine()).append(", ");
+        sb.append("Charging: ").append(isCharging()).append(", ");
+        sb.append("Discharging: ").append(isDischarging()).append(",\n ");
+        sb.append("Capacity Units: ").append(getCapacityUnits()).append(", ");
+        sb.append("Current Capacity: ").append(getCurrentCapacity()).append(", ");
+        sb.append("Max Capacity: ").append(getMaxCapacity()).append(", ");
+        sb.append("Design Capacity: ").append(getDesignCapacity()).append(",\n ");
+        sb.append("Cycle Count: ").append(getCycleCount()).append(", ");
+        sb.append("Chemistry: ").append(getChemistry()).append(", ");
+        sb.append("Manufacture Date: ").append(getManufactureDate()).append(", ");
+        sb.append("Manufacturer: ").append(getManufacturer()).append(",\n ");
+        sb.append("SerialNumber: ").append(getSerialNumber()).append(", ");
+        sb.append("Temperature: ").append(getTemperature()).append("°C");
         return sb.toString();
     }
 
@@ -49,8 +72,7 @@ public abstract class AbstractPowerSource implements PowerSource {
      *
      * @return formatted String of time remaining
      */
-    private String getFormattedTimeRemaining() {
-        double timeInSeconds = getTimeRemaining();
+    private String formatTimeRemaining(double timeInSeconds) {
         String formattedTimeRemaining;
         if (timeInSeconds < 1.5) {
             formattedTimeRemaining = "Charging";
