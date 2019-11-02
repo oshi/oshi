@@ -249,15 +249,15 @@ public class MacPowerSource extends AbstractPowerSource {
         String psName = Constants.UNKNOWN;
         String psDeviceName = Constants.UNKNOWN;
         double psRemainingCapacityPercent = 1d;
-        double psTimeRemainingEstimated = 0d;
+        double psTimeRemainingEstimated = -1d; // -1 = unknown, -2 = unlimited
         double psTimeRemainingInstant = 0d;
         double psPowerUsageRate = 0d;
-        double psVoltage = 0d;
+        double psVoltage = -1d;
         double psAmperage = 0d;
         boolean psPowerOnLine = false;
         boolean psCharging = false;
         boolean psDischarging = false;
-        CapacityUnits psCapacityUnits = CapacityUnits.UNKNOWN;
+        CapacityUnits psCapacityUnits = CapacityUnits.RELATIVE;
         int psCurrentCapacity = 0;
         int psMaxCapacity = 1;
         int psDesignCapacity = 1;
@@ -273,8 +273,8 @@ public class MacPowerSource extends AbstractPowerSource {
         // should return one), and the IORegistry's entry for AppleSmartBattery, which
         // always returns one object.
         //
-        // We start by fetching the registry information, which we'll attempt to match
-        // to the nearest IOPS entry by capacity ratio if more than one.
+        // We start by fetching the registry information, which will be replicated
+        // across all IOPS entries if there are more than one.
 
         IORegistryEntry smartBattery = IOKitUtil.getMatchingService("AppleSmartBattery");
         if (smartBattery != null) {
@@ -296,7 +296,7 @@ public class MacPowerSource extends AbstractPowerSource {
             psCurrentCapacity = smartBattery.getIntegerProperty("CurrentCapacity");
             psCapacityUnits = CapacityUnits.MAH;
 
-            psTimeRemainingInstant = smartBattery.getIntegerProperty("TimeRemaining") * 60;
+            psTimeRemainingInstant = smartBattery.getIntegerProperty("TimeRemaining") * 60d;
             psCycleCount = smartBattery.getIntegerProperty("CycleCount");
             psTemperature = smartBattery.getIntegerProperty("Temperature") / 100d;
 

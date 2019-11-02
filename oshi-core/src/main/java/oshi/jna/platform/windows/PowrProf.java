@@ -86,25 +86,18 @@ public interface PowrProf extends com.sun.jna.platform.win32.PowrProf {
             super();
         }
     }
-    
+
     // MOVE?
     @FieldOrder({ "BatteryTag", "InformationLevel", "AtRate" })
     class BATTERY_QUERY_INFORMATION extends Structure {
         public int BatteryTag;
         public int InformationLevel;
         public int AtRate;
-      }
-    
-     enum BATTERY_QUERY_INFORMATION_LEVEL {
-        BatteryInformation,
-        BatteryGranularityInformation,
-        BatteryTemperature,
-        BatteryEstimatedTime,
-        BatteryDeviceName,
-        BatteryManufactureDate,
-        BatteryManufactureName,
-        BatteryUniqueID,
-        BatterySerialNumber
+    }
+
+    enum BATTERY_QUERY_INFORMATION_LEVEL {
+        BatteryInformation, BatteryGranularityInformation, BatteryTemperature, BatteryEstimatedTime, BatteryDeviceName,
+        BatteryManufactureDate, BatteryManufactureName, BatteryUniqueID, BatterySerialNumber
     }
 
     @FieldOrder({ "Capabilities", "Technology", "Reserved", "Chemistry", "DesignedCapacity", "FullChargedCapacity",
@@ -129,7 +122,7 @@ public interface PowrProf extends com.sun.jna.platform.win32.PowrProf {
         public int PowerState;
         public int LowCapacity;
         public int HighCapacity;
-      }
+    }
 
     @FieldOrder({ "PowerState", "Capacity", "Voltage", "Rate" })
     class BATTERY_STATUS extends Structure {
@@ -137,5 +130,12 @@ public interface PowrProf extends com.sun.jna.platform.win32.PowrProf {
         public int Capacity;
         public int Voltage;
         public int Rate;
+    }
+
+    @FieldOrder({ "Day", "Month", "Year" })
+    class BATTERY_MANUFACTURE_DATE extends Structure {
+        public byte Day;
+        public byte Month;
+        public short Year;
     }
 }

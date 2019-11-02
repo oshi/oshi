@@ -45,10 +45,11 @@ public interface PowerSource {
     MAH,
 
     /**
-     * Unknown units. The ratio of current/max capacity still represents state of
-     * charge and the ratio of max/design capacity still represents state of health.
+     * Relative units. The specific units are not defined. The ratio of current/max
+     * capacity still represents state of charge and the ratio of max/design
+     * capacity still represents state of health.
      */
-    UNKNOWN;
+    RELATIVE;
     }
 
     /**
@@ -103,12 +104,15 @@ public interface PowerSource {
 
     /**
      * Estimated time remaining on the power source, in seconds, as reported by the
-     * battery. May represent time remaining to fully charge the battery.
+     * battery. If the battery is charging, this value may represent time remaining
+     * to fully charge the battery.
      * <p>
-     * This value may change rapidly based on power consumption and will typically
-     * be a higher value than {@link #getTimeRemainingEstimated()}.
+     * Note that this value is not very accurate on some battery systems. The value
+     * may vary widely depending on present power usage, which could be affected by
+     * disk activity and other factors. This value will often be a higher value than
+     * {@link #getTimeRemainingEstimated()}.
      *
-     * @return Seconds remaining.
+     * @return Seconds remaining to fully discharge or fully charge the battery.
      */
     double getTimeRemainingInstant();
 
@@ -122,7 +126,7 @@ public interface PowerSource {
     /**
      * Voltage of the battery, in Volts.
      *
-     * @return the battery voltage.
+     * @return the battery voltage, or -1 if unknown.
      */
     double getVoltage();
 
@@ -135,7 +139,7 @@ public interface PowerSource {
     double getAmperage();
 
     /**
-     * Reports whether the device is plugged in, e.g., to AC power.
+     * Reports whether the device is plugged in to an external power source.
      *
      * @return {@code true} if plugged in, {@code false} otherwise.
      */
