@@ -74,10 +74,10 @@ public abstract class AbstractPowerSource implements PowerSource {
      */
     private String formatTimeRemaining(double timeInSeconds) {
         String formattedTimeRemaining;
-        if (timeInSeconds < 1.5) {
+        if (timeInSeconds < -1.5) {
             formattedTimeRemaining = "Charging";
         } else if (timeInSeconds < 0) {
-            formattedTimeRemaining = "Calculating";
+            formattedTimeRemaining = "Unknown";
         } else {
             int hours = (int) (timeInSeconds / 3600);
             int minutes = (int) (timeInSeconds % 3600 / 60);
