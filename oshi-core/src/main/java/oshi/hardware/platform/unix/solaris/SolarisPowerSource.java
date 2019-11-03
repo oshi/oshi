@@ -23,10 +23,13 @@
  */
 package oshi.hardware.platform.unix.solaris;
 
+import java.time.LocalDate;
+
 import com.sun.jna.platform.unix.solaris.LibKstat.Kstat; // NOSONAR
 
 import oshi.hardware.PowerSource;
 import oshi.hardware.common.AbstractPowerSource;
+import oshi.util.Constants;
 import oshi.util.platform.unix.solaris.KstatUtil;
 import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
 
@@ -52,33 +55,17 @@ public class SolarisPowerSource extends AbstractPowerSource {
         }
     }
 
-    private String name;
-    private double remainingCapacity;
-    private double timeRemaining;
 
-    public SolarisPowerSource(String newName, double newRemainingCapacity, double newTimeRemaining) {
-        this.name = newName;
-        this.remainingCapacity = newRemainingCapacity;
-        this.timeRemaining = newTimeRemaining;
-    }
-
-    @Override
-    public String getName() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public double getTimeRemaining() {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    @Override
-    public void updateAttributes() {
-        PowerSource ps = getPowerSource(this.name);
-        this.remainingCapacity = ps.getRemainingCapacity();
-        this.timeRemaining = ps.getTimeRemaining();
+    public SolarisPowerSource(String psName, String psDeviceName, double psRemainingCapacityPercent,
+            double psTimeRemainingEstimated, double psTimeRemainingInstant, double psPowerUsageRate, double psVoltage,
+            double psAmperage, boolean psPowerOnLine, boolean psCharging, boolean psDischarging,
+            CapacityUnits psCapacityUnits, int psCurrentCapacity, int psMaxCapacity, int psDesignCapacity,
+            int psCycleCount, String psChemistry, LocalDate psManufactureDate, String psManufacturer,
+            String psSerialNumber, double psTemperature) {
+        super(psName, psDeviceName, psRemainingCapacityPercent, psTimeRemainingEstimated, psTimeRemainingInstant,
+                psPowerUsageRate, psVoltage, psAmperage, psPowerOnLine, psCharging, psDischarging, psCapacityUnits,
+                psCurrentCapacity, psMaxCapacity, psDesignCapacity, psCycleCount, psChemistry, psManufactureDate,
+                psManufacturer, psSerialNumber, psTemperature);
     }
 
     /**
@@ -93,58 +80,77 @@ public class SolarisPowerSource extends AbstractPowerSource {
     }
 
     private static SolarisPowerSource getPowerSource(String name) {
+        String psName = Constants.UNKNOWN;
+        String psDeviceName = Constants.UNKNOWN;
+        double psRemainingCapacityPercent = 1d;
+        double psTimeRemainingEstimated = -1d; // -1 = unknown, -2 = unlimited
+        double psTimeRemainingInstant = 0d;
+        double psPowerUsageRate = 0d;
+        double psVoltage = -1d;
+        double psAmperage = 0d;
+        boolean psPowerOnLine = false;
+        boolean psCharging = false;
+        boolean psDischarging = false;
+        CapacityUnits psCapacityUnits = CapacityUnits.RELATIVE;
+        int psCurrentCapacity = 0;
+        int psMaxCapacity = 1;
+        int psDesignCapacity = 1;
+        int psCycleCount = -1;
+        String psChemistry = Constants.UNKNOWN;
+        LocalDate psManufactureDate = null;
+        String psManufacturer = Constants.UNKNOWN;
+        String psSerialNumber = Constants.UNKNOWN;
+        double psTemperature = 0d;
+
         // If no kstat info, return empty
-        if (KSTAT_BATT_IDX == 0) {
-            return new SolarisPowerSource(name, 0d, -1d);
-        }
-        // Get kstat for the battery information
-        long energyFull;
-        long energyNow;
-        double timeRemaining = -2d;
-        try (KstatChain kc = KstatUtil.openChain()) {
-            Kstat ksp = kc.lookup(KSTAT_BATT_MOD[KSTAT_BATT_IDX], 0, "battery BIF0");
-            if (ksp == null) {
-                return new SolarisPowerSource(name, 0d, -1d);
-            }
+        if (KSTAT_BATT_IDX > 0) {
+            // Get kstat for the battery information
+            try (KstatChain kc = KstatUtil.openChain()) {
+                Kstat ksp = kc.lookup(KSTAT_BATT_MOD[KSTAT_BATT_IDX], 0, "battery BIF0");
+                if (ksp != null) {
+                    // Predicted battery capacity when fully charged.
+                    long energyFull = KstatUtil.dataLookupLong(ksp, "bif_last_cap");
+                    if (energyFull == 0xffffffff || energyFull <= 0) {
+                        energyFull = KstatUtil.dataLookupLong(ksp, "bif_design_cap");
+                    }
+                    if (energyFull != 0xffffffff && energyFull > 0) {
+                        psMaxCapacity = (int) energyFull;
+                    }
+                    // kstat_data_lookup(ksp, "bif_unit"); --> 0 = mWh, 1=mAh
+                    // bif_model, bif_serial, bif_type, bif_oem_info
+                    // all char[MAXNAMELEN]
+                }
 
-            // Predicted battery capacity when fully charged.
-            energyFull = KstatUtil.dataLookupLong(ksp, "bif_last_cap");
-            if (energyFull == 0xffffffff || energyFull <= 0) {
-                energyFull = KstatUtil.dataLookupLong(ksp, "bif_design_cap");
-            }
-            if (energyFull == 0xffffffff || energyFull <= 0) {
-                return new SolarisPowerSource(name, 0d, -1d);
-            }
+                // Get kstat for the battery state
+                ksp = kc.lookup(KSTAT_BATT_MOD[KSTAT_BATT_IDX], 0, "battery BST0");
+                if (ksp != null) {
+                    // estimated remaining battery capacity
+                    long energyNow = KstatUtil.dataLookupLong(ksp, "bst_rem_cap");
+                    if (energyNow >= 0) {
+                        psCurrentCapacity = (int) energyNow;
+                    }
+                    // power or current supplied at battery terminal
+                    long powerNow = KstatUtil.dataLookupLong(ksp, "bst_rate");
+                    if (powerNow == 0xFFFFFFFF) {
+                        powerNow = 0L;
+                    }
+                    // Battery State:
+                    // bit 0 = discharging
+                    // bit 1 = charging
+                    // bit 2 = critical energy state
+                    boolean isCharging = (KstatUtil.dataLookupLong(ksp, "bst_state") & 0x10) > 0;
 
-            // Get kstat for the battery state
-            ksp = kc.lookup(KSTAT_BATT_MOD[KSTAT_BATT_IDX], 0, "battery BST0");
-            if (ksp == null) {
-                return new SolarisPowerSource(name, 0d, -1d);
-            }
-
-            // estimated remaining battery capacity
-            energyNow = KstatUtil.dataLookupLong(ksp, "bst_rem_cap");
-            if (energyNow < 0) {
-                return new SolarisPowerSource(name, 0d, -1d);
-            }
-
-            // power or current supplied at battery terminal
-            long powerNow = KstatUtil.dataLookupLong(ksp, "bst_rate");
-            if (powerNow == 0xFFFFFFFF) {
-                powerNow = 0L;
-            }
-
-            // Battery State:
-            // bit 0 = discharging
-            // bit 1 = charging
-            // bit 2 = critical energy state
-            boolean isCharging = (KstatUtil.dataLookupLong(ksp, "bst_state") & 0x10) > 0;
-
-            if (!isCharging) {
-                timeRemaining = powerNow > 0 ? 3600d * energyNow / powerNow : -1d;
+                    if (!isCharging) {
+                        psTimeRemainingEstimated = powerNow > 0 ? 3600d * energyNow / powerNow : -1d;
+                    }
+                    // bst_voltage (mV0)
+                }
             }
         }
 
-        return new SolarisPowerSource(name, (double) energyNow / energyFull, timeRemaining);
+        return new SolarisPowerSource(psName, psDeviceName, psRemainingCapacityPercent, psTimeRemainingEstimated,
+                psTimeRemainingInstant, psPowerUsageRate, psVoltage, psAmperage, psPowerOnLine, psCharging,
+                psDischarging, psCapacityUnits, psCurrentCapacity, psMaxCapacity, psDesignCapacity, psCycleCount,
+                psChemistry, psManufactureDate, psManufacturer, psSerialNumber, psTemperature);
     }
 }

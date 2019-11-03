@@ -69,193 +69,16 @@ public class WindowsPowerSource extends AbstractPowerSource {
     private static final int IOCTL_BATTERY_QUERY_STATUS = 0x29404c;
     private static final int IOCTL_BATTERY_QUERY_INFORMATION = 0x294044;
 
-    private String name;
-    private String deviceName;
-    private double remainingCapacityPercent;
-    private double timeRemainingEstimated;
-    private double timeRemainingInstant;
-    private double powerUsageRate;
-    private double voltage;
-    private double amperage;
-    private boolean powerOnLine;
-    private boolean charging;
-    private boolean discharging;
-    private CapacityUnits capacityUnits;
-    private int currentCapacity;
-    private int maxCapacity;
-    private int designCapacity;
-    private int cycleCount;
-    private String chemistry;
-    private LocalDate manufactureDate;
-    private String manufacturer;
-    private String serialNumber;
-    private double temperature;
-
-    public WindowsPowerSource(String name, String deviceName, double remainingCapacityPercent,
-            double timeRemainingEstimated, double timeRemainingInstant, double powerUsageRate, double voltage,
-            double amperage, boolean powerOnLine, boolean charging, boolean discharging, CapacityUnits capacityUnits,
-            int currentCapacity, int maxCapacity, int designCapacity, int cycleCount, String chemistry,
-            LocalDate manufactureDate, String manufacturer, String serialNumber, double temperature) {
-        super();
-        this.name = name;
-        this.deviceName = deviceName;
-        this.remainingCapacityPercent = remainingCapacityPercent;
-        this.timeRemainingEstimated = timeRemainingEstimated;
-        this.timeRemainingInstant = timeRemainingInstant;
-        this.powerUsageRate = powerUsageRate;
-        this.voltage = voltage;
-        this.amperage = amperage;
-        this.powerOnLine = powerOnLine;
-        this.charging = charging;
-        this.discharging = discharging;
-        this.capacityUnits = capacityUnits;
-        this.currentCapacity = currentCapacity;
-        this.maxCapacity = maxCapacity;
-        this.designCapacity = designCapacity;
-        this.cycleCount = cycleCount;
-        this.chemistry = chemistry;
-        this.manufactureDate = manufactureDate;
-        this.manufacturer = manufacturer;
-        this.serialNumber = serialNumber;
-        this.temperature = temperature;
-    }
-
-    @Override
-    public String getName() {
-        return this.name;
-    }
-
-    @Override
-    public String getDeviceName() {
-        return this.deviceName;
-    }
-
-    @Override
-    public double getRemainingCapacityPercent() {
-        return this.remainingCapacityPercent;
-    }
-
-    @Override
-    public double getTimeRemainingEstimated() {
-        return this.timeRemainingEstimated;
-    }
-
-    @Override
-    public double getTimeRemainingInstant() {
-        return this.timeRemainingInstant;
-    }
-
-    @Override
-    public double getPowerUsageRate() {
-        return this.powerUsageRate;
-    }
-
-    @Override
-    public double getVoltage() {
-        return this.voltage;
-    }
-
-    @Override
-    public double getAmperage() {
-        return this.amperage;
-    }
-
-    @Override
-    public boolean isPowerOnLine() {
-        return this.powerOnLine;
-    }
-
-    @Override
-    public boolean isCharging() {
-        return this.charging;
-    }
-
-    @Override
-    public boolean isDischarging() {
-        return this.discharging;
-    }
-
-    @Override
-    public CapacityUnits getCapacityUnits() {
-        return this.capacityUnits;
-    }
-
-    @Override
-    public int getCurrentCapacity() {
-        return this.currentCapacity;
-    }
-
-    @Override
-    public int getMaxCapacity() {
-        return this.maxCapacity;
-    }
-
-    @Override
-    public int getDesignCapacity() {
-        return this.designCapacity;
-    }
-
-    @Override
-    public int getCycleCount() {
-        return this.cycleCount;
-    }
-
-    @Override
-    public String getChemistry() {
-        return this.chemistry;
-    }
-
-    @Override
-    public LocalDate getManufactureDate() {
-        return this.manufactureDate;
-    }
-
-    @Override
-    public String getManufacturer() {
-        return this.manufacturer;
-    }
-
-    @Override
-    public String getSerialNumber() {
-        return this.serialNumber;
-    }
-
-    @Override
-    public double getTemperature() {
-        return this.temperature;
-    }
-
-    @Override
-    public boolean updateAttributes() {
-        PowerSource[] psArr = getPowerSources();
-        for (PowerSource ps : psArr) {
-            if (ps.getName().equals(this.name)) {
-                this.name = ps.getName();
-                this.deviceName = ps.getDeviceName();
-                this.remainingCapacityPercent = ps.getRemainingCapacityPercent();
-                this.timeRemainingEstimated = ps.getTimeRemainingEstimated();
-                this.timeRemainingInstant = ps.getTimeRemainingInstant();
-                this.powerUsageRate = ps.getPowerUsageRate();
-                this.voltage = ps.getVoltage();
-                this.amperage = ps.getAmperage();
-                this.powerOnLine = ps.isPowerOnLine();
-                this.charging = ps.isCharging();
-                this.discharging = ps.isDischarging();
-                this.capacityUnits = ps.getCapacityUnits();
-                this.currentCapacity = ps.getCurrentCapacity();
-                this.maxCapacity = ps.getMaxCapacity();
-                this.designCapacity = ps.getDesignCapacity();
-                this.cycleCount = ps.getCycleCount();
-                this.chemistry = ps.getChemistry();
-                this.manufactureDate = ps.getManufactureDate();
-                this.manufacturer = ps.getManufacturer();
-                this.serialNumber = ps.getSerialNumber();
-                this.temperature = ps.getTemperature();
-                return true;
-            }
-        }
-        // Didn't find this battery
-        return false;
+    public WindowsPowerSource(String psName, String psDeviceName, double psRemainingCapacityPercent,
+            double psTimeRemainingEstimated, double psTimeRemainingInstant, double psPowerUsageRate, double psVoltage,
+            double psAmperage, boolean psPowerOnLine, boolean psCharging, boolean psDischarging,
+            CapacityUnits psCapacityUnits, int psCurrentCapacity, int psMaxCapacity, int psDesignCapacity,
+            int psCycleCount, String psChemistry, LocalDate psManufactureDate, String psManufacturer,
+            String psSerialNumber, double psTemperature) {
+        super(psName, psDeviceName, psRemainingCapacityPercent, psTimeRemainingEstimated, psTimeRemainingInstant,
+                psPowerUsageRate, psVoltage, psAmperage, psPowerOnLine, psCharging, psDischarging, psCapacityUnits,
+                psCurrentCapacity, psMaxCapacity, psDesignCapacity, psCycleCount, psChemistry, psManufactureDate,
+                psManufacturer, psSerialNumber, psTemperature);
     }
 
     /**
@@ -302,23 +125,6 @@ public class WindowsPowerSource extends AbstractPowerSource {
         // We start by fetching the PowrProf information, which will be replicated
         // across all IOCTL entries if there are more than one.
 
-        // TODO: IOCTL_BATTERY_QUERY_INFORMATION
-        // Capabilities -- units flag
-        // Chemistry (NiMH etc.)
-        // Design & FullCharge
-        // CycleCount
-        // TODO:
-        // Manufacture Date
-        // Manufacturer
-        // SerialNumber
-        // Temperature
-        // #define FILE_DEVICE_BATTERY 0x00000029
-        // #define METHOD_BUFFERED 0
-        // #define FILE_READ_ACCESS 0x0001
-
-        // Kernel32.INSTANCE.DeviceIoControl(hBattery, dwIoControlCode, lpInBuffer,
-        // nInBufferSize, lpOutBuffer, nOutBufferSize, lpBytesReturned, lpOverlapped)
-
         int size = new SystemBatteryState().size();
         Memory mem = new Memory(size);
         if (0 == PowrProf.INSTANCE.CallNtPowerInformation(POWER_INFORMATION_LEVEL.SystemBatteryState, null, 0, mem,
@@ -330,7 +136,6 @@ public class WindowsPowerSource extends AbstractPowerSource {
                 } else if (batteryState.charging > 0) {
                     psTimeRemainingEstimated = -2d;
                 }
-                // TODO verify units, check capabilities flag
                 psMaxCapacity = batteryState.maxCapacity;
                 psCurrentCapacity = batteryState.remainingCapacity;
                 psRemainingCapacityPercent = Math.min(1d, psCurrentCapacity / psMaxCapacity);
