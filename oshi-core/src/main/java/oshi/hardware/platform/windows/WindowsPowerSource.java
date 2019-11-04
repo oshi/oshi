@@ -94,7 +94,7 @@ public class WindowsPowerSource extends AbstractPowerSource {
     }
 
     private static WindowsPowerSource getPowerSource(String name) {
-        String psName = Constants.UNKNOWN;
+        String psName = "BATTERY 1";
         String psDeviceName = Constants.UNKNOWN;
         double psRemainingCapacityPercent = 1d;
         double psTimeRemainingEstimated = -1d; // -1 = unknown, -2 = unlimited
@@ -138,7 +138,7 @@ public class WindowsPowerSource extends AbstractPowerSource {
                 }
                 psMaxCapacity = batteryState.maxCapacity;
                 psCurrentCapacity = batteryState.remainingCapacity;
-                psRemainingCapacityPercent = Math.min(1d, psCurrentCapacity / psMaxCapacity);
+                psRemainingCapacityPercent = Math.min(1d, (double) psCurrentCapacity / psMaxCapacity);
                 psPowerUsageRate = batteryState.rate;
             }
         }
@@ -188,17 +188,17 @@ public class WindowsPowerSource extends AbstractPowerSource {
                                     bqi.BatteryTag = dwTag.getValue();
                                     if (bqi.BatteryTag > 0) {
                                         // With the tag, you can query the battery info.
-                                        BATTERY_INFORMATION bi = new BATTERY_INFORMATION();
                                         bqi.InformationLevel = PowrProf.BATTERY_QUERY_INFORMATION_LEVEL.BatteryInformation
                                                 .ordinal();
                                         bqi.write();
-
+                                        BATTERY_INFORMATION bi = new BATTERY_INFORMATION();
                                         if (Kernel32.INSTANCE.DeviceIoControl(hBattery, IOCTL_BATTERY_QUERY_INFORMATION,
                                                 bqi.getPointer(), bqi.size(), bi.getPointer(), bi.size(), dwOut,
                                                 null)) {
                                             // Only non-UPS system batteries count
                                             bi.read();
-                                            if (0 != (bi.Capabilities & BATTERY_SYSTEM_BATTERY)) {
+                                            if (0 != (bi.Capabilities & BATTERY_SYSTEM_BATTERY)
+                                                    && 0 == (bi.Capabilities & BATTERY_IS_SHORT_TERM)) {
                                                 // Capabilities flags non-mWh units
                                                 if (0 == (bi.Capabilities & BATTERY_CAPACITY_RELATIVE)) {
                                                     psCapacityUnits = CapacityUnits.MWH;
@@ -235,32 +235,17 @@ public class WindowsPowerSource extends AbstractPowerSource {
                                                 }
                                             }
 
-                                            bqi.InformationLevel = PowrProf.BATTERY_QUERY_INFORMATION_LEVEL.BatteryDeviceName
-                                                    .ordinal();
-                                            bqi.write();
-                                            Kernel32.INSTANCE.DeviceIoControl(hBattery, IOCTL_BATTERY_QUERY_INFORMATION,
-                                                    bqi.getPointer(), bqi.size(), null, 0, dwOut, null);
-                                            int nameLen = dwOut.getValue();
-                                            Memory nameBuf = new Memory(nameLen + CHAR_WIDTH);
-                                            nameBuf.clear();
-                                            if (Kernel32.INSTANCE.DeviceIoControl(hBattery,
-                                                    IOCTL_BATTERY_QUERY_INFORMATION, bqi.getPointer(), bqi.size(),
-                                                    nameBuf, (int) nameBuf.size(), dwOut, null)) {
-                                                psDeviceName = CHAR_WIDTH > 1 ? nameBuf.getWideString(0)
-                                                        : nameBuf.getString(0);
-                                            }
+                                            psDeviceName = batteryQueryString(hBattery, dwTag.getValue(),
+                                                    PowrProf.BATTERY_QUERY_INFORMATION_LEVEL.BatteryDeviceName
+                                                            .ordinal());
+                                            psManufacturer = batteryQueryString(hBattery, dwTag.getValue(),
+                                                    PowrProf.BATTERY_QUERY_INFORMATION_LEVEL.BatteryManufactureName
+                                                            .ordinal());
+                                            psSerialNumber = batteryQueryString(hBattery, dwTag.getValue(),
+                                                    PowrProf.BATTERY_QUERY_INFORMATION_LEVEL.BatterySerialNumber
+                                                            .ordinal());
 
-                                            bqi.InformationLevel = PowrProf.BATTERY_QUERY_INFORMATION_LEVEL.BatteryEstimatedTime
-                                                    .ordinal();
-                                            bqi.write();
-                                            IntByReference tr = new IntByReference();
-                                            if (Kernel32.INSTANCE.DeviceIoControl(hBattery,
-                                                    IOCTL_BATTERY_QUERY_INFORMATION, bqi.getPointer(), bqi.size(),
-                                                    tr.getPointer(), Integer.BYTES, dwOut, null)) {
-                                                psTimeRemainingInstant = tr.getValue();
-                                            }
-
-                                            bqi.InformationLevel = PowrProf.BATTERY_QUERY_INFORMATION_LEVEL.BatteryEstimatedTime
+                                            bqi.InformationLevel = PowrProf.BATTERY_QUERY_INFORMATION_LEVEL.BatteryManufactureDate
                                                     .ordinal();
                                             bqi.write();
                                             BATTERY_MANUFACTURE_DATE bmd = new BATTERY_MANUFACTURE_DATE();
@@ -274,46 +259,37 @@ public class WindowsPowerSource extends AbstractPowerSource {
                                                 }
                                             }
 
-                                            bqi.InformationLevel = PowrProf.BATTERY_QUERY_INFORMATION_LEVEL.BatteryManufactureName
-                                                    .ordinal();
-                                            bqi.write();
-                                            Kernel32.INSTANCE.DeviceIoControl(hBattery, IOCTL_BATTERY_QUERY_INFORMATION,
-                                                    bqi.getPointer(), bqi.size(), null, 0, dwOut, null);
-                                            nameLen = dwOut.getValue();
-                                            nameBuf = new Memory(nameLen + CHAR_WIDTH);
-                                            nameBuf.clear();
-                                            if (Kernel32.INSTANCE.DeviceIoControl(hBattery,
-                                                    IOCTL_BATTERY_QUERY_INFORMATION, bqi.getPointer(), bqi.size(),
-                                                    nameBuf, (int) nameBuf.size(), dwOut, null)) {
-                                                psManufacturer = CHAR_WIDTH > 1 ? nameBuf.getWideString(0)
-                                                        : nameBuf.getString(0);
-                                            }
-
-                                            bqi.InformationLevel = PowrProf.BATTERY_QUERY_INFORMATION_LEVEL.BatterySerialNumber
-                                                    .ordinal();
-                                            bqi.write();
-                                            Kernel32.INSTANCE.DeviceIoControl(hBattery, IOCTL_BATTERY_QUERY_INFORMATION,
-                                                    bqi.getPointer(), bqi.size(), null, 0, dwOut, null);
-                                            nameLen = dwOut.getValue();
-                                            nameBuf = new Memory(nameLen + CHAR_WIDTH);
-                                            nameBuf.clear();
-                                            if (Kernel32.INSTANCE.DeviceIoControl(hBattery,
-                                                    IOCTL_BATTERY_QUERY_INFORMATION, bqi.getPointer(), bqi.size(),
-                                                    nameBuf, (int) nameBuf.size(), dwOut, null)) {
-                                                psSerialNumber = CHAR_WIDTH > 1 ? nameBuf.getWideString(0)
-                                                        : nameBuf.getString(0);
-                                            }
-
                                             bqi.InformationLevel = PowrProf.BATTERY_QUERY_INFORMATION_LEVEL.BatteryTemperature
                                                     .ordinal();
                                             bqi.write();
                                             IntByReference tempK = new IntByReference(); // 1/10 degree K
                                             if (Kernel32.INSTANCE.DeviceIoControl(hBattery,
                                                     IOCTL_BATTERY_QUERY_INFORMATION, bqi.getPointer(), bqi.size(),
-                                                    tr.getPointer(), Integer.BYTES, dwOut, null)) {
+                                                    tempK.getPointer(), Integer.BYTES, dwOut, null)) {
                                                 psTemperature = tempK.getValue() / 10d - 273.15;
                                             }
 
+                                            // Put last because we change the AtRate field
+                                            bqi.InformationLevel = PowrProf.BATTERY_QUERY_INFORMATION_LEVEL.BatteryEstimatedTime
+                                                    .ordinal();
+                                            if (psPowerUsageRate != 0d) {
+                                                bqi.AtRate = (int) psPowerUsageRate;
+                                            }
+                                            bqi.write();
+                                            IntByReference tr = new IntByReference();
+                                            if (Kernel32.INSTANCE.DeviceIoControl(hBattery,
+                                                    IOCTL_BATTERY_QUERY_INFORMATION, bqi.getPointer(), bqi.size(),
+                                                    tr.getPointer(), Integer.BYTES, dwOut, null)) {
+                                                psTimeRemainingInstant = tr.getValue();
+                                            }
+                                            // Fallback
+                                            if (psTimeRemainingInstant < 0 && psPowerUsageRate != 0d) {
+                                                psTimeRemainingInstant = 3600 * (psMaxCapacity - psCurrentCapacity)
+                                                        / psPowerUsageRate;
+                                                if (psTimeRemainingInstant < 0) {
+                                                    psTimeRemainingInstant *= -1;
+                                                }
+                                            }
                                             // Exit loop
                                             break;
                                         }
@@ -334,6 +310,25 @@ public class WindowsPowerSource extends AbstractPowerSource {
                 psTimeRemainingInstant, psPowerUsageRate, psVoltage, psAmperage, psPowerOnLine, psCharging,
                 psDischarging, psCapacityUnits, psCurrentCapacity, psMaxCapacity, psDesignCapacity, psCycleCount,
                 psChemistry, psManufactureDate, psManufacturer, psSerialNumber, psTemperature);
+    }
+
+    private static String batteryQueryString(HANDLE hBattery, int tag, int infoLevel) {
+        BATTERY_QUERY_INFORMATION bqi = new PowrProf.BATTERY_QUERY_INFORMATION();
+        bqi.BatteryTag = tag;
+        bqi.InformationLevel = infoLevel;
+        bqi.write();
+        IntByReference dwOut = new IntByReference();
+        boolean ret = false;
+        long bufSize = 0;
+        Memory nameBuf;
+        do {
+            // First increment is probably enough
+            bufSize += 256;
+            nameBuf = new Memory(bufSize);
+            ret = Kernel32.INSTANCE.DeviceIoControl(hBattery, IOCTL_BATTERY_QUERY_INFORMATION, bqi.getPointer(),
+                    bqi.size(), nameBuf, (int) nameBuf.size(), dwOut, null);
+        } while (!ret && bufSize < 4096);
+        return CHAR_WIDTH > 1 ? nameBuf.getWideString(0) : nameBuf.getString(0);
     }
 
     public static void main(String[] args) {

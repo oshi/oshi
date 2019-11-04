@@ -211,8 +211,12 @@ public interface PowerSource {
 
     /**
      * The battery's date of manufacture.
+     * <p>
+     * Some battery manufacturers encode the manufacture date in the serial number.
+     * Parsing this value is operating system and battery manufacturer dependent,
+     * and is left to the user.
      *
-     * @return the manufacture date.
+     * @return the manufacture date, if available. May be {@code null}.
      */
     LocalDate getManufactureDate();
 
@@ -225,6 +229,10 @@ public interface PowerSource {
 
     /**
      * The battery's serial number.
+     * <p>
+     * Some battery manufacturers encode the manufacture date in the serial number.
+     * Parsing this value is operating system and battery manufacturer dependent,
+     * and is left to the user.
      *
      * @return the serial number.
      */

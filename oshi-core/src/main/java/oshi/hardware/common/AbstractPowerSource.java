@@ -34,6 +34,7 @@ import oshi.hardware.platform.mac.MacPowerSource;
 import oshi.hardware.platform.unix.freebsd.FreeBsdPowerSource;
 import oshi.hardware.platform.unix.solaris.SolarisPowerSource;
 import oshi.hardware.platform.windows.WindowsPowerSource;
+import oshi.util.Constants;
 
 /**
  * A Power Source
@@ -276,10 +277,16 @@ public abstract class AbstractPowerSource implements PowerSource {
         sb.append("Design Capacity: ").append(getDesignCapacity()).append(",\n ");
         sb.append("Cycle Count: ").append(getCycleCount()).append(", ");
         sb.append("Chemistry: ").append(getChemistry()).append(", ");
-        sb.append("Manufacture Date: ").append(getManufactureDate()).append(", ");
+        sb.append("Manufacture Date: ").append(getManufactureDate() != null ? getManufactureDate() : Constants.UNKNOWN)
+                .append(", ");
         sb.append("Manufacturer: ").append(getManufacturer()).append(",\n ");
         sb.append("SerialNumber: ").append(getSerialNumber()).append(", ");
-        sb.append("Temperature: ").append(getTemperature()).append("°C");
+        sb.append("Temperature: ");
+        if (getTemperature() > 0) {
+            sb.append(getTemperature()).append("°C");
+        } else {
+            sb.append(Constants.UNKNOWN);
+        }
         return sb.toString();
     }
 
