@@ -153,7 +153,7 @@
 		<maven-assembly-plugin.version>3.1.1</maven-assembly-plugin.version>
 		<maven-dependency-plugin.version>3.1.1</maven-dependency-plugin.version>
 		<maven-release-plugin.version>2.5.3</maven-release-plugin.version>
-		<maven-source-plugin.version>3.1.0</maven-source-plugin.version>
+		<maven-source-plugin.version>3.2.0</maven-source-plugin.version>
 		<spotbugs-maven-plugin.version>3.1.12.2</spotbugs-maven-plugin.version>
 		<jacoco-maven-plugin.version>0.8.5</jacoco-maven-plugin.version>
 		<coveralls-maven-plugin.version>4.3.0</coveralls-maven-plugin.version>
