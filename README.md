@@ -19,7 +19,8 @@
 [![first-timers-only](https://img.shields.io/badge/first--timers--only-friendly-blue.svg?style=flat-square)](https://www.firsttimersonly.com/)
 [![Join the chat at https://gitter.im/oshi/oshi](https://badges.gitter.im/oshi/oshi.svg)](https://gitter.im/oshi/oshi?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-OSHI is a free JNA-based (native) Operating System and Hardware Information library for Java.
+OSHI is a free [JNA](https://github.com/java-native-access/jna)-based (native) 
+Operating System and Hardware Information library for Java.
 It does not require the installation of any additional native libraries and aims to provide a 
 cross-platform implementation to retrieve system information, such as OS version, processes, 
 memory & CPU usage, disks & partitions, devices, sensors, etc.
@@ -114,6 +115,18 @@ Memory and swapfile information is available.
 Memory: 11.6 GiB/32 GiB
 Swap used: 3.6 GiB/5 GiB
 ```
+Statistics for the system battery are provided.
+```
+Power Sources: 
+ Name: InternalBattery-0, Device Name: bq20z451,
+ RemainingCapacityPercent: 100.0%, Time Remaining: 5:42, Time Remaining Instant: 5:42,
+ Power Usage Rate: -16045.216mW, Voltage: 12.694V, Amperage: -1264.0mA,
+ Power OnLine: false, Charging: false, Discharging: true,
+ Capacity Units: MAH, Current Capacity: 7213, Max Capacity: 7315, Design Capacity: 7336,
+ Cycle Count: 6, Chemistry: LIon, Manufacture Date: 2019-06-11, Manufacturer: SMP,
+ SerialNumber: D869243A2U3J65JAB, Temperature: 30.46°C
+```
+
 The EDID for each Display is provided. This can be parsed with various utilities for detailed information. OSHI provides a summary of selected data.
 ```
 Displays:
@@ -143,6 +156,7 @@ Disks:
  |-- disk1s2: Dropbox (disk image) Maj:Min=1:5, size: 959.7 GB @ /Volumes/Dropbox
 
 ```
+
 Sensor readings are available for some hardware (see notes in the [FAQ](https://github.com/oshi/oshi/blob/master/FAQ.md)).
 ```
 Sensors:
