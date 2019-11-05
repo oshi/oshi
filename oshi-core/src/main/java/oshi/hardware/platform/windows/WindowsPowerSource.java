@@ -94,7 +94,7 @@ public class WindowsPowerSource extends AbstractPowerSource {
     }
 
     private static WindowsPowerSource getPowerSource(String name) {
-        String psName = "BATTERY 1";
+        String psName = name;
         String psDeviceName = Constants.UNKNOWN;
         double psRemainingCapacityPercent = 1d;
         double psTimeRemainingEstimated = -1d; // -1 = unknown, -2 = unlimited

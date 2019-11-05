@@ -69,10 +69,7 @@ public class MacPowerSource extends AbstractPowerSource {
      * @return An array of PowerSource objects representing batteries, etc.
      */
     public static PowerSource[] getPowerSources() {
-        String psName = Constants.UNKNOWN;
         String psDeviceName = Constants.UNKNOWN;
-        double psRemainingCapacityPercent = 1d;
-        double psTimeRemainingEstimated = -1d; // -1 = unknown, -2 = unlimited
         double psTimeRemainingInstant = 0d;
         double psPowerUsageRate = 0d;
         double psVoltage = -1d;
@@ -141,7 +138,7 @@ public class MacPowerSource extends AbstractPowerSource {
 
         // Get time remaining
         // -1 = unknown, -2 = unlimited
-        psTimeRemainingEstimated = IO.IOPSGetTimeRemainingEstimate();
+        double psTimeRemainingEstimated = IO.IOPSGetTimeRemainingEstimate();
 
         CFStringRef nameKey = CFStringRef.createCFString("Name");
         CFStringRef isPresentKey = CFStringRef.createCFString("Is Present");
@@ -165,7 +162,7 @@ public class MacPowerSource extends AbstractPowerSource {
                     // Get name
                     result = dictionary.getValue(nameKey);
                     CFStringRef cfName = new CFStringRef(result);
-                    psName = cfName.stringValue();
+                    String psName = cfName.stringValue();
                     if (psName == null) {
                         psName = Constants.UNKNOWN;
                     }
@@ -182,7 +179,7 @@ public class MacPowerSource extends AbstractPowerSource {
                         CFNumberRef cap = new CFNumberRef(result);
                         maxCapacity = cap.intValue();
                     }
-                    psRemainingCapacityPercent = Math.min(1d, currentCapacity / maxCapacity);
+                    double psRemainingCapacityPercent = Math.min(1d, currentCapacity / maxCapacity);
                     // Add to list
                     psList.add(new MacPowerSource(psName, psDeviceName, psRemainingCapacityPercent,
                             psTimeRemainingEstimated, psTimeRemainingInstant, psPowerUsageRate, psVoltage, psAmperage,

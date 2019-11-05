@@ -25,7 +25,7 @@ package oshi.hardware.common;
 
 import java.time.LocalDate;
 
-import com.sun.jna.Platform;
+import com.sun.jna.Platform; // NOSONAR squid:S1191
 
 import oshi.SystemInfo;
 import oshi.hardware.PowerSource;
@@ -295,7 +295,7 @@ public abstract class AbstractPowerSource implements PowerSource {
      *
      * @return formatted String of time remaining
      */
-    private String formatTimeRemaining(double timeInSeconds) {
+    private static String formatTimeRemaining(double timeInSeconds) {
         String formattedTimeRemaining;
         if (timeInSeconds < -1.5) {
             formattedTimeRemaining = "Charging";

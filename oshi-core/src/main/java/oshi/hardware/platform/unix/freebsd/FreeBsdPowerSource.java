@@ -67,7 +67,6 @@ public class FreeBsdPowerSource extends AbstractPowerSource {
         String psName = name;
         double psRemainingCapacityPercent = 1d;
         double psTimeRemainingEstimated = -1d; // -1 = unknown, -2 = unlimited
-        double psTimeRemainingInstant = 0d;
         double psPowerUsageRate = 0d;
         double psVoltage = -1d;
         double psAmperage = 0d;
@@ -131,21 +130,19 @@ public class FreeBsdPowerSource extends AbstractPowerSource {
         } else {
             psMaxCapacity = psDesignCapacity;
         }
-        psTimeRemainingInstant = psTimeRemainingEstimated;
+        double psTimeRemainingInstant = psTimeRemainingEstimated;
         String time = psMap.get("Remaining time");
         if (time != null) {
             String[] hhmm = time.split(":");
             if (hhmm.length == 2) {
-                psTimeRemainingInstant = 3600 * ParseUtil.parseIntOrDefault(hhmm[0], 0)
-                        + 60 * ParseUtil.parseIntOrDefault(hhmm[1], 0);
+                psTimeRemainingInstant = 3600d * ParseUtil.parseIntOrDefault(hhmm[0], 0)
+                        + 60d * ParseUtil.parseIntOrDefault(hhmm[1], 0);
             }
         }
         String rate = psMap.get("Present rate");
         if (rate != null) {
             psPowerUsageRate = ParseUtil.getFirstIntValue(rate);
         }
-        psCharging = psPowerUsageRate > 0;
-        psDischarging = psPowerUsageRate < 0;
         String volts = psMap.get("Present voltage");
         if (volts != null) {
             psVoltage = ParseUtil.getFirstIntValue(volts);

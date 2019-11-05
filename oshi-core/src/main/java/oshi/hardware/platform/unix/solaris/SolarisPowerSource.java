@@ -79,7 +79,7 @@ public class SolarisPowerSource extends AbstractPowerSource {
     }
 
     private static SolarisPowerSource getPowerSource(String name) {
-        String psName = Constants.UNKNOWN;
+        String psName = name;
         String psDeviceName = Constants.UNKNOWN;
         double psRemainingCapacityPercent = 1d;
         double psTimeRemainingEstimated = -1d; // -1 = unknown, -2 = unlimited
