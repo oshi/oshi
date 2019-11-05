@@ -34,15 +34,4 @@ import oshi.jna.platform.unix.CLibrary;
 public interface SystemB extends CLibrary, com.sun.jna.platform.mac.SystemB {
 
     SystemB INSTANCE = Native.load("System", SystemB.class);
-
-    /**
-     * Decrement the target port right's user reference count.
-     *
-     * @param port
-     *            The port holding the right.
-     * @param name
-     *            The port's name for the right.
-     * @return 0 if successful, a {@code kern_return_t} code otherwise.
-     */
-    int mach_port_deallocate(int port, int name);
 }

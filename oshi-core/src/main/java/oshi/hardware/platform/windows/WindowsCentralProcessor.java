@@ -253,11 +253,6 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
         SYSTEM_INFO sysinfo = new SYSTEM_INFO();
         Kernel32.INSTANCE.GetNativeSystemInfo(sysinfo);
         int processorArchitecture = sysinfo.processorArchitecture.pi.wProcessorArchitecture.intValue();
-        // JNA reads wrong union member. Temporarily override.
-        // See https://github.com/java-native-access/jna/pull/1134
-        if (sysinfo.processorArchitecture.dwOemID.intValue() > 0) {
-            processorArchitecture = sysinfo.processorArchitecture.dwOemID.intValue() & 0xffff;
-        }
         if (processorArchitecture == 9 // PROCESSOR_ARCHITECTURE_AMD64
                 || processorArchitecture == 12 // PROCESSOR_ARCHITECTURE_ARM64
                 || processorArchitecture == 6) { // PROCESSOR_ARCHITECTURE_IA64
