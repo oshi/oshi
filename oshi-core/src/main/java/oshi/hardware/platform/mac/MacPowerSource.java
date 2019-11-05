@@ -23,11 +23,9 @@
  */
 package oshi.hardware.platform.mac;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Pointer; // NOSONAR squid:S1191
 
@@ -41,6 +39,8 @@ import oshi.jna.platform.mac.CoreFoundation.CFNumberRef;
 import oshi.jna.platform.mac.CoreFoundation.CFStringRef;
 import oshi.jna.platform.mac.CoreFoundation.CFTypeRef;
 import oshi.jna.platform.mac.IOKit;
+import oshi.jna.platform.mac.IOKit.IORegistryEntry;
+import oshi.jna.platform.mac.IOKitUtil;
 import oshi.util.Constants;
 
 /**
@@ -48,17 +48,89 @@ import oshi.util.Constants;
  */
 public class MacPowerSource extends AbstractPowerSource {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MacPowerSource.class);
-
     private static final CoreFoundation CF = CoreFoundation.INSTANCE;
     private static final IOKit IO = IOKit.INSTANCE;
 
-    public MacPowerSource(String newName, double newRemainingCapacity, double newTimeRemaining) {
-        super(newName, newRemainingCapacity, newTimeRemaining);
-        LOG.debug("Initialized MacPowerSource");
+    public MacPowerSource(String psName, String psDeviceName, double psRemainingCapacityPercent,
+            double psTimeRemainingEstimated, double psTimeRemainingInstant, double psPowerUsageRate, double psVoltage,
+            double psAmperage, boolean psPowerOnLine, boolean psCharging, boolean psDischarging,
+            CapacityUnits psCapacityUnits, int psCurrentCapacity, int psMaxCapacity, int psDesignCapacity,
+            int psCycleCount, String psChemistry, LocalDate psManufactureDate, String psManufacturer,
+            String psSerialNumber, double psTemperature) {
+        super(psName, psDeviceName, psRemainingCapacityPercent, psTimeRemainingEstimated, psTimeRemainingInstant,
+                psPowerUsageRate, psVoltage, psAmperage, psPowerOnLine, psCharging, psDischarging, psCapacityUnits,
+                psCurrentCapacity, psMaxCapacity, psDesignCapacity, psCycleCount, psChemistry, psManufactureDate,
+                psManufacturer, psSerialNumber, psTemperature);
     }
 
+    /**
+     * Gets Battery Information.
+     *
+     * @return An array of PowerSource objects representing batteries, etc.
+     */
     public static PowerSource[] getPowerSources() {
+        String psDeviceName = Constants.UNKNOWN;
+        double psTimeRemainingInstant = 0d;
+        double psPowerUsageRate = 0d;
+        double psVoltage = -1d;
+        double psAmperage = 0d;
+        boolean psPowerOnLine = false;
+        boolean psCharging = false;
+        boolean psDischarging = false;
+        CapacityUnits psCapacityUnits = CapacityUnits.RELATIVE;
+        int psCurrentCapacity = 0;
+        int psMaxCapacity = 1;
+        int psDesignCapacity = 1;
+        int psCycleCount = -1;
+        String psChemistry = Constants.UNKNOWN;
+        LocalDate psManufactureDate = null;
+        String psManufacturer = Constants.UNKNOWN;
+        String psSerialNumber = Constants.UNKNOWN;
+        double psTemperature = 0d;
+
+        // Mac PowerSource information comes from two sources: the IOKit's IOPS
+        // functions (which, in theory, return an array of objects but in most cases
+        // should return one), and the IORegistry's entry for AppleSmartBattery, which
+        // always returns one object.
+        //
+        // We start by fetching the registry information, which will be replicated
+        // across all IOPS entries if there are more than one.
+
+        IORegistryEntry smartBattery = IOKitUtil.getMatchingService("AppleSmartBattery");
+        if (smartBattery != null) {
+            psDeviceName = smartBattery.getStringProperty("DeviceName");
+            psManufacturer = smartBattery.getStringProperty("Manufacturer");
+            psSerialNumber = smartBattery.getStringProperty("BatterySerialNumber");
+
+            int manufactureDate = smartBattery.getIntegerProperty("ManufactureDate");
+            // Bits 0...4 => day (value 1-31; 5 bits)
+            // Bits 5...8 => month (value 1-12; 4 bits)
+            // Bits 9...15 => years since 1980 (value 0-127; 7 bits)
+            int day = manufactureDate & 0x1f;
+            int month = (manufactureDate >> 5) & 0xf;
+            int year80 = (manufactureDate >> 9) & 0x7f;
+            psManufactureDate = LocalDate.of(1980 + year80, month, day);
+
+            psDesignCapacity = smartBattery.getIntegerProperty("DesignCapacity");
+            psMaxCapacity = smartBattery.getIntegerProperty("MaxCapacity");
+            psCurrentCapacity = smartBattery.getIntegerProperty("CurrentCapacity");
+            psCapacityUnits = CapacityUnits.MAH;
+
+            psTimeRemainingInstant = smartBattery.getIntegerProperty("TimeRemaining") * 60d;
+            psCycleCount = smartBattery.getIntegerProperty("CycleCount");
+            psTemperature = smartBattery.getIntegerProperty("Temperature") / 100d;
+
+            psVoltage = smartBattery.getIntegerProperty("Voltage") / 1000d;
+            psAmperage = smartBattery.getIntegerProperty("Amperage");
+            psPowerUsageRate = psVoltage * psAmperage;
+
+            psPowerOnLine = smartBattery.getBooleanProperty("ExternalConnected");
+            psCharging = smartBattery.getBooleanProperty("IsCharging");
+            psDischarging = !psCharging;
+
+            smartBattery.release();
+        }
+
         // Get the blob containing current power source state
         CFTypeRef powerSourcesInfo = IO.IOPSCopyPowerSourcesInfo();
         CFArrayRef powerSourcesList = IO.IOPSCopyPowerSourcesList(powerSourcesInfo);
@@ -66,7 +138,7 @@ public class MacPowerSource extends AbstractPowerSource {
 
         // Get time remaining
         // -1 = unknown, -2 = unlimited
-        double timeRemaining = IO.IOPSGetTimeRemainingEstimate();
+        double psTimeRemainingEstimated = IO.IOPSGetTimeRemainingEstimate();
 
         CFStringRef nameKey = CFStringRef.createCFString("Name");
         CFStringRef isPresentKey = CFStringRef.createCFString("Is Present");
@@ -90,25 +162,30 @@ public class MacPowerSource extends AbstractPowerSource {
                     // Get name
                     result = dictionary.getValue(nameKey);
                     CFStringRef cfName = new CFStringRef(result);
-                    String name = cfName.stringValue();
-                    if (name == null) {
-                        name = Constants.UNKNOWN;
+                    String psName = cfName.stringValue();
+                    if (psName == null) {
+                        psName = Constants.UNKNOWN;
                     }
                     // Remaining Capacity = current / max
-                    int currentCapacity = 0;
+                    double currentCapacity = 0d;
                     if (dictionary.getValueIfPresent(currentCapacityKey, null)) {
                         result = dictionary.getValue(currentCapacityKey);
                         CFNumberRef cap = new CFNumberRef(result);
                         currentCapacity = cap.intValue();
                     }
-                    int maxCapacity = 100;
+                    double maxCapacity = 1d;
                     if (dictionary.getValueIfPresent(maxCapacityKey, null)) {
                         result = dictionary.getValue(maxCapacityKey);
                         CFNumberRef cap = new CFNumberRef(result);
                         maxCapacity = cap.intValue();
                     }
+                    double psRemainingCapacityPercent = Math.min(1d, currentCapacity / maxCapacity);
                     // Add to list
-                    psList.add(new MacPowerSource(name, (double) currentCapacity / maxCapacity, timeRemaining));
+                    psList.add(new MacPowerSource(psName, psDeviceName, psRemainingCapacityPercent,
+                            psTimeRemainingEstimated, psTimeRemainingInstant, psPowerUsageRate, psVoltage, psAmperage,
+                            psPowerOnLine, psCharging, psDischarging, psCapacityUnits, psCurrentCapacity, psMaxCapacity,
+                            psDesignCapacity, psCycleCount, psChemistry, psManufactureDate, psManufacturer,
+                            psSerialNumber, psTemperature));
                 }
             }
         }
@@ -121,20 +198,5 @@ public class MacPowerSource extends AbstractPowerSource {
         powerSourcesInfo.release();
 
         return psList.toArray(new MacPowerSource[0]);
-    }
-
-    @Override
-    public void updateAttributes() {
-        PowerSource[] psArr = getPowerSources();
-        for (PowerSource ps : psArr) {
-            if (ps.getName().equals(this.name)) {
-                this.remainingCapacity = ps.getRemainingCapacity();
-                this.timeRemaining = ps.getTimeRemaining();
-                return;
-            }
-        }
-        // Didn't find this battery
-        this.remainingCapacity = 0d;
-        this.timeRemaining = -1d;
     }
 }
