@@ -157,11 +157,6 @@ public class LinuxPowerSource extends AbstractPowerSource {
                         psTemperature));
             }
         }
-
         return psList.toArray(new LinuxPowerSource[0]);
-    }
-
-    public static void main(String[] args) {
-        System.out.println(LinuxPowerSource.getPowerSources()[0]);
     }
 }

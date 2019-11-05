@@ -330,8 +330,4 @@ public class WindowsPowerSource extends AbstractPowerSource {
         } while (!ret && bufSize < 4096);
         return CHAR_WIDTH > 1 ? nameBuf.getWideString(0) : nameBuf.getString(0);
     }
-
-    public static void main(String[] args) {
-        System.out.println(WindowsPowerSource.getPowerSources()[0]);
-    }
 }
