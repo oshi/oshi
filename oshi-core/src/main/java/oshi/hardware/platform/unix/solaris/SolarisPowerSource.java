@@ -55,7 +55,6 @@ public class SolarisPowerSource extends AbstractPowerSource {
         }
     }
 
-
     public SolarisPowerSource(String psName, String psDeviceName, double psRemainingCapacityPercent,
             double psTimeRemainingEstimated, double psTimeRemainingInstant, double psPowerUsageRate, double psVoltage,
             double psAmperage, boolean psPowerOnLine, boolean psCharging, boolean psDischarging,
@@ -116,9 +115,16 @@ public class SolarisPowerSource extends AbstractPowerSource {
                     if (energyFull != 0xffffffff && energyFull > 0) {
                         psMaxCapacity = (int) energyFull;
                     }
-                    // kstat_data_lookup(ksp, "bif_unit"); --> 0 = mWh, 1=mAh
-                    // bif_model, bif_serial, bif_type, bif_oem_info
-                    // all char[MAXNAMELEN]
+                    long unit = KstatUtil.dataLookupLong(ksp, "bif_unit");
+                    if (unit == 0) {
+                        psCapacityUnits = CapacityUnits.MWH;
+                    } else if (unit == 1) {
+                        psCapacityUnits = CapacityUnits.MAH;
+                    }
+                    psDeviceName = KstatUtil.dataLookupString(ksp, "bif_model");
+                    psSerialNumber = KstatUtil.dataLookupString(ksp, "bif_serial");
+                    psChemistry = KstatUtil.dataLookupString(ksp, "bif_type");
+                    psManufacturer = KstatUtil.dataLookupString(ksp, "bif_oem_info");
                 }
 
                 // Get kstat for the battery state
@@ -143,7 +149,14 @@ public class SolarisPowerSource extends AbstractPowerSource {
                     if (!isCharging) {
                         psTimeRemainingEstimated = powerNow > 0 ? 3600d * energyNow / powerNow : -1d;
                     }
-                    // bst_voltage (mV0)
+
+                    long voltageNow = KstatUtil.dataLookupLong(ksp, "bst_voltage");
+                    if (voltageNow > 0) {
+                        psVoltage = voltageNow / 1000d;
+                        if (psVoltage != 0d) {
+                            psAmperage = psPowerUsageRate / psVoltage;
+                        }
+                    }
                 }
             }
         }
