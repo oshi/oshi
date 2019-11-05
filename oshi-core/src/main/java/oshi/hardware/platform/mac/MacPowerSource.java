@@ -28,19 +28,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.sun.jna.Pointer; // NOSONAR squid:S1191
+import com.sun.jna.platform.mac.CoreFoundation;
+import com.sun.jna.platform.mac.IOKit;
+import com.sun.jna.platform.mac.IOKitUtil;
+import com.sun.jna.platform.mac.CoreFoundation.CFArrayRef;
+import com.sun.jna.platform.mac.CoreFoundation.CFBooleanRef;
+import com.sun.jna.platform.mac.CoreFoundation.CFDictionaryRef;
+import com.sun.jna.platform.mac.CoreFoundation.CFNumberRef;
+import com.sun.jna.platform.mac.CoreFoundation.CFStringRef;
+import com.sun.jna.platform.mac.CoreFoundation.CFTypeRef;
+import com.sun.jna.platform.mac.IOKit.IORegistryEntry;
 
 import oshi.hardware.PowerSource;
 import oshi.hardware.common.AbstractPowerSource;
-import oshi.jna.platform.mac.CoreFoundation;
-import oshi.jna.platform.mac.CoreFoundation.CFArrayRef;
-import oshi.jna.platform.mac.CoreFoundation.CFBooleanRef;
-import oshi.jna.platform.mac.CoreFoundation.CFDictionaryRef;
-import oshi.jna.platform.mac.CoreFoundation.CFNumberRef;
-import oshi.jna.platform.mac.CoreFoundation.CFStringRef;
-import oshi.jna.platform.mac.CoreFoundation.CFTypeRef;
-import oshi.jna.platform.mac.IOKit;
-import oshi.jna.platform.mac.IOKit.IORegistryEntry;
-import oshi.jna.platform.mac.IOKitUtil;
 import oshi.util.Constants;
 
 /**
