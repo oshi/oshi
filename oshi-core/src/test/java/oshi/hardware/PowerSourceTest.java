@@ -41,10 +41,10 @@ public class PowerSourceTest {
         SystemInfo si = new SystemInfo();
         PowerSource[] psArr = si.getHardware().getPowerSources();
         for (PowerSource ps : psArr) {
-            assertTrue(ps.getRemainingCapacity() >= 0);
+            assertTrue(ps.getRemainingCapacityPercent() >= 0);
             double epsilon = 1E-6;
-            assertTrue(ps.getTimeRemaining() > 0 || Math.abs(ps.getTimeRemaining() - -1) < epsilon
-                    || Math.abs(ps.getTimeRemaining() - -2) < epsilon);
+            assertTrue(ps.getTimeRemainingEstimated() > 0 || Math.abs(ps.getTimeRemainingEstimated() - -1) < epsilon
+                    || Math.abs(ps.getTimeRemainingEstimated() - -2) < epsilon);
         }
     }
 }

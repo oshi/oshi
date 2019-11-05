@@ -86,4 +86,56 @@ public interface PowrProf extends com.sun.jna.platform.win32.PowrProf {
             super();
         }
     }
+
+    // MOVE?
+    @FieldOrder({ "BatteryTag", "InformationLevel", "AtRate" })
+    class BATTERY_QUERY_INFORMATION extends Structure {
+        public int BatteryTag;
+        public int InformationLevel;
+        public int AtRate;
+    }
+
+    enum BATTERY_QUERY_INFORMATION_LEVEL {
+        BatteryInformation, BatteryGranularityInformation, BatteryTemperature, BatteryEstimatedTime, BatteryDeviceName,
+        BatteryManufactureDate, BatteryManufactureName, BatteryUniqueID, BatterySerialNumber
+    }
+
+    @FieldOrder({ "Capabilities", "Technology", "Reserved", "Chemistry", "DesignedCapacity", "FullChargedCapacity",
+            "DefaultAlert1", "DefaultAlert2", "CriticalBias", "CycleCount" })
+    class BATTERY_INFORMATION extends Structure {
+        public int Capabilities;
+        public byte Technology;
+        public byte[] Reserved = new byte[3];
+        public byte[] Chemistry = new byte[4];
+        public int DesignedCapacity;
+        public int FullChargedCapacity;
+        public int DefaultAlert1;
+        public int DefaultAlert2;
+        public int CriticalBias;
+        public int CycleCount;
+    }
+
+    @FieldOrder({ "BatteryTag", "Timeout", "PowerState", "LowCapacity", "HighCapacity" })
+    class BATTERY_WAIT_STATUS extends Structure {
+        public int BatteryTag;
+        public int Timeout;
+        public int PowerState;
+        public int LowCapacity;
+        public int HighCapacity;
+    }
+
+    @FieldOrder({ "PowerState", "Capacity", "Voltage", "Rate" })
+    class BATTERY_STATUS extends Structure {
+        public int PowerState;
+        public int Capacity;
+        public int Voltage;
+        public int Rate;
+    }
+
+    @FieldOrder({ "Day", "Month", "Year" })
+    class BATTERY_MANUFACTURE_DATE extends Structure {
+        public byte Day;
+        public byte Month;
+        public short Year;
+    }
 }
