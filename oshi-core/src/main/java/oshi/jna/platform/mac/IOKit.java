@@ -23,7 +23,7 @@
  */
 package oshi.jna.platform.mac;
 
-import com.sun.jna.Native;
+import com.sun.jna.Native; // NOSONAR squid:S1191
 import com.sun.jna.NativeLong;
 import com.sun.jna.Structure;
 import com.sun.jna.ptr.NativeLongByReference;
@@ -35,6 +35,7 @@ import com.sun.jna.ptr.NativeLongByReference;
 public interface IOKit extends com.sun.jna.platform.mac.IOKit {
 
     IOKit INSTANCE = Native.load("IOKit", IOKit.class);
+
     /*
      * Beta/Non-API do not commit to JNA
      */

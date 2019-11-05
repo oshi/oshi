@@ -28,9 +28,9 @@ import static oshi.util.Memoizer.memoize;
 import java.nio.charset.StandardCharsets;
 import java.util.function.Supplier;
 
-import com.sun.jna.platform.mac.IOKitUtil;
-import com.sun.jna.platform.mac.IOKit.IOIterator;
+import com.sun.jna.platform.mac.IOKit.IOIterator; // NOSONAR squid:S1191
 import com.sun.jna.platform.mac.IOKit.IORegistryEntry;
+import com.sun.jna.platform.mac.IOKitUtil;
 
 import oshi.hardware.common.AbstractFirmware;
 import oshi.util.Constants;

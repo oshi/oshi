@@ -23,7 +23,7 @@
  */
 package oshi.hardware.platform.mac;
 
-import com.sun.jna.platform.mac.IOKit.IOConnect;
+import com.sun.jna.platform.mac.IOKit.IOConnect; // NOSONAR squid:S1191
 
 import oshi.hardware.common.AbstractSensors;
 import oshi.util.platform.mac.SmcUtil;
