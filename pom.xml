@@ -487,15 +487,14 @@
 					<artifactId>license-maven-plugin</artifactId>
 					<version>${license-maven-plugin.version}</version>
 					<configuration>
-						<header>${main.basedir}/LICENSE_HEADER</header>
+						<header>${main.basedir}/LICENSE.txt</header>
 						<excludes>
 							<exclude>**/*test.*.txt</exclude>
 							<exclude>**/maven-wrapper.properties</exclude>
 							<exclude>**/MavenWrapperDownloader.java</exclude>
 							<exclude>mvnw</exclude>
 							<exclude>mvnw.cmd</exclude>
-							<exclude>LICENSE_*</exclude>
-							<exclude>**/issue_label_bot.yaml</exclude>
+							<exclude>LICENSE.txt</exclude>
 							<exclude>**/OSHIJavaFormatConventions.xml</exclude>
 						</excludes>
 					</configuration>
