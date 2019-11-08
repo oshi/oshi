@@ -1,6 +1,7 @@
 ![OSHI](https://dl.dropboxusercontent.com/s/c82qboyvvudpvdp/oshilogo.png)
 
 [![Maven central](https://maven-badges.herokuapp.com/maven-central/com.github.oshi/oshi-core/badge.svg?)](https://search.maven.org/search?q=com.github.oshi)
+[![Tidelift](https://tidelift.com/badges/package/maven/com.github.oshi:oshi-core)](https://tidelift.com/subscription/pkg/maven-com-github-oshi-oshi-core?utm_source=maven-com-github-oshi-oshi-core&utm_medium=referral&utm_campaign=readme)
 [![Travis Build Status](https://travis-ci.org/oshi/oshi.svg)](https://travis-ci.org/oshi/oshi)
 [![Appveyor Build status](https://ci.appveyor.com/api/projects/status/v489i8xoyfspxx7s?svg=true)](https://ci.appveyor.com/project/dbwiddis/oshi)
 [![Coverage Status](https://coveralls.io/repos/github/oshi/oshi/badge.svg?branch=master)](https://coveralls.io/github/oshi/oshi?branch=master)
@@ -75,6 +76,17 @@ git clone https://github.com/oshi/oshi.git && cd oshi
   -Dexec.mainClass="oshi.SystemInfoTest" \
   -Dexec.classpathScope="test"
 ```
+
+OSHI for enterprise
+-------------------
+Available as part of the Tidelift Subscription
+
+The maintainers of OSHI and thousands of other packages are working with Tidelift to deliver commercial support and maintenance for the open source dependencies you use to build your applications. Save time, reduce risk, and improve code health, while paying the maintainers of the exact dependencies you use. [Learn more.](https://tidelift.com/subscription/pkg/maven-com-github-oshi-oshi-core?utm_source=maven-com-github-oshi-oshi-core&utm_medium=referral&utm_campaign=readme)
+
+Security contact information
+----------------------------
+To report a security vulnerability, please use the [Tidelift security contact](https://tidelift.com/security).
+Tidelift will coordinate the fix and disclosure.
 
 Output
 -------------
