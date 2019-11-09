@@ -1,8 +1,7 @@
 /**
- * OSHI (https://github.com/oshi/oshi)
+ * MIT License
  *
- * Copyright (c) 2010 - 2019 The OSHI Project Team:
- * https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2010-2019 The OSHI project team
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -10,8 +9,9 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -67,6 +67,13 @@ public interface PowerSource {
     String getDeviceName();
 
     /**
+     * Estimated remaining capacity as a fraction of max capacity.
+     * <p>
+     * This is an estimated/smoothed value which should correspond to the Operating
+     * System's "percent power" display, and may not directly correspond to the
+     * ratio of {@link #getCurrentCapacity()} to {@link #getMaxCapacity()}.
+     *
+     * @return A value between 0.0 (fully drained) and 1.0 (fully charged)
      * @deprecated Use {@link #getRemainingCapacityPercent()}
      */
     @Deprecated
@@ -84,6 +91,15 @@ public interface PowerSource {
     double getRemainingCapacityPercent();
 
     /**
+     * Estimated time remaining on the power source, in seconds, as reported by the
+     * operating system.
+     * <p>
+     * This is an estimated/smoothed value which should correspond to the Operating
+     * System's "battery time remaining" display, and will react slowly to changes
+     * in power consumption.
+     *
+     * @return If positive, seconds remaining. If negative, -1.0 (calculating) or
+     *         -2.0 (unlimited)
      * @deprecated Use {@link #getTimeRemainingEstimated()}
      */
     @Deprecated
