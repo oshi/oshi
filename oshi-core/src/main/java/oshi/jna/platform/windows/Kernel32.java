@@ -15,8 +15,8 @@ public interface Kernel32 extends com.sun.jna.platform.win32.Kernel32 {
      * @param hProcess
      *            A handle to the process whose affinity mask is desired.
      *            <p>
-     *            This handle must have the {@link WinNT.PROCESS_QUERY_INFORMATION}
-     *            or {@link WinNT.PROCESS_QUERY_LIMITED_INFORMATION} access right.
+     *            This handle must have the {@link WinNT#PROCESS_QUERY_INFORMATION}
+     *            or {@link WinNT#PROCESS_QUERY_LIMITED_INFORMATION} access right.
      * @param lpProcessAffinityMask
      *            A pointer to a variable that receives the affinity mask for the
      *            specified process.
