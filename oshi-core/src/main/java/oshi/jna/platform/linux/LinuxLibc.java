@@ -34,7 +34,5 @@ import oshi.jna.platform.unix.CLibrary;
  */
 public interface LinuxLibc extends LibC, CLibrary {
 
-    /** Constant <code>INSTANCE</code> */
     LinuxLibc INSTANCE = Native.load("c", LinuxLibc.class);
-
 }

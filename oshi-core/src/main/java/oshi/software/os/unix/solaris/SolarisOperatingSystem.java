@@ -207,6 +207,39 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
     }
 
     @Override
+    public long getProcessAffinityMask(int processId) {
+        long bitMask = 0L;
+        String cpuset = ExecutingCommand.getFirstAnswer("pbind -q " + processId);
+        // Sample output:
+        // <empty string if no binding>
+        // pid 101048 strongly bound to processor(s) 0 1 2 3.
+        if (cpuset.isEmpty()) {
+            List<String> allProcs = ExecutingCommand.runNative("psrinfo");
+            for (String proc : allProcs) {
+                String[] split = ParseUtil.whitespaces.split(proc);
+                int bitToSet = ParseUtil.parseIntOrDefault(split[0], -1);
+                if (bitToSet >= 0) {
+                    bitMask |= (1L << bitToSet);
+                }
+            }
+            return bitMask;
+        } else if (cpuset.endsWith(".") && cpuset.contains("strongly bound to processor(s)")) {
+            String parse = cpuset.substring(0, cpuset.length() - 1);
+            String[] split = ParseUtil.whitespaces.split(parse);
+            for (int i = split.length - 1; i >= 0; i--) {
+                int bitToSet = ParseUtil.parseIntOrDefault(split[i], -1);
+                if (bitToSet >= 0) {
+                    bitMask |= (1L << bitToSet);
+                } else {
+                    // Once we run into the word processor(s) we're done
+                    break;
+                }
+            }
+        }
+        return bitMask;
+    }
+
+    @Override
     public int getProcessId() {
         return SolarisLibc.INSTANCE.getpid();
     }

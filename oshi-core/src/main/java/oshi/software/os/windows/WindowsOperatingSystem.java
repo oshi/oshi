@@ -48,7 +48,7 @@ import com.sun.jna.platform.win32.Advapi32Util;
 import com.sun.jna.platform.win32.Advapi32Util.Account;
 import com.sun.jna.platform.win32.Advapi32Util.EventLogIterator;
 import com.sun.jna.platform.win32.Advapi32Util.EventLogRecord;
-import com.sun.jna.platform.win32.Kernel32;
+import com.sun.jna.platform.win32.BaseTSD.ULONG_PTRByReference;
 import com.sun.jna.platform.win32.Kernel32Util;
 import com.sun.jna.platform.win32.Psapi;
 import com.sun.jna.platform.win32.Psapi.PERFORMANCE_INFORMATION;
@@ -78,6 +78,7 @@ import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
 
+import oshi.jna.platform.windows.Kernel32;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
 import oshi.software.os.NetworkParams;
@@ -576,6 +577,19 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             }
         }
         return processMap;
+    }
+
+    @Override
+    public long getProcessAffinityMask(int processId) {
+        final HANDLE pHandle = Kernel32.INSTANCE.OpenProcess(WinNT.PROCESS_QUERY_INFORMATION, false, processId);
+        if (pHandle != null) {
+            ULONG_PTRByReference processAffinity = new ULONG_PTRByReference();
+            ULONG_PTRByReference systemAffinity = new ULONG_PTRByReference();
+            if (Kernel32.INSTANCE.GetProcessAffinityMask(pHandle, processAffinity, systemAffinity)) {
+                return Pointer.nativeValue(processAffinity.getValue().toPointer());
+            }
+        }
+        return 0L;
     }
 
     @Override

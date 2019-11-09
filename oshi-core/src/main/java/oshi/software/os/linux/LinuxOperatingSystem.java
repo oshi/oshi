@@ -30,6 +30,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -352,6 +353,22 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         String stat = FileUtil.getStringFromFile(String.format("/proc/%d/stat", pid));
         long[] statArray = ParseUtil.parseStringToLongArray(stat, PROC_PID_STAT_ORDERS, PROC_PID_STAT_LENGTH, ' ');
         return (int) statArray[ProcPidStat.PPID.ordinal()];
+    }
+
+    @Override
+    public long getProcessAffinityMask(int processId) {
+        // Would prefer to use native sched_getaffinity call but variable sizing is
+        // kernel-dependent and requires C macros, so we use command line instead.
+        String mask = ExecutingCommand.getFirstAnswer("taskset -p " + processId);
+        // Output:
+        // pid 3283's current affinity mask: 3
+        // pid 9726's current affinity mask: f
+        String[] split = ParseUtil.whitespaces.split(mask);
+        try {
+            return new BigInteger(split[split.length - 1], 16).longValue();
+        } catch (NumberFormatException e) {
+            return 0;
+        }
     }
 
     @Override

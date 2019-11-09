@@ -238,6 +238,8 @@ public class SystemInfoTest {
     }
 
     private static void printProcesses(OperatingSystem os, GlobalMemory memory) {
+        oshi.add("My PID: " + os.getProcessId() + " with affinity "
+                + Long.toBinaryString(os.getProcessAffinityMask(os.getProcessId())));
         oshi.add("Processes: " + os.getProcessCount() + ", Threads: " + os.getThreadCount());
         // Sort by highest CPU
         List<OSProcess> procs = Arrays.asList(os.getProcesses(5, ProcessSort.CPU));
