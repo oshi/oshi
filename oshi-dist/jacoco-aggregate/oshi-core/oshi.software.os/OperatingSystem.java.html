@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>OperatingSystem.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.software.os</a> &gt; <span class="el_source">OperatingSystem.java</span></div><h1>OperatingSystem.java</h1><pre class="source lang-java linenums">/**
- * OSHI (https://github.com/oshi/oshi)
+ * MIT License
  *
- * Copyright (c) 2010 - 2019 The OSHI Project Team:
- * https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2010-2019 The OSHI project team
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -10,8 +9,9 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -81,10 +81,23 @@ public interface OperatingSystem {
     FileSystem getFileSystem();
 
     /**
-     * Gets currently running processes. If a positive limit is specified, returns
-     * only that number of processes; zero will return all processes. The order may
-     * be specified by the sort parameter, for example, to return the top cpu or
-     * memory consuming processes; if null, no order is guaranteed.
+     * Gets currently running processes. No order is guaranteed.
+     *
+     * @return An array of {@link oshi.software.os.OSProcess} objects for the
+     *         specified number (or all) of currently running processes, sorted as
+     *         specified. The array may contain null elements if a process
+     *         terminates during iteration. Some fields that are slow to retrieve
+     *         (e.g., commandlines and group information on Windows, open files on
+     *         Unix and Linux) will be skipped.
+     */
+    OSProcess[] getProcesses();
+
+    /**
+     * Gets currently running processes, optionally limited to the top &quot;N&quot; for a
+     * particular sorting order. If a positive limit is specified, returns only that
+     * number of processes; zero will return all processes. The order may be
+     * specified by the sort parameter, for example, to return the top cpu or memory
+     * consuming processes; if null, no order is guaranteed.
      *
      * @param limit
      *            Max number of results to return, or 0 to return all results
@@ -124,7 +137,7 @@ public interface OperatingSystem {
     /**
      * Gets information on a currently running processes. This has improved
      * performance on Windows based operating systems vs. iterating individual
-     * processes.
+     * processes. By default, includes all process information.
      *
      * @param pids
      *            A collection of process IDs
@@ -132,6 +145,23 @@ public interface OperatingSystem {
      *         process ids if it is running
      */
     List&lt;OSProcess&gt; getProcesses(Collection&lt;Integer&gt; pids);
+
+    /**
+     * Gets information on a currently running processes. This has improved
+     * performance on Windows based operating systems vs. iterating individual
+     * processes.
+     *
+     * @param pids
+     *            A collection of process IDs
+     * @param slowFields
+     *            If false, skip {@link oshi.software.os.OSProcess} fields that are
+     *            slow to retrieve (e.g., group information on Windows, open files
+     *            on Unix and Linux). If true, include all fields, regardless of how
+     *            long it takes to retrieve the data.
+     * @return An {@link oshi.software.os.OSProcess} object for the specified
+     *         process ids if it is running
+     */
+    List&lt;OSProcess&gt; getProcesses(Collection&lt;Integer&gt; pids, boolean slowFields);
 
     /**
      * Gets information on a currently running process
@@ -142,6 +172,21 @@ public interface OperatingSystem {
      *         process id if it is running; null otherwise
      */
     OSProcess getProcess(int pid);
+
+    /**
+     * Gets information on a currently running process
+     *
+     * @param pid
+     *            A process ID
+     * @param slowFields
+     *            If false, skip {@link oshi.software.os.OSProcess} fields that are
+     *            slow to retrieve (e.g., group information on Windows, open files
+     *            on Unix and Linux). If true, include all fields, regardless of how
+     *            long it takes to retrieve the data.
+     * @return An {@link oshi.software.os.OSProcess} object for the specified
+     *         process id if it is running; null otherwise
+     */
+    OSProcess getProcess(int pid, boolean slowFields);
 
     /**
      * Gets currently running child processes of provided PID. If a positive limit
@@ -162,6 +207,25 @@ public interface OperatingSystem {
      *         elements if a process terminates during iteration.
      */
     OSProcess[] getChildProcesses(int parentPid, int limit, ProcessSort sort);
+
+    /**
+     * Retrieves the process affinity mask for the specified process.
+     * &lt;p&gt;
+     * On Windows systems with more than 64 processors, if the threads of the
+     * calling process are in a single processor group, returns the process affinity
+     * mask for that group (which may be zero if the specified process is running in
+     * a different group). If the calling process contains threads in multiple
+     * groups, returns zero.
+     * &lt;p&gt;
+     * If the Operating System fails to retrieve an affinity mask (e.g., the process
+     * has terminated), returns zero.
+     *
+     * @param processId
+     *            The process ID for which to retrieve the affinity.
+     * @return a bit vector in which each bit represents the processors that a
+     *         process is allowed to run on.
+     */
+    long getProcessAffinityMask(int processId);
 
     /**
      * Gets the current process ID
@@ -240,20 +304,20 @@ public interface OperatingSystem {
         private final String buildNumber;
         private final String versionStr;
 
-<span class="fc" id="L243">        public OSVersionInfo(String version, String codeName, String buildNumber) {</span>
-<span class="fc" id="L244">            this.version = version;</span>
-<span class="fc" id="L245">            this.codeName = codeName;</span>
-<span class="fc" id="L246">            this.buildNumber = buildNumber;</span>
+<span class="fc" id="L307">        public OSVersionInfo(String version, String codeName, String buildNumber) {</span>
+<span class="fc" id="L308">            this.version = version;</span>
+<span class="fc" id="L309">            this.codeName = codeName;</span>
+<span class="fc" id="L310">            this.buildNumber = buildNumber;</span>
 
-<span class="pc bpc" id="L248" title="1 of 2 branches missed.">            StringBuilder sb = new StringBuilder(getVersion() != null ? getVersion() : Constants.UNKNOWN);</span>
-<span class="pc bpc" id="L249" title="1 of 2 branches missed.">            if (!Util.isBlank(getCodeName())) {</span>
-<span class="fc" id="L250">                sb.append(&quot; (&quot;).append(getCodeName()).append(')');</span>
+<span class="pc bpc" id="L312" title="1 of 2 branches missed.">            StringBuilder sb = new StringBuilder(getVersion() != null ? getVersion() : Constants.UNKNOWN);</span>
+<span class="pc bpc" id="L313" title="1 of 2 branches missed.">            if (!Util.isBlank(getCodeName())) {</span>
+<span class="fc" id="L314">                sb.append(&quot; (&quot;).append(getCodeName()).append(')');</span>
             }
-<span class="pc bpc" id="L252" title="1 of 2 branches missed.">            if (!Util.isBlank(getBuildNumber())) {</span>
-<span class="fc" id="L253">                sb.append(&quot; build &quot;).append(getBuildNumber());</span>
+<span class="pc bpc" id="L316" title="1 of 2 branches missed.">            if (!Util.isBlank(getBuildNumber())) {</span>
+<span class="fc" id="L317">                sb.append(&quot; build &quot;).append(getBuildNumber());</span>
             }
-<span class="fc" id="L255">            this.versionStr = sb.toString();</span>
-<span class="fc" id="L256">        }</span>
+<span class="fc" id="L319">            this.versionStr = sb.toString();</span>
+<span class="fc" id="L320">        }</span>
 
         /**
          * Gets the operating system version.
@@ -261,7 +325,7 @@ public interface OperatingSystem {
          * @return The version, if any. May be {@code null}.
          */
         public String getVersion() {
-<span class="fc" id="L264">            return version;</span>
+<span class="fc" id="L328">            return version;</span>
         }
 
         /**
@@ -270,7 +334,7 @@ public interface OperatingSystem {
          * @return The code name, if any. May be {@code null}.
          */
         public String getCodeName() {
-<span class="fc" id="L273">            return codeName;</span>
+<span class="fc" id="L337">            return codeName;</span>
         }
 
         /**
@@ -279,12 +343,12 @@ public interface OperatingSystem {
          * @return The build number, if any. May be {@code null}.
          */
         public String getBuildNumber() {
-<span class="fc" id="L282">            return buildNumber;</span>
+<span class="fc" id="L346">            return buildNumber;</span>
         }
 
         @Override
         public String toString() {
-<span class="nc" id="L287">            return this.versionStr;</span>
+<span class="nc" id="L351">            return this.versionStr;</span>
         }
     }
 }

@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>MacComputerSystem.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.mac</a> &gt; <span class="el_source">MacComputerSystem.java</span></div><h1>MacComputerSystem.java</h1><pre class="source lang-java linenums">/**
- * OSHI (https://github.com/oshi/oshi)
+ * MIT License
  *
- * Copyright (c) 2010 - 2019 The OSHI Project Team:
- * https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2010-2019 The OSHI project team
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -10,8 +9,9 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -28,64 +28,65 @@ import static oshi.util.Memoizer.memoize;
 import java.nio.charset.StandardCharsets;
 import java.util.function.Supplier;
 
+import com.sun.jna.platform.mac.IOKit.IORegistryEntry; // NOSONAR squid:S1191
+import com.sun.jna.platform.mac.IOKitUtil;
+
 import oshi.hardware.Baseboard;
 import oshi.hardware.Firmware;
 import oshi.hardware.common.AbstractComputerSystem;
-import oshi.jna.platform.mac.IOKit.IORegistryEntry;
-import oshi.jna.platform.mac.IOKitUtil;
 import oshi.util.Constants;
 import oshi.util.Util;
 
 /**
  * Hardware data obtained from ioreg.
  */
-<span class="nc" id="L42">final class MacComputerSystem extends AbstractComputerSystem {</span>
+<span class="nc" id="L43">final class MacComputerSystem extends AbstractComputerSystem {</span>
 
-<span class="nc" id="L44">    private final Supplier&lt;ManufacturerModelSerial&gt; profileSystem = memoize(this::platformExpert);</span>
+<span class="nc" id="L45">    private final Supplier&lt;ManufacturerModelSerial&gt; profileSystem = memoize(this::platformExpert);</span>
 
     @Override
     public String getManufacturer() {
-<span class="nc" id="L48">        return profileSystem.get().manufacturer;</span>
+<span class="nc" id="L49">        return profileSystem.get().manufacturer;</span>
     }
 
     @Override
     public String getModel() {
-<span class="nc" id="L53">        return profileSystem.get().model;</span>
+<span class="nc" id="L54">        return profileSystem.get().model;</span>
     }
 
     @Override
     public String getSerialNumber() {
-<span class="nc" id="L58">        return profileSystem.get().serialNumber;</span>
+<span class="nc" id="L59">        return profileSystem.get().serialNumber;</span>
     }
 
     @Override
     public Firmware createFirmware() {
-<span class="nc" id="L63">        return new MacFirmware();</span>
+<span class="nc" id="L64">        return new MacFirmware();</span>
     }
 
     @Override
     public Baseboard createBaseboard() {
-<span class="nc" id="L68">        return new MacBaseboard();</span>
+<span class="nc" id="L69">        return new MacBaseboard();</span>
     }
 
     private ManufacturerModelSerial platformExpert() {
-<span class="nc" id="L72">        String manufacturer = null;</span>
-<span class="nc" id="L73">        String model = null;</span>
-<span class="nc" id="L74">        String serialNumber = null;</span>
-<span class="nc" id="L75">        IORegistryEntry platformExpert = IOKitUtil.getMatchingService(&quot;IOPlatformExpertDevice&quot;);</span>
-<span class="nc bnc" id="L76" title="All 2 branches missed.">        if (platformExpert != null) {</span>
-<span class="nc" id="L77">            byte[] data = platformExpert.getByteArrayProperty(&quot;manufacturer&quot;);</span>
-<span class="nc bnc" id="L78" title="All 2 branches missed.">            if (data != null) {</span>
-<span class="nc" id="L79">                manufacturer = new String(data, StandardCharsets.UTF_8);</span>
+<span class="nc" id="L73">        String manufacturer = null;</span>
+<span class="nc" id="L74">        String model = null;</span>
+<span class="nc" id="L75">        String serialNumber = null;</span>
+<span class="nc" id="L76">        IORegistryEntry platformExpert = IOKitUtil.getMatchingService(&quot;IOPlatformExpertDevice&quot;);</span>
+<span class="nc bnc" id="L77" title="All 2 branches missed.">        if (platformExpert != null) {</span>
+<span class="nc" id="L78">            byte[] data = platformExpert.getByteArrayProperty(&quot;manufacturer&quot;);</span>
+<span class="nc bnc" id="L79" title="All 2 branches missed.">            if (data != null) {</span>
+<span class="nc" id="L80">                manufacturer = new String(data, StandardCharsets.UTF_8);</span>
             }
-<span class="nc" id="L81">            data = platformExpert.getByteArrayProperty(&quot;model&quot;);</span>
-<span class="nc bnc" id="L82" title="All 2 branches missed.">            if (data != null) {</span>
-<span class="nc" id="L83">                model = new String(data, StandardCharsets.UTF_8);</span>
+<span class="nc" id="L82">            data = platformExpert.getByteArrayProperty(&quot;model&quot;);</span>
+<span class="nc bnc" id="L83" title="All 2 branches missed.">            if (data != null) {</span>
+<span class="nc" id="L84">                model = new String(data, StandardCharsets.UTF_8);</span>
             }
-<span class="nc" id="L85">            serialNumber = platformExpert.getStringProperty(&quot;IOPlatformSerialNumber&quot;);</span>
-<span class="nc" id="L86">            platformExpert.release();</span>
+<span class="nc" id="L86">            serialNumber = platformExpert.getStringProperty(&quot;IOPlatformSerialNumber&quot;);</span>
+<span class="nc" id="L87">            platformExpert.release();</span>
         }
-<span class="nc" id="L88">        return new ManufacturerModelSerial(manufacturer, model, serialNumber);</span>
+<span class="nc" id="L89">        return new ManufacturerModelSerial(manufacturer, model, serialNumber);</span>
     }
 
     private static final class ManufacturerModelSerial {
@@ -93,11 +94,11 @@ import oshi.util.Util;
         private final String model;
         private final String serialNumber;
 
-<span class="nc" id="L96">        private ManufacturerModelSerial(String manufacturer, String model, String serialNumber) {</span>
-<span class="nc bnc" id="L97" title="All 2 branches missed.">            this.manufacturer = Util.isBlank(manufacturer) ? &quot;Apple Inc.&quot; : manufacturer;</span>
-<span class="nc bnc" id="L98" title="All 2 branches missed.">            this.model = Util.isBlank(model) ? Constants.UNKNOWN : model;</span>
-<span class="nc bnc" id="L99" title="All 2 branches missed.">            this.serialNumber = Util.isBlank(serialNumber) ? Constants.UNKNOWN : serialNumber;</span>
-<span class="nc" id="L100">        }</span>
+<span class="nc" id="L97">        private ManufacturerModelSerial(String manufacturer, String model, String serialNumber) {</span>
+<span class="nc bnc" id="L98" title="All 2 branches missed.">            this.manufacturer = Util.isBlank(manufacturer) ? &quot;Apple Inc.&quot; : manufacturer;</span>
+<span class="nc bnc" id="L99" title="All 2 branches missed.">            this.model = Util.isBlank(model) ? Constants.UNKNOWN : model;</span>
+<span class="nc bnc" id="L100" title="All 2 branches missed.">            this.serialNumber = Util.isBlank(serialNumber) ? Constants.UNKNOWN : serialNumber;</span>
+<span class="nc" id="L101">        }</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
