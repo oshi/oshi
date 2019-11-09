@@ -30,6 +30,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -44,7 +45,6 @@ import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.platform.linux.LibC;
 import com.sun.jna.platform.linux.LibC.Sysinfo;
-import com.sun.jna.ptr.NativeLongByReference;
 
 import oshi.jna.platform.linux.LinuxLibc;
 import oshi.software.common.AbstractOperatingSystem;
@@ -357,11 +357,18 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public long getProcessAffinityMask(int processId) {
-        NativeLongByReference pMask = new NativeLongByReference();
-        if (0 == LinuxLibc.INSTANCE.sched_getaffinity(processId, 64, pMask)) {
-            return pMask.getValue().longValue();
+        // Would prefer to use native sched_getaffinity call but variable sizing is
+        // kernel-dependent and requires C macros, so we use command line instead.
+        String mask = ExecutingCommand.getFirstAnswer("taskset -p " + processId);
+        // Output:
+        // pid 3283's current affinity mask: 3
+        // pid 9726's current affinity mask: f
+        String[] split = ParseUtil.whitespaces.split(mask);
+        try {
+            return new BigInteger(split[split.length - 1], 16).longValue();
+        } catch (NumberFormatException e) {
+            return 0;
         }
-        return 0L;
     }
 
     @Override

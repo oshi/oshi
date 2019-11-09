@@ -25,7 +25,6 @@ package oshi.jna.platform.linux;
 
 import com.sun.jna.Native;
 import com.sun.jna.platform.linux.LibC;
-import com.sun.jna.ptr.NativeLongByReference;
 
 import oshi.jna.platform.unix.CLibrary;
 
@@ -36,21 +35,4 @@ import oshi.jna.platform.unix.CLibrary;
 public interface LinuxLibc extends LibC, CLibrary {
 
     LinuxLibc INSTANCE = Native.load("c", LinuxLibc.class);
-
-    /**
-     * Writes the affinity mask of the process whose ID is pid into the cpu_set_t
-     * structure pointed to by {@code pMask}.
-     *
-     * @param pid
-     *            The process id whose mask to return. If {@code pid} is zero, then
-     *            the mask of the calling process is returned.
-     * @param cpusetsize
-     *            specifies the size (in bytes) of the mask.
-     * @param pMask
-     *            On return, writes the affinity mask of the process whose ID is
-     *            {@code pid} into the bitmask pointed to by {@code pMask}.
-     * @return On success, returns 0. On error, -1 is returned, and errno is set
-     *         appropriately.
-     */
-    int sched_getaffinity(int pid, int cpusetsize, NativeLongByReference pMask);
 }

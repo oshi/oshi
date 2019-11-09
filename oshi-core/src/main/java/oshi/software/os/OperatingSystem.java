@@ -220,6 +220,8 @@ public interface OperatingSystem {
      * If the Operating System fails to retrieve an affinity mask (e.g., the process
      * has terminated), returns zero.
      *
+     * @param processId
+     *            The process ID for which to retrieve the affinity.
      * @return a bit vector in which each bit represents the processors that a
      *         process is allowed to run on.
      */
