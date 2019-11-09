@@ -44,6 +44,7 @@ import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.platform.linux.LibC;
 import com.sun.jna.platform.linux.LibC.Sysinfo;
+import com.sun.jna.ptr.NativeLongByReference;
 
 import oshi.jna.platform.linux.LinuxLibc;
 import oshi.software.common.AbstractOperatingSystem;
@@ -352,6 +353,15 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         String stat = FileUtil.getStringFromFile(String.format("/proc/%d/stat", pid));
         long[] statArray = ParseUtil.parseStringToLongArray(stat, PROC_PID_STAT_ORDERS, PROC_PID_STAT_LENGTH, ' ');
         return (int) statArray[ProcPidStat.PPID.ordinal()];
+    }
+
+    @Override
+    public long getProcessAffinityMask(int processId) {
+        NativeLongByReference pMask = new NativeLongByReference();
+        if (0 == LinuxLibc.INSTANCE.sched_getaffinity(processId, 64, pMask)) {
+            return pMask.getValue().longValue();
+        }
+        return 0L;
     }
 
     @Override
