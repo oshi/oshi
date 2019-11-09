@@ -1,24 +1,27 @@
 ![OSHI](https://dl.dropboxusercontent.com/s/c82qboyvvudpvdp/oshilogo.png)
 
 [![Maven central](https://maven-badges.herokuapp.com/maven-central/com.github.oshi/oshi-core/badge.svg?)](https://search.maven.org/search?q=com.github.oshi)
+[![Tidelift](https://tidelift.com/badges/package/maven/com.github.oshi:oshi-core)](https://tidelift.com/subscription/pkg/maven-com-github-oshi-oshi-core?utm_source=maven-com-github-oshi-oshi-core&amp;utm_medium=referral&amp;utm_campaign=readme)
 [![Travis Build Status](https://travis-ci.org/oshi/oshi.svg)](https://travis-ci.org/oshi/oshi)
 [![Appveyor Build status](https://ci.appveyor.com/api/projects/status/v489i8xoyfspxx7s?svg=true)](https://ci.appveyor.com/project/dbwiddis/oshi)
 [![Coverage Status](https://coveralls.io/repos/github/oshi/oshi/badge.svg?branch=master)](https://coveralls.io/github/oshi/oshi?branch=master)
 [![codecov.io](https://codecov.io/github/oshi/oshi/coverage.svg?branch=master)](https://codecov.io/github/oshi/oshi?branch=master)
 [![Coverity Scan Build Status](https://img.shields.io/coverity/scan/9332.svg)](https://scan.coverity.com/projects/dblock-oshi)
-[![Codacy Grade](https://api.codacy.com/project/badge/Grade/5370178ae91d4f56b43de2f26f7c5e7a)](https://www.codacy.com/app/widdis/oshi?utm_source=github.com&amp;amp;amp;utm_medium=referral&amp;amp;amp;utm_content=oshi/oshi&amp;amp;amp;utm_campaign=Badge_Grade)
+[![Codacy Grade](https://api.codacy.com/project/badge/Grade/5370178ae91d4f56b43de2f26f7c5e7a)](https://www.codacy.com/app/widdis/oshi?utm_source=github.com&amp;amp;utm_medium=referral&amp;amp;utm_content=oshi/oshi&amp;amp;utm_campaign=Badge_Grade)
 [![MIT License](http://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![SonarQube Bugs](https://sonarcloud.io/api/project_badges/measure?project=com.github.oshi%3Aoshi-parent&amp;amp;metric=bugs)](https://sonarcloud.io/dashboard?id=com.github.oshi%3Aoshi-parent)
-[![SonarQube Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=com.github.oshi%3Aoshi-parent&amp;amp;metric=vulnerabilities)](https://sonarcloud.io/dashboard?id=com.github.oshi%3Aoshi-parent)
-[![SonarQube Maintainability](https://sonarcloud.io/api/project_badges/measure?project=com.github.oshi%3Aoshi-parent&amp;amp;metric=sqale_rating)](https://sonarcloud.io/dashboard?id=com.github.oshi%3Aoshi-parent)
-[![SonarQube Reliability](https://sonarcloud.io/api/project_badges/measure?project=com.github.oshi%3Aoshi-parent&amp;amp;metric=reliability_rating)](https://sonarcloud.io/dashboard?id=com.github.oshi%3Aoshi-parent)
-[![SonarQube Security](https://sonarcloud.io/api/project_badges/measure?project=com.github.oshi%3Aoshi-parent&amp;amp;metric=security_rating)](https://sonarcloud.io/dashboard?id=com.github.oshi%3Aoshi-parent)
-[![Code Quality: Java](https://img.shields.io/lgtm/grade/java/g/oshi/oshi.svg?logo=lgtm&amp;amp;logoWidth=18)](https://lgtm.com/projects/g/oshi/oshi/context:java)
-[![LGTM Stats](https://www.openhub.net/p/oshi/widgets/project_thin_badge.gif)](https://www.openhub.net/p/oshi?ref=github)
+[![SonarQube Bugs](https://sonarcloud.io/api/project_badges/measure?project=com.github.oshi%3Aoshi-parent&amp;metric=bugs)](https://sonarcloud.io/dashboard?id=com.github.oshi%3Aoshi-parent)
+[![SonarQube Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=com.github.oshi%3Aoshi-parent&amp;metric=vulnerabilities)](https://sonarcloud.io/dashboard?id=com.github.oshi%3Aoshi-parent)
+[![SonarQube Maintainability](https://sonarcloud.io/api/project_badges/measure?project=com.github.oshi%3Aoshi-parent&amp;metric=sqale_rating)](https://sonarcloud.io/dashboard?id=com.github.oshi%3Aoshi-parent)
+[![SonarQube Reliability](https://sonarcloud.io/api/project_badges/measure?project=com.github.oshi%3Aoshi-parent&amp;metric=reliability_rating)](https://sonarcloud.io/dashboard?id=com.github.oshi%3Aoshi-parent)
+[![SonarQube Security](https://sonarcloud.io/api/project_badges/measure?project=com.github.oshi%3Aoshi-parent&amp;metric=security_rating)](https://sonarcloud.io/dashboard?id=com.github.oshi%3Aoshi-parent)
+[![Code Quality: Java](https://img.shields.io/lgtm/grade/java/g/oshi/oshi.svg?logo=lgtm&amp;logoWidth=18)](https://lgtm.com/projects/g/oshi/oshi/context:java)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/oshi/oshi/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/oshi/oshi/?branch=master)
+[![Openhub Stats](https://www.openhub.net/p/oshi/widgets/project_thin_badge.gif)](https://www.openhub.net/p/oshi?ref=github)
 [![first-timers-only](https://img.shields.io/badge/first--timers--only-friendly-blue.svg?style=flat-square)](https://www.firsttimersonly.com/)
-[![Join the chat at https://gitter.im/oshi/oshi](https://badges.gitter.im/oshi/oshi.svg)](https://gitter.im/oshi/oshi?utm_source=badge&amp;amp;utm_medium=badge&amp;amp;utm_campaign=pr-badge&amp;amp;utm_content=badge)
+[![Join the chat at https://gitter.im/oshi/oshi](https://badges.gitter.im/oshi/oshi.svg)](https://gitter.im/oshi/oshi?utm_source=badge&amp;utm_medium=badge&amp;utm_campaign=pr-badge&amp;utm_content=badge)
 
-OSHI is a free JNA-based (native) Operating System and Hardware Information library for Java.
+OSHI is a free [JNA](https://github.com/java-native-access/jna)-based (native) 
+Operating System and Hardware Information library for Java.
 It does not require the installation of any additional native libraries and aims to provide a 
 cross-platform implementation to retrieve system information, such as OS version, processes, 
 memory & CPU usage, disks & partitions, devices, sensors, etc.
@@ -55,7 +58,35 @@ Downloads
 ---------
 | Stable Release Version | Current Development Version | Dependencies |
 | ------------- | ------------- | ------------- |
-| [oshi-core-4.1.1](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&amp;amp;g=com.github.oshi&amp;amp;a=oshi-core&amp;amp;v=4.1.1&amp;amp;e=jar)  | [oshi-core-4.2.0-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;amp;g=com.github.oshi&amp;amp;a=oshi-core&amp;amp;v=4.2.0-SNAPSHOT&amp;amp;e=jar) | [JNA](https://github.com/java-native-access/jna) • [SLF4J](http://www.slf4j.org/) |
+| [oshi-core-4.2.0](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&amp;g=com.github.oshi&amp;a=oshi-core&amp;v=4.2.0&amp;e=jar)  | [oshi-core-4.3.0-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;g=com.github.oshi&amp;a=oshi-core&amp;v=4.3.0-SNAPSHOT&amp;e=jar) | [JNA](https://github.com/java-native-access/jna) • [SLF4J](http://www.slf4j.org/) |
+
+Usage
+-----
+We strongly recommend you use a dependency manager such as Maven or Gradle. You can [find the appropriate syntax to include OSHI here](https://search.maven.org/artifact/com.github.oshi/oshi-core/4.2.0/jar). This will add the transitive dependencies.  If you experience issues with `NoClassDefFound` errors for JNA artifacts, you might have another dependency to JNA which resolves first. Listing OSHI earlier in your dependency list will usually resolve this, or you may try manually specifying the most recent version of JNA.
+
+Create a new instance of `SystemInfo` and use the getters to access additional information.
+
+You can run the [SystemInfoTest](https://github.com/oshi/oshi/blob/master/oshi-core/src/test/java/oshi/SystemInfoTest.java)
+and see the full output for your system by cloning the project and building it with [Maven](http://maven.apache.org/index.html).
+
+```
+git clone https://github.com/oshi/oshi.git && cd oshi
+
+./mvnw test-compile -pl oshi-core -q exec:java \
+  -Dexec.mainClass="oshi.SystemInfoTest" \
+  -Dexec.classpathScope="test"
+```
+
+OSHI for enterprise
+-------------------
+Available as part of the Tidelift Subscription
+
+The maintainers of OSHI and thousands of other packages are working with Tidelift to deliver commercial support and maintenance for the open source dependencies you use to build your applications. Save time, reduce risk, and improve code health, while paying the maintainers of the exact dependencies you use. [Learn more.](https://tidelift.com/subscription/pkg/maven-com-github-oshi-oshi-core?utm_source=maven-com-github-oshi-oshi-core&amp;utm_medium=referral&amp;utm_campaign=readme)
+
+Security contact information
+----------------------------
+To report a security vulnerability, please use the [Tidelift security contact](https://tidelift.com/security).
+Tidelift will coordinate the fix and disclosure.
 
 Output
 -------------
@@ -113,6 +144,18 @@ Memory and swapfile information is available.
 Memory: 11.6 GiB/32 GiB
 Swap used: 3.6 GiB/5 GiB
 ```
+Statistics for the system battery are provided.
+```
+Power Sources: 
+ Name: InternalBattery-0, Device Name: bq20z451,
+ RemainingCapacityPercent: 100.0%, Time Remaining: 5:42, Time Remaining Instant: 5:42,
+ Power Usage Rate: -16045.216mW, Voltage: 12.694V, Amperage: -1264.0mA,
+ Power OnLine: false, Charging: false, Discharging: true,
+ Capacity Units: MAH, Current Capacity: 7213, Max Capacity: 7315, Design Capacity: 7336,
+ Cycle Count: 6, Chemistry: LIon, Manufacture Date: 2019-06-11, Manufacturer: SMP,
+ SerialNumber: D869243A2U3J65JAB, Temperature: 30.46°C
+```
+
 The EDID for each Display is provided. This can be parsed with various utilities for detailed information. OSHI provides a summary of selected data.
 ```
 Displays:
@@ -142,6 +185,7 @@ Disks:
  |-- disk1s2: Dropbox (disk image) Maj:Min=1:5, size: 959.7 GB @ /Volumes/Dropbox
 
 ```
+
 Sensor readings are available for some hardware (see notes in the [FAQ](https://github.com/oshi/oshi/blob/master/FAQ.md)).
 ```
 Sensors:
@@ -175,16 +219,6 @@ USB Devices:
              |-- Fitbit Base Station (Fitbit Inc.)
 ```
 
-You can run the [SystemInfoTest](https://github.com/oshi/oshi/blob/master/oshi-core/src/test/java/oshi/SystemInfoTest.java)
-and see the full output for your system by cloning the project and building it with [Maven](http://maven.apache.org/index.html).
-
-```
-git clone https://github.com/oshi/oshi.git && cd oshi
-
-mvn test-compile -pl oshi-core -q exec:java \
-  -Dexec.mainClass="oshi.SystemInfoTest" \
-  -Dexec.classpathScope="test"
-```
 
 Where are we? How can I help?
 -----------------------------
