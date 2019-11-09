@@ -2,7 +2,6 @@ package oshi.jna.platform.windows;
 
 import com.sun.jna.Native; // NOSONAR squid:S1192
 import com.sun.jna.platform.win32.WinNT;
-import com.sun.jna.ptr.PointerByReference;
 import com.sun.jna.win32.W32APIOptions;
 
 public interface Kernel32 extends com.sun.jna.platform.win32.Kernel32 {
@@ -41,6 +40,6 @@ public interface Kernel32 extends com.sun.jna.platform.win32.Kernel32 {
      *         and {@code lpSystemAffinityMask} are undefined. To get extended error
      *         information, call {@link #GetLastError()}.
      */
-    boolean GetProcessAffinityMask(HANDLE hProcess, PointerByReference lpProcessAffinityMask,
-            PointerByReference lpSystemAffinityMask);
+    boolean GetProcessAffinityMask(HANDLE hProcess, ULONG_PTRByReference lpProcessAffinityMask,
+            ULONG_PTRByReference lpSystemAffinityMask);
 }
