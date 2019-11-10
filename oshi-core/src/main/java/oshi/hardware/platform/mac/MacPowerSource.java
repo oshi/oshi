@@ -98,34 +98,74 @@ public class MacPowerSource extends AbstractPowerSource {
 
         IORegistryEntry smartBattery = IOKitUtil.getMatchingService("AppleSmartBattery");
         if (smartBattery != null) {
-            psDeviceName = smartBattery.getStringProperty("DeviceName");
-            psManufacturer = smartBattery.getStringProperty("Manufacturer");
-            psSerialNumber = smartBattery.getStringProperty("BatterySerialNumber");
+            String s = smartBattery.getStringProperty("DeviceName");
+            if (s != null) {
+                psDeviceName = s;
+            }
+            s = smartBattery.getStringProperty("Manufacturer");
+            if (s != null) {
+                psManufacturer = s;
+            }
+            s = smartBattery.getStringProperty("BatterySerialNumber");
+            if (s != null) {
+                psSerialNumber = s;
+            }
 
-            int manufactureDate = smartBattery.getIntegerProperty("ManufactureDate");
-            // Bits 0...4 => day (value 1-31; 5 bits)
-            // Bits 5...8 => month (value 1-12; 4 bits)
-            // Bits 9...15 => years since 1980 (value 0-127; 7 bits)
-            int day = manufactureDate & 0x1f;
-            int month = (manufactureDate >> 5) & 0xf;
-            int year80 = (manufactureDate >> 9) & 0x7f;
-            psManufactureDate = LocalDate.of(1980 + year80, month, day);
+            Integer temp = smartBattery.getIntegerProperty("ManufactureDate");
+            if (temp != null) {
+                // Bits 0...4 => day (value 1-31; 5 bits)
+                // Bits 5...8 => month (value 1-12; 4 bits)
+                // Bits 9...15 => years since 1980 (value 0-127; 7 bits)
+                int day = temp & 0x1f;
+                int month = (temp >> 5) & 0xf;
+                int year80 = (temp >> 9) & 0x7f;
+                psManufactureDate = LocalDate.of(1980 + year80, month, day);
+            }
 
-            psDesignCapacity = smartBattery.getIntegerProperty("DesignCapacity");
-            psMaxCapacity = smartBattery.getIntegerProperty("MaxCapacity");
-            psCurrentCapacity = smartBattery.getIntegerProperty("CurrentCapacity");
+            temp = smartBattery.getIntegerProperty("DesignCapacity");
+            if (temp != null) {
+                psDesignCapacity = temp;
+            }
+            temp = smartBattery.getIntegerProperty("MaxCapacity");
+            if (temp != null) {
+                psMaxCapacity = temp;
+            }
+            temp = smartBattery.getIntegerProperty("CurrentCapacity");
+            if (temp != null) {
+                psCurrentCapacity = temp;
+            }
             psCapacityUnits = CapacityUnits.MAH;
 
-            psTimeRemainingInstant = smartBattery.getIntegerProperty("TimeRemaining") * 60d;
-            psCycleCount = smartBattery.getIntegerProperty("CycleCount");
-            psTemperature = smartBattery.getIntegerProperty("Temperature") / 100d;
-
-            psVoltage = smartBattery.getIntegerProperty("Voltage") / 1000d;
-            psAmperage = smartBattery.getIntegerProperty("Amperage");
+            temp = smartBattery.getIntegerProperty("TimeRemaining");
+            if (temp != null) {
+                psTimeRemainingInstant = temp * 60d;
+            }
+            temp = smartBattery.getIntegerProperty("CycleCount");
+            if (temp != null) {
+                psCycleCount = temp;
+            }
+            temp = smartBattery.getIntegerProperty("Temperature");
+            if (temp != null) {
+                psTemperature = temp / 100d;
+            }
+            temp = smartBattery.getIntegerProperty("Voltage");
+            if (temp != null) {
+                psVoltage = temp / 1000d;
+            }
+            temp = smartBattery.getIntegerProperty("Amperage");
+            if (temp != null) {
+                psAmperage = temp;
+            }
             psPowerUsageRate = psVoltage * psAmperage;
 
-            psPowerOnLine = smartBattery.getBooleanProperty("ExternalConnected");
-            psCharging = smartBattery.getBooleanProperty("IsCharging");
+            Boolean bool = smartBattery.getBooleanProperty("ExternalConnected");
+            if (bool != null) {
+                psPowerOnLine = bool;
+            }
+            bool = smartBattery.getBooleanProperty("IsCharging");
+            if (bool != null) {
+                psCharging = bool;
+            }
             psDischarging = !psCharging;
 
             smartBattery.release();
