@@ -245,7 +245,7 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
             for (String bit : bits) {
                 int bitToSet = ParseUtil.parseIntOrDefault(bit.trim(), -1);
                 if (bitToSet >= 0) {
-                    bitMask |= (1L << bitToSet);
+                    bitMask |= 1L << bitToSet;
                 }
             }
         }

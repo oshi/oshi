@@ -229,7 +229,7 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
             for (int i = split.length - 1; i >= 0; i--) {
                 int bitToSet = ParseUtil.parseIntOrDefault(split[i], -1);
                 if (bitToSet >= 0) {
-                    bitMask |= (1L << bitToSet);
+                    bitMask |= 1L << bitToSet;
                 } else {
                     // Once we run into the word processor(s) we're done
                     break;

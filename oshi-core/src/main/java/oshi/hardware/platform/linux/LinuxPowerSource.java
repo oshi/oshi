@@ -112,8 +112,8 @@ public class LinuxPowerSource extends AbstractPowerSource {
             }
             psName = psMap.getOrDefault("POWER_SUPPLY_NAME", name);
             String status = psMap.get("POWER_SUPPLY_STATUS");
-            psCharging = ("Charging".equals(status));
-            psDischarging = ("Discharging".equals(status));
+            psCharging = "Charging".equals(status);
+            psDischarging = "Discharging".equals(status);
             if (psMap.containsKey("POWER_SUPPLY_CAPACITY")) {
                 psRemainingCapacityPercent = ParseUtil.parseIntOrDefault(psMap.get("POWER_SUPPLY_CAPACITY"), -100)
                         / 100d;

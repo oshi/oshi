@@ -508,7 +508,7 @@ public interface CentralProcessor {
      * A class encapsulating ghe CPU's identifier strings ,including name, vendor,
      * stepping, model, and family information (also called the signature of a CPU)
      */
-    static final class ProcessorIdentifier {
+    final class ProcessorIdentifier {
         // Provided in constructor
         private final String cpuVendor;
         private final String cpuName;
