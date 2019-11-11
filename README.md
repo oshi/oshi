@@ -248,7 +248,7 @@ Projects using OSHI
 * [DeepLearning4J](https://deeplearning4j.org/)
 * [PSI Probe](https://github.com/psi-probe/psi-probe)
 * [GigaSpaces XAP](https://xap.github.io/)
-* [openHAB Systeminfo Binding](https://github.com/openhab/openhab2-addons/tree/master/addons/binding/org.openhab.binding.systeminfo)
+* [openHAB Systeminfo Binding](https://github.com/openhab/openhab2-addons/tree/master/bundles/org.openhab.binding.systeminfo)
 * [Jenkins swarm plugin](https://wiki.jenkins.io/display/JENKINS/Swarm+Plugin)
 * [Java for IBM Watson IoT Platform](https://ibm-watson-iot.github.io/iot-java/)
 * [Semux](https://www.semux.org/)
