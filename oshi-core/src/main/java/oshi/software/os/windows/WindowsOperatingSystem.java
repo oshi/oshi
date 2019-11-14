@@ -650,39 +650,35 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
 
     private static long querySystemBootTime() {
         String eventLog = systemLog.get();
-        EventLogIterator iter = null;
         if (eventLog != null) {
             try {
-                iter = new EventLogIterator(null, eventLog, WinNT.EVENTLOG_BACKWARDS_READ);
+                EventLogIterator iter = new EventLogIterator(null, eventLog, WinNT.EVENTLOG_BACKWARDS_READ);
+                // Get the most recent boot event (ID 12) from the Event log. If Windows "Fast
+                // Startup" is enabled we may not see event 12, so also check for most recent ID
+                // 6005 (Event log startup) as a reasonably close backup.
+                long event6005Time = 0L;
+                while (iter.hasNext()) {
+                    EventLogRecord record = iter.next();
+                    if (record.getStatusCode() == 12) {
+                        // Event 12 is system boot. We want this value unless we find two 6005 events
+                        // first (may occur with Fast Boot)
+                        return record.getRecord().TimeGenerated.longValue();
+                    } else if (record.getStatusCode() == 6005) {
+                        // If we already found one, this means we've found a second one without finding
+                        // an event 12. Return the latest one.
+                        if (event6005Time > 0) {
+                            return event6005Time;
+                        }
+                        // First 6005; tentatively assign
+                        event6005Time = record.getRecord().TimeGenerated.longValue();
+                    }
+                }
+                // Only one 6005 found, return
+                if (event6005Time > 0) {
+                    return event6005Time;
+                }
             } catch (Win32Exception e) {
                 LOG.warn("Can't open event log \"{}\".", eventLog);
-            }
-        }
-        // If no event log, subtract up time
-        if (eventLog != null && iter != null) {
-            // Get the most recent boot event (ID 12) from the Event log. If Windows "Fast
-            // Startup" is enabled we may not see event 12, so also check for most recent ID
-            // 6005 (Event log startup) as a reasonably close backup.
-            long event6005Time = 0L;
-            while (iter.hasNext()) {
-                EventLogRecord record = iter.next();
-                if (record.getStatusCode() == 12) {
-                    // Event 12 is system boot. We want this value unless we find two 6005 events
-                    // first (may occur with Fast Boot)
-                    return record.getRecord().TimeGenerated.longValue();
-                } else if (record.getStatusCode() == 6005) {
-                    // If we already found one, this means we've found a second one without finding
-                    // an event 12. Return the latest one.
-                    if (event6005Time > 0) {
-                        return event6005Time;
-                    }
-                    // First 6005; tentatively assign
-                    event6005Time = record.getRecord().TimeGenerated.longValue();
-                }
-            }
-            // Only one 6005 found, return
-            if (event6005Time > 0) {
-                return event6005Time;
             }
         }
         // If we get this far, event log reading has failed, either from no log or no
@@ -754,7 +750,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     }
 
     private static String querySystemLog() {
-        String systemLog = GlobalConfig.get("oshi.os.windows.systemLog", "System");
+        String systemLog = GlobalConfig.get("oshi.os.windows.eventlog", "System");
         if (systemLog.isEmpty()) {
             // Use faster boot time approximation
             return null;
@@ -762,7 +758,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         // Check whether it works
         HANDLE h = Advapi32.INSTANCE.OpenEventLog(null, systemLog);
         if (h == null) {
-            LOG.warn("Unable to locate configured system Event log \"{}\". Calculating boot time from uptime.",
+            LOG.warn("Unable to open configured system Event log \"{}\". Calculating boot time from uptime.",
                     systemLog);
             return null;
         }
