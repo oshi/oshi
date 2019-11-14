@@ -58,11 +58,11 @@ Downloads
 ---------
 | Stable Release Version | Current Development Version | Dependencies |
 | ------------- | ------------- | ------------- |
-| [oshi-core-4.2.0](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&amp;g=com.github.oshi&amp;a=oshi-core&amp;v=4.2.0&amp;e=jar)  | [oshi-core-4.3.0-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;g=com.github.oshi&amp;a=oshi-core&amp;v=4.3.0-SNAPSHOT&amp;e=jar) | [JNA](https://github.com/java-native-access/jna) • [SLF4J](http://www.slf4j.org/) |
+| [oshi-core-4.2.1](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&amp;g=com.github.oshi&amp;a=oshi-core&amp;v=4.2.1&amp;e=jar)  | [oshi-core-4.3.0-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;g=com.github.oshi&amp;a=oshi-core&amp;v=4.3.0-SNAPSHOT&amp;e=jar) | [JNA](https://github.com/java-native-access/jna) • [SLF4J](http://www.slf4j.org/) |
 
 Usage
 -----
-We strongly recommend you use a dependency manager such as Maven or Gradle. You can [find the appropriate syntax to include OSHI here](https://search.maven.org/artifact/com.github.oshi/oshi-core/4.2.0/jar). This will add the transitive dependencies.  If you experience issues with `NoClassDefFound` errors for JNA artifacts, you might have another dependency to JNA which resolves first. Listing OSHI earlier in your dependency list will usually resolve this, or you may try manually specifying the most recent version of JNA.
+We strongly recommend you use a dependency manager such as Maven or Gradle. You can [find the appropriate syntax to include OSHI here](https://search.maven.org/artifact/com.github.oshi/oshi-core/4.2.1/jar). This will add the transitive dependencies.  If you experience issues with `NoClassDefFound` errors for JNA artifacts, you might have another dependency to JNA which resolves first. Listing OSHI earlier in your dependency list will usually resolve this, or you may try manually specifying the most recent version of JNA.
 
 Create a new instance of `SystemInfo` and use the getters to access additional information.
 

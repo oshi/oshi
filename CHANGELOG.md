@@ -2,11 +2,12 @@
 ================
 * Your contribution here.
 
-4.2.0 (11/9/2019)
+4.2.0 (11/9/2019), 4.2.1 (11/14/2019)
 ================
 * [#1038](https://github.com/oshi/oshi/pull/1038): More Battery Statistics. - [@dbwiddis](https://github.com/dbwiddis).
 * [#1039](https://github.com/oshi/oshi/pull/1039): JNA 5.5.0. - [@dbwiddis](https://github.com/dbwiddis).
 * [#1041](https://github.com/oshi/oshi/pull/1041): Process Affinity. - [@dbwiddis](https://github.com/dbwiddis).
+* [#1045](https://github.com/oshi/oshi/pull/1045): Better event log exception handling. - [@dbwiddis](https://github.com/dbwiddis).
 
 4.1.0 (10/16/2019), 4.1.1 (10/24/2019)
 ================
