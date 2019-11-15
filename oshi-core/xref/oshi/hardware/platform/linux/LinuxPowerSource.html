@@ -120,8 +120,8 @@
 <a class="jxr_linenumber" name="L112" href="#L112">112</a>             }
 <a class="jxr_linenumber" name="L113" href="#L113">113</a>             psName = psMap.getOrDefault(<span class="jxr_string">"POWER_SUPPLY_NAME"</span>, name);
 <a class="jxr_linenumber" name="L114" href="#L114">114</a>             String status = psMap.get(<span class="jxr_string">"POWER_SUPPLY_STATUS"</span>);
-<a class="jxr_linenumber" name="L115" href="#L115">115</a>             psCharging = (<span class="jxr_string">"Charging"</span>.equals(status));
-<a class="jxr_linenumber" name="L116" href="#L116">116</a>             psDischarging = (<span class="jxr_string">"Discharging"</span>.equals(status));
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>             psCharging = <span class="jxr_string">"Charging"</span>.equals(status);
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>             psDischarging = <span class="jxr_string">"Discharging"</span>.equals(status);
 <a class="jxr_linenumber" name="L117" href="#L117">117</a>             <strong class="jxr_keyword">if</strong> (psMap.containsKey(<span class="jxr_string">"POWER_SUPPLY_CAPACITY"</span>)) {
 <a class="jxr_linenumber" name="L118" href="#L118">118</a>                 psRemainingCapacityPercent = ParseUtil.parseIntOrDefault(psMap.get(<span class="jxr_string">"POWER_SUPPLY_CAPACITY"</span>), -100)
 <a class="jxr_linenumber" name="L119" href="#L119">119</a>                         / 100d;

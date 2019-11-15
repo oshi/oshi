@@ -229,7 +229,7 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
 <span class="nc bnc" id="L229" title="All 2 branches missed.">            for (int i = split.length - 1; i &gt;= 0; i--) {</span>
 <span class="nc" id="L230">                int bitToSet = ParseUtil.parseIntOrDefault(split[i], -1);</span>
 <span class="nc bnc" id="L231" title="All 2 branches missed.">                if (bitToSet &gt;= 0) {</span>
-<span class="nc" id="L232">                    bitMask |= (1L &lt;&lt; bitToSet);</span>
+<span class="nc" id="L232">                    bitMask |= 1L &lt;&lt; bitToSet;</span>
                 } else {
                     // Once we run into the word processor(s) we're done
                     break;

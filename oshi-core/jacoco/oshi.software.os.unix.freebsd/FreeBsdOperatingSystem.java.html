@@ -245,7 +245,7 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
 <span class="nc bnc" id="L245" title="All 2 branches missed.">            for (String bit : bits) {</span>
 <span class="nc" id="L246">                int bitToSet = ParseUtil.parseIntOrDefault(bit.trim(), -1);</span>
 <span class="nc bnc" id="L247" title="All 2 branches missed.">                if (bitToSet &gt;= 0) {</span>
-<span class="nc" id="L248">                    bitMask |= (1L &lt;&lt; bitToSet);</span>
+<span class="nc" id="L248">                    bitMask |= 1L &lt;&lt; bitToSet;</span>
                 }
             }
         }

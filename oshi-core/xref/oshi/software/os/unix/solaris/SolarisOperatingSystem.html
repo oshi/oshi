@@ -237,7 +237,7 @@
 <a class="jxr_linenumber" name="L229" href="#L229">229</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = split.length - 1; i &gt;= 0; i--) {
 <a class="jxr_linenumber" name="L230" href="#L230">230</a>                 <strong class="jxr_keyword">int</strong> bitToSet = ParseUtil.parseIntOrDefault(split[i], -1);
 <a class="jxr_linenumber" name="L231" href="#L231">231</a>                 <strong class="jxr_keyword">if</strong> (bitToSet &gt;= 0) {
-<a class="jxr_linenumber" name="L232" href="#L232">232</a>                     bitMask |= (1L &lt;&lt; bitToSet);
+<a class="jxr_linenumber" name="L232" href="#L232">232</a>                     bitMask |= 1L &lt;&lt; bitToSet;
 <a class="jxr_linenumber" name="L233" href="#L233">233</a>                 } <strong class="jxr_keyword">else</strong> {
 <a class="jxr_linenumber" name="L234" href="#L234">234</a>                     <em class="jxr_comment">// Once we run into the word processor(s) we're done</em>
 <a class="jxr_linenumber" name="L235" href="#L235">235</a>                     <strong class="jxr_keyword">break</strong>;
