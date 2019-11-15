@@ -26,7 +26,7 @@ under the License.
     <copyright>&#169;2010 - 2019 oshi</copyright>
     <item>
       <title>File: 197,
-             Errors: 6265,
+             Errors: 6270,
              Warnings: 0,
              Infos: 0
       </title>
@@ -1413,7 +1413,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  64
+                  58
                 </td>
               </tr>
                           <tr>
@@ -1609,7 +1609,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  2
+                  8
                 </td>
               </tr>
                           <tr>
@@ -1819,7 +1819,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  168
+                  167
                 </td>
               </tr>
                           <tr>
@@ -2435,7 +2435,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  283
+                  289
                 </td>
               </tr>
                           <tr>
