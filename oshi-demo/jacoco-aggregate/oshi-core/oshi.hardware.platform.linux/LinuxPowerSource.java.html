@@ -112,8 +112,8 @@ public class LinuxPowerSource extends AbstractPowerSource {
 <span class="nc" id="L112">            }</span>
 <span class="nc" id="L113">            psName = psMap.getOrDefault(&quot;POWER_SUPPLY_NAME&quot;, name);</span>
 <span class="nc" id="L114">            String status = psMap.get(&quot;POWER_SUPPLY_STATUS&quot;);</span>
-<span class="nc" id="L115">            psCharging = (&quot;Charging&quot;.equals(status));</span>
-<span class="nc" id="L116">            psDischarging = (&quot;Discharging&quot;.equals(status));</span>
+<span class="nc" id="L115">            psCharging = &quot;Charging&quot;.equals(status);</span>
+<span class="nc" id="L116">            psDischarging = &quot;Discharging&quot;.equals(status);</span>
 <span class="nc bnc" id="L117" title="All 2 branches missed.">            if (psMap.containsKey(&quot;POWER_SUPPLY_CAPACITY&quot;)) {</span>
 <span class="nc" id="L118">                psRemainingCapacityPercent = ParseUtil.parseIntOrDefault(psMap.get(&quot;POWER_SUPPLY_CAPACITY&quot;), -100)</span>
                         / 100d;

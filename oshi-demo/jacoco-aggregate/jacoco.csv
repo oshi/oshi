@@ -91,7 +91,7 @@ oshi-demo/oshi-core,oshi.software.os.windows,WindowsOperatingSystem.ProcessXPPro
 oshi-demo/oshi-core,oshi.software.os.windows,WindowsOperatingSystem.BitnessProperty,14,0,0,0,2,0,1,0,1,0
 oshi-demo/oshi-core,oshi.software.os.windows,WindowsOSVersionInfoEx.OSVersionProperty,54,0,0,0,2,0,1,0,1,0
 oshi-demo/oshi-core,oshi.software.os.windows,WindowsOperatingSystem.HkeyPerformanceData,658,0,78,0,121,0,41,0,2,0
-oshi-demo/oshi-core,oshi.software.os.windows,WindowsOperatingSystem,1548,0,197,0,337,0,127,0,27,0
+oshi-demo/oshi-core,oshi.software.os.windows,WindowsOperatingSystem,1590,0,203,0,354,0,131,0,28,0
 oshi-demo/oshi-core,oshi.software.os.windows,WindowsFileSystem.LogicalDiskProperty,74,0,0,0,2,0,1,0,1,0
 oshi-demo/oshi-core,oshi.software.os.windows,WindowsOperatingSystem.ProcessPerformanceProperty,103,0,0,0,13,0,3,0,3,0
 oshi-demo/oshi-core,oshi.software.os.windows,WindowsNetworkParams,204,0,22,0,47,0,20,0,9,0
@@ -210,7 +210,7 @@ oshi-demo/oshi-core,oshi.hardware.platform.mac,MacHardwareAbstractionLayer,42,0,
 oshi-demo/oshi-core,oshi.hardware.platform.mac,MacSensors,79,0,6,0,20,0,7,0,4,0
 oshi-demo/oshi-core,oshi.hardware.platform.mac,MacNetworks,189,0,12,0,38,0,10,0,4,0
 oshi-demo/oshi-core,oshi.hardware.platform.mac,MacSoundCard,66,0,6,0,20,0,5,0,2,0
-oshi-demo/oshi-core,oshi.hardware.platform.mac,MacPowerSource,361,0,16,0,88,0,11,0,3,0
+oshi-demo/oshi-core,oshi.hardware.platform.mac,MacPowerSource,417,0,44,0,115,0,25,0,3,0
 oshi-demo/oshi-core,oshi.hardware.platform.mac,MacBaseboard,97,0,8,0,24,0,10,0,6,0
 oshi-demo/oshi-core,oshi.hardware.platform.mac,MacNetworks.IFdata,27,0,0,0,10,0,1,0,1,0
 oshi-demo/oshi-core,oshi.hardware.platform.mac,MacBaseboard.PlatformStrings,35,0,8,0,6,0,5,0,1,0
