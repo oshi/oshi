@@ -44,8 +44,8 @@ matrix:
       osx_image: xcode10.1
     - os: osx
       env: JDK = "OpenJDK 13 - Mac"
-      jdk: openjdk12
-      osx_image: xcode11.2
+      jdk: openjdk13
+      osx_image: xcode11.2.1
     - os: linux
       env: JDK = "OpenJDK 11 - Linux"
       jdk: openjdk11
