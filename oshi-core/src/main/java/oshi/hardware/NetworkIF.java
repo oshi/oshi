@@ -24,6 +24,7 @@
 package oshi.hardware;
 
 import java.net.InetAddress;
+import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.ArrayList;
@@ -54,7 +55,9 @@ public class NetworkIF {
     private int mtu;
     private String mac;
     private String[] ipv4;
+    private Short[] subnetMasks;
     private String[] ipv6;
+    private Short[] prefixLengths;
     private long bytesRecv;
     private long bytesSent;
     private long packetsRecv;
@@ -100,18 +103,28 @@ public class NetworkIF {
             }
             // Set IP arrays
             ArrayList<String> ipv4list = new ArrayList<>();
+            ArrayList<Short> subnetMaskList = new ArrayList<>();
             ArrayList<String> ipv6list = new ArrayList<>();
-            for (InetAddress address : Collections.list(networkInterface.getInetAddresses())) {
+            ArrayList<Short> prefixLengthList = new ArrayList<>();
+
+            for(InterfaceAddress interfaceAddress: networkInterface.getInterfaceAddresses())
+            {
+                InetAddress address = interfaceAddress.getAddress();
                 if (address.getHostAddress().length() > 0) {
                     if (address.getHostAddress().contains(":")) {
                         ipv6list.add(address.getHostAddress().split("%")[0]);
+                        prefixLengthList.add(interfaceAddress.getNetworkPrefixLength());
                     } else {
                         ipv4list.add(address.getHostAddress());
+                        subnetMaskList.add(interfaceAddress.getNetworkPrefixLength());
                     }
                 }
             }
+
             this.ipv4 = ipv4list.toArray(new String[0]);
+            this.subnetMasks = subnetMaskList.toArray(new Short[0]);
             this.ipv6 = ipv6list.toArray(new String[0]);
+            this.prefixLengths = prefixLengthList.toArray(new Short[0]);
         } catch (SocketException e) {
             LOG.error("Socket exception: {}", e);
         }
@@ -184,6 +197,23 @@ public class NetworkIF {
 
     /**
      * <p>
+     * The Internet Protocol (IP) v4 subnet masks.
+     * </p>
+     *
+     * @return The IPv4 subnet mask length. Ranges between 0-32
+     *         This value is set when the
+     *         {@link oshi.hardware.NetworkIF} is instantiated and may not be up to
+     *         date. To update this value, execute the
+     *         {@link #setNetworkInterface(NetworkInterface)} method.
+     *
+     */
+    public Short[] getSubnetMasks()
+    {
+        return Arrays.copyOf(this.subnetMasks, this.subnetMasks.length);
+    }
+
+    /**
+     * <p>
      * The Internet Protocol (IP) v6 address.
      * </p>
      *
@@ -194,6 +224,22 @@ public class NetworkIF {
      */
     public String[] getIPv6addr() {
         return Arrays.copyOf(this.ipv6, this.ipv6.length);
+    }
+
+    /**
+     * <p>
+     * The Internet Protocol (IP) v6 address.
+     * </p>
+     *
+     * @return The IPv6 address prefix lengths. Ranges between 0-128.
+     *         This value is set when the
+     *         {@link oshi.hardware.NetworkIF} is instantiated and may not be up to
+     *         date. To update this value, execute the
+     *         {@link #setNetworkInterface(NetworkInterface)} method
+     */
+    public Short[] getPrefixLengths()
+    {
+        return Arrays.copyOf(this.prefixLengths, this.prefixLengths.length);
     }
 
     /**
@@ -435,7 +481,9 @@ public class NetworkIF {
         sb.append("  MAC Address: ").append(getMacaddr()).append("\n");
         sb.append("  MTU: ").append(getMTU()).append(", ").append("Speed: ").append(getSpeed()).append("\n");
         sb.append("  IPv4: ").append(Arrays.toString(getIPv4addr())).append("\n");
+        sb.append("  Netmask:  ").append(Arrays.toString(getSubnetMasks())).append("\n");
         sb.append("  IPv6: ").append(Arrays.toString(getIPv6addr())).append("\n");
+        sb.append("  Prefix Lengths:  ").append(Arrays.toString(getPrefixLengths())).append("\n");
         sb.append("  Traffic: received ").append(getPacketsRecv()).append(" packets/")
                 .append(FormatUtil.formatBytes(getBytesRecv())).append(" (" + getInErrors() + " err);");
         sb.append(" transmitted ").append(getPacketsSent()).append(" packets/")
