@@ -1,6 +1,6 @@
 4.3.0 (in progress)
 ================
-* Your contribution here.
+* [#1057](https://github.com/oshi/oshi/pull/1057): Added Subnet Mask & Prefix Length to NetworkIF. - [@vesyrak](https://github.com/Vesyrak).
 
 4.2.0 (11/9/2019), 4.2.1 (11/14/2019)
 ================

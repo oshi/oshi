@@ -54,7 +54,9 @@ public class NetworksTest {
             assertNotNull(net.getDisplayName());
             assertNotNull(net.getMacaddr());
             assertNotNull(net.getIPv4addr());
+            assertNotNull(net.getSubnetMasks());
             assertNotNull(net.getIPv6addr());
+            assertNotNull(net.getPrefixLengths());
             assertTrue(net.getBytesRecv() >= 0);
             assertTrue(net.getBytesSent() >= 0);
             assertTrue(net.getPacketsRecv() >= 0);
