@@ -29,12 +29,6 @@ import static oshi.util.Memoizer.memoize;
 import java.util.List;
 import java.util.function.Supplier;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.sun.jna.platform.linux.LibC; // NOSONAR squid:S1191
-import com.sun.jna.platform.linux.LibC.Sysinfo;
-
 import oshi.hardware.VirtualMemory;
 import oshi.hardware.common.AbstractGlobalMemory;
 import oshi.util.ExecutingCommand;
@@ -46,8 +40,6 @@ import oshi.util.platform.linux.ProcUtil;
  * Memory obtained by /proc/meminfo and sysinfo.totalram
  */
 public class LinuxGlobalMemory extends AbstractGlobalMemory {
-
-    private static final Logger LOG = LoggerFactory.getLogger(LinuxGlobalMemory.class);
 
     private final Supplier<MemInfo> memInfo = memoize(this::readMemInfo, defaultExpiration());
 
@@ -76,14 +68,9 @@ public class LinuxGlobalMemory extends AbstractGlobalMemory {
     }
 
     private long queryPageSize() {
-        try {
-            Sysinfo info = new Sysinfo();
-            if (0 == LibC.INSTANCE.sysinfo(info)) {
-                return info.mem_unit;
-            }
-        } catch (UnsatisfiedLinkError | NoClassDefFoundError e) {
-            LOG.debug("Failed to get sysinfo. {}", e);
-        }
+        // Ideally we would us sysconf(_SC_PAGESIZE) but the constant is platform
+        // dependent and would require parsing header files, etc. Since this is only
+        // read once at startup, command line is a reliable fallback.
         return ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer("getconf PAGE_SIZE"), 4096L);
     }
 
