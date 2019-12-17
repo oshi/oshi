@@ -96,7 +96,7 @@ public class WindowsDisks implements Disks {
         DISKWRITESPERSEC("Disk Writes/sec"), //
         DISKWRITEBYTESPERSEC("Disk Write Bytes/sec"), //
         CURRENTDISKQUEUELENGTH("Current Disk Queue Length"), //
-        PERCENTDISKTIME("% Disk Time");
+        PERCENTIDLETIME("% Idle Time");
 
         private final String counter;
 
@@ -157,7 +157,7 @@ public class WindowsDisks implements Disks {
             diskStore.setWrites(stats.writeMap.getOrDefault(index, 0L));
             diskStore.setWriteBytes(stats.writeByteMap.getOrDefault(index, 0L));
             diskStore.setCurrentQueueLength(stats.queueLengthMap.getOrDefault(index, 0L));
-            diskStore.setTransferTime(stats.xferTimeMap.getOrDefault(index, 0L));
+            diskStore.setTransferTime(stats.timeStamp-stats.idleTimeMap.getOrDefault(index, stats.timeStamp));
             diskStore.setTimeStamp(stats.timeStamp);
             return true;
         } else {
@@ -189,7 +189,7 @@ public class WindowsDisks implements Disks {
             ds.setWrites(stats.writeMap.getOrDefault(index, 0L));
             ds.setWriteBytes(stats.writeByteMap.getOrDefault(index, 0L));
             ds.setCurrentQueueLength(stats.queueLengthMap.getOrDefault(index, 0L));
-            ds.setTransferTime(stats.xferTimeMap.getOrDefault(index, 0L));
+            ds.setTransferTime(stats.timeStamp-stats.idleTimeMap.getOrDefault(index, stats.timeStamp));
             ds.setTimeStamp(stats.timeStamp);
             ds.setSize(WmiUtil.getUint64(vals, DiskDriveProperty.SIZE, i));
             // Get partitions
@@ -228,10 +228,10 @@ public class WindowsDisks implements Disks {
         List<Long> writeList = valueMap.get(PhysicalDiskProperty.DISKWRITESPERSEC);
         List<Long> writeByteList = valueMap.get(PhysicalDiskProperty.DISKWRITEBYTESPERSEC);
         List<Long> queueLengthList = valueMap.get(PhysicalDiskProperty.CURRENTDISKQUEUELENGTH);
-        List<Long> xferTimeList = valueMap.get(PhysicalDiskProperty.PERCENTDISKTIME);
+        List<Long> idleTimeList = valueMap.get(PhysicalDiskProperty.PERCENTIDLETIME);
 
         if (instances.isEmpty() || readList == null || readByteList == null || writeList == null
-                || writeByteList == null || queueLengthList == null || xferTimeList == null) {
+                || writeByteList == null || queueLengthList == null || idleTimeList == null) {
             return stats;
         }
         for (int i = 0; i < instances.size(); i++) {
@@ -245,7 +245,7 @@ public class WindowsDisks implements Disks {
             stats.writeMap.put(name, writeList.get(i));
             stats.writeByteMap.put(name, writeByteList.get(i));
             stats.queueLengthMap.put(name, queueLengthList.get(i));
-            stats.xferTimeMap.put(name, xferTimeList.get(i) / 10_000L);
+            stats.idleTimeMap.put(name, idleTimeList.get(i) / 10_000L);
         }
         return stats;
     }
@@ -326,7 +326,7 @@ public class WindowsDisks implements Disks {
         private final Map<String, Long> writeMap = new HashMap<>();
         private final Map<String, Long> writeByteMap = new HashMap<>();
         private final Map<String, Long> queueLengthMap = new HashMap<>();
-        private final Map<String, Long> xferTimeMap = new HashMap<>();
+        private final Map<String, Long> idleTimeMap = new HashMap<>();
         private long timeStamp;
     }
 
