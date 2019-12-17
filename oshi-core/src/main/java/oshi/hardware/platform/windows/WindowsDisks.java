@@ -157,7 +157,7 @@ public class WindowsDisks implements Disks {
             diskStore.setWrites(stats.writeMap.getOrDefault(index, 0L));
             diskStore.setWriteBytes(stats.writeByteMap.getOrDefault(index, 0L));
             diskStore.setCurrentQueueLength(stats.queueLengthMap.getOrDefault(index, 0L));
-            diskStore.setTransferTime(stats.timeStamp-stats.idleTimeMap.getOrDefault(index, 0L));
+            diskStore.setTransferTime(stats.timeStamp-stats.idleTimeMap.getOrDefault(index, stats.timeStamp));
             diskStore.setTimeStamp(stats.timeStamp);
             return true;
         } else {
@@ -189,7 +189,7 @@ public class WindowsDisks implements Disks {
             ds.setWrites(stats.writeMap.getOrDefault(index, 0L));
             ds.setWriteBytes(stats.writeByteMap.getOrDefault(index, 0L));
             ds.setCurrentQueueLength(stats.queueLengthMap.getOrDefault(index, 0L));
-            ds.setTransferTime(stats.timeStamp-stats.idleTimeMap.getOrDefault(index, 0L));
+            ds.setTransferTime(stats.timeStamp-stats.idleTimeMap.getOrDefault(index, stats.timeStamp));
             ds.setTimeStamp(stats.timeStamp);
             ds.setSize(WmiUtil.getUint64(vals, DiskDriveProperty.SIZE, i));
             // Get partitions
