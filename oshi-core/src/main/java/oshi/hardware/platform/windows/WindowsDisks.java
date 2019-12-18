@@ -187,7 +187,7 @@ public class WindowsDisks implements Disks {
             ds.setWriteBytes(MapUtil.getOrDefault(stats.writeByteMap, index, 0L));
             ds.setCurrentQueueLength(MapUtil.getOrDefault(stats.queueLengthMap, index, 0L));
             ds.setTimeStamp(stats.timeStamp);
-            ds.setTransferTime(ds.getTimeStamp() - MapUtil.getOrDefault(stats.idleTimeMap, index, diskStore.getTimeStamp()));
+            ds.setTransferTime(ds.getTimeStamp() - MapUtil.getOrDefault(stats.idleTimeMap, index, ds.getTimeStamp()));
             ds.setSize(WmiUtil.getUint64(vals, DiskDriveProperty.SIZE, i));
             // Get partitions
             List<HWPartition> partitions = new ArrayList<>();
