@@ -29,7 +29,6 @@ import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -107,8 +106,7 @@ public class NetworkIF {
             ArrayList<String> ipv6list = new ArrayList<>();
             ArrayList<Short> prefixLengthList = new ArrayList<>();
 
-            for(InterfaceAddress interfaceAddress: networkInterface.getInterfaceAddresses())
-            {
+            for (InterfaceAddress interfaceAddress : networkInterface.getInterfaceAddresses()) {
                 InetAddress address = interfaceAddress.getAddress();
                 if (address.getHostAddress().length() > 0) {
                     if (address.getHostAddress().contains(":")) {
@@ -200,15 +198,13 @@ public class NetworkIF {
      * The Internet Protocol (IP) v4 subnet masks.
      * </p>
      *
-     * @return The IPv4 subnet mask length. Ranges between 0-32
-     *         This value is set when the
-     *         {@link oshi.hardware.NetworkIF} is instantiated and may not be up to
-     *         date. To update this value, execute the
+     * @return The IPv4 subnet mask length. Ranges between 0-32 This value is set
+     *         when the {@link oshi.hardware.NetworkIF} is instantiated and may not
+     *         be up to date. To update this value, execute the
      *         {@link #setNetworkInterface(NetworkInterface)} method.
      *
      */
-    public Short[] getSubnetMasks()
-    {
+    public Short[] getSubnetMasks() {
         return Arrays.copyOf(this.subnetMasks, this.subnetMasks.length);
     }
 
@@ -231,14 +227,12 @@ public class NetworkIF {
      * The Internet Protocol (IP) v6 address.
      * </p>
      *
-     * @return The IPv6 address prefix lengths. Ranges between 0-128.
-     *         This value is set when the
-     *         {@link oshi.hardware.NetworkIF} is instantiated and may not be up to
-     *         date. To update this value, execute the
+     * @return The IPv6 address prefix lengths. Ranges between 0-128. This value is
+     *         set when the {@link oshi.hardware.NetworkIF} is instantiated and may
+     *         not be up to date. To update this value, execute the
      *         {@link #setNetworkInterface(NetworkInterface)} method
      */
-    public Short[] getPrefixLengths()
-    {
+    public Short[] getPrefixLengths() {
         return Arrays.copyOf(this.prefixLengths, this.prefixLengths.length);
     }
 
