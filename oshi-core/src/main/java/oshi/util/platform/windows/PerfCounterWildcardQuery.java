@@ -141,7 +141,13 @@ public class PerfCounterWildcardQuery<T extends Enum<T>> extends PerfCounterQuer
         try {
             localized = PdhUtil.PdhLookupPerfNameByIndex(null, PdhUtil.PdhLookupPerfIndexByEnglishName(perfObject));
         } catch (Win32Exception e) {
-            LOG.error("Unable to locate English counter names in registry Perflib 009. Assuming English counters.");
+            LOG.error(
+                    "Unable to locate English counter names in registry Perflib 009. Assuming English counters. Error {}. {}",
+                    String.format("0x%x", e.getHR().intValue()),
+                    "See https://support.microsoft.com/en-us/help/300956/how-to-manually-rebuild-performance-counter-library-values");
+        } catch (PdhException e) {
+            LOG.error("Unable to localize {} performance counter.  Error {}.", perfObject,
+                    String.format("0x%x", e.getErrorCode()));
         }
         if (localized == null || localized.length() == 0) {
             return perfObject;
