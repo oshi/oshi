@@ -326,6 +326,14 @@ public class ParseUtilTest {
         assertEquals(456L, result[0]);
         assertEquals(now, result[1]);
 
+        foo = String.format("The numbers are %d %d %d %d %s", 123, 456, 789, now,
+                "709af748-5f8e-41b3-b73a-b440ef4406c8");
+        count = ParseUtil.countStringToLongArray(foo, ' ');
+        assertEquals(4, count);
+        result = ParseUtil.parseStringToLongArray(foo, indices, 4, ' ');
+        assertEquals(456L, result[0]);
+        assertEquals(now, result[1]);
+
         foo = String.format("The numbers are %d -%d %d +%d", 123, 456, 789, now);
         count = ParseUtil.countStringToLongArray(foo, ' ');
         assertEquals(4, count);
@@ -352,6 +360,14 @@ public class ParseUtilTest {
         assertEquals(0, result[1]);
 
         foo = String.format("%d %d %d %d", 123, 456, 789, now);
+        count = ParseUtil.countStringToLongArray(foo, ' ');
+        assertEquals(4, count);
+
+        foo = String.format("%d %d %d %d nonNumeric", 123, 456, 789, now);
+        count = ParseUtil.countStringToLongArray(foo, ' ');
+        assertEquals(4, count);
+
+        foo = String.format("%d %d %d %d 123-456", 123, 456, 789, now);
         count = ParseUtil.countStringToLongArray(foo, ' ');
         assertEquals(4, count);
     }
