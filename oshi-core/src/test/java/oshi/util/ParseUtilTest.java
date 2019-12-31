@@ -347,9 +347,9 @@ public class ParseUtilTest {
         result = ParseUtil.parseStringToLongArray(foo, indices, 4, ' ');
         assertEquals(0, result[1]);
 
-        foo = String.format("Exceeds max long %d %d %d %d0", 123, 456, 789, Long.MAX_VALUE);
+        foo = String.format("Exceeds max long %d %d %d 1%d", 123, 456, 789, Long.MAX_VALUE);
         result = ParseUtil.parseStringToLongArray(foo, indices, 4, ' ');
-        assertEquals(0, result[1]);
+        assertEquals(Long.MAX_VALUE, result[1]);
 
         foo = String.format("String too short %d %d %d %d", 123, 456, 789, now);
         result = ParseUtil.parseStringToLongArray(foo, indices, 9, ' ');

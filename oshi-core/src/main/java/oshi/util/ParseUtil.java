@@ -662,7 +662,8 @@ public class ParseUtil {
      * sanity checks of data.
      *
      * As a special case, non-numeric fields (such as UUIDs in OpenVZ) at the end of
-     * the list are ignored.
+     * the list are ignored. Values greater than the max long value return the max
+     * long value.
      *
      * The indices parameters are referenced assuming the length as specified, and
      * leading characters are ignored. For example, if the string is "foo 12 34 5"
@@ -721,11 +722,11 @@ public class ParseUtil {
                 // Doesn't impact parsing, ignore
                 delimCurrent = false;
             } else if (c >= '0' && c <= '9' && !dashSeen) {
-                if (power > 18) {
-                    LOG.error("Number is too big for a long parsing string '{}' to long array", s);
-                    return new long[indices.length];
+                if (power > 18 || power == 17 && c == '9' && parsed[parsedIndex] > 223372036854775807L) {
+                    parsed[parsedIndex] = Long.MAX_VALUE;
+                } else {
+                    parsed[parsedIndex] += (c - '0') * ParseUtil.POWERS_OF_TEN[power++];
                 }
-                parsed[parsedIndex] += (c - '0') * ParseUtil.POWERS_OF_TEN[power++];
                 delimCurrent = false;
             } else if (c == '-') {
                 parsed[parsedIndex] *= -1L;
