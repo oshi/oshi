@@ -661,6 +661,10 @@ public class ParseUtil {
      * sys filesystem, minimizing new object creation. Users should perform other
      * sanity checks of data.
      *
+     * As a special case, non-numeric fields (such as UUIDs in OpenVZ) at the end of
+     * the list are ignored. Values greater than the max long value return the max
+     * long value.
+     *
      * The indices parameters are referenced assuming the length as specified, and
      * leading characters are ignored. For example, if the string is "foo 12 34 5"
      * and the length is 3, then index 0 is 12, index 1 is 34, and index 2 is 5.
@@ -693,33 +697,50 @@ public class ParseUtil {
         int power = 0;
         int c;
         boolean delimCurrent = false;
+        boolean numeric = true;
+        boolean numberFound = false; // ignore nonnumeric at end
+        boolean dashSeen = false; // to flag uuids as nonnumeric
         while (--charIndex > 0 && parsedIndex >= 0) {
             c = s.charAt(charIndex);
             if (c == delimiter) {
+                // first parseable number?
+                if (!numberFound && numeric) {
+                    numberFound = true;
+                }
                 if (!delimCurrent) {
-                    power = 0;
-                    if (indices[parsedIndex] == stringIndex--) {
-                        parsedIndex--;
+                    if (numberFound) {
+                        if (indices[parsedIndex] == stringIndex--) {
+                            parsedIndex--;
+                        }
                     }
                     delimCurrent = true;
+                    power = 0;
+                    dashSeen = false;
+                    numeric = true;
                 }
-            } else if (indices[parsedIndex] != stringIndex || c == '+') {
+            } else if (indices[parsedIndex] != stringIndex || c == '+' || !numeric) {
                 // Doesn't impact parsing, ignore
                 delimCurrent = false;
-            } else if (c >= '0' && c <= '9') {
-                if (power > 18) {
-                    LOG.error("Number is too big for a long parsing string '{}' to long array", s);
-                    return new long[indices.length];
+            } else if (c >= '0' && c <= '9' && !dashSeen) {
+                if (power > 18 || power == 17 && c == '9' && parsed[parsedIndex] > 223372036854775807L) {
+                    parsed[parsedIndex] = Long.MAX_VALUE;
+                } else {
+                    parsed[parsedIndex] += (c - '0') * ParseUtil.POWERS_OF_TEN[power++];
                 }
-                parsed[parsedIndex] += (c - '0') * ParseUtil.POWERS_OF_TEN[power++];
                 delimCurrent = false;
             } else if (c == '-') {
                 parsed[parsedIndex] *= -1L;
                 delimCurrent = false;
+                dashSeen = true;
             } else {
+                // Flag as nonnumeric and continue unless we've seen a numeric
                 // error on everything else
-                LOG.error("Illegal character parsing string '{}' to long array: {}", s, s.charAt(charIndex));
-                return new long[indices.length];
+                if (numberFound) {
+                    LOG.error("Illegal character parsing string '{}' to long array: {}", s, s.charAt(charIndex));
+                    return new long[indices.length];
+                }
+                parsed[parsedIndex] = 0;
+                numeric = false;
             }
         }
         if (parsedIndex > 0) {
@@ -733,6 +754,9 @@ public class ParseUtil {
      * Parses a delimited string to count elements of an array of longs. Intended to
      * be called once to calculate the {@code length} field for
      * {@link #parseStringToLongArray}.
+     *
+     * As a special case, non-numeric fields (such as UUIDs in OpenVZ) at the end of
+     * the list are ignored.
      *
      * @param s
      *            The string to parse
@@ -749,18 +773,34 @@ public class ParseUtil {
 
         int c;
         boolean delimCurrent = false;
+        boolean numeric = true;
+        boolean dashSeen = false; // to flag uuids as nonnumeric
         while (--charIndex > 0) {
             c = s.charAt(charIndex);
             if (c == delimiter) {
                 if (!delimCurrent) {
-                    numbers++;
+                    if (numeric) {
+                        numbers++;
+                    }
                     delimCurrent = true;
+                    dashSeen = false;
+                    numeric = true;
                 }
-            } else if (c >= '0' && c <= '9' || c == '-' || c == '+') {
+            } else if (c == '+' || !numeric) {
+                // Doesn't impact parsing, ignore
                 delimCurrent = false;
+            } else if (c >= '0' && c <= '9' && !dashSeen) {
+                delimCurrent = false;
+            } else if (c == '-') {
+                delimCurrent = false;
+                dashSeen = true;
             } else {
-                // we found non-digit or delimiter, exit
-                return numbers;
+                // we found non-digit or delimiter. If not last field, exit
+                if (numbers > 0) {
+                    return numbers;
+                }
+                // Else flag as nonnumeric and continue
+                numeric = false;
             }
         }
         // We got to beginning of string with only numbers, count start as a delimiter
