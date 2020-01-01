@@ -72,7 +72,7 @@ and see the full output for your system by cloning the project and building it w
 ```
 git clone https://github.com/oshi/oshi.git && cd oshi
 
-./mvnw test-compile -pl oshi-core -q exec:java \
+./mvnw test-compile -pl oshi-core exec:java \
   -Dexec.mainClass="oshi.SystemInfoTest" \
   -Dexec.classpathScope="test"
 ```
