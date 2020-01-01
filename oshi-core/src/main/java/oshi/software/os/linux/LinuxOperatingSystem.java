@@ -178,7 +178,18 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     @Override
     public FamilyVersionInfo queryFamilyVersionInfo() {
         String family = queryFamilyFromReleaseFiles();
-        OSVersionInfo versionInfo = new OSVersionInfo(this.versionId, this.codeName, null);
+        String buildNumber = null;
+        List<String> procVersion = FileUtil.readFile("/proc/version");
+        if (!procVersion.isEmpty()) {
+            String[] split = ParseUtil.whitespaces.split(procVersion.get(0));
+            for (String s : split) {
+                if (!"Linux".equals(s) && !"version".equals(s)) {
+                    buildNumber = s;
+                    break;
+                }
+            }
+        }
+        OSVersionInfo versionInfo = new OSVersionInfo(this.versionId, this.codeName, buildNumber);
         return new FamilyVersionInfo(family, versionInfo);
     }
 
