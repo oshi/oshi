@@ -749,21 +749,39 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
             services.add(s);
             running.add(p.getName());
         }
-        // Get Directories for stopped services
-        File dir = new File("/etc/init");
-        if (dir.exists() && dir.isDirectory()) {
-            for (File f : dir.listFiles((f, name) -> name.toLowerCase().endsWith(".conf"))) {
-                // remove .conf extension
-                String name = f.getName().substring(0, f.getName().length() - 5);
+        boolean systemctlFound = false;
+        List<String> systemctl = ExecutingCommand.runNative("systemctl list-unit-files");
+        for (String str : systemctl) {
+            String[] split = ParseUtil.whitespaces.split(str);
+            if (split.length == 2 && split[0].endsWith(".service") && "enabled".equals(split[1])) {
+                // remove .service extension
+                String name = split[0].substring(0, split[0].length() - 8);
                 int index = name.lastIndexOf('.');
                 String shortName = (index < 0 || index > name.length() - 2) ? name : name.substring(index + 1);
                 if (!running.contains(name) && !running.contains(shortName)) {
                     OSService s = new OSService(name, 0, STOPPED);
                     services.add(s);
+                    systemctlFound = true;
                 }
             }
-        } else {
-            LOG.error("Directory: /etc/init does not exist");
+        }
+        if (!systemctlFound) {
+            // Get Directories for stopped services
+            File dir = new File("/etc/init");
+            if (dir.exists() && dir.isDirectory()) {
+                for (File f : dir.listFiles((f, name) -> name.toLowerCase().endsWith(".conf"))) {
+                    // remove .conf extension
+                    String name = f.getName().substring(0, f.getName().length() - 5);
+                    int index = name.lastIndexOf('.');
+                    String shortName = (index < 0 || index > name.length() - 2) ? name : name.substring(index + 1);
+                    if (!running.contains(name) && !running.contains(shortName)) {
+                        OSService s = new OSService(name, 0, STOPPED);
+                        services.add(s);
+                    }
+                }
+            } else {
+                LOG.error("Directory: /etc/init does not exist");
+            }
         }
         return services.toArray(new OSService[0]);
     }
