@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>LinuxDisks.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.linux</a> &gt; <span class="el_source">LinuxDisks.java</span></div><h1>LinuxDisks.java</h1><pre class="source lang-java linenums">/**
  * MIT License
  *
- * Copyright (c) 2010-2019 The OSHI project team
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors:
+ * https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -9,9 +10,8 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -36,190 +36,191 @@ import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
 import oshi.jna.platform.linux.Udev;
 import oshi.util.FileUtil;
+import oshi.util.MapUtil;
 import oshi.util.ParseUtil;
-import oshi.util.platform.linux.ProcUtil;
 
 /**
  * Linux hard disk implementation.
+ *
+ * @author enrico[dot]bianchi[at]gmail[dot]com
  */
-<span class="nc" id="L45">public class LinuxDisks implements Disks {</span>
+<span class="nc" id="L47">public class LinuxDisks implements Disks {</span>
 
-<span class="nc" id="L47">    private static final Logger LOG = LoggerFactory.getLogger(LinuxDisks.class);</span>
+    private static final long serialVersionUID = 1L;
+
+<span class="nc" id="L51">    private static final Logger LOG = LoggerFactory.getLogger(LinuxDisks.class);</span>
 
     private static final int SECTORSIZE = 512;
 
-<span class="nc" id="L51">    private final Map&lt;String, String&gt; mountsMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L55">    private final Map&lt;String, String&gt; mountsMap = new HashMap&lt;&gt;();</span>
 
-<span class="nc" id="L53">    private static final Map&lt;Integer, String&gt; hashCodeToPathMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L57">    private static final Map&lt;Integer, String&gt; hashCodeToPathMap = new HashMap&lt;&gt;();</span>
 
     // Order the field is in udev stats
-<span class="nc" id="L56">    enum UdevStat {</span>
+<span class="nc" id="L60">    enum UdevStat {</span>
         // The parsing implementation in ParseUtil requires these to be declared
         // in increasing order. Use 0-ordered index here
-<span class="nc" id="L59">        READS(0), READ_BYTES(2), WRITES(4), WRITE_BYTES(6), QUEUE_LENGTH(8), ACTIVE_MS(9);</span>
+<span class="nc" id="L63">        READS(0), READ_BYTES(2), WRITES(4), WRITE_BYTES(6), QUEUE_LENGTH(8), ACTIVE_MS(9);</span>
 
         private int order;
 
         public int getOrder() {
-<span class="nc" id="L64">            return this.order;</span>
+<span class="nc" id="L68">            return this.order;</span>
         }
 
-<span class="nc" id="L67">        UdevStat(int order) {</span>
-<span class="nc" id="L68">            this.order = order;</span>
-<span class="nc" id="L69">        }</span>
+<span class="nc" id="L71">        UdevStat(int order) {</span>
+<span class="nc" id="L72">            this.order = order;</span>
+<span class="nc" id="L73">        }</span>
     }
 
     // Get a list of orders to pass to ParseUtil
-<span class="nc" id="L73">    private static final int[] UDEV_STAT_ORDERS = new int[UdevStat.values().length];</span>
+<span class="nc" id="L77">    private static final int[] UDEV_STAT_ORDERS = new int[UdevStat.values().length];</span>
     static {
-<span class="nc bnc" id="L75" title="All 2 branches missed.">        for (UdevStat stat : UdevStat.values()) {</span>
-<span class="nc" id="L76">            UDEV_STAT_ORDERS[stat.ordinal()] = stat.getOrder();</span>
+<span class="nc bnc" id="L79" title="All 2 branches missed.">        for (UdevStat stat : UdevStat.values()) {</span>
+<span class="nc" id="L80">            UDEV_STAT_ORDERS[stat.ordinal()] = stat.getOrder();</span>
         }
     }
 
-    // There are at least 11 elements in udev stat output or sometimes 15. We want
-    // the rightmost 11 or 15 if there is leading text.
+    // There are at least 11 elements in udev stat output or sometimes 15. We
+    // want the rightmost 11 or 15 if there is leading text.
     private static final int UDEV_STAT_LENGTH;
     static {
-<span class="nc" id="L84">        String stat = FileUtil.getStringFromFile(ProcUtil.getProcPath() + &quot;/diskstats&quot;);</span>
-<span class="nc" id="L85">        int statLength = 11;</span>
-<span class="nc bnc" id="L86" title="All 2 branches missed.">        if (!stat.isEmpty()) {</span>
-<span class="nc" id="L87">            statLength = ParseUtil.countStringToLongArray(stat, ' ');</span>
+<span class="nc" id="L88">        String stat = FileUtil.getStringFromFile(&quot;/proc/diskstats&quot;);</span>
+<span class="nc" id="L89">        int statLength = 11;</span>
+<span class="nc bnc" id="L90" title="All 2 branches missed.">        if (!stat.isEmpty()) {</span>
+<span class="nc" id="L91">            statLength = ParseUtil.countStringToLongArray(stat, ' ');</span>
         }
-<span class="nc" id="L89">        UDEV_STAT_LENGTH = statLength;</span>
-<span class="nc" id="L90">    }</span>
+<span class="nc" id="L93">        UDEV_STAT_LENGTH = statLength;</span>
+<span class="nc" id="L94">    }</span>
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public HWDiskStore[] getDisks() {
-<span class="nc" id="L95">        HWDiskStore store = null;</span>
+<span class="nc" id="L101">        HWDiskStore store = null;</span>
         List&lt;HWDiskStore&gt; result;
 
-<span class="nc" id="L98">        updateMountsMap();</span>
-<span class="nc" id="L99">        hashCodeToPathMap.clear();</span>
+<span class="nc" id="L104">        updateMountsMap();</span>
+<span class="nc" id="L105">        hashCodeToPathMap.clear();</span>
 
-<span class="nc" id="L101">        Udev.UdevHandle handle = null;</span>
-<span class="nc" id="L102">        Udev.UdevDevice device = null;</span>
-<span class="nc" id="L103">        Udev.UdevEnumerate enumerate = null;</span>
+<span class="nc" id="L107">        Udev.UdevHandle handle = null;</span>
+<span class="nc" id="L108">        Udev.UdevDevice device = null;</span>
+<span class="nc" id="L109">        Udev.UdevEnumerate enumerate = null;</span>
         Udev.UdevListEntry entry;
         Udev.UdevListEntry oldEntry;
 
-<span class="nc" id="L107">        result = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L113">        result = new ArrayList&lt;&gt;();</span>
 
-<span class="nc" id="L109">        handle = Udev.INSTANCE.udev_new();</span>
-<span class="nc" id="L110">        enumerate = Udev.INSTANCE.udev_enumerate_new(handle);</span>
-<span class="nc" id="L111">        Udev.INSTANCE.udev_enumerate_add_match_subsystem(enumerate, &quot;block&quot;);</span>
-<span class="nc" id="L112">        Udev.INSTANCE.udev_enumerate_scan_devices(enumerate);</span>
+<span class="nc" id="L115">        handle = Udev.INSTANCE.udev_new();</span>
+<span class="nc" id="L116">        enumerate = Udev.INSTANCE.udev_enumerate_new(handle);</span>
+<span class="nc" id="L117">        Udev.INSTANCE.udev_enumerate_add_match_subsystem(enumerate, &quot;block&quot;);</span>
+<span class="nc" id="L118">        Udev.INSTANCE.udev_enumerate_scan_devices(enumerate);</span>
 
-<span class="nc" id="L114">        entry = Udev.INSTANCE.udev_enumerate_get_list_entry(enumerate);</span>
+<span class="nc" id="L120">        entry = Udev.INSTANCE.udev_enumerate_get_list_entry(enumerate);</span>
         while (true) {
-<span class="nc" id="L116">            oldEntry = entry;</span>
-<span class="nc" id="L117">            device = Udev.INSTANCE.udev_device_new_from_syspath(handle, Udev.INSTANCE.udev_list_entry_get_name(entry));</span>
-<span class="nc bnc" id="L118" title="All 2 branches missed.">            if (device == null) {</span>
-<span class="nc" id="L119">                LOG.debug(&quot;Reached all disks. Exiting &quot;);</span>
-<span class="nc" id="L120">                break;</span>
+<span class="nc" id="L122">            oldEntry = entry;</span>
+<span class="nc" id="L123">            device = Udev.INSTANCE.udev_device_new_from_syspath(handle, Udev.INSTANCE.udev_list_entry_get_name(entry));</span>
+<span class="nc bnc" id="L124" title="All 2 branches missed.">            if (device == null) {</span>
+<span class="nc" id="L125">                LOG.debug(&quot;Reached all disks. Exiting &quot;);</span>
+<span class="nc" id="L126">                break;</span>
             }
             // Ignore loopback and ram disks; do nothing
-<span class="nc bnc" id="L123" title="All 2 branches missed.">            if (!Udev.INSTANCE.udev_device_get_devnode(device).startsWith(&quot;/dev/loop&quot;)</span>
-<span class="nc bnc" id="L124" title="All 2 branches missed.">                    &amp;&amp; !Udev.INSTANCE.udev_device_get_devnode(device).startsWith(&quot;/dev/ram&quot;)) {</span>
-<span class="nc bnc" id="L125" title="All 2 branches missed.">                if (&quot;disk&quot;.equals(Udev.INSTANCE.udev_device_get_devtype(device))) {</span>
-<span class="nc" id="L126">                    store = new HWDiskStore();</span>
-<span class="nc" id="L127">                    store.setName(Udev.INSTANCE.udev_device_get_devnode(device));</span>
+<span class="nc bnc" id="L129" title="All 2 branches missed.">            if (!Udev.INSTANCE.udev_device_get_devnode(device).startsWith(&quot;/dev/loop&quot;)</span>
+<span class="nc bnc" id="L130" title="All 2 branches missed.">                    &amp;&amp; !Udev.INSTANCE.udev_device_get_devnode(device).startsWith(&quot;/dev/ram&quot;)) {</span>
+<span class="nc bnc" id="L131" title="All 2 branches missed.">                if (&quot;disk&quot;.equals(Udev.INSTANCE.udev_device_get_devtype(device))) {</span>
+<span class="nc" id="L132">                    store = new HWDiskStore();</span>
+<span class="nc" id="L133">                    store.setName(Udev.INSTANCE.udev_device_get_devnode(device));</span>
 
                     // Avoid model and serial in virtual environments
-<span class="nc bnc" id="L130" title="All 2 branches missed.">                    store.setModel(Udev.INSTANCE.udev_device_get_property_value(device, &quot;ID_MODEL&quot;) == null ? &quot;Unknown&quot;</span>
-<span class="nc" id="L131">                            : Udev.INSTANCE.udev_device_get_property_value(device, &quot;ID_MODEL&quot;));</span>
-<span class="nc" id="L132">                    store.setSerial(</span>
-<span class="nc bnc" id="L133" title="All 2 branches missed.">                            Udev.INSTANCE.udev_device_get_property_value(device, &quot;ID_SERIAL_SHORT&quot;) == null ? &quot;Unknown&quot;</span>
-<span class="nc" id="L134">                                    : Udev.INSTANCE.udev_device_get_property_value(device, &quot;ID_SERIAL_SHORT&quot;));</span>
+<span class="nc bnc" id="L136" title="All 2 branches missed.">                    store.setModel(Udev.INSTANCE.udev_device_get_property_value(device, &quot;ID_MODEL&quot;) == null ? &quot;Unknown&quot;</span>
+<span class="nc" id="L137">                            : Udev.INSTANCE.udev_device_get_property_value(device, &quot;ID_MODEL&quot;));</span>
+<span class="nc" id="L138">                    store.setSerial(</span>
+<span class="nc bnc" id="L139" title="All 2 branches missed.">                            Udev.INSTANCE.udev_device_get_property_value(device, &quot;ID_SERIAL_SHORT&quot;) == null ? &quot;Unknown&quot;</span>
+<span class="nc" id="L140">                                    : Udev.INSTANCE.udev_device_get_property_value(device, &quot;ID_SERIAL_SHORT&quot;));</span>
 
-<span class="nc" id="L136">                    store.setSize(ParseUtil.parseLongOrDefault(</span>
-<span class="nc" id="L137">                            Udev.INSTANCE.udev_device_get_sysattr_value(device, &quot;size&quot;), 0L) * SECTORSIZE);</span>
-<span class="nc" id="L138">                    store.setPartitions(new HWPartition[0]);</span>
-<span class="nc" id="L139">                    computeDiskStats(store, device);</span>
+<span class="nc" id="L142">                    store.setSize(ParseUtil.parseLongOrDefault(</span>
+<span class="nc" id="L143">                            Udev.INSTANCE.udev_device_get_sysattr_value(device, &quot;size&quot;), 0L) * SECTORSIZE);</span>
+<span class="nc" id="L144">                    store.setPartitions(new HWPartition[0]);</span>
+<span class="nc" id="L145">                    computeDiskStats(store, device);</span>
 
-<span class="nc" id="L141">                    hashCodeToPathMap.put(store.hashCode(), Udev.INSTANCE.udev_list_entry_get_name(entry));</span>
-<span class="nc" id="L142">                    result.add(store);</span>
-<span class="nc bnc" id="L143" title="All 4 branches missed.">                } else if (&quot;partition&quot;.equals(Udev.INSTANCE.udev_device_get_devtype(device)) &amp;&amp; store != null) {</span>
+<span class="nc" id="L147">                    hashCodeToPathMap.put(store.hashCode(), Udev.INSTANCE.udev_list_entry_get_name(entry));</span>
+<span class="nc" id="L148">                    result.add(store);</span>
+<span class="nc bnc" id="L149" title="All 4 branches missed.">                } else if (&quot;partition&quot;.equals(Udev.INSTANCE.udev_device_get_devtype(device)) &amp;&amp; store != null) {</span>
                     // `store` should still point to the HWDiskStore this
                     // partition is attached to. If not, it's an error, so
                     // skip.
-<span class="nc" id="L147">                    HWPartition[] partArray = new HWPartition[store.getPartitions().length + 1];</span>
-<span class="nc" id="L148">                    System.arraycopy(store.getPartitions(), 0, partArray, 0, store.getPartitions().length);</span>
-<span class="nc" id="L149">                    String name = Udev.INSTANCE.udev_device_get_devnode(device);</span>
-<span class="nc" id="L150">                    partArray[partArray.length - 1] = new HWPartition(name,</span>
-<span class="nc" id="L151">                            Udev.INSTANCE.udev_device_get_sysname(device),</span>
-<span class="nc bnc" id="L152" title="All 2 branches missed.">                            Udev.INSTANCE.udev_device_get_property_value(device, &quot;ID_FS_TYPE&quot;) == null ? &quot;partition&quot;</span>
-<span class="nc" id="L153">                                    : Udev.INSTANCE.udev_device_get_property_value(device, &quot;ID_FS_TYPE&quot;),</span>
-<span class="nc bnc" id="L154" title="All 2 branches missed.">                            Udev.INSTANCE.udev_device_get_property_value(device, &quot;ID_FS_UUID&quot;) == null ? &quot;&quot;</span>
-<span class="nc" id="L155">                                    : Udev.INSTANCE.udev_device_get_property_value(device, &quot;ID_FS_UUID&quot;),</span>
-<span class="nc" id="L156">                            ParseUtil.parseLongOrDefault(Udev.INSTANCE.udev_device_get_sysattr_value(device, &quot;size&quot;),</span>
+<span class="nc" id="L153">                    HWPartition[] partArray = new HWPartition[store.getPartitions().length + 1];</span>
+<span class="nc" id="L154">                    System.arraycopy(store.getPartitions(), 0, partArray, 0, store.getPartitions().length);</span>
+<span class="nc" id="L155">                    String name = Udev.INSTANCE.udev_device_get_devnode(device);</span>
+<span class="nc" id="L156">                    partArray[partArray.length - 1] = new HWPartition(name,</span>
+<span class="nc" id="L157">                            Udev.INSTANCE.udev_device_get_sysname(device),</span>
+<span class="nc bnc" id="L158" title="All 2 branches missed.">                            Udev.INSTANCE.udev_device_get_property_value(device, &quot;ID_FS_TYPE&quot;) == null ? &quot;partition&quot;</span>
+<span class="nc" id="L159">                                    : Udev.INSTANCE.udev_device_get_property_value(device, &quot;ID_FS_TYPE&quot;),</span>
+<span class="nc bnc" id="L160" title="All 2 branches missed.">                            Udev.INSTANCE.udev_device_get_property_value(device, &quot;ID_FS_UUID&quot;) == null ? &quot;&quot;</span>
+<span class="nc" id="L161">                                    : Udev.INSTANCE.udev_device_get_property_value(device, &quot;ID_FS_UUID&quot;),</span>
+<span class="nc" id="L162">                            ParseUtil.parseLongOrDefault(Udev.INSTANCE.udev_device_get_sysattr_value(device, &quot;size&quot;),</span>
                                     0L) * SECTORSIZE,
-<span class="nc" id="L158">                            ParseUtil.parseIntOrDefault(Udev.INSTANCE.udev_device_get_property_value(device, &quot;MAJOR&quot;),</span>
+<span class="nc" id="L164">                            ParseUtil.parseIntOrDefault(Udev.INSTANCE.udev_device_get_property_value(device, &quot;MAJOR&quot;),</span>
                                     0),
-<span class="nc" id="L160">                            ParseUtil.parseIntOrDefault(Udev.INSTANCE.udev_device_get_property_value(device, &quot;MINOR&quot;),</span>
+<span class="nc" id="L166">                            ParseUtil.parseIntOrDefault(Udev.INSTANCE.udev_device_get_property_value(device, &quot;MINOR&quot;),</span>
                                     0),
-<span class="nc" id="L162">                            mountsMap.getOrDefault(name, &quot;&quot;));</span>
-<span class="nc" id="L163">                    store.setPartitions(partArray);</span>
+<span class="nc" id="L168">                            MapUtil.getOrDefault(this.mountsMap, name, &quot;&quot;));</span>
+<span class="nc" id="L169">                    store.setPartitions(partArray);</span>
                 }
             }
-<span class="nc" id="L166">            entry = Udev.INSTANCE.udev_list_entry_get_next(oldEntry);</span>
-<span class="nc" id="L167">            Udev.INSTANCE.udev_device_unref(device);</span>
+<span class="nc" id="L172">            entry = Udev.INSTANCE.udev_list_entry_get_next(oldEntry);</span>
+<span class="nc" id="L173">            Udev.INSTANCE.udev_device_unref(device);</span>
         }
+<span class="nc" id="L175">        Udev.INSTANCE.udev_enumerate_unref(enumerate);</span>
+<span class="nc" id="L176">        Udev.INSTANCE.udev_unref(handle);</span>
 
-<span class="nc" id="L170">        Udev.INSTANCE.udev_enumerate_unref(enumerate);</span>
-<span class="nc" id="L171">        Udev.INSTANCE.udev_unref(handle);</span>
-
-<span class="nc" id="L173">        return result.toArray(new HWDiskStore[0]);</span>
+<span class="nc" id="L178">        return result.toArray(new HWDiskStore[result.size()]);</span>
     }
 
     /**
      * {@inheritDoc}
-     *
-     * @param diskStore
-     *            a {@link oshi.hardware.HWDiskStore} object.
-     * @return a boolean.
      */
     public static boolean updateDiskStats(HWDiskStore diskStore) {
-<span class="nc" id="L184">        String path = hashCodeToPathMap.get(diskStore.hashCode());</span>
+<span class="nc" id="L185">        String path = hashCodeToPathMap.get(diskStore.hashCode());</span>
 
-<span class="nc" id="L186">        Udev.UdevHandle handle = Udev.INSTANCE.udev_new();</span>
-<span class="nc" id="L187">        Udev.UdevDevice device = Udev.INSTANCE.udev_device_new_from_syspath(handle, path);</span>
+<span class="nc" id="L187">        Udev.UdevHandle handle = Udev.INSTANCE.udev_new();</span>
+<span class="nc" id="L188">        Udev.UdevDevice device = Udev.INSTANCE.udev_device_new_from_syspath(handle, path);</span>
 
-<span class="nc" id="L189">        boolean update = false;</span>
-<span class="nc bnc" id="L190" title="All 2 branches missed.">        if (device != null) {</span>
-<span class="nc" id="L191">            computeDiskStats(diskStore, device);</span>
-<span class="nc" id="L192">            update = true;</span>
-<span class="nc" id="L193">            Udev.INSTANCE.udev_device_unref(device);</span>
+<span class="nc" id="L190">        boolean update = false;</span>
+<span class="nc bnc" id="L191" title="All 2 branches missed.">        if (device != null) {</span>
+<span class="nc" id="L192">            computeDiskStats(diskStore, device);</span>
+<span class="nc" id="L193">            update = true;</span>
+<span class="nc" id="L194">            Udev.INSTANCE.udev_device_unref(device);</span>
         }
-<span class="nc" id="L195">        Udev.INSTANCE.udev_unref(handle);</span>
-<span class="nc" id="L196">        return update;</span>
+<span class="nc" id="L196">        Udev.INSTANCE.udev_unref(handle);</span>
+<span class="nc" id="L197">        return update;</span>
     }
 
     private void updateMountsMap() {
-<span class="nc" id="L200">        this.mountsMap.clear();</span>
-<span class="nc" id="L201">        List&lt;String&gt; mounts = FileUtil.readFile(&quot;/proc/self/mounts&quot;);</span>
-<span class="nc bnc" id="L202" title="All 2 branches missed.">        for (String mount : mounts) {</span>
-<span class="nc" id="L203">            String[] split = ParseUtil.whitespaces.split(mount);</span>
-<span class="nc bnc" id="L204" title="All 4 branches missed.">            if (split.length &lt; 2 || !split[0].startsWith(&quot;/dev/&quot;)) {</span>
-<span class="nc" id="L205">                continue;</span>
+<span class="nc" id="L201">        this.mountsMap.clear();</span>
+<span class="nc" id="L202">        List&lt;String&gt; mounts = FileUtil.readFile(&quot;/proc/self/mounts&quot;);</span>
+<span class="nc bnc" id="L203" title="All 2 branches missed.">        for (String mount : mounts) {</span>
+<span class="nc" id="L204">            String[] split = ParseUtil.whitespaces.split(mount);</span>
+<span class="nc bnc" id="L205" title="All 4 branches missed.">            if (split.length &lt; 2 || !split[0].startsWith(&quot;/dev/&quot;)) {</span>
+<span class="nc" id="L206">                continue;</span>
             }
-<span class="nc" id="L207">            this.mountsMap.put(split[0], split[1]);</span>
-<span class="nc" id="L208">        }</span>
-<span class="nc" id="L209">    }</span>
+<span class="nc" id="L208">            this.mountsMap.put(split[0], split[1]);</span>
+<span class="nc" id="L209">        }</span>
+<span class="nc" id="L210">    }</span>
 
     private static void computeDiskStats(HWDiskStore store, Udev.UdevDevice disk) {
-<span class="nc" id="L212">        String devstat = Udev.INSTANCE.udev_device_get_sysattr_value(disk, &quot;stat&quot;);</span>
-<span class="nc" id="L213">        long[] devstatArray = ParseUtil.parseStringToLongArray(devstat, UDEV_STAT_ORDERS, UDEV_STAT_LENGTH, ' ');</span>
-<span class="nc" id="L214">        store.setTimeStamp(System.currentTimeMillis());</span>
+<span class="nc" id="L213">        String devstat = Udev.INSTANCE.udev_device_get_sysattr_value(disk, &quot;stat&quot;);</span>
+<span class="nc" id="L214">        long[] devstatArray = ParseUtil.parseStringToLongArray(devstat, UDEV_STAT_ORDERS, UDEV_STAT_LENGTH, ' ');</span>
+<span class="nc" id="L215">        store.setTimeStamp(System.currentTimeMillis());</span>
 
         // Reads and writes are converted in bytes
-<span class="nc" id="L217">        store.setReads(devstatArray[UdevStat.READS.ordinal()]);</span>
-<span class="nc" id="L218">        store.setReadBytes(devstatArray[UdevStat.READ_BYTES.ordinal()] * SECTORSIZE);</span>
-<span class="nc" id="L219">        store.setWrites(devstatArray[UdevStat.WRITES.ordinal()]);</span>
-<span class="nc" id="L220">        store.setWriteBytes(devstatArray[UdevStat.WRITE_BYTES.ordinal()] * SECTORSIZE);</span>
-<span class="nc" id="L221">        store.setCurrentQueueLength(devstatArray[UdevStat.QUEUE_LENGTH.ordinal()]);</span>
-<span class="nc" id="L222">        store.setTransferTime(devstatArray[UdevStat.ACTIVE_MS.ordinal()]);</span>
-<span class="nc" id="L223">    }</span>
+<span class="nc" id="L218">        store.setReads(devstatArray[UdevStat.READS.ordinal()]);</span>
+<span class="nc" id="L219">        store.setReadBytes(devstatArray[UdevStat.READ_BYTES.ordinal()] * SECTORSIZE);</span>
+<span class="nc" id="L220">        store.setWrites(devstatArray[UdevStat.WRITES.ordinal()]);</span>
+<span class="nc" id="L221">        store.setWriteBytes(devstatArray[UdevStat.WRITE_BYTES.ordinal()] * SECTORSIZE);</span>
+<span class="nc" id="L222">        store.setCurrentQueueLength(devstatArray[UdevStat.QUEUE_LENGTH.ordinal()]);</span>
+<span class="nc" id="L223">        store.setTransferTime(devstatArray[UdevStat.ACTIVE_MS.ordinal()]);</span>
+<span class="nc" id="L224">    }</span>
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

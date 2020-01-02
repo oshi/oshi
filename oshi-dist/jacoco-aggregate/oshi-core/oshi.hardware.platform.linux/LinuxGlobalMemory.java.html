@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>LinuxGlobalMemory.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.linux</a> &gt; <span class="el_source">LinuxGlobalMemory.java</span></div><h1>LinuxGlobalMemory.java</h1><pre class="source lang-java linenums">/**
  * MIT License
  *
- * Copyright (c) 2010-2019 The OSHI project team
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors:
+ * https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -9,9 +10,8 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,124 +23,125 @@
  */
 package oshi.hardware.platform.linux;
 
-import static oshi.util.Memoizer.defaultExpiration;
-import static oshi.util.Memoizer.memoize;
-
 import java.util.List;
-import java.util.function.Supplier;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.sun.jna.platform.linux.LibC; // NOSONAR squid:S1191
-import com.sun.jna.platform.linux.LibC.Sysinfo;
-
-import oshi.hardware.VirtualMemory;
 import oshi.hardware.common.AbstractGlobalMemory;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
-import oshi.util.platform.linux.ProcUtil;
 
 /**
  * Memory obtained by /proc/meminfo and sysinfo.totalram
+ *
+ * @author alessandro[at]perucchi[dot]org
+ * @author widdis[at]gmail[dot]com
  */
-<span class="nc" id="L48">public class LinuxGlobalMemory extends AbstractGlobalMemory {</span>
+public class LinuxGlobalMemory extends AbstractGlobalMemory {
 
-<span class="nc" id="L50">    private static final Logger LOG = LoggerFactory.getLogger(LinuxGlobalMemory.class);</span>
+    private static final long serialVersionUID = 1L;
 
-<span class="nc" id="L52">    private final Supplier&lt;MemInfo&gt; memInfo = memoize(this::readMemInfo, defaultExpiration());</span>
+    // Values read from /proc/meminfo used for other calculations
+<span class="nc" id="L44">    private long memFree = 0;</span>
+<span class="nc" id="L45">    private long activeFile = 0;</span>
+<span class="nc" id="L46">    private long inactiveFile = 0;</span>
+<span class="nc" id="L47">    private long sReclaimable = 0;</span>
+<span class="nc" id="L48">    private long swapFree = 0;</span>
 
-<span class="nc" id="L54">    private final Supplier&lt;Long&gt; pageSize = memoize(this::queryPageSize);</span>
+<span class="nc" id="L50">    private long lastUpdate = 0;</span>
 
-<span class="nc" id="L56">    private final Supplier&lt;VirtualMemory&gt; vm = memoize(this::createVirtualMemory);</span>
-
-    @Override
-    public long getAvailable() {
-<span class="nc" id="L60">        return memInfo.get().available;</span>
-    }
-
-    @Override
-    public long getTotal() {
-<span class="nc" id="L65">        return memInfo.get().total;</span>
-    }
-
-    @Override
-    public long getPageSize() {
-<span class="nc" id="L70">        return pageSize.get();</span>
-    }
-
-    @Override
-    public VirtualMemory getVirtualMemory() {
-<span class="nc" id="L75">        return vm.get();</span>
-    }
-
-    private long queryPageSize() {
-        try {
-<span class="nc" id="L80">            Sysinfo info = new Sysinfo();</span>
-<span class="nc bnc" id="L81" title="All 2 branches missed.">            if (0 == LibC.INSTANCE.sysinfo(info)) {</span>
-<span class="nc" id="L82">                return info.mem_unit;</span>
-            }
-<span class="nc" id="L84">        } catch (UnsatisfiedLinkError | NoClassDefFoundError e) {</span>
-<span class="nc" id="L85">            LOG.debug(&quot;Failed to get sysinfo. {}&quot;, e);</span>
-<span class="nc" id="L86">        }</span>
-<span class="nc" id="L87">        return ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer(&quot;getconf PAGE_SIZE&quot;), 4096L);</span>
-    }
+<span class="nc" id="L52">    public LinuxGlobalMemory() {</span>
+<span class="nc" id="L53">        this.pageSize = ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer(&quot;getconf PAGE_SIZE&quot;), 4096L);</span>
+<span class="nc" id="L54">    }</span>
 
     /**
-     * Updates instance variables from reading /proc/meminfo. While most of the
-     * information is available in the sysinfo structure, the most accurate
-     * calculation of MemAvailable is only available from reading this pseudo-file.
-     * The maintainers of the Linux Kernel have indicated this location will be kept
-     * up to date if the calculation changes: see
+     * Updates instance variables from reading /proc/meminfo no more frequently
+     * than every 100ms. While most of the information is available in the
+     * sysinfo structure, the most accurate calculation of MemAvailable is only
+     * available from reading this pseudo-file. The maintainers of the Linux
+     * Kernel have indicated this location will be kept up to date if the
+     * calculation changes: see
      * https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?
      * id=34e431b0ae398fc54ea69ff85ec700722c9da773
      *
      * Internally, reading /proc/meminfo is faster than sysinfo because it only
      * spends time populating the memory components of the sysinfo structure.
      */
-    private MemInfo readMemInfo() {
-<span class="nc" id="L103">        long memFree = 0L;</span>
-<span class="nc" id="L104">        long activeFile = 0L;</span>
-<span class="nc" id="L105">        long inactiveFile = 0L;</span>
-<span class="nc" id="L106">        long sReclaimable = 0L;</span>
-
-<span class="nc" id="L108">        long memTotal = 0L;</span>
-        long memAvailable;
-
-<span class="nc" id="L111">        List&lt;String&gt; procMemInfo = FileUtil.readFile(ProcUtil.getProcPath() + &quot;/meminfo&quot;);</span>
-<span class="nc bnc" id="L112" title="All 2 branches missed.">        for (String checkLine : procMemInfo) {</span>
-<span class="nc" id="L113">            String[] memorySplit = ParseUtil.whitespaces.split(checkLine);</span>
-<span class="nc bnc" id="L114" title="All 2 branches missed.">            if (memorySplit.length &gt; 1) {</span>
-<span class="nc bnc" id="L115" title="All 7 branches missed.">                switch (memorySplit[0]) {</span>
-                case &quot;MemTotal:&quot;:
-<span class="nc" id="L117">                    memTotal = parseMeminfo(memorySplit);</span>
-<span class="nc" id="L118">                    break;</span>
-                case &quot;MemAvailable:&quot;:
-<span class="nc" id="L120">                    memAvailable = parseMeminfo(memorySplit);</span>
-                    // We're done!
-<span class="nc" id="L122">                    return new MemInfo(memTotal, memAvailable);</span>
-                case &quot;MemFree:&quot;:
-<span class="nc" id="L124">                    memFree = parseMeminfo(memorySplit);</span>
-<span class="nc" id="L125">                    break;</span>
-                case &quot;Active(file):&quot;:
-<span class="nc" id="L127">                    activeFile = parseMeminfo(memorySplit);</span>
-<span class="nc" id="L128">                    break;</span>
-                case &quot;Inactive(file):&quot;:
-<span class="nc" id="L130">                    inactiveFile = parseMeminfo(memorySplit);</span>
-<span class="nc" id="L131">                    break;</span>
-                case &quot;SReclaimable:&quot;:
-<span class="nc" id="L133">                    sReclaimable = parseMeminfo(memorySplit);</span>
-<span class="nc" id="L134">                    break;</span>
-                default:
-                    // do nothing with other lines
-                    break;
+    @Override
+    protected void updateMeminfo() {
+<span class="nc" id="L71">        long now = System.currentTimeMillis();</span>
+<span class="nc bnc" id="L72" title="All 2 branches missed.">        if (now - this.lastUpdate &gt; 100) {</span>
+<span class="nc" id="L73">            List&lt;String&gt; memInfo = FileUtil.readFile(&quot;/proc/meminfo&quot;);</span>
+<span class="nc" id="L74">            boolean found = false;</span>
+<span class="nc bnc" id="L75" title="All 2 branches missed.">            for (String checkLine : memInfo) {</span>
+<span class="nc" id="L76">                String[] memorySplit = ParseUtil.whitespaces.split(checkLine);</span>
+<span class="nc bnc" id="L77" title="All 2 branches missed.">                if (memorySplit.length &gt; 1) {</span>
+<span class="nc bnc" id="L78" title="All 9 branches missed.">                    switch (memorySplit[0]) {</span>
+                    case &quot;MemTotal:&quot;:
+<span class="nc" id="L80">                        this.memTotal = parseMeminfo(memorySplit);</span>
+<span class="nc" id="L81">                        break;</span>
+                    case &quot;MemFree:&quot;:
+<span class="nc" id="L83">                        this.memFree = parseMeminfo(memorySplit);</span>
+<span class="nc" id="L84">                        break;</span>
+                    case &quot;MemAvailable:&quot;:
+<span class="nc" id="L86">                        this.memAvailable = parseMeminfo(memorySplit);</span>
+<span class="nc" id="L87">                        found = true;</span>
+<span class="nc" id="L88">                        break;</span>
+                    case &quot;Active(file):&quot;:
+<span class="nc" id="L90">                        this.activeFile = parseMeminfo(memorySplit);</span>
+<span class="nc" id="L91">                        break;</span>
+                    case &quot;Inactive(file):&quot;:
+<span class="nc" id="L93">                        this.inactiveFile = parseMeminfo(memorySplit);</span>
+<span class="nc" id="L94">                        break;</span>
+                    case &quot;SReclaimable:&quot;:
+<span class="nc" id="L96">                        this.sReclaimable = parseMeminfo(memorySplit);</span>
+<span class="nc" id="L97">                        break;</span>
+                    case &quot;SwapTotal:&quot;:
+<span class="nc" id="L99">                        this.swapTotal = parseMeminfo(memorySplit);</span>
+<span class="nc" id="L100">                        break;</span>
+                    case &quot;SwapFree:&quot;:
+<span class="nc" id="L102">                        this.swapFree = parseMeminfo(memorySplit);</span>
+<span class="nc" id="L103">                        break;</span>
+                    default:
+                        // do nothing with other lines
+                        break;
+                    }
                 }
+<span class="nc" id="L109">            }</span>
+<span class="nc" id="L110">            this.swapUsed = this.swapTotal - this.swapFree;</span>
+            // If no MemAvailable, calculate from other fields
+<span class="nc bnc" id="L112" title="All 2 branches missed.">            if (!found) {</span>
+<span class="nc" id="L113">                this.memAvailable = this.memFree + this.activeFile + this.inactiveFile + this.sReclaimable;</span>
             }
-<span class="nc" id="L140">        }</span>
-        // We didn't find MemAvailable so we estimate from other fields
-<span class="nc" id="L142">        return new MemInfo(memTotal, memFree + activeFile + inactiveFile + sReclaimable);</span>
-    }
+
+<span class="nc" id="L116">            memInfo = FileUtil.readFile(&quot;/proc/vmstat&quot;);</span>
+<span class="nc bnc" id="L117" title="All 2 branches missed.">            for (String checkLine : memInfo) {</span>
+<span class="nc" id="L118">                String[] memorySplit = ParseUtil.whitespaces.split(checkLine);</span>
+<span class="nc bnc" id="L119" title="All 2 branches missed.">                if (memorySplit.length &gt; 1) {</span>
+<span class="nc bnc" id="L120" title="All 3 branches missed.">                    switch (memorySplit[0]) {</span>
+                    case &quot;pgpgin&quot;:
+<span class="nc" id="L122">                        this.swapPagesIn = ParseUtil.parseLongOrDefault(memorySplit[1], 0L);</span>
+<span class="nc" id="L123">                        break;</span>
+                    case &quot;pgpgout&quot;:
+<span class="nc" id="L125">                        this.swapPagesOut = ParseUtil.parseLongOrDefault(memorySplit[1], 0L);</span>
+<span class="nc" id="L126">                        break;</span>
+                    default:
+                        // do nothing with other lines
+                        break;
+                    }
+                }
+<span class="nc" id="L132">            }</span>
+
+<span class="nc" id="L134">            this.lastUpdate = now;</span>
+        }
+<span class="nc" id="L136">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void updateSwap() {
+<span class="nc" id="L143">        updateMeminfo();</span>
+<span class="nc" id="L144">    }</span>
 
     /**
      * Parses lines from the display of /proc/meminfo
@@ -150,28 +151,14 @@ import oshi.util.platform.linux.ProcUtil;
      * @return value, multiplied by 1024 if kB is specified
      */
     private long parseMeminfo(String[] memorySplit) {
-<span class="nc bnc" id="L153" title="All 2 branches missed.">        if (memorySplit.length &lt; 2) {</span>
-<span class="nc" id="L154">            return 0L;</span>
+<span class="nc bnc" id="L154" title="All 2 branches missed.">        if (memorySplit.length &lt; 2) {</span>
+<span class="nc" id="L155">            return 0l;</span>
         }
-<span class="nc" id="L156">        long memory = ParseUtil.parseLongOrDefault(memorySplit[1], 0L);</span>
-<span class="nc bnc" id="L157" title="All 4 branches missed.">        if (memorySplit.length &gt; 2 &amp;&amp; &quot;kB&quot;.equals(memorySplit[2])) {</span>
-<span class="nc" id="L158">            memory *= 1024;</span>
+<span class="nc" id="L157">        long memory = ParseUtil.parseLongOrDefault(memorySplit[1], 0L);</span>
+<span class="nc bnc" id="L158" title="All 4 branches missed.">        if (memorySplit.length &gt; 2 &amp;&amp; &quot;kB&quot;.equals(memorySplit[2])) {</span>
+<span class="nc" id="L159">            memory *= 1024;</span>
         }
-<span class="nc" id="L160">        return memory;</span>
-    }
-
-    private VirtualMemory createVirtualMemory() {
-<span class="nc" id="L164">        return new LinuxVirtualMemory();</span>
-    }
-
-    private static final class MemInfo {
-        private final long total;
-        private final long available;
-
-<span class="nc" id="L171">        private MemInfo(long total, long available) {</span>
-<span class="nc" id="L172">            this.total = total;</span>
-<span class="nc" id="L173">            this.available = available;</span>
-<span class="nc" id="L174">        }</span>
+<span class="nc" id="L161">        return memory;</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

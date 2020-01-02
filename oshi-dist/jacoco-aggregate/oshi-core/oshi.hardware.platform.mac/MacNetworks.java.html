@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>MacNetworks.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.mac</a> &gt; <span class="el_source">MacNetworks.java</span></div><h1>MacNetworks.java</h1><pre class="source lang-java linenums">/**
  * MIT License
  *
- * Copyright (c) 2010-2019 The OSHI project team
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors:
+ * https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -9,9 +10,8 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 package oshi.hardware.platform.mac;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,13 +40,13 @@ import oshi.hardware.NetworkIF;
 import oshi.hardware.common.AbstractNetworks;
 
 /**
- * &lt;p&gt;
- * MacNetworks class.
- * &lt;/p&gt;
+ * @author widdis[at]gmail[dot]com
  */
-<span class="nc" id="L44">public class MacNetworks extends AbstractNetworks {</span>
+<span class="nc" id="L45">public class MacNetworks extends AbstractNetworks {</span>
 
-<span class="nc" id="L46">    private static final Logger LOG = LoggerFactory.getLogger(MacNetworks.class);</span>
+    private static final long serialVersionUID = 1L;
+
+<span class="nc" id="L49">    private static final Logger LOG = LoggerFactory.getLogger(MacNetworks.class);</span>
 
     private static final int CTL_NET = 4;
     private static final int PF_ROUTE = 17;
@@ -51,7 +54,15 @@ import oshi.hardware.common.AbstractNetworks;
     private static final int RTM_IFINFO2 = 0x12;
 
     /**
-     * Class to encapsulate IF data for method return
+     * Update map no more frequently than 200ms.
+     *
+     * Key is the index of the IF.
+     */
+<span class="nc" id="L61">    private static Map&lt;Integer, IFdata&gt; ifMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L62">    private static long lastIFmapTime = 0L;</span>
+
+    /**
+     * Class to store a subset of IF data in the ifMap
      */
     private static class IFdata {
         private long oPackets;
@@ -61,72 +72,74 @@ import oshi.hardware.common.AbstractNetworks;
         private long oErrors;
         private long iErrors;
         private long speed;
-        private long timeStamp;
 
-        IFdata(long oPackets, long iPackets, // NOSONAR squid:S00107
-<span class="nc" id="L67">                long oBytes, long iBytes, long oErrors, long iErrors, long speed, long timeStamp) {</span>
-<span class="nc" id="L68">            this.oPackets = oPackets;</span>
-<span class="nc" id="L69">            this.iPackets = iPackets;</span>
-<span class="nc" id="L70">            this.oBytes = oBytes;</span>
-<span class="nc" id="L71">            this.iBytes = iBytes;</span>
-<span class="nc" id="L72">            this.oErrors = oErrors;</span>
-<span class="nc" id="L73">            this.iErrors = iErrors;</span>
-<span class="nc" id="L74">            this.speed = speed;</span>
-<span class="nc" id="L75">            this.timeStamp = timeStamp;</span>
-<span class="nc" id="L76">        }</span>
+<span class="nc" id="L76">        IFdata(long oPackets, long iPackets, long oBytes, long iBytes, long oErrors, long iErrors, long speed) {</span>
+<span class="nc" id="L77">            this.oPackets = oPackets;</span>
+<span class="nc" id="L78">            this.iPackets = iPackets;</span>
+<span class="nc" id="L79">            this.oBytes = oBytes;</span>
+<span class="nc" id="L80">            this.iBytes = iBytes;</span>
+<span class="nc" id="L81">            this.oErrors = oErrors;</span>
+<span class="nc" id="L82">            this.iErrors = iErrors;</span>
+<span class="nc" id="L83">            this.speed = speed;</span>
+<span class="nc" id="L84">        }</span>
     }
 
     /**
      * Map all network interfaces. Ported from source code of &quot;netstat -ir&quot;. See
      * http://opensource.apple.com/source/network_cmds/network_cmds-457/
      * netstat.tproj/if.c
-     * 
-     * @param index
-     *            The network interface index to query
-     * @return an {@link IFData} object encapsulating the stats if the index
-     *         matches, or null if there was no match or an error reading the stats
+     *
+     * @return timestamp when the data was read
      */
-    private static synchronized IFdata queryIFdata(int index) {
+    private static synchronized long mapIFs() {
+<span class="nc bnc" id="L95" title="All 2 branches missed.">        if (System.currentTimeMillis() - lastIFmapTime &lt; 200L) {</span>
+            // Polled too recently; do nothing
+<span class="nc" id="L97">            return lastIFmapTime;</span>
+        }
+
         // Get buffer of all interface information
-<span class="nc" id="L91">        int[] mib = { CTL_NET, PF_ROUTE, 0, 0, NET_RT_IFLIST2, 0 };</span>
-<span class="nc" id="L92">        IntByReference len = new IntByReference();</span>
-<span class="nc bnc" id="L93" title="All 2 branches missed.">        if (0 != SystemB.INSTANCE.sysctl(mib, 6, null, len, null, 0)) {</span>
-<span class="nc" id="L94">            LOG.error(&quot;Didn't get buffer length for IFLIST2&quot;);</span>
-<span class="nc" id="L95">            return null;</span>
+<span class="nc" id="L101">        int[] mib = { CTL_NET, PF_ROUTE, 0, 0, NET_RT_IFLIST2, 0 };</span>
+<span class="nc" id="L102">        IntByReference len = new IntByReference();</span>
+<span class="nc bnc" id="L103" title="All 2 branches missed.">        if (0 != SystemB.INSTANCE.sysctl(mib, 6, null, len, null, 0)) {</span>
+<span class="nc" id="L104">            LOG.error(&quot;Didn't get buffer length for IFLIST2&quot;);</span>
+<span class="nc" id="L105">            return lastIFmapTime;</span>
         }
-<span class="nc" id="L97">        Pointer buf = new Memory(len.getValue());</span>
-<span class="nc bnc" id="L98" title="All 2 branches missed.">        if (0 != SystemB.INSTANCE.sysctl(mib, 6, buf, len, null, 0)) {</span>
-<span class="nc" id="L99">            LOG.error(&quot;Didn't get buffer for IFLIST2&quot;);</span>
-<span class="nc" id="L100">            return null;</span>
+<span class="nc" id="L107">        Pointer buf = new Memory(len.getValue());</span>
+<span class="nc bnc" id="L108" title="All 2 branches missed.">        if (0 != SystemB.INSTANCE.sysctl(mib, 6, buf, len, null, 0)) {</span>
+<span class="nc" id="L109">            LOG.error(&quot;Didn't get buffer for IFLIST2&quot;);</span>
+<span class="nc" id="L110">            return lastIFmapTime;</span>
         }
+<span class="nc" id="L112">        lastIFmapTime = System.currentTimeMillis();</span>
+
+        // CLear out old hashmap
+<span class="nc" id="L115">        ifMap.clear();</span>
 
         // Iterate offset from buf's pointer up to limit of buf
-<span class="nc" id="L104">        int lim = len.getValue();</span>
-<span class="nc" id="L105">        int next = 0;</span>
-<span class="nc bnc" id="L106" title="All 2 branches missed.">        while (next &lt; lim) {</span>
+<span class="nc" id="L118">        int lim = len.getValue();</span>
+<span class="nc" id="L119">        int next = 0;</span>
+<span class="nc bnc" id="L120" title="All 2 branches missed.">        while (next &lt; lim) {</span>
             // Get pointer to current native part of buf
-<span class="nc" id="L108">            Pointer p = new Pointer(Pointer.nativeValue(buf) + next);</span>
+<span class="nc" id="L122">            Pointer p = new Pointer(Pointer.nativeValue(buf) + next);</span>
             // Cast pointer to if_msghdr
-<span class="nc" id="L110">            IFmsgHdr ifm = new IFmsgHdr(p);</span>
-<span class="nc" id="L111">            ifm.read();</span>
+<span class="nc" id="L124">            IFmsgHdr ifm = new IFmsgHdr(p);</span>
+<span class="nc" id="L125">            ifm.read();</span>
             // Advance next
-<span class="nc" id="L113">            next += ifm.ifm_msglen;</span>
+<span class="nc" id="L127">            next += ifm.ifm_msglen;</span>
             // Skip messages which are not the right format
-<span class="nc bnc" id="L115" title="All 2 branches missed.">            if (ifm.ifm_type != RTM_IFINFO2) {</span>
-<span class="nc" id="L116">                continue;</span>
+<span class="nc bnc" id="L129" title="All 2 branches missed.">            if (ifm.ifm_type != RTM_IFINFO2) {</span>
+<span class="nc" id="L130">                continue;</span>
             }
             // Cast pointer to if_msghdr2
-<span class="nc" id="L119">            IFmsgHdr2 if2m = new IFmsgHdr2(p);</span>
-<span class="nc" id="L120">            if2m.read();</span>
+<span class="nc" id="L133">            IFmsgHdr2 if2m = new IFmsgHdr2(p);</span>
+<span class="nc" id="L134">            if2m.read();</span>
 
-<span class="nc bnc" id="L122" title="All 2 branches missed.">            if (if2m.ifm_index == index) {</span>
-<span class="nc" id="L123">                return new IFdata(if2m.ifm_data.ifi_opackets, if2m.ifm_data.ifi_ipackets, if2m.ifm_data.ifi_obytes,</span>
-                        if2m.ifm_data.ifi_ibytes, if2m.ifm_data.ifi_oerrors, if2m.ifm_data.ifi_ierrors,
-<span class="nc" id="L125">                        if2m.ifm_data.ifi_baudrate, System.currentTimeMillis());</span>
-            }
-<span class="nc" id="L127">        }</span>
-        // If we get here we didn't find the index
-<span class="nc" id="L129">        return null;</span>
+            // Grab data to place in map using index as the key
+<span class="nc" id="L137">            ifMap.put(Integer.valueOf(if2m.ifm_index),</span>
+                    new IFdata(if2m.ifm_data.ifi_opackets, if2m.ifm_data.ifi_ipackets, if2m.ifm_data.ifi_obytes,
+                            if2m.ifm_data.ifi_ibytes, if2m.ifm_data.ifi_oerrors, if2m.ifm_data.ifi_ierrors,
+                            if2m.ifm_data.ifi_baudrate));
+<span class="nc" id="L141">        }</span>
+<span class="nc" id="L142">        return lastIFmapTime;</span>
     }
 
     /**
@@ -138,17 +151,21 @@ import oshi.hardware.common.AbstractNetworks;
      */
     public static synchronized void updateNetworkStats(NetworkIF netIF) {
         // Update data
-<span class="nc" id="L141">        IFdata ifData = queryIFdata(netIF.queryNetworkInterface().getIndex());</span>
-<span class="nc bnc" id="L142" title="All 2 branches missed.">        if (ifData != null) {</span>
-<span class="nc" id="L143">            netIF.setBytesSent(ifData.oBytes);</span>
-<span class="nc" id="L144">            netIF.setBytesRecv(ifData.iBytes);</span>
-<span class="nc" id="L145">            netIF.setPacketsSent(ifData.oPackets);</span>
-<span class="nc" id="L146">            netIF.setPacketsRecv(ifData.iPackets);</span>
-<span class="nc" id="L147">            netIF.setOutErrors(ifData.oErrors);</span>
-<span class="nc" id="L148">            netIF.setInErrors(ifData.iErrors);</span>
-<span class="nc" id="L149">            netIF.setSpeed(ifData.speed);</span>
-<span class="nc" id="L150">            netIF.setTimeStamp(ifData.timeStamp);</span>
+<span class="nc" id="L154">        long timeStamp = mapIFs();</span>
+
+<span class="nc" id="L156">        Integer index = Integer.valueOf(netIF.getNetworkInterface().getIndex());</span>
+<span class="nc" id="L157">        IFdata ifData = ifMap.get(index);</span>
+<span class="nc bnc" id="L158" title="All 2 branches missed.">        if (ifData != null) {</span>
+            // Retrieve values from map and store
+<span class="nc" id="L160">            netIF.setBytesSent(ifData.oBytes);</span>
+<span class="nc" id="L161">            netIF.setBytesRecv(ifData.iBytes);</span>
+<span class="nc" id="L162">            netIF.setPacketsSent(ifData.oPackets);</span>
+<span class="nc" id="L163">            netIF.setPacketsRecv(ifData.iPackets);</span>
+<span class="nc" id="L164">            netIF.setOutErrors(ifData.oErrors);</span>
+<span class="nc" id="L165">            netIF.setInErrors(ifData.iErrors);</span>
+<span class="nc" id="L166">            netIF.setSpeed(ifData.speed);</span>
+<span class="nc" id="L167">            netIF.setTimeStamp(timeStamp);</span>
         }
-<span class="nc" id="L152">    }</span>
+<span class="nc" id="L169">    }</span>
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

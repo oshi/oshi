@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>AbstractGlobalMemory.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.common</a> &gt; <span class="el_source">AbstractGlobalMemory.java</span></div><h1>AbstractGlobalMemory.java</h1><pre class="source lang-java linenums">/**
  * MIT License
  *
- * Copyright (c) 2010-2019 The OSHI project team
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors:
+ * https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -9,9 +10,8 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,122 +23,101 @@
  */
 package oshi.hardware.common;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import oshi.hardware.GlobalMemory;
-import oshi.hardware.PhysicalMemory;
-import oshi.util.Constants;
-import oshi.util.ExecutingCommand;
-import oshi.util.FormatUtil;
-import oshi.util.ParseUtil;
 
 /**
- * Memory info.
+ * Memory obtained by /proc/meminfo and sysinfo.totalram
+ *
+ * @author alessandro[at]perucchi[dot]org
+ * @author widdis[at]gmail[dot]com
  */
-<span class="nc" id="L39">public abstract class AbstractGlobalMemory implements GlobalMemory {</span>
+<span class="nc" id="L34">public abstract class AbstractGlobalMemory implements GlobalMemory {</span>
 
+    private static final long serialVersionUID = 1L;
+
+<span class="nc" id="L38">    protected long memTotal = 0L;</span>
+<span class="nc" id="L39">    protected long memAvailable = 0L;</span>
+<span class="nc" id="L40">    protected long swapTotal = 0L;</span>
+<span class="nc" id="L41">    protected long swapUsed = 0L;</span>
+<span class="nc" id="L42">    protected long swapPagesIn = 0L;</span>
+<span class="nc" id="L43">    protected long swapPagesOut = 0L;</span>
+<span class="nc" id="L44">    protected long pageSize = 0L;</span>
+
+    /**
+     * Updates physical memory instance variables.
+     */
+    protected abstract void updateMeminfo();
+
+    /**
+     * Updates virtual memory instance variables.
+     */
+    protected abstract void updateSwap();
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public PhysicalMemory[] getPhysicalMemory() {
-        // dmidecode requires sudo permission but is the only option on Linux
-        // and Unix
-<span class="nc" id="L45">        List&lt;PhysicalMemory&gt; pmList = new ArrayList&lt;&gt;();</span>
-<span class="nc" id="L46">        List&lt;String&gt; dmi = ExecutingCommand.runNative(&quot;dmidecode --type 17&quot;);</span>
-<span class="nc" id="L47">        int bank = 0;</span>
-<span class="nc" id="L48">        String bankLabel = Constants.UNKNOWN;</span>
-<span class="nc" id="L49">        String locator = &quot;&quot;;</span>
-<span class="nc" id="L50">        long capacity = 0L;</span>
-<span class="nc" id="L51">        long speed = 0L;</span>
-<span class="nc" id="L52">        String manufacturer = Constants.UNKNOWN;</span>
-<span class="nc" id="L53">        String memoryType = Constants.UNKNOWN;</span>
-<span class="nc bnc" id="L54" title="All 2 branches missed.">        for (String line : dmi) {</span>
-<span class="nc bnc" id="L55" title="All 2 branches missed.">            if (line.trim().contains(&quot;DMI type 17&quot;)) {</span>
-                // Save previous bank
-<span class="nc bnc" id="L57" title="All 2 branches missed.">                if (bank++ &gt; 0) {</span>
-<span class="nc bnc" id="L58" title="All 2 branches missed.">                    if (capacity &gt; 0) {</span>
-<span class="nc" id="L59">                        pmList.add(new PhysicalMemory(bankLabel + locator, capacity, speed, manufacturer, memoryType));</span>
-                    }
-<span class="nc" id="L61">                    bankLabel = Constants.UNKNOWN;</span>
-<span class="nc" id="L62">                    locator = &quot;&quot;;</span>
-<span class="nc" id="L63">                    capacity = 0L;</span>
-<span class="nc" id="L64">                    speed = 0L;</span>
-                }
-<span class="nc bnc" id="L66" title="All 2 branches missed.">            } else if (bank &gt; 0) {</span>
-<span class="nc" id="L67">                String[] split = line.trim().split(&quot;:&quot;);</span>
-<span class="nc bnc" id="L68" title="All 2 branches missed.">                if (split.length == 2) {</span>
-<span class="nc bnc" id="L69" title="All 7 branches missed.">                    switch (split[0]) {</span>
-                    case &quot;Bank Locator&quot;:
-<span class="nc" id="L71">                        bankLabel = split[1].trim();</span>
-<span class="nc" id="L72">                        break;</span>
-                    case &quot;Locator&quot;:
-<span class="nc" id="L74">                        locator = &quot;/&quot; + split[1].trim();</span>
-<span class="nc" id="L75">                        break;</span>
-                    case &quot;Size&quot;:
-<span class="nc" id="L77">                        capacity = parsePhysicalMemorySize(split[1].trim());</span>
-<span class="nc" id="L78">                        break;</span>
-                    case &quot;Type&quot;:
-<span class="nc" id="L80">                        memoryType = split[1].trim();</span>
-<span class="nc" id="L81">                        break;</span>
-                    case &quot;Speed&quot;:
-<span class="nc" id="L83">                        speed = ParseUtil.parseHertz(split[1]);</span>
-<span class="nc" id="L84">                        break;</span>
-                    case &quot;Manufacturer&quot;:
-<span class="nc" id="L86">                        manufacturer = split[1].trim();</span>
-<span class="nc" id="L87">                        break;</span>
-                    default:
-                        break;
-                    }
-                }
-            }
-<span class="nc" id="L93">        }</span>
-<span class="nc bnc" id="L94" title="All 2 branches missed.">        if (capacity &gt; 0) {</span>
-<span class="nc" id="L95">            pmList.add(new PhysicalMemory(bankLabel + locator, capacity, speed, manufacturer, memoryType));</span>
-        }
-<span class="nc" id="L97">        return pmList.toArray(new PhysicalMemory[0]);</span>
+    public long getAvailable() {
+<span class="nc" id="L61">        updateMeminfo();</span>
+<span class="nc" id="L62">        return this.memAvailable;</span>
     }
 
     /**
-     * Parses a string such as &quot;4096 MB&quot; to its long. Used to parse macOS and *nix
-     * memory chip sizes. Although the units given are decimal they must parse to
-     * binary units.
-     *
-     * @param size
-     *            A string of memory sizes like &quot;4096 MB&quot;
-     * @return the size parsed to a long
+     * {@inheritDoc}
      */
-    protected long parsePhysicalMemorySize(String size) {
-<span class="nc" id="L110">        String[] mem = ParseUtil.whitespaces.split(size);</span>
-<span class="nc" id="L111">        long capacity = ParseUtil.parseLongOrDefault(mem[0], 0L);</span>
-<span class="nc bnc" id="L112" title="All 4 branches missed.">        if (mem.length == 2 &amp;&amp; mem[1].length() &gt; 1) {</span>
-<span class="nc bnc" id="L113" title="All 5 branches missed.">            switch (mem[1].charAt(0)) {</span>
-            case 'T':
-<span class="nc" id="L115">                capacity &lt;&lt;= 40;</span>
-<span class="nc" id="L116">                break;</span>
-            case 'G':
-<span class="nc" id="L118">                capacity &lt;&lt;= 30;</span>
-<span class="nc" id="L119">                break;</span>
-            case 'M':
-<span class="nc" id="L121">                capacity &lt;&lt;= 20;</span>
-<span class="nc" id="L122">                break;</span>
-            case 'K':
-            case 'k':
-<span class="nc" id="L125">                capacity &lt;&lt;= 10;</span>
-<span class="nc" id="L126">                break;</span>
-            default:
-                break;
-            }
+    @Override
+    public long getTotal() {
+<span class="nc bnc" id="L70" title="All 2 branches missed.">        if (this.memTotal == 0) {</span>
+<span class="nc" id="L71">            updateMeminfo();</span>
         }
-<span class="nc" id="L131">        return capacity;</span>
+<span class="nc" id="L73">        return this.memTotal;</span>
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public String toString() {
-<span class="nc" id="L136">        StringBuilder sb = new StringBuilder();</span>
-<span class="nc" id="L137">        sb.append(&quot;Available: &quot;);</span>
-<span class="nc" id="L138">        sb.append(FormatUtil.formatBytes(getAvailable()));</span>
-<span class="nc" id="L139">        sb.append(&quot;/&quot;);</span>
-<span class="nc" id="L140">        sb.append(FormatUtil.formatBytes(getTotal()));</span>
-<span class="nc" id="L141">        return sb.toString();</span>
+    public long getSwapUsed() {
+<span class="nc" id="L81">        updateSwap();</span>
+<span class="nc" id="L82">        return this.swapUsed;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getSwapTotal() {
+<span class="nc" id="L90">        updateSwap();</span>
+<span class="nc" id="L91">        return this.swapTotal;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getSwapPagesIn() {
+<span class="nc" id="L99">        updateMeminfo();</span>
+<span class="nc" id="L100">        return this.swapPagesIn;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getSwapPagesOut() {
+<span class="nc" id="L108">        updateMeminfo();</span>
+<span class="nc" id="L109">        return this.swapPagesOut;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getPageSize() {
+<span class="nc bnc" id="L117" title="All 2 branches missed.">        if (this.pageSize == 0) {</span>
+<span class="nc" id="L118">            updateMeminfo();</span>
+        }
+<span class="nc" id="L120">        return this.pageSize;</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>Util.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.util</a> &gt; <span class="el_source">Util.java</span></div><h1>Util.java</h1><pre class="source lang-java linenums">/**
  * MIT License
  *
- * Copyright (c) 2010-2019 The OSHI project team
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors:
+ * https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -9,9 +10,8 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,14 +23,44 @@
  */
 package oshi.util;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import oshi.SystemInfo;
+import oshi.hardware.CentralProcessor;
+import oshi.hardware.ComputerSystem;
+import oshi.hardware.HardwareAbstractionLayer;
+import oshi.hardware.NetworkIF;
+import oshi.software.os.OperatingSystem;
+
 /**
  * General utility methods
+ *
+ * @author widdis[at]gmail[dot]com
  */
 public class Util {
-<span class="fc" id="L33">    private static final Logger LOG = LoggerFactory.getLogger(Util.class);</span>
+<span class="fc" id="L45">    private static final Logger LOG = LoggerFactory.getLogger(Util.class);</span>
+
+    // Constant for Mac address OUI portion, the first 24 bits of MAC address
+    // https://www.webopedia.com/TERM/O/OUI.html
+<span class="fc" id="L49">    private static final Map&lt;String, String&gt; vmMacAddressOUI = new HashMap&lt;&gt;();</span>
+    static {
+<span class="fc" id="L51">        vmMacAddressOUI.put(&quot;00:50:56&quot;, &quot;VMware ESX 3&quot;);</span>
+<span class="fc" id="L52">        vmMacAddressOUI.put(&quot;00:0C:29&quot;, &quot;VMware ESX 3&quot;);</span>
+<span class="fc" id="L53">        vmMacAddressOUI.put(&quot;00:05:69&quot;, &quot;VMware ESX 3&quot;);</span>
+<span class="fc" id="L54">        vmMacAddressOUI.put(&quot;00:03:FF&quot;, &quot;Microsoft Hyper-V&quot;);</span>
+<span class="fc" id="L55">        vmMacAddressOUI.put(&quot;00:1C:42&quot;, &quot;Parallels Desktop&quot;);</span>
+<span class="fc" id="L56">        vmMacAddressOUI.put(&quot;00:0F:4B&quot;, &quot;Virtual Iron 4&quot;);</span>
+<span class="fc" id="L57">        vmMacAddressOUI.put(&quot;00:16:3E&quot;, &quot;Xen or Oracle VM&quot;);</span>
+<span class="fc" id="L58">        vmMacAddressOUI.put(&quot;08:00:27&quot;, &quot;VirtualBox&quot;);</span>
+    }
+
+<span class="fc" id="L61">    private static final String[] vmModelArray = new String[] { &quot;Linux KVM&quot;, &quot;Linux lguest&quot;, &quot;OpenVZ&quot;, &quot;Qemu&quot;,</span>
+            &quot;Microsoft Virtual PC&quot;, &quot;VMWare&quot;, &quot;linux-vserver&quot;, &quot;Xen&quot;, &quot;FreeBSD Jail&quot;, &quot;VirtualBox&quot;, &quot;Parallels&quot;,
+            &quot;Linux Containers&quot;, &quot;LXC&quot; };
 
     private Util() {
     }
@@ -43,44 +73,120 @@ public class Util {
      */
     public static void sleep(long ms) {
         try {
-<span class="fc" id="L46">            LOG.trace(&quot;Sleeping for {} ms&quot;, ms);</span>
-<span class="fc" id="L47">            Thread.sleep(ms);</span>
-<span class="nc" id="L48">        } catch (InterruptedException e) { // NOSONAR squid:S2142</span>
-<span class="nc" id="L49">            LOG.warn(&quot;Interrupted while sleeping for {} ms: {}&quot;, ms, e);</span>
-<span class="nc" id="L50">            Thread.currentThread().interrupt();</span>
-<span class="fc" id="L51">        }</span>
-<span class="fc" id="L52">    }</span>
+<span class="fc" id="L76">            LOG.trace(&quot;Sleeping for {} ms&quot;, ms);</span>
+<span class="fc" id="L77">            Thread.sleep(ms);</span>
+<span class="nc" id="L78">        } catch (InterruptedException e) { // NOSONAR squid:S2142</span>
+<span class="nc" id="L79">            LOG.warn(&quot;Interrupted while sleeping for {} ms: {}&quot;, ms, e);</span>
+<span class="fc" id="L80">        }</span>
+<span class="fc" id="L81">    }</span>
+
+    /**
+     * Sleeps for the specified number of milliseconds after the given system
+     * time in milliseconds. If that number of milliseconds has already elapsed,
+     * does nothing.
+     *
+     * @param startTime
+     *            System time in milliseconds to sleep after
+     * @param ms
+     *            How long after startTime to sleep
+     */
+    public static void sleepAfter(long startTime, long ms) {
+<span class="fc" id="L94">        long now = System.currentTimeMillis();</span>
+<span class="fc" id="L95">        long until = startTime + ms;</span>
+<span class="fc" id="L96">        LOG.trace(&quot;Sleeping until {}&quot;, until);</span>
+<span class="fc bfc" id="L97" title="All 2 branches covered.">        if (now &lt; until) {</span>
+<span class="fc" id="L98">            sleep(until - now);</span>
+        }
+<span class="fc" id="L100">    }</span>
+
+    /**
+     * Generates a Computer Identifier, which may be part of a strategy to
+     * construct a licence key. (The identifier may not be unique as in one case
+     * hashcode could be same for multiple values, and the result may differ
+     * based on whether the program is running with sudo/root permission.) The
+     * identifier string is based upon the processor serial number, vendor,
+     * processor identifier, and total processor count.
+     * 
+     * @return A string containing four hyphen-delimited fields representing the
+     *         processor; the first 3 are 32-bit hexadecimal values and the last
+     *         one is an integer value.
+     */
+    public static String getComputerIdentifier() {
+<span class="fc" id="L115">        SystemInfo systemInfo = new SystemInfo();</span>
+<span class="fc" id="L116">        OperatingSystem operatingSystem = systemInfo.getOperatingSystem();</span>
+<span class="fc" id="L117">        HardwareAbstractionLayer hardwareAbstractionLayer = systemInfo.getHardware();</span>
+<span class="fc" id="L118">        CentralProcessor centralProcessor = hardwareAbstractionLayer.getProcessor();</span>
+<span class="fc" id="L119">        ComputerSystem computerSystem = hardwareAbstractionLayer.getComputerSystem();</span>
+
+<span class="fc" id="L121">        String vendor = operatingSystem.getManufacturer();</span>
+<span class="fc" id="L122">        String processorSerialNumber = computerSystem.getSerialNumber();</span>
+<span class="fc" id="L123">        String processorIdentifier = centralProcessor.getIdentifier();</span>
+<span class="fc" id="L124">        int processors = centralProcessor.getLogicalProcessorCount();</span>
+
+<span class="fc" id="L126">        String delimiter = &quot;-&quot;;</span>
+
+<span class="fc" id="L128">        return String.format(&quot;%08x&quot;, vendor.hashCode()) + delimiter</span>
+<span class="fc" id="L129">                + String.format(&quot;%08x&quot;, processorSerialNumber.hashCode()) + delimiter</span>
+<span class="fc" id="L130">                + String.format(&quot;%08x&quot;, processorIdentifier.hashCode()) + delimiter + processors;</span>
+    }
+
+    /**
+     * The function attempts to identify which Virtual Machine (VM) based on
+     * common VM signatures in MAC address and computer model.
+     * 
+     * @return A string indicating the machine's virtualization info if it can
+     *         be determined, or an emptry string otherwise.
+     */
+    public static String identifyVM() {
+
+<span class="fc" id="L142">        SystemInfo si = new SystemInfo();</span>
+<span class="fc" id="L143">        HardwareAbstractionLayer hw = si.getHardware();</span>
+
+        // Try well known MAC addresses
+<span class="fc" id="L146">        NetworkIF[] nifs = hw.getNetworkIFs();</span>
+
+<span class="pc bpc" id="L148" title="1 of 2 branches missed.">        for (NetworkIF nif : nifs) {</span>
+<span class="fc" id="L149">            String mac = nif.getMacaddr().substring(0, 8).toUpperCase();</span>
+<span class="fc bfc" id="L150" title="All 2 branches covered.">            if (vmMacAddressOUI.containsKey(mac)) {</span>
+<span class="fc" id="L151">                return vmMacAddressOUI.get(mac);</span>
+            }
+        }
+
+        // Try well known models
+<span class="nc" id="L156">        String model = hw.getComputerSystem().getModel();</span>
+<span class="nc bnc" id="L157" title="All 2 branches missed.">        for (String vm : vmModelArray) {</span>
+<span class="nc bnc" id="L158" title="All 2 branches missed.">            if (model.contains(vm)) {</span>
+<span class="nc" id="L159">                return vm;</span>
+            }
+        }
+<span class="nc" id="L162">        String manufacturer = hw.getComputerSystem().getManufacturer();</span>
+<span class="nc bnc" id="L163" title="All 4 branches missed.">        if (&quot;Microsoft Corporation&quot;.equals(manufacturer) &amp;&amp; &quot;Virtual Machine&quot;.equals(model)) {</span>
+<span class="nc" id="L164">            return &quot;Microsoft Hyper-V&quot;;</span>
+        }
+
+        // Couldn't find VM, return empty string
+<span class="nc" id="L168">        return &quot;&quot;;</span>
+    }
 
     /**
      * Tests if a String matches another String with a wildcard pattern.
-     *
+     * 
      * @param text
      *            The String to test
      * @param pattern
      *            The String containing a wildcard pattern where ? represents a
-     *            single character and * represents any number of characters. If the
-     *            first character of the pattern is a carat (^) the test is
-     *            performed against the remaining characters and the result of the
-     *            test is the opposite.
+     *            single character and * represents any number of characters. If
+     *            the first character of the pattern is a carat (^) the test is
+     *            performed against the remaining characters and the result of
+     *            the test is the opposite.
      * @return True if the String matches or if the first character is ^ and the
      *         remainder of the String does not match.
      */
     public static boolean wildcardMatch(String text, String pattern) {
-<span class="pc bpc" id="L69" title="1 of 4 branches missed.">        if (pattern.length() &gt; 0 &amp;&amp; pattern.charAt(0) == '^') {</span>
-<span class="fc bfc" id="L70" title="All 2 branches covered.">            return !wildcardMatch(text, pattern.substring(1));</span>
+<span class="pc bpc" id="L186" title="1 of 4 branches missed.">        if (pattern.length() &gt; 0 &amp;&amp; pattern.charAt(0) == '^') {</span>
+<span class="fc bfc" id="L187" title="All 2 branches covered.">            return !wildcardMatch(text, pattern.substring(1));</span>
         }
-<span class="fc" id="L72">        return text.matches(pattern.replace(&quot;?&quot;, &quot;.?&quot;).replace(&quot;*&quot;, &quot;.*?&quot;));</span>
-    }
-
-    /**
-     * Tests if a String is either null or empty.
-     * 
-     * @param s
-     *            The string to test
-     * @return True if the String is either null or empty.
-     */
-    public static boolean isBlank(String s) {
-<span class="fc bfc" id="L83" title="All 4 branches covered.">        return s == null || s.isEmpty();</span>
+<span class="fc" id="L189">        return text.matches(pattern.replace(&quot;?&quot;, &quot;.?&quot;).replace(&quot;*&quot;, &quot;.*?&quot;));</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

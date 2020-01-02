@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>AbstractComputerSystem.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.common</a> &gt; <span class="el_source">AbstractComputerSystem.java</span></div><h1>AbstractComputerSystem.java</h1><pre class="source lang-java linenums">/**
  * MIT License
  *
- * Copyright (c) 2010-2019 The OSHI project team
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors:
+ * https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -9,9 +10,8 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,54 +23,113 @@
  */
 package oshi.hardware.common;
 
-import static oshi.util.Memoizer.memoize;
-
-import java.util.function.Supplier;
-
 import oshi.hardware.Baseboard;
 import oshi.hardware.ComputerSystem;
 import oshi.hardware.Firmware;
 
 /**
- * Computer System data.
+ * Hardware data
+ *
+ * @author SchiTho1 [at] Securiton AG
+ * @author widdis [at] gmail [dot] com
  */
-<span class="nc" id="L37">public abstract class AbstractComputerSystem implements ComputerSystem {</span>
+public abstract class AbstractComputerSystem implements ComputerSystem {
 
-<span class="nc" id="L39">    private final Supplier&lt;Firmware&gt; firmware = memoize(this::createFirmware);</span>
+    private static final long serialVersionUID = 1L;
 
-<span class="nc" id="L41">    private final Supplier&lt;Baseboard&gt; baseboard = memoize(this::createBaseboard);</span>
+    private String manufacturer;
+    private String model;
+    private String serialNumber;
+    private Firmware firmware;
+    private Baseboard baseboard;
 
+<span class="nc" id="L46">    protected AbstractComputerSystem() {</span>
+<span class="nc" id="L47">        this.manufacturer = &quot;unknown&quot;;</span>
+<span class="nc" id="L48">        this.model = &quot;unknown&quot;;</span>
+<span class="nc" id="L49">        this.serialNumber = &quot;unknown&quot;;</span>
+<span class="nc" id="L50">        this.firmware = null;</span>
+<span class="nc" id="L51">        this.baseboard = null;</span>
+<span class="nc" id="L52">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getManufacturer() {
+<span class="nc" id="L59">        return this.manufacturer;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getModel() {
+<span class="nc" id="L67">        return this.model;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getSerialNumber() {
+<span class="nc" id="L75">        return this.serialNumber;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Firmware getFirmware() {
-<span class="nc" id="L45">        return firmware.get();</span>
+<span class="nc" id="L83">        return this.firmware;</span>
     }
 
     /**
-     * Instantiates the platform-specific {@link Firmware} object
-     * 
-     * @return platform-specific {@link Firmware} object
+     * {@inheritDoc}
      */
-    protected abstract Firmware createFirmware();
-
     @Override
     public Baseboard getBaseboard() {
-<span class="nc" id="L57">        return baseboard.get();</span>
+<span class="nc" id="L91">        return this.baseboard;</span>
     }
 
     /**
-     * Instantiates the platform-specific {@link Baseboard} object
-     * 
-     * @return platform-specific {@link Baseboard} object
+     * @param manufacturer
+     *            The manufacturer to set.
      */
-    protected abstract Baseboard createBaseboard();
+    protected void setManufacturer(String manufacturer) {
+<span class="nc" id="L99">        this.manufacturer = manufacturer;</span>
+<span class="nc" id="L100">    }</span>
 
-    @Override
-    public String toString() {
-<span class="nc" id="L69">        StringBuilder sb = new StringBuilder();</span>
-<span class="nc" id="L70">        sb.append(&quot;manufacturer=&quot;).append(getManufacturer()).append(&quot;, &quot;);</span>
-<span class="nc" id="L71">        sb.append(&quot;model=&quot;).append(getModel()).append(&quot;, &quot;);</span>
-<span class="nc" id="L72">        sb.append(&quot;serial number=&quot;).append(getSerialNumber());</span>
-<span class="nc" id="L73">        return sb.toString();</span>
-    }
+    /**
+     * @param model
+     *            The model to set.
+     */
+    protected void setModel(String model) {
+<span class="nc" id="L107">        this.model = model;</span>
+<span class="nc" id="L108">    }</span>
+
+    /**
+     * @param serialNumber
+     *            The serialNumber to set.
+     */
+    protected void setSerialNumber(String serialNumber) {
+<span class="nc" id="L115">        this.serialNumber = serialNumber;</span>
+<span class="nc" id="L116">    }</span>
+
+    /**
+     * @param firmware
+     *            The firmware to set.
+     */
+    protected void setFirmware(Firmware firmware) {
+<span class="nc" id="L123">        this.firmware = firmware;</span>
+<span class="nc" id="L124">    }</span>
+
+    /**
+     * @param baseboard
+     *            The baseboard to set.
+     */
+    protected void setBaseboard(Baseboard baseboard) {
+<span class="nc" id="L131">        this.baseboard = baseboard;</span>
+<span class="nc" id="L132">    }</span>
+
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>
