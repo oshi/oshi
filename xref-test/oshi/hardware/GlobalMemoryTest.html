@@ -9,17 +9,17 @@
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_javadoccomment"> * MIT License</em>
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_javadoccomment"> * Copyright (c) 2010-2019 The OSHI project team</em>
-<a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * Permission is hereby granted, free of charge, to any person obtaining a copy</em>
-<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> * of this software and associated documentation files (the "Software"), to deal</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> * in the Software without restriction, including without limitation the rights</em>
-<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell</em>
-<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * copies of the Software, and to permit persons to whom the Software is</em>
-<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * furnished to do so, subject to the following conditions:</em>
-<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <em class="jxr_javadoccomment"> * The above copyright notice and this permission notice shall be included in all</em>
-<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <em class="jxr_javadoccomment"> * copies or substantial portions of the Software.</em>
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_javadoccomment"> * Copyright (c) 2010 - 2020 The OSHI Project Contributors:</em>
+<a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * <a href="https://github.com/oshi/oshi/graphs/contributors" target="alexandria_uri">https://github.com/oshi/oshi/graphs/contributors</a></em>
+<a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> * Permission is hereby granted, free of charge, to any person obtaining a copy</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> * of this software and associated documentation files (the "Software"), to deal</em>
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> * in the Software without restriction, including without limitation the rights</em>
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell</em>
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * copies of the Software, and to permit persons to whom the Software is</em>
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <em class="jxr_javadoccomment"> * furnished to do so, subject to the following conditions:</em>
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <em class="jxr_javadoccomment"> * The above copyright notice and this permission notice shall be included in</em>
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <em class="jxr_javadoccomment"> * all copies or substantial portions of the Software.</em>
 <a class="jxr_linenumber" name="L15" href="#L15">15</a>  <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L16" href="#L16">16</a>  <em class="jxr_javadoccomment"> * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR</em>
 <a class="jxr_linenumber" name="L17" href="#L17">17</a>  <em class="jxr_javadoccomment"> * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,</em>
@@ -52,15 +52,22 @@
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>          GlobalMemory memory = hal.getMemory();
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>          assertNotNull(memory);
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>  
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>          assertTrue(memory.getTotal() &gt; 0);
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>          assertTrue(memory.getAvailable() &gt;= 0);
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>          assertTrue(memory.getAvailable() &lt;= memory.getTotal());
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>          assertTrue(memory.getPageSize() &gt; 0);
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>          assertTrue(memory.toString().contains(<span class="jxr_string">"Available"</span>));
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>      }
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>  }
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>          <em class="jxr_comment">// RAM tests</em>
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>          assertTrue(memory.getTotal() &gt; 0);
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>          assertTrue(memory.getAvailable() &gt;= 0);
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>          assertTrue(memory.getAvailable() &lt;= memory.getTotal());
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>          assertTrue(memory.getPageSize() &gt; 0);
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>  
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>          <em class="jxr_comment">// Swap tests</em>
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>          assertTrue(memory.getSwapPagesIn() &gt;= 0);
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>          assertTrue(memory.getSwapPagesOut() &gt;= 0);
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>          assertTrue(memory.getSwapTotal() &gt;= 0);
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>          assertTrue(memory.getSwapUsed() &gt;= 0);
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>          assertTrue(memory.getSwapUsed() &lt;= memory.getSwapTotal());
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>      }
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>  }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2010&#x2013;2019 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2010&#x2013;2020 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
 </body>
 </html>
