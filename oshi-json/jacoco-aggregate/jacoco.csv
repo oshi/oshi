@@ -30,7 +30,7 @@ oshi-json/oshi-core,oshi.hardware.platform.windows,WindowsDisks.PhysicalDiskProp
 oshi-json/oshi-core,oshi.hardware.platform.windows,WindowsGlobalMemory.PageSwapProperty,45,0,0,0,9,0,4,0,4,0
 oshi-json/oshi-core,oshi.hardware.platform.windows,WindowsUsbDevice.USBControllerProperty,14,0,0,0,2,0,1,0,1,0
 oshi-json/oshi-core,oshi.hardware.platform.windows,WindowsUsbDevice.DiskDriveProperty,24,0,0,0,2,0,1,0,1,0
-oshi-json/oshi-core,oshi.hardware.platform.windows,WindowsDisks,712,0,54,0,114,0,34,0,7,0
+oshi-json/oshi-core,oshi.hardware.platform.windows,WindowsDisks,714,0,54,0,114,0,34,0,7,0
 oshi-json/oshi-core,oshi.hardware.platform.windows,WindowsCentralProcessor.SystemTickCountProperty,45,0,0,0,9,0,4,0,4,0
 oshi-json/oshi-core,oshi.hardware.platform.windows,WindowsSoundCard,185,0,10,0,38,0,10,0,5,0
 oshi-json/oshi-core,oshi.hardware.platform.windows,WindowsCentralProcessor.ProcessorProperty,14,0,0,0,2,0,1,0,1,0
@@ -158,7 +158,7 @@ oshi-json/oshi-core,oshi.hardware.platform.linux,LinuxComputerSystem,168,0,38,0,
 oshi-json/oshi-core,oshi.hardware.platform.linux,LinuxCentralProcessor,573,0,89,0,127,0,58,0,11,0
 oshi-json/oshi-core,oshi.hardware.platform.linux,LinuxHardwareAbstractionLayer,70,0,8,0,19,0,15,0,11,0
 oshi-json/oshi-core,oshi.hardware.platform.linux,LinuxDisks,434,0,32,0,95,0,22,0,6,0
-oshi-json/oshi-core,oshi.hardware.platform.linux,LinuxGlobalMemory,249,0,32,0,65,0,25,0,5,0
+oshi-json/oshi-core,oshi.hardware.platform.linux,LinuxGlobalMemory,225,0,30,0,58,0,23,0,4,0
 oshi-json/oshi-core,oshi.hardware.platform.linux,LinuxDisks.UdevStat,81,0,0,0,6,0,3,0,3,0
 oshi-json/oshi-core,oshi.hardware.platform.linux,LinuxDisplay,88,0,12,0,24,0,9,0,3,0
 oshi-json/oshi-core,oshi.hardware.platform.linux,LinuxNetworks,117,0,2,0,18,0,3,0,2,0
@@ -211,7 +211,7 @@ oshi-json/oshi-core,oshi.util,EdidUtil,32,521,7,16,2,63,6,25,0,17
 oshi-json/oshi-core,oshi.util,FormatUtil,0,377,0,36,0,57,0,30,0,12
 oshi-json/oshi-core,oshi.util,LsofUtil,65,0,9,0,13,0,6,0,1,0
 oshi-json/oshi-core,oshi.util,StringUtil,0,40,0,4,0,7,0,4,0,2
-oshi-json/oshi-core,oshi.util,ParseUtil,49,920,23,79,14,178,17,65,1,30
+oshi-json/oshi-core,oshi.util,ParseUtil,11,1027,14,114,1,214,13,82,0,31
 oshi-json/oshi-core,oshi.util,ExecutingCommand,21,81,1,5,6,21,1,7,0,5
 oshi-json/oshi-core,oshi.util,MapUtil,0,74,0,6,0,19,0,7,0,4
 oshi-json/oshi-core,oshi.util,FileUtil,57,168,13,25,14,44,12,15,0,8

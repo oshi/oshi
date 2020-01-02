@@ -31,7 +31,7 @@ oshi-json,oshi.hardware.platform.windows,WindowsDisks.PhysicalDiskProperty,92,0,
 oshi-json,oshi.hardware.platform.windows,WindowsGlobalMemory.PageSwapProperty,45,0,0,0,9,0,4,0,4,0
 oshi-json,oshi.hardware.platform.windows,WindowsUsbDevice.USBControllerProperty,14,0,0,0,2,0,1,0,1,0
 oshi-json,oshi.hardware.platform.windows,WindowsUsbDevice.DiskDriveProperty,24,0,0,0,2,0,1,0,1,0
-oshi-json,oshi.hardware.platform.windows,WindowsDisks,712,0,54,0,114,0,34,0,7,0
+oshi-json,oshi.hardware.platform.windows,WindowsDisks,714,0,54,0,114,0,34,0,7,0
 oshi-json,oshi.hardware.platform.windows,WindowsCentralProcessor.SystemTickCountProperty,45,0,0,0,9,0,4,0,4,0
 oshi-json,oshi.hardware.platform.windows,WindowsSoundCard,185,0,10,0,38,0,10,0,5,0
 oshi-json,oshi.hardware.platform.windows,WindowsCentralProcessor.ProcessorProperty,14,0,0,0,2,0,1,0,1,0
@@ -183,7 +183,7 @@ oshi-json,oshi.hardware.platform.linux,LinuxComputerSystem,168,0,38,0,38,0,22,0,
 oshi-json,oshi.hardware.platform.linux,LinuxCentralProcessor,573,0,89,0,127,0,58,0,11,0
 oshi-json,oshi.hardware.platform.linux,LinuxHardwareAbstractionLayer,70,0,8,0,19,0,15,0,11,0
 oshi-json,oshi.hardware.platform.linux,LinuxDisks,434,0,32,0,95,0,22,0,6,0
-oshi-json,oshi.hardware.platform.linux,LinuxGlobalMemory,249,0,32,0,65,0,25,0,5,0
+oshi-json,oshi.hardware.platform.linux,LinuxGlobalMemory,225,0,30,0,58,0,23,0,4,0
 oshi-json,oshi.hardware.platform.linux,LinuxDisks.UdevStat,81,0,0,0,6,0,3,0,3,0
 oshi-json,oshi.hardware.platform.linux,LinuxDisplay,88,0,12,0,24,0,9,0,3,0
 oshi-json,oshi.hardware.platform.linux,LinuxNetworks,117,0,2,0,18,0,3,0,2,0
@@ -236,7 +236,7 @@ oshi-json,oshi.util,EdidUtil,553,0,23,0,65,0,31,0,17,0
 oshi-json,oshi.util,FormatUtil,367,10,36,0,55,2,28,2,10,2
 oshi-json,oshi.util,LsofUtil,65,0,9,0,13,0,6,0,1,0
 oshi-json,oshi.util,StringUtil,2,38,1,3,1,6,1,3,0,2
-oshi-json,oshi.util,ParseUtil,580,389,87,15,131,61,66,16,18,13
+oshi-json,oshi.util,ParseUtil,649,389,113,15,154,61,79,16,18,13
 oshi-json,oshi.util,ExecutingCommand,53,49,4,2,14,13,4,4,2,3
 oshi-json,oshi.util,MapUtil,23,51,2,4,6,13,2,5,1,3
 oshi-json,oshi.util,FileUtil,201,24,36,2,53,5,24,3,5,3

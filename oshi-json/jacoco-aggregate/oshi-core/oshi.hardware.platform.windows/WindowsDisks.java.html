@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>WindowsDisks.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-json</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.windows</a> &gt; <span class="el_source">WindowsDisks.java</span></div><h1>WindowsDisks.java</h1><pre class="source lang-java linenums">/**
- * OSHI (https://github.com/oshi/oshi)
+ * MIT License
  *
- * Copyright (c) 2010 - 2019 The OSHI Project Team:
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors:
  * https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -101,7 +101,7 @@ import oshi.util.platform.windows.WmiUtil;
 <span class="nc" id="L101">        DISKWRITESPERSEC(&quot;Disk Writes/sec&quot;), //</span>
 <span class="nc" id="L102">        DISKWRITEBYTESPERSEC(&quot;Disk Write Bytes/sec&quot;), //</span>
 <span class="nc" id="L103">        CURRENTDISKQUEUELENGTH(&quot;Current Disk Queue Length&quot;), //</span>
-<span class="nc" id="L104">        PERCENTDISKTIME(&quot;% Disk Time&quot;);</span>
+<span class="nc" id="L104">        PERCENTIDLETIME(&quot;% Idle Time&quot;);</span>
 
         private final String counter;
 
@@ -154,7 +154,7 @@ import oshi.util.platform.windows.WmiUtil;
 <span class="nc" id="L154">            diskStore.setWriteBytes(MapUtil.getOrDefault(stats.writeByteMap, index, 0L));</span>
 <span class="nc" id="L155">            diskStore.setCurrentQueueLength(MapUtil.getOrDefault(stats.queueLengthMap, index, 0L));</span>
 <span class="nc" id="L156">            diskStore.setTimeStamp(stats.timeStamp);</span>
-<span class="nc" id="L157">            diskStore.setTransferTime(diskStore.getTimeStamp() - MapUtil.getOrDefault(stats.xferTimeMap, index, 0L));</span>
+<span class="nc" id="L157">            diskStore.setTransferTime(diskStore.getTimeStamp() - MapUtil.getOrDefault(stats.idleTimeMap, index, diskStore.getTimeStamp()));</span>
 <span class="nc" id="L158">            return true;</span>
         } else
 
@@ -187,7 +187,7 @@ import oshi.util.platform.windows.WmiUtil;
 <span class="nc" id="L187">            ds.setWriteBytes(MapUtil.getOrDefault(stats.writeByteMap, index, 0L));</span>
 <span class="nc" id="L188">            ds.setCurrentQueueLength(MapUtil.getOrDefault(stats.queueLengthMap, index, 0L));</span>
 <span class="nc" id="L189">            ds.setTimeStamp(stats.timeStamp);</span>
-<span class="nc" id="L190">            ds.setTransferTime(ds.getTimeStamp() - MapUtil.getOrDefault(stats.xferTimeMap, index, 0L));</span>
+<span class="nc" id="L190">            ds.setTransferTime(ds.getTimeStamp() - MapUtil.getOrDefault(stats.idleTimeMap, index, ds.getTimeStamp()));</span>
 <span class="nc" id="L191">            ds.setSize(WmiUtil.getUint64(vals, DiskDriveProperty.SIZE, i));</span>
             // Get partitions
 <span class="nc" id="L193">            List&lt;HWPartition&gt; partitions = new ArrayList&lt;&gt;();</span>
@@ -226,10 +226,10 @@ import oshi.util.platform.windows.WmiUtil;
 <span class="nc" id="L226">        List&lt;Long&gt; writeList = valueMap.get(PhysicalDiskProperty.DISKWRITESPERSEC);</span>
 <span class="nc" id="L227">        List&lt;Long&gt; writeByteList = valueMap.get(PhysicalDiskProperty.DISKWRITEBYTESPERSEC);</span>
 <span class="nc" id="L228">        List&lt;Long&gt; queueLengthList = valueMap.get(PhysicalDiskProperty.CURRENTDISKQUEUELENGTH);</span>
-<span class="nc" id="L229">        List&lt;Long&gt; xferTimeList = valueMap.get(PhysicalDiskProperty.PERCENTDISKTIME);</span>
+<span class="nc" id="L229">        List&lt;Long&gt; idleTimeList = valueMap.get(PhysicalDiskProperty.PERCENTIDLETIME);</span>
 
 <span class="nc bnc" id="L231" title="All 14 branches missed.">        if (instances.isEmpty() || readList == null || readByteList == null || writeList == null</span>
-                || writeByteList == null || queueLengthList == null || xferTimeList == null) {
+                || writeByteList == null || queueLengthList == null || idleTimeList == null) {
 <span class="nc" id="L233">            return stats;</span>
         }
 <span class="nc bnc" id="L235" title="All 2 branches missed.">        for (int i = 0; i &lt; instances.size(); i++) {</span>
@@ -243,7 +243,7 @@ import oshi.util.platform.windows.WmiUtil;
 <span class="nc" id="L243">            stats.writeMap.put(name, writeList.get(i));</span>
 <span class="nc" id="L244">            stats.writeByteMap.put(name, writeByteList.get(i));</span>
 <span class="nc" id="L245">            stats.queueLengthMap.put(name, queueLengthList.get(i));</span>
-<span class="nc" id="L246">            stats.xferTimeMap.put(name, xferTimeList.get(i) / 10_000L);</span>
+<span class="nc" id="L246">            stats.idleTimeMap.put(name, idleTimeList.get(i) / 10_000L);</span>
         }
 <span class="nc" id="L248">        return stats;</span>
     }
@@ -324,7 +324,7 @@ import oshi.util.platform.windows.WmiUtil;
 <span class="nc" id="L324">        private final Map&lt;String, Long&gt; writeMap = new HashMap&lt;&gt;();</span>
 <span class="nc" id="L325">        private final Map&lt;String, Long&gt; writeByteMap = new HashMap&lt;&gt;();</span>
 <span class="nc" id="L326">        private final Map&lt;String, Long&gt; queueLengthMap = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L327">        private final Map&lt;String, Long&gt; xferTimeMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L327">        private final Map&lt;String, Long&gt; idleTimeMap = new HashMap&lt;&gt;();</span>
         private long timeStamp;
     }
 
