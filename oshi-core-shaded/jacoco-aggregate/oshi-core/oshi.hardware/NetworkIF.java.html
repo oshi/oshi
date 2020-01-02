@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>NetworkIF.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-core-shaded</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware</a> &gt; <span class="el_source">NetworkIF.java</span></div><h1>NetworkIF.java</h1><pre class="source lang-java linenums">/**
  * MIT License
  *
- * Copyright (c) 2010-2019 The OSHI project team
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors:
+ * https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -9,9 +10,8 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,6 +23,7 @@
  */
 package oshi.hardware;
 
+import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
@@ -40,17 +41,21 @@ import oshi.hardware.platform.mac.MacNetworks;
 import oshi.hardware.platform.unix.freebsd.FreeBsdNetworks;
 import oshi.hardware.platform.unix.solaris.SolarisNetworks;
 import oshi.hardware.platform.windows.WindowsNetworks;
-import oshi.util.FormatUtil;
 import oshi.util.ParseUtil;
+import oshi.util.StringUtil;
 
 /**
  * A network interface in the machine, including statistics
+ *
+ * @author enrico[dot]bianchi[at]gmail[dot]com
  */
-<span class="fc" id="L49">public class NetworkIF {</span>
+<span class="fc" id="L52">public class NetworkIF implements Serializable {</span>
 
-<span class="fc" id="L51">    private static final Logger LOG = LoggerFactory.getLogger(NetworkIF.class);</span>
+    private static final long serialVersionUID = 2L;
 
-    private NetworkInterface networkInterface;
+<span class="fc" id="L56">    private static final Logger LOG = LoggerFactory.getLogger(NetworkIF.class);</span>
+
+    private transient NetworkInterface networkInterface;
     private int mtu;
     private String mac;
     private String[] ipv4;
@@ -65,382 +70,268 @@ import oshi.util.ParseUtil;
     private long timeStamp;
 
     /**
-     * &lt;p&gt;
-     * The NetworkInterface object.
-     * &lt;/p&gt;
-     *
-     * @return the network interface, an instance of
-     *         {@link java.net.NetworkInterface}.
+     * @return the network interface
      */
-    public NetworkInterface queryNetworkInterface() {
+    public NetworkInterface getNetworkInterface() {
 <span class="fc" id="L76">        return this.networkInterface;</span>
     }
 
     /**
-     * Sets the network interface and calculates other information derived from it
+     * Sets the network interface and calculates other information derived from
+     * it
      *
      * @param networkInterface
      *            The network interface to set
      */
     public void setNetworkInterface(NetworkInterface networkInterface) {
-<span class="fc" id="L86">        this.networkInterface = networkInterface;</span>
+<span class="fc" id="L87">        this.networkInterface = networkInterface;</span>
         try {
             // Set MTU
-<span class="fc" id="L89">            this.mtu = networkInterface.getMTU();</span>
+<span class="fc" id="L90">            this.mtu = networkInterface.getMTU();</span>
             // Set MAC
-<span class="fc" id="L91">            byte[] hwmac = networkInterface.getHardwareAddress();</span>
-<span class="pc bpc" id="L92" title="1 of 2 branches missed.">            if (hwmac != null) {</span>
-<span class="fc" id="L93">                List&lt;String&gt; octets = new ArrayList&lt;&gt;(6);</span>
-<span class="fc bfc" id="L94" title="All 2 branches covered.">                for (byte b : hwmac) {</span>
-<span class="fc" id="L95">                    octets.add(String.format(&quot;%02x&quot;, b));</span>
+<span class="fc" id="L92">            byte[] hwmac = networkInterface.getHardwareAddress();</span>
+<span class="pc bpc" id="L93" title="1 of 2 branches missed.">            if (hwmac != null) {</span>
+<span class="fc" id="L94">                List&lt;String&gt; octets = new ArrayList&lt;&gt;(6);</span>
+<span class="fc bfc" id="L95" title="All 2 branches covered.">                for (byte b : hwmac) {</span>
+<span class="fc" id="L96">                    octets.add(String.format(&quot;%02x&quot;, b));</span>
                 }
-<span class="fc" id="L97">                this.mac = String.join(&quot;:&quot;, octets);</span>
-<span class="fc" id="L98">            } else {</span>
-<span class="nc" id="L99">                this.mac = &quot;Unknown&quot;;</span>
+<span class="fc" id="L98">                this.mac = StringUtil.join(&quot;:&quot;, octets);</span>
+<span class="fc" id="L99">            } else {</span>
+<span class="nc" id="L100">                this.mac = &quot;Unknown&quot;;</span>
             }
             // Set IP arrays
-<span class="fc" id="L102">            ArrayList&lt;String&gt; ipv4list = new ArrayList&lt;&gt;();</span>
-<span class="fc" id="L103">            ArrayList&lt;String&gt; ipv6list = new ArrayList&lt;&gt;();</span>
-<span class="fc bfc" id="L104" title="All 2 branches covered.">            for (InetAddress address : Collections.list(networkInterface.getInetAddresses())) {</span>
-<span class="pc bpc" id="L105" title="1 of 2 branches missed.">                if (address.getHostAddress().length() &gt; 0) {</span>
-<span class="fc bfc" id="L106" title="All 2 branches covered.">                    if (address.getHostAddress().contains(&quot;:&quot;)) {</span>
-<span class="fc" id="L107">                        ipv6list.add(address.getHostAddress().split(&quot;%&quot;)[0]);</span>
+<span class="fc" id="L103">            ArrayList&lt;String&gt; ipv4list = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L104">            ArrayList&lt;String&gt; ipv6list = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L105" title="All 2 branches covered.">            for (InetAddress address : Collections.list(networkInterface.getInetAddresses())) {</span>
+<span class="pc bpc" id="L106" title="1 of 2 branches missed.">                if (address.getHostAddress().length() &gt; 0) {</span>
+<span class="fc bfc" id="L107" title="All 2 branches covered.">                    if (address.getHostAddress().contains(&quot;:&quot;)) {</span>
+<span class="fc" id="L108">                        ipv6list.add(address.getHostAddress().split(&quot;%&quot;)[0]);</span>
                     } else {
-<span class="fc" id="L109">                        ipv4list.add(address.getHostAddress());</span>
+<span class="fc" id="L110">                        ipv4list.add(address.getHostAddress());</span>
                     }
                 }
-<span class="fc" id="L112">            }</span>
-<span class="fc" id="L113">            this.ipv4 = ipv4list.toArray(new String[0]);</span>
-<span class="fc" id="L114">            this.ipv6 = ipv6list.toArray(new String[0]);</span>
-<span class="nc" id="L115">        } catch (SocketException e) {</span>
-<span class="nc" id="L116">            LOG.error(&quot;Socket exception: {}&quot;, e);</span>
-<span class="fc" id="L117">        }</span>
-<span class="fc" id="L118">    }</span>
+<span class="fc" id="L113">            }</span>
+<span class="fc" id="L114">            this.ipv4 = ipv4list.toArray(new String[ipv4list.size()]);</span>
+<span class="fc" id="L115">            this.ipv6 = ipv6list.toArray(new String[ipv6list.size()]);</span>
+<span class="nc" id="L116">        } catch (SocketException e) {</span>
+<span class="nc" id="L117">            LOG.error(&quot;Socket exception: {}&quot;, e);</span>
+<span class="fc" id="L118">        }</span>
+<span class="fc" id="L119">    }</span>
 
     /**
-     * &lt;p&gt;
-     * Interface name.
-     * &lt;/p&gt;
-     *
      * @return The interface name.
      */
     public String getName() {
-<span class="fc" id="L128">        return this.networkInterface.getName();</span>
+<span class="fc" id="L125">        return this.networkInterface.getName();</span>
     }
 
     /**
-     * &lt;p&gt;
-     * Interface description.
-     * &lt;/p&gt;
-     *
-     * @return The description of the network interface. On some platforms, this is
-     *         identical to the name.
+     * @return The description of the network interface. On some platforms, this
+     *         is identical to the name.
      */
     public String getDisplayName() {
-<span class="fc" id="L140">        return this.networkInterface.getDisplayName();</span>
+<span class="fc" id="L133">        return this.networkInterface.getDisplayName();</span>
     }
 
     /**
-     * &lt;p&gt;
-     * The interface Maximum Transmission Unit (MTU).
-     * &lt;/p&gt;
-     *
      * @return The MTU of the network interface. This value is set when the
-     *         {@link oshi.hardware.NetworkIF} is instantiated and may not be up to
-     *         date. To update this value, execute the
+     *         {@link NetworkIF} is instantiated and may not be up to date. To
+     *         update this value, execute the
      *         {@link #setNetworkInterface(NetworkInterface)} method
      */
     public int getMTU() {
-<span class="fc" id="L154">        return this.mtu;</span>
+<span class="fc" id="L143">        return this.mtu;</span>
     }
 
     /**
-     * &lt;p&gt;
-     * The Media Access Control (MAC) address.
-     * &lt;/p&gt;
-     *
-     * @return The MAC Address. This value is set when the
-     *         {@link oshi.hardware.NetworkIF} is instantiated and may not be up to
-     *         date. To update this value, execute the
-     *         {@link #setNetworkInterface(NetworkInterface)} method
+     * @return The MAC Address. This value is set when the {@link NetworkIF} is
+     *         instantiated and may not be up to date. To update this value,
+     *         execute the {@link #setNetworkInterface(NetworkInterface)} method
      */
     public String getMacaddr() {
-<span class="fc" id="L168">        return this.mac;</span>
+<span class="fc" id="L152">        return this.mac;</span>
     }
 
     /**
-     * &lt;p&gt;
-     * The Internet Protocol (IP) v4 address.
-     * &lt;/p&gt;
-     *
-     * @return The IPv4 Addresses. This value is set when the
-     *         {@link oshi.hardware.NetworkIF} is instantiated and may not be up to
-     *         date. To update this value, execute the
-     *         {@link #setNetworkInterface(NetworkInterface)} method
+     * @return The IPv4 Addresses. This value is set when the {@link NetworkIF}
+     *         is instantiated and may not be up to date. To update this value,
+     *         execute the {@link #setNetworkInterface(NetworkInterface)} method
      */
     public String[] getIPv4addr() {
-<span class="fc" id="L182">        return Arrays.copyOf(this.ipv4, this.ipv4.length);</span>
+<span class="fc" id="L161">        return Arrays.copyOf(this.ipv4, this.ipv4.length);</span>
     }
 
     /**
-     * &lt;p&gt;
-     * The Internet Protocol (IP) v6 address.
-     * &lt;/p&gt;
-     *
-     * @return The IPv6 Addresses. This value is set when the
-     *         {@link oshi.hardware.NetworkIF} is instantiated and may not be up to
-     *         date. To update this value, execute the
-     *         {@link #setNetworkInterface(NetworkInterface)} method
+     * @return The IPv6 Addresses. This value is set when the {@link NetworkIF}
+     *         is instantiated and may not be up to date. To update this value,
+     *         execute the {@link #setNetworkInterface(NetworkInterface)} method
      */
     public String[] getIPv6addr() {
-<span class="fc" id="L196">        return Arrays.copyOf(this.ipv6, this.ipv6.length);</span>
+<span class="fc" id="L170">        return Arrays.copyOf(this.ipv6, this.ipv6.length);</span>
     }
 
     /**
-     * &lt;p&gt;
-     * Getter for the field &lt;code&gt;bytesRecv&lt;/code&gt;.
-     * &lt;/p&gt;
-     *
-     * @return The Bytes Received. This value is set when the
-     *         {@link oshi.hardware.NetworkIF} is instantiated and may not be up to
-     *         date. To update this value, execute the {@link #updateAttributes()}
-     *         method
+     * @return The Bytes Received. This value is set when the {@link NetworkIF}
+     *         is instantiated and may not be up to date. To update this value,
+     *         execute the {@link #updateNetworkStats()} method
      */
     public long getBytesRecv() {
-<span class="fc" id="L210">        return this.bytesRecv;</span>
+<span class="fc" id="L179">        return this.bytesRecv;</span>
     }
 
     /**
-     * &lt;p&gt;
-     * Setter for the field &lt;code&gt;bytesRecv&lt;/code&gt;.
-     * &lt;/p&gt;
-     *
      * @param bytesRecv
      *            Set Bytes Received
      */
     public void setBytesRecv(long bytesRecv) {
-<span class="fc" id="L222">        this.bytesRecv = ParseUtil.unsignedLongToSignedLong(bytesRecv);</span>
-<span class="fc" id="L223">    }</span>
+<span class="fc" id="L187">        this.bytesRecv = ParseUtil.unsignedLongToSignedLong(bytesRecv);</span>
+<span class="fc" id="L188">    }</span>
 
     /**
-     * &lt;p&gt;
-     * Getter for the field &lt;code&gt;bytesSent&lt;/code&gt;.
-     * &lt;/p&gt;
-     *
-     * @return The Bytes Sent. This value is set when the
-     *         {@link oshi.hardware.NetworkIF} is instantiated and may not be up to
-     *         date. To update this value, execute the {@link #updateAttributes()}
-     *         method
+     * @return The Bytes Sent. This value is set when the {@link NetworkIF} is
+     *         instantiated and may not be up to date. To update this value,
+     *         execute the {@link #updateNetworkStats()} method
      */
     public long getBytesSent() {
-<span class="fc" id="L236">        return this.bytesSent;</span>
+<span class="fc" id="L196">        return this.bytesSent;</span>
     }
 
     /**
-     * &lt;p&gt;
-     * Setter for the field &lt;code&gt;bytesSent&lt;/code&gt;.
-     * &lt;/p&gt;
-     *
      * @param bytesSent
      *            Set the Bytes Sent
      */
     public void setBytesSent(long bytesSent) {
-<span class="fc" id="L248">        this.bytesSent = ParseUtil.unsignedLongToSignedLong(bytesSent);</span>
-<span class="fc" id="L249">    }</span>
+<span class="fc" id="L204">        this.bytesSent = ParseUtil.unsignedLongToSignedLong(bytesSent);</span>
+<span class="fc" id="L205">    }</span>
 
     /**
-     * &lt;p&gt;
-     * Getter for the field &lt;code&gt;packetsRecv&lt;/code&gt;.
-     * &lt;/p&gt;
-     *
      * @return The Packets Received. This value is set when the
-     *         {@link oshi.hardware.NetworkIF} is instantiated and may not be up to
-     *         date. To update this value, execute the {@link #updateAttributes()}
+     *         {@link NetworkIF} is instantiated and may not be up to date. To
+     *         update this value, execute the {@link #updateNetworkStats()}
      *         method
      */
     public long getPacketsRecv() {
-<span class="fc" id="L262">        return this.packetsRecv;</span>
+<span class="fc" id="L214">        return this.packetsRecv;</span>
     }
 
     /**
-     * &lt;p&gt;
-     * Setter for the field &lt;code&gt;packetsRecv&lt;/code&gt;.
-     * &lt;/p&gt;
-     *
      * @param packetsRecv
      *            Set The Packets Received
      */
     public void setPacketsRecv(long packetsRecv) {
-<span class="fc" id="L274">        this.packetsRecv = ParseUtil.unsignedLongToSignedLong(packetsRecv);</span>
-<span class="fc" id="L275">    }</span>
+<span class="fc" id="L222">        this.packetsRecv = ParseUtil.unsignedLongToSignedLong(packetsRecv);</span>
+<span class="fc" id="L223">    }</span>
 
     /**
-     * &lt;p&gt;
-     * Getter for the field &lt;code&gt;packetsSent&lt;/code&gt;.
-     * &lt;/p&gt;
-     *
-     * @return The Packets Sent. This value is set when the
-     *         {@link oshi.hardware.NetworkIF} is instantiated and may not be up to
-     *         date. To update this value, execute the {@link #updateAttributes()}
-     *         method
+     * @return The Packets Sent. This value is set when the {@link NetworkIF} is
+     *         instantiated and may not be up to date. To update this value,
+     *         execute the {@link #updateNetworkStats()} method
      */
     public long getPacketsSent() {
-<span class="fc" id="L288">        return this.packetsSent;</span>
+<span class="fc" id="L231">        return this.packetsSent;</span>
     }
 
     /**
-     * &lt;p&gt;
-     * Setter for the field &lt;code&gt;packetsSent&lt;/code&gt;.
-     * &lt;/p&gt;
-     *
      * @param packetsSent
      *            Set The Packets Sent
      */
     public void setPacketsSent(long packetsSent) {
-<span class="fc" id="L300">        this.packetsSent = ParseUtil.unsignedLongToSignedLong(packetsSent);</span>
-<span class="fc" id="L301">    }</span>
+<span class="fc" id="L239">        this.packetsSent = ParseUtil.unsignedLongToSignedLong(packetsSent);</span>
+<span class="fc" id="L240">    }</span>
 
     /**
-     * &lt;p&gt;
-     * Getter for the field &lt;code&gt;inErrors&lt;/code&gt;.
-     * &lt;/p&gt;
-     *
-     * @return Input Errors. This value is set when the
-     *         {@link oshi.hardware.NetworkIF} is instantiated and may not be up to
-     *         date. To update this value, execute the {@link #updateAttributes()}
-     *         method
+     * @return Input Errors. This value is set when the {@link NetworkIF} is
+     *         instantiated and may not be up to date. To update this value,
+     *         execute the {@link #updateNetworkStats()} method
      */
     public long getInErrors() {
-<span class="fc" id="L314">        return this.inErrors;</span>
+<span class="fc" id="L248">        return this.inErrors;</span>
     }
 
     /**
-     * &lt;p&gt;
-     * Setter for the field &lt;code&gt;inErrors&lt;/code&gt;.
-     * &lt;/p&gt;
-     *
      * @param inErrors
      *            The Input Errors to set.
      */
     public void setInErrors(long inErrors) {
-<span class="fc" id="L326">        this.inErrors = ParseUtil.unsignedLongToSignedLong(inErrors);</span>
-<span class="fc" id="L327">    }</span>
+<span class="fc" id="L256">        this.inErrors = ParseUtil.unsignedLongToSignedLong(inErrors);</span>
+<span class="fc" id="L257">    }</span>
 
     /**
-     * &lt;p&gt;
-     * Getter for the field &lt;code&gt;outErrors&lt;/code&gt;.
-     * &lt;/p&gt;
-     *
-     * @return The Output Errors. This value is set when the
-     *         {@link oshi.hardware.NetworkIF} is instantiated and may not be up to
-     *         date. To update this value, execute the {@link #updateAttributes()}
-     *         method
+     * @return The Output Errors. This value is set when the {@link NetworkIF}
+     *         is instantiated and may not be up to date. To update this value,
+     *         execute the {@link #updateNetworkStats()} method
      */
     public long getOutErrors() {
-<span class="fc" id="L340">        return this.outErrors;</span>
+<span class="fc" id="L265">        return this.outErrors;</span>
     }
 
     /**
-     * &lt;p&gt;
-     * Setter for the field &lt;code&gt;outErrors&lt;/code&gt;.
-     * &lt;/p&gt;
-     *
      * @param outErrors
      *            The Output Errors to set.
      */
     public void setOutErrors(long outErrors) {
-<span class="fc" id="L352">        this.outErrors = ParseUtil.unsignedLongToSignedLong(outErrors);</span>
-<span class="fc" id="L353">    }</span>
+<span class="fc" id="L273">        this.outErrors = ParseUtil.unsignedLongToSignedLong(outErrors);</span>
+<span class="fc" id="L274">    }</span>
 
     /**
-     * &lt;p&gt;
-     * Getter for the field &lt;code&gt;speed&lt;/code&gt;.
-     * &lt;/p&gt;
-     *
-     * @return The speed of the network interface in bits per second. This value is
-     *         set when the {@link oshi.hardware.NetworkIF} is instantiated and may
-     *         not be up to date. To update this value, execute the
-     *         {@link #updateAttributes()} method
+     * @return The speed of the network interface in bits per second. This value
+     *         is set when the {@link NetworkIF} is instantiated and may not be
+     *         up to date. To update this value, execute the
+     *         {@link #updateNetworkStats()} method
      */
     public long getSpeed() {
-<span class="fc" id="L366">        return this.speed;</span>
+<span class="fc" id="L283">        return this.speed;</span>
     }
 
     /**
-     * &lt;p&gt;
-     * Setter for the field &lt;code&gt;speed&lt;/code&gt;.
-     * &lt;/p&gt;
-     *
      * @param speed
      *            Set the speed of the network interface
      */
     public void setSpeed(long speed) {
-<span class="fc" id="L378">        this.speed = ParseUtil.unsignedLongToSignedLong(speed);</span>
-<span class="fc" id="L379">    }</span>
+<span class="fc" id="L291">        this.speed = ParseUtil.unsignedLongToSignedLong(speed);</span>
+<span class="fc" id="L292">    }</span>
 
     /**
-     * &lt;p&gt;
-     * Getter for the field &lt;code&gt;timeStamp&lt;/code&gt;.
-     * &lt;/p&gt;
-     *
      * @return Returns the timeStamp.
      */
     public long getTimeStamp() {
-<span class="fc" id="L389">        return this.timeStamp;</span>
+<span class="fc" id="L298">        return this.timeStamp;</span>
     }
 
     /**
-     * &lt;p&gt;
-     * Setter for the field &lt;code&gt;timeStamp&lt;/code&gt;.
-     * &lt;/p&gt;
-     *
      * @param timeStamp
      *            The timeStamp to set.
      */
     public void setTimeStamp(long timeStamp) {
-<span class="fc" id="L401">        this.timeStamp = timeStamp;</span>
-<span class="fc" id="L402">    }</span>
+<span class="fc" id="L306">        this.timeStamp = timeStamp;</span>
+<span class="fc" id="L307">    }</span>
 
     /**
-     * Updates interface network statistics on this interface. Statistics include
-     * packets and bytes sent and received, and interface speed.
+     * Updates interface network statistics on this interface. Statistics
+     * include packets and bytes sent and received, and interface speed.
      */
-    public void updateAttributes() {
-<span class="pc bpc" id="L409" title="5 of 6 branches missed.">        switch (SystemInfo.getCurrentPlatformEnum()) {</span>
+    public void updateNetworkStats() {
+<span class="pc bpc" id="L314" title="5 of 6 branches missed.">        switch (SystemInfo.getCurrentPlatformEnum()) {</span>
         case WINDOWS:
-<span class="nc" id="L411">            WindowsNetworks.updateNetworkStats(this);</span>
-<span class="nc" id="L412">            break;</span>
+<span class="nc" id="L316">            WindowsNetworks.updateNetworkStats(this);</span>
+<span class="nc" id="L317">            break;</span>
         case LINUX:
-<span class="nc" id="L414">            LinuxNetworks.updateNetworkStats(this);</span>
-<span class="nc" id="L415">            break;</span>
+<span class="nc" id="L319">            LinuxNetworks.updateNetworkStats(this);</span>
+<span class="nc" id="L320">            break;</span>
         case MACOSX:
-<span class="fc" id="L417">            MacNetworks.updateNetworkStats(this);</span>
-<span class="fc" id="L418">            break;</span>
+<span class="fc" id="L322">            MacNetworks.updateNetworkStats(this);</span>
+<span class="fc" id="L323">            break;</span>
         case SOLARIS:
-<span class="nc" id="L420">            SolarisNetworks.updateNetworkStats(this);</span>
-<span class="nc" id="L421">            break;</span>
+<span class="nc" id="L325">            SolarisNetworks.updateNetworkStats(this);</span>
+<span class="nc" id="L326">            break;</span>
         case FREEBSD:
-<span class="nc" id="L423">            FreeBsdNetworks.updateNetworkStats(this);</span>
-<span class="nc" id="L424">            break;</span>
+<span class="nc" id="L328">            FreeBsdNetworks.updateNetworkStats(this);</span>
+<span class="nc" id="L329">            break;</span>
         default:
-<span class="nc" id="L426">            LOG.error(&quot;Unsupported platform. No update performed.&quot;);</span>
+<span class="nc" id="L331">            LOG.error(&quot;Unsupported platform. No update performed.&quot;);</span>
             break;
         }
-<span class="fc" id="L429">    }</span>
+<span class="fc" id="L334">    }</span>
 
-    @Override
-    public String toString() {
-<span class="fc" id="L433">        StringBuilder sb = new StringBuilder();</span>
-<span class="fc" id="L434">        sb.append(&quot;Name: &quot;).append(getName()).append(&quot; &quot;).append(&quot;(&quot;).append(getDisplayName()).append(&quot;)&quot;).append(&quot;\n&quot;);</span>
-<span class="fc" id="L435">        sb.append(&quot;  MAC Address: &quot;).append(getMacaddr()).append(&quot;\n&quot;);</span>
-<span class="fc" id="L436">        sb.append(&quot;  MTU: &quot;).append(getMTU()).append(&quot;, &quot;).append(&quot;Speed: &quot;).append(getSpeed()).append(&quot;\n&quot;);</span>
-<span class="fc" id="L437">        sb.append(&quot;  IPv4: &quot;).append(Arrays.toString(getIPv4addr())).append(&quot;\n&quot;);</span>
-<span class="fc" id="L438">        sb.append(&quot;  IPv6: &quot;).append(Arrays.toString(getIPv6addr())).append(&quot;\n&quot;);</span>
-<span class="fc" id="L439">        sb.append(&quot;  Traffic: received &quot;).append(getPacketsRecv()).append(&quot; packets/&quot;)</span>
-<span class="fc" id="L440">                .append(FormatUtil.formatBytes(getBytesRecv())).append(&quot; (&quot; + getInErrors() + &quot; err);&quot;);</span>
-<span class="fc" id="L441">        sb.append(&quot; transmitted &quot;).append(getPacketsSent()).append(&quot; packets/&quot;)</span>
-<span class="fc" id="L442">                .append(FormatUtil.formatBytes(getBytesSent())).append(&quot; (&quot; + getOutErrors() + &quot; err)&quot;);</span>
-<span class="fc" id="L443">        return sb.toString();</span>
-    }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

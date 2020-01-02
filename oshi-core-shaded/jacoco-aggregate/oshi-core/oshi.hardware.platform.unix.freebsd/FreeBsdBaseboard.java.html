@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>FreeBsdBaseboard.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-core-shaded</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.unix.freebsd</a> &gt; <span class="el_source">FreeBsdBaseboard.java</span></div><h1>FreeBsdBaseboard.java</h1><pre class="source lang-java linenums">/**
  * MIT License
  *
- * Copyright (c) 2010-2019 The OSHI project team
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors:
+ * https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -9,9 +10,8 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -24,41 +24,75 @@
 package oshi.hardware.platform.unix.freebsd;
 
 import oshi.hardware.common.AbstractBaseboard;
+import oshi.util.ExecutingCommand;
 
-/**
- * Baseboard data obtained by dmidecode
- */
 final class FreeBsdBaseboard extends AbstractBaseboard {
-    private final String manufacturer;
-    private final String model;
-    private final String serialNumber;
-    private final String version;
 
-<span class="nc" id="L37">    FreeBsdBaseboard(String manufacturer, String model, String serialNumber, String version) {</span>
-<span class="nc" id="L38">        this.manufacturer = manufacturer;</span>
-<span class="nc" id="L39">        this.model = model;</span>
-<span class="nc" id="L40">        this.serialNumber = serialNumber;</span>
-<span class="nc" id="L41">        this.version = version;</span>
-<span class="nc" id="L42">    }</span>
+    private static final long serialVersionUID = 1L;
 
-    @Override
-    public String getManufacturer() {
-<span class="nc" id="L46">        return this.manufacturer;</span>
-    }
+<span class="nc" id="L33">    FreeBsdBaseboard() {</span>
+<span class="nc" id="L34">        init();</span>
+<span class="nc" id="L35">    }</span>
 
-    @Override
-    public String getModel() {
-<span class="nc" id="L51">        return this.model;</span>
-    }
+    private void init() {
 
-    @Override
-    public String getSerialNumber() {
-<span class="nc" id="L56">        return this.serialNumber;</span>
-    }
+        // $ sudo dmidecode -t system
+        // # dmidecode 3.0
+        // Scanning /dev/mem for entry point.
+        // SMBIOS 2.7 present.
+        //
+        // Handle 0x0001, DMI type 1, 27 bytes
+        // System Information
+        // Manufacturer: Parallels Software International Inc.
+        // Product Name: Parallels Virtual Platform
+        // Version: None
+        // Serial Number: Parallels-47 EC 38 2A 33 1B 4C 75 94 0F F7 AF 86 63 C0
+        // C4
+        // UUID: 2A38EC47-1B33-854C-940F-F7AF8663C0C4
+        // Wake-up Type: Power Switch
+        // SKU Number: Undefined
+        // Family: Parallels VM
+        //
+        // Handle 0x0016, DMI type 32, 20 bytes
+        // System Boot Information
+        // Status: No errors detected
 
-    @Override
-    public String getVersion() {
-<span class="nc" id="L61">        return this.version;</span>
-    }
+<span class="nc" id="L60">        String manufacturer = &quot;&quot;;</span>
+<span class="nc" id="L61">        final String manufacturerMarker = &quot;Manufacturer:&quot;;</span>
+<span class="nc" id="L62">        String model = &quot;&quot;;</span>
+<span class="nc" id="L63">        final String productNameMarker = &quot;Product Name:&quot;;</span>
+<span class="nc" id="L64">        String version = &quot;&quot;;</span>
+<span class="nc" id="L65">        final String versionMarker = &quot;Version:&quot;;</span>
+<span class="nc" id="L66">        String serialNumber = &quot;&quot;;</span>
+<span class="nc" id="L67">        final String serialNumMarker = &quot;Serial Number:&quot;;</span>
+
+        // Only works with root permissions but it's all we've got
+<span class="nc bnc" id="L70" title="All 2 branches missed.">        for (final String checkLine : ExecutingCommand.runNative(&quot;dmidecode -t baseboard&quot;)) {</span>
+<span class="nc bnc" id="L71" title="All 2 branches missed.">            if (checkLine.contains(manufacturerMarker)) {</span>
+<span class="nc" id="L72">                manufacturer = checkLine.split(manufacturerMarker)[1].trim();</span>
+            }
+<span class="nc bnc" id="L74" title="All 2 branches missed.">            if (checkLine.contains(productNameMarker)) {</span>
+<span class="nc" id="L75">                model = checkLine.split(productNameMarker)[1].trim();</span>
+            }
+<span class="nc bnc" id="L77" title="All 2 branches missed.">            if (checkLine.contains(versionMarker)) {</span>
+<span class="nc" id="L78">                version = checkLine.split(versionMarker)[1].trim();</span>
+            }
+<span class="nc bnc" id="L80" title="All 2 branches missed.">            if (checkLine.contains(serialNumMarker)) {</span>
+<span class="nc" id="L81">                serialNumber = checkLine.split(serialNumMarker)[1].trim();</span>
+            }
+<span class="nc" id="L83">        }</span>
+<span class="nc bnc" id="L84" title="All 2 branches missed.">        if (!manufacturer.isEmpty()) {</span>
+<span class="nc" id="L85">            setManufacturer(manufacturer);</span>
+        }
+<span class="nc bnc" id="L87" title="All 2 branches missed.">        if (!model.isEmpty()) {</span>
+<span class="nc" id="L88">            setModel(model);</span>
+        }
+<span class="nc bnc" id="L90" title="All 2 branches missed.">        if (!version.isEmpty()) {</span>
+<span class="nc" id="L91">            setVersion(version);</span>
+        }
+<span class="nc bnc" id="L93" title="All 2 branches missed.">        if (!serialNumber.isEmpty()) {</span>
+<span class="nc" id="L94">            setSerialNumber(serialNumber);</span>
+        }
+<span class="nc" id="L96">    }</span>
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>ProcUtil.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-core-shaded</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.util.platform.linux</a> &gt; <span class="el_source">ProcUtil.java</span></div><h1>ProcUtil.java</h1><pre class="source lang-java linenums">/**
  * MIT License
  *
- * Copyright (c) 2010-2019 The OSHI project team
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors:
+ * https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -9,9 +10,8 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,63 +23,24 @@
  */
 package oshi.util.platform.linux;
 
-import static oshi.util.Memoizer.memoize;
-
 import java.io.File;
+import java.io.FileFilter;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 import oshi.hardware.CentralProcessor.TickType;
 import oshi.util.FileUtil;
-import oshi.util.GlobalConfig;
 import oshi.util.ParseUtil;
 
 /**
  * Provides access to some /proc filesystem info on Linux
+ *
+ * @author widdis[at]gmail[dot]com
  */
 public class ProcUtil {
-
-    /**
-     * The proc path for CPU information
-     */
-    public static final String CPUINFO = &quot;/cpuinfo&quot;;
-
-    /**
-     * The proc path for CPU statistics
-     */
-    public static final String STAT = &quot;/stat&quot;;
-
-<span class="nc" id="L54">    private static final Pattern DIGITS = Pattern.compile(&quot;\\d+&quot;);</span>
-
-    /**
-     * The /proc filesystem location. Update hourly.
-     */
-<span class="nc" id="L59">    private static Supplier&lt;String&gt; proc = memoize(ProcUtil::queryProcConfig, TimeUnit.HOURS.toNanos(1));</span>
+<span class="nc" id="L41">    private static final Pattern DIGITS = Pattern.compile(&quot;\\d+&quot;); // NOSONAR-squid:S1068</span>
 
     private ProcUtil() {
-    }
-
-    /**
-     * The proc filesystem location may be customized to allow alternative proc
-     * plugins, particularly useful for containers.
-     *
-     * @return The proc filesystem path, with a leading / but not a trailing one,
-     *         e.g., &quot;/proc&quot;
-     */
-    public static String getProcPath() {
-<span class="nc" id="L72">        return proc.get();</span>
-    }
-
-    private static String queryProcConfig() {
-<span class="nc" id="L76">        String procPath = GlobalConfig.get(&quot;oshi.util.proc.path&quot;, &quot;/proc&quot;);</span>
-        // Ensure prefix begins with path separator, but doesn't end with one
-<span class="nc" id="L78">        procPath = '/' + procPath.replaceAll(&quot;/$|^/&quot;, &quot;&quot;);</span>
-<span class="nc bnc" id="L79" title="All 2 branches missed.">        if (!new File(procPath).exists()) {</span>
-<span class="nc" id="L80">            throw new GlobalConfig.PropertyException(&quot;oshi.util.proc.path&quot;, &quot;The path does not exist&quot;);</span>
-        }
-<span class="nc" id="L82">        return procPath;</span>
     }
 
     /**
@@ -88,17 +49,17 @@ public class ProcUtil {
      * @return Seconds since boot
      */
     public static double getSystemUptimeSeconds() {
-<span class="nc" id="L91">        String uptime = FileUtil.getStringFromFile(getProcPath() + &quot;/uptime&quot;);</span>
-<span class="nc" id="L92">        int spaceIndex = uptime.indexOf(' ');</span>
+<span class="nc" id="L52">        String uptime = FileUtil.getStringFromFile(&quot;/proc/uptime&quot;);</span>
+<span class="nc" id="L53">        int spaceIndex = uptime.indexOf(' ');</span>
         try {
-<span class="nc bnc" id="L94" title="All 2 branches missed.">            if (spaceIndex &lt; 0) {</span>
+<span class="nc bnc" id="L55" title="All 2 branches missed.">            if (spaceIndex &lt; 0) {</span>
                 // No space, error
-<span class="nc" id="L96">                return 0d;</span>
+<span class="nc" id="L57">                return 0d;</span>
             } else {
-<span class="nc" id="L98">                return Double.parseDouble(uptime.substring(0, spaceIndex));</span>
+<span class="nc" id="L59">                return Double.parseDouble(uptime.substring(0, spaceIndex));</span>
             }
-<span class="nc" id="L100">        } catch (NumberFormatException nfe) {</span>
-<span class="nc" id="L101">            return 0d;</span>
+<span class="nc" id="L61">        } catch (NumberFormatException nfe) {</span>
+<span class="nc" id="L62">            return 0d;</span>
         }
     }
 
@@ -107,31 +68,31 @@ public class ProcUtil {
      *
      * @return Array of CPU ticks
      */
-    public static long[] readSystemCpuLoadTicks() {
-<span class="nc" id="L111">        long[] ticks = new long[TickType.values().length];</span>
+    public static long[] getSystemCpuLoadTicks() {
+<span class="nc" id="L72">        long[] ticks = new long[TickType.values().length];</span>
         // /proc/stat expected format
         // first line is overall user,nice,system,idle,iowait,irq, etc.
         // cpu 3357 0 4313 1362393 ...
         String tickStr;
-<span class="nc" id="L116">        List&lt;String&gt; procStat = FileUtil.readFile(getProcPath() + STAT);</span>
-<span class="nc bnc" id="L117" title="All 2 branches missed.">        if (!procStat.isEmpty()) {</span>
-<span class="nc" id="L118">            tickStr = procStat.get(0);</span>
+<span class="nc" id="L77">        List&lt;String&gt; procStat = FileUtil.readFile(&quot;/proc/stat&quot;);</span>
+<span class="nc bnc" id="L78" title="All 2 branches missed.">        if (!procStat.isEmpty()) {</span>
+<span class="nc" id="L79">            tickStr = procStat.get(0);</span>
         } else {
-<span class="nc" id="L120">            return ticks;</span>
+<span class="nc" id="L81">            return ticks;</span>
         }
         // Split the line. Note the first (0) element is &quot;cpu&quot; so remaining
         // elements are offset by 1 from the enum index
-<span class="nc" id="L124">        String[] tickArr = ParseUtil.whitespaces.split(tickStr);</span>
-<span class="nc bnc" id="L125" title="All 2 branches missed.">        if (tickArr.length &lt;= TickType.IDLE.getIndex()) {</span>
+<span class="nc" id="L85">        String[] tickArr = ParseUtil.whitespaces.split(tickStr);</span>
+<span class="nc bnc" id="L86" title="All 2 branches missed.">        if (tickArr.length &lt;= TickType.IDLE.getIndex()) {</span>
             // If ticks don't at least go user/nice/system/idle, abort
-<span class="nc" id="L127">            return ticks;</span>
+<span class="nc" id="L88">            return ticks;</span>
         }
         // Note tickArr is offset by 1 because first element is &quot;cpu&quot;
-<span class="nc bnc" id="L130" title="All 2 branches missed.">        for (int i = 0; i &lt; TickType.values().length; i++) {</span>
-<span class="nc" id="L131">            ticks[i] = ParseUtil.parseLongOrDefault(tickArr[i + 1], 0L);</span>
+<span class="nc bnc" id="L91" title="All 2 branches missed.">        for (int i = 0; i &lt; TickType.values().length; i++) {</span>
+<span class="nc" id="L92">            ticks[i] = ParseUtil.parseLongOrDefault(tickArr[i + 1], 0L);</span>
         }
         // Ignore guest or guest_nice, they are included in user/nice
-<span class="nc" id="L134">        return ticks;</span>
+<span class="nc" id="L95">        return ticks;</span>
     }
 
     /**
@@ -141,9 +102,14 @@ public class ProcUtil {
      * @return An array of File objects for the process files
      */
     public static File[] getPidFiles() {
-<span class="nc" id="L144">        File procdir = new File(getProcPath());</span>
-<span class="nc" id="L145">        File[] pids = procdir.listFiles(f -&gt; DIGITS.matcher(f.getName()).matches());</span>
-<span class="nc bnc" id="L146" title="All 2 branches missed.">        return pids != null ? pids : new File[0];</span>
+<span class="nc" id="L105">        File procdir = new File(&quot;/proc&quot;);</span>
+<span class="nc" id="L106">        File[] pids = procdir.listFiles(new FileFilter() {</span>
+            @Override
+            public boolean accept(File file) {
+<span class="nc" id="L109">                return DIGITS.matcher(file.getName()).matches();</span>
+            }
+        });
+<span class="nc bnc" id="L112" title="All 2 branches missed.">        return pids != null ? pids : new File[0];</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>
