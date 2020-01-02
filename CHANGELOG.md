@@ -1,7 +1,16 @@
-4.3.0 (in progress)
+4.4.0 (in progress)
+================
+* Your contribution here
+
+4.3.0 (1/2/2020)
 ================
 * [#1057](https://github.com/oshi/oshi/pull/1057): Added Subnet Mask & Prefix Length to NetworkIF. - [@vesyrak](https://github.com/Vesyrak).
-* [#1060](https://github.com/oshi/oshi/pull/1057): Fixed Linux page size calculation. - [@dbwiddis](https://github.com/dbwiddis).
+* [#1060](https://github.com/oshi/oshi/pull/1060): Fixed Linux page size calculation. - [@dbwiddis](https://github.com/dbwiddis).
+* [#1063](https://github.com/oshi/oshi/pull/1063),
+  [#1065](https://github.com/oshi/oshi/pull/1065): Fixed Windows disk transfer time. - [@Space2Man](https://github.com/Space2Man).
+* [#1070](https://github.com/oshi/oshi/pull/1070): Improve PDH counter robustness. - [@dbwiddis](https://github.com/dbwiddis).
+* [#1073](https://github.com/oshi/oshi/pull/1073): Fix Linux Process stats in OpenVZ. - [@dbwiddis](https://github.com/dbwiddis).
+* [#1075](https://github.com/oshi/oshi/pull/1075): Use systemctl for stopped Linux Services. - [@dbwiddis](https://github.com/dbwiddis).
 
 4.2.0 (11/9/2019), 4.2.1 (11/14/2019)
 ================
@@ -72,7 +81,7 @@ The default configuration file has been renamed to `oshi.properties` to prevent 
 * [#929](https://github.com/oshi/oshi/pull/929): Add isElevated check to OperatingSystem. - [@dbwiddis](https://github.com/dbwiddis).
 * [#931](https://github.com/oshi/oshi/pull/931): Standardize attribute updating. - [@dbwiddis](https://github.com/dbwiddis).
 
-3.13.0 (1/18/2019), 3.13.1 (4/21/2019), 3.13.2 (4/28/2019), 3.13.3 (6/5/2019), 3.13.4 (9/6/2019)
+3.13.0 (1/18/2019), 3.13.1 (4/21/2019), 3.13.2 (4/28/2019), 3.13.3 (6/5/2019), 3.13.4 (9/6/2019), 3.13.5 (1/2/2020)
 ================
 * [#763](https://github.com/oshi/oshi/pull/763): Refactor PDH/WMI Fallback. - [@dbwiddis](https://github.com/dbwiddis).
 * [#766](https://github.com/oshi/oshi/pull/766): Use query key to update counters in groups. - [@dbwiddis](https://github.com/dbwiddis).
