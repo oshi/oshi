@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>ParseUtil.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-demo</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.util</a> &gt; <span class="el_source">ParseUtil.java</span></div><h1>ParseUtil.java</h1><pre class="source lang-java linenums">/**
  * MIT License
  *
- * Copyright (c) 2010-2019 The OSHI project team
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -661,6 +661,10 @@ public class ParseUtil {
      * sys filesystem, minimizing new object creation. Users should perform other
      * sanity checks of data.
      *
+     * As a special case, non-numeric fields (such as UUIDs in OpenVZ) at the end of
+     * the list are ignored. Values greater than the max long value return the max
+     * long value.
+     *
      * The indices parameters are referenced assuming the length as specified, and
      * leading characters are ignored. For example, if the string is &quot;foo 12 34 5&quot;
      * and the length is 3, then index 0 is 12, index 1 is 34, and index 2 is 5.
@@ -683,56 +687,76 @@ public class ParseUtil {
      *         will be an array of zeros.
      */
     public static long[] parseStringToLongArray(String s, int[] indices, int length, char delimiter) {
-<span class="fc" id="L686">        long[] parsed = new long[indices.length];</span>
+<span class="fc" id="L690">        long[] parsed = new long[indices.length];</span>
         // Iterate from right-to-left of String
         // Fill right to left of result array using index array
-<span class="fc" id="L689">        int charIndex = s.length();</span>
-<span class="fc" id="L690">        int parsedIndex = indices.length - 1;</span>
-<span class="fc" id="L691">        int stringIndex = length - 1;</span>
+<span class="fc" id="L693">        int charIndex = s.length();</span>
+<span class="fc" id="L694">        int parsedIndex = indices.length - 1;</span>
+<span class="fc" id="L695">        int stringIndex = length - 1;</span>
 
-<span class="fc" id="L693">        int power = 0;</span>
+<span class="fc" id="L697">        int power = 0;</span>
         int c;
-<span class="fc" id="L695">        boolean delimCurrent = false;</span>
-<span class="fc bfc" id="L696" title="All 4 branches covered.">        while (--charIndex &gt; 0 &amp;&amp; parsedIndex &gt;= 0) {</span>
-<span class="fc" id="L697">            c = s.charAt(charIndex);</span>
-<span class="fc bfc" id="L698" title="All 2 branches covered.">            if (c == delimiter) {</span>
-<span class="pc bpc" id="L699" title="1 of 2 branches missed.">                if (!delimCurrent) {</span>
-<span class="fc" id="L700">                    power = 0;</span>
-<span class="fc bfc" id="L701" title="All 2 branches covered.">                    if (indices[parsedIndex] == stringIndex--) {</span>
-<span class="fc" id="L702">                        parsedIndex--;</span>
+<span class="fc" id="L699">        boolean delimCurrent = false;</span>
+<span class="fc" id="L700">        boolean numeric = true;</span>
+<span class="fc" id="L701">        boolean numberFound = false; // ignore nonnumeric at end</span>
+<span class="fc" id="L702">        boolean dashSeen = false; // to flag uuids as nonnumeric</span>
+<span class="fc bfc" id="L703" title="All 4 branches covered.">        while (--charIndex &gt; 0 &amp;&amp; parsedIndex &gt;= 0) {</span>
+<span class="fc" id="L704">            c = s.charAt(charIndex);</span>
+<span class="fc bfc" id="L705" title="All 2 branches covered.">            if (c == delimiter) {</span>
+                // first parseable number?
+<span class="fc bfc" id="L707" title="All 4 branches covered.">                if (!numberFound &amp;&amp; numeric) {</span>
+<span class="fc" id="L708">                    numberFound = true;</span>
+                }
+<span class="pc bpc" id="L710" title="1 of 2 branches missed.">                if (!delimCurrent) {</span>
+<span class="fc bfc" id="L711" title="All 2 branches covered.">                    if (numberFound) {</span>
+<span class="fc bfc" id="L712" title="All 2 branches covered.">                        if (indices[parsedIndex] == stringIndex--) {</span>
+<span class="fc" id="L713">                            parsedIndex--;</span>
+                        }
                     }
-<span class="fc" id="L704">                    delimCurrent = true;</span>
+<span class="fc" id="L716">                    delimCurrent = true;</span>
+<span class="fc" id="L717">                    power = 0;</span>
+<span class="fc" id="L718">                    dashSeen = false;</span>
+<span class="fc" id="L719">                    numeric = true;</span>
                 }
-<span class="fc bfc" id="L706" title="All 4 branches covered.">            } else if (indices[parsedIndex] != stringIndex || c == '+') {</span>
+<span class="fc bfc" id="L721" title="All 6 branches covered.">            } else if (indices[parsedIndex] != stringIndex || c == '+' || !numeric) {</span>
                 // Doesn't impact parsing, ignore
-<span class="fc" id="L708">                delimCurrent = false;</span>
-<span class="fc bfc" id="L709" title="All 4 branches covered.">            } else if (c &gt;= '0' &amp;&amp; c &lt;= '9') {</span>
-<span class="fc bfc" id="L710" title="All 2 branches covered.">                if (power &gt; 18) {</span>
-<span class="fc" id="L711">                    LOG.error(&quot;Number is too big for a long parsing string '{}' to long array&quot;, s);</span>
-<span class="fc" id="L712">                    return new long[indices.length];</span>
+<span class="fc" id="L723">                delimCurrent = false;</span>
+<span class="pc bpc" id="L724" title="1 of 6 branches missed.">            } else if (c &gt;= '0' &amp;&amp; c &lt;= '9' &amp;&amp; !dashSeen) {</span>
+<span class="pc bpc" id="L725" title="3 of 8 branches missed.">                if (power &gt; 18 || power == 17 &amp;&amp; c == '9' &amp;&amp; parsed[parsedIndex] &gt; 223372036854775807L) {</span>
+<span class="fc" id="L726">                    parsed[parsedIndex] = Long.MAX_VALUE;</span>
+                } else {
+<span class="fc" id="L728">                    parsed[parsedIndex] += (c - '0') * ParseUtil.POWERS_OF_TEN[power++];</span>
                 }
-<span class="fc" id="L714">                parsed[parsedIndex] += (c - '0') * ParseUtil.POWERS_OF_TEN[power++];</span>
-<span class="fc" id="L715">                delimCurrent = false;</span>
-<span class="fc bfc" id="L716" title="All 2 branches covered.">            } else if (c == '-') {</span>
-<span class="fc" id="L717">                parsed[parsedIndex] *= -1L;</span>
-<span class="fc" id="L718">                delimCurrent = false;</span>
+<span class="fc" id="L730">                delimCurrent = false;</span>
+<span class="fc bfc" id="L731" title="All 2 branches covered.">            } else if (c == '-') {</span>
+<span class="fc" id="L732">                parsed[parsedIndex] *= -1L;</span>
+<span class="fc" id="L733">                delimCurrent = false;</span>
+<span class="fc" id="L734">                dashSeen = true;</span>
             } else {
+                // Flag as nonnumeric and continue unless we've seen a numeric
                 // error on everything else
-<span class="fc" id="L721">                LOG.error(&quot;Illegal character parsing string '{}' to long array: {}&quot;, s, s.charAt(charIndex));</span>
-<span class="fc" id="L722">                return new long[indices.length];</span>
+<span class="fc bfc" id="L738" title="All 2 branches covered.">                if (numberFound) {</span>
+<span class="fc" id="L739">                    LOG.error(&quot;Illegal character parsing string '{}' to long array: {}&quot;, s, s.charAt(charIndex));</span>
+<span class="fc" id="L740">                    return new long[indices.length];</span>
+                }
+<span class="fc" id="L742">                parsed[parsedIndex] = 0;</span>
+<span class="fc" id="L743">                numeric = false;</span>
             }
         }
-<span class="fc bfc" id="L725" title="All 2 branches covered.">        if (parsedIndex &gt; 0) {</span>
-<span class="fc" id="L726">            LOG.error(&quot;Not enough fields in string '{}' parsing to long array: {}&quot;, s, indices.length - parsedIndex);</span>
-<span class="fc" id="L727">            return new long[indices.length];</span>
+<span class="fc bfc" id="L746" title="All 2 branches covered.">        if (parsedIndex &gt; 0) {</span>
+<span class="fc" id="L747">            LOG.error(&quot;Not enough fields in string '{}' parsing to long array: {}&quot;, s, indices.length - parsedIndex);</span>
+<span class="fc" id="L748">            return new long[indices.length];</span>
         }
-<span class="fc" id="L729">        return parsed;</span>
+<span class="fc" id="L750">        return parsed;</span>
     }
 
     /**
      * Parses a delimited string to count elements of an array of longs. Intended to
      * be called once to calculate the {@code length} field for
      * {@link #parseStringToLongArray}.
+     *
+     * As a special case, non-numeric fields (such as UUIDs in OpenVZ) at the end of
+     * the list are ignored.
      *
      * @param s
      *            The string to parse
@@ -744,28 +768,44 @@ public class ParseUtil {
     public static int countStringToLongArray(String s, char delimiter) {
         // Iterate from right-to-left of String
         // Fill right to left of result array using index array
-<span class="fc" id="L747">        int charIndex = s.length();</span>
-<span class="fc" id="L748">        int numbers = 0;</span>
+<span class="fc" id="L771">        int charIndex = s.length();</span>
+<span class="fc" id="L772">        int numbers = 0;</span>
 
         int c;
-<span class="fc" id="L751">        boolean delimCurrent = false;</span>
-<span class="fc bfc" id="L752" title="All 2 branches covered.">        while (--charIndex &gt; 0) {</span>
-<span class="fc" id="L753">            c = s.charAt(charIndex);</span>
-<span class="fc bfc" id="L754" title="All 2 branches covered.">            if (c == delimiter) {</span>
-<span class="pc bpc" id="L755" title="1 of 2 branches missed.">                if (!delimCurrent) {</span>
-<span class="fc" id="L756">                    numbers++;</span>
-<span class="fc" id="L757">                    delimCurrent = true;</span>
+<span class="fc" id="L775">        boolean delimCurrent = false;</span>
+<span class="fc" id="L776">        boolean numeric = true;</span>
+<span class="fc" id="L777">        boolean dashSeen = false; // to flag uuids as nonnumeric</span>
+<span class="fc bfc" id="L778" title="All 2 branches covered.">        while (--charIndex &gt; 0) {</span>
+<span class="fc" id="L779">            c = s.charAt(charIndex);</span>
+<span class="fc bfc" id="L780" title="All 2 branches covered.">            if (c == delimiter) {</span>
+<span class="pc bpc" id="L781" title="1 of 2 branches missed.">                if (!delimCurrent) {</span>
+<span class="fc bfc" id="L782" title="All 2 branches covered.">                    if (numeric) {</span>
+<span class="fc" id="L783">                        numbers++;</span>
+                    }
+<span class="fc" id="L785">                    delimCurrent = true;</span>
+<span class="fc" id="L786">                    dashSeen = false;</span>
+<span class="fc" id="L787">                    numeric = true;</span>
                 }
-<span class="fc bfc" id="L759" title="All 8 branches covered.">            } else if (c &gt;= '0' &amp;&amp; c &lt;= '9' || c == '-' || c == '+') {</span>
-<span class="fc" id="L760">                delimCurrent = false;</span>
+<span class="fc bfc" id="L789" title="All 4 branches covered.">            } else if (c == '+' || !numeric) {</span>
+                // Doesn't impact parsing, ignore
+<span class="fc" id="L791">                delimCurrent = false;</span>
+<span class="fc bfc" id="L792" title="All 6 branches covered.">            } else if (c &gt;= '0' &amp;&amp; c &lt;= '9' &amp;&amp; !dashSeen) {</span>
+<span class="fc" id="L793">                delimCurrent = false;</span>
+<span class="fc bfc" id="L794" title="All 2 branches covered.">            } else if (c == '-') {</span>
+<span class="fc" id="L795">                delimCurrent = false;</span>
+<span class="fc" id="L796">                dashSeen = true;</span>
             } else {
-                // we found non-digit or delimiter, exit
-<span class="fc" id="L763">                return numbers;</span>
+                // we found non-digit or delimiter. If not last field, exit
+<span class="fc bfc" id="L799" title="All 2 branches covered.">                if (numbers &gt; 0) {</span>
+<span class="fc" id="L800">                    return numbers;</span>
+                }
+                // Else flag as nonnumeric and continue
+<span class="fc" id="L803">                numeric = false;</span>
             }
         }
         // We got to beginning of string with only numbers, count start as a delimiter
         // and exit
-<span class="fc" id="L768">        return numbers + 1;</span>
+<span class="fc" id="L808">        return numbers + 1;</span>
     }
 
     /**
@@ -782,13 +822,13 @@ public class ParseUtil {
      */
     public static String getTextBetweenStrings(String text, String before, String after) {
 
-<span class="fc" id="L785">        String result = &quot;&quot;;</span>
+<span class="fc" id="L825">        String result = &quot;&quot;;</span>
 
-<span class="fc bfc" id="L787" title="All 4 branches covered.">        if (text.indexOf(before) &gt;= 0 &amp;&amp; text.indexOf(after) &gt;= 0) {</span>
-<span class="fc" id="L788">            result = text.substring(text.indexOf(before) + before.length(), text.length());</span>
-<span class="fc" id="L789">            result = result.substring(0, result.indexOf(after));</span>
+<span class="fc bfc" id="L827" title="All 4 branches covered.">        if (text.indexOf(before) &gt;= 0 &amp;&amp; text.indexOf(after) &gt;= 0) {</span>
+<span class="fc" id="L828">            result = text.substring(text.indexOf(before) + before.length(), text.length());</span>
+<span class="fc" id="L829">            result = result.substring(0, result.indexOf(after));</span>
         }
-<span class="fc" id="L791">        return result;</span>
+<span class="fc" id="L831">        return result;</span>
     }
 
     /**
@@ -803,7 +843,7 @@ public class ParseUtil {
      * @return Equivalent milliseconds since the epoch
      */
     public static long filetimeToUtcMs(long filetime, boolean local) {
-<span class="pc bpc" id="L806" title="1 of 2 branches missed.">        return filetime / 10000L - EPOCH_DIFF - (local ? TZ_OFFSET : 0L);</span>
+<span class="pc bpc" id="L846" title="1 of 2 branches missed.">        return filetime / 10000L - EPOCH_DIFF - (local ? TZ_OFFSET : 0L);</span>
     }
 
     /**
@@ -817,10 +857,10 @@ public class ParseUtil {
     public static String parseMmDdYyyyToYyyyMmDD(String dateString) {
         try {
             // Date is MM-DD-YYYY, convert to YYYY-MM-DD
-<span class="nc" id="L820">            return String.format(&quot;%s-%s-%s&quot;, dateString.substring(6, 10), dateString.substring(0, 2),</span>
-<span class="nc" id="L821">                    dateString.substring(3, 5));</span>
-<span class="nc" id="L822">        } catch (StringIndexOutOfBoundsException e) {</span>
-<span class="nc" id="L823">            return dateString;</span>
+<span class="nc" id="L860">            return String.format(&quot;%s-%s-%s&quot;, dateString.substring(6, 10), dateString.substring(0, 2),</span>
+<span class="nc" id="L861">                    dateString.substring(3, 5));</span>
+<span class="nc" id="L862">        } catch (StringIndexOutOfBoundsException e) {</span>
+<span class="nc" id="L863">            return dateString;</span>
         }
     }
 
@@ -839,17 +879,17 @@ public class ParseUtil {
         // But alter last 3 characters from a minute offset to hh:mm
         try {
             // From WMI as 20160513072950.782000-420,
-<span class="fc" id="L842">            int tzInMinutes = Integer.parseInt(cimDateTime.substring(22));</span>
+<span class="fc" id="L882">            int tzInMinutes = Integer.parseInt(cimDateTime.substring(22));</span>
             // modified to 20160513072950.782000-07:00 which can be parsed
-<span class="fc" id="L844">            LocalTime offsetAsLocalTime = LocalTime.MIDNIGHT.plusMinutes(tzInMinutes);</span>
-<span class="fc" id="L845">            return OffsetDateTime.parse(</span>
-<span class="fc" id="L846">                    cimDateTime.substring(0, 22) + offsetAsLocalTime.format(DateTimeFormatter.ISO_LOCAL_TIME),</span>
+<span class="fc" id="L884">            LocalTime offsetAsLocalTime = LocalTime.MIDNIGHT.plusMinutes(tzInMinutes);</span>
+<span class="fc" id="L885">            return OffsetDateTime.parse(</span>
+<span class="fc" id="L886">                    cimDateTime.substring(0, 22) + offsetAsLocalTime.format(DateTimeFormatter.ISO_LOCAL_TIME),</span>
                     ParseUtil.CIM_FORMAT);
-<span class="fc" id="L848">        } catch (IndexOutOfBoundsException // if cimDate not 22+ chars</span>
+<span class="fc" id="L888">        } catch (IndexOutOfBoundsException // if cimDate not 22+ chars</span>
                 | NumberFormatException // if TZ minutes doesn't parse
                 | DateTimeParseException e) {
-<span class="fc" id="L851">            LOG.trace(&quot;Unable to parse {} to CIM DateTime.&quot;, cimDateTime);</span>
-<span class="fc" id="L852">            return Constants.UNIX_EPOCH;</span>
+<span class="fc" id="L891">            LOG.trace(&quot;Unable to parse {} to CIM DateTime.&quot;, cimDateTime);</span>
+<span class="fc" id="L892">            return Constants.UNIX_EPOCH;</span>
         }
     }
 }

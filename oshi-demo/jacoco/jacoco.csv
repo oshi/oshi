@@ -20,7 +20,7 @@ oshi-demo,oshi.util.platform.windows,PerfCounterQuery.CounterDataSource,24,0,0,0
 oshi-demo,oshi.util.platform.windows,PerfCounterQueryHandler,321,0,42,0,79,0,33,0,12,0
 oshi-demo,oshi.util.platform.windows,PerfDataUtil,207,0,32,0,43,0,24,0,8,0
 oshi-demo,oshi.util.platform.windows,WmiUtil,556,0,38,0,67,0,32,0,13,0
-oshi-demo,oshi.util.platform.windows,PerfCounterWildcardQuery,439,0,47,0,90,0,38,0,13,0
+oshi-demo,oshi.util.platform.windows,PerfCounterWildcardQuery,467,0,47,0,94,0,38,0,13,0
 oshi-demo,oshi.hardware.platform.windows,WindowsComputerSystem.ComputerSystemProperty,24,0,0,0,2,0,1,0,1,0
 oshi-demo,oshi.hardware.platform.windows,WindowsComputerSystem,141,0,12,0,32,0,16,0,10,0
 oshi-demo,oshi.hardware.platform.windows,WindowsDisplay,123,0,8,0,26,0,7,0,3,0
@@ -47,7 +47,7 @@ oshi-demo,oshi.hardware.platform.windows,WindowsGlobalMemory.PhysicalMemoryPrope
 oshi-demo,oshi.hardware.platform.windows,WindowsDisks.PhysicalDiskProperty,92,0,0,0,12,0,3,0,3,0
 oshi-demo,oshi.hardware.platform.windows,WindowsUsbDevice.USBControllerProperty,14,0,0,0,2,0,1,0,1,0
 oshi-demo,oshi.hardware.platform.windows,WindowsUsbDevice.DiskDriveProperty,24,0,0,0,2,0,1,0,1,0
-oshi-demo,oshi.hardware.platform.windows,WindowsDisks,698,0,54,0,115,0,35,0,8,0
+oshi-demo,oshi.hardware.platform.windows,WindowsDisks,706,0,54,0,115,0,35,0,8,0
 oshi-demo,oshi.hardware.platform.windows,WindowsVirtualMemory.PagingFile,9,0,0,0,4,0,1,0,1,0
 oshi-demo,oshi.hardware.platform.windows,WindowsCentralProcessor.SystemTickCountProperty,45,0,0,0,9,0,4,0,4,0
 oshi-demo,oshi.hardware.platform.windows,WindowsSoundCard,96,0,6,0,18,0,5,0,2,0
@@ -120,7 +120,7 @@ oshi-demo,oshi.jna.platform.linux,Udev.UdevDevice,7,0,0,0,4,0,2,0,2,0
 oshi-demo,oshi.jna.platform.linux,Udev.UdevListEntry,7,0,0,0,4,0,2,0,2,0
 oshi-demo,oshi.software.os.linux,LinuxFileSystem,597,0,58,0,118,0,38,0,9,0
 oshi-demo,oshi.software.os.linux,LinuxOSVersionInfoEx,448,0,92,0,102,0,55,0,9,0
-oshi-demo,oshi.software.os.linux,LinuxOperatingSystem,1533,0,200,0,305,0,145,0,31,0
+oshi-demo,oshi.software.os.linux,LinuxOperatingSystem,1666,0,226,0,327,0,158,0,31,0
 oshi-demo,oshi.software.os.linux,LinuxOperatingSystem.ProcPidStat,103,0,0,0,6,0,3,0,3,0
 oshi-demo,oshi.software.os.linux,LinuxNetworkParams,221,0,34,0,53,0,23,0,6,0
 oshi-demo,oshi.software.os.linux,LinuxUserGroupInfo,155,0,20,0,41,0,15,0,5,0
@@ -189,7 +189,7 @@ oshi-demo,oshi.hardware.platform.linux,LinuxHardwareAbstractionLayer,42,0,0,0,11
 oshi-demo,oshi.hardware.platform.linux,LinuxDisks,440,0,32,0,95,0,22,0,6,0
 oshi-demo,oshi.hardware.platform.linux,LinuxBaseboard.ProcCpuStrings,35,0,8,0,6,0,5,0,1,0
 oshi-demo,oshi.hardware.platform.linux,LinuxVirtualMemory,193,0,20,0,39,0,19,0,8,0
-oshi-demo,oshi.hardware.platform.linux,LinuxGlobalMemory,200,0,19,0,47,0,22,0,10,0
+oshi-demo,oshi.hardware.platform.linux,LinuxGlobalMemory,177,0,17,0,40,0,20,0,9,0
 oshi-demo,oshi.hardware.platform.linux,LinuxDisks.UdevStat,81,0,0,0,6,0,3,0,3,0
 oshi-demo,oshi.hardware.platform.linux,LinuxDisplay,87,0,12,0,24,0,9,0,3,0
 oshi-demo,oshi.hardware.platform.linux,LinuxNetworks,117,0,2,0,18,0,3,0,2,0
@@ -234,7 +234,7 @@ oshi-demo,oshi.util,LsofUtil,65,0,9,0,13,0,6,0,1,0
 oshi-demo,oshi.util,Memoizer.new Supplier() {...},73,0,10,0,14,0,7,0,2,0
 oshi-demo,oshi.util,GlobalConfig,124,0,18,0,36,0,18,0,9,0
 oshi-demo,oshi.util,Constants,11,0,0,0,3,0,2,0,2,0
-oshi-demo,oshi.util,ParseUtil,1074,0,108,0,215,0,88,0,34,0
+oshi-demo,oshi.util,ParseUtil,1143,0,134,0,238,0,101,0,34,0
 oshi-demo,oshi.util,Memoizer,29,0,0,0,6,0,5,0,5,0
 oshi-demo,oshi.util,ExecutingCommand,103,0,6,0,28,0,8,0,5,0
 oshi-demo,oshi.util,FileUtil,225,0,38,0,58,0,27,0,8,0
@@ -242,7 +242,7 @@ oshi-demo,oshi.software.common,AbstractOperatingSystem.FamilyVersionInfo,9,0,0,0
 oshi-demo,oshi.software.common,AbstractNetworkParams,182,0,20,0,38,0,17,0,7,0
 oshi-demo,oshi.software.common,AbstractOperatingSystem,257,0,24,0,65,0,32,0,17,0
 oshi-demo,oshi.software.common,AbstractOSVersionInfoEx,69,0,8,0,18,0,12,0,8,0
-oshi-demo,oshi.hardware,NetworkIF,367,0,16,0,81,0,38,0,28,0
+oshi-demo,oshi.hardware,NetworkIF,439,0,16,0,92,0,40,0,30,0
 oshi-demo,oshi.hardware,CentralProcessor.TickType,103,0,0,0,13,0,3,0,3,0
 oshi-demo,oshi.hardware,HWDiskStore,572,0,62,0,122,0,65,0,32,0
 oshi-demo,oshi.hardware,HWPartition,412,0,64,0,95,0,54,0,22,0

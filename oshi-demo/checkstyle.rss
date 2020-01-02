@@ -23,10 +23,10 @@ under the License.
     <link>https://github.com/oshi/oshi/oshi-demo</link>
     <description>oshi-demo - Checkstyle report</description>
     <language>en-us</language>
-    <copyright>&#169;2010 - 2019 oshi</copyright>
+    <copyright>&#169;2010 - 2020 oshi</copyright>
     <item>
       <title>File: 3,
-             Errors: 37,
+             Errors: 40,
              Warnings: 0,
              Infos: 0
       </title>
@@ -55,7 +55,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  6
+                  7
                 </td>
               </tr>
                           <tr>
@@ -69,7 +69,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  15
+                  16
                 </td>
               </tr>
                           <tr>
@@ -83,7 +83,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  16
+                  17
                 </td>
               </tr>
                       </tbody>
