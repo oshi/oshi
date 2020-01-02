@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AbstractNetworkParams.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.software.common</a> &gt; <span class="el_source">AbstractNetworkParams.java</span></div><h1>AbstractNetworkParams.java</h1><pre class="source lang-java linenums">/**
  * MIT License
  *
- * Copyright (c) 2010-2019 The OSHI project team
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors:
+ * https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -9,9 +10,8 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -26,7 +26,6 @@ package oshi.software.common;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -39,57 +38,65 @@ import oshi.util.ParseUtil;
 /**
  * Common NetworkParams implementation.
  */
-<span class="nc" id="L42">public abstract class AbstractNetworkParams implements NetworkParams {</span>
+<span class="nc" id="L41">public abstract class AbstractNetworkParams implements NetworkParams {</span>
 
-<span class="nc" id="L44">    private static final Logger LOG = LoggerFactory.getLogger(AbstractNetworkParams.class);</span>
+    private static final long serialVersionUID = 1L;
+
+<span class="nc" id="L45">    private static final Logger LOG = LoggerFactory.getLogger(AbstractNetworkParams.class);</span>
     private static final String NAMESERVER = &quot;nameserver&quot;;
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getDomainName() {
         try {
-<span class="nc" id="L51">            return InetAddress.getLocalHost().getCanonicalHostName();</span>
-<span class="nc" id="L52">        } catch (UnknownHostException e) {</span>
-<span class="nc" id="L53">            LOG.error(&quot;Unknown host exception when getting address of local host: {}&quot;, e);</span>
-<span class="nc" id="L54">            return &quot;&quot;;</span>
+<span class="nc" id="L54">            return InetAddress.getLocalHost().getCanonicalHostName();</span>
+<span class="nc" id="L55">        } catch (UnknownHostException e) {</span>
+<span class="nc" id="L56">            LOG.error(&quot;Unknown host exception when getting address of local host: &quot; + e);</span>
+<span class="nc" id="L57">            return &quot;&quot;;</span>
         }
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getHostName() {
         try {
-<span class="nc" id="L62">            String hn = InetAddress.getLocalHost().getHostName();</span>
-<span class="nc" id="L63">            int dot = hn.indexOf('.');</span>
-<span class="nc bnc" id="L64" title="All 2 branches missed.">            if (dot == -1) {</span>
-<span class="nc" id="L65">                return hn;</span>
+<span class="nc" id="L67">            String hn = InetAddress.getLocalHost().getHostName();</span>
+<span class="nc" id="L68">            int dot = hn.indexOf('.');</span>
+<span class="nc bnc" id="L69" title="All 2 branches missed.">            if (dot == -1) {</span>
+<span class="nc" id="L70">                return hn;</span>
             } else {
-<span class="nc" id="L67">                return hn.substring(0, dot);</span>
+<span class="nc" id="L72">                return hn.substring(0, dot);</span>
             }
-<span class="nc" id="L69">        } catch (UnknownHostException e) {</span>
-<span class="nc" id="L70">            LOG.error(&quot;Unknown host exception when getting address of local host: {}&quot;, e);</span>
-<span class="nc" id="L71">            return &quot;&quot;;</span>
+<span class="nc" id="L74">        } catch (UnknownHostException e) {</span>
+<span class="nc" id="L75">            LOG.error(&quot;Unknown host exception when getting address of local host: &quot; + e);</span>
+<span class="nc" id="L76">            return &quot;&quot;;</span>
         }
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String[] getDnsServers() {
-<span class="nc" id="L78">        List&lt;String&gt; resolv = FileUtil.readFile(&quot;/etc/resolv.conf&quot;);</span>
-<span class="nc" id="L79">        String key = NAMESERVER;</span>
-<span class="nc" id="L80">        int maxNameServer = 3;</span>
-<span class="nc" id="L81">        List&lt;String&gt; servers = new ArrayList&lt;&gt;();</span>
-<span class="nc bnc" id="L82" title="All 4 branches missed.">        for (int i = 0; i &lt; resolv.size() &amp;&amp; servers.size() &lt; maxNameServer; i++) {</span>
-<span class="nc" id="L83">            String line = resolv.get(i);</span>
-<span class="nc bnc" id="L84" title="All 2 branches missed.">            if (line.startsWith(key)) {</span>
-<span class="nc" id="L85">                String value = line.substring(key.length()).replaceFirst(&quot;^[ \t]+&quot;, &quot;&quot;);</span>
-<span class="nc bnc" id="L86" title="All 6 branches missed.">                if (value.length() != 0 &amp;&amp; value.charAt(0) != '#' &amp;&amp; value.charAt(0) != ';') {</span>
-<span class="nc" id="L87">                    String val = value.split(&quot;[ \t#;]&quot;, 2)[0];</span>
-<span class="nc" id="L88">                    servers.add(val);</span>
+<span class="nc" id="L85">        List&lt;String&gt; resolv = FileUtil.readFile(&quot;/etc/resolv.conf&quot;);</span>
+<span class="nc" id="L86">        String key = NAMESERVER;</span>
+<span class="nc" id="L87">        int maxNameServer = 3;</span>
+<span class="nc" id="L88">        List&lt;String&gt; servers = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L89" title="All 4 branches missed.">        for (int i = 0; i &lt; resolv.size() &amp;&amp; servers.size() &lt; maxNameServer; i++) {</span>
+<span class="nc" id="L90">            String line = resolv.get(i);</span>
+<span class="nc bnc" id="L91" title="All 2 branches missed.">            if (line.startsWith(key)) {</span>
+<span class="nc" id="L92">                String value = line.substring(key.length()).replaceFirst(&quot;^[ \t]+&quot;, &quot;&quot;);</span>
+<span class="nc bnc" id="L93" title="All 6 branches missed.">                if (value.length() != 0 &amp;&amp; value.charAt(0) != '#' &amp;&amp; value.charAt(0) != ';') {</span>
+<span class="nc" id="L94">                    String val = value.split(&quot;[ \t#;]&quot;, 2)[0];</span>
+<span class="nc" id="L95">                    servers.add(val);</span>
                 }
             }
         }
-<span class="nc" id="L92">        return servers.toArray(new String[0]);</span>
+<span class="nc" id="L99">        return servers.toArray(new String[servers.size()]);</span>
     }
 
     /**
@@ -101,26 +108,17 @@ import oshi.util.ParseUtil;
      * @return default gateway
      */
     protected static String searchGateway(List&lt;String&gt; lines) {
-<span class="nc bnc" id="L104" title="All 2 branches missed.">        for (String line : lines) {</span>
-<span class="nc" id="L105">            String leftTrimmed = line.replaceFirst(&quot;^\\s+&quot;, &quot;&quot;);</span>
-<span class="nc bnc" id="L106" title="All 2 branches missed.">            if (leftTrimmed.startsWith(&quot;gateway:&quot;)) {</span>
-<span class="nc" id="L107">                String[] split = ParseUtil.whitespaces.split(leftTrimmed);</span>
-<span class="nc bnc" id="L108" title="All 2 branches missed.">                if (split.length &lt; 2) {</span>
-<span class="nc" id="L109">                    return &quot;&quot;;</span>
+<span class="nc bnc" id="L111" title="All 2 branches missed.">        for (String line : lines) {</span>
+<span class="nc" id="L112">            String leftTrimmed = line.replaceFirst(&quot;^\\s+&quot;, &quot;&quot;);</span>
+<span class="nc bnc" id="L113" title="All 2 branches missed.">            if (leftTrimmed.startsWith(&quot;gateway:&quot;)) {</span>
+<span class="nc" id="L114">                String[] split = ParseUtil.whitespaces.split(leftTrimmed);</span>
+<span class="nc bnc" id="L115" title="All 2 branches missed.">                if (split.length &lt; 2) {</span>
+<span class="nc" id="L116">                    return &quot;&quot;;</span>
                 }
-<span class="nc" id="L111">                return split[1].split(&quot;%&quot;)[0];</span>
+<span class="nc" id="L118">                return split[1].split(&quot;%&quot;)[0];</span>
             }
-<span class="nc" id="L113">        }</span>
-<span class="nc" id="L114">        return &quot;&quot;;</span>
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public String toString() {
-<span class="nc" id="L120">        return String.format(&quot;Host name: %s, Domain name: %s, DNS servers: %s, IPv4 Gateway: %s, IPv6 Gateway: %s&quot;,</span>
-<span class="nc" id="L121">                this.getHostName(), this.getDomainName(), Arrays.toString(this.getDnsServers()),</span>
-<span class="nc" id="L122">                this.getIpv4DefaultGateway(), this.getIpv6DefaultGateway());</span>
-
+<span class="nc" id="L120">        }</span>
+<span class="nc" id="L121">        return &quot;&quot;;</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>
