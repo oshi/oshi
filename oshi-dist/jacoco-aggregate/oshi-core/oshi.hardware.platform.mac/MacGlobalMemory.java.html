@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>MacGlobalMemory.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.mac</a> &gt; <span class="el_source">MacGlobalMemory.java</span></div><h1>MacGlobalMemory.java</h1><pre class="source lang-java linenums">/**
  * MIT License
  *
- * Copyright (c) 2010 - 2020 The OSHI Project Contributors:
- * https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -10,8 +9,9 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,84 +23,138 @@
  */
 package oshi.hardware.platform.mac;
 
+import static oshi.util.Memoizer.defaultExpiration;
+import static oshi.util.Memoizer.memoize;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Supplier;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Native; // NOSONAR
 import com.sun.jna.platform.mac.SystemB;
 import com.sun.jna.platform.mac.SystemB.VMStatistics;
-import com.sun.jna.platform.mac.SystemB.XswUsage;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.LongByReference;
 
+import oshi.hardware.PhysicalMemory;
+import oshi.hardware.VirtualMemory;
 import oshi.hardware.common.AbstractGlobalMemory;
+import oshi.util.Constants;
+import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.mac.SysctlUtil;
 
 /**
- * Memory obtained by host_statistics (vm_stat) and sysctl
- *
- * @author widdis[at]gmail[dot]com
+ * Memory obtained by host_statistics (vm_stat) and sysctl.
  */
-public class MacGlobalMemory extends AbstractGlobalMemory {
+<span class="nc" id="L53">public class MacGlobalMemory extends AbstractGlobalMemory {</span>
 
-    private static final long serialVersionUID = 1L;
+<span class="nc" id="L55">    private static final Logger LOG = LoggerFactory.getLogger(MacGlobalMemory.class);</span>
 
-<span class="nc" id="L49">    private static final Logger LOG = LoggerFactory.getLogger(MacGlobalMemory.class);</span>
+<span class="nc" id="L57">    private final Supplier&lt;Long&gt; available = memoize(this::queryVmStats, defaultExpiration());</span>
 
-<span class="nc" id="L51">    private transient XswUsage xswUsage = new XswUsage();</span>
-<span class="nc" id="L52">    private long lastUpdateSwap = 0;</span>
+<span class="nc" id="L59">    private final Supplier&lt;Long&gt; total = memoize(this::queryPhysMem);</span>
 
-<span class="nc" id="L54">    private transient VMStatistics vmStats = new VMStatistics();</span>
-<span class="nc" id="L55">    private long lastUpdateAvail = 0;</span>
+<span class="nc" id="L61">    private final Supplier&lt;Long&gt; pageSize = memoize(this::queryPageSize);</span>
 
-<span class="nc" id="L57">    public MacGlobalMemory() {</span>
-<span class="nc" id="L58">        long memory = SysctlUtil.sysctl(&quot;hw.memsize&quot;, -1L);</span>
-<span class="nc bnc" id="L59" title="All 2 branches missed.">        if (memory &gt;= 0) {</span>
-<span class="nc" id="L60">            this.memTotal = memory;</span>
-        }
+<span class="nc" id="L63">    private final Supplier&lt;VirtualMemory&gt; vm = memoize(this::createVirtualMemory);</span>
 
-<span class="nc" id="L63">        LongByReference pPageSize = new LongByReference();</span>
-<span class="nc bnc" id="L64" title="All 2 branches missed.">        if (0 != SystemB.INSTANCE.host_page_size(SystemB.INSTANCE.mach_host_self(), pPageSize)) {</span>
-<span class="nc" id="L65">            LOG.error(&quot;Failed to get host page size. Error code: {}&quot;, Native.getLastError());</span>
-<span class="nc" id="L66">            return;</span>
-        }
-<span class="nc" id="L68">        this.pageSize = pPageSize.getValue();</span>
-<span class="nc" id="L69">    }</span>
-
-    /**
-     * Updates available memory no more often than every 100ms
-     */
     @Override
-    protected void updateMeminfo() {
-<span class="nc" id="L76">        long now = System.currentTimeMillis();</span>
-<span class="nc bnc" id="L77" title="All 2 branches missed.">        if (now - this.lastUpdateAvail &gt; 100) {</span>
-<span class="nc bnc" id="L78" title="All 2 branches missed.">            if (0 != SystemB.INSTANCE.host_statistics(SystemB.INSTANCE.mach_host_self(), SystemB.HOST_VM_INFO,</span>
-<span class="nc" id="L79">                    this.vmStats, new IntByReference(this.vmStats.size() / SystemB.INT_SIZE))) {</span>
-<span class="nc" id="L80">                LOG.error(&quot;Failed to get host VM info. Error code: {}&quot;, Native.getLastError());</span>
-<span class="nc" id="L81">                return;</span>
-            }
-<span class="nc" id="L83">            this.memAvailable = (this.vmStats.free_count + this.vmStats.inactive_count) * this.pageSize;</span>
-<span class="nc" id="L84">            this.swapPagesIn = ParseUtil.unsignedIntToLong(this.vmStats.pageins);</span>
-<span class="nc" id="L85">            this.swapPagesOut = ParseUtil.unsignedIntToLong(this.vmStats.pageouts);</span>
-<span class="nc" id="L86">            this.lastUpdateAvail = now;</span>
-        }
-<span class="nc" id="L88">    }</span>
+    public long getAvailable() {
+<span class="nc" id="L67">        return available.get();</span>
+    }
 
-    /**
-     * Updates swap file stats no more often than every 100ms
-     */
     @Override
-    protected void updateSwap() {
-<span class="nc" id="L95">        long now = System.currentTimeMillis();</span>
-<span class="nc bnc" id="L96" title="All 2 branches missed.">        if (now - this.lastUpdateSwap &gt; 100) {</span>
-<span class="nc bnc" id="L97" title="All 2 branches missed.">            if (!SysctlUtil.sysctl(&quot;vm.swapusage&quot;, this.xswUsage)) {</span>
-<span class="nc" id="L98">                return;</span>
+    public long getTotal() {
+<span class="nc" id="L72">        return total.get();</span>
+    }
+
+    @Override
+    public long getPageSize() {
+<span class="nc" id="L77">        return pageSize.get();</span>
+    }
+
+    @Override
+    public VirtualMemory getVirtualMemory() {
+<span class="nc" id="L82">        return vm.get();</span>
+    }
+
+    @Override
+    public PhysicalMemory[] getPhysicalMemory() {
+<span class="nc" id="L87">        List&lt;PhysicalMemory&gt; pmList = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L88">        List&lt;String&gt; sp = ExecutingCommand.runNative(&quot;system_profiler SPMemoryDataType&quot;);</span>
+<span class="nc" id="L89">        int bank = 0;</span>
+<span class="nc" id="L90">        String bankLabel = Constants.UNKNOWN;</span>
+<span class="nc" id="L91">        long capacity = 0L;</span>
+<span class="nc" id="L92">        long speed = 0L;</span>
+<span class="nc" id="L93">        String manufacturer = Constants.UNKNOWN;</span>
+<span class="nc" id="L94">        String memoryType = Constants.UNKNOWN;</span>
+<span class="nc bnc" id="L95" title="All 2 branches missed.">        for (String line : sp) {</span>
+<span class="nc bnc" id="L96" title="All 2 branches missed.">            if (line.trim().startsWith(&quot;BANK&quot;)) {</span>
+                // Save previous bank
+<span class="nc bnc" id="L98" title="All 2 branches missed.">                if (bank++ &gt; 0) {</span>
+<span class="nc" id="L99">                    pmList.add(new PhysicalMemory(bankLabel, capacity, speed, manufacturer, memoryType));</span>
+                }
+<span class="nc" id="L101">                bankLabel = line.trim();</span>
+<span class="nc" id="L102">                int colon = bankLabel.lastIndexOf(':');</span>
+<span class="nc bnc" id="L103" title="All 2 branches missed.">                if (colon &gt; 0) {</span>
+<span class="nc" id="L104">                    bankLabel = bankLabel.substring(0, colon - 1);</span>
+                }
+<span class="nc bnc" id="L106" title="All 2 branches missed.">            } else if (bank &gt; 0) {</span>
+<span class="nc" id="L107">                String[] split = line.trim().split(&quot;:&quot;);</span>
+<span class="nc bnc" id="L108" title="All 2 branches missed.">                if (split.length == 2) {</span>
+<span class="nc bnc" id="L109" title="All 5 branches missed.">                    switch (split[0]) {</span>
+                    case &quot;Size&quot;:
+<span class="nc" id="L111">                        capacity = parsePhysicalMemorySize(split[1].trim());</span>
+<span class="nc" id="L112">                        break;</span>
+                    case &quot;Type&quot;:
+<span class="nc" id="L114">                        memoryType = split[1].trim();</span>
+<span class="nc" id="L115">                        break;</span>
+                    case &quot;Speed&quot;:
+<span class="nc" id="L117">                        speed = ParseUtil.parseHertz(split[1]);</span>
+<span class="nc" id="L118">                        break;</span>
+                    case &quot;Manufacturer&quot;:
+<span class="nc" id="L120">                        manufacturer = split[1].trim();</span>
+<span class="nc" id="L121">                        break;</span>
+                    default:
+                        break;
+                    }
+                }
             }
-<span class="nc" id="L100">            this.swapUsed = this.xswUsage.xsu_used;</span>
-<span class="nc" id="L101">            this.swapTotal = this.xswUsage.xsu_total;</span>
-<span class="nc" id="L102">            this.lastUpdateSwap = now;</span>
+<span class="nc" id="L127">        }</span>
+<span class="nc" id="L128">        pmList.add(new PhysicalMemory(bankLabel, capacity, speed, manufacturer, memoryType));</span>
+
+<span class="nc" id="L130">        return pmList.toArray(new PhysicalMemory[0]);</span>
+    }
+
+    private long queryVmStats() {
+<span class="nc" id="L134">        VMStatistics vmStats = new VMStatistics();</span>
+<span class="nc bnc" id="L135" title="All 2 branches missed.">        if (0 != SystemB.INSTANCE.host_statistics(SystemB.INSTANCE.mach_host_self(), SystemB.HOST_VM_INFO, vmStats,</span>
+<span class="nc" id="L136">                new IntByReference(vmStats.size() / SystemB.INT_SIZE))) {</span>
+<span class="nc" id="L137">            LOG.error(&quot;Failed to get host VM info. Error code: {}&quot;, Native.getLastError());</span>
+<span class="nc" id="L138">            return 0L;</span>
         }
-<span class="nc" id="L104">    }</span>
+<span class="nc" id="L140">        return (vmStats.free_count + vmStats.inactive_count) * getPageSize();</span>
+    }
+
+    private long queryPhysMem() {
+<span class="nc" id="L144">        return SysctlUtil.sysctl(&quot;hw.memsize&quot;, 0L);</span>
+    }
+
+    private long queryPageSize() {
+<span class="nc" id="L148">        LongByReference pPageSize = new LongByReference();</span>
+<span class="nc bnc" id="L149" title="All 2 branches missed.">        if (0 == SystemB.INSTANCE.host_page_size(SystemB.INSTANCE.mach_host_self(), pPageSize)) {</span>
+<span class="nc" id="L150">            return pPageSize.getValue();</span>
+        }
+<span class="nc" id="L152">        LOG.error(&quot;Failed to get host page size. Error code: {}&quot;, Native.getLastError());</span>
+<span class="nc" id="L153">        return 4098L;</span>
+    }
+
+    private VirtualMemory createVirtualMemory() {
+<span class="nc" id="L157">        return new MacVirtualMemory();</span>
+    }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

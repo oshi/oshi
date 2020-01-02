@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>WindowsFirmware.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.windows</a> &gt; <span class="el_source">WindowsFirmware.java</span></div><h1>WindowsFirmware.java</h1><pre class="source lang-java linenums">/**
  * MIT License
  *
- * Copyright (c) 2010 - 2020 The OSHI Project Contributors:
- * https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -10,8 +9,9 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,41 +23,83 @@
  */
 package oshi.hardware.platform.windows;
 
+import static oshi.util.Memoizer.memoize;
+
+import java.util.function.Supplier;
+
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery; // NOSONAR squid:S1191
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.hardware.common.AbstractFirmware;
+import oshi.util.Constants;
+import oshi.util.Util;
 import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
 
 /**
  * Firmware data obtained from WMI
- *
- * @author SchiTho1 [at] Securiton AG
  */
-final class WindowsFirmware extends AbstractFirmware {
+<span class="nc" id="L42">final class WindowsFirmware extends AbstractFirmware {</span>
 
-    private static final long serialVersionUID = 1L;
+<span class="nc" id="L44">    private final Supplier&lt;WmiStrings&gt; wmi = memoize(this::queryWmi);</span>
 
-<span class="nc" id="L42">    enum BiosProperty {</span>
-<span class="nc" id="L43">        MANUFACTURER, NAME, DESCRIPTION, VERSION, RELEASEDATE;</span>
+    @Override
+    public String getManufacturer() {
+<span class="nc" id="L48">        return wmi.get().manufacturer;</span>
     }
 
-<span class="nc" id="L46">    WindowsFirmware() {</span>
-<span class="nc" id="L47">        init();</span>
-<span class="nc" id="L48">    }</span>
+    @Override
+    public String getName() {
+<span class="nc" id="L53">        return wmi.get().name;</span>
+    }
 
-    private void init() {
-<span class="nc" id="L51">        WmiQuery&lt;BiosProperty&gt; biosQuery = new WmiQuery&lt;&gt;(&quot;Win32_BIOS where PrimaryBIOS=true&quot;, BiosProperty.class);</span>
+    @Override
+    public String getDescription() {
+<span class="nc" id="L58">        return wmi.get().description;</span>
+    }
 
-<span class="nc" id="L53">        WmiResult&lt;BiosProperty&gt; win32BIOS = WmiQueryHandler.createInstance().queryWMI(biosQuery);</span>
-<span class="nc bnc" id="L54" title="All 2 branches missed.">        if (win32BIOS.getResultCount() &gt; 0) {</span>
-<span class="nc" id="L55">            setManufacturer(WmiUtil.getString(win32BIOS, BiosProperty.MANUFACTURER, 0));</span>
-<span class="nc" id="L56">            setName(WmiUtil.getString(win32BIOS, BiosProperty.NAME, 0));</span>
-<span class="nc" id="L57">            setDescription(WmiUtil.getString(win32BIOS, BiosProperty.DESCRIPTION, 0));</span>
-<span class="nc" id="L58">            setVersion(WmiUtil.getString(win32BIOS, BiosProperty.VERSION, 0));</span>
-<span class="nc" id="L59">            setReleaseDate(WmiUtil.getDateString(win32BIOS, BiosProperty.RELEASEDATE, 0));</span>
+    @Override
+    public String getVersion() {
+<span class="nc" id="L63">        return wmi.get().version;</span>
+    }
+
+    @Override
+    public String getReleaseDate() {
+<span class="nc" id="L68">        return wmi.get().releaseDate;</span>
+    }
+
+    private WmiStrings queryWmi() {
+<span class="nc" id="L72">        WmiQuery&lt;BiosProperty&gt; biosQuery = new WmiQuery&lt;&gt;(&quot;Win32_BIOS where PrimaryBIOS=true&quot;, BiosProperty.class);</span>
+<span class="nc" id="L73">        WmiResult&lt;BiosProperty&gt; win32BIOS = WmiQueryHandler.createInstance().queryWMI(biosQuery);</span>
+<span class="nc bnc" id="L74" title="All 2 branches missed.">        if (win32BIOS.getResultCount() &gt; 0) {</span>
+<span class="nc" id="L75">            return new WmiStrings(WmiUtil.getString(win32BIOS, BiosProperty.MANUFACTURER, 0),</span>
+<span class="nc" id="L76">                    WmiUtil.getString(win32BIOS, BiosProperty.NAME, 0),</span>
+<span class="nc" id="L77">                    WmiUtil.getString(win32BIOS, BiosProperty.DESCRIPTION, 0),</span>
+<span class="nc" id="L78">                    WmiUtil.getString(win32BIOS, BiosProperty.VERSION, 0),</span>
+<span class="nc" id="L79">                    WmiUtil.getDateString(win32BIOS, BiosProperty.RELEASEDATE, 0));</span>
         }
-<span class="nc" id="L61">    }</span>
+<span class="nc" id="L81">        return new WmiStrings(Constants.UNKNOWN, Constants.UNKNOWN, Constants.UNKNOWN, Constants.UNKNOWN,</span>
+                Constants.UNKNOWN);
+    }
+
+<span class="nc" id="L85">    enum BiosProperty {</span>
+<span class="nc" id="L86">        MANUFACTURER, NAME, DESCRIPTION, VERSION, RELEASEDATE;</span>
+    }
+
+    private static final class WmiStrings {
+        private final String releaseDate;
+        private final String manufacturer;
+        private final String version;
+        private final String name;
+        private final String description;
+
+<span class="nc" id="L96">        private WmiStrings(String releaseDate, String manufacturer, String version, String name, String description) {</span>
+<span class="nc bnc" id="L97" title="All 2 branches missed.">            this.releaseDate = Util.isBlank(releaseDate) ? Constants.UNKNOWN : releaseDate;</span>
+<span class="nc bnc" id="L98" title="All 2 branches missed.">            this.manufacturer = Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer;</span>
+<span class="nc bnc" id="L99" title="All 2 branches missed.">            this.version = Util.isBlank(version) ? Constants.UNKNOWN : version;</span>
+<span class="nc bnc" id="L100" title="All 2 branches missed.">            this.name = Util.isBlank(name) ? Constants.UNKNOWN : name;</span>
+<span class="nc bnc" id="L101" title="All 2 branches missed.">            this.description = Util.isBlank(description) ? Constants.UNKNOWN : description;</span>
+<span class="nc" id="L102">        }</span>
+    }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

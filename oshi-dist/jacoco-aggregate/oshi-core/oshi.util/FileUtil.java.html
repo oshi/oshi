@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>FileUtil.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.util</a> &gt; <span class="el_source">FileUtil.java</span></div><h1>FileUtil.java</h1><pre class="source lang-java linenums">/**
  * MIT License
  *
- * Copyright (c) 2010 - 2020 The OSHI Project Contributors:
- * https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -10,8 +9,9 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -38,11 +38,9 @@ import org.slf4j.LoggerFactory;
 
 /**
  * File reading methods
- *
- * @author widdis[at]gmail[dot]com
  */
 public class FileUtil {
-<span class="fc" id="L45">    private static final Logger LOG = LoggerFactory.getLogger(FileUtil.class);</span>
+<span class="fc" id="L43">    private static final Logger LOG = LoggerFactory.getLogger(FileUtil.class);</span>
 
     private FileUtil() {
     }
@@ -53,12 +51,11 @@ public class FileUtil {
      *
      * @param filename
      *            The file to read
-     *
      * @return A list of Strings representing each line of the file, or an empty
      *         list if file could not be read or is empty
      */
     public static List&lt;String&gt; readFile(String filename) {
-<span class="fc" id="L61">        return readFile(filename, true);</span>
+<span class="fc" id="L58">        return readFile(filename, true);</span>
     }
 
     /**
@@ -69,118 +66,117 @@ public class FileUtil {
      *            The file to read
      * @param reportError
      *            Whether to log errors reading the file
-     *
      * @return A list of Strings representing each line of the file, or an empty
      *         list if file could not be read or is empty
      */
     public static List&lt;String&gt; readFile(String filename, boolean reportError) {
-<span class="fc bfc" id="L77" title="All 2 branches covered.">        if (new File(filename).canRead()) {</span>
-<span class="pc bpc" id="L78" title="1 of 2 branches missed.">            if (LOG.isDebugEnabled()) {</span>
-<span class="nc" id="L79">                LOG.debug(&quot;Reading file {}&quot;, filename);</span>
+<span class="fc bfc" id="L73" title="All 2 branches covered.">        if (new File(filename).canRead()) {</span>
+<span class="pc bpc" id="L74" title="1 of 2 branches missed.">            if (LOG.isDebugEnabled()) {</span>
+<span class="nc" id="L75">                LOG.debug(&quot;Reading file {}&quot;, filename);</span>
             }
             try {
-<span class="fc" id="L82">                return Files.readAllLines(Paths.get(filename), StandardCharsets.UTF_8);</span>
-<span class="nc" id="L83">            } catch (IOException e) {</span>
-<span class="nc bnc" id="L84" title="All 2 branches missed.">                if (reportError) {</span>
-<span class="nc" id="L85">                    LOG.error(&quot;Error reading file {}. {}&quot;, filename, e);</span>
+<span class="fc" id="L78">                return Files.readAllLines(Paths.get(filename), StandardCharsets.UTF_8);</span>
+<span class="nc" id="L79">            } catch (IOException e) {</span>
+<span class="nc bnc" id="L80" title="All 2 branches missed.">                if (reportError) {</span>
+<span class="nc" id="L81">                    LOG.error(&quot;Error reading file {}. {}&quot;, filename, e);</span>
                 }
-<span class="nc" id="L87">            }</span>
-<span class="fc bfc" id="L88" title="All 2 branches covered.">        } else if (reportError) {</span>
-<span class="fc" id="L89">            LOG.warn(&quot;File not found or not readable: {}&quot;, filename);</span>
+<span class="nc" id="L83">            }</span>
+<span class="fc bfc" id="L84" title="All 2 branches covered.">        } else if (reportError) {</span>
+<span class="fc" id="L85">            LOG.warn(&quot;File not found or not readable: {}&quot;, filename);</span>
         }
-<span class="fc" id="L91">        return new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L87">        return new ArrayList&lt;&gt;();</span>
     }
 
     /**
-     * Read a file and return the long value contained therein. Intended
-     * primarily for Linux /sys filesystem
+     * Read a file and return the long value contained therein. Intended primarily
+     * for Linux /sys filesystem
      *
      * @param filename
      *            The file to read
      * @return The value contained in the file, if any; otherwise zero
      */
     public static long getLongFromFile(String filename) {
-<span class="pc bpc" id="L103" title="1 of 2 branches missed.">        if (LOG.isDebugEnabled()) {</span>
-<span class="nc" id="L104">            LOG.debug(&quot;Reading file {}&quot;, filename);</span>
+<span class="pc bpc" id="L99" title="1 of 2 branches missed.">        if (LOG.isDebugEnabled()) {</span>
+<span class="nc" id="L100">            LOG.debug(&quot;Reading file {}&quot;, filename);</span>
         }
-<span class="fc" id="L106">        List&lt;String&gt; read = FileUtil.readFile(filename, false);</span>
-<span class="fc bfc" id="L107" title="All 2 branches covered.">        if (!read.isEmpty()) {</span>
-<span class="pc bpc" id="L108" title="1 of 2 branches missed.">            if (LOG.isTraceEnabled()) {</span>
-<span class="nc" id="L109">                LOG.trace(&quot;Read {}&quot;, read.get(0));</span>
+<span class="fc" id="L102">        List&lt;String&gt; read = FileUtil.readFile(filename, false);</span>
+<span class="fc bfc" id="L103" title="All 2 branches covered.">        if (!read.isEmpty()) {</span>
+<span class="pc bpc" id="L104" title="1 of 2 branches missed.">            if (LOG.isTraceEnabled()) {</span>
+<span class="nc" id="L105">                LOG.trace(&quot;Read {}&quot;, read.get(0));</span>
             }
-<span class="fc" id="L111">            return ParseUtil.parseLongOrDefault(read.get(0), 0L);</span>
+<span class="fc" id="L107">            return ParseUtil.parseLongOrDefault(read.get(0), 0L);</span>
         }
-<span class="fc" id="L113">        return 0L;</span>
+<span class="fc" id="L109">        return 0L;</span>
     }
 
     /**
-     * Read a file and return the unsigned long value contained therein as a
-     * long. Intended primarily for Linux /sys filesystem
+     * Read a file and return the unsigned long value contained therein as a long.
+     * Intended primarily for Linux /sys filesystem
      *
      * @param filename
      *            The file to read
      * @return The value contained in the file, if any; otherwise zero
      */
     public static long getUnsignedLongFromFile(String filename) {
-<span class="pc bpc" id="L125" title="1 of 2 branches missed.">        if (LOG.isDebugEnabled()) {</span>
-<span class="nc" id="L126">            LOG.debug(&quot;Reading file {}&quot;, filename);</span>
+<span class="pc bpc" id="L121" title="1 of 2 branches missed.">        if (LOG.isDebugEnabled()) {</span>
+<span class="nc" id="L122">            LOG.debug(&quot;Reading file {}&quot;, filename);</span>
         }
-<span class="fc" id="L128">        List&lt;String&gt; read = FileUtil.readFile(filename, false);</span>
-<span class="fc bfc" id="L129" title="All 2 branches covered.">        if (!read.isEmpty()) {</span>
-<span class="pc bpc" id="L130" title="1 of 2 branches missed.">            if (LOG.isTraceEnabled()) {</span>
-<span class="nc" id="L131">                LOG.trace(&quot;Read {}&quot;, read.get(0));</span>
+<span class="fc" id="L124">        List&lt;String&gt; read = FileUtil.readFile(filename, false);</span>
+<span class="fc bfc" id="L125" title="All 2 branches covered.">        if (!read.isEmpty()) {</span>
+<span class="pc bpc" id="L126" title="1 of 2 branches missed.">            if (LOG.isTraceEnabled()) {</span>
+<span class="nc" id="L127">                LOG.trace(&quot;Read {}&quot;, read.get(0));</span>
             }
-<span class="fc" id="L133">            return ParseUtil.parseUnsignedLongOrDefault(read.get(0), 0L);</span>
+<span class="fc" id="L129">            return ParseUtil.parseUnsignedLongOrDefault(read.get(0), 0L);</span>
         }
-<span class="fc" id="L135">        return 0L;</span>
+<span class="fc" id="L131">        return 0L;</span>
     }
 
     /**
-     * Read a file and return the int value contained therein. Intended
-     * primarily for Linux /sys filesystem
+     * Read a file and return the int value contained therein. Intended primarily
+     * for Linux /sys filesystem
      *
      * @param filename
      *            The file to read
      * @return The value contained in the file, if any; otherwise zero
      */
     public static int getIntFromFile(String filename) {
-<span class="pc bpc" id="L147" title="1 of 2 branches missed.">        if (LOG.isDebugEnabled()) {</span>
-<span class="nc" id="L148">            LOG.debug(&quot;Reading file {}&quot;, filename);</span>
+<span class="pc bpc" id="L143" title="1 of 2 branches missed.">        if (LOG.isDebugEnabled()) {</span>
+<span class="nc" id="L144">            LOG.debug(&quot;Reading file {}&quot;, filename);</span>
         }
         try {
-<span class="fc" id="L151">            List&lt;String&gt; read = FileUtil.readFile(filename, false);</span>
-<span class="fc bfc" id="L152" title="All 2 branches covered.">            if (!read.isEmpty()) {</span>
-<span class="pc bpc" id="L153" title="1 of 2 branches missed.">                if (LOG.isTraceEnabled()) {</span>
-<span class="nc" id="L154">                    LOG.trace(&quot;Read {}&quot;, read.get(0));</span>
+<span class="fc" id="L147">            List&lt;String&gt; read = FileUtil.readFile(filename, false);</span>
+<span class="fc bfc" id="L148" title="All 2 branches covered.">            if (!read.isEmpty()) {</span>
+<span class="pc bpc" id="L149" title="1 of 2 branches missed.">                if (LOG.isTraceEnabled()) {</span>
+<span class="nc" id="L150">                    LOG.trace(&quot;Read {}&quot;, read.get(0));</span>
                 }
-<span class="fc" id="L156">                return Integer.parseInt(read.get(0));</span>
+<span class="fc" id="L152">                return Integer.parseInt(read.get(0));</span>
             }
-<span class="fc" id="L158">        } catch (NumberFormatException ex) {</span>
-<span class="fc" id="L159">            LOG.warn(&quot;Unable to read value from {}. {}&quot;, filename, ex);</span>
-<span class="fc" id="L160">        }</span>
-<span class="fc" id="L161">        return 0;</span>
+<span class="fc" id="L154">        } catch (NumberFormatException ex) {</span>
+<span class="fc" id="L155">            LOG.warn(&quot;Unable to read value from {}. {}&quot;, filename, ex);</span>
+<span class="fc" id="L156">        }</span>
+<span class="fc" id="L157">        return 0;</span>
     }
 
     /**
-     * Read a file and return the String value contained therein. Intended
-     * primarily for Linux /sys filesystem
+     * Read a file and return the String value contained therein. Intended primarily
+     * for Linux /sys filesystem
      *
      * @param filename
      *            The file to read
      * @return The value contained in the file, if any; otherwise empty string
      */
     public static String getStringFromFile(String filename) {
-<span class="pc bpc" id="L173" title="1 of 2 branches missed.">        if (LOG.isDebugEnabled()) {</span>
-<span class="nc" id="L174">            LOG.debug(&quot;Reading file {}&quot;, filename);</span>
+<span class="pc bpc" id="L169" title="1 of 2 branches missed.">        if (LOG.isDebugEnabled()) {</span>
+<span class="nc" id="L170">            LOG.debug(&quot;Reading file {}&quot;, filename);</span>
         }
-<span class="fc" id="L176">        List&lt;String&gt; read = FileUtil.readFile(filename, false);</span>
-<span class="fc bfc" id="L177" title="All 2 branches covered.">        if (!read.isEmpty()) {</span>
-<span class="pc bpc" id="L178" title="1 of 2 branches missed.">            if (LOG.isTraceEnabled()) {</span>
-<span class="nc" id="L179">                LOG.trace(&quot;Read {}&quot;, read.get(0));</span>
+<span class="fc" id="L172">        List&lt;String&gt; read = FileUtil.readFile(filename, false);</span>
+<span class="fc bfc" id="L173" title="All 2 branches covered.">        if (!read.isEmpty()) {</span>
+<span class="pc bpc" id="L174" title="1 of 2 branches missed.">            if (LOG.isTraceEnabled()) {</span>
+<span class="nc" id="L175">                LOG.trace(&quot;Read {}&quot;, read.get(0));</span>
             }
-<span class="fc" id="L181">            return read.get(0);</span>
+<span class="fc" id="L177">            return read.get(0);</span>
         }
-<span class="fc" id="L183">        return &quot;&quot;;</span>
+<span class="fc" id="L179">        return &quot;&quot;;</span>
     }
 
     /**
@@ -190,23 +186,23 @@ public class FileUtil {
      * @param filename
      *            The file to read
      * @param separator
-     *            Characters in each line of the file that separate the key and
-     *            the value
+     *            Characters in each line of the file that separate the key and the
+     *            value
      * @return The map contained in the file, if any; otherwise empty map
      */
     public static Map&lt;String, String&gt; getKeyValueMapFromFile(String filename, String separator) {
-<span class="fc" id="L198">        Map&lt;String, String&gt; map = new HashMap&lt;&gt;();</span>
-<span class="pc bpc" id="L199" title="1 of 2 branches missed.">        if (LOG.isDebugEnabled()) {</span>
-<span class="nc" id="L200">            LOG.debug(&quot;Reading file {}&quot;, filename);</span>
+<span class="fc" id="L194">        Map&lt;String, String&gt; map = new HashMap&lt;&gt;();</span>
+<span class="pc bpc" id="L195" title="1 of 2 branches missed.">        if (LOG.isDebugEnabled()) {</span>
+<span class="nc" id="L196">            LOG.debug(&quot;Reading file {}&quot;, filename);</span>
         }
-<span class="fc" id="L202">        List&lt;String&gt; lines = FileUtil.readFile(filename, false);</span>
-<span class="fc bfc" id="L203" title="All 2 branches covered.">        for (String line : lines) {</span>
-<span class="fc" id="L204">            String[] parts = line.split(separator);</span>
-<span class="pc bpc" id="L205" title="1 of 2 branches missed.">            if (parts.length == 2) {</span>
-<span class="fc" id="L206">                map.put(parts[0], parts[1].trim());</span>
+<span class="fc" id="L198">        List&lt;String&gt; lines = FileUtil.readFile(filename, false);</span>
+<span class="fc bfc" id="L199" title="All 2 branches covered.">        for (String line : lines) {</span>
+<span class="fc" id="L200">            String[] parts = line.split(separator);</span>
+<span class="pc bpc" id="L201" title="1 of 2 branches missed.">            if (parts.length == 2) {</span>
+<span class="fc" id="L202">                map.put(parts[0], parts[1].trim());</span>
             }
-<span class="fc" id="L208">        }</span>
-<span class="fc" id="L209">        return map;</span>
+<span class="fc" id="L204">        }</span>
+<span class="fc" id="L205">        return map;</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

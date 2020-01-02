@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>FormatUtil.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.util</a> &gt; <span class="el_source">FormatUtil.java</span></div><h1>FormatUtil.java</h1><pre class="source lang-java linenums">/**
  * MIT License
  *
- * Copyright (c) 2010 - 2020 The OSHI Project Contributors:
- * https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -10,8 +9,9 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -30,8 +30,6 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Formatting utility for appending units or converting between number types.
- *
- * @author dblock[at]dblock[dot]org
  */
 public class FormatUtil {
     /**
@@ -48,8 +46,8 @@ public class FormatUtil {
     private static final long EXBI = 1L &lt;&lt; 60;
 
     /**
-     * Decimal prefixes, used for Hz and other metric units and for bytes by
-     * hard drive manufacturers
+     * Decimal prefixes, used for Hz and other metric units and for bytes by hard
+     * drive manufacturers
      */
     private static final long KILO = 1000L;
     private static final long MEGA = 1000000L;
@@ -61,41 +59,42 @@ public class FormatUtil {
     /*
      * Two's complement reference: 2^64.
      */
-<span class="fc" id="L64">    private static final BigInteger TWOS_COMPLEMENT_REF = BigInteger.ONE.shiftLeft(64);</span>
+<span class="fc" id="L62">    private static final BigInteger TWOS_COMPLEMENT_REF = BigInteger.ONE.shiftLeft(64);</span>
 
+    /** Constant &lt;code&gt;HEX_ERROR=&quot;0x%08X&quot;&lt;/code&gt; */
     public static final String HEX_ERROR = &quot;0x%08X&quot;;
 
     private FormatUtil() {
     }
 
     /**
-     * Format bytes into a rounded string representation using IEC standard
-     * (matches Mac/Linux). For hard drive capacities, use @link
-     * {@link #formatBytesDecimal(long)}. For Windows displays for KB, MB and
-     * GB, in JEDEC units, edit the returned string to remove the 'i' to display
-     * the (incorrect) JEDEC units.
+     * Format bytes into a rounded string representation using IEC standard (matches
+     * Mac/Linux). For hard drive capacities, use @link
+     * {@link #formatBytesDecimal(long)}. For Windows displays for KB, MB and GB, in
+     * JEDEC units, edit the returned string to remove the 'i' to display the
+     * (incorrect) JEDEC units.
      *
      * @param bytes
      *            Bytes.
      * @return Rounded string representation of the byte size.
      */
     public static String formatBytes(long bytes) {
-<span class="fc bfc" id="L83" title="All 2 branches covered.">        if (bytes == 1L) { // bytes</span>
-<span class="fc" id="L84">            return String.format(&quot;%d byte&quot;, bytes);</span>
-<span class="fc bfc" id="L85" title="All 2 branches covered.">        } else if (bytes &lt; KIBI) { // bytes</span>
-<span class="fc" id="L86">            return String.format(&quot;%d bytes&quot;, bytes);</span>
-<span class="fc bfc" id="L87" title="All 2 branches covered.">        } else if (bytes &lt; MEBI) { // KiB</span>
-<span class="fc" id="L88">            return formatUnits(bytes, KIBI, &quot;KiB&quot;);</span>
-<span class="fc bfc" id="L89" title="All 2 branches covered.">        } else if (bytes &lt; GIBI) { // MiB</span>
-<span class="fc" id="L90">            return formatUnits(bytes, MEBI, &quot;MiB&quot;);</span>
-<span class="fc bfc" id="L91" title="All 2 branches covered.">        } else if (bytes &lt; TEBI) { // GiB</span>
-<span class="fc" id="L92">            return formatUnits(bytes, GIBI, &quot;GiB&quot;);</span>
-<span class="fc bfc" id="L93" title="All 2 branches covered.">        } else if (bytes &lt; PEBI) { // TiB</span>
-<span class="fc" id="L94">            return formatUnits(bytes, TEBI, &quot;TiB&quot;);</span>
-<span class="fc bfc" id="L95" title="All 2 branches covered.">        } else if (bytes &lt; EXBI) { // PiB</span>
-<span class="fc" id="L96">            return formatUnits(bytes, PEBI, &quot;PiB&quot;);</span>
+<span class="fc bfc" id="L82" title="All 2 branches covered.">        if (bytes == 1L) { // bytes</span>
+<span class="fc" id="L83">            return String.format(&quot;%d byte&quot;, bytes);</span>
+<span class="fc bfc" id="L84" title="All 2 branches covered.">        } else if (bytes &lt; KIBI) { // bytes</span>
+<span class="fc" id="L85">            return String.format(&quot;%d bytes&quot;, bytes);</span>
+<span class="fc bfc" id="L86" title="All 2 branches covered.">        } else if (bytes &lt; MEBI) { // KiB</span>
+<span class="fc" id="L87">            return formatUnits(bytes, KIBI, &quot;KiB&quot;);</span>
+<span class="fc bfc" id="L88" title="All 2 branches covered.">        } else if (bytes &lt; GIBI) { // MiB</span>
+<span class="fc" id="L89">            return formatUnits(bytes, MEBI, &quot;MiB&quot;);</span>
+<span class="fc bfc" id="L90" title="All 2 branches covered.">        } else if (bytes &lt; TEBI) { // GiB</span>
+<span class="fc" id="L91">            return formatUnits(bytes, GIBI, &quot;GiB&quot;);</span>
+<span class="fc bfc" id="L92" title="All 2 branches covered.">        } else if (bytes &lt; PEBI) { // TiB</span>
+<span class="fc" id="L93">            return formatUnits(bytes, TEBI, &quot;TiB&quot;);</span>
+<span class="fc bfc" id="L94" title="All 2 branches covered.">        } else if (bytes &lt; EXBI) { // PiB</span>
+<span class="fc" id="L95">            return formatUnits(bytes, PEBI, &quot;PiB&quot;);</span>
         } else { // EiB
-<span class="fc" id="L98">            return formatUnits(bytes, EXBI, &quot;EiB&quot;);</span>
+<span class="fc" id="L97">            return formatUnits(bytes, EXBI, &quot;EiB&quot;);</span>
         }
     }
 
@@ -112,28 +111,28 @@ public class FormatUtil {
      * @return A string with the value
      */
     private static String formatUnits(long value, long prefix, String unit) {
-<span class="fc bfc" id="L115" title="All 2 branches covered.">        if (value % prefix == 0) {</span>
-<span class="fc" id="L116">            return String.format(&quot;%d %s&quot;, value / prefix, unit);</span>
+<span class="fc bfc" id="L114" title="All 2 branches covered.">        if (value % prefix == 0) {</span>
+<span class="fc" id="L115">            return String.format(&quot;%d %s&quot;, value / prefix, unit);</span>
         }
-<span class="fc" id="L118">        return String.format(&quot;%.1f %s&quot;, (double) value / prefix, unit);</span>
+<span class="fc" id="L117">        return String.format(&quot;%.1f %s&quot;, (double) value / prefix, unit);</span>
     }
 
     /**
      * Format bytes into a rounded string representation using decimal SI units.
-     * These are used by hard drive manufacturers for capacity. Most other
-     * storage should use {@link #formatBytes(long)}.
+     * These are used by hard drive manufacturers for capacity. Most other storage
+     * should use {@link #formatBytes(long)}.
      *
      * @param bytes
      *            Bytes.
      * @return Rounded string representation of the byte size.
      */
     public static String formatBytesDecimal(long bytes) {
-<span class="fc bfc" id="L131" title="All 2 branches covered.">        if (bytes == 1L) { // bytes</span>
-<span class="fc" id="L132">            return String.format(&quot;%d byte&quot;, bytes);</span>
-<span class="fc bfc" id="L133" title="All 2 branches covered.">        } else if (bytes &lt; KILO) { // bytes</span>
-<span class="fc" id="L134">            return String.format(&quot;%d bytes&quot;, bytes);</span>
+<span class="fc bfc" id="L130" title="All 2 branches covered.">        if (bytes == 1L) { // bytes</span>
+<span class="fc" id="L131">            return String.format(&quot;%d byte&quot;, bytes);</span>
+<span class="fc bfc" id="L132" title="All 2 branches covered.">        } else if (bytes &lt; KILO) { // bytes</span>
+<span class="fc" id="L133">            return String.format(&quot;%d bytes&quot;, bytes);</span>
         } else {
-<span class="fc" id="L136">            return formatValue(bytes, &quot;B&quot;);</span>
+<span class="fc" id="L135">            return formatValue(bytes, &quot;B&quot;);</span>
         }
     }
 
@@ -145,7 +144,7 @@ public class FormatUtil {
      * @return Rounded string representation of the hertz size.
      */
     public static String formatHertz(long hertz) {
-<span class="fc" id="L148">        return formatValue(hertz, &quot;Hz&quot;);</span>
+<span class="fc" id="L147">        return formatValue(hertz, &quot;Hz&quot;);</span>
     }
 
     /**
@@ -159,20 +158,20 @@ public class FormatUtil {
      *         extension
      */
     public static String formatValue(long value, String unit) {
-<span class="fc bfc" id="L162" title="All 2 branches covered.">        if (value &lt; KILO) {</span>
-<span class="fc" id="L163">            return String.format(&quot;%d %s&quot;, value, unit);</span>
-<span class="fc bfc" id="L164" title="All 2 branches covered.">        } else if (value &lt; MEGA) { // K</span>
-<span class="fc" id="L165">            return formatUnits(value, KILO, &quot;K&quot; + unit);</span>
-<span class="fc bfc" id="L166" title="All 2 branches covered.">        } else if (value &lt; GIGA) { // M</span>
-<span class="fc" id="L167">            return formatUnits(value, MEGA, &quot;M&quot; + unit);</span>
-<span class="fc bfc" id="L168" title="All 2 branches covered.">        } else if (value &lt; TERA) { // G</span>
-<span class="fc" id="L169">            return formatUnits(value, GIGA, &quot;G&quot; + unit);</span>
-<span class="fc bfc" id="L170" title="All 2 branches covered.">        } else if (value &lt; PETA) { // T</span>
-<span class="fc" id="L171">            return formatUnits(value, TERA, &quot;T&quot; + unit);</span>
-<span class="fc bfc" id="L172" title="All 2 branches covered.">        } else if (value &lt; EXA) { // P</span>
-<span class="fc" id="L173">            return formatUnits(value, PETA, &quot;P&quot; + unit);</span>
+<span class="fc bfc" id="L161" title="All 2 branches covered.">        if (value &lt; KILO) {</span>
+<span class="fc" id="L162">            return String.format(&quot;%d %s&quot;, value, unit);</span>
+<span class="fc bfc" id="L163" title="All 2 branches covered.">        } else if (value &lt; MEGA) { // K</span>
+<span class="fc" id="L164">            return formatUnits(value, KILO, &quot;K&quot; + unit);</span>
+<span class="fc bfc" id="L165" title="All 2 branches covered.">        } else if (value &lt; GIGA) { // M</span>
+<span class="fc" id="L166">            return formatUnits(value, MEGA, &quot;M&quot; + unit);</span>
+<span class="fc bfc" id="L167" title="All 2 branches covered.">        } else if (value &lt; TERA) { // G</span>
+<span class="fc" id="L168">            return formatUnits(value, GIGA, &quot;G&quot; + unit);</span>
+<span class="fc bfc" id="L169" title="All 2 branches covered.">        } else if (value &lt; PETA) { // T</span>
+<span class="fc" id="L170">            return formatUnits(value, TERA, &quot;T&quot; + unit);</span>
+<span class="fc bfc" id="L171" title="All 2 branches covered.">        } else if (value &lt; EXA) { // P</span>
+<span class="fc" id="L172">            return formatUnits(value, PETA, &quot;P&quot; + unit);</span>
         } else { // E
-<span class="fc" id="L175">            return formatUnits(value, EXA, &quot;E&quot; + unit);</span>
+<span class="fc" id="L174">            return formatUnits(value, EXA, &quot;E&quot; + unit);</span>
         }
     }
 
@@ -184,15 +183,15 @@ public class FormatUtil {
      * @return A string representation of elapsed time
      */
     public static String formatElapsedSecs(long secs) {
-<span class="fc" id="L187">        long eTime = secs;</span>
-<span class="fc" id="L188">        final long days = TimeUnit.SECONDS.toDays(eTime);</span>
-<span class="fc" id="L189">        eTime -= TimeUnit.DAYS.toSeconds(days);</span>
-<span class="fc" id="L190">        final long hr = TimeUnit.SECONDS.toHours(eTime);</span>
-<span class="fc" id="L191">        eTime -= TimeUnit.HOURS.toSeconds(hr);</span>
-<span class="fc" id="L192">        final long min = TimeUnit.SECONDS.toMinutes(eTime);</span>
-<span class="fc" id="L193">        eTime -= TimeUnit.MINUTES.toSeconds(min);</span>
-<span class="fc" id="L194">        final long sec = eTime;</span>
-<span class="fc" id="L195">        return String.format(&quot;%d days, %02d:%02d:%02d&quot;, days, hr, min, sec);</span>
+<span class="fc" id="L186">        long eTime = secs;</span>
+<span class="fc" id="L187">        final long days = TimeUnit.SECONDS.toDays(eTime);</span>
+<span class="fc" id="L188">        eTime -= TimeUnit.DAYS.toSeconds(days);</span>
+<span class="fc" id="L189">        final long hr = TimeUnit.SECONDS.toHours(eTime);</span>
+<span class="fc" id="L190">        eTime -= TimeUnit.HOURS.toSeconds(hr);</span>
+<span class="fc" id="L191">        final long min = TimeUnit.SECONDS.toMinutes(eTime);</span>
+<span class="fc" id="L192">        eTime -= TimeUnit.MINUTES.toSeconds(min);</span>
+<span class="fc" id="L193">        final long sec = eTime;</span>
+<span class="fc" id="L194">        return String.format(&quot;%d days, %02d:%02d:%02d&quot;, days, hr, min, sec);</span>
     }
 
     /**
@@ -205,8 +204,8 @@ public class FormatUtil {
      * @return rounded result
      */
     public static float round(float d, int decimalPlace) {
-<span class="fc" id="L208">        final BigDecimal bd = new BigDecimal(Float.toString(d)).setScale(decimalPlace, RoundingMode.HALF_UP);</span>
-<span class="fc" id="L209">        return bd.floatValue();</span>
+<span class="fc" id="L207">        final BigDecimal bd = new BigDecimal(Float.toString(d)).setScale(decimalPlace, RoundingMode.HALF_UP);</span>
+<span class="fc" id="L208">        return bd.floatValue();</span>
     }
 
     /**
@@ -217,7 +216,7 @@ public class FormatUtil {
      * @return long value of x unsigned
      */
     public static long getUnsignedInt(int x) {
-<span class="fc" id="L220">        return x &amp; 0x00000000ffffffffL;</span>
+<span class="fc" id="L219">        return x &amp; 0x00000000ffffffffL;</span>
     }
 
     /**
@@ -230,10 +229,10 @@ public class FormatUtil {
      * @return the string representation of the unsigned integer
      */
     public static String toUnsignedString(int i) {
-<span class="fc bfc" id="L233" title="All 2 branches covered.">        if (i &gt;= 0) {</span>
-<span class="fc" id="L234">            return Integer.toString(i);</span>
+<span class="fc bfc" id="L232" title="All 2 branches covered.">        if (i &gt;= 0) {</span>
+<span class="fc" id="L233">            return Integer.toString(i);</span>
         }
-<span class="fc" id="L236">        return Long.toString(getUnsignedInt(i));</span>
+<span class="fc" id="L235">        return Long.toString(getUnsignedInt(i));</span>
     }
 
     /**
@@ -246,21 +245,21 @@ public class FormatUtil {
      * @return the string representation of the unsigned long
      */
     public static String toUnsignedString(long l) {
-<span class="fc bfc" id="L249" title="All 2 branches covered.">        if (l &gt;= 0) {</span>
-<span class="fc" id="L250">            return Long.toString(l);</span>
+<span class="fc bfc" id="L248" title="All 2 branches covered.">        if (l &gt;= 0) {</span>
+<span class="fc" id="L249">            return Long.toString(l);</span>
         }
-<span class="fc" id="L252">        return BigInteger.valueOf(l).add(TWOS_COMPLEMENT_REF).toString();</span>
+<span class="fc" id="L251">        return BigInteger.valueOf(l).add(TWOS_COMPLEMENT_REF).toString();</span>
     }
 
     /**
      * Translate an integer error code to its hex notation
-     * 
+     *
      * @param errorCode
      *            The error code
      * @return A string representing the error as 0x....
      */
     public static String formatError(int errorCode) {
-<span class="fc" id="L263">        return String.format(HEX_ERROR, errorCode);</span>
+<span class="fc" id="L262">        return String.format(HEX_ERROR, errorCode);</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
