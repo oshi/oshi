@@ -161,7 +161,6 @@
 		<tidy-maven-plugin.version>1.1.0</tidy-maven-plugin.version>
 		<license-maven-plugin.version>3.0</license-maven-plugin.version>
 		<!-- report only -->
-		<jdepend-maven-plugin.version>2.0</jdepend-maven-plugin.version>
 		<maven-changelog-plugin.version>2.3</maven-changelog-plugin.version>
 		<maven-jxr-plugin.version>3.0.0</maven-jxr-plugin.version>
 		<maven-project-info-reports-plugin.version>3.0.0</maven-project-info-reports-plugin.version>
@@ -501,11 +500,6 @@
 				</plugin>
 				<!-- Report Only -->
 				<plugin>
-					<groupId>org.codehaus.mojo</groupId>
-					<artifactId>jdepend-maven-plugin</artifactId>
-					<version>${jdepend-maven-plugin.version}</version>
-				</plugin>
-				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-changelog-plugin</artifactId>
 					<version>${maven-changelog-plugin.version}</version>
@@ -818,10 +812,6 @@
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>taglist-maven-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>jdepend-maven-plugin</artifactId>
 			</plugin>
 			<plugin>
 				<groupId>org.owasp</groupId>
