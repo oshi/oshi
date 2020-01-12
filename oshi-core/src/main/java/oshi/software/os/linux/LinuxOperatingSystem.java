@@ -236,13 +236,9 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     }
 
     private OSProcess getProcess(int pid, LinuxUserGroupInfo userGroupInfo, boolean slowFields) {
-        String path = "";
         Pointer buf = new Memory(1024);
         int size = LinuxLibc.INSTANCE.readlink(String.format("/proc/%d/exe", pid), buf, 1023);
-        if (size > 0) {
-            String tmp = buf.getString(0);
-            path = tmp.substring(0, tmp.length() < size ? tmp.length() : size);
-        }
+        String path = size > 0 ? new String(buf.getByteArray(0, size)) : "";
         Map<String, String> io = FileUtil.getKeyValueMapFromFile(String.format("/proc/%d/io", pid), ":");
         // See man proc for how to parse /proc/[pid]/stat
         long now = System.currentTimeMillis();
