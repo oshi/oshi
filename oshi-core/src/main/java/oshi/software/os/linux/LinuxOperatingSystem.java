@@ -26,6 +26,10 @@ package oshi.software.os.linux;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -35,9 +39,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Memory;
 import com.sun.jna.Native;
-import com.sun.jna.Pointer;
 import com.sun.jna.platform.linux.LibC;
 import com.sun.jna.platform.linux.LibC.Sysinfo;
 
@@ -205,9 +207,14 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     }
 
     private OSProcess getProcess(int pid, boolean slowFields) {
-        Pointer buf = new Memory(1024);
-        int size = Libc.INSTANCE.readlink(String.format("/proc/%d/exe", pid), buf, 1023);
-        String path = size > 0 ? new String(buf.getByteArray(0, size)) : "";
+        String path = "";
+        String procPidExe = String.format("/proc/%d/exe", pid);
+        try {
+            Path link = Paths.get(procPidExe);
+            path = Files.readSymbolicLink(link).toString();
+        } catch (InvalidPathException | IOException | UnsupportedOperationException | SecurityException e) {
+            LOG.debug("Unable to open symbolic link {}", procPidExe);
+        }
         Map<String, String> io = FileUtil.getKeyValueMapFromFile(String.format("/proc/%d/io", pid), ":");
         // See man proc for how to parse /proc/[pid]/stat
         long now = System.currentTimeMillis();
@@ -508,8 +515,8 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     /**
      * Attempts to read /etc/lsb-release
      *
-     * @return true if file successfully read and DISTRIB_ID or
-     *         DISTRIB_DESCRIPTION found
+     * @return true if file successfully read and DISTRIB_ID or DISTRIB_DESCRIPTION
+     *         found
      */
     private boolean readLsbRelease() {
         if (new File("/etc/lsb-release").exists()) {
@@ -540,8 +547,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     /**
      * Attempts to read /etc/distrib-release (for some value of distrib)
      *
-     * @return true if file successfully read and " release " or " VERSION "
-     *         found
+     * @return true if file successfully read and " release " or " VERSION " found
      */
     private boolean readDistribRelease(String filename) {
         if (new File(filename).exists()) {
@@ -616,9 +622,8 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     }
 
     /**
-     * Converts a portion of a filename (e.g. the 'redhat' in
-     * /etc/redhat-release) to a mixed case string representing the family
-     * (e.g., Red Hat)
+     * Converts a portion of a filename (e.g. the 'redhat' in /etc/redhat-release)
+     * to a mixed case string representing the family (e.g., Red Hat)
      *
      * @param name
      *            Stripped version of filename after removing /etc and -release
@@ -687,8 +692,8 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     }
 
     /**
-     * Gets Jiffies per second, useful for converting ticks to milliseconds and
-     * vice versa.
+     * Gets Jiffies per second, useful for converting ticks to milliseconds and vice
+     * versa.
      *
      * @return Jiffies per second.
      */
