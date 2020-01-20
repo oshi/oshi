@@ -31,6 +31,10 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
+import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -40,9 +44,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Memory; // NOSONAR squid:S1191
 import com.sun.jna.Native;
-import com.sun.jna.Pointer;
 import com.sun.jna.platform.linux.LibC;
 import com.sun.jna.platform.linux.LibC.Sysinfo;
 
@@ -236,9 +238,14 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     }
 
     private OSProcess getProcess(int pid, LinuxUserGroupInfo userGroupInfo, boolean slowFields) {
-        Pointer buf = new Memory(1024);
-        int size = LinuxLibc.INSTANCE.readlink(String.format("/proc/%d/exe", pid), buf, 1023);
-        String path = size > 0 ? new String(buf.getByteArray(0, size)) : "";
+        String path = "";
+        String procPidExe = String.format("/proc/%d/exe", pid);
+        try {
+            Path link = Paths.get(procPidExe);
+            path = Files.readSymbolicLink(link).toString();
+        } catch (InvalidPathException | IOException | UnsupportedOperationException | SecurityException e) {
+            LOG.debug("Unable to open symbolic link {}", procPidExe);
+        }
         Map<String, String> io = FileUtil.getKeyValueMapFromFile(String.format("/proc/%d/io", pid), ":");
         // See man proc for how to parse /proc/[pid]/stat
         long now = System.currentTimeMillis();
