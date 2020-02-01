@@ -130,22 +130,4 @@ public interface CLibrary extends LibCAPI, Library {
      * @return A human-readable version of the error code
      */
     String gai_strerror(int e);
-
-    /**
-     * Places the contents of the symbolic link path in the buffer buf, which has
-     * size bufsiz.
-     *
-     * @param path
-     *            A symbolic link
-     * @param buf
-     *            Holds actual path to location pointed to by symlink
-     * @param bufsize
-     *            size of data in buffer
-     * @return readlink() places the contents of the symbolic link path in the
-     *         buffer buf, which has size bufsiz. readlink() does not append a null
-     *         byte to buf. It will truncate the contents (to a length of bufsiz
-     *         characters), in case the buffer is too small to hold all of the
-     *         contents.
-     */
-    int readlink(String path, Pointer buf, int bufsize);
 }

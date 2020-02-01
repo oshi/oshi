@@ -24,7 +24,7 @@ What minimum Java version is required?
 ========
 OSHI 3.x is compatible with Java 7, but will not see any added features.  
 OSHI 4.x and 5.x (planned) require minimum Java 8 compatibility, although backporting to Java 7 would not be difficult on a fork.
-OSHI 6.x's requirements have not yet been finalized but will likely require at least Java 11.  
+OSHI 6.x's requirements have not yet been finalized but will likely require at least Java 11 and leverage modules. 
 
 Which operating systems are supported?
 ========
@@ -33,6 +33,13 @@ OSHI has been implemented and tested on the following systems.  Some features ma
 * Mac OS X version 10.6 (Snow Leopard) and higher
 * Linux (Most major distributions) Kernel 2.6 and higher
 * Unix: Solaris 11 (SunOS 5.11) / FreeBSD 10
+
+How do I resolve JNA `NoClassDefFound` errors?
+========
+OSHI uses the latest version of JNA, which may conflict with other dependencies your project (or its parent) includes. If you experience issues with `NoClassDefFound` errors for JNA artifacts, consider one or more of the following steps to resolve the conflict:
+ - Listing OSHI earlier (or first) in your dependency list 
+ - Specifying the most recent version of JNA as a dependency
+ - If you are using a parent (e.g., Spring Boot) that includes JNA as a dependency, override the `jna.version` property 
 
 What API features are not implemented on some operating systems?
 ========
