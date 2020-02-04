@@ -88,6 +88,9 @@ public class OshiHTTPServer implements Runnable {
 
             // get first line of the request from the client
             String input = in.readLine();
+            if (input == null) {
+            	throw new IOException("No characters read from input stream.");
+            }
             // we parse the request with a string tokenizer
             StringTokenizer parse = new StringTokenizer(input);
             String method = parse.nextToken().toUpperCase(); // we get the HTTP method of the client
