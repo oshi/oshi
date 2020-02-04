@@ -1,6 +1,7 @@
 4.4.0 (in progress)
 ================
-* Your contribution here
+* [#1093](https://github.com/oshi/oshi/pull/1093): Fix Windows firmware field ordering. - [@dbwiddis](https://github.com/dbwiddis).
+* [#1095](https://github.com/oshi/oshi/pull/1095): Vend JSON via HTTP Server (oshi-demo). - [@dbwiddis](https://github.com/dbwiddis).
 
 4.3.0 (1/2/2020)
 ================
