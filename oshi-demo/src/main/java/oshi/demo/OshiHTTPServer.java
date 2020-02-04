@@ -25,20 +25,21 @@ package oshi.demo;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.StringTokenizer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import oshi.SystemInfo;
 
 // Demo class to vend OSHI JSON data via an HTTP Webserver
 //
@@ -46,11 +47,6 @@ import org.slf4j.LoggerFactory;
 // https://www.ssaurel.com/blog/create-a-simple-http-web-server-in-java
 // Each Client Connection will be managed in a dedicated Thread
 public class OshiHTTPServer implements Runnable {
-
-    private static final File WEB_ROOT = new File(".");
-    private static final String DEFAULT_FILE = "index.html";
-    private static final String FILE_NOT_FOUND = "404.html";
-    private static final String METHOD_NOT_SUPPORTED = "not_supported.html";
     // port to listen connection
     private static final int PORT = 8080;
 
@@ -69,7 +65,7 @@ public class OshiHTTPServer implements Runnable {
             logger.info("Server started. Listening for connections on port {}", PORT);
 
             // we listen until user halts server execution
-            while (true) {
+            while (true) { // NOSONAR squid:S2189
                 OshiHTTPServer myServer = new OshiHTTPServer(serverConnect.accept());
 
                 // create dedicated thread to manage the client connection
@@ -83,131 +79,71 @@ public class OshiHTTPServer implements Runnable {
 
     @Override
     public void run() {
-        // we manage our particular client connection
-        PrintWriter out = null;
-        BufferedOutputStream dataOut = null;
-        String fileRequested = null;
-        // we read characters from the client via input stream on the socket
-        try (BufferedReader in = new BufferedReader(new InputStreamReader(connect.getInputStream()))) {
-            // we get character output stream to client (for headers)
-            out = new PrintWriter(connect.getOutputStream());
-            // get binary output stream to client (for requested data)
-            dataOut = new BufferedOutputStream(connect.getOutputStream());
+        try ( // read characters from the client via input stream on the socket
+                BufferedReader in = new BufferedReader(new InputStreamReader(connect.getInputStream()));
+                // get character output stream to client (for headers)
+                PrintWriter out = new PrintWriter(connect.getOutputStream());
+                // get binary output stream to client (for requested data)
+                BufferedOutputStream dataOut = new BufferedOutputStream(connect.getOutputStream())) {
 
             // get first line of the request from the client
             String input = in.readLine();
             // we parse the request with a string tokenizer
             StringTokenizer parse = new StringTokenizer(input);
             String method = parse.nextToken().toUpperCase(); // we get the HTTP method of the client
-            // we get file requested
-            fileRequested = parse.nextToken().toLowerCase();
+            // we get fields requested
+            String fileRequested = parse.nextToken().toLowerCase();
 
             // we support only GET and HEAD methods, we check
             if (!method.equals("GET") && !method.equals("HEAD")) {
                 logger.debug("501 Not Implemented: {}", method);
-
-                // we return the not supported file to the client
-                File file = new File(WEB_ROOT, METHOD_NOT_SUPPORTED);
-                int fileLength = (int) file.length();
                 String contentMimeType = "text/html";
-                // read content to return to client
-                byte[] fileData = readFileData(file, fileLength);
 
                 // we send HTTP Headers with data to client
                 out.println("HTTP/1.1 501 Not Implemented");
                 out.println("Server: OSHI HTTP Server");
                 out.println("Date: " + Instant.now());
                 out.println("Content-type: " + contentMimeType);
-                out.println("Content-length: " + fileLength);
+                out.println("Content-length: " + 0);
                 out.println(); // blank line between headers and content, very important !
                 out.flush(); // flush character output stream buffer
-                // file
-                dataOut.write(fileData, 0, fileLength);
-                dataOut.flush();
 
+                // Could return other information here...
             } else {
-                // GET or HEAD method
-                if (fileRequested.endsWith("/")) {
-                    fileRequested += DEFAULT_FILE;
-                }
-
-                File file = new File(WEB_ROOT, fileRequested);
-                int fileLength = (int) file.length();
-                String content = getContentType(fileRequested);
+                // Possibly could use the fileRequested value from user input to work down
+                // OSHI's JSON tree and only return the relevant info instead of the entire
+                // SystemInfo object.
+                SystemInfo si = new SystemInfo();
+                ObjectMapper mapper = new ObjectMapper();
+                byte[] content = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(si)
+                        .getBytes(StandardCharsets.UTF_8);
 
                 if (method.equals("GET")) { // GET method so we return content
-                    byte[] fileData = readFileData(file, fileLength);
-
                     // send HTTP Headers
                     out.println("HTTP/1.1 200 OK");
                     out.println("Server: OSHI HTTP Server");
                     out.println("Date: " + Instant.now());
-                    out.println("Content-type: " + content);
-                    out.println("Content-length: " + fileLength);
+                    out.println("Content-type: application/json");
+                    out.println("Content-length: " + content.length);
                     out.println(); // blank line between headers and content, very important !
                     out.flush(); // flush character output stream buffer
 
-                    dataOut.write(fileData, 0, fileLength);
+                    dataOut.write(content, 0, content.length);
                     dataOut.flush();
                 }
 
-                logger.debug("File {} of type {} returned", fileRequested, content);
+                logger.debug("Data {} returned", fileRequested);
             }
-
-        } catch (FileNotFoundException fnfe) {
-            try {
-                fileNotFound(out, dataOut, fileRequested);
-            } catch (IOException ioe) {
-                logger.error("Error with file not found exception: {}", ioe.getMessage());
-            }
-
         } catch (IOException ioe) {
             logger.error("Server error: {}", ioe);
         } finally {
             try {
-                out.close();
-                dataOut.close();
-                connect.close(); // we close socket connection
+                // close socket connection, defined for this thread
+                connect.close();
             } catch (Exception e) {
-                logger.error("Error closing stream: {}", e.getMessage());
+                logger.error("Error closing connection: {}", e.getMessage());
             }
-
             logger.debug("Connection closed.");
         }
     }
-
-    private byte[] readFileData(File file, int fileLength) throws IOException {
-        byte[] fileData = new byte[fileLength];
-
-        try (FileInputStream fileIn = new FileInputStream(file)) {
-            fileIn.read(fileData);
-        }
-        return fileData;
-    }
-
-    // return supported MIME Types
-    private String getContentType(String fileRequested) {
-        return fileRequested.endsWith(".htm") || fileRequested.endsWith(".html") ? "text/html" : "text/plain";
-    }
-
-    private void fileNotFound(PrintWriter out, OutputStream dataOut, String fileRequested) throws IOException {
-        File file = new File(WEB_ROOT, FILE_NOT_FOUND);
-        int fileLength = (int) file.length();
-        String content = "text/html";
-        byte[] fileData = readFileData(file, fileLength);
-
-        out.println("HTTP/1.1 404 File Not Found");
-        out.println("Server: OSHI HTTP Server");
-        out.println("Date: " + Instant.now());
-        out.println("Content-type: " + content);
-        out.println("Content-length: " + fileLength);
-        out.println(); // blank line between headers and content, very important !
-        out.flush(); // flush character output stream buffer
-
-        dataOut.write(fileData, 0, fileLength);
-        dataOut.flush();
-
-        logger.debug("File {} not found", fileRequested);
-    }
-
 }
