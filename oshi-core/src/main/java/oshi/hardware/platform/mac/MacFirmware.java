@@ -85,27 +85,27 @@ final class MacFirmware extends AbstractFirmware {
                     case "rom":
                         byte[] data = entry.getByteArrayProperty("vendor");
                         if (data != null) {
-                            manufacturer = new String(data, StandardCharsets.UTF_8);
+                            manufacturer = new String(data, StandardCharsets.UTF_8).trim();
                         }
                         data = entry.getByteArrayProperty("version");
                         if (data != null) {
-                            version = new String(data, StandardCharsets.UTF_8);
+                            version = new String(data, StandardCharsets.UTF_8).trim();
                         }
                         data = entry.getByteArrayProperty("release-date");
                         if (data != null) {
-                            releaseDate = new String(data, StandardCharsets.UTF_8);
+                            releaseDate = new String(data, StandardCharsets.UTF_8).trim();
                         }
                         break;
                     case "chosen":
                         data = entry.getByteArrayProperty("booter-name");
                         if (data != null) {
-                            name = new String(data, StandardCharsets.UTF_8);
+                            name = new String(data, StandardCharsets.UTF_8).trim();
                         }
                         break;
                     case "efi":
                         data = entry.getByteArrayProperty("firmware-abi");
                         if (data != null) {
-                            description = new String(data, StandardCharsets.UTF_8);
+                            description = new String(data, StandardCharsets.UTF_8).trim();
                         }
                         break;
                     default:
