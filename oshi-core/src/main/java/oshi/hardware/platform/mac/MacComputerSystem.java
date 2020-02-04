@@ -77,11 +77,11 @@ final class MacComputerSystem extends AbstractComputerSystem {
         if (platformExpert != null) {
             byte[] data = platformExpert.getByteArrayProperty("manufacturer");
             if (data != null) {
-                manufacturer = new String(data, StandardCharsets.UTF_8);
+                manufacturer = new String(data, StandardCharsets.UTF_8).trim();
             }
             data = platformExpert.getByteArrayProperty("model");
             if (data != null) {
-                model = new String(data, StandardCharsets.UTF_8);
+                model = new String(data, StandardCharsets.UTF_8).trim();
             }
             serialNumber = platformExpert.getStringProperty("IOPlatformSerialNumber");
             platformExpert.release();
