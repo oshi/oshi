@@ -32,6 +32,7 @@ import com.sun.jna.Native;
 import com.sun.jna.ptr.PointerByReference;
 
 import oshi.jna.platform.unix.CLibrary;
+import oshi.jna.platform.unix.CLibrary.Addrinfo;
 import oshi.jna.platform.unix.freebsd.FreeBsdLibc;
 import oshi.software.common.AbstractNetworkParams;
 import oshi.util.ExecutingCommand;
@@ -49,7 +50,7 @@ public class FreeBsdNetworkParams extends AbstractNetworkParams {
 
     @Override
     public String getDomainName() {
-        FreeBsdLibc.Addrinfo hint = new FreeBsdLibc.Addrinfo();
+        Addrinfo hint = new Addrinfo();
         hint.ai_flags = CLibrary.AI_CANONNAME;
         String hostname = getHostName();
 
@@ -61,7 +62,7 @@ public class FreeBsdNetworkParams extends AbstractNetworkParams {
             }
             return "";
         }
-        FreeBsdLibc.Addrinfo info = new FreeBsdLibc.Addrinfo(ptr.getValue());
+        Addrinfo info = new Addrinfo(ptr.getValue());
         String canonname = info.ai_canonname.trim();
         LIBC.freeaddrinfo(ptr.getValue());
         return canonname;

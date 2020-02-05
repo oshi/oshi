@@ -708,10 +708,8 @@ public class ParseUtil {
                     numberFound = true;
                 }
                 if (!delimCurrent) {
-                    if (numberFound) {
-                        if (indices[parsedIndex] == stringIndex--) {
-                            parsedIndex--;
-                        }
+                    if (numberFound && indices[parsedIndex] == stringIndex--) {
+                        parsedIndex--;
                     }
                     delimCurrent = true;
                     power = 0;

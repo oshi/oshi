@@ -38,6 +38,7 @@ import com.sun.jna.Native;
 import com.sun.jna.platform.win32.Advapi32Util;
 import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.Kernel32Util;
+import com.sun.jna.platform.win32.PowrProf.POWER_INFORMATION_LEVEL;
 import com.sun.jna.platform.win32.VersionHelpers;
 import com.sun.jna.platform.win32.WinBase;
 import com.sun.jna.platform.win32.WinBase.SYSTEM_INFO;
@@ -528,7 +529,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
         long[] freqs = new long[getLogicalProcessorCount()];
         int bufferSize = ppi.size() * freqs.length;
         Memory mem = new Memory(bufferSize);
-        if (0 != PowrProf.INSTANCE.CallNtPowerInformation(PowrProf.POWER_INFORMATION_LEVEL.ProcessorInformation, null,
+        if (0 != PowrProf.INSTANCE.CallNtPowerInformation(POWER_INFORMATION_LEVEL.ProcessorInformation, null,
                 0, mem, bufferSize)) {
             LOG.error("Unable to get Processor Information");
             Arrays.fill(freqs, -1L);

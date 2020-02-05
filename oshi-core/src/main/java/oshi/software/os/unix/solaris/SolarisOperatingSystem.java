@@ -219,7 +219,7 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
                 String[] split = ParseUtil.whitespaces.split(proc);
                 int bitToSet = ParseUtil.parseIntOrDefault(split[0], -1);
                 if (bitToSet >= 0) {
-                    bitMask |= (1L << bitToSet);
+                    bitMask |= 1L << bitToSet;
                 }
             }
             return bitMask;
