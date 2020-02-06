@@ -58,16 +58,16 @@ Downloads
 ---------
 | Stable Release Version | Current Development Version | Dependencies |
 | ------------- | ------------- | ------------- |
-| [oshi-core-4.3.0](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&amp;g=com.github.oshi&amp;a=oshi-core&amp;v=4.3.0&amp;e=jar)  | [oshi-core-4.4.0-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;g=com.github.oshi&amp;a=oshi-core&amp;v=4.4.0-SNAPSHOT&amp;e=jar) | [JNA](https://github.com/java-native-access/jna) • [SLF4J](http://www.slf4j.org/) |
+| [oshi-core-4.3.1](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&amp;g=com.github.oshi&amp;a=oshi-core&amp;v=4.3.1&amp;e=jar)  | [oshi-core-4.4.0-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;g=com.github.oshi&amp;a=oshi-core&amp;v=4.4.0-SNAPSHOT&amp;e=jar) | [JNA](https://github.com/java-native-access/jna) • [SLF4J](http://www.slf4j.org/) |
 
 Usage
 -----
-We strongly recommend you use a dependency manager such as Maven or Gradle. You can [find the appropriate syntax to include OSHI here](https://search.maven.org/artifact/com.github.oshi/oshi-core/4.3.0/jar). This will add the transitive dependencies.  If you experience issues with `NoClassDefFound` errors for JNA artifacts, you might have another dependency to JNA which resolves first. Listing OSHI earlier in your dependency list will usually resolve this, or you may try manually specifying the most recent version of JNA.
+Include OSHI and its dependencies on your classpath.  We strongly recommend you add OSHI as a dependency to your project dependency manager such as Maven or Gradle. You can [find the appropriate syntax to include OSHI here](https://search.maven.org/artifact/com.github.oshi/oshi-core/4.3.1/jar). 
 
 Create a new instance of `SystemInfo` and use the getters to access additional information.
 
 You can run the [SystemInfoTest](https://github.com/oshi/oshi/blob/master/oshi-core/src/test/java/oshi/SystemInfoTest.java)
-and see the full output for your system by cloning the project and building it with [Maven](http://maven.apache.org/index.html).
+and see the full output for your system by cloning the project and building it with [Maven](http://maven.apache.org/index.html):
 
 ```
 git clone https://github.com/oshi/oshi.git && cd oshi
@@ -76,6 +76,11 @@ git clone https://github.com/oshi/oshi.git && cd oshi
   -Dexec.mainClass="oshi.SystemInfoTest" \
   -Dexec.classpathScope="test"
 ```
+
+Note: OSHI uses the latest version of JNA, which may conflict with other dependencies your project (or its parent) includes. If you experience issues with `NoClassDefFound` errors for JNA artifacts, consider one or more of the following steps to resolve the conflict:
+ - Listing OSHI earlier (or first) in your dependency list 
+ - Specifying the most recent version of JNA as a dependency
+ - If you are using a parent (e.g., Spring Boot) that includes JNA as a dependency, override the `jna.version` property 
 
 OSHI for enterprise
 -------------------

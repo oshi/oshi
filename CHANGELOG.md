@@ -1,9 +1,8 @@
 4.4.0 (in progress)
 ================
-* [#1093](https://github.com/oshi/oshi/pull/1093): Fix Windows firmware field ordering. - [@dbwiddis](https://github.com/dbwiddis).
-* [#1095](https://github.com/oshi/oshi/pull/1095): Vend JSON via HTTP Server (oshi-demo). - [@dbwiddis](https://github.com/dbwiddis).
+* Your contribution here.
 
-4.3.0 (1/2/2020)
+4.3.0 (1/2/2020), 4.3.1 (2/5/2020)
 ================
 * [#1057](https://github.com/oshi/oshi/pull/1057): Added Subnet Mask & Prefix Length to NetworkIF. - [@vesyrak](https://github.com/Vesyrak).
 * [#1060](https://github.com/oshi/oshi/pull/1060): Fixed Linux page size calculation. - [@dbwiddis](https://github.com/dbwiddis).
@@ -12,6 +11,8 @@
 * [#1070](https://github.com/oshi/oshi/pull/1070): Improve PDH counter robustness. - [@dbwiddis](https://github.com/dbwiddis).
 * [#1073](https://github.com/oshi/oshi/pull/1073): Fix Linux Process stats in OpenVZ. - [@dbwiddis](https://github.com/dbwiddis).
 * [#1075](https://github.com/oshi/oshi/pull/1075): Use systemctl for stopped Linux Services. - [@dbwiddis](https://github.com/dbwiddis).
+* [#1093](https://github.com/oshi/oshi/pull/1093): Fix Windows firmware field ordering. - [@dbwiddis](https://github.com/dbwiddis).
+* [#1095](https://github.com/oshi/oshi/pull/1095): Vend JSON via HTTP Server (oshi-demo). - [@dbwiddis](https://github.com/dbwiddis).
 
 4.2.0 (11/9/2019), 4.2.1 (11/14/2019)
 ================
