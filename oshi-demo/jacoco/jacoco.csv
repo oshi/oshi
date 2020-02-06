@@ -2,6 +2,7 @@ GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_
 oshi-demo,oshi.demo,Json,51,0,0,0,14,0,2,0,2,0
 oshi-demo,oshi.demo,ComputerID,110,0,0,0,19,0,3,0,3,0
 oshi-demo,oshi.demo,DetectVM,105,123,16,0,22,13,11,3,3,3
+oshi-demo,oshi.demo,OshiHTTPServer,250,0,12,0,58,0,10,0,4,0
 oshi-demo,oshi.jna.platform.windows,PowrProf.SystemBatteryState,17,0,0,0,6,0,2,0,2,0
 oshi-demo,oshi.jna.platform.windows,PowrProf.BATTERY_MANUFACTURE_DATE,3,0,0,0,1,0,1,0,1,0
 oshi-demo,oshi.jna.platform.windows,PowrProf.BATTERY_QUERY_INFORMATION,3,0,0,0,1,0,1,0,1,0
@@ -120,7 +121,7 @@ oshi-demo,oshi.jna.platform.linux,Udev.UdevDevice,7,0,0,0,4,0,2,0,2,0
 oshi-demo,oshi.jna.platform.linux,Udev.UdevListEntry,7,0,0,0,4,0,2,0,2,0
 oshi-demo,oshi.software.os.linux,LinuxFileSystem,597,0,58,0,118,0,38,0,9,0
 oshi-demo,oshi.software.os.linux,LinuxOSVersionInfoEx,448,0,92,0,102,0,55,0,9,0
-oshi-demo,oshi.software.os.linux,LinuxOperatingSystem,1666,0,226,0,327,0,158,0,31,0
+oshi-demo,oshi.software.os.linux,LinuxOperatingSystem,1654,0,222,0,328,0,156,0,31,0
 oshi-demo,oshi.software.os.linux,LinuxOperatingSystem.ProcPidStat,103,0,0,0,6,0,3,0,3,0
 oshi-demo,oshi.software.os.linux,LinuxNetworkParams,221,0,34,0,53,0,23,0,6,0
 oshi-demo,oshi.software.os.linux,LinuxUserGroupInfo,155,0,20,0,41,0,15,0,5,0
@@ -198,7 +199,7 @@ oshi-demo,oshi.hardware.platform.linux,LinuxFirmware.VcGenCmdStrings,18,0,0,0,7,
 oshi-demo,oshi.hardware.platform.linux,LinuxUsbDevice,383,0,26,0,72,0,19,0,6,0
 oshi-demo,oshi.hardware.platform.linux,LinuxBaseboard,253,0,41,0,68,0,39,0,15,0
 oshi-demo,oshi.hardware.platform.linux,LinuxSoundCard,222,0,32,0,42,0,23,0,7,0
-oshi-demo,oshi.hardware.platform.mac,MacFirmware,159,0,20,0,39,0,18,0,7,0
+oshi-demo,oshi.hardware.platform.mac,MacFirmware,164,0,20,0,39,0,18,0,7,0
 oshi-demo,oshi.hardware.platform.mac,MacDisplay,85,0,8,0,26,0,7,0,3,0
 oshi-demo,oshi.hardware.platform.mac,MacFirmware.EfiStrings,43,0,10,0,7,0,6,0,1,0
 oshi-demo,oshi.hardware.platform.mac,MacDisks,913,0,86,0,219,0,51,0,8,0
@@ -208,13 +209,13 @@ oshi-demo,oshi.hardware.platform.mac,MacVirtualMemory.SwapUsage,9,0,0,0,4,0,1,0,
 oshi-demo,oshi.hardware.platform.mac,MacGlobalMemory,246,0,21,0,54,0,23,0,11,0
 oshi-demo,oshi.hardware.platform.mac,MacVirtualMemory,112,0,4,0,24,0,10,0,8,0
 oshi-demo,oshi.hardware.platform.mac,MacUsbDevice,580,0,48,0,112,0,32,0,8,0
-oshi-demo,oshi.hardware.platform.mac,MacComputerSystem,84,0,6,0,21,0,10,0,7,0
+oshi-demo,oshi.hardware.platform.mac,MacComputerSystem,86,0,6,0,21,0,10,0,7,0
 oshi-demo,oshi.hardware.platform.mac,MacHardwareAbstractionLayer,42,0,0,0,11,0,11,0,11,0
 oshi-demo,oshi.hardware.platform.mac,MacSensors,79,0,6,0,20,0,7,0,4,0
 oshi-demo,oshi.hardware.platform.mac,MacNetworks,189,0,12,0,38,0,10,0,4,0
 oshi-demo,oshi.hardware.platform.mac,MacSoundCard,66,0,6,0,20,0,5,0,2,0
 oshi-demo,oshi.hardware.platform.mac,MacPowerSource,417,0,44,0,115,0,25,0,3,0
-oshi-demo,oshi.hardware.platform.mac,MacBaseboard,97,0,8,0,24,0,10,0,6,0
+oshi-demo,oshi.hardware.platform.mac,MacBaseboard,100,0,8,0,24,0,10,0,6,0
 oshi-demo,oshi.hardware.platform.mac,MacNetworks.IFdata,27,0,0,0,10,0,1,0,1,0
 oshi-demo,oshi.hardware.platform.mac,MacBaseboard.PlatformStrings,35,0,8,0,6,0,5,0,1,0
 oshi-demo,oshi.hardware.platform.mac,MacDisks.CFKey,191,0,0,0,12,0,3,0,3,0
@@ -234,7 +235,7 @@ oshi-demo,oshi.util,LsofUtil,65,0,9,0,13,0,6,0,1,0
 oshi-demo,oshi.util,Memoizer.new Supplier() {...},73,0,10,0,14,0,7,0,2,0
 oshi-demo,oshi.util,GlobalConfig,124,0,18,0,36,0,18,0,9,0
 oshi-demo,oshi.util,Constants,11,0,0,0,3,0,2,0,2,0
-oshi-demo,oshi.util,ParseUtil,1143,0,134,0,238,0,101,0,34,0
+oshi-demo,oshi.util,ParseUtil,1143,0,134,0,237,0,101,0,34,0
 oshi-demo,oshi.util,Memoizer,29,0,0,0,6,0,5,0,5,0
 oshi-demo,oshi.util,ExecutingCommand,103,0,6,0,28,0,8,0,5,0
 oshi-demo,oshi.util,FileUtil,225,0,38,0,58,0,27,0,8,0
