@@ -219,7 +219,7 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
 <span class="nc" id="L219">                String[] split = ParseUtil.whitespaces.split(proc);</span>
 <span class="nc" id="L220">                int bitToSet = ParseUtil.parseIntOrDefault(split[0], -1);</span>
 <span class="nc bnc" id="L221" title="All 2 branches missed.">                if (bitToSet &gt;= 0) {</span>
-<span class="nc" id="L222">                    bitMask |= (1L &lt;&lt; bitToSet);</span>
+<span class="nc" id="L222">                    bitMask |= 1L &lt;&lt; bitToSet;</span>
                 }
 <span class="nc" id="L224">            }</span>
 <span class="nc" id="L225">            return bitMask;</span>

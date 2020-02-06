@@ -31,7 +31,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.function.Supplier;
 
-import com.sun.jna.Platform;
+import com.sun.jna.Platform; // NOSONAR squid:S1191
 
 import oshi.software.os.OSProcess;
 import oshi.software.os.OSService;
