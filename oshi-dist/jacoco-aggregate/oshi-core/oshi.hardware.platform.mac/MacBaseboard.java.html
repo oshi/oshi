@@ -71,15 +71,15 @@ import oshi.util.Util;
 <span class="nc bnc" id="L71" title="All 2 branches missed.">        if (platformExpert != null) {</span>
 <span class="nc" id="L72">            byte[] data = platformExpert.getByteArrayProperty(&quot;manufacturer&quot;);</span>
 <span class="nc bnc" id="L73" title="All 2 branches missed.">            if (data != null) {</span>
-<span class="nc" id="L74">                manufacturer = new String(data, StandardCharsets.UTF_8);</span>
+<span class="nc" id="L74">                manufacturer = new String(data, StandardCharsets.UTF_8).trim();</span>
             }
 <span class="nc" id="L76">            data = platformExpert.getByteArrayProperty(&quot;board-id&quot;);</span>
 <span class="nc bnc" id="L77" title="All 2 branches missed.">            if (data != null) {</span>
-<span class="nc" id="L78">                model = new String(data, StandardCharsets.UTF_8);</span>
+<span class="nc" id="L78">                model = new String(data, StandardCharsets.UTF_8).trim();</span>
             }
 <span class="nc" id="L80">            data = platformExpert.getByteArrayProperty(&quot;version&quot;);</span>
 <span class="nc bnc" id="L81" title="All 2 branches missed.">            if (data != null) {</span>
-<span class="nc" id="L82">                version = new String(data, StandardCharsets.UTF_8);</span>
+<span class="nc" id="L82">                version = new String(data, StandardCharsets.UTF_8).trim();</span>
             }
 <span class="nc" id="L84">            serialNumber = platformExpert.getStringProperty(&quot;IOPlatformSerialNumber&quot;);</span>
 <span class="nc" id="L85">            platformExpert.release();</span>

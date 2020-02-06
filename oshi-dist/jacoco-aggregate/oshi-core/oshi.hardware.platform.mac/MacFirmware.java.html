@@ -85,27 +85,27 @@ import oshi.util.Util;
                     case &quot;rom&quot;:
 <span class="nc" id="L86">                        byte[] data = entry.getByteArrayProperty(&quot;vendor&quot;);</span>
 <span class="nc bnc" id="L87" title="All 2 branches missed.">                        if (data != null) {</span>
-<span class="nc" id="L88">                            manufacturer = new String(data, StandardCharsets.UTF_8);</span>
+<span class="nc" id="L88">                            manufacturer = new String(data, StandardCharsets.UTF_8).trim();</span>
                         }
 <span class="nc" id="L90">                        data = entry.getByteArrayProperty(&quot;version&quot;);</span>
 <span class="nc bnc" id="L91" title="All 2 branches missed.">                        if (data != null) {</span>
-<span class="nc" id="L92">                            version = new String(data, StandardCharsets.UTF_8);</span>
+<span class="nc" id="L92">                            version = new String(data, StandardCharsets.UTF_8).trim();</span>
                         }
 <span class="nc" id="L94">                        data = entry.getByteArrayProperty(&quot;release-date&quot;);</span>
 <span class="nc bnc" id="L95" title="All 2 branches missed.">                        if (data != null) {</span>
-<span class="nc" id="L96">                            releaseDate = new String(data, StandardCharsets.UTF_8);</span>
+<span class="nc" id="L96">                            releaseDate = new String(data, StandardCharsets.UTF_8).trim();</span>
                         }
                         break;
                     case &quot;chosen&quot;:
 <span class="nc" id="L100">                        data = entry.getByteArrayProperty(&quot;booter-name&quot;);</span>
 <span class="nc bnc" id="L101" title="All 2 branches missed.">                        if (data != null) {</span>
-<span class="nc" id="L102">                            name = new String(data, StandardCharsets.UTF_8);</span>
+<span class="nc" id="L102">                            name = new String(data, StandardCharsets.UTF_8).trim();</span>
                         }
                         break;
                     case &quot;efi&quot;:
 <span class="nc" id="L106">                        data = entry.getByteArrayProperty(&quot;firmware-abi&quot;);</span>
 <span class="nc bnc" id="L107" title="All 2 branches missed.">                        if (data != null) {</span>
-<span class="nc" id="L108">                            description = new String(data, StandardCharsets.UTF_8);</span>
+<span class="nc" id="L108">                            description = new String(data, StandardCharsets.UTF_8).trim();</span>
                         }
                         break;
                     default:

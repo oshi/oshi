@@ -77,11 +77,11 @@ import oshi.util.Util;
 <span class="nc bnc" id="L77" title="All 2 branches missed.">        if (platformExpert != null) {</span>
 <span class="nc" id="L78">            byte[] data = platformExpert.getByteArrayProperty(&quot;manufacturer&quot;);</span>
 <span class="nc bnc" id="L79" title="All 2 branches missed.">            if (data != null) {</span>
-<span class="nc" id="L80">                manufacturer = new String(data, StandardCharsets.UTF_8);</span>
+<span class="nc" id="L80">                manufacturer = new String(data, StandardCharsets.UTF_8).trim();</span>
             }
 <span class="nc" id="L82">            data = platformExpert.getByteArrayProperty(&quot;model&quot;);</span>
 <span class="nc bnc" id="L83" title="All 2 branches missed.">            if (data != null) {</span>
-<span class="nc" id="L84">                model = new String(data, StandardCharsets.UTF_8);</span>
+<span class="nc" id="L84">                model = new String(data, StandardCharsets.UTF_8).trim();</span>
             }
 <span class="nc" id="L86">            serialNumber = platformExpert.getStringProperty(&quot;IOPlatformSerialNumber&quot;);</span>
 <span class="nc" id="L87">            platformExpert.release();</span>
