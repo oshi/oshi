@@ -227,7 +227,7 @@
 <a class="jxr_linenumber" name="L219" href="#L219">219</a>                 String[] split = ParseUtil.whitespaces.split(proc);
 <a class="jxr_linenumber" name="L220" href="#L220">220</a>                 <strong class="jxr_keyword">int</strong> bitToSet = ParseUtil.parseIntOrDefault(split[0], -1);
 <a class="jxr_linenumber" name="L221" href="#L221">221</a>                 <strong class="jxr_keyword">if</strong> (bitToSet &gt;= 0) {
-<a class="jxr_linenumber" name="L222" href="#L222">222</a>                     bitMask |= (1L &lt;&lt; bitToSet);
+<a class="jxr_linenumber" name="L222" href="#L222">222</a>                     bitMask |= 1L &lt;&lt; bitToSet;
 <a class="jxr_linenumber" name="L223" href="#L223">223</a>                 }
 <a class="jxr_linenumber" name="L224" href="#L224">224</a>             }
 <a class="jxr_linenumber" name="L225" href="#L225">225</a>             <strong class="jxr_keyword">return</strong> bitMask;
