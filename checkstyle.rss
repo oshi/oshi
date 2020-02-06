@@ -25,8 +25,8 @@ under the License.
     <language>en-us</language>
     <copyright>&#169;2010 - 2020 oshi</copyright>
     <item>
-      <title>File: 197,
-             Errors: 6459,
+      <title>File: 198,
+             Errors: 6479,
              Warnings: 0,
              Infos: 0
       </title>
@@ -657,7 +657,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  54
+                  52
                 </td>
               </tr>
                           <tr>
@@ -685,7 +685,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  27
+                  29
                 </td>
               </tr>
                           <tr>
@@ -1035,7 +1035,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  6
+                  4
                 </td>
               </tr>
                           <tr>
@@ -1119,7 +1119,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  7
+                  6
                 </td>
               </tr>
                           <tr>
@@ -1852,6 +1852,20 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.demo.OshiHTTPServer.java">oshi/demo/OshiHTTPServer.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  25
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.common.AbstractBaseboard.java">oshi/hardware/common/AbstractBaseboard.java</a>
                 </td>
                 <td>
@@ -1945,7 +1959,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  146
+                  144
                 </td>
               </tr>
                           <tr>

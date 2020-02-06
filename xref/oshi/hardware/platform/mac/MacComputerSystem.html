@@ -85,11 +85,11 @@
 <a class="jxr_linenumber" name="L77" href="#L77">77</a>          <strong class="jxr_keyword">if</strong> (platformExpert != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L78" href="#L78">78</a>              byte[] data = platformExpert.getByteArrayProperty(<span class="jxr_string">"manufacturer"</span>);
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>              <strong class="jxr_keyword">if</strong> (data != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>                  manufacturer = <strong class="jxr_keyword">new</strong> String(data, StandardCharsets.UTF_8);
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>                  manufacturer = <strong class="jxr_keyword">new</strong> String(data, StandardCharsets.UTF_8).trim();
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>              }
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>              data = platformExpert.getByteArrayProperty(<span class="jxr_string">"model"</span>);
 <a class="jxr_linenumber" name="L83" href="#L83">83</a>              <strong class="jxr_keyword">if</strong> (data != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>                  model = <strong class="jxr_keyword">new</strong> String(data, StandardCharsets.UTF_8);
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>                  model = <strong class="jxr_keyword">new</strong> String(data, StandardCharsets.UTF_8).trim();
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>              }
 <a class="jxr_linenumber" name="L86" href="#L86">86</a>              serialNumber = platformExpert.getStringProperty(<span class="jxr_string">"IOPlatformSerialNumber"</span>);
 <a class="jxr_linenumber" name="L87" href="#L87">87</a>              platformExpert.release();

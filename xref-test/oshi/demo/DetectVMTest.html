@@ -31,13 +31,13 @@
 <a class="jxr_linenumber" name="L23" href="#L23">23</a>  <em class="jxr_javadoccomment"> */</em>
 <a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">package</strong> oshi.demo;
 <a class="jxr_linenumber" name="L25" href="#L25">25</a>  
-<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <strong class="jxr_keyword">import</strong> org.junit.Test;
-<a class="jxr_linenumber" name="L27" href="#L27">27</a>  
-<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <strong class="jxr_keyword">import</strong> java.lang.reflect.Field;
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">import</strong> java.util.Map;
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>  
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.CoreMatchers.is;
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.junit.Assert.assertThat;
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.MatcherAssert.assertThat;
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.core.IsEqual.equalTo;
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>  
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">import</strong> java.lang.reflect.Field;
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <strong class="jxr_keyword">import</strong> java.util.Map;
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>  
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">import</strong> org.junit.Test;
 <a class="jxr_linenumber" name="L33" href="#L33">33</a>  
 <a class="jxr_linenumber" name="L34" href="#L34">34</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="DetectVMTest" href="../../oshi/demo/DetectVMTest.html#DetectVMTest">DetectVMTest</a> {
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>      @SuppressWarnings(<span class="jxr_string">"unchecked"</span>)
@@ -46,7 +46,7 @@
 <a class="jxr_linenumber" name="L38" href="#L38">38</a>          Field f = DetectVM.<strong class="jxr_keyword">class</strong>.getDeclaredField(<span class="jxr_string">"vmMacAddressOUI"</span>);
 <a class="jxr_linenumber" name="L39" href="#L39">39</a>          f.setAccessible(<strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L40" href="#L40">40</a>          Map&lt;String, String&gt; map = (Map&lt;String, String&gt;) f.get(<strong class="jxr_keyword">null</strong>);
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>          map.forEach((k, v) -&gt; assertThat(DetectVM.findOuiByMacAddressIfPossible(k + <span class="jxr_string">":00"</span>), is(v)));
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>          map.forEach((k, v) -&gt; assertThat(DetectVM.findOuiByMacAddressIfPossible(k + <span class="jxr_string">":00"</span>), equalTo(v)));
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>      }
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>  }
 </pre>
