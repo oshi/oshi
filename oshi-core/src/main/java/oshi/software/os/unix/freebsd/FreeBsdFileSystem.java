@@ -30,7 +30,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import oshi.software.os.FileSystem;
+import oshi.software.common.AbstractFileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
@@ -42,7 +42,7 @@ import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
  * implementation specific means of file storage. In Linux, these are found in
  * the /proc/mount filesystem, excluding temporary and kernel mounts.
  */
-public class FreeBsdFileSystem implements FileSystem {
+public class FreeBsdFileSystem extends AbstractFileSystem {
 
     // Linux defines a set of virtual file systems
     private final List<String> pseudofs = Arrays.asList( //
@@ -82,24 +82,6 @@ public class FreeBsdFileSystem implements FileSystem {
         return false;
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * Gets File System Information.
-     */
-    @Override
-    public OSFileStore[] getFileStores() {
-        return getFileStores(false);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * Gets File System Information.
-     *
-     * @param localOnly
-     *            update only local filesystems
-     */
     @Override
     public OSFileStore[] getFileStores(boolean localOnly) {
         // Find any partition UUIDs and map them

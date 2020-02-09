@@ -46,7 +46,7 @@ import com.sun.jna.platform.mac.IOKitUtil;
 import com.sun.jna.platform.mac.SystemB;
 import com.sun.jna.platform.mac.SystemB.Statfs;
 
-import oshi.software.os.FileSystem;
+import oshi.software.common.AbstractFileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.Constants;
 import oshi.util.platform.mac.SysctlUtil;
@@ -57,31 +57,13 @@ import oshi.util.platform.mac.SysctlUtil;
  * implementation specific means of file storage. In Mac OS X, these are found
  * in the /Volumes directory.
  */
-public class MacFileSystem implements FileSystem {
+public class MacFileSystem extends AbstractFileSystem {
 
     private static final Logger LOG = LoggerFactory.getLogger(MacFileSystem.class);
 
     // Regexp matcher for /dev/disk1 etc.
     private static final Pattern LOCAL_DISK = Pattern.compile("/dev/disk\\d");
 
-    /**
-     * {@inheritDoc}
-     *
-     * Gets File System Information.
-     */
-    @Override
-    public OSFileStore[] getFileStores() {
-        return getFileStores(false);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * Gets File System Information.
-     *
-     * @param localOnly
-     *            update only local filesystems
-     */
     @Override
     public OSFileStore[] getFileStores(boolean localOnly) {
         // List of file systems

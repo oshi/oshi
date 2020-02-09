@@ -49,6 +49,9 @@ public interface FileSystem {
      * representing a storage pool, device, partition, volume, concrete file system
      * or other implementation specific means of file storage.
      *
+     * @param localOnly
+     *            If true, filters the list to only local file stores.
+     *
      * @return An array of OSFileStore objects or an empty array if none are
      *         present.
      */

@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
 import com.sun.jna.Native; // NOSONAR
 import com.sun.jna.platform.linux.LibC;
 
-import oshi.software.os.FileSystem;
+import oshi.software.common.AbstractFileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
@@ -51,7 +51,7 @@ import oshi.util.ParseUtil;
  * implementation specific means of file storage. In Linux, these are found in
  * the /proc/mount filesystem, excluding temporary and kernel mounts.
  */
-public class LinuxFileSystem implements FileSystem {
+public class LinuxFileSystem extends AbstractFileSystem {
 
     private static final Logger LOG = LoggerFactory.getLogger(LinuxFileSystem.class);
 
@@ -107,11 +107,6 @@ public class LinuxFileSystem implements FileSystem {
         return false;
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * Gets File System Information.
-     */
     @Override
     public OSFileStore[] getFileStores() {
         return getFileStores(false);

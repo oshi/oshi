@@ -32,7 +32,7 @@ import java.util.Map;
 
 import com.sun.jna.platform.unix.solaris.LibKstat.Kstat; // NOSONAR
 
-import oshi.software.os.FileSystem;
+import oshi.software.common.AbstractFileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
@@ -45,7 +45,7 @@ import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
  * implementation specific means of file storage. In Solaris, these are found in
  * the /proc/mount filesystem, excluding temporary and kernel mounts.
  */
-public class SolarisFileSystem implements FileSystem {
+public class SolarisFileSystem extends AbstractFileSystem {
 
     // Solaris defines a set of virtual file systems
     private final List<String> pseudofs = Arrays.asList(//
@@ -84,24 +84,6 @@ public class SolarisFileSystem implements FileSystem {
         return false;
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * Gets File System Information.
-     */
-    @Override
-    public OSFileStore[] getFileStores() {
-        return getFileStores(false);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * Gets File System Information.
-     *
-     * @param localOnly
-     *            update only local filesystems
-     */
     @Override
     public OSFileStore[] getFileStores(boolean localOnly) {
         List<OSFileStore> fsList = getFileStoreMatching(null, localOnly);

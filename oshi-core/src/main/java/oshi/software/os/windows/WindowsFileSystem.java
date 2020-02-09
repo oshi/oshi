@@ -34,7 +34,7 @@ import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
-import oshi.software.os.FileSystem;
+import oshi.software.common.AbstractFileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.ParseUtil;
 import oshi.util.platform.windows.PerfCounterQuery;
@@ -49,7 +49,7 @@ import oshi.util.platform.windows.WmiUtil;
  * implementation specific means of file storage. In Windows, these are
  * represented by a drive letter, e.g., "A:\" and "C:\"
  */
-public class WindowsFileSystem implements FileSystem {
+public class WindowsFileSystem extends AbstractFileSystem {
 
     private static final int BUFSIZE = 255;
 
@@ -113,21 +113,6 @@ public class WindowsFileSystem implements FileSystem {
         Kernel32.INSTANCE.SetErrorMode(SEM_FAILCRITICALERRORS);
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * Gets File System Information.
-     */
-    @Override
-    public OSFileStore[] getFileStores() {
-        return getFileStores(false);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * Gets File System Information.
-     */
     @Override
     public OSFileStore[] getFileStores(boolean localOnly) {
         // Create list to hold results
