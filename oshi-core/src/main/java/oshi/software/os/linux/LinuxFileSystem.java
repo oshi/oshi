@@ -108,19 +108,6 @@ public class LinuxFileSystem extends AbstractFileSystem {
     }
 
     @Override
-    public OSFileStore[] getFileStores() {
-        return getFileStores(false);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * Gets File System Information.
-     *
-     * @param localOnly
-     *            update only local filesystems
-     */
-    @Override
     public OSFileStore[] getFileStores(boolean localOnly) {
         // Map uuids with device path as key
         Map<String, String> uuidMap = new HashMap<>();
