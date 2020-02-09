@@ -114,7 +114,7 @@ public class LinuxFileSystem implements FileSystem {
      */
     @Override
     public OSFileStore[] getFileStores() {
-        getFileStores(false)
+        getFileStores(false);
     }
 
     /**
@@ -148,7 +148,7 @@ public class LinuxFileSystem implements FileSystem {
     }
 
     private List<OSFileStore> getFileStoreMatching(String nameToMatch, Map<String, String> uuidMap) {
-        return getFileStoreMatching(nameToMatch, uuidMap, false)
+        return getFileStoreMatching(nameToMatch, uuidMap, false);
     }
 
     private List<OSFileStore> getFileStoreMatching(String nameToMatch, Map<String, String> uuidMap, boolean localOnly) {

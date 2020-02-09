@@ -71,7 +71,7 @@ public class MacFileSystem implements FileSystem {
      */
     @Override
     public OSFileStore[] getFileStores() {
-        return getFileStores(false)
+        return getFileStores(false);
     }
 
     }
@@ -91,7 +91,7 @@ public class MacFileSystem implements FileSystem {
     }
 
     private List<OSFileStore> getFileStoreMatching(String nameToMatch) {
-        return getFileStoreMatching(nameToMatch, false)
+        return getFileStoreMatching(nameToMatch, false);
     }
 
     private List<OSFileStore> getFileStoreMatching(String nameToMatch, boolean localOnly) {

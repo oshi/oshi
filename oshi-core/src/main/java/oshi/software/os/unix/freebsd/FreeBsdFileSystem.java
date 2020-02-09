@@ -89,7 +89,7 @@ public class FreeBsdFileSystem implements FileSystem {
      */
     @Override
     public OSFileStore[] getFileStores() {
-        getFileStores(false)
+        getFileStores(false);
     }
 
     /**

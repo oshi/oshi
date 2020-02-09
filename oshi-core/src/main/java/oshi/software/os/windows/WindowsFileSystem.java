@@ -120,7 +120,7 @@ public class WindowsFileSystem implements FileSystem {
      */
     @Override
     public OSFileStore[] getFileStores() {
-        return getFileStores(false)
+        return getFileStores(false);
     }
 
     /**
