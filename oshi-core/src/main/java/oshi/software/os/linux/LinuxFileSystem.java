@@ -114,7 +114,7 @@ public class LinuxFileSystem implements FileSystem {
      */
     @Override
     public OSFileStore[] getFileStores() {
-        getFileStores(false);
+        return getFileStores(false);
     }
 
     /**
