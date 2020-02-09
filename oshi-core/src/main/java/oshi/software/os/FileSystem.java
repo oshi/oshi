@@ -52,7 +52,7 @@ public interface FileSystem {
      * @return An array of OSFileStore objects or an empty array if none are
      *         present.
      */
-    OSFileStore[] getFileStores(boolean);
+    OSFileStore[] getFileStores(boolean localOnly);
 
     /**
      * The current number of open file descriptors. A file descriptor is an abstract
