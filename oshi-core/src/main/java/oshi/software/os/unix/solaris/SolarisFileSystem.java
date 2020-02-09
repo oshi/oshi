@@ -91,12 +91,29 @@ public class SolarisFileSystem implements FileSystem {
      */
     @Override
     public OSFileStore[] getFileStores() {
-        List<OSFileStore> fsList = getFileStoreMatching(null);
+        return getFileStores(false)
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Gets File System Information.
+     *
+     * @param localOnly
+     *            update only local filesystems
+     */
+    @Override
+    public OSFileStore[] getFileStores(boolean localOnly) {
+        List<OSFileStore> fsList = getFileStoreMatching(null, localOnly);
 
         return fsList.toArray(new OSFileStore[0]);
     }
 
     private List<OSFileStore> getFileStoreMatching(String nameToMatch) {
+        return getFileStoreMatching(nameToMatch, false)
+    }
+
+    private List<OSFileStore> getFileStoreMatching(String nameToMatch, boolean localOnly) {
         List<OSFileStore> fsList = new ArrayList<>();
 
         // Get inode usage data
@@ -105,7 +122,11 @@ public class SolarisFileSystem implements FileSystem {
         String key = null;
         String total = null;
         String free = null;
-        for (String line : ExecutingCommand.runNative("df -g")) {
+        String command = "df -g";
+        if (localOnly) {
+            command = "df -g -l";
+        }
+        for (String line : ExecutingCommand.runNative(command)) {
             /*- Sample Output:
             /                  (/dev/md/dsk/d0    ):         8192 block size          1024 frag size
             41310292 total blocks   18193814 free blocks 17780712 available        2486848 total files
@@ -144,6 +165,10 @@ public class SolarisFileSystem implements FileSystem {
             // Exclude pseudo file systems
             if (this.pseudofs.contains(type) || path.equals("/dev") || listElementStartsWith(this.tmpfsPaths, path)
                     || volume.startsWith("rpool") && !path.equals("/")) {
+                continue;
+            }
+
+            if (localOnly && (type.startsWith("nfs") || type.equals("cifs"))) {
                 continue;
             }
 

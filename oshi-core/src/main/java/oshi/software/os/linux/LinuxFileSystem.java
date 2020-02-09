@@ -114,6 +114,19 @@ public class LinuxFileSystem implements FileSystem {
      */
     @Override
     public OSFileStore[] getFileStores() {
+        getFileStores(false)
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Gets File System Information.
+     *
+     * @param localOnly
+     *            update only local filesystems
+     */
+    @Override
+    public OSFileStore[] getFileStores(boolean localOnly) {
         // Map uuids with device path as key
         Map<String, String> uuidMap = new HashMap<>();
         File uuidDir = new File("/dev/disk/by-uuid");
@@ -129,12 +142,16 @@ public class LinuxFileSystem implements FileSystem {
         }
 
         // List file systems
-        List<OSFileStore> fsList = getFileStoreMatching(null, uuidMap);
+        List<OSFileStore> fsList = getFileStoreMatching(null, uuidMap, localOnly);
 
         return fsList.toArray(new OSFileStore[0]);
     }
 
     private List<OSFileStore> getFileStoreMatching(String nameToMatch, Map<String, String> uuidMap) {
+        return getFileStoreMatching(nameToMatch, uuidMap, false)
+    }
+
+    private List<OSFileStore> getFileStoreMatching(String nameToMatch, Map<String, String> uuidMap, boolean localOnly) {
         List<OSFileStore> fsList = new ArrayList<>();
 
         // Parse /proc/self/mounts to get fs types
@@ -160,6 +177,10 @@ public class LinuxFileSystem implements FileSystem {
                     || listElementStartsWith(this.tmpfsPaths, path) // well known prefixes
                     || path.endsWith("/shm") // exclude shared memory
             ) {
+                continue;
+            }
+
+            if (localOnly && (type.startsWith("nfs") || type.equals("cifs"))) {
                 continue;
             }
 

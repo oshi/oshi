@@ -71,12 +71,30 @@ public class MacFileSystem implements FileSystem {
      */
     @Override
     public OSFileStore[] getFileStores() {
+        return getFileStores(false)
+    }
+
+    }
+    /**
+     * {@inheritDoc}
+     *
+     * Gets File System Information.
+     *
+     * @param localOnly
+     *            update only local filesystems
+     */
+    @Override
+    public OSFileStore[] getFileStores(boolean localOnly) {
         // List of file systems
-        List<OSFileStore> fsList = getFileStoreMatching(null);
+        List<OSFileStore> fsList = getFileStoreMatching(null, localOnly);
         return fsList.toArray(new OSFileStore[0]);
     }
 
     private List<OSFileStore> getFileStoreMatching(String nameToMatch) {
+        return getFileStoreMatching(nameToMatch, false)
+    }
+
+    private List<OSFileStore> getFileStoreMatching(String nameToMatch, boolean localOnly) {
         List<OSFileStore> fsList = new ArrayList<>();
 
         // Use getfsstat to find fileSystems
@@ -105,6 +123,9 @@ public class MacFileSystem implements FileSystem {
                     String volume = new String(fs[f].f_mntfromname, StandardCharsets.UTF_8).trim();
                     // Skip system types
                     if (volume.equals("devfs") || volume.startsWith("map ")) {
+                        continue;
+                    }
+                    if (localOnly && (volume.startsWith("localhost:") || volume.startsWith("//"))) {
                         continue;
                     }
                     // Set description

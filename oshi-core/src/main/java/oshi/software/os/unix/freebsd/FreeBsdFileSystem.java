@@ -89,6 +89,19 @@ public class FreeBsdFileSystem implements FileSystem {
      */
     @Override
     public OSFileStore[] getFileStores() {
+        getFileStores(false)
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Gets File System Information.
+     *
+     * @param localOnly
+     *            update only local filesystems
+     */
+    @Override
+    public OSFileStore[] getFileStores(boolean localOnly) {
         // Find any partition UUIDs and map them
         Map<String, String> uuidMap = new HashMap<>();
         // Now grab dmssg output
@@ -146,6 +159,10 @@ public class FreeBsdFileSystem implements FileSystem {
             // Exclude pseudo file systems
             if (this.pseudofs.contains(type) || path.equals("/dev") || listElementStartsWith(this.tmpfsPaths, path)
                     || volume.startsWith("rpool") && !path.equals("/")) {
+                continue;
+            }
+
+            if (localOnly && (type.startsWith("nfs") || type.equals("cifs"))) {
                 continue;
             }
 

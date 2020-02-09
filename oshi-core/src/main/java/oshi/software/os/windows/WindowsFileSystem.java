@@ -120,6 +120,16 @@ public class WindowsFileSystem implements FileSystem {
      */
     @Override
     public OSFileStore[] getFileStores() {
+        return getFileStores(false)
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Gets File System Information.
+     */
+    @Override
+    public OSFileStore[] getFileStores(boolean localOnly) {
         // Create list to hold results
         ArrayList<OSFileStore> result;
 
@@ -141,7 +151,9 @@ public class WindowsFileSystem implements FileSystem {
                 volumeMap.get(wmiVolume.getMount()).setName(wmiVolume.getName());
             } else {
                 // Otherwise add the new volume in its entirety
-                result.add(wmiVolume);
+                if (!localOnly) {
+                    result.add(wmiVolume);
+                }
             }
         }
         return result.toArray(new OSFileStore[0]);
