@@ -74,7 +74,6 @@ public class MacFileSystem implements FileSystem {
         return getFileStores(false);
     }
 
-    }
     /**
      * {@inheritDoc}
      *
