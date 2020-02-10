@@ -63,25 +63,6 @@ public class FreeBsdFileSystem extends AbstractFileSystem {
     // System path mounted as tmpfs
     private static final List<String> TMP_FS_PATHS = Arrays.asList("/system", "/tmp", "/dev/fd");
 
-    /**
-     * Checks if file path equals or starts with an element in the given list
-     *
-     * @param aList
-     *            A list of path prefixes
-     * @param charSeq
-     *            a path to check
-     * @return true if the charSeq exactly equals, or starts with the directory in
-     *         aList
-     */
-    private boolean listElementStartsWith(List<String> aList, String charSeq) {
-        for (String match : aList) {
-            if (charSeq.equals(match) || charSeq.startsWith(match + "/")) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     @Override
     public OSFileStore[] getFileStores(boolean localOnly) {
         // Find any partition UUIDs and map them
@@ -139,7 +120,7 @@ public class FreeBsdFileSystem extends AbstractFileSystem {
             String type = split[2];
 
             // Exclude pseudo file systems
-            if (PSEUDO_FS.contains(type) || path.equals("/dev") || listElementStartsWith(TMP_FS_PATHS, path)
+            if (PSEUDO_FS.contains(type) || path.equals("/dev") || ParseUtil.filePathStartsWith(TMP_FS_PATHS, path)
                     || volume.startsWith("rpool") && !path.equals("/")) {
                 continue;
             }
