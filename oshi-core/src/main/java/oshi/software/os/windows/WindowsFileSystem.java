@@ -134,7 +134,7 @@ public class WindowsFileSystem extends AbstractFileSystem {
                 // If the volume is already in our list, update the name field
                 // using WMI's more verbose name
                 volumeMap.get(wmiVolume.getMount()).setName(wmiVolume.getName());
-            } else {
+            } else if (!localOnly) {
                 // Otherwise add the new volume in its entirety
                 result.add(wmiVolume);
             }
