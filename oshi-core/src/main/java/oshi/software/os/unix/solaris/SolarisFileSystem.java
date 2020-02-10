@@ -104,10 +104,7 @@ public class SolarisFileSystem extends AbstractFileSystem {
         String key = null;
         String total = null;
         String free = null;
-        String command = "df -g";
-        if (localOnly) {
-            command = "df -g -l";
-        }
+        String command = "df -g" + (localOnly ? " -l" : "");
         for (String line : ExecutingCommand.runNative(command)) {
             /*- Sample Output:
             /                  (/dev/md/dsk/d0    ):         8192 block size          1024 frag size
@@ -149,8 +146,8 @@ public class SolarisFileSystem extends AbstractFileSystem {
                     || volume.startsWith("rpool") && !path.equals("/")) {
                 continue;
             }
-
-            if (localOnly && (type.startsWith("nfs") || type.equals("cifs"))) {
+            // Skip non-local drives if requested
+            if (localOnly && isNetworkFsType(type)) {
                 continue;
             }
 

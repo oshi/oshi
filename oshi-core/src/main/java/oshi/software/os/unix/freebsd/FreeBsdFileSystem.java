@@ -143,8 +143,8 @@ public class FreeBsdFileSystem extends AbstractFileSystem {
                     || volume.startsWith("rpool") && !path.equals("/")) {
                 continue;
             }
-
-            if (localOnly && (type.startsWith("nfs") || type.equals("cifs"))) {
+            // Skip non-local drives if requested
+            if (localOnly && isNetworkFsType(type)) {
                 continue;
             }
 

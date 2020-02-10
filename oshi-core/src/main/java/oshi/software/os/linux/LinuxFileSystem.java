@@ -161,8 +161,8 @@ public class LinuxFileSystem extends AbstractFileSystem {
             ) {
                 continue;
             }
-
-            if (localOnly && (type.startsWith("nfs") || type.equals("cifs"))) {
+            // Skip non-local drives if requested
+            if (localOnly && isNetworkFsType(type)) {
                 continue;
             }
 
