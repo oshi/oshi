@@ -112,18 +112,16 @@ public class MacFileSystem extends AbstractFileSystem {
                     if (localOnly && (fs[f].f_flags & MNT_LOCAL) == 0) {
                         continue;
                     }
-                    // Set description
+
+                    String type = new String(fs[f].f_fstypename, StandardCharsets.UTF_8).trim();
                     String description = "Volume";
                     if (LOCAL_DISK.matcher(volume).matches()) {
                         description = "Local Disk";
-                    } else if (volume.startsWith("localhost:") || volume.startsWith("//")
-                            || volume.startsWith("smb://")) {
+                    } else if (volume.startsWith("localhost:") || volume.startsWith("//") || volume.startsWith("smb://")
+                            || NETWORK_FS_TYPES.contains(type)) {
                         description = "Network Drive";
                     }
-                    // Set type and path
-                    String type = new String(fs[f].f_fstypename, StandardCharsets.UTF_8).trim();
                     String path = new String(fs[f].f_mntonname, StandardCharsets.UTF_8).trim();
-
                     String name = "";
                     File file = new File(path);
                     if (name.isEmpty()) {

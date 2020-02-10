@@ -119,13 +119,9 @@ public class FreeBsdFileSystem extends AbstractFileSystem {
             String path = split[1];
             String type = split[2];
 
-            // Exclude pseudo file systems
-            if (PSEUDO_FS.contains(type) || path.equals("/dev") || ParseUtil.filePathStartsWith(TMP_FS_PATHS, path)
+            // Skip non-local drives if requested, and exclude pseudo file systems
+            if ((localOnly && NETWORK_FS_TYPES.contains(type)) || PSEUDO_FS.contains(type) || path.equals("/dev") || ParseUtil.filePathStartsWith(TMP_FS_PATHS, path)
                     || volume.startsWith("rpool") && !path.equals("/")) {
-                continue;
-            }
-            // Skip non-local drives if requested
-            if (localOnly && isNetworkFsType(type)) {
                 continue;
             }
 
@@ -144,7 +140,7 @@ public class FreeBsdFileSystem extends AbstractFileSystem {
                 description = "Local Disk";
             } else if (volume.equals("tmpfs")) {
                 description = "Ram Disk";
-            } else if (type.startsWith("nfs") || type.equals("cifs")) {
+            } else if (NETWORK_FS_TYPES.contains(type)) {
                 description = "Network Disk";
             } else {
                 description = "Mount Point";

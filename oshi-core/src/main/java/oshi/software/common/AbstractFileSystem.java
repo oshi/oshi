@@ -23,33 +23,22 @@
  */
 package oshi.software.common;
 
+import java.util.Arrays;
+import java.util.List;
+
 import oshi.software.os.FileSystem;
 import oshi.software.os.OSFileStore;
 
 public abstract class AbstractFileSystem implements FileSystem {
 
-    private static final String[] NETWORK_FS_TYPES = { "afs", "cifs", "smbfs", "sshfs", "ncpfs", "ncp", "nfs", "nfs4",
-            "gfs", "gds2", "glusterfs" };
+    /**
+     * FileSystem types which are network-based and should be excluded from local-only lists
+     */
+    protected static final List<String> NETWORK_FS_TYPES = Arrays.asList( "afs", "cifs", "smbfs", "sshfs", "ncpfs", "ncp", "nfs", "nfs4",
+            "gfs", "gds2", "glusterfs" );
 
     @Override
     public OSFileStore[] getFileStores() {
         return getFileStores(false);
-    }
-
-    /**
-     * Determine whether a file system type is a network file system
-     *
-     * @param type
-     *            The type to test
-     * @return {@code true} if the filesystem is a network type, {@code false}
-     *         otherwise.
-     */
-    protected static boolean isNetworkFsType(String type) {
-        for (String fsType : NETWORK_FS_TYPES) {
-            if (fsType.equals(type)) {
-                return true;
-            }
-        }
-        return false;
     }
 }

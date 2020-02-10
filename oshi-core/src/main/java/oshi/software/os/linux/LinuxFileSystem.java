@@ -136,15 +136,12 @@ public class LinuxFileSystem extends AbstractFileSystem {
             // Exclude pseudo file systems
             String path = split[1].replaceAll("\\\\040", " ");
             String type = split[2];
-            if (PSEUDO_FS.contains(type) // exclude non-fs types
+            if ((localOnly && NETWORK_FS_TYPES.contains(type)) // Skip non-local drives if requested
+                    || PSEUDO_FS.contains(type) // exclude non-fs types
                     || path.equals("/dev") // exclude plain dev directory
                     || ParseUtil.filePathStartsWith(TMP_FS_PATHS, path) // well known prefixes
                     || path.endsWith("/shm") // exclude shared memory
             ) {
-                continue;
-            }
-            // Skip non-local drives if requested
-            if (localOnly && isNetworkFsType(type)) {
                 continue;
             }
 
@@ -166,7 +163,7 @@ public class LinuxFileSystem extends AbstractFileSystem {
                 description = "Local Disk";
             } else if (volume.equals("tmpfs")) {
                 description = "Ram Disk";
-            } else if (type.startsWith("nfs") || type.equals("cifs")) {
+            } else if (NETWORK_FS_TYPES.contains(type)) {
                 description = "Network Disk";
             } else {
                 description = "Mount Point";
