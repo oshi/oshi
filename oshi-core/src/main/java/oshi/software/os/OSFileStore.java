@@ -345,4 +345,12 @@ public class OSFileStore {
         }
         return false;
     }
+    
+    @Override
+    public String toString() {
+        return "OSFileStore [name=" + name + ", volume=" + volume + ", logicalVolume=" + logicalVolume + ", mount="
+                + mount + ", description=" + description + ", fsType=" + fsType + ", uuid=" + uuid + ", freeSpace="
+                + freeSpace + ", usableSpace=" + usableSpace + ", totalSpace=" + totalSpace + ", freeInodes="
+                + freeInodes + ", totalInodes=" + totalInodes + "]";
+    }
 }

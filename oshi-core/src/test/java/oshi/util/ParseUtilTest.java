@@ -28,6 +28,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.List;
 
 import org.junit.Test;
 
@@ -404,5 +405,15 @@ public class ParseUtilTest {
         Instant timeInst = Instant.ofEpochMilli(1463124590_782L + 60 * 420_000L);
         assertEquals(timeInst, ParseUtil.parseCimDateTimeToOffset(cimDateTime).toInstant());
         assertEquals(Instant.EPOCH, ParseUtil.parseCimDateTimeToOffset("Not a datetime").toInstant());
+    }
+    
+    @Test
+    public void testFilePathStartsWith() {
+        List<String> prefixList = Arrays.asList("/foo", "/bar");
+        assertEquals(true, ParseUtil.filePathStartsWith(prefixList, "/foo"));
+        assertEquals(true, ParseUtil.filePathStartsWith(prefixList, "/foo/bar"));
+        assertEquals(false, ParseUtil.filePathStartsWith(prefixList, "/foobar"));
+        assertEquals(true, ParseUtil.filePathStartsWith(prefixList, "/foo/baz"));
+        assertEquals(false, ParseUtil.filePathStartsWith(prefixList, "/baz/foo"));
     }
 }

@@ -93,5 +93,8 @@ public class FileSystemTest {
             assertEquals(2345L, store.getFreeSpace());
             assertEquals(1234L, store.getUsableSpace());
         }
+        
+        OSFileStore[] localFs = filesystem.getFileStores(true);
+        assertTrue(localFs.length <= fs.length);
     }
 }
