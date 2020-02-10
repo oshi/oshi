@@ -64,6 +64,8 @@ public class MacFileSystem extends AbstractFileSystem {
     // Regexp matcher for /dev/disk1 etc.
     private static final Pattern LOCAL_DISK = Pattern.compile("/dev/disk\\d");
 
+    private static final int MNT_LOCAL = 0x00001000;
+
     @Override
     public OSFileStore[] getFileStores(boolean localOnly) {
         // List of file systems
@@ -106,15 +108,16 @@ public class MacFileSystem extends AbstractFileSystem {
                     if (volume.equals("devfs") || volume.startsWith("map ")) {
                         continue;
                     }
-                    if (localOnly && (volume.startsWith("localhost:") || volume.startsWith("//"))) {
+                    // Skip non-local drives if requested
+                    if (localOnly && (fs[f].f_flags & MNT_LOCAL) == 0) {
                         continue;
                     }
                     // Set description
                     String description = "Volume";
                     if (LOCAL_DISK.matcher(volume).matches()) {
                         description = "Local Disk";
-                    }
-                    if (volume.startsWith("localhost:") || volume.startsWith("//")) {
+                    } else if (volume.startsWith("localhost:") || volume.startsWith("//")
+                            || volume.startsWith("smb://")) {
                         description = "Network Drive";
                     }
                     // Set type and path
