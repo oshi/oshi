@@ -48,7 +48,7 @@ import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
 public class SolarisFileSystem extends AbstractFileSystem {
 
     // Solaris defines a set of virtual file systems
-    private final List<String> pseudofs = Arrays.asList(//
+    private static final List<String> PSEUDO_FS = Arrays.asList(//
             "proc", // Proc file system
             "devfs", // Dev temporary file system
             "ctfs", // Contract file system
@@ -63,7 +63,7 @@ public class SolarisFileSystem extends AbstractFileSystem {
     );
 
     // System path mounted as tmpfs
-    private final List<String> tmpfsPaths = Arrays.asList("/system", "/tmp", "/dev/fd");
+    private static final List<String> TMP_FS_PATHS = Arrays.asList("/system", "/tmp", "/dev/fd");
 
     /**
      * Checks if file path equals or starts with an element in the given list
@@ -75,7 +75,7 @@ public class SolarisFileSystem extends AbstractFileSystem {
      * @return true if the charSeq exactly equals, or starts with the directory in
      *         aList
      */
-    private boolean listElementStartsWith(List<String> aList, String charSeq) {
+    private static boolean listElementStartsWith(List<String> aList, String charSeq) {
         for (String match : aList) {
             if (charSeq.equals(match) || charSeq.startsWith(match + "/")) {
                 return true;
@@ -91,11 +91,11 @@ public class SolarisFileSystem extends AbstractFileSystem {
         return fsList.toArray(new OSFileStore[0]);
     }
 
-    private List<OSFileStore> getFileStoreMatching(String nameToMatch) {
+    private static List<OSFileStore> getFileStoreMatching(String nameToMatch) {
         return getFileStoreMatching(nameToMatch, false);
     }
 
-    private List<OSFileStore> getFileStoreMatching(String nameToMatch, boolean localOnly) {
+    private static List<OSFileStore> getFileStoreMatching(String nameToMatch, boolean localOnly) {
         List<OSFileStore> fsList = new ArrayList<>();
 
         // Get inode usage data
@@ -142,7 +142,7 @@ public class SolarisFileSystem extends AbstractFileSystem {
             String type = split[2];
 
             // Exclude pseudo file systems
-            if (this.pseudofs.contains(type) || path.equals("/dev") || listElementStartsWith(this.tmpfsPaths, path)
+            if (PSEUDO_FS.contains(type) || path.equals("/dev") || listElementStartsWith(TMP_FS_PATHS, path)
                     || volume.startsWith("rpool") && !path.equals("/")) {
                 continue;
             }
@@ -228,7 +228,7 @@ public class SolarisFileSystem extends AbstractFileSystem {
      * @return a boolean.
      */
     public static boolean updateFileStoreStats(OSFileStore osFileStore) {
-        for (OSFileStore fileStore : new SolarisFileSystem().getFileStoreMatching(osFileStore.getName())) {
+        for (OSFileStore fileStore : getFileStoreMatching(osFileStore.getName())) {
             if (osFileStore.getVolume().equals(fileStore.getVolume())
                     && osFileStore.getMount().equals(fileStore.getMount())) {
                 osFileStore.setLogicalVolume(fileStore.getLogicalVolume());

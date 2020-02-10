@@ -45,7 +45,7 @@ import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
 public class FreeBsdFileSystem extends AbstractFileSystem {
 
     // Linux defines a set of virtual file systems
-    private final List<String> pseudofs = Arrays.asList( //
+    private static final List<String> PSEUDO_FS = Arrays.asList( //
             "procfs", // Proc file system
             "devfs", // Dev temporary file system
             "ctfs", // Contract file system
@@ -61,7 +61,7 @@ public class FreeBsdFileSystem extends AbstractFileSystem {
     );
 
     // System path mounted as tmpfs
-    private final List<String> tmpfsPaths = Arrays.asList("/system", "/tmp", "/dev/fd");
+    private static final List<String> TMP_FS_PATHS = Arrays.asList("/system", "/tmp", "/dev/fd");
 
     /**
      * Checks if file path equals or starts with an element in the given list
@@ -139,7 +139,7 @@ public class FreeBsdFileSystem extends AbstractFileSystem {
             String type = split[2];
 
             // Exclude pseudo file systems
-            if (this.pseudofs.contains(type) || path.equals("/dev") || listElementStartsWith(this.tmpfsPaths, path)
+            if (PSEUDO_FS.contains(type) || path.equals("/dev") || listElementStartsWith(TMP_FS_PATHS, path)
                     || volume.startsWith("rpool") && !path.equals("/")) {
                 continue;
             }

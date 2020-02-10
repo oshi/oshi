@@ -73,11 +73,11 @@ public class MacFileSystem extends AbstractFileSystem {
         return fsList.toArray(new OSFileStore[0]);
     }
 
-    private List<OSFileStore> getFileStoreMatching(String nameToMatch) {
+    private static List<OSFileStore> getFileStoreMatching(String nameToMatch) {
         return getFileStoreMatching(nameToMatch, false);
     }
 
-    private List<OSFileStore> getFileStoreMatching(String nameToMatch, boolean localOnly) {
+    private static List<OSFileStore> getFileStoreMatching(String nameToMatch, boolean localOnly) {
         List<OSFileStore> fsList = new ArrayList<>();
 
         // Use getfsstat to find fileSystems
@@ -227,7 +227,7 @@ public class MacFileSystem extends AbstractFileSystem {
      * @return a boolean.
      */
     public static boolean updateFileStoreStats(OSFileStore osFileStore) {
-        for (OSFileStore fileStore : new MacFileSystem().getFileStoreMatching(osFileStore.getName())) {
+        for (OSFileStore fileStore : getFileStoreMatching(osFileStore.getName())) {
             if (osFileStore.getVolume().equals(fileStore.getVolume())
                     && osFileStore.getMount().equals(fileStore.getMount())) {
                 osFileStore.setLogicalVolume(fileStore.getLogicalVolume());

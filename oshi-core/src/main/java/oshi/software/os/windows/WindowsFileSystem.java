@@ -150,7 +150,7 @@ public class WindowsFileSystem extends AbstractFileSystem {
      * @return A list of {@link OSFileStore} objects representing all local mounted
      *         volumes
      */
-    private ArrayList<OSFileStore> getLocalVolumes(String nameToMatch) {
+    private static ArrayList<OSFileStore> getLocalVolumes(String nameToMatch) {
         ArrayList<OSFileStore> fs;
         String volume;
         String strFsType;
@@ -293,7 +293,7 @@ public class WindowsFileSystem extends AbstractFileSystem {
      *            Mounted drive
      * @return A drive type description
      */
-    private String getDriveType(String drive) {
+    private static String getDriveType(String drive) {
         switch (Kernel32.INSTANCE.GetDriveType(drive)) {
         case 2:
             return "Removable drive";
@@ -342,7 +342,7 @@ public class WindowsFileSystem extends AbstractFileSystem {
     public static boolean updateFileStoreStats(OSFileStore osFileStore) {
         WindowsFileSystem wfs = new WindowsFileSystem();
         // Check if we have the volume locally
-        List<OSFileStore> volumes = wfs.getLocalVolumes(osFileStore.getName());
+        List<OSFileStore> volumes = getLocalVolumes(osFileStore.getName());
         if (volumes.isEmpty()) {
             // Not locally, search WMI
             volumes = wfs.getWmiVolumes(osFileStore.getName(), false);
