@@ -46,7 +46,7 @@ import com.sun.jna.platform.mac.IOKitUtil;
 import com.sun.jna.platform.mac.SystemB;
 import com.sun.jna.platform.mac.SystemB.Statfs;
 
-import oshi.software.os.FileSystem;
+import oshi.software.common.AbstractFileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.Constants;
 import oshi.util.platform.mac.SysctlUtil;
@@ -57,26 +57,27 @@ import oshi.util.platform.mac.SysctlUtil;
  * implementation specific means of file storage. In Mac OS X, these are found
  * in the /Volumes directory.
  */
-public class MacFileSystem implements FileSystem {
+public class MacFileSystem extends AbstractFileSystem {
 
     private static final Logger LOG = LoggerFactory.getLogger(MacFileSystem.class);
 
     // Regexp matcher for /dev/disk1 etc.
     private static final Pattern LOCAL_DISK = Pattern.compile("/dev/disk\\d");
 
-    /**
-     * {@inheritDoc}
-     *
-     * Gets File System Information.
-     */
+    private static final int MNT_LOCAL = 0x00001000;
+
     @Override
-    public OSFileStore[] getFileStores() {
+    public OSFileStore[] getFileStores(boolean localOnly) {
         // List of file systems
-        List<OSFileStore> fsList = getFileStoreMatching(null);
+        List<OSFileStore> fsList = getFileStoreMatching(null, localOnly);
         return fsList.toArray(new OSFileStore[0]);
     }
 
-    private List<OSFileStore> getFileStoreMatching(String nameToMatch) {
+    private static List<OSFileStore> getFileStoreMatching(String nameToMatch) {
+        return getFileStoreMatching(nameToMatch, false);
+    }
+
+    private static List<OSFileStore> getFileStoreMatching(String nameToMatch, boolean localOnly) {
         List<OSFileStore> fsList = new ArrayList<>();
 
         // Use getfsstat to find fileSystems
@@ -107,18 +108,20 @@ public class MacFileSystem implements FileSystem {
                     if (volume.equals("devfs") || volume.startsWith("map ")) {
                         continue;
                     }
-                    // Set description
+                    // Skip non-local drives if requested
+                    if (localOnly && (fs[f].f_flags & MNT_LOCAL) == 0) {
+                        continue;
+                    }
+
+                    String type = new String(fs[f].f_fstypename, StandardCharsets.UTF_8).trim();
                     String description = "Volume";
                     if (LOCAL_DISK.matcher(volume).matches()) {
                         description = "Local Disk";
-                    }
-                    if (volume.startsWith("localhost:") || volume.startsWith("//")) {
+                    } else if (volume.startsWith("localhost:") || volume.startsWith("//") || volume.startsWith("smb://")
+                            || NETWORK_FS_TYPES.contains(type)) {
                         description = "Network Drive";
                     }
-                    // Set type and path
-                    String type = new String(fs[f].f_fstypename, StandardCharsets.UTF_8).trim();
                     String path = new String(fs[f].f_mntonname, StandardCharsets.UTF_8).trim();
-
                     String name = "";
                     File file = new File(path);
                     if (name.isEmpty()) {
@@ -222,7 +225,7 @@ public class MacFileSystem implements FileSystem {
      * @return a boolean.
      */
     public static boolean updateFileStoreStats(OSFileStore osFileStore) {
-        for (OSFileStore fileStore : new MacFileSystem().getFileStoreMatching(osFileStore.getName())) {
+        for (OSFileStore fileStore : getFileStoreMatching(osFileStore.getName())) {
             if (osFileStore.getVolume().equals(fileStore.getVolume())
                     && osFileStore.getMount().equals(fileStore.getMount())) {
                 osFileStore.setLogicalVolume(fileStore.getLogicalVolume());

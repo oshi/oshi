@@ -31,6 +31,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
@@ -889,5 +890,24 @@ public class ParseUtil {
             LOG.trace("Unable to parse {} to CIM DateTime.", cimDateTime);
             return Constants.UNIX_EPOCH;
         }
+    }
+
+    /**
+     * Checks if a file path equals or starts with an prefix in the given list
+     *
+     * @param prefixList
+     *            A list of path prefixes
+     * @param path
+     *            a string path to check
+     * @return true if the path exactly equals, or starts with one of the strings
+     *         in prefixList
+     */
+    public static boolean filePathStartsWith(List<String> prefixList, String path) {        
+        for (String match : prefixList) {
+            if (path.equals(match) || path.startsWith(match + "/")) {
+                return true;
+            }
+        }
+        return false;
     }
 }

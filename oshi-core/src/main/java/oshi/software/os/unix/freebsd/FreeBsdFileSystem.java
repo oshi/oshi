@@ -30,7 +30,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import oshi.software.os.FileSystem;
+import oshi.software.common.AbstractFileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
@@ -42,10 +42,10 @@ import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
  * implementation specific means of file storage. In Linux, these are found in
  * the /proc/mount filesystem, excluding temporary and kernel mounts.
  */
-public class FreeBsdFileSystem implements FileSystem {
+public class FreeBsdFileSystem extends AbstractFileSystem {
 
     // Linux defines a set of virtual file systems
-    private final List<String> pseudofs = Arrays.asList( //
+    private static final List<String> PSEUDO_FS = Arrays.asList( //
             "procfs", // Proc file system
             "devfs", // Dev temporary file system
             "ctfs", // Contract file system
@@ -61,34 +61,10 @@ public class FreeBsdFileSystem implements FileSystem {
     );
 
     // System path mounted as tmpfs
-    private final List<String> tmpfsPaths = Arrays.asList("/system", "/tmp", "/dev/fd");
+    private static final List<String> TMP_FS_PATHS = Arrays.asList("/system", "/tmp", "/dev/fd");
 
-    /**
-     * Checks if file path equals or starts with an element in the given list
-     *
-     * @param aList
-     *            A list of path prefixes
-     * @param charSeq
-     *            a path to check
-     * @return true if the charSeq exactly equals, or starts with the directory in
-     *         aList
-     */
-    private boolean listElementStartsWith(List<String> aList, String charSeq) {
-        for (String match : aList) {
-            if (charSeq.equals(match) || charSeq.startsWith(match + "/")) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * Gets File System Information.
-     */
     @Override
-    public OSFileStore[] getFileStores() {
+    public OSFileStore[] getFileStores(boolean localOnly) {
         // Find any partition UUIDs and map them
         Map<String, String> uuidMap = new HashMap<>();
         // Now grab dmssg output
@@ -143,8 +119,8 @@ public class FreeBsdFileSystem implements FileSystem {
             String path = split[1];
             String type = split[2];
 
-            // Exclude pseudo file systems
-            if (this.pseudofs.contains(type) || path.equals("/dev") || listElementStartsWith(this.tmpfsPaths, path)
+            // Skip non-local drives if requested, and exclude pseudo file systems
+            if ((localOnly && NETWORK_FS_TYPES.contains(type)) || PSEUDO_FS.contains(type) || path.equals("/dev") || ParseUtil.filePathStartsWith(TMP_FS_PATHS, path)
                     || volume.startsWith("rpool") && !path.equals("/")) {
                 continue;
             }
@@ -164,7 +140,7 @@ public class FreeBsdFileSystem implements FileSystem {
                 description = "Local Disk";
             } else if (volume.equals("tmpfs")) {
                 description = "Ram Disk";
-            } else if (type.startsWith("nfs") || type.equals("cifs")) {
+            } else if (NETWORK_FS_TYPES.contains(type)) {
                 description = "Network Disk";
             } else {
                 description = "Mount Point";

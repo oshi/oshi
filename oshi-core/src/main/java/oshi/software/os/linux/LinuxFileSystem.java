@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
 import com.sun.jna.Native; // NOSONAR
 import com.sun.jna.platform.linux.LibC;
 
-import oshi.software.os.FileSystem;
+import oshi.software.common.AbstractFileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
@@ -51,12 +51,12 @@ import oshi.util.ParseUtil;
  * implementation specific means of file storage. In Linux, these are found in
  * the /proc/mount filesystem, excluding temporary and kernel mounts.
  */
-public class LinuxFileSystem implements FileSystem {
+public class LinuxFileSystem extends AbstractFileSystem {
 
     private static final Logger LOG = LoggerFactory.getLogger(LinuxFileSystem.class);
 
     // Linux defines a set of virtual file systems
-    private final List<String> pseudofs = Arrays.asList(//
+    private static final List<String> PSEUDO_FS = Arrays.asList(//
             "rootfs", // Minimal fs to support kernel boot
             "sysfs", // SysFS file system
             "proc", // Proc file system
@@ -86,34 +86,10 @@ public class LinuxFileSystem implements FileSystem {
     );
 
     // System path mounted as tmpfs
-    private final List<String> tmpfsPaths = Arrays.asList("/run", "/sys", "/proc");
+    private static final List<String> TMP_FS_PATHS = Arrays.asList("/run", "/sys", "/proc");
 
-    /**
-     * Checks if file path equals or starts with an element in the given list
-     *
-     * @param aList
-     *            A list of path prefixes
-     * @param charSeq
-     *            a path to check
-     * @return true if the charSeq exactly equals, or starts with the directory in
-     *         aList
-     */
-    private boolean listElementStartsWith(List<String> aList, String charSeq) {
-        for (String match : aList) {
-            if (charSeq.equals(match) || charSeq.startsWith(match + "/")) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * Gets File System Information.
-     */
     @Override
-    public OSFileStore[] getFileStores() {
+    public OSFileStore[] getFileStores(boolean localOnly) {
         // Map uuids with device path as key
         Map<String, String> uuidMap = new HashMap<>();
         File uuidDir = new File("/dev/disk/by-uuid");
@@ -129,12 +105,17 @@ public class LinuxFileSystem implements FileSystem {
         }
 
         // List file systems
-        List<OSFileStore> fsList = getFileStoreMatching(null, uuidMap);
+        List<OSFileStore> fsList = getFileStoreMatching(null, uuidMap, localOnly);
 
         return fsList.toArray(new OSFileStore[0]);
     }
 
-    private List<OSFileStore> getFileStoreMatching(String nameToMatch, Map<String, String> uuidMap) {
+    private static List<OSFileStore> getFileStoreMatching(String nameToMatch, Map<String, String> uuidMap) {
+        return getFileStoreMatching(nameToMatch, uuidMap, false);
+    }
+
+    private static List<OSFileStore> getFileStoreMatching(String nameToMatch, Map<String, String> uuidMap,
+            boolean localOnly) {
         List<OSFileStore> fsList = new ArrayList<>();
 
         // Parse /proc/self/mounts to get fs types
@@ -155,9 +136,10 @@ public class LinuxFileSystem implements FileSystem {
             // Exclude pseudo file systems
             String path = split[1].replaceAll("\\\\040", " ");
             String type = split[2];
-            if (this.pseudofs.contains(type) // exclude non-fs types
+            if ((localOnly && NETWORK_FS_TYPES.contains(type)) // Skip non-local drives if requested
+                    || PSEUDO_FS.contains(type) // exclude non-fs types
                     || path.equals("/dev") // exclude plain dev directory
-                    || listElementStartsWith(this.tmpfsPaths, path) // well known prefixes
+                    || ParseUtil.filePathStartsWith(TMP_FS_PATHS, path) // well known prefixes
                     || path.endsWith("/shm") // exclude shared memory
             ) {
                 continue;
@@ -181,7 +163,7 @@ public class LinuxFileSystem implements FileSystem {
                 description = "Local Disk";
             } else if (volume.equals("tmpfs")) {
                 description = "Ram Disk";
-            } else if (type.startsWith("nfs") || type.equals("cifs")) {
+            } else if (NETWORK_FS_TYPES.contains(type)) {
                 description = "Network Disk";
             } else {
                 description = "Mount Point";
@@ -295,7 +277,7 @@ public class LinuxFileSystem implements FileSystem {
      * @return a boolean.
      */
     public static boolean updateFileStoreStats(OSFileStore osFileStore) {
-        for (OSFileStore fileStore : new LinuxFileSystem().getFileStoreMatching(osFileStore.getName(), null)) {
+        for (OSFileStore fileStore : getFileStoreMatching(osFileStore.getName(), null)) {
             if (osFileStore.getVolume().equals(fileStore.getVolume())
                     && osFileStore.getMount().equals(fileStore.getMount())) {
                 osFileStore.setLogicalVolume(fileStore.getLogicalVolume());

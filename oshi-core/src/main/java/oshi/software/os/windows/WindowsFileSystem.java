@@ -34,7 +34,7 @@ import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
-import oshi.software.os.FileSystem;
+import oshi.software.common.AbstractFileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.ParseUtil;
 import oshi.util.platform.windows.PerfCounterQuery;
@@ -49,7 +49,7 @@ import oshi.util.platform.windows.WmiUtil;
  * implementation specific means of file storage. In Windows, these are
  * represented by a drive letter, e.g., "A:\" and "C:\"
  */
-public class WindowsFileSystem implements FileSystem {
+public class WindowsFileSystem extends AbstractFileSystem {
 
     private static final int BUFSIZE = 255;
 
@@ -59,14 +59,6 @@ public class WindowsFileSystem implements FileSystem {
         DESCRIPTION, DRIVETYPE, FILESYSTEM, FREESPACE, NAME, PROVIDERNAME, SIZE;
     }
 
-    private final WmiQuery<LogicalDiskProperty> logicalDiskQuery = new WmiQuery<>("Win32_LogicalDisk",
-            LogicalDiskProperty.class);
-
-    private final WmiQueryHandler wmiQueryHandler = WmiQueryHandler.createInstance();
-
-    /*
-     * For handle counts
-     */
     enum HandleCountProperty implements PdhCounterWildcardProperty {
         // First element defines WMI instance name field and PDH instance filter
         NAME(PerfCounterQuery.TOTAL_INSTANCE),
@@ -113,13 +105,8 @@ public class WindowsFileSystem implements FileSystem {
         Kernel32.INSTANCE.SetErrorMode(SEM_FAILCRITICALERRORS);
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * Gets File System Information.
-     */
     @Override
-    public OSFileStore[] getFileStores() {
+    public OSFileStore[] getFileStores(boolean localOnly) {
         // Create list to hold results
         ArrayList<OSFileStore> result;
 
@@ -134,12 +121,12 @@ public class WindowsFileSystem implements FileSystem {
 
         // Iterate through volumes in WMI and update description (if it exists)
         // or add new if it doesn't (expected for network drives)
-        for (OSFileStore wmiVolume : getWmiVolumes(null)) {
+        for (OSFileStore wmiVolume : getWmiVolumes(null, localOnly)) {
             if (volumeMap.containsKey(wmiVolume.getMount())) {
                 // If the volume is already in our list, update the name field
                 // using WMI's more verbose name
                 volumeMap.get(wmiVolume.getMount()).setName(wmiVolume.getName());
-            } else {
+            } else if (!localOnly) {
                 // Otherwise add the new volume in its entirety
                 result.add(wmiVolume);
             }
@@ -155,7 +142,7 @@ public class WindowsFileSystem implements FileSystem {
      * @return A list of {@link OSFileStore} objects representing all local mounted
      *         volumes
      */
-    private ArrayList<OSFileStore> getLocalVolumes(String nameToMatch) {
+    private static ArrayList<OSFileStore> getLocalVolumes(String nameToMatch) {
         ArrayList<OSFileStore> fs;
         String volume;
         String strFsType;
@@ -231,22 +218,28 @@ public class WindowsFileSystem implements FileSystem {
      *
      * @param nameToMatch
      *            an optional string to filter match, null otherwise
+     * @param localOnly
+     *            Whether to only search local drives
      * @return A list of {@link OSFileStore} objects representing all network
      *         mounted volumes
      */
-    private List<OSFileStore> getWmiVolumes(String nameToMatch) {
+    private static List<OSFileStore> getWmiVolumes(String nameToMatch, boolean localOnly) {
         long free;
         long total;
         List<OSFileStore> fs = new ArrayList<>();
 
-        String wmiClassName = this.logicalDiskQuery.getWmiClassName();
-        if (nameToMatch != null) {
-            this.logicalDiskQuery.setWmiClassName(wmiClassName + " WHERE Name=\"" + nameToMatch + "\"");
+        StringBuilder wmiClassName = new StringBuilder("Win32_LogicalDisk");
+        boolean where = false;
+        if (localOnly) {
+            wmiClassName.append(" WHERE DriveType != 4");
+            where = true;
         }
-        WmiResult<LogicalDiskProperty> drives = wmiQueryHandler.queryWMI(this.logicalDiskQuery);
         if (nameToMatch != null) {
-            this.logicalDiskQuery.setWmiClassName(wmiClassName);
+            wmiClassName.append(where ? " WHERE" : " AND").append(" Name=\"").append(nameToMatch).append('\"');
         }
+        WmiQueryHandler wmiQueryHandler = WmiQueryHandler.createInstance();
+        WmiQuery<LogicalDiskProperty> logicalDiskQuery = new WmiQuery<>(wmiClassName.toString(), LogicalDiskProperty.class);
+        WmiResult<LogicalDiskProperty> drives = wmiQueryHandler.queryWMI(logicalDiskQuery);
 
         for (int i = 0; i < drives.getResultCount(); i++) {
             free = WmiUtil.getUint64(drives, LogicalDiskProperty.FREESPACE, i);
@@ -290,7 +283,7 @@ public class WindowsFileSystem implements FileSystem {
      *            Mounted drive
      * @return A drive type description
      */
-    private String getDriveType(String drive) {
+    private static String getDriveType(String drive) {
         switch (Kernel32.INSTANCE.GetDriveType(drive)) {
         case 2:
             return "Removable drive";
@@ -337,12 +330,11 @@ public class WindowsFileSystem implements FileSystem {
      * @return a boolean.
      */
     public static boolean updateFileStoreStats(OSFileStore osFileStore) {
-        WindowsFileSystem wfs = new WindowsFileSystem();
         // Check if we have the volume locally
-        List<OSFileStore> volumes = wfs.getLocalVolumes(osFileStore.getName());
+        List<OSFileStore> volumes = getLocalVolumes(osFileStore.getName());
         if (volumes.isEmpty()) {
             // Not locally, search WMI
-            volumes = wfs.getWmiVolumes(osFileStore.getName());
+            volumes = getWmiVolumes(osFileStore.getName(), false);
         }
         for (OSFileStore fileStore : volumes) {
             if (osFileStore.getVolume().equals(fileStore.getVolume())

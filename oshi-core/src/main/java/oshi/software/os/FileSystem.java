@@ -43,6 +43,21 @@ public interface FileSystem {
     OSFileStore[] getFileStores();
 
     /**
+     * Get file stores on this machine
+     *
+     * Instantiates an array of {@link oshi.software.os.OSFileStore} objects,
+     * representing a storage pool, device, partition, volume, concrete file system
+     * or other implementation specific means of file storage.
+     *
+     * @param localOnly
+     *            If true, filters the list to only local file stores.
+     *
+     * @return An array of OSFileStore objects or an empty array if none are
+     *         present.
+     */
+    OSFileStore[] getFileStores(boolean localOnly);
+
+    /**
      * The current number of open file descriptors. A file descriptor is an abstract
      * handle used to access I/O resources such as files and network connections. On
      * UNIX-based systems there is a system-wide limit on the number of open file
