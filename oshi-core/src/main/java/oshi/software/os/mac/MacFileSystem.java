@@ -93,7 +93,6 @@ public class MacFileSystem extends AbstractFileSystem {
 
     private static final Map<Integer, String> OPTIONS_MAP = new HashMap<>();
     static {
-        OPTIONS_MAP.put(MNT_RDONLY, "read-only");
         OPTIONS_MAP.put(MNT_SYNCHRONOUS, "synchronous");
         OPTIONS_MAP.put(MNT_NOEXEC, "noexec");
         OPTIONS_MAP.put(MNT_NOSUID, "nosuid");
@@ -183,8 +182,13 @@ public class MacFileSystem extends AbstractFileSystem {
                     if (nameToMatch != null && !nameToMatch.equals(name)) {
                         continue;
                     }
-                    String options = OPTIONS_MAP.entrySet().stream().filter(e -> (e.getKey() & flags) > 0)
+
+                    StringBuilder options = new StringBuilder((MNT_RDONLY & flags) == 0 ? "rw" : "ro");
+                    String moreOptions = OPTIONS_MAP.entrySet().stream().filter(e -> (e.getKey() & flags) > 0)
                             .map(Map.Entry::getValue).collect(Collectors.joining(","));
+                    if (!moreOptions.isEmpty()) {
+                        options.append(',').append(moreOptions);
+                    }
 
                     String uuid = "";
                     // Use volume to find DiskArbitration volume name and search for
@@ -238,7 +242,7 @@ public class MacFileSystem extends AbstractFileSystem {
                     osStore.setMount(path);
                     osStore.setDescription(description);
                     osStore.setType(type);
-                    osStore.setOptions(options);
+                    osStore.setOptions(options.toString());
                     osStore.setUUID(uuid == null ? "" : uuid);
                     osStore.setFreeSpace(file.getFreeSpace());
                     osStore.setUsableSpace(file.getUsableSpace());

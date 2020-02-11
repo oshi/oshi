@@ -24,6 +24,7 @@
 package oshi.software.os;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -58,6 +59,7 @@ public class FileSystemTest {
             assertNotNull(store.getLogicalVolume());
             assertNotNull(store.getDescription());
             assertNotNull(store.getType());
+            assertFalse(store.getOptions().isEmpty());
             assertNotNull(store.getMount());
             assertNotNull(store.getUUID());
             assertTrue(store.getTotalSpace() >= 0);
@@ -93,7 +95,7 @@ public class FileSystemTest {
             assertEquals(2345L, store.getFreeSpace());
             assertEquals(1234L, store.getUsableSpace());
         }
-        
+
         OSFileStore[] localFs = filesystem.getFileStores(true);
         assertTrue(localFs.length <= fs.length);
     }
