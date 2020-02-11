@@ -48,6 +48,7 @@ public class OSFileStore {
     private String mount;
     private String description;
     private String fsType;
+    private String options;
     private String uuid;
     private long freeSpace;
     private long usableSpace;
@@ -76,6 +77,7 @@ public class OSFileStore {
         setMount(fileStore.getMount());
         setDescription(fileStore.getDescription());
         setType(fileStore.getType());
+        setType(fileStore.getOptions());
         setUUID(fileStore.getUUID());
         setFreeSpace(fileStore.getFreeSpace());
         setUsableSpace(fileStore.getUsableSpace());
@@ -200,6 +202,25 @@ public class OSFileStore {
      */
     public void setType(String value) {
         this.fsType = value;
+    }
+
+    /**
+     * Filesystem options
+     *
+     * @return A comma-deimited string of options
+     */
+    public String getOptions() {
+        return options;
+    }
+
+    /**
+     * Sets the File System options
+     *
+     * @param value
+     *            The options
+     */
+    public void setOptions(String value) {
+        this.options = value;
     }
 
     /**
@@ -345,12 +366,12 @@ public class OSFileStore {
         }
         return false;
     }
-    
+
     @Override
     public String toString() {
         return "OSFileStore [name=" + name + ", volume=" + volume + ", logicalVolume=" + logicalVolume + ", mount="
-                + mount + ", description=" + description + ", fsType=" + fsType + ", uuid=" + uuid + ", freeSpace="
-                + freeSpace + ", usableSpace=" + usableSpace + ", totalSpace=" + totalSpace + ", freeInodes="
-                + freeInodes + ", totalInodes=" + totalInodes + "]";
+                + mount + ", description=" + description + ", fsType=" + fsType + ", options=\"" + options + "\", uuid="
+                + uuid + ", freeSpace=" + freeSpace + ", usableSpace=" + usableSpace + ", totalSpace=" + totalSpace
+                + ", freeInodes=" + freeInodes + ", totalInodes=" + totalInodes + "]";
     }
 }

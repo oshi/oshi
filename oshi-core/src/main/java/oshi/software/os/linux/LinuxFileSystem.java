@@ -44,6 +44,7 @@ import oshi.software.common.AbstractFileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
+import oshi.util.platform.linux.ProcUtil;
 
 /**
  * The Linux File System contains {@link oshi.software.os.OSFileStore}s which
@@ -118,15 +119,15 @@ public class LinuxFileSystem extends AbstractFileSystem {
             boolean localOnly) {
         List<OSFileStore> fsList = new ArrayList<>();
 
-        // Parse /proc/self/mounts to get fs types
-        List<String> mounts = FileUtil.readFile("/proc/self/mounts");
+        // Parse /proc/mounts to get fs types
+        List<String> mounts = FileUtil.readFile(ProcUtil.getProcPath() + "/mounts");
         for (String mount : mounts) {
             String[] split = mount.split(" ");
             // As reported in fstab(5) manpage, struct is:
             // 1st field is volume name
             // 2nd field is path with spaces escaped as \040
             // 3rd field is fs type
-            // 4th field is mount options (ignored)
+            // 4th field is mount options
             // 5th field is used by dump(8) (ignored)
             // 6th field is fsck order (ignored)
             if (split.length < 6) {
@@ -144,6 +145,7 @@ public class LinuxFileSystem extends AbstractFileSystem {
             ) {
                 continue;
             }
+            String options = split[3];
 
             String name = split[0].replaceAll("\\\\040", " ");
             if (path.equals("/")) {
@@ -218,6 +220,7 @@ public class LinuxFileSystem extends AbstractFileSystem {
             osStore.setMount(path);
             osStore.setDescription(description);
             osStore.setType(type);
+            osStore.setOptions(options);
             osStore.setUUID(uuid);
             osStore.setFreeSpace(freeSpace);
             osStore.setUsableSpace(usableSpace);

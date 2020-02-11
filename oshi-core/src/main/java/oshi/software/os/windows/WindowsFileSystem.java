@@ -27,12 +27,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.sun.jna.platform.win32.Kernel32; //NOSONAR
 import com.sun.jna.platform.win32.WinBase;
 import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
+import com.sun.jna.ptr.IntByReference;
 
 import oshi.software.common.AbstractFileSystem;
 import oshi.software.os.OSFileStore;
@@ -54,6 +56,44 @@ public class WindowsFileSystem extends AbstractFileSystem {
     private static final int BUFSIZE = 255;
 
     private static final int SEM_FAILCRITICALERRORS = 0x0001;
+
+    private static final int FILE_CASE_SENSITIVE_SEARCH = 0x00000001;
+    private static final int FILE_CASE_PRESERVED_NAMES = 0x00000002;
+    private static final int FILE_FILE_COMPRESSION = 0x00000010;
+    private static final int FILE_DAX_VOLUME = 0x20000000;
+    private static final int FILE_NAMED_STREAMS = 0x00040000;
+    private static final int FILE_PERSISTENT_ACLS = 0x00000008;
+    private static final int FILE_READ_ONLY_VOLUME = 0x00080000;
+    private static final int FILE_SEQUENTIAL_WRITE_ONCE = 0x00100000;
+    private static final int FILE_SUPPORTS_ENCRYPTION = 0x00020000;
+    private static final int FILE_SUPPORTS_OBJECT_IDS = 0x00010000;
+    private static final int FILE_SUPPORTS_REPARSE_POINTS = 0x00000080;
+    private static final int FILE_SUPPORTS_SPARSE_FILES = 0x00000040;
+    private static final int FILE_SUPPORTS_TRANSACTIONS = 0x00200000;
+    private static final int FILE_SUPPORTS_USN_JOURNAL = 0x02000000;
+    private static final int FILE_UNICODE_ON_DISK = 0x00000004;
+    private static final int FILE_VOLUME_IS_COMPRESSED = 0x00008000;
+    private static final int FILE_VOLUME_QUOTAS = 0x00000020;
+
+    private static final Map<Integer, String> OPTIONS_MAP = new HashMap<>();
+    static {
+        OPTIONS_MAP.put(FILE_CASE_PRESERVED_NAMES, "casepn");
+        OPTIONS_MAP.put(FILE_CASE_SENSITIVE_SEARCH, "casess");
+        OPTIONS_MAP.put(FILE_FILE_COMPRESSION, "fcomp");
+        OPTIONS_MAP.put(FILE_DAX_VOLUME, "dax");
+        OPTIONS_MAP.put(FILE_NAMED_STREAMS, "streams");
+        OPTIONS_MAP.put(FILE_PERSISTENT_ACLS, "acls");
+        OPTIONS_MAP.put(FILE_SEQUENTIAL_WRITE_ONCE, "wronce");
+        OPTIONS_MAP.put(FILE_SUPPORTS_ENCRYPTION, "efs");
+        OPTIONS_MAP.put(FILE_SUPPORTS_OBJECT_IDS, "oids");
+        OPTIONS_MAP.put(FILE_SUPPORTS_REPARSE_POINTS, "reparse");
+        OPTIONS_MAP.put(FILE_SUPPORTS_SPARSE_FILES, "sparse");
+        OPTIONS_MAP.put(FILE_SUPPORTS_TRANSACTIONS, "trans");
+        OPTIONS_MAP.put(FILE_SUPPORTS_USN_JOURNAL, "journaled");
+        OPTIONS_MAP.put(FILE_UNICODE_ON_DISK, "unicode");
+        OPTIONS_MAP.put(FILE_VOLUME_IS_COMPRESSED, "vcomp");
+        OPTIONS_MAP.put(FILE_VOLUME_QUOTAS, "quota");
+    }
 
     enum LogicalDiskProperty {
         DESCRIPTION, DRIVETYPE, FILESYSTEM, FREESPACE, NAME, PROVIDERNAME, SIZE;
@@ -157,6 +197,7 @@ public class WindowsFileSystem extends AbstractFileSystem {
         char[] fstype;
         char[] name;
         char[] mount;
+        IntByReference pFlags;
 
         fs = new ArrayList<>();
         aVolume = new char[BUFSIZE];
@@ -170,25 +211,34 @@ public class WindowsFileSystem extends AbstractFileSystem {
             fstype = new char[16];
             name = new char[BUFSIZE];
             mount = new char[BUFSIZE];
+            pFlags = new IntByReference();
 
             userFreeBytes = new WinNT.LARGE_INTEGER(0L);
             totalBytes = new WinNT.LARGE_INTEGER(0L);
             systemFreeBytes = new WinNT.LARGE_INTEGER(0L);
 
             volume = new String(aVolume).trim();
-            Kernel32.INSTANCE.GetVolumeInformation(volume, name, BUFSIZE, null, null, null, fstype, 16);
+            Kernel32.INSTANCE.GetVolumeInformation(volume, name, BUFSIZE, null, null, pFlags, fstype, 16);
+            final int flags = pFlags.getValue();
             Kernel32.INSTANCE.GetVolumePathNamesForVolumeName(volume, mount, BUFSIZE, null);
 
             strMount = new String(mount).trim();
-            strName = new String(name).trim();
-            strFsType = new String(fstype).trim();
-            String osName = String.format("%s (%s)", strName, strMount);
-            if (nameToMatch == null || nameToMatch.equals(osName)) {
-                Kernel32.INSTANCE.GetDiskFreeSpaceEx(volume, userFreeBytes, totalBytes, systemFreeBytes);
-                // Parse uuid from volume name
-                String uuid = ParseUtil.parseUuidOrDefault(volume, "");
+            if (!strMount.isEmpty()) {
+                strName = new String(name).trim();
+                strFsType = new String(fstype).trim();
 
-                if (!strMount.isEmpty()) {
+                StringBuilder options = new StringBuilder((FILE_READ_ONLY_VOLUME & flags) == 0 ? "rw" : "ro");
+                String moreOptions = OPTIONS_MAP.entrySet().stream().filter(e -> (e.getKey() & flags) > 0)
+                        .map(Map.Entry::getValue).collect(Collectors.joining(","));
+                if (!moreOptions.isEmpty()) {
+                    options.append(',').append(moreOptions);
+                }
+                String osName = String.format("%s (%s)", strName, strMount);
+                if (nameToMatch == null || nameToMatch.equals(osName)) {
+                    Kernel32.INSTANCE.GetDiskFreeSpaceEx(volume, userFreeBytes, totalBytes, systemFreeBytes);
+                    // Parse uuid from volume name
+                    String uuid = ParseUtil.parseUuidOrDefault(volume, "");
+
                     // Volume is mounted
                     OSFileStore osStore = new OSFileStore();
                     osStore.setName(osName);
@@ -196,10 +246,12 @@ public class WindowsFileSystem extends AbstractFileSystem {
                     osStore.setMount(strMount);
                     osStore.setDescription(getDriveType(strMount));
                     osStore.setType(strFsType);
+                    osStore.setOptions(options.toString());
                     osStore.setUUID(uuid);
                     osStore.setFreeSpace(systemFreeBytes.getValue());
                     osStore.setUsableSpace(userFreeBytes.getValue());
                     osStore.setTotalSpace(totalBytes.getValue());
+                    System.out.println(osStore.toString());
                     fs.add(osStore);
                 }
             }
@@ -238,7 +290,8 @@ public class WindowsFileSystem extends AbstractFileSystem {
             wmiClassName.append(where ? " WHERE" : " AND").append(" Name=\"").append(nameToMatch).append('\"');
         }
         WmiQueryHandler wmiQueryHandler = WmiQueryHandler.createInstance();
-        WmiQuery<LogicalDiskProperty> logicalDiskQuery = new WmiQuery<>(wmiClassName.toString(), LogicalDiskProperty.class);
+        WmiQuery<LogicalDiskProperty> logicalDiskQuery = new WmiQuery<>(wmiClassName.toString(),
+                LogicalDiskProperty.class);
         WmiResult<LogicalDiskProperty> drives = wmiQueryHandler.queryWMI(logicalDiskQuery);
 
         for (int i = 0; i < drives.getResultCount(); i++) {

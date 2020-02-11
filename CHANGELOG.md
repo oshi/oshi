@@ -1,6 +1,7 @@
 4.4.0 (in progress)
 ================
 * [#1098](https://github.com/oshi/oshi/pull/1098): Option to limit FileStore list to local file systems. - [@Space2Man](https://github.com/Space2Man).
+* [#1100](https://github.com/oshi/oshi/pull/1100): Get FileStore options. - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here.
 
 4.3.0 (1/2/2020), 4.3.1 (2/5/2020)
