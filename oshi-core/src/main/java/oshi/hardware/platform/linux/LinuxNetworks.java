@@ -47,8 +47,10 @@ public class LinuxNetworks extends AbstractNetworks {
         String rxPacketsPath = String.format("/sys/class/net/%s/statistics/rx_packets", netIF.getName());
         String txErrorsPath = String.format("/sys/class/net/%s/statistics/tx_errors", netIF.getName());
         String rxErrorsPath = String.format("/sys/class/net/%s/statistics/rx_errors", netIF.getName());
+        String collisionsPath = String.format("/sys/class/net/%s/statistics/collisions", netIF.getName());
+        String rxDropsPath = String.format("/sys/class/net/%s/statistics/rx_dropped", netIF.getName());
         String speed = String.format("/sys/class/net/%s/speed", netIF.getName());
-
+ 
         netIF.setTimeStamp(System.currentTimeMillis());
         netIF.setBytesSent(FileUtil.getUnsignedLongFromFile(txBytesPath));
         netIF.setBytesRecv(FileUtil.getUnsignedLongFromFile(rxBytesPath));
@@ -56,6 +58,8 @@ public class LinuxNetworks extends AbstractNetworks {
         netIF.setPacketsRecv(FileUtil.getUnsignedLongFromFile(rxPacketsPath));
         netIF.setOutErrors(FileUtil.getUnsignedLongFromFile(txErrorsPath));
         netIF.setInErrors(FileUtil.getUnsignedLongFromFile(rxErrorsPath));
+        netIF.setCollisions(FileUtil.getUnsignedLongFromFile(collisionsPath));
+        netIF.setInDrops(FileUtil.getUnsignedLongFromFile(rxDropsPath));
         long netSpeed = FileUtil.getUnsignedLongFromFile(speed) * 1024 * 1024;
         netIF.setSpeed(netSpeed < 0 ? 0 : netSpeed);
     }

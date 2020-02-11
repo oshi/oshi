@@ -63,6 +63,8 @@ public class NetworkIF {
     private long packetsSent;
     private long inErrors;
     private long outErrors;
+    private long inDrops;
+    private long collisions;
     private long speed;
     private long timeStamp;
 
@@ -156,10 +158,11 @@ public class NetworkIF {
      * The interface Maximum Transmission Unit (MTU).
      * </p>
      *
-     * @return The MTU of the network interface. This value is set when the
-     *         {@link oshi.hardware.NetworkIF} is instantiated and may not be up to
-     *         date. To update this value, execute the
-     *         {@link #setNetworkInterface(NetworkInterface)} method
+     * @return The MTU of the network interface.
+     *         <p>
+     *         This value is set when the {@link oshi.hardware.NetworkIF} is
+     *         instantiated and may not be up to date. To update this value, execute
+     *         the {@link #setNetworkInterface(NetworkInterface)} method
      */
     public int getMTU() {
         return this.mtu;
@@ -170,10 +173,11 @@ public class NetworkIF {
      * The Media Access Control (MAC) address.
      * </p>
      *
-     * @return The MAC Address. This value is set when the
-     *         {@link oshi.hardware.NetworkIF} is instantiated and may not be up to
-     *         date. To update this value, execute the
-     *         {@link #setNetworkInterface(NetworkInterface)} method
+     * @return The MAC Address.
+     *         <p>
+     *         This value is set when the {@link oshi.hardware.NetworkIF} is
+     *         instantiated and may not be up to date. To update this value, execute
+     *         the {@link #setNetworkInterface(NetworkInterface)} method
      */
     public String getMacaddr() {
         return this.mac;
@@ -184,10 +188,11 @@ public class NetworkIF {
      * The Internet Protocol (IP) v4 address.
      * </p>
      *
-     * @return The IPv4 Addresses. This value is set when the
-     *         {@link oshi.hardware.NetworkIF} is instantiated and may not be up to
-     *         date. To update this value, execute the
-     *         {@link #setNetworkInterface(NetworkInterface)} method
+     * @return The IPv4 Addresses.
+     *         <p>
+     *         This value is set when the {@link oshi.hardware.NetworkIF} is
+     *         instantiated and may not be up to date. To update this value, execute
+     *         the {@link #setNetworkInterface(NetworkInterface)} method
      */
     public String[] getIPv4addr() {
         return Arrays.copyOf(this.ipv4, this.ipv4.length);
@@ -198,10 +203,11 @@ public class NetworkIF {
      * The Internet Protocol (IP) v4 subnet masks.
      * </p>
      *
-     * @return The IPv4 subnet mask length. Ranges between 0-32 This value is set
-     *         when the {@link oshi.hardware.NetworkIF} is instantiated and may not
-     *         be up to date. To update this value, execute the
-     *         {@link #setNetworkInterface(NetworkInterface)} method.
+     * @return The IPv4 subnet mask length. Ranges between 0-32.
+     *         <p>
+     *         This value is set when the {@link oshi.hardware.NetworkIF} is
+     *         instantiated and may not be up to date. To update this value, execute
+     *         the {@link #setNetworkInterface(NetworkInterface)} method.
      *
      */
     public Short[] getSubnetMasks() {
@@ -213,10 +219,11 @@ public class NetworkIF {
      * The Internet Protocol (IP) v6 address.
      * </p>
      *
-     * @return The IPv6 Addresses. This value is set when the
-     *         {@link oshi.hardware.NetworkIF} is instantiated and may not be up to
-     *         date. To update this value, execute the
-     *         {@link #setNetworkInterface(NetworkInterface)} method
+     * @return The IPv6 Addresses.
+     *         <p>
+     *         This value is set when the {@link oshi.hardware.NetworkIF} is
+     *         instantiated and may not be up to date. To update this value, execute
+     *         the {@link #setNetworkInterface(NetworkInterface)} method
      */
     public String[] getIPv6addr() {
         return Arrays.copyOf(this.ipv6, this.ipv6.length);
@@ -227,10 +234,11 @@ public class NetworkIF {
      * The Internet Protocol (IP) v6 address.
      * </p>
      *
-     * @return The IPv6 address prefix lengths. Ranges between 0-128. This value is
-     *         set when the {@link oshi.hardware.NetworkIF} is instantiated and may
-     *         not be up to date. To update this value, execute the
-     *         {@link #setNetworkInterface(NetworkInterface)} method
+     * @return The IPv6 address prefix lengths. Ranges between 0-128.
+     *         <p>
+     *         This value is set when the {@link oshi.hardware.NetworkIF} is
+     *         instantiated and may not be up to date. To update this value, execute
+     *         the {@link #setNetworkInterface(NetworkInterface)} method
      */
     public Short[] getPrefixLengths() {
         return Arrays.copyOf(this.prefixLengths, this.prefixLengths.length);
@@ -241,10 +249,11 @@ public class NetworkIF {
      * Getter for the field <code>bytesRecv</code>.
      * </p>
      *
-     * @return The Bytes Received. This value is set when the
-     *         {@link oshi.hardware.NetworkIF} is instantiated and may not be up to
-     *         date. To update this value, execute the {@link #updateAttributes()}
-     *         method
+     * @return The Bytes Received.
+     *         <p>
+     *         This value is set when the {@link oshi.hardware.NetworkIF} is
+     *         instantiated and may not be up to date. To update this value, execute
+     *         the {@link #updateAttributes()} method
      */
     public long getBytesRecv() {
         return this.bytesRecv;
@@ -267,10 +276,11 @@ public class NetworkIF {
      * Getter for the field <code>bytesSent</code>.
      * </p>
      *
-     * @return The Bytes Sent. This value is set when the
-     *         {@link oshi.hardware.NetworkIF} is instantiated and may not be up to
-     *         date. To update this value, execute the {@link #updateAttributes()}
-     *         method
+     * @return The Bytes Sent.
+     *         <p>
+     *         This value is set when the {@link oshi.hardware.NetworkIF} is
+     *         instantiated and may not be up to date. To update this value, execute
+     *         the {@link #updateAttributes()} method
      */
     public long getBytesSent() {
         return this.bytesSent;
@@ -293,10 +303,11 @@ public class NetworkIF {
      * Getter for the field <code>packetsRecv</code>.
      * </p>
      *
-     * @return The Packets Received. This value is set when the
-     *         {@link oshi.hardware.NetworkIF} is instantiated and may not be up to
-     *         date. To update this value, execute the {@link #updateAttributes()}
-     *         method
+     * @return The Packets Received.
+     *         <p>
+     *         This value is set when the {@link oshi.hardware.NetworkIF} is
+     *         instantiated and may not be up to date. To update this value, execute
+     *         the {@link #updateAttributes()} method
      */
     public long getPacketsRecv() {
         return this.packetsRecv;
@@ -319,10 +330,11 @@ public class NetworkIF {
      * Getter for the field <code>packetsSent</code>.
      * </p>
      *
-     * @return The Packets Sent. This value is set when the
-     *         {@link oshi.hardware.NetworkIF} is instantiated and may not be up to
-     *         date. To update this value, execute the {@link #updateAttributes()}
-     *         method
+     * @return The Packets Sent.
+     *         <p>
+     *         This value is set when the {@link oshi.hardware.NetworkIF} is
+     *         instantiated and may not be up to date. To update this value, execute
+     *         the {@link #updateAttributes()} method
      */
     public long getPacketsSent() {
         return this.packetsSent;
@@ -345,10 +357,11 @@ public class NetworkIF {
      * Getter for the field <code>inErrors</code>.
      * </p>
      *
-     * @return Input Errors. This value is set when the
-     *         {@link oshi.hardware.NetworkIF} is instantiated and may not be up to
-     *         date. To update this value, execute the {@link #updateAttributes()}
-     *         method
+     * @return Input Errors.
+     *         <p>
+     *         This value is set when the {@link oshi.hardware.NetworkIF} is
+     *         instantiated and may not be up to date. To update this value, execute
+     *         the {@link #updateAttributes()} method
      */
     public long getInErrors() {
         return this.inErrors;
@@ -371,10 +384,11 @@ public class NetworkIF {
      * Getter for the field <code>outErrors</code>.
      * </p>
      *
-     * @return The Output Errors. This value is set when the
-     *         {@link oshi.hardware.NetworkIF} is instantiated and may not be up to
-     *         date. To update this value, execute the {@link #updateAttributes()}
-     *         method
+     * @return The Output Errors.
+     *         <p>
+     *         This value is set when the {@link oshi.hardware.NetworkIF} is
+     *         instantiated and may not be up to date. To update this value, execute
+     *         the {@link #updateAttributes()} method
      */
     public long getOutErrors() {
         return this.outErrors;
@@ -394,13 +408,69 @@ public class NetworkIF {
 
     /**
      * <p>
+     * Getter for the field <code>inDrops</code>.
+     * </p>
+     *
+     * @return Incoming/Received dropped packets. On Windows, returns discarded
+     *         incoming packets.
+     *         <p>
+     *         This value is set when the {@link oshi.hardware.NetworkIF} is
+     *         instantiated and may not be up to date. To update this value, execute
+     *         the {@link #updateAttributes()} method
+     */
+    public long getInDrops() {
+        return inDrops;
+    }
+
+    /**
+     * <p>
+     * Setter for the field <code>inDrops</code>.
+     * </p>
+     *
+     * @param inDrops
+     *            The incoming (receive) dropped packets to set.
+     */
+    public void setInDrops(long inDrops) {
+        this.inDrops = inDrops;
+    }
+
+    /**
+     * <p>
+     * Getter for the field <code>collisions</code>.
+     * </p>
+     *
+     * @return Packet collisions. On Windows, returns discarded outgoing packets.
+     *         <p>
+     *         This value is set when the {@link oshi.hardware.NetworkIF} is
+     *         instantiated and may not be up to date. To update this value, execute
+     *         the {@link #updateAttributes()} method
+     */
+    public long getCollisions() {
+        return collisions;
+    }
+
+    /**
+     * <p>
+     * Setter for the field <code>collisions</code>.
+     * </p>
+     *
+     * @param collisions
+     *            The collisions to set.
+     */
+    public void setCollisions(long collisions) {
+        this.collisions = collisions;
+    }
+
+    /**
+     * <p>
      * Getter for the field <code>speed</code>.
      * </p>
      *
-     * @return The speed of the network interface in bits per second. This value is
-     *         set when the {@link oshi.hardware.NetworkIF} is instantiated and may
-     *         not be up to date. To update this value, execute the
-     *         {@link #updateAttributes()} method
+     * @return The speed of the network interface in bits per second.
+     *         <p>
+     *         This value is set when the {@link oshi.hardware.NetworkIF} is
+     *         instantiated and may not be up to date. To update this value, execute
+     *         the {@link #updateAttributes()} method
      */
     public long getSpeed() {
         return this.speed;
@@ -479,9 +549,11 @@ public class NetworkIF {
         sb.append("  IPv6: ").append(Arrays.toString(getIPv6addr())).append("\n");
         sb.append("  Prefix Lengths:  ").append(Arrays.toString(getPrefixLengths())).append("\n");
         sb.append("  Traffic: received ").append(getPacketsRecv()).append(" packets/")
-                .append(FormatUtil.formatBytes(getBytesRecv())).append(" (" + getInErrors() + " err);");
+                .append(FormatUtil.formatBytes(getBytesRecv())).append(" (" + getInErrors() + " err);")
+                .append(" (" + getInDrops() + " drop);");
         sb.append(" transmitted ").append(getPacketsSent()).append(" packets/")
-                .append(FormatUtil.formatBytes(getBytesSent())).append(" (" + getOutErrors() + " err)");
+                .append(FormatUtil.formatBytes(getBytesSent())).append(" (" + getOutErrors() + " err)")
+                .append(" (" + getCollisions() + " coll);");
         return sb.toString();
     }
 }

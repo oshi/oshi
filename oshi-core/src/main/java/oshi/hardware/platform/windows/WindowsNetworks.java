@@ -72,6 +72,8 @@ public class WindowsNetworks extends AbstractNetworks {
             netIF.setPacketsRecv(ifRow.InUcastPkts);
             netIF.setOutErrors(ifRow.OutErrors);
             netIF.setInErrors(ifRow.InErrors);
+            netIF.setCollisions(ifRow.OutDiscards); // closest proxy
+            netIF.setInDrops(ifRow.InDiscards); // closest proxy
             netIF.setSpeed(ifRow.ReceiveLinkSpeed);
         } else {
             // Create new MIB_IFROW and set index to this interface index
@@ -90,6 +92,8 @@ public class WindowsNetworks extends AbstractNetworks {
             netIF.setPacketsRecv(ParseUtil.unsignedIntToLong(ifRow.dwInUcastPkts));
             netIF.setOutErrors(ParseUtil.unsignedIntToLong(ifRow.dwOutErrors));
             netIF.setInErrors(ParseUtil.unsignedIntToLong(ifRow.dwInErrors));
+            netIF.setCollisions(ifRow.dwOutDiscards); // closest proxy
+            netIF.setInDrops(ifRow.dwInDiscards); // closest proxy
             netIF.setSpeed(ParseUtil.unsignedIntToLong(ifRow.dwSpeed));
         }
         netIF.setTimeStamp(System.currentTimeMillis());

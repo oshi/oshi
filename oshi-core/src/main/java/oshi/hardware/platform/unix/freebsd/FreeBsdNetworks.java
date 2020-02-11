@@ -43,7 +43,7 @@ public class FreeBsdNetworks extends AbstractNetworks {
      *            The interface on which to update statistics
      */
     public static void updateNetworkStats(NetworkIF netIF) {
-        String stats = ExecutingCommand.getAnswerAt("netstat -bI " + netIF.getName(), 1);
+        String stats = ExecutingCommand.getAnswerAt("netstat -bI " + netIF.getName(), 1); // TODO cache in memoizer
         netIF.setTimeStamp(System.currentTimeMillis());
         String[] split = ParseUtil.whitespaces.split(stats);
         if (split.length < 12) {
@@ -56,5 +56,7 @@ public class FreeBsdNetworks extends AbstractNetworks {
         netIF.setPacketsRecv(ParseUtil.parseUnsignedLongOrDefault(split[4], 0L));
         netIF.setOutErrors(ParseUtil.parseUnsignedLongOrDefault(split[9], 0L));
         netIF.setInErrors(ParseUtil.parseUnsignedLongOrDefault(split[5], 0L));
+        netIF.setCollisions(ParseUtil.parseUnsignedLongOrDefault(split[11], 0L));
+        netIF.setInDrops(ParseUtil.parseUnsignedLongOrDefault(split[6], 0L));
     }
 }

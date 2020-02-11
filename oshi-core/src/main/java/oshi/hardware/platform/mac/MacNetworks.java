@@ -60,17 +60,22 @@ public class MacNetworks extends AbstractNetworks {
         private long iBytes;
         private long oErrors;
         private long iErrors;
+        private long collisions;
+        private long iDrops;
         private long speed;
         private long timeStamp;
 
         IFdata(long oPackets, long iPackets, // NOSONAR squid:S00107
-                long oBytes, long iBytes, long oErrors, long iErrors, long speed, long timeStamp) {
+                long oBytes, long iBytes, long oErrors, long iErrors, long collisions, long iDrops, long speed,
+                long timeStamp) {
             this.oPackets = oPackets;
             this.iPackets = iPackets;
             this.oBytes = oBytes;
             this.iBytes = iBytes;
             this.oErrors = oErrors;
             this.iErrors = iErrors;
+            this.collisions = collisions;
+            this.iDrops = iDrops;
             this.speed = speed;
             this.timeStamp = timeStamp;
         }
@@ -122,7 +127,8 @@ public class MacNetworks extends AbstractNetworks {
             if (if2m.ifm_index == index) {
                 return new IFdata(if2m.ifm_data.ifi_opackets, if2m.ifm_data.ifi_ipackets, if2m.ifm_data.ifi_obytes,
                         if2m.ifm_data.ifi_ibytes, if2m.ifm_data.ifi_oerrors, if2m.ifm_data.ifi_ierrors,
-                        if2m.ifm_data.ifi_baudrate, System.currentTimeMillis());
+                        if2m.ifm_data.ifi_collisions, if2m.ifm_data.ifi_iqdrops, if2m.ifm_data.ifi_baudrate,
+                        System.currentTimeMillis());
             }
         }
         // If we get here we didn't find the index
@@ -146,6 +152,8 @@ public class MacNetworks extends AbstractNetworks {
             netIF.setPacketsRecv(ifData.iPackets);
             netIF.setOutErrors(ifData.oErrors);
             netIF.setInErrors(ifData.iErrors);
+            netIF.setCollisions(ifData.collisions);
+            netIF.setInDrops(ifData.iDrops);
             netIF.setSpeed(ifData.speed);
             netIF.setTimeStamp(ifData.timeStamp);
         }
