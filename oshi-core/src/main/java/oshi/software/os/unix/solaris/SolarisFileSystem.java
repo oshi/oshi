@@ -117,10 +117,12 @@ public class SolarisFileSystem extends AbstractFileSystem {
             // 1st field is volume name
             // 2nd field is mount point
             // 3rd field is fs type
+            // 4th field is options
             // other fields ignored
             String volume = split[0];
             String path = split[1];
             String type = split[2];
+            String options = split[3];
 
             // Skip non-local drives if requested, and exclude pseudo file systems
             if ((localOnly && NETWORK_FS_TYPES.contains(type)) || PSEUDO_FS.contains(type) || path.equals("/dev")
@@ -161,6 +163,7 @@ public class SolarisFileSystem extends AbstractFileSystem {
             osStore.setMount(path);
             osStore.setDescription(description);
             osStore.setType(type);
+            osStore.setOptions(options);
             osStore.setUUID(""); // No UUID info on Solaris
             osStore.setFreeSpace(freeSpace);
             osStore.setUsableSpace(usableSpace);
