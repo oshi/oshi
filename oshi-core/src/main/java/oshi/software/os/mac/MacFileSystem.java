@@ -26,8 +26,11 @@ package oshi.software.os.mac;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,7 +67,55 @@ public class MacFileSystem extends AbstractFileSystem {
     // Regexp matcher for /dev/disk1 etc.
     private static final Pattern LOCAL_DISK = Pattern.compile("/dev/disk\\d");
 
+    // User specifiable flags.
+    private static final int MNT_RDONLY = 0x00000001;
+    private static final int MNT_SYNCHRONOUS = 0x00000002;
+    private static final int MNT_NOEXEC = 0x00000004;
+    private static final int MNT_NOSUID = 0x00000008;
+    private static final int MNT_NODEV = 0x00000010;
+    private static final int MNT_UNION = 0x00000020;
+    private static final int MNT_ASYNC = 0x00000040;
+    private static final int MNT_CPROTECT = 0x00000080;
+    private static final int MNT_EXPORTED = 0x00000100;
+    private static final int MNT_QUARANTINE = 0x00000400;
     private static final int MNT_LOCAL = 0x00001000;
+    private static final int MNT_QUOTA = 0x00002000;
+    private static final int MNT_ROOTFS = 0x00004000;
+    private static final int MNT_DOVOLFS = 0x00008000;
+    private static final int MNT_DONTBROWSE = 0x00100000;
+    private static final int MNT_IGNORE_OWNERSHIP = 0x00200000;
+    private static final int MNT_AUTOMOUNTED = 0x00400000;
+    private static final int MNT_JOURNALED = 0x00800000;
+    private static final int MNT_NOUSERXATTR = 0x01000000;
+    private static final int MNT_DEFWRITE = 0x02000000;
+    private static final int MNT_MULTILABEL = 0x04000000;
+    private static final int MNT_NOATIME = 0x10000000;
+
+    private static final Map<Integer, String> OPTIONS_MAP = new HashMap<>();
+    static {
+        OPTIONS_MAP.put(MNT_RDONLY, "read-only");
+        OPTIONS_MAP.put(MNT_SYNCHRONOUS, "synchronous");
+        OPTIONS_MAP.put(MNT_NOEXEC, "noexec");
+        OPTIONS_MAP.put(MNT_NOSUID, "nosuid");
+        OPTIONS_MAP.put(MNT_NODEV, "nodev");
+        OPTIONS_MAP.put(MNT_UNION, "union");
+        OPTIONS_MAP.put(MNT_ASYNC, "asynchronous");
+        OPTIONS_MAP.put(MNT_CPROTECT, "content-protection");
+        OPTIONS_MAP.put(MNT_EXPORTED, "exported");
+        OPTIONS_MAP.put(MNT_QUARANTINE, "quarantined");
+        OPTIONS_MAP.put(MNT_LOCAL, "local");
+        OPTIONS_MAP.put(MNT_QUOTA, "quotas");
+        OPTIONS_MAP.put(MNT_ROOTFS, "rootfs");
+        OPTIONS_MAP.put(MNT_DOVOLFS, "volfs");
+        OPTIONS_MAP.put(MNT_DONTBROWSE, "nobrowse");
+        OPTIONS_MAP.put(MNT_IGNORE_OWNERSHIP, "noowners");
+        OPTIONS_MAP.put(MNT_AUTOMOUNTED, "automounted");
+        OPTIONS_MAP.put(MNT_JOURNALED, "journaled");
+        OPTIONS_MAP.put(MNT_NOUSERXATTR, "nouserxattr");
+        OPTIONS_MAP.put(MNT_DEFWRITE, "defwrite");
+        OPTIONS_MAP.put(MNT_MULTILABEL, "multilabel");
+        OPTIONS_MAP.put(MNT_NOATIME, "noatime");
+    }
 
     @Override
     public OSFileStore[] getFileStores(boolean localOnly) {
@@ -104,12 +155,10 @@ public class MacFileSystem extends AbstractFileSystem {
 
                     // Get volume name
                     String volume = new String(fs[f].f_mntfromname, StandardCharsets.UTF_8).trim();
-                    // Skip system types
-                    if (volume.equals("devfs") || volume.startsWith("map ")) {
-                        continue;
-                    }
-                    // Skip non-local drives if requested
-                    if (localOnly && (fs[f].f_flags & MNT_LOCAL) == 0) {
+                    // Skip non-local drives if requested, skip system types
+                    final int flags = fs[f].f_flags;
+                    if ((localOnly && (flags & MNT_LOCAL) == 0) || volume.equals("devfs")
+                            || volume.startsWith("map ")) {
                         continue;
                     }
 
@@ -134,6 +183,8 @@ public class MacFileSystem extends AbstractFileSystem {
                     if (nameToMatch != null && !nameToMatch.equals(name)) {
                         continue;
                     }
+                    String options = OPTIONS_MAP.entrySet().stream().filter(e -> (e.getKey() & flags) > 0)
+                            .map(Map.Entry::getValue).collect(Collectors.joining(","));
 
                     String uuid = "";
                     // Use volume to find DiskArbitration volume name and search for
@@ -187,6 +238,7 @@ public class MacFileSystem extends AbstractFileSystem {
                     osStore.setMount(path);
                     osStore.setDescription(description);
                     osStore.setType(type);
+                    osStore.setOptions(options);
                     osStore.setUUID(uuid == null ? "" : uuid);
                     osStore.setFreeSpace(file.getFreeSpace());
                     osStore.setUsableSpace(file.getUsableSpace());
