@@ -52,8 +52,10 @@ public class WindowsNetworks extends AbstractNetworks {
      *
      * @param netIF
      *            The interface on which to update statistics
+     *
+     * @return {@code true} if the update was successful, {@code false} otherwise.
      */
-    public static void updateNetworkStats(NetworkIF netIF) {
+    public static boolean updateNetworkStats(NetworkIF netIF) {
         // MIB_IFROW2 requires Vista (6.0) or later.
         if (IS_VISTA_OR_GREATER) {
             // Create new MIB_IFROW2 and set index to this interface index
@@ -63,7 +65,7 @@ public class WindowsNetworks extends AbstractNetworks {
                 // Error, abort
                 LOG.error("Failed to retrieve data for interface {}, {}", netIF.queryNetworkInterface().getIndex(),
                         netIF.getName());
-                return;
+                return false;
             }
             // These are unsigned longs. netIF setter will mask sign bit.
             netIF.setBytesSent(ifRow.OutOctets);
@@ -83,7 +85,7 @@ public class WindowsNetworks extends AbstractNetworks {
                 // Error, abort
                 LOG.error("Failed to retrieve data for interface {}, {}", netIF.queryNetworkInterface().getIndex(),
                         netIF.getName());
-                return;
+                return false;
             }
             // These are unsigned ints. Widen them to longs.
             netIF.setBytesSent(ParseUtil.unsignedIntToLong(ifRow.dwOutOctets));
@@ -92,10 +94,11 @@ public class WindowsNetworks extends AbstractNetworks {
             netIF.setPacketsRecv(ParseUtil.unsignedIntToLong(ifRow.dwInUcastPkts));
             netIF.setOutErrors(ParseUtil.unsignedIntToLong(ifRow.dwOutErrors));
             netIF.setInErrors(ParseUtil.unsignedIntToLong(ifRow.dwInErrors));
-            netIF.setCollisions(ifRow.dwOutDiscards); // closest proxy
-            netIF.setInDrops(ifRow.dwInDiscards); // closest proxy
+            netIF.setCollisions(ParseUtil.unsignedIntToLong(ifRow.dwOutDiscards)); // closest proxy
+            netIF.setInDrops(ParseUtil.unsignedIntToLong(ifRow.dwInDiscards)); // closest proxy
             netIF.setSpeed(ParseUtil.unsignedIntToLong(ifRow.dwSpeed));
         }
         netIF.setTimeStamp(System.currentTimeMillis());
+        return true;
     }
 }

@@ -514,27 +514,24 @@ public class NetworkIF {
     /**
      * Updates interface network statistics on this interface. Statistics include
      * packets and bytes sent and received, and interface speed.
+     *
+     * @return {@code true} if the update was successful, {@code false} otherwise.
      */
-    public void updateAttributes() {
+    public boolean updateAttributes() {
         switch (SystemInfo.getCurrentPlatformEnum()) {
         case WINDOWS:
-            WindowsNetworks.updateNetworkStats(this);
-            break;
+            return WindowsNetworks.updateNetworkStats(this);
         case LINUX:
-            LinuxNetworks.updateNetworkStats(this);
-            break;
+            return LinuxNetworks.updateNetworkStats(this);
         case MACOSX:
-            MacNetworks.updateNetworkStats(this);
-            break;
+            return MacNetworks.updateNetworkStats(this);
         case SOLARIS:
-            SolarisNetworks.updateNetworkStats(this);
-            break;
+            return SolarisNetworks.updateNetworkStats(this);
         case FREEBSD:
-            FreeBsdNetworks.updateNetworkStats(this);
-            break;
+            return FreeBsdNetworks.updateNetworkStats(this);
         default:
             LOG.error("Unsupported platform. No update performed.");
-            break;
+            return false;
         }
     }
 
@@ -549,11 +546,11 @@ public class NetworkIF {
         sb.append("  IPv6: ").append(Arrays.toString(getIPv6addr())).append("\n");
         sb.append("  Prefix Lengths:  ").append(Arrays.toString(getPrefixLengths())).append("\n");
         sb.append("  Traffic: received ").append(getPacketsRecv()).append(" packets/")
-                .append(FormatUtil.formatBytes(getBytesRecv())).append(" (" + getInErrors() + " err);")
-                .append(" (" + getInDrops() + " drop);");
+                .append(FormatUtil.formatBytes(getBytesRecv())).append(" (" + getInErrors() + " err, ")
+                .append(getInDrops() + " drop);");
         sb.append(" transmitted ").append(getPacketsSent()).append(" packets/")
-                .append(FormatUtil.formatBytes(getBytesSent())).append(" (" + getOutErrors() + " err)")
-                .append(" (" + getCollisions() + " coll);");
+                .append(FormatUtil.formatBytes(getBytesSent())).append(" (" + getOutErrors() + " err, ")
+                .append(getCollisions() + " coll);");
         return sb.toString();
     }
 }

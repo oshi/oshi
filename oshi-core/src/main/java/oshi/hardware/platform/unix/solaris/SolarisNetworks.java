@@ -42,8 +42,9 @@ public class SolarisNetworks extends AbstractNetworks {
      *
      * @param netIF
      *            The interface on which to update statistics
+     * @return {@code true} if the update was successful, {@code false} otherwise.
      */
-    public static void updateNetworkStats(NetworkIF netIF) {
+    public static boolean updateNetworkStats(NetworkIF netIF) {
         try (KstatChain kc = KstatUtil.openChain()) {
             Kstat ksp = kc.lookup("link", -1, netIF.getName());
             if (ksp == null) { // Solaris 10 compatibility
@@ -57,12 +58,13 @@ public class SolarisNetworks extends AbstractNetworks {
                 netIF.setOutErrors(KstatUtil.dataLookupLong(ksp, "oerrors"));
                 netIF.setInErrors(KstatUtil.dataLookupLong(ksp, "ierrors"));
                 netIF.setCollisions(KstatUtil.dataLookupLong(ksp, "collisions"));
-                netIF.setInDrops(KstatUtil.dataLookupLong(ksp, "rx_pkts_dropped")); // TODO this might be on "net" class
-                                                                                    // and not "link"
+                netIF.setInDrops(KstatUtil.dataLookupLong(ksp, "dl_idrops"));
                 netIF.setSpeed(KstatUtil.dataLookupLong(ksp, "ifspeed"));
                 // Snap time in ns; convert to ms
                 netIF.setTimeStamp(ksp.ks_snaptime / 1_000_000L);
+                return true;
             }
         }
+        return false;
     }
 }

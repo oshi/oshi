@@ -23,6 +23,13 @@
  */
 package oshi.hardware.platform.mac;
 
+import static oshi.util.Memoizer.defaultExpiration;
+import static oshi.util.Memoizer.memoize;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Supplier;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,48 +57,19 @@ public class MacNetworks extends AbstractNetworks {
     private static final int NET_RT_IFLIST2 = 6;
     private static final int RTM_IFINFO2 = 0x12;
 
-    /**
-     * Class to encapsulate IF data for method return
-     */
-    private static class IFdata {
-        private long oPackets;
-        private long iPackets;
-        private long oBytes;
-        private long iBytes;
-        private long oErrors;
-        private long iErrors;
-        private long collisions;
-        private long iDrops;
-        private long speed;
-        private long timeStamp;
-
-        IFdata(long oPackets, long iPackets, // NOSONAR squid:S00107
-                long oBytes, long iBytes, long oErrors, long iErrors, long collisions, long iDrops, long speed,
-                long timeStamp) {
-            this.oPackets = oPackets;
-            this.iPackets = iPackets;
-            this.oBytes = oBytes;
-            this.iBytes = iBytes;
-            this.oErrors = oErrors;
-            this.iErrors = iErrors;
-            this.collisions = collisions;
-            this.iDrops = iDrops;
-            this.speed = speed;
-            this.timeStamp = timeStamp;
-        }
-    }
+    private static final Supplier<Map<Integer, IFdata>> ifDataMap = memoize(MacNetworks::queryIFdata,
+            defaultExpiration());
 
     /**
      * Map all network interfaces. Ported from source code of "netstat -ir". See
      * http://opensource.apple.com/source/network_cmds/network_cmds-457/
      * netstat.tproj/if.c
-     * 
-     * @param index
-     *            The network interface index to query
-     * @return an {@link IFData} object encapsulating the stats if the index
-     *         matches, or null if there was no match or an error reading the stats
+     *
+     * @return a map of {@link IFData} object indexed by the interface index,
+     *         encapsulating the stats, or {@code null} if the query failed.
      */
-    private static synchronized IFdata queryIFdata(int index) {
+    private static Map<Integer, IFdata> queryIFdata() {
+        Map<Integer, IFdata> data = new HashMap<>();
         // Get buffer of all interface information
         int[] mib = { CTL_NET, PF_ROUTE, 0, 0, NET_RT_IFLIST2, 0 };
         IntByReference len = new IntByReference();
@@ -124,15 +102,13 @@ public class MacNetworks extends AbstractNetworks {
             IFmsgHdr2 if2m = new IFmsgHdr2(p);
             if2m.read();
 
-            if (if2m.ifm_index == index) {
-                return new IFdata(if2m.ifm_data.ifi_opackets, if2m.ifm_data.ifi_ipackets, if2m.ifm_data.ifi_obytes,
-                        if2m.ifm_data.ifi_ibytes, if2m.ifm_data.ifi_oerrors, if2m.ifm_data.ifi_ierrors,
-                        if2m.ifm_data.ifi_collisions, if2m.ifm_data.ifi_iqdrops, if2m.ifm_data.ifi_baudrate,
-                        System.currentTimeMillis());
-            }
+            data.put((int) if2m.ifm_index,
+                    new IFdata(if2m.ifm_data.ifi_opackets, if2m.ifm_data.ifi_ipackets, if2m.ifm_data.ifi_obytes,
+                            if2m.ifm_data.ifi_ibytes, if2m.ifm_data.ifi_oerrors, if2m.ifm_data.ifi_ierrors,
+                            if2m.ifm_data.ifi_collisions, if2m.ifm_data.ifi_iqdrops, if2m.ifm_data.ifi_baudrate,
+                            System.currentTimeMillis()));
         }
-        // If we get here we didn't find the index
-        return null;
+        return data;
     }
 
     /**
@@ -142,9 +118,10 @@ public class MacNetworks extends AbstractNetworks {
      * @param netIF
      *            The interface on which to update statistics
      */
-    public static synchronized void updateNetworkStats(NetworkIF netIF) {
+    public static boolean updateNetworkStats(NetworkIF netIF) {
+        Map<Integer, IFdata> data = ifDataMap.get();
+        IFdata ifData = data.getOrDefault(netIF.queryNetworkInterface().getIndex(), null);
         // Update data
-        IFdata ifData = queryIFdata(netIF.queryNetworkInterface().getIndex());
         if (ifData != null) {
             netIF.setBytesSent(ifData.oBytes);
             netIF.setBytesRecv(ifData.iBytes);
@@ -156,6 +133,39 @@ public class MacNetworks extends AbstractNetworks {
             netIF.setInDrops(ifData.iDrops);
             netIF.setSpeed(ifData.speed);
             netIF.setTimeStamp(ifData.timeStamp);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Class to encapsulate IF data for method return
+     */
+    private static class IFdata {
+        private long oPackets;
+        private long iPackets;
+        private long oBytes;
+        private long iBytes;
+        private long oErrors;
+        private long iErrors;
+        private long collisions;
+        private long iDrops;
+        private long speed;
+        private long timeStamp;
+
+        IFdata(long oPackets, long iPackets, // NOSONAR squid:S00107
+                long oBytes, long iBytes, long oErrors, long iErrors, long collisions, long iDrops, long speed,
+                long timeStamp) {
+            this.oPackets = oPackets;
+            this.iPackets = iPackets;
+            this.oBytes = oBytes;
+            this.iBytes = iBytes;
+            this.oErrors = oErrors;
+            this.iErrors = iErrors;
+            this.collisions = collisions;
+            this.iDrops = iDrops;
+            this.speed = speed;
+            this.timeStamp = timeStamp;
         }
     }
 }

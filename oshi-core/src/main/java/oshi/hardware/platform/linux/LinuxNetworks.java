@@ -23,6 +23,8 @@
  */
 package oshi.hardware.platform.linux;
 
+import java.io.File;
+
 import oshi.hardware.NetworkIF;
 import oshi.hardware.common.AbstractNetworks;
 import oshi.util.FileUtil;
@@ -40,7 +42,15 @@ public class LinuxNetworks extends AbstractNetworks {
      * @param netIF
      *            The interface on which to update statistics
      */
-    public static void updateNetworkStats(NetworkIF netIF) {
+    public static boolean updateNetworkStats(NetworkIF netIF) {
+        try {
+            File ifDir = new File(String.format("/sys/class/net/%s/statistics", netIF.getName()));
+            if (!ifDir.isDirectory()) {
+                return false;
+            }
+        } catch (SecurityException e) {
+            return false;
+        }
         String txBytesPath = String.format("/sys/class/net/%s/statistics/tx_bytes", netIF.getName());
         String rxBytesPath = String.format("/sys/class/net/%s/statistics/rx_bytes", netIF.getName());
         String txPacketsPath = String.format("/sys/class/net/%s/statistics/tx_packets", netIF.getName());
@@ -50,7 +60,7 @@ public class LinuxNetworks extends AbstractNetworks {
         String collisionsPath = String.format("/sys/class/net/%s/statistics/collisions", netIF.getName());
         String rxDropsPath = String.format("/sys/class/net/%s/statistics/rx_dropped", netIF.getName());
         String speed = String.format("/sys/class/net/%s/speed", netIF.getName());
- 
+
         netIF.setTimeStamp(System.currentTimeMillis());
         netIF.setBytesSent(FileUtil.getUnsignedLongFromFile(txBytesPath));
         netIF.setBytesRecv(FileUtil.getUnsignedLongFromFile(rxBytesPath));
@@ -62,5 +72,6 @@ public class LinuxNetworks extends AbstractNetworks {
         netIF.setInDrops(FileUtil.getUnsignedLongFromFile(rxDropsPath));
         long netSpeed = FileUtil.getUnsignedLongFromFile(speed) * 1024 * 1024;
         netIF.setSpeed(netSpeed < 0 ? 0 : netSpeed);
+        return true;
     }
 }

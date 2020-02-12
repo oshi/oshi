@@ -63,6 +63,8 @@ public class NetworksTest {
             assertTrue(net.getPacketsSent() >= 0);
             assertTrue(net.getInErrors() >= 0);
             assertTrue(net.getOutErrors() >= 0);
+            assertTrue(net.getInDrops() >= 0);
+            assertTrue(net.getCollisions() >= 0);
             assertTrue(net.getSpeed() >= 0);
             assertTrue(net.getMTU() >= 0);
             assertTrue(net.getTimeStamp() > 0);
@@ -73,6 +75,8 @@ public class NetworksTest {
             net.setPacketsSent(40L);
             net.setInErrors(60L);
             net.setOutErrors(70L);
+            net.setInDrops(80L);
+            net.setCollisions(90L);
             net.setSpeed(50L);
             net.setTimeStamp(timeStamp);
 
@@ -82,6 +86,8 @@ public class NetworksTest {
             assertEquals(40L, net.getPacketsSent());
             assertEquals(60L, net.getInErrors());
             assertEquals(70L, net.getOutErrors());
+            assertEquals(80L, net.getInDrops());
+            assertEquals(90L, net.getCollisions());
             assertEquals(50L, net.getSpeed());
             assertEquals(timeStamp, net.getTimeStamp());
 
@@ -92,6 +98,8 @@ public class NetworksTest {
             assertTrue(net.getPacketsSent() >= 0);
             assertTrue(net.getInErrors() >= 0);
             assertTrue(net.getOutErrors() >= 0);
+            assertTrue(net.getInDrops() >= 0);
+            assertTrue(net.getCollisions() >= 0);
             assertTrue(net.getSpeed() >= 0);
             assertTrue(net.getTimeStamp() > 0);
         }
