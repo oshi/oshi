@@ -48,6 +48,7 @@ public class OSFileStore {
     private String mount;
     private String description;
     private String fsType;
+    private String options;
     private String uuid;
     private long freeSpace;
     private long usableSpace;
@@ -60,8 +61,8 @@ public class OSFileStore {
      * Constructor for OSFileStore.
      * &lt;/p&gt;
      */
-<span class="fc" id="L63">    public OSFileStore() {</span>
-<span class="fc" id="L64">    }</span>
+<span class="fc" id="L64">    public OSFileStore() {</span>
+<span class="fc" id="L65">    }</span>
 
     /**
      * Creates a copy of an OSFileStore.
@@ -69,20 +70,21 @@ public class OSFileStore {
      * @param fileStore
      *            OSFileStore which is copied
      */
-<span class="nc" id="L72">    public OSFileStore(OSFileStore fileStore) {</span>
-<span class="nc" id="L73">        setName(fileStore.getName());</span>
-<span class="nc" id="L74">        setVolume(fileStore.getVolume());</span>
-<span class="nc" id="L75">        setLogicalVolume(fileStore.getLogicalVolume());</span>
-<span class="nc" id="L76">        setMount(fileStore.getMount());</span>
-<span class="nc" id="L77">        setDescription(fileStore.getDescription());</span>
-<span class="nc" id="L78">        setType(fileStore.getType());</span>
-<span class="nc" id="L79">        setUUID(fileStore.getUUID());</span>
-<span class="nc" id="L80">        setFreeSpace(fileStore.getFreeSpace());</span>
-<span class="nc" id="L81">        setUsableSpace(fileStore.getUsableSpace());</span>
-<span class="nc" id="L82">        setTotalSpace(fileStore.getTotalSpace());</span>
-<span class="nc" id="L83">        setFreeInodes(fileStore.getFreeInodes());</span>
-<span class="nc" id="L84">        setTotalInodes(fileStore.getTotalInodes());</span>
-<span class="nc" id="L85">    }</span>
+<span class="nc" id="L73">    public OSFileStore(OSFileStore fileStore) {</span>
+<span class="nc" id="L74">        setName(fileStore.getName());</span>
+<span class="nc" id="L75">        setVolume(fileStore.getVolume());</span>
+<span class="nc" id="L76">        setLogicalVolume(fileStore.getLogicalVolume());</span>
+<span class="nc" id="L77">        setMount(fileStore.getMount());</span>
+<span class="nc" id="L78">        setDescription(fileStore.getDescription());</span>
+<span class="nc" id="L79">        setType(fileStore.getType());</span>
+<span class="nc" id="L80">        setType(fileStore.getOptions());</span>
+<span class="nc" id="L81">        setUUID(fileStore.getUUID());</span>
+<span class="nc" id="L82">        setFreeSpace(fileStore.getFreeSpace());</span>
+<span class="nc" id="L83">        setUsableSpace(fileStore.getUsableSpace());</span>
+<span class="nc" id="L84">        setTotalSpace(fileStore.getTotalSpace());</span>
+<span class="nc" id="L85">        setFreeInodes(fileStore.getFreeInodes());</span>
+<span class="nc" id="L86">        setTotalInodes(fileStore.getTotalInodes());</span>
+<span class="nc" id="L87">    }</span>
 
     /**
      * Name of the File System
@@ -90,7 +92,7 @@ public class OSFileStore {
      * @return The file system name
      */
     public String getName() {
-<span class="fc" id="L93">        return this.name;</span>
+<span class="fc" id="L95">        return this.name;</span>
     }
 
     /**
@@ -100,8 +102,8 @@ public class OSFileStore {
      *            The name
      */
     public void setName(String value) {
-<span class="fc" id="L103">        this.name = value;</span>
-<span class="fc" id="L104">    }</span>
+<span class="fc" id="L105">        this.name = value;</span>
+<span class="fc" id="L106">    }</span>
 
     /**
      * Volume of the File System
@@ -109,7 +111,7 @@ public class OSFileStore {
      * @return The volume of the file system
      */
     public String getVolume() {
-<span class="fc" id="L112">        return this.volume;</span>
+<span class="fc" id="L114">        return this.volume;</span>
     }
 
     /**
@@ -122,7 +124,7 @@ public class OSFileStore {
      * @return The logical volume of the file system
      */
     public String getLogicalVolume() {
-<span class="fc" id="L125">        return this.logicalVolume;</span>
+<span class="fc" id="L127">        return this.logicalVolume;</span>
     }
 
     /**
@@ -132,8 +134,8 @@ public class OSFileStore {
      *            The volume
      */
     public void setVolume(String value) {
-<span class="fc" id="L135">        this.volume = value;</span>
-<span class="fc" id="L136">    }</span>
+<span class="fc" id="L137">        this.volume = value;</span>
+<span class="fc" id="L138">    }</span>
 
     /**
      * Sets the logical volume of the File System
@@ -142,8 +144,8 @@ public class OSFileStore {
      *            The logical volume
      */
     public void setLogicalVolume(String value) {
-<span class="fc" id="L145">        this.logicalVolume = value;</span>
-<span class="fc" id="L146">    }</span>
+<span class="fc" id="L147">        this.logicalVolume = value;</span>
+<span class="fc" id="L148">    }</span>
 
     /**
      * Mountpoint of the File System
@@ -151,7 +153,7 @@ public class OSFileStore {
      * @return The mountpoint of the file system
      */
     public String getMount() {
-<span class="fc" id="L154">        return this.mount;</span>
+<span class="fc" id="L156">        return this.mount;</span>
     }
 
     /**
@@ -161,8 +163,8 @@ public class OSFileStore {
      *            The mountpoint
      */
     public void setMount(String value) {
-<span class="fc" id="L164">        this.mount = value;</span>
-<span class="fc" id="L165">    }</span>
+<span class="fc" id="L166">        this.mount = value;</span>
+<span class="fc" id="L167">    }</span>
 
     /**
      * Description of the File System
@@ -170,7 +172,7 @@ public class OSFileStore {
      * @return The file system description
      */
     public String getDescription() {
-<span class="fc" id="L173">        return this.description;</span>
+<span class="fc" id="L175">        return this.description;</span>
     }
 
     /**
@@ -180,8 +182,8 @@ public class OSFileStore {
      *            The description
      */
     public void setDescription(String value) {
-<span class="fc" id="L183">        this.description = value;</span>
-<span class="fc" id="L184">    }</span>
+<span class="fc" id="L185">        this.description = value;</span>
+<span class="fc" id="L186">    }</span>
 
     /**
      * Type of the File System (FAT, NTFS, etx2, ext4, etc)
@@ -189,7 +191,7 @@ public class OSFileStore {
      * @return The file system type
      */
     public String getType() {
-<span class="fc" id="L192">        return this.fsType;</span>
+<span class="fc" id="L194">        return this.fsType;</span>
     }
 
     /**
@@ -199,8 +201,27 @@ public class OSFileStore {
      *            The type
      */
     public void setType(String value) {
-<span class="fc" id="L202">        this.fsType = value;</span>
-<span class="fc" id="L203">    }</span>
+<span class="fc" id="L204">        this.fsType = value;</span>
+<span class="fc" id="L205">    }</span>
+
+    /**
+     * Filesystem options
+     *
+     * @return A comma-deimited string of options
+     */
+    public String getOptions() {
+<span class="fc" id="L213">        return options;</span>
+    }
+
+    /**
+     * Sets the File System options
+     *
+     * @param value
+     *            The options
+     */
+    public void setOptions(String value) {
+<span class="fc" id="L223">        this.options = value;</span>
+<span class="fc" id="L224">    }</span>
 
     /**
      * UUID/GUID of the File System
@@ -208,7 +229,7 @@ public class OSFileStore {
      * @return The file system UUID/GUID
      */
     public String getUUID() {
-<span class="fc" id="L211">        return this.uuid;</span>
+<span class="fc" id="L232">        return this.uuid;</span>
     }
 
     /**
@@ -218,8 +239,8 @@ public class OSFileStore {
      *            The UUID/GUID
      */
     public void setUUID(String value) {
-<span class="fc" id="L221">        this.uuid = value;</span>
-<span class="fc" id="L222">    }</span>
+<span class="fc" id="L242">        this.uuid = value;</span>
+<span class="fc" id="L243">    }</span>
 
     /**
      * Free space on the drive. This space is unallocated but may require elevated
@@ -228,7 +249,7 @@ public class OSFileStore {
      * @return Free space on the drive (in bytes)
      */
     public long getFreeSpace() {
-<span class="fc" id="L231">        return this.freeSpace;</span>
+<span class="fc" id="L252">        return this.freeSpace;</span>
     }
 
     /**
@@ -238,8 +259,8 @@ public class OSFileStore {
      *            Bytes of free space.
      */
     public void setFreeSpace(long value) {
-<span class="fc" id="L241">        this.freeSpace = value;</span>
-<span class="fc" id="L242">    }</span>
+<span class="fc" id="L262">        this.freeSpace = value;</span>
+<span class="fc" id="L263">    }</span>
 
     /**
      * Usable space on the drive. This is space available to unprivileged users.
@@ -247,7 +268,7 @@ public class OSFileStore {
      * @return Usable space on the drive (in bytes)
      */
     public long getUsableSpace() {
-<span class="fc" id="L250">        return this.usableSpace;</span>
+<span class="fc" id="L271">        return this.usableSpace;</span>
     }
 
     /**
@@ -257,8 +278,8 @@ public class OSFileStore {
      *            Bytes of writable space.
      */
     public void setUsableSpace(long value) {
-<span class="fc" id="L260">        this.usableSpace = value;</span>
-<span class="fc" id="L261">    }</span>
+<span class="fc" id="L281">        this.usableSpace = value;</span>
+<span class="fc" id="L282">    }</span>
 
     /**
      * Total space/capacity of the drive.
@@ -266,7 +287,7 @@ public class OSFileStore {
      * @return Total capacity of the drive (in bytes)
      */
     public long getTotalSpace() {
-<span class="fc" id="L269">        return this.totalSpace;</span>
+<span class="fc" id="L290">        return this.totalSpace;</span>
     }
 
     /**
@@ -276,8 +297,8 @@ public class OSFileStore {
      *            Bytes of total space.
      */
     public void setTotalSpace(long value) {
-<span class="fc" id="L279">        this.totalSpace = value;</span>
-<span class="fc" id="L280">    }</span>
+<span class="fc" id="L300">        this.totalSpace = value;</span>
+<span class="fc" id="L301">    }</span>
 
     /**
      * Usable / free inodes on the drive. Not applicable on Windows.
@@ -285,7 +306,7 @@ public class OSFileStore {
      * @return Usable / free inodes on the drive (count), or -1 if unimplemented
      */
     public long getFreeInodes() {
-<span class="fc" id="L288">        return this.freeInodes;</span>
+<span class="fc" id="L309">        return this.freeInodes;</span>
     }
 
     /**
@@ -295,8 +316,8 @@ public class OSFileStore {
      *            Number of free inodes.
      */
     public void setFreeInodes(long value) {
-<span class="fc" id="L298">        this.freeInodes = value;</span>
-<span class="fc" id="L299">    }</span>
+<span class="fc" id="L319">        this.freeInodes = value;</span>
+<span class="fc" id="L320">    }</span>
 
     /**
      * Total / maximum number of inodes of the filesystem. Not applicable on
@@ -306,7 +327,7 @@ public class OSFileStore {
      *         unimplemented
      */
     public long getTotalInodes() {
-<span class="fc" id="L309">        return this.totalInodes;</span>
+<span class="fc" id="L330">        return this.totalInodes;</span>
     }
 
     /**
@@ -316,8 +337,8 @@ public class OSFileStore {
      *            Total / maximum count of inodes
      */
     public void setTotalInodes(long value) {
-<span class="fc" id="L319">        this.totalInodes = value;</span>
-<span class="fc" id="L320">    }</span>
+<span class="fc" id="L340">        this.totalInodes = value;</span>
+<span class="fc" id="L341">    }</span>
 
     /**
      * Make a best effort to update all the statistics about the file store without
@@ -328,22 +349,30 @@ public class OSFileStore {
      *         not found
      */
     public boolean updateAtrributes() {
-<span class="nc bnc" id="L331" title="All 6 branches missed.">        switch (SystemInfo.getCurrentPlatformEnum()) {</span>
+<span class="nc bnc" id="L352" title="All 6 branches missed.">        switch (SystemInfo.getCurrentPlatformEnum()) {</span>
         case WINDOWS:
-<span class="nc" id="L333">            return WindowsFileSystem.updateFileStoreStats(this);</span>
+<span class="nc" id="L354">            return WindowsFileSystem.updateFileStoreStats(this);</span>
         case LINUX:
-<span class="nc" id="L335">            return LinuxFileSystem.updateFileStoreStats(this);</span>
+<span class="nc" id="L356">            return LinuxFileSystem.updateFileStoreStats(this);</span>
         case MACOSX:
-<span class="nc" id="L337">            return MacFileSystem.updateFileStoreStats(this);</span>
+<span class="nc" id="L358">            return MacFileSystem.updateFileStoreStats(this);</span>
         case SOLARIS:
-<span class="nc" id="L339">            return SolarisFileSystem.updateFileStoreStats(this);</span>
+<span class="nc" id="L360">            return SolarisFileSystem.updateFileStoreStats(this);</span>
         case FREEBSD:
-<span class="nc" id="L341">            return FreeBsdFileSystem.updateFileStoreStats(this);</span>
+<span class="nc" id="L362">            return FreeBsdFileSystem.updateFileStoreStats(this);</span>
         default:
-<span class="nc" id="L343">            LOG.error(&quot;Unsupported platform. No update performed.&quot;);</span>
+<span class="nc" id="L364">            LOG.error(&quot;Unsupported platform. No update performed.&quot;);</span>
             break;
         }
-<span class="nc" id="L346">        return false;</span>
+<span class="nc" id="L367">        return false;</span>
+    }
+
+    @Override
+    public String toString() {
+<span class="nc" id="L372">        return &quot;OSFileStore [name=&quot; + name + &quot;, volume=&quot; + volume + &quot;, logicalVolume=&quot; + logicalVolume + &quot;, mount=&quot;</span>
+                + mount + &quot;, description=&quot; + description + &quot;, fsType=&quot; + fsType + &quot;, options=\&quot;&quot; + options + &quot;\&quot;, uuid=&quot;
+                + uuid + &quot;, freeSpace=&quot; + freeSpace + &quot;, usableSpace=&quot; + usableSpace + &quot;, totalSpace=&quot; + totalSpace
+                + &quot;, freeInodes=&quot; + freeInodes + &quot;, totalInodes=&quot; + totalInodes + &quot;]&quot;;
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

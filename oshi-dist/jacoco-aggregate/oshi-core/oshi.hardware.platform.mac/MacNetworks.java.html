@@ -23,6 +23,13 @@
  */
 package oshi.hardware.platform.mac;
 
+import static oshi.util.Memoizer.defaultExpiration;
+import static oshi.util.Memoizer.memoize;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Supplier;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,14 +48,95 @@ import oshi.hardware.common.AbstractNetworks;
  * MacNetworks class.
  * &lt;/p&gt;
  */
-<span class="nc" id="L44">public class MacNetworks extends AbstractNetworks {</span>
+<span class="nc" id="L51">public class MacNetworks extends AbstractNetworks {</span>
 
-<span class="nc" id="L46">    private static final Logger LOG = LoggerFactory.getLogger(MacNetworks.class);</span>
+<span class="nc" id="L53">    private static final Logger LOG = LoggerFactory.getLogger(MacNetworks.class);</span>
 
     private static final int CTL_NET = 4;
     private static final int PF_ROUTE = 17;
     private static final int NET_RT_IFLIST2 = 6;
     private static final int RTM_IFINFO2 = 0x12;
+
+<span class="nc" id="L60">    private static final Supplier&lt;Map&lt;Integer, IFdata&gt;&gt; ifDataMap = memoize(MacNetworks::queryIFdata,</span>
+<span class="nc" id="L61">            defaultExpiration());</span>
+
+    /**
+     * Map all network interfaces. Ported from source code of &quot;netstat -ir&quot;. See
+     * http://opensource.apple.com/source/network_cmds/network_cmds-457/
+     * netstat.tproj/if.c
+     *
+     * @return a map of {@link IFData} object indexed by the interface index,
+     *         encapsulating the stats, or {@code null} if the query failed.
+     */
+    private static Map&lt;Integer, IFdata&gt; queryIFdata() {
+<span class="nc" id="L72">        Map&lt;Integer, IFdata&gt; data = new HashMap&lt;&gt;();</span>
+        // Get buffer of all interface information
+<span class="nc" id="L74">        int[] mib = { CTL_NET, PF_ROUTE, 0, 0, NET_RT_IFLIST2, 0 };</span>
+<span class="nc" id="L75">        IntByReference len = new IntByReference();</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">        if (0 != SystemB.INSTANCE.sysctl(mib, 6, null, len, null, 0)) {</span>
+<span class="nc" id="L77">            LOG.error(&quot;Didn't get buffer length for IFLIST2&quot;);</span>
+<span class="nc" id="L78">            return null;</span>
+        }
+<span class="nc" id="L80">        Pointer buf = new Memory(len.getValue());</span>
+<span class="nc bnc" id="L81" title="All 2 branches missed.">        if (0 != SystemB.INSTANCE.sysctl(mib, 6, buf, len, null, 0)) {</span>
+<span class="nc" id="L82">            LOG.error(&quot;Didn't get buffer for IFLIST2&quot;);</span>
+<span class="nc" id="L83">            return null;</span>
+        }
+
+        // Iterate offset from buf's pointer up to limit of buf
+<span class="nc" id="L87">        int lim = len.getValue();</span>
+<span class="nc" id="L88">        int next = 0;</span>
+<span class="nc bnc" id="L89" title="All 2 branches missed.">        while (next &lt; lim) {</span>
+            // Get pointer to current native part of buf
+<span class="nc" id="L91">            Pointer p = new Pointer(Pointer.nativeValue(buf) + next);</span>
+            // Cast pointer to if_msghdr
+<span class="nc" id="L93">            IFmsgHdr ifm = new IFmsgHdr(p);</span>
+<span class="nc" id="L94">            ifm.read();</span>
+            // Advance next
+<span class="nc" id="L96">            next += ifm.ifm_msglen;</span>
+            // Skip messages which are not the right format
+<span class="nc bnc" id="L98" title="All 2 branches missed.">            if (ifm.ifm_type != RTM_IFINFO2) {</span>
+<span class="nc" id="L99">                continue;</span>
+            }
+            // Cast pointer to if_msghdr2
+<span class="nc" id="L102">            IFmsgHdr2 if2m = new IFmsgHdr2(p);</span>
+<span class="nc" id="L103">            if2m.read();</span>
+
+<span class="nc" id="L105">            data.put((int) if2m.ifm_index,</span>
+                    new IFdata(if2m.ifm_data.ifi_opackets, if2m.ifm_data.ifi_ipackets, if2m.ifm_data.ifi_obytes,
+                            if2m.ifm_data.ifi_ibytes, if2m.ifm_data.ifi_oerrors, if2m.ifm_data.ifi_ierrors,
+                            if2m.ifm_data.ifi_collisions, if2m.ifm_data.ifi_iqdrops, if2m.ifm_data.ifi_baudrate,
+<span class="nc" id="L109">                            System.currentTimeMillis()));</span>
+<span class="nc" id="L110">        }</span>
+<span class="nc" id="L111">        return data;</span>
+    }
+
+    /**
+     * Updates interface network statistics on the given interface. Statistics
+     * include packets and bytes sent and received, and interface speed.
+     *
+     * @param netIF
+     *            The interface on which to update statistics
+     */
+    public static boolean updateNetworkStats(NetworkIF netIF) {
+<span class="nc" id="L122">        Map&lt;Integer, IFdata&gt; data = ifDataMap.get();</span>
+<span class="nc" id="L123">        IFdata ifData = data.getOrDefault(netIF.queryNetworkInterface().getIndex(), null);</span>
+        // Update data
+<span class="nc bnc" id="L125" title="All 2 branches missed.">        if (ifData != null) {</span>
+<span class="nc" id="L126">            netIF.setBytesSent(ifData.oBytes);</span>
+<span class="nc" id="L127">            netIF.setBytesRecv(ifData.iBytes);</span>
+<span class="nc" id="L128">            netIF.setPacketsSent(ifData.oPackets);</span>
+<span class="nc" id="L129">            netIF.setPacketsRecv(ifData.iPackets);</span>
+<span class="nc" id="L130">            netIF.setOutErrors(ifData.oErrors);</span>
+<span class="nc" id="L131">            netIF.setInErrors(ifData.iErrors);</span>
+<span class="nc" id="L132">            netIF.setCollisions(ifData.collisions);</span>
+<span class="nc" id="L133">            netIF.setInDrops(ifData.iDrops);</span>
+<span class="nc" id="L134">            netIF.setSpeed(ifData.speed);</span>
+<span class="nc" id="L135">            netIF.setTimeStamp(ifData.timeStamp);</span>
+<span class="nc" id="L136">            return true;</span>
+        }
+<span class="nc" id="L138">        return false;</span>
+    }
 
     /**
      * Class to encapsulate IF data for method return
@@ -60,95 +148,25 @@ import oshi.hardware.common.AbstractNetworks;
         private long iBytes;
         private long oErrors;
         private long iErrors;
+        private long collisions;
+        private long iDrops;
         private long speed;
         private long timeStamp;
 
         IFdata(long oPackets, long iPackets, // NOSONAR squid:S00107
-<span class="nc" id="L67">                long oBytes, long iBytes, long oErrors, long iErrors, long speed, long timeStamp) {</span>
-<span class="nc" id="L68">            this.oPackets = oPackets;</span>
-<span class="nc" id="L69">            this.iPackets = iPackets;</span>
-<span class="nc" id="L70">            this.oBytes = oBytes;</span>
-<span class="nc" id="L71">            this.iBytes = iBytes;</span>
-<span class="nc" id="L72">            this.oErrors = oErrors;</span>
-<span class="nc" id="L73">            this.iErrors = iErrors;</span>
-<span class="nc" id="L74">            this.speed = speed;</span>
-<span class="nc" id="L75">            this.timeStamp = timeStamp;</span>
-<span class="nc" id="L76">        }</span>
+                long oBytes, long iBytes, long oErrors, long iErrors, long collisions, long iDrops, long speed,
+<span class="nc" id="L158">                long timeStamp) {</span>
+<span class="nc" id="L159">            this.oPackets = oPackets;</span>
+<span class="nc" id="L160">            this.iPackets = iPackets;</span>
+<span class="nc" id="L161">            this.oBytes = oBytes;</span>
+<span class="nc" id="L162">            this.iBytes = iBytes;</span>
+<span class="nc" id="L163">            this.oErrors = oErrors;</span>
+<span class="nc" id="L164">            this.iErrors = iErrors;</span>
+<span class="nc" id="L165">            this.collisions = collisions;</span>
+<span class="nc" id="L166">            this.iDrops = iDrops;</span>
+<span class="nc" id="L167">            this.speed = speed;</span>
+<span class="nc" id="L168">            this.timeStamp = timeStamp;</span>
+<span class="nc" id="L169">        }</span>
     }
-
-    /**
-     * Map all network interfaces. Ported from source code of &quot;netstat -ir&quot;. See
-     * http://opensource.apple.com/source/network_cmds/network_cmds-457/
-     * netstat.tproj/if.c
-     * 
-     * @param index
-     *            The network interface index to query
-     * @return an {@link IFData} object encapsulating the stats if the index
-     *         matches, or null if there was no match or an error reading the stats
-     */
-    private static synchronized IFdata queryIFdata(int index) {
-        // Get buffer of all interface information
-<span class="nc" id="L91">        int[] mib = { CTL_NET, PF_ROUTE, 0, 0, NET_RT_IFLIST2, 0 };</span>
-<span class="nc" id="L92">        IntByReference len = new IntByReference();</span>
-<span class="nc bnc" id="L93" title="All 2 branches missed.">        if (0 != SystemB.INSTANCE.sysctl(mib, 6, null, len, null, 0)) {</span>
-<span class="nc" id="L94">            LOG.error(&quot;Didn't get buffer length for IFLIST2&quot;);</span>
-<span class="nc" id="L95">            return null;</span>
-        }
-<span class="nc" id="L97">        Pointer buf = new Memory(len.getValue());</span>
-<span class="nc bnc" id="L98" title="All 2 branches missed.">        if (0 != SystemB.INSTANCE.sysctl(mib, 6, buf, len, null, 0)) {</span>
-<span class="nc" id="L99">            LOG.error(&quot;Didn't get buffer for IFLIST2&quot;);</span>
-<span class="nc" id="L100">            return null;</span>
-        }
-
-        // Iterate offset from buf's pointer up to limit of buf
-<span class="nc" id="L104">        int lim = len.getValue();</span>
-<span class="nc" id="L105">        int next = 0;</span>
-<span class="nc bnc" id="L106" title="All 2 branches missed.">        while (next &lt; lim) {</span>
-            // Get pointer to current native part of buf
-<span class="nc" id="L108">            Pointer p = new Pointer(Pointer.nativeValue(buf) + next);</span>
-            // Cast pointer to if_msghdr
-<span class="nc" id="L110">            IFmsgHdr ifm = new IFmsgHdr(p);</span>
-<span class="nc" id="L111">            ifm.read();</span>
-            // Advance next
-<span class="nc" id="L113">            next += ifm.ifm_msglen;</span>
-            // Skip messages which are not the right format
-<span class="nc bnc" id="L115" title="All 2 branches missed.">            if (ifm.ifm_type != RTM_IFINFO2) {</span>
-<span class="nc" id="L116">                continue;</span>
-            }
-            // Cast pointer to if_msghdr2
-<span class="nc" id="L119">            IFmsgHdr2 if2m = new IFmsgHdr2(p);</span>
-<span class="nc" id="L120">            if2m.read();</span>
-
-<span class="nc bnc" id="L122" title="All 2 branches missed.">            if (if2m.ifm_index == index) {</span>
-<span class="nc" id="L123">                return new IFdata(if2m.ifm_data.ifi_opackets, if2m.ifm_data.ifi_ipackets, if2m.ifm_data.ifi_obytes,</span>
-                        if2m.ifm_data.ifi_ibytes, if2m.ifm_data.ifi_oerrors, if2m.ifm_data.ifi_ierrors,
-<span class="nc" id="L125">                        if2m.ifm_data.ifi_baudrate, System.currentTimeMillis());</span>
-            }
-<span class="nc" id="L127">        }</span>
-        // If we get here we didn't find the index
-<span class="nc" id="L129">        return null;</span>
-    }
-
-    /**
-     * Updates interface network statistics on the given interface. Statistics
-     * include packets and bytes sent and received, and interface speed.
-     *
-     * @param netIF
-     *            The interface on which to update statistics
-     */
-    public static synchronized void updateNetworkStats(NetworkIF netIF) {
-        // Update data
-<span class="nc" id="L141">        IFdata ifData = queryIFdata(netIF.queryNetworkInterface().getIndex());</span>
-<span class="nc bnc" id="L142" title="All 2 branches missed.">        if (ifData != null) {</span>
-<span class="nc" id="L143">            netIF.setBytesSent(ifData.oBytes);</span>
-<span class="nc" id="L144">            netIF.setBytesRecv(ifData.iBytes);</span>
-<span class="nc" id="L145">            netIF.setPacketsSent(ifData.oPackets);</span>
-<span class="nc" id="L146">            netIF.setPacketsRecv(ifData.iPackets);</span>
-<span class="nc" id="L147">            netIF.setOutErrors(ifData.oErrors);</span>
-<span class="nc" id="L148">            netIF.setInErrors(ifData.iErrors);</span>
-<span class="nc" id="L149">            netIF.setSpeed(ifData.speed);</span>
-<span class="nc" id="L150">            netIF.setTimeStamp(ifData.timeStamp);</span>
-        }
-<span class="nc" id="L152">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
