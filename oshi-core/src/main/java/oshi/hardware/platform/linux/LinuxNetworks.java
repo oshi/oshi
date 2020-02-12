@@ -23,6 +23,8 @@
  */
 package oshi.hardware.platform.linux;
 
+import java.io.File;
+
 import oshi.hardware.NetworkIF;
 import oshi.hardware.common.AbstractNetworks;
 import oshi.util.FileUtil;
@@ -40,13 +42,23 @@ public class LinuxNetworks extends AbstractNetworks {
      * @param netIF
      *            The interface on which to update statistics
      */
-    public static void updateNetworkStats(NetworkIF netIF) {
+    public static boolean updateNetworkStats(NetworkIF netIF) {
+        try {
+            File ifDir = new File(String.format("/sys/class/net/%s/statistics", netIF.getName()));
+            if (!ifDir.isDirectory()) {
+                return false;
+            }
+        } catch (SecurityException e) {
+            return false;
+        }
         String txBytesPath = String.format("/sys/class/net/%s/statistics/tx_bytes", netIF.getName());
         String rxBytesPath = String.format("/sys/class/net/%s/statistics/rx_bytes", netIF.getName());
         String txPacketsPath = String.format("/sys/class/net/%s/statistics/tx_packets", netIF.getName());
         String rxPacketsPath = String.format("/sys/class/net/%s/statistics/rx_packets", netIF.getName());
         String txErrorsPath = String.format("/sys/class/net/%s/statistics/tx_errors", netIF.getName());
         String rxErrorsPath = String.format("/sys/class/net/%s/statistics/rx_errors", netIF.getName());
+        String collisionsPath = String.format("/sys/class/net/%s/statistics/collisions", netIF.getName());
+        String rxDropsPath = String.format("/sys/class/net/%s/statistics/rx_dropped", netIF.getName());
         String speed = String.format("/sys/class/net/%s/speed", netIF.getName());
 
         netIF.setTimeStamp(System.currentTimeMillis());
@@ -56,7 +68,10 @@ public class LinuxNetworks extends AbstractNetworks {
         netIF.setPacketsRecv(FileUtil.getUnsignedLongFromFile(rxPacketsPath));
         netIF.setOutErrors(FileUtil.getUnsignedLongFromFile(txErrorsPath));
         netIF.setInErrors(FileUtil.getUnsignedLongFromFile(rxErrorsPath));
+        netIF.setCollisions(FileUtil.getUnsignedLongFromFile(collisionsPath));
+        netIF.setInDrops(FileUtil.getUnsignedLongFromFile(rxDropsPath));
         long netSpeed = FileUtil.getUnsignedLongFromFile(speed) * 1024 * 1024;
         netIF.setSpeed(netSpeed < 0 ? 0 : netSpeed);
+        return true;
     }
 }
