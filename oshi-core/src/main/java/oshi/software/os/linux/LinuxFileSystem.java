@@ -55,37 +55,6 @@ import oshi.util.platform.linux.ProcUtil;
 public class LinuxFileSystem extends AbstractFileSystem {
 
     private static final Logger LOG = LoggerFactory.getLogger(LinuxFileSystem.class);
-
-    // Linux defines a set of virtual file systems
-    private static final List<String> PSEUDO_FS = Arrays.asList(//
-            "rootfs", // Minimal fs to support kernel boot
-            "sysfs", // SysFS file system
-            "proc", // Proc file system
-            "devtmpfs", // Dev temporary file system
-            "devpts", // Dev pseudo terminal devices file system
-            "securityfs", // Kernel security file system
-            "cgroup", // Cgroup file system
-            "pstore", // Pstore file system
-            "hugetlbfs", // Huge pages support file system
-            "configfs", // Config file system
-            "selinuxfs", // SELinux file system
-            "systemd-1", // Systemd file system
-            "binfmt_misc", // Binary format support file system
-            "mqueue", // Message queue file system
-            "debugfs", // Debug file system
-            "nfsd", // NFS file system
-            "sunrpc", // Sun RPC file system
-            "rpc_pipefs", // Sun RPC file system
-            "fusectl", // FUSE control file system
-            // NOTE: FUSE's fuseblk is not evalued because used as file system
-            // representation of a FUSE block storage
-            // "fuseblk" // FUSE block file system
-            // "tmpfs", // Temporary file system
-            // NOTE: tmpfs is evaluated apart, because Linux uses it for
-            // RAMdisks
-            "overlay" // Overlay file system https://wiki.archlinux.org/index.php/Overlay_filesystem
-    );
-
     // System path mounted as tmpfs
     private static final List<String> TMP_FS_PATHS = Arrays.asList("/run", "/sys", "/proc");
 
@@ -138,7 +107,7 @@ public class LinuxFileSystem extends AbstractFileSystem {
             String path = split[1].replaceAll("\\\\040", " ");
             String type = split[2];
             if ((localOnly && NETWORK_FS_TYPES.contains(type)) // Skip non-local drives if requested
-                    || PSEUDO_FS.contains(type) // exclude non-fs types
+                    || PSEUDO_FS_TYPES.contains(type) // exclude non-fs types
                     || path.equals("/dev") // exclude plain dev directory
                     || ParseUtil.filePathStartsWith(TMP_FS_PATHS, path) // well known prefixes
                     || path.endsWith("/shm") // exclude shared memory
