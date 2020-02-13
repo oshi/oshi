@@ -106,7 +106,7 @@ public class FreeBsdFileSystem extends AbstractFileSystem {
             String options = split[3];
 
             // Skip non-local drives if requested, and exclude pseudo file systems
-            if ((localOnly && NETWORK_FS_TYPES.contains(type)) || PSEUDO_FS.contains(type) || path.equals("/dev")
+            if ((localOnly && NETWORK_FS_TYPES.contains(type)) || PSEUDO_FS_TYPES.contains(type) || path.equals("/dev")
                     || ParseUtil.filePathStartsWith(TMP_FS_PATHS, path)
                     || volume.startsWith("rpool") && !path.equals("/")) {
                 continue;

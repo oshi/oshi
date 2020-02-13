@@ -38,7 +38,7 @@ public abstract class AbstractFileSystem implements FileSystem {
             "gfs", "gds2", "glusterfs" );
 
 
-    protected static final List<String> PSEUDO_FS = Arrays.asList(//
+    protected static final List<String> PSEUDO_FS_TYPES = Arrays.asList(//
             // Linux defines a set of virtual file systems
             "anon_inodefs", // anonymous inodes - inodes without filenames
             "autofs", // automounter file system, used by Linux, Solaris, FreeBSD

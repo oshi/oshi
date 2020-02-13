@@ -107,7 +107,7 @@ public class LinuxFileSystem extends AbstractFileSystem {
             String path = split[1].replaceAll("\\\\040", " ");
             String type = split[2];
             if ((localOnly && NETWORK_FS_TYPES.contains(type)) // Skip non-local drives if requested
-                    || PSEUDO_FS.contains(type) // exclude non-fs types
+                    || PSEUDO_FS_TYPES.contains(type) // exclude non-fs types
                     || path.equals("/dev") // exclude plain dev directory
                     || ParseUtil.filePathStartsWith(TMP_FS_PATHS, path) // well known prefixes
                     || path.endsWith("/shm") // exclude shared memory
