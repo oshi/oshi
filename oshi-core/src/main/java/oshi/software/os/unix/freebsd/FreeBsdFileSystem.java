@@ -44,22 +44,6 @@ import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
  */
 public class FreeBsdFileSystem extends AbstractFileSystem {
 
-    // Linux defines a set of virtual file systems
-    private static final List<String> PSEUDO_FS = Arrays.asList( //
-            "procfs", // Proc file system
-            "devfs", // Dev temporary file system
-            "ctfs", // Contract file system
-            "fdescfs", // fd
-            "objfs", // Object file system
-            "mntfs", // Mount file system
-            "sharefs", // Share file system
-            "lofs", // Library file system
-            "autofs" // Auto mounting fs
-    // "tmpfs", // Temporary file system
-    // NOTE: tmpfs is evaluated apart, because Solaris uses it for
-    // RAMdisks
-    );
-
     // System path mounted as tmpfs
     private static final List<String> TMP_FS_PATHS = Arrays.asList("/system", "/tmp", "/dev/fd");
 
