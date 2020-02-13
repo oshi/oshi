@@ -124,6 +124,7 @@ public class LinuxDisks implements Disks {
             String devnode = Udev.INSTANCE.udev_device_get_devnode(device);
             if (devnode == null) {
                 LOG.warn("Failed to retrieve devnode for device {}", Pointer.nativeValue(device.getPointer()));
+                continue;
             }
             // Ignore loopback and ram disks; do nothing
             if (!devnode.startsWith("/dev/loop") && !devnode.startsWith("/dev/ram")) {
