@@ -31,6 +31,8 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sun.jna.Pointer;
+
 import oshi.hardware.Disks;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
@@ -119,12 +121,15 @@ public class LinuxDisks implements Disks {
                 LOG.debug("Reached all disks. Exiting ");
                 break;
             }
+            String devnode = Udev.INSTANCE.udev_device_get_devnode(device);
+            if (devnode == null) {
+                LOG.warn("Failed to retrieve devnode for device {}", Pointer.nativeValue(device.getPointer()));
+            }
             // Ignore loopback and ram disks; do nothing
-            if (!Udev.INSTANCE.udev_device_get_devnode(device).startsWith("/dev/loop")
-                    && !Udev.INSTANCE.udev_device_get_devnode(device).startsWith("/dev/ram")) {
+            if (!devnode.startsWith("/dev/loop") && !devnode.startsWith("/dev/ram")) {
                 if ("disk".equals(Udev.INSTANCE.udev_device_get_devtype(device))) {
                     store = new HWDiskStore();
-                    store.setName(Udev.INSTANCE.udev_device_get_devnode(device));
+                    store.setName(devnode);
 
                     // Avoid model and serial in virtual environments
                     store.setModel(Udev.INSTANCE.udev_device_get_property_value(device, "ID_MODEL") == null ? "Unknown"
