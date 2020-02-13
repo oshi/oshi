@@ -83,7 +83,7 @@ public class LinuxFileSystem extends AbstractFileSystem {
             "inotifyfs", // support inotify
             "mqueue", // Message queue file system
             "nfsd", // NFS file system
-            "overlay" // Overlay file system https://wiki.archlinux.org/index.php/Overlay_filesystem
+            "overlay", // Overlay file system https://wiki.archlinux.org/index.php/Overlay_filesystem
             // "pipefs", // for pipes but only visible inside kernel
             "proc", // Proc file system
             "pstore", // Pstore file system
@@ -98,7 +98,7 @@ public class LinuxFileSystem extends AbstractFileSystem {
             // "tmpfs", // Temporary file system
             // NOTE: tmpfs is evaluated apart, because Linux uses it for RAMdisks
             "tracefs", // thin stackable file system for capturing file system traces
-            "usbfs", // removed in linux 3.5 but still seen in some systems
+            "usbfs" // removed in linux 3.5 but still seen in some systems
     );
 
     // System path mounted as tmpfs
