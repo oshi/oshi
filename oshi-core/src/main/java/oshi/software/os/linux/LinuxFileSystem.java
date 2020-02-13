@@ -58,32 +58,47 @@ public class LinuxFileSystem extends AbstractFileSystem {
 
     // Linux defines a set of virtual file systems
     private static final List<String> PSEUDO_FS = Arrays.asList(//
-            "rootfs", // Minimal fs to support kernel boot
-            "sysfs", // SysFS file system
-            "proc", // Proc file system
-            "devtmpfs", // Dev temporary file system
-            "devpts", // Dev pseudo terminal devices file system
-            "securityfs", // Kernel security file system
-            "cgroup", // Cgroup file system
-            "pstore", // Pstore file system
-            "hugetlbfs", // Huge pages support file system
-            "configfs", // Config file system
-            "selinuxfs", // SELinux file system
-            "systemd-1", // Systemd file system
+            "anon_inodefs", // anonymous inodes - inodes without filenames
+            "autofs", // automounter file system
+            "bdev", // keep track of block_device vs major/minor mapping
             "binfmt_misc", // Binary format support file system
-            "mqueue", // Message queue file system
+            "bpf", // Virtual filesystem for Berkeley Paket Filter
+            "cgroup", // Cgroup file system
+            "cgroup2", // Cgroup file system
+            "configfs", // Config file system
+            "cpuset", // pseudo-filesystem interface to the kernel cpuset mechanism
+            "dax", // Direct Access (DAX) can be used on memory-backed block devices
             "debugfs", // Debug file system
-            "nfsd", // NFS file system
-            "sunrpc", // Sun RPC file system
-            "rpc_pipefs", // Sun RPC file system
-            "fusectl", // FUSE control file system
+            "devpts", // Dev pseudo terminal devices file system
+            "devtmpfs", // Dev temporary file system
+            "drm", // Direct Rendering Manager
+            "ecryptfs", // POSIX-compliant enterprise cryptographic filesystem for Linux
+            "efivarfs", // (U)EFI variable filesystem
+            "fuse", //
             // NOTE: FUSE's fuseblk is not evalued because used as file system
             // representation of a FUSE block storage
             // "fuseblk" // FUSE block file system
-            // "tmpfs", // Temporary file system
-            // NOTE: tmpfs is evaluated apart, because Linux uses it for
-            // RAMdisks
+            "fusectl", // FUSE control file system
+            "hugetlbfs", // Huge pages support file system
+            "inotifyfs", // support inotify
+            "mqueue", // Message queue file system
+            "nfsd", // NFS file system
             "overlay" // Overlay file system https://wiki.archlinux.org/index.php/Overlay_filesystem
+            // "pipefs", // for pipes but only visible inside kernel
+            "proc", // Proc file system
+            "pstore", // Pstore file system
+            // "ramfs", // Old filesystem used for RAM disks
+            "rootfs", // Minimal fs to support kernel boot
+            "rpc_pipefs", // Sun RPC file system
+            "securityfs", // Kernel security file system
+            "selinuxfs", // SELinux file system
+            "sunrpc", // Sun RPC file system
+            "sysfs", // SysFS file system
+            "systemd-1", // Systemd file system
+            // "tmpfs", // Temporary file system
+            // NOTE: tmpfs is evaluated apart, because Linux uses it for RAMdisks
+            "tracefs", // thin stackable file system for capturing file system traces
+            "usbfs", // removed in linux 3.5 but still seen in some systems
     );
 
     // System path mounted as tmpfs
