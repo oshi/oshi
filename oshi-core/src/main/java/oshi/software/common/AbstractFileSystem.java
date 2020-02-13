@@ -80,7 +80,7 @@ public abstract class AbstractFileSystem implements FileSystem {
             // "tmpfs", // Temporary file system
             // NOTE: tmpfs is evaluated apart, because Linux, Solaris, FreeBSD use it for RAMdisks
             "tracefs", // thin stackable file system for capturing file system traces
-            "usbfs" // removed in linux 3.5 but still seen in some systems
+            "usbfs", // removed in linux 3.5 but still seen in some systems
             // FreeBSD / Solaris defines a set of virtual file systems
             "procfs", // Proc file system
             "devfs", // Dev temporary file system
@@ -89,7 +89,7 @@ public abstract class AbstractFileSystem implements FileSystem {
             "objfs", // Object file system
             "mntfs", // Mount file system
             "sharefs", // Share file system
-            "lofs", // Library file system
+            "lofs" // Library file system
     );
 
     @Override
