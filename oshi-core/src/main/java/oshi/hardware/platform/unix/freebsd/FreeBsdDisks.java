@@ -46,11 +46,6 @@ public class FreeBsdDisks implements Disks {
 
     private static final Pattern MOUNT_PATTERN = Pattern.compile("/dev/(\\S+p\\d+) on (\\S+) .*");
 
-    // Create map indexed by device name to populate data from multiple commands
-    private static final Map<String, HWDiskStore> diskMap = new HashMap<>();
-    // Map of partitions to mount points
-    private static final Map<String, String> mountMap = new HashMap<>();
-
     /**
      * <p>
      * updateDiskStats.
@@ -84,11 +79,10 @@ public class FreeBsdDisks implements Disks {
         return diskFound;
     }
 
-    /** {@inheritDoc} */
     @Override
     public HWDiskStore[] getDisks() {
         // Parse 'mount' to map partitions to mount point
-        mountMap.clear();
+        Map<String, String> mountMap = new HashMap<>();
         for (String mnt : ExecutingCommand.runNative("mount")) {
             Matcher m = MOUNT_PATTERN.matcher(mnt);
             if (m.matches()) {
@@ -97,7 +91,8 @@ public class FreeBsdDisks implements Disks {
         }
 
         // Get list of valid disks
-        diskMap.clear();
+        // Create map indexed by device name to populate data from multiple commands
+        Map<String, HWDiskStore> diskMap = new HashMap<>();
         List<String> devices = Arrays.asList(ParseUtil.whitespaces.split(BsdSysctlUtil.sysctl("kern.disks", "")));
 
         // Temporary list to hold partitions
