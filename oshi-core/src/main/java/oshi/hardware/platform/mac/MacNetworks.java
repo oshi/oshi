@@ -23,12 +23,11 @@
  */
 package oshi.hardware.platform.mac;
 
-import static oshi.util.Memoizer.defaultExpiration;
-import static oshi.util.Memoizer.memoize;
-
+import java.net.NetworkInterface;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,8 +56,20 @@ public class MacNetworks extends AbstractNetworks {
     private static final int NET_RT_IFLIST2 = 6;
     private static final int RTM_IFINFO2 = 0x12;
 
-    private static final Supplier<Map<Integer, IFdata>> ifDataMap = memoize(MacNetworks::queryIFdata,
-            defaultExpiration());
+    @Override
+    public NetworkIF[] getNetworks() {
+        List<NetworkIF> result = new ArrayList<>();
+        Map<Integer, IFdata> ifDataMap = queryIFdata();
+
+        for (NetworkInterface netint : getNetworkInterfaces()) {
+            NetworkIF netIF = new NetworkIF();
+            netIF.setNetworkInterface(netint);
+            updateNetworkStats(netIF, ifDataMap);
+            result.add(netIF);
+        }
+
+        return result.toArray(new NetworkIF[0]);
+    }
 
     /**
      * Map all network interfaces. Ported from source code of "netstat -ir". See
@@ -119,23 +130,36 @@ public class MacNetworks extends AbstractNetworks {
      *            The interface on which to update statistics
      */
     public static boolean updateNetworkStats(NetworkIF netIF) {
-        Map<Integer, IFdata> data = ifDataMap.get();
-        IFdata ifData = data.getOrDefault(netIF.queryNetworkInterface().getIndex(), null);
-        // Update data
-        if (ifData != null) {
-            netIF.setBytesSent(ifData.oBytes);
-            netIF.setBytesRecv(ifData.iBytes);
-            netIF.setPacketsSent(ifData.oPackets);
-            netIF.setPacketsRecv(ifData.iPackets);
-            netIF.setOutErrors(ifData.oErrors);
-            netIF.setInErrors(ifData.iErrors);
-            netIF.setCollisions(ifData.collisions);
-            netIF.setInDrops(ifData.iDrops);
-            netIF.setSpeed(ifData.speed);
-            netIF.setTimeStamp(ifData.timeStamp);
-            return true;
+        return updateNetworkStats(netIF, queryIFdata());
+    }
+
+    /**
+     * Updates interface network statistics on the given interface. Statistics
+     * include packets and bytes sent and received, and interface speed.
+     *
+     * @param netIF
+     *            The interface on which to update statistics
+     * @param data
+     *            A map of network interface statistics with the index as the key
+     */
+    private static boolean updateNetworkStats(NetworkIF netIF, Map<Integer, IFdata> data) {
+        int index = netIF.queryNetworkInterface().getIndex();
+        if (data == null || !data.containsKey(index)) {
+            return false;
         }
-        return false;
+        IFdata ifData = data.get(index);
+        // Update data
+        netIF.setBytesSent(ifData.oBytes);
+        netIF.setBytesRecv(ifData.iBytes);
+        netIF.setPacketsSent(ifData.oPackets);
+        netIF.setPacketsRecv(ifData.iPackets);
+        netIF.setOutErrors(ifData.oErrors);
+        netIF.setInErrors(ifData.iErrors);
+        netIF.setCollisions(ifData.collisions);
+        netIF.setInDrops(ifData.iDrops);
+        netIF.setSpeed(ifData.speed);
+        netIF.setTimeStamp(ifData.timeStamp);
+        return true;
     }
 
     /**
