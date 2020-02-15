@@ -23,12 +23,11 @@
  */
 package oshi.hardware.platform.mac;
 
-import static oshi.util.Memoizer.defaultExpiration;
-import static oshi.util.Memoizer.memoize;
-
+import java.net.NetworkInterface;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,56 +56,70 @@ public class MacNetworks extends AbstractNetworks {
     private static final int NET_RT_IFLIST2 = 6;
     private static final int RTM_IFINFO2 = 0x12;
 
-    private static final Supplier<Map<Integer, IFdata>> ifDataMap = memoize(MacNetworks::queryIFdata,
-            defaultExpiration());
+    @Override
+    public NetworkIF[] getNetworks() {
+        List<NetworkIF> result = new ArrayList<>();
+        Map<Integer, IFdata> ifDataMap = queryIFdata(-1);
+
+        for (NetworkInterface netint : getNetworkInterfaces()) {
+            NetworkIF netIF = new NetworkIF();
+            netIF.setNetworkInterface(netint);
+            updateNetworkStats(netIF, ifDataMap);
+            result.add(netIF);
+        }
+
+        return result.toArray(new NetworkIF[0]);
+    }
 
     /**
      * Map all network interfaces. Ported from source code of "netstat -ir". See
      * http://opensource.apple.com/source/network_cmds/network_cmds-457/
      * netstat.tproj/if.c
      *
+     * @param index
+     *            If nonnegative, returns results for only that index
      * @return a map of {@link IFData} object indexed by the interface index,
      *         encapsulating the stats, or {@code null} if the query failed.
      */
-    private static Map<Integer, IFdata> queryIFdata() {
+    private static Map<Integer, IFdata> queryIFdata(int index) {
         Map<Integer, IFdata> data = new HashMap<>();
         // Get buffer of all interface information
         int[] mib = { CTL_NET, PF_ROUTE, 0, 0, NET_RT_IFLIST2, 0 };
         IntByReference len = new IntByReference();
         if (0 != SystemB.INSTANCE.sysctl(mib, 6, null, len, null, 0)) {
             LOG.error("Didn't get buffer length for IFLIST2");
-            return null;
+            return data;
         }
-        Pointer buf = new Memory(len.getValue());
+        Memory buf = new Memory(len.getValue());
         if (0 != SystemB.INSTANCE.sysctl(mib, 6, buf, len, null, 0)) {
             LOG.error("Didn't get buffer for IFLIST2");
-            return null;
+            return data;
         }
 
         // Iterate offset from buf's pointer up to limit of buf
-        int lim = len.getValue();
-        int next = 0;
-        while (next < lim) {
+        int lim = (int) (buf.size() - new IFmsgHdr().size());
+        int offset = 0;
+        while (offset < lim) {
             // Get pointer to current native part of buf
-            Pointer p = new Pointer(Pointer.nativeValue(buf) + next);
+            Pointer p = buf.share(offset);
             // Cast pointer to if_msghdr
             IFmsgHdr ifm = new IFmsgHdr(p);
             ifm.read();
             // Advance next
-            next += ifm.ifm_msglen;
+            offset += ifm.ifm_msglen;
             // Skip messages which are not the right format
-            if (ifm.ifm_type != RTM_IFINFO2) {
-                continue;
+            if (ifm.ifm_type == RTM_IFINFO2) {
+                // Cast pointer to if_msghdr2
+                IFmsgHdr2 if2m = new IFmsgHdr2(p);
+                if2m.read();
+                if (index < 0 || index == if2m.ifm_index) {
+                    data.put((int) if2m.ifm_index,
+                            new IFdata(if2m.ifm_data.ifi_opackets, if2m.ifm_data.ifi_ipackets, if2m.ifm_data.ifi_obytes,
+                                    if2m.ifm_data.ifi_ibytes, if2m.ifm_data.ifi_oerrors, if2m.ifm_data.ifi_ierrors,
+                                    if2m.ifm_data.ifi_collisions, if2m.ifm_data.ifi_iqdrops, if2m.ifm_data.ifi_baudrate,
+                                    System.currentTimeMillis()));
+                }
             }
-            // Cast pointer to if_msghdr2
-            IFmsgHdr2 if2m = new IFmsgHdr2(p);
-            if2m.read();
-
-            data.put((int) if2m.ifm_index,
-                    new IFdata(if2m.ifm_data.ifi_opackets, if2m.ifm_data.ifi_ipackets, if2m.ifm_data.ifi_obytes,
-                            if2m.ifm_data.ifi_ibytes, if2m.ifm_data.ifi_oerrors, if2m.ifm_data.ifi_ierrors,
-                            if2m.ifm_data.ifi_collisions, if2m.ifm_data.ifi_iqdrops, if2m.ifm_data.ifi_baudrate,
-                            System.currentTimeMillis()));
         }
         return data;
     }
@@ -119,10 +132,24 @@ public class MacNetworks extends AbstractNetworks {
      *            The interface on which to update statistics
      */
     public static boolean updateNetworkStats(NetworkIF netIF) {
-        Map<Integer, IFdata> data = ifDataMap.get();
-        IFdata ifData = data.getOrDefault(netIF.queryNetworkInterface().getIndex(), null);
-        // Update data
-        if (ifData != null) {
+        int index = netIF.queryNetworkInterface().getIndex();
+        return updateNetworkStats(netIF, queryIFdata(index));
+    }
+
+    /**
+     * Updates interface network statistics on the given interface. Statistics
+     * include packets and bytes sent and received, and interface speed.
+     *
+     * @param netIF
+     *            The interface on which to update statistics
+     * @param data
+     *            A map of network interface statistics with the index as the key
+     */
+    private static boolean updateNetworkStats(NetworkIF netIF, Map<Integer, IFdata> data) {
+        int index = netIF.queryNetworkInterface().getIndex();
+        if (data.containsKey(index)) {
+            IFdata ifData = data.get(index);
+            // Update data
             netIF.setBytesSent(ifData.oBytes);
             netIF.setBytesRecv(ifData.iBytes);
             netIF.setPacketsSent(ifData.oPackets);

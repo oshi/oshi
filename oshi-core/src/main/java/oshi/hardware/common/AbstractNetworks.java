@@ -46,28 +46,44 @@ public abstract class AbstractNetworks implements Networks {
     @Override
     public NetworkIF[] getNetworks() {
         List<NetworkIF> result = new ArrayList<>();
+
+        for (NetworkInterface netint : getNetworkInterfaces()) {
+            NetworkIF netIF = new NetworkIF();
+            netIF.setNetworkInterface(netint);
+            netIF.updateAttributes();
+            result.add(netIF);
+        }
+
+        return result.toArray(new NetworkIF[0]);
+    }
+
+    /**
+     * Returns network interfaces that are not Loopback, and have a hardware
+     * address.
+     *
+     * @return An array of network interfaces
+     */
+    protected NetworkInterface[] getNetworkInterfaces() {
+        List<NetworkInterface> result = new ArrayList<>();
         Enumeration<NetworkInterface> interfaces;
 
         try {
             interfaces = NetworkInterface.getNetworkInterfaces();
         } catch (SocketException ex) {
             LOG.error("Socket exception when retrieving interfaces: {}", ex);
-            return new NetworkIF[0];
+            return new NetworkInterface[0];
         }
 
         for (NetworkInterface netint : Collections.list(interfaces)) {
             try {
                 if (!netint.isLoopback() && netint.getHardwareAddress() != null) {
-                    NetworkIF netIF = new NetworkIF();
-                    netIF.setNetworkInterface(netint);
-                    netIF.updateAttributes();
-                    result.add(netIF);
+                    result.add(netint);
                 }
             } catch (SocketException ex) {
                 LOG.error("Socket exception when retrieving interface \"{}\": {}", netint.getName(), ex);
             }
         }
 
-        return result.toArray(new NetworkIF[0]);
+        return result.toArray(new NetworkInterface[0]);
     }
 }
