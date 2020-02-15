@@ -33,7 +33,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Memory; // NOSONAR
-import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.platform.mac.SystemB;
 import com.sun.jna.platform.mac.SystemB.IFmsgHdr;
@@ -91,23 +90,23 @@ public class MacNetworks extends AbstractNetworks {
             LOG.error("Didn't get buffer length for IFLIST2");
             return data;
         }
-        Pointer buf = new Memory(len.getValue());
+        Memory buf = new Memory(len.getValue());
         if (0 != SystemB.INSTANCE.sysctl(mib, 6, buf, len, null, 0)) {
             LOG.error("Didn't get buffer for IFLIST2");
             return data;
         }
 
         // Iterate offset from buf's pointer up to limit of buf
-        int lim = len.getValue() - Native.getNativeSize(IFmsgHdr.class) * 8;
-        int next = 0;
-        while (next < lim) {
+        int lim = (int) (buf.size() - new IFmsgHdr().size());
+        int offset = 0;
+        while (offset < lim) {
             // Get pointer to current native part of buf
-            Pointer p = buf.share(next);
+            Pointer p = buf.share(offset);
             // Cast pointer to if_msghdr
             IFmsgHdr ifm = new IFmsgHdr(p);
             ifm.read();
             // Advance next
-            next += ifm.ifm_msglen;
+            offset += ifm.ifm_msglen;
             // Skip messages which are not the right format
             if (ifm.ifm_type == RTM_IFINFO2) {
                 // Cast pointer to if_msghdr2
