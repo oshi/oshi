@@ -26,7 +26,6 @@ package oshi.hardware.common;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 
@@ -65,25 +64,25 @@ public abstract class AbstractNetworks implements Networks {
      */
     protected NetworkInterface[] getNetworkInterfaces() {
         List<NetworkInterface> result = new ArrayList<>();
-        Enumeration<NetworkInterface> interfaces;
+        Enumeration<NetworkInterface> interfaces = null;
 
         try {
-            interfaces = NetworkInterface.getNetworkInterfaces();
+            interfaces = NetworkInterface.getNetworkInterfaces(); // can return null
         } catch (SocketException ex) {
             LOG.error("Socket exception when retrieving interfaces: {}", ex);
-            return new NetworkInterface[0];
         }
-
-        for (NetworkInterface netint : Collections.list(interfaces)) {
-            try {
-                if (!netint.isLoopback() && netint.getHardwareAddress() != null) {
-                    result.add(netint);
+        if (interfaces != null) {
+            while (interfaces.hasMoreElements()) {
+                NetworkInterface netint = interfaces.nextElement();
+                try {
+                    if (!netint.isLoopback() && netint.getHardwareAddress() != null) {
+                        result.add(netint);
+                    }
+                } catch (SocketException ex) {
+                    LOG.error("Socket exception when retrieving interface \"{}\": {}", netint.getName(), ex);
                 }
-            } catch (SocketException ex) {
-                LOG.error("Socket exception when retrieving interface \"{}\": {}", netint.getName(), ex);
             }
         }
-
         return result.toArray(new NetworkInterface[0]);
     }
 }
