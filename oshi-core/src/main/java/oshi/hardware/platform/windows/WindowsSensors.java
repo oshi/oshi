@@ -32,17 +32,13 @@ import org.slf4j.LoggerFactory;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery; // NOSONAR
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
+import oshi.driver.wmi.Win32Fan;
 import oshi.hardware.common.AbstractSensors;
 import oshi.util.platform.windows.PerfCounterWildcardQuery;
 import oshi.util.platform.windows.PerfCounterWildcardQuery.PdhCounterWildcardProperty;
 import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
 
-/**
- * <p>
- * WindowsSensors class.
- * </p>
- */
 public class WindowsSensors extends AbstractSensors {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsSensors.class);
@@ -65,12 +61,6 @@ public class WindowsSensors extends AbstractSensors {
     private final WmiQuery<OhmSensorProperty> ohmSensorQuery = new WmiQuery<>(WmiUtil.OHM_NAMESPACE, null,
             OhmSensorProperty.class);
 
-    enum FanProperty {
-        DESIREDSPEED;
-    }
-
-    private final WmiQuery<FanProperty> fanQuery = new WmiQuery<>("Win32_Fan", FanProperty.class);
-
     enum VoltProperty {
         CURRENTVOLTAGE, VOLTAGECAPS;
     }
@@ -92,9 +82,6 @@ public class WindowsSensors extends AbstractSensors {
             this.counter = counter;
         }
 
-        /**
-         * {@inheritDoc}
-         */
         @Override
         public String getCounter() {
             return counter;
@@ -213,12 +200,12 @@ public class WindowsSensors extends AbstractSensors {
     }
 
     private int[] getFansFromWMI() {
-        WmiResult<FanProperty> fan = this.wmiQueryHandler.queryWMI(fanQuery);
+        WmiResult<Win32Fan.Property> fan = new Win32Fan().query();
         if (fan.getResultCount() > 1) {
             LOG.debug("Found Fan data in WMI");
             int[] fanSpeeds = new int[fan.getResultCount()];
             for (int i = 0; i < fan.getResultCount(); i++) {
-                fanSpeeds[i] = (int) WmiUtil.getUint64(fan, FanProperty.DESIREDSPEED, i);
+                fanSpeeds[i] = (int) WmiUtil.getUint64(fan, Win32Fan.Property.DESIREDSPEED, i);
             }
             return fanSpeeds;
         }
