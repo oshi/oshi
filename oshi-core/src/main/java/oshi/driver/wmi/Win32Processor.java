@@ -28,13 +28,15 @@ import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.util.platform.windows.WmiQueryHandler;
 
-public class Win32Fan {
-    public enum SpeedProperty {
-        DESIREDSPEED;
+public class Win32Processor {
+    private static final String WIN32_PROCESSOR = "Win32_Processor";
+
+    public enum VoltProperty {
+        CURRENTVOLTAGE, VOLTAGECAPS;
     }
 
-    public WmiResult<SpeedProperty> query() {
-        WmiQuery<SpeedProperty> fanQuery = new WmiQuery<>("Win32_Fan", SpeedProperty.class);
-        return WmiQueryHandler.createInstance().queryWMI(fanQuery);
+    public WmiResult<VoltProperty> query() {
+        WmiQuery<VoltProperty> voltQuery = new WmiQuery<>(WIN32_PROCESSOR, VoltProperty.class);
+        return WmiQueryHandler.createInstance().queryWMI(voltQuery);
     }
 }

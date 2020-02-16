@@ -33,6 +33,7 @@ import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery; // NOSONAR
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.driver.wmi.Win32Fan;
+import oshi.driver.wmi.Win32Processor;
 import oshi.hardware.common.AbstractSensors;
 import oshi.util.platform.windows.PerfCounterWildcardQuery;
 import oshi.util.platform.windows.PerfCounterWildcardQuery.PdhCounterWildcardProperty;
@@ -60,12 +61,6 @@ public class WindowsSensors extends AbstractSensors {
 
     private final WmiQuery<OhmSensorProperty> ohmSensorQuery = new WmiQuery<>(WmiUtil.OHM_NAMESPACE, null,
             OhmSensorProperty.class);
-
-    enum VoltProperty {
-        CURRENTVOLTAGE, VOLTAGECAPS;
-    }
-
-    private final WmiQuery<VoltProperty> voltQuery = new WmiQuery<>("Win32_Processor", VoltProperty.class);
 
     /*
      * For temperature query
@@ -200,12 +195,12 @@ public class WindowsSensors extends AbstractSensors {
     }
 
     private int[] getFansFromWMI() {
-        WmiResult<Win32Fan.Property> fan = new Win32Fan().query();
+        WmiResult<Win32Fan.SpeedProperty> fan = new Win32Fan().query();
         if (fan.getResultCount() > 1) {
             LOG.debug("Found Fan data in WMI");
             int[] fanSpeeds = new int[fan.getResultCount()];
             for (int i = 0; i < fan.getResultCount(); i++) {
-                fanSpeeds[i] = (int) WmiUtil.getUint64(fan, Win32Fan.Property.DESIREDSPEED, i);
+                fanSpeeds[i] = (int) WmiUtil.getUint64(fan, Win32Fan.SpeedProperty.DESIREDSPEED, i);
             }
             return fanSpeeds;
         }
@@ -258,16 +253,16 @@ public class WindowsSensors extends AbstractSensors {
     }
 
     private double getVoltsFromWMI() {
-        WmiResult<VoltProperty> voltage = wmiQueryHandler.queryWMI(voltQuery);
+        WmiResult<Win32Processor.VoltProperty> voltage = new Win32Processor().query();
         if (voltage.getResultCount() > 1) {
             LOG.debug("Found Voltage data in WMI");
-            int decivolts = WmiUtil.getUint16(voltage, VoltProperty.CURRENTVOLTAGE, 0);
+            int decivolts = WmiUtil.getUint16(voltage, Win32Processor.VoltProperty.CURRENTVOLTAGE, 0);
             // If the eighth bit is set, bits 0-6 contain the voltage
             // multiplied by 10. If the eighth bit is not set, then the bit
             // setting in VoltageCaps represents the voltage value.
             if (decivolts > 0) {
                 if ((decivolts & 0x80) == 0) {
-                    decivolts = WmiUtil.getUint32(voltage, VoltProperty.VOLTAGECAPS, 0);
+                    decivolts = WmiUtil.getUint32(voltage, Win32Processor.VoltProperty.VOLTAGECAPS, 0);
                     // This value is really a bit setting, not decivolts
                     if ((decivolts & 0x1) > 0) {
                         return 5.0;
