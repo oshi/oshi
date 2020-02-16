@@ -195,7 +195,7 @@ public class WindowsSensors extends AbstractSensors {
     }
 
     private int[] getFansFromWMI() {
-        WmiResult<Win32Fan.SpeedProperty> fan = new Win32Fan().query();
+        WmiResult<Win32Fan.SpeedProperty> fan = new Win32Fan().querySpeed();
         if (fan.getResultCount() > 1) {
             LOG.debug("Found Fan data in WMI");
             int[] fanSpeeds = new int[fan.getResultCount()];
@@ -253,7 +253,7 @@ public class WindowsSensors extends AbstractSensors {
     }
 
     private double getVoltsFromWMI() {
-        WmiResult<Win32Processor.VoltProperty> voltage = new Win32Processor().query();
+        WmiResult<Win32Processor.VoltProperty> voltage = new Win32Processor().queryVoltage();
         if (voltage.getResultCount() > 1) {
             LOG.debug("Found Voltage data in WMI");
             int decivolts = WmiUtil.getUint16(voltage, Win32Processor.VoltProperty.CURRENTVOLTAGE, 0);

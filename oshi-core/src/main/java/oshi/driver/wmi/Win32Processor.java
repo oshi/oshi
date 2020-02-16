@@ -31,11 +31,21 @@ import oshi.util.platform.windows.WmiQueryHandler;
 public class Win32Processor {
     private static final String WIN32_PROCESSOR = "Win32_Processor";
 
+    /**
+     * Processor voltage properties.
+     */
     public enum VoltProperty {
         CURRENTVOLTAGE, VOLTAGECAPS;
     }
 
-    public WmiResult<VoltProperty> query() {
+    /**
+     * Returns processor voltage.
+     *
+     * @return Current voltage of the processor. If the eighth bit is set, bits 0-6
+     *         contain the voltage multiplied by 10. If the eighth bit is not set,
+     *         then the bit setting in VoltageCaps represents the voltage value.
+     */
+    public WmiResult<VoltProperty> queryVoltage() {
         WmiQuery<VoltProperty> voltQuery = new WmiQuery<>(WIN32_PROCESSOR, VoltProperty.class);
         return WmiQueryHandler.createInstance().queryWMI(voltQuery);
     }

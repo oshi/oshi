@@ -29,12 +29,23 @@ import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 import oshi.util.platform.windows.WmiQueryHandler;
 
 public class Win32Fan {
+    private static final String WIN32_FAN = "Win32_Fan";
+
+    /**
+     * Fan speed property.
+     */
     public enum SpeedProperty {
         DESIREDSPEED;
     }
 
-    public WmiResult<SpeedProperty> query() {
-        WmiQuery<SpeedProperty> fanQuery = new WmiQuery<>("Win32_Fan", SpeedProperty.class);
+    /**
+     * Queries the fan speed.
+     *
+     * @return Currently requested fan speed, defined in revolutions per minute,
+     *         when a variable speed fan is supported.
+     */
+    public WmiResult<SpeedProperty> querySpeed() {
+        WmiQuery<SpeedProperty> fanQuery = new WmiQuery<>(WIN32_FAN, SpeedProperty.class);
         return WmiQueryHandler.createInstance().queryWMI(fanQuery);
     }
 }
