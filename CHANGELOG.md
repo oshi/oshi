@@ -2,11 +2,12 @@
 ================
 * Your contribution here.
 
-4.4.0 (2/12/2020)
+4.4.0 (2/12/2020), 4.4.1 (2/17/2020)
 ================
 * [#1098](https://github.com/oshi/oshi/pull/1098): Option to limit FileStore list to local file systems. - [@Space2Man](https://github.com/Space2Man).
 * [#1100](https://github.com/oshi/oshi/pull/1100): Get FileStore options. - [@dbwiddis](https://github.com/dbwiddis).
 * [#1101](https://github.com/oshi/oshi/pull/1101): Add network interface dropped packets and collisions. - [@dbwiddis](https://github.com/dbwiddis).
+* [#1105](https://github.com/oshi/oshi/pull/1105): Added additional pseudo filesystems. - [@Space2Man](https://github.com/Space2Man).
 
 4.3.0 (1/2/2020), 4.3.1 (2/5/2020)
 ================
