@@ -29,31 +29,32 @@ import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
 
-public class OhmHardware {
+public class OhmSensor {
 
-    private static final String HARDWARE = "Hardware";
+    private static final String SENSOR = "Sensor";
 
     /**
-     * HW Identifier Property
+     * Sensor value property
      */
-    public enum IdentifierProperty {
-        IDENTIFIER;
+    public enum ValueProperty {
+        VALUE;
     }
 
     /**
-     * Queries the hardware identifiers for a monitored type.
+     * Queries the sensor value of an hardware identifier and sensor type.
      *
-     * @param typeToQuery
-     *            which type to filter based on
-     * @param typeName
-     *            the name of the type
+     * @param identifier
+     *            The identifier whose value to query.
+     * @param sensorType
+     *            The type of sensor to query.
      * @return The sensor value.
      */
-    public WmiResult<IdentifierProperty> queryHwIdentifier(String typeToQuery, String typeName) {
-        StringBuilder sb = new StringBuilder(HARDWARE);
-        sb.append(" WHERE ").append(typeToQuery).append("Type=\"").append(typeName).append('\"');
-        WmiQuery<IdentifierProperty> cpuIdentifierQuery = new WmiQuery<>(WmiUtil.OHM_NAMESPACE, sb.toString(),
-                IdentifierProperty.class);
-        return WmiQueryHandler.createInstance().queryWMI(cpuIdentifierQuery);
+    public WmiResult<ValueProperty> querySensorValue(String identifier, String sensorType) {
+        StringBuilder sb = new StringBuilder(SENSOR);
+        sb.append(" WHERE Parent = \"").append(identifier);
+        sb.append("\" AND SensorType=\"").append(sensorType).append('\"');
+        WmiQuery<ValueProperty> ohmSensorQuery = new WmiQuery<>(WmiUtil.OHM_NAMESPACE, sb.toString(),
+                ValueProperty.class);
+        return WmiQueryHandler.createInstance().queryWMI(ohmSensorQuery);
     }
 }
