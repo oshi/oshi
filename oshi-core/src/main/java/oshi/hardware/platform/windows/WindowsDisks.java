@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -36,6 +37,8 @@ import org.slf4j.LoggerFactory;
 import com.sun.jna.platform.win32.Kernel32; // NOSONAR squid:S1191
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
+import oshi.driver.perfmon.PhysicalDisk;
+import oshi.driver.perfmon.PhysicalDisk.PhysicalDiskProperty;
 import oshi.driver.wmi.Win32DiskDrive;
 import oshi.driver.wmi.Win32DiskDrive.DiskDriveProperty;
 import oshi.driver.wmi.Win32DiskDriveToDiskPartition;
@@ -48,9 +51,6 @@ import oshi.hardware.Disks;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
 import oshi.util.ParseUtil;
-import oshi.util.platform.windows.PerfCounterQuery;
-import oshi.util.platform.windows.PerfCounterWildcardQuery;
-import oshi.util.platform.windows.PerfCounterWildcardQuery.PdhCounterWildcardProperty;
 import oshi.util.platform.windows.WmiUtil;
 
 /**
@@ -61,44 +61,10 @@ public class WindowsDisks implements Disks {
     private static final Logger LOG = LoggerFactory.getLogger(WindowsDisks.class);
 
     private static final String PHYSICALDRIVE_PREFIX = "\\\\.\\PHYSICALDRIVE";
-    private static final String PHYSICAL_DISK = "PhysicalDisk";
 
     private static final Pattern DEVICE_ID = Pattern.compile(".*\\.DeviceID=\"(.*)\"");
 
     private static final int BUFSIZE = 255;
-
-    /*
-     * For disk query
-     */
-    enum PhysicalDiskProperty implements PdhCounterWildcardProperty {
-        // First element defines WMI instance name field and PDH instance filter
-        NAME(PerfCounterQuery.NOT_TOTAL_INSTANCE),
-        // Remaining elements define counters
-        DISKREADSPERSEC("Disk Reads/sec"), //
-        DISKREADBYTESPERSEC("Disk Read Bytes/sec"), //
-        DISKWRITESPERSEC("Disk Writes/sec"), //
-        DISKWRITEBYTESPERSEC("Disk Write Bytes/sec"), //
-        CURRENTDISKQUEUELENGTH("Current Disk Queue Length"), //
-        PERCENTIDLETIME("% Idle Time");
-
-        private final String counter;
-
-        PhysicalDiskProperty(String counter) {
-            this.counter = counter;
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public String getCounter() {
-            return counter;
-        }
-    }
-
-    private static final PerfCounterWildcardQuery<PhysicalDiskProperty> physicalDiskPerfCounters = new PerfCounterWildcardQuery<>(
-            PhysicalDiskProperty.class, PHYSICAL_DISK,
-            "Win32_PerfRawData_PerfDisk_PhysicalDisk WHERE NOT Name=\"_Total\"");
 
     /**
      * <p>
@@ -200,10 +166,14 @@ public class WindowsDisks implements Disks {
     private static DiskStats queryReadWriteStats(String index) {
         // Create object to hold and return results
         DiskStats stats = new DiskStats();
-
-        Map<PhysicalDiskProperty, List<Long>> valueMap = physicalDiskPerfCounters.queryValuesWildcard();
+        Map<List<String>, Map<PhysicalDiskProperty, List<Long>>> instanceValueMap = new PhysicalDisk()
+                .queryDiskCounters();
+        // This is a singleton map
+        Entry<List<String>, Map<PhysicalDiskProperty, List<Long>>> instanceValue = instanceValueMap.entrySet()
+                .iterator().next();
+        List<String> instances = instanceValue.getKey();
+        Map<PhysicalDiskProperty, List<Long>> valueMap = instanceValue.getValue();
         stats.timeStamp = System.currentTimeMillis();
-        List<String> instances = physicalDiskPerfCounters.getInstancesFromLastQuery();
         List<Long> readList = valueMap.get(PhysicalDiskProperty.DISKREADSPERSEC);
         List<Long> readByteList = valueMap.get(PhysicalDiskProperty.DISKREADBYTESPERSEC);
         List<Long> writeList = valueMap.get(PhysicalDiskProperty.DISKWRITESPERSEC);

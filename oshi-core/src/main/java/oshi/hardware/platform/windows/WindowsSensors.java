@@ -31,14 +31,14 @@ import org.slf4j.LoggerFactory;
 
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult; // NOSONAR squid:S1191
 
+import oshi.driver.perfmon.ThermalZoneInformation;
+import oshi.driver.perfmon.ThermalZoneInformation.ThermalZoneProperty;
 import oshi.driver.wmi.OhmHardware;
 import oshi.driver.wmi.OhmHardware.IdentifierProperty;
 import oshi.driver.wmi.OhmSensor;
 import oshi.driver.wmi.OhmSensor.ValueProperty;
 import oshi.driver.wmi.Win32Fan;
 import oshi.driver.wmi.Win32Fan.SpeedProperty;
-import oshi.driver.wmi.Win32PerfRawDataCountersThermalZoneInformation;
-import oshi.driver.wmi.Win32PerfRawDataCountersThermalZoneInformation.ThermalZoneProperty;
 import oshi.driver.wmi.Win32Processor;
 import oshi.driver.wmi.Win32Processor.VoltProperty;
 import oshi.hardware.common.AbstractSensors;
@@ -91,7 +91,7 @@ public class WindowsSensors extends AbstractSensors {
     private double getTempFromPerfCounters() {
         double tempC = 0d;
         long tempK = 0L;
-        Map<ThermalZoneProperty, List<Long>> valueListMap = new Win32PerfRawDataCountersThermalZoneInformation()
+        Map<ThermalZoneProperty, List<Long>> valueListMap = new ThermalZoneInformation()
                 .queryThermalZoneTemps();
         List<Long> valueList = valueListMap.get(ThermalZoneProperty.TEMPERATURE);
         if (valueList != null && !valueList.isEmpty()) {

@@ -21,31 +21,38 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package oshi.driver.wmi;
+package oshi.driver.perfmon;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import oshi.util.platform.windows.PerfCounterQuery;
 import oshi.util.platform.windows.PerfCounterWildcardQuery;
 import oshi.util.platform.windows.PerfCounterWildcardQuery.PdhCounterWildcardProperty;
 
-public class Win32PerfRawDataCountersThermalZoneInformation {
+public class PhysicalDisk {
 
-    private static final String THERMAL_ZONE_INFORMATION_WHERE_NAME_LIKE_CPU = "Win32_PerfRawData_Counters_ThermalZoneInformation WHERE Name LIKE \"%cpu%\"";
-    private static final String THERMAL_ZONE_INFORMATION = "Thermal Zone Information";
+    private static final String PHYSICAL_DISK = "PhysicalDisk";
+    private static final String WIN32_PERF_RAW_DATA_PERF_DISK_PHYSICAL_DISK_WHERE_NOT_NAME_TOTAL = "Win32_PerfRawData_PerfDisk_PhysicalDisk WHERE NOT Name=\"_Total\"";
 
-    /*
-     * Thermal Zone Temperature
+    /**
+     * Physical Disk performance counters.
      */
-    public enum ThermalZoneProperty implements PdhCounterWildcardProperty {
+    public enum PhysicalDiskProperty implements PdhCounterWildcardProperty {
         // First element defines WMI instance name field and PDH instance filter
-        NAME("*cpu*"),
+        NAME(PerfCounterQuery.NOT_TOTAL_INSTANCE),
         // Remaining elements define counters
-        TEMPERATURE("Temperature");
+        DISKREADSPERSEC("Disk Reads/sec"), //
+        DISKREADBYTESPERSEC("Disk Read Bytes/sec"), //
+        DISKWRITESPERSEC("Disk Writes/sec"), //
+        DISKWRITEBYTESPERSEC("Disk Write Bytes/sec"), //
+        CURRENTDISKQUEUELENGTH("Current Disk Queue Length"), //
+        PERCENTIDLETIME("% Idle Time");
 
         private final String counter;
 
-        ThermalZoneProperty(String counter) {
+        PhysicalDiskProperty(String counter) {
             this.counter = counter;
         }
 
@@ -56,14 +63,17 @@ public class Win32PerfRawDataCountersThermalZoneInformation {
     }
 
     /**
-     * Returns thermal zone temperatures.
+     * Returns physical disk performance counters.
      *
-     * @return Thermal zone names and corresponding temperatures of the thermal
-     *         zone, in degrees Kelvin.
+     * @return Performance Counters for physical disks.
      */
-    public Map<ThermalZoneProperty, List<Long>> queryThermalZoneTemps() {
-        PerfCounterWildcardQuery<ThermalZoneProperty> thermalZonePerfCounters = new PerfCounterWildcardQuery<>(
-                ThermalZoneProperty.class, THERMAL_ZONE_INFORMATION, THERMAL_ZONE_INFORMATION_WHERE_NAME_LIKE_CPU);
-        return thermalZonePerfCounters.queryValuesWildcard();
+    public Map<List<String>, Map<PhysicalDiskProperty, List<Long>>> queryDiskCounters() {
+        PerfCounterWildcardQuery<PhysicalDiskProperty> physicalDiskPerfCounters = new PerfCounterWildcardQuery<>(
+                PhysicalDiskProperty.class, PHYSICAL_DISK,
+                WIN32_PERF_RAW_DATA_PERF_DISK_PHYSICAL_DISK_WHERE_NOT_NAME_TOTAL);
+        Map<PhysicalDiskProperty, List<Long>> values = physicalDiskPerfCounters.queryValuesWildcard();
+        List<String> instances = physicalDiskPerfCounters.getInstancesFromLastQuery();
+        return Collections.singletonMap(instances, values);
     }
+
 }
