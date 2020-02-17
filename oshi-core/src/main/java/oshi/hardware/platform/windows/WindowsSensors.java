@@ -32,10 +32,14 @@ import org.slf4j.LoggerFactory;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery; // NOSONAR
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
+import oshi.driver.wmi.OhmHardware;
+import oshi.driver.wmi.OhmHardware.IdentifierProperty;
 import oshi.driver.wmi.Win32Fan;
+import oshi.driver.wmi.Win32Fan.SpeedProperty;
 import oshi.driver.wmi.Win32PerfRawDataCountersThermalZoneInformation;
 import oshi.driver.wmi.Win32PerfRawDataCountersThermalZoneInformation.ThermalZoneProperty;
 import oshi.driver.wmi.Win32Processor;
+import oshi.driver.wmi.Win32Processor.VoltProperty;
 import oshi.hardware.common.AbstractSensors;
 import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
@@ -45,15 +49,6 @@ public class WindowsSensors extends AbstractSensors {
     private static final Logger LOG = LoggerFactory.getLogger(WindowsSensors.class);
 
     private static final String BASE_SENSOR_CLASS = "Sensor";
-
-    enum OhmHardwareProperty {
-        IDENTIFIER;
-    }
-
-    private final WmiQuery<OhmHardwareProperty> ohmHardwareQuery = new WmiQuery<>(WmiUtil.OHM_NAMESPACE,
-            "Hardware WHERE HardwareType=\"CPU\"", OhmHardwareProperty.class);
-    private final WmiQuery<OhmHardwareProperty> owhVoltageQuery = new WmiQuery<>(WmiUtil.OHM_NAMESPACE,
-            "Hardware WHERE SensorType=\"Voltage\"", OhmHardwareProperty.class);
 
     enum OhmSensorProperty {
         VALUE;
@@ -86,10 +81,10 @@ public class WindowsSensors extends AbstractSensors {
     }
 
     private double getTempFromOHM() {
-        WmiResult<OhmHardwareProperty> ohmHardware = this.wmiQueryHandler.queryWMI(ohmHardwareQuery);
+        WmiResult<IdentifierProperty> ohmHardware = new OhmHardware().queryCpuHw();
         if (ohmHardware.getResultCount() > 0) {
             LOG.debug("Found Temperature data in Open Hardware Monitor");
-            String cpuIdentifier = WmiUtil.getString(ohmHardware, OhmHardwareProperty.IDENTIFIER, 0);
+            String cpuIdentifier = WmiUtil.getString(ohmHardware, IdentifierProperty.IDENTIFIER, 0);
             if (cpuIdentifier.length() > 0) {
                 StringBuilder sb = new StringBuilder(BASE_SENSOR_CLASS);
                 sb.append(" WHERE Parent = \"").append(cpuIdentifier);
@@ -146,10 +141,10 @@ public class WindowsSensors extends AbstractSensors {
     }
 
     private int[] getFansFromOHM() {
-        WmiResult<OhmHardwareProperty> ohmHardware = this.wmiQueryHandler.queryWMI(ohmHardwareQuery);
+        WmiResult<IdentifierProperty> ohmHardware = new OhmHardware().queryCpuHw();
         if (ohmHardware.getResultCount() > 0) {
             LOG.debug("Found Fan data in Open Hardware Monitor");
-            String cpuIdentifier = WmiUtil.getString(ohmHardware, OhmHardwareProperty.IDENTIFIER, 0);
+            String cpuIdentifier = WmiUtil.getString(ohmHardware, IdentifierProperty.IDENTIFIER, 0);
             if (cpuIdentifier.length() > 0) {
                 StringBuilder sb = new StringBuilder(BASE_SENSOR_CLASS);
                 sb.append(" WHERE Parent = \"").append(cpuIdentifier);
@@ -170,12 +165,12 @@ public class WindowsSensors extends AbstractSensors {
     }
 
     private int[] getFansFromWMI() {
-        WmiResult<Win32Fan.SpeedProperty> fan = new Win32Fan().querySpeed();
+        WmiResult<SpeedProperty> fan = new Win32Fan().querySpeed();
         if (fan.getResultCount() > 1) {
             LOG.debug("Found Fan data in WMI");
             int[] fanSpeeds = new int[fan.getResultCount()];
             for (int i = 0; i < fan.getResultCount(); i++) {
-                fanSpeeds[i] = (int) WmiUtil.getUint64(fan, Win32Fan.SpeedProperty.DESIREDSPEED, i);
+                fanSpeeds[i] = (int) WmiUtil.getUint64(fan, SpeedProperty.DESIREDSPEED, i);
             }
             return fanSpeeds;
         }
@@ -198,13 +193,13 @@ public class WindowsSensors extends AbstractSensors {
     }
 
     private double getVoltsFromOHM() {
-        WmiResult<OhmHardwareProperty> ohmHardware = this.wmiQueryHandler.queryWMI(owhVoltageQuery);
+        WmiResult<IdentifierProperty> ohmHardware = new OhmHardware().queryVoltageHw();
         if (ohmHardware.getResultCount() > 0) {
             LOG.debug("Found Voltage data in Open Hardware Monitor");
             // Look for identifier containing "cpu"
             String voltIdentifierStr = null;
             for (int i = 0; i < ohmHardware.getResultCount(); i++) {
-                String id = WmiUtil.getString(ohmHardware, OhmHardwareProperty.IDENTIFIER, i);
+                String id = WmiUtil.getString(ohmHardware, IdentifierProperty.IDENTIFIER, i);
                 if (id.toLowerCase().contains("cpu")) {
                     voltIdentifierStr = id;
                     break;
@@ -212,7 +207,7 @@ public class WindowsSensors extends AbstractSensors {
             }
             // If none found, just get the first one
             if (voltIdentifierStr == null) {
-                voltIdentifierStr = WmiUtil.getString(ohmHardware, OhmHardwareProperty.IDENTIFIER, 0);
+                voltIdentifierStr = WmiUtil.getString(ohmHardware, IdentifierProperty.IDENTIFIER, 0);
             }
             // Now fetch sensor
             StringBuilder sb = new StringBuilder(BASE_SENSOR_CLASS);
@@ -228,16 +223,16 @@ public class WindowsSensors extends AbstractSensors {
     }
 
     private double getVoltsFromWMI() {
-        WmiResult<Win32Processor.VoltProperty> voltage = new Win32Processor().queryVoltage();
+        WmiResult<VoltProperty> voltage = new Win32Processor().queryVoltage();
         if (voltage.getResultCount() > 1) {
             LOG.debug("Found Voltage data in WMI");
-            int decivolts = WmiUtil.getUint16(voltage, Win32Processor.VoltProperty.CURRENTVOLTAGE, 0);
+            int decivolts = WmiUtil.getUint16(voltage, VoltProperty.CURRENTVOLTAGE, 0);
             // If the eighth bit is set, bits 0-6 contain the voltage
             // multiplied by 10. If the eighth bit is not set, then the bit
             // setting in VoltageCaps represents the voltage value.
             if (decivolts > 0) {
                 if ((decivolts & 0x80) == 0) {
-                    decivolts = WmiUtil.getUint32(voltage, Win32Processor.VoltProperty.VOLTAGECAPS, 0);
+                    decivolts = WmiUtil.getUint32(voltage, VoltProperty.VOLTAGECAPS, 0);
                     // This value is really a bit setting, not decivolts
                     if ((decivolts & 0x1) > 0) {
                         return 5.0;
