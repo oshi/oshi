@@ -37,6 +37,10 @@ import com.sun.jna.platform.win32.Kernel32; // NOSONAR squid:S1191
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
+import oshi.driver.wmi.Win32DiskDrive;
+import oshi.driver.wmi.Win32DiskDrive.DiskDriveProperty;
+import oshi.driver.wmi.Win32DiskPartition;
+import oshi.driver.wmi.Win32DiskPartition.DiskPartitionProperty;
 import oshi.hardware.Disks;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
@@ -61,13 +65,6 @@ public class WindowsDisks implements Disks {
 
     private static final int BUFSIZE = 255;
 
-    enum DiskDriveProperty {
-        INDEX, MANUFACTURER, MODEL, NAME, SERIALNUMBER, SIZE;
-    }
-
-    private final WmiQuery<DiskDriveProperty> diskDriveQuery = new WmiQuery<>("Win32_DiskDrive",
-            DiskDriveProperty.class);
-
     enum DriveToPartitionProperty {
         ANTECEDENT, DEPENDENT;
     }
@@ -76,13 +73,6 @@ public class WindowsDisks implements Disks {
             "Win32_DiskDriveToDiskPartition", DriveToPartitionProperty.class);
     private final WmiQuery<DriveToPartitionProperty> diskToParitionQuery = new WmiQuery<>(
             "Win32_LogicalDiskToPartition", DriveToPartitionProperty.class);
-
-    enum DiskPartitionProperty {
-        DESCRIPTION, DEVICEID, DISKINDEX, INDEX, NAME, SIZE, TYPE;
-    }
-
-    private final WmiQuery<DiskPartitionProperty> partitionQuery = new WmiQuery<>("Win32_DiskPartition",
-            DiskPartitionProperty.class);
 
     /*
      * For disk query
@@ -157,7 +147,7 @@ public class WindowsDisks implements Disks {
             diskStore.setWrites(stats.writeMap.getOrDefault(index, 0L));
             diskStore.setWriteBytes(stats.writeByteMap.getOrDefault(index, 0L));
             diskStore.setCurrentQueueLength(stats.queueLengthMap.getOrDefault(index, 0L));
-            diskStore.setTransferTime(stats.timeStamp-stats.idleTimeMap.getOrDefault(index, stats.timeStamp));
+            diskStore.setTransferTime(stats.timeStamp - stats.idleTimeMap.getOrDefault(index, stats.timeStamp));
             diskStore.setTimeStamp(stats.timeStamp);
             return true;
         } else {
@@ -174,7 +164,7 @@ public class WindowsDisks implements Disks {
         DiskStats stats = queryReadWriteStats(null);
         PartitionMaps maps = queryPartitionMaps();
 
-        WmiResult<DiskDriveProperty> vals = wmiQueryHandler.queryWMI(diskDriveQuery);
+        WmiResult<DiskDriveProperty> vals = new Win32DiskDrive().queryDiskDrive();
 
         for (int i = 0; i < vals.getResultCount(); i++) {
             HWDiskStore ds = new HWDiskStore();
@@ -189,7 +179,7 @@ public class WindowsDisks implements Disks {
             ds.setWrites(stats.writeMap.getOrDefault(index, 0L));
             ds.setWriteBytes(stats.writeByteMap.getOrDefault(index, 0L));
             ds.setCurrentQueueLength(stats.queueLengthMap.getOrDefault(index, 0L));
-            ds.setTransferTime(stats.timeStamp-stats.idleTimeMap.getOrDefault(index, stats.timeStamp));
+            ds.setTransferTime(stats.timeStamp - stats.idleTimeMap.getOrDefault(index, stats.timeStamp));
             ds.setTimeStamp(stats.timeStamp);
             ds.setSize(WmiUtil.getUint64(vals, DiskDriveProperty.SIZE, i));
             // Get partitions
@@ -281,7 +271,7 @@ public class WindowsDisks implements Disks {
         }
 
         // Next, get all partitions and create objects
-        WmiResult<DiskPartitionProperty> hwPartitionQueryMap = wmiQueryHandler.queryWMI(partitionQuery);
+        WmiResult<DiskPartitionProperty> hwPartitionQueryMap = new Win32DiskPartition().queryPartition();
         for (int i = 0; i < hwPartitionQueryMap.getResultCount(); i++) {
             String deviceID = WmiUtil.getString(hwPartitionQueryMap, DiskPartitionProperty.DEVICEID, i);
             String logicalDrive = maps.partitionToLogicalDriveMap.getOrDefault(deviceID, "");
