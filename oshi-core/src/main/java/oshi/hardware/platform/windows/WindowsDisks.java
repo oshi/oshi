@@ -34,13 +34,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.platform.win32.Kernel32; // NOSONAR squid:S1191
-import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.driver.wmi.Win32DiskDrive;
 import oshi.driver.wmi.Win32DiskDrive.DiskDriveProperty;
+import oshi.driver.wmi.Win32DiskDriveToDiskPartition;
+import oshi.driver.wmi.Win32DiskDriveToDiskPartition.DriveToPartitionProperty;
 import oshi.driver.wmi.Win32DiskPartition;
 import oshi.driver.wmi.Win32DiskPartition.DiskPartitionProperty;
+import oshi.driver.wmi.Win32LogicalDiskToPartition;
+import oshi.driver.wmi.Win32LogicalDiskToPartition.DiskToPartitionProperty;
 import oshi.hardware.Disks;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
@@ -48,7 +51,6 @@ import oshi.util.ParseUtil;
 import oshi.util.platform.windows.PerfCounterQuery;
 import oshi.util.platform.windows.PerfCounterWildcardQuery;
 import oshi.util.platform.windows.PerfCounterWildcardQuery.PdhCounterWildcardProperty;
-import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
 
 /**
@@ -64,15 +66,6 @@ public class WindowsDisks implements Disks {
     private static final Pattern DEVICE_ID = Pattern.compile(".*\\.DeviceID=\"(.*)\"");
 
     private static final int BUFSIZE = 255;
-
-    enum DriveToPartitionProperty {
-        ANTECEDENT, DEPENDENT;
-    }
-
-    private final WmiQuery<DriveToPartitionProperty> driveToPartitionQuery = new WmiQuery<>(
-            "Win32_DiskDriveToDiskPartition", DriveToPartitionProperty.class);
-    private final WmiQuery<DriveToPartitionProperty> diskToParitionQuery = new WmiQuery<>(
-            "Win32_LogicalDiskToPartition", DriveToPartitionProperty.class);
 
     /*
      * For disk query
@@ -106,8 +99,6 @@ public class WindowsDisks implements Disks {
     private static final PerfCounterWildcardQuery<PhysicalDiskProperty> physicalDiskPerfCounters = new PerfCounterWildcardQuery<>(
             PhysicalDiskProperty.class, PHYSICAL_DISK,
             "Win32_PerfRawData_PerfDisk_PhysicalDisk WHERE NOT Name=\"_Total\"");
-
-    private final WmiQueryHandler wmiQueryHandler = WmiQueryHandler.createInstance();
 
     /**
      * <p>
@@ -249,7 +240,8 @@ public class WindowsDisks implements Disks {
         Matcher mDep;
 
         // Map drives to partitions
-        WmiResult<DriveToPartitionProperty> drivePartitionMap = wmiQueryHandler.queryWMI(driveToPartitionQuery);
+        WmiResult<DriveToPartitionProperty> drivePartitionMap = new Win32DiskDriveToDiskPartition()
+                .queryDriveToPartition();
         for (int i = 0; i < drivePartitionMap.getResultCount(); i++) {
             mAnt = DEVICE_ID.matcher(WmiUtil.getRefString(drivePartitionMap, DriveToPartitionProperty.ANTECEDENT, i));
             mDep = DEVICE_ID.matcher(WmiUtil.getRefString(drivePartitionMap, DriveToPartitionProperty.DEPENDENT, i));
@@ -261,10 +253,10 @@ public class WindowsDisks implements Disks {
         }
 
         // Map partitions to logical disks
-        WmiResult<DriveToPartitionProperty> diskPartitionMap = wmiQueryHandler.queryWMI(diskToParitionQuery);
+        WmiResult<DiskToPartitionProperty> diskPartitionMap = new Win32LogicalDiskToPartition().queryDiskToPartition();
         for (int i = 0; i < diskPartitionMap.getResultCount(); i++) {
-            mAnt = DEVICE_ID.matcher(WmiUtil.getRefString(diskPartitionMap, DriveToPartitionProperty.ANTECEDENT, i));
-            mDep = DEVICE_ID.matcher(WmiUtil.getRefString(diskPartitionMap, DriveToPartitionProperty.DEPENDENT, i));
+            mAnt = DEVICE_ID.matcher(WmiUtil.getRefString(diskPartitionMap, DiskToPartitionProperty.ANTECEDENT, i));
+            mDep = DEVICE_ID.matcher(WmiUtil.getRefString(diskPartitionMap, DiskToPartitionProperty.DEPENDENT, i));
             if (mAnt.matches() && mDep.matches()) {
                 maps.partitionToLogicalDriveMap.put(mAnt.group(1), mDep.group(1) + "\\");
             }
