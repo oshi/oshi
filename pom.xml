@@ -143,9 +143,9 @@
 		<maven-jar-plugin.version>3.2.0</maven-jar-plugin.version>
 		<maven-war-plugin.version>3.2.3</maven-war-plugin.version>
 		<bnd-maven-plugin.version>5.0.0</bnd-maven-plugin.version>
-		<maven-shade-plugin.version>3.2.1</maven-shade-plugin.version>
+		<maven-shade-plugin.version>3.2.2</maven-shade-plugin.version>
 		<!-- reporting plugins -->
-		<maven-checkstyle-plugin.version>3.1.0</maven-checkstyle-plugin.version>
+		<maven-checkstyle-plugin.version>3.1.1</maven-checkstyle-plugin.version>
 		<maven-javadoc-plugin.version>3.1.1</maven-javadoc-plugin.version>
 		<maven-pmd-plugin.version>3.13.0</maven-pmd-plugin.version>
 		<!-- tools -->
@@ -170,7 +170,7 @@
 		<!-- SCM -->
 		<maven-scm-plugin.version>1.11.2</maven-scm-plugin.version>
 		<maven-scm-provider-jgit.version>1.11.2</maven-scm-provider-jgit.version>
-		<jgit.version>5.6.0.201912101111-r</jgit.version>
+		<jgit.version>5.6.1.202002131546-r</jgit.version>
 		<!-- Misc. -->
 		<sonar-maven-plugin.version>3.7.0.1746</sonar-maven-plugin.version>
 		<wagon-maven-plugin.version>2.0.0</wagon-maven-plugin.version>
