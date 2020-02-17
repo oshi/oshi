@@ -107,11 +107,11 @@ import oshi.util.platform.windows.WmiUtil;
 
 <span class="nc" id="L108">    private final PerfCounterWildcardQuery&lt;ProcessorTickCountProperty&gt; processorTickPerfCounters = VersionHelpers</span>
 <span class="nc bnc" id="L109" title="All 2 branches missed.">            .IsWindows7OrGreater()</span>
-                    ? new PerfCounterWildcardQuery&lt;&gt;(ProcessorTickCountProperty.class, &quot;Processor Information&quot;,
+<span class="nc" id="L110">                    ? new PerfCounterWildcardQuery&lt;&gt;(ProcessorTickCountProperty.class, &quot;Processor Information&quot;,</span>
                             // NAME field includes NUMA nodes
                             &quot;Win32_PerfRawData_Counters_ProcessorInformation WHERE NOT Name LIKE\&quot;%_Total\&quot;&quot;,
                             &quot;Processor Tick Count&quot;)
-                    : new PerfCounterWildcardQuery&lt;&gt;(ProcessorTickCountProperty.class, PROCESSOR,
+<span class="nc" id="L114">                    : new PerfCounterWildcardQuery&lt;&gt;(ProcessorTickCountProperty.class, PROCESSOR,</span>
                             // Older systems just have processor # in name
                             &quot;Win32_PerfRawData_PerfOS_Processor WHERE NOT Name=\&quot;_Total\&quot;&quot;, &quot;Processor Tick Count&quot;);
 
@@ -265,8 +265,8 @@ import oshi.util.platform.windows.WmiUtil;
 <span class="nc bnc" id="L265" title="All 2 branches missed.">        if (processorId.getResultCount() &gt; 0) {</span>
 <span class="nc" id="L266">            processorID = WmiUtil.getString(processorId, ProcessorProperty.PROCESSORID, 0);</span>
         } else {
-<span class="nc bnc" id="L268" title="All 2 branches missed.">            processorID = createProcessorID(cpuStepping, cpuModel, cpuFamily,</span>
-                    cpu64bit ? new String[] { &quot;ia64&quot; } : new String[0]);
+<span class="nc" id="L268">            processorID = createProcessorID(cpuStepping, cpuModel, cpuFamily,</span>
+<span class="nc bnc" id="L269" title="All 2 branches missed.">                    cpu64bit ? new String[] { &quot;ia64&quot; } : new String[0]);</span>
         }
 
 <span class="nc" id="L272">        return new ProcessorIdentifier(cpuVendor, cpuName, cpuFamily, cpuModel, cpuStepping, processorID, cpu64bit);</span>

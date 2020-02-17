@@ -72,14 +72,14 @@ public class OshiHTTPServer implements Runnable {
 <span class="nc" id="L72">                Thread thread = new Thread(myServer);</span>
 <span class="nc" id="L73">                thread.start();</span>
 <span class="nc" id="L74">            }</span>
-<span class="nc bnc" id="L75" title="All 4 branches missed.">        } catch (IOException e) {</span>
+<span class="nc" id="L75">        } catch (IOException e) {</span>
 <span class="nc" id="L76">            logger.error(&quot;Server Connection error: {}&quot;, e.getMessage());</span>
         }
 <span class="nc" id="L78">    }</span>
 
     @Override
     public void run() {
-<span class="nc" id="L82">        try ( // read characters from the client via input stream on the socket</span>
+        try ( // read characters from the client via input stream on the socket
 <span class="nc" id="L83">                BufferedReader in = new BufferedReader(new InputStreamReader(connect.getInputStream()));</span>
                 // get character output stream to client (for headers)
 <span class="nc" id="L85">                PrintWriter out = new PrintWriter(connect.getOutputStream());</span>
