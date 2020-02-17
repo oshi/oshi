@@ -1,0 +1,1 @@
+memberSearchIndex = [{"p":"oshi.demo","c":"DetectVMTest","l":"DetectVMTest()","url":"%3Cinit%3E()"},{"p":"oshi.demo","c":"DetectVMTest","l":"testGetOuiByMacAddressIfPossible()"}]

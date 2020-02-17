@@ -1,0 +1,1 @@
+typeSearchIndex = [{"l":"All Classes","url":"allclasses-index.html"},{"p":"oshi.demo","l":"ComputerID"},{"p":"oshi.demo","l":"DetectVM"},{"p":"oshi.demo","l":"Json"},{"p":"oshi.demo","l":"OshiHTTPServer"}]
