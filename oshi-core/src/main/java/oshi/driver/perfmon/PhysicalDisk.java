@@ -23,10 +23,10 @@
  */
 package oshi.driver.perfmon;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import oshi.util.Pair;
 import oshi.util.platform.windows.PerfCounterQuery;
 import oshi.util.platform.windows.PerfCounterWildcardQuery;
 import oshi.util.platform.windows.PerfCounterWildcardQuery.PdhCounterWildcardProperty;
@@ -67,13 +67,12 @@ public class PhysicalDisk {
      *
      * @return Performance Counters for physical disks.
      */
-    public Map<List<String>, Map<PhysicalDiskProperty, List<Long>>> queryDiskCounters() {
+    public Pair<List<String>, Map<PhysicalDiskProperty, List<Long>>> queryDiskCounters() {
         PerfCounterWildcardQuery<PhysicalDiskProperty> physicalDiskPerfCounters = new PerfCounterWildcardQuery<>(
                 PhysicalDiskProperty.class, PHYSICAL_DISK,
                 WIN32_PERF_RAW_DATA_PERF_DISK_PHYSICAL_DISK_WHERE_NOT_NAME_TOTAL);
         Map<PhysicalDiskProperty, List<Long>> values = physicalDiskPerfCounters.queryValuesWildcard();
         List<String> instances = physicalDiskPerfCounters.getInstancesFromLastQuery();
-        return Collections.singletonMap(instances, values);
+        return new Pair<>(instances, values);
     }
-
 }

@@ -27,7 +27,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -50,6 +49,7 @@ import oshi.driver.wmi.Win32LogicalDiskToPartition.DiskToPartitionProperty;
 import oshi.hardware.Disks;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
+import oshi.util.Pair;
 import oshi.util.ParseUtil;
 import oshi.util.platform.windows.WmiUtil;
 
@@ -166,13 +166,10 @@ public class WindowsDisks implements Disks {
     private static DiskStats queryReadWriteStats(String index) {
         // Create object to hold and return results
         DiskStats stats = new DiskStats();
-        Map<List<String>, Map<PhysicalDiskProperty, List<Long>>> instanceValueMap = new PhysicalDisk()
+        Pair<List<String>, Map<PhysicalDiskProperty, List<Long>>> instanceValuePair = new PhysicalDisk()
                 .queryDiskCounters();
-        // This is a singleton map
-        Entry<List<String>, Map<PhysicalDiskProperty, List<Long>>> instanceValue = instanceValueMap.entrySet()
-                .iterator().next();
-        List<String> instances = instanceValue.getKey();
-        Map<PhysicalDiskProperty, List<Long>> valueMap = instanceValue.getValue();
+        List<String> instances = instanceValuePair.getA();
+        Map<PhysicalDiskProperty, List<Long>> valueMap = instanceValuePair.getB();
         stats.timeStamp = System.currentTimeMillis();
         List<Long> readList = valueMap.get(PhysicalDiskProperty.DISKREADSPERSEC);
         List<Long> readByteList = valueMap.get(PhysicalDiskProperty.DISKREADBYTESPERSEC);
