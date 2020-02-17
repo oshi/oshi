@@ -33,10 +33,10 @@ import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery; // NOSONAR
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.driver.wmi.Win32Fan;
+import oshi.driver.wmi.Win32PerfRawDataCountersThermalZoneInformation;
+import oshi.driver.wmi.Win32PerfRawDataCountersThermalZoneInformation.ThermalZoneProperty;
 import oshi.driver.wmi.Win32Processor;
 import oshi.hardware.common.AbstractSensors;
-import oshi.util.platform.windows.PerfCounterWildcardQuery;
-import oshi.util.platform.windows.PerfCounterWildcardQuery.PdhCounterWildcardProperty;
 import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
 
@@ -61,31 +61,6 @@ public class WindowsSensors extends AbstractSensors {
 
     private final WmiQuery<OhmSensorProperty> ohmSensorQuery = new WmiQuery<>(WmiUtil.OHM_NAMESPACE, null,
             OhmSensorProperty.class);
-
-    /*
-     * For temperature query
-     */
-    enum ThermalZoneProperty implements PdhCounterWildcardProperty {
-        // First element defines WMI instance name field and PDH instance filter
-        NAME("*cpu*"),
-        // Remaining elements define counters
-        TEMPERATURE("Temperature");
-
-        private final String counter;
-
-        ThermalZoneProperty(String counter) {
-            this.counter = counter;
-        }
-
-        @Override
-        public String getCounter() {
-            return counter;
-        }
-    }
-
-    private final PerfCounterWildcardQuery<ThermalZoneProperty> thermalZonePerfCounters = new PerfCounterWildcardQuery<>(
-            ThermalZoneProperty.class, "Thermal Zone Information",
-            "Win32_PerfRawData_Counters_ThermalZoneInformation WHERE Name LIKE \"%cpu%\"");
 
     private final WmiQueryHandler wmiQueryHandler = WmiQueryHandler.createInstance();
 
@@ -136,13 +111,13 @@ public class WindowsSensors extends AbstractSensors {
     private double getTempFromPerfCounters() {
         double tempC = 0d;
         long tempK = 0L;
-        Map<ThermalZoneProperty, List<Long>> valueListMap = this.thermalZonePerfCounters.queryValuesWildcard();
+        Map<ThermalZoneProperty, List<Long>> valueListMap = new Win32PerfRawDataCountersThermalZoneInformation()
+                .queryThermalZoneTemps();
         List<Long> valueList = valueListMap.get(ThermalZoneProperty.TEMPERATURE);
         if (valueList != null && !valueList.isEmpty()) {
             LOG.debug("Found Temperature data in PDH or WMI Counter");
             tempK = valueList.get(0);
         }
-
         if (tempK > 2732L) {
             tempC = tempK / 10d - 273.15;
         } else if (tempK > 274L) {
