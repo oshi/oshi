@@ -271,7 +271,7 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
                 // Snap Time is in nanoseconds; divide for seconds
 <span class="nc" id="L272">                return ksp.ks_snaptime / 1_000_000_000L;</span>
             }
-        }
+<span class="nc bnc" id="L274" title="All 2 branches missed.">        }</span>
 <span class="nc" id="L275">        return 0L;</span>
     }
 
@@ -286,7 +286,7 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
 <span class="nc bnc" id="L286" title="All 4 branches missed.">            if (ksp != null &amp;&amp; kc.read(ksp)) {</span>
 <span class="nc" id="L287">                return KstatUtil.dataLookupLong(ksp, &quot;boot_time&quot;);</span>
             }
-        }
+<span class="nc bnc" id="L289" title="All 2 branches missed.">        }</span>
 <span class="nc" id="L290">        return System.currentTimeMillis() / 1000L - querySystemUptime();</span>
     }
 

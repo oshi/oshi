@@ -37,9 +37,64 @@ import oshi.software.os.OSFileStore;
 <span class="nc" id="L37">    protected static final List&lt;String&gt; NETWORK_FS_TYPES = Arrays.asList( &quot;afs&quot;, &quot;cifs&quot;, &quot;smbfs&quot;, &quot;sshfs&quot;, &quot;ncpfs&quot;, &quot;ncp&quot;, &quot;nfs&quot;, &quot;nfs4&quot;,</span>
             &quot;gfs&quot;, &quot;gds2&quot;, &quot;glusterfs&quot; );
 
+
+<span class="nc" id="L41">    protected static final List&lt;String&gt; PSEUDO_FS_TYPES = Arrays.asList(//</span>
+            // Linux defines a set of virtual file systems
+            &quot;anon_inodefs&quot;, // anonymous inodes - inodes without filenames
+            &quot;autofs&quot;, // automounter file system, used by Linux, Solaris, FreeBSD
+            &quot;bdev&quot;, // keep track of block_device vs major/minor mapping
+            &quot;binfmt_misc&quot;, // Binary format support file system
+            &quot;bpf&quot;, // Virtual filesystem for Berkeley Paket Filter
+            &quot;cgroup&quot;, // Cgroup file system
+            &quot;cgroup2&quot;, // Cgroup file system
+            &quot;configfs&quot;, // Config file system
+            &quot;cpuset&quot;, // pseudo-filesystem interface to the kernel cpuset mechanism
+            &quot;dax&quot;, // Direct Access (DAX) can be used on memory-backed block devices
+            &quot;debugfs&quot;, // Debug file system
+            &quot;devpts&quot;, // Dev pseudo terminal devices file system
+            &quot;devtmpfs&quot;, // Dev temporary file system
+            &quot;drm&quot;, // Direct Rendering Manager
+            &quot;ecryptfs&quot;, // POSIX-compliant enterprise cryptographic filesystem for Linux
+            &quot;efivarfs&quot;, // (U)EFI variable filesystem
+            &quot;fuse&quot;, //
+            // NOTE: FUSE's fuseblk is not evalued because used as file system
+            // representation of a FUSE block storage
+            // &quot;fuseblk&quot; // FUSE block file system
+            &quot;fusectl&quot;, // FUSE control file system
+            &quot;hugetlbfs&quot;, // Huge pages support file system
+            &quot;inotifyfs&quot;, // support inotify
+            &quot;mqueue&quot;, // Message queue file system
+            &quot;nfsd&quot;, // NFS file system
+            &quot;overlay&quot;, // Overlay file system https://wiki.archlinux.org/index.php/Overlay_filesystem
+            // &quot;pipefs&quot;, // for pipes but only visible inside kernel
+            &quot;proc&quot;, // Proc file system, used by Linux and Solaris
+            &quot;pstore&quot;, // Pstore file system
+            // &quot;ramfs&quot;, // Old filesystem used for RAM disks
+            &quot;rootfs&quot;, // Minimal fs to support kernel boot
+            &quot;rpc_pipefs&quot;, // Sun RPC file system
+            &quot;securityfs&quot;, // Kernel security file system
+            &quot;selinuxfs&quot;, // SELinux file system
+            &quot;sunrpc&quot;, // Sun RPC file system
+            &quot;sysfs&quot;, // SysFS file system
+            &quot;systemd-1&quot;, // Systemd file system
+            // &quot;tmpfs&quot;, // Temporary file system
+            // NOTE: tmpfs is evaluated apart, because Linux, Solaris, FreeBSD use it for RAMdisks
+            &quot;tracefs&quot;, // thin stackable file system for capturing file system traces
+            &quot;usbfs&quot;, // removed in linux 3.5 but still seen in some systems
+            // FreeBSD / Solaris defines a set of virtual file systems
+            &quot;procfs&quot;, // Proc file system
+            &quot;devfs&quot;, // Dev temporary file system
+            &quot;ctfs&quot;, // Contract file system
+            &quot;fdescfs&quot;, // fd
+            &quot;objfs&quot;, // Object file system
+            &quot;mntfs&quot;, // Mount file system
+            &quot;sharefs&quot;, // Share file system
+            &quot;lofs&quot; // Library file system
+    );
+
     @Override
     public OSFileStore[] getFileStores() {
-<span class="nc" id="L42">        return getFileStores(false);</span>
+<span class="nc" id="L97">        return getFileStores(false);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

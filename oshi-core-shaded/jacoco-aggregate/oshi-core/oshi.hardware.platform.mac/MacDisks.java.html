@@ -293,8 +293,8 @@ import oshi.util.ParseUtil;
 <span class="nc" id="L293">                                Integer bsdMajor = sdService.getIntegerProperty(&quot;BSD Major&quot;);</span>
 <span class="nc" id="L294">                                Integer bsdMinor = sdService.getIntegerProperty(&quot;BSD Minor&quot;);</span>
 <span class="nc" id="L295">                                partitions.add(new HWPartition(partBsdName, name, type,</span>
-<span class="nc bnc" id="L296" title="All 4 branches missed.">                                        sdService.getStringProperty(&quot;UUID&quot;), size == null ? 0L : size,</span>
-<span class="nc bnc" id="L297" title="All 2 branches missed.">                                        bsdMajor == null ? 0 : bsdMajor, bsdMinor == null ? 0 : bsdMinor, mountPoint));</span>
+<span class="nc bnc" id="L296" title="All 2 branches missed.">                                        sdService.getStringProperty(&quot;UUID&quot;), size == null ? 0L : size,</span>
+<span class="nc bnc" id="L297" title="All 4 branches missed.">                                        bsdMajor == null ? 0 : bsdMajor, bsdMinor == null ? 0 : bsdMinor, mountPoint));</span>
                                 // iterate
 <span class="nc" id="L299">                                sdService.release();</span>
 <span class="nc" id="L300">                                sdService = IOKit.INSTANCE.IOIteratorNext(serviceIterator);</span>
