@@ -1,5 +1,4 @@
 oshi
-oshi.data.windows
 oshi.hardware
 oshi.hardware.common
 oshi.hardware.platform.linux

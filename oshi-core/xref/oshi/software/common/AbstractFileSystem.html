@@ -45,11 +45,66 @@
 <a class="jxr_linenumber" name="L37" href="#L37">37</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> List&lt;String&gt; NETWORK_FS_TYPES = Arrays.asList( <span class="jxr_string">"afs"</span>, <span class="jxr_string">"cifs"</span>, <span class="jxr_string">"smbfs"</span>, <span class="jxr_string">"sshfs"</span>, <span class="jxr_string">"ncpfs"</span>, <span class="jxr_string">"ncp"</span>, <span class="jxr_string">"nfs"</span>, <span class="jxr_string">"nfs4"</span>,
 <a class="jxr_linenumber" name="L38" href="#L38">38</a>              <span class="jxr_string">"gfs"</span>, <span class="jxr_string">"gds2"</span>, <span class="jxr_string">"glusterfs"</span> );
 <a class="jxr_linenumber" name="L39" href="#L39">39</a>  
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>      @Override
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>      <strong class="jxr_keyword">public</strong> <a name="OSFileStore" href="../../../oshi/software/os/OSFileStore.html#OSFileStore">OSFileStore</a>[] getFileStores() {
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>          <strong class="jxr_keyword">return</strong> getFileStores(false);
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>      }
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>  }
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>  
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> List&lt;String&gt; PSEUDO_FS_TYPES = Arrays.asList(<em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>              <em class="jxr_comment">// Linux defines a set of virtual file systems</em>
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>              <span class="jxr_string">"anon_inodefs"</span>, <em class="jxr_comment">// anonymous inodes - inodes without filenames</em>
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>              <span class="jxr_string">"autofs"</span>, <em class="jxr_comment">// automounter file system, used by Linux, Solaris, FreeBSD</em>
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>              <span class="jxr_string">"bdev"</span>, <em class="jxr_comment">// keep track of block_device vs major/minor mapping</em>
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>              <span class="jxr_string">"binfmt_misc"</span>, <em class="jxr_comment">// Binary format support file system</em>
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>              <span class="jxr_string">"bpf"</span>, <em class="jxr_comment">// Virtual filesystem for Berkeley Paket Filter</em>
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>              <span class="jxr_string">"cgroup"</span>, <em class="jxr_comment">// Cgroup file system</em>
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>              <span class="jxr_string">"cgroup2"</span>, <em class="jxr_comment">// Cgroup file system</em>
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>              <span class="jxr_string">"configfs"</span>, <em class="jxr_comment">// Config file system</em>
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>              <span class="jxr_string">"cpuset"</span>, <em class="jxr_comment">// pseudo-filesystem interface to the kernel cpuset mechanism</em>
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>              <span class="jxr_string">"dax"</span>, <em class="jxr_comment">// Direct Access (DAX) can be used on memory-backed block devices</em>
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>              <span class="jxr_string">"debugfs"</span>, <em class="jxr_comment">// Debug file system</em>
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>              <span class="jxr_string">"devpts"</span>, <em class="jxr_comment">// Dev pseudo terminal devices file system</em>
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>              <span class="jxr_string">"devtmpfs"</span>, <em class="jxr_comment">// Dev temporary file system</em>
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>              <span class="jxr_string">"drm"</span>, <em class="jxr_comment">// Direct Rendering Manager</em>
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>              <span class="jxr_string">"ecryptfs"</span>, <em class="jxr_comment">// POSIX-compliant enterprise cryptographic filesystem for Linux</em>
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>              <span class="jxr_string">"efivarfs"</span>, <em class="jxr_comment">// (U)EFI variable filesystem</em>
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>              <span class="jxr_string">"fuse"</span>, <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>              <em class="jxr_comment">// NOTE: FUSE's fuseblk is not evalued because used as file system</em>
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>              <em class="jxr_comment">// representation of a FUSE block storage</em>
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>              <em class="jxr_comment">// "fuseblk" // FUSE block file system</em>
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>              <span class="jxr_string">"fusectl"</span>, <em class="jxr_comment">// FUSE control file system</em>
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>              <span class="jxr_string">"hugetlbfs"</span>, <em class="jxr_comment">// Huge pages support file system</em>
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>              <span class="jxr_string">"inotifyfs"</span>, <em class="jxr_comment">// support inotify</em>
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>              <span class="jxr_string">"mqueue"</span>, <em class="jxr_comment">// Message queue file system</em>
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>              <span class="jxr_string">"nfsd"</span>, <em class="jxr_comment">// NFS file system</em>
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>              <span class="jxr_string">"overlay"</span>, <em class="jxr_comment">// Overlay file system https://wiki.archlinux.org/index.php/Overlay_filesystem</em>
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>              <em class="jxr_comment">// "pipefs", // for pipes but only visible inside kernel</em>
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>              <span class="jxr_string">"proc"</span>, <em class="jxr_comment">// Proc file system, used by Linux and Solaris</em>
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>              <span class="jxr_string">"pstore"</span>, <em class="jxr_comment">// Pstore file system</em>
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>              <em class="jxr_comment">// "ramfs", // Old filesystem used for RAM disks</em>
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>              <span class="jxr_string">"rootfs"</span>, <em class="jxr_comment">// Minimal fs to support kernel boot</em>
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>              <span class="jxr_string">"rpc_pipefs"</span>, <em class="jxr_comment">// Sun RPC file system</em>
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>              <span class="jxr_string">"securityfs"</span>, <em class="jxr_comment">// Kernel security file system</em>
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>              <span class="jxr_string">"selinuxfs"</span>, <em class="jxr_comment">// SELinux file system</em>
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>              <span class="jxr_string">"sunrpc"</span>, <em class="jxr_comment">// Sun RPC file system</em>
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>              <span class="jxr_string">"sysfs"</span>, <em class="jxr_comment">// SysFS file system</em>
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>              <span class="jxr_string">"systemd-1"</span>, <em class="jxr_comment">// Systemd file system</em>
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>              <em class="jxr_comment">// "tmpfs", // Temporary file system</em>
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>              <em class="jxr_comment">// NOTE: tmpfs is evaluated apart, because Linux, Solaris, FreeBSD use it for RAMdisks</em>
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>              <span class="jxr_string">"tracefs"</span>, <em class="jxr_comment">// thin stackable file system for capturing file system traces</em>
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>              <span class="jxr_string">"usbfs"</span>, <em class="jxr_comment">// removed in linux 3.5 but still seen in some systems</em>
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>              <em class="jxr_comment">// FreeBSD / Solaris defines a set of virtual file systems</em>
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>              <span class="jxr_string">"procfs"</span>, <em class="jxr_comment">// Proc file system</em>
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>              <span class="jxr_string">"devfs"</span>, <em class="jxr_comment">// Dev temporary file system</em>
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>              <span class="jxr_string">"ctfs"</span>, <em class="jxr_comment">// Contract file system</em>
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>              <span class="jxr_string">"fdescfs"</span>, <em class="jxr_comment">// fd</em>
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>              <span class="jxr_string">"objfs"</span>, <em class="jxr_comment">// Object file system</em>
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>              <span class="jxr_string">"mntfs"</span>, <em class="jxr_comment">// Mount file system</em>
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>              <span class="jxr_string">"sharefs"</span>, <em class="jxr_comment">// Share file system</em>
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>              <span class="jxr_string">"lofs"</span> <em class="jxr_comment">// Library file system</em>
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>      );
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>  
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>      @Override
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>      <strong class="jxr_keyword">public</strong> <a name="OSFileStore" href="../../../oshi/software/os/OSFileStore.html#OSFileStore">OSFileStore</a>[] getFileStores() {
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>          <strong class="jxr_keyword">return</strong> getFileStores(false);
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>      }
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>  }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2020 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

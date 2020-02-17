@@ -203,7 +203,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
 <span class="nc" id="L203">                    version = &quot;XP&quot;; // 64 bits</span>
                 } else {
 <span class="nc bnc" id="L205" title="All 2 branches missed.">                    version = User32.INSTANCE.GetSystemMetrics(WinUser.SM_SERVERR2) != 0 ? &quot;Server 2003&quot;</span>
-                            : &quot;Server 2003 R2&quot;;
+<span class="nc" id="L206">                            : &quot;Server 2003 R2&quot;;</span>
                 }
 <span class="nc bnc" id="L208" title="All 2 branches missed.">            } else if (minor == 1) {</span>
 <span class="nc" id="L209">                version = &quot;XP&quot;; // 32 bits</span>
