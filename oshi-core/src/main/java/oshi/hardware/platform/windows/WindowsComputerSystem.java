@@ -30,6 +30,10 @@ import java.util.function.Supplier;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery; // NOSONAR squid:S1191
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
+import oshi.driver.wmi.Win32Bios;
+import oshi.driver.wmi.Win32Bios.BiosProperty;
+import oshi.driver.wmi.Win32ComputerSystemProduct;
+import oshi.driver.wmi.Win32ComputerSystemProduct.ComputerSystemProductProperty;
 import oshi.hardware.Baseboard;
 import oshi.hardware.Firmware;
 import oshi.hardware.common.AbstractComputerSystem;
@@ -96,36 +100,24 @@ final class WindowsComputerSystem extends AbstractComputerSystem {
     }
 
     private String querySerialFromBios() {
-        String result = null;
-        WmiQuery<BiosProperty> serialNumQuery = new WmiQuery<>("Win32_BIOS where PrimaryBIOS=true", BiosProperty.class);
-        WmiResult<BiosProperty> serialNum = wmiQueryHandler.queryWMI(serialNumQuery);
+        WmiResult<BiosProperty> serialNum = new Win32Bios().querySerialNumber();
         if (serialNum.getResultCount() > 0) {
-            result = WmiUtil.getString(serialNum, BiosProperty.SERIALNUMBER, 0);
+            return WmiUtil.getString(serialNum, BiosProperty.SERIALNUMBER, 0);
         }
-        return result;
+        return null;
     }
 
     private String querySerialFromCsProduct() {
-        String result = null;
-        WmiQuery<ComputerSystemProductProperty> identifyingNumberQuery = new WmiQuery<>("Win32_ComputerSystemProduct",
-                ComputerSystemProductProperty.class);
-        WmiResult<ComputerSystemProductProperty> identifyingNumber = wmiQueryHandler.queryWMI(identifyingNumberQuery);
+        WmiResult<ComputerSystemProductProperty> identifyingNumber = new Win32ComputerSystemProduct()
+                .queryIdentifyingNumber();
         if (identifyingNumber.getResultCount() > 0) {
-            result = WmiUtil.getString(identifyingNumber, ComputerSystemProductProperty.IDENTIFYINGNUMBER, 0);
+            return WmiUtil.getString(identifyingNumber, ComputerSystemProductProperty.IDENTIFYINGNUMBER, 0);
         }
-        return result;
+        return null;
     }
 
     enum ComputerSystemProperty {
         MANUFACTURER, MODEL;
-    }
-
-    enum BiosProperty {
-        SERIALNUMBER;
-    }
-
-    enum ComputerSystemProductProperty {
-        IDENTIFYINGNUMBER;
     }
 
     private static final class ManufacturerModel {
