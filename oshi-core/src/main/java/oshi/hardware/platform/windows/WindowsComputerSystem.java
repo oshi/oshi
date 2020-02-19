@@ -27,19 +27,20 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.function.Supplier;
 
-import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery; // NOSONAR squid:S1191
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.driver.wmi.Win32Bios;
 import oshi.driver.wmi.Win32Bios.BiosProperty;
+import oshi.driver.wmi.Win32ComputerSystem;
+import oshi.driver.wmi.Win32ComputerSystem.ComputerSystemProperty;
 import oshi.driver.wmi.Win32ComputerSystemProduct;
 import oshi.driver.wmi.Win32ComputerSystemProduct.ComputerSystemProductProperty;
 import oshi.hardware.Baseboard;
 import oshi.hardware.Firmware;
 import oshi.hardware.common.AbstractComputerSystem;
 import oshi.util.Constants;
+import oshi.util.Pair;
 import oshi.util.Util;
-import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
 
 /**
@@ -47,20 +48,17 @@ import oshi.util.platform.windows.WmiUtil;
  */
 final class WindowsComputerSystem extends AbstractComputerSystem {
 
-    private final Supplier<ManufacturerModel> manufacturerModel = memoize(this::queryManufacturerModel);
-
+    private final Supplier<Pair<String, String>> manufacturerModel = memoize(this::queryManufacturerModel);
     private final Supplier<String> serialNumber = memoize(this::querySystemSerialNumber);
-
-    private final WmiQueryHandler wmiQueryHandler = WmiQueryHandler.createInstance();
 
     @Override
     public String getManufacturer() {
-        return manufacturerModel.get().manufacturer;
+        return manufacturerModel.get().getA();
     }
 
     @Override
     public String getModel() {
-        return manufacturerModel.get().model;
+        return manufacturerModel.get().getB();
     }
 
     @Override
@@ -78,25 +76,25 @@ final class WindowsComputerSystem extends AbstractComputerSystem {
         return new WindowsBaseboard();
     }
 
-    private ManufacturerModel queryManufacturerModel() {
+    private Pair<String, String> queryManufacturerModel() {
         String manufacturer = null;
         String model = null;
-        WmiQuery<ComputerSystemProperty> computerSystemQuery = new WmiQuery<>("Win32_ComputerSystem",
-                ComputerSystemProperty.class);
-        WmiResult<ComputerSystemProperty> win32ComputerSystem = wmiQueryHandler.queryWMI(computerSystemQuery);
+        WmiResult<ComputerSystemProperty> win32ComputerSystem = new Win32ComputerSystem().queryComputerSystem();
         if (win32ComputerSystem.getResultCount() > 0) {
             manufacturer = WmiUtil.getString(win32ComputerSystem, ComputerSystemProperty.MANUFACTURER, 0);
             model = WmiUtil.getString(win32ComputerSystem, ComputerSystemProperty.MODEL, 0);
         }
-        return new ManufacturerModel(manufacturer, model);
+        return new Pair<>(Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer,
+                Util.isBlank(model) ? Constants.UNKNOWN : model);
     }
 
     private String querySystemSerialNumber() {
         String result;
-        if ((result = querySerialFromBios()) == null && (result = querySerialFromCsProduct()) == null) {
-            return Constants.UNKNOWN;
+        if (((result = querySerialFromBios()) != null || (result = querySerialFromCsProduct()) != null)
+                && !Util.isBlank(result)) {
+            return result;
         }
-        return Util.isBlank(result) ? Constants.UNKNOWN : result;
+        return Constants.UNKNOWN;
     }
 
     private String querySerialFromBios() {
@@ -114,19 +112,5 @@ final class WindowsComputerSystem extends AbstractComputerSystem {
             return WmiUtil.getString(identifyingNumber, ComputerSystemProductProperty.IDENTIFYINGNUMBER, 0);
         }
         return null;
-    }
-
-    enum ComputerSystemProperty {
-        MANUFACTURER, MODEL;
-    }
-
-    private static final class ManufacturerModel {
-        private final String manufacturer;
-        private final String model;
-
-        private ManufacturerModel(String manufacturer, String model) {
-            this.manufacturer = Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer;
-            this.model = Util.isBlank(model) ? Constants.UNKNOWN : model;
-        }
     }
 }
