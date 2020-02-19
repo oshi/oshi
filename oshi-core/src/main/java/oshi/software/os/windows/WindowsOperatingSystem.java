@@ -81,6 +81,8 @@ import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
 
+import oshi.driver.wmi.Win32OperatingSystem;
+import oshi.driver.wmi.Win32OperatingSystem.OSVersionProperty;
 import oshi.jna.platform.windows.Kernel32;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
@@ -143,15 +145,14 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public FamilyVersionInfo queryFamilyVersionInfo() {
-        WmiQuery<OSVersionProperty> osVersionQuery = new WmiQuery<>("Win32_OperatingSystem", OSVersionProperty.class);
-        WmiResult<OSVersionProperty> versionInfo = WmiQueryHandler.createInstance().queryWMI(osVersionQuery);
+        WmiResult<OSVersionProperty> versionInfo = new Win32OperatingSystem().queryOsVersion();
         if (versionInfo.getResultCount() < 1) {
             return new FamilyVersionInfo("Windows", new OSVersionInfo(System.getProperty("os.version"), null, null));
         }
         // Guaranteed that versionInfo is not null and lists non-empty
         // before calling the parse*() methods
-        int suiteMask = WmiUtil.getUint32(versionInfo, OSVersionProperty.SuiteMask, 0);
-        String buildNumber = WmiUtil.getString(versionInfo, OSVersionProperty.BuildNumber, 0);
+        int suiteMask = WmiUtil.getUint32(versionInfo, OSVersionProperty.SUITEMASK, 0);
+        String buildNumber = WmiUtil.getString(versionInfo, OSVersionProperty.BUILDNUMBER, 0);
         String version = parseVersion(versionInfo, suiteMask, buildNumber);
         String codeName = parseCodeName(suiteMask);
         return new FamilyVersionInfo("Windows", new OSVersionInfo(version, codeName, buildNumber));
@@ -164,13 +165,13 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
 
         // Version is major.minor.build. Parse the version string for
         // major/minor and get the build number separately
-        String[] verSplit = WmiUtil.getString(versionInfo, OSVersionProperty.Version, 0).split("\\D");
+        String[] verSplit = WmiUtil.getString(versionInfo, OSVersionProperty.VERSION, 0).split("\\D");
         int major = verSplit.length > 0 ? ParseUtil.parseIntOrDefault(verSplit[0], 0) : 0;
         int minor = verSplit.length > 1 ? ParseUtil.parseIntOrDefault(verSplit[1], 0) : 0;
 
         // see
         // http://msdn.microsoft.com/en-us/library/windows/desktop/ms724833%28v=vs.85%29.aspx
-        boolean ntWorkstation = WmiUtil.getUint32(versionInfo, OSVersionProperty.ProductType,
+        boolean ntWorkstation = WmiUtil.getUint32(versionInfo, OSVersionProperty.PRODUCTTYPE,
                 0) == WinNT.VER_NT_WORKSTATION;
         switch (major) {
         case 10:
@@ -215,7 +216,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             break;
         }
 
-        String sp = WmiUtil.getString(versionInfo, OSVersionProperty.CSDVersion, 0);
+        String sp = WmiUtil.getString(versionInfo, OSVersionProperty.CSDVERSION, 0);
         if (!sp.isEmpty() && !"unknown".equals(sp)) {
             version = version + " " + sp.replace("Service Pack ", "SP");
         }
@@ -763,10 +764,6 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             return null;
         }
         return systemLog;
-    }
-
-    enum OSVersionProperty {
-        Version, ProductType, BuildNumber, CSDVersion, SuiteMask;
     }
 
     enum BitnessProperty {
