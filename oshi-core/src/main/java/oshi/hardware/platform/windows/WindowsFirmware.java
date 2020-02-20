@@ -27,78 +27,67 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.function.Supplier;
 
-import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery; // NOSONAR squid:S1191
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
+import oshi.driver.wmi.Win32Bios;
+import oshi.driver.wmi.Win32Bios.BiosProperty;
 import oshi.hardware.common.AbstractFirmware;
 import oshi.util.Constants;
 import oshi.util.Util;
-import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
+import oshi.util.tuples.Quintet;
 
 /**
  * Firmware data obtained from WMI
  */
 final class WindowsFirmware extends AbstractFirmware {
 
-    private final Supplier<WmiStrings> wmi = memoize(this::queryWmi);
+    private final Supplier<Quintet<String, String, String, String, String>> manufNameDescVersRelease = memoize(
+            this::queryManufNameDescVersRelease);
 
     @Override
     public String getManufacturer() {
-        return wmi.get().manufacturer;
+        return manufNameDescVersRelease.get().getA();
     }
 
     @Override
     public String getName() {
-        return wmi.get().name;
+        return manufNameDescVersRelease.get().getB();
     }
 
     @Override
     public String getDescription() {
-        return wmi.get().description;
+        return manufNameDescVersRelease.get().getC();
     }
 
     @Override
     public String getVersion() {
-        return wmi.get().version;
+        return manufNameDescVersRelease.get().getD();
     }
 
     @Override
     public String getReleaseDate() {
-        return wmi.get().releaseDate;
+        return manufNameDescVersRelease.get().getE();
     }
 
-    private WmiStrings queryWmi() {
-        WmiQuery<BiosProperty> biosQuery = new WmiQuery<>("Win32_BIOS where PrimaryBIOS=true", BiosProperty.class);
-        WmiResult<BiosProperty> win32BIOS = WmiQueryHandler.createInstance().queryWMI(biosQuery);
+    private Quintet<String, String, String, String, String> queryManufNameDescVersRelease() {
+        String manufacturer = null;
+        String name = null;
+        String description = null;
+        String version = null;
+        String releaseDate = null;
+        WmiResult<BiosProperty> win32BIOS = new Win32Bios().queryBiosInfo();
         if (win32BIOS.getResultCount() > 0) {
-            return new WmiStrings(WmiUtil.getString(win32BIOS, BiosProperty.MANUFACTURER, 0),
-                    WmiUtil.getString(win32BIOS, BiosProperty.NAME, 0),
-                    WmiUtil.getString(win32BIOS, BiosProperty.DESCRIPTION, 0),
-                    WmiUtil.getString(win32BIOS, BiosProperty.VERSION, 0),
-                    WmiUtil.getDateString(win32BIOS, BiosProperty.RELEASEDATE, 0));
+            manufacturer = WmiUtil.getString(win32BIOS, BiosProperty.MANUFACTURER, 0);
+            name = WmiUtil.getString(win32BIOS, BiosProperty.NAME, 0);
+            description = WmiUtil.getString(win32BIOS, BiosProperty.DESCRIPTION, 0);
+            version = WmiUtil.getString(win32BIOS, BiosProperty.VERSION, 0);
+            releaseDate = WmiUtil.getDateString(win32BIOS, BiosProperty.RELEASEDATE, 0);
         }
-        return new WmiStrings(Constants.UNKNOWN, Constants.UNKNOWN, Constants.UNKNOWN, Constants.UNKNOWN,
-                Constants.UNKNOWN);
-    }
-
-    enum BiosProperty {
-        MANUFACTURER, NAME, DESCRIPTION, VERSION, RELEASEDATE;
-    }
-
-    private static final class WmiStrings {
-        private final String manufacturer;
-        private final String name;
-        private final String description;
-        private final String version;
-        private final String releaseDate;
-
-        private WmiStrings(String manufacturer, String name, String description, String version, String releaseDate) {
-            this.manufacturer = Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer;
-            this.name = Util.isBlank(name) ? Constants.UNKNOWN : name;
-            this.description = Util.isBlank(description) ? Constants.UNKNOWN : description;
-            this.version = Util.isBlank(version) ? Constants.UNKNOWN : version;
-            this.releaseDate = Util.isBlank(releaseDate) ? Constants.UNKNOWN : releaseDate;
-        }
+        return new Quintet<>(Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer,
+                Util.isBlank(name) ? Constants.UNKNOWN : name,
+                Util.isBlank(description) ? Constants.UNKNOWN : description,
+                Util.isBlank(version) ? Constants.UNKNOWN : version,
+                Util.isBlank(releaseDate) ? Constants.UNKNOWN : releaseDate);
     }
 }

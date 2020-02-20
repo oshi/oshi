@@ -30,7 +30,7 @@ import java.util.function.Supplier;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.driver.wmi.Win32Bios;
-import oshi.driver.wmi.Win32Bios.BiosProperty;
+import oshi.driver.wmi.Win32Bios.BiosSerialProperty;
 import oshi.driver.wmi.Win32ComputerSystem;
 import oshi.driver.wmi.Win32ComputerSystem.ComputerSystemProperty;
 import oshi.driver.wmi.Win32ComputerSystemProduct;
@@ -39,9 +39,9 @@ import oshi.hardware.Baseboard;
 import oshi.hardware.Firmware;
 import oshi.hardware.common.AbstractComputerSystem;
 import oshi.util.Constants;
-import oshi.util.Pair;
 import oshi.util.Util;
 import oshi.util.platform.windows.WmiUtil;
+import oshi.util.tuples.Pair;
 
 /**
  * Hardware data obtained from WMI.
@@ -98,9 +98,9 @@ final class WindowsComputerSystem extends AbstractComputerSystem {
     }
 
     private String querySerialFromBios() {
-        WmiResult<BiosProperty> serialNum = new Win32Bios().querySerialNumber();
+        WmiResult<BiosSerialProperty> serialNum = new Win32Bios().querySerialNumber();
         if (serialNum.getResultCount() > 0) {
-            return WmiUtil.getString(serialNum, BiosProperty.SERIALNUMBER, 0);
+            return WmiUtil.getString(serialNum, BiosSerialProperty.SERIALNUMBER, 0);
         }
         return null;
     }

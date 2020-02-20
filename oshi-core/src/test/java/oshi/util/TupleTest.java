@@ -23,59 +23,25 @@
  */
 package oshi.util;
 
-public class Pair<A, B> {
+import static org.junit.Assert.assertEquals;
 
-    private A a;
-    private B b;
+import org.junit.Test;
 
-    /**
-     * Create a pair and store two objects.
-     *
-     * @param a
-     *            the first object to store
-     * @param b
-     *            the second object to store
-     */
-    public Pair(A a, B b) {
-        this.a = a;
-        this.b = b;
-    }
+import oshi.util.tuples.Pair;
 
-    /**
-     * Returns the first stored object.
-     *
-     * @return first object stored
-     */
-    public final A getA() {
-        return a;
-    }
+/**
+ * Test object pair.
+ */
+public class TupleTest {
 
-    /**
-     * Returns the second stored object.
-     *
-     * @return second object stored
-     */
-    public final B getB() {
-        return b;
-    }
-
-    /**
-     * Sets the first stored object.
-     *
-     * @param a
-     *            the first object to store
-     */
-    public final void setA(A a) {
-        this.a = a;
-    }
-
-    /**
-     * Sets the second stored object.
-     *
-     * @param b
-     *            the second object to store
-     */
-    public final void setB(B b) {
-        this.b = b;
+    @Test
+    public void testPair() {
+        Pair<Double, Double> irrationalPair = new Pair<>(Math.E, Math.PI);
+        assertEquals(Math.E, irrationalPair.getA(), Double.MIN_VALUE);
+        assertEquals(Math.PI, irrationalPair.getB(), Double.MIN_VALUE);
+        irrationalPair.setA(Math.PI);
+        assertEquals(Math.PI, irrationalPair.getA(), Double.MIN_VALUE);
+        irrationalPair.setB(Math.E);
+        assertEquals(Math.E, irrationalPair.getB(), Double.MIN_VALUE);
     }
 }

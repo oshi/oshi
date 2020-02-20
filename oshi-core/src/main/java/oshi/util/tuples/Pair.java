@@ -21,25 +21,61 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package oshi.util;
+package oshi.util.tuples;
 
-import static org.junit.Assert.assertEquals;
+public class Pair<A, B> {
 
-import org.junit.Test;
+    private A a;
+    private B b;
 
-/**
- * Test object pair.
- */
-public class PairTest {
+    /**
+     * Create a pair and store two objects.
+     *
+     * @param a
+     *            the first object to store
+     * @param b
+     *            the second object to store
+     */
+    public Pair(A a, B b) {
+        this.a = a;
+        this.b = b;
+    }
 
-    @Test
-    public void testPair() {
-        Pair<Double, Double> irrationalPair = new Pair<>(Math.E, Math.PI);
-        assertEquals(Math.E, irrationalPair.getA(), Double.MIN_VALUE);
-        assertEquals(Math.PI, irrationalPair.getB(), Double.MIN_VALUE);
-        irrationalPair.setA(Math.PI);
-        assertEquals(Math.PI, irrationalPair.getA(), Double.MIN_VALUE);
-        irrationalPair.setB(Math.E);
-        assertEquals(Math.E, irrationalPair.getB(), Double.MIN_VALUE);
+    /**
+     * Returns the first stored object.
+     *
+     * @return first object stored
+     */
+    public final A getA() {
+        return a;
+    }
+
+    /**
+     * Returns the second stored object.
+     *
+     * @return second object stored
+     */
+    public final B getB() {
+        return b;
+    }
+
+    /**
+     * Sets the first stored object.
+     *
+     * @param a
+     *            the first object to store
+     */
+    public final void setA(A a) {
+        this.a = a;
+    }
+
+    /**
+     * Sets the second stored object.
+     *
+     * @param b
+     *            the second object to store
+     */
+    public final void setB(B b) {
+        this.b = b;
     }
 }

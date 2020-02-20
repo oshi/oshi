@@ -26,10 +26,10 @@ package oshi.driver.perfmon;
 import java.util.List;
 import java.util.Map;
 
-import oshi.util.Pair;
 import oshi.util.platform.windows.PerfCounterQuery;
 import oshi.util.platform.windows.PerfCounterWildcardQuery;
 import oshi.util.platform.windows.PerfCounterWildcardQuery.PdhCounterWildcardProperty;
+import oshi.util.tuples.Pair;
 
 public class PhysicalDisk {
 
