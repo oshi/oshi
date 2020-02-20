@@ -80,6 +80,8 @@ import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
 
+import oshi.driver.perfmon.ProcessInformation;
+import oshi.driver.perfmon.ProcessInformation.ProcessPerformanceProperty;
 import oshi.driver.wmi.Win32OperatingSystem;
 import oshi.driver.wmi.Win32OperatingSystem.OSVersionProperty;
 import oshi.driver.wmi.Win32Process;
@@ -97,10 +99,8 @@ import oshi.software.os.OSService.State;
 import oshi.software.os.OperatingSystem;
 import oshi.util.GlobalConfig;
 import oshi.util.ParseUtil;
-import oshi.util.platform.windows.PerfCounterQuery;
-import oshi.util.platform.windows.PerfCounterWildcardQuery;
-import oshi.util.platform.windows.PerfCounterWildcardQuery.PdhCounterWildcardProperty;
 import oshi.util.platform.windows.WmiUtil;
+import oshi.util.tuples.Pair;
 
 public class WindowsOperatingSystem extends AbstractOperatingSystem {
 
@@ -127,10 +127,6 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         }
         HKEY_PERFORMANCE_DATA = data;
     }
-
-    private final PerfCounterWildcardQuery<ProcessPerformanceProperty> processPerformancePerfCounters = new PerfCounterWildcardQuery<>(
-            ProcessPerformanceProperty.class, "Process", "Win32_Process WHERE NOT Name LIKE\"%_Total\"",
-            "Process Information");
 
     static {
         enableDebugPrivilege();
@@ -525,17 +521,18 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
 
     private Map<Integer, OSProcess> buildProcessMapFromPerfCounters(Collection<Integer> pids) {
         Map<Integer, OSProcess> processMap = new HashMap<>();
-        Map<ProcessPerformanceProperty, List<Long>> valueMap = this.processPerformancePerfCounters
-                .queryValuesWildcard();
+        Pair<List<String>, Map<ProcessPerformanceProperty, List<Long>>> instanceValues = new ProcessInformation()
+                .queryProcessCounters();
         long now = System.currentTimeMillis(); // 1970 epoch
-        List<String> instances = this.processPerformancePerfCounters.getInstancesFromLastQuery();
-        List<Long> pidList = valueMap.get(ProcessPerformanceProperty.ProcessId);
-        List<Long> ppidList = valueMap.get(ProcessPerformanceProperty.ParentProcessId);
-        List<Long> priorityList = valueMap.get(ProcessPerformanceProperty.Priority);
-        List<Long> ioReadList = valueMap.get(ProcessPerformanceProperty.ReadTransferCount);
-        List<Long> ioWriteList = valueMap.get(ProcessPerformanceProperty.WriteTransferCount);
-        List<Long> workingSetSizeList = valueMap.get(ProcessPerformanceProperty.PrivatePageCount);
-        List<Long> creationTimeList = valueMap.get(ProcessPerformanceProperty.CreationDate);
+        List<String> instances = instanceValues.getA();
+        Map<ProcessPerformanceProperty, List<Long>> valueMap = instanceValues.getB();
+        List<Long> pidList = valueMap.get(ProcessPerformanceProperty.PROCESSID);
+        List<Long> ppidList = valueMap.get(ProcessPerformanceProperty.PARENTPROCESSID);
+        List<Long> priorityList = valueMap.get(ProcessPerformanceProperty.PRIORITY);
+        List<Long> ioReadList = valueMap.get(ProcessPerformanceProperty.READTRANSFERCOUNT);
+        List<Long> ioWriteList = valueMap.get(ProcessPerformanceProperty.WRITETRANSFERCOUNT);
+        List<Long> workingSetSizeList = valueMap.get(ProcessPerformanceProperty.PRIVATEPAGECOUNT);
+        List<Long> creationTimeList = valueMap.get(ProcessPerformanceProperty.CREATIONDATE);
 
         for (int inst = 0; inst < instances.size(); inst++) {
             int pid = pidList.get(inst).intValue();
@@ -737,30 +734,6 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             return null;
         }
         return systemLog;
-    }
-
-    enum ProcessPerformanceProperty implements PdhCounterWildcardProperty {
-        // First element defines WMI instance name field and PDH instance filter
-        Name(PerfCounterQuery.NOT_TOTAL_INSTANCES),
-        // Remaining elements define counters
-        Priority("Priority Base"), //
-        CreationDate("Elapsed Time"), //
-        ProcessId("ID Process"), //
-        ParentProcessId("Creating Process ID"), //
-        ReadTransferCount("IO Read Bytes/sec"), //
-        WriteTransferCount("IO Write Bytes/sec"), //
-        PrivatePageCount("Working Set - Private");
-
-        private final String counter;
-
-        ProcessPerformanceProperty(String counter) {
-            this.counter = counter;
-        }
-
-        @Override
-        public String getCounter() {
-            return counter;
-        }
     }
 
     private static class HkeyPerformanceData {
