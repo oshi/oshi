@@ -36,9 +36,12 @@ import com.sun.jna.platform.win32.Kernel32; // NOSONAR squid:S1191
 import com.sun.jna.platform.win32.Psapi;
 import com.sun.jna.platform.win32.Psapi.PERFORMANCE_INFORMATION;
 
+import oshi.driver.perfmon.MemoryInformation;
+import oshi.driver.perfmon.MemoryInformation.PageSwapProperty;
+import oshi.driver.perfmon.PagingFile;
+import oshi.driver.perfmon.PagingFile.PagingPercentProperty;
 import oshi.hardware.common.AbstractVirtualMemory;
-import oshi.util.platform.windows.PerfCounterQuery;
-import oshi.util.platform.windows.PerfCounterQuery.PdhCounterProperty;
+import oshi.util.tuples.Pair;
 
 /**
  * Memory obtained from WMI
@@ -53,12 +56,7 @@ public class WindowsVirtualMemory extends AbstractVirtualMemory {
 
     private final Supplier<Long> total = memoize(this::querySwapTotal, defaultExpiration());
 
-    private final Supplier<PagingFile> pagingFile = memoize(this::queryPagingFile, defaultExpiration());
-
-    private PerfCounterQuery<PageSwapProperty> memoryPerfCounters = new PerfCounterQuery<>(PageSwapProperty.class,
-            "Memory", "Win32_PerfRawData_PerfOS_Memory");
-    private PerfCounterQuery<PagingPercentProperty> pagingPerfCounters = new PerfCounterQuery<>(
-            PagingPercentProperty.class, "Paging File", "Win32_PerfRawData_PerfOS_PagingFile");
+    private final Supplier<Pair<Long, Long>> swapInOut = memoize(this::queryPageSwaps, defaultExpiration());
 
     /**
      * <p>
@@ -84,16 +82,16 @@ public class WindowsVirtualMemory extends AbstractVirtualMemory {
 
     @Override
     public long getSwapPagesIn() {
-        return pagingFile.get().pagesIn;
+        return swapInOut.get().getA();
     }
 
     @Override
     public long getSwapPagesOut() {
-        return pagingFile.get().pagesOut;
+        return swapInOut.get().getB();
     }
 
     private long querySwapUsed() {
-        Map<PagingPercentProperty, Long> valueMap = this.pagingPerfCounters.queryValues();
+        Map<PagingPercentProperty, Long> valueMap = new PagingFile().querySwapUsed();
         return valueMap.getOrDefault(PagingPercentProperty.PERCENTUSAGE, 0L) * this.pageSize;
     }
 
@@ -106,82 +104,9 @@ public class WindowsVirtualMemory extends AbstractVirtualMemory {
         return this.pageSize * (perfInfo.CommitLimit.longValue() - perfInfo.PhysicalTotal.longValue());
     }
 
-    private PagingFile queryPagingFile() {
-        Map<PageSwapProperty, Long> valueMap = this.memoryPerfCounters.queryValues();
-        return new PagingFile(valueMap.getOrDefault(PageSwapProperty.PAGESINPUTPERSEC, 0L),
+    private Pair<Long, Long> queryPageSwaps() {
+        Map<PageSwapProperty, Long> valueMap = new MemoryInformation().queryPageSwaps();
+        return new Pair<>(valueMap.getOrDefault(PageSwapProperty.PAGESINPUTPERSEC, 0L),
                 valueMap.getOrDefault(PageSwapProperty.PAGESOUTPUTPERSEC, 0L));
-    }
-
-    /*
-     * For swap file usage
-     */
-    enum PagingPercentProperty implements PdhCounterProperty {
-        PERCENTUSAGE(PerfCounterQuery.TOTAL_INSTANCE, "% Usage");
-
-        private final String instance;
-        private final String counter;
-
-        PagingPercentProperty(String instance, String counter) {
-            this.instance = instance;
-            this.counter = counter;
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public String getInstance() {
-            return instance;
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public String getCounter() {
-            return counter;
-        }
-    }
-
-    /*
-     * For pages in/out
-     */
-    public enum PageSwapProperty implements PdhCounterProperty {
-        PAGESINPUTPERSEC(null, "Pages Input/sec"), //
-        PAGESOUTPUTPERSEC(null, "Pages Output/sec");
-
-        private final String instance;
-        private final String counter;
-
-        PageSwapProperty(String instance, String counter) {
-            this.instance = instance;
-            this.counter = counter;
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public String getInstance() {
-            return instance;
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public String getCounter() {
-            return counter;
-        }
-    }
-
-    private static final class PagingFile {
-        private final long pagesIn;
-        private final long pagesOut;
-
-        private PagingFile(long pagesIn, long pagesOut) {
-            this.pagesIn = pagesIn;
-            this.pagesOut = pagesOut;
-        }
     }
 }
