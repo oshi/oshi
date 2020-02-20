@@ -76,13 +76,15 @@ import com.sun.jna.platform.win32.WinUser;
 import com.sun.jna.platform.win32.Winsvc;
 import com.sun.jna.platform.win32.Wtsapi32;
 import com.sun.jna.platform.win32.Wtsapi32.WTS_PROCESS_INFO_EX;
-import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
 
 import oshi.driver.wmi.Win32OperatingSystem;
 import oshi.driver.wmi.Win32OperatingSystem.OSVersionProperty;
+import oshi.driver.wmi.Win32Process;
+import oshi.driver.wmi.Win32Process.CommandLineProperty;
+import oshi.driver.wmi.Win32Process.ProcessXPProperty;
 import oshi.driver.wmi.Win32Processor;
 import oshi.driver.wmi.Win32Processor.BitnessProperty;
 import oshi.jna.platform.windows.Kernel32;
@@ -98,7 +100,6 @@ import oshi.util.ParseUtil;
 import oshi.util.platform.windows.PerfCounterQuery;
 import oshi.util.platform.windows.PerfCounterWildcardQuery;
 import oshi.util.platform.windows.PerfCounterWildcardQuery.PdhCounterWildcardProperty;
-import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
 
 public class WindowsOperatingSystem extends AbstractOperatingSystem {
@@ -338,7 +339,6 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
      * @return A corresponding list of processes
      */
     private List<OSProcess> processMapToList(Collection<Integer> pids, boolean slowFields) {
-        WmiQueryHandler wmiQueryHandler = WmiQueryHandler.createInstance();
         // Get data from the registry if possible, otherwise performance counters with
         // WMI backup
         Map<Integer, OSProcess> processMap = (HKEY_PERFORMANCE_DATA != null)
@@ -374,21 +374,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         } else {
             // Pre-Vista we can't use WTSEnumerateProcessesEx so we'll grab the
             // same info from WMI and fake the array
-            StringBuilder sb = new StringBuilder(PROCESS_BASE_CLASS);
-            if (pids != null) {
-                boolean first = true;
-                for (Integer pid : pids) {
-                    if (first) {
-                        sb.append(" WHERE ProcessID=");
-                        first = false;
-                    } else {
-                        sb.append(" OR ProcessID=");
-                    }
-                    sb.append(pid);
-                }
-            }
-            WmiQuery<ProcessXPProperty> processQueryXP = new WmiQuery<>(sb.toString(), ProcessXPProperty.class);
-            processWmiResult = wmiQueryHandler.queryWMI(processQueryXP);
+            processWmiResult = new Win32Process().queryProcesses(pids);
         }
 
         // Store a subset of processes in a list to later return.
@@ -397,7 +383,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         int procCount = IS_WINDOWS7_OR_GREATER ? processInfo.length : processWmiResult.getResultCount();
         for (int i = 0; i < procCount; i++) {
             int pid = IS_WINDOWS7_OR_GREATER ? processInfo[i].ProcessId
-                    : WmiUtil.getUint32(processWmiResult, ProcessXPProperty.ProcessId, i);
+                    : WmiUtil.getUint32(processWmiResult, ProcessXPProperty.PROCESSID, i);
             OSProcess proc = null;
             // If the cache is empty, there was a problem with
             // filling the cache using performance information.
@@ -408,7 +394,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                 proc = new OSProcess(this);
                 proc.setProcessID(pid);
                 proc.setName(IS_WINDOWS7_OR_GREATER ? processInfo[i].pProcessName
-                        : WmiUtil.getString(processWmiResult, ProcessXPProperty.Name, i));
+                        : WmiUtil.getString(processWmiResult, ProcessXPProperty.NAME, i));
             } else {
                 proc = processMap.get(pid);
                 if (proc == null || pids != null && !pids.contains(pid)) {
@@ -430,13 +416,13 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                 proc.setVirtualSize(procInfo.PagefileUsage & 0xffff_ffffL);
                 proc.setOpenFiles(procInfo.HandleCount);
             } else {
-                proc.setKernelTime(WmiUtil.getUint64(processWmiResult, ProcessXPProperty.KernelModeTime, i) / 10000L);
-                proc.setUserTime(WmiUtil.getUint64(processWmiResult, ProcessXPProperty.UserModeTime, i) / 10000L);
-                proc.setThreadCount(WmiUtil.getUint32(processWmiResult, ProcessXPProperty.ThreadCount, i));
+                proc.setKernelTime(WmiUtil.getUint64(processWmiResult, ProcessXPProperty.KERNELMODETIME, i) / 10000L);
+                proc.setUserTime(WmiUtil.getUint64(processWmiResult, ProcessXPProperty.USERMODETIME, i) / 10000L);
+                proc.setThreadCount(WmiUtil.getUint32(processWmiResult, ProcessXPProperty.THREADCOUNT, i));
                 // WMI Pagefile usage is in KB
                 proc.setVirtualSize(1024
-                        * (WmiUtil.getUint32(processWmiResult, ProcessXPProperty.PageFileUsage, i) & 0xffff_ffffL));
-                proc.setOpenFiles(WmiUtil.getUint32(processWmiResult, ProcessXPProperty.HandleCount, i));
+                        * (WmiUtil.getUint32(processWmiResult, ProcessXPProperty.PAGEFILEUSAGE, i) & 0xffff_ffffL));
+                proc.setOpenFiles(WmiUtil.getUint32(processWmiResult, ProcessXPProperty.HANDLECOUNT, i));
             }
 
             // Get a handle to the process for various extended info. Only gets
@@ -456,7 +442,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                 final HANDLEByReference phToken = new HANDLEByReference();
                 try {// EXECUTABLEPATH
                     proc.setPath(IS_WINDOWS7_OR_GREATER ? Kernel32Util.QueryFullProcessImageName(pHandle, 0)
-                            : WmiUtil.getString(processWmiResult, ProcessXPProperty.ExecutablePath, i));
+                            : WmiUtil.getString(processWmiResult, ProcessXPProperty.EXECUTABLEPATH, i));
                     if (Advapi32.INSTANCE.OpenProcessToken(pHandle, WinNT.TOKEN_DUPLICATE | WinNT.TOKEN_QUERY,
                             phToken)) {
                         Account account = Advapi32Util.getTokenAccount(phToken.getValue());
@@ -514,31 +500,18 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
 
         // Command Line only accessible via WMI.
         if (slowFields) {
-            StringBuilder sb = new StringBuilder(PROCESS_BASE_CLASS);
+            Set<Integer> pidsToQuery = new HashSet<>();
             if (pids != null) {
-                Set<Integer> pidsToQuery = new HashSet<>();
                 for (OSProcess process : processList) {
                     pidsToQuery.add(process.getProcessID());
                 }
-                boolean first = true;
-                for (Integer pid : pidsToQuery) {
-                    if (first) {
-                        sb.append(" WHERE ProcessID=");
-                        first = false;
-                    } else {
-                        sb.append(" OR ProcessID=");
-                    }
-                    sb.append(pid);
-                }
             }
-            WmiQuery<ProcessProperty> processQuery = new WmiQuery<>(sb.toString(), ProcessProperty.class);
-            WmiResult<ProcessProperty> commandLineProcs = wmiQueryHandler.queryWMI(processQuery);
-
+            WmiResult<CommandLineProperty> commandLineProcs = new Win32Process().queryCommandLines(pidsToQuery);
             for (int p = 0; p < commandLineProcs.getResultCount(); p++) {
-                int pid = WmiUtil.getUint32(commandLineProcs, ProcessProperty.ProcessId, p);
+                int pid = WmiUtil.getUint32(commandLineProcs, CommandLineProperty.PROCESSID, p);
                 if (processMap.containsKey(pid)) {
                     OSProcess proc = processMap.get(pid);
-                    proc.setCommandLine(WmiUtil.getString(commandLineProcs, ProcessProperty.CommandLine, p));
+                    proc.setCommandLine(WmiUtil.getString(commandLineProcs, CommandLineProperty.COMMANDLINE, p));
                 }
             }
         }
@@ -764,17 +737,6 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             return null;
         }
         return systemLog;
-    }
-
-    enum ProcessProperty {
-        ProcessId, CommandLine;
-    }
-
-    private static final String PROCESS_BASE_CLASS = "Win32_Process";
-
-    // Properties to get from WMI if WTSEnumerateProcesses doesn't work
-    enum ProcessXPProperty {
-        ProcessId, Name, KernelModeTime, UserModeTime, ThreadCount, PageFileUsage, HandleCount, ExecutablePath;
     }
 
     enum ProcessPerformanceProperty implements PdhCounterWildcardProperty {
