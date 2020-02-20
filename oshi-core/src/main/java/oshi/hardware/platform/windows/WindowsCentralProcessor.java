@@ -50,9 +50,10 @@ import com.sun.jna.platform.win32.WinNT.PROCESSOR_RELATIONSHIP;
 import com.sun.jna.platform.win32.WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION;
 import com.sun.jna.platform.win32.WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX;
 import com.sun.jna.platform.win32.WinReg;
-import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
+import oshi.driver.wmi.Win32Processor;
+import oshi.driver.wmi.Win32Processor.ProcessorIdProperty;
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.jna.platform.windows.PowrProf;
 import oshi.jna.platform.windows.PowrProf.ProcessorPowerInformation;
@@ -61,7 +62,6 @@ import oshi.util.platform.windows.PerfCounterQuery;
 import oshi.util.platform.windows.PerfCounterQuery.PdhCounterProperty;
 import oshi.util.platform.windows.PerfCounterWildcardQuery;
 import oshi.util.platform.windows.PerfCounterWildcardQuery.PdhCounterWildcardProperty;
-import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
 
 /**
@@ -75,10 +75,6 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
     private static final String PROCESSOR = "Processor";
 
     private Map<String, Integer> numaNodeProcToLogicalProcMap;
-
-    enum ProcessorProperty {
-        PROCESSORID;
-    }
 
     /*
      * For tick counts
@@ -259,16 +255,13 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
                 || processorArchitecture == 6) { // PROCESSOR_ARCHITECTURE_IA64
             cpu64bit = true;
         }
-
-        WmiQuery<ProcessorProperty> processorIdQuery = new WmiQuery<>("Win32_Processor", ProcessorProperty.class);
-        WmiResult<ProcessorProperty> processorId = WmiQueryHandler.createInstance().queryWMI(processorIdQuery);
+        WmiResult<ProcessorIdProperty> processorId = new Win32Processor().queryProcessorId();
         if (processorId.getResultCount() > 0) {
-            processorID = WmiUtil.getString(processorId, ProcessorProperty.PROCESSORID, 0);
+            processorID = WmiUtil.getString(processorId, ProcessorIdProperty.PROCESSORID, 0);
         } else {
             processorID = createProcessorID(cpuStepping, cpuModel, cpuFamily,
                     cpu64bit ? new String[] { "ia64" } : new String[0]);
         }
-
         return new ProcessorIdentifier(cpuVendor, cpuName, cpuFamily, cpuModel, cpuStepping, processorID, cpu64bit);
     }
 
@@ -529,8 +522,8 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
         long[] freqs = new long[getLogicalProcessorCount()];
         int bufferSize = ppi.size() * freqs.length;
         Memory mem = new Memory(bufferSize);
-        if (0 != PowrProf.INSTANCE.CallNtPowerInformation(POWER_INFORMATION_LEVEL.ProcessorInformation, null,
-                0, mem, bufferSize)) {
+        if (0 != PowrProf.INSTANCE.CallNtPowerInformation(POWER_INFORMATION_LEVEL.ProcessorInformation, null, 0, mem,
+                bufferSize)) {
             LOG.error("Unable to get Processor Information");
             Arrays.fill(freqs, -1L);
             return freqs;

@@ -40,6 +40,13 @@ public class Win32Processor {
     }
 
     /**
+     * Processor ID property
+     */
+    public enum ProcessorIdProperty {
+        PROCESSORID;
+    }
+
+    /**
      * Returns processor voltage.
      *
      * @return Current voltage of the processor. If the eighth bit is set, bits 0-6
@@ -49,5 +56,24 @@ public class Win32Processor {
     public WmiResult<VoltProperty> queryVoltage() {
         WmiQuery<VoltProperty> voltQuery = new WmiQuery<>(WIN32_PROCESSOR, VoltProperty.class);
         return WmiQueryHandler.createInstance().queryWMI(voltQuery);
+    }
+
+    /**
+     * Returns processor ID.
+     *
+     * @return Processor information that describes the processor features. For an
+     *         x86 class CPU, the field format depends on the processor support of
+     *         the CPUID instruction. If the instruction is supported, the property
+     *         contains 2 (two) DWORD formatted values. The first is an offset of
+     *         08h-0Bh, which is the EAX value that a CPUID instruction returns with
+     *         input EAX set to 1. The second is an offset of 0Ch-0Fh, which is the
+     *         EDX value that the instruction returns. Only the first two bytes of
+     *         the property are significant and contain the contents of the DX
+     *         register at CPU reset—all others are set to 0 (zero), and the
+     *         contents are in DWORD format.
+     */
+    public WmiResult<ProcessorIdProperty> queryProcessorId() {
+        WmiQuery<ProcessorIdProperty> idQuery = new WmiQuery<>(WIN32_PROCESSOR, ProcessorIdProperty.class);
+        return WmiQueryHandler.createInstance().queryWMI(idQuery);
     }
 }
