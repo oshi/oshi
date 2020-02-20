@@ -28,44 +28,27 @@ import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.util.platform.windows.WmiQueryHandler;
 
-public class Win32DiskDrive {
+public class Win32PnPEntity {
 
-    private static final String WIN32_DISK_DRIVE = "Win32_DiskDrive";
+    private static final String WIN32_PNP_ENTITY = "Win32_PnPEntity";
 
     /**
-     * Disk drive properties
+     * DeviceId and name
      */
-    public enum DiskDriveProperty {
-        INDEX, MANUFACTURER, MODEL, NAME, SERIALNUMBER, SIZE;
+    public enum PnPEntityProperty {
+        NAME, MANUFACTURER, PNPDEVICEID;
     }
 
     /**
-     * DeviceID and serial properties
-     */
-    public enum DeviceIdProperty {
-        PNPDEVICEID, SERIALNUMBER;
-    }
-
-    /**
-     * Queries the disk drive name info
-     *
-     * @return Information regarding each disk drive.
-     */
-    public WmiResult<DiskDriveProperty> queryDiskDrive() {
-        WmiQuery<DiskDriveProperty> diskDriveQuery = new WmiQuery<>(WIN32_DISK_DRIVE, DiskDriveProperty.class);
-        return WmiQueryHandler.createInstance().queryWMI(diskDriveQuery);
-    }
-
-    /**
-     * Queries the disk drive id info
+     * Queries the PnP Device id info
      *
      * @param whereClause
      *            WQL "WHERE" clause limiting the search
-     * @return Information regarding each disk drive's device id and serial number
+     * @return Information regarding each device
      */
-    public WmiResult<DeviceIdProperty> queryDiskDriveId(String whereClause) {
-        WmiQuery<DeviceIdProperty> deviceIdQuery = new WmiQuery<>(WIN32_DISK_DRIVE + whereClause,
-                DeviceIdProperty.class);
-        return WmiQueryHandler.createInstance().queryWMI(deviceIdQuery);
+    public WmiResult<PnPEntityProperty> queryDeviceId(String whereClause) {
+        WmiQuery<PnPEntityProperty> pnpEntityQuery = new WmiQuery<>(WIN32_PNP_ENTITY + whereClause,
+                PnPEntityProperty.class);
+        return WmiQueryHandler.createInstance().queryWMI(pnpEntityQuery);
     }
 }
