@@ -35,14 +35,13 @@ import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 import com.sun.jna.ptr.IntByReference;
 
+import oshi.driver.perfmon.ProcessInformation;
+import oshi.driver.perfmon.ProcessInformation.HandleCountProperty;
 import oshi.driver.wmi.Win32LogicalDisk;
 import oshi.driver.wmi.Win32LogicalDisk.LogicalDiskProperty;
 import oshi.software.common.AbstractFileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.ParseUtil;
-import oshi.util.platform.windows.PerfCounterQuery;
-import oshi.util.platform.windows.PerfCounterWildcardQuery;
-import oshi.util.platform.windows.PerfCounterWildcardQuery.PdhCounterWildcardProperty;
 import oshi.util.platform.windows.WmiUtil;
 
 /**
@@ -94,30 +93,6 @@ public class WindowsFileSystem extends AbstractFileSystem {
         OPTIONS_MAP.put(FILE_VOLUME_IS_COMPRESSED, "vcomp");
         OPTIONS_MAP.put(FILE_VOLUME_QUOTAS, "quota");
     }
-
-    enum HandleCountProperty implements PdhCounterWildcardProperty {
-        // First element defines WMI instance name field and PDH instance filter
-        NAME(PerfCounterQuery.TOTAL_INSTANCE),
-        // Remaining elements define counters
-        HANDLECOUNT("Handle Count");
-
-        private final String counter;
-
-        HandleCountProperty(String counter) {
-            this.counter = counter;
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public String getCounter() {
-            return counter;
-        }
-    }
-
-    private final PerfCounterWildcardQuery<HandleCountProperty> handlePerfCounters = new PerfCounterWildcardQuery<>(
-            HandleCountProperty.class, "Process", "Win32_Process");
 
     private static final long MAX_WINDOWS_HANDLES;
     static {
@@ -332,10 +307,9 @@ public class WindowsFileSystem extends AbstractFileSystem {
         }
     }
 
-    /** {@inheritDoc} */
     @Override
     public long getOpenFileDescriptors() {
-        Map<HandleCountProperty, List<Long>> valueListMap = this.handlePerfCounters.queryValuesWildcard();
+        Map<HandleCountProperty, List<Long>> valueListMap = new ProcessInformation().queryHandles();
         List<Long> valueList = valueListMap.get(HandleCountProperty.HANDLECOUNT);
         long descriptors = 0L;
         if (valueList != null) {
@@ -346,7 +320,6 @@ public class WindowsFileSystem extends AbstractFileSystem {
         return descriptors;
     }
 
-    /** {@inheritDoc} */
     @Override
     public long getMaxFileDescriptors() {
         return MAX_WINDOWS_HANDLES;

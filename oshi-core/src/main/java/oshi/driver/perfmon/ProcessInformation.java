@@ -33,6 +33,7 @@ import oshi.util.tuples.Pair;
 
 public class ProcessInformation {
 
+    private static final String WIN32_PROCESS = "Win32_Process";
     private static final String PROCESS = "Process";
     private static final String PROCESS_INFORMATION = "Process Information";
     private static final String WIN32_PROCESS_WHERE_NOT_NAME_LIKE_TOTAL = "Win32_Process WHERE NOT Name LIKE\"%_Total\"";
@@ -65,6 +66,27 @@ public class ProcessInformation {
     }
 
     /**
+     * Handle performance counters
+     */
+    public enum HandleCountProperty implements PdhCounterWildcardProperty {
+        // First element defines WMI instance name field and PDH instance filter
+        NAME(PerfCounterQuery.TOTAL_INSTANCE),
+        // Remaining elements define counters
+        HANDLECOUNT("Handle Count");
+
+        private final String counter;
+
+        HandleCountProperty(String counter) {
+            this.counter = counter;
+        }
+
+        @Override
+        public String getCounter() {
+            return counter;
+        }
+    }
+
+    /**
      * Returns process counters.
      *
      * @return Process counters for each process.
@@ -76,5 +98,16 @@ public class ProcessInformation {
         Map<ProcessPerformanceProperty, List<Long>> values = processPerformancePerfCounters.queryValuesWildcard();
         List<String> instances = processPerformancePerfCounters.getInstancesFromLastQuery();
         return new Pair<>(instances, values);
+    }
+
+    /**
+     * Returns handle counters
+     *
+     * @return Process handle counters
+     */
+    public Map<HandleCountProperty, List<Long>> queryHandles() {
+        PerfCounterWildcardQuery<HandleCountProperty> handlePerfCounters = new PerfCounterWildcardQuery<>(
+                HandleCountProperty.class, PROCESS, WIN32_PROCESS);
+        return handlePerfCounters.queryValuesWildcard();
     }
 }
