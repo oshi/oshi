@@ -47,6 +47,13 @@ public class Win32Processor {
     }
 
     /**
+     * Processor bitness property
+     */
+    public enum BitnessProperty {
+        ADDRESSWIDTH;
+    }
+
+    /**
      * Returns processor voltage.
      *
      * @return Current voltage of the processor. If the eighth bit is set, bits 0-6
@@ -75,5 +82,16 @@ public class Win32Processor {
     public WmiResult<ProcessorIdProperty> queryProcessorId() {
         WmiQuery<ProcessorIdProperty> idQuery = new WmiQuery<>(WIN32_PROCESSOR, ProcessorIdProperty.class);
         return WmiQueryHandler.createInstance().queryWMI(idQuery);
+    }
+
+    /**
+     * Returns address width.
+     *
+     * @return On a 32-bit operating system, the value is 32 and on a 64-bit
+     *         operating system it is 64.
+     */
+    public WmiResult<BitnessProperty> queryBitness() {
+        WmiQuery<BitnessProperty> bitnessQuery = new WmiQuery<>(WIN32_PROCESSOR, BitnessProperty.class);
+        return WmiQueryHandler.createInstance().queryWMI(bitnessQuery);
     }
 }

@@ -83,6 +83,8 @@ import com.sun.jna.ptr.PointerByReference;
 
 import oshi.driver.wmi.Win32OperatingSystem;
 import oshi.driver.wmi.Win32OperatingSystem.OSVersionProperty;
+import oshi.driver.wmi.Win32Processor;
+import oshi.driver.wmi.Win32Processor.BitnessProperty;
 import oshi.jna.platform.windows.Kernel32;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
@@ -263,12 +265,10 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     protected int queryBitness(int jvmBitness) {
-        WmiQueryHandler wmiQueryHandler = WmiQueryHandler.createInstance();
         if (jvmBitness < 64 && System.getenv("ProgramFiles(x86)") != null && IS_VISTA_OR_GREATER) {
-            WmiQuery<BitnessProperty> bitnessQuery = new WmiQuery<>("Win32_Processor", BitnessProperty.class);
-            WmiResult<BitnessProperty> bitnessMap = wmiQueryHandler.queryWMI(bitnessQuery);
+            WmiResult<BitnessProperty> bitnessMap = new Win32Processor().queryBitness();
             if (bitnessMap.getResultCount() > 0) {
-                return WmiUtil.getUint16(bitnessMap, BitnessProperty.AddressWidth, 0);
+                return WmiUtil.getUint16(bitnessMap, BitnessProperty.ADDRESSWIDTH, 0);
             }
         }
         return jvmBitness;
@@ -764,10 +764,6 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             return null;
         }
         return systemLog;
-    }
-
-    enum BitnessProperty {
-        AddressWidth;
     }
 
     enum ProcessProperty {
