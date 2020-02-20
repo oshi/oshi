@@ -32,17 +32,17 @@ import java.util.stream.Collectors;
 import com.sun.jna.platform.win32.Kernel32; //NOSONAR
 import com.sun.jna.platform.win32.WinBase;
 import com.sun.jna.platform.win32.WinNT;
-import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 import com.sun.jna.ptr.IntByReference;
 
+import oshi.driver.wmi.Win32LogicalDisk;
+import oshi.driver.wmi.Win32LogicalDisk.LogicalDiskProperty;
 import oshi.software.common.AbstractFileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.ParseUtil;
 import oshi.util.platform.windows.PerfCounterQuery;
 import oshi.util.platform.windows.PerfCounterWildcardQuery;
 import oshi.util.platform.windows.PerfCounterWildcardQuery.PdhCounterWildcardProperty;
-import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
 
 /**
@@ -93,10 +93,6 @@ public class WindowsFileSystem extends AbstractFileSystem {
         OPTIONS_MAP.put(FILE_UNICODE_ON_DISK, "unicode");
         OPTIONS_MAP.put(FILE_VOLUME_IS_COMPRESSED, "vcomp");
         OPTIONS_MAP.put(FILE_VOLUME_QUOTAS, "quota");
-    }
-
-    enum LogicalDiskProperty {
-        DESCRIPTION, DRIVETYPE, FILESYSTEM, FREESPACE, NAME, PROVIDERNAME, SIZE;
     }
 
     enum HandleCountProperty implements PdhCounterWildcardProperty {
@@ -251,7 +247,6 @@ public class WindowsFileSystem extends AbstractFileSystem {
                     osStore.setFreeSpace(systemFreeBytes.getValue());
                     osStore.setUsableSpace(userFreeBytes.getValue());
                     osStore.setTotalSpace(totalBytes.getValue());
-                    System.out.println(osStore.toString());
                     fs.add(osStore);
                 }
             }
@@ -279,21 +274,7 @@ public class WindowsFileSystem extends AbstractFileSystem {
         long free;
         long total;
         List<OSFileStore> fs = new ArrayList<>();
-
-        StringBuilder wmiClassName = new StringBuilder("Win32_LogicalDisk");
-        boolean where = false;
-        if (localOnly) {
-            wmiClassName.append(" WHERE DriveType != 4");
-            where = true;
-        }
-        if (nameToMatch != null) {
-            wmiClassName.append(where ? " WHERE" : " AND").append(" Name=\"").append(nameToMatch).append('\"');
-        }
-        WmiQueryHandler wmiQueryHandler = WmiQueryHandler.createInstance();
-        WmiQuery<LogicalDiskProperty> logicalDiskQuery = new WmiQuery<>(wmiClassName.toString(),
-                LogicalDiskProperty.class);
-        WmiResult<LogicalDiskProperty> drives = wmiQueryHandler.queryWMI(logicalDiskQuery);
-
+        WmiResult<LogicalDiskProperty> drives = new Win32LogicalDisk().queryLogicalDisk(nameToMatch, localOnly);
         for (int i = 0; i < drives.getResultCount(); i++) {
             free = WmiUtil.getUint64(drives, LogicalDiskProperty.FREESPACE, i);
             total = WmiUtil.getUint64(drives, LogicalDiskProperty.SIZE, i);
@@ -312,7 +293,6 @@ public class WindowsFileSystem extends AbstractFileSystem {
                     description = split[split.length - 1];
                 }
             }
-
             OSFileStore osStore = new OSFileStore();
             osStore.setName(String.format("%s (%s)", description, name));
             osStore.setVolume(volume);
@@ -325,7 +305,6 @@ public class WindowsFileSystem extends AbstractFileSystem {
             osStore.setTotalSpace(total);
             fs.add(osStore);
         }
-
         return fs;
     }
 
