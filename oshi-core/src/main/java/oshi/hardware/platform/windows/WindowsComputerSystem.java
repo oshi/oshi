@@ -27,36 +27,38 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.function.Supplier;
 
-import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery; // NOSONAR squid:S1191
-import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
+import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult; // NOSONAR squid:S1191
 
+import oshi.driver.wmi.Win32Bios;
+import oshi.driver.wmi.Win32Bios.BiosSerialProperty;
+import oshi.driver.wmi.Win32ComputerSystem;
+import oshi.driver.wmi.Win32ComputerSystem.ComputerSystemProperty;
+import oshi.driver.wmi.Win32ComputerSystemProduct;
+import oshi.driver.wmi.Win32ComputerSystemProduct.ComputerSystemProductProperty;
 import oshi.hardware.Baseboard;
 import oshi.hardware.Firmware;
 import oshi.hardware.common.AbstractComputerSystem;
 import oshi.util.Constants;
 import oshi.util.Util;
-import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
+import oshi.util.tuples.Pair;
 
 /**
  * Hardware data obtained from WMI.
  */
 final class WindowsComputerSystem extends AbstractComputerSystem {
 
-    private final Supplier<ManufacturerModel> manufacturerModel = memoize(this::queryManufacturerModel);
-
+    private final Supplier<Pair<String, String>> manufacturerModel = memoize(this::queryManufacturerModel);
     private final Supplier<String> serialNumber = memoize(this::querySystemSerialNumber);
-
-    private final WmiQueryHandler wmiQueryHandler = WmiQueryHandler.createInstance();
 
     @Override
     public String getManufacturer() {
-        return manufacturerModel.get().manufacturer;
+        return manufacturerModel.get().getA();
     }
 
     @Override
     public String getModel() {
-        return manufacturerModel.get().model;
+        return manufacturerModel.get().getB();
     }
 
     @Override
@@ -74,67 +76,41 @@ final class WindowsComputerSystem extends AbstractComputerSystem {
         return new WindowsBaseboard();
     }
 
-    private ManufacturerModel queryManufacturerModel() {
+    private Pair<String, String> queryManufacturerModel() {
         String manufacturer = null;
         String model = null;
-        WmiQuery<ComputerSystemProperty> computerSystemQuery = new WmiQuery<>("Win32_ComputerSystem",
-                ComputerSystemProperty.class);
-        WmiResult<ComputerSystemProperty> win32ComputerSystem = wmiQueryHandler.queryWMI(computerSystemQuery);
+        WmiResult<ComputerSystemProperty> win32ComputerSystem = new Win32ComputerSystem().queryComputerSystem();
         if (win32ComputerSystem.getResultCount() > 0) {
             manufacturer = WmiUtil.getString(win32ComputerSystem, ComputerSystemProperty.MANUFACTURER, 0);
             model = WmiUtil.getString(win32ComputerSystem, ComputerSystemProperty.MODEL, 0);
         }
-        return new ManufacturerModel(manufacturer, model);
+        return new Pair<>(Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer,
+                Util.isBlank(model) ? Constants.UNKNOWN : model);
     }
 
     private String querySystemSerialNumber() {
         String result;
-        if ((result = querySerialFromBios()) == null && (result = querySerialFromCsProduct()) == null) {
-            return Constants.UNKNOWN;
+        if (((result = querySerialFromBios()) != null || (result = querySerialFromCsProduct()) != null)
+                && !Util.isBlank(result)) {
+            return result;
         }
-        return Util.isBlank(result) ? Constants.UNKNOWN : result;
+        return Constants.UNKNOWN;
     }
 
     private String querySerialFromBios() {
-        String result = null;
-        WmiQuery<BiosProperty> serialNumQuery = new WmiQuery<>("Win32_BIOS where PrimaryBIOS=true", BiosProperty.class);
-        WmiResult<BiosProperty> serialNum = wmiQueryHandler.queryWMI(serialNumQuery);
+        WmiResult<BiosSerialProperty> serialNum = new Win32Bios().querySerialNumber();
         if (serialNum.getResultCount() > 0) {
-            result = WmiUtil.getString(serialNum, BiosProperty.SERIALNUMBER, 0);
+            return WmiUtil.getString(serialNum, BiosSerialProperty.SERIALNUMBER, 0);
         }
-        return result;
+        return null;
     }
 
     private String querySerialFromCsProduct() {
-        String result = null;
-        WmiQuery<ComputerSystemProductProperty> identifyingNumberQuery = new WmiQuery<>("Win32_ComputerSystemProduct",
-                ComputerSystemProductProperty.class);
-        WmiResult<ComputerSystemProductProperty> identifyingNumber = wmiQueryHandler.queryWMI(identifyingNumberQuery);
+        WmiResult<ComputerSystemProductProperty> identifyingNumber = new Win32ComputerSystemProduct()
+                .queryIdentifyingNumber();
         if (identifyingNumber.getResultCount() > 0) {
-            result = WmiUtil.getString(identifyingNumber, ComputerSystemProductProperty.IDENTIFYINGNUMBER, 0);
+            return WmiUtil.getString(identifyingNumber, ComputerSystemProductProperty.IDENTIFYINGNUMBER, 0);
         }
-        return result;
-    }
-
-    enum ComputerSystemProperty {
-        MANUFACTURER, MODEL;
-    }
-
-    enum BiosProperty {
-        SERIALNUMBER;
-    }
-
-    enum ComputerSystemProductProperty {
-        IDENTIFYINGNUMBER;
-    }
-
-    private static final class ManufacturerModel {
-        private final String manufacturer;
-        private final String model;
-
-        private ManufacturerModel(String manufacturer, String model) {
-            this.manufacturer = Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer;
-            this.model = Util.isBlank(model) ? Constants.UNKNOWN : model;
-        }
+        return null;
     }
 }

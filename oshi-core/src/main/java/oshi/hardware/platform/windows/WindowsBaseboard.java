@@ -27,69 +27,57 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.function.Supplier;
 
-import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery; // NOSONAR squid:S1191
-import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
+import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult; // NOSONAR squid:S1191
 
+import oshi.driver.wmi.Win32BaseBoard;
+import oshi.driver.wmi.Win32BaseBoard.BaseBoardProperty;
 import oshi.hardware.common.AbstractBaseboard;
 import oshi.util.Constants;
 import oshi.util.Util;
-import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
+import oshi.util.tuples.Quartet;
 
 /**
  * Baseboard data obtained from WMI
  */
 final class WindowsBaseboard extends AbstractBaseboard {
-    private final Supplier<WmiStrings> wmi = memoize(this::queryWmi);
+    private final Supplier<Quartet<String, String, String, String>> manufModelVersSerial = memoize(
+            this::queryManufModelVersSerial);
 
     @Override
     public String getManufacturer() {
-        return wmi.get().manufacturer;
+        return manufModelVersSerial.get().getA();
     }
 
     @Override
     public String getModel() {
-        return wmi.get().model;
+        return manufModelVersSerial.get().getB();
     }
 
     @Override
     public String getVersion() {
-        return wmi.get().version;
+        return manufModelVersSerial.get().getC();
     }
 
     @Override
     public String getSerialNumber() {
-        return wmi.get().serialNumber;
+        return manufModelVersSerial.get().getD();
     }
 
-    private WmiStrings queryWmi() {
-        WmiQuery<BaseboardProperty> baseboardQuery = new WmiQuery<>("Win32_BaseBoard", BaseboardProperty.class);
-        WmiResult<BaseboardProperty> win32BaseBoard = WmiQueryHandler.createInstance().queryWMI(baseboardQuery);
+    private Quartet<String, String, String, String> queryManufModelVersSerial() {
+        String manufacturer = null;
+        String model = null;
+        String version = null;
+        String serialNumber = null;
+        WmiResult<BaseBoardProperty> win32BaseBoard = new Win32BaseBoard().queryBaseboardInfo();
         if (win32BaseBoard.getResultCount() > 0) {
-            return new WmiStrings(WmiUtil.getString(win32BaseBoard, BaseboardProperty.MANUFACTURER, 0),
-                    WmiUtil.getString(win32BaseBoard, BaseboardProperty.MODEL, 0),
-                    WmiUtil.getString(win32BaseBoard, BaseboardProperty.VERSION, 0),
-                    WmiUtil.getString(win32BaseBoard, BaseboardProperty.SERIALNUMBER, 0));
+            manufacturer = WmiUtil.getString(win32BaseBoard, BaseBoardProperty.MANUFACTURER, 0);
+            model = WmiUtil.getString(win32BaseBoard, BaseBoardProperty.MODEL, 0);
+            version = WmiUtil.getString(win32BaseBoard, BaseBoardProperty.VERSION, 0);
+            serialNumber = WmiUtil.getString(win32BaseBoard, BaseBoardProperty.SERIALNUMBER, 0);
         }
-        return new WmiStrings(Constants.UNKNOWN, Constants.UNKNOWN, Constants.UNKNOWN, Constants.UNKNOWN);
+        return new Quartet<>(Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer,
+                Util.isBlank(model) ? Constants.UNKNOWN : model, Util.isBlank(version) ? Constants.UNKNOWN : version,
+                Util.isBlank(serialNumber) ? Constants.UNKNOWN : serialNumber);
     }
-
-    enum BaseboardProperty {
-        MANUFACTURER, MODEL, VERSION, SERIALNUMBER;
-    }
-
-    private static final class WmiStrings {
-        private final String manufacturer;
-        private final String model;
-        private final String version;
-        private final String serialNumber;
-
-        private WmiStrings(String manufacturer, String model, String version, String serialNumber) {
-            this.manufacturer = Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer;
-            this.model = Util.isBlank(model) ? Constants.UNKNOWN : model;
-            this.version = Util.isBlank(version) ? Constants.UNKNOWN : version;
-            this.serialNumber = Util.isBlank(serialNumber) ? Constants.UNKNOWN : serialNumber;
-        }
-    }
-
 }

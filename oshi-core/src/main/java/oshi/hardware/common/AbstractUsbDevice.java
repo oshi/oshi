@@ -77,56 +77,47 @@ public abstract class AbstractUsbDevice implements UsbDevice {
         this.connectedDevices = Arrays.copyOf(connectedDevices, connectedDevices.length);
     }
 
-    /** {@inheritDoc} */
     @Override
     public String getName() {
         return this.name;
     }
 
-    /** {@inheritDoc} */
     @Override
     public String getVendor() {
         return this.vendor;
     }
 
-    /** {@inheritDoc} */
     @Override
     public String getVendorId() {
         return this.vendorId;
     }
 
-    /** {@inheritDoc} */
     @Override
     public String getProductId() {
         return this.productId;
     }
 
-    /** {@inheritDoc} */
     @Override
     public String getSerialNumber() {
         return this.serialNumber;
     }
 
-    /** {@inheritDoc} */
     @Override
     public String getUniqueDeviceId() {
         return this.uniqueDeviceId;
     }
 
-    /** {@inheritDoc} */
     @Override
     public UsbDevice[] getConnectedDevices() {
         return Arrays.copyOf(this.connectedDevices, this.connectedDevices.length);
     }
 
-    /** {@inheritDoc} */
     @Override
     public int compareTo(UsbDevice usb) {
         // Naturally sort by device name
         return getName().compareTo(usb.getName());
     }
 
-    /** {@inheritDoc} */
     @Override
     public String toString() {
         return indentUsb(this, 1);

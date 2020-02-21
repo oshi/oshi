@@ -50,19 +50,23 @@ import com.sun.jna.platform.win32.WinNT.PROCESSOR_RELATIONSHIP;
 import com.sun.jna.platform.win32.WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION;
 import com.sun.jna.platform.win32.WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX;
 import com.sun.jna.platform.win32.WinReg;
-import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
+import oshi.driver.perfmon.ProcessorInformation;
+import oshi.driver.perfmon.ProcessorInformation.InterruptsProperty;
+import oshi.driver.perfmon.ProcessorInformation.ProcessorFrequencyProperty;
+import oshi.driver.perfmon.ProcessorInformation.ProcessorTickCountProperty;
+import oshi.driver.perfmon.ProcessorInformation.SystemTickCountProperty;
+import oshi.driver.perfmon.SystemInformation;
+import oshi.driver.perfmon.SystemInformation.ContextSwitchProperty;
+import oshi.driver.wmi.Win32Processor;
+import oshi.driver.wmi.Win32Processor.ProcessorIdProperty;
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.jna.platform.windows.PowrProf;
 import oshi.jna.platform.windows.PowrProf.ProcessorPowerInformation;
 import oshi.util.ParseUtil;
-import oshi.util.platform.windows.PerfCounterQuery;
-import oshi.util.platform.windows.PerfCounterQuery.PdhCounterProperty;
-import oshi.util.platform.windows.PerfCounterWildcardQuery;
-import oshi.util.platform.windows.PerfCounterWildcardQuery.PdhCounterWildcardProperty;
-import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
+import oshi.util.tuples.Pair;
 
 /**
  * A CPU, representing all of a system's processors. It may contain multiple
@@ -72,154 +76,8 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsCentralProcessor.class);
 
-    private static final String PROCESSOR = "Processor";
-
+    // populated by initProcessorCounts called by the parent constructor
     private Map<String, Integer> numaNodeProcToLogicalProcMap;
-
-    enum ProcessorProperty {
-        PROCESSORID;
-    }
-
-    /*
-     * For tick counts
-     */
-    enum ProcessorTickCountProperty implements PdhCounterWildcardProperty {
-        // First element defines WMI instance name field and PDH instance filter
-        NAME(PerfCounterQuery.NOT_TOTAL_INSTANCES),
-        // Remaining elements define counters
-        PERCENTDPCTIME("% DPC Time"), //
-        PERCENTINTERRUPTTIME("% Interrupt Time"), //
-        PERCENTPRIVILEGEDTIME("% Privileged Time"), //
-        PERCENTPROCESSORTIME("% Processor Time"), //
-        PERCENTUSERTIME("% User Time");
-
-        private final String counter;
-
-        ProcessorTickCountProperty(String counter) {
-            this.counter = counter;
-        }
-
-        @Override
-        public String getCounter() {
-            return counter;
-        }
-    }
-
-    private final PerfCounterWildcardQuery<ProcessorTickCountProperty> processorTickPerfCounters = VersionHelpers
-            .IsWindows7OrGreater()
-                    ? new PerfCounterWildcardQuery<>(ProcessorTickCountProperty.class, "Processor Information",
-                            // NAME field includes NUMA nodes
-                            "Win32_PerfRawData_Counters_ProcessorInformation WHERE NOT Name LIKE\"%_Total\"",
-                            "Processor Tick Count")
-                    : new PerfCounterWildcardQuery<>(ProcessorTickCountProperty.class, PROCESSOR,
-                            // Older systems just have processor # in name
-                            "Win32_PerfRawData_PerfOS_Processor WHERE NOT Name=\"_Total\"", "Processor Tick Count");
-
-    enum SystemTickCountProperty implements PdhCounterProperty {
-        PERCENTDPCTIME(PerfCounterQuery.TOTAL_INSTANCE, "% DPC Time"), //
-        PERCENTINTERRUPTTIME(PerfCounterQuery.TOTAL_INSTANCE, "% Interrupt Time");
-
-        private final String instance;
-        private final String counter;
-
-        SystemTickCountProperty(String instance, String counter) {
-            this.instance = instance;
-            this.counter = counter;
-        }
-
-        @Override
-        public String getInstance() {
-            return instance;
-        }
-
-        @Override
-        public String getCounter() {
-            return counter;
-        }
-    }
-
-    private final PerfCounterQuery<SystemTickCountProperty> systemTickPerfCounters = new PerfCounterQuery<>(
-            SystemTickCountProperty.class, PROCESSOR, "Win32_PerfRawData_PerfOS_Processor WHERE Name=\"_Total\"",
-            "System Tick Count");
-
-    enum InterruptsProperty implements PdhCounterProperty {
-        INTERRUPTSPERSEC(PerfCounterQuery.TOTAL_INSTANCE, "Interrupts/sec");
-
-        private final String instance;
-        private final String counter;
-
-        InterruptsProperty(String instance, String counter) {
-            this.instance = instance;
-            this.counter = counter;
-        }
-
-        @Override
-        public String getInstance() {
-            return instance;
-        }
-
-        @Override
-        public String getCounter() {
-            return counter;
-        }
-    }
-
-    private final PerfCounterQuery<InterruptsProperty> interruptsPerfCounters = new PerfCounterQuery<>(
-            InterruptsProperty.class, PROCESSOR, "Win32_PerfRawData_PerfOS_Processor WHERE Name=\"_Total\"",
-            "Interrupt Count");
-
-    /*
-     * For tick counts
-     */
-    enum ContextSwitchProperty implements PdhCounterProperty {
-        CONTEXTSWITCHESPERSEC(null, "Context Switches/sec");
-
-        private final String instance;
-        private final String counter;
-
-        ContextSwitchProperty(String instance, String counter) {
-            this.instance = instance;
-            this.counter = counter;
-        }
-
-        @Override
-        public String getInstance() {
-            return instance;
-        }
-
-        @Override
-        public String getCounter() {
-            return counter;
-        }
-    }
-
-    private final PerfCounterQuery<ContextSwitchProperty> contextSwitchPerfCounters = new PerfCounterQuery<>(
-            ContextSwitchProperty.class, "System", "Win32_PerfRawData_PerfOS_System");
-
-    // Requires Win7 or greater
-    enum ProcessorFrequencyProperty implements PdhCounterWildcardProperty {
-        // First element defines WMI instance name field and PDH instance filter
-        Name(PerfCounterQuery.NOT_TOTAL_INSTANCES),
-        // Remaining elements define counters
-        PercentofMaximumFrequency("% of Maximum Frequency");
-
-        private final String counter;
-
-        ProcessorFrequencyProperty(String counter) {
-            this.counter = counter;
-        }
-
-        @Override
-        public String getCounter() {
-            return counter;
-        }
-    }
-
-    // Requires Win7 or greater
-    private final PerfCounterWildcardQuery<ProcessorFrequencyProperty> processorFrequencyCounters = new PerfCounterWildcardQuery<>(
-            ProcessorFrequencyProperty.class, "Processor Information",
-            // NAME field includes NUMA nodes
-            "Win32_PerfRawData_Counters_ProcessorInformation WHERE NOT Name LIKE\"%_Total\"", "Processor Frequency");
 
     /**
      * Initializes Class variables
@@ -259,16 +117,13 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
                 || processorArchitecture == 6) { // PROCESSOR_ARCHITECTURE_IA64
             cpu64bit = true;
         }
-
-        WmiQuery<ProcessorProperty> processorIdQuery = new WmiQuery<>("Win32_Processor", ProcessorProperty.class);
-        WmiResult<ProcessorProperty> processorId = WmiQueryHandler.createInstance().queryWMI(processorIdQuery);
+        WmiResult<ProcessorIdProperty> processorId = new Win32Processor().queryProcessorId();
         if (processorId.getResultCount() > 0) {
-            processorID = WmiUtil.getString(processorId, ProcessorProperty.PROCESSORID, 0);
+            processorID = WmiUtil.getString(processorId, ProcessorIdProperty.PROCESSORID, 0);
         } else {
             processorID = createProcessorID(cpuStepping, cpuModel, cpuFamily,
                     cpu64bit ? new String[] { "ia64" } : new String[0]);
         }
-
         return new ProcessorIdentifier(cpuVendor, cpuName, cpuFamily, cpuModel, cpuStepping, processorID, cpu64bit);
     }
 
@@ -468,7 +323,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
         // Percent time raw value is cumulative 100NS-ticks
         // Divide by 10_000 to get milliseconds
 
-        Map<SystemTickCountProperty, Long> valueMap = this.systemTickPerfCounters.queryValues();
+        Map<SystemTickCountProperty, Long> valueMap = new ProcessorInformation().querySystemCounters();
         ticks[TickType.IRQ.getIndex()] = valueMap.getOrDefault(SystemTickCountProperty.PERCENTINTERRUPTTIME, 0L)
                 / 10_000L;
         ticks[TickType.SOFTIRQ.getIndex()] = valueMap.getOrDefault(SystemTickCountProperty.PERCENTDPCTIME, 0L)
@@ -486,10 +341,11 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
     @Override
     public long[] queryCurrentFreq() {
         if (VersionHelpers.IsWindows7OrGreater()) {
-            Map<ProcessorFrequencyProperty, List<Long>> valueMap = this.processorFrequencyCounters
-                    .queryValuesWildcard();
-            List<String> instances = this.processorFrequencyCounters.getInstancesFromLastQuery();
-            List<Long> percentMaxList = valueMap.get(ProcessorFrequencyProperty.PercentofMaximumFrequency);
+            Pair<List<String>, Map<ProcessorFrequencyProperty, List<Long>>> instanceValuePair = new ProcessorInformation()
+                    .queryFrequencyCounters();
+            List<String> instances = instanceValuePair.getA();
+            Map<ProcessorFrequencyProperty, List<Long>> valueMap = instanceValuePair.getB();
+            List<Long> percentMaxList = valueMap.get(ProcessorFrequencyProperty.PERCENTOFMAXIMUMFREQUENCY);
             if (!instances.isEmpty()) {
                 long maxFreq = this.getMaxFreq();
                 long[] freqs = new long[getLogicalProcessorCount()];
@@ -529,8 +385,8 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
         long[] freqs = new long[getLogicalProcessorCount()];
         int bufferSize = ppi.size() * freqs.length;
         Memory mem = new Memory(bufferSize);
-        if (0 != PowrProf.INSTANCE.CallNtPowerInformation(POWER_INFORMATION_LEVEL.ProcessorInformation, null,
-                0, mem, bufferSize)) {
+        if (0 != PowrProf.INSTANCE.CallNtPowerInformation(POWER_INFORMATION_LEVEL.ProcessorInformation, null, 0, mem,
+                bufferSize)) {
             LOG.error("Unable to get Processor Information");
             Arrays.fill(freqs, -1L);
             return freqs;
@@ -563,8 +419,10 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
 
     @Override
     public long[][] queryProcessorCpuLoadTicks() {
-        Map<ProcessorTickCountProperty, List<Long>> valueMap = this.processorTickPerfCounters.queryValuesWildcard();
-        List<String> instances = this.processorTickPerfCounters.getInstancesFromLastQuery();
+        Pair<List<String>, Map<ProcessorTickCountProperty, List<Long>>> instanceValuePair = new ProcessorInformation()
+                .queryProcessorCounters();
+        List<String> instances = instanceValuePair.getA();
+        Map<ProcessorTickCountProperty, List<Long>> valueMap = instanceValuePair.getB();
         List<Long> systemList = valueMap.get(ProcessorTickCountProperty.PERCENTPRIVILEGEDTIME);
         List<Long> userList = valueMap.get(ProcessorTickCountProperty.PERCENTUSERTIME);
         List<Long> irqList = valueMap.get(ProcessorTickCountProperty.PERCENTINTERRUPTTIME);
@@ -608,13 +466,13 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
 
     @Override
     public long queryContextSwitches() {
-        Map<ContextSwitchProperty, Long> valueMap = this.contextSwitchPerfCounters.queryValues();
+        Map<ContextSwitchProperty, Long> valueMap = new SystemInformation().queryContextSwitchCounters();
         return valueMap.getOrDefault(ContextSwitchProperty.CONTEXTSWITCHESPERSEC, 0L);
     }
 
     @Override
     public long queryInterrupts() {
-        Map<InterruptsProperty, Long> valueMap = this.interruptsPerfCounters.queryValues();
+        Map<InterruptsProperty, Long> valueMap = new ProcessorInformation().queryInterruptCounters();
         return valueMap.getOrDefault(InterruptsProperty.INTERRUPTSPERSEC, 0L);
     }
 }

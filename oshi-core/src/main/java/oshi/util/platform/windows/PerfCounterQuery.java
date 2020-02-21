@@ -53,7 +53,7 @@ public class PerfCounterQuery<T extends Enum<T>> {
     protected final String queryKey;
     protected CounterDataSource source;
     protected PerfCounterQueryHandler pdhQueryHandler;
-    protected WmiQueryHandler wmiQueryHandler;
+
     /*
      * Only one will be non-null depending on source
      */
@@ -113,7 +113,6 @@ public class PerfCounterQuery<T extends Enum<T>> {
         this.perfWmiClass = perfWmiClass;
         this.queryKey = queryKey;
         this.pdhQueryHandler = PerfCounterQueryHandler.getInstance();
-        this.wmiQueryHandler = WmiQueryHandler.createInstance();
         // Start off with PDH as source; if query here fails we will permanently
         // fall back to WMI
         this.source = CounterDataSource.PDH;
@@ -229,7 +228,7 @@ public class PerfCounterQuery<T extends Enum<T>> {
     }
 
     private void queryWmi(Map<T, Long> valueMap, T[] props) {
-        WmiResult<T> result = wmiQueryHandler.queryWMI(this.counterQuery);
+        WmiResult<T> result = WmiQueryHandler.createInstance().queryWMI(this.counterQuery);
         if (result.getResultCount() > 0) {
             for (T prop : props) {
                 switch (result.getCIMType(prop)) {

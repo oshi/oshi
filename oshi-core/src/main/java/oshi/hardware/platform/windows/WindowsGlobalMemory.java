@@ -35,14 +35,16 @@ import com.sun.jna.platform.win32.Kernel32; // NOSONAR squid:S1191
 import com.sun.jna.platform.win32.Psapi;
 import com.sun.jna.platform.win32.Psapi.PERFORMANCE_INFORMATION;
 import com.sun.jna.platform.win32.VersionHelpers;
-import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
+import oshi.driver.wmi.Win32PhysicalMemory;
+import oshi.driver.wmi.Win32PhysicalMemory.PhysicalMemoryProperty;
+import oshi.driver.wmi.Win32PhysicalMemory.PhysicalMemoryPropertyWin8;
 import oshi.hardware.PhysicalMemory;
 import oshi.hardware.VirtualMemory;
 import oshi.hardware.common.AbstractGlobalMemory;
-import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
+import oshi.util.tuples.Triplet;
 
 /**
  * Memory obtained by Performance Info.
@@ -53,32 +55,23 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
 
     private static final boolean IS_WINDOWS10_OR_GREATER = VersionHelpers.IsWindows10OrGreater();
 
-    private final Supplier<PerfInfo> perfInfo = memoize(this::readPerfInfo, defaultExpiration());
+    private final Supplier<Triplet<Long, Long, Long>> availTotalSize = memoize(this::readPerfInfo, defaultExpiration());
 
     private final Supplier<VirtualMemory> vm = memoize(this::createVirtualMemory);
 
-    enum PhysicalMemoryProperty {
-        BANKLABEL, CAPACITY, SPEED, MANUFACTURER, SMBIOSMEMORYTYPE
-    }
-
-    // Pre-Win10
-    enum PhysicalMemoryPropertyWin8 {
-        BANKLABEL, CAPACITY, SPEED, MANUFACTURER, MEMORYTYPE
-    }
-
     @Override
     public long getAvailable() {
-        return perfInfo.get().available;
+        return availTotalSize.get().getA();
     }
 
     @Override
     public long getTotal() {
-        return perfInfo.get().total;
+        return availTotalSize.get().getB();
     }
 
     @Override
     public long getPageSize() {
-        return perfInfo.get().pageSize;
+        return availTotalSize.get().getC();
     }
 
     @Override
@@ -93,12 +86,8 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
     @Override
     public PhysicalMemory[] getPhysicalMemory() {
         PhysicalMemory[] physicalMemoryArray;
-        WmiQueryHandler wmiQueryHandler = WmiQueryHandler.createInstance();
         if (IS_WINDOWS10_OR_GREATER) {
-            WmiQuery<PhysicalMemoryProperty> physicalMemoryQuery = new WmiQuery<>("Win32_PhysicalMemory",
-                    PhysicalMemoryProperty.class);
-            WmiResult<PhysicalMemoryProperty> bankMap = wmiQueryHandler.queryWMI(physicalMemoryQuery);
-
+            WmiResult<PhysicalMemoryProperty> bankMap = new Win32PhysicalMemory().queryphysicalMemory();
             physicalMemoryArray = new PhysicalMemory[bankMap.getResultCount()];
             for (int index = 0; index < bankMap.getResultCount(); index++) {
                 String bankLabel = WmiUtil.getString(bankMap, PhysicalMemoryProperty.BANKLABEL, index);
@@ -110,10 +99,7 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
                 physicalMemoryArray[index] = new PhysicalMemory(bankLabel, capacity, speed, manufacturer, memoryType);
             }
         } else {
-            WmiQuery<PhysicalMemoryPropertyWin8> physicalMemoryQuery = new WmiQuery<>("Win32_PhysicalMemory",
-                    PhysicalMemoryPropertyWin8.class);
-            WmiResult<PhysicalMemoryPropertyWin8> bankMap = wmiQueryHandler.queryWMI(physicalMemoryQuery);
-
+            WmiResult<PhysicalMemoryPropertyWin8> bankMap = new Win32PhysicalMemory().queryphysicalMemoryWin8();
             physicalMemoryArray = new PhysicalMemory[bankMap.getResultCount()];
             for (int index = 0; index < bankMap.getResultCount(); index++) {
                 String bankLabel = WmiUtil.getString(bankMap, PhysicalMemoryPropertyWin8.BANKLABEL, index);
@@ -261,30 +247,15 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
         }
     }
 
-    private PerfInfo readPerfInfo() {
-        long pageSize;
-        long memAvailable;
-        long memTotal;
+    private Triplet<Long, Long, Long> readPerfInfo() {
         PERFORMANCE_INFORMATION performanceInfo = new PERFORMANCE_INFORMATION();
         if (!Psapi.INSTANCE.GetPerformanceInfo(performanceInfo, performanceInfo.size())) {
             LOG.error("Failed to get Performance Info. Error code: {}", Kernel32.INSTANCE.GetLastError());
-            return new PerfInfo(0, 0, 4098);
+            return new Triplet<>(0L, 0L, 4098L);
         }
-        pageSize = performanceInfo.PageSize.longValue();
-        memAvailable = pageSize * performanceInfo.PhysicalAvailable.longValue();
-        memTotal = pageSize * performanceInfo.PhysicalTotal.longValue();
-        return new PerfInfo(memTotal, memAvailable, pageSize);
-    }
-
-    private static final class PerfInfo {
-        private final long total;
-        private final long available;
-        private final long pageSize;
-
-        private PerfInfo(long total, long available, long pageSize) {
-            this.total = total;
-            this.available = available;
-            this.pageSize = pageSize;
-        }
+        long pageSize = performanceInfo.PageSize.longValue();
+        long memAvailable = pageSize * performanceInfo.PhysicalAvailable.longValue();
+        long memTotal = pageSize * performanceInfo.PhysicalTotal.longValue();
+        return new Triplet<>(memAvailable, memTotal, pageSize);
     }
 }
