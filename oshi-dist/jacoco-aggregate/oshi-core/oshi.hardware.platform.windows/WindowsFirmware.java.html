@@ -27,79 +27,68 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.function.Supplier;
 
-import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery; // NOSONAR squid:S1191
-import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
+import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult; // NOSONAR squid:S1191
 
+import oshi.driver.wmi.Win32Bios;
+import oshi.driver.wmi.Win32Bios.BiosProperty;
 import oshi.hardware.common.AbstractFirmware;
 import oshi.util.Constants;
 import oshi.util.Util;
-import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
+import oshi.util.tuples.Quintet;
 
 /**
  * Firmware data obtained from WMI
  */
-<span class="nc" id="L42">final class WindowsFirmware extends AbstractFirmware {</span>
+<span class="nc" id="L43">final class WindowsFirmware extends AbstractFirmware {</span>
 
-<span class="nc" id="L44">    private final Supplier&lt;WmiStrings&gt; wmi = memoize(this::queryWmi);</span>
+<span class="nc" id="L45">    private final Supplier&lt;Quintet&lt;String, String, String, String, String&gt;&gt; manufNameDescVersRelease = memoize(</span>
+            this::queryManufNameDescVersRelease);
 
     @Override
     public String getManufacturer() {
-<span class="nc" id="L48">        return wmi.get().manufacturer;</span>
+<span class="nc" id="L50">        return manufNameDescVersRelease.get().getA();</span>
     }
 
     @Override
     public String getName() {
-<span class="nc" id="L53">        return wmi.get().name;</span>
+<span class="nc" id="L55">        return manufNameDescVersRelease.get().getB();</span>
     }
 
     @Override
     public String getDescription() {
-<span class="nc" id="L58">        return wmi.get().description;</span>
+<span class="nc" id="L60">        return manufNameDescVersRelease.get().getC();</span>
     }
 
     @Override
     public String getVersion() {
-<span class="nc" id="L63">        return wmi.get().version;</span>
+<span class="nc" id="L65">        return manufNameDescVersRelease.get().getD();</span>
     }
 
     @Override
     public String getReleaseDate() {
-<span class="nc" id="L68">        return wmi.get().releaseDate;</span>
+<span class="nc" id="L70">        return manufNameDescVersRelease.get().getE();</span>
     }
 
-    private WmiStrings queryWmi() {
-<span class="nc" id="L72">        WmiQuery&lt;BiosProperty&gt; biosQuery = new WmiQuery&lt;&gt;(&quot;Win32_BIOS where PrimaryBIOS=true&quot;, BiosProperty.class);</span>
-<span class="nc" id="L73">        WmiResult&lt;BiosProperty&gt; win32BIOS = WmiQueryHandler.createInstance().queryWMI(biosQuery);</span>
-<span class="nc bnc" id="L74" title="All 2 branches missed.">        if (win32BIOS.getResultCount() &gt; 0) {</span>
-<span class="nc" id="L75">            return new WmiStrings(WmiUtil.getString(win32BIOS, BiosProperty.MANUFACTURER, 0),</span>
-<span class="nc" id="L76">                    WmiUtil.getString(win32BIOS, BiosProperty.NAME, 0),</span>
-<span class="nc" id="L77">                    WmiUtil.getString(win32BIOS, BiosProperty.DESCRIPTION, 0),</span>
-<span class="nc" id="L78">                    WmiUtil.getString(win32BIOS, BiosProperty.VERSION, 0),</span>
-<span class="nc" id="L79">                    WmiUtil.getDateString(win32BIOS, BiosProperty.RELEASEDATE, 0));</span>
+    private Quintet&lt;String, String, String, String, String&gt; queryManufNameDescVersRelease() {
+<span class="nc" id="L74">        String manufacturer = null;</span>
+<span class="nc" id="L75">        String name = null;</span>
+<span class="nc" id="L76">        String description = null;</span>
+<span class="nc" id="L77">        String version = null;</span>
+<span class="nc" id="L78">        String releaseDate = null;</span>
+<span class="nc" id="L79">        WmiResult&lt;BiosProperty&gt; win32BIOS = new Win32Bios().queryBiosInfo();</span>
+<span class="nc bnc" id="L80" title="All 2 branches missed.">        if (win32BIOS.getResultCount() &gt; 0) {</span>
+<span class="nc" id="L81">            manufacturer = WmiUtil.getString(win32BIOS, BiosProperty.MANUFACTURER, 0);</span>
+<span class="nc" id="L82">            name = WmiUtil.getString(win32BIOS, BiosProperty.NAME, 0);</span>
+<span class="nc" id="L83">            description = WmiUtil.getString(win32BIOS, BiosProperty.DESCRIPTION, 0);</span>
+<span class="nc" id="L84">            version = WmiUtil.getString(win32BIOS, BiosProperty.VERSION, 0);</span>
+<span class="nc" id="L85">            releaseDate = WmiUtil.getDateString(win32BIOS, BiosProperty.RELEASEDATE, 0);</span>
         }
-<span class="nc" id="L81">        return new WmiStrings(Constants.UNKNOWN, Constants.UNKNOWN, Constants.UNKNOWN, Constants.UNKNOWN,</span>
-                Constants.UNKNOWN);
-    }
-
-<span class="nc" id="L85">    enum BiosProperty {</span>
-<span class="nc" id="L86">        MANUFACTURER, NAME, DESCRIPTION, VERSION, RELEASEDATE;</span>
-    }
-
-    private static final class WmiStrings {
-        private final String manufacturer;
-        private final String name;
-        private final String description;
-        private final String version;
-        private final String releaseDate;
-
-<span class="nc" id="L96">        private WmiStrings(String manufacturer, String name, String description, String version, String releaseDate) {</span>
-<span class="nc bnc" id="L97" title="All 2 branches missed.">            this.manufacturer = Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer;</span>
-<span class="nc bnc" id="L98" title="All 2 branches missed.">            this.name = Util.isBlank(name) ? Constants.UNKNOWN : name;</span>
-<span class="nc bnc" id="L99" title="All 2 branches missed.">            this.description = Util.isBlank(description) ? Constants.UNKNOWN : description;</span>
-<span class="nc bnc" id="L100" title="All 2 branches missed.">            this.version = Util.isBlank(version) ? Constants.UNKNOWN : version;</span>
-<span class="nc bnc" id="L101" title="All 2 branches missed.">            this.releaseDate = Util.isBlank(releaseDate) ? Constants.UNKNOWN : releaseDate;</span>
-<span class="nc" id="L102">        }</span>
+<span class="nc bnc" id="L87" title="All 2 branches missed.">        return new Quintet&lt;&gt;(Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer,</span>
+<span class="nc bnc" id="L88" title="All 2 branches missed.">                Util.isBlank(name) ? Constants.UNKNOWN : name,</span>
+<span class="nc bnc" id="L89" title="All 2 branches missed.">                Util.isBlank(description) ? Constants.UNKNOWN : description,</span>
+<span class="nc bnc" id="L90" title="All 2 branches missed.">                Util.isBlank(version) ? Constants.UNKNOWN : version,</span>
+<span class="nc bnc" id="L91" title="All 2 branches missed.">                Util.isBlank(releaseDate) ? Constants.UNKNOWN : releaseDate);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
