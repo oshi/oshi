@@ -239,7 +239,7 @@ public class PerfCounterWildcardQuery&lt;T extends Enum&lt;T&gt;&gt; extends Per
     }
 
     private void queryWmiWildcard(Map&lt;T, List&lt;Long&gt;&gt; valueMap, T[] props) {
-<span class="nc" id="L242">        WmiResult&lt;T&gt; result = wmiQueryHandler.queryWMI(this.counterQuery);</span>
+<span class="nc" id="L242">        WmiResult&lt;T&gt; result = WmiQueryHandler.createInstance().queryWMI(this.counterQuery);</span>
 <span class="nc bnc" id="L243" title="All 2 branches missed.">        if (result.getResultCount() &gt; 0) {</span>
             // First element is instance name
 <span class="nc bnc" id="L245" title="All 2 branches missed.">            for (int i = 0; i &lt; result.getResultCount(); i++) {</span>
