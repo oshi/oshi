@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>ProcessorInformation.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-demo</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.driver.perfmon</a> &gt; <span class="el_source">ProcessorInformation.java</span></div><h1>ProcessorInformation.java</h1><pre class="source lang-java linenums">/**
+ * MIT License
+ *
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+package oshi.driver.perfmon;
+
+import java.util.List;
+import java.util.Map;
+
+import com.sun.jna.platform.win32.VersionHelpers; // NOSONAR squid:s1191
+
+import oshi.util.platform.windows.PerfCounterQuery;
+import oshi.util.platform.windows.PerfCounterQuery.PdhCounterProperty;
+import oshi.util.platform.windows.PerfCounterWildcardQuery;
+import oshi.util.platform.windows.PerfCounterWildcardQuery.PdhCounterWildcardProperty;
+import oshi.util.tuples.Pair;
+
+<span class="nc" id="L37">public class ProcessorInformation {</span>
+
+    private static final String PROCESSOR = &quot;Processor&quot;;
+    private static final String INTERRUPT_COUNT = &quot;Interrupt Count&quot;;
+    private static final String PROCESSOR_FREQUENCY = &quot;Processor Frequency&quot;;
+    private static final String PROCESSOR_INFORMATION = &quot;Processor Information&quot;;
+    private static final String PROCESSOR_TICK_COUNT = &quot;Processor Tick Count&quot;;
+
+    // For Win7+ ... NAME field includes NUMA nodes
+    private static final String WIN32_PERF_RAW_DATA_COUNTERS_PROCESSOR_INFORMATION_WHERE_NOT_NAME_LIKE_TOTAL = &quot;Win32_PerfRawData_Counters_ProcessorInformation WHERE NOT Name LIKE\&quot;%_Total\&quot;&quot;;
+
+    // For Vista- ... Older systems just have processor #
+    private static final String WIN32_PERF_RAW_DATA_PERF_OS_PROCESSOR_WHERE_NOT_NAME_TOTAL = &quot;Win32_PerfRawData_PerfOS_Processor WHERE NOT Name=\&quot;_Total\&quot;&quot;;
+    private static final String WIN32_PERF_RAW_DATA_PERF_OS_PROCESSOR_WHERE_NAME_TOTAL = &quot;Win32_PerfRawData_PerfOS_Processor WHERE Name=\&quot;_Total\&quot;&quot;;
+
+<span class="nc" id="L52">    private static final boolean IS_WIN7_OR_GREATER = VersionHelpers.IsWindows7OrGreater();</span>
+
+    /**
+     * Processor performance counters
+     */
+<span class="nc" id="L57">    public enum ProcessorTickCountProperty implements PdhCounterWildcardProperty {</span>
+        // First element defines WMI instance name field and PDH instance filter
+<span class="nc" id="L59">        NAME(PerfCounterQuery.NOT_TOTAL_INSTANCES),</span>
+        // Remaining elements define counters
+<span class="nc" id="L61">        PERCENTDPCTIME(&quot;% DPC Time&quot;), //</span>
+<span class="nc" id="L62">        PERCENTINTERRUPTTIME(&quot;% Interrupt Time&quot;), //</span>
+<span class="nc" id="L63">        PERCENTPRIVILEGEDTIME(&quot;% Privileged Time&quot;), //</span>
+<span class="nc" id="L64">        PERCENTPROCESSORTIME(&quot;% Processor Time&quot;), //</span>
+<span class="nc" id="L65">        PERCENTUSERTIME(&quot;% User Time&quot;);</span>
+
+        private final String counter;
+
+<span class="nc" id="L69">        ProcessorTickCountProperty(String counter) {</span>
+<span class="nc" id="L70">            this.counter = counter;</span>
+<span class="nc" id="L71">        }</span>
+
+        @Override
+        public String getCounter() {
+<span class="nc" id="L75">            return counter;</span>
+        }
+    }
+
+    /**
+     * System performance counters
+     */
+<span class="nc" id="L82">    public enum SystemTickCountProperty implements PdhCounterProperty {</span>
+<span class="nc" id="L83">        PERCENTDPCTIME(PerfCounterQuery.TOTAL_INSTANCE, &quot;% DPC Time&quot;), //</span>
+<span class="nc" id="L84">        PERCENTINTERRUPTTIME(PerfCounterQuery.TOTAL_INSTANCE, &quot;% Interrupt Time&quot;);</span>
+
+        private final String instance;
+        private final String counter;
+
+<span class="nc" id="L89">        SystemTickCountProperty(String instance, String counter) {</span>
+<span class="nc" id="L90">            this.instance = instance;</span>
+<span class="nc" id="L91">            this.counter = counter;</span>
+<span class="nc" id="L92">        }</span>
+
+        @Override
+        public String getInstance() {
+<span class="nc" id="L96">            return instance;</span>
+        }
+
+        @Override
+        public String getCounter() {
+<span class="nc" id="L101">            return counter;</span>
+        }
+    }
+
+    /**
+     * System interrupts counters
+     */
+<span class="nc" id="L108">    public enum InterruptsProperty implements PdhCounterProperty {</span>
+<span class="nc" id="L109">        INTERRUPTSPERSEC(PerfCounterQuery.TOTAL_INSTANCE, &quot;Interrupts/sec&quot;);</span>
+
+        private final String instance;
+        private final String counter;
+
+<span class="nc" id="L114">        InterruptsProperty(String instance, String counter) {</span>
+<span class="nc" id="L115">            this.instance = instance;</span>
+<span class="nc" id="L116">            this.counter = counter;</span>
+<span class="nc" id="L117">        }</span>
+
+        @Override
+        public String getInstance() {
+<span class="nc" id="L121">            return instance;</span>
+        }
+
+        @Override
+        public String getCounter() {
+<span class="nc" id="L126">            return counter;</span>
+        }
+    }
+
+    /**
+     * Processor Frequency counters. Requires Win7 or greater
+     */
+<span class="nc" id="L133">    public enum ProcessorFrequencyProperty implements PdhCounterWildcardProperty {</span>
+        // First element defines WMI instance name field and PDH instance filter
+<span class="nc" id="L135">        NAME(PerfCounterQuery.NOT_TOTAL_INSTANCES),</span>
+        // Remaining elements define counters
+<span class="nc" id="L137">        PERCENTOFMAXIMUMFREQUENCY(&quot;% of Maximum Frequency&quot;);</span>
+
+        private final String counter;
+
+<span class="nc" id="L141">        ProcessorFrequencyProperty(String counter) {</span>
+<span class="nc" id="L142">            this.counter = counter;</span>
+<span class="nc" id="L143">        }</span>
+
+        @Override
+        public String getCounter() {
+<span class="nc" id="L147">            return counter;</span>
+        }
+    }
+
+    /**
+     * Returns processor performance counters.
+     *
+     * @return Performance Counters for processors.
+     */
+    public Pair&lt;List&lt;String&gt;, Map&lt;ProcessorTickCountProperty, List&lt;Long&gt;&gt;&gt; queryProcessorCounters() {
+<span class="nc bnc" id="L157" title="All 2 branches missed.">        PerfCounterWildcardQuery&lt;ProcessorTickCountProperty&gt; processorTickPerfCounters = IS_WIN7_OR_GREATER</span>
+<span class="nc" id="L158">                ? new PerfCounterWildcardQuery&lt;&gt;(ProcessorTickCountProperty.class, PROCESSOR_INFORMATION,</span>
+                        WIN32_PERF_RAW_DATA_COUNTERS_PROCESSOR_INFORMATION_WHERE_NOT_NAME_LIKE_TOTAL,
+                        PROCESSOR_TICK_COUNT)
+<span class="nc" id="L161">                : new PerfCounterWildcardQuery&lt;&gt;(ProcessorTickCountProperty.class, PROCESSOR,</span>
+                        WIN32_PERF_RAW_DATA_PERF_OS_PROCESSOR_WHERE_NOT_NAME_TOTAL, PROCESSOR_TICK_COUNT);
+<span class="nc" id="L163">        Map&lt;ProcessorTickCountProperty, List&lt;Long&gt;&gt; values = processorTickPerfCounters.queryValuesWildcard();</span>
+<span class="nc" id="L164">        List&lt;String&gt; instances = processorTickPerfCounters.getInstancesFromLastQuery();</span>
+<span class="nc" id="L165">        return new Pair&lt;&gt;(instances, values);</span>
+    }
+
+    /**
+     * Returns system performance counters.
+     *
+     * @return Performance Counters for the total of all processors.
+     */
+    public Map&lt;SystemTickCountProperty, Long&gt; querySystemCounters() {
+<span class="nc" id="L174">        PerfCounterQuery&lt;SystemTickCountProperty&gt; systemTickPerfCounters = new PerfCounterQuery&lt;&gt;(</span>
+                SystemTickCountProperty.class, PROCESSOR, WIN32_PERF_RAW_DATA_PERF_OS_PROCESSOR_WHERE_NAME_TOTAL,
+                &quot;System Tick Count&quot;);
+<span class="nc" id="L177">        return systemTickPerfCounters.queryValues();</span>
+    }
+
+    /**
+     * Returns system interrupts counters.
+     *
+     * @return Interrupts counter for the total of all processors.
+     */
+    public Map&lt;InterruptsProperty, Long&gt; queryInterruptCounters() {
+<span class="nc" id="L186">        PerfCounterQuery&lt;InterruptsProperty&gt; interruptsPerfCounters = new PerfCounterQuery&lt;&gt;(InterruptsProperty.class,</span>
+                PROCESSOR, WIN32_PERF_RAW_DATA_PERF_OS_PROCESSOR_WHERE_NAME_TOTAL, INTERRUPT_COUNT);
+<span class="nc" id="L188">        return interruptsPerfCounters.queryValues();</span>
+    }
+
+    /**
+     * Returns processor frequency counters.
+     *
+     * @return Processor frequency counter for each processor.
+     */
+    public Pair&lt;List&lt;String&gt;, Map&lt;ProcessorFrequencyProperty, List&lt;Long&gt;&gt;&gt; queryFrequencyCounters() {
+<span class="nc" id="L197">        PerfCounterWildcardQuery&lt;ProcessorFrequencyProperty&gt; processorFrequencyCounters = new PerfCounterWildcardQuery&lt;&gt;(</span>
+                ProcessorFrequencyProperty.class, PROCESSOR_INFORMATION,
+                WIN32_PERF_RAW_DATA_COUNTERS_PROCESSOR_INFORMATION_WHERE_NOT_NAME_LIKE_TOTAL, PROCESSOR_FREQUENCY);
+<span class="nc" id="L200">        Map&lt;ProcessorFrequencyProperty, List&lt;Long&gt;&gt; values = processorFrequencyCounters.queryValuesWildcard();</span>
+<span class="nc" id="L201">        List&lt;String&gt; instances = processorFrequencyCounters.getInstancesFromLastQuery();</span>
+<span class="nc" id="L202">        return new Pair&lt;&gt;(instances, values);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
