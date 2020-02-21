@@ -113,7 +113,6 @@ public class WindowsDisks implements Disks {
 
     }
 
-    /** {@inheritDoc} */
     @Override
     public HWDiskStore[] getDisks() {
         List<HWDiskStore> result;
@@ -122,7 +121,6 @@ public class WindowsDisks implements Disks {
         PartitionMaps maps = queryPartitionMaps();
 
         WmiResult<DiskDriveProperty> vals = new Win32DiskDrive().queryDiskDrive();
-
         for (int i = 0; i < vals.getResultCount(); i++) {
             HWDiskStore ds = new HWDiskStore();
             ds.setName(WmiUtil.getString(vals, DiskDriveProperty.NAME, i));

@@ -23,15 +23,14 @@
  */
 package oshi.util.tuples;
 
-public class Quartet<A, B, C, D> {
+public class Triplet<A, B, C> {
 
     private final A a;
     private final B b;
     private final C c;
-    private final D d;
 
     /**
-     * Create a quartet and store four objects.
+     * Create a triplet and store three objects.
      *
      * @param a
      *            the first object to store
@@ -39,14 +38,11 @@ public class Quartet<A, B, C, D> {
      *            the second object to store
      * @param c
      *            the third object to store
-     * @param d
-     *            the fourth object to store
      */
-    public Quartet(A a, B b, C c, D d) {
+    public Triplet(A a, B b, C c) {
         this.a = a;
         this.b = b;
         this.c = c;
-        this.d = d;
     }
 
     /**
@@ -74,14 +70,5 @@ public class Quartet<A, B, C, D> {
      */
     public final C getC() {
         return c;
-    }
-
-    /**
-     * Returns the fourth stored object.
-     *
-     * @return fourth object stored
-     */
-    public final D getD() {
-        return d;
     }
 }

@@ -42,61 +42,51 @@ import oshi.hardware.common.AbstractHardwareAbstractionLayer;
  */
 public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {
 
-    /** {@inheritDoc} */
     @Override
     public ComputerSystem createComputerSystem() {
         return new WindowsComputerSystem();
     }
 
-    /** {@inheritDoc} */
     @Override
     public GlobalMemory createMemory() {
         return new WindowsGlobalMemory();
     }
 
-    /** {@inheritDoc} */
     @Override
     public CentralProcessor createProcessor() {
         return new WindowsCentralProcessor();
     }
 
-    /** {@inheritDoc} */
     @Override
     public Sensors createSensors() {
         return new WindowsSensors();
     }
 
-    /** {@inheritDoc} */
     @Override
     public PowerSource[] getPowerSources() {
         return WindowsPowerSource.getPowerSources();
     }
 
-    /** {@inheritDoc} */
     @Override
     public HWDiskStore[] getDiskStores() {
         return new WindowsDisks().getDisks();
     }
 
-    /** {@inheritDoc} */
     @Override
     public Display[] getDisplays() {
         return WindowsDisplay.getDisplays();
     }
 
-    /** {@inheritDoc} */
     @Override
     public NetworkIF[] getNetworkIFs() {
         return new WindowsNetworks().getNetworks();
     }
 
-    /** {@inheritDoc} */
     @Override
     public UsbDevice[] getUsbDevices(boolean tree) {
         return WindowsUsbDevice.getUsbDevices(tree);
     }
 
-    /** {@inheritDoc} */
     @Override
     public SoundCard[] getSoundCards() {
         return WindowsSoundCard.getSoundCards().toArray(new SoundCard[0]);

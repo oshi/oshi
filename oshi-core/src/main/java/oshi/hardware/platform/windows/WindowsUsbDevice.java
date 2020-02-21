@@ -23,8 +23,6 @@
  */
 package oshi.hardware.platform.windows;
 
-import static oshi.util.Memoizer.memoize;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -32,7 +30,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -63,8 +60,6 @@ import oshi.util.platform.windows.WmiUtil;
 public class WindowsUsbDevice extends AbstractUsbDevice {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsUsbDevice.class);
-
-    private static Supplier<List<String>> controllerDeviceIds = memoize(WindowsUsbDevice::getControllerDeviceIdList);
 
     private static final Pattern VENDOR_PRODUCT_ID = Pattern
             .compile(".*(?:VID|VEN)_(\\p{XDigit}{4})&(?:PID|DEV)_(\\p{XDigit}{4}).*");
@@ -103,7 +98,7 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
 
         // Navigate the device tree to track what devices are present
         List<WindowsUsbDevice> controllerDevices = new ArrayList<>();
-        List<String> controllerDeviceIdList = controllerDeviceIds.get();
+        List<String> controllerDeviceIdList = getControllerDeviceIdList();
         for (String controllerDeviceId : controllerDeviceIdList) {
             putChildrenInDeviceTree(controllerDeviceId, 0, deviceTreeMap, devicesSeen);
         }
@@ -263,9 +258,8 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
     }
 
     /**
-     * Queries the USB Controller list, which doesn't change so we only need to
-     * query it once
-     * 
+     * Queries the USB Controller list
+     *
      * @return A list of Strings of USB Controller PNPDeviceIDs
      */
     private static List<String> getControllerDeviceIdList() {

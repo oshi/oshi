@@ -25,8 +25,8 @@ package oshi.util.tuples;
 
 public class Pair<A, B> {
 
-    private A a;
-    private B b;
+    private final A a;
+    private final B b;
 
     /**
      * Create a pair and store two objects.
@@ -57,25 +57,5 @@ public class Pair<A, B> {
      */
     public final B getB() {
         return b;
-    }
-
-    /**
-     * Sets the first stored object.
-     *
-     * @param a
-     *            the first object to store
-     */
-    public final void setA(A a) {
-        this.a = a;
-    }
-
-    /**
-     * Sets the second stored object.
-     *
-     * @param b
-     *            the second object to store
-     */
-    public final void setB(B b) {
-        this.b = b;
     }
 }

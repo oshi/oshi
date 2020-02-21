@@ -25,11 +25,11 @@ package oshi.util.tuples;
 
 public class Quintet<A, B, C, D, E> {
 
-    private A a;
-    private B b;
-    private C c;
-    private D d;
-    private E e;
+    private final A a;
+    private final B b;
+    private final C c;
+    private final D d;
+    private final E e;
 
     /**
      * Create a quintet and store five objects.
@@ -96,55 +96,5 @@ public class Quintet<A, B, C, D, E> {
      */
     public final E getE() {
         return e;
-    }
-
-    /**
-     * Sets the first stored object.
-     *
-     * @param a
-     *            the first object to store
-     */
-    public final void setA(A a) {
-        this.a = a;
-    }
-
-    /**
-     * Sets the second stored object.
-     *
-     * @param b
-     *            the second object to store
-     */
-    public final void setB(B b) {
-        this.b = b;
-    }
-
-    /**
-     * Sets the third stored object.
-     *
-     * @param c
-     *            the third object to store
-     */
-    public final void setC(C c) {
-        this.c = c;
-    }
-
-    /**
-     * Sets the fourth stored object.
-     *
-     * @param d
-     *            the fourth object to store
-     */
-    public final void setD(D d) {
-        this.d = d;
-    }
-
-    /**
-     * Sets the fifth stored object.
-     *
-     * @param e
-     *            the fifth object to store
-     */
-    public final void setE(E e) {
-        this.e = e;
     }
 }

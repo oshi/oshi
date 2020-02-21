@@ -44,6 +44,7 @@ import oshi.hardware.PhysicalMemory;
 import oshi.hardware.VirtualMemory;
 import oshi.hardware.common.AbstractGlobalMemory;
 import oshi.util.platform.windows.WmiUtil;
+import oshi.util.tuples.Triplet;
 
 /**
  * Memory obtained by Performance Info.
@@ -54,23 +55,23 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
 
     private static final boolean IS_WINDOWS10_OR_GREATER = VersionHelpers.IsWindows10OrGreater();
 
-    private final Supplier<PerfInfo> perfInfo = memoize(this::readPerfInfo, defaultExpiration());
+    private final Supplier<Triplet<Long, Long, Long>> availTotalSize = memoize(this::readPerfInfo, defaultExpiration());
 
     private final Supplier<VirtualMemory> vm = memoize(this::createVirtualMemory);
 
     @Override
     public long getAvailable() {
-        return perfInfo.get().available;
+        return availTotalSize.get().getA();
     }
 
     @Override
     public long getTotal() {
-        return perfInfo.get().total;
+        return availTotalSize.get().getB();
     }
 
     @Override
     public long getPageSize() {
-        return perfInfo.get().pageSize;
+        return availTotalSize.get().getC();
     }
 
     @Override
@@ -246,30 +247,15 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
         }
     }
 
-    private PerfInfo readPerfInfo() {
-        long pageSize;
-        long memAvailable;
-        long memTotal;
+    private Triplet<Long, Long, Long> readPerfInfo() {
         PERFORMANCE_INFORMATION performanceInfo = new PERFORMANCE_INFORMATION();
         if (!Psapi.INSTANCE.GetPerformanceInfo(performanceInfo, performanceInfo.size())) {
             LOG.error("Failed to get Performance Info. Error code: {}", Kernel32.INSTANCE.GetLastError());
-            return new PerfInfo(0, 0, 4098);
+            return new Triplet<>(0L, 0L, 4098L);
         }
-        pageSize = performanceInfo.PageSize.longValue();
-        memAvailable = pageSize * performanceInfo.PhysicalAvailable.longValue();
-        memTotal = pageSize * performanceInfo.PhysicalTotal.longValue();
-        return new PerfInfo(memTotal, memAvailable, pageSize);
-    }
-
-    private static final class PerfInfo {
-        private final long total;
-        private final long available;
-        private final long pageSize;
-
-        private PerfInfo(long total, long available, long pageSize) {
-            this.total = total;
-            this.available = available;
-            this.pageSize = pageSize;
-        }
+        long pageSize = performanceInfo.PageSize.longValue();
+        long memAvailable = pageSize * performanceInfo.PhysicalAvailable.longValue();
+        long memTotal = pageSize * performanceInfo.PhysicalTotal.longValue();
+        return new Triplet<>(memAvailable, memTotal, pageSize);
     }
 }
