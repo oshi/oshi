@@ -247,7 +247,7 @@
 <a class="jxr_linenumber" name="L239" href="#L239">239</a>     }
 <a class="jxr_linenumber" name="L240" href="#L240">240</a> 
 <a class="jxr_linenumber" name="L241" href="#L241">241</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> queryWmiWildcard(Map&lt;T, List&lt;Long&gt;&gt; valueMap, T[] props) {
-<a class="jxr_linenumber" name="L242" href="#L242">242</a>         WmiResult&lt;T&gt; result = wmiQueryHandler.queryWMI(<strong class="jxr_keyword">this</strong>.counterQuery);
+<a class="jxr_linenumber" name="L242" href="#L242">242</a>         WmiResult&lt;T&gt; result = WmiQueryHandler.createInstance().queryWMI(<strong class="jxr_keyword">this</strong>.counterQuery);
 <a class="jxr_linenumber" name="L243" href="#L243">243</a>         <strong class="jxr_keyword">if</strong> (result.getResultCount() &gt; 0) {
 <a class="jxr_linenumber" name="L244" href="#L244">244</a>             <em class="jxr_comment">// First element is instance name</em>
 <a class="jxr_linenumber" name="L245" href="#L245">245</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; result.getResultCount(); i++) {
