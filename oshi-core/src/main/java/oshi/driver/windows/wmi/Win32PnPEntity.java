@@ -21,32 +21,34 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package oshi.driver.wmi;
+package oshi.driver.windows.wmi;
 
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery; //NOSONAR squid:S1191
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.util.platform.windows.WmiQueryHandler;
 
-public class Win32Fan {
+public class Win32PnPEntity {
 
-    private static final String WIN32_FAN = "Win32_Fan";
+    private static final String WIN32_PNP_ENTITY = "Win32_PnPEntity";
 
     /**
-     * Fan speed property.
+     * DeviceId and name
      */
-    public enum SpeedProperty {
-        DESIREDSPEED;
+    public enum PnPEntityProperty {
+        NAME, MANUFACTURER, PNPDEVICEID;
     }
 
     /**
-     * Queries the fan speed.
+     * Queries the PnP Device id info
      *
-     * @return Currently requested fan speed, defined in revolutions per minute,
-     *         when a variable speed fan is supported.
+     * @param whereClause
+     *            WQL "WHERE" clause limiting the search
+     * @return Information regarding each device
      */
-    public WmiResult<SpeedProperty> querySpeed() {
-        WmiQuery<SpeedProperty> fanQuery = new WmiQuery<>(WIN32_FAN, SpeedProperty.class);
-        return WmiQueryHandler.createInstance().queryWMI(fanQuery);
+    public WmiResult<PnPEntityProperty> queryDeviceId(String whereClause) {
+        WmiQuery<PnPEntityProperty> pnpEntityQuery = new WmiQuery<>(WIN32_PNP_ENTITY + whereClause,
+                PnPEntityProperty.class);
+        return WmiQueryHandler.createInstance().queryWMI(pnpEntityQuery);
     }
 }

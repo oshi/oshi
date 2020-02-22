@@ -29,12 +29,12 @@ import java.util.function.Supplier;
 
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult; // NOSONAR squid:S1191
 
-import oshi.driver.wmi.Win32Bios;
-import oshi.driver.wmi.Win32Bios.BiosSerialProperty;
-import oshi.driver.wmi.Win32ComputerSystem;
-import oshi.driver.wmi.Win32ComputerSystem.ComputerSystemProperty;
-import oshi.driver.wmi.Win32ComputerSystemProduct;
-import oshi.driver.wmi.Win32ComputerSystemProduct.ComputerSystemProductProperty;
+import oshi.driver.windows.wmi.Win32Bios;
+import oshi.driver.windows.wmi.Win32ComputerSystem;
+import oshi.driver.windows.wmi.Win32ComputerSystemProduct;
+import oshi.driver.windows.wmi.Win32Bios.BiosSerialProperty;
+import oshi.driver.windows.wmi.Win32ComputerSystem.ComputerSystemProperty;
+import oshi.driver.windows.wmi.Win32ComputerSystemProduct.ComputerSystemProductProperty;
 import oshi.hardware.Baseboard;
 import oshi.hardware.Firmware;
 import oshi.hardware.common.AbstractComputerSystem;

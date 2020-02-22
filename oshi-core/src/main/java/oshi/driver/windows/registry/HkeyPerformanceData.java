@@ -1,4 +1,4 @@
-package oshi.driver.registry;
+package oshi.driver.windows.registry;
 
 import java.util.Collection;
 import java.util.HashMap;

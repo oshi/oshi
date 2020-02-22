@@ -21,35 +21,32 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package oshi.driver.perfmon;
+package oshi.driver.windows.perfmon;
 
+import java.util.List;
 import java.util.Map;
 
-import oshi.util.platform.windows.PerfCounterQuery;
-import oshi.util.platform.windows.PerfCounterQuery.PdhCounterProperty;
+import oshi.util.platform.windows.PerfCounterWildcardQuery;
+import oshi.util.platform.windows.PerfCounterWildcardQuery.PdhCounterWildcardProperty;
 
-public class SystemInformation {
+public class ThermalZoneInformation {
 
-    private static final String SYSTEM = "System";
-    private static final String WIN32_PERF_RAW_DATA_PERF_OS_SYSTEM = "Win32_PerfRawData_PerfOS_System";
+    private static final String THERMAL_ZONE_INFORMATION = "Thermal Zone Information";
+    private static final String THERMAL_ZONE_INFORMATION_WHERE_NAME_LIKE_CPU = "Win32_PerfRawData_Counters_ThermalZoneInformation WHERE Name LIKE \"%cpu%\"";
 
     /*
-     * Context switch property
+     * Thermal Zone Temperature
      */
-    public enum ContextSwitchProperty implements PdhCounterProperty {
-        CONTEXTSWITCHESPERSEC(null, "Context Switches/sec");
+    public enum ThermalZoneProperty implements PdhCounterWildcardProperty {
+        // First element defines WMI instance name field and PDH instance filter
+        NAME("*cpu*"),
+        // Remaining elements define counters
+        TEMPERATURE("Temperature");
 
-        private final String instance;
         private final String counter;
 
-        ContextSwitchProperty(String instance, String counter) {
-            this.instance = instance;
+        ThermalZoneProperty(String counter) {
             this.counter = counter;
-        }
-
-        @Override
-        public String getInstance() {
-            return instance;
         }
 
         @Override
@@ -59,13 +56,14 @@ public class SystemInformation {
     }
 
     /**
-     * Returns system context switch counters.
+     * Returns thermal zone temperatures.
      *
-     * @return Context switches counter for the total of all processors.
+     * @return Thermal zone names and corresponding temperatures of the thermal
+     *         zone, in degrees Kelvin.
      */
-    public Map<ContextSwitchProperty, Long> queryContextSwitchCounters() {
-        PerfCounterQuery<ContextSwitchProperty> contextSwitchPerfCounters = new PerfCounterQuery<>(
-                ContextSwitchProperty.class, SYSTEM, WIN32_PERF_RAW_DATA_PERF_OS_SYSTEM);
-        return contextSwitchPerfCounters.queryValues();
+    public Map<ThermalZoneProperty, List<Long>> queryThermalZoneTemps() {
+        PerfCounterWildcardQuery<ThermalZoneProperty> thermalZonePerfCounters = new PerfCounterWildcardQuery<>(
+                ThermalZoneProperty.class, THERMAL_ZONE_INFORMATION, THERMAL_ZONE_INFORMATION_WHERE_NAME_LIKE_CPU);
+        return thermalZonePerfCounters.queryValuesWildcard();
     }
 }

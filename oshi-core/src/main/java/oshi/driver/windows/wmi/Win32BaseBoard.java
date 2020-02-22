@@ -21,51 +21,31 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package oshi.driver.wmi;
+package oshi.driver.windows.wmi;
 
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery; //NOSONAR squid:S1191
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.util.platform.windows.WmiQueryHandler;
 
-public class Win32DiskDrive {
+public class Win32BaseBoard {
 
-    private static final String WIN32_DISK_DRIVE = "Win32_DiskDrive";
+    private static final String WIN32_BASEBOARD = "Win32_BaseBoard";
 
     /**
-     * Disk drive properties
+     * Baseboard description properties.
      */
-    public enum DiskDriveProperty {
-        INDEX, MANUFACTURER, MODEL, NAME, SERIALNUMBER, SIZE;
+    public enum BaseBoardProperty {
+        MANUFACTURER, MODEL, VERSION, SERIALNUMBER;
     }
 
     /**
-     * DeviceID and serial properties
-     */
-    public enum DeviceIdProperty {
-        PNPDEVICEID, SERIALNUMBER;
-    }
-
-    /**
-     * Queries the disk drive name info
+     * Queries the Baseboard description.
      *
-     * @return Information regarding each disk drive.
+     * @return Baseboard manufacturer, model, and related fields.
      */
-    public WmiResult<DiskDriveProperty> queryDiskDrive() {
-        WmiQuery<DiskDriveProperty> diskDriveQuery = new WmiQuery<>(WIN32_DISK_DRIVE, DiskDriveProperty.class);
-        return WmiQueryHandler.createInstance().queryWMI(diskDriveQuery);
-    }
-
-    /**
-     * Queries the disk drive id info
-     *
-     * @param whereClause
-     *            WQL "WHERE" clause limiting the search
-     * @return Information regarding each disk drive's device id and serial number
-     */
-    public WmiResult<DeviceIdProperty> queryDiskDriveId(String whereClause) {
-        WmiQuery<DeviceIdProperty> deviceIdQuery = new WmiQuery<>(WIN32_DISK_DRIVE + whereClause,
-                DeviceIdProperty.class);
-        return WmiQueryHandler.createInstance().queryWMI(deviceIdQuery);
+    public WmiResult<BaseBoardProperty> queryBaseboardInfo() {
+        WmiQuery<BaseBoardProperty> baseboardQuery = new WmiQuery<>(WIN32_BASEBOARD, BaseBoardProperty.class);
+        return WmiQueryHandler.createInstance().queryWMI(baseboardQuery);
     }
 }

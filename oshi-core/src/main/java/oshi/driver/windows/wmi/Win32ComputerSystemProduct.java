@@ -21,7 +21,32 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-/**
- * Provides functions to query properties in WMI classes
- */
-package oshi.driver.wmi;
+package oshi.driver.windows.wmi;
+
+import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery; //NOSONAR squid:S1191
+import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
+
+import oshi.util.platform.windows.WmiQueryHandler;
+
+public class Win32ComputerSystemProduct {
+
+    private static final String WIN32_COMPUTER_SYSTEM_PRODUCT = "Win32_ComputerSystemProduct";
+
+    /**
+     * Computer System ID number
+     */
+    public enum ComputerSystemProductProperty {
+        IDENTIFYINGNUMBER;
+    }
+
+    /**
+     * Queries the Computer System.
+     *
+     * @return Assigned serial number of the software element.
+     */
+    public WmiResult<ComputerSystemProductProperty> queryIdentifyingNumber() {
+        WmiQuery<ComputerSystemProductProperty> identifyingNumberQuery = new WmiQuery<>(WIN32_COMPUTER_SYSTEM_PRODUCT,
+                ComputerSystemProductProperty.class);
+        return WmiQueryHandler.createInstance().queryWMI(identifyingNumberQuery);
+    }
+}

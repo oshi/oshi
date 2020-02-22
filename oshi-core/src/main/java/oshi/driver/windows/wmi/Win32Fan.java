@@ -21,32 +21,32 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package oshi.driver.wmi;
+package oshi.driver.windows.wmi;
 
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery; //NOSONAR squid:S1191
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.util.platform.windows.WmiQueryHandler;
 
-public class Win32DiskPartition {
+public class Win32Fan {
 
-    private static final String WIN32_DISK_PARTITION = "Win32_DiskPartition";
+    private static final String WIN32_FAN = "Win32_Fan";
 
     /**
-     * Disk partition properties
+     * Fan speed property.
      */
-    public enum DiskPartitionProperty {
-        INDEX, DESCRIPTION, DEVICEID, DISKINDEX, NAME, SIZE, TYPE;
+    public enum SpeedProperty {
+        DESIREDSPEED;
     }
 
     /**
-     * Queries the partition.
+     * Queries the fan speed.
      *
-     * @return Information regarding each disk partition.
+     * @return Currently requested fan speed, defined in revolutions per minute,
+     *         when a variable speed fan is supported.
      */
-    public WmiResult<DiskPartitionProperty> queryPartition() {
-        WmiQuery<DiskPartitionProperty> partitionQuery = new WmiQuery<>(WIN32_DISK_PARTITION,
-                DiskPartitionProperty.class);
-        return WmiQueryHandler.createInstance().queryWMI(partitionQuery);
+    public WmiResult<SpeedProperty> querySpeed() {
+        WmiQuery<SpeedProperty> fanQuery = new WmiQuery<>(WIN32_FAN, SpeedProperty.class);
+        return WmiQueryHandler.createInstance().queryWMI(fanQuery);
     }
 }

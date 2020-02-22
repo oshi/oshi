@@ -36,10 +36,10 @@ import com.sun.jna.platform.win32.Kernel32; // NOSONAR squid:S1191
 import com.sun.jna.platform.win32.Psapi;
 import com.sun.jna.platform.win32.Psapi.PERFORMANCE_INFORMATION;
 
-import oshi.driver.perfmon.MemoryInformation;
-import oshi.driver.perfmon.MemoryInformation.PageSwapProperty;
-import oshi.driver.perfmon.PagingFile;
-import oshi.driver.perfmon.PagingFile.PagingPercentProperty;
+import oshi.driver.windows.perfmon.MemoryInformation;
+import oshi.driver.windows.perfmon.PagingFile;
+import oshi.driver.windows.perfmon.MemoryInformation.PageSwapProperty;
+import oshi.driver.windows.perfmon.PagingFile.PagingPercentProperty;
 import oshi.hardware.common.AbstractVirtualMemory;
 import oshi.util.tuples.Pair;
 

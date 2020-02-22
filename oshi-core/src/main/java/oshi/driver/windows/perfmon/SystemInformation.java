@@ -21,29 +21,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package oshi.driver.perfmon;
+package oshi.driver.windows.perfmon;
 
 import java.util.Map;
 
 import oshi.util.platform.windows.PerfCounterQuery;
 import oshi.util.platform.windows.PerfCounterQuery.PdhCounterProperty;
 
-public class MemoryInformation {
+public class SystemInformation {
 
-    private static final String MEMORY = "Memory";
-    private static final String WIN32_PERF_RAW_DATA_PERF_OS_MEMORY = "Win32_PerfRawData_PerfOS_Memory";
+    private static final String SYSTEM = "System";
+    private static final String WIN32_PERF_RAW_DATA_PERF_OS_SYSTEM = "Win32_PerfRawData_PerfOS_System";
 
     /*
-     * For pages in/out
+     * Context switch property
      */
-    public enum PageSwapProperty implements PdhCounterProperty {
-        PAGESINPUTPERSEC(null, "Pages Input/sec"), //
-        PAGESOUTPUTPERSEC(null, "Pages Output/sec");
+    public enum ContextSwitchProperty implements PdhCounterProperty {
+        CONTEXTSWITCHESPERSEC(null, "Context Switches/sec");
 
         private final String instance;
         private final String counter;
 
-        PageSwapProperty(String instance, String counter) {
+        ContextSwitchProperty(String instance, String counter) {
             this.instance = instance;
             this.counter = counter;
         }
@@ -60,13 +59,13 @@ public class MemoryInformation {
     }
 
     /**
-     * Returns page swap counters
+     * Returns system context switch counters.
      *
-     * @return Page swap counters for memory.
+     * @return Context switches counter for the total of all processors.
      */
-    public Map<PageSwapProperty, Long> queryPageSwaps() {
-        PerfCounterQuery<PageSwapProperty> memoryPerfCounters = new PerfCounterQuery<>(PageSwapProperty.class, MEMORY,
-                WIN32_PERF_RAW_DATA_PERF_OS_MEMORY);
-        return memoryPerfCounters.queryValues();
+    public Map<ContextSwitchProperty, Long> queryContextSwitchCounters() {
+        PerfCounterQuery<ContextSwitchProperty> contextSwitchPerfCounters = new PerfCounterQuery<>(
+                ContextSwitchProperty.class, SYSTEM, WIN32_PERF_RAW_DATA_PERF_OS_SYSTEM);
+        return contextSwitchPerfCounters.queryValues();
     }
 }

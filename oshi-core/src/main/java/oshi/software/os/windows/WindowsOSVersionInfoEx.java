@@ -34,8 +34,8 @@ import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.platform.win32.WinUser;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
-import oshi.driver.wmi.Win32OperatingSystem;
-import oshi.driver.wmi.Win32OperatingSystem.OSVersionProperty;
+import oshi.driver.windows.wmi.Win32OperatingSystem;
+import oshi.driver.windows.wmi.Win32OperatingSystem.OSVersionProperty;
 import oshi.software.common.AbstractOSVersionInfoEx;
 import oshi.software.os.OperatingSystem;
 import oshi.util.ParseUtil;

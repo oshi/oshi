@@ -41,12 +41,12 @@ import com.sun.jna.platform.win32.Cfgmgr32Util;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 import com.sun.jna.ptr.IntByReference;
 
-import oshi.driver.wmi.Win32DiskDrive;
-import oshi.driver.wmi.Win32DiskDrive.DeviceIdProperty;
-import oshi.driver.wmi.Win32PnPEntity;
-import oshi.driver.wmi.Win32PnPEntity.PnPEntityProperty;
-import oshi.driver.wmi.Win32USBController;
-import oshi.driver.wmi.Win32USBController.USBControllerProperty;
+import oshi.driver.windows.wmi.Win32DiskDrive;
+import oshi.driver.windows.wmi.Win32PnPEntity;
+import oshi.driver.windows.wmi.Win32USBController;
+import oshi.driver.windows.wmi.Win32DiskDrive.DeviceIdProperty;
+import oshi.driver.windows.wmi.Win32PnPEntity.PnPEntityProperty;
+import oshi.driver.windows.wmi.Win32USBController.USBControllerProperty;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractUsbDevice;
 import oshi.util.ParseUtil;

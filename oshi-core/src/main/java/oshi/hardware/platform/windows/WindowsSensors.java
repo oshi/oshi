@@ -31,16 +31,16 @@ import org.slf4j.LoggerFactory;
 
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult; // NOSONAR squid:S1191
 
-import oshi.driver.perfmon.ThermalZoneInformation;
-import oshi.driver.perfmon.ThermalZoneInformation.ThermalZoneProperty;
-import oshi.driver.wmi.OhmHardware;
-import oshi.driver.wmi.OhmHardware.IdentifierProperty;
-import oshi.driver.wmi.OhmSensor;
-import oshi.driver.wmi.OhmSensor.ValueProperty;
-import oshi.driver.wmi.Win32Fan;
-import oshi.driver.wmi.Win32Fan.SpeedProperty;
-import oshi.driver.wmi.Win32Processor;
-import oshi.driver.wmi.Win32Processor.VoltProperty;
+import oshi.driver.windows.perfmon.ThermalZoneInformation;
+import oshi.driver.windows.perfmon.ThermalZoneInformation.ThermalZoneProperty;
+import oshi.driver.windows.wmi.OhmHardware;
+import oshi.driver.windows.wmi.OhmSensor;
+import oshi.driver.windows.wmi.Win32Fan;
+import oshi.driver.windows.wmi.Win32Processor;
+import oshi.driver.windows.wmi.OhmHardware.IdentifierProperty;
+import oshi.driver.windows.wmi.OhmSensor.ValueProperty;
+import oshi.driver.windows.wmi.Win32Fan.SpeedProperty;
+import oshi.driver.windows.wmi.Win32Processor.VoltProperty;
 import oshi.hardware.common.AbstractSensors;
 import oshi.util.platform.windows.WmiUtil;
 

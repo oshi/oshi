@@ -21,39 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package oshi.driver.wmi;
-
-import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery; //NOSONAR squid:S1191
-import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
-
-import oshi.util.platform.windows.WmiQueryHandler;
-import oshi.util.platform.windows.WmiUtil;
-
-public class OhmHardware {
-
-    private static final String HARDWARE = "Hardware";
-
-    /**
-     * HW Identifier Property
-     */
-    public enum IdentifierProperty {
-        IDENTIFIER;
-    }
-
-    /**
-     * Queries the hardware identifiers for a monitored type.
-     *
-     * @param typeToQuery
-     *            which type to filter based on
-     * @param typeName
-     *            the name of the type
-     * @return The sensor value.
-     */
-    public WmiResult<IdentifierProperty> queryHwIdentifier(String typeToQuery, String typeName) {
-        StringBuilder sb = new StringBuilder(HARDWARE);
-        sb.append(" WHERE ").append(typeToQuery).append("Type=\"").append(typeName).append('\"');
-        WmiQuery<IdentifierProperty> cpuIdentifierQuery = new WmiQuery<>(WmiUtil.OHM_NAMESPACE, sb.toString(),
-                IdentifierProperty.class);
-        return WmiQueryHandler.createInstance().queryWMI(cpuIdentifierQuery);
-    }
-}
+/**
+ * Provides functions to query properties in WMI classes
+ */
+package oshi.driver.windows.wmi;

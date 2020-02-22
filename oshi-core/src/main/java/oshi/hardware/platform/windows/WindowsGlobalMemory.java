@@ -37,9 +37,9 @@ import com.sun.jna.platform.win32.Psapi.PERFORMANCE_INFORMATION;
 import com.sun.jna.platform.win32.VersionHelpers;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
-import oshi.driver.wmi.Win32PhysicalMemory;
-import oshi.driver.wmi.Win32PhysicalMemory.PhysicalMemoryProperty;
-import oshi.driver.wmi.Win32PhysicalMemory.PhysicalMemoryPropertyWin8;
+import oshi.driver.windows.wmi.Win32PhysicalMemory;
+import oshi.driver.windows.wmi.Win32PhysicalMemory.PhysicalMemoryProperty;
+import oshi.driver.windows.wmi.Win32PhysicalMemory.PhysicalMemoryPropertyWin8;
 import oshi.hardware.PhysicalMemory;
 import oshi.hardware.VirtualMemory;
 import oshi.hardware.common.AbstractGlobalMemory;

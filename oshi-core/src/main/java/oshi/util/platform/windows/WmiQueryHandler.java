@@ -140,7 +140,11 @@ public class WmiQueryHandler {
                     LOG.warn("COM exception: Invalid Namespace {}", query.getNameSpace());
                     break;
                 case Wbemcli.WBEM_E_INVALID_CLASS:
-                    LOG.warn("COM exception: Invalid Class {}", query.getWmiClassName());
+                    if (query.getWmiClassName().contains("ThermalZone")) {
+                        LOG.debug("COM exception: Invalid Class {}", query.getWmiClassName());
+                    } else {
+                        LOG.warn("COM exception: Invalid Class {}", query.getWmiClassName());
+                    }
                     break;
                 case Wbemcli.WBEM_E_INVALID_QUERY:
                     LOG.warn("COM exception: Invalid Query: {}", WmiUtil.queryToString(query));

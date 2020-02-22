@@ -21,31 +21,50 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package oshi.driver.wmi;
+package oshi.driver.windows.wmi;
 
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery; //NOSONAR squid:S1191
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.util.platform.windows.WmiQueryHandler;
 
-public class Win32OperatingSystem {
+public class Win32PhysicalMemory {
 
-    private static final String WIN32_OPERATING_SYSTEM = "Win32_OperatingSystem";
+    private static final String WIN32_PHYSICAL_MEMORY = "Win32_PhysicalMemory";
 
     /**
-     * Operating System properties
+     * Physical Memory properties for Win10 and later.
      */
-    public enum OSVersionProperty {
-        VERSION, PRODUCTTYPE, BUILDNUMBER, CSDVERSION, SUITEMASK;
+    public enum PhysicalMemoryProperty {
+        BANKLABEL, CAPACITY, SPEED, MANUFACTURER, SMBIOSMEMORYTYPE
     }
 
     /**
-     * Queries the Computer System.
-     *
-     * @return Computer System Manufacturer and Model
+     * Physical Memory properties for Win8 and earlier.
      */
-    public WmiResult<OSVersionProperty> queryOsVersion() {
-        WmiQuery<OSVersionProperty> osVersionQuery = new WmiQuery<>(WIN32_OPERATING_SYSTEM, OSVersionProperty.class);
-        return WmiQueryHandler.createInstance().queryWMI(osVersionQuery);
+    public enum PhysicalMemoryPropertyWin8 {
+        BANKLABEL, CAPACITY, SPEED, MANUFACTURER, MEMORYTYPE
+    }
+
+    /**
+     * Queries physical memory info for Win10 and later.
+     *
+     * @return Information regarding physical memory.
+     */
+    public WmiResult<PhysicalMemoryProperty> queryphysicalMemory() {
+        WmiQuery<PhysicalMemoryProperty> physicalMemoryQuery = new WmiQuery<>(WIN32_PHYSICAL_MEMORY,
+                PhysicalMemoryProperty.class);
+        return WmiQueryHandler.createInstance().queryWMI(physicalMemoryQuery);
+    }
+
+    /**
+     * Queries physical memory info for Win8 and earlier.
+     *
+     * @return Information regarding physical memory.
+     */
+    public WmiResult<PhysicalMemoryPropertyWin8> queryphysicalMemoryWin8() {
+        WmiQuery<PhysicalMemoryPropertyWin8> physicalMemoryQuery = new WmiQuery<>(WIN32_PHYSICAL_MEMORY,
+                PhysicalMemoryPropertyWin8.class);
+        return WmiQueryHandler.createInstance().queryWMI(physicalMemoryQuery);
     }
 }

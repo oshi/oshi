@@ -29,8 +29,8 @@ import java.util.function.Supplier;
 
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult; // NOSONAR squid:S1191
 
-import oshi.driver.wmi.Win32BaseBoard;
-import oshi.driver.wmi.Win32BaseBoard.BaseBoardProperty;
+import oshi.driver.windows.wmi.Win32BaseBoard;
+import oshi.driver.windows.wmi.Win32BaseBoard.BaseBoardProperty;
 import oshi.hardware.common.AbstractBaseboard;
 import oshi.util.Constants;
 import oshi.util.Util;

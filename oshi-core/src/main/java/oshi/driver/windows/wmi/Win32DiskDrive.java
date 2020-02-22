@@ -21,32 +21,51 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package oshi.driver.wmi;
+package oshi.driver.windows.wmi;
 
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery; //NOSONAR squid:S1191
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.util.platform.windows.WmiQueryHandler;
 
-public class Win32USBController {
+public class Win32DiskDrive {
 
-    private static final String WIN32_USB_CONTROLLER = "Win32_USBController";
+    private static final String WIN32_DISK_DRIVE = "Win32_DiskDrive";
 
     /**
-     * USB Controller properties
+     * Disk drive properties
      */
-    public enum USBControllerProperty {
-        PNPDEVICEID;
+    public enum DiskDriveProperty {
+        INDEX, MANUFACTURER, MODEL, NAME, SERIALNUMBER, SIZE;
     }
 
     /**
-     * Queries the USB Controller device IDs
+     * DeviceID and serial properties
+     */
+    public enum DeviceIdProperty {
+        PNPDEVICEID, SERIALNUMBER;
+    }
+
+    /**
+     * Queries the disk drive name info
      *
      * @return Information regarding each disk drive.
      */
-    public WmiResult<USBControllerProperty> queryUSBControllers() {
-        WmiQuery<USBControllerProperty> usbControllerQuery = new WmiQuery<>(WIN32_USB_CONTROLLER,
-                USBControllerProperty.class);
-        return WmiQueryHandler.createInstance().queryWMI(usbControllerQuery);
+    public WmiResult<DiskDriveProperty> queryDiskDrive() {
+        WmiQuery<DiskDriveProperty> diskDriveQuery = new WmiQuery<>(WIN32_DISK_DRIVE, DiskDriveProperty.class);
+        return WmiQueryHandler.createInstance().queryWMI(diskDriveQuery);
+    }
+
+    /**
+     * Queries the disk drive id info
+     *
+     * @param whereClause
+     *            WQL "WHERE" clause limiting the search
+     * @return Information regarding each disk drive's device id and serial number
+     */
+    public WmiResult<DeviceIdProperty> queryDiskDriveId(String whereClause) {
+        WmiQuery<DeviceIdProperty> deviceIdQuery = new WmiQuery<>(WIN32_DISK_DRIVE + whereClause,
+                DeviceIdProperty.class);
+        return WmiQueryHandler.createInstance().queryWMI(deviceIdQuery);
     }
 }
