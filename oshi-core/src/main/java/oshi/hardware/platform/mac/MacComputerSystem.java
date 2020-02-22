@@ -34,6 +34,8 @@ import com.sun.jna.platform.mac.IOKitUtil;
 import oshi.hardware.Baseboard;
 import oshi.hardware.Firmware;
 import oshi.hardware.common.AbstractComputerSystem;
+import oshi.util.Constants;
+import oshi.util.Util;
 import oshi.util.tuples.Triplet;
 
 /**
@@ -86,6 +88,8 @@ final class MacComputerSystem extends AbstractComputerSystem {
             serialNumber = platformExpert.getStringProperty("IOPlatformSerialNumber");
             platformExpert.release();
         }
-        return new Triplet<>(manufacturer, model, serialNumber);
+        return new Triplet<>(Util.isBlank(manufacturer) ? "Apple Inc." : manufacturer,
+                Util.isBlank(model) ? Constants.UNKNOWN : model,
+                Util.isBlank(serialNumber) ? Constants.UNKNOWN : serialNumber);
     }
 }

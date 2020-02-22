@@ -130,6 +130,7 @@ public class MacNetworks extends AbstractNetworks {
      *
      * @param netIF
      *            The interface on which to update statistics
+     * @return {@code true} if the update was successful, {@code false} otherwise.
      */
     public static boolean updateNetworkStats(NetworkIF netIF) {
         int index = netIF.queryNetworkInterface().getIndex();
@@ -144,6 +145,7 @@ public class MacNetworks extends AbstractNetworks {
      *            The interface on which to update statistics
      * @param data
      *            A map of network interface statistics with the index as the key
+     * @return {@code true} if the update was successful, {@code false} otherwise.
      */
     private static boolean updateNetworkStats(NetworkIF netIF, Map<Integer, IFdata> data) {
         int index = netIF.queryNetworkInterface().getIndex();

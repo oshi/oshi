@@ -41,6 +41,7 @@ public class LinuxNetworks extends AbstractNetworks {
      *
      * @param netIF
      *            The interface on which to update statistics
+     * @return {@code true} if the update was successful, {@code false} otherwise.
      */
     public static boolean updateNetworkStats(NetworkIF netIF) {
         try {

@@ -118,7 +118,10 @@ final class FreeBsdComputerSystem extends AbstractComputerSystem {
         if (Util.isBlank(serialNumber)) {
             serialNumber = querySystemSerialNumber();
         }
-        return new Quartet<>(manufacturer, model, serialNumber, version);
+        return new Quartet<>(Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer,
+                Util.isBlank(model) ? Constants.UNKNOWN : model,
+                Util.isBlank(serialNumber) ? Constants.UNKNOWN : serialNumber,
+                Util.isBlank(version) ? Constants.UNKNOWN : version);
     }
 
     private static String querySystemSerialNumber() {

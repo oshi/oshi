@@ -33,6 +33,8 @@ import com.sun.jna.platform.mac.IOKit.IORegistryEntry;
 import com.sun.jna.platform.mac.IOKitUtil;
 
 import oshi.hardware.common.AbstractFirmware;
+import oshi.util.Constants;
+import oshi.util.Util;
 import oshi.util.tuples.Quintet;
 
 /**
@@ -117,7 +119,11 @@ final class MacFirmware extends AbstractFirmware {
                 iter.release();
             }
             platformExpert.release();
-        } // manufNameDescVersRelease
-        return new Quintet<>(manufacturer, name, description, version, releaseDate);
+        }
+        return new Quintet<>(Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer,
+                Util.isBlank(name) ? Constants.UNKNOWN : name,
+                Util.isBlank(description) ? Constants.UNKNOWN : description,
+                Util.isBlank(version) ? Constants.UNKNOWN : version,
+                Util.isBlank(releaseDate) ? Constants.UNKNOWN : releaseDate);
     }
 }
