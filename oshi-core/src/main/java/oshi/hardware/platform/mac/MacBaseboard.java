@@ -32,6 +32,8 @@ import com.sun.jna.platform.mac.IOKit.IORegistryEntry; // NOSONAR squid:S1191
 import com.sun.jna.platform.mac.IOKitUtil;
 
 import oshi.hardware.common.AbstractBaseboard;
+import oshi.util.Constants;
+import oshi.util.Util;
 import oshi.util.tuples.Quartet;
 
 /**
@@ -84,6 +86,8 @@ final class MacBaseboard extends AbstractBaseboard {
             serialNumber = platformExpert.getStringProperty("IOPlatformSerialNumber");
             platformExpert.release();
         }
-        return new Quartet<>(manufacturer, model, version, serialNumber);
+        return new Quartet<>(Util.isBlank(manufacturer) ? "Apple Inc." : manufacturer,
+                Util.isBlank(model) ? Constants.UNKNOWN : model, Util.isBlank(version) ? Constants.UNKNOWN : version,
+                Util.isBlank(serialNumber) ? Constants.UNKNOWN : serialNumber);
     }
 }

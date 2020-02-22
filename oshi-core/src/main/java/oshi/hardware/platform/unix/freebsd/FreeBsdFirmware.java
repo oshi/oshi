@@ -28,8 +28,10 @@ import static oshi.util.Memoizer.memoize;
 import java.util.function.Supplier;
 
 import oshi.hardware.common.AbstractFirmware;
+import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
+import oshi.util.Util;
 import oshi.util.tuples.Triplet;
 
 final class FreeBsdFirmware extends AbstractFirmware {
@@ -89,6 +91,8 @@ final class FreeBsdFirmware extends AbstractFirmware {
             }
         }
         releaseDate = ParseUtil.parseMmDdYyyyToYyyyMmDD(releaseDate);
-        return new Triplet<>(manufacturer, version, releaseDate);
+        return new Triplet<>(Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer,
+                Util.isBlank(version) ? Constants.UNKNOWN : version,
+                Util.isBlank(releaseDate) ? Constants.UNKNOWN : releaseDate);
     }
 }

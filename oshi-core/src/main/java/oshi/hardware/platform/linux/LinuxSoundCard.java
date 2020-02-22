@@ -125,7 +125,7 @@ public class LinuxSoundCard extends AbstractSoundCard {
                         if (codecs != null) {
                             for (File codec : codecs) {
                                 if (!codec.isDirectory() && codec.getName().contains("#")) {
-                                    cardCodec = codec.getName().substring(0, codec.getName().indexOf("#"));
+                                    cardCodec = codec.getName().substring(0, codec.getName().indexOf('#'));
                                     break;
                                 }
                             }

@@ -31,7 +31,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Pointer;
+import com.sun.jna.Pointer; // NOSONAR squid:S1191
 
 import oshi.hardware.Disks;
 import oshi.hardware.HWDiskStore;
@@ -99,8 +99,6 @@ public class LinuxDisks implements Disks {
 
         updateMountsMap();
         hashCodeToPathMap.clear();
-
-
 
         Udev.UdevHandle handle = Udev.INSTANCE.udev_new();
         Udev.UdevEnumerate enumerate = Udev.INSTANCE.udev_enumerate_new(handle);
