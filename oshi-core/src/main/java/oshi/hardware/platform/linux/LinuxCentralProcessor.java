@@ -151,7 +151,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
         return logProcs.toArray(new LogicalProcessor[0]);
     }
 
-    private Map<Integer, Integer> mapNumaNodes() {
+    private static Map<Integer, Integer> mapNumaNodes() {
         Map<Integer, Integer> numaNodeMap = new HashMap<>();
         // Get numa node info from lscpu
         List<String> lscpu = ExecutingCommand.runNative("lscpu -p=cpu,node");
@@ -304,7 +304,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
      * @param flags
      * @return The Processor ID string
      */
-    private String getProcessorID(String vendor, String stepping, String model, String family, String[] flags) {
+    private static String getProcessorID(String vendor, String stepping, String model, String family, String[] flags) {
         boolean procInfo = false;
         String marker = "Processor Information";
         for (String checkLine : ExecutingCommand.runNative("dmidecode -t 4")) {
@@ -340,7 +340,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
 
     /**
      * Creates the MIDR, the ARM equivalent of CPUID ProcessorID
-     * 
+     *
      * @param vendor
      *            the CPU implementer
      * @param stepping
@@ -351,7 +351,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
      *            the architecture
      * @return A 32-bit hex string for the MIDR
      */
-    private String createMIDR(String vendor, String stepping, String model, String family) {
+    private static String createMIDR(String vendor, String stepping, String model, String family) {
         int midrBytes = 0;
         // Build 32-bit MIDR
         if (stepping.startsWith("r") && stepping.contains("p")) {

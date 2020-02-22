@@ -42,7 +42,7 @@ import oshi.util.tuples.Quartet;
  */
 final class WindowsBaseboard extends AbstractBaseboard {
     private final Supplier<Quartet<String, String, String, String>> manufModelVersSerial = memoize(
-            this::queryManufModelVersSerial);
+            WindowsBaseboard::queryManufModelVersSerial);
 
     @Override
     public String getManufacturer() {
@@ -64,7 +64,7 @@ final class WindowsBaseboard extends AbstractBaseboard {
         return manufModelVersSerial.get().getD();
     }
 
-    private Quartet<String, String, String, String> queryManufModelVersSerial() {
+    private static Quartet<String, String, String, String> queryManufModelVersSerial() {
         String manufacturer = null;
         String model = null;
         String version = null;

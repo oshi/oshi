@@ -41,11 +41,11 @@ import oshi.util.platform.linux.ProcUtil;
  */
 public class LinuxGlobalMemory extends AbstractGlobalMemory {
 
-    private final Supplier<MemInfo> memInfo = memoize(this::readMemInfo, defaultExpiration());
+    private final Supplier<MemInfo> memInfo = memoize(LinuxGlobalMemory::readMemInfo, defaultExpiration());
 
-    private final Supplier<Long> pageSize = memoize(this::queryPageSize);
+    private final Supplier<Long> pageSize = memoize(LinuxGlobalMemory::queryPageSize);
 
-    private final Supplier<VirtualMemory> vm = memoize(this::createVirtualMemory);
+    private final Supplier<VirtualMemory> vm = memoize(LinuxGlobalMemory::createVirtualMemory);
 
     @Override
     public long getAvailable() {
@@ -67,7 +67,7 @@ public class LinuxGlobalMemory extends AbstractGlobalMemory {
         return vm.get();
     }
 
-    private long queryPageSize() {
+    private static long queryPageSize() {
         // Ideally we would us sysconf(_SC_PAGESIZE) but the constant is platform
         // dependent and would require parsing header files, etc. Since this is only
         // read once at startup, command line is a reliable fallback.
@@ -86,7 +86,7 @@ public class LinuxGlobalMemory extends AbstractGlobalMemory {
      * Internally, reading /proc/meminfo is faster than sysinfo because it only
      * spends time populating the memory components of the sysinfo structure.
      */
-    private MemInfo readMemInfo() {
+    private static MemInfo readMemInfo() {
         long memFree = 0L;
         long activeFile = 0L;
         long inactiveFile = 0L;
@@ -136,7 +136,7 @@ public class LinuxGlobalMemory extends AbstractGlobalMemory {
      *            Array of Strings representing the 3 columns of /proc/meminfo
      * @return value, multiplied by 1024 if kB is specified
      */
-    private long parseMeminfo(String[] memorySplit) {
+    private static long parseMeminfo(String[] memorySplit) {
         if (memorySplit.length < 2) {
             return 0L;
         }
@@ -147,7 +147,7 @@ public class LinuxGlobalMemory extends AbstractGlobalMemory {
         return memory;
     }
 
-    private VirtualMemory createVirtualMemory() {
+    private static VirtualMemory createVirtualMemory() {
         return new LinuxVirtualMemory();
     }
 

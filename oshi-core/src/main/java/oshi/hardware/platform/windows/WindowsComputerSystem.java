@@ -48,8 +48,9 @@ import oshi.util.tuples.Pair;
  */
 final class WindowsComputerSystem extends AbstractComputerSystem {
 
-    private final Supplier<Pair<String, String>> manufacturerModel = memoize(this::queryManufacturerModel);
-    private final Supplier<String> serialNumber = memoize(this::querySystemSerialNumber);
+    private final Supplier<Pair<String, String>> manufacturerModel = memoize(
+            WindowsComputerSystem::queryManufacturerModel);
+    private final Supplier<String> serialNumber = memoize(WindowsComputerSystem::querySystemSerialNumber);
 
     @Override
     public String getManufacturer() {
@@ -76,7 +77,7 @@ final class WindowsComputerSystem extends AbstractComputerSystem {
         return new WindowsBaseboard();
     }
 
-    private Pair<String, String> queryManufacturerModel() {
+    private static Pair<String, String> queryManufacturerModel() {
         String manufacturer = null;
         String model = null;
         WmiResult<ComputerSystemProperty> win32ComputerSystem = new Win32ComputerSystem().queryComputerSystem();
@@ -88,7 +89,7 @@ final class WindowsComputerSystem extends AbstractComputerSystem {
                 Util.isBlank(model) ? Constants.UNKNOWN : model);
     }
 
-    private String querySystemSerialNumber() {
+    private static String querySystemSerialNumber() {
         String result;
         if (((result = querySerialFromBios()) != null || (result = querySerialFromCsProduct()) != null)
                 && !Util.isBlank(result)) {
@@ -97,7 +98,7 @@ final class WindowsComputerSystem extends AbstractComputerSystem {
         return Constants.UNKNOWN;
     }
 
-    private String querySerialFromBios() {
+    private static String querySerialFromBios() {
         WmiResult<BiosSerialProperty> serialNum = new Win32Bios().querySerialNumber();
         if (serialNum.getResultCount() > 0) {
             return WmiUtil.getString(serialNum, BiosSerialProperty.SERIALNUMBER, 0);
@@ -105,7 +106,7 @@ final class WindowsComputerSystem extends AbstractComputerSystem {
         return null;
     }
 
-    private String querySerialFromCsProduct() {
+    private static String querySerialFromCsProduct() {
         WmiResult<ComputerSystemProductProperty> identifyingNumber = new Win32ComputerSystemProduct()
                 .queryIdentifyingNumber();
         if (identifyingNumber.getResultCount() > 0) {

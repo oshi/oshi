@@ -39,11 +39,11 @@ public class FreeBsdGlobalMemory extends AbstractGlobalMemory {
 
     private final Supplier<Long> available = memoize(this::queryVmStats, defaultExpiration());
 
-    private final Supplier<Long> total = memoize(this::queryPhysMem);
+    private final Supplier<Long> total = memoize(FreeBsdGlobalMemory::queryPhysMem);
 
-    private final Supplier<Long> pageSize = memoize(this::queryPageSize);
+    private final Supplier<Long> pageSize = memoize(FreeBsdGlobalMemory::queryPageSize);
 
-    private final Supplier<VirtualMemory> vm = memoize(this::createVirtualMemory);
+    private final Supplier<VirtualMemory> vm = memoize(FreeBsdGlobalMemory::createVirtualMemory);
 
     @Override
     public long getAvailable() {
@@ -72,15 +72,15 @@ public class FreeBsdGlobalMemory extends AbstractGlobalMemory {
         return (inactive + cache + free) * getPageSize();
     }
 
-    private long queryPhysMem() {
+    private static long queryPhysMem() {
         return BsdSysctlUtil.sysctl("hw.physmem", 0L);
     }
 
-    private long queryPageSize() {
+    private static long queryPageSize() {
         return BsdSysctlUtil.sysctl("hw.pagesize", 4096L);
     }
 
-    private VirtualMemory createVirtualMemory() {
+    private static VirtualMemory createVirtualMemory() {
         return new FreeBsdVirtualMemory();
     }
 }

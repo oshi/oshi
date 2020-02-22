@@ -36,26 +36,27 @@ import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.solaris.KstatUtil;
 import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
+import oshi.util.tuples.Pair;
 
 /**
  * Memory obtained by kstat
  */
 public class SolarisGlobalMemory extends AbstractGlobalMemory {
 
-    private final Supplier<SystemPages> systemPages = memoize(this::readSystemPages, defaultExpiration());
+    private final Supplier<Pair<Long, Long>> availTotal = memoize(this::readSystemPages, defaultExpiration());
 
-    private final Supplier<Long> pageSize = memoize(this::queryPageSize);
+    private final Supplier<Long> pageSize = memoize(SolarisGlobalMemory::queryPageSize);
 
-    private final Supplier<VirtualMemory> vm = memoize(this::createVirtualMemory);
+    private final Supplier<VirtualMemory> vm = memoize(SolarisGlobalMemory::createVirtualMemory);
 
     @Override
     public long getAvailable() {
-        return systemPages.get().available;
+        return availTotal.get().getA();
     }
 
     @Override
     public long getTotal() {
-        return systemPages.get().total;
+        return availTotal.get().getB();
     }
 
     @Override
@@ -68,15 +69,15 @@ public class SolarisGlobalMemory extends AbstractGlobalMemory {
         return vm.get();
     }
 
-    private long queryPageSize() {
+    private static long queryPageSize() {
         return ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer("pagesize"), 4096L);
     }
 
-    private VirtualMemory createVirtualMemory() {
+    private static VirtualMemory createVirtualMemory() {
         return new SolarisVirtualMemory();
     }
 
-    private SystemPages readSystemPages() {
+    private Pair<Long, Long> readSystemPages() {
         long memAvailable = 0;
         long memTotal = 0;
         // Get first result
@@ -88,16 +89,6 @@ public class SolarisGlobalMemory extends AbstractGlobalMemory {
                 memTotal = KstatUtil.dataLookupLong(ksp, "physmem") * getPageSize();
             }
         }
-        return new SystemPages(memTotal, memAvailable);
-    }
-
-    private static final class SystemPages {
-        private final long total;
-        private final long available;
-
-        private SystemPages(long total, long available) {
-            this.total = total;
-            this.available = available;
-        }
+        return new Pair<>(memAvailable, memTotal);
     }
 }

@@ -45,10 +45,10 @@ public class FreeBsdSensors extends AbstractSensors {
     /*
      * If user has loaded coretemp module via kldload coretemp, sysctl call will
      * return temperature
-     * 
+     *
      * @return Tempurature if successful, otherwise NaN
      */
-    private double queryKldloadCoretemp() {
+    private static double queryKldloadCoretemp() {
         String name = "dev.cpu.%d.temperature";
         IntByReference size = new IntByReference(FreeBsdLibc.INT_SIZE);
         Pointer p = new Memory(size.getValue());
@@ -67,7 +67,6 @@ public class FreeBsdSensors extends AbstractSensors {
         return new int[0];
     }
 
-    /** {@inheritDoc} */
     @Override
     public double queryCpuVoltage() {
         // Nothing known on FreeBSD for this.

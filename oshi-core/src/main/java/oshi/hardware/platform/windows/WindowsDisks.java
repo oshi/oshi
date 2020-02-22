@@ -196,7 +196,7 @@ public class WindowsDisks implements Disks {
         return stats;
     }
 
-    private PartitionMaps queryPartitionMaps() {
+    private static PartitionMaps queryPartitionMaps() {
         // Create object to hold and return results
         PartitionMaps maps = new PartitionMaps();
 

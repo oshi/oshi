@@ -27,6 +27,20 @@ import oshi.software.os.OperatingSystem;
 public class HkeyPerformanceData {
 
     private static final Logger LOG = LoggerFactory.getLogger(HkeyPerformanceData.class);
+
+    private static final String ENGLISH_COUNTER_KEY = "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Perflib\\009";
+
+    private static final String COUNTER = "Counter";
+    private static final String PROCESS = "Process";
+
+    private static final String PRIORITY_BASE = "Priority Base";
+    private static final String ELAPSED_TIME = "Elapsed Time";
+    private static final String ID_PROCESS = "ID Process";
+    private static final String CREATING_PROCESS_ID = "Creating Process ID";
+    private static final String IO_READ_BYTES_SEC = "IO Read Bytes/sec";
+    private static final String IO_WRITE_BYTES_SEC = "IO Write Bytes/sec";
+    private static final String WORKING_SET_PRIVATE = "Working Set - Private";
+
     /*
      * Grow as needed but persist
      */
@@ -58,32 +72,30 @@ public class HkeyPerformanceData {
         int workingSetPrivateIndex = 0;
 
         try {
-            final String ENGLISH_COUNTER_KEY = "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Perflib\\009";
-            final String ENGLISH_COUNTER_VALUE = "Counter";
 
             // Look up list of english names and ids
             String[] counters = Advapi32Util.registryGetStringArray(WinReg.HKEY_LOCAL_MACHINE, ENGLISH_COUNTER_KEY,
-                    ENGLISH_COUNTER_VALUE);
+                    COUNTER);
             // Array contains alternating index/name pairs
             // "1", "1847", "2", "System", "4", "Memory", ...
             // Get position of name in the array (odd index), return parsed value of
             // previous even index
             for (int i = 1; i < counters.length; i += 2) {
-                if (counters[i].equals("Process")) {
+                if (counters[i].equals(PROCESS)) {
                     this.processIndex = Integer.parseInt(counters[i - 1]);
-                } else if (counters[i].equals("Priority Base")) {
+                } else if (counters[i].equals(PRIORITY_BASE)) {
                     priorityBaseIndex = Integer.parseInt(counters[i - 1]);
-                } else if (counters[i].equals("Elapsed Time")) {
+                } else if (counters[i].equals(ELAPSED_TIME)) {
                     elapsedTimeIndex = Integer.parseInt(counters[i - 1]);
-                } else if (counters[i].equals("ID Process")) {
+                } else if (counters[i].equals(ID_PROCESS)) {
                     idProcessIndex = Integer.parseInt(counters[i - 1]);
-                } else if (counters[i].equals("Creating Process ID")) {
+                } else if (counters[i].equals(CREATING_PROCESS_ID)) {
                     creatingProcessIdIndex = Integer.parseInt(counters[i - 1]);
-                } else if (counters[i].equals("IO Read Bytes/sec")) {
+                } else if (counters[i].equals(IO_READ_BYTES_SEC)) {
                     ioReadIndex = Integer.parseInt(counters[i - 1]);
-                } else if (counters[i].equals("IO Write Bytes/sec")) {
+                } else if (counters[i].equals(IO_WRITE_BYTES_SEC)) {
                     ioWriteIndex = Integer.parseInt(counters[i - 1]);
-                } else if (counters[i].equals("Working Set - Private")) {
+                } else if (counters[i].equals(WORKING_SET_PRIVATE)) {
                     workingSetPrivateIndex = Integer.parseInt(counters[i - 1]);
                 }
             }

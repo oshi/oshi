@@ -41,7 +41,7 @@ import oshi.util.platform.linux.ProcUtil;
  */
 final class LinuxBaseboard extends AbstractBaseboard {
 
-    private final Supplier<String> manufacturer = memoize(this::queryManufacturer);
+    private final Supplier<String> manufacturer = memoize(LinuxBaseboard::queryManufacturer);
 
     private final Supplier<String> model = memoize(this::queryModel);
 
@@ -69,7 +69,7 @@ final class LinuxBaseboard extends AbstractBaseboard {
         return serialNumber.get();
     }
 
-    private String queryManufacturer() {
+    private static String queryManufacturer() {
         String result = null;
         if ((result = queryManufacturerFromSysfs()) == null && (result = queryProcCpu().manufacturer) == null) {
             return Constants.UNKNOWN;
@@ -112,7 +112,7 @@ final class LinuxBaseboard extends AbstractBaseboard {
     // board_name chassis_type product_serial
     // board_serial chassis_vendor product_uuid
 
-    private String queryManufacturerFromSysfs() {
+    private static String queryManufacturerFromSysfs() {
         final String boardVendor = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "board_vendor").trim();
         if (!boardVendor.isEmpty()) {
             return boardVendor;
@@ -144,7 +144,7 @@ final class LinuxBaseboard extends AbstractBaseboard {
         return null;
     }
 
-    private ProcCpuStrings queryProcCpu() {
+    private static ProcCpuStrings queryProcCpu() {
         String pcManufacturer = null;
         String pcModel = null;
         String pcVersion = null;
@@ -176,7 +176,7 @@ final class LinuxBaseboard extends AbstractBaseboard {
         return new ProcCpuStrings(pcManufacturer, pcModel, pcVersion, pcSerialNumber);
     }
 
-    private String queryBoardManufacturer(char digit) {
+    private static String queryBoardManufacturer(char digit) {
         switch (digit) {
         case '0':
             return "Sony UK";

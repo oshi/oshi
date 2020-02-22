@@ -43,11 +43,11 @@ import oshi.util.platform.linux.ProcUtil;
  */
 final class LinuxComputerSystem extends AbstractComputerSystem {
 
-    private final Supplier<String> manufacturer = memoize(this::queryManufacturer);
+    private final Supplier<String> manufacturer = memoize(LinuxComputerSystem::queryManufacturer);
 
-    private final Supplier<String> model = memoize(this::queryModel);
+    private final Supplier<String> model = memoize(LinuxComputerSystem::queryModel);
 
-    private final Supplier<String> serialNumber = memoize(this::querySerialNumber);
+    private final Supplier<String> serialNumber = memoize(LinuxComputerSystem::querySerialNumber);
 
     @Override
     public String getManufacturer() {
@@ -74,7 +74,7 @@ final class LinuxComputerSystem extends AbstractComputerSystem {
         return new LinuxBaseboard();
     }
 
-    private String queryManufacturer() {
+    private static String queryManufacturer() {
         String result = null;
         if ((result = queryManufacturerFromSysfs()) == null && (result = queryManufacturerFromProcCpu()) == null) {
             return Constants.UNKNOWN;
@@ -82,7 +82,7 @@ final class LinuxComputerSystem extends AbstractComputerSystem {
         return result;
     }
 
-    private String queryModel() {
+    private static String queryModel() {
         String result = null;
         if ((result = queryModelFromSysfs()) == null && (result = queryModelFromDeviceTree()) == null
                 && (result = queryModelFromLshw()) == null) {
@@ -91,7 +91,7 @@ final class LinuxComputerSystem extends AbstractComputerSystem {
         return result;
     }
 
-    private String querySerialNumber() {
+    private static String querySerialNumber() {
         String result = null;
         if ((result = querySerialFromSysfs()) == null && (result = querySerialFromDmiDecode()) == null
                 && (result = querySerialFromLshal()) == null && (result = querySerialFromLshw()) == null) {
@@ -100,7 +100,7 @@ final class LinuxComputerSystem extends AbstractComputerSystem {
         return result;
     }
 
-    private String queryManufacturerFromSysfs() {
+    private static String queryManufacturerFromSysfs() {
         final String sysVendor = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "sys_vendor").trim();
         if (!sysVendor.isEmpty()) {
             return sysVendor;
@@ -108,7 +108,7 @@ final class LinuxComputerSystem extends AbstractComputerSystem {
         return null;
     }
 
-    private String queryManufacturerFromProcCpu() {
+    private static String queryManufacturerFromProcCpu() {
         List<String> cpuInfo = FileUtil.readFile(ProcUtil.getProcPath() + CPUINFO);
         for (String line : cpuInfo) {
             if (line.startsWith("CPU implementer")) {
@@ -144,7 +144,7 @@ final class LinuxComputerSystem extends AbstractComputerSystem {
         return null;
     }
 
-    private String queryModelFromSysfs() {
+    private static String queryModelFromSysfs() {
         final String productName = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "product_name").trim();
         final String productVersion = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "product_version")
                 .trim();
@@ -162,7 +162,7 @@ final class LinuxComputerSystem extends AbstractComputerSystem {
         return null;
     }
 
-    private String queryModelFromDeviceTree() {
+    private static String queryModelFromDeviceTree() {
         String modelStr = FileUtil.getStringFromFile("/sys/firmware/devicetree/base/model");
         if (!modelStr.isEmpty()) {
             return modelStr.replace("Machine: ", "");
@@ -170,7 +170,7 @@ final class LinuxComputerSystem extends AbstractComputerSystem {
         return null;
     }
 
-    private String queryModelFromLshw() {
+    private static String queryModelFromLshw() {
         String modelMarker = "product:";
         for (String checkLine : ExecutingCommand.runNative("lshw -C system")) {
             if (checkLine.contains(modelMarker)) {
@@ -180,7 +180,7 @@ final class LinuxComputerSystem extends AbstractComputerSystem {
         return null;
     }
 
-    private String querySerialFromSysfs() {
+    private static String querySerialFromSysfs() {
         // These sysfs files accessible by root, or can be chmod'd at boot time
         // to enable access without root
         String serial = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "product_serial");
@@ -194,7 +194,7 @@ final class LinuxComputerSystem extends AbstractComputerSystem {
         return null;
     }
 
-    private String querySerialFromDmiDecode() {
+    private static String querySerialFromDmiDecode() {
         // If root privileges this will work
         String marker = "Serial Number:";
         for (String checkLine : ExecutingCommand.runNative("dmidecode -t system")) {
@@ -205,7 +205,7 @@ final class LinuxComputerSystem extends AbstractComputerSystem {
         return null;
     }
 
-    private String querySerialFromLshal() {
+    private static String querySerialFromLshal() {
         // if lshal command available (HAL deprecated in newer linuxes)
         String marker = "system.hardware.serial =";
         for (String checkLine : ExecutingCommand.runNative("lshal")) {
@@ -216,7 +216,7 @@ final class LinuxComputerSystem extends AbstractComputerSystem {
         return null;
     }
 
-    private String querySerialFromLshw() {
+    private static String querySerialFromLshw() {
         String serialMarker = "serial:";
         for (String checkLine : ExecutingCommand.runNative("lshw -C system")) {
             if (checkLine.contains(serialMarker)) {

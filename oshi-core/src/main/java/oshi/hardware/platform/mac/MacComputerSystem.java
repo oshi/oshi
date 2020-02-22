@@ -34,29 +34,29 @@ import com.sun.jna.platform.mac.IOKitUtil;
 import oshi.hardware.Baseboard;
 import oshi.hardware.Firmware;
 import oshi.hardware.common.AbstractComputerSystem;
-import oshi.util.Constants;
-import oshi.util.Util;
+import oshi.util.tuples.Triplet;
 
 /**
  * Hardware data obtained from ioreg.
  */
 final class MacComputerSystem extends AbstractComputerSystem {
 
-    private final Supplier<ManufacturerModelSerial> profileSystem = memoize(this::platformExpert);
+    private final Supplier<Triplet<String, String, String>> manufacturerModelSerial = memoize(
+            MacComputerSystem::platformExpert);
 
     @Override
     public String getManufacturer() {
-        return profileSystem.get().manufacturer;
+        return manufacturerModelSerial.get().getA();
     }
 
     @Override
     public String getModel() {
-        return profileSystem.get().model;
+        return manufacturerModelSerial.get().getB();
     }
 
     @Override
     public String getSerialNumber() {
-        return profileSystem.get().serialNumber;
+        return manufacturerModelSerial.get().getC();
     }
 
     @Override
@@ -69,7 +69,7 @@ final class MacComputerSystem extends AbstractComputerSystem {
         return new MacBaseboard();
     }
 
-    private ManufacturerModelSerial platformExpert() {
+    private static Triplet<String, String, String> platformExpert() {
         String manufacturer = null;
         String model = null;
         String serialNumber = null;
@@ -86,18 +86,6 @@ final class MacComputerSystem extends AbstractComputerSystem {
             serialNumber = platformExpert.getStringProperty("IOPlatformSerialNumber");
             platformExpert.release();
         }
-        return new ManufacturerModelSerial(manufacturer, model, serialNumber);
-    }
-
-    private static final class ManufacturerModelSerial {
-        private final String manufacturer;
-        private final String model;
-        private final String serialNumber;
-
-        private ManufacturerModelSerial(String manufacturer, String model, String serialNumber) {
-            this.manufacturer = Util.isBlank(manufacturer) ? "Apple Inc." : manufacturer;
-            this.model = Util.isBlank(model) ? Constants.UNKNOWN : model;
-            this.serialNumber = Util.isBlank(serialNumber) ? Constants.UNKNOWN : serialNumber;
-        }
+        return new Triplet<>(manufacturer, model, serialNumber);
     }
 }

@@ -43,7 +43,7 @@ import oshi.util.tuples.Quintet;
 final class WindowsFirmware extends AbstractFirmware {
 
     private final Supplier<Quintet<String, String, String, String, String>> manufNameDescVersRelease = memoize(
-            this::queryManufNameDescVersRelease);
+            WindowsFirmware::queryManufNameDescVersRelease);
 
     @Override
     public String getManufacturer() {
@@ -70,7 +70,7 @@ final class WindowsFirmware extends AbstractFirmware {
         return manufNameDescVersRelease.get().getE();
     }
 
-    private Quintet<String, String, String, String, String> queryManufNameDescVersRelease() {
+    private static Quintet<String, String, String, String, String> queryManufNameDescVersRelease() {
         String manufacturer = null;
         String name = null;
         String description = null;

@@ -28,35 +28,34 @@ import static oshi.util.Memoizer.memoize;
 import java.util.function.Supplier;
 
 import oshi.hardware.common.AbstractFirmware;
-import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
-import oshi.util.Util;
+import oshi.util.tuples.Triplet;
 
 final class FreeBsdFirmware extends AbstractFirmware {
 
-    private final Supplier<DmidecodeStrings> readDmiDecode = memoize(this::readDmiDecode);
+    private final Supplier<Triplet<String, String, String>> manufVersRelease = memoize(FreeBsdFirmware::readDmiDecode);
 
     @Override
     public String getManufacturer() {
-        return readDmiDecode.get().manufacturer;
+        return manufVersRelease.get().getA();
     }
 
     @Override
     public String getVersion() {
-        return readDmiDecode.get().version;
+        return manufVersRelease.get().getB();
     }
 
     @Override
     public String getReleaseDate() {
-        return readDmiDecode.get().releaseDate;
+        return manufVersRelease.get().getC();
     }
 
     /*
      * Name and Description not set
      */
 
-    private DmidecodeStrings readDmiDecode() {
+    private static Triplet<String, String, String> readDmiDecode() {
         String manufacturer = null;
         String version = null;
         String releaseDate = "";
@@ -90,19 +89,6 @@ final class FreeBsdFirmware extends AbstractFirmware {
             }
         }
         releaseDate = ParseUtil.parseMmDdYyyyToYyyyMmDD(releaseDate);
-        return new DmidecodeStrings(manufacturer, version, releaseDate);
+        return new Triplet<>(manufacturer, version, releaseDate);
     }
-
-    private static final class DmidecodeStrings {
-        private final String manufacturer;
-        private final String version;
-        private final String releaseDate;
-
-        private DmidecodeStrings(String manufacturer, String version, String releaseDate) {
-            this.manufacturer = Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer;
-            this.version = Util.isBlank(version) ? Constants.UNKNOWN : version;
-            this.releaseDate = Util.isBlank(releaseDate) ? Constants.UNKNOWN : releaseDate;
-        }
-    }
-
 }

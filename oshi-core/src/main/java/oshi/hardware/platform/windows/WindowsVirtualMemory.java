@@ -56,7 +56,8 @@ public class WindowsVirtualMemory extends AbstractVirtualMemory {
 
     private final Supplier<Long> total = memoize(this::querySwapTotal, defaultExpiration());
 
-    private final Supplier<Pair<Long, Long>> swapInOut = memoize(this::queryPageSwaps, defaultExpiration());
+    private final Supplier<Pair<Long, Long>> swapInOut = memoize(WindowsVirtualMemory::queryPageSwaps,
+            defaultExpiration());
 
     /**
      * <p>
@@ -104,7 +105,7 @@ public class WindowsVirtualMemory extends AbstractVirtualMemory {
         return this.pageSize * (perfInfo.CommitLimit.longValue() - perfInfo.PhysicalTotal.longValue());
     }
 
-    private Pair<Long, Long> queryPageSwaps() {
+    private static Pair<Long, Long> queryPageSwaps() {
         Map<PageSwapProperty, Long> valueMap = new MemoryInformation().queryPageSwaps();
         return new Pair<>(valueMap.getOrDefault(PageSwapProperty.PAGESINPUTPERSEC, 0L),
                 valueMap.getOrDefault(PageSwapProperty.PAGESOUTPUTPERSEC, 0L));

@@ -40,6 +40,7 @@ import com.sun.jna.ptr.IntByReference;
 import oshi.hardware.common.AbstractVirtualMemory;
 import oshi.util.ParseUtil;
 import oshi.util.platform.mac.SysctlUtil;
+import oshi.util.tuples.Pair;
 
 /**
  * Memory obtained by host_statistics (vm_stat) and sysctl.
@@ -48,31 +49,31 @@ public class MacVirtualMemory extends AbstractVirtualMemory {
 
     private static final Logger LOG = LoggerFactory.getLogger(MacVirtualMemory.class);
 
-    private final Supplier<SwapUsage> swapUsage = memoize(this::querySwapUsage, defaultExpiration());
+    private final Supplier<Pair<Long, Long>> usedTotal = memoize(MacVirtualMemory::querySwapUsage, defaultExpiration());
 
-    private final Supplier<VmStat> vmStat = memoize(this::queryVmStat, defaultExpiration());
+    private final Supplier<Pair<Long, Long>> inOut = memoize(MacVirtualMemory::queryVmStat, defaultExpiration());
 
     @Override
     public long getSwapUsed() {
-        return swapUsage.get().used;
+        return usedTotal.get().getA();
     }
 
     @Override
     public long getSwapTotal() {
-        return swapUsage.get().total;
+        return usedTotal.get().getB();
     }
 
     @Override
     public long getSwapPagesIn() {
-        return vmStat.get().pagesIn;
+        return inOut.get().getA();
     }
 
     @Override
     public long getSwapPagesOut() {
-        return vmStat.get().pagesOut;
+        return inOut.get().getB();
     }
 
-    private SwapUsage querySwapUsage() {
+    private static Pair<Long, Long> querySwapUsage() {
         long swapUsed = 0L;
         long swapTotal = 0L;
         XswUsage xswUsage = new XswUsage();
@@ -80,10 +81,10 @@ public class MacVirtualMemory extends AbstractVirtualMemory {
             swapUsed = xswUsage.xsu_used;
             swapTotal = xswUsage.xsu_total;
         }
-        return new SwapUsage(swapTotal, swapUsed);
+        return new Pair<>(swapUsed, swapTotal);
     }
 
-    private VmStat queryVmStat() {
+    private static Pair<Long, Long> queryVmStat() {
         long swapPagesIn = 0L;
         long swapPagesOut = 0L;
         VMStatistics vmStats = new VMStatistics();
@@ -94,26 +95,6 @@ public class MacVirtualMemory extends AbstractVirtualMemory {
         } else {
             LOG.error("Failed to get host VM info. Error code: {}", Native.getLastError());
         }
-        return new VmStat(swapPagesIn, swapPagesOut);
-    }
-
-    private static final class SwapUsage {
-        private final long total;
-        private final long used;
-
-        private SwapUsage(long total, long used) {
-            this.total = total;
-            this.used = used;
-        }
-    }
-
-    private static final class VmStat {
-        private final long pagesIn;
-        private final long pagesOut;
-
-        private VmStat(long pagesIn, long pagesOut) {
-            this.pagesIn = pagesIn;
-            this.pagesOut = pagesOut;
-        }
+        return new Pair<>(swapPagesIn, swapPagesOut);
     }
 }

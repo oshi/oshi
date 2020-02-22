@@ -34,27 +34,29 @@ import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
+import oshi.util.tuples.Quartet;
 
 /**
  * Hardware data obtained from dmidecode.
  */
 final class FreeBsdComputerSystem extends AbstractComputerSystem {
 
-    private final Supplier<DmidecodeStrings> readDmiDecode = memoize(this::readDmiDecode);
+    private final Supplier<Quartet<String, String, String, String>> manufModelSerialVers = memoize(
+            FreeBsdComputerSystem::readDmiDecode);
 
     @Override
     public String getManufacturer() {
-        return readDmiDecode.get().manufacturer;
+        return manufModelSerialVers.get().getA();
     }
 
     @Override
     public String getModel() {
-        return readDmiDecode.get().model;
+        return manufModelSerialVers.get().getB();
     }
 
     @Override
     public String getSerialNumber() {
-        return readDmiDecode.get().serialNumber;
+        return manufModelSerialVers.get().getC();
     }
 
     @Override
@@ -64,15 +66,15 @@ final class FreeBsdComputerSystem extends AbstractComputerSystem {
 
     @Override
     public Baseboard createBaseboard() {
-        return new FreeBsdBaseboard(readDmiDecode.get().manufacturer, readDmiDecode.get().model,
-                readDmiDecode.get().serialNumber, readDmiDecode.get().version);
+        return new FreeBsdBaseboard(manufModelSerialVers.get().getA(), manufModelSerialVers.get().getB(),
+                manufModelSerialVers.get().getC(), manufModelSerialVers.get().getD());
     }
 
-    private DmidecodeStrings readDmiDecode() {
+    private static Quartet<String, String, String, String> readDmiDecode() {
         String manufacturer = null;
         String model = null;
-        String version = null;
         String serialNumber = null;
+        String version = null;
 
         // $ sudo dmidecode -t system
         // # dmidecode 3.0
@@ -97,32 +99,29 @@ final class FreeBsdComputerSystem extends AbstractComputerSystem {
 
         final String manufacturerMarker = "Manufacturer:";
         final String productNameMarker = "Product Name:";
-        final String versionMarker = "Version:";
         final String serialNumMarker = "Serial Number:";
+        final String versionMarker = "Version:";
 
         // Only works with root permissions but it's all we've got
         for (final String checkLine : ExecutingCommand.runNative("dmidecode -t system")) {
             if (checkLine.contains(manufacturerMarker)) {
                 manufacturer = checkLine.split(manufacturerMarker)[1].trim();
-            }
-            if (checkLine.contains(productNameMarker)) {
+            } else if (checkLine.contains(productNameMarker)) {
                 model = checkLine.split(productNameMarker)[1].trim();
-            }
-            if (checkLine.contains(versionMarker)) {
-                version = checkLine.split(versionMarker)[1].trim();
-            }
-            if (checkLine.contains(serialNumMarker)) {
+            } else if (checkLine.contains(serialNumMarker)) {
                 serialNumber = checkLine.split(serialNumMarker)[1].trim();
+            } else if (checkLine.contains(versionMarker)) {
+                version = checkLine.split(versionMarker)[1].trim();
             }
         }
         // If we get to end and haven't assigned, use fallback
         if (Util.isBlank(serialNumber)) {
-            serialNumber = getSystemSerialNumber();
+            serialNumber = querySystemSerialNumber();
         }
-        return new DmidecodeStrings(manufacturer, model, version, serialNumber);
+        return new Quartet<>(manufacturer, model, serialNumber, version);
     }
 
-    private String getSystemSerialNumber() {
+    private static String querySystemSerialNumber() {
         String marker = "system.hardware.serial =";
         for (String checkLine : ExecutingCommand.runNative("lshal")) {
             if (checkLine.contains(marker)) {
@@ -130,19 +129,5 @@ final class FreeBsdComputerSystem extends AbstractComputerSystem {
             }
         }
         return Constants.UNKNOWN;
-    }
-
-    private static final class DmidecodeStrings {
-        private final String manufacturer;
-        private final String model;
-        private final String version;
-        private final String serialNumber;
-
-        private DmidecodeStrings(String manufacturer, String model, String version, String serialNumber) {
-            this.manufacturer = Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer;
-            this.model = Util.isBlank(model) ? Constants.UNKNOWN : model;
-            this.version = Util.isBlank(version) ? Constants.UNKNOWN : version;
-            this.serialNumber = Util.isBlank(serialNumber) ? Constants.UNKNOWN : serialNumber;
-        }
     }
 }

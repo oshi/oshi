@@ -23,6 +23,8 @@
  */
 package oshi.hardware.platform.linux;
 
+import static oshi.util.Memoizer.memoize;
+
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
@@ -33,7 +35,6 @@ import oshi.hardware.common.AbstractFirmware;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
-import static oshi.util.Memoizer.memoize;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
 
@@ -132,7 +133,7 @@ final class LinuxFirmware extends AbstractFirmware {
     // board_name chassis_type product_serial
     // board_serial chassis_vendor product_uuid
 
-    private String queryManufacturerFromSysfs() {
+    private static String queryManufacturerFromSysfs() {
         final String biosVendor = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "bios_vendor").trim();
         if (biosVendor.isEmpty()) {
             return biosVendor;
@@ -140,7 +141,7 @@ final class LinuxFirmware extends AbstractFirmware {
         return null;
     }
 
-    private String queryDescriptionFromSysfs() {
+    private static String queryDescriptionFromSysfs() {
         final String modalias = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "modalias").trim();
         if (!modalias.isEmpty()) {
             return modalias;
@@ -151,13 +152,13 @@ final class LinuxFirmware extends AbstractFirmware {
     private String queryVersionFromSysfs() {
         final String biosVersion = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "bios_version").trim();
         if (!biosVersion.isEmpty()) {
-            String biosRevision = bios.get().biosRevision;
+            String biosRevision = this.bios.get().biosRevision;
             return biosVersion + (Util.isBlank(biosRevision) ? "" : " (revision " + biosRevision + ")");
         }
         return null;
     }
 
-    private String queryReleaseDateFromSysfs() {
+    private static String queryReleaseDateFromSysfs() {
         final String biosDate = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "bios_date").trim();
         if (!biosDate.isEmpty()) {
             return ParseUtil.parseMmDdYyyyToYyyyMmDD(biosDate);

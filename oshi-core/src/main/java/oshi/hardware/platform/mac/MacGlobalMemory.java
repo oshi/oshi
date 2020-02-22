@@ -56,11 +56,11 @@ public class MacGlobalMemory extends AbstractGlobalMemory {
 
     private final Supplier<Long> available = memoize(this::queryVmStats, defaultExpiration());
 
-    private final Supplier<Long> total = memoize(this::queryPhysMem);
+    private final Supplier<Long> total = memoize(MacGlobalMemory::queryPhysMem);
 
-    private final Supplier<Long> pageSize = memoize(this::queryPageSize);
+    private final Supplier<Long> pageSize = memoize(MacGlobalMemory::queryPageSize);
 
-    private final Supplier<VirtualMemory> vm = memoize(this::createVirtualMemory);
+    private final Supplier<VirtualMemory> vm = memoize(MacGlobalMemory::createVirtualMemory);
 
     @Override
     public long getAvailable() {
@@ -140,11 +140,11 @@ public class MacGlobalMemory extends AbstractGlobalMemory {
         return (vmStats.free_count + vmStats.inactive_count) * getPageSize();
     }
 
-    private long queryPhysMem() {
+    private static long queryPhysMem() {
         return SysctlUtil.sysctl("hw.memsize", 0L);
     }
 
-    private long queryPageSize() {
+    private static long queryPageSize() {
         LongByReference pPageSize = new LongByReference();
         if (0 == SystemB.INSTANCE.host_page_size(SystemB.INSTANCE.mach_host_self(), pPageSize)) {
             return pPageSize.getValue();
@@ -153,7 +153,7 @@ public class MacGlobalMemory extends AbstractGlobalMemory {
         return 4098L;
     }
 
-    private VirtualMemory createVirtualMemory() {
+    private static VirtualMemory createVirtualMemory() {
         return new MacVirtualMemory();
     }
 }
