@@ -36,16 +36,16 @@ import org.slf4j.LoggerFactory;
 import com.sun.jna.platform.win32.Kernel32; // NOSONAR squid:S1191
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
-import oshi.driver.perfmon.PhysicalDisk;
-import oshi.driver.perfmon.PhysicalDisk.PhysicalDiskProperty;
-import oshi.driver.wmi.Win32DiskDrive;
-import oshi.driver.wmi.Win32DiskDrive.DiskDriveProperty;
-import oshi.driver.wmi.Win32DiskDriveToDiskPartition;
-import oshi.driver.wmi.Win32DiskDriveToDiskPartition.DriveToPartitionProperty;
-import oshi.driver.wmi.Win32DiskPartition;
-import oshi.driver.wmi.Win32DiskPartition.DiskPartitionProperty;
-import oshi.driver.wmi.Win32LogicalDiskToPartition;
-import oshi.driver.wmi.Win32LogicalDiskToPartition.DiskToPartitionProperty;
+import oshi.driver.windows.perfmon.PhysicalDisk;
+import oshi.driver.windows.perfmon.PhysicalDisk.PhysicalDiskProperty;
+import oshi.driver.windows.wmi.Win32DiskDrive;
+import oshi.driver.windows.wmi.Win32DiskDriveToDiskPartition;
+import oshi.driver.windows.wmi.Win32DiskPartition;
+import oshi.driver.windows.wmi.Win32LogicalDiskToPartition;
+import oshi.driver.windows.wmi.Win32DiskDrive.DiskDriveProperty;
+import oshi.driver.windows.wmi.Win32DiskDriveToDiskPartition.DriveToPartitionProperty;
+import oshi.driver.windows.wmi.Win32DiskPartition.DiskPartitionProperty;
+import oshi.driver.windows.wmi.Win32LogicalDiskToPartition.DiskToPartitionProperty;
 import oshi.hardware.Disks;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
@@ -196,7 +196,7 @@ public class WindowsDisks implements Disks {
         return stats;
     }
 
-    private PartitionMaps queryPartitionMaps() {
+    private static PartitionMaps queryPartitionMaps() {
         // Create object to hold and return results
         PartitionMaps maps = new PartitionMaps();
 

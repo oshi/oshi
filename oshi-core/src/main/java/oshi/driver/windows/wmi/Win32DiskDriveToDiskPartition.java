@@ -21,45 +21,32 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package oshi.driver.wmi;
+package oshi.driver.windows.wmi;
 
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery; //NOSONAR squid:S1191
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.util.platform.windows.WmiQueryHandler;
 
-public class Win32LogicalDisk {
+public class Win32DiskDriveToDiskPartition {
 
-    private static final String WIN32_LOGICAL_DISK = "Win32_LogicalDisk";
+    private static final String WIN32_DISK_DRIVE_TO_DISK_PARTITION = "Win32_DiskDriveToDiskPartition";
 
     /**
-     * Logical disk properties.
+     * Links disk drives to partitions
      */
-    public enum LogicalDiskProperty {
-        DESCRIPTION, DRIVETYPE, FILESYSTEM, FREESPACE, NAME, PROVIDERNAME, SIZE;
+    public enum DriveToPartitionProperty {
+        ANTECEDENT, DEPENDENT;
     }
 
     /**
-     * Queries logical disk information
+     * Queries the association between disk drive and partition.
      *
-     * @param nameToMatch
-     *            an optional string to filter match, null otherwise
-     * @param localOnly
-     *            Whether to only search local drives
-     * @return Logical Disk Information
+     * @return Antecedent-dependent pairs of disk and partition.
      */
-    public WmiResult<LogicalDiskProperty> queryLogicalDisk(String nameToMatch, boolean localOnly) {
-        StringBuilder wmiClassName = new StringBuilder(WIN32_LOGICAL_DISK);
-        boolean where = false;
-        if (localOnly) {
-            wmiClassName.append(" WHERE DriveType != 4");
-            where = true;
-        }
-        if (nameToMatch != null) {
-            wmiClassName.append(where ? " WHERE" : " AND").append(" Name=\"").append(nameToMatch).append('\"');
-        }
-        WmiQuery<LogicalDiskProperty> logicalDiskQuery = new WmiQuery<>(wmiClassName.toString(),
-                LogicalDiskProperty.class);
-        return WmiQueryHandler.createInstance().queryWMI(logicalDiskQuery);
+    public WmiResult<DriveToPartitionProperty> queryDriveToPartition() {
+        WmiQuery<DriveToPartitionProperty> driveToPartitionQuery = new WmiQuery<>(WIN32_DISK_DRIVE_TO_DISK_PARTITION,
+                DriveToPartitionProperty.class);
+        return WmiQueryHandler.createInstance().queryWMI(driveToPartitionQuery);
     }
 }

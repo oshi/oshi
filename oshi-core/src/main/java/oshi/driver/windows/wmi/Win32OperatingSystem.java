@@ -21,40 +21,31 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package oshi.driver.wmi;
+package oshi.driver.windows.wmi;
 
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery; //NOSONAR squid:S1191
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.util.platform.windows.WmiQueryHandler;
-import oshi.util.platform.windows.WmiUtil;
 
-public class OhmSensor {
+public class Win32OperatingSystem {
 
-    private static final String SENSOR = "Sensor";
+    private static final String WIN32_OPERATING_SYSTEM = "Win32_OperatingSystem";
 
     /**
-     * Sensor value property
+     * Operating System properties
      */
-    public enum ValueProperty {
-        VALUE;
+    public enum OSVersionProperty {
+        VERSION, PRODUCTTYPE, BUILDNUMBER, CSDVERSION, SUITEMASK;
     }
 
     /**
-     * Queries the sensor value of an hardware identifier and sensor type.
+     * Queries the Computer System.
      *
-     * @param identifier
-     *            The identifier whose value to query.
-     * @param sensorType
-     *            The type of sensor to query.
-     * @return The sensor value.
+     * @return Computer System Manufacturer and Model
      */
-    public WmiResult<ValueProperty> querySensorValue(String identifier, String sensorType) {
-        StringBuilder sb = new StringBuilder(SENSOR);
-        sb.append(" WHERE Parent = \"").append(identifier);
-        sb.append("\" AND SensorType=\"").append(sensorType).append('\"');
-        WmiQuery<ValueProperty> ohmSensorQuery = new WmiQuery<>(WmiUtil.OHM_NAMESPACE, sb.toString(),
-                ValueProperty.class);
-        return WmiQueryHandler.createInstance().queryWMI(ohmSensorQuery);
+    public WmiResult<OSVersionProperty> queryOsVersion() {
+        WmiQuery<OSVersionProperty> osVersionQuery = new WmiQuery<>(WIN32_OPERATING_SYSTEM, OSVersionProperty.class);
+        return WmiQueryHandler.createInstance().queryWMI(osVersionQuery);
     }
 }

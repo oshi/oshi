@@ -35,10 +35,10 @@ import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 import com.sun.jna.ptr.IntByReference;
 
-import oshi.driver.perfmon.ProcessInformation;
-import oshi.driver.perfmon.ProcessInformation.HandleCountProperty;
-import oshi.driver.wmi.Win32LogicalDisk;
-import oshi.driver.wmi.Win32LogicalDisk.LogicalDiskProperty;
+import oshi.driver.windows.perfmon.ProcessInformation;
+import oshi.driver.windows.perfmon.ProcessInformation.HandleCountProperty;
+import oshi.driver.windows.wmi.Win32LogicalDisk;
+import oshi.driver.windows.wmi.Win32LogicalDisk.LogicalDiskProperty;
 import oshi.software.common.AbstractFileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.ParseUtil;

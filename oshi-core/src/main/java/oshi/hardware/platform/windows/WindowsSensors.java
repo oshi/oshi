@@ -31,16 +31,16 @@ import org.slf4j.LoggerFactory;
 
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult; // NOSONAR squid:S1191
 
-import oshi.driver.perfmon.ThermalZoneInformation;
-import oshi.driver.perfmon.ThermalZoneInformation.ThermalZoneProperty;
-import oshi.driver.wmi.OhmHardware;
-import oshi.driver.wmi.OhmHardware.IdentifierProperty;
-import oshi.driver.wmi.OhmSensor;
-import oshi.driver.wmi.OhmSensor.ValueProperty;
-import oshi.driver.wmi.Win32Fan;
-import oshi.driver.wmi.Win32Fan.SpeedProperty;
-import oshi.driver.wmi.Win32Processor;
-import oshi.driver.wmi.Win32Processor.VoltProperty;
+import oshi.driver.windows.perfmon.ThermalZoneInformation;
+import oshi.driver.windows.perfmon.ThermalZoneInformation.ThermalZoneProperty;
+import oshi.driver.windows.wmi.OhmHardware;
+import oshi.driver.windows.wmi.OhmSensor;
+import oshi.driver.windows.wmi.Win32Fan;
+import oshi.driver.windows.wmi.Win32Processor;
+import oshi.driver.windows.wmi.OhmHardware.IdentifierProperty;
+import oshi.driver.windows.wmi.OhmSensor.ValueProperty;
+import oshi.driver.windows.wmi.Win32Fan.SpeedProperty;
+import oshi.driver.windows.wmi.Win32Processor.VoltProperty;
 import oshi.hardware.common.AbstractSensors;
 import oshi.util.platform.windows.WmiUtil;
 
@@ -69,7 +69,7 @@ public class WindowsSensors extends AbstractSensors {
         return tempC;
     }
 
-    private double getTempFromOHM() {
+    private static double getTempFromOHM() {
         WmiResult<IdentifierProperty> ohmHardware = new OhmHardware().queryHwIdentifier("Hardware", "CPU");
         if (ohmHardware.getResultCount() > 0) {
             LOG.debug("Found Temperature data in Open Hardware Monitor");
@@ -88,11 +88,10 @@ public class WindowsSensors extends AbstractSensors {
         return 0;
     }
 
-    private double getTempFromPerfCounters() {
+    private static double getTempFromPerfCounters() {
         double tempC = 0d;
         long tempK = 0L;
-        Map<ThermalZoneProperty, List<Long>> valueListMap = new ThermalZoneInformation()
-                .queryThermalZoneTemps();
+        Map<ThermalZoneProperty, List<Long>> valueListMap = new ThermalZoneInformation().queryThermalZoneTemps();
         List<Long> valueList = valueListMap.get(ThermalZoneProperty.TEMPERATURE);
         if (valueList != null && !valueList.isEmpty()) {
             LOG.debug("Found Temperature data in PDH or WMI Counter");
@@ -125,7 +124,7 @@ public class WindowsSensors extends AbstractSensors {
         return new int[0];
     }
 
-    private int[] getFansFromOHM() {
+    private static int[] getFansFromOHM() {
         WmiResult<IdentifierProperty> ohmHardware = new OhmHardware().queryHwIdentifier("Hardware", "CPU");
         if (ohmHardware.getResultCount() > 0) {
             LOG.debug("Found Fan data in Open Hardware Monitor");
@@ -144,7 +143,7 @@ public class WindowsSensors extends AbstractSensors {
         return new int[0];
     }
 
-    private int[] getFansFromWMI() {
+    private static int[] getFansFromWMI() {
         WmiResult<SpeedProperty> fan = new Win32Fan().querySpeed();
         if (fan.getResultCount() > 1) {
             LOG.debug("Found Fan data in WMI");
@@ -172,7 +171,7 @@ public class WindowsSensors extends AbstractSensors {
         return volts;
     }
 
-    private double getVoltsFromOHM() {
+    private static double getVoltsFromOHM() {
         WmiResult<IdentifierProperty> ohmHardware = new OhmHardware().queryHwIdentifier("Sensor", "Voltage");
         if (ohmHardware.getResultCount() > 0) {
             LOG.debug("Found Voltage data in Open Hardware Monitor");
@@ -198,7 +197,7 @@ public class WindowsSensors extends AbstractSensors {
         return 0d;
     }
 
-    private double getVoltsFromWMI() {
+    private static double getVoltsFromWMI() {
         WmiResult<VoltProperty> voltage = new Win32Processor().queryVoltage();
         if (voltage.getResultCount() > 1) {
             LOG.debug("Found Voltage data in WMI");

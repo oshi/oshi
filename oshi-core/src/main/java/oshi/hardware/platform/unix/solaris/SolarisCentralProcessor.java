@@ -95,7 +95,7 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
         return logProcs.toArray(new LogicalProcessor[0]);
     }
 
-    private Map<Integer, Integer> mapNumaNodes() {
+    private static Map<Integer, Integer> mapNumaNodes() {
         Map<Integer, Integer> numaNodeMap = new HashMap<>();
         // Get numa node info from lgrpinfo
         List<String> lgrpinfo = ExecutingCommand.runNative("lgrpinfo -c leaves");
@@ -223,7 +223,7 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
      * @param family
      * @return The Processor ID string
      */
-    private String getProcessorID(String stepping, String model, String family) {
+    private static String getProcessorID(String stepping, String model, String family) {
         List<String> isainfo = ExecutingCommand.runNative("isainfo -v");
         StringBuilder flags = new StringBuilder();
         for (String line : isainfo) {

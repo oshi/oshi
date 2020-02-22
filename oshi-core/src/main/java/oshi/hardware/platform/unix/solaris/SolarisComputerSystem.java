@@ -40,7 +40,7 @@ import oshi.util.Util;
  */
 final class SolarisComputerSystem extends AbstractComputerSystem {
 
-    private final Supplier<SmbiosStrings> smbiosStrings = memoize(this::readSmbios);
+    private final Supplier<SmbiosStrings> smbiosStrings = memoize(SolarisComputerSystem::readSmbios);
 
     @Override
     public String getManufacturer() {
@@ -69,7 +69,7 @@ final class SolarisComputerSystem extends AbstractComputerSystem {
                 smbiosStrings.get().boardSerialNumber, smbiosStrings.get().boardVersion);
     }
 
-    private SmbiosStrings readSmbios() {
+    private static SmbiosStrings readSmbios() {
         String biosVendor = null;
         String biosVersion = null;
         String biosDate = null;
@@ -179,7 +179,7 @@ final class SolarisComputerSystem extends AbstractComputerSystem {
                 boardManufacturer, boardModel, boardVersion, boardSerialNumber);
     }
 
-    private int getSmbType(String checkLine) {
+    private static int getSmbType(String checkLine) {
         if (checkLine.contains("SMB_TYPE_BIOS")) {
             return 0; // BIOS
         } else if (checkLine.contains("SMB_TYPE_SYSTEM")) {
@@ -193,7 +193,7 @@ final class SolarisComputerSystem extends AbstractComputerSystem {
         }
     }
 
-    private String readSerialNumber() {
+    private static String readSerialNumber() {
         // If they've installed STB (Sun Explorer) this should work
         String serialNumber = ExecutingCommand.getFirstAnswer("sneep");
         // if that didn't work, try...

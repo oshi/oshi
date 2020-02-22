@@ -33,6 +33,7 @@ import java.util.regex.Pattern;
 import oshi.hardware.common.AbstractVirtualMemory;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
+import oshi.util.tuples.Pair;
 
 /**
  * Memory obtained by kstat and swap
@@ -41,20 +42,21 @@ public class SolarisVirtualMemory extends AbstractVirtualMemory {
 
     private static final Pattern SWAP_INFO = Pattern.compile(".+\\s(\\d+)K\\s+(\\d+)K$");
 
-    private final Supplier<SwapInfo> swapInfo = memoize(this::querySwapInfo, defaultExpiration());
+    private final Supplier<Pair<Long, Long>> usedTotal = memoize(SolarisVirtualMemory::querySwapInfo,
+            defaultExpiration());
 
-    private final Supplier<Long> pagesIn = memoize(this::queryPagesIn, defaultExpiration());
+    private final Supplier<Long> pagesIn = memoize(SolarisVirtualMemory::queryPagesIn, defaultExpiration());
 
-    private final Supplier<Long> pagesOut = memoize(this::queryPagesOut, defaultExpiration());
+    private final Supplier<Long> pagesOut = memoize(SolarisVirtualMemory::queryPagesOut, defaultExpiration());
 
     @Override
     public long getSwapUsed() {
-        return swapInfo.get().used;
+        return usedTotal.get().getA();
     }
 
     @Override
     public long getSwapTotal() {
-        return swapInfo.get().total;
+        return usedTotal.get().getB();
     }
 
     @Override
@@ -67,7 +69,7 @@ public class SolarisVirtualMemory extends AbstractVirtualMemory {
         return pagesOut.get();
     }
 
-    private long queryPagesIn() {
+    private static long queryPagesIn() {
         long swapPagesIn = 0L;
         for (String s : ExecutingCommand.runNative("kstat -p cpu_stat:::pgpgin")) {
             swapPagesIn += ParseUtil.parseLastLong(s, 0L);
@@ -75,7 +77,7 @@ public class SolarisVirtualMemory extends AbstractVirtualMemory {
         return swapPagesIn;
     }
 
-    private long queryPagesOut() {
+    private static long queryPagesOut() {
         long swapPagesOut = 0L;
         for (String s : ExecutingCommand.runNative("kstat -p cpu_stat:::pgpgout")) {
             swapPagesOut += ParseUtil.parseLastLong(s, 0L);
@@ -83,7 +85,7 @@ public class SolarisVirtualMemory extends AbstractVirtualMemory {
         return swapPagesOut;
     }
 
-    private SwapInfo querySwapInfo() {
+    private static Pair<Long, Long> querySwapInfo() {
         long swapTotal = 0L;
         long swapUsed = 0L;
         String swap = ExecutingCommand.getAnswerAt("swap -lk", 1);
@@ -92,16 +94,6 @@ public class SolarisVirtualMemory extends AbstractVirtualMemory {
             swapTotal = ParseUtil.parseLongOrDefault(m.group(1), 0L) << 10;
             swapUsed = swapTotal - (ParseUtil.parseLongOrDefault(m.group(2), 0L) << 10);
         }
-        return new SwapInfo(swapTotal, swapUsed);
-    }
-
-    private static final class SwapInfo {
-        private final long total;
-        private final long used;
-
-        private SwapInfo(long total, long used) {
-            this.total = total;
-            this.used = used;
-        }
+        return new Pair<>(swapUsed, swapTotal);
     }
 }

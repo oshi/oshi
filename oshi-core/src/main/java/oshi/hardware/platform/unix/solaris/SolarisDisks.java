@@ -73,7 +73,6 @@ public class SolarisDisks implements Disks {
         return false;
     }
 
-    /** {@inheritDoc} */
     @Override
     public HWDiskStore[] getDisks() {
         // Create map indexed by device name for multiple command reference
@@ -224,8 +223,8 @@ public class SolarisDisks implements Disks {
      * @param major
      *            The major device number for the partition
      */
-    private void updateStore(HWDiskStore store, String model, String vendor, String product, String serial, long size,
-            String mount, int major) {
+    private static void updateStore(HWDiskStore store, String model, String vendor, String product, String serial,
+            long size, String mount, int major) {
         store.setModel(model.isEmpty() ? (vendor + " " + product).trim() : model);
         store.setSerial(serial);
         store.setSize(size);

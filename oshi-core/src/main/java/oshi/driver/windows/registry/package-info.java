@@ -21,32 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package oshi.driver.wmi;
-
-import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery; //NOSONAR squid:S1191
-import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
-
-import oshi.util.platform.windows.WmiQueryHandler;
-
-public class Win32DiskDriveToDiskPartition {
-
-    private static final String WIN32_DISK_DRIVE_TO_DISK_PARTITION = "Win32_DiskDriveToDiskPartition";
-
-    /**
-     * Links disk drives to partitions
-     */
-    public enum DriveToPartitionProperty {
-        ANTECEDENT, DEPENDENT;
-    }
-
-    /**
-     * Queries the association between disk drive and partition.
-     *
-     * @return Antecedent-dependent pairs of disk and partition.
-     */
-    public WmiResult<DriveToPartitionProperty> queryDriveToPartition() {
-        WmiQuery<DriveToPartitionProperty> driveToPartitionQuery = new WmiQuery<>(WIN32_DISK_DRIVE_TO_DISK_PARTITION,
-                DriveToPartitionProperty.class);
-        return WmiQueryHandler.createInstance().queryWMI(driveToPartitionQuery);
-    }
-}
+/**
+ * Provides functions to query data in Windows Registry
+ */
+package oshi.driver.windows.registry;

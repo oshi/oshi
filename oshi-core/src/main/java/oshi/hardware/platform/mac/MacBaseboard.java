@@ -32,36 +32,36 @@ import com.sun.jna.platform.mac.IOKit.IORegistryEntry; // NOSONAR squid:S1191
 import com.sun.jna.platform.mac.IOKitUtil;
 
 import oshi.hardware.common.AbstractBaseboard;
-import oshi.util.Constants;
-import oshi.util.Util;
+import oshi.util.tuples.Quartet;
 
 /**
  * Baseboard data obtained from ioreg
  */
 final class MacBaseboard extends AbstractBaseboard {
-    private final Supplier<PlatformStrings> platform = memoize(this::queryPlatform);
+    private final Supplier<Quartet<String, String, String, String>> manufModelVersSerial = memoize(
+            MacBaseboard::queryPlatform);
 
     @Override
     public String getManufacturer() {
-        return platform.get().manufacturer;
+        return manufModelVersSerial.get().getA();
     }
 
     @Override
     public String getModel() {
-        return platform.get().model;
+        return manufModelVersSerial.get().getB();
     }
 
     @Override
     public String getVersion() {
-        return platform.get().version;
+        return manufModelVersSerial.get().getC();
     }
 
     @Override
     public String getSerialNumber() {
-        return platform.get().serialNumber;
+        return manufModelVersSerial.get().getD();
     }
 
-    private PlatformStrings queryPlatform() {
+    private static Quartet<String, String, String, String> queryPlatform() {
         String manufacturer = null;
         String model = null;
         String version = null;
@@ -84,20 +84,6 @@ final class MacBaseboard extends AbstractBaseboard {
             serialNumber = platformExpert.getStringProperty("IOPlatformSerialNumber");
             platformExpert.release();
         }
-        return new PlatformStrings(manufacturer, model, version, serialNumber);
-    }
-
-    private static final class PlatformStrings {
-        private final String manufacturer;
-        private final String model;
-        private final String version;
-        private final String serialNumber;
-
-        private PlatformStrings(String manufacturer, String model, String version, String serialNumber) {
-            this.manufacturer = Util.isBlank(manufacturer) ? "Apple Inc." : manufacturer;
-            this.model = Util.isBlank(model) ? Constants.UNKNOWN : model;
-            this.version = Util.isBlank(version) ? Constants.UNKNOWN : version;
-            this.serialNumber = Util.isBlank(serialNumber) ? Constants.UNKNOWN : serialNumber;
-        }
+        return new Quartet<>(manufacturer, model, version, serialNumber);
     }
 }

@@ -21,32 +21,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package oshi.driver.wmi;
-
-import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery; //NOSONAR squid:S1191
-import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
-
-import oshi.util.platform.windows.WmiQueryHandler;
-
-public class Win32ComputerSystem {
-
-    private static final String WIN32_COMPUTER_SYSTEM = "Win32_ComputerSystem";
-
-    /**
-     * Computer System properties
-     */
-    public enum ComputerSystemProperty {
-        MANUFACTURER, MODEL;
-    }
-
-    /**
-     * Queries the Computer System.
-     *
-     * @return Computer System Manufacturer and Model
-     */
-    public WmiResult<ComputerSystemProperty> queryComputerSystem() {
-        WmiQuery<ComputerSystemProperty> computerSystemQuery = new WmiQuery<>(WIN32_COMPUTER_SYSTEM,
-                ComputerSystemProperty.class);
-        return WmiQueryHandler.createInstance().queryWMI(computerSystemQuery);
-    }
-}
+/**
+ * Provides functions to query counters in windows performance monitor (or WMI
+ * counter tables)
+ */
+package oshi.driver.windows.perfmon;

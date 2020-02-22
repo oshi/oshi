@@ -33,37 +33,38 @@ import oshi.hardware.common.AbstractVirtualMemory;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.linux.ProcUtil;
+import oshi.util.tuples.Pair;
 
 /**
  * Memory obtained by /proc/meminfo and /proc/vmstat
  */
 public class LinuxVirtualMemory extends AbstractVirtualMemory {
 
-    private final Supplier<MemInfo> memInfo = memoize(this::queryMemInfo, defaultExpiration());
+    private final Supplier<Pair<Long, Long>> usedTotal = memoize(LinuxVirtualMemory::queryMemInfo, defaultExpiration());
 
-    private final Supplier<VmStat> vmStat = memoize(this::queryVmStat, defaultExpiration());
+    private final Supplier<Pair<Long, Long>> inOut = memoize(LinuxVirtualMemory::queryVmStat, defaultExpiration());
 
     @Override
     public long getSwapUsed() {
-        return memInfo.get().used;
+        return usedTotal.get().getA();
     }
 
     @Override
     public long getSwapTotal() {
-        return memInfo.get().total;
+        return usedTotal.get().getB();
     }
 
     @Override
     public long getSwapPagesIn() {
-        return vmStat.get().pagesIn;
+        return inOut.get().getA();
     }
 
     @Override
     public long getSwapPagesOut() {
-        return vmStat.get().pagesOut;
+        return inOut.get().getB();
     }
 
-    private MemInfo queryMemInfo() {
+    private static Pair<Long, Long> queryMemInfo() {
         long swapFree = 0L;
         long swapTotal = 0L;
 
@@ -84,10 +85,10 @@ public class LinuxVirtualMemory extends AbstractVirtualMemory {
                 }
             }
         }
-        return new MemInfo(swapTotal, swapTotal - swapFree);
+        return new Pair<>(swapTotal - swapFree, swapTotal);
     }
 
-    private VmStat queryVmStat() {
+    private static Pair<Long, Long> queryVmStat() {
         long swapPagesIn = 0L;
         long swapPagesOut = 0L;
         List<String> procVmStat = FileUtil.readFile(ProcUtil.getProcPath() + "/vmstat");
@@ -107,7 +108,7 @@ public class LinuxVirtualMemory extends AbstractVirtualMemory {
                 }
             }
         }
-        return new VmStat(swapPagesIn, swapPagesOut);
+        return new Pair<>(swapPagesIn, swapPagesOut);
     }
 
     /**
@@ -117,7 +118,7 @@ public class LinuxVirtualMemory extends AbstractVirtualMemory {
      *            Array of Strings representing the 3 columns of /proc/meminfo
      * @return value, multiplied by 1024 if kB is specified
      */
-    private long parseMeminfo(String[] memorySplit) {
+    private static long parseMeminfo(String[] memorySplit) {
         if (memorySplit.length < 2) {
             return 0L;
         }
@@ -126,25 +127,5 @@ public class LinuxVirtualMemory extends AbstractVirtualMemory {
             memory *= 1024;
         }
         return memory;
-    }
-
-    private static final class MemInfo {
-        private final long total;
-        private final long used;
-
-        private MemInfo(long total, long used) {
-            this.total = total;
-            this.used = used;
-        }
-    }
-
-    private static final class VmStat {
-        private final long pagesIn;
-        private final long pagesOut;
-
-        private VmStat(long pagesIn, long pagesOut) {
-            this.pagesIn = pagesIn;
-            this.pagesOut = pagesOut;
-        }
     }
 }

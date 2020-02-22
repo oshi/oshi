@@ -21,32 +21,32 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package oshi.driver.wmi;
+package oshi.driver.windows.wmi;
 
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery; //NOSONAR squid:S1191
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.util.platform.windows.WmiQueryHandler;
 
-public class Win32ComputerSystemProduct {
+public class Win32USBController {
 
-    private static final String WIN32_COMPUTER_SYSTEM_PRODUCT = "Win32_ComputerSystemProduct";
+    private static final String WIN32_USB_CONTROLLER = "Win32_USBController";
 
     /**
-     * Computer System ID number
+     * USB Controller properties
      */
-    public enum ComputerSystemProductProperty {
-        IDENTIFYINGNUMBER;
+    public enum USBControllerProperty {
+        PNPDEVICEID;
     }
 
     /**
-     * Queries the Computer System.
+     * Queries the USB Controller device IDs
      *
-     * @return Assigned serial number of the software element.
+     * @return Information regarding each disk drive.
      */
-    public WmiResult<ComputerSystemProductProperty> queryIdentifyingNumber() {
-        WmiQuery<ComputerSystemProductProperty> identifyingNumberQuery = new WmiQuery<>(WIN32_COMPUTER_SYSTEM_PRODUCT,
-                ComputerSystemProductProperty.class);
-        return WmiQueryHandler.createInstance().queryWMI(identifyingNumberQuery);
+    public WmiResult<USBControllerProperty> queryUSBControllers() {
+        WmiQuery<USBControllerProperty> usbControllerQuery = new WmiQuery<>(WIN32_USB_CONTROLLER,
+                USBControllerProperty.class);
+        return WmiQueryHandler.createInstance().queryWMI(usbControllerQuery);
     }
 }

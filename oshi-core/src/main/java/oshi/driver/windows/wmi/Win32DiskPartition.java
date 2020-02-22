@@ -21,34 +21,32 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package oshi.driver.wmi;
+package oshi.driver.windows.wmi;
 
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery; //NOSONAR squid:S1191
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.util.platform.windows.WmiQueryHandler;
 
-public class Win32PnPEntity {
+public class Win32DiskPartition {
 
-    private static final String WIN32_PNP_ENTITY = "Win32_PnPEntity";
+    private static final String WIN32_DISK_PARTITION = "Win32_DiskPartition";
 
     /**
-     * DeviceId and name
+     * Disk partition properties
      */
-    public enum PnPEntityProperty {
-        NAME, MANUFACTURER, PNPDEVICEID;
+    public enum DiskPartitionProperty {
+        INDEX, DESCRIPTION, DEVICEID, DISKINDEX, NAME, SIZE, TYPE;
     }
 
     /**
-     * Queries the PnP Device id info
+     * Queries the partition.
      *
-     * @param whereClause
-     *            WQL "WHERE" clause limiting the search
-     * @return Information regarding each device
+     * @return Information regarding each disk partition.
      */
-    public WmiResult<PnPEntityProperty> queryDeviceId(String whereClause) {
-        WmiQuery<PnPEntityProperty> pnpEntityQuery = new WmiQuery<>(WIN32_PNP_ENTITY + whereClause,
-                PnPEntityProperty.class);
-        return WmiQueryHandler.createInstance().queryWMI(pnpEntityQuery);
+    public WmiResult<DiskPartitionProperty> queryPartition() {
+        WmiQuery<DiskPartitionProperty> partitionQuery = new WmiQuery<>(WIN32_DISK_PARTITION,
+                DiskPartitionProperty.class);
+        return WmiQueryHandler.createInstance().queryWMI(partitionQuery);
     }
 }

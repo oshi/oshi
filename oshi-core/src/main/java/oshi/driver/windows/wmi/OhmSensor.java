@@ -21,49 +21,40 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package oshi.driver.wmi;
+package oshi.driver.windows.wmi;
 
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery; //NOSONAR squid:S1191
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.util.platform.windows.WmiQueryHandler;
+import oshi.util.platform.windows.WmiUtil;
 
-public class Win32Bios {
+public class OhmSensor {
 
-    private static final String WIN32_BIOS_WHERE_PRIMARY_BIOS_TRUE = "Win32_BIOS where PrimaryBIOS=true";
+    private static final String SENSOR = "Sensor";
 
     /**
-     * Serial number property.
+     * Sensor value property
      */
-    public enum BiosSerialProperty {
-        SERIALNUMBER;
+    public enum ValueProperty {
+        VALUE;
     }
 
     /**
-     * BIOS description properties.
-     */
-    public enum BiosProperty {
-        MANUFACTURER, NAME, DESCRIPTION, VERSION, RELEASEDATE;
-    }
-
-    /**
-     * Queries the BIOS serial number.
+     * Queries the sensor value of an hardware identifier and sensor type.
      *
-     * @return Assigned serial number of the software element.
+     * @param identifier
+     *            The identifier whose value to query.
+     * @param sensorType
+     *            The type of sensor to query.
+     * @return The sensor value.
      */
-    public WmiResult<BiosSerialProperty> querySerialNumber() {
-        WmiQuery<BiosSerialProperty> serialNumQuery = new WmiQuery<>(WIN32_BIOS_WHERE_PRIMARY_BIOS_TRUE,
-                BiosSerialProperty.class);
-        return WmiQueryHandler.createInstance().queryWMI(serialNumQuery);
-    }
-
-    /**
-     * Queries the BIOS description.
-     *
-     * @return BIOS name, description, and related fields.
-     */
-    public WmiResult<BiosProperty> queryBiosInfo() {
-        WmiQuery<BiosProperty> biosQuery = new WmiQuery<>(WIN32_BIOS_WHERE_PRIMARY_BIOS_TRUE, BiosProperty.class);
-        return WmiQueryHandler.createInstance().queryWMI(biosQuery);
+    public WmiResult<ValueProperty> querySensorValue(String identifier, String sensorType) {
+        StringBuilder sb = new StringBuilder(SENSOR);
+        sb.append(" WHERE Parent = \"").append(identifier);
+        sb.append("\" AND SensorType=\"").append(sensorType).append('\"');
+        WmiQuery<ValueProperty> ohmSensorQuery = new WmiQuery<>(WmiUtil.OHM_NAMESPACE, sb.toString(),
+                ValueProperty.class);
+        return WmiQueryHandler.createInstance().queryWMI(ohmSensorQuery);
     }
 }

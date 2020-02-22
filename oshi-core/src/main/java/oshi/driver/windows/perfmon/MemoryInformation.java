@@ -21,32 +21,36 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package oshi.driver.perfmon;
+package oshi.driver.windows.perfmon;
 
-import java.util.List;
 import java.util.Map;
 
-import oshi.util.platform.windows.PerfCounterWildcardQuery;
-import oshi.util.platform.windows.PerfCounterWildcardQuery.PdhCounterWildcardProperty;
+import oshi.util.platform.windows.PerfCounterQuery;
+import oshi.util.platform.windows.PerfCounterQuery.PdhCounterProperty;
 
-public class ThermalZoneInformation {
+public class MemoryInformation {
 
-    private static final String THERMAL_ZONE_INFORMATION = "Thermal Zone Information";
-    private static final String THERMAL_ZONE_INFORMATION_WHERE_NAME_LIKE_CPU = "Win32_PerfRawData_Counters_ThermalZoneInformation WHERE Name LIKE \"%cpu%\"";
+    private static final String MEMORY = "Memory";
+    private static final String WIN32_PERF_RAW_DATA_PERF_OS_MEMORY = "Win32_PerfRawData_PerfOS_Memory";
 
     /*
-     * Thermal Zone Temperature
+     * For pages in/out
      */
-    public enum ThermalZoneProperty implements PdhCounterWildcardProperty {
-        // First element defines WMI instance name field and PDH instance filter
-        NAME("*cpu*"),
-        // Remaining elements define counters
-        TEMPERATURE("Temperature");
+    public enum PageSwapProperty implements PdhCounterProperty {
+        PAGESINPUTPERSEC(null, "Pages Input/sec"), //
+        PAGESOUTPUTPERSEC(null, "Pages Output/sec");
 
+        private final String instance;
         private final String counter;
 
-        ThermalZoneProperty(String counter) {
+        PageSwapProperty(String instance, String counter) {
+            this.instance = instance;
             this.counter = counter;
+        }
+
+        @Override
+        public String getInstance() {
+            return instance;
         }
 
         @Override
@@ -56,14 +60,13 @@ public class ThermalZoneInformation {
     }
 
     /**
-     * Returns thermal zone temperatures.
+     * Returns page swap counters
      *
-     * @return Thermal zone names and corresponding temperatures of the thermal
-     *         zone, in degrees Kelvin.
+     * @return Page swap counters for memory.
      */
-    public Map<ThermalZoneProperty, List<Long>> queryThermalZoneTemps() {
-        PerfCounterWildcardQuery<ThermalZoneProperty> thermalZonePerfCounters = new PerfCounterWildcardQuery<>(
-                ThermalZoneProperty.class, THERMAL_ZONE_INFORMATION, THERMAL_ZONE_INFORMATION_WHERE_NAME_LIKE_CPU);
-        return thermalZonePerfCounters.queryValuesWildcard();
+    public Map<PageSwapProperty, Long> queryPageSwaps() {
+        PerfCounterQuery<PageSwapProperty> memoryPerfCounters = new PerfCounterQuery<>(PageSwapProperty.class, MEMORY,
+                WIN32_PERF_RAW_DATA_PERF_OS_MEMORY);
+        return memoryPerfCounters.queryValues();
     }
 }

@@ -36,10 +36,10 @@ import com.sun.jna.platform.win32.Kernel32; // NOSONAR squid:S1191
 import com.sun.jna.platform.win32.Psapi;
 import com.sun.jna.platform.win32.Psapi.PERFORMANCE_INFORMATION;
 
-import oshi.driver.perfmon.MemoryInformation;
-import oshi.driver.perfmon.MemoryInformation.PageSwapProperty;
-import oshi.driver.perfmon.PagingFile;
-import oshi.driver.perfmon.PagingFile.PagingPercentProperty;
+import oshi.driver.windows.perfmon.MemoryInformation;
+import oshi.driver.windows.perfmon.PagingFile;
+import oshi.driver.windows.perfmon.MemoryInformation.PageSwapProperty;
+import oshi.driver.windows.perfmon.PagingFile.PagingPercentProperty;
 import oshi.hardware.common.AbstractVirtualMemory;
 import oshi.util.tuples.Pair;
 
@@ -56,7 +56,8 @@ public class WindowsVirtualMemory extends AbstractVirtualMemory {
 
     private final Supplier<Long> total = memoize(this::querySwapTotal, defaultExpiration());
 
-    private final Supplier<Pair<Long, Long>> swapInOut = memoize(this::queryPageSwaps, defaultExpiration());
+    private final Supplier<Pair<Long, Long>> swapInOut = memoize(WindowsVirtualMemory::queryPageSwaps,
+            defaultExpiration());
 
     /**
      * <p>
@@ -104,7 +105,7 @@ public class WindowsVirtualMemory extends AbstractVirtualMemory {
         return this.pageSize * (perfInfo.CommitLimit.longValue() - perfInfo.PhysicalTotal.longValue());
     }
 
-    private Pair<Long, Long> queryPageSwaps() {
+    private static Pair<Long, Long> queryPageSwaps() {
         Map<PageSwapProperty, Long> valueMap = new MemoryInformation().queryPageSwaps();
         return new Pair<>(valueMap.getOrDefault(PageSwapProperty.PAGESINPUTPERSEC, 0L),
                 valueMap.getOrDefault(PageSwapProperty.PAGESOUTPUTPERSEC, 0L));

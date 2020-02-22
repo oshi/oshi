@@ -294,7 +294,7 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
      *            A space-delimited list of CPU feature flags
      * @return The Processor ID string
      */
-    protected String createProcessorID(String stepping, String model, String family, String[] flags) {
+    protected static String createProcessorID(String stepping, String model, String family, String[] flags) {
         long processorIdBytes = 0L;
         long steppingL = ParseUtil.parseLongOrDefault(stepping, 0L);
         long modelL = ParseUtil.parseLongOrDefault(model, 0L);

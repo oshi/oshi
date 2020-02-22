@@ -37,9 +37,9 @@ import com.sun.jna.platform.win32.Psapi.PERFORMANCE_INFORMATION;
 import com.sun.jna.platform.win32.VersionHelpers;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
-import oshi.driver.wmi.Win32PhysicalMemory;
-import oshi.driver.wmi.Win32PhysicalMemory.PhysicalMemoryProperty;
-import oshi.driver.wmi.Win32PhysicalMemory.PhysicalMemoryPropertyWin8;
+import oshi.driver.windows.wmi.Win32PhysicalMemory;
+import oshi.driver.windows.wmi.Win32PhysicalMemory.PhysicalMemoryProperty;
+import oshi.driver.windows.wmi.Win32PhysicalMemory.PhysicalMemoryPropertyWin8;
 import oshi.hardware.PhysicalMemory;
 import oshi.hardware.VirtualMemory;
 import oshi.hardware.common.AbstractGlobalMemory;
@@ -55,7 +55,8 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
 
     private static final boolean IS_WINDOWS10_OR_GREATER = VersionHelpers.IsWindows10OrGreater();
 
-    private final Supplier<Triplet<Long, Long, Long>> availTotalSize = memoize(this::readPerfInfo, defaultExpiration());
+    private final Supplier<Triplet<Long, Long, Long>> availTotalSize = memoize(WindowsGlobalMemory::readPerfInfo,
+            defaultExpiration());
 
     private final Supplier<VirtualMemory> vm = memoize(this::createVirtualMemory);
 
@@ -247,7 +248,7 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
         }
     }
 
-    private Triplet<Long, Long, Long> readPerfInfo() {
+    private static Triplet<Long, Long, Long> readPerfInfo() {
         PERFORMANCE_INFORMATION performanceInfo = new PERFORMANCE_INFORMATION();
         if (!Psapi.INSTANCE.GetPerformanceInfo(performanceInfo, performanceInfo.size())) {
             LOG.error("Failed to get Performance Info. Error code: {}", Kernel32.INSTANCE.GetLastError());

@@ -38,13 +38,13 @@ import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
  */
 public class FreeBsdVirtualMemory extends AbstractVirtualMemory {
 
-    private final Supplier<Long> used = memoize(this::querySwapUsed, defaultExpiration());
+    private final Supplier<Long> used = memoize(FreeBsdVirtualMemory::querySwapUsed, defaultExpiration());
 
-    private final Supplier<Long> total = memoize(this::querySwapTotal, defaultExpiration());
+    private final Supplier<Long> total = memoize(FreeBsdVirtualMemory::querySwapTotal, defaultExpiration());
 
-    private final Supplier<Long> pagesIn = memoize(this::queryPagesIn, defaultExpiration());
+    private final Supplier<Long> pagesIn = memoize(FreeBsdVirtualMemory::queryPagesIn, defaultExpiration());
 
-    private final Supplier<Long> pagesOut = memoize(this::queryPagesOut, defaultExpiration());
+    private final Supplier<Long> pagesOut = memoize(FreeBsdVirtualMemory::queryPagesOut, defaultExpiration());
 
     @Override
     public long getSwapUsed() {
@@ -66,7 +66,7 @@ public class FreeBsdVirtualMemory extends AbstractVirtualMemory {
         return pagesOut.get();
     }
 
-    private long querySwapUsed() {
+    private static long querySwapUsed() {
         String swapInfo = ExecutingCommand.getAnswerAt("swapinfo -k", 1);
         String[] split = ParseUtil.whitespaces.split(swapInfo);
         if (split.length < 5) {
@@ -75,15 +75,15 @@ public class FreeBsdVirtualMemory extends AbstractVirtualMemory {
         return ParseUtil.parseLongOrDefault(split[2], 0L) << 10;
     }
 
-    private long querySwapTotal() {
+    private static long querySwapTotal() {
         return BsdSysctlUtil.sysctl("vm.swap_total", 0L);
     }
 
-    private long queryPagesIn() {
+    private static long queryPagesIn() {
         return BsdSysctlUtil.sysctl("vm.stats.vm.v_swappgsin", 0L);
     }
 
-    private long queryPagesOut() {
+    private static long queryPagesOut() {
         return BsdSysctlUtil.sysctl("vm.stats.vm.v_swappgsout", 0L);
     }
 }

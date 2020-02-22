@@ -33,47 +33,47 @@ import com.sun.jna.platform.mac.IOKit.IORegistryEntry;
 import com.sun.jna.platform.mac.IOKitUtil;
 
 import oshi.hardware.common.AbstractFirmware;
-import oshi.util.Constants;
-import oshi.util.Util;
+import oshi.util.tuples.Quintet;
 
 /**
  * Firmware data obtained from ioreg.
  */
 final class MacFirmware extends AbstractFirmware {
-
-    private final Supplier<EfiStrings> efi = memoize(this::queryEfi);
+//releaseDate, manufacturer, version, name, description
+    private final Supplier<Quintet<String, String, String, String, String>> manufNameDescVersRelease = memoize(
+            MacFirmware::queryEfi);
 
     @Override
     public String getManufacturer() {
-        return efi.get().manufacturer;
+        return manufNameDescVersRelease.get().getA();
     }
 
     @Override
     public String getName() {
-        return efi.get().name;
+        return manufNameDescVersRelease.get().getB();
     }
 
     @Override
     public String getDescription() {
-        return efi.get().description;
+        return manufNameDescVersRelease.get().getC();
     }
 
     @Override
     public String getVersion() {
-        return efi.get().version;
+        return manufNameDescVersRelease.get().getD();
     }
 
     @Override
     public String getReleaseDate() {
-        return efi.get().releaseDate;
+        return manufNameDescVersRelease.get().getE();
     }
 
-    private EfiStrings queryEfi() {
-        String releaseDate = null;
+    private static Quintet<String, String, String, String, String> queryEfi() {
         String manufacturer = null;
-        String version = null;
         String name = null;
         String description = null;
+        String version = null;
+        String releaseDate = null;
 
         IORegistryEntry platformExpert = IOKitUtil.getMatchingService("IOPlatformExpertDevice");
         if (platformExpert != null) {
@@ -117,23 +117,7 @@ final class MacFirmware extends AbstractFirmware {
                 iter.release();
             }
             platformExpert.release();
-        }
-        return new EfiStrings(releaseDate, manufacturer, version, name, description);
-    }
-
-    private static final class EfiStrings {
-        private final String releaseDate;
-        private final String manufacturer;
-        private final String version;
-        private final String name;
-        private final String description;
-
-        private EfiStrings(String releaseDate, String manufacturer, String version, String name, String description) {
-            this.releaseDate = Util.isBlank(releaseDate) ? Constants.UNKNOWN : releaseDate;
-            this.manufacturer = Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer;
-            this.version = Util.isBlank(version) ? Constants.UNKNOWN : version;
-            this.name = Util.isBlank(name) ? Constants.UNKNOWN : name;
-            this.description = Util.isBlank(description) ? Constants.UNKNOWN : description;
-        }
+        } // manufNameDescVersRelease
+        return new Quintet<>(manufacturer, name, description, version, releaseDate);
     }
 }
