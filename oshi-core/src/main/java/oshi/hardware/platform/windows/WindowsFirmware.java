@@ -76,7 +76,8 @@ final class WindowsFirmware extends AbstractFirmware {
         String description = null;
         String version = null;
         String releaseDate = null;
-        WmiResult<BiosProperty> win32BIOS = new Win32Bios().queryBiosInfo();
+        new Win32Bios();
+        WmiResult<BiosProperty> win32BIOS = Win32Bios.queryBiosInfo();
         if (win32BIOS.getResultCount() > 0) {
             manufacturer = WmiUtil.getString(win32BIOS, BiosProperty.MANUFACTURER, 0);
             name = WmiUtil.getString(win32BIOS, BiosProperty.NAME, 0);

@@ -77,11 +77,11 @@ import oshi.driver.windows.perfmon.ProcessInformation;
 import oshi.driver.windows.perfmon.ProcessInformation.ProcessPerformanceProperty;
 import oshi.driver.windows.registry.HkeyPerformanceData;
 import oshi.driver.windows.wmi.Win32OperatingSystem;
-import oshi.driver.windows.wmi.Win32Process;
-import oshi.driver.windows.wmi.Win32Processor;
 import oshi.driver.windows.wmi.Win32OperatingSystem.OSVersionProperty;
+import oshi.driver.windows.wmi.Win32Process;
 import oshi.driver.windows.wmi.Win32Process.CommandLineProperty;
 import oshi.driver.windows.wmi.Win32Process.ProcessXPProperty;
+import oshi.driver.windows.wmi.Win32Processor;
 import oshi.driver.windows.wmi.Win32Processor.BitnessProperty;
 import oshi.jna.platform.windows.Kernel32;
 import oshi.software.common.AbstractOperatingSystem;
@@ -137,7 +137,8 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public FamilyVersionInfo queryFamilyVersionInfo() {
-        WmiResult<OSVersionProperty> versionInfo = new Win32OperatingSystem().queryOsVersion();
+        new Win32OperatingSystem();
+        WmiResult<OSVersionProperty> versionInfo = Win32OperatingSystem.queryOsVersion();
         if (versionInfo.getResultCount() < 1) {
             return new FamilyVersionInfo("Windows", new OSVersionInfo(System.getProperty("os.version"), null, null));
         }
@@ -255,7 +256,8 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     @Override
     protected int queryBitness(int jvmBitness) {
         if (jvmBitness < 64 && System.getenv("ProgramFiles(x86)") != null && IS_VISTA_OR_GREATER) {
-            WmiResult<BitnessProperty> bitnessMap = new Win32Processor().queryBitness();
+            new Win32Processor();
+            WmiResult<BitnessProperty> bitnessMap = Win32Processor.queryBitness();
             if (bitnessMap.getResultCount() > 0) {
                 return WmiUtil.getUint16(bitnessMap, BitnessProperty.ADDRESSWIDTH, 0);
             }
@@ -360,9 +362,10 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             final WTS_PROCESS_INFO_EX processInfoRef = new WTS_PROCESS_INFO_EX(pProcessInfo);
             processInfo = (WTS_PROCESS_INFO_EX[]) processInfoRef.toArray(pCount.getValue());
         } else {
+            new Win32Process();
             // Pre-Vista we can't use WTSEnumerateProcessesEx so we'll grab the
             // same info from WMI and fake the array
-            processWmiResult = new Win32Process().queryProcesses(pids);
+            processWmiResult = Win32Process.queryProcesses(pids);
         }
 
         // Store a subset of processes in a list to later return.
@@ -494,7 +497,8 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                     pidsToQuery.add(process.getProcessID());
                 }
             }
-            WmiResult<CommandLineProperty> commandLineProcs = new Win32Process().queryCommandLines(pidsToQuery);
+            new Win32Process();
+            WmiResult<CommandLineProperty> commandLineProcs = Win32Process.queryCommandLines(pidsToQuery);
             for (int p = 0; p < commandLineProcs.getResultCount(); p++) {
                 int pid = WmiUtil.getUint32(commandLineProcs, CommandLineProperty.PROCESSID, p);
                 if (processMap.containsKey(pid)) {

@@ -30,10 +30,10 @@ import java.util.function.Supplier;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult; // NOSONAR squid:S1191
 
 import oshi.driver.windows.wmi.Win32Bios;
-import oshi.driver.windows.wmi.Win32ComputerSystem;
-import oshi.driver.windows.wmi.Win32ComputerSystemProduct;
 import oshi.driver.windows.wmi.Win32Bios.BiosSerialProperty;
+import oshi.driver.windows.wmi.Win32ComputerSystem;
 import oshi.driver.windows.wmi.Win32ComputerSystem.ComputerSystemProperty;
+import oshi.driver.windows.wmi.Win32ComputerSystemProduct;
 import oshi.driver.windows.wmi.Win32ComputerSystemProduct.ComputerSystemProductProperty;
 import oshi.hardware.Baseboard;
 import oshi.hardware.Firmware;
@@ -80,7 +80,8 @@ final class WindowsComputerSystem extends AbstractComputerSystem {
     private static Pair<String, String> queryManufacturerModel() {
         String manufacturer = null;
         String model = null;
-        WmiResult<ComputerSystemProperty> win32ComputerSystem = new Win32ComputerSystem().queryComputerSystem();
+        new Win32ComputerSystem();
+        WmiResult<ComputerSystemProperty> win32ComputerSystem = Win32ComputerSystem.queryComputerSystem();
         if (win32ComputerSystem.getResultCount() > 0) {
             manufacturer = WmiUtil.getString(win32ComputerSystem, ComputerSystemProperty.MANUFACTURER, 0);
             model = WmiUtil.getString(win32ComputerSystem, ComputerSystemProperty.MODEL, 0);
@@ -99,7 +100,8 @@ final class WindowsComputerSystem extends AbstractComputerSystem {
     }
 
     private static String querySerialFromBios() {
-        WmiResult<BiosSerialProperty> serialNum = new Win32Bios().querySerialNumber();
+        new Win32Bios();
+        WmiResult<BiosSerialProperty> serialNum = Win32Bios.querySerialNumber();
         if (serialNum.getResultCount() > 0) {
             return WmiUtil.getString(serialNum, BiosSerialProperty.SERIALNUMBER, 0);
         }
@@ -107,7 +109,8 @@ final class WindowsComputerSystem extends AbstractComputerSystem {
     }
 
     private static String querySerialFromCsProduct() {
-        WmiResult<ComputerSystemProductProperty> identifyingNumber = new Win32ComputerSystemProduct()
+        new Win32ComputerSystemProduct();
+        WmiResult<ComputerSystemProductProperty> identifyingNumber = Win32ComputerSystemProduct
                 .queryIdentifyingNumber();
         if (identifyingNumber.getResultCount() > 0) {
             return WmiUtil.getString(identifyingNumber, ComputerSystemProductProperty.IDENTIFYINGNUMBER, 0);

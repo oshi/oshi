@@ -60,7 +60,7 @@ public class Win32Processor {
      *         contain the voltage multiplied by 10. If the eighth bit is not set,
      *         then the bit setting in VoltageCaps represents the voltage value.
      */
-    public WmiResult<VoltProperty> queryVoltage() {
+    public static WmiResult<VoltProperty> queryVoltage() {
         WmiQuery<VoltProperty> voltQuery = new WmiQuery<>(WIN32_PROCESSOR, VoltProperty.class);
         return WmiQueryHandler.createInstance().queryWMI(voltQuery);
     }
@@ -79,7 +79,7 @@ public class Win32Processor {
      *         register at CPU reset—all others are set to 0 (zero), and the
      *         contents are in DWORD format.
      */
-    public WmiResult<ProcessorIdProperty> queryProcessorId() {
+    public static WmiResult<ProcessorIdProperty> queryProcessorId() {
         WmiQuery<ProcessorIdProperty> idQuery = new WmiQuery<>(WIN32_PROCESSOR, ProcessorIdProperty.class);
         return WmiQueryHandler.createInstance().queryWMI(idQuery);
     }
@@ -90,7 +90,7 @@ public class Win32Processor {
      * @return On a 32-bit operating system, the value is 32 and on a 64-bit
      *         operating system it is 64.
      */
-    public WmiResult<BitnessProperty> queryBitness() {
+    public static WmiResult<BitnessProperty> queryBitness() {
         WmiQuery<BitnessProperty> bitnessQuery = new WmiQuery<>(WIN32_PROCESSOR, BitnessProperty.class);
         return WmiQueryHandler.createInstance().queryWMI(bitnessQuery);
     }

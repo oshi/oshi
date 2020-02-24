@@ -44,7 +44,7 @@ public class Win32ComputerSystem {
      *
      * @return Computer System Manufacturer and Model
      */
-    public WmiResult<ComputerSystemProperty> queryComputerSystem() {
+    public static WmiResult<ComputerSystemProperty> queryComputerSystem() {
         WmiQuery<ComputerSystemProperty> computerSystemQuery = new WmiQuery<>(WIN32_COMPUTER_SYSTEM,
                 ComputerSystemProperty.class);
         return WmiQueryHandler.createInstance().queryWMI(computerSystemQuery);

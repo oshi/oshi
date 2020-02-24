@@ -1,5 +1,5 @@
 /**
- * MIT License
+ static  * MIT License
  *
  * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
@@ -51,7 +51,7 @@ public class Win32DiskDrive {
      *
      * @return Information regarding each disk drive.
      */
-    public WmiResult<DiskDriveProperty> queryDiskDrive() {
+    public static WmiResult<DiskDriveProperty> queryDiskDrive() {
         WmiQuery<DiskDriveProperty> diskDriveQuery = new WmiQuery<>(WIN32_DISK_DRIVE, DiskDriveProperty.class);
         return WmiQueryHandler.createInstance().queryWMI(diskDriveQuery);
     }
@@ -63,7 +63,7 @@ public class Win32DiskDrive {
      *            WQL "WHERE" clause limiting the search
      * @return Information regarding each disk drive's device id and serial number
      */
-    public WmiResult<DeviceIdProperty> queryDiskDriveId(String whereClause) {
+    public static WmiResult<DeviceIdProperty> queryDiskDriveId(String whereClause) {
         WmiQuery<DeviceIdProperty> deviceIdQuery = new WmiQuery<>(WIN32_DISK_DRIVE + whereClause,
                 DeviceIdProperty.class);
         return WmiQueryHandler.createInstance().queryWMI(deviceIdQuery);

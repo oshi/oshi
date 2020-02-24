@@ -56,7 +56,7 @@ public class Win32Process {
      *            Process IDs to query for command lines.
      * @return Command line used to start the provided processes.
      */
-    public WmiResult<CommandLineProperty> queryCommandLines(Set<Integer> pidsToQuery) {
+    public static WmiResult<CommandLineProperty> queryCommandLines(Set<Integer> pidsToQuery) {
         StringBuilder sb = new StringBuilder(WIN32_PROCESS);
         boolean first = true;
         for (Integer pid : pidsToQuery) {
@@ -79,7 +79,7 @@ public class Win32Process {
      *            Process IDs to query.
      * @return Information on the provided processes.
      */
-    public WmiResult<ProcessXPProperty> queryProcesses(Collection<Integer> pids) {
+    public static WmiResult<ProcessXPProperty> queryProcesses(Collection<Integer> pids) {
         StringBuilder sb = new StringBuilder(WIN32_PROCESS);
         if (pids != null) {
             boolean first = true;

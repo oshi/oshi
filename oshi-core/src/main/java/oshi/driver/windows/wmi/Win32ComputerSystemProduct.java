@@ -44,7 +44,7 @@ public class Win32ComputerSystemProduct {
      *
      * @return Assigned serial number of the software element.
      */
-    public WmiResult<ComputerSystemProductProperty> queryIdentifyingNumber() {
+    public static WmiResult<ComputerSystemProductProperty> queryIdentifyingNumber() {
         WmiQuery<ComputerSystemProductProperty> identifyingNumberQuery = new WmiQuery<>(WIN32_COMPUTER_SYSTEM_PRODUCT,
                 ComputerSystemProductProperty.class);
         return WmiQueryHandler.createInstance().queryWMI(identifyingNumberQuery);

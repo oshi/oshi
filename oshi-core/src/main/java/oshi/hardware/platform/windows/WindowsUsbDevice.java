@@ -42,10 +42,10 @@ import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 import com.sun.jna.ptr.IntByReference;
 
 import oshi.driver.windows.wmi.Win32DiskDrive;
-import oshi.driver.windows.wmi.Win32PnPEntity;
-import oshi.driver.windows.wmi.Win32USBController;
 import oshi.driver.windows.wmi.Win32DiskDrive.DeviceIdProperty;
+import oshi.driver.windows.wmi.Win32PnPEntity;
 import oshi.driver.windows.wmi.Win32PnPEntity.PnPEntityProperty;
+import oshi.driver.windows.wmi.Win32USBController;
 import oshi.driver.windows.wmi.Win32USBController.USBControllerProperty;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractUsbDevice;
@@ -139,8 +139,9 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
                 sb.append(deviceID).append("\")");
             }
             String whereClause = sb.toString();
+            new Win32PnPEntity();
             // Query Win32_PnPEntity to populate the maps
-            WmiResult<PnPEntityProperty> pnpEntity = new Win32PnPEntity().queryDeviceId(whereClause);
+            WmiResult<PnPEntityProperty> pnpEntity = Win32PnPEntity.queryDeviceId(whereClause);
             for (int i = 0; i < pnpEntity.getResultCount(); i++) {
                 String pnpDeviceID = WmiUtil.getString(pnpEntity, PnPEntityProperty.PNPDEVICEID, i);
                 String name = WmiUtil.getString(pnpEntity, PnPEntityProperty.NAME, i);
@@ -150,8 +151,9 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
                 usbDeviceCache.put(pnpDeviceID, device);
                 LOG.debug("Adding {} to USB device cache.", pnpDeviceID);
             }
+            new Win32DiskDrive();
             // Get serial # for disk drives or other physical media
-            WmiResult<DeviceIdProperty> serialNumbers = new Win32DiskDrive().queryDiskDriveId(whereClause);
+            WmiResult<DeviceIdProperty> serialNumbers = Win32DiskDrive.queryDiskDriveId(whereClause);
             for (int i = 0; i < serialNumbers.getResultCount(); i++) {
                 String pnpDeviceID = WmiUtil.getString(serialNumbers, DeviceIdProperty.PNPDEVICEID, i);
                 if (usbDeviceCache.containsKey(pnpDeviceID)) {
@@ -264,9 +266,10 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
      */
     private static List<String> getControllerDeviceIdList() {
         List<String> controllerDeviceIdsList = new ArrayList<>();
+        new Win32USBController();
         // One time lookup of USB Controller PnP Device IDs which don't
         // change
-        WmiResult<USBControllerProperty> usbController = new Win32USBController().queryUSBControllers();
+        WmiResult<USBControllerProperty> usbController = Win32USBController.queryUSBControllers();
         for (int i = 0; i < usbController.getResultCount(); i++) {
             controllerDeviceIdsList.add(WmiUtil.getString(usbController, USBControllerProperty.PNPDEVICEID, i));
         }

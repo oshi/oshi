@@ -44,7 +44,7 @@ public class Win32DiskPartition {
      *
      * @return Information regarding each disk partition.
      */
-    public WmiResult<DiskPartitionProperty> queryPartition() {
+    public static WmiResult<DiskPartitionProperty> queryPartition() {
         WmiQuery<DiskPartitionProperty> partitionQuery = new WmiQuery<>(WIN32_DISK_PARTITION,
                 DiskPartitionProperty.class);
         return WmiQueryHandler.createInstance().queryWMI(partitionQuery);

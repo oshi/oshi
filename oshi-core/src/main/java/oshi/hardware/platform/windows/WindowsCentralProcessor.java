@@ -53,11 +53,11 @@ import com.sun.jna.platform.win32.WinReg;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.driver.windows.perfmon.ProcessorInformation;
-import oshi.driver.windows.perfmon.SystemInformation;
 import oshi.driver.windows.perfmon.ProcessorInformation.InterruptsProperty;
 import oshi.driver.windows.perfmon.ProcessorInformation.ProcessorFrequencyProperty;
 import oshi.driver.windows.perfmon.ProcessorInformation.ProcessorTickCountProperty;
 import oshi.driver.windows.perfmon.ProcessorInformation.SystemTickCountProperty;
+import oshi.driver.windows.perfmon.SystemInformation;
 import oshi.driver.windows.perfmon.SystemInformation.ContextSwitchProperty;
 import oshi.driver.windows.wmi.Win32Processor;
 import oshi.driver.windows.wmi.Win32Processor.ProcessorIdProperty;
@@ -117,7 +117,8 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
                 || processorArchitecture == 6) { // PROCESSOR_ARCHITECTURE_IA64
             cpu64bit = true;
         }
-        WmiResult<ProcessorIdProperty> processorId = new Win32Processor().queryProcessorId();
+        new Win32Processor();
+        WmiResult<ProcessorIdProperty> processorId = Win32Processor.queryProcessorId();
         if (processorId.getResultCount() > 0) {
             processorID = WmiUtil.getString(processorId, ProcessorIdProperty.PROCESSORID, 0);
         } else {

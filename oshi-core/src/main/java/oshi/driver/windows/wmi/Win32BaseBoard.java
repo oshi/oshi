@@ -44,7 +44,7 @@ public class Win32BaseBoard {
      *
      * @return Baseboard manufacturer, model, and related fields.
      */
-    public WmiResult<BaseBoardProperty> queryBaseboardInfo() {
+    public static WmiResult<BaseBoardProperty> queryBaseboardInfo() {
         WmiQuery<BaseBoardProperty> baseboardQuery = new WmiQuery<>(WIN32_BASEBOARD, BaseBoardProperty.class);
         return WmiQueryHandler.createInstance().queryWMI(baseboardQuery);
     }
