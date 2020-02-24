@@ -249,7 +249,7 @@ public class WindowsFileSystem extends AbstractFileSystem {
         long free;
         long total;
         List<OSFileStore> fs = new ArrayList<>();
-        WmiResult<LogicalDiskProperty> drives = new Win32LogicalDisk().queryLogicalDisk(nameToMatch, localOnly);
+        WmiResult<LogicalDiskProperty> drives = Win32LogicalDisk.queryLogicalDisk(nameToMatch, localOnly);
         for (int i = 0; i < drives.getResultCount(); i++) {
             free = WmiUtil.getUint64(drives, LogicalDiskProperty.FREESPACE, i);
             total = WmiUtil.getUint64(drives, LogicalDiskProperty.SIZE, i);

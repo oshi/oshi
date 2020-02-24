@@ -48,7 +48,7 @@ public class Win32LogicalDisk {
      *            Whether to only search local drives
      * @return Logical Disk Information
      */
-    public WmiResult<LogicalDiskProperty> queryLogicalDisk(String nameToMatch, boolean localOnly) {
+    public static WmiResult<LogicalDiskProperty> queryLogicalDisk(String nameToMatch, boolean localOnly) {
         StringBuilder wmiClassName = new StringBuilder(WIN32_LOGICAL_DISK);
         boolean where = false;
         if (localOnly) {

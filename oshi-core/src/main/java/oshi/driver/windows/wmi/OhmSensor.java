@@ -49,7 +49,7 @@ public class OhmSensor {
      *            The type of sensor to query.
      * @return The sensor value.
      */
-    public WmiResult<ValueProperty> querySensorValue(String identifier, String sensorType) {
+    public static WmiResult<ValueProperty> querySensorValue(String identifier, String sensorType) {
         StringBuilder sb = new StringBuilder(SENSOR);
         sb.append(" WHERE Parent = \"").append(identifier);
         sb.append("\" AND SensorType=\"").append(sensorType).append('\"');

@@ -44,7 +44,7 @@ public class Win32OperatingSystem {
      *
      * @return Computer System Manufacturer and Model
      */
-    public WmiResult<OSVersionProperty> queryOsVersion() {
+    public static WmiResult<OSVersionProperty> queryOsVersion() {
         WmiQuery<OSVersionProperty> osVersionQuery = new WmiQuery<>(WIN32_OPERATING_SYSTEM, OSVersionProperty.class);
         return WmiQueryHandler.createInstance().queryWMI(osVersionQuery);
     }

@@ -69,7 +69,7 @@ final class WindowsBaseboard extends AbstractBaseboard {
         String model = null;
         String version = null;
         String serialNumber = null;
-        WmiResult<BaseBoardProperty> win32BaseBoard = new Win32BaseBoard().queryBaseboardInfo();
+        WmiResult<BaseBoardProperty> win32BaseBoard = Win32BaseBoard.queryBaseboardInfo();
         if (win32BaseBoard.getResultCount() > 0) {
             manufacturer = WmiUtil.getString(win32BaseBoard, BaseBoardProperty.MANUFACTURER, 0);
             model = WmiUtil.getString(win32BaseBoard, BaseBoardProperty.MODEL, 0);

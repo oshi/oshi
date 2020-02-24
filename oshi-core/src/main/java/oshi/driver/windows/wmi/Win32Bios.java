@@ -51,7 +51,7 @@ public class Win32Bios {
      *
      * @return Assigned serial number of the software element.
      */
-    public WmiResult<BiosSerialProperty> querySerialNumber() {
+    public static WmiResult<BiosSerialProperty> querySerialNumber() {
         WmiQuery<BiosSerialProperty> serialNumQuery = new WmiQuery<>(WIN32_BIOS_WHERE_PRIMARY_BIOS_TRUE,
                 BiosSerialProperty.class);
         return WmiQueryHandler.createInstance().queryWMI(serialNumQuery);
@@ -62,7 +62,7 @@ public class Win32Bios {
      *
      * @return BIOS name, description, and related fields.
      */
-    public WmiResult<BiosProperty> queryBiosInfo() {
+    public static WmiResult<BiosProperty> queryBiosInfo() {
         WmiQuery<BiosProperty> biosQuery = new WmiQuery<>(WIN32_BIOS_WHERE_PRIMARY_BIOS_TRUE, BiosProperty.class);
         return WmiQueryHandler.createInstance().queryWMI(biosQuery);
     }

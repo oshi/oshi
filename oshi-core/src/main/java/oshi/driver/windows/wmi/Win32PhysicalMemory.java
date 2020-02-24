@@ -51,7 +51,7 @@ public class Win32PhysicalMemory {
      *
      * @return Information regarding physical memory.
      */
-    public WmiResult<PhysicalMemoryProperty> queryphysicalMemory() {
+    public static WmiResult<PhysicalMemoryProperty> queryphysicalMemory() {
         WmiQuery<PhysicalMemoryProperty> physicalMemoryQuery = new WmiQuery<>(WIN32_PHYSICAL_MEMORY,
                 PhysicalMemoryProperty.class);
         return WmiQueryHandler.createInstance().queryWMI(physicalMemoryQuery);
@@ -62,7 +62,7 @@ public class Win32PhysicalMemory {
      *
      * @return Information regarding physical memory.
      */
-    public WmiResult<PhysicalMemoryPropertyWin8> queryphysicalMemoryWin8() {
+    public static WmiResult<PhysicalMemoryPropertyWin8> queryphysicalMemoryWin8() {
         WmiQuery<PhysicalMemoryPropertyWin8> physicalMemoryQuery = new WmiQuery<>(WIN32_PHYSICAL_MEMORY,
                 PhysicalMemoryPropertyWin8.class);
         return WmiQueryHandler.createInstance().queryWMI(physicalMemoryQuery);

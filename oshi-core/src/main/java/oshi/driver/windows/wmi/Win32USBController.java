@@ -44,7 +44,7 @@ public class Win32USBController {
      *
      * @return Information regarding each disk drive.
      */
-    public WmiResult<USBControllerProperty> queryUSBControllers() {
+    public static WmiResult<USBControllerProperty> queryUSBControllers() {
         WmiQuery<USBControllerProperty> usbControllerQuery = new WmiQuery<>(WIN32_USB_CONTROLLER,
                 USBControllerProperty.class);
         return WmiQueryHandler.createInstance().queryWMI(usbControllerQuery);

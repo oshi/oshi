@@ -44,7 +44,7 @@ public class Win32LogicalDiskToPartition {
      *
      * @return Antecedent-dependent pairs of disk and partition.
      */
-    public WmiResult<DiskToPartitionProperty> queryDiskToPartition() {
+    public static WmiResult<DiskToPartitionProperty> queryDiskToPartition() {
         WmiQuery<DiskToPartitionProperty> diskToPartitionQuery = new WmiQuery<>(WIN32_LOGICAL_DISK_TO_PARTITION,
                 DiskToPartitionProperty.class);
         return WmiQueryHandler.createInstance().queryWMI(diskToPartitionQuery);

@@ -46,7 +46,7 @@ public class Win32PnPEntity {
      *            WQL "WHERE" clause limiting the search
      * @return Information regarding each device
      */
-    public WmiResult<PnPEntityProperty> queryDeviceId(String whereClause) {
+    public static WmiResult<PnPEntityProperty> queryDeviceId(String whereClause) {
         WmiQuery<PnPEntityProperty> pnpEntityQuery = new WmiQuery<>(WIN32_PNP_ENTITY + whereClause,
                 PnPEntityProperty.class);
         return WmiQueryHandler.createInstance().queryWMI(pnpEntityQuery);

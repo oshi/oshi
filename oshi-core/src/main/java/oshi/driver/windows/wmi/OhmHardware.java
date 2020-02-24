@@ -49,7 +49,7 @@ public class OhmHardware {
      *            the name of the type
      * @return The sensor value.
      */
-    public WmiResult<IdentifierProperty> queryHwIdentifier(String typeToQuery, String typeName) {
+    public static WmiResult<IdentifierProperty> queryHwIdentifier(String typeToQuery, String typeName) {
         StringBuilder sb = new StringBuilder(HARDWARE);
         sb.append(" WHERE ").append(typeToQuery).append("Type=\"").append(typeName).append('\"');
         WmiQuery<IdentifierProperty> cpuIdentifierQuery = new WmiQuery<>(WmiUtil.OHM_NAMESPACE, sb.toString(),

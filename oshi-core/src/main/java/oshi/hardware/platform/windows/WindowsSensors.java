@@ -34,12 +34,12 @@ import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult; // NOSONAR squid:S1
 import oshi.driver.windows.perfmon.ThermalZoneInformation;
 import oshi.driver.windows.perfmon.ThermalZoneInformation.ThermalZoneProperty;
 import oshi.driver.windows.wmi.OhmHardware;
-import oshi.driver.windows.wmi.OhmSensor;
-import oshi.driver.windows.wmi.Win32Fan;
-import oshi.driver.windows.wmi.Win32Processor;
 import oshi.driver.windows.wmi.OhmHardware.IdentifierProperty;
+import oshi.driver.windows.wmi.OhmSensor;
 import oshi.driver.windows.wmi.OhmSensor.ValueProperty;
+import oshi.driver.windows.wmi.Win32Fan;
 import oshi.driver.windows.wmi.Win32Fan.SpeedProperty;
+import oshi.driver.windows.wmi.Win32Processor;
 import oshi.driver.windows.wmi.Win32Processor.VoltProperty;
 import oshi.hardware.common.AbstractSensors;
 import oshi.util.platform.windows.WmiUtil;
@@ -70,12 +70,12 @@ public class WindowsSensors extends AbstractSensors {
     }
 
     private static double getTempFromOHM() {
-        WmiResult<IdentifierProperty> ohmHardware = new OhmHardware().queryHwIdentifier("Hardware", "CPU");
+        WmiResult<IdentifierProperty> ohmHardware = OhmHardware.queryHwIdentifier("Hardware", "CPU");
         if (ohmHardware.getResultCount() > 0) {
             LOG.debug("Found Temperature data in Open Hardware Monitor");
             String cpuIdentifier = WmiUtil.getString(ohmHardware, IdentifierProperty.IDENTIFIER, 0);
             if (cpuIdentifier.length() > 0) {
-                WmiResult<ValueProperty> ohmSensors = new OhmSensor().querySensorValue(cpuIdentifier, "Temperature");
+                WmiResult<ValueProperty> ohmSensors = OhmSensor.querySensorValue(cpuIdentifier, "Temperature");
                 if (ohmSensors.getResultCount() > 0) {
                     double sum = 0;
                     for (int i = 0; i < ohmSensors.getResultCount(); i++) {
@@ -125,12 +125,12 @@ public class WindowsSensors extends AbstractSensors {
     }
 
     private static int[] getFansFromOHM() {
-        WmiResult<IdentifierProperty> ohmHardware = new OhmHardware().queryHwIdentifier("Hardware", "CPU");
+        WmiResult<IdentifierProperty> ohmHardware = OhmHardware.queryHwIdentifier("Hardware", "CPU");
         if (ohmHardware.getResultCount() > 0) {
             LOG.debug("Found Fan data in Open Hardware Monitor");
             String cpuIdentifier = WmiUtil.getString(ohmHardware, IdentifierProperty.IDENTIFIER, 0);
             if (cpuIdentifier.length() > 0) {
-                WmiResult<ValueProperty> ohmSensors = new OhmSensor().querySensorValue(cpuIdentifier, "Fan");
+                WmiResult<ValueProperty> ohmSensors = OhmSensor.querySensorValue(cpuIdentifier, "Fan");
                 if (ohmSensors.getResultCount() > 0) {
                     int[] fanSpeeds = new int[ohmSensors.getResultCount()];
                     for (int i = 0; i < ohmSensors.getResultCount(); i++) {
@@ -144,7 +144,7 @@ public class WindowsSensors extends AbstractSensors {
     }
 
     private static int[] getFansFromWMI() {
-        WmiResult<SpeedProperty> fan = new Win32Fan().querySpeed();
+        WmiResult<SpeedProperty> fan = Win32Fan.querySpeed();
         if (fan.getResultCount() > 1) {
             LOG.debug("Found Fan data in WMI");
             int[] fanSpeeds = new int[fan.getResultCount()];
@@ -172,7 +172,7 @@ public class WindowsSensors extends AbstractSensors {
     }
 
     private static double getVoltsFromOHM() {
-        WmiResult<IdentifierProperty> ohmHardware = new OhmHardware().queryHwIdentifier("Sensor", "Voltage");
+        WmiResult<IdentifierProperty> ohmHardware = OhmHardware.queryHwIdentifier("Sensor", "Voltage");
         if (ohmHardware.getResultCount() > 0) {
             LOG.debug("Found Voltage data in Open Hardware Monitor");
             // Look for identifier containing "cpu"
@@ -189,7 +189,7 @@ public class WindowsSensors extends AbstractSensors {
                 cpuIdentifier = WmiUtil.getString(ohmHardware, IdentifierProperty.IDENTIFIER, 0);
             }
             // Now fetch sensor
-            WmiResult<ValueProperty> ohmSensors = new OhmSensor().querySensorValue(cpuIdentifier, "Voltage");
+            WmiResult<ValueProperty> ohmSensors = OhmSensor.querySensorValue(cpuIdentifier, "Voltage");
             if (ohmSensors.getResultCount() > 0) {
                 return WmiUtil.getFloat(ohmSensors, ValueProperty.VALUE, 0);
             }
@@ -198,7 +198,7 @@ public class WindowsSensors extends AbstractSensors {
     }
 
     private static double getVoltsFromWMI() {
-        WmiResult<VoltProperty> voltage = new Win32Processor().queryVoltage();
+        WmiResult<VoltProperty> voltage = Win32Processor.queryVoltage();
         if (voltage.getResultCount() > 1) {
             LOG.debug("Found Voltage data in WMI");
             int decivolts = WmiUtil.getUint16(voltage, VoltProperty.CURRENTVOLTAGE, 0);
