@@ -137,7 +137,6 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public FamilyVersionInfo queryFamilyVersionInfo() {
-        new Win32OperatingSystem();
         WmiResult<OSVersionProperty> versionInfo = Win32OperatingSystem.queryOsVersion();
         if (versionInfo.getResultCount() < 1) {
             return new FamilyVersionInfo("Windows", new OSVersionInfo(System.getProperty("os.version"), null, null));
@@ -256,7 +255,6 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     @Override
     protected int queryBitness(int jvmBitness) {
         if (jvmBitness < 64 && System.getenv("ProgramFiles(x86)") != null && IS_VISTA_OR_GREATER) {
-            new Win32Processor();
             WmiResult<BitnessProperty> bitnessMap = Win32Processor.queryBitness();
             if (bitnessMap.getResultCount() > 0) {
                 return WmiUtil.getUint16(bitnessMap, BitnessProperty.ADDRESSWIDTH, 0);
@@ -362,7 +360,6 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             final WTS_PROCESS_INFO_EX processInfoRef = new WTS_PROCESS_INFO_EX(pProcessInfo);
             processInfo = (WTS_PROCESS_INFO_EX[]) processInfoRef.toArray(pCount.getValue());
         } else {
-            new Win32Process();
             // Pre-Vista we can't use WTSEnumerateProcessesEx so we'll grab the
             // same info from WMI and fake the array
             processWmiResult = Win32Process.queryProcesses(pids);
@@ -497,7 +494,6 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                     pidsToQuery.add(process.getProcessID());
                 }
             }
-            new Win32Process();
             WmiResult<CommandLineProperty> commandLineProcs = Win32Process.queryCommandLines(pidsToQuery);
             for (int p = 0; p < commandLineProcs.getResultCount(); p++) {
                 int pid = WmiUtil.getUint32(commandLineProcs, CommandLineProperty.PROCESSID, p);

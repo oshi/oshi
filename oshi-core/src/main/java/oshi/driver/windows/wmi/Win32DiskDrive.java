@@ -1,5 +1,5 @@
 /**
- static  * MIT License
+ * MIT License
  *
  * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *

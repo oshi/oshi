@@ -88,7 +88,6 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
     public PhysicalMemory[] getPhysicalMemory() {
         PhysicalMemory[] physicalMemoryArray;
         if (IS_WINDOWS10_OR_GREATER) {
-            new Win32PhysicalMemory();
             WmiResult<PhysicalMemoryProperty> bankMap = Win32PhysicalMemory.queryphysicalMemory();
             physicalMemoryArray = new PhysicalMemory[bankMap.getResultCount()];
             for (int index = 0; index < bankMap.getResultCount(); index++) {
@@ -101,7 +100,6 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
                 physicalMemoryArray[index] = new PhysicalMemory(bankLabel, capacity, speed, manufacturer, memoryType);
             }
         } else {
-            new Win32PhysicalMemory();
             WmiResult<PhysicalMemoryPropertyWin8> bankMap = Win32PhysicalMemory.queryphysicalMemoryWin8();
             physicalMemoryArray = new PhysicalMemory[bankMap.getResultCount()];
             for (int index = 0; index < bankMap.getResultCount(); index++) {

@@ -117,7 +117,6 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
                 || processorArchitecture == 6) { // PROCESSOR_ARCHITECTURE_IA64
             cpu64bit = true;
         }
-        new Win32Processor();
         WmiResult<ProcessorIdProperty> processorId = Win32Processor.queryProcessorId();
         if (processorId.getResultCount() > 0) {
             processorID = WmiUtil.getString(processorId, ProcessorIdProperty.PROCESSORID, 0);

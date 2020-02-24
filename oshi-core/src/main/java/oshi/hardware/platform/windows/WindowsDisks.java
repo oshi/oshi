@@ -120,7 +120,6 @@ public class WindowsDisks implements Disks {
         DiskStats stats = queryReadWriteStats(null);
         PartitionMaps maps = queryPartitionMaps();
 
-        new Win32DiskDrive();
         WmiResult<DiskDriveProperty> vals = Win32DiskDrive.queryDiskDrive();
         for (int i = 0; i < vals.getResultCount(); i++) {
             HWDiskStore ds = new HWDiskStore();
@@ -205,7 +204,6 @@ public class WindowsDisks implements Disks {
         Matcher mAnt;
         Matcher mDep;
 
-        new Win32DiskDriveToDiskPartition();
         // Map drives to partitions
         WmiResult<DriveToPartitionProperty> drivePartitionMap = Win32DiskDriveToDiskPartition
                 .queryDriveToPartition();
@@ -219,7 +217,6 @@ public class WindowsDisks implements Disks {
             }
         }
 
-        new Win32LogicalDiskToPartition();
         // Map partitions to logical disks
         WmiResult<DiskToPartitionProperty> diskPartitionMap = Win32LogicalDiskToPartition.queryDiskToPartition();
         for (int i = 0; i < diskPartitionMap.getResultCount(); i++) {
@@ -230,7 +227,6 @@ public class WindowsDisks implements Disks {
             }
         }
 
-        new Win32DiskPartition();
         // Next, get all partitions and create objects
         WmiResult<DiskPartitionProperty> hwPartitionQueryMap = Win32DiskPartition.queryPartition();
         for (int i = 0; i < hwPartitionQueryMap.getResultCount(); i++) {

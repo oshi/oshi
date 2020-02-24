@@ -139,7 +139,6 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
                 sb.append(deviceID).append("\")");
             }
             String whereClause = sb.toString();
-            new Win32PnPEntity();
             // Query Win32_PnPEntity to populate the maps
             WmiResult<PnPEntityProperty> pnpEntity = Win32PnPEntity.queryDeviceId(whereClause);
             for (int i = 0; i < pnpEntity.getResultCount(); i++) {
@@ -151,7 +150,6 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
                 usbDeviceCache.put(pnpDeviceID, device);
                 LOG.debug("Adding {} to USB device cache.", pnpDeviceID);
             }
-            new Win32DiskDrive();
             // Get serial # for disk drives or other physical media
             WmiResult<DeviceIdProperty> serialNumbers = Win32DiskDrive.queryDiskDriveId(whereClause);
             for (int i = 0; i < serialNumbers.getResultCount(); i++) {
@@ -266,7 +264,6 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
      */
     private static List<String> getControllerDeviceIdList() {
         List<String> controllerDeviceIdsList = new ArrayList<>();
-        new Win32USBController();
         // One time lookup of USB Controller PnP Device IDs which don't
         // change
         WmiResult<USBControllerProperty> usbController = Win32USBController.queryUSBControllers();

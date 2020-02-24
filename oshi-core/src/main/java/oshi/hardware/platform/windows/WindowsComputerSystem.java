@@ -80,7 +80,6 @@ final class WindowsComputerSystem extends AbstractComputerSystem {
     private static Pair<String, String> queryManufacturerModel() {
         String manufacturer = null;
         String model = null;
-        new Win32ComputerSystem();
         WmiResult<ComputerSystemProperty> win32ComputerSystem = Win32ComputerSystem.queryComputerSystem();
         if (win32ComputerSystem.getResultCount() > 0) {
             manufacturer = WmiUtil.getString(win32ComputerSystem, ComputerSystemProperty.MANUFACTURER, 0);
@@ -100,7 +99,6 @@ final class WindowsComputerSystem extends AbstractComputerSystem {
     }
 
     private static String querySerialFromBios() {
-        new Win32Bios();
         WmiResult<BiosSerialProperty> serialNum = Win32Bios.querySerialNumber();
         if (serialNum.getResultCount() > 0) {
             return WmiUtil.getString(serialNum, BiosSerialProperty.SERIALNUMBER, 0);
@@ -109,7 +107,6 @@ final class WindowsComputerSystem extends AbstractComputerSystem {
     }
 
     private static String querySerialFromCsProduct() {
-        new Win32ComputerSystemProduct();
         WmiResult<ComputerSystemProductProperty> identifyingNumber = Win32ComputerSystemProduct
                 .queryIdentifyingNumber();
         if (identifyingNumber.getResultCount() > 0) {

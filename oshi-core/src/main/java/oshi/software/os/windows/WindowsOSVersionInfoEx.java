@@ -59,7 +59,6 @@ public class WindowsOSVersionInfoEx extends AbstractOSVersionInfoEx {
      * </p>
      */
     public WindowsOSVersionInfoEx() {
-        new Win32OperatingSystem();
         // Populate a key-value map from WMI
         WmiResult<OSVersionProperty> versionInfo = Win32OperatingSystem.queryOsVersion();
         if (versionInfo.getResultCount() < 1) {
