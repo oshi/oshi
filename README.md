@@ -64,9 +64,14 @@ Usage
 -----
 Include OSHI and its dependencies on your classpath.  We strongly recommend you add OSHI as a dependency to your project dependency manager such as Maven or Gradle. You can [find the appropriate syntax to include OSHI here](https://search.maven.org/artifact/com.github.oshi/oshi-core/4.4.2/jar). 
 
-Create a new instance of `SystemInfo` and use the getters to access additional information.
+Create a new instance of `SystemInfo` and use the getters to access additional information, such as:
+```
+SystemInfo si = new SystemInfo();
+HardwareAbstractionLayer hal = si.getHardware();
+CentralProcessor cpu = hal.getProcessor();
+```
 
-You can run the [SystemInfoTest](https://github.com/oshi/oshi/blob/master/oshi-core/src/test/java/oshi/SystemInfoTest.java)
+You can see more examples and run the [SystemInfoTest](https://github.com/oshi/oshi/blob/master/oshi-core/src/test/java/oshi/SystemInfoTest.java)
 and see the full output for your system by cloning the project and building it with [Maven](http://maven.apache.org/index.html):
 
 ```
