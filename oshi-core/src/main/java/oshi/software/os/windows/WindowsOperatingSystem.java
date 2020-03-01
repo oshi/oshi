@@ -75,7 +75,7 @@ import com.sun.jna.ptr.PointerByReference;
 
 import oshi.driver.windows.perfmon.ProcessInformation;
 import oshi.driver.windows.perfmon.ProcessInformation.ProcessPerformanceProperty;
-import oshi.driver.windows.registry.HkeyPerformanceData;
+import oshi.driver.windows.registry.ProcessPerformanceData;
 import oshi.driver.windows.wmi.Win32OperatingSystem;
 import oshi.driver.windows.wmi.Win32OperatingSystem.OSVersionProperty;
 import oshi.driver.windows.wmi.Win32Process;
@@ -109,17 +109,6 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             TimeUnit.HOURS.toNanos(1));
 
     private static final long BOOTTIME = querySystemBootTime();
-
-    private static final HkeyPerformanceData HKEY_PERFORMANCE_DATA;
-    static {
-        HkeyPerformanceData data = null;
-        try {
-            data = new HkeyPerformanceData();
-        } catch (InstantiationException e) {
-            LOG.warn("{} Process statistics will be read from PDH or WMI.", e.getMessage());
-        }
-        HKEY_PERFORMANCE_DATA = data;
-    }
 
     static {
         enableDebugPrivilege();
@@ -327,11 +316,12 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
      * @return A corresponding list of processes
      */
     private List<OSProcess> processMapToList(Collection<Integer> pids, boolean slowFields) {
-        // Get data from the registry if possible, otherwise performance counters with
-        // WMI backup
-        Map<Integer, OSProcess> processMap = (HKEY_PERFORMANCE_DATA != null)
-                ? HKEY_PERFORMANCE_DATA.buildProcessMapFromRegistry(this, pids)
-                : buildProcessMapFromPerfCounters(pids);
+        // Get data from the registry if possible
+        Map<Integer, OSProcess> processMap = ProcessPerformanceData.buildProcessMapFromRegistry(this, pids);
+        // otherwise performance counters with WMI backup
+        if (processMap == null) {
+            processMap = buildProcessMapFromPerfCounters(pids);
+        }
 
         // define here to avoid object repeated creation overhead later
         List<String> groupList = new ArrayList<>();
