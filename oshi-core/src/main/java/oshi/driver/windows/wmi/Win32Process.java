@@ -49,6 +49,9 @@ public class Win32Process {
         PROCESSID, NAME, KERNELMODETIME, USERMODETIME, THREADCOUNT, PAGEFILEUSAGE, HANDLECOUNT, EXECUTABLEPATH;
     }
 
+    private Win32Process() {
+    }
+
     /**
      * Returns process command lines
      *

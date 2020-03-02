@@ -58,12 +58,15 @@ public class SystemInformation {
         }
     }
 
+    private SystemInformation() {
+    }
+
     /**
      * Returns system context switch counters.
      *
      * @return Context switches counter for the total of all processors.
      */
-    public Map<ContextSwitchProperty, Long> queryContextSwitchCounters() {
+    public static Map<ContextSwitchProperty, Long> queryContextSwitchCounters() {
         PerfCounterQuery<ContextSwitchProperty> contextSwitchPerfCounters = new PerfCounterQuery<>(
                 ContextSwitchProperty.class, SYSTEM, WIN32_PERF_RAW_DATA_PERF_OS_SYSTEM);
         return contextSwitchPerfCounters.queryValues();

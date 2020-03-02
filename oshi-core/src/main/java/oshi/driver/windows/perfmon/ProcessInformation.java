@@ -86,12 +86,15 @@ public class ProcessInformation {
         }
     }
 
+    private ProcessInformation() {
+    }
+
     /**
      * Returns process counters.
      *
      * @return Process counters for each process.
      */
-    public Pair<List<String>, Map<ProcessPerformanceProperty, List<Long>>> queryProcessCounters() {
+    public static Pair<List<String>, Map<ProcessPerformanceProperty, List<Long>>> queryProcessCounters() {
         PerfCounterWildcardQuery<ProcessPerformanceProperty> processPerformancePerfCounters = new PerfCounterWildcardQuery<>(
                 ProcessPerformanceProperty.class, PROCESS, WIN32_PROCESS_WHERE_NOT_NAME_LIKE_TOTAL,
                 PROCESS_INFORMATION);
@@ -105,7 +108,7 @@ public class ProcessInformation {
      *
      * @return Process handle counters
      */
-    public Map<HandleCountProperty, List<Long>> queryHandles() {
+    public static Map<HandleCountProperty, List<Long>> queryHandles() {
         PerfCounterWildcardQuery<HandleCountProperty> handlePerfCounters = new PerfCounterWildcardQuery<>(
                 HandleCountProperty.class, PROCESS, WIN32_PROCESS);
         return handlePerfCounters.queryValuesWildcard();

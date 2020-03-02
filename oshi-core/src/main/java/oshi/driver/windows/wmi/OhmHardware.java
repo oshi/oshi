@@ -40,6 +40,9 @@ public class OhmHardware {
         IDENTIFIER;
     }
 
+    private OhmHardware() {
+    }
+
     /**
      * Queries the hardware identifiers for a monitored type.
      *

@@ -39,6 +39,9 @@ public class Win32BaseBoard {
         MANUFACTURER, MODEL, VERSION, SERIALNUMBER;
     }
 
+    private Win32BaseBoard() {
+    }
+
     /**
      * Queries the Baseboard description.
      *

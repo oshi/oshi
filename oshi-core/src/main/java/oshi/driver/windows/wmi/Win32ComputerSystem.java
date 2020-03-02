@@ -39,6 +39,9 @@ public class Win32ComputerSystem {
         MANUFACTURER, MODEL;
     }
 
+    private Win32ComputerSystem() {
+    }
+
     /**
      * Queries the Computer System.
      *

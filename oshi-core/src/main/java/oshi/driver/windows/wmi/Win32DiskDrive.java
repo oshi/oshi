@@ -46,6 +46,9 @@ public class Win32DiskDrive {
         PNPDEVICEID, SERIALNUMBER;
     }
 
+    private Win32DiskDrive() {
+    }
+
     /**
      * Queries the disk drive name info
      *

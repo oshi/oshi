@@ -24,7 +24,6 @@
 package oshi.hardware.platform.windows;
 
 import java.util.List;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,8 +90,7 @@ public class WindowsSensors extends AbstractSensors {
     private static double getTempFromPerfCounters() {
         double tempC = 0d;
         long tempK = 0L;
-        Map<ThermalZoneProperty, List<Long>> valueListMap = new ThermalZoneInformation().queryThermalZoneTemps();
-        List<Long> valueList = valueListMap.get(ThermalZoneProperty.TEMPERATURE);
+        List<Long> valueList = ThermalZoneInformation.queryThermalZoneTemps().get(ThermalZoneProperty.TEMPERATURE);
         if (valueList != null && !valueList.isEmpty()) {
             LOG.debug("Found Temperature data in PDH or WMI Counter");
             tempK = valueList.get(0);

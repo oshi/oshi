@@ -309,7 +309,7 @@ public class WindowsFileSystem extends AbstractFileSystem {
 
     @Override
     public long getOpenFileDescriptors() {
-        Map<HandleCountProperty, List<Long>> valueListMap = new ProcessInformation().queryHandles();
+        Map<HandleCountProperty, List<Long>> valueListMap = ProcessInformation.queryHandles();
         List<Long> valueList = valueListMap.get(HandleCountProperty.HANDLECOUNT);
         long descriptors = 0L;
         if (valueList != null) {

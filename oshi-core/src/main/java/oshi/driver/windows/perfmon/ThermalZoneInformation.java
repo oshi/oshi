@@ -55,13 +55,16 @@ public class ThermalZoneInformation {
         }
     }
 
+    private ThermalZoneInformation() {
+    }
+
     /**
      * Returns thermal zone temperatures.
      *
      * @return Thermal zone names and corresponding temperatures of the thermal
      *         zone, in degrees Kelvin.
      */
-    public Map<ThermalZoneProperty, List<Long>> queryThermalZoneTemps() {
+    public static Map<ThermalZoneProperty, List<Long>> queryThermalZoneTemps() {
         PerfCounterWildcardQuery<ThermalZoneProperty> thermalZonePerfCounters = new PerfCounterWildcardQuery<>(
                 ThermalZoneProperty.class, THERMAL_ZONE_INFORMATION, THERMAL_ZONE_INFORMATION_WHERE_NAME_LIKE_CPU);
         return thermalZonePerfCounters.queryValuesWildcard();

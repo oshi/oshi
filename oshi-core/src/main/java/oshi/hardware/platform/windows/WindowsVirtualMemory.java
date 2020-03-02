@@ -37,8 +37,8 @@ import com.sun.jna.platform.win32.Psapi;
 import com.sun.jna.platform.win32.Psapi.PERFORMANCE_INFORMATION;
 
 import oshi.driver.windows.perfmon.MemoryInformation;
-import oshi.driver.windows.perfmon.PagingFile;
 import oshi.driver.windows.perfmon.MemoryInformation.PageSwapProperty;
+import oshi.driver.windows.perfmon.PagingFile;
 import oshi.driver.windows.perfmon.PagingFile.PagingPercentProperty;
 import oshi.hardware.common.AbstractVirtualMemory;
 import oshi.util.tuples.Pair;
@@ -92,8 +92,7 @@ public class WindowsVirtualMemory extends AbstractVirtualMemory {
     }
 
     private long querySwapUsed() {
-        Map<PagingPercentProperty, Long> valueMap = new PagingFile().querySwapUsed();
-        return valueMap.getOrDefault(PagingPercentProperty.PERCENTUSAGE, 0L) * this.pageSize;
+        return PagingFile.querySwapUsed().getOrDefault(PagingPercentProperty.PERCENTUSAGE, 0L) * this.pageSize;
     }
 
     private long querySwapTotal() {
@@ -106,7 +105,7 @@ public class WindowsVirtualMemory extends AbstractVirtualMemory {
     }
 
     private static Pair<Long, Long> queryPageSwaps() {
-        Map<PageSwapProperty, Long> valueMap = new MemoryInformation().queryPageSwaps();
+        Map<PageSwapProperty, Long> valueMap = MemoryInformation.queryPageSwaps();
         return new Pair<>(valueMap.getOrDefault(PageSwapProperty.PAGESINPUTPERSEC, 0L),
                 valueMap.getOrDefault(PageSwapProperty.PAGESOUTPUTPERSEC, 0L));
     }
