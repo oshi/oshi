@@ -164,8 +164,7 @@ public class WindowsDisks implements Disks {
     private static DiskStats queryReadWriteStats(String index) {
         // Create object to hold and return results
         DiskStats stats = new DiskStats();
-        Pair<List<String>, Map<PhysicalDiskProperty, List<Long>>> instanceValuePair = new PhysicalDisk()
-                .queryDiskCounters();
+        Pair<List<String>, Map<PhysicalDiskProperty, List<Long>>> instanceValuePair = PhysicalDisk.queryDiskCounters();
         List<String> instances = instanceValuePair.getA();
         Map<PhysicalDiskProperty, List<Long>> valueMap = instanceValuePair.getB();
         stats.timeStamp = System.currentTimeMillis();
@@ -205,8 +204,7 @@ public class WindowsDisks implements Disks {
         Matcher mDep;
 
         // Map drives to partitions
-        WmiResult<DriveToPartitionProperty> drivePartitionMap = Win32DiskDriveToDiskPartition
-                .queryDriveToPartition();
+        WmiResult<DriveToPartitionProperty> drivePartitionMap = Win32DiskDriveToDiskPartition.queryDriveToPartition();
         for (int i = 0; i < drivePartitionMap.getResultCount(); i++) {
             mAnt = DEVICE_ID.matcher(WmiUtil.getRefString(drivePartitionMap, DriveToPartitionProperty.ANTECEDENT, i));
             mDep = DEVICE_ID.matcher(WmiUtil.getRefString(drivePartitionMap, DriveToPartitionProperty.DEPENDENT, i));

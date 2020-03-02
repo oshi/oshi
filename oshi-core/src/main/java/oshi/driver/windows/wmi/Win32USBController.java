@@ -39,6 +39,9 @@ public class Win32USBController {
         PNPDEVICEID;
     }
 
+    private Win32USBController() {
+    }
+
     /**
      * Queries the USB Controller device IDs
      *

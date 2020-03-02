@@ -39,6 +39,9 @@ public class Win32LogicalDisk {
         DESCRIPTION, DRIVETYPE, FILESYSTEM, FREESPACE, NAME, PROVIDERNAME, SIZE;
     }
 
+    private Win32LogicalDisk() {
+    }
+
     /**
      * Queries logical disk information
      *

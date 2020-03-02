@@ -39,6 +39,9 @@ public class Win32PnPEntity {
         NAME, MANUFACTURER, PNPDEVICEID;
     }
 
+    private Win32PnPEntity() {
+    }
+
     /**
      * Queries the PnP Device id info
      *

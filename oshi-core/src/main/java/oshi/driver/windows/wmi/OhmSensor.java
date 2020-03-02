@@ -40,6 +40,9 @@ public class OhmSensor {
         VALUE;
     }
 
+    private OhmSensor() {
+    }
+
     /**
      * Queries the sensor value of an hardware identifier and sensor type.
      *

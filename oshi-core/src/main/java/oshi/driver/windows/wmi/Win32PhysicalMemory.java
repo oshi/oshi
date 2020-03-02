@@ -46,6 +46,9 @@ public class Win32PhysicalMemory {
         BANKLABEL, CAPACITY, SPEED, MANUFACTURER, MEMORYTYPE
     }
 
+    private Win32PhysicalMemory() {
+    }
+
     /**
      * Queries physical memory info for Win10 and later.
      *

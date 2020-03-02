@@ -59,12 +59,15 @@ public class MemoryInformation {
         }
     }
 
+    private MemoryInformation() {
+    }
+
     /**
      * Returns page swap counters
      *
      * @return Page swap counters for memory.
      */
-    public Map<PageSwapProperty, Long> queryPageSwaps() {
+    public static Map<PageSwapProperty, Long> queryPageSwaps() {
         PerfCounterQuery<PageSwapProperty> memoryPerfCounters = new PerfCounterQuery<>(PageSwapProperty.class, MEMORY,
                 WIN32_PERF_RAW_DATA_PERF_OS_MEMORY);
         return memoryPerfCounters.queryValues();

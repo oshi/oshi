@@ -323,7 +323,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
         // Percent time raw value is cumulative 100NS-ticks
         // Divide by 10_000 to get milliseconds
 
-        Map<SystemTickCountProperty, Long> valueMap = new ProcessorInformation().querySystemCounters();
+        Map<SystemTickCountProperty, Long> valueMap = ProcessorInformation.querySystemCounters();
         ticks[TickType.IRQ.getIndex()] = valueMap.getOrDefault(SystemTickCountProperty.PERCENTINTERRUPTTIME, 0L)
                 / 10_000L;
         ticks[TickType.SOFTIRQ.getIndex()] = valueMap.getOrDefault(SystemTickCountProperty.PERCENTDPCTIME, 0L)
@@ -341,7 +341,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
     @Override
     public long[] queryCurrentFreq() {
         if (VersionHelpers.IsWindows7OrGreater()) {
-            Pair<List<String>, Map<ProcessorFrequencyProperty, List<Long>>> instanceValuePair = new ProcessorInformation()
+            Pair<List<String>, Map<ProcessorFrequencyProperty, List<Long>>> instanceValuePair = ProcessorInformation
                     .queryFrequencyCounters();
             List<String> instances = instanceValuePair.getA();
             Map<ProcessorFrequencyProperty, List<Long>> valueMap = instanceValuePair.getB();
@@ -419,7 +419,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
 
     @Override
     public long[][] queryProcessorCpuLoadTicks() {
-        Pair<List<String>, Map<ProcessorTickCountProperty, List<Long>>> instanceValuePair = new ProcessorInformation()
+        Pair<List<String>, Map<ProcessorTickCountProperty, List<Long>>> instanceValuePair = ProcessorInformation
                 .queryProcessorCounters();
         List<String> instances = instanceValuePair.getA();
         Map<ProcessorTickCountProperty, List<Long>> valueMap = instanceValuePair.getB();
@@ -466,13 +466,12 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
 
     @Override
     public long queryContextSwitches() {
-        Map<ContextSwitchProperty, Long> valueMap = new SystemInformation().queryContextSwitchCounters();
-        return valueMap.getOrDefault(ContextSwitchProperty.CONTEXTSWITCHESPERSEC, 0L);
+        return SystemInformation.queryContextSwitchCounters().getOrDefault(ContextSwitchProperty.CONTEXTSWITCHESPERSEC,
+                0L);
     }
 
     @Override
     public long queryInterrupts() {
-        Map<InterruptsProperty, Long> valueMap = new ProcessorInformation().queryInterruptCounters();
-        return valueMap.getOrDefault(InterruptsProperty.INTERRUPTSPERSEC, 0L);
+        return ProcessorInformation.queryInterruptCounters().getOrDefault(InterruptsProperty.INTERRUPTSPERSEC, 0L);
     }
 }

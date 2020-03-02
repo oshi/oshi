@@ -26,6 +26,7 @@ package oshi.software.os.windows;
 import static oshi.software.os.OSService.State.OTHER;
 import static oshi.software.os.OSService.State.RUNNING;
 import static oshi.software.os.OSService.State.STOPPED;
+import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
 
 import java.io.File;
@@ -113,6 +114,15 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     static {
         enableDebugPrivilege();
     }
+
+    /*
+     * Cache full process stats queries. Second query will only populate if first
+     * one returns null.
+     */
+    private Supplier<Map<Integer, OSProcess>> processMapFromRegistry = memoize(this::queryProcessMapFromRegistry,
+            defaultExpiration());
+    private Supplier<Map<Integer, OSProcess>> processMapFromPerfCounters = memoize(
+            this::queryProcessMapFromPerfCounters, defaultExpiration());
 
     @SuppressWarnings("deprecation")
     public WindowsOperatingSystem() {
@@ -317,10 +327,10 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
      */
     private List<OSProcess> processMapToList(Collection<Integer> pids, boolean slowFields) {
         // Get data from the registry if possible
-        Map<Integer, OSProcess> processMap = ProcessPerformanceData.buildProcessMapFromRegistry(this, pids);
+        Map<Integer, OSProcess> processMap = processMapFromRegistry.get();
         // otherwise performance counters with WMI backup
         if (processMap == null) {
-            processMap = buildProcessMapFromPerfCounters(pids);
+            processMap = (pids == null) ? processMapFromPerfCounters.get() : buildProcessMapFromPerfCounters(pids);
         }
 
         // define here to avoid object repeated creation overhead later
@@ -362,7 +372,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         for (int i = 0; i < procCount; i++) {
             int pid = IS_WINDOWS7_OR_GREATER ? processInfo[i].ProcessId
                     : WmiUtil.getUint32(processWmiResult, ProcessXPProperty.PROCESSID, i);
-            OSProcess proc = null;
+            OSProcess proc;
             // If the cache is empty, there was a problem with
             // filling the cache using performance information.
             if (processMap.isEmpty()) {
@@ -501,9 +511,17 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                 ex.getMessage());
     }
 
+    private Map<Integer, OSProcess> queryProcessMapFromRegistry() {
+        return ProcessPerformanceData.buildProcessMapFromRegistry(this, null);
+    }
+
+    private Map<Integer, OSProcess> queryProcessMapFromPerfCounters() {
+        return buildProcessMapFromPerfCounters(null);
+    }
+
     private Map<Integer, OSProcess> buildProcessMapFromPerfCounters(Collection<Integer> pids) {
         Map<Integer, OSProcess> processMap = new HashMap<>();
-        Pair<List<String>, Map<ProcessPerformanceProperty, List<Long>>> instanceValues = new ProcessInformation()
+        Pair<List<String>, Map<ProcessPerformanceProperty, List<Long>>> instanceValues = ProcessInformation
                 .queryProcessCounters();
         long now = System.currentTimeMillis(); // 1970 epoch
         List<String> instances = instanceValues.getA();

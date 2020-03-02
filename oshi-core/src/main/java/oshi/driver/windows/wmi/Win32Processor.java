@@ -53,6 +53,9 @@ public class Win32Processor {
         ADDRESSWIDTH;
     }
 
+    private Win32Processor() {
+    }
+
     /**
      * Returns processor voltage.
      *

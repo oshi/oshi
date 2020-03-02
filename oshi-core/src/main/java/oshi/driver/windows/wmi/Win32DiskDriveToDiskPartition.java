@@ -39,6 +39,9 @@ public class Win32DiskDriveToDiskPartition {
         ANTECEDENT, DEPENDENT;
     }
 
+    private Win32DiskDriveToDiskPartition() {
+    }
+
     /**
      * Queries the association between disk drive and partition.
      *

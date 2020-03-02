@@ -58,12 +58,15 @@ public class PagingFile {
         }
     }
 
+    private PagingFile() {
+    }
+
     /**
      * Returns paging file counters
      *
      * @return Paging file counters for memory.
      */
-    public Map<PagingPercentProperty, Long> querySwapUsed() {
+    public static Map<PagingPercentProperty, Long> querySwapUsed() {
         PerfCounterQuery<PagingPercentProperty> pagingPerfCounters = new PerfCounterQuery<>(PagingPercentProperty.class,
                 PAGING_FILE, WIN32_PERF_RAW_DATA_PERF_OS_PAGING_FILE);
         return pagingPerfCounters.queryValues();

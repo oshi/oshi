@@ -39,6 +39,9 @@ public class Win32OperatingSystem {
         VERSION, PRODUCTTYPE, BUILDNUMBER, CSDVERSION, SUITEMASK;
     }
 
+    private Win32OperatingSystem() {
+    }
+
     /**
      * Queries the Computer System.
      *

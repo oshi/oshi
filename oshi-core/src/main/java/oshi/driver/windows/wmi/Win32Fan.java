@@ -39,6 +39,9 @@ public class Win32Fan {
         DESIREDSPEED;
     }
 
+    private Win32Fan() {
+    }
+
     /**
      * Queries the fan speed.
      *

@@ -65,9 +65,6 @@ public class HkeyPerformanceDataUtil {
     private static final String COUNTER = "Counter";
     private static final Map<String, Integer> COUNTER_INDEX_MAP = mapCounterIndicesFromRegistry();
 
-    /**
-     * Private constructor to prevent instantiation
-     */
     private HkeyPerformanceDataUtil() {
     }
 

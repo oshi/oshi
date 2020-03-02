@@ -39,6 +39,9 @@ public class Win32DiskPartition {
         INDEX, DESCRIPTION, DEVICEID, DISKINDEX, NAME, SIZE, TYPE;
     }
 
+    private Win32DiskPartition() {
+    }
+
     /**
      * Queries the partition.
      *

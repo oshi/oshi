@@ -62,12 +62,15 @@ public class PhysicalDisk {
         }
     }
 
+    private PhysicalDisk() {
+    }
+
     /**
      * Returns physical disk performance counters.
      *
      * @return Performance Counters for physical disks.
      */
-    public Pair<List<String>, Map<PhysicalDiskProperty, List<Long>>> queryDiskCounters() {
+    public static Pair<List<String>, Map<PhysicalDiskProperty, List<Long>>> queryDiskCounters() {
         PerfCounterWildcardQuery<PhysicalDiskProperty> physicalDiskPerfCounters = new PerfCounterWildcardQuery<>(
                 PhysicalDiskProperty.class, PHYSICAL_DISK,
                 WIN32_PERF_RAW_DATA_PERF_DISK_PHYSICAL_DISK_WHERE_NOT_NAME_TOTAL);

@@ -39,6 +39,9 @@ public class Win32ComputerSystemProduct {
         IDENTIFYINGNUMBER;
     }
 
+    private Win32ComputerSystemProduct() {
+    }
+
     /**
      * Queries the Computer System.
      *

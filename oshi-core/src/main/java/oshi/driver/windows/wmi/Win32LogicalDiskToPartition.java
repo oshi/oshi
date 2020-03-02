@@ -39,6 +39,9 @@ public class Win32LogicalDiskToPartition {
         ANTECEDENT, DEPENDENT;
     }
 
+    private Win32LogicalDiskToPartition() {
+    }
+
     /**
      * Queries the association between logical disk and partition.
      *

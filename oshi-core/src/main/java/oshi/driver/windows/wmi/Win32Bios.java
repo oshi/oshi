@@ -46,6 +46,9 @@ public class Win32Bios {
         MANUFACTURER, NAME, DESCRIPTION, VERSION, RELEASEDATE;
     }
 
+    private Win32Bios() {
+    }
+
     /**
      * Queries the BIOS serial number.
      *
