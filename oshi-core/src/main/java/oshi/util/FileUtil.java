@@ -39,7 +39,8 @@ import org.slf4j.LoggerFactory;
 /**
  * File reading methods
  */
-public class FileUtil {
+public final class FileUtil {
+
     private static final Logger LOG = LoggerFactory.getLogger(FileUtil.class);
 
     private FileUtil() {

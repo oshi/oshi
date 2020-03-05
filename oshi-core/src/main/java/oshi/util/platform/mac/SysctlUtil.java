@@ -36,7 +36,8 @@ import com.sun.jna.ptr.IntByReference;
 /**
  * Provides access to sysctl calls on OS X
  */
-public class SysctlUtil {
+public final class SysctlUtil {
+
     private static final Logger LOG = LoggerFactory.getLogger(SysctlUtil.class);
 
     private static final String SYSCTL_FAIL = "Failed syctl call: {}, Error code: {}";

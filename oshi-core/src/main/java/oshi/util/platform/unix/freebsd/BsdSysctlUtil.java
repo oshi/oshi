@@ -37,7 +37,8 @@ import oshi.jna.platform.unix.freebsd.FreeBsdLibc;
 /**
  * Provides access to sysctl calls on FreeBSD
  */
-public class BsdSysctlUtil {
+public final class BsdSysctlUtil {
+
     private static final Logger LOG = LoggerFactory.getLogger(BsdSysctlUtil.class);
 
     private static final String SYSCTL_FAIL = "Failed syctl call: {}, Error code: {}";

@@ -37,11 +37,6 @@ import com.sun.jna.platform.win32.WinNT.HANDLEByReference; // NOSONAR
 import oshi.util.FormatUtil;
 import oshi.util.platform.windows.PerfDataUtil.PerfCounter;
 
-/**
- * <p>
- * PerfCounterQueryHandler class.
- * </p>
- */
 public class PerfCounterQueryHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(PerfCounterQueryHandler.class);

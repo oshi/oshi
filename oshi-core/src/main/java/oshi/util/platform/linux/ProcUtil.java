@@ -39,7 +39,7 @@ import oshi.util.ParseUtil;
 /**
  * Provides access to some /proc filesystem info on Linux
  */
-public class ProcUtil {
+public final class ProcUtil {
 
     /**
      * The proc path for CPU information

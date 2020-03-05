@@ -36,7 +36,7 @@ import oshi.util.ParseUtil;
 /**
  * Helper class for WMI
  */
-public class WmiUtil {
+public final class WmiUtil {
 
     /**
      * The namespace where Open Hardware Monitor publishes to WMI,
@@ -48,9 +48,6 @@ public class WmiUtil {
 
     private static final String CLASS_CAST_MSG = "%s is not a %s type. CIM Type is %d and VT type is %d";
 
-    /**
-     * Private constructor so this class can't be instantiated from the outside.
-     */
     private WmiUtil() {
     }
 

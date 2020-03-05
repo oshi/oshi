@@ -44,7 +44,8 @@ import oshi.util.Util;
 /**
  * Provides access to kstat information on Solaris
  */
-public class KstatUtil {
+public final class KstatUtil {
+
     private static final Logger LOG = LoggerFactory.getLogger(KstatUtil.class);
 
     private static final LibKstat KS = LibKstat.INSTANCE;

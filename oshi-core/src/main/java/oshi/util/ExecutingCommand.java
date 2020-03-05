@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
  * A class for executing on the command line and returning the result of
  * execution.
  */
-public class ExecutingCommand {
+public final class ExecutingCommand {
 
     private static final Logger LOG = LoggerFactory.getLogger(ExecutingCommand.class);
 

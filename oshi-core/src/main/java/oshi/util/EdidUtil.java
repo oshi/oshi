@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
 /**
  * EDID parsing utility.
  */
-public class EdidUtil {
+public final class EdidUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(EdidUtil.class);
 

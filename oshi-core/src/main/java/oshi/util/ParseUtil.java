@@ -44,7 +44,7 @@ import org.slf4j.LoggerFactory;
 /**
  * String parsing utility.
  */
-public class ParseUtil {
+public final class ParseUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(ParseUtil.class);
 
@@ -902,7 +902,7 @@ public class ParseUtil {
      * @return true if the path exactly equals, or starts with one of the strings
      *         in prefixList
      */
-    public static boolean filePathStartsWith(List<String> prefixList, String path) {        
+    public static boolean filePathStartsWith(List<String> prefixList, String path) {
         for (String match : prefixList) {
             if (path.equals(match) || path.startsWith(match + "/")) {
                 return true;
