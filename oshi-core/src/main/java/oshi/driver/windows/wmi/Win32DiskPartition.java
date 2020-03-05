@@ -28,7 +28,7 @@ import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.util.platform.windows.WmiQueryHandler;
 
-public class Win32DiskPartition {
+public final class Win32DiskPartition {
 
     private static final String WIN32_DISK_PARTITION = "Win32_DiskPartition";
 

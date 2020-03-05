@@ -29,7 +29,7 @@ import java.util.Map;
 import oshi.util.platform.windows.PerfCounterWildcardQuery;
 import oshi.util.platform.windows.PerfCounterWildcardQuery.PdhCounterWildcardProperty;
 
-public class ThermalZoneInformation {
+public final class ThermalZoneInformation {
 
     private static final String THERMAL_ZONE_INFORMATION = "Thermal Zone Information";
     private static final String THERMAL_ZONE_INFORMATION_WHERE_NAME_LIKE_CPU = "Win32_PerfRawData_Counters_ThermalZoneInformation WHERE Name LIKE \"%cpu%\"";

@@ -28,7 +28,7 @@ import java.util.Map;
 import oshi.util.platform.windows.PerfCounterQuery;
 import oshi.util.platform.windows.PerfCounterQuery.PdhCounterProperty;
 
-public class PagingFile {
+public final class PagingFile {
 
     private static final String PAGING_FILE = "Paging File";
     private static final String WIN32_PERF_RAW_DATA_PERF_OS_PAGING_FILE = "Win32_PerfRawData_PerfOS_PagingFile";

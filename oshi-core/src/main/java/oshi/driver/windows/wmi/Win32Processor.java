@@ -28,7 +28,7 @@ import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.util.platform.windows.WmiQueryHandler;
 
-public class Win32Processor {
+public final class Win32Processor {
 
     private static final String WIN32_PROCESSOR = "Win32_Processor";
 

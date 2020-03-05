@@ -31,7 +31,7 @@ import oshi.util.platform.windows.PerfCounterWildcardQuery;
 import oshi.util.platform.windows.PerfCounterWildcardQuery.PdhCounterWildcardProperty;
 import oshi.util.tuples.Pair;
 
-public class PhysicalDisk {
+public final class PhysicalDisk {
 
     private static final String PHYSICAL_DISK = "PhysicalDisk";
     private static final String WIN32_PERF_RAW_DATA_PERF_DISK_PHYSICAL_DISK_WHERE_NOT_NAME_TOTAL = "Win32_PerfRawData_PerfDisk_PhysicalDisk WHERE NOT Name=\"_Total\"";

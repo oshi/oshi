@@ -28,7 +28,7 @@ import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.util.platform.windows.WmiQueryHandler;
 
-public class Win32PhysicalMemory {
+public final class Win32PhysicalMemory {
 
     private static final String WIN32_PHYSICAL_MEMORY = "Win32_PhysicalMemory";
 

@@ -29,7 +29,7 @@ import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
 
-public class OhmHardware {
+public final class OhmHardware {
 
     private static final String HARDWARE = "Hardware";
 

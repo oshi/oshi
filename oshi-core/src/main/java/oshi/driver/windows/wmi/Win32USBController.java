@@ -28,7 +28,7 @@ import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.util.platform.windows.WmiQueryHandler;
 
-public class Win32USBController {
+public final class Win32USBController {
 
     private static final String WIN32_USB_CONTROLLER = "Win32_USBController";
 

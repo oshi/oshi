@@ -28,7 +28,7 @@ import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.util.platform.windows.WmiQueryHandler;
 
-public class Win32PnPEntity {
+public final class Win32PnPEntity {
 
     private static final String WIN32_PNP_ENTITY = "Win32_PnPEntity";
 

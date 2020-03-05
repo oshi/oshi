@@ -28,7 +28,7 @@ import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.util.platform.windows.WmiQueryHandler;
 
-public class Win32BaseBoard {
+public final class Win32BaseBoard {
 
     private static final String WIN32_BASEBOARD = "Win32_BaseBoard";
 

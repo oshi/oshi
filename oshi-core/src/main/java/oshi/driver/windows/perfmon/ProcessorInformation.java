@@ -34,7 +34,7 @@ import oshi.util.platform.windows.PerfCounterWildcardQuery;
 import oshi.util.platform.windows.PerfCounterWildcardQuery.PdhCounterWildcardProperty;
 import oshi.util.tuples.Pair;
 
-public class ProcessorInformation {
+public final class ProcessorInformation {
 
     private static final String PROCESSOR = "Processor";
     private static final String INTERRUPT_COUNT = "Interrupt Count";

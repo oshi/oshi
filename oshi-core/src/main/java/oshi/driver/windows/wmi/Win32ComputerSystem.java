@@ -28,7 +28,7 @@ import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.util.platform.windows.WmiQueryHandler;
 
-public class Win32ComputerSystem {
+public final class Win32ComputerSystem {
 
     private static final String WIN32_COMPUTER_SYSTEM = "Win32_ComputerSystem";
 

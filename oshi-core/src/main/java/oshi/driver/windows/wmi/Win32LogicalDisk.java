@@ -28,7 +28,7 @@ import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.util.platform.windows.WmiQueryHandler;
 
-public class Win32LogicalDisk {
+public final class Win32LogicalDisk {
 
     private static final String WIN32_LOGICAL_DISK = "Win32_LogicalDisk";
 

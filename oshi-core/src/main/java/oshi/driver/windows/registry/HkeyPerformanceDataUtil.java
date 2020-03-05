@@ -53,7 +53,7 @@ import oshi.util.tuples.Triplet;
 /**
  * Utility to read HKEY_PERFORMANCE_DATA information.
  */
-public class HkeyPerformanceDataUtil {
+public final class HkeyPerformanceDataUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(HkeyPerformanceDataUtil.class);
 

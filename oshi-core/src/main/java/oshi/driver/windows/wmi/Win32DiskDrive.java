@@ -28,7 +28,7 @@ import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.util.platform.windows.WmiQueryHandler;
 
-public class Win32DiskDrive {
+public final class Win32DiskDrive {
 
     private static final String WIN32_DISK_DRIVE = "Win32_DiskDrive";
 
