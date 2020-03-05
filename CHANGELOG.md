@@ -1,5 +1,6 @@
 4.5.0 (in progress)
 ================
+* [#1123](https://github.com/oshi/oshi/pull/1123): Add driver to parse Linux proc/diskstats. - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here.
 
 4.4.0 (2/12/2020), 4.4.1 (2/17/2020), 4.4.2 (2/20/2020)
