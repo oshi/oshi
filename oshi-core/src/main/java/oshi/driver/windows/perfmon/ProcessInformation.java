@@ -31,7 +31,7 @@ import oshi.util.platform.windows.PerfCounterWildcardQuery;
 import oshi.util.platform.windows.PerfCounterWildcardQuery.PdhCounterWildcardProperty;
 import oshi.util.tuples.Pair;
 
-public class ProcessInformation {
+public final class ProcessInformation {
 
     private static final String WIN32_PROCESS = "Win32_Process";
     private static final String PROCESS = "Process";

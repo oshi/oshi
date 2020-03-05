@@ -28,7 +28,7 @@ import java.util.Map;
 import oshi.util.platform.windows.PerfCounterQuery;
 import oshi.util.platform.windows.PerfCounterQuery.PdhCounterProperty;
 
-public class MemoryInformation {
+public final class MemoryInformation {
 
     private static final String MEMORY = "Memory";
     private static final String WIN32_PERF_RAW_DATA_PERF_OS_MEMORY = "Win32_PerfRawData_PerfOS_Memory";

@@ -28,7 +28,7 @@ import java.util.Map;
 import oshi.util.platform.windows.PerfCounterQuery;
 import oshi.util.platform.windows.PerfCounterQuery.PdhCounterProperty;
 
-public class SystemInformation {
+public final class SystemInformation {
 
     private static final String SYSTEM = "System";
     private static final String WIN32_PERF_RAW_DATA_PERF_OS_SYSTEM = "Win32_PerfRawData_PerfOS_System";

@@ -33,7 +33,7 @@ import oshi.software.os.OSProcess;
 import oshi.software.os.OperatingSystem;
 import oshi.util.tuples.Triplet;
 
-public class ProcessPerformanceData {
+public final class ProcessPerformanceData {
 
     private static final String PROCESS = "Process";
 

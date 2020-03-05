@@ -28,7 +28,7 @@ import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.util.platform.windows.WmiQueryHandler;
 
-public class Win32OperatingSystem {
+public final class Win32OperatingSystem {
 
     private static final String WIN32_OPERATING_SYSTEM = "Win32_OperatingSystem";
 

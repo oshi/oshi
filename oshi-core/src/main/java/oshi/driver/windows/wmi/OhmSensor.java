@@ -29,7 +29,7 @@ import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
 
-public class OhmSensor {
+public final class OhmSensor {
 
     private static final String SENSOR = "Sensor";
 

@@ -31,7 +31,7 @@ import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.util.platform.windows.WmiQueryHandler;
 
-public class Win32Process {
+public final class Win32Process {
 
     private static final String WIN32_PROCESS = "Win32_Process";
 
