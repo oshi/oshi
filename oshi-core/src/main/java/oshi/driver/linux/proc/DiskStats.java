@@ -107,7 +107,7 @@ public class DiskStats {
 
     /**
      * Reads the statistics in {@code /proc/diskstats} and returns the results.
-     * 
+     *
      * @return A map with each disk's name as the key, and an EnumMap as the value,
      *         where the numeric values in {@link IoStat} are mapped to a
      *         {@link Long} value.
@@ -117,7 +117,7 @@ public class DiskStats {
         IoStat[] enumArray = IoStat.class.getEnumConstants();
         List<String> diskStats = FileUtil.readFile(DISK_STATS);
         for (String stat : diskStats) {
-            String[] split = ParseUtil.whitespaces.split(stat);
+            String[] split = ParseUtil.whitespaces.split(stat.trim());
             Map<IoStat, Long> statMap = new EnumMap<>(IoStat.class);
             String name = null;
             for (int i = 0; i < enumArray.length && i < split.length; i++) {
