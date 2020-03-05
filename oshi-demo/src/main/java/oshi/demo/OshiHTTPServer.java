@@ -27,6 +27,7 @@ import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -80,16 +81,18 @@ public class OshiHTTPServer implements Runnable {
     @Override
     public void run() {
         try ( // read characters from the client via input stream on the socket
-                BufferedReader in = new BufferedReader(new InputStreamReader(connect.getInputStream()));
+                BufferedReader in = new BufferedReader(
+                        new InputStreamReader(connect.getInputStream(), StandardCharsets.UTF_8));
                 // get character output stream to client (for headers)
-                PrintWriter out = new PrintWriter(connect.getOutputStream());
+                PrintWriter out = new PrintWriter(
+                        new OutputStreamWriter(connect.getOutputStream(), StandardCharsets.UTF_8));
                 // get binary output stream to client (for requested data)
                 BufferedOutputStream dataOut = new BufferedOutputStream(connect.getOutputStream())) {
 
             // get first line of the request from the client
             String input = in.readLine();
             if (input == null) {
-            	throw new IOException("No characters read from input stream.");
+                throw new IOException("No characters read from input stream.");
             }
             // we parse the request with a string tokenizer
             StringTokenizer parse = new StringTokenizer(input);

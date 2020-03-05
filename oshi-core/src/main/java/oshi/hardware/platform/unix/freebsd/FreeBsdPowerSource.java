@@ -68,7 +68,7 @@ public class FreeBsdPowerSource extends AbstractPowerSource {
         double psRemainingCapacityPercent = 1d;
         double psTimeRemainingEstimated = -1d; // -1 = unknown, -2 = unlimited
         double psPowerUsageRate = 0d;
-        double psVoltage = -1d;
+        int psVoltage = -1;
         double psAmperage = 0d;
         boolean psPowerOnLine = false;
         boolean psCharging = false;
@@ -146,7 +146,7 @@ public class FreeBsdPowerSource extends AbstractPowerSource {
         String volts = psMap.get("Present voltage");
         if (volts != null) {
             psVoltage = ParseUtil.getFirstIntValue(volts);
-            if (psVoltage != 0d) {
+            if (psVoltage != 0) {
                 psAmperage = psPowerUsageRate / psVoltage;
             }
         }

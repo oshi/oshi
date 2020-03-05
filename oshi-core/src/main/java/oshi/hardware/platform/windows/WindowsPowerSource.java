@@ -99,7 +99,7 @@ public class WindowsPowerSource extends AbstractPowerSource {
         double psRemainingCapacityPercent = 1d;
         double psTimeRemainingEstimated = -1d; // -1 = unknown, -2 = unlimited
         double psTimeRemainingInstant = 0d;
-        double psPowerUsageRate = 0d;
+        int psPowerUsageRate = 0;
         double psVoltage = -1d;
         double psAmperage = 0d;
         boolean psPowerOnLine = false;
@@ -272,8 +272,8 @@ public class WindowsPowerSource extends AbstractPowerSource {
                                             // Put last because we change the AtRate field
                                             bqi.InformationLevel = PowrProf.BATTERY_QUERY_INFORMATION_LEVEL.BatteryEstimatedTime
                                                     .ordinal();
-                                            if (psPowerUsageRate != 0d) {
-                                                bqi.AtRate = (int) psPowerUsageRate;
+                                            if (psPowerUsageRate != 0) {
+                                                bqi.AtRate = psPowerUsageRate;
                                             }
                                             bqi.write();
                                             IntByReference tr = new IntByReference();
@@ -283,8 +283,8 @@ public class WindowsPowerSource extends AbstractPowerSource {
                                                 psTimeRemainingInstant = tr.getValue();
                                             }
                                             // Fallback
-                                            if (psTimeRemainingInstant < 0 && psPowerUsageRate != 0d) {
-                                                psTimeRemainingInstant = 3600 * (psMaxCapacity - psCurrentCapacity)
+                                            if (psTimeRemainingInstant < 0 && psPowerUsageRate != 0) {
+                                                psTimeRemainingInstant = (psMaxCapacity - psCurrentCapacity) * 3600d
                                                         / psPowerUsageRate;
                                                 if (psTimeRemainingInstant < 0) {
                                                     psTimeRemainingInstant *= -1;

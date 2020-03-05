@@ -153,9 +153,7 @@ public class SolarisPowerSource extends AbstractPowerSource {
                     long voltageNow = KstatUtil.dataLookupLong(ksp, "bst_voltage");
                     if (voltageNow > 0) {
                         psVoltage = voltageNow / 1000d;
-                        if (psVoltage != 0d) {
-                            psAmperage = psPowerUsageRate / psVoltage;
-                        }
+                        psAmperage = psPowerUsageRate * 1000d / voltageNow;
                     }
                 }
             }
