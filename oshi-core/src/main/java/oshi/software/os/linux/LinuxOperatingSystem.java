@@ -72,6 +72,8 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
 
     private static final Logger LOG = LoggerFactory.getLogger(LinuxOperatingSystem.class);
 
+    private static final String LS_F_PROC_PID_FD = "ls -f " + ProcPath.PID_FD;
+
     private static final long BOOTTIME;
     static {
         long tempBT = CpuStat.getBootTime();
@@ -277,7 +279,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
 
         // gets the open files count
         if (slowFields) {
-            List<String> openFilesList = ExecutingCommand.runNative(String.format("ls -f " + ProcPath.PID_FD, pid));
+            List<String> openFilesList = ExecutingCommand.runNative(String.format(LS_F_PROC_PID_FD, pid));
             proc.setOpenFiles(openFilesList.size() - 1L);
 
             // get 5th byte of file for 64-bit check
