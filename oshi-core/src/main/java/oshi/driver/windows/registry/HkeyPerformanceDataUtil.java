@@ -71,6 +71,10 @@ public final class HkeyPerformanceDataUtil {
     /**
      * Reads and parses a block of performance data from the registry.
      *
+     * @param <T>
+     *            PDH Counters use an Enum to identify the fields to query in either
+     *            the counter or WMI backup, and use the enum values as keys to
+     *            retrieve the results.
      * @param objectName
      *            The counter object for which to fetch data
      * @param counterEnum
