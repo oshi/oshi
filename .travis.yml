@@ -45,20 +45,20 @@ matrix:
     - os: osx
       env: JDK = "OpenJDK 13 - Mac"
       jdk: openjdk13
-      osx_image: xcode11.2.1
+      osx_image: xcode11.3.1
     - os: linux
       env: JDK = "OpenJDK 11 - Linux"
       jdk: openjdk11
     - os: linux
-      env: JDK = "OpenJDK 13 - Linux"
-      jdk: openjdk13
-    - os: linux
       env: JDK = "OpenJDK 14 - Linux"
       jdk: openjdk14
+    - os: linux
+      env: JDK = "OpenJDK 15 - Linux"
+      jdk: openjdk15
   allow_failures:
     - os: linux
-      env: JDK = "OpenJDK 14 - Linux"
-      jdk: openjdk14
+      env: JDK = "OpenJDK 15 - Linux"
+      jdk: openjdk15
 
 script:
   # Skip tests on coverity_scan branch
