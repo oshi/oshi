@@ -34,12 +34,13 @@ import oshi.software.os.OperatingSystem;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
+import oshi.util.platform.linux.ProcPath;
 
 /**
  * <p>
  * LinuxOSVersionInfoEx class.
  * </p>
- * 
+ *
  * @deprecated Use {@link OperatingSystem.OSVersionInfo}
  */
 @Deprecated
@@ -76,7 +77,7 @@ public class LinuxOSVersionInfoEx extends AbstractOSVersionInfoEx {
             setCodeName("");
         }
         List<String> procVersion = null;
-        procVersion = FileUtil.readFile("/proc/version");
+        procVersion = FileUtil.readFile(ProcPath.VERSION);
         if (!procVersion.isEmpty()) {
             String[] split = ParseUtil.whitespaces.split(procVersion.get(0));
             for (String s : split) {

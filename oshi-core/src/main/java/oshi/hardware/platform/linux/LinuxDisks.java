@@ -191,7 +191,7 @@ public class LinuxDisks implements Disks {
 
     private void updateMountsMap() {
         this.mountsMap.clear();
-        List<String> mounts = FileUtil.readFile("/proc/self/mounts");
+        List<String> mounts = FileUtil.readFile(ProcPath.MOUNTS);
         for (String mount : mounts) {
             String[] split = ParseUtil.whitespaces.split(mount);
             if (split.length < 2 || !split[0].startsWith("/dev/")) {

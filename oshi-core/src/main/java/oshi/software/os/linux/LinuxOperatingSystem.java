@@ -175,7 +175,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     public FamilyVersionInfo queryFamilyVersionInfo() {
         String family = queryFamilyFromReleaseFiles();
         String buildNumber = null;
-        List<String> procVersion = FileUtil.readFile("/proc/version");
+        List<String> procVersion = FileUtil.readFile(ProcPath.VERSION);
         if (!procVersion.isEmpty()) {
             String[] split = ParseUtil.whitespaces.split(procVersion.get(0));
             for (String s : split) {
@@ -233,17 +233,17 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
 
     private OSProcess getProcess(int pid, LinuxUserGroupInfo userGroupInfo, boolean slowFields) {
         String path = "";
-        String procPidExe = String.format("/proc/%d/exe", pid);
+        String procPidExe = String.format(ProcPath.PID_EXE, pid);
         try {
             Path link = Paths.get(procPidExe);
             path = Files.readSymbolicLink(link).toString();
         } catch (InvalidPathException | IOException | UnsupportedOperationException | SecurityException e) {
             LOG.debug("Unable to open symbolic link {}", procPidExe);
         }
-        Map<String, String> io = FileUtil.getKeyValueMapFromFile(String.format("/proc/%d/io", pid), ":");
+        Map<String, String> io = FileUtil.getKeyValueMapFromFile(String.format(ProcPath.PID_IO, pid), ":");
         // See man proc for how to parse /proc/[pid]/stat
         long now = System.currentTimeMillis();
-        String stat = FileUtil.getStringFromFile(String.format("/proc/%d/stat", pid));
+        String stat = FileUtil.getStringFromFile(String.format(ProcPath.PID_STAT, pid));
         // A race condition may leave us with an empty string
         if (stat.isEmpty()) {
             return null;
@@ -255,7 +255,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         OSProcess proc = new OSProcess(this);
         proc.setProcessID(pid);
         // The /proc/pid/cmdline value is null-delimited
-        proc.setCommandLine(FileUtil.getStringFromFile(String.format("/proc/%d/cmdline", pid)));
+        proc.setCommandLine(FileUtil.getStringFromFile(String.format(ProcPath.PID_CMDLINE, pid)));
         long startTime = BOOT_TIME + statArray[ProcPidStat.START_TIME.ordinal()] * 1000L / USER_HZ;
         // BOOT_TIME could be up to 5ms off. In rare cases when a process has
         // started within 5ms of boot it is possible to get negative uptime.
@@ -277,7 +277,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
 
         // gets the open files count
         if (slowFields) {
-            List<String> openFilesList = ExecutingCommand.runNative(String.format("ls -f /proc/%d/fd", pid));
+            List<String> openFilesList = ExecutingCommand.runNative(String.format("ls -f " + ProcPath.PID_FD, pid));
             proc.setOpenFiles(openFilesList.size() - 1L);
 
             // get 5th byte of file for 64-bit check
@@ -294,7 +294,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
             }
         }
 
-        Map<String, String> status = FileUtil.getKeyValueMapFromFile(String.format("/proc/%d/status", pid), ":");
+        Map<String, String> status = FileUtil.getKeyValueMapFromFile(String.format(ProcPath.PID_STATUS, pid), ":");
         proc.setName(status.getOrDefault("Name", ""));
         proc.setPath(path);
         switch (status.getOrDefault("State", "U").charAt(0)) {
@@ -326,7 +326,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         proc.setGroup(userGroupInfo.getGroupName(proc.getGroupID()));
 
         try {
-            String cwdLink = String.format("/proc/%d/cwd", pid);
+            String cwdLink = String.format(ProcPath.PID_CWD, pid);
             String cwd = new File(cwdLink).getCanonicalPath();
             if (!cwd.equals(cwdLink)) {
                 proc.setCurrentWorkingDirectory(cwd);

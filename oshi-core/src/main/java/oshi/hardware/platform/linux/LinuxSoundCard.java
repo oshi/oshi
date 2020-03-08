@@ -33,18 +33,18 @@ import org.slf4j.LoggerFactory;
 
 import oshi.hardware.common.AbstractSoundCard;
 import oshi.util.FileUtil;
+import oshi.util.platform.linux.ProcPath;
 
 /**
  * Sound card data obtained via /proc/asound directory
  */
 public class LinuxSoundCard extends AbstractSoundCard {
 
-    private static final String SC_PATH = "/proc/asound/";
+    private static final Logger LOG = LoggerFactory.getLogger(LinuxSoundCard.class);
+
     private static final String CARD_FOLDER = "card";
     private static final String CARDS_FILE = "cards";
     private static final String ID_FILE = "id";
-
-    private static final Logger LOG = LoggerFactory.getLogger(LinuxSoundCard.class);
 
     /**
      * <p>
@@ -69,7 +69,7 @@ public class LinuxSoundCard extends AbstractSoundCard {
      * @return : A list of files starting with 'card'
      */
     private static List<File> getCardFolders() {
-        File cardsDirectory = new File(SC_PATH);
+        File cardsDirectory = new File(ProcPath.ASOUND);
         List<File> cardFolders = new ArrayList<>();
         File[] allContents = cardsDirectory.listFiles();
         if (allContents != null) {
@@ -93,7 +93,7 @@ public class LinuxSoundCard extends AbstractSoundCard {
      *         machine
      */
     private static String getSoundCardVersion() {
-        String driverVersion = FileUtil.getStringFromFile(SC_PATH + "version");
+        String driverVersion = FileUtil.getStringFromFile(ProcPath.ASOUND + "version");
         return driverVersion.isEmpty() ? "not available" : driverVersion;
     }
 
@@ -152,7 +152,7 @@ public class LinuxSoundCard extends AbstractSoundCard {
      */
     private static String getCardName(File file) {
         String cardName = "Not Found..";
-        Map<String, String> cardNamePairs = FileUtil.getKeyValueMapFromFile(SC_PATH + "/" + CARDS_FILE, ":");
+        Map<String, String> cardNamePairs = FileUtil.getKeyValueMapFromFile(ProcPath.ASOUND + "/" + CARDS_FILE, ":");
         String cardId = FileUtil.getStringFromFile(file.getPath() + "/" + ID_FILE);
         for (Map.Entry<String, String> entry : cardNamePairs.entrySet()) {
             if (entry.getKey().contains(cardId)) {
