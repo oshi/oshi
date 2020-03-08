@@ -30,11 +30,9 @@ import java.util.Map;
 
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
-import oshi.util.platform.linux.ProcUtil;
+import oshi.util.platform.linux.ProcPath;
 
 public final class DiskStats {
-
-    private static final String DISK_STATS = ProcUtil.getProcPath() + "/diskstats";
 
     /**
      * Enum corresponding to the fields in the output of {@code /proc/diskstats}
@@ -138,7 +136,7 @@ public final class DiskStats {
     public static Map<String, Map<IoStat, Long>> getDiskStats() {
         Map<String, Map<IoStat, Long>> diskStatMap = new HashMap<>();
         IoStat[] enumArray = IoStat.class.getEnumConstants();
-        List<String> diskStats = FileUtil.readFile(DISK_STATS);
+        List<String> diskStats = FileUtil.readFile(ProcPath.DISKSTATS);
         for (String stat : diskStats) {
             String[] split = ParseUtil.whitespaces.split(stat.trim());
             Map<IoStat, Long> statMap = new EnumMap<>(IoStat.class);

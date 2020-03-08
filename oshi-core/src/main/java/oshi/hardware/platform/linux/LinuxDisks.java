@@ -39,7 +39,7 @@ import oshi.hardware.HWPartition;
 import oshi.jna.platform.linux.Udev;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
-import oshi.util.platform.linux.ProcUtil;
+import oshi.util.platform.linux.ProcPath;
 
 /**
  * Linux hard disk implementation.
@@ -83,7 +83,7 @@ public class LinuxDisks implements Disks {
     // the rightmost 11 or 15 if there is leading text.
     private static final int UDEV_STAT_LENGTH;
     static {
-        String stat = FileUtil.getStringFromFile(ProcUtil.getProcPath() + "/diskstats");
+        String stat = FileUtil.getStringFromFile(ProcPath.DISKSTATS);
         int statLength = 11;
         if (!stat.isEmpty()) {
             statLength = ParseUtil.countStringToLongArray(stat, ' ');
@@ -91,7 +91,6 @@ public class LinuxDisks implements Disks {
         UDEV_STAT_LENGTH = statLength;
     }
 
-    /** {@inheritDoc} */
     @Override
     public HWDiskStore[] getDisks() {
         HWDiskStore store = null;

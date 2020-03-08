@@ -33,6 +33,7 @@ import java.util.Map;
 
 import com.sun.jna.platform.unix.solaris.LibKstat.Kstat; // NOSONAR squid:S1191
 
+import oshi.driver.linux.proc.ProcessStat;
 import oshi.jna.platform.unix.solaris.SolarisLibc;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
@@ -42,7 +43,6 @@ import oshi.software.os.OSService;
 import oshi.util.ExecutingCommand;
 import oshi.util.LsofUtil;
 import oshi.util.ParseUtil;
-import oshi.util.platform.linux.ProcUtil;
 import oshi.util.platform.unix.solaris.KstatUtil;
 import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
 
@@ -246,7 +246,7 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public int getProcessCount() {
-        return ProcUtil.getPidFiles().length;
+        return ProcessStat.getPidFiles().length;
     }
 
     @Override

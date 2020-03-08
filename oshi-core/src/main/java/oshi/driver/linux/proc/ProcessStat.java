@@ -23,21 +23,22 @@
  */
 package oshi.driver.linux.proc;
 
+import java.io.File;
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
-import oshi.util.platform.linux.ProcUtil;
+import oshi.util.platform.linux.ProcPath;
 import oshi.util.tuples.Triplet;
 
 public final class ProcessStat {
 
-    private static final String PID_STAT = ProcUtil.getProcPath() + "/%d/stat";
+    private static final Pattern DIGITS = Pattern.compile("\\d+");
 
     /**
-     * Enum corresponding to the fields in the output of
-     * {@code /proc/[pid]/stat}
+     * Enum corresponding to the fields in the output of {@code /proc/[pid]/stat}
      */
     public enum PidStat {
         /**
@@ -90,79 +91,75 @@ public final class ProcessStat {
         SESSION,
         /**
          * The controlling terminal of the process. (The minor device number is
-         * contained in the combination of bits 31 to 20 and 7 to 0; the major
-         * device number is in bits 15 to 8.)
+         * contained in the combination of bits 31 to 20 and 7 to 0; the major device
+         * number is in bits 15 to 8.)
          */
         TTY_NR,
         /**
-         * The ID of the foreground process group of the controlling terminal of
-         * the process.
+         * The ID of the foreground process group of the controlling terminal of the
+         * process.
          */
         PTGID,
         /**
-         * The kernel flags word of the process. For bit meanings, see the PF_*
-         * defines in the Linux kernel source file include/linux/sched.h.
-         * Details depend on the kernel version.
+         * The kernel flags word of the process. For bit meanings, see the PF_* defines
+         * in the Linux kernel source file include/linux/sched.h. Details depend on the
+         * kernel version.
          */
         FLAGS,
         /**
-         * The number of minor faults the process has made which have not
-         * required loading a memory page from disk.
+         * The number of minor faults the process has made which have not required
+         * loading a memory page from disk.
          */
         MINFLT,
         /**
-         * The number of minor faults that the process's waited-for children
-         * have made.
+         * The number of minor faults that the process's waited-for children have made.
          */
         CMINFLT,
         /**
-         * The number of major faults the process has made which have required
-         * loading a memory page from disk.
+         * The number of major faults the process has made which have required loading a
+         * memory page from disk.
          */
         MAJFLT,
         /**
-         * The number of major faults that the process's waited-for children
-         * have made.
+         * The number of major faults that the process's waited-for children have made.
          */
         CMAJFLT,
         /**
-         * Amount of time that this process has been scheduled in user mode,
-         * measured in clock ticks. This includes guest time, cguest_time (time
-         * spent running a virtual CPU), so that applications that are not aware
-         * of the guest time field do not lose that time from their
-         * calculations.
+         * Amount of time that this process has been scheduled in user mode, measured in
+         * clock ticks. This includes guest time, cguest_time (time spent running a
+         * virtual CPU), so that applications that are not aware of the guest time field
+         * do not lose that time from their calculations.
          */
         UTIME,
         /**
-         * Amount of time that this process has been scheduled in kernel mode,
-         * measured in clock ticks.
+         * Amount of time that this process has been scheduled in kernel mode, measured
+         * in clock ticks.
          */
         STIME,
         /**
-         * Amount of time that this process's waited-for children have been
-         * scheduled in user mode, measured in clock ticks. This includes guest
-         * time, cguest_time (time spent running a virtual CPU).
+         * Amount of time that this process's waited-for children have been scheduled in
+         * user mode, measured in clock ticks. This includes guest time, cguest_time
+         * (time spent running a virtual CPU).
          */
         CUTIME,
         /**
-         * Amount of time that this process's waited-for children have been
-         * scheduled in kernel mode, measured in clock ticks.
+         * Amount of time that this process's waited-for children have been scheduled in
+         * kernel mode, measured in clock ticks.
          */
         CSTIME,
         /**
-         * For processes running a real-time scheduling policy (policy below;
-         * see sched_setscheduler(2)), this is the negated scheduling priority,
-         * minus one; that is, a number in the range -2 to -100, corresponding
-         * to real-time priorities 1 to 99. For processes running under a
-         * non-real-time scheduling policy, this is the raw nice value
-         * (setpriority(2)) as represented in the kernel. The kernel stores nice
-         * values as numbers in the range 0 (high) to 39 (low), corresponding to
-         * the user-visible nice range of -20 to 19.
+         * For processes running a real-time scheduling policy (policy below; see
+         * sched_setscheduler(2)), this is the negated scheduling priority, minus one;
+         * that is, a number in the range -2 to -100, corresponding to real-time
+         * priorities 1 to 99. For processes running under a non-real-time scheduling
+         * policy, this is the raw nice value (setpriority(2)) as represented in the
+         * kernel. The kernel stores nice values as numbers in the range 0 (high) to 39
+         * (low), corresponding to the user-visible nice range of -20 to 19.
          */
         PRIORITY,
         /**
-         * The nice value (see setpriority(2)), a value in the range 19 (low
-         * priority) to -20 (high priority).
+         * The nice value (see setpriority(2)), a value in the range 19 (low priority)
+         * to -20 (high priority).
          */
         NICE,
         /**
@@ -170,9 +167,9 @@ public final class ProcessStat {
          */
         NUM_THREADS,
         /**
-         * The time in jiffies before the next SIGALRM is sent to the process
-         * due to an interval timer. Since ker‐nel 2.6.17, this field is no
-         * longer maintained, and is hard coded as 0.
+         * The time in jiffies before the next SIGALRM is sent to the process due to an
+         * interval timer. Since ker‐nel 2.6.17, this field is no longer maintained, and
+         * is hard coded as 0.
          */
         ITREALVALUE,
         /**
@@ -184,15 +181,14 @@ public final class ProcessStat {
          */
         VSIZE,
         /**
-         * Resident Set Size: number of pages the process has in real memory.
-         * This is just the pages which count toward text, data, or stack space.
-         * This does not include pages which have not been demand-loaded in, or
-         * which are swapped out.
+         * Resident Set Size: number of pages the process has in real memory. This is
+         * just the pages which count toward text, data, or stack space. This does not
+         * include pages which have not been demand-loaded in, or which are swapped out.
          */
         RSS,
         /**
-         * Current soft limit in bytes on the rss of the process; see the
-         * description of RLIMIT_RSS in getrlimit(2).
+         * Current soft limit in bytes on the rss of the process; see the description of
+         * RLIMIT_RSS in getrlimit(2).
          */
         RSSLIM,
         /**
@@ -209,8 +205,8 @@ public final class ProcessStat {
          */
         STARTSTACK,
         /**
-         * The current value of ESP (stack pointer), as found in the kernel
-         * stack page for the process.
+         * The current value of ESP (stack pointer), as found in the kernel stack page
+         * for the process.
          */
         KSTKESP,
         /**
@@ -218,33 +214,33 @@ public final class ProcessStat {
          */
         KSTKEIP,
         /**
-         * The bitmap of pending signals, displayed as a decimal number.
-         * Obsolete, because it does not provide information on real-time
-         * signals; use /proc/[pid]/status instead.
+         * The bitmap of pending signals, displayed as a decimal number. Obsolete,
+         * because it does not provide information on real-time signals; use
+         * /proc/[pid]/status instead.
          */
         SIGNAL,
         /**
-         * The bitmap of blocked signals, displayed as a decimal number.
-         * Obsolete, because it does not provide information on real-time
-         * signals; use /proc/[pid]/status instead.
+         * The bitmap of blocked signals, displayed as a decimal number. Obsolete,
+         * because it does not provide information on real-time signals; use
+         * /proc/[pid]/status instead.
          */
         BLOCKED,
         /**
-         * The bitmap of ignored signals, displayed as a decimal number.
-         * Obsolete, because it does not provide information on real-time
-         * signals; use /proc/[pid]/status instead.
+         * The bitmap of ignored signals, displayed as a decimal number. Obsolete,
+         * because it does not provide information on real-time signals; use
+         * /proc/[pid]/status instead.
          */
         SIGIGNORE,
         /**
-         * The bitmap of caught signals, displayed as a decimal number.
-         * Obsolete, because it does not provide information on real-time
-         * signals; use /proc/[pid]/status instead.
+         * The bitmap of caught signals, displayed as a decimal number. Obsolete,
+         * because it does not provide information on real-time signals; use
+         * /proc/[pid]/status instead.
          */
         SIGCATCH,
         /**
-         * This is the "channel" in which the process is waiting. It is the
-         * address of a location in the kernel where the process is sleeping.
-         * The corresponding symbolic name can be found in /proc/[pid]/wchan.
+         * This is the "channel" in which the process is waiting. It is the address of a
+         * location in the kernel where the process is sleeping. The corresponding
+         * symbolic name can be found in /proc/[pid]/wchan.
          */
         WCHAN,
         /**
@@ -264,14 +260,14 @@ public final class ProcessStat {
          */
         PROCESSOR,
         /**
-         * Real-time scheduling priority, a number in the range 1 to 99 for
-         * processes scheduled under a real-time policy, or 0, for non-real-time
-         * processes (see sched_setscheduler(2)).
+         * Real-time scheduling priority, a number in the range 1 to 99 for processes
+         * scheduled under a real-time policy, or 0, for non-real-time processes (see
+         * sched_setscheduler(2)).
          */
         RT_PRIORITY,
         /**
-         * Scheduling policy (see sched_setscheduler(2)). Decode using the
-         * SCHED_* constants in linux/sched.h.
+         * Scheduling policy (see sched_setscheduler(2)). Decode using the SCHED_*
+         * constants in linux/sched.h.
          */
         POLICY,
         /**
@@ -279,8 +275,8 @@ public final class ProcessStat {
          */
         DELAYACCT_BLKIO_TICKS,
         /**
-         * Guest time of the process (time spent running a vir‐ tual CPU for a
-         * guest operating system), measured in clock ticks.
+         * Guest time of the process (time spent running a vir‐ tual CPU for a guest
+         * operating system), measured in clock ticks.
          */
         GUEST_TIME,
         /**
@@ -288,13 +284,13 @@ public final class ProcessStat {
          */
         CGUEST_TIME,
         /**
-         * Address above which program initialized and uninitialized (BSS) data
-         * are placed.
+         * Address above which program initialized and uninitialized (BSS) data are
+         * placed.
          */
         START_DATA,
         /**
-         * Address below which program initialized and uninitialized (BSS) data
-         * are placed.
+         * Address below which program initialized and uninitialized (BSS) data are
+         * placed.
          */
         END_DATA,
         /**
@@ -336,14 +332,14 @@ public final class ProcessStat {
      * @param pid
      *            The process ID for which to fetch stats
      * @return A triplet containing the process name as the first element, a
-     *         character representing the process state as the second element,
-     *         and an EnumMap as the third element, where the numeric values in
+     *         character representing the process state as the second element, and
+     *         an EnumMap as the third element, where the numeric values in
      *         {@link PidStat} are mapped to a {@link Long} value.
      *         <p>
      *         If the process doesn't exist, returns null.
      */
     public static Triplet<String, Character, Map<PidStat, Long>> getPidStats(int pid) {
-        String stat = FileUtil.getStringFromFile(String.format(PID_STAT, pid));
+        String stat = FileUtil.getStringFromFile(String.format(ProcPath.PID_STAT, pid));
         if (stat.isEmpty()) {
             // If pid doesn't exist
             return null;
@@ -362,5 +358,17 @@ public final class ProcessStat {
             statMap.put(enumArray[i], ParseUtil.parseLongOrDefault(split[i - 3], 0L));
         }
         return new Triplet<>(name, state, statMap);
+    }
+
+    /**
+     * Gets an array of files in the /proc directory with only numeric digit
+     * filenames, corresponding to processes
+     *
+     * @return An array of File objects for the process files
+     */
+    public static File[] getPidFiles() {
+        File procdir = new File(ProcPath.PROC);
+        File[] pids = procdir.listFiles(f -> DIGITS.matcher(f.getName()).matches());
+        return pids != null ? pids : new File[0];
     }
 }

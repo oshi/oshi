@@ -48,6 +48,9 @@ import com.sun.jna.Native; // NOSONAR squid:S1191
 import com.sun.jna.platform.linux.LibC;
 import com.sun.jna.platform.linux.LibC.Sysinfo;
 
+import oshi.driver.linux.proc.CpuStat;
+import oshi.driver.linux.proc.ProcessStat;
+import oshi.driver.linux.proc.UpTime;
 import oshi.jna.platform.linux.LinuxLibc;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
@@ -58,7 +61,7 @@ import oshi.software.os.OSUser;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
-import oshi.util.platform.linux.ProcUtil;
+import oshi.util.platform.linux.ProcPath;
 
 /**
  * <p>
@@ -71,19 +74,10 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
 
     private static final long BOOTTIME;
     static {
-        // Boot time given by btime variable in /proc/stat.
-        List<String> procStat = FileUtil.readFile("/proc/stat");
-        long tempBT = 0;
-        for (String stat : procStat) {
-            if (stat.startsWith("btime")) {
-                String[] bTime = ParseUtil.whitespaces.split(stat);
-                tempBT = ParseUtil.parseLongOrDefault(bTime[1], 0L);
-                break;
-            }
-        }
+        long tempBT = CpuStat.getBootTime();
         // If above fails, current time minus uptime.
         if (tempBT == 0) {
-            tempBT = System.currentTimeMillis() / 1000L - (long) ProcUtil.getSystemUptimeSeconds();
+            tempBT = System.currentTimeMillis() / 1000L - (long) UpTime.getSystemUptimeSeconds();
         }
         BOOTTIME = tempBT;
     }
@@ -128,7 +122,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     // Check /proc/self/stat to find its length
     private static final int PROC_PID_STAT_LENGTH;
     static {
-        String stat = FileUtil.getStringFromFile(ProcUtil.getProcPath() + "/self/stat");
+        String stat = FileUtil.getStringFromFile(ProcPath.SELF_STAT);
         if (!stat.isEmpty() && stat.contains(")")) {
             // add 3 to account for pid, process name in prarenthesis, and state
             PROC_PID_STAT_LENGTH = ParseUtil.countStringToLongArray(stat, ' ') + 3;
@@ -147,9 +141,9 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         // Uptime is only in hundredths of seconds but we need thousandths.
         // We can grab uptime twice and take average to reduce error, getting
         // current time in between
-        double uptime = ProcUtil.getSystemUptimeSeconds();
+        double uptime = UpTime.getSystemUptimeSeconds();
         long now = System.currentTimeMillis();
-        uptime += ProcUtil.getSystemUptimeSeconds();
+        uptime += UpTime.getSystemUptimeSeconds();
         // Uptime is now 2x seconds, so divide by 2, but
         // we want milliseconds so multiply by 1000
         // Ultimately multiply by 1000/2 = 500
@@ -216,7 +210,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     @Override
     public OSProcess[] getProcesses(int limit, ProcessSort sort, boolean slowFields) {
         List<OSProcess> procs = new ArrayList<>();
-        File[] pids = ProcUtil.getPidFiles();
+        File[] pids = ProcessStat.getPidFiles();
         LinuxUserGroupInfo userGroupInfo = new LinuxUserGroupInfo();
 
         // now for each file (with digit name) get process info
@@ -346,7 +340,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     @Override
     public OSProcess[] getChildProcesses(int parentPid, int limit, ProcessSort sort) {
         List<OSProcess> procs = new ArrayList<>();
-        File[] procFiles = ProcUtil.getPidFiles();
+        File[] procFiles = ProcessStat.getPidFiles();
         LinuxUserGroupInfo userGroupInfo = new LinuxUserGroupInfo();
 
         // now for each file (with digit name) get process info
@@ -392,7 +386,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public int getProcessCount() {
-        return ProcUtil.getPidFiles().length;
+        return ProcessStat.getPidFiles().length;
     }
 
     @Override
@@ -412,7 +406,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public long getSystemUptime() {
-        return (long) ProcUtil.getSystemUptimeSeconds();
+        return (long) UpTime.getSystemUptimeSeconds();
     }
 
     @Override
