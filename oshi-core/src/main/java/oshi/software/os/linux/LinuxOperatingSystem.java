@@ -48,6 +48,9 @@ import com.sun.jna.Native; // NOSONAR squid:S1191
 import com.sun.jna.platform.linux.LibC;
 import com.sun.jna.platform.linux.LibC.Sysinfo;
 
+import oshi.driver.linux.proc.CpuStat;
+import oshi.driver.linux.proc.ProcessStat;
+import oshi.driver.linux.proc.UpTime;
 import oshi.jna.platform.linux.LinuxLibc;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
@@ -58,7 +61,7 @@ import oshi.software.os.OSUser;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
-import oshi.util.platform.linux.ProcUtil;
+import oshi.util.platform.linux.ProcPath;
 
 /**
  * <p>
@@ -69,21 +72,14 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
 
     private static final Logger LOG = LoggerFactory.getLogger(LinuxOperatingSystem.class);
 
+    private static final String LS_F_PROC_PID_FD = "ls -f " + ProcPath.PID_FD;
+
     private static final long BOOTTIME;
     static {
-        // Boot time given by btime variable in /proc/stat.
-        List<String> procStat = FileUtil.readFile("/proc/stat");
-        long tempBT = 0;
-        for (String stat : procStat) {
-            if (stat.startsWith("btime")) {
-                String[] bTime = ParseUtil.whitespaces.split(stat);
-                tempBT = ParseUtil.parseLongOrDefault(bTime[1], 0L);
-                break;
-            }
-        }
+        long tempBT = CpuStat.getBootTime();
         // If above fails, current time minus uptime.
         if (tempBT == 0) {
-            tempBT = System.currentTimeMillis() / 1000L - (long) ProcUtil.getSystemUptimeSeconds();
+            tempBT = System.currentTimeMillis() / 1000L - (long) UpTime.getSystemUptimeSeconds();
         }
         BOOTTIME = tempBT;
     }
@@ -128,7 +124,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     // Check /proc/self/stat to find its length
     private static final int PROC_PID_STAT_LENGTH;
     static {
-        String stat = FileUtil.getStringFromFile(ProcUtil.getProcPath() + "/self/stat");
+        String stat = FileUtil.getStringFromFile(ProcPath.SELF_STAT);
         if (!stat.isEmpty() && stat.contains(")")) {
             // add 3 to account for pid, process name in prarenthesis, and state
             PROC_PID_STAT_LENGTH = ParseUtil.countStringToLongArray(stat, ' ') + 3;
@@ -147,9 +143,9 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         // Uptime is only in hundredths of seconds but we need thousandths.
         // We can grab uptime twice and take average to reduce error, getting
         // current time in between
-        double uptime = ProcUtil.getSystemUptimeSeconds();
+        double uptime = UpTime.getSystemUptimeSeconds();
         long now = System.currentTimeMillis();
-        uptime += ProcUtil.getSystemUptimeSeconds();
+        uptime += UpTime.getSystemUptimeSeconds();
         // Uptime is now 2x seconds, so divide by 2, but
         // we want milliseconds so multiply by 1000
         // Ultimately multiply by 1000/2 = 500
@@ -181,7 +177,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     public FamilyVersionInfo queryFamilyVersionInfo() {
         String family = queryFamilyFromReleaseFiles();
         String buildNumber = null;
-        List<String> procVersion = FileUtil.readFile("/proc/version");
+        List<String> procVersion = FileUtil.readFile(ProcPath.VERSION);
         if (!procVersion.isEmpty()) {
             String[] split = ParseUtil.whitespaces.split(procVersion.get(0));
             for (String s : split) {
@@ -216,7 +212,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     @Override
     public OSProcess[] getProcesses(int limit, ProcessSort sort, boolean slowFields) {
         List<OSProcess> procs = new ArrayList<>();
-        File[] pids = ProcUtil.getPidFiles();
+        File[] pids = ProcessStat.getPidFiles();
         LinuxUserGroupInfo userGroupInfo = new LinuxUserGroupInfo();
 
         // now for each file (with digit name) get process info
@@ -239,17 +235,17 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
 
     private OSProcess getProcess(int pid, LinuxUserGroupInfo userGroupInfo, boolean slowFields) {
         String path = "";
-        String procPidExe = String.format("/proc/%d/exe", pid);
+        String procPidExe = String.format(ProcPath.PID_EXE, pid);
         try {
             Path link = Paths.get(procPidExe);
             path = Files.readSymbolicLink(link).toString();
         } catch (InvalidPathException | IOException | UnsupportedOperationException | SecurityException e) {
             LOG.debug("Unable to open symbolic link {}", procPidExe);
         }
-        Map<String, String> io = FileUtil.getKeyValueMapFromFile(String.format("/proc/%d/io", pid), ":");
+        Map<String, String> io = FileUtil.getKeyValueMapFromFile(String.format(ProcPath.PID_IO, pid), ":");
         // See man proc for how to parse /proc/[pid]/stat
         long now = System.currentTimeMillis();
-        String stat = FileUtil.getStringFromFile(String.format("/proc/%d/stat", pid));
+        String stat = FileUtil.getStringFromFile(String.format(ProcPath.PID_STAT, pid));
         // A race condition may leave us with an empty string
         if (stat.isEmpty()) {
             return null;
@@ -261,7 +257,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         OSProcess proc = new OSProcess(this);
         proc.setProcessID(pid);
         // The /proc/pid/cmdline value is null-delimited
-        proc.setCommandLine(FileUtil.getStringFromFile(String.format("/proc/%d/cmdline", pid)));
+        proc.setCommandLine(FileUtil.getStringFromFile(String.format(ProcPath.PID_CMDLINE, pid)));
         long startTime = BOOT_TIME + statArray[ProcPidStat.START_TIME.ordinal()] * 1000L / USER_HZ;
         // BOOT_TIME could be up to 5ms off. In rare cases when a process has
         // started within 5ms of boot it is possible to get negative uptime.
@@ -283,7 +279,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
 
         // gets the open files count
         if (slowFields) {
-            List<String> openFilesList = ExecutingCommand.runNative(String.format("ls -f /proc/%d/fd", pid));
+            List<String> openFilesList = ExecutingCommand.runNative(String.format(LS_F_PROC_PID_FD, pid));
             proc.setOpenFiles(openFilesList.size() - 1L);
 
             // get 5th byte of file for 64-bit check
@@ -300,7 +296,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
             }
         }
 
-        Map<String, String> status = FileUtil.getKeyValueMapFromFile(String.format("/proc/%d/status", pid), ":");
+        Map<String, String> status = FileUtil.getKeyValueMapFromFile(String.format(ProcPath.PID_STATUS, pid), ":");
         proc.setName(status.getOrDefault("Name", ""));
         proc.setPath(path);
         switch (status.getOrDefault("State", "U").charAt(0)) {
@@ -332,7 +328,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         proc.setGroup(userGroupInfo.getGroupName(proc.getGroupID()));
 
         try {
-            String cwdLink = String.format("/proc/%d/cwd", pid);
+            String cwdLink = String.format(ProcPath.PID_CWD, pid);
             String cwd = new File(cwdLink).getCanonicalPath();
             if (!cwd.equals(cwdLink)) {
                 proc.setCurrentWorkingDirectory(cwd);
@@ -346,7 +342,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     @Override
     public OSProcess[] getChildProcesses(int parentPid, int limit, ProcessSort sort) {
         List<OSProcess> procs = new ArrayList<>();
-        File[] procFiles = ProcUtil.getPidFiles();
+        File[] procFiles = ProcessStat.getPidFiles();
         LinuxUserGroupInfo userGroupInfo = new LinuxUserGroupInfo();
 
         // now for each file (with digit name) get process info
@@ -392,7 +388,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public int getProcessCount() {
-        return ProcUtil.getPidFiles().length;
+        return ProcessStat.getPidFiles().length;
     }
 
     @Override
@@ -412,7 +408,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public long getSystemUptime() {
-        return (long) ProcUtil.getSystemUptimeSeconds();
+        return (long) UpTime.getSystemUptimeSeconds();
     }
 
     @Override

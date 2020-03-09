@@ -32,7 +32,7 @@ import java.util.function.Supplier;
 import oshi.hardware.common.AbstractVirtualMemory;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
-import oshi.util.platform.linux.ProcUtil;
+import oshi.util.platform.linux.ProcPath;
 import oshi.util.tuples.Pair;
 
 /**
@@ -68,7 +68,7 @@ public class LinuxVirtualMemory extends AbstractVirtualMemory {
         long swapFree = 0L;
         long swapTotal = 0L;
 
-        List<String> procMemInfo = FileUtil.readFile(ProcUtil.getProcPath() + "/meminfo");
+        List<String> procMemInfo = FileUtil.readFile(ProcPath.MEMINFO);
         for (String checkLine : procMemInfo) {
             String[] memorySplit = ParseUtil.whitespaces.split(checkLine);
             if (memorySplit.length > 1) {
@@ -91,7 +91,7 @@ public class LinuxVirtualMemory extends AbstractVirtualMemory {
     private static Pair<Long, Long> queryVmStat() {
         long swapPagesIn = 0L;
         long swapPagesOut = 0L;
-        List<String> procVmStat = FileUtil.readFile(ProcUtil.getProcPath() + "/vmstat");
+        List<String> procVmStat = FileUtil.readFile(ProcPath.VMSTAT);
         for (String checkLine : procVmStat) {
             String[] memorySplit = ParseUtil.whitespaces.split(checkLine);
             if (memorySplit.length > 1) {

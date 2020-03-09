@@ -44,7 +44,7 @@ import oshi.software.common.AbstractFileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
-import oshi.util.platform.linux.ProcUtil;
+import oshi.util.platform.linux.ProcPath;
 
 /**
  * The Linux File System contains {@link oshi.software.os.OSFileStore}s which
@@ -55,8 +55,9 @@ import oshi.util.platform.linux.ProcUtil;
 public class LinuxFileSystem extends AbstractFileSystem {
 
     private static final Logger LOG = LoggerFactory.getLogger(LinuxFileSystem.class);
+
     // System path mounted as tmpfs
-    private static final List<String> TMP_FS_PATHS = Arrays.asList("/run", "/sys", "/proc");
+    private static final List<String> TMP_FS_PATHS = Arrays.asList("/run", "/sys", "/proc", ProcPath.PROC);
 
     @Override
     public OSFileStore[] getFileStores(boolean localOnly) {
@@ -89,7 +90,7 @@ public class LinuxFileSystem extends AbstractFileSystem {
         List<OSFileStore> fsList = new ArrayList<>();
 
         // Parse /proc/mounts to get fs types
-        List<String> mounts = FileUtil.readFile(ProcUtil.getProcPath() + "/mounts");
+        List<String> mounts = FileUtil.readFile(ProcPath.MOUNTS);
         for (String mount : mounts) {
             String[] split = mount.split(" ");
             // As reported in fstab(5) manpage, struct is:
@@ -227,7 +228,7 @@ public class LinuxFileSystem extends AbstractFileSystem {
      * @return Corresponding file descriptor value from the Linux system file.
      */
     private long getFileDescriptors(int index) {
-        String filename = "/proc/sys/fs/file-nr";
+        String filename = ProcPath.SYS_FS_FILE_NR;
         if (index < 0 || index > 2) {
             throw new IllegalArgumentException("Index must be between 0 and 2.");
         }

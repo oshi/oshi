@@ -23,8 +23,7 @@
  */
 package oshi.hardware.platform.linux;
 
-import static oshi.util.platform.linux.ProcUtil.CPUINFO;
-import static oshi.util.platform.linux.ProcUtil.STAT;
+import static oshi.util.platform.linux.ProcPath.CPUINFO;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,13 +31,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import oshi.driver.linux.proc.CpuStat;
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.jna.platform.linux.LinuxLibc;
 import oshi.software.os.linux.LinuxOperatingSystem;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
-import oshi.util.platform.linux.ProcUtil;
 
 /**
  * A CPU as defined in Linux /proc.
@@ -60,7 +59,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
 
         StringBuilder armStepping = new StringBuilder(); // For ARM equivalent
         String[] flags = new String[0];
-        List<String> cpuInfo = FileUtil.readFile(ProcUtil.getProcPath() + CPUINFO);
+        List<String> cpuInfo = FileUtil.readFile(CPUINFO);
         for (String line : cpuInfo) {
             String[] splitLine = ParseUtil.whitespacesColonWhitespace.split(line);
             if (splitLine.length < 2) {
@@ -122,7 +121,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
     @Override
     protected LogicalProcessor[] initProcessorCounts() {
         Map<Integer, Integer> numaNodeMap = mapNumaNodes();
-        List<String> procCpu = FileUtil.readFile(ProcUtil.getProcPath() + CPUINFO);
+        List<String> procCpu = FileUtil.readFile(CPUINFO);
         List<LogicalProcessor> logProcs = new ArrayList<>();
         int currentProcessor = 0;
         int currentCore = 0;
@@ -175,7 +174,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
     @Override
     public long[] querySystemCpuLoadTicks() {
         // convert the Linux Jiffies to Milliseconds.
-        long[] ticks = ProcUtil.readSystemCpuLoadTicks();
+        long[] ticks = CpuStat.getSystemCpuLoadTicks();
         long hz = LinuxOperatingSystem.getHz();
         for (int i = 0; i < ticks.length; i++) {
             ticks[i] = ticks[i] * 1000L / hz;
@@ -206,7 +205,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
         }
         // If unsuccessful, try from /proc/cpuinfo
         Arrays.fill(freqs, -1);
-        List<String> cpuInfo = FileUtil.readFile(ProcUtil.getProcPath() + CPUINFO);
+        List<String> cpuInfo = FileUtil.readFile(CPUINFO);
         int proc = 0;
         for (String s : cpuInfo) {
             if (s.toLowerCase().contains("cpu mhz")) {
@@ -255,33 +254,7 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
 
     @Override
     public long[][] queryProcessorCpuLoadTicks() {
-        long[][] ticks = new long[getLogicalProcessorCount()][TickType.values().length];
-        // /proc/stat expected format
-        // first line is overall user,nice,system,idle, etc.
-        // cpu 3357 0 4313 1362393 ...
-        // per-processor subsequent lines for cpu0, cpu1, etc.
-        int cpu = 0;
-        List<String> procStat = FileUtil.readFile(ProcUtil.getProcPath() + STAT);
-        for (String stat : procStat) {
-            if (stat.startsWith("cpu") && !stat.startsWith("cpu ")) {
-                // Split the line. Note the first (0) element is "cpu" so
-                // remaining
-                // elements are offset by 1 from the enum index
-                String[] tickArr = ParseUtil.whitespaces.split(stat);
-                if (tickArr.length <= TickType.IDLE.getIndex()) {
-                    // If ticks don't at least go user/nice/system/idle, abort
-                    return ticks;
-                }
-                // Note tickArr is offset by 1
-                for (int i = 0; i < TickType.values().length; i++) {
-                    ticks[cpu][i] = ParseUtil.parseLongOrDefault(tickArr[i + 1], 0L);
-                }
-                // Ignore guest or guest_nice, they are included in
-                if (++cpu >= getLogicalProcessorCount()) {
-                    break;
-                }
-            }
-        }
+        long[][] ticks = CpuStat.getProcessorCpuLoadTicks(getLogicalProcessorCount());
         // convert the Linux Jiffies to Milliseconds.
         long hz = LinuxOperatingSystem.getHz();
         for (int i = 0; i < ticks.length; i++) {
@@ -373,29 +346,11 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
 
     @Override
     public long queryContextSwitches() {
-        List<String> procStat = FileUtil.readFile(ProcUtil.getProcPath() + STAT);
-        for (String stat : procStat) {
-            if (stat.startsWith("ctxt ")) {
-                String[] ctxtArr = ParseUtil.whitespaces.split(stat);
-                if (ctxtArr.length == 2) {
-                    return ParseUtil.parseLongOrDefault(ctxtArr[1], 0);
-                }
-            }
-        }
-        return -1;
+        return CpuStat.getContextSwitches();
     }
 
     @Override
     public long queryInterrupts() {
-        List<String> procStat = FileUtil.readFile(ProcUtil.getProcPath() + STAT);
-        for (String stat : procStat) {
-            if (stat.startsWith("intr ")) {
-                String[] intrArr = ParseUtil.whitespaces.split(stat);
-                if (intrArr.length > 2) {
-                    return ParseUtil.parseLongOrDefault(intrArr[1], 0);
-                }
-            }
-        }
-        return -1;
+        return CpuStat.getInterrupts();
     }
 }
