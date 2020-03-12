@@ -56,6 +56,7 @@ public class FileSystemTest {
         for (OSFileStore store : fs) {
             assertNotNull(store.getName());
             assertNotNull(store.getVolume());
+            assertNotNull(store.getLabel());
             assertNotNull(store.getLogicalVolume());
             assertNotNull(store.getDescription());
             assertNotNull(store.getType());
@@ -75,6 +76,7 @@ public class FileSystemTest {
 
             store.setName("name");
             store.setVolume("volume");
+            store.setLabel("label");
             store.setLogicalVolume("logical volume");
             store.setDescription("desc");
             store.setType("type");
@@ -86,6 +88,7 @@ public class FileSystemTest {
 
             assertEquals("name", store.getName());
             assertEquals("volume", store.getVolume());
+            assertEquals("label", store.getLabel());
             assertEquals("logical volume", store.getLogicalVolume());
             assertEquals("desc", store.getDescription());
             assertEquals("type", store.getType());
