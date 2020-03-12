@@ -46,7 +46,7 @@ public class Util {
             LOG.trace("Sleeping for {} ms", ms);
             Thread.sleep(ms);
         } catch (InterruptedException e) { // NOSONAR squid:S2142
-            LOG.warn("Interrupted while sleeping for {} ms: {}", ms, e);
+            LOG.warn("Interrupted while sleeping for {} ms: {}", ms, e.getMessage());
             Thread.currentThread().interrupt();
         }
     }
@@ -74,7 +74,7 @@ public class Util {
 
     /**
      * Tests if a String is either null or empty.
-     * 
+     *
      * @param s
      *            The string to test
      * @return True if the String is either null or empty.

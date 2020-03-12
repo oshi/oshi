@@ -334,7 +334,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
                 proc.setCurrentWorkingDirectory(cwd);
             }
         } catch (IOException e) {
-            LOG.trace("Couldn't find cwd for pid {}: {}", pid, e);
+            LOG.trace("Couldn't find cwd for pid {}: {}", pid, e.getMessage());
         }
         return proc;
     }
@@ -401,7 +401,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
             }
             return info.procs;
         } catch (UnsatisfiedLinkError | NoClassDefFoundError e) {
-            LOG.error("Failed to get procs from sysinfo. {}", e);
+            LOG.error("Failed to get procs from sysinfo. {}", e.getMessage());
         }
         return 0;
     }

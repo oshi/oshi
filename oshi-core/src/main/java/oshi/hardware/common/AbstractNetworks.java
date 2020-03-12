@@ -69,7 +69,7 @@ public abstract class AbstractNetworks implements Networks {
         try {
             interfaces = NetworkInterface.getNetworkInterfaces(); // can return null
         } catch (SocketException ex) {
-            LOG.error("Socket exception when retrieving interfaces: {}", ex);
+            LOG.error("Socket exception when retrieving interfaces: {}", ex.getMessage());
         }
         if (interfaces != null) {
             while (interfaces.hasMoreElements()) {
@@ -79,7 +79,8 @@ public abstract class AbstractNetworks implements Networks {
                         result.add(netint);
                     }
                 } catch (SocketException ex) {
-                    LOG.error("Socket exception when retrieving interface \"{}\": {}", netint.getName(), ex);
+                    LOG.error("Socket exception when retrieving interface \"{}\": {}", netint.getName(),
+                            ex.getMessage());
                 }
             }
         }

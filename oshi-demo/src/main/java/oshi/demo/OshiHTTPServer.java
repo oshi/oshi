@@ -141,7 +141,7 @@ public class OshiHTTPServer implements Runnable {
                 logger.debug("Data {} returned", fileRequested);
             }
         } catch (IOException ioe) {
-            logger.error("Server error: {}", ioe);
+            logger.error("Server error: {}", ioe.getMessage());
         } finally {
             try {
                 // close socket connection, defined for this thread
