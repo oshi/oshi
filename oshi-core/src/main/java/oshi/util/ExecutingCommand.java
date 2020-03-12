@@ -80,7 +80,7 @@ public final class ExecutingCommand {
         try {
             p = Runtime.getRuntime().exec(cmdToRunWithArgs);
         } catch (SecurityException | IOException e) {
-            LOG.trace("Couldn't run command {}: {}", Arrays.toString(cmdToRunWithArgs), e);
+            LOG.trace("Couldn't run command {}: {}", Arrays.toString(cmdToRunWithArgs), e.getMessage());
             return new ArrayList<>(0);
         }
 
@@ -93,10 +93,11 @@ public final class ExecutingCommand {
             }
             p.waitFor();
         } catch (IOException e) {
-            LOG.trace("Problem reading output from {}: {}", Arrays.toString(cmdToRunWithArgs), e);
+            LOG.trace("Problem reading output from {}: {}", Arrays.toString(cmdToRunWithArgs), e.getMessage());
             return new ArrayList<>(0);
         } catch (InterruptedException ie) {
-            LOG.trace("Interrupted while reading output from {}: {}", Arrays.toString(cmdToRunWithArgs), ie);
+            LOG.trace("Interrupted while reading output from {}: {}", Arrays.toString(cmdToRunWithArgs),
+                    ie.getMessage());
             Thread.currentThread().interrupt();
         }
         return sa;

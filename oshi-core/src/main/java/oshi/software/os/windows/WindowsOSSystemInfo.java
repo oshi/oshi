@@ -74,7 +74,7 @@ public class WindowsOSSystemInfo {
             }
         } catch (UnsatisfiedLinkError e) {
             // no WOW64 support
-            LOG.trace("No WOW64 support: {}", e);
+            LOG.trace("No WOW64 support: {}", e.getMessage());
         }
 
         this.systemInfo = si;

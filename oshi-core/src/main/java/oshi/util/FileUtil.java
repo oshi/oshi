@@ -79,7 +79,7 @@ public final class FileUtil {
                 return Files.readAllLines(Paths.get(filename), StandardCharsets.UTF_8);
             } catch (IOException e) {
                 if (reportError) {
-                    LOG.error("Error reading file {}. {}", filename, e);
+                    LOG.error("Error reading file {}. {}", filename, e.getMessage());
                 }
             }
         } else if (reportError) {
@@ -153,7 +153,7 @@ public final class FileUtil {
                 return Integer.parseInt(read.get(0));
             }
         } catch (NumberFormatException ex) {
-            LOG.warn("Unable to read value from {}. {}", filename, ex);
+            LOG.warn("Unable to read value from {}. {}", filename, ex.getMessage());
         }
         return 0;
     }

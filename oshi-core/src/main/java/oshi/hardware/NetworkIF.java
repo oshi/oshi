@@ -69,9 +69,7 @@ public class NetworkIF {
     private long timeStamp;
 
     /**
-     * <p>
-     * The NetworkInterface object.
-     * </p>
+     * Gets the core java {@link NetworkInterface} object.
      *
      * @return the network interface, an instance of
      *         {@link java.net.NetworkInterface}.
@@ -126,7 +124,7 @@ public class NetworkIF {
             this.ipv6 = ipv6list.toArray(new String[0]);
             this.prefixLengths = prefixLengthList.toArray(new Short[0]);
         } catch (SocketException e) {
-            LOG.error("Socket exception: {}", e);
+            LOG.error("Socket exception: {}", e.getMessage());
         }
     }
 

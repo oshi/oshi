@@ -70,7 +70,7 @@ public class LinuxFileSystem extends AbstractFileSystem {
                     // Store UUID as value with path (e.g., /dev/sda1) as key
                     uuidMap.put(uuid.getCanonicalPath(), uuid.getName().toLowerCase());
                 } catch (IOException e) {
-                    LOG.error("Couldn't get canonical path for {}. {}", uuid.getName(), e);
+                    LOG.error("Couldn't get canonical path for {}. {}", uuid.getName(), e.getMessage());
                 }
             }
         }
@@ -154,7 +154,7 @@ public class LinuxFileSystem extends AbstractFileSystem {
                         logicalVolume = full.normalize().toString();
                     }
                 } catch (IOException e) {
-                    LOG.warn("Couldn't access symbolic path  {}. {}", link, e);
+                    LOG.warn("Couldn't access symbolic path  {}. {}", link, e.getMessage());
                 }
             }
 
@@ -181,7 +181,7 @@ public class LinuxFileSystem extends AbstractFileSystem {
                             Native.getLastError());
                 }
             } catch (UnsatisfiedLinkError | NoClassDefFoundError e) {
-                LOG.error("Failed to get file counts from statvfs. {}", e);
+                LOG.error("Failed to get file counts from statvfs. {}", e.getMessage());
             }
 
             OSFileStore osStore = new OSFileStore();
