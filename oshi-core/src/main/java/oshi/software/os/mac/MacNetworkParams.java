@@ -65,7 +65,7 @@ public class MacNetworkParams extends AbstractNetworkParams {
         try {
             hostname = InetAddress.getLocalHost().getHostName();
         } catch (UnknownHostException e) {
-            LOG.error("Unknown host exception when getting address of local host: {}", e);
+            LOG.error("Unknown host exception when getting address of local host: {}", e.getMessage());
             return "";
         }
         PointerByReference ptr = new PointerByReference();
