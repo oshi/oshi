@@ -36,69 +36,60 @@ import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.solaris.KstatUtil;
 import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
+import oshi.util.tuples.Pair;
 
 /**
  * Memory obtained by kstat
  */
-<span class="nc" id="L43">public class SolarisGlobalMemory extends AbstractGlobalMemory {</span>
+<span class="nc" id="L44">public class SolarisGlobalMemory extends AbstractGlobalMemory {</span>
 
-<span class="nc" id="L45">    private final Supplier&lt;SystemPages&gt; systemPages = memoize(this::readSystemPages, defaultExpiration());</span>
+<span class="nc" id="L46">    private final Supplier&lt;Pair&lt;Long, Long&gt;&gt; availTotal = memoize(this::readSystemPages, defaultExpiration());</span>
 
-<span class="nc" id="L47">    private final Supplier&lt;Long&gt; pageSize = memoize(this::queryPageSize);</span>
+<span class="nc" id="L48">    private final Supplier&lt;Long&gt; pageSize = memoize(SolarisGlobalMemory::queryPageSize);</span>
 
-<span class="nc" id="L49">    private final Supplier&lt;VirtualMemory&gt; vm = memoize(this::createVirtualMemory);</span>
+<span class="nc" id="L50">    private final Supplier&lt;VirtualMemory&gt; vm = memoize(SolarisGlobalMemory::createVirtualMemory);</span>
 
     @Override
     public long getAvailable() {
-<span class="nc" id="L53">        return systemPages.get().available;</span>
+<span class="nc" id="L54">        return availTotal.get().getA();</span>
     }
 
     @Override
     public long getTotal() {
-<span class="nc" id="L58">        return systemPages.get().total;</span>
+<span class="nc" id="L59">        return availTotal.get().getB();</span>
     }
 
     @Override
     public long getPageSize() {
-<span class="nc" id="L63">        return pageSize.get();</span>
+<span class="nc" id="L64">        return pageSize.get();</span>
     }
 
     @Override
     public VirtualMemory getVirtualMemory() {
-<span class="nc" id="L68">        return vm.get();</span>
+<span class="nc" id="L69">        return vm.get();</span>
     }
 
-    private long queryPageSize() {
-<span class="nc" id="L72">        return ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer(&quot;pagesize&quot;), 4096L);</span>
+    private static long queryPageSize() {
+<span class="nc" id="L73">        return ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer(&quot;pagesize&quot;), 4096L);</span>
     }
 
-    private VirtualMemory createVirtualMemory() {
-<span class="nc" id="L76">        return new SolarisVirtualMemory();</span>
+    private static VirtualMemory createVirtualMemory() {
+<span class="nc" id="L77">        return new SolarisVirtualMemory();</span>
     }
 
-    private SystemPages readSystemPages() {
-<span class="nc" id="L80">        long memAvailable = 0;</span>
-<span class="nc" id="L81">        long memTotal = 0;</span>
+    private Pair&lt;Long, Long&gt; readSystemPages() {
+<span class="nc" id="L81">        long memAvailable = 0;</span>
+<span class="nc" id="L82">        long memTotal = 0;</span>
         // Get first result
-<span class="nc" id="L83">        try (KstatChain kc = KstatUtil.openChain()) {</span>
-<span class="nc" id="L84">            Kstat ksp = kc.lookup(null, -1, &quot;system_pages&quot;);</span>
+<span class="nc" id="L84">        try (KstatChain kc = KstatUtil.openChain()) {</span>
+<span class="nc" id="L85">            Kstat ksp = kc.lookup(null, -1, &quot;system_pages&quot;);</span>
             // Set values
-<span class="nc bnc" id="L86" title="All 4 branches missed.">            if (ksp != null &amp;&amp; kc.read(ksp)) {</span>
-<span class="nc" id="L87">                memAvailable = KstatUtil.dataLookupLong(ksp, &quot;availrmem&quot;) * getPageSize();</span>
-<span class="nc" id="L88">                memTotal = KstatUtil.dataLookupLong(ksp, &quot;physmem&quot;) * getPageSize();</span>
+<span class="nc bnc" id="L87" title="All 4 branches missed.">            if (ksp != null &amp;&amp; kc.read(ksp)) {</span>
+<span class="nc" id="L88">                memAvailable = KstatUtil.dataLookupLong(ksp, &quot;availrmem&quot;) * getPageSize();</span>
+<span class="nc" id="L89">                memTotal = KstatUtil.dataLookupLong(ksp, &quot;physmem&quot;) * getPageSize();</span>
             }
         }
-<span class="nc" id="L91">        return new SystemPages(memTotal, memAvailable);</span>
-    }
-
-    private static final class SystemPages {
-        private final long total;
-        private final long available;
-
-<span class="nc" id="L98">        private SystemPages(long total, long available) {</span>
-<span class="nc" id="L99">            this.total = total;</span>
-<span class="nc" id="L100">            this.available = available;</span>
-<span class="nc" id="L101">        }</span>
+<span class="nc" id="L92">        return new Pair&lt;&gt;(memAvailable, memTotal);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

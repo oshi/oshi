@@ -36,10 +36,10 @@ import com.sun.jna.platform.win32.Kernel32; // NOSONAR squid:S1191
 import com.sun.jna.platform.win32.Psapi;
 import com.sun.jna.platform.win32.Psapi.PERFORMANCE_INFORMATION;
 
-import oshi.driver.perfmon.MemoryInformation;
-import oshi.driver.perfmon.MemoryInformation.PageSwapProperty;
-import oshi.driver.perfmon.PagingFile;
-import oshi.driver.perfmon.PagingFile.PagingPercentProperty;
+import oshi.driver.windows.perfmon.MemoryInformation;
+import oshi.driver.windows.perfmon.MemoryInformation.PageSwapProperty;
+import oshi.driver.windows.perfmon.PagingFile;
+import oshi.driver.windows.perfmon.PagingFile.PagingPercentProperty;
 import oshi.hardware.common.AbstractVirtualMemory;
 import oshi.util.tuples.Pair;
 
@@ -56,7 +56,8 @@ public class WindowsVirtualMemory extends AbstractVirtualMemory {
 
 <span class="nc" id="L57">    private final Supplier&lt;Long&gt; total = memoize(this::querySwapTotal, defaultExpiration());</span>
 
-<span class="nc" id="L59">    private final Supplier&lt;Pair&lt;Long, Long&gt;&gt; swapInOut = memoize(this::queryPageSwaps, defaultExpiration());</span>
+<span class="nc" id="L59">    private final Supplier&lt;Pair&lt;Long, Long&gt;&gt; swapInOut = memoize(WindowsVirtualMemory::queryPageSwaps,</span>
+<span class="nc" id="L60">            defaultExpiration());</span>
 
     /**
      * &lt;p&gt;
@@ -66,33 +67,32 @@ public class WindowsVirtualMemory extends AbstractVirtualMemory {
      * @param pageSize
      *            The size in bites of memory pages
      */
-<span class="nc" id="L69">    public WindowsVirtualMemory(long pageSize) {</span>
-<span class="nc" id="L70">        this.pageSize = pageSize;</span>
-<span class="nc" id="L71">    }</span>
+<span class="nc" id="L70">    public WindowsVirtualMemory(long pageSize) {</span>
+<span class="nc" id="L71">        this.pageSize = pageSize;</span>
+<span class="nc" id="L72">    }</span>
 
     @Override
     public long getSwapUsed() {
-<span class="nc" id="L75">        return used.get();</span>
+<span class="nc" id="L76">        return used.get();</span>
     }
 
     @Override
     public long getSwapTotal() {
-<span class="nc" id="L80">        return total.get();</span>
+<span class="nc" id="L81">        return total.get();</span>
     }
 
     @Override
     public long getSwapPagesIn() {
-<span class="nc" id="L85">        return swapInOut.get().getA();</span>
+<span class="nc" id="L86">        return swapInOut.get().getA();</span>
     }
 
     @Override
     public long getSwapPagesOut() {
-<span class="nc" id="L90">        return swapInOut.get().getB();</span>
+<span class="nc" id="L91">        return swapInOut.get().getB();</span>
     }
 
     private long querySwapUsed() {
-<span class="nc" id="L94">        Map&lt;PagingPercentProperty, Long&gt; valueMap = new PagingFile().querySwapUsed();</span>
-<span class="nc" id="L95">        return valueMap.getOrDefault(PagingPercentProperty.PERCENTUSAGE, 0L) * this.pageSize;</span>
+<span class="nc" id="L95">        return PagingFile.querySwapUsed().getOrDefault(PagingPercentProperty.PERCENTUSAGE, 0L) * this.pageSize;</span>
     }
 
     private long querySwapTotal() {
@@ -104,8 +104,8 @@ public class WindowsVirtualMemory extends AbstractVirtualMemory {
 <span class="nc" id="L104">        return this.pageSize * (perfInfo.CommitLimit.longValue() - perfInfo.PhysicalTotal.longValue());</span>
     }
 
-    private Pair&lt;Long, Long&gt; queryPageSwaps() {
-<span class="nc" id="L108">        Map&lt;PageSwapProperty, Long&gt; valueMap = new MemoryInformation().queryPageSwaps();</span>
+    private static Pair&lt;Long, Long&gt; queryPageSwaps() {
+<span class="nc" id="L108">        Map&lt;PageSwapProperty, Long&gt; valueMap = MemoryInformation.queryPageSwaps();</span>
 <span class="nc" id="L109">        return new Pair&lt;&gt;(valueMap.getOrDefault(PageSwapProperty.PAGESINPUTPERSEC, 0L),</span>
 <span class="nc" id="L110">                valueMap.getOrDefault(PageSwapProperty.PAGESOUTPUTPERSEC, 0L));</span>
     }

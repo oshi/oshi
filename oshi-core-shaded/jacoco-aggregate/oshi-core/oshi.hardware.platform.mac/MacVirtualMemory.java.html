@@ -40,81 +40,62 @@ import com.sun.jna.ptr.IntByReference;
 import oshi.hardware.common.AbstractVirtualMemory;
 import oshi.util.ParseUtil;
 import oshi.util.platform.mac.SysctlUtil;
+import oshi.util.tuples.Pair;
 
 /**
  * Memory obtained by host_statistics (vm_stat) and sysctl.
  */
-<span class="nc" id="L47">public class MacVirtualMemory extends AbstractVirtualMemory {</span>
+<span class="nc" id="L48">public class MacVirtualMemory extends AbstractVirtualMemory {</span>
 
-<span class="nc" id="L49">    private static final Logger LOG = LoggerFactory.getLogger(MacVirtualMemory.class);</span>
+<span class="nc" id="L50">    private static final Logger LOG = LoggerFactory.getLogger(MacVirtualMemory.class);</span>
 
-<span class="nc" id="L51">    private final Supplier&lt;SwapUsage&gt; swapUsage = memoize(this::querySwapUsage, defaultExpiration());</span>
+<span class="nc" id="L52">    private final Supplier&lt;Pair&lt;Long, Long&gt;&gt; usedTotal = memoize(MacVirtualMemory::querySwapUsage, defaultExpiration());</span>
 
-<span class="nc" id="L53">    private final Supplier&lt;VmStat&gt; vmStat = memoize(this::queryVmStat, defaultExpiration());</span>
+<span class="nc" id="L54">    private final Supplier&lt;Pair&lt;Long, Long&gt;&gt; inOut = memoize(MacVirtualMemory::queryVmStat, defaultExpiration());</span>
 
     @Override
     public long getSwapUsed() {
-<span class="nc" id="L57">        return swapUsage.get().used;</span>
+<span class="nc" id="L58">        return usedTotal.get().getA();</span>
     }
 
     @Override
     public long getSwapTotal() {
-<span class="nc" id="L62">        return swapUsage.get().total;</span>
+<span class="nc" id="L63">        return usedTotal.get().getB();</span>
     }
 
     @Override
     public long getSwapPagesIn() {
-<span class="nc" id="L67">        return vmStat.get().pagesIn;</span>
+<span class="nc" id="L68">        return inOut.get().getA();</span>
     }
 
     @Override
     public long getSwapPagesOut() {
-<span class="nc" id="L72">        return vmStat.get().pagesOut;</span>
+<span class="nc" id="L73">        return inOut.get().getB();</span>
     }
 
-    private SwapUsage querySwapUsage() {
-<span class="nc" id="L76">        long swapUsed = 0L;</span>
-<span class="nc" id="L77">        long swapTotal = 0L;</span>
-<span class="nc" id="L78">        XswUsage xswUsage = new XswUsage();</span>
-<span class="nc bnc" id="L79" title="All 2 branches missed.">        if (SysctlUtil.sysctl(&quot;vm.swapusage&quot;, xswUsage)) {</span>
-<span class="nc" id="L80">            swapUsed = xswUsage.xsu_used;</span>
-<span class="nc" id="L81">            swapTotal = xswUsage.xsu_total;</span>
+    private static Pair&lt;Long, Long&gt; querySwapUsage() {
+<span class="nc" id="L77">        long swapUsed = 0L;</span>
+<span class="nc" id="L78">        long swapTotal = 0L;</span>
+<span class="nc" id="L79">        XswUsage xswUsage = new XswUsage();</span>
+<span class="nc bnc" id="L80" title="All 2 branches missed.">        if (SysctlUtil.sysctl(&quot;vm.swapusage&quot;, xswUsage)) {</span>
+<span class="nc" id="L81">            swapUsed = xswUsage.xsu_used;</span>
+<span class="nc" id="L82">            swapTotal = xswUsage.xsu_total;</span>
         }
-<span class="nc" id="L83">        return new SwapUsage(swapTotal, swapUsed);</span>
+<span class="nc" id="L84">        return new Pair&lt;&gt;(swapUsed, swapTotal);</span>
     }
 
-    private VmStat queryVmStat() {
-<span class="nc" id="L87">        long swapPagesIn = 0L;</span>
-<span class="nc" id="L88">        long swapPagesOut = 0L;</span>
-<span class="nc" id="L89">        VMStatistics vmStats = new VMStatistics();</span>
-<span class="nc bnc" id="L90" title="All 2 branches missed.">        if (0 == SystemB.INSTANCE.host_statistics(SystemB.INSTANCE.mach_host_self(), SystemB.HOST_VM_INFO, vmStats,</span>
-<span class="nc" id="L91">                new IntByReference(vmStats.size() / SystemB.INT_SIZE))) {</span>
-<span class="nc" id="L92">            swapPagesIn = ParseUtil.unsignedIntToLong(vmStats.pageins);</span>
-<span class="nc" id="L93">            swapPagesOut = ParseUtil.unsignedIntToLong(vmStats.pageouts);</span>
+    private static Pair&lt;Long, Long&gt; queryVmStat() {
+<span class="nc" id="L88">        long swapPagesIn = 0L;</span>
+<span class="nc" id="L89">        long swapPagesOut = 0L;</span>
+<span class="nc" id="L90">        VMStatistics vmStats = new VMStatistics();</span>
+<span class="nc bnc" id="L91" title="All 2 branches missed.">        if (0 == SystemB.INSTANCE.host_statistics(SystemB.INSTANCE.mach_host_self(), SystemB.HOST_VM_INFO, vmStats,</span>
+<span class="nc" id="L92">                new IntByReference(vmStats.size() / SystemB.INT_SIZE))) {</span>
+<span class="nc" id="L93">            swapPagesIn = ParseUtil.unsignedIntToLong(vmStats.pageins);</span>
+<span class="nc" id="L94">            swapPagesOut = ParseUtil.unsignedIntToLong(vmStats.pageouts);</span>
         } else {
-<span class="nc" id="L95">            LOG.error(&quot;Failed to get host VM info. Error code: {}&quot;, Native.getLastError());</span>
+<span class="nc" id="L96">            LOG.error(&quot;Failed to get host VM info. Error code: {}&quot;, Native.getLastError());</span>
         }
-<span class="nc" id="L97">        return new VmStat(swapPagesIn, swapPagesOut);</span>
-    }
-
-    private static final class SwapUsage {
-        private final long total;
-        private final long used;
-
-<span class="nc" id="L104">        private SwapUsage(long total, long used) {</span>
-<span class="nc" id="L105">            this.total = total;</span>
-<span class="nc" id="L106">            this.used = used;</span>
-<span class="nc" id="L107">        }</span>
-    }
-
-    private static final class VmStat {
-        private final long pagesIn;
-        private final long pagesOut;
-
-<span class="nc" id="L114">        private VmStat(long pagesIn, long pagesOut) {</span>
-<span class="nc" id="L115">            this.pagesIn = pagesIn;</span>
-<span class="nc" id="L116">            this.pagesOut = pagesOut;</span>
-<span class="nc" id="L117">        }</span>
+<span class="nc" id="L98">        return new Pair&lt;&gt;(swapPagesIn, swapPagesOut);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

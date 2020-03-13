@@ -34,45 +34,47 @@ import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
+import oshi.util.tuples.Quartet;
 
 /**
  * Hardware data obtained from dmidecode.
  */
-<span class="nc" id="L41">final class FreeBsdComputerSystem extends AbstractComputerSystem {</span>
+<span class="nc" id="L42">final class FreeBsdComputerSystem extends AbstractComputerSystem {</span>
 
-<span class="nc" id="L43">    private final Supplier&lt;DmidecodeStrings&gt; readDmiDecode = memoize(this::readDmiDecode);</span>
+<span class="nc" id="L44">    private final Supplier&lt;Quartet&lt;String, String, String, String&gt;&gt; manufModelSerialVers = memoize(</span>
+            FreeBsdComputerSystem::readDmiDecode);
 
     @Override
     public String getManufacturer() {
-<span class="nc" id="L47">        return readDmiDecode.get().manufacturer;</span>
+<span class="nc" id="L49">        return manufModelSerialVers.get().getA();</span>
     }
 
     @Override
     public String getModel() {
-<span class="nc" id="L52">        return readDmiDecode.get().model;</span>
+<span class="nc" id="L54">        return manufModelSerialVers.get().getB();</span>
     }
 
     @Override
     public String getSerialNumber() {
-<span class="nc" id="L57">        return readDmiDecode.get().serialNumber;</span>
+<span class="nc" id="L59">        return manufModelSerialVers.get().getC();</span>
     }
 
     @Override
     public Firmware createFirmware() {
-<span class="nc" id="L62">        return new FreeBsdFirmware();</span>
+<span class="nc" id="L64">        return new FreeBsdFirmware();</span>
     }
 
     @Override
     public Baseboard createBaseboard() {
-<span class="nc" id="L67">        return new FreeBsdBaseboard(readDmiDecode.get().manufacturer, readDmiDecode.get().model,</span>
-<span class="nc" id="L68">                readDmiDecode.get().serialNumber, readDmiDecode.get().version);</span>
+<span class="nc" id="L69">        return new FreeBsdBaseboard(manufModelSerialVers.get().getA(), manufModelSerialVers.get().getB(),</span>
+<span class="nc" id="L70">                manufModelSerialVers.get().getC(), manufModelSerialVers.get().getD());</span>
     }
 
-    private DmidecodeStrings readDmiDecode() {
-<span class="nc" id="L72">        String manufacturer = null;</span>
-<span class="nc" id="L73">        String model = null;</span>
-<span class="nc" id="L74">        String version = null;</span>
-<span class="nc" id="L75">        String serialNumber = null;</span>
+    private static Quartet&lt;String, String, String, String&gt; readDmiDecode() {
+<span class="nc" id="L74">        String manufacturer = null;</span>
+<span class="nc" id="L75">        String model = null;</span>
+<span class="nc" id="L76">        String serialNumber = null;</span>
+<span class="nc" id="L77">        String version = null;</span>
 
         // $ sudo dmidecode -t system
         // # dmidecode 3.0
@@ -95,55 +97,41 @@ import oshi.util.Util;
         // System Boot Information
         // Status: No errors detected
 
-<span class="nc" id="L98">        final String manufacturerMarker = &quot;Manufacturer:&quot;;</span>
-<span class="nc" id="L99">        final String productNameMarker = &quot;Product Name:&quot;;</span>
-<span class="nc" id="L100">        final String versionMarker = &quot;Version:&quot;;</span>
-<span class="nc" id="L101">        final String serialNumMarker = &quot;Serial Number:&quot;;</span>
+<span class="nc" id="L100">        final String manufacturerMarker = &quot;Manufacturer:&quot;;</span>
+<span class="nc" id="L101">        final String productNameMarker = &quot;Product Name:&quot;;</span>
+<span class="nc" id="L102">        final String serialNumMarker = &quot;Serial Number:&quot;;</span>
+<span class="nc" id="L103">        final String versionMarker = &quot;Version:&quot;;</span>
 
         // Only works with root permissions but it's all we've got
-<span class="nc bnc" id="L104" title="All 2 branches missed.">        for (final String checkLine : ExecutingCommand.runNative(&quot;dmidecode -t system&quot;)) {</span>
-<span class="nc bnc" id="L105" title="All 2 branches missed.">            if (checkLine.contains(manufacturerMarker)) {</span>
-<span class="nc" id="L106">                manufacturer = checkLine.split(manufacturerMarker)[1].trim();</span>
+<span class="nc bnc" id="L106" title="All 2 branches missed.">        for (final String checkLine : ExecutingCommand.runNative(&quot;dmidecode -t system&quot;)) {</span>
+<span class="nc bnc" id="L107" title="All 2 branches missed.">            if (checkLine.contains(manufacturerMarker)) {</span>
+<span class="nc" id="L108">                manufacturer = checkLine.split(manufacturerMarker)[1].trim();</span>
+<span class="nc bnc" id="L109" title="All 2 branches missed.">            } else if (checkLine.contains(productNameMarker)) {</span>
+<span class="nc" id="L110">                model = checkLine.split(productNameMarker)[1].trim();</span>
+<span class="nc bnc" id="L111" title="All 2 branches missed.">            } else if (checkLine.contains(serialNumMarker)) {</span>
+<span class="nc" id="L112">                serialNumber = checkLine.split(serialNumMarker)[1].trim();</span>
+<span class="nc bnc" id="L113" title="All 2 branches missed.">            } else if (checkLine.contains(versionMarker)) {</span>
+<span class="nc" id="L114">                version = checkLine.split(versionMarker)[1].trim();</span>
             }
-<span class="nc bnc" id="L108" title="All 2 branches missed.">            if (checkLine.contains(productNameMarker)) {</span>
-<span class="nc" id="L109">                model = checkLine.split(productNameMarker)[1].trim();</span>
-            }
-<span class="nc bnc" id="L111" title="All 2 branches missed.">            if (checkLine.contains(versionMarker)) {</span>
-<span class="nc" id="L112">                version = checkLine.split(versionMarker)[1].trim();</span>
-            }
-<span class="nc bnc" id="L114" title="All 2 branches missed.">            if (checkLine.contains(serialNumMarker)) {</span>
-<span class="nc" id="L115">                serialNumber = checkLine.split(serialNumMarker)[1].trim();</span>
-            }
-<span class="nc" id="L117">        }</span>
+<span class="nc" id="L116">        }</span>
         // If we get to end and haven't assigned, use fallback
-<span class="nc bnc" id="L119" title="All 2 branches missed.">        if (Util.isBlank(serialNumber)) {</span>
-<span class="nc" id="L120">            serialNumber = getSystemSerialNumber();</span>
+<span class="nc bnc" id="L118" title="All 2 branches missed.">        if (Util.isBlank(serialNumber)) {</span>
+<span class="nc" id="L119">            serialNumber = querySystemSerialNumber();</span>
         }
-<span class="nc" id="L122">        return new DmidecodeStrings(manufacturer, model, version, serialNumber);</span>
+<span class="nc bnc" id="L121" title="All 2 branches missed.">        return new Quartet&lt;&gt;(Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer,</span>
+<span class="nc bnc" id="L122" title="All 2 branches missed.">                Util.isBlank(model) ? Constants.UNKNOWN : model,</span>
+<span class="nc bnc" id="L123" title="All 2 branches missed.">                Util.isBlank(serialNumber) ? Constants.UNKNOWN : serialNumber,</span>
+<span class="nc bnc" id="L124" title="All 2 branches missed.">                Util.isBlank(version) ? Constants.UNKNOWN : version);</span>
     }
 
-    private String getSystemSerialNumber() {
-<span class="nc" id="L126">        String marker = &quot;system.hardware.serial =&quot;;</span>
-<span class="nc bnc" id="L127" title="All 2 branches missed.">        for (String checkLine : ExecutingCommand.runNative(&quot;lshal&quot;)) {</span>
-<span class="nc bnc" id="L128" title="All 2 branches missed.">            if (checkLine.contains(marker)) {</span>
-<span class="nc" id="L129">                return ParseUtil.getSingleQuoteStringValue(checkLine);</span>
+    private static String querySystemSerialNumber() {
+<span class="nc" id="L128">        String marker = &quot;system.hardware.serial =&quot;;</span>
+<span class="nc bnc" id="L129" title="All 2 branches missed.">        for (String checkLine : ExecutingCommand.runNative(&quot;lshal&quot;)) {</span>
+<span class="nc bnc" id="L130" title="All 2 branches missed.">            if (checkLine.contains(marker)) {</span>
+<span class="nc" id="L131">                return ParseUtil.getSingleQuoteStringValue(checkLine);</span>
             }
-<span class="nc" id="L131">        }</span>
-<span class="nc" id="L132">        return Constants.UNKNOWN;</span>
-    }
-
-    private static final class DmidecodeStrings {
-        private final String manufacturer;
-        private final String model;
-        private final String version;
-        private final String serialNumber;
-
-<span class="nc" id="L141">        private DmidecodeStrings(String manufacturer, String model, String version, String serialNumber) {</span>
-<span class="nc bnc" id="L142" title="All 2 branches missed.">            this.manufacturer = Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer;</span>
-<span class="nc bnc" id="L143" title="All 2 branches missed.">            this.model = Util.isBlank(model) ? Constants.UNKNOWN : model;</span>
-<span class="nc bnc" id="L144" title="All 2 branches missed.">            this.version = Util.isBlank(version) ? Constants.UNKNOWN : version;</span>
-<span class="nc bnc" id="L145" title="All 2 branches missed.">            this.serialNumber = Util.isBlank(serialNumber) ? Constants.UNKNOWN : serialNumber;</span>
-<span class="nc" id="L146">        }</span>
+<span class="nc" id="L133">        }</span>
+<span class="nc" id="L134">        return Constants.UNKNOWN;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

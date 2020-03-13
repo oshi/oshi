@@ -34,18 +34,18 @@ import oshi.hardware.common.AbstractGlobalMemory;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
-import oshi.util.platform.linux.ProcUtil;
+import oshi.util.platform.linux.ProcPath;
 
 /**
  * Memory obtained by /proc/meminfo and sysinfo.totalram
  */
 <span class="nc" id="L42">public class LinuxGlobalMemory extends AbstractGlobalMemory {</span>
 
-<span class="nc" id="L44">    private final Supplier&lt;MemInfo&gt; memInfo = memoize(this::readMemInfo, defaultExpiration());</span>
+<span class="nc" id="L44">    private final Supplier&lt;MemInfo&gt; memInfo = memoize(LinuxGlobalMemory::readMemInfo, defaultExpiration());</span>
 
-<span class="nc" id="L46">    private final Supplier&lt;Long&gt; pageSize = memoize(this::queryPageSize);</span>
+<span class="nc" id="L46">    private final Supplier&lt;Long&gt; pageSize = memoize(LinuxGlobalMemory::queryPageSize);</span>
 
-<span class="nc" id="L48">    private final Supplier&lt;VirtualMemory&gt; vm = memoize(this::createVirtualMemory);</span>
+<span class="nc" id="L48">    private final Supplier&lt;VirtualMemory&gt; vm = memoize(LinuxGlobalMemory::createVirtualMemory);</span>
 
     @Override
     public long getAvailable() {
@@ -67,7 +67,7 @@ import oshi.util.platform.linux.ProcUtil;
 <span class="nc" id="L67">        return vm.get();</span>
     }
 
-    private long queryPageSize() {
+    private static long queryPageSize() {
         // Ideally we would us sysconf(_SC_PAGESIZE) but the constant is platform
         // dependent and would require parsing header files, etc. Since this is only
         // read once at startup, command line is a reliable fallback.
@@ -86,7 +86,7 @@ import oshi.util.platform.linux.ProcUtil;
      * Internally, reading /proc/meminfo is faster than sysinfo because it only
      * spends time populating the memory components of the sysinfo structure.
      */
-    private MemInfo readMemInfo() {
+    private static MemInfo readMemInfo() {
 <span class="nc" id="L90">        long memFree = 0L;</span>
 <span class="nc" id="L91">        long activeFile = 0L;</span>
 <span class="nc" id="L92">        long inactiveFile = 0L;</span>
@@ -95,7 +95,7 @@ import oshi.util.platform.linux.ProcUtil;
 <span class="nc" id="L95">        long memTotal = 0L;</span>
         long memAvailable;
 
-<span class="nc" id="L98">        List&lt;String&gt; procMemInfo = FileUtil.readFile(ProcUtil.getProcPath() + &quot;/meminfo&quot;);</span>
+<span class="nc" id="L98">        List&lt;String&gt; procMemInfo = FileUtil.readFile(ProcPath.MEMINFO);</span>
 <span class="nc bnc" id="L99" title="All 2 branches missed.">        for (String checkLine : procMemInfo) {</span>
 <span class="nc" id="L100">            String[] memorySplit = ParseUtil.whitespaces.split(checkLine);</span>
 <span class="nc bnc" id="L101" title="All 2 branches missed.">            if (memorySplit.length &gt; 1) {</span>
@@ -136,7 +136,7 @@ import oshi.util.platform.linux.ProcUtil;
      *            Array of Strings representing the 3 columns of /proc/meminfo
      * @return value, multiplied by 1024 if kB is specified
      */
-    private long parseMeminfo(String[] memorySplit) {
+    private static long parseMeminfo(String[] memorySplit) {
 <span class="nc bnc" id="L140" title="All 2 branches missed.">        if (memorySplit.length &lt; 2) {</span>
 <span class="nc" id="L141">            return 0L;</span>
         }
@@ -147,7 +147,7 @@ import oshi.util.platform.linux.ProcUtil;
 <span class="nc" id="L147">        return memory;</span>
     }
 
-    private VirtualMemory createVirtualMemory() {
+    private static VirtualMemory createVirtualMemory() {
 <span class="nc" id="L151">        return new LinuxVirtualMemory();</span>
     }
 

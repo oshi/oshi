@@ -41,12 +41,12 @@ import com.sun.jna.platform.win32.Cfgmgr32Util;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 import com.sun.jna.ptr.IntByReference;
 
-import oshi.driver.wmi.Win32DiskDrive;
-import oshi.driver.wmi.Win32DiskDrive.DeviceIdProperty;
-import oshi.driver.wmi.Win32PnPEntity;
-import oshi.driver.wmi.Win32PnPEntity.PnPEntityProperty;
-import oshi.driver.wmi.Win32USBController;
-import oshi.driver.wmi.Win32USBController.USBControllerProperty;
+import oshi.driver.windows.wmi.Win32DiskDrive;
+import oshi.driver.windows.wmi.Win32DiskDrive.DeviceIdProperty;
+import oshi.driver.windows.wmi.Win32PnPEntity;
+import oshi.driver.windows.wmi.Win32PnPEntity.PnPEntityProperty;
+import oshi.driver.windows.wmi.Win32USBController;
+import oshi.driver.windows.wmi.Win32USBController.USBControllerProperty;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractUsbDevice;
 import oshi.util.ParseUtil;
@@ -140,7 +140,7 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
 <span class="nc" id="L140">            }</span>
 <span class="nc" id="L141">            String whereClause = sb.toString();</span>
             // Query Win32_PnPEntity to populate the maps
-<span class="nc" id="L143">            WmiResult&lt;PnPEntityProperty&gt; pnpEntity = new Win32PnPEntity().queryDeviceId(whereClause);</span>
+<span class="nc" id="L143">            WmiResult&lt;PnPEntityProperty&gt; pnpEntity = Win32PnPEntity.queryDeviceId(whereClause);</span>
 <span class="nc bnc" id="L144" title="All 2 branches missed.">            for (int i = 0; i &lt; pnpEntity.getResultCount(); i++) {</span>
 <span class="nc" id="L145">                String pnpDeviceID = WmiUtil.getString(pnpEntity, PnPEntityProperty.PNPDEVICEID, i);</span>
 <span class="nc" id="L146">                String name = WmiUtil.getString(pnpEntity, PnPEntityProperty.NAME, i);</span>
@@ -151,7 +151,7 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
 <span class="nc" id="L151">                LOG.debug(&quot;Adding {} to USB device cache.&quot;, pnpDeviceID);</span>
             }
             // Get serial # for disk drives or other physical media
-<span class="nc" id="L154">            WmiResult&lt;DeviceIdProperty&gt; serialNumbers = new Win32DiskDrive().queryDiskDriveId(whereClause);</span>
+<span class="nc" id="L154">            WmiResult&lt;DeviceIdProperty&gt; serialNumbers = Win32DiskDrive.queryDiskDriveId(whereClause);</span>
 <span class="nc bnc" id="L155" title="All 2 branches missed.">            for (int i = 0; i &lt; serialNumbers.getResultCount(); i++) {</span>
 <span class="nc" id="L156">                String pnpDeviceID = WmiUtil.getString(serialNumbers, DeviceIdProperty.PNPDEVICEID, i);</span>
 <span class="nc bnc" id="L157" title="All 2 branches missed.">                if (usbDeviceCache.containsKey(pnpDeviceID)) {</span>
@@ -266,7 +266,7 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
 <span class="nc" id="L266">        List&lt;String&gt; controllerDeviceIdsList = new ArrayList&lt;&gt;();</span>
         // One time lookup of USB Controller PnP Device IDs which don't
         // change
-<span class="nc" id="L269">        WmiResult&lt;USBControllerProperty&gt; usbController = new Win32USBController().queryUSBControllers();</span>
+<span class="nc" id="L269">        WmiResult&lt;USBControllerProperty&gt; usbController = Win32USBController.queryUSBControllers();</span>
 <span class="nc bnc" id="L270" title="All 2 branches missed.">        for (int i = 0; i &lt; usbController.getResultCount(); i++) {</span>
 <span class="nc" id="L271">            controllerDeviceIdsList.add(WmiUtil.getString(usbController, USBControllerProperty.PNPDEVICEID, i));</span>
         }
