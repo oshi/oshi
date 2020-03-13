@@ -40,7 +40,7 @@ import oshi.util.Util;
  */
 <span class="nc" id="L41">final class SolarisComputerSystem extends AbstractComputerSystem {</span>
 
-<span class="nc" id="L43">    private final Supplier&lt;SmbiosStrings&gt; smbiosStrings = memoize(this::readSmbios);</span>
+<span class="nc" id="L43">    private final Supplier&lt;SmbiosStrings&gt; smbiosStrings = memoize(SolarisComputerSystem::readSmbios);</span>
 
     @Override
     public String getManufacturer() {
@@ -69,7 +69,7 @@ import oshi.util.Util;
 <span class="nc" id="L69">                smbiosStrings.get().boardSerialNumber, smbiosStrings.get().boardVersion);</span>
     }
 
-    private SmbiosStrings readSmbios() {
+    private static SmbiosStrings readSmbios() {
 <span class="nc" id="L73">        String biosVendor = null;</span>
 <span class="nc" id="L74">        String biosVersion = null;</span>
 <span class="nc" id="L75">        String biosDate = null;</span>
@@ -179,7 +179,7 @@ import oshi.util.Util;
                 boardManufacturer, boardModel, boardVersion, boardSerialNumber);
     }
 
-    private int getSmbType(String checkLine) {
+    private static int getSmbType(String checkLine) {
 <span class="nc bnc" id="L183" title="All 2 branches missed.">        if (checkLine.contains(&quot;SMB_TYPE_BIOS&quot;)) {</span>
 <span class="nc" id="L184">            return 0; // BIOS</span>
 <span class="nc bnc" id="L185" title="All 2 branches missed.">        } else if (checkLine.contains(&quot;SMB_TYPE_SYSTEM&quot;)) {</span>
@@ -193,7 +193,7 @@ import oshi.util.Util;
         }
     }
 
-    private String readSerialNumber() {
+    private static String readSerialNumber() {
         // If they've installed STB (Sun Explorer) this should work
 <span class="nc" id="L198">        String serialNumber = ExecutingCommand.getFirstAnswer(&quot;sneep&quot;);</span>
         // if that didn't work, try...

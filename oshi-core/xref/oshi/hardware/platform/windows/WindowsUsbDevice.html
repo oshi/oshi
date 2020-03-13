@@ -49,12 +49,12 @@
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.ptr.IntByReference;
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>  
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>  <strong class="jxr_keyword">import</strong> oshi.driver.wmi.Win32DiskDrive;
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>  <strong class="jxr_keyword">import</strong> oshi.driver.wmi.Win32DiskDrive.DeviceIdProperty;
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>  <strong class="jxr_keyword">import</strong> oshi.driver.wmi.Win32PnPEntity;
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>  <strong class="jxr_keyword">import</strong> oshi.driver.wmi.Win32PnPEntity.PnPEntityProperty;
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>  <strong class="jxr_keyword">import</strong> oshi.driver.wmi.Win32USBController;
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>  <strong class="jxr_keyword">import</strong> oshi.driver.wmi.Win32USBController.USBControllerProperty;
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.wmi.Win32DiskDrive;
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.wmi.Win32DiskDrive.DeviceIdProperty;
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.wmi.Win32PnPEntity;
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.wmi.Win32PnPEntity.PnPEntityProperty;
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.wmi.Win32USBController;
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.wmi.Win32USBController.USBControllerProperty;
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.UsbDevice;
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.common.AbstractUsbDevice;
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>  <strong class="jxr_keyword">import</strong> oshi.util.ParseUtil;
@@ -148,7 +148,7 @@
 <a class="jxr_linenumber" name="L140" href="#L140">140</a>             }
 <a class="jxr_linenumber" name="L141" href="#L141">141</a>             String whereClause = sb.toString();
 <a class="jxr_linenumber" name="L142" href="#L142">142</a>             <em class="jxr_comment">// Query Win32_PnPEntity to populate the maps</em>
-<a class="jxr_linenumber" name="L143" href="#L143">143</a>             WmiResult&lt;PnPEntityProperty&gt; pnpEntity = <strong class="jxr_keyword">new</strong> <a name="Win32PnPEntity" href="../../../../oshi/driver/wmi/Win32PnPEntity.html#Win32PnPEntity">Win32PnPEntity</a>().queryDeviceId(whereClause);
+<a class="jxr_linenumber" name="L143" href="#L143">143</a>             WmiResult&lt;PnPEntityProperty&gt; pnpEntity = Win32PnPEntity.queryDeviceId(whereClause);
 <a class="jxr_linenumber" name="L144" href="#L144">144</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; pnpEntity.getResultCount(); i++) {
 <a class="jxr_linenumber" name="L145" href="#L145">145</a>                 String pnpDeviceID = WmiUtil.getString(pnpEntity, PnPEntityProperty.PNPDEVICEID, i);
 <a class="jxr_linenumber" name="L146" href="#L146">146</a>                 String name = WmiUtil.getString(pnpEntity, PnPEntityProperty.NAME, i);
@@ -159,7 +159,7 @@
 <a class="jxr_linenumber" name="L151" href="#L151">151</a>                 LOG.debug(<span class="jxr_string">"Adding {} to USB device cache."</span>, pnpDeviceID);
 <a class="jxr_linenumber" name="L152" href="#L152">152</a>             }
 <a class="jxr_linenumber" name="L153" href="#L153">153</a>             <em class="jxr_comment">// Get serial # for disk drives or other physical media</em>
-<a class="jxr_linenumber" name="L154" href="#L154">154</a>             WmiResult&lt;DeviceIdProperty&gt; serialNumbers = <strong class="jxr_keyword">new</strong> <a name="Win32DiskDrive" href="../../../../oshi/driver/wmi/Win32DiskDrive.html#Win32DiskDrive">Win32DiskDrive</a>().queryDiskDriveId(whereClause);
+<a class="jxr_linenumber" name="L154" href="#L154">154</a>             WmiResult&lt;DeviceIdProperty&gt; serialNumbers = Win32DiskDrive.queryDiskDriveId(whereClause);
 <a class="jxr_linenumber" name="L155" href="#L155">155</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; serialNumbers.getResultCount(); i++) {
 <a class="jxr_linenumber" name="L156" href="#L156">156</a>                 String pnpDeviceID = WmiUtil.getString(serialNumbers, DeviceIdProperty.PNPDEVICEID, i);
 <a class="jxr_linenumber" name="L157" href="#L157">157</a>                 <strong class="jxr_keyword">if</strong> (usbDeviceCache.containsKey(pnpDeviceID)) {
@@ -274,7 +274,7 @@
 <a class="jxr_linenumber" name="L266" href="#L266">266</a>         List&lt;String&gt; controllerDeviceIdsList = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
 <a class="jxr_linenumber" name="L267" href="#L267">267</a>         <em class="jxr_comment">// One time lookup of USB Controller PnP Device IDs which don't</em>
 <a class="jxr_linenumber" name="L268" href="#L268">268</a>         <em class="jxr_comment">// change</em>
-<a class="jxr_linenumber" name="L269" href="#L269">269</a>         WmiResult&lt;USBControllerProperty&gt; usbController = <strong class="jxr_keyword">new</strong> <a name="Win32USBController" href="../../../../oshi/driver/wmi/Win32USBController.html#Win32USBController">Win32USBController</a>().queryUSBControllers();
+<a class="jxr_linenumber" name="L269" href="#L269">269</a>         WmiResult&lt;USBControllerProperty&gt; usbController = Win32USBController.queryUSBControllers();
 <a class="jxr_linenumber" name="L270" href="#L270">270</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; usbController.getResultCount(); i++) {
 <a class="jxr_linenumber" name="L271" href="#L271">271</a>             controllerDeviceIdsList.add(WmiUtil.getString(usbController, USBControllerProperty.PNPDEVICEID, i));
 <a class="jxr_linenumber" name="L272" href="#L272">272</a>         }

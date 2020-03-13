@@ -161,20 +161,18 @@
 <a class="jxr_linenumber" name="L153" href="#L153">153</a>                     <strong class="jxr_keyword">long</strong> voltageNow = KstatUtil.dataLookupLong(ksp, <span class="jxr_string">"bst_voltage"</span>);
 <a class="jxr_linenumber" name="L154" href="#L154">154</a>                     <strong class="jxr_keyword">if</strong> (voltageNow &gt; 0) {
 <a class="jxr_linenumber" name="L155" href="#L155">155</a>                         psVoltage = voltageNow / 1000d;
-<a class="jxr_linenumber" name="L156" href="#L156">156</a>                         <strong class="jxr_keyword">if</strong> (psVoltage != 0d) {
-<a class="jxr_linenumber" name="L157" href="#L157">157</a>                             psAmperage = psPowerUsageRate / psVoltage;
-<a class="jxr_linenumber" name="L158" href="#L158">158</a>                         }
-<a class="jxr_linenumber" name="L159" href="#L159">159</a>                     }
-<a class="jxr_linenumber" name="L160" href="#L160">160</a>                 }
-<a class="jxr_linenumber" name="L161" href="#L161">161</a>             }
-<a class="jxr_linenumber" name="L162" href="#L162">162</a>         }
-<a class="jxr_linenumber" name="L163" href="#L163">163</a> 
-<a class="jxr_linenumber" name="L164" href="#L164">164</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a name="SolarisPowerSource" href="../../../../../oshi/hardware/platform/unix/solaris/SolarisPowerSource.html#SolarisPowerSource">SolarisPowerSource</a>(psName, psDeviceName, psRemainingCapacityPercent, psTimeRemainingEstimated,
-<a class="jxr_linenumber" name="L165" href="#L165">165</a>                 psTimeRemainingInstant, psPowerUsageRate, psVoltage, psAmperage, psPowerOnLine, psCharging,
-<a class="jxr_linenumber" name="L166" href="#L166">166</a>                 psDischarging, psCapacityUnits, psCurrentCapacity, psMaxCapacity, psDesignCapacity, psCycleCount,
-<a class="jxr_linenumber" name="L167" href="#L167">167</a>                 psChemistry, psManufactureDate, psManufacturer, psSerialNumber, psTemperature);
-<a class="jxr_linenumber" name="L168" href="#L168">168</a>     }
-<a class="jxr_linenumber" name="L169" href="#L169">169</a> }
+<a class="jxr_linenumber" name="L156" href="#L156">156</a>                         psAmperage = psPowerUsageRate * 1000d / voltageNow;
+<a class="jxr_linenumber" name="L157" href="#L157">157</a>                     }
+<a class="jxr_linenumber" name="L158" href="#L158">158</a>                 }
+<a class="jxr_linenumber" name="L159" href="#L159">159</a>             }
+<a class="jxr_linenumber" name="L160" href="#L160">160</a>         }
+<a class="jxr_linenumber" name="L161" href="#L161">161</a> 
+<a class="jxr_linenumber" name="L162" href="#L162">162</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a name="SolarisPowerSource" href="../../../../../oshi/hardware/platform/unix/solaris/SolarisPowerSource.html#SolarisPowerSource">SolarisPowerSource</a>(psName, psDeviceName, psRemainingCapacityPercent, psTimeRemainingEstimated,
+<a class="jxr_linenumber" name="L163" href="#L163">163</a>                 psTimeRemainingInstant, psPowerUsageRate, psVoltage, psAmperage, psPowerOnLine, psCharging,
+<a class="jxr_linenumber" name="L164" href="#L164">164</a>                 psDischarging, psCapacityUnits, psCurrentCapacity, psMaxCapacity, psDesignCapacity, psCycleCount,
+<a class="jxr_linenumber" name="L165" href="#L165">165</a>                 psChemistry, psManufactureDate, psManufacturer, psSerialNumber, psTemperature);
+<a class="jxr_linenumber" name="L166" href="#L166">166</a>     }
+<a class="jxr_linenumber" name="L167" href="#L167">167</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2020 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

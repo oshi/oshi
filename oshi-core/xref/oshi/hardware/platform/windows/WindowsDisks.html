@@ -44,16 +44,16 @@
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.Kernel32; <em class="jxr_comment">// NOSONAR squid:S1191</em>
 <a class="jxr_linenumber" name="L37" href="#L37">37</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 <a class="jxr_linenumber" name="L38" href="#L38">38</a>  
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <strong class="jxr_keyword">import</strong> oshi.driver.perfmon.PhysicalDisk;
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <strong class="jxr_keyword">import</strong> oshi.driver.perfmon.PhysicalDisk.PhysicalDiskProperty;
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <strong class="jxr_keyword">import</strong> oshi.driver.wmi.Win32DiskDrive;
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <strong class="jxr_keyword">import</strong> oshi.driver.wmi.Win32DiskDrive.DiskDriveProperty;
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>  <strong class="jxr_keyword">import</strong> oshi.driver.wmi.Win32DiskDriveToDiskPartition;
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>  <strong class="jxr_keyword">import</strong> oshi.driver.wmi.Win32DiskDriveToDiskPartition.DriveToPartitionProperty;
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>  <strong class="jxr_keyword">import</strong> oshi.driver.wmi.Win32DiskPartition;
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>  <strong class="jxr_keyword">import</strong> oshi.driver.wmi.Win32DiskPartition.DiskPartitionProperty;
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>  <strong class="jxr_keyword">import</strong> oshi.driver.wmi.Win32LogicalDiskToPartition;
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>  <strong class="jxr_keyword">import</strong> oshi.driver.wmi.Win32LogicalDiskToPartition.DiskToPartitionProperty;
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.perfmon.PhysicalDisk;
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.perfmon.PhysicalDisk.PhysicalDiskProperty;
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.wmi.Win32DiskDrive;
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.wmi.Win32DiskDrive.DiskDriveProperty;
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.wmi.Win32DiskDriveToDiskPartition;
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.wmi.Win32DiskDriveToDiskPartition.DriveToPartitionProperty;
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.wmi.Win32DiskPartition;
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.wmi.Win32DiskPartition.DiskPartitionProperty;
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.wmi.Win32LogicalDiskToPartition;
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.wmi.Win32LogicalDiskToPartition.DiskToPartitionProperty;
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.Disks;
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.HWDiskStore;
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.HWPartition;
@@ -128,7 +128,7 @@
 <a class="jxr_linenumber" name="L120" href="#L120">120</a>         DiskStats stats = queryReadWriteStats(<strong class="jxr_keyword">null</strong>);
 <a class="jxr_linenumber" name="L121" href="#L121">121</a>         PartitionMaps maps = queryPartitionMaps();
 <a class="jxr_linenumber" name="L122" href="#L122">122</a> 
-<a class="jxr_linenumber" name="L123" href="#L123">123</a>         WmiResult&lt;DiskDriveProperty&gt; vals = <strong class="jxr_keyword">new</strong> <a name="Win32DiskDrive" href="../../../../oshi/driver/wmi/Win32DiskDrive.html#Win32DiskDrive">Win32DiskDrive</a>().queryDiskDrive();
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>         WmiResult&lt;DiskDriveProperty&gt; vals = Win32DiskDrive.queryDiskDrive();
 <a class="jxr_linenumber" name="L124" href="#L124">124</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; vals.getResultCount(); i++) {
 <a class="jxr_linenumber" name="L125" href="#L125">125</a>             <a name="HWDiskStore" href="../../../../oshi/hardware/HWDi<a name="HWDiskStore" href="../../../../oshi/hardware/HWDiskStore.html#HWDiskStore">HWDiskStore</a>l#HWDiskStore">HWDiskStore</a> ds = <strong class="jxr_keyword">new</strong> <a name="HWDiskStore" href="../../../../oshi/hardware/HWDiskStore.html#HWDiskStore">HWDiskStore</a>();
 <a class="jxr_linenumber" name="L126" href="#L126">126</a>             ds.setName(WmiUtil.getString(vals, DiskDriveProperty.NAME, i));
@@ -172,128 +172,126 @@
 <a class="jxr_linenumber" name="L164" href="#L164">164</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> DiskStats queryReadWriteStats(String index) {
 <a class="jxr_linenumber" name="L165" href="#L165">165</a>         <em class="jxr_comment">// Create object to hold and return results</em>
 <a class="jxr_linenumber" name="L166" href="#L166">166</a>         DiskStats stats = <strong class="jxr_keyword">new</strong> DiskStats();
-<a class="jxr_linenumber" name="L167" href="#L167">167</a>         Pair&lt;List&lt;String&gt;, Map&lt;PhysicalDiskProperty, List&lt;Long&gt;&gt;&gt; instanceValuePair = <strong class="jxr_keyword">new</strong> <a name="PhysicalDisk" href="../../../../oshi/driver/perfmon/PhysicalDisk.html#PhysicalDisk">PhysicalDisk</a>()
-<a class="jxr_linenumber" name="L168" href="#L168">168</a>                 .queryDiskCounters();
-<a class="jxr_linenumber" name="L169" href="#L169">169</a>         List&lt;String&gt; instances = instanceValuePair.getA();
-<a class="jxr_linenumber" name="L170" href="#L170">170</a>         Map&lt;PhysicalDiskProperty, List&lt;Long&gt;&gt; valueMap = instanceValuePair.getB();
-<a class="jxr_linenumber" name="L171" href="#L171">171</a>         stats.timeStamp = System.currentTimeMillis();
-<a class="jxr_linenumber" name="L172" href="#L172">172</a>         List&lt;Long&gt; readList = valueMap.get(PhysicalDiskProperty.DISKREADSPERSEC);
-<a class="jxr_linenumber" name="L173" href="#L173">173</a>         List&lt;Long&gt; readByteList = valueMap.get(PhysicalDiskProperty.DISKREADBYTESPERSEC);
-<a class="jxr_linenumber" name="L174" href="#L174">174</a>         List&lt;Long&gt; writeList = valueMap.get(PhysicalDiskProperty.DISKWRITESPERSEC);
-<a class="jxr_linenumber" name="L175" href="#L175">175</a>         List&lt;Long&gt; writeByteList = valueMap.get(PhysicalDiskProperty.DISKWRITEBYTESPERSEC);
-<a class="jxr_linenumber" name="L176" href="#L176">176</a>         List&lt;Long&gt; queueLengthList = valueMap.get(PhysicalDiskProperty.CURRENTDISKQUEUELENGTH);
-<a class="jxr_linenumber" name="L177" href="#L177">177</a>         List&lt;Long&gt; idleTimeList = valueMap.get(PhysicalDiskProperty.PERCENTIDLETIME);
-<a class="jxr_linenumber" name="L178" href="#L178">178</a> 
-<a class="jxr_linenumber" name="L179" href="#L179">179</a>         <strong class="jxr_keyword">if</strong> (instances.isEmpty() || readList == <strong class="jxr_keyword">null</strong> || readByteList == <strong class="jxr_keyword">null</strong> || writeList == <strong class="jxr_keyword">null</strong>
-<a class="jxr_linenumber" name="L180" href="#L180">180</a>                 || writeByteList == <strong class="jxr_keyword">null</strong> || queueLengthList == <strong class="jxr_keyword">null</strong> || idleTimeList == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L181" href="#L181">181</a>             <strong class="jxr_keyword">return</strong> stats;
-<a class="jxr_linenumber" name="L182" href="#L182">182</a>         }
-<a class="jxr_linenumber" name="L183" href="#L183">183</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; instances.size(); i++) {
-<a class="jxr_linenumber" name="L184" href="#L184">184</a>             String name = getIndexFromName(instances.get(i));
-<a class="jxr_linenumber" name="L185" href="#L185">185</a>             <em class="jxr_comment">// If index arg passed, only update passed arg</em>
-<a class="jxr_linenumber" name="L186" href="#L186">186</a>             <strong class="jxr_keyword">if</strong> (index != <strong class="jxr_keyword">null</strong> &amp;&amp; !index.equals(name)) {
-<a class="jxr_linenumber" name="L187" href="#L187">187</a>                 <strong class="jxr_keyword">continue</strong>;
-<a class="jxr_linenumber" name="L188" href="#L188">188</a>             }
-<a class="jxr_linenumber" name="L189" href="#L189">189</a>             stats.readMap.put(name, readList.get(i));
-<a class="jxr_linenumber" name="L190" href="#L190">190</a>             stats.readByteMap.put(name, readByteList.get(i));
-<a class="jxr_linenumber" name="L191" href="#L191">191</a>             stats.writeMap.put(name, writeList.get(i));
-<a class="jxr_linenumber" name="L192" href="#L192">192</a>             stats.writeByteMap.put(name, writeByteList.get(i));
-<a class="jxr_linenumber" name="L193" href="#L193">193</a>             stats.queueLengthMap.put(name, queueLengthList.get(i));
-<a class="jxr_linenumber" name="L194" href="#L194">194</a>             stats.idleTimeMap.put(name, idleTimeList.get(i) / 10_000L);
-<a class="jxr_linenumber" name="L195" href="#L195">195</a>         }
-<a class="jxr_linenumber" name="L196" href="#L196">196</a>         <strong class="jxr_keyword">return</strong> stats;
-<a class="jxr_linenumber" name="L197" href="#L197">197</a>     }
-<a class="jxr_linenumber" name="L198" href="#L198">198</a> 
-<a class="jxr_linenumber" name="L199" href="#L199">199</a>     <strong class="jxr_keyword">private</strong> PartitionMaps queryPartitionMaps() {
-<a class="jxr_linenumber" name="L200" href="#L200">200</a>         <em class="jxr_comment">// Create object to hold and return results</em>
-<a class="jxr_linenumber" name="L201" href="#L201">201</a>         PartitionMaps maps = <strong class="jxr_keyword">new</strong> PartitionMaps();
-<a class="jxr_linenumber" name="L202" href="#L202">202</a> 
-<a class="jxr_linenumber" name="L203" href="#L203">203</a>         <em class="jxr_comment">// For Regexp matching DeviceIDs</em>
-<a class="jxr_linenumber" name="L204" href="#L204">204</a>         Matcher mAnt;
-<a class="jxr_linenumber" name="L205" href="#L205">205</a>         Matcher mDep;
-<a class="jxr_linenumber" name="L206" href="#L206">206</a> 
-<a class="jxr_linenumber" name="L207" href="#L207">207</a>         <em class="jxr_comment">// Map drives to partitions</em>
-<a class="jxr_linenumber" name="L208" href="#L208">208</a>         WmiResult&lt;DriveToPartitionProperty&gt; drivePartitionMap = <strong class="jxr_keyword">new</strong> <a name="Win32DiskDriveToDiskPartition" href="../../../../oshi/driver/wmi/Win32DiskDriveToDiskPartition.html#Win32DiskDriveToDiskPartition">Win32DiskDriveToDiskPartition</a>()
-<a class="jxr_linenumber" name="L209" href="#L209">209</a>                 .queryDriveToPartition();
-<a class="jxr_linenumber" name="L210" href="#L210">210</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; drivePartitionMap.getResultCount(); i++) {
-<a class="jxr_linenumber" name="L211" href="#L211">211</a>             mAnt = DEVICE_ID.matcher(WmiUtil.getRefString(drivePartitionMap, DriveToPartitionProperty.ANTECEDENT, i));
-<a class="jxr_linenumber" name="L212" href="#L212">212</a>             mDep = DEVICE_ID.matcher(WmiUtil.getRefString(drivePartitionMap, DriveToPartitionProperty.DEPENDENT, i));
-<a class="jxr_linenumber" name="L213" href="#L213">213</a>             <strong class="jxr_keyword">if</strong> (mAnt.matches() &amp;&amp; mDep.matches()) {
-<a class="jxr_linenumber" name="L214" href="#L214">214</a>                 maps.driveToPartitionMap
-<a class="jxr_linenumber" name="L215" href="#L215">215</a>                         .computeIfAbsent(mAnt.group(1).replaceAll(<span class="jxr_string">"&#92;&#92;&#92;&#92;&#92;&#92;&#92;&#92;"</span>, <span class="jxr_string">"&#92;&#92;&#92;&#92;"</span>), x -&gt; <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;())
-<a class="jxr_linenumber" name="L216" href="#L216">216</a>                         .add(mDep.group(1));
-<a class="jxr_linenumber" name="L217" href="#L217">217</a>             }
-<a class="jxr_linenumber" name="L218" href="#L218">218</a>         }
-<a class="jxr_linenumber" name="L219" href="#L219">219</a> 
-<a class="jxr_linenumber" name="L220" href="#L220">220</a>         <em class="jxr_comment">// Map partitions to logical disks</em>
-<a class="jxr_linenumber" name="L221" href="#L221">221</a>         WmiResult&lt;DiskToPartitionProperty&gt; diskPartitionMap = <strong class="jxr_keyword">new</strong> <a name="Win32LogicalDiskToPartition" href="../../../../oshi/driver/wmi/Win32LogicalDiskToPartition.html#Win32LogicalDiskToPartition">Win32LogicalDiskToPartition</a>().queryDiskToPartition();
-<a class="jxr_linenumber" name="L222" href="#L222">222</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; diskPartitionMap.getResultCount(); i++) {
-<a class="jxr_linenumber" name="L223" href="#L223">223</a>             mAnt = DEVICE_ID.matcher(WmiUtil.getRefString(diskPartitionMap, DiskToPartitionProperty.ANTECEDENT, i));
-<a class="jxr_linenumber" name="L224" href="#L224">224</a>             mDep = DEVICE_ID.matcher(WmiUtil.getRefString(diskPartitionMap, DiskToPartitionProperty.DEPENDENT, i));
-<a class="jxr_linenumber" name="L225" href="#L225">225</a>             <strong class="jxr_keyword">if</strong> (mAnt.matches() &amp;&amp; mDep.matches()) {
-<a class="jxr_linenumber" name="L226" href="#L226">226</a>                 maps.partitionToLogicalDriveMap.put(mAnt.group(1), mDep.group(1) + <span class="jxr_string">"&#92;&#92;"</span>);
-<a class="jxr_linenumber" name="L227" href="#L227">227</a>             }
-<a class="jxr_linenumber" name="L228" href="#L228">228</a>         }
-<a class="jxr_linenumber" name="L229" href="#L229">229</a> 
-<a class="jxr_linenumber" name="L230" href="#L230">230</a>         <em class="jxr_comment">// Next, get all partitions and create objects</em>
-<a class="jxr_linenumber" name="L231" href="#L231">231</a>         WmiResult&lt;DiskPartitionProperty&gt; hwPartitionQueryMap = <strong class="jxr_keyword">new</strong> <a name="Win32DiskPartition" href="../../../../oshi/driver/wmi/Win32DiskPartition.html#Win32DiskPartition">Win32DiskPartition</a>().queryPartition();
-<a class="jxr_linenumber" name="L232" href="#L232">232</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; hwPartitionQueryMap.getResultCount(); i++) {
-<a class="jxr_linenumber" name="L233" href="#L233">233</a>             String deviceID = WmiUtil.getString(hwPartitionQueryMap, DiskPartitionProperty.DEVICEID, i);
-<a class="jxr_linenumber" name="L234" href="#L234">234</a>             String logicalDrive = maps.partitionToLogicalDriveMap.getOrDefault(deviceID, <span class="jxr_string">""</span>);
-<a class="jxr_linenumber" name="L235" href="#L235">235</a>             String uuid = <span class="jxr_string">""</span>;
-<a class="jxr_linenumber" name="L236" href="#L236">236</a>             <strong class="jxr_keyword">if</strong> (!logicalDrive.isEmpty()) {
-<a class="jxr_linenumber" name="L237" href="#L237">237</a>                 <em class="jxr_comment">// Get matching volume for UUID</em>
-<a class="jxr_linenumber" name="L238" href="#L238">238</a>                 <strong class="jxr_keyword">char</strong>[] volumeChr = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">char</strong>[BUFSIZE];
-<a class="jxr_linenumber" name="L239" href="#L239">239</a>                 Kernel32.INSTANCE.GetVolumeNameForVolumeMountPoint(logicalDrive, volumeChr, BUFSIZE);
-<a class="jxr_linenumber" name="L240" href="#L240">240</a>                 uuid = ParseUtil.parseUuidOrDefault(<strong class="jxr_keyword">new</strong> String(volumeChr).trim(), <span class="jxr_string">""</span>);
-<a class="jxr_linenumber" name="L241" href="#L241">241</a>             }
-<a class="jxr_linenumber" name="L242" href="#L242">242</a>             maps.partitionMap.put(deviceID,
-<a class="jxr_linenumber" name="L243" href="#L243">243</a>                     <strong class="jxr_keyword">new</strong> <a name="HWPartition" href="../../../../oshi/hardware/HWPartition.html#HWPartition">HWPartition</a>(WmiUtil.getString(hwPartitionQueryMap, DiskPartitionProperty.NAME, i),
-<a class="jxr_linenumber" name="L244" href="#L244">244</a>                             WmiUtil.getString(hwPartitionQueryMap, DiskPartitionProperty.TYPE, i),
-<a class="jxr_linenumber" name="L245" href="#L245">245</a>                             WmiUtil.getString(hwPartitionQueryMap, DiskPartitionProperty.DESCRIPTION, i), uuid,
-<a class="jxr_linenumber" name="L246" href="#L246">246</a>                             WmiUtil.getUint64(hwPartitionQueryMap, DiskPartitionProperty.SIZE, i),
-<a class="jxr_linenumber" name="L247" href="#L247">247</a>                             WmiUtil.getUint32(hwPartitionQueryMap, DiskPartitionProperty.DISKINDEX, i),
-<a class="jxr_linenumber" name="L248" href="#L248">248</a>                             WmiUtil.getUint32(hwPartitionQueryMap, DiskPartitionProperty.INDEX, i), logicalDrive));
-<a class="jxr_linenumber" name="L249" href="#L249">249</a>         }
-<a class="jxr_linenumber" name="L250" href="#L250">250</a>         <strong class="jxr_keyword">return</strong> maps;
-<a class="jxr_linenumber" name="L251" href="#L251">251</a>     }
-<a class="jxr_linenumber" name="L252" href="#L252">252</a> 
-<a class="jxr_linenumber" name="L253" href="#L253">253</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L254" href="#L254">254</a> <em class="jxr_javadoccomment">     * Parse a drive name like "0 C:" to just the index "0"</em>
-<a class="jxr_linenumber" name="L255" href="#L255">255</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L256" href="#L256">256</a> <em class="jxr_javadoccomment">     * @param s</em>
-<a class="jxr_linenumber" name="L257" href="#L257">257</a> <em class="jxr_javadoccomment">     *            A drive name to parse</em>
-<a class="jxr_linenumber" name="L258" href="#L258">258</a> <em class="jxr_javadoccomment">     * @return The first space-delimited value</em>
-<a class="jxr_linenumber" name="L259" href="#L259">259</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L260" href="#L260">260</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String getIndexFromName(String s) {
-<a class="jxr_linenumber" name="L261" href="#L261">261</a>         <strong class="jxr_keyword">if</strong> (s.isEmpty()) {
-<a class="jxr_linenumber" name="L262" href="#L262">262</a>             <strong class="jxr_keyword">return</strong> s;
-<a class="jxr_linenumber" name="L263" href="#L263">263</a>         }
-<a class="jxr_linenumber" name="L264" href="#L264">264</a>         <strong class="jxr_keyword">return</strong> s.split(<span class="jxr_string">"&#92;&#92;s"</span>)[0];
-<a class="jxr_linenumber" name="L265" href="#L265">265</a>     }
-<a class="jxr_linenumber" name="L266" href="#L266">266</a> 
-<a class="jxr_linenumber" name="L267" href="#L267">267</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L268" href="#L268">268</a> <em class="jxr_javadoccomment">     * Maps to store read/write bytes per drive index</em>
-<a class="jxr_linenumber" name="L269" href="#L269">269</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L270" href="#L270">270</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> DiskStats {
-<a class="jxr_linenumber" name="L271" href="#L271">271</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Map&lt;String, Long&gt; readMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
-<a class="jxr_linenumber" name="L272" href="#L272">272</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Map&lt;String, Long&gt; readByteMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
-<a class="jxr_linenumber" name="L273" href="#L273">273</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Map&lt;String, Long&gt; writeMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
-<a class="jxr_linenumber" name="L274" href="#L274">274</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Map&lt;String, Long&gt; writeByteMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
-<a class="jxr_linenumber" name="L275" href="#L275">275</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Map&lt;String, Long&gt; queueLengthMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
-<a class="jxr_linenumber" name="L276" href="#L276">276</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Map&lt;String, Long&gt; idleTimeMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
-<a class="jxr_linenumber" name="L277" href="#L277">277</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> timeStamp;
-<a class="jxr_linenumber" name="L278" href="#L278">278</a>     }
-<a class="jxr_linenumber" name="L279" href="#L279">279</a> 
-<a class="jxr_linenumber" name="L280" href="#L280">280</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L281" href="#L281">281</a> <em class="jxr_javadoccomment">     * Maps for the partition structure</em>
-<a class="jxr_linenumber" name="L282" href="#L282">282</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L283" href="#L283">283</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> PartitionMaps {
-<a class="jxr_linenumber" name="L284" href="#L284">284</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Map&lt;String, List&lt;String&gt;&gt; driveToPartitionMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
-<a class="jxr_linenumber" name="L285" href="#L285">285</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Map&lt;String, String&gt; partitionToLogicalDriveMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
-<a class="jxr_linenumber" name="L286" href="#L286">286</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Map&lt;String, HWPartition&gt; partitionMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
-<a class="jxr_linenumber" name="L287" href="#L287">287</a>     }
-<a class="jxr_linenumber" name="L288" href="#L288">288</a> }
+<a class="jxr_linenumber" name="L167" href="#L167">167</a>         Pair&lt;List&lt;String&gt;, Map&lt;PhysicalDiskProperty, List&lt;Long&gt;&gt;&gt; instanceValuePair = PhysicalDisk.queryDiskCounters();
+<a class="jxr_linenumber" name="L168" href="#L168">168</a>         List&lt;String&gt; instances = instanceValuePair.getA();
+<a class="jxr_linenumber" name="L169" href="#L169">169</a>         Map&lt;PhysicalDiskProperty, List&lt;Long&gt;&gt; valueMap = instanceValuePair.getB();
+<a class="jxr_linenumber" name="L170" href="#L170">170</a>         stats.timeStamp = System.currentTimeMillis();
+<a class="jxr_linenumber" name="L171" href="#L171">171</a>         List&lt;Long&gt; readList = valueMap.get(PhysicalDiskProperty.DISKREADSPERSEC);
+<a class="jxr_linenumber" name="L172" href="#L172">172</a>         List&lt;Long&gt; readByteList = valueMap.get(PhysicalDiskProperty.DISKREADBYTESPERSEC);
+<a class="jxr_linenumber" name="L173" href="#L173">173</a>         List&lt;Long&gt; writeList = valueMap.get(PhysicalDiskProperty.DISKWRITESPERSEC);
+<a class="jxr_linenumber" name="L174" href="#L174">174</a>         List&lt;Long&gt; writeByteList = valueMap.get(PhysicalDiskProperty.DISKWRITEBYTESPERSEC);
+<a class="jxr_linenumber" name="L175" href="#L175">175</a>         List&lt;Long&gt; queueLengthList = valueMap.get(PhysicalDiskProperty.CURRENTDISKQUEUELENGTH);
+<a class="jxr_linenumber" name="L176" href="#L176">176</a>         List&lt;Long&gt; idleTimeList = valueMap.get(PhysicalDiskProperty.PERCENTIDLETIME);
+<a class="jxr_linenumber" name="L177" href="#L177">177</a> 
+<a class="jxr_linenumber" name="L178" href="#L178">178</a>         <strong class="jxr_keyword">if</strong> (instances.isEmpty() || readList == <strong class="jxr_keyword">null</strong> || readByteList == <strong class="jxr_keyword">null</strong> || writeList == <strong class="jxr_keyword">null</strong>
+<a class="jxr_linenumber" name="L179" href="#L179">179</a>                 || writeByteList == <strong class="jxr_keyword">null</strong> || queueLengthList == <strong class="jxr_keyword">null</strong> || idleTimeList == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L180" href="#L180">180</a>             <strong class="jxr_keyword">return</strong> stats;
+<a class="jxr_linenumber" name="L181" href="#L181">181</a>         }
+<a class="jxr_linenumber" name="L182" href="#L182">182</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; instances.size(); i++) {
+<a class="jxr_linenumber" name="L183" href="#L183">183</a>             String name = getIndexFromName(instances.get(i));
+<a class="jxr_linenumber" name="L184" href="#L184">184</a>             <em class="jxr_comment">// If index arg passed, only update passed arg</em>
+<a class="jxr_linenumber" name="L185" href="#L185">185</a>             <strong class="jxr_keyword">if</strong> (index != <strong class="jxr_keyword">null</strong> &amp;&amp; !index.equals(name)) {
+<a class="jxr_linenumber" name="L186" href="#L186">186</a>                 <strong class="jxr_keyword">continue</strong>;
+<a class="jxr_linenumber" name="L187" href="#L187">187</a>             }
+<a class="jxr_linenumber" name="L188" href="#L188">188</a>             stats.readMap.put(name, readList.get(i));
+<a class="jxr_linenumber" name="L189" href="#L189">189</a>             stats.readByteMap.put(name, readByteList.get(i));
+<a class="jxr_linenumber" name="L190" href="#L190">190</a>             stats.writeMap.put(name, writeList.get(i));
+<a class="jxr_linenumber" name="L191" href="#L191">191</a>             stats.writeByteMap.put(name, writeByteList.get(i));
+<a class="jxr_linenumber" name="L192" href="#L192">192</a>             stats.queueLengthMap.put(name, queueLengthList.get(i));
+<a class="jxr_linenumber" name="L193" href="#L193">193</a>             stats.idleTimeMap.put(name, idleTimeList.get(i) / 10_000L);
+<a class="jxr_linenumber" name="L194" href="#L194">194</a>         }
+<a class="jxr_linenumber" name="L195" href="#L195">195</a>         <strong class="jxr_keyword">return</strong> stats;
+<a class="jxr_linenumber" name="L196" href="#L196">196</a>     }
+<a class="jxr_linenumber" name="L197" href="#L197">197</a> 
+<a class="jxr_linenumber" name="L198" href="#L198">198</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> PartitionMaps queryPartitionMaps() {
+<a class="jxr_linenumber" name="L199" href="#L199">199</a>         <em class="jxr_comment">// Create object to hold and return results</em>
+<a class="jxr_linenumber" name="L200" href="#L200">200</a>         PartitionMaps maps = <strong class="jxr_keyword">new</strong> PartitionMaps();
+<a class="jxr_linenumber" name="L201" href="#L201">201</a> 
+<a class="jxr_linenumber" name="L202" href="#L202">202</a>         <em class="jxr_comment">// For Regexp matching DeviceIDs</em>
+<a class="jxr_linenumber" name="L203" href="#L203">203</a>         Matcher mAnt;
+<a class="jxr_linenumber" name="L204" href="#L204">204</a>         Matcher mDep;
+<a class="jxr_linenumber" name="L205" href="#L205">205</a> 
+<a class="jxr_linenumber" name="L206" href="#L206">206</a>         <em class="jxr_comment">// Map drives to partitions</em>
+<a class="jxr_linenumber" name="L207" href="#L207">207</a>         WmiResult&lt;DriveToPartitionProperty&gt; drivePartitionMap = Win32DiskDriveToDiskPartition.queryDriveToPartition();
+<a class="jxr_linenumber" name="L208" href="#L208">208</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; drivePartitionMap.getResultCount(); i++) {
+<a class="jxr_linenumber" name="L209" href="#L209">209</a>             mAnt = DEVICE_ID.matcher(WmiUtil.getRefString(drivePartitionMap, DriveToPartitionProperty.ANTECEDENT, i));
+<a class="jxr_linenumber" name="L210" href="#L210">210</a>             mDep = DEVICE_ID.matcher(WmiUtil.getRefString(drivePartitionMap, DriveToPartitionProperty.DEPENDENT, i));
+<a class="jxr_linenumber" name="L211" href="#L211">211</a>             <strong class="jxr_keyword">if</strong> (mAnt.matches() &amp;&amp; mDep.matches()) {
+<a class="jxr_linenumber" name="L212" href="#L212">212</a>                 maps.driveToPartitionMap
+<a class="jxr_linenumber" name="L213" href="#L213">213</a>                         .computeIfAbsent(mAnt.group(1).replaceAll(<span class="jxr_string">"&#92;&#92;&#92;&#92;&#92;&#92;&#92;&#92;"</span>, <span class="jxr_string">"&#92;&#92;&#92;&#92;"</span>), x -&gt; <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;())
+<a class="jxr_linenumber" name="L214" href="#L214">214</a>                         .add(mDep.group(1));
+<a class="jxr_linenumber" name="L215" href="#L215">215</a>             }
+<a class="jxr_linenumber" name="L216" href="#L216">216</a>         }
+<a class="jxr_linenumber" name="L217" href="#L217">217</a> 
+<a class="jxr_linenumber" name="L218" href="#L218">218</a>         <em class="jxr_comment">// Map partitions to logical disks</em>
+<a class="jxr_linenumber" name="L219" href="#L219">219</a>         WmiResult&lt;DiskToPartitionProperty&gt; diskPartitionMap = Win32LogicalDiskToPartition.queryDiskToPartition();
+<a class="jxr_linenumber" name="L220" href="#L220">220</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; diskPartitionMap.getResultCount(); i++) {
+<a class="jxr_linenumber" name="L221" href="#L221">221</a>             mAnt = DEVICE_ID.matcher(WmiUtil.getRefString(diskPartitionMap, DiskToPartitionProperty.ANTECEDENT, i));
+<a class="jxr_linenumber" name="L222" href="#L222">222</a>             mDep = DEVICE_ID.matcher(WmiUtil.getRefString(diskPartitionMap, DiskToPartitionProperty.DEPENDENT, i));
+<a class="jxr_linenumber" name="L223" href="#L223">223</a>             <strong class="jxr_keyword">if</strong> (mAnt.matches() &amp;&amp; mDep.matches()) {
+<a class="jxr_linenumber" name="L224" href="#L224">224</a>                 maps.partitionToLogicalDriveMap.put(mAnt.group(1), mDep.group(1) + <span class="jxr_string">"&#92;&#92;"</span>);
+<a class="jxr_linenumber" name="L225" href="#L225">225</a>             }
+<a class="jxr_linenumber" name="L226" href="#L226">226</a>         }
+<a class="jxr_linenumber" name="L227" href="#L227">227</a> 
+<a class="jxr_linenumber" name="L228" href="#L228">228</a>         <em class="jxr_comment">// Next, get all partitions and create objects</em>
+<a class="jxr_linenumber" name="L229" href="#L229">229</a>         WmiResult&lt;DiskPartitionProperty&gt; hwPartitionQueryMap = Win32DiskPartition.queryPartition();
+<a class="jxr_linenumber" name="L230" href="#L230">230</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; hwPartitionQueryMap.getResultCount(); i++) {
+<a class="jxr_linenumber" name="L231" href="#L231">231</a>             String deviceID = WmiUtil.getString(hwPartitionQueryMap, DiskPartitionProperty.DEVICEID, i);
+<a class="jxr_linenumber" name="L232" href="#L232">232</a>             String logicalDrive = maps.partitionToLogicalDriveMap.getOrDefault(deviceID, <span class="jxr_string">""</span>);
+<a class="jxr_linenumber" name="L233" href="#L233">233</a>             String uuid = <span class="jxr_string">""</span>;
+<a class="jxr_linenumber" name="L234" href="#L234">234</a>             <strong class="jxr_keyword">if</strong> (!logicalDrive.isEmpty()) {
+<a class="jxr_linenumber" name="L235" href="#L235">235</a>                 <em class="jxr_comment">// Get matching volume for UUID</em>
+<a class="jxr_linenumber" name="L236" href="#L236">236</a>                 <strong class="jxr_keyword">char</strong>[] volumeChr = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">char</strong>[BUFSIZE];
+<a class="jxr_linenumber" name="L237" href="#L237">237</a>                 Kernel32.INSTANCE.GetVolumeNameForVolumeMountPoint(logicalDrive, volumeChr, BUFSIZE);
+<a class="jxr_linenumber" name="L238" href="#L238">238</a>                 uuid = ParseUtil.parseUuidOrDefault(<strong class="jxr_keyword">new</strong> String(volumeChr).trim(), <span class="jxr_string">""</span>);
+<a class="jxr_linenumber" name="L239" href="#L239">239</a>             }
+<a class="jxr_linenumber" name="L240" href="#L240">240</a>             maps.partitionMap.put(deviceID,
+<a class="jxr_linenumber" name="L241" href="#L241">241</a>                     <strong class="jxr_keyword">new</strong> <a name="HWPartition" href="../../../../oshi/hardware/HWPartition.html#HWPartition">HWPartition</a>(WmiUtil.getString(hwPartitionQueryMap, DiskPartitionProperty.NAME, i),
+<a class="jxr_linenumber" name="L242" href="#L242">242</a>                             WmiUtil.getString(hwPartitionQueryMap, DiskPartitionProperty.TYPE, i),
+<a class="jxr_linenumber" name="L243" href="#L243">243</a>                             WmiUtil.getString(hwPartitionQueryMap, DiskPartitionProperty.DESCRIPTION, i), uuid,
+<a class="jxr_linenumber" name="L244" href="#L244">244</a>                             WmiUtil.getUint64(hwPartitionQueryMap, DiskPartitionProperty.SIZE, i),
+<a class="jxr_linenumber" name="L245" href="#L245">245</a>                             WmiUtil.getUint32(hwPartitionQueryMap, DiskPartitionProperty.DISKINDEX, i),
+<a class="jxr_linenumber" name="L246" href="#L246">246</a>                             WmiUtil.getUint32(hwPartitionQueryMap, DiskPartitionProperty.INDEX, i), logicalDrive));
+<a class="jxr_linenumber" name="L247" href="#L247">247</a>         }
+<a class="jxr_linenumber" name="L248" href="#L248">248</a>         <strong class="jxr_keyword">return</strong> maps;
+<a class="jxr_linenumber" name="L249" href="#L249">249</a>     }
+<a class="jxr_linenumber" name="L250" href="#L250">250</a> 
+<a class="jxr_linenumber" name="L251" href="#L251">251</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L252" href="#L252">252</a> <em class="jxr_javadoccomment">     * Parse a drive name like "0 C:" to just the index "0"</em>
+<a class="jxr_linenumber" name="L253" href="#L253">253</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L254" href="#L254">254</a> <em class="jxr_javadoccomment">     * @param s</em>
+<a class="jxr_linenumber" name="L255" href="#L255">255</a> <em class="jxr_javadoccomment">     *            A drive name to parse</em>
+<a class="jxr_linenumber" name="L256" href="#L256">256</a> <em class="jxr_javadoccomment">     * @return The first space-delimited value</em>
+<a class="jxr_linenumber" name="L257" href="#L257">257</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L258" href="#L258">258</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String getIndexFromName(String s) {
+<a class="jxr_linenumber" name="L259" href="#L259">259</a>         <strong class="jxr_keyword">if</strong> (s.isEmpty()) {
+<a class="jxr_linenumber" name="L260" href="#L260">260</a>             <strong class="jxr_keyword">return</strong> s;
+<a class="jxr_linenumber" name="L261" href="#L261">261</a>         }
+<a class="jxr_linenumber" name="L262" href="#L262">262</a>         <strong class="jxr_keyword">return</strong> s.split(<span class="jxr_string">"&#92;&#92;s"</span>)[0];
+<a class="jxr_linenumber" name="L263" href="#L263">263</a>     }
+<a class="jxr_linenumber" name="L264" href="#L264">264</a> 
+<a class="jxr_linenumber" name="L265" href="#L265">265</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L266" href="#L266">266</a> <em class="jxr_javadoccomment">     * Maps to store read/write bytes per drive index</em>
+<a class="jxr_linenumber" name="L267" href="#L267">267</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L268" href="#L268">268</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> DiskStats {
+<a class="jxr_linenumber" name="L269" href="#L269">269</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Map&lt;String, Long&gt; readMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L270" href="#L270">270</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Map&lt;String, Long&gt; readByteMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L271" href="#L271">271</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Map&lt;String, Long&gt; writeMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L272" href="#L272">272</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Map&lt;String, Long&gt; writeByteMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L273" href="#L273">273</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Map&lt;String, Long&gt; queueLengthMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L274" href="#L274">274</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Map&lt;String, Long&gt; idleTimeMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L275" href="#L275">275</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> timeStamp;
+<a class="jxr_linenumber" name="L276" href="#L276">276</a>     }
+<a class="jxr_linenumber" name="L277" href="#L277">277</a> 
+<a class="jxr_linenumber" name="L278" href="#L278">278</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L279" href="#L279">279</a> <em class="jxr_javadoccomment">     * Maps for the partition structure</em>
+<a class="jxr_linenumber" name="L280" href="#L280">280</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L281" href="#L281">281</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> PartitionMaps {
+<a class="jxr_linenumber" name="L282" href="#L282">282</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Map&lt;String, List&lt;String&gt;&gt; driveToPartitionMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L283" href="#L283">283</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Map&lt;String, String&gt; partitionToLogicalDriveMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L284" href="#L284">284</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Map&lt;String, HWPartition&gt; partitionMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L285" href="#L285">285</a>     }
+<a class="jxr_linenumber" name="L286" href="#L286">286</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2020 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

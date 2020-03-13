@@ -30,7 +30,7 @@ import java.time.ZoneOffset;
 /**
  * General constants used in multiple classes
  */
-public class Constants {
+public final class Constants {
 
     /**
      * String to report for unknown information

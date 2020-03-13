@@ -37,8 +37,8 @@
 <a class="jxr_linenumber" name="L29" href="#L29">29</a>  
 <a class="jxr_linenumber" name="L30" href="#L30">30</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult; <em class="jxr_comment">// NOSONAR squid:S1191</em>
 <a class="jxr_linenumber" name="L31" href="#L31">31</a>  
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">import</strong> oshi.driver.wmi.Win32Bios;
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <strong class="jxr_keyword">import</strong> oshi.driver.wmi.Win32Bios.BiosProperty;
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.wmi.Win32Bios;
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.wmi.Win32Bios.BiosProperty;
 <a class="jxr_linenumber" name="L34" href="#L34">34</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.common.AbstractFirmware;
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>  <strong class="jxr_keyword">import</strong> oshi.util.Constants;
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>  <strong class="jxr_keyword">import</strong> oshi.util.Util;
@@ -51,7 +51,7 @@
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>  <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a name="WindowsFirmware" href="../../../../oshi/hardware/platform/windows/WindowsFirmware.html#WindowsFirmware">WindowsFirmware</a> <strong class="jxr_keyword">extends</strong> <a name="AbstractFirmware" href="../../../../oshi/hardware/common/AbstractFirmware.html#AbstractFirmware">AbstractFirmware</a> {
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>  
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Supplier&lt;Quintet&lt;String, String, String, String, String&gt;&gt; manufNameDescVersRelease = memoize(
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>              <strong class="jxr_keyword">this</strong>::queryManufNameDescVersRelease);
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>              WindowsFirmware::queryManufNameDescVersRelease);
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>  
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>      @Override
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>      <strong class="jxr_keyword">public</strong> String getManufacturer() {
@@ -78,13 +78,13 @@
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>          <strong class="jxr_keyword">return</strong> manufNameDescVersRelease.get().getE();
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>      }
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>  
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>      <strong class="jxr_keyword">private</strong> Quintet&lt;String, String, String, String, String&gt; queryManufNameDescVersRelease() {
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Quintet&lt;String, String, String, String, String&gt; queryManufNameDescVersRelease() {
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>          String manufacturer = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>          String name = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L76" href="#L76">76</a>          String description = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L77" href="#L77">77</a>          String version = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L78" href="#L78">78</a>          String releaseDate = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>          WmiResult&lt;BiosProperty&gt; win32BIOS = <strong class="jxr_keyword">new</strong> <a name="Win32Bios" href="../../../../oshi/driver/wmi/Win32Bios.html#Win32Bios">Win32Bios</a>().queryBiosInfo();
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>          WmiResult&lt;BiosProperty&gt; win32BIOS = Win32Bios.queryBiosInfo();
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>          <strong class="jxr_keyword">if</strong> (win32BIOS.getResultCount() &gt; 0) {
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>              manufacturer = WmiUtil.getString(win32BIOS, BiosProperty.MANUFACTURER, 0);
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>              name = WmiUtil.getString(win32BIOS, BiosProperty.NAME, 0);

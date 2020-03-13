@@ -53,10 +53,10 @@
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>      <em class="jxr_comment">/*</em>
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>  <em class="jxr_comment">     * If user has loaded coretemp module via kldload coretemp, sysctl call will</em>
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>  <em class="jxr_comment">     * return temperature</em>
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>  <em class="jxr_comment">     * </em>
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>  <em class="jxr_comment">     *</em>
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>  <em class="jxr_comment">     * @return Tempurature if successful, otherwise NaN</em>
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>  <em class="jxr_comment">     */</em>
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> queryKldloadCoretemp() {
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">double</strong> queryKldloadCoretemp() {
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>          String name = <span class="jxr_string">"dev.cpu.%d.temperature"</span>;
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>          IntByReference size = <strong class="jxr_keyword">new</strong> IntByReference(FreeBsdLibc.INT_SIZE);
 <a class="jxr_linenumber" name="L54" href="#L54">54</a>          Pointer p = <strong class="jxr_keyword">new</strong> Memory(size.getValue());
@@ -75,13 +75,12 @@
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">int</strong>[0];
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>      }
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>  
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>      <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>      @Override
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> queryCpuVoltage() {
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>          <em class="jxr_comment">// Nothing known on FreeBSD for this.</em>
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>          <strong class="jxr_keyword">return</strong> 0d;
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>      }
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>  }
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>      @Override
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> queryCpuVoltage() {
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>          <em class="jxr_comment">// Nothing known on FreeBSD for this.</em>
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>          <strong class="jxr_keyword">return</strong> 0d;
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>      }
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>  }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2020 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

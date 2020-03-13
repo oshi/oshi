@@ -34,8 +34,8 @@ import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.platform.win32.WinUser;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
-import oshi.driver.wmi.Win32OperatingSystem;
-import oshi.driver.wmi.Win32OperatingSystem.OSVersionProperty;
+import oshi.driver.windows.wmi.Win32OperatingSystem;
+import oshi.driver.windows.wmi.Win32OperatingSystem.OSVersionProperty;
 import oshi.software.common.AbstractOSVersionInfoEx;
 import oshi.software.os.OperatingSystem;
 import oshi.util.ParseUtil;
@@ -60,7 +60,7 @@ public class WindowsOSVersionInfoEx extends AbstractOSVersionInfoEx {
      */
 <span class="nc" id="L61">    public WindowsOSVersionInfoEx() {</span>
         // Populate a key-value map from WMI
-<span class="nc" id="L63">        WmiResult&lt;OSVersionProperty&gt; versionInfo = new Win32OperatingSystem().queryOsVersion();</span>
+<span class="nc" id="L63">        WmiResult&lt;OSVersionProperty&gt; versionInfo = Win32OperatingSystem.queryOsVersion();</span>
 <span class="nc bnc" id="L64" title="All 2 branches missed.">        if (versionInfo.getResultCount() &lt; 1) {</span>
 <span class="nc" id="L65">            handleNoVersionInfo();</span>
         } else {

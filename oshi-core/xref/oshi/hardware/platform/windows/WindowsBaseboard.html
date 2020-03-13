@@ -37,8 +37,8 @@
 <a class="jxr_linenumber" name="L29" href="#L29">29</a>  
 <a class="jxr_linenumber" name="L30" href="#L30">30</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult; <em class="jxr_comment">// NOSONAR squid:S1191</em>
 <a class="jxr_linenumber" name="L31" href="#L31">31</a>  
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">import</strong> oshi.driver.wmi.Win32BaseBoard;
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <strong class="jxr_keyword">import</strong> oshi.driver.wmi.Win32BaseBoard.BaseBoardProperty;
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.wmi.Win32BaseBoard;
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.wmi.Win32BaseBoard.BaseBoardProperty;
 <a class="jxr_linenumber" name="L34" href="#L34">34</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.common.AbstractBaseboard;
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>  <strong class="jxr_keyword">import</strong> oshi.util.Constants;
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>  <strong class="jxr_keyword">import</strong> oshi.util.Util;
@@ -50,7 +50,7 @@
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>  <em class="jxr_javadoccomment"> */</em>
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>  <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a name="WindowsBaseboard" href="../../../../oshi/hardware/platform/windows/WindowsBaseboard.html#WindowsBaseboard">WindowsBaseboard</a> <strong class="jxr_keyword">extends</strong> <a name="AbstractBaseboard" href="../../../../oshi/hardware/common/AbstractBaseboard.html#AbstractBaseboard">AbstractBaseboard</a> {
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Supplier&lt;Quartet&lt;String, String, String, String&gt;&gt; manufModelVersSerial = memoize(
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>              <strong class="jxr_keyword">this</strong>::queryManufModelVersSerial);
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>              WindowsBaseboard::queryManufModelVersSerial);
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>  
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>      @Override
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>      <strong class="jxr_keyword">public</strong> String getManufacturer() {
@@ -72,12 +72,12 @@
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>          <strong class="jxr_keyword">return</strong> manufModelVersSerial.get().getD();
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>      }
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>  
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>      <strong class="jxr_keyword">private</strong> Quartet&lt;String, String, String, String&gt; queryManufModelVersSerial() {
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Quartet&lt;String, String, String, String&gt; queryManufModelVersSerial() {
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>          String manufacturer = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>          String model = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>          String version = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>          String serialNumber = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>          WmiResult&lt;BaseBoardProperty&gt; win32BaseBoard = <strong class="jxr_keyword">new</strong> <a name="Win32BaseBoard" href="../../../../oshi/driver/wmi/Win32BaseBoard.html#Win32BaseBoard">Win32BaseBoard</a>().queryBaseboardInfo();
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>          WmiResult&lt;BaseBoardProperty&gt; win32BaseBoard = Win32BaseBoard.queryBaseboardInfo();
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>          <strong class="jxr_keyword">if</strong> (win32BaseBoard.getResultCount() &gt; 0) {
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>              manufacturer = WmiUtil.getString(win32BaseBoard, BaseBoardProperty.MANUFACTURER, 0);
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>              model = WmiUtil.getString(win32BaseBoard, BaseBoardProperty.MODEL, 0);

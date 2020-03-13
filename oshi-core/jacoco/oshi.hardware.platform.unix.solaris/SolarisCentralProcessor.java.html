@@ -95,7 +95,7 @@ import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
 <span class="nc" id="L95">        return logProcs.toArray(new LogicalProcessor[0]);</span>
     }
 
-    private Map&lt;Integer, Integer&gt; mapNumaNodes() {
+    private static Map&lt;Integer, Integer&gt; mapNumaNodes() {
 <span class="nc" id="L99">        Map&lt;Integer, Integer&gt; numaNodeMap = new HashMap&lt;&gt;();</span>
         // Get numa node info from lgrpinfo
 <span class="nc" id="L101">        List&lt;String&gt; lgrpinfo = ExecutingCommand.runNative(&quot;lgrpinfo -c leaves&quot;);</span>
@@ -223,7 +223,7 @@ import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
      * @param family
      * @return The Processor ID string
      */
-    private String getProcessorID(String stepping, String model, String family) {
+    private static String getProcessorID(String stepping, String model, String family) {
 <span class="nc" id="L227">        List&lt;String&gt; isainfo = ExecutingCommand.runNative(&quot;isainfo -v&quot;);</span>
 <span class="nc" id="L228">        StringBuilder flags = new StringBuilder();</span>
 <span class="nc bnc" id="L229" title="All 2 branches missed.">        for (String line : isainfo) {</span>

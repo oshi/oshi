@@ -65,7 +65,7 @@ import oshi.util.ParseUtil;
         try {
 <span class="nc" id="L66">            hostname = InetAddress.getLocalHost().getHostName();</span>
 <span class="nc" id="L67">        } catch (UnknownHostException e) {</span>
-<span class="nc" id="L68">            LOG.error(&quot;Unknown host exception when getting address of local host: {}&quot;, e);</span>
+<span class="nc" id="L68">            LOG.error(&quot;Unknown host exception when getting address of local host: {}&quot;, e.getMessage());</span>
 <span class="nc" id="L69">            return &quot;&quot;;</span>
 <span class="nc" id="L70">        }</span>
 <span class="nc" id="L71">        PointerByReference ptr = new PointerByReference();</span>

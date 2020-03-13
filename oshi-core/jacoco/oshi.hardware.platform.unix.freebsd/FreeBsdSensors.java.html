@@ -45,10 +45,10 @@ import oshi.jna.platform.unix.freebsd.FreeBsdLibc;
     /*
      * If user has loaded coretemp module via kldload coretemp, sysctl call will
      * return temperature
-     * 
+     *
      * @return Tempurature if successful, otherwise NaN
      */
-    private double queryKldloadCoretemp() {
+    private static double queryKldloadCoretemp() {
 <span class="nc" id="L52">        String name = &quot;dev.cpu.%d.temperature&quot;;</span>
 <span class="nc" id="L53">        IntByReference size = new IntByReference(FreeBsdLibc.INT_SIZE);</span>
 <span class="nc" id="L54">        Pointer p = new Memory(size.getValue());</span>
@@ -67,11 +67,10 @@ import oshi.jna.platform.unix.freebsd.FreeBsdLibc;
 <span class="nc" id="L67">        return new int[0];</span>
     }
 
-    /** {@inheritDoc} */
     @Override
     public double queryCpuVoltage() {
         // Nothing known on FreeBSD for this.
-<span class="nc" id="L74">        return 0d;</span>
+<span class="nc" id="L73">        return 0d;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

@@ -48,7 +48,7 @@ import oshi.util.ParseUtil;
 /**
  * Provides access to SMC calls on OS X
  */
-public class SmcUtil {
+public final class SmcUtil {
     /**
      * Holds the return value of SMC version query.
      */

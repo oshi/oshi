@@ -39,11 +39,11 @@ import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
 
 <span class="nc" id="L40">    private final Supplier&lt;Long&gt; available = memoize(this::queryVmStats, defaultExpiration());</span>
 
-<span class="nc" id="L42">    private final Supplier&lt;Long&gt; total = memoize(this::queryPhysMem);</span>
+<span class="nc" id="L42">    private final Supplier&lt;Long&gt; total = memoize(FreeBsdGlobalMemory::queryPhysMem);</span>
 
-<span class="nc" id="L44">    private final Supplier&lt;Long&gt; pageSize = memoize(this::queryPageSize);</span>
+<span class="nc" id="L44">    private final Supplier&lt;Long&gt; pageSize = memoize(FreeBsdGlobalMemory::queryPageSize);</span>
 
-<span class="nc" id="L46">    private final Supplier&lt;VirtualMemory&gt; vm = memoize(this::createVirtualMemory);</span>
+<span class="nc" id="L46">    private final Supplier&lt;VirtualMemory&gt; vm = memoize(FreeBsdGlobalMemory::createVirtualMemory);</span>
 
     @Override
     public long getAvailable() {
@@ -72,15 +72,15 @@ import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
 <span class="nc" id="L72">        return (inactive + cache + free) * getPageSize();</span>
     }
 
-    private long queryPhysMem() {
+    private static long queryPhysMem() {
 <span class="nc" id="L76">        return BsdSysctlUtil.sysctl(&quot;hw.physmem&quot;, 0L);</span>
     }
 
-    private long queryPageSize() {
+    private static long queryPageSize() {
 <span class="nc" id="L80">        return BsdSysctlUtil.sysctl(&quot;hw.pagesize&quot;, 4096L);</span>
     }
 
-    private VirtualMemory createVirtualMemory() {
+    private static VirtualMemory createVirtualMemory() {
 <span class="nc" id="L84">        return new FreeBsdVirtualMemory();</span>
     }
 }

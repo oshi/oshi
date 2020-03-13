@@ -37,12 +37,12 @@
 <a class="jxr_linenumber" name="L29" href="#L29">29</a>  
 <a class="jxr_linenumber" name="L30" href="#L30">30</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult; <em class="jxr_comment">// NOSONAR squid:S1191</em>
 <a class="jxr_linenumber" name="L31" href="#L31">31</a>  
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">import</strong> oshi.driver.wmi.Win32Bios;
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <strong class="jxr_keyword">import</strong> oshi.driver.wmi.Win32Bios.BiosSerialProperty;
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <strong class="jxr_keyword">import</strong> oshi.driver.wmi.Win32ComputerSystem;
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <strong class="jxr_keyword">import</strong> oshi.driver.wmi.Win32ComputerSystem.ComputerSystemProperty;
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <strong class="jxr_keyword">import</strong> oshi.driver.wmi.Win32ComputerSystemProduct;
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <strong class="jxr_keyword">import</strong> oshi.driver.wmi.Win32ComputerSystemProduct.ComputerSystemProductProperty;
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.wmi.Win32Bios;
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.wmi.Win32Bios.BiosSerialProperty;
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.wmi.Win32ComputerSystem;
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.wmi.Win32ComputerSystem.ComputerSystemProperty;
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.wmi.Win32ComputerSystemProduct;
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.wmi.Win32ComputerSystemProduct.ComputerSystemProductProperty;
 <a class="jxr_linenumber" name="L38" href="#L38">38</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.Baseboard;
 <a class="jxr_linenumber" name="L39" href="#L39">39</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.Firmware;
 <a class="jxr_linenumber" name="L40" href="#L40">40</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.common.AbstractComputerSystem;
@@ -56,72 +56,73 @@
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>  <em class="jxr_javadoccomment"> */</em>
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>  <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a name="WindowsComputerSystem" href="../../../../oshi/hardware/platform/windows/WindowsComputerSystem.html#WindowsComputerSystem">WindowsComputerSystem</a> <strong class="jxr_keyword">extends</strong> <a name="AbstractComputerSystem" href="../../../../oshi/hardware/common/AbstractComputerSystem.html#AbstractComputerSystem">AbstractComputerSystem</a> {
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>  
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Supplier&lt;Pair&lt;String, String&gt;&gt; manufacturerModel = memoize(<strong class="jxr_keyword">this</strong>::queryManufacturerModel);
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Supplier&lt;String&gt; serialNumber = memoize(<strong class="jxr_keyword">this</strong>::querySystemSerialNumber);
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>  
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>      @Override
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>      <strong class="jxr_keyword">public</strong> String getManufacturer() {
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>          <strong class="jxr_keyword">return</strong> manufacturerModel.get().getA();
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>      }
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>  
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>      @Override
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>      <strong class="jxr_keyword">public</strong> String getModel() {
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>          <strong class="jxr_keyword">return</strong> manufacturerModel.get().getB();
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>      }
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>  
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>      @Override
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>      <strong class="jxr_keyword">public</strong> String getSerialNumber() {
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>          <strong class="jxr_keyword">return</strong> serialNumber.get();
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>      }
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>  
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>      @Override
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>      <strong class="jxr_keyword">public</strong> <a name="Firmware" href="../../../../oshi/hardware/Firmware.html#Firmware">Firmware</a> createFirmware() {
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a name="WindowsFirmware" href="../../../../oshi/hardware/platform/windows/WindowsFirmware.html#WindowsFirmware">WindowsFirmware</a>();
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>      }
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>  
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>      @Override
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>      <strong class="jxr_keyword">public</strong> <a name="Baseboard" href="../../../../oshi/hardware/Baseboard.html#Baseboard">Baseboard</a> createBaseboard() {
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a name="WindowsBaseboard" href="../../../../oshi/hardware/platform/windows/WindowsBaseboard.html#WindowsBaseboard">WindowsBaseboard</a>();
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>      }
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>  
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>      <strong class="jxr_keyword">private</strong> Pair&lt;String, String&gt; queryManufacturerModel() {
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>          String manufacturer = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>          String model = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>          WmiResult&lt;ComputerSystemProperty&gt; win32ComputerSystem = <strong class="jxr_keyword">new</strong> <a name="Win32ComputerSystem" href="../../../../oshi/driver/wmi/Win32ComputerSystem.html#Win32ComputerSystem">Win32ComputerSystem</a>().queryComputerSystem();
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>          <strong class="jxr_keyword">if</strong> (win32ComputerSystem.getResultCount() &gt; 0) {
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>              manufacturer = WmiUtil.getString(win32ComputerSystem, ComputerSystemProperty.MANUFACTURER, 0);
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>              model = WmiUtil.getString(win32ComputerSystem, ComputerSystemProperty.MODEL, 0);
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>          }
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> Pair&lt;&gt;(Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer,
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>                  Util.isBlank(model) ? Constants.UNKNOWN : model);
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>      }
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>  
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>      <strong class="jxr_keyword">private</strong> String querySystemSerialNumber() {
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>          String result;
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>          <strong class="jxr_keyword">if</strong> (((result = querySerialFromBios()) != <strong class="jxr_keyword">null</strong> || (result = querySerialFromCsProduct()) != <strong class="jxr_keyword">null</strong>)
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>                  &amp;&amp; !Util.isBlank(result)) {
-<a class="jxr_linenumber" name="L95" href="#L95">95</a>              <strong class="jxr_keyword">return</strong> result;
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>          }
-<a class="jxr_linenumber" name="L97" href="#L97">97</a>          <strong class="jxr_keyword">return</strong> Constants.UNKNOWN;
-<a class="jxr_linenumber" name="L98" href="#L98">98</a>      }
-<a class="jxr_linenumber" name="L99" href="#L99">99</a>  
-<a class="jxr_linenumber" name="L100" href="#L100">100</a>     <strong class="jxr_keyword">private</strong> String querySerialFromBios() {
-<a class="jxr_linenumber" name="L101" href="#L101">101</a>         WmiResult&lt;BiosSerialProperty&gt; serialNum = <strong class="jxr_keyword">new</strong> <a name="Win32Bios" href="../../../../oshi/driver/wmi/Win32Bios.html#Win32Bios">Win32Bios</a>().querySerialNumber();
-<a class="jxr_linenumber" name="L102" href="#L102">102</a>         <strong class="jxr_keyword">if</strong> (serialNum.getResultCount() &gt; 0) {
-<a class="jxr_linenumber" name="L103" href="#L103">103</a>             <strong class="jxr_keyword">return</strong> WmiUtil.getString(serialNum, BiosSerialProperty.SERIALNUMBER, 0);
-<a class="jxr_linenumber" name="L104" href="#L104">104</a>         }
-<a class="jxr_linenumber" name="L105" href="#L105">105</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L106" href="#L106">106</a>     }
-<a class="jxr_linenumber" name="L107" href="#L107">107</a> 
-<a class="jxr_linenumber" name="L108" href="#L108">108</a>     <strong class="jxr_keyword">private</strong> String querySerialFromCsProduct() {
-<a class="jxr_linenumber" name="L109" href="#L109">109</a>         WmiResult&lt;ComputerSystemProductProperty&gt; identifyingNumber = <strong class="jxr_keyword">new</strong> <a name="Win32ComputerSystemProduct" href="../../../../oshi/driver/wmi/Win32ComputerSystemProduct.html#Win32ComputerSystemProduct">Win32ComputerSystemProduct</a>()
-<a class="jxr_linenumber" name="L110" href="#L110">110</a>                 .queryIdentifyingNumber();
-<a class="jxr_linenumber" name="L111" href="#L111">111</a>         <strong class="jxr_keyword">if</strong> (identifyingNumber.getResultCount() &gt; 0) {
-<a class="jxr_linenumber" name="L112" href="#L112">112</a>             <strong class="jxr_keyword">return</strong> WmiUtil.getString(identifyingNumber, ComputerSystemProductProperty.IDENTIFYINGNUMBER, 0);
-<a class="jxr_linenumber" name="L113" href="#L113">113</a>         }
-<a class="jxr_linenumber" name="L114" href="#L114">114</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L115" href="#L115">115</a>     }
-<a class="jxr_linenumber" name="L116" href="#L116">116</a> }
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Supplier&lt;Pair&lt;String, String&gt;&gt; manufacturerModel = memoize(
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>              WindowsComputerSystem::queryManufacturerModel);
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Supplier&lt;String&gt; serialNumber = memoize(WindowsComputerSystem::querySystemSerialNumber);
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>  
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>      @Override
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>      <strong class="jxr_keyword">public</strong> String getManufacturer() {
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>          <strong class="jxr_keyword">return</strong> manufacturerModel.get().getA();
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>      }
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>  
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>      @Override
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>      <strong class="jxr_keyword">public</strong> String getModel() {
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>          <strong class="jxr_keyword">return</strong> manufacturerModel.get().getB();
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>      }
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>  
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>      @Override
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>      <strong class="jxr_keyword">public</strong> String getSerialNumber() {
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>          <strong class="jxr_keyword">return</strong> serialNumber.get();
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>      }
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>  
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>      @Override
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>      <strong class="jxr_keyword">public</strong> <a name="Firmware" href="../../../../oshi/hardware/Firmware.html#Firmware">Firmware</a> createFirmware() {
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a name="WindowsFirmware" href="../../../../oshi/hardware/platform/windows/WindowsFirmware.html#WindowsFirmware">WindowsFirmware</a>();
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>      }
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>  
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>      @Override
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>      <strong class="jxr_keyword">public</strong> <a name="Baseboard" href="../../../../oshi/hardware/Baseboard.html#Baseboard">Baseboard</a> createBaseboard() {
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a name="WindowsBaseboard" href="../../../../oshi/hardware/platform/windows/WindowsBaseboard.html#WindowsBaseboard">WindowsBaseboard</a>();
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>      }
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>  
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Pair&lt;String, String&gt; queryManufacturerModel() {
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>          String manufacturer = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>          String model = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>          WmiResult&lt;ComputerSystemProperty&gt; win32ComputerSystem = Win32ComputerSystem.queryComputerSystem();
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>          <strong class="jxr_keyword">if</strong> (win32ComputerSystem.getResultCount() &gt; 0) {
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>              manufacturer = WmiUtil.getString(win32ComputerSystem, ComputerSystemProperty.MANUFACTURER, 0);
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>              model = WmiUtil.getString(win32ComputerSystem, ComputerSystemProperty.MODEL, 0);
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>          }
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> Pair&lt;&gt;(Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer,
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>                  Util.isBlank(model) ? Constants.UNKNOWN : model);
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>      }
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>  
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String querySystemSerialNumber() {
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>          String result;
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>          <strong class="jxr_keyword">if</strong> (((result = querySerialFromBios()) != <strong class="jxr_keyword">null</strong> || (result = querySerialFromCsProduct()) != <strong class="jxr_keyword">null</strong>)
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>                  &amp;&amp; !Util.isBlank(result)) {
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>              <strong class="jxr_keyword">return</strong> result;
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>          }
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>          <strong class="jxr_keyword">return</strong> Constants.UNKNOWN;
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>      }
+<a class="jxr_linenumber" name="L100" href="#L100">100</a> 
+<a class="jxr_linenumber" name="L101" href="#L101">101</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String querySerialFromBios() {
+<a class="jxr_linenumber" name="L102" href="#L102">102</a>         WmiResult&lt;BiosSerialProperty&gt; serialNum = Win32Bios.querySerialNumber();
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>         <strong class="jxr_keyword">if</strong> (serialNum.getResultCount() &gt; 0) {
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>             <strong class="jxr_keyword">return</strong> WmiUtil.getString(serialNum, BiosSerialProperty.SERIALNUMBER, 0);
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>         }
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>     }
+<a class="jxr_linenumber" name="L108" href="#L108">108</a> 
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String querySerialFromCsProduct() {
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>         WmiResult&lt;ComputerSystemProductProperty&gt; identifyingNumber = <a name="Win32ComputerSystemProduct" href="../../../../oshi/driver/windows/wmi/Win32ComputerSystemProduct.html#Win32ComputerSystemProduct">Win32ComputerSystemProduct</a>
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>                 .queryIdentifyingNumber();
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>         <strong class="jxr_keyword">if</strong> (identifyingNumber.getResultCount() &gt; 0) {
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>             <strong class="jxr_keyword">return</strong> WmiUtil.getString(identifyingNumber, ComputerSystemProductProperty.IDENTIFYINGNUMBER, 0);
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>         }
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>     }
+<a class="jxr_linenumber" name="L117" href="#L117">117</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2020 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

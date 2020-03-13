@@ -50,7 +50,7 @@ import oshi.util.ParseUtil;
         try {
 <span class="nc" id="L51">            return InetAddress.getLocalHost().getCanonicalHostName();</span>
 <span class="nc" id="L52">        } catch (UnknownHostException e) {</span>
-<span class="nc" id="L53">            LOG.error(&quot;Unknown host exception when getting address of local host: {}&quot;, e);</span>
+<span class="nc" id="L53">            LOG.error(&quot;Unknown host exception when getting address of local host: {}&quot;, e.getMessage());</span>
 <span class="nc" id="L54">            return &quot;&quot;;</span>
         }
     }
@@ -67,7 +67,7 @@ import oshi.util.ParseUtil;
 <span class="nc" id="L67">                return hn.substring(0, dot);</span>
             }
 <span class="nc" id="L69">        } catch (UnknownHostException e) {</span>
-<span class="nc" id="L70">            LOG.error(&quot;Unknown host exception when getting address of local host: {}&quot;, e);</span>
+<span class="nc" id="L70">            LOG.error(&quot;Unknown host exception when getting address of local host: {}&quot;, e.getMessage());</span>
 <span class="nc" id="L71">            return &quot;&quot;;</span>
         }
     }

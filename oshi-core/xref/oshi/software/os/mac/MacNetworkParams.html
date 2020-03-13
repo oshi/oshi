@@ -73,7 +73,7 @@
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>          <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>              hostname = InetAddress.getLocalHost().getHostName();
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>          } <strong class="jxr_keyword">catch</strong> (UnknownHostException e) {
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>              LOG.error(<span class="jxr_string">"Unknown host exception when getting address of local host: {}"</span>, e);
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>              LOG.error(<span class="jxr_string">"Unknown host exception when getting address of local host: {}"</span>, e.getMessage());
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>              <strong class="jxr_keyword">return</strong> <span class="jxr_string">""</span>;
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>          }
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>          PointerByReference ptr = <strong class="jxr_keyword">new</strong> PointerByReference();

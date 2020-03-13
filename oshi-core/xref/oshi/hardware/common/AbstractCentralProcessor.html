@@ -302,7 +302,7 @@
 <a class="jxr_linenumber" name="L294" href="#L294">294</a> <em class="jxr_javadoccomment">     *            A space-delimited list of CPU feature flags</em>
 <a class="jxr_linenumber" name="L295" href="#L295">295</a> <em class="jxr_javadoccomment">     * @return The Processor ID string</em>
 <a class="jxr_linenumber" name="L296" href="#L296">296</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L297" href="#L297">297</a>     <strong class="jxr_keyword">protected</strong> String createProcessorID(String stepping, String model, String family, String[] flags) {
+<a class="jxr_linenumber" name="L297" href="#L297">297</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">static</strong> String createProcessorID(String stepping, String model, String family, String[] flags) {
 <a class="jxr_linenumber" name="L298" href="#L298">298</a>         <strong class="jxr_keyword">long</strong> processorIdBytes = 0L;
 <a class="jxr_linenumber" name="L299" href="#L299">299</a>         <strong class="jxr_keyword">long</strong> steppingL = ParseUtil.parseLongOrDefault(stepping, 0L);
 <a class="jxr_linenumber" name="L300" href="#L300">300</a>         <strong class="jxr_keyword">long</strong> modelL = ParseUtil.parseLongOrDefault(model, 0L);

@@ -41,18 +41,18 @@
 <a class="jxr_linenumber" name="L33" href="#L33">33</a>  
 <a class="jxr_linenumber" name="L34" href="#L34">34</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.common.AbstractSoundCard;
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>  <strong class="jxr_keyword">import</strong> oshi.util.FileUtil;
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>  
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <em class="jxr_javadoccomment"> * Sound card data obtained via /proc/asound directory</em>
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="LinuxSoundCard" href="../../../../oshi/hardware/platform/linux/LinuxSoundCard.html#LinuxSoundCard">LinuxSoundCard</a> <strong class="jxr_keyword">extends</strong> <a name="AbstractSoundCard" href="../../../../oshi/hardware/common/AbstractSoundCard.html#AbstractSoundCard">AbstractSoundCard</a> {
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>  
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String SC_PATH = <span class="jxr_string">"/proc/asound/"</span>;
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String CARD_FOLDER = <span class="jxr_string">"card"</span>;
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String CARDS_FILE = <span class="jxr_string">"cards"</span>;
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String ID_FILE = <span class="jxr_string">"id"</span>;
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>  
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Logger LOG = LoggerFactory.getLogger(LinuxSoundCard.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <strong class="jxr_keyword">import</strong> oshi.util.platform.linux.ProcPath;
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>  
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <em class="jxr_javadoccomment"> * Sound card data obtained via /proc/asound directory</em>
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="LinuxSoundCard" href="../../../../oshi/hardware/platform/linux/LinuxSoundCard.html#LinuxSoundCard">LinuxSoundCard</a> <strong class="jxr_keyword">extends</strong> <a name="AbstractSoundCard" href="../../../../oshi/hardware/common/AbstractSoundCard.html#AbstractSoundCard">AbstractSoundCard</a> {
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>  
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Logger LOG = LoggerFactory.getLogger(LinuxSoundCard.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>  
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String CARD_FOLDER = <span class="jxr_string">"card"</span>;
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String CARDS_FILE = <span class="jxr_string">"cards"</span>;
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String ID_FILE = <span class="jxr_string">"id"</span>;
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>  
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>      <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>  <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
@@ -77,7 +77,7 @@
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>  <em class="jxr_javadoccomment">     * @return : A list of files starting with 'card'</em>
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>  <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> List&lt;File&gt; getCardFolders() {
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>          File cardsDirectory = <strong class="jxr_keyword">new</strong> File(SC_PATH);
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>          File cardsDirectory = <strong class="jxr_keyword">new</strong> File(ProcPath.ASOUND);
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>          List&lt;File&gt; cardFolders = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>          File[] allContents = cardsDirectory.listFiles();
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>          <strong class="jxr_keyword">if</strong> (allContents != <strong class="jxr_keyword">null</strong>) {
@@ -101,7 +101,7 @@
 <a class="jxr_linenumber" name="L93" href="#L93">93</a>  <em class="jxr_javadoccomment">     *         machine</em>
 <a class="jxr_linenumber" name="L94" href="#L94">94</a>  <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L95" href="#L95">95</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String getSoundCardVersion() {
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>          String driverVersion = FileUtil.getStringFromFile(SC_PATH + <span class="jxr_string">"version"</span>);
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>          String driverVersion = FileUtil.getStringFromFile(ProcPath.ASOUND + <span class="jxr_string">"version"</span>);
 <a class="jxr_linenumber" name="L97" href="#L97">97</a>          <strong class="jxr_keyword">return</strong> driverVersion.isEmpty() ? <span class="jxr_string">"not available"</span> : driverVersion;
 <a class="jxr_linenumber" name="L98" href="#L98">98</a>      }
 <a class="jxr_linenumber" name="L99" href="#L99">99</a>  
@@ -133,7 +133,7 @@
 <a class="jxr_linenumber" name="L125" href="#L125">125</a>                         <strong class="jxr_keyword">if</strong> (codecs != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L126" href="#L126">126</a>                             <strong class="jxr_keyword">for</strong> (File codec : codecs) {
 <a class="jxr_linenumber" name="L127" href="#L127">127</a>                                 <strong class="jxr_keyword">if</strong> (!codec.isDirectory() &amp;&amp; codec.getName().contains(<span class="jxr_string">"#"</span>)) {
-<a class="jxr_linenumber" name="L128" href="#L128">128</a>                                     cardCodec = codec.getName().substring(0, codec.getName().indexOf(<span class="jxr_string">"#"</span>));
+<a class="jxr_linenumber" name="L128" href="#L128">128</a>                                     cardCodec = codec.getName().substring(0, codec.getName().indexOf('#'));
 <a class="jxr_linenumber" name="L129" href="#L129">129</a>                                     <strong class="jxr_keyword">break</strong>;
 <a class="jxr_linenumber" name="L130" href="#L130">130</a>                                 }
 <a class="jxr_linenumber" name="L131" href="#L131">131</a>                             }
@@ -160,7 +160,7 @@
 <a class="jxr_linenumber" name="L152" href="#L152">152</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L153" href="#L153">153</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String getCardName(File file) {
 <a class="jxr_linenumber" name="L154" href="#L154">154</a>         String cardName = <span class="jxr_string">"Not Found.."</span>;
-<a class="jxr_linenumber" name="L155" href="#L155">155</a>         Map&lt;String, String&gt; cardNamePairs = FileUtil.getKeyValueMapFromFile(SC_PATH + <span class="jxr_string">"/"</span> + CARDS_FILE, <span class="jxr_string">":"</span>);
+<a class="jxr_linenumber" name="L155" href="#L155">155</a>         Map&lt;String, String&gt; cardNamePairs = FileUtil.getKeyValueMapFromFile(ProcPath.ASOUND + <span class="jxr_string">"/"</span> + CARDS_FILE, <span class="jxr_string">":"</span>);
 <a class="jxr_linenumber" name="L156" href="#L156">156</a>         String cardId = FileUtil.getStringFromFile(file.getPath() + <span class="jxr_string">"/"</span> + ID_FILE);
 <a class="jxr_linenumber" name="L157" href="#L157">157</a>         <strong class="jxr_keyword">for</strong> (Map.Entry&lt;String, String&gt; entry : cardNamePairs.entrySet()) {
 <a class="jxr_linenumber" name="L158" href="#L158">158</a>             <strong class="jxr_keyword">if</strong> (entry.getKey().contains(cardId)) {

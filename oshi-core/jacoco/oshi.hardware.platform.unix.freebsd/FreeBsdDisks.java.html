@@ -234,7 +234,7 @@ import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
 <span class="nc" id="L234">        return diskList.toArray(new HWDiskStore[0]);</span>
     }
 
-    private void setPartitions(HWDiskStore store, List&lt;HWPartition&gt; partList) {
+    private static void setPartitions(HWDiskStore store, List&lt;HWPartition&gt; partList) {
 <span class="nc" id="L238">        HWPartition[] partitions = new HWPartition[partList.size()];</span>
 <span class="nc" id="L239">        int index = 0;</span>
 <span class="nc" id="L240">        Collections.sort(partList);</span>

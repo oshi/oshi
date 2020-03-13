@@ -24,7 +24,7 @@
 package oshi.hardware.platform.linux;
 
 import static oshi.util.Memoizer.memoize;
-import static oshi.util.platform.linux.ProcUtil.CPUINFO;
+import static oshi.util.platform.linux.ProcPath.CPUINFO;
 
 import java.util.List;
 import java.util.function.Supplier;
@@ -34,71 +34,70 @@ import oshi.util.Constants;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
-import oshi.util.platform.linux.ProcUtil;
 
 /**
  * Baseboard data obtained by sysfs
  */
-<span class="nc" id="L42">final class LinuxBaseboard extends AbstractBaseboard {</span>
+<span class="nc" id="L41">final class LinuxBaseboard extends AbstractBaseboard {</span>
 
-<span class="nc" id="L44">    private final Supplier&lt;String&gt; manufacturer = memoize(this::queryManufacturer);</span>
+<span class="nc" id="L43">    private final Supplier&lt;String&gt; manufacturer = memoize(LinuxBaseboard::queryManufacturer);</span>
 
-<span class="nc" id="L46">    private final Supplier&lt;String&gt; model = memoize(this::queryModel);</span>
+<span class="nc" id="L45">    private final Supplier&lt;String&gt; model = memoize(this::queryModel);</span>
 
-<span class="nc" id="L48">    private final Supplier&lt;String&gt; version = memoize(this::queryVersion);</span>
+<span class="nc" id="L47">    private final Supplier&lt;String&gt; version = memoize(this::queryVersion);</span>
 
-<span class="nc" id="L50">    private final Supplier&lt;String&gt; serialNumber = memoize(this::querySerialNumber);</span>
+<span class="nc" id="L49">    private final Supplier&lt;String&gt; serialNumber = memoize(this::querySerialNumber);</span>
 
     @Override
     public String getManufacturer() {
-<span class="nc" id="L54">        return manufacturer.get();</span>
+<span class="nc" id="L53">        return manufacturer.get();</span>
     }
 
     @Override
     public String getModel() {
-<span class="nc" id="L59">        return model.get();</span>
+<span class="nc" id="L58">        return model.get();</span>
     }
 
     @Override
     public String getVersion() {
-<span class="nc" id="L64">        return version.get();</span>
+<span class="nc" id="L63">        return version.get();</span>
     }
 
     @Override
     public String getSerialNumber() {
-<span class="nc" id="L69">        return serialNumber.get();</span>
+<span class="nc" id="L68">        return serialNumber.get();</span>
     }
 
-    private String queryManufacturer() {
-<span class="nc" id="L73">        String result = null;</span>
-<span class="nc bnc" id="L74" title="All 4 branches missed.">        if ((result = queryManufacturerFromSysfs()) == null &amp;&amp; (result = queryProcCpu().manufacturer) == null) {</span>
-<span class="nc" id="L75">            return Constants.UNKNOWN;</span>
+    private static String queryManufacturer() {
+<span class="nc" id="L72">        String result = null;</span>
+<span class="nc bnc" id="L73" title="All 4 branches missed.">        if ((result = queryManufacturerFromSysfs()) == null &amp;&amp; (result = queryProcCpu().manufacturer) == null) {</span>
+<span class="nc" id="L74">            return Constants.UNKNOWN;</span>
         }
-<span class="nc" id="L77">        return result;</span>
+<span class="nc" id="L76">        return result;</span>
     }
 
     private String queryModel() {
-<span class="nc" id="L81">        String result = null;</span>
-<span class="nc bnc" id="L82" title="All 4 branches missed.">        if ((result = queryModelFromSysfs()) == null &amp;&amp; (result = queryProcCpu().model) == null) {</span>
-<span class="nc" id="L83">            return Constants.UNKNOWN;</span>
+<span class="nc" id="L80">        String result = null;</span>
+<span class="nc bnc" id="L81" title="All 4 branches missed.">        if ((result = queryModelFromSysfs()) == null &amp;&amp; (result = queryProcCpu().model) == null) {</span>
+<span class="nc" id="L82">            return Constants.UNKNOWN;</span>
         }
-<span class="nc" id="L85">        return result;</span>
+<span class="nc" id="L84">        return result;</span>
     }
 
     private String queryVersion() {
-<span class="nc" id="L89">        String result = null;</span>
-<span class="nc bnc" id="L90" title="All 4 branches missed.">        if ((result = queryVersionFromSysfs()) == null &amp;&amp; (result = queryProcCpu().version) == null) {</span>
-<span class="nc" id="L91">            return Constants.UNKNOWN;</span>
+<span class="nc" id="L88">        String result = null;</span>
+<span class="nc bnc" id="L89" title="All 4 branches missed.">        if ((result = queryVersionFromSysfs()) == null &amp;&amp; (result = queryProcCpu().version) == null) {</span>
+<span class="nc" id="L90">            return Constants.UNKNOWN;</span>
         }
-<span class="nc" id="L93">        return result;</span>
+<span class="nc" id="L92">        return result;</span>
     }
 
     private String querySerialNumber() {
-<span class="nc" id="L97">        String result = null;</span>
-<span class="nc bnc" id="L98" title="All 4 branches missed.">        if ((result = querySerialFromSysfs()) == null &amp;&amp; (result = queryProcCpu().serialNumber) == null) {</span>
-<span class="nc" id="L99">            return Constants.UNKNOWN;</span>
+<span class="nc" id="L96">        String result = null;</span>
+<span class="nc bnc" id="L97" title="All 4 branches missed.">        if ((result = querySerialFromSysfs()) == null &amp;&amp; (result = queryProcCpu().serialNumber) == null) {</span>
+<span class="nc" id="L98">            return Constants.UNKNOWN;</span>
         }
-<span class="nc" id="L101">        return result;</span>
+<span class="nc" id="L100">        return result;</span>
     }
 
     // Note: /sys/class/dmi/id symlinks here, but /sys/devices/* is the
@@ -112,86 +111,86 @@ import oshi.util.platform.linux.ProcUtil;
     // board_name chassis_type product_serial
     // board_serial chassis_vendor product_uuid
 
-    private String queryManufacturerFromSysfs() {
-<span class="nc" id="L116">        final String boardVendor = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + &quot;board_vendor&quot;).trim();</span>
-<span class="nc bnc" id="L117" title="All 2 branches missed.">        if (!boardVendor.isEmpty()) {</span>
-<span class="nc" id="L118">            return boardVendor;</span>
+    private static String queryManufacturerFromSysfs() {
+<span class="nc" id="L115">        final String boardVendor = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + &quot;board_vendor&quot;).trim();</span>
+<span class="nc bnc" id="L116" title="All 2 branches missed.">        if (!boardVendor.isEmpty()) {</span>
+<span class="nc" id="L117">            return boardVendor;</span>
         }
-<span class="nc" id="L120">        return null;</span>
+<span class="nc" id="L119">        return null;</span>
     }
 
     private String queryModelFromSysfs() {
-<span class="nc" id="L124">        final String boardName = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + &quot;board_name&quot;).trim();</span>
-<span class="nc bnc" id="L125" title="All 2 branches missed.">        if (!boardName.isEmpty()) {</span>
-<span class="nc" id="L126">            return boardName;</span>
+<span class="nc" id="L123">        final String boardName = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + &quot;board_name&quot;).trim();</span>
+<span class="nc bnc" id="L124" title="All 2 branches missed.">        if (!boardName.isEmpty()) {</span>
+<span class="nc" id="L125">            return boardName;</span>
         }
-<span class="nc" id="L128">        return null;</span>
+<span class="nc" id="L127">        return null;</span>
     }
 
     private String queryVersionFromSysfs() {
-<span class="nc" id="L132">        final String boardVersion = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + &quot;board_version&quot;).trim();</span>
-<span class="nc bnc" id="L133" title="All 2 branches missed.">        if (!boardVersion.isEmpty()) {</span>
-<span class="nc" id="L134">            return boardVersion;</span>
+<span class="nc" id="L131">        final String boardVersion = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + &quot;board_version&quot;).trim();</span>
+<span class="nc bnc" id="L132" title="All 2 branches missed.">        if (!boardVersion.isEmpty()) {</span>
+<span class="nc" id="L133">            return boardVersion;</span>
         }
-<span class="nc" id="L136">        return null;</span>
+<span class="nc" id="L135">        return null;</span>
     }
 
     private String querySerialFromSysfs() {
-<span class="nc" id="L140">        final String boardSerial = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + &quot;board_serial&quot;).trim();</span>
-<span class="nc bnc" id="L141" title="All 2 branches missed.">        if (!boardSerial.isEmpty()) {</span>
-<span class="nc" id="L142">            return boardSerial;</span>
+<span class="nc" id="L139">        final String boardSerial = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + &quot;board_serial&quot;).trim();</span>
+<span class="nc bnc" id="L140" title="All 2 branches missed.">        if (!boardSerial.isEmpty()) {</span>
+<span class="nc" id="L141">            return boardSerial;</span>
         }
-<span class="nc" id="L144">        return null;</span>
+<span class="nc" id="L143">        return null;</span>
     }
 
-    private ProcCpuStrings queryProcCpu() {
-<span class="nc" id="L148">        String pcManufacturer = null;</span>
-<span class="nc" id="L149">        String pcModel = null;</span>
-<span class="nc" id="L150">        String pcVersion = null;</span>
-<span class="nc" id="L151">        String pcSerialNumber = null;</span>
+    private static ProcCpuStrings queryProcCpu() {
+<span class="nc" id="L147">        String pcManufacturer = null;</span>
+<span class="nc" id="L148">        String pcModel = null;</span>
+<span class="nc" id="L149">        String pcVersion = null;</span>
+<span class="nc" id="L150">        String pcSerialNumber = null;</span>
 
-<span class="nc" id="L153">        List&lt;String&gt; cpuInfo = FileUtil.readFile(ProcUtil.getProcPath() + CPUINFO);</span>
-<span class="nc bnc" id="L154" title="All 2 branches missed.">        for (String line : cpuInfo) {</span>
-<span class="nc" id="L155">            String[] splitLine = ParseUtil.whitespacesColonWhitespace.split(line);</span>
-<span class="nc bnc" id="L156" title="All 2 branches missed.">            if (splitLine.length &lt; 2) {</span>
-<span class="nc" id="L157">                continue;</span>
+<span class="nc" id="L152">        List&lt;String&gt; cpuInfo = FileUtil.readFile(CPUINFO);</span>
+<span class="nc bnc" id="L153" title="All 2 branches missed.">        for (String line : cpuInfo) {</span>
+<span class="nc" id="L154">            String[] splitLine = ParseUtil.whitespacesColonWhitespace.split(line);</span>
+<span class="nc bnc" id="L155" title="All 2 branches missed.">            if (splitLine.length &lt; 2) {</span>
+<span class="nc" id="L156">                continue;</span>
             }
-<span class="nc bnc" id="L159" title="All 4 branches missed.">            switch (splitLine[0]) {</span>
+<span class="nc bnc" id="L158" title="All 4 branches missed.">            switch (splitLine[0]) {</span>
             case &quot;Hardware&quot;:
-<span class="nc" id="L161">                pcModel = splitLine[1];</span>
-<span class="nc" id="L162">                break;</span>
+<span class="nc" id="L160">                pcModel = splitLine[1];</span>
+<span class="nc" id="L161">                break;</span>
             case &quot;Revision&quot;:
-<span class="nc" id="L164">                pcVersion = splitLine[1];</span>
-<span class="nc bnc" id="L165" title="All 2 branches missed.">                if (pcVersion.length() &gt; 1) {</span>
-<span class="nc" id="L166">                    pcManufacturer = queryBoardManufacturer(pcVersion.charAt(1));</span>
+<span class="nc" id="L163">                pcVersion = splitLine[1];</span>
+<span class="nc bnc" id="L164" title="All 2 branches missed.">                if (pcVersion.length() &gt; 1) {</span>
+<span class="nc" id="L165">                    pcManufacturer = queryBoardManufacturer(pcVersion.charAt(1));</span>
                 }
                 break;
             case &quot;Serial&quot;:
-<span class="nc" id="L170">                pcSerialNumber = splitLine[1];</span>
-<span class="nc" id="L171">                break;</span>
+<span class="nc" id="L169">                pcSerialNumber = splitLine[1];</span>
+<span class="nc" id="L170">                break;</span>
             default:
                 // Do nothing
             }
-<span class="nc" id="L175">        }</span>
-<span class="nc" id="L176">        return new ProcCpuStrings(pcManufacturer, pcModel, pcVersion, pcSerialNumber);</span>
+<span class="nc" id="L174">        }</span>
+<span class="nc" id="L175">        return new ProcCpuStrings(pcManufacturer, pcModel, pcVersion, pcSerialNumber);</span>
     }
 
-    private String queryBoardManufacturer(char digit) {
-<span class="nc bnc" id="L180" title="All 7 branches missed.">        switch (digit) {</span>
+    private static String queryBoardManufacturer(char digit) {
+<span class="nc bnc" id="L179" title="All 7 branches missed.">        switch (digit) {</span>
         case '0':
-<span class="nc" id="L182">            return &quot;Sony UK&quot;;</span>
+<span class="nc" id="L181">            return &quot;Sony UK&quot;;</span>
         case '1':
-<span class="nc" id="L184">            return &quot;Egoman&quot;;</span>
+<span class="nc" id="L183">            return &quot;Egoman&quot;;</span>
         case '2':
-<span class="nc" id="L186">            return &quot;Embest&quot;;</span>
+<span class="nc" id="L185">            return &quot;Embest&quot;;</span>
         case '3':
-<span class="nc" id="L188">            return &quot;Sony Japan&quot;;</span>
+<span class="nc" id="L187">            return &quot;Sony Japan&quot;;</span>
         case '4':
-<span class="nc" id="L190">            return &quot;Embest&quot;;</span>
+<span class="nc" id="L189">            return &quot;Embest&quot;;</span>
         case '5':
-<span class="nc" id="L192">            return &quot;Stadium&quot;;</span>
+<span class="nc" id="L191">            return &quot;Stadium&quot;;</span>
         default:
-<span class="nc" id="L194">            return Constants.UNKNOWN;</span>
+<span class="nc" id="L193">            return Constants.UNKNOWN;</span>
         }
     }
 
@@ -201,12 +200,12 @@ import oshi.util.platform.linux.ProcUtil;
         private final String version;
         private final String serialNumber;
 
-<span class="nc" id="L204">        private ProcCpuStrings(String manufacturer, String model, String version, String serialNumber) {</span>
-<span class="nc bnc" id="L205" title="All 2 branches missed.">            this.manufacturer = Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer;</span>
-<span class="nc bnc" id="L206" title="All 2 branches missed.">            this.model = Util.isBlank(model) ? Constants.UNKNOWN : model;</span>
-<span class="nc bnc" id="L207" title="All 2 branches missed.">            this.version = Util.isBlank(version) ? Constants.UNKNOWN : version;</span>
-<span class="nc bnc" id="L208" title="All 2 branches missed.">            this.serialNumber = Util.isBlank(serialNumber) ? Constants.UNKNOWN : serialNumber;</span>
-<span class="nc" id="L209">        }</span>
+<span class="nc" id="L203">        private ProcCpuStrings(String manufacturer, String model, String version, String serialNumber) {</span>
+<span class="nc bnc" id="L204" title="All 2 branches missed.">            this.manufacturer = Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer;</span>
+<span class="nc bnc" id="L205" title="All 2 branches missed.">            this.model = Util.isBlank(model) ? Constants.UNKNOWN : model;</span>
+<span class="nc bnc" id="L206" title="All 2 branches missed.">            this.version = Util.isBlank(version) ? Constants.UNKNOWN : version;</span>
+<span class="nc bnc" id="L207" title="All 2 branches missed.">            this.serialNumber = Util.isBlank(serialNumber) ? Constants.UNKNOWN : serialNumber;</span>
+<span class="nc" id="L208">        }</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

@@ -242,7 +242,7 @@
 <a class="jxr_linenumber" name="L234" href="#L234">234</a>         <strong class="jxr_keyword">return</strong> diskList.toArray(<strong class="jxr_keyword">new</strong> <a name="HWDiskStore" href="../../../../../oshi/hardware/HWDiskStore.html#HWDiskStore">HWDiskStore</a>[0]);
 <a class="jxr_linenumber" name="L235" href="#L235">235</a>     }
 <a class="jxr_linenumber" name="L236" href="#L236">236</a> 
-<a class="jxr_linenumber" name="L237" href="#L237">237</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> setPartitions(<a name="HWDiskStore" href="../../../../../oshi/hardware/HWDiskStore.html#HWDiskStore">HWDiskStore</a> store, List&lt;HWPartition&gt; partList) {
+<a class="jxr_linenumber" name="L237" href="#L237">237</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> setPartitions(<a name="HWDiskStore" href="../../../../../oshi/hardware/HWDiskStore.html#HWDiskStore">HWDiskStore</a> store, List&lt;HWPartition&gt; partList) {
 <a class="jxr_linenumber" name="L238" href="#L238">238</a>         <a name="HWPartition" href="../../../../../oshi/hardware/HWPartition<a name="HWPartition" href="../../../../../oshi/hardware/HWPartition.html#HWPartition">HWPartition</a>tition">HWPartition</a>[] partitions = <strong class="jxr_keyword">new</strong> <a name="HWPartition" href="../../../../../oshi/hardware/HWPartition.html#HWPartition">HWPartition</a>[partList.size()];
 <a class="jxr_linenumber" name="L239" href="#L239">239</a>         <strong class="jxr_keyword">int</strong> index = 0;
 <a class="jxr_linenumber" name="L240" href="#L240">240</a>         Collections.sort(partList);

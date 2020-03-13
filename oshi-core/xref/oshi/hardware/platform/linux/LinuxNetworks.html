@@ -49,40 +49,41 @@
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>  <em class="jxr_javadoccomment">     *</em>
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>  <em class="jxr_javadoccomment">     * @param netIF</em>
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>  <em class="jxr_javadoccomment">     *            The interface on which to update statistics</em>
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> updateNetworkStats(<a name="NetworkIF" href="../../../../oshi/hardware/NetworkIF.html#NetworkIF">NetworkIF</a> netIF) {
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>          <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>              File ifDir = <strong class="jxr_keyword">new</strong> File(String.format(<span class="jxr_string">"/sys/class/net/%s/statistics"</span>, netIF.getName()));
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>              <strong class="jxr_keyword">if</strong> (!ifDir.isDirectory()) {
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>                  <strong class="jxr_keyword">return</strong> false;
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>              }
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>          } <strong class="jxr_keyword">catch</strong> (SecurityException e) {
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>              <strong class="jxr_keyword">return</strong> false;
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>          }
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>          String txBytesPath = String.format(<span class="jxr_string">"/sys/class/net/%s/statistics/tx_bytes"</span>, netIF.getName());
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>          String rxBytesPath = String.format(<span class="jxr_string">"/sys/class/net/%s/statistics/rx_bytes"</span>, netIF.getName());
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>          String txPacketsPath = String.format(<span class="jxr_string">"/sys/class/net/%s/statistics/tx_packets"</span>, netIF.getName());
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>          String rxPacketsPath = String.format(<span class="jxr_string">"/sys/class/net/%s/statistics/rx_packets"</span>, netIF.getName());
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>          String txErrorsPath = String.format(<span class="jxr_string">"/sys/class/net/%s/statistics/tx_errors"</span>, netIF.getName());
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>          String rxErrorsPath = String.format(<span class="jxr_string">"/sys/class/net/%s/statistics/rx_errors"</span>, netIF.getName());
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>          String collisionsPath = String.format(<span class="jxr_string">"/sys/class/net/%s/statistics/collisions"</span>, netIF.getName());
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>          String rxDropsPath = String.format(<span class="jxr_string">"/sys/class/net/%s/statistics/rx_dropped"</span>, netIF.getName());
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>          String speed = String.format(<span class="jxr_string">"/sys/class/net/%s/speed"</span>, netIF.getName());
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>  
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>          netIF.setTimeStamp(System.currentTimeMillis());
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>          netIF.setBytesSent(FileUtil.getUnsignedLongFromFile(txBytesPath));
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>          netIF.setBytesRecv(FileUtil.getUnsignedLongFromFile(rxBytesPath));
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>          netIF.setPacketsSent(FileUtil.getUnsignedLongFromFile(txPacketsPath));
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>          netIF.setPacketsRecv(FileUtil.getUnsignedLongFromFile(rxPacketsPath));
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>          netIF.setOutErrors(FileUtil.getUnsignedLongFromFile(txErrorsPath));
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>          netIF.setInErrors(FileUtil.getUnsignedLongFromFile(rxErrorsPath));
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>          netIF.setCollisions(FileUtil.getUnsignedLongFromFile(collisionsPath));
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>          netIF.setInDrops(FileUtil.getUnsignedLongFromFile(rxDropsPath));
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>          <strong class="jxr_keyword">long</strong> netSpeed = FileUtil.getUnsignedLongFromFile(speed) * 1024 * 1024;
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>          netIF.setSpeed(netSpeed &lt; 0 ? 0 : netSpeed);
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>      }
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>  }
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>  <em class="jxr_javadoccomment">     * @return {@code true} if the update was successful, {@code false} otherwise.</em>
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> updateNetworkStats(<a name="NetworkIF" href="../../../../oshi/hardware/NetworkIF.html#NetworkIF">NetworkIF</a> netIF) {
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>          <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>              File ifDir = <strong class="jxr_keyword">new</strong> File(String.format(<span class="jxr_string">"/sys/class/net/%s/statistics"</span>, netIF.getName()));
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>              <strong class="jxr_keyword">if</strong> (!ifDir.isDirectory()) {
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>                  <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>              }
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>          } <strong class="jxr_keyword">catch</strong> (SecurityException e) {
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>              <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>          }
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>          String txBytesPath = String.format(<span class="jxr_string">"/sys/class/net/%s/statistics/tx_bytes"</span>, netIF.getName());
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>          String rxBytesPath = String.format(<span class="jxr_string">"/sys/class/net/%s/statistics/rx_bytes"</span>, netIF.getName());
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>          String txPacketsPath = String.format(<span class="jxr_string">"/sys/class/net/%s/statistics/tx_packets"</span>, netIF.getName());
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>          String rxPacketsPath = String.format(<span class="jxr_string">"/sys/class/net/%s/statistics/rx_packets"</span>, netIF.getName());
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>          String txErrorsPath = String.format(<span class="jxr_string">"/sys/class/net/%s/statistics/tx_errors"</span>, netIF.getName());
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>          String rxErrorsPath = String.format(<span class="jxr_string">"/sys/class/net/%s/statistics/rx_errors"</span>, netIF.getName());
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>          String collisionsPath = String.format(<span class="jxr_string">"/sys/class/net/%s/statistics/collisions"</span>, netIF.getName());
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>          String rxDropsPath = String.format(<span class="jxr_string">"/sys/class/net/%s/statistics/rx_dropped"</span>, netIF.getName());
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>          String speed = String.format(<span class="jxr_string">"/sys/class/net/%s/speed"</span>, netIF.getName());
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>  
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>          netIF.setTimeStamp(System.currentTimeMillis());
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>          netIF.setBytesSent(FileUtil.getUnsignedLongFromFile(txBytesPath));
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>          netIF.setBytesRecv(FileUtil.getUnsignedLongFromFile(rxBytesPath));
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>          netIF.setPacketsSent(FileUtil.getUnsignedLongFromFile(txPacketsPath));
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>          netIF.setPacketsRecv(FileUtil.getUnsignedLongFromFile(rxPacketsPath));
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>          netIF.setOutErrors(FileUtil.getUnsignedLongFromFile(txErrorsPath));
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>          netIF.setInErrors(FileUtil.getUnsignedLongFromFile(rxErrorsPath));
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>          netIF.setCollisions(FileUtil.getUnsignedLongFromFile(collisionsPath));
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>          netIF.setInDrops(FileUtil.getUnsignedLongFromFile(rxDropsPath));
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>          <strong class="jxr_keyword">long</strong> netSpeed = FileUtil.getUnsignedLongFromFile(speed) * 1024 * 1024;
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>          netIF.setSpeed(netSpeed &lt; 0 ? 0 : netSpeed);
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>      }
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>  }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2020 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
