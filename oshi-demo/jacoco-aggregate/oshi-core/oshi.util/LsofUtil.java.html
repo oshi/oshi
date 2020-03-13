@@ -30,7 +30,7 @@ import java.util.Map;
 /**
  * Reads from lsof into a map
  */
-public class LsofUtil {
+public final class LsofUtil {
 
     private LsofUtil() {
     }

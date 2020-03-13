@@ -33,76 +33,68 @@ import java.util.regex.Pattern;
 import oshi.hardware.common.AbstractVirtualMemory;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
+import oshi.util.tuples.Pair;
 
 /**
  * Memory obtained by kstat and swap
  */
-<span class="nc" id="L40">public class SolarisVirtualMemory extends AbstractVirtualMemory {</span>
+<span class="nc" id="L41">public class SolarisVirtualMemory extends AbstractVirtualMemory {</span>
 
-<span class="nc" id="L42">    private static final Pattern SWAP_INFO = Pattern.compile(&quot;.+\\s(\\d+)K\\s+(\\d+)K$&quot;);</span>
+<span class="nc" id="L43">    private static final Pattern SWAP_INFO = Pattern.compile(&quot;.+\\s(\\d+)K\\s+(\\d+)K$&quot;);</span>
 
-<span class="nc" id="L44">    private final Supplier&lt;SwapInfo&gt; swapInfo = memoize(this::querySwapInfo, defaultExpiration());</span>
+<span class="nc" id="L45">    private final Supplier&lt;Pair&lt;Long, Long&gt;&gt; usedTotal = memoize(SolarisVirtualMemory::querySwapInfo,</span>
+<span class="nc" id="L46">            defaultExpiration());</span>
 
-<span class="nc" id="L46">    private final Supplier&lt;Long&gt; pagesIn = memoize(this::queryPagesIn, defaultExpiration());</span>
+<span class="nc" id="L48">    private final Supplier&lt;Long&gt; pagesIn = memoize(SolarisVirtualMemory::queryPagesIn, defaultExpiration());</span>
 
-<span class="nc" id="L48">    private final Supplier&lt;Long&gt; pagesOut = memoize(this::queryPagesOut, defaultExpiration());</span>
+<span class="nc" id="L50">    private final Supplier&lt;Long&gt; pagesOut = memoize(SolarisVirtualMemory::queryPagesOut, defaultExpiration());</span>
 
     @Override
     public long getSwapUsed() {
-<span class="nc" id="L52">        return swapInfo.get().used;</span>
+<span class="nc" id="L54">        return usedTotal.get().getA();</span>
     }
 
     @Override
     public long getSwapTotal() {
-<span class="nc" id="L57">        return swapInfo.get().total;</span>
+<span class="nc" id="L59">        return usedTotal.get().getB();</span>
     }
 
     @Override
     public long getSwapPagesIn() {
-<span class="nc" id="L62">        return pagesIn.get();</span>
+<span class="nc" id="L64">        return pagesIn.get();</span>
     }
 
     @Override
     public long getSwapPagesOut() {
-<span class="nc" id="L67">        return pagesOut.get();</span>
+<span class="nc" id="L69">        return pagesOut.get();</span>
     }
 
-    private long queryPagesIn() {
-<span class="nc" id="L71">        long swapPagesIn = 0L;</span>
-<span class="nc bnc" id="L72" title="All 2 branches missed.">        for (String s : ExecutingCommand.runNative(&quot;kstat -p cpu_stat:::pgpgin&quot;)) {</span>
-<span class="nc" id="L73">            swapPagesIn += ParseUtil.parseLastLong(s, 0L);</span>
-<span class="nc" id="L74">        }</span>
-<span class="nc" id="L75">        return swapPagesIn;</span>
+    private static long queryPagesIn() {
+<span class="nc" id="L73">        long swapPagesIn = 0L;</span>
+<span class="nc bnc" id="L74" title="All 2 branches missed.">        for (String s : ExecutingCommand.runNative(&quot;kstat -p cpu_stat:::pgpgin&quot;)) {</span>
+<span class="nc" id="L75">            swapPagesIn += ParseUtil.parseLastLong(s, 0L);</span>
+<span class="nc" id="L76">        }</span>
+<span class="nc" id="L77">        return swapPagesIn;</span>
     }
 
-    private long queryPagesOut() {
-<span class="nc" id="L79">        long swapPagesOut = 0L;</span>
-<span class="nc bnc" id="L80" title="All 2 branches missed.">        for (String s : ExecutingCommand.runNative(&quot;kstat -p cpu_stat:::pgpgout&quot;)) {</span>
-<span class="nc" id="L81">            swapPagesOut += ParseUtil.parseLastLong(s, 0L);</span>
-<span class="nc" id="L82">        }</span>
-<span class="nc" id="L83">        return swapPagesOut;</span>
+    private static long queryPagesOut() {
+<span class="nc" id="L81">        long swapPagesOut = 0L;</span>
+<span class="nc bnc" id="L82" title="All 2 branches missed.">        for (String s : ExecutingCommand.runNative(&quot;kstat -p cpu_stat:::pgpgout&quot;)) {</span>
+<span class="nc" id="L83">            swapPagesOut += ParseUtil.parseLastLong(s, 0L);</span>
+<span class="nc" id="L84">        }</span>
+<span class="nc" id="L85">        return swapPagesOut;</span>
     }
 
-    private SwapInfo querySwapInfo() {
-<span class="nc" id="L87">        long swapTotal = 0L;</span>
-<span class="nc" id="L88">        long swapUsed = 0L;</span>
-<span class="nc" id="L89">        String swap = ExecutingCommand.getAnswerAt(&quot;swap -lk&quot;, 1);</span>
-<span class="nc" id="L90">        Matcher m = SWAP_INFO.matcher(swap);</span>
-<span class="nc bnc" id="L91" title="All 2 branches missed.">        if (m.matches()) {</span>
-<span class="nc" id="L92">            swapTotal = ParseUtil.parseLongOrDefault(m.group(1), 0L) &lt;&lt; 10;</span>
-<span class="nc" id="L93">            swapUsed = swapTotal - (ParseUtil.parseLongOrDefault(m.group(2), 0L) &lt;&lt; 10);</span>
+    private static Pair&lt;Long, Long&gt; querySwapInfo() {
+<span class="nc" id="L89">        long swapTotal = 0L;</span>
+<span class="nc" id="L90">        long swapUsed = 0L;</span>
+<span class="nc" id="L91">        String swap = ExecutingCommand.getAnswerAt(&quot;swap -lk&quot;, 1);</span>
+<span class="nc" id="L92">        Matcher m = SWAP_INFO.matcher(swap);</span>
+<span class="nc bnc" id="L93" title="All 2 branches missed.">        if (m.matches()) {</span>
+<span class="nc" id="L94">            swapTotal = ParseUtil.parseLongOrDefault(m.group(1), 0L) &lt;&lt; 10;</span>
+<span class="nc" id="L95">            swapUsed = swapTotal - (ParseUtil.parseLongOrDefault(m.group(2), 0L) &lt;&lt; 10);</span>
         }
-<span class="nc" id="L95">        return new SwapInfo(swapTotal, swapUsed);</span>
-    }
-
-    private static final class SwapInfo {
-        private final long total;
-        private final long used;
-
-<span class="nc" id="L102">        private SwapInfo(long total, long used) {</span>
-<span class="nc" id="L103">            this.total = total;</span>
-<span class="nc" id="L104">            this.used = used;</span>
-<span class="nc" id="L105">        }</span>
+<span class="nc" id="L97">        return new Pair&lt;&gt;(swapUsed, swapTotal);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

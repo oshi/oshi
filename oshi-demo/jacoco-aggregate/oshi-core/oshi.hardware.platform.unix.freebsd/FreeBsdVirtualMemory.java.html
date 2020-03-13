@@ -38,13 +38,13 @@ import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
  */
 <span class="nc" id="L39">public class FreeBsdVirtualMemory extends AbstractVirtualMemory {</span>
 
-<span class="nc" id="L41">    private final Supplier&lt;Long&gt; used = memoize(this::querySwapUsed, defaultExpiration());</span>
+<span class="nc" id="L41">    private final Supplier&lt;Long&gt; used = memoize(FreeBsdVirtualMemory::querySwapUsed, defaultExpiration());</span>
 
-<span class="nc" id="L43">    private final Supplier&lt;Long&gt; total = memoize(this::querySwapTotal, defaultExpiration());</span>
+<span class="nc" id="L43">    private final Supplier&lt;Long&gt; total = memoize(FreeBsdVirtualMemory::querySwapTotal, defaultExpiration());</span>
 
-<span class="nc" id="L45">    private final Supplier&lt;Long&gt; pagesIn = memoize(this::queryPagesIn, defaultExpiration());</span>
+<span class="nc" id="L45">    private final Supplier&lt;Long&gt; pagesIn = memoize(FreeBsdVirtualMemory::queryPagesIn, defaultExpiration());</span>
 
-<span class="nc" id="L47">    private final Supplier&lt;Long&gt; pagesOut = memoize(this::queryPagesOut, defaultExpiration());</span>
+<span class="nc" id="L47">    private final Supplier&lt;Long&gt; pagesOut = memoize(FreeBsdVirtualMemory::queryPagesOut, defaultExpiration());</span>
 
     @Override
     public long getSwapUsed() {
@@ -66,7 +66,7 @@ import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
 <span class="nc" id="L66">        return pagesOut.get();</span>
     }
 
-    private long querySwapUsed() {
+    private static long querySwapUsed() {
 <span class="nc" id="L70">        String swapInfo = ExecutingCommand.getAnswerAt(&quot;swapinfo -k&quot;, 1);</span>
 <span class="nc" id="L71">        String[] split = ParseUtil.whitespaces.split(swapInfo);</span>
 <span class="nc bnc" id="L72" title="All 2 branches missed.">        if (split.length &lt; 5) {</span>
@@ -75,15 +75,15 @@ import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
 <span class="nc" id="L75">        return ParseUtil.parseLongOrDefault(split[2], 0L) &lt;&lt; 10;</span>
     }
 
-    private long querySwapTotal() {
+    private static long querySwapTotal() {
 <span class="nc" id="L79">        return BsdSysctlUtil.sysctl(&quot;vm.swap_total&quot;, 0L);</span>
     }
 
-    private long queryPagesIn() {
+    private static long queryPagesIn() {
 <span class="nc" id="L83">        return BsdSysctlUtil.sysctl(&quot;vm.stats.vm.v_swappgsin&quot;, 0L);</span>
     }
 
-    private long queryPagesOut() {
+    private static long queryPagesOut() {
 <span class="nc" id="L87">        return BsdSysctlUtil.sysctl(&quot;vm.stats.vm.v_swappgsout&quot;, 0L);</span>
     }
 }

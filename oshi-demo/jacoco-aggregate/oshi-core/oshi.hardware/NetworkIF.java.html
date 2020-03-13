@@ -69,15 +69,13 @@ import oshi.util.ParseUtil;
     private long timeStamp;
 
     /**
-     * &lt;p&gt;
-     * The NetworkInterface object.
-     * &lt;/p&gt;
+     * Gets the core java {@link NetworkInterface} object.
      *
      * @return the network interface, an instance of
      *         {@link java.net.NetworkInterface}.
      */
     public NetworkInterface queryNetworkInterface() {
-<span class="fc" id="L80">        return this.networkInterface;</span>
+<span class="fc" id="L78">        return this.networkInterface;</span>
     }
 
     /**
@@ -87,48 +85,48 @@ import oshi.util.ParseUtil;
      *            The network interface to set
      */
     public void setNetworkInterface(NetworkInterface networkInterface) {
-<span class="fc" id="L90">        this.networkInterface = networkInterface;</span>
+<span class="fc" id="L88">        this.networkInterface = networkInterface;</span>
         try {
             // Set MTU
-<span class="fc" id="L93">            this.mtu = networkInterface.getMTU();</span>
+<span class="fc" id="L91">            this.mtu = networkInterface.getMTU();</span>
             // Set MAC
-<span class="fc" id="L95">            byte[] hwmac = networkInterface.getHardwareAddress();</span>
-<span class="pc bpc" id="L96" title="1 of 2 branches missed.">            if (hwmac != null) {</span>
-<span class="fc" id="L97">                List&lt;String&gt; octets = new ArrayList&lt;&gt;(6);</span>
-<span class="fc bfc" id="L98" title="All 2 branches covered.">                for (byte b : hwmac) {</span>
-<span class="fc" id="L99">                    octets.add(String.format(&quot;%02x&quot;, b));</span>
+<span class="fc" id="L93">            byte[] hwmac = networkInterface.getHardwareAddress();</span>
+<span class="pc bpc" id="L94" title="1 of 2 branches missed.">            if (hwmac != null) {</span>
+<span class="fc" id="L95">                List&lt;String&gt; octets = new ArrayList&lt;&gt;(6);</span>
+<span class="fc bfc" id="L96" title="All 2 branches covered.">                for (byte b : hwmac) {</span>
+<span class="fc" id="L97">                    octets.add(String.format(&quot;%02x&quot;, b));</span>
                 }
-<span class="fc" id="L101">                this.mac = String.join(&quot;:&quot;, octets);</span>
-<span class="fc" id="L102">            } else {</span>
-<span class="nc" id="L103">                this.mac = &quot;Unknown&quot;;</span>
+<span class="fc" id="L99">                this.mac = String.join(&quot;:&quot;, octets);</span>
+<span class="fc" id="L100">            } else {</span>
+<span class="nc" id="L101">                this.mac = &quot;Unknown&quot;;</span>
             }
             // Set IP arrays
-<span class="fc" id="L106">            ArrayList&lt;String&gt; ipv4list = new ArrayList&lt;&gt;();</span>
-<span class="fc" id="L107">            ArrayList&lt;Short&gt; subnetMaskList = new ArrayList&lt;&gt;();</span>
-<span class="fc" id="L108">            ArrayList&lt;String&gt; ipv6list = new ArrayList&lt;&gt;();</span>
-<span class="fc" id="L109">            ArrayList&lt;Short&gt; prefixLengthList = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L104">            ArrayList&lt;String&gt; ipv4list = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L105">            ArrayList&lt;Short&gt; subnetMaskList = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L106">            ArrayList&lt;String&gt; ipv6list = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L107">            ArrayList&lt;Short&gt; prefixLengthList = new ArrayList&lt;&gt;();</span>
 
-<span class="fc bfc" id="L111" title="All 2 branches covered.">            for (InterfaceAddress interfaceAddress : networkInterface.getInterfaceAddresses()) {</span>
-<span class="fc" id="L112">                InetAddress address = interfaceAddress.getAddress();</span>
-<span class="pc bpc" id="L113" title="1 of 2 branches missed.">                if (address.getHostAddress().length() &gt; 0) {</span>
-<span class="fc bfc" id="L114" title="All 2 branches covered.">                    if (address.getHostAddress().contains(&quot;:&quot;)) {</span>
-<span class="fc" id="L115">                        ipv6list.add(address.getHostAddress().split(&quot;%&quot;)[0]);</span>
-<span class="fc" id="L116">                        prefixLengthList.add(interfaceAddress.getNetworkPrefixLength());</span>
+<span class="fc bfc" id="L109" title="All 2 branches covered.">            for (InterfaceAddress interfaceAddress : networkInterface.getInterfaceAddresses()) {</span>
+<span class="fc" id="L110">                InetAddress address = interfaceAddress.getAddress();</span>
+<span class="pc bpc" id="L111" title="1 of 2 branches missed.">                if (address.getHostAddress().length() &gt; 0) {</span>
+<span class="fc bfc" id="L112" title="All 2 branches covered.">                    if (address.getHostAddress().contains(&quot;:&quot;)) {</span>
+<span class="fc" id="L113">                        ipv6list.add(address.getHostAddress().split(&quot;%&quot;)[0]);</span>
+<span class="fc" id="L114">                        prefixLengthList.add(interfaceAddress.getNetworkPrefixLength());</span>
                     } else {
-<span class="fc" id="L118">                        ipv4list.add(address.getHostAddress());</span>
-<span class="fc" id="L119">                        subnetMaskList.add(interfaceAddress.getNetworkPrefixLength());</span>
+<span class="fc" id="L116">                        ipv4list.add(address.getHostAddress());</span>
+<span class="fc" id="L117">                        subnetMaskList.add(interfaceAddress.getNetworkPrefixLength());</span>
                     }
                 }
-<span class="fc" id="L122">            }</span>
+<span class="fc" id="L120">            }</span>
 
-<span class="fc" id="L124">            this.ipv4 = ipv4list.toArray(new String[0]);</span>
-<span class="fc" id="L125">            this.subnetMasks = subnetMaskList.toArray(new Short[0]);</span>
-<span class="fc" id="L126">            this.ipv6 = ipv6list.toArray(new String[0]);</span>
-<span class="fc" id="L127">            this.prefixLengths = prefixLengthList.toArray(new Short[0]);</span>
-<span class="nc" id="L128">        } catch (SocketException e) {</span>
-<span class="nc" id="L129">            LOG.error(&quot;Socket exception: {}&quot;, e);</span>
-<span class="fc" id="L130">        }</span>
-<span class="fc" id="L131">    }</span>
+<span class="fc" id="L122">            this.ipv4 = ipv4list.toArray(new String[0]);</span>
+<span class="fc" id="L123">            this.subnetMasks = subnetMaskList.toArray(new Short[0]);</span>
+<span class="fc" id="L124">            this.ipv6 = ipv6list.toArray(new String[0]);</span>
+<span class="fc" id="L125">            this.prefixLengths = prefixLengthList.toArray(new Short[0]);</span>
+<span class="nc" id="L126">        } catch (SocketException e) {</span>
+<span class="nc" id="L127">            LOG.error(&quot;Socket exception: {}&quot;, e.getMessage());</span>
+<span class="fc" id="L128">        }</span>
+<span class="fc" id="L129">    }</span>
 
     /**
      * &lt;p&gt;
@@ -138,7 +136,7 @@ import oshi.util.ParseUtil;
      * @return The interface name.
      */
     public String getName() {
-<span class="fc" id="L141">        return this.networkInterface.getName();</span>
+<span class="fc" id="L139">        return this.networkInterface.getName();</span>
     }
 
     /**
@@ -150,7 +148,7 @@ import oshi.util.ParseUtil;
      *         identical to the name.
      */
     public String getDisplayName() {
-<span class="fc" id="L153">        return this.networkInterface.getDisplayName();</span>
+<span class="fc" id="L151">        return this.networkInterface.getDisplayName();</span>
     }
 
     /**
@@ -165,7 +163,7 @@ import oshi.util.ParseUtil;
      *         the {@link #setNetworkInterface(NetworkInterface)} method
      */
     public int getMTU() {
-<span class="fc" id="L168">        return this.mtu;</span>
+<span class="fc" id="L166">        return this.mtu;</span>
     }
 
     /**
@@ -180,7 +178,7 @@ import oshi.util.ParseUtil;
      *         the {@link #setNetworkInterface(NetworkInterface)} method
      */
     public String getMacaddr() {
-<span class="fc" id="L183">        return this.mac;</span>
+<span class="fc" id="L181">        return this.mac;</span>
     }
 
     /**
@@ -195,7 +193,7 @@ import oshi.util.ParseUtil;
      *         the {@link #setNetworkInterface(NetworkInterface)} method
      */
     public String[] getIPv4addr() {
-<span class="fc" id="L198">        return Arrays.copyOf(this.ipv4, this.ipv4.length);</span>
+<span class="fc" id="L196">        return Arrays.copyOf(this.ipv4, this.ipv4.length);</span>
     }
 
     /**
@@ -211,7 +209,7 @@ import oshi.util.ParseUtil;
      *
      */
     public Short[] getSubnetMasks() {
-<span class="fc" id="L214">        return Arrays.copyOf(this.subnetMasks, this.subnetMasks.length);</span>
+<span class="fc" id="L212">        return Arrays.copyOf(this.subnetMasks, this.subnetMasks.length);</span>
     }
 
     /**
@@ -226,7 +224,7 @@ import oshi.util.ParseUtil;
      *         the {@link #setNetworkInterface(NetworkInterface)} method
      */
     public String[] getIPv6addr() {
-<span class="fc" id="L229">        return Arrays.copyOf(this.ipv6, this.ipv6.length);</span>
+<span class="fc" id="L227">        return Arrays.copyOf(this.ipv6, this.ipv6.length);</span>
     }
 
     /**
@@ -241,7 +239,7 @@ import oshi.util.ParseUtil;
      *         the {@link #setNetworkInterface(NetworkInterface)} method
      */
     public Short[] getPrefixLengths() {
-<span class="fc" id="L244">        return Arrays.copyOf(this.prefixLengths, this.prefixLengths.length);</span>
+<span class="fc" id="L242">        return Arrays.copyOf(this.prefixLengths, this.prefixLengths.length);</span>
     }
 
     /**
@@ -256,7 +254,7 @@ import oshi.util.ParseUtil;
      *         the {@link #updateAttributes()} method
      */
     public long getBytesRecv() {
-<span class="fc" id="L259">        return this.bytesRecv;</span>
+<span class="fc" id="L257">        return this.bytesRecv;</span>
     }
 
     /**
@@ -268,8 +266,8 @@ import oshi.util.ParseUtil;
      *            Set Bytes Received
      */
     public void setBytesRecv(long bytesRecv) {
-<span class="fc" id="L271">        this.bytesRecv = ParseUtil.unsignedLongToSignedLong(bytesRecv);</span>
-<span class="fc" id="L272">    }</span>
+<span class="fc" id="L269">        this.bytesRecv = ParseUtil.unsignedLongToSignedLong(bytesRecv);</span>
+<span class="fc" id="L270">    }</span>
 
     /**
      * &lt;p&gt;
@@ -283,7 +281,7 @@ import oshi.util.ParseUtil;
      *         the {@link #updateAttributes()} method
      */
     public long getBytesSent() {
-<span class="fc" id="L286">        return this.bytesSent;</span>
+<span class="fc" id="L284">        return this.bytesSent;</span>
     }
 
     /**
@@ -295,8 +293,8 @@ import oshi.util.ParseUtil;
      *            Set the Bytes Sent
      */
     public void setBytesSent(long bytesSent) {
-<span class="fc" id="L298">        this.bytesSent = ParseUtil.unsignedLongToSignedLong(bytesSent);</span>
-<span class="fc" id="L299">    }</span>
+<span class="fc" id="L296">        this.bytesSent = ParseUtil.unsignedLongToSignedLong(bytesSent);</span>
+<span class="fc" id="L297">    }</span>
 
     /**
      * &lt;p&gt;
@@ -310,7 +308,7 @@ import oshi.util.ParseUtil;
      *         the {@link #updateAttributes()} method
      */
     public long getPacketsRecv() {
-<span class="fc" id="L313">        return this.packetsRecv;</span>
+<span class="fc" id="L311">        return this.packetsRecv;</span>
     }
 
     /**
@@ -322,8 +320,8 @@ import oshi.util.ParseUtil;
      *            Set The Packets Received
      */
     public void setPacketsRecv(long packetsRecv) {
-<span class="fc" id="L325">        this.packetsRecv = ParseUtil.unsignedLongToSignedLong(packetsRecv);</span>
-<span class="fc" id="L326">    }</span>
+<span class="fc" id="L323">        this.packetsRecv = ParseUtil.unsignedLongToSignedLong(packetsRecv);</span>
+<span class="fc" id="L324">    }</span>
 
     /**
      * &lt;p&gt;
@@ -337,7 +335,7 @@ import oshi.util.ParseUtil;
      *         the {@link #updateAttributes()} method
      */
     public long getPacketsSent() {
-<span class="fc" id="L340">        return this.packetsSent;</span>
+<span class="fc" id="L338">        return this.packetsSent;</span>
     }
 
     /**
@@ -349,8 +347,8 @@ import oshi.util.ParseUtil;
      *            Set The Packets Sent
      */
     public void setPacketsSent(long packetsSent) {
-<span class="fc" id="L352">        this.packetsSent = ParseUtil.unsignedLongToSignedLong(packetsSent);</span>
-<span class="fc" id="L353">    }</span>
+<span class="fc" id="L350">        this.packetsSent = ParseUtil.unsignedLongToSignedLong(packetsSent);</span>
+<span class="fc" id="L351">    }</span>
 
     /**
      * &lt;p&gt;
@@ -364,7 +362,7 @@ import oshi.util.ParseUtil;
      *         the {@link #updateAttributes()} method
      */
     public long getInErrors() {
-<span class="fc" id="L367">        return this.inErrors;</span>
+<span class="fc" id="L365">        return this.inErrors;</span>
     }
 
     /**
@@ -376,8 +374,8 @@ import oshi.util.ParseUtil;
      *            The Input Errors to set.
      */
     public void setInErrors(long inErrors) {
-<span class="fc" id="L379">        this.inErrors = ParseUtil.unsignedLongToSignedLong(inErrors);</span>
-<span class="fc" id="L380">    }</span>
+<span class="fc" id="L377">        this.inErrors = ParseUtil.unsignedLongToSignedLong(inErrors);</span>
+<span class="fc" id="L378">    }</span>
 
     /**
      * &lt;p&gt;
@@ -391,7 +389,7 @@ import oshi.util.ParseUtil;
      *         the {@link #updateAttributes()} method
      */
     public long getOutErrors() {
-<span class="fc" id="L394">        return this.outErrors;</span>
+<span class="fc" id="L392">        return this.outErrors;</span>
     }
 
     /**
@@ -403,8 +401,8 @@ import oshi.util.ParseUtil;
      *            The Output Errors to set.
      */
     public void setOutErrors(long outErrors) {
-<span class="fc" id="L406">        this.outErrors = ParseUtil.unsignedLongToSignedLong(outErrors);</span>
-<span class="fc" id="L407">    }</span>
+<span class="fc" id="L404">        this.outErrors = ParseUtil.unsignedLongToSignedLong(outErrors);</span>
+<span class="fc" id="L405">    }</span>
 
     /**
      * &lt;p&gt;
@@ -419,7 +417,7 @@ import oshi.util.ParseUtil;
      *         the {@link #updateAttributes()} method
      */
     public long getInDrops() {
-<span class="fc" id="L422">        return inDrops;</span>
+<span class="fc" id="L420">        return inDrops;</span>
     }
 
     /**
@@ -431,8 +429,8 @@ import oshi.util.ParseUtil;
      *            The incoming (receive) dropped packets to set.
      */
     public void setInDrops(long inDrops) {
-<span class="fc" id="L434">        this.inDrops = inDrops;</span>
-<span class="fc" id="L435">    }</span>
+<span class="fc" id="L432">        this.inDrops = inDrops;</span>
+<span class="fc" id="L433">    }</span>
 
     /**
      * &lt;p&gt;
@@ -446,7 +444,7 @@ import oshi.util.ParseUtil;
      *         the {@link #updateAttributes()} method
      */
     public long getCollisions() {
-<span class="fc" id="L449">        return collisions;</span>
+<span class="fc" id="L447">        return collisions;</span>
     }
 
     /**
@@ -458,8 +456,8 @@ import oshi.util.ParseUtil;
      *            The collisions to set.
      */
     public void setCollisions(long collisions) {
-<span class="fc" id="L461">        this.collisions = collisions;</span>
-<span class="fc" id="L462">    }</span>
+<span class="fc" id="L459">        this.collisions = collisions;</span>
+<span class="fc" id="L460">    }</span>
 
     /**
      * &lt;p&gt;
@@ -473,7 +471,7 @@ import oshi.util.ParseUtil;
      *         the {@link #updateAttributes()} method
      */
     public long getSpeed() {
-<span class="fc" id="L476">        return this.speed;</span>
+<span class="fc" id="L474">        return this.speed;</span>
     }
 
     /**
@@ -485,8 +483,8 @@ import oshi.util.ParseUtil;
      *            Set the speed of the network interface
      */
     public void setSpeed(long speed) {
-<span class="fc" id="L488">        this.speed = ParseUtil.unsignedLongToSignedLong(speed);</span>
-<span class="fc" id="L489">    }</span>
+<span class="fc" id="L486">        this.speed = ParseUtil.unsignedLongToSignedLong(speed);</span>
+<span class="fc" id="L487">    }</span>
 
     /**
      * &lt;p&gt;
@@ -496,7 +494,7 @@ import oshi.util.ParseUtil;
      * @return Returns the timeStamp.
      */
     public long getTimeStamp() {
-<span class="fc" id="L499">        return this.timeStamp;</span>
+<span class="fc" id="L497">        return this.timeStamp;</span>
     }
 
     /**
@@ -508,8 +506,8 @@ import oshi.util.ParseUtil;
      *            The timeStamp to set.
      */
     public void setTimeStamp(long timeStamp) {
-<span class="fc" id="L511">        this.timeStamp = timeStamp;</span>
-<span class="fc" id="L512">    }</span>
+<span class="fc" id="L509">        this.timeStamp = timeStamp;</span>
+<span class="fc" id="L510">    }</span>
 
     /**
      * Updates interface network statistics on this interface. Statistics include
@@ -518,40 +516,40 @@ import oshi.util.ParseUtil;
      * @return {@code true} if the update was successful, {@code false} otherwise.
      */
     public boolean updateAttributes() {
-<span class="pc bpc" id="L521" title="5 of 6 branches missed.">        switch (SystemInfo.getCurrentPlatformEnum()) {</span>
+<span class="pc bpc" id="L519" title="5 of 6 branches missed.">        switch (SystemInfo.getCurrentPlatformEnum()) {</span>
         case WINDOWS:
-<span class="nc" id="L523">            return WindowsNetworks.updateNetworkStats(this);</span>
+<span class="nc" id="L521">            return WindowsNetworks.updateNetworkStats(this);</span>
         case LINUX:
-<span class="nc" id="L525">            return LinuxNetworks.updateNetworkStats(this);</span>
+<span class="nc" id="L523">            return LinuxNetworks.updateNetworkStats(this);</span>
         case MACOSX:
-<span class="fc" id="L527">            return MacNetworks.updateNetworkStats(this);</span>
+<span class="fc" id="L525">            return MacNetworks.updateNetworkStats(this);</span>
         case SOLARIS:
-<span class="nc" id="L529">            return SolarisNetworks.updateNetworkStats(this);</span>
+<span class="nc" id="L527">            return SolarisNetworks.updateNetworkStats(this);</span>
         case FREEBSD:
-<span class="nc" id="L531">            return FreeBsdNetworks.updateNetworkStats(this);</span>
+<span class="nc" id="L529">            return FreeBsdNetworks.updateNetworkStats(this);</span>
         default:
-<span class="nc" id="L533">            LOG.error(&quot;Unsupported platform. No update performed.&quot;);</span>
-<span class="nc" id="L534">            return false;</span>
+<span class="nc" id="L531">            LOG.error(&quot;Unsupported platform. No update performed.&quot;);</span>
+<span class="nc" id="L532">            return false;</span>
         }
     }
 
     @Override
     public String toString() {
-<span class="fc" id="L540">        StringBuilder sb = new StringBuilder();</span>
-<span class="fc" id="L541">        sb.append(&quot;Name: &quot;).append(getName()).append(&quot; &quot;).append(&quot;(&quot;).append(getDisplayName()).append(&quot;)&quot;).append(&quot;\n&quot;);</span>
-<span class="fc" id="L542">        sb.append(&quot;  MAC Address: &quot;).append(getMacaddr()).append(&quot;\n&quot;);</span>
-<span class="fc" id="L543">        sb.append(&quot;  MTU: &quot;).append(getMTU()).append(&quot;, &quot;).append(&quot;Speed: &quot;).append(getSpeed()).append(&quot;\n&quot;);</span>
-<span class="fc" id="L544">        sb.append(&quot;  IPv4: &quot;).append(Arrays.toString(getIPv4addr())).append(&quot;\n&quot;);</span>
-<span class="fc" id="L545">        sb.append(&quot;  Netmask:  &quot;).append(Arrays.toString(getSubnetMasks())).append(&quot;\n&quot;);</span>
-<span class="fc" id="L546">        sb.append(&quot;  IPv6: &quot;).append(Arrays.toString(getIPv6addr())).append(&quot;\n&quot;);</span>
-<span class="fc" id="L547">        sb.append(&quot;  Prefix Lengths:  &quot;).append(Arrays.toString(getPrefixLengths())).append(&quot;\n&quot;);</span>
-<span class="fc" id="L548">        sb.append(&quot;  Traffic: received &quot;).append(getPacketsRecv()).append(&quot; packets/&quot;)</span>
-<span class="fc" id="L549">                .append(FormatUtil.formatBytes(getBytesRecv())).append(&quot; (&quot; + getInErrors() + &quot; err, &quot;)</span>
-<span class="fc" id="L550">                .append(getInDrops() + &quot; drop);&quot;);</span>
-<span class="fc" id="L551">        sb.append(&quot; transmitted &quot;).append(getPacketsSent()).append(&quot; packets/&quot;)</span>
-<span class="fc" id="L552">                .append(FormatUtil.formatBytes(getBytesSent())).append(&quot; (&quot; + getOutErrors() + &quot; err, &quot;)</span>
-<span class="fc" id="L553">                .append(getCollisions() + &quot; coll);&quot;);</span>
-<span class="fc" id="L554">        return sb.toString();</span>
+<span class="fc" id="L538">        StringBuilder sb = new StringBuilder();</span>
+<span class="fc" id="L539">        sb.append(&quot;Name: &quot;).append(getName()).append(&quot; &quot;).append(&quot;(&quot;).append(getDisplayName()).append(&quot;)&quot;).append(&quot;\n&quot;);</span>
+<span class="fc" id="L540">        sb.append(&quot;  MAC Address: &quot;).append(getMacaddr()).append(&quot;\n&quot;);</span>
+<span class="fc" id="L541">        sb.append(&quot;  MTU: &quot;).append(getMTU()).append(&quot;, &quot;).append(&quot;Speed: &quot;).append(getSpeed()).append(&quot;\n&quot;);</span>
+<span class="fc" id="L542">        sb.append(&quot;  IPv4: &quot;).append(Arrays.toString(getIPv4addr())).append(&quot;\n&quot;);</span>
+<span class="fc" id="L543">        sb.append(&quot;  Netmask:  &quot;).append(Arrays.toString(getSubnetMasks())).append(&quot;\n&quot;);</span>
+<span class="fc" id="L544">        sb.append(&quot;  IPv6: &quot;).append(Arrays.toString(getIPv6addr())).append(&quot;\n&quot;);</span>
+<span class="fc" id="L545">        sb.append(&quot;  Prefix Lengths:  &quot;).append(Arrays.toString(getPrefixLengths())).append(&quot;\n&quot;);</span>
+<span class="fc" id="L546">        sb.append(&quot;  Traffic: received &quot;).append(getPacketsRecv()).append(&quot; packets/&quot;)</span>
+<span class="fc" id="L547">                .append(FormatUtil.formatBytes(getBytesRecv())).append(&quot; (&quot; + getInErrors() + &quot; err, &quot;)</span>
+<span class="fc" id="L548">                .append(getInDrops() + &quot; drop);&quot;);</span>
+<span class="fc" id="L549">        sb.append(&quot; transmitted &quot;).append(getPacketsSent()).append(&quot; packets/&quot;)</span>
+<span class="fc" id="L550">                .append(FormatUtil.formatBytes(getBytesSent())).append(&quot; (&quot; + getOutErrors() + &quot; err, &quot;)</span>
+<span class="fc" id="L551">                .append(getCollisions() + &quot; coll);&quot;);</span>
+<span class="fc" id="L552">        return sb.toString();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

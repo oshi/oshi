@@ -239,36 +239,37 @@ import oshi.util.platform.mac.SysctlUtil;
 <span class="nc" id="L239">                    OSFileStore osStore = new OSFileStore();</span>
 <span class="nc" id="L240">                    osStore.setName(name);</span>
 <span class="nc" id="L241">                    osStore.setVolume(volume);</span>
-<span class="nc" id="L242">                    osStore.setMount(path);</span>
-<span class="nc" id="L243">                    osStore.setDescription(description);</span>
-<span class="nc" id="L244">                    osStore.setType(type);</span>
-<span class="nc" id="L245">                    osStore.setOptions(options.toString());</span>
-<span class="nc bnc" id="L246" title="All 2 branches missed.">                    osStore.setUUID(uuid == null ? &quot;&quot; : uuid);</span>
-<span class="nc" id="L247">                    osStore.setFreeSpace(file.getFreeSpace());</span>
-<span class="nc" id="L248">                    osStore.setUsableSpace(file.getUsableSpace());</span>
-<span class="nc" id="L249">                    osStore.setTotalSpace(file.getTotalSpace());</span>
-<span class="nc" id="L250">                    osStore.setFreeInodes(fs[f].f_ffree);</span>
-<span class="nc" id="L251">                    osStore.setTotalInodes(fs[f].f_files);</span>
-<span class="nc" id="L252">                    fsList.add(osStore);</span>
+<span class="nc" id="L242">                    osStore.setLabel(name);</span>
+<span class="nc" id="L243">                    osStore.setMount(path);</span>
+<span class="nc" id="L244">                    osStore.setDescription(description);</span>
+<span class="nc" id="L245">                    osStore.setType(type);</span>
+<span class="nc" id="L246">                    osStore.setOptions(options.toString());</span>
+<span class="nc bnc" id="L247" title="All 2 branches missed.">                    osStore.setUUID(uuid == null ? &quot;&quot; : uuid);</span>
+<span class="nc" id="L248">                    osStore.setFreeSpace(file.getFreeSpace());</span>
+<span class="nc" id="L249">                    osStore.setUsableSpace(file.getUsableSpace());</span>
+<span class="nc" id="L250">                    osStore.setTotalSpace(file.getTotalSpace());</span>
+<span class="nc" id="L251">                    osStore.setFreeInodes(fs[f].f_ffree);</span>
+<span class="nc" id="L252">                    osStore.setTotalInodes(fs[f].f_files);</span>
+<span class="nc" id="L253">                    fsList.add(osStore);</span>
                 }
-<span class="nc" id="L254">                daVolumeNameKey.release();</span>
+<span class="nc" id="L255">                daVolumeNameKey.release();</span>
                 // Close DA session
-<span class="nc" id="L256">                session.release();</span>
+<span class="nc" id="L257">                session.release();</span>
             }
         }
-<span class="nc" id="L259">        return fsList;</span>
+<span class="nc" id="L260">        return fsList;</span>
     }
 
     /** {@inheritDoc} */
     @Override
     public long getOpenFileDescriptors() {
-<span class="nc" id="L265">        return SysctlUtil.sysctl(&quot;kern.num_files&quot;, 0);</span>
+<span class="nc" id="L266">        return SysctlUtil.sysctl(&quot;kern.num_files&quot;, 0);</span>
     }
 
     /** {@inheritDoc} */
     @Override
     public long getMaxFileDescriptors() {
-<span class="nc" id="L271">        return SysctlUtil.sysctl(&quot;kern.maxfiles&quot;, 0);</span>
+<span class="nc" id="L272">        return SysctlUtil.sysctl(&quot;kern.maxfiles&quot;, 0);</span>
     }
 
     /**
@@ -281,21 +282,21 @@ import oshi.util.platform.mac.SysctlUtil;
      * @return a boolean.
      */
     public static boolean updateFileStoreStats(OSFileStore osFileStore) {
-<span class="nc bnc" id="L284" title="All 2 branches missed.">        for (OSFileStore fileStore : getFileStoreMatching(osFileStore.getName())) {</span>
-<span class="nc bnc" id="L285" title="All 2 branches missed.">            if (osFileStore.getVolume().equals(fileStore.getVolume())</span>
-<span class="nc bnc" id="L286" title="All 2 branches missed.">                    &amp;&amp; osFileStore.getMount().equals(fileStore.getMount())) {</span>
-<span class="nc" id="L287">                osFileStore.setLogicalVolume(fileStore.getLogicalVolume());</span>
-<span class="nc" id="L288">                osFileStore.setDescription(fileStore.getDescription());</span>
-<span class="nc" id="L289">                osFileStore.setType(fileStore.getType());</span>
-<span class="nc" id="L290">                osFileStore.setFreeSpace(fileStore.getFreeSpace());</span>
-<span class="nc" id="L291">                osFileStore.setUsableSpace(fileStore.getUsableSpace());</span>
-<span class="nc" id="L292">                osFileStore.setTotalSpace(fileStore.getTotalSpace());</span>
-<span class="nc" id="L293">                osFileStore.setFreeInodes(fileStore.getFreeInodes());</span>
-<span class="nc" id="L294">                osFileStore.setTotalInodes(fileStore.getTotalInodes());</span>
-<span class="nc" id="L295">                return true;</span>
+<span class="nc bnc" id="L285" title="All 2 branches missed.">        for (OSFileStore fileStore : getFileStoreMatching(osFileStore.getName())) {</span>
+<span class="nc bnc" id="L286" title="All 2 branches missed.">            if (osFileStore.getVolume().equals(fileStore.getVolume())</span>
+<span class="nc bnc" id="L287" title="All 2 branches missed.">                    &amp;&amp; osFileStore.getMount().equals(fileStore.getMount())) {</span>
+<span class="nc" id="L288">                osFileStore.setLogicalVolume(fileStore.getLogicalVolume());</span>
+<span class="nc" id="L289">                osFileStore.setDescription(fileStore.getDescription());</span>
+<span class="nc" id="L290">                osFileStore.setType(fileStore.getType());</span>
+<span class="nc" id="L291">                osFileStore.setFreeSpace(fileStore.getFreeSpace());</span>
+<span class="nc" id="L292">                osFileStore.setUsableSpace(fileStore.getUsableSpace());</span>
+<span class="nc" id="L293">                osFileStore.setTotalSpace(fileStore.getTotalSpace());</span>
+<span class="nc" id="L294">                osFileStore.setFreeInodes(fileStore.getFreeInodes());</span>
+<span class="nc" id="L295">                osFileStore.setTotalInodes(fileStore.getTotalInodes());</span>
+<span class="nc" id="L296">                return true;</span>
             }
-<span class="nc" id="L297">        }</span>
-<span class="nc" id="L298">        return false;</span>
+<span class="nc" id="L298">        }</span>
+<span class="nc" id="L299">        return false;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

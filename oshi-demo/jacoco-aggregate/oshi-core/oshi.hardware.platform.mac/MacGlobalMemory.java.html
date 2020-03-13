@@ -56,11 +56,11 @@ import oshi.util.platform.mac.SysctlUtil;
 
 <span class="nc" id="L57">    private final Supplier&lt;Long&gt; available = memoize(this::queryVmStats, defaultExpiration());</span>
 
-<span class="nc" id="L59">    private final Supplier&lt;Long&gt; total = memoize(this::queryPhysMem);</span>
+<span class="nc" id="L59">    private final Supplier&lt;Long&gt; total = memoize(MacGlobalMemory::queryPhysMem);</span>
 
-<span class="nc" id="L61">    private final Supplier&lt;Long&gt; pageSize = memoize(this::queryPageSize);</span>
+<span class="nc" id="L61">    private final Supplier&lt;Long&gt; pageSize = memoize(MacGlobalMemory::queryPageSize);</span>
 
-<span class="nc" id="L63">    private final Supplier&lt;VirtualMemory&gt; vm = memoize(this::createVirtualMemory);</span>
+<span class="nc" id="L63">    private final Supplier&lt;VirtualMemory&gt; vm = memoize(MacGlobalMemory::createVirtualMemory);</span>
 
     @Override
     public long getAvailable() {
@@ -140,11 +140,11 @@ import oshi.util.platform.mac.SysctlUtil;
 <span class="nc" id="L140">        return (vmStats.free_count + vmStats.inactive_count) * getPageSize();</span>
     }
 
-    private long queryPhysMem() {
+    private static long queryPhysMem() {
 <span class="nc" id="L144">        return SysctlUtil.sysctl(&quot;hw.memsize&quot;, 0L);</span>
     }
 
-    private long queryPageSize() {
+    private static long queryPageSize() {
 <span class="nc" id="L148">        LongByReference pPageSize = new LongByReference();</span>
 <span class="nc bnc" id="L149" title="All 2 branches missed.">        if (0 == SystemB.INSTANCE.host_page_size(SystemB.INSTANCE.mach_host_self(), pPageSize)) {</span>
 <span class="nc" id="L150">            return pPageSize.getValue();</span>
@@ -153,7 +153,7 @@ import oshi.util.platform.mac.SysctlUtil;
 <span class="nc" id="L153">        return 4098L;</span>
     }
 
-    private VirtualMemory createVirtualMemory() {
+    private static VirtualMemory createVirtualMemory() {
 <span class="nc" id="L157">        return new MacVirtualMemory();</span>
     }
 }

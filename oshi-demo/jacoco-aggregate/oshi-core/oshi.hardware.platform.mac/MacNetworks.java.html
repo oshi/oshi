@@ -130,10 +130,11 @@ import oshi.hardware.common.AbstractNetworks;
      *
      * @param netIF
      *            The interface on which to update statistics
+     * @return {@code true} if the update was successful, {@code false} otherwise.
      */
     public static boolean updateNetworkStats(NetworkIF netIF) {
-<span class="nc" id="L135">        int index = netIF.queryNetworkInterface().getIndex();</span>
-<span class="nc" id="L136">        return updateNetworkStats(netIF, queryIFdata(index));</span>
+<span class="nc" id="L136">        int index = netIF.queryNetworkInterface().getIndex();</span>
+<span class="nc" id="L137">        return updateNetworkStats(netIF, queryIFdata(index));</span>
     }
 
     /**
@@ -144,25 +145,26 @@ import oshi.hardware.common.AbstractNetworks;
      *            The interface on which to update statistics
      * @param data
      *            A map of network interface statistics with the index as the key
+     * @return {@code true} if the update was successful, {@code false} otherwise.
      */
     private static boolean updateNetworkStats(NetworkIF netIF, Map&lt;Integer, IFdata&gt; data) {
-<span class="nc" id="L149">        int index = netIF.queryNetworkInterface().getIndex();</span>
-<span class="nc bnc" id="L150" title="All 2 branches missed.">        if (data.containsKey(index)) {</span>
-<span class="nc" id="L151">            IFdata ifData = data.get(index);</span>
+<span class="nc" id="L151">        int index = netIF.queryNetworkInterface().getIndex();</span>
+<span class="nc bnc" id="L152" title="All 2 branches missed.">        if (data.containsKey(index)) {</span>
+<span class="nc" id="L153">            IFdata ifData = data.get(index);</span>
             // Update data
-<span class="nc" id="L153">            netIF.setBytesSent(ifData.oBytes);</span>
-<span class="nc" id="L154">            netIF.setBytesRecv(ifData.iBytes);</span>
-<span class="nc" id="L155">            netIF.setPacketsSent(ifData.oPackets);</span>
-<span class="nc" id="L156">            netIF.setPacketsRecv(ifData.iPackets);</span>
-<span class="nc" id="L157">            netIF.setOutErrors(ifData.oErrors);</span>
-<span class="nc" id="L158">            netIF.setInErrors(ifData.iErrors);</span>
-<span class="nc" id="L159">            netIF.setCollisions(ifData.collisions);</span>
-<span class="nc" id="L160">            netIF.setInDrops(ifData.iDrops);</span>
-<span class="nc" id="L161">            netIF.setSpeed(ifData.speed);</span>
-<span class="nc" id="L162">            netIF.setTimeStamp(ifData.timeStamp);</span>
-<span class="nc" id="L163">            return true;</span>
+<span class="nc" id="L155">            netIF.setBytesSent(ifData.oBytes);</span>
+<span class="nc" id="L156">            netIF.setBytesRecv(ifData.iBytes);</span>
+<span class="nc" id="L157">            netIF.setPacketsSent(ifData.oPackets);</span>
+<span class="nc" id="L158">            netIF.setPacketsRecv(ifData.iPackets);</span>
+<span class="nc" id="L159">            netIF.setOutErrors(ifData.oErrors);</span>
+<span class="nc" id="L160">            netIF.setInErrors(ifData.iErrors);</span>
+<span class="nc" id="L161">            netIF.setCollisions(ifData.collisions);</span>
+<span class="nc" id="L162">            netIF.setInDrops(ifData.iDrops);</span>
+<span class="nc" id="L163">            netIF.setSpeed(ifData.speed);</span>
+<span class="nc" id="L164">            netIF.setTimeStamp(ifData.timeStamp);</span>
+<span class="nc" id="L165">            return true;</span>
         }
-<span class="nc" id="L165">        return false;</span>
+<span class="nc" id="L167">        return false;</span>
     }
 
     /**
@@ -182,18 +184,18 @@ import oshi.hardware.common.AbstractNetworks;
 
         IFdata(long oPackets, long iPackets, // NOSONAR squid:S00107
                 long oBytes, long iBytes, long oErrors, long iErrors, long collisions, long iDrops, long speed,
-<span class="nc" id="L185">                long timeStamp) {</span>
-<span class="nc" id="L186">            this.oPackets = oPackets;</span>
-<span class="nc" id="L187">            this.iPackets = iPackets;</span>
-<span class="nc" id="L188">            this.oBytes = oBytes;</span>
-<span class="nc" id="L189">            this.iBytes = iBytes;</span>
-<span class="nc" id="L190">            this.oErrors = oErrors;</span>
-<span class="nc" id="L191">            this.iErrors = iErrors;</span>
-<span class="nc" id="L192">            this.collisions = collisions;</span>
-<span class="nc" id="L193">            this.iDrops = iDrops;</span>
-<span class="nc" id="L194">            this.speed = speed;</span>
-<span class="nc" id="L195">            this.timeStamp = timeStamp;</span>
-<span class="nc" id="L196">        }</span>
+<span class="nc" id="L187">                long timeStamp) {</span>
+<span class="nc" id="L188">            this.oPackets = oPackets;</span>
+<span class="nc" id="L189">            this.iPackets = iPackets;</span>
+<span class="nc" id="L190">            this.oBytes = oBytes;</span>
+<span class="nc" id="L191">            this.iBytes = iBytes;</span>
+<span class="nc" id="L192">            this.oErrors = oErrors;</span>
+<span class="nc" id="L193">            this.iErrors = iErrors;</span>
+<span class="nc" id="L194">            this.collisions = collisions;</span>
+<span class="nc" id="L195">            this.iDrops = iDrops;</span>
+<span class="nc" id="L196">            this.speed = speed;</span>
+<span class="nc" id="L197">            this.timeStamp = timeStamp;</span>
+<span class="nc" id="L198">        }</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

@@ -37,33 +37,28 @@ import com.sun.jna.platform.win32.WinNT.HANDLEByReference; // NOSONAR
 import oshi.util.FormatUtil;
 import oshi.util.platform.windows.PerfDataUtil.PerfCounter;
 
-/**
- * &lt;p&gt;
- * PerfCounterQueryHandler class.
- * &lt;/p&gt;
- */
 public class PerfCounterQueryHandler {
 
-<span class="nc" id="L47">    private static final Logger LOG = LoggerFactory.getLogger(PerfCounterQueryHandler.class);</span>
+<span class="nc" id="L42">    private static final Logger LOG = LoggerFactory.getLogger(PerfCounterQueryHandler.class);</span>
 
-<span class="nc" id="L49">    private Map&lt;PerfCounter, HANDLEByReference&gt; counterHandleMap = new ConcurrentHashMap&lt;&gt;();</span>
-<span class="nc" id="L50">    private Map&lt;String, HANDLEByReference&gt; queryHandleMap = new ConcurrentHashMap&lt;&gt;();</span>
-<span class="nc" id="L51">    private Map&lt;String, List&lt;PerfCounter&gt;&gt; queryCounterMap = new ConcurrentHashMap&lt;&gt;();</span>
+<span class="nc" id="L44">    private Map&lt;PerfCounter, HANDLEByReference&gt; counterHandleMap = new ConcurrentHashMap&lt;&gt;();</span>
+<span class="nc" id="L45">    private Map&lt;String, HANDLEByReference&gt; queryHandleMap = new ConcurrentHashMap&lt;&gt;();</span>
+<span class="nc" id="L46">    private Map&lt;String, List&lt;PerfCounter&gt;&gt; queryCounterMap = new ConcurrentHashMap&lt;&gt;();</span>
 
     // Singleton pattern
     private static PerfCounterQueryHandler instance;
 
-<span class="nc" id="L56">    private PerfCounterQueryHandler() {</span>
+<span class="nc" id="L51">    private PerfCounterQueryHandler() {</span>
         // Set up hook to close all queries on shutdown
         // User is expected to release all queries so this should only be a
         // backup
-<span class="nc" id="L60">        Runtime.getRuntime().addShutdownHook(new Thread() {</span>
+<span class="nc" id="L55">        Runtime.getRuntime().addShutdownHook(new Thread() {</span>
             @Override
             public void run() {
-<span class="nc" id="L63">                removeAllCounters();</span>
-<span class="nc" id="L64">            }</span>
+<span class="nc" id="L58">                removeAllCounters();</span>
+<span class="nc" id="L59">            }</span>
         });
-<span class="nc" id="L66">    }</span>
+<span class="nc" id="L61">    }</span>
 
     /**
      * Instantiate this class as a singleton
@@ -71,10 +66,10 @@ public class PerfCounterQueryHandler {
      * @return The singleton instance
      */
     public static synchronized PerfCounterQueryHandler getInstance() {
-<span class="nc bnc" id="L74" title="All 2 branches missed.">        if (instance == null) {</span>
-<span class="nc" id="L75">            instance = new PerfCounterQueryHandler();</span>
+<span class="nc bnc" id="L69" title="All 2 branches missed.">        if (instance == null) {</span>
+<span class="nc" id="L70">            instance = new PerfCounterQueryHandler();</span>
         }
-<span class="nc" id="L77">        return instance;</span>
+<span class="nc" id="L72">        return instance;</span>
     }
 
     /**
@@ -86,7 +81,7 @@ public class PerfCounterQueryHandler {
      * @return True if the counter was successfully added.
      */
     public boolean addCounterToQuery(PerfCounter counter) {
-<span class="nc" id="L89">        return addCounterToQuery(counter, counter.getObject());</span>
+<span class="nc" id="L84">        return addCounterToQuery(counter, counter.getObject());</span>
     }
 
     /**
@@ -102,22 +97,22 @@ public class PerfCounterQueryHandler {
      */
     public boolean addCounterToQuery(PerfCounter counter, String key) {
         // Open a new query or get the handle to an existing one
-<span class="nc" id="L105">        HANDLEByReference q = getOrOpenQuery(key);</span>
-<span class="nc bnc" id="L106" title="All 2 branches missed.">        if (q == null) {</span>
-<span class="nc" id="L107">            LOG.error(&quot;Failed to open a query for PDH object: {}&quot;, counter.getObject());</span>
-<span class="nc" id="L108">            return false;</span>
+<span class="nc" id="L100">        HANDLEByReference q = getOrOpenQuery(key);</span>
+<span class="nc bnc" id="L101" title="All 2 branches missed.">        if (q == null) {</span>
+<span class="nc" id="L102">            LOG.error(&quot;Failed to open a query for PDH object: {}&quot;, counter.getObject());</span>
+<span class="nc" id="L103">            return false;</span>
         }
         // Get a new handle for the counter
-<span class="nc" id="L111">        HANDLEByReference p = new HANDLEByReference();</span>
-<span class="nc bnc" id="L112" title="All 2 branches missed.">        if (PerfDataUtil.addCounter(q, counter.getCounterPath(), p)) {</span>
-<span class="nc" id="L113">            counterHandleMap.put(counter, p);</span>
-<span class="nc" id="L114">            List&lt;PerfCounter&gt; counterList = queryCounterMap.get(key);</span>
-<span class="nc bnc" id="L115" title="All 2 branches missed.">            if (counterList != null) {</span>
-<span class="nc" id="L116">                counterList.add(counter);</span>
+<span class="nc" id="L106">        HANDLEByReference p = new HANDLEByReference();</span>
+<span class="nc bnc" id="L107" title="All 2 branches missed.">        if (PerfDataUtil.addCounter(q, counter.getCounterPath(), p)) {</span>
+<span class="nc" id="L108">            counterHandleMap.put(counter, p);</span>
+<span class="nc" id="L109">            List&lt;PerfCounter&gt; counterList = queryCounterMap.get(key);</span>
+<span class="nc bnc" id="L110" title="All 2 branches missed.">            if (counterList != null) {</span>
+<span class="nc" id="L111">                counterList.add(counter);</span>
             }
-<span class="nc" id="L118">            return true;</span>
+<span class="nc" id="L113">            return true;</span>
         }
-<span class="nc" id="L120">        return false;</span>
+<span class="nc" id="L115">        return false;</span>
     }
 
     /**
@@ -129,7 +124,7 @@ public class PerfCounterQueryHandler {
      * @return True if the counter was successfully removed.
      */
     public boolean removeCounterFromQuery(PerfCounter counter) {
-<span class="nc" id="L132">        return removeCounterFromQuery(counter, counter.getObject());</span>
+<span class="nc" id="L127">        return removeCounterFromQuery(counter, counter.getObject());</span>
     }
 
     /**
@@ -144,19 +139,19 @@ public class PerfCounterQueryHandler {
      * @return True if the counter was successfully removed.
      */
     public boolean removeCounterFromQuery(PerfCounter counter, String key) {
-<span class="nc" id="L147">        HANDLEByReference href = counterHandleMap.remove(counter);</span>
+<span class="nc" id="L142">        HANDLEByReference href = counterHandleMap.remove(counter);</span>
         // null if handle wasn't present
-<span class="nc" id="L149">        boolean success = false;</span>
-<span class="nc bnc" id="L150" title="All 2 branches missed.">        if (href != null) {</span>
-<span class="nc" id="L151">            success = PerfDataUtil.removeCounter(href);</span>
+<span class="nc" id="L144">        boolean success = false;</span>
+<span class="nc bnc" id="L145" title="All 2 branches missed.">        if (href != null) {</span>
+<span class="nc" id="L146">            success = PerfDataUtil.removeCounter(href);</span>
         }
-<span class="nc" id="L153">        List&lt;PerfCounter&gt; counterList = queryCounterMap.get(key);</span>
+<span class="nc" id="L148">        List&lt;PerfCounter&gt; counterList = queryCounterMap.get(key);</span>
         // null if list wasn't present
-<span class="nc bnc" id="L155" title="All 6 branches missed.">        if (counterList != null &amp;&amp; counterList.remove(counter) &amp;&amp; counterList.isEmpty()) {</span>
-<span class="nc" id="L156">            queryCounterMap.remove(key);</span>
-<span class="nc" id="L157">            PerfDataUtil.closeQuery(queryHandleMap.remove(key));</span>
+<span class="nc bnc" id="L150" title="All 6 branches missed.">        if (counterList != null &amp;&amp; counterList.remove(counter) &amp;&amp; counterList.isEmpty()) {</span>
+<span class="nc" id="L151">            queryCounterMap.remove(key);</span>
+<span class="nc" id="L152">            PerfDataUtil.closeQuery(queryHandleMap.remove(key));</span>
         }
-<span class="nc" id="L159">        return success;</span>
+<span class="nc" id="L154">        return success;</span>
     }
 
     /**
@@ -168,41 +163,41 @@ public class PerfCounterQueryHandler {
      */
     public void removeAllCountersFromQuery(String queryKey) {
         // Remove counter list from queryCounter Map
-<span class="nc" id="L171">        List&lt;PerfCounter&gt; counterList = queryCounterMap.remove(queryKey);</span>
-<span class="nc bnc" id="L172" title="All 2 branches missed.">        if (counterList == null) {</span>
-<span class="nc" id="L173">            return;</span>
+<span class="nc" id="L166">        List&lt;PerfCounter&gt; counterList = queryCounterMap.remove(queryKey);</span>
+<span class="nc bnc" id="L167" title="All 2 branches missed.">        if (counterList == null) {</span>
+<span class="nc" id="L168">            return;</span>
         }
         // Remove all counters from counterHandle map
-<span class="nc bnc" id="L176" title="All 2 branches missed.">        for (PerfCounter counter : counterList) {</span>
-<span class="nc" id="L177">            HANDLEByReference href = counterHandleMap.remove(counter);</span>
+<span class="nc bnc" id="L171" title="All 2 branches missed.">        for (PerfCounter counter : counterList) {</span>
+<span class="nc" id="L172">            HANDLEByReference href = counterHandleMap.remove(counter);</span>
             // null if handle wasn't present
-<span class="nc bnc" id="L179" title="All 2 branches missed.">            if (href != null) {</span>
-<span class="nc" id="L180">                PerfDataUtil.removeCounter(href);</span>
+<span class="nc bnc" id="L174" title="All 2 branches missed.">            if (href != null) {</span>
+<span class="nc" id="L175">                PerfDataUtil.removeCounter(href);</span>
             }
-<span class="nc" id="L182">        }</span>
+<span class="nc" id="L177">        }</span>
         // Remove query from query map
-<span class="nc" id="L184">        HANDLEByReference href = queryHandleMap.remove(queryKey);</span>
-<span class="nc bnc" id="L185" title="All 2 branches missed.">        if (href != null) {</span>
-<span class="nc" id="L186">            PerfDataUtil.closeQuery(href);</span>
+<span class="nc" id="L179">        HANDLEByReference href = queryHandleMap.remove(queryKey);</span>
+<span class="nc bnc" id="L180" title="All 2 branches missed.">        if (href != null) {</span>
+<span class="nc" id="L181">            PerfDataUtil.closeQuery(href);</span>
         }
-<span class="nc" id="L188">    }</span>
+<span class="nc" id="L183">    }</span>
 
     /**
      * Stop monitoring all Performance Data counters and release their resources
      */
     public void removeAllCounters() {
         // Remove all counter handles
-<span class="nc bnc" id="L195" title="All 2 branches missed.">        for (HANDLEByReference href : counterHandleMap.values()) {</span>
-<span class="nc" id="L196">            PerfDataUtil.removeCounter(href);</span>
-<span class="nc" id="L197">        }</span>
-<span class="nc" id="L198">        counterHandleMap.clear();</span>
+<span class="nc bnc" id="L190" title="All 2 branches missed.">        for (HANDLEByReference href : counterHandleMap.values()) {</span>
+<span class="nc" id="L191">            PerfDataUtil.removeCounter(href);</span>
+<span class="nc" id="L192">        }</span>
+<span class="nc" id="L193">        counterHandleMap.clear();</span>
         // Remove all queries
-<span class="nc bnc" id="L200" title="All 2 branches missed.">        for (HANDLEByReference query : queryHandleMap.values()) {</span>
-<span class="nc" id="L201">            PerfDataUtil.closeQuery(query);</span>
-<span class="nc" id="L202">        }</span>
-<span class="nc" id="L203">        queryHandleMap.clear();</span>
-<span class="nc" id="L204">        queryCounterMap.clear();</span>
-<span class="nc" id="L205">    }</span>
+<span class="nc bnc" id="L195" title="All 2 branches missed.">        for (HANDLEByReference query : queryHandleMap.values()) {</span>
+<span class="nc" id="L196">            PerfDataUtil.closeQuery(query);</span>
+<span class="nc" id="L197">        }</span>
+<span class="nc" id="L198">        queryHandleMap.clear();</span>
+<span class="nc" id="L199">        queryCounterMap.clear();</span>
+<span class="nc" id="L200">    }</span>
 
     /**
      * Update all counters on a query.
@@ -213,11 +208,11 @@ public class PerfCounterQueryHandler {
      *         since the epoch, or 0 if the update failed
      */
     public long updateQuery(String key) {
-<span class="nc bnc" id="L216" title="All 2 branches missed.">        if (!queryHandleMap.containsKey(key)) {</span>
-<span class="nc" id="L217">            LOG.error(&quot;Query key {} does not exist to update.&quot;, key);</span>
-<span class="nc" id="L218">            return 0L;</span>
+<span class="nc bnc" id="L211" title="All 2 branches missed.">        if (!queryHandleMap.containsKey(key)) {</span>
+<span class="nc" id="L212">            LOG.error(&quot;Query key {} does not exist to update.&quot;, key);</span>
+<span class="nc" id="L213">            return 0L;</span>
         }
-<span class="nc" id="L220">        return PerfDataUtil.updateQueryTimestamp(queryHandleMap.get(key));</span>
+<span class="nc" id="L215">        return PerfDataUtil.updateQueryTimestamp(queryHandleMap.get(key));</span>
     }
 
     /**
@@ -229,21 +224,21 @@ public class PerfCounterQueryHandler {
      * @return The raw value of the counter
      */
     public long queryCounter(PerfCounter counter) {
-<span class="nc bnc" id="L232" title="All 2 branches missed.">        if (!counterHandleMap.containsKey(counter)) {</span>
-<span class="nc bnc" id="L233" title="All 2 branches missed.">            if (LOG.isErrorEnabled()) {</span>
-<span class="nc" id="L234">                LOG.error(&quot;Counter {} does not exist to query.&quot;, counter.getCounterPath());</span>
+<span class="nc bnc" id="L227" title="All 2 branches missed.">        if (!counterHandleMap.containsKey(counter)) {</span>
+<span class="nc bnc" id="L228" title="All 2 branches missed.">            if (LOG.isErrorEnabled()) {</span>
+<span class="nc" id="L229">                LOG.error(&quot;Counter {} does not exist to query.&quot;, counter.getCounterPath());</span>
             }
-<span class="nc" id="L236">            return 0;</span>
+<span class="nc" id="L231">            return 0;</span>
         }
-<span class="nc" id="L238">        long value = PerfDataUtil.queryCounter(counterHandleMap.get(counter));</span>
-<span class="nc bnc" id="L239" title="All 2 branches missed.">        if (value &lt; 0) {</span>
-<span class="nc bnc" id="L240" title="All 2 branches missed.">            if (LOG.isWarnEnabled()) {</span>
-<span class="nc" id="L241">                LOG.warn(&quot;Error querying counter {}: {}&quot;, counter.getCounterPath(),</span>
-<span class="nc" id="L242">                        String.format(FormatUtil.formatError((int) value)));</span>
+<span class="nc" id="L233">        long value = PerfDataUtil.queryCounter(counterHandleMap.get(counter));</span>
+<span class="nc bnc" id="L234" title="All 2 branches missed.">        if (value &lt; 0) {</span>
+<span class="nc bnc" id="L235" title="All 2 branches missed.">            if (LOG.isWarnEnabled()) {</span>
+<span class="nc" id="L236">                LOG.warn(&quot;Error querying counter {}: {}&quot;, counter.getCounterPath(),</span>
+<span class="nc" id="L237">                        String.format(FormatUtil.formatError((int) value)));</span>
             }
-<span class="nc" id="L244">            return 0L;</span>
+<span class="nc" id="L239">            return 0L;</span>
         }
-<span class="nc" id="L246">        return value;</span>
+<span class="nc" id="L241">        return value;</span>
     }
 
     /**
@@ -257,17 +252,17 @@ public class PerfCounterQueryHandler {
      * @return A handle to the query, or null if an error occurred.
      */
     private HANDLEByReference getOrOpenQuery(String key) {
-<span class="nc bnc" id="L260" title="All 2 branches missed.">        if (queryHandleMap.containsKey(key)) {</span>
-<span class="nc" id="L261">            return queryHandleMap.get(key);</span>
+<span class="nc bnc" id="L255" title="All 2 branches missed.">        if (queryHandleMap.containsKey(key)) {</span>
+<span class="nc" id="L256">            return queryHandleMap.get(key);</span>
         }
-<span class="nc" id="L263">        HANDLEByReference q = new HANDLEByReference();</span>
-<span class="nc bnc" id="L264" title="All 2 branches missed.">        if (PerfDataUtil.openQuery(q)) {</span>
-<span class="nc" id="L265">            queryHandleMap.put(key, q);</span>
-<span class="nc" id="L266">            List&lt;PerfCounter&gt; counterList = Collections.synchronizedList(new ArrayList&lt;&gt;());</span>
-<span class="nc" id="L267">            queryCounterMap.put(key, counterList);</span>
-<span class="nc" id="L268">            return q;</span>
+<span class="nc" id="L258">        HANDLEByReference q = new HANDLEByReference();</span>
+<span class="nc bnc" id="L259" title="All 2 branches missed.">        if (PerfDataUtil.openQuery(q)) {</span>
+<span class="nc" id="L260">            queryHandleMap.put(key, q);</span>
+<span class="nc" id="L261">            List&lt;PerfCounter&gt; counterList = Collections.synchronizedList(new ArrayList&lt;&gt;());</span>
+<span class="nc" id="L262">            queryCounterMap.put(key, counterList);</span>
+<span class="nc" id="L263">            return q;</span>
         }
-<span class="nc" id="L270">        return null;</span>
+<span class="nc" id="L265">        return null;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
