@@ -44,6 +44,7 @@ public class OSFileStore {
 
     private String name;
     private String volume;
+    private String label;
     private String logicalVolume = "";
     private String mount;
     private String description;
@@ -73,6 +74,7 @@ public class OSFileStore {
     public OSFileStore(OSFileStore fileStore) {
         setName(fileStore.getName());
         setVolume(fileStore.getVolume());
+        setLabel(fileStore.getLabel());
         setLogicalVolume(fileStore.getLogicalVolume());
         setMount(fileStore.getMount());
         setDescription(fileStore.getDescription());
@@ -106,12 +108,42 @@ public class OSFileStore {
     }
 
     /**
-     * Volume of the File System
+     * Volume name of the File System
      *
-     * @return The volume of the file system
+     * @return The volume name of the file system
      */
     public String getVolume() {
         return this.volume;
+    }
+
+    /**
+     * Sets the volume name of the File System
+     *
+     * @param value
+     *            The volume name
+     */
+    public void setVolume(String value) {
+        this.volume = value;
+    }
+
+    /**
+     * Label of the File System
+     *
+     * @return The volume label of the file system, on Windows. Other operating
+     *         systems is redundant with the name.
+     */
+    public String getLabel() {
+        return this.label;
+    }
+
+    /**
+     * Sets the label of the File System
+     *
+     * @param value
+     *            The label
+     */
+    public void setLabel(String value) {
+        this.label = value;
     }
 
     /**
@@ -125,16 +157,6 @@ public class OSFileStore {
      */
     public String getLogicalVolume() {
         return this.logicalVolume;
-    }
-
-    /**
-     * Sets the volume of the File System
-     *
-     * @param value
-     *            The volume
-     */
-    public void setVolume(String value) {
-        this.volume = value;
     }
 
     /**
@@ -369,9 +391,10 @@ public class OSFileStore {
 
     @Override
     public String toString() {
-        return "OSFileStore [name=" + name + ", volume=" + volume + ", logicalVolume=" + logicalVolume + ", mount="
-                + mount + ", description=" + description + ", fsType=" + fsType + ", options=\"" + options + "\", uuid="
-                + uuid + ", freeSpace=" + freeSpace + ", usableSpace=" + usableSpace + ", totalSpace=" + totalSpace
-                + ", freeInodes=" + freeInodes + ", totalInodes=" + totalInodes + "]";
+        return "OSFileStore [name=" + name + ", volume=" + volume + ", label=" + label + ", logicalVolume="
+                + logicalVolume + ", mount=" + mount + ", description=" + description + ", fsType=" + fsType
+                + ", options=\"" + options + "\", uuid=" + uuid + ", freeSpace=" + freeSpace + ", usableSpace="
+                + usableSpace + ", totalSpace=" + totalSpace + ", freeInodes=" + freeInodes + ", totalInodes="
+                + totalInodes + "]";
     }
 }

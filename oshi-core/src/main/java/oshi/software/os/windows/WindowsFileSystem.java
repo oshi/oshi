@@ -135,8 +135,12 @@ public class WindowsFileSystem extends AbstractFileSystem {
         for (OSFileStore wmiVolume : getWmiVolumes(null, localOnly)) {
             if (volumeMap.containsKey(wmiVolume.getMount())) {
                 // If the volume is already in our list, update the name field
-                // using WMI's more verbose name
-                volumeMap.get(wmiVolume.getMount()).setName(wmiVolume.getName());
+                // using WMI's more verbose name and update label if needed
+                OSFileStore volume = volumeMap.get(wmiVolume.getMount());
+                volume.setName(wmiVolume.getName());
+                if (volume.getLabel().isEmpty()) {
+                    volume.setLabel(wmiVolume.getLabel());
+                }
             } else if (!localOnly) {
                 // Otherwise add the new volume in its entirety
                 result.add(wmiVolume);
@@ -214,6 +218,7 @@ public class WindowsFileSystem extends AbstractFileSystem {
                     OSFileStore osStore = new OSFileStore();
                     osStore.setName(osName);
                     osStore.setVolume(volume);
+                    osStore.setLabel(strName);
                     osStore.setMount(strMount);
                     osStore.setDescription(getDriveType(strMount));
                     osStore.setType(strFsType);
@@ -255,6 +260,7 @@ public class WindowsFileSystem extends AbstractFileSystem {
             total = WmiUtil.getUint64(drives, LogicalDiskProperty.SIZE, i);
             String description = WmiUtil.getString(drives, LogicalDiskProperty.DESCRIPTION, i);
             String name = WmiUtil.getString(drives, LogicalDiskProperty.NAME, i);
+            String label = WmiUtil.getString(drives, LogicalDiskProperty.VOLUMENAME, i);
             int type = WmiUtil.getUint32(drives, LogicalDiskProperty.DRIVETYPE, i);
             String volume;
             if (type != 4) {
@@ -271,6 +277,7 @@ public class WindowsFileSystem extends AbstractFileSystem {
             OSFileStore osStore = new OSFileStore();
             osStore.setName(String.format("%s (%s)", description, name));
             osStore.setVolume(volume);
+            osStore.setLabel(label);
             osStore.setMount(name + "\\");
             osStore.setDescription(getDriveType(name));
             osStore.setType(WmiUtil.getString(drives, LogicalDiskProperty.FILESYSTEM, i));

@@ -145,6 +145,7 @@ public class SolarisFileSystem extends AbstractFileSystem {
             OSFileStore osStore = new OSFileStore();
             osStore.setName(name);
             osStore.setVolume(volume);
+            osStore.setLabel(name);
             osStore.setMount(path);
             osStore.setDescription(description);
             osStore.setType(type);
