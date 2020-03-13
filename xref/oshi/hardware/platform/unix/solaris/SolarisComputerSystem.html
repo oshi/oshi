@@ -48,7 +48,7 @@
 <a class="jxr_linenumber" name="L40" href="#L40">40</a>  <em class="jxr_javadoccomment"> */</em>
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>  <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a name="SolarisComputerSystem" href="../../../../../oshi/hardware/platform/unix/solaris/SolarisComputerSystem.html#SolarisComputerSystem">SolarisComputerSystem</a> <strong class="jxr_keyword">extends</strong> <a name="AbstractComputerSystem" href="../../../../../oshi/hardware/common/AbstractComputerSystem.html#AbstractComputerSystem">AbstractComputerSystem</a> {
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>  
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Supplier&lt;SmbiosStrings&gt; smbiosStrings = memoize(<strong class="jxr_keyword">this</strong>::readSmbios);
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Supplier&lt;SmbiosStrings&gt; smbiosStrings = memoize(SolarisComputerSystem::readSmbios);
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>  
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>      @Override
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>      <strong class="jxr_keyword">public</strong> String getManufacturer() {
@@ -77,7 +77,7 @@
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>                  smbiosStrings.get().boardSerialNumber, smbiosStrings.get().boardVersion);
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>      }
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>  
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>      <strong class="jxr_keyword">private</strong> SmbiosStrings readSmbios() {
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> SmbiosStrings readSmbios() {
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>          String biosVendor = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>          String biosVersion = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>          String biosDate = <strong class="jxr_keyword">null</strong>;
@@ -187,7 +187,7 @@
 <a class="jxr_linenumber" name="L179" href="#L179">179</a>                 boardManufacturer, boardModel, boardVersion, boardSerialNumber);
 <a class="jxr_linenumber" name="L180" href="#L180">180</a>     }
 <a class="jxr_linenumber" name="L181" href="#L181">181</a> 
-<a class="jxr_linenumber" name="L182" href="#L182">182</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> getSmbType(String checkLine) {
+<a class="jxr_linenumber" name="L182" href="#L182">182</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> getSmbType(String checkLine) {
 <a class="jxr_linenumber" name="L183" href="#L183">183</a>         <strong class="jxr_keyword">if</strong> (checkLine.contains(<span class="jxr_string">"SMB_TYPE_BIOS"</span>)) {
 <a class="jxr_linenumber" name="L184" href="#L184">184</a>             <strong class="jxr_keyword">return</strong> 0; <em class="jxr_comment">// BIOS</em>
 <a class="jxr_linenumber" name="L185" href="#L185">185</a>         } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (checkLine.contains(<span class="jxr_string">"SMB_TYPE_SYSTEM"</span>)) {
@@ -201,7 +201,7 @@
 <a class="jxr_linenumber" name="L193" href="#L193">193</a>         }
 <a class="jxr_linenumber" name="L194" href="#L194">194</a>     }
 <a class="jxr_linenumber" name="L195" href="#L195">195</a> 
-<a class="jxr_linenumber" name="L196" href="#L196">196</a>     <strong class="jxr_keyword">private</strong> String readSerialNumber() {
+<a class="jxr_linenumber" name="L196" href="#L196">196</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String readSerialNumber() {
 <a class="jxr_linenumber" name="L197" href="#L197">197</a>         <em class="jxr_comment">// If they've installed STB (Sun Explorer) this should work</em>
 <a class="jxr_linenumber" name="L198" href="#L198">198</a>         String serialNumber = ExecutingCommand.getFirstAnswer(<span class="jxr_string">"sneep"</span>);
 <a class="jxr_linenumber" name="L199" href="#L199">199</a>         <em class="jxr_comment">// if that didn't work, try...</em>

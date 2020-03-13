@@ -54,7 +54,7 @@
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>              LOG.trace(<span class="jxr_string">"Sleeping for {} ms"</span>, ms);
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>              Thread.sleep(ms);
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>          } <strong class="jxr_keyword">catch</strong> (InterruptedException e) { <em class="jxr_comment">// NOSONAR squid:S2142</em>
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>              LOG.warn(<span class="jxr_string">"Interrupted while sleeping for {} ms: {}"</span>, ms, e);
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>              LOG.warn(<span class="jxr_string">"Interrupted while sleeping for {} ms: {}"</span>, ms, e.getMessage());
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>              Thread.currentThread().interrupt();
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>          }
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>      }
@@ -82,7 +82,7 @@
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>  
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>      <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L76" href="#L76">76</a>  <em class="jxr_javadoccomment">     * Tests if a String is either null or empty.</em>
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>  <em class="jxr_javadoccomment">     * </em>
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>  <em class="jxr_javadoccomment">     *</em>
 <a class="jxr_linenumber" name="L78" href="#L78">78</a>  <em class="jxr_javadoccomment">     * @param s</em>
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>  <em class="jxr_javadoccomment">     *            The string to test</em>
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>  <em class="jxr_javadoccomment">     * @return True if the String is either null or empty.</em>

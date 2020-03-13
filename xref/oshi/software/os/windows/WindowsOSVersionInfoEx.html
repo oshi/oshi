@@ -42,8 +42,8 @@
 <a class="jxr_linenumber" name="L34" href="#L34">34</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.WinUser;
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>  
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <strong class="jxr_keyword">import</strong> oshi.driver.wmi.Win32OperatingSystem;
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <strong class="jxr_keyword">import</strong> oshi.driver.wmi.Win32OperatingSystem.OSVersionProperty;
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.wmi.Win32OperatingSystem;
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.wmi.Win32OperatingSystem.OSVersionProperty;
 <a class="jxr_linenumber" name="L39" href="#L39">39</a>  <strong class="jxr_keyword">import</strong> oshi.software.common.AbstractOSVersionInfoEx;
 <a class="jxr_linenumber" name="L40" href="#L40">40</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.OperatingSystem;
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>  <strong class="jxr_keyword">import</strong> oshi.util.ParseUtil;
@@ -68,7 +68,7 @@
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>  <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>      <strong class="jxr_keyword">public</strong> <a name="WindowsOSVersionInfoEx" href="../../../../oshi/software/os/windows/WindowsOSVersionInfoEx.html#WindowsOSVersionInfoEx">WindowsOSVersionInfoEx</a>() {
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>          <em class="jxr_comment">// Populate a key-value map from WMI</em>
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>          WmiResult&lt;OSVersionProperty&gt; versionInfo = <strong class="jxr_keyword">new</strong> <a name="Win32OperatingSystem" href="../../../../oshi/driver/wmi/Win32OperatingSystem.html#Win32OperatingSystem">Win32OperatingSystem</a>().queryOsVersion();
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>          WmiResult&lt;OSVersionProperty&gt; versionInfo = Win32OperatingSystem.queryOsVersion();
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>          <strong class="jxr_keyword">if</strong> (versionInfo.getResultCount() &lt; 1) {
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>              handleNoVersionInfo();
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>          } <strong class="jxr_keyword">else</strong> {

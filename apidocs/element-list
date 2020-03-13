@@ -1,7 +1,9 @@
 oshi
 oshi.demo
-oshi.driver.perfmon
-oshi.driver.wmi
+oshi.driver.linux.proc
+oshi.driver.windows.perfmon
+oshi.driver.windows.registry
+oshi.driver.windows.wmi
 oshi.hardware
 oshi.hardware.common
 oshi.hardware.platform.linux

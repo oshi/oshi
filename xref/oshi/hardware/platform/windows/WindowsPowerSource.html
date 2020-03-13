@@ -107,7 +107,7 @@
 <a class="jxr_linenumber" name="L99" href="#L99">99</a>          <strong class="jxr_keyword">double</strong> psRemainingCapacityPercent = 1d;
 <a class="jxr_linenumber" name="L100" href="#L100">100</a>         <strong class="jxr_keyword">double</strong> psTimeRemainingEstimated = -1d; <em class="jxr_comment">// -1 = unknown, -2 = unlimited</em>
 <a class="jxr_linenumber" name="L101" href="#L101">101</a>         <strong class="jxr_keyword">double</strong> psTimeRemainingInstant = 0d;
-<a class="jxr_linenumber" name="L102" href="#L102">102</a>         <strong class="jxr_keyword">double</strong> psPowerUsageRate = 0d;
+<a class="jxr_linenumber" name="L102" href="#L102">102</a>         <strong class="jxr_keyword">int</strong> psPowerUsageRate = 0;
 <a class="jxr_linenumber" name="L103" href="#L103">103</a>         <strong class="jxr_keyword">double</strong> psVoltage = -1d;
 <a class="jxr_linenumber" name="L104" href="#L104">104</a>         <strong class="jxr_keyword">double</strong> psAmperage = 0d;
 <a class="jxr_linenumber" name="L105" href="#L105">105</a>         <strong class="jxr_keyword">boolean</strong> psPowerOnLine = false;
@@ -280,8 +280,8 @@
 <a class="jxr_linenumber" name="L272" href="#L272">272</a>                                             <em class="jxr_comment">// Put last because we change the AtRate field</em>
 <a class="jxr_linenumber" name="L273" href="#L273">273</a>                                             bqi.InformationLevel = PowrProf.BATTERY_QUERY_INFORMATION_LEVEL.BatteryEstimatedTime
 <a class="jxr_linenumber" name="L274" href="#L274">274</a>                                                     .ordinal();
-<a class="jxr_linenumber" name="L275" href="#L275">275</a>                                             <strong class="jxr_keyword">if</strong> (psPowerUsageRate != 0d) {
-<a class="jxr_linenumber" name="L276" href="#L276">276</a>                                                 bqi.AtRate = (<strong class="jxr_keyword">int</strong>) psPowerUsageRate;
+<a class="jxr_linenumber" name="L275" href="#L275">275</a>                                             <strong class="jxr_keyword">if</strong> (psPowerUsageRate != 0) {
+<a class="jxr_linenumber" name="L276" href="#L276">276</a>                                                 bqi.AtRate = psPowerUsageRate;
 <a class="jxr_linenumber" name="L277" href="#L277">277</a>                                             }
 <a class="jxr_linenumber" name="L278" href="#L278">278</a>                                             bqi.write();
 <a class="jxr_linenumber" name="L279" href="#L279">279</a>                                             IntByReference tr = <strong class="jxr_keyword">new</strong> IntByReference();
@@ -291,8 +291,8 @@
 <a class="jxr_linenumber" name="L283" href="#L283">283</a>                                                 psTimeRemainingInstant = tr.getValue();
 <a class="jxr_linenumber" name="L284" href="#L284">284</a>                                             }
 <a class="jxr_linenumber" name="L285" href="#L285">285</a>                                             <em class="jxr_comment">// Fallback</em>
-<a class="jxr_linenumber" name="L286" href="#L286">286</a>                                             <strong class="jxr_keyword">if</strong> (psTimeRemainingInstant &lt; 0 &amp;&amp; psPowerUsageRate != 0d) {
-<a class="jxr_linenumber" name="L287" href="#L287">287</a>                                                 psTimeRemainingInstant = 3600 * (psMaxCapacity - psCurrentCapacity)
+<a class="jxr_linenumber" name="L286" href="#L286">286</a>                                             <strong class="jxr_keyword">if</strong> (psTimeRemainingInstant &lt; 0 &amp;&amp; psPowerUsageRate != 0) {
+<a class="jxr_linenumber" name="L287" href="#L287">287</a>                                                 psTimeRemainingInstant = (psMaxCapacity - psCurrentCapacity) * 3600d
 <a class="jxr_linenumber" name="L288" href="#L288">288</a>                                                         / psPowerUsageRate;
 <a class="jxr_linenumber" name="L289" href="#L289">289</a>                                                 <strong class="jxr_keyword">if</strong> (psTimeRemainingInstant &lt; 0) {
 <a class="jxr_linenumber" name="L290" href="#L290">290</a>                                                     psTimeRemainingInstant *= -1;

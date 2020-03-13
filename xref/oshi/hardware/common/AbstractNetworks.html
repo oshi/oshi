@@ -77,7 +77,7 @@
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>          <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>              interfaces = NetworkInterface.getNetworkInterfaces(); <em class="jxr_comment">// can return null</em>
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>          } <strong class="jxr_keyword">catch</strong> (SocketException ex) {
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>              LOG.error(<span class="jxr_string">"Socket exception when retrieving interfaces: {}"</span>, ex);
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>              LOG.error(<span class="jxr_string">"Socket exception when retrieving interfaces: {}"</span>, ex.getMessage());
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>          }
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>          <strong class="jxr_keyword">if</strong> (interfaces != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>              <strong class="jxr_keyword">while</strong> (interfaces.hasMoreElements()) {
@@ -87,13 +87,14 @@
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>                          result.add(netint);
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>                      }
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>                  } <strong class="jxr_keyword">catch</strong> (SocketException ex) {
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>                      LOG.error(<span class="jxr_string">"Socket exception when retrieving interface \&quot;{}\&quot;: {}"</span>, netint.getName(), ex);
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>                  }
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>              }
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>          }
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>          <strong class="jxr_keyword">return</strong> result.toArray(<strong class="jxr_keyword">new</strong> NetworkInterface[0]);
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>      }
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>  }
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>                      LOG.error(<span class="jxr_string">"Socket exception when retrieving interface \&quot;{}\&quot;: {}"</span>, netint.getName(),
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>                              ex.getMessage());
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>                  }
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>              }
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>          }
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>          <strong class="jxr_keyword">return</strong> result.toArray(<strong class="jxr_keyword">new</strong> NetworkInterface[0]);
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>      }
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>  }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2020 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

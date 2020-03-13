@@ -147,63 +147,64 @@
 <a class="jxr_linenumber" name="L139" href="#L139">139</a>             <a name="OSFileStore" href="../../../../../oshi/software/os/OSF<a name="OSFileStore" href="../../../../../oshi/software/os/OSFileStore.html#OSFileStore">OSFileStore</a>ml#OSFileStore">OSFileStore</a> osStore = <strong class="jxr_keyword">new</strong> <a name="OSFileStore" href="../../../../../oshi/software/os/OSFileStore.html#OSFileStore">OSFileStore</a>();
 <a class="jxr_linenumber" name="L140" href="#L140">140</a>             osStore.setName(name);
 <a class="jxr_linenumber" name="L141" href="#L141">141</a>             osStore.setVolume(volume);
-<a class="jxr_linenumber" name="L142" href="#L142">142</a>             osStore.setMount(path);
-<a class="jxr_linenumber" name="L143" href="#L143">143</a>             osStore.setDescription(description);
-<a class="jxr_linenumber" name="L144" href="#L144">144</a>             osStore.setType(type);
-<a class="jxr_linenumber" name="L145" href="#L145">145</a>             osStore.setOptions(options);
-<a class="jxr_linenumber" name="L146" href="#L146">146</a>             osStore.setUUID(uuid);
-<a class="jxr_linenumber" name="L147" href="#L147">147</a>             osStore.setFreeSpace(freeSpace);
-<a class="jxr_linenumber" name="L148" href="#L148">148</a>             osStore.setUsableSpace(usableSpace);
-<a class="jxr_linenumber" name="L149" href="#L149">149</a>             osStore.setTotalSpace(totalSpace);
-<a class="jxr_linenumber" name="L150" href="#L150">150</a>             osStore.setFreeInodes(inodeFreeMap.containsKey(path) ? inodeFreeMap.get(path) : 0L);
-<a class="jxr_linenumber" name="L151" href="#L151">151</a>             osStore.setTotalInodes(inodeTotalMap.containsKey(path) ? inodeTotalMap.get(path) : 0L);
-<a class="jxr_linenumber" name="L152" href="#L152">152</a>             fsList.add(osStore);
-<a class="jxr_linenumber" name="L153" href="#L153">153</a>         }
-<a class="jxr_linenumber" name="L154" href="#L154">154</a>         <strong class="jxr_keyword">return</strong> fsList.toArray(<strong class="jxr_keyword">new</strong> <a name="OSFileStore" href="../../../../../oshi/software/os/OSFileStore.html#OSFileStore">OSFileStore</a>[0]);
-<a class="jxr_linenumber" name="L155" href="#L155">155</a>     }
-<a class="jxr_linenumber" name="L156" href="#L156">156</a> 
-<a class="jxr_linenumber" name="L157" href="#L157">157</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
-<a class="jxr_linenumber" name="L158" href="#L158">158</a>     @Override
-<a class="jxr_linenumber" name="L159" href="#L159">159</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getOpenFileDescriptors() {
-<a class="jxr_linenumber" name="L160" href="#L160">160</a>         <strong class="jxr_keyword">return</strong> BsdSysctlUtil.sysctl(<span class="jxr_string">"kern.openfiles"</span>, 0);
-<a class="jxr_linenumber" name="L161" href="#L161">161</a>     }
-<a class="jxr_linenumber" name="L162" href="#L162">162</a> 
-<a class="jxr_linenumber" name="L163" href="#L163">163</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
-<a class="jxr_linenumber" name="L164" href="#L164">164</a>     @Override
-<a class="jxr_linenumber" name="L165" href="#L165">165</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getMaxFileDescriptors() {
-<a class="jxr_linenumber" name="L166" href="#L166">166</a>         <strong class="jxr_keyword">return</strong> BsdSysctlUtil.sysctl(<span class="jxr_string">"kern.maxfiles"</span>, 0);
-<a class="jxr_linenumber" name="L167" href="#L167">167</a>     }
-<a class="jxr_linenumber" name="L168" href="#L168">168</a> 
-<a class="jxr_linenumber" name="L169" href="#L169">169</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L170" href="#L170">170</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
-<a class="jxr_linenumber" name="L171" href="#L171">171</a> <em class="jxr_javadoccomment">     * updateFileStoreStats.</em>
-<a class="jxr_linenumber" name="L172" href="#L172">172</a> <em class="jxr_javadoccomment">     * &lt;/p&gt;</em>
-<a class="jxr_linenumber" name="L173" href="#L173">173</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L174" href="#L174">174</a> <em class="jxr_javadoccomment">     * @param osFileStore</em>
-<a class="jxr_linenumber" name="L175" href="#L175">175</a> <em class="jxr_javadoccomment">     *            a {@link oshi.software.os.OSFileStore} object.</em>
-<a class="jxr_linenumber" name="L176" href="#L176">176</a> <em class="jxr_javadoccomment">     * @return a boolean.</em>
-<a class="jxr_linenumber" name="L177" href="#L177">177</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L178" href="#L178">178</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> updateFileStoreStats(<a name="OSFileStore" href="../../../../../oshi/software/os/OSFileStore.html#OSFileStore">OSFileStore</a> osFileStore) {
-<a class="jxr_linenumber" name="L179" href="#L179">179</a>         <em class="jxr_comment">// Just as fast to query all of them</em>
-<a class="jxr_linenumber" name="L180" href="#L180">180</a>         <strong class="jxr_keyword">for</strong> (<a name="OSFileStore" href="../../../../../oshi/software/os/OSFileStore.html#OSFileStore">OSFileStore</a> fileStore : <strong class="jxr_keyword">new</strong> <a name="FreeBsdFileSystem" href="../../../../../oshi/software/os/unix/freebsd/FreeBsdFileSystem.html#FreeBsdFileSystem">FreeBsdFileSystem</a>().getFileStores()) {
-<a class="jxr_linenumber" name="L181" href="#L181">181</a>             <strong class="jxr_keyword">if</strong> (osFileStore.getName().equals(fileStore.getName())
-<a class="jxr_linenumber" name="L182" href="#L182">182</a>                     &amp;&amp; osFileStore.getVolume().equals(fileStore.getVolume())
-<a class="jxr_linenumber" name="L183" href="#L183">183</a>                     &amp;&amp; osFileStore.getMount().equals(fileStore.getMount())) {
-<a class="jxr_linenumber" name="L184" href="#L184">184</a>                 osFileStore.setLogicalVolume(fileStore.getLogicalVolume());
-<a class="jxr_linenumber" name="L185" href="#L185">185</a>                 osFileStore.setDescription(fileStore.getDescription());
-<a class="jxr_linenumber" name="L186" href="#L186">186</a>                 osFileStore.setType(fileStore.getType());
-<a class="jxr_linenumber" name="L187" href="#L187">187</a>                 osFileStore.setUUID(fileStore.getUUID());
-<a class="jxr_linenumber" name="L188" href="#L188">188</a>                 osFileStore.setFreeSpace(fileStore.getFreeSpace());
-<a class="jxr_linenumber" name="L189" href="#L189">189</a>                 osFileStore.setUsableSpace(fileStore.getUsableSpace());
-<a class="jxr_linenumber" name="L190" href="#L190">190</a>                 osFileStore.setTotalSpace(fileStore.getTotalSpace());
-<a class="jxr_linenumber" name="L191" href="#L191">191</a>                 osFileStore.setFreeInodes(fileStore.getFreeInodes());
-<a class="jxr_linenumber" name="L192" href="#L192">192</a>                 osFileStore.setTotalInodes(fileStore.getTotalInodes());
-<a class="jxr_linenumber" name="L193" href="#L193">193</a>                 <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L194" href="#L194">194</a>             }
-<a class="jxr_linenumber" name="L195" href="#L195">195</a>         }
-<a class="jxr_linenumber" name="L196" href="#L196">196</a>         <strong class="jxr_keyword">return</strong> false;
-<a class="jxr_linenumber" name="L197" href="#L197">197</a>     }
-<a class="jxr_linenumber" name="L198" href="#L198">198</a> }
+<a class="jxr_linenumber" name="L142" href="#L142">142</a>             osStore.setLabel(name);
+<a class="jxr_linenumber" name="L143" href="#L143">143</a>             osStore.setMount(path);
+<a class="jxr_linenumber" name="L144" href="#L144">144</a>             osStore.setDescription(description);
+<a class="jxr_linenumber" name="L145" href="#L145">145</a>             osStore.setType(type);
+<a class="jxr_linenumber" name="L146" href="#L146">146</a>             osStore.setOptions(options);
+<a class="jxr_linenumber" name="L147" href="#L147">147</a>             osStore.setUUID(uuid);
+<a class="jxr_linenumber" name="L148" href="#L148">148</a>             osStore.setFreeSpace(freeSpace);
+<a class="jxr_linenumber" name="L149" href="#L149">149</a>             osStore.setUsableSpace(usableSpace);
+<a class="jxr_linenumber" name="L150" href="#L150">150</a>             osStore.setTotalSpace(totalSpace);
+<a class="jxr_linenumber" name="L151" href="#L151">151</a>             osStore.setFreeInodes(inodeFreeMap.containsKey(path) ? inodeFreeMap.get(path) : 0L);
+<a class="jxr_linenumber" name="L152" href="#L152">152</a>             osStore.setTotalInodes(inodeTotalMap.containsKey(path) ? inodeTotalMap.get(path) : 0L);
+<a class="jxr_linenumber" name="L153" href="#L153">153</a>             fsList.add(osStore);
+<a class="jxr_linenumber" name="L154" href="#L154">154</a>         }
+<a class="jxr_linenumber" name="L155" href="#L155">155</a>         <strong class="jxr_keyword">return</strong> fsList.toArray(<strong class="jxr_keyword">new</strong> <a name="OSFileStore" href="../../../../../oshi/software/os/OSFileStore.html#OSFileStore">OSFileStore</a>[0]);
+<a class="jxr_linenumber" name="L156" href="#L156">156</a>     }
+<a class="jxr_linenumber" name="L157" href="#L157">157</a> 
+<a class="jxr_linenumber" name="L158" href="#L158">158</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L159" href="#L159">159</a>     @Override
+<a class="jxr_linenumber" name="L160" href="#L160">160</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getOpenFileDescriptors() {
+<a class="jxr_linenumber" name="L161" href="#L161">161</a>         <strong class="jxr_keyword">return</strong> BsdSysctlUtil.sysctl(<span class="jxr_string">"kern.openfiles"</span>, 0);
+<a class="jxr_linenumber" name="L162" href="#L162">162</a>     }
+<a class="jxr_linenumber" name="L163" href="#L163">163</a> 
+<a class="jxr_linenumber" name="L164" href="#L164">164</a>     <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
+<a class="jxr_linenumber" name="L165" href="#L165">165</a>     @Override
+<a class="jxr_linenumber" name="L166" href="#L166">166</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getMaxFileDescriptors() {
+<a class="jxr_linenumber" name="L167" href="#L167">167</a>         <strong class="jxr_keyword">return</strong> BsdSysctlUtil.sysctl(<span class="jxr_string">"kern.maxfiles"</span>, 0);
+<a class="jxr_linenumber" name="L168" href="#L168">168</a>     }
+<a class="jxr_linenumber" name="L169" href="#L169">169</a> 
+<a class="jxr_linenumber" name="L170" href="#L170">170</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L171" href="#L171">171</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L172" href="#L172">172</a> <em class="jxr_javadoccomment">     * updateFileStoreStats.</em>
+<a class="jxr_linenumber" name="L173" href="#L173">173</a> <em class="jxr_javadoccomment">     * &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L174" href="#L174">174</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L175" href="#L175">175</a> <em class="jxr_javadoccomment">     * @param osFileStore</em>
+<a class="jxr_linenumber" name="L176" href="#L176">176</a> <em class="jxr_javadoccomment">     *            a {@link oshi.software.os.OSFileStore} object.</em>
+<a class="jxr_linenumber" name="L177" href="#L177">177</a> <em class="jxr_javadoccomment">     * @return a boolean.</em>
+<a class="jxr_linenumber" name="L178" href="#L178">178</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L179" href="#L179">179</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> updateFileStoreStats(<a name="OSFileStore" href="../../../../../oshi/software/os/OSFileStore.html#OSFileStore">OSFileStore</a> osFileStore) {
+<a class="jxr_linenumber" name="L180" href="#L180">180</a>         <em class="jxr_comment">// Just as fast to query all of them</em>
+<a class="jxr_linenumber" name="L181" href="#L181">181</a>         <strong class="jxr_keyword">for</strong> (<a name="OSFileStore" href="../../../../../oshi/software/os/OSFileStore.html#OSFileStore">OSFileStore</a> fileStore : <strong class="jxr_keyword">new</strong> <a name="FreeBsdFileSystem" href="../../../../../oshi/software/os/unix/freebsd/FreeBsdFileSystem.html#FreeBsdFileSystem">FreeBsdFileSystem</a>().getFileStores()) {
+<a class="jxr_linenumber" name="L182" href="#L182">182</a>             <strong class="jxr_keyword">if</strong> (osFileStore.getName().equals(fileStore.getName())
+<a class="jxr_linenumber" name="L183" href="#L183">183</a>                     &amp;&amp; osFileStore.getVolume().equals(fileStore.getVolume())
+<a class="jxr_linenumber" name="L184" href="#L184">184</a>                     &amp;&amp; osFileStore.getMount().equals(fileStore.getMount())) {
+<a class="jxr_linenumber" name="L185" href="#L185">185</a>                 osFileStore.setLogicalVolume(fileStore.getLogicalVolume());
+<a class="jxr_linenumber" name="L186" href="#L186">186</a>                 osFileStore.setDescription(fileStore.getDescription());
+<a class="jxr_linenumber" name="L187" href="#L187">187</a>                 osFileStore.setType(fileStore.getType());
+<a class="jxr_linenumber" name="L188" href="#L188">188</a>                 osFileStore.setUUID(fileStore.getUUID());
+<a class="jxr_linenumber" name="L189" href="#L189">189</a>                 osFileStore.setFreeSpace(fileStore.getFreeSpace());
+<a class="jxr_linenumber" name="L190" href="#L190">190</a>                 osFileStore.setUsableSpace(fileStore.getUsableSpace());
+<a class="jxr_linenumber" name="L191" href="#L191">191</a>                 osFileStore.setTotalSpace(fileStore.getTotalSpace());
+<a class="jxr_linenumber" name="L192" href="#L192">192</a>                 osFileStore.setFreeInodes(fileStore.getFreeInodes());
+<a class="jxr_linenumber" name="L193" href="#L193">193</a>                 osFileStore.setTotalInodes(fileStore.getTotalInodes());
+<a class="jxr_linenumber" name="L194" href="#L194">194</a>                 <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L195" href="#L195">195</a>             }
+<a class="jxr_linenumber" name="L196" href="#L196">196</a>         }
+<a class="jxr_linenumber" name="L197" href="#L197">197</a>         <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L198" href="#L198">198</a>     }
+<a class="jxr_linenumber" name="L199" href="#L199">199</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2020 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
