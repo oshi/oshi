@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>ProcessPerformanceData.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.driver.windows.registry</a> &gt; <span class="el_source">ProcessPerformanceData.java</span></div><h1>ProcessPerformanceData.java</h1><pre class="source lang-java linenums">/**
+ * MIT License
+ *
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+package oshi.driver.windows.registry;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import oshi.driver.windows.perfmon.ProcessInformation.ProcessPerformanceProperty;
+import oshi.software.os.OSProcess;
+import oshi.software.os.OperatingSystem;
+import oshi.util.tuples.Triplet;
+
+public final class ProcessPerformanceData {
+
+    private static final String PROCESS = &quot;Process&quot;;
+
+    private ProcessPerformanceData() {
+    }
+
+    /**
+     * Query the registry for process performance counters
+     *
+     * @param os
+     *            The OperatingSystem object
+     * @param pids
+     *            An optional collection of process IDs to filter the list to. May
+     *            be null for no filtering.
+     * @return A map with Process ID as the key and an OSProcess object populated
+     *         with performance counter information if successful, or null
+     *         otherwise.
+     */
+    public static Map&lt;Integer, OSProcess&gt; buildProcessMapFromRegistry(OperatingSystem os, Collection&lt;Integer&gt; pids) {
+        // Grab the data from the registry.
+<span class="nc" id="L57">        Triplet&lt;List&lt;Map&lt;ProcessPerformanceProperty, Object&gt;&gt;, Long, Long&gt; processData = HkeyPerformanceDataUtil</span>
+<span class="nc" id="L58">                .readPerfDataFromRegistry(PROCESS, ProcessPerformanceProperty.class);</span>
+<span class="nc bnc" id="L59" title="All 2 branches missed.">        if (processData == null) {</span>
+<span class="nc" id="L60">            return null;</span>
+        }
+<span class="nc" id="L62">        List&lt;Map&lt;ProcessPerformanceProperty, Object&gt;&gt; processInstanceMaps = processData.getA();</span>
+<span class="nc" id="L63">        long perfTime100nSec = processData.getB(); // 1601</span>
+<span class="nc" id="L64">        long now = processData.getC(); // 1970 epoch</span>
+
+        // Create a map and fill it
+<span class="nc" id="L67">        Map&lt;Integer, OSProcess&gt; processMap = new HashMap&lt;&gt;();</span>
+        // Iterate instances.
+<span class="nc bnc" id="L69" title="All 2 branches missed.">        for (Map&lt;ProcessPerformanceProperty, Object&gt; processInstanceMap : processInstanceMaps) {</span>
+<span class="nc" id="L70">            int pid = ((Integer) processInstanceMap.get(ProcessPerformanceProperty.PROCESSID)).intValue();</span>
+<span class="nc" id="L71">            String name = (String) processInstanceMap.get(ProcessPerformanceProperty.NAME);</span>
+<span class="nc bnc" id="L72" title="All 6 branches missed.">            if ((pids == null || pids.contains(pid)) &amp;&amp; !&quot;_Total&quot;.equals(name)) {</span>
+<span class="nc" id="L73">                OSProcess proc = new OSProcess(os);</span>
+<span class="nc" id="L74">                proc.setProcessID(pid);</span>
+<span class="nc" id="L75">                proc.setName(name);</span>
+<span class="nc" id="L76">                long upTime = (perfTime100nSec - (Long) processInstanceMap.get(ProcessPerformanceProperty.CREATIONDATE))</span>
+                        / 10_000L;
+<span class="nc bnc" id="L78" title="All 2 branches missed.">                proc.setUpTime(upTime &lt; 1L ? 1L : upTime);</span>
+<span class="nc" id="L79">                proc.setStartTime(now - upTime);</span>
+<span class="nc" id="L80">                proc.setBytesRead((Long) processInstanceMap.get(ProcessPerformanceProperty.READTRANSFERCOUNT));</span>
+<span class="nc" id="L81">                proc.setBytesWritten((Long) processInstanceMap.get(ProcessPerformanceProperty.WRITETRANSFERCOUNT));</span>
+<span class="nc" id="L82">                proc.setResidentSetSize((Long) processInstanceMap.get(ProcessPerformanceProperty.PRIVATEPAGECOUNT));</span>
+<span class="nc" id="L83">                proc.setParentProcessID((Integer) processInstanceMap.get(ProcessPerformanceProperty.PARENTPROCESSID));</span>
+<span class="nc" id="L84">                proc.setPriority((Integer) processInstanceMap.get(ProcessPerformanceProperty.PRIORITY));</span>
+
+<span class="nc" id="L86">                processMap.put(pid, proc);</span>
+            }
+<span class="nc" id="L88">        }</span>
+<span class="nc" id="L89">        return processMap;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

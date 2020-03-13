@@ -74,7 +74,7 @@ public class WindowsOSSystemInfo {
             }
 <span class="nc" id="L75">        } catch (UnsatisfiedLinkError e) {</span>
             // no WOW64 support
-<span class="nc" id="L77">            LOG.trace(&quot;No WOW64 support: {}&quot;, e);</span>
+<span class="nc" id="L77">            LOG.trace(&quot;No WOW64 support: {}&quot;, e.getMessage());</span>
 <span class="nc" id="L78">        }</span>
 
 <span class="nc" id="L80">        this.systemInfo = si;</span>

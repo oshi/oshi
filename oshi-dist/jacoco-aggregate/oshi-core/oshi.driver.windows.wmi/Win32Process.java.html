@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>Win32Process.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.driver.windows.wmi</a> &gt; <span class="el_source">Win32Process.java</span></div><h1>Win32Process.java</h1><pre class="source lang-java linenums">/**
+ * MIT License
+ *
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+package oshi.driver.windows.wmi;
+
+import java.util.Collection;
+import java.util.Set;
+
+import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery; //NOSONAR squid:S1191
+import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
+
+import oshi.util.platform.windows.WmiQueryHandler;
+
+public final class Win32Process {
+
+    private static final String WIN32_PROCESS = &quot;Win32_Process&quot;;
+
+    /**
+     * Process command lines.
+     */
+<span class="nc" id="L41">    public enum CommandLineProperty {</span>
+<span class="nc" id="L42">        PROCESSID, COMMANDLINE;</span>
+    }
+
+    /**
+     * Process properties accessible from WTSEnumerateProcesses in Vista+
+     */
+<span class="nc" id="L48">    public enum ProcessXPProperty {</span>
+<span class="nc" id="L49">        PROCESSID, NAME, KERNELMODETIME, USERMODETIME, THREADCOUNT, PAGEFILEUSAGE, HANDLECOUNT, EXECUTABLEPATH;</span>
+    }
+
+    private Win32Process() {
+    }
+
+    /**
+     * Returns process command lines
+     *
+     * @param pidsToQuery
+     *            Process IDs to query for command lines.
+     * @return Command line used to start the provided processes.
+     */
+    public static WmiResult&lt;CommandLineProperty&gt; queryCommandLines(Set&lt;Integer&gt; pidsToQuery) {
+<span class="nc" id="L63">        StringBuilder sb = new StringBuilder(WIN32_PROCESS);</span>
+<span class="nc" id="L64">        boolean first = true;</span>
+<span class="nc bnc" id="L65" title="All 2 branches missed.">        for (Integer pid : pidsToQuery) {</span>
+<span class="nc bnc" id="L66" title="All 2 branches missed.">            if (first) {</span>
+<span class="nc" id="L67">                sb.append(&quot; WHERE ProcessID=&quot;);</span>
+<span class="nc" id="L68">                first = false;</span>
+            } else {
+<span class="nc" id="L70">                sb.append(&quot; OR ProcessID=&quot;);</span>
+            }
+<span class="nc" id="L72">            sb.append(pid);</span>
+<span class="nc" id="L73">        }</span>
+<span class="nc" id="L74">        WmiQuery&lt;CommandLineProperty&gt; commandLineQuery = new WmiQuery&lt;&gt;(sb.toString(), CommandLineProperty.class);</span>
+<span class="nc" id="L75">        return WmiQueryHandler.createInstance().queryWMI(commandLineQuery);</span>
+    }
+
+    /**
+     * Returns process info
+     *
+     * @param pids
+     *            Process IDs to query.
+     * @return Information on the provided processes.
+     */
+    public static WmiResult&lt;ProcessXPProperty&gt; queryProcesses(Collection&lt;Integer&gt; pids) {
+<span class="nc" id="L86">        StringBuilder sb = new StringBuilder(WIN32_PROCESS);</span>
+<span class="nc bnc" id="L87" title="All 2 branches missed.">        if (pids != null) {</span>
+<span class="nc" id="L88">            boolean first = true;</span>
+<span class="nc bnc" id="L89" title="All 2 branches missed.">            for (Integer pid : pids) {</span>
+<span class="nc bnc" id="L90" title="All 2 branches missed.">                if (first) {</span>
+<span class="nc" id="L91">                    sb.append(&quot; WHERE ProcessID=&quot;);</span>
+<span class="nc" id="L92">                    first = false;</span>
+                } else {
+<span class="nc" id="L94">                    sb.append(&quot; OR ProcessID=&quot;);</span>
+                }
+<span class="nc" id="L96">                sb.append(pid);</span>
+<span class="nc" id="L97">            }</span>
+        }
+<span class="nc" id="L99">        WmiQuery&lt;ProcessXPProperty&gt; processQueryXP = new WmiQuery&lt;&gt;(sb.toString(), ProcessXPProperty.class);</span>
+<span class="nc" id="L100">        return WmiQueryHandler.createInstance().queryWMI(processQueryXP);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

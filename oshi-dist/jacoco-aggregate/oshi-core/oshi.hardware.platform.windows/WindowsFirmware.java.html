@@ -29,8 +29,8 @@ import java.util.function.Supplier;
 
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult; // NOSONAR squid:S1191
 
-import oshi.driver.wmi.Win32Bios;
-import oshi.driver.wmi.Win32Bios.BiosProperty;
+import oshi.driver.windows.wmi.Win32Bios;
+import oshi.driver.windows.wmi.Win32Bios.BiosProperty;
 import oshi.hardware.common.AbstractFirmware;
 import oshi.util.Constants;
 import oshi.util.Util;
@@ -43,7 +43,7 @@ import oshi.util.tuples.Quintet;
 <span class="nc" id="L43">final class WindowsFirmware extends AbstractFirmware {</span>
 
 <span class="nc" id="L45">    private final Supplier&lt;Quintet&lt;String, String, String, String, String&gt;&gt; manufNameDescVersRelease = memoize(</span>
-            this::queryManufNameDescVersRelease);
+            WindowsFirmware::queryManufNameDescVersRelease);
 
     @Override
     public String getManufacturer() {
@@ -70,13 +70,13 @@ import oshi.util.tuples.Quintet;
 <span class="nc" id="L70">        return manufNameDescVersRelease.get().getE();</span>
     }
 
-    private Quintet&lt;String, String, String, String, String&gt; queryManufNameDescVersRelease() {
+    private static Quintet&lt;String, String, String, String, String&gt; queryManufNameDescVersRelease() {
 <span class="nc" id="L74">        String manufacturer = null;</span>
 <span class="nc" id="L75">        String name = null;</span>
 <span class="nc" id="L76">        String description = null;</span>
 <span class="nc" id="L77">        String version = null;</span>
 <span class="nc" id="L78">        String releaseDate = null;</span>
-<span class="nc" id="L79">        WmiResult&lt;BiosProperty&gt; win32BIOS = new Win32Bios().queryBiosInfo();</span>
+<span class="nc" id="L79">        WmiResult&lt;BiosProperty&gt; win32BIOS = Win32Bios.queryBiosInfo();</span>
 <span class="nc bnc" id="L80" title="All 2 branches missed.">        if (win32BIOS.getResultCount() &gt; 0) {</span>
 <span class="nc" id="L81">            manufacturer = WmiUtil.getString(win32BIOS, BiosProperty.MANUFACTURER, 0);</span>
 <span class="nc" id="L82">            name = WmiUtil.getString(win32BIOS, BiosProperty.NAME, 0);</span>

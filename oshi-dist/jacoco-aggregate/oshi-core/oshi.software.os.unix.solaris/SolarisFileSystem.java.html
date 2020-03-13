@@ -145,43 +145,44 @@ import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
 <span class="nc" id="L145">            OSFileStore osStore = new OSFileStore();</span>
 <span class="nc" id="L146">            osStore.setName(name);</span>
 <span class="nc" id="L147">            osStore.setVolume(volume);</span>
-<span class="nc" id="L148">            osStore.setMount(path);</span>
-<span class="nc" id="L149">            osStore.setDescription(description);</span>
-<span class="nc" id="L150">            osStore.setType(type);</span>
-<span class="nc" id="L151">            osStore.setOptions(options);</span>
-<span class="nc" id="L152">            osStore.setUUID(&quot;&quot;); // No UUID info on Solaris</span>
-<span class="nc" id="L153">            osStore.setFreeSpace(freeSpace);</span>
-<span class="nc" id="L154">            osStore.setUsableSpace(usableSpace);</span>
-<span class="nc" id="L155">            osStore.setTotalSpace(totalSpace);</span>
-<span class="nc bnc" id="L156" title="All 2 branches missed.">            osStore.setFreeInodes(inodeFreeMap.containsKey(path) ? inodeFreeMap.get(path) : 0L);</span>
-<span class="nc bnc" id="L157" title="All 2 branches missed.">            osStore.setTotalInodes(inodeTotalMap.containsKey(path) ? inodeTotalMap.get(path) : 0L);</span>
-<span class="nc" id="L158">            fsList.add(osStore);</span>
-<span class="nc" id="L159">        }</span>
-<span class="nc" id="L160">        return fsList;</span>
+<span class="nc" id="L148">            osStore.setLabel(name);</span>
+<span class="nc" id="L149">            osStore.setMount(path);</span>
+<span class="nc" id="L150">            osStore.setDescription(description);</span>
+<span class="nc" id="L151">            osStore.setType(type);</span>
+<span class="nc" id="L152">            osStore.setOptions(options);</span>
+<span class="nc" id="L153">            osStore.setUUID(&quot;&quot;); // No UUID info on Solaris</span>
+<span class="nc" id="L154">            osStore.setFreeSpace(freeSpace);</span>
+<span class="nc" id="L155">            osStore.setUsableSpace(usableSpace);</span>
+<span class="nc" id="L156">            osStore.setTotalSpace(totalSpace);</span>
+<span class="nc bnc" id="L157" title="All 2 branches missed.">            osStore.setFreeInodes(inodeFreeMap.containsKey(path) ? inodeFreeMap.get(path) : 0L);</span>
+<span class="nc bnc" id="L158" title="All 2 branches missed.">            osStore.setTotalInodes(inodeTotalMap.containsKey(path) ? inodeTotalMap.get(path) : 0L);</span>
+<span class="nc" id="L159">            fsList.add(osStore);</span>
+<span class="nc" id="L160">        }</span>
+<span class="nc" id="L161">        return fsList;</span>
     }
 
     @Override
     public long getOpenFileDescriptors() {
-<span class="nc" id="L165">        try (KstatChain kc = KstatUtil.openChain()) {</span>
-<span class="nc" id="L166">            Kstat ksp = kc.lookup(null, -1, &quot;file_cache&quot;);</span>
+<span class="nc" id="L166">        try (KstatChain kc = KstatUtil.openChain()) {</span>
+<span class="nc" id="L167">            Kstat ksp = kc.lookup(null, -1, &quot;file_cache&quot;);</span>
             // Set values
-<span class="nc bnc" id="L168" title="All 4 branches missed.">            if (ksp != null &amp;&amp; kc.read(ksp)) {</span>
-<span class="nc" id="L169">                return KstatUtil.dataLookupLong(ksp, &quot;buf_inuse&quot;);</span>
+<span class="nc bnc" id="L169" title="All 4 branches missed.">            if (ksp != null &amp;&amp; kc.read(ksp)) {</span>
+<span class="nc" id="L170">                return KstatUtil.dataLookupLong(ksp, &quot;buf_inuse&quot;);</span>
             }
-<span class="nc bnc" id="L171" title="All 2 branches missed.">        }</span>
-<span class="nc" id="L172">        return 0L;</span>
+<span class="nc bnc" id="L172" title="All 2 branches missed.">        }</span>
+<span class="nc" id="L173">        return 0L;</span>
     }
 
     @Override
     public long getMaxFileDescriptors() {
-<span class="nc" id="L177">        try (KstatChain kc = KstatUtil.openChain()) {</span>
-<span class="nc" id="L178">            Kstat ksp = kc.lookup(null, -1, &quot;file_cache&quot;);</span>
+<span class="nc" id="L178">        try (KstatChain kc = KstatUtil.openChain()) {</span>
+<span class="nc" id="L179">            Kstat ksp = kc.lookup(null, -1, &quot;file_cache&quot;);</span>
             // Set values
-<span class="nc bnc" id="L180" title="All 4 branches missed.">            if (ksp != null &amp;&amp; kc.read(ksp)) {</span>
-<span class="nc" id="L181">                return KstatUtil.dataLookupLong(ksp, &quot;buf_max&quot;);</span>
+<span class="nc bnc" id="L181" title="All 4 branches missed.">            if (ksp != null &amp;&amp; kc.read(ksp)) {</span>
+<span class="nc" id="L182">                return KstatUtil.dataLookupLong(ksp, &quot;buf_max&quot;);</span>
             }
-<span class="nc bnc" id="L183" title="All 2 branches missed.">        }</span>
-<span class="nc" id="L184">        return 0L;</span>
+<span class="nc bnc" id="L184" title="All 2 branches missed.">        }</span>
+<span class="nc" id="L185">        return 0L;</span>
     }
 
     /**
@@ -194,21 +195,21 @@ import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
      * @return a boolean.
      */
     public static boolean updateFileStoreStats(OSFileStore osFileStore) {
-<span class="nc bnc" id="L197" title="All 2 branches missed.">        for (OSFileStore fileStore : getFileStoreMatching(osFileStore.getName())) {</span>
-<span class="nc bnc" id="L198" title="All 2 branches missed.">            if (osFileStore.getVolume().equals(fileStore.getVolume())</span>
-<span class="nc bnc" id="L199" title="All 2 branches missed.">                    &amp;&amp; osFileStore.getMount().equals(fileStore.getMount())) {</span>
-<span class="nc" id="L200">                osFileStore.setLogicalVolume(fileStore.getLogicalVolume());</span>
-<span class="nc" id="L201">                osFileStore.setDescription(fileStore.getDescription());</span>
-<span class="nc" id="L202">                osFileStore.setType(fileStore.getType());</span>
-<span class="nc" id="L203">                osFileStore.setFreeSpace(fileStore.getFreeSpace());</span>
-<span class="nc" id="L204">                osFileStore.setUsableSpace(fileStore.getUsableSpace());</span>
-<span class="nc" id="L205">                osFileStore.setTotalSpace(fileStore.getTotalSpace());</span>
-<span class="nc" id="L206">                osFileStore.setFreeInodes(fileStore.getFreeInodes());</span>
-<span class="nc" id="L207">                osFileStore.setTotalInodes(fileStore.getTotalInodes());</span>
-<span class="nc" id="L208">                return true;</span>
+<span class="nc bnc" id="L198" title="All 2 branches missed.">        for (OSFileStore fileStore : getFileStoreMatching(osFileStore.getName())) {</span>
+<span class="nc bnc" id="L199" title="All 2 branches missed.">            if (osFileStore.getVolume().equals(fileStore.getVolume())</span>
+<span class="nc bnc" id="L200" title="All 2 branches missed.">                    &amp;&amp; osFileStore.getMount().equals(fileStore.getMount())) {</span>
+<span class="nc" id="L201">                osFileStore.setLogicalVolume(fileStore.getLogicalVolume());</span>
+<span class="nc" id="L202">                osFileStore.setDescription(fileStore.getDescription());</span>
+<span class="nc" id="L203">                osFileStore.setType(fileStore.getType());</span>
+<span class="nc" id="L204">                osFileStore.setFreeSpace(fileStore.getFreeSpace());</span>
+<span class="nc" id="L205">                osFileStore.setUsableSpace(fileStore.getUsableSpace());</span>
+<span class="nc" id="L206">                osFileStore.setTotalSpace(fileStore.getTotalSpace());</span>
+<span class="nc" id="L207">                osFileStore.setFreeInodes(fileStore.getFreeInodes());</span>
+<span class="nc" id="L208">                osFileStore.setTotalInodes(fileStore.getTotalInodes());</span>
+<span class="nc" id="L209">                return true;</span>
             }
-<span class="nc" id="L210">        }</span>
-<span class="nc" id="L211">        return false;</span>
+<span class="nc" id="L211">        }</span>
+<span class="nc" id="L212">        return false;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

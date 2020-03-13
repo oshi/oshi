@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>CpuStat.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.driver.linux.proc</a> &gt; <span class="el_source">CpuStat.java</span></div><h1>CpuStat.java</h1><pre class="source lang-java linenums">/**
+ * MIT License
+ *
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+package oshi.driver.linux.proc;
+
+import java.util.List;
+
+import oshi.hardware.CentralProcessor.TickType;
+import oshi.util.FileUtil;
+import oshi.util.ParseUtil;
+import oshi.util.platform.linux.ProcPath;
+
+public final class CpuStat {
+
+    private CpuStat() {
+    }
+
+    /**
+     * Gets the System CPU ticks array from /proc/stat
+     *
+     * @return Array of CPU ticks
+     */
+    public static long[] getSystemCpuLoadTicks() {
+<span class="nc" id="L44">        long[] ticks = new long[TickType.values().length];</span>
+        // /proc/stat expected format
+        // first line is overall user,nice,system,idle,iowait,irq, etc.
+        // cpu 3357 0 4313 1362393 ...
+        String tickStr;
+<span class="nc" id="L49">        List&lt;String&gt; procStat = FileUtil.readFile(ProcPath.STAT);</span>
+<span class="nc bnc" id="L50" title="All 2 branches missed.">        if (!procStat.isEmpty()) {</span>
+<span class="nc" id="L51">            tickStr = procStat.get(0);</span>
+        } else {
+<span class="nc" id="L53">            return ticks;</span>
+        }
+        // Split the line. Note the first (0) element is &quot;cpu&quot; so remaining
+        // elements are offset by 1 from the enum index
+<span class="nc" id="L57">        String[] tickArr = ParseUtil.whitespaces.split(tickStr);</span>
+<span class="nc bnc" id="L58" title="All 2 branches missed.">        if (tickArr.length &lt;= TickType.IDLE.getIndex()) {</span>
+            // If ticks don't at least go user/nice/system/idle, abort
+<span class="nc" id="L60">            return ticks;</span>
+        }
+        // Note tickArr is offset by 1 because first element is &quot;cpu&quot;
+<span class="nc bnc" id="L63" title="All 2 branches missed.">        for (int i = 0; i &lt; TickType.values().length; i++) {</span>
+<span class="nc" id="L64">            ticks[i] = ParseUtil.parseLongOrDefault(tickArr[i + 1], 0L);</span>
+        }
+        // Ignore guest or guest_nice, they are included in user/nice
+<span class="nc" id="L67">        return ticks;</span>
+    }
+
+    /**
+     * Gets an arrya of Processor CPU ticks array from /proc/stat
+     *
+     * @param logicalProcessorCount
+     *            The number of logical processors, which corresponds to the number
+     *            of lines to read from the file.
+     * @return Array of CPU ticks for each processor
+     */
+    public static long[][] getProcessorCpuLoadTicks(int logicalProcessorCount) {
+<span class="nc" id="L79">        long[][] ticks = new long[logicalProcessorCount][TickType.values().length];</span>
+        // /proc/stat expected format
+        // first line is overall user,nice,system,idle, etc.
+        // cpu 3357 0 4313 1362393 ...
+        // per-processor subsequent lines for cpu0, cpu1, etc.
+<span class="nc" id="L84">        int cpu = 0;</span>
+<span class="nc" id="L85">        List&lt;String&gt; procStat = FileUtil.readFile(ProcPath.STAT);</span>
+<span class="nc bnc" id="L86" title="All 2 branches missed.">        for (String stat : procStat) {</span>
+<span class="nc bnc" id="L87" title="All 4 branches missed.">            if (stat.startsWith(&quot;cpu&quot;) &amp;&amp; !stat.startsWith(&quot;cpu &quot;)) {</span>
+                // Split the line. Note the first (0) element is &quot;cpu&quot; so
+                // remaining
+                // elements are offset by 1 from the enum index
+<span class="nc" id="L91">                String[] tickArr = ParseUtil.whitespaces.split(stat);</span>
+<span class="nc bnc" id="L92" title="All 2 branches missed.">                if (tickArr.length &lt;= TickType.IDLE.getIndex()) {</span>
+                    // If ticks don't at least go user/nice/system/idle, abort
+<span class="nc" id="L94">                    return ticks;</span>
+                }
+                // Note tickArr is offset by 1
+<span class="nc bnc" id="L97" title="All 2 branches missed.">                for (int i = 0; i &lt; TickType.values().length; i++) {</span>
+<span class="nc" id="L98">                    ticks[cpu][i] = ParseUtil.parseLongOrDefault(tickArr[i + 1], 0L);</span>
+                }
+                // Ignore guest or guest_nice, they are included in
+<span class="nc bnc" id="L101" title="All 2 branches missed.">                if (++cpu &gt;= logicalProcessorCount) {</span>
+<span class="nc" id="L102">                    break;</span>
+                }
+            }
+<span class="nc" id="L105">        }</span>
+<span class="nc" id="L106">        return ticks;</span>
+    }
+
+    /**
+     * Gets the number of context switches from /proc/stat
+     *
+     * @return The number of context switches if available, -1 otherwise
+     */
+    public static long getContextSwitches() {
+<span class="nc" id="L115">        List&lt;String&gt; procStat = FileUtil.readFile(ProcPath.STAT);</span>
+<span class="nc bnc" id="L116" title="All 2 branches missed.">        for (String stat : procStat) {</span>
+<span class="nc bnc" id="L117" title="All 2 branches missed.">            if (stat.startsWith(&quot;ctxt &quot;)) {</span>
+<span class="nc" id="L118">                String[] ctxtArr = ParseUtil.whitespaces.split(stat);</span>
+<span class="nc bnc" id="L119" title="All 2 branches missed.">                if (ctxtArr.length == 2) {</span>
+<span class="nc" id="L120">                    return ParseUtil.parseLongOrDefault(ctxtArr[1], 0);</span>
+                }
+            }
+<span class="nc" id="L123">        }</span>
+<span class="nc" id="L124">        return -1;</span>
+    }
+
+    /**
+     * Gets the number of interrupts from /proc/stat
+     *
+     * @return The number of interrupts if available, -1 otherwise
+     */
+    public static long getInterrupts() {
+<span class="nc" id="L133">        List&lt;String&gt; procStat = FileUtil.readFile(ProcPath.STAT);</span>
+<span class="nc bnc" id="L134" title="All 2 branches missed.">        for (String stat : procStat) {</span>
+<span class="nc bnc" id="L135" title="All 2 branches missed.">            if (stat.startsWith(&quot;intr &quot;)) {</span>
+<span class="nc" id="L136">                String[] intrArr = ParseUtil.whitespaces.split(stat);</span>
+<span class="nc bnc" id="L137" title="All 2 branches missed.">                if (intrArr.length &gt; 2) {</span>
+<span class="nc" id="L138">                    return ParseUtil.parseLongOrDefault(intrArr[1], 0);</span>
+                }
+            }
+<span class="nc" id="L141">        }</span>
+<span class="nc" id="L142">        return -1;</span>
+    }
+
+    /**
+     * Gets the boot time from /proc/stat
+     *
+     * @return The boot time if available, 0 otherwise
+     */
+    public static long getBootTime() {
+        // Boot time given by btime variable in /proc/stat.
+<span class="nc" id="L152">        List&lt;String&gt; procStat = FileUtil.readFile(ProcPath.STAT);</span>
+<span class="nc bnc" id="L153" title="All 2 branches missed.">        for (String stat : procStat) {</span>
+<span class="nc bnc" id="L154" title="All 2 branches missed.">            if (stat.startsWith(&quot;btime&quot;)) {</span>
+<span class="nc" id="L155">                String[] bTime = ParseUtil.whitespaces.split(stat);</span>
+<span class="nc" id="L156">                return ParseUtil.parseLongOrDefault(bTime[1], 0L);</span>
+            }
+<span class="nc" id="L158">        }</span>
+<span class="nc" id="L159">        return 0;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

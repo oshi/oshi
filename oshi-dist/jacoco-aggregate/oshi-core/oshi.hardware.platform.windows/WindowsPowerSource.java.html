@@ -99,7 +99,7 @@ public class WindowsPowerSource extends AbstractPowerSource {
 <span class="nc" id="L99">        double psRemainingCapacityPercent = 1d;</span>
 <span class="nc" id="L100">        double psTimeRemainingEstimated = -1d; // -1 = unknown, -2 = unlimited</span>
 <span class="nc" id="L101">        double psTimeRemainingInstant = 0d;</span>
-<span class="nc" id="L102">        double psPowerUsageRate = 0d;</span>
+<span class="nc" id="L102">        int psPowerUsageRate = 0;</span>
 <span class="nc" id="L103">        double psVoltage = -1d;</span>
 <span class="nc" id="L104">        double psAmperage = 0d;</span>
 <span class="nc" id="L105">        boolean psPowerOnLine = false;</span>
@@ -272,8 +272,8 @@ public class WindowsPowerSource extends AbstractPowerSource {
                                             // Put last because we change the AtRate field
 <span class="nc" id="L273">                                            bqi.InformationLevel = PowrProf.BATTERY_QUERY_INFORMATION_LEVEL.BatteryEstimatedTime</span>
 <span class="nc" id="L274">                                                    .ordinal();</span>
-<span class="nc bnc" id="L275" title="All 2 branches missed.">                                            if (psPowerUsageRate != 0d) {</span>
-<span class="nc" id="L276">                                                bqi.AtRate = (int) psPowerUsageRate;</span>
+<span class="nc bnc" id="L275" title="All 2 branches missed.">                                            if (psPowerUsageRate != 0) {</span>
+<span class="nc" id="L276">                                                bqi.AtRate = psPowerUsageRate;</span>
                                             }
 <span class="nc" id="L278">                                            bqi.write();</span>
 <span class="nc" id="L279">                                            IntByReference tr = new IntByReference();</span>
@@ -283,8 +283,8 @@ public class WindowsPowerSource extends AbstractPowerSource {
 <span class="nc" id="L283">                                                psTimeRemainingInstant = tr.getValue();</span>
                                             }
                                             // Fallback
-<span class="nc bnc" id="L286" title="All 4 branches missed.">                                            if (psTimeRemainingInstant &lt; 0 &amp;&amp; psPowerUsageRate != 0d) {</span>
-<span class="nc" id="L287">                                                psTimeRemainingInstant = 3600 * (psMaxCapacity - psCurrentCapacity)</span>
+<span class="nc bnc" id="L286" title="All 4 branches missed.">                                            if (psTimeRemainingInstant &lt; 0 &amp;&amp; psPowerUsageRate != 0) {</span>
+<span class="nc" id="L287">                                                psTimeRemainingInstant = (psMaxCapacity - psCurrentCapacity) * 3600d</span>
                                                         / psPowerUsageRate;
 <span class="nc bnc" id="L289" title="All 2 branches missed.">                                                if (psTimeRemainingInstant &lt; 0) {</span>
 <span class="nc" id="L290">                                                    psTimeRemainingInstant *= -1;</span>

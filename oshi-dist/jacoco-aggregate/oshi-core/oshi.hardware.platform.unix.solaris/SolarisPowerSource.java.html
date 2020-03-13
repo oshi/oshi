@@ -153,15 +153,13 @@ public class SolarisPowerSource extends AbstractPowerSource {
 <span class="nc" id="L153">                    long voltageNow = KstatUtil.dataLookupLong(ksp, &quot;bst_voltage&quot;);</span>
 <span class="nc bnc" id="L154" title="All 2 branches missed.">                    if (voltageNow &gt; 0) {</span>
 <span class="nc" id="L155">                        psVoltage = voltageNow / 1000d;</span>
-<span class="nc bnc" id="L156" title="All 2 branches missed.">                        if (psVoltage != 0d) {</span>
-<span class="nc" id="L157">                            psAmperage = psPowerUsageRate / psVoltage;</span>
-                        }
+<span class="nc" id="L156">                        psAmperage = psPowerUsageRate * 1000d / voltageNow;</span>
                     }
                 }
             }
         }
 
-<span class="nc" id="L164">        return new SolarisPowerSource(psName, psDeviceName, psRemainingCapacityPercent, psTimeRemainingEstimated,</span>
+<span class="nc" id="L162">        return new SolarisPowerSource(psName, psDeviceName, psRemainingCapacityPercent, psTimeRemainingEstimated,</span>
                 psTimeRemainingInstant, psPowerUsageRate, psVoltage, psAmperage, psPowerOnLine, psCharging,
                 psDischarging, psCapacityUnits, psCurrentCapacity, psMaxCapacity, psDesignCapacity, psCycleCount,
                 psChemistry, psManufactureDate, psManufacturer, psSerialNumber, psTemperature);
