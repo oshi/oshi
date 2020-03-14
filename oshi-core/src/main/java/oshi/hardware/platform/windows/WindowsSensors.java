@@ -23,15 +23,13 @@
  */
 package oshi.hardware.platform.windows;
 
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult; // NOSONAR squid:S1191
 
-import oshi.driver.windows.perfmon.ThermalZoneInformation;
-import oshi.driver.windows.perfmon.ThermalZoneInformation.ThermalZoneProperty;
+import oshi.driver.windows.wmi.MSAcpiThermalZoneTemperature;
+import oshi.driver.windows.wmi.MSAcpiThermalZoneTemperature.TemperatureProperty;
 import oshi.driver.windows.wmi.OhmHardware;
 import oshi.driver.windows.wmi.OhmHardware.IdentifierProperty;
 import oshi.driver.windows.wmi.OhmSensor;
@@ -57,14 +55,12 @@ public class WindowsSensors extends AbstractSensors {
             return tempC;
         }
 
-        // If we get this far, OHM is not running. Try from PDH/WMI
-        tempC = getTempFromPerfCounters();
+        // If we get this far, OHM is not running. Try from WMI
+        tempC = getTempFromWMI();
 
         // Other fallbacks to WMI are unreliable so we omit them
         // Win32_TemperatureProbe is the official location but is not currently
         // populated and is "reserved for future use"
-        // MSAcpu_ThermalZoneTemperature only updates during a high temperature
-        // event and is otherwise unchanged/misleading.
         return tempC;
     }
 
@@ -87,13 +83,13 @@ public class WindowsSensors extends AbstractSensors {
         return 0;
     }
 
-    private static double getTempFromPerfCounters() {
+    private static double getTempFromWMI() {
         double tempC = 0d;
         long tempK = 0L;
-        List<Long> valueList = ThermalZoneInformation.queryThermalZoneTemps().get(ThermalZoneProperty.TEMPERATURE);
-        if (valueList != null && !valueList.isEmpty()) {
-            LOG.debug("Found Temperature data in PDH or WMI Counter");
-            tempK = valueList.get(0);
+        WmiResult<TemperatureProperty> result = MSAcpiThermalZoneTemperature.queryCurrentTemperature();
+        if (result.getResultCount() > 0) {
+            LOG.debug("Found Temperature data in WMI");
+            tempK = WmiUtil.getUint32asLong(result, TemperatureProperty.CURRENTTEMPERATURE, 0);
         }
         if (tempK > 2732L) {
             tempC = tempK / 10d - 273.15;

@@ -35,16 +35,24 @@ package oshi.hardware;
  * <p>
  * Windows information is retrieved via Windows Management Instrumentation
  * (WMI). Unfortunately, most hardware providers do not publish values to WMI.
- * If a value is not available through the Microsoft API, Oshi will attempt to
- * retrieve values as published to WMI by
+ * Oshi attempts to retrieve values from
  * <a href="http://openhardwaremonitor.org/">Open Hardware Monitor</a> if it is
- * running.
+ * running, in preference to the Microsoft API, which may require elevated
+ * permissions and still may provide no results or unchanging results depending
+ * on the motherboard manufacturer.
  */
 public interface Sensors {
     /**
      * CPU Temperature
      *
      * @return CPU Temperature in degrees Celsius if available, 0 otherwise.
+     *         <p>
+     *         On Windows, if not running Open Hardware Monitor, requires elevated
+     *         permissions and hardware BIOS that supports publishing to WMI. In
+     *         this case, returns the temperature of the "Thermal Zone" which may be
+     *         different than CPU temperature obtained from other sources. In
+     *         addition, some motherboards may only refresh this value on certain
+     *         events.
      */
     double getCpuTemperature();
 
