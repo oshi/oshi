@@ -47,7 +47,8 @@
 
 	<properties>
 		<main.basedir>${project.parent.basedir}</main.basedir>
-		<jackson.version>[2.9.10.1,)</jackson.version>
+		<jackson.version>2.9.10.1</jackson.version>
+		<jfreechart.version>1.5.0</jfreechart.version>
 	</properties>
 
 	<dependencies>
@@ -65,6 +66,11 @@
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-simple</artifactId>
 			<version>${slf4j.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jfree</groupId>
+			<artifactId>jfreechart</artifactId>
+			<version>${jfreechart.version}</version>
 		</dependency>
 	</dependencies>
 </project>
