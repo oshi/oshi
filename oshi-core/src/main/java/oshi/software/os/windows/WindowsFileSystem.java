@@ -345,7 +345,7 @@ public class WindowsFileSystem extends AbstractFileSystem {
         List<OSFileStore> volumes = getLocalVolumes(osFileStore.getVolume());
         if (volumes.isEmpty()) {
             // Not locally, search WMI
-            String nameToMatch = osFileStore.getMount().substring(0, 2);
+            String nameToMatch = osFileStore.getMount().length() < 2 ? null : osFileStore.getMount().substring(0, 2);
             volumes = getWmiVolumes(nameToMatch, false);
         }
         for (OSFileStore fileStore : volumes) {
