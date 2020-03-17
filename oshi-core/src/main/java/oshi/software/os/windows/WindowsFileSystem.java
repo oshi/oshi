@@ -152,12 +152,12 @@ public class WindowsFileSystem extends AbstractFileSystem {
     /**
      * Private method for getting all mounted local drives.
      *
-     * @param nameToMatch
+     * @param volumeToMatch
      *            an optional string to filter match, null otherwise
      * @return A list of {@link OSFileStore} objects representing all local mounted
      *         volumes
      */
-    private static ArrayList<OSFileStore> getLocalVolumes(String nameToMatch) {
+    private static ArrayList<OSFileStore> getLocalVolumes(String volumeToMatch) {
         ArrayList<OSFileStore> fs;
         String volume;
         String strFsType;
@@ -199,24 +199,23 @@ public class WindowsFileSystem extends AbstractFileSystem {
 
             strMount = new String(mount).trim();
             if (!strMount.isEmpty()) {
-                strName = new String(name).trim();
-                strFsType = new String(fstype).trim();
+                if (volumeToMatch == null || volumeToMatch.equals(volume)) {
+                    strName = new String(name).trim();
+                    strFsType = new String(fstype).trim();
 
-                StringBuilder options = new StringBuilder((FILE_READ_ONLY_VOLUME & flags) == 0 ? "rw" : "ro");
-                String moreOptions = OPTIONS_MAP.entrySet().stream().filter(e -> (e.getKey() & flags) > 0)
-                        .map(Map.Entry::getValue).collect(Collectors.joining(","));
-                if (!moreOptions.isEmpty()) {
-                    options.append(',').append(moreOptions);
-                }
-                String osName = String.format("%s (%s)", strName, strMount);
-                if (nameToMatch == null || nameToMatch.equals(osName)) {
+                    StringBuilder options = new StringBuilder((FILE_READ_ONLY_VOLUME & flags) == 0 ? "rw" : "ro");
+                    String moreOptions = OPTIONS_MAP.entrySet().stream().filter(e -> (e.getKey() & flags) > 0)
+                            .map(Map.Entry::getValue).collect(Collectors.joining(","));
+                    if (!moreOptions.isEmpty()) {
+                        options.append(',').append(moreOptions);
+                    }
                     Kernel32.INSTANCE.GetDiskFreeSpaceEx(volume, userFreeBytes, totalBytes, systemFreeBytes);
                     // Parse uuid from volume name
                     String uuid = ParseUtil.parseUuidOrDefault(volume, "");
 
                     // Volume is mounted
                     OSFileStore osStore = new OSFileStore();
-                    osStore.setName(osName);
+                    osStore.setName(String.format("%s (%s)", strName, strMount));
                     osStore.setVolume(volume);
                     osStore.setLabel(strName);
                     osStore.setMount(strMount);
@@ -343,10 +342,11 @@ public class WindowsFileSystem extends AbstractFileSystem {
      */
     public static boolean updateFileStoreStats(OSFileStore osFileStore) {
         // Check if we have the volume locally
-        List<OSFileStore> volumes = getLocalVolumes(osFileStore.getName());
+        List<OSFileStore> volumes = getLocalVolumes(osFileStore.getVolume());
         if (volumes.isEmpty()) {
             // Not locally, search WMI
-            volumes = getWmiVolumes(osFileStore.getName(), false);
+            String nameToMatch = osFileStore.getMount().length() < 2 ? null : osFileStore.getMount().substring(0, 2);
+            volumes = getWmiVolumes(nameToMatch, false);
         }
         for (OSFileStore fileStore : volumes) {
             if (osFileStore.getVolume().equals(fileStore.getVolume())

@@ -146,7 +146,7 @@
 		<maven-shade-plugin.version>3.2.2</maven-shade-plugin.version>
 		<!-- reporting plugins -->
 		<maven-checkstyle-plugin.version>3.1.1</maven-checkstyle-plugin.version>
-		<maven-javadoc-plugin.version>3.1.1</maven-javadoc-plugin.version>
+		<maven-javadoc-plugin.version>3.2.0</maven-javadoc-plugin.version>
 		<maven-pmd-plugin.version>3.13.0</maven-pmd-plugin.version>
 		<!-- tools -->
 		<maven-antrun-plugin.version>1.8</maven-antrun-plugin.version>
@@ -154,7 +154,7 @@
 		<maven-dependency-plugin.version>3.1.2</maven-dependency-plugin.version>
 		<maven-release-plugin.version>2.5.3</maven-release-plugin.version>
 		<maven-source-plugin.version>3.2.1</maven-source-plugin.version>
-		<spotbugs-maven-plugin.version>3.1.12.2</spotbugs-maven-plugin.version>
+		<spotbugs-maven-plugin.version>4.0.0</spotbugs-maven-plugin.version>
 		<jacoco-maven-plugin.version>0.8.5</jacoco-maven-plugin.version>
 		<coveralls-maven-plugin.version>4.3.0</coveralls-maven-plugin.version>
 		<jaxb-api.version>2.3.1</jaxb-api.version>
@@ -170,7 +170,7 @@
 		<!-- SCM -->
 		<maven-scm-plugin.version>1.11.2</maven-scm-plugin.version>
 		<maven-scm-provider-jgit.version>1.11.2</maven-scm-provider-jgit.version>
-		<jgit.version>5.7.0.202003090808-r</jgit.version>
+		<jgit.version>5.7.0.202003110725-r</jgit.version>
 		<!-- Misc. -->
 		<sonar-maven-plugin.version>3.7.0.1746</sonar-maven-plugin.version>
 		<wagon-maven-plugin.version>2.0.0</wagon-maven-plugin.version>
