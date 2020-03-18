@@ -712,6 +712,7 @@
 						<exclude>**/mac/**</exclude>
 						<exclude>**/windows/**</exclude>
 						<exclude>**/unix/**</exclude>
+						<exclude>**/demo/**</exclude>
 					</excludes>
 				</configuration>
 			</plugin>

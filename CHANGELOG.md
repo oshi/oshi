@@ -1,6 +1,7 @@
 4.6.0 (in progress)
 ================
 * [#1139](https://github.com/oshi/oshi/pull/1139): Fix Windows FileStore updating. - [@dbwiddis](https://github.com/dbwiddis).
+* [#1140](https://github.com/oshi/oshi/pull/1140): Demo Swing GUI. - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here.
 
 4.5.0 (3/12/2020)
