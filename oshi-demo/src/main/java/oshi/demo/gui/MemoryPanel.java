@@ -124,7 +124,8 @@ public class MemoryPanel extends OshiJPanel { // NOSONAR squid:S110
         return sb.toString();
     }
 
-    private void updateDatasets(GlobalMemory memory, DefaultPieDataset physMemData, DefaultPieDataset virtMemData) {
+    private static void updateDatasets(GlobalMemory memory, DefaultPieDataset physMemData,
+            DefaultPieDataset virtMemData) {
         physMemData.setValue(USED, (double) memory.getTotal() - memory.getAvailable());
         physMemData.setValue(AVAILABLE, memory.getAvailable());
 

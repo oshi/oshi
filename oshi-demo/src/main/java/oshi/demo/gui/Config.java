@@ -23,7 +23,7 @@
  */
 package oshi.demo.gui;
 
-public class Config {
+public final class Config {
 
     private Config() {
     }

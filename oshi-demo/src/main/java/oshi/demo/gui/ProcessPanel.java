@@ -80,8 +80,8 @@ public class ProcessPanel extends OshiJPanel { // NOSONAR squid:S110
                 }
             }
             // Delelte any extra rows
-            for (int row = rowCount; row > newData.length;) {
-                tableModel.removeRow(--row);
+            for (int row = rowCount - 1; row >= newData.length; row--) {
+                tableModel.removeRow(row);
             }
         });
         timer.start();
