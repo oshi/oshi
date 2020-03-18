@@ -112,13 +112,11 @@ public class OsHwTextPanel extends OshiJPanel { // NOSONAR squid:S110
 
         add(oshwPanel, BorderLayout.CENTER);
 
-        Timer timer = new Timer(1000, e -> {
-            osArea.setText(updateOsData(si));
-        });
+        Timer timer = new Timer(1000, e -> osArea.setText(updateOsData(si)));
         timer.start();
     }
 
-    private String getOs(SystemInfo si) {
+    private static String getOs(SystemInfo si) {
         StringBuilder sb = new StringBuilder(OPERATING_SYSTEM);
 
         OperatingSystem os = si.getOperatingSystem();
@@ -128,7 +126,7 @@ public class OsHwTextPanel extends OshiJPanel { // NOSONAR squid:S110
         return sb.toString();
     }
 
-    private String getHw(SystemInfo si) {
+    private static String getHw(SystemInfo si) {
         StringBuilder sb = new StringBuilder();
         ObjectMapper mapper = new ObjectMapper();
         ComputerSystem computerSystem = si.getHardware().getComputerSystem();
@@ -140,7 +138,7 @@ public class OsHwTextPanel extends OshiJPanel { // NOSONAR squid:S110
         return sb.toString();
     }
 
-    private String getProc(SystemInfo si) {
+    private static String getProc(SystemInfo si) {
         StringBuilder sb = new StringBuilder();
         CentralProcessor proc = si.getHardware().getProcessor();
         sb.append(proc.toString());
@@ -148,7 +146,7 @@ public class OsHwTextPanel extends OshiJPanel { // NOSONAR squid:S110
         return sb.toString();
     }
 
-    private String getDisplay(SystemInfo si) {
+    private static String getDisplay(SystemInfo si) {
         StringBuilder sb = new StringBuilder();
         Display[] displays = si.getHardware().getDisplays();
         if (displays.length < 1) {

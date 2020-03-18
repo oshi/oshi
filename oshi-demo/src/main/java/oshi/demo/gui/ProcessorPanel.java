@@ -26,6 +26,8 @@ package oshi.demo.gui;
 import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 
 import javax.swing.JPanel;
@@ -64,7 +66,7 @@ public class ProcessorPanel extends OshiJPanel { // NOSONAR squid:S110
         GridBagConstraints procConstraints = (GridBagConstraints) sysConstraints.clone();
         procConstraints.gridx = 1;
 
-        Date date = new Date();
+        Date date = Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant());
         DynamicTimeSeriesCollection sysData = new DynamicTimeSeriesCollection(1, 60, new Second());
         sysData.setTimeBase(new Second(date));
         sysData.addSeries(floatArrayPercent(cpuData(processor)), 0, "All cpus");
@@ -100,7 +102,7 @@ public class ProcessorPanel extends OshiJPanel { // NOSONAR squid:S110
         timer.start();
     }
 
-    private float[] floatArrayPercent(double d) {
+    private static float[] floatArrayPercent(double d) {
         float[] f = new float[1];
         f[0] = (float) (100d * d);
         return f;

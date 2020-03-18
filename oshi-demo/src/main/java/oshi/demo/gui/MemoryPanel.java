@@ -105,15 +105,15 @@ public class MemoryPanel extends OshiJPanel { // NOSONAR squid:S110
         timer.start();
     }
 
-    private String updatePhysTitle(GlobalMemory memory) {
+    private static String updatePhysTitle(GlobalMemory memory) {
         return memory.toString();
     }
 
-    private String updateVirtTitle(GlobalMemory memory) {
+    private static String updateVirtTitle(GlobalMemory memory) {
         return memory.getVirtualMemory().toString();
     }
 
-    private String updateMemoryText(GlobalMemory memory) {
+    private static String updateMemoryText(GlobalMemory memory) {
         StringBuilder sb = new StringBuilder();
         PhysicalMemory[] pmArray = memory.getPhysicalMemory();
         if (pmArray.length > 0) {
@@ -133,7 +133,7 @@ public class MemoryPanel extends OshiJPanel { // NOSONAR squid:S110
         virtMemData.setValue(AVAILABLE, (double) virtualMemory.getSwapTotal() - virtualMemory.getSwapUsed());
     }
 
-    private void configurePlot(JFreeChart chart) {
+    private static void configurePlot(JFreeChart chart) {
         PiePlot plot = (PiePlot) chart.getPlot();
         plot.setSectionPaint(USED, Color.red);
         plot.setSectionPaint(AVAILABLE, Color.green);
@@ -144,5 +144,4 @@ public class MemoryPanel extends OshiJPanel { // NOSONAR squid:S110
                 new DecimalFormat("0"), new DecimalFormat("0%"));
         plot.setLabelGenerator(labelGenerator);
     }
-
 }

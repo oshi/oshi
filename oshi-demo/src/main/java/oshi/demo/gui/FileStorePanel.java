@@ -99,7 +99,7 @@ public class FileStorePanel extends OshiJPanel { // NOSONAR squid:S110
         timer.start();
     }
 
-    private boolean updateDatasets(FileSystem fs, DefaultPieDataset[] fsData, JFreeChart[] fsCharts) {
+    private static boolean updateDatasets(FileSystem fs, DefaultPieDataset[] fsData, JFreeChart[] fsCharts) {
         OSFileStore[] fileStores = fs.getFileStores();
         if (fileStores.length != fsData.length) {
             return false;
@@ -121,7 +121,7 @@ public class FileStorePanel extends OshiJPanel { // NOSONAR squid:S110
         return true;
     }
 
-    private void configurePlot(JFreeChart chart) {
+    private static void configurePlot(JFreeChart chart) {
         PiePlot plot = (PiePlot) chart.getPlot();
         plot.setSectionPaint(USED, Color.red);
         plot.setSectionPaint(AVAILABLE, Color.green);

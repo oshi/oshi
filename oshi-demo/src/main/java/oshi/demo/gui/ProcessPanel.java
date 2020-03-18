@@ -57,7 +57,7 @@ public class ProcessPanel extends OshiJPanel { // NOSONAR squid:S110
         JLabel procLabel = new JLabel(PROCESSES);
         add(procLabel, BorderLayout.NORTH);
 
-        TableModel model = new DefaultTableModel(parse_processes(os.getProcesses(0, ProcessSort.CPU), mem), COLUMNS);
+        TableModel model = new DefaultTableModel(parseProcesses(os.getProcesses(0, ProcessSort.CPU), mem), COLUMNS);
         JTable procTable = new JTable(model);
         JScrollPane scrollV = new JScrollPane(procTable);
         scrollV.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
@@ -66,7 +66,7 @@ public class ProcessPanel extends OshiJPanel { // NOSONAR squid:S110
 
         Timer timer = new Timer(Config.REFRESH_SLOW, e -> {
             DefaultTableModel tableModel = (DefaultTableModel) procTable.getModel();
-            Object[][] newData = parse_processes(os.getProcesses(0, ProcessSort.CPU), mem);
+            Object[][] newData = parseProcesses(os.getProcesses(0, ProcessSort.CPU), mem);
             int rowCount = tableModel.getRowCount();
             for (int row = 0; row < newData.length; row++) {
                 if (row < rowCount) {
@@ -87,7 +87,7 @@ public class ProcessPanel extends OshiJPanel { // NOSONAR squid:S110
         timer.start();
     }
 
-    private Object[][] parse_processes(OSProcess[] procs, GlobalMemory mem) {
+    private static Object[][] parseProcesses(OSProcess[] procs, GlobalMemory mem) {
         Object[][] procArr = new Object[procs.length][6];
         for (int i = 0; i < procs.length; i++) {
             // Matches order of COLUMNS field

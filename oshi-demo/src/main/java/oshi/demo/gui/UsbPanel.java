@@ -58,13 +58,11 @@ public class UsbPanel extends OshiJPanel { // NOSONAR squid:S110
         usbArea.setText(getUsbString(hal));
         add(scrollV, BorderLayout.CENTER);
 
-        Timer timer = new Timer(Config.REFRESH_SLOW, e -> {
-            usbArea.setText(getUsbString(hal));
-        });
+        Timer timer = new Timer(Config.REFRESH_SLOW, e -> usbArea.setText(getUsbString(hal)));
         timer.start();
     }
 
-    private String getUsbString(HardwareAbstractionLayer hal) {
+    private static String getUsbString(HardwareAbstractionLayer hal) {
         StringBuilder sb = new StringBuilder();
         boolean first = true;
         for (UsbDevice usbDevice : hal.getUsbDevices(true)) {
