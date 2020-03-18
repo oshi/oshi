@@ -24,6 +24,7 @@
 package oshi.demo.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
@@ -37,7 +38,10 @@ public class OshiJPanel extends JPanel {
     protected JPanel msgPanel = new JPanel();
 
     public OshiJPanel() {
-        setSize(getMaximumSize());
+        Dimension maxSize = getMaximumSize();
+        if (maxSize != null) {
+            setSize(maxSize);
+        }
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createEmptyBorder(5, 10, 10, 10));
         msgPanel.add(msgLabel);
