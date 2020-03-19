@@ -24,6 +24,11 @@
 package oshi.demo.gui;
 
 import java.awt.BorderLayout;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
@@ -44,7 +49,9 @@ public class ProcessPanel extends OshiJPanel { // NOSONAR squid:S110
     private static final long serialVersionUID = 1L;
 
     private static final String PROCESSES = "Processes";
-    private static final String[] COLUMNS = { "PID", "% CPU (Cumulative)", "% Memory", "VSZ", "RSS", "Name" };
+    private static final String[] COLUMNS = { "PID", "% CPU", "% Memory", "VSZ", "RSS", "Name" };
+
+    private Map<Integer, OSProcess> priorSnapshotMap = new HashMap<>();
 
     public ProcessPanel(SystemInfo si) {
         super();
@@ -87,17 +94,34 @@ public class ProcessPanel extends OshiJPanel { // NOSONAR squid:S110
         timer.start();
     }
 
-    private static Object[][] parseProcesses(OSProcess[] procs, GlobalMemory mem) {
+    private Object[][] parseProcesses(OSProcess[] procs, GlobalMemory mem) {
+        // Build a sorted (by CPU) map
+        Map<OSProcess, Double> processCpuMap = new HashMap<>();
+        for (OSProcess p : procs) {
+            // Get previous update. OK to return null for next method call
+            OSProcess priorSnapshot = priorSnapshotMap.get(p.getProcessID());
+            processCpuMap.put(p, p.getProcessCpuLoadBetweenTicks(priorSnapshot));
+        }
+        // Now sort
+        List<Entry<OSProcess, Double>> procList = new ArrayList<>(processCpuMap.entrySet());
+        procList.sort(Entry.comparingByValue());
+        // Insert into array in reverse order (lowest CPU last)
+        // Simultaneously re-populate snapshot map
+        int i = procs.length;
         Object[][] procArr = new Object[procs.length][6];
-        for (int i = 0; i < procs.length; i++) {
+        priorSnapshotMap.clear();
+        // These are in descending CPU order
+        for (Entry<OSProcess, Double> e : procList) {
+            OSProcess p = e.getKey();
+            priorSnapshotMap.put(p.getProcessID(), p);
             // Matches order of COLUMNS field
-            procArr[i][0] = procs[i].getProcessID();
-            procArr[i][1] = String.format("%.1f",
-                    100d * (procs[i].getKernelTime() + procs[i].getUserTime()) / procs[i].getUpTime());
-            procArr[i][2] = String.format("%.1f", 100d * procs[i].getResidentSetSize() / mem.getTotal());
-            procArr[i][3] = FormatUtil.formatBytes(procs[i].getVirtualSize());
-            procArr[i][4] = FormatUtil.formatBytes(procs[i].getResidentSetSize());
-            procArr[i][5] = procs[i].getName();
+            i--;
+            procArr[i][0] = p.getProcessID();
+            procArr[i][1] = String.format("%.1f", 100d * e.getValue());
+            procArr[i][2] = String.format("%.1f", 100d * p.getResidentSetSize() / mem.getTotal());
+            procArr[i][3] = FormatUtil.formatBytes(p.getVirtualSize());
+            procArr[i][4] = FormatUtil.formatBytes(p.getResidentSetSize());
+            procArr[i][5] = p.getName();
         }
         return procArr;
     }

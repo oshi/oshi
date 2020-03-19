@@ -53,7 +53,7 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
      * Comparators for use in processSort().
      */
     private static final Comparator<OSProcess> CPU_DESC_SORT = Comparator
-            .comparingDouble(OSProcess::calculateCpuPercent).reversed();
+            .comparingDouble(OSProcess::getProcessCpuLoadCumulative).reversed();
 
     private static final Comparator<OSProcess> RSS_DESC_SORT = Comparator.comparingLong(OSProcess::getResidentSetSize)
             .reversed();
