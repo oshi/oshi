@@ -23,6 +23,10 @@
  */
 package oshi.software.os;
 
+import static oshi.util.Memoizer.memoize;
+
+import java.util.function.Supplier;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,6 +41,8 @@ public class OSProcess {
     private static final Logger LOG = LoggerFactory.getLogger(OSProcess.class);
 
     private final OperatingSystem operatingSystem;
+
+    private final Supplier<Double> cumulativeCpuLoad = memoize(this::queryCumulativeCpuLoad);
 
     private String name = "";
     private String path = "";
@@ -705,26 +711,55 @@ public class OSProcess {
     }
 
     /**
-     * Calculates CPU usage of this process.
+     * Calculates cumulative CPU usage of this process.
+     *
+     * @return The proportion of up time that the process was executing in kernel or
+     *         user mode.
+     * @deprecated Use {@link #getProcessCpuLoadCumulative()}.
+     */
+    @Deprecated
+    public double calculateCpuPercent() {
+        return getProcessCpuLoadCumulative();
+    }
+
+    /**
+     * Gets cumulative CPU usage of this process.
      *
      * @return The proportion of up time that the process was executing in kernel or
      *         user mode.
      */
-    public double calculateCpuPercent() {
-        if (this.cpuPercent < 0d) {
-            this.cpuPercent = (getKernelTime() + getUserTime()) / (double) getUpTime();
-        }
-        return this.cpuPercent;
+    public double getProcessCpuLoadCumulative() {
+        return cumulativeCpuLoad.get();
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public String toString() {
-        StringBuilder builder = new StringBuilder("OSProcess@");
-        builder.append(Integer.toHexString(hashCode()));
-        builder.append("[processID=").append(this.processID);
-        builder.append(", name=").append(this.name).append(']');
-        return builder.toString();
+    private double queryCumulativeCpuLoad() {
+        return (this.kernelTime + this.userTime) / (double) this.upTime;
+    }
+
+    /**
+     * Gets CPU usage of this process since a previous snapshot of the same process,
+     * provided as a parameter.
+     * <p>
+     * The accuracy of this calculation is dependent on both the number of threads
+     * on which the process is executing, and the precision of the Operating
+     * System's tick counters. A polling interval of at least a few seconds is
+     * recommended.
+     *
+     * @param priorSnapshot
+     *            An {@link OSProcess} object containing statistics for this same
+     *            process collected at a prior point in time. May be null.
+     *
+     * @return If the prior snapshot is for the same process at a prior point in
+     *         time, the proportion of elapsed up time between the current process
+     *         snapshot and the previous one that the process was executing in
+     *         kernel or user mode. Returns cumulative load otherwise.
+     */
+    public double getProcessCpuLoadBetweenTicks(OSProcess priorSnapshot) {
+        if (priorSnapshot != null && this.processID == priorSnapshot.processID && this.upTime > priorSnapshot.upTime) {
+            return (this.userTime - priorSnapshot.userTime + this.kernelTime - priorSnapshot.kernelTime)
+                    / (double) (this.upTime - priorSnapshot.upTime);
+        }
+        return getProcessCpuLoadCumulative();
     }
 
     /**
@@ -746,6 +781,15 @@ public class OSProcess {
      */
     public void setBitness(int bitness) {
         this.bitness = bitness;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder("OSProcess@");
+        builder.append(Integer.toHexString(hashCode()));
+        builder.append("[processID=").append(this.processID);
+        builder.append(", name=").append(this.name).append(']');
+        return builder.toString();
     }
 
     private void copyValuesToThisProcess(OSProcess sourceProcess) {
