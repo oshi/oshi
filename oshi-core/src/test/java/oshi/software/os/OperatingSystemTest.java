@@ -91,10 +91,11 @@ public class OperatingSystemTest {
         assertTrue(proc.getProcessCpuLoadCumulative() >= 0d);
         assertEquals(proc.getProcessCpuLoadCumulative(), proc.getProcessCpuLoadBetweenTicks(null), Double.MIN_VALUE);
         assertEquals(0d, proc.getProcessCpuLoadBetweenTicks(proc), Double.MIN_VALUE);
+        OSProcess oldProc = new OSProcess(os);
         proc.setUpTime(2L);
         proc.setKernelTime(1L);
         proc.setUserTime(1L);
-        assertEquals(1d, proc.getProcessCpuLoadBetweenTicks(proc), Double.MIN_VALUE);
+        assertEquals(1d, proc.getProcessCpuLoadBetweenTicks(oldProc), Double.MIN_VALUE);
         assertTrue(proc.getStartTime() >= 0);
         assertTrue(proc.getBytesRead() >= 0);
         assertTrue(proc.getBytesWritten() >= 0);
