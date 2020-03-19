@@ -47,6 +47,9 @@ import oshi.hardware.GlobalMemory;
 import oshi.hardware.PhysicalMemory;
 import oshi.hardware.VirtualMemory;
 
+/**
+ * Displays physical and virtual (swap) memory stats.
+ */
 public class MemoryPanel extends OshiJPanel { // NOSONAR squid:S110
 
     private static final long serialVersionUID = 1L;

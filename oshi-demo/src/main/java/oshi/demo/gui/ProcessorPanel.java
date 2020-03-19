@@ -42,6 +42,9 @@ import org.jfree.data.time.Second;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.CentralProcessor.TickType;
 
+/**
+ * Shows system and per-processor CPU usage every second in a time series chart.
+ */
 public class ProcessorPanel extends OshiJPanel { // NOSONAR squid:S110
 
     private static final long serialVersionUID = 1L;
