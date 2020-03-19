@@ -146,7 +146,7 @@
 		<maven-shade-plugin.version>3.2.2</maven-shade-plugin.version>
 		<!-- reporting plugins -->
 		<maven-checkstyle-plugin.version>3.1.1</maven-checkstyle-plugin.version>
-		<maven-javadoc-plugin.version>3.2.0</maven-javadoc-plugin.version>
+		<maven-javadoc-plugin.version>3.1.1</maven-javadoc-plugin.version>
 		<maven-pmd-plugin.version>3.13.0</maven-pmd-plugin.version>
 		<!-- tools -->
 		<maven-antrun-plugin.version>1.8</maven-antrun-plugin.version>
