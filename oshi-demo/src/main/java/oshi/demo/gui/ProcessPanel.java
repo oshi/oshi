@@ -35,6 +35,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.Timer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 
 import oshi.SystemInfo;
@@ -54,7 +56,9 @@ public class ProcessPanel extends OshiJPanel { // NOSONAR squid:S110
     private static final long serialVersionUID = 1L;
 
     private static final String PROCESSES = "Processes";
-    private static final String[] COLUMNS = { "PID", "% CPU", "% Memory", "VSZ", "RSS", "Name" };
+    private static final String[] COLUMNS = { "PID", "PPID", "% CPU", "Cumulative", "% Memory", "VSZ", "RSS",
+            "Process Name" };
+    private static final float[] COLUMN_WIDTH_PERCENT = { 0.075f, 0.075f, 0.1f, 0.1f, 0.1f, 0.1f, 0.1f, 0.35f };
 
     private transient Map<Integer, OSProcess> priorSnapshotMap = new HashMap<>();
 
@@ -73,6 +77,7 @@ public class ProcessPanel extends OshiJPanel { // NOSONAR squid:S110
         JTable procTable = new JTable(model);
         JScrollPane scrollV = new JScrollPane(procTable);
         scrollV.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        resizeColumns(procTable.getColumnModel());
 
         add(scrollV, BorderLayout.CENTER);
 
@@ -113,7 +118,7 @@ public class ProcessPanel extends OshiJPanel { // NOSONAR squid:S110
         // Insert into array in reverse order (lowest CPU last)
         // Simultaneously re-populate snapshot map
         int i = procs.length;
-        Object[][] procArr = new Object[procs.length][6];
+        Object[][] procArr = new Object[procs.length][COLUMNS.length];
         priorSnapshotMap.clear();
         // These are in descending CPU order
         for (Entry<OSProcess, Double> e : procList) {
@@ -122,12 +127,25 @@ public class ProcessPanel extends OshiJPanel { // NOSONAR squid:S110
             // Matches order of COLUMNS field
             i--;
             procArr[i][0] = p.getProcessID();
-            procArr[i][1] = String.format("%.1f", 100d * e.getValue());
-            procArr[i][2] = String.format("%.1f", 100d * p.getResidentSetSize() / mem.getTotal());
-            procArr[i][3] = FormatUtil.formatBytes(p.getVirtualSize());
-            procArr[i][4] = FormatUtil.formatBytes(p.getResidentSetSize());
-            procArr[i][5] = p.getName();
+            procArr[i][1] = p.getParentProcessID();
+            procArr[i][2] = String.format("%.1f", 100d * e.getValue());
+            procArr[i][3] = String.format("%.1f", 100d * p.getProcessCpuLoadCumulative());
+            procArr[i][4] = String.format("%.1f", 100d * p.getResidentSetSize() / mem.getTotal());
+            procArr[i][5] = FormatUtil.formatBytes(p.getVirtualSize());
+            procArr[i][6] = FormatUtil.formatBytes(p.getResidentSetSize());
+            procArr[i][7] = p.getName();
         }
         return procArr;
+    }
+
+    private void resizeColumns(TableColumnModel tableColumnModel) {
+        TableColumn column;
+        int tW = tableColumnModel.getTotalColumnWidth();
+        int cantCols = tableColumnModel.getColumnCount();
+        for (int i = 0; i < cantCols; i++) {
+            column = tableColumnModel.getColumn(i);
+            int pWidth = Math.round(COLUMN_WIDTH_PERCENT[i] * tW);
+            column.setPreferredWidth(pWidth);
+        }
     }
 }
