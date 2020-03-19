@@ -30,6 +30,9 @@ import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+/**
+ * Parent class combining code common to the other panels.
+ */
 public class OshiJPanel extends JPanel {
 
     private static final long serialVersionUID = 1L;

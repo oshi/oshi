@@ -49,6 +49,9 @@ import oshi.software.os.FileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.FormatUtil;
 
+/**
+ * Displays used and free space on all filesystems.
+ */
 public class FileStorePanel extends OshiJPanel { // NOSONAR squid:S110
 
     private static final long serialVersionUID = 1L;

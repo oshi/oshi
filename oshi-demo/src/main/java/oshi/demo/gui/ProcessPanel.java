@@ -44,6 +44,11 @@ import oshi.software.os.OperatingSystem;
 import oshi.software.os.OperatingSystem.ProcessSort;
 import oshi.util.FormatUtil;
 
+/**
+ * Displays a process list, such as ps or task manager. This performs more like
+ * Windows Task Manger with current CPU as measured between polling intervals,
+ * while PS uses a cumulative CPU value.
+ */
 public class ProcessPanel extends OshiJPanel { // NOSONAR squid:S110
 
     private static final long serialVersionUID = 1L;
@@ -51,7 +56,7 @@ public class ProcessPanel extends OshiJPanel { // NOSONAR squid:S110
     private static final String PROCESSES = "Processes";
     private static final String[] COLUMNS = { "PID", "% CPU", "% Memory", "VSZ", "RSS", "Name" };
 
-    private Map<Integer, OSProcess> priorSnapshotMap = new HashMap<>();
+    private transient Map<Integer, OSProcess> priorSnapshotMap = new HashMap<>();
 
     public ProcessPanel(SystemInfo si) {
         super();

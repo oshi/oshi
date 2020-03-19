@@ -42,11 +42,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import oshi.SystemInfo;
 
-// Demo class to vend OSHI JSON data via an HTTP Webserver
-//
-// Code based on tutorial found on SSaurel's Blog :
-// https://www.ssaurel.com/blog/create-a-simple-http-web-server-in-java
-// Each Client Connection will be managed in a dedicated Thread
+/**
+ * Demo class to vend OSHI JSON data via an HTTP Webserver
+ * <p>
+ * Code based on tutorial found on SSaurel's Blog :
+ * https://www.ssaurel.com/blog/create-a-simple-http-web-server-in-java Each
+ * Client Connection will be managed in a dedicated Thread
+ */
 public class OshiHTTPServer implements Runnable {
     // port to listen connection
     private static final int PORT = 8080;
