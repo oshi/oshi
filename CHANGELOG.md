@@ -2,7 +2,7 @@
 ================
 * Your contribution here.
 
-4.5.0 (3/12/2020), 4.5.1 (3/19/2020)
+4.5.0 (3/12/2020), 4.5.2 (3/20/2020)
 ================
 * [#1123](https://github.com/oshi/oshi/pull/1123): Add driver to parse Linux proc/diskstats. - [@dbwiddis](https://github.com/dbwiddis).
 * [#1124](https://github.com/oshi/oshi/pull/1124): Add driver to parse Linux proc/pid/stat. - [@dbwiddis](https://github.com/dbwiddis).
