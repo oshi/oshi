@@ -30,26 +30,22 @@ matrix:
   include:
     - os: osx
       env:
-      - CFG = "OracleJDK 8 - Mac"
+      - NAME="OracleJDK 8"
       - MATRIX_ID="first"
       # COVERITY_SCAN_TOKEN
       - secure: "JuTWT2u7BWQEJGMGkVvQMIQxwxajntxqbCGYt+bJD3JQhioPVFUJoEFrLCx+jJ0qLy5usrneCDFrvRhvTh6C+95kvHypvGQ3UoeWyXS8zD+GRPUyskbuQ7P60kqqIqc+naGd3uyGddniixoAA6C/Ptmknhls4FlhDCMjW3HDS0c="
       osx_image: xcode9.3
     - os: osx
-      env: CFG = "OpenJDK 13 - Mac"
+      env: NAME="OpenJDK 13"
       osx_image: xcode11.3.1
     - os: linux
-      env: CFG = "OpenJDK 11 - Linux"
+      env: NAME="OpenJDK 11"
       jdk: openjdk11
     - os: linux
-      env: CFG = "OpenJDK 14 - Linux"
+      env: NAME="OpenJDK 14"
       jdk: openjdk14
     - os: linux
-      env: CFG = "OpenJDK 15 - Linux"
-      jdk: openjdk15
-  allow_failures:
-    - os: linux
-      env: CFG = "OpenJDK 15 - Linux"
+      env: NAME="OpenJDK 15"
       jdk: openjdk15
 
 script:
