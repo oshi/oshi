@@ -40,8 +40,8 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 
+import oshi.PlatformEnum;
 import oshi.SystemInfo;
-import oshi.hardware.GlobalMemory;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OperatingSystem;
 import oshi.software.os.OperatingSystem.ProcessSort;
@@ -57,10 +57,9 @@ public class ProcessPanel extends OshiJPanel { // NOSONAR squid:S110
     private static final long serialVersionUID = 1L;
 
     private static final String PROCESSES = "Processes";
-    private static final String[] COLUMNS = { "PID", "PPID", "Threads", "% CPU", "Cumulative", "% Memory", "VSZ", "RSS",
+    private static final String[] COLUMNS = { "PID", "PPID", "Threads", "% CPU", "Cumulative", "VSZ", "RSS", "% Memory",
             "Process Name" };
-    private static final float[] COLUMN_WIDTH_PERCENT = { 0.075f, 0.075f, 0.075f, 0.1f, 0.1f, 0.1f, 0.1f, 0.1f,
-            0.275f };
+    private static final float[] COLUMN_WIDTH_PERCENT = { 0.07f, 0.07f, 0.07f, 0.07f, 0.09f, 0.1f, 0.1f, 0.08f, 0.35f };
 
     private transient Map<Integer, OSProcess> priorSnapshotMap = new HashMap<>();
 
@@ -71,11 +70,10 @@ public class ProcessPanel extends OshiJPanel { // NOSONAR squid:S110
 
     private void init(SystemInfo si) {
         OperatingSystem os = si.getOperatingSystem();
-        GlobalMemory mem = si.getHardware().getMemory();
         JLabel procLabel = new JLabel(PROCESSES);
         add(procLabel, BorderLayout.NORTH);
 
-        TableModel model = new DefaultTableModel(parseProcesses(os.getProcesses(0, ProcessSort.CPU), mem), COLUMNS);
+        TableModel model = new DefaultTableModel(parseProcesses(os.getProcesses(0, ProcessSort.CPU), si), COLUMNS);
         JTable procTable = new JTable(model);
         JScrollPane scrollV = new JScrollPane(procTable);
         scrollV.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
@@ -85,7 +83,7 @@ public class ProcessPanel extends OshiJPanel { // NOSONAR squid:S110
 
         Timer timer = new Timer(Config.REFRESH_SLOW, e -> {
             DefaultTableModel tableModel = (DefaultTableModel) procTable.getModel();
-            Object[][] newData = parseProcesses(os.getProcesses(0, ProcessSort.CPU), mem);
+            Object[][] newData = parseProcesses(os.getProcesses(0, ProcessSort.CPU), si);
             int rowCount = tableModel.getRowCount();
             for (int row = 0; row < newData.length; row++) {
                 if (row < rowCount) {
@@ -98,7 +96,7 @@ public class ProcessPanel extends OshiJPanel { // NOSONAR squid:S110
                     tableModel.addRow(newData[row]);
                 }
             }
-            // Delelte any extra rows
+            // Delete any extra rows
             for (int row = rowCount - 1; row >= newData.length; row--) {
                 tableModel.removeRow(row);
             }
@@ -106,13 +104,19 @@ public class ProcessPanel extends OshiJPanel { // NOSONAR squid:S110
         timer.start();
     }
 
-    private Object[][] parseProcesses(OSProcess[] procs, GlobalMemory mem) {
+    private Object[][] parseProcesses(OSProcess[] procs, SystemInfo si) {
+        long totalMem = si.getHardware().getMemory().getTotal();
+        int cpuCount = si.getHardware().getProcessor().getLogicalProcessorCount();
         // Build a sorted (by CPU) map
         Map<OSProcess, Double> processCpuMap = new HashMap<>();
         for (OSProcess p : procs) {
-            // Get previous update. OK to return null for next method call
-            OSProcess priorSnapshot = priorSnapshotMap.get(p.getProcessID());
-            processCpuMap.put(p, p.getProcessCpuLoadBetweenTicks(priorSnapshot));
+            int pid = p.getProcessID();
+            // Ignore the Idle process on Windows
+            if (pid > 0 || !SystemInfo.getCurrentPlatformEnum().equals(PlatformEnum.WINDOWS)) {
+                // Get previous update. OK to return null for next method call
+                OSProcess priorSnapshot = priorSnapshotMap.get(pid);
+                processCpuMap.put(p, p.getProcessCpuLoadBetweenTicks(priorSnapshot));
+            }
         }
         // Now sort
         List<Entry<OSProcess, Double>> procList = new ArrayList<>(processCpuMap.entrySet());
@@ -131,11 +135,17 @@ public class ProcessPanel extends OshiJPanel { // NOSONAR squid:S110
             procArr[i][0] = p.getProcessID();
             procArr[i][1] = p.getParentProcessID();
             procArr[i][2] = p.getThreadCount();
-            procArr[i][3] = String.format("%.1f", 100d * e.getValue());
-            procArr[i][4] = String.format("%.1f", 100d * p.getProcessCpuLoadCumulative());
-            procArr[i][5] = String.format("%.1f", 100d * p.getResidentSetSize() / mem.getTotal());
-            procArr[i][6] = FormatUtil.formatBytes(p.getVirtualSize());
-            procArr[i][7] = FormatUtil.formatBytes(p.getResidentSetSize());
+            // On Windows, match task manager by dividing by cpu count
+            if (SystemInfo.getCurrentPlatformEnum().equals(PlatformEnum.WINDOWS)) {
+                procArr[i][3] = String.format("%.1f", 100d * e.getValue() / cpuCount);
+                procArr[i][4] = String.format("%.1f", 100d * p.getProcessCpuLoadCumulative() / cpuCount);
+            } else {
+                procArr[i][3] = String.format("%.1f", 100d * e.getValue());
+                procArr[i][4] = String.format("%.1f", 100d * p.getProcessCpuLoadCumulative());
+            }
+            procArr[i][5] = FormatUtil.formatBytes(p.getVirtualSize());
+            procArr[i][6] = FormatUtil.formatBytes(p.getResidentSetSize());
+            procArr[i][7] = String.format("%.1f", 100d * p.getResidentSetSize() / totalMem);
             procArr[i][8] = p.getName();
         }
         return procArr;
