@@ -49,13 +49,14 @@ public class OshiGui {
 
     private JFrame mainFrame;
     private JButton jMenu;
+    JMenuBar menuBar;
 
     private SystemInfo si = new SystemInfo();
 
     public static void main(String[] args) {
         OshiGui gui = new OshiGui();
         gui.init();
-        SwingUtilities.invokeLater(() -> gui.setVisible());
+        SwingUtilities.invokeLater(gui::setVisible);
     }
 
     private void setVisible() {
@@ -64,47 +65,25 @@ public class OshiGui {
     }
 
     private void init() {
+        // Create the external frame
         mainFrame = new JFrame(Config.GUI_TITLE);
         mainFrame.setSize(Config.GUI_WIDTH, Config.GUI_HEIGHT);
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         mainFrame.setResizable(true);
         mainFrame.setLocationByPlatform(true);
         mainFrame.setLayout(new BorderLayout());
-
-        JMenuBar menuBar = new JMenuBar();
-        jMenu = getJMenu("OS & HW Info", 'O', "Hardware & OS Summary", getComputerSystemPanel());
-        menuBar.add(jMenu);
-        menuBar.add(getJMenu("Memory", 'M', "Memory Summary", getMemoryPanel()));
-        menuBar.add(getJMenu("CPU", 'C', "CPU Usage", getProcessorPanel()));
-        menuBar.add(getJMenu("FileStores", 'F', "FileStore Usage", getFileStorePanel()));
-        menuBar.add(getJMenu("Processes", 'P', "Processes", getProcessPanel()));
-        menuBar.add(getJMenu("USB Devices", 'U', "USB Device list", getUsbPanel()));
-
+        // Add a menu bar
+        menuBar = new JMenuBar();
         mainFrame.setJMenuBar(menuBar);
-    }
-
-    private OsHwTextPanel getComputerSystemPanel() {
-        return new OsHwTextPanel(si);
-    }
-
-    private MemoryPanel getMemoryPanel() {
-        return new MemoryPanel(si.getHardware().getMemory());
-    }
-
-    private ProcessorPanel getProcessorPanel() {
-        return new ProcessorPanel(si.getHardware().getProcessor());
-    }
-
-    private FileStorePanel getFileStorePanel() {
-        return new FileStorePanel(si.getOperatingSystem().getFileSystem());
-    }
-
-    private ProcessPanel getProcessPanel() {
-        return new ProcessPanel(si);
-    }
-
-    private UsbPanel getUsbPanel() {
-        return new UsbPanel(si.getHardware());
+        // Create the first menu option in this thread
+        jMenu = getJMenu("OS & HW Info", 'O', "Hardware & OS Summary", new OsHwTextPanel(si));
+        menuBar.add(jMenu);
+        // Add later menu items in their own threads
+        new Thread(new AddMenuBarTask("Memory", 'M', "Memory Summary", new MemoryPanel(si))).start();
+        new Thread(new AddMenuBarTask("CPU", 'C', "CPU Usage", new ProcessorPanel(si))).start();
+        new Thread(new AddMenuBarTask("FileStores", 'F', "FileStore Usage", new FileStorePanel(si))).start();
+        new Thread(new AddMenuBarTask("Processes", 'P', "Processes", new ProcessPanel(si))).start();
+        new Thread(new AddMenuBarTask("USB Devices", 'U', "USB Device list", new UsbPanel(si))).start();
     }
 
     private JButton getJMenu(String title, char mnemonic, String toolTip, OshiJPanel panel) {
@@ -112,11 +91,10 @@ public class OshiGui {
         button.setMnemonic(mnemonic);
         button.setToolTipText(toolTip);
         button.addActionListener(e -> {
-            Container contentPane = mainFrame.getContentPane();
-
+            Container contentPane = this.mainFrame.getContentPane();
             if (contentPane.getComponents().length <= 0 || contentPane.getComponent(0) != panel) {
                 resetMainGui();
-                mainFrame.getContentPane().add(panel);
+                this.mainFrame.getContentPane().add(panel);
                 refreshMainGui();
             }
         });
@@ -125,11 +103,31 @@ public class OshiGui {
     }
 
     private void resetMainGui() {
-        mainFrame.getContentPane().removeAll();
+        this.mainFrame.getContentPane().removeAll();
     }
 
     private void refreshMainGui() {
-        mainFrame.revalidate();
-        mainFrame.repaint();
+        this.mainFrame.revalidate();
+        this.mainFrame.repaint();
+    }
+
+    private class AddMenuBarTask implements Runnable {
+        private String title;
+        private char mnemonic;
+        private String toolTip;
+        private OshiJPanel panel;
+
+        private AddMenuBarTask(String title, char mnemonic, String toolTip, OshiJPanel panel) {
+            this.title = title;
+            this.mnemonic = mnemonic;
+            this.toolTip = toolTip;
+            this.panel = panel;
+        }
+
+        @Override
+        public void run() {
+            menuBar.add(getJMenu(title, mnemonic, toolTip, panel));
+        }
+
     }
 }

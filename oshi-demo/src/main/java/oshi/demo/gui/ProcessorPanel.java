@@ -39,6 +39,7 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.data.time.DynamicTimeSeriesCollection;
 import org.jfree.data.time.Second;
 
+import oshi.SystemInfo;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.CentralProcessor.TickType;
 
@@ -52,11 +53,12 @@ public class ProcessorPanel extends OshiJPanel { // NOSONAR squid:S110
     private long[] oldTicks;
     private long[][] oldProcTicks;
 
-    public ProcessorPanel(CentralProcessor processor) {
+    public ProcessorPanel(SystemInfo si) {
         super();
+        CentralProcessor cpu = si.getHardware().getProcessor();
         oldTicks = new long[TickType.values().length];
-        oldProcTicks = new long[processor.getLogicalProcessorCount()][TickType.values().length];
-        init(processor);
+        oldProcTicks = new long[cpu.getLogicalProcessorCount()][TickType.values().length];
+        init(cpu);
     }
 
     private void init(CentralProcessor processor) {

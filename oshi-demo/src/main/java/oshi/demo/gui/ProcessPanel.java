@@ -33,6 +33,7 @@ import java.util.Map.Entry;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.Timer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
@@ -76,7 +77,7 @@ public class ProcessPanel extends OshiJPanel { // NOSONAR squid:S110
         TableModel model = new DefaultTableModel(parseProcesses(os.getProcesses(0, ProcessSort.CPU), mem), COLUMNS);
         JTable procTable = new JTable(model);
         JScrollPane scrollV = new JScrollPane(procTable);
-        scrollV.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollV.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
         resizeColumns(procTable.getColumnModel());
 
         add(scrollV, BorderLayout.CENTER);

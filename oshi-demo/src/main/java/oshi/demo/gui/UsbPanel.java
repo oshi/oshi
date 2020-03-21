@@ -28,9 +28,11 @@ import java.awt.BorderLayout;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.Timer;
 import javax.swing.text.DefaultCaret;
 
+import oshi.SystemInfo;
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.UsbDevice;
 
@@ -43,9 +45,9 @@ public class UsbPanel extends OshiJPanel { // NOSONAR squid:S110
 
     private static final String USB_DEVICES = "USB Devices";
 
-    public UsbPanel(HardwareAbstractionLayer hal) {
+    public UsbPanel(SystemInfo si) {
         super();
-        init(hal);
+        init(si.getHardware());
     }
 
     private void init(HardwareAbstractionLayer hal) {
@@ -54,7 +56,7 @@ public class UsbPanel extends OshiJPanel { // NOSONAR squid:S110
         add(usb, BorderLayout.NORTH);
         JTextArea usbArea = new JTextArea(60, 20);
         JScrollPane scrollV = new JScrollPane(usbArea);
-        scrollV.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollV.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
         DefaultCaret caret = (DefaultCaret) usbArea.getCaret();
         caret.setUpdatePolicy(DefaultCaret.NEVER_UPDATE);
 
