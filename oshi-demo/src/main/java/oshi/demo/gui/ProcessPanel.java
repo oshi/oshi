@@ -57,9 +57,10 @@ public class ProcessPanel extends OshiJPanel { // NOSONAR squid:S110
     private static final long serialVersionUID = 1L;
 
     private static final String PROCESSES = "Processes";
-    private static final String[] COLUMNS = { "PID", "PPID", "% CPU", "Cumulative", "% Memory", "VSZ", "RSS",
+    private static final String[] COLUMNS = { "PID", "PPID", "Threads", "% CPU", "Cumulative", "% Memory", "VSZ", "RSS",
             "Process Name" };
-    private static final float[] COLUMN_WIDTH_PERCENT = { 0.075f, 0.075f, 0.1f, 0.1f, 0.1f, 0.1f, 0.1f, 0.35f };
+    private static final float[] COLUMN_WIDTH_PERCENT = { 0.075f, 0.075f, 0.075f, 0.1f, 0.1f, 0.1f, 0.1f, 0.1f,
+            0.275f };
 
     private transient Map<Integer, OSProcess> priorSnapshotMap = new HashMap<>();
 
@@ -129,12 +130,13 @@ public class ProcessPanel extends OshiJPanel { // NOSONAR squid:S110
             i--;
             procArr[i][0] = p.getProcessID();
             procArr[i][1] = p.getParentProcessID();
-            procArr[i][2] = String.format("%.1f", 100d * e.getValue());
-            procArr[i][3] = String.format("%.1f", 100d * p.getProcessCpuLoadCumulative());
-            procArr[i][4] = String.format("%.1f", 100d * p.getResidentSetSize() / mem.getTotal());
-            procArr[i][5] = FormatUtil.formatBytes(p.getVirtualSize());
-            procArr[i][6] = FormatUtil.formatBytes(p.getResidentSetSize());
-            procArr[i][7] = p.getName();
+            procArr[i][2] = p.getThreadCount();
+            procArr[i][3] = String.format("%.1f", 100d * e.getValue());
+            procArr[i][4] = String.format("%.1f", 100d * p.getProcessCpuLoadCumulative());
+            procArr[i][5] = String.format("%.1f", 100d * p.getResidentSetSize() / mem.getTotal());
+            procArr[i][6] = FormatUtil.formatBytes(p.getVirtualSize());
+            procArr[i][7] = FormatUtil.formatBytes(p.getResidentSetSize());
+            procArr[i][8] = p.getName();
         }
         return procArr;
     }

@@ -49,7 +49,7 @@ public class OshiGui {
 
     private JFrame mainFrame;
     private JButton jMenu;
-    JMenuBar menuBar;
+    private JMenuBar menuBar;
 
     private SystemInfo si = new SystemInfo();
 
@@ -111,7 +111,10 @@ public class OshiGui {
         this.mainFrame.repaint();
     }
 
-    private class AddMenuBarTask implements Runnable {
+    /**
+     * Runnable class to add a JMenu to the menubar.
+     */
+    private final class AddMenuBarTask implements Runnable {
         private String title;
         private char mnemonic;
         private String toolTip;
@@ -128,6 +131,5 @@ public class OshiGui {
         public void run() {
             menuBar.add(getJMenu(title, mnemonic, toolTip, panel));
         }
-
     }
 }
