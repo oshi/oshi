@@ -61,7 +61,7 @@ public class ProcessPanel extends OshiJPanel { // NOSONAR squid:S110
     private static final String PROCESSES = "Processes";
     private static final String[] COLUMNS = { "PID", "PPID", "Threads", "% CPU", "Cumulative", "VSZ", "RSS", "% Memory",
             "Process Name" };
-    private static final float[] COLUMN_WIDTH_PERCENT = { 0.07f, 0.07f, 0.07f, 0.07f, 0.09f, 0.1f, 0.1f, 0.08f, 0.35f };
+    private static final double[] COLUMN_WIDTH_PERCENT = { 0.07, 0.07, 0.07, 0.07, 0.09, 0.1, 0.1, 0.08, 0.35 };
 
     private transient Map<Integer, OSProcess> priorSnapshotMap = new HashMap<>();
 
@@ -202,7 +202,7 @@ public class ProcessPanel extends OshiJPanel { // NOSONAR squid:S110
         int cantCols = tableColumnModel.getColumnCount();
         for (int i = 0; i < cantCols; i++) {
             column = tableColumnModel.getColumn(i);
-            int pWidth = Math.round(COLUMN_WIDTH_PERCENT[i] * tW);
+            int pWidth = (int) Math.round(COLUMN_WIDTH_PERCENT[i] * tW);
             column.setPreferredWidth(pWidth);
         }
     }
