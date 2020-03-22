@@ -25,13 +25,17 @@ package oshi.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +46,9 @@ import org.slf4j.LoggerFactory;
 public final class FileUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(FileUtil.class);
+
+    private static final String READING_LOG = "Reading file {}";
+    private static final String READ_LOG = "Read {}";
 
     private FileUtil() {
     }
@@ -73,7 +80,7 @@ public final class FileUtil {
     public static List<String> readFile(String filename, boolean reportError) {
         if (new File(filename).canRead()) {
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Reading file {}", filename);
+                LOG.debug(READING_LOG, filename);
             }
             try {
                 return Files.readAllLines(Paths.get(filename), StandardCharsets.UTF_8);
@@ -98,12 +105,12 @@ public final class FileUtil {
      */
     public static long getLongFromFile(String filename) {
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Reading file {}", filename);
+            LOG.debug(READING_LOG, filename);
         }
         List<String> read = FileUtil.readFile(filename, false);
         if (!read.isEmpty()) {
             if (LOG.isTraceEnabled()) {
-                LOG.trace("Read {}", read.get(0));
+                LOG.trace(READ_LOG, read.get(0));
             }
             return ParseUtil.parseLongOrDefault(read.get(0), 0L);
         }
@@ -120,12 +127,12 @@ public final class FileUtil {
      */
     public static long getUnsignedLongFromFile(String filename) {
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Reading file {}", filename);
+            LOG.debug(READING_LOG, filename);
         }
         List<String> read = FileUtil.readFile(filename, false);
         if (!read.isEmpty()) {
             if (LOG.isTraceEnabled()) {
-                LOG.trace("Read {}", read.get(0));
+                LOG.trace(READ_LOG, read.get(0));
             }
             return ParseUtil.parseUnsignedLongOrDefault(read.get(0), 0L);
         }
@@ -142,13 +149,13 @@ public final class FileUtil {
      */
     public static int getIntFromFile(String filename) {
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Reading file {}", filename);
+            LOG.debug(READING_LOG, filename);
         }
         try {
             List<String> read = FileUtil.readFile(filename, false);
             if (!read.isEmpty()) {
                 if (LOG.isTraceEnabled()) {
-                    LOG.trace("Read {}", read.get(0));
+                    LOG.trace(READ_LOG, read.get(0));
                 }
                 return Integer.parseInt(read.get(0));
             }
@@ -168,12 +175,12 @@ public final class FileUtil {
      */
     public static String getStringFromFile(String filename) {
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Reading file {}", filename);
+            LOG.debug(READING_LOG, filename);
         }
         List<String> read = FileUtil.readFile(filename, false);
         if (!read.isEmpty()) {
             if (LOG.isTraceEnabled()) {
-                LOG.trace("Read {}", read.get(0));
+                LOG.trace(READ_LOG, read.get(0));
             }
             return read.get(0);
         }
@@ -194,7 +201,7 @@ public final class FileUtil {
     public static Map<String, String> getKeyValueMapFromFile(String filename, String separator) {
         Map<String, String> map = new HashMap<>();
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Reading file {}", filename);
+            LOG.debug(READING_LOG, filename);
         }
         List<String> lines = FileUtil.readFile(filename, false);
         for (String line : lines) {
@@ -204,5 +211,43 @@ public final class FileUtil {
             }
         }
         return map;
+    }
+
+    /**
+     * Read a configuration file from the class path and return its properties
+     *
+     * @param propsFilename
+     *            The filename
+     * @return A {@link Properties} object containing the properties.
+     */
+    public static Properties readPropertiesFromFilename(String propsFilename) {
+        Properties archProps = new Properties();
+        // Load the configuration file from the classpath
+        try {
+            ClassLoader loader = Thread.currentThread().getContextClassLoader();
+            if (loader == null) {
+                loader = ClassLoader.getSystemClassLoader();
+                if (loader == null) {
+                    throw new IOException();
+                }
+            }
+            List<URL> resources = Collections.list(loader.getResources(propsFilename));
+            if (resources.isEmpty()) {
+                LOG.warn("No {} file found on the classpath", propsFilename);
+            } else {
+                if (resources.size() > 1) {
+                    LOG.warn("Configuration conflict: there is more than one {} file on the classpath", propsFilename);
+                }
+
+                try (InputStream in = resources.get(0).openStream()) {
+                    if (in != null) {
+                        archProps.load(in);
+                    }
+                }
+            }
+        } catch (IOException e) {
+            LOG.warn("Failed to load default configuration");
+        }
+        return archProps;
     }
 }

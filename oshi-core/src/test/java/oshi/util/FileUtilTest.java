@@ -24,10 +24,12 @@
 package oshi.util;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import org.junit.Test;
 
@@ -110,5 +112,13 @@ public class FileUtilTest {
         for (String key : expected.keySet()) {
             assertEquals(expected.get(key), actual.get(key));
         }
+    }
+
+    @Test
+    public void testReadProperties() {
+        Properties props = FileUtil.readPropertiesFromFilename("simplelogger.properties");
+        assertEquals("INFO", props.getProperty("org.slf4j.simpleLogger.defaultLogLevel"));
+        props = FileUtil.readPropertiesFromFilename("this.file.does.not.exist");
+        assertFalse(props.elements().hasMoreElements());
     }
 }

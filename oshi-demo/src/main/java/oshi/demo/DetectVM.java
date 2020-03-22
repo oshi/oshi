@@ -52,17 +52,29 @@ public class DetectVM {
         vmMacAddressOUI.put("02:42:AC", "Docker Container");
     }
 
+    // Constant for CPU vendor string
+    private static final Map<String, String> vmVendor = new HashMap<>();
+    static {
+        vmVendor.put("bhyve bhyve", "bhyve");
+        vmVendor.put("KVMKVMKVM", "KVM");
+        vmVendor.put("TCGTCGTCGTCG", "QEMU");
+        vmVendor.put("Microsoft Hv", "Microsoft Hyper-V or Windows Virtual PC");
+        vmVendor.put("lrpepyh vr", "Parallels");// (endianness mismatch of "prl hyperv ")
+        vmVendor.put("VMwareVMware", "VMware");
+        vmVendor.put("XenVMMXenVMM", "Xen HVM");
+        vmVendor.put("ACRNACRNACRN", "Project ACRN");
+        vmVendor.put("QNXQVMBSQG", "QNX Hypervisor");
+    }
+
     private static final String[] vmModelArray = new String[] { "Linux KVM", "Linux lguest", "OpenVZ", "Qemu",
             "Microsoft Virtual PC", "VMWare", "linux-vserver", "Xen", "FreeBSD Jail", "VirtualBox", "Parallels",
             "Linux Containers", "LXC" };
 
     /**
-     * <p>
-     * main.
-     * </p>
+     * The main method, executing the {@link #identifyVM} method.
      *
      * @param args
-     *            an array of {@link java.lang.String} objects.
+     *            Arguments, ignored.
      */
     public static void main(String[] args) {
         String vmString = identifyVM();
@@ -85,6 +97,11 @@ public class DetectVM {
 
         SystemInfo si = new SystemInfo();
         HardwareAbstractionLayer hw = si.getHardware();
+        // Check CPU Vendor
+        String vendor = hw.getProcessor().getProcessorIdentifier().getVendor().trim();
+        if (vmVendor.containsKey(vendor)) {
+            return vmVendor.get(vendor);
+        }
 
         // Try well known MAC addresses
         NetworkIF[] nifs = hw.getNetworkIFs();
@@ -114,13 +131,12 @@ public class DetectVM {
     }
 
     /**
-     * <p>
-     * findOuiByMacAddressIfPossible.
-     * </p>
+     * Look up the OUI using the MAC address
      *
      * @param mac
-     *            a {@link java.lang.String} object.
-     * @return a {@link java.lang.String} object.
+     *            a colon-delimited MAC address. Only the first 3 Hex pairings are
+     *            relevant
+     * @return the name of the VM(s) if known
      */
     public static String findOuiByMacAddressIfPossible(String mac) {
         return vmMacAddressOUI.entrySet().stream().filter(entry -> mac.startsWith(entry.getKey()))
