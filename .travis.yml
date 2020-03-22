@@ -11,11 +11,6 @@ after_success:
       ./mvnw clean org.jacoco:jacoco-maven-plugin:prepare-agent package sonar:sonar;
     fi
 
-env:
-  global:
-   # COVERITY_SCAN_TOKEN
-   - secure: "JuTWT2u7BWQEJGMGkVvQMIQxwxajntxqbCGYt+bJD3JQhioPVFUJoEFrLCx+jJ0qLy5usrneCDFrvRhvTh6C+95kvHypvGQ3UoeWyXS8zD+GRPUyskbuQ7P60kqqIqc+naGd3uyGddniixoAA6C/Ptmknhls4FlhDCMjW3HDS0c="
-
 addons:
   coverity_scan:
     project:
@@ -35,29 +30,22 @@ matrix:
   include:
     - os: osx
       env:
-      - JDK = "OracleJDK 8 - Mac"
+      - NAME="OracleJDK 8"
       - MATRIX_ID="first"
+      # COVERITY_SCAN_TOKEN
+      - secure: "JuTWT2u7BWQEJGMGkVvQMIQxwxajntxqbCGYt+bJD3JQhioPVFUJoEFrLCx+jJ0qLy5usrneCDFrvRhvTh6C+95kvHypvGQ3UoeWyXS8zD+GRPUyskbuQ7P60kqqIqc+naGd3uyGddniixoAA6C/Ptmknhls4FlhDCMjW3HDS0c="
       osx_image: xcode9.3
     - os: osx
-      env: JDK = "OpenJDK 11 - Mac"
-      jdk: openjdk11
-      osx_image: xcode10.1
-    - os: osx
-      env: JDK = "OpenJDK 13 - Mac"
-      jdk: openjdk13
+      env: NAME="OpenJDK 13"
       osx_image: xcode11.3.1
     - os: linux
-      env: JDK = "OpenJDK 11 - Linux"
+      env: NAME="OpenJDK 11"
       jdk: openjdk11
     - os: linux
-      env: JDK = "OpenJDK 14 - Linux"
+      env: NAME="OpenJDK 14"
       jdk: openjdk14
     - os: linux
-      env: JDK = "OpenJDK 15 - Linux"
-      jdk: openjdk15
-  allow_failures:
-    - os: linux
-      env: JDK = "OpenJDK 15 - Linux"
+      env: NAME="OpenJDK 15"
       jdk: openjdk15
 
 script:

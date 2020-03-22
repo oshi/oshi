@@ -43,6 +43,7 @@ import org.jfree.chart.plot.PiePlot;
 import org.jfree.chart.title.TextTitle;
 import org.jfree.data.general.DefaultPieDataset;
 
+import oshi.SystemInfo;
 import oshi.hardware.GlobalMemory;
 import oshi.hardware.PhysicalMemory;
 import oshi.hardware.VirtualMemory;
@@ -60,9 +61,9 @@ public class MemoryPanel extends OshiJPanel { // NOSONAR squid:S110
     private static final String USED = "Used";
     private static final String AVAILABLE = "Available";
 
-    public MemoryPanel(GlobalMemory memory) {
+    public MemoryPanel(SystemInfo si) {
         super();
-        init(memory);
+        init(si.getHardware().getMemory());
     }
 
     private void init(GlobalMemory memory) {

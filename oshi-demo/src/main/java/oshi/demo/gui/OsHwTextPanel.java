@@ -57,7 +57,7 @@ public class OsHwTextPanel extends OshiJPanel { // NOSONAR squid:S110
     private static final String HARDWARE_INFORMATION = "Hardware Information";
     private static final String PROCESSOR = "Processor";
     private static final String DISPLAYS = "Displays";
-    private String osStr;
+    private String osPrefix;
 
     public OsHwTextPanel(SystemInfo si) {
         super();
@@ -65,7 +65,7 @@ public class OsHwTextPanel extends OshiJPanel { // NOSONAR squid:S110
     }
 
     private void init(SystemInfo si) {
-        osStr = getOs(si);
+        osPrefix = getOsPrefix(si);
 
         GridBagConstraints osLabel = new GridBagConstraints();
         GridBagConstraints osConstraints = new GridBagConstraints();
@@ -94,39 +94,40 @@ public class OsHwTextPanel extends OshiJPanel { // NOSONAR squid:S110
         JPanel oshwPanel = new JPanel();
         oshwPanel.setLayout(new GridBagLayout());
 
-        JTextArea osArea = new JTextArea(60, 20);
+        JTextArea osArea = new JTextArea(0, 0);
         osArea.setText(updateOsData(si));
         oshwPanel.add(new JLabel(OPERATING_SYSTEM), osLabel);
         oshwPanel.add(osArea, osConstraints);
 
-        JTextArea procArea = new JTextArea(60, 20);
+        JTextArea procArea = new JTextArea(0, 0);
         procArea.setText(getProc(si));
         oshwPanel.add(new JLabel(PROCESSOR), procLabel);
         oshwPanel.add(procArea, procConstraints);
 
-        JTextArea displayArea = new JTextArea(60, 20);
+        JTextArea displayArea = new JTextArea(0, 0);
         displayArea.setText(getDisplay(si));
         oshwPanel.add(new JLabel(DISPLAYS), displayLabel);
         oshwPanel.add(displayArea, displayConstraints);
 
-        JTextArea csArea = new JTextArea(60, 20);
+        JTextArea csArea = new JTextArea(0, 0);
         csArea.setText(getHw(si));
         oshwPanel.add(new JLabel(HARDWARE_INFORMATION), csLabel);
         oshwPanel.add(csArea, csConstraints);
 
         add(oshwPanel, BorderLayout.CENTER);
 
-        Timer timer = new Timer(1000, e -> osArea.setText(updateOsData(si)));
+        // Update up time every second
+        Timer timer = new Timer(Config.REFRESH_FAST, e -> osArea.setText(updateOsData(si)));
         timer.start();
     }
 
-    private static String getOs(SystemInfo si) {
+    private static String getOsPrefix(SystemInfo si) {
         StringBuilder sb = new StringBuilder(OPERATING_SYSTEM);
 
         OperatingSystem os = si.getOperatingSystem();
         sb.append(String.valueOf(os));
-        sb.append("\n\n").append("Booted: ").append(Instant.ofEpochSecond(os.getSystemBootTime())).append("\n");
-
+        sb.append("\n\n").append("Booted: ").append(Instant.ofEpochSecond(os.getSystemBootTime())).append('\n')
+                .append("Uptime: ");
         return sb.toString();
     }
 
@@ -178,9 +179,6 @@ public class OsHwTextPanel extends OshiJPanel { // NOSONAR squid:S110
     }
 
     private String updateOsData(SystemInfo si) {
-        OperatingSystem os = si.getOperatingSystem();
-        StringBuilder sb = new StringBuilder(osStr);
-        sb.append("Uptime: " + FormatUtil.formatElapsedSecs(os.getSystemUptime()));
-        return sb.toString();
+        return osPrefix + FormatUtil.formatElapsedSecs(si.getOperatingSystem().getSystemUptime());
     }
 }
