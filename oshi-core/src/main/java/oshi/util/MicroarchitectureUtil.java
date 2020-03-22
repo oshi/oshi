@@ -1,6 +1,7 @@
 package oshi.util;
 
 import java.util.Properties;
+import java.util.function.Supplier;
 
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.CentralProcessor.ProcessorIdentifier;
@@ -8,9 +9,11 @@ import oshi.hardware.CentralProcessor.ProcessorIdentifier;
 /**
  * Maps a processor's family and model to its microarchitecture codename
  */
-public class MicroarchitectureUtil {
+public final class MicroarchitectureUtil {
 
     private static final String OSHI_ARCHITECTURE_PROPERTIES = "oshi.architecture.properties";
+
+    private static final Supplier<Properties> architectures = Memoizer.memoize(MicroarchitectureUtil::readProperties);
 
     private MicroarchitectureUtil() {
     }
@@ -25,7 +28,7 @@ public class MicroarchitectureUtil {
      *         {@link Constants#UNKNOWN} otherwise.
      */
     public static String getArchitecture(ProcessorIdentifier pi) {
-        Properties architectures = FileUtil.readPropertiesFromFilename(OSHI_ARCHITECTURE_PROPERTIES);
+        Properties archProps = architectures.get();
         // Intel or AMD
         StringBuilder sb = new StringBuilder();
         if (pi.getVendor().contains("AMD")) {
@@ -33,16 +36,24 @@ public class MicroarchitectureUtil {
         }
         sb.append(pi.getFamily());
         // Check for match with only family
-        String arch = architectures.getProperty(sb.toString());
+        String arch = archProps.getProperty(sb.toString());
+
         if (Util.isBlank(arch)) {
             // Append model
             sb.append('.').append(pi.getModel());
         }
+        arch = archProps.getProperty(sb.toString());
+
         if (Util.isBlank(arch)) {
             // Append stepping
             sb.append('.').append(pi.getStepping());
         }
-        arch = architectures.getProperty(sb.toString());
+        arch = archProps.getProperty(sb.toString());
+
         return Util.isBlank(arch) ? Constants.UNKNOWN : arch;
+    }
+
+    private static Properties readProperties() {
+        return FileUtil.readPropertiesFromFilename(OSHI_ARCHITECTURE_PROPERTIES);
     }
 }

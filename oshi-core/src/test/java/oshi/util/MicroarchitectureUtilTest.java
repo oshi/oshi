@@ -39,5 +39,4 @@ public class MicroarchitectureUtilTest {
         String arch = MicroarchitectureUtil.getArchitecture(pi);
         assertFalse(Util.isBlank(arch));
     }
-
 }
