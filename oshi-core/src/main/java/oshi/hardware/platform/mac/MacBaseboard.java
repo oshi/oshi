@@ -1,8 +1,7 @@
 /**
- * OSHI (https://github.com/oshi/oshi)
+ * MIT License
  *
- * Copyright (c) 2010 - 2019 The OSHI Project Team:
- * https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -10,8 +9,9 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,10 +23,71 @@
  */
 package oshi.hardware.platform.mac;
 
+import static oshi.util.Memoizer.memoize;
+
+import java.nio.charset.StandardCharsets;
+import java.util.function.Supplier;
+
+import com.sun.jna.platform.mac.IOKit.IORegistryEntry; // NOSONAR squid:S1191
+import com.sun.jna.platform.mac.IOKitUtil;
+
 import oshi.hardware.common.AbstractBaseboard;
+import oshi.util.Constants;
+import oshi.util.Util;
+import oshi.util.tuples.Quartet;
 
+/**
+ * Baseboard data obtained from ioreg
+ */
 final class MacBaseboard extends AbstractBaseboard {
+    private final Supplier<Quartet<String, String, String, String>> manufModelVersSerial = memoize(
+            MacBaseboard::queryPlatform);
 
-    private static final long serialVersionUID = 1L;
+    @Override
+    public String getManufacturer() {
+        return manufModelVersSerial.get().getA();
+    }
 
+    @Override
+    public String getModel() {
+        return manufModelVersSerial.get().getB();
+    }
+
+    @Override
+    public String getVersion() {
+        return manufModelVersSerial.get().getC();
+    }
+
+    @Override
+    public String getSerialNumber() {
+        return manufModelVersSerial.get().getD();
+    }
+
+    private static Quartet<String, String, String, String> queryPlatform() {
+        String manufacturer = null;
+        String model = null;
+        String version = null;
+        String serialNumber = null;
+
+        IORegistryEntry platformExpert = IOKitUtil.getMatchingService("IOPlatformExpertDevice");
+        if (platformExpert != null) {
+            byte[] data = platformExpert.getByteArrayProperty("manufacturer");
+            if (data != null) {
+                manufacturer = new String(data, StandardCharsets.UTF_8).trim();
+            }
+            data = platformExpert.getByteArrayProperty("board-id");
+            if (data != null) {
+                model = new String(data, StandardCharsets.UTF_8).trim();
+            }
+            data = platformExpert.getByteArrayProperty("version");
+            if (data != null) {
+                version = new String(data, StandardCharsets.UTF_8).trim();
+            }
+            serialNumber = platformExpert.getStringProperty("IOPlatformSerialNumber");
+            platformExpert.release();
+        }
+        return new Quartet<>(Util.isBlank(manufacturer) ? "Apple Inc." : manufacturer,
+                Util.isBlank(model) ? Constants.UNKNOWN : model, Util.isBlank(version) ? Constants.UNKNOWN : version,
+                Util.isBlank(serialNumber) ? Constants.UNKNOWN : serialNumber);
+    }
 }

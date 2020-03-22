@@ -1,8 +1,7 @@
 /**
- * OSHI (https://github.com/oshi/oshi)
+ * MIT License
  *
- * Copyright (c) 2010 - 2019 The OSHI Project Team:
- * https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -10,8 +9,9 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,13 +23,13 @@
  */
 package oshi.demo;
 
-import org.junit.Test;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.IsEqual.equalTo;
 
 import java.lang.reflect.Field;
 import java.util.Map;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import org.junit.Test;
 
 public class DetectVMTest {
     @SuppressWarnings("unchecked")
@@ -38,6 +38,6 @@ public class DetectVMTest {
         Field f = DetectVM.class.getDeclaredField("vmMacAddressOUI");
         f.setAccessible(true);
         Map<String, String> map = (Map<String, String>) f.get(null);
-        map.forEach((k, v) -> assertThat(DetectVM.findOuiByMacAddressIfPossible(k + ":00"), is(v)));
+        map.forEach((k, v) -> assertThat(DetectVM.findOuiByMacAddressIfPossible(k + ":00"), equalTo(v)));
     }
 }

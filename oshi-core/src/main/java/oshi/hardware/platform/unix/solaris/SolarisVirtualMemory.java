@@ -1,8 +1,7 @@
 /**
- * OSHI (https://github.com/oshi/oshi)
+ * MIT License
  *
- * Copyright (c) 2010 - 2019 The OSHI Project Team:
- * https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -10,8 +9,9 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,78 +23,77 @@
  */
 package oshi.hardware.platform.unix.solaris;
 
+import static oshi.util.Memoizer.defaultExpiration;
+import static oshi.util.Memoizer.memoize;
+
+import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import oshi.hardware.common.AbstractVirtualMemory;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
+import oshi.util.tuples.Pair;
 
 /**
  * Memory obtained by kstat and swap
  */
 public class SolarisVirtualMemory extends AbstractVirtualMemory {
 
-    private static final long serialVersionUID = 1L;
+    private static final Pattern SWAP_INFO = Pattern.compile(".+\\s(\\d+)K\\s+(\\d+)K$");
 
-    private static final Pattern SWAPINFO = Pattern.compile(".+\\s(\\d+)K\\s+(\\d+)K$");
+    private final Supplier<Pair<Long, Long>> usedTotal = memoize(SolarisVirtualMemory::querySwapInfo,
+            defaultExpiration());
 
-    /**
-     * {@inheritDoc}
-     */
+    private final Supplier<Long> pagesIn = memoize(SolarisVirtualMemory::queryPagesIn, defaultExpiration());
+
+    private final Supplier<Long> pagesOut = memoize(SolarisVirtualMemory::queryPagesOut, defaultExpiration());
+
     @Override
     public long getSwapUsed() {
-        if (this.swapUsed < 0) {
-            updateSwapUsed();
-        }
-        return this.swapUsed;
+        return usedTotal.get().getA();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public long getSwapTotal() {
-        if (this.swapTotal < 0) {
-            updateSwapUsed();
-        }
-        return this.swapTotal;
+        return usedTotal.get().getB();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public long getSwapPagesIn() {
-        if (this.swapPagesIn < 0) {
-            this.swapPagesIn = 0L;
-            for (String s : ExecutingCommand.runNative("kstat -p cpu_stat:::pgpgin")) {
-                this.swapPagesIn += ParseUtil.parseLastLong(s, 0L);
-            }
-        }
-        return this.swapPagesIn;
+        return pagesIn.get();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public long getSwapPagesOut() {
-        if (this.swapPagesOut < 0) {
-            this.swapPagesOut = 0L;
-            for (String s : ExecutingCommand.runNative("kstat -p cpu_stat:::pgpgout")) {
-                this.swapPagesOut += ParseUtil.parseLastLong(s, 0L);
-            }
-        }
-        return this.swapPagesOut;
+        return pagesOut.get();
     }
 
-    private void updateSwapUsed() {
-        String swapInfo = ExecutingCommand.getAnswerAt("swap -lk", 1);
-        Matcher m = SWAPINFO.matcher(swapInfo);
-        if (m.matches()) {
-            this.swapTotal = ParseUtil.parseLongOrDefault(m.group(1), 0L) << 10;
-            this.swapUsed = this.swapTotal - (ParseUtil.parseLongOrDefault(m.group(2), 0L) << 10);
+    private static long queryPagesIn() {
+        long swapPagesIn = 0L;
+        for (String s : ExecutingCommand.runNative("kstat -p cpu_stat:::pgpgin")) {
+            swapPagesIn += ParseUtil.parseLastLong(s, 0L);
         }
+        return swapPagesIn;
+    }
+
+    private static long queryPagesOut() {
+        long swapPagesOut = 0L;
+        for (String s : ExecutingCommand.runNative("kstat -p cpu_stat:::pgpgout")) {
+            swapPagesOut += ParseUtil.parseLastLong(s, 0L);
+        }
+        return swapPagesOut;
+    }
+
+    private static Pair<Long, Long> querySwapInfo() {
+        long swapTotal = 0L;
+        long swapUsed = 0L;
+        String swap = ExecutingCommand.getAnswerAt("swap -lk", 1);
+        Matcher m = SWAP_INFO.matcher(swap);
+        if (m.matches()) {
+            swapTotal = ParseUtil.parseLongOrDefault(m.group(1), 0L) << 10;
+            swapUsed = swapTotal - (ParseUtil.parseLongOrDefault(m.group(2), 0L) << 10);
+        }
+        return new Pair<>(swapUsed, swapTotal);
     }
 }

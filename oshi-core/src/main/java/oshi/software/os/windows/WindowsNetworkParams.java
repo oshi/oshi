@@ -1,8 +1,7 @@
 /**
- * OSHI (https://github.com/oshi/oshi)
+ * MIT License
  *
- * Copyright (c) 2010 - 2019 The OSHI Project Team:
- * https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -10,8 +9,9 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,6 +23,7 @@
  */
 package oshi.software.os.windows;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,6 +35,7 @@ import com.sun.jna.platform.win32.IPHlpAPI;
 import com.sun.jna.platform.win32.IPHlpAPI.FIXED_INFO;
 import com.sun.jna.platform.win32.IPHlpAPI.IP_ADDR_STRING;
 import com.sun.jna.platform.win32.Kernel32;
+import com.sun.jna.platform.win32.Kernel32Util;
 import com.sun.jna.platform.win32.WinError;
 import com.sun.jna.ptr.IntByReference;
 
@@ -41,17 +43,17 @@ import oshi.software.common.AbstractNetworkParams;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
+/**
+ * <p>
+ * WindowsNetworkParams class.
+ * </p>
+ */
 public class WindowsNetworkParams extends AbstractNetworkParams {
-
-    private static final long serialVersionUID = 1L;
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsNetworkParams.class);
 
     private static final int COMPUTER_NAME_DNS_DOMAIN_FULLY_QUALIFIED = 3;
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public String getDomainName() {
         char[] buffer = new char[256];
@@ -63,9 +65,6 @@ public class WindowsNetworkParams extends AbstractNetworkParams {
         return new String(buffer).trim();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public String[] getDnsServers() {
         IntByReference bufferSize = new IntByReference();
@@ -86,7 +85,9 @@ public class WindowsNetworkParams extends AbstractNetworkParams {
         List<String> list = new ArrayList<>();
         IP_ADDR_STRING dns = fixedInfo.DnsServerList;
         while (dns != null) {
-            String addr = new String(dns.IpAddress.String);
+            // a char array of size 16.
+            // This array holds an IPv4 address in dotted decimal notation.
+            String addr = new String(dns.IpAddress.String, StandardCharsets.US_ASCII);
             int nullPos = addr.indexOf(0);
             if (nullPos != -1) {
                 addr = addr.substring(0, nullPos);
@@ -97,17 +98,16 @@ public class WindowsNetworkParams extends AbstractNetworkParams {
         return list.toArray(new String[0]);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
+    public String getHostName() {
+        return Kernel32Util.getComputerName();
+    }
+
     @Override
     public String getIpv4DefaultGateway() {
         return parseIpv4Route();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public String getIpv6DefaultGateway() {
         return parseIpv6Route();
@@ -134,5 +134,4 @@ public class WindowsNetworkParams extends AbstractNetworkParams {
         }
         return "";
     }
-
 }

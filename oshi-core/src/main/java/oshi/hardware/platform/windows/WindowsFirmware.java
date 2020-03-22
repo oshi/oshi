@@ -1,8 +1,7 @@
 /**
- * OSHI (https://github.com/oshi/oshi)
+ * MIT License
  *
- * Copyright (c) 2010 - 2019 The OSHI Project Team:
- * https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -10,8 +9,9 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,88 +23,71 @@
  */
 package oshi.hardware.platform.windows;
 
-import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery; // NOSONAR squid:S1191
-import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
+import static oshi.util.Memoizer.memoize;
 
+import java.util.function.Supplier;
+
+import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult; // NOSONAR squid:S1191
+
+import oshi.driver.windows.wmi.Win32Bios;
+import oshi.driver.windows.wmi.Win32Bios.BiosProperty;
 import oshi.hardware.common.AbstractFirmware;
-import oshi.util.platform.windows.WmiQueryHandler;
+import oshi.util.Constants;
+import oshi.util.Util;
 import oshi.util.platform.windows.WmiUtil;
+import oshi.util.tuples.Quintet;
 
 /**
  * Firmware data obtained from WMI
  */
 final class WindowsFirmware extends AbstractFirmware {
 
-    private static final long serialVersionUID = 1L;
+    private final Supplier<Quintet<String, String, String, String, String>> manufNameDescVersRelease = memoize(
+            WindowsFirmware::queryManufNameDescVersRelease);
 
-    enum BiosProperty {
-        MANUFACTURER, NAME, DESCRIPTION, VERSION, RELEASEDATE;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public String getManufacturer() {
-        if (this.manufacturer == null) {
-            queryWmi();
-        }
-        return super.getManufacturer();
+        return manufNameDescVersRelease.get().getA();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public String getName() {
-        if (this.name == null) {
-            queryWmi();
-        }
-        return super.getName();
+        return manufNameDescVersRelease.get().getB();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public String getDescription() {
-        if (this.description == null) {
-            queryWmi();
-        }
-        return super.getDescription();
+        return manufNameDescVersRelease.get().getC();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public String getVersion() {
-        if (this.version == null) {
-            queryWmi();
-        }
-        return super.getVersion();
+        return manufNameDescVersRelease.get().getD();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public String getReleaseDate() {
-        if (this.releaseDate == null) {
-            queryWmi();
-        }
-        return super.getReleaseDate();
+        return manufNameDescVersRelease.get().getE();
     }
 
-    private void queryWmi() {
-        WmiQuery<BiosProperty> biosQuery = new WmiQuery<>("Win32_BIOS where PrimaryBIOS=true", BiosProperty.class);
-        WmiResult<BiosProperty> win32BIOS = WmiQueryHandler.createInstance().queryWMI(biosQuery);
+    private static Quintet<String, String, String, String, String> queryManufNameDescVersRelease() {
+        String manufacturer = null;
+        String name = null;
+        String description = null;
+        String version = null;
+        String releaseDate = null;
+        WmiResult<BiosProperty> win32BIOS = Win32Bios.queryBiosInfo();
         if (win32BIOS.getResultCount() > 0) {
-            setManufacturer(WmiUtil.getString(win32BIOS, BiosProperty.MANUFACTURER, 0));
-            setName(WmiUtil.getString(win32BIOS, BiosProperty.NAME, 0));
-            setDescription(WmiUtil.getString(win32BIOS, BiosProperty.DESCRIPTION, 0));
-            setVersion(WmiUtil.getString(win32BIOS, BiosProperty.VERSION, 0));
-            setReleaseDate(WmiUtil.getDateString(win32BIOS, BiosProperty.RELEASEDATE, 0));
+            manufacturer = WmiUtil.getString(win32BIOS, BiosProperty.MANUFACTURER, 0);
+            name = WmiUtil.getString(win32BIOS, BiosProperty.NAME, 0);
+            description = WmiUtil.getString(win32BIOS, BiosProperty.DESCRIPTION, 0);
+            version = WmiUtil.getString(win32BIOS, BiosProperty.VERSION, 0);
+            releaseDate = WmiUtil.getDateString(win32BIOS, BiosProperty.RELEASEDATE, 0);
         }
+        return new Quintet<>(Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer,
+                Util.isBlank(name) ? Constants.UNKNOWN : name,
+                Util.isBlank(description) ? Constants.UNKNOWN : description,
+                Util.isBlank(version) ? Constants.UNKNOWN : version,
+                Util.isBlank(releaseDate) ? Constants.UNKNOWN : releaseDate);
     }
 }

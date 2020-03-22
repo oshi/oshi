@@ -1,8 +1,7 @@
 /**
- * OSHI (https://github.com/oshi/oshi)
+ * MIT License
  *
- * Copyright (c) 2010 - 2019 The OSHI Project Team:
- * https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -10,8 +9,9 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -24,32 +24,35 @@
 package oshi.hardware.platform.linux;
 
 import java.io.File;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.Map;
 
 import oshi.hardware.PowerSource;
 import oshi.hardware.common.AbstractPowerSource;
+import oshi.util.Constants;
 import oshi.util.FileUtil;
+import oshi.util.ParseUtil;
 
 /**
  * A Power Source
- *
- * @author widdis[at]gmail[dot]com
  */
 public class LinuxPowerSource extends AbstractPowerSource {
 
-    private static final long serialVersionUID = 1L;
-
-    private static final Logger LOG = LoggerFactory.getLogger(LinuxPowerSource.class);
-
     private static final String PS_PATH = "/sys/class/power_supply/";
 
-    public LinuxPowerSource(String newName, double newRemainingCapacity, double newTimeRemaining) {
-        super(newName, newRemainingCapacity, newTimeRemaining);
-        LOG.debug("Initialized LinuxPowerSource");
+    public LinuxPowerSource(String psName, String psDeviceName, double psRemainingCapacityPercent,
+            double psTimeRemainingEstimated, double psTimeRemainingInstant, double psPowerUsageRate, double psVoltage,
+            double psAmperage, boolean psPowerOnLine, boolean psCharging, boolean psDischarging,
+            CapacityUnits psCapacityUnits, int psCurrentCapacity, int psMaxCapacity, int psDesignCapacity,
+            int psCycleCount, String psChemistry, LocalDate psManufactureDate, String psManufacturer,
+            String psSerialNumber, double psTemperature) {
+        super(psName, psDeviceName, psRemainingCapacityPercent, psTimeRemainingEstimated, psTimeRemainingInstant,
+                psPowerUsageRate, psVoltage, psAmperage, psPowerOnLine, psCharging, psDischarging, psCapacityUnits,
+                psCurrentCapacity, psMaxCapacity, psDesignCapacity, psCycleCount, psChemistry, psManufactureDate,
+                psManufacturer, psSerialNumber, psTemperature);
     }
 
     /**
@@ -58,6 +61,28 @@ public class LinuxPowerSource extends AbstractPowerSource {
      * @return An array of PowerSource objects representing batteries, etc.
      */
     public static PowerSource[] getPowerSources() {
+        String psName;
+        String psDeviceName;
+        double psRemainingCapacityPercent = -1d;
+        double psTimeRemainingEstimated = -1d; // -1 = unknown, -2 = unlimited
+        double psTimeRemainingInstant = -1d;
+        double psPowerUsageRate = 0d;
+        double psVoltage = -1d;
+        double psAmperage = 0d;
+        boolean psPowerOnLine = false;
+        boolean psCharging = false;
+        boolean psDischarging = false;
+        CapacityUnits psCapacityUnits = CapacityUnits.RELATIVE;
+        int psCurrentCapacity = -1;
+        int psMaxCapacity = -1;
+        int psDesignCapacity = -1;
+        int psCycleCount = -1;
+        String psChemistry;
+        LocalDate psManufactureDate = null;
+        String psManufacturer;
+        String psSerialNumber;
+        double psTemperature = 0d;
+
         // Get list of power source names
         File f = new File(PS_PATH);
         String[] psNames = f.list();
@@ -67,77 +92,71 @@ public class LinuxPowerSource extends AbstractPowerSource {
         }
         List<LinuxPowerSource> psList = new ArrayList<>(psNames.length);
         // For each power source, output various info
-        for (String psName : psNames) {
+        for (String name : psNames) {
             // Skip if name is ADP* or AC* (AC power supply)
-            if (psName.startsWith("ADP") || psName.startsWith("AC")) {
+            if (name.startsWith("ADP") || name.startsWith("AC")) {
                 continue;
             }
             // Skip if can't read uevent file
             List<String> psInfo;
-            psInfo = FileUtil.readFile(PS_PATH + psName + "/uevent", false);
+            psInfo = FileUtil.readFile(PS_PATH + name + "/uevent", false);
             if (psInfo.isEmpty()) {
                 continue;
             }
-            // Initialize defaults
-            boolean isPresent = false;
-            boolean isCharging = false;
-            String name = "Unknown";
-            int energyNow = 0;
-            int energyFull = 1;
-            int powerNow = 1;
-            for (String checkLine : psInfo) {
-                if (checkLine.startsWith("POWER_SUPPLY_PRESENT")) {
-                    // Skip if not present
-                    String[] psSplit = checkLine.split("=");
-                    if (psSplit.length > 1) {
-                        isPresent = Integer.parseInt(psSplit[1]) > 0;
-                    }
-                    if (!isPresent) {
-                        break;
-                    }
-                } else if (checkLine.startsWith("POWER_SUPPLY_NAME")) {
-                    // Name
-                    String[] psSplit = checkLine.split("=");
-                    if (psSplit.length > 1) {
-                        name = psSplit[1];
-                    }
-                } else if (checkLine.startsWith("POWER_SUPPLY_ENERGY_NOW")
-                        || checkLine.startsWith("POWER_SUPPLY_CHARGE_NOW")) {
-                    // Remaining Capacity = energyNow / energyFull
-                    String[] psSplit = checkLine.split("=");
-                    if (psSplit.length > 1) {
-                        energyNow = Integer.parseInt(psSplit[1]);
-                    }
-                } else if (checkLine.startsWith("POWER_SUPPLY_ENERGY_FULL")
-                        || checkLine.startsWith("POWER_SUPPLY_CHARGE_FULL")) {
-                    String[] psSplit = checkLine.split("=");
-                    if (psSplit.length > 1) {
-                        energyFull = Integer.parseInt(psSplit[1]);
-                    }
-                } else if (checkLine.startsWith("POWER_SUPPLY_STATUS")) {
-                    // Check if charging
-                    String[] psSplit = checkLine.split("=");
-                    if (psSplit.length > 1 && "Charging".equals(psSplit[1])) {
-                        isCharging = true;
-                    }
-                } else if (checkLine.startsWith("POWER_SUPPLY_POWER_NOW")
-                        || checkLine.startsWith("POWER_SUPPLY_CURRENT_NOW")) {
-                    // Time Remaining = energyNow / powerNow (hours)
-                    String[] psSplit = checkLine.split("=");
-                    if (psSplit.length > 1) {
-                        powerNow = Integer.parseInt(psSplit[1]);
-                    }
-                    if (powerNow <= 0) {
-                        isCharging = true;
-                    }
+            Map<String, String> psMap = new HashMap<>();
+            for (String line : psInfo) {
+                String[] split = line.split("=");
+                if (split.length > 1 && !split[1].isEmpty()) {
+                    psMap.put(split[0], split[1]);
                 }
             }
-            if (isPresent) {
-                psList.add(new LinuxPowerSource(name, (double) energyNow / energyFull,
-                        isCharging ? -2d : 3600d * energyNow / powerNow));
+            psName = psMap.getOrDefault("POWER_SUPPLY_NAME", name);
+            String status = psMap.get("POWER_SUPPLY_STATUS");
+            psCharging = "Charging".equals(status);
+            psDischarging = "Discharging".equals(status);
+            if (psMap.containsKey("POWER_SUPPLY_CAPACITY")) {
+                psRemainingCapacityPercent = ParseUtil.parseIntOrDefault(psMap.get("POWER_SUPPLY_CAPACITY"), -100)
+                        / 100d;
+            }
+            if (psMap.containsKey("POWER_SUPPLY_ENERGY_NOW")) {
+                psCurrentCapacity = ParseUtil.parseIntOrDefault(psMap.get("POWER_SUPPLY_ENERGY_NOW"), -1);
+            } else if (psMap.containsKey("POWER_SUPPLY_CHARGE_NOW")) {
+                psCurrentCapacity = ParseUtil.parseIntOrDefault(psMap.get("POWER_SUPPLY_CHARGE_NOW"), -1);
+            }
+            if (psMap.containsKey("POWER_SUPPLY_ENERGY_FULL")) {
+                psCurrentCapacity = ParseUtil.parseIntOrDefault(psMap.get("POWER_SUPPLY_ENERGY_FULL"), 1);
+            } else if (psMap.containsKey("POWER_SUPPLY_CHARGE_FULL")) {
+                psCurrentCapacity = ParseUtil.parseIntOrDefault(psMap.get("POWER_SUPPLY_CHARGE_FULL"), 1);
+            }
+            if (psMap.containsKey("POWER_SUPPLY_ENERGY_FULL_DESIGN")) {
+                psMaxCapacity = ParseUtil.parseIntOrDefault(psMap.get("POWER_SUPPLY_ENERGY_FULL_DESIGN"), 1);
+            } else if (psMap.containsKey("POWER_SUPPLY_CHARGE_FULL_DESIGN")) {
+                psMaxCapacity = ParseUtil.parseIntOrDefault(psMap.get("POWER_SUPPLY_CHARGE_FULL_DESIGN"), 1);
+            }
+            if (psMap.containsKey("POWER_SUPPLY_VOLTAGE_NOW")) {
+                psVoltage = ParseUtil.parseIntOrDefault(psMap.get("POWER_SUPPLY_VOLTAGE_NOW"), -1);
+            }
+            if (psMap.containsKey("POWER_SUPPLY_POWER_NOW")) {
+                psPowerUsageRate = ParseUtil.parseIntOrDefault(psMap.get("POWER_SUPPLY_POWER_NOW"), -1);
+            }
+            if (psVoltage > 0) {
+                psAmperage = psPowerUsageRate / psVoltage;
+            }
+            if (psMap.containsKey("POWER_SUPPLY_CYCLE_COUNT")) {
+                psCycleCount = ParseUtil.parseIntOrDefault(psMap.get("POWER_SUPPLY_CYCLE_COUNT"), -1);
+            }
+            psChemistry = psMap.getOrDefault("POWER_SUPPLY_TECHNOLOGY", Constants.UNKNOWN);
+            psDeviceName = psMap.getOrDefault("POWER_SUPPLY_MODEL_NAME", Constants.UNKNOWN);
+            psManufacturer = psMap.getOrDefault("POWER_SUPPLY_MANUFACTURER", Constants.UNKNOWN);
+            psSerialNumber = psMap.getOrDefault("POWER_SUPPLY_SERIAL_NUMBER", Constants.UNKNOWN);
+            if (ParseUtil.parseIntOrDefault(psMap.get("POWER_SUPPLY_PRESENT"), 1) > 0) {
+                psList.add(new LinuxPowerSource(psName, psDeviceName, psRemainingCapacityPercent,
+                        psTimeRemainingEstimated, psTimeRemainingInstant, psPowerUsageRate, psVoltage, psAmperage,
+                        psPowerOnLine, psCharging, psDischarging, psCapacityUnits, psCurrentCapacity, psMaxCapacity,
+                        psDesignCapacity, psCycleCount, psChemistry, psManufactureDate, psManufacturer, psSerialNumber,
+                        psTemperature));
             }
         }
-
         return psList.toArray(new LinuxPowerSource[0]);
     }
 }

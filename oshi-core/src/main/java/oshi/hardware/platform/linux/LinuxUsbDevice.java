@@ -1,8 +1,7 @@
 /**
- * OSHI (https://github.com/oshi/oshi)
+ * MIT License
  *
- * Copyright (c) 2010 - 2019 The OSHI Project Team:
- * https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -10,8 +9,9 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -37,27 +37,44 @@ import oshi.jna.platform.linux.Udev.UdevDevice;
 import oshi.jna.platform.linux.Udev.UdevEnumerate;
 import oshi.jna.platform.linux.Udev.UdevListEntry;
 
+/**
+ * <p>
+ * LinuxUsbDevice class.
+ * </p>
+ */
 public class LinuxUsbDevice extends AbstractUsbDevice {
 
-    private static final long serialVersionUID = 2L;
-
-    /*
-     * Maps to store information using device node path as the key
+    /**
+     * <p>
+     * Constructor for LinuxUsbDevice.
+     * </p>
+     *
+     * @param name
+     *            a {@link java.lang.String} object.
+     * @param vendor
+     *            a {@link java.lang.String} object.
+     * @param vendorId
+     *            a {@link java.lang.String} object.
+     * @param productId
+     *            a {@link java.lang.String} object.
+     * @param serialNumber
+     *            a {@link java.lang.String} object.
+     * @param uniqueDeviceId
+     *            a {@link java.lang.String} object.
+     * @param connectedDevices
+     *            an array of {@link oshi.hardware.UsbDevice} objects.
      */
-    private static Map<String, String> nameMap = new HashMap<>();
-    private static Map<String, String> vendorMap = new HashMap<>();
-    private static Map<String, String> vendorIdMap = new HashMap<>();
-    private static Map<String, String> productIdMap = new HashMap<>();
-    private static Map<String, String> serialMap = new HashMap<>();
-    private static Map<String, List<String>> hubMap = new HashMap<>();
-
     public LinuxUsbDevice(String name, String vendor, String vendorId, String productId, String serialNumber,
-            UsbDevice[] connectedDevices) {
-        super(name, vendor, vendorId, productId, serialNumber, connectedDevices);
+            String uniqueDeviceId, UsbDevice[] connectedDevices) {
+        super(name, vendor, vendorId, productId, serialNumber, uniqueDeviceId, connectedDevices);
     }
 
     /**
      * {@inheritDoc}
+     *
+     * @param tree
+     *            a boolean.
+     * @return an array of {@link oshi.hardware.UsbDevice} objects.
      */
     public static UsbDevice[] getUsbDevices(boolean tree) {
         UsbDevice[] devices = getUsbDevices();
@@ -69,17 +86,10 @@ public class LinuxUsbDevice extends AbstractUsbDevice {
         // their connected devices will be
         for (UsbDevice device : devices) {
             deviceList.add(new LinuxUsbDevice(device.getName(), device.getVendor(), device.getVendorId(),
-                    device.getProductId(), device.getSerialNumber(), new MacUsbDevice[0]));
+                    device.getProductId(), device.getSerialNumber(), device.getUniqueDeviceId(), new MacUsbDevice[0]));
             addDevicesToList(deviceList, device.getConnectedDevices());
         }
         return deviceList.toArray(new UsbDevice[0]);
-    }
-
-    private static void addDevicesToList(List<UsbDevice> deviceList, UsbDevice[] connectedDevices) {
-        for (UsbDevice device : connectedDevices) {
-            deviceList.add(device);
-            addDevicesToList(deviceList, device.getConnectedDevices());
-        }
     }
 
     private static UsbDevice[] getUsbDevices() {
@@ -93,13 +103,14 @@ public class LinuxUsbDevice extends AbstractUsbDevice {
 
         // Build a list of devices with no parent; these will be the roots
         List<String> usbControllers = new ArrayList<>();
-        // Empty out maps
-        nameMap.clear();
-        vendorMap.clear();
-        vendorIdMap.clear();
-        productIdMap.clear();
-        serialMap.clear();
-        hubMap.clear();
+
+        // Maps to store information using device node path as the key
+        Map<String, String> nameMap = new HashMap<>();
+        Map<String, String> vendorMap = new HashMap<>();
+        Map<String, String> vendorIdMap = new HashMap<>();
+        Map<String, String> productIdMap = new HashMap<>();
+        Map<String, String> serialMap = new HashMap<>();
+        Map<String, List<String>> hubMap = new HashMap<>();
 
         // For each item enumerated, store information in the maps
         for (UdevListEntry dev_list_entry = devices; dev_list_entry != null; dev_list_entry = Udev.INSTANCE
@@ -153,9 +164,17 @@ public class LinuxUsbDevice extends AbstractUsbDevice {
         // Build tree and return
         List<UsbDevice> controllerDevices = new ArrayList<>();
         for (String controller : usbControllers) {
-            controllerDevices.add(getDeviceAndChildren(controller, "0000", "0000"));
+            controllerDevices.add(getDeviceAndChildren(controller, "0000", "0000", nameMap, vendorMap, vendorIdMap,
+                    productIdMap, serialMap, hubMap));
         }
         return controllerDevices.toArray(new UsbDevice[0]);
+    }
+
+    private static void addDevicesToList(List<UsbDevice> deviceList, UsbDevice[] connectedDevices) {
+        for (UsbDevice device : connectedDevices) {
+            deviceList.add(device);
+            addDevicesToList(deviceList, device.getConnectedDevices());
+        }
     }
 
     /**
@@ -168,19 +187,28 @@ public class LinuxUsbDevice extends AbstractUsbDevice {
      *            The default (parent) vendor ID
      * @param pid
      *            The default (parent) product ID
+     * @param nameMap
+     * @param vendorMap
+     * @param vendorIdMap
+     * @param productIdMap
+     * @param serialMap
+     * @param hubMap
      * @return A LinuxUsbDevice corresponding to this device
      */
-    private static LinuxUsbDevice getDeviceAndChildren(String devPath, String vid, String pid) {
+    private static LinuxUsbDevice getDeviceAndChildren(String devPath, String vid, String pid,
+            Map<String, String> nameMap, Map<String, String> vendorMap, Map<String, String> vendorIdMap,
+            Map<String, String> productIdMap, Map<String, String> serialMap, Map<String, List<String>> hubMap) {
         String vendorId = vendorIdMap.getOrDefault(devPath, vid);
         String productId = productIdMap.getOrDefault(devPath, pid);
         List<String> childPaths = hubMap.getOrDefault(devPath, new ArrayList<String>());
         List<LinuxUsbDevice> usbDevices = new ArrayList<>();
         for (String path : childPaths) {
-            usbDevices.add(getDeviceAndChildren(path, vendorId, productId));
+            usbDevices.add(getDeviceAndChildren(path, vendorId, productId, nameMap, vendorMap, vendorIdMap,
+                    productIdMap, serialMap, hubMap));
         }
         Collections.sort(usbDevices);
         return new LinuxUsbDevice(nameMap.getOrDefault(devPath, vendorId + ":" + productId),
-                vendorMap.getOrDefault(devPath, ""), vendorId, productId, serialMap.getOrDefault(devPath, ""),
+                vendorMap.getOrDefault(devPath, ""), vendorId, productId, serialMap.getOrDefault(devPath, ""), devPath,
                 usbDevices.toArray(new UsbDevice[usbDevices.size()]));
     }
 }

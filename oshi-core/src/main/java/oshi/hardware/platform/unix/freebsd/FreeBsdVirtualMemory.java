@@ -1,8 +1,7 @@
 /**
- * OSHI (https://github.com/oshi/oshi)
+ * MIT License
  *
- * Copyright (c) 2010 - 2019 The OSHI Project Team:
- * https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -10,8 +9,9 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,68 +23,67 @@
  */
 package oshi.hardware.platform.unix.freebsd;
 
+import static oshi.util.Memoizer.defaultExpiration;
+import static oshi.util.Memoizer.memoize;
+
+import java.util.function.Supplier;
+
 import oshi.hardware.common.AbstractVirtualMemory;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
 
 /**
- * Memory obtained by sysctl vm.stats
+ * Memory obtained by swapinfo
  */
 public class FreeBsdVirtualMemory extends AbstractVirtualMemory {
 
-    private static final long serialVersionUID = 1L;
+    private final Supplier<Long> used = memoize(FreeBsdVirtualMemory::querySwapUsed, defaultExpiration());
 
-    /**
-     * {@inheritDoc}
-     */
+    private final Supplier<Long> total = memoize(FreeBsdVirtualMemory::querySwapTotal, defaultExpiration());
+
+    private final Supplier<Long> pagesIn = memoize(FreeBsdVirtualMemory::queryPagesIn, defaultExpiration());
+
+    private final Supplier<Long> pagesOut = memoize(FreeBsdVirtualMemory::queryPagesOut, defaultExpiration());
+
     @Override
     public long getSwapUsed() {
-        if (this.swapUsed < 0) {
-            updateSwapUsage();
-        }
-        return this.swapUsed;
+        return used.get();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public long getSwapTotal() {
-        if (this.swapTotal < 0) {
-            this.swapTotal = BsdSysctlUtil.sysctl("vm.swap_total", 0L);
-        }
-        return this.swapTotal;
+        return total.get();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public long getSwapPagesIn() {
-        if (this.swapPagesIn < 0) {
-            this.swapPagesIn = BsdSysctlUtil.sysctl("vm.stats.vm.v_swappgsin", 0L);
-        }
-        return this.swapPagesIn;
+        return pagesIn.get();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public long getSwapPagesOut() {
-        if (this.swapPagesOut < 0) {
-            this.swapPagesOut = BsdSysctlUtil.sysctl("vm.stats.vm.v_swappgsout", 0L);
-        }
-        return this.swapPagesOut;
+        return pagesOut.get();
     }
 
-    private void updateSwapUsage() {
+    private static long querySwapUsed() {
         String swapInfo = ExecutingCommand.getAnswerAt("swapinfo -k", 1);
         String[] split = ParseUtil.whitespaces.split(swapInfo);
         if (split.length < 5) {
-            return;
+            return 0L;
         }
-        this.swapUsed = ParseUtil.parseLongOrDefault(split[2], 0L) << 10;
+        return ParseUtil.parseLongOrDefault(split[2], 0L) << 10;
+    }
+
+    private static long querySwapTotal() {
+        return BsdSysctlUtil.sysctl("vm.swap_total", 0L);
+    }
+
+    private static long queryPagesIn() {
+        return BsdSysctlUtil.sysctl("vm.stats.vm.v_swappgsin", 0L);
+    }
+
+    private static long queryPagesOut() {
+        return BsdSysctlUtil.sysctl("vm.stats.vm.v_swappgsout", 0L);
     }
 }

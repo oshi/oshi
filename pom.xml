@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    OSHI (https://github.com/oshi/oshi)
+    MIT License
 
-    Copyright (c) 2010 - 2019 The OSHI Project Team:
-    https://github.com/oshi/oshi/graphs/contributors
+    Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal
@@ -12,8 +11,9 @@
     to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
     copies of the Software, and to permit persons to whom the Software is
     furnished to do so, subject to the following conditions:
-    The above copyright notice and this permission notice shall be included in
-    all copies or substantial portions of the Software.
+
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
 
     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
     IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -24,14 +24,12 @@
     SOFTWARE.
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.github.oshi</groupId>
 	<artifactId>oshi-parent</artifactId>
-	<version>4.0.0-SNAPSHOT</version>
+	<version>4.6.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>Operating System and Hardware Information</name>
@@ -52,12 +50,14 @@
 
 	<developers>
 		<developer>
+			<id>dblock</id>
 			<name>Daniel Doubrovkine</name>
 			<email>dblock@dblock.org</email>
 			<organization>dblock.org</organization>
 			<organizationUrl>http://code.dblock.org/</organizationUrl>
 		</developer>
 		<developer>
+			<id>dbwiddis</id>
 			<name>Daniel Widdis</name>
 			<email>widdis@gmail.com</email>
 			<organization>sometegroup.com</organization>
@@ -120,47 +120,47 @@
 		<!-- Base directory, overwrite in submodules -->
 		<main.basedir>${project.basedir}</main.basedir>
 		<!-- Dependency versions -->
-		<slf4j.version>1.7.26</slf4j.version>
-		<junit-vintage-engine.version>5.4.2</junit-vintage-engine.version>
+		<slf4j.version>1.7.30</slf4j.version>
+		<junit-vintage-engine.version>5.6.0</junit-vintage-engine.version>
 		<!-- Compile versions -->
 		<maven-clean-plugin.version>3.1.0</maven-clean-plugin.version>
 		<maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
 		<maven-deploy-plugin.version>3.0.0-M1</maven-deploy-plugin.version>
-		<maven-enforcer-plugin.version>3.0.0-M2</maven-enforcer-plugin.version>
+		<maven-enforcer-plugin.version>3.0.0-M3</maven-enforcer-plugin.version>
 		<maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
 		<maven-install-plugin.version>3.0.0-M1</maven-install-plugin.version>
 		<maven-resources-plugin.version>3.1.0</maven-resources-plugin.version>
-		<maven-site-plugin.version>3.7.1</maven-site-plugin.version>
-		<maven-surefire-plugin.version>3.0.0-M3</maven-surefire-plugin.version>
+		<maven-site-plugin.version>3.9.0</maven-site-plugin.version>
+		<maven-surefire-plugin.version>3.0.0-M4</maven-surefire-plugin.version>
 		<!-- maven-site-plugin dependencies -->
-		<doxia-module-markdown.version>1.8</doxia-module-markdown.version>
+		<doxia-module-markdown.version>1.9.1</doxia-module-markdown.version>
 		<wagon-git.version>2.0.3</wagon-git.version><!-- https://github.com/trajano/wagon-git/issues/18 -->
-		<wagon-ssh.version>3.3.2</wagon-ssh.version>
-		<maven-fluido-skin.version>1.7</maven-fluido-skin.version>
+		<wagon-ssh.version>3.3.4</wagon-ssh.version>
+		<maven-fluido-skin.version>1.8</maven-fluido-skin.version>
 		<!-- build plugins -->
-		<git-commit-id-plugin.version>3.0.0</git-commit-id-plugin.version>
-		<build-helper-maven-plugin.version>3.0.0</build-helper-maven-plugin.version>
-		<maven-jar-plugin.version>3.1.2</maven-jar-plugin.version>
+		<git-commit-id-plugin.version>4.0.0</git-commit-id-plugin.version>
+		<build-helper-maven-plugin.version>3.1.0</build-helper-maven-plugin.version>
+		<maven-jar-plugin.version>3.2.0</maven-jar-plugin.version>
 		<maven-war-plugin.version>3.2.3</maven-war-plugin.version>
-		<bnd-maven-plugin.version>4.2.0</bnd-maven-plugin.version>
-		<maven-shade-plugin.version>3.2.1</maven-shade-plugin.version>
+		<bnd-maven-plugin.version>5.0.0</bnd-maven-plugin.version>
+		<maven-shade-plugin.version>3.2.2</maven-shade-plugin.version>
 		<!-- reporting plugins -->
-		<maven-checkstyle-plugin.version>3.1.0</maven-checkstyle-plugin.version>
-		<maven-javadoc-plugin.version>3.1.0</maven-javadoc-plugin.version>
-		<maven-pmd-plugin.version>3.12.0</maven-pmd-plugin.version>
+		<maven-checkstyle-plugin.version>3.1.1</maven-checkstyle-plugin.version>
+		<maven-javadoc-plugin.version>3.1.1</maven-javadoc-plugin.version>
+		<maven-pmd-plugin.version>3.13.0</maven-pmd-plugin.version>
 		<!-- tools -->
 		<maven-antrun-plugin.version>1.8</maven-antrun-plugin.version>
-		<maven-assembly-plugin.version>3.1.1</maven-assembly-plugin.version>
-		<maven-dependency-plugin.version>3.1.1</maven-dependency-plugin.version>
+		<maven-assembly-plugin.version>3.2.0</maven-assembly-plugin.version>
+		<maven-dependency-plugin.version>3.1.2</maven-dependency-plugin.version>
 		<maven-release-plugin.version>2.5.3</maven-release-plugin.version>
-		<maven-source-plugin.version>3.1.0</maven-source-plugin.version>
-		<spotbugs-maven-plugin.version>3.1.11</spotbugs-maven-plugin.version>
-		<jacoco-maven-plugin.version>0.8.4</jacoco-maven-plugin.version>
+		<maven-source-plugin.version>3.2.1</maven-source-plugin.version>
+		<spotbugs-maven-plugin.version>4.0.0</spotbugs-maven-plugin.version>
+		<jacoco-maven-plugin.version>0.8.5</jacoco-maven-plugin.version>
 		<coveralls-maven-plugin.version>4.3.0</coveralls-maven-plugin.version>
+		<jaxb-api.version>2.3.1</jaxb-api.version>
 		<tidy-maven-plugin.version>1.1.0</tidy-maven-plugin.version>
 		<license-maven-plugin.version>3.0</license-maven-plugin.version>
 		<!-- report only -->
-		<jdepend-maven-plugin.version>2.0</jdepend-maven-plugin.version>
 		<maven-changelog-plugin.version>2.3</maven-changelog-plugin.version>
 		<maven-jxr-plugin.version>3.0.0</maven-jxr-plugin.version>
 		<maven-project-info-reports-plugin.version>3.0.0</maven-project-info-reports-plugin.version>
@@ -170,16 +170,13 @@
 		<!-- SCM -->
 		<maven-scm-plugin.version>1.11.2</maven-scm-plugin.version>
 		<maven-scm-provider-jgit.version>1.11.2</maven-scm-provider-jgit.version>
-		<JavaEWAH.version>1.1.6</JavaEWAH.version>
-		<jsch.version>0.1.55</jsch.version>
-		<jgit.version>5.3.1.201904271842-r</jgit.version>
-		<plexus-utils.version>3.2.0</plexus-utils.version>
+		<jgit.version>5.7.0.202003110725-r</jgit.version>
 		<!-- Misc. -->
-		<sonar-maven-plugin.version>3.6.0.1398</sonar-maven-plugin.version>
+		<sonar-maven-plugin.version>3.7.0.1746</sonar-maven-plugin.version>
 		<wagon-maven-plugin.version>2.0.0</wagon-maven-plugin.version>
 		<animal-sniffer-maven-plugin.version>1.18</animal-sniffer-maven-plugin.version>
-		<dependency-check-maven.version>4.0.2</dependency-check-maven.version>
-		<puppycrawl.checkstyle.version>8.21</puppycrawl.checkstyle.version>
+		<dependency-check-maven.version>5.3.1</dependency-check-maven.version>
+		<puppycrawl.checkstyle.version>8.30</puppycrawl.checkstyle.version>
 		<m2e.lifecycle-mapping.version>1.0.0</m2e.lifecycle-mapping.version>
 	</properties>
 
@@ -281,6 +278,7 @@
 						<forkCount>3</forkCount>
 						<reuseForks>true</reuseForks>
 						<argLine>-Xmx1024m -XX:MaxPermSize=256m</argLine>
+						<redirectTestOutputToFile>true</redirectTestOutputToFile>
 					</configuration>
 				</plugin>
 				<!-- Build Plugins -->
@@ -351,7 +349,6 @@
 					<configuration>
 						<bnd><![CDATA[
 						Export-Package: oshi.*;-noimport:=true;-split-package:=merge-first
-						Import-Package: com.sun.management.*;resolution:=optional, *
 						Bundle-SymbolicName: ${project.groupId}.${project.artifactId}
 						-snapshot: SNAPSHOT
 					]]></bnd>
@@ -463,15 +460,11 @@
 					<groupId>com.github.spotbugs</groupId>
 					<artifactId>spotbugs-maven-plugin</artifactId>
 					<version>${spotbugs-maven-plugin.version}</version>
-					<dependencies>
-						<!-- overwrite dependency on spotbugs if you want to specify the version 
-							of spotbugs -->
-						<dependency>
-							<groupId>com.github.spotbugs</groupId>
-							<artifactId>spotbugs</artifactId>
-							<version>${spotbugs-maven-plugin.version}</version>
-						</dependency>
-					</dependencies>
+					<configuration>
+						<effort>Max</effort>
+						<includeTests>true</includeTests>
+						<failOnError>false</failOnError>
+					</configuration>
 				</plugin>
 				<plugin>
 					<groupId>org.jacoco</groupId>
@@ -493,23 +486,19 @@
 					<artifactId>license-maven-plugin</artifactId>
 					<version>${license-maven-plugin.version}</version>
 					<configuration>
-						<header>${main.basedir}/LICENSE_HEADER</header>
+						<header>${main.basedir}/LICENSE.txt</header>
 						<excludes>
 							<exclude>**/*test.*.txt</exclude>
 							<exclude>**/maven-wrapper.properties</exclude>
 							<exclude>**/MavenWrapperDownloader.java</exclude>
 							<exclude>mvnw</exclude>
 							<exclude>mvnw.cmd</exclude>
-							<exclude>LICENSE_*</exclude>
+							<exclude>LICENSE.txt</exclude>
+							<exclude>**/OSHIJavaFormatConventions.xml</exclude>
 						</excludes>
 					</configuration>
 				</plugin>
 				<!-- Report Only -->
-				<plugin>
-					<groupId>org.codehaus.mojo</groupId>
-					<artifactId>jdepend-maven-plugin</artifactId>
-					<version>${jdepend-maven-plugin.version}</version>
-				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-changelog-plugin</artifactId>
@@ -547,29 +536,14 @@
 					<version>${maven-scm-plugin.version}</version>
 					<dependencies>
 						<dependency>
-							<groupId>org.apache.maven.scm</groupId>
-							<artifactId>maven-scm-provider-jgit</artifactId>
-							<version>${maven-scm-provider-jgit.version}</version>
-						</dependency>
-						<dependency>
-							<groupId>com.googlecode.javaewah</groupId>
-							<artifactId>JavaEWAH</artifactId>
-							<version>${JavaEWAH.version}</version>
-						</dependency>
-						<dependency>
-							<groupId>com.jcraft</groupId>
-							<artifactId>jsch</artifactId>
-							<version>${jsch.version}</version>
-						</dependency>
-						<dependency>
 							<groupId>org.eclipse.jgit</groupId>
 							<artifactId>org.eclipse.jgit</artifactId>
 							<version>${jgit.version}</version>
 						</dependency>
 						<dependency>
-							<groupId>org.codehaus.plexus</groupId>
-							<artifactId>plexus-utils</artifactId>
-							<version>${plexus-utils.version}</version>
+							<groupId>org.apache.maven.scm</groupId>
+							<artifactId>maven-scm-provider-jgit</artifactId>
+							<version>${maven-scm-provider-jgit.version}</version>
 						</dependency>
 					</dependencies>
 				</plugin>
@@ -611,11 +585,6 @@
 				<artifactId>git-commit-id-plugin</artifactId>
 				<configuration>
 					<dotGitDirectory>.git</dotGitDirectory>
-					<!-- Fixes occassional issue in commit id plugin - see https://github.com/ktoso/maven-git-commit-id-plugin/issues/61 -->
-					<gitDescribe>
-						<always>true</always>
-					</gitDescribe>
-					<runOnlyOnce>true</runOnlyOnce>
 				</configuration>
 				<executions>
 					<execution>
@@ -696,11 +665,6 @@
 						</goals>
 					</execution>
 				</executions>
-				<configuration>
-					<ignores>
-						<ignore>com.sun.management.OperatingSystemMXBean</ignore>
-					</ignores>
-				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>com.mycila</groupId>
@@ -739,6 +703,7 @@
 				</executions>
 				<configuration>
 					<excludes>
+						<exclude>**/driver/**</exclude>
 						<exclude>**/impl/**</exclude>
 						<exclude>**/common/**</exclude>
 						<exclude>**/Abstract*/**</exclude>
@@ -747,6 +712,7 @@
 						<exclude>**/mac/**</exclude>
 						<exclude>**/windows/**</exclude>
 						<exclude>**/unix/**</exclude>
+						<exclude>**/demo/**</exclude>
 					</excludes>
 				</configuration>
 			</plugin>
@@ -772,6 +738,13 @@
 			<plugin>
 				<groupId>org.eluder.coveralls</groupId>
 				<artifactId>coveralls-maven-plugin</artifactId>
+				<dependencies>
+					<dependency>
+						<groupId>javax.xml.bind</groupId>
+						<artifactId>jaxb-api</artifactId>
+						<version>${jaxb-api.version}</version>
+					</dependency>
+				</dependencies>
 			</plugin>
 			<!-- Checkstyle dependencies required here or they won't be used (per 
 				maven) -->
@@ -843,10 +816,6 @@
 				<artifactId>taglist-maven-plugin</artifactId>
 			</plugin>
 			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>jdepend-maven-plugin</artifactId>
-			</plugin>
-			<plugin>
 				<groupId>org.owasp</groupId>
 				<artifactId>dependency-check-maven</artifactId>
 				<reportSets>
@@ -897,6 +866,18 @@
 						</configuration>
 					</plugin>
 					<!-- External Tools -->
+					<plugin>
+						<groupId>com.github.spotbugs</groupId>
+						<artifactId>spotbugs-maven-plugin</artifactId>
+						<executions>
+							<execution>
+								<phase>verify</phase>
+								<goals>
+									<goal>check</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
 					<plugin>
 						<groupId>org.jacoco</groupId>
 						<artifactId>jacoco-maven-plugin</artifactId>

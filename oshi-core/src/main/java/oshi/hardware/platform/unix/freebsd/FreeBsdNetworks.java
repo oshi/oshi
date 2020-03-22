@@ -1,8 +1,7 @@
 /**
- * OSHI (https://github.com/oshi/oshi)
+ * MIT License
  *
- * Copyright (c) 2010 - 2019 The OSHI Project Team:
- * https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -10,8 +9,9 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -29,11 +29,11 @@ import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
 /**
- * @author widdis[at]gmail[dot]com
+ * <p>
+ * FreeBsdNetworks class.
+ * </p>
  */
 public class FreeBsdNetworks extends AbstractNetworks {
-
-    private static final long serialVersionUID = 1L;
 
     /**
      * Updates interface network statistics on the given interface. Statistics
@@ -41,14 +41,15 @@ public class FreeBsdNetworks extends AbstractNetworks {
      *
      * @param netIF
      *            The interface on which to update statistics
+     * @return {@code true} if the update was successful, {@code false} otherwise.
      */
-    public static void updateNetworkStats(NetworkIF netIF) {
+    public static boolean updateNetworkStats(NetworkIF netIF) {
         String stats = ExecutingCommand.getAnswerAt("netstat -bI " + netIF.getName(), 1);
         netIF.setTimeStamp(System.currentTimeMillis());
         String[] split = ParseUtil.whitespaces.split(stats);
         if (split.length < 12) {
             // No update
-            return;
+            return false;
         }
         netIF.setBytesSent(ParseUtil.parseUnsignedLongOrDefault(split[10], 0L));
         netIF.setBytesRecv(ParseUtil.parseUnsignedLongOrDefault(split[7], 0L));
@@ -56,5 +57,8 @@ public class FreeBsdNetworks extends AbstractNetworks {
         netIF.setPacketsRecv(ParseUtil.parseUnsignedLongOrDefault(split[4], 0L));
         netIF.setOutErrors(ParseUtil.parseUnsignedLongOrDefault(split[9], 0L));
         netIF.setInErrors(ParseUtil.parseUnsignedLongOrDefault(split[5], 0L));
+        netIF.setCollisions(ParseUtil.parseUnsignedLongOrDefault(split[11], 0L));
+        netIF.setInDrops(ParseUtil.parseUnsignedLongOrDefault(split[6], 0L));
+        return true;
     }
 }

@@ -1,8 +1,7 @@
 /**
- * OSHI (https://github.com/oshi/oshi)
+ * MIT License
  *
- * Copyright (c) 2010 - 2019 The OSHI Project Team:
- * https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -10,8 +9,9 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -32,14 +32,13 @@ import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import com.sun.jna.ptr.IntByReference;
 
-import oshi.jna.platform.unix.freebsd.Libc;
+import oshi.jna.platform.unix.freebsd.FreeBsdLibc;
 
 /**
  * Provides access to sysctl calls on FreeBSD
- *
- * @author widdis[at]gmail[dot]com
  */
-public class BsdSysctlUtil {
+public final class BsdSysctlUtil {
+
     private static final Logger LOG = LoggerFactory.getLogger(BsdSysctlUtil.class);
 
     private static final String SYSCTL_FAIL = "Failed syctl call: {}, Error code: {}";
@@ -57,9 +56,9 @@ public class BsdSysctlUtil {
      * @return The int result of the call if successful; the default otherwise
      */
     public static int sysctl(String name, int def) {
-        IntByReference size = new IntByReference(Libc.INT_SIZE);
+        IntByReference size = new IntByReference(FreeBsdLibc.INT_SIZE);
         Pointer p = new Memory(size.getValue());
-        if (0 != Libc.INSTANCE.sysctlbyname(name, p, size, null, 0)) {
+        if (0 != FreeBsdLibc.INSTANCE.sysctlbyname(name, p, size, null, 0)) {
             LOG.error("Failed sysctl call: {}, Error code: {}", name, Native.getLastError());
             return def;
         }
@@ -76,10 +75,10 @@ public class BsdSysctlUtil {
      * @return The long result of the call if successful; the default otherwise
      */
     public static long sysctl(String name, long def) {
-        IntByReference size = new IntByReference(Libc.UINT64_SIZE);
+        IntByReference size = new IntByReference(FreeBsdLibc.UINT64_SIZE);
         Pointer p = new Memory(size.getValue());
-        if (0 != Libc.INSTANCE.sysctlbyname(name, p, size, null, 0)) {
-            LOG.error(SYSCTL_FAIL, name, Native.getLastError());
+        if (0 != FreeBsdLibc.INSTANCE.sysctlbyname(name, p, size, null, 0)) {
+            LOG.warn(SYSCTL_FAIL, name, Native.getLastError());
             return def;
         }
         return p.getLong(0);
@@ -92,20 +91,19 @@ public class BsdSysctlUtil {
      *            name of the sysctl
      * @param def
      *            default String value
-     * @return The String result of the call if successful; the default
-     *         otherwise
+     * @return The String result of the call if successful; the default otherwise
      */
     public static String sysctl(String name, String def) {
         // Call first time with null pointer to get value of size
         IntByReference size = new IntByReference();
-        if (0 != Libc.INSTANCE.sysctlbyname(name, null, size, null, 0)) {
-            LOG.error(SYSCTL_FAIL, name, Native.getLastError());
+        if (0 != FreeBsdLibc.INSTANCE.sysctlbyname(name, null, size, null, 0)) {
+            LOG.warn(SYSCTL_FAIL, name, Native.getLastError());
             return def;
         }
         // Add 1 to size for null terminated string
         Pointer p = new Memory(size.getValue() + 1);
-        if (0 != Libc.INSTANCE.sysctlbyname(name, p, size, null, 0)) {
-            LOG.error(SYSCTL_FAIL, name, Native.getLastError());
+        if (0 != FreeBsdLibc.INSTANCE.sysctlbyname(name, p, size, null, 0)) {
+            LOG.warn(SYSCTL_FAIL, name, Native.getLastError());
             return def;
         }
         return p.getString(0);
@@ -121,7 +119,8 @@ public class BsdSysctlUtil {
      * @return True if structure is successfuly populated, false otherwise
      */
     public static boolean sysctl(String name, Structure struct) {
-        if (0 != Libc.INSTANCE.sysctlbyname(name, struct.getPointer(), new IntByReference(struct.size()), null, 0)) {
+        if (0 != FreeBsdLibc.INSTANCE.sysctlbyname(name, struct.getPointer(), new IntByReference(struct.size()), null,
+                0)) {
             LOG.error(SYSCTL_FAIL, name, Native.getLastError());
             return false;
         }

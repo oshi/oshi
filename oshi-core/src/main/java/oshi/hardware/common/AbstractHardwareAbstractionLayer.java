@@ -1,8 +1,7 @@
 /**
- * OSHI (https://github.com/oshi/oshi)
+ * MIT License
  *
- * Copyright (c) 2010 - 2019 The OSHI Project Team:
- * https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -10,8 +9,9 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,11 +23,14 @@
  */
 package oshi.hardware.common;
 
+import java.util.function.Supplier;
+
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.ComputerSystem;
 import oshi.hardware.GlobalMemory;
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.Sensors;
+import static oshi.util.Memoizer.memoize;
 
 /**
  * Common fields or methods used by platform-specific implementations of
@@ -35,14 +38,59 @@ import oshi.hardware.Sensors;
  */
 public abstract class AbstractHardwareAbstractionLayer implements HardwareAbstractionLayer {
 
-    private static final long serialVersionUID = 1L;
+    private final Supplier<ComputerSystem> computerSystem = memoize(this::createComputerSystem);
 
-    protected ComputerSystem computerSystem;
+    private final Supplier<CentralProcessor> processor = memoize(this::createProcessor);
 
-    protected CentralProcessor processor;
+    private final Supplier<GlobalMemory> memory = memoize(this::createMemory);
 
-    protected GlobalMemory memory;
+    private final Supplier<Sensors> sensors = memoize(this::createSensors);
 
-    protected Sensors sensors;
+    @Override
+    public ComputerSystem getComputerSystem() {
+        return computerSystem.get();
+    }
 
+    /**
+     * Instantiates the platform-specific {@link ComputerSystem} object
+     * 
+     * @return platform-specific {@link ComputerSystem} object
+     */
+    protected abstract ComputerSystem createComputerSystem();
+
+    @Override
+    public CentralProcessor getProcessor() {
+        return processor.get();
+    }
+
+    /**
+     * Instantiates the platform-specific {@link CentralProcessor} object
+     * 
+     * @return platform-specific {@link CentralProcessor} object
+     */
+    protected abstract CentralProcessor createProcessor();
+
+    @Override
+    public GlobalMemory getMemory() {
+        return memory.get();
+    }
+
+    /**
+     * Instantiates the platform-specific {@link GlobalMemory} object
+     * 
+     * @return platform-specific {@link GlobalMemory} object
+     */
+    protected abstract GlobalMemory createMemory();
+
+    @Override
+    public Sensors getSensors() {
+        return sensors.get();
+    }
+
+    /**
+     * Instantiates the platform-specific {@link Sensors} object
+     * 
+     * @return platform-specific {@link Sensors} object
+     */
+    protected abstract Sensors createSensors();
 }

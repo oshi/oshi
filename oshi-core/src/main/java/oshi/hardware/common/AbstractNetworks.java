@@ -1,8 +1,7 @@
 /**
- * OSHI (https://github.com/oshi/oshi)
+ * MIT License
  *
- * Copyright (c) 2010 - 2019 The OSHI Project Team:
- * https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -10,8 +9,9 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -26,7 +26,6 @@ package oshi.hardware.common;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 
@@ -38,43 +37,53 @@ import oshi.hardware.Networks;
 
 /**
  * Network interfaces implementation.
- *
- * @author enrico[dot]bianchi[at]gmail[dot]com
  */
 public abstract class AbstractNetworks implements Networks {
 
-    private static final long serialVersionUID = 1L;
-
     private static final Logger LOG = LoggerFactory.getLogger(AbstractNetworks.class);
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public NetworkIF[] getNetworks() {
         List<NetworkIF> result = new ArrayList<>();
-        Enumeration<NetworkInterface> interfaces;
 
-        try {
-            interfaces = NetworkInterface.getNetworkInterfaces();
-        } catch (SocketException ex) {
-            LOG.error("Socket exception when retrieving interfaces: {}", ex);
-            return new NetworkIF[0];
-        }
-
-        for (NetworkInterface netint : Collections.list(interfaces)) {
-            try {
-                if (!netint.isLoopback() && netint.getHardwareAddress() != null) {
-                    NetworkIF netIF = new NetworkIF();
-                    netIF.setNetworkInterface(netint);
-                    netIF.updateAttributes();
-                    result.add(netIF);
-                }
-            } catch (SocketException ex) {
-                LOG.error("Socket exception when retrieving interface \"{}\": {}", netint.getName(), ex);
-            }
+        for (NetworkInterface netint : getNetworkInterfaces()) {
+            NetworkIF netIF = new NetworkIF();
+            netIF.setNetworkInterface(netint);
+            netIF.updateAttributes();
+            result.add(netIF);
         }
 
         return result.toArray(new NetworkIF[0]);
+    }
+
+    /**
+     * Returns network interfaces that are not Loopback, and have a hardware
+     * address.
+     *
+     * @return An array of network interfaces
+     */
+    protected NetworkInterface[] getNetworkInterfaces() {
+        List<NetworkInterface> result = new ArrayList<>();
+        Enumeration<NetworkInterface> interfaces = null;
+
+        try {
+            interfaces = NetworkInterface.getNetworkInterfaces(); // can return null
+        } catch (SocketException ex) {
+            LOG.error("Socket exception when retrieving interfaces: {}", ex.getMessage());
+        }
+        if (interfaces != null) {
+            while (interfaces.hasMoreElements()) {
+                NetworkInterface netint = interfaces.nextElement();
+                try {
+                    if (!netint.isLoopback() && netint.getHardwareAddress() != null) {
+                        result.add(netint);
+                    }
+                } catch (SocketException ex) {
+                    LOG.error("Socket exception when retrieving interface \"{}\": {}", netint.getName(),
+                            ex.getMessage());
+                }
+            }
+        }
+        return result.toArray(new NetworkInterface[0]);
     }
 }

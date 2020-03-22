@@ -1,8 +1,7 @@
 /**
- * OSHI (https://github.com/oshi/oshi)
+ * MIT License
  *
- * Copyright (c) 2010 - 2019 The OSHI Project Team:
- * https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -10,8 +9,9 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,76 +23,58 @@
  */
 package oshi.hardware.platform.unix.freebsd;
 
+import static oshi.util.Memoizer.memoize;
+
+import java.util.function.Supplier;
+
 import oshi.hardware.Baseboard;
 import oshi.hardware.Firmware;
 import oshi.hardware.common.AbstractComputerSystem;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
+import oshi.util.Util;
+import oshi.util.tuples.Quartet;
 
 /**
  * Hardware data obtained from dmidecode.
  */
 final class FreeBsdComputerSystem extends AbstractComputerSystem {
 
-    private static final long serialVersionUID = 1L;
+    private final Supplier<Quartet<String, String, String, String>> manufModelSerialVers = memoize(
+            FreeBsdComputerSystem::readDmiDecode);
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public String getManufacturer() {
-        if (this.manufacturer == null) {
-            readDmiDecode();
-        }
-        return this.manufacturer;
+        return manufModelSerialVers.get().getA();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public String getModel() {
-        if (this.model == null) {
-            readDmiDecode();
-        }
-        return this.model;
+        return manufModelSerialVers.get().getB();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public String getSerialNumber() {
-        if (this.serialNumber == null) {
-            readDmiDecode();
-        }
-        return this.serialNumber;
+        return manufModelSerialVers.get().getC();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public Firmware getFirmware() {
-        if (this.firmware == null) {
-            this.firmware = new FreeBsdFirmware();
-        }
-        return this.firmware;
+    public Firmware createFirmware() {
+        return new FreeBsdFirmware();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public Baseboard getBaseboard() {
-        if (this.baseboard == null) {
-            this.baseboard = new FreeBsdBaseboard();
-        }
-        return this.baseboard;
+    public Baseboard createBaseboard() {
+        return new FreeBsdBaseboard(manufModelSerialVers.get().getA(), manufModelSerialVers.get().getB(),
+                manufModelSerialVers.get().getC(), manufModelSerialVers.get().getD());
     }
 
-    private void readDmiDecode() {
+    private static Quartet<String, String, String, String> readDmiDecode() {
+        String manufacturer = null;
+        String model = null;
+        String serialNumber = null;
+        String version = null;
 
         // $ sudo dmidecode -t system
         // # dmidecode 3.0
@@ -118,33 +100,31 @@ final class FreeBsdComputerSystem extends AbstractComputerSystem {
         final String manufacturerMarker = "Manufacturer:";
         final String productNameMarker = "Product Name:";
         final String serialNumMarker = "Serial Number:";
+        final String versionMarker = "Version:";
 
         // Only works with root permissions but it's all we've got
         for (final String checkLine : ExecutingCommand.runNative("dmidecode -t system")) {
             if (checkLine.contains(manufacturerMarker)) {
-                String manufacturer = checkLine.split(manufacturerMarker)[1].trim();
-                if (!manufacturer.isEmpty()) {
-                    this.manufacturer = manufacturer;
-                }
-            }
-            if (checkLine.contains(productNameMarker)) {
-                String productName = checkLine.split(productNameMarker)[1].trim();
-                if (!productName.isEmpty()) {
-                    this.model = productName;
-                }
-            }
-            if (checkLine.contains(serialNumMarker)) {
-                String serialNumber = checkLine.split(serialNumMarker)[1].trim();
-                this.serialNumber = serialNumber;
+                manufacturer = checkLine.split(manufacturerMarker)[1].trim();
+            } else if (checkLine.contains(productNameMarker)) {
+                model = checkLine.split(productNameMarker)[1].trim();
+            } else if (checkLine.contains(serialNumMarker)) {
+                serialNumber = checkLine.split(serialNumMarker)[1].trim();
+            } else if (checkLine.contains(versionMarker)) {
+                version = checkLine.split(versionMarker)[1].trim();
             }
         }
-
-        if (this.serialNumber == null || serialNumber.isEmpty()) {
-            this.serialNumber = getSystemSerialNumber();
+        // If we get to end and haven't assigned, use fallback
+        if (Util.isBlank(serialNumber)) {
+            serialNumber = querySystemSerialNumber();
         }
+        return new Quartet<>(Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer,
+                Util.isBlank(model) ? Constants.UNKNOWN : model,
+                Util.isBlank(serialNumber) ? Constants.UNKNOWN : serialNumber,
+                Util.isBlank(version) ? Constants.UNKNOWN : version);
     }
 
-    private String getSystemSerialNumber() {
+    private static String querySystemSerialNumber() {
         String marker = "system.hardware.serial =";
         for (String checkLine : ExecutingCommand.runNative("lshal")) {
             if (checkLine.contains(marker)) {

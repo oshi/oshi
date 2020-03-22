@@ -1,8 +1,7 @@
 /**
- * OSHI (https://github.com/oshi/oshi)
+ * MIT License
  *
- * Copyright (c) 2010 - 2019 The OSHI Project Team:
- * https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -10,8 +9,9 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,31 +23,37 @@
  */
 package oshi.software.common;
 
+import static oshi.util.Memoizer.memoize;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.Supplier;
+
+import com.sun.jna.Platform; // NOSONAR squid:S1191
 
 import oshi.software.os.OSProcess;
+import oshi.software.os.OSService;
 import oshi.software.os.OperatingSystem;
 import oshi.software.os.OperatingSystemVersion;
 
+@SuppressWarnings("deprecation")
 public abstract class AbstractOperatingSystem implements OperatingSystem {
 
-    private static final long serialVersionUID = 1L;
+    private final Supplier<String> manufacturer = memoize(this::queryManufacturer);
+    private final Supplier<FamilyVersionInfo> familyVersionInfo = memoize(this::queryFamilyVersionInfo);
+    private final Supplier<Integer> bitness = memoize(this::queryPlatformBitness);
+    // Test if sudo or admin privileges: 1 = unknown, 0 = no, 1 = yes
+    private final Supplier<Boolean> elevated = memoize(this::queryElevated);
 
-    protected String manufacturer;
-    protected String family;
     protected OperatingSystemVersion version;
-    // Initialize based on JVM Bitness. Individual OS implementations will test
-    // if 32-bit JVM running on 64-bit OS
-    protected int bitness = System.getProperty("os.arch").indexOf("64") != -1 ? 64 : 32;
 
     /*
      * Comparators for use in processSort().
      */
     private static final Comparator<OSProcess> CPU_DESC_SORT = Comparator
-            .comparingDouble(OSProcess::calculateCpuPercent).reversed();
+            .comparingDouble(OSProcess::getProcessCpuLoadCumulative).reversed();
 
     private static final Comparator<OSProcess> RSS_DESC_SORT = Comparator.comparingLong(OSProcess::getResidentSetSize)
             .reversed();
@@ -64,43 +70,79 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
     private static final Comparator<OSProcess> NAME_ASC_SORT = Comparator.comparing(OSProcess::getName,
             String.CASE_INSENSITIVE_ORDER);
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
+    public String getManufacturer() {
+        return manufacturer.get();
+    }
+
+    protected abstract String queryManufacturer();
+
+    @Override
+    public String getFamily() {
+        return familyVersionInfo.get().family;
+    }
+
+    @Override
+    public OSVersionInfo getVersionInfo() {
+        return familyVersionInfo.get().versionInfo;
+    }
+
+    protected abstract FamilyVersionInfo queryFamilyVersionInfo();
+
     @Override
     public OperatingSystemVersion getVersion() {
         return this.version;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public String getFamily() {
-        return this.family;
+    public int getBitness() {
+        return bitness.get();
+    }
+
+    private int queryPlatformBitness() {
+        if (Platform.is64Bit()) {
+            return 64;
+        }
+        // Initialize based on JVM Bitness. Individual OS implementations will test
+        // if 32-bit JVM running on 64-bit OS
+        int jvmBitness = System.getProperty("os.arch").indexOf("64") != -1 ? 64 : 32;
+        return queryBitness(jvmBitness);
     }
 
     /**
-     * {@inheritDoc}
+     * Backup OS-specific query to determine bitness if previous checks fail
+     *
+     * @param jvmBitness
+     *            The bitness of the JVM
+     * @return The operating system bitness
      */
+    protected abstract int queryBitness(int jvmBitness);
+
     @Override
-    public String getManufacturer() {
-        return this.manufacturer;
+    public boolean isElevated() {
+        return elevated.get();
     }
 
+    @Override
+    public OSService[] getServices() {
+        return new OSService[0];
+    }
+
+    protected abstract boolean queryElevated();
+
     /**
-     * Sorts an array of processes using the specified sorting, returning an
-     * array with the top limit results if positive.
+     * Sorts an array of processes using the specified sorting, returning an array
+     * with the top limit results if positive.
      *
      * @param processes
      *            The array to sort
      * @param limit
-     *            The number of results to return if positive; if zero returns
-     *            all results
+     *            The number of results to return if positive; if zero returns all
+     *            results
      * @param sort
      *            The sorting to use, or null
-     * @return An array of size limit (if positive) or of all processes, sorted
-     *         as specified
+     * @return An array of size limit (if positive) or of all processes, sorted as
+     *         specified
      */
     protected List<OSProcess> processSort(List<OSProcess> processes, int limit, ProcessSort sort) {
         if (sort != null) {
@@ -148,28 +190,25 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
     }
 
     @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getManufacturer()).append(' ').append(getFamily()).append(' ').append(getVersion().toString());
-        return sb.toString();
+    public OSProcess[] getProcesses() {
+        return getProcesses(0, null, false);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public OSProcess[] getProcesses(int limit, ProcessSort sort) {
         return getProcesses(limit, sort, false);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public List<OSProcess> getProcesses(Collection<Integer> pids) {
+        return getProcesses(pids, true);
+    }
+
+    @Override
+    public List<OSProcess> getProcesses(Collection<Integer> pids, boolean slowFields) {
         List<OSProcess> returnValue = new ArrayList<>(pids.size());
         for (Integer pid : pids) {
-            OSProcess process = getProcess(pid);
+            OSProcess process = getProcess(pid, slowFields);
             if (process != null) {
                 returnValue.add(process);
             }
@@ -177,11 +216,25 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
         return returnValue;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public int getBitness() {
-        return this.bitness;
+    public OSProcess getProcess(int pid) {
+        return getProcess(pid, true);
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(getManufacturer()).append(' ').append(getFamily()).append(' ').append(getVersion().toString());
+        return sb.toString();
+    }
+
+    protected static final class FamilyVersionInfo {
+        private final String family;
+        private final OSVersionInfo versionInfo;
+
+        public FamilyVersionInfo(String family, OSVersionInfo versionInfo) {
+            this.family = family;
+            this.versionInfo = versionInfo;
+        }
     }
 }

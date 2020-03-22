@@ -1,8 +1,7 @@
 /**
- * OSHI (https://github.com/oshi/oshi)
+ * MIT License
  *
- * Copyright (c) 2010 - 2019 The OSHI Project Team:
- * https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -10,8 +9,9 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -52,10 +52,18 @@ public class DetectVM {
         vmMacAddressOUI.put("02:42:AC", "Docker Container");
     }
 
-    private static final String[] vmModelArray = new String[] {"Linux KVM", "Linux lguest", "OpenVZ", "Qemu",
+    private static final String[] vmModelArray = new String[] { "Linux KVM", "Linux lguest", "OpenVZ", "Qemu",
             "Microsoft Virtual PC", "VMWare", "linux-vserver", "Xen", "FreeBSD Jail", "VirtualBox", "Parallels",
-            "Linux Containers", "LXC"};
+            "Linux Containers", "LXC" };
 
+    /**
+     * <p>
+     * main.
+     * </p>
+     *
+     * @param args
+     *            an array of {@link java.lang.String} objects.
+     */
     public static void main(String[] args) {
         String vmString = identifyVM();
 
@@ -67,11 +75,11 @@ public class DetectVM {
     }
 
     /**
-     * The function attempts to identify which Virtual Machine (VM) based on
-     * common VM signatures in MAC address and computer model.
+     * The function attempts to identify which Virtual Machine (VM) based on common
+     * VM signatures in MAC address and computer model.
      *
-     * @return A string indicating the machine's virtualization info if it can
-     * be determined, or an emptry string otherwise.
+     * @return A string indicating the machine's virtualization info if it can be
+     *         determined, or an emptry string otherwise.
      */
     public static String identifyVM() {
 
@@ -84,7 +92,7 @@ public class DetectVM {
         for (NetworkIF nif : nifs) {
             String mac = nif.getMacaddr().toUpperCase();
             String oui = findOuiByMacAddressIfPossible(mac);
-            if (oui != null) {
+            if (oui != null && !oui.isEmpty()) {
                 return oui;
             }
         }
@@ -105,10 +113,17 @@ public class DetectVM {
         return "";
     }
 
+    /**
+     * <p>
+     * findOuiByMacAddressIfPossible.
+     * </p>
+     *
+     * @param mac
+     *            a {@link java.lang.String} object.
+     * @return a {@link java.lang.String} object.
+     */
     public static String findOuiByMacAddressIfPossible(String mac) {
-        return vmMacAddressOUI.entrySet().stream()
-                .filter(entry -> mac.startsWith(entry.getKey()))
-                .map(Map.Entry::getValue)
-                .collect(Collectors.joining());
+        return vmMacAddressOUI.entrySet().stream().filter(entry -> mac.startsWith(entry.getKey()))
+                .map(Map.Entry::getValue).collect(Collectors.joining());
     }
 }

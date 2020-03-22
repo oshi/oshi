@@ -3,20 +3,13 @@ language: java
 before_install:
   # When building the coverity_scan branch, allow only the first job to continue.
   - if [[ "${TRAVIS_BRANCH}" == "coverity_scan" && "$MATRIX_ID" != "first" ]]; then exit 0; fi
-  # Get most recent JDK versions on-the-fly
-  - wget https://github.com/sormuras/bach/raw/master/install-jdk.sh
-  
+
 after_success:
   - bash <(curl -s https://codecov.io/bash)
   - if [ "$MATRIX_ID" == "first" ]; then
       ./mvnw clean test jacoco:report coveralls:report;
       ./mvnw clean org.jacoco:jacoco-maven-plugin:prepare-agent package sonar:sonar;
     fi
-
-env:
-  global:
-   # COVERITY_SCAN_TOKEN
-   - secure: "JuTWT2u7BWQEJGMGkVvQMIQxwxajntxqbCGYt+bJD3JQhioPVFUJoEFrLCx+jJ0qLy5usrneCDFrvRhvTh6C+95kvHypvGQ3UoeWyXS8zD+GRPUyskbuQ7P60kqqIqc+naGd3uyGddniixoAA6C/Ptmknhls4FlhDCMjW3HDS0c="
 
 addons:
   coverity_scan:
@@ -34,29 +27,28 @@ addons:
   hostname: oshi
 
 matrix:
-  include:  
-    - os: linux
-      jdk: oraclejdk8
-      env:
-      - JDK = "Oracle JDK 8 - Linux" 
-      - MATRIX_ID="first"
-    - os: linux
-      install: . ./install-jdk.sh -F 11 -L BCL
-      env: JDK = "Oracle JDK 11 - Linux" 
-#    - os: linux
-#      install: . ./install-jdk.sh -F 12 -L GPL
-#      env: JDK = "OpenJDK 12 - Linux" 
-#    - os: linux
-#      install: . ./install-jdk.sh -F 12 -L GPL
-#      env: JDK = "OpenJDK 13-ea - Linux" 
+  include:
     - os: osx
-      env: JDK = "Oracle JDK 8 - Mac" 
+      env:
+      - NAME="OracleJDK 8"
+      - MATRIX_ID="first"
+      # COVERITY_SCAN_TOKEN
+      - secure: "JuTWT2u7BWQEJGMGkVvQMIQxwxajntxqbCGYt+bJD3JQhioPVFUJoEFrLCx+jJ0qLy5usrneCDFrvRhvTh6C+95kvHypvGQ3UoeWyXS8zD+GRPUyskbuQ7P60kqqIqc+naGd3uyGddniixoAA6C/Ptmknhls4FlhDCMjW3HDS0c="
       osx_image: xcode9.3
     - os: osx
-      env: JDK = "OpenJDK 11 - Mac" 
-      osx_image: xcode10.1
+      env: NAME="OpenJDK 13"
+      osx_image: xcode11.3.1
+    - os: linux
+      env: NAME="OpenJDK 11"
+      jdk: openjdk11
+    - os: linux
+      env: NAME="OpenJDK 14"
+      jdk: openjdk14
+    - os: linux
+      env: NAME="OpenJDK 15"
+      jdk: openjdk15
 
-script: 
+script:
   # Skip tests on coverity_scan branch
   - if [[ "${TRAVIS_BRANCH}" == "coverity_scan" ]]; then exit 0; fi
   - java -version

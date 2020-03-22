@@ -1,8 +1,7 @@
 /**
- * OSHI (https://github.com/oshi/oshi)
+ * MIT License
  *
- * Copyright (c) 2010 - 2019 The OSHI Project Team:
- * https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -10,8 +9,9 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -29,31 +29,32 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.ptr.IntByReference;
-import com.sun.jna.ptr.PointerByReference;
+import com.sun.jna.Pointer; // NOSONAR squid:S1191
+import com.sun.jna.platform.mac.CoreFoundation.CFDataRef;
+import com.sun.jna.platform.mac.CoreFoundation.CFStringRef;
+import com.sun.jna.platform.mac.CoreFoundation.CFTypeRef;
+import com.sun.jna.platform.mac.IOKit.IOIterator;
+import com.sun.jna.platform.mac.IOKit.IORegistryEntry;
+import com.sun.jna.platform.mac.IOKitUtil;
 
 import oshi.hardware.Display;
 import oshi.hardware.common.AbstractDisplay;
-import oshi.jna.platform.mac.CoreFoundation;
-import oshi.jna.platform.mac.CoreFoundation.CFStringRef;
-import oshi.jna.platform.mac.CoreFoundation.CFTypeRef;
-import oshi.jna.platform.mac.IOKit;
-import oshi.util.platform.mac.CfUtil;
-import oshi.util.platform.mac.IOKitUtil;
 
 /**
  * A Display
- *
- * @author widdis[at]gmail[dot]com
  */
 public class MacDisplay extends AbstractDisplay {
 
-    private static final long serialVersionUID = 1L;
-
     private static final Logger LOG = LoggerFactory.getLogger(MacDisplay.class);
 
-    private static final CFStringRef cfEdid = CFStringRef.toCFString("IODisplayEDID");
-
+    /**
+     * <p>
+     * Constructor for MacDisplay.
+     * </p>
+     *
+     * @param edid
+     *            an array of {@link byte} objects.
+     */
     public MacDisplay(byte[] edid) {
         super(edid);
         LOG.debug("Initialized MacDisplay");
@@ -67,30 +68,33 @@ public class MacDisplay extends AbstractDisplay {
     public static Display[] getDisplays() {
         List<Display> displays = new ArrayList<>();
         // Iterate IO Registry IODisplayConnect
-        IntByReference serviceIterator = new IntByReference();
-        IOKitUtil.getMatchingServices("IODisplayConnect", serviceIterator);
-        int sdService = IOKit.INSTANCE.IOIteratorNext(serviceIterator.getValue());
-        while (sdService != 0) {
-            // Display properties are in a child entry
-            IntByReference properties = new IntByReference();
-            int ret = IOKit.INSTANCE.IORegistryEntryGetChildEntry(sdService, "IOService", properties);
-            if (ret == 0) {
-                // look up the edid by key
-                CFTypeRef edid = IOKit.INSTANCE.IORegistryEntryCreateCFProperty(properties.getValue(), cfEdid,
-                        CfUtil.ALLOCATOR, 0);
-                if (edid != null) {
-                    // Edid is a byte array of 128 bytes
-                    int length = CoreFoundation.INSTANCE.CFDataGetLength(edid);
-                    PointerByReference p = CoreFoundation.INSTANCE.CFDataGetBytePtr(edid);
-                    displays.add(new MacDisplay(p.getPointer().getByteArray(0, length)));
-                    CfUtil.release(edid);
+        IOIterator serviceIterator = IOKitUtil.getMatchingServices("IODisplayConnect");
+        if (serviceIterator != null) {
+            CFStringRef cfEdid = CFStringRef.createCFString("IODisplayEDID");
+            IORegistryEntry sdService = serviceIterator.next();
+            while (sdService != null) {
+                // Display properties are in a child entry
+                IORegistryEntry properties = sdService.getChildEntry("IOService");
+                if (properties != null) {
+                    // look up the edid by key
+                    CFTypeRef edidRaw = properties.createCFProperty(cfEdid);
+                    if (edidRaw != null) {
+                        CFDataRef edid = new CFDataRef(edidRaw.getPointer());
+                        // Edid is a byte array of 128 bytes
+                        int length = edid.getLength();
+                        Pointer p = edid.getBytePtr();
+                        displays.add(new MacDisplay(p.getByteArray(0, length)));
+                        edid.release();
+                    }
+                    properties.release();
                 }
+                // iterate
+                sdService.release();
+                sdService = serviceIterator.next();
             }
-            // iterate
-            IOKit.INSTANCE.IOObjectRelease(sdService);
-            sdService = IOKit.INSTANCE.IOIteratorNext(serviceIterator.getValue());
+            serviceIterator.release();
+            cfEdid.release();
         }
-        IOKit.INSTANCE.IOObjectRelease(serviceIterator.getValue());
         return displays.toArray(new Display[0]);
     }
 }

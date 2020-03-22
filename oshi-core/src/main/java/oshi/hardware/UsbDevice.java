@@ -1,8 +1,7 @@
 /**
- * OSHI (https://github.com/oshi/oshi)
+ * MIT License
  *
- * Copyright (c) 2010 - 2019 The OSHI Project Team:
- * https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -10,8 +9,9 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,16 +23,12 @@
  */
 package oshi.hardware;
 
-import java.io.Serializable;
-
 /**
  * A USB device is a device connected via a USB port, possibly
  * internally/permanently. Hubs may contain ports to which other devices connect
  * in a recursive fashion.
- *
- * @author widdis[at]gmail[dot]com
  */
-public interface UsbDevice extends Serializable, Comparable<UsbDevice> {
+public interface UsbDevice extends Comparable<UsbDevice> {
     /**
      * Name of the USB device
      *
@@ -69,10 +65,19 @@ public interface UsbDevice extends Serializable, Comparable<UsbDevice> {
     String getSerialNumber();
 
     /**
+     * A Unique Device ID of the USB device, such as the PnPDeviceID (Windows),
+     * Device Node Path (Linux), Registry Entry ID (macOS), or Device Node number
+     * (Unix)
+     *
+     * @return The Unique Device ID
+     */
+    String getUniqueDeviceId();
+
+    /**
      * Other devices connected to this hub
      *
-     * @return An array of other devices connected to this hub, if any, or an
-     *         empty array if none
+     * @return An array of other devices connected to this hub, if any, or an empty
+     *         array if none
      */
     UsbDevice[] getConnectedDevices();
 }

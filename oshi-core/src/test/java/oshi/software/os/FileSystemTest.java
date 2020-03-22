@@ -1,8 +1,7 @@
 /**
- * OSHI (https://github.com/oshi/oshi)
+ * MIT License
  *
- * Copyright (c) 2010 - 2019 The OSHI Project Team:
- * https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -10,8 +9,9 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -24,6 +24,7 @@
 package oshi.software.os;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -55,9 +56,11 @@ public class FileSystemTest {
         for (OSFileStore store : fs) {
             assertNotNull(store.getName());
             assertNotNull(store.getVolume());
+            assertNotNull(store.getLabel());
             assertNotNull(store.getLogicalVolume());
             assertNotNull(store.getDescription());
             assertNotNull(store.getType());
+            assertFalse(store.getOptions().isEmpty());
             assertNotNull(store.getMount());
             assertNotNull(store.getUUID());
             assertTrue(store.getTotalSpace() >= 0);
@@ -73,6 +76,7 @@ public class FileSystemTest {
 
             store.setName("name");
             store.setVolume("volume");
+            store.setLabel("label");
             store.setLogicalVolume("logical volume");
             store.setDescription("desc");
             store.setType("type");
@@ -84,6 +88,7 @@ public class FileSystemTest {
 
             assertEquals("name", store.getName());
             assertEquals("volume", store.getVolume());
+            assertEquals("label", store.getLabel());
             assertEquals("logical volume", store.getLogicalVolume());
             assertEquals("desc", store.getDescription());
             assertEquals("type", store.getType());
@@ -93,5 +98,8 @@ public class FileSystemTest {
             assertEquals(2345L, store.getFreeSpace());
             assertEquals(1234L, store.getUsableSpace());
         }
+
+        OSFileStore[] localFs = filesystem.getFileStores(true);
+        assertTrue(localFs.length <= fs.length);
     }
 }

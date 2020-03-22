@@ -1,8 +1,7 @@
 /**
- * OSHI (https://github.com/oshi/oshi)
+ * MIT License
  *
- * Copyright (c) 2010 - 2019 The OSHI Project Team:
- * https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -10,8 +9,9 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,73 +23,58 @@
  */
 package oshi.hardware.platform.linux;
 
+import static oshi.util.Memoizer.defaultExpiration;
+import static oshi.util.Memoizer.memoize;
+
 import java.util.List;
+import java.util.function.Supplier;
 
 import oshi.hardware.common.AbstractVirtualMemory;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
+import oshi.util.platform.linux.ProcPath;
+import oshi.util.tuples.Pair;
 
 /**
  * Memory obtained by /proc/meminfo and /proc/vmstat
  */
 public class LinuxVirtualMemory extends AbstractVirtualMemory {
 
-    private static final long serialVersionUID = 1L;
+    private final Supplier<Pair<Long, Long>> usedTotal = memoize(LinuxVirtualMemory::queryMemInfo, defaultExpiration());
 
-    /**
-     * {@inheritDoc}
-     */
+    private final Supplier<Pair<Long, Long>> inOut = memoize(LinuxVirtualMemory::queryVmStat, defaultExpiration());
+
     @Override
     public long getSwapUsed() {
-        if (this.swapUsed < 0) {
-            updateMemInfo();
-        }
-        return this.swapUsed;
+        return usedTotal.get().getA();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public long getSwapTotal() {
-        if (this.swapTotal < 0) {
-            updateMemInfo();
-        }
-        return this.swapTotal;
+        return usedTotal.get().getB();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public long getSwapPagesIn() {
-        if (this.swapPagesIn < 0) {
-            updateVmStat();
-        }
-        return this.swapPagesIn;
+        return inOut.get().getA();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public long getSwapPagesOut() {
-        if (this.swapPagesOut < 0) {
-            updateVmStat();
-        }
-        return this.swapPagesOut;
+        return inOut.get().getB();
     }
 
-    private void updateMemInfo() {
-        long swapFree = 0;
+    private static Pair<Long, Long> queryMemInfo() {
+        long swapFree = 0L;
+        long swapTotal = 0L;
 
-        List<String> memInfo = FileUtil.readFile("/proc/meminfo");
-        for (String checkLine : memInfo) {
+        List<String> procMemInfo = FileUtil.readFile(ProcPath.MEMINFO);
+        for (String checkLine : procMemInfo) {
             String[] memorySplit = ParseUtil.whitespaces.split(checkLine);
             if (memorySplit.length > 1) {
                 switch (memorySplit[0]) {
                 case "SwapTotal:":
-                    this.swapTotal = parseMeminfo(memorySplit);
+                    swapTotal = parseMeminfo(memorySplit);
                     break;
                 case "SwapFree:":
                     swapFree = parseMeminfo(memorySplit);
@@ -100,20 +85,22 @@ public class LinuxVirtualMemory extends AbstractVirtualMemory {
                 }
             }
         }
-        this.swapUsed = this.swapTotal - swapFree;
+        return new Pair<>(swapTotal - swapFree, swapTotal);
     }
 
-    private void updateVmStat() {
-        List<String> vmStat = FileUtil.readFile("/proc/vmstat");
-        for (String checkLine : vmStat) {
+    private static Pair<Long, Long> queryVmStat() {
+        long swapPagesIn = 0L;
+        long swapPagesOut = 0L;
+        List<String> procVmStat = FileUtil.readFile(ProcPath.VMSTAT);
+        for (String checkLine : procVmStat) {
             String[] memorySplit = ParseUtil.whitespaces.split(checkLine);
             if (memorySplit.length > 1) {
                 switch (memorySplit[0]) {
                 case "pgpgin":
-                    this.swapPagesIn = ParseUtil.parseLongOrDefault(memorySplit[1], 0L);
+                    swapPagesIn = ParseUtil.parseLongOrDefault(memorySplit[1], 0L);
                     break;
                 case "pgpgout":
-                    this.swapPagesOut = ParseUtil.parseLongOrDefault(memorySplit[1], 0L);
+                    swapPagesOut = ParseUtil.parseLongOrDefault(memorySplit[1], 0L);
                     break;
                 default:
                     // do nothing with other lines
@@ -121,6 +108,7 @@ public class LinuxVirtualMemory extends AbstractVirtualMemory {
                 }
             }
         }
+        return new Pair<>(swapPagesIn, swapPagesOut);
     }
 
     /**
@@ -130,9 +118,9 @@ public class LinuxVirtualMemory extends AbstractVirtualMemory {
      *            Array of Strings representing the 3 columns of /proc/meminfo
      * @return value, multiplied by 1024 if kB is specified
      */
-    private long parseMeminfo(String[] memorySplit) {
+    private static long parseMeminfo(String[] memorySplit) {
         if (memorySplit.length < 2) {
-            return 0l;
+            return 0L;
         }
         long memory = ParseUtil.parseLongOrDefault(memorySplit[1], 0L);
         if (memorySplit.length > 2 && "kB".equals(memorySplit[2])) {

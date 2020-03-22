@@ -1,8 +1,7 @@
 /**
- * OSHI (https://github.com/oshi/oshi)
+ * MIT License
  *
- * Copyright (c) 2010 - 2019 The OSHI Project Team:
- * https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -10,8 +9,9 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -31,21 +31,20 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sun.jna.Pointer; // NOSONAR squid:S1191
+
 import oshi.hardware.Disks;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
 import oshi.jna.platform.linux.Udev;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
+import oshi.util.platform.linux.ProcPath;
 
 /**
  * Linux hard disk implementation.
- *
- * @author enrico[dot]bianchi[at]gmail[dot]com
  */
 public class LinuxDisks implements Disks {
-
-    private static final long serialVersionUID = 1L;
 
     private static final Logger LOG = LoggerFactory.getLogger(LinuxDisks.class);
 
@@ -80,46 +79,42 @@ public class LinuxDisks implements Disks {
         }
     }
 
-    // There are at least 11 elements in udev stat output. Some platforms have
-    // 12 but we want the last 11. ParseUtil works from the right
-    private static final int UDEV_STAT_LENGTH = 11;
+    // There are at least 11 elements in udev stat output or sometimes 15. We want
+    // the rightmost 11 or 15 if there is leading text.
+    private static final int UDEV_STAT_LENGTH;
+    static {
+        String stat = FileUtil.getStringFromFile(ProcPath.DISKSTATS);
+        int statLength = 11;
+        if (!stat.isEmpty()) {
+            statLength = ParseUtil.countStringToLongArray(stat, ' ');
+        }
+        UDEV_STAT_LENGTH = statLength;
+    }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public HWDiskStore[] getDisks() {
         HWDiskStore store = null;
-        List<HWDiskStore> result;
+        List<HWDiskStore> result = new ArrayList<>();
 
         updateMountsMap();
         hashCodeToPathMap.clear();
 
-        Udev.UdevHandle handle = null;
-        Udev.UdevDevice device = null;
-        Udev.UdevEnumerate enumerate = null;
-        Udev.UdevListEntry entry;
-        Udev.UdevListEntry oldEntry;
-
-        result = new ArrayList<>();
-
-        handle = Udev.INSTANCE.udev_new();
-        enumerate = Udev.INSTANCE.udev_enumerate_new(handle);
+        Udev.UdevHandle handle = Udev.INSTANCE.udev_new();
+        Udev.UdevEnumerate enumerate = Udev.INSTANCE.udev_enumerate_new(handle);
         Udev.INSTANCE.udev_enumerate_add_match_subsystem(enumerate, "block");
         Udev.INSTANCE.udev_enumerate_scan_devices(enumerate);
 
-        entry = Udev.INSTANCE.udev_enumerate_get_list_entry(enumerate);
-        while (true) {
-            try {
-                oldEntry = entry;
-                device = Udev.INSTANCE.udev_device_new_from_syspath(handle,
-                        Udev.INSTANCE.udev_list_entry_get_name(entry));
+        Udev.UdevListEntry entry = Udev.INSTANCE.udev_enumerate_get_list_entry(enumerate);
+        Udev.UdevDevice device;
+        while ((device = Udev.INSTANCE.udev_device_new_from_syspath(handle,
+                Udev.INSTANCE.udev_list_entry_get_name(entry))) != null) {
+            String devnode = Udev.INSTANCE.udev_device_get_devnode(device);
+            if (devnode != null) {
                 // Ignore loopback and ram disks; do nothing
-                if (!Udev.INSTANCE.udev_device_get_devnode(device).startsWith("/dev/loop")
-                        && !Udev.INSTANCE.udev_device_get_devnode(device).startsWith("/dev/ram")) {
+                if (!devnode.startsWith("/dev/loop") && !devnode.startsWith("/dev/ram")) {
                     if ("disk".equals(Udev.INSTANCE.udev_device_get_devtype(device))) {
                         store = new HWDiskStore();
-                        store.setName(Udev.INSTANCE.udev_device_get_devnode(device));
+                        store.setName(devnode);
 
                         // Avoid model and serial in virtual environments
                         store.setModel(
@@ -159,15 +154,12 @@ public class LinuxDisks implements Disks {
                         store.setPartitions(partArray);
                     }
                 }
-                entry = Udev.INSTANCE.udev_list_entry_get_next(oldEntry);
-            } catch (NullPointerException ex) { // NOSONAR squid:S1166
-                LOG.debug("Reached all disks. Exiting ");
-                break;
-            } finally {
-                Udev.INSTANCE.udev_device_unref(device);
+            } else {
+                LOG.warn("Failed to retrieve devnode for device {}", Pointer.nativeValue(device.getPointer()));
             }
+            Udev.INSTANCE.udev_device_unref(device);
+            entry = Udev.INSTANCE.udev_list_entry_get_next(entry);
         }
-
         Udev.INSTANCE.udev_enumerate_unref(enumerate);
         Udev.INSTANCE.udev_unref(handle);
 
@@ -176,6 +168,10 @@ public class LinuxDisks implements Disks {
 
     /**
      * {@inheritDoc}
+     *
+     * @param diskStore
+     *            a {@link oshi.hardware.HWDiskStore} object.
+     * @return a boolean.
      */
     public static boolean updateDiskStats(HWDiskStore diskStore) {
         String path = hashCodeToPathMap.get(diskStore.hashCode());
@@ -195,7 +191,7 @@ public class LinuxDisks implements Disks {
 
     private void updateMountsMap() {
         this.mountsMap.clear();
-        List<String> mounts = FileUtil.readFile("/proc/self/mounts");
+        List<String> mounts = FileUtil.readFile(ProcPath.MOUNTS);
         for (String mount : mounts) {
             String[] split = ParseUtil.whitespaces.split(mount);
             if (split.length < 2 || !split[0].startsWith("/dev/")) {

@@ -1,8 +1,7 @@
 /**
- * OSHI (https://github.com/oshi/oshi)
+ * MIT License
  *
- * Copyright (c) 2010 - 2019 The OSHI Project Team:
- * https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -10,8 +9,9 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -40,85 +40,27 @@ import org.slf4j.LoggerFactory;
 import com.sun.jna.Native; // NOSONAR
 import com.sun.jna.platform.linux.LibC;
 
-import oshi.software.os.FileSystem;
+import oshi.software.common.AbstractFileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
+import oshi.util.platform.linux.ProcPath;
 
 /**
- * The Linux File System contains {@link OSFileStore}s which are a storage pool,
- * device, partition, volume, concrete file system or other implementation
- * specific means of file storage. In Linux, these are found in the /proc/mount
- * filesystem, excluding temporary and kernel mounts.
- *
- * @author widdis[at]gmail[dot]com
+ * The Linux File System contains {@link oshi.software.os.OSFileStore}s which
+ * are a storage pool, device, partition, volume, concrete file system or other
+ * implementation specific means of file storage. In Linux, these are found in
+ * the /proc/mount filesystem, excluding temporary and kernel mounts.
  */
-public class LinuxFileSystem implements FileSystem {
-
-    private static final long serialVersionUID = 1L;
+public class LinuxFileSystem extends AbstractFileSystem {
 
     private static final Logger LOG = LoggerFactory.getLogger(LinuxFileSystem.class);
 
-    // Linux defines a set of virtual file systems
-    private final List<String> pseudofs = Arrays.asList(new String[] { //
-            "rootfs", // Minimal fs to support kernel boot
-            "sysfs", // SysFS file system
-            "proc", // Proc file system
-            "devtmpfs", // Dev temporary file system
-            "devpts", // Dev pseudo terminal devices file system
-            "securityfs", // Kernel security file system
-            "cgroup", // Cgroup file system
-            "pstore", // Pstore file system
-            "hugetlbfs", // Huge pages support file system
-            "configfs", // Config file system
-            "selinuxfs", // SELinux file system
-            "systemd-1", // Systemd file system
-            "binfmt_misc", // Binary format support file system
-            "mqueue", // Message queue file system
-            "debugfs", // Debug file system
-            "nfsd", // NFS file system
-            "sunrpc", // Sun RPC file system
-            "rpc_pipefs", // Sun RPC file system
-            "fusectl", // FUSE control file system
-            // NOTE: FUSE's fuseblk is not evalued because used as file system
-            // representation of a FUSE block storage
-            // "fuseblk" // FUSE block file system
-            // "tmpfs", // Temporary file system
-            // NOTE: tmpfs is evaluated apart, because Linux uses it for
-            // RAMdisks
-    });
-
     // System path mounted as tmpfs
-    private final List<String> tmpfsPaths = Arrays.asList(new String[] { "/dev/shm", "/run", "/sys", "/proc" });
+    private static final List<String> TMP_FS_PATHS = Arrays.asList("/run", "/sys", "/proc", ProcPath.PROC);
 
-    /**
-     * Checks if file path equals or starts with an element in the given list
-     *
-     * @param aList
-     *            A list of path prefixes
-     * @param charSeq
-     *            a path to check
-     * @return true if the charSeq exactly equals, or starts with the directory
-     *         in aList
-     */
-    private boolean listElementStartsWith(List<String> aList, String charSeq) {
-        for (String match : aList) {
-            if (charSeq.equals(match) || charSeq.startsWith(match + "/")) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Gets File System Information.
-     *
-     * @return An array of {@link OSFileStore} objects representing mounted
-     *         volumes. May return disconnected volumes with
-     *         {@link OSFileStore#getTotalSpace()} = 0.
-     */
     @Override
-    public OSFileStore[] getFileStores() {
+    public OSFileStore[] getFileStores(boolean localOnly) {
         // Map uuids with device path as key
         Map<String, String> uuidMap = new HashMap<>();
         File uuidDir = new File("/dev/disk/by-uuid");
@@ -128,23 +70,34 @@ public class LinuxFileSystem implements FileSystem {
                     // Store UUID as value with path (e.g., /dev/sda1) as key
                     uuidMap.put(uuid.getCanonicalPath(), uuid.getName().toLowerCase());
                 } catch (IOException e) {
-                    LOG.error("Couldn't get canonical path for {}. {}", uuid.getName(), e);
+                    LOG.error("Couldn't get canonical path for {}. {}", uuid.getName(), e.getMessage());
                 }
             }
         }
 
         // List file systems
+        List<OSFileStore> fsList = getFileStoreMatching(null, uuidMap, localOnly);
+
+        return fsList.toArray(new OSFileStore[0]);
+    }
+
+    private static List<OSFileStore> getFileStoreMatching(String nameToMatch, Map<String, String> uuidMap) {
+        return getFileStoreMatching(nameToMatch, uuidMap, false);
+    }
+
+    private static List<OSFileStore> getFileStoreMatching(String nameToMatch, Map<String, String> uuidMap,
+            boolean localOnly) {
         List<OSFileStore> fsList = new ArrayList<>();
 
-        // Parse /proc/self/mounts to get fs types
-        List<String> mounts = FileUtil.readFile("/proc/self/mounts");
+        // Parse /proc/mounts to get fs types
+        List<String> mounts = FileUtil.readFile(ProcPath.MOUNTS);
         for (String mount : mounts) {
             String[] split = mount.split(" ");
             // As reported in fstab(5) manpage, struct is:
             // 1st field is volume name
             // 2nd field is path with spaces escaped as \040
             // 3rd field is fs type
-            // 4th field is mount options (ignored)
+            // 4th field is mount options
             // 5th field is used by dump(8) (ignored)
             // 6th field is fsck order (ignored)
             if (split.length < 6) {
@@ -154,23 +107,35 @@ public class LinuxFileSystem implements FileSystem {
             // Exclude pseudo file systems
             String path = split[1].replaceAll("\\\\040", " ");
             String type = split[2];
-            if (this.pseudofs.contains(type) || path.equals("/dev") || listElementStartsWith(this.tmpfsPaths, path)) {
+            if ((localOnly && NETWORK_FS_TYPES.contains(type)) // Skip non-local drives if requested
+                    || PSEUDO_FS_TYPES.contains(type) // exclude non-fs types
+                    || path.equals("/dev") // exclude plain dev directory
+                    || ParseUtil.filePathStartsWith(TMP_FS_PATHS, path) // well known prefixes
+                    || path.endsWith("/shm") // exclude shared memory
+            ) {
                 continue;
             }
+            String options = split[3];
 
             String name = split[0].replaceAll("\\\\040", " ");
             if (path.equals("/")) {
                 name = "/";
             }
+
+            // If only updating for one name, skip others
+            if (nameToMatch != null && !nameToMatch.equals(name)) {
+                continue;
+            }
+
             String volume = split[0].replaceAll("\\\\040", " ");
-            String uuid = uuidMap.getOrDefault(split[0], "");
+            String uuid = uuidMap != null ? uuidMap.getOrDefault(split[0], "") : "";
 
             String description;
             if (volume.startsWith("/dev")) {
                 description = "Local Disk";
             } else if (volume.equals("tmpfs")) {
                 description = "Ram Disk";
-            } else if (type.startsWith("nfs") || type.equals("cifs")) {
+            } else if (NETWORK_FS_TYPES.contains(type)) {
                 description = "Network Disk";
             } else {
                 description = "Mount Point";
@@ -181,15 +146,15 @@ public class LinuxFileSystem implements FileSystem {
             String logicalVolume = "";
             String volumeMapperDirectory = "/dev/mapper/";
             Path link = Paths.get(volume);
-            if (Files.exists(link) && Files.isSymbolicLink(link)) {
+            if (link.toFile().exists() && Files.isSymbolicLink(link)) {
                 try {
                     Path slink = Files.readSymbolicLink(link);
                     Path full = Paths.get(volumeMapperDirectory + slink.toString());
-                    if (Files.exists(full)) {
+                    if (full.toFile().exists()) {
                         logicalVolume = full.normalize().toString();
                     }
                 } catch (IOException e) {
-                    LOG.warn("Couldn't access symbolic path  {}. {}", link, e);
+                    LOG.warn("Couldn't access symbolic path  {}. {}", link, e.getMessage());
                 }
             }
 
@@ -212,18 +177,21 @@ public class LinuxFileSystem implements FileSystem {
                     totalSpace = tmpFile.getTotalSpace();
                     usableSpace = tmpFile.getUsableSpace();
                     freeSpace = tmpFile.getFreeSpace();
-                    LOG.warn("Failed to get information to use statvfs. path: {}, Error code: {}", path, Native.getLastError());
+                    LOG.warn("Failed to get information to use statvfs. path: {}, Error code: {}", path,
+                            Native.getLastError());
                 }
             } catch (UnsatisfiedLinkError | NoClassDefFoundError e) {
-                LOG.error("Failed to get file counts from statvfs. {}", e);
+                LOG.error("Failed to get file counts from statvfs. {}", e.getMessage());
             }
 
             OSFileStore osStore = new OSFileStore();
             osStore.setName(name);
             osStore.setVolume(volume);
+            osStore.setLabel(name);
             osStore.setMount(path);
             osStore.setDescription(description);
             osStore.setType(type);
+            osStore.setOptions(options);
             osStore.setUUID(uuid);
             osStore.setFreeSpace(freeSpace);
             osStore.setUsableSpace(usableSpace);
@@ -234,15 +202,16 @@ public class LinuxFileSystem implements FileSystem {
 
             fsList.add(osStore);
         }
-
-        return fsList.toArray(new OSFileStore[0]);
+        return fsList;
     }
 
+    /** {@inheritDoc} */
     @Override
     public long getOpenFileDescriptors() {
         return getFileDescriptors(0);
     }
 
+    /** {@inheritDoc} */
     @Override
     public long getMaxFileDescriptors() {
         return getFileDescriptors(2);
@@ -252,15 +221,15 @@ public class LinuxFileSystem implements FileSystem {
      * Returns a value from the Linux system file /proc/sys/fs/file-nr.
      *
      * @param index
-     *            The index of the value to retrieve. 0 returns the total
-     *            allocated file descriptors. 1 returns the number of used file
-     *            descriptors for kernel 2.4, or the number of unused file
-     *            descriptors for kernel 2.6. 2 returns the maximum number of
-     *            file descriptors that can be allocated.
+     *            The index of the value to retrieve. 0 returns the total allocated
+     *            file descriptors. 1 returns the number of used file descriptors
+     *            for kernel 2.4, or the number of unused file descriptors for
+     *            kernel 2.6. 2 returns the maximum number of file descriptors that
+     *            can be allocated.
      * @return Corresponding file descriptor value from the Linux system file.
      */
     private long getFileDescriptors(int index) {
-        String filename = "/proc/sys/fs/file-nr";
+        String filename = ProcPath.SYS_FS_FILE_NR;
         if (index < 0 || index > 2) {
             throw new IllegalArgumentException("Index must be between 0 and 2.");
         }
@@ -270,5 +239,32 @@ public class LinuxFileSystem implements FileSystem {
             return ParseUtil.parseLongOrDefault(splittedLine[index], 0L);
         }
         return 0L;
+    }
+
+    /**
+     * <p>
+     * updateFileStoreStats.
+     * </p>
+     *
+     * @param osFileStore
+     *            a {@link oshi.software.os.OSFileStore} object.
+     * @return a boolean.
+     */
+    public static boolean updateFileStoreStats(OSFileStore osFileStore) {
+        for (OSFileStore fileStore : getFileStoreMatching(osFileStore.getName(), null)) {
+            if (osFileStore.getVolume().equals(fileStore.getVolume())
+                    && osFileStore.getMount().equals(fileStore.getMount())) {
+                osFileStore.setLogicalVolume(fileStore.getLogicalVolume());
+                osFileStore.setDescription(fileStore.getDescription());
+                osFileStore.setType(fileStore.getType());
+                osFileStore.setFreeSpace(fileStore.getFreeSpace());
+                osFileStore.setUsableSpace(fileStore.getUsableSpace());
+                osFileStore.setTotalSpace(fileStore.getTotalSpace());
+                osFileStore.setFreeInodes(fileStore.getFreeInodes());
+                osFileStore.setTotalInodes(fileStore.getTotalInodes());
+                return true;
+            }
+        }
+        return false;
     }
 }

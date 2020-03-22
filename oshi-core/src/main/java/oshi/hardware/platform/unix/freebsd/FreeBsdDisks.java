@@ -1,8 +1,7 @@
 /**
- * OSHI (https://github.com/oshi/oshi)
+ * MIT License
  *
- * Copyright (c) 2010 - 2019 The OSHI Project Team:
- * https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -10,8 +9,9 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -41,20 +41,20 @@ import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
 
 /**
  * FreeBSD hard disk implementation.
- *
- * @author widdis[at]gmail[dot]com
  */
 public class FreeBsdDisks implements Disks {
 
-    private static final long serialVersionUID = 1L;
-
     private static final Pattern MOUNT_PATTERN = Pattern.compile("/dev/(\\S+p\\d+) on (\\S+) .*");
 
-    // Create map indexed by device name to populate data from multiple commands
-    private static final Map<String, HWDiskStore> diskMap = new HashMap<>();
-    // Map of partitions to mount points
-    private static final Map<String, String> mountMap = new HashMap<>();
-
+    /**
+     * <p>
+     * updateDiskStats.
+     * </p>
+     *
+     * @param diskStore
+     *            a {@link oshi.hardware.HWDiskStore} object.
+     * @return a boolean.
+     */
     public static boolean updateDiskStats(HWDiskStore diskStore) {
         List<String> output = ExecutingCommand.runNative("iostat -Ix " + diskStore.getName());
         long timeStamp = System.currentTimeMillis();
@@ -82,7 +82,7 @@ public class FreeBsdDisks implements Disks {
     @Override
     public HWDiskStore[] getDisks() {
         // Parse 'mount' to map partitions to mount point
-        mountMap.clear();
+        Map<String, String> mountMap = new HashMap<>();
         for (String mnt : ExecutingCommand.runNative("mount")) {
             Matcher m = MOUNT_PATTERN.matcher(mnt);
             if (m.matches()) {
@@ -91,7 +91,8 @@ public class FreeBsdDisks implements Disks {
         }
 
         // Get list of valid disks
-        diskMap.clear();
+        // Create map indexed by device name to populate data from multiple commands
+        Map<String, HWDiskStore> diskMap = new HashMap<>();
         List<String> devices = Arrays.asList(ParseUtil.whitespaces.split(BsdSysctlUtil.sysctl("kern.disks", "")));
 
         // Temporary list to hold partitions
@@ -233,7 +234,7 @@ public class FreeBsdDisks implements Disks {
         return diskList.toArray(new HWDiskStore[0]);
     }
 
-    private void setPartitions(HWDiskStore store, List<HWPartition> partList) {
+    private static void setPartitions(HWDiskStore store, List<HWPartition> partList) {
         HWPartition[] partitions = new HWPartition[partList.size()];
         int index = 0;
         Collections.sort(partList);

@@ -1,8 +1,7 @@
 /**
- * OSHI (https://github.com/oshi/oshi)
+ * MIT License
  *
- * Copyright (c) 2010 - 2019 The OSHI Project Team:
- * https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -10,8 +9,9 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,32 +23,45 @@
  */
 package oshi.software.os;
 
-import java.io.Serializable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import oshi.SystemInfo;
+import oshi.software.os.linux.LinuxFileSystem;
+import oshi.software.os.mac.MacFileSystem;
+import oshi.software.os.unix.freebsd.FreeBsdFileSystem;
+import oshi.software.os.unix.solaris.SolarisFileSystem;
+import oshi.software.os.windows.WindowsFileSystem;
 
 /**
  * A File Store is a storage pool, device, partition, volume, concrete file
  * system or other implementation specific means of file storage. See subclasses
  * for definitions as they apply to specific platforms.
- *
- * @author widdis[at]gmail[dot]com
  */
-public class OSFileStore implements Serializable {
+public class OSFileStore {
 
-    private static final long serialVersionUID = 1L;
+    private static final Logger LOG = LoggerFactory.getLogger(OSFileStore.class);
 
     private String name;
     private String volume;
+    private String label;
     private String logicalVolume = "";
     private String mount;
     private String description;
     private String fsType;
+    private String options;
     private String uuid;
     private long freeSpace;
     private long usableSpace;
     private long totalSpace;
-    private long freeInodes = -1;
-    private long totalInodes = -1;
+    private long freeInodes;
+    private long totalInodes;
 
+    /**
+     * <p>
+     * Constructor for OSFileStore.
+     * </p>
+     */
     public OSFileStore() {
     }
 
@@ -61,10 +74,12 @@ public class OSFileStore implements Serializable {
     public OSFileStore(OSFileStore fileStore) {
         setName(fileStore.getName());
         setVolume(fileStore.getVolume());
+        setLabel(fileStore.getLabel());
         setLogicalVolume(fileStore.getLogicalVolume());
         setMount(fileStore.getMount());
         setDescription(fileStore.getDescription());
         setType(fileStore.getType());
+        setType(fileStore.getOptions());
         setUUID(fileStore.getUUID());
         setFreeSpace(fileStore.getFreeSpace());
         setUsableSpace(fileStore.getUsableSpace());
@@ -93,35 +108,55 @@ public class OSFileStore implements Serializable {
     }
 
     /**
-     * Volume of the File System
+     * Volume name of the File System
      *
-     * @return The volume of the file system
+     * @return The volume name of the file system
      */
     public String getVolume() {
         return this.volume;
     }
 
     /**
+     * Sets the volume name of the File System
+     *
+     * @param value
+     *            The volume name
+     */
+    public void setVolume(String value) {
+        this.volume = value;
+    }
+
+    /**
+     * Label of the File System
+     *
+     * @return The volume label of the file system, on Windows. Other operating
+     *         systems is redundant with the name.
+     */
+    public String getLabel() {
+        return this.label;
+    }
+
+    /**
+     * Sets the label of the File System
+     *
+     * @param value
+     *            The label
+     */
+    public void setLabel(String value) {
+        this.label = value;
+    }
+
+    /**
      * Logical volume of the File System
      *
-     * Provides an optional alternative volume identifier for the file system.
-     * Only supported on Linux, provides symlink value via '/dev/mapper/' (used
-     * with LVM file systems).
+     * Provides an optional alternative volume identifier for the file system. Only
+     * supported on Linux, provides symlink value via '/dev/mapper/' (used with LVM
+     * file systems).
      *
      * @return The logical volume of the file system
      */
     public String getLogicalVolume() {
         return this.logicalVolume;
-    }
-
-    /**
-     * Sets the volume of the File System
-     *
-     * @param value
-     *            The volume
-     */
-    public void setVolume(String value) {
-        this.volume = value;
     }
 
     /**
@@ -192,6 +227,25 @@ public class OSFileStore implements Serializable {
     }
 
     /**
+     * Filesystem options
+     *
+     * @return A comma-deimited string of options
+     */
+    public String getOptions() {
+        return options;
+    }
+
+    /**
+     * Sets the File System options
+     *
+     * @param value
+     *            The options
+     */
+    public void setOptions(String value) {
+        this.options = value;
+    }
+
+    /**
      * UUID/GUID of the File System
      *
      * @return The file system UUID/GUID
@@ -211,8 +265,8 @@ public class OSFileStore implements Serializable {
     }
 
     /**
-     * Free space on the drive. This space is unallocated but may require
-     * elevated permissions to write.
+     * Free space on the drive. This space is unallocated but may require elevated
+     * permissions to write.
      *
      * @return Free space on the drive (in bytes)
      */
@@ -291,8 +345,8 @@ public class OSFileStore implements Serializable {
      * Total / maximum number of inodes of the filesystem. Not applicable on
      * Windows.
      *
-     * @return Total / maximum number of inodes of the filesystem (count), or -1
-     *         if unimplemented
+     * @return Total / maximum number of inodes of the filesystem (count), or -1 if
+     *         unimplemented
      */
     public long getTotalInodes() {
         return this.totalInodes;
@@ -306,5 +360,41 @@ public class OSFileStore implements Serializable {
      */
     public void setTotalInodes(long value) {
         this.totalInodes = value;
+    }
+
+    /**
+     * Make a best effort to update all the statistics about the file store without
+     * needing to recreate the file store list. This method provides for more
+     * frequent periodic updates of file store statistics.
+     *
+     * @return True if the update was (probably) successful, false if the disk was
+     *         not found
+     */
+    public boolean updateAtrributes() {
+        switch (SystemInfo.getCurrentPlatformEnum()) {
+        case WINDOWS:
+            return WindowsFileSystem.updateFileStoreStats(this);
+        case LINUX:
+            return LinuxFileSystem.updateFileStoreStats(this);
+        case MACOSX:
+            return MacFileSystem.updateFileStoreStats(this);
+        case SOLARIS:
+            return SolarisFileSystem.updateFileStoreStats(this);
+        case FREEBSD:
+            return FreeBsdFileSystem.updateFileStoreStats(this);
+        default:
+            LOG.error("Unsupported platform. No update performed.");
+            break;
+        }
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        return "OSFileStore [name=" + name + ", volume=" + volume + ", label=" + label + ", logicalVolume="
+                + logicalVolume + ", mount=" + mount + ", description=" + description + ", fsType=" + fsType
+                + ", options=\"" + options + "\", uuid=" + uuid + ", freeSpace=" + freeSpace + ", usableSpace="
+                + usableSpace + ", totalSpace=" + totalSpace + ", freeInodes=" + freeInodes + ", totalInodes="
+                + totalInodes + "]";
     }
 }

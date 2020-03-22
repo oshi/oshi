@@ -1,8 +1,7 @@
 /**
- * OSHI (https://github.com/oshi/oshi)
+ * MIT License
  *
- * Copyright (c) 2010 - 2019 The OSHI Project Team:
- * https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -10,8 +9,9 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,18 +23,107 @@
  */
 package oshi.hardware.platform.linux;
 
+import static oshi.util.Memoizer.memoize;
+
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.List;
+import java.util.Locale;
+import java.util.function.Supplier;
+
 import oshi.hardware.common.AbstractFirmware;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
+import oshi.util.Util;
 
 /**
  * Firmware data obtained by sysfs.
  */
 final class LinuxFirmware extends AbstractFirmware {
+    // Jan 13 2013 16:24:29
+    private static final DateTimeFormatter VCGEN_FORMATTER = DateTimeFormatter.ofPattern("MMM d uuuu HH:mm:ss",
+            Locale.ENGLISH);
 
-    private static final long serialVersionUID = 1L;
+    private final Supplier<String> manufacturer = memoize(this::queryManufacturer);
+
+    private final Supplier<String> description = memoize(this::queryDescription);
+
+    private final Supplier<String> version = memoize(this::queryVersion);
+
+    private final Supplier<String> releaseDate = memoize(this::queryReleaseDate);
+
+    private final Supplier<String> name = memoize(this::queryName);
+
+    private final Supplier<VcGenCmdStrings> vcGenCmd = memoize(this::queryVcGenCmd);
+
+    private final Supplier<BiosStrings> bios = memoize(this::queryBios);
+
+    @Override
+    public String getManufacturer() {
+        return manufacturer.get();
+    }
+
+    @Override
+    public String getDescription() {
+        return description.get();
+    }
+
+    @Override
+    public String getVersion() {
+        return version.get();
+    }
+
+    @Override
+    public String getReleaseDate() {
+        return releaseDate.get();
+    }
+
+    @Override
+    public String getName() {
+        return name.get();
+    }
+
+    private String queryManufacturer() {
+        String result = null;
+        if ((result = queryManufacturerFromSysfs()) == null && (result = vcGenCmd.get().manufacturer) == null) {
+            return Constants.UNKNOWN;
+        }
+        return result;
+    }
+
+    private String queryDescription() {
+        String result = null;
+        if ((result = queryDescriptionFromSysfs()) == null && (result = vcGenCmd.get().description) == null) {
+            return Constants.UNKNOWN;
+        }
+        return result;
+    }
+
+    private String queryVersion() {
+        String result = null;
+        if ((result = queryVersionFromSysfs()) == null && (result = vcGenCmd.get().version) == null) {
+            return Constants.UNKNOWN;
+        }
+        return result;
+    }
+
+    private String queryReleaseDate() {
+        String result = null;
+        if ((result = queryReleaseDateFromSysfs()) == null && (result = vcGenCmd.get().releaseDate) == null) {
+            return Constants.UNKNOWN;
+        }
+        return result;
+    }
+
+    private String queryName() {
+        String result = null;
+        if ((result = bios.get().biosName) == null && (result = vcGenCmd.get().name) == null) {
+            return Constants.UNKNOWN;
+        }
+        return result;
+    }
 
     // $ ls /sys/devices/virtual/dmi/id/
     // bios_date board_vendor chassis_version product_version
@@ -44,62 +133,38 @@ final class LinuxFirmware extends AbstractFirmware {
     // board_name chassis_type product_serial
     // board_serial chassis_vendor product_uuid
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getManufacturer() {
-        if (this.manufacturer == null) {
-            final String biosVendor = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "bios_vendor").trim();
-            this.manufacturer = (biosVendor.isEmpty()) ? Constants.UNKNOWN : biosVendor;
+    private static String queryManufacturerFromSysfs() {
+        final String biosVendor = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "bios_vendor").trim();
+        if (biosVendor.isEmpty()) {
+            return biosVendor;
         }
-        return this.manufacturer;
+        return null;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getDescription() {
-        if (this.description == null) {
-            final String modalias = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "modalias").trim();
-            this.description = (modalias.isEmpty()) ? Constants.UNKNOWN : modalias;
+    private static String queryDescriptionFromSysfs() {
+        final String modalias = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "modalias").trim();
+        if (!modalias.isEmpty()) {
+            return modalias;
         }
-        return this.description;
+        return null;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getVersion() {
-        if (this.version == null) {
-            final String biosVersion = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "bios_version").trim();
-            if (biosVersion.isEmpty()) {
-                this.version = Constants.UNKNOWN;
-            } else {
-                String biosRevision = getBiosRevision();
-                this.version = biosVersion + (biosRevision.isEmpty() ? "" : " (revision " + biosRevision + ")");
-            }
+    private String queryVersionFromSysfs() {
+        final String biosVersion = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "bios_version").trim();
+        if (!biosVersion.isEmpty()) {
+            String biosRevision = this.bios.get().biosRevision;
+            return biosVersion + (Util.isBlank(biosRevision) ? "" : " (revision " + biosRevision + ")");
         }
-        return this.version;
+        return null;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getReleaseDate() {
-        if (this.releaseDate == null) {
-            final String biosDate = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "bios_date").trim();
-            this.releaseDate = biosDate.isEmpty() ? Constants.UNKNOWN : ParseUtil.parseMmDdYyyyToYyyyMmDD(biosDate);
+    private static String queryReleaseDateFromSysfs() {
+        final String biosDate = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "bios_date").trim();
+        if (!biosDate.isEmpty()) {
+            return ParseUtil.parseMmDdYyyyToYyyyMmDD(biosDate);
         }
-        return this.releaseDate;
+        return null;
     }
-
-    /*
-     * Name is not set
-     */
 
     // $ sudo dmidecode -t bios
     // # dmidecode 2.11
@@ -138,14 +203,77 @@ final class LinuxFirmware extends AbstractFirmware {
     // BIOS Revision: 4.6
     // Firmware Revision: 0.0
 
-    private String getBiosRevision() {
-        final String marker = "Bios Revision:";
+    private BiosStrings queryBios() {
+        String biosName = null;
+        String revision = null;
+
+        final String biosMarker = "SMBIOS";
+        final String revMarker = "Bios Revision:";
+
         // Requires root, may not return anything
         for (final String checkLine : ExecutingCommand.runNative("dmidecode -t bios")) {
-            if (checkLine.contains(marker)) {
-                return checkLine.split(marker)[1].trim();
+            if (checkLine.contains(biosMarker)) {
+                String[] biosArr = ParseUtil.whitespaces.split(checkLine);
+                if (biosArr.length >= 2) {
+                    biosName = biosArr[0] + " " + biosArr[1];
+                }
+            }
+            if (checkLine.contains(revMarker)) {
+                revision = checkLine.split(revMarker)[1].trim();
+                // SMBIOS should be first line so if we're here we are done iterating
+                break;
             }
         }
-        return "";
+        return new BiosStrings(biosName, revision);
+    }
+
+    private VcGenCmdStrings queryVcGenCmd() {
+        String vcReleaseDate = null;
+        String vcManufacturer = null;
+        String vcVersion = null;
+
+        List<String> vcgencmd = ExecutingCommand.runNative("vcgencmd version");
+        if (vcgencmd.size() >= 3) {
+            // First line is date
+            try {
+                vcReleaseDate = DateTimeFormatter.ISO_LOCAL_DATE.format(VCGEN_FORMATTER.parse(vcgencmd.get(0)));
+            } catch (DateTimeParseException e) {
+                vcReleaseDate = Constants.UNKNOWN;
+            }
+            // Second line is copyright
+            String[] copyright = ParseUtil.whitespaces.split(vcgencmd.get(1));
+            vcManufacturer = copyright[copyright.length - 1];
+            // Third line is version
+            vcVersion = vcgencmd.get(2).replace("version ", "");
+            return new VcGenCmdStrings(vcReleaseDate, vcManufacturer, vcVersion, "RPi", "Bootloader");
+        }
+        return new VcGenCmdStrings(null, null, null, null, null);
+    }
+
+    private static final class BiosStrings {
+        private final String biosName;
+        private final String biosRevision;
+
+        private BiosStrings(String biosName, String biosRevision) {
+            this.biosName = biosName;
+            this.biosRevision = biosRevision;
+        }
+    }
+
+    private static final class VcGenCmdStrings {
+        private final String releaseDate;
+        private final String manufacturer;
+        private final String version;
+        private final String name;
+        private final String description;
+
+        private VcGenCmdStrings(String releaseDate, String manufacturer, String version, String name,
+                String description) {
+            this.releaseDate = releaseDate;
+            this.manufacturer = manufacturer;
+            this.version = version;
+            this.name = name;
+            this.description = description;
+        }
     }
 }

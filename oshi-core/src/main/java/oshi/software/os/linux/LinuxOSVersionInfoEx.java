@@ -1,8 +1,7 @@
 /**
- * OSHI (https://github.com/oshi/oshi)
+ * MIT License
  *
- * Copyright (c) 2010 - 2019 The OSHI Project Team:
- * https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -10,8 +9,9 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -30,20 +30,43 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.software.common.AbstractOSVersionInfoEx;
+import oshi.software.os.OperatingSystem;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
+import oshi.util.platform.linux.ProcPath;
 
+/**
+ * <p>
+ * LinuxOSVersionInfoEx class.
+ * </p>
+ *
+ * @deprecated Use {@link OperatingSystem.OSVersionInfo}
+ */
+@Deprecated
 public class LinuxOSVersionInfoEx extends AbstractOSVersionInfoEx {
-
-    private static final long serialVersionUID = 1L;
 
     private static final Logger LOG = LoggerFactory.getLogger(LinuxOSVersionInfoEx.class);
 
+    /**
+     * <p>
+     * Constructor for LinuxOSVersionInfoEx.
+     * </p>
+     */
     public LinuxOSVersionInfoEx() {
         this(null, null);
     }
 
+    /**
+     * <p>
+     * Constructor for LinuxOSVersionInfoEx.
+     * </p>
+     *
+     * @param versionId
+     *            a {@link java.lang.String} object.
+     * @param codeName
+     *            a {@link java.lang.String} object.
+     */
     protected LinuxOSVersionInfoEx(String versionId, String codeName) {
         setVersion(versionId);
         setCodeName(codeName);
@@ -54,7 +77,7 @@ public class LinuxOSVersionInfoEx extends AbstractOSVersionInfoEx {
             setCodeName("");
         }
         List<String> procVersion = null;
-        procVersion = FileUtil.readFile("/proc/version");
+        procVersion = FileUtil.readFile(ProcPath.VERSION);
         if (!procVersion.isEmpty()) {
             String[] split = ParseUtil.whitespaces.split(procVersion.get(0));
             for (String s : split) {
@@ -68,11 +91,11 @@ public class LinuxOSVersionInfoEx extends AbstractOSVersionInfoEx {
     }
 
     /*
-     * Code below this point is largely a copy of LinuxOperatingSystem class
-     * except family is not set. If this class has been called from that class
-     * then no new information would be added here. This is provided in the odd
-     * event someone wants to instantiate this class without having first gone
-     * through the LinuxOperatingSystem
+     * Code below this point is largely a copy of LinuxOperatingSystem class except
+     * family is not set. If this class has been called from that class then no new
+     * information would be added here. This is provided in the odd event someone
+     * wants to instantiate this class without having first gone through the
+     * LinuxOperatingSystem
      */
 
     private void setVersionFromReleaseFiles() {
@@ -234,8 +257,7 @@ public class LinuxOSVersionInfoEx extends AbstractOSVersionInfoEx {
     /**
      * Attempts to read /etc/distrib-release (for some value of distrib)
      *
-     * @return true if file successfully read and " release " or " VERSION "
-     *         found
+     * @return true if file successfully read and " release " or " VERSION " found
      */
     private boolean readDistribRelease(String filename) {
         if (new File(filename).exists()) {

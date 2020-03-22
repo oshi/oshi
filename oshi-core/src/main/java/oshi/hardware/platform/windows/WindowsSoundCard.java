@@ -1,8 +1,7 @@
 /**
- * OSHI (https://github.com/oshi/oshi)
+ * MIT License
  *
- * Copyright (c) 2010 - 2019 The OSHI Project Team:
- * https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -10,8 +9,9 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -40,18 +40,30 @@ public class WindowsSoundCard extends AbstractSoundCard {
 
     private static final String REGISTRY_SOUNDCARDS = "SYSTEM\\CurrentControlSet\\Control\\Class\\{4d36e96c-e325-11ce-bfc1-08002be10318}\\";
 
+    /**
+     * <p>
+     * Constructor for WindowsSoundCard.
+     * </p>
+     *
+     * @param kernelVersion
+     *            a {@link java.lang.String} object.
+     * @param name
+     *            a {@link java.lang.String} object.
+     * @param codec
+     *            a {@link java.lang.String} object.
+     */
     public WindowsSoundCard(String kernelVersion, String name, String codec) {
         super(kernelVersion, name, codec);
     }
 
     /**
-     * Returns Windows audio device driver information, which represents the
-     * closest proxy we have to sound cards.
+     * Returns Windows audio device driver information, which represents the closest
+     * proxy we have to sound cards.
      * <p>
      * NOTE : The reason why the codec name is same as the card name is because
-     * windows does not provide the name of the codec chip but sometimes the
-     * name of the card returned is infact the name of the codec chip also.
-     * Example : Realtek ALC887 HD Audio Device
+     * windows does not provide the name of the codec chip but sometimes the name of
+     * the card returned is infact the name of the codec chip also. Example :
+     * Realtek ALC887 HD Audio Device
      *
      * @return List of sound cards
      */

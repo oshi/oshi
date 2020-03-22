@@ -1,8 +1,7 @@
 /**
- * OSHI (https://github.com/oshi/oshi)
+ * MIT License
  *
- * Copyright (c) 2010 - 2019 The OSHI Project Team:
- * https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -10,8 +9,9 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,53 +23,44 @@
  */
 package oshi.hardware.platform.unix.freebsd;
 
+import static oshi.util.Memoizer.memoize;
+
+import java.util.function.Supplier;
+
 import oshi.hardware.common.AbstractFirmware;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
+import oshi.util.Util;
+import oshi.util.tuples.Triplet;
 
 final class FreeBsdFirmware extends AbstractFirmware {
 
-    private static final long serialVersionUID = 1L;
+    private final Supplier<Triplet<String, String, String>> manufVersRelease = memoize(FreeBsdFirmware::readDmiDecode);
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public String getManufacturer() {
-        if (this.manufacturer == null) {
-            readDmiDecode();
-        }
-        return super.getManufacturer();
+        return manufVersRelease.get().getA();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public String getVersion() {
-        if (this.version == null) {
-            readDmiDecode();
-        }
-        return super.getVersion();
+        return manufVersRelease.get().getB();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public String getReleaseDate() {
-        if (this.releaseDate == null) {
-            readDmiDecode();
-        }
-        return super.getReleaseDate();
+        return manufVersRelease.get().getC();
     }
 
     /*
      * Name and Description not set
      */
 
-    private void readDmiDecode() {
+    private static Triplet<String, String, String> readDmiDecode() {
+        String manufacturer = null;
+        String version = null;
+        String releaseDate = "";
 
         // $ sudo dmidecode -t bios
         // # dmidecode 3.0
@@ -92,17 +83,16 @@ final class FreeBsdFirmware extends AbstractFirmware {
         // Only works with root permissions but it's all we've got
         for (final String checkLine : ExecutingCommand.runNative("dmidecode -t bios")) {
             if (checkLine.contains(manufacturerMarker)) {
-                String manufacturer = checkLine.split(manufacturerMarker)[1].trim();
-                this.manufacturer = manufacturer.isEmpty() ? Constants.UNKNOWN : manufacturer;
+                manufacturer = checkLine.split(manufacturerMarker)[1].trim();
             } else if (checkLine.contains(versionMarker)) {
-                String version = checkLine.split(versionMarker)[1].trim();
-                this.version = version.isEmpty() ? Constants.UNKNOWN : version;
+                version = checkLine.split(versionMarker)[1].trim();
             } else if (checkLine.contains(releaseDateMarker)) {
-                String releaseDate = checkLine.split(releaseDateMarker)[1].trim();
-                this.releaseDate = releaseDate.isEmpty() ? Constants.UNKNOWN
-                        : ParseUtil.parseMmDdYyyyToYyyyMmDD(releaseDate);
+                releaseDate = checkLine.split(releaseDateMarker)[1].trim();
             }
         }
+        releaseDate = ParseUtil.parseMmDdYyyyToYyyyMmDD(releaseDate);
+        return new Triplet<>(Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer,
+                Util.isBlank(version) ? Constants.UNKNOWN : version,
+                Util.isBlank(releaseDate) ? Constants.UNKNOWN : releaseDate);
     }
-
 }

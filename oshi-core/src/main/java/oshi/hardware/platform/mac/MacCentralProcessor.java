@@ -1,8 +1,7 @@
 /**
- * OSHI (https://github.com/oshi/oshi)
+ * MIT License
  *
- * Copyright (c) 2010 - 2019 The OSHI Project Team:
- * https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -10,8 +9,9 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -31,94 +31,55 @@ import org.slf4j.LoggerFactory;
 import com.sun.jna.Native; // NOSONAR
 import com.sun.jna.platform.mac.SystemB;
 import com.sun.jna.platform.mac.SystemB.HostCpuLoadInfo;
-import com.sun.jna.platform.mac.SystemB.Timeval;
 import com.sun.jna.platform.mac.SystemB.VMMeter;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
 
 import oshi.hardware.common.AbstractCentralProcessor;
-import oshi.util.ExecutingCommand;
 import oshi.util.FormatUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.mac.SysctlUtil;
 
 /**
  * A CPU.
- *
- * @author alessandro[at]perucchi[dot]org
- * @author alessio.fachechi[at]gmail[dot]com
- * @author widdis[at]gmail[dot]com
  */
 public class MacCentralProcessor extends AbstractCentralProcessor {
 
-    private static final long serialVersionUID = 1L;
-
     private static final Logger LOG = LoggerFactory.getLogger(MacCentralProcessor.class);
 
-    private static final long BOOTTIME;
-    static {
-        Timeval tv = new Timeval();
-        if (!SysctlUtil.sysctl("kern.boottime", tv) || tv.tv_sec.longValue() == 0L) {
-            // Usually this works. If it doesn't, fall back to text parsing.
-            // Boot time will be the first consecutive string of digits.
-            BOOTTIME = ParseUtil.parseLongOrDefault(
-                    ExecutingCommand.getFirstAnswer("sysctl -n kern.boottime").split(",")[0].replaceAll("\\D", ""),
-                    System.currentTimeMillis() / 1000);
-        } else {
-            // tv now points to a 64-bit timeval structure for boot time.
-            // First 4 bytes are seconds, second 4 bytes are microseconds
-            // (we ignore)
-            BOOTTIME = tv.tv_sec.longValue();
-        }
-    }
-
-    /**
-     * Create a Processor
-     */
-    public MacCentralProcessor() {
-        super();
-        // Initialize class variables
-        initVars();
-
-        LOG.debug("Initialized Processor");
-    }
-
-    private void initVars() {
-        setVendor(SysctlUtil.sysctl("machdep.cpu.vendor", ""));
-        setName(SysctlUtil.sysctl("machdep.cpu.brand_string", ""));
-        setCpu64(SysctlUtil.sysctl("hw.cpu64bit_capable", 0) != 0);
+    @Override
+    protected final ProcessorIdentifier queryProcessorId() {
+        String cpuVendor = SysctlUtil.sysctl("machdep.cpu.vendor", "");
+        String cpuName = SysctlUtil.sysctl("machdep.cpu.brand_string", "");
         int i = SysctlUtil.sysctl("machdep.cpu.stepping", -1);
-        setStepping(i < 0 ? "" : Integer.toString(i));
+        String cpuStepping = i < 0 ? "" : Integer.toString(i);
         i = SysctlUtil.sysctl("machdep.cpu.model", -1);
-        setModel(i < 0 ? "" : Integer.toString(i));
+        String cpuModel = i < 0 ? "" : Integer.toString(i);
         i = SysctlUtil.sysctl("machdep.cpu.family", -1);
-        setFamily(i < 0 ? "" : Integer.toString(i));
-        long processorID = 0L;
-        processorID |= SysctlUtil.sysctl("machdep.cpu.signature", 0);
-        processorID |= (SysctlUtil.sysctl("machdep.cpu.feature_bits", 0L) & 0xffffffff) << 32;
-        setProcessorID(String.format("%016X", processorID));
+        String cpuFamily = i < 0 ? "" : Integer.toString(i);
+        long processorIdBits = 0L;
+        processorIdBits |= SysctlUtil.sysctl("machdep.cpu.signature", 0);
+        processorIdBits |= (SysctlUtil.sysctl("machdep.cpu.feature_bits", 0L) & 0xffffffff) << 32;
+        String processorID = String.format("%016X", processorIdBits);
+        boolean cpu64bit = SysctlUtil.sysctl("hw.cpu64bit_capable", 0) != 0;
+
+        return new ProcessorIdentifier(cpuVendor, cpuName, cpuFamily, cpuModel, cpuStepping, processorID, cpu64bit);
     }
 
-    /**
-     * Updates logical and physical processor counts from sysctl calls
-     */
     @Override
     protected LogicalProcessor[] initProcessorCounts() {
-        this.logicalProcessorCount = SysctlUtil.sysctl("hw.logicalcpu", 1);
-        this.physicalProcessorCount = SysctlUtil.sysctl("hw.physicalcpu", 1);
-        this.physicalPackageCount = SysctlUtil.sysctl("hw.packages", 1);
+        int logicalProcessorCount = SysctlUtil.sysctl("hw.logicalcpu", 1);
+        int physicalProcessorCount = SysctlUtil.sysctl("hw.physicalcpu", 1);
+        int physicalPackageCount = SysctlUtil.sysctl("hw.packages", 1);
 
-        LogicalProcessor[] logProcs = new LogicalProcessor[this.logicalProcessorCount];
+        LogicalProcessor[] logProcs = new LogicalProcessor[logicalProcessorCount];
         for (int i = 0; i < logProcs.length; i++) {
-            logProcs[i] = new LogicalProcessor(i, i * this.physicalProcessorCount / this.logicalProcessorCount,
-                    i * this.physicalPackageCount / this.logicalProcessorCount);
+            logProcs[i] = new LogicalProcessor(i, i * physicalProcessorCount / logicalProcessorCount,
+                    i * physicalPackageCount / logicalProcessorCount);
         }
         return logProcs;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public long[] querySystemCpuLoadTicks() {
         long[] ticks = new long[TickType.values().length];
@@ -138,9 +99,6 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
         return ticks;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public long[] queryCurrentFreq() {
         long[] freqs = new long[getLogicalProcessorCount()];
@@ -148,17 +106,11 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
         return freqs;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public long queryMaxFreq() {
         return SysctlUtil.sysctl("hw.cpufrequency_max", -1L);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public double[] getSystemLoadAverage(int nelem) {
         if (nelem < 1 || nelem > 3) {
@@ -172,12 +124,9 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
         return average;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public long[][] queryProcessorCpuLoadTicks() {
-        long[][] ticks = new long[this.logicalProcessorCount][TickType.values().length];
+        long[][] ticks = new long[getLogicalProcessorCount()][TickType.values().length];
 
         int machPort = SystemB.INSTANCE.mach_host_self();
 
@@ -202,19 +151,8 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
         return ticks;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public long getSystemUptime() {
-        return System.currentTimeMillis() / 1000 - BOOTTIME;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public long getContextSwitches() {
+    public long queryContextSwitches() {
         int machPort = SystemB.INSTANCE.mach_host_self();
         VMMeter vmstats = new VMMeter();
         if (0 != SystemB.INSTANCE.host_statistics(machPort, SystemB.HOST_VM_INFO, vmstats,
@@ -225,11 +163,8 @@ public class MacCentralProcessor extends AbstractCentralProcessor {
         return ParseUtil.unsignedIntToLong(vmstats.v_swtch);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public long getInterrupts() {
+    public long queryInterrupts() {
         int machPort = SystemB.INSTANCE.mach_host_self();
         VMMeter vmstats = new VMMeter();
         if (0 != SystemB.INSTANCE.host_statistics(machPort, SystemB.HOST_VM_INFO, vmstats,

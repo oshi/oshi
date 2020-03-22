@@ -1,8 +1,7 @@
 /**
- * OSHI (https://github.com/oshi/oshi)
+ * MIT License
  *
- * Copyright (c) 2010 - 2019 The OSHI Project Team:
- * https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -10,8 +9,9 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,9 +23,9 @@
  */
 package oshi;
 
-import java.io.Serializable;
+import java.util.function.Supplier;
 
-import com.sun.jna.Platform;
+import com.sun.jna.Platform; // NOSONAR squid:S1191
 
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.platform.linux.LinuxHardwareAbstractionLayer;
@@ -39,22 +39,16 @@ import oshi.software.os.mac.MacOperatingSystem;
 import oshi.software.os.unix.freebsd.FreeBsdOperatingSystem;
 import oshi.software.os.unix.solaris.SolarisOperatingSystem;
 import oshi.software.os.windows.WindowsOperatingSystem;
+import static oshi.util.Memoizer.memoize;
 
 /**
- * System information. This is the main entry point to Oshi. This object
- * provides getters which instantiate the appropriate platform-specific
- * implementations of {@link OperatingSystem} (software) and
- * {@link HardwareAbstractionLayer} (hardware).
- *
- * @author dblock[at]dblock[dot]org
+ * System information. This is the main entry point to Oshi.
+ * <p>
+ * This object provides getters which instantiate the appropriate
+ * platform-specific implementations of {@link oshi.software.os.OperatingSystem}
+ * (software) and {@link oshi.hardware.HardwareAbstractionLayer} (hardware).
  */
-public class SystemInfo implements Serializable {
-
-    private static final long serialVersionUID = 1L;
-
-    private OperatingSystem os = null;
-
-    private HardwareAbstractionLayer hardware = null;
+public class SystemInfo {
 
     // The platform isn't going to change, and making this static enables easy
     // access from outside this class
@@ -76,7 +70,15 @@ public class SystemInfo implements Serializable {
         }
     }
 
+    private final Supplier<OperatingSystem> os = memoize(this::createOperatingSystem);
+
+    private final Supplier<HardwareAbstractionLayer> hardware = memoize(this::createHardware);
+
     /**
+     * <p>
+     * Getter for the field <code>currentPlatformEnum</code>.
+     * </p>
+     *
      * @return Returns the currentPlatformEnum.
      */
     public static PlatformEnum getCurrentPlatformEnum() {
@@ -85,65 +87,57 @@ public class SystemInfo implements Serializable {
 
     /**
      * Creates a new instance of the appropriate platform-specific
-     * {@link OperatingSystem}.
+     * {@link oshi.software.os.OperatingSystem}.
      *
-     * @return A new instance of {@link OperatingSystem}.
+     * @return A new instance of {@link oshi.software.os.OperatingSystem}.
      */
     public OperatingSystem getOperatingSystem() {
-        if (this.os == null) {
-            switch (currentPlatformEnum) {
+        return os.get();
+    }
 
-            case WINDOWS:
-                this.os = new WindowsOperatingSystem();
-                break;
-            case LINUX:
-                this.os = new LinuxOperatingSystem();
-                break;
-            case MACOSX:
-                this.os = new MacOperatingSystem();
-                break;
-            case SOLARIS:
-                this.os = new SolarisOperatingSystem();
-                break;
-            case FREEBSD:
-                this.os = new FreeBsdOperatingSystem();
-                break;
-            default:
-                throw new UnsupportedOperationException("Operating system not supported: " + Platform.getOSType());
-            }
+    private OperatingSystem createOperatingSystem() {
+        switch (currentPlatformEnum) {
+
+        case WINDOWS:
+            return new WindowsOperatingSystem();
+        case LINUX:
+            return new LinuxOperatingSystem();
+        case MACOSX:
+            return new MacOperatingSystem();
+        case SOLARIS:
+            return new SolarisOperatingSystem();
+        case FREEBSD:
+            return new FreeBsdOperatingSystem();
+        default:
+            throw new UnsupportedOperationException("Operating system not supported: " + Platform.getOSType());
         }
-        return this.os;
     }
 
     /**
      * Creates a new instance of the appropriate platform-specific
-     * {@link HardwareAbstractionLayer}.
+     * {@link oshi.hardware.HardwareAbstractionLayer}.
      *
-     * @return A new instance of {@link HardwareAbstractionLayer}.
+     * @return A new instance of {@link oshi.hardware.HardwareAbstractionLayer}.
      */
     public HardwareAbstractionLayer getHardware() {
-        if (this.hardware == null) {
-            switch (currentPlatformEnum) {
+        return hardware.get();
+    }
 
-            case WINDOWS:
-                this.hardware = new WindowsHardwareAbstractionLayer();
-                break;
-            case LINUX:
-                this.hardware = new LinuxHardwareAbstractionLayer();
-                break;
-            case MACOSX:
-                this.hardware = new MacHardwareAbstractionLayer();
-                break;
-            case SOLARIS:
-                this.hardware = new SolarisHardwareAbstractionLayer();
-                break;
-            case FREEBSD:
-                this.hardware = new FreeBsdHardwareAbstractionLayer();
-                break;
-            default:
-                throw new UnsupportedOperationException("Operating system not supported: " + Platform.getOSType());
-            }
+    private HardwareAbstractionLayer createHardware() {
+        switch (currentPlatformEnum) {
+
+        case WINDOWS:
+            return new WindowsHardwareAbstractionLayer();
+        case LINUX:
+            return new LinuxHardwareAbstractionLayer();
+        case MACOSX:
+            return new MacHardwareAbstractionLayer();
+        case SOLARIS:
+            return new SolarisHardwareAbstractionLayer();
+        case FREEBSD:
+            return new FreeBsdHardwareAbstractionLayer();
+        default:
+            throw new UnsupportedOperationException("Operating system not supported: " + Platform.getOSType());
         }
-        return this.hardware;
     }
 }

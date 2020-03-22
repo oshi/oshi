@@ -1,8 +1,7 @@
 /**
- * OSHI (https://github.com/oshi/oshi)
+ * MIT License
  *
- * Copyright (c) 2010 - 2019 The OSHI Project Team:
- * https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -10,8 +9,9 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,76 +23,61 @@
  */
 package oshi.hardware.platform.windows;
 
-import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery; // NOSONAR squid:S1191
-import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
+import static oshi.util.Memoizer.memoize;
 
+import java.util.function.Supplier;
+
+import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult; // NOSONAR squid:S1191
+
+import oshi.driver.windows.wmi.Win32BaseBoard;
+import oshi.driver.windows.wmi.Win32BaseBoard.BaseBoardProperty;
 import oshi.hardware.common.AbstractBaseboard;
-import oshi.util.platform.windows.WmiQueryHandler;
+import oshi.util.Constants;
+import oshi.util.Util;
 import oshi.util.platform.windows.WmiUtil;
+import oshi.util.tuples.Quartet;
 
 /**
  * Baseboard data obtained from WMI
  */
 final class WindowsBaseboard extends AbstractBaseboard {
+    private final Supplier<Quartet<String, String, String, String>> manufModelVersSerial = memoize(
+            WindowsBaseboard::queryManufModelVersSerial);
 
-    private static final long serialVersionUID = 1L;
-
-    enum BaseboardProperty {
-        MANUFACTURER, MODEL, VERSION, SERIALNUMBER;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public String getManufacturer() {
-        if (this.manufacturer == null) {
-            queryWmi();
-        }
-        return super.getManufacturer();
+        return manufModelVersSerial.get().getA();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public String getModel() {
-        if (this.model == null) {
-            queryWmi();
-        }
-        return super.getModel();
+        return manufModelVersSerial.get().getB();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public String getVersion() {
-        if (this.version == null) {
-            queryWmi();
-        }
-        return super.getVersion();
+        return manufModelVersSerial.get().getC();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public String getSerialNumber() {
-        if (this.serialNumber == null) {
-            queryWmi();
-        }
-        return super.getSerialNumber();
+        return manufModelVersSerial.get().getD();
     }
 
-    private void queryWmi() {
-        WmiQuery<BaseboardProperty> baseboardQuery = new WmiQuery<>("Win32_BaseBoard", BaseboardProperty.class);
-        WmiResult<BaseboardProperty> win32BaseBoard = WmiQueryHandler.createInstance().queryWMI(baseboardQuery);
+    private static Quartet<String, String, String, String> queryManufModelVersSerial() {
+        String manufacturer = null;
+        String model = null;
+        String version = null;
+        String serialNumber = null;
+        WmiResult<BaseBoardProperty> win32BaseBoard = Win32BaseBoard.queryBaseboardInfo();
         if (win32BaseBoard.getResultCount() > 0) {
-            this.manufacturer = WmiUtil.getString(win32BaseBoard, BaseboardProperty.MANUFACTURER, 0);
-            this.model = WmiUtil.getString(win32BaseBoard, BaseboardProperty.MODEL, 0);
-            this.version = WmiUtil.getString(win32BaseBoard, BaseboardProperty.VERSION, 0);
-            this.serialNumber = WmiUtil.getString(win32BaseBoard, BaseboardProperty.SERIALNUMBER, 0);
+            manufacturer = WmiUtil.getString(win32BaseBoard, BaseBoardProperty.MANUFACTURER, 0);
+            model = WmiUtil.getString(win32BaseBoard, BaseBoardProperty.MODEL, 0);
+            version = WmiUtil.getString(win32BaseBoard, BaseBoardProperty.VERSION, 0);
+            serialNumber = WmiUtil.getString(win32BaseBoard, BaseBoardProperty.SERIALNUMBER, 0);
         }
+        return new Quartet<>(Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer,
+                Util.isBlank(model) ? Constants.UNKNOWN : model, Util.isBlank(version) ? Constants.UNKNOWN : version,
+                Util.isBlank(serialNumber) ? Constants.UNKNOWN : serialNumber);
     }
 }

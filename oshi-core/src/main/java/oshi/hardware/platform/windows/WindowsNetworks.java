@@ -1,8 +1,7 @@
 /**
- * OSHI (https://github.com/oshi/oshi)
+ * MIT License
  *
- * Copyright (c) 2010 - 2019 The OSHI Project Team:
- * https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -10,8 +9,9 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -36,11 +36,11 @@ import oshi.hardware.common.AbstractNetworks;
 import oshi.util.ParseUtil;
 
 /**
- * @author widdis[at]gmail[dot]com
+ * <p>
+ * WindowsNetworks class.
+ * </p>
  */
 public class WindowsNetworks extends AbstractNetworks {
-
-    private static final long serialVersionUID = 1L;
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsNetworks.class);
 
@@ -52,8 +52,9 @@ public class WindowsNetworks extends AbstractNetworks {
      *
      * @param netIF
      *            The interface on which to update statistics
+     * @return {@code true} if the update was successful, {@code false} otherwise.
      */
-    public static void updateNetworkStats(NetworkIF netIF) {
+    public static boolean updateNetworkStats(NetworkIF netIF) {
         // MIB_IFROW2 requires Vista (6.0) or later.
         if (IS_VISTA_OR_GREATER) {
             // Create new MIB_IFROW2 and set index to this interface index
@@ -63,7 +64,7 @@ public class WindowsNetworks extends AbstractNetworks {
                 // Error, abort
                 LOG.error("Failed to retrieve data for interface {}, {}", netIF.queryNetworkInterface().getIndex(),
                         netIF.getName());
-                return;
+                return false;
             }
             // These are unsigned longs. netIF setter will mask sign bit.
             netIF.setBytesSent(ifRow.OutOctets);
@@ -72,6 +73,8 @@ public class WindowsNetworks extends AbstractNetworks {
             netIF.setPacketsRecv(ifRow.InUcastPkts);
             netIF.setOutErrors(ifRow.OutErrors);
             netIF.setInErrors(ifRow.InErrors);
+            netIF.setCollisions(ifRow.OutDiscards); // closest proxy
+            netIF.setInDrops(ifRow.InDiscards); // closest proxy
             netIF.setSpeed(ifRow.ReceiveLinkSpeed);
         } else {
             // Create new MIB_IFROW and set index to this interface index
@@ -81,7 +84,7 @@ public class WindowsNetworks extends AbstractNetworks {
                 // Error, abort
                 LOG.error("Failed to retrieve data for interface {}, {}", netIF.queryNetworkInterface().getIndex(),
                         netIF.getName());
-                return;
+                return false;
             }
             // These are unsigned ints. Widen them to longs.
             netIF.setBytesSent(ParseUtil.unsignedIntToLong(ifRow.dwOutOctets));
@@ -90,8 +93,11 @@ public class WindowsNetworks extends AbstractNetworks {
             netIF.setPacketsRecv(ParseUtil.unsignedIntToLong(ifRow.dwInUcastPkts));
             netIF.setOutErrors(ParseUtil.unsignedIntToLong(ifRow.dwOutErrors));
             netIF.setInErrors(ParseUtil.unsignedIntToLong(ifRow.dwInErrors));
+            netIF.setCollisions(ParseUtil.unsignedIntToLong(ifRow.dwOutDiscards)); // closest proxy
+            netIF.setInDrops(ParseUtil.unsignedIntToLong(ifRow.dwInDiscards)); // closest proxy
             netIF.setSpeed(ParseUtil.unsignedIntToLong(ifRow.dwSpeed));
         }
         netIF.setTimeStamp(System.currentTimeMillis());
+        return true;
     }
 }

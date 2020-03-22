@@ -1,8 +1,7 @@
 /**
- * OSHI (https://github.com/oshi/oshi)
+ * MIT License
  *
- * Copyright (c) 2010 - 2019 The OSHI Project Team:
- * https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -10,8 +9,9 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -26,6 +26,7 @@ package oshi.util;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -36,10 +37,8 @@ import org.slf4j.LoggerFactory;
 /**
  * A class for executing on the command line and returning the result of
  * execution.
- *
- * @author alessandro[at]perucchi[dot]org
  */
-public class ExecutingCommand {
+public final class ExecutingCommand {
 
     private static final Logger LOG = LoggerFactory.getLogger(ExecutingCommand.class);
 
@@ -47,16 +46,16 @@ public class ExecutingCommand {
     }
 
     /**
-     * Executes a command on the native command line and returns the result.
-     * This is a convenience method to call {@link Runtime#exec(String)} and
+     * Executes a command on the native command line and returns the result. This is
+     * a convenience method to call {@link java.lang.Runtime#exec(String)} and
      * capture the resulting output in a list of Strings. On Windows, built-in
      * commands not associated with an executable program may require
      * {@code cmd.exe /c} to be prepended to the command.
      *
      * @param cmdToRun
      *            Command to run
-     * @return A list of Strings representing the result of the command, or
-     *         empty string if the command failed
+     * @return A list of Strings representing the result of the command, or empty
+     *         string if the command failed
      */
     public static List<String> runNative(String cmdToRun) {
         String[] cmd = cmdToRun.split(" ");
@@ -64,39 +63,41 @@ public class ExecutingCommand {
     }
 
     /**
-     * Executes a command on the native command line and returns the result line
-     * by line. This is a convenience method to call
-     * {@link Runtime#exec(String[])} and capture the resulting output in a list
-     * of Strings. On Windows, built-in commands not associated with an
-     * executable program may require the strings {@code cmd.exe} and {@code /c}
-     * to be prepended to the array.
+     * Executes a command on the native command line and returns the result line by
+     * line. This is a convenience method to call
+     * {@link java.lang.Runtime#exec(String[])} and capture the resulting output in
+     * a list of Strings. On Windows, built-in commands not associated with an
+     * executable program may require the strings {@code cmd.exe} and {@code /c} to
+     * be prepended to the array.
      *
      * @param cmdToRunWithArgs
      *            Command to run and args, in an array
-     * @return A list of Strings representing the result of the command, or
-     *         empty string if the command failed
+     * @return A list of Strings representing the result of the command, or empty
+     *         string if the command failed
      */
     public static List<String> runNative(String[] cmdToRunWithArgs) {
         Process p = null;
         try {
             p = Runtime.getRuntime().exec(cmdToRunWithArgs);
         } catch (SecurityException | IOException e) {
-            LOG.trace("Couldn't run command {}: {}", Arrays.toString(cmdToRunWithArgs), e);
+            LOG.trace("Couldn't run command {}: {}", Arrays.toString(cmdToRunWithArgs), e.getMessage());
             return new ArrayList<>(0);
         }
 
         ArrayList<String> sa = new ArrayList<>();
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()))) {
+        try (BufferedReader reader = new BufferedReader(
+                new InputStreamReader(p.getInputStream(), Charset.defaultCharset()))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 sa.add(line);
             }
             p.waitFor();
         } catch (IOException e) {
-            LOG.trace("Problem reading output from {}: {}", Arrays.toString(cmdToRunWithArgs), e);
+            LOG.trace("Problem reading output from {}: {}", Arrays.toString(cmdToRunWithArgs), e.getMessage());
             return new ArrayList<>(0);
         } catch (InterruptedException ie) {
-            LOG.trace("Interrupted while reading output from {}: {}", Arrays.toString(cmdToRunWithArgs), ie);
+            LOG.trace("Interrupted while reading output from {}: {}", Arrays.toString(cmdToRunWithArgs),
+                    ie.getMessage());
             Thread.currentThread().interrupt();
         }
         return sa;

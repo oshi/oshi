@@ -1,8 +1,7 @@
 /**
- * OSHI (https://github.com/oshi/oshi)
+ * MIT License
  *
- * Copyright (c) 2010 - 2019 The OSHI Project Team:
- * https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -10,8 +9,9 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -25,8 +25,39 @@ package oshi.hardware.platform.unix.solaris;
 
 import oshi.hardware.common.AbstractBaseboard;
 
+/**
+ * Baseboard data obtained by smbios
+ */
 final class SolarisBaseboard extends AbstractBaseboard {
+    private final String manufacturer;
+    private final String model;
+    private final String serialNumber;
+    private final String version;
 
-    private static final long serialVersionUID = 1L;
+    SolarisBaseboard(String manufacturer, String model, String serialNumber, String version) {
+        this.manufacturer = manufacturer;
+        this.model = model;
+        this.serialNumber = serialNumber;
+        this.version = version;
+    }
 
+    @Override
+    public String getManufacturer() {
+        return this.manufacturer;
+    }
+
+    @Override
+    public String getModel() {
+        return this.model;
+    }
+
+    @Override
+    public String getSerialNumber() {
+        return this.serialNumber;
+    }
+
+    @Override
+    public String getVersion() {
+        return this.version;
+    }
 }

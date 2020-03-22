@@ -1,19 +1,20 @@
 Contributing to Oshi
 =====================
 
-Oshi is work of [many contributors](https://github.com/dblock/oshi/graphs/contributors). You're encouraged to submit [pull requests](https://github.com/dblock/oshi/pulls), [propose features and discuss issues](https://github.com/dblock/oshi/issues).
+OSHI is work of [many contributors](https://github.com/oshi/oshi/graphs/contributors). You're encouraged to submit [pull requests](https://github.com/oshi/oshi/pulls), [propose features and discuss issues](https://github.com/oshi/oshi/issues).
+
+OSHI is [first-timers-only](https://www.firsttimersonly.com/) friendly.  If you're new to open source, or coding, or git, we're happy to help you get started! Look for the `first-timers-only` or `good first issue` tags on issues, or simply post a new issue asking how you can help.  We'll walk you through the steps needed to contribute to the project.
 
 #### Fork the Project
 
-Fork the [project on Github](https://github.com/dblock/oshi) and check out your copy.
-
+Fork the project on Github by clicking on the word "Fork" above and to the right of this page.  This will create your own fork at https://github.com/yournamehere/oshi.git.  Then clone your fork to your local repository on your machine using these commands:
 ```
-git clone https://github.com/contributor/oshi.git
+git clone https://github.com/yournamehere/oshi.git
 cd oshi
-git remote add upstream https://github.com/dblock/oshi.git
+git remote add upstream https://github.com/oshi/oshi.git
 ```
 
-#### Create a Topic Branch
+#### Create a Branch for your feature
 
 Make sure your fork is up-to-date and create a topic branch for your feature or bug fix.
 
@@ -33,7 +34,8 @@ mvn test
 
 #### Write Tests
 
-Try to write a test that reproduces the problem you're trying to fix or describes a feature that you want to build.
+For bug fixes, try to write a test that reproduces the problem you're trying to fix (and fails).
+For new features, write a test that produces results for a feature that you want to build.
 
 We definitely appreciate pull requests that highlight or reproduce a problem, even without a fix.
 
@@ -43,9 +45,6 @@ Implement your feature or bug fix.
 
 Make sure that `mvn test` completes without errors.
 
-#### Write Documentation
-
-Document any external behavior in the [README](README.md).
 
 #### Update Changelog
 
@@ -75,11 +74,11 @@ git push origin my-feature-branch
 
 #### Make a Pull Request
 
-Go to https://github.com/contributor/oshi and select your feature branch. Click the 'Pull Request' button and fill out the form. Pull requests are usually reviewed within a few days.
+Go to https://github.com/yournamehere/oshi and select your feature branch. Click the 'Pull Request' button and fill out the form. Pull requests are usually reviewed within a few days.
 
 #### Rebase
 
-If you've been working on a change for a while, rebase with upstream/master.
+If you've been working on a change for a while and other commits have been made to the project, rebase with upstream/master.
 
 ```
 git fetch upstream
@@ -92,10 +91,10 @@ git push origin my-feature-branch -f
 Update the [CHANGELOG](CHANGELOG.md) with the pull request number. A typical entry looks as follows.
 
 ```
-* [#123](https://github.com/dblock/oshi/pull/123): Reticulated splines - [@contributor](https://github.com/contributor).
+* [#123](https://github.com/oshi/oshi/pull/123): Reticulated splines - [@contributor](https://github.com/contributor).
 ```
 
-Amend your previous commit and force push the changes.
+You may amend your previous commit and force push the changes, or just submit a changelog commit.
 
 ```
 git commit --amend
@@ -104,7 +103,9 @@ git push origin my-feature-branch -f
 
 #### Check on Your Pull Request
 
-Go back to your pull request after a few minutes and see whether it passed muster with Travis-CI. Everything should look green, otherwise fix issues and amend your commit as described above.
+Go back to your pull request after a few minutes and see whether it passed muster with Travis-CI. 
+Everything should look green, otherwise read the Travis log to identify failed tests or compile erros.
+Fix issues and amend your commit as described above.
 
 #### Be Patient
 

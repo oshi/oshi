@@ -1,8 +1,7 @@
 /**
- * OSHI (https://github.com/oshi/oshi)
+ * MIT License
  *
- * Copyright (c) 2010 - 2019 The OSHI Project Team:
- * https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -10,8 +9,9 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -38,10 +38,9 @@ import org.slf4j.LoggerFactory;
 
 /**
  * File reading methods
- *
- * @author widdis[at]gmail[dot]com
  */
-public class FileUtil {
+public final class FileUtil {
+
     private static final Logger LOG = LoggerFactory.getLogger(FileUtil.class);
 
     private FileUtil() {
@@ -53,7 +52,6 @@ public class FileUtil {
      *
      * @param filename
      *            The file to read
-     *
      * @return A list of Strings representing each line of the file, or an empty
      *         list if file could not be read or is empty
      */
@@ -69,7 +67,6 @@ public class FileUtil {
      *            The file to read
      * @param reportError
      *            Whether to log errors reading the file
-     *
      * @return A list of Strings representing each line of the file, or an empty
      *         list if file could not be read or is empty
      */
@@ -82,7 +79,7 @@ public class FileUtil {
                 return Files.readAllLines(Paths.get(filename), StandardCharsets.UTF_8);
             } catch (IOException e) {
                 if (reportError) {
-                    LOG.error("Error reading file {}. {}", filename, e);
+                    LOG.error("Error reading file {}. {}", filename, e.getMessage());
                 }
             }
         } else if (reportError) {
@@ -92,8 +89,8 @@ public class FileUtil {
     }
 
     /**
-     * Read a file and return the long value contained therein. Intended
-     * primarily for Linux /sys filesystem
+     * Read a file and return the long value contained therein. Intended primarily
+     * for Linux /sys filesystem
      *
      * @param filename
      *            The file to read
@@ -114,8 +111,8 @@ public class FileUtil {
     }
 
     /**
-     * Read a file and return the unsigned long value contained therein as a
-     * long. Intended primarily for Linux /sys filesystem
+     * Read a file and return the unsigned long value contained therein as a long.
+     * Intended primarily for Linux /sys filesystem
      *
      * @param filename
      *            The file to read
@@ -136,8 +133,8 @@ public class FileUtil {
     }
 
     /**
-     * Read a file and return the int value contained therein. Intended
-     * primarily for Linux /sys filesystem
+     * Read a file and return the int value contained therein. Intended primarily
+     * for Linux /sys filesystem
      *
      * @param filename
      *            The file to read
@@ -156,14 +153,14 @@ public class FileUtil {
                 return Integer.parseInt(read.get(0));
             }
         } catch (NumberFormatException ex) {
-            LOG.warn("Unable to read value from {}. {}", filename, ex);
+            LOG.warn("Unable to read value from {}. {}", filename, ex.getMessage());
         }
         return 0;
     }
 
     /**
-     * Read a file and return the String value contained therein. Intended
-     * primarily for Linux /sys filesystem
+     * Read a file and return the String value contained therein. Intended primarily
+     * for Linux /sys filesystem
      *
      * @param filename
      *            The file to read
@@ -190,8 +187,8 @@ public class FileUtil {
      * @param filename
      *            The file to read
      * @param separator
-     *            Characters in each line of the file that separate the key and
-     *            the value
+     *            Characters in each line of the file that separate the key and the
+     *            value
      * @return The map contained in the file, if any; otherwise empty map
      */
     public static Map<String, String> getKeyValueMapFromFile(String filename, String separator) {

@@ -1,8 +1,7 @@
 /**
- * OSHI (https://github.com/oshi/oshi)
+ * MIT License
  *
- * Copyright (c) 2010 - 2019 The OSHI Project Team:
- * https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -10,8 +9,9 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -54,13 +54,17 @@ public class NetworksTest {
             assertNotNull(net.getDisplayName());
             assertNotNull(net.getMacaddr());
             assertNotNull(net.getIPv4addr());
+            assertNotNull(net.getSubnetMasks());
             assertNotNull(net.getIPv6addr());
+            assertNotNull(net.getPrefixLengths());
             assertTrue(net.getBytesRecv() >= 0);
             assertTrue(net.getBytesSent() >= 0);
             assertTrue(net.getPacketsRecv() >= 0);
             assertTrue(net.getPacketsSent() >= 0);
             assertTrue(net.getInErrors() >= 0);
             assertTrue(net.getOutErrors() >= 0);
+            assertTrue(net.getInDrops() >= 0);
+            assertTrue(net.getCollisions() >= 0);
             assertTrue(net.getSpeed() >= 0);
             assertTrue(net.getMTU() >= 0);
             assertTrue(net.getTimeStamp() > 0);
@@ -71,6 +75,8 @@ public class NetworksTest {
             net.setPacketsSent(40L);
             net.setInErrors(60L);
             net.setOutErrors(70L);
+            net.setInDrops(80L);
+            net.setCollisions(90L);
             net.setSpeed(50L);
             net.setTimeStamp(timeStamp);
 
@@ -80,6 +86,8 @@ public class NetworksTest {
             assertEquals(40L, net.getPacketsSent());
             assertEquals(60L, net.getInErrors());
             assertEquals(70L, net.getOutErrors());
+            assertEquals(80L, net.getInDrops());
+            assertEquals(90L, net.getCollisions());
             assertEquals(50L, net.getSpeed());
             assertEquals(timeStamp, net.getTimeStamp());
 
@@ -90,6 +98,8 @@ public class NetworksTest {
             assertTrue(net.getPacketsSent() >= 0);
             assertTrue(net.getInErrors() >= 0);
             assertTrue(net.getOutErrors() >= 0);
+            assertTrue(net.getInDrops() >= 0);
+            assertTrue(net.getCollisions() >= 0);
             assertTrue(net.getSpeed() >= 0);
             assertTrue(net.getTimeStamp() > 0);
         }

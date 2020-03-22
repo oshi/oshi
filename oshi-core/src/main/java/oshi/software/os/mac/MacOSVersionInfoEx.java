@@ -1,8 +1,7 @@
 /**
- * OSHI (https://github.com/oshi/oshi)
+ * MIT License
  *
- * Copyright (c) 2010 - 2019 The OSHI Project Team:
- * https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -10,8 +9,9 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -27,23 +27,42 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.software.common.AbstractOSVersionInfoEx;
+import oshi.software.os.OperatingSystem;
 import oshi.util.ParseUtil;
 import oshi.util.platform.mac.SysctlUtil;
 
+/**
+ * <p>
+ * MacOSVersionInfoEx class.
+ * </p>
+ * 
+ * @deprecated Use {@link OperatingSystem.OSVersionInfo}
+ */
+@Deprecated
 public class MacOSVersionInfoEx extends AbstractOSVersionInfoEx {
-
-    private static final long serialVersionUID = 1L;
 
     private static final Logger LOG = LoggerFactory.getLogger(MacOSVersionInfoEx.class);
 
     private int osxVersionNumber = -1;
 
+    /**
+     * <p>
+     * Constructor for MacOSVersionInfoEx.
+     * </p>
+     */
     public MacOSVersionInfoEx() {
         setVersion(System.getProperty("os.version"));
         setCodeName(parseCodeName());
         setBuildNumber(SysctlUtil.sysctl("kern.osversion", ""));
     }
 
+    /**
+     * <p>
+     * Getter for the field <code>osxVersionNumber</code>.
+     * </p>
+     *
+     * @return a int.
+     */
     public int getOsxVersionNumber() {
         return this.osxVersionNumber;
     }
@@ -53,6 +72,8 @@ public class MacOSVersionInfoEx extends AbstractOSVersionInfoEx {
             this.osxVersionNumber = ParseUtil.getNthIntValue(getVersion(), 2);
             switch (this.osxVersionNumber) {
             // MacOS
+            case 15:
+                return "Catalina";
             case 14:
                 return "Mojave";
             case 13:

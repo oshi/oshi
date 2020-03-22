@@ -1,8 +1,7 @@
 /**
- * OSHI (https://github.com/oshi/oshi)
+ * MIT License
  *
- * Copyright (c) 2010 - 2019 The OSHI Project Team:
- * https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -10,8 +9,9 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,22 +23,57 @@
  */
 package oshi.software.os;
 
+/**
+ * <p>
+ * OSUser class.
+ * </p>
+ */
 public class OSUser {
     private String userId;
     private String userName;
 
+    /**
+     * <p>
+     * Getter for the field <code>userId</code>.
+     * </p>
+     *
+     * @return a {@link java.lang.String} object.
+     */
     public String getUserId() {
         return this.userId;
     }
 
+    /**
+     * <p>
+     * Setter for the field <code>userId</code>.
+     * </p>
+     *
+     * @param userId
+     *            a {@link java.lang.String} object.
+     */
     public void setUserId(String userId) {
         this.userId = userId;
     }
 
+    /**
+     * <p>
+     * Getter for the field <code>userName</code>.
+     * </p>
+     *
+     * @return a {@link java.lang.String} object.
+     */
     public String getUserName() {
         return this.userName;
     }
 
+    /**
+     * <p>
+     * Setter for the field <code>userName</code>.
+     * </p>
+     *
+     * @param userName
+     *            a {@link java.lang.String} object.
+     */
     public void setUserName(String userName) {
         this.userName = userName;
     }

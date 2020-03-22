@@ -1,8 +1,7 @@
 /**
- * OSHI (https://github.com/oshi/oshi)
+ * MIT License
  *
- * Copyright (c) 2010 - 2019 The OSHI Project Team:
- * https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -10,8 +9,9 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -32,70 +32,36 @@ import java.util.Map;
 
 import com.sun.jna.platform.unix.solaris.LibKstat.Kstat; // NOSONAR
 
-import oshi.software.os.FileSystem;
+import oshi.software.common.AbstractFileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.solaris.KstatUtil;
+import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
 
 /**
- * The Solaris File System contains {@link OSFileStore}s which are a storage
- * pool, device, partition, volume, concrete file system or other implementation
- * specific means of file storage. In Solaris, these are found in the
- * /proc/mount filesystem, excluding temporary and kernel mounts.
- *
- * @author widdis[at]gmail[dot]com
+ * The Solaris File System contains {@link oshi.software.os.OSFileStore}s which
+ * are a storage pool, device, partition, volume, concrete file system or other
+ * implementation specific means of file storage. In Solaris, these are found in
+ * the /proc/mount filesystem, excluding temporary and kernel mounts.
  */
-public class SolarisFileSystem implements FileSystem {
-
-    private static final long serialVersionUID = 1L;
-
-    // Solaris defines a set of virtual file systems
-    private final List<String> pseudofs = Arrays.asList(new String[] { //
-            "proc", // Proc file system
-            "devfs", // Dev temporary file system
-            "ctfs", // Contract file system
-            "objfs", // Object file system
-            "mntfs", // Mount file system
-            "sharefs", // Share file system
-            "lofs", // Library file system
-            "autofs" // Auto mounting fs
-            // "tmpfs", // Temporary file system
-            // NOTE: tmpfs is evaluated apart, because Solaris uses it for
-            // RAMdisks
-    });
+public class SolarisFileSystem extends AbstractFileSystem {
 
     // System path mounted as tmpfs
-    private final List<String> tmpfsPaths = Arrays.asList(new String[] { "/system", "/tmp", "/dev/fd" });
+    private static final List<String> TMP_FS_PATHS = Arrays.asList("/system", "/tmp", "/dev/fd");
 
-    /**
-     * Checks if file path equals or starts with an element in the given list
-     *
-     * @param aList
-     *            A list of path prefixes
-     * @param charSeq
-     *            a path to check
-     * @return true if the charSeq exactly equals, or starts with the directory
-     *         in aList
-     */
-    private boolean listElementStartsWith(List<String> aList, String charSeq) {
-        for (String match : aList) {
-            if (charSeq.equals(match) || charSeq.startsWith(match + "/")) {
-                return true;
-            }
-        }
-        return false;
+    @Override
+    public OSFileStore[] getFileStores(boolean localOnly) {
+        List<OSFileStore> fsList = getFileStoreMatching(null, localOnly);
+
+        return fsList.toArray(new OSFileStore[0]);
     }
 
-    /**
-     * Gets File System Information.
-     *
-     * @return An array of {@link OSFileStore} objects representing mounted
-     *         volumes. May return disconnected volumes with
-     *         {@link OSFileStore#getTotalSpace()} = 0.
-     */
-    @Override
-    public OSFileStore[] getFileStores() {
+    private static List<OSFileStore> getFileStoreMatching(String nameToMatch) {
+        return getFileStoreMatching(nameToMatch, false);
+    }
+
+    private static List<OSFileStore> getFileStoreMatching(String nameToMatch, boolean localOnly) {
         List<OSFileStore> fsList = new ArrayList<>();
 
         // Get inode usage data
@@ -104,7 +70,8 @@ public class SolarisFileSystem implements FileSystem {
         String key = null;
         String total = null;
         String free = null;
-        for (String line : ExecutingCommand.runNative("df -g")) {
+        String command = "df -g" + (localOnly ? " -l" : "");
+        for (String line : ExecutingCommand.runNative(command)) {
             /*- Sample Output:
             /                  (/dev/md/dsk/d0    ):         8192 block size          1024 frag size
             41310292 total blocks   18193814 free blocks 17780712 available        2486848 total files
@@ -127,7 +94,7 @@ public class SolarisFileSystem implements FileSystem {
         }
 
         // Get mount table
-        for (String fs : ExecutingCommand.runNative("cat /etc/mnttab")) {
+        for (String fs : ExecutingCommand.runNative("cat /etc/mnttab")) { // NOSONAR squid:S135
             String[] split = ParseUtil.whitespaces.split(fs);
             if (split.length < 5) {
                 continue;
@@ -135,13 +102,16 @@ public class SolarisFileSystem implements FileSystem {
             // 1st field is volume name
             // 2nd field is mount point
             // 3rd field is fs type
+            // 4th field is options
             // other fields ignored
             String volume = split[0];
             String path = split[1];
             String type = split[2];
+            String options = split[3];
 
-            // Exclude pseudo file systems
-            if (this.pseudofs.contains(type) || path.equals("/dev") || listElementStartsWith(this.tmpfsPaths, path)
+            // Skip non-local drives if requested, and exclude pseudo file systems
+            if ((localOnly && NETWORK_FS_TYPES.contains(type)) || PSEUDO_FS_TYPES.contains(type) || path.equals("/dev")
+                    || ParseUtil.filePathStartsWith(TMP_FS_PATHS, path)
                     || volume.startsWith("rpool") && !path.equals("/")) {
                 continue;
             }
@@ -150,6 +120,10 @@ public class SolarisFileSystem implements FileSystem {
             // Special case for /, pull last element of volume instead
             if (name.isEmpty()) {
                 name = volume.substring(volume.lastIndexOf('/') + 1);
+            }
+
+            if (nameToMatch != null && !nameToMatch.equals(name)) {
+                continue;
             }
             File f = new File(path);
             long totalSpace = f.getTotalSpace();
@@ -161,7 +135,7 @@ public class SolarisFileSystem implements FileSystem {
                 description = "Local Disk";
             } else if (volume.equals("tmpfs")) {
                 description = "Ram Disk";
-            } else if (type.startsWith("nfs") || type.equals("cifs")) {
+            } else if (NETWORK_FS_TYPES.contains(type)) {
                 description = "Network Disk";
             } else {
                 description = "Mount Point";
@@ -171,9 +145,11 @@ public class SolarisFileSystem implements FileSystem {
             OSFileStore osStore = new OSFileStore();
             osStore.setName(name);
             osStore.setVolume(volume);
+            osStore.setLabel(name);
             osStore.setMount(path);
             osStore.setDescription(description);
             osStore.setType(type);
+            osStore.setOptions(options);
             osStore.setUUID(""); // No UUID info on Solaris
             osStore.setFreeSpace(freeSpace);
             osStore.setUsableSpace(usableSpace);
@@ -182,26 +158,57 @@ public class SolarisFileSystem implements FileSystem {
             osStore.setTotalInodes(inodeTotalMap.containsKey(path) ? inodeTotalMap.get(path) : 0L);
             fsList.add(osStore);
         }
-        return fsList.toArray(new OSFileStore[0]);
+        return fsList;
     }
 
     @Override
     public long getOpenFileDescriptors() {
-        Kstat ksp = KstatUtil.kstatLookup(null, -1, "file_cache");
-        // Set values
-        if (ksp != null && KstatUtil.kstatRead(ksp)) {
-            return KstatUtil.kstatDataLookupLong(ksp, "buf_inuse");
+        try (KstatChain kc = KstatUtil.openChain()) {
+            Kstat ksp = kc.lookup(null, -1, "file_cache");
+            // Set values
+            if (ksp != null && kc.read(ksp)) {
+                return KstatUtil.dataLookupLong(ksp, "buf_inuse");
+            }
         }
         return 0L;
     }
 
     @Override
     public long getMaxFileDescriptors() {
-        Kstat ksp = KstatUtil.kstatLookup(null, -1, "file_cache");
-        // Set values
-        if (ksp != null && KstatUtil.kstatRead(ksp)) {
-            return KstatUtil.kstatDataLookupLong(ksp, "buf_max");
+        try (KstatChain kc = KstatUtil.openChain()) {
+            Kstat ksp = kc.lookup(null, -1, "file_cache");
+            // Set values
+            if (ksp != null && kc.read(ksp)) {
+                return KstatUtil.dataLookupLong(ksp, "buf_max");
+            }
         }
         return 0L;
+    }
+
+    /**
+     * <p>
+     * updateFileStoreStats.
+     * </p>
+     *
+     * @param osFileStore
+     *            a {@link oshi.software.os.OSFileStore} object.
+     * @return a boolean.
+     */
+    public static boolean updateFileStoreStats(OSFileStore osFileStore) {
+        for (OSFileStore fileStore : getFileStoreMatching(osFileStore.getName())) {
+            if (osFileStore.getVolume().equals(fileStore.getVolume())
+                    && osFileStore.getMount().equals(fileStore.getMount())) {
+                osFileStore.setLogicalVolume(fileStore.getLogicalVolume());
+                osFileStore.setDescription(fileStore.getDescription());
+                osFileStore.setType(fileStore.getType());
+                osFileStore.setFreeSpace(fileStore.getFreeSpace());
+                osFileStore.setUsableSpace(fileStore.getUsableSpace());
+                osFileStore.setTotalSpace(fileStore.getTotalSpace());
+                osFileStore.setFreeInodes(fileStore.getFreeInodes());
+                osFileStore.setTotalInodes(fileStore.getTotalInodes());
+                return true;
+            }
+        }
+        return false;
     }
 }

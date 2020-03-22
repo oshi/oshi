@@ -1,8 +1,7 @@
 /**
- * OSHI (https://github.com/oshi/oshi)
+ * MIT License
  *
- * Copyright (c) 2010 - 2019 The OSHI Project Team:
- * https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -10,8 +9,9 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,14 +23,21 @@
  */
 package oshi.software.os.mac;
 
+import static oshi.software.os.OSService.State.RUNNING;
+import static oshi.software.os.OSService.State.STOPPED;
+
+import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Memory;
+import com.sun.jna.Memory; // NOSONAR squid:s1191
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.platform.mac.SystemB;
@@ -39,6 +46,7 @@ import com.sun.jna.platform.mac.SystemB.Passwd;
 import com.sun.jna.platform.mac.SystemB.ProcTaskAllInfo;
 import com.sun.jna.platform.mac.SystemB.ProcTaskInfo;
 import com.sun.jna.platform.mac.SystemB.RUsageInfoV2;
+import com.sun.jna.platform.mac.SystemB.Timeval;
 import com.sun.jna.platform.mac.SystemB.VnodePathInfo;
 import com.sun.jna.ptr.IntByReference;
 
@@ -46,17 +54,28 @@ import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
 import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
+import oshi.software.os.OSService;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.mac.SysctlUtil;
 
+/**
+ * <p>
+ * MacOperatingSystem class.
+ * </p>
+ */
 public class MacOperatingSystem extends AbstractOperatingSystem {
-
-    private static final long serialVersionUID = 1L;
 
     private static final Logger LOG = LoggerFactory.getLogger(MacOperatingSystem.class);
 
     private int maxProc = 1024;
+
+    private final String osXVersion;
+    private final int major;
+    private final int minor;
+
+    // 64-bit flag
+    private static final int P_LP64 = 0x4;
     /*
      * OS X States:
      */
@@ -68,38 +87,113 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
                                         // termination
     private static final int SSTOP = 6; // process being traced
 
-    public MacOperatingSystem() {
-        this.manufacturer = "Apple";
-        this.version = new MacOSVersionInfoEx();
-        this.family = ParseUtil.getFirstIntValue(this.version.getVersion()) == 10
-                && ParseUtil.getNthIntValue(this.version.getVersion(), 2) >= 12 ? "macOS"
-                        : System.getProperty("os.name");
-        // Set max processes
-        this.maxProc = SysctlUtil.sysctl("kern.maxproc", 0x1000);
-        initBitness();
-    }
-
-    private void initBitness() {
-        if (this.bitness < 64) {
-            if (getVersion().getOsxVersionNumber() > 7) {
-                this.bitness = 64;
-            } else {
-                this.bitness = ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer("getconf LONG_BIT"), 32);
-            }
+    private static final long BOOTTIME;
+    static {
+        Timeval tv = new Timeval();
+        if (!SysctlUtil.sysctl("kern.boottime", tv) || tv.tv_sec.longValue() == 0L) {
+            // Usually this works. If it doesn't, fall back to text parsing.
+            // Boot time will be the first consecutive string of digits.
+            BOOTTIME = ParseUtil.parseLongOrDefault(
+                    ExecutingCommand.getFirstAnswer("sysctl -n kern.boottime").split(",")[0].replaceAll("\\D", ""),
+                    System.currentTimeMillis() / 1000);
+        } else {
+            // tv now points to a 64-bit timeval structure for boot time.
+            // First 4 bytes are seconds, second 4 bytes are microseconds
+            // (we ignore)
+            BOOTTIME = tv.tv_sec.longValue();
         }
     }
 
     /**
-     * {@inheritDoc}
+     * <p>
+     * Constructor for MacOperatingSystem.
+     * </p>
      */
+    @SuppressWarnings("deprecation")
+    public MacOperatingSystem() {
+        this.version = new MacOSVersionInfoEx();
+        this.osXVersion = System.getProperty("os.version");
+        this.major = ParseUtil.getFirstIntValue(this.osXVersion);
+        this.minor = ParseUtil.getNthIntValue(this.osXVersion, 2);
+        // Set max processes
+        this.maxProc = SysctlUtil.sysctl("kern.maxproc", 0x1000);
+    }
+
+    @Override
+    public String queryManufacturer() {
+        return "Apple";
+    }
+
+    @Override
+    public FamilyVersionInfo queryFamilyVersionInfo() {
+        String family = this.major == 10 && this.minor >= 12 ? "macOS" : System.getProperty("os.name");
+        String codeName = parseCodeName();
+        String buildNumber = SysctlUtil.sysctl("kern.osversion", "");
+        return new FamilyVersionInfo(family, new OSVersionInfo(this.osXVersion, codeName, buildNumber));
+    }
+
+    private String parseCodeName() {
+        if (this.major == 10) {
+            switch (this.minor) {
+            // MacOS
+            case 15:
+                return "Catalina";
+            case 14:
+                return "Mojave";
+            case 13:
+                return "High Sierra";
+            case 12:
+                return "Sierra";
+            // OS X
+            case 11:
+                return "El Capitan";
+            case 10:
+                return "Yosemite";
+            case 9:
+                return "Mavericks";
+            case 8:
+                return "Mountain Lion";
+            case 7:
+                return "Lion";
+            case 6:
+                return "Snow Leopard";
+            case 5:
+                return "Leopard";
+            case 4:
+                return "Tiger";
+            case 3:
+                return "Panther";
+            case 2:
+                return "Jaguar";
+            case 1:
+                return "Puma";
+            case 0:
+                return "Cheetah";
+            default:
+            }
+        }
+        LOG.warn("Unable to parse version {}.{} to a codename.", this.major, this.minor);
+        return "";
+    }
+
+    @Override
+    protected int queryBitness(int jvmBitness) {
+        if (jvmBitness == 64 || (this.major == 10 && this.minor > 6)) {
+            return 64;
+        }
+        return ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer("getconf LONG_BIT"), 32);
+    }
+
+    @Override
+    protected boolean queryElevated() {
+        return System.getenv("SUDO_COMMAND") != null;
+    }
+
     @Override
     public FileSystem getFileSystem() {
         return new MacFileSystem();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public OSProcess[] getProcesses(int limit, ProcessSort sort, boolean slowFields) {
         List<OSProcess> procs = new ArrayList<>();
@@ -122,15 +216,8 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
         return sorted.toArray(new OSProcess[0]);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public OSProcess getProcess(int pid) {
-        return getProcess(pid, true);
-    }
-
-    private OSProcess getProcess(int pid, boolean slowFields) {
+    public OSProcess getProcess(int pid, boolean slowFields) {
         ProcTaskAllInfo taskAllInfo = new ProcTaskAllInfo();
         if (0 > SystemB.INSTANCE.proc_pidinfo(pid, SystemB.PROC_PIDTASKALLINFO, 0, taskAllInfo, taskAllInfo.size())) {
             return null;
@@ -155,14 +242,14 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
             // null terminated
             for (int t = 0; t < taskAllInfo.pbsd.pbi_comm.length; t++) {
                 if (taskAllInfo.pbsd.pbi_comm[t] == 0) {
-                    name = new String(taskAllInfo.pbsd.pbi_comm, 0, t);
+                    name = new String(taskAllInfo.pbsd.pbi_comm, 0, t, StandardCharsets.UTF_8);
                     break;
                 }
             }
         }
         long bytesRead = 0;
         long bytesWritten = 0;
-        if (getVersion().getOsxVersionNumber() >= 9) {
+        if (this.minor >= 9) {
             RUsageInfoV2 rUsageInfoV2 = new RUsageInfoV2();
             if (0 == SystemB.INSTANCE.proc_pid_rusage(pid, SystemB.RUSAGE_INFO_V2, rUsageInfoV2)) {
                 bytesRead = rUsageInfoV2.ri_diskio_bytesread;
@@ -170,7 +257,7 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
             }
         }
         long now = System.currentTimeMillis();
-        OSProcess proc = new OSProcess();
+        OSProcess proc = new OSProcess(this);
         proc.setName(name);
         proc.setPath(path);
         switch (taskAllInfo.pbsd.pbi_status) {
@@ -215,8 +302,8 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
         proc.setBytesRead(bytesRead);
         proc.setBytesWritten(bytesWritten);
         proc.setCommandLine(getCommandLine(pid));
-        // gets the open files count
         proc.setOpenFiles(taskAllInfo.pbsd.pbi_nfiles);
+        proc.setBitness((taskAllInfo.pbsd.pbi_flags & P_LP64) == 0 ? 32 : 64);
 
         VnodePathInfo vpi = new VnodePathInfo();
         if (0 < SystemB.INSTANCE.proc_pidinfo(pid, SystemB.PROC_PIDVNODEPATHINFO, 0, vpi, vpi.size())) {
@@ -232,9 +319,6 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
         return proc;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public OSProcess[] getChildProcesses(int parentPid, int limit, ProcessSort sort) {
         List<OSProcess> procs = new ArrayList<>();
@@ -280,8 +364,7 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
         if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, procargs, size, null, 0)) {
             LOG.warn(
                     "Failed syctl call for process arguments (kern.procargs2), process {} may not exist. Error code: {}",
-                    pid,
-                    Native.getLastError());
+                    pid, Native.getLastError());
             return "";
         }
         // Procargs contains an int representing total # of args, followed by a
@@ -318,33 +401,23 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
         return String.join("\0", args);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public MacOSVersionInfoEx getVersion() {
-        return (MacOSVersionInfoEx) this.version;
+    public long getProcessAffinityMask(int processId) {
+        // macOS doesn't do affinity. Return a bitmask of the current processors.
+        int logicalProcessorCount = SysctlUtil.sysctl("hw.logicalcpu", 1);
+        return logicalProcessorCount < 64 ? (1L << logicalProcessorCount) - 1 : -1L;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public int getProcessId() {
         return SystemB.INSTANCE.getpid();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public int getProcessCount() {
         return SystemB.INSTANCE.proc_listpids(SystemB.PROC_ALL_PIDS, 0, null, 0) / SystemB.INT_SIZE;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public int getThreadCount() {
         // Get current pids, then slightly pad in case new process starts while
@@ -361,12 +434,55 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
         return numberOfThreads;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
+    public long getSystemUptime() {
+        return System.currentTimeMillis() / 1000 - BOOTTIME;
+    }
+
+    @Override
+    public long getSystemBootTime() {
+        return BOOTTIME;
+    }
+
     @Override
     public NetworkParams getNetworkParams() {
         return new MacNetworkParams();
     }
 
+    @Override
+    public OSService[] getServices() {
+        // Get running services
+        List<OSService> services = new ArrayList<>();
+        Set<String> running = new HashSet<>();
+        for (OSProcess p : getChildProcesses(1, 0, ProcessSort.PID)) {
+            OSService s = new OSService(p.getName(), p.getProcessID(), RUNNING);
+            services.add(s);
+            running.add(p.getName());
+        }
+        // Get Directories for stopped services
+        ArrayList<File> files = new ArrayList<>();
+        File dir = new File("/System/Library/LaunchAgents");
+        if (dir.exists() && dir.isDirectory()) {
+            files.addAll(Arrays.asList(dir.listFiles((f, name) -> name.toLowerCase().endsWith(".plist"))));
+        } else {
+            LOG.error("Directory: /System/Library/LaunchAgents does not exist");
+        }
+        dir = new File("/System/Library/LaunchDaemons");
+        if (dir.exists() && dir.isDirectory()) {
+            files.addAll(Arrays.asList(dir.listFiles((f, name) -> name.toLowerCase().endsWith(".plist"))));
+        } else {
+            LOG.error("Directory: /System/Library/LaunchDaemons does not exist");
+        }
+        for (File f : files) {
+            // remove .plist extension
+            String name = f.getName().substring(0, f.getName().length() - 6);
+            int index = name.lastIndexOf('.');
+            String shortName = (index < 0 || index > name.length() - 2) ? name : name.substring(index + 1);
+            if (!running.contains(name) && !running.contains(shortName)) {
+                OSService s = new OSService(name, 0, STOPPED);
+                services.add(s);
+            }
+        }
+        return services.toArray(new OSService[0]);
+    }
 }

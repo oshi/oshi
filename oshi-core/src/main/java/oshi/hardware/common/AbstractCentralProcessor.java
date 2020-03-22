@@ -1,8 +1,7 @@
 /**
- * OSHI (https://github.com/oshi/oshi)
+ * MIT License
  *
- * Copyright (c) 2010 - 2019 The OSHI Project Team:
- * https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -10,8 +9,9 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,395 +23,206 @@
  */
 package oshi.hardware.common;
 
+import static oshi.util.Memoizer.defaultExpiration;
+import static oshi.util.Memoizer.memoize;
+
+import java.util.HashSet;
+import java.util.Set;
+import java.util.function.Supplier;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import oshi.hardware.CentralProcessor;
-import oshi.util.ArchitectureCodename;
-import oshi.util.ParseUtil;
 
-import java.lang.management.ManagementFactory;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import oshi.hardware.CentralProcessor;
+import oshi.util.ParseUtil;
 
 /**
  * A CPU.
  */
 public abstract class AbstractCentralProcessor implements CentralProcessor {
 
-    private static final long serialVersionUID = 1L;
-
     private static final Logger LOG = LoggerFactory.getLogger(AbstractCentralProcessor.class);
 
-    /**
-     * Instantiate an OperatingSystemMXBean for future convenience
-     */
-    private static final java.lang.management.OperatingSystemMXBean OS_MXBEAN = ManagementFactory
-            .getOperatingSystemMXBean();
+    private final Supplier<ProcessorIdentifier> cpuid = memoize(this::queryProcessorId);
+    private final Supplier<Long> maxFreq = memoize(this::queryMaxFreq);
+    private final Supplier<long[]> currentFreq = memoize(this::queryCurrentFreq, defaultExpiration());
+    private final Supplier<Long> contextSwitches = memoize(this::queryContextSwitches, defaultExpiration());
+    private final Supplier<Long> interrupts = memoize(this::queryInterrupts, defaultExpiration());
 
-    /**
-     * Keep track whether MXBean supports Oracle JVM methods
-     */
-    private static boolean sunMXBean = false;
-    static {
-        try {
-            Class.forName("com.sun.management.OperatingSystemMXBean");
-            LOG.debug("Oracle MXBean detected.");
-            sunMXBean = true;
-        } catch (ClassNotFoundException | ClassCastException e) {
-            LOG.debug("Oracle MXBean not detected.");
-        }
-    }
+    private final Supplier<long[]> systemCpuLoadTicks = memoize(this::querySystemCpuLoadTicks, defaultExpiration());
+    private final Supplier<long[][]> processorCpuLoadTicks = memoize(this::queryProcessorCpuLoadTicks,
+            defaultExpiration());
 
     // Logical and Physical Processor Counts
-    protected int physicalPackageCount = 0;
-    protected int physicalProcessorCount = 0;
-    protected int logicalProcessorCount = 0;
+    private final int physicalPackageCount;
+    private final int physicalProcessorCount;
+    private final int logicalProcessorCount;
 
-    // System ticks
-    protected long[] systemCpuLoadTicks;
-    // Per-processor ticks [cpu][type]
-    private long[][] processorCpuLoadTicks;
-
-    // Processor info
-    private String cpuVendor;
-    private String cpuName;
-    private String processorID;
-    private String cpuIdentifier;
-    private String cpuStepping;
-    private String cpuModel;
-    private String cpuFamily;
-    private long cpuVendorFreq;
-    private long cpuMaxFreq;
-    private long[] cpuCurrentFreq;
-    private Boolean cpu64;
-    private LogicalProcessor[] logicalProcessors;
+    // Processor info, initialized in constructor
+    private final LogicalProcessor[] logicalProcessors;
 
     /**
      * Create a Processor
      */
     public AbstractCentralProcessor() {
-        // Initialize processor counts and populate logical processor array
+        // Populate logical processor array
         this.logicalProcessors = initProcessorCounts();
+        // Init processor counts
+        Set<String> physProcPkgs = new HashSet<>();
+        Set<Integer> physPkgs = new HashSet<>();
+        for (LogicalProcessor logProc : this.logicalProcessors) {
+            int pkg = logProc.getPhysicalPackageNumber();
+            physProcPkgs.add(logProc.getPhysicalProcessorNumber() + ":" + pkg);
+            physPkgs.add(pkg);
+        }
+        this.logicalProcessorCount = this.logicalProcessors.length;
+        this.physicalProcessorCount = physProcPkgs.size();
+        this.physicalPackageCount = physPkgs.size();
     }
 
     /**
      * Updates logical and physical processor counts and arrays
-     * 
+     *
      * @return An array of initialized Logical Processors
      */
     protected abstract LogicalProcessor[] initProcessorCounts();
 
     /**
-     * {@inheritDoc}
+     * Updates logical and physical processor counts and arrays
+     *
+     * @return An array of initialized Logical Processors
      */
+    protected abstract ProcessorIdentifier queryProcessorId();
+
+    @Override
+    public ProcessorIdentifier getProcessorIdentifier() {
+        return cpuid.get();
+    }
+
+    @Override
+    public String getVendor() {
+        return getProcessorIdentifier().getVendor();
+    }
+
+    @Override
+    public String getName() {
+        return getProcessorIdentifier().getName();
+    }
+
+    @Override
+    public String getFamily() {
+        return getProcessorIdentifier().getFamily();
+    }
+
+    @Override
+    public String getModel() {
+        return getProcessorIdentifier().getModel();
+    }
+
+    @Override
+    public String getStepping() {
+        return getProcessorIdentifier().getStepping();
+    }
+
+    @Override
+    public String getProcessorID() {
+        return getProcessorIdentifier().getProcessorID();
+    }
+
+    @Override
+    public String getIdentifier() {
+        return getProcessorIdentifier().getIdentifier();
+    }
+
+    @Override
+    public boolean isCpu64bit() {
+        return getProcessorIdentifier().isCpu64bit();
+    }
+
+    @Override
+    public long getVendorFreq() {
+        return getProcessorIdentifier().getVendorFreq();
+    }
+
+    @Override
+    public long getMaxFreq() {
+        return maxFreq.get();
+    }
+
+    /**
+     * Get processor max frequency.
+     *
+     * @return The max frequency.
+     */
+    protected abstract long queryMaxFreq();
+
+    @Override
+    public long[] getCurrentFreq() {
+        return currentFreq.get();
+    }
+
+    /**
+     * Get processor current frequency.
+     *
+     * @return The current frequency.
+     */
+    protected abstract long[] queryCurrentFreq();
+
+    @Override
+    public long getContextSwitches() {
+        return contextSwitches.get();
+    }
+
+    /**
+     * Get number of context switches
+     *
+     * @return The context switches
+     */
+    protected abstract long queryContextSwitches();
+
+    @Override
+    public long getInterrupts() {
+        return interrupts.get();
+    }
+
+    /**
+     * Get number of interrupts
+     *
+     * @return The interrupts
+     */
+    protected abstract long queryInterrupts();
+
     @Override
     public LogicalProcessor[] getLogicalProcessors() {
         return this.logicalProcessors;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public long[] getSystemCpuLoadTicks() {
-        if (this.systemCpuLoadTicks == null) {
-            this.systemCpuLoadTicks = querySystemCpuLoadTicks();
-        }
-        return this.systemCpuLoadTicks;
+        return systemCpuLoadTicks.get();
     }
 
     /**
-     * Get System-wide CPU Load tick counters.
-     * 
-     * @return The tick counters.
+     * Get the system CPU load ticks
+     *
+     * @return The system CPU load ticks
      */
     protected abstract long[] querySystemCpuLoadTicks();
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public long[] getCurrentFreq() {
-        if (this.cpuCurrentFreq == null) {
-            this.cpuCurrentFreq = queryCurrentFreq();
-        }
-        return this.cpuCurrentFreq;
-    }
-
-    /**
-     * Get per processor current frequencies.
-     * 
-     * @return The current frequencies.
-     */
-    protected abstract long[] queryCurrentFreq();
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public long getMaxFreq() {
-        if (this.cpuMaxFreq == 0) {
-            this.cpuMaxFreq = queryMaxFreq();
-        }
-        return this.cpuMaxFreq;
-    }
-
-    /**
-     * Get processor max frequency.
-     * 
-     * @return The max frequency.
-     */
-    protected abstract long queryMaxFreq();
-
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public long[][] getProcessorCpuLoadTicks() {
-        if (processorCpuLoadTicks == null) {
-            this.processorCpuLoadTicks = queryProcessorCpuLoadTicks();
-        }
-        return this.processorCpuLoadTicks;
+        return processorCpuLoadTicks.get();
     }
 
     /**
-     * Get Per-Processor CPU Load tick counters.
-     * 
-     * @return The tick counters.
+     * Get the processor CPU load ticks
+     *
+     * @return The processor CPU load ticks
      */
     protected abstract long[][] queryProcessorCpuLoadTicks();
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public String getVendor() {
-        if (this.cpuVendor == null) {
-            setVendor("");
-        }
-        return this.cpuVendor;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getName() {
-        if (this.cpuName == null) {
-            setName("");
-        }
-        return this.cpuName;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getProcessorID() {
-        if (this.processorID == null) {
-            setProcessorID("");
-        }
-        return this.processorID;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public long getVendorFreq() {
-        if (this.cpuVendorFreq == 0) {
-            Pattern pattern = Pattern.compile("@ (.*)$");
-            Matcher matcher = pattern.matcher(getName());
-
-            if (matcher.find()) {
-                String unit = matcher.group(1);
-                this.cpuVendorFreq = ParseUtil.parseHertz(unit);
-            } else {
-                this.cpuVendorFreq = -1L;
-            }
-        }
-        return this.cpuVendorFreq;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getIdentifier() {
-        if (this.cpuIdentifier == null) {
-            StringBuilder sb = new StringBuilder();
-            if (getVendor().contentEquals("GenuineIntel")) {
-                sb.append(isCpu64bit() ? "Intel64" : "x86");
-            } else {
-                sb.append(getVendor());
-            }
-            sb.append(" Family ").append(getFamily());
-            sb.append(" Model ").append(getModel());
-            sb.append(" Stepping ").append(getStepping());
-            setIdentifier(sb.toString());
-        }
-        return this.cpuIdentifier;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean isCpu64bit() {
-        if (this.cpu64 == null) {
-            setCpu64(false);
-        }
-        return this.cpu64;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getStepping() {
-        if (this.cpuStepping == null) {
-            if (this.cpuIdentifier == null) {
-                return "?";
-            }
-            setStepping(parseIdentifier("Stepping"));
-        }
-        return this.cpuStepping;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getModel() {
-        if (this.cpuModel == null) {
-            if (this.cpuIdentifier == null) {
-                return "?";
-            }
-            setModel(parseIdentifier("Model"));
-        }
-        return this.cpuModel;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getFamily() {
-        if (this.cpuFamily == null) {
-            if (this.cpuIdentifier == null) {
-                return "?";
-            }
-            setFamily(parseIdentifier("Family"));
-        }
-        return this.cpuFamily;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public ArchitectureCodename getCodename(){
-        return ArchitectureCodename.getArchitecture(getFamily() + " " +
-                getModel());
-    }
-    /**
-     * @param cpuVendor
-     *            the cpuVendor to set
-     */
-    protected void setVendor(String cpuVendor) {
-        this.cpuVendor = cpuVendor;
-    }
-
-    /**
-     * @param cpuName
-     *            the cpuName to set
-     */
-    protected void setName(String cpuName) {
-        this.cpuName = cpuName;
-    }
-
-    /**
-     * @param cpuIdentifier
-     *            the cpuIdentifier to set
-     */
-    protected void setIdentifier(String cpuIdentifier) {
-        this.cpuIdentifier = cpuIdentifier;
-    }
-
-    /**
-     * @param cpuStepping
-     *            the cpuStepping to set
-     */
-    protected void setStepping(String cpuStepping) {
-        this.cpuStepping = cpuStepping;
-    }
-
-    /**
-     * @param cpuModel
-     *            the cpuModel to set
-     */
-    protected void setModel(String cpuModel) {
-        this.cpuModel = cpuModel;
-    }
-
-    /**
-     * @param cpuFamily
-     *            the cpuFamily to set
-     */
-    protected void setFamily(String cpuFamily) {
-        this.cpuFamily = cpuFamily;
-    }
-
-    /**
-     * @param cpuVendorFreq
-     *            the cpuVendorFreq to set
-     */
-    protected void setVendorFreq(Long cpuVendorFreq) {
-        this.cpuVendorFreq = cpuVendorFreq;
-    }
-
-    /**
-     * @param cpu64
-     *            the cpu64 to set
-     */
-    protected void setCpu64(Boolean cpu64) {
-        this.cpu64 = cpu64;
-    }
-
-    /**
-     * @param processorID
-     *            the processorID to set
-     */
-    protected void setProcessorID(String processorID) {
-        this.processorID = processorID;
-    }
-
-    /**
-     * Parses identifier string
-     *
-     * @param id
-     *            the id to retrieve
-     * @return the string following id
-     */
-    private String parseIdentifier(String id) {
-        String[] idSplit = ParseUtil.whitespaces.split(getIdentifier());
-        boolean found = false;
-        for (String s : idSplit) {
-            // If id string found, return next value
-            if (found) {
-                return s;
-            }
-            found = s.equals(id);
-        }
-        // If id string not found, return empty string
-        return "";
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public synchronized double getSystemCpuLoadBetweenTicks(long[] oldTicks) {
+    public double getSystemCpuLoadBetweenTicks(long[] oldTicks) {
         if (oldTicks.length != TickType.values().length) {
             throw new IllegalArgumentException(
                     "Tick array " + oldTicks.length + " should have " + TickType.values().length + " elements");
@@ -430,20 +241,6 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
         return total > 0 && idle >= 0 ? (double) (total - idle) / total : 0d;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public double getSystemCpuLoad() {
-        if (sunMXBean) {
-            return ((com.sun.management.OperatingSystemMXBean) OS_MXBEAN).getSystemCpuLoad();
-        }
-        return -1.0;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public double[] getProcessorCpuLoadBetweenTicks(long[][] oldTicks) {
         if (oldTicks.length != this.logicalProcessorCount || oldTicks[0].length != TickType.values().length) {
@@ -468,38 +265,24 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
         return load;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public int getLogicalProcessorCount() {
         return this.logicalProcessorCount;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public int getPhysicalProcessorCount() {
         return this.physicalProcessorCount;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public int getPhysicalPackageCount() {
         return this.physicalPackageCount;
     }
 
-    @Override
-    public String toString() {
-        return getName();
-    }
-
     /**
-     * Creates a Processor ID by encoding the stepping, model, family, and
-     * feature flags.
+     * Creates a Processor ID by encoding the stepping, model, family, and feature
+     * flags.
      *
      * @param stepping
      *            The CPU stepping
@@ -511,7 +294,7 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
      *            A space-delimited list of CPU feature flags
      * @return The Processor ID string
      */
-    protected String createProcessorID(String stepping, String model, String family, String[] flags) {
+    protected static String createProcessorID(String stepping, String model, String family, String[] flags) {
         long processorIdBytes = 0L;
         long steppingL = ParseUtil.parseLongOrDefault(stepping, 0L);
         long modelL = ParseUtil.parseLongOrDefault(model, 0L);
@@ -624,14 +407,15 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
         return String.format("%016X", processorIdBytes);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public void updateAttributes() {
-        this.systemCpuLoadTicks = null;
-        this.processorCpuLoadTicks = null;
-        this.cpuCurrentFreq = null;
+    public String toString() {
+        StringBuilder sb = new StringBuilder(getName());
+        sb.append("\n ").append(getPhysicalPackageCount()).append(" physical CPU package(s)");
+        sb.append("\n ").append(getPhysicalProcessorCount()).append(" physical CPU core(s)");
+        sb.append("\n ").append(getLogicalProcessorCount()).append(" logical CPU(s)");
+        sb.append('\n').append("Identifier: ").append(getProcessorIdentifier().getIdentifier());
+        sb.append('\n').append("ProcessorID: ").append(getProcessorIdentifier().getProcessorID());
+        return sb.toString();
     }
 
 }

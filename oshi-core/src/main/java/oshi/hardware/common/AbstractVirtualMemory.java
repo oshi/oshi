@@ -1,8 +1,7 @@
 /**
- * OSHI (https://github.com/oshi/oshi)
+ * MIT License
  *
- * Copyright (c) 2010 - 2019 The OSHI Project Team:
- * https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -10,8 +9,9 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -24,71 +24,20 @@
 package oshi.hardware.common;
 
 import oshi.hardware.VirtualMemory;
+import oshi.util.FormatUtil;
 
 /**
  * Virtual Memory info.
  */
 public abstract class AbstractVirtualMemory implements VirtualMemory {
 
-    private static final long serialVersionUID = 1L;
-
-    protected long swapTotal = -1L;
-    protected long swapUsed = -1L;
-    protected long swapPagesIn = -1L;
-    protected long swapPagesOut = -1L;
-
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public long getSwapUsed() {
-        if (this.swapUsed < 0) {
-            updateAttributes();
-        }
-        return this.swapUsed;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public long getSwapTotal() {
-        if (this.swapTotal < 0) {
-            updateAttributes();
-        }
-        return this.swapTotal;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public long getSwapPagesIn() {
-        if (this.swapPagesIn < 0) {
-            updateAttributes();
-        }
-        return this.swapPagesIn;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public long getSwapPagesOut() {
-        if (this.swapPagesOut < 0) {
-            updateAttributes();
-        }
-        return this.swapPagesOut;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void updateAttributes() {
-        this.swapTotal = -1L;
-        this.swapUsed = -1L;
-        this.swapPagesIn = -1L;
-        this.swapPagesOut = -1L;
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Used: ");
+        sb.append(FormatUtil.formatBytes(getSwapUsed()));
+        sb.append("/");
+        sb.append(FormatUtil.formatBytes(getSwapTotal()));
+        return sb.toString();
     }
 }

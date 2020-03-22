@@ -1,8 +1,7 @@
 /**
- * OSHI (https://github.com/oshi/oshi)
+ * MIT License
  *
- * Copyright (c) 2010 - 2019 The OSHI Project Team:
- * https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -10,8 +9,9 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -29,8 +29,8 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import oshi.PlatformEnum;
 import oshi.SystemInfo;
+import oshi.hardware.CentralProcessor.ProcessorIdentifier;
 import oshi.hardware.CentralProcessor.TickType;
 import oshi.util.Util;
 
@@ -47,27 +47,23 @@ public class CentralProcessorTest {
         SystemInfo si = new SystemInfo();
         CentralProcessor p = si.getHardware().getProcessor();
 
-        assertNotNull(p.getVendor());
-        assertTrue(p.getVendorFreq() == -1 || p.getVendorFreq() > 0);
-
-        assertNotNull(p.getName());
-        assertNotNull(p.getIdentifier());
-        assertNotNull(p.getProcessorID());
-        assertNotNull(p.getStepping());
-        assertNotNull(p.getModel());
-        assertNotNull(p.getFamily());
+        ProcessorIdentifier pi = p.getProcessorIdentifier();
+        assertNotNull(pi.getVendor());
+        assertTrue(pi.getVendorFreq() == -1 || pi.getVendorFreq() > 0);
+        assertNotNull(pi.getName());
+        assertNotNull(pi.getIdentifier());
+        assertNotNull(pi.getProcessorID());
+        assertNotNull(pi.getStepping());
+        assertNotNull(pi.getModel());
+        assertNotNull(pi.getFamily());
 
         long[] ticks = p.getSystemCpuLoadTicks();
         long[][] procTicks = p.getProcessorCpuLoadTicks();
         assertEquals(ticks.length, TickType.values().length);
 
         Util.sleep(500);
-        p.updateAttributes();
+
         assertTrue(p.getSystemCpuLoadBetweenTicks(ticks) >= 0 && p.getSystemCpuLoadBetweenTicks(ticks) <= 1);
-        // This test fails on FreeBSD due to error in Java MXBean
-        if (SystemInfo.getCurrentPlatformEnum() != PlatformEnum.FREEBSD) {
-            assertTrue(p.getSystemCpuLoad() <= 1.0);
-        }
         assertEquals(3, p.getSystemLoadAverage(3).length);
 
         assertEquals(p.getProcessorCpuLoadBetweenTicks(procTicks).length, p.getLogicalProcessorCount());
@@ -77,19 +73,18 @@ public class CentralProcessorTest {
             assertEquals(p.getProcessorCpuLoadTicks()[cpu].length, TickType.values().length);
         }
 
-        assertTrue(p.getSystemUptime() > 0);
         assertTrue(p.getLogicalProcessorCount() >= p.getPhysicalProcessorCount());
         assertTrue(p.getPhysicalProcessorCount() > 0);
         assertTrue(p.getPhysicalProcessorCount() >= p.getPhysicalPackageCount());
         assertTrue(p.getPhysicalPackageCount() > 0);
         assertTrue(p.getContextSwitches() >= 0);
         assertTrue(p.getInterrupts() >= 0);
-        
+
         long max = p.getMaxFreq();
         long[] curr = p.getCurrentFreq();
-        assertEquals(curr.length,p.getLogicalProcessorCount());
+        assertEquals(curr.length, p.getLogicalProcessorCount());
         if (max >= 0) {
-        for (int i = 0;i<curr.length;i++) {
+            for (int i = 0; i < curr.length; i++) {
                 assertTrue(curr[i] <= max);
             }
         }

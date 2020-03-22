@@ -1,8 +1,7 @@
 /**
- * OSHI (https://github.com/oshi/oshi)
+ * MIT License
  *
- * Copyright (c) 2010 - 2019 The OSHI Project Team:
- * https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -10,8 +9,9 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -29,12 +29,8 @@ import oshi.hardware.UsbDevice;
 
 /**
  * A USB device
- *
- * @author widdis[at]gmail[dot]com
  */
 public abstract class AbstractUsbDevice implements UsbDevice {
-
-    private static final long serialVersionUID = 2L;
 
     protected String name;
 
@@ -46,78 +42,82 @@ public abstract class AbstractUsbDevice implements UsbDevice {
 
     protected String serialNumber;
 
+    protected String uniqueDeviceId;
+
     protected UsbDevice[] connectedDevices;
 
+    /**
+     * <p>
+     * Constructor for AbstractUsbDevice.
+     * </p>
+     *
+     * @param name
+     *            a {@link java.lang.String} object.
+     * @param vendor
+     *            a {@link java.lang.String} object.
+     * @param vendorId
+     *            a {@link java.lang.String} object.
+     * @param productId
+     *            a {@link java.lang.String} object.
+     * @param serialNumber
+     *            a {@link java.lang.String} object.
+     * @param uniqueDeviceId
+     *            a {@link java.lang.String} object.
+     * @param connectedDevices
+     *            an array of {@link oshi.hardware.UsbDevice} objects.
+     */
     public AbstractUsbDevice(String name, String vendor, String vendorId, String productId, String serialNumber,
-            UsbDevice[] connectedDevices) {
+            String uniqueDeviceId, UsbDevice[] connectedDevices) {
         this.name = name;
         this.vendor = vendor;
         this.vendorId = vendorId;
         this.productId = productId;
         this.serialNumber = serialNumber;
+        this.uniqueDeviceId = uniqueDeviceId;
         this.connectedDevices = Arrays.copyOf(connectedDevices, connectedDevices.length);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public String getName() {
         return this.name;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public String getVendor() {
         return this.vendor;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public String getVendorId() {
         return this.vendorId;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public String getProductId() {
         return this.productId;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public String getSerialNumber() {
         return this.serialNumber;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
+    public String getUniqueDeviceId() {
+        return this.uniqueDeviceId;
+    }
+
     @Override
     public UsbDevice[] getConnectedDevices() {
         return Arrays.copyOf(this.connectedDevices, this.connectedDevices.length);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public int compareTo(UsbDevice usb) {
         // Naturally sort by device name
         return getName().compareTo(usb.getName());
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public String toString() {
         return indentUsb(this, 1);
@@ -146,5 +146,4 @@ public abstract class AbstractUsbDevice implements UsbDevice {
         }
         return sb.toString();
     }
-
 }

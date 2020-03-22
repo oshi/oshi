@@ -1,8 +1,7 @@
 /**
- * OSHI (https://github.com/oshi/oshi)
+ * MIT License
  *
- * Copyright (c) 2010 - 2019 The OSHI Project Team:
- * https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -10,8 +9,9 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,19 +23,15 @@
  */
 package oshi.hardware;
 
-import java.io.Serializable;
+import oshi.util.FormatUtil;
 
 /**
  * A region on a hard disk or other secondary storage, so that an operating
  * system can manage information in each region separately. A partition appears
  * in the operating system as a distinct "logical" disk that uses part of the
  * actual disk.
- *
- * @author widdis[at]gmail[dot]com
  */
-public class HWPartition implements Serializable, Comparable<HWPartition> {
-
-    private static final long serialVersionUID = 1L;
+public class HWPartition implements Comparable<HWPartition> {
 
     private String identification;
     private String name;
@@ -86,6 +82,10 @@ public class HWPartition implements Serializable, Comparable<HWPartition> {
     }
 
     /**
+     * <p>
+     * Getter for the field <code>identification</code>.
+     * </p>
+     *
      * @return Returns the identification.
      */
     public String getIdentification() {
@@ -93,6 +93,10 @@ public class HWPartition implements Serializable, Comparable<HWPartition> {
     }
 
     /**
+     * <p>
+     * Getter for the field <code>name</code>.
+     * </p>
+     *
      * @return Returns the name.
      */
     public String getName() {
@@ -100,6 +104,10 @@ public class HWPartition implements Serializable, Comparable<HWPartition> {
     }
 
     /**
+     * <p>
+     * Getter for the field <code>type</code>.
+     * </p>
+     *
      * @return Returns the type.
      */
     public String getType() {
@@ -107,6 +115,10 @@ public class HWPartition implements Serializable, Comparable<HWPartition> {
     }
 
     /**
+     * <p>
+     * Getter for the field <code>uuid</code>.
+     * </p>
+     *
      * @return Returns the uuid.
      */
     public String getUuid() {
@@ -114,6 +126,10 @@ public class HWPartition implements Serializable, Comparable<HWPartition> {
     }
 
     /**
+     * <p>
+     * Getter for the field <code>size</code>.
+     * </p>
+     *
      * @return Returns the size in bytes.
      */
     public long getSize() {
@@ -121,6 +137,10 @@ public class HWPartition implements Serializable, Comparable<HWPartition> {
     }
 
     /**
+     * <p>
+     * Getter for the field <code>major</code>.
+     * </p>
+     *
      * @return Returns the major device ID.
      */
     public int getMajor() {
@@ -128,6 +148,10 @@ public class HWPartition implements Serializable, Comparable<HWPartition> {
     }
 
     /**
+     * <p>
+     * Getter for the field <code>minor</code>.
+     * </p>
+     *
      * @return Returns the minor device ID.
      */
     public int getMinor() {
@@ -135,6 +159,10 @@ public class HWPartition implements Serializable, Comparable<HWPartition> {
     }
 
     /**
+     * <p>
+     * Getter for the field <code>mountPoint</code>.
+     * </p>
+     *
      * @return Returns the mount point.
      */
     public String getMountPoint() {
@@ -142,6 +170,10 @@ public class HWPartition implements Serializable, Comparable<HWPartition> {
     }
 
     /**
+     * <p>
+     * Setter for the field <code>identification</code>.
+     * </p>
+     *
      * @param identification
      *            The identification to set.
      */
@@ -150,6 +182,10 @@ public class HWPartition implements Serializable, Comparable<HWPartition> {
     }
 
     /**
+     * <p>
+     * Setter for the field <code>name</code>.
+     * </p>
+     *
      * @param name
      *            The name to set.
      */
@@ -158,6 +194,10 @@ public class HWPartition implements Serializable, Comparable<HWPartition> {
     }
 
     /**
+     * <p>
+     * Setter for the field <code>type</code>.
+     * </p>
+     *
      * @param type
      *            The type to set.
      */
@@ -166,6 +206,10 @@ public class HWPartition implements Serializable, Comparable<HWPartition> {
     }
 
     /**
+     * <p>
+     * Setter for the field <code>uuid</code>.
+     * </p>
+     *
      * @param uuid
      *            The uuid to set.
      */
@@ -174,6 +218,10 @@ public class HWPartition implements Serializable, Comparable<HWPartition> {
     }
 
     /**
+     * <p>
+     * Setter for the field <code>size</code>.
+     * </p>
+     *
      * @param size
      *            The size (in bytes) to set.
      */
@@ -182,6 +230,10 @@ public class HWPartition implements Serializable, Comparable<HWPartition> {
     }
 
     /**
+     * <p>
+     * Setter for the field <code>major</code>.
+     * </p>
+     *
      * @param major
      *            The major device ID to set.
      */
@@ -190,6 +242,10 @@ public class HWPartition implements Serializable, Comparable<HWPartition> {
     }
 
     /**
+     * <p>
+     * Setter for the field <code>minor</code>.
+     * </p>
+     *
      * @param minor
      *            The minor device ID to set.
      */
@@ -198,6 +254,10 @@ public class HWPartition implements Serializable, Comparable<HWPartition> {
     }
 
     /**
+     * <p>
+     * Setter for the field <code>mountPoint</code>.
+     * </p>
+     *
      * @param mountPoint
      *            Mount point of the partition
      */
@@ -205,15 +265,14 @@ public class HWPartition implements Serializable, Comparable<HWPartition> {
         this.mountPoint = mountPoint == null ? "" : mountPoint;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public int compareTo(HWPartition part) {
         // Naturally sort by device ID
         return getIdentification().compareTo(part.getIdentification());
     }
 
+    /** {@inheritDoc} */
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -229,6 +288,7 @@ public class HWPartition implements Serializable, Comparable<HWPartition> {
         return result;
     }
 
+    /** {@inheritDoc} */
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -237,7 +297,7 @@ public class HWPartition implements Serializable, Comparable<HWPartition> {
         if (obj == null) {
             return false;
         }
-        if (!(obj instanceof HWPartition)) {
+        if (!(obj.getClass().equals(this.getClass()))) {
             return false;
         }
         HWPartition other = (HWPartition) obj;
@@ -288,4 +348,16 @@ public class HWPartition implements Serializable, Comparable<HWPartition> {
         return true;
     }
 
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(getIdentification()).append(": ");
+        sb.append(getName()).append(" ");
+        sb.append("(").append(getType()).append(") ");
+        sb.append("Maj:Min=").append(getMajor()).append(":").append(getMinor()).append(", ");
+        sb.append("size: ").append(FormatUtil.formatBytesDecimal(getSize()));
+        sb.append(getMountPoint().isEmpty() ? "" : " @ " + getMountPoint());
+        return sb.toString();
+    }
 }
