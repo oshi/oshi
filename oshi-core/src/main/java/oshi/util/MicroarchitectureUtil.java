@@ -8,11 +8,11 @@ import oshi.hardware.CentralProcessor.ProcessorIdentifier;
 /**
  * Maps a processor's family and model to its microarchitecture codename
  */
-public class MicroArchitectureUtil {
+public class MicroarchitectureUtil {
 
     private static final String OSHI_ARCHITECTURE_PROPERTIES = "oshi.architecture.properties";
 
-    private MicroArchitectureUtil() {
+    private MicroarchitectureUtil() {
     }
 
     /**

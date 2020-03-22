@@ -1,5 +1,6 @@
 4.6.0 (in progress)
 ================
+* [#894](https://github.com/oshi/oshi/pull/894): Look up microarchitecture from processor identifier. - [@tbradellis](https://github.com/tbradellis).
 * Your contribution here.
 
 4.5.0 (3/12/2020), 4.5.2 (3/20/2020)
