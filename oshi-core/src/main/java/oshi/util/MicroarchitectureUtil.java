@@ -29,10 +29,13 @@ public final class MicroarchitectureUtil {
      */
     public static String getArchitecture(ProcessorIdentifier pi) {
         Properties archProps = architectures.get();
-        // Intel or AMD
+        // Intel is default, no prefix
         StringBuilder sb = new StringBuilder();
+        // AMD and ARM properties have prefix
         if (pi.getVendor().contains("AMD")) {
             sb.append("amd.");
+        } else if (pi.getVendor().contains("ARM")) {
+            sb.append("arm.");
         }
         sb.append(pi.getFamily());
         // Check for match with only family
