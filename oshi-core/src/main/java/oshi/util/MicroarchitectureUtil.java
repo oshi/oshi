@@ -1,7 +1,6 @@
 package oshi.util;
 
 import java.util.Properties;
-import java.util.function.Supplier;
 
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.CentralProcessor.ProcessorIdentifier;
@@ -12,8 +11,6 @@ import oshi.hardware.CentralProcessor.ProcessorIdentifier;
 public final class MicroarchitectureUtil {
 
     private static final String OSHI_ARCHITECTURE_PROPERTIES = "oshi.architecture.properties";
-
-    private static final Supplier<Properties> architectures = Memoizer.memoize(MicroarchitectureUtil::readProperties);
 
     private MicroarchitectureUtil() {
     }
@@ -28,7 +25,7 @@ public final class MicroarchitectureUtil {
      *         {@link Constants#UNKNOWN} otherwise.
      */
     public static String getArchitecture(ProcessorIdentifier pi) {
-        Properties archProps = architectures.get();
+        Properties archProps = FileUtil.readPropertiesFromFilename(OSHI_ARCHITECTURE_PROPERTIES);
         // Intel is default, no prefix
         StringBuilder sb = new StringBuilder();
         // AMD and ARM properties have prefix
@@ -54,9 +51,5 @@ public final class MicroarchitectureUtil {
         arch = archProps.getProperty(sb.toString());
 
         return Util.isBlank(arch) ? Constants.UNKNOWN : arch;
-    }
-
-    private static Properties readProperties() {
-        return FileUtil.readPropertiesFromFilename(OSHI_ARCHITECTURE_PROPERTIES);
     }
 }
