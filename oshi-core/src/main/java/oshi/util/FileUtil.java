@@ -25,13 +25,17 @@ package oshi.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -204,5 +208,43 @@ public final class FileUtil {
             }
         }
         return map;
+    }
+
+    /**
+     * Read a configuration file from the class path and return its properties
+     *
+     * @param propsFilename
+     *            The filename
+     * @return A {@link Properties} object containing the properties.
+     */
+    public static Properties readPropertiesFromFilename(String propsFilename) {
+        Properties archProps = new Properties();
+        // Load the configuration file from the classpath
+        try {
+            ClassLoader loader = Thread.currentThread().getContextClassLoader();
+            if (loader == null) {
+                loader = ClassLoader.getSystemClassLoader();
+                if (loader == null) {
+                    throw new IOException();
+                }
+            }
+            List<URL> resources = Collections.list(loader.getResources(propsFilename));
+            if (resources.isEmpty()) {
+                LOG.warn("No {} file found on the classpath", propsFilename);
+            } else {
+                if (resources.size() > 1) {
+                    LOG.warn("Configuration conflict: there is more than one {} file on the classpath", propsFilename);
+                }
+
+                try (InputStream in = resources.get(0).openStream()) {
+                    if (in != null) {
+                        archProps.load(in);
+                    }
+                }
+            }
+        } catch (IOException e) {
+            LOG.warn("Failed to load default configuration");
+        }
+        return archProps;
     }
 }

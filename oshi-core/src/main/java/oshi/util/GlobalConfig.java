@@ -23,15 +23,7 @@
  */
 package oshi.util;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.util.Collections;
-import java.util.List;
 import java.util.Properties;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * The global configuration utility. See
@@ -39,37 +31,11 @@ import org.slf4j.LoggerFactory;
  */
 public final class GlobalConfig {
 
-    private static final Logger LOG = LoggerFactory.getLogger(GlobalConfig.class);
+    private static final String OSHI_PROPERTIES = "oshi.properties";
 
-    private static final Properties configuration = new Properties();
+    private static final Properties CONFIG = FileUtil.readPropertiesFromFilename(OSHI_PROPERTIES);
 
-    static {
-        // Load the configuration file from the classpath
-        try {
-            ClassLoader loader = Thread.currentThread().getContextClassLoader();
-            if (loader == null) {
-                loader = ClassLoader.getSystemClassLoader();
-                if (loader == null) {
-                    throw new IOException();
-                }
-            }
-            List<URL> resources = Collections.list(loader.getResources("oshi.properties"));
-            if (resources.isEmpty()) {
-                LOG.warn("No default configuration found");
-            } else {
-                if (resources.size() > 1) {
-                    LOG.warn("Configuration conflict: there is more than one oshi.properties file on the classpath");
-                }
-
-                try (InputStream in = resources.get(0).openStream()) {
-                    if (in != null) {
-                        configuration.load(in);
-                    }
-                }
-            }
-        } catch (IOException e) {
-            LOG.warn("Failed to load default configuration");
-        }
+    private GlobalConfig() {
     }
 
     /**
@@ -82,7 +48,7 @@ public final class GlobalConfig {
      * @return The property value or the given default if not found
      */
     public static String get(String key, String def) {
-        return configuration.getProperty(key, def);
+        return CONFIG.getProperty(key, def);
     }
 
     /**
@@ -95,7 +61,7 @@ public final class GlobalConfig {
      * @return The property value or the given default if not found
      */
     public static int get(String key, int def) {
-        String value = configuration.getProperty(key);
+        String value = CONFIG.getProperty(key);
         return value == null ? def : ParseUtil.parseIntOrDefault(value, def);
     }
 
@@ -109,7 +75,7 @@ public final class GlobalConfig {
      * @return The property value or the given default if not found
      */
     public static double get(String key, double def) {
-        String value = configuration.getProperty(key);
+        String value = CONFIG.getProperty(key);
         return value == null ? def : ParseUtil.parseDoubleOrDefault(value, def);
     }
 
@@ -123,7 +89,7 @@ public final class GlobalConfig {
      * @return The property value or the given default if not found
      */
     public static boolean get(String key, boolean def) {
-        String value = configuration.getProperty(key);
+        String value = CONFIG.getProperty(key);
         return value == null ? def : Boolean.parseBoolean(value);
     }
 
@@ -138,9 +104,9 @@ public final class GlobalConfig {
      */
     public static void set(String key, Object val) {
         if (val == null) {
-            configuration.remove(key);
+            CONFIG.remove(key);
         } else {
-            configuration.setProperty(key, val.toString());
+            CONFIG.setProperty(key, val.toString());
         }
     }
 
@@ -151,14 +117,14 @@ public final class GlobalConfig {
      *            The property key
      */
     public static void remove(String key) {
-        configuration.remove(key);
+        CONFIG.remove(key);
     }
 
     /**
      * Clear the configuration.
      */
     public static void clear() {
-        configuration.clear();
+        CONFIG.clear();
     }
 
     /**
@@ -168,7 +134,7 @@ public final class GlobalConfig {
      *            The new properties
      */
     public static void load(Properties properties) {
-        configuration.putAll(properties);
+        CONFIG.putAll(properties);
     }
 
     /**
@@ -195,8 +161,5 @@ public final class GlobalConfig {
         public PropertyException(String property, String message) {
             super("Invalid property \"" + property + "\": " + message);
         }
-    }
-
-    private GlobalConfig() {
     }
 }
