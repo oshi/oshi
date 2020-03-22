@@ -32,11 +32,15 @@ public class MicroArchitectureUtil {
             sb.append("amd.");
         }
         sb.append(pi.getFamily());
-        // Check for match without model
+        // Check for match with only family
         String arch = architectures.getProperty(sb.toString());
         if (Util.isBlank(arch)) {
             // Append model
             sb.append('.').append(pi.getModel());
+        }
+        if (Util.isBlank(arch)) {
+            // Append stepping
+            sb.append('.').append(pi.getStepping());
         }
         arch = architectures.getProperty(sb.toString());
         return Util.isBlank(arch) ? Constants.UNKNOWN : arch;
