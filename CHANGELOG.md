@@ -1,6 +1,7 @@
 4.6.0 (in progress)
 ================
 * [#894](https://github.com/oshi/oshi/pull/894): Look up microarchitecture from processor identifier. - [@tbradellis](https://github.com/tbradellis).
+* [#1150](https://github.com/oshi/oshi/pull/1150): Add fields to NetworkIF to help determine physical interfaces. - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here.
 
 4.5.0 (3/12/2020), 4.5.2 (3/20/2020)

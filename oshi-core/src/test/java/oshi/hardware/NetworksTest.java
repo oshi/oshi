@@ -24,6 +24,7 @@
 package oshi.hardware;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -110,6 +111,10 @@ public class NetworksTest {
             assertTrue(net.getCollisions() >= 0);
             assertTrue(net.getSpeed() >= 0);
             assertTrue(net.getTimeStamp() > 0);
+
+            if (net.getMacaddr().startsWith("00:00:00") || net.getMacaddr().length() < 7) {
+                assertFalse(net.isKnownVmMacAddr());
+            }
         }
     }
 }

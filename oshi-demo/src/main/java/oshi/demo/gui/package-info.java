@@ -21,23 +21,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package oshi.demo;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.IsEqual.equalTo;
-
-import java.lang.reflect.Field;
-import java.util.Map;
-
-import org.junit.Test;
-
-public class DetectVMTest {
-    @SuppressWarnings("unchecked")
-    @Test
-    public void testGetOuiByMacAddressIfPossible() throws NoSuchFieldException, IllegalAccessException {
-        Field f = DetectVM.class.getDeclaredField("vmMacAddressOUI");
-        f.setAccessible(true);
-        Map<String, String> map = (Map<String, String>) f.get(null);
-        map.forEach((k, v) -> assertThat(DetectVM.findOuiByMacAddressIfPossible(k + ":00"), equalTo(v)));
-    }
-}
+/**
+ * Contains JPanel implementations for the Oshi GUI demonstration class. Not
+ * intended for production use, but rather as an example/template to start with.
+ */
+package oshi.demo.gui;

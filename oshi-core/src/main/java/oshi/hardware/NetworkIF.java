@@ -23,6 +23,8 @@
  */
 package oshi.hardware;
 
+import static oshi.util.Memoizer.memoize;
+
 import java.net.InetAddress;
 import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
@@ -30,6 +32,8 @@ import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
+import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +44,7 @@ import oshi.hardware.platform.mac.MacNetworks;
 import oshi.hardware.platform.unix.freebsd.FreeBsdNetworks;
 import oshi.hardware.platform.unix.solaris.SolarisNetworks;
 import oshi.hardware.platform.windows.WindowsNetworks;
+import oshi.util.FileUtil;
 import oshi.util.FormatUtil;
 import oshi.util.ParseUtil;
 
@@ -70,6 +75,10 @@ public class NetworkIF {
     private long collisions;
     private long speed;
     private long timeStamp;
+
+    private static final String OSHI_VM_MAC_ADDR_PROPERTIES = "oshi.vmmacaddr.properties";
+
+    private final Supplier<Properties> vmMacAddrProps = memoize(this::queryVmMacAddrProps);
 
     /**
      * Gets the core java {@link NetworkInterface} object.
@@ -612,6 +621,22 @@ public class NetworkIF {
             LOG.error("Unsupported platform. No update performed.");
             return false;
         }
+    }
+
+    /**
+     * Determines if the MAC address on this interface corresponds to a known
+     * Virtual Machine.
+     * 
+     * @return {@code true} if the MAC address corresponds to a known virtual
+     *         machine.
+     */
+    public boolean isKnownVmMacAddr() {
+        String oui = getMacaddr().length() > 7 ? getMacaddr().substring(0, 8) : getMacaddr();
+        return this.vmMacAddrProps.get().containsKey(oui.toUpperCase());
+    }
+
+    private Properties queryVmMacAddrProps() {
+        return FileUtil.readPropertiesFromFilename(OSHI_VM_MAC_ADDR_PROPERTIES);
     }
 
     @Override

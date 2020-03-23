@@ -25,32 +25,21 @@ package oshi.demo;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Properties;
 
 import oshi.SystemInfo;
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.NetworkIF;
+import oshi.util.FileUtil;
 
 /**
  * Uses OSHI to attempt to identify whether the user is on a Virtual Machine
  */
 public class DetectVM {
 
-    // Constant for Mac address OUI portion, the first 24 bits of MAC address
-    // https://www.webopedia.com/TERM/O/OUI.html
-    private static final Map<String, String> vmMacAddressOUI = new HashMap<>();
-
-    static {
-        vmMacAddressOUI.put("00:50:56", "VMware ESX 3");
-        vmMacAddressOUI.put("00:0C:29", "VMware ESX 3");
-        vmMacAddressOUI.put("00:05:69", "VMware ESX 3");
-        vmMacAddressOUI.put("00:03:FF", "Microsoft Hyper-V");
-        vmMacAddressOUI.put("00:1C:42", "Parallels Desktop");
-        vmMacAddressOUI.put("00:0F:4B", "Virtual Iron 4");
-        vmMacAddressOUI.put("00:16:3E", "Xen or Oracle VM");
-        vmMacAddressOUI.put("08:00:27", "VirtualBox");
-        vmMacAddressOUI.put("02:42:AC", "Docker Container");
-    }
+    private static final String OSHI_VM_MAC_ADDR_PROPERTIES = "oshi.vmmacaddr.properties";
+    private static final Properties vmMacAddressProps = FileUtil
+            .readPropertiesFromFilename(OSHI_VM_MAC_ADDR_PROPERTIES);
 
     // Constant for CPU vendor string
     private static final Map<String, String> vmVendor = new HashMap<>();
@@ -94,7 +83,6 @@ public class DetectVM {
      *         determined, or an emptry string otherwise.
      */
     public static String identifyVM() {
-
         SystemInfo si = new SystemInfo();
         HardwareAbstractionLayer hw = si.getHardware();
         // Check CPU Vendor
@@ -105,12 +93,11 @@ public class DetectVM {
 
         // Try well known MAC addresses
         NetworkIF[] nifs = hw.getNetworkIFs();
-
         for (NetworkIF nif : nifs) {
             String mac = nif.getMacaddr().toUpperCase();
-            String oui = findOuiByMacAddressIfPossible(mac);
-            if (oui != null && !oui.isEmpty()) {
-                return oui;
+            String oui = mac.length() > 7 ? mac.substring(0, 8) : mac;
+            if (vmMacAddressProps.containsKey(oui)) {
+                return vmMacAddressProps.getProperty(oui);
             }
         }
 
@@ -128,18 +115,5 @@ public class DetectVM {
 
         // Couldn't find VM, return empty string
         return "";
-    }
-
-    /**
-     * Look up the OUI using the MAC address
-     *
-     * @param mac
-     *            a colon-delimited MAC address. Only the first 3 Hex pairings are
-     *            relevant
-     * @return the name of the VM(s) if known
-     */
-    public static String findOuiByMacAddressIfPossible(String mac) {
-        return vmMacAddressOUI.entrySet().stream().filter(entry -> mac.startsWith(entry.getKey()))
-                .map(Map.Entry::getValue).collect(Collectors.joining());
     }
 }
