@@ -163,8 +163,8 @@ public class ProcessPanel extends OshiJPanel { // NOSONAR squid:S110
         List<Entry<OSProcess, Double>> procList = new ArrayList<>(processSortValueMap.entrySet());
         procList.sort(Entry.comparingByValue());
         // Insert into array in reverse order (lowest sort value last)
-        int i = procs.length;
-        Object[][] procArr = new Object[procs.length][COLUMNS.length];
+        int i = procList.size();
+        Object[][] procArr = new Object[i][COLUMNS.length];
         // These are in descending CPU order
         for (Entry<OSProcess, Double> e : procList) {
             OSProcess p = e.getKey();
