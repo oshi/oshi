@@ -37,6 +37,7 @@ import oshi.jna.platform.linux.LinuxLibc;
 import oshi.software.os.linux.LinuxOperatingSystem;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
+import oshi.util.GlobalConfig;
 import oshi.util.ParseUtil;
 
 /**
@@ -45,7 +46,7 @@ import oshi.util.ParseUtil;
 public class LinuxCentralProcessor extends AbstractCentralProcessor {
 
     // See https://www.kernel.org/doc/Documentation/cpu-freq/user-guide.txt
-    private static final String CPUFREQ_PATH = "/sys/devices/system/cpu/cpu";
+    private static final String CPUFREQ_PATH = "oshi.cpu.freq.path";
 
     @Override
     protected final ProcessorIdentifier queryProcessorId() {
@@ -184,13 +185,14 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
 
     @Override
     public long[] queryCurrentFreq() {
+        String cpuFreqPath = GlobalConfig.get(CPUFREQ_PATH, "");
         long[] freqs = new long[getLogicalProcessorCount()];
         // Attempt to fill array from cpu-freq source
         long max = 0L;
         for (int i = 0; i < freqs.length; i++) {
-            freqs[i] = FileUtil.getLongFromFile(CPUFREQ_PATH + i + "/cpufreq/scaling_cur_freq");
+            freqs[i] = FileUtil.getLongFromFile(cpuFreqPath + i + "/cpufreq/scaling_cur_freq");
             if (freqs[i] == 0) {
-                freqs[i] = FileUtil.getLongFromFile(CPUFREQ_PATH + i + "/cpufreq/cpuinfo_cur_freq");
+                freqs[i] = FileUtil.getLongFromFile(cpuFreqPath + i + "/cpufreq/cpuinfo_cur_freq");
             }
             if (max < freqs[i]) {
                 max = freqs[i];
@@ -220,11 +222,12 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
 
     @Override
     public long queryMaxFreq() {
+        String cpuFreqPath = GlobalConfig.get(CPUFREQ_PATH, "");
         long max = 0L;
         for (int i = 0; i < getLogicalProcessorCount(); i++) {
-            long freq = FileUtil.getLongFromFile(CPUFREQ_PATH + i + "/cpufreq/scaling_max_freq");
+            long freq = FileUtil.getLongFromFile(cpuFreqPath + i + "/cpufreq/scaling_max_freq");
             if (freq == 0) {
-                freq = FileUtil.getLongFromFile(CPUFREQ_PATH + i + "/cpufreq/cpuinfo_max_freq");
+                freq = FileUtil.getLongFromFile(cpuFreqPath + i + "/cpufreq/cpuinfo_max_freq");
             }
             if (max < freq) {
                 max = freq;

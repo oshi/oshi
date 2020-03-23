@@ -24,6 +24,7 @@
 package oshi.hardware;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -56,6 +57,7 @@ public class CentralProcessorTest {
         assertNotNull(pi.getStepping());
         assertNotNull(pi.getModel());
         assertNotNull(pi.getFamily());
+        assertFalse(Util.isBlank(pi.getMicroarchitecture()));
 
         long[] ticks = p.getSystemCpuLoadTicks();
         long[][] procTicks = p.getProcessorCpuLoadTicks();
