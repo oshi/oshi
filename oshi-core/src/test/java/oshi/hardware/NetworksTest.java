@@ -58,7 +58,7 @@ public class NetworksTest {
             assertNotNull(net.getSubnetMasks());
             assertNotNull(net.getIPv6addr());
             assertNotNull(net.getPrefixLengths());
-            assertTrue(net.getType() >= 0);
+            assertTrue(net.getIfType() >= 0);
             assertTrue(net.getNdisPhysicalMediumType() >= 0);
             assertTrue(net.getBytesRecv() >= 0);
             assertTrue(net.getBytesSent() >= 0);
@@ -86,7 +86,7 @@ public class NetworksTest {
             net.setSpeed(50L);
             net.setTimeStamp(timeStamp);
 
-            assertEquals(1, net.getType());
+            assertEquals(1, net.getIfType());
             assertEquals(2, net.getNdisPhysicalMediumType());
             assertTrue(net.isConnectorPresent());
             assertEquals(10L, net.getBytesRecv());
@@ -112,7 +112,7 @@ public class NetworksTest {
             assertTrue(net.getSpeed() >= 0);
             assertTrue(net.getTimeStamp() > 0);
 
-            if (net.getMacaddr().startsWith("00:00:00") || net.getMacaddr().length() < 7) {
+            if (net.getMacaddr().startsWith("00:00:00") || net.getMacaddr().length() < 8) {
                 assertFalse(net.isKnownVmMacAddr());
             }
         }

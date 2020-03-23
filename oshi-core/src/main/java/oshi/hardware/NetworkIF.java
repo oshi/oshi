@@ -266,7 +266,7 @@ public class NetworkIF {
      * 
      * @return the ifType
      */
-    public int getType() {
+    public int getIfType() {
         return ifType;
     }
 
