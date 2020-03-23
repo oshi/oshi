@@ -23,6 +23,8 @@
  */
 package oshi.hardware;
 
+import static oshi.util.Memoizer.memoize;
+
 import java.net.InetAddress;
 import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
@@ -30,6 +32,8 @@ import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
+import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +44,7 @@ import oshi.hardware.platform.mac.MacNetworks;
 import oshi.hardware.platform.unix.freebsd.FreeBsdNetworks;
 import oshi.hardware.platform.unix.solaris.SolarisNetworks;
 import oshi.hardware.platform.windows.WindowsNetworks;
+import oshi.util.FileUtil;
 import oshi.util.FormatUtil;
 import oshi.util.ParseUtil;
 
@@ -57,6 +62,9 @@ public class NetworkIF {
     private Short[] subnetMasks;
     private String[] ipv6;
     private Short[] prefixLengths;
+    private int ifType;
+    private int ndisPhysicalMediumType;
+    private boolean connectorPresent;
     private long bytesRecv;
     private long bytesSent;
     private long packetsRecv;
@@ -67,6 +75,10 @@ public class NetworkIF {
     private long collisions;
     private long speed;
     private long timeStamp;
+
+    private static final String OSHI_VM_MAC_ADDR_PROPERTIES = "oshi.vmmacaddr.properties";
+
+    private final Supplier<Properties> vmMacAddrProps = memoize(this::queryVmMacAddrProps);
 
     /**
      * Gets the core java {@link NetworkInterface} object.
@@ -240,6 +252,84 @@ public class NetworkIF {
      */
     public Short[] getPrefixLengths() {
         return Arrays.copyOf(this.prefixLengths, this.prefixLengths.length);
+    }
+
+    /**
+     * (Windows, macOS) The NDIS Interface Type. NDIS interface types are registered
+     * with the Internet Assigned Numbers Authority (IANA), which publishes a list
+     * of interface types periodically in the Assigned Numbers RFC, or in a
+     * derivative of it that is specific to Internet network management number
+     * assignments.
+     * <p>
+     * (Linux) ARP Protocol hardware identifiers defined in
+     * {@code include/uapi/linux/if_arp.h}
+     * 
+     * @return the ifType
+     */
+    public int getIfType() {
+        return ifType;
+    }
+
+    /**
+     * <p>
+     * Setter for the field <code>ifType</code>.
+     * </p>
+     * 
+     * @param ifType
+     *            the ifType to set
+     */
+    public void setIfType(int ifType) {
+        this.ifType = ifType;
+    }
+
+    /**
+     * <p>
+     * (Windows Vista and higher only) The NDIS physical medium type. This member
+     * can be one of the values from the {@code NDIS_PHYSICAL_MEDIUM} enumeration
+     * type defined in the {@code Ntddndis.h} header file.
+     * </p>
+     * 
+     * @return the ndisPhysicalMediumType
+     */
+    public int getNdisPhysicalMediumType() {
+        return ndisPhysicalMediumType;
+    }
+
+    /**
+     * <p>
+     * Setter for the field <code>ndisPhysicalMediumType</code>.
+     * </p>
+     * 
+     * @param ndisPhysicalMediumType
+     *            the ndisPhysicalMediumType to set
+     */
+    public void setNdisPhysicalMediumType(int ndisPhysicalMediumType) {
+        this.ndisPhysicalMediumType = ndisPhysicalMediumType;
+    }
+
+    /**
+     * (Windows Vista and higher) Set if a connector is present on the network
+     * interface.
+     * <p>
+     * (Linux) Indicates the current physical link state of the interface.
+     * 
+     * @return {@code true} if there is a physical network adapter (Windows) or a
+     *         connected cable (Linux), false otherwise
+     */
+    public boolean isConnectorPresent() {
+        return connectorPresent;
+    }
+
+    /**
+     * <p>
+     * Setter for the field <code>connectorPresent</code>.
+     * </p>
+     * 
+     * @param connectorPresent
+     *            the connectorPresent to set
+     */
+    public void setConnectorPresent(boolean connectorPresent) {
+        this.connectorPresent = connectorPresent;
     }
 
     /**
@@ -531,6 +621,22 @@ public class NetworkIF {
             LOG.error("Unsupported platform. No update performed.");
             return false;
         }
+    }
+
+    /**
+     * Determines if the MAC address on this interface corresponds to a known
+     * Virtual Machine.
+     * 
+     * @return {@code true} if the MAC address corresponds to a known virtual
+     *         machine.
+     */
+    public boolean isKnownVmMacAddr() {
+        String oui = getMacaddr().length() > 7 ? getMacaddr().substring(0, 8) : getMacaddr();
+        return this.vmMacAddrProps.get().containsKey(oui.toUpperCase());
+    }
+
+    private Properties queryVmMacAddrProps() {
+        return FileUtil.readPropertiesFromFilename(OSHI_VM_MAC_ADDR_PROPERTIES);
     }
 
     @Override

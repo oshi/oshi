@@ -45,6 +45,7 @@ public class WindowsNetworks extends AbstractNetworks {
     private static final Logger LOG = LoggerFactory.getLogger(WindowsNetworks.class);
 
     private static final boolean IS_VISTA_OR_GREATER = VersionHelpers.IsWindowsVistaOrGreater();
+    private static final byte CONNECTOR_PRESENT_BIT = 0b00100000;
 
     /**
      * Updates interface network statistics on the given interface. Statistics
@@ -66,6 +67,9 @@ public class WindowsNetworks extends AbstractNetworks {
                         netIF.getName());
                 return false;
             }
+            netIF.setIfType(ifRow.Type);
+            netIF.setNdisPhysicalMediumType(ifRow.PhysicalMediumType);
+            netIF.setConnectorPresent((ifRow.InterfaceAndOperStatusFlags & CONNECTOR_PRESENT_BIT) > 0);
             // These are unsigned longs. netIF setter will mask sign bit.
             netIF.setBytesSent(ifRow.OutOctets);
             netIF.setBytesRecv(ifRow.InOctets);
@@ -86,6 +90,7 @@ public class WindowsNetworks extends AbstractNetworks {
                         netIF.getName());
                 return false;
             }
+            netIF.setIfType(ifRow.dwType);
             // These are unsigned ints. Widen them to longs.
             netIF.setBytesSent(ParseUtil.unsignedIntToLong(ifRow.dwOutOctets));
             netIF.setBytesRecv(ParseUtil.unsignedIntToLong(ifRow.dwInOctets));

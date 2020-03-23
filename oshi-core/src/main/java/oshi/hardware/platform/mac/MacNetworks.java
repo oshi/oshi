@@ -114,10 +114,10 @@ public class MacNetworks extends AbstractNetworks {
                 if2m.read();
                 if (index < 0 || index == if2m.ifm_index) {
                     data.put((int) if2m.ifm_index,
-                            new IFdata(if2m.ifm_data.ifi_opackets, if2m.ifm_data.ifi_ipackets, if2m.ifm_data.ifi_obytes,
-                                    if2m.ifm_data.ifi_ibytes, if2m.ifm_data.ifi_oerrors, if2m.ifm_data.ifi_ierrors,
-                                    if2m.ifm_data.ifi_collisions, if2m.ifm_data.ifi_iqdrops, if2m.ifm_data.ifi_baudrate,
-                                    System.currentTimeMillis()));
+                            new IFdata(if2m.ifm_data.ifi_type, if2m.ifm_data.ifi_opackets, if2m.ifm_data.ifi_ipackets,
+                                    if2m.ifm_data.ifi_obytes, if2m.ifm_data.ifi_ibytes, if2m.ifm_data.ifi_oerrors,
+                                    if2m.ifm_data.ifi_ierrors, if2m.ifm_data.ifi_collisions, if2m.ifm_data.ifi_iqdrops,
+                                    if2m.ifm_data.ifi_baudrate, System.currentTimeMillis()));
                 }
             }
         }
@@ -152,6 +152,7 @@ public class MacNetworks extends AbstractNetworks {
         if (data.containsKey(index)) {
             IFdata ifData = data.get(index);
             // Update data
+            netIF.setIfType(ifData.ifType);
             netIF.setBytesSent(ifData.oBytes);
             netIF.setBytesRecv(ifData.iBytes);
             netIF.setPacketsSent(ifData.oPackets);
@@ -171,6 +172,7 @@ public class MacNetworks extends AbstractNetworks {
      * Class to encapsulate IF data for method return
      */
     private static class IFdata {
+        private int ifType;
         private long oPackets;
         private long iPackets;
         private long oBytes;
@@ -182,9 +184,10 @@ public class MacNetworks extends AbstractNetworks {
         private long speed;
         private long timeStamp;
 
-        IFdata(long oPackets, long iPackets, // NOSONAR squid:S00107
-                long oBytes, long iBytes, long oErrors, long iErrors, long collisions, long iDrops, long speed,
-                long timeStamp) {
+        public IFdata(int ifType, // NOSONAR squid:S00107
+                long oPackets, long iPackets, long oBytes, long iBytes, long oErrors, long iErrors, long collisions,
+                long iDrops, long speed, long timeStamp) {
+            this.ifType = ifType;
             this.oPackets = oPackets;
             this.iPackets = iPackets;
             this.oBytes = oBytes;

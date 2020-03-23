@@ -52,6 +52,8 @@ public class LinuxNetworks extends AbstractNetworks {
         } catch (SecurityException e) {
             return false;
         }
+        String ifTypePath = String.format("/sys/class/net/%s/type", netIF.getName());
+        String carrierPath = String.format("/sys/class/net/%s/carrier", netIF.getName());
         String txBytesPath = String.format("/sys/class/net/%s/statistics/tx_bytes", netIF.getName());
         String rxBytesPath = String.format("/sys/class/net/%s/statistics/rx_bytes", netIF.getName());
         String txPacketsPath = String.format("/sys/class/net/%s/statistics/tx_packets", netIF.getName());
@@ -63,6 +65,8 @@ public class LinuxNetworks extends AbstractNetworks {
         String speed = String.format("/sys/class/net/%s/speed", netIF.getName());
 
         netIF.setTimeStamp(System.currentTimeMillis());
+        netIF.setIfType(FileUtil.getIntFromFile(ifTypePath));
+        netIF.setConnectorPresent(FileUtil.getIntFromFile(carrierPath) > 0);
         netIF.setBytesSent(FileUtil.getUnsignedLongFromFile(txBytesPath));
         netIF.setBytesRecv(FileUtil.getUnsignedLongFromFile(rxBytesPath));
         netIF.setPacketsSent(FileUtil.getUnsignedLongFromFile(txPacketsPath));
