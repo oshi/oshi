@@ -57,6 +57,8 @@ public class NetworksTest {
             assertNotNull(net.getSubnetMasks());
             assertNotNull(net.getIPv6addr());
             assertNotNull(net.getPrefixLengths());
+            assertTrue(net.getType() >= 0);
+            assertTrue(net.getNdisPhysicalMediumType() >= 0);
             assertTrue(net.getBytesRecv() >= 0);
             assertTrue(net.getBytesSent() >= 0);
             assertTrue(net.getPacketsRecv() >= 0);
@@ -69,6 +71,9 @@ public class NetworksTest {
             assertTrue(net.getMTU() >= 0);
             assertTrue(net.getTimeStamp() > 0);
 
+            net.setIfType(1);
+            net.setNdisPhysicalMediumType(2);
+            net.setConnectorPresent(true);
             net.setBytesRecv(10L);
             net.setBytesSent(20L);
             net.setPacketsRecv(30L);
@@ -80,6 +85,9 @@ public class NetworksTest {
             net.setSpeed(50L);
             net.setTimeStamp(timeStamp);
 
+            assertEquals(1, net.getType());
+            assertEquals(2, net.getNdisPhysicalMediumType());
+            assertTrue(net.isConnectorPresent());
             assertEquals(10L, net.getBytesRecv());
             assertEquals(20L, net.getBytesSent());
             assertEquals(30L, net.getPacketsRecv());

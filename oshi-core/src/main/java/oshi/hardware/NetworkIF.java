@@ -57,6 +57,9 @@ public class NetworkIF {
     private Short[] subnetMasks;
     private String[] ipv6;
     private Short[] prefixLengths;
+    private int ifType;
+    private int ndisPhysicalMediumType;
+    private boolean connectorPresent;
     private long bytesRecv;
     private long bytesSent;
     private long packetsRecv;
@@ -240,6 +243,84 @@ public class NetworkIF {
      */
     public Short[] getPrefixLengths() {
         return Arrays.copyOf(this.prefixLengths, this.prefixLengths.length);
+    }
+
+    /**
+     * (Windows, macOS) The NDIS Interface Type. NDIS interface types are registered
+     * with the Internet Assigned Numbers Authority (IANA), which publishes a list
+     * of interface types periodically in the Assigned Numbers RFC, or in a
+     * derivative of it that is specific to Internet network management number
+     * assignments.
+     * <p>
+     * (Linux) ARP Protocol hardware identifiers defined in
+     * {@code include/uapi/linux/if_arp.h}
+     * 
+     * @return the ifType
+     */
+    public int getType() {
+        return ifType;
+    }
+
+    /**
+     * <p>
+     * Setter for the field <code>ifType</code>.
+     * </p>
+     * 
+     * @param ifType
+     *            the ifType to set
+     */
+    public void setIfType(int ifType) {
+        this.ifType = ifType;
+    }
+
+    /**
+     * <p>
+     * (Windows Vista and higher only) The NDIS physical medium type. This member
+     * can be one of the values from the {@code NDIS_PHYSICAL_MEDIUM} enumeration
+     * type defined in the {@code Ntddndis.h} header file.
+     * </p>
+     * 
+     * @return the ndisPhysicalMediumType
+     */
+    public int getNdisPhysicalMediumType() {
+        return ndisPhysicalMediumType;
+    }
+
+    /**
+     * <p>
+     * Setter for the field <code>ndisPhysicalMediumType</code>.
+     * </p>
+     * 
+     * @param ndisPhysicalMediumType
+     *            the ndisPhysicalMediumType to set
+     */
+    public void setNdisPhysicalMediumType(int ndisPhysicalMediumType) {
+        this.ndisPhysicalMediumType = ndisPhysicalMediumType;
+    }
+
+    /**
+     * (Windows Vista and higher) Set if a connector is present on the network
+     * interface.
+     * <p>
+     * (Linux) Indicates the current physical link state of the interface.
+     * 
+     * @return {@code true} if there is a physical network adapter (Windows) or a
+     *         connected cable (Linux), false otherwise
+     */
+    public boolean isConnectorPresent() {
+        return connectorPresent;
+    }
+
+    /**
+     * <p>
+     * Setter for the field <code>connectorPresent</code>.
+     * </p>
+     * 
+     * @param connectorPresent
+     *            the connectorPresent to set
+     */
+    public void setConnectorPresent(boolean connectorPresent) {
+        this.connectorPresent = connectorPresent;
     }
 
     /**
