@@ -34,8 +34,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.hardware.CentralProcessor;
-import oshi.util.Constants;
-import oshi.util.MicroarchitectureUtil;
 import oshi.util.ParseUtil;
 
 /**
@@ -417,11 +415,7 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
         sb.append("\n ").append(getLogicalProcessorCount()).append(" logical CPU(s)");
         sb.append('\n').append("Identifier: ").append(getProcessorIdentifier().getIdentifier());
         sb.append('\n').append("ProcessorID: ").append(getProcessorIdentifier().getProcessorID());
-        String arch = MicroarchitectureUtil.getArchitecture(getProcessorIdentifier());
-        if (!Constants.UNKNOWN.equals(arch)) {
-            sb.append('\n').append("Microarchitecture: ").append(arch);
-        }
+        sb.append('\n').append("Microarchitecture: ").append(getProcessorIdentifier().getMicroarchitecture());
         return sb.toString();
     }
-
 }

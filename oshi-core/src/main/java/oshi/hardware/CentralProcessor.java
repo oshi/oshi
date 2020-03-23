@@ -23,10 +23,17 @@
  */
 package oshi.hardware;
 
+import static oshi.util.Memoizer.memoize;
+
+import java.util.Properties;
+import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import oshi.util.Constants;
+import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
+import oshi.util.Util;
 
 /**
  * This class represents the entire Central Processing Unit (CPU) of a computer
@@ -509,6 +516,8 @@ public interface CentralProcessor {
      * stepping, model, and family information (also called the signature of a CPU)
      */
     final class ProcessorIdentifier {
+        private static final String OSHI_ARCHITECTURE_PROPERTIES = "oshi.architecture.properties";
+
         // Provided in constructor
         private final String cpuVendor;
         private final String cpuName;
@@ -519,6 +528,8 @@ public interface CentralProcessor {
         private final String cpuIdentifier;
         private final boolean cpu64bit;
         private final long cpuVendorFreq;
+
+        private final Supplier<String> microArchictecture = memoize(this::queryMicroarchitecture);
 
         public ProcessorIdentifier(String cpuVendor, String cpuName, String cpuFamily, String cpuModel,
                 String cpuStepping, String processorID, boolean cpu64bit) {
@@ -653,6 +664,45 @@ public interface CentralProcessor {
          */
         public long getVendorFreq() {
             return cpuVendorFreq;
+        }
+
+        /**
+         * Returns the processor's microarchitecture, if known.
+         *
+         * @return A string containing the microarchitecture if known.
+         *         {@link Constants#UNKNOWN} otherwise.
+         */
+        public String getMicroarchitecture() {
+            return microArchictecture.get();
+        }
+
+        private String queryMicroarchitecture() {
+            Properties archProps = FileUtil.readPropertiesFromFilename(OSHI_ARCHITECTURE_PROPERTIES);
+            // Intel is default, no prefix
+            StringBuilder sb = new StringBuilder();
+            // AMD and ARM properties have prefix
+            if (this.cpuVendor.contains("AMD")) {
+                sb.append("amd.");
+            } else if (this.getVendor().contains("ARM")) {
+                sb.append("arm.");
+            }
+            sb.append(this.cpuFamily);
+            // Check for match with only family
+            String arch = archProps.getProperty(sb.toString());
+
+            if (Util.isBlank(arch)) {
+                // Append model
+                sb.append('.').append(this.cpuModel);
+            }
+            arch = archProps.getProperty(sb.toString());
+
+            if (Util.isBlank(arch)) {
+                // Append stepping
+                sb.append('.').append(this.cpuStepping);
+            }
+            arch = archProps.getProperty(sb.toString());
+
+            return Util.isBlank(arch) ? Constants.UNKNOWN : arch;
         }
 
         @Override

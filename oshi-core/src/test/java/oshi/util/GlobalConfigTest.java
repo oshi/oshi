@@ -24,6 +24,7 @@
 package oshi.util;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static oshi.util.GlobalConfig.clear;
@@ -48,21 +49,21 @@ public class GlobalConfigTest {
     public void testGetString() {
         assertNull(get("oshi.test.property", null));
         set("oshi.test.property", "test");
-        assertEquals(get("oshi.test.property", null), "test");
+        assertEquals("test", get("oshi.test.property", null));
         set("oshi.test.property", 123);
-        assertEquals(get("oshi.test.property", null), "123");
+        assertEquals("123", get("oshi.test.property", null));
     }
 
     @Test
     public void testGetInteger() {
-        assertEquals(get("oshi.test.property", 0), 0);
+        assertEquals(0, get("oshi.test.property", 0));
         set("oshi.test.property", 123);
-        assertEquals(get("oshi.test.property", 0), 123);
-        assertEquals(get("oshi.test.property", null), "123");
+        assertEquals(123, get("oshi.test.property", 0));
+        assertEquals("123", get("oshi.test.property", null));
 
         // Invalid integer
         set("oshi.test.property", "1.23");
-        assertEquals(get("oshi.test.property", 0), 0);
+        assertEquals(0, get("oshi.test.property", 0));
     }
 
     @Test
@@ -70,7 +71,7 @@ public class GlobalConfigTest {
         assertTrue(get("oshi.test.property", 0.0) == 0.0);
         set("oshi.test.property", 1.23d);
         assertTrue(get("oshi.test.property", 0.0) == 1.23);
-        assertEquals(get("oshi.test.property", null), "1.23");
+        assertEquals("1.23", get("oshi.test.property", null));
 
         // Invalid double
         set("oshi.test.property", "1.2.3");
@@ -79,24 +80,24 @@ public class GlobalConfigTest {
 
     @Test
     public void testGetBoolean() {
-        assertEquals(get("oshi.test.property", false), false);
+        assertFalse(get("oshi.test.property", false));
         set("oshi.test.property", true);
-        assertEquals(get("oshi.test.property", false), true);
-        assertEquals(get("oshi.test.property", null), "true");
+        assertTrue(get("oshi.test.property", false));
+        assertEquals("true", get("oshi.test.property", null));
     }
 
     @Test
     public void testSetNull() {
         set("oshi.test.property", "test");
         set("oshi.test.property", null);
-        assertEquals(get("oshi.test.property", "123"), "123");
+        assertEquals("123", get("oshi.test.property", "123"));
     }
 
     @Test
     public void testRemove() {
         set("oshi.test.property", "test");
         remove("oshi.test.property");
-        assertEquals(get("oshi.test.property", "123"), "123");
+        assertEquals("123", get("oshi.test.property", "123"));
     }
 
     @Test
@@ -105,13 +106,13 @@ public class GlobalConfigTest {
         updates.setProperty("oshi.test.property", "321");
 
         load(updates);
-        assertEquals(get("oshi.test.property", null), "321");
+        assertEquals("321", get("oshi.test.property", null));
     }
 
     @Test
     public void testPropertyExceptionMessage() {
         set("oshi.test.property", "test");
-        assertEquals(new GlobalConfig.PropertyException("oshi.test.property").getMessage(),
-                "Invalid property: \"oshi.test.property\" = test");
+        assertEquals("Invalid property: \"oshi.test.property\" = test",
+                new GlobalConfig.PropertyException("oshi.test.property").getMessage());
     }
 }
