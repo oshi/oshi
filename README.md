@@ -107,55 +107,22 @@ By periodically polling dynamic information (e.g., every second), users can calc
 The `main()` method of [SystemInfoTest](https://github.com/oshi/oshi/blob/master/oshi-core/src/test/java/oshi/SystemInfoTest.java) 
 provides sample code demonstrating the use of `oshi-core` interfaces to retrieve information and calculate additional metrics shown in the examples below.
 
-General information about the operating system and computer system.
-```
-Apple macOS 10.14.6 (Mojave) build 18G84
-Booted: 2019-07-28T20:27:49Z
-Uptime: 10 days, 08:24:03
-Running without elevated permissions.
+In addition, the `oshi-demo` project includes an [OshiGui](https://github.com/oshi/oshi/blob/master/oshi-demo/src/main/java/oshi/demo/OshiGui.java) class implementing a basic Swing GUI offering suggestions for potential visualizations using OSHI in a UI, monitoring, or alerting application, as shown below:
 
-manufacturer: Apple Inc.
-model: MacBook Pro (MacBookPro15,1)
-serialnumber: C03Z53B7LVDR
-```
-Processor identification.
-```
-Intel(R) Core(TM) i9-9880H CPU @ 2.30GHz
- 1 physical CPU package(s)
- 8 physical CPU core(s)
- 16 logical CPU(s)
-Identifier: Intel64 Family 6 Model 158 Stepping 13
-ProcessorID: BFEBFBFF000906ED
-```
+General information about the operating system and computer system hardware:
+![Operating System and Hardware](https://github.com/dbwiddis/oshi/blob/master/src/site/markdown/OSHW.PNG)
+
 By measuring ticks (user, nice, system, idle, iowait, and irq) between time intervals, percent usage can be calculated.
 Per-processor information is also provided.
-```
-CPU, IOWait, and IRQ ticks @ 0 sec:[967282, 15484, 195343, 124216619], 6176, [4054, 2702]
-CPU, IOWait, and IRQ ticks @ 1 sec:[967308, 15484, 195346, 124216790], 6177, [4057, 2705]
-User: 13.0% Nice: 0.0% System: 1.5% Idle: 85.5%
-CPU load: 8.8%
-CPU load averages: 2.69 2.47 2.38
-CPU load per processor: 23.6% 1.3% 18.2% 0.7% 12.9% 0.7% 12.1% 1.3%
-Vendor Frequency: 2.3 GHz
-Max Frequency: 2.3 GHz
-Current Frequencies: 2.3 GHz, 2.3 GHz, 2.3 GHz, 2.3 GHz, 2.3 GHz, 2.3 GHz, 2.3 GHz, 2.3 GHz
-```
+![CPU Usage](https://github.com/dbwiddis/oshi/blob/master/src/site/markdown/CPU.PNG)
+
 Process information including CPU and memory per process is available.
-```
-Processes: 401, Threads: 1159
-   PID  %CPU %MEM       VSZ       RSS Name
- 55977  27.9  0.2   6.8 GiB  34.3 MiB java
- 51820  18.7  5.6   6.3 GiB 919.2 MiB eclipse
- 39272  11.2 17.8   7.1 GiB   2.8 GiB prl_vm_app
- 85316   6.5  2.9   5.6 GiB 471.4 MiB thunderbird
- 35301   5.4  0.5   1.7 GiB  89.8 MiB Microsoft Excel
- ```
+![Process Statistics](https://github.com/dbwiddis/oshi/blob/master/src/site/markdown/Procs.PNG)
+
 Memory and swapfile information is available.
-```
-Memory: 11.6 GiB/32 GiB
-Swap used: 3.6 GiB/5 GiB
-```
-Statistics for the system battery are provided.
+![Memory Statistics](https://github.com/dbwiddis/oshi/blob/master/src/site/markdown/Memory.PNG)
+
+Statistics for the system battery are provided:
 ```
 Power Sources: 
  Name: InternalBattery-0, Device Name: bq20z451,
@@ -185,6 +152,7 @@ Displays:
   Monitor Name: SyncMaster
   Serial Number: HMCP431880
 ```
+
 Disks and usage (reads, writes, transfer times) are shown, and partitions can be mapped to filesystems.
 ```
 Disks:
@@ -204,6 +172,7 @@ Sensors:
  Fan Speeds:[4685, 4687]
  CPU Voltage: 3.9V
 ```
+
 Attached USB devices can be listed:
 ```
 USB Devices:
@@ -229,7 +198,6 @@ USB Devices:
              |-- ANT USBStick2 (Dynastream Innovations) [s/n: 051]
              |-- Fitbit Base Station (Fitbit Inc.)
 ```
-
 
 Where are we? How can I help?
 -----------------------------
