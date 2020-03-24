@@ -31,7 +31,7 @@ import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 
 /**
- * Sound card data obtained via system_profiler
+ * Sound card data obtained via AppleHDA kext
  */
 public class MacSoundCard extends AbstractSoundCard {
 

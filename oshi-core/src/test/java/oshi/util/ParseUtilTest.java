@@ -406,7 +406,7 @@ public class ParseUtilTest {
         assertEquals(timeInst, ParseUtil.parseCimDateTimeToOffset(cimDateTime).toInstant());
         assertEquals(Instant.EPOCH, ParseUtil.parseCimDateTimeToOffset("Not a datetime").toInstant());
     }
-    
+
     @Test
     public void testFilePathStartsWith() {
         List<String> prefixList = Arrays.asList("/foo", "/bar");
@@ -415,5 +415,16 @@ public class ParseUtilTest {
         assertEquals(false, ParseUtil.filePathStartsWith(prefixList, "/foobar"));
         assertEquals(true, ParseUtil.filePathStartsWith(prefixList, "/foo/baz"));
         assertEquals(false, ParseUtil.filePathStartsWith(prefixList, "/baz/foo"));
+    }
+
+    @Test
+    public void testParseDecimalMemorySizeToBinary() {
+        assertEquals(0, ParseUtil.parseDecimalMemorySizeToBinary("Not a number"));
+        assertEquals(1, ParseUtil.parseDecimalMemorySizeToBinary("1"));
+        assertEquals(1024, ParseUtil.parseDecimalMemorySizeToBinary("1 kB"));
+        assertEquals(1024, ParseUtil.parseDecimalMemorySizeToBinary("1 KB"));
+        assertEquals(1_048_576, ParseUtil.parseDecimalMemorySizeToBinary("1 MB"));
+        assertEquals(1_073_741_824, ParseUtil.parseDecimalMemorySizeToBinary("1 GB"));
+        assertEquals(1_099_511_627_776L, ParseUtil.parseDecimalMemorySizeToBinary("1 TB"));
     }
 }

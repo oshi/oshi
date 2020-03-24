@@ -899,8 +899,8 @@ public final class ParseUtil {
      *            A list of path prefixes
      * @param path
      *            a string path to check
-     * @return true if the path exactly equals, or starts with one of the strings
-     *         in prefixList
+     * @return true if the path exactly equals, or starts with one of the strings in
+     *         prefixList
      */
     public static boolean filePathStartsWith(List<String> prefixList, String path) {
         for (String match : prefixList) {
@@ -909,5 +909,39 @@ public final class ParseUtil {
             }
         }
         return false;
+    }
+
+    /**
+     * Parses a string such as "4096 MB" to its long. Used to parse macOS and *nix
+     * memory chip sizes. Although the units given are decimal they must parse to
+     * binary units.
+     *
+     * @param size
+     *            A string of memory sizes like "4096 MB"
+     * @return the size parsed to a long
+     */
+    public static long parseDecimalMemorySizeToBinary(String size) {
+        String[] mem = ParseUtil.whitespaces.split(size);
+        long capacity = ParseUtil.parseLongOrDefault(mem[0], 0L);
+        if (mem.length == 2 && mem[1].length() > 1) {
+            switch (mem[1].charAt(0)) {
+            case 'T':
+                capacity <<= 40;
+                break;
+            case 'G':
+                capacity <<= 30;
+                break;
+            case 'M':
+                capacity <<= 20;
+                break;
+            case 'K':
+            case 'k':
+                capacity <<= 10;
+                break;
+            default:
+                break;
+            }
+        }
+        return capacity;
     }
 }

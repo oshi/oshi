@@ -74,7 +74,7 @@ public abstract class AbstractGlobalMemory implements GlobalMemory {
                         locator = "/" + split[1].trim();
                         break;
                     case "Size":
-                        capacity = parsePhysicalMemorySize(split[1].trim());
+                        capacity = ParseUtil.parseDecimalMemorySizeToBinary(split[1].trim());
                         break;
                     case "Type":
                         memoryType = split[1].trim();
@@ -95,40 +95,6 @@ public abstract class AbstractGlobalMemory implements GlobalMemory {
             pmList.add(new PhysicalMemory(bankLabel + locator, capacity, speed, manufacturer, memoryType));
         }
         return pmList.toArray(new PhysicalMemory[0]);
-    }
-
-    /**
-     * Parses a string such as "4096 MB" to its long. Used to parse macOS and *nix
-     * memory chip sizes. Although the units given are decimal they must parse to
-     * binary units.
-     *
-     * @param size
-     *            A string of memory sizes like "4096 MB"
-     * @return the size parsed to a long
-     */
-    protected long parsePhysicalMemorySize(String size) {
-        String[] mem = ParseUtil.whitespaces.split(size);
-        long capacity = ParseUtil.parseLongOrDefault(mem[0], 0L);
-        if (mem.length == 2 && mem[1].length() > 1) {
-            switch (mem[1].charAt(0)) {
-            case 'T':
-                capacity <<= 40;
-                break;
-            case 'G':
-                capacity <<= 30;
-                break;
-            case 'M':
-                capacity <<= 20;
-                break;
-            case 'K':
-            case 'k':
-                capacity <<= 10;
-                break;
-            default:
-                break;
-            }
-        }
-        return capacity;
     }
 
     @Override

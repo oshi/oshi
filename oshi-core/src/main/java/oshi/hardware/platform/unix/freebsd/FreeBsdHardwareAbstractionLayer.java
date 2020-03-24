@@ -27,6 +27,7 @@ import oshi.hardware.CentralProcessor;
 import oshi.hardware.ComputerSystem;
 import oshi.hardware.Display;
 import oshi.hardware.GlobalMemory;
+import oshi.hardware.GraphicsCard;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.NetworkIF;
 import oshi.hardware.PowerSource;
@@ -42,63 +43,59 @@ import oshi.hardware.common.AbstractHardwareAbstractionLayer;
  */
 public class FreeBsdHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {
 
-    /** {@inheritDoc} */
     @Override
     public ComputerSystem createComputerSystem() {
         return new FreeBsdComputerSystem();
     }
 
-    /** {@inheritDoc} */
     @Override
     public GlobalMemory createMemory() {
         return new FreeBsdGlobalMemory();
     }
 
-    /** {@inheritDoc} */
     @Override
     public CentralProcessor createProcessor() {
         return new FreeBsdCentralProcessor();
     }
 
-    /** {@inheritDoc} */
     @Override
     public Sensors createSensors() {
         return new FreeBsdSensors();
     }
 
-    /** {@inheritDoc} */
     @Override
     public PowerSource[] getPowerSources() {
         return FreeBsdPowerSource.getPowerSources();
     }
 
-    /** {@inheritDoc} */
     @Override
     public HWDiskStore[] getDiskStores() {
         return new FreeBsdDisks().getDisks();
     }
 
-    /** {@inheritDoc} */
     @Override
     public Display[] getDisplays() {
         return FreeBsdDisplay.getDisplays();
     }
 
-    /** {@inheritDoc} */
     @Override
     public NetworkIF[] getNetworkIFs() {
         return new FreeBsdNetworks().getNetworks();
     }
 
-    /** {@inheritDoc} */
     @Override
     public UsbDevice[] getUsbDevices(boolean tree) {
         return FreeBsdUsbDevice.getUsbDevices(tree);
     }
 
-    /** {@inheritDoc} */
     @Override
     public SoundCard[] getSoundCards() {
         return FreeBsdSoundCard.getSoundCards().toArray(new SoundCard[0]);
+    }
+
+    @Override
+    public GraphicsCard[] getGraphicsCards() {
+        // TODO Auto-generated method stub
+        return null;
     }
 }

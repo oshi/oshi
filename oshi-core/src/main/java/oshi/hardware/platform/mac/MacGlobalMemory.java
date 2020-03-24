@@ -108,7 +108,7 @@ public class MacGlobalMemory extends AbstractGlobalMemory {
                 if (split.length == 2) {
                     switch (split[0]) {
                     case "Size":
-                        capacity = parsePhysicalMemorySize(split[1].trim());
+                        capacity = ParseUtil.parseDecimalMemorySizeToBinary(split[1].trim());
                         break;
                     case "Type":
                         memoryType = split[1].trim();

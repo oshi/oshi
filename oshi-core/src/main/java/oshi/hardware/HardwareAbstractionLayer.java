@@ -121,4 +121,13 @@ public interface HardwareAbstractionLayer {
      * @return An array of SoundCard objects or an empty array if none are present.
      */
     SoundCard[] getSoundCards();
+
+    /**
+     * Instantiates an array of {@link oshi.hardware.GraphicsCard} objects,
+     * representing the Graphics cards.
+     *
+     * @return An array of GraphicsCard objects or an empty array if none are
+     *         present.
+     */
+    GraphicsCard[] getGraphicsCards();
 }
