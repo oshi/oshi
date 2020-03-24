@@ -41,6 +41,8 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import oshi.util.tuples.Pair;
+
 /**
  * String parsing utility.
  */
@@ -49,6 +51,7 @@ public final class ParseUtil {
     private static final Logger LOG = LoggerFactory.getLogger(ParseUtil.class);
 
     private static final String DEFAULT_LOG_MSG = "{} didn't parse. Returning default. {}";
+
     /*
      * Used for matching
      */
@@ -69,6 +72,12 @@ public final class ParseUtil {
      */
     private static final Pattern UUID_PATTERN = Pattern
             .compile(".*([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}).*");
+
+    /*
+     * Pattern for Windows PnPDeviceID vendor and product ID
+     */
+    private static final Pattern VENDOR_PRODUCT_ID = Pattern
+            .compile(".*(?:VID|VEN)_(\\p{XDigit}{4})&(?:PID|DEV)_(\\p{XDigit}{4}).*");
 
     /*
      * Hertz related variables.
@@ -943,5 +952,24 @@ public final class ParseUtil {
             }
         }
         return capacity;
+    }
+
+    /**
+     * Parse a Windows PnPDeviceID to get the vendor ID and product ID.
+     * 
+     * @param pnpDeviceId
+     *            The PnPDeviceID
+     * @return A {@link Pair} where the first element is the vendor ID and second
+     *         element is the product ID, if parsing was successful, or {@code null}
+     *         otherwise
+     */
+    public static Pair<String, String> parsePnPDeviceIdToVendorProductId(String pnpDeviceId) {
+        Matcher m = VENDOR_PRODUCT_ID.matcher(pnpDeviceId);
+        if (m.matches()) {
+            String vendorId = "0x" + m.group(1).toLowerCase();
+            String productId = "0x" + m.group(2).toLowerCase();
+            return new Pair<>(vendorId, productId);
+        }
+        return null;
     }
 }

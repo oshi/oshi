@@ -96,6 +96,6 @@ public class FreeBsdHardwareAbstractionLayer extends AbstractHardwareAbstraction
     @Override
     public GraphicsCard[] getGraphicsCards() {
         // TODO Auto-generated method stub
-        return null;
+        return new GraphicsCard[0];
     }
 }

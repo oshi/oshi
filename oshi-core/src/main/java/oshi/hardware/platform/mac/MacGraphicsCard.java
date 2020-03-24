@@ -32,7 +32,7 @@ import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
 /**
- * Memory obtained by system_profiler SPDisplaysDataType.
+ * Graphics card info obtained by system_profiler SPDisplaysDataType.
  */
 public class MacGraphicsCard extends AbstractGraphicsCard {
 

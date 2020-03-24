@@ -24,6 +24,8 @@
 package oshi.util;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.time.Instant;
@@ -31,6 +33,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Test;
+
+import oshi.util.tuples.Pair;
 
 /**
  * The Class ParseUtilTest.
@@ -426,5 +430,18 @@ public class ParseUtilTest {
         assertEquals(1_048_576, ParseUtil.parseDecimalMemorySizeToBinary("1 MB"));
         assertEquals(1_073_741_824, ParseUtil.parseDecimalMemorySizeToBinary("1 GB"));
         assertEquals(1_099_511_627_776L, ParseUtil.parseDecimalMemorySizeToBinary("1 TB"));
+    }
+
+    @Test
+    public void testParsePnPDeviceIdToVendorProductId() {
+        Pair<String, String> idPair = ParseUtil
+                .parsePnPDeviceIdToVendorProductId("PCI\\VEN_10DE&DEV_134B&SUBSYS_00081414&REV_A2\\4&25BACB6&0&00E0");
+        assertNotNull(idPair);
+        assertEquals("0x10de", idPair.getA());
+        assertEquals("0x134b", idPair.getB());
+
+        idPair = ParseUtil
+                .parsePnPDeviceIdToVendorProductId("PCI\\VEN_80286&DEV_19116&SUBSYS_00141414&REV_07\\3&11583659&0&10");
+        assertNull(idPair);
     }
 }

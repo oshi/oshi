@@ -367,7 +367,7 @@ public class SystemInfoTest {
 
     private static void printGraphicsCards(GraphicsCard[] cards) {
         oshi.add("Graphics Cards:");
-        if (cards == null) {
+        if (cards.length == 0) {
             oshi.add(" None detected.");
         } else {
             for (GraphicsCard card : cards) {

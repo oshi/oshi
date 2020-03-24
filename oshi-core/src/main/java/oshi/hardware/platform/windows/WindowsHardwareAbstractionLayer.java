@@ -95,7 +95,6 @@ public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstraction
 
     @Override
     public GraphicsCard[] getGraphicsCards() {
-        // TODO Auto-generated method stub
-        return null;
+        return WindowsGraphicsCard.getGraphicsCards().toArray(new GraphicsCard[0]);
     }
 }

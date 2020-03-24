@@ -96,6 +96,6 @@ public class LinuxHardwareAbstractionLayer extends AbstractHardwareAbstractionLa
     @Override
     public GraphicsCard[] getGraphicsCards() {
         // TODO Auto-generated method stub
-        return null;
+        return new GraphicsCard[0];
     }
 }
