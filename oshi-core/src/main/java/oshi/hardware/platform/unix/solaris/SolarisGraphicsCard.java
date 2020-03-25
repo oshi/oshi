@@ -61,7 +61,8 @@ public class SolarisGraphicsCard extends AbstractGraphicsCard {
      * {@link oshi.hardware.common.AbstractHardwareAbstractionLayer} to access the
      * graphics cards.
      *
-     * @return List of {@link oshi.hardware.platform.solaris.SolarisGraphicsCard}
+     * @return List of
+     *         {@link oshi.hardware.platform.unix.solaris.SolarisGraphicsCard}
      *         objects.
      */
     public static List<SolarisGraphicsCard> getGraphicsCards() {
