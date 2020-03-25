@@ -95,7 +95,6 @@ public class SolarisHardwareAbstractionLayer extends AbstractHardwareAbstraction
 
     @Override
     public GraphicsCard[] getGraphicsCards() {
-        // TODO Auto-generated method stub
-        return new GraphicsCard[0];
+        return SolarisGraphicsCard.getGraphicsCards().toArray(new GraphicsCard[0]);
     }
 }

@@ -39,14 +39,14 @@ import oshi.util.platform.windows.WmiUtil;
 import oshi.util.tuples.Pair;
 
 /**
- * Memory obtained by system_profiler SPDisplaysDataType.
+ * Graphics Card obtained from WMI
  */
 public class WindowsGraphicsCard extends AbstractGraphicsCard {
 
     private static final boolean IS_VISTA_OR_GREATER = VersionHelpers.IsWindowsVistaOrGreater();
 
     /**
-     * Constructor for MacGraphicsCard
+     * Constructor for WindowsGraphicsCard
      *
      * @param name
      *            The name
