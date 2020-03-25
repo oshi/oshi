@@ -80,6 +80,16 @@ public final class ParseUtil {
             .compile(".*(?:VID|VEN)_(\\p{XDigit}{4})&(?:PID|DEV)_(\\p{XDigit}{4}).*");
 
     /*
+     * Pattern for Linux lspci machine readable
+     */
+    private static final Pattern LSPCI_MACHINE_READABLE = Pattern.compile("(.+)\\s\\[(.*?)\\]");
+
+    /*
+     * Pattern for Linux lspci memory
+     */
+    private static final Pattern LSPCI_MEMORY_SIZE = Pattern.compile(".+\\s\\[size=(\\d+)([kKMGT])\\]");
+
+    /*
      * Hertz related variables.
      */
     private static final String HZ = "Hz";
@@ -956,7 +966,7 @@ public final class ParseUtil {
 
     /**
      * Parse a Windows PnPDeviceID to get the vendor ID and product ID.
-     * 
+     *
      * @param pnpDeviceId
      *            The PnPDeviceID
      * @return A {@link Pair} where the first element is the vendor ID and second
@@ -971,5 +981,67 @@ public final class ParseUtil {
             return new Pair<>(vendorId, productId);
         }
         return null;
+    }
+
+    /**
+     * Parse a Linux lshw resources string to calculate the memory size
+     *
+     * @param resources
+     *            A string containing one or more elements of the form
+     *            {@code memory:b00000000-bffffffff}
+     * @return The number of bytes consumed by the memory in the {@code resources}
+     *         string
+     */
+    public static long parseLshwResourceString(String resources) {
+        long bytes = 0L;
+        // First split by whitespace
+        String[] resourceArray = whitespaces.split(resources);
+        for (String r : resourceArray) {
+            // Remove prefix
+            if (r.startsWith("memory:")) {
+                // Split to low and high
+                String[] mem = r.substring(7).split("-");
+                if (mem.length == 2) {
+                    try {
+                        // Parse the hex strings
+                        bytes += Long.parseLong(mem[1], 16) - Long.parseLong(mem[0], 16) + 1;
+                    } catch (NumberFormatException e) {
+                        LOG.trace(DEFAULT_LOG_MSG, r, e);
+                    }
+                }
+            }
+        }
+        return bytes;
+    }
+
+    /**
+     * Parse a Linux lspci machine readble line to its name and id
+     *
+     * @param line
+     *            A string in the form Foo [bar]
+     * @return A pair separating the String before the square brackets and within
+     *         them if found, null otherwise
+     */
+    public static Pair<String, String> parseLspciMachineReadable(String line) {
+        Matcher matcher = LSPCI_MACHINE_READABLE.matcher(line);
+        if (matcher.matches()) {
+            return new Pair<>(matcher.group(1), matcher.group(2));
+        }
+        return null;
+    }
+
+    /**
+     * Parse a Linux lspci line containing memory size
+     *
+     * @param line
+     *            A string in the form Foo [size=256M]
+     * @return A the memory size in bytes
+     */
+    public static long parseLspciMemorySize(String line) {
+        Matcher matcher = LSPCI_MEMORY_SIZE.matcher(line);
+        if (matcher.matches()) {
+            return parseDecimalMemorySizeToBinary(matcher.group(1) + " " + matcher.group(2) + "B");
+        }
+        return 0;
     }
 }

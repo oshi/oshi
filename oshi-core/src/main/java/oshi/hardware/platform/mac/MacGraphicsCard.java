@@ -71,12 +71,9 @@ public class MacGraphicsCard extends AbstractGraphicsCard {
         long vram = 0;
         int cardNum = 0;
         for (String line : sp) {
-            System.out.println(line);
-            String[] split = line.trim().split(":");
-            System.out.println(split.length);
+            String[] split = line.trim().split(":", 2);
             if (split.length == 2) {
                 String prefix = split[0].toLowerCase();
-                System.out.println(prefix);
                 if (prefix.equals("chipset model")) {
                     // Save previous card
                     if (cardNum++ > 0) {

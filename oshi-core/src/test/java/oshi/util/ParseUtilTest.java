@@ -444,4 +444,30 @@ public class ParseUtilTest {
                 .parsePnPDeviceIdToVendorProductId("PCI\\VEN_80286&DEV_19116&SUBSYS_00141414&REV_07\\3&11583659&0&10");
         assertNull(idPair);
     }
+
+    @Test
+    public void testParseLshwResourceString() {
+        assertEquals(268_435_456L + 65_536L, ParseUtil.parseLshwResourceString(
+                "irq:46 ioport:6000(size=32) memory:b0000000-bfffffff memory:e2000000-e200ffff"));
+        assertEquals(268_435_456L, ParseUtil.parseLshwResourceString(
+                "irq:46 ioport:6000(size=32) memory:b0000000-bfffffff memory:x2000000-e200ffff"));
+        assertEquals(65_536L, ParseUtil.parseLshwResourceString(
+                "irq:46 ioport:6000(size=32) memory:x0000000-bfffffff memory:e2000000-e200ffff"));
+        assertEquals(0, ParseUtil.parseLshwResourceString("some random string"));
+    }
+
+    @Test
+    public void testParseLspciMachineReadable() {
+        Pair<String, String> pair = ParseUtil.parseLspciMachineReadable("foo [bar]");
+        assertEquals("foo", pair.getA());
+        assertEquals("bar", pair.getB());
+        assertNull(ParseUtil.parseLspciMachineReadable("Bad format"));
+    }
+
+    @Test
+    public void testParseLspciMemorySize() {
+        assertEquals(0, ParseUtil.parseLspciMemorySize("Doesn't parse"));
+        assertEquals(64 * 1024, ParseUtil.parseLspciMemorySize("Foo [size=64K]"));
+        assertEquals(256 * 1024 * 1024, ParseUtil.parseLspciMemorySize("Foo [size=256M]"));
+    }
 }
