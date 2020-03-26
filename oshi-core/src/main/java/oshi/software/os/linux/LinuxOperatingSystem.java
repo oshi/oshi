@@ -70,6 +70,8 @@ import oshi.util.platform.linux.ProcPath;
  */
 public class LinuxOperatingSystem extends AbstractOperatingSystem {
 
+    private static final String DOUBLE_QUOTES = "^\"|\"$";
+
     private static final Logger LOG = LoggerFactory.getLogger(LinuxOperatingSystem.class);
 
     private static final String LS_F_PROC_PID_FD = "ls -f " + ProcPath.PID_FD;
@@ -499,7 +501,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
                     // remove beginning and ending '"' characters, etc from
                     // VERSION="14.04.4 LTS, Trusty Tahr" (Ubuntu style)
                     // or VERSION="17 (Beefy Miracle)" (os-release doc style)
-                    line = line.replace("VERSION=", "").replaceAll("^\"|\"$", "").trim();
+                    line = line.replace("VERSION=", "").replaceAll(DOUBLE_QUOTES, "").trim();
                     String[] split = line.split("[()]");
                     if (split.length <= 1) {
                         // If no parentheses, check for Ubuntu's comma format
@@ -515,12 +517,12 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
                     LOG.debug("os-release: {}", line);
                     // remove beginning and ending '"' characters, etc from
                     // NAME="Ubuntu"
-                    family = line.replace("NAME=", "").replaceAll("^\"|\"$", "").trim();
+                    family = line.replace("NAME=", "").replaceAll(DOUBLE_QUOTES, "").trim();
                 } else if (line.startsWith("VERSION_ID=") && this.versionId == null) {
                     LOG.debug("os-release: {}", line);
                     // remove beginning and ending '"' characters, etc from
                     // VERSION_ID="14.04"
-                    this.versionId = line.replace("VERSION_ID=", "").replaceAll("^\"|\"$", "").trim();
+                    this.versionId = line.replace("VERSION_ID=", "").replaceAll(DOUBLE_QUOTES, "").trim();
                 }
             }
         }
@@ -573,19 +575,19 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
             for (String line : osRelease) {
                 if (line.startsWith("DISTRIB_DESCRIPTION=")) {
                     LOG.debug("lsb-release: {}", line);
-                    line = line.replace("DISTRIB_DESCRIPTION=", "").replaceAll("^\"|\"$", "").trim();
+                    line = line.replace("DISTRIB_DESCRIPTION=", "").replaceAll(DOUBLE_QUOTES, "").trim();
                     if (line.contains(" release ")) {
                         family = parseRelease(line, " release ");
                     }
                 } else if (line.startsWith("DISTRIB_ID=") && family == null) {
                     LOG.debug("lsb-release: {}", line);
-                    family = line.replace("DISTRIB_ID=", "").replaceAll("^\"|\"$", "").trim();
+                    family = line.replace("DISTRIB_ID=", "").replaceAll(DOUBLE_QUOTES, "").trim();
                 } else if (line.startsWith("DISTRIB_RELEASE=") && this.versionId == null) {
                     LOG.debug("lsb-release: {}", line);
-                    this.versionId = line.replace("DISTRIB_RELEASE=", "").replaceAll("^\"|\"$", "").trim();
+                    this.versionId = line.replace("DISTRIB_RELEASE=", "").replaceAll(DOUBLE_QUOTES, "").trim();
                 } else if (line.startsWith("DISTRIB_CODENAME=") && this.codeName == null) {
                     LOG.debug("lsb-release: {}", line);
-                    this.codeName = line.replace("DISTRIB_CODENAME=", "").replaceAll("^\"|\"$", "").trim();
+                    this.codeName = line.replace("DISTRIB_CODENAME=", "").replaceAll(DOUBLE_QUOTES, "").trim();
                 }
             }
         }

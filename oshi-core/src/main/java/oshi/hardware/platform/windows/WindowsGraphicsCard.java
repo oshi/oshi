@@ -26,7 +26,7 @@ package oshi.hardware.platform.windows;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.sun.jna.platform.win32.VersionHelpers;
+import com.sun.jna.platform.win32.VersionHelpers; // NOSONAR squid:S1191
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.driver.windows.wmi.Win32VideoController;

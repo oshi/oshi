@@ -206,10 +206,4 @@ public class SolarisUsbDevice extends AbstractUsbDevice {
         return new SolarisUsbDevice(nameMap.getOrDefault(devPath, vendorId + ":" + productId), "", vendorId, productId,
                 "", devPath, usbDevices.toArray(new UsbDevice[0]));
     }
-
-    public static void main(String[] args) {
-        for (UsbDevice usb : getUsbDevices()) {
-            System.out.println(String.valueOf(usb));
-        }
-    }
 }

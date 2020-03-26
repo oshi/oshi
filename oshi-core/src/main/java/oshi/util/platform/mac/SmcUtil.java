@@ -49,6 +49,11 @@ import oshi.util.ParseUtil;
  * Provides access to SMC calls on OS X
  */
 public final class SmcUtil {
+
+    private static final Logger LOG = LoggerFactory.getLogger(SmcUtil.class);
+
+    private static final IOKit IO = IOKit.INSTANCE;
+
     /**
      * Holds the return value of SMC version query.
      */
@@ -110,10 +115,6 @@ public final class SmcUtil {
         public byte[] dataType = new byte[5];
         public byte[] bytes = new byte[32];
     }
-
-    private static final Logger LOG = LoggerFactory.getLogger(SmcUtil.class);
-
-    private static IOKit IO = IOKit.INSTANCE;
 
     /**
      * Map for caching info retrieved by a key necessary for subsequent calls.

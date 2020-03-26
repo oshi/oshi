@@ -48,8 +48,8 @@ public final class Win32VideoController {
      * @return Information regarding video controllers
      */
     public static WmiResult<VideoControllerProperty> queryVideoController() {
-        WmiQuery<VideoControllerProperty> VideoControllerQuery = new WmiQuery<>(WIN32_VIDEO_CONTROLLER,
+        WmiQuery<VideoControllerProperty> videoControllerQuery = new WmiQuery<>(WIN32_VIDEO_CONTROLLER,
                 VideoControllerProperty.class);
-        return WmiQueryHandler.createInstance().queryWMI(VideoControllerQuery);
+        return WmiQueryHandler.createInstance().queryWMI(videoControllerQuery);
     }
 }

@@ -198,36 +198,34 @@ public class WindowsFileSystem extends AbstractFileSystem {
             Kernel32.INSTANCE.GetVolumePathNamesForVolumeName(volume, mount, BUFSIZE, null);
 
             strMount = new String(mount).trim();
-            if (!strMount.isEmpty()) {
-                if (volumeToMatch == null || volumeToMatch.equals(volume)) {
-                    strName = new String(name).trim();
-                    strFsType = new String(fstype).trim();
+            if (!strMount.isEmpty() && (volumeToMatch == null || volumeToMatch.equals(volume))) {
+                strName = new String(name).trim();
+                strFsType = new String(fstype).trim();
 
-                    StringBuilder options = new StringBuilder((FILE_READ_ONLY_VOLUME & flags) == 0 ? "rw" : "ro");
-                    String moreOptions = OPTIONS_MAP.entrySet().stream().filter(e -> (e.getKey() & flags) > 0)
-                            .map(Map.Entry::getValue).collect(Collectors.joining(","));
-                    if (!moreOptions.isEmpty()) {
-                        options.append(',').append(moreOptions);
-                    }
-                    Kernel32.INSTANCE.GetDiskFreeSpaceEx(volume, userFreeBytes, totalBytes, systemFreeBytes);
-                    // Parse uuid from volume name
-                    String uuid = ParseUtil.parseUuidOrDefault(volume, "");
-
-                    // Volume is mounted
-                    OSFileStore osStore = new OSFileStore();
-                    osStore.setName(String.format("%s (%s)", strName, strMount));
-                    osStore.setVolume(volume);
-                    osStore.setLabel(strName);
-                    osStore.setMount(strMount);
-                    osStore.setDescription(getDriveType(strMount));
-                    osStore.setType(strFsType);
-                    osStore.setOptions(options.toString());
-                    osStore.setUUID(uuid);
-                    osStore.setFreeSpace(systemFreeBytes.getValue());
-                    osStore.setUsableSpace(userFreeBytes.getValue());
-                    osStore.setTotalSpace(totalBytes.getValue());
-                    fs.add(osStore);
+                StringBuilder options = new StringBuilder((FILE_READ_ONLY_VOLUME & flags) == 0 ? "rw" : "ro");
+                String moreOptions = OPTIONS_MAP.entrySet().stream().filter(e -> (e.getKey() & flags) > 0)
+                        .map(Map.Entry::getValue).collect(Collectors.joining(","));
+                if (!moreOptions.isEmpty()) {
+                    options.append(',').append(moreOptions);
                 }
+                Kernel32.INSTANCE.GetDiskFreeSpaceEx(volume, userFreeBytes, totalBytes, systemFreeBytes);
+                // Parse uuid from volume name
+                String uuid = ParseUtil.parseUuidOrDefault(volume, "");
+
+                // Volume is mounted
+                OSFileStore osStore = new OSFileStore();
+                osStore.setName(String.format("%s (%s)", strName, strMount));
+                osStore.setVolume(volume);
+                osStore.setLabel(strName);
+                osStore.setMount(strMount);
+                osStore.setDescription(getDriveType(strMount));
+                osStore.setType(strFsType);
+                osStore.setOptions(options.toString());
+                osStore.setUUID(uuid);
+                osStore.setFreeSpace(systemFreeBytes.getValue());
+                osStore.setUsableSpace(userFreeBytes.getValue());
+                osStore.setTotalSpace(totalBytes.getValue());
+                fs.add(osStore);
             }
             retVal = Kernel32.INSTANCE.FindNextVolume(hVol, aVolume, BUFSIZE);
             if (!retVal) {

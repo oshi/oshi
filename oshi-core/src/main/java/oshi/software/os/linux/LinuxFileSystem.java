@@ -56,6 +56,8 @@ public class LinuxFileSystem extends AbstractFileSystem {
 
     private static final Logger LOG = LoggerFactory.getLogger(LinuxFileSystem.class);
 
+    private static final String UNICODE_SPACE = "\\\\040";
+
     // System path mounted as tmpfs
     private static final List<String> TMP_FS_PATHS = Arrays.asList("/run", "/sys", "/proc", ProcPath.PROC);
 
@@ -105,7 +107,7 @@ public class LinuxFileSystem extends AbstractFileSystem {
             }
 
             // Exclude pseudo file systems
-            String path = split[1].replaceAll("\\\\040", " ");
+            String path = split[1].replaceAll(UNICODE_SPACE, " ");
             String type = split[2];
             if ((localOnly && NETWORK_FS_TYPES.contains(type)) // Skip non-local drives if requested
                     || PSEUDO_FS_TYPES.contains(type) // exclude non-fs types
@@ -117,7 +119,7 @@ public class LinuxFileSystem extends AbstractFileSystem {
             }
             String options = split[3];
 
-            String name = split[0].replaceAll("\\\\040", " ");
+            String name = split[0].replaceAll(UNICODE_SPACE, " ");
             if (path.equals("/")) {
                 name = "/";
             }
@@ -127,7 +129,7 @@ public class LinuxFileSystem extends AbstractFileSystem {
                 continue;
             }
 
-            String volume = split[0].replaceAll("\\\\040", " ");
+            String volume = split[0].replaceAll(UNICODE_SPACE, " ");
             String uuid = uuidMap != null ? uuidMap.getOrDefault(split[0], "") : "";
 
             String description;
