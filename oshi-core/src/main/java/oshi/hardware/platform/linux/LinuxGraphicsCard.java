@@ -130,7 +130,6 @@ public class LinuxGraphicsCard extends AbstractGraphicsCard {
     }
 
     private static long queryLspciMemorySize(String lookupDevice) {
-        System.out.println("Looking up " + lookupDevice);
         long vram = 0L;
         // Lookup memory
         // Human readable version, includes memory
