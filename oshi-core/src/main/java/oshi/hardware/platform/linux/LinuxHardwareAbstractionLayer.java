@@ -27,6 +27,7 @@ import oshi.hardware.CentralProcessor;
 import oshi.hardware.ComputerSystem;
 import oshi.hardware.Display;
 import oshi.hardware.GlobalMemory;
+import oshi.hardware.GraphicsCard;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.NetworkIF;
 import oshi.hardware.PowerSource;
@@ -42,63 +43,58 @@ import oshi.hardware.common.AbstractHardwareAbstractionLayer;
  */
 public class LinuxHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {
 
-    /** {@inheritDoc} */
     @Override
     public ComputerSystem createComputerSystem() {
         return new LinuxComputerSystem();
     }
 
-    /** {@inheritDoc} */
     @Override
     public GlobalMemory createMemory() {
         return new LinuxGlobalMemory();
     }
 
-    /** {@inheritDoc} */
     @Override
     public CentralProcessor createProcessor() {
         return new LinuxCentralProcessor();
     }
 
-    /** {@inheritDoc} */
     @Override
     public Sensors createSensors() {
         return new LinuxSensors();
     }
 
-    /** {@inheritDoc} */
     @Override
     public PowerSource[] getPowerSources() {
         return LinuxPowerSource.getPowerSources();
     }
 
-    /** {@inheritDoc} */
     @Override
     public HWDiskStore[] getDiskStores() {
         return new LinuxDisks().getDisks();
     }
 
-    /** {@inheritDoc} */
     @Override
     public Display[] getDisplays() {
         return LinuxDisplay.getDisplays();
     }
 
-    /** {@inheritDoc} */
     @Override
     public NetworkIF[] getNetworkIFs() {
         return new LinuxNetworks().getNetworks();
     }
 
-    /** {@inheritDoc} */
     @Override
     public UsbDevice[] getUsbDevices(boolean tree) {
         return LinuxUsbDevice.getUsbDevices(tree);
     }
 
-    /** {@inheritDoc} */
     @Override
     public SoundCard[] getSoundCards() {
         return LinuxSoundCard.getSoundCards().toArray(new SoundCard[0]);
+    }
+
+    @Override
+    public GraphicsCard[] getGraphicsCards() {
+        return LinuxGraphicsCard.getGraphicsCards().toArray(new GraphicsCard[0]);
     }
 }

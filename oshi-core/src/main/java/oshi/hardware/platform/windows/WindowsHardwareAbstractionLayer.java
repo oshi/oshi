@@ -27,6 +27,7 @@ import oshi.hardware.CentralProcessor;
 import oshi.hardware.ComputerSystem;
 import oshi.hardware.Display;
 import oshi.hardware.GlobalMemory;
+import oshi.hardware.GraphicsCard;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.NetworkIF;
 import oshi.hardware.PowerSource;
@@ -90,5 +91,10 @@ public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstraction
     @Override
     public SoundCard[] getSoundCards() {
         return WindowsSoundCard.getSoundCards().toArray(new SoundCard[0]);
+    }
+
+    @Override
+    public GraphicsCard[] getGraphicsCards() {
+        return WindowsGraphicsCard.getGraphicsCards().toArray(new GraphicsCard[0]);
     }
 }

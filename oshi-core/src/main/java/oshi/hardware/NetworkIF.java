@@ -78,7 +78,7 @@ public class NetworkIF {
 
     private static final String OSHI_VM_MAC_ADDR_PROPERTIES = "oshi.vmmacaddr.properties";
 
-    private final Supplier<Properties> vmMacAddrProps = memoize(this::queryVmMacAddrProps);
+    private final Supplier<Properties> vmMacAddrProps = memoize(NetworkIF::queryVmMacAddrProps);
 
     /**
      * Gets the core java {@link NetworkInterface} object.
@@ -635,7 +635,7 @@ public class NetworkIF {
         return this.vmMacAddrProps.get().containsKey(oui.toUpperCase());
     }
 
-    private Properties queryVmMacAddrProps() {
+    private static Properties queryVmMacAddrProps() {
         return FileUtil.readPropertiesFromFilename(OSHI_VM_MAC_ADDR_PROPERTIES);
     }
 

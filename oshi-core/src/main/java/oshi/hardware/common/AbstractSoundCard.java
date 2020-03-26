@@ -35,16 +35,14 @@ public abstract class AbstractSoundCard implements SoundCard {
     private String codec;
 
     /**
-     * <p>
-     * Constructor for AbstractSoundCard.
-     * </p>
-     *
+     * Abstract Sound Card Constructor
+     * 
      * @param kernelVersion
-     *            a {@link java.lang.String} object.
+     *            The version
      * @param name
-     *            a {@link java.lang.String} object.
+     *            The name
      * @param codec
-     *            a {@link java.lang.String} object.
+     *            The codec
      */
     public AbstractSoundCard(String kernelVersion, String name, String codec) {
         this.kernelVersion = kernelVersion;
@@ -52,7 +50,6 @@ public abstract class AbstractSoundCard implements SoundCard {
         this.codec = codec;
     }
 
-    /** {@inheritDoc} */
     @Override
     public String getDriverVersion() {
         return this.kernelVersion;
@@ -70,7 +67,6 @@ public abstract class AbstractSoundCard implements SoundCard {
         this.kernelVersion = kernelVersion;
     }
 
-    /** {@inheritDoc} */
     @Override
     public String getName() {
         return this.name;
@@ -88,7 +84,6 @@ public abstract class AbstractSoundCard implements SoundCard {
         this.name = name;
     }
 
-    /** {@inheritDoc} */
     @Override
     public String getCodec() {
         return this.codec;
@@ -106,7 +101,6 @@ public abstract class AbstractSoundCard implements SoundCard {
         this.codec = codec;
     }
 
-    /** {@inheritDoc} */
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();

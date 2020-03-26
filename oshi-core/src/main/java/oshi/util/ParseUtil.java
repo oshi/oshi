@@ -41,6 +41,8 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import oshi.util.tuples.Pair;
+
 /**
  * String parsing utility.
  */
@@ -49,6 +51,7 @@ public final class ParseUtil {
     private static final Logger LOG = LoggerFactory.getLogger(ParseUtil.class);
 
     private static final String DEFAULT_LOG_MSG = "{} didn't parse. Returning default. {}";
+
     /*
      * Used for matching
      */
@@ -69,6 +72,22 @@ public final class ParseUtil {
      */
     private static final Pattern UUID_PATTERN = Pattern
             .compile(".*([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}).*");
+
+    /*
+     * Pattern for Windows PnPDeviceID vendor and product ID
+     */
+    private static final Pattern VENDOR_PRODUCT_ID = Pattern
+            .compile(".*(?:VID|VEN)_(\\p{XDigit}{4})&(?:PID|DEV)_(\\p{XDigit}{4}).*");
+
+    /*
+     * Pattern for Linux lspci machine readable
+     */
+    private static final Pattern LSPCI_MACHINE_READABLE = Pattern.compile("(.+)\\s\\[(.*?)\\]");
+
+    /*
+     * Pattern for Linux lspci memory
+     */
+    private static final Pattern LSPCI_MEMORY_SIZE = Pattern.compile(".+\\s\\[size=(\\d+)([kKMGT])\\]");
 
     /*
      * Hertz related variables.
@@ -899,8 +918,8 @@ public final class ParseUtil {
      *            A list of path prefixes
      * @param path
      *            a string path to check
-     * @return true if the path exactly equals, or starts with one of the strings
-     *         in prefixList
+     * @return true if the path exactly equals, or starts with one of the strings in
+     *         prefixList
      */
     public static boolean filePathStartsWith(List<String> prefixList, String path) {
         for (String match : prefixList) {
@@ -909,5 +928,120 @@ public final class ParseUtil {
             }
         }
         return false;
+    }
+
+    /**
+     * Parses a string such as "4096 MB" to its long. Used to parse macOS and *nix
+     * memory chip sizes. Although the units given are decimal they must parse to
+     * binary units.
+     *
+     * @param size
+     *            A string of memory sizes like "4096 MB"
+     * @return the size parsed to a long
+     */
+    public static long parseDecimalMemorySizeToBinary(String size) {
+        String[] mem = ParseUtil.whitespaces.split(size);
+        long capacity = ParseUtil.parseLongOrDefault(mem[0], 0L);
+        if (mem.length == 2 && mem[1].length() > 1) {
+            switch (mem[1].charAt(0)) {
+            case 'T':
+                capacity <<= 40;
+                break;
+            case 'G':
+                capacity <<= 30;
+                break;
+            case 'M':
+                capacity <<= 20;
+                break;
+            case 'K':
+            case 'k':
+                capacity <<= 10;
+                break;
+            default:
+                break;
+            }
+        }
+        return capacity;
+    }
+
+    /**
+     * Parse a Windows PnPDeviceID to get the vendor ID and product ID.
+     *
+     * @param pnpDeviceId
+     *            The PnPDeviceID
+     * @return A {@link Pair} where the first element is the vendor ID and second
+     *         element is the product ID, if parsing was successful, or {@code null}
+     *         otherwise
+     */
+    public static Pair<String, String> parsePnPDeviceIdToVendorProductId(String pnpDeviceId) {
+        Matcher m = VENDOR_PRODUCT_ID.matcher(pnpDeviceId);
+        if (m.matches()) {
+            String vendorId = "0x" + m.group(1).toLowerCase();
+            String productId = "0x" + m.group(2).toLowerCase();
+            return new Pair<>(vendorId, productId);
+        }
+        return null;
+    }
+
+    /**
+     * Parse a Linux lshw resources string to calculate the memory size
+     *
+     * @param resources
+     *            A string containing one or more elements of the form
+     *            {@code memory:b00000000-bffffffff}
+     * @return The number of bytes consumed by the memory in the {@code resources}
+     *         string
+     */
+    public static long parseLshwResourceString(String resources) {
+        long bytes = 0L;
+        // First split by whitespace
+        String[] resourceArray = whitespaces.split(resources);
+        for (String r : resourceArray) {
+            // Remove prefix
+            if (r.startsWith("memory:")) {
+                // Split to low and high
+                String[] mem = r.substring(7).split("-");
+                if (mem.length == 2) {
+                    try {
+                        // Parse the hex strings
+                        bytes += Long.parseLong(mem[1], 16) - Long.parseLong(mem[0], 16) + 1;
+                    } catch (NumberFormatException e) {
+                        LOG.trace(DEFAULT_LOG_MSG, r, e);
+                    }
+                }
+            }
+        }
+        return bytes;
+    }
+
+    /**
+     * Parse a Linux lspci machine readble line to its name and id
+     *
+     * @param line
+     *            A string in the form Foo [bar]
+     * @return A pair separating the String before the square brackets and within
+     *         them if found, null otherwise
+     */
+    public static Pair<String, String> parseLspciMachineReadable(String line) {
+        Matcher matcher = LSPCI_MACHINE_READABLE.matcher(line);
+        if (matcher.matches()) {
+            return new Pair<>(matcher.group(1), matcher.group(2));
+        }
+        return null;
+    }
+
+    /**
+     * Parse a Linux lspci line containing memory size
+     *
+     * @param line
+     *            A string in the form Foo [size=256M]
+     * @return A the memory size in bytes
+     */
+    public static long parseLspciMemorySize(String line) {
+        Matcher matcher = LSPCI_MEMORY_SIZE.matcher(line);
+        if (matcher.matches()) {
+            return parseDecimalMemorySizeToBinary(matcher.group(1) + " " + matcher.group(2) + "B");
+        }
+        return 0;
     }
 }

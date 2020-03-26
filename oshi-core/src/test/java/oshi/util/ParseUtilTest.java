@@ -24,6 +24,8 @@
 package oshi.util;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.time.Instant;
@@ -31,6 +33,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Test;
+
+import oshi.util.tuples.Pair;
 
 /**
  * The Class ParseUtilTest.
@@ -406,7 +410,7 @@ public class ParseUtilTest {
         assertEquals(timeInst, ParseUtil.parseCimDateTimeToOffset(cimDateTime).toInstant());
         assertEquals(Instant.EPOCH, ParseUtil.parseCimDateTimeToOffset("Not a datetime").toInstant());
     }
-    
+
     @Test
     public void testFilePathStartsWith() {
         List<String> prefixList = Arrays.asList("/foo", "/bar");
@@ -415,5 +419,55 @@ public class ParseUtilTest {
         assertEquals(false, ParseUtil.filePathStartsWith(prefixList, "/foobar"));
         assertEquals(true, ParseUtil.filePathStartsWith(prefixList, "/foo/baz"));
         assertEquals(false, ParseUtil.filePathStartsWith(prefixList, "/baz/foo"));
+    }
+
+    @Test
+    public void testParseDecimalMemorySizeToBinary() {
+        assertEquals(0, ParseUtil.parseDecimalMemorySizeToBinary("Not a number"));
+        assertEquals(1, ParseUtil.parseDecimalMemorySizeToBinary("1"));
+        assertEquals(1024, ParseUtil.parseDecimalMemorySizeToBinary("1 kB"));
+        assertEquals(1024, ParseUtil.parseDecimalMemorySizeToBinary("1 KB"));
+        assertEquals(1_048_576, ParseUtil.parseDecimalMemorySizeToBinary("1 MB"));
+        assertEquals(1_073_741_824, ParseUtil.parseDecimalMemorySizeToBinary("1 GB"));
+        assertEquals(1_099_511_627_776L, ParseUtil.parseDecimalMemorySizeToBinary("1 TB"));
+    }
+
+    @Test
+    public void testParsePnPDeviceIdToVendorProductId() {
+        Pair<String, String> idPair = ParseUtil
+                .parsePnPDeviceIdToVendorProductId("PCI\\VEN_10DE&DEV_134B&SUBSYS_00081414&REV_A2\\4&25BACB6&0&00E0");
+        assertNotNull(idPair);
+        assertEquals("0x10de", idPair.getA());
+        assertEquals("0x134b", idPair.getB());
+
+        idPair = ParseUtil
+                .parsePnPDeviceIdToVendorProductId("PCI\\VEN_80286&DEV_19116&SUBSYS_00141414&REV_07\\3&11583659&0&10");
+        assertNull(idPair);
+    }
+
+    @Test
+    public void testParseLshwResourceString() {
+        assertEquals(268_435_456L + 65_536L, ParseUtil.parseLshwResourceString(
+                "irq:46 ioport:6000(size=32) memory:b0000000-bfffffff memory:e2000000-e200ffff"));
+        assertEquals(268_435_456L, ParseUtil.parseLshwResourceString(
+                "irq:46 ioport:6000(size=32) memory:b0000000-bfffffff memory:x2000000-e200ffff"));
+        assertEquals(65_536L, ParseUtil.parseLshwResourceString(
+                "irq:46 ioport:6000(size=32) memory:x0000000-bfffffff memory:e2000000-e200ffff"));
+        assertEquals(0, ParseUtil.parseLshwResourceString("some random string"));
+    }
+
+    @Test
+    public void testParseLspciMachineReadable() {
+        Pair<String, String> pair = ParseUtil.parseLspciMachineReadable("foo [bar]");
+        assertEquals("foo", pair.getA());
+        assertEquals("bar", pair.getB());
+        assertNull(ParseUtil.parseLspciMachineReadable("Bad format"));
+    }
+
+    @Test
+    public void testParseLspciMemorySize() {
+        assertEquals(0, ParseUtil.parseLspciMemorySize("Doesn't parse"));
+        assertEquals(64 * 1024, ParseUtil.parseLspciMemorySize("Foo [size=64K]"));
+        assertEquals(256 * 1024 * 1024, ParseUtil.parseLspciMemorySize("Foo [size=256M]"));
     }
 }

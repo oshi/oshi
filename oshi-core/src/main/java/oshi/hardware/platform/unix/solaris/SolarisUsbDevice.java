@@ -41,6 +41,8 @@ import oshi.util.ParseUtil;
  */
 public class SolarisUsbDevice extends AbstractUsbDevice {
 
+    private static final String PCI_TYPE_USB = "000c";
+
     /**
      * <p>
      * Constructor for SolarisUsbDevice.
@@ -140,17 +142,15 @@ public class SolarisUsbDevice extends AbstractUsbDevice {
                     nameMap.putIfAbsent(key, ParseUtil.getSingleQuoteStringValue(line));
                 } else if (line.startsWith("vendor-id:")) {
                     // Format: vendor-id: 00008086
-                    if (line.length() > 4) {
-                        vendorIdMap.put(key, line.substring(line.length() - 4));
-                    }
+                    vendorIdMap.put(key, line.substring(line.length() - 4));
                 } else if (line.startsWith("device-id:")) {
                     // Format: device-id: 00002440
-                    if (line.length() > 4) {
-                        productIdMap.put(key, line.substring(line.length() - 4));
-                    }
+                    productIdMap.put(key, line.substring(line.length() - 4));
+                } else if (line.startsWith("class-code:")) {
+                    // USB devices are 000cxxxx
+                    deviceTypeMap.putIfAbsent(key, line.substring(line.length() - 8, line.length() - 4));
                 } else if (line.startsWith("device_type:")) {
-                    // Name is backup for model if model doesn't exist, so only
-                    // put if key doesn't yet exist
+                    // USB devices are 000cxxxx
                     deviceTypeMap.putIfAbsent(key, ParseUtil.getSingleQuoteStringValue(line));
                 }
             }
@@ -160,7 +160,8 @@ public class SolarisUsbDevice extends AbstractUsbDevice {
         List<UsbDevice> controllerDevices = new ArrayList<>();
         for (String controller : usbControllers) {
             // Only do controllers that are USB device type
-            if ("usb".equals(deviceTypeMap.getOrDefault(controller, ""))) {
+            if (PCI_TYPE_USB.equals(deviceTypeMap.getOrDefault(controller, ""))
+                    || "usb".equals(deviceTypeMap.getOrDefault(controller, ""))) {
                 controllerDevices.add(
                         getDeviceAndChildren(controller, "0000", "0000", nameMap, vendorIdMap, productIdMap, hubMap));
             }
@@ -204,5 +205,11 @@ public class SolarisUsbDevice extends AbstractUsbDevice {
         Collections.sort(usbDevices);
         return new SolarisUsbDevice(nameMap.getOrDefault(devPath, vendorId + ":" + productId), "", vendorId, productId,
                 "", devPath, usbDevices.toArray(new UsbDevice[0]));
+    }
+
+    public static void main(String[] args) {
+        for (UsbDevice usb : getUsbDevices()) {
+            System.out.println(String.valueOf(usb));
+        }
     }
 }

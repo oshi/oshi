@@ -30,8 +30,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,6 +49,7 @@ import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractUsbDevice;
 import oshi.util.ParseUtil;
 import oshi.util.platform.windows.WmiUtil;
+import oshi.util.tuples.Pair;
 
 /**
  * <p>
@@ -60,9 +59,6 @@ import oshi.util.platform.windows.WmiUtil;
 public class WindowsUsbDevice extends AbstractUsbDevice {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsUsbDevice.class);
-
-    private static final Pattern VENDOR_PRODUCT_ID = Pattern
-            .compile(".*(?:VID|VEN)_(\\p{XDigit}{4})&(?:PID|DEV)_(\\p{XDigit}{4}).*");
 
     public WindowsUsbDevice(String name, String vendor, String vendorId, String productId, String serialNumber,
             String uniqueDeviceId, UsbDevice[] connectedDevices) {
@@ -229,10 +225,10 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
             Map<String, List<String>> deviceTreeMap, Map<String, WindowsUsbDevice> usbDeviceCache) {
         String vendorId = vid;
         String productId = pid;
-        Matcher m = VENDOR_PRODUCT_ID.matcher(hubDeviceId);
-        if (m.matches()) {
-            vendorId = m.group(1).toLowerCase();
-            productId = m.group(2).toLowerCase();
+        Pair<String, String> idPair = ParseUtil.parsePnPDeviceIdToVendorProductId(hubDeviceId);
+        if (idPair != null) {
+            vendorId = idPair.getA();
+            productId = idPair.getB();
         }
         List<String> pnpDeviceIds = deviceTreeMap.getOrDefault(hubDeviceId, new ArrayList<String>());
         List<WindowsUsbDevice> usbDevices = new ArrayList<>();

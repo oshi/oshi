@@ -23,6 +23,8 @@
  */
 package oshi.hardware.common;
 
+import static oshi.util.Memoizer.memoize;
+
 import java.util.function.Supplier;
 
 import oshi.hardware.CentralProcessor;
@@ -30,7 +32,6 @@ import oshi.hardware.ComputerSystem;
 import oshi.hardware.GlobalMemory;
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.Sensors;
-import static oshi.util.Memoizer.memoize;
 
 /**
  * Common fields or methods used by platform-specific implementations of

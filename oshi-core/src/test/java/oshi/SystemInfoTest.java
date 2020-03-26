@@ -39,6 +39,7 @@ import oshi.hardware.CentralProcessor.TickType;
 import oshi.hardware.ComputerSystem;
 import oshi.hardware.Display;
 import oshi.hardware.GlobalMemory;
+import oshi.hardware.GraphicsCard;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
 import oshi.hardware.HardwareAbstractionLayer;
@@ -139,6 +140,9 @@ public class SystemInfoTest {
 
         logger.info("Checking Sound Cards...");
         printSoundCards(hal.getSoundCards());
+
+        logger.info("Checking Graphics Cards...");
+        printGraphicsCards(hal.getGraphicsCards());
 
         StringBuilder output = new StringBuilder();
         for (int i = 0; i < oshi.size(); i++) {
@@ -358,6 +362,17 @@ public class SystemInfoTest {
         oshi.add("Sound Cards:");
         for (SoundCard card : cards) {
             oshi.add(" " + String.valueOf(card));
+        }
+    }
+
+    private static void printGraphicsCards(GraphicsCard[] cards) {
+        oshi.add("Graphics Cards:");
+        if (cards.length == 0) {
+            oshi.add(" None detected.");
+        } else {
+            for (GraphicsCard card : cards) {
+                oshi.add(" " + String.valueOf(card));
+            }
         }
     }
 }
