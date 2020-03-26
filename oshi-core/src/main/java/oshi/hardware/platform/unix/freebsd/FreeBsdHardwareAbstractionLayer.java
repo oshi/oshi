@@ -93,7 +93,6 @@ public class FreeBsdHardwareAbstractionLayer extends AbstractHardwareAbstraction
         return FreeBsdSoundCard.getSoundCards().toArray(new SoundCard[0]);
     }
 
-
     @Override
     public GraphicsCard[] getGraphicsCards() {
         return FreeBsdGraphicsCard.getGraphicsCards().toArray(new GraphicsCard[0]);

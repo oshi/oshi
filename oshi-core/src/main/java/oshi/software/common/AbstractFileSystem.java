@@ -32,11 +32,11 @@ import oshi.software.os.OSFileStore;
 public abstract class AbstractFileSystem implements FileSystem {
 
     /**
-     * FileSystem types which are network-based and should be excluded from local-only lists
+     * FileSystem types which are network-based and should be excluded from
+     * local-only lists
      */
-    protected static final List<String> NETWORK_FS_TYPES = Arrays.asList( "afs", "cifs", "smbfs", "sshfs", "ncpfs", "ncp", "nfs", "nfs4",
-            "gfs", "gds2", "glusterfs" );
-
+    protected static final List<String> NETWORK_FS_TYPES = Arrays.asList("afs", "cifs", "smbfs", "sshfs", "ncpfs",
+            "ncp", "nfs", "nfs4", "gfs", "gds2", "glusterfs");
 
     protected static final List<String> PSEUDO_FS_TYPES = Arrays.asList(//
             // Linux defines a set of virtual file systems
@@ -78,7 +78,8 @@ public abstract class AbstractFileSystem implements FileSystem {
             "sysfs", // SysFS file system
             "systemd-1", // Systemd file system
             // "tmpfs", // Temporary file system
-            // NOTE: tmpfs is evaluated apart, because Linux, Solaris, FreeBSD use it for RAMdisks
+            // NOTE: tmpfs is evaluated apart, because Linux, Solaris, FreeBSD use it for
+            // RAMdisks
             "tracefs", // thin stackable file system for capturing file system traces
             "usbfs", // removed in linux 3.5 but still seen in some systems
             // FreeBSD / Solaris defines a set of virtual file systems
