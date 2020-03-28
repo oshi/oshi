@@ -3,6 +3,7 @@
 * [#894](https://github.com/oshi/oshi/pull/894): Look up microarchitecture from processor identifier. - [@tbradellis](https://github.com/tbradellis).
 * [#1150](https://github.com/oshi/oshi/pull/1150): Add fields to NetworkIF to help determine physical interfaces. - [@dbwiddis](https://github.com/dbwiddis).
 * [#1151](https://github.com/oshi/oshi/pull/1151): Add Graphics Card information. - [@dbwiddis](https://github.com/dbwiddis).
+* [#1153](https://github.com/oshi/oshi/pull/1153): Linux proc symlinks may show as (deleted). - [@jlangst6](https://github.com/jlangst6).
 * Your contribution here.
 
 4.5.0 (3/12/2020), 4.5.2 (3/20/2020)
