@@ -25,6 +25,8 @@ package oshi.util.platform.windows;
 
 import java.time.OffsetDateTime;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import com.sun.jna.platform.win32.Variant; // NOSONAR
 import com.sun.jna.platform.win32.COM.Wbemcli;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
@@ -36,6 +38,7 @@ import oshi.util.ParseUtil;
 /**
  * Helper class for WMI
  */
+@ThreadSafe
 public final class WmiUtil {
 
     /**

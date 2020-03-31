@@ -27,9 +27,12 @@ import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 /**
  * General constants used in multiple classes
  */
+@ThreadSafe
 public final class Constants {
 
     /**

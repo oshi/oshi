@@ -26,11 +26,15 @@ package oshi.util;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
+import javax.annotation.concurrent.GuardedBy;
+import javax.annotation.concurrent.ThreadSafe;
+
 /**
  * A memoized function stores the output corresponding to some set of specific
  * inputs. Subsequent calls with remembered inputs return the remembered result
  * rather than recalculating it.
  */
+@ThreadSafe
 public final class Memoizer {
 
     private static final Supplier<Long> defaultExpirationNanos = memoize(Memoizer::queryExpirationConfig,
@@ -47,7 +51,7 @@ public final class Memoizer {
      * Default exipiration of memoized values in nanoseconds, which will refresh
      * after this time elapses. Update by setting {@link GlobalConfig} property
      * <code>oshi.util.memoizer.expiration</code> to a value in milliseconds.
-     * 
+     *
      * @return The number of nanoseconds to keep memoized values before refreshing
      */
     public static long defaultExpiration() {
@@ -57,7 +61,7 @@ public final class Memoizer {
     /**
      * Store a supplier in a delegate function to be computed once, and only again
      * after time to live (ttl) has expired.
-     * 
+     *
      * @param <T>
      *            The type of object supplied
      * @param original
@@ -71,7 +75,9 @@ public final class Memoizer {
         // Adapted from Guava's ExpiringMemoizingSupplier
         return new Supplier<T>() {
             final Supplier<T> delegate = original;
+            @GuardedBy("this")
             volatile T value;
+            @GuardedBy("this")
             volatile long expirationNanos;
 
             @Override
@@ -96,7 +102,7 @@ public final class Memoizer {
 
     /**
      * Store a supplier in a delegate function to be computed only once.
-     * 
+     *
      * @param <T>
      *            The type of object supplied
      * @param original

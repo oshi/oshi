@@ -25,11 +25,18 @@ package oshi.util.platform.linux;
 
 import java.io.File;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import oshi.util.GlobalConfig;
 
 /**
- * Provides access to some /proc filesystem info on Linux
+ * Provides constants for paths in the {@code /proc} filesystem on Linux.
+ * <p>
+ * If the user desires to configure a custom {@code /proc} path, it must be
+ * declared in the OSHI configuration file or updated in the
+ * {@link GlobalConfiguration} class prior to initializing this class.
  */
+@ThreadSafe
 public final class ProcPath {
 
     /**

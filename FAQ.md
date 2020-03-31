@@ -18,7 +18,12 @@ Short answer: Not yet, but multi-thread implementations can be constructed to av
 
 Longer answer: Prior to version 4.1.0, there is no guarantee of thread safety.  In the normal use case of OSHI (using getters to retrieve information) there will be no thread safety issues if each thread is attempting to get information from a different object.  There are generally two ways to do this: (1) Have each thread instantiate a new instance of `SystemInfo`, or (2) have each thread deal only with access from objects not used by other threads, e.g., one thread can fetch memory information while another thread fetches Disks, and another fetches file system information. 
 
-In version 4.1.0, attempts have been made to ensure thread safety, but users are cautioned to inspect the code if this requirement is critical, as a full audit of the code has not yet been conducted.  
+Beginning in version 4.6.0, The JSR-305 `@ThreadSafe` and `@NotThreadSafe` annotations are used to document
+thread safety guarantees, or conditions requiring single thread usage.  The following classes are not thread-safe:
+ - `GlobalConfig` does not protect against multiple threads manipulating the configuration.  These methods
+ are intended to be used by a single thread at startup in lieu of reading a configuration file, as OSHI gives no guarantees on re-reading changed configurations.
+ - `PerfCounterQuery` and `PerfCounterWildcardQuery` objects should only be used within the context of a single
+ thread.
 
 What minimum Java version is required?
 ========

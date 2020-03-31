@@ -31,6 +31,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,6 +40,7 @@ import org.slf4j.LoggerFactory;
  * A class for executing on the command line and returning the result of
  * execution.
  */
+@ThreadSafe
 public final class ExecutingCommand {
 
     private static final Logger LOG = LoggerFactory.getLogger(ExecutingCommand.class);

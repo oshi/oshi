@@ -23,6 +23,8 @@
  */
 package oshi.util.platform.mac;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,6 +38,7 @@ import com.sun.jna.ptr.IntByReference;
 /**
  * Provides access to sysctl calls on OS X
  */
+@ThreadSafe
 public final class SysctlUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(SysctlUtil.class);

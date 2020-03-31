@@ -26,11 +26,17 @@ package oshi.driver.windows.perfmon;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import oshi.util.platform.windows.PerfCounterQuery;
 import oshi.util.platform.windows.PerfCounterWildcardQuery;
 import oshi.util.platform.windows.PerfCounterWildcardQuery.PdhCounterWildcardProperty;
 import oshi.util.tuples.Pair;
 
+/**
+ * Utility to query Process Information performance counter
+ */
+@ThreadSafe
 public final class ProcessInformation {
 
     private static final String WIN32_PROCESS = "Win32_Process";

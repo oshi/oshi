@@ -29,6 +29,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,6 +39,10 @@ import com.sun.jna.platform.win32.WinNT.HANDLEByReference; // NOSONAR
 import oshi.util.FormatUtil;
 import oshi.util.platform.windows.PerfDataUtil.PerfCounter;
 
+/**
+ * Utility to handle Performance Counter Queries
+ */
+@ThreadSafe
 public class PerfCounterQueryHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(PerfCounterQueryHandler.class);
@@ -45,10 +51,7 @@ public class PerfCounterQueryHandler {
     private Map<String, HANDLEByReference> queryHandleMap = new ConcurrentHashMap<>();
     private Map<String, List<PerfCounter>> queryCounterMap = new ConcurrentHashMap<>();
 
-    // Singleton pattern
-    private static PerfCounterQueryHandler instance;
-
-    private PerfCounterQueryHandler() {
+    public PerfCounterQueryHandler() {
         // Set up hook to close all queries on shutdown
         // User is expected to release all queries so this should only be a
         // backup
@@ -58,18 +61,6 @@ public class PerfCounterQueryHandler {
                 removeAllCounters();
             }
         });
-    }
-
-    /**
-     * Instantiate this class as a singleton
-     *
-     * @return The singleton instance
-     */
-    public static synchronized PerfCounterQueryHandler getInstance() {
-        if (instance == null) {
-            instance = new PerfCounterQueryHandler();
-        }
-        return instance;
     }
 
     /**

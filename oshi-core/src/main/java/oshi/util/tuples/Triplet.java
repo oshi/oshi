@@ -23,6 +23,19 @@
  */
 package oshi.util.tuples;
 
+import javax.annotation.concurrent.ThreadSafe;
+
+/**
+ * Convenience class for returning multiple objects from methods.
+ *
+ * @param <A>
+ *            Type of the first element
+ * @param <B>
+ *            Type of the second element
+ * @param <C>
+ *            Type of the third element
+ */
+@ThreadSafe
 public class Triplet<A, B, C> {
 
     private final A a;

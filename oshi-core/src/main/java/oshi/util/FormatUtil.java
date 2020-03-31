@@ -28,9 +28,12 @@ import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.util.concurrent.TimeUnit;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 /**
  * Formatting utility for appending units or converting between number types.
  */
+@ThreadSafe
 public class FormatUtil {
     /**
      * Binary prefixes, used in IEC Standard for naming bytes.

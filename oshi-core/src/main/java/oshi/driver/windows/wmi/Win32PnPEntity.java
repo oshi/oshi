@@ -23,11 +23,17 @@
  */
 package oshi.driver.windows.wmi;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery; //NOSONAR squid:S1191
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.util.platform.windows.WmiQueryHandler;
 
+/**
+ * Utility to query WMI class {@code Win32_PnPEntity}
+ */
+@ThreadSafe
 public final class Win32PnPEntity {
 
     private static final String WIN32_PNP_ENTITY = "Win32_PnPEntity";

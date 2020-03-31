@@ -27,22 +27,25 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 /**
  * Reads from lsof into a map
  */
+@ThreadSafe
 public final class LsofUtil {
 
     private LsofUtil() {
     }
 
     /**
-     * <p>
-     * getCwdMap.
-     * </p>
+     * Gets a map containing current working directory info
      *
      * @param pid
-     *            a int.
-     * @return a {@link java.util.Map} object.
+     *            a process ID, optional
+     * @return a map of process IDs to their current working directory. If
+     *         {@code pid} is a negative number, all processes are returned;
+     *         otherwise the map may contain only a single element for {@code pid}
      */
     public static Map<Integer, String> getCwdMap(int pid) {
         List<String> lsof = ExecutingCommand.runNative("lsof -Fn -d cwd" + (pid < 0 ? "" : " -p " + pid));

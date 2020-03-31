@@ -23,6 +23,8 @@
  */
 package oshi.util.platform.unix.freebsd;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,6 +39,7 @@ import oshi.jna.platform.unix.freebsd.FreeBsdLibc;
 /**
  * Provides access to sysctl calls on FreeBSD
  */
+@ThreadSafe
 public final class BsdSysctlUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(BsdSysctlUtil.class);

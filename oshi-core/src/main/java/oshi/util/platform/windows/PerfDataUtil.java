@@ -23,6 +23,8 @@
  */
 package oshi.util.platform.windows;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,6 +48,7 @@ import oshi.util.Util;
  * Helper class to centralize the boilerplate portions of PDH counter setup and
  * allow applications to easily add, query, and remove counters.
  */
+@ThreadSafe
 public final class PerfDataUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(PerfDataUtil.class);

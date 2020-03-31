@@ -23,11 +23,17 @@
  */
 package oshi.driver.windows.wmi;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery; //NOSONAR squid:S1191
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.util.platform.windows.WmiQueryHandler;
 
+/**
+ * Utility to query WMI class {@code Win32_DiskPartition}
+ */
+@ThreadSafe
 public final class Win32DiskPartition {
 
     private static final String WIN32_DISK_PARTITION = "Win32_DiskPartition";

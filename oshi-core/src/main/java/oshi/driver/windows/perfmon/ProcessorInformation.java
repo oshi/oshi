@@ -26,6 +26,8 @@ package oshi.driver.windows.perfmon;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import com.sun.jna.platform.win32.VersionHelpers; // NOSONAR squid:s1191
 
 import oshi.util.platform.windows.PerfCounterQuery;
@@ -34,6 +36,10 @@ import oshi.util.platform.windows.PerfCounterWildcardQuery;
 import oshi.util.platform.windows.PerfCounterWildcardQuery.PdhCounterWildcardProperty;
 import oshi.util.tuples.Pair;
 
+/**
+ * Utility to query Processor performance counter
+ */
+@ThreadSafe
 public final class ProcessorInformation {
 
     private static final String PROCESSOR = "Processor";

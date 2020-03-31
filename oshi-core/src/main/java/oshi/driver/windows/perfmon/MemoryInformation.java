@@ -25,9 +25,15 @@ package oshi.driver.windows.perfmon;
 
 import java.util.Map;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import oshi.util.platform.windows.PerfCounterQuery;
 import oshi.util.platform.windows.PerfCounterQuery.PdhCounterProperty;
 
+/**
+ * Utility to query Memory performance counter
+ */
+@ThreadSafe
 public final class MemoryInformation {
 
     private static final String MEMORY = "Memory";

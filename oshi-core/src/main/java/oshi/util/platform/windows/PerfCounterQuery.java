@@ -26,6 +26,8 @@ package oshi.util.platform.windows;
 import java.util.EnumMap;
 import java.util.Map;
 
+import javax.annotation.concurrent.NotThreadSafe;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,10 +38,12 @@ import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 import oshi.util.platform.windows.PerfDataUtil.PerfCounter;
 
 /**
+ * Encapsulates information for a Performance Counter query.
  * <p>
- * PerfCounterQuery class.
- * </p>
+ * An instance of this class should only be instantiated and used within the
+ * context of a single thread.
  */
+@NotThreadSafe
 public class PerfCounterQuery<T extends Enum<T>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(PerfCounterQuery.class);
@@ -112,7 +116,7 @@ public class PerfCounterQuery<T extends Enum<T>> {
         this.perfObject = perfObject;
         this.perfWmiClass = perfWmiClass;
         this.queryKey = queryKey;
-        this.pdhQueryHandler = PerfCounterQueryHandler.getInstance();
+        this.pdhQueryHandler = new PerfCounterQueryHandler();
         // Start off with PDH as source; if query here fails we will permanently
         // fall back to WMI
         this.source = CounterDataSource.PDH;

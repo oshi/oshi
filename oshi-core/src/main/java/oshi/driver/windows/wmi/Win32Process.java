@@ -26,11 +26,17 @@ package oshi.driver.windows.wmi;
 import java.util.Collection;
 import java.util.Set;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery; //NOSONAR squid:S1191
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.util.platform.windows.WmiQueryHandler;
 
+/**
+ * Utility to query WMI class {@code Win32_Process}
+ */
+@ThreadSafe
 public final class Win32Process {
 
     private static final String WIN32_PROCESS = "Win32_Process";

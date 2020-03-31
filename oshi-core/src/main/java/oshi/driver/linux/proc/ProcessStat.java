@@ -28,11 +28,17 @@ import java.util.EnumMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.linux.ProcPath;
 import oshi.util.tuples.Triplet;
 
+/**
+ * Utility to read process statistics from {@code /proc/[pid]/stat}
+ */
+@ThreadSafe
 public final class ProcessStat {
 
     private static final Pattern DIGITS = Pattern.compile("\\d+");

@@ -23,12 +23,15 @@
  */
 package oshi.util;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * General utility methods
  */
+@ThreadSafe
 public class Util {
     private static final Logger LOG = LoggerFactory.getLogger(Util.class);
 

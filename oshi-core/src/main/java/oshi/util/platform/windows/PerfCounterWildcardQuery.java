@@ -30,6 +30,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.concurrent.NotThreadSafe;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,6 +45,13 @@ import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 import oshi.util.Util;
 import oshi.util.platform.windows.PerfDataUtil.PerfCounter;
 
+/**
+ * Encapsulates information for a Performance Counter query.
+ * <p>
+ * An instance of this class should only be instantiated and used within the
+ * context of a single thread.
+ */
+@NotThreadSafe
 public class PerfCounterWildcardQuery<T extends Enum<T>> extends PerfCounterQuery<T> {
 
     private static final Logger LOG = LoggerFactory.getLogger(PerfCounterWildcardQuery.class);

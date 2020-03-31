@@ -37,12 +37,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * File reading methods
  */
+@ThreadSafe
 public final class FileUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(FileUtil.class);
