@@ -23,11 +23,14 @@
  */
 package oshi.hardware.common;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import oshi.hardware.GraphicsCard;
 
 /**
  * An abstract Sound Card
  */
+@ThreadSafe
 public abstract class AbstractGraphicsCard implements GraphicsCard {
 
     private final String name;
@@ -50,7 +53,7 @@ public abstract class AbstractGraphicsCard implements GraphicsCard {
      * @param vram
      *            The VRAM
      */
-    public AbstractGraphicsCard(String name, String deviceId, String vendor, String versionInfo, long vram) {
+    protected AbstractGraphicsCard(String name, String deviceId, String vendor, String versionInfo, long vram) {
         this.name = name;
         this.deviceId = deviceId;
         this.vendor = vendor;

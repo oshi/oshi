@@ -399,14 +399,12 @@ public class HWDiskStore implements Comparable<HWDiskStore> {
         this.timeStamp = timeStamp;
     }
 
-    /** {@inheritDoc} */
     @Override
     public int compareTo(HWDiskStore store) {
         // Naturally sort by device name
         return getName().compareTo(store.getName());
     }
 
-    /** {@inheritDoc} */
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -418,7 +416,6 @@ public class HWDiskStore implements Comparable<HWDiskStore> {
         return result;
     }
 
-    /** {@inheritDoc} */
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -455,7 +452,6 @@ public class HWDiskStore implements Comparable<HWDiskStore> {
         return this.size == other.size;
     }
 
-    /** {@inheritDoc} */
     @Override
     public String toString() {
         boolean readwrite = getReads() > 0 || getWrites() > 0;

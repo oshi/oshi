@@ -52,7 +52,7 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
     private static final String CPUFREQ_PATH = "oshi.cpu.freq.path";
 
     @Override
-    protected final ProcessorIdentifier queryProcessorId() {
+    protected ProcessorIdentifier queryProcessorId() {
         String cpuVendor = "";
         String cpuName = "";
         String cpuFamily = "";

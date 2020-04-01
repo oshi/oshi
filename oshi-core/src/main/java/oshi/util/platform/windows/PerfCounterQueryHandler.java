@@ -43,7 +43,7 @@ import oshi.util.platform.windows.PerfDataUtil.PerfCounter;
  * Utility to handle Performance Counter Queries
  */
 @ThreadSafe
-public class PerfCounterQueryHandler {
+public final class PerfCounterQueryHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(PerfCounterQueryHandler.class);
 

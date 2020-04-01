@@ -26,6 +26,8 @@ package oshi.hardware.platform.mac;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,17 +45,16 @@ import oshi.hardware.common.AbstractDisplay;
 /**
  * A Display
  */
-public class MacDisplay extends AbstractDisplay {
+@ThreadSafe
+final class MacDisplay extends AbstractDisplay {
 
     private static final Logger LOG = LoggerFactory.getLogger(MacDisplay.class);
 
     /**
-     * <p>
      * Constructor for MacDisplay.
-     * </p>
      *
      * @param edid
-     *            an array of {@link byte} objects.
+     *            a byte array representing a display EDID
      */
     public MacDisplay(byte[] edid) {
         super(edid);

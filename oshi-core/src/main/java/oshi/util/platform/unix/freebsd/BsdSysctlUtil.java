@@ -28,7 +28,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Memory;
+import com.sun.jna.Memory; // NOSONAR squid:S1191
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
@@ -104,7 +104,7 @@ public final class BsdSysctlUtil {
             return def;
         }
         // Add 1 to size for null terminated string
-        Pointer p = new Memory(size.getValue() + 1);
+        Pointer p = new Memory(size.getValue() + 1L);
         if (0 != FreeBsdLibc.INSTANCE.sysctlbyname(name, p, size, null, 0)) {
             LOG.warn(SYSCTL_FAIL, name, Native.getLastError());
             return def;

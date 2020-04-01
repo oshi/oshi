@@ -51,7 +51,7 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
     private static final Logger LOG = LoggerFactory.getLogger(MacCentralProcessor.class);
 
     @Override
-    protected final ProcessorIdentifier queryProcessorId() {
+    protected ProcessorIdentifier queryProcessorId() {
         String cpuVendor = SysctlUtil.sysctl("machdep.cpu.vendor", "");
         String cpuName = SysctlUtil.sysctl("machdep.cpu.brand_string", "");
         int i = SysctlUtil.sysctl("machdep.cpu.stepping", -1);

@@ -34,7 +34,7 @@ import oshi.util.GlobalConfig;
  * <p>
  * If the user desires to configure a custom {@code /proc} path, it must be
  * declared in the OSHI configuration file or updated in the
- * {@link GlobalConfiguration} class prior to initializing this class.
+ * {@link GlobalConfig} class prior to initializing this class.
  */
 @ThreadSafe
 public final class ProcPath {

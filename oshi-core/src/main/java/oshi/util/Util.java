@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
  * General utility methods
  */
 @ThreadSafe
-public class Util {
+public final class Util {
     private static final Logger LOG = LoggerFactory.getLogger(Util.class);
 
     private Util() {

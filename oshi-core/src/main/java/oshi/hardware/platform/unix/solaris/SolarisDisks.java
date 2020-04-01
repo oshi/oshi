@@ -29,10 +29,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import com.sun.jna.platform.unix.solaris.LibKstat.Kstat; //NOSONAR
 import com.sun.jna.platform.unix.solaris.LibKstat.KstatIO;
 
-import oshi.hardware.Disks;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
 import oshi.util.ExecutingCommand;
@@ -43,16 +44,18 @@ import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
 /**
  * Solaris hard disk implementation.
  */
-public class SolarisDisks implements Disks {
+@ThreadSafe
+public final class SolarisDisks {
+
+    private SolarisDisks() {
+    }
 
     /**
-     * <p>
-     * updateDiskStats.
-     * </p>
+     * Updates the statistics on a disk store.
      *
      * @param diskStore
-     *            a {@link oshi.hardware.HWDiskStore} object.
-     * @return true if the update was successful
+     *            the {@link oshi.hardware.HWDiskStore} to update.
+     * @return {@code true} if the update was (probably) successful.
      */
     public static boolean updateDiskStats(HWDiskStore diskStore) {
         try (KstatChain kc = KstatUtil.openChain()) {
@@ -73,8 +76,12 @@ public class SolarisDisks implements Disks {
         return false;
     }
 
-    @Override
-    public HWDiskStore[] getDisks() {
+    /**
+     * Gets the disks on this machine
+     *
+     * @return an array of {@link HWDiskStore} objects representing the disks
+     */
+    public static HWDiskStore[] getDisks() {
         // Create map indexed by device name for multiple command reference
         Map<String, HWDiskStore> diskMap = new HashMap<>();
         // First, run iostat -er to enumerate disks by name. Sample output:

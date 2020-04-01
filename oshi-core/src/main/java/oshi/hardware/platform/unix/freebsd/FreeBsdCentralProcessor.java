@@ -58,7 +58,7 @@ final class FreeBsdCentralProcessor extends AbstractCentralProcessor {
     private static final Pattern CPUMASK = Pattern.compile(".*<cpu\\s.*mask=\"(?:0x)?(\\p{XDigit}+)\".*>.*</cpu>.*");
 
     @Override
-    protected final ProcessorIdentifier queryProcessorId() {
+    protected ProcessorIdentifier queryProcessorId() {
         final Pattern identifierPattern = Pattern
                 .compile("Origin=\"([^\"]*)\".*Id=(\\S+).*Family=(\\S+).*Model=(\\S+).*Stepping=(\\S+).*");
         final Pattern featuresPattern = Pattern.compile("Features=(\\S+)<.*");
@@ -118,7 +118,7 @@ final class FreeBsdCentralProcessor extends AbstractCentralProcessor {
         String[] topology = BsdSysctlUtil.sysctl("kern.sched.topology_spec", "").split("\\n|\\r");
         /*-
          * Sample output:
-        
+
         <groups>
         <group level="1" cache-level="0">
          <cpu count="24" mask="ffffff">0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23</cpu>
@@ -130,7 +130,7 @@ final class FreeBsdCentralProcessor extends AbstractCentralProcessor {
              <cpu count="2" mask="3">0, 1</cpu>
              <flags><flag name="THREAD">THREAD group</flag><flag name="SMT">SMT group</flag></flags>
             </group>
-        
+
         * Opens with <groups>
         * <group> level 1 identifies all the processors via bitmask, should only be one
         * <group> level 2 separates by physical package

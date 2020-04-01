@@ -26,6 +26,8 @@ package oshi.hardware.platform.mac;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import oshi.hardware.common.AbstractGraphicsCard;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
@@ -34,7 +36,8 @@ import oshi.util.ParseUtil;
 /**
  * Graphics card info obtained by system_profiler SPDisplaysDataType.
  */
-public class MacGraphicsCard extends AbstractGraphicsCard {
+@ThreadSafe
+final class MacGraphicsCard extends AbstractGraphicsCard {
 
     /**
      * Constructor for MacGraphicsCard

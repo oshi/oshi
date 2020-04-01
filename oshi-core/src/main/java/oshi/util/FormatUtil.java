@@ -34,7 +34,7 @@ import javax.annotation.concurrent.ThreadSafe;
  * Formatting utility for appending units or converting between number types.
  */
 @ThreadSafe
-public class FormatUtil {
+public final class FormatUtil {
     /**
      * Binary prefixes, used in IEC Standard for naming bytes.
      * (http://en.wikipedia.org/wiki/International_Electrotechnical_Commission)

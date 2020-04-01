@@ -26,10 +26,12 @@ package oshi.hardware.platform.windows;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.platform.win32.Advapi32;
+import com.sun.jna.platform.win32.Advapi32; // NOSONAR squid:S1191
 import com.sun.jna.platform.win32.Guid;
 import com.sun.jna.platform.win32.SetupApi;
 import com.sun.jna.platform.win32.SetupApi.SP_DEVICE_INTERFACE_DATA;
@@ -46,7 +48,8 @@ import oshi.hardware.common.AbstractDisplay;
 /**
  * A Display
  */
-public class WindowsDisplay extends AbstractDisplay {
+@ThreadSafe
+final class WindowsDisplay extends AbstractDisplay {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsDisplay.class);
 
@@ -56,12 +59,10 @@ public class WindowsDisplay extends AbstractDisplay {
     private static final Guid.GUID GUID_DEVINTERFACE_MONITOR = new Guid.GUID("E6F07B5F-EE97-4a90-B076-33F57BF4EAA7");
 
     /**
-     * <p>
      * Constructor for WindowsDisplay.
-     * </p>
      *
      * @param edid
-     *            an array of {@link byte} objects.
+     *            a byte array representing a display EDID
      */
     public WindowsDisplay(byte[] edid) {
         super(edid);

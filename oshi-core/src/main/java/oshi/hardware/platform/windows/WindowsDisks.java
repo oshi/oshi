@@ -30,6 +30,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +48,6 @@ import oshi.driver.windows.wmi.Win32DiskPartition;
 import oshi.driver.windows.wmi.Win32DiskPartition.DiskPartitionProperty;
 import oshi.driver.windows.wmi.Win32LogicalDiskToPartition;
 import oshi.driver.windows.wmi.Win32LogicalDiskToPartition.DiskToPartitionProperty;
-import oshi.hardware.Disks;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
 import oshi.util.ParseUtil;
@@ -56,7 +57,8 @@ import oshi.util.tuples.Pair;
 /**
  * Windows hard disk implementation.
  */
-public class WindowsDisks implements Disks {
+@ThreadSafe
+public final class WindowsDisks {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsDisks.class);
 
@@ -66,14 +68,15 @@ public class WindowsDisks implements Disks {
 
     private static final int BUFSIZE = 255;
 
+    private WindowsDisks() {
+    }
+
     /**
-     * <p>
-     * updateDiskStats.
-     * </p>
+     * Updates the statistics on a disk store.
      *
      * @param diskStore
-     *            a {@link oshi.hardware.HWDiskStore} object.
-     * @return a boolean.
+     *            the {@link oshi.hardware.HWDiskStore} to update.
+     * @return {@code true} if the update was (probably) successful.
      */
     public static boolean updateDiskStats(HWDiskStore diskStore) {
         String index = null;
@@ -113,8 +116,12 @@ public class WindowsDisks implements Disks {
 
     }
 
-    @Override
-    public HWDiskStore[] getDisks() {
+    /**
+     * Gets the disks on this machine
+     *
+     * @return an array of {@link HWDiskStore} objects representing the disks
+     */
+    public static HWDiskStore[] getDisks() {
         List<HWDiskStore> result;
         result = new ArrayList<>();
         DiskStats stats = queryReadWriteStats(null);

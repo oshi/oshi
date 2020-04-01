@@ -32,7 +32,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import oshi.hardware.Disks;
+import javax.annotation.concurrent.ThreadSafe;
+
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
 import oshi.util.ExecutingCommand;
@@ -42,18 +43,20 @@ import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
 /**
  * FreeBSD hard disk implementation.
  */
-public class FreeBsdDisks implements Disks {
+@ThreadSafe
+public final class FreeBsdDisks {
 
     private static final Pattern MOUNT_PATTERN = Pattern.compile("/dev/(\\S+p\\d+) on (\\S+) .*");
 
+    private FreeBsdDisks() {
+    }
+
     /**
-     * <p>
-     * updateDiskStats.
-     * </p>
+     * Updates the statistics on a disk store.
      *
      * @param diskStore
-     *            a {@link oshi.hardware.HWDiskStore} object.
-     * @return a boolean.
+     *            the {@link oshi.hardware.HWDiskStore} to update.
+     * @return {@code true} if the update was (probably) successful.
      */
     public static boolean updateDiskStats(HWDiskStore diskStore) {
         List<String> output = ExecutingCommand.runNative("iostat -Ix " + diskStore.getName());
@@ -79,8 +82,12 @@ public class FreeBsdDisks implements Disks {
         return diskFound;
     }
 
-    @Override
-    public HWDiskStore[] getDisks() {
+    /**
+     * Gets the disks on this machine
+     *
+     * @return an array of {@link HWDiskStore} objects representing the disks
+     */
+    public static HWDiskStore[] getDisks() {
         // Parse 'mount' to map partitions to mount point
         Map<String, String> mountMap = new HashMap<>();
         for (String mnt : ExecutingCommand.runNative("mount")) {
