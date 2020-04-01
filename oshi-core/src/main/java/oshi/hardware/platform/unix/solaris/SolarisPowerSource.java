@@ -25,6 +25,8 @@ package oshi.hardware.platform.unix.solaris;
 
 import java.time.LocalDate;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import com.sun.jna.platform.unix.solaris.LibKstat.Kstat; // NOSONAR
 
 import oshi.hardware.PowerSource;
@@ -36,7 +38,8 @@ import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
 /**
  * A Power Source
  */
-public class SolarisPowerSource extends AbstractPowerSource {
+@ThreadSafe
+public final class SolarisPowerSource extends AbstractPowerSource {
 
     // One-time lookup to see which kstat module to use
     private static final String[] KSTAT_BATT_MOD = { null, "battery", "acpi_drv" };

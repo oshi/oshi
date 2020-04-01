@@ -29,6 +29,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.concurrent.Immutable;
+
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractUsbDevice;
 import oshi.hardware.platform.mac.MacUsbDevice;
@@ -38,10 +40,9 @@ import oshi.jna.platform.linux.Udev.UdevEnumerate;
 import oshi.jna.platform.linux.Udev.UdevListEntry;
 
 /**
- * <p>
- * LinuxUsbDevice class.
- * </p>
+ * Linux Usb Device
  */
+@Immutable
 public class LinuxUsbDevice extends AbstractUsbDevice {
 
     /**

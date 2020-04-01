@@ -29,11 +29,14 @@ import static oshi.util.Memoizer.memoize;
 import java.util.Arrays;
 import java.util.function.Supplier;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import oshi.hardware.Sensors;
 
 /**
- * Sensor info.
+ * Sensors from WMI or Open Hardware Monitor
  */
+@ThreadSafe
 public abstract class AbstractSensors implements Sensors {
 
     private final Supplier<Double> cpuTemperature = memoize(this::queryCpuTemperature, defaultExpiration());

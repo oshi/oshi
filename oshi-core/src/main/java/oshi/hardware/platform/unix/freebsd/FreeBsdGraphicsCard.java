@@ -26,7 +26,7 @@ package oshi.hardware.platform.unix.freebsd;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.concurrent.ThreadSafe;
+import javax.annotation.concurrent.Immutable;
 
 import oshi.hardware.common.AbstractGraphicsCard;
 import oshi.util.Constants;
@@ -36,7 +36,7 @@ import oshi.util.ParseUtil;
 /**
  * Graphics Card info obtained from pciconf
  */
-@ThreadSafe
+@Immutable
 final class FreeBsdGraphicsCard extends AbstractGraphicsCard {
 
     private static final String PCI_CLASS_DISPLAY = "0x03";

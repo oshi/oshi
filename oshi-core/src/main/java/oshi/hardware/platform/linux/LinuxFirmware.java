@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.function.Supplier;
 
-import javax.annotation.concurrent.ThreadSafe;
+import javax.annotation.concurrent.Immutable;
 
 import oshi.hardware.common.AbstractFirmware;
 import oshi.util.Constants;
@@ -43,7 +43,7 @@ import oshi.util.Util;
 /**
  * Firmware data obtained by sysfs.
  */
-@ThreadSafe
+@Immutable
 final class LinuxFirmware extends AbstractFirmware {
     // Jan 13 2013 16:24:29
     private static final DateTimeFormatter VCGEN_FORMATTER = DateTimeFormatter.ofPattern("MMM d uuuu HH:mm:ss",

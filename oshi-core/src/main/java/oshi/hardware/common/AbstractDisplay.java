@@ -25,7 +25,7 @@ package oshi.hardware.common;
 
 import java.util.Arrays;
 
-import javax.annotation.concurrent.ThreadSafe;
+import javax.annotation.concurrent.Immutable;
 
 import oshi.hardware.Display;
 import oshi.util.EdidUtil;
@@ -33,7 +33,7 @@ import oshi.util.EdidUtil;
 /**
  * A Display
  */
-@ThreadSafe
+@Immutable
 public abstract class AbstractDisplay implements Display {
 
     private final byte[] edid;

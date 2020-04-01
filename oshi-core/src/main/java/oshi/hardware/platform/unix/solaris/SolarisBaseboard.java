@@ -23,14 +23,14 @@
  */
 package oshi.hardware.platform.unix.solaris;
 
-import javax.annotation.concurrent.ThreadSafe;
+import javax.annotation.concurrent.Immutable;
 
 import oshi.hardware.common.AbstractBaseboard;
 
 /**
  * Baseboard data obtained by smbios
  */
-@ThreadSafe
+@Immutable
 final class SolarisBaseboard extends AbstractBaseboard {
 
     private final String manufacturer;

@@ -27,7 +27,7 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.function.Supplier;
 
-import javax.annotation.concurrent.ThreadSafe;
+import javax.annotation.concurrent.Immutable;
 
 import oshi.hardware.Baseboard;
 import oshi.hardware.Firmware;
@@ -40,7 +40,7 @@ import oshi.util.Util;
 /**
  * Hardware data obtained from smbios.
  */
-@ThreadSafe
+@Immutable
 final class SolarisComputerSystem extends AbstractComputerSystem {
 
     private final Supplier<SmbiosStrings> smbiosStrings = memoize(SolarisComputerSystem::readSmbios);

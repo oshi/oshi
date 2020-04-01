@@ -23,14 +23,14 @@
  */
 package oshi.hardware.common;
 
-import javax.annotation.concurrent.ThreadSafe;
+import javax.annotation.concurrent.Immutable;
 
 import oshi.hardware.GraphicsCard;
 
 /**
  * An abstract Sound Card
  */
-@ThreadSafe
+@Immutable
 public abstract class AbstractGraphicsCard implements GraphicsCard {
 
     private final String name;

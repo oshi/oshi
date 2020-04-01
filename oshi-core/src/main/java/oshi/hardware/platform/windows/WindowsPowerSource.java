@@ -26,6 +26,8 @@ package oshi.hardware.platform.windows;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import com.sun.jna.Memory; // NOSONAR
 import com.sun.jna.Platform;
 import com.sun.jna.platform.win32.Guid.GUID;
@@ -52,7 +54,8 @@ import oshi.util.Constants;
 /**
  * A Power Source
  */
-public class WindowsPowerSource extends AbstractPowerSource {
+@ThreadSafe
+public final class WindowsPowerSource extends AbstractPowerSource {
 
     private static final GUID GUID_DEVCLASS_BATTERY = GUID.fromString("{72631E54-78A4-11D0-BCF7-00AA00B7B32A}");
     private static final int CHAR_WIDTH = W32APITypeMapper.DEFAULT == W32APITypeMapper.UNICODE ? 2 : 1;

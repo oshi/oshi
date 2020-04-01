@@ -29,7 +29,7 @@ import static oshi.util.platform.linux.ProcPath.CPUINFO;
 import java.util.List;
 import java.util.function.Supplier;
 
-import javax.annotation.concurrent.ThreadSafe;
+import javax.annotation.concurrent.Immutable;
 
 import oshi.hardware.common.AbstractBaseboard;
 import oshi.util.Constants;
@@ -40,7 +40,7 @@ import oshi.util.Util;
 /**
  * Baseboard data obtained by sysfs
  */
-@ThreadSafe
+@Immutable
 final class LinuxBaseboard extends AbstractBaseboard {
 
     private final Supplier<String> manufacturer = memoize(LinuxBaseboard::queryManufacturer);

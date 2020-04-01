@@ -26,6 +26,8 @@ package oshi.hardware.platform.mac;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.concurrent.Immutable;
+
 import oshi.hardware.common.AbstractSoundCard;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
@@ -33,7 +35,8 @@ import oshi.util.ParseUtil;
 /**
  * Sound card data obtained via AppleHDA kext
  */
-public class MacSoundCard extends AbstractSoundCard {
+@Immutable
+final class MacSoundCard extends AbstractSoundCard {
 
     private static final String APPLE = "Apple Inc.";
 

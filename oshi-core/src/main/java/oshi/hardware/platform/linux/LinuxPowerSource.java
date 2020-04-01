@@ -30,6 +30,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import oshi.hardware.PowerSource;
 import oshi.hardware.common.AbstractPowerSource;
 import oshi.util.Constants;
@@ -39,7 +41,8 @@ import oshi.util.ParseUtil;
 /**
  * A Power Source
  */
-public class LinuxPowerSource extends AbstractPowerSource {
+@ThreadSafe
+public final class LinuxPowerSource extends AbstractPowerSource {
 
     private static final String PS_PATH = "/sys/class/power_supply/";
 

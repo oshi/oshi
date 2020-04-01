@@ -23,7 +23,7 @@
  */
 package oshi.hardware.common;
 
-import javax.annotation.concurrent.ThreadSafe;
+import javax.annotation.concurrent.Immutable;
 
 import oshi.hardware.Firmware;
 import oshi.util.Constants;
@@ -31,7 +31,7 @@ import oshi.util.Constants;
 /**
  * Firmware data.
  */
-@ThreadSafe
+@Immutable
 public abstract class AbstractFirmware implements Firmware {
 
     /*

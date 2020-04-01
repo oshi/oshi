@@ -23,6 +23,8 @@
  */
 package oshi.hardware.platform.windows;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +43,11 @@ import oshi.driver.windows.wmi.Win32Processor.VoltProperty;
 import oshi.hardware.common.AbstractSensors;
 import oshi.util.platform.windows.WmiUtil;
 
-public class WindowsSensors extends AbstractSensors {
+/**
+ * Sensors from WMI or Open Hardware Monitor
+ */
+@ThreadSafe
+final class WindowsSensors extends AbstractSensors {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsSensors.class);
 

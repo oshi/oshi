@@ -23,14 +23,14 @@
  */
 package oshi.hardware.platform.unix.freebsd;
 
-import javax.annotation.concurrent.ThreadSafe;
+import javax.annotation.concurrent.Immutable;
 
 import oshi.hardware.common.AbstractBaseboard;
 
 /**
  * Baseboard data obtained by dmidecode
  */
-@ThreadSafe
+@Immutable
 final class FreeBsdBaseboard extends AbstractBaseboard {
     private final String manufacturer;
     private final String model;

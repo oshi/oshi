@@ -23,6 +23,8 @@
  */
 package oshi.hardware;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 /**
  * Sensors include hardware sensors to monitor temperature, fan speed, and other
  * information.
@@ -41,6 +43,7 @@ package oshi.hardware;
  * permissions and still may provide no results or unchanging results depending
  * on the motherboard manufacturer.
  */
+@ThreadSafe
 public interface Sensors {
     /**
      * CPU Temperature

@@ -23,11 +23,14 @@
  */
 package oshi.hardware.common;
 
+import javax.annotation.concurrent.Immutable;
+
 import oshi.hardware.SoundCard;
 
 /**
  * An abstract Sound Card
  */
+@Immutable
 public abstract class AbstractSoundCard implements SoundCard {
 
     private String kernelVersion;
@@ -55,50 +58,14 @@ public abstract class AbstractSoundCard implements SoundCard {
         return this.kernelVersion;
     }
 
-    /**
-     * <p>
-     * Setter for the field <code>kernelVersion</code>.
-     * </p>
-     *
-     * @param kernelVersion
-     *            a {@link java.lang.String} object.
-     */
-    public void setKernelVersion(String kernelVersion) {
-        this.kernelVersion = kernelVersion;
-    }
-
     @Override
     public String getName() {
         return this.name;
     }
 
-    /**
-     * <p>
-     * Setter for the field <code>name</code>.
-     * </p>
-     *
-     * @param name
-     *            a {@link java.lang.String} object.
-     */
-    public void setName(String name) {
-        this.name = name;
-    }
-
     @Override
     public String getCodec() {
         return this.codec;
-    }
-
-    /**
-     * <p>
-     * Setter for the field <code>codec</code>.
-     * </p>
-     *
-     * @param codec
-     *            a {@link java.lang.String} object.
-     */
-    public void setCodec(String codec) {
-        this.codec = codec;
     }
 
     @Override

@@ -23,13 +23,13 @@
  */
 package oshi.hardware;
 
-import javax.annotation.concurrent.ThreadSafe;
+import javax.annotation.concurrent.Immutable;
 
 /**
  * Display refers to the information regarding a video source and monitor
  * identified by the EDID standard.
  */
-@ThreadSafe
+@Immutable
 public interface Display {
     /**
      * The EDID byte array.

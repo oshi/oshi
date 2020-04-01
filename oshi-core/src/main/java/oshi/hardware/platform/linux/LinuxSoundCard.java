@@ -28,6 +28,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.concurrent.Immutable;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +40,8 @@ import oshi.util.platform.linux.ProcPath;
 /**
  * Sound card data obtained via /proc/asound directory
  */
-public class LinuxSoundCard extends AbstractSoundCard {
+@Immutable
+final class LinuxSoundCard extends AbstractSoundCard {
 
     private static final Logger LOG = LoggerFactory.getLogger(LinuxSoundCard.class);
 

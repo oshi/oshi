@@ -28,6 +28,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.concurrent.Immutable;
+
 import oshi.hardware.common.AbstractSoundCard;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
@@ -35,7 +37,8 @@ import oshi.util.ParseUtil;
 /**
  * Solaris Sound Card.
  */
-public class SolarisSoundCard extends AbstractSoundCard {
+@Immutable
+final class SolarisSoundCard extends AbstractSoundCard {
 
     private static final String LSHAL = "lshal";
     private static final String DEFAULT_AUDIO_DRIVER = "audio810";

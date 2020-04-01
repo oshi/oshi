@@ -29,6 +29,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.concurrent.Immutable;
+
 import com.sun.jna.platform.mac.CoreFoundation; // NOSONAR squid:S1191
 import com.sun.jna.platform.mac.CoreFoundation.CFIndex;
 import com.sun.jna.platform.mac.CoreFoundation.CFMutableDictionaryRef;
@@ -42,10 +44,9 @@ import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractUsbDevice;
 
 /**
- * <p>
- * MacUsbDevice class.
- * </p>
+ * Mac Usb Device
  */
+@Immutable
 public class MacUsbDevice extends AbstractUsbDevice {
 
     private static final CoreFoundation CF = CoreFoundation.INSTANCE;

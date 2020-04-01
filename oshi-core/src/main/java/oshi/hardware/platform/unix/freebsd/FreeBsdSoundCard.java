@@ -28,6 +28,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.concurrent.Immutable;
+
 import oshi.hardware.SoundCard;
 import oshi.hardware.common.AbstractSoundCard;
 import oshi.util.ExecutingCommand;
@@ -36,7 +38,8 @@ import oshi.util.ParseUtil;
 /**
  * FreeBSD soundcard.
  */
-public class FreeBsdSoundCard extends AbstractSoundCard {
+@Immutable
+final class FreeBsdSoundCard extends AbstractSoundCard {
 
     private static final String LSHAL = "lshal";
 

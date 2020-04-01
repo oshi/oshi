@@ -26,7 +26,7 @@ package oshi.hardware.platform.windows;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.concurrent.ThreadSafe;
+import javax.annotation.concurrent.Immutable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,7 +48,7 @@ import oshi.hardware.common.AbstractDisplay;
 /**
  * A Display
  */
-@ThreadSafe
+@Immutable
 final class WindowsDisplay extends AbstractDisplay {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsDisplay.class);

@@ -28,6 +28,8 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.function.Supplier;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import oshi.hardware.common.AbstractVirtualMemory;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
@@ -36,7 +38,8 @@ import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
 /**
  * Memory obtained by swapinfo
  */
-public class FreeBsdVirtualMemory extends AbstractVirtualMemory {
+@ThreadSafe
+final class FreeBsdVirtualMemory extends AbstractVirtualMemory {
 
     private final Supplier<Long> used = memoize(FreeBsdVirtualMemory::querySwapUsed, defaultExpiration());
 

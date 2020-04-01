@@ -23,14 +23,14 @@
  */
 package oshi.hardware;
 
-import javax.annotation.concurrent.ThreadSafe;
+import javax.annotation.concurrent.Immutable;
 
 /**
  * <p>
  * GraphicsCard interface.
  * </p>
  */
-@ThreadSafe
+@Immutable
 public interface GraphicsCard {
 
     /**

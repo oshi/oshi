@@ -26,7 +26,7 @@ package oshi.hardware.platform.unix.freebsd;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.concurrent.ThreadSafe;
+import javax.annotation.concurrent.Immutable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +39,7 @@ import oshi.util.ParseUtil;
 /**
  * A Display
  */
-@ThreadSafe
+@Immutable
 final class FreeBsdDisplay extends AbstractDisplay {
 
     private static final Logger LOG = LoggerFactory.getLogger(FreeBsdDisplay.class);
