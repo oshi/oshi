@@ -28,6 +28,8 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.function.Supplier;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,7 +51,8 @@ import oshi.util.tuples.Triplet;
 /**
  * Memory obtained by Performance Info.
  */
-public class WindowsGlobalMemory extends AbstractGlobalMemory {
+@ThreadSafe
+final class WindowsGlobalMemory extends AbstractGlobalMemory {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsGlobalMemory.class);
 

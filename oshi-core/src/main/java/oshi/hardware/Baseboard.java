@@ -23,10 +23,13 @@
  */
 package oshi.hardware;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 /**
  * The Baseboard represents the system board, also called motherboard, logic
  * board, etc.
  */
+@ThreadSafe
 public interface Baseboard {
     /**
      * Get the baseboard manufacturer.

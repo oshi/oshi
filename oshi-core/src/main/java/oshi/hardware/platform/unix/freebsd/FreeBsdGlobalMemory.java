@@ -28,6 +28,8 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.function.Supplier;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import oshi.hardware.VirtualMemory;
 import oshi.hardware.common.AbstractGlobalMemory;
 import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
@@ -35,7 +37,8 @@ import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
 /**
  * Memory obtained by sysctl vm.stats
  */
-public class FreeBsdGlobalMemory extends AbstractGlobalMemory {
+@ThreadSafe
+final class FreeBsdGlobalMemory extends AbstractGlobalMemory {
 
     private final Supplier<Long> available = memoize(this::queryVmStats, defaultExpiration());
 

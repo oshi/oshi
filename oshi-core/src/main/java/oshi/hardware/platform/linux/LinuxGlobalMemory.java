@@ -29,19 +29,23 @@ import static oshi.util.Memoizer.memoize;
 import java.util.List;
 import java.util.function.Supplier;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import oshi.hardware.VirtualMemory;
 import oshi.hardware.common.AbstractGlobalMemory;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.linux.ProcPath;
+import oshi.util.tuples.Pair;
 
 /**
  * Memory obtained by /proc/meminfo and sysinfo.totalram
  */
-public class LinuxGlobalMemory extends AbstractGlobalMemory {
+@ThreadSafe
+final class LinuxGlobalMemory extends AbstractGlobalMemory {
 
-    private final Supplier<MemInfo> memInfo = memoize(LinuxGlobalMemory::readMemInfo, defaultExpiration());
+    private final Supplier<Pair<Long, Long>> availTotal = memoize(LinuxGlobalMemory::readMemInfo, defaultExpiration());
 
     private final Supplier<Long> pageSize = memoize(LinuxGlobalMemory::queryPageSize);
 
@@ -49,12 +53,12 @@ public class LinuxGlobalMemory extends AbstractGlobalMemory {
 
     @Override
     public long getAvailable() {
-        return memInfo.get().available;
+        return availTotal.get().getA();
     }
 
     @Override
     public long getTotal() {
-        return memInfo.get().total;
+        return availTotal.get().getB();
     }
 
     @Override
@@ -86,7 +90,7 @@ public class LinuxGlobalMemory extends AbstractGlobalMemory {
      * Internally, reading /proc/meminfo is faster than sysinfo because it only
      * spends time populating the memory components of the sysinfo structure.
      */
-    private static MemInfo readMemInfo() {
+    private static Pair<Long, Long> readMemInfo() {
         long memFree = 0L;
         long activeFile = 0L;
         long inactiveFile = 0L;
@@ -106,7 +110,7 @@ public class LinuxGlobalMemory extends AbstractGlobalMemory {
                 case "MemAvailable:":
                     memAvailable = parseMeminfo(memorySplit);
                     // We're done!
-                    return new MemInfo(memTotal, memAvailable);
+                    return new Pair<>(memAvailable, memTotal);
                 case "MemFree:":
                     memFree = parseMeminfo(memorySplit);
                     break;
@@ -126,7 +130,7 @@ public class LinuxGlobalMemory extends AbstractGlobalMemory {
             }
         }
         // We didn't find MemAvailable so we estimate from other fields
-        return new MemInfo(memTotal, memFree + activeFile + inactiveFile + sReclaimable);
+        return new Pair<>(memFree + activeFile + inactiveFile + sReclaimable, memTotal);
     }
 
     /**
@@ -149,15 +153,5 @@ public class LinuxGlobalMemory extends AbstractGlobalMemory {
 
     private static VirtualMemory createVirtualMemory() {
         return new LinuxVirtualMemory();
-    }
-
-    private static final class MemInfo {
-        private final long total;
-        private final long available;
-
-        private MemInfo(long total, long available) {
-            this.total = total;
-            this.available = available;
-        }
     }
 }

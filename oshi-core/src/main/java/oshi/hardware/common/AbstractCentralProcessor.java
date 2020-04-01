@@ -30,6 +30,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Supplier;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,6 +41,7 @@ import oshi.util.ParseUtil;
 /**
  * A CPU.
  */
+@ThreadSafe
 public abstract class AbstractCentralProcessor implements CentralProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractCentralProcessor.class);

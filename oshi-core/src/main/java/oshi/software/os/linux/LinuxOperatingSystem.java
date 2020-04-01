@@ -241,10 +241,10 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         try {
             Path link = Paths.get(procPidExe);
             path = Files.readSymbolicLink(link).toString();
-	    int index = path.indexOf(" (deleted)");
-	    if(index != -1){
-		    path = path.substring(0, index);
-	    }
+            int index = path.indexOf(" (deleted)");
+            if (index != -1) {
+                path = path.substring(0, index);
+            }
         } catch (InvalidPathException | IOException | UnsupportedOperationException | SecurityException e) {
             LOG.debug("Unable to open symbolic link {}", procPidExe);
         }

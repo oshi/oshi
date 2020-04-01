@@ -23,12 +23,16 @@
  */
 package oshi.hardware.platform.unix.solaris;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import oshi.hardware.common.AbstractBaseboard;
 
 /**
  * Baseboard data obtained by smbios
  */
+@ThreadSafe
 final class SolarisBaseboard extends AbstractBaseboard {
+
     private final String manufacturer;
     private final String model;
     private final String serialNumber;

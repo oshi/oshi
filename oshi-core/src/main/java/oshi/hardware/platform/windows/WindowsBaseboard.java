@@ -27,6 +27,8 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.function.Supplier;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult; // NOSONAR squid:S1191
 
 import oshi.driver.windows.wmi.Win32BaseBoard;
@@ -40,7 +42,9 @@ import oshi.util.tuples.Quartet;
 /**
  * Baseboard data obtained from WMI
  */
+@ThreadSafe
 final class WindowsBaseboard extends AbstractBaseboard {
+
     private final Supplier<Quartet<String, String, String, String>> manufModelVersSerial = memoize(
             WindowsBaseboard::queryManufModelVersSerial);
 

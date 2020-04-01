@@ -29,6 +29,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +50,8 @@ import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
 /**
  * A CPU
  */
-public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
+@ThreadSafe
+final class FreeBsdCentralProcessor extends AbstractCentralProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(FreeBsdCentralProcessor.class);
 

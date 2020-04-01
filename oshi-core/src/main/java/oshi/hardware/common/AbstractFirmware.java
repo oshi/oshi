@@ -23,12 +23,15 @@
  */
 package oshi.hardware.common;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import oshi.hardware.Firmware;
 import oshi.util.Constants;
 
 /**
  * Firmware data.
  */
+@ThreadSafe
 public abstract class AbstractFirmware implements Firmware {
 
     /*
@@ -50,7 +53,6 @@ public abstract class AbstractFirmware implements Firmware {
         return Constants.UNKNOWN;
     }
 
-    /** {@inheritDoc} */
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

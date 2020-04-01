@@ -28,6 +28,8 @@ import static oshi.util.Memoizer.memoize;
 import java.nio.charset.StandardCharsets;
 import java.util.function.Supplier;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import com.sun.jna.platform.mac.IOKit.IORegistryEntry; // NOSONAR squid:S1191
 import com.sun.jna.platform.mac.IOKitUtil;
 
@@ -39,7 +41,9 @@ import oshi.util.tuples.Quartet;
 /**
  * Baseboard data obtained from ioreg
  */
+@ThreadSafe
 final class MacBaseboard extends AbstractBaseboard {
+
     private final Supplier<Quartet<String, String, String, String>> manufModelVersSerial = memoize(
             MacBaseboard::queryPlatform);
 

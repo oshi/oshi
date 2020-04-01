@@ -23,11 +23,14 @@
  */
 package oshi.hardware.common;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import oshi.hardware.Baseboard;
 
 /**
  * Baseboard data
  */
+@ThreadSafe
 public abstract class AbstractBaseboard implements Baseboard {
 
     @Override

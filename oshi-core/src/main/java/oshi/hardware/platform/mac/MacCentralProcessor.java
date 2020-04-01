@@ -25,6 +25,8 @@ package oshi.hardware.platform.mac;
 
 import java.util.Arrays;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +45,8 @@ import oshi.util.platform.mac.SysctlUtil;
 /**
  * A CPU.
  */
-public class MacCentralProcessor extends AbstractCentralProcessor {
+@ThreadSafe
+final class MacCentralProcessor extends AbstractCentralProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(MacCentralProcessor.class);
 

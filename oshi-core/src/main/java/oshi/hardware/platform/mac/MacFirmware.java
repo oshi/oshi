@@ -28,6 +28,8 @@ import static oshi.util.Memoizer.memoize;
 import java.nio.charset.StandardCharsets;
 import java.util.function.Supplier;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import com.sun.jna.platform.mac.IOKit.IOIterator; // NOSONAR squid:S1191
 import com.sun.jna.platform.mac.IOKit.IORegistryEntry;
 import com.sun.jna.platform.mac.IOKitUtil;
@@ -40,8 +42,9 @@ import oshi.util.tuples.Quintet;
 /**
  * Firmware data obtained from ioreg.
  */
+@ThreadSafe
 final class MacFirmware extends AbstractFirmware {
-//releaseDate, manufacturer, version, name, description
+
     private final Supplier<Quintet<String, String, String, String, String>> manufNameDescVersRelease = memoize(
             MacFirmware::queryEfi);
 

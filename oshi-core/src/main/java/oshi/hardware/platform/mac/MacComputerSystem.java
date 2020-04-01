@@ -28,6 +28,8 @@ import static oshi.util.Memoizer.memoize;
 import java.nio.charset.StandardCharsets;
 import java.util.function.Supplier;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import com.sun.jna.platform.mac.IOKit.IORegistryEntry; // NOSONAR squid:S1191
 import com.sun.jna.platform.mac.IOKitUtil;
 
@@ -41,6 +43,7 @@ import oshi.util.tuples.Triplet;
 /**
  * Hardware data obtained from ioreg.
  */
+@ThreadSafe
 final class MacComputerSystem extends AbstractComputerSystem {
 
     private final Supplier<Triplet<String, String, String>> manufacturerModelSerial = memoize(

@@ -23,10 +23,13 @@
  */
 package oshi.hardware;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 /**
  * The GlobalMemory class tracks information about the use of a computer's
  * physical memory (RAM) as well as any available virtual memory.
  */
+@ThreadSafe
 public interface GlobalMemory {
     /**
      * The amount of actual physical memory, in bytes.

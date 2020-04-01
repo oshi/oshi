@@ -27,6 +27,8 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.function.Supplier;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult; // NOSONAR squid:S1191
 
 import oshi.driver.windows.wmi.Win32Bios;
@@ -46,6 +48,7 @@ import oshi.util.tuples.Pair;
 /**
  * Hardware data obtained from WMI.
  */
+@ThreadSafe
 final class WindowsComputerSystem extends AbstractComputerSystem {
 
     private final Supplier<Pair<String, String>> manufacturerModel = memoize(

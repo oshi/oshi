@@ -23,8 +23,14 @@
  */
 package oshi.hardware.platform.unix.solaris;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import oshi.hardware.common.AbstractFirmware;
 
+/**
+ * Firmware data.
+ */
+@ThreadSafe
 final class SolarisFirmware extends AbstractFirmware {
 
     private final String manufacturer;

@@ -23,9 +23,12 @@
  */
 package oshi.hardware;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 /**
  * The Firmware represents the low level BIOS or equivalent.
  */
+@ThreadSafe
 public interface Firmware {
 
     /**

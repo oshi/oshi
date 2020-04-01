@@ -27,6 +27,8 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.function.Supplier;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import oshi.hardware.Baseboard;
 import oshi.hardware.ComputerSystem;
 import oshi.hardware.Firmware;
@@ -34,6 +36,7 @@ import oshi.hardware.Firmware;
 /**
  * Computer System data.
  */
+@ThreadSafe
 public abstract class AbstractComputerSystem implements ComputerSystem {
 
     private final Supplier<Firmware> firmware = memoize(this::createFirmware);
