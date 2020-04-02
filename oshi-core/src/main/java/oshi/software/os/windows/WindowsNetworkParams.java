@@ -27,6 +27,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,11 +46,10 @@ import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
 /**
- * <p>
  * WindowsNetworkParams class.
- * </p>
  */
-public class WindowsNetworkParams extends AbstractNetworkParams {
+@ThreadSafe
+final class WindowsNetworkParams extends AbstractNetworkParams {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsNetworkParams.class);
 

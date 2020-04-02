@@ -29,6 +29,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,12 +41,12 @@ import oshi.util.ParseUtil;
 /**
  * Common NetworkParams implementation.
  */
+@ThreadSafe
 public abstract class AbstractNetworkParams implements NetworkParams {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractNetworkParams.class);
     private static final String NAMESERVER = "nameserver";
 
-    /** {@inheritDoc} */
     @Override
     public String getDomainName() {
         try {
@@ -55,7 +57,6 @@ public abstract class AbstractNetworkParams implements NetworkParams {
         }
     }
 
-    /** {@inheritDoc} */
     @Override
     public String getHostName() {
         try {
@@ -72,7 +73,6 @@ public abstract class AbstractNetworkParams implements NetworkParams {
         }
     }
 
-    /** {@inheritDoc} */
     @Override
     public String[] getDnsServers() {
         List<String> resolv = FileUtil.readFile("/etc/resolv.conf");
@@ -114,7 +114,6 @@ public abstract class AbstractNetworkParams implements NetworkParams {
         return "";
     }
 
-    /** {@inheritDoc} */
     @Override
     public String toString() {
         return String.format("Host name: %s, Domain name: %s, DNS servers: %s, IPv4 Gateway: %s, IPv6 Gateway: %s",

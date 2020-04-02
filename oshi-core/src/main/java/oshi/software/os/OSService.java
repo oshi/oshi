@@ -23,6 +23,8 @@
  */
 package oshi.software.os;
 
+import javax.annotation.concurrent.Immutable;
+
 /**
  * Operating system services are responsible for the management of platform
  * resources, including the processor, memory, files, and input and output. They
@@ -31,6 +33,7 @@ package oshi.software.os;
  * This class is provided for information purposes only. Interpretation of the
  * meaning of services is platform-dependent.
  */
+@Immutable
 public class OSService {
 
     private final String name;

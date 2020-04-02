@@ -57,11 +57,11 @@ import oshi.software.os.FileSystem;
 import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OSService;
-import oshi.software.os.OSUser;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.linux.ProcPath;
+import oshi.util.tuples.Pair;
 
 /**
  * <p>
@@ -327,10 +327,8 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         }
         proc.setUserID(ParseUtil.whitespaces.split(status.getOrDefault("Uid", ""))[0]);
         proc.setGroupID(ParseUtil.whitespaces.split(status.getOrDefault("Gid", ""))[0]);
-        OSUser user = userGroupInfo.getUser(proc.getUserID());
-        if (user != null) {
-            proc.setUser(user.getUserName());
-        }
+        Pair<String, String> user = userGroupInfo.getUser(proc.getUserID());
+        proc.setUser(user.getB());
         proc.setGroup(userGroupInfo.getGroupName(proc.getGroupID()));
 
         try {

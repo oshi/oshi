@@ -23,12 +23,15 @@
  */
 package oshi.software.os;
 
+import javax.annotation.concurrent.NotThreadSafe;
+
 /**
  * OperatingSystemVersion interface.
  * 
  * @deprecated Use {@link OperatingSystem.OSVersionInfo}
  */
 @Deprecated
+@NotThreadSafe
 public interface OperatingSystemVersion {
     /**
      * <p>

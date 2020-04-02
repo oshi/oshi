@@ -29,6 +29,8 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.List;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,11 +46,10 @@ import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
 /**
- * <p>
  * LinuxNetworkParams class.
- * </p>
  */
-public class LinuxNetworkParams extends AbstractNetworkParams {
+@ThreadSafe
+final class LinuxNetworkParams extends AbstractNetworkParams {
 
     private static final Logger LOG = LoggerFactory.getLogger(LinuxNetworkParams.class);
 
