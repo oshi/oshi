@@ -26,7 +26,6 @@ package oshi.util;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
-import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
@@ -75,9 +74,7 @@ public final class Memoizer {
         // Adapted from Guava's ExpiringMemoizingSupplier
         return new Supplier<T>() {
             final Supplier<T> delegate = original;
-            @GuardedBy("this")
-            volatile T value;
-            @GuardedBy("this")
+            volatile T value; // NOSONAR squid:S3077
             volatile long expirationNanos;
 
             @Override

@@ -164,8 +164,7 @@ public final class LinuxDisks {
     public static boolean updateDiskStats(HWDiskStore diskStore) {
         // If this returns non-empty (the same store, but updated) then we were
         // successful in the update
-        HWDiskStore[] store = getDisks(diskStore);
-        return (store.length > 0);
+        return 0 < getDisks(diskStore).length;
     }
 
     private static Map<String, String> readMountsMap() {

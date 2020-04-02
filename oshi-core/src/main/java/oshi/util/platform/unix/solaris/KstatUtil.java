@@ -28,7 +28,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
-import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 import org.slf4j.Logger;
@@ -57,7 +56,6 @@ public final class KstatUtil {
     // Opens the kstat chain. Automatically closed on exit.
     // Only one thread may access the chain at any time, so we wrap this object in
     // the KstatChain class which locks the class until closed.
-    @GuardedBy("CHAIN")
     private static final KstatCtl KC = KS.kstat_open();
     private static final ReentrantLock CHAIN = new ReentrantLock();
 
