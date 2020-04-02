@@ -34,6 +34,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,6 +54,7 @@ import oshi.util.platform.linux.ProcPath;
  * implementation specific means of file storage. In Linux, these are found in
  * the /proc/mount filesystem, excluding temporary and kernel mounts.
  */
+@ThreadSafe
 public class LinuxFileSystem extends AbstractFileSystem {
 
     private static final Logger LOG = LoggerFactory.getLogger(LinuxFileSystem.class);
@@ -207,13 +210,11 @@ public class LinuxFileSystem extends AbstractFileSystem {
         return fsList;
     }
 
-    /** {@inheritDoc} */
     @Override
     public long getOpenFileDescriptors() {
         return getFileDescriptors(0);
     }
 
-    /** {@inheritDoc} */
     @Override
     public long getMaxFileDescriptors() {
         return getFileDescriptors(2);

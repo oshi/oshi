@@ -31,6 +31,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import com.sun.jna.platform.unix.solaris.LibKstat.Kstat; // NOSONAR squid:S1191
 
 import oshi.driver.linux.proc.ProcessStat;
@@ -47,9 +49,11 @@ import oshi.util.platform.unix.solaris.KstatUtil;
 import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
 
 /**
- * Linux is a family of free operating systems most commonly used on personal
- * computers.
+ * Solaris is a non-free Unix operating system originally developed by Sun
+ * Microsystems. It superseded the company's earlier SunOS in 1993. In 2010,
+ * after the Sun acquisition by Oracle, it was renamed Oracle Solaris.
  */
+@ThreadSafe
 public class SolarisOperatingSystem extends AbstractOperatingSystem {
 
     private static final long BOOTTIME = querySystemBootTime();

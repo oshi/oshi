@@ -32,6 +32,8 @@ import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,6 +62,7 @@ import oshi.util.platform.mac.SysctlUtil;
  * implementation specific means of file storage. In Mac OS X, these are found
  * in the /Volumes directory.
  */
+@ThreadSafe
 public class MacFileSystem extends AbstractFileSystem {
 
     private static final Logger LOG = LoggerFactory.getLogger(MacFileSystem.class);
@@ -260,13 +263,11 @@ public class MacFileSystem extends AbstractFileSystem {
         return fsList;
     }
 
-    /** {@inheritDoc} */
     @Override
     public long getOpenFileDescriptors() {
         return SysctlUtil.sysctl("kern.num_files", 0);
     }
 
-    /** {@inheritDoc} */
     @Override
     public long getMaxFileDescriptors() {
         return SysctlUtil.sysctl("kern.maxfiles", 0);

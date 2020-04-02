@@ -23,11 +23,14 @@
  */
 package oshi.software.os;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 /**
  * The File System is a logical arrangement, usually in a hierarchial tree,
  * where files are placed for storage and retrieval. It may consist of one or
  * more file stores.
  */
+@ThreadSafe
 public interface FileSystem {
 
     /**

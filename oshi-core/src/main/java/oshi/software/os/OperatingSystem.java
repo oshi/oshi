@@ -26,6 +26,8 @@ package oshi.software.os;
 import java.util.Collection;
 import java.util.List;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import oshi.util.Constants;
 import oshi.util.Util;
 
@@ -34,13 +36,14 @@ import oshi.util.Util;
  * different programs use its hardware, and regulates the ways that a user
  * controls the computer.
  */
+@ThreadSafe
 public interface OperatingSystem {
 
     /**
      * Controls sorting of Process output
      */
     enum ProcessSort {
-    CPU, MEMORY, OLDEST, NEWEST, PID, PARENTPID, NAME
+        CPU, MEMORY, OLDEST, NEWEST, PID, PARENTPID, NAME
     }
 
     /**

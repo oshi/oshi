@@ -34,6 +34,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,10 +62,11 @@ import oshi.util.ParseUtil;
 import oshi.util.platform.mac.SysctlUtil;
 
 /**
- * <p>
- * MacOperatingSystem class.
- * </p>
+ * macOS, previously Mac OS X and later OS X) is a series of proprietary
+ * graphical operating systems developed and marketed by Apple Inc. since 2001.
+ * It is the primary operating system for Apple's Mac computers.
  */
+@ThreadSafe
 public class MacOperatingSystem extends AbstractOperatingSystem {
 
     private static final Logger LOG = LoggerFactory.getLogger(MacOperatingSystem.class);

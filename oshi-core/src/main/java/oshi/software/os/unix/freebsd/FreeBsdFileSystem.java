@@ -30,6 +30,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import oshi.software.common.AbstractFileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.ExecutingCommand;
@@ -42,7 +44,8 @@ import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
  * implementation specific means of file storage. In Linux, these are found in
  * the /proc/mount filesystem, excluding temporary and kernel mounts.
  */
-public class FreeBsdFileSystem extends AbstractFileSystem {
+@ThreadSafe
+public final class FreeBsdFileSystem extends AbstractFileSystem {
 
     // System path mounted as tmpfs
     private static final List<String> TMP_FS_PATHS = Arrays.asList("/system", "/tmp", "/dev/fd");
@@ -155,13 +158,11 @@ public class FreeBsdFileSystem extends AbstractFileSystem {
         return fsList.toArray(new OSFileStore[0]);
     }
 
-    /** {@inheritDoc} */
     @Override
     public long getOpenFileDescriptors() {
         return BsdSysctlUtil.sysctl("kern.openfiles", 0);
     }
 
-    /** {@inheritDoc} */
     @Override
     public long getMaxFileDescriptors() {
         return BsdSysctlUtil.sysctl("kern.maxfiles", 0);
