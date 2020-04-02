@@ -27,6 +27,8 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.function.Supplier;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.ComputerSystem;
 import oshi.hardware.GlobalMemory;
@@ -37,6 +39,7 @@ import oshi.hardware.Sensors;
  * Common fields or methods used by platform-specific implementations of
  * HardwareAbstractionLayer
  */
+@ThreadSafe
 public abstract class AbstractHardwareAbstractionLayer implements HardwareAbstractionLayer {
 
     private final Supplier<ComputerSystem> computerSystem = memoize(this::createComputerSystem);

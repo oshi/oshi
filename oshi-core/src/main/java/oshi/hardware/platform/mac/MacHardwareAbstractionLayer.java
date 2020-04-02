@@ -23,6 +23,8 @@
  */
 package oshi.hardware.platform.mac;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.ComputerSystem;
 import oshi.hardware.Display;
@@ -37,11 +39,10 @@ import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
 
 /**
- * <p>
  * MacHardwareAbstractionLayer class.
- * </p>
  */
-public class MacHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {
+@ThreadSafe
+public final class MacHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {
 
     @Override
     public ComputerSystem createComputerSystem() {

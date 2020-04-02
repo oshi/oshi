@@ -23,6 +23,8 @@
  */
 package oshi.hardware;
 
+import javax.annotation.concurrent.NotThreadSafe;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +43,12 @@ import oshi.util.FormatUtil;
  * constrast to a File System, defining the way an Operating system uses the
  * storage, the Disk Store represents the hardware which a FileSystem uses for
  * its File Stores.
+ * <p>
+ * Thread safe if both threads only use getters on both this object and the
+ * partitions returned by {@link #getPartitions()}, or if setter usage
+ * (including on the partitions) is externally synchronized.
  */
+@NotThreadSafe
 public class HWDiskStore implements Comparable<HWDiskStore> {
 
     private static final Logger LOG = LoggerFactory.getLogger(HWDiskStore.class);

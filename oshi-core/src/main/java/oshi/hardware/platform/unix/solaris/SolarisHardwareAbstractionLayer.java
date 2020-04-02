@@ -23,6 +23,8 @@
  */
 package oshi.hardware.platform.unix.solaris;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.ComputerSystem;
 import oshi.hardware.Display;
@@ -37,11 +39,10 @@ import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
 
 /**
- * <p>
  * SolarisHardwareAbstractionLayer class.
- * </p>
  */
-public class SolarisHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {
+@ThreadSafe
+public final class SolarisHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {
 
     @Override
     public ComputerSystem createComputerSystem() {

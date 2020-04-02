@@ -35,6 +35,8 @@ import java.util.List;
 import java.util.Properties;
 import java.util.function.Supplier;
 
+import javax.annotation.concurrent.NotThreadSafe;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +52,11 @@ import oshi.util.ParseUtil;
 
 /**
  * A network interface in the machine, including statistics
+ * <p>
+ * Thread safe if both threads only use getters, or if setter usage is
+ * externally synchronized.
  */
+@NotThreadSafe
 public class NetworkIF {
 
     private static final Logger LOG = LoggerFactory.getLogger(NetworkIF.class);
