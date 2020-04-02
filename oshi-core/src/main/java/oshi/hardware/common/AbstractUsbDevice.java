@@ -25,11 +25,14 @@ package oshi.hardware.common;
 
 import java.util.Arrays;
 
+import javax.annotation.concurrent.Immutable;
+
 import oshi.hardware.UsbDevice;
 
 /**
  * A USB device
  */
+@Immutable
 public abstract class AbstractUsbDevice implements UsbDevice {
 
     protected String name;

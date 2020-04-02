@@ -26,6 +26,8 @@ package oshi.hardware.platform.windows;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.concurrent.Immutable;
+
 import com.sun.jna.platform.win32.Advapi32Util; // NOSONAR squid:S1191
 import com.sun.jna.platform.win32.Win32Exception;
 import com.sun.jna.platform.win32.WinError;
@@ -36,7 +38,8 @@ import oshi.hardware.common.AbstractSoundCard;
 /**
  * Sound Card data obtained from registry
  */
-public class WindowsSoundCard extends AbstractSoundCard {
+@Immutable
+final class WindowsSoundCard extends AbstractSoundCard {
 
     private static final String REGISTRY_SOUNDCARDS = "SYSTEM\\CurrentControlSet\\Control\\Class\\{4d36e96c-e325-11ce-bfc1-08002be10318}\\";
 

@@ -25,13 +25,19 @@ package oshi.software.os.unix.solaris;
 
 import static com.sun.jna.platform.unix.LibCAPI.HOST_NAME_MAX; // NOSONAR squid:S1191
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import com.sun.jna.Native;
 
 import oshi.jna.platform.unix.solaris.SolarisLibc;
 import oshi.software.common.AbstractNetworkParams;
 import oshi.util.ExecutingCommand;
 
-public class SolarisNetworkParams extends AbstractNetworkParams {
+/**
+ * SolarisNetworkParams class.
+ */
+@ThreadSafe
+final class SolarisNetworkParams extends AbstractNetworkParams {
 
     private static final SolarisLibc LIBC = SolarisLibc.INSTANCE;
 

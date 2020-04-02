@@ -28,6 +28,8 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.function.Supplier;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +47,8 @@ import oshi.util.tuples.Pair;
 /**
  * Memory obtained by host_statistics (vm_stat) and sysctl.
  */
-public class MacVirtualMemory extends AbstractVirtualMemory {
+@ThreadSafe
+final class MacVirtualMemory extends AbstractVirtualMemory {
 
     private static final Logger LOG = LoggerFactory.getLogger(MacVirtualMemory.class);
 

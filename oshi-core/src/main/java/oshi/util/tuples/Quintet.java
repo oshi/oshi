@@ -23,6 +23,23 @@
  */
 package oshi.util.tuples;
 
+import javax.annotation.concurrent.ThreadSafe;
+
+/**
+ * Convenience class for returning multiple objects from methods.
+ *
+ * @param <A>
+ *            Type of the first element
+ * @param <B>
+ *            Type of the second element
+ * @param <C>
+ *            Type of the third element
+ * @param <D>
+ *            Type of the fourth element
+ * @param <E>
+ *            Type of the fifth element
+ */
+@ThreadSafe
 public class Quintet<A, B, C, D, E> {
 
     private final A a;

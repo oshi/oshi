@@ -29,6 +29,8 @@ import static oshi.util.platform.linux.ProcPath.CPUINFO;
 import java.util.List;
 import java.util.function.Supplier;
 
+import javax.annotation.concurrent.Immutable;
+
 import oshi.hardware.Baseboard;
 import oshi.hardware.Firmware;
 import oshi.hardware.common.AbstractComputerSystem;
@@ -40,6 +42,7 @@ import oshi.util.ParseUtil;
 /**
  * Hardware data obtained from sysfs.
  */
+@Immutable
 final class LinuxComputerSystem extends AbstractComputerSystem {
 
     private final Supplier<String> manufacturer = memoize(LinuxComputerSystem::queryManufacturer);

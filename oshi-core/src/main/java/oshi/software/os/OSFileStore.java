@@ -23,6 +23,8 @@
  */
 package oshi.software.os;
 
+import javax.annotation.concurrent.NotThreadSafe;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +39,11 @@ import oshi.software.os.windows.WindowsFileSystem;
  * A File Store is a storage pool, device, partition, volume, concrete file
  * system or other implementation specific means of file storage. See subclasses
  * for definitions as they apply to specific platforms.
+ * <p>
+ * Thread safe if both threads only use getters, or if setter usage is
+ * externally synchronized.
  */
+@NotThreadSafe
 public class OSFileStore {
 
     private static final Logger LOG = LoggerFactory.getLogger(OSFileStore.class);

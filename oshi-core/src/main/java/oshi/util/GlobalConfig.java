@@ -25,10 +25,18 @@ package oshi.util;
 
 import java.util.Properties;
 
+import javax.annotation.concurrent.NotThreadSafe;
+
 /**
  * The global configuration utility. See
  * {@code src/main/resources/oshi.properties} for default values.
+ * <p>
+ * This class is not thread safe if methods manipulating the configuration are
+ * used. These methods are intended for use by a single thread at startup,
+ * before instantiation of any other OSHI classes. OSHI does not guarantee re-
+ * reading of any configuration changes.
  */
+@NotThreadSafe
 public final class GlobalConfig {
 
     private static final String OSHI_PROPERTIES = "oshi.properties";

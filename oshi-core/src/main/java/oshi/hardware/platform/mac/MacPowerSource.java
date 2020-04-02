@@ -27,6 +27,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import com.sun.jna.Pointer; // NOSONAR squid:S1191
 import com.sun.jna.platform.mac.CoreFoundation;
 import com.sun.jna.platform.mac.CoreFoundation.CFArrayRef;
@@ -46,7 +48,8 @@ import oshi.util.Constants;
 /**
  * A Power Source
  */
-public class MacPowerSource extends AbstractPowerSource {
+@ThreadSafe
+public final class MacPowerSource extends AbstractPowerSource {
 
     private static final CoreFoundation CF = CoreFoundation.INSTANCE;
     private static final IOKit IO = IOKit.INSTANCE;

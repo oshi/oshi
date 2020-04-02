@@ -29,6 +29,8 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,6 +50,7 @@ import oshi.util.ParseUtil;
 /**
  * Provides access to SMC calls on OS X
  */
+@ThreadSafe
 public final class SmcUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(SmcUtil.class);
@@ -117,7 +120,8 @@ public final class SmcUtil {
     }
 
     /**
-     * Map for caching info retrieved by a key necessary for subsequent calls.
+     * Thread-safe map for caching info retrieved by a key necessary for subsequent
+     * calls.
      */
     private static Map<Integer, SMCKeyDataKeyInfo> keyInfoCache = new ConcurrentHashMap<>();
 

@@ -23,6 +23,8 @@
  */
 package oshi.hardware;
 
+import javax.annotation.concurrent.NotThreadSafe;
+
 import oshi.util.FormatUtil;
 
 /**
@@ -30,7 +32,11 @@ import oshi.util.FormatUtil;
  * system can manage information in each region separately. A partition appears
  * in the operating system as a distinct "logical" disk that uses part of the
  * actual disk.
+ * <p>
+ * Thread safe if both threads only use getters, or if setter usage is
+ * externally synchronized.
  */
+@NotThreadSafe
 public class HWPartition implements Comparable<HWPartition> {
 
     private String identification;
@@ -265,14 +271,12 @@ public class HWPartition implements Comparable<HWPartition> {
         this.mountPoint = mountPoint == null ? "" : mountPoint;
     }
 
-    /** {@inheritDoc} */
     @Override
     public int compareTo(HWPartition part) {
         // Naturally sort by device ID
         return getIdentification().compareTo(part.getIdentification());
     }
 
-    /** {@inheritDoc} */
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -288,7 +292,6 @@ public class HWPartition implements Comparable<HWPartition> {
         return result;
     }
 
-    /** {@inheritDoc} */
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -348,7 +351,6 @@ public class HWPartition implements Comparable<HWPartition> {
         return true;
     }
 
-    /** {@inheritDoc} */
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

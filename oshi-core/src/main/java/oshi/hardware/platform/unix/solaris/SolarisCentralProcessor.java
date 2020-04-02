@@ -29,6 +29,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import com.sun.jna.platform.unix.solaris.LibKstat.Kstat; // NOSONAR
 
 import oshi.hardware.common.AbstractCentralProcessor;
@@ -41,7 +43,8 @@ import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
 /**
  * A CPU
  */
-public class SolarisCentralProcessor extends AbstractCentralProcessor {
+@ThreadSafe
+final class SolarisCentralProcessor extends AbstractCentralProcessor {
 
     private static final String CPU_INFO = "cpu_info";
 

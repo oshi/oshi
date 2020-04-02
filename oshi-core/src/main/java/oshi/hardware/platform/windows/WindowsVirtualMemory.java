@@ -29,6 +29,8 @@ import static oshi.util.Memoizer.memoize;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +48,8 @@ import oshi.util.tuples.Pair;
 /**
  * Memory obtained from WMI
  */
-public class WindowsVirtualMemory extends AbstractVirtualMemory {
+@ThreadSafe
+final class WindowsVirtualMemory extends AbstractVirtualMemory {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsVirtualMemory.class);
 
@@ -60,12 +63,10 @@ public class WindowsVirtualMemory extends AbstractVirtualMemory {
             defaultExpiration());
 
     /**
-     * <p>
      * Constructor for WindowsVirtualMemory.
-     * </p>
      *
      * @param pageSize
-     *            The size in bites of memory pages
+     *            The size in bytes of memory pages
      */
     public WindowsVirtualMemory(long pageSize) {
         this.pageSize = pageSize;

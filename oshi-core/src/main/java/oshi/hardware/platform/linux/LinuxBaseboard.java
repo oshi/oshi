@@ -29,6 +29,8 @@ import static oshi.util.platform.linux.ProcPath.CPUINFO;
 import java.util.List;
 import java.util.function.Supplier;
 
+import javax.annotation.concurrent.Immutable;
+
 import oshi.hardware.common.AbstractBaseboard;
 import oshi.util.Constants;
 import oshi.util.FileUtil;
@@ -38,15 +40,16 @@ import oshi.util.Util;
 /**
  * Baseboard data obtained by sysfs
  */
+@Immutable
 final class LinuxBaseboard extends AbstractBaseboard {
 
     private final Supplier<String> manufacturer = memoize(LinuxBaseboard::queryManufacturer);
 
-    private final Supplier<String> model = memoize(this::queryModel);
+    private final Supplier<String> model = memoize(LinuxBaseboard::queryModel);
 
-    private final Supplier<String> version = memoize(this::queryVersion);
+    private final Supplier<String> version = memoize(LinuxBaseboard::queryVersion);
 
-    private final Supplier<String> serialNumber = memoize(this::querySerialNumber);
+    private final Supplier<String> serialNumber = memoize(LinuxBaseboard::querySerialNumber);
 
     @Override
     public String getManufacturer() {
@@ -76,7 +79,7 @@ final class LinuxBaseboard extends AbstractBaseboard {
         return result;
     }
 
-    private String queryModel() {
+    private static String queryModel() {
         String result = null;
         if ((result = queryModelFromSysfs()) == null && (result = queryProcCpu().model) == null) {
             return Constants.UNKNOWN;
@@ -84,7 +87,7 @@ final class LinuxBaseboard extends AbstractBaseboard {
         return result;
     }
 
-    private String queryVersion() {
+    private static String queryVersion() {
         String result = null;
         if ((result = queryVersionFromSysfs()) == null && (result = queryProcCpu().version) == null) {
             return Constants.UNKNOWN;
@@ -92,7 +95,7 @@ final class LinuxBaseboard extends AbstractBaseboard {
         return result;
     }
 
-    private String querySerialNumber() {
+    private static String querySerialNumber() {
         String result = null;
         if ((result = querySerialFromSysfs()) == null && (result = queryProcCpu().serialNumber) == null) {
             return Constants.UNKNOWN;
@@ -119,7 +122,7 @@ final class LinuxBaseboard extends AbstractBaseboard {
         return null;
     }
 
-    private String queryModelFromSysfs() {
+    private static String queryModelFromSysfs() {
         final String boardName = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "board_name").trim();
         if (!boardName.isEmpty()) {
             return boardName;
@@ -127,7 +130,7 @@ final class LinuxBaseboard extends AbstractBaseboard {
         return null;
     }
 
-    private String queryVersionFromSysfs() {
+    private static String queryVersionFromSysfs() {
         final String boardVersion = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "board_version").trim();
         if (!boardVersion.isEmpty()) {
             return boardVersion;
@@ -135,7 +138,7 @@ final class LinuxBaseboard extends AbstractBaseboard {
         return null;
     }
 
-    private String querySerialFromSysfs() {
+    private static String querySerialFromSysfs() {
         final String boardSerial = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "board_serial").trim();
         if (!boardSerial.isEmpty()) {
             return boardSerial;

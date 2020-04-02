@@ -29,20 +29,26 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.hardware.NetworkIF;
-import oshi.hardware.Networks;
 
 /**
  * Network interfaces implementation.
  */
-public abstract class AbstractNetworks implements Networks {
+@ThreadSafe
+public class Networks {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AbstractNetworks.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Networks.class);
 
-    @Override
+    /**
+     * Gets the network interfaces on this machine
+     * 
+     * @return An array of {@link NetworkIF} objects representing the interfaces
+     */
     public NetworkIF[] getNetworks() {
         List<NetworkIF> result = new ArrayList<>();
 

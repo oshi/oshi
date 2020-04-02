@@ -27,6 +27,8 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.function.Supplier;
 
+import javax.annotation.concurrent.Immutable;
+
 import oshi.hardware.Baseboard;
 import oshi.hardware.Firmware;
 import oshi.hardware.common.AbstractComputerSystem;
@@ -39,6 +41,7 @@ import oshi.util.tuples.Quartet;
 /**
  * Hardware data obtained from dmidecode.
  */
+@Immutable
 final class FreeBsdComputerSystem extends AbstractComputerSystem {
 
     private final Supplier<Quartet<String, String, String, String>> manufModelSerialVers = memoize(

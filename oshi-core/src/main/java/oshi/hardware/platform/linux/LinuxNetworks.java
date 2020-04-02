@@ -25,16 +25,17 @@ package oshi.hardware.platform.linux;
 
 import java.io.File;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import oshi.hardware.NetworkIF;
-import oshi.hardware.common.AbstractNetworks;
+import oshi.hardware.common.Networks;
 import oshi.util.FileUtil;
 
 /**
- * <p>
  * LinuxNetworks class.
- * </p>
  */
-public class LinuxNetworks extends AbstractNetworks {
+@ThreadSafe
+public final class LinuxNetworks extends Networks {
     /**
      * Updates interface network statistics on the given interface. Statistics
      * include packets and bytes sent and received, and interface speed.

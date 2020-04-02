@@ -30,6 +30,8 @@ import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import oshi.util.Constants;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
@@ -41,6 +43,7 @@ import oshi.util.Util;
  * more physical processors (cores), and one or more logical processors (what
  * the Operating System sees, which may include hyperthreaded cores.)
  */
+@ThreadSafe
 public interface CentralProcessor {
 
     /**

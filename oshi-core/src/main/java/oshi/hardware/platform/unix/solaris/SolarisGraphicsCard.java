@@ -26,6 +26,8 @@ package oshi.hardware.platform.unix.solaris;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.concurrent.Immutable;
+
 import oshi.hardware.common.AbstractGraphicsCard;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
@@ -34,7 +36,8 @@ import oshi.util.ParseUtil;
 /**
  * Graphics Card info obtained from prtconf
  */
-public class SolarisGraphicsCard extends AbstractGraphicsCard {
+@Immutable
+final class SolarisGraphicsCard extends AbstractGraphicsCard {
 
     private static final String PCI_CLASS_DISPLAY = "0003";
 

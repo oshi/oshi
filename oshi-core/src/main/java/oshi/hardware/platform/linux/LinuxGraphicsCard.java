@@ -26,6 +26,8 @@ package oshi.hardware.platform.linux;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.concurrent.Immutable;
+
 import oshi.hardware.common.AbstractGraphicsCard;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
@@ -35,7 +37,8 @@ import oshi.util.tuples.Pair;
 /**
  * Graphics card info obtained by lshw
  */
-public class LinuxGraphicsCard extends AbstractGraphicsCard {
+@Immutable
+final class LinuxGraphicsCard extends AbstractGraphicsCard {
 
     /**
      * Constructor for LinuxGraphicsCard

@@ -27,6 +27,8 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.function.Supplier;
 
+import javax.annotation.concurrent.Immutable;
+
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult; // NOSONAR squid:S1191
 
 import oshi.driver.windows.wmi.Win32Bios;
@@ -40,6 +42,7 @@ import oshi.util.tuples.Quintet;
 /**
  * Firmware data obtained from WMI
  */
+@Immutable
 final class WindowsFirmware extends AbstractFirmware {
 
     private final Supplier<Quintet<String, String, String, String, String>> manufNameDescVersRelease = memoize(

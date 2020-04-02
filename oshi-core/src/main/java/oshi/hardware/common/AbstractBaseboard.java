@@ -23,11 +23,14 @@
  */
 package oshi.hardware.common;
 
+import javax.annotation.concurrent.Immutable;
+
 import oshi.hardware.Baseboard;
 
 /**
  * Baseboard data
  */
+@Immutable
 public abstract class AbstractBaseboard implements Baseboard {
 
     @Override

@@ -26,6 +26,8 @@ package oshi.hardware.platform.unix.solaris;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.concurrent.Immutable;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,17 +39,16 @@ import oshi.util.ParseUtil;
 /**
  * A Display
  */
-public class SolarisDisplay extends AbstractDisplay {
+@Immutable
+final class SolarisDisplay extends AbstractDisplay {
 
     private static final Logger LOG = LoggerFactory.getLogger(SolarisDisplay.class);
 
     /**
-     * <p>
      * Constructor for SolarisDisplay.
-     * </p>
      *
      * @param edid
-     *            an array of {@link byte} objects.
+     *            a byte array representing a display EDID
      */
     public SolarisDisplay(byte[] edid) {
         super(edid);
@@ -85,7 +86,6 @@ public class SolarisDisplay extends AbstractDisplay {
                 sb = null;
             }
         }
-
         return displays.toArray(new Display[0]);
     }
 }

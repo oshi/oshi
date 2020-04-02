@@ -26,11 +26,17 @@ package oshi.driver.windows.perfmon;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import oshi.util.platform.windows.PerfCounterQuery;
 import oshi.util.platform.windows.PerfCounterWildcardQuery;
 import oshi.util.platform.windows.PerfCounterWildcardQuery.PdhCounterWildcardProperty;
 import oshi.util.tuples.Pair;
 
+/**
+ * Utility to query PhysicalDisk performance counter
+ */
+@ThreadSafe
 public final class PhysicalDisk {
 
     private static final String PHYSICAL_DISK = "PhysicalDisk";

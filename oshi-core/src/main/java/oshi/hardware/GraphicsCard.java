@@ -23,11 +23,14 @@
  */
 package oshi.hardware;
 
+import javax.annotation.concurrent.Immutable;
+
 /**
  * <p>
  * GraphicsCard interface.
  * </p>
  */
+@Immutable
 public interface GraphicsCard {
 
     /**
@@ -62,7 +65,7 @@ public interface GraphicsCard {
 
     /**
      * Retrieves the Video RAM (VRAM) available on the GPU
-     * 
+     *
      * @return Total number of bytes.
      */
     long getVRam();

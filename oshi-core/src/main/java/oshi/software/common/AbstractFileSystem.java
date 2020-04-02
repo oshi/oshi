@@ -26,9 +26,12 @@ package oshi.software.common;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import oshi.software.os.FileSystem;
 import oshi.software.os.OSFileStore;
 
+@ThreadSafe
 public abstract class AbstractFileSystem implements FileSystem {
 
     /**

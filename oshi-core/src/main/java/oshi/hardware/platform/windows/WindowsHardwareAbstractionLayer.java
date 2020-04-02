@@ -23,6 +23,8 @@
  */
 package oshi.hardware.platform.windows;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.ComputerSystem;
 import oshi.hardware.Display;
@@ -37,11 +39,10 @@ import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
 
 /**
- * <p>
  * WindowsHardwareAbstractionLayer class.
- * </p>
  */
-public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {
+@ThreadSafe
+public final class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {
 
     @Override
     public ComputerSystem createComputerSystem() {
@@ -70,7 +71,7 @@ public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstraction
 
     @Override
     public HWDiskStore[] getDiskStores() {
-        return new WindowsDisks().getDisks();
+        return WindowsDisks.getDisks();
     }
 
     @Override

@@ -23,6 +23,8 @@
  */
 package oshi.hardware.platform.windows;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,15 +34,14 @@ import com.sun.jna.platform.win32.IPHlpAPI.MIB_IF_ROW2;
 import com.sun.jna.platform.win32.VersionHelpers;
 
 import oshi.hardware.NetworkIF;
-import oshi.hardware.common.AbstractNetworks;
+import oshi.hardware.common.Networks;
 import oshi.util.ParseUtil;
 
 /**
- * <p>
  * WindowsNetworks class.
- * </p>
  */
-public class WindowsNetworks extends AbstractNetworks {
+@ThreadSafe
+public final class WindowsNetworks extends Networks {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsNetworks.class);
 

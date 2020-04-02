@@ -29,16 +29,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.concurrent.Immutable;
+
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractUsbDevice;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
 /**
- * <p>
- * SolarisUsbDevice class.
- * </p>
+ * Solaris Usb Device
  */
+@Immutable
 public class SolarisUsbDevice extends AbstractUsbDevice {
 
     private static final String PCI_TYPE_USB = "000c";

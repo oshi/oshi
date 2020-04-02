@@ -30,6 +30,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,7 +74,8 @@ import oshi.util.tuples.Pair;
  * A CPU, representing all of a system's processors. It may contain multiple
  * individual Physical and Logical processors.
  */
-public class WindowsCentralProcessor extends AbstractCentralProcessor {
+@ThreadSafe
+final class WindowsCentralProcessor extends AbstractCentralProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsCentralProcessor.class);
 

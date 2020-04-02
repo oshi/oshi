@@ -30,6 +30,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import com.sun.jna.platform.unix.solaris.LibKstat.Kstat; // NOSONAR
 
 import oshi.software.common.AbstractFileSystem;
@@ -45,6 +47,7 @@ import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
  * implementation specific means of file storage. In Solaris, these are found in
  * the /proc/mount filesystem, excluding temporary and kernel mounts.
  */
+@ThreadSafe
 public class SolarisFileSystem extends AbstractFileSystem {
 
     // System path mounted as tmpfs

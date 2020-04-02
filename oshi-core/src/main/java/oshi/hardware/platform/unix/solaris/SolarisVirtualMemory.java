@@ -30,6 +30,8 @@ import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import oshi.hardware.common.AbstractVirtualMemory;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
@@ -38,7 +40,8 @@ import oshi.util.tuples.Pair;
 /**
  * Memory obtained by kstat and swap
  */
-public class SolarisVirtualMemory extends AbstractVirtualMemory {
+@ThreadSafe
+final class SolarisVirtualMemory extends AbstractVirtualMemory {
 
     private static final Pattern SWAP_INFO = Pattern.compile(".+\\s(\\d+)K\\s+(\\d+)K$");
 

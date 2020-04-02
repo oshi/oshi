@@ -28,12 +28,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import javax.annotation.concurrent.ThreadSafe;
 
-import com.sun.jna.Pointer; // NOSONAR squid:S1191
-
-import oshi.hardware.Disks;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
 import oshi.jna.platform.linux.Udev;
@@ -44,31 +40,12 @@ import oshi.util.platform.linux.ProcPath;
 /**
  * Linux hard disk implementation.
  */
-public class LinuxDisks implements Disks {
-
-    private static final Logger LOG = LoggerFactory.getLogger(LinuxDisks.class);
+@ThreadSafe
+public final class LinuxDisks {
 
     private static final int SECTORSIZE = 512;
 
-    private final Map<String, String> mountsMap = new HashMap<>();
-
-    private static final Map<Integer, String> hashCodeToPathMap = new HashMap<>();
-
-    // Order the field is in udev stats
-    enum UdevStat {
-        // The parsing implementation in ParseUtil requires these to be declared
-        // in increasing order. Use 0-ordered index here
-        READS(0), READ_BYTES(2), WRITES(4), WRITE_BYTES(6), QUEUE_LENGTH(8), ACTIVE_MS(9);
-
-        private int order;
-
-        public int getOrder() {
-            return this.order;
-        }
-
-        UdevStat(int order) {
-            this.order = order;
-        }
+    private LinuxDisks() {
     }
 
     // Get a list of orders to pass to ParseUtil
@@ -91,13 +68,20 @@ public class LinuxDisks implements Disks {
         UDEV_STAT_LENGTH = statLength;
     }
 
-    @Override
-    public HWDiskStore[] getDisks() {
+    /**
+     * Gets the disks on this machine
+     *
+     * @return an array of {@link HWDiskStore} objects representing the disks
+     */
+    public static HWDiskStore[] getDisks() {
+        return getDisks(null);
+    }
+
+    private static HWDiskStore[] getDisks(HWDiskStore storeToUpdate) {
         HWDiskStore store = null;
         List<HWDiskStore> result = new ArrayList<>();
 
-        updateMountsMap();
-        hashCodeToPathMap.clear();
+        Map<String, String> mountsMap = readMountsMap();
 
         Udev.UdevHandle handle = Udev.INSTANCE.udev_new();
         Udev.UdevEnumerate enumerate = Udev.INSTANCE.udev_enumerate_new(handle);
@@ -109,53 +93,57 @@ public class LinuxDisks implements Disks {
         while ((device = Udev.INSTANCE.udev_device_new_from_syspath(handle,
                 Udev.INSTANCE.udev_list_entry_get_name(entry))) != null) {
             String devnode = Udev.INSTANCE.udev_device_get_devnode(device);
-            if (devnode != null) {
-                // Ignore loopback and ram disks; do nothing
-                if (!devnode.startsWith("/dev/loop") && !devnode.startsWith("/dev/ram")) {
-                    if ("disk".equals(Udev.INSTANCE.udev_device_get_devtype(device))) {
-                        store = new HWDiskStore();
-                        store.setName(devnode);
+            // Ignore loopback and ram disks; do nothing
+            if (devnode != null && !devnode.startsWith("/dev/loop") && !devnode.startsWith("/dev/ram")) {
+                if ("disk".equals(Udev.INSTANCE.udev_device_get_devtype(device))) {
+                    store = new HWDiskStore();
+                    store.setName(devnode);
 
-                        // Avoid model and serial in virtual environments
-                        store.setModel(
-                                Udev.INSTANCE.udev_device_get_property_value(device, "ID_MODEL") == null ? "Unknown"
-                                        : Udev.INSTANCE.udev_device_get_property_value(device, "ID_MODEL"));
-                        store.setSerial(Udev.INSTANCE.udev_device_get_property_value(device, "ID_SERIAL_SHORT") == null
-                                ? "Unknown"
-                                : Udev.INSTANCE.udev_device_get_property_value(device, "ID_SERIAL_SHORT"));
+                    // Avoid model and serial in virtual environments
+                    store.setModel(Udev.INSTANCE.udev_device_get_property_value(device, "ID_MODEL") == null ? "Unknown"
+                            : Udev.INSTANCE.udev_device_get_property_value(device, "ID_MODEL"));
+                    store.setSerial(
+                            Udev.INSTANCE.udev_device_get_property_value(device, "ID_SERIAL_SHORT") == null ? "Unknown"
+                                    : Udev.INSTANCE.udev_device_get_property_value(device, "ID_SERIAL_SHORT"));
 
-                        store.setSize(ParseUtil.parseLongOrDefault(
-                                Udev.INSTANCE.udev_device_get_sysattr_value(device, "size"), 0L) * SECTORSIZE);
+                    store.setSize(ParseUtil.parseLongOrDefault(
+                            Udev.INSTANCE.udev_device_get_sysattr_value(device, "size"), 0L) * SECTORSIZE);
+
+                    if (storeToUpdate == null) {
+                        // If getting all stores, add to the list with stats
                         store.setPartitions(new HWPartition[0]);
                         computeDiskStats(store, device);
-
-                        hashCodeToPathMap.put(store.hashCode(), Udev.INSTANCE.udev_list_entry_get_name(entry));
                         result.add(store);
-                    } else if ("partition".equals(Udev.INSTANCE.udev_device_get_devtype(device)) && store != null) {
-                        // `store` should still point to the HWDiskStore this
-                        // partition is attached to. If not, it's an error, so
-                        // skip.
-                        HWPartition[] partArray = new HWPartition[store.getPartitions().length + 1];
-                        System.arraycopy(store.getPartitions(), 0, partArray, 0, store.getPartitions().length);
-                        String name = Udev.INSTANCE.udev_device_get_devnode(device);
-                        partArray[partArray.length - 1] = new HWPartition(name,
-                                Udev.INSTANCE.udev_device_get_sysname(device),
-                                Udev.INSTANCE.udev_device_get_property_value(device, "ID_FS_TYPE") == null ? "partition"
-                                        : Udev.INSTANCE.udev_device_get_property_value(device, "ID_FS_TYPE"),
-                                Udev.INSTANCE.udev_device_get_property_value(device, "ID_FS_UUID") == null ? ""
-                                        : Udev.INSTANCE.udev_device_get_property_value(device, "ID_FS_UUID"),
-                                ParseUtil.parseLongOrDefault(
-                                        Udev.INSTANCE.udev_device_get_sysattr_value(device, "size"), 0L) * SECTORSIZE,
-                                ParseUtil.parseIntOrDefault(
-                                        Udev.INSTANCE.udev_device_get_property_value(device, "MAJOR"), 0),
-                                ParseUtil.parseIntOrDefault(
-                                        Udev.INSTANCE.udev_device_get_property_value(device, "MINOR"), 0),
-                                mountsMap.getOrDefault(name, ""));
-                        store.setPartitions(partArray);
+                    } else if (store.equals(storeToUpdate)) {
+                        // If we are only updating a single disk, the name, model, serial, and size are
+                        // sufficient to test if this is the correct one, add it, exit the loop and
+                        // return.
+                        computeDiskStats(storeToUpdate, device);
+                        result.add(storeToUpdate);
+                        break;
                     }
+                } else if ("partition".equals(Udev.INSTANCE.udev_device_get_devtype(device)) && store != null) {
+                    // `store` should still point to the HWDiskStore this
+                    // partition is attached to. If not, it's an error, so
+                    // skip.
+                    HWPartition[] partArray = new HWPartition[store.getPartitions().length + 1];
+                    System.arraycopy(store.getPartitions(), 0, partArray, 0, store.getPartitions().length);
+                    String name = Udev.INSTANCE.udev_device_get_devnode(device);
+                    partArray[partArray.length - 1] = new HWPartition(name,
+                            Udev.INSTANCE.udev_device_get_sysname(device),
+                            Udev.INSTANCE.udev_device_get_property_value(device, "ID_FS_TYPE") == null ? "partition"
+                                    : Udev.INSTANCE.udev_device_get_property_value(device, "ID_FS_TYPE"),
+                            Udev.INSTANCE.udev_device_get_property_value(device, "ID_FS_UUID") == null ? ""
+                                    : Udev.INSTANCE.udev_device_get_property_value(device, "ID_FS_UUID"),
+                            ParseUtil.parseLongOrDefault(Udev.INSTANCE.udev_device_get_sysattr_value(device, "size"),
+                                    0L) * SECTORSIZE,
+                            ParseUtil.parseIntOrDefault(Udev.INSTANCE.udev_device_get_property_value(device, "MAJOR"),
+                                    0),
+                            ParseUtil.parseIntOrDefault(Udev.INSTANCE.udev_device_get_property_value(device, "MINOR"),
+                                    0),
+                            mountsMap.getOrDefault(name, ""));
+                    store.setPartitions(partArray);
                 }
-            } else {
-                LOG.warn("Failed to retrieve devnode for device {}", Pointer.nativeValue(device.getPointer()));
             }
             Udev.INSTANCE.udev_device_unref(device);
             entry = Udev.INSTANCE.udev_list_entry_get_next(entry);
@@ -167,38 +155,30 @@ public class LinuxDisks implements Disks {
     }
 
     /**
-     * {@inheritDoc}
+     * Updates the statistics on a disk store.
      *
      * @param diskStore
-     *            a {@link oshi.hardware.HWDiskStore} object.
-     * @return a boolean.
+     *            the {@link oshi.hardware.HWDiskStore} to update.
+     * @return {@code true} if the update was (probably) successful.
      */
     public static boolean updateDiskStats(HWDiskStore diskStore) {
-        String path = hashCodeToPathMap.get(diskStore.hashCode());
-
-        Udev.UdevHandle handle = Udev.INSTANCE.udev_new();
-        Udev.UdevDevice device = Udev.INSTANCE.udev_device_new_from_syspath(handle, path);
-
-        boolean update = false;
-        if (device != null) {
-            computeDiskStats(diskStore, device);
-            update = true;
-            Udev.INSTANCE.udev_device_unref(device);
-        }
-        Udev.INSTANCE.udev_unref(handle);
-        return update;
+        // If this returns non-empty (the same store, but updated) then we were
+        // successful in the update
+        HWDiskStore[] store = getDisks(diskStore);
+        return (store.length > 0);
     }
 
-    private void updateMountsMap() {
-        this.mountsMap.clear();
+    private static Map<String, String> readMountsMap() {
+        Map<String, String> mountsMap = new HashMap<>();
         List<String> mounts = FileUtil.readFile(ProcPath.MOUNTS);
         for (String mount : mounts) {
             String[] split = ParseUtil.whitespaces.split(mount);
             if (split.length < 2 || !split[0].startsWith("/dev/")) {
                 continue;
             }
-            this.mountsMap.put(split[0], split[1]);
+            mountsMap.put(split[0], split[1]);
         }
+        return mountsMap;
     }
 
     private static void computeDiskStats(HWDiskStore store, Udev.UdevDevice disk) {
@@ -213,5 +193,22 @@ public class LinuxDisks implements Disks {
         store.setWriteBytes(devstatArray[UdevStat.WRITE_BYTES.ordinal()] * SECTORSIZE);
         store.setCurrentQueueLength(devstatArray[UdevStat.QUEUE_LENGTH.ordinal()]);
         store.setTransferTime(devstatArray[UdevStat.ACTIVE_MS.ordinal()]);
+    }
+
+    // Order the field is in udev stats
+    enum UdevStat {
+        // The parsing implementation in ParseUtil requires these to be declared
+        // in increasing order. Use 0-ordered index here
+        READS(0), READ_BYTES(2), WRITES(4), WRITE_BYTES(6), QUEUE_LENGTH(8), ACTIVE_MS(9);
+
+        private int order;
+
+        public int getOrder() {
+            return this.order;
+        }
+
+        UdevStat(int order) {
+            this.order = order;
+        }
     }
 }

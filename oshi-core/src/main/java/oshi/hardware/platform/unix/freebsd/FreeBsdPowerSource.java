@@ -28,6 +28,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import oshi.hardware.PowerSource;
 import oshi.hardware.common.AbstractPowerSource;
 import oshi.util.Constants;
@@ -38,7 +40,8 @@ import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
 /**
  * A Power Source
  */
-public class FreeBsdPowerSource extends AbstractPowerSource {
+@ThreadSafe
+public final class FreeBsdPowerSource extends AbstractPowerSource {
 
     public FreeBsdPowerSource(String psName, String psDeviceName, double psRemainingCapacityPercent,
             double psTimeRemainingEstimated, double psTimeRemainingInstant, double psPowerUsageRate, double psVoltage,

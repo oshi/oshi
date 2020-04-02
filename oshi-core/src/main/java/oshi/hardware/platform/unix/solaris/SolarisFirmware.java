@@ -23,8 +23,14 @@
  */
 package oshi.hardware.platform.unix.solaris;
 
+import javax.annotation.concurrent.Immutable;
+
 import oshi.hardware.common.AbstractFirmware;
 
+/**
+ * Firmware data.
+ */
+@Immutable
 final class SolarisFirmware extends AbstractFirmware {
 
     private final String manufacturer;

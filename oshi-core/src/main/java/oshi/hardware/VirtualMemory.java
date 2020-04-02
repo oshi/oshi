@@ -23,11 +23,14 @@
  */
 package oshi.hardware;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 /**
  * The VirtuallMemory class tracks information about the use of a computer's
  * virtual memory (swap file) which temporarily moves rarely accessed
  * information to a disk or other storage device.
  */
+@ThreadSafe
 public interface VirtualMemory {
 
     /**

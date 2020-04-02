@@ -28,6 +28,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,10 +44,9 @@ import com.sun.jna.platform.win32.COM.WbemcliUtil;
 import oshi.util.GlobalConfig;
 
 /**
- * <p>
- * WmiQueryHandler class.
- * </p>
+ * Utility to handle WMI Queries
  */
+@ThreadSafe
 public class WmiQueryHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(WmiQueryHandler.class);
@@ -84,7 +85,7 @@ public class WmiQueryHandler {
      * @return An instance of this class or a class defined by
      *         {@link #setInstanceClass(Class)}
      */
-    public static WmiQueryHandler createInstance() {
+    public static synchronized WmiQueryHandler createInstance() {
         if (customClass == null) {
             return new WmiQueryHandler();
         }
@@ -106,7 +107,7 @@ public class WmiQueryHandler {
      * @param instanceClass
      *            The class to instantiate with {@link #createInstance()}.
      */
-    public static void setInstanceClass(Class<? extends WmiQueryHandler> instanceClass) {
+    public static synchronized void setInstanceClass(Class<? extends WmiQueryHandler> instanceClass) {
         customClass = instanceClass;
     }
 

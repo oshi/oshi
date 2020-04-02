@@ -25,18 +25,24 @@ package oshi.driver.linux.proc;
 
 import java.util.List;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import oshi.hardware.CentralProcessor.TickType;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.linux.ProcPath;
 
+/**
+ * Utility to read CPU statistics from {@code /proc/stat}
+ */
+@ThreadSafe
 public final class CpuStat {
 
     private CpuStat() {
     }
 
     /**
-     * Gets the System CPU ticks array from /proc/stat
+     * Gets the System CPU ticks array from {@code /proc/stat}
      *
      * @return Array of CPU ticks
      */

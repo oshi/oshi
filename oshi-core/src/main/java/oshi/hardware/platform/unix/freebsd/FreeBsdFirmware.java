@@ -27,6 +27,8 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.function.Supplier;
 
+import javax.annotation.concurrent.Immutable;
+
 import oshi.hardware.common.AbstractFirmware;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
@@ -34,6 +36,10 @@ import oshi.util.ParseUtil;
 import oshi.util.Util;
 import oshi.util.tuples.Triplet;
 
+/**
+ * Firmware information from dmidecode
+ */
+@Immutable
 final class FreeBsdFirmware extends AbstractFirmware {
 
     private final Supplier<Triplet<String, String, String>> manufVersRelease = memoize(FreeBsdFirmware::readDmiDecode);

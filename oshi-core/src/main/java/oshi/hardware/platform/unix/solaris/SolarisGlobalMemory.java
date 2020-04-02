@@ -28,6 +28,8 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.function.Supplier;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import com.sun.jna.platform.unix.solaris.LibKstat.Kstat; // NOSONAR
 
 import oshi.hardware.VirtualMemory;
@@ -41,7 +43,8 @@ import oshi.util.tuples.Pair;
 /**
  * Memory obtained by kstat
  */
-public class SolarisGlobalMemory extends AbstractGlobalMemory {
+@ThreadSafe
+final class SolarisGlobalMemory extends AbstractGlobalMemory {
 
     private final Supplier<Pair<Long, Long>> availTotal = memoize(this::readSystemPages, defaultExpiration());
 

@@ -33,6 +33,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,7 +57,6 @@ import com.sun.jna.platform.mac.IOKitUtil;
 import com.sun.jna.platform.mac.SystemB;
 import com.sun.jna.platform.mac.SystemB.Statfs;
 
-import oshi.hardware.Disks;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
 import oshi.util.Constants;
@@ -65,37 +66,15 @@ import oshi.util.ParseUtil;
 /**
  * Mac hard disk implementation.
  */
-public class MacDisks implements Disks {
+@ThreadSafe
+public final class MacDisks {
 
     private static final CoreFoundation CF = CoreFoundation.INSTANCE;
     private static final DiskArbitration DA = DiskArbitration.INSTANCE;
 
     private static final Logger LOG = LoggerFactory.getLogger(MacDisks.class);
 
-    /*
-     * Strings to convert to CFStringRef for pointer lookups
-     */
-    private enum CFKey {
-        IO_PROPERTY_MATCH("IOPropertyMatch"), //
-
-        STATISTICS("Statistics"), //
-        READ_OPS("Operations (Read)"), READ_BYTES("Bytes (Read)"), READ_TIME("Total Time (Read)"), //
-        WRITE_OPS("Operations (Write)"), WRITE_BYTES("Bytes (Write)"), WRITE_TIME("Total Time (Write)"), //
-
-        BSD_UNIT("BSD Unit"), LEAF("Leaf"), WHOLE("Whole"), //
-
-        DA_MEDIA_NAME("DAMediaName"), DA_VOLUME_NAME("DAVolumeName"), DA_MEDIA_SIZE("DAMediaSize"), //
-        DA_DEVICE_MODEL("DADeviceModel"), MODEL("Model");
-
-        private final String key;
-
-        CFKey(String key) {
-            this.key = key;
-        }
-
-        public String getKey() {
-            return this.key;
-        }
+    private MacDisks() {
     }
 
     /**
@@ -319,13 +298,11 @@ public class MacDisks implements Disks {
     }
 
     /**
-     * <p>
-     * updateDiskStats.
-     * </p>
+     * Updates the statistics on a disk store.
      *
      * @param diskStore
-     *            a {@link oshi.hardware.HWDiskStore} object.
-     * @return a boolean.
+     *            the {@link oshi.hardware.HWDiskStore} to update.
+     * @return {@code true} if the update was (probably) successful.
      */
     public static boolean updateDiskStats(HWDiskStore diskStore) {
         DASessionRef session = DA.DASessionCreate(CF.CFAllocatorGetDefault());
@@ -346,9 +323,12 @@ public class MacDisks implements Disks {
         return diskFound;
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public HWDiskStore[] getDisks() {
+    /**
+     * Gets the disks on this machine
+     *
+     * @return an array of {@link HWDiskStore} objects representing the disks
+     */
+    public static HWDiskStore[] getDisks() {
         Map<String, String> mountPointMap = queryMountPointMap();
         Map<String, String> logicalVolumeMap = queryLogicalVolumeMap();
         Map<CFKey, CFStringRef> cfKeyMap = mapCFKeys();
@@ -466,5 +446,31 @@ public class MacDisks implements Disks {
         }
         Collections.sort(diskList);
         return diskList.toArray(new HWDiskStore[0]);
+    }
+
+    /*
+     * Strings to convert to CFStringRef for pointer lookups
+     */
+    private enum CFKey {
+        IO_PROPERTY_MATCH("IOPropertyMatch"), //
+
+        STATISTICS("Statistics"), //
+        READ_OPS("Operations (Read)"), READ_BYTES("Bytes (Read)"), READ_TIME("Total Time (Read)"), //
+        WRITE_OPS("Operations (Write)"), WRITE_BYTES("Bytes (Write)"), WRITE_TIME("Total Time (Write)"), //
+
+        BSD_UNIT("BSD Unit"), LEAF("Leaf"), WHOLE("Whole"), //
+
+        DA_MEDIA_NAME("DAMediaName"), DA_VOLUME_NAME("DAVolumeName"), DA_MEDIA_SIZE("DAMediaSize"), //
+        DA_DEVICE_MODEL("DADeviceModel"), MODEL("Model");
+
+        private final String key;
+
+        CFKey(String key) {
+            this.key = key;
+        }
+
+        public String getKey() {
+            return this.key;
+        }
     }
 }

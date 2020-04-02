@@ -31,6 +31,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.concurrent.Immutable;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,10 +54,9 @@ import oshi.util.platform.windows.WmiUtil;
 import oshi.util.tuples.Pair;
 
 /**
- * <p>
- * WindowsUsbDevice class.
- * </p>
+ * Windows Usb Device
  */
+@Immutable
 public class WindowsUsbDevice extends AbstractUsbDevice {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsUsbDevice.class);

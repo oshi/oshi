@@ -27,6 +27,8 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.function.Supplier;
 
+import javax.annotation.concurrent.NotThreadSafe;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +37,11 @@ import org.slf4j.LoggerFactory;
  * contains the program code and its current activity. Depending on the
  * operating system (OS), a process may be made up of multiple threads of
  * execution that execute instructions concurrently.
+ * <p>
+ * Thread safe if both threads only use getters, or if setter usage is
+ * externally synchronized.
  */
+@NotThreadSafe
 public class OSProcess {
 
     private static final Logger LOG = LoggerFactory.getLogger(OSProcess.class);

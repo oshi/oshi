@@ -25,9 +25,15 @@ package oshi.driver.windows.perfmon;
 
 import java.util.Map;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import oshi.util.platform.windows.PerfCounterQuery;
 import oshi.util.platform.windows.PerfCounterQuery.PdhCounterProperty;
 
+/**
+ * Utility to query Paging File performance counter
+ */
+@ThreadSafe
 public final class PagingFile {
 
     private static final String PAGING_FILE = "Paging File";

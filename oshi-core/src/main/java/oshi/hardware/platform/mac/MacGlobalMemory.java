@@ -30,6 +30,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +52,8 @@ import oshi.util.platform.mac.SysctlUtil;
 /**
  * Memory obtained by host_statistics (vm_stat) and sysctl.
  */
-public class MacGlobalMemory extends AbstractGlobalMemory {
+@ThreadSafe
+final class MacGlobalMemory extends AbstractGlobalMemory {
 
     private static final Logger LOG = LoggerFactory.getLogger(MacGlobalMemory.class);
 

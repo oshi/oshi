@@ -29,6 +29,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,14 +42,13 @@ import com.sun.jna.platform.mac.SystemB.IFmsgHdr2;
 import com.sun.jna.ptr.IntByReference;
 
 import oshi.hardware.NetworkIF;
-import oshi.hardware.common.AbstractNetworks;
+import oshi.hardware.common.Networks;
 
 /**
- * <p>
  * MacNetworks class.
- * </p>
  */
-public class MacNetworks extends AbstractNetworks {
+@ThreadSafe
+public final class MacNetworks extends Networks {
 
     private static final Logger LOG = LoggerFactory.getLogger(MacNetworks.class);
 

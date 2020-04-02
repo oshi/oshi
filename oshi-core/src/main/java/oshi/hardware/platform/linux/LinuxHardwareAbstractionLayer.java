@@ -23,6 +23,8 @@
  */
 package oshi.hardware.platform.linux;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.ComputerSystem;
 import oshi.hardware.Display;
@@ -37,11 +39,10 @@ import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
 
 /**
- * <p>
  * LinuxHardwareAbstractionLayer class.
- * </p>
  */
-public class LinuxHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {
+@ThreadSafe
+public final class LinuxHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {
 
     @Override
     public ComputerSystem createComputerSystem() {
@@ -70,7 +71,7 @@ public class LinuxHardwareAbstractionLayer extends AbstractHardwareAbstractionLa
 
     @Override
     public HWDiskStore[] getDiskStores() {
-        return new LinuxDisks().getDisks();
+        return LinuxDisks.getDisks();
     }
 
     @Override

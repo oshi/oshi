@@ -23,6 +23,8 @@
  */
 package oshi.hardware.platform.unix.freebsd;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.ComputerSystem;
 import oshi.hardware.Display;
@@ -37,11 +39,10 @@ import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
 
 /**
- * <p>
  * FreeBsdHardwareAbstractionLayer class.
- * </p>
  */
-public class FreeBsdHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {
+@ThreadSafe
+public final class FreeBsdHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {
 
     @Override
     public ComputerSystem createComputerSystem() {
@@ -70,7 +71,7 @@ public class FreeBsdHardwareAbstractionLayer extends AbstractHardwareAbstraction
 
     @Override
     public HWDiskStore[] getDiskStores() {
-        return new FreeBsdDisks().getDisks();
+        return FreeBsdDisks.getDisks();
     }
 
     @Override

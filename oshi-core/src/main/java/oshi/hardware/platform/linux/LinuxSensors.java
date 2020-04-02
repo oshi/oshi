@@ -32,17 +32,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import oshi.hardware.common.AbstractSensors;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 
 /**
- * <p>
- * LinuxSensors class.
- * </p>
+ * Sensors from WMI or Open Hardware Monitor
  */
-public class LinuxSensors extends AbstractSensors {
+@ThreadSafe
+final class LinuxSensors extends AbstractSensors {
 
     // Possible sensor types. See sysfs documentation for others, e.g. current
     private static final String TEMP = "temp";

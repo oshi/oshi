@@ -28,11 +28,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import oshi.driver.windows.perfmon.ProcessInformation.ProcessPerformanceProperty;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OperatingSystem;
 import oshi.util.tuples.Triplet;
 
+/**
+ * Utility to read process data from HKEY_PERFORMANCE_DATA information.
+ */
+@ThreadSafe
 public final class ProcessPerformanceData {
 
     private static final String PROCESS = "Process";

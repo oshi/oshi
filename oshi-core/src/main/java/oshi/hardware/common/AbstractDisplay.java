@@ -25,23 +25,24 @@ package oshi.hardware.common;
 
 import java.util.Arrays;
 
+import javax.annotation.concurrent.Immutable;
+
 import oshi.hardware.Display;
 import oshi.util.EdidUtil;
 
 /**
  * A Display
  */
+@Immutable
 public abstract class AbstractDisplay implements Display {
 
-    private byte[] edid;
+    private final byte[] edid;
 
     /**
-     * <p>
      * Constructor for AbstractDisplay.
-     * </p>
      *
      * @param edid
-     *            an array of {@link byte} objects.
+     *            a byte array representing a display EDID
      */
     protected AbstractDisplay(byte[] edid) {
         this.edid = Arrays.copyOf(edid, edid.length);

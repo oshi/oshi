@@ -23,11 +23,14 @@
  */
 package oshi.hardware;
 
+import javax.annotation.concurrent.Immutable;
+
 /**
  * The ComputerSystem represents the physical hardware, of a computer
  * system/product and includes BIOS/firmware and a motherboard, logic board,
  * etc.
  */
+@Immutable
 public interface ComputerSystem {
     /**
      * Get the computer system manufacturer.

@@ -23,12 +23,15 @@
  */
 package oshi.hardware;
 
+import javax.annotation.concurrent.Immutable;
+
 import oshi.util.FormatUtil;
 
 /**
  * The PhysicalMemory class represents a physical memory device located on a
  * computer system and available to the operating system.
  */
+@Immutable
 public class PhysicalMemory {
 
     private final String bankLabel;

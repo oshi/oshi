@@ -26,6 +26,8 @@ package oshi.hardware.platform.linux;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.concurrent.Immutable;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,17 +39,16 @@ import oshi.util.ParseUtil;
 /**
  * A Display
  */
-public class LinuxDisplay extends AbstractDisplay {
+@Immutable
+final class LinuxDisplay extends AbstractDisplay {
 
     private static final Logger LOG = LoggerFactory.getLogger(LinuxDisplay.class);
 
     /**
-     * <p>
      * Constructor for LinuxDisplay.
-     * </p>
      *
      * @param edid
-     *            an array of {@link byte} objects.
+     *            a byte array representing a display EDID
      */
     public LinuxDisplay(byte[] edid) {
         super(edid);
@@ -85,7 +86,6 @@ public class LinuxDisplay extends AbstractDisplay {
                 sb = null;
             }
         }
-
         return displays.toArray(new Display[0]);
     }
 }

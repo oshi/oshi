@@ -29,6 +29,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import com.sun.jna.platform.win32.Kernel32; //NOSONAR
 import com.sun.jna.platform.win32.WinBase;
 import com.sun.jna.platform.win32.WinNT;
@@ -50,6 +52,7 @@ import oshi.util.platform.windows.WmiUtil;
  * implementation specific means of file storage. In Windows, these are
  * represented by a drive letter, e.g., "A:\" and "C:\"
  */
+@ThreadSafe
 public class WindowsFileSystem extends AbstractFileSystem {
 
     private static final int BUFSIZE = 255;

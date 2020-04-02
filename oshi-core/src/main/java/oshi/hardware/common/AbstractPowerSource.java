@@ -25,6 +25,8 @@ package oshi.hardware.common;
 
 import java.time.LocalDate;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import com.sun.jna.Platform; // NOSONAR squid:S1191
 
 import oshi.SystemInfo;
@@ -39,6 +41,7 @@ import oshi.util.Constants;
 /**
  * A Power Source
  */
+@ThreadSafe
 public abstract class AbstractPowerSource implements PowerSource {
 
     private String name;

@@ -30,6 +30,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,6 +55,7 @@ import oshi.util.tuples.Triplet;
 /**
  * Utility to read HKEY_PERFORMANCE_DATA information.
  */
+@ThreadSafe
 public final class HkeyPerformanceDataUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(HkeyPerformanceDataUtil.class);

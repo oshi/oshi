@@ -31,6 +31,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import oshi.driver.linux.proc.CpuStat;
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.jna.platform.linux.LinuxLibc;
@@ -43,13 +45,14 @@ import oshi.util.ParseUtil;
 /**
  * A CPU as defined in Linux /proc.
  */
-public class LinuxCentralProcessor extends AbstractCentralProcessor {
+@ThreadSafe
+final class LinuxCentralProcessor extends AbstractCentralProcessor {
 
     // See https://www.kernel.org/doc/Documentation/cpu-freq/user-guide.txt
     private static final String CPUFREQ_PATH = "oshi.cpu.freq.path";
 
     @Override
-    protected final ProcessorIdentifier queryProcessorId() {
+    protected ProcessorIdentifier queryProcessorId() {
         String cpuVendor = "";
         String cpuName = "";
         String cpuFamily = "";

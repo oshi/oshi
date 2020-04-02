@@ -23,19 +23,20 @@
  */
 package oshi.hardware.platform.unix.solaris;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import com.sun.jna.platform.unix.solaris.LibKstat.Kstat; // NOSONAR
 
 import oshi.hardware.NetworkIF;
-import oshi.hardware.common.AbstractNetworks;
+import oshi.hardware.common.Networks;
 import oshi.util.platform.unix.solaris.KstatUtil;
 import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
 
 /**
- * <p>
  * SolarisNetworks class.
- * </p>
  */
-public class SolarisNetworks extends AbstractNetworks {
+@ThreadSafe
+public final class SolarisNetworks extends Networks {
     /**
      * Updates interface network statistics on the given interface. Statistics
      * include packets and bytes sent and received, and interface speed.

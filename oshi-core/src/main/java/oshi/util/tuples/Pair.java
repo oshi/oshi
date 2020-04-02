@@ -23,6 +23,17 @@
  */
 package oshi.util.tuples;
 
+import javax.annotation.concurrent.ThreadSafe;
+
+/**
+ * Convenience class for returning multiple objects from methods.
+ *
+ * @param <A>
+ *            Type of the first element
+ * @param <B>
+ *            Type of the second element
+ */
+@ThreadSafe
 public class Pair<A, B> {
 
     private final A a;

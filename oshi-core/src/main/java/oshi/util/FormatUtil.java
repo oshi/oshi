@@ -28,10 +28,13 @@ import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.util.concurrent.TimeUnit;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 /**
  * Formatting utility for appending units or converting between number types.
  */
-public class FormatUtil {
+@ThreadSafe
+public final class FormatUtil {
     /**
      * Binary prefixes, used in IEC Standard for naming bytes.
      * (http://en.wikipedia.org/wiki/International_Electrotechnical_Commission)
@@ -49,12 +52,12 @@ public class FormatUtil {
      * Decimal prefixes, used for Hz and other metric units and for bytes by hard
      * drive manufacturers
      */
-    private static final long KILO = 1000L;
-    private static final long MEGA = 1000000L;
-    private static final long GIGA = 1000000000L;
-    private static final long TERA = 1000000000000L;
-    private static final long PETA = 1000000000000000L;
-    private static final long EXA = 1000000000000000000L;
+    private static final long KILO = 1_000L;
+    private static final long MEGA = 1_000_000L;
+    private static final long GIGA = 1_000_000_000L;
+    private static final long TERA = 1_000_000_000_000L;
+    private static final long PETA = 1_000_000_000_000_000L;
+    private static final long EXA = 1_000_000_000_000_000_000L;
 
     /*
      * Two's complement reference: 2^64.

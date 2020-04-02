@@ -27,8 +27,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import oshi.software.os.OSUser;
+import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
+import oshi.util.tuples.Pair;
 
 /**
  * <p>
@@ -37,31 +38,25 @@ import oshi.util.ExecutingCommand;
  */
 public class LinuxUserGroupInfo {
 
-    // Temporarily cache users and groups
-    private Map<String, OSUser> usersIdMap = new HashMap<>();
-    private Map<String, String> groupsIdMap = new HashMap<>();
+    // Temporarily cache users and groups, populated by constructor
+    private final Map<String, Pair<String, String>> usersIdMap;
+    private final Map<String, String> groupsIdMap;
+
+    public LinuxUserGroupInfo() {
+        usersIdMap = getUserMap();
+        groupsIdMap = getGroupMap();
+    }
 
     /**
-     * <p>
-     * getUser.
-     * </p>
+     * Gets a user from their ID
      *
      * @param userId
-     *            a {@link java.lang.String} object.
-     * @return a {@link oshi.software.os.OSUser} object.
+     *            a user ID
+     * @return a pair containing that user id as the first element and the user name
+     *         as the second
      */
-    public OSUser getUser(String userId) {
-        if (this.usersIdMap.isEmpty()) {
-            cacheUsers();
-        }
-        OSUser user = this.usersIdMap.get(userId);
-        if (user != null) {
-            return user;
-        }
-        user = new OSUser();
-        user.setUserId(userId);
-        user.setUserName("Unknown");
-        return user;
+    public Pair<String, String> getUser(String userId) {
+        return this.usersIdMap.getOrDefault(userId, new Pair<>(userId, Constants.UNKNOWN));
     }
 
     /**
@@ -74,14 +69,11 @@ public class LinuxUserGroupInfo {
      * @return a {@link java.lang.String} object.
      */
     public String getGroupName(String groupId) {
-        if (this.groupsIdMap.isEmpty()) {
-            cacheGroups();
-        }
-        String group = this.groupsIdMap.get(groupId);
-        return (group != null) ? group : "Unknown";
+        return this.groupsIdMap.getOrDefault(groupId, Constants.UNKNOWN);
     }
 
-    private void cacheUsers() {
+    private static Map<String, Pair<String, String>> getUserMap() {
+        HashMap<String, Pair<String, String>> userMap = new HashMap<>();
         List<String> passwd = ExecutingCommand.runNative("getent passwd");
         // see man 5 passwd for the fields
         for (String entry : passwd) {
@@ -93,28 +85,23 @@ public class LinuxUserGroupInfo {
             String uid = split[2];
             // it is allowed to have multiple entries for the same userId,
             // we use the first one
-            if (!this.usersIdMap.containsKey(uid)) {
-                OSUser user = new OSUser();
-                user.setUserId(uid);
-                user.setUserName(userName);
-                this.usersIdMap.put(uid, user);
-            }
+            userMap.putIfAbsent(uid, new Pair<>(uid, userName));
         }
+        return userMap;
     }
 
-    private void cacheGroups() {
+    private static Map<String, String> getGroupMap() {
+        Map<String, String> groupMap = new HashMap<>();
         List<String> group = ExecutingCommand.runNative("getent group");
         // see man 5 group for the fields
         for (String entry : group) {
             String[] split = entry.split(":");
-            if (split.length < 3) {
-                continue;
-            }
-            String groupName = split[0];
-            String gid = split[2];
-            if (!this.groupsIdMap.containsKey(gid)) {
-                this.groupsIdMap.put(gid, groupName);
+            if (split.length > 2) {
+                String groupName = split[0];
+                String gid = split[2];
+                groupMap.putIfAbsent(gid, groupName);
             }
         }
+        return groupMap;
     }
 }
