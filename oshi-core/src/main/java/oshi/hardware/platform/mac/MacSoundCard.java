@@ -41,18 +41,16 @@ final class MacSoundCard extends AbstractSoundCard {
     private static final String APPLE = "Apple Inc.";
 
     /**
-     * <p>
      * Constructor for MacSoundCard.
-     * </p>
-     *
+     * 
      * @param kernelVersion
-     *            a {@link java.lang.String} object.
+     *            The version
      * @param name
-     *            a {@link java.lang.String} object.
+     *            The name
      * @param codec
-     *            a {@link java.lang.String} object.
+     *            The codec
      */
-    public MacSoundCard(String kernelVersion, String name, String codec) {
+    MacSoundCard(String kernelVersion, String name, String codec) {
         super(kernelVersion, name, codec);
     }
 

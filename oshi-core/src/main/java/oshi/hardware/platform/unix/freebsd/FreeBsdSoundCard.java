@@ -44,18 +44,16 @@ final class FreeBsdSoundCard extends AbstractSoundCard {
     private static final String LSHAL = "lshal";
 
     /**
-     * <p>
      * Constructor for FreeBsdSoundCard.
-     * </p>
-     *
+     * 
      * @param kernelVersion
-     *            a {@link java.lang.String} object.
+     *            The version
      * @param name
-     *            a {@link java.lang.String} object.
+     *            The name
      * @param codec
-     *            a {@link java.lang.String} object.
+     *            The codec
      */
-    public FreeBsdSoundCard(String kernelVersion, String name, String codec) {
+    FreeBsdSoundCard(String kernelVersion, String name, String codec) {
         super(kernelVersion, name, codec);
     }
 

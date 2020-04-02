@@ -44,18 +44,16 @@ final class SolarisSoundCard extends AbstractSoundCard {
     private static final String DEFAULT_AUDIO_DRIVER = "audio810";
 
     /**
-     * <p>
      * Constructor for SolarisSoundCard.
-     * </p>
-     *
+     * 
      * @param kernelVersion
-     *            a {@link java.lang.String} object.
+     *            The version
      * @param name
-     *            a {@link java.lang.String} object.
+     *            The name
      * @param codec
-     *            a {@link java.lang.String} object.
+     *            The codec
      */
-    public SolarisSoundCard(String kernelVersion, String name, String codec) {
+    SolarisSoundCard(String kernelVersion, String name, String codec) {
         super(kernelVersion, name, codec);
     }
 

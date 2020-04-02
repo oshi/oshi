@@ -53,7 +53,7 @@ final class MacGraphicsCard extends AbstractGraphicsCard {
      * @param vram
      *            The VRAM
      */
-    public MacGraphicsCard(String name, String deviceId, String vendor, String versionInfo, long vram) {
+    MacGraphicsCard(String name, String deviceId, String vendor, String versionInfo, long vram) {
         super(name, deviceId, vendor, versionInfo, vram);
     }
 

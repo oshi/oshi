@@ -62,7 +62,7 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
      * @param vram
      *            The VRAM
      */
-    public WindowsGraphicsCard(String name, String deviceId, String vendor, String versionInfo, long vram) {
+    WindowsGraphicsCard(String name, String deviceId, String vendor, String versionInfo, long vram) {
         super(name, deviceId, vendor, versionInfo, vram);
     }
 

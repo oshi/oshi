@@ -54,7 +54,7 @@ final class LinuxGraphicsCard extends AbstractGraphicsCard {
      * @param vram
      *            The VRAM
      */
-    public LinuxGraphicsCard(String name, String deviceId, String vendor, String versionInfo, long vram) {
+    LinuxGraphicsCard(String name, String deviceId, String vendor, String versionInfo, long vram) {
         super(name, deviceId, vendor, versionInfo, vram);
     }
 

@@ -50,7 +50,7 @@ final class LinuxDisplay extends AbstractDisplay {
      * @param edid
      *            a byte array representing a display EDID
      */
-    public LinuxDisplay(byte[] edid) {
+    LinuxDisplay(byte[] edid) {
         super(edid);
         LOG.debug("Initialized LinuxDisplay");
     }

@@ -185,7 +185,7 @@ public final class MacNetworks extends Networks {
         private long speed;
         private long timeStamp;
 
-        public IFdata(int ifType, // NOSONAR squid:S00107
+        IFdata(int ifType, // NOSONAR squid:S00107
                 long oPackets, long iPackets, long oBytes, long iBytes, long oErrors, long iErrors, long collisions,
                 long iDrops, long speed, long timeStamp) {
             this.ifType = ifType;

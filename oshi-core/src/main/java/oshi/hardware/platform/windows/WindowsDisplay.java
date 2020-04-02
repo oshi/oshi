@@ -64,7 +64,7 @@ final class WindowsDisplay extends AbstractDisplay {
      * @param edid
      *            a byte array representing a display EDID
      */
-    public WindowsDisplay(byte[] edid) {
+    WindowsDisplay(byte[] edid) {
         super(edid);
         LOG.debug("Initialized WindowsDisplay");
     }

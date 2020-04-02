@@ -56,7 +56,7 @@ final class MacDisplay extends AbstractDisplay {
      * @param edid
      *            a byte array representing a display EDID
      */
-    public MacDisplay(byte[] edid) {
+    MacDisplay(byte[] edid) {
         super(edid);
         LOG.debug("Initialized MacDisplay");
     }

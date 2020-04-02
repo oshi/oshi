@@ -50,18 +50,16 @@ final class LinuxSoundCard extends AbstractSoundCard {
     private static final String ID_FILE = "id";
 
     /**
-     * <p>
      * Constructor for LinuxSoundCard.
-     * </p>
-     *
+     * 
      * @param kernelVersion
-     *            a {@link java.lang.String} object.
+     *            The version
      * @param name
-     *            a {@link java.lang.String} object.
+     *            The name
      * @param codec
-     *            a {@link java.lang.String} object.
+     *            The codec
      */
-    public LinuxSoundCard(String kernelVersion, String name, String codec) {
+    LinuxSoundCard(String kernelVersion, String name, String codec) {
         super(kernelVersion, name, codec);
     }
 

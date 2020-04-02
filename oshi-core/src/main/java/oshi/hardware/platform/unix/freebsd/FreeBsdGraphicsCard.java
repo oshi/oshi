@@ -55,7 +55,7 @@ final class FreeBsdGraphicsCard extends AbstractGraphicsCard {
      * @param vram
      *            The VRAM
      */
-    public FreeBsdGraphicsCard(String name, String deviceId, String vendor, String versionInfo, long vram) {
+    FreeBsdGraphicsCard(String name, String deviceId, String vendor, String versionInfo, long vram) {
         super(name, deviceId, vendor, versionInfo, vram);
     }
 

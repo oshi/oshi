@@ -234,7 +234,7 @@ public final class HkeyPerformanceDataUtil {
         // is not a counter name
         for (int i = 1; i < enumConstants.length; i++) {
             T key = enumConstants[i];
-            String counterName = (key.getCounter());
+            String counterName = key.getCounter();
             if (!COUNTER_INDEX_MAP.containsKey(counterName)) {
                 LOG.debug("Couldn't find counter index of {}.", counterName);
                 return null;

@@ -50,7 +50,7 @@ final class SolarisDisplay extends AbstractDisplay {
      * @param edid
      *            a byte array representing a display EDID
      */
-    public SolarisDisplay(byte[] edid) {
+    SolarisDisplay(byte[] edid) {
         super(edid);
         LOG.debug("Initialized SolarisDisplay");
     }

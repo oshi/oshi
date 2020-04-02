@@ -55,7 +55,7 @@ final class SolarisGraphicsCard extends AbstractGraphicsCard {
      * @param vram
      *            The VRAM
      */
-    public SolarisGraphicsCard(String name, String deviceId, String vendor, String versionInfo, long vram) {
+    SolarisGraphicsCard(String name, String deviceId, String vendor, String versionInfo, long vram) {
         super(name, deviceId, vendor, versionInfo, vram);
     }
 

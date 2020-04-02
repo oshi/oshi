@@ -69,7 +69,7 @@ final class LinuxSensors extends AbstractSensors {
      * Constructor for LinuxSensors.
      * </p>
      */
-    public LinuxSensors() {
+    LinuxSensors() {
         if (!IS_PI) {
             populateSensorsMapFromHwmon();
             // if no temperature sensor is found in hwmon, try thermal_zone

@@ -50,7 +50,7 @@ final class FreeBsdDisplay extends AbstractDisplay {
      * @param edid
      *            a byte array representing a display EDID
      */
-    public FreeBsdDisplay(byte[] edid) {
+    FreeBsdDisplay(byte[] edid) {
         super(edid);
         LOG.debug("Initialized FreeBSDDisplay");
     }

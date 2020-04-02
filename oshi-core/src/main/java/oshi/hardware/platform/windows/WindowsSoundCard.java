@@ -44,18 +44,16 @@ final class WindowsSoundCard extends AbstractSoundCard {
     private static final String REGISTRY_SOUNDCARDS = "SYSTEM\\CurrentControlSet\\Control\\Class\\{4d36e96c-e325-11ce-bfc1-08002be10318}\\";
 
     /**
-     * <p>
      * Constructor for WindowsSoundCard.
-     * </p>
-     *
+     * 
      * @param kernelVersion
-     *            a {@link java.lang.String} object.
+     *            The version
      * @param name
-     *            a {@link java.lang.String} object.
+     *            The name
      * @param codec
-     *            a {@link java.lang.String} object.
+     *            The codec
      */
-    public WindowsSoundCard(String kernelVersion, String name, String codec) {
+    WindowsSoundCard(String kernelVersion, String name, String codec) {
         super(kernelVersion, name, codec);
     }
 

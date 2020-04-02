@@ -68,7 +68,7 @@ final class WindowsVirtualMemory extends AbstractVirtualMemory {
      * @param pageSize
      *            The size in bytes of memory pages
      */
-    public WindowsVirtualMemory(long pageSize) {
+    WindowsVirtualMemory(long pageSize) {
         this.pageSize = pageSize;
     }
 
