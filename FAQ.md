@@ -14,21 +14,23 @@ Code in the platform-specific `oshi.jna.*` packages is intended to be temporary 
 
 Is OSHI Thread Safe?
 ========
-Short answer: Not yet, but multi-thread implementations can be constructed to avoid problems.
+Short answer: Not technically because of setters in the API, but as of 4.6.0, it is for intended use.
 
-Longer answer: Prior to version 4.1.0, there is no guarantee of thread safety.  In the normal use case of OSHI (using getters to retrieve information) there will be no thread safety issues if each thread is attempting to get information from a different object.  There are generally two ways to do this: (1) Have each thread instantiate a new instance of `SystemInfo`, or (2) have each thread deal only with access from objects not used by other threads, e.g., one thread can fetch memory information while another thread fetches Disks, and another fetches file system information. 
-
-Beginning in version 4.6.0, The JSR-305 `@ThreadSafe` and `@NotThreadSafe` annotations are used to document
-thread safety guarantees, or conditions requiring single thread usage.  The following classes are not thread-safe:
+Longer answer: Prior to version 4.1.0, there is no guarantee of thread safety and it should not be assumed.
+In 4.1.0 the majority of classes were made thread safe but multiple exceptions remained. Beginning in version
+4.6.0, the code has been thoroughly audited and JSR-305 `@Immutable`, `@ThreadSafe`, and `@NotThreadSafe`
+annotations are used to document thread safety guarantees, or conditions requiring single thread usage.
+The following classes are not thread-safe:
  - `GlobalConfig` does not protect against multiple threads manipulating the configuration.  These methods
  are intended to be used by a single thread at startup in lieu of reading a configuration file, as OSHI gives no guarantees on re-reading changed configurations.
  - `PerfCounterQuery` and `PerfCounterWildcardQuery` objects should only be used within the context of a single
- thread.
+ thread. These are only used internally in OSHI in these single-thread contexts and not intended for user use.
+ - Classes with setters on them are obviously not thread-safe unless the use of the setters is synchronized across threads.  Setters will be removed in a future OSHI version.
 
 What minimum Java version is required?
 ========
 OSHI 3.x is compatible with Java 7, but will not see any added features.  
-OSHI 4.x and 5.x (planned) require minimum Java 8 compatibility, although backporting to Java 7 would not be difficult on a fork.
+OSHI 4.x and 5.x (planned) require minimum Java 8 compatibility.
 OSHI 6.x's requirements have not yet been finalized but will likely require at least Java 11 and leverage modules. 
 
 Which operating systems are supported?
@@ -43,7 +45,7 @@ How do I resolve JNA `NoClassDefFound` errors?
 ========
 OSHI uses the latest version of JNA, which may conflict with other dependencies your project (or its parent) includes. If you experience issues with `NoClassDefFound` errors for JNA artifacts, consider one or more of the following steps to resolve the conflict:
  - Listing OSHI earlier (or first) in your dependency list 
- - Specifying the most recent version of JNA as a dependency
+ - Specifying the most recent version of JNA (both `jna` and `jna-platform` artifacts) as a dependency
  - If you are using a parent (e.g., Spring Boot) that includes JNA as a dependency, override the `jna.version` property 
 
 What API features are not implemented on some operating systems?
@@ -57,28 +59,31 @@ The following generally summarizes known exceptions. If you have missing data th
 What is the history of OSHI and plans for future development?
 ========
 OSHI was [started in 2010](https://code.dblock.org/2010/06/23/introducing-oshi-operating-system-and-hardware-information-java.html) 
-by [@dblock](https://github.com/dblock) as a way to avoid the additional DLL installation requirements of SIGAR and have (at the time) a
-license more friendly to commercial use. There was some initial work on basic CPU and Memory stats on Windows using native calls,
-and ports to Mac and Linux mostly using command lines, but little in the way of added features. Still, the API skeleton was there,
-well designed (still in use a decade later!) and was easy to build on.
+by [@dblock](https://github.com/dblock) as a way to avoid the additional DLL installation requirements of 
+SIGAR and have (at the time) a license more friendly to commercial use. There was some initial work on basic 
+CPU and Memory stats on Windows using native calls, and ports to Mac and Linux mostly using command lines,
+but little in the way of added features. Still, the API skeleton was there, well designed (still in use a 
+decade later!) and was easy to build on.
 
-In 2015, [@dbwiddis](https://github.com/dbwiddis) was working on a cloud-based distributed computing data mining problem utilizing 
-[JPPF](https://jppf.org/). As part of optimizing the use of cloud resources (use all the CPU and memory that's being paid for) 
-here was a need for Linux memory usage monitoring. JPPF's library used the OperatingSystemMXBean's getFreePhysicalMemory() method 
-which was useless on Linux, as "free" always decreases to zero even though there's plenty "available". Web searches revealed only
-two packaged alternatives: SIGAR (which had stopped development then) and OSHI (which had the same bug, but was open source and fixable). 
-A bug report turned into an invitation to submit a PR, which turned into converting the OS X commandline calls to native methods and 
-adding more, which turned into an invitation to take over the project and a very educational experience in learning git, maven, the 
-software development lifecycle, unit testing, continuous integration, and more.
+In 2015, [@dbwiddis](https://github.com/dbwiddis) was working on a cloud-based distributed computing data 
+mining problem utilizing [JPPF](https://jppf.org/). As part of optimizing the use of cloud resources (use 
+all the CPU and memory that's being paid for) there was a need for Linux memory usage monitoring. JPPF's 
+library used the OperatingSystemMXBean's getFreePhysicalMemory() method which was useless on Linux.
+Web searches revealed only two packaged alternatives: SIGAR (which had stopped development then) and 
+OSHI (which had the same bug, but was open source and fixable). A bug report turned into an invitation to 
+submit a PR, which turned into converting the OS X commandline calls to native methods and adding more, 
+which turned into an invitation to take over the project and a very educational experience in learning 
+git, maven, the  software development lifecycle, unit testing, continuous integration, and more.
 
-A few contributors have a grand plan for [OSHI 5](https://github.com/oshi/oshi5) and will be completely redesigning the API with
-an eye toward more modular driver-based information access.  The current 4.x API will probably only see small incremental improvements, 
-bug fixes, and attempts to increase poratibility to other operating systems and/or versions.  
+A few contributors have a grand plan for [OSHI 6](https://github.com/oshi/oshi5) and will be completely
+redesigning the API with an eye toward more modular driver-based information access.  The current 4.x 
+and 5.x API will probably only see small incremental improvements, bug fixes, and attempts to increase poratibility to other operating systems and/or versions.  
 
 Does OSHI work on Raspberry Pi hardware?
 ========
-Yes, most of the Linux code works here and other Pi-specific code has been implemented but has seen limited testing.  As the 
-developers do not have a Pi to test on, users reporting issues should be prepared to help test solutions.
+Yes, most of the Linux code works here and other Pi-specific code has been implemented but has seen 
+limited testing.  As the developers do not have a Pi to test on, users reporting issues should be 
+prepared to help test solutions.
 
 Will you do an AIX port?
 ========

@@ -72,7 +72,7 @@ public class LinuxUserGroupInfo {
         return this.groupsIdMap.getOrDefault(groupId, Constants.UNKNOWN);
     }
 
-    private HashMap<String, Pair<String, String>> getUserMap() {
+    private static Map<String, Pair<String, String>> getUserMap() {
         HashMap<String, Pair<String, String>> userMap = new HashMap<>();
         List<String> passwd = ExecutingCommand.runNative("getent passwd");
         // see man 5 passwd for the fields
@@ -90,7 +90,7 @@ public class LinuxUserGroupInfo {
         return userMap;
     }
 
-    private Map<String, String> getGroupMap() {
+    private static Map<String, String> getGroupMap() {
         Map<String, String> groupMap = new HashMap<>();
         List<String> group = ExecutingCommand.runNative("getent group");
         // see man 5 group for the fields

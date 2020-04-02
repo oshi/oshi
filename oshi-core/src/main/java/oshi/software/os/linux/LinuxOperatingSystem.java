@@ -75,10 +75,13 @@ import oshi.util.tuples.Triplet;
 @ThreadSafe
 public class LinuxOperatingSystem extends AbstractOperatingSystem {
 
-    private static final String DOUBLE_QUOTES = "^\"|\"$";
-
     private static final Logger LOG = LoggerFactory.getLogger(LinuxOperatingSystem.class);
 
+    private static final String OS_RELEASE_LOG = "os-release: {}";
+    private static final String LSB_RELEASE_A_LOG = "lsb_release -a: {}";
+    private static final String LSB_RELEASE_LOG = "lsb-release: {}";
+    private static final String RELEASE_DELIM = " release ";
+    private static final String DOUBLE_QUOTES = "^\"|\"$";
     private static final String LS_F_PROC_PID_FD = "ls -f " + ProcPath.PID_FD;
 
     private static final long BOOTTIME;
@@ -427,7 +430,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         return new LinuxNetworkParams();
     }
 
-    private Triplet<String, String, String> queryFamilyVersionCodenameFromReleaseFiles() {
+    private static Triplet<String, String, String> queryFamilyVersionCodenameFromReleaseFiles() {
         Triplet<String, String, String> familyVersionCodename;
         // There are two competing options for family/version information.
         // Newer systems are adopting a standard /etc/os-release file:
@@ -495,7 +498,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
      * @return a triplet with the parsed family, versionID and codeName if file
      *         successfully read and NAME= found, null otherwise
      */
-    private Triplet<String, String, String> readOsRelease() {
+    private static Triplet<String, String, String> readOsRelease() {
         String family = null;
         String versionId = Constants.UNKNOWN;
         String codeName = Constants.UNKNOWN;
@@ -503,7 +506,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         // Search for NAME=
         for (String line : osRelease) {
             if (line.startsWith("VERSION=")) {
-                LOG.debug("os-release: {}", line);
+                LOG.debug(OS_RELEASE_LOG, line);
                 // remove beginning and ending '"' characters, etc from
                 // VERSION="14.04.4 LTS, Trusty Tahr" (Ubuntu style)
                 // or VERSION="17 (Beefy Miracle)" (os-release doc style)
@@ -520,12 +523,12 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
                     codeName = split[1].trim();
                 }
             } else if (line.startsWith("NAME=") && family == null) {
-                LOG.debug("os-release: {}", line);
+                LOG.debug(OS_RELEASE_LOG, line);
                 // remove beginning and ending '"' characters, etc from
                 // NAME="Ubuntu"
                 family = line.replace("NAME=", "").replaceAll(DOUBLE_QUOTES, "").trim();
             } else if (line.startsWith("VERSION_ID=") && versionId.equals(Constants.UNKNOWN)) {
-                LOG.debug("os-release: {}", line);
+                LOG.debug(OS_RELEASE_LOG, line);
                 // remove beginning and ending '"' characters, etc from
                 // VERSION_ID="14.04"
                 versionId = line.replace("VERSION_ID=", "").replaceAll(DOUBLE_QUOTES, "").trim();
@@ -541,7 +544,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
      *         command successfully executed and Distributor ID: or Description:
      *         found, null otherwise
      */
-    private Triplet<String, String, String> execLsbRelease() {
+    private static Triplet<String, String, String> execLsbRelease() {
         String family = null;
         String versionId = Constants.UNKNOWN;
         String codeName = Constants.UNKNOWN;
@@ -550,10 +553,10 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         // distribution concatenated, e.g., RedHat instead of Red Hat
         for (String line : ExecutingCommand.runNative("lsb_release -a")) {
             if (line.startsWith("Description:")) {
-                LOG.debug("lsb_release -a: {}", line);
+                LOG.debug(LSB_RELEASE_A_LOG, line);
                 line = line.replace("Description:", "").trim();
-                if (line.contains(" release ")) {
-                    Triplet<String, String, String> triplet = parseRelease(line, " release ");
+                if (line.contains(RELEASE_DELIM)) {
+                    Triplet<String, String, String> triplet = parseRelease(line, RELEASE_DELIM);
                     family = triplet.getA();
                     if (versionId.equals(Constants.UNKNOWN)) {
                         versionId = triplet.getB();
@@ -563,13 +566,13 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
                     }
                 }
             } else if (line.startsWith("Distributor ID:") && family == null) {
-                LOG.debug("lsb_release -a: {}", line);
+                LOG.debug(LSB_RELEASE_A_LOG, line);
                 family = line.replace("Distributor ID:", "").trim();
             } else if (line.startsWith("Release:") && versionId.equals(Constants.UNKNOWN)) {
-                LOG.debug("lsb_release -a: {}", line);
+                LOG.debug(LSB_RELEASE_A_LOG, line);
                 versionId = line.replace("Release:", "").trim();
             } else if (line.startsWith("Codename:") && codeName.equals(Constants.UNKNOWN)) {
-                LOG.debug("lsb_release -a: {}", line);
+                LOG.debug(LSB_RELEASE_A_LOG, line);
                 codeName = line.replace("Codename:", "").trim();
             }
         }
@@ -583,7 +586,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
      *         successfully read and and DISTRIB_ID or DISTRIB_DESCRIPTION, null
      *         otherwise
      */
-    private Triplet<String, String, String> readLsbRelease() {
+    private static Triplet<String, String, String> readLsbRelease() {
         String family = null;
         String versionId = Constants.UNKNOWN;
         String codeName = Constants.UNKNOWN;
@@ -591,10 +594,10 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         // Search for NAME=
         for (String line : osRelease) {
             if (line.startsWith("DISTRIB_DESCRIPTION=")) {
-                LOG.debug("lsb-release: {}", line);
+                LOG.debug(LSB_RELEASE_LOG, line);
                 line = line.replace("DISTRIB_DESCRIPTION=", "").replaceAll(DOUBLE_QUOTES, "").trim();
-                if (line.contains(" release ")) {
-                    Triplet<String, String, String> triplet = parseRelease(line, " release ");
+                if (line.contains(RELEASE_DELIM)) {
+                    Triplet<String, String, String> triplet = parseRelease(line, RELEASE_DELIM);
                     family = triplet.getA();
                     if (versionId.equals(Constants.UNKNOWN)) {
                         versionId = triplet.getB();
@@ -604,13 +607,13 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
                     }
                 }
             } else if (line.startsWith("DISTRIB_ID=") && family == null) {
-                LOG.debug("lsb-release: {}", line);
+                LOG.debug(LSB_RELEASE_LOG, line);
                 family = line.replace("DISTRIB_ID=", "").replaceAll(DOUBLE_QUOTES, "").trim();
             } else if (line.startsWith("DISTRIB_RELEASE=") && versionId.equals(Constants.UNKNOWN)) {
-                LOG.debug("lsb-release: {}", line);
+                LOG.debug(LSB_RELEASE_LOG, line);
                 versionId = line.replace("DISTRIB_RELEASE=", "").replaceAll(DOUBLE_QUOTES, "").trim();
             } else if (line.startsWith("DISTRIB_CODENAME=") && codeName.equals(Constants.UNKNOWN)) {
-                LOG.debug("lsb-release: {}", line);
+                LOG.debug(LSB_RELEASE_LOG, line);
                 codeName = line.replace("DISTRIB_CODENAME=", "").replaceAll(DOUBLE_QUOTES, "").trim();
             }
         }
@@ -624,15 +627,15 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
      *         successfully read and " release " or " VERSION " found, null
      *         otherwise
      */
-    private Triplet<String, String, String> readDistribRelease(String filename) {
+    private static Triplet<String, String, String> readDistribRelease(String filename) {
         if (new File(filename).exists()) {
             List<String> osRelease = FileUtil.readFile(filename);
             // Search for Distrib release x.x (Codename)
             for (String line : osRelease) {
                 LOG.debug("{}: {}", filename, line);
-                if (line.contains(" release ")) {
+                if (line.contains(RELEASE_DELIM)) {
                     // If this parses properly we're done
-                    return parseRelease(line, " release ");
+                    return parseRelease(line, RELEASE_DELIM);
                 } else if (line.contains(" VERSION ")) {
                     // If this parses properly we're done
                     return parseRelease(line, " VERSION ");
@@ -651,7 +654,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
      *            A regex to split on, e.g. " release "
      * @return a triplet with the parsed family, versionID and codeName
      */
-    private Triplet<String, String, String> parseRelease(String line, String splitLine) {
+    private static Triplet<String, String, String> parseRelease(String line, String splitLine) {
         String[] split = line.split(splitLine);
         String family = split[0].trim();
         String versionId = Constants.UNKNOWN;

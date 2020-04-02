@@ -4,6 +4,7 @@
 * [#1150](https://github.com/oshi/oshi/pull/1150): Add fields to NetworkIF to help determine physical interfaces. - [@dbwiddis](https://github.com/dbwiddis).
 * [#1151](https://github.com/oshi/oshi/pull/1151): Add Graphics Card information. - [@dbwiddis](https://github.com/dbwiddis).
 * [#1155](https://github.com/oshi/oshi/pull/1155): Linux proc symlinks may show as (deleted). - [@jlangst6](https://github.com/jlangst6).
+* [#1157](https://github.com/oshi/oshi/pull/1157): Audit and annotate ThreadSafe classes. - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here.
 
 4.5.0 (3/12/2020), 4.5.2 (3/20/2020)
