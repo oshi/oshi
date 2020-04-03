@@ -26,8 +26,6 @@ package oshi.hardware.platform.windows;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 
-import javax.annotation.concurrent.ThreadSafe;
-
 import com.sun.jna.Memory; // NOSONAR
 import com.sun.jna.Platform;
 import com.sun.jna.platform.win32.Guid.GUID;
@@ -42,6 +40,7 @@ import com.sun.jna.platform.win32.WinNT.HANDLE;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.win32.W32APITypeMapper;
 
+import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.PowerSource;
 import oshi.hardware.common.AbstractPowerSource;
 import oshi.jna.platform.windows.PowrProf;

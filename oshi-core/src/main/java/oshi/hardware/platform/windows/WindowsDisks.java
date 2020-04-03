@@ -30,14 +30,13 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.annotation.concurrent.ThreadSafe;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.platform.win32.Kernel32; // NOSONAR squid:S1191
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
+import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.windows.perfmon.PhysicalDisk;
 import oshi.driver.windows.perfmon.PhysicalDisk.PhysicalDiskProperty;
 import oshi.driver.windows.wmi.Win32DiskDrive;

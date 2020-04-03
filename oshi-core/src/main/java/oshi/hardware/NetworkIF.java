@@ -35,12 +35,11 @@ import java.util.List;
 import java.util.Properties;
 import java.util.function.Supplier;
 
-import javax.annotation.concurrent.NotThreadSafe;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.SystemInfo;
+import oshi.annotation.concurrent.NotThreadSafe;
 import oshi.hardware.platform.linux.LinuxNetworks;
 import oshi.hardware.platform.mac.MacNetworks;
 import oshi.hardware.platform.unix.freebsd.FreeBsdNetworks;

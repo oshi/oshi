@@ -26,8 +26,6 @@ package oshi.hardware.platform.windows;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.concurrent.Immutable;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,6 +40,7 @@ import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.platform.win32.WinReg.HKEY;
 import com.sun.jna.ptr.IntByReference;
 
+import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.Display;
 import oshi.hardware.common.AbstractDisplay;
 

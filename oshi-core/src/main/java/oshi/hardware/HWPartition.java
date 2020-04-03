@@ -23,8 +23,7 @@
  */
 package oshi.hardware;
 
-import javax.annotation.concurrent.NotThreadSafe;
-
+import oshi.annotation.concurrent.NotThreadSafe;
 import oshi.util.FormatUtil;
 
 /**

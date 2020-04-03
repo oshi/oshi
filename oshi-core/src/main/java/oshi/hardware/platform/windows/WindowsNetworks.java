@@ -23,8 +23,6 @@
  */
 package oshi.hardware.platform.windows;
 
-import javax.annotation.concurrent.ThreadSafe;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +31,7 @@ import com.sun.jna.platform.win32.IPHlpAPI.MIB_IFROW;
 import com.sun.jna.platform.win32.IPHlpAPI.MIB_IF_ROW2;
 import com.sun.jna.platform.win32.VersionHelpers;
 
+import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.NetworkIF;
 import oshi.hardware.common.Networks;
 import oshi.util.ParseUtil;

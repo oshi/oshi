@@ -23,7 +23,7 @@
  */
 package oshi.software.os;
 
-import javax.annotation.concurrent.ThreadSafe;
+import oshi.annotation.concurrent.ThreadSafe;
 
 /**
  * NetworkParams presents network parameters of running OS, such as DNS, host

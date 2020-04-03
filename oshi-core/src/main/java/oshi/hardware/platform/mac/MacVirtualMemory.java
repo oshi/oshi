@@ -28,8 +28,6 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.function.Supplier;
 
-import javax.annotation.concurrent.ThreadSafe;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,6 +37,7 @@ import com.sun.jna.platform.mac.SystemB.VMStatistics;
 import com.sun.jna.platform.mac.SystemB.XswUsage;
 import com.sun.jna.ptr.IntByReference;
 
+import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.common.AbstractVirtualMemory;
 import oshi.util.ParseUtil;
 import oshi.util.platform.mac.SysctlUtil;

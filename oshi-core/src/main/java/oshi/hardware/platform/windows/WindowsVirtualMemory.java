@@ -29,8 +29,6 @@ import static oshi.util.Memoizer.memoize;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import javax.annotation.concurrent.ThreadSafe;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,6 +36,7 @@ import com.sun.jna.platform.win32.Kernel32; // NOSONAR squid:S1191
 import com.sun.jna.platform.win32.Psapi;
 import com.sun.jna.platform.win32.Psapi.PERFORMANCE_INFORMATION;
 
+import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.windows.perfmon.MemoryInformation;
 import oshi.driver.windows.perfmon.MemoryInformation.PageSwapProperty;
 import oshi.driver.windows.perfmon.PagingFile;

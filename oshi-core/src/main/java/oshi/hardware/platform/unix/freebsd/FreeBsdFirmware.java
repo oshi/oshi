@@ -27,8 +27,7 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.function.Supplier;
 
-import javax.annotation.concurrent.Immutable;
-
+import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.common.AbstractFirmware;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;

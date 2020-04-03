@@ -29,11 +29,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.annotation.concurrent.ThreadSafe;
-
 import com.sun.jna.platform.unix.solaris.LibKstat.Kstat; //NOSONAR
 import com.sun.jna.platform.unix.solaris.LibKstat.KstatIO;
 
+import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
 import oshi.util.ExecutingCommand;

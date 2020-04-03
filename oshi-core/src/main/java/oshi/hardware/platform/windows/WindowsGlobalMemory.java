@@ -28,8 +28,6 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.function.Supplier;
 
-import javax.annotation.concurrent.ThreadSafe;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,6 +37,7 @@ import com.sun.jna.platform.win32.Psapi.PERFORMANCE_INFORMATION;
 import com.sun.jna.platform.win32.VersionHelpers;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
+import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.windows.wmi.Win32PhysicalMemory;
 import oshi.driver.windows.wmi.Win32PhysicalMemory.PhysicalMemoryProperty;
 import oshi.driver.windows.wmi.Win32PhysicalMemory.PhysicalMemoryPropertyWin8;

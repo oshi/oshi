@@ -37,10 +37,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import javax.annotation.concurrent.ThreadSafe;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import oshi.annotation.concurrent.ThreadSafe;
 
 /**
  * File reading methods

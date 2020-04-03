@@ -28,7 +28,7 @@ import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.util.concurrent.TimeUnit;
 
-import javax.annotation.concurrent.ThreadSafe;
+import oshi.annotation.concurrent.ThreadSafe;
 
 /**
  * Formatting utility for appending units or converting between number types.

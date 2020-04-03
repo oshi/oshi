@@ -23,7 +23,7 @@
  */
 package oshi.hardware;
 
-import javax.annotation.concurrent.Immutable;
+import oshi.annotation.concurrent.Immutable;
 
 /**
  * SoundCard interface.

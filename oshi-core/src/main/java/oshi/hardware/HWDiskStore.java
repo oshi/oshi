@@ -23,12 +23,11 @@
  */
 package oshi.hardware;
 
-import javax.annotation.concurrent.NotThreadSafe;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.SystemInfo;
+import oshi.annotation.concurrent.NotThreadSafe;
 import oshi.hardware.platform.linux.LinuxDisks;
 import oshi.hardware.platform.mac.MacDisks;
 import oshi.hardware.platform.unix.freebsd.FreeBsdDisks;

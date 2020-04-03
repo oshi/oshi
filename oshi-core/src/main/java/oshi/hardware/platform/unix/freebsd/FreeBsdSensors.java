@@ -23,12 +23,11 @@
  */
 package oshi.hardware.platform.unix.freebsd;
 
-import javax.annotation.concurrent.ThreadSafe;
-
 import com.sun.jna.Memory; // NOSONAR squid:S1191
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 
+import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.common.AbstractSensors;
 import oshi.jna.platform.unix.freebsd.FreeBsdLibc;
 

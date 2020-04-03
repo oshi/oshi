@@ -25,11 +25,10 @@ package oshi.hardware.common;
 
 import java.time.LocalDate;
 
-import javax.annotation.concurrent.ThreadSafe;
-
 import com.sun.jna.Platform; // NOSONAR squid:S1191
 
 import oshi.SystemInfo;
+import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.PowerSource;
 import oshi.hardware.platform.linux.LinuxPowerSource;
 import oshi.hardware.platform.mac.MacPowerSource;

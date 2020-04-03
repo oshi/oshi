@@ -29,14 +29,13 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.List;
 
-import javax.annotation.concurrent.ThreadSafe;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Native;
 import com.sun.jna.ptr.PointerByReference;
 
+import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.platform.mac.SystemB;
 import oshi.jna.platform.unix.CLibrary;
 import oshi.jna.platform.unix.CLibrary.Addrinfo;

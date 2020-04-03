@@ -23,8 +23,7 @@
  */
 package oshi.driver.linux.proc;
 
-import javax.annotation.concurrent.ThreadSafe;
-
+import oshi.annotation.concurrent.ThreadSafe;
 import oshi.util.FileUtil;
 import oshi.util.platform.linux.ProcPath;
 

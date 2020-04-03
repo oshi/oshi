@@ -26,10 +26,9 @@ package oshi.driver.windows.perfmon;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.concurrent.ThreadSafe;
-
 import com.sun.jna.platform.win32.VersionHelpers; // NOSONAR squid:s1191
 
+import oshi.annotation.concurrent.ThreadSafe;
 import oshi.util.platform.windows.PerfCounterQuery;
 import oshi.util.platform.windows.PerfCounterQuery.PdhCounterProperty;
 import oshi.util.platform.windows.PerfCounterWildcardQuery;

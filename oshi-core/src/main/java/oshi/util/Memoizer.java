@@ -26,7 +26,7 @@ package oshi.util;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
-import javax.annotation.concurrent.ThreadSafe;
+import oshi.annotation.concurrent.ThreadSafe;
 
 /**
  * A memoized function stores the output corresponding to some set of specific

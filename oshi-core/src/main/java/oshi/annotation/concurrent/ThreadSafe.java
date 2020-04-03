@@ -21,42 +21,18 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package oshi.driver.windows.wmi;
-
-import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery; //NOSONAR squid:S1191
-import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
-
-import oshi.annotation.concurrent.ThreadSafe;
-import oshi.util.platform.windows.WmiQueryHandler;
+package oshi.annotation.concurrent;
 
 /**
- * Utility to query WMI class {@code Win32_PnPEntity}
+ * The presence of this annotation indicates that the author believes the class
+ * to be thread-safe. As such, there should be no sequence of accessing the
+ * public methods or fields that could put an instance of this class into an
+ * invalid state, irrespective of any rearrangement of those operations by the
+ * Java Runtime and without introducing any requirements for synchronization or
+ * coordination by the caller/accessor.
+ * <p>
+ * This annotation is intended for internal use in OSHI as a temporary
+ * workaround until it is available in {@code jakarta.annotations}.
  */
-@ThreadSafe
-public final class Win32PnPEntity {
-
-    private static final String WIN32_PNP_ENTITY = "Win32_PnPEntity";
-
-    /**
-     * DeviceId and name
-     */
-    public enum PnPEntityProperty {
-        NAME, MANUFACTURER, PNPDEVICEID;
-    }
-
-    private Win32PnPEntity() {
-    }
-
-    /**
-     * Queries the PnP Device id info
-     *
-     * @param whereClause
-     *            WQL "WHERE" clause limiting the search
-     * @return Information regarding each device
-     */
-    public static WmiResult<PnPEntityProperty> queryDeviceId(String whereClause) {
-        WmiQuery<PnPEntityProperty> pnpEntityQuery = new WmiQuery<>(WIN32_PNP_ENTITY + whereClause,
-                PnPEntityProperty.class);
-        return WmiQueryHandler.createInstance().queryWMI(pnpEntityQuery);
-    }
+public @interface ThreadSafe {
 }

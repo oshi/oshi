@@ -23,6 +23,8 @@
  */
 package oshi;
 
+import static oshi.util.Memoizer.memoize;
+
 import java.util.function.Supplier;
 
 import com.sun.jna.Platform; // NOSONAR squid:S1191
@@ -39,7 +41,6 @@ import oshi.software.os.mac.MacOperatingSystem;
 import oshi.software.os.unix.freebsd.FreeBsdOperatingSystem;
 import oshi.software.os.unix.solaris.SolarisOperatingSystem;
 import oshi.software.os.windows.WindowsOperatingSystem;
-import static oshi.util.Memoizer.memoize;
 
 /**
  * System information. This is the main entry point to Oshi.

@@ -28,8 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.concurrent.Immutable;
-
+import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.common.AbstractSoundCard;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;

@@ -26,8 +26,6 @@ package oshi.hardware.platform.mac;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.concurrent.Immutable;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,6 +37,7 @@ import com.sun.jna.platform.mac.IOKit.IOIterator;
 import com.sun.jna.platform.mac.IOKit.IORegistryEntry;
 import com.sun.jna.platform.mac.IOKitUtil;
 
+import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.Display;
 import oshi.hardware.common.AbstractDisplay;
 

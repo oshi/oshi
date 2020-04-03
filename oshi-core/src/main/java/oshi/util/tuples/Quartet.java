@@ -23,7 +23,7 @@
  */
 package oshi.util.tuples;
 
-import javax.annotation.concurrent.ThreadSafe;
+import oshi.annotation.concurrent.ThreadSafe;
 
 /**
  * Convenience class for returning multiple objects from methods.

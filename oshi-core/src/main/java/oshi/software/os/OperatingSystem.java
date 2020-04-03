@@ -26,8 +26,7 @@ package oshi.software.os;
 import java.util.Collection;
 import java.util.List;
 
-import javax.annotation.concurrent.ThreadSafe;
-
+import oshi.annotation.concurrent.ThreadSafe;
 import oshi.util.Constants;
 import oshi.util.Util;
 
@@ -43,7 +42,7 @@ public interface OperatingSystem {
      * Controls sorting of Process output
      */
     enum ProcessSort {
-        CPU, MEMORY, OLDEST, NEWEST, PID, PARENTPID, NAME
+    CPU, MEMORY, OLDEST, NEWEST, PID, PARENTPID, NAME
     }
 
     /**

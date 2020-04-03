@@ -23,7 +23,7 @@
  */
 package oshi.hardware;
 
-import javax.annotation.concurrent.ThreadSafe;
+import oshi.annotation.concurrent.ThreadSafe;
 
 /**
  * The GlobalMemory class tracks information about the use of a computer's

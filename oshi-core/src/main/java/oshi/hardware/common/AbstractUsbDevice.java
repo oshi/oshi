@@ -25,8 +25,7 @@ package oshi.hardware.common;
 
 import java.util.Arrays;
 
-import javax.annotation.concurrent.Immutable;
-
+import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.UsbDevice;
 
 /**

@@ -23,10 +23,9 @@
  */
 package oshi.hardware.platform.unix.solaris;
 
-import javax.annotation.concurrent.ThreadSafe;
-
 import com.sun.jna.platform.unix.solaris.LibKstat.Kstat; // NOSONAR
 
+import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.NetworkIF;
 import oshi.hardware.common.Networks;
 import oshi.util.platform.unix.solaris.KstatUtil;

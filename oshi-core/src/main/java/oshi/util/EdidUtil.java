@@ -28,10 +28,10 @@ import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
-import javax.annotation.concurrent.ThreadSafe;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import oshi.annotation.concurrent.ThreadSafe;
 
 /**
  * EDID parsing utility.

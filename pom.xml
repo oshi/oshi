@@ -178,7 +178,6 @@
 		<dependency-check-maven.version>5.3.2</dependency-check-maven.version>
 		<puppycrawl.checkstyle.version>8.31</puppycrawl.checkstyle.version>
 		<m2e.lifecycle-mapping.version>1.0.0</m2e.lifecycle-mapping.version>
-		<jsr305.version>3.0.2</jsr305.version>
 	</properties>
 
 	<dependencies>
@@ -198,12 +197,6 @@
 			<artifactId>junit-vintage-engine</artifactId>
 			<version>${junit-vintage-engine.version}</version>
 			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.google.code.findbugs</groupId>
-			<artifactId>jsr305</artifactId>
-			<version>${jsr305.version}</version>
-			<scope>provided</scope>
 		</dependency>
 	</dependencies>
 

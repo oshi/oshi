@@ -23,10 +23,10 @@
  */
 package oshi.util;
 
-import javax.annotation.concurrent.ThreadSafe;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import oshi.annotation.concurrent.ThreadSafe;
 
 /**
  * General utility methods

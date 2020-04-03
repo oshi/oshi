@@ -26,8 +26,7 @@ package oshi.hardware.platform.unix.solaris;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.concurrent.ThreadSafe;
-
+import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.common.AbstractSensors;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;

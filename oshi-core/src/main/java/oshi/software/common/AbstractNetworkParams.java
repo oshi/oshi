@@ -29,11 +29,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.annotation.concurrent.ThreadSafe;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.os.NetworkParams;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;

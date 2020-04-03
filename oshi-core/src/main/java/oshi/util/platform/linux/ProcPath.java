@@ -25,8 +25,7 @@ package oshi.util.platform.linux;
 
 import java.io.File;
 
-import javax.annotation.concurrent.ThreadSafe;
-
+import oshi.annotation.concurrent.ThreadSafe;
 import oshi.util.GlobalConfig;
 
 /**

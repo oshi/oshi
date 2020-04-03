@@ -23,13 +23,12 @@
  */
 package oshi.hardware.platform.windows;
 
-import javax.annotation.concurrent.ThreadSafe;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult; // NOSONAR squid:S1191
 
+import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.windows.wmi.MSAcpiThermalZoneTemperature;
 import oshi.driver.windows.wmi.MSAcpiThermalZoneTemperature.TemperatureProperty;
 import oshi.driver.windows.wmi.OhmHardware;

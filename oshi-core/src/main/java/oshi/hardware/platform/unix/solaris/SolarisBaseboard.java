@@ -23,8 +23,7 @@
  */
 package oshi.hardware.platform.unix.solaris;
 
-import javax.annotation.concurrent.Immutable;
-
+import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.common.AbstractBaseboard;
 
 /**

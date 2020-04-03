@@ -23,7 +23,7 @@
  */
 package oshi.software.os;
 
-import javax.annotation.concurrent.NotThreadSafe;
+import oshi.annotation.concurrent.NotThreadSafe;
 
 /**
  * OperatingSystemVersion interface.

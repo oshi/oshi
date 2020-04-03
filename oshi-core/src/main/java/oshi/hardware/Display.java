@@ -23,7 +23,7 @@
  */
 package oshi.hardware;
 
-import javax.annotation.concurrent.Immutable;
+import oshi.annotation.concurrent.Immutable;
 
 /**
  * Display refers to the information regarding a video source and monitor
