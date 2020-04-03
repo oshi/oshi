@@ -1,12 +1,13 @@
 language: java
 
 before_install:
-  # When building the coverity_scan branch, allow only the first job to continue.
-  - if [[ "${TRAVIS_BRANCH}" == "coverity_scan" && "$MATRIX_ID" != "first" ]]; then exit 0; fi
+  # When building the coverity_scan branch, allow only one job to continue. Choose a Linux one.
+  - if [[ "${TRAVIS_BRANCH}" == "coverity_scan" && "$NAME" != "OpenJDK 11" ]]; then exit 0; fi
 
 after_success:
+  # Only execute jacoco on one branch. Choose a Linux one.
   - bash <(curl -s https://codecov.io/bash)
-  - if [ "$MATRIX_ID" == "first" ]; then
+  - if [ "$NAME" == "OpenJDK 11" ]; then
       ./mvnw clean test jacoco:report coveralls:report;
       ./mvnw clean org.jacoco:jacoco-maven-plugin:prepare-agent package sonar:sonar;
     fi
@@ -26,27 +27,26 @@ addons:
     - oshi
   hostname: oshi
 
+# limit to 5 total builds and 2 builds on osx
 matrix:
   include:
-    - os: osx
-      env:
-      - NAME="OracleJDK 8"
-      - MATRIX_ID="first"
-      # COVERITY_SCAN_TOKEN
-      - secure: "JuTWT2u7BWQEJGMGkVvQMIQxwxajntxqbCGYt+bJD3JQhioPVFUJoEFrLCx+jJ0qLy5usrneCDFrvRhvTh6C+95kvHypvGQ3UoeWyXS8zD+GRPUyskbuQ7P60kqqIqc+naGd3uyGddniixoAA6C/Ptmknhls4FlhDCMjW3HDS0c="
-      osx_image: xcode9.3
-    - os: osx
-      env: NAME="OpenJDK 13"
-      osx_image: xcode11.3.1
     - os: linux
       env: NAME="OpenJDK 11"
       jdk: openjdk11
+      # COVERITY_SCAN_TOKEN
+      - secure: "JuTWT2u7BWQEJGMGkVvQMIQxwxajntxqbCGYt+bJD3JQhioPVFUJoEFrLCx+jJ0qLy5usrneCDFrvRhvTh6C+95kvHypvGQ3UoeWyXS8zD+GRPUyskbuQ7P60kqqIqc+naGd3uyGddniixoAA6C/Ptmknhls4FlhDCMjW3HDS0c="
     - os: linux
       env: NAME="OpenJDK 14"
       jdk: openjdk14
     - os: linux
       env: NAME="OpenJDK 15"
       jdk: openjdk15
+    - os: osx
+      env: NAME="OracleJDK 8"
+      osx_image: xcode9.3
+    - os: osx
+      env: NAME="OpenJDK 13"
+      osx_image: xcode11.3.1
 
 script:
   # Skip tests on coverity_scan branch
