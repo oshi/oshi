@@ -1,7 +1,7 @@
 language: java
 
 before_install:
-  # When building the coverity_scan branch, allow only one job to continue. Choose a Linux one.
+  # Skip processing all but coverity_scan branch, allow only one job to continue. Choose a Linux one.
   - if [[ "${TRAVIS_BRANCH}" == "coverity_scan" && "$NAME" != "OpenJDK 11" ]]; then exit 0; fi
 
 after_success:
@@ -31,10 +31,11 @@ addons:
 matrix:
   include:
     - os: linux
-      env: NAME="OpenJDK 11"
-      jdk: openjdk11
+      env: 
+      - NAME="OpenJDK 11"
       # COVERITY_SCAN_TOKEN
       - secure: "JuTWT2u7BWQEJGMGkVvQMIQxwxajntxqbCGYt+bJD3JQhioPVFUJoEFrLCx+jJ0qLy5usrneCDFrvRhvTh6C+95kvHypvGQ3UoeWyXS8zD+GRPUyskbuQ7P60kqqIqc+naGd3uyGddniixoAA6C/Ptmknhls4FlhDCMjW3HDS0c="
+      jdk: openjdk11      
     - os: linux
       env: NAME="OpenJDK 14"
       jdk: openjdk14
