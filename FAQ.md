@@ -25,12 +25,13 @@ The following classes are not thread-safe:
  are intended to be used by a single thread at startup in lieu of reading a configuration file, as OSHI gives no guarantees on re-reading changed configurations.
  - `PerfCounterQuery` and `PerfCounterWildcardQuery` objects should only be used within the context of a single
  thread. These are only used internally in OSHI in these single-thread contexts and not intended for user use.
- - Classes with setters on them are obviously not thread-safe unless the use of the setters is synchronized across threads.  Setters will be removed in a future OSHI version.
+ - Classes with setters on them are obviously not thread-safe unless the use of the setters is synchronized across threads.  In the cadse of the `HWDiskStore`, this synchronization must extend to the
+`HWPartition` objects associated with that disk store. Setters will be removed in a future OSHI version.
 
 What minimum Java version is required?
 ========
 OSHI 3.x is compatible with Java 7, but will not see any added features.  
-OSHI 4.x and 5.x (planned) require minimum Java 8 compatibility.
+OSHI 4.x and 5.x (planned) require minimum Java 8 compatibility.  
 OSHI 6.x's requirements have not yet been finalized but will likely require at least Java 11 and leverage modules. 
 
 Which operating systems are supported?
@@ -60,10 +61,10 @@ What is the history of OSHI and plans for future development?
 ========
 OSHI was [started in 2010](https://code.dblock.org/2010/06/23/introducing-oshi-operating-system-and-hardware-information-java.html) 
 by [@dblock](https://github.com/dblock) as a way to avoid the additional DLL installation requirements of 
-SIGAR and have (at the time) a license more friendly to commercial use. There was some initial work on basic 
-CPU and Memory stats on Windows using native calls, and ports to Mac and Linux mostly using command lines,
-but little in the way of added features. Still, the API skeleton was there, well designed (still in use a 
-decade later!) and was easy to build on.
+SIGAR and have (at the time) a license more friendly to commercial use. 
+There was some initial work on basic CPU and Memory stats on Windows using native calls, 
+and ports to Mac and Linux mostly using command lines, but little in the way of added features.
+Still, the API skeleton was there, well designed (still in use a decade later!) and was easy to build on.
 
 In 2015, [@dbwiddis](https://github.com/dbwiddis) was working on a cloud-based distributed computing data 
 mining problem utilizing [JPPF](https://jppf.org/). As part of optimizing the use of cloud resources (use 
@@ -89,7 +90,7 @@ Will you do an AIX port?
 ========
 We'd love to. We need access to an AIX machine. If you can offer such access, create an issue to notify the team of the possibility.
 
-Will you do an OpenBSD or NetBSD or kFreeBSD port?  How about Android?
+Will you do a port for the other BSDs?  How about Android?
 ========
 Unlikely without bribes such as a lifetime supply of coffee.  But happy to advise someone else who wants to do so!
 

@@ -59,11 +59,11 @@ Downloads
 ---------
 | Stable Release Version | Current Development Version | Dependencies |
 | ------------- | ------------- | ------------- |
-| [oshi-core-4.5.2](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.github.oshi&a=oshi-core&v=4.5.2&e=jar)  | [oshi-core-4.6.0-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=com.github.oshi&a=oshi-core&v=4.6.0-SNAPSHOT&e=jar) | [JNA](https://github.com/java-native-access/jna) • [SLF4J](http://www.slf4j.org/) |
+| [oshi-core-4.6.0](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.github.oshi&a=oshi-core&v=4.6.0&e=jar)  | [oshi-core-5.0.0-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=com.github.oshi&a=oshi-core&v=5.0.0-SNAPSHOT&e=jar) | [JNA](https://github.com/java-native-access/jna) • [SLF4J](http://www.slf4j.org/) |
 
 Usage
 -----
-Include OSHI and its dependencies on your classpath.  We strongly recommend you add OSHI as a dependency to your project dependency manager such as Maven or Gradle. You can [find the appropriate syntax to include OSHI here](https://search.maven.org/artifact/com.github.oshi/oshi-core/4.5.2/jar). 
+Include OSHI and its dependencies on your classpath.  We strongly recommend you add OSHI as a dependency to your project dependency manager such as Maven or Gradle. You can [find the appropriate syntax to include OSHI here](https://search.maven.org/artifact/com.github.oshi/oshi-core/4.6.0/jar). 
 
 Create a new instance of `SystemInfo` and use the getters to access additional information, such as:
 ```
@@ -85,7 +85,7 @@ git clone https://github.com/oshi/oshi.git && cd oshi
 
 Note: OSHI uses the latest version of JNA, which may conflict with other dependencies your project (or its parent) includes. If you experience issues with `NoClassDefFound` errors for JNA artifacts, consider one or more of the following steps to resolve the conflict:
  - Listing OSHI earlier (or first) in your dependency list 
- - Specifying the most recent version of JNA as a dependency
+ - Specifying the most recent version of JNA (both `jna` and `jna-platform` artifacts) as a dependency
  - If you are using a parent (e.g., Spring Boot) that includes JNA as a dependency, override the `jna.version` property 
 
 OSHI for enterprise

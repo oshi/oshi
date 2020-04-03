@@ -16,6 +16,7 @@
 [![SonarQube Security](https://sonarcloud.io/api/project_badges/measure?project=com.github.oshi%3Aoshi-parent&amp;metric=security_rating)](https://sonarcloud.io/dashboard?id=com.github.oshi%3Aoshi-parent)
 [![Code Quality: Java](https://img.shields.io/lgtm/grade/java/g/oshi/oshi.svg?logo=lgtm&amp;logoWidth=18)](https://lgtm.com/projects/g/oshi/oshi/context:java)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/oshi/oshi/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/oshi/oshi/?branch=master)
+[![Dependabot Status](https://api.dependabot.com/badges/status?host=github&amp;repo=oshi/oshi)](https://dependabot.com)
 [![Openhub Stats](https://www.openhub.net/p/oshi/widgets/project_thin_badge.gif)](https://www.openhub.net/p/oshi?ref=github)
 [![first-timers-only](https://img.shields.io/badge/first--timers--only-friendly-blue.svg?style=flat-square)](https://www.firsttimersonly.com/)
 [![Join the chat at https://gitter.im/oshi/oshi](https://badges.gitter.im/oshi/oshi.svg)](https://gitter.im/oshi/oshi?utm_source=badge&amp;utm_medium=badge&amp;utm_campaign=pr-badge&amp;utm_content=badge)
@@ -58,15 +59,20 @@ Downloads
 ---------
 | Stable Release Version | Current Development Version | Dependencies |
 | ------------- | ------------- | ------------- |
-| [oshi-core-4.5.2](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&amp;g=com.github.oshi&amp;a=oshi-core&amp;v=4.5.2&amp;e=jar)  | [oshi-core-4.6.0-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;g=com.github.oshi&amp;a=oshi-core&amp;v=4.6.0-SNAPSHOT&amp;e=jar) | [JNA](https://github.com/java-native-access/jna) • [SLF4J](http://www.slf4j.org/) |
+| [oshi-core-4.6.0](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&amp;g=com.github.oshi&amp;a=oshi-core&amp;v=4.6.0&amp;e=jar)  | [oshi-core-5.0.0-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;g=com.github.oshi&amp;a=oshi-core&amp;v=5.0.0-SNAPSHOT&amp;e=jar) | [JNA](https://github.com/java-native-access/jna) • [SLF4J](http://www.slf4j.org/) |
 
 Usage
 -----
-Include OSHI and its dependencies on your classpath.  We strongly recommend you add OSHI as a dependency to your project dependency manager such as Maven or Gradle. You can [find the appropriate syntax to include OSHI here](https://search.maven.org/artifact/com.github.oshi/oshi-core/4.5.2/jar). 
+Include OSHI and its dependencies on your classpath.  We strongly recommend you add OSHI as a dependency to your project dependency manager such as Maven or Gradle. You can [find the appropriate syntax to include OSHI here](https://search.maven.org/artifact/com.github.oshi/oshi-core/4.6.0/jar). 
 
-Create a new instance of `SystemInfo` and use the getters to access additional information.
+Create a new instance of `SystemInfo` and use the getters to access additional information, such as:
+```
+SystemInfo si = new SystemInfo();
+HardwareAbstractionLayer hal = si.getHardware();
+CentralProcessor cpu = hal.getProcessor();
+```
 
-You can run the [SystemInfoTest](https://github.com/oshi/oshi/blob/master/oshi-core/src/test/java/oshi/SystemInfoTest.java)
+You can see more examples and run the [SystemInfoTest](https://github.com/oshi/oshi/blob/master/oshi-core/src/test/java/oshi/SystemInfoTest.java)
 and see the full output for your system by cloning the project and building it with [Maven](http://maven.apache.org/index.html):
 
 ```
@@ -79,7 +85,7 @@ git clone https://github.com/oshi/oshi.git && cd oshi
 
 Note: OSHI uses the latest version of JNA, which may conflict with other dependencies your project (or its parent) includes. If you experience issues with `NoClassDefFound` errors for JNA artifacts, consider one or more of the following steps to resolve the conflict:
  - Listing OSHI earlier (or first) in your dependency list 
- - Specifying the most recent version of JNA as a dependency
+ - Specifying the most recent version of JNA (both `jna` and `jna-platform` artifacts) as a dependency
  - If you are using a parent (e.g., Spring Boot) that includes JNA as a dependency, override the `jna.version` property 
 
 OSHI for enterprise
@@ -101,55 +107,22 @@ By periodically polling dynamic information (e.g., every second), users can calc
 The `main()` method of [SystemInfoTest](https://github.com/oshi/oshi/blob/master/oshi-core/src/test/java/oshi/SystemInfoTest.java) 
 provides sample code demonstrating the use of `oshi-core` interfaces to retrieve information and calculate additional metrics shown in the examples below.
 
-General information about the operating system and computer system.
-```
-Apple macOS 10.14.6 (Mojave) build 18G84
-Booted: 2019-07-28T20:27:49Z
-Uptime: 10 days, 08:24:03
-Running without elevated permissions.
+In addition, the `oshi-demo` project includes an [OshiGui](https://github.com/oshi/oshi/blob/master/oshi-demo/src/main/java/oshi/demo/OshiGui.java) class implementing a basic Swing GUI offering suggestions for potential visualizations using OSHI in a UI, monitoring, or alerting application, as shown below:
 
-manufacturer: Apple Inc.
-model: MacBook Pro (MacBookPro15,1)
-serialnumber: C03Z53B7LVDR
-```
-Processor identification.
-```
-Intel(R) Core(TM) i9-9880H CPU @ 2.30GHz
- 1 physical CPU package(s)
- 8 physical CPU core(s)
- 16 logical CPU(s)
-Identifier: Intel64 Family 6 Model 158 Stepping 13
-ProcessorID: BFEBFBFF000906ED
-```
+General information about the operating system and computer system hardware:
+![Operating System and Hardware](https://github.com/dbwiddis/oshi/blob/master/src/site/markdown/OSHW.PNG)
+
 By measuring ticks (user, nice, system, idle, iowait, and irq) between time intervals, percent usage can be calculated.
 Per-processor information is also provided.
-```
-CPU, IOWait, and IRQ ticks @ 0 sec:[967282, 15484, 195343, 124216619], 6176, [4054, 2702]
-CPU, IOWait, and IRQ ticks @ 1 sec:[967308, 15484, 195346, 124216790], 6177, [4057, 2705]
-User: 13.0% Nice: 0.0% System: 1.5% Idle: 85.5%
-CPU load: 8.8%
-CPU load averages: 2.69 2.47 2.38
-CPU load per processor: 23.6% 1.3% 18.2% 0.7% 12.9% 0.7% 12.1% 1.3%
-Vendor Frequency: 2.3 GHz
-Max Frequency: 2.3 GHz
-Current Frequencies: 2.3 GHz, 2.3 GHz, 2.3 GHz, 2.3 GHz, 2.3 GHz, 2.3 GHz, 2.3 GHz, 2.3 GHz
-```
+![CPU Usage](https://github.com/dbwiddis/oshi/blob/master/src/site/markdown/CPU.PNG)
+
 Process information including CPU and memory per process is available.
-```
-Processes: 401, Threads: 1159
-   PID  %CPU %MEM       VSZ       RSS Name
- 55977  27.9  0.2   6.8 GiB  34.3 MiB java
- 51820  18.7  5.6   6.3 GiB 919.2 MiB eclipse
- 39272  11.2 17.8   7.1 GiB   2.8 GiB prl_vm_app
- 85316   6.5  2.9   5.6 GiB 471.4 MiB thunderbird
- 35301   5.4  0.5   1.7 GiB  89.8 MiB Microsoft Excel
- ```
+![Process Statistics](https://github.com/dbwiddis/oshi/blob/master/src/site/markdown/Procs.PNG)
+
 Memory and swapfile information is available.
-```
-Memory: 11.6 GiB/32 GiB
-Swap used: 3.6 GiB/5 GiB
-```
-Statistics for the system battery are provided.
+![Memory Statistics](https://github.com/dbwiddis/oshi/blob/master/src/site/markdown/Memory.PNG)
+
+Statistics for the system battery are provided:
 ```
 Power Sources: 
  Name: InternalBattery-0, Device Name: bq20z451,
@@ -179,6 +152,7 @@ Displays:
   Monitor Name: SyncMaster
   Serial Number: HMCP431880
 ```
+
 Disks and usage (reads, writes, transfer times) are shown, and partitions can be mapped to filesystems.
 ```
 Disks:
@@ -198,6 +172,7 @@ Sensors:
  Fan Speeds:[4685, 4687]
  CPU Voltage: 3.9V
 ```
+
 Attached USB devices can be listed:
 ```
 USB Devices:
@@ -223,7 +198,6 @@ USB Devices:
              |-- ANT USBStick2 (Dynastream Innovations) [s/n: 051]
              |-- Fitbit Base Station (Fitbit Inc.)
 ```
-
 
 Where are we? How can I help?
 -----------------------------
