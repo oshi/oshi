@@ -25,8 +25,7 @@ package oshi.hardware.platform.linux;
 
 import java.io.File;
 
-import javax.annotation.concurrent.ThreadSafe;
-
+import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.NetworkIF;
 import oshi.hardware.common.Networks;
 import oshi.util.FileUtil;

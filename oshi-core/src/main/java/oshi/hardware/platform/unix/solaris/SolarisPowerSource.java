@@ -25,10 +25,9 @@ package oshi.hardware.platform.unix.solaris;
 
 import java.time.LocalDate;
 
-import javax.annotation.concurrent.ThreadSafe;
-
 import com.sun.jna.platform.unix.solaris.LibKstat.Kstat; // NOSONAR
 
+import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.PowerSource;
 import oshi.hardware.common.AbstractPowerSource;
 import oshi.util.Constants;

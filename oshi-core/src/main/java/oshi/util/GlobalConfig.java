@@ -25,7 +25,7 @@ package oshi.util;
 
 import java.util.Properties;
 
-import javax.annotation.concurrent.NotThreadSafe;
+import oshi.annotation.concurrent.NotThreadSafe;
 
 /**
  * The global configuration utility. See

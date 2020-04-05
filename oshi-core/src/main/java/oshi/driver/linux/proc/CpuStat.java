@@ -25,8 +25,7 @@ package oshi.driver.linux.proc;
 
 import java.util.List;
 
-import javax.annotation.concurrent.ThreadSafe;
-
+import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.CentralProcessor.TickType;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;

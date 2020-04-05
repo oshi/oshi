@@ -23,8 +23,7 @@
  */
 package oshi.hardware.platform.unix.freebsd;
 
-import javax.annotation.concurrent.Immutable;
-
+import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.common.AbstractBaseboard;
 
 /**

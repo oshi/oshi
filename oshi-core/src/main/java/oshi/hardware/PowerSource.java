@@ -25,7 +25,7 @@ package oshi.hardware;
 
 import java.time.LocalDate;
 
-import javax.annotation.concurrent.ThreadSafe;
+import oshi.annotation.concurrent.ThreadSafe;
 
 /**
  * The Power Source is one or more batteries with some capacity, and some state

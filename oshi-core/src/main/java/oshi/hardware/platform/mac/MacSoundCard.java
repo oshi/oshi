@@ -26,8 +26,7 @@ package oshi.hardware.platform.mac;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.concurrent.Immutable;
-
+import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.common.AbstractSoundCard;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;

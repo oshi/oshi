@@ -23,8 +23,7 @@
  */
 package oshi.hardware.common;
 
-import javax.annotation.concurrent.Immutable;
-
+import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.Baseboard;
 
 /**

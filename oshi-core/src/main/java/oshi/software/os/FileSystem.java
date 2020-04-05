@@ -23,7 +23,7 @@
  */
 package oshi.software.os;
 
-import javax.annotation.concurrent.ThreadSafe;
+import oshi.annotation.concurrent.ThreadSafe;
 
 /**
  * The File System is a logical arrangement, usually in a hierarchial tree,

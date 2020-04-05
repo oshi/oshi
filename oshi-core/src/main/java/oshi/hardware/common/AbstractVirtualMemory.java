@@ -23,8 +23,7 @@
  */
 package oshi.hardware.common;
 
-import javax.annotation.concurrent.ThreadSafe;
-
+import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.VirtualMemory;
 import oshi.util.FormatUtil;
 

@@ -23,8 +23,7 @@
  */
 package oshi.hardware;
 
-import javax.annotation.concurrent.Immutable;
-
+import oshi.annotation.concurrent.Immutable;
 import oshi.util.FormatUtil;
 
 /**

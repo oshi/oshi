@@ -21,42 +21,30 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package oshi.driver.windows.wmi;
-
-import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery; //NOSONAR squid:S1191
-import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
-
-import oshi.annotation.concurrent.ThreadSafe;
-import oshi.util.platform.windows.WmiQueryHandler;
+package oshi.annotation.concurrent;
 
 /**
- * Utility to query WMI class {@code Win32_PnPEntity}
+ * The presence of this annotation indicates that the author believes the class
+ * to be immutable and hence inherently thread-safe. An immutable class is one
+ * where the state of an instance cannot be <i>seen</i> to change. As a result
+ * <ul>
+ * <li>All public fields must be {@code final}</li>
+ * <li>All public final reference fields are either {@code null} or refer to
+ * other immutable objects</li>
+ * <li>Constructors and methods do not publish references to any potentially
+ * mutable internal state.</li>
+ * </ul>
+ * Performance optimization may mean that instances of an immutable class may
+ * have mutable internal state. The critical point is that callers cannot tell
+ * the difference. For example {@link String} is an immutable class, despite
+ * having an internal int that is non-final but used as a cache for
+ * {@link String#hashCode()}.
+ * <p>
+ * Immutable objects are inherently thread-safe; they may be passed between
+ * threads or published without synchronization.
+ * <p>
+ * This annotation is intended for internal use in OSHI as a temporary
+ * workaround until it is available in {@code jakarta.annotations}.
  */
-@ThreadSafe
-public final class Win32PnPEntity {
-
-    private static final String WIN32_PNP_ENTITY = "Win32_PnPEntity";
-
-    /**
-     * DeviceId and name
-     */
-    public enum PnPEntityProperty {
-        NAME, MANUFACTURER, PNPDEVICEID;
-    }
-
-    private Win32PnPEntity() {
-    }
-
-    /**
-     * Queries the PnP Device id info
-     *
-     * @param whereClause
-     *            WQL "WHERE" clause limiting the search
-     * @return Information regarding each device
-     */
-    public static WmiResult<PnPEntityProperty> queryDeviceId(String whereClause) {
-        WmiQuery<PnPEntityProperty> pnpEntityQuery = new WmiQuery<>(WIN32_PNP_ENTITY + whereClause,
-                PnPEntityProperty.class);
-        return WmiQueryHandler.createInstance().queryWMI(pnpEntityQuery);
-    }
+public @interface Immutable {
 }

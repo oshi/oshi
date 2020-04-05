@@ -26,8 +26,6 @@ package oshi.util.platform.windows;
 import java.util.EnumMap;
 import java.util.Map;
 
-import javax.annotation.concurrent.NotThreadSafe;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,6 +33,7 @@ import com.sun.jna.platform.win32.COM.Wbemcli; //NOSONAR
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
+import oshi.annotation.concurrent.NotThreadSafe;
 import oshi.util.platform.windows.PerfDataUtil.PerfCounter;
 
 /**

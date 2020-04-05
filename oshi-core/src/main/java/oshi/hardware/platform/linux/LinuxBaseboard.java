@@ -29,8 +29,7 @@ import static oshi.util.platform.linux.ProcPath.CPUINFO;
 import java.util.List;
 import java.util.function.Supplier;
 
-import javax.annotation.concurrent.Immutable;
-
+import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.common.AbstractBaseboard;
 import oshi.util.Constants;
 import oshi.util.FileUtil;

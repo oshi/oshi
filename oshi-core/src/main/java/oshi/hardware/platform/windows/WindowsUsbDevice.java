@@ -31,8 +31,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.concurrent.Immutable;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,6 +39,7 @@ import com.sun.jna.platform.win32.Cfgmgr32Util;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 import com.sun.jna.ptr.IntByReference;
 
+import oshi.annotation.concurrent.Immutable;
 import oshi.driver.windows.wmi.Win32DiskDrive;
 import oshi.driver.windows.wmi.Win32DiskDrive.DeviceIdProperty;
 import oshi.driver.windows.wmi.Win32PnPEntity;

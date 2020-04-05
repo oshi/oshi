@@ -23,8 +23,7 @@
  */
 package oshi.hardware.platform.unix.freebsd;
 
-import javax.annotation.concurrent.ThreadSafe;
-
+import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.NetworkIF;
 import oshi.hardware.common.Networks;
 import oshi.util.ExecutingCommand;

@@ -23,10 +23,9 @@
  */
 package oshi.hardware.platform.mac;
 
-import javax.annotation.concurrent.ThreadSafe;
-
 import com.sun.jna.platform.mac.IOKit.IOConnect; // NOSONAR squid:S1191
 
+import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.common.AbstractSensors;
 import oshi.util.platform.mac.SmcUtil;
 

@@ -23,7 +23,7 @@
  */
 package oshi.software.os;
 
-import javax.annotation.concurrent.Immutable;
+import oshi.annotation.concurrent.Immutable;
 
 /**
  * Operating system services are responsible for the management of platform

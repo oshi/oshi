@@ -27,10 +27,9 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.function.Supplier;
 
-import javax.annotation.concurrent.Immutable;
-
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult; // NOSONAR squid:S1191
 
+import oshi.annotation.concurrent.Immutable;
 import oshi.driver.windows.wmi.Win32BaseBoard;
 import oshi.driver.windows.wmi.Win32BaseBoard.BaseBoardProperty;
 import oshi.hardware.common.AbstractBaseboard;

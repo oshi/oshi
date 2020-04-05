@@ -23,7 +23,7 @@
  */
 package oshi.hardware;
 
-import javax.annotation.concurrent.ThreadSafe;
+import oshi.annotation.concurrent.ThreadSafe;
 
 /**
  * A hardware abstraction layer. Provides access to hardware items such as

@@ -27,10 +27,10 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.function.Supplier;
 
-import javax.annotation.concurrent.NotThreadSafe;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import oshi.annotation.concurrent.NotThreadSafe;
 
 /**
  * A process is an instance of a computer program that is being executed. It
