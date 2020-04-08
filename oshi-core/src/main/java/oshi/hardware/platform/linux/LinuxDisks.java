@@ -114,11 +114,12 @@ public final class LinuxDisks {
                         computeDiskStats(store, device);
                         result.add(store);
                     } else if (store.equals(storeToUpdate)) {
-                        // If we are only updating a single disk, the name, model, serial, and size are
-                        // sufficient to test if this is the correct one, add it, exit the loop and
-                        // return.
+                        // Note this equality test is not object equality. If we are only updating a
+                        // single disk, the name, model, serial, and size are sufficient to test if this
+                        // is a match. Add the (old) object, release handle and return.
                         computeDiskStats(storeToUpdate, device);
                         result.add(storeToUpdate);
+                        Udev.INSTANCE.udev_device_unref(device);
                         break;
                     }
                 } else if ("partition".equals(Udev.INSTANCE.udev_device_get_devtype(device)) && store != null) {
