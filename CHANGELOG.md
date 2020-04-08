@@ -5,7 +5,7 @@
 * (Planned) Remove deprecated code.
 * Your contribution here.
 
-4.6.0 (4/2/2020)
+4.6.0 (4/2/2020), 4.6.1 (4/8/2020)
 ================
 * [#894](https://github.com/oshi/oshi/pull/894): Look up microarchitecture from processor identifier. - [@tbradellis](https://github.com/tbradellis).
 * [#1150](https://github.com/oshi/oshi/pull/1150): Add fields to NetworkIF to help determine physical interfaces. - [@dbwiddis](https://github.com/dbwiddis).
