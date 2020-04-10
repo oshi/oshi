@@ -24,6 +24,7 @@
 package oshi.util;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -470,4 +471,24 @@ public class ParseUtilTest {
         assertEquals(64 * 1024, ParseUtil.parseLspciMemorySize("Foo [size=64K]"));
         assertEquals(256 * 1024 * 1024, ParseUtil.parseLspciMemorySize("Foo [size=256M]"));
     }
+
+    @Test
+    public void testParseHyphenatedIntList() {
+        String s = "1";
+        List<Integer> parsed = ParseUtil.parseHyphenatedIntList(s);
+        assertFalse(parsed.contains(0));
+        assertTrue(parsed.contains(1));
+
+        s = "0 2-5 7";
+        parsed = ParseUtil.parseHyphenatedIntList(s);
+        assertTrue(parsed.contains(0));
+        assertFalse(parsed.contains(1));
+        assertTrue(parsed.contains(2));
+        assertTrue(parsed.contains(3));
+        assertTrue(parsed.contains(4));
+        assertTrue(parsed.contains(5));
+        assertFalse(parsed.contains(6));
+        assertTrue(parsed.contains(7));
+    }
+
 }

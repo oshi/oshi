@@ -103,26 +103,18 @@ final class SolarisCentralProcessor extends AbstractCentralProcessor {
         List<String> lgrpinfo = ExecutingCommand.runNative("lgrpinfo -c leaves");
         // Format:
         // lgroup 0 (root):
-        // CPUs 0 1
-        // CPUs 0-7
-        // CPUs 0-3 6 7 12 13
+        // CPUs: 0 1
+        // CPUs: 0-7
+        // CPUs: 0-3 6 7 12 13
+        // CPU: 0
+        // CPU: 1
         int lgroup = 0;
         for (String line : lgrpinfo) {
             if (line.startsWith("lgroup")) {
                 lgroup = ParseUtil.getFirstIntValue(line);
-            } else if (line.contains("CPUs:")) {
-                String[] cpuList = ParseUtil.whitespaces.split(line.split(":")[1]);
-                for (String cpu : cpuList) {
-                    // Will either be individual CPU or hyphen-delimited range
-                    if (cpu.contains("-")) {
-                        int first = ParseUtil.getFirstIntValue(cpu);
-                        int last = ParseUtil.getNthIntValue(line, 2);
-                        for (int i = first; i <= last; i++) {
-                            numaNodeMap.put(i, lgroup);
-                        }
-                    } else {
-                        numaNodeMap.put(ParseUtil.parseIntOrDefault(cpu, 0), lgroup);
-                    }
+            } else if (line.contains("CPUs:") || line.contains("CPU:")) {
+                for (Integer cpu : ParseUtil.parseHyphenatedIntList(line.split(":")[1])) {
+                    numaNodeMap.put(cpu, lgroup);
                 }
             }
         }

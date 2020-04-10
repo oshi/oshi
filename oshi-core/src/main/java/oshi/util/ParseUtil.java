@@ -29,6 +29,7 @@ import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -1045,5 +1046,35 @@ public final class ParseUtil {
             return parseDecimalMemorySizeToBinary(matcher.group(1) + " " + matcher.group(2) + "B");
         }
         return 0;
+    }
+
+    /**
+     * Parse a space-delimited list of integers which include hyphenated ranges to a
+     * list of just the integers. For example, 0 1 4-7 parses to a list containing
+     * 0, 1, 4, 5, 6, and 7.
+     *
+     * @param string
+     *            A string containing space-delimited integers or ranges of integers
+     *            with a hyphen
+     * @return A list of integers representing the provided range(s).
+     */
+    public static List<Integer> parseHyphenatedIntList(String s) {
+        List<Integer> result = new ArrayList<>();
+        for (String cpu : whitespaces.split(s)) {
+            // Will either be individual CPU or hyphen-delimited range
+            if (cpu.contains("-")) {
+                int first = getFirstIntValue(cpu);
+                int last = getNthIntValue(cpu, 2);
+                for (int i = first; i <= last; i++) {
+                    result.add(i);
+                }
+            } else {
+                int only = ParseUtil.parseIntOrDefault(cpu, -1);
+                if (only >= 0) {
+                    result.add(only);
+                }
+            }
+        }
+        return result;
     }
 }
