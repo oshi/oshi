@@ -4,6 +4,10 @@ before_install:
   # Skip processing all but coverity_scan branch, allow only one job to continue. Choose a Linux one.
   - if [[ "${TRAVIS_BRANCH}" == "coverity_scan" && "$NAME" != "OpenJDK 11" ]]; then exit 0; fi
 
+# enable to get a stack trace on failed builds
+# install:
+#   - ./mvnw install -DskipTests=true -Dmaven.javadoc.skip=true -B -V -X
+
 after_success:
   # Only execute jacoco on one branch. Choose a Linux one.
   - bash <(curl -s https://codecov.io/bash)
@@ -39,15 +43,21 @@ matrix:
     - os: linux
       env: NAME="OpenJDK 14"
       jdk: openjdk14
-    - os: linux
-      env: NAME="OpenJDK 15"
-      jdk: openjdk15
     - os: osx
       env: NAME="OracleJDK 8"
       osx_image: xcode9.3
     - os: osx
       env: NAME="OpenJDK 13"
       osx_image: xcode11.3.1
+    - os: linux
+      env: NAME="OpenJDK 15"
+      jdk: openjdk15
+# bnd-maven-plugin failing on JDK15-ea
+# see https://github.com/bndtools/bnd/issues/3903
+  allow_failures:
+    - os: linux
+      env: NAME="OpenJDK 15"
+      jdk: openjdk15
 
 script:
   # Skip tests on coverity_scan branch

@@ -30,6 +30,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JMenuBar;
 import javax.swing.SwingUtilities;
+import javax.swing.WindowConstants;
 
 import oshi.SystemInfo;
 import oshi.demo.gui.Config;
@@ -68,7 +69,7 @@ public class OshiGui {
         // Create the external frame
         mainFrame = new JFrame(Config.GUI_TITLE);
         mainFrame.setSize(Config.GUI_WIDTH, Config.GUI_HEIGHT);
-        mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        mainFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         mainFrame.setResizable(true);
         mainFrame.setLocationByPlatform(true);
         mainFrame.setLayout(new BorderLayout());
