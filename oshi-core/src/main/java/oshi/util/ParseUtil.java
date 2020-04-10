@@ -1053,23 +1053,22 @@ public final class ParseUtil {
      * list of just the integers. For example, 0 1 4-7 parses to a list containing
      * 0, 1, 4, 5, 6, and 7.
      *
-     * @param string
+     * @param str
      *            A string containing space-delimited integers or ranges of integers
      *            with a hyphen
      * @return A list of integers representing the provided range(s).
      */
-    public static List<Integer> parseHyphenatedIntList(String s) {
+    public static List<Integer> parseHyphenatedIntList(String str) {
         List<Integer> result = new ArrayList<>();
-        for (String cpu : whitespaces.split(s)) {
-            // Will either be individual CPU or hyphen-delimited range
-            if (cpu.contains("-")) {
-                int first = getFirstIntValue(cpu);
-                int last = getNthIntValue(cpu, 2);
+        for (String s : whitespaces.split(str)) {
+            if (s.contains("-")) {
+                int first = getFirstIntValue(s);
+                int last = getNthIntValue(s, 2);
                 for (int i = first; i <= last; i++) {
                     result.add(i);
                 }
             } else {
-                int only = ParseUtil.parseIntOrDefault(cpu, -1);
+                int only = ParseUtil.parseIntOrDefault(s, -1);
                 if (only >= 0) {
                     result.add(only);
                 }

@@ -98,18 +98,17 @@ final class SolarisCentralProcessor extends AbstractCentralProcessor {
     }
 
     private static Map<Integer, Integer> mapNumaNodes() {
-        Map<Integer, Integer> numaNodeMap = new HashMap<>();
         // Get numa node info from lgrpinfo
-        List<String> lgrpinfo = ExecutingCommand.runNative("lgrpinfo -c leaves");
-        // Format:
-        // lgroup 0 (root):
-        // CPUs: 0 1
-        // CPUs: 0-7
-        // CPUs: 0-3 6 7 12 13
-        // CPU: 0
-        // CPU: 1
+        Map<Integer, Integer> numaNodeMap = new HashMap<>();
         int lgroup = 0;
-        for (String line : lgrpinfo) {
+        for (String line : ExecutingCommand.runNative("lgrpinfo -c leaves")) {
+            // Format:
+            // lgroup 0 (root):
+            // CPUs: 0 1
+            // CPUs: 0-7
+            // CPUs: 0-3 6 7 12 13
+            // CPU: 0
+            // CPU: 1
             if (line.startsWith("lgroup")) {
                 lgroup = ParseUtil.getFirstIntValue(line);
             } else if (line.contains("CPUs:") || line.contains("CPU:")) {
