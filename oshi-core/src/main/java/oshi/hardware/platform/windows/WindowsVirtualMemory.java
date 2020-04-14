@@ -54,9 +54,9 @@ final class WindowsVirtualMemory extends AbstractVirtualMemory {
 
     private final long pageSize;
 
-    private final Supplier<Long> used = memoize(this::querySwapUsed, defaultExpiration());
+    private final Supplier<Long> used = memoize(WindowsVirtualMemory::querySwapUsed, defaultExpiration());
 
-    private final Supplier<Long> total = memoize(this::querySwapTotal, defaultExpiration());
+    private final Supplier<Long> total = memoize(WindowsVirtualMemory::querySwapTotal, defaultExpiration());
 
     private final Supplier<Pair<Long, Long>> swapInOut = memoize(WindowsVirtualMemory::queryPageSwaps,
             defaultExpiration());
@@ -73,12 +73,12 @@ final class WindowsVirtualMemory extends AbstractVirtualMemory {
 
     @Override
     public long getSwapUsed() {
-        return used.get();
+        return this.pageSize * used.get();
     }
 
     @Override
     public long getSwapTotal() {
-        return total.get();
+        return this.pageSize * total.get();
     }
 
     @Override
@@ -91,17 +91,17 @@ final class WindowsVirtualMemory extends AbstractVirtualMemory {
         return swapInOut.get().getB();
     }
 
-    private long querySwapUsed() {
-        return PagingFile.querySwapUsed().getOrDefault(PagingPercentProperty.PERCENTUSAGE, 0L) * this.pageSize;
+    private static long querySwapUsed() {
+        return PagingFile.querySwapUsed().getOrDefault(PagingPercentProperty.PERCENTUSAGE, 0L);
     }
 
-    private long querySwapTotal() {
+    private static long querySwapTotal() {
         PERFORMANCE_INFORMATION perfInfo = new PERFORMANCE_INFORMATION();
         if (!Psapi.INSTANCE.GetPerformanceInfo(perfInfo, perfInfo.size())) {
             LOG.error("Failed to get Performance Info. Error code: {}", Kernel32.INSTANCE.GetLastError());
             return 0L;
         }
-        return this.pageSize * (perfInfo.CommitLimit.longValue() - perfInfo.PhysicalTotal.longValue());
+        return perfInfo.CommitLimit.longValue() - perfInfo.PhysicalTotal.longValue();
     }
 
     private static Pair<Long, Long> queryPageSwaps() {
