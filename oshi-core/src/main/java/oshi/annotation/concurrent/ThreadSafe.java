@@ -23,6 +23,8 @@
  */
 package oshi.annotation.concurrent;
 
+import java.lang.annotation.Documented;
+
 /**
  * The presence of this annotation indicates that the author believes the class
  * to be thread-safe. As such, there should be no sequence of accessing the
@@ -34,5 +36,6 @@ package oshi.annotation.concurrent;
  * This annotation is intended for internal use in OSHI as a temporary
  * workaround until it is available in {@code jakarta.annotations}.
  */
+@Documented
 public @interface ThreadSafe {
 }
