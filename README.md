@@ -221,20 +221,24 @@ Many thanks to the following companies for providing free support of Open Source
 
 Projects using OSHI
 -------------------
-* [CAS Server](https://apereo.github.io/cas)
-* [JPPF](https://jppf.org/)
+* [Arthas](https://alibaba.github.io/arthas/en/)
 * [Apache Flink](https://flink.apache.org/)
 * [DeepLearning4J](https://deeplearning4j.org/)
+* [Hutool](https://www.hutool.cn/)
+* [Dolphin Scheduler](https://dolphinscheduler.apache.org/)
+* [Guns](https://github.com/stylefeng/Guns)
+* [GeoServer](https://docs.geoserver.org/stable/en/user/community/status-monitoring/index.html)
+* [Apache Doris](http://doris.incubator.apache.org/)
+* [UniversalMediaServer](https://github.com/UniversalMediaServer/UniversalMediaServer)
 * [PSI Probe](https://github.com/psi-probe/psi-probe)
+* [CAS Server](https://apereo.github.io/cas)
+* [JPPF](https://jppf.org/)
 * [GigaSpaces XAP](https://xap.github.io/)
 * [openHAB Systeminfo Binding](https://github.com/openhab/openhab2-addons/tree/master/bundles/org.openhab.binding.systeminfo)
 * [Jenkins swarm plugin](https://wiki.jenkins.io/display/JENKINS/Swarm+Plugin)
 * [Java for IBM Watson IoT Platform](https://ibm-watson-iot.github.io/iot-java/)
 * [Semux](https://www.semux.org/)
-* [Arthas](https://alibaba.github.io/arthas/en/)
 * [Hawkular Agent](https://github.com/hawkular/hawkular-agent)
-* [GeoServer](https://docs.geoserver.org/stable/en/user/community/status-monitoring/index.html)
-* [UniversalMediaServer](https://github.com/UniversalMediaServer/UniversalMediaServer)
 * [Dagr](https://github.com/fulcrumgenomics/dagr)
 * [sys-API](https://github.com/Krillsson/sys-API)
 * [NexCapMAT](http://www.nexess-solutions.com/fr/produits/application-nexcap-mat/)
@@ -243,6 +247,8 @@ Projects using OSHI
 * [Stefan's OS](https://BotCompany.de/)
 * [Eclipse Passage](https://projects.eclipse.org/projects/technology.passage)
 * [Eclipse Orbit](https://projects.eclipse.org/projects/tools.orbit)
+* [Ruoyi](http://www.ruoyi.vip/)
+* [DataX](https://github.com/WeiYe-Jing/datax-web)
 
 License
 -------
