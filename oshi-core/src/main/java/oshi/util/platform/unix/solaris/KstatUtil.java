@@ -71,7 +71,7 @@ public final class KstatUtil {
      * be closed with {@link #close}, the equivalent of calling
      * {@link LibKstat#kstat_close}
      */
-    public static class KstatChain implements AutoCloseable {
+    public static final class KstatChain implements AutoCloseable {
 
         private KstatChain() {
             CHAIN.lock();
