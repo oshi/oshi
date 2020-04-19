@@ -23,53 +23,44 @@
  */
 package oshi.software.os.windows;
 
-import java.util.Map;
-
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.driver.windows.perfmon.TCPStats;
-import oshi.driver.windows.perfmon.TCPStats.TcpProperty;
-import oshi.driver.windows.perfmon.UDPStats;
-import oshi.driver.windows.perfmon.UDPStats.UdpProperty;
+import oshi.jna.platform.windows.IPHlpAPI;
+import oshi.jna.platform.windows.IPHlpAPI.MIB_TCPSTATS;
+import oshi.jna.platform.windows.IPHlpAPI.MIB_UDPSTATS;
 import oshi.software.common.AbstractInternetProtocolStats;
 
 @ThreadSafe
 public class WindowsInternetProtocolStats extends AbstractInternetProtocolStats {
 
+    private static final IPHlpAPI IPHLP = IPHlpAPI.INSTANCE;
+
     @Override
     public TcpStats getTCPv4Stats() {
-        return getTCPStats(TCPStats.queryTCPv4Stats());
+        MIB_TCPSTATS stats = new MIB_TCPSTATS();
+        IPHLP.GetTcpStatisticsEx(stats, IPHlpAPI.AF_INET);
+        return new TcpStats(stats.dwCurrEstab, stats.dwActiveOpens, stats.dwPassiveOpens, stats.dwAttemptFails,
+                stats.dwEstabResets, stats.dwOutSegs, stats.dwInSegs, stats.dwRetransSegs);
     }
 
     @Override
     public TcpStats getTCPv6Stats() {
-        return getTCPStats(TCPStats.queryTCPv6Stats());
-    }
-
-    private TcpStats getTCPStats(Map<TcpProperty, Long> valueMap) {
-        return new TcpStats(valueMap.getOrDefault(TcpProperty.CONNECTIONSESTABLISHED, 0L),
-                valueMap.getOrDefault(TcpProperty.CONNECTIONSACTIVE, 0L),
-                valueMap.getOrDefault(TcpProperty.CONNECTIONSPASSIVE, 0L),
-                valueMap.getOrDefault(TcpProperty.CONNECTIONFAILURES, 0L),
-                valueMap.getOrDefault(TcpProperty.CONNECTIONSRESET, 0L),
-                valueMap.getOrDefault(TcpProperty.SEGMENTSSENTPERSEC, 0L),
-                valueMap.getOrDefault(TcpProperty.SEGMENTSRECEIVEDPERSEC, 0L),
-                valueMap.getOrDefault(TcpProperty.SEGMENTSRETRANSMITTEDPERSEC, 0L));
+        MIB_TCPSTATS stats = new MIB_TCPSTATS();
+        IPHLP.GetTcpStatisticsEx(stats, IPHlpAPI.AF_INET6);
+        return new TcpStats(stats.dwCurrEstab, stats.dwActiveOpens, stats.dwPassiveOpens, stats.dwAttemptFails,
+                stats.dwEstabResets, stats.dwOutSegs, stats.dwInSegs, stats.dwRetransSegs);
     }
 
     @Override
     public UdpStats getUDPv4Stats() {
-        return getUDPStats(UDPStats.queryUDPv4Stats());
+        MIB_UDPSTATS stats = new MIB_UDPSTATS();
+        IPHLP.GetUdpStatisticsEx(stats, IPHlpAPI.AF_INET);
+        return new UdpStats(stats.dwOutDatagrams, stats.dwInDatagrams, stats.dwNoPorts, stats.dwInErrors);
     }
 
     @Override
     public UdpStats getUDPv6Stats() {
-        return getUDPStats(UDPStats.queryUDPv6Stats());
-    }
-
-    private UdpStats getUDPStats(Map<UdpProperty, Long> valueMap) {
-        return new UdpStats(valueMap.getOrDefault(UdpProperty.DATAGRAMSSENTPERSEC, 0L),
-                valueMap.getOrDefault(UdpProperty.DATAGRAMSRECEIVEDPERSEC, 0L),
-                valueMap.getOrDefault(UdpProperty.DATAGRAMSNOPORTPERSEC, 0L),
-                valueMap.getOrDefault(UdpProperty.DATAGRAMSRECEIVEDERRORS, 0L));
+        MIB_UDPSTATS stats = new MIB_UDPSTATS();
+        IPHLP.GetUdpStatisticsEx(stats, IPHlpAPI.AF_INET6);
+        return new UdpStats(stats.dwOutDatagrams, stats.dwInDatagrams, stats.dwNoPorts, stats.dwInErrors);
     }
 }

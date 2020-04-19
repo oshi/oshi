@@ -33,6 +33,9 @@ public interface IPHlpAPI extends com.sun.jna.platform.win32.IPHlpAPI {
 
     IPHlpAPI INSTANCE = Native.load("iphlpapi", IPHlpAPI.class, W32APIOptions.DEFAULT_OPTIONS);
 
+    int AF_INET = 2; // Internet IP Protocol.
+    int AF_INET6 = 23; // IP version 6.
+
     /**
      * The MIB_TCPSTATS structure contains statistics for the TCP protocol running
      * on the local computer.
@@ -89,6 +92,24 @@ public interface IPHlpAPI extends com.sun.jna.platform.win32.IPHlpAPI {
     int GetTcpStatistics(MIB_TCPSTATS Statistics);
 
     /**
+     * The GetTcpStatisticsEx function retrieves the Transmission Control Protocol
+     * (TCP) statistics for the current computer. The GetTcpStatisticsEx function
+     * differs from the {@link #GetTcpStatistics} function in that
+     * GetTcpStatisticsEx also supports the Internet Protocol version 6 (IPv6)
+     * protocol family.
+     *
+     * @param Statistics
+     *            A {@link MIB_TCPSTATS} structure that receives the TCP statistics
+     *            for the local computer.
+     * @param Family
+     *            The protocol family for which to retrieve statistics. This
+     *            parameter must be {@link #AF_INET} or {@link #AF_INET6}.
+     * @return If the function succeeds, the return value is
+     *         {@link WinError#NO_ERROR}.
+     */
+    int GetTcpStatisticsEx(MIB_TCPSTATS Statistics, int Family);
+
+    /**
      * The GetUdpStatistics function retrieves the User Datagram Protocol (UDP)
      * statistics for the local computer.
      *
@@ -99,4 +120,21 @@ public interface IPHlpAPI extends com.sun.jna.platform.win32.IPHlpAPI {
      *         {@link WinError#NO_ERROR}.
      */
     int GetUdpStatistics(MIB_UDPSTATS Stats);
+
+    /**
+     * The GetUdpStatisticsEx function retrieves the User Datagram Protocol (UDP)
+     * statistics for the current computer. The GetUdpStatisticsEx function differs
+     * from the {@link #GetUdpStatistics} function in that GetUdpStatisticsEx also
+     * supports the Internet Protocol version 6 (IPv6) protocol family.
+     *
+     * @param Statistics
+     *            A {@link MIB_UDPSTATS} structure that receives the UDP statistics
+     *            for the local computer.
+     * @param Family
+     *            The protocol family for which to retrieve statistics. This
+     *            parameter must be {@link #AF_INET} or {@link #AF_INET6}.
+     * @return If the function succeeds, the return value is
+     *         {@link WinError#NO_ERROR}.
+     */
+    int GetUdpStatisticsEx(MIB_UDPSTATS Statistics, int Family);
 }
