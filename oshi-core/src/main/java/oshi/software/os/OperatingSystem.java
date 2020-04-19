@@ -82,6 +82,13 @@ public interface OperatingSystem {
      */
     FileSystem getFileSystem();
 
+    /** 
+     * Instantiates a {@link oshi.software.os.InternetProtocolStats} object.
+     * 
+     * @return a {@link oshi.software.os.InternetProtocolStats} object.
+     */
+    InternetProtocolStats getInternetProtocolStats();
+    
     /**
      * Gets currently running processes. No order is guaranteed.
      *

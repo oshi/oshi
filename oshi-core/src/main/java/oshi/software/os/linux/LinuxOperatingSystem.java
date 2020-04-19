@@ -55,6 +55,7 @@ import oshi.driver.linux.proc.UpTime;
 import oshi.jna.platform.linux.LinuxLibc;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
+import oshi.software.os.InternetProtocolStats;
 import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OSService;
@@ -213,6 +214,11 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     @Override
     public FileSystem getFileSystem() {
         return new LinuxFileSystem();
+    }
+
+    @Override
+    public InternetProtocolStats getInternetProtocolStats() {
+        return null;
     }
 
     @Override

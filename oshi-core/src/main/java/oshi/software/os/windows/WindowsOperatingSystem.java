@@ -88,6 +88,7 @@ import oshi.driver.windows.wmi.Win32Processor.BitnessProperty;
 import oshi.jna.platform.windows.Kernel32;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
+import oshi.software.os.InternetProtocolStats;
 import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OSService;
@@ -282,6 +283,11 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     @Override
     public FileSystem getFileSystem() {
         return new WindowsFileSystem();
+    }
+
+    @Override
+    public InternetProtocolStats getInternetProtocolStats() {
+        return new WindowsInternetProtocolStats();
     }
 
     @Override
