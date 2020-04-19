@@ -65,7 +65,6 @@ public interface InternetProtocolStats {
         private final long connectionsPassive;
         private final long connectionFailures;
         private final long connectionsReset;
-        private final long segments;
         private final long segmentsSent;
         private final long segmentsReceived;
         private final long segmentsRetransmitted;
@@ -76,20 +75,18 @@ public interface InternetProtocolStats {
          * @param connectionsPassive
          * @param connectionFailures
          * @param connectionsReset
-         * @param segments
          * @param segmentsSent
          * @param segmentsReceived
          * @param segmentsRetransmitted
          */
         public TcpStats(long connectionsEstablished, long connectionsActive, long connectionsPassive,
-                long connectionFailures, long connectionsReset, long segments, long segmentsSent, long segmentsReceived,
+                long connectionFailures, long connectionsReset, long segmentsSent, long segmentsReceived,
                 long segmentsRetransmitted) {
             this.connectionsEstablished = connectionsEstablished;
             this.connectionsActive = connectionsActive;
             this.connectionsPassive = connectionsPassive;
             this.connectionFailures = connectionFailures;
             this.connectionsReset = connectionsReset;
-            this.segments = segments;
             this.segmentsSent = segmentsSent;
             this.segmentsReceived = segmentsReceived;
             this.segmentsRetransmitted = segmentsRetransmitted;
@@ -153,16 +150,6 @@ public interface InternetProtocolStats {
         }
 
         /**
-         * Segments is the number of TCP segments sent or received using the TCP
-         * protocol.
-         *
-         * @return the segments
-         */
-        public long getSegments() {
-            return segments;
-        }
-
-        /**
          * Segments Sent is the number of segments sent, including those on current
          * connections, but excluding those containing only retransmitted bytes.
          *
@@ -197,42 +184,30 @@ public interface InternetProtocolStats {
         public String toString() {
             return "TcpStats [connectionsEstablished=" + connectionsEstablished + ", connectionsActive="
                     + connectionsActive + ", connectionsPassive=" + connectionsPassive + ", connectionFailures="
-                    + connectionFailures + ", connectionsReset=" + connectionsReset + ", segments=" + segments
-                    + ", segmentsSent=" + segmentsSent + ", segmentsReceived=" + segmentsReceived
-                    + ", segmentsRetransmitted=" + segmentsRetransmitted + "]";
+                    + connectionFailures + ", connectionsReset=" + connectionsReset + ", segmentsSent=" + segmentsSent
+                    + ", segmentsReceived=" + segmentsReceived + ", segmentsRetransmitted=" + segmentsRetransmitted
+                    + "]";
         }
     }
 
     final class UdpStats {
-        private final long datagrams;
         private final long datagramsSent;
         private final long datagramsReceived;
         private final long datagramsNoPort;
         private final long datagramsReceivedErrors;
 
         /**
-         * @param datagrams
          * @param datagramsSent
          * @param datagramsReceived
          * @param datagramsNoPort
          * @param datagramsReceivedErrors
          */
-        public UdpStats(long datagrams, long datagramsSent, long datagramsReceived, long datagramsNoPort,
+        public UdpStats(long datagramsSent, long datagramsReceived, long datagramsNoPort,
                 long datagramsReceivedErrors) {
-            this.datagrams = datagrams;
             this.datagramsSent = datagramsSent;
             this.datagramsReceived = datagramsReceived;
             this.datagramsNoPort = datagramsNoPort;
             this.datagramsReceivedErrors = datagramsReceivedErrors;
-        }
-
-        /**
-         * Datagrams is the number of UDP datagrams sent or received by the entity.
-         *
-         * @return the datagrams
-         */
-        public long getDatagrams() {
-            return datagrams;
         }
 
         /**
@@ -276,9 +251,9 @@ public interface InternetProtocolStats {
 
         @Override
         public String toString() {
-            return "UdpStats [datagrams=" + datagrams + ", datagramsSent=" + datagramsSent + ", datagramsReceived="
-                    + datagramsReceived + ", datagramsNoPort=" + datagramsNoPort + ", datagramsReceivedErrors="
-                    + datagramsReceivedErrors + "]";
+            return "UdpStats [datagramsSent=" + datagramsSent + ", datagramsReceived=" + datagramsReceived
+                    + ", datagramsNoPort=" + datagramsNoPort + ", datagramsReceivedErrors=" + datagramsReceivedErrors
+                    + "]";
         }
     }
 }

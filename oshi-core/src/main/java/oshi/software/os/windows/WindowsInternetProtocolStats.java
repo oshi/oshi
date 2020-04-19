@@ -51,7 +51,6 @@ public class WindowsInternetProtocolStats extends AbstractInternetProtocolStats 
                 valueMap.getOrDefault(TcpProperty.CONNECTIONSPASSIVE, 0L),
                 valueMap.getOrDefault(TcpProperty.CONNECTIONFAILURES, 0L),
                 valueMap.getOrDefault(TcpProperty.CONNECTIONSRESET, 0L),
-                valueMap.getOrDefault(TcpProperty.SEGMENTSPERSEC, 0L),
                 valueMap.getOrDefault(TcpProperty.SEGMENTSSENTPERSEC, 0L),
                 valueMap.getOrDefault(TcpProperty.SEGMENTSRECEIVEDPERSEC, 0L),
                 valueMap.getOrDefault(TcpProperty.SEGMENTSRETRANSMITTEDPERSEC, 0L));
@@ -68,8 +67,7 @@ public class WindowsInternetProtocolStats extends AbstractInternetProtocolStats 
     }
 
     private UdpStats getUDPStats(Map<UdpProperty, Long> valueMap) {
-        return new UdpStats(valueMap.getOrDefault(UdpProperty.DATAGRAMSPERSEC, 0L),
-                valueMap.getOrDefault(UdpProperty.DATAGRAMSSENTPERSEC, 0L),
+        return new UdpStats(valueMap.getOrDefault(UdpProperty.DATAGRAMSSENTPERSEC, 0L),
                 valueMap.getOrDefault(UdpProperty.DATAGRAMSRECEIVEDPERSEC, 0L),
                 valueMap.getOrDefault(UdpProperty.DATAGRAMSNOPORTPERSEC, 0L),
                 valueMap.getOrDefault(UdpProperty.DATAGRAMSRECEIVEDERRORS, 0L));
