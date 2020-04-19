@@ -32,8 +32,7 @@ import oshi.annotation.concurrent.ThreadSafe;
 public interface InternetProtocolStats {
 
     /**
-     * Get the TCP stats for IPv4 connections. On macOS this may include IPv6
-     * connections.
+     * Get the TCP stats for IPv4 connections.
      * <p>
      * macOS connection information requires elevated permissions for accurate data.
      *
@@ -42,22 +41,23 @@ public interface InternetProtocolStats {
     TcpStats getTCPv4Stats();
 
     /**
-     * Get the TCP stats for IPv6 connections. On macOS these may be 0 and included
-     * in IPv4 connections.
+     * Get the TCP stats for IPv6 connections, if available. If not available
+     * separately, these may be 0 and included in IPv4 connections.
      *
      * @return a {@link TcpStats} object encapsulating the stats.
      */
     TcpStats getTCPv6Stats();
 
     /**
-     * Get the UDP stats for IPv4 connections
+     * Get the UDP stats for IPv4 datagrams.
      *
      * @return a {@link UdpStats} object encapsulating the stats.
      */
     UdpStats getUDPv4Stats();
 
     /**
-     * Get the TCP stats for IPv6 connections
+     * Get the UDP stats for IPv6 datagrams, if available. If not available
+     * separately, these may be 0 and included in IPv4 datagrams.
      *
      * @return a {@link UdpStats} object encapsulating the stats.
      */

@@ -218,7 +218,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public InternetProtocolStats getInternetProtocolStats() {
-        return null;
+        return new LinuxInternetProtocolStats();
     }
 
     @Override

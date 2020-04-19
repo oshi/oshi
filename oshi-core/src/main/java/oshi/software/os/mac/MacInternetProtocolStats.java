@@ -65,13 +65,6 @@ public class MacInternetProtocolStats extends AbstractInternetProtocolStats {
                 ParseUtil.unsignedIntToLong(ip.ips_badsum + ip.ips_tooshort + ip.ips_toosmall + ip.ips_badhlen
                         + ip.ips_badlen - udp.udps_hdrops + udp.udps_badsum + udp.udps_badlen),
                 0L);
-        /*
-         * IN ERRORS: stat.tcps_rcvbadsum + stat.tcps_rcvbadoff + stat.tcps_rcvmemdrop +
-         * stat.tcps_rcvshort; or ips_badsum + ips_tooshort + ips_toosmall +ips_badhlen
-         * + ips_badlen - the UDP stats
-         *
-         * OUT RESETS: stat.tcps_sndctrl - stat.tcps_closed;??
-         */
     }
 
     @Override
