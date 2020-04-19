@@ -32,30 +32,34 @@ import oshi.annotation.concurrent.ThreadSafe;
 public interface InternetProtocolStats {
 
     /**
-     * Get the TCP stats for IPv4 connections
+     * Get the TCP stats for IPv4 connections. On macOS this may include IPv6
+     * connections.
+     * <p>
+     * macOS connection information requires elevated permissions for accurate data.
      *
-     * @return a {@link TcpStats} object encapsulating the stats
+     * @return a {@link TcpStats} object encapsulating the stats.
      */
     TcpStats getTCPv4Stats();
 
     /**
-     * Get the TCP stats for IPv6 connections
+     * Get the TCP stats for IPv6 connections. On macOS these may be 0 and included
+     * in IPv4 connections.
      *
-     * @return a {@link TcpStats} object encapsulating the stats
+     * @return a {@link TcpStats} object encapsulating the stats.
      */
     TcpStats getTCPv6Stats();
 
     /**
      * Get the UDP stats for IPv4 connections
      *
-     * @return a {@link UdpStats} object encapsulating the stats
+     * @return a {@link UdpStats} object encapsulating the stats.
      */
     UdpStats getUDPv4Stats();
 
     /**
      * Get the TCP stats for IPv6 connections
      *
-     * @return a {@link UdpStats} object encapsulating the stats
+     * @return a {@link UdpStats} object encapsulating the stats.
      */
     UdpStats getUDPv6Stats();
 
@@ -68,6 +72,8 @@ public interface InternetProtocolStats {
         private final long segmentsSent;
         private final long segmentsReceived;
         private final long segmentsRetransmitted;
+        private final long inErrors;
+        private final long outResets;
 
         /**
          * @param connectionsEstablished
@@ -78,10 +84,12 @@ public interface InternetProtocolStats {
          * @param segmentsSent
          * @param segmentsReceived
          * @param segmentsRetransmitted
+         * @param inErrors
+         * @param outResets
          */
         public TcpStats(long connectionsEstablished, long connectionsActive, long connectionsPassive,
                 long connectionFailures, long connectionsReset, long segmentsSent, long segmentsReceived,
-                long segmentsRetransmitted) {
+                long segmentsRetransmitted, long inErrors, long outResets) {
             this.connectionsEstablished = connectionsEstablished;
             this.connectionsActive = connectionsActive;
             this.connectionsPassive = connectionsPassive;
@@ -90,6 +98,8 @@ public interface InternetProtocolStats {
             this.segmentsSent = segmentsSent;
             this.segmentsReceived = segmentsReceived;
             this.segmentsRetransmitted = segmentsRetransmitted;
+            this.inErrors = inErrors;
+            this.outResets = outResets;
         }
 
         /**
@@ -180,13 +190,31 @@ public interface InternetProtocolStats {
             return segmentsRetransmitted;
         }
 
+        /**
+         * The number of errors received.
+         *
+         * @return the inErrors
+         */
+        public long getInErrors() {
+            return inErrors;
+        }
+
+        /**
+         * The number of segments transmitted with the reset flag set.
+         *
+         * @return the outResets
+         */
+        public long getOutResets() {
+            return outResets;
+        }
+
         @Override
         public String toString() {
             return "TcpStats [connectionsEstablished=" + connectionsEstablished + ", connectionsActive="
                     + connectionsActive + ", connectionsPassive=" + connectionsPassive + ", connectionFailures="
                     + connectionFailures + ", connectionsReset=" + connectionsReset + ", segmentsSent=" + segmentsSent
                     + ", segmentsReceived=" + segmentsReceived + ", segmentsRetransmitted=" + segmentsRetransmitted
-                    + "]";
+                    + ", inErrors=" + inErrors + ", outResets=" + outResets + "]";
         }
     }
 

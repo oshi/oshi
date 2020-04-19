@@ -39,7 +39,8 @@ public class WindowsInternetProtocolStats extends AbstractInternetProtocolStats 
         MIB_TCPSTATS stats = new MIB_TCPSTATS();
         IPHLP.GetTcpStatisticsEx(stats, IPHlpAPI.AF_INET);
         return new TcpStats(stats.dwCurrEstab, stats.dwActiveOpens, stats.dwPassiveOpens, stats.dwAttemptFails,
-                stats.dwEstabResets, stats.dwOutSegs, stats.dwInSegs, stats.dwRetransSegs);
+                stats.dwEstabResets, stats.dwOutSegs, stats.dwInSegs, stats.dwRetransSegs, stats.dwInErrs,
+                stats.dwOutRsts);
     }
 
     @Override
@@ -47,7 +48,8 @@ public class WindowsInternetProtocolStats extends AbstractInternetProtocolStats 
         MIB_TCPSTATS stats = new MIB_TCPSTATS();
         IPHLP.GetTcpStatisticsEx(stats, IPHlpAPI.AF_INET6);
         return new TcpStats(stats.dwCurrEstab, stats.dwActiveOpens, stats.dwPassiveOpens, stats.dwAttemptFails,
-                stats.dwEstabResets, stats.dwOutSegs, stats.dwInSegs, stats.dwRetransSegs);
+                stats.dwEstabResets, stats.dwOutSegs, stats.dwInSegs, stats.dwRetransSegs, stats.dwInErrs,
+                stats.dwOutRsts);
     }
 
     @Override

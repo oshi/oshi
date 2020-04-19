@@ -61,7 +61,10 @@ public class MacInternetProtocolStats extends AbstractInternetProtocolStats {
                 ParseUtil.unsignedIntToLong(tcp.tcps_drops),
                 ParseUtil.unsignedIntToLong(ip.ips_snd_swcsum - udp.udps_snd_swcsum - tcp.tcps_sndrexmitpack),
                 ParseUtil.unsignedIntToLong(ip.ips_rcv_swcsum - udp.udps_rcv_swcsum),
-                ParseUtil.unsignedIntToLong(tcp.tcps_sndrexmitpack));
+                ParseUtil.unsignedIntToLong(tcp.tcps_sndrexmitpack),
+                ParseUtil.unsignedIntToLong(ip.ips_badsum + ip.ips_tooshort + ip.ips_toosmall + ip.ips_badhlen
+                        + ip.ips_badlen - udp.udps_hdrops + udp.udps_badsum + udp.udps_badlen),
+                0L);
         /*
          * IN ERRORS: stat.tcps_rcvbadsum + stat.tcps_rcvbadoff + stat.tcps_rcvmemdrop +
          * stat.tcps_rcvshort; or ips_badsum + ips_tooshort + ips_toosmall +ips_badhlen
@@ -77,7 +80,7 @@ public class MacInternetProtocolStats extends AbstractInternetProtocolStats {
         Udpstat udp = udpstat.get();
         return new TcpStats(establishedv4v6.get().getB(), 0L, 0L, 0L, 0L,
                 ip6.ip6s_localout - ParseUtil.unsignedIntToLong(udp.udps_snd6_swcsum),
-                ip6.ip6s_total - ParseUtil.unsignedIntToLong(udp.udps_rcv6_swcsum), 0L);
+                ip6.ip6s_total - ParseUtil.unsignedIntToLong(udp.udps_rcv6_swcsum), 0L, 0L, 0L);
     }
 
     @Override
