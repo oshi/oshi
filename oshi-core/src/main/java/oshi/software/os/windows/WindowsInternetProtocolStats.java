@@ -27,10 +27,10 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.platform.windows.IPHlpAPI;
 import oshi.jna.platform.windows.IPHlpAPI.MIB_TCPSTATS;
 import oshi.jna.platform.windows.IPHlpAPI.MIB_UDPSTATS;
-import oshi.software.common.AbstractInternetProtocolStats;
+import oshi.software.os.InternetProtocolStats;
 
 @ThreadSafe
-public class WindowsInternetProtocolStats extends AbstractInternetProtocolStats {
+public class WindowsInternetProtocolStats implements InternetProtocolStats {
 
     private static final IPHlpAPI IPHLP = IPHlpAPI.INSTANCE;
 

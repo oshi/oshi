@@ -34,14 +34,14 @@ import oshi.jna.platform.unix.CLibrary.Ip6stat;
 import oshi.jna.platform.unix.CLibrary.Ipstat;
 import oshi.jna.platform.unix.CLibrary.Tcpstat;
 import oshi.jna.platform.unix.CLibrary.Udpstat;
-import oshi.software.common.AbstractInternetProtocolStats;
+import oshi.software.os.InternetProtocolStats;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.mac.SysctlUtil;
 import oshi.util.tuples.Pair;
 
 @ThreadSafe
-public class MacInternetProtocolStats extends AbstractInternetProtocolStats {
+public class MacInternetProtocolStats implements InternetProtocolStats {
 
     private Supplier<Pair<Long, Long>> establishedv4v6 = memoize(MacInternetProtocolStats::queryTcpnetstat,
             defaultExpiration());

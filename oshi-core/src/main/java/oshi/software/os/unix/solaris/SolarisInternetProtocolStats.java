@@ -26,12 +26,12 @@ package oshi.software.os.unix.solaris;
 import java.util.List;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.software.common.AbstractInternetProtocolStats;
+import oshi.software.os.InternetProtocolStats;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
 @ThreadSafe
-public class SolarisInternetProtocolStats extends AbstractInternetProtocolStats {
+public class SolarisInternetProtocolStats implements InternetProtocolStats {
 
     @Override
     public TcpStats getTCPv4Stats() {

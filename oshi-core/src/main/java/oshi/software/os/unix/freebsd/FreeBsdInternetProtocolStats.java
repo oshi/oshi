@@ -32,14 +32,14 @@ import java.util.function.Supplier;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.platform.unix.CLibrary.Tcpstat;
 import oshi.jna.platform.unix.CLibrary.Udpstat;
-import oshi.software.common.AbstractInternetProtocolStats;
+import oshi.software.os.InternetProtocolStats;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
 import oshi.util.tuples.Pair;
 
 @ThreadSafe
-public class FreeBsdInternetProtocolStats extends AbstractInternetProtocolStats {
+public class FreeBsdInternetProtocolStats implements InternetProtocolStats {
 
     private Supplier<Pair<Long, Long>> establishedv4v6 = memoize(FreeBsdInternetProtocolStats::queryTcpnetstat,
             defaultExpiration());
