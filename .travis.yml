@@ -1,17 +1,23 @@
 language: java
 
 before_install:
-  # Skip processing all but coverity_scan branch, allow only one job to continue. Choose a Linux one.
-  - if [[ "${TRAVIS_BRANCH}" == "coverity_scan" && "$NAME" != "OpenJDK 11" ]]; then exit 0; fi
+  # If on coverity_scan branch, allow only one job to continue. Choose a Linux one.
+  - if [[ "${TRAVIS_BRANCH}" == "coverity_scan" && "${TRAVIS_JOB_NAME}" != "Linux JDK11 LTS" ]]; then exit 0; fi
 
 # enable to get a stack trace on failed builds
 # install:
 #   - ./mvnw install -DskipTests=true -Dmaven.javadoc.skip=true -B -V -X
 
+script:
+  # Skip tests on coverity_scan branch
+  - if [[ "${TRAVIS_BRANCH}" == "coverity_scan" ]]; then exit 0; fi
+  - java -version
+  - mvn test
+
 after_success:
   # Only execute jacoco on one branch. Choose a Linux one.
   - bash <(curl -s https://codecov.io/bash)
-  - if [ "$NAME" == "OpenJDK 11" ]; then
+  - if [ "${TRAVIS_JOB_NAME}" == "Linux JDK11 LTS" ]; then
       ./mvnw clean test jacoco:report coveralls:report;
       ./mvnw clean org.jacoco:jacoco-maven-plugin:prepare-agent package sonar:sonar;
     fi
@@ -32,35 +38,31 @@ addons:
   hostname: oshi
 
 # limit to 5 total builds and 2 builds on osx
-matrix:
+jobs:
   include:
-    - os: linux
+    - name: "Linux JDK11 LTS"
+      os: linux
       env: 
-      - NAME="OpenJDK 11"
       # COVERITY_SCAN_TOKEN
       - secure: "JuTWT2u7BWQEJGMGkVvQMIQxwxajntxqbCGYt+bJD3JQhioPVFUJoEFrLCx+jJ0qLy5usrneCDFrvRhvTh6C+95kvHypvGQ3UoeWyXS8zD+GRPUyskbuQ7P60kqqIqc+naGd3uyGddniixoAA6C/Ptmknhls4FlhDCMjW3HDS0c="
       jdk: openjdk11      
-    - os: linux
-      env: NAME="OpenJDK 14"
+    - name: "Linux (bionic) JDK14"
+      os: linux
       jdk: openjdk14
-    - os: osx
-      env: NAME="OracleJDK 8"
+      dist: bionic
+    - name: "Linux JDK15 EA"
+      os: linux
+      jdk: openjdk15
+    - name: "Mac JDK8"
+      os: osx
       osx_image: xcode9.3
-    - os: osx
-      env: NAME="OpenJDK 13"
+    - name: "Mac JDK14"
+      os: osx
       osx_image: xcode11.3.1
-    - os: linux
-      env: NAME="OpenJDK 15"
-      jdk: openjdk15
-# bnd-maven-plugin failing on JDK15-ea
-# see https://github.com/bndtools/bnd/issues/3903
-  allow_failures:
-    - os: linux
-      env: NAME="OpenJDK 15"
-      jdk: openjdk15
+      jdk: openjdk14
+# enable if a build is failing due to external bug
+#  allow_failures:
+#    - name: "Linux EA"
+#       os: linux
+#      jdk: openjdk15
 
-script:
-  # Skip tests on coverity_scan branch
-  - if [[ "${TRAVIS_BRANCH}" == "coverity_scan" ]]; then exit 0; fi
-  - java -version
-  - mvn test
