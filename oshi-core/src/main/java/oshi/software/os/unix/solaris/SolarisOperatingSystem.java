@@ -104,7 +104,7 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public InternetProtocolStats getInternetProtocolStats() {
-        return null;
+        return new SolarisInternetProtocolStats();
     }
 
     @Override
