@@ -1,8 +1,12 @@
-5.0.0 (in progress)
+5.0.0 (near future)
 ================
 * (Planned) Remove setters from API.
 * (Planned) Change getters which return arrays to return lists.
 * (Planned) Remove deprecated code.
+
+4.7.0 (in progress)
+================
+* [#1174](https://github.com/oshi/oshi/pull/1174): Add TCP and UDP statistics. - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here.
 
 4.6.0 (4/2/2020), 4.6.1 (4/8/2020)

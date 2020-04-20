@@ -38,7 +38,7 @@ public class NetworkParamsTest {
      * Test network parameters
      */
     @Test
-    public void testOperatingSystem() {
+    public void testNetworkParams() {
         SystemInfo si = new SystemInfo();
         NetworkParams params = si.getOperatingSystem().getNetworkParams();
         assertNotNull(params.getHostName());

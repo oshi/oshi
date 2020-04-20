@@ -51,6 +51,7 @@ import oshi.hardware.SoundCard;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.VirtualMemory;
 import oshi.software.os.FileSystem;
+import oshi.software.os.InternetProtocolStats;
 import oshi.software.os.NetworkParams;
 import oshi.software.os.OSFileStore;
 import oshi.software.os.OSProcess;
@@ -129,6 +130,9 @@ public class SystemInfoTest {
 
         logger.info("Checking Network parameters...");
         printNetworkParameters(os.getNetworkParams());
+
+        logger.info("Checking IP statistics...");
+        printInternetProtocolStats(os.getInternetProtocolStats());
 
         // hardware: displays
         logger.info("Checking Displays...");
@@ -339,6 +343,14 @@ public class SystemInfoTest {
 
     private static void printNetworkParameters(NetworkParams networkParams) {
         oshi.add("Network parameters:\n " + networkParams.toString());
+    }
+
+    private static void printInternetProtocolStats(InternetProtocolStats ip) {
+        oshi.add("Internet Protocol statistics:");
+        oshi.add(" TCPv4: " + ip.getTCPv4Stats());
+        oshi.add(" TCPv6: " + ip.getTCPv6Stats());
+        oshi.add(" UDPv4: " + ip.getUDPv4Stats());
+        oshi.add(" UDPv6: " + ip.getUDPv6Stats());
     }
 
     private static void printDisplays(Display[] displays) {

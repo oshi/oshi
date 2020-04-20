@@ -55,6 +55,7 @@ import oshi.driver.linux.proc.UpTime;
 import oshi.jna.platform.linux.LinuxLibc;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
+import oshi.software.os.InternetProtocolStats;
 import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OSService;
@@ -216,6 +217,11 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     }
 
     @Override
+    public InternetProtocolStats getInternetProtocolStats() {
+        return new LinuxInternetProtocolStats();
+    }
+
+    @Override
     public OSProcess[] getProcesses(int limit, ProcessSort sort, boolean slowFields) {
         List<OSProcess> procs = new ArrayList<>();
         File[] pids = ProcessStat.getPidFiles();
@@ -369,6 +375,10 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
 
     private static int getParentPidFromProcFile(int pid) {
         String stat = FileUtil.getStringFromFile(String.format("/proc/%d/stat", pid));
+        // A race condition may leave us with an empty string
+        if (stat.isEmpty()) {
+            return 0;
+        }
         long[] statArray = ParseUtil.parseStringToLongArray(stat, PROC_PID_STAT_ORDERS, PROC_PID_STAT_LENGTH, ' ');
         return (int) statArray[ProcPidStat.PPID.ordinal()];
     }

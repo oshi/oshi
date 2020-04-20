@@ -53,6 +53,7 @@ import com.sun.jna.ptr.IntByReference;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
+import oshi.software.os.InternetProtocolStats;
 import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OSService;
@@ -194,6 +195,11 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
     @Override
     public FileSystem getFileSystem() {
         return new MacFileSystem();
+    }
+
+    @Override
+    public InternetProtocolStats getInternetProtocolStats() {
+        return new MacInternetProtocolStats(isElevated());
     }
 
     @Override

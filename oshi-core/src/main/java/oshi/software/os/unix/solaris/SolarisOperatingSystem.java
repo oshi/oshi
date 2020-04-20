@@ -38,6 +38,7 @@ import oshi.driver.linux.proc.ProcessStat;
 import oshi.jna.platform.unix.solaris.SolarisLibc;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
+import oshi.software.os.InternetProtocolStats;
 import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OSService;
@@ -99,6 +100,11 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
     @Override
     public FileSystem getFileSystem() {
         return new SolarisFileSystem();
+    }
+
+    @Override
+    public InternetProtocolStats getInternetProtocolStats() {
+        return new SolarisInternetProtocolStats();
     }
 
     @Override
