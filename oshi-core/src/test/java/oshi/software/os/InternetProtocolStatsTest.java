@@ -24,27 +24,37 @@
 package oshi.software.os;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
 import oshi.SystemInfo;
+import oshi.software.os.InternetProtocolStats.TcpStats;
+import oshi.software.os.InternetProtocolStats.UdpStats;
 
 /**
  * Test network parameters
  */
-public class NetworkParamsTest {
+public class InternetProtocolStatsTest {
 
     /**
      * Test network parameters
      */
     @Test
-    public void testNetworkParams() {
+    public void testIPStats() {
         SystemInfo si = new SystemInfo();
-        NetworkParams params = si.getOperatingSystem().getNetworkParams();
-        assertNotNull(params.getHostName());
-        assertNotNull(params.getDomainName());
-        assertNotNull(params.getDnsServers());
-        assertNotNull(params.getIpv4DefaultGateway());
-        assertNotNull(params.getIpv6DefaultGateway());
+        InternetProtocolStats ipStats = si.getOperatingSystem().getInternetProtocolStats();
+        TcpStats tcp4 = ipStats.getTCPv4Stats();
+        TcpStats tcp6 = ipStats.getTCPv6Stats();
+        UdpStats udp4 = ipStats.getUDPv4Stats();
+        UdpStats udp6 = ipStats.getUDPv6Stats();
+        assertTrue(tcp4.getInErrors() <= tcp4.getSegmentsReceived());
+        assertTrue(tcp6.getInErrors() <= tcp6.getSegmentsReceived());
+        assertTrue(udp4.getDatagramsNoPort() <= udp4.getDatagramsReceived());
+        assertTrue(udp6.getDatagramsNoPort() <= udp6.getDatagramsReceived());
+        assertNotNull(tcp4.toString());
+        assertNotNull(tcp6.toString());
+        assertNotNull(udp4.toString());
+        assertNotNull(udp6.toString());
     }
 }

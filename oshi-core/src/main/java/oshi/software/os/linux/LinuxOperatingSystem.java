@@ -375,6 +375,10 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
 
     private static int getParentPidFromProcFile(int pid) {
         String stat = FileUtil.getStringFromFile(String.format("/proc/%d/stat", pid));
+        // A race condition may leave us with an empty string
+        if (stat.isEmpty()) {
+            return 0;
+        }
         long[] statArray = ParseUtil.parseStringToLongArray(stat, PROC_PID_STAT_ORDERS, PROC_PID_STAT_LENGTH, ' ');
         return (int) statArray[ProcPidStat.PPID.ordinal()];
     }
