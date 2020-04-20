@@ -68,7 +68,7 @@ public class MacInternetProtocolStats implements InternetProtocolStats {
                     ParseUtil.unsignedIntToLong(tcp.tcps_snd_swcsum - tcp.tcps_sndrexmitpack),
                     ParseUtil.unsignedIntToLong(tcp.tcps_rcv_swcsum),
                     ParseUtil.unsignedIntToLong(tcp.tcps_sndrexmitpack), ParseUtil.unsignedIntToLong(
-                            tcp.tcps_rcvbadoff + tcp.tcps_rcvbadoff + tcp.tcps_rcvmemdrop + tcp.tcps_rcvshort),
+                            tcp.tcps_rcvbadsum + tcp.tcps_rcvbadoff + tcp.tcps_rcvmemdrop + tcp.tcps_rcvshort),
                     0L);
         }
         Ipstat ip = ipstat.get();
