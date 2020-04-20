@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package oshi.software.os.mac;
+package oshi.software.os.unix.freebsd;
 
 import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
@@ -30,50 +30,38 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.jna.platform.unix.CLibrary.Ip6stat;
-import oshi.jna.platform.unix.CLibrary.Ipstat;
 import oshi.jna.platform.unix.CLibrary.Tcpstat;
 import oshi.jna.platform.unix.CLibrary.Udpstat;
 import oshi.software.common.AbstractInternetProtocolStats;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
-import oshi.util.platform.mac.SysctlUtil;
+import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
 import oshi.util.tuples.Pair;
 
 @ThreadSafe
-public class MacInternetProtocolStats extends AbstractInternetProtocolStats {
+public class FreeBsdInternetProtocolStats extends AbstractInternetProtocolStats {
 
-    private Supplier<Pair<Long, Long>> establishedv4v6 = memoize(MacInternetProtocolStats::queryTcpnetstat,
+    private Supplier<Pair<Long, Long>> establishedv4v6 = memoize(FreeBsdInternetProtocolStats::queryTcpnetstat,
             defaultExpiration());
-    private Supplier<Tcpstat> tcpstat = memoize(MacInternetProtocolStats::queryTcpstat, defaultExpiration());
-    // Prefer tcpstat but requires root. Can get ipstat and subtract off udp
-    private Supplier<Ipstat> ipstat = memoize(MacInternetProtocolStats::queryIpstat, defaultExpiration());
-    private Supplier<Ip6stat> ip6stat = memoize(MacInternetProtocolStats::queryIp6stat, defaultExpiration());
-    private Supplier<Udpstat> udpstat = memoize(MacInternetProtocolStats::queryUdpstat, defaultExpiration());
+    private Supplier<Tcpstat> tcpstat = memoize(FreeBsdInternetProtocolStats::queryTcpstat, defaultExpiration());
+    private Supplier<Udpstat> udpstat = memoize(FreeBsdInternetProtocolStats::queryUdpstat, defaultExpiration());
 
     @Override
     public TcpStats getTCPv4Stats() {
         Tcpstat tcp = tcpstat.get();
-        Ipstat ip = ipstat.get();
-        Udpstat udp = udpstat.get();
         return new TcpStats(establishedv4v6.get().getA(), ParseUtil.unsignedIntToLong(tcp.tcps_connattempt),
                 ParseUtil.unsignedIntToLong(tcp.tcps_accepts), ParseUtil.unsignedIntToLong(tcp.tcps_conndrops),
                 ParseUtil.unsignedIntToLong(tcp.tcps_drops),
-                ParseUtil.unsignedIntToLong(ip.ips_snd_swcsum - udp.udps_snd_swcsum - tcp.tcps_sndrexmitpack),
-                ParseUtil.unsignedIntToLong(ip.ips_rcv_swcsum - udp.udps_rcv_swcsum),
-                ParseUtil.unsignedIntToLong(tcp.tcps_sndrexmitpack),
-                ParseUtil.unsignedIntToLong(ip.ips_badsum + ip.ips_tooshort + ip.ips_toosmall + ip.ips_badhlen
-                        + ip.ips_badlen - udp.udps_hdrops + udp.udps_badsum + udp.udps_badlen),
+                ParseUtil.unsignedIntToLong(tcp.tcps_snd_swcsum - tcp.tcps_sndrexmitpack),
+                ParseUtil.unsignedIntToLong(tcp.tcps_rcv_swcsum), ParseUtil.unsignedIntToLong(tcp.tcps_sndrexmitpack),
+                ParseUtil.unsignedIntToLong(
+                        tcp.tcps_rcvbadoff + tcp.tcps_rcvbadoff + tcp.tcps_rcvmemdrop + tcp.tcps_rcvshort),
                 0L);
     }
 
     @Override
     public TcpStats getTCPv6Stats() {
-        Ip6stat ip6 = ip6stat.get();
-        Udpstat udp = udpstat.get();
-        return new TcpStats(establishedv4v6.get().getB(), 0L, 0L, 0L, 0L,
-                ip6.ip6s_localout - ParseUtil.unsignedIntToLong(udp.udps_snd6_swcsum),
-                ip6.ip6s_total - ParseUtil.unsignedIntToLong(udp.udps_rcv6_swcsum), 0L, 0L, 0L);
+        return new TcpStats(establishedv4v6.get().getB(), 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L);
     }
 
     @Override
@@ -93,25 +81,13 @@ public class MacInternetProtocolStats extends AbstractInternetProtocolStats {
 
     private static Tcpstat queryTcpstat() {
         Tcpstat tcpstat = new Tcpstat();
-        SysctlUtil.sysctl("net.inet.tcp.stats", tcpstat);
+        BsdSysctlUtil.sysctl("net.inet.tcp.stats", tcpstat);
         return tcpstat;
-    }
-
-    private static Ipstat queryIpstat() {
-        Ipstat ipstat = new Ipstat();
-        SysctlUtil.sysctl("net.inet.ip.stats", ipstat);
-        return ipstat;
-    }
-
-    private static Ip6stat queryIp6stat() {
-        Ip6stat ip6stat = new Ip6stat();
-        SysctlUtil.sysctl("net.inet6.ip6.stats", ip6stat);
-        return ip6stat;
     }
 
     private static Udpstat queryUdpstat() {
         Udpstat udpstat = new Udpstat();
-        SysctlUtil.sysctl("net.inet.udp.stats", udpstat);
+        BsdSysctlUtil.sysctl("net.inet.udp.stats", udpstat);
         return udpstat;
     }
 
