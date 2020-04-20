@@ -43,27 +43,45 @@ import oshi.util.tuples.Pair;
 @ThreadSafe
 public class MacInternetProtocolStats implements InternetProtocolStats {
 
+    private boolean isElevated;
+
+    public MacInternetProtocolStats(boolean elevated) {
+        this.isElevated = elevated;
+    }
+
     private Supplier<Pair<Long, Long>> establishedv4v6 = memoize(MacInternetProtocolStats::queryTcpnetstat,
             defaultExpiration());
     private Supplier<Tcpstat> tcpstat = memoize(MacInternetProtocolStats::queryTcpstat, defaultExpiration());
-    // Prefer tcpstat but requires root. Can get ipstat and subtract off udp
+    private Supplier<Udpstat> udpstat = memoize(MacInternetProtocolStats::queryUdpstat, defaultExpiration());
+    // With elevated permissions use tcpstat only
+    // Backup estimate get ipstat and subtract off udp
     private Supplier<Ipstat> ipstat = memoize(MacInternetProtocolStats::queryIpstat, defaultExpiration());
     private Supplier<Ip6stat> ip6stat = memoize(MacInternetProtocolStats::queryIp6stat, defaultExpiration());
-    private Supplier<Udpstat> udpstat = memoize(MacInternetProtocolStats::queryUdpstat, defaultExpiration());
 
     @Override
     public TcpStats getTCPv4Stats() {
         Tcpstat tcp = tcpstat.get();
+        if (this.isElevated) {
+            return new TcpStats(establishedv4v6.get().getA(), ParseUtil.unsignedIntToLong(tcp.tcps_connattempt),
+                    ParseUtil.unsignedIntToLong(tcp.tcps_accepts), ParseUtil.unsignedIntToLong(tcp.tcps_conndrops),
+                    ParseUtil.unsignedIntToLong(tcp.tcps_drops),
+                    ParseUtil.unsignedIntToLong(tcp.tcps_snd_swcsum - tcp.tcps_sndrexmitpack),
+                    ParseUtil.unsignedIntToLong(tcp.tcps_rcv_swcsum),
+                    ParseUtil.unsignedIntToLong(tcp.tcps_sndrexmitpack), ParseUtil.unsignedIntToLong(
+                            tcp.tcps_rcvbadoff + tcp.tcps_rcvbadoff + tcp.tcps_rcvmemdrop + tcp.tcps_rcvshort),
+                    0L);
+        }
         Ipstat ip = ipstat.get();
         Udpstat udp = udpstat.get();
         return new TcpStats(establishedv4v6.get().getA(), ParseUtil.unsignedIntToLong(tcp.tcps_connattempt),
                 ParseUtil.unsignedIntToLong(tcp.tcps_accepts), ParseUtil.unsignedIntToLong(tcp.tcps_conndrops),
                 ParseUtil.unsignedIntToLong(tcp.tcps_drops),
-                ParseUtil.unsignedIntToLong(ip.ips_snd_swcsum - udp.udps_snd_swcsum - tcp.tcps_sndrexmitpack),
-                ParseUtil.unsignedIntToLong(ip.ips_rcv_swcsum - udp.udps_rcv_swcsum),
+                Math.max(0L,
+                        ParseUtil.unsignedIntToLong(ip.ips_snd_swcsum - udp.udps_snd_swcsum - tcp.tcps_sndrexmitpack)),
+                Math.max(0L, ParseUtil.unsignedIntToLong(ip.ips_rcv_swcsum - udp.udps_rcv_swcsum)),
                 ParseUtil.unsignedIntToLong(tcp.tcps_sndrexmitpack),
-                ParseUtil.unsignedIntToLong(ip.ips_badsum + ip.ips_tooshort + ip.ips_toosmall + ip.ips_badhlen
-                        + ip.ips_badlen - udp.udps_hdrops + udp.udps_badsum + udp.udps_badlen),
+                Math.max(0L, ParseUtil.unsignedIntToLong(ip.ips_badsum + ip.ips_tooshort + ip.ips_toosmall
+                        + ip.ips_badhlen + ip.ips_badlen - udp.udps_hdrops + udp.udps_badsum + udp.udps_badlen)),
                 0L);
     }
 

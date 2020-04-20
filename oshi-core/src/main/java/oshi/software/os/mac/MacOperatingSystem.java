@@ -199,7 +199,7 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public InternetProtocolStats getInternetProtocolStats() {
-        return new MacInternetProtocolStats();
+        return new MacInternetProtocolStats(isElevated());
     }
 
     @Override

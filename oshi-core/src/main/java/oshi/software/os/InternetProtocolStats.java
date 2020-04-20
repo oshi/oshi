@@ -34,7 +34,8 @@ public interface InternetProtocolStats {
     /**
      * Get the TCP stats for IPv4 connections.
      * <p>
-     * macOS connection information requires elevated permissions for accurate data.
+     * On macOS connection information requires elevated permissions. Without
+     * elevatd permissions, segment data is estimated.
      *
      * @return a {@link TcpStats} object encapsulating the stats.
      */
