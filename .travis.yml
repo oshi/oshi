@@ -46,13 +46,10 @@ jobs:
       # COVERITY_SCAN_TOKEN
       - secure: "JuTWT2u7BWQEJGMGkVvQMIQxwxajntxqbCGYt+bJD3JQhioPVFUJoEFrLCx+jJ0qLy5usrneCDFrvRhvTh6C+95kvHypvGQ3UoeWyXS8zD+GRPUyskbuQ7P60kqqIqc+naGd3uyGddniixoAA6C/Ptmknhls4FlhDCMjW3HDS0c="
       jdk: openjdk11      
-    - name: "Linux (bionic) JDK14"
-      os: linux
-      jdk: openjdk14
-      dist: bionic
     - name: "Linux JDK15 EA"
       os: linux
       jdk: openjdk15
+      dist: bionic
     - name: "Mac JDK8"
       os: osx
       osx_image: xcode9.3
@@ -60,9 +57,10 @@ jobs:
       os: osx
       osx_image: xcode11.3.1
       jdk: openjdk14
-# enable if a build is failing due to external bug
-#  allow_failures:
-#    - name: "Linux EA"
-#       os: linux
-#      jdk: openjdk15
+# https://github.com/bndtools/bnd/issues/3903
+  allow_failures:
+    - name: "Linux JDK15 EA"
+      os: linux
+      jdk: openjdk15
+      dist: bionic
 

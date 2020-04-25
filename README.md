@@ -59,11 +59,11 @@ Downloads
 ---------
 | Stable Release Version | Current Development Version | Dependencies |
 | ------------- | ------------- | ------------- |
-| [oshi-core-4.6.1](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.github.oshi&a=oshi-core&v=4.6.1&e=jar)  | [oshi-core-5.0.0-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=com.github.oshi&a=oshi-core&v=5.0.0-SNAPSHOT&e=jar) | [JNA](https://github.com/java-native-access/jna) • [SLF4J](http://www.slf4j.org/) |
+| [oshi-core-4.7.0](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.github.oshi&a=oshi-core&v=4.7.0&e=jar)  | [oshi-core-5.0.0-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=com.github.oshi&a=oshi-core&v=5.0.0-SNAPSHOT&e=jar) | [JNA](https://github.com/java-native-access/jna) • [SLF4J](http://www.slf4j.org/) |
 
 Usage
 -----
-Include OSHI and its dependencies on your classpath.  We strongly recommend you add OSHI as a dependency to your project dependency manager such as Maven or Gradle. You can [find the appropriate syntax to include OSHI here](https://search.maven.org/artifact/com.github.oshi/oshi-core/4.6.1/jar). 
+Include OSHI and its dependencies on your classpath.  We strongly recommend you add OSHI as a dependency to your project dependency manager such as Maven or Gradle. You can [find the appropriate syntax to include OSHI here](https://search.maven.org/artifact/com.github.oshi/oshi-core/4.7.0/jar). 
 
 Create a new instance of `SystemInfo` and use the getters to access additional information, such as:
 ```
@@ -221,18 +221,21 @@ Many thanks to the following companies for providing free support of Open Source
 
 Projects using OSHI
 -------------------
-* [Arthas](https://alibaba.github.io/arthas/en/)
 * [Apache Flink](https://flink.apache.org/)
+* [Atlassian Confluence](https://www.atlassian.com/software/confluence)
+* [CAS Server](https://apereo.github.io/cas)
+* [Kamon System Metrics](https://kamon.io/)
 * [DeepLearning4J](https://deeplearning4j.org/)
 * [Hutool](https://www.hutool.cn/)
 * [Dolphin Scheduler](https://dolphinscheduler.apache.org/)
 * [Guns](https://github.com/stylefeng/Guns)
 * [GeoServer](https://docs.geoserver.org/stable/en/user/community/status-monitoring/index.html)
+* [ND4J](http://nd4j.org/)
 * [Apache Doris](http://doris.incubator.apache.org/)
 * [UniversalMediaServer](https://github.com/UniversalMediaServer/UniversalMediaServer)
 * [PSI Probe](https://github.com/psi-probe/psi-probe)
-* [CAS Server](https://apereo.github.io/cas)
 * [JPPF](https://jppf.org/)
+* [Octopus Deploy](https://octopus.com/)
 * [GigaSpaces XAP](https://xap.github.io/)
 * [openHAB Systeminfo Binding](https://github.com/openhab/openhab2-addons/tree/master/bundles/org.openhab.binding.systeminfo)
 * [Jenkins swarm plugin](https://wiki.jenkins.io/display/JENKINS/Swarm+Plugin)
