@@ -7,6 +7,10 @@ Additionally, deprecated code was removed.
 
 ## API Changes
 
+The deprecated `OperatingSystemVersion` interface and its getter `OperatingSystem`.`getVersion` were removed.
+Its `getVersion()`, `getCodeName()`, and `getBuildNumber()` methods are available on the object returned
+from the method `getVersionInfo()`.
+
 The deprecated `CentralProcessor` methods `getVendor()`, `getName()`, `getFamily()`, `getModel()`,
 `getStepping()`, `getProcessor()`, `getIdentifier()`, `getVendorFreq()`, and `isCpu64bit` were removed.
 The equivalent methods are available on the object returned from `getProcessorIdentifier()`.

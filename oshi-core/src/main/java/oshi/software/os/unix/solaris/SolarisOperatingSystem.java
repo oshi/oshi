@@ -58,16 +58,6 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
 
     private static final long BOOTTIME = querySystemBootTime();
 
-    /**
-     * <p>
-     * Constructor for SolarisOperatingSystem.
-     * </p>
-     */
-    @SuppressWarnings("deprecation")
-    public SolarisOperatingSystem() {
-        this.version = new SolarisOSVersionInfoEx();
-    }
-
     @Override
     public String queryManufacturer() {
         return "Oracle";

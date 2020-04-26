@@ -68,16 +68,6 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
 
     private static final long BOOTTIME = querySystemBootTime();
 
-    /**
-     * <p>
-     * Constructor for FreeBsdOperatingSystem.
-     * </p>
-     */
-    @SuppressWarnings("deprecation")
-    public FreeBsdOperatingSystem() {
-        this.version = new FreeBsdOSVersionInfoEx();
-    }
-
     @Override
     public String queryManufacturer() {
         return "Unix/BSD";

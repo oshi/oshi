@@ -36,9 +36,7 @@ import com.sun.jna.Platform; // NOSONAR squid:S1191
 import oshi.software.os.OSProcess;
 import oshi.software.os.OSService;
 import oshi.software.os.OperatingSystem;
-import oshi.software.os.OperatingSystemVersion;
 
-@SuppressWarnings("deprecation")
 public abstract class AbstractOperatingSystem implements OperatingSystem {
 
     private final Supplier<String> manufacturer = memoize(this::queryManufacturer);
@@ -46,8 +44,6 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
     private final Supplier<Integer> bitness = memoize(this::queryPlatformBitness);
     // Test if sudo or admin privileges: 1 = unknown, 0 = no, 1 = yes
     private final Supplier<Boolean> elevated = memoize(this::queryElevated);
-
-    protected OperatingSystemVersion version;
 
     /*
      * Comparators for use in processSort().
@@ -88,11 +84,6 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
     }
 
     protected abstract FamilyVersionInfo queryFamilyVersionInfo();
-
-    @Override
-    public OperatingSystemVersion getVersion() {
-        return this.version;
-    }
 
     @Override
     public int getBitness() {
@@ -224,7 +215,7 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append(getManufacturer()).append(' ').append(getFamily()).append(' ').append(getVersion().toString());
+        sb.append(getManufacturer()).append(' ').append(getFamily()).append(' ').append(getVersionInfo());
         return sb.toString();
     }
 

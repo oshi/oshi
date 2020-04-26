@@ -112,9 +112,7 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
      * Constructor for MacOperatingSystem.
      * </p>
      */
-    @SuppressWarnings("deprecation")
     public MacOperatingSystem() {
-        this.version = new MacOSVersionInfoEx();
         this.osXVersion = System.getProperty("os.version");
         this.major = ParseUtil.getFirstIntValue(this.osXVersion);
         this.minor = ParseUtil.getNthIntValue(this.osXVersion, 2);

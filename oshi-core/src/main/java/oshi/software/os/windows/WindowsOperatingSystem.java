@@ -132,11 +132,6 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     private Supplier<Map<Integer, OSProcess>> processMapFromPerfCounters = memoize(
             this::queryProcessMapFromPerfCounters, defaultExpiration());
 
-    @SuppressWarnings("deprecation")
-    public WindowsOperatingSystem() {
-        this.version = new WindowsOSVersionInfoEx();
-    }
-
     @Override
     public String queryManufacturer() {
         return "Microsoft";
