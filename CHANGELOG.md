@@ -2,7 +2,7 @@
 ================
 * (Planned) Remove setters from API.
 * (Planned) Change getters which return arrays to return lists.
-* (Planned) Remove deprecated code.
+* [#1177](https://github.com/oshi/oshi/pull/1177): Remove deprecated code. - [@dbwiddis](https://github.com/dbwiddis).
 
 4.7.0 (4/25/2020)
 ================
