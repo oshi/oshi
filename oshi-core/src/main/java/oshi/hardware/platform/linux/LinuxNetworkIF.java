@@ -61,8 +61,8 @@ public final class LinuxNetworkIF extends AbstractNetworkIF {
     /**
      * Gets the network interfaces on this machine
      *
-     * @return A {@link Collections.UnmodifiableList} of {@link NetworkIF} objects
-     *         representing the interfaces
+     * @return An {@code UnmodifiableList} of {@link NetworkIF} objects representing
+     *         the interfaces
      */
     public static List<NetworkIF> getNetworks() {
         return Collections.unmodifiableList(
@@ -162,7 +162,10 @@ public final class LinuxNetworkIF extends AbstractNetworkIF {
         this.inErrors = FileUtil.getUnsignedLongFromFile(rxErrorsPath);
         this.collisions = FileUtil.getUnsignedLongFromFile(collisionsPath);
         this.inDrops = FileUtil.getUnsignedLongFromFile(rxDropsPath);
-        this.speed = FileUtil.getUnsignedLongFromFile(ifSpeed) * 1024 * 1024;
+        // speed may be negative from file. Convert to MiB.
+        this.speed = FileUtil.getUnsignedLongFromFile(ifSpeed);
+        this.speed = this.speed < 0 ? 0 : this.speed << 20;
+
         return true;
     }
 }

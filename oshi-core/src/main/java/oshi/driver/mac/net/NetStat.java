@@ -61,7 +61,7 @@ public final class NetStat {
      *            If positive, limit the map to only return data for this interface
      *            index. If negative, returns data for all indices.
      *
-     * @return a map of {@link IFData} object indexed by the interface index,
+     * @return a map of {@link IFdata} object indexed by the interface index,
      *         encapsulating the stats
      */
     public static Map<Integer, IFdata> queryIFdata(int index) {

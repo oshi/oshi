@@ -61,8 +61,8 @@ public final class MacNetworkIF extends AbstractNetworkIF {
     /**
      * Gets the network interfaces on this machine
      *
-     * @return A {@link Collections.UnmodifiableList} of {@link NetworkIF} objects
-     *         representing the interfaces
+     * @return An {@code UnmodifiableList} of {@link NetworkIF} objects representing
+     *         the interfaces
      */
     public static List<NetworkIF> getNetworks() {
         // One time fetch of stats

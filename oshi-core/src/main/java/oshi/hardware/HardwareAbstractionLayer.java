@@ -23,7 +23,6 @@
  */
 package oshi.hardware;
 
-import java.util.Collections;
 import java.util.List;
 
 import oshi.annotation.concurrent.ThreadSafe;
@@ -80,7 +79,8 @@ public interface HardwareAbstractionLayer {
     /**
      * Gets a list of {@link NetworkIF} objects, representing a network interface
      *
-     * @return A {@link Collections.UnmodifiableList} of {@link NetworkIF} objects.
+     * @return An {@code UnmodifiableList} of {@link NetworkIF} objects representing
+     *         the interfaces
      */
     List<NetworkIF> getNetworkIFs();
 

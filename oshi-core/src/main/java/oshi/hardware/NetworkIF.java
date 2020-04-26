@@ -34,7 +34,7 @@ import oshi.annotation.concurrent.ThreadSafe;
 public interface NetworkIF {
 
     /**
-     * Gets the core java {@link NetworkInterface} object.
+     * Gets the {@link java.net.NetworkInterface} object.
      *
      * @return the network interface, an instance of
      *         {@link java.net.NetworkInterface}.
@@ -42,18 +42,14 @@ public interface NetworkIF {
     NetworkInterface queryNetworkInterface();
 
     /**
-     * <p>
      * Interface name.
-     * </p>
      *
      * @return The interface name.
      */
     String getName();
 
     /**
-     * <p>
      * Interface description.
-     * </p>
      *
      * @return The description of the network interface. On some platforms, this is
      *         identical to the name.
@@ -61,81 +57,63 @@ public interface NetworkIF {
     String getDisplayName();
 
     /**
-     * <p>
      * The interface Maximum Transmission Unit (MTU).
-     * </p>
      *
      * @return The MTU of the network interface.
      *         <p>
      *         This value is set when the {@link oshi.hardware.NetworkIF} is
-     *         instantiated and may not be up to date. To update this value, execute
-     *         the {@link #setNetworkInterface(NetworkInterface)} method
+     *         instantiated and may not be up to date.
      */
     int getMTU();
 
     /**
-     * <p>
      * The Media Access Control (MAC) address.
-     * </p>
      *
      * @return The MAC Address.
      *         <p>
      *         This value is set when the {@link oshi.hardware.NetworkIF} is
-     *         instantiated and may not be up to date. To update this value, execute
-     *         the {@link #setNetworkInterface(NetworkInterface)} method
+     *         instantiated and may not be up to date.
      */
     String getMacaddr();
 
     /**
-     * <p>
      * The Internet Protocol (IP) v4 address.
-     * </p>
      *
      * @return The IPv4 Addresses.
      *         <p>
      *         This value is set when the {@link oshi.hardware.NetworkIF} is
-     *         instantiated and may not be up to date. To update this value, execute
-     *         the {@link #setNetworkInterface(NetworkInterface)} method
+     *         instantiated and may not be up to date.
      */
     String[] getIPv4addr();
 
     /**
-     * <p>
      * The Internet Protocol (IP) v4 subnet masks.
-     * </p>
      *
      * @return The IPv4 subnet mask length. Ranges between 0-32.
      *         <p>
      *         This value is set when the {@link oshi.hardware.NetworkIF} is
-     *         instantiated and may not be up to date. To update this value, execute
-     *         the {@link #setNetworkInterface(NetworkInterface)} method.
+     *         instantiated and may not be up to date.
      *
      */
     Short[] getSubnetMasks();
 
     /**
-     * <p>
      * The Internet Protocol (IP) v6 address.
-     * </p>
      *
      * @return The IPv6 Addresses.
      *         <p>
      *         This value is set when the {@link oshi.hardware.NetworkIF} is
-     *         instantiated and may not be up to date. To update this value, execute
-     *         the {@link #setNetworkInterface(NetworkInterface)} method
+     *         instantiated and may not be up to date.
      */
     String[] getIPv6addr();
 
     /**
-     * <p>
      * The Internet Protocol (IP) v6 address.
-     * </p>
      *
      * @return The IPv6 address prefix lengths. Ranges between 0-128.
      *         <p>
      *         This value is set when the {@link oshi.hardware.NetworkIF} is
-     *         instantiated and may not be up to date. To update this value, execute
-     *         the {@link #setNetworkInterface(NetworkInterface)} method
+     *         instantiated and may not be up to date.
      */
     Short[] getPrefixLengths();
 
@@ -154,11 +132,9 @@ public interface NetworkIF {
     int getIfType();
 
     /**
-     * <p>
      * (Windows Vista and higher only) The NDIS physical medium type. This member
      * can be one of the values from the {@code NDIS_PHYSICAL_MEDIUM} enumeration
      * type defined in the {@code Ntddndis.h} header file.
-     * </p>
      *
      * @return the ndisPhysicalMediumType
      */

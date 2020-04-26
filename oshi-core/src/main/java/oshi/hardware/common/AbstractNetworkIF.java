@@ -146,134 +146,46 @@ public abstract class AbstractNetworkIF implements NetworkIF {
         return result;
     }
 
-    /**
-     * Gets the core java {@link NetworkInterface} object.
-     *
-     * @return the network interface, an instance of
-     *         {@link java.net.NetworkInterface}.
-     */
     @Override
     public NetworkInterface queryNetworkInterface() {
         return this.networkInterface;
     }
 
-    /**
-     * <p>
-     * Interface name.
-     * </p>
-     *
-     * @return The interface name.
-     */
     @Override
     public String getName() {
         return this.networkInterface.getName();
     }
 
-    /**
-     * <p>
-     * Interface description.
-     * </p>
-     *
-     * @return The description of the network interface. On some platforms, this is
-     *         identical to the name.
-     */
     @Override
     public String getDisplayName() {
         return this.networkInterface.getDisplayName();
     }
 
-    /**
-     * <p>
-     * The interface Maximum Transmission Unit (MTU).
-     * </p>
-     *
-     * @return The MTU of the network interface.
-     *         <p>
-     *         This value is set when the {@link oshi.hardware.NetworkIF} is
-     *         instantiated and may not be up to date. To update this value, execute
-     *         the {@link #setAttributes(NetworkInterface)} method
-     */
     @Override
     public int getMTU() {
         return this.mtu;
     }
 
-    /**
-     * <p>
-     * The Media Access Control (MAC) address.
-     * </p>
-     *
-     * @return The MAC Address.
-     *         <p>
-     *         This value is set when the {@link oshi.hardware.NetworkIF} is
-     *         instantiated and may not be up to date. To update this value, execute
-     *         the {@link #setAttributes(NetworkInterface)} method
-     */
     @Override
     public String getMacaddr() {
         return this.mac;
     }
 
-    /**
-     * <p>
-     * The Internet Protocol (IP) v4 address.
-     * </p>
-     *
-     * @return The IPv4 Addresses.
-     *         <p>
-     *         This value is set when the {@link oshi.hardware.NetworkIF} is
-     *         instantiated and may not be up to date. To update this value, execute
-     *         the {@link #setAttributes(NetworkInterface)} method
-     */
     @Override
     public String[] getIPv4addr() {
         return Arrays.copyOf(this.ipv4, this.ipv4.length);
     }
 
-    /**
-     * <p>
-     * The Internet Protocol (IP) v4 subnet masks.
-     * </p>
-     *
-     * @return The IPv4 subnet mask length. Ranges between 0-32.
-     *         <p>
-     *         This value is set when the {@link oshi.hardware.NetworkIF} is
-     *         instantiated and may not be up to date. To update this value, execute
-     *         the {@link #setAttributes(NetworkInterface)} method.
-     *
-     */
     @Override
     public Short[] getSubnetMasks() {
         return Arrays.copyOf(this.subnetMasks, this.subnetMasks.length);
     }
 
-    /**
-     * <p>
-     * The Internet Protocol (IP) v6 address.
-     * </p>
-     *
-     * @return The IPv6 Addresses.
-     *         <p>
-     *         This value is set when the {@link oshi.hardware.NetworkIF} is
-     *         instantiated and may not be up to date. To update this value, execute
-     *         the {@link #setAttributes(NetworkInterface)} method
-     */
     @Override
     public String[] getIPv6addr() {
         return Arrays.copyOf(this.ipv6, this.ipv6.length);
     }
 
-    /**
-     * <p>
-     * The Internet Protocol (IP) v6 address.
-     * </p>
-     *
-     * @return The IPv6 address prefix lengths. Ranges between 0-128.
-     *         <p>
-     *         This value is set when the {@link oshi.hardware.NetworkIF} is
-     *         instantiated and may not be up to date. To update this value, execute
-     *         the {@link #setAttributes(NetworkInterface)} method
-     */
     @Override
     public Short[] getPrefixLengths() {
         return Arrays.copyOf(this.prefixLengths, this.prefixLengths.length);

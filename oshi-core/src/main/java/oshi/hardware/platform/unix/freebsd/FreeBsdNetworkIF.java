@@ -58,8 +58,8 @@ public final class FreeBsdNetworkIF extends AbstractNetworkIF {
     /**
      * Gets the network interfaces on this machine
      *
-     * @return A {@link Collections.UnmodifiableList} of {@link NetworkIF} objects
-     *         representing the interfaces
+     * @return A {@link java.util.Collections.UnmodifiableList} of {@link NetworkIF}
+     *         objects representing the interfaces
      */
     public static List<NetworkIF> getNetworks() {
         return Collections.unmodifiableList(
