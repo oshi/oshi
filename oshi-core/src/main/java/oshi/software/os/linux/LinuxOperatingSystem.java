@@ -165,12 +165,10 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
      * Constructor for LinuxOperatingSystem.
      * </p>
      */
-    @SuppressWarnings("deprecation")
     public LinuxOperatingSystem() {
         super.getVersionInfo();
         // The above call may also populate versionId and codeName
         // to pass to version constructor
-        this.version = new LinuxOSVersionInfoEx(Constants.UNKNOWN, Constants.UNKNOWN);
         this.memoryPageSize = ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer("getconf PAGESIZE"), 4096);
     }
 

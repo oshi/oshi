@@ -26,6 +26,7 @@ package oshi.software.os;
 import java.util.Collection;
 import java.util.List;
 
+import oshi.annotation.concurrent.Immutable;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.util.Constants;
 import oshi.util.Util;
@@ -60,15 +61,6 @@ public interface OperatingSystem {
     String getManufacturer();
 
     /**
-     * Operating system version.
-     *
-     * @return Version.
-     * @deprecated Use {@link #getVersionInfo}
-     */
-    @Deprecated
-    OperatingSystemVersion getVersion();
-
-    /**
      * Operating system version information.
      *
      * @return Version information.
@@ -82,13 +74,13 @@ public interface OperatingSystem {
      */
     FileSystem getFileSystem();
 
-    /** 
+    /**
      * Instantiates a {@link oshi.software.os.InternetProtocolStats} object.
-     * 
+     *
      * @return a {@link oshi.software.os.InternetProtocolStats} object.
      */
     InternetProtocolStats getInternetProtocolStats();
-    
+
     /**
      * Gets currently running processes. No order is guaranteed.
      *
@@ -303,10 +295,9 @@ public interface OperatingSystem {
     OSService[] getServices();
 
     /*
-     * A class representing a Logical Processor and its replationship to physical
-     * processors, physical packages, and logical groupings such as NUMA Nodes and
-     * Processor groups, useful for identifying processor topology.
+     * A class representing the Operating System version details.
      */
+    @Immutable
     class OSVersionInfo {
         private final String version;
         private final String codeName;

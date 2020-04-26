@@ -102,51 +102,6 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
     }
 
     @Override
-    public String getVendor() {
-        return getProcessorIdentifier().getVendor();
-    }
-
-    @Override
-    public String getName() {
-        return getProcessorIdentifier().getName();
-    }
-
-    @Override
-    public String getFamily() {
-        return getProcessorIdentifier().getFamily();
-    }
-
-    @Override
-    public String getModel() {
-        return getProcessorIdentifier().getModel();
-    }
-
-    @Override
-    public String getStepping() {
-        return getProcessorIdentifier().getStepping();
-    }
-
-    @Override
-    public String getProcessorID() {
-        return getProcessorIdentifier().getProcessorID();
-    }
-
-    @Override
-    public String getIdentifier() {
-        return getProcessorIdentifier().getIdentifier();
-    }
-
-    @Override
-    public boolean isCpu64bit() {
-        return getProcessorIdentifier().isCpu64bit();
-    }
-
-    @Override
-    public long getVendorFreq() {
-        return getProcessorIdentifier().getVendorFreq();
-    }
-
-    @Override
     public long getMaxFreq() {
         return maxFreq.get();
     }
@@ -411,7 +366,7 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder(getName());
+        StringBuilder sb = new StringBuilder(getProcessorIdentifier().getName());
         sb.append("\n ").append(getPhysicalPackageCount()).append(" physical CPU package(s)");
         sb.append("\n ").append(getPhysicalProcessorCount()).append(" physical CPU core(s)");
         sb.append("\n ").append(getLogicalProcessorCount()).append(" logical CPU(s)");

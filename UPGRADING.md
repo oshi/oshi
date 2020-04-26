@@ -1,3 +1,24 @@
+# Guide to upgrading from OSHI 4.x to 5.x
+
+OSHI 5.0.0 is functionally equivalent to 4.7.0 with three categories of changes supporting full thread safety:
+* Remove setters from API.
+* Change getters which return arrays of objects to return unmodifiable lists.
+* Remove deprecated code.
+
+## API Changes
+
+The deprecated `OperatingSystemVersion` interface and its getter `OperatingSystem`.`getVersion` were removed.
+Its `getVersion()`, `getCodeName()`, and `getBuildNumber()` methods are available on the object returned
+from the method `getVersionInfo()`.
+
+The deprecated `CentralProcessor` methods `getVendor()`, `getName()`, `getFamily()`, `getModel()`,
+`getStepping()`, `getProcessor()`, `getIdentifier()`, `getVendorFreq()`, and `isCpu64bit` were removed.
+The equivalent methods are available on the object returned from `getProcessorIdentifier()`.
+
+The deprecated `PowerSource` methods `getRemainingCapacity()` and `getTimeRemaining()` were removed,
+replaced by `getRemainingCapacityPercent()` and `getTimeRemainingEstimated()`.
+
+The deprecated `OSProcess` method `calculateCpuPercent()` was removed, replaced by `getProcessCpuLoadCumulative()`.
 
 # Guide to upgrading from OSHI 3.x to 4.x
 

@@ -717,18 +717,6 @@ public class OSProcess {
     }
 
     /**
-     * Calculates cumulative CPU usage of this process.
-     *
-     * @return The proportion of up time that the process was executing in kernel or
-     *         user mode.
-     * @deprecated Use {@link #getProcessCpuLoadCumulative()}.
-     */
-    @Deprecated
-    public double calculateCpuPercent() {
-        return getProcessCpuLoadCumulative();
-    }
-
-    /**
      * Gets cumulative CPU usage of this process.
      *
      * @return The proportion of up time that the process was executing in kernel or
