@@ -23,6 +23,9 @@
  */
 package oshi.hardware;
 
+import java.util.Collections;
+import java.util.List;
+
 import oshi.annotation.concurrent.ThreadSafe;
 
 /**
@@ -75,13 +78,11 @@ public interface HardwareAbstractionLayer {
     HWDiskStore[] getDiskStores();
 
     /**
-     * Instantiates an array of {@link oshi.hardware.NetworkIF} objects,
-     * representing a network interface
+     * Gets a list of {@link NetworkIF} objects, representing a network interface
      *
-     * @return An array of HWNetworkStore objects or an empty array if none are
-     *         present.
+     * @return A {@link Collections.UnmodifiableList} of {@link NetworkIF} objects.
      */
-    NetworkIF[] getNetworkIFs();
+    List<NetworkIF> getNetworkIFs();
 
     /**
      * Instantiates an array of {@link oshi.hardware.Display} objects, representing

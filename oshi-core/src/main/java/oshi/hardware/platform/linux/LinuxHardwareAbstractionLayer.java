@@ -23,6 +23,8 @@
  */
 package oshi.hardware.platform.linux;
 
+import java.util.List;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.ComputerSystem;
@@ -79,8 +81,8 @@ public final class LinuxHardwareAbstractionLayer extends AbstractHardwareAbstrac
     }
 
     @Override
-    public NetworkIF[] getNetworkIFs() {
-        return new LinuxNetworks().getNetworks();
+    public List<NetworkIF> getNetworkIFs() {
+        return LinuxNetworkIF.getNetworks();
     }
 
     @Override

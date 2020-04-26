@@ -23,7 +23,6 @@
  */
 package oshi.hardware;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -46,7 +45,6 @@ public class NetworksTest {
      */
     @Test
     public void testNetworkInterfaces() throws IOException {
-        long timeStamp = System.currentTimeMillis();
         SystemInfo si = new SystemInfo();
 
         for (NetworkIF net : si.getHardware().getNetworkIFs()) {
@@ -71,34 +69,6 @@ public class NetworksTest {
             assertTrue(net.getSpeed() >= 0);
             assertTrue(net.getMTU() >= 0);
             assertTrue(net.getTimeStamp() > 0);
-
-            net.setIfType(1);
-            net.setNdisPhysicalMediumType(2);
-            net.setConnectorPresent(true);
-            net.setBytesRecv(10L);
-            net.setBytesSent(20L);
-            net.setPacketsRecv(30L);
-            net.setPacketsSent(40L);
-            net.setInErrors(60L);
-            net.setOutErrors(70L);
-            net.setInDrops(80L);
-            net.setCollisions(90L);
-            net.setSpeed(50L);
-            net.setTimeStamp(timeStamp);
-
-            assertEquals(1, net.getIfType());
-            assertEquals(2, net.getNdisPhysicalMediumType());
-            assertTrue(net.isConnectorPresent());
-            assertEquals(10L, net.getBytesRecv());
-            assertEquals(20L, net.getBytesSent());
-            assertEquals(30L, net.getPacketsRecv());
-            assertEquals(40L, net.getPacketsSent());
-            assertEquals(60L, net.getInErrors());
-            assertEquals(70L, net.getOutErrors());
-            assertEquals(80L, net.getInDrops());
-            assertEquals(90L, net.getCollisions());
-            assertEquals(50L, net.getSpeed());
-            assertEquals(timeStamp, net.getTimeStamp());
 
             net.updateAttributes();
             assertTrue(net.getBytesRecv() >= 0);

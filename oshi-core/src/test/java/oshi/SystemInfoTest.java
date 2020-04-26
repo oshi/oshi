@@ -330,13 +330,14 @@ public class SystemInfoTest {
         }
     }
 
-    private static void printNetworkInterfaces(NetworkIF[] networkIFs) {
+    private static void printNetworkInterfaces(List<NetworkIF> list) {
         StringBuilder sb = new StringBuilder("Network Interfaces:");
-        if (networkIFs.length == 0) {
+        if (list.isEmpty()) {
             sb.append(" Unknown");
-        }
-        for (NetworkIF net : networkIFs) {
-            sb.append("\n ").append(net.toString());
+        } else {
+            for (NetworkIF net : list) {
+                sb.append("\n ").append(net.toString());
+            }
         }
         oshi.add(sb.toString());
     }

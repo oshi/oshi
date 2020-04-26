@@ -24,6 +24,7 @@
 package oshi.demo;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -92,7 +93,7 @@ public class DetectVM {
         }
 
         // Try well known MAC addresses
-        NetworkIF[] nifs = hw.getNetworkIFs();
+        List<NetworkIF> nifs = hw.getNetworkIFs();
         for (NetworkIF nif : nifs) {
             String mac = nif.getMacaddr().toUpperCase();
             String oui = mac.length() > 7 ? mac.substring(0, 8) : mac;
