@@ -39,7 +39,7 @@ public interface NetworkIF {
      * @return the network interface, an instance of
      *         {@link java.net.NetworkInterface}.
      */
-    public NetworkInterface queryNetworkInterface();
+    NetworkInterface queryNetworkInterface();
 
     /**
      * <p>
@@ -48,7 +48,7 @@ public interface NetworkIF {
      *
      * @return The interface name.
      */
-    public String getName();
+    String getName();
 
     /**
      * <p>
@@ -58,7 +58,7 @@ public interface NetworkIF {
      * @return The description of the network interface. On some platforms, this is
      *         identical to the name.
      */
-    public String getDisplayName();
+    String getDisplayName();
 
     /**
      * <p>
@@ -71,7 +71,7 @@ public interface NetworkIF {
      *         instantiated and may not be up to date. To update this value, execute
      *         the {@link #setNetworkInterface(NetworkInterface)} method
      */
-    public int getMTU();
+    int getMTU();
 
     /**
      * <p>
@@ -84,7 +84,7 @@ public interface NetworkIF {
      *         instantiated and may not be up to date. To update this value, execute
      *         the {@link #setNetworkInterface(NetworkInterface)} method
      */
-    public String getMacaddr();
+    String getMacaddr();
 
     /**
      * <p>
@@ -97,7 +97,7 @@ public interface NetworkIF {
      *         instantiated and may not be up to date. To update this value, execute
      *         the {@link #setNetworkInterface(NetworkInterface)} method
      */
-    public String[] getIPv4addr();
+    String[] getIPv4addr();
 
     /**
      * <p>
@@ -111,7 +111,7 @@ public interface NetworkIF {
      *         the {@link #setNetworkInterface(NetworkInterface)} method.
      *
      */
-    public Short[] getSubnetMasks();
+    Short[] getSubnetMasks();
 
     /**
      * <p>
@@ -124,7 +124,7 @@ public interface NetworkIF {
      *         instantiated and may not be up to date. To update this value, execute
      *         the {@link #setNetworkInterface(NetworkInterface)} method
      */
-    public String[] getIPv6addr();
+    String[] getIPv6addr();
 
     /**
      * <p>
@@ -137,7 +137,7 @@ public interface NetworkIF {
      *         instantiated and may not be up to date. To update this value, execute
      *         the {@link #setNetworkInterface(NetworkInterface)} method
      */
-    public Short[] getPrefixLengths();
+    Short[] getPrefixLengths();
 
     /**
      * (Windows, macOS) The NDIS Interface Type. NDIS interface types are registered
@@ -151,7 +151,7 @@ public interface NetworkIF {
      *
      * @return the ifType
      */
-    public int getIfType();
+    int getIfType();
 
     /**
      * <p>
@@ -162,7 +162,7 @@ public interface NetworkIF {
      *
      * @return the ndisPhysicalMediumType
      */
-    public int getNdisPhysicalMediumType();
+    int getNdisPhysicalMediumType();
 
     /**
      * (Windows Vista and higher) Set if a connector is present on the network
@@ -173,7 +173,7 @@ public interface NetworkIF {
      * @return {@code true} if there is a physical network adapter (Windows) or a
      *         connected cable (Linux), false otherwise
      */
-    public boolean isConnectorPresent();
+    boolean isConnectorPresent();
 
     /**
      * <p>
@@ -186,7 +186,7 @@ public interface NetworkIF {
      *         instantiated and may not be up to date. To update this value, execute
      *         the {@link #updateAttributes()} method
      */
-    public long getBytesRecv();
+    long getBytesRecv();
 
     /**
      * <p>
@@ -199,7 +199,7 @@ public interface NetworkIF {
      *         instantiated and may not be up to date. To update this value, execute
      *         the {@link #updateAttributes()} method
      */
-    public long getBytesSent();
+    long getBytesSent();
 
     /**
      * <p>
@@ -212,7 +212,7 @@ public interface NetworkIF {
      *         instantiated and may not be up to date. To update this value, execute
      *         the {@link #updateAttributes()} method
      */
-    public long getPacketsRecv();
+    long getPacketsRecv();
 
     /**
      * <p>
@@ -225,7 +225,7 @@ public interface NetworkIF {
      *         instantiated and may not be up to date. To update this value, execute
      *         the {@link #updateAttributes()} method
      */
-    public long getPacketsSent();
+    long getPacketsSent();
 
     /**
      * <p>
@@ -238,7 +238,7 @@ public interface NetworkIF {
      *         instantiated and may not be up to date. To update this value, execute
      *         the {@link #updateAttributes()} method
      */
-    public long getInErrors();
+    long getInErrors();
 
     /**
      * <p>
@@ -251,7 +251,7 @@ public interface NetworkIF {
      *         instantiated and may not be up to date. To update this value, execute
      *         the {@link #updateAttributes()} method
      */
-    public long getOutErrors();
+    long getOutErrors();
 
     /**
      * <p>
@@ -265,7 +265,7 @@ public interface NetworkIF {
      *         instantiated and may not be up to date. To update this value, execute
      *         the {@link #updateAttributes()} method
      */
-    public long getInDrops();
+    long getInDrops();
 
     /**
      * <p>
@@ -278,7 +278,7 @@ public interface NetworkIF {
      *         instantiated and may not be up to date. To update this value, execute
      *         the {@link #updateAttributes()} method
      */
-    public long getCollisions();
+    long getCollisions();
 
     /**
      * <p>
@@ -291,7 +291,7 @@ public interface NetworkIF {
      *         instantiated and may not be up to date. To update this value, execute
      *         the {@link #updateAttributes()} method
      */
-    public long getSpeed();
+    long getSpeed();
 
     /**
      * <p>
@@ -300,7 +300,7 @@ public interface NetworkIF {
      *
      * @return Returns the timeStamp.
      */
-    public long getTimeStamp();
+    long getTimeStamp();
 
     /**
      * Determines if the MAC address on this interface corresponds to a known
@@ -309,7 +309,7 @@ public interface NetworkIF {
      * @return {@code true} if the MAC address corresponds to a known virtual
      *         machine.
      */
-    public boolean isKnownVmMacAddr();
+    boolean isKnownVmMacAddr();
 
     /**
      * Updates interface network statistics on this interface. Statistics include
@@ -317,5 +317,5 @@ public interface NetworkIF {
      *
      * @return {@code true} if the update was successful, {@code false} otherwise.
      */
-    public boolean updateAttributes();
+    boolean updateAttributes();
 }
