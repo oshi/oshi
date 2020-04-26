@@ -11,6 +11,8 @@ The deprecated `CentralProcessor` methods `getVendor()`, `getName()`, `getFamily
 `getStepping()`, `getProcessor()`, `getIdentifier()`, `getVendorFreq()`, and `isCpu64bit` were removed.
 The equivalent methods are available on the object returned from `getProcessorIdentifier()`.
 
+The deprecated `PowerSource` methods `getRemainingCapacity()` and `getTimeRemaining()` were removed,
+replaced by `getRemainingCapacityPercent()` and `getTimeRemainingEstimated()`.
 
 # Guide to upgrading from OSHI 3.x to 4.x
 
