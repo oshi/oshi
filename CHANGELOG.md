@@ -3,6 +3,7 @@
 * (Planned) Remove setters from API.
 * (Planned) Change getters which return arrays to return lists.
 * [#1177](https://github.com/oshi/oshi/pull/1177): Remove deprecated code. - [@dbwiddis](https://github.com/dbwiddis).
+* [#1178](https://github.com/oshi/oshi/pull/1178): Make NetworkIF an interface. - [@dbwiddis](https://github.com/dbwiddis).
 
 4.7.0 (4/25/2020)
 ================

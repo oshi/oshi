@@ -493,6 +493,8 @@
 							<exclude>**/MavenWrapperDownloader.java</exclude>
 							<exclude>mvnw</exclude>
 							<exclude>mvnw.cmd</exclude>
+							<exclude>.gitattributes</exclude>
+							<exclude>**/*.PNG</exclude>
 							<exclude>LICENSE.txt</exclude>
 							<exclude>**/OSHIJavaFormatConventions.xml</exclude>
 						</excludes>

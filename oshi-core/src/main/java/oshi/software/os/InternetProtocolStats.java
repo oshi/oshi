@@ -76,18 +76,6 @@ public interface InternetProtocolStats {
         private final long inErrors;
         private final long outResets;
 
-        /**
-         * @param connectionsEstablished
-         * @param connectionsActive
-         * @param connectionsPassive
-         * @param connectionFailures
-         * @param connectionsReset
-         * @param segmentsSent
-         * @param segmentsReceived
-         * @param segmentsRetransmitted
-         * @param inErrors
-         * @param outResets
-         */
         public TcpStats(long connectionsEstablished, long connectionsActive, long connectionsPassive,
                 long connectionFailures, long connectionsReset, long segmentsSent, long segmentsReceived,
                 long segmentsRetransmitted, long inErrors, long outResets) {
@@ -225,12 +213,6 @@ public interface InternetProtocolStats {
         private final long datagramsNoPort;
         private final long datagramsReceivedErrors;
 
-        /**
-         * @param datagramsSent
-         * @param datagramsReceived
-         * @param datagramsNoPort
-         * @param datagramsReceivedErrors
-         */
         public UdpStats(long datagramsSent, long datagramsReceived, long datagramsNoPort,
                 long datagramsReceivedErrors) {
             this.datagramsSent = datagramsSent;

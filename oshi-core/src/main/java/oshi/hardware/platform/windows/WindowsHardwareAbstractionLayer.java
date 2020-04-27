@@ -23,6 +23,8 @@
  */
 package oshi.hardware.platform.windows;
 
+import java.util.List;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.ComputerSystem;
@@ -79,8 +81,8 @@ public final class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstr
     }
 
     @Override
-    public NetworkIF[] getNetworkIFs() {
-        return new WindowsNetworks().getNetworks();
+    public List<NetworkIF> getNetworkIFs() {
+        return WindowsNetworkIF.getNetworks();
     }
 
     @Override

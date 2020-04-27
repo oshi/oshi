@@ -23,6 +23,8 @@
  */
 package oshi.hardware.platform.unix.freebsd;
 
+import java.util.List;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.ComputerSystem;
@@ -79,8 +81,8 @@ public final class FreeBsdHardwareAbstractionLayer extends AbstractHardwareAbstr
     }
 
     @Override
-    public NetworkIF[] getNetworkIFs() {
-        return new FreeBsdNetworks().getNetworks();
+    public List<NetworkIF> getNetworkIFs() {
+        return FreeBsdNetworkIF.getNetworks();
     }
 
     @Override

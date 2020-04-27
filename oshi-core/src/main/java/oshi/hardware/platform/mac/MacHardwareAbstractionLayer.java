@@ -23,6 +23,8 @@
  */
 package oshi.hardware.platform.mac;
 
+import java.util.List;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.ComputerSystem;
@@ -79,8 +81,8 @@ public final class MacHardwareAbstractionLayer extends AbstractHardwareAbstracti
     }
 
     @Override
-    public NetworkIF[] getNetworkIFs() {
-        return new MacNetworks().getNetworks();
+    public List<NetworkIF> getNetworkIFs() {
+        return MacNetworkIF.getNetworks();
     }
 
     @Override
