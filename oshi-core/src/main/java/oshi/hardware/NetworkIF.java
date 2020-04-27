@@ -28,7 +28,12 @@ import java.net.NetworkInterface;
 import oshi.annotation.concurrent.ThreadSafe;
 
 /**
- * A network interface in the machine, including statistics
+ * A network interface in the machine, including statistics.
+ * <p>
+ * Thread safe for the designed use of retrieving the most recent data. Users
+ * should be aware that the {@link #updateAttributes()} method may update
+ * attributes, including the time stamp, and should externally synchronize such
+ * usage to ensure consistent calculations.
  */
 @ThreadSafe
 public interface NetworkIF {

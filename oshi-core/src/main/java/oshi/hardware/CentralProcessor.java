@@ -30,6 +30,7 @@ import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import oshi.annotation.concurrent.Immutable;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.util.Constants;
 import oshi.util.FileUtil;
@@ -292,6 +293,7 @@ public interface CentralProcessor {
      * processors, physical packages, and logical groupings such as NUMA Nodes and
      * Processor groups, useful for identifying processor topology.
      */
+    @Immutable
     class LogicalProcessor {
         private final int processorNumber;
         private final int physicalProcessorNumber;
@@ -406,6 +408,7 @@ public interface CentralProcessor {
      * A class encapsulating ghe CPU's identifier strings ,including name, vendor,
      * stepping, model, and family information (also called the signature of a CPU)
      */
+    @Immutable
     final class ProcessorIdentifier {
         private static final String OSHI_ARCHITECTURE_PROPERTIES = "oshi.architecture.properties";
 

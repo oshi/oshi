@@ -162,9 +162,9 @@ public final class LinuxNetworkIF extends AbstractNetworkIF {
         this.inErrors = FileUtil.getUnsignedLongFromFile(rxErrorsPath);
         this.collisions = FileUtil.getUnsignedLongFromFile(collisionsPath);
         this.inDrops = FileUtil.getUnsignedLongFromFile(rxDropsPath);
-        // speed may be negative from file. Convert to MiB.
-        this.speed = FileUtil.getUnsignedLongFromFile(ifSpeed);
-        this.speed = this.speed < 0 ? 0 : this.speed << 20;
+        long speedMiB = FileUtil.getUnsignedLongFromFile(ifSpeed);
+        // speed may be -1 from file.
+        this.speed = speedMiB < 0 ? 0 : speedMiB << 20;
 
         return true;
     }
