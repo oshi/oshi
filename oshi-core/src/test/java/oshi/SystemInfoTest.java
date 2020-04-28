@@ -176,9 +176,9 @@ public class SystemInfoTest {
     }
 
     private static void printMemory(GlobalMemory memory) {
-        oshi.add("Memory: \n " + memory.toString());
+        oshi.add("Physical Memory: \n " + memory.toString());
         VirtualMemory vm = memory.getVirtualMemory();
-        oshi.add("Swap: \n " + vm.toString());
+        oshi.add("Virtual Memory: \n " + vm.toString());
         PhysicalMemory[] pmArray = memory.getPhysicalMemory();
         if (pmArray.length > 0) {
             oshi.add("Physical Memory: ");

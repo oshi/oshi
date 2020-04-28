@@ -21,29 +21,43 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package oshi.hardware.common;
+package oshi.driver.unix.solaris.kstat;
+
+import com.sun.jna.platform.unix.solaris.LibKstat.Kstat; // NOSONAR squid:s1191
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.hardware.VirtualMemory;
-import oshi.util.FormatUtil;
+import oshi.util.platform.unix.solaris.KstatUtil;
+import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
+import oshi.util.tuples.Pair;
 
 /**
- * Virtual Memory info.
+ * Utility to query geom part list
  */
 @ThreadSafe
-public abstract class AbstractVirtualMemory implements VirtualMemory {
+public final class SystemPages {
 
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("Swap Used/Avail: ");
-        sb.append(FormatUtil.formatBytes(getSwapUsed()));
-        sb.append("/");
-        sb.append(FormatUtil.formatBytes(getSwapTotal()));
-        sb.append(", Virtual Memory In Use/Max=");
-        sb.append(FormatUtil.formatBytes(getVirtualInUse()));
-        sb.append("/");
-        sb.append(FormatUtil.formatBytes(getVirtualMax()));
-        return sb.toString();
+    private SystemPages() {
+    }
+
+    /**
+     * Queries the {@code system_pages} kstat and returns available and physical
+     * memory
+     * 
+     * @return A pair with the available and total memory, in pages. Mutiply by page
+     *         size for bytes.
+     */
+    public static Pair<Long, Long> queryAvailableTotal() {
+        long memAvailable = 0;
+        long memTotal = 0;
+        // Get first result
+        try (KstatChain kc = KstatUtil.openChain()) {
+            Kstat ksp = kc.lookup(null, -1, "system_pages");
+            // Set values
+            if (ksp != null && kc.read(ksp)) {
+                memAvailable = KstatUtil.dataLookupLong(ksp, "availrmem"); // not a typo
+                memTotal = KstatUtil.dataLookupLong(ksp, "physmem");
+            }
+        }
+        return new Pair<>(memAvailable, memTotal);
     }
 }

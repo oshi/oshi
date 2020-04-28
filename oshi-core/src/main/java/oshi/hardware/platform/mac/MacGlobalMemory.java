@@ -62,7 +62,7 @@ final class MacGlobalMemory extends AbstractGlobalMemory {
 
     private final Supplier<Long> pageSize = memoize(MacGlobalMemory::queryPageSize);
 
-    private final Supplier<VirtualMemory> vm = memoize(MacGlobalMemory::createVirtualMemory);
+    private final Supplier<VirtualMemory> vm = memoize(this::createVirtualMemory);
 
     @Override
     public long getAvailable() {
@@ -155,7 +155,7 @@ final class MacGlobalMemory extends AbstractGlobalMemory {
         return 4098L;
     }
 
-    private static VirtualMemory createVirtualMemory() {
-        return new MacVirtualMemory();
+    private VirtualMemory createVirtualMemory() {
+        return new MacVirtualMemory(this);
     }
 }

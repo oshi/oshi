@@ -51,9 +51,21 @@ final class MacVirtualMemory extends AbstractVirtualMemory {
 
     private static final Logger LOG = LoggerFactory.getLogger(MacVirtualMemory.class);
 
+    private final MacGlobalMemory global;
+
     private final Supplier<Pair<Long, Long>> usedTotal = memoize(MacVirtualMemory::querySwapUsage, defaultExpiration());
 
     private final Supplier<Pair<Long, Long>> inOut = memoize(MacVirtualMemory::queryVmStat, defaultExpiration());
+
+    /**
+     * Constructor for MacVirtualMemory.
+     * 
+     * @param macGlobalMemory
+     *            The parent global memory class instantiating this
+     */
+    public MacVirtualMemory(MacGlobalMemory macGlobalMemory) {
+        this.global = macGlobalMemory;
+    }
 
     @Override
     public long getSwapUsed() {
@@ -63,6 +75,16 @@ final class MacVirtualMemory extends AbstractVirtualMemory {
     @Override
     public long getSwapTotal() {
         return usedTotal.get().getB();
+    }
+
+    @Override
+    public long getVirtualMax() {
+        return this.global.getTotal() + getSwapTotal();
+    }
+
+    @Override
+    public long getVirtualInUse() {
+        return this.global.getTotal() - this.global.getAvailable() + getSwapUsed();
     }
 
     @Override
