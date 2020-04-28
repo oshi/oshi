@@ -270,8 +270,9 @@ public final class MacDisks {
                                 Long size = sdService.getLongProperty("Size");
                                 Integer bsdMajor = sdService.getIntegerProperty("BSD Major");
                                 Integer bsdMinor = sdService.getIntegerProperty("BSD Minor");
+                                String uuid = sdService.getStringProperty("UUID");
                                 partitions.add(new HWPartition(partBsdName, name, type,
-                                        sdService.getStringProperty("UUID"), size == null ? 0L : size,
+                                        uuid == null ? Constants.UNKNOWN : uuid, size == null ? 0L : size,
                                         bsdMajor == null ? 0 : bsdMajor, bsdMinor == null ? 0 : bsdMinor, mountPoint));
                                 // iterate
                                 sdService.release();
