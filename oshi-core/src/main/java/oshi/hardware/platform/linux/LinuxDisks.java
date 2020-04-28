@@ -24,6 +24,7 @@
 package oshi.hardware.platform.linux;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -110,7 +111,7 @@ public final class LinuxDisks {
 
                     if (storeToUpdate == null) {
                         // If getting all stores, add to the list with stats
-                        store.setPartitions(new HWPartition[0]);
+                        store.setPartitions(Collections.emptyList());
                         computeDiskStats(store, device);
                         result.add(store);
                     } else if (store.equals(storeToUpdate)) {
@@ -126,10 +127,9 @@ public final class LinuxDisks {
                     // `store` should still point to the HWDiskStore this
                     // partition is attached to. If not, it's an error, so
                     // skip.
-                    HWPartition[] partArray = new HWPartition[store.getPartitions().length + 1];
-                    System.arraycopy(store.getPartitions(), 0, partArray, 0, store.getPartitions().length);
+                    List<HWPartition> partList = new ArrayList<>(store.getPartitions());
                     String name = Udev.INSTANCE.udev_device_get_devnode(device);
-                    partArray[partArray.length - 1] = new HWPartition(name,
+                    partList.add(new HWPartition(name,
                             Udev.INSTANCE.udev_device_get_sysname(device),
                             Udev.INSTANCE.udev_device_get_property_value(device, "ID_FS_TYPE") == null ? "partition"
                                     : Udev.INSTANCE.udev_device_get_property_value(device, "ID_FS_TYPE"),
@@ -141,8 +141,8 @@ public final class LinuxDisks {
                                     0),
                             ParseUtil.parseIntOrDefault(Udev.INSTANCE.udev_device_get_property_value(device, "MINOR"),
                                     0),
-                            mountsMap.getOrDefault(name, ""));
-                    store.setPartitions(partArray);
+                            mountsMap.getOrDefault(name, "")));
+                    store.setPartitions(Collections.unmodifiableList(partList));
                 }
             }
             Udev.INSTANCE.udev_device_unref(device);

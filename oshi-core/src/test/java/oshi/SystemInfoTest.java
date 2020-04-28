@@ -300,7 +300,7 @@ public class SystemInfoTest {
         for (HWDiskStore disk : diskStores) {
             oshi.add(" " + disk.toString());
 
-            HWPartition[] partitions = disk.getPartitions();
+            List<HWPartition> partitions = disk.getPartitions();
             for (HWPartition part : partitions) {
                 oshi.add(" |-- " + part.toString());
             }

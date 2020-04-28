@@ -280,7 +280,7 @@ public final class MacDisks {
                             serviceIterator.release();
                         }
                         Collections.sort(partitions);
-                        diskStore.setPartitions(partitions.toArray(new HWPartition[0]));
+                        diskStore.setPartitions(Collections.unmodifiableList(partitions));
                         if (parent != null) {
                             parent.release();
                         }
