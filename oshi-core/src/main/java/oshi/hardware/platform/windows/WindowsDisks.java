@@ -24,6 +24,7 @@
 package oshi.hardware.platform.windows;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -79,11 +80,11 @@ public final class WindowsDisks {
      */
     public static boolean updateDiskStats(HWDiskStore diskStore) {
         String index = null;
-        HWPartition[] partitions = diskStore.getPartitions();
-        if (partitions.length > 0) {
+        List<HWPartition> partitions = diskStore.getPartitions();
+        if (!partitions.isEmpty()) {
             // If a partition exists on this drive, the major property
             // corresponds to the disk index, so use it.
-            index = Integer.toString(partitions[0].getMajor());
+            index = Integer.toString(partitions.get(0).getMajor());
         } else if (diskStore.getName().startsWith(PHYSICALDRIVE_PREFIX)) {
             // If no partition exists, Windows reliably uses a name to match the
             // disk index. That said, the skeptical person might wonder why a
@@ -153,7 +154,7 @@ public final class WindowsDisks {
                     }
                 }
             }
-            ds.setPartitions(partitions.toArray(new HWPartition[0]));
+            ds.setPartitions(Collections.unmodifiableList(partitions));
             // Add to list
             result.add(ds);
         }

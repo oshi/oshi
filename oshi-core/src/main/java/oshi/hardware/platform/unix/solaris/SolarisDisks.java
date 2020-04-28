@@ -24,6 +24,7 @@
 package oshi.hardware.platform.unix.solaris;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +36,7 @@ import com.sun.jna.platform.unix.solaris.LibKstat.KstatIO;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
+import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.solaris.KstatUtil;
@@ -266,87 +268,90 @@ public final class SolarisDisks {
                     split = ParseUtil.whitespaces.split(line.trim());
                     // Partition 2 is always the whole disk so we ignore it
                     if (split.length >= 6 && !"2".equals(split[0])) {
-                        HWPartition partition = new HWPartition();
                         // First field is partition number
-                        partition.setIdentification(mount + "s" + split[0]);
-                        partition.setMajor(major);
-                        partition.setMinor(ParseUtil.parseIntOrDefault(split[0], 0));
+                        String identification = mount + "s" + split[0];
+                        // major already defined as method param
+                        int minor = ParseUtil.parseIntOrDefault(split[0], 0);
                         // Second field is tag. Parse:
+                        String name;
                         switch (ParseUtil.parseIntOrDefault(split[1], 0)) {
                         case 0x01:
                         case 0x18:
-                            partition.setName("boot");
+                            name = "boot";
                             break;
                         case 0x02:
-                            partition.setName("root");
+                            name = "root";
                             break;
                         case 0x03:
-                            partition.setName("swap");
+                            name = "swap";
                             break;
                         case 0x04:
-                            partition.setName("usr");
+                            name = "usr";
                             break;
                         case 0x05:
-                            partition.setName("backup");
+                            name = "backup";
                             break;
                         case 0x06:
-                            partition.setName("stand");
+                            name = "stand";
                             break;
                         case 0x07:
-                            partition.setName("var");
+                            name = "var";
                             break;
                         case 0x08:
-                            partition.setName("home");
+                            name = "home";
                             break;
                         case 0x09:
-                            partition.setName("altsctr");
+                            name = "altsctr";
                             break;
                         case 0x0a:
-                            partition.setName("cache");
+                            name = "cache";
                             break;
                         case 0x0b:
-                            partition.setName("reserved");
+                            name = "reserved";
                             break;
                         case 0x0c:
-                            partition.setName("system");
+                            name = "system";
                             break;
                         case 0x0e:
-                            partition.setName("public region");
+                            name = "public region";
                             break;
                         case 0x0f:
-                            partition.setName("private region");
+                            name = "private region";
                             break;
                         default:
-                            partition.setName("unknown");
+                            name = Constants.UNKNOWN;
                             break;
                         }
                         // Third field is flags.
+                        String type;
                         // First character writable, second is mountable
                         switch (split[2]) {
                         case "00":
-                            partition.setType("wm");
+                            type = "wm";
                             break;
                         case "10":
-                            partition.setType("rm");
+                            type = "rm";
                             break;
                         case "01":
-                            partition.setType("wu");
+                            type = "wu";
                             break;
                         default:
-                            partition.setType("ru");
+                            type = "ru";
                             break;
                         }
                         // Fifth field is sector count
-                        partition.setSize(bytesPerSector * ParseUtil.parseLongOrDefault(split[4], 0L));
+                        long partSize = bytesPerSector * ParseUtil.parseLongOrDefault(split[4], 0L);
                         // Seventh field (if present) is mount point
+                        String mountPoint = "";
                         if (split.length > 6) {
-                            partition.setMountPoint(split[6]);
+                            mountPoint = split[6];
                         }
-                        partList.add(partition);
+                        partList.add(
+                                new HWPartition(identification, name, type, "", partSize, major, minor, mountPoint));
                     }
                 }
             }
-            store.setPartitions(partList.toArray(new HWPartition[0]));
+            store.setPartitions(Collections.unmodifiableList(partList));
         }
     }
 }

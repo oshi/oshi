@@ -23,6 +23,10 @@
  */
 package oshi.hardware;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,7 +66,7 @@ public class HWDiskStore implements Comparable<HWDiskStore> {
     private long writeBytes = 0L;
     private long currentQueueLength = 0L;
     private long transferTime = 0L;
-    private HWPartition[] partitions = new HWPartition[0];
+    private List<HWPartition> partitions = new ArrayList<>();
     private long timeStamp = 0L;
 
     /**
@@ -78,12 +82,11 @@ public class HWDiskStore implements Comparable<HWDiskStore> {
      *            The object to copy
      */
     public HWDiskStore(HWDiskStore diskStore) {
-        HWPartition[] partsOrig = diskStore.getPartitions();
-        HWPartition[] partsCopy = new HWPartition[partsOrig.length];
-        for (int i = 0; i < partsOrig.length; i++) {
-            partsCopy[i] = new HWPartition(partsOrig[i].getIdentification(), partsOrig[i].getName(),
-                    partsOrig[i].getType(), partsOrig[i].getUuid(), partsOrig[i].getSize(), partsOrig[i].getMajor(),
-                    partsOrig[i].getMinor(), partsOrig[i].getMountPoint());
+        List<HWPartition> partsOrig = diskStore.getPartitions();
+        List<HWPartition> partsCopy = new ArrayList<>(partsOrig.size());
+        for (HWPartition part: partsOrig) {
+            partsCopy.add(new HWPartition(part.getIdentification(), part.getName(), part.getType(), part.getUuid(),
+                    part.getSize(), part.getMajor(), part.getMinor(), part.getMountPoint()));
         }
         this.name = diskStore.name;
         this.model = diskStore.model;
@@ -95,7 +98,7 @@ public class HWDiskStore implements Comparable<HWDiskStore> {
         this.writeBytes = diskStore.writeBytes;
         this.currentQueueLength = diskStore.currentQueueLength;
         this.transferTime = diskStore.transferTime;
-        this.partitions = partsCopy;
+        this.partitions = Collections.unmodifiableList(partsCopy);
         this.timeStamp = diskStore.timeStamp;
     }
 
@@ -244,9 +247,9 @@ public class HWDiskStore implements Comparable<HWDiskStore> {
      * Getter for the field <code>partitions</code>.
      * </p>
      *
-     * @return Returns the partitions on this drive.
+     * @return Returns an {@code UnmodifiableList} of the partitions on this drive.
      */
-    public HWPartition[] getPartitions() {
+    public List<HWPartition> getPartitions() {
         return this.partitions;
     }
 
@@ -389,7 +392,7 @@ public class HWDiskStore implements Comparable<HWDiskStore> {
      * @param partitions
      *            The partitions to set.
      */
-    public void setPartitions(HWPartition[] partitions) {
+    public void setPartitions(List<HWPartition> partitions) {
         this.partitions = partitions;
     }
 

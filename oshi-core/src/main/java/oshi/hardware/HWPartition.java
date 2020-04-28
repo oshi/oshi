@@ -23,7 +23,7 @@
  */
 package oshi.hardware;
 
-import oshi.annotation.concurrent.NotThreadSafe;
+import oshi.annotation.concurrent.Immutable;
 import oshi.util.FormatUtil;
 
 /**
@@ -31,11 +31,8 @@ import oshi.util.FormatUtil;
  * system can manage information in each region separately. A partition appears
  * in the operating system as a distinct "logical" disk that uses part of the
  * actual disk.
- * <p>
- * Thread safe if both threads only use getters, or if setter usage is
- * externally synchronized.
  */
-@NotThreadSafe
+@Immutable
 public class HWPartition implements Comparable<HWPartition> {
 
     private String identification;
@@ -69,21 +66,14 @@ public class HWPartition implements Comparable<HWPartition> {
      */
     public HWPartition(String identification, String name, String type, String uuid, long size, int major, int minor,
             String mountPoint) {
-        setIdentification(identification);
-        setName(name);
-        setType(type);
-        setUuid(uuid);
-        setSize(size);
-        setMajor(major);
-        setMinor(minor);
-        setMountPoint(mountPoint);
-    }
-
-    /**
-     * Creates a new HWPartition
-     */
-    public HWPartition() {
-        this("", "", "", "", 0L, 0, 0, "");
+        this.identification = identification;
+        this.name = name;
+        this.type = type;
+        this.uuid = uuid;
+        this.size = size;
+        this.major = major;
+        this.minor = minor;
+        this.mountPoint = mountPoint;
     }
 
     /**
@@ -172,102 +162,6 @@ public class HWPartition implements Comparable<HWPartition> {
      */
     public String getMountPoint() {
         return this.mountPoint;
-    }
-
-    /**
-     * <p>
-     * Setter for the field <code>identification</code>.
-     * </p>
-     *
-     * @param identification
-     *            The identification to set.
-     */
-    public void setIdentification(String identification) {
-        this.identification = identification == null ? "" : identification;
-    }
-
-    /**
-     * <p>
-     * Setter for the field <code>name</code>.
-     * </p>
-     *
-     * @param name
-     *            The name to set.
-     */
-    public void setName(String name) {
-        this.name = name == null ? "" : name;
-    }
-
-    /**
-     * <p>
-     * Setter for the field <code>type</code>.
-     * </p>
-     *
-     * @param type
-     *            The type to set.
-     */
-    public void setType(String type) {
-        this.type = type == null ? "" : type;
-    }
-
-    /**
-     * <p>
-     * Setter for the field <code>uuid</code>.
-     * </p>
-     *
-     * @param uuid
-     *            The uuid to set.
-     */
-    public void setUuid(String uuid) {
-        this.uuid = uuid == null ? "" : uuid;
-    }
-
-    /**
-     * <p>
-     * Setter for the field <code>size</code>.
-     * </p>
-     *
-     * @param size
-     *            The size (in bytes) to set.
-     */
-    public void setSize(long size) {
-        this.size = size;
-    }
-
-    /**
-     * <p>
-     * Setter for the field <code>major</code>.
-     * </p>
-     *
-     * @param major
-     *            The major device ID to set.
-     */
-    public void setMajor(int major) {
-        this.major = major;
-    }
-
-    /**
-     * <p>
-     * Setter for the field <code>minor</code>.
-     * </p>
-     *
-     * @param minor
-     *            The minor device ID to set.
-     */
-    public void setMinor(int minor) {
-        this.minor = minor;
-    }
-
-    /**
-     * <p>
-     * Setter for the field <code>mountPoint</code>.
-     * </p>
-     *
-     * @param mountPoint
-     *            Mount point of the partition
-     */
-    public void setMountPoint(String mountPoint) {
-        this.mountPoint = mountPoint == null ? "" : mountPoint;
     }
 
     @Override

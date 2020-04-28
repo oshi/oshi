@@ -29,6 +29,10 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import org.junit.Test;
 
@@ -57,19 +61,11 @@ public class DisksTest {
             assertNotEquals(disk, "A String");
             assertNotEquals(disk, lastDisk);
             assertNotEquals(disk.hashCode(), lastDisk.hashCode());
-            HWPartition[] parts = disk.getPartitions();
-            HWPartition[] partArray = new HWPartition[parts.length];
-            for (int i = 0; i < partArray.length; i++) {
-                partArray[i] = new HWPartition();
-                partArray[i].setIdentification(parts[i].getIdentification());
-                partArray[i].setName(parts[i].getName());
-                partArray[i].setType(parts[i].getType());
-                partArray[i].setUuid(parts[i].getUuid());
-                partArray[i].setMountPoint(parts[i].getMountPoint());
-                partArray[i].setSize(parts[i].getSize());
-                partArray[i].setMajor(parts[i].getMajor());
-                partArray[i].setMinor(parts[i].getMinor());
-
+            List<HWPartition> parts = disk.getPartitions();
+            List<HWPartition> partList = new ArrayList<>(parts.size());
+            for (HWPartition part : parts) {
+                partList.add(new HWPartition(part.getIdentification(), part.getName(), part.getType(), part.getUuid(),
+                        part.getSize(), part.getMajor(), part.getMinor(), part.getMountPoint()));
             }
 
             assertNotNull(disk.getName());
@@ -97,7 +93,7 @@ public class DisksTest {
             lastDisk.setName(disk.getName());
             lastDisk.setSerial(disk.getSerial());
             lastDisk.setSize(disk.getSize());
-            lastDisk.setPartitions(partArray);
+            lastDisk.setPartitions(Collections.unmodifiableList(partList));
 
             assertTrue(disk.equals(lastDisk));
             assertEquals(disk.hashCode(), lastDisk.hashCode());
@@ -164,81 +160,64 @@ public class DisksTest {
                 assertTrue(partition.toString().contains(partition.getIdentification()));
             }
             HWPartition[] partitions = new HWPartition[2];
-            partitions[0] = new HWPartition();
-            partitions[0].setIdentification("id");
-            partitions[0].setName("name");
-            partitions[0].setType("type");
-            partitions[0].setUuid("uuid");
-            partitions[0].setMountPoint("mount");
-            partitions[0].setSize(123L);
-            partitions[0].setMajor(345);
-            partitions[0].setMinor(456);
+            partitions[0] = new HWPartition("id", "name", "type", "uuid", 123L, 345, 456, "mount");
 
             assertEquals(partitions[0], partitions[0]);
             assertNotEquals(partitions[0], null);
             assertNotEquals(partitions[0], "A string");
 
-            partitions[1] = new HWPartition();
-            assertNotEquals(partitions[0], partitions[1]);
-            partitions[1].setIdentification(null);
-            assertNotEquals(partitions[0], partitions[1]);
-            assertNotEquals(partitions[1], partitions[0]);
-            partitions[1].setIdentification("");
-            assertNotEquals(partitions[0], partitions[1]);
-            assertTrue(partitions[0].compareTo(partitions[1]) > 0);
-            partitions[1].setIdentification("id");
-            assertNotEquals(partitions[0], partitions[1]);
-
-            partitions[1].setMajor(345);
-            assertNotEquals(partitions[0], partitions[1]);
-            partitions[1].setMinor(456);
-            assertNotEquals(partitions[0], partitions[1]);
-
-            partitions[1].setMountPoint(null);
-            assertNotEquals(partitions[0], partitions[1]);
-            assertNotEquals(partitions[1], partitions[0]);
-            partitions[1].setMountPoint("");
-            assertNotEquals(partitions[0], partitions[1]);
-            partitions[1].setMountPoint("mount");
-            assertNotEquals(partitions[0], partitions[1]);
-
-            partitions[1].setName(null);
-            assertNotEquals(partitions[0], partitions[1]);
-            assertNotEquals(partitions[1], partitions[0]);
-            partitions[1].setName("");
-            assertNotEquals(partitions[0], partitions[1]);
-            partitions[1].setName("name");
-            assertNotEquals(partitions[0], partitions[1]);
-
-            partitions[1].setSize(123L);
-            assertNotEquals(partitions[0], partitions[1]);
-
-            partitions[1].setType(null);
-            assertNotEquals(partitions[0], partitions[1]);
-            assertNotEquals(partitions[1], partitions[0]);
-            partitions[1].setType("");
-            assertNotEquals(partitions[0], partitions[1]);
-            partitions[1].setType("type");
-            assertNotEquals(partitions[0], partitions[1]);
-
-            partitions[1].setUuid(null);
-            assertNotEquals(partitions[0], partitions[1]);
-            assertNotEquals(partitions[1], partitions[0]);
-            partitions[1].setUuid("");
-            assertNotEquals(partitions[0], partitions[1]);
-            partitions[1].setUuid("uuid");
+            partitions[1] = new HWPartition("id", "name", "type", "uuid", 123L, 345, 456, "mount");
             assertTrue(partitions[0].equals(partitions[1]));
             assertEquals(partitions[0].hashCode(), partitions[1].hashCode());
 
-            disk.setPartitions(partitions);
-            partitions = disk.getPartitions();
-            assertEquals("id", partitions[0].getIdentification());
-            assertEquals("name", partitions[0].getName());
-            assertEquals("type", partitions[0].getType());
-            assertEquals("uuid", partitions[0].getUuid());
-            assertEquals("mount", partitions[0].getMountPoint());
-            assertEquals(123L, partitions[0].getSize());
-            assertEquals(345, partitions[0].getMajor());
+            partitions[1] = new HWPartition(null, "name", "type", "uuid", 123L, 345, 456, "mount");
+            assertNotEquals(partitions[0], partitions[1]);
+            assertNotEquals(partitions[1], partitions[0]);
+            partitions[1] = new HWPartition("", "name", "type", "uuid", 123L, 345, 456, "mount");
+            assertNotEquals(partitions[0], partitions[1]);
+            assertTrue(partitions[0].compareTo(partitions[1]) > 0);
+
+            partitions[1] = new HWPartition("id", "name", "type", "uuid", 123L, 0, 456, "mount");
+            assertNotEquals(partitions[0], partitions[1]);
+            partitions[1] = new HWPartition("id", "name", "type", "uuid", 123L, 345, 0, "mount");
+            assertNotEquals(partitions[0], partitions[1]);
+
+            partitions[1] = new HWPartition("id", "name", "type", "uuid", 123L, 345, 456, null);
+            assertNotEquals(partitions[0], partitions[1]);
+            assertNotEquals(partitions[1], partitions[0]);
+            partitions[1] = new HWPartition("id", "name", "type", "uuid", 123L, 345, 456, "");
+            assertNotEquals(partitions[0], partitions[1]);
+
+            partitions[1] = new HWPartition("id", null, "type", "uuid", 123L, 345, 456, "mount");
+            assertNotEquals(partitions[0], partitions[1]);
+            assertNotEquals(partitions[1], partitions[0]);
+            partitions[1] = new HWPartition("id", "", "type", "uuid", 123L, 345, 456, "mount");
+            assertNotEquals(partitions[0], partitions[1]);
+
+            partitions[1] = new HWPartition("id", "name", "type", "uuid", 0L, 345, 456, "mount");
+            assertNotEquals(partitions[0], partitions[1]);
+
+            partitions[1] = new HWPartition("id", "name", null, "uuid", 123L, 345, 456, "mount");
+            assertNotEquals(partitions[0], partitions[1]);
+            assertNotEquals(partitions[1], partitions[0]);
+            partitions[1] = new HWPartition("id", "name", "", "uuid", 123L, 345, 456, "mount");
+            assertNotEquals(partitions[0], partitions[1]);
+
+            partitions[1] = new HWPartition("id", "name", "type", null, 123L, 345, 456, "mount");
+            assertNotEquals(partitions[0], partitions[1]);
+            assertNotEquals(partitions[1], partitions[0]);
+            partitions[1] = new HWPartition("id", "name", "type", "", 123L, 345, 456, "mount");
+            assertNotEquals(partitions[0], partitions[1]);
+
+            disk.setPartitions(Collections.unmodifiableList(Arrays.asList(partitions)));
+            List<HWPartition> diskPartitions = disk.getPartitions();
+            assertEquals("id", diskPartitions.get(0).getIdentification());
+            assertEquals("name", diskPartitions.get(0).getName());
+            assertEquals("type", diskPartitions.get(0).getType());
+            assertEquals("uuid", diskPartitions.get(0).getUuid());
+            assertEquals("mount", diskPartitions.get(0).getMountPoint());
+            assertEquals(123L, diskPartitions.get(0).getSize());
+            assertEquals(345, diskPartitions.get(0).getMajor());
         }
     }
 }
