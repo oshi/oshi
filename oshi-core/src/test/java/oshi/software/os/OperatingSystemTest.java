@@ -80,7 +80,7 @@ public class OperatingSystemTest {
         assertNotNull(proc.getGroupID());
         assertNotNull(proc.getState());
         assertEquals(proc.getProcessID(), os.getProcessId());
-        assertTrue(proc.getParentProcessID() >= 0);
+        os.getProcess(proc.getParentProcessID());
         assertTrue(proc.getThreadCount() > 0);
         assertTrue(proc.getPriority() >= -20 && proc.getPriority() <= 128);
         assertTrue(proc.getVirtualSize() >= 0);
@@ -100,8 +100,7 @@ public class OperatingSystemTest {
         assertTrue(proc.getStartTime() >= 0);
         assertTrue(proc.getBytesRead() >= 0);
         assertTrue(proc.getBytesWritten() >= 0);
-        assertTrue(proc.getBitness() >= 0);
-        assertTrue(proc.getBitness() <= 64);
+        assertTrue(proc.getBitness() == 64||proc.getBitness() == 32||proc.getBitness() == 0);
         assertTrue(proc.getOpenFiles() >= -1);
     }
 

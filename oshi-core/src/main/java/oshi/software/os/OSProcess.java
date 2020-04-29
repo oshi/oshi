@@ -58,7 +58,7 @@ public class OSProcess {
     private String userID = "";
     private String group = "";
     private String groupID = "";
-    private State state = State.OTHER;
+    private State state = null;
     private int processID;
     private int parentProcessID;
     private int threadCount;
