@@ -49,6 +49,34 @@ public interface VirtualMemory {
     long getSwapUsed();
 
     /**
+     * The maximum memory that can be committed by the system without extending the
+     * paging file(s), in bytes. Also called the Commit Limit. If the paging/swap
+     * file can be extended, this is a soft limit. This is generally equal to the
+     * sum of the sizes of physical memory and paging/swap file(s).
+     * <p>
+     * On Linux, represents the total amount of memory currently available to be
+     * allocated on the system based on the overcommit ratio, identified as
+     * {@code CommitLimit}. This may be higher or lower than the total size of
+     * physical and swap memory depending on system configuration.
+     *
+     * @return Max Virtual Memory in bytes
+     */
+    long getVirtualMax();
+
+    /**
+     * The memory currently committed by the system, in bytes. Also called the
+     * Commit Total. This is generally equal to the sum of the bytes used of
+     * physical memory and paging/swap file(s).
+     * <p>
+     * On Windows, committing pages changes this value immediately; however, the
+     * physical memory is not charged until the pages are accessed, so this value
+     * may exceed the sum of used physical and paging/swap file memory.
+     *
+     * @return Swap used in bytes
+     */
+    long getVirtualInUse();
+
+    /**
      * Number of pages read from paging/swap file(s) to resolve hard page faults.
      * (Hard page faults occur when a process requires code or data that is not in
      * its working set or elsewhere in physical memory, and must be retrieved from

@@ -48,7 +48,7 @@ final class LinuxGlobalMemory extends AbstractGlobalMemory {
 
     private final Supplier<Long> pageSize = memoize(LinuxGlobalMemory::queryPageSize);
 
-    private final Supplier<VirtualMemory> vm = memoize(LinuxGlobalMemory::createVirtualMemory);
+    private final Supplier<VirtualMemory> vm = memoize(this::createVirtualMemory);
 
     @Override
     public long getAvailable() {
@@ -150,7 +150,7 @@ final class LinuxGlobalMemory extends AbstractGlobalMemory {
         return memory;
     }
 
-    private static VirtualMemory createVirtualMemory() {
-        return new LinuxVirtualMemory();
+    private VirtualMemory createVirtualMemory() {
+        return new LinuxVirtualMemory(this);
     }
 }

@@ -5,6 +5,7 @@
 * [#1177](https://github.com/oshi/oshi/pull/1177): Remove deprecated code. - [@dbwiddis](https://github.com/dbwiddis).
 * [#1178](https://github.com/oshi/oshi/pull/1178): Make NetworkIF an interface. - [@dbwiddis](https://github.com/dbwiddis).
 * [#1181](https://github.com/oshi/oshi/pull/1181): Make HWPartition immutable. - [@dbwiddis](https://github.com/dbwiddis).
+* [#1183](https://github.com/oshi/oshi/pull/1183): Add more VirtualMemory information. - [@dbwiddis](https://github.com/dbwiddis).
 
 4.7.0 (4/25/2020)
 ================
