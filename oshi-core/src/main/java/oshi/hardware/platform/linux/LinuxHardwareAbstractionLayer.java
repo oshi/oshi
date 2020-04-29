@@ -72,7 +72,7 @@ public final class LinuxHardwareAbstractionLayer extends AbstractHardwareAbstrac
 
     @Override
     public HWDiskStore[] getDiskStores() {
-        return LinuxDisks.getDisks();
+        return LinuxHWDiskStore.getDisks();
     }
 
     @Override

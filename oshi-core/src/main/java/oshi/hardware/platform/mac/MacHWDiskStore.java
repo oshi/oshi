@@ -23,15 +23,13 @@
  */
 package oshi.hardware.platform.mac;
 
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,101 +50,107 @@ import com.sun.jna.platform.mac.IOKit;
 import com.sun.jna.platform.mac.IOKit.IOIterator;
 import com.sun.jna.platform.mac.IOKit.IORegistryEntry;
 import com.sun.jna.platform.mac.IOKitUtil;
-import com.sun.jna.platform.mac.SystemB;
-import com.sun.jna.platform.mac.SystemB.Statfs;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.mac.disk.Diskutil;
+import oshi.driver.mac.disk.Fsstat;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
+import oshi.hardware.common.AbstractHWDiskStore;
 import oshi.util.Constants;
-import oshi.util.ExecutingCommand;
-import oshi.util.ParseUtil;
 
 /**
  * Mac hard disk implementation.
  */
 @ThreadSafe
-public final class MacDisks {
+public final class MacHWDiskStore extends AbstractHWDiskStore {
 
     private static final CoreFoundation CF = CoreFoundation.INSTANCE;
     private static final DiskArbitration DA = DiskArbitration.INSTANCE;
 
-    private static final Logger LOG = LoggerFactory.getLogger(MacDisks.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MacHWDiskStore.class);
 
-    private MacDisks() {
-    }
+    private long reads = 0L;
+    private long readBytes = 0L;
+    private long writes = 0L;
+    private long writeBytes = 0L;
+    private long currentQueueLength = 0L;
+    private long transferTime = 0L;
+    private long timeStamp = 0L;
+    private List<HWPartition> partitionList;
 
-    /**
-     * Temporarily cache pointers to keys. The values from this map must be released
-     * after use.}
-     *
-     * @return A map of keys in the {@link CFKey} enum to corresponding
-     *         {@link CFStringRef}.
-     */
-    private static Map<CFKey, CFStringRef> mapCFKeys() {
-        Map<CFKey, CFStringRef> keyMap = new EnumMap<>(CFKey.class);
-        for (CFKey cfKey : CFKey.values()) {
-            keyMap.put(cfKey, CFStringRef.createCFString(cfKey.getKey()));
-        }
-        return keyMap;
-    }
-
-    private static Map<String, String> queryMountPointMap() {
-        final Map<String, String> mountPointMap = new HashMap<>();
-        // Use statfs to populate mount point map
-        int numfs = SystemB.INSTANCE.getfsstat64(null, 0, 0);
-        // Create array to hold results
-        Statfs[] fs = new Statfs[numfs];
-        // Fill array with results
-        SystemB.INSTANCE.getfsstat64(fs, numfs * new Statfs().size(), SystemB.MNT_NOWAIT);
-        // Iterate all mounted file systems
-        for (Statfs f : fs) {
-            String mntFrom = new String(f.f_mntfromname, StandardCharsets.UTF_8).trim();
-            mountPointMap.put(mntFrom.replace("/dev/", ""), new String(f.f_mntonname, StandardCharsets.UTF_8).trim());
-        }
-        return mountPointMap;
-    }
-
-    private static Map<String, String> queryLogicalVolumeMap() {
-        final Map<String, String> logicalVolumeMap = new HashMap<>();
-        // Parse `diskutil cs list` to populate logical volume map
-        Set<String> physicalVolumes = new HashSet<>();
-        boolean logicalVolume = false;
-        for (String line : ExecutingCommand.runNative("diskutil cs list")) {
-            if (line.contains("Logical Volume Group")) {
-                // Logical Volume Group defines beginning of grouping which will
-                // list multiple physical volumes followed by the logical volume
-                // they are associated with. Each physical volume will be a key
-                // with the logical volume as its value, but since the value
-                // doesn't appear until the end we collect the keys in a list
-                physicalVolumes.clear();
-                logicalVolume = false;
-            } else if (line.contains("Logical Volume Family")) {
-                // Done collecting physical volumes, prepare to store logical
-                // volume
-                logicalVolume = true;
-            } else if (line.contains("Disk:")) {
-                String volume = ParseUtil.parseLastString(line);
-                if (logicalVolume) {
-                    // Store this disk as the logical volume value for all the
-                    // physical volume keys
-                    for (String pv : physicalVolumes) {
-                        logicalVolumeMap.put(pv, volume);
-                    }
-                    physicalVolumes.clear();
-                } else {
-                    physicalVolumes.add(ParseUtil.parseLastString(line));
-                }
-            }
-        }
-        return logicalVolumeMap;
-    }
-
-    private static boolean updateDiskStats(HWDiskStore diskStore, DASessionRef session,
+    private MacHWDiskStore(String name, String model, String serial, long size, DASessionRef session,
             Map<String, String> mountPointMap, Map<String, String> logicalVolumeMap, Map<CFKey, CFStringRef> cfKeyMap) {
+        super(name, model, serial, size);
+        updateDiskStats(session, mountPointMap, logicalVolumeMap, cfKeyMap);
+    }
+
+    @Override
+    public long getReads() {
+        return reads;
+    }
+
+    @Override
+    public long getReadBytes() {
+        return readBytes;
+    }
+
+    @Override
+    public long getWrites() {
+        return writes;
+    }
+
+    @Override
+    public long getWriteBytes() {
+        return writeBytes;
+    }
+
+    @Override
+    public long getCurrentQueueLength() {
+        return currentQueueLength;
+    }
+
+    @Override
+    public long getTransferTime() {
+        return transferTime;
+    }
+
+    @Override
+    public long getTimeStamp() {
+        return timeStamp;
+    }
+
+    @Override
+    public List<HWPartition> getPartitions() {
+        return this.partitionList;
+    }
+
+    @Override
+    public boolean updateAttributes() {
+        // Open a session and create CFStrings
+        DASessionRef session = DA.DASessionCreate(CF.CFAllocatorGetDefault());
+        if (session == null) {
+            LOG.error("Unable to open session to DiskArbitration framework.");
+            return false;
+        }
+        Map<CFKey, CFStringRef> cfKeyMap = mapCFKeys();
+        // Execute the update
+        boolean diskFound = updateDiskStats(session, Fsstat.queryPartitionToMountMap(),
+                Diskutil.queryLogicalVolumeMap(), cfKeyMap);
+        // Release the session and CFStrings
+        session.release();
+        for (CFTypeRef value : cfKeyMap.values()) {
+            value.release();
+        }
+
+        return diskFound;
+    }
+
+    private boolean updateDiskStats(DASessionRef session, Map<String, String> mountPointMap,
+            Map<String, String> logicalVolumeMap, Map<CFKey, CFStringRef> cfKeyMap) {
         // Now look up the device using the BSD Name to get its
         // statistics
-        String bsdName = diskStore.getName();
+        String bsdName = getName();
         CFMutableDictionaryRef matchingDict = IOKitUtil.getBSDNameMatchingDict(bsdName);
         if (matchingDict != null) {
             // search for all IOservices that match the bsd name
@@ -167,22 +171,22 @@ public final class MacDisks {
                             // statistics we need on it. Fetch them
                             Pointer result = properties.getValue(cfKeyMap.get(CFKey.STATISTICS));
                             CFDictionaryRef statistics = new CFDictionaryRef(result);
-                            diskStore.setTimeStamp(System.currentTimeMillis());
+                            this.timeStamp = System.currentTimeMillis();
 
                             // Now get the stats we want
                             result = statistics.getValue(cfKeyMap.get(CFKey.READ_OPS));
                             CFNumberRef stat = new CFNumberRef(result);
-                            diskStore.setReads(stat.longValue());
+                            this.reads = stat.longValue();
                             result = statistics.getValue(cfKeyMap.get(CFKey.READ_BYTES));
                             stat.setPointer(result);
-                            diskStore.setReadBytes(stat.longValue());
+                            this.readBytes = stat.longValue();
 
                             result = statistics.getValue(cfKeyMap.get(CFKey.WRITE_OPS));
                             stat.setPointer(result);
-                            diskStore.setWrites(stat.longValue());
+                            this.writes = stat.longValue();
                             result = statistics.getValue(cfKeyMap.get(CFKey.WRITE_BYTES));
                             stat.setPointer(result);
-                            diskStore.setWriteBytes(stat.longValue());
+                            this.writeBytes = stat.longValue();
 
                             // Total time is in nanoseconds. Add read+write
                             // and convert total to ms
@@ -192,7 +196,7 @@ public final class MacDisks {
                             result = statistics.getValue(cfKeyMap.get(CFKey.WRITE_TIME));
                             stat.setPointer(result);
                             xferTime += stat.longValue();
-                            diskStore.setTransferTime(xferTime / 1_000_000L);
+                            this.transferTime = xferTime / 1_000_000L;
 
                             properties.release();
                         } else {
@@ -280,8 +284,8 @@ public final class MacDisks {
                             }
                             serviceIterator.release();
                         }
-                        Collections.sort(partitions);
-                        diskStore.setPartitions(Collections.unmodifiableList(partitions));
+                        this.partitionList = Collections.unmodifiableList(partitions.stream()
+                                .sorted(Comparator.comparing(HWPartition::getName)).collect(Collectors.toList()));
                         if (parent != null) {
                             parent.release();
                         }
@@ -298,39 +302,13 @@ public final class MacDisks {
     }
 
     /**
-     * Updates the statistics on a disk store.
-     *
-     * @param diskStore
-     *            the {@link oshi.hardware.HWDiskStore} to update.
-     * @return {@code true} if the update was (probably) successful.
-     */
-    public static boolean updateDiskStats(HWDiskStore diskStore) {
-        DASessionRef session = DA.DASessionCreate(CF.CFAllocatorGetDefault());
-        if (session == null) {
-            LOG.error("Unable to open session to DiskArbitration framework.");
-            return false;
-        }
-        Map<CFKey, CFStringRef> cfKeyMap = mapCFKeys();
-
-        boolean diskFound = updateDiskStats(diskStore, session, queryMountPointMap(), queryLogicalVolumeMap(),
-                cfKeyMap);
-
-        session.release();
-        for (CFTypeRef value : cfKeyMap.values()) {
-            value.release();
-        }
-
-        return diskFound;
-    }
-
-    /**
      * Gets the disks on this machine
      *
      * @return an array of {@link HWDiskStore} objects representing the disks
      */
     public static HWDiskStore[] getDisks() {
-        Map<String, String> mountPointMap = queryMountPointMap();
-        Map<String, String> logicalVolumeMap = queryLogicalVolumeMap();
+        Map<String, String> mountPointMap = Fsstat.queryPartitionToMountMap();
+        Map<String, String> logicalVolumeMap = Diskutil.queryLogicalVolumeMap();
         Map<CFKey, CFStringRef> cfKeyMap = mapCFKeys();
 
         List<HWDiskStore> diskList = new ArrayList<>();
@@ -429,13 +407,8 @@ public final class MacDisks {
                 if (size <= 0) {
                     continue;
                 }
-                HWDiskStore diskStore = new HWDiskStore();
-                diskStore.setName(bsdName);
-                diskStore.setModel(model.trim());
-                diskStore.setSerial(serial.trim());
-                diskStore.setSize(size);
-
-                updateDiskStats(diskStore, session, mountPointMap, logicalVolumeMap, cfKeyMap);
+                HWDiskStore diskStore = new MacHWDiskStore(bsdName, model.trim(), serial.trim(), size, session,
+                        mountPointMap, logicalVolumeMap, cfKeyMap);
                 diskList.add(diskStore);
             }
         }
@@ -444,8 +417,22 @@ public final class MacDisks {
         for (CFTypeRef value : cfKeyMap.values()) {
             value.release();
         }
-        Collections.sort(diskList);
         return diskList.toArray(new HWDiskStore[0]);
+    }
+
+    /**
+     * Temporarily cache pointers to keys. The values from this map must be released
+     * after use.}
+     *
+     * @return A map of keys in the {@link CFKey} enum to corresponding
+     *         {@link CFStringRef}.
+     */
+    private static Map<CFKey, CFStringRef> mapCFKeys() {
+        Map<CFKey, CFStringRef> keyMap = new EnumMap<>(CFKey.class);
+        for (CFKey cfKey : CFKey.values()) {
+            keyMap.put(cfKey, CFStringRef.createCFString(cfKey.getKey()));
+        }
+        return keyMap;
     }
 
     /*

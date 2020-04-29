@@ -72,7 +72,7 @@ public final class SolarisHardwareAbstractionLayer extends AbstractHardwareAbstr
 
     @Override
     public HWDiskStore[] getDiskStores() {
-        return SolarisDisks.getDisks();
+        return SolarisHWDiskStore.getDisks();
     }
 
     @Override

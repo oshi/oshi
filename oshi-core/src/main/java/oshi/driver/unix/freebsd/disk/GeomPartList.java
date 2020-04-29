@@ -25,11 +25,11 @@ package oshi.driver.unix.freebsd.disk;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.HWPartition;
@@ -46,9 +46,6 @@ public final class GeomPartList {
     private static final String GEOM_PART_LIST = "geom part list";
     private static final String STAT_FILESIZE = "stat -f %i /dev/";
 
-    private static final String MOUNT = "mount";
-    private static final Pattern MOUNT_PATTERN = Pattern.compile("/dev/(\\S+p\\d+) on (\\S+) .*");
-
     private GeomPartList() {
     }
 
@@ -59,7 +56,7 @@ public final class GeomPartList {
      *         partitions as the value
      */
     public static Map<String, List<HWPartition>> queryPartitions() {
-        Map<String, String> mountMap = queryPartitionToMountMap();
+        Map<String, String> mountMap = Mount.queryPartitionToMountMap();
         // Map of device name to partitions, to be returned
         Map<String, List<HWPartition>> partitionMap = new HashMap<>();
         // The Disk Store associated with a partition, key to the map
@@ -81,9 +78,8 @@ public final class GeomPartList {
             if (line.startsWith("Geom name:")) {
                 // Save any previous partition list in the map
                 if (diskName != null && !partList.isEmpty()) {
-                    // Sort and store unmodifiable view (old diskName)
-                    Collections.sort(partList);
-                    partitionMap.put(diskName, Collections.unmodifiableList(partList));
+                    // Store map (old diskName)
+                    partitionMap.put(diskName, partList);
                     // Reset the list
                     partList = new ArrayList<>();
                 }
@@ -139,22 +135,11 @@ public final class GeomPartList {
             }
             // Process last diskstore
             if (!partList.isEmpty()) {
-                Collections.sort(partList);
+                partList = partList.stream().sorted(Comparator.comparing(HWPartition::getName))
+                        .collect(Collectors.toList());
                 partitionMap.put(diskName, Collections.unmodifiableList(partList));
             }
         }
         return partitionMap;
-    }
-
-    private static Map<String, String> queryPartitionToMountMap() {
-        // Parse 'mount' to map partitions to mount point
-        Map<String, String> mountMap = new HashMap<>();
-        for (String mnt : ExecutingCommand.runNative(MOUNT)) {
-            Matcher m = MOUNT_PATTERN.matcher(mnt);
-            if (m.matches()) {
-                mountMap.put(m.group(1), m.group(2));
-            }
-        }
-        return mountMap;
     }
 }

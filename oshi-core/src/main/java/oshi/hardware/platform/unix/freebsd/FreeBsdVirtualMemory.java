@@ -50,7 +50,7 @@ final class FreeBsdVirtualMemory extends AbstractVirtualMemory {
 
     private final Supplier<Long> pagesOut = memoize(FreeBsdVirtualMemory::queryPagesOut, defaultExpiration());
 
-    public FreeBsdVirtualMemory(FreeBsdGlobalMemory freeBsdGlobalMemory) {
+    FreeBsdVirtualMemory(FreeBsdGlobalMemory freeBsdGlobalMemory) {
         this.global = freeBsdGlobalMemory;
     }
 

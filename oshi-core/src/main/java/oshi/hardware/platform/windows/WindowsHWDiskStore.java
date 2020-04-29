@@ -25,11 +25,13 @@ package oshi.hardware.platform.windows;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,6 +52,7 @@ import oshi.driver.windows.wmi.Win32LogicalDiskToPartition;
 import oshi.driver.windows.wmi.Win32LogicalDiskToPartition.DiskToPartitionProperty;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
+import oshi.hardware.common.AbstractHWDiskStore;
 import oshi.util.ParseUtil;
 import oshi.util.platform.windows.WmiUtil;
 import oshi.util.tuples.Pair;
@@ -58,9 +61,9 @@ import oshi.util.tuples.Pair;
  * Windows hard disk implementation.
  */
 @ThreadSafe
-public final class WindowsDisks {
+public final class WindowsHWDiskStore extends AbstractHWDiskStore {
 
-    private static final Logger LOG = LoggerFactory.getLogger(WindowsDisks.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WindowsHWDiskStore.class);
 
     private static final String PHYSICALDRIVE_PREFIX = "\\\\.\\PHYSICALDRIVE";
 
@@ -68,52 +71,95 @@ public final class WindowsDisks {
 
     private static final int BUFSIZE = 255;
 
-    private WindowsDisks() {
+    private long reads = 0L;
+    private long readBytes = 0L;
+    private long writes = 0L;
+    private long writeBytes = 0L;
+    private long currentQueueLength = 0L;
+    private long transferTime = 0L;
+    private long timeStamp = 0L;
+    private List<HWPartition> partitionList;
+
+    private WindowsHWDiskStore(String name, String model, String serial, long size) {
+        super(name, model, serial, size);
     }
 
-    /**
-     * Updates the statistics on a disk store.
-     *
-     * @param diskStore
-     *            the {@link oshi.hardware.HWDiskStore} to update.
-     * @return {@code true} if the update was (probably) successful.
-     */
-    public static boolean updateDiskStats(HWDiskStore diskStore) {
+    @Override
+    public long getReads() {
+        return reads;
+    }
+
+    @Override
+    public long getReadBytes() {
+        return readBytes;
+    }
+
+    @Override
+    public long getWrites() {
+        return writes;
+    }
+
+    @Override
+    public long getWriteBytes() {
+        return writeBytes;
+    }
+
+    @Override
+    public long getCurrentQueueLength() {
+        return currentQueueLength;
+    }
+
+    @Override
+    public long getTransferTime() {
+        return transferTime;
+    }
+
+    @Override
+    public long getTimeStamp() {
+        return timeStamp;
+    }
+
+    @Override
+    public List<HWPartition> getPartitions() {
+        return this.partitionList;
+    }
+
+    @Override
+    public boolean updateAttributes() {
         String index = null;
-        List<HWPartition> partitions = diskStore.getPartitions();
+        List<HWPartition> partitions = getPartitions();
         if (!partitions.isEmpty()) {
             // If a partition exists on this drive, the major property
             // corresponds to the disk index, so use it.
             index = Integer.toString(partitions.get(0).getMajor());
-        } else if (diskStore.getName().startsWith(PHYSICALDRIVE_PREFIX)) {
+        } else if (getName().startsWith(PHYSICALDRIVE_PREFIX)) {
             // If no partition exists, Windows reliably uses a name to match the
             // disk index. That said, the skeptical person might wonder why a
             // disk has read/write statistics without a partition, and wonder
             // why this branch is even relevant as an option. The author of this
             // comment does not have an answer for this valid question.
-            index = diskStore.getName().substring(PHYSICALDRIVE_PREFIX.length(), diskStore.getName().length());
+            index = getName().substring(PHYSICALDRIVE_PREFIX.length(), getName().length());
         } else {
             // The author of this comment cannot fathom a circumstance in which
             // the code reaches this point, but just in case it does, here's the
             // correct response. If you get this log warning, the circumstances
             // would be of great interest to the project's maintainers.
-            LOG.warn("Couldn't match index for {}", diskStore.getName());
+            LOG.warn("Couldn't match index for {}", getName());
             return false;
         }
         DiskStats stats = queryReadWriteStats(index);
         if (stats.readMap.containsKey(index)) {
-            diskStore.setReads(stats.readMap.getOrDefault(index, 0L));
-            diskStore.setReadBytes(stats.readByteMap.getOrDefault(index, 0L));
-            diskStore.setWrites(stats.writeMap.getOrDefault(index, 0L));
-            diskStore.setWriteBytes(stats.writeByteMap.getOrDefault(index, 0L));
-            diskStore.setCurrentQueueLength(stats.queueLengthMap.getOrDefault(index, 0L));
-            diskStore.setTransferTime(stats.timeStamp - stats.idleTimeMap.getOrDefault(index, stats.timeStamp));
-            diskStore.setTimeStamp(stats.timeStamp);
+            this.reads = stats.readMap.getOrDefault(index, 0L);
+            this.readBytes = stats.readByteMap.getOrDefault(index, 0L);
+            this.writes = stats.writeMap.getOrDefault(index, 0L);
+            this.writeBytes = stats.writeByteMap.getOrDefault(index, 0L);
+            this.currentQueueLength = stats.queueLengthMap.getOrDefault(index, 0L);
+            this.transferTime = stats.timeStamp - stats.idleTimeMap.getOrDefault(index, stats.timeStamp);
+            this.timeStamp = stats.timeStamp;
             return true;
         } else {
             return false;
         }
-
     }
 
     /**
@@ -129,21 +175,21 @@ public final class WindowsDisks {
 
         WmiResult<DiskDriveProperty> vals = Win32DiskDrive.queryDiskDrive();
         for (int i = 0; i < vals.getResultCount(); i++) {
-            HWDiskStore ds = new HWDiskStore();
-            ds.setName(WmiUtil.getString(vals, DiskDriveProperty.NAME, i));
-            ds.setModel(String.format("%s %s", WmiUtil.getString(vals, DiskDriveProperty.MODEL, i),
-                    WmiUtil.getString(vals, DiskDriveProperty.MANUFACTURER, i)).trim());
-            // Most vendors store serial # as a hex string; convert
-            ds.setSerial(ParseUtil.hexStringToString(WmiUtil.getString(vals, DiskDriveProperty.SERIALNUMBER, i)));
+            WindowsHWDiskStore ds = new WindowsHWDiskStore(WmiUtil.getString(vals, DiskDriveProperty.NAME, i),
+                    String.format("%s %s", WmiUtil.getString(vals, DiskDriveProperty.MODEL, i),
+                            WmiUtil.getString(vals, DiskDriveProperty.MANUFACTURER, i)).trim(),
+                    // Most vendors store serial # as a hex string; convert
+                    ParseUtil.hexStringToString(WmiUtil.getString(vals, DiskDriveProperty.SERIALNUMBER, i)),
+                    WmiUtil.getUint64(vals, DiskDriveProperty.SIZE, i));
+
             String index = Integer.toString(WmiUtil.getUint32(vals, DiskDriveProperty.INDEX, i));
-            ds.setReads(stats.readMap.getOrDefault(index, 0L));
-            ds.setReadBytes(stats.readByteMap.getOrDefault(index, 0L));
-            ds.setWrites(stats.writeMap.getOrDefault(index, 0L));
-            ds.setWriteBytes(stats.writeByteMap.getOrDefault(index, 0L));
-            ds.setCurrentQueueLength(stats.queueLengthMap.getOrDefault(index, 0L));
-            ds.setTransferTime(stats.timeStamp - stats.idleTimeMap.getOrDefault(index, stats.timeStamp));
-            ds.setTimeStamp(stats.timeStamp);
-            ds.setSize(WmiUtil.getUint64(vals, DiskDriveProperty.SIZE, i));
+            ds.reads = stats.readMap.getOrDefault(index, 0L);
+            ds.readBytes = stats.readByteMap.getOrDefault(index, 0L);
+            ds.writes = stats.writeMap.getOrDefault(index, 0L);
+            ds.writeBytes = stats.writeByteMap.getOrDefault(index, 0L);
+            ds.currentQueueLength = stats.queueLengthMap.getOrDefault(index, 0L);
+            ds.transferTime = stats.timeStamp - stats.idleTimeMap.getOrDefault(index, stats.timeStamp);
+            ds.timeStamp = stats.timeStamp;
             // Get partitions
             List<HWPartition> partitions = new ArrayList<>();
             List<String> partList = maps.driveToPartitionMap.get(ds.getName());
@@ -154,7 +200,8 @@ public final class WindowsDisks {
                     }
                 }
             }
-            ds.setPartitions(Collections.unmodifiableList(partitions));
+            ds.partitionList = Collections.unmodifiableList(partitions.stream()
+                    .sorted(Comparator.comparing(HWPartition::getName)).collect(Collectors.toList()));
             // Add to list
             result.add(ds);
         }
