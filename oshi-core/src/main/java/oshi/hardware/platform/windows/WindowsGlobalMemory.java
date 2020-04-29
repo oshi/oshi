@@ -83,7 +83,7 @@ final class WindowsGlobalMemory extends AbstractGlobalMemory {
     }
 
     private VirtualMemory createVirtualMemory() {
-        return new WindowsVirtualMemory(getPageSize());
+        return new WindowsVirtualMemory(this);
     }
 
     @Override

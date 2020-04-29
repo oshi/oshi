@@ -43,6 +43,7 @@ import oshi.driver.windows.perfmon.PagingFile;
 import oshi.driver.windows.perfmon.PagingFile.PagingPercentProperty;
 import oshi.hardware.common.AbstractVirtualMemory;
 import oshi.util.tuples.Pair;
+import oshi.util.tuples.Triplet;
 
 /**
  * Memory obtained from WMI
@@ -52,11 +53,12 @@ final class WindowsVirtualMemory extends AbstractVirtualMemory {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsVirtualMemory.class);
 
-    private final long pageSize;
+    private final WindowsGlobalMemory global;
 
     private final Supplier<Long> used = memoize(WindowsVirtualMemory::querySwapUsed, defaultExpiration());
 
-    private final Supplier<Long> total = memoize(WindowsVirtualMemory::querySwapTotal, defaultExpiration());
+    private final Supplier<Triplet<Long, Long, Long>> totalVmaxVused = memoize(
+            WindowsVirtualMemory::querySwapTotalVirtMaxVirtUsed, defaultExpiration());
 
     private final Supplier<Pair<Long, Long>> swapInOut = memoize(WindowsVirtualMemory::queryPageSwaps,
             defaultExpiration());
@@ -64,21 +66,31 @@ final class WindowsVirtualMemory extends AbstractVirtualMemory {
     /**
      * Constructor for WindowsVirtualMemory.
      *
-     * @param pageSize
-     *            The size in bytes of memory pages
+     * @param windowsGlobalMemory
+     *            The parent global memory class instantiating this
      */
-    WindowsVirtualMemory(long pageSize) {
-        this.pageSize = pageSize;
+    WindowsVirtualMemory(WindowsGlobalMemory windowsGlobalMemory) {
+        this.global = windowsGlobalMemory;
     }
 
     @Override
     public long getSwapUsed() {
-        return this.pageSize * used.get();
+        return this.global.getPageSize() * used.get();
     }
 
     @Override
     public long getSwapTotal() {
-        return this.pageSize * total.get();
+        return this.global.getPageSize() * totalVmaxVused.get().getA();
+    }
+
+    @Override
+    public long getVirtualMax() {
+        return this.global.getPageSize() * totalVmaxVused.get().getB();
+    }
+
+    @Override
+    public long getVirtualInUse() {
+        return this.global.getPageSize() * totalVmaxVused.get().getC();
     }
 
     @Override
@@ -95,13 +107,14 @@ final class WindowsVirtualMemory extends AbstractVirtualMemory {
         return PagingFile.querySwapUsed().getOrDefault(PagingPercentProperty.PERCENTUSAGE, 0L);
     }
 
-    private static long querySwapTotal() {
+    private static Triplet<Long, Long, Long> querySwapTotalVirtMaxVirtUsed() {
         PERFORMANCE_INFORMATION perfInfo = new PERFORMANCE_INFORMATION();
         if (!Psapi.INSTANCE.GetPerformanceInfo(perfInfo, perfInfo.size())) {
             LOG.error("Failed to get Performance Info. Error code: {}", Kernel32.INSTANCE.GetLastError());
-            return 0L;
+            return new Triplet<>(0L, 0L, 0L);
         }
-        return perfInfo.CommitLimit.longValue() - perfInfo.PhysicalTotal.longValue();
+        return new Triplet<>(perfInfo.CommitLimit.longValue() - perfInfo.PhysicalTotal.longValue(),
+                perfInfo.CommitLimit.longValue(), perfInfo.CommitLimit.longValue() - perfInfo.CommitTotal.longValue());
     }
 
     private static Pair<Long, Long> queryPageSwaps() {

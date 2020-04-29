@@ -31,6 +31,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.unix.solaris.kstat.SystemPages;
 import oshi.hardware.common.AbstractVirtualMemory;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
@@ -44,12 +45,29 @@ final class SolarisVirtualMemory extends AbstractVirtualMemory {
 
     private static final Pattern SWAP_INFO = Pattern.compile(".+\\s(\\d+)K\\s+(\\d+)K$");
 
+    private final SolarisGlobalMemory global;
+
+    // Physical
+    private final Supplier<Pair<Long, Long>> availTotal = memoize(SystemPages::queryAvailableTotal,
+            defaultExpiration());
+
+    // Swap
     private final Supplier<Pair<Long, Long>> usedTotal = memoize(SolarisVirtualMemory::querySwapInfo,
             defaultExpiration());
 
     private final Supplier<Long> pagesIn = memoize(SolarisVirtualMemory::queryPagesIn, defaultExpiration());
 
     private final Supplier<Long> pagesOut = memoize(SolarisVirtualMemory::queryPagesOut, defaultExpiration());
+
+    /**
+     * Constructor for SolarisVirtualMemory.
+     *
+     * @param solarisGlobalMemory
+     *            The parent global memory class instantiating this
+     */
+    SolarisVirtualMemory(SolarisGlobalMemory solarisGlobalMemory) {
+        this.global = solarisGlobalMemory;
+    }
 
     @Override
     public long getSwapUsed() {
@@ -59,6 +77,16 @@ final class SolarisVirtualMemory extends AbstractVirtualMemory {
     @Override
     public long getSwapTotal() {
         return usedTotal.get().getB();
+    }
+
+    @Override
+    public long getVirtualMax() {
+        return this.global.getPageSize() * availTotal.get().getB() + getSwapTotal();
+    }
+
+    @Override
+    public long getVirtualInUse() {
+        return this.global.getPageSize() * (availTotal.get().getB() - availTotal.get().getA()) + getSwapUsed();
     }
 
     @Override

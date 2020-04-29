@@ -35,6 +35,7 @@ import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.linux.ProcPath;
 import oshi.util.tuples.Pair;
+import oshi.util.tuples.Triplet;
 
 /**
  * Memory obtained by /proc/meminfo and /proc/vmstat
@@ -42,18 +43,41 @@ import oshi.util.tuples.Pair;
 @ThreadSafe
 final class LinuxVirtualMemory extends AbstractVirtualMemory {
 
-    private final Supplier<Pair<Long, Long>> usedTotal = memoize(LinuxVirtualMemory::queryMemInfo, defaultExpiration());
+    private final LinuxGlobalMemory global;
+
+    private final Supplier<Triplet<Long, Long, Long>> usedTotalCommitLim = memoize(LinuxVirtualMemory::queryMemInfo,
+            defaultExpiration());
 
     private final Supplier<Pair<Long, Long>> inOut = memoize(LinuxVirtualMemory::queryVmStat, defaultExpiration());
 
+    /**
+     * Constructor for LinuxVirtualMemory.
+     * 
+     * @param linuxGlobalMemory
+     *            The parent global memory class instantiating this
+     */
+    public LinuxVirtualMemory(LinuxGlobalMemory linuxGlobalMemory) {
+        this.global = linuxGlobalMemory;
+    }
+
     @Override
     public long getSwapUsed() {
-        return usedTotal.get().getA();
+        return usedTotalCommitLim.get().getA();
     }
 
     @Override
     public long getSwapTotal() {
-        return usedTotal.get().getB();
+        return usedTotalCommitLim.get().getB();
+    }
+
+    @Override
+    public long getVirtualMax() {
+        return usedTotalCommitLim.get().getC();
+    }
+
+    @Override
+    public long getVirtualInUse() {
+        return this.global.getTotal() - this.global.getAvailable() + getSwapUsed();
     }
 
     @Override
@@ -66,9 +90,10 @@ final class LinuxVirtualMemory extends AbstractVirtualMemory {
         return inOut.get().getB();
     }
 
-    private static Pair<Long, Long> queryMemInfo() {
+    private static Triplet<Long, Long, Long> queryMemInfo() {
         long swapFree = 0L;
         long swapTotal = 0L;
+        long commitLimit = 0L;
 
         List<String> procMemInfo = FileUtil.readFile(ProcPath.MEMINFO);
         for (String checkLine : procMemInfo) {
@@ -81,13 +106,16 @@ final class LinuxVirtualMemory extends AbstractVirtualMemory {
                 case "SwapFree:":
                     swapFree = parseMeminfo(memorySplit);
                     break;
+                case "CommitLimit:":
+                    commitLimit = parseMeminfo(memorySplit);
+                    break;
                 default:
                     // do nothing with other lines
                     break;
                 }
             }
         }
-        return new Pair<>(swapTotal - swapFree, swapTotal);
+        return new Triplet<>(swapTotal - swapFree, swapTotal, commitLimit);
     }
 
     private static Pair<Long, Long> queryVmStat() {
