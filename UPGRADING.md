@@ -11,7 +11,7 @@ The `NetworkIF` and `HWDiskStore` classes are now interfaces, with setters remov
 
 The `HWPartition` class is now immutable, with setters removed.
 
-The `HardwareAbstractionLayer` method `getNetworkIFs()` and 
+The `HardwareAbstractionLayer` method `getNetworkIFs()`, `getDisks()` and 
 the `HWDiskstore` method `getPartitions()` now return an `UnmodifiableList` instead of an array.
 
 The deprecated `OperatingSystemVersion` interface and its getter `OperatingSystem`.`getVersion` were removed.

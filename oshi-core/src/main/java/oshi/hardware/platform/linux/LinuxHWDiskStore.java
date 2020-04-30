@@ -125,13 +125,14 @@ public final class LinuxHWDiskStore extends AbstractHWDiskStore {
     /**
      * Gets the disks on this machine
      *
-     * @return an array of {@link HWDiskStore} objects representing the disks
+     * @return an {@code UnmodifiableList} of {@link HWDiskStore} objects
+     *         representing the disks
      */
-    public static HWDiskStore[] getDisks() {
-        return getDisks(null);
+    public static List<HWDiskStore> getDisks() {
+        return Collections.unmodifiableList(getDisks(null));
     }
 
-    private static HWDiskStore[] getDisks(LinuxHWDiskStore storeToUpdate) {
+    private static List<LinuxHWDiskStore> getDisks(LinuxHWDiskStore storeToUpdate) {
         LinuxHWDiskStore store = null;
         List<LinuxHWDiskStore> result = new ArrayList<>();
 
@@ -203,14 +204,14 @@ public final class LinuxHWDiskStore extends AbstractHWDiskStore {
             hwds.partitionList = Collections.unmodifiableList(hwds.partitionList.stream()
                     .sorted(Comparator.comparing(HWPartition::getName)).collect(Collectors.toList()));
         }
-        return result.toArray(new HWDiskStore[0]);
+        return result;
     }
 
     @Override
     public boolean updateAttributes() {
         // If this returns non-empty (the same store, but updated) then we were
         // successful in the update
-        return 0 < getDisks(this).length;
+        return !getDisks(this).isEmpty();
     }
 
     private static Map<String, String> readMountsMap() {

@@ -304,9 +304,10 @@ public final class MacHWDiskStore extends AbstractHWDiskStore {
     /**
      * Gets the disks on this machine
      *
-     * @return an array of {@link HWDiskStore} objects representing the disks
+     * @return an {@code UnmodifiableList} of {@link HWDiskStore} objects
+     *         representing the disks
      */
-    public static HWDiskStore[] getDisks() {
+    public static List<HWDiskStore> getDisks() {
         Map<String, String> mountPointMap = Fsstat.queryPartitionToMountMap();
         Map<String, String> logicalVolumeMap = Diskutil.queryLogicalVolumeMap();
         Map<CFKey, CFStringRef> cfKeyMap = mapCFKeys();
@@ -317,7 +318,7 @@ public final class MacHWDiskStore extends AbstractHWDiskStore {
         DASessionRef session = DA.DASessionCreate(CF.CFAllocatorGetDefault());
         if (session == null) {
             LOG.error("Unable to open session to DiskArbitration framework.");
-            return new HWDiskStore[0];
+            return Collections.emptyList();
         }
 
         // Get IOMedia objects representing whole drives
@@ -417,7 +418,7 @@ public final class MacHWDiskStore extends AbstractHWDiskStore {
         for (CFTypeRef value : cfKeyMap.values()) {
             value.release();
         }
-        return diskList.toArray(new HWDiskStore[0]);
+        return Collections.unmodifiableList(diskList);
     }
 
     /**

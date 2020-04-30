@@ -295,9 +295,9 @@ public class SystemInfoTest {
         oshi.add(sb.toString());
     }
 
-    private static void printDisks(HWDiskStore[] diskStores) {
+    private static void printDisks(List<HWDiskStore> list) {
         oshi.add("Disks:");
-        for (HWDiskStore disk : diskStores) {
+        for (HWDiskStore disk : list) {
             oshi.add(" " + disk.toString());
 
             List<HWPartition> partitions = disk.getPartitions();
