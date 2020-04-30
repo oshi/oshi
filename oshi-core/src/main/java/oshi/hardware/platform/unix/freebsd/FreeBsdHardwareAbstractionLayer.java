@@ -71,8 +71,8 @@ public final class FreeBsdHardwareAbstractionLayer extends AbstractHardwareAbstr
     }
 
     @Override
-    public HWDiskStore[] getDiskStores() {
-        return FreeBsdDisks.getDisks();
+    public List<HWDiskStore> getDiskStores() {
+        return FreeBsdHWDiskStore.getDisks();
     }
 
     @Override

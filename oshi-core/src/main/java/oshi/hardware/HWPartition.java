@@ -33,16 +33,16 @@ import oshi.util.FormatUtil;
  * actual disk.
  */
 @Immutable
-public class HWPartition implements Comparable<HWPartition> {
+public class HWPartition {
 
-    private String identification;
-    private String name;
-    private String type;
-    private String uuid;
-    private long size;
-    private int major;
-    private int minor;
-    private String mountPoint;
+    private final String identification;
+    private final String name;
+    private final String type;
+    private final String uuid;
+    private final long size;
+    private final int major;
+    private final int minor;
+    private final String mountPoint;
 
     /**
      * Creates a new HWPartition
@@ -162,86 +162,6 @@ public class HWPartition implements Comparable<HWPartition> {
      */
     public String getMountPoint() {
         return this.mountPoint;
-    }
-
-    @Override
-    public int compareTo(HWPartition part) {
-        // Naturally sort by device ID
-        return getIdentification().compareTo(part.getIdentification());
-    }
-
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + (this.identification == null ? 0 : this.identification.hashCode());
-        result = prime * result + this.major;
-        result = prime * result + this.minor;
-        result = prime * result + (this.mountPoint == null ? 0 : this.mountPoint.hashCode());
-        result = prime * result + (this.name == null ? 0 : this.name.hashCode());
-        result = prime * result + (int) (this.size ^ this.size >>> 32);
-        result = prime * result + (this.type == null ? 0 : this.type.hashCode());
-        result = prime * result + (this.uuid == null ? 0 : this.uuid.hashCode());
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (!(obj.getClass().equals(this.getClass()))) {
-            return false;
-        }
-        HWPartition other = (HWPartition) obj;
-        if (this.identification == null) {
-            if (other.identification != null) {
-                return false;
-            }
-        } else if (!this.identification.equals(other.identification)) {
-            return false;
-        }
-        if (this.major != other.major) {
-            return false;
-        }
-        if (this.minor != other.minor) {
-            return false;
-        }
-        if (this.mountPoint == null) {
-            if (other.mountPoint != null) {
-                return false;
-            }
-        } else if (!this.mountPoint.equals(other.mountPoint)) {
-            return false;
-        }
-        if (this.name == null) {
-            if (other.name != null) {
-                return false;
-            }
-        } else if (!this.name.equals(other.name)) {
-            return false;
-        }
-        if (this.size != other.size) {
-            return false;
-        }
-        if (this.type == null) {
-            if (other.type != null) {
-                return false;
-            }
-        } else if (!this.type.equals(other.type)) {
-            return false;
-        }
-        if (this.uuid == null) {
-            if (other.uuid != null) {
-                return false;
-            }
-        } else if (!this.uuid.equals(other.uuid)) {
-            return false;
-        }
-        return true;
     }
 
     @Override

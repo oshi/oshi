@@ -71,8 +71,8 @@ public final class MacHardwareAbstractionLayer extends AbstractHardwareAbstracti
     }
 
     @Override
-    public HWDiskStore[] getDiskStores() {
-        return MacDisks.getDisks();
+    public List<HWDiskStore> getDiskStores() {
+        return MacHWDiskStore.getDisks();
     }
 
     @Override

@@ -68,13 +68,13 @@ public interface HardwareAbstractionLayer {
     PowerSource[] getPowerSources();
 
     /**
-     * Instantiates an array of {@link oshi.hardware.HWDiskStore} objects,
-     * representing a physical hard disk or other similar storage device
+     * Instantiates an {@code UnmodifiableList} of {@link oshi.hardware.HWDiskStore}
+     * objects, representing physical hard disks or other similar storage devices
      *
-     * @return An array of HWDiskStore objects or an empty array if none are
-     *         present.
+     * @return An {@code UnmodifiableList} of HWDiskStore objects or an empty list
+     *         if none are present.
      */
-    HWDiskStore[] getDiskStores();
+    List<HWDiskStore> getDiskStores();
 
     /**
      * Gets a list of {@link NetworkIF} objects, representing a network interface

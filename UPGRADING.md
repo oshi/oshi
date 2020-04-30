@@ -1,19 +1,18 @@
 # Guide to upgrading from OSHI 4.x to 5.x
 
 OSHI 5.0.0 is functionally equivalent to 4.7.0 with three categories of changes supporting full thread safety:
-* Remove setters from API by converting POJO objects to interfaces.
+* Remove setters from API.
 * Change getters which return arrays of objects to return unmodifiable lists.
 * Remove deprecated code.
 
 ## API Changes (in progress)
 
-The `NetworkIF` class is now an interface, with setters removed.
+The `NetworkIF` and `HWDiskStore` classes are now interfaces, with setters removed.
 
 The `HWPartition` class is now immutable, with setters removed.
 
-The `HardwareAbstractionLayer` method `getNetworkIFs()` now returns an `UnmodifiableList` instead of an array.
-
-The `HWDiskstore` method `getPartitions()` now returns an `UnmodifiableList` instead of an array.
+The `HardwareAbstractionLayer` method `getNetworkIFs()`, `getDisks()` and 
+the `HWDiskstore` method `getPartitions()` now return an `UnmodifiableList` instead of an array.
 
 The deprecated `OperatingSystemVersion` interface and its getter `OperatingSystem`.`getVersion` were removed.
 Its `getVersion()`, `getCodeName()`, and `getBuildNumber()` methods are available on the object returned

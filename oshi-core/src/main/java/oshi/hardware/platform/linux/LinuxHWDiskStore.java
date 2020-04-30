@@ -25,14 +25,18 @@ package oshi.hardware.platform.linux;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
+import oshi.hardware.common.AbstractHWDiskStore;
 import oshi.jna.platform.linux.Udev;
+import oshi.util.Constants;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.linux.ProcPath;
@@ -41,12 +45,9 @@ import oshi.util.platform.linux.ProcPath;
  * Linux hard disk implementation.
  */
 @ThreadSafe
-public final class LinuxDisks {
+public final class LinuxHWDiskStore extends AbstractHWDiskStore {
 
     private static final int SECTORSIZE = 512;
-
-    private LinuxDisks() {
-    }
 
     // Get a list of orders to pass to ParseUtil
     private static final int[] UDEV_STAT_ORDERS = new int[UdevStat.values().length];
@@ -68,18 +69,72 @@ public final class LinuxDisks {
         UDEV_STAT_LENGTH = statLength;
     }
 
+    private long reads = 0L;
+    private long readBytes = 0L;
+    private long writes = 0L;
+    private long writeBytes = 0L;
+    private long currentQueueLength = 0L;
+    private long transferTime = 0L;
+    private long timeStamp = 0L;
+    private List<HWPartition> partitionList;
+
+    private LinuxHWDiskStore(String name, String model, String serial, long size) {
+        super(name, model, serial, size);
+    }
+
+    @Override
+    public long getReads() {
+        return reads;
+    }
+
+    @Override
+    public long getReadBytes() {
+        return readBytes;
+    }
+
+    @Override
+    public long getWrites() {
+        return writes;
+    }
+
+    @Override
+    public long getWriteBytes() {
+        return writeBytes;
+    }
+
+    @Override
+    public long getCurrentQueueLength() {
+        return currentQueueLength;
+    }
+
+    @Override
+    public long getTransferTime() {
+        return transferTime;
+    }
+
+    @Override
+    public long getTimeStamp() {
+        return timeStamp;
+    }
+
+    @Override
+    public List<HWPartition> getPartitions() {
+        return this.partitionList;
+    }
+
     /**
      * Gets the disks on this machine
      *
-     * @return an array of {@link HWDiskStore} objects representing the disks
+     * @return an {@code UnmodifiableList} of {@link HWDiskStore} objects
+     *         representing the disks
      */
-    public static HWDiskStore[] getDisks() {
-        return getDisks(null);
+    public static List<HWDiskStore> getDisks() {
+        return Collections.unmodifiableList(getDisks(null));
     }
 
-    private static HWDiskStore[] getDisks(HWDiskStore storeToUpdate) {
-        HWDiskStore store = null;
-        List<HWDiskStore> result = new ArrayList<>();
+    private static List<LinuxHWDiskStore> getDisks(LinuxHWDiskStore storeToUpdate) {
+        LinuxHWDiskStore store = null;
+        List<LinuxHWDiskStore> result = new ArrayList<>();
 
         Map<String, String> mountsMap = readMountsMap();
 
@@ -96,41 +151,36 @@ public final class LinuxDisks {
             // Ignore loopback and ram disks; do nothing
             if (devnode != null && !devnode.startsWith("/dev/loop") && !devnode.startsWith("/dev/ram")) {
                 if ("disk".equals(Udev.INSTANCE.udev_device_get_devtype(device))) {
-                    store = new HWDiskStore();
-                    store.setName(devnode);
-
-                    // Avoid model and serial in virtual environments
-                    store.setModel(Udev.INSTANCE.udev_device_get_property_value(device, "ID_MODEL") == null ? "Unknown"
-                            : Udev.INSTANCE.udev_device_get_property_value(device, "ID_MODEL"));
-                    store.setSerial(
-                            Udev.INSTANCE.udev_device_get_property_value(device, "ID_SERIAL_SHORT") == null ? "Unknown"
-                                    : Udev.INSTANCE.udev_device_get_property_value(device, "ID_SERIAL_SHORT"));
-
-                    store.setSize(ParseUtil.parseLongOrDefault(
-                            Udev.INSTANCE.udev_device_get_sysattr_value(device, "size"), 0L) * SECTORSIZE);
-
+                    // Null model and serial in virtual environments
+                    String devModel = Udev.INSTANCE.udev_device_get_property_value(device, "ID_MODEL");
+                    String devSerial = Udev.INSTANCE.udev_device_get_property_value(device, "ID_SERIAL_SHORT");
+                    long devSize = ParseUtil.parseLongOrDefault(
+                            Udev.INSTANCE.udev_device_get_sysattr_value(device, "size"), 0L) * SECTORSIZE;
+                    store = new LinuxHWDiskStore(devnode, devModel == null ? Constants.UNKNOWN : devModel,
+                            devSerial == null ? Constants.UNKNOWN : devSerial, devSize);
                     if (storeToUpdate == null) {
                         // If getting all stores, add to the list with stats
-                        store.setPartitions(Collections.emptyList());
+                        // Initialize an empty partition list
+                        store.partitionList = new ArrayList<>();
                         computeDiskStats(store, device);
                         result.add(store);
-                    } else if (store.equals(storeToUpdate)) {
-                        // Note this equality test is not object equality. If we are only updating a
-                        // single disk, the name, model, serial, and size are sufficient to test if this
-                        // is a match. Add the (old) object, release handle and return.
+                    } else if (store.getName().equals(storeToUpdate.getName())
+                            && store.getModel().equals(storeToUpdate.getModel())
+                            && store.getSerial().equals(storeToUpdate.getSerial())
+                            && store.getSize() == storeToUpdate.getSize()) {
+                        // If we are only updating a single disk, the name, model, serial, and size are
+                        // sufficient to test if this is a match. Add the (old) object, release handle
+                        // and return.
                         computeDiskStats(storeToUpdate, device);
                         result.add(storeToUpdate);
                         Udev.INSTANCE.udev_device_unref(device);
                         break;
                     }
                 } else if ("partition".equals(Udev.INSTANCE.udev_device_get_devtype(device)) && store != null) {
-                    // `store` should still point to the HWDiskStore this
-                    // partition is attached to. If not, it's an error, so
-                    // skip.
-                    List<HWPartition> partList = new ArrayList<>(store.getPartitions());
+                    // `store` should still point to the HWDiskStore this partition is attached to.
+                    // If not, it's an error, so skip.
                     String name = Udev.INSTANCE.udev_device_get_devnode(device);
-                    partList.add(new HWPartition(name,
-                            Udev.INSTANCE.udev_device_get_sysname(device),
+                    store.partitionList.add(new HWPartition(name, Udev.INSTANCE.udev_device_get_sysname(device),
                             Udev.INSTANCE.udev_device_get_property_value(device, "ID_FS_TYPE") == null ? "partition"
                                     : Udev.INSTANCE.udev_device_get_property_value(device, "ID_FS_TYPE"),
                             Udev.INSTANCE.udev_device_get_property_value(device, "ID_FS_UUID") == null ? ""
@@ -142,7 +192,6 @@ public final class LinuxDisks {
                             ParseUtil.parseIntOrDefault(Udev.INSTANCE.udev_device_get_property_value(device, "MINOR"),
                                     0),
                             mountsMap.getOrDefault(name, "")));
-                    store.setPartitions(Collections.unmodifiableList(partList));
                 }
             }
             Udev.INSTANCE.udev_device_unref(device);
@@ -150,21 +199,19 @@ public final class LinuxDisks {
         }
         Udev.INSTANCE.udev_enumerate_unref(enumerate);
         Udev.INSTANCE.udev_unref(handle);
-
-        return result.toArray(new HWDiskStore[0]);
+        // Iterate the list and make the partitions unmodifiable
+        for (LinuxHWDiskStore hwds : result) {
+            hwds.partitionList = Collections.unmodifiableList(hwds.partitionList.stream()
+                    .sorted(Comparator.comparing(HWPartition::getName)).collect(Collectors.toList()));
+        }
+        return result;
     }
 
-    /**
-     * Updates the statistics on a disk store.
-     *
-     * @param diskStore
-     *            the {@link oshi.hardware.HWDiskStore} to update.
-     * @return {@code true} if the update was (probably) successful.
-     */
-    public static boolean updateDiskStats(HWDiskStore diskStore) {
+    @Override
+    public boolean updateAttributes() {
         // If this returns non-empty (the same store, but updated) then we were
         // successful in the update
-        return 0 < getDisks(diskStore).length;
+        return !getDisks(this).isEmpty();
     }
 
     private static Map<String, String> readMountsMap() {
@@ -180,18 +227,18 @@ public final class LinuxDisks {
         return mountsMap;
     }
 
-    private static void computeDiskStats(HWDiskStore store, Udev.UdevDevice disk) {
+    private static void computeDiskStats(LinuxHWDiskStore store, Udev.UdevDevice disk) {
         String devstat = Udev.INSTANCE.udev_device_get_sysattr_value(disk, "stat");
         long[] devstatArray = ParseUtil.parseStringToLongArray(devstat, UDEV_STAT_ORDERS, UDEV_STAT_LENGTH, ' ');
-        store.setTimeStamp(System.currentTimeMillis());
+        store.timeStamp = System.currentTimeMillis();
 
         // Reads and writes are converted in bytes
-        store.setReads(devstatArray[UdevStat.READS.ordinal()]);
-        store.setReadBytes(devstatArray[UdevStat.READ_BYTES.ordinal()] * SECTORSIZE);
-        store.setWrites(devstatArray[UdevStat.WRITES.ordinal()]);
-        store.setWriteBytes(devstatArray[UdevStat.WRITE_BYTES.ordinal()] * SECTORSIZE);
-        store.setCurrentQueueLength(devstatArray[UdevStat.QUEUE_LENGTH.ordinal()]);
-        store.setTransferTime(devstatArray[UdevStat.ACTIVE_MS.ordinal()]);
+        store.reads = devstatArray[UdevStat.READS.ordinal()];
+        store.readBytes = devstatArray[UdevStat.READ_BYTES.ordinal()] * SECTORSIZE;
+        store.writes = devstatArray[UdevStat.WRITES.ordinal()];
+        store.writeBytes = devstatArray[UdevStat.WRITE_BYTES.ordinal()] * SECTORSIZE;
+        store.currentQueueLength = devstatArray[UdevStat.QUEUE_LENGTH.ordinal()];
+        store.transferTime = devstatArray[UdevStat.ACTIVE_MS.ordinal()];
     }
 
     // Order the field is in udev stats

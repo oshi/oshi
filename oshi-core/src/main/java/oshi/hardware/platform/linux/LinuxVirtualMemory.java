@@ -52,11 +52,11 @@ final class LinuxVirtualMemory extends AbstractVirtualMemory {
 
     /**
      * Constructor for LinuxVirtualMemory.
-     * 
+     *
      * @param linuxGlobalMemory
      *            The parent global memory class instantiating this
      */
-    public LinuxVirtualMemory(LinuxGlobalMemory linuxGlobalMemory) {
+    LinuxVirtualMemory(LinuxGlobalMemory linuxGlobalMemory) {
         this.global = linuxGlobalMemory;
     }
 

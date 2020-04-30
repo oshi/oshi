@@ -71,8 +71,8 @@ public final class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstr
     }
 
     @Override
-    public HWDiskStore[] getDiskStores() {
-        return WindowsDisks.getDisks();
+    public List<HWDiskStore> getDiskStores() {
+        return WindowsHWDiskStore.getDisks();
     }
 
     @Override

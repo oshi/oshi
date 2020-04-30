@@ -23,21 +23,9 @@
  */
 package oshi.hardware;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import oshi.SystemInfo;
-import oshi.annotation.concurrent.NotThreadSafe;
-import oshi.hardware.platform.linux.LinuxDisks;
-import oshi.hardware.platform.mac.MacDisks;
-import oshi.hardware.platform.unix.freebsd.FreeBsdDisks;
-import oshi.hardware.platform.unix.solaris.SolarisDisks;
-import oshi.hardware.platform.windows.WindowsDisks;
-import oshi.util.FormatUtil;
+import oshi.annotation.concurrent.ThreadSafe;
 
 /**
  * A storage mechanism where data are recorded by various electronic, magnetic,
@@ -47,433 +35,109 @@ import oshi.util.FormatUtil;
  * storage, the Disk Store represents the hardware which a FileSystem uses for
  * its File Stores.
  * <p>
- * Thread safe if both threads only use getters on both this object and the
- * partitions returned by {@link #getPartitions()}, or if setter usage
- * (including on the partitions) is externally synchronized.
+ * Thread safe for the designed use of retrieving the most recent data. Users
+ * should be aware that the {@link #updateAttributes()} method may update
+ * attributes, including the time stamp, and should externally synchronize such
+ * usage to ensure consistent calculations.
  */
-@NotThreadSafe
-public class HWDiskStore implements Comparable<HWDiskStore> {
-
-    private static final Logger LOG = LoggerFactory.getLogger(HWDiskStore.class);
-
-    private String model = "";
-    private String name = "";
-    private String serial = "";
-    private long size = 0L;
-    private long reads = 0L;
-    private long readBytes = 0L;
-    private long writes = 0L;
-    private long writeBytes = 0L;
-    private long currentQueueLength = 0L;
-    private long transferTime = 0L;
-    private List<HWPartition> partitions = new ArrayList<>();
-    private long timeStamp = 0L;
+@ThreadSafe
+public interface HWDiskStore {
 
     /**
-     * Create an object with empty/default values
-     */
-    public HWDiskStore() {
-    }
-
-    /**
-     * Copy constructor
+     * The disk name
      *
-     * @param diskStore
-     *            The object to copy
+     * @return the name
      */
-    public HWDiskStore(HWDiskStore diskStore) {
-        List<HWPartition> partsOrig = diskStore.getPartitions();
-        List<HWPartition> partsCopy = new ArrayList<>(partsOrig.size());
-        for (HWPartition part: partsOrig) {
-            partsCopy.add(new HWPartition(part.getIdentification(), part.getName(), part.getType(), part.getUuid(),
-                    part.getSize(), part.getMajor(), part.getMinor(), part.getMountPoint()));
-        }
-        this.name = diskStore.name;
-        this.model = diskStore.model;
-        this.serial = diskStore.serial;
-        this.size = diskStore.size;
-        this.reads = diskStore.reads;
-        this.readBytes = diskStore.readBytes;
-        this.writes = diskStore.writes;
-        this.writeBytes = diskStore.writeBytes;
-        this.currentQueueLength = diskStore.currentQueueLength;
-        this.transferTime = diskStore.transferTime;
-        this.partitions = Collections.unmodifiableList(partsCopy);
-        this.timeStamp = diskStore.timeStamp;
-    }
+    String getName();
+
+    /**
+     * The disk model
+     *
+     * @return the model
+     */
+    String getModel();
+
+    /**
+     * The disk serial number, if available.
+     *
+     * @return the serial number
+     */
+    String getSerial();
+
+    /**
+     * The size of the disk
+     *
+     * @return the disk size, in bytes
+     */
+    long getSize();
+
+    /**
+     * The number of reads from the disk
+     *
+     * @return the reads
+     */
+    long getReads();
+
+    /**
+     * The number of bytes read from the disk
+     *
+     * @return the bytes read
+     */
+    long getReadBytes();
+
+    /**
+     * The number of writes to the disk
+     *
+     * @return the writes
+     */
+    long getWrites();
+
+    /**
+     * The number of bytes written to the disk
+     *
+     * @return the bytes written
+     */
+    long getWriteBytes();
+
+    /**
+     * The length of the disk queue (#I/O's in progress). Includes I/O requests that
+     * have been issued to the device driver but have not yet completed. Not
+     * supported on macOS.
+     *
+     * @return the current disk queue length
+     */
+    long getCurrentQueueLength();
+
+    /**
+     * The time spent reading or writing, in milliseconds.
+     *
+     * @return the transfer time
+     */
+    long getTransferTime();
+
+    /**
+     * The partitions on this disk.
+     *
+     * @return an {@code UnmodifiableList} of the partitions on this drive.
+     */
+    List<HWPartition> getPartitions();
+
+    /**
+     * The time this disk's statistics were updated.
+     *
+     * @return the timeStamp, in milliseconds since the epoch.
+     */
+    long getTimeStamp();
 
     /**
      * Make a best effort to update all the statistics about the drive without
      * needing to recreate the drive list. This method provides for more frequent
-     * periodic updates of drive statistics. It will not detect if a removable drive
-     * has been removed and replaced by a different drive in between method calls.
+     * periodic updates of individual drive statistics but may be less efficient to
+     * use if updating all drives. It will not detect if a removable drive has been
+     * removed and replaced by a different drive in between method calls.
      *
      * @return True if the update was (probably) successful, false if the disk was
      *         not found
      */
-    public boolean updateAtrributes() {
-        switch (SystemInfo.getCurrentPlatformEnum()) {
-        case WINDOWS:
-            return WindowsDisks.updateDiskStats(this);
-        case LINUX:
-            return LinuxDisks.updateDiskStats(this);
-        case MACOSX:
-            return MacDisks.updateDiskStats(this);
-        case SOLARIS:
-            return SolarisDisks.updateDiskStats(this);
-        case FREEBSD:
-            return FreeBsdDisks.updateDiskStats(this);
-        default:
-            LOG.error("Unsupported platform. No update performed.");
-            break;
-        }
-        return false;
-    }
-
-    /**
-     * <p>
-     * Getter for the field <code>name</code>.
-     * </p>
-     *
-     * @return the name
-     */
-    public String getName() {
-        return this.name;
-    }
-
-    /**
-     * <p>
-     * Getter for the field <code>model</code>.
-     * </p>
-     *
-     * @return the model
-     */
-    public String getModel() {
-        return this.model;
-    }
-
-    /**
-     * <p>
-     * Getter for the field <code>serial</code>.
-     * </p>
-     *
-     * @return the serial
-     */
-    public String getSerial() {
-        return this.serial;
-    }
-
-    /**
-     * <p>
-     * Getter for the field <code>size</code>.
-     * </p>
-     *
-     * @return Get size of disk (in bytes)
-     */
-    public long getSize() {
-        return this.size;
-    }
-
-    /**
-     * <p>
-     * Getter for the field <code>reads</code>.
-     * </p>
-     *
-     * @return the reads
-     */
-    public long getReads() {
-        return this.reads;
-    }
-
-    /**
-     * <p>
-     * Getter for the field <code>readBytes</code>.
-     * </p>
-     *
-     * @return the bytes read
-     */
-    public long getReadBytes() {
-        return this.readBytes;
-    }
-
-    /**
-     * <p>
-     * Getter for the field <code>writes</code>.
-     * </p>
-     *
-     * @return the writes
-     */
-    public long getWrites() {
-        return this.writes;
-    }
-
-    /**
-     * <p>
-     * Getter for the field <code>writeBytes</code>.
-     * </p>
-     *
-     * @return the bytes written
-     */
-    public long getWriteBytes() {
-        return this.writeBytes;
-    }
-
-    /**
-     * <p>
-     * Getter for the field <code>currentQueueLength</code>.
-     * </p>
-     *
-     * @return the length of the disk queue (#I/O's in progress). Includes I/O
-     *         requests that have been issued to the device driver but have not yet
-     *         completed. Not supported on macOS.
-     */
-    public long getCurrentQueueLength() {
-        return this.currentQueueLength;
-    }
-
-    /**
-     * <p>
-     * Getter for the field <code>transferTime</code>.
-     * </p>
-     *
-     * @return the milliseconds spent reading or writing
-     */
-    public long getTransferTime() {
-        return this.transferTime;
-    }
-
-    /**
-     * <p>
-     * Getter for the field <code>partitions</code>.
-     * </p>
-     *
-     * @return Returns an {@code UnmodifiableList} of the partitions on this drive.
-     */
-    public List<HWPartition> getPartitions() {
-        return this.partitions;
-    }
-
-    /**
-     * <p>
-     * Getter for the field <code>timeStamp</code>.
-     * </p>
-     *
-     * @return Returns the timeStamp.
-     */
-    public long getTimeStamp() {
-        return this.timeStamp;
-    }
-
-    /**
-     * <p>
-     * Setter for the field <code>name</code>.
-     * </p>
-     *
-     * @param name
-     *            the name to set
-     */
-    public void setName(String name) {
-        this.name = name == null ? "" : name;
-    }
-
-    /**
-     * <p>
-     * Setter for the field <code>model</code>.
-     * </p>
-     *
-     * @param model
-     *            the model to set
-     */
-    public void setModel(String model) {
-        this.model = model == null ? "" : model;
-    }
-
-    /**
-     * <p>
-     * Setter for the field <code>serial</code>.
-     * </p>
-     *
-     * @param serial
-     *            the serial to set
-     */
-    public void setSerial(String serial) {
-        this.serial = serial == null ? "" : serial;
-    }
-
-    /**
-     * <p>
-     * Setter for the field <code>size</code>.
-     * </p>
-     *
-     * @param size
-     *            Set size of disk (in bytes)
-     */
-    public void setSize(long size) {
-        this.size = size;
-    }
-
-    /**
-     * <p>
-     * Setter for the field <code>reads</code>.
-     * </p>
-     *
-     * @param reads
-     *            the reads to set
-     */
-    public void setReads(long reads) {
-        this.reads = reads;
-    }
-
-    /**
-     * <p>
-     * Setter for the field <code>readBytes</code>.
-     * </p>
-     *
-     * @param readBytes
-     *            the bytes read to set
-     */
-    public void setReadBytes(long readBytes) {
-        this.readBytes = readBytes;
-    }
-
-    /**
-     * <p>
-     * Setter for the field <code>writes</code>.
-     * </p>
-     *
-     * @param writes
-     *            the writes to set
-     */
-    public void setWrites(long writes) {
-        this.writes = writes;
-    }
-
-    /**
-     * <p>
-     * Setter for the field <code>writeBytes</code>.
-     * </p>
-     *
-     * @param writeBytes
-     *            the bytes written to set
-     */
-    public void setWriteBytes(long writeBytes) {
-        this.writeBytes = writeBytes;
-    }
-
-    /**
-     * <p>
-     * Setter for the field <code>currentQueueLength</code>.
-     * </p>
-     *
-     * @param currentQueueLength
-     *            the length of the disk queue (#I/O's in progress) to set
-     */
-    public void setCurrentQueueLength(long currentQueueLength) {
-        this.currentQueueLength = currentQueueLength;
-    }
-
-    /**
-     * <p>
-     * Setter for the field <code>transferTime</code>.
-     * </p>
-     *
-     * @param transferTime
-     *            milliseconds spent reading or writing to set
-     */
-    public void setTransferTime(long transferTime) {
-        this.transferTime = transferTime;
-    }
-
-    /**
-     * <p>
-     * Setter for the field <code>partitions</code>.
-     * </p>
-     *
-     * @param partitions
-     *            The partitions to set.
-     */
-    public void setPartitions(List<HWPartition> partitions) {
-        this.partitions = partitions;
-    }
-
-    /**
-     * <p>
-     * Setter for the field <code>timeStamp</code>.
-     * </p>
-     *
-     * @param timeStamp
-     *            The timeStamp to set.
-     */
-    public void setTimeStamp(long timeStamp) {
-        this.timeStamp = timeStamp;
-    }
-
-    @Override
-    public int compareTo(HWDiskStore store) {
-        // Naturally sort by device name
-        return getName().compareTo(store.getName());
-    }
-
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + (this.model == null ? 0 : this.model.hashCode());
-        result = prime * result + (this.name == null ? 0 : this.name.hashCode());
-        result = prime * result + (this.serial == null ? 0 : this.serial.hashCode());
-        result = prime * result + (int) (this.size ^ this.size >>> 32);
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (!(obj.getClass().equals(this.getClass()))) {
-            return false;
-        }
-        HWDiskStore other = (HWDiskStore) obj;
-        if (this.model == null) {
-            if (other.model != null) {
-                return false;
-            }
-        } else if (!this.model.equals(other.model)) {
-            return false;
-        }
-        if (this.name == null) {
-            if (other.name != null) {
-                return false;
-            }
-        } else if (!this.name.equals(other.name)) {
-            return false;
-        }
-        if (this.serial == null) {
-            if (other.serial != null) {
-                return false;
-            }
-        } else if (!this.serial.equals(other.serial)) {
-            return false;
-        }
-        return this.size == other.size;
-    }
-
-    @Override
-    public String toString() {
-        boolean readwrite = getReads() > 0 || getWrites() > 0;
-        StringBuilder sb = new StringBuilder();
-        sb.append(getName()).append(": ");
-        sb.append("(model: ").append(getModel());
-        sb.append(" - S/N: ").append(getSerial()).append(") ");
-        sb.append("size: ").append(getSize() > 0 ? FormatUtil.formatBytesDecimal(getSize()) : "?").append(", ");
-        sb.append("reads: ").append(readwrite ? getReads() : "?");
-        sb.append(" (").append(readwrite ? FormatUtil.formatBytes(getReadBytes()) : "?").append("), ");
-        sb.append("writes: ").append(readwrite ? getWrites() : "?");
-        sb.append(" (").append(readwrite ? FormatUtil.formatBytes(getWriteBytes()) : "?").append("), ");
-        sb.append("xfer: ").append(readwrite ? getTransferTime() : "?");
-        return sb.toString();
-    }
+    boolean updateAttributes();
 }
