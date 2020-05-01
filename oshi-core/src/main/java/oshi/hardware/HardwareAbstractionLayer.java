@@ -59,13 +59,13 @@ public interface HardwareAbstractionLayer {
     GlobalMemory getMemory();
 
     /**
-     * Instantiates an array of {@link oshi.hardware.PowerSource} objects,
-     * representing batteries, etc.
+     * Instantiates an {@code UnmodifiableList} of {@link oshi.hardware.PowerSource}
+     * objects, representing batteries, etc.
      *
-     * @return An array of PowerSource objects or an empty array if none are
-     *         present.
+     * @return An {@code UnmodifiableList} of PowerSource objects or an empty array
+     *         if none are present.
      */
-    PowerSource[] getPowerSources();
+    List<PowerSource> getPowerSources();
 
     /**
      * Instantiates an {@code UnmodifiableList} of {@link oshi.hardware.HWDiskStore}
@@ -85,12 +85,13 @@ public interface HardwareAbstractionLayer {
     List<NetworkIF> getNetworkIFs();
 
     /**
-     * Instantiates an array of {@link oshi.hardware.Display} objects, representing
-     * monitors or other video output devices.
+     * Instantiates an {@code UnmodifiableList} of {@link oshi.hardware.Display}
+     * objects, representing monitors or other video output devices.
      *
-     * @return An array of Display objects or an empty array if none are present.
+     * @return An {@code UnmodifiableList} of Display objects or an empty array if
+     *         none are present.
      */
-    Display[] getDisplays();
+    List<Display> getDisplays();
 
     /**
      * Instantiates a {@link oshi.hardware.Sensors} object, representing CPU
@@ -119,19 +120,20 @@ public interface HardwareAbstractionLayer {
     UsbDevice[] getUsbDevices(boolean tree);
 
     /**
-     * Instantiates an array of {@link oshi.hardware.SoundCard} objects,
-     * representing the Sound cards.
+     * Instantiates an {@code UnmodifiableList} of {@link oshi.hardware.SoundCard}
+     * objects, representing the Sound cards.
      *
-     * @return An array of SoundCard objects or an empty array if none are present.
+     * @return An {@code UnmodifiableList} of SoundCard objects or an empty array if
+     *         none are present.
      */
-    SoundCard[] getSoundCards();
+    List<SoundCard> getSoundCards();
 
     /**
-     * Instantiates an array of {@link oshi.hardware.GraphicsCard} objects,
-     * representing the Graphics cards.
+     * Instantiates an {@code UnmodifiableList} of
+     * {@link oshi.hardware.GraphicsCard} objects, representing the Graphics cards.
      *
-     * @return An array of GraphicsCard objects or an empty array if none are
+     * @return An {@code UnmodifiableList} of objects or an empty array if none are
      *         present.
      */
-    GraphicsCard[] getGraphicsCards();
+    List<GraphicsCard> getGraphicsCards();
 }

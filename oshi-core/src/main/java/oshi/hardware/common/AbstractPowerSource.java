@@ -24,6 +24,7 @@
 package oshi.hardware.common;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import com.sun.jna.Platform; // NOSONAR squid:S1191
 
@@ -201,7 +202,7 @@ public abstract class AbstractPowerSource implements PowerSource {
 
     @Override
     public boolean updateAttributes() {
-        PowerSource[] psArr = getPowerSources();
+        List<PowerSource> psArr = getPowerSources();
         for (PowerSource ps : psArr) {
             if (ps.getName().equals(this.name)) {
                 this.name = ps.getName();
@@ -232,7 +233,7 @@ public abstract class AbstractPowerSource implements PowerSource {
         return false;
     }
 
-    private static PowerSource[] getPowerSources() {
+    private static List<PowerSource> getPowerSources() {
         switch (SystemInfo.getCurrentPlatformEnum()) {
         case WINDOWS:
             return WindowsPowerSource.getPowerSources();

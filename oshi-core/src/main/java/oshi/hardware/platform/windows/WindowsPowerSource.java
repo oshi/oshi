@@ -25,6 +25,9 @@ package oshi.hardware.platform.windows;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import com.sun.jna.Memory; // NOSONAR
 import com.sun.jna.Platform;
@@ -88,11 +91,8 @@ public final class WindowsPowerSource extends AbstractPowerSource {
      *
      * @return An array of PowerSource objects representing batteries, etc.
      */
-    public static PowerSource[] getPowerSources() {
-        // Windows provides a single unnamed battery
-        WindowsPowerSource[] psArray = new WindowsPowerSource[1];
-        psArray[0] = getPowerSource("System Battery");
-        return psArray;
+    public static List<PowerSource> getPowerSources() {
+        return Collections.unmodifiableList(Arrays.asList(getPowerSource("System Battery")));
     }
 
     private static WindowsPowerSource getPowerSource(String name) {

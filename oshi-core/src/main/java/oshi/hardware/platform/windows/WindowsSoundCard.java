@@ -24,6 +24,7 @@
 package oshi.hardware.platform.windows;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.sun.jna.platform.win32.Advapi32Util; // NOSONAR squid:S1191
@@ -32,6 +33,7 @@ import com.sun.jna.platform.win32.WinError;
 import com.sun.jna.platform.win32.WinReg;
 
 import oshi.annotation.concurrent.Immutable;
+import oshi.hardware.SoundCard;
 import oshi.hardware.common.AbstractSoundCard;
 
 /**
@@ -44,7 +46,7 @@ final class WindowsSoundCard extends AbstractSoundCard {
 
     /**
      * Constructor for WindowsSoundCard.
-     * 
+     *
      * @param kernelVersion
      *            The version
      * @param name
@@ -67,7 +69,7 @@ final class WindowsSoundCard extends AbstractSoundCard {
      *
      * @return List of sound cards
      */
-    public static List<WindowsSoundCard> getSoundCards() {
+    public static List<SoundCard> getSoundCards() {
         List<WindowsSoundCard> soundCards = new ArrayList<>();
         String[] keys = Advapi32Util.registryGetKeys(WinReg.HKEY_LOCAL_MACHINE, REGISTRY_SOUNDCARDS);
         for (String key : keys) {
@@ -91,6 +93,6 @@ final class WindowsSoundCard extends AbstractSoundCard {
                 }
             }
         }
-        return soundCards;
+        return Collections.unmodifiableList(soundCards);
     }
 }

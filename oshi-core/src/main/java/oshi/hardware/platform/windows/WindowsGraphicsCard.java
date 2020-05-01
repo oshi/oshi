@@ -24,6 +24,7 @@
 package oshi.hardware.platform.windows;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.sun.jna.platform.win32.VersionHelpers; // NOSONAR squid:S1191
@@ -32,6 +33,7 @@ import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 import oshi.annotation.concurrent.Immutable;
 import oshi.driver.windows.wmi.Win32VideoController;
 import oshi.driver.windows.wmi.Win32VideoController.VideoControllerProperty;
+import oshi.hardware.GraphicsCard;
 import oshi.hardware.common.AbstractGraphicsCard;
 import oshi.util.Constants;
 import oshi.util.ParseUtil;
@@ -73,7 +75,7 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
      * @return List of {@link oshi.hardware.platform.windows.WindowsGraphicsCard}
      *         objects.
      */
-    public static List<WindowsGraphicsCard> getGraphicsCards() {
+    public static List<GraphicsCard> getGraphicsCards() {
         List<WindowsGraphicsCard> cardList = new ArrayList<>();
         if (IS_VISTA_OR_GREATER) {
             WmiResult<VideoControllerProperty> cards = Win32VideoController.queryVideoController();
@@ -101,6 +103,6 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
                         Util.isBlank(vendor) ? Constants.UNKNOWN : vendor, versionInfo, vram));
             }
         }
-        return cardList;
+        return Collections.unmodifiableList(cardList);
     }
 }

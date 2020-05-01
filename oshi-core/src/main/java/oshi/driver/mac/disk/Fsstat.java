@@ -27,7 +27,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.sun.jna.platform.mac.SystemB;
+import com.sun.jna.platform.mac.SystemB; // NOSONAR squid:S1191
 import com.sun.jna.platform.mac.SystemB.Statfs;
 
 import oshi.annotation.concurrent.ThreadSafe;

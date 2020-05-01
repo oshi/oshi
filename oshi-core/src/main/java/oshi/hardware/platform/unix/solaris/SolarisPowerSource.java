@@ -24,6 +24,9 @@
 package oshi.hardware.platform.unix.solaris;
 
 import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import com.sun.jna.platform.unix.solaris.LibKstat.Kstat; // NOSONAR
 
@@ -74,10 +77,8 @@ public final class SolarisPowerSource extends AbstractPowerSource {
      *
      * @return An array of PowerSource objects representing batteries, etc.
      */
-    public static PowerSource[] getPowerSources() {
-        SolarisPowerSource[] ps = new SolarisPowerSource[1];
-        ps[0] = getPowerSource("BAT0");
-        return ps;
+    public static List<PowerSource> getPowerSources() {
+        return Collections.unmodifiableList(Arrays.asList(getPowerSource("BAT0")));
     }
 
     private static SolarisPowerSource getPowerSource(String name) {

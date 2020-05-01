@@ -25,6 +25,7 @@ package oshi.hardware.platform.linux;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -32,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.Immutable;
+import oshi.hardware.SoundCard;
 import oshi.hardware.common.AbstractSoundCard;
 import oshi.util.FileUtil;
 import oshi.util.platform.linux.ProcPath;
@@ -50,7 +52,7 @@ final class LinuxSoundCard extends AbstractSoundCard {
 
     /**
      * Constructor for LinuxSoundCard.
-     * 
+     *
      * @param kernelVersion
      *            The version
      * @param name
@@ -170,11 +172,11 @@ final class LinuxSoundCard extends AbstractSoundCard {
      *
      * @return List of {@link oshi.hardware.platform.linux.LinuxSoundCard} objects.
      */
-    public static List<LinuxSoundCard> getSoundCards() {
+    public static List<SoundCard> getSoundCards() {
         List<LinuxSoundCard> soundCards = new ArrayList<>();
         for (File cardFile : getCardFolders()) {
             soundCards.add(new LinuxSoundCard(getSoundCardVersion(), getCardName(cardFile), getCardCodec(cardFile)));
         }
-        return soundCards;
+        return Collections.unmodifiableList(soundCards);
     }
 }

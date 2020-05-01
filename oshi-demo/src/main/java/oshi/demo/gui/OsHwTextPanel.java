@@ -28,6 +28,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.time.Instant;
+import java.util.List;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -153,12 +154,13 @@ public class OsHwTextPanel extends OshiJPanel { // NOSONAR squid:S110
 
     private static String getDisplay(SystemInfo si) {
         StringBuilder sb = new StringBuilder();
-        Display[] displays = si.getHardware().getDisplays();
-        if (displays.length < 1) {
+        List<Display> displays = si.getHardware().getDisplays();
+        if (displays.isEmpty()) {
             sb.append("None detected.");
         } else {
-            for (int i = 0; i < displays.length; i++) {
-                byte[] edid = displays[i].getEdid();
+            int i = 0;
+            for (Display display : displays) {
+                byte[] edid = display.getEdid();
                 byte[][] desc = EdidUtil.getDescriptors(edid);
                 String name = "Display " + i;
                 for (byte[] b : desc) {
@@ -166,7 +168,7 @@ public class OsHwTextPanel extends OshiJPanel { // NOSONAR squid:S110
                         name = EdidUtil.getDescriptorText(b);
                     }
                 }
-                if (i > 0) {
+                if (i++ > 0) {
                     sb.append('\n');
                 }
                 sb.append(name).append(": ");

@@ -24,11 +24,13 @@
 package oshi.hardware.platform.unix.solaris;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import oshi.annotation.concurrent.Immutable;
+import oshi.hardware.SoundCard;
 import oshi.hardware.common.AbstractSoundCard;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
@@ -44,7 +46,7 @@ final class SolarisSoundCard extends AbstractSoundCard {
 
     /**
      * Constructor for SolarisSoundCard.
-     * 
+     *
      * @param kernelVersion
      *            The version
      * @param name
@@ -63,7 +65,7 @@ final class SolarisSoundCard extends AbstractSoundCard {
      *
      * @return a {@link java.util.List} object.
      */
-    public static List<SolarisSoundCard> getSoundCards() {
+    public static List<SoundCard> getSoundCards() {
         Map<String, String> vendorMap = new HashMap<>();
         Map<String, String> productMap = new HashMap<>();
         List<String> sounds = new ArrayList<>();
@@ -84,11 +86,11 @@ final class SolarisSoundCard extends AbstractSoundCard {
                 }
             }
         }
-        List<SolarisSoundCard> soundCards = new ArrayList<>();
+        List<SoundCard> soundCards = new ArrayList<>();
         for (String _key : sounds) {
             soundCards.add(new SolarisSoundCard(productMap.get(_key) + " " + DEFAULT_AUDIO_DRIVER,
                     vendorMap.get(_key) + " " + productMap.get(_key), productMap.get(_key)));
         }
-        return soundCards;
+        return Collections.unmodifiableList(soundCards);
     }
 }
