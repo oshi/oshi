@@ -24,6 +24,8 @@
 package oshi.hardware.platform.unix.freebsd;
 
 import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,10 +61,8 @@ public final class FreeBsdPowerSource extends AbstractPowerSource {
      *
      * @return An array of PowerSource objects representing batteries, etc.
      */
-    public static PowerSource[] getPowerSources() {
-        FreeBsdPowerSource[] ps = new FreeBsdPowerSource[1];
-        ps[0] = getPowerSource("BAT0");
-        return ps;
+    public static List<PowerSource> getPowerSources() {
+        return Collections.unmodifiableList(Arrays.asList(getPowerSource("BAT0")));
     }
 
     private static FreeBsdPowerSource getPowerSource(String name) {

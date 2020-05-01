@@ -24,9 +24,11 @@
 package oshi.hardware.platform.linux;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import oshi.annotation.concurrent.Immutable;
+import oshi.hardware.GraphicsCard;
 import oshi.hardware.common.AbstractGraphicsCard;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
@@ -65,13 +67,13 @@ final class LinuxGraphicsCard extends AbstractGraphicsCard {
      * @return List of {@link oshi.hardware.platform.linux.LinuxGraphicsCard}
      *         objects.
      */
-    public static List<LinuxGraphicsCard> getGraphicsCards() {
+    public static List<GraphicsCard> getGraphicsCards() {
         List<LinuxGraphicsCard> cardList = getGraphicsCardsFromLspci();
         if (cardList.isEmpty()) {
             cardList = getGraphicsCardsFromLshw();
         }
 
-        return cardList;
+        return Collections.unmodifiableList(cardList);
     }
 
     // Faster, use as primary

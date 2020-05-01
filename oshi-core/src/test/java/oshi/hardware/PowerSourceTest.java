@@ -25,6 +25,8 @@ package oshi.hardware;
 
 import static org.junit.Assert.assertTrue;
 
+import java.util.List;
+
 import org.junit.Test;
 
 import oshi.SystemInfo;
@@ -39,7 +41,7 @@ public class PowerSourceTest {
     @Test
     public void testPowerSource() {
         SystemInfo si = new SystemInfo();
-        PowerSource[] psArr = si.getHardware().getPowerSources();
+        List<PowerSource> psArr = si.getHardware().getPowerSources();
         for (PowerSource ps : psArr) {
             assertTrue(ps.getRemainingCapacityPercent() >= 0);
             double epsilon = 1E-6;

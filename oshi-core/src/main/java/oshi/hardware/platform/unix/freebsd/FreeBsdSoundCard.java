@@ -24,6 +24,7 @@
 package oshi.hardware.platform.unix.freebsd;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,7 +45,7 @@ final class FreeBsdSoundCard extends AbstractSoundCard {
 
     /**
      * Constructor for FreeBsdSoundCard.
-     * 
+     *
      * @param kernelVersion
      *            The version
      * @param name
@@ -90,6 +91,6 @@ final class FreeBsdSoundCard extends AbstractSoundCard {
             soundCards.add(new FreeBsdSoundCard(productMap.get(_key), vendorMap.get(_key) + " " + productMap.get(_key),
                     productMap.get(_key)));
         }
-        return soundCards;
+        return Collections.unmodifiableList(soundCards);
     }
 }

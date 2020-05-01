@@ -7,6 +7,7 @@
 * [#1181](https://github.com/oshi/oshi/pull/1181): Make HWPartition immutable. - [@dbwiddis](https://github.com/dbwiddis).
 * [#1183](https://github.com/oshi/oshi/pull/1183): Add more VirtualMemory information. - [@dbwiddis](https://github.com/dbwiddis).
 * [#1185](https://github.com/oshi/oshi/pull/1185): Make HWDiskStore an interface. - [@dbwiddis](https://github.com/dbwiddis).
+* [#1186](https://github.com/oshi/oshi/pull/1186): List returns for Display, PowerSource, SoundCard, GraphicsCard. - [@dbwiddis](https://github.com/dbwiddis).
 
 4.7.0 (4/25/2020)
 ================

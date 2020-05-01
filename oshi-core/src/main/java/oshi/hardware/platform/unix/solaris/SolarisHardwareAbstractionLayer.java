@@ -66,7 +66,7 @@ public final class SolarisHardwareAbstractionLayer extends AbstractHardwareAbstr
     }
 
     @Override
-    public PowerSource[] getPowerSources() {
+    public List<PowerSource> getPowerSources() {
         return SolarisPowerSource.getPowerSources();
     }
 
@@ -76,7 +76,7 @@ public final class SolarisHardwareAbstractionLayer extends AbstractHardwareAbstr
     }
 
     @Override
-    public Display[] getDisplays() {
+    public List<Display> getDisplays() {
         return SolarisDisplay.getDisplays();
     }
 
@@ -91,12 +91,12 @@ public final class SolarisHardwareAbstractionLayer extends AbstractHardwareAbstr
     }
 
     @Override
-    public SoundCard[] getSoundCards() {
-        return SolarisSoundCard.getSoundCards().toArray(new SoundCard[0]);
+    public List<SoundCard> getSoundCards() {
+        return SolarisSoundCard.getSoundCards();
     }
 
     @Override
-    public GraphicsCard[] getGraphicsCards() {
-        return SolarisGraphicsCard.getGraphicsCards().toArray(new GraphicsCard[0]);
+    public List<GraphicsCard> getGraphicsCards() {
+        return SolarisGraphicsCard.getGraphicsCards();
     }
 }

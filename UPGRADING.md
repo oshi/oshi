@@ -7,12 +7,19 @@ OSHI 5.0.0 is functionally equivalent to 4.7.0 with three categories of changes 
 
 ## API Changes (in progress)
 
+### Setter removal
+
 The `NetworkIF` and `HWDiskStore` classes are now interfaces, with setters removed.
 
 The `HWPartition` class is now immutable, with setters removed.
 
-The `HardwareAbstractionLayer` method `getNetworkIFs()`, `getDisks()` and 
+### UnmodifiableList return types
+
+The `HardwareAbstractionLayer` methods `getNetworkIFs()`, `getDisks()`, `getPowerSources()`,
+`getDisplays()`, `getSoundCards()`, `getGraphicsCards()`, and 
 the `HWDiskstore` method `getPartitions()` now return an `UnmodifiableList` instead of an array.
+
+### Deprecated method removal
 
 The deprecated `OperatingSystemVersion` interface and its getter `OperatingSystem`.`getVersion` were removed.
 Its `getVersion()`, `getCodeName()`, and `getBuildNumber()` methods are available on the object returned

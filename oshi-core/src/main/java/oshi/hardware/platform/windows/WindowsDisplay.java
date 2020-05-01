@@ -24,6 +24,7 @@
 package oshi.hardware.platform.windows;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -73,7 +74,7 @@ final class WindowsDisplay extends AbstractDisplay {
      *
      * @return An array of Display objects representing monitors, etc.
      */
-    public static Display[] getDisplays() {
+    public static List<Display> getDisplays() {
         List<Display> displays = new ArrayList<>();
 
         WinNT.HANDLE hDevInfo = SU.SetupDiGetClassDevs(GUID_DEVINTERFACE_MONITOR, null, null,
@@ -105,6 +106,6 @@ final class WindowsDisplay extends AbstractDisplay {
             }
             SU.SetupDiDestroyDeviceInfoList(hDevInfo);
         }
-        return displays.toArray(new Display[0]);
+        return Collections.unmodifiableList(displays);
     }
 }

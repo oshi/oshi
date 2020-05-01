@@ -66,7 +66,7 @@ public final class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstr
     }
 
     @Override
-    public PowerSource[] getPowerSources() {
+    public List<PowerSource> getPowerSources() {
         return WindowsPowerSource.getPowerSources();
     }
 
@@ -76,7 +76,7 @@ public final class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstr
     }
 
     @Override
-    public Display[] getDisplays() {
+    public List<Display> getDisplays() {
         return WindowsDisplay.getDisplays();
     }
 
@@ -91,12 +91,12 @@ public final class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstr
     }
 
     @Override
-    public SoundCard[] getSoundCards() {
-        return WindowsSoundCard.getSoundCards().toArray(new SoundCard[0]);
+    public List<SoundCard> getSoundCards() {
+        return WindowsSoundCard.getSoundCards();
     }
 
     @Override
-    public GraphicsCard[] getGraphicsCards() {
-        return WindowsGraphicsCard.getGraphicsCards().toArray(new GraphicsCard[0]);
+    public List<GraphicsCard> getGraphicsCards() {
+        return WindowsGraphicsCard.getGraphicsCards();
     }
 }

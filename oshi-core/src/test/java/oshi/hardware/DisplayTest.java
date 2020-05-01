@@ -25,6 +25,8 @@ package oshi.hardware;
 
 import static org.junit.Assert.assertTrue;
 
+import java.util.List;
+
 import org.junit.Test;
 
 import oshi.SystemInfo;
@@ -40,7 +42,7 @@ public class DisplayTest {
     @Test
     public void testDisplay() {
         SystemInfo si = new SystemInfo();
-        Display[] displays = si.getHardware().getDisplays();
+        List<Display> displays = si.getHardware().getDisplays();
         for (Display d : displays) {
             assertTrue(d.getEdid().length >= 128);
         }

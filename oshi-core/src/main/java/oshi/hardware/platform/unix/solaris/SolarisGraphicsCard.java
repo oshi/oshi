@@ -24,9 +24,11 @@
 package oshi.hardware.platform.unix.solaris;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import oshi.annotation.concurrent.Immutable;
+import oshi.hardware.GraphicsCard;
 import oshi.hardware.common.AbstractGraphicsCard;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
@@ -67,8 +69,8 @@ final class SolarisGraphicsCard extends AbstractGraphicsCard {
      *         {@link oshi.hardware.platform.unix.solaris.SolarisGraphicsCard}
      *         objects.
      */
-    public static List<SolarisGraphicsCard> getGraphicsCards() {
-        List<SolarisGraphicsCard> cardList = new ArrayList<>();
+    public static List<GraphicsCard> getGraphicsCards() {
+        List<GraphicsCard> cardList = new ArrayList<>();
         // Enumerate all devices and add if required
         List<String> devices = ExecutingCommand.runNative("prtconf -pv");
         if (devices.isEmpty()) {
@@ -131,6 +133,6 @@ final class SolarisGraphicsCard extends AbstractGraphicsCard {
                     vendorId.isEmpty() ? Constants.UNKNOWN : vendorId,
                     versionInfoList.isEmpty() ? Constants.UNKNOWN : String.join(", ", versionInfoList), 0L));
         }
-        return cardList;
+        return Collections.unmodifiableList(cardList);
     }
 }

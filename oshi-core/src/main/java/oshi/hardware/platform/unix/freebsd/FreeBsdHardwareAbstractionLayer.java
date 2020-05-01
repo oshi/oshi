@@ -66,7 +66,7 @@ public final class FreeBsdHardwareAbstractionLayer extends AbstractHardwareAbstr
     }
 
     @Override
-    public PowerSource[] getPowerSources() {
+    public List<PowerSource> getPowerSources() {
         return FreeBsdPowerSource.getPowerSources();
     }
 
@@ -76,7 +76,7 @@ public final class FreeBsdHardwareAbstractionLayer extends AbstractHardwareAbstr
     }
 
     @Override
-    public Display[] getDisplays() {
+    public List<Display> getDisplays() {
         return FreeBsdDisplay.getDisplays();
     }
 
@@ -91,12 +91,12 @@ public final class FreeBsdHardwareAbstractionLayer extends AbstractHardwareAbstr
     }
 
     @Override
-    public SoundCard[] getSoundCards() {
-        return FreeBsdSoundCard.getSoundCards().toArray(new SoundCard[0]);
+    public List<SoundCard> getSoundCards() {
+        return FreeBsdSoundCard.getSoundCards();
     }
 
     @Override
-    public GraphicsCard[] getGraphicsCards() {
-        return FreeBsdGraphicsCard.getGraphicsCards().toArray(new GraphicsCard[0]);
+    public List<GraphicsCard> getGraphicsCards() {
+        return FreeBsdGraphicsCard.getGraphicsCards();
     }
 }

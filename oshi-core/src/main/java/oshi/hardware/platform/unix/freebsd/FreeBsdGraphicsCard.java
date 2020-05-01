@@ -24,9 +24,11 @@
 package oshi.hardware.platform.unix.freebsd;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import oshi.annotation.concurrent.Immutable;
+import oshi.hardware.GraphicsCard;
 import oshi.hardware.common.AbstractGraphicsCard;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
@@ -67,12 +69,12 @@ final class FreeBsdGraphicsCard extends AbstractGraphicsCard {
      *         {@link oshi.hardware.platform.unix.freebsd.FreeBsdGraphicsCard}
      *         objects.
      */
-    public static List<FreeBsdGraphicsCard> getGraphicsCards() {
+    public static List<GraphicsCard> getGraphicsCards() {
         List<FreeBsdGraphicsCard> cardList = new ArrayList<>();
         // Enumerate all devices and add if required
         List<String> devices = ExecutingCommand.runNative("pciconf -lv");
         if (devices.isEmpty()) {
-            return cardList;
+            return Collections.emptyList();
         }
         String name = Constants.UNKNOWN;
         String vendorId = Constants.UNKNOWN;
@@ -128,6 +130,6 @@ final class FreeBsdGraphicsCard extends AbstractGraphicsCard {
                     vendorId.isEmpty() ? Constants.UNKNOWN : vendorId,
                     versionInfo.isEmpty() ? Constants.UNKNOWN : versionInfo, 0L));
         }
-        return cardList;
+        return Collections.unmodifiableList(cardList);
     }
 }

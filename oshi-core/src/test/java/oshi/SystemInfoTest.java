@@ -284,12 +284,12 @@ public class SystemInfoTest {
         oshi.add("Sensors: " + sensors.toString());
     }
 
-    private static void printPowerSources(PowerSource[] powerSources) {
+    private static void printPowerSources(List<PowerSource> list) {
         StringBuilder sb = new StringBuilder("Power Sources: ");
-        if (powerSources.length == 0) {
+        if (list.isEmpty()) {
             sb.append("Unknown");
         }
-        for (PowerSource powerSource : powerSources) {
+        for (PowerSource powerSource : list) {
             sb.append("\n ").append(powerSource.toString());
         }
         oshi.add(sb.toString());
@@ -354,10 +354,10 @@ public class SystemInfoTest {
         oshi.add(" UDPv6: " + ip.getUDPv6Stats());
     }
 
-    private static void printDisplays(Display[] displays) {
+    private static void printDisplays(List<Display> list) {
         oshi.add("Displays:");
         int i = 0;
-        for (Display display : displays) {
+        for (Display display : list) {
             oshi.add(" Display " + i + ":");
             oshi.add(String.valueOf(display));
             i++;
@@ -371,19 +371,19 @@ public class SystemInfoTest {
         }
     }
 
-    private static void printSoundCards(SoundCard[] cards) {
+    private static void printSoundCards(List<SoundCard> list) {
         oshi.add("Sound Cards:");
-        for (SoundCard card : cards) {
+        for (SoundCard card : list) {
             oshi.add(" " + String.valueOf(card));
         }
     }
 
-    private static void printGraphicsCards(GraphicsCard[] cards) {
+    private static void printGraphicsCards(List<GraphicsCard> list) {
         oshi.add("Graphics Cards:");
-        if (cards.length == 0) {
+        if (list.isEmpty()) {
             oshi.add(" None detected.");
         } else {
-            for (GraphicsCard card : cards) {
+            for (GraphicsCard card : list) {
                 oshi.add(" " + String.valueOf(card));
             }
         }

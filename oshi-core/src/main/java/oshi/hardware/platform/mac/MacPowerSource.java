@@ -25,6 +25,7 @@ package oshi.hardware.platform.mac;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.sun.jna.Pointer; // NOSONAR squid:S1191
@@ -70,7 +71,7 @@ public final class MacPowerSource extends AbstractPowerSource {
      *
      * @return An array of PowerSource objects representing batteries, etc.
      */
-    public static PowerSource[] getPowerSources() {
+    public static List<PowerSource> getPowerSources() {
         String psDeviceName = Constants.UNKNOWN;
         double psTimeRemainingInstant = 0d;
         double psPowerUsageRate = 0d;
@@ -239,6 +240,6 @@ public final class MacPowerSource extends AbstractPowerSource {
         powerSourcesList.release();
         powerSourcesInfo.release();
 
-        return psList.toArray(new MacPowerSource[0]);
+        return Collections.unmodifiableList(psList);
     }
 }
