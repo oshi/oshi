@@ -16,8 +16,9 @@ The `HWPartition` class is now immutable, with setters removed.
 ### UnmodifiableList return types
 
 The `HardwareAbstractionLayer` methods `getNetworkIFs()`, `getDisks()`, `getPowerSources()`,
-`getDisplays()`, `getSoundCards()`, `getGraphicsCards()`, and 
-the `HWDiskstore` method `getPartitions()` now return an `UnmodifiableList` instead of an array.
+`getDisplays()`, `getSoundCards()`, `getGraphicsCards()`, `getUsbDevices()`, the 
+the `HWDiskstore` method `getPartitions()`, and the `UsbDevice` method `getConnectedDevices()`
+now return an `UnmodifiableList` instead of an array.
 
 ### Deprecated method removal
 

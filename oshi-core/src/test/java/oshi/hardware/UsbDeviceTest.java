@@ -26,6 +26,8 @@ package oshi.hardware;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.List;
+
 import org.junit.Test;
 
 import oshi.SystemInfo;
@@ -40,8 +42,8 @@ public class UsbDeviceTest {
     @Test
     public void testUsbDevices() {
         SystemInfo si = new SystemInfo();
-        UsbDevice[] usbArray = si.getHardware().getUsbDevices(true);
-        for (UsbDevice usb : usbArray) {
+        List<UsbDevice> usbList = si.getHardware().getUsbDevices(true);
+        for (UsbDevice usb : usbList) {
             assertNotNull(usb);
             testUsbRecursive(usb);
         }

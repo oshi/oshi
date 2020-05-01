@@ -32,7 +32,6 @@ import java.util.Map;
 import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractUsbDevice;
-import oshi.hardware.platform.mac.MacUsbDevice;
 import oshi.jna.platform.linux.Udev;
 import oshi.jna.platform.linux.Udev.UdevDevice;
 import oshi.jna.platform.linux.Udev.UdevEnumerate;
@@ -65,7 +64,7 @@ public class LinuxUsbDevice extends AbstractUsbDevice {
      *            an array of {@link oshi.hardware.UsbDevice} objects.
      */
     public LinuxUsbDevice(String name, String vendor, String vendorId, String productId, String serialNumber,
-            String uniqueDeviceId, UsbDevice[] connectedDevices) {
+            String uniqueDeviceId, List<UsbDevice> connectedDevices) {
         super(name, vendor, vendorId, productId, serialNumber, uniqueDeviceId, connectedDevices);
     }
 
@@ -76,8 +75,8 @@ public class LinuxUsbDevice extends AbstractUsbDevice {
      *            a boolean.
      * @return an array of {@link oshi.hardware.UsbDevice} objects.
      */
-    public static UsbDevice[] getUsbDevices(boolean tree) {
-        UsbDevice[] devices = getUsbDevices();
+    public static List<UsbDevice> getUsbDevices(boolean tree) {
+        List<UsbDevice> devices = getUsbDevices();
         if (tree) {
             return devices;
         }
@@ -86,13 +85,14 @@ public class LinuxUsbDevice extends AbstractUsbDevice {
         // their connected devices will be
         for (UsbDevice device : devices) {
             deviceList.add(new LinuxUsbDevice(device.getName(), device.getVendor(), device.getVendorId(),
-                    device.getProductId(), device.getSerialNumber(), device.getUniqueDeviceId(), new MacUsbDevice[0]));
+                    device.getProductId(), device.getSerialNumber(), device.getUniqueDeviceId(),
+                    Collections.emptyList()));
             addDevicesToList(deviceList, device.getConnectedDevices());
         }
-        return deviceList.toArray(new UsbDevice[0]);
+        return deviceList;
     }
 
-    private static UsbDevice[] getUsbDevices() {
+    private static List<UsbDevice> getUsbDevices() {
         // Enumerate all usb devices and build information maps
         Udev.UdevHandle udev = Udev.INSTANCE.udev_new();
         // Create a list of the devices in the 'usb' subsystem.
@@ -167,11 +167,11 @@ public class LinuxUsbDevice extends AbstractUsbDevice {
             controllerDevices.add(getDeviceAndChildren(controller, "0000", "0000", nameMap, vendorMap, vendorIdMap,
                     productIdMap, serialMap, hubMap));
         }
-        return controllerDevices.toArray(new UsbDevice[0]);
+        return controllerDevices;
     }
 
-    private static void addDevicesToList(List<UsbDevice> deviceList, UsbDevice[] connectedDevices) {
-        for (UsbDevice device : connectedDevices) {
+    private static void addDevicesToList(List<UsbDevice> deviceList, List<UsbDevice> list) {
+        for (UsbDevice device : list) {
             deviceList.add(device);
             addDevicesToList(deviceList, device.getConnectedDevices());
         }
@@ -201,7 +201,7 @@ public class LinuxUsbDevice extends AbstractUsbDevice {
         String vendorId = vendorIdMap.getOrDefault(devPath, vid);
         String productId = productIdMap.getOrDefault(devPath, pid);
         List<String> childPaths = hubMap.getOrDefault(devPath, new ArrayList<String>());
-        List<LinuxUsbDevice> usbDevices = new ArrayList<>();
+        List<UsbDevice> usbDevices = new ArrayList<>();
         for (String path : childPaths) {
             usbDevices.add(getDeviceAndChildren(path, vendorId, productId, nameMap, vendorMap, vendorIdMap,
                     productIdMap, serialMap, hubMap));
@@ -209,6 +209,6 @@ public class LinuxUsbDevice extends AbstractUsbDevice {
         Collections.sort(usbDevices);
         return new LinuxUsbDevice(nameMap.getOrDefault(devPath, vendorId + ":" + productId),
                 vendorMap.getOrDefault(devPath, ""), vendorId, productId, serialMap.getOrDefault(devPath, ""), devPath,
-                usbDevices.toArray(new UsbDevice[usbDevices.size()]));
+                usbDevices);
     }
 }
