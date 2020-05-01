@@ -86,7 +86,7 @@ public final class MacHardwareAbstractionLayer extends AbstractHardwareAbstracti
     }
 
     @Override
-    public UsbDevice[] getUsbDevices(boolean tree) {
+    public List<UsbDevice> getUsbDevices(boolean tree) {
         return MacUsbDevice.getUsbDevices(tree);
     }
 

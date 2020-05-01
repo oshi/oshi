@@ -86,7 +86,7 @@ public final class SolarisHardwareAbstractionLayer extends AbstractHardwareAbstr
     }
 
     @Override
-    public UsbDevice[] getUsbDevices(boolean tree) {
+    public List<UsbDevice> getUsbDevices(boolean tree) {
         return SolarisUsbDevice.getUsbDevices(tree);
     }
 

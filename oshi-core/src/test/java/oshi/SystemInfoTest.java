@@ -364,9 +364,9 @@ public class SystemInfoTest {
         }
     }
 
-    private static void printUsbDevices(UsbDevice[] usbDevices) {
+    private static void printUsbDevices(List<UsbDevice> list) {
         oshi.add("USB Devices:");
-        for (UsbDevice usbDevice : usbDevices) {
+        for (UsbDevice usbDevice : list) {
             oshi.add(String.valueOf(usbDevice));
         }
     }

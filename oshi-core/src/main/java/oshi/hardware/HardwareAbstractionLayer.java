@@ -102,22 +102,25 @@ public interface HardwareAbstractionLayer {
     Sensors getSensors();
 
     /**
-     * Instantiates an array of {@link oshi.hardware.UsbDevice} objects,
-     * representing devices connected via a usb port (including internal devices).
+     * Instantiates an {@code UnmodifiableList} of {@link oshi.hardware.UsbDevice}
+     * objects, representing devices connected via a usb port (including internal
+     * devices).
      * <p>
-     * If the value of tree is true, the top level devices returned from this method
-     * are the USB Controllers; connected hubs and devices in its device tree share
-     * that controller's bandwidth. If the value of tree is false, USB devices (not
-     * controllers) are listed in a single flat array.
+     * If the value of {@code tree} is true, the top level devices returned from
+     * this method are the USB Controllers; connected hubs and devices in its device
+     * tree share that controller's bandwidth. If the value of {@code tree} is
+     * false, USB devices (not controllers) are listed in a single flat list.
      *
      * @param tree
-     *            Whether to display devices in a nested tree format from their
-     *            controllers
-     * @return An array of UsbDevice objects representing (optionally) the USB
-     *         Controllers and devices connected to them, or an empty array if none
-     *         are present
+     *            If {@code true}, returns devices connected to the existing device,
+     *            accessible via {@link UsbDevice#getConnectedDevices()}. If
+     *            {@code false} returns devices as a flat list with no connected
+     *            device information.
+     * @return An {@code UnmodifiableList} of UsbDevice objects representing
+     *         (optionally) the USB Controllers and devices connected to them, or an
+     *         empty array if none are present
      */
-    UsbDevice[] getUsbDevices(boolean tree);
+    List<UsbDevice> getUsbDevices(boolean tree);
 
     /**
      * Instantiates an {@code UnmodifiableList} of {@link oshi.hardware.SoundCard}

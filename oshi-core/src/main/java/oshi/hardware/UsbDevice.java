@@ -23,6 +23,8 @@
  */
 package oshi.hardware;
 
+import java.util.List;
+
 import oshi.annotation.concurrent.Immutable;
 
 /**
@@ -79,8 +81,8 @@ public interface UsbDevice extends Comparable<UsbDevice> {
     /**
      * Other devices connected to this hub
      *
-     * @return An array of other devices connected to this hub, if any, or an empty
-     *         array if none
+     * @return An {@code UnmodifiableList} of other devices connected to this hub,
+     *         if any, or an empty list if none
      */
-    UsbDevice[] getConnectedDevices();
+    List<UsbDevice> getConnectedDevices();
 }

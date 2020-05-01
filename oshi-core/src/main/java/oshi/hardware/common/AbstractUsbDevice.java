@@ -23,7 +23,8 @@
  */
 package oshi.hardware.common;
 
-import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.UsbDevice;
@@ -34,49 +35,29 @@ import oshi.hardware.UsbDevice;
 @Immutable
 public abstract class AbstractUsbDevice implements UsbDevice {
 
-    protected String name;
+    private final String name;
 
-    protected String vendor;
+    private final String vendor;
 
-    protected String vendorId;
+    private final String vendorId;
 
-    protected String productId;
+    private final String productId;
 
-    protected String serialNumber;
+    private final String serialNumber;
 
-    protected String uniqueDeviceId;
+    private final String uniqueDeviceId;
 
-    protected UsbDevice[] connectedDevices;
+    private final List<UsbDevice> connectedDevices;
 
-    /**
-     * <p>
-     * Constructor for AbstractUsbDevice.
-     * </p>
-     *
-     * @param name
-     *            a {@link java.lang.String} object.
-     * @param vendor
-     *            a {@link java.lang.String} object.
-     * @param vendorId
-     *            a {@link java.lang.String} object.
-     * @param productId
-     *            a {@link java.lang.String} object.
-     * @param serialNumber
-     *            a {@link java.lang.String} object.
-     * @param uniqueDeviceId
-     *            a {@link java.lang.String} object.
-     * @param connectedDevices
-     *            an array of {@link oshi.hardware.UsbDevice} objects.
-     */
     public AbstractUsbDevice(String name, String vendor, String vendorId, String productId, String serialNumber,
-            String uniqueDeviceId, UsbDevice[] connectedDevices) {
+            String uniqueDeviceId, List<UsbDevice> connectedDevices) {
         this.name = name;
         this.vendor = vendor;
         this.vendorId = vendorId;
         this.productId = productId;
         this.serialNumber = serialNumber;
         this.uniqueDeviceId = uniqueDeviceId;
-        this.connectedDevices = Arrays.copyOf(connectedDevices, connectedDevices.length);
+        this.connectedDevices = Collections.unmodifiableList(connectedDevices);
     }
 
     @Override
@@ -110,8 +91,8 @@ public abstract class AbstractUsbDevice implements UsbDevice {
     }
 
     @Override
-    public UsbDevice[] getConnectedDevices() {
-        return Arrays.copyOf(this.connectedDevices, this.connectedDevices.length);
+    public List<UsbDevice> getConnectedDevices() {
+        return this.connectedDevices;
     }
 
     @Override
