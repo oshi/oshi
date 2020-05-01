@@ -100,8 +100,11 @@ public class OperatingSystemTest {
         assertTrue(proc.getStartTime() >= 0);
         assertTrue(proc.getBytesRead() >= 0);
         assertTrue(proc.getBytesWritten() >= 0);
-        assertTrue(proc.getBitness() >= 0);
-        assertTrue(proc.getBitness() <= 64);
+        if (os.getBitness() == 32) {
+            assertEquals("Process on 32-bit OS must have bitness 0 or 32", 0, proc.getBitness() & ~32);
+        } else {
+            assertEquals("Process on 64-bit OS must have bitness 0, 32, or 64", 0, proc.getBitness() & ~(32 + 64));
+        }
         assertTrue(proc.getOpenFiles() >= -1);
     }
 
