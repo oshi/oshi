@@ -179,10 +179,10 @@ public class SystemInfoTest {
         oshi.add("Physical Memory: \n " + memory.toString());
         VirtualMemory vm = memory.getVirtualMemory();
         oshi.add("Virtual Memory: \n " + vm.toString());
-        PhysicalMemory[] pmArray = memory.getPhysicalMemory();
-        if (pmArray.length > 0) {
+        List<PhysicalMemory> pmList = memory.getPhysicalMemory();
+        if (!pmList.isEmpty()) {
             oshi.add("Physical Memory: ");
-            for (PhysicalMemory pm : pmArray) {
+            for (PhysicalMemory pm : pmList) {
                 oshi.add(" " + pm.toString());
             }
         }

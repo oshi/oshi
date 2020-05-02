@@ -2,36 +2,42 @@ What is the intended use of the API?
 ========
 Users should create a new instance of [SystemInfo](http://oshi.github.io/oshi/apidocs/oshi/SystemInfo.html) and use the getters from this class to access the platform-specific hardware and software interfaces using the respective `get*()` methods. The interfaces in `oshi.hardware` and `oshi.software.os` provide cross-platform functionality. See the `main()` method of [SystemInfoTest](https://github.com/oshi/oshi/blob/master/oshi-core/src/test/java/oshi/SystemInfoTest.java) for sample code.
 
-Methods return a "snapshot" of current levels. To display values which change over time, it is intended that users poll for information no more frequently than approximately every second. Disk and file system calls may incur some latency and should be polled less frequently. 
+Methods return a "snapshot" of current levels. To display values which change over time, it is intended that users poll for information no more frequently than approximately every second. Disk and file system calls may incur some latency and should be polled less frequently.
+CPU usage calculation accuracy depends on the relation of the polling interval to both system clock tick granularity and the number of logical processors.
 
 Is the API backwards compatible between versions?
 ========
 The interfaces and classes in `oshi.hardware` and `oshi.software.os` are considered the OSHI API and are guaranteed to be compatible with the same major version. Differences between major versions can be found in the [UPGRADING.md](UPGRADING.md) document.  
 
-Most, if not all, of the platform-specific implementations of these APIs in lower level packages will remain the same, although it is not intended that users access platform-specific code, and some changes may occur between minor versions, most often in the number of arguments passed to constructors or platform-specific methods. Supporting code in the `oshi.util` package may, rarely, change between minor versions, usually associated with organizing package structure or changing parsing methods for efficiency/consistency/ease of use.
+Most, if not all, of the platform-specific implementations of these APIs in lower level packages will remain the same, although it is not intended that users access platform-specific code, and some changes may occur between minor versions, most often in the number of arguments passed to constructors or platform-specific methods. Supporting code in the `oshi.driver` and `oshi.util` packages may,
+rarely, change between minor versions, usually associated with organizing package structure or changing parsing methods for
+efficiency/consistency/ease of use.
 
 Code in the platform-specific `oshi.jna.*` packages is intended to be temporary and will be removed when that respective code is included in the JNA project.
 
 Is OSHI Thread Safe?
 ========
-Short answer: Not technically because of setters in the API, but as of 4.6.0, it is for intended use.
-
-Longer answer: Prior to version 4.1.0, there is no guarantee of thread safety and it should not be assumed.
-In 4.1.0 the majority of classes were made thread safe but multiple exceptions remained. Beginning in version
-4.6.0, the code has been thoroughly audited and JSR-305 `@Immutable`, `@ThreadSafe`, and `@NotThreadSafe`
-annotations are used to document thread safety guarantees, or conditions requiring single thread usage.
-The following classes are not thread-safe:
- - `GlobalConfig` does not protect against multiple threads manipulating the configuration.  These methods
- are intended to be used by a single thread at startup in lieu of reading a configuration file, as OSHI gives no guarantees on re-reading changed configurations.
+OSHI 5.X is thread safe with the exceptions noted below. `@Immutable`, `@ThreadSafe`, and `@NotThreadSafe` document
+each class. The following classes are not thread-safe:
+ - `GlobalConfig` does not protect against multiple threads manipulating the configuration programmatically.
+ However, these methods are intended to be used by a single thread at startup in lieu of reading a configuration file.
+ OSHI gives no guarantees on re-reading changed configurations.
  - `PerfCounterQuery` and `PerfCounterWildcardQuery` objects should only be used within the context of a single
  thread. These are only used internally in OSHI in these single-thread contexts and not intended for user use.
- - Classes with setters on them are obviously not thread-safe unless the use of the setters is synchronized across threads.  In the cadse of the `HWDiskStore`, this synchronization must extend to the
-`HWPartition` objects associated with that disk store. Setters will be removed in a future OSHI version.
+
+Earlier versions do not guarantee thread safety, but as of version 4.6.0, intended use is thread safe.
+Classes with setters on them are obviously not thread-safe unless the use of the setters is synchronized across threads.
+In the case of the `HWDiskStore`, this synchronization must extend to the `HWPartition` objects
+associated with that disk store.
+
+Prior to version 4.1.0, there is no guarantee of thread safety and it should not be assumed.
 
 What minimum Java version is required?
 ========
 OSHI 3.x is compatible with Java 7, but will not see any added features.  
-OSHI 4.x and 5.x (planned) require minimum Java 8 compatibility.  
+
+OSHI 4.x and 5.x require minimum Java 8 compatibility.  
+
 OSHI 6.x's requirements have not yet been finalized but will likely require at least Java 11 and leverage modules. 
 
 Which operating systems are supported?
@@ -76,9 +82,10 @@ submit a PR, which turned into converting the OS X commandline calls to native m
 which turned into an invitation to take over the project and a very educational experience in learning 
 git, maven, the  software development lifecycle, unit testing, continuous integration, and more.
 
-A few contributors have a grand plan for [OSHI 6](https://github.com/oshi/oshi5) and will be completely
+A few contributors have a grand plan for [OSHI 6](https://github.com/oshi/oshi6) and will be completely
 redesigning the API with an eye toward more modular driver-based information access.  The current 4.x 
-and 5.x API will probably only see small incremental improvements, bug fixes, and attempts to increase poratibility to other operating systems and/or versions.  
+and 5.x API will probably only see small incremental improvements, bug fixes, and attempts to increase
+poratibility to other operating systems and/or versions.  
 
 Does OSHI work on Raspberry Pi hardware?
 ========

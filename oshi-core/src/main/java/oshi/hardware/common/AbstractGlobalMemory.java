@@ -41,7 +41,7 @@ import oshi.util.ParseUtil;
 public abstract class AbstractGlobalMemory implements GlobalMemory {
 
     @Override
-    public PhysicalMemory[] getPhysicalMemory() {
+    public List<PhysicalMemory> getPhysicalMemory() {
         // dmidecode requires sudo permission but is the only option on Linux
         // and Unix
         List<PhysicalMemory> pmList = new ArrayList<>();
@@ -96,7 +96,7 @@ public abstract class AbstractGlobalMemory implements GlobalMemory {
         if (capacity > 0) {
             pmList.add(new PhysicalMemory(bankLabel + locator, capacity, speed, manufacturer, memoryType));
         }
-        return pmList.toArray(new PhysicalMemory[0]);
+        return pmList;
     }
 
     @Override

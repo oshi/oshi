@@ -23,6 +23,8 @@
  */
 package oshi.hardware;
 
+import java.util.List;
+
 import oshi.annotation.concurrent.ThreadSafe;
 
 /**
@@ -65,7 +67,7 @@ public interface GlobalMemory {
      * On Linux, requires elevated permissions. On FreeBSD and Solaris, requires
      * installation of dmidecode.
      *
-     * @return A list of PhysicalMemory objects.
+     * @return An {@code UnmodifiableList} of PhysicalMemory objects.
      */
-    PhysicalMemory[] getPhysicalMemory();
+    List<PhysicalMemory> getPhysicalMemory();
 }

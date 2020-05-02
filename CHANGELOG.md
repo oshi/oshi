@@ -5,14 +5,15 @@
 * [#1177](https://github.com/oshi/oshi/pull/1177): Remove deprecated code. - [@dbwiddis](https://github.com/dbwiddis).
 * [#1178](https://github.com/oshi/oshi/pull/1178): Make NetworkIF an interface. - [@dbwiddis](https://github.com/dbwiddis).
 * [#1181](https://github.com/oshi/oshi/pull/1181): Make HWPartition immutable. - [@dbwiddis](https://github.com/dbwiddis).
-* [#1183](https://github.com/oshi/oshi/pull/1183): Add more VirtualMemory information. - [@dbwiddis](https://github.com/dbwiddis).
 * [#1185](https://github.com/oshi/oshi/pull/1185): Make HWDiskStore an interface. - [@dbwiddis](https://github.com/dbwiddis).
 * [#1186](https://github.com/oshi/oshi/pull/1186): List returns for Display, PowerSource, SoundCard, GraphicsCard. - [@dbwiddis](https://github.com/dbwiddis).
 * [#1187](https://github.com/oshi/oshi/pull/1187): List returns for UsbDevice. - [@dbwiddis](https://github.com/dbwiddis).
+* [#1189](https://github.com/oshi/oshi/pull/1189): List returns for CentralProcessor, GlobalMemory. - [@dbwiddis](https://github.com/dbwiddis).
 
-4.7.0 (4/25/2020)
+4.7.0 (4/25/2020), 4.7.1 (5/2/2020)
 ================
 * [#1174](https://github.com/oshi/oshi/pull/1174): Add TCP and UDP statistics. - [@dbwiddis](https://github.com/dbwiddis).
+* [#1183](https://github.com/oshi/oshi/pull/1183): Add more VirtualMemory information. - [@dbwiddis](https://github.com/dbwiddis).
 
 4.6.0 (4/2/2020), 4.6.1 (4/8/2020)
 ================

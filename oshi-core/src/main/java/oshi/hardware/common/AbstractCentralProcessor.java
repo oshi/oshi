@@ -26,7 +26,9 @@ package oshi.hardware.common;
 import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
 
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
 
@@ -61,14 +63,14 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
     private final int logicalProcessorCount;
 
     // Processor info, initialized in constructor
-    private final LogicalProcessor[] logicalProcessors;
+    private final List<LogicalProcessor> logicalProcessors;
 
     /**
      * Create a Processor
      */
     public AbstractCentralProcessor() {
         // Populate logical processor array
-        this.logicalProcessors = initProcessorCounts();
+        this.logicalProcessors = Collections.unmodifiableList(initProcessorCounts());
         // Init processor counts
         Set<String> physProcPkgs = new HashSet<>();
         Set<Integer> physPkgs = new HashSet<>();
@@ -77,7 +79,7 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
             physProcPkgs.add(logProc.getPhysicalProcessorNumber() + ":" + pkg);
             physPkgs.add(pkg);
         }
-        this.logicalProcessorCount = this.logicalProcessors.length;
+        this.logicalProcessorCount = this.logicalProcessors.size();
         this.physicalProcessorCount = physProcPkgs.size();
         this.physicalPackageCount = physPkgs.size();
     }
@@ -87,7 +89,7 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
      *
      * @return An array of initialized Logical Processors
      */
-    protected abstract LogicalProcessor[] initProcessorCounts();
+    protected abstract List<LogicalProcessor> initProcessorCounts();
 
     /**
      * Updates logical and physical processor counts and arrays
@@ -150,7 +152,7 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
     protected abstract long queryInterrupts();
 
     @Override
-    public LogicalProcessor[] getLogicalProcessors() {
+    public List<LogicalProcessor> getLogicalProcessors() {
         return this.logicalProcessors;
     }
 

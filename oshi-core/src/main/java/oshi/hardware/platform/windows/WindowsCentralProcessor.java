@@ -153,7 +153,7 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
     }
 
     @Override
-    protected LogicalProcessor[] initProcessorCounts() {
+    protected List<LogicalProcessor> initProcessorCounts() {
         if (VersionHelpers.IsWindows7OrGreater()) {
             return getLogicalProcessorInformationEx();
         } else {
@@ -161,7 +161,7 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
         }
     }
 
-    private LogicalProcessor[] getLogicalProcessorInformationEx() {
+    private List<LogicalProcessor> getLogicalProcessorInformationEx() {
         // Collect a list of logical processors on each physical core and
         // package. These will be 64-bit bitmasks.
         SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX[] procInfo = Kernel32Util
@@ -220,7 +220,7 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
             numaNodeProcToLogicalProcMap
                     .put(String.format("%d,%d", logProc.getNumaNode(), logProc.getProcessorNumber()), lp++);
         }
-        return logProcs.toArray(new LogicalProcessor[0]);
+        return logProcs;
     }
 
     private static int getMatchingPackage(List<GROUP_AFFINITY[]> packages, int g, int lp) {
@@ -253,7 +253,7 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
         return 0;
     }
 
-    private LogicalProcessor[] getLogicalProcessorInformation() {
+    private List<LogicalProcessor> getLogicalProcessorInformation() {
         // Collect a list of logical processors on each physical core and
         // package. These will be 64-bit bitmasks.
         List<Long> packageMaskList = new ArrayList<>();
@@ -287,7 +287,7 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
                 }
             }
         }
-        return logProcs.toArray(new LogicalProcessor[0]);
+        return logProcs;
     }
 
     /**
