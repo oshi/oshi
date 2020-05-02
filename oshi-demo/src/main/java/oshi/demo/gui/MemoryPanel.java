@@ -29,6 +29,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.text.DecimalFormat;
 import java.util.Collections;
+import java.util.List;
 
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
@@ -119,11 +120,9 @@ public class MemoryPanel extends OshiJPanel { // NOSONAR squid:S110
 
     private static String updateMemoryText(GlobalMemory memory) {
         StringBuilder sb = new StringBuilder();
-        PhysicalMemory[] pmArray = memory.getPhysicalMemory();
-        if (pmArray.length > 0) {
-            for (PhysicalMemory pm : pmArray) {
-                sb.append('\n').append(pm.toString());
-            }
+        List<PhysicalMemory> pmList = memory.getPhysicalMemory();
+        for (PhysicalMemory pm : pmList) {
+            sb.append('\n').append(pm.toString());
         }
         return sb.toString();
     }

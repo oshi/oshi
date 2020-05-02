@@ -122,7 +122,7 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
     }
 
     @Override
-    protected LogicalProcessor[] initProcessorCounts() {
+    protected List<LogicalProcessor> initProcessorCounts() {
         Map<Integer, Integer> numaNodeMap = mapNumaNodes();
         List<String> procCpu = FileUtil.readFile(CPUINFO);
         List<LogicalProcessor> logProcs = new ArrayList<>();
@@ -150,7 +150,7 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
         logProcs.add(new LogicalProcessor(currentProcessor, currentCore, currentPackage,
                 numaNodeMap.getOrDefault(currentProcessor, 0)));
 
-        return logProcs.toArray(new LogicalProcessor[0]);
+        return logProcs;
     }
 
     private static Map<Integer, Integer> mapNumaNodes() {

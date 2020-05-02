@@ -23,7 +23,9 @@
  */
 package oshi.hardware.platform.mac;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,15 +71,14 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
     }
 
     @Override
-    protected LogicalProcessor[] initProcessorCounts() {
+    protected List<LogicalProcessor> initProcessorCounts() {
         int logicalProcessorCount = SysctlUtil.sysctl("hw.logicalcpu", 1);
         int physicalProcessorCount = SysctlUtil.sysctl("hw.physicalcpu", 1);
         int physicalPackageCount = SysctlUtil.sysctl("hw.packages", 1);
-
-        LogicalProcessor[] logProcs = new LogicalProcessor[logicalProcessorCount];
-        for (int i = 0; i < logProcs.length; i++) {
-            logProcs[i] = new LogicalProcessor(i, i * physicalProcessorCount / logicalProcessorCount,
-                    i * physicalPackageCount / logicalProcessorCount);
+        List<LogicalProcessor> logProcs = new ArrayList<>(logicalProcessorCount);
+        for (int i = 0; i < logicalProcessorCount; i++) {
+            logProcs.add(new LogicalProcessor(i, i * physicalProcessorCount / logicalProcessorCount,
+                    i * physicalPackageCount / logicalProcessorCount));
         }
         return logProcs;
     }

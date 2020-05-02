@@ -25,6 +25,7 @@ package oshi.hardware;
 
 import static oshi.util.Memoizer.memoize;
 
+import java.util.List;
 import java.util.Properties;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
@@ -80,13 +81,14 @@ public interface CentralProcessor {
     long[] getCurrentFreq();
 
     /**
-     * Returns an array of the CPU's logical processors. The array will be sorted in
-     * order of increasing NUMA node number, and then processor number. This order
-     * is consistent with other methods providing per-processor results.
+     * Returns an {@code UnmodifiableList} of the CPU's logical processors. The list
+     * will be sorted in order of increasing NUMA node number, and then processor
+     * number. This order is consistent with other methods providing per-processor
+     * results.
      *
-     * @return The logical processor array.
+     * @return An {@code UnmodifiabeList} of logical processors.
      */
-    LogicalProcessor[] getLogicalProcessors();
+    List<LogicalProcessor> getLogicalProcessors();
 
     /**
      * Returns the "recent cpu usage" for the whole system by counting ticks from

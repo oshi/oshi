@@ -26,6 +26,8 @@ package oshi.hardware.platform.windows;
 import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Supplier;
 
 import org.slf4j.Logger;
@@ -87,11 +89,10 @@ final class WindowsGlobalMemory extends AbstractGlobalMemory {
     }
 
     @Override
-    public PhysicalMemory[] getPhysicalMemory() {
-        PhysicalMemory[] physicalMemoryArray;
+    public List<PhysicalMemory> getPhysicalMemory() {
+        List<PhysicalMemory> physicalMemoryList = new ArrayList<>();
         if (IS_WINDOWS10_OR_GREATER) {
             WmiResult<PhysicalMemoryProperty> bankMap = Win32PhysicalMemory.queryphysicalMemory();
-            physicalMemoryArray = new PhysicalMemory[bankMap.getResultCount()];
             for (int index = 0; index < bankMap.getResultCount(); index++) {
                 String bankLabel = WmiUtil.getString(bankMap, PhysicalMemoryProperty.BANKLABEL, index);
                 long capacity = WmiUtil.getUint64(bankMap, PhysicalMemoryProperty.CAPACITY, index);
@@ -99,11 +100,10 @@ final class WindowsGlobalMemory extends AbstractGlobalMemory {
                 String manufacturer = WmiUtil.getString(bankMap, PhysicalMemoryProperty.MANUFACTURER, index);
                 String memoryType = smBiosMemoryType(
                         WmiUtil.getUint32(bankMap, PhysicalMemoryProperty.SMBIOSMEMORYTYPE, index));
-                physicalMemoryArray[index] = new PhysicalMemory(bankLabel, capacity, speed, manufacturer, memoryType);
+                physicalMemoryList.add(new PhysicalMemory(bankLabel, capacity, speed, manufacturer, memoryType));
             }
         } else {
             WmiResult<PhysicalMemoryPropertyWin8> bankMap = Win32PhysicalMemory.queryphysicalMemoryWin8();
-            physicalMemoryArray = new PhysicalMemory[bankMap.getResultCount()];
             for (int index = 0; index < bankMap.getResultCount(); index++) {
                 String bankLabel = WmiUtil.getString(bankMap, PhysicalMemoryPropertyWin8.BANKLABEL, index);
                 long capacity = WmiUtil.getUint64(bankMap, PhysicalMemoryPropertyWin8.CAPACITY, index);
@@ -111,10 +111,10 @@ final class WindowsGlobalMemory extends AbstractGlobalMemory {
                 String manufacturer = WmiUtil.getString(bankMap, PhysicalMemoryPropertyWin8.MANUFACTURER, index);
                 String memoryType = memoryType(
                         WmiUtil.getUint16(bankMap, PhysicalMemoryPropertyWin8.MEMORYTYPE, index));
-                physicalMemoryArray[index] = new PhysicalMemory(bankLabel, capacity, speed, manufacturer, memoryType);
+                physicalMemoryList.add(new PhysicalMemory(bankLabel, capacity, speed, manufacturer, memoryType));
             }
         }
-        return physicalMemoryArray;
+        return physicalMemoryList;
     }
 
     /**

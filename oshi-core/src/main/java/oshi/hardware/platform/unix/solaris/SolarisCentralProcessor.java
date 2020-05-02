@@ -74,7 +74,7 @@ final class SolarisCentralProcessor extends AbstractCentralProcessor {
     }
 
     @Override
-    protected LogicalProcessor[] initProcessorCounts() {
+    protected List<LogicalProcessor> initProcessorCounts() {
         Map<Integer, Integer> numaNodeMap = mapNumaNodes();
         List<LogicalProcessor> logProcs = new ArrayList<>();
         try (KstatChain kc = KstatUtil.openChain()) {
@@ -94,7 +94,7 @@ final class SolarisCentralProcessor extends AbstractCentralProcessor {
         if (logProcs.isEmpty()) {
             logProcs.add(new LogicalProcessor(0, 0, 0));
         }
-        return logProcs.toArray(new LogicalProcessor[0]);
+        return logProcs;
     }
 
     private static Map<Integer, Integer> mapNumaNodes() {

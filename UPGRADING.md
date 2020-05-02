@@ -1,9 +1,12 @@
 # Guide to upgrading from OSHI 4.x to 5.x
 
-OSHI 5.0.0 is functionally equivalent to 4.7.0 with three categories of changes supporting full thread safety:
+OSHI 5.0.0 is functionally equivalent to 4.7.1 with three categories of changes supporting full thread safety:
 * Remove setters from API.
 * Change getters which return arrays of objects to return unmodifiable lists.
 * Remove deprecated code.
+
+New applications or applications requiring thread safety should use the 5.x branch.
+Feature parity will be maintained on the 4.x branch for the near future for existing applications. 
 
 ## API Changes (in progress)
 
@@ -17,7 +20,8 @@ The `HWPartition` class is now immutable, with setters removed.
 
 The `HardwareAbstractionLayer` methods `getNetworkIFs()`, `getDisks()`, `getPowerSources()`,
 `getDisplays()`, `getSoundCards()`, `getGraphicsCards()`, `getUsbDevices()`, the 
-the `HWDiskstore` method `getPartitions()`, and the `UsbDevice` method `getConnectedDevices()`
+the `HWDiskstore` method `getPartitions()`, the `GlobalMemory` method `getPhysicalMemory()`,
+the `CentralProcessor` method `getLogicalProcessors()`, and the `UsbDevice` method `getConnectedDevices()`
 now return an `UnmodifiableList` instead of an array.
 
 ### Deprecated method removal

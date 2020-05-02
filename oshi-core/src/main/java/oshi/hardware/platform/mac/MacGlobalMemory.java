@@ -85,7 +85,7 @@ final class MacGlobalMemory extends AbstractGlobalMemory {
     }
 
     @Override
-    public PhysicalMemory[] getPhysicalMemory() {
+    public List<PhysicalMemory> getPhysicalMemory() {
         List<PhysicalMemory> pmList = new ArrayList<>();
         List<String> sp = ExecutingCommand.runNative("system_profiler SPMemoryDataType");
         int bank = 0;
@@ -129,7 +129,7 @@ final class MacGlobalMemory extends AbstractGlobalMemory {
         }
         pmList.add(new PhysicalMemory(bankLabel, capacity, speed, manufacturer, memoryType));
 
-        return pmList.toArray(new PhysicalMemory[0]);
+        return pmList;
     }
 
     private long queryVmStats() {
