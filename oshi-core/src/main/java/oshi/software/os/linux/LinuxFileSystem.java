@@ -64,7 +64,7 @@ public class LinuxFileSystem extends AbstractFileSystem {
     private static final List<String> TMP_FS_PATHS = Arrays.asList("/run", "/sys", "/proc", ProcPath.PROC);
 
     @Override
-    public OSFileStore[] getFileStores(boolean localOnly) {
+    public List<OSFileStore> getFileStores(boolean localOnly) {
         // Map uuids with device path as key
         Map<String, String> uuidMap = new HashMap<>();
         File uuidDir = new File("/dev/disk/by-uuid");
@@ -80,12 +80,11 @@ public class LinuxFileSystem extends AbstractFileSystem {
         }
 
         // List file systems
-        List<OSFileStore> fsList = getFileStoreMatching(null, uuidMap, localOnly);
-
-        return fsList.toArray(new OSFileStore[0]);
+        return getFileStoreMatching(null, uuidMap, localOnly);
     }
 
-    private static List<OSFileStore> getFileStoreMatching(String nameToMatch, Map<String, String> uuidMap) {
+    // called from LinuxOSFileStore
+    static List<OSFileStore> getFileStoreMatching(String nameToMatch, Map<String, String> uuidMap) {
         return getFileStoreMatching(nameToMatch, uuidMap, false);
     }
 
@@ -188,23 +187,8 @@ public class LinuxFileSystem extends AbstractFileSystem {
                 LOG.error("Failed to get file counts from statvfs. {}", e.getMessage());
             }
 
-            OSFileStore osStore = new OSFileStore();
-            osStore.setName(name);
-            osStore.setVolume(volume);
-            osStore.setLabel(name);
-            osStore.setMount(path);
-            osStore.setDescription(description);
-            osStore.setType(type);
-            osStore.setOptions(options);
-            osStore.setUUID(uuid);
-            osStore.setFreeSpace(freeSpace);
-            osStore.setUsableSpace(usableSpace);
-            osStore.setTotalSpace(totalSpace);
-            osStore.setFreeInodes(freeInodes);
-            osStore.setTotalInodes(totalInodes);
-            osStore.setLogicalVolume(logicalVolume);
-
-            fsList.add(osStore);
+            fsList.add(new LinuxOSFileStore(name, volume, name, mount, options, uuid, logicalVolume, description, type,
+                    freeSpace, usableSpace, totalSpace, freeInodes, totalInodes));
         }
         return fsList;
     }
@@ -241,32 +225,5 @@ public class LinuxFileSystem extends AbstractFileSystem {
             return ParseUtil.parseLongOrDefault(splittedLine[index], 0L);
         }
         return 0L;
-    }
-
-    /**
-     * <p>
-     * updateFileStoreStats.
-     * </p>
-     *
-     * @param osFileStore
-     *            a {@link oshi.software.os.OSFileStore} object.
-     * @return a boolean.
-     */
-    public static boolean updateFileStoreStats(OSFileStore osFileStore) {
-        for (OSFileStore fileStore : getFileStoreMatching(osFileStore.getName(), null)) {
-            if (osFileStore.getVolume().equals(fileStore.getVolume())
-                    && osFileStore.getMount().equals(fileStore.getMount())) {
-                osFileStore.setLogicalVolume(fileStore.getLogicalVolume());
-                osFileStore.setDescription(fileStore.getDescription());
-                osFileStore.setType(fileStore.getType());
-                osFileStore.setFreeSpace(fileStore.getFreeSpace());
-                osFileStore.setUsableSpace(fileStore.getUsableSpace());
-                osFileStore.setTotalSpace(fileStore.getTotalSpace());
-                osFileStore.setFreeInodes(fileStore.getFreeInodes());
-                osFileStore.setTotalInodes(fileStore.getTotalInodes());
-                return true;
-            }
-        }
-        return false;
     }
 }

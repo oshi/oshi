@@ -96,7 +96,7 @@ public abstract class AbstractFileSystem implements FileSystem {
     );
 
     @Override
-    public OSFileStore[] getFileStores() {
+    public List<OSFileStore> getFileStores() {
         return getFileStores(false);
     }
 }
