@@ -23,6 +23,8 @@
  */
 package oshi.software.os;
 
+import java.util.List;
+
 import oshi.annotation.concurrent.ThreadSafe;
 
 /**
@@ -36,29 +38,31 @@ public interface FileSystem {
     /**
      * Get file stores on this machine
      *
-     * Instantiates an array of {@link oshi.software.os.OSFileStore} objects,
-     * representing a storage pool, device, partition, volume, concrete file system
-     * or other implementation specific means of file storage.
+     * Instantiates an {@code UnmodifiableList} of
+     * {@link oshi.software.os.OSFileStore} objects, representing a storage pool,
+     * device, partition, volume, concrete file system or other implementation
+     * specific means of file storage.
      *
-     * @return An array of OSFileStore objects or an empty array if none are
-     *         present.
+     * @return An {@code UnmodifiableList} of {@link oshi.software.os.OSFileStore}
+     *         objects or an empty array if none are present.
      */
-    OSFileStore[] getFileStores();
+    List<OSFileStore> getFileStores();
 
     /**
      * Get file stores on this machine
      *
-     * Instantiates an array of {@link oshi.software.os.OSFileStore} objects,
-     * representing a storage pool, device, partition, volume, concrete file system
-     * or other implementation specific means of file storage.
+     * Instantiates an {@code UnmodifiableList} of
+     * {@link oshi.software.os.OSFileStore} objects, representing a storage pool,
+     * device, partition, volume, concrete file system or other implementation
+     * specific means of file storage.
      *
      * @param localOnly
      *            If true, filters the list to only local file stores.
      *
-     * @return An array of OSFileStore objects or an empty array if none are
-     *         present.
+     * @return An {@code UnmodifiableList} of {@link oshi.software.os.OSFileStore}
+     *         objects or an empty array if none are present.
      */
-    OSFileStore[] getFileStores(boolean localOnly);
+    List<OSFileStore> getFileStores(boolean localOnly);
 
     /**
      * The current number of open file descriptors. A file descriptor is an abstract

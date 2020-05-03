@@ -65,8 +65,8 @@ public class FileStorePanel extends OshiJPanel { // NOSONAR squid:S110
     }
 
     private void init(FileSystem fs) {
-        OSFileStore[] fileStores = fs.getFileStores();
-        DefaultPieDataset[] fsData = new DefaultPieDataset[fileStores.length];
+        List<OSFileStore> fileStores = fs.getFileStores();
+        DefaultPieDataset[] fsData = new DefaultPieDataset[fileStores.size()];
         JFreeChart[] fsCharts = new JFreeChart[fsData.length];
 
         JPanel fsPanel = new JPanel();
@@ -76,9 +76,9 @@ public class FileStorePanel extends OshiJPanel { // NOSONAR squid:S110
         fsConstraints.weighty = 1d;
         fsConstraints.fill = GridBagConstraints.BOTH;
 
-        int modBase = (int) (fileStores.length * (Config.GUI_HEIGHT + Config.GUI_WIDTH)
-                / (Config.GUI_WIDTH * Math.sqrt(fileStores.length)));
-        for (int i = 0; i < fileStores.length; i++) {
+        int modBase = (int) (fileStores.size() * (Config.GUI_HEIGHT + Config.GUI_WIDTH)
+                / (Config.GUI_WIDTH * Math.sqrt(fileStores.size())));
+        for (int i = 0; i < fileStores.size(); i++) {
             fsData[i] = new DefaultPieDataset();
             fsCharts[i] = ChartFactory.createPieChart(null, fsData[i], true, true, false);
             configurePlot(fsCharts[i]);
@@ -103,23 +103,25 @@ public class FileStorePanel extends OshiJPanel { // NOSONAR squid:S110
     }
 
     private static boolean updateDatasets(FileSystem fs, DefaultPieDataset[] fsData, JFreeChart[] fsCharts) {
-        OSFileStore[] fileStores = fs.getFileStores();
-        if (fileStores.length != fsData.length) {
+        List<OSFileStore> fileStores = fs.getFileStores();
+        if (fileStores.size() != fsData.length) {
             return false;
         }
-        for (int i = 0; i < fsData.length; i++) {
-            fsCharts[i].setTitle(fileStores[i].getName());
+        int i = 0;
+        for (OSFileStore store : fileStores) {
+            fsCharts[i].setTitle(store.getName());
             List<TextTitle> subtitles = new ArrayList<>();
             if (SystemInfo.getCurrentPlatformEnum().equals(PlatformEnum.WINDOWS)) {
-                subtitles.add(new TextTitle(fileStores[i].getLabel()));
+                subtitles.add(new TextTitle(store.getLabel()));
             }
-            long usable = fileStores[i].getUsableSpace();
-            long total = fileStores[i].getTotalSpace();
+            long usable = store.getUsableSpace();
+            long total = store.getTotalSpace();
             subtitles.add(new TextTitle(
                     "Available: " + FormatUtil.formatBytes(usable) + "/" + FormatUtil.formatBytes(total)));
             fsCharts[i].setSubtitles(subtitles);
             fsData[i].setValue(USED, (double) total - usable);
             fsData[i].setValue(AVAILABLE, usable);
+            i++;
         }
         return true;
     }

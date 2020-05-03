@@ -23,7 +23,6 @@
  */
 package oshi.software.os;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -52,8 +51,7 @@ public class FileSystemTest {
         FileSystem filesystem = si.getOperatingSystem().getFileSystem();
         assertTrue(filesystem.getOpenFileDescriptors() >= 0L);
         assertTrue(filesystem.getMaxFileDescriptors() >= 0L);
-        OSFileStore[] fs = filesystem.getFileStores();
-        for (OSFileStore store : fs) {
+        for (OSFileStore store : filesystem.getFileStores()) {
             assertNotNull(store.getName());
             assertNotNull(store.getVolume());
             assertNotNull(store.getLabel());
@@ -73,33 +71,6 @@ public class FileSystemTest {
             if (!store.getDescription().equals("Network drive")) {
                 assertTrue(store.getUsableSpace() <= store.getTotalSpace());
             }
-
-            store.setName("name");
-            store.setVolume("volume");
-            store.setLabel("label");
-            store.setLogicalVolume("logical volume");
-            store.setDescription("desc");
-            store.setType("type");
-            store.setMount("mount");
-            store.setUUID("uuid");
-            store.setTotalSpace(12345L);
-            store.setFreeSpace(2345L);
-            store.setUsableSpace(1234L);
-
-            assertEquals("name", store.getName());
-            assertEquals("volume", store.getVolume());
-            assertEquals("label", store.getLabel());
-            assertEquals("logical volume", store.getLogicalVolume());
-            assertEquals("desc", store.getDescription());
-            assertEquals("type", store.getType());
-            assertEquals("mount", store.getMount());
-            assertEquals("uuid", store.getUUID());
-            assertEquals(12345L, store.getTotalSpace());
-            assertEquals(2345L, store.getFreeSpace());
-            assertEquals(1234L, store.getUsableSpace());
         }
-
-        OSFileStore[] localFs = filesystem.getFileStores(true);
-        assertTrue(localFs.length <= fs.length);
     }
 }

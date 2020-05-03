@@ -53,13 +53,12 @@ public class SolarisFileSystem extends AbstractFileSystem {
     private static final List<String> TMP_FS_PATHS = Arrays.asList("/system", "/tmp", "/dev/fd");
 
     @Override
-    public OSFileStore[] getFileStores(boolean localOnly) {
-        List<OSFileStore> fsList = getFileStoreMatching(null, localOnly);
-
-        return fsList.toArray(new OSFileStore[0]);
+    public List<OSFileStore> getFileStores(boolean localOnly) {
+        return getFileStoreMatching(null, localOnly);
     }
 
-    private static List<OSFileStore> getFileStoreMatching(String nameToMatch) {
+    // Called by SolarisOSFileStore
+    static List<OSFileStore> getFileStoreMatching(String nameToMatch) {
         return getFileStoreMatching(nameToMatch, false);
     }
 
@@ -143,22 +142,9 @@ public class SolarisFileSystem extends AbstractFileSystem {
                 description = "Mount Point";
             }
 
-            // Add to the list
-            OSFileStore osStore = new OSFileStore();
-            osStore.setName(name);
-            osStore.setVolume(volume);
-            osStore.setLabel(name);
-            osStore.setMount(path);
-            osStore.setDescription(description);
-            osStore.setType(type);
-            osStore.setOptions(options);
-            osStore.setUUID(""); // No UUID info on Solaris
-            osStore.setFreeSpace(freeSpace);
-            osStore.setUsableSpace(usableSpace);
-            osStore.setTotalSpace(totalSpace);
-            osStore.setFreeInodes(inodeFreeMap.containsKey(path) ? inodeFreeMap.get(path) : 0L);
-            osStore.setTotalInodes(inodeTotalMap.containsKey(path) ? inodeTotalMap.get(path) : 0L);
-            fsList.add(osStore);
+            fsList.add(new SolarisOSFileStore(name, volume, name, path, options, "", "", description, type, freeSpace,
+                    usableSpace, totalSpace, inodeFreeMap.containsKey(path) ? inodeFreeMap.get(path) : 0L,
+                    inodeTotalMap.containsKey(path) ? inodeTotalMap.get(path) : 0L));
         }
         return fsList;
     }
@@ -185,32 +171,5 @@ public class SolarisFileSystem extends AbstractFileSystem {
             }
         }
         return 0L;
-    }
-
-    /**
-     * <p>
-     * updateFileStoreStats.
-     * </p>
-     *
-     * @param osFileStore
-     *            a {@link oshi.software.os.OSFileStore} object.
-     * @return a boolean.
-     */
-    public static boolean updateFileStoreStats(OSFileStore osFileStore) {
-        for (OSFileStore fileStore : getFileStoreMatching(osFileStore.getName())) {
-            if (osFileStore.getVolume().equals(fileStore.getVolume())
-                    && osFileStore.getMount().equals(fileStore.getMount())) {
-                osFileStore.setLogicalVolume(fileStore.getLogicalVolume());
-                osFileStore.setDescription(fileStore.getDescription());
-                osFileStore.setType(fileStore.getType());
-                osFileStore.setFreeSpace(fileStore.getFreeSpace());
-                osFileStore.setUsableSpace(fileStore.getUsableSpace());
-                osFileStore.setTotalSpace(fileStore.getTotalSpace());
-                osFileStore.setFreeInodes(fileStore.getFreeInodes());
-                osFileStore.setTotalInodes(fileStore.getTotalInodes());
-                return true;
-            }
-        }
-        return false;
     }
 }

@@ -314,8 +314,7 @@ public class SystemInfoTest {
         oshi.add(String.format(" File Descriptors: %d/%d", fileSystem.getOpenFileDescriptors(),
                 fileSystem.getMaxFileDescriptors()));
 
-        OSFileStore[] fsArray = fileSystem.getFileStores();
-        for (OSFileStore fs : fsArray) {
+        for (OSFileStore fs : fileSystem.getFileStores()) {
             long usable = fs.getUsableSpace();
             long total = fs.getTotalSpace();
             oshi.add(String.format(

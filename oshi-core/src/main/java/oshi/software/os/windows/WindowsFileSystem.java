@@ -119,7 +119,7 @@ public class WindowsFileSystem extends AbstractFileSystem {
     }
 
     @Override
-    public OSFileStore[] getFileStores(boolean localOnly) {
+    public List<OSFileStore> getFileStores(boolean localOnly) {
         // Create list to hold results
         ArrayList<OSFileStore> result;
 
@@ -139,27 +139,28 @@ public class WindowsFileSystem extends AbstractFileSystem {
                 // If the volume is already in our list, update the name field
                 // using WMI's more verbose name and update label if needed
                 OSFileStore volume = volumeMap.get(wmiVolume.getMount());
-                volume.setName(wmiVolume.getName());
-                if (volume.getLabel().isEmpty()) {
-                    volume.setLabel(wmiVolume.getLabel());
-                }
+                result.remove(volume);
+                result.add(new WindowsOSFileStore(volume.getName(), volume.getVolume(),
+                        volume.getLabel().isEmpty() ? wmiVolume.getLabel() : volume.getLabel(), volume.getMount(),
+                        volume.getOptions(), volume.getUUID(), "", volume.getDescription(), volume.getType(),
+                        volume.getFreeSpace(), volume.getUsableSpace(), volume.getTotalSpace(), 0, 0));
             } else if (!localOnly) {
                 // Otherwise add the new volume in its entirety
                 result.add(wmiVolume);
             }
         }
-        return result.toArray(new OSFileStore[0]);
+        return result;
     }
 
     /**
-     * Private method for getting all mounted local drives.
+     * Package private method for getting all mounted local drives.
      *
      * @param volumeToMatch
      *            an optional string to filter match, null otherwise
      * @return A list of {@link OSFileStore} objects representing all local mounted
      *         volumes
      */
-    private static ArrayList<OSFileStore> getLocalVolumes(String volumeToMatch) {
+    static ArrayList<OSFileStore> getLocalVolumes(String volumeToMatch) {
         ArrayList<OSFileStore> fs;
         String volume;
         String strFsType;
@@ -214,20 +215,9 @@ public class WindowsFileSystem extends AbstractFileSystem {
                 // Parse uuid from volume name
                 String uuid = ParseUtil.parseUuidOrDefault(volume, "");
 
-                // Volume is mounted
-                OSFileStore osStore = new OSFileStore();
-                osStore.setName(String.format("%s (%s)", strName, strMount));
-                osStore.setVolume(volume);
-                osStore.setLabel(strName);
-                osStore.setMount(strMount);
-                osStore.setDescription(getDriveType(strMount));
-                osStore.setType(strFsType);
-                osStore.setOptions(options.toString());
-                osStore.setUUID(uuid);
-                osStore.setFreeSpace(systemFreeBytes.getValue());
-                osStore.setUsableSpace(userFreeBytes.getValue());
-                osStore.setTotalSpace(totalBytes.getValue());
-                fs.add(osStore);
+                fs.add(new WindowsOSFileStore(String.format("%s (%s)", strName, strMount), volume, strName, strMount,
+                        options.toString(), uuid, "", getDriveType(strMount), strFsType, systemFreeBytes.getValue(),
+                        userFreeBytes.getValue(), totalBytes.getValue(), 0, 0));
             }
             retVal = Kernel32.INSTANCE.FindNextVolume(hVol, aVolume, BUFSIZE);
             if (!retVal) {
@@ -240,7 +230,7 @@ public class WindowsFileSystem extends AbstractFileSystem {
     }
 
     /**
-     * Private method for getting logical drives listed in WMI.
+     * Package private method for getting logical drives listed in WMI.
      *
      * @param nameToMatch
      *            an optional string to filter match, null otherwise
@@ -249,7 +239,7 @@ public class WindowsFileSystem extends AbstractFileSystem {
      * @return A list of {@link OSFileStore} objects representing all network
      *         mounted volumes
      */
-    private static List<OSFileStore> getWmiVolumes(String nameToMatch, boolean localOnly) {
+    static List<OSFileStore> getWmiVolumes(String nameToMatch, boolean localOnly) {
         long free;
         long total;
         List<OSFileStore> fs = new ArrayList<>();
@@ -260,6 +250,7 @@ public class WindowsFileSystem extends AbstractFileSystem {
             String description = WmiUtil.getString(drives, LogicalDiskProperty.DESCRIPTION, i);
             String name = WmiUtil.getString(drives, LogicalDiskProperty.NAME, i);
             String label = WmiUtil.getString(drives, LogicalDiskProperty.VOLUMENAME, i);
+            String options = WmiUtil.getUint16(drives, LogicalDiskProperty.ACCESS, i) == 1 ? "ro" : "rw";
             int type = WmiUtil.getUint32(drives, LogicalDiskProperty.DRIVETYPE, i);
             String volume;
             if (type != 4) {
@@ -273,18 +264,9 @@ public class WindowsFileSystem extends AbstractFileSystem {
                     description = split[split.length - 1];
                 }
             }
-            OSFileStore osStore = new OSFileStore();
-            osStore.setName(String.format("%s (%s)", description, name));
-            osStore.setVolume(volume);
-            osStore.setLabel(label);
-            osStore.setMount(name + "\\");
-            osStore.setDescription(getDriveType(name));
-            osStore.setType(WmiUtil.getString(drives, LogicalDiskProperty.FILESYSTEM, i));
-            osStore.setUUID("");
-            osStore.setFreeSpace(free); // no separate field, assume same
-            osStore.setUsableSpace(free);
-            osStore.setTotalSpace(total);
-            fs.add(osStore);
+            fs.add(new WindowsOSFileStore(String.format("%s (%s)", description, name), volume, label, name + "\\",
+                    options, "", "", getDriveType(name), WmiUtil.getString(drives, LogicalDiskProperty.FILESYSTEM, i),
+                    free, free, total, 0, 0));
         }
         return fs;
     }
@@ -329,39 +311,5 @@ public class WindowsFileSystem extends AbstractFileSystem {
     @Override
     public long getMaxFileDescriptors() {
         return MAX_WINDOWS_HANDLES;
-    }
-
-    /**
-     * <p>
-     * updateFileStoreStats.
-     * </p>
-     *
-     * @param osFileStore
-     *            a {@link oshi.software.os.OSFileStore} object.
-     * @return a boolean.
-     */
-    public static boolean updateFileStoreStats(OSFileStore osFileStore) {
-        // Check if we have the volume locally
-        List<OSFileStore> volumes = getLocalVolumes(osFileStore.getVolume());
-        if (volumes.isEmpty()) {
-            // Not locally, search WMI
-            String nameToMatch = osFileStore.getMount().length() < 2 ? null : osFileStore.getMount().substring(0, 2);
-            volumes = getWmiVolumes(nameToMatch, false);
-        }
-        for (OSFileStore fileStore : volumes) {
-            if (osFileStore.getVolume().equals(fileStore.getVolume())
-                    && osFileStore.getMount().equals(fileStore.getMount())) {
-                osFileStore.setLogicalVolume(fileStore.getLogicalVolume());
-                osFileStore.setDescription(fileStore.getDescription());
-                osFileStore.setType(fileStore.getType());
-                osFileStore.setFreeSpace(fileStore.getFreeSpace());
-                osFileStore.setUsableSpace(fileStore.getUsableSpace());
-                osFileStore.setTotalSpace(fileStore.getTotalSpace());
-                osFileStore.setFreeInodes(fileStore.getFreeInodes());
-                osFileStore.setTotalInodes(fileStore.getTotalInodes());
-                return true;
-            }
-        }
-        return false;
     }
 }

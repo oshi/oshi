@@ -23,113 +23,24 @@
  */
 package oshi.software.os;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import oshi.annotation.concurrent.ThreadSafe;
 
-import oshi.SystemInfo;
-import oshi.annotation.concurrent.NotThreadSafe;
-import oshi.software.os.linux.LinuxFileSystem;
-import oshi.software.os.mac.MacFileSystem;
-import oshi.software.os.unix.freebsd.FreeBsdFileSystem;
-import oshi.software.os.unix.solaris.SolarisFileSystem;
-import oshi.software.os.windows.WindowsFileSystem;
-
-/**
- * A File Store is a storage pool, device, partition, volume, concrete file
- * system or other implementation specific means of file storage. See subclasses
- * for definitions as they apply to specific platforms.
- * <p>
- * Thread safe if both threads only use getters, or if setter usage is
- * externally synchronized.
- */
-@NotThreadSafe
-public class OSFileStore {
-
-    private static final Logger LOG = LoggerFactory.getLogger(OSFileStore.class);
-
-    private String name;
-    private String volume;
-    private String label;
-    private String logicalVolume = "";
-    private String mount;
-    private String description;
-    private String fsType;
-    private String options;
-    private String uuid;
-    private long freeSpace;
-    private long usableSpace;
-    private long totalSpace;
-    private long freeInodes;
-    private long totalInodes;
-
-    /**
-     * <p>
-     * Constructor for OSFileStore.
-     * </p>
-     */
-    public OSFileStore() {
-    }
-
-    /**
-     * Creates a copy of an OSFileStore.
-     *
-     * @param fileStore
-     *            OSFileStore which is copied
-     */
-    public OSFileStore(OSFileStore fileStore) {
-        setName(fileStore.getName());
-        setVolume(fileStore.getVolume());
-        setLabel(fileStore.getLabel());
-        setLogicalVolume(fileStore.getLogicalVolume());
-        setMount(fileStore.getMount());
-        setDescription(fileStore.getDescription());
-        setType(fileStore.getType());
-        setType(fileStore.getOptions());
-        setUUID(fileStore.getUUID());
-        setFreeSpace(fileStore.getFreeSpace());
-        setUsableSpace(fileStore.getUsableSpace());
-        setTotalSpace(fileStore.getTotalSpace());
-        setFreeInodes(fileStore.getFreeInodes());
-        setTotalInodes(fileStore.getTotalInodes());
-    }
+@ThreadSafe
+public interface OSFileStore {
 
     /**
      * Name of the File System
      *
      * @return The file system name
      */
-    public String getName() {
-        return this.name;
-    }
-
-    /**
-     * Sets the File System name
-     *
-     * @param value
-     *            The name
-     */
-    public void setName(String value) {
-        this.name = value;
-    }
+    String getName();
 
     /**
      * Volume name of the File System
      *
      * @return The volume name of the file system
      */
-    public String getVolume() {
-        return this.volume;
-    }
-
-    /**
-     * Sets the volume name of the File System
-     *
-     * @param value
-     *            The volume name
-     */
-    public void setVolume(String value) {
-        this.volume = value;
-    }
+    String getVolume();
 
     /**
      * Label of the File System
@@ -137,19 +48,7 @@ public class OSFileStore {
      * @return The volume label of the file system, on Windows. Other operating
      *         systems is redundant with the name.
      */
-    public String getLabel() {
-        return this.label;
-    }
-
-    /**
-     * Sets the label of the File System
-     *
-     * @param value
-     *            The label
-     */
-    public void setLabel(String value) {
-        this.label = value;
-    }
+    String getLabel();
 
     /**
      * Logical volume of the File System
@@ -160,114 +59,42 @@ public class OSFileStore {
      *
      * @return The logical volume of the file system
      */
-    public String getLogicalVolume() {
-        return this.logicalVolume;
-    }
-
-    /**
-     * Sets the logical volume of the File System
-     *
-     * @param value
-     *            The logical volume
-     */
-    public void setLogicalVolume(String value) {
-        this.logicalVolume = value;
-    }
+    String getLogicalVolume();
 
     /**
      * Mountpoint of the File System
      *
      * @return The mountpoint of the file system
      */
-    public String getMount() {
-        return this.mount;
-    }
-
-    /**
-     * Sets the mountpoint of the File System
-     *
-     * @param value
-     *            The mountpoint
-     */
-    public void setMount(String value) {
-        this.mount = value;
-    }
+    String getMount();
 
     /**
      * Description of the File System
      *
      * @return The file system description
      */
-    public String getDescription() {
-        return this.description;
-    }
-
-    /**
-     * Sets the File System description
-     *
-     * @param value
-     *            The description
-     */
-    public void setDescription(String value) {
-        this.description = value;
-    }
+    String getDescription();
 
     /**
      * Type of the File System (FAT, NTFS, etx2, ext4, etc)
      *
      * @return The file system type
      */
-    public String getType() {
-        return this.fsType;
-    }
-
-    /**
-     * Sets the File System type
-     *
-     * @param value
-     *            The type
-     */
-    public void setType(String value) {
-        this.fsType = value;
-    }
+    String getType();
 
     /**
      * Filesystem options
      *
      * @return A comma-deimited string of options
      */
-    public String getOptions() {
-        return options;
-    }
-
-    /**
-     * Sets the File System options
-     *
-     * @param value
-     *            The options
-     */
-    public void setOptions(String value) {
-        this.options = value;
-    }
+    String getOptions();
 
     /**
      * UUID/GUID of the File System
      *
      * @return The file system UUID/GUID
      */
-    public String getUUID() {
-        return this.uuid;
-    }
-
-    /**
-     * Sets the File System UUID/GUID
-     *
-     * @param value
-     *            The UUID/GUID
-     */
-    public void setUUID(String value) {
-        this.uuid = value;
-    }
+    String getUUID();
 
     /**
      * Free space on the drive. This space is unallocated but may require elevated
@@ -275,76 +102,28 @@ public class OSFileStore {
      *
      * @return Free space on the drive (in bytes)
      */
-    public long getFreeSpace() {
-        return this.freeSpace;
-    }
-
-    /**
-     * Sets free space on the drive.
-     *
-     * @param value
-     *            Bytes of free space.
-     */
-    public void setFreeSpace(long value) {
-        this.freeSpace = value;
-    }
+    long getFreeSpace();
 
     /**
      * Usable space on the drive. This is space available to unprivileged users.
      *
      * @return Usable space on the drive (in bytes)
      */
-    public long getUsableSpace() {
-        return this.usableSpace;
-    }
-
-    /**
-     * Sets usable space on the drive.
-     *
-     * @param value
-     *            Bytes of writable space.
-     */
-    public void setUsableSpace(long value) {
-        this.usableSpace = value;
-    }
+    long getUsableSpace();
 
     /**
      * Total space/capacity of the drive.
      *
      * @return Total capacity of the drive (in bytes)
      */
-    public long getTotalSpace() {
-        return this.totalSpace;
-    }
-
-    /**
-     * Sets the total space on the drive.
-     *
-     * @param value
-     *            Bytes of total space.
-     */
-    public void setTotalSpace(long value) {
-        this.totalSpace = value;
-    }
+    long getTotalSpace();
 
     /**
      * Usable / free inodes on the drive. Not applicable on Windows.
      *
      * @return Usable / free inodes on the drive (count), or -1 if unimplemented
      */
-    public long getFreeInodes() {
-        return this.freeInodes;
-    }
-
-    /**
-     * Sets usable inodes on the drive.
-     *
-     * @param value
-     *            Number of free inodes.
-     */
-    public void setFreeInodes(long value) {
-        this.freeInodes = value;
-    }
+    long getFreeInodes();
 
     /**
      * Total / maximum number of inodes of the filesystem. Not applicable on
@@ -353,19 +132,7 @@ public class OSFileStore {
      * @return Total / maximum number of inodes of the filesystem (count), or -1 if
      *         unimplemented
      */
-    public long getTotalInodes() {
-        return this.totalInodes;
-    }
-
-    /**
-     * Sets the total / maximum number of inodes on the filesystem.
-     *
-     * @param value
-     *            Total / maximum count of inodes
-     */
-    public void setTotalInodes(long value) {
-        this.totalInodes = value;
-    }
+    long getTotalInodes();
 
     /**
      * Make a best effort to update all the statistics about the file store without
@@ -375,31 +142,5 @@ public class OSFileStore {
      * @return True if the update was (probably) successful, false if the disk was
      *         not found
      */
-    public boolean updateAtrributes() {
-        switch (SystemInfo.getCurrentPlatformEnum()) {
-        case WINDOWS:
-            return WindowsFileSystem.updateFileStoreStats(this);
-        case LINUX:
-            return LinuxFileSystem.updateFileStoreStats(this);
-        case MACOSX:
-            return MacFileSystem.updateFileStoreStats(this);
-        case SOLARIS:
-            return SolarisFileSystem.updateFileStoreStats(this);
-        case FREEBSD:
-            return FreeBsdFileSystem.updateFileStoreStats(this);
-        default:
-            LOG.error("Unsupported platform. No update performed.");
-            break;
-        }
-        return false;
-    }
-
-    @Override
-    public String toString() {
-        return "OSFileStore [name=" + name + ", volume=" + volume + ", label=" + label + ", logicalVolume="
-                + logicalVolume + ", mount=" + mount + ", description=" + description + ", fsType=" + fsType
-                + ", options=\"" + options + "\", uuid=" + uuid + ", freeSpace=" + freeSpace + ", usableSpace="
-                + usableSpace + ", totalSpace=" + totalSpace + ", freeInodes=" + freeInodes + ", totalInodes="
-                + totalInodes + "]";
-    }
+    boolean updateAtrributes();
 }
