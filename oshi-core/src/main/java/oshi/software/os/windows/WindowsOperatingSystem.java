@@ -33,7 +33,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -47,12 +46,9 @@ import org.slf4j.LoggerFactory;
 import com.sun.jna.Native; // NOSONAR squid:S1191
 import com.sun.jna.Pointer;
 import com.sun.jna.platform.win32.Advapi32;
-import com.sun.jna.platform.win32.Advapi32Util;
-import com.sun.jna.platform.win32.Advapi32Util.Account;
 import com.sun.jna.platform.win32.Advapi32Util.EventLogIterator;
 import com.sun.jna.platform.win32.Advapi32Util.EventLogRecord;
 import com.sun.jna.platform.win32.BaseTSD.ULONG_PTRByReference;
-import com.sun.jna.platform.win32.Kernel32Util;
 import com.sun.jna.platform.win32.Psapi;
 import com.sun.jna.platform.win32.Psapi.PERFORMANCE_INFORMATION;
 import com.sun.jna.platform.win32.Tlhelp32;
@@ -60,29 +56,21 @@ import com.sun.jna.platform.win32.User32;
 import com.sun.jna.platform.win32.VersionHelpers;
 import com.sun.jna.platform.win32.W32ServiceManager;
 import com.sun.jna.platform.win32.Win32Exception;
-import com.sun.jna.platform.win32.WinBase;
 import com.sun.jna.platform.win32.WinDef.DWORD;
-import com.sun.jna.platform.win32.WinError;
 import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.platform.win32.WinNT.HANDLE;
 import com.sun.jna.platform.win32.WinNT.HANDLEByReference;
 import com.sun.jna.platform.win32.WinUser;
 import com.sun.jna.platform.win32.Winsvc;
-import com.sun.jna.platform.win32.Wtsapi32;
-import com.sun.jna.platform.win32.Wtsapi32.WTS_PROCESS_INFO_EX;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
-import com.sun.jna.ptr.IntByReference;
-import com.sun.jna.ptr.PointerByReference;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.driver.windows.perfmon.ProcessInformation;
-import oshi.driver.windows.perfmon.ProcessInformation.ProcessPerformanceProperty;
 import oshi.driver.windows.registry.ProcessPerformanceData;
+import oshi.driver.windows.registry.ProcessPerformanceData.PerfCounterBlock;
+import oshi.driver.windows.registry.ProcessWtsData;
+import oshi.driver.windows.registry.ProcessWtsData.WtsInfo;
 import oshi.driver.windows.wmi.Win32OperatingSystem;
 import oshi.driver.windows.wmi.Win32OperatingSystem.OSVersionProperty;
-import oshi.driver.windows.wmi.Win32Process;
-import oshi.driver.windows.wmi.Win32Process.CommandLineProperty;
-import oshi.driver.windows.wmi.Win32Process.ProcessXPProperty;
 import oshi.driver.windows.wmi.Win32Processor;
 import oshi.driver.windows.wmi.Win32Processor.BitnessProperty;
 import oshi.jna.platform.windows.Kernel32;
@@ -96,7 +84,6 @@ import oshi.software.os.OSService.State;
 import oshi.util.GlobalConfig;
 import oshi.util.ParseUtil;
 import oshi.util.platform.windows.WmiUtil;
-import oshi.util.tuples.Pair;
 
 /**
  * Microsoft Windows, commonly referred to as Windows, is a group of several
@@ -109,7 +96,6 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     private static final Logger LOG = LoggerFactory.getLogger(WindowsOperatingSystem.class);
 
     private static final boolean IS_VISTA_OR_GREATER = VersionHelpers.IsWindowsVistaOrGreater();
-    private static final boolean IS_WINDOWS7_OR_GREATER = VersionHelpers.IsWindows7OrGreater();
 
     /**
      * Windows event log name
@@ -127,9 +113,9 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
      * Cache full process stats queries. Second query will only populate if first
      * one returns null.
      */
-    private Supplier<Map<Integer, OSProcess>> processMapFromRegistry = memoize(this::queryProcessMapFromRegistry,
+    private Supplier<Map<Integer, PerfCounterBlock>> processMapFromRegistry = memoize(this::queryProcessMapFromRegistry,
             defaultExpiration());
-    private Supplier<Map<Integer, OSProcess>> processMapFromPerfCounters = memoize(
+    private Supplier<Map<Integer, PerfCounterBlock>> processMapFromPerfCounters = memoize(
             this::queryProcessMapFromPerfCounters, defaultExpiration());
 
     @Override
@@ -286,15 +272,15 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     }
 
     @Override
-    public OSProcess[] getProcesses(int limit, ProcessSort sort, boolean slowFields) {
-        List<OSProcess> procList = processMapToList(null, slowFields);
+    public OSProcess[] getProcesses(int limit, ProcessSort sort) {
+        List<OSProcess> procList = processMapToList(null);
         List<OSProcess> sorted = processSort(procList, limit, sort);
         return sorted.toArray(new OSProcess[0]);
     }
 
     @Override
     public List<OSProcess> getProcesses(Collection<Integer> pids) {
-        return processMapToList(pids, true);
+        return processMapToList(pids);
     }
 
     @Override
@@ -318,254 +304,39 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     }
 
     @Override
-    public OSProcess getProcess(int pid, boolean slowFields) {
-        List<OSProcess> procList = processMapToList(Arrays.asList(pid), slowFields);
+    public OSProcess getProcess(int pid) {
+        List<OSProcess> procList = processMapToList(Arrays.asList(pid));
         return procList.isEmpty() ? null : procList.get(0);
     }
 
-    /**
-     * Private method to do the heavy lifting for all the getProcess functions.
-     *
-     * @param pids
-     *            A collection of pids to query. If null, the entire process list
-     *            will be queried.
-     * @param slowFields
-     *            Whether to include fields that incur processor latency
-     * @return A corresponding list of processes
-     */
-    private List<OSProcess> processMapToList(Collection<Integer> pids, boolean slowFields) {
+    private List<OSProcess> processMapToList(Collection<Integer> pids) {
         // Get data from the registry if possible
-        Map<Integer, OSProcess> processMap = processMapFromRegistry.get();
+        Map<Integer, PerfCounterBlock> processMap = processMapFromRegistry.get();
         // otherwise performance counters with WMI backup
         if (processMap == null) {
-            processMap = (pids == null) ? processMapFromPerfCounters.get() : buildProcessMapFromPerfCounters(pids);
+            processMap = (pids == null) ? processMapFromPerfCounters.get()
+                    : ProcessPerformanceData.buildProcessMapFromPerfCounters(pids);
         }
-
-        // define here to avoid object repeated creation overhead later
-        List<String> groupList = new ArrayList<>();
-        List<String> groupIDList = new ArrayList<>();
         int myPid = getProcessId();
 
-        // Structure we'll fill from native memory pointer for Vista+
-        Pointer pProcessInfo = null;
-        WTS_PROCESS_INFO_EX[] processInfo = null;
-        IntByReference pCount = new IntByReference(0);
+        Map<Integer, WtsInfo> processWtsMap = ProcessWtsData.queryProcessWtsMap(pids);
 
-        // WMI result we'll use for pre-Vista
-        WmiResult<ProcessXPProperty> processWmiResult = null;
+        Set<Integer> mapKeys = new HashSet<>(processWtsMap.keySet());
+        mapKeys.retainAll(processMap.keySet());
 
-        // Get processes from WTS (post-XP)
-        if (IS_WINDOWS7_OR_GREATER) {
-            final PointerByReference ppProcessInfo = new PointerByReference();
-            if (!Wtsapi32.INSTANCE.WTSEnumerateProcessesEx(Wtsapi32.WTS_CURRENT_SERVER_HANDLE,
-                    new IntByReference(Wtsapi32.WTS_PROCESS_INFO_LEVEL_1), Wtsapi32.WTS_ANY_SESSION, ppProcessInfo,
-                    pCount)) {
-                LOG.error("Failed to enumerate Processes. Error code: {}", Kernel32.INSTANCE.GetLastError());
-                return new ArrayList<>(0);
-            }
-            // extract the pointed-to pointer and create array
-            pProcessInfo = ppProcessInfo.getValue();
-            final WTS_PROCESS_INFO_EX processInfoRef = new WTS_PROCESS_INFO_EX(pProcessInfo);
-            processInfo = (WTS_PROCESS_INFO_EX[]) processInfoRef.toArray(pCount.getValue());
-        } else {
-            // Pre-Vista we can't use WTSEnumerateProcessesEx so we'll grab the
-            // same info from WMI and fake the array
-            processWmiResult = Win32Process.queryProcesses(pids);
-        }
-
-        // Store a subset of processes in a list to later return.
         List<OSProcess> processList = new ArrayList<>();
-
-        int procCount = IS_WINDOWS7_OR_GREATER ? processInfo.length : processWmiResult.getResultCount();
-        for (int i = 0; i < procCount; i++) {
-            int pid = IS_WINDOWS7_OR_GREATER ? processInfo[i].ProcessId
-                    : WmiUtil.getUint32(processWmiResult, ProcessXPProperty.PROCESSID, i);
-            OSProcess proc;
-            // If the cache is empty, there was a problem with
-            // filling the cache using performance information.
-            if (processMap.isEmpty()) {
-                if (pids != null && !pids.contains(pid)) {
-                    continue;
-                }
-                proc = new OSProcess(this);
-                proc.setProcessID(pid);
-                proc.setName(IS_WINDOWS7_OR_GREATER ? processInfo[i].pProcessName
-                        : WmiUtil.getString(processWmiResult, ProcessXPProperty.NAME, i));
-            } else {
-                proc = processMap.get(pid);
-                if (proc == null || pids != null && !pids.contains(pid)) {
-                    continue;
-                }
-            }
-            // For my own process, set CWD
-            if (pid == myPid) {
-                String cwd = new File(".").getAbsolutePath();
-                // trim off trailing "."
-                proc.setCurrentWorkingDirectory(cwd.isEmpty() ? "" : cwd.substring(0, cwd.length() - 1));
-            }
-
-            if (IS_WINDOWS7_OR_GREATER) {
-                WTS_PROCESS_INFO_EX procInfo = processInfo[i];
-                proc.setKernelTime(procInfo.KernelTime.getValue() / 10000L);
-                proc.setUserTime(procInfo.UserTime.getValue() / 10000L);
-                proc.setThreadCount(procInfo.NumberOfThreads);
-                proc.setVirtualSize(procInfo.PagefileUsage & 0xffff_ffffL);
-                proc.setOpenFiles(procInfo.HandleCount);
-            } else {
-                proc.setKernelTime(WmiUtil.getUint64(processWmiResult, ProcessXPProperty.KERNELMODETIME, i) / 10000L);
-                proc.setUserTime(WmiUtil.getUint64(processWmiResult, ProcessXPProperty.USERMODETIME, i) / 10000L);
-                proc.setThreadCount(WmiUtil.getUint32(processWmiResult, ProcessXPProperty.THREADCOUNT, i));
-                // WMI Pagefile usage is in KB
-                proc.setVirtualSize(1024
-                        * (WmiUtil.getUint32(processWmiResult, ProcessXPProperty.PAGEFILEUSAGE, i) & 0xffff_ffffL));
-                proc.setOpenFiles(WmiUtil.getUint32(processWmiResult, ProcessXPProperty.HANDLECOUNT, i));
-            }
-
-            // Get a handle to the process for various extended info. Only gets
-            // current user unless running as administrator
-            final HANDLE pHandle = Kernel32.INSTANCE.OpenProcess(WinNT.PROCESS_QUERY_INFORMATION, false,
-                    proc.getProcessID());
-            if (pHandle != null) {
-                proc.setBitness(this.getBitness());
-                // Only test for 32-bit process on 64-bit windows
-                if (IS_VISTA_OR_GREATER && this.getBitness() == 64) {
-                    IntByReference wow64 = new IntByReference(0);
-                    if (Kernel32.INSTANCE.IsWow64Process(pHandle, wow64)) {
-                        proc.setBitness(wow64.getValue() > 0 ? 32 : 64);
-                    }
-                }
-                // Full path
-                final HANDLEByReference phToken = new HANDLEByReference();
-                try {// EXECUTABLEPATH
-                    proc.setPath(IS_WINDOWS7_OR_GREATER ? Kernel32Util.QueryFullProcessImageName(pHandle, 0)
-                            : WmiUtil.getString(processWmiResult, ProcessXPProperty.EXECUTABLEPATH, i));
-                    if (Advapi32.INSTANCE.OpenProcessToken(pHandle, WinNT.TOKEN_DUPLICATE | WinNT.TOKEN_QUERY,
-                            phToken)) {
-                        Account account = Advapi32Util.getTokenAccount(phToken.getValue());
-                        proc.setUser(account.name);
-                        proc.setUserID(account.sidString);
-                        // Fetching group information incurs ~10ms per process.
-                        if (slowFields) {
-                            Account[] accounts = Advapi32Util.getTokenGroups(phToken.getValue());
-                            // get groups
-                            groupList.clear();
-                            groupIDList.clear();
-                            for (Account a : accounts) {
-                                groupList.add(a.name);
-                                groupIDList.add(a.sidString);
-                            }
-                            proc.setGroup(String.join(",", groupList));
-                            proc.setGroupID(String.join(",", groupIDList));
-                        }
-                    } else {
-                        int error = Kernel32.INSTANCE.GetLastError();
-                        // Access denied errors are common. Fail silently.
-                        if (error != WinError.ERROR_ACCESS_DENIED) {
-                            LOG.error("Failed to get process token for process {}: {}", proc.getProcessID(),
-                                    Kernel32.INSTANCE.GetLastError());
-                        }
-                    }
-                } catch (Win32Exception e) {
-                    handleWin32ExceptionOnGetProcessInfo(proc, e);
-                } finally {
-                    final HANDLE token = phToken.getValue();
-                    if (token != null) {
-                        Kernel32.INSTANCE.CloseHandle(token);
-                    }
-                }
-                Kernel32.INSTANCE.CloseHandle(pHandle);
-            }
-
-            // There is no easy way to get ExecutuionState for a process.
-            // The WMI value is null. It's possible to get thread Execution
-            // State and possibly roll up.
-            proc.setState(OSProcess.State.RUNNING);
-
-            // Initialize default
-            proc.setCommandLine("");
-
-            processList.add(proc);
-        }
-        // Clean up memory allocated in C (only Vista+ but null pointer
-        // effectively tests)
-        if (pProcessInfo != null && !Wtsapi32.INSTANCE.WTSFreeMemoryEx(Wtsapi32.WTS_PROCESS_INFO_LEVEL_1, pProcessInfo,
-                pCount.getValue())) {
-            LOG.error("Failed to Free Memory for Processes. Error code: {}", Kernel32.INSTANCE.GetLastError());
-            return new ArrayList<>(0);
-        }
-
-        // Command Line only accessible via WMI.
-        if (slowFields) {
-            Set<Integer> pidsToQuery = new HashSet<>();
-            if (pids != null) {
-                for (OSProcess process : processList) {
-                    pidsToQuery.add(process.getProcessID());
-                }
-            }
-            WmiResult<CommandLineProperty> commandLineProcs = Win32Process.queryCommandLines(pidsToQuery);
-            for (int p = 0; p < commandLineProcs.getResultCount(); p++) {
-                int pid = WmiUtil.getUint32(commandLineProcs, CommandLineProperty.PROCESSID, p);
-                if (processMap.containsKey(pid)) {
-                    OSProcess proc = processMap.get(pid);
-                    proc.setCommandLine(WmiUtil.getString(commandLineProcs, CommandLineProperty.COMMANDLINE, p));
-                }
-            }
+        for (Integer pid : mapKeys) {
+            processList.add(new WindowsOSProcess(pid, myPid, getBitness(), processMap, processWtsMap));
         }
         return processList;
     }
 
-    protected void handleWin32ExceptionOnGetProcessInfo(OSProcess proc, Win32Exception ex) {
-        LOG.warn("Failed to set path or get user/group on PID {}. It may have terminated. {}", proc.getProcessID(),
-                ex.getMessage());
+    private Map<Integer, PerfCounterBlock> queryProcessMapFromRegistry() {
+        return ProcessPerformanceData.buildProcessMapFromRegistry(null);
     }
 
-    private Map<Integer, OSProcess> queryProcessMapFromRegistry() {
-        return ProcessPerformanceData.buildProcessMapFromRegistry(this, null);
-    }
-
-    private Map<Integer, OSProcess> queryProcessMapFromPerfCounters() {
-        return buildProcessMapFromPerfCounters(null);
-    }
-
-    private Map<Integer, OSProcess> buildProcessMapFromPerfCounters(Collection<Integer> pids) {
-        Map<Integer, OSProcess> processMap = new HashMap<>();
-        Pair<List<String>, Map<ProcessPerformanceProperty, List<Long>>> instanceValues = ProcessInformation
-                .queryProcessCounters();
-        long now = System.currentTimeMillis(); // 1970 epoch
-        List<String> instances = instanceValues.getA();
-        Map<ProcessPerformanceProperty, List<Long>> valueMap = instanceValues.getB();
-        List<Long> pidList = valueMap.get(ProcessPerformanceProperty.PROCESSID);
-        List<Long> ppidList = valueMap.get(ProcessPerformanceProperty.PARENTPROCESSID);
-        List<Long> priorityList = valueMap.get(ProcessPerformanceProperty.PRIORITY);
-        List<Long> ioReadList = valueMap.get(ProcessPerformanceProperty.READTRANSFERCOUNT);
-        List<Long> ioWriteList = valueMap.get(ProcessPerformanceProperty.WRITETRANSFERCOUNT);
-        List<Long> workingSetSizeList = valueMap.get(ProcessPerformanceProperty.PRIVATEPAGECOUNT);
-        List<Long> creationTimeList = valueMap.get(ProcessPerformanceProperty.CREATIONDATE);
-
-        for (int inst = 0; inst < instances.size(); inst++) {
-            int pid = pidList.get(inst).intValue();
-            if (pids == null || pids.contains(pid)) {
-                OSProcess proc = new OSProcess(this);
-                processMap.put(pid, proc);
-
-                proc.setProcessID(pid);
-                proc.setName(instances.get(inst));
-                proc.setParentProcessID(ppidList.get(inst).intValue());
-                proc.setPriority(priorityList.get(inst).intValue());
-                // if creation time value is less than current millis, it's in 1970 epoch,
-                // otherwise it's 1601 epoch and we must convert
-                long ctime = creationTimeList.get(inst);
-                if (ctime > now) {
-                    ctime = WinBase.FILETIME.filetimeToDate((int) (ctime >> 32), (int) (ctime & 0xffffffffL)).getTime();
-                }
-                proc.setUpTime(now - ctime);
-                proc.setStartTime(ctime);
-                proc.setBytesRead(ioReadList.get(inst));
-                proc.setBytesWritten(ioWriteList.get(inst));
-                proc.setResidentSetSize(workingSetSizeList.get(inst));
-            }
-        }
-        return processMap;
+    private Map<Integer, PerfCounterBlock> queryProcessMapFromPerfCounters() {
+        return ProcessPerformanceData.buildProcessMapFromPerfCounters(null);
     }
 
     @Override

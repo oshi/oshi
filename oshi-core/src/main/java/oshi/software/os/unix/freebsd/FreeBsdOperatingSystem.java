@@ -30,15 +30,10 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.sun.jna.Memory; //NOSONAR squid:S1191
-import com.sun.jna.Pointer;
-import com.sun.jna.ptr.IntByReference;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.platform.unix.CLibrary.Timeval;
@@ -50,7 +45,6 @@ import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OSService;
 import oshi.util.ExecutingCommand;
-import oshi.util.LsofUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
 
@@ -108,19 +102,15 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
     }
 
     @Override
-    public OSProcess[] getProcesses(int limit, ProcessSort sort, boolean slowFields) {
-        List<OSProcess> procs = getProcessListFromPS(
-                "ps -awwxo state,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etimes,systime,time,comm,args", -1,
-                slowFields);
+    public OSProcess[] getProcesses(int limit, ProcessSort sort) {
+        List<OSProcess> procs = getProcessListFromPS(-1);
         List<OSProcess> sorted = processSort(procs, limit, sort);
         return sorted.toArray(new OSProcess[0]);
     }
 
     @Override
-    public OSProcess getProcess(int pid, boolean slowFields) {
-        List<OSProcess> procs = getProcessListFromPS(
-                "ps -awwxo state,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etimes,systime,time,comm,args -p ", pid,
-                slowFields);
+    public OSProcess getProcess(int pid) {
+        List<OSProcess> procs = getProcessListFromPS(pid);
         if (procs.isEmpty()) {
             return null;
         }
@@ -139,10 +129,13 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
         return sorted.toArray(new OSProcess[0]);
     }
 
-    private List<OSProcess> getProcessListFromPS(String psCommand, int pid, boolean slowFields) {
-        Map<Integer, String> cwdMap = LsofUtil.getCwdMap(pid);
+    private List<OSProcess> getProcessListFromPS(int pid) {
         List<OSProcess> procs = new ArrayList<>();
-        List<String> procList = ExecutingCommand.runNative(psCommand + (pid < 0 ? "" : pid));
+        String psCommand = "ps -awwxo state,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etimes,systime,time,comm,args";
+        if (pid >= 0) {
+            psCommand += " -p " + pid;
+        }
+        List<String> procList = ExecutingCommand.runNative(psCommand);
         if (procList.isEmpty() || procList.size() < 2) {
             return procs;
         }
@@ -152,80 +145,9 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
         for (String proc : procList) {
             String[] split = ParseUtil.whitespaces.split(proc.trim(), 16);
             // Elements should match ps command order
-            if (split.length < 16) {
-                continue;
+            if (split.length == 16) {
+                procs.add(new FreeBsdOSProcess(pid < 0 ? ParseUtil.parseIntOrDefault(split[1], 0) : pid, split));
             }
-            long now = System.currentTimeMillis();
-            OSProcess fproc = new OSProcess(this);
-            switch (split[0].charAt(0)) {
-            case 'R':
-                fproc.setState(OSProcess.State.RUNNING);
-                break;
-            case 'I':
-            case 'S':
-                fproc.setState(OSProcess.State.SLEEPING);
-                break;
-            case 'D':
-            case 'L':
-            case 'U':
-                fproc.setState(OSProcess.State.WAITING);
-                break;
-            case 'Z':
-                fproc.setState(OSProcess.State.ZOMBIE);
-                break;
-            case 'T':
-                fproc.setState(OSProcess.State.STOPPED);
-                break;
-            default:
-                fproc.setState(OSProcess.State.OTHER);
-                break;
-            }
-            fproc.setProcessID(ParseUtil.parseIntOrDefault(split[1], 0));
-            fproc.setParentProcessID(ParseUtil.parseIntOrDefault(split[2], 0));
-            fproc.setUser(split[3]);
-            fproc.setUserID(split[4]);
-            fproc.setGroup(split[5]);
-            fproc.setGroupID(split[6]);
-            fproc.setThreadCount(ParseUtil.parseIntOrDefault(split[7], 0));
-            fproc.setPriority(ParseUtil.parseIntOrDefault(split[8], 0));
-            // These are in KB, multiply
-            fproc.setVirtualSize(ParseUtil.parseLongOrDefault(split[9], 0) * 1024);
-            fproc.setResidentSetSize(ParseUtil.parseLongOrDefault(split[10], 0) * 1024);
-            // Avoid divide by zero for processes up less than a second
-            long elapsedTime = ParseUtil.parseDHMSOrDefault(split[11], 0L);
-            fproc.setUpTime(elapsedTime < 1L ? 1L : elapsedTime);
-            fproc.setStartTime(now - fproc.getUpTime());
-            fproc.setKernelTime(ParseUtil.parseDHMSOrDefault(split[12], 0L));
-            fproc.setUserTime(ParseUtil.parseDHMSOrDefault(split[13], 0L) - fproc.getKernelTime());
-            fproc.setPath(split[14]);
-            fproc.setName(fproc.getPath().substring(fproc.getPath().lastIndexOf('/') + 1));
-            fproc.setCommandLine(split[15]);
-            fproc.setCurrentWorkingDirectory(cwdMap.getOrDefault(fproc.getProcessID(), ""));
-
-            if (slowFields) {
-                List<String> openFilesList = ExecutingCommand.runNative(String.format("lsof -p %d", pid));
-                fproc.setOpenFiles(openFilesList.size() - 1L);
-
-                // Get process abi vector
-                int[] mib = new int[4];
-                mib[0] = 1; // CTL_KERN
-                mib[1] = 14; // KERN_PROC
-                mib[2] = 9; // KERN_PROC_SV_NAME
-                mib[3] = pid;
-                // Allocate memory for arguments
-                Pointer abi = new Memory(32);
-                IntByReference size = new IntByReference(32);
-                // Fetch abi vector
-                if (0 == FreeBsdLibc.INSTANCE.sysctl(mib, mib.length, abi, size, null, 0)) {
-                    String elf = abi.getString(0);
-                    if (elf.contains("ELF32")) {
-                        fproc.setBitness(32);
-                    } else if (elf.contains("ELF64")) {
-                        fproc.setBitness(64);
-                    }
-                }
-            }
-            procs.add(fproc);
         }
         return procs;
     }

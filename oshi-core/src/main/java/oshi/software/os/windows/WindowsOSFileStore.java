@@ -97,7 +97,7 @@ public class WindowsOSFileStore extends AbstractOSFileStore {
     }
 
     @Override
-    public boolean updateAtrributes() {
+    public boolean updateAttributes() {
         // Check if we have the volume locally
         List<OSFileStore> volumes = WindowsFileSystem.getLocalVolumes(getVolume());
         if (volumes.isEmpty()) {

@@ -203,9 +203,9 @@ public class MacUsbDevice extends AbstractUsbDevice {
 
     private static void addDevicesToList(List<UsbDevice> deviceList, List<UsbDevice> list) {
         for (UsbDevice device : list) {
-            deviceList.add(new MacUsbDevice(device.getName(), device.getVendor(), device.getVendorId(),
-                    device.getProductId(), device.getSerialNumber(), device.getUniqueDeviceId(),
-                    Collections.emptyList()));
+            deviceList.add(
+                    new MacUsbDevice(device.getName(), device.getVendor(), device.getVendorId(), device.getProductId(),
+                            device.getSerialNumber(), device.getUniqueDeviceId(), Collections.emptyList()));
             addDevicesToList(deviceList, device.getConnectedDevices());
         }
     }
@@ -306,7 +306,6 @@ public class MacUsbDevice extends AbstractUsbDevice {
         Collections.sort(usbDevices);
         return new MacUsbDevice(nameMap.getOrDefault(registryEntryId, vendorId + ":" + productId),
                 vendorMap.getOrDefault(registryEntryId, ""), vendorId, productId,
-                serialMap.getOrDefault(registryEntryId, ""), "0x" + Long.toHexString(registryEntryId),
-                usbDevices);
+                serialMap.getOrDefault(registryEntryId, ""), "0x" + Long.toHexString(registryEntryId), usbDevices);
     }
 }

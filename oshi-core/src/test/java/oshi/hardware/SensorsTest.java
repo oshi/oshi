@@ -41,7 +41,7 @@ public class SensorsTest {
      */
     @Test
     public void testSensors() {
-        assertTrue(s.getCpuTemperature() >= 0d && s.getCpuTemperature() <= 100d);
+        assertTrue(s.getCpuTemperature() == Double.NaN || s.getCpuTemperature() >= 0d && s.getCpuTemperature() <= 100d);
         assertTrue(s.getCpuVoltage() >= 0);
     }
 

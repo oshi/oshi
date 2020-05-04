@@ -12,7 +12,7 @@ Feature parity will be maintained on the 4.x branch for the near future for exis
 
 ### Setter removal
 
-The `NetworkIF`, `HWDiskStore`, and `OSFileStore` classes are now interfaces, with setters removed.
+The `NetworkIF`, `HWDiskStore`, `OSFileStore`, and `OSProcess` classes are now interfaces, with setters removed.
 
 The `HWPartition` class is now immutable, with setters removed.
 
@@ -39,6 +39,11 @@ The deprecated `PowerSource` methods `getRemainingCapacity()` and `getTimeRemain
 replaced by `getRemainingCapacityPercent()` and `getTimeRemainingEstimated()`.
 
 The deprecated `OSProcess` method `calculateCpuPercent()` was removed, replaced by `getProcessCpuLoadCumulative()`.
+
+The `OperatingSystem` methods fetching `OSProcess` information using a `slowFields` boolean have been removed,
+as the behavior they enabled is now done by default.  
+
+The `OSFileStore` method `updateAtrributes()` is now spelled correctly as `updateAttributes()`.
 
 # Guide to upgrading from OSHI 3.x to 4.x
 

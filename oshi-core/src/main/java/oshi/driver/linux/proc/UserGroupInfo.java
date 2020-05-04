@@ -21,30 +21,34 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package oshi.software.os.linux;
+package oshi.driver.linux.proc;
+
+import static oshi.util.Memoizer.memoize;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
+import oshi.annotation.concurrent.ThreadSafe;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
-import oshi.util.tuples.Pair;
 
 /**
- * <p>
- * LinuxUserGroupInfo class.
- * </p>
+ * Utility class to temporarily cache the userID and group maps in Linux, for
+ * parsing process ownership. Cache expires after one minute.
  */
-public class LinuxUserGroupInfo {
+@ThreadSafe
+public final class UserGroupInfo {
 
-    // Temporarily cache users and groups, populated by constructor
-    private final Map<String, Pair<String, String>> usersIdMap;
-    private final Map<String, String> groupsIdMap;
+    // Temporarily cache users and groups, update each minute
+    private static final Supplier<Map<String, String>> usersIdMap = memoize(UserGroupInfo::getUserMap,
+            TimeUnit.MINUTES.toNanos(1));
+    private static final Supplier<Map<String, String>> groupsIdMap = memoize(UserGroupInfo::getGroupMap,
+            TimeUnit.MINUTES.toNanos(1));
 
-    public LinuxUserGroupInfo() {
-        usersIdMap = getUserMap();
-        groupsIdMap = getGroupMap();
+    private UserGroupInfo() {
     }
 
     /**
@@ -55,37 +59,34 @@ public class LinuxUserGroupInfo {
      * @return a pair containing that user id as the first element and the user name
      *         as the second
      */
-    public Pair<String, String> getUser(String userId) {
-        return this.usersIdMap.getOrDefault(userId, new Pair<>(userId, Constants.UNKNOWN));
+    public static String getUser(String userId) {
+        return usersIdMap.get().getOrDefault(userId, Constants.UNKNOWN);
     }
 
     /**
-     * <p>
-     * getGroupName.
-     * </p>
+     * Gets the group name for a given ID
      *
      * @param groupId
      *            a {@link java.lang.String} object.
      * @return a {@link java.lang.String} object.
      */
-    public String getGroupName(String groupId) {
-        return this.groupsIdMap.getOrDefault(groupId, Constants.UNKNOWN);
+    public static String getGroupName(String groupId) {
+        return groupsIdMap.get().getOrDefault(groupId, Constants.UNKNOWN);
     }
 
-    private static Map<String, Pair<String, String>> getUserMap() {
-        HashMap<String, Pair<String, String>> userMap = new HashMap<>();
+    private static Map<String, String> getUserMap() {
+        HashMap<String, String> userMap = new HashMap<>();
         List<String> passwd = ExecutingCommand.runNative("getent passwd");
         // see man 5 passwd for the fields
         for (String entry : passwd) {
             String[] split = entry.split(":");
-            if (split.length < 3) {
-                continue;
+            if (split.length > 2) {
+                String userName = split[0];
+                String uid = split[2];
+                // it is allowed to have multiple entries for the same userId,
+                // we use the first one
+                userMap.putIfAbsent(uid, userName);
             }
-            String userName = split[0];
-            String uid = split[2];
-            // it is allowed to have multiple entries for the same userId,
-            // we use the first one
-            userMap.putIfAbsent(uid, new Pair<>(uid, userName));
         }
         return userMap;
     }

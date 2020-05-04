@@ -43,7 +43,7 @@ public interface OperatingSystem {
      * Controls sorting of Process output
      */
     enum ProcessSort {
-    CPU, MEMORY, OLDEST, NEWEST, PID, PARENTPID, NAME
+        CPU, MEMORY, OLDEST, NEWEST, PID, PARENTPID, NAME
     }
 
     /**
@@ -84,9 +84,9 @@ public interface OperatingSystem {
     /**
      * Gets currently running processes. No order is guaranteed.
      *
-     * @return An array of {@link oshi.software.os.OSProcess} objects for the
-     *         specified number (or all) of currently running processes, sorted as
-     *         specified. The array may contain null elements if a process
+     * @return An array of {@link oshi.software.common.AbstractOSProcess} objects
+     *         for the specified number (or all) of currently running processes,
+     *         sorted as specified. The array may contain null elements if a process
      *         terminates during iteration. Some fields that are slow to retrieve
      *         (e.g., commandlines and group information on Windows, open files on
      *         Unix and Linux) will be skipped.
@@ -114,28 +114,6 @@ public interface OperatingSystem {
     OSProcess[] getProcesses(int limit, ProcessSort sort);
 
     /**
-     * Gets currently running processes. If a positive limit is specified, returns
-     * only that number of processes; zero will return all processes. The order may
-     * be specified by the sort parameter, for example, to return the top cpu or
-     * memory consuming processes; if null, no order is guaranteed.
-     *
-     * @param limit
-     *            Max number of results to return, or 0 to return all results
-     * @param sort
-     *            If not null, determines sorting of results
-     * @param slowFields
-     *            If false, skip {@link oshi.software.os.OSProcess} fields that are
-     *            slow to retrieve (e.g., group information on Windows, open files
-     *            on Unix and Linux). If true, include all fields, regardless of how
-     *            long it takes to retrieve the data.
-     * @return An array of {@link oshi.software.os.OSProcess} objects for the
-     *         specified number (or all) of currently running processes, sorted as
-     *         specified. The array may contain null elements if a process
-     *         terminates during iteration.
-     */
-    OSProcess[] getProcesses(int limit, ProcessSort sort, boolean slowFields);
-
-    /**
      * Gets information on a currently running processes. This has improved
      * performance on Windows based operating systems vs. iterating individual
      * processes. By default, includes all process information.
@@ -148,23 +126,6 @@ public interface OperatingSystem {
     List<OSProcess> getProcesses(Collection<Integer> pids);
 
     /**
-     * Gets information on a currently running processes. This has improved
-     * performance on Windows based operating systems vs. iterating individual
-     * processes.
-     *
-     * @param pids
-     *            A collection of process IDs
-     * @param slowFields
-     *            If false, skip {@link oshi.software.os.OSProcess} fields that are
-     *            slow to retrieve (e.g., group information on Windows, open files
-     *            on Unix and Linux). If true, include all fields, regardless of how
-     *            long it takes to retrieve the data.
-     * @return An {@link oshi.software.os.OSProcess} object for the specified
-     *         process ids if it is running
-     */
-    List<OSProcess> getProcesses(Collection<Integer> pids, boolean slowFields);
-
-    /**
      * Gets information on a currently running process
      *
      * @param pid
@@ -173,21 +134,6 @@ public interface OperatingSystem {
      *         process id if it is running; null otherwise
      */
     OSProcess getProcess(int pid);
-
-    /**
-     * Gets information on a currently running process
-     *
-     * @param pid
-     *            A process ID
-     * @param slowFields
-     *            If false, skip {@link oshi.software.os.OSProcess} fields that are
-     *            slow to retrieve (e.g., group information on Windows, open files
-     *            on Unix and Linux). If true, include all fields, regardless of how
-     *            long it takes to retrieve the data.
-     * @return An {@link oshi.software.os.OSProcess} object for the specified
-     *         process id if it is running; null otherwise
-     */
-    OSProcess getProcess(int pid, boolean slowFields);
 
     /**
      * Gets currently running child processes of provided PID. If a positive limit
@@ -202,10 +148,10 @@ public interface OperatingSystem {
      *            Max number of results to return, or 0 to return all results
      * @param sort
      *            If not null, determines sorting of results
-     * @return An array of {@link oshi.software.os.OSProcess} objects presenting the
-     *         specified number (or all) of currently running child processes of the
-     *         provided PID, sorted as specified. The array may contain null
-     *         elements if a process terminates during iteration.
+     * @return An array of {@link oshi.software.common.AbstractOSProcess} objects
+     *         presenting the specified number (or all) of currently running child
+     *         processes of the provided PID, sorted as specified. The array may
+     *         contain null elements if a process terminates during iteration.
      */
     OSProcess[] getChildProcesses(int parentPid, int limit, ProcessSort sort);
 

@@ -10,6 +10,7 @@
 * [#1187](https://github.com/oshi/oshi/pull/1187): List returns for UsbDevice. - [@dbwiddis](https://github.com/dbwiddis).
 * [#1189](https://github.com/oshi/oshi/pull/1189): List returns for CentralProcessor, GlobalMemory. - [@dbwiddis](https://github.com/dbwiddis).
 * [#1190](https://github.com/oshi/oshi/pull/1190): Make OSFileStore an interface. - [@dbwiddis](https://github.com/dbwiddis).
+* [#1191](https://github.com/oshi/oshi/pull/1191): Make OSProcess an interface. - [@dbwiddis](https://github.com/dbwiddis).
 
 4.7.0 (4/25/2020), 4.7.1 (5/2/2020)
 ================
