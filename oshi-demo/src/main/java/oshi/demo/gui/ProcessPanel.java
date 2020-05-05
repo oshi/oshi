@@ -196,7 +196,7 @@ public class ProcessPanel extends OshiJPanel { // NOSONAR squid:S110
         return procArr;
     }
 
-    private void resizeColumns(TableColumnModel tableColumnModel) {
+    private static void resizeColumns(TableColumnModel tableColumnModel) {
         TableColumn column;
         int tW = tableColumnModel.getTotalColumnWidth();
         int cantCols = tableColumnModel.getColumnCount();

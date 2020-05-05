@@ -229,7 +229,7 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
         return Collections.unmodifiableList(sorted);
     }
 
-    private int getParentProcessPid(int pid) {
+    private static int getParentProcessPid(int pid) {
         ProcTaskAllInfo taskAllInfo = new ProcTaskAllInfo();
         if (0 > SystemB.INSTANCE.proc_pidinfo(pid, SystemB.PROC_PIDTASKALLINFO, 0, taskAllInfo, taskAllInfo.size())) {
             return 0;

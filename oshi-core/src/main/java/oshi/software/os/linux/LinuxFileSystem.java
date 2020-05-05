@@ -214,7 +214,7 @@ public class LinuxFileSystem extends AbstractFileSystem {
      *            can be allocated.
      * @return Corresponding file descriptor value from the Linux system file.
      */
-    private long getFileDescriptors(int index) {
+    private static long getFileDescriptors(int index) {
         String filename = ProcPath.SYS_FS_FILE_NR;
         if (index < 0 || index > 2) {
             throw new IllegalArgumentException("Index must be between 0 and 2.");

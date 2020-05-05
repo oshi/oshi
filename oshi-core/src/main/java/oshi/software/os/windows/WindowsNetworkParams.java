@@ -113,7 +113,7 @@ final class WindowsNetworkParams extends AbstractNetworkParams {
         return parseIpv6Route();
     }
 
-    private String parseIpv4Route() {
+    private static String parseIpv4Route() {
         List<String> lines = ExecutingCommand.runNative("route print -4 0.0.0.0");
         for (String line : lines) {
             String[] fields = ParseUtil.whitespaces.split(line.trim());
@@ -124,7 +124,7 @@ final class WindowsNetworkParams extends AbstractNetworkParams {
         return "";
     }
 
-    private String parseIpv6Route() {
+    private static String parseIpv6Route() {
         List<String> lines = ExecutingCommand.runNative("route print -6 ::/0");
         for (String line : lines) {
             String[] fields = ParseUtil.whitespaces.split(line.trim());

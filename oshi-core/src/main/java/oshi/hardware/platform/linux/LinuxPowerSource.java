@@ -89,7 +89,7 @@ public final class LinuxPowerSource extends AbstractPowerSource {
         // Get list of power source names
         File f = new File(PS_PATH);
         String[] psNames = f.list();
-        List<LinuxPowerSource> psList = new ArrayList<>(psNames.length);
+        List<LinuxPowerSource> psList = new ArrayList<>();
         // Empty directory will give null rather than empty array, so fix
         if (psNames != null) {
             // For each power source, output various info

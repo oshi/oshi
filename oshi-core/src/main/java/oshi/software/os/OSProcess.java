@@ -349,7 +349,7 @@ public interface OSProcess {
     /**
      * Process Execution States
      */
-    public enum State {
+    enum State {
         /**
          * Intermediate state in process creation
          */

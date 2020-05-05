@@ -60,7 +60,7 @@ final class LinuxFirmware extends AbstractFirmware {
 
     private final Supplier<VcGenCmdStrings> vcGenCmd = memoize(this::queryVcGenCmd);
 
-    private final Supplier<BiosStrings> bios = memoize(this::queryBios);
+    private final Supplier<BiosStrings> bios = memoize(LinuxFirmware::queryBios);
 
     @Override
     public String getManufacturer() {
@@ -205,7 +205,7 @@ final class LinuxFirmware extends AbstractFirmware {
     // BIOS Revision: 4.6
     // Firmware Revision: 0.0
 
-    private BiosStrings queryBios() {
+    private static BiosStrings queryBios() {
         String biosName = null;
         String revision = null;
 

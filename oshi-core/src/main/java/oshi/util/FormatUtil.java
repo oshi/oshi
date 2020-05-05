@@ -219,7 +219,7 @@ public final class FormatUtil {
      * @return long value of x unsigned
      */
     public static long getUnsignedInt(int x) {
-        return x & 0x00000000ffffffffL;
+        return x & 0x0000_0000_ffff_ffffL;
     }
 
     /**

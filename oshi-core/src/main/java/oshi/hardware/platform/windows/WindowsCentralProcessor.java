@@ -138,7 +138,7 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
      *            the key to retrieve
      * @return the string following id
      */
-    private String parseIdentifier(String identifier, String key) {
+    private static String parseIdentifier(String identifier, String key) {
         String[] idSplit = ParseUtil.whitespaces.split(identifier);
         boolean found = false;
         for (String s : idSplit) {
@@ -299,7 +299,7 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
      *            The bit to find matching mask
      * @return The index of the list which matched the bit
      */
-    private int getBitMatchingPackageNumber(List<Long> packageMaskList, int logProc) {
+    private static int getBitMatchingPackageNumber(List<Long> packageMaskList, int logProc) {
         for (int i = 0; i < packageMaskList.size(); i++) {
             if ((packageMaskList.get(i).longValue() & (1L << logProc)) > 0) {
                 return i;

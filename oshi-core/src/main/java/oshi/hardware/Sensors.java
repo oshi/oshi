@@ -48,7 +48,8 @@ public interface Sensors {
     /**
      * CPU Temperature
      *
-     * @return CPU Temperature in degrees Celsius if available, 0 otherwise.
+     * @return CPU Temperature in degrees Celsius if available, 0 or
+     *         {@link Double#NaN} otherwise.
      *         <p>
      *         On Windows, if not running Open Hardware Monitor, requires elevated
      *         permissions and hardware BIOS that supports publishing to WMI. In

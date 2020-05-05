@@ -106,7 +106,7 @@ public final class ParseUtil {
 
     // PDH timestamps are 1601 epoch, local time
     // Constants to convert to UTC millis
-    private static final long EPOCH_DIFF = 11644473600000L;
+    private static final long EPOCH_DIFF = 11_644_473_600_000L;
     private static final int TZ_OFFSET = TimeZone.getDefault().getOffset(System.currentTimeMillis());
 
     /** Constant <code>whitespacesColonWhitespace</code> */
@@ -402,7 +402,7 @@ public final class ParseUtil {
         // then drop any copies of the sign bit, to prevent the value being
         // considered a negative one by Java if it is set
         long longValue = unsignedValue;
-        return longValue & 0xffffffffL;
+        return longValue & 0xffff_ffffL;
     }
 
     /**
@@ -415,7 +415,7 @@ public final class ParseUtil {
      * @return The signed long value.
      */
     public static long unsignedLongToSignedLong(long unsignedValue) {
-        return unsignedValue & 0x7fffffff_ffffffffL;
+        return unsignedValue & 0x7fff_ffff_ffff_ffffL;
     }
 
     /**
@@ -539,13 +539,13 @@ public final class ParseUtil {
         if (m.matches()) {
             long milliseconds = 0L;
             if (m.group(1) != null) {
-                milliseconds += parseLongOrDefault(m.group(1), 0L) * 86400000L;
+                milliseconds += parseLongOrDefault(m.group(1), 0L) * 86_400_000L;
             }
             if (m.group(2) != null) {
-                milliseconds += parseLongOrDefault(m.group(2), 0L) * 3600000L;
+                milliseconds += parseLongOrDefault(m.group(2), 0L) * 3_600_000L;
             }
             if (m.group(3) != null) {
-                milliseconds += parseLongOrDefault(m.group(3), 0L) * 60000L;
+                milliseconds += parseLongOrDefault(m.group(3), 0L) * 60_000L;
             }
             milliseconds += parseLongOrDefault(m.group(4), 0L) * 1000L;
             milliseconds += (long) (1000 * parseDoubleOrDefault("0." + m.group(5), 0d));
@@ -743,7 +743,7 @@ public final class ParseUtil {
                 // Doesn't impact parsing, ignore
                 delimCurrent = false;
             } else if (c >= '0' && c <= '9' && !dashSeen) {
-                if (power > 18 || power == 17 && c == '9' && parsed[parsedIndex] > 223372036854775807L) {
+                if (power > 18 || power == 17 && c == '9' && parsed[parsedIndex] > 223_372_036_854_775_807L) {
                     parsed[parsedIndex] = Long.MAX_VALUE;
                 } else {
                     parsed[parsedIndex] += (c - '0') * ParseUtil.POWERS_OF_TEN[power++];
@@ -864,7 +864,7 @@ public final class ParseUtil {
      * @return Equivalent milliseconds since the epoch
      */
     public static long filetimeToUtcMs(long filetime, boolean local) {
-        return filetime / 10000L - EPOCH_DIFF - (local ? TZ_OFFSET : 0L);
+        return filetime / 10_000L - EPOCH_DIFF - (local ? TZ_OFFSET : 0L);
     }
 
     /**
