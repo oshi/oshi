@@ -28,8 +28,10 @@ import static oshi.util.Memoizer.memoize;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Supplier;
 
 import org.slf4j.Logger;
@@ -58,6 +60,7 @@ import oshi.driver.windows.wmi.Win32Process.CommandLineProperty;
 import oshi.jna.platform.windows.Kernel32;
 import oshi.software.common.AbstractOSProcess;
 import oshi.util.Constants;
+import oshi.util.GlobalConfig;
 import oshi.util.platform.windows.WmiUtil;
 import oshi.util.tuples.Pair;
 
@@ -65,6 +68,17 @@ import oshi.util.tuples.Pair;
 public class WindowsOSProcess extends AbstractOSProcess {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsOSProcess.class);
+
+    // Config param to enable cache
+    public static final String OSHI_OS_WINDOWS_COMMANDLINE_BATCH = "oshi.os.windows.commandline.batch";
+
+    // If configured, use a map to cache command line queries
+    private static final Map<Integer, Pair<Long, String>> commandLineCache = GlobalConfig
+            .get(OSHI_OS_WINDOWS_COMMANDLINE_BATCH, false) ? new HashMap<>() : null;
+    private static final ReentrantLock commandLineCacheLock = GlobalConfig.get(OSHI_OS_WINDOWS_COMMANDLINE_BATCH,
+            false)
+            ? new ReentrantLock()
+            : null;
 
     private static final boolean IS_VISTA_OR_GREATER = VersionHelpers.IsWindowsVistaOrGreater();
     private static final boolean IS_WINDOWS7_OR_GREATER = VersionHelpers.IsWindows7OrGreater();
@@ -285,6 +299,40 @@ public class WindowsOSProcess extends AbstractOSProcess {
     }
 
     private String queryCommandLine() {
+        // Check if cache enabled
+        if (commandLineCache != null) {
+            // Cache enabled. Lock while we process
+            commandLineCacheLock.lock();
+            Pair<Long, String> pair = commandLineCache.get(getProcessID());
+            // Valid process must have been started before map insertion
+            if (pair != null && getStartTime() < pair.getA()) {
+                // Entry is valid, return it!
+                commandLineCacheLock.unlock();
+                return pair.getB();
+            } else {
+                // Invalid entry, rebuild cache
+                long now = System.currentTimeMillis(); // Invalidate processes started after this time
+                WmiResult<CommandLineProperty> commandLineAllProcs = Win32Process.queryCommandLines(null);
+                // Periodically clear cache to recover resources when its size is 2*# of
+                // processes
+                if (commandLineCache.size() >= commandLineAllProcs.getResultCount() * 2) {
+                    commandLineCache.clear();
+                }
+                // Iterate results and put in map, storing current PID along the way
+                String result = "";
+                for (int i = 0; i < commandLineAllProcs.getResultCount(); i++) {
+                    int pid = WmiUtil.getUint32(commandLineAllProcs, CommandLineProperty.PROCESSID, i);
+                    String cl = WmiUtil.getString(commandLineAllProcs, CommandLineProperty.COMMANDLINE, i);
+                    commandLineCache.put(pid, new Pair<>(now, cl));
+                    if (pid == getProcessID()) {
+                        result = cl;
+                    }
+                }
+                commandLineCacheLock.unlock();
+                return result;
+            }
+        }
+        // If no cache enabled, query line by line
         WmiResult<CommandLineProperty> commandLineProcs = Win32Process
                 .queryCommandLines(Collections.singleton(getProcessID()));
         if (commandLineProcs.getResultCount() > 0) {

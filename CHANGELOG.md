@@ -1,5 +1,6 @@
 5.1.0 (in progress)
 ================
+* [#1194](https://github.com/oshi/oshi/pull/1194): Optionally batch WMI Command Line queries. - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here
 
 5.0.0 (5/5/2020)
