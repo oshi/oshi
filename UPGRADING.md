@@ -21,9 +21,16 @@ The `HWPartition` class is now immutable, with setters removed.
 The `HardwareAbstractionLayer` methods `getNetworkIFs()`, `getDisks()`, `getPowerSources()`,
 `getDisplays()`, `getSoundCards()`, `getGraphicsCards()`, `getUsbDevices()`, the 
 the `HWDiskstore` method `getPartitions()`, the `FileSystem` method `getFileStores()`,
-the `GlobalMemory` method `getPhysicalMemory()`, the `CentralProcessor` method `getLogicalProcessors()`,
-and the `UsbDevice` method `getConnectedDevices()`
+the `GlobalMemory` method `getPhysicalMemory()`, the `OperatingSystem` methods for `getProcesses()`,
+the `CentralProcessor` method `getLogicalProcessors()`, and the `UsbDevice` method `getConnectedDevices()`
 now return an `UnmodifiableList` instead of an array.
+
+### Method changes
+
+The `OperatingSystem` methods fetching `OSProcess` information using a `slowFields` boolean have been removed,
+as the behavior they enabled is now done by default.
+
+The `OSFileStore` method `updateAtrributes()` is now spelled correctly as `updateAttributes()`.
 
 ### Deprecated method removal
 
@@ -39,11 +46,6 @@ The deprecated `PowerSource` methods `getRemainingCapacity()` and `getTimeRemain
 replaced by `getRemainingCapacityPercent()` and `getTimeRemainingEstimated()`.
 
 The deprecated `OSProcess` method `calculateCpuPercent()` was removed, replaced by `getProcessCpuLoadCumulative()`.
-
-The `OperatingSystem` methods fetching `OSProcess` information using a `slowFields` boolean have been removed,
-as the behavior they enabled is now done by default.  
-
-The `OSFileStore` method `updateAtrributes()` is now spelled correctly as `updateAttributes()`.
 
 # Guide to upgrading from OSHI 3.x to 4.x
 

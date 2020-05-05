@@ -28,6 +28,7 @@ import static oshi.software.os.OSService.State.STOPPED;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.sun.jna.platform.unix.solaris.LibKstat.Kstat; // NOSONAR squid:S1191
@@ -96,11 +97,11 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
     }
 
     @Override
-    public OSProcess[] getProcesses(int limit, ProcessSort sort) {
+    public List<OSProcess> getProcesses(int limit, ProcessSort sort) {
         List<OSProcess> procs = getProcessListFromPS(
                 "ps -eo s,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etime,time,comm,args", -1);
         List<OSProcess> sorted = processSort(procs, limit, sort);
-        return sorted.toArray(new OSProcess[0]);
+        return Collections.unmodifiableList(sorted);
     }
 
     @Override
@@ -114,18 +115,18 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
     }
 
     @Override
-    public OSProcess[] getChildProcesses(int parentPid, int limit, ProcessSort sort) {
+    public List<OSProcess> getChildProcesses(int parentPid, int limit, ProcessSort sort) {
         // Get list of children
         List<String> childPids = ExecutingCommand.runNative("pgrep -P " + parentPid);
         if (childPids.isEmpty()) {
-            return new OSProcess[0];
+            return Collections.emptyList();
         }
         List<OSProcess> procs = getProcessListFromPS(
                 "ps -o s,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etime,time,comm,args -p "
                         + String.join(",", childPids),
                 -1);
         List<OSProcess> sorted = processSort(procs, limit, sort);
-        return sorted.toArray(new OSProcess[0]);
+        return Collections.unmodifiableList(sorted);
     }
 
     private List<OSProcess> getProcessListFromPS(String psCommand, int pid) {

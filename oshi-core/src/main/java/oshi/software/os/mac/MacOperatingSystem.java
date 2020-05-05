@@ -29,6 +29,7 @@ import static oshi.software.os.OSService.State.STOPPED;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -180,7 +181,7 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
     }
 
     @Override
-    public OSProcess[] getProcesses(int limit, ProcessSort sort) {
+    public List<OSProcess> getProcesses(int limit, ProcessSort sort) {
         List<OSProcess> procs = new ArrayList<>();
         int[] pids = new int[this.maxProc];
         int numberOfProcesses = SystemB.INSTANCE.proc_listpids(SystemB.PROC_ALL_PIDS, 0, pids,
@@ -196,7 +197,7 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
             }
         }
         List<OSProcess> sorted = processSort(procs, limit, sort);
-        return sorted.toArray(new OSProcess[0]);
+        return Collections.unmodifiableList(sorted);
     }
 
     @Override
@@ -206,7 +207,7 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
     }
 
     @Override
-    public OSProcess[] getChildProcesses(int parentPid, int limit, ProcessSort sort) {
+    public List<OSProcess> getChildProcesses(int parentPid, int limit, ProcessSort sort) {
         List<OSProcess> procs = new ArrayList<>();
         int[] pids = new int[this.maxProc];
         int numberOfProcesses = SystemB.INSTANCE.proc_listpids(SystemB.PROC_ALL_PIDS, 0, pids,
@@ -225,7 +226,7 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
             }
         }
         List<OSProcess> sorted = processSort(procs, limit, sort);
-        return sorted.toArray(new OSProcess[0]);
+        return Collections.unmodifiableList(sorted);
     }
 
     private int getParentProcessPid(int pid) {

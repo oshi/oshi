@@ -24,6 +24,7 @@
 package oshi.software.os;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -67,7 +68,7 @@ public class OperatingSystemTest {
         assertTrue(os.getProcessId() > 0);
         assertEquals(os.isElevated(), os.isElevated());
 
-        assertTrue(os.getProcesses(0, null).length > 0);
+        assertFalse(os.getProcesses(0, null).isEmpty());
         OSProcess proc = os.getProcess(os.getProcessId());
         assertTrue(proc.getName().length() > 0);
         assertTrue(proc.getPath().length() > 0);
@@ -114,10 +115,10 @@ public class OperatingSystemTest {
         assertTrue(os.getThreadCount() >= 1);
         assertTrue(os.getProcessId() > 0);
 
-        OSProcess[] processes = os.getProcesses(5, null);
+        List<OSProcess> processes = os.getProcesses(5, null);
         assertNotNull(processes);
         // every OS should have at least one process running on it
-        assertTrue(processes.length > 0);
+        assertFalse(processes.isEmpty());
         // the list of pids we want info on
         List<Integer> pids = new ArrayList<>();
         for (OSProcess p : processes) {
@@ -145,24 +146,22 @@ public class OperatingSystemTest {
      */
     @Test
     public void testGetChildProcesses() {
-        // Testing child processes is tricky because we don't really know a
-        // priori what processes might have children, and if we do test the full
-        // list vs. individual processes, we run into a race condition where
-        // child processes can start or stop before we measure a second time. So
-        // we can't really test for one-to-one correspondence of child process
-        // lists.
+        // Testing child processes is tricky because we don't really know a priori what
+        // processes might have children, and if we do test the full list vs. individual
+        // processes, we run into a race condition where child processes can start or
+        // stop before we measure a second time. So we can't really test for one-to-one
+        // correspondence of child process lists.
         //
         // We can expect code logic failures to occur all/most of the time for
-        // categories of processes, however, and allow occasional differences
-        // due to race conditions. So we will test three categories of
-        // processes: Those with 0 children, those with exactly 1 child process,
-        // and those with multiple child processes. On the second poll, we
-        // expect at least half of those categories to still be in the same
-        // category.
+        // categories of processes, however, and allow occasional differences due to
+        // race conditions. So we will test three categories of processes: Those with 0
+        // children, those with exactly 1 child process, and those with multiple child
+        // processes. On the second poll, we expect at least half of processes in those
+        // categories to still be in the same category.
         //
         SystemInfo si = new SystemInfo();
         OperatingSystem os = si.getOperatingSystem();
-        OSProcess[] processes = os.getProcesses(0, null);
+        List<OSProcess> processes = os.getProcesses(0, null);
         Set<Integer> zeroChildSet = new HashSet<>();
         Set<Integer> oneChildSet = new HashSet<>();
         Set<Integer> manyChildSet = new HashSet<>();
@@ -186,7 +185,7 @@ public class OperatingSystemTest {
         int matched = 0;
         int total = 0;
         for (Integer i : zeroChildSet) {
-            if (os.getChildProcesses(i, 0, null).length == 0) {
+            if (os.getChildProcesses(i, 0, null).isEmpty()) {
                 matched++;
             }
             // Quit if enough to test
@@ -200,7 +199,7 @@ public class OperatingSystemTest {
         matched = 0;
         total = 0;
         for (Integer i : oneChildSet) {
-            if (os.getChildProcesses(i, 0, null).length == 1) {
+            if (os.getChildProcesses(i, 0, null).size() == 1) {
                 matched++;
             }
             // Quit if enough to test
@@ -215,7 +214,7 @@ public class OperatingSystemTest {
         matched = 0;
         total = 0;
         for (Integer i : manyChildSet) {
-            if (os.getChildProcesses(i, 0, null).length > 1) {
+            if (os.getChildProcesses(i, 0, null).size() > 1) {
                 matched++;
             }
             // Quit if enough to test

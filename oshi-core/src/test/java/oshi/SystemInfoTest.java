@@ -250,8 +250,7 @@ public class SystemInfoTest {
                 + Long.toBinaryString(os.getProcessAffinityMask(os.getProcessId())));
         oshi.add("Processes: " + os.getProcessCount() + ", Threads: " + os.getThreadCount());
         // Sort by highest CPU
-        List<OSProcess> procs = Arrays.asList(os.getProcesses(5, ProcessSort.CPU));
-
+        List<OSProcess> procs = os.getProcesses(5, ProcessSort.CPU);
         oshi.add("   PID  %CPU %MEM       VSZ       RSS Name");
         for (int i = 0; i < procs.size() && i < 5; i++) {
             OSProcess p = procs.get(i);

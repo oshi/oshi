@@ -296,7 +296,9 @@ public interface OSProcess {
      * Attempts to updates process attributes. Returns false if the update fails,
      * which will occur if the process no longer exists.
      *
-     * @return {@code true} if the update was successful, false if the update failed
+     * @return {@code true} if the update was successful, false if the update
+     *         failed. In addition, on a failued update the process state will be
+     *         changed to {@link State#INVALID}.
      */
     boolean updateAttributes();
 

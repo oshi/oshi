@@ -84,44 +84,41 @@ public interface OperatingSystem {
     /**
      * Gets currently running processes. No order is guaranteed.
      *
-     * @return An array of {@link oshi.software.common.AbstractOSProcess} objects
-     *         for the specified number (or all) of currently running processes,
-     *         sorted as specified. The array may contain null elements if a process
-     *         terminates during iteration. Some fields that are slow to retrieve
-     *         (e.g., commandlines and group information on Windows, open files on
-     *         Unix and Linux) will be skipped.
+     * @return An {@code UnmodifiableList} of {@link oshi.software.os.OSProcess}
+     *         objects for the specified number (or all) of currently running
+     *         processes, sorted as specified. The list may contain null elements or
+     *         processes with a state of {@link OSProcess.State#INVALID} if a
+     *         process terminates during iteration.
      */
-    OSProcess[] getProcesses();
+    List<OSProcess> getProcesses();
 
     /**
      * Gets currently running processes, optionally limited to the top "N" for a
      * particular sorting order. If a positive limit is specified, returns only that
      * number of processes; zero will return all processes. The order may be
      * specified by the sort parameter, for example, to return the top cpu or memory
-     * consuming processes; if null, no order is guaranteed.
+     * consuming processes; if the sort is {@code null}, no order is guaranteed.
      *
      * @param limit
      *            Max number of results to return, or 0 to return all results
      * @param sort
      *            If not null, determines sorting of results
-     * @return An array of {@link oshi.software.os.OSProcess} objects for the
-     *         specified number (or all) of currently running processes, sorted as
-     *         specified. The array may contain null elements if a process
-     *         terminates during iteration. Some fields that are slow to retrieve
-     *         (e.g., group information on Windows, open files on Unix and Linux)
-     *         will be skipped.
+     * @return An {@code UnmodifiableList} of {@link oshi.software.os.OSProcess}
+     *         objects for the specified number (or all) of currently running
+     *         processes, sorted as specified. The list may contain null elements or
+     *         processes with a state of {@link OSProcess.State#INVALID} if a
+     *         process terminates during iteration.
      */
-    OSProcess[] getProcesses(int limit, ProcessSort sort);
+    List<OSProcess> getProcesses(int limit, ProcessSort sort);
 
     /**
-     * Gets information on a currently running processes. This has improved
-     * performance on Windows based operating systems vs. iterating individual
-     * processes. By default, includes all process information.
+     * Gets information on a {@link Collection} of currently running processes. This
+     * has potentially improved performance vs. iterating individual processes.
      *
      * @param pids
      *            A collection of process IDs
-     * @return An {@link oshi.software.os.OSProcess} object for the specified
-     *         process ids if it is running
+     * @return An {@code UnmodifiableList} of {@link oshi.software.os.OSProcess}
+     *         objects for the specified process ids if it is running
      */
     List<OSProcess> getProcesses(Collection<Integer> pids);
 
@@ -136,11 +133,12 @@ public interface OperatingSystem {
     OSProcess getProcess(int pid);
 
     /**
-     * Gets currently running child processes of provided PID. If a positive limit
-     * is specified, returns only that number of processes; zero will return all
+     * Gets currently running child processes of provided parent PID, optionally
+     * limited to the top "N" for a particular sorting order. If a positive limit is
+     * specified, returns only that number of processes; zero will return all
      * processes. The order may be specified by the sort parameter, for example, to
-     * return the top cpu or memory consuming processes; if null, no order is
-     * guaranteed.
+     * return the top cpu or memory consuming processes; if the sort is
+     * {@code null}, no order is guaranteed.
      *
      * @param parentPid
      *            A process ID
@@ -148,12 +146,14 @@ public interface OperatingSystem {
      *            Max number of results to return, or 0 to return all results
      * @param sort
      *            If not null, determines sorting of results
-     * @return An array of {@link oshi.software.common.AbstractOSProcess} objects
-     *         presenting the specified number (or all) of currently running child
-     *         processes of the provided PID, sorted as specified. The array may
-     *         contain null elements if a process terminates during iteration.
+     * @return An {@code UnmodifiableList} of {@link oshi.software.os.OSProcess}
+     *         objects representing the specified number (or all) of currently
+     *         running child processes of the provided PID, sorted as specified. The
+     *         list may contain null elements or processes with a state of
+     *         {@link OSProcess.State#INVALID} if a process terminates during
+     *         iteration.
      */
-    OSProcess[] getChildProcesses(int parentPid, int limit, ProcessSort sort);
+    List<OSProcess> getChildProcesses(int parentPid, int limit, ProcessSort sort);
 
     /**
      * Retrieves the process affinity mask for the specified process.
@@ -163,6 +163,10 @@ public interface OperatingSystem {
      * mask for that group (which may be zero if the specified process is running in
      * a different group). If the calling process contains threads in multiple
      * groups, returns zero.
+     * <p>
+     * Because macOS does not export interfaces that identify processors or control
+     * thread placement, explicit thread to processor binding is not supported and
+     * this method will return a bitmask of all logical processors.
      * <p>
      * If the Operating System fails to retrieve an affinity mask (e.g., the process
      * has terminated), returns zero.

@@ -33,6 +33,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -272,19 +273,19 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     }
 
     @Override
-    public OSProcess[] getProcesses(int limit, ProcessSort sort) {
+    public List<OSProcess> getProcesses(int limit, ProcessSort sort) {
         List<OSProcess> procList = processMapToList(null);
         List<OSProcess> sorted = processSort(procList, limit, sort);
-        return sorted.toArray(new OSProcess[0]);
+        return Collections.unmodifiableList(sorted);
     }
 
     @Override
     public List<OSProcess> getProcesses(Collection<Integer> pids) {
-        return processMapToList(pids);
+        return Collections.unmodifiableList(processMapToList(pids));
     }
 
     @Override
-    public OSProcess[] getChildProcesses(int parentPid, int limit, ProcessSort sort) {
+    public List<OSProcess> getChildProcesses(int parentPid, int limit, ProcessSort sort) {
         Set<Integer> childPids = new HashSet<>();
         // Get processes from ToolHelp API for parent PID
         Tlhelp32.PROCESSENTRY32.ByReference processEntry = new Tlhelp32.PROCESSENTRY32.ByReference();
@@ -300,7 +301,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         }
         List<OSProcess> procList = getProcesses(childPids);
         List<OSProcess> sorted = processSort(procList, limit, sort);
-        return sorted.toArray(new OSProcess[0]);
+        return Collections.unmodifiableList(sorted);
     }
 
     @Override

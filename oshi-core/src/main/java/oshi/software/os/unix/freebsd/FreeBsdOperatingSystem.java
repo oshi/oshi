@@ -28,6 +28,7 @@ import static oshi.software.os.OSService.State.STOPPED;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -102,10 +103,10 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
     }
 
     @Override
-    public OSProcess[] getProcesses(int limit, ProcessSort sort) {
+    public List<OSProcess> getProcesses(int limit, ProcessSort sort) {
         List<OSProcess> procs = getProcessListFromPS(-1);
         List<OSProcess> sorted = processSort(procs, limit, sort);
-        return sorted.toArray(new OSProcess[0]);
+        return Collections.unmodifiableList(sorted);
     }
 
     @Override
@@ -118,7 +119,7 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
     }
 
     @Override
-    public OSProcess[] getChildProcesses(int parentPid, int limit, ProcessSort sort) {
+    public List<OSProcess> getChildProcesses(int parentPid, int limit, ProcessSort sort) {
         List<OSProcess> procs = new ArrayList<>();
         for (OSProcess p : getProcesses(0, null)) {
             if (p.getParentProcessID() == parentPid) {
@@ -126,7 +127,7 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
             }
         }
         List<OSProcess> sorted = processSort(procs, limit, sort);
-        return sorted.toArray(new OSProcess[0]);
+        return Collections.unmodifiableList(sorted);
     }
 
     private List<OSProcess> getProcessListFromPS(int pid) {

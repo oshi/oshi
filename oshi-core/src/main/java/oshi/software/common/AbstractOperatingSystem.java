@@ -27,6 +27,7 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Supplier;
@@ -181,7 +182,7 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
     }
 
     @Override
-    public OSProcess[] getProcesses() {
+    public List<OSProcess> getProcesses() {
         return getProcesses(0, null);
     }
 
@@ -194,7 +195,7 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
                 returnValue.add(process);
             }
         }
-        return returnValue;
+        return Collections.unmodifiableList(returnValue);
     }
 
     @Override

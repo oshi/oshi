@@ -29,6 +29,7 @@ import static oshi.software.os.OSService.State.STOPPED;
 import java.io.File;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -45,7 +46,6 @@ import oshi.driver.linux.proc.CpuStat;
 import oshi.driver.linux.proc.ProcessStat;
 import oshi.driver.linux.proc.UpTime;
 import oshi.jna.platform.linux.LinuxLibc;
-import oshi.software.common.AbstractOSProcess;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
 import oshi.software.os.InternetProtocolStats;
@@ -153,7 +153,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     }
 
     @Override
-    public OSProcess[] getProcesses(int limit, ProcessSort sort) {
+    public List<OSProcess> getProcesses(int limit, ProcessSort sort) {
         List<OSProcess> procs = new ArrayList<>();
         File[] pids = ProcessStat.getPidFiles();
 
@@ -167,7 +167,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         }
         // Sort
         List<OSProcess> sorted = processSort(procs, limit, sort);
-        return sorted.toArray(new OSProcess[0]);
+        return Collections.unmodifiableList(sorted);
     }
 
     @Override
@@ -180,7 +180,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     }
 
     @Override
-    public OSProcess[] getChildProcesses(int parentPid, int limit, ProcessSort sort) {
+    public List<OSProcess> getChildProcesses(int parentPid, int limit, ProcessSort sort) {
         List<OSProcess> procs = new ArrayList<>();
         File[] procFiles = ProcessStat.getPidFiles();
         // now for each file (with digit name) get process info
@@ -194,7 +194,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
             }
         }
         List<OSProcess> sorted = processSort(procs, limit, sort);
-        return sorted.toArray(new AbstractOSProcess[0]);
+        return Collections.unmodifiableList(sorted);
     }
 
     private static int getParentPidFromProcFile(int pid) {
