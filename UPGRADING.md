@@ -8,7 +8,7 @@ OSHI 5.0.0 is functionally equivalent to 4.7.1 with three categories of changes 
 New applications or applications requiring thread safety should use the 5.x branch.
 Feature parity will be maintained on the 4.x branch for the near future for existing applications. 
 
-## API Changes (in progress)
+## API Changes
 
 ### Setter removal
 
