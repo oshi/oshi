@@ -45,11 +45,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Native; // NOSONAR squid:S1191
-import com.sun.jna.Pointer;
 import com.sun.jna.platform.win32.Advapi32;
 import com.sun.jna.platform.win32.Advapi32Util.EventLogIterator;
 import com.sun.jna.platform.win32.Advapi32Util.EventLogRecord;
-import com.sun.jna.platform.win32.BaseTSD.ULONG_PTRByReference;
 import com.sun.jna.platform.win32.Psapi;
 import com.sun.jna.platform.win32.Psapi.PERFORMANCE_INFORMATION;
 import com.sun.jna.platform.win32.Tlhelp32;
@@ -114,10 +112,10 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
      * Cache full process stats queries. Second query will only populate if first
      * one returns null.
      */
-    private Supplier<Map<Integer, PerfCounterBlock>> processMapFromRegistry = memoize(this::queryProcessMapFromRegistry,
-            defaultExpiration());
+    private Supplier<Map<Integer, PerfCounterBlock>> processMapFromRegistry = memoize(
+            WindowsOperatingSystem::queryProcessMapFromRegistry, defaultExpiration());
     private Supplier<Map<Integer, PerfCounterBlock>> processMapFromPerfCounters = memoize(
-            this::queryProcessMapFromPerfCounters, defaultExpiration());
+            WindowsOperatingSystem::queryProcessMapFromPerfCounters, defaultExpiration());
 
     @Override
     public String queryManufacturer() {
@@ -332,25 +330,12 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         return processList;
     }
 
-    private Map<Integer, PerfCounterBlock> queryProcessMapFromRegistry() {
+    private static Map<Integer, PerfCounterBlock> queryProcessMapFromRegistry() {
         return ProcessPerformanceData.buildProcessMapFromRegistry(null);
     }
 
-    private Map<Integer, PerfCounterBlock> queryProcessMapFromPerfCounters() {
+    private static Map<Integer, PerfCounterBlock> queryProcessMapFromPerfCounters() {
         return ProcessPerformanceData.buildProcessMapFromPerfCounters(null);
-    }
-
-    @Override
-    public long getProcessAffinityMask(int processId) {
-        final HANDLE pHandle = Kernel32.INSTANCE.OpenProcess(WinNT.PROCESS_QUERY_INFORMATION, false, processId);
-        if (pHandle != null) {
-            ULONG_PTRByReference processAffinity = new ULONG_PTRByReference();
-            ULONG_PTRByReference systemAffinity = new ULONG_PTRByReference();
-            if (Kernel32.INSTANCE.GetProcessAffinityMask(pHandle, processAffinity, systemAffinity)) {
-                return Pointer.nativeValue(processAffinity.getValue().toPointer());
-            }
-        }
-        return 0L;
     }
 
     @Override

@@ -238,13 +238,6 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
     }
 
     @Override
-    public long getProcessAffinityMask(int processId) {
-        // macOS doesn't do affinity. Return a bitmask of the current processors.
-        int logicalProcessorCount = SysctlUtil.sysctl("hw.logicalcpu", 1);
-        return logicalProcessorCount < 64 ? (1L << logicalProcessorCount) - 1 : -1L;
-    }
-
-    @Override
     public int getProcessId() {
         return SystemB.INSTANCE.getpid();
     }

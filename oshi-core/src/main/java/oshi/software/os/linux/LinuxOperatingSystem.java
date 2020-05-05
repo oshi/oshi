@@ -27,7 +27,6 @@ import static oshi.software.os.OSService.State.RUNNING;
 import static oshi.software.os.OSService.State.STOPPED;
 
 import java.io.File;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -206,22 +205,6 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         // Grab PPID
         long[] statArray = ParseUtil.parseStringToLongArray(stat, PPID_INDEX, ProcessStat.PROC_PID_STAT_LENGTH, ' ');
         return (int) statArray[0];
-    }
-
-    @Override
-    public long getProcessAffinityMask(int processId) {
-        // Would prefer to use native sched_getaffinity call but variable sizing is
-        // kernel-dependent and requires C macros, so we use command line instead.
-        String mask = ExecutingCommand.getFirstAnswer("taskset -p " + processId);
-        // Output:
-        // pid 3283's current affinity mask: 3
-        // pid 9726's current affinity mask: f
-        String[] split = ParseUtil.whitespaces.split(mask);
-        try {
-            return new BigInteger(split[split.length - 1], 16).longValue();
-        } catch (NumberFormatException e) {
-            return 0;
-        }
     }
 
     @Override

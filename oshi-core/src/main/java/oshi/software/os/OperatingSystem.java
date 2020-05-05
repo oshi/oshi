@@ -156,29 +156,6 @@ public interface OperatingSystem {
     List<OSProcess> getChildProcesses(int parentPid, int limit, ProcessSort sort);
 
     /**
-     * Retrieves the process affinity mask for the specified process.
-     * <p>
-     * On Windows systems with more than 64 processors, if the threads of the
-     * calling process are in a single processor group, returns the process affinity
-     * mask for that group (which may be zero if the specified process is running in
-     * a different group). If the calling process contains threads in multiple
-     * groups, returns zero.
-     * <p>
-     * Because macOS does not export interfaces that identify processors or control
-     * thread placement, explicit thread to processor binding is not supported and
-     * this method will return a bitmask of all logical processors.
-     * <p>
-     * If the Operating System fails to retrieve an affinity mask (e.g., the process
-     * has terminated), returns zero.
-     *
-     * @param processId
-     *            The process ID for which to retrieve the affinity.
-     * @return a bit vector in which each bit represents the processors that a
-     *         process is allowed to run on.
-     */
-    long getProcessAffinityMask(int processId);
-
-    /**
      * Gets the current process ID
      *
      * @return the Process ID of the current process

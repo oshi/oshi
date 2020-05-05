@@ -259,6 +259,13 @@ public class MacOSProcess extends AbstractOSProcess {
     }
 
     @Override
+    public long getAffinityMask() {
+        // macOS doesn't do affinity. Return a bitmask of the current processors.
+        int logicalProcessorCount = SysctlUtil.sysctl("hw.logicalcpu", 1);
+        return logicalProcessorCount < 64 ? (1L << logicalProcessorCount) - 1 : -1L;
+    }
+
+    @Override
     public boolean updateAttributes() {
         long now = System.currentTimeMillis();
         ProcTaskAllInfo taskAllInfo = new ProcTaskAllInfo();

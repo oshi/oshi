@@ -28,7 +28,7 @@ import static oshi.util.Memoizer.memoize;
 import java.util.List;
 import java.util.function.Supplier;
 
-import com.sun.jna.Memory;
+import com.sun.jna.Memory; // NOSONAR squid:S1191
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 
@@ -177,6 +177,28 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
     @Override
     public int getBitness() {
         return this.bitness.get();
+    }
+
+    @Override
+    public long getAffinityMask() {
+        long bitMask = 0L;
+        // Would prefer to use native cpuset_getaffinity call but variable sizing is
+        // kernel-dependent and requires C macros, so we use commandline instead.
+        String cpuset = ExecutingCommand.getFirstAnswer("cpuset -gp " + getProcessID());
+        // Sample output:
+        // pid 8 mask: 0, 1
+        // cpuset: getaffinity: No such process
+        String[] split = cpuset.split(":");
+        if (split.length > 1) {
+            String[] bits = split[1].split(",");
+            for (String bit : bits) {
+                int bitToSet = ParseUtil.parseIntOrDefault(bit.trim(), -1);
+                if (bitToSet >= 0) {
+                    bitMask |= 1L << bitToSet;
+                }
+            }
+        }
+        return bitMask;
     }
 
     private int queryBitness() {

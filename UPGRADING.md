@@ -30,6 +30,8 @@ now return an `UnmodifiableList` instead of an array.
 The `OperatingSystem` methods fetching `OSProcess` information using a `slowFields` boolean have been removed,
 as the behavior they enabled is now done by default.
 
+The `OperatingSystem` method `getProcessAffinityMask()` is now on the `OSProcess` object as `getAffinityMask()`.
+
 The `OSFileStore` method `updateAtrributes()` is now spelled correctly as `updateAttributes()`.
 
 ### Deprecated method removal

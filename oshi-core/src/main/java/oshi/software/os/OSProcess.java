@@ -1,3 +1,26 @@
+/**
+ * MIT License
+ *
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 package oshi.software.os;
 
 public interface OSProcess {
@@ -291,6 +314,27 @@ public interface OSProcess {
      * @return The bitness, if able to be determined, 0 otherwise.
      */
     int getBitness();
+
+    /**
+     * Retrieves the process affinity mask for this process.
+     * <p>
+     * On Windows systems with more than 64 processors, if the threads of the
+     * calling process are in a single processor group, returns the process affinity
+     * mask for that group (which may be zero if the specified process is running in
+     * a different group). If the calling process contains threads in multiple
+     * groups, returns zero.
+     * <p>
+     * Because macOS does not export interfaces that identify processors or control
+     * thread placement, explicit thread to processor binding is not supported and
+     * this method will return a bitmask of all logical processors.
+     * <p>
+     * If the Operating System fails to retrieve an affinity mask (e.g., the process
+     * has terminated), returns zero.
+     *
+     * @return a bit vector in which each bit represents the processors that a
+     *         process is allowed to run on.
+     */
+    long getAffinityMask();
 
     /**
      * Attempts to updates process attributes. Returns false if the update fails,

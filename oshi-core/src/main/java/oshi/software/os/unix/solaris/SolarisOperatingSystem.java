@@ -129,7 +129,7 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
         return Collections.unmodifiableList(sorted);
     }
 
-    private List<OSProcess> getProcessListFromPS(String psCommand, int pid) {
+    private static List<OSProcess> getProcessListFromPS(String psCommand, int pid) {
         List<OSProcess> procs = new ArrayList<>();
         List<String> procList = ExecutingCommand.runNative(psCommand + (pid < 0 ? "" : pid));
         if (procList.isEmpty() || procList.size() < 2) {
@@ -146,39 +146,6 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
             }
         }
         return procs;
-    }
-
-    @Override
-    public long getProcessAffinityMask(int processId) {
-        long bitMask = 0L;
-        String cpuset = ExecutingCommand.getFirstAnswer("pbind -q " + processId);
-        // Sample output:
-        // <empty string if no binding>
-        // pid 101048 strongly bound to processor(s) 0 1 2 3.
-        if (cpuset.isEmpty()) {
-            List<String> allProcs = ExecutingCommand.runNative("psrinfo");
-            for (String proc : allProcs) {
-                String[] split = ParseUtil.whitespaces.split(proc);
-                int bitToSet = ParseUtil.parseIntOrDefault(split[0], -1);
-                if (bitToSet >= 0) {
-                    bitMask |= 1L << bitToSet;
-                }
-            }
-            return bitMask;
-        } else if (cpuset.endsWith(".") && cpuset.contains("strongly bound to processor(s)")) {
-            String parse = cpuset.substring(0, cpuset.length() - 1);
-            String[] split = ParseUtil.whitespaces.split(parse);
-            for (int i = split.length - 1; i >= 0; i--) {
-                int bitToSet = ParseUtil.parseIntOrDefault(split[i], -1);
-                if (bitToSet >= 0) {
-                    bitMask |= 1L << bitToSet;
-                } else {
-                    // Once we run into the word processor(s) we're done
-                    break;
-                }
-            }
-        }
-        return bitMask;
     }
 
     @Override

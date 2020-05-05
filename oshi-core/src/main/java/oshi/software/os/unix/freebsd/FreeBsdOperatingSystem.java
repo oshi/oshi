@@ -130,7 +130,7 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
         return Collections.unmodifiableList(sorted);
     }
 
-    private List<OSProcess> getProcessListFromPS(int pid) {
+    private static List<OSProcess> getProcessListFromPS(int pid) {
         List<OSProcess> procs = new ArrayList<>();
         String psCommand = "ps -awwxo state,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etimes,systime,time,comm,args";
         if (pid >= 0) {
@@ -151,28 +151,6 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
             }
         }
         return procs;
-    }
-
-    @Override
-    public long getProcessAffinityMask(int processId) {
-        long bitMask = 0L;
-        // Would prefer to use native cpuset_getaffinity call but variable sizing is
-        // kernel-dependent and requires C macros, so we use commandline instead.
-        String cpuset = ExecutingCommand.getFirstAnswer("cpuset -gp " + processId);
-        // Sample output:
-        // pid 8 mask: 0, 1
-        // cpuset: getaffinity: No such process
-        String[] split = cpuset.split(":");
-        if (split.length > 1) {
-            String[] bits = split[1].split(",");
-            for (String bit : bits) {
-                int bitToSet = ParseUtil.parseIntOrDefault(bit.trim(), -1);
-                if (bitToSet >= 0) {
-                    bitMask |= 1L << bitToSet;
-                }
-            }
-        }
-        return bitMask;
     }
 
     @Override

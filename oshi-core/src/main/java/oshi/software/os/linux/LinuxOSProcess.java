@@ -29,6 +29,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
@@ -211,7 +212,6 @@ public class LinuxOSProcess extends AbstractOSProcess {
         return ExecutingCommand.runNative(String.format(LS_F_PROC_PID_FD, getProcessID())).size() - 1L;
     }
 
-    // Overridden here because it is slower
     @Override
     public int getBitness() {
         return this.bitness.get();
@@ -231,6 +231,22 @@ public class LinuxOSProcess extends AbstractOSProcess {
             }
         }
         return 0;
+    }
+
+    @Override
+    public long getAffinityMask() {
+        // Would prefer to use native sched_getaffinity call but variable sizing is
+        // kernel-dependent and requires C macros, so we use command line instead.
+        String mask = ExecutingCommand.getFirstAnswer("taskset -p " + getProcessID());
+        // Output:
+        // pid 3283's current affinity mask: 3
+        // pid 9726's current affinity mask: f
+        String[] split = ParseUtil.whitespaces.split(mask);
+        try {
+            return new BigInteger(split[split.length - 1], 16).longValue();
+        } catch (NumberFormatException e) {
+            return 0;
+        }
     }
 
     @Override

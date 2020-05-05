@@ -30,7 +30,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Pointer;
+import com.sun.jna.Pointer; // NOSONAR squid:s1191
 import com.sun.jna.platform.win32.VersionHelpers;
 import com.sun.jna.platform.win32.Wtsapi32;
 import com.sun.jna.platform.win32.Wtsapi32.WTS_PROCESS_INFO_EX;
@@ -105,7 +105,6 @@ public final class ProcessWtsData {
         if (!Wtsapi32.INSTANCE.WTSFreeMemoryEx(Wtsapi32.WTS_PROCESS_INFO_LEVEL_1, pProcessInfo, pCount.getValue())) {
             LOG.warn("Failed to Free Memory for Processes. Error code: {}", Kernel32.INSTANCE.GetLastError());
         }
-        pProcessInfo = null;
         return wtsMap;
     }
 

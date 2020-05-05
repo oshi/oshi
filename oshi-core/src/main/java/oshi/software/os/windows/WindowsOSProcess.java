@@ -35,9 +35,11 @@ import java.util.function.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.platform.win32.Advapi32; // NOSONAR squid:S1191
+import com.sun.jna.Pointer; // NOSONAR squid:S1191
+import com.sun.jna.platform.win32.Advapi32;
 import com.sun.jna.platform.win32.Advapi32Util;
 import com.sun.jna.platform.win32.Advapi32Util.Account;
+import com.sun.jna.platform.win32.BaseTSD.ULONG_PTRByReference;
 import com.sun.jna.platform.win32.Kernel32Util;
 import com.sun.jna.platform.win32.VersionHelpers;
 import com.sun.jna.platform.win32.Win32Exception;
@@ -215,6 +217,19 @@ public class WindowsOSProcess extends AbstractOSProcess {
     @Override
     public int getBitness() {
         return this.bitness;
+    }
+
+    @Override
+    public long getAffinityMask() {
+        final HANDLE pHandle = Kernel32.INSTANCE.OpenProcess(WinNT.PROCESS_QUERY_INFORMATION, false, getProcessID());
+        if (pHandle != null) {
+            ULONG_PTRByReference processAffinity = new ULONG_PTRByReference();
+            ULONG_PTRByReference systemAffinity = new ULONG_PTRByReference();
+            if (Kernel32.INSTANCE.GetProcessAffinityMask(pHandle, processAffinity, systemAffinity)) {
+                return Pointer.nativeValue(processAffinity.getValue().toPointer());
+            }
+        }
+        return 0L;
     }
 
     @Override
