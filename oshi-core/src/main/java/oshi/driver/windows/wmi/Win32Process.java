@@ -61,20 +61,24 @@ public final class Win32Process {
      * Returns process command lines
      *
      * @param pidsToQuery
-     *            Process IDs to query for command lines.
-     * @return Command line used to start the provided processes.
+     *            Process IDs to query for command lines. Pass {@code null} to query
+     *            all processes.
+     * @return A {@link WmiResult} containing process IDs and command lines used to
+     *         start the provided processes.
      */
     public static WmiResult<CommandLineProperty> queryCommandLines(Set<Integer> pidsToQuery) {
         StringBuilder sb = new StringBuilder(WIN32_PROCESS);
-        boolean first = true;
-        for (Integer pid : pidsToQuery) {
-            if (first) {
-                sb.append(" WHERE ProcessID=");
-                first = false;
-            } else {
-                sb.append(" OR ProcessID=");
+        if (pidsToQuery != null) {
+            boolean first = true;
+            for (Integer pid : pidsToQuery) {
+                if (first) {
+                    sb.append(" WHERE ProcessID=");
+                    first = false;
+                } else {
+                    sb.append(" OR ProcessID=");
+                }
+                sb.append(pid);
             }
-            sb.append(pid);
         }
         WmiQuery<CommandLineProperty> commandLineQuery = new WmiQuery<>(sb.toString(), CommandLineProperty.class);
         return WmiQueryHandler.createInstance().queryWMI(commandLineQuery);

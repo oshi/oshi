@@ -95,7 +95,7 @@ public class SolarisOSFileStore extends AbstractOSFileStore {
     }
 
     @Override
-    public boolean updateAtrributes() {
+    public boolean updateAttributes() {
         for (OSFileStore fileStore : SolarisFileSystem.getFileStoreMatching(getName())) {
             if (getVolume().equals(fileStore.getVolume()) && getMount().equals(fileStore.getMount())) {
                 this.logicalVolume = fileStore.getLogicalVolume();

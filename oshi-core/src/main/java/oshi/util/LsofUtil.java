@@ -70,4 +70,33 @@ public final class LsofUtil {
         }
         return cwdMap;
     }
+
+    /**
+     * Gets current working directory info
+     *
+     * @param pid
+     *            a process ID
+     * @return the current working directory for that process.
+     */
+    public static String getCwd(int pid) {
+        List<String> lsof = ExecutingCommand.runNative("lsof -Fn -d cwd -p " + pid);
+        for (String line : lsof) {
+            if (!line.isEmpty() && line.charAt(0) == 'n') {
+                return line.substring(1).trim();
+            }
+        }
+        return "";
+    }
+
+    /**
+     * Gets open files
+     *
+     * @param pid
+     *            The process ID
+     * @return the number of open files.
+     */
+    public static long getOpenFiles(int pid) {
+        // subtract 1 from size for header
+        return ExecutingCommand.runNative(String.format("lsof -p %d", pid)).size() - 1L;
+    }
 }

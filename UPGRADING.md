@@ -12,7 +12,7 @@ Feature parity will be maintained on the 4.x branch for the near future for exis
 
 ### Setter removal
 
-The `NetworkIF`, `HWDiskStore`, and `OSFileStore` classes are now interfaces, with setters removed.
+The `NetworkIF`, `HWDiskStore`, `OSFileStore`, and `OSProcess` classes are now interfaces, with setters removed.
 
 The `HWPartition` class is now immutable, with setters removed.
 
@@ -21,9 +21,18 @@ The `HWPartition` class is now immutable, with setters removed.
 The `HardwareAbstractionLayer` methods `getNetworkIFs()`, `getDisks()`, `getPowerSources()`,
 `getDisplays()`, `getSoundCards()`, `getGraphicsCards()`, `getUsbDevices()`, the 
 the `HWDiskstore` method `getPartitions()`, the `FileSystem` method `getFileStores()`,
-the `GlobalMemory` method `getPhysicalMemory()`, the `CentralProcessor` method `getLogicalProcessors()`,
-and the `UsbDevice` method `getConnectedDevices()`
+the `GlobalMemory` method `getPhysicalMemory()`, the `OperatingSystem` methods for `getProcesses()`,
+the `CentralProcessor` method `getLogicalProcessors()`, and the `UsbDevice` method `getConnectedDevices()`
 now return an `UnmodifiableList` instead of an array.
+
+### Method changes
+
+The `OperatingSystem` methods fetching `OSProcess` information using a `slowFields` boolean have been removed,
+as the behavior they enabled is now done by default.
+
+The `OperatingSystem` method `getProcessAffinityMask()` is now on the `OSProcess` object as `getAffinityMask()`.
+
+The `OSFileStore` method `updateAtrributes()` is now spelled correctly as `updateAttributes()`.
 
 ### Deprecated method removal
 

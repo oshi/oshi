@@ -63,12 +63,10 @@ public abstract class AbstractOSFileStore implements OSFileStore {
         return this.label;
     }
 
-
     @Override
     public String getMount() {
         return this.mount;
     }
-
 
     @Override
     public String getOptions() {

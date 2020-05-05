@@ -84,7 +84,7 @@ public interface NetworkIF {
     /**
      * The Internet Protocol (IP) v4 address.
      *
-     * @return The IPv4 Addresses.
+     * @return An array of IPv4 Addresses.
      *         <p>
      *         This value is set when the {@link oshi.hardware.NetworkIF} is
      *         instantiated and may not be up to date.
@@ -94,7 +94,8 @@ public interface NetworkIF {
     /**
      * The Internet Protocol (IP) v4 subnet masks.
      *
-     * @return The IPv4 subnet mask length. Ranges between 0-32.
+     * @return An array of IPv4 subnet mask lengths, corresponding to the IPv4
+     *         addresses from {@link #getIPv4addr()}. Ranges between 0-32.
      *         <p>
      *         This value is set when the {@link oshi.hardware.NetworkIF} is
      *         instantiated and may not be up to date.
@@ -105,7 +106,7 @@ public interface NetworkIF {
     /**
      * The Internet Protocol (IP) v6 address.
      *
-     * @return The IPv6 Addresses.
+     * @return An array of IPv6 Addresses.
      *         <p>
      *         This value is set when the {@link oshi.hardware.NetworkIF} is
      *         instantiated and may not be up to date.
@@ -115,7 +116,8 @@ public interface NetworkIF {
     /**
      * The Internet Protocol (IP) v6 address.
      *
-     * @return The IPv6 address prefix lengths. Ranges between 0-128.
+     * @return The IPv6 address prefix lengths, corresponding to the IPv6 addresses
+     *         from {@link #getIPv6addr()}. Ranges between 0-128.
      *         <p>
      *         This value is set when the {@link oshi.hardware.NetworkIF} is
      *         instantiated and may not be up to date.

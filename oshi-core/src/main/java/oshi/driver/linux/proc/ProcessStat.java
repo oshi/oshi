@@ -328,6 +328,22 @@ public final class ProcessStat {
         EXIT_CODE;
     }
 
+    /**
+     * Constant defining the number of integer values in {@code /proc/pid/stat}. 2.6
+     * Kernel has 44 elements, 3.3 has 47, and 3.5 has 52.
+     */
+    public static final int PROC_PID_STAT_LENGTH;
+    static {
+        String stat = FileUtil.getStringFromFile(ProcPath.SELF_STAT);
+        if (!stat.isEmpty() && stat.contains(")")) {
+            // add 3 to account for pid, process name in prarenthesis, and state
+            PROC_PID_STAT_LENGTH = ParseUtil.countStringToLongArray(stat, ' ') + 3;
+        } else {
+            // Default assuming recent kernel
+            PROC_PID_STAT_LENGTH = 52;
+        }
+    }
+
     private ProcessStat() {
     }
 

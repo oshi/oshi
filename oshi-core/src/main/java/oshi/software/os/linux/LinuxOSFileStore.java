@@ -95,7 +95,7 @@ public class LinuxOSFileStore extends AbstractOSFileStore {
     }
 
     @Override
-    public boolean updateAtrributes() {
+    public boolean updateAttributes() {
         for (OSFileStore fileStore : LinuxFileSystem.getFileStoreMatching(getName(), null)) {
             if (getVolume().equals(fileStore.getVolume()) && getMount().equals(fileStore.getMount())) {
                 this.logicalVolume = fileStore.getLogicalVolume();

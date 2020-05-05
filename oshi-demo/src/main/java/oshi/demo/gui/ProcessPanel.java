@@ -140,12 +140,12 @@ public class ProcessPanel extends OshiJPanel { // NOSONAR squid:S110
         timer.start();
     }
 
-    private Object[][] parseProcesses(OSProcess[] procs, SystemInfo si) {
+    private Object[][] parseProcesses(List<OSProcess> list, SystemInfo si) {
         long totalMem = si.getHardware().getMemory().getTotal();
         int cpuCount = si.getHardware().getProcessor().getLogicalProcessorCount();
         // Build a map with a value for each process to control the sort
         Map<OSProcess, Double> processSortValueMap = new HashMap<>();
-        for (OSProcess p : procs) {
+        for (OSProcess p : list) {
             int pid = p.getProcessID();
             // Ignore the Idle process on Windows
             if (pid > 0 || !SystemInfo.getCurrentPlatformEnum().equals(PlatformEnum.WINDOWS)) {
@@ -190,7 +190,7 @@ public class ProcessPanel extends OshiJPanel { // NOSONAR squid:S110
         }
         // Re-populate snapshot map
         priorSnapshotMap.clear();
-        for (OSProcess p : procs) {
+        for (OSProcess p : list) {
             priorSnapshotMap.put(p.getProcessID(), p);
         }
         return procArr;

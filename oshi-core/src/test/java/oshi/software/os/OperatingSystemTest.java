@@ -28,7 +28,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -39,6 +38,7 @@ import java.util.Set;
 import org.junit.Test;
 
 import oshi.SystemInfo;
+import oshi.software.os.OSProcess.State;
 import oshi.software.os.OperatingSystem.OSVersionInfo;
 
 /**
@@ -68,7 +68,7 @@ public class OperatingSystemTest {
         assertTrue(os.getProcessId() > 0);
         assertEquals(os.isElevated(), os.isElevated());
 
-        assertTrue(os.getProcesses(0, null).length > 0);
+        assertFalse(os.getProcesses(0, null).isEmpty());
         OSProcess proc = os.getProcess(os.getProcessId());
         assertTrue(proc.getName().length() > 0);
         assertTrue(proc.getPath().length() > 0);
@@ -78,7 +78,7 @@ public class OperatingSystemTest {
         assertNotNull(proc.getUserID());
         assertNotNull(proc.getGroup());
         assertNotNull(proc.getGroupID());
-        assertNotNull(proc.getState());
+        assertNotEquals(State.INVALID, proc.getState());
         assertEquals(proc.getProcessID(), os.getProcessId());
         assertTrue(proc.getParentProcessID() >= 0);
         assertTrue(proc.getThreadCount() > 0);
@@ -91,20 +91,11 @@ public class OperatingSystemTest {
         assertTrue(proc.getProcessCpuLoadCumulative() >= 0d);
         assertEquals(proc.getProcessCpuLoadCumulative(), proc.getProcessCpuLoadBetweenTicks(null), Double.MIN_VALUE);
         assertEquals(proc.getProcessCpuLoadCumulative(), proc.getProcessCpuLoadBetweenTicks(proc), Double.MIN_VALUE);
-        OSProcess oldProc = new OSProcess(os);
-        oldProc.setProcessID(proc.getProcessID());
-        proc.setUpTime(2L);
-        proc.setKernelTime(1L);
-        proc.setUserTime(1L);
-        assertEquals(1d, proc.getProcessCpuLoadBetweenTicks(oldProc), Double.MIN_VALUE);
         assertTrue(proc.getStartTime() >= 0);
         assertTrue(proc.getBytesRead() >= 0);
         assertTrue(proc.getBytesWritten() >= 0);
-        if (os.getBitness() == 32) {
-            assertEquals("Process on 32-bit OS must have bitness 0 or 32", 0, proc.getBitness() & ~32);
-        } else {
-            assertEquals("Process on 64-bit OS must have bitness 0, 32, or 64", 0, proc.getBitness() & ~(32 + 64));
-        }
+        assertTrue("Process bitness can't exceed OS bitness", proc.getBitness() <= os.getBitness());
+        assertEquals("Bitness must be 0, 32 or 64", 0, proc.getBitness() & ~(32 | 64));
         assertTrue(proc.getOpenFiles() >= -1);
     }
 
@@ -124,10 +115,10 @@ public class OperatingSystemTest {
         assertTrue(os.getThreadCount() >= 1);
         assertTrue(os.getProcessId() > 0);
 
-        OSProcess[] processes = os.getProcesses(5, null);
+        List<OSProcess> processes = os.getProcesses(5, null);
         assertNotNull(processes);
         // every OS should have at least one process running on it
-        assertTrue(processes.length > 0);
+        assertFalse(processes.isEmpty());
         // the list of pids we want info on
         List<Integer> pids = new ArrayList<>();
         for (OSProcess p : processes) {
@@ -136,8 +127,7 @@ public class OperatingSystemTest {
         // query for just those processes
         Collection<OSProcess> processes1 = os.getProcesses(pids);
         // there's a potential for a race condition here, if a process we
-        // queried
-        // for initially wasn't running during the second query. In this case,
+        // queried for initially wasn't running during the second query. In this case,
         // try again with the shorter list
         while (processes1.size() < pids.size()) {
             pids.clear();
@@ -156,24 +146,22 @@ public class OperatingSystemTest {
      */
     @Test
     public void testGetChildProcesses() {
-        // Testing child processes is tricky because we don't really know a
-        // priori what processes might have children, and if we do test the full
-        // list vs. individual processes, we run into a race condition where
-        // child processes can start or stop before we measure a second time. So
-        // we can't really test for one-to-one correspondence of child process
-        // lists.
+        // Testing child processes is tricky because we don't really know a priori what
+        // processes might have children, and if we do test the full list vs. individual
+        // processes, we run into a race condition where child processes can start or
+        // stop before we measure a second time. So we can't really test for one-to-one
+        // correspondence of child process lists.
         //
         // We can expect code logic failures to occur all/most of the time for
-        // categories of processes, however, and allow occasional differences
-        // due to race conditions. So we will test three categories of
-        // processes: Those with 0 children, those with exactly 1 child process,
-        // and those with multiple child processes. On the second poll, we
-        // expect at least half of those categories to still be in the same
-        // category.
+        // categories of processes, however, and allow occasional differences due to
+        // race conditions. So we will test three categories of processes: Those with 0
+        // children, those with exactly 1 child process, and those with multiple child
+        // processes. On the second poll, we expect at least half of processes in those
+        // categories to still be in the same category.
         //
         SystemInfo si = new SystemInfo();
         OperatingSystem os = si.getOperatingSystem();
-        OSProcess[] processes = os.getProcesses(0, null);
+        List<OSProcess> processes = os.getProcesses(0, null);
         Set<Integer> zeroChildSet = new HashSet<>();
         Set<Integer> oneChildSet = new HashSet<>();
         Set<Integer> manyChildSet = new HashSet<>();
@@ -197,7 +185,7 @@ public class OperatingSystemTest {
         int matched = 0;
         int total = 0;
         for (Integer i : zeroChildSet) {
-            if (os.getChildProcesses(i, 0, null).length == 0) {
+            if (os.getChildProcesses(i, 0, null).isEmpty()) {
                 matched++;
             }
             // Quit if enough to test
@@ -211,7 +199,7 @@ public class OperatingSystemTest {
         matched = 0;
         total = 0;
         for (Integer i : oneChildSet) {
-            if (os.getChildProcesses(i, 0, null).length == 1) {
+            if (os.getChildProcesses(i, 0, null).size() == 1) {
                 matched++;
             }
             // Quit if enough to test
@@ -226,7 +214,7 @@ public class OperatingSystemTest {
         matched = 0;
         total = 0;
         for (Integer i : manyChildSet) {
-            if (os.getChildProcesses(i, 0, null).length > 1) {
+            if (os.getChildProcesses(i, 0, null).size() > 1) {
                 matched++;
             }
             // Quit if enough to test
@@ -240,102 +228,19 @@ public class OperatingSystemTest {
         }
     }
 
-    /**
-     * Test OSProcess setters and getters
-     */
-    @Test
-    public void testOSProcessSetters() {
-        SystemInfo si = new SystemInfo();
-        OperatingSystem os = si.getOperatingSystem();
-        OSProcess oldProcess = os.getProcess(os.getProcessId());
-
-        OSProcess newProcess = new OSProcess(os);
-        newProcess.setName(oldProcess.getName());
-        newProcess.setPath(oldProcess.getPath());
-        newProcess.setCommandLine(oldProcess.getCommandLine());
-        newProcess.setCurrentWorkingDirectory(oldProcess.getCurrentWorkingDirectory());
-        newProcess.setUser(oldProcess.getUser());
-        newProcess.setUserID(oldProcess.getUserID());
-        newProcess.setGroup(oldProcess.getGroup());
-        newProcess.setGroupID(oldProcess.getGroupID());
-        newProcess.setState(oldProcess.getState());
-        newProcess.setProcessID(oldProcess.getProcessID());
-        newProcess.setParentProcessID(oldProcess.getParentProcessID());
-        newProcess.setThreadCount(oldProcess.getThreadCount());
-        newProcess.setPriority(oldProcess.getPriority());
-        newProcess.setVirtualSize(oldProcess.getVirtualSize());
-        newProcess.setResidentSetSize(oldProcess.getResidentSetSize());
-        newProcess.setKernelTime(oldProcess.getKernelTime());
-        newProcess.setUserTime(oldProcess.getUserTime());
-        newProcess.setUpTime(oldProcess.getUpTime());
-        newProcess.setStartTime(oldProcess.getStartTime());
-        newProcess.setBytesRead(oldProcess.getBytesRead());
-        newProcess.setBytesWritten(oldProcess.getBytesWritten());
-
-        assertEquals(oldProcess.getName(), newProcess.getName());
-        assertEquals(oldProcess.getPath(), newProcess.getPath());
-        assertEquals(oldProcess.getCommandLine(), newProcess.getCommandLine());
-        assertEquals(oldProcess.getCurrentWorkingDirectory(), newProcess.getCurrentWorkingDirectory());
-        assertEquals(oldProcess.getUser(), newProcess.getUser());
-        assertEquals(oldProcess.getUserID(), newProcess.getUserID());
-        assertEquals(oldProcess.getGroup(), newProcess.getGroup());
-        assertEquals(oldProcess.getGroupID(), newProcess.getGroupID());
-        assertEquals(oldProcess.getState(), newProcess.getState());
-        assertEquals(oldProcess.getProcessID(), newProcess.getProcessID());
-        assertEquals(oldProcess.getParentProcessID(), newProcess.getParentProcessID());
-        assertEquals(oldProcess.getThreadCount(), newProcess.getThreadCount());
-        assertEquals(oldProcess.getPriority(), newProcess.getPriority());
-        assertEquals(oldProcess.getVirtualSize(), newProcess.getVirtualSize());
-        assertEquals(oldProcess.getResidentSetSize(), newProcess.getResidentSetSize());
-        assertEquals(oldProcess.getKernelTime(), newProcess.getKernelTime());
-        assertEquals(oldProcess.getUserTime(), newProcess.getUserTime());
-        assertEquals(oldProcess.getUpTime(), newProcess.getUpTime());
-        assertEquals(oldProcess.getStartTime(), newProcess.getStartTime());
-        assertEquals(oldProcess.getBytesRead(), newProcess.getBytesRead());
-        assertEquals(oldProcess.getBytesWritten(), newProcess.getBytesWritten());
-    }
-
     @Test
     public void testGetCommandLine() {
         int processesWithNonEmptyCmdLine = 0;
 
         SystemInfo si = new SystemInfo();
         OperatingSystem os = si.getOperatingSystem();
-        for (OSProcess process : os.getProcesses(0, null, true)) {
+        for (OSProcess process : os.getProcesses(0, null)) {
             if (!process.getCommandLine().trim().isEmpty()) {
                 processesWithNonEmptyCmdLine++;
             }
         }
 
         assertTrue(processesWithNonEmptyCmdLine >= 1);
-    }
-
-    @Test
-    public void testConstructProcessWithGivenPid() throws InstantiationException {
-        SystemInfo si = new SystemInfo();
-        OperatingSystem os = si.getOperatingSystem();
-
-        // Test using current process ID, which we are sure will exist during
-        // this test
-        int givenPid = os.getProcessId();
-        OSProcess oldProcess = os.getProcess(givenPid);
-        OSProcess newProcess = new OSProcess(os, givenPid);
-
-        assertEquals(oldProcess.getPath(), newProcess.getPath());
-        assertEquals(oldProcess.getProcessID(), newProcess.getProcessID());
-        assertTrue(newProcess.updateAttributes());
-
-        // Change the pid to a nonexistent one
-        oldProcess.setProcessID(-1);
-        assertFalse(oldProcess.updateAttributes());
-
-        // Try to instantiate with a nonexistent PID
-        try {
-            newProcess = new OSProcess(os, -1);
-            fail("Expected an InstantiationException");
-        } catch (InstantiationException expected) {
-            assertEquals("A process with ID -1 does not exist.", expected.getMessage());
-        }
     }
 
     /**

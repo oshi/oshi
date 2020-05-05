@@ -95,7 +95,7 @@ public class MacOSFileStore extends AbstractOSFileStore {
     }
 
     @Override
-    public boolean updateAtrributes() {
+    public boolean updateAttributes() {
         for (OSFileStore fileStore : MacFileSystem.getFileStoreMatching(getName())) {
             if (getVolume().equals(fileStore.getVolume()) && getMount().equals(fileStore.getMount())) {
                 this.logicalVolume = fileStore.getLogicalVolume();

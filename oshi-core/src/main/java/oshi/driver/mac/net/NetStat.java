@@ -36,6 +36,7 @@ import com.sun.jna.platform.mac.SystemB.IFmsgHdr;
 import com.sun.jna.platform.mac.SystemB.IFmsgHdr2;
 import com.sun.jna.ptr.IntByReference;
 
+import oshi.annotation.concurrent.Immutable;
 import oshi.annotation.concurrent.ThreadSafe;
 
 /**
@@ -116,6 +117,7 @@ public final class NetStat {
     /**
      * Class to encapsulate IF data for method return
      */
+    @Immutable
     public static class IFdata {
         private final int ifType;
         private final long oPackets;

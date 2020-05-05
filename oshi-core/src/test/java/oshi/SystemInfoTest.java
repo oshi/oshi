@@ -246,12 +246,12 @@ public class SystemInfoTest {
     }
 
     private static void printProcesses(OperatingSystem os, GlobalMemory memory) {
-        oshi.add("My PID: " + os.getProcessId() + " with affinity "
-                + Long.toBinaryString(os.getProcessAffinityMask(os.getProcessId())));
+        OSProcess myProc = os.getProcess(os.getProcessId());
+        oshi.add(
+                "My PID: " + myProc.getProcessID() + " with affinity " + Long.toBinaryString(myProc.getAffinityMask()));
         oshi.add("Processes: " + os.getProcessCount() + ", Threads: " + os.getThreadCount());
         // Sort by highest CPU
-        List<OSProcess> procs = Arrays.asList(os.getProcesses(5, ProcessSort.CPU));
-
+        List<OSProcess> procs = os.getProcesses(5, ProcessSort.CPU);
         oshi.add("   PID  %CPU %MEM       VSZ       RSS Name");
         for (int i = 0; i < procs.size() && i < 5; i++) {
             OSProcess p = procs.get(i);
