@@ -1,12 +1,13 @@
 # Guide to upgrading from OSHI 4.x to 5.x
 
-OSHI 5.0.0 is functionally equivalent to 4.7.1 with three categories of changes supporting full thread safety:
+OSHI 5.0.0 is functionally equivalent to 4.7.0 with three categories of changes supporting full thread safety:
 * Remove setters from API.
 * Change getters which return arrays of objects to return unmodifiable lists.
 * Remove deprecated code.
 
 New applications or applications requiring thread safety should use the 5.x branch.
-Feature parity will be maintained on the 4.x branch for the near future for existing applications. 
+
+Existing applications can continue to use the 4.x branch. Feature parity will be maintained for the near future. 
 
 ## API Changes
 
@@ -28,7 +29,8 @@ now return an `UnmodifiableList` instead of an array.
 ### Method changes
 
 The `OperatingSystem` methods fetching `OSProcess` information using a `slowFields` boolean have been removed,
-as the behavior they enabled is now done by default.
+as the behavior they enabled is now done by default. Windows users should note the addition of a configurable
+parameter optionally allowing WMI caching for improved performance of `OsProcess#getCommandLine`.
 
 The `OperatingSystem` method `getProcessAffinityMask()` is now on the `OSProcess` object as `getAffinityMask()`.
 

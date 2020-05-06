@@ -1,9 +1,8 @@
 5.1.0 (in progress)
 ================
-* [#1194](https://github.com/oshi/oshi/pull/1194): Optionally batch WMI Command Line queries. - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here
 
-5.0.0 (5/5/2020)
+5.0.0 (5/5/2020), 5.0.1 (5/6/2020)
 ================
 * [#1177](https://github.com/oshi/oshi/pull/1177): Remove deprecated code. - [@dbwiddis](https://github.com/dbwiddis).
 * [#1178](https://github.com/oshi/oshi/pull/1178): Make NetworkIF an interface. - [@dbwiddis](https://github.com/dbwiddis).
@@ -14,6 +13,7 @@
 * [#1189](https://github.com/oshi/oshi/pull/1189): List returns for CentralProcessor, GlobalMemory. - [@dbwiddis](https://github.com/dbwiddis).
 * [#1190](https://github.com/oshi/oshi/pull/1190): Make OSFileStore an interface. - [@dbwiddis](https://github.com/dbwiddis).
 * [#1191](https://github.com/oshi/oshi/pull/1191): Make OSProcess an interface. - [@dbwiddis](https://github.com/dbwiddis).
+* [#1194](https://github.com/oshi/oshi/pull/1194): Optionally batch WMI Command Line queries. - [@dbwiddis](https://github.com/dbwiddis).
 
 4.7.0 (4/25/2020), 4.7.1 (5/2/2020), 4.7.2 (5/6/2020)
 ================
