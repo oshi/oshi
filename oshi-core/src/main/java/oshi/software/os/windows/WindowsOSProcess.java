@@ -52,6 +52,7 @@ import com.sun.jna.platform.win32.WinNT.HANDLEByReference;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 import com.sun.jna.ptr.IntByReference;
 
+import oshi.annotation.concurrent.GuardedBy;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.windows.registry.ProcessPerformanceData.PerfCounterBlock;
 import oshi.driver.windows.registry.ProcessWtsData.WtsInfo;
@@ -73,10 +74,10 @@ public class WindowsOSProcess extends AbstractOSProcess {
     public static final String OSHI_OS_WINDOWS_COMMANDLINE_BATCH = "oshi.os.windows.commandline.batch";
 
     // If configured, use a map to cache command line queries
+    @GuardedBy("commandLineCacheLock")
     private static final Map<Integer, Pair<Long, String>> commandLineCache = GlobalConfig
             .get(OSHI_OS_WINDOWS_COMMANDLINE_BATCH, false) ? new HashMap<>() : null;
-    private static final ReentrantLock commandLineCacheLock = GlobalConfig.get(OSHI_OS_WINDOWS_COMMANDLINE_BATCH,
-            false)
+    private static final ReentrantLock commandLineCacheLock = GlobalConfig.get(OSHI_OS_WINDOWS_COMMANDLINE_BATCH, false)
             ? new ReentrantLock()
             : null;
 
