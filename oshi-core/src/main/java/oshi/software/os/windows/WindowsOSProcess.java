@@ -303,33 +303,35 @@ public class WindowsOSProcess extends AbstractOSProcess {
         if (commandLineCache != null) {
             // Cache enabled. Lock while we process
             commandLineCacheLock.lock();
-            Pair<Long, String> pair = commandLineCache.get(getProcessID());
-            // Valid process must have been started before map insertion
-            if (pair != null && getStartTime() < pair.getA()) {
-                // Entry is valid, return it!
-                commandLineCacheLock.unlock();
-                return pair.getB();
-            } else {
-                // Invalid entry, rebuild cache
-                long now = System.currentTimeMillis(); // Invalidate processes started after this time
-                WmiResult<CommandLineProperty> commandLineAllProcs = Win32Process.queryCommandLines(null);
-                // Periodically clear cache to recover resources when its size is 2*# of
-                // processes
-                if (commandLineCache.size() >= commandLineAllProcs.getResultCount() * 2) {
-                    commandLineCache.clear();
-                }
-                // Iterate results and put in map, storing current PID along the way
-                String result = "";
-                for (int i = 0; i < commandLineAllProcs.getResultCount(); i++) {
-                    int pid = WmiUtil.getUint32(commandLineAllProcs, CommandLineProperty.PROCESSID, i);
-                    String cl = WmiUtil.getString(commandLineAllProcs, CommandLineProperty.COMMANDLINE, i);
-                    commandLineCache.put(pid, new Pair<>(now, cl));
-                    if (pid == getProcessID()) {
-                        result = cl;
+            try {
+                Pair<Long, String> pair = commandLineCache.get(getProcessID());
+                // Valid process must have been started before map insertion
+                if (pair != null && getStartTime() < pair.getA()) {
+                    // Entry is valid, return it!
+                    return pair.getB();
+                } else {
+                    // Invalid entry, rebuild cache
+                    long now = System.currentTimeMillis(); // Invalidate processes started after this time
+                    WmiResult<CommandLineProperty> commandLineAllProcs = Win32Process.queryCommandLines(null);
+                    // Periodically clear cache to recover resources when its size is 2*# of
+                    // processes
+                    if (commandLineCache.size() >= commandLineAllProcs.getResultCount() * 2) {
+                        commandLineCache.clear();
                     }
+                    // Iterate results and put in map, storing current PID along the way
+                    String result = "";
+                    for (int i = 0; i < commandLineAllProcs.getResultCount(); i++) {
+                        int pid = WmiUtil.getUint32(commandLineAllProcs, CommandLineProperty.PROCESSID, i);
+                        String cl = WmiUtil.getString(commandLineAllProcs, CommandLineProperty.COMMANDLINE, i);
+                        commandLineCache.put(pid, new Pair<>(now, cl));
+                        if (pid == getProcessID()) {
+                            result = cl;
+                        }
+                    }
+                    return result;
                 }
+            } finally {
                 commandLineCacheLock.unlock();
-                return result;
             }
         }
         // If no cache enabled, query line by line
