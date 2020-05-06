@@ -28,15 +28,12 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.function.Supplier;
 
-import com.sun.jna.platform.unix.solaris.LibKstat.Kstat; // NOSONAR
-
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.unix.solaris.kstat.SystemPages;
 import oshi.hardware.VirtualMemory;
 import oshi.hardware.common.AbstractGlobalMemory;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
-import oshi.util.platform.unix.solaris.KstatUtil;
-import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
 import oshi.util.tuples.Pair;
 
 /**
@@ -45,11 +42,12 @@ import oshi.util.tuples.Pair;
 @ThreadSafe
 final class SolarisGlobalMemory extends AbstractGlobalMemory {
 
-    private final Supplier<Pair<Long, Long>> availTotal = memoize(this::readSystemPages, defaultExpiration());
+    private final Supplier<Pair<Long, Long>> availTotal = memoize(SystemPages::queryAvailableTotal,
+            defaultExpiration());
 
     private final Supplier<Long> pageSize = memoize(SolarisGlobalMemory::queryPageSize);
 
-    private final Supplier<VirtualMemory> vm = memoize(SolarisGlobalMemory::createVirtualMemory);
+    private final Supplier<VirtualMemory> vm = memoize(this::createVirtualMemory);
 
     @Override
     public long getAvailable() {
@@ -75,22 +73,7 @@ final class SolarisGlobalMemory extends AbstractGlobalMemory {
         return ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer("pagesize"), 4096L);
     }
 
-    private static VirtualMemory createVirtualMemory() {
-        return new SolarisVirtualMemory();
-    }
-
-    private Pair<Long, Long> readSystemPages() {
-        long memAvailable = 0;
-        long memTotal = 0;
-        // Get first result
-        try (KstatChain kc = KstatUtil.openChain()) {
-            Kstat ksp = kc.lookup(null, -1, "system_pages");
-            // Set values
-            if (ksp != null && kc.read(ksp)) {
-                memAvailable = KstatUtil.dataLookupLong(ksp, "availrmem") * getPageSize();
-                memTotal = KstatUtil.dataLookupLong(ksp, "physmem") * getPageSize();
-            }
-        }
-        return new Pair<>(memAvailable, memTotal);
+    private VirtualMemory createVirtualMemory() {
+        return new SolarisVirtualMemory(this);
     }
 }

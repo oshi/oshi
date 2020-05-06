@@ -40,6 +40,8 @@ import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
 @ThreadSafe
 final class FreeBsdVirtualMemory extends AbstractVirtualMemory {
 
+    FreeBsdGlobalMemory global;
+
     private final Supplier<Long> used = memoize(FreeBsdVirtualMemory::querySwapUsed, defaultExpiration());
 
     private final Supplier<Long> total = memoize(FreeBsdVirtualMemory::querySwapTotal, defaultExpiration());
@@ -47,6 +49,10 @@ final class FreeBsdVirtualMemory extends AbstractVirtualMemory {
     private final Supplier<Long> pagesIn = memoize(FreeBsdVirtualMemory::queryPagesIn, defaultExpiration());
 
     private final Supplier<Long> pagesOut = memoize(FreeBsdVirtualMemory::queryPagesOut, defaultExpiration());
+
+    public FreeBsdVirtualMemory(FreeBsdGlobalMemory freeBsdGlobalMemory) {
+        this.global = freeBsdGlobalMemory;
+    }
 
     @Override
     public long getSwapUsed() {
@@ -56,6 +62,16 @@ final class FreeBsdVirtualMemory extends AbstractVirtualMemory {
     @Override
     public long getSwapTotal() {
         return total.get();
+    }
+
+    @Override
+    public long getVirtualMax() {
+        return this.global.getTotal() + getSwapTotal();
+    }
+
+    @Override
+    public long getVirtualInUse() {
+        return this.global.getTotal() - this.global.getAvailable() + getSwapUsed();
     }
 
     @Override
