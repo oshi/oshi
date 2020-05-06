@@ -55,8 +55,7 @@ jobs:
       osx_image: xcode9.3
     - name: "Mac JDK14"
       os: osx
-      osx_image: xcode11.3.1
-      jdk: openjdk14
+      osx_image: xcode11.4
 # https://github.com/bndtools/bnd/issues/3903
   allow_failures:
     - name: "Linux JDK15 EA"
