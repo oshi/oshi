@@ -23,6 +23,8 @@
  */
 package oshi.software.os;
 
+import oshi.driver.windows.wmi.Win32ProcessCached;
+
 public interface OSProcess {
 
     /**
@@ -58,11 +60,11 @@ public interface OSProcess {
      *         <p>
      *         On Solaris, the string is truncated to 80 characters.
      *         <p>
-     *         On Windows, performs a single WMI query for this process, with some
-     *         latency. To obtain command lines for multiple processes, users are
-     *         advised to call
-     *         {@link oshi.driver.windows.wmi.Win32Process#queryCommandLines(java.util.Set)}
-     *         with a set of Process IDs (or {@code null} for all processes)
+     *         On Windows, by default, performs a single WMI query for this process,
+     *         with some latency. If this method will be frequently called for
+     *         multiple processes, see the configuration file to enable a batch
+     *         query mode leveraging {@link Win32ProcessCached#getCommandLine} to
+     *         improve performance.
      */
     String getCommandLine();
 

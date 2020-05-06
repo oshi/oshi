@@ -55,9 +55,11 @@ import oshi.driver.windows.registry.ProcessPerformanceData.PerfCounterBlock;
 import oshi.driver.windows.registry.ProcessWtsData.WtsInfo;
 import oshi.driver.windows.wmi.Win32Process;
 import oshi.driver.windows.wmi.Win32Process.CommandLineProperty;
+import oshi.driver.windows.wmi.Win32ProcessCached;
 import oshi.jna.platform.windows.Kernel32;
 import oshi.software.common.AbstractOSProcess;
 import oshi.util.Constants;
+import oshi.util.GlobalConfig;
 import oshi.util.platform.windows.WmiUtil;
 import oshi.util.tuples.Pair;
 
@@ -65,6 +67,10 @@ import oshi.util.tuples.Pair;
 public class WindowsOSProcess extends AbstractOSProcess {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsOSProcess.class);
+
+    // Config param to enable cache
+    public static final String OSHI_OS_WINDOWS_COMMANDLINE_BATCH = "oshi.os.windows.commandline.batch";
+    private static final boolean USE_BATCH_COMMANDLINE = GlobalConfig.get(OSHI_OS_WINDOWS_COMMANDLINE_BATCH, false);
 
     private static final boolean IS_VISTA_OR_GREATER = VersionHelpers.IsWindowsVistaOrGreater();
     private static final boolean IS_WINDOWS7_OR_GREATER = VersionHelpers.IsWindows7OrGreater();
@@ -285,6 +291,11 @@ public class WindowsOSProcess extends AbstractOSProcess {
     }
 
     private String queryCommandLine() {
+        // If using batch mode fetch from WMI Cache
+        if (USE_BATCH_COMMANDLINE) {
+            return Win32ProcessCached.getInstance().getCommandLine(getProcessID(), getStartTime());
+        }
+        // If no cache enabled, query line by line
         WmiResult<CommandLineProperty> commandLineProcs = Win32Process
                 .queryCommandLines(Collections.singleton(getProcessID()));
         if (commandLineProcs.getResultCount() > 0) {
