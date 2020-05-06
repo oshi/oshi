@@ -75,11 +75,17 @@ public class WindowsOSProcess extends AbstractOSProcess {
 
     // If configured, use a map to cache command line queries
     @GuardedBy("commandLineCacheLock")
-    private static final Map<Integer, Pair<Long, String>> commandLineCache = GlobalConfig
-            .get(OSHI_OS_WINDOWS_COMMANDLINE_BATCH, false) ? new HashMap<>() : null;
-    private static final ReentrantLock commandLineCacheLock = GlobalConfig.get(OSHI_OS_WINDOWS_COMMANDLINE_BATCH, false)
-            ? new ReentrantLock()
-            : null;
+    private static final Map<Integer, Pair<Long, String>> commandLineCache;
+    private static final ReentrantLock commandLineCacheLock;
+    static {
+        if (GlobalConfig.get(OSHI_OS_WINDOWS_COMMANDLINE_BATCH, false)) {
+            commandLineCache = new HashMap<>();
+            commandLineCacheLock = new ReentrantLock();
+        } else {
+            commandLineCache = null;
+            commandLineCacheLock = null;
+        }
+    }
 
     private static final boolean IS_VISTA_OR_GREATER = VersionHelpers.IsWindowsVistaOrGreater();
     private static final boolean IS_WINDOWS7_OR_GREATER = VersionHelpers.IsWindows7OrGreater();
