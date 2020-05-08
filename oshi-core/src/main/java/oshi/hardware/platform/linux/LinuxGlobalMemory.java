@@ -100,27 +100,27 @@ final class LinuxGlobalMemory extends AbstractGlobalMemory {
 
         List<String> procMemInfo = FileUtil.readFile(ProcPath.MEMINFO);
         for (String checkLine : procMemInfo) {
-            String[] memorySplit = ParseUtil.whitespaces.split(checkLine);
+            String[] memorySplit = ParseUtil.whitespaces.split(checkLine, 2);
             if (memorySplit.length > 1) {
                 switch (memorySplit[0]) {
                 case "MemTotal:":
-                    memTotal = ParseUtil.parseDecimalMemorySizeToBinary(checkLine.substring(memorySplit[0].length()).trim());
+                    memTotal = ParseUtil.parseDecimalMemorySizeToBinary(memorySplit[1]);
                     break;
                 case "MemAvailable:":
-                    memAvailable = ParseUtil.parseDecimalMemorySizeToBinary(checkLine.substring(memorySplit[0].length()).trim());
+                    memAvailable = ParseUtil.parseDecimalMemorySizeToBinary(memorySplit[1]);
                     // We're done!
                     return new Pair<>(memAvailable, memTotal);
                 case "MemFree:":
-                    memFree = ParseUtil.parseDecimalMemorySizeToBinary(checkLine.substring(memorySplit[0].length()).trim());
+                    memFree = ParseUtil.parseDecimalMemorySizeToBinary(memorySplit[1]);
                     break;
                 case "Active(file):":
-                    activeFile = ParseUtil.parseDecimalMemorySizeToBinary(checkLine.substring(memorySplit[0].length()).trim());
+                    activeFile = ParseUtil.parseDecimalMemorySizeToBinary(memorySplit[1]);
                     break;
                 case "Inactive(file):":
-                    inactiveFile = ParseUtil.parseDecimalMemorySizeToBinary(checkLine.substring(memorySplit[0].length()).trim());
+                    inactiveFile = ParseUtil.parseDecimalMemorySizeToBinary(memorySplit[1]);
                     break;
                 case "SReclaimable:":
-                    sReclaimable = ParseUtil.parseDecimalMemorySizeToBinary(checkLine.substring(memorySplit[0].length()).trim());
+                    sReclaimable = ParseUtil.parseDecimalMemorySizeToBinary(memorySplit[1]);
                     break;
                 default:
                     // do nothing with other lines
