@@ -26,14 +26,13 @@ package oshi.software.os.unix.freebsd;
 import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
 
-import java.util.List;
 import java.util.function.Supplier;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.unix.NetStatTcp;
 import oshi.jna.platform.unix.CLibrary.Tcpstat;
 import oshi.jna.platform.unix.CLibrary.Udpstat;
 import oshi.software.os.InternetProtocolStats;
-import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
 import oshi.util.tuples.Pair;
@@ -41,7 +40,7 @@ import oshi.util.tuples.Pair;
 @ThreadSafe
 public class FreeBsdInternetProtocolStats implements InternetProtocolStats {
 
-    private Supplier<Pair<Long, Long>> establishedv4v6 = memoize(FreeBsdInternetProtocolStats::queryTcpnetstat,
+    private Supplier<Pair<Long, Long>> establishedv4v6 = memoize(NetStatTcp::queryTcpnetstat,
             defaultExpiration());
     private Supplier<Tcpstat> tcpstat = memoize(FreeBsdInternetProtocolStats::queryTcpstat, defaultExpiration());
     private Supplier<Udpstat> udpstat = memoize(FreeBsdInternetProtocolStats::queryUdpstat, defaultExpiration());
@@ -89,21 +88,5 @@ public class FreeBsdInternetProtocolStats implements InternetProtocolStats {
         Udpstat udpstat = new Udpstat();
         BsdSysctlUtil.sysctl("net.inet.udp.stats", udpstat);
         return udpstat;
-    }
-
-    private static Pair<Long, Long> queryTcpnetstat() {
-        long tcp4 = 0L;
-        long tcp6 = 0L;
-        List<String> activeConns = ExecutingCommand.runNative("netstat -n -p tcp");
-        for (String s : activeConns) {
-            if (s.endsWith("ESTABLISHED")) {
-                if (s.startsWith("tcp4")) {
-                    tcp4++;
-                } else if (s.startsWith("tcp6")) {
-                    tcp6++;
-                }
-            }
-        }
-        return new Pair<>(tcp4, tcp6);
     }
 }
