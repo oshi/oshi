@@ -104,23 +104,23 @@ final class LinuxGlobalMemory extends AbstractGlobalMemory {
             if (memorySplit.length > 1) {
                 switch (memorySplit[0]) {
                 case "MemTotal:":
-                    memTotal = parseMeminfo(memorySplit);
+                    memTotal = ParseUtil.parseDecimalMemorySizeToBinary(checkLine.substring(memorySplit[0].length()).trim());
                     break;
                 case "MemAvailable:":
-                    memAvailable = parseMeminfo(memorySplit);
+                    memAvailable = ParseUtil.parseDecimalMemorySizeToBinary(checkLine.substring(memorySplit[0].length()).trim());
                     // We're done!
                     return new Pair<>(memAvailable, memTotal);
                 case "MemFree:":
-                    memFree = parseMeminfo(memorySplit);
+                    memFree = ParseUtil.parseDecimalMemorySizeToBinary(checkLine.substring(memorySplit[0].length()).trim());
                     break;
                 case "Active(file):":
-                    activeFile = parseMeminfo(memorySplit);
+                    activeFile = ParseUtil.parseDecimalMemorySizeToBinary(checkLine.substring(memorySplit[0].length()).trim());
                     break;
                 case "Inactive(file):":
-                    inactiveFile = parseMeminfo(memorySplit);
+                    inactiveFile = ParseUtil.parseDecimalMemorySizeToBinary(checkLine.substring(memorySplit[0].length()).trim());
                     break;
                 case "SReclaimable:":
-                    sReclaimable = parseMeminfo(memorySplit);
+                    sReclaimable = ParseUtil.parseDecimalMemorySizeToBinary(checkLine.substring(memorySplit[0].length()).trim());
                     break;
                 default:
                     // do nothing with other lines
@@ -130,24 +130,6 @@ final class LinuxGlobalMemory extends AbstractGlobalMemory {
         }
         // We didn't find MemAvailable so we estimate from other fields
         return new Pair<>(memFree + activeFile + inactiveFile + sReclaimable, memTotal);
-    }
-
-    /**
-     * Parses lines from the display of /proc/meminfo
-     *
-     * @param memorySplit
-     *            Array of Strings representing the 3 columns of /proc/meminfo
-     * @return value, multiplied by 1024 if kB is specified
-     */
-    private static long parseMeminfo(String[] memorySplit) {
-        if (memorySplit.length < 2) {
-            return 0L;
-        }
-        long memory = ParseUtil.parseLongOrDefault(memorySplit[1], 0L);
-        if (memorySplit.length > 2 && "kB".equals(memorySplit[2])) {
-            memory *= 1024;
-        }
-        return memory;
     }
 
     private VirtualMemory createVirtualMemory() {
