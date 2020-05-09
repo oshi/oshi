@@ -1,4 +1,4 @@
-What is the intended use of the API?
+ What is the intended use of the API?
 ========
 Users should create a new instance of [SystemInfo](http://oshi.github.io/oshi/apidocs/oshi/SystemInfo.html) and use the getters from this class to access the platform-specific hardware and software interfaces using the respective `get*()` methods. The interfaces in `oshi.hardware` and `oshi.software.os` provide cross-platform functionality. See the `main()` method of [SystemInfoTest](https://github.com/oshi/oshi/blob/master/oshi-core/src/test/java/oshi/SystemInfoTest.java) for sample code.
 
@@ -55,13 +55,30 @@ OSHI uses the latest version of JNA, which may conflict with other dependencies 
  - Specifying the most recent version of JNA (both `jna` and `jna-platform` artifacts) as a dependency
  - If you are using a parent (e.g., Spring Boot) that includes JNA as a dependency, override the `jna.version` property 
 
-What API features are not implemented on some operating systems?
+How is OSHI different from SIGAR?
 ========
-The following generally summarizes known exceptions. If you have missing data that is not on this list, please report it in an issue so we can investigate.
-* Windows does not provide a load average, so the Processor's `getSystemLoadAverage()` returns -1.
-* MacOS does not track time processors spend idle due to hard disk latency (iowait) or time spent processing hardware or software interrupts, and returns 0 for those associated tick values.
-* Windows sensor (temperature, fans, voltage) readings are drawn from Microsoft's Windows Management Instrumentation (WMI) API; however, most hardware manufacturers do not publish these readings to WMI. If a value is not available through the Microsoft API, Oshi will attempt to retrieve values as published by the [Open Hardware Monitor](http://openhardwaremonitor.org/) if it is running.  Only temperature sensors are detected on FreeBSD using `coretemp`.
-* Linux, Solaris, and FreeBSD may require either running as root/sudo or additional software installs for full capability, particularly HAL daemon (`hald`/`lshal`) and X (`xrandr`).
+OSHI and Hyperic's [SIGAR](https://github.com/hyperic/sigar) (System Information Gatherer and Reporter)
+both attempt to provide cross-platform operating system and hardware information, and are both used to support
+cloud server monitoring and reporting, among other use cases. The OSHI project was started, and development
+continues, to overcome specific shortcomings in SIGAR for some use cases.  Key differences include:
+ - **Additional DLL** SIGAR's implementation is primarily in native C, compiled separately for its supported
+operating systems. It therefore requires users to download an additional DLL specific to their operating
+system. This does have some advantages including faster native code routines, and availability of some
+native compiler intrinsics. In contrast, OSHI accesses native APIs using JNA, which does not require
+any additional platform-specific DLLs.
+ - **Platform Coverage** SIGAR (presently) supports a larger number of platforms, although there are
+reports of incompatibilities.  OSHI supports 99.5% of OS user share with Windows, Linux, macOS, FreeBSD,
+and Solaris, and would consider additional port development with access to appropriate machines for
+development and testing.
+ - **Language Coverage** SIGAR has bindings for Java, .NET, and Perl. OSHI is specific for Java.
+ - **Corporate Development** SIGAR was developed professionally at Hyperic and VMWare.
+ OSHI's development has been entirely done by open source volunteers.
+ - **Actively Maintained Project**
+[SIGAR is unmaintained, with multiple independent forks](https://github.com/hyperic/sigar/issues/95). The
+[last source commit](https://github.com/hyperic/sigar/commit/7a6aefc7fb315fc92445edcb902a787a6f0ddbd9)
+was in 2015 and the [last release](https://github.com/hyperic/sigar/releases/tag/sigar-1.6.4) was in 2010.
+OSHI is under active development as of 2020.
+
 
 What is the history of OSHI and plans for future development?
 ========
@@ -78,9 +95,8 @@ all the CPU and memory that's being paid for) there was a need for Linux memory 
 library used the OperatingSystemMXBean's getFreePhysicalMemory() method which was useless on Linux.
 Web searches revealed only two packaged alternatives: SIGAR (which had stopped development then) and 
 OSHI (which had the same bug, but was open source and fixable). A bug report turned into an invitation to 
-submit a PR, which turned into converting the OS X commandline calls to native methods and adding more, 
-which turned into an invitation to take over the project and a very educational experience in learning 
-git, maven, the  software development lifecycle, unit testing, continuous integration, and more.
+submit a PR, which turned into converting the OS X command line calls to native methods and adding more,
+slowly expanding coverage in both features and OS coverage.
 
 A few contributors have a grand plan for [OSHI 6](https://github.com/oshi/oshi6) and will be completely
 redesigning the API with an eye toward more modular driver-based information access.  The current 4.x 
@@ -93,9 +109,10 @@ Yes, most of the Linux code works here and other Pi-specific code has been imple
 limited testing.  As the developers do not have a Pi to test on, users reporting issues should be 
 prepared to help test solutions.
 
-Will you do an AIX port?
+Will you do an AIX or HP-UX port?
 ========
-We'd love to. We need access to an AIX machine. If you can offer such access, create an issue to notify the team of the possibility.
+We'd love to. We need access to those operating systems which only run on their specific machines,
+and are not available in VMs. If you can offer such access, create an issue to notify the team of the possibility.
 
 Will you do a port for the other BSDs?  How about Android?
 ========
