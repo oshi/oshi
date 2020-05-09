@@ -37,6 +37,10 @@ addons:
     - oshi
   hostname: oshi
 
+# disable shallow clone, helps sonar
+git:
+  depth: false
+
 # limit to 5 total builds and 2 builds on osx
 jobs:
   include:
