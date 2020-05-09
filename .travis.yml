@@ -38,6 +38,10 @@ addons:
     - oshi
   hostname: oshi
 
+# disable shallow clone, helps sonar
+git:
+  depth: false
+
 # limit to 5 total builds and 2 builds on osx
 jobs:
   include:
@@ -59,7 +63,6 @@ jobs:
       osx_image: xcode9.3
     - name: "Mac JDK14"
       os: osx
-
       language: java
       osx_image: xcode11.4
     - name: "Windows JDK 8"
