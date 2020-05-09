@@ -7,7 +7,7 @@ OSHI is [first-timers-only](https://www.firsttimersonly.com/) friendly.  If you'
 
 #### Fork the Project
 
-Fork the project on Github by clicking on the word "Fork" above and to the right of this page.  This will create your own fork at https://github.com/yournamehere/oshi.git.  Then clone your fork to your local repository on your machine using these commands:
+Fork the project on Github by clicking on the word "Fork" above and to the right of this page.  This will create your own fork at https://github.com/yournamehere/oshi.git.  Then clone your fork to your local repository on your machine and set up a [triangle workflow](https://github.com/forwards/first-contributions/blob/master/additional-material/git_workflow_scenarios/keeping-your-fork-synced-with-this-repository.md) using these commands:
 ```
 git clone https://github.com/yournamehere/oshi.git
 cd oshi
@@ -16,7 +16,7 @@ git remote add upstream https://github.com/oshi/oshi.git
 
 #### Create a Branch for your feature
 
-Make sure your fork is up-to-date and create a topic branch for your feature or bug fix.
+Make sure your fork is up-to-date and create a topic branch for your feature or bug fix.  (The name `my-feature-branch` is an example. Choose whatever you like.)
 
 ```
 git checkout master
@@ -26,7 +26,7 @@ git checkout -b my-feature-branch
 
 #### Build and Test
 
-Ensure that you can build the project and run tests.
+Ensure that you can build the project and run tests.  After your change, the tests should still pass.
 
 ```
 mvn test
@@ -48,7 +48,14 @@ Make sure that `mvn test` completes without errors.
 
 #### Update Changelog
 
-Add a line to [CHANGELOG](CHANGELOG.md) under *Next Release*. Make it look like every other line, including your name and link to your Github account.
+The Changelog lets users know whether they should update to the latest version.  Editing the changelog is optional for minor bug fixes that are not user-facing, but should be added for new features.  
+
+Add a line to [CHANGELOG](CHANGELOG.md) under *Next Release*. Make it look like every other line, including your name and link to your Github account. A typical entry looks as follows.
+
+```
+* [#123](https://github.com/oshi/oshi/pull/123): Reticulated splines - [@contributor](https://github.com/contributor).
+```
+Note that the change log will link to your pull request number, which you don't know yet but can guess as the next higher number of Issues or Pull Requests on the project that has not been used.
 
 #### Commit Changes
 
@@ -59,14 +66,15 @@ git config --global user.name "Your Name"
 git config --global user.email "contributor@example.com"
 ```
 
-Writing good commit logs is important. A commit log should describe what changed and why.
+Add the changed files to the index using [git add](https://git-scm.com/docs/git-add).  Most IDEs make this easy for you to do, so you won't need this command line version.
+Writing [good commit logs](https://chris.beams.io/posts/git-commit/) is important. A commit log should describe what changed and why.
 
 ```
 git add ...
-git commit
+git commit -m "Fixed Foo bug by changing bar"
 ```
 
-#### Push
+#### Push to your GitHub repository
 
 ```
 git push origin my-feature-branch
@@ -75,6 +83,8 @@ git push origin my-feature-branch
 #### Make a Pull Request
 
 Go to https://github.com/yournamehere/oshi and select your feature branch. Click the 'Pull Request' button and fill out the form. Pull requests are usually reviewed within a few days.
+
+If code review requests changes (and it usually will) just `git push` the changes to your repository on the same branch, and the pull request will be automatically updated.
 
 #### Rebase
 
@@ -88,11 +98,7 @@ git push origin my-feature-branch -f
 
 #### Update CHANGELOG Again
 
-Update the [CHANGELOG](CHANGELOG.md) with the pull request number. A typical entry looks as follows.
-
-```
-* [#123](https://github.com/oshi/oshi/pull/123): Reticulated splines - [@contributor](https://github.com/contributor).
-```
+If you didn't guess right on the PR number, update the [CHANGELOG](CHANGELOG.md) with the pull request number. 
 
 You may amend your previous commit and force push the changes, or just submit a changelog commit.
 
@@ -109,7 +115,7 @@ Fix issues and amend your commit as described above.
 
 #### Be Patient
 
-It's likely that your change will not be merged and that the nitpicky maintainers will ask you to do more, or fix seemingly benign problems. Hang on there!
+It's likely that your change will not be merged and that the nitpicky maintainers will ask you to do more, or fix seemingly benign problems like [choices of variable names](https://quotesondesign.com/phil-karlton/). Hang in there!
 
 #### Thank You
 
