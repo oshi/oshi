@@ -1,7 +1,7 @@
 5.1.0 (in progress)
 ================
 * Your contribution here
-* [#<to_be_entered>](https://github.com/oshi/oshi/pull/<to_be_entered>): Fixed the broken links missed in  #880 in CHANGELOG.MD . - [@i-shivamsoni](https://github.com/i-shivamsoni).
+* [#1212](https://github.com/oshi/oshi/pull/1212): Fixed the broken links missed in  #880 in CHANGELOG.MD . - [@i-shivamsoni](https://github.com/i-shivamsoni).
 
 5.0.0 (5/5/2020), 5.0.1 (5/6/2020)
 ================
