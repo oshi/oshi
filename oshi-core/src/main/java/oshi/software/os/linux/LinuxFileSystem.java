@@ -187,7 +187,7 @@ public class LinuxFileSystem extends AbstractFileSystem {
                 LOG.error("Failed to get file counts from statvfs. {}", e.getMessage());
             }
 
-            fsList.add(new LinuxOSFileStore(name, volume, name, mount, options, uuid, logicalVolume, description, type,
+            fsList.add(new LinuxOSFileStore(name, volume, name, path, options, uuid, logicalVolume, description, type,
                     freeSpace, usableSpace, totalSpace, freeInodes, totalInodes));
         }
         return fsList;
