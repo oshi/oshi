@@ -1,7 +1,6 @@
 5.1.0 (in progress)
 ================
 * Your contribution here
-* [#1212](https://github.com/oshi/oshi/pull/1212): Fixed the broken links missed in  #880 in CHANGELOG.MD . - [@i-shivamsoni](https://github.com/i-shivamsoni).
 
 5.0.0 (5/5/2020), 5.0.1 (5/6/2020)
 ================
@@ -441,7 +440,7 @@ The default configuration file has been renamed to `oshi.properties` to prevent 
 ================
 * Upgraded to Java 7 base support
 * Upgraded JNA to 4.1.0
-* Brought over lessons learned from [waffle](https://github.com/oshi/waffle) for building project from source.
+* Brought over lessons learned from [waffle](https://github.com/Waffle/waffle) for building project from source.
 * [#50](https://github.com/oshi/oshi/pull/50): Added file store information - [@dbwiddis](https://github.com/dbwiddis).
 * [#51](https://github.com/oshi/oshi/pull/51): Added CPU Ticks and switched to OperatingSystemMXBean for CPU load / load average - [@dbwiddis](https://github.com/dbwiddis).
 * [#62](https://github.com/oshi/oshi/pull/62): Added Per-Processor CPU Load and Ticks - [@dbwiddis](https://github.com/dbwiddis).
@@ -450,7 +449,7 @@ The default configuration file has been renamed to `oshi.properties` to prevent 
 ================
 
 * Added TODO list and enhanced README documentation - [@ptitvert](https://github.com/ptitvert)
-* Added Travis-CI - [@oshi](https://github.com/oshi).
+* Added Travis-CI - [@dblock](https://github.com/oshi).
 * [#3](https://github.com/oshi/oshi/pull/3): Mavenized project - [@le-yams](https://github.com/le-yams).
 * [#5](https://github.com/oshi/oshi/pull/5): Added Linux support - [@ptitvert](https://github.com/ptitvert).
 * [#7](https://github.com/oshi/oshi/pull/7): Added Mac OS X Support - [@ptitvert](https://github.com/ptitvert).
@@ -469,4 +468,4 @@ The default configuration file has been renamed to `oshi.properties` to prevent 
 1.0 (6/23/2010)
 ===============
 
-* Initial public release - [@oshi](https://github.com/oshi).
+* Initial public release - [@dblock](https://github.com/oshi).
