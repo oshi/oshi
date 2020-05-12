@@ -449,7 +449,7 @@ The default configuration file has been renamed to `oshi.properties` to prevent 
 ================
 
 * Added TODO list and enhanced README documentation - [@ptitvert](https://github.com/ptitvert)
-* Added Travis-CI - Added Travis-CI - [@dblock](https://github.com/dblock).
+* Added Travis-CI - [@dblock](https://github.com/dblock).
 * [#3](https://github.com/oshi/oshi/pull/3): Mavenized project - [@le-yams](https://github.com/le-yams).
 * [#5](https://github.com/oshi/oshi/pull/5): Added Linux support - [@ptitvert](https://github.com/ptitvert).
 * [#7](https://github.com/oshi/oshi/pull/7): Added Mac OS X Support - [@ptitvert](https://github.com/ptitvert).
@@ -468,4 +468,4 @@ The default configuration file has been renamed to `oshi.properties` to prevent 
 1.0 (6/23/2010)
 ===============
 
-* Initial public release - Initial public release - [@dblock](https://github.com/dblock).
+* Initial public release - [@dblock](https://github.com/dblock).
