@@ -36,6 +36,10 @@ import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
 import oshi.hardware.common.AbstractHWDiskStore;
 import oshi.jna.platform.linux.Udev;
+import oshi.jna.platform.linux.Udev.UdevDevice;
+import oshi.jna.platform.linux.Udev.UdevEnumerate;
+import oshi.jna.platform.linux.Udev.UdevHandle;
+import oshi.jna.platform.linux.Udev.UdevListEntry;
 import oshi.util.Constants;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
@@ -46,6 +50,22 @@ import oshi.util.platform.linux.ProcPath;
  */
 @ThreadSafe
 public final class LinuxHWDiskStore extends AbstractHWDiskStore {
+
+    private static final Udev UDEV = Udev.INSTANCE;
+
+    private static final String BLOCK = "block";
+    private static final String DISK = "disk";
+    private static final String PARTITION = "partition";
+
+    private static final String STAT = "stat";
+    private static final String SIZE = "size";
+    private static final String MINOR = "MINOR";
+    private static final String MAJOR = "MAJOR";
+
+    private static final String ID_FS_TYPE = "ID_FS_TYPE";
+    private static final String ID_FS_UUID = "ID_FS_UUID";
+    private static final String ID_MODEL = "ID_MODEL";
+    private static final String ID_SERIAL_SHORT = "ID_SERIAL_SHORT";
 
     private static final int SECTORSIZE = 512;
 
@@ -76,7 +96,7 @@ public final class LinuxHWDiskStore extends AbstractHWDiskStore {
     private long currentQueueLength = 0L;
     private long transferTime = 0L;
     private long timeStamp = 0L;
-    private List<HWPartition> partitionList;
+    private List<HWPartition> partitionList = new ArrayList<>();
 
     private LinuxHWDiskStore(String name, String model, String serial, long size) {
         super(name, model, serial, size);
@@ -138,30 +158,28 @@ public final class LinuxHWDiskStore extends AbstractHWDiskStore {
 
         Map<String, String> mountsMap = readMountsMap();
 
-        Udev.UdevHandle handle = Udev.INSTANCE.udev_new();
-        Udev.UdevEnumerate enumerate = Udev.INSTANCE.udev_enumerate_new(handle);
-        Udev.INSTANCE.udev_enumerate_add_match_subsystem(enumerate, "block");
-        Udev.INSTANCE.udev_enumerate_scan_devices(enumerate);
+        UdevHandle handle = UDEV.udev_new();
+        UdevEnumerate enumerate = UDEV.udev_enumerate_new(handle);
+        UDEV.udev_enumerate_add_match_subsystem(enumerate, BLOCK);
+        UDEV.udev_enumerate_scan_devices(enumerate);
+        UdevListEntry entry = UDEV.udev_enumerate_get_list_entry(enumerate);
 
-        Udev.UdevListEntry entry = Udev.INSTANCE.udev_enumerate_get_list_entry(enumerate);
-        Udev.UdevDevice device;
-        while ((device = Udev.INSTANCE.udev_device_new_from_syspath(handle,
-                Udev.INSTANCE.udev_list_entry_get_name(entry))) != null) {
-            String devnode = Udev.INSTANCE.udev_device_get_devnode(device);
+        UdevDevice device;
+        while ((device = UDEV.udev_device_new_from_syspath(handle, UDEV.udev_list_entry_get_name(entry))) != null) {
+            // devnode is what we use as name, like /dev/sda
+            String devnode = UDEV.udev_device_get_devnode(device);
             // Ignore loopback and ram disks; do nothing
             if (devnode != null && !devnode.startsWith("/dev/loop") && !devnode.startsWith("/dev/ram")) {
-                if ("disk".equals(Udev.INSTANCE.udev_device_get_devtype(device))) {
+                if (DISK.equals(UDEV.udev_device_get_devtype(device))) {
                     // Null model and serial in virtual environments
-                    String devModel = Udev.INSTANCE.udev_device_get_property_value(device, "ID_MODEL");
-                    String devSerial = Udev.INSTANCE.udev_device_get_property_value(device, "ID_SERIAL_SHORT");
-                    long devSize = ParseUtil.parseLongOrDefault(
-                            Udev.INSTANCE.udev_device_get_sysattr_value(device, "size"), 0L) * SECTORSIZE;
+                    String devModel = UDEV.udev_device_get_property_value(device, ID_MODEL);
+                    String devSerial = UDEV.udev_device_get_property_value(device, ID_SERIAL_SHORT);
+                    long devSize = ParseUtil.parseLongOrDefault(UDEV.udev_device_get_sysattr_value(device, SIZE), 0L)
+                            * SECTORSIZE;
                     store = new LinuxHWDiskStore(devnode, devModel == null ? Constants.UNKNOWN : devModel,
                             devSerial == null ? Constants.UNKNOWN : devSerial, devSize);
                     if (storeToUpdate == null) {
                         // If getting all stores, add to the list with stats
-                        // Initialize an empty partition list
-                        store.partitionList = new ArrayList<>();
                         computeDiskStats(store, device);
                         result.add(store);
                     } else if (store.getName().equals(storeToUpdate.getName())
@@ -173,32 +191,37 @@ public final class LinuxHWDiskStore extends AbstractHWDiskStore {
                         // and return.
                         computeDiskStats(storeToUpdate, device);
                         result.add(storeToUpdate);
-                        Udev.INSTANCE.udev_device_unref(device);
+                        UDEV.udev_device_unref(device);
                         break;
                     }
-                } else if ("partition".equals(Udev.INSTANCE.udev_device_get_devtype(device)) && store != null) {
-                    // `store` should still point to the HWDiskStore this partition is attached to.
+                } else if (storeToUpdate == null && store != null // only add if getting new list
+                        && PARTITION.equals(UDEV.udev_device_get_devtype(device))) {
+                    // udev_device_get_parent_*() does not take a reference on the returned device,
+                    // it is automatically unref'd with the parent
+                    UdevDevice parent = UDEV.udev_device_get_parent_with_subsystem_devtype(device, BLOCK, DISK);
+                    // `store` should still point to the parent HWDiskStore this partition is
+                    // attached to.
                     // If not, it's an error, so skip.
-                    String name = Udev.INSTANCE.udev_device_get_devnode(device);
-                    store.partitionList.add(new HWPartition(name, Udev.INSTANCE.udev_device_get_sysname(device),
-                            Udev.INSTANCE.udev_device_get_property_value(device, "ID_FS_TYPE") == null ? "partition"
-                                    : Udev.INSTANCE.udev_device_get_property_value(device, "ID_FS_TYPE"),
-                            Udev.INSTANCE.udev_device_get_property_value(device, "ID_FS_UUID") == null ? ""
-                                    : Udev.INSTANCE.udev_device_get_property_value(device, "ID_FS_UUID"),
-                            ParseUtil.parseLongOrDefault(Udev.INSTANCE.udev_device_get_sysattr_value(device, "size"),
-                                    0L) * SECTORSIZE,
-                            ParseUtil.parseIntOrDefault(Udev.INSTANCE.udev_device_get_property_value(device, "MAJOR"),
-                                    0),
-                            ParseUtil.parseIntOrDefault(Udev.INSTANCE.udev_device_get_property_value(device, "MINOR"),
-                                    0),
-                            mountsMap.getOrDefault(name, "")));
+                    if (parent != null && store.getName().equals(UDEV.udev_device_get_devnode(parent))) {
+                        String name = UDEV.udev_device_get_devnode(device);
+                        store.partitionList.add(new HWPartition(name, UDEV.udev_device_get_sysname(device),
+                                UDEV.udev_device_get_property_value(device, ID_FS_TYPE) == null ? PARTITION
+                                        : UDEV.udev_device_get_property_value(device, ID_FS_TYPE),
+                                UDEV.udev_device_get_property_value(device, ID_FS_UUID) == null ? ""
+                                        : UDEV.udev_device_get_property_value(device, ID_FS_UUID),
+                                ParseUtil.parseLongOrDefault(UDEV.udev_device_get_sysattr_value(device, SIZE), 0L)
+                                        * SECTORSIZE,
+                                ParseUtil.parseIntOrDefault(UDEV.udev_device_get_property_value(device, MAJOR), 0),
+                                ParseUtil.parseIntOrDefault(UDEV.udev_device_get_property_value(device, MINOR), 0),
+                                mountsMap.getOrDefault(name, "")));
+                    }
                 }
             }
-            Udev.INSTANCE.udev_device_unref(device);
-            entry = Udev.INSTANCE.udev_list_entry_get_next(entry);
+            UDEV.udev_device_unref(device);
+            entry = UDEV.udev_list_entry_get_next(entry);
         }
-        Udev.INSTANCE.udev_enumerate_unref(enumerate);
-        Udev.INSTANCE.udev_unref(handle);
+        UDEV.udev_enumerate_unref(enumerate);
+        UDEV.udev_unref(handle);
         // Iterate the list and make the partitions unmodifiable
         for (LinuxHWDiskStore hwds : result) {
             hwds.partitionList = Collections.unmodifiableList(hwds.partitionList.stream()
@@ -227,8 +250,8 @@ public final class LinuxHWDiskStore extends AbstractHWDiskStore {
         return mountsMap;
     }
 
-    private static void computeDiskStats(LinuxHWDiskStore store, Udev.UdevDevice disk) {
-        String devstat = Udev.INSTANCE.udev_device_get_sysattr_value(disk, "stat");
+    private static void computeDiskStats(LinuxHWDiskStore store, UdevDevice disk) {
+        String devstat = UDEV.udev_device_get_sysattr_value(disk, STAT);
         long[] devstatArray = ParseUtil.parseStringToLongArray(devstat, UDEV_STAT_ORDERS, UDEV_STAT_LENGTH, ' ');
         store.timeStamp = System.currentTimeMillis();
 
