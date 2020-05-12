@@ -1,5 +1,6 @@
-language: java
-
+# Java is not yet supported on Windows, define per os
+language: minimal
+    
 before_install:
   # If on coverity_scan branch, allow only one job to continue. Choose a Linux one.
   - if [[ "${TRAVIS_BRANCH}" == "coverity_scan" && "${TRAVIS_JOB_NAME}" != "Linux JDK11 LTS" ]]; then exit 0; fi
@@ -46,20 +47,32 @@ jobs:
   include:
     - name: "Linux JDK11 LTS"
       os: linux
+      language: java
       env: 
       # COVERITY_SCAN_TOKEN
       - secure: "JuTWT2u7BWQEJGMGkVvQMIQxwxajntxqbCGYt+bJD3JQhioPVFUJoEFrLCx+jJ0qLy5usrneCDFrvRhvTh6C+95kvHypvGQ3UoeWyXS8zD+GRPUyskbuQ7P60kqqIqc+naGd3uyGddniixoAA6C/Ptmknhls4FlhDCMjW3HDS0c="
       jdk: openjdk11      
     - name: "Linux JDK15 EA"
       os: linux
+      language: java
       jdk: openjdk15
       dist: bionic
     - name: "Mac JDK8"
       os: osx
+      language: java
       osx_image: xcode9.3
     - name: "Mac JDK14"
       os: osx
+      language: java
       osx_image: xcode11.4
+    - name: "Windows JDK 8"
+      os: windows
+      language: shell
+      before_install:
+        - export JDK="adopt@1.8.0-242"
+        - travis_retry git clone --depth 1 https://github.com/DanySK/Gravis-CI.git $HOME/gravis
+        - source $HOME/gravis/install-jdk
+        - source $HOME/gravis/install-maven
 # https://github.com/bndtools/bnd/issues/3903
   allow_failures:
     - name: "Linux JDK15 EA"
