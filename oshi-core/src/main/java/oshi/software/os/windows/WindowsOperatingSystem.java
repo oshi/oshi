@@ -346,9 +346,6 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             processMap = (pids == null) ? processMapFromPerfCounters.get() : buildProcessMapFromPerfCounters(pids);
         }
 
-        // define here to avoid object repeated creation overhead later
-        List<String> groupList = new ArrayList<>();
-        List<String> groupIDList = new ArrayList<>();
         int myPid = getProcessId();
 
         // Structure we'll fill from native memory pointer for Vista+
@@ -451,16 +448,9 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                         proc.setUserID(account.sidString);
                         // Fetching group information incurs ~10ms per process.
                         if (slowFields) {
-                            Account[] accounts = Advapi32Util.getTokenGroups(phToken.getValue());
-                            // get groups
-                            groupList.clear();
-                            groupIDList.clear();
-                            for (Account a : accounts) {
-                                groupList.add(a.name);
-                                groupIDList.add(a.sidString);
-                            }
-                            proc.setGroup(String.join(",", groupList));
-                            proc.setGroupID(String.join(",", groupIDList));
+                            Account a = oshi.jna.platform.windows.Advapi32Util.getTokenPrimaryGroup(phToken.getValue());
+                            proc.setGroup(a.name);
+                            proc.setGroupID(a.sidString);
                         }
                     } else {
                         int error = Kernel32.INSTANCE.GetLastError();

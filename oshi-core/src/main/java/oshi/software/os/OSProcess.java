@@ -266,10 +266,8 @@ public class OSProcess {
      *         On Windows systems, populating this value for processes other than
      *         the current user requires administrative privileges (and still may
      *         fail for some system processes) and can incur significant latency.
-     *         The value is only calculated for single process queries using
-     *         {@link oshi.software.os.OperatingSystem#getProcess(int)}. When
-     *         successful, returns a comma-delimited list of groups with access to
-     *         this process, corresponding to the SIDs in {@link #getGroupID()}.
+     *         When successful, returns a the default primary group with access to
+     *         this process, corresponding to the SID in {@link #getGroupID()}.
      */
     public String getGroup() {
         return this.group;
@@ -285,10 +283,8 @@ public class OSProcess {
      *         On Windows systems, populating this value for processes other than
      *         the current user requires administrative privileges (and still may
      *         fail for some system processes) and can incur significant latency.
-     *         The value is only calculated for single process queries using
-     *         {@link oshi.software.os.OperatingSystem#getProcess(int)}. When
-     *         successful, returns a comma-delimited list of group SIDs with access
-     *         to this process, corresponding to the names in {@link #getGroup()}.
+     *         When successful, returns the default primary group SID with access to
+     *         this process, corresponding to the name in {@link #getGroup()}.
      */
     public String getGroupID() {
         return this.groupID;
