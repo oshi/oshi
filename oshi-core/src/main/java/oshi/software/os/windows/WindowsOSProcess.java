@@ -327,7 +327,7 @@ public class WindowsOSProcess extends AbstractOSProcess {
             Kernel32.INSTANCE.CloseHandle(pHandle);
         }
         if (pair == null) {
-            new Pair<>(Constants.UNKNOWN, Constants.UNKNOWN);
+            return new Pair<>(Constants.UNKNOWN, Constants.UNKNOWN);
         }
         return pair;
     }
@@ -363,7 +363,7 @@ public class WindowsOSProcess extends AbstractOSProcess {
             Kernel32.INSTANCE.CloseHandle(pHandle);
         }
         if (pair == null) {
-            new Pair<>(Constants.UNKNOWN, Constants.UNKNOWN);
+            return new Pair<>(Constants.UNKNOWN, Constants.UNKNOWN);
         }
         return pair;
     }
