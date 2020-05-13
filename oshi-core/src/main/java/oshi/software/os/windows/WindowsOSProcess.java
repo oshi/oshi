@@ -26,9 +26,7 @@ package oshi.software.os.windows;
 import static oshi.util.Memoizer.memoize;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
@@ -37,7 +35,6 @@ import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Pointer; // NOSONAR squid:S1191
 import com.sun.jna.platform.win32.Advapi32;
-import com.sun.jna.platform.win32.Advapi32Util;
 import com.sun.jna.platform.win32.Advapi32Util.Account;
 import com.sun.jna.platform.win32.BaseTSD.ULONG_PTRByReference;
 import com.sun.jna.platform.win32.Kernel32Util;
@@ -56,6 +53,7 @@ import oshi.driver.windows.registry.ProcessWtsData.WtsInfo;
 import oshi.driver.windows.wmi.Win32Process;
 import oshi.driver.windows.wmi.Win32Process.CommandLineProperty;
 import oshi.driver.windows.wmi.Win32ProcessCached;
+import oshi.jna.platform.windows.Advapi32Util;
 import oshi.jna.platform.windows.Kernel32;
 import oshi.software.common.AbstractOSProcess;
 import oshi.util.Constants;
@@ -338,16 +336,8 @@ public class WindowsOSProcess extends AbstractOSProcess {
         if (pHandle != null) {
             final HANDLEByReference phToken = new HANDLEByReference();
             if (Advapi32.INSTANCE.OpenProcessToken(pHandle, WinNT.TOKEN_DUPLICATE | WinNT.TOKEN_QUERY, phToken)) {
-                // Fetching group information incurs ~10ms per process.
-                Account[] accounts = Advapi32Util.getTokenGroups(phToken.getValue());
-                // get groups
-                List<String> groupList = new ArrayList<>();
-                List<String> groupIDList = new ArrayList<>();
-                for (Account a : accounts) {
-                    groupList.add(a.name);
-                    groupIDList.add(a.sidString);
-                }
-                pair = new Pair<>(String.join(",", groupList), String.join(",", groupIDList));
+                Account account = Advapi32Util.getTokenPrimaryGroup(phToken.getValue());
+                pair = new Pair<>(account.name, account.sidString);
             } else {
                 int error = Kernel32.INSTANCE.GetLastError();
                 // Access denied errors are common. Fail silently.

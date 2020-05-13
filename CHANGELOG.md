@@ -2,6 +2,7 @@
 ================
 * Your contribution here
 * [#1195](https://github.com/oshi/oshi/pull/1195): Add messages to NetworksTest assertion. - [@tomokos2](https://github.com/tomokos2).
+* [#1219](https://github.com/oshi/oshi/pull/1219): Only get primary group on WindowsOSProcess. - [@dbwiddis](https://github.com/dbwiddis).
 
 5.0.0 (5/5/2020), 5.0.1 (5/6/2020)
 ================
