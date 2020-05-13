@@ -48,39 +48,51 @@ public class NetworksTest {
         SystemInfo si = new SystemInfo();
 
         for (NetworkIF net : si.getHardware().getNetworkIFs()) {
-            assertNotNull(net.queryNetworkInterface());
-            assertNotNull(net.getName());
-            assertNotNull(net.getDisplayName());
-            assertNotNull(net.getMacaddr());
-            assertNotNull(net.getIPv4addr());
-            assertNotNull(net.getSubnetMasks());
-            assertNotNull(net.getIPv6addr());
-            assertNotNull(net.getPrefixLengths());
-            assertTrue(net.getIfType() >= 0);
-            assertTrue(net.getNdisPhysicalMediumType() >= 0);
-            assertTrue(net.getBytesRecv() >= 0);
-            assertTrue(net.getBytesSent() >= 0);
-            assertTrue(net.getPacketsRecv() >= 0);
-            assertTrue(net.getPacketsSent() >= 0);
-            assertTrue(net.getInErrors() >= 0);
-            assertTrue(net.getOutErrors() >= 0);
-            assertTrue(net.getInDrops() >= 0);
-            assertTrue(net.getCollisions() >= 0);
-            assertTrue(net.getSpeed() >= 0);
-            assertTrue(net.getMTU() >= 0);
-            assertTrue(net.getTimeStamp() > 0);
+            assertNotNull("NetworkIF should not be null", net.queryNetworkInterface());
+            assertNotNull("NetworkIF name should not be null", net.getName());
+            assertNotNull("NetworkIF display name should not be null", net.getDisplayName());
+            assertNotNull("NetworkIF MacAddress should not be null", net.getMacaddr());
+            assertNotNull("NetworkIF IPv4 address should not be null", net.getIPv4addr());
+            assertNotNull("NetworkIF SubnetMasks should not be null", net.getSubnetMasks());
+            assertNotNull("NetworkIF IPv6 should not be null", net.getIPv6addr());
+            assertNotNull("NetworkIF prefix lengths should not be null", net.getPrefixLengths());
+            assertTrue("NetworkIF type should not be negative", net.getIfType() >= 0);
+            assertTrue("NetworkIF NDisPhysicalMediumType should not be negative",
+                    net.getNdisPhysicalMediumType() >= 0);
+            assertTrue("NetworkIF bytes received should not be negative", net.getBytesRecv() >= 0);
+            assertTrue("NetworkIF bytes sent should not be negative",net.getBytesSent() >= 0);
+            assertTrue("NetworkIF packets received should not be negative",
+                    net.getPacketsRecv() >= 0);
+            assertTrue("NetworkIF packets sent should not be negative", net.getPacketsSent() >= 0);
+            assertTrue("NetworkIF InErrors should not be negative", net.getInErrors() >= 0);
+            assertTrue("NetworkIF out errors should not be negative", net.getOutErrors() >= 0);
+            assertTrue("NetworkIF in drops should not be negative", net.getInDrops() >= 0);
+            assertTrue("NetworkIF collisions should not be negative", net.getCollisions() >= 0);
+            assertTrue("NetworkIF speed should not be negative", net.getSpeed() >= 0);
+            assertTrue("NetworkIF MTU should not be negative", net.getMTU() >= 0);
+            assertTrue("NetworkIF time stamp should be positive", net.getTimeStamp() > 0);
 
             net.updateAttributes();
-            assertTrue(net.getBytesRecv() >= 0);
-            assertTrue(net.getBytesSent() >= 0);
-            assertTrue(net.getPacketsRecv() >= 0);
-            assertTrue(net.getPacketsSent() >= 0);
-            assertTrue(net.getInErrors() >= 0);
-            assertTrue(net.getOutErrors() >= 0);
-            assertTrue(net.getInDrops() >= 0);
-            assertTrue(net.getCollisions() >= 0);
-            assertTrue(net.getSpeed() >= 0);
-            assertTrue(net.getTimeStamp() > 0);
+            assertTrue("NetworkIF bytes received after update attr should not be negative",
+                    net.getBytesRecv() >= 0);
+            assertTrue("NetworkIF bytes sent after update attr should not be negative",
+                    net.getBytesSent() >= 0);
+            assertTrue("NetworkIF packets received after update attr should not be negative",
+                    net.getPacketsRecv() >= 0);
+            assertTrue("NetworkIF packets sent after update attr should not be negative",
+                    net.getPacketsSent() >= 0);
+            assertTrue("NetworkIF in errors after update attr should not be negative",
+                    net.getInErrors() >= 0);
+            assertTrue("NetworkIF out errors after update attr should not be negative",
+                    net.getOutErrors() >= 0);
+            assertTrue("NetworkIF in drops after update attr should not be negative",
+                    net.getInDrops() >= 0);
+            assertTrue("NetworkIF collisions after update attr should not be negative",
+                    net.getCollisions() >= 0);
+            assertTrue("NetworkIF speed after update attr should not be negative",
+                    net.getSpeed() >= 0);
+            assertTrue("NetworkIF time stamp after update attr should not be negative",
+                    net.getTimeStamp() > 0);
 
             if (net.getMacaddr().startsWith("00:00:00") || net.getMacaddr().length() < 8) {
                 assertFalse(net.isKnownVmMacAddr());
