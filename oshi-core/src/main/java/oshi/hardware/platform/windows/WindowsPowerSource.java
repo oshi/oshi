@@ -152,8 +152,10 @@ public final class WindowsPowerSource extends AbstractPowerSource {
         HANDLE hdev = SetupApi.INSTANCE.SetupDiGetClassDevs(GUID_DEVCLASS_BATTERY, null, null,
                 SetupApi.DIGCF_PRESENT | SetupApi.DIGCF_DEVICEINTERFACE);
         if (WinBase.INVALID_HANDLE_VALUE != hdev) {
+        	boolean batteryFound = false;
             // Limit search to 100 batteries max
             for (int idev = 0; idev < 100; idev++) {
+            	if (batteryFound == false) {
                 SP_DEVICE_INTERFACE_DATA did = new SP_DEVICE_INTERFACE_DATA();
                 did.cbSize = did.size();
 
@@ -293,7 +295,7 @@ public final class WindowsPowerSource extends AbstractPowerSource {
                                                 }
                                             }
                                             // Exit loop
-                                            break;
+                                            batteryFound = true;
                                         }
                                     }
                                 }
@@ -305,6 +307,7 @@ public final class WindowsPowerSource extends AbstractPowerSource {
                     break; // Enumeration failed - perhaps we're out of items
                 }
             }
+        	}
             SetupApi.INSTANCE.SetupDiDestroyDeviceInfoList(hdev);
         }
 
