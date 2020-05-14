@@ -154,8 +154,7 @@ public final class WindowsPowerSource extends AbstractPowerSource {
         if (WinBase.INVALID_HANDLE_VALUE != hdev) {
         	boolean batteryFound = false;
             // Limit search to 100 batteries max
-            for (int idev = 0; idev < 100; idev++) {
-            	if (batteryFound == false) {
+            for (int idev = 0; !batteryFound && idev < 100; idev++) {
                 SP_DEVICE_INTERFACE_DATA did = new SP_DEVICE_INTERFACE_DATA();
                 did.cbSize = did.size();
 
@@ -307,7 +306,6 @@ public final class WindowsPowerSource extends AbstractPowerSource {
                     break; // Enumeration failed - perhaps we're out of items
                 }
             }
-        	}
             SetupApi.INSTANCE.SetupDiDestroyDeviceInfoList(hdev);
         }
 
