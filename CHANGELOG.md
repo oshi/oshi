@@ -1,10 +1,8 @@
 5.1.0 (in progress)
 ================
 * Your contribution here
-* [#1195](https://github.com/oshi/oshi/pull/1195): Add messages to NetworksTest assertion. - [@tomokos2](https://github.com/tomokos2).
-* [#1219](https://github.com/oshi/oshi/pull/1219): Only get primary group on WindowsOSProcess. - [@dbwiddis](https://github.com/dbwiddis).
 
-5.0.0 (5/5/2020), 5.0.1 (5/6/2020)
+5.0.0 (5/5/2020), 5.0.1 (5/6/2020), 5.0.2 (5/14/2020)
 ================
 * [#1177](https://github.com/oshi/oshi/pull/1177): Remove deprecated code. - [@dbwiddis](https://github.com/dbwiddis).
 * [#1178](https://github.com/oshi/oshi/pull/1178): Make NetworkIF an interface. - [@dbwiddis](https://github.com/dbwiddis).
@@ -17,10 +15,12 @@
 * [#1191](https://github.com/oshi/oshi/pull/1191): Make OSProcess an interface. - [@dbwiddis](https://github.com/dbwiddis).
 * [#1194](https://github.com/oshi/oshi/pull/1194): Optionally batch WMI Command Line queries. - [@dbwiddis](https://github.com/dbwiddis).
 
-4.7.0 (4/25/2020), 4.7.1 (5/2/2020), 4.7.2 (5/6/2020)
+4.7.0 (4/25/2020), 4.7.1 (5/2/2020), 4.7.2 (5/6/2020), 4.7.3 (5/14/2020)
 ================
 * [#1174](https://github.com/oshi/oshi/pull/1174): Add TCP and UDP statistics. - [@dbwiddis](https://github.com/dbwiddis).
 * [#1183](https://github.com/oshi/oshi/pull/1183): Add more VirtualMemory information. - [@dbwiddis](https://github.com/dbwiddis).
+* [#1195](https://github.com/oshi/oshi/pull/1195): Add messages to NetworksTest assertion. - [@tomokos2](https://github.com/tomokos2).
+* [#1219](https://github.com/oshi/oshi/pull/1219): Only get primary group on WindowsOSProcess. - [@dbwiddis](https://github.com/dbwiddis).
 
 4.6.0 (4/2/2020), 4.6.1 (4/8/2020)
 ================
