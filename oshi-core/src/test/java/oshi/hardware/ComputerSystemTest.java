@@ -42,24 +42,24 @@ public class ComputerSystemTest {
     public void testComputerSystem() {
         SystemInfo si = new SystemInfo();
         ComputerSystem cs = si.getHardware().getComputerSystem();
-        assertNotNull(cs.getManufacturer());
-        assertNotNull(cs.getModel());
-        assertNotNull(cs.getSerialNumber());
+        assertNotNull("Computer System's manufacturer shouldn't be null", cs.getManufacturer());
+        assertNotNull("Computer System's model shouldn't be null", cs.getModel());
+        assertNotNull("Computer System's serial number shouldn't be null", cs.getSerialNumber());
 
         Firmware fw = cs.getFirmware();
-        assertNotNull(fw);
-        assertNotNull(fw.getManufacturer());
-        assertNotNull(fw.getName());
-        assertNotNull(fw.getDescription());
-        assertNotNull(fw.getVersion());
-        assertNotNull(fw.getReleaseDate());
-        assertTrue(fw.toString().contains(fw.getManufacturer()));
+        assertNotNull("Firmware shouldn't be null", fw);
+        assertNotNull("Firmware's manufacturer shouldn't be null", fw.getManufacturer());
+        assertNotNull("Firmware's name shouldn't be null", fw.getName());
+        assertNotNull("Firmware's description shouldn't be null", fw.getDescription());
+        assertNotNull("Firmware's version shouldn't be null", fw.getVersion());
+        assertNotNull("Firmware's release date shouldn't be null", fw.getReleaseDate());
+        assertTrue("Firmware's tostring value should contain manufacturer's name", fw.toString().contains(fw.getManufacturer()));
 
         Baseboard bb = cs.getBaseboard();
-        assertNotNull(bb);
-        assertNotNull(bb.getManufacturer());
-        assertNotNull(bb.getModel());
-        assertNotNull(bb.getVersion());
-        assertNotNull(bb.getSerialNumber());
+        assertNotNull("Baseboard shouldn't be null", bb);
+        assertNotNull("Baseboard's manufacturer shouldn't be null", bb.getManufacturer());
+        assertNotNull("Baseboard's model shouldn't be null", bb.getModel());
+        assertNotNull("Baseboard's version shouldn't be null", bb.getVersion());
+        assertNotNull("Baseboard's serial number shouldn't be null", bb.getSerialNumber());
     }
 }
