@@ -34,8 +34,10 @@ import java.util.function.Supplier;
 
 import com.sun.jna.Platform; // NOSONAR squid:S1191
 
+import oshi.driver.unix.Who;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OSService;
+import oshi.software.os.OSSession;
 import oshi.software.os.OperatingSystem;
 
 public abstract class AbstractOperatingSystem implements OperatingSystem {
@@ -179,6 +181,11 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
             procs.add(processes.get(i));
         }
         return procs;
+    }
+
+    @Override
+    public List<OSSession> getSessions() {
+        return Collections.unmodifiableList(Who.queryWho());
     }
 
     @Override

@@ -31,7 +31,6 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 import oshi.SystemInfo;
-import oshi.hardware.CentralProcessor.LogicalProcessor;
 import oshi.hardware.CentralProcessor.ProcessorIdentifier;
 import oshi.hardware.CentralProcessor.TickType;
 import oshi.util.Util;
@@ -112,35 +111,41 @@ public class CentralProcessorTest {
         }
 
         for (int lp = 0; lp < p.getLogicalProcessorCount(); lp++) {
-            assertTrue("Logical processor number is negative", p.getLogicalProcessors().get(lp).getProcessorNumber() >= 0);
-            switch (si.getCurrentPlatformEnum()) {
-            
+            assertTrue("Logical processor number is negative",
+                    p.getLogicalProcessors().get(lp).getProcessorNumber() >= 0);
+            switch (SystemInfo.getCurrentPlatformEnum()) {
             case WINDOWS:
                 if (p.getLogicalProcessorCount() < 64) {
-                    assertEquals("Processor group should be 0 for Windows systems with less than 64 logical processors", 
+                    assertEquals("Processor group should be 0 for Windows systems with less than 64 logical processors",
                             0, p.getLogicalProcessors().get(lp).getProcessorGroup());
                 }
                 assertTrue("NUMA node number is negative", p.getLogicalProcessors().get(lp).getNumaNode() >= 0);
                 break;
             case LINUX:
-                assertEquals("Processor group should be 0 for Linux systems", 0, p.getLogicalProcessors().get(lp).getProcessorGroup());
+                assertEquals("Processor group should be 0 for Linux systems", 0,
+                        p.getLogicalProcessors().get(lp).getProcessorGroup());
                 assertTrue("NUMA node number is negative", p.getLogicalProcessors().get(lp).getNumaNode() >= 0);
                 break;
             case MACOSX:
-                assertEquals("Processor group should be 0 for macOS systems", 0, p.getLogicalProcessors().get(lp).getProcessorGroup());
-                assertEquals("NUMA Node should be 0 for macOS systems", 0, p.getLogicalProcessors().get(lp).getNumaNode());
+                assertEquals("Processor group should be 0 for macOS systems", 0,
+                        p.getLogicalProcessors().get(lp).getProcessorGroup());
+                assertEquals("NUMA Node should be 0 for macOS systems", 0,
+                        p.getLogicalProcessors().get(lp).getNumaNode());
                 break;
             case SOLARIS:
-                assertEquals("Processor group should be 0 for Solaris systems", 0, p.getLogicalProcessors().get(lp).getProcessorGroup());
+                assertEquals("Processor group should be 0 for Solaris systems", 0,
+                        p.getLogicalProcessors().get(lp).getProcessorGroup());
                 assertTrue("NUMA node number is negative", p.getLogicalProcessors().get(lp).getNumaNode() >= 0);
                 break;
             case FREEBSD:
-                assertEquals("Processor group should be 0 for FreeBSD systems", 0, p.getLogicalProcessors().get(lp).getProcessorGroup());
-                assertEquals("NUMA Node should be 0 for FreeBSD systems", 0, p.getLogicalProcessors().get(lp).getNumaNode());
+                assertEquals("Processor group should be 0 for FreeBSD systems", 0,
+                        p.getLogicalProcessors().get(lp).getProcessorGroup());
+                assertEquals("NUMA Node should be 0 for FreeBSD systems", 0,
+                        p.getLogicalProcessors().get(lp).getNumaNode());
                 break;
             default:
                 break;
             }
-        } 
+        }
     }
 }

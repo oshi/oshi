@@ -63,6 +63,15 @@ public interface FreeBsdLibc extends CLibrary {
     /** Constant <code>CP_IDLE=4</code> */
     int CP_IDLE = 4;
 
+    /**
+     * Return type for BSD sysctl kern.boottime
+     */
+    @FieldOrder({ "tv_sec", "tv_usec" })
+    class Timeval extends Structure {
+        public long tv_sec; // seconds
+        public long tv_usec; // microseconds
+    }
+
     @FieldOrder({ "cpu_ticks" })
     class CpTime extends Structure {
         public long[] cpu_ticks = new long[CPUSTATES];
