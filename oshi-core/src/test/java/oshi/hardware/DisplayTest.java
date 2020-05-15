@@ -44,7 +44,7 @@ public class DisplayTest {
         SystemInfo si = new SystemInfo();
         List<Display> displays = si.getHardware().getDisplays();
         for (Display d : displays) {
-            assertTrue(d.getEdid().length >= 128);
+            assertTrue("EDID Byte length should be greater or equal 128", d.getEdid().length >= 128);
         }
     }
 }
