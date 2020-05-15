@@ -46,7 +46,7 @@ public class GraphicsCardTest {
             assertNotNull("Graphics card's name should not be null", graphicsCard.getName());
             assertNotNull("Graphics card's vendor should not be null", graphicsCard.getVendor());
             assertTrue("Graphics card's VRAM should be at least zero", graphicsCard.getVRam() >= 0);
-            assertEquals("Graphics card's VRAM should be divisible by 1024", graphicsCard.getVRam() % 1024);
+            assertEquals("Graphics card's VRAM should be divisible by 1024", 0, graphicsCard.getVRam() % 1024);
             assertTrue("Graphics card's id number length should be at least 6", graphicsCard.getDeviceId().length() >= 6);
             assertTrue("Graphics card's version information length should be at least 2", graphicsCard.getVersionInfo().length() >= 2);
         }
