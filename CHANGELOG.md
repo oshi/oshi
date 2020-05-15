@@ -1,6 +1,7 @@
 5.1.0 (in progress)
 ================
-* Your contribution here
+* [#1222](https://github.com/oshi/oshi/pull/1222): Added messages to unit test assertions in GraphicsCardTest.java. - [@david145noone](https://github.com/david145noone).
+* Your contribution here 
 
 5.0.0 (5/5/2020), 5.0.1 (5/6/2020), 5.0.2 (5/14/2020)
 ================
