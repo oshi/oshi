@@ -3,7 +3,14 @@ language: minimal
     
 before_install:
   # If on coverity_scan branch, allow only one job to continue. Choose a Linux one.
-  - if [[ "${TRAVIS_BRANCH}" == "coverity_scan" && "${TRAVIS_JOB_NAME}" != "Linux JDK11 LTS" ]]; then exit 0; fi
+  - if [ "${TRAVIS_BRANCH}" == "coverity_scan" && "${TRAVIS_JOB_NAME}" != "Linux JDK11 LTS" ]; then exit 0; fi
+  # Travis doesn't have Java on Windows. Use the Gravis project to get it
+  - if [ "${TRAVIS_OS_NAME}" == "windows" ]; then
+      export JDK="adopt@1.8.0-242";
+      travis_retry git clone --depth 1 https://github.com/DanySK/Gravis-CI.git $HOME/gravis;
+      source $HOME/gravis/install-jdk;
+      source $HOME/gravis/install-maven;
+    fi
 
 # enable to get a stack trace on failed builds
 # install:
@@ -11,7 +18,7 @@ before_install:
 
 script:
   # Skip tests on coverity_scan branch
-  - if [[ "${TRAVIS_BRANCH}" == "coverity_scan" ]]; then exit 0; fi
+  - if [ "${TRAVIS_BRANCH}" == "coverity_scan" ]; then exit 0; fi
   - java -version
   - mvn test
 
@@ -38,7 +45,7 @@ addons:
     - oshi
   hostname: oshi
 
-# disable shallow clone, helps sonar
+# disable shallow clone
 git:
   depth: false
 
@@ -68,11 +75,6 @@ jobs:
     - name: "Windows JDK 8"
       os: windows
       language: shell
-      before_install:
-        - export JDK="adopt@1.8.0-242"
-        - travis_retry git clone --depth 1 https://github.com/DanySK/Gravis-CI.git $HOME/gravis
-        - source $HOME/gravis/install-jdk
-        - source $HOME/gravis/install-maven
 # https://github.com/bndtools/bnd/issues/3903
   allow_failures:
     - name: "Linux JDK15 EA"
