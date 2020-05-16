@@ -101,7 +101,7 @@ final class SolarisVirtualMemory extends AbstractVirtualMemory {
 
     private static long queryPagesIn() {
         long swapPagesIn = 0L;
-        for (String s : ExecutingCommand.runNative("kstat -p cpu_stat:::pgswpin")) {
+        for (String s : ExecutingCommand.runNative("kstat -p cpu_stat:::pgswapin")) {
             swapPagesIn += ParseUtil.parseLastLong(s, 0L);
         }
         return swapPagesIn;
@@ -109,7 +109,7 @@ final class SolarisVirtualMemory extends AbstractVirtualMemory {
 
     private static long queryPagesOut() {
         long swapPagesOut = 0L;
-        for (String s : ExecutingCommand.runNative("kstat -p cpu_stat:::pgswpout")) {
+        for (String s : ExecutingCommand.runNative("kstat -p cpu_stat:::pgswapout")) {
             swapPagesOut += ParseUtil.parseLastLong(s, 0L);
         }
         return swapPagesOut;
