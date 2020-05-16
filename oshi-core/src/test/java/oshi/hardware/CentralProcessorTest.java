@@ -76,14 +76,17 @@ public class CentralProcessorTest {
         assertEquals("Central Processor's cpu load between ticks should equal the logical processor count",
                 p.getProcessorCpuLoadBetweenTicks(procTicks).length, p.getLogicalProcessorCount());
         for (int cpu = 0; cpu < p.getLogicalProcessorCount(); cpu++) {
-            assertTrue("Central Processor's cpu number " + cpu + "'s load between ticks should be inclusively between 0 and 1",
+            assertTrue("Central Processor's cpu number " + cpu
+                    + "'s load between ticks should be inclusively between 0 and 1",
                     p.getProcessorCpuLoadBetweenTicks(procTicks)[cpu] >= 0
                             && p.getProcessorCpuLoadBetweenTicks(procTicks)[cpu] <= 1);
-            assertEquals("Central Processor's cpu number " + cpu + " should have the same amount of cpu-load-tick counters as there are TickType values",
+            assertEquals("Central Processor's cpu number " + cpu
+                    + " should have the same amount of cpu-load-tick counters as there are TickType values",
                     p.getProcessorCpuLoadTicks()[cpu].length, TickType.values().length);
         }
 
-        assertTrue("Central Processor's logical processor count should be at least as high as its physical processor count",
+        assertTrue(
+                "Central Processor's logical processor count should be at least as high as its physical processor count",
                 p.getLogicalProcessorCount() >= p.getPhysicalProcessorCount());
         assertTrue("Central Processor's physical processor count should by higher than 0",
                 p.getPhysicalProcessorCount() > 0);
@@ -96,7 +99,8 @@ public class CentralProcessorTest {
 
         long max = p.getMaxFreq();
         long[] curr = p.getCurrentFreq();
-        assertEquals("Central Processor's logical processor frequency array length should be the same as its logical processor count",
+        assertEquals(
+                "Central Processor's logical processor frequency array length should be the same as its logical processor count",
                 curr.length, p.getLogicalProcessorCount());
         if (max >= 0) {
             for (int i = 0; i < curr.length; i++) {

@@ -1,7 +1,7 @@
 5.1.0 (in progress)
 ================
 * [#1222](https://github.com/oshi/oshi/pull/1222): Added messages to unit test assertions in GraphicsCardTest.java. - [@david145noone](https://github.com/david145noone).
-* [#1225](https://github.com/oshi/oshi/pull/1225): Added messages to unit tests in  DisksTest and Display Test - [@tschens95](https://github.com/tschens95)
+* [#1225](https://github.com/oshi/oshi/pull/1225): Added messages to unit tests in DisksTest and Display Test - [@tschens95](https://github.com/tschens95)
 * [#1228](https://github.com/oshi/oshi/pull/1228): Added messages to unit tests in CentralProcessorTest.java - [@roeezz](https://github.com/roeezz)
 * Your contribution here 
 
