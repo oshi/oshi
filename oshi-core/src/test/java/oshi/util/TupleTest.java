@@ -63,6 +63,6 @@ public class TupleTest {
         assertEquals("quartet.getD().charValue() should be c",'c', quartet.getD().charValue());
         assertEquals("quintet.getD().charValue() should be d",'d', quintet.getD().charValue());
 
-        assertEquals("quintet.getE() should be "+BigInteger.ZERO,BigInteger.ZERO, quintet.getE());
+        assertEquals("quintet.getE() should be BigInteger.ZERO",BigInteger.ZERO, quintet.getE());
     }
 }
