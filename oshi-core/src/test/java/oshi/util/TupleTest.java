@@ -47,22 +47,22 @@ public class TupleTest {
         Quintet<String, Integer, Long, Character, BigInteger> quintet = new Quintet<>("D", 4, Long.valueOf("0"), 'd',
                 BigInteger.ZERO);
 
-        assertEquals(pair.getA()+" should be equal to A","A", pair.getA());
-        assertEquals(triplet.getA()+" should be equal to B" ,"B", triplet.getA());
-        assertEquals(quartet.getA()+" should be equal to C","C", quartet.getA());
-        assertEquals(quintet.getA()+" should be equal to D","D", quintet.getA());
+        assertEquals(pair.getA()+" should be A","A", pair.getA());
+        assertEquals(triplet.getA()+" should be B" ,"B", triplet.getA());
+        assertEquals(quartet.getA()+" should be C","C", quartet.getA());
+        assertEquals(quintet.getA()+" should be D","D", quintet.getA());
 
-        assertEquals(pair.getB().intValue()+" should be equal to 1",1, pair.getB().intValue());
-        assertEquals(triplet.getB().intValue()+" should be equal to 2",2, triplet.getB().intValue());
-        assertEquals(quartet.getB().intValue()+" should be equal to 3",3, quartet.getB().intValue());
-        assertEquals(quintet.getB().intValue()+" should be equal to 4",4, quintet.getB().intValue());
-        assertEquals(triplet.getC().longValue()+" should be equal to "+Long.MAX_VALUE,Long.MAX_VALUE, triplet.getC().longValue());
-        assertEquals(quartet.getC().longValue()+" should be equal to "+Long.MIN_VALUE,Long.MIN_VALUE, quartet.getC().longValue());
-        assertEquals(quintet.getC().longValue()+" should be equal to 0L",0L, quintet.getC().longValue());
+        assertEquals(pair.getB() +" should be 1",1, pair.getB().intValue());
+        assertEquals(triplet.getB() +" should be 2",2, triplet.getB().intValue());
+        assertEquals(quartet.getB() +" should be 3",3, quartet.getB().intValue());
+        assertEquals(quintet.getB() +" should be 4",4, quintet.getB().intValue());
+        assertEquals(triplet.getC() +" should be Long.MAX_VALUE",Long.MAX_VALUE, triplet.getC().longValue());
+        assertEquals(quartet.getC() +" should be Long.MIN_VALUE",Long.MIN_VALUE, quartet.getC().longValue());
+        assertEquals(quintet.getC() +" should be 0L",0L, quintet.getC().longValue());
 
-        assertEquals(quartet.getD().charValue()+" should be equal to c",'c', quartet.getD().charValue());
-        assertEquals(quintet.getD().charValue()+" should be equal to d",'d', quintet.getD().charValue());
+        assertEquals(quartet.getD() +" should be c",'c', quartet.getD().charValue());
+        assertEquals(quintet.getD() +" should be d",'d', quintet.getD().charValue());
 
-        assertEquals(quintet.getE()+" should be equal to "+BigInteger.ZERO,BigInteger.ZERO, quintet.getE());
+        assertEquals(quintet.getE()+" should be "+BigInteger.ZERO,BigInteger.ZERO, quintet.getE());
     }
 }
