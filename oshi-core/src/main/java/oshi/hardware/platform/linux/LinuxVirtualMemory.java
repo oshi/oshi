@@ -126,10 +126,10 @@ final class LinuxVirtualMemory extends AbstractVirtualMemory {
             String[] memorySplit = ParseUtil.whitespaces.split(checkLine);
             if (memorySplit.length > 1) {
                 switch (memorySplit[0]) {
-                case "pgpgin":
+                case "pswpin":
                     swapPagesIn = ParseUtil.parseLongOrDefault(memorySplit[1], 0L);
                     break;
-                case "pgpgout":
+                case "pswpout":
                     swapPagesOut = ParseUtil.parseLongOrDefault(memorySplit[1], 0L);
                     break;
                 default:
