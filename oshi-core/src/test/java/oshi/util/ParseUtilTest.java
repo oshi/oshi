@@ -90,7 +90,6 @@ public class ParseUtilTest {
         assertEquals("bar", ParseUtil.parseLastString("foo : bar"));
         assertEquals("foo", ParseUtil.parseLastString("foo"));
         assertEquals("", ParseUtil.parseLastString(""));
-        assertEquals("x", ParseUtil.parseLastString("x"));
     }
 
     /**
