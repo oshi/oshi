@@ -41,10 +41,10 @@ public class NetworkParamsTest {
     public void testNetworkParams() {
         SystemInfo si = new SystemInfo();
         NetworkParams params = si.getOperatingSystem().getNetworkParams();
-        assertNotNull(params.getHostName());
-        assertNotNull(params.getDomainName());
-        assertNotNull(params.getDnsServers());
-        assertNotNull(params.getIpv4DefaultGateway());
-        assertNotNull(params.getIpv6DefaultGateway());
+        assertNotNull("Network parameters hostname is null.", params.getHostName());
+        assertNotNull("Network parameters domain name is null.", params.getDomainName());
+        assertNotNull("Network parameters DNS server is null.", params.getDnsServers());
+        assertNotNull("Network parameters IPv4 default gateway is null.", params.getIpv4DefaultGateway());
+        assertNotNull("Network parameters IPv6 default gateway is null.", params.getIpv6DefaultGateway());
     }
 }
