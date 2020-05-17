@@ -5,6 +5,7 @@
 * [#1228](https://github.com/oshi/oshi/pull/1228): Added messages to unit tests in CentralProcessorTest.java - [@roeezz](https://github.com/roeezz)
 * [#1229](https://github.com/oshi/oshi/pull/1225): Changed the linux and solaris virtual memory swapins/outs to count just swaps - [@roeezz](https://github.com/roeezz)
 * [#1232](https://github.com/oshi/oshi/pull/1232): Added messages to unit tests in NetworkParams - [@zachsez](https://github.com/zachsez)
+* [#1233](https://github.com/oshi/oshi/pull/1233): Added assert statements to CentralProcessorTest to cover untested functions - [@zachsez](https://github.com/zachsez)
 * Your contribution here 
 
 5.0.0 (5/5/2020), 5.0.1 (5/6/2020), 5.0.2 (5/14/2020)
