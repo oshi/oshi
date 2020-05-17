@@ -491,4 +491,11 @@ public class ParseUtilTest {
         assertTrue(parsed.contains(7));
     }
 
+    @Test
+    public void testParseMmDdYyyyToYyyyMmDD() {
+        assertEquals("Unable to parse MM-DD-YYYY date string into YYYY-MM-DD date string", 
+                "2222-00-11", ParseUtil.parseMmDdYyyyToYyyyMmDD("00-11-2222"));
+        assertEquals("Date string should not be parsed", 
+                "badstr", ParseUtil.parseMmDdYyyyToYyyyMmDD("badstr"));
+    }
 }
