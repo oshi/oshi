@@ -43,7 +43,7 @@ import com.sun.jna.platform.mac.SystemB.ProcTaskInfo;
 import com.sun.jna.platform.mac.SystemB.Timeval;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.driver.mac.net.Who;
+import oshi.driver.mac.Who;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
 import oshi.software.os.InternetProtocolStats;

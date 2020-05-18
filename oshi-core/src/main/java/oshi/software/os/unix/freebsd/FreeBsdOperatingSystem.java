@@ -37,7 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.driver.unix.freebsd.disk.Who;
+import oshi.driver.unix.freebsd.Who;
 import oshi.jna.platform.unix.freebsd.FreeBsdLibc;
 import oshi.jna.platform.unix.freebsd.FreeBsdLibc.Timeval;
 import oshi.software.common.AbstractOperatingSystem;

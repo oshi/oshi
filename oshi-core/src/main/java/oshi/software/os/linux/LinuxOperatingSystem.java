@@ -41,10 +41,10 @@ import com.sun.jna.platform.linux.LibC;
 import com.sun.jna.platform.linux.LibC.Sysinfo;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.linux.Who;
 import oshi.driver.linux.proc.CpuStat;
 import oshi.driver.linux.proc.ProcessStat;
 import oshi.driver.linux.proc.UpTime;
-import oshi.driver.linux.proc.Who;
 import oshi.jna.platform.linux.LinuxLibc;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
