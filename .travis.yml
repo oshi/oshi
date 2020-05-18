@@ -1,27 +1,6 @@
-# Java is not yet supported on Windows, define per os
-language: minimal
-    
-before_install:
-  # If on coverity_scan branch, allow only one job to continue. Choose a Linux one.
-  - if [[ "${TRAVIS_BRANCH}" == "coverity_scan" && "${TRAVIS_JOB_NAME}" != "Linux JDK11 LTS" ]]; then exit 0; fi
-
-# enable to get a stack trace on failed builds
-# install:
-#   - ./mvnw install -DskipTests=true -Dmaven.javadoc.skip=true -B -V -X
-
-script:
-  # Skip tests on coverity_scan branch
-  - if [[ "${TRAVIS_BRANCH}" == "coverity_scan" ]]; then exit 0; fi
-  - java -version
-  - mvn test
-
-after_success:
-  # Only execute jacoco on one branch. Choose a Linux one.
-  - bash <(curl -s https://codecov.io/bash)
-  - if [ "${TRAVIS_JOB_NAME}" == "Linux JDK11 LTS" ]; then
-      ./mvnw clean test jacoco:report coveralls:report;
-      ./mvnw clean org.jacoco:jacoco-maven-plugin:prepare-agent package sonar:sonar;
-    fi
+language: java
+os: linux
+dist: trusty
 
 addons:
   coverity_scan:
@@ -38,45 +17,81 @@ addons:
     - oshi
   hostname: oshi
 
-# disable shallow clone, helps sonar
+env:
+  global:
+    # COVERITY_SCAN_TOKEN
+    - secure: "JuTWT2u7BWQEJGMGkVvQMIQxwxajntxqbCGYt+bJD3JQhioPVFUJoEFrLCx+jJ0qLy5usrneCDFrvRhvTh6C+95kvHypvGQ3UoeWyXS8zD+GRPUyskbuQ7P60kqqIqc+naGd3uyGddniixoAA6C/Ptmknhls4FlhDCMjW3HDS0c="
+    
+# disable shallow clone
 git:
   depth: false
+    
+before_install:
+  # Travis doesn't have Java on Windows. Use the Gravis project to get it
+  - if [ "${TRAVIS_OS_NAME}" = "windows" ]; then
+      export JDK="adopt@1.8.0-252";
+      travis_retry git clone --depth 1 https://github.com/DanySK/Gravis-CI.git $HOME/gravis;
+      source $HOME/gravis/install-jdk;
+      source $HOME/gravis/install-maven;
+    fi
+  # Need to install our own arm64 jdk and set JAVA_HOME
+  - if [ "${TRAVIS_CPU_ARCH}" = "arm64" ]; then 
+      sudo apt-get -m install openjdk-11-jdk maven;
+      export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-arm64;
+      export PATH=$JAVA_HOME:$PATH; 
+    fi
+    
+# enable to get a stack trace on failed builds
+# install:
+#   - ./mvnw install -DskipTests=true -Dmaven.javadoc.skip=true -B -V -X
 
-# limit to 5 total builds and 2 builds on osx
+script:
+  - if [ "${TRAVIS_BRANCH}" = "master" ]; then
+      java -version;
+      mvn test;
+    fi
+
+after_success:
+  - if [ "${TRAVIS_BRANCH}" = "master" ]; then
+      bash <(curl -s https://codecov.io/bash);
+      if [ "${TRAVIS_JOB_NAME}" = "Linux JDK11" ]; then
+        ./mvnw clean test jacoco:report coveralls:report;
+        ./mvnw clean org.jacoco:jacoco-maven-plugin:prepare-agent package sonar:sonar;
+      fi
+    fi
+
+# 5 concurrent total builds and 2 concurrent builds on osx
+# Put the osx in the first group of 5
+# Put longest running job in first group of 5
 jobs:
   include:
-    - name: "Linux JDK11 LTS"
+    - name: "Linux JDK11"
       os: linux
-      language: java
-      env: 
-      # COVERITY_SCAN_TOKEN
-      - secure: "JuTWT2u7BWQEJGMGkVvQMIQxwxajntxqbCGYt+bJD3JQhioPVFUJoEFrLCx+jJ0qLy5usrneCDFrvRhvTh6C+95kvHypvGQ3UoeWyXS8zD+GRPUyskbuQ7P60kqqIqc+naGd3uyGddniixoAA6C/Ptmknhls4FlhDCMjW3HDS0c="
-      jdk: openjdk11      
-    - name: "Linux JDK15 EA"
-      os: linux
-      language: java
-      jdk: openjdk15
-      dist: bionic
+      jdk: openjdk11
     - name: "Mac JDK8"
+      if: branch = master
       os: osx
-      language: java
       osx_image: xcode9.3
     - name: "Mac JDK14"
+      if: branch = master
       os: osx
-      language: java
       osx_image: xcode11.4
     - name: "Windows JDK 8"
+      if: branch = master
       os: windows
       language: shell
-      before_install:
-        - export JDK="adopt@1.8.0-242"
-        - travis_retry git clone --depth 1 https://github.com/DanySK/Gravis-CI.git $HOME/gravis
-        - source $HOME/gravis/install-jdk
-        - source $HOME/gravis/install-maven
+    - name: "Linux JDK11 ARM"
+      if: branch = master
+      os: linux
+      arch: arm64
+    - name: "Linux JDK15 EA"
+      if: branch = master
+      os: linux
+      jdk: openjdk15
+      dist: bionic
 # https://github.com/bndtools/bnd/issues/3903
   allow_failures:
     - name: "Linux JDK15 EA"
       os: linux
       jdk: openjdk15
       dist: bionic
-
