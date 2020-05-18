@@ -27,14 +27,17 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Supplier;
 
 import com.sun.jna.Platform; // NOSONAR squid:S1191
 
+import oshi.driver.unix.Who;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OSService;
+import oshi.software.os.OSSession;
 import oshi.software.os.OperatingSystem;
 import oshi.software.os.OperatingSystemVersion;
 
@@ -129,6 +132,11 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
     }
 
     protected abstract boolean queryElevated();
+
+    @Override
+    public List<OSSession> getSessions() {
+        return Collections.unmodifiableList(Who.queryWho());
+    }
 
     /**
      * Sorts an array of processes using the specified sorting, returning an array

@@ -37,20 +37,13 @@ import com.sun.jna.ptr.PointerByReference;
  */
 public interface CLibrary extends LibCAPI, Library {
 
-    /*
-     * For getaddrinfo()
-     */
-    /** Constant <code>AI_CANONNAME=2</code> */
     int AI_CANONNAME = 2;
 
-    /**
-     * Return type for BSD sysctl kern.boottime
-     */
-    @FieldOrder({ "tv_sec", "tv_usec" })
-    class Timeval extends Structure {
-        public long tv_sec; // seconds
-        public long tv_usec; // microseconds
-    }
+    int UT_LINESIZE = 32;
+    int UT_NAMESIZE = 32;
+    int UT_HOSTSIZE = 256;
+    int LOGIN_PROCESS = 6; // Session leader of a logged in user.
+    int USER_PROCESS = 7; // Normal process.
 
     @FieldOrder({ "sa_family", "sa_data" })
     class Sockaddr extends Structure {
@@ -588,4 +581,16 @@ public interface CLibrary extends LibCAPI, Library {
      * @return A human-readable version of the error code
      */
     String gai_strerror(int e);
+
+    /**
+     * Rewinds the file pointer to the beginning of the utmp file. It is generally a
+     * good idea to call it before any of the other functions.
+     */
+    void setutxent();
+
+    /**
+     * Closes the utmp file. It should be called when the user code is done
+     * accessing the file with the other functions.
+     */
+    void endutxent();
 }

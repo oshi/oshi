@@ -364,4 +364,19 @@ public class OperatingSystemTest {
         assertNotEquals(0, stopped);
         assertNotEquals(0, running);
     }
+
+    /**
+     * Tests sessions getter
+     */
+    @Test
+    public void testGetSessions() {
+        SystemInfo si = new SystemInfo();
+        OperatingSystem os = si.getOperatingSystem();
+        for (OSSession sess : os.getSessions()) {
+            assertTrue(sess.getUserName().length() > 0);
+            assertTrue(sess.getTerminalDevice().length() > 0);
+            assertTrue(sess.getLoginTime() < System.currentTimeMillis());
+            assertNotNull(sess.getHost());
+        }
+    }
 }

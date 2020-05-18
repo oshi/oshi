@@ -90,6 +90,14 @@ public interface OperatingSystem {
     InternetProtocolStats getInternetProtocolStats();
     
     /**
+     * Gets currently logged in users.
+     *
+     * @return An {@code UnmodifiableList} of {@link oshi.software.os.OSSession}
+     *         objects representing logged-in users
+     */
+    List<OSSession> getSessions();
+
+    /**
      * Gets currently running processes. No order is guaranteed.
      *
      * @return An array of {@link oshi.software.os.OSProcess} objects for the

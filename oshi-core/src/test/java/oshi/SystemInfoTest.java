@@ -56,6 +56,7 @@ import oshi.software.os.NetworkParams;
 import oshi.software.os.OSFileStore;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OSService;
+import oshi.software.os.OSSession;
 import oshi.software.os.OperatingSystem;
 import oshi.software.os.OperatingSystem.ProcessSort;
 import oshi.util.FormatUtil;
@@ -163,12 +164,16 @@ public class SystemInfoTest {
         oshi.add("Booted: " + Instant.ofEpochSecond(os.getSystemBootTime()));
         oshi.add("Uptime: " + FormatUtil.formatElapsedSecs(os.getSystemUptime()));
         oshi.add("Running with" + (os.isElevated() ? "" : "out") + " elevated permissions.");
+        oshi.add("Sessions:");
+        for (OSSession s : os.getSessions()) {
+            oshi.add(" " + s.toString());
+        }
     }
 
     private static void printComputerSystem(final ComputerSystem computerSystem) {
-        oshi.add("system: " + computerSystem.toString());
-        oshi.add(" firmware: " + computerSystem.getFirmware().toString());
-        oshi.add(" baseboard: " + computerSystem.getBaseboard().toString());
+        oshi.add("System: " + computerSystem.toString());
+        oshi.add(" Firmware: " + computerSystem.getFirmware().toString());
+        oshi.add(" Baseboard: " + computerSystem.getBaseboard().toString());
     }
 
     private static void printProcessor(CentralProcessor processor) {

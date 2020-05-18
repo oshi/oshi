@@ -49,45 +49,104 @@ public class CentralProcessorTest {
         CentralProcessor p = si.getHardware().getProcessor();
 
         ProcessorIdentifier pi = p.getProcessorIdentifier();
-        assertNotNull(pi.getVendor());
-        assertTrue(pi.getVendorFreq() == -1 || pi.getVendorFreq() > 0);
-        assertNotNull(pi.getName());
-        assertNotNull(pi.getIdentifier());
-        assertNotNull(pi.getProcessorID());
-        assertNotNull(pi.getStepping());
-        assertNotNull(pi.getModel());
-        assertNotNull(pi.getFamily());
-        assertFalse(Util.isBlank(pi.getMicroarchitecture()));
+        assertNotNull("Processor Identifier's vendor shouldn't be Null", pi.getVendor());
+        assertTrue("Processor Identifier's vendor frequency should either be -1, or a greater than 0",
+                pi.getVendorFreq() == -1 || pi.getVendorFreq() > 0);
+        assertNotNull("Processor Identifier's name shouldn't be Null", pi.getName());
+        assertNotNull("Processor Identifier's identifier shouldn't be Null", pi.getIdentifier());
+        assertNotNull("Processor Identifier's ID shouldn't be Null", pi.getProcessorID());
+        assertNotNull("Processor Identifier's stepping shouldn't be Null", pi.getStepping());
+        assertNotNull("Processor Identifier's model shouldn't be null", pi.getModel());
+        assertNotNull("Processor Identifier's family shouldn't be null", pi.getFamily());
+        assertNotNull("Processor Identifier's toString shouldn't be null", pi.toString());
+        assertFalse("Processor Identifier's micro-architecture shouldn't be blank",
+                Util.isBlank(pi.getMicroarchitecture()));
 
         long[] ticks = p.getSystemCpuLoadTicks();
         long[][] procTicks = p.getProcessorCpuLoadTicks();
-        assertEquals(ticks.length, TickType.values().length);
+        assertEquals("System should have the same amount of cpu-load-tick counters as there are TickType values",
+                ticks.length, TickType.values().length);
 
         Util.sleep(500);
 
-        assertTrue(p.getSystemCpuLoadBetweenTicks(ticks) >= 0 && p.getSystemCpuLoadBetweenTicks(ticks) <= 1);
-        assertEquals(3, p.getSystemLoadAverage(3).length);
+        assertTrue("System's cpu load between ticks should be inclusively between 0 and 1",
+                p.getSystemCpuLoadBetweenTicks(ticks) >= 0 && p.getSystemCpuLoadBetweenTicks(ticks) <= 1);
+        assertEquals("System's load averages length for 3 elements should equal 3", 3,
+                p.getSystemLoadAverage(3).length);
 
-        assertEquals(p.getProcessorCpuLoadBetweenTicks(procTicks).length, p.getLogicalProcessorCount());
+        assertEquals("Central Processor's cpu load between ticks should equal the logical processor count",
+                p.getProcessorCpuLoadBetweenTicks(procTicks).length, p.getLogicalProcessorCount());
         for (int cpu = 0; cpu < p.getLogicalProcessorCount(); cpu++) {
-            assertTrue(p.getProcessorCpuLoadBetweenTicks(procTicks)[cpu] >= 0
-                    && p.getProcessorCpuLoadBetweenTicks(procTicks)[cpu] <= 1);
-            assertEquals(p.getProcessorCpuLoadTicks()[cpu].length, TickType.values().length);
+            assertTrue(
+                    "Central Processor's cpu number " + cpu
+                            + "'s load between ticks should be inclusively between 0 and 1",
+                    p.getProcessorCpuLoadBetweenTicks(procTicks)[cpu] >= 0
+                            && p.getProcessorCpuLoadBetweenTicks(procTicks)[cpu] <= 1);
+            assertEquals(
+                    "Central Processor's cpu number " + cpu
+                            + " should have the same amount of cpu-load-tick counters as there are TickType values",
+                    p.getProcessorCpuLoadTicks()[cpu].length, TickType.values().length);
         }
 
-        assertTrue(p.getLogicalProcessorCount() >= p.getPhysicalProcessorCount());
-        assertTrue(p.getPhysicalProcessorCount() > 0);
-        assertTrue(p.getPhysicalProcessorCount() >= p.getPhysicalPackageCount());
-        assertTrue(p.getPhysicalPackageCount() > 0);
-        assertTrue(p.getContextSwitches() >= 0);
-        assertTrue(p.getInterrupts() >= 0);
+        assertTrue(
+                "Central Processor's logical processor count should be at least as high as its physical processor count",
+                p.getLogicalProcessorCount() >= p.getPhysicalProcessorCount());
+        assertTrue("Central Processor's physical processor count should by higher than 0",
+                p.getPhysicalProcessorCount() > 0);
+        assertTrue("Central Processor's physical processor count should be higher than its physical package count",
+                p.getPhysicalProcessorCount() >= p.getPhysicalPackageCount());
+        assertTrue("Central Processor's physical package count should be higher than 0",
+                p.getPhysicalPackageCount() > 0);
+        assertTrue("Central Processor's context switch count should be 0 or higher", p.getContextSwitches() >= 0);
+        assertTrue("Central Processor's interrupt count should be 0 or higher", p.getInterrupts() >= 0);
 
         long max = p.getMaxFreq();
         long[] curr = p.getCurrentFreq();
-        assertEquals(curr.length, p.getLogicalProcessorCount());
+        assertEquals(
+                "Central Processor's logical processor frequency array length should be the same as its logical processor count",
+                curr.length, p.getLogicalProcessorCount());
         if (max >= 0) {
             for (int i = 0; i < curr.length; i++) {
-                assertTrue(curr[i] <= max);
+                assertTrue("Central Processor's logical processor frequency should be at most it's max frequency",
+                        curr[i] <= max);
+            }
+        }
+
+        for (int lp = 0; lp < p.getLogicalProcessorCount(); lp++) {
+            assertTrue("Logical processor number is negative",
+                    p.getLogicalProcessors()[lp].getProcessorNumber() >= 0);
+            switch (SystemInfo.getCurrentPlatformEnum()) {
+            case WINDOWS:
+                if (p.getLogicalProcessorCount() < 64) {
+                    assertEquals("Processor group should be 0 for Windows systems with less than 64 logical processors",
+                            0, p.getLogicalProcessors()[lp].getProcessorGroup());
+                }
+                assertTrue("NUMA node number is negative", p.getLogicalProcessors()[lp].getNumaNode() >= 0);
+                break;
+            case LINUX:
+                assertEquals("Processor group should be 0 for Linux systems", 0,
+                        p.getLogicalProcessors()[lp].getProcessorGroup());
+                assertTrue("NUMA node number is negative", p.getLogicalProcessors()[lp].getNumaNode() >= 0);
+                break;
+            case MACOSX:
+                assertEquals("Processor group should be 0 for macOS systems", 0,
+                        p.getLogicalProcessors()[lp].getProcessorGroup());
+                assertEquals("NUMA Node should be 0 for macOS systems", 0,
+                        p.getLogicalProcessors()[lp].getNumaNode());
+                break;
+            case SOLARIS:
+                assertEquals("Processor group should be 0 for Solaris systems", 0,
+                        p.getLogicalProcessors()[lp].getProcessorGroup());
+                assertTrue("NUMA node number is negative", p.getLogicalProcessors()[lp].getNumaNode() >= 0);
+                break;
+            case FREEBSD:
+                assertEquals("Processor group should be 0 for FreeBSD systems", 0,
+                        p.getLogicalProcessors()[lp].getProcessorGroup());
+                assertEquals("NUMA Node should be 0 for FreeBSD systems", 0,
+                        p.getLogicalProcessors()[lp].getNumaNode());
+                break;
+            default:
+                break;
             }
         }
     }

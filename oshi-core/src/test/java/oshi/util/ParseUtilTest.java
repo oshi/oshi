@@ -491,4 +491,29 @@ public class ParseUtilTest {
         assertTrue(parsed.contains(7));
     }
 
+    @Test
+    public void testParseMmDdYyyyToYyyyMmDD() {
+        assertEquals("Unable to parse MM-DD-YYYY date string into YYYY-MM-DD date string", "2222-00-11",
+                ParseUtil.parseMmDdYyyyToYyyyMmDD("00-11-2222"));
+        assertEquals("Date string should not be parsed", "badstr", ParseUtil.parseMmDdYyyyToYyyyMmDD("badstr"));
+    }
+
+    @Test
+    public void testParseUtAddrV6toIP() {
+        int[] zero = { 0, 0, 0, 0 };
+        int[] loopback = { 0, 0, 0, 1 };
+        String v6test = "2001:db8:85a3::8a2e:370:7334";
+        int[] v6 = new int[4];
+        v6[0] = Integer.parseUnsignedInt("20010db8", 16);
+        v6[1] = Integer.parseUnsignedInt("85a30000", 16);
+        v6[2] = Integer.parseUnsignedInt("00008a2e", 16);
+        v6[3] = Integer.parseUnsignedInt("03707334", 16);
+        String v4test = "127.0.0.1";
+        int[] v4 = new int[4];
+        v4[0] = (127 << 24) + 1;
+        assertEquals("Unspecified address failed", "::", ParseUtil.parseUtAddrV6toIP(zero));
+        assertEquals("Loopback address failed", "::1", ParseUtil.parseUtAddrV6toIP(loopback));
+        assertEquals("V6 parsing failed", v6test, ParseUtil.parseUtAddrV6toIP(v6));
+        assertEquals("V4 parsig failed", v4test, ParseUtil.parseUtAddrV6toIP(v4));
+    }
 }

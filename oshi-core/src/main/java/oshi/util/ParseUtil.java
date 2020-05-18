@@ -24,6 +24,9 @@
 package oshi.util;
 
 import java.math.BigInteger;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
@@ -1075,5 +1078,47 @@ public final class ParseUtil {
             }
         }
         return result;
+    }
+
+    /**
+     * Parse an integer array to an IPv4 or IPv6 as appropriate.
+     * <p>
+     * Intended for use on Utmp structures's ut_addr_v6 element.
+     *
+     * @param ut_addr_v6
+     *            An array of 4 integers representing an IPv6 address. IPv4 address
+     *            uses just ut_addr_v6[0]
+     * @return A string representation of the IP address.
+     */
+    public static String parseUtAddrV6toIP(int[] ut_addr_v6) {
+        if (ut_addr_v6.length != 4) {
+            throw new IllegalArgumentException("ut_addr_v6 must have exactly 4 elements");
+        }
+        // IPv4 has only first element
+        if (ut_addr_v6[1] == 0 && ut_addr_v6[2] == 0 && ut_addr_v6[3] == 0) {
+            // Special case for all 0's
+            if (ut_addr_v6[0] == 0) {
+                return "::";
+            }
+            // Parse using InetAddress
+            byte[] ipv4 = ByteBuffer.allocate(4).putInt(ut_addr_v6[0]).array();
+            try {
+                return InetAddress.getByAddress(ipv4).getHostAddress();
+            } catch (UnknownHostException e) {
+                // Shouldn't happen with length 4 or 16
+                return Constants.UNKNOWN;
+            }
+        }
+        // Parse all 16 bytes
+        byte[] ipv6 = ByteBuffer.allocate(16).putInt(ut_addr_v6[0]).putInt(ut_addr_v6[1])
+                .putInt(ut_addr_v6[2])
+                .putInt(ut_addr_v6[3]).array();
+        try {
+            return InetAddress.getByAddress(ipv6).getHostAddress()
+                    .replaceAll("((?:(?:^|:)0+\\b){2,}):?(?!\\S*\\b\\1:0+\\b)(\\S*)", "::$2");
+        } catch (UnknownHostException e) {
+            // Shouldn't happen with length 4 or 16
+            return Constants.UNKNOWN;
+        }
     }
 }
