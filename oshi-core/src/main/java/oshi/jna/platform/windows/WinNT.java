@@ -23,8 +23,8 @@
  */
 package oshi.jna.platform.windows;
 
-import com.sun.jna.IntegerType;
-import com.sun.jna.Memory; // NOSONAR squid:S1191
+import com.sun.jna.IntegerType; // NOSONAR squid:S1191
+import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import com.sun.jna.Structure.FieldOrder;
@@ -62,7 +62,7 @@ public interface WinNT extends com.sun.jna.platform.win32.WinNT {
      * A 64-bit integer;
      */
     @FieldOrder({ "u" })
-    public static class LARGE_INTEGER extends Structure implements Comparable<LARGE_INTEGER> {
+    static class LARGE_INTEGER extends Structure implements Comparable<LARGE_INTEGER> {
         public static class ByReference extends LARGE_INTEGER implements Structure.ByReference {
         }
 
@@ -196,7 +196,7 @@ public interface WinNT extends com.sun.jna.platform.win32.WinNT {
             } else if (v1 == null) {
                 return 1; // v2 cannot be null or v1 == v2 would hold
             } else if (v2 == null) {
-                return (-1);
+                return -1;
             } else {
                 return IntegerType.compare(v1.getValue(), v2.getValue());
             }
