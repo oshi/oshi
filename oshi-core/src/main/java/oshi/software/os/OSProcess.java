@@ -726,6 +726,10 @@ public class OSProcess {
 
     /**
      * Gets cumulative CPU usage of this process.
+     * <p>
+     * This calculation sums CPU ticks across all processors and may exceed 100% for
+     * multi-threaded processes. This is consistent with the cumulative CPU
+     * presented by the "top" command on Linux/Unix machines.
      *
      * @return The proportion of up time that the process was executing in kernel or
      *         user mode.
@@ -741,6 +745,11 @@ public class OSProcess {
     /**
      * Gets CPU usage of this process since a previous snapshot of the same process,
      * provided as a parameter.
+     * <p>
+     * This calculation sums CPU ticks across all processors and may exceed 100% for
+     * multi-threaded processes. This is consistent with process usage calulations
+     * on Linux/Unix machines, but should be divided by the number of logical
+     * processors to match the value displayed by the Windows Task Manager.
      * <p>
      * The accuracy of this calculation is dependent on both the number of threads
      * on which the process is executing, and the precision of the Operating
