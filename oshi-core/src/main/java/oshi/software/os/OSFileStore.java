@@ -25,6 +25,12 @@ package oshi.software.os;
 
 import oshi.annotation.concurrent.ThreadSafe;
 
+/**
+ * A FileStore represents a storage pool, device, partition, volume, concrete
+ * file system or other implementation specific means of file storage. This
+ * object carries the same interpretation as core Java's
+ * {@link java.nio.file.FileStore} class, with additional information.
+ */
 @ThreadSafe
 public interface OSFileStore {
 

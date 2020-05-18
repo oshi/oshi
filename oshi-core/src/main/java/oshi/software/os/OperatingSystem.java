@@ -35,6 +35,9 @@ import oshi.util.Util;
  * An operating system (OS) is the software on a computer that manages the way
  * different programs use its hardware, and regulates the ways that a user
  * controls the computer.
+ * <p>
+ * Considered thread safe, but see remarks for the {@link #getSessions()}
+ * method.
  */
 @ThreadSafe
 public interface OperatingSystem {
@@ -83,6 +86,12 @@ public interface OperatingSystem {
 
     /**
      * Gets currently logged in users.
+     * <p>
+     * On macOS, Linux, and Unix systems, employs native code (see
+     * {@code man getutxent}) that is not thread safe. OSHI's use of this code is
+     * synchronized and may be used in a multi-threaded environment. Users should
+     * note, however, that other operating system code may access the same native
+     * code.
      *
      * @return An {@code UnmodifiableList} of {@link oshi.software.os.OSSession}
      *         objects representing logged-in users
