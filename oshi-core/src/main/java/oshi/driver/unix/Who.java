@@ -28,6 +28,7 @@ import java.time.Year;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
+import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -74,22 +75,31 @@ public final class Who {
         for (String s : who) {
             Matcher m = WHO_FORMAT_LINUX.matcher(s);
             if (m.matches()) {
-                whoList.add(new OSSession(m.group(1), m.group(2),
-                        LocalDateTime.parse(m.group(3) + " " + m.group(4), WHO_DATE_FORMAT_LINUX)
-                                .toEpochSecond(ZoneOffset.UTC) * 1000L,
-                        m.group(5) == null ? Constants.UNKNOWN : m.group(5)));
+                try {
+                    whoList.add(new OSSession(m.group(1), m.group(2),
+                            LocalDateTime.parse(m.group(3) + " " + m.group(4), WHO_DATE_FORMAT_LINUX)
+                                    .toEpochSecond(ZoneOffset.UTC) * 1000L,
+                            m.group(5) == null ? Constants.UNKNOWN : m.group(5)));
+                } catch (DateTimeParseException e) {
+                    // shouldn't happen if regex matches and OS is producing sensible dates
+                }
             } else {
                 m = WHO_FORMAT_UNIX.matcher(s);
                 if (m.matches()) {
-                    // Missing year, parse date time with current year
-                    LocalDateTime login = LocalDateTime.parse(m.group(3) + " " + m.group(4) + " " + m.group(5),
-                            WHO_DATE_FORMAT_UNIX);
-                    // If this date is in the future, subtract a year
-                    if (login.isAfter(LocalDateTime.now())) {
-                        login = login.minus(1, ChronoUnit.YEARS);
+                    try {
+                        // Missing year, parse date time with current year
+                        LocalDateTime login = LocalDateTime.parse(m.group(3) + " " + m.group(4) + " " + m.group(5),
+                                WHO_DATE_FORMAT_UNIX);
+                        // If this date is in the future, subtract a year
+                        if (login.isAfter(LocalDateTime.now())) {
+                            login = login.minus(1, ChronoUnit.YEARS);
+                        }
+                        long millis = login.toEpochSecond(ZoneOffset.UTC) * 1000L;
+                        whoList.add(
+                                new OSSession(m.group(1), m.group(2), millis, m.group(6) == null ? "" : m.group(6)));
+                    } catch (DateTimeParseException e) {
+                        // shouldn't happen if regex matches and OS is producing sensible dates
                     }
-                    long millis = login.toEpochSecond(ZoneOffset.UTC) * 1000L;
-                    whoList.add(new OSSession(m.group(1), m.group(2), millis, m.group(6) == null ? "" : m.group(6)));
                 }
             }
         }

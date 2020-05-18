@@ -280,7 +280,9 @@ public class OperatingSystemTest {
         for (OSSession sess : os.getSessions()) {
             assertTrue(sess.getUserName().length() > 0);
             assertTrue(sess.getTerminalDevice().length() > 0);
-            assertTrue(sess.getLoginTime() < System.currentTimeMillis());
+            // Login time
+            assertTrue(String.format("Logon time should be before now: %d < %d", sess.getLoginTime(),
+                    System.currentTimeMillis()), sess.getLoginTime() <= System.currentTimeMillis());
             assertNotNull(sess.getHost());
         }
     }
