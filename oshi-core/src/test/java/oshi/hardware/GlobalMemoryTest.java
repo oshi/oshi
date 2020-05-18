@@ -42,12 +42,12 @@ public class GlobalMemoryTest {
         SystemInfo si = new SystemInfo();
         HardwareAbstractionLayer hal = si.getHardware();
         GlobalMemory memory = hal.getMemory();
-        assertNotNull(memory);
+        assertNotNull("Memory shouldn't be null", memory);
 
-        assertTrue(memory.getTotal() > 0);
-        assertTrue(memory.getAvailable() >= 0);
-        assertTrue(memory.getAvailable() <= memory.getTotal());
-        assertTrue(memory.getPageSize() > 0);
-        assertTrue(memory.toString().contains("Available"));
+        assertTrue("Total memory should be greater than zero", memory.getTotal() > 0);
+        assertTrue("Available memory should be greater than or equal to zero", memory.getAvailable() >= 0);
+        assertTrue("Available memory should be less than or equal to total memory", memory.getAvailable() <= memory.getTotal());
+        assertTrue("Memory page size should be greater than zero", memory.getPageSize() > 0);
+        assertTrue("Memory should contain the substring \"Available\"", memory.toString().contains("Available"));
     }
 }
