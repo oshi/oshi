@@ -1,5 +1,26 @@
+dist: trusty
+
 # Java is not yet supported on Windows, define per os
-language: minimal
+language: shell
+
+addons:
+  coverity_scan:
+    project:
+      name: "dblock/oshi"
+      description: "Build submitted via Travis CI"
+    notification_email: widdis@gmail.com
+    build_command_prepend: "cov-configure --comptype gcc --compiler gcc-4.8 --template"
+    build_command:   "./mvnw -DskipTests=true clean compile"
+    branch_pattern: coverity_scan
+  sonarcloud:
+    organization: "default" # the key of the open source org
+  hosts:
+    - oshi
+  hostname: oshi
+
+# disable shallow clone
+git:
+  depth: false
     
 before_install:
   # If on coverity_scan branch, allow only one job to continue. Choose a Linux one.
@@ -29,25 +50,6 @@ after_success:
       ./mvnw clean test jacoco:report coveralls:report;
       ./mvnw clean org.jacoco:jacoco-maven-plugin:prepare-agent package sonar:sonar;
     fi
-
-addons:
-  coverity_scan:
-    project:
-      name: "dblock/oshi"
-      description: "Build submitted via Travis CI"
-    notification_email: widdis@gmail.com
-    build_command_prepend: "cov-configure --comptype gcc --compiler gcc-4.8 --template"
-    build_command:   "./mvnw -DskipTests=true clean compile"
-    branch_pattern: coverity_scan
-  sonarcloud:
-    organization: "default" # the key of the open source org
-  hosts:
-    - oshi
-  hostname: oshi
-
-# disable shallow clone
-git:
-  depth: false
 
 # limit to 5 total builds and 2 builds on osx
 jobs:
@@ -79,6 +81,6 @@ jobs:
   allow_failures:
     - name: "Linux JDK15 EA"
       os: linux
+      language: java
       jdk: openjdk15
       dist: bionic
-
