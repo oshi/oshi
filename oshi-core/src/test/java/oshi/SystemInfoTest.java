@@ -172,7 +172,7 @@ public class SystemInfoTest {
 
     private static void printComputerSystem(final ComputerSystem computerSystem) {
         oshi.add("System: " + computerSystem.toString());
-        oshi.add(" Ffirmware: " + computerSystem.getFirmware().toString());
+        oshi.add(" Firmware: " + computerSystem.getFirmware().toString());
         oshi.add(" Baseboard: " + computerSystem.getBaseboard().toString());
     }
 
