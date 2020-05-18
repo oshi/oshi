@@ -60,7 +60,7 @@ public final class NetSessionData {
                 SESSION_INFO_10[] sessionInfo = (SESSION_INFO_10[]) si10.toArray(entriesread.getValue());
                 for (SESSION_INFO_10 si : sessionInfo) {
                     // time field is connected seconds
-                    long logonTime = System.currentTimeMillis() - 1000L * si.sesi10_time;
+                    long logonTime = System.currentTimeMillis() - (1000L * si.sesi10_time);
                     sessions.add(new OSSession(si.sesi10_username, "Network session", logonTime, si.sesi10_cname));
                 }
             }

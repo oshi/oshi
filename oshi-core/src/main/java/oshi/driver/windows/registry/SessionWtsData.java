@@ -23,6 +23,8 @@
  */
 package oshi.driver.windows.registry;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.IntBuffer;
@@ -105,12 +107,20 @@ public final class SessionWtsData {
                                 pBuffer = ppBuffer.getValue(); // returns WTS_CLIENT_ADDRESS
                                 WTS_CLIENT_ADDRESS addr = new WTS_CLIENT_ADDRESS(pBuffer);
                                 WTS.WTSFreeMemory(pBuffer);
-                                // Get ints for address parsing
-                                int[] ipArray = convertBytesToInts(addr.Address);
-                                String host = (addr.AddressFamily == IPHlpAPI.AF_INET
-                                        || addr.AddressFamily == IPHlpAPI.AF_INET6)
-                                                ? ParseUtil.parseUtAddrV6toIP(ipArray)
-                                                : "::";
+                                String host = "::";
+                                if (addr.AddressFamily == IPHlpAPI.AF_INET) {
+                                    try {
+                                        host = InetAddress.getByAddress(Arrays.copyOfRange(addr.Address, 2, 6))
+                                                .getHostAddress();
+                                    } catch (UnknownHostException e) {
+                                        // If array is not length of 4, shouldn't happen
+                                        host = "Illegal length IP Array";
+                                    }
+                                } else if (addr.AddressFamily == IPHlpAPI.AF_INET6) {
+                                    // Get ints for address parsing
+                                    int[] ipArray = convertBytesToInts(addr.Address);
+                                    host = ParseUtil.parseUtAddrV6toIP(ipArray);
+                                }
                                 sessions.add(new OSSession(userName, device, logonTime, host));
                             }
                         }
