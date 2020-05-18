@@ -41,6 +41,7 @@ import com.sun.jna.platform.linux.LibC;
 import com.sun.jna.platform.linux.LibC.Sysinfo;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.linux.Who;
 import oshi.driver.linux.proc.CpuStat;
 import oshi.driver.linux.proc.ProcessStat;
 import oshi.driver.linux.proc.UpTime;
@@ -52,6 +53,7 @@ import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OSProcess.State;
 import oshi.software.os.OSService;
+import oshi.software.os.OSSession;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
@@ -149,6 +151,11 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     @Override
     public InternetProtocolStats getInternetProtocolStats() {
         return new LinuxInternetProtocolStats();
+    }
+
+    @Override
+    public List<OSSession> getSessions() {
+        return Collections.unmodifiableList(Who.queryUtxent());
     }
 
     @Override

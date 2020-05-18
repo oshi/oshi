@@ -1,13 +1,17 @@
 5.1.0 (in progress)
 ================
-* [#1222](https://github.com/oshi/oshi/pull/1222): Added messages to unit test assertions in GraphicsCardTest.java. - [@david145noone](https://github.com/david145noone).
-* [#1225](https://github.com/oshi/oshi/pull/1225): Added messages to unit tests in  DisksTest and Display Test - [@tschens95](https://github.com/tschens95)
-* [#1228](https://github.com/oshi/oshi/pull/1228): Added messages to unit tests in CentralProcessorTest.java - [@roeezz](https://github.com/roeezz)
+* [#1222](https://github.com/oshi/oshi/pull/1222),
+  [#1225](https://github.com/oshi/oshi/pull/1225),
+  [#1228](https://github.com/oshi/oshi/pull/1228),
+  [#1232](https://github.com/oshi/oshi/pull/1232),
+  [#1235](https://github.com/oshi/oshi/pull/1235):
+  Added messages to unit test assertions in multiple classes. - 
+[@david145noone](https://github.com/david145noone), [@tschens95](https://github.com/tschens95),
+[@roeezz](https://github.com/roeezz), [@zachsez](https://github.com/zachsez),
+[@RaymondLZhou](https://github.com/RaymondLZhou).
 * [#1229](https://github.com/oshi/oshi/pull/1225): Changed the linux and solaris virtual memory swapins/outs to count just swaps - [@roeezz](https://github.com/roeezz)
-* [#1232](https://github.com/oshi/oshi/pull/1232): Added messages to unit tests in NetworkParams - [@zachsez](https://github.com/zachsez)
-* [#1233](https://github.com/oshi/oshi/pull/1233): Added assert statements to CentralProcessorTest to cover untested functions - [@zachsez](https://github.com/zachsez)
-* [#1234](https://github.com/oshi/oshi/pull/1232): Added assert statements to ParseUtil to improve coverage - [@zachsez](https://github.com/zachsez)
-* [#1235](https://github.com/oshi/oshi/pull/1235): Added messages to unit tests in GlobalMemoryTest.Java - [@RaymondLZhou](https://github.com/RaymondLZhou)
+* [#1231](https://github.com/oshi/oshi/pull/1231): Add OSSessions. - [@dbwiddis](https://github.com/dbwiddis).
+* [#1233](https://github.com/oshi/oshi/pull/1233), [#1234](https://github.com/oshi/oshi/pull/1234): Added more unit tests in CentralProcessorTest and ParseUtilTest - [@zachsez](https://github.com/zachsez).
 * Your contribution here 
 
 5.0.0 (5/5/2020), 5.0.1 (5/6/2020), 5.0.2 (5/14/2020)

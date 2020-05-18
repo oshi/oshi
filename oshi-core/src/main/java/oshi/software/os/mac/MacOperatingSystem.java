@@ -43,6 +43,7 @@ import com.sun.jna.platform.mac.SystemB.ProcTaskInfo;
 import com.sun.jna.platform.mac.SystemB.Timeval;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.mac.Who;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
 import oshi.software.os.InternetProtocolStats;
@@ -50,6 +51,7 @@ import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OSProcess.State;
 import oshi.software.os.OSService;
+import oshi.software.os.OSSession;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.mac.SysctlUtil;
@@ -178,6 +180,11 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
     @Override
     public InternetProtocolStats getInternetProtocolStats() {
         return new MacInternetProtocolStats(isElevated());
+    }
+
+    @Override
+    public List<OSSession> getSessions() {
+        return Collections.unmodifiableList(Who.queryUtxent());
     }
 
     @Override

@@ -35,6 +35,7 @@ import com.sun.jna.platform.unix.solaris.LibKstat.Kstat; // NOSONAR squid:S1191
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.linux.proc.ProcessStat;
+import oshi.driver.unix.solaris.Who;
 import oshi.jna.platform.unix.solaris.SolarisLibc;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
@@ -42,6 +43,7 @@ import oshi.software.os.InternetProtocolStats;
 import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OSService;
+import oshi.software.os.OSSession;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.solaris.KstatUtil;
@@ -94,6 +96,11 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
     @Override
     public InternetProtocolStats getInternetProtocolStats() {
         return new SolarisInternetProtocolStats();
+    }
+
+    @Override
+    public List<OSSession> getSessions() {
+        return Collections.unmodifiableList(Who.queryUtxent());
     }
 
     @Override

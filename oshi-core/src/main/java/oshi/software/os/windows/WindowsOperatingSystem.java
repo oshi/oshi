@@ -64,10 +64,13 @@ import com.sun.jna.platform.win32.Winsvc;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.windows.registry.HkeyUserData;
+import oshi.driver.windows.registry.NetSessionData;
 import oshi.driver.windows.registry.ProcessPerformanceData;
 import oshi.driver.windows.registry.ProcessPerformanceData.PerfCounterBlock;
 import oshi.driver.windows.registry.ProcessWtsData;
 import oshi.driver.windows.registry.ProcessWtsData.WtsInfo;
+import oshi.driver.windows.registry.SessionWtsData;
 import oshi.driver.windows.wmi.Win32OperatingSystem;
 import oshi.driver.windows.wmi.Win32OperatingSystem.OSVersionProperty;
 import oshi.driver.windows.wmi.Win32Processor;
@@ -80,6 +83,7 @@ import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OSService;
 import oshi.software.os.OSService.State;
+import oshi.software.os.OSSession;
 import oshi.util.GlobalConfig;
 import oshi.util.ParseUtil;
 import oshi.util.platform.windows.WmiUtil;
@@ -268,6 +272,14 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     @Override
     public InternetProtocolStats getInternetProtocolStats() {
         return new WindowsInternetProtocolStats();
+    }
+
+    @Override
+    public List<OSSession> getSessions() {
+        List<OSSession> whoList = HkeyUserData.queryUserSessions();
+        whoList.addAll(SessionWtsData.queryUserSessions());
+        whoList.addAll(NetSessionData.queryUserSessions());
+        return Collections.unmodifiableList(whoList);
     }
 
     @Override

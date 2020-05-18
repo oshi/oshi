@@ -37,14 +37,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.jna.platform.unix.CLibrary.Timeval;
+import oshi.driver.unix.freebsd.Who;
 import oshi.jna.platform.unix.freebsd.FreeBsdLibc;
+import oshi.jna.platform.unix.freebsd.FreeBsdLibc.Timeval;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
 import oshi.software.os.InternetProtocolStats;
 import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OSService;
+import oshi.software.os.OSSession;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
@@ -100,6 +102,11 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
     @Override
     public InternetProtocolStats getInternetProtocolStats() {
         return new FreeBsdInternetProtocolStats();
+    }
+
+    @Override
+    public List<OSSession> getSessions() {
+        return Collections.unmodifiableList(Who.queryUtxent());
     }
 
     @Override
