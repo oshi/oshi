@@ -23,7 +23,7 @@
  */
 package oshi.jna.platform.linux;
 
-import com.sun.jna.Native;
+import com.sun.jna.Native; // NOSONAR squid:s1191
 import com.sun.jna.Structure;
 import com.sun.jna.Structure.FieldOrder;
 import com.sun.jna.platform.linux.LibC;
@@ -43,7 +43,7 @@ public interface LinuxLibc extends LibC, CLibrary {
      */
     @FieldOrder({ "ut_type", "ut_pid", "ut_line", "ut_id", "ut_user", "ut_host", "ut_exit", "ut_session", "ut_tv",
             "ut_addr_v6", "reserved" })
-    class Utmpx extends Structure {
+    class LinuxUtmpx extends Structure {
         public short ut_type; // Type of login.
         public int ut_pid; // Process ID of login process.
         public byte[] ut_line = new byte[UT_LINESIZE]; // Devicename.
@@ -76,26 +76,13 @@ public interface LinuxLibc extends LibC, CLibrary {
     }
 
     /**
-     * Rewinds the file pointer to the beginning of the utmp file. It is generally a
-     * good idea to call it before any of the other functions.
-     */
-    void setutxent();
-
-    /**
      * Reads a line from the current file position in the utmp file. It returns a
      * pointer to a structure containing the fields of the line.
      * <p>
      * Not thread safe
      *
-     * @return a {@link Utmpx} on success, and NULL on failure (which includes the
+     * @return a {@link LinuxUtmpx} on success, and NULL on failure (which includes the
      *         "record not found" case)
      */
-    Utmpx getutxent();
-
-    /**
-     * Closes the utmp file. It should be called when the user code is done
-     * accessing the file with the other functions.
-     *
-     */
-    void endutxent();
+    LinuxUtmpx getutxent();
 }

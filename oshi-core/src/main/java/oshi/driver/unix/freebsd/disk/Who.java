@@ -21,20 +21,19 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package oshi.driver.linux.proc;
+package oshi.driver.unix.freebsd.disk;
 
 import static oshi.jna.platform.unix.CLibrary.LOGIN_PROCESS;
 import static oshi.jna.platform.unix.CLibrary.USER_PROCESS;
 
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.jna.platform.linux.LinuxLibc;
-import oshi.jna.platform.linux.LinuxLibc.LinuxUtmpx;
+import oshi.jna.platform.unix.freebsd.FreeBsdLibc;
+import oshi.jna.platform.unix.freebsd.FreeBsdLibc.FreeBsdUtmpx;
 import oshi.software.os.OSSession;
-import oshi.util.ParseUtil;
 
 /**
  * Utility to query logged in users.
@@ -42,7 +41,7 @@ import oshi.util.ParseUtil;
 @ThreadSafe
 public final class Who {
 
-    private static final LinuxLibc LIBC = LinuxLibc.INSTANCE;
+    private static final FreeBsdLibc LIBC = FreeBsdLibc.INSTANCE;
 
     private Who() {
     }
@@ -54,15 +53,15 @@ public final class Who {
      */
     public static synchronized List<OSSession> queryUtxent() {
         List<OSSession> whoList = new ArrayList<>();
-        LinuxUtmpx ut;
+        FreeBsdUtmpx ut;
         // Rewind
         LIBC.setutxent();
         // Iterate
         while ((ut = LIBC.getutxent()) != null) {
             if (ut.ut_type == USER_PROCESS || ut.ut_type == LOGIN_PROCESS) {
-                String user = new String(ut.ut_user, Charset.defaultCharset()).trim();
-                String device = new String(ut.ut_line, Charset.defaultCharset()).trim();
-                String host = ParseUtil.parseUtAddrV6toIP(ut.ut_addr_v6);
+                String user = new String(ut.ut_user, StandardCharsets.US_ASCII).trim();
+                String device = new String(ut.ut_line, StandardCharsets.US_ASCII).trim();
+                String host = new String(ut.ut_host, StandardCharsets.US_ASCII).trim();
                 long loginTime = ut.ut_tv.tv_sec * 1000L + ut.ut_tv.tv_usec / 1000L;
                 whoList.add(new OSSession(user, device, loginTime, host));
             }

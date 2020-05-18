@@ -55,12 +55,6 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB, CLibrary {
     }
 
     /**
-     * Rewinds the file pointer to the beginning of the utmp file. It is generally a
-     * good idea to call it before any of the other functions.
-     */
-    void setutxent();
-
-    /**
      * Reads a line from the current file position in the utmp file. It returns a
      * pointer to a structure containing the fields of the line.
      * <p>
@@ -71,9 +65,4 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB, CLibrary {
      */
     MacUtmpx getutxent();
 
-    /**
-     * Closes the utmp file. It should be called when the user code is done
-     * accessing the file with the other functions.
-     */
-    void endutxent();
 }

@@ -581,4 +581,16 @@ public interface CLibrary extends LibCAPI, Library {
      * @return A human-readable version of the error code
      */
     String gai_strerror(int e);
+
+    /**
+     * Rewinds the file pointer to the beginning of the utmp file. It is generally a
+     * good idea to call it before any of the other functions.
+     */
+    void setutxent();
+
+    /**
+     * Closes the utmp file. It should be called when the user code is done
+     * accessing the file with the other functions.
+     */
+    void endutxent();
 }
