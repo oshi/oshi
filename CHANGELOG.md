@@ -7,6 +7,7 @@
 * [#1232](https://github.com/oshi/oshi/pull/1232): Added messages to unit tests in NetworkParams - [@zachsez](https://github.com/zachsez)
 * [#1233](https://github.com/oshi/oshi/pull/1233): Added assert statements to CentralProcessorTest to cover untested functions - [@zachsez](https://github.com/zachsez)
 * [#1234](https://github.com/oshi/oshi/pull/1232): Added assert statements to ParseUtil to improve coverage - [@zachsez](https://github.com/zachsez)
+* [#1235](https://github.com/oshi/oshi/pull/1235): Added messages to unit tests in GlobalMemoryTest.Java - [@RaymondLZhou](https://github.com/RaymondLZhou)
 * Your contribution here 
 
 5.0.0 (5/5/2020), 5.0.1 (5/6/2020), 5.0.2 (5/14/2020)
