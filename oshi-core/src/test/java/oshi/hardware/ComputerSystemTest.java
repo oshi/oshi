@@ -53,7 +53,8 @@ public class ComputerSystemTest {
         assertNotNull("Firmware's description shouldn't be null", fw.getDescription());
         assertNotNull("Firmware's version shouldn't be null", fw.getVersion());
         assertNotNull("Firmware's release date shouldn't be null", fw.getReleaseDate());
-        assertTrue("Firmware's tostring value should contain manufacturer's name", fw.toString().contains(fw.getManufacturer()));
+        assertTrue("Firmware's tostring value should contain manufacturer's name",
+                fw.toString().contains(fw.getManufacturer()));
 
         Baseboard bb = cs.getBaseboard();
         assertNotNull("Baseboard shouldn't be null", bb);

@@ -46,7 +46,8 @@ public class GlobalMemoryTest {
 
         assertTrue("Total memory should be greater than zero", memory.getTotal() > 0);
         assertTrue("Available memory should be greater than or equal to zero", memory.getAvailable() >= 0);
-        assertTrue("Available memory should be less than or equal to total memory", memory.getAvailable() <= memory.getTotal());
+        assertTrue("Available memory should be less than or equal to total memory",
+                memory.getAvailable() <= memory.getTotal());
         assertTrue("Memory page size should be greater than zero", memory.getPageSize() > 0);
         assertTrue("Memory should contain the substring \"Available\"", memory.toString().contains("Available"));
     }

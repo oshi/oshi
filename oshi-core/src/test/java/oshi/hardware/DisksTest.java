@@ -68,7 +68,8 @@ public class DisksTest {
             assertTrue("Disk size should be greater or equal 0", disk.getSize() >= 0);
             assertTrue("Number of read operations from the disk should be greater or equal to 0", disk.getReads() >= 0);
             assertTrue("Number of read bytes should be greater or equal to 0", disk.getReadBytes() >= 0);
-            assertTrue("Number of write operations from the disk should be greater or equal to 0", disk.getWrites() >= 0);
+            assertTrue("Number of write operations from the disk should be greater or equal to 0",
+                    disk.getWrites() >= 0);
             assertTrue("Number of write bytes should be greater or equal to 0", disk.getWriteBytes() >= 0);
             assertTrue("Transfer times should be greater or equal 0", disk.getTransferTime() >= 0);
             assertTrue("Update time for statistics should be greater or equal 0", disk.getTimeStamp() >= 0);
@@ -86,10 +87,14 @@ public class DisksTest {
                 assertNotNull("Type of partition is null", partition.getType());
                 assertNotNull("UUID of partition is null", partition.getUuid());
                 assertNotNull("Mount point of partition is null", partition.getMountPoint());
-                assertTrue("Partition size of partition " + partition.getName() + " is smaller 0", partition.getSize() >= 0);
-                assertTrue("Major device ID of partition " + partition.getName() + "is smaller 0", partition.getMajor() >= 0);
-                assertTrue("Minor device ID of partition " + partition.getName() + "is smaller 0", partition.getMinor() >= 0);
-                assertTrue("Partition's toString() method should contain the partitions identification.", partition.toString().contains(partition.getIdentification()));
+                assertTrue("Partition size of partition " + partition.getName() + " is smaller 0",
+                        partition.getSize() >= 0);
+                assertTrue("Major device ID of partition " + partition.getName() + "is smaller 0",
+                        partition.getMajor() >= 0);
+                assertTrue("Minor device ID of partition " + partition.getName() + "is smaller 0",
+                        partition.getMinor() >= 0);
+                assertTrue("Partition's toString() method should contain the partitions identification.",
+                        partition.toString().contains(partition.getIdentification()));
             }
         }
     }

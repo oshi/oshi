@@ -89,8 +89,7 @@ public class OSSession {
 
     @Override
     public String toString() {
-        String loginStr = loginTime == 0
-                ? "No login"
+        String loginStr = loginTime == 0 ? "No login"
                 : LocalDateTime.ofInstant(Instant.ofEpochMilli(loginTime), ZoneId.systemDefault()).format(LOGIN_FORMAT);
         String hostStr = "";
         if (!host.isEmpty() && !host.equals("::") && !host.equals("0.0.0.0")) {

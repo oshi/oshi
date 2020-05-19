@@ -40,8 +40,7 @@ import oshi.util.tuples.Pair;
 @ThreadSafe
 public class FreeBsdInternetProtocolStats implements InternetProtocolStats {
 
-    private Supplier<Pair<Long, Long>> establishedv4v6 = memoize(NetStatTcp::queryTcpnetstat,
-            defaultExpiration());
+    private Supplier<Pair<Long, Long>> establishedv4v6 = memoize(NetStatTcp::queryTcpnetstat, defaultExpiration());
     private Supplier<Tcpstat> tcpstat = memoize(FreeBsdInternetProtocolStats::queryTcpstat, defaultExpiration());
     private Supplier<Udpstat> udpstat = memoize(FreeBsdInternetProtocolStats::queryUdpstat, defaultExpiration());
 

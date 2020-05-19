@@ -48,8 +48,7 @@ public class MacInternetProtocolStats implements InternetProtocolStats {
         this.isElevated = elevated;
     }
 
-    private Supplier<Pair<Long, Long>> establishedv4v6 = memoize(NetStatTcp::queryTcpnetstat,
-            defaultExpiration());
+    private Supplier<Pair<Long, Long>> establishedv4v6 = memoize(NetStatTcp::queryTcpnetstat, defaultExpiration());
     private Supplier<Tcpstat> tcpstat = memoize(MacInternetProtocolStats::queryTcpstat, defaultExpiration());
     private Supplier<Udpstat> udpstat = memoize(MacInternetProtocolStats::queryUdpstat, defaultExpiration());
     // With elevated permissions use tcpstat only
