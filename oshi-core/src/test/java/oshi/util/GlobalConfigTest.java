@@ -68,14 +68,14 @@ public class GlobalConfigTest {
 
     @Test
     public void testGetDouble() {
-        assertTrue(get("oshi.test.property", 0.0) == 0.0);
+        assertEquals(0.0, get("oshi.test.property", 0.0), Double.MIN_VALUE);
         set("oshi.test.property", 1.23d);
-        assertTrue(get("oshi.test.property", 0.0) == 1.23);
+        assertEquals(1.23, get("oshi.test.property", 0.0), Double.MIN_VALUE);
         assertEquals("1.23", get("oshi.test.property", null));
 
         // Invalid double
         set("oshi.test.property", "1.2.3");
-        assertTrue(get("oshi.test.property", 0.0) == 0.0);
+        assertEquals(0.0, get("oshi.test.property", 0.0), Double.MIN_VALUE);
     }
 
     @Test

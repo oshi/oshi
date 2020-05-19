@@ -29,7 +29,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.platform.win32.Advapi32Util.Account;
+import com.sun.jna.platform.win32.Advapi32Util.Account; // NOSONAR squid:S1191
 import com.sun.jna.platform.win32.Advapi32Util.InfoKey;
 import com.sun.jna.platform.win32.Win32Exception;
 import com.sun.jna.platform.win32.WinNT;

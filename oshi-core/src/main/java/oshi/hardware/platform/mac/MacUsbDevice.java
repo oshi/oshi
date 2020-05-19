@@ -297,7 +297,7 @@ public class MacUsbDevice extends AbstractUsbDevice {
             Map<Long, String> productIdMap, Map<Long, String> serialMap, Map<Long, List<Long>> hubMap) {
         String vendorId = vendorIdMap.getOrDefault(registryEntryId, vid);
         String productId = productIdMap.getOrDefault(registryEntryId, pid);
-        List<Long> childIds = hubMap.getOrDefault(registryEntryId, new ArrayList<Long>());
+        List<Long> childIds = hubMap.getOrDefault(registryEntryId, new ArrayList<>());
         List<UsbDevice> usbDevices = new ArrayList<>();
         for (Long id : childIds) {
             usbDevices.add(getDeviceAndChildren(id, vendorId, productId, nameMap, vendorMap, vendorIdMap, productIdMap,

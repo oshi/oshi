@@ -1083,25 +1083,25 @@ public final class ParseUtil {
     /**
      * Parse an integer array to an IPv4 or IPv6 as appropriate.
      * <p>
-     * Intended for use on Utmp structures's ut_addr_v6 element.
+     * Intended for use on Utmp structures's {@code ut_addr_v6} element.
      *
-     * @param ut_addr_v6
+     * @param utAddrV6
      *            An array of 4 integers representing an IPv6 address. IPv4 address
-     *            uses just ut_addr_v6[0]
+     *            uses just utAddrV6[0]
      * @return A string representation of the IP address.
      */
-    public static String parseUtAddrV6toIP(int[] ut_addr_v6) {
-        if (ut_addr_v6.length != 4) {
+    public static String parseUtAddrV6toIP(int[] utAddrV6) {
+        if (utAddrV6.length != 4) {
             throw new IllegalArgumentException("ut_addr_v6 must have exactly 4 elements");
         }
         // IPv4 has only first element
-        if (ut_addr_v6[1] == 0 && ut_addr_v6[2] == 0 && ut_addr_v6[3] == 0) {
+        if (utAddrV6[1] == 0 && utAddrV6[2] == 0 && utAddrV6[3] == 0) {
             // Special case for all 0's
-            if (ut_addr_v6[0] == 0) {
+            if (utAddrV6[0] == 0) {
                 return "::";
             }
             // Parse using InetAddress
-            byte[] ipv4 = ByteBuffer.allocate(4).putInt(ut_addr_v6[0]).array();
+            byte[] ipv4 = ByteBuffer.allocate(4).putInt(utAddrV6[0]).array();
             try {
                 return InetAddress.getByAddress(ipv4).getHostAddress();
             } catch (UnknownHostException e) {
@@ -1110,8 +1110,8 @@ public final class ParseUtil {
             }
         }
         // Parse all 16 bytes
-        byte[] ipv6 = ByteBuffer.allocate(16).putInt(ut_addr_v6[0]).putInt(ut_addr_v6[1]).putInt(ut_addr_v6[2])
-                .putInt(ut_addr_v6[3]).array();
+        byte[] ipv6 = ByteBuffer.allocate(16).putInt(utAddrV6[0]).putInt(utAddrV6[1]).putInt(utAddrV6[2])
+                .putInt(utAddrV6[3]).array();
         try {
             return InetAddress.getByAddress(ipv6).getHostAddress()
                     .replaceAll("((?:(?:^|:)0+\\b){2,}):?(?!\\S*\\b\\1:0+\\b)(\\S*)", "::$2");
