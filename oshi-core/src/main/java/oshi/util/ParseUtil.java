@@ -1110,8 +1110,7 @@ public final class ParseUtil {
             }
         }
         // Parse all 16 bytes
-        byte[] ipv6 = ByteBuffer.allocate(16).putInt(ut_addr_v6[0]).putInt(ut_addr_v6[1])
-                .putInt(ut_addr_v6[2])
+        byte[] ipv6 = ByteBuffer.allocate(16).putInt(ut_addr_v6[0]).putInt(ut_addr_v6[1]).putInt(ut_addr_v6[2])
                 .putInt(ut_addr_v6[3]).array();
         try {
             return InetAddress.getByAddress(ipv6).getHostAddress()

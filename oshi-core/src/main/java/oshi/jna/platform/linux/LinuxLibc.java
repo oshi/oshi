@@ -81,8 +81,8 @@ public interface LinuxLibc extends LibC, CLibrary {
      * <p>
      * Not thread safe
      *
-     * @return a {@link LinuxUtmpx} on success, and NULL on failure (which includes the
-     *         "record not found" case)
+     * @return a {@link LinuxUtmpx} on success, and NULL on failure (which includes
+     *         the "record not found" case)
      */
     LinuxUtmpx getutxent();
 }

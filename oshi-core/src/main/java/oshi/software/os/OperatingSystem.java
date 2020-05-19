@@ -45,7 +45,7 @@ public interface OperatingSystem {
      * Controls sorting of Process output
      */
     enum ProcessSort {
-    CPU, MEMORY, OLDEST, NEWEST, PID, PARENTPID, NAME
+        CPU, MEMORY, OLDEST, NEWEST, PID, PARENTPID, NAME
     }
 
     /**
@@ -85,13 +85,13 @@ public interface OperatingSystem {
      */
     FileSystem getFileSystem();
 
-    /** 
+    /**
      * Instantiates a {@link oshi.software.os.InternetProtocolStats} object.
      * 
      * @return a {@link oshi.software.os.InternetProtocolStats} object.
      */
     InternetProtocolStats getInternetProtocolStats();
-    
+
     /**
      * Gets currently logged in users.
      * <p>

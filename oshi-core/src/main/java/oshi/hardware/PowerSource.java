@@ -37,22 +37,22 @@ public interface PowerSource {
      * Units of Battery Capacity
      */
     enum CapacityUnits {
-    /**
-     * MilliWattHours (mWh).
-     */
-    MWH,
+        /**
+         * MilliWattHours (mWh).
+         */
+        MWH,
 
-    /**
-     * MilliAmpHours (mAh). Should be multiplied by voltage to convert to mWh.
-     */
-    MAH,
+        /**
+         * MilliAmpHours (mAh). Should be multiplied by voltage to convert to mWh.
+         */
+        MAH,
 
-    /**
-     * Relative units. The specific units are not defined. The ratio of current/max
-     * capacity still represents state of charge and the ratio of max/design
-     * capacity still represents state of health.
-     */
-    RELATIVE;
+        /**
+         * Relative units. The specific units are not defined. The ratio of current/max
+         * capacity still represents state of charge and the ratio of max/design
+         * capacity still represents state of health.
+         */
+        RELATIVE;
     }
 
     /**
