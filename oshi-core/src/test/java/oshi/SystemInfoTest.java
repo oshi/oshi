@@ -23,7 +23,7 @@
  */
 package oshi;
 
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -76,7 +76,7 @@ public class SystemInfoTest {
      */
     @Test
     public void testPlatformEnum() {
-        assertFalse(PlatformEnum.UNKNOWN.equals(SystemInfo.getCurrentPlatformEnum()));
+        assertNotEquals(PlatformEnum.UNKNOWN, SystemInfo.getCurrentPlatformEnum());
         // Exercise the main method
         main(null);
     }

@@ -32,7 +32,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.sun.jna.Pointer;
+import com.sun.jna.Pointer; // NOSONAR squid:S1191
 import com.sun.jna.platform.win32.VersionHelpers;
 import com.sun.jna.platform.win32.WinBase;
 import com.sun.jna.platform.win32.WinNT;
