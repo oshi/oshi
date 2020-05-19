@@ -31,6 +31,7 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Random;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -67,17 +68,37 @@ public final class MemoizerTest {
 
     @Test
     public void get() throws Throwable {
-        // Do 20+ seconds of tests with no refresh.
+        // With max time limits these tests take a minute to run. But with no changes to
+        // the memoizer it's simply testing overkill. Use a RNG to limit these tests
+        // regularly but occasionally run the longer tests.
+        int x = new Random().nextInt(50);
+        // Set minimal defaults
+        int refreshIters = 200; // ~ 2 seconds
+        int noRefreshIters = 2_000; // ~ 2 seconds
+        if (x == 0) {
+            // 2% chance full length noRefresh
+            noRefreshIters = 20_000; // ~ 20 seconds
+        } else if (x == 1) {
+            // 2% chance full length refresh
+            refreshIters = 4000; // ~ 40 seconds
+        } else if (x < 12) {
+            // 20% chance longer noRerfesh
+            noRefreshIters = 5_000; // ~ 5 seconds
+        } else if (x < 22) {
+            // 20% chance longer rerfesh
+            refreshIters = 500; // ~ 5 seconds
+        }
+        // Do tests with no refresh.
         long iterationDurationNanos = TimeUnit.MILLISECONDS.toNanos(1);
         long ttlNanos = -1;
-        for (int r = 0; r < 20_000; r++) {
+        for (int r = 0; r < noRefreshIters; r++) {
             run(iterationDurationNanos, ttlNanos);
         }
-        // Do 40+ seconds of tests with refresh after 0.1 ms.
+        // Do tests with refresh after 0.1 ms.
         iterationDurationNanos = TimeUnit.MILLISECONDS.toNanos(10);
         ttlNanos = iterationDurationNanos / 100;
         assertNotEquals(0, ttlNanos); // avoid div/0 later
-        for (int r = 0; r < 4000; r++) {
+        for (int r = 0; r < refreshIters; r++) {
             run(iterationDurationNanos, ttlNanos);
         }
     }
