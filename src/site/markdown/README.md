@@ -59,11 +59,11 @@ Downloads
 ---------
 | Stable Release Version | Current Development Version | Dependencies |
 | ------------- | ------------- | ------------- |
-| [oshi-core-5.0.2](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&nbsp;g=com.github.oshi&nbsp;a=oshi-core&nbsp;v=5.0.2&nbsp;e=jar)  | [oshi-core-5.1.0-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&nbsp;g=com.github.oshi&nbsp;a=oshi-core&nbsp;v=5.1.0-SNAPSHOT&nbsp;e=jar) | [JNA](https://github.com/java-native-access/jna) • [SLF4J](http://www.slf4j.org/) |
+| [oshi-core-5.1.0](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&nbsp;g=com.github.oshi&nbsp;a=oshi-core&nbsp;v=5.1.0&nbsp;e=jar)  | [oshi-core-5.2.0-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&nbsp;g=com.github.oshi&nbsp;a=oshi-core&nbsp;v=5.2.0-SNAPSHOT&nbsp;e=jar) | [JNA](https://github.com/java-native-access/jna) • [SLF4J](http://www.slf4j.org/) |
 
 Usage
 -----
-Include OSHI and its dependencies on your classpath.  We strongly recommend you add OSHI as a dependency to your project dependency manager such as Maven or Gradle. You can [find the appropriate syntax to include OSHI here](https://search.maven.org/artifact/com.github.oshi/oshi-core/5.0.2/jar). 
+Include OSHI and its dependencies on your classpath.  We strongly recommend you add OSHI as a dependency to your project dependency manager such as Maven or Gradle. You can [find the appropriate syntax to include OSHI here](https://search.maven.org/artifact/com.github.oshi/oshi-core/5.1.0/jar). 
 
 Create a new instance of `SystemInfo` and use the getters to access additional information, such as:
 ```

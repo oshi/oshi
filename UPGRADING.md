@@ -1,13 +1,14 @@
 # Guide to upgrading from OSHI 4.x to 5.x
 
-OSHI 5.0.0 is functionally equivalent to 4.7.0 with three categories of changes supporting full thread safety:
+The newest OSHI 5.x releases are functionally equivalent to 4.x releases starting with 4.7,
+with three categories of changes supporting full thread safety:
 * Remove setters from API.
 * Change getters which return arrays of objects to return unmodifiable lists.
 * Remove deprecated code.
 
 New applications or applications requiring thread safety should use the 5.x branch.
 
-Existing applications can continue to use the 4.x branch. Feature parity will be maintained for the near future. 
+Existing applications may continue to use the 4.x branch, as feature parity will be maintained for the near future. 
 
 ## API Changes
 
@@ -59,7 +60,8 @@ The `oshi-json` artifact has been completely removed. It is trivial to obtain JS
 [Jackson ObjectMapper](http://www.mkyong.com/java/jackson-2-convert-java-object-to-from-json/).
 
 There is a new `oshi-demo` artifact which will contain many "how to" classes
-to demonstrate OSHI's capabilities and integration with other libraries.
+to demonstrate OSHI's capabilities and integration with other libraries. These classes are intended
+as proof-of-concept only, and are not intended for production use.
 
 ## API Changes
 

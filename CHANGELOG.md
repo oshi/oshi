@@ -1,7 +1,12 @@
-4.8.0 / 5.1.0 (in progress)
+4.9.0 / 5.2.0 (in progress)
+================
+* Your contribution here 
+
+4.8.0 / 5.1.0 (5/20/2020)
 ================
 * [#1229](https://github.com/oshi/oshi/pull/1229): Changed the linux and solaris virtual memory swapins/outs to count just swaps - [@roeezz](https://github.com/roeezz)
 * [#1231](https://github.com/oshi/oshi/pull/1231): Add OSSessions. - [@dbwiddis](https://github.com/dbwiddis).
+* [#1233](https://github.com/oshi/oshi/pull/1233), [#1234](https://github.com/oshi/oshi/pull/1234): Added more unit tests in CentralProcessorTest and ParseUtilTest - [@zachsez](https://github.com/zachsez).
 * [#1222](https://github.com/oshi/oshi/pull/1222),
   [#1224](https://github.com/oshi/oshi/pull/1224),
   [#1225](https://github.com/oshi/oshi/pull/1225),
@@ -17,8 +22,6 @@
   [@roeezz](https://github.com/roeezz),
   [@zachsez](https://github.com/zachsez),
   [@RaymondLZhou](https://github.com/RaymondLZhou).
-* [#1233](https://github.com/oshi/oshi/pull/1233), [#1234](https://github.com/oshi/oshi/pull/1234): Added more unit tests in CentralProcessorTest and ParseUtilTest - [@zachsez](https://github.com/zachsez).
-* Your contribution here 
 
 5.0.0 (5/5/2020), 5.0.1 (5/6/2020), 5.0.2 (5/14/2020)
 ================

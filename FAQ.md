@@ -1,4 +1,4 @@
- What is the intended use of the API?
+What is the intended use of the API?
 ========
 Users should create a new instance of [SystemInfo](http://oshi.github.io/oshi/apidocs/oshi/SystemInfo.html) and use the getters from this class to access the platform-specific hardware and software interfaces using the respective `get*()` methods. The interfaces in `oshi.hardware` and `oshi.software.os` provide cross-platform functionality. See the `main()` method of [SystemInfoTest](https://github.com/oshi/oshi/blob/master/oshi-core/src/test/java/oshi/SystemInfoTest.java) for sample code.
 
@@ -24,6 +24,9 @@ each class. The following classes are not thread-safe:
  OSHI gives no guarantees on re-reading changed configurations.
  - `PerfCounterQuery` and `PerfCounterWildcardQuery` objects should only be used within the context of a single
  thread. These are only used internally in OSHI in these single-thread contexts and not intended for user use.
+ - The `getSessions()` method on the `OperatingSystem` interface uses native code which is not thread safe.
+ While OSHI's methods employ synchronization to coordinate access OSHI threads, users are cautioned that other
+ operating system code may access the same underlying data structures and produce unexpected results.
 
 Earlier versions do not guarantee thread safety, but as of version 4.6.0, intended use is thread safe.
 Classes with setters on them are obviously not thread-safe unless the use of the setters is synchronized across threads.
@@ -38,7 +41,8 @@ OSHI 3.x is compatible with Java 7, but will not see any added features.
 
 OSHI 4.x and 5.x require minimum Java 8 compatibility.  
 
-OSHI 6.x's requirements have not yet been finalized but will likely require at least Java 11 and leverage modules. 
+Future version requirements have not yet been finalized. Other than incremental changes, any significant
+improvements will likely require at least Java 11 and leverage modules. 
 
 Which operating systems are supported?
 ========
@@ -57,51 +61,28 @@ OSHI uses the latest version of JNA, which may conflict with other dependencies 
 
 How is OSHI different from SIGAR?
 ========
-OSHI and Hyperic's [SIGAR](https://github.com/hyperic/sigar) (System Information Gatherer and Reporter)
-both attempt to provide cross-platform operating system and hardware information, and are both used to support
-cloud server monitoring and reporting, among other use cases. The OSHI project was started, and development
-continues, to overcome specific shortcomings in SIGAR for some use cases.  Key differences include:
+Both OSHI and Hyperic's [SIGAR](https://github.com/hyperic/sigar) (System Information Gatherer and Reporter)
+provide cross-platform operating system and hardware information, and are both used to support distributed
+system monitoring and reporting, among other use cases. The OSHI project was started, and development
+continues, to overcome specific shortcomings in SIGAR for some use cases.  OSHI does have feature parity
+with nearly all SIGAR functions. Key differences include:
  - **Additional DLL** SIGAR's implementation is primarily in native C, compiled separately for its supported
 operating systems. It therefore requires users to download an additional DLL specific to their operating
 system. This does have some advantages including faster native code routines, and availability of some
 native compiler intrinsics. In contrast, OSHI accesses native APIs using JNA, which does not require
 any additional platform-specific DLLs.
- - **Platform Coverage** SIGAR (presently) supports a larger number of platforms, although there are
-reports of incompatibilities.  OSHI supports 99.5% of OS user share with Windows, Linux, macOS, FreeBSD,
-and Solaris, and would consider additional port development with access to appropriate machines for
-development and testing.
+ - **Platform Coverage** SIGAR (presently) supports a larger number of platforms, although some users have
+reported incompatibilities with recent architectures and Java versions. OSHI supports 99.5% of OS user share
+with support for Windows, Linux, macOS, FreeBSD, and Solaris, and would support additional Operating Systems
+if access to appropriate machines for development and testing were available.
  - **Language Coverage** SIGAR has bindings for Java, .NET, and Perl. OSHI is specific for Java.
- - **Corporate Development** SIGAR was developed professionally at Hyperic and VMWare.
+ - **Corporate Development** SIGAR was developed professionally at Hyperic, later acquired by VMWare.
  OSHI's development has been entirely done by open source volunteers.
- - **Actively Maintained Project**
-[SIGAR is unmaintained, with multiple independent forks](https://github.com/hyperic/sigar/issues/95). The
+ - **Actively Maintained Project** [SIGAR is unmaintained](https://github.com/hyperic/sigar/issues/95),
+and apparently abandoned, with multiple independent forks by users fixing specific bugs/incompatibilities. 
+The the [last release](https://github.com/hyperic/sigar/releases/tag/sigar-1.6.4) was in 2010 and the
 [last source commit](https://github.com/hyperic/sigar/commit/7a6aefc7fb315fc92445edcb902a787a6f0ddbd9)
-was in 2015 and the [last release](https://github.com/hyperic/sigar/releases/tag/sigar-1.6.4) was in 2010.
-OSHI is under active development as of 2020.
-
-
-What is the history of OSHI and plans for future development?
-========
-OSHI was [started in 2010](https://code.dblock.org/2010/06/23/introducing-oshi-operating-system-and-hardware-information-java.html) 
-by [@dblock](https://github.com/dblock) as a way to avoid the additional DLL installation requirements of 
-SIGAR and have (at the time) a license more friendly to commercial use. 
-There was some initial work on basic CPU and Memory stats on Windows using native calls, 
-and ports to Mac and Linux mostly using command lines, but little in the way of added features.
-Still, the API skeleton was there, well designed (still in use a decade later!) and was easy to build on.
-
-In 2015, [@dbwiddis](https://github.com/dbwiddis) was working on a cloud-based distributed computing data 
-mining problem utilizing [JPPF](https://jppf.org/). As part of optimizing the use of cloud resources (use 
-all the CPU and memory that's being paid for) there was a need for Linux memory usage monitoring. JPPF's 
-library used the OperatingSystemMXBean's getFreePhysicalMemory() method which was useless on Linux.
-Web searches revealed only two packaged alternatives: SIGAR (which had stopped development then) and 
-OSHI (which had the same bug, but was open source and fixable). A bug report turned into an invitation to 
-submit a PR, which turned into converting the OS X command line calls to native methods and adding more,
-slowly expanding coverage in both features and OS coverage.
-
-A few contributors have a grand plan for [OSHI 6](https://github.com/oshi/oshi6) and will be completely
-redesigning the API with an eye toward more modular driver-based information access.  The current 4.x 
-and 5.x API will probably only see small incremental improvements, bug fixes, and attempts to increase
-poratibility to other operating systems and/or versions.  
+was in 2015. OSHI is under active development as of 2020.
 
 Does OSHI work on Raspberry Pi hardware?
 ========
