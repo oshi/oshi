@@ -36,9 +36,9 @@ import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
 import oshi.hardware.common.AbstractHWDiskStore;
 import oshi.jna.platform.linux.Udev;
+import oshi.jna.platform.linux.Udev.UdevContext;
 import oshi.jna.platform.linux.Udev.UdevDevice;
 import oshi.jna.platform.linux.Udev.UdevEnumerate;
-import oshi.jna.platform.linux.Udev.UdevHandle;
 import oshi.jna.platform.linux.Udev.UdevListEntry;
 import oshi.util.Constants;
 import oshi.util.FileUtil;
@@ -50,8 +50,6 @@ import oshi.util.platform.linux.ProcPath;
  */
 @ThreadSafe
 public final class LinuxHWDiskStore extends AbstractHWDiskStore {
-
-    private static final Udev UDEV = Udev.INSTANCE;
 
     private static final String BLOCK = "block";
     private static final String DISK = "disk";
@@ -158,70 +156,81 @@ public final class LinuxHWDiskStore extends AbstractHWDiskStore {
 
         Map<String, String> mountsMap = readMountsMap();
 
-        UdevHandle handle = UDEV.udev_new();
-        UdevEnumerate enumerate = UDEV.udev_enumerate_new(handle);
-        UDEV.udev_enumerate_add_match_subsystem(enumerate, BLOCK);
-        UDEV.udev_enumerate_scan_devices(enumerate);
-        UdevListEntry entry = UDEV.udev_enumerate_get_list_entry(enumerate);
-
-        UdevDevice device;
-        while ((device = UDEV.udev_device_new_from_syspath(handle, UDEV.udev_list_entry_get_name(entry))) != null) {
-            // devnode is what we use as name, like /dev/sda
-            String devnode = UDEV.udev_device_get_devnode(device);
-            // Ignore loopback and ram disks; do nothing
-            if (devnode != null && !devnode.startsWith("/dev/loop") && !devnode.startsWith("/dev/ram")) {
-                if (DISK.equals(UDEV.udev_device_get_devtype(device))) {
-                    // Null model and serial in virtual environments
-                    String devModel = UDEV.udev_device_get_property_value(device, ID_MODEL);
-                    String devSerial = UDEV.udev_device_get_property_value(device, ID_SERIAL_SHORT);
-                    long devSize = ParseUtil.parseLongOrDefault(UDEV.udev_device_get_sysattr_value(device, SIZE), 0L)
-                            * SECTORSIZE;
-                    store = new LinuxHWDiskStore(devnode, devModel == null ? Constants.UNKNOWN : devModel,
-                            devSerial == null ? Constants.UNKNOWN : devSerial, devSize);
-                    if (storeToUpdate == null) {
-                        // If getting all stores, add to the list with stats
-                        computeDiskStats(store, device);
-                        result.add(store);
-                    } else if (store.getName().equals(storeToUpdate.getName())
-                            && store.getModel().equals(storeToUpdate.getModel())
-                            && store.getSerial().equals(storeToUpdate.getSerial())
-                            && store.getSize() == storeToUpdate.getSize()) {
-                        // If we are only updating a single disk, the name, model, serial, and size are
-                        // sufficient to test if this is a match. Add the (old) object, release handle
-                        // and return.
-                        computeDiskStats(storeToUpdate, device);
-                        result.add(storeToUpdate);
-                        UDEV.udev_device_unref(device);
-                        break;
-                    }
-                } else if (storeToUpdate == null && store != null // only add if getting new list
-                        && PARTITION.equals(UDEV.udev_device_get_devtype(device))) {
-                    // udev_device_get_parent_*() does not take a reference on the returned device,
-                    // it is automatically unref'd with the parent
-                    UdevDevice parent = UDEV.udev_device_get_parent_with_subsystem_devtype(device, BLOCK, DISK);
-                    // `store` should still point to the parent HWDiskStore this partition is
-                    // attached to.
-                    // If not, it's an error, so skip.
-                    if (parent != null && store.getName().equals(UDEV.udev_device_get_devnode(parent))) {
-                        String name = UDEV.udev_device_get_devnode(device);
-                        store.partitionList.add(new HWPartition(name, UDEV.udev_device_get_sysname(device),
-                                UDEV.udev_device_get_property_value(device, ID_FS_TYPE) == null ? PARTITION
-                                        : UDEV.udev_device_get_property_value(device, ID_FS_TYPE),
-                                UDEV.udev_device_get_property_value(device, ID_FS_UUID) == null ? ""
-                                        : UDEV.udev_device_get_property_value(device, ID_FS_UUID),
-                                ParseUtil.parseLongOrDefault(UDEV.udev_device_get_sysattr_value(device, SIZE), 0L)
-                                        * SECTORSIZE,
-                                ParseUtil.parseIntOrDefault(UDEV.udev_device_get_property_value(device, MAJOR), 0),
-                                ParseUtil.parseIntOrDefault(UDEV.udev_device_get_property_value(device, MINOR), 0),
-                                mountsMap.getOrDefault(name, "")));
+        UdevContext udev = Udev.INSTANCE.udev_new();
+        try {
+            UdevEnumerate enumerate = udev.enumerateNew();
+            try {
+                enumerate.addMatchSubsystem("block");
+                enumerate.scanDevices();
+                for (UdevListEntry entry = enumerate.getListEntry(); entry != null; entry = entry.getNext()) {
+                    String syspath = entry.getName();
+                    UdevDevice device = udev.deviceNewFromSyspath(syspath);
+                    if (device != null) {
+                        try {
+                            // devnode is what we use as name, like /dev/sda
+                            String devnode = device.getDevnode();
+                            // Ignore loopback and ram disks; do nothing
+                            if (devnode != null && !devnode.startsWith("/dev/loop")
+                                    && !devnode.startsWith("/dev/ram")) {
+                                if (DISK.equals(device.getDevtype())) {
+                                    // Null model and serial in virtual environments
+                                    String devModel = device.getPropertyValue(ID_MODEL);
+                                    String devSerial = device.getPropertyValue(ID_SERIAL_SHORT);
+                                    long devSize = ParseUtil.parseLongOrDefault(device.getSysattrValue(SIZE), 0L)
+                                            * SECTORSIZE;
+                                    store = new LinuxHWDiskStore(devnode,
+                                            devModel == null ? Constants.UNKNOWN : devModel,
+                                            devSerial == null ? Constants.UNKNOWN : devSerial, devSize);
+                                    if (storeToUpdate == null) {
+                                        // If getting all stores, add to the list with stats
+                                        computeDiskStats(store, device.getSysattrValue(STAT));
+                                        result.add(store);
+                                    } else if (store.getName().equals(storeToUpdate.getName())
+                                            && store.getModel().equals(storeToUpdate.getModel())
+                                            && store.getSerial().equals(storeToUpdate.getSerial())
+                                            && store.getSize() == storeToUpdate.getSize()) {
+                                        // If we are only updating a single disk, the name, model, serial, and size are
+                                        // sufficient to test if this is a match. Add the (old) object, release handle
+                                        // and return.
+                                        computeDiskStats(storeToUpdate, device.getSysattrValue(STAT));
+                                        result.add(storeToUpdate);
+                                        break;
+                                    }
+                                } else if (storeToUpdate == null && store != null // only add if getting new list
+                                        && PARTITION.equals(device.getDevtype())) {
+                                    // udev_device_get_parent_*() does not take a reference on the returned device,
+                                    // it is automatically unref'd with the parent
+                                    UdevDevice parent = device.getParentWithSubsystemDevtype(BLOCK, DISK);
+                                    if (parent != null) {
+                                        // `store` should still point to the parent HWDiskStore this partition is
+                                        // attached to. If not, it's an error, so skip.
+                                        if (store.getName().equals(parent.getDevnode())) {
+                                            String name = device.getDevnode();
+                                            store.partitionList.add(new HWPartition(name, device.getSysname(),
+                                                    device.getPropertyValue(ID_FS_TYPE) == null ? PARTITION
+                                                            : device.getPropertyValue(ID_FS_TYPE),
+                                                    device.getPropertyValue(ID_FS_UUID) == null ? ""
+                                                            : device.getPropertyValue(ID_FS_UUID),
+                                                    ParseUtil.parseLongOrDefault(device.getSysattrValue(SIZE), 0L)
+                                                            * SECTORSIZE,
+                                                    ParseUtil.parseIntOrDefault(device.getPropertyValue(MAJOR), 0),
+                                                    ParseUtil.parseIntOrDefault(device.getPropertyValue(MINOR), 0),
+                                                    mountsMap.getOrDefault(name, "")));
+                                        }
+                                    }
+                                }
+                            }
+                        } finally {
+                            device.unref();
+                        }
                     }
                 }
+            } finally {
+                enumerate.unref();
             }
-            UDEV.udev_device_unref(device);
-            entry = UDEV.udev_list_entry_get_next(entry);
+        } finally {
+            udev.unref();
         }
-        UDEV.udev_enumerate_unref(enumerate);
-        UDEV.udev_unref(handle);
         // Iterate the list and make the partitions unmodifiable
         for (LinuxHWDiskStore hwds : result) {
             hwds.partitionList = Collections.unmodifiableList(hwds.partitionList.stream()
@@ -250,8 +259,7 @@ public final class LinuxHWDiskStore extends AbstractHWDiskStore {
         return mountsMap;
     }
 
-    private static void computeDiskStats(LinuxHWDiskStore store, UdevDevice disk) {
-        String devstat = UDEV.udev_device_get_sysattr_value(disk, STAT);
+    private static void computeDiskStats(LinuxHWDiskStore store, String devstat) {
         long[] devstatArray = ParseUtil.parseStringToLongArray(devstat, UDEV_STAT_ORDERS, UDEV_STAT_LENGTH, ' ');
         store.timeStamp = System.currentTimeMillis();
 
