@@ -49,7 +49,7 @@ public abstract class AbstractComputerSystem implements ComputerSystem {
 
     /**
      * Instantiates the platform-specific {@link Firmware} object
-     * 
+     *
      * @return platform-specific {@link Firmware} object
      */
     protected abstract Firmware createFirmware();
@@ -61,7 +61,7 @@ public abstract class AbstractComputerSystem implements ComputerSystem {
 
     /**
      * Instantiates the platform-specific {@link Baseboard} object
-     * 
+     *
      * @return platform-specific {@link Baseboard} object
      */
     protected abstract Baseboard createBaseboard();

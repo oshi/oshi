@@ -24,7 +24,6 @@
 package oshi.jna.platform.windows;
 
 import com.sun.jna.Native; // NOSONAR squid:S1192
-import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.win32.W32APIOptions;
 
 public interface Kernel32 extends com.sun.jna.platform.win32.Kernel32 {

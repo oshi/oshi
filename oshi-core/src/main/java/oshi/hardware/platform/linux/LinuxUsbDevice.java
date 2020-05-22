@@ -43,26 +43,6 @@ import oshi.jna.platform.linux.Udev.UdevListEntry;
 @Immutable
 public class LinuxUsbDevice extends AbstractUsbDevice {
 
-    /**
-     * <p>
-     * Constructor for LinuxUsbDevice.
-     * </p>
-     *
-     * @param name
-     *            a {@link java.lang.String} object.
-     * @param vendor
-     *            a {@link java.lang.String} object.
-     * @param vendorId
-     *            a {@link java.lang.String} object.
-     * @param productId
-     *            a {@link java.lang.String} object.
-     * @param serialNumber
-     *            a {@link java.lang.String} object.
-     * @param uniqueDeviceId
-     *            a {@link java.lang.String} object.
-     * @param connectedDevices
-     *            an array of {@link oshi.hardware.UsbDevice} objects.
-     */
     public LinuxUsbDevice(String name, String vendor, String vendorId, String productId, String serialNumber,
             String uniqueDeviceId, List<UsbDevice> connectedDevices) {
         super(name, vendor, vendorId, productId, serialNumber, uniqueDeviceId, connectedDevices);
@@ -188,11 +168,17 @@ public class LinuxUsbDevice extends AbstractUsbDevice {
      * @param pid
      *            The default (parent) product ID
      * @param nameMap
+     *            the map of names
      * @param vendorMap
+     *            the map of vendors
      * @param vendorIdMap
+     *            the map of vendorIds
      * @param productIdMap
+     *            the map of productIds
      * @param serialMap
+     *            the map of serial numbers
      * @param hubMap
+     *            the map of hubs
      * @return A LinuxUsbDevice corresponding to this device
      */
     private static LinuxUsbDevice getDeviceAndChildren(String devPath, String vid, String pid,

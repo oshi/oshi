@@ -43,26 +43,6 @@ public class SolarisUsbDevice extends AbstractUsbDevice {
 
     private static final String PCI_TYPE_USB = "000c";
 
-    /**
-     * <p>
-     * Constructor for SolarisUsbDevice.
-     * </p>
-     *
-     * @param name
-     *            a {@link java.lang.String} object.
-     * @param vendor
-     *            a {@link java.lang.String} object.
-     * @param vendorId
-     *            a {@link java.lang.String} object.
-     * @param productId
-     *            a {@link java.lang.String} object.
-     * @param serialNumber
-     *            a {@link java.lang.String} object.
-     * @param uniqueDeviceId
-     *            a {@link java.lang.String} object.
-     * @param connectedDevices
-     *            an array of {@link oshi.hardware.UsbDevice} objects.
-     */
     public SolarisUsbDevice(String name, String vendor, String vendorId, String productId, String serialNumber,
             String uniqueDeviceId, List<UsbDevice> connectedDevices) {
         super(name, vendor, vendorId, productId, serialNumber, uniqueDeviceId, connectedDevices);
@@ -187,9 +167,13 @@ public class SolarisUsbDevice extends AbstractUsbDevice {
      * @param pid
      *            The default (parent) product ID
      * @param nameMap
+     *            the map of names
      * @param vendorIdMap
+     *            the map of vendorIds
      * @param productIdMap
+     *            the map of productIds
      * @param hubMap
+     *            the map of hubs
      * @return A SolarisUsbDevice corresponding to this device
      */
     private static SolarisUsbDevice getDeviceAndChildren(String devPath, String vid, String pid,

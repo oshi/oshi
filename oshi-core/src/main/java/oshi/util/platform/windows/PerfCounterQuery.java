@@ -41,6 +41,9 @@ import oshi.util.platform.windows.PerfDataUtil.PerfCounter;
  * <p>
  * An instance of this class should only be instantiated and used within the
  * context of a single thread.
+ *
+ * @param <T>
+ *            The enum type for this counter query
  */
 @NotThreadSafe
 public class PerfCounterQuery<T extends Enum<T>> {

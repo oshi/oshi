@@ -163,10 +163,17 @@ public class FreeBsdUsbDevice extends AbstractUsbDevice {
      * @param pid
      *            The default (parent) product ID
      * @param nameMap
+     *            the map of names
      * @param vendorMap
+     *            the map of vendors
      * @param vendorIdMap
+     *            the map of vendorIds
      * @param productIdMap
+     *            the map of productIds
+     * @param serialMap
+     *            the map of serial numbers
      * @param hubMap
+     *            the map of hubs
      * @return A SolarisUsbDevice corresponding to this device
      */
     private static FreeBsdUsbDevice getDeviceAndChildren(String devPath, String vid, String pid,

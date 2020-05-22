@@ -51,7 +51,7 @@ public final class GeomPartList {
 
     /**
      * Queries partition data using geom, mount, and stat commands
-     * 
+     *
      * @return A map with disk name as the key and an {@code UnmodifiableList} of
      *         partitions as the value
      */

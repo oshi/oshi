@@ -56,7 +56,7 @@ public abstract class AbstractHardwareAbstractionLayer implements HardwareAbstra
 
     /**
      * Instantiates the platform-specific {@link ComputerSystem} object
-     * 
+     *
      * @return platform-specific {@link ComputerSystem} object
      */
     protected abstract ComputerSystem createComputerSystem();
@@ -68,7 +68,7 @@ public abstract class AbstractHardwareAbstractionLayer implements HardwareAbstra
 
     /**
      * Instantiates the platform-specific {@link CentralProcessor} object
-     * 
+     *
      * @return platform-specific {@link CentralProcessor} object
      */
     protected abstract CentralProcessor createProcessor();
@@ -80,7 +80,7 @@ public abstract class AbstractHardwareAbstractionLayer implements HardwareAbstra
 
     /**
      * Instantiates the platform-specific {@link GlobalMemory} object
-     * 
+     *
      * @return platform-specific {@link GlobalMemory} object
      */
     protected abstract GlobalMemory createMemory();
@@ -92,7 +92,7 @@ public abstract class AbstractHardwareAbstractionLayer implements HardwareAbstra
 
     /**
      * Instantiates the platform-specific {@link Sensors} object
-     * 
+     *
      * @return platform-specific {@link Sensors} object
      */
     protected abstract Sensors createSensors();

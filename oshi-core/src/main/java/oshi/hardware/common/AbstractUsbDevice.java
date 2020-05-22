@@ -36,17 +36,11 @@ import oshi.hardware.UsbDevice;
 public abstract class AbstractUsbDevice implements UsbDevice {
 
     private final String name;
-
     private final String vendor;
-
     private final String vendorId;
-
     private final String productId;
-
     private final String serialNumber;
-
     private final String uniqueDeviceId;
-
     private final List<UsbDevice> connectedDevices;
 
     public AbstractUsbDevice(String name, String vendor, String vendorId, String productId, String serialNumber,
@@ -113,6 +107,7 @@ public abstract class AbstractUsbDevice implements UsbDevice {
      *            A USB device to print
      * @param indent
      *            number of spaces to indent
+     * @return The device toString, indented
      */
     private static String indentUsb(UsbDevice usbDevice, int indent) {
         String indentFmt = indent > 2 ? String.format("%%%ds|-- ", indent - 4) : String.format("%%%ds", indent);

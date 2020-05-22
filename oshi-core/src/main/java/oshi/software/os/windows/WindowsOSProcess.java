@@ -270,7 +270,7 @@ public class WindowsOSProcess extends AbstractOSProcess {
             }
             // Full path
             final HANDLEByReference phToken = new HANDLEByReference();
-            try {// EXECUTABLEPATH
+            try { // EXECUTABLEPATH
                 if (IS_WINDOWS7_OR_GREATER) {
                     this.path = Kernel32Util.QueryFullProcessImageName(pHandle, 0);
                 }
