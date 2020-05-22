@@ -170,9 +170,9 @@ public interface Udev extends Library {
 
     /**
      * To introspect a local device on a system, a udev device object can be created
-     * via {@link UdevContext#deviceNewFromSyspath()} and friends. The device object
-     * allows one to query current state, read and write attributes and lookup
-     * properties of the device in question.
+     * via {@link UdevContext#deviceNewFromSyspath(String)} and friends. The device
+     * object allows one to query current state, read and write attributes and
+     * lookup properties of the device in question.
      */
     class UdevDevice extends PointerType {
         /**
@@ -353,7 +353,7 @@ public interface Udev extends Library {
     /**
      * Acquire further references to a udev enumerate object.
      *
-     * @param udev
+     * @param udev_enumerate
      *            A udev enumerate object.
      * @return the argument that was passed, unmodified.
      */
@@ -363,7 +363,7 @@ public interface Udev extends Library {
      * Drop a reference to a udev enumerate object. Once the reference count hits 0,
      * the enumerate object is destroyed and freed.
      *
-     * @param udev
+     * @param udev_enumerate
      *            A udev enumerate object.
      */
     void udev_enumerate_unref(UdevEnumerate udev_enumerate);
