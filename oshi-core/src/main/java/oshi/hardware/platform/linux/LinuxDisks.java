@@ -32,6 +32,7 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
 import oshi.jna.platform.linux.Udev;
+import oshi.jna.platform.linux.Udev.UdevContext;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.linux.ProcPath;
@@ -82,7 +83,7 @@ public final class LinuxDisks {
 
         Map<String, String> mountsMap = readMountsMap();
 
-        Udev.UdevHandle handle = Udev.INSTANCE.udev_new();
+        UdevContext handle = Udev.INSTANCE.udev_new();
         Udev.UdevEnumerate enumerate = Udev.INSTANCE.udev_enumerate_new(handle);
         Udev.INSTANCE.udev_enumerate_add_match_subsystem(enumerate, "block");
         Udev.INSTANCE.udev_enumerate_scan_devices(enumerate);

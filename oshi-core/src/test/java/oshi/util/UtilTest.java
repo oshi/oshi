@@ -35,10 +35,10 @@ public class UtilTest {
 
     @Test
     public void testSleep() {
-        // Windows counters may be up to 10ms off
+        // Windows counters may be up to 1/64 second (16ms) off
         long now = System.nanoTime();
         Util.sleep(100);
-        assertTrue(System.nanoTime() - now >= 90_000_000);
+        assertTrue(System.nanoTime() - now >= 84_375_000);
     }
 
     @Test

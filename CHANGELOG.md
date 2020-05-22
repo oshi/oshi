@@ -1,8 +1,17 @@
-4.8.0 / 5.1.0 (in progress)
+5.2.0 (in progress)
+================
+* [#1237](https://github.com/oshi/oshi/pull/1237): Update Udev to object oriented style - [@dbwiddis](https://github.com/dbwiddis).
+* [#1240](https://github.com/oshi/oshi/pull/1240): Add a driver for proc/pid/statm - [@dbwiddis](https://github.com/dbwiddis).
+* [#1241](https://github.com/oshi/oshi/pull/1241): Add code-assert - [@dbwiddis](https://github.com/dbwiddis).
+* Your contribution here 
+
+4.8.0 / 5.1.0 (5/20/2020)
 ================
 * [#1229](https://github.com/oshi/oshi/pull/1229): Changed the linux and solaris virtual memory swapins/outs to count just swaps - [@roeezz](https://github.com/roeezz)
 * [#1231](https://github.com/oshi/oshi/pull/1231): Add OSSessions. - [@dbwiddis](https://github.com/dbwiddis).
-* [#1222](https://github.com/oshi/oshi/pull/1222),
+* [#1233](https://github.com/oshi/oshi/pull/1233), [#1234](https://github.com/oshi/oshi/pull/1234): Added more unit tests in CentralProcessorTest and ParseUtilTest - [@zachsez](https://github.com/zachsez).
+* [#1195](https://github.com/oshi/oshi/pull/1195), 
+  [#1222](https://github.com/oshi/oshi/pull/1222),
   [#1224](https://github.com/oshi/oshi/pull/1224),
   [#1225](https://github.com/oshi/oshi/pull/1225),
   [#1226](https://github.com/oshi/oshi/pull/1226),
@@ -10,6 +19,7 @@
   [#1232](https://github.com/oshi/oshi/pull/1232),
   [#1235](https://github.com/oshi/oshi/pull/1235):
   Added messages to unit test assertions in multiple classes. - 
+  [@tomokos2](https://github.com/tomokos2),
   [@david145noone](https://github.com/david145noone),
   [@tausiflife](https://github.com/tausiflife),
   [@tschens95](https://github.com/tschens95),
@@ -17,8 +27,6 @@
   [@roeezz](https://github.com/roeezz),
   [@zachsez](https://github.com/zachsez),
   [@RaymondLZhou](https://github.com/RaymondLZhou).
-* [#1233](https://github.com/oshi/oshi/pull/1233), [#1234](https://github.com/oshi/oshi/pull/1234): Added more unit tests in CentralProcessorTest and ParseUtilTest - [@zachsez](https://github.com/zachsez).
-* Your contribution here 
 
 5.0.0 (5/5/2020), 5.0.1 (5/6/2020), 5.0.2 (5/14/2020)
 ================
@@ -37,7 +45,6 @@
 ================
 * [#1174](https://github.com/oshi/oshi/pull/1174): Add TCP and UDP statistics. - [@dbwiddis](https://github.com/dbwiddis).
 * [#1183](https://github.com/oshi/oshi/pull/1183): Add more VirtualMemory information. - [@dbwiddis](https://github.com/dbwiddis).
-* [#1195](https://github.com/oshi/oshi/pull/1195): Add messages to NetworksTest assertion. - [@tomokos2](https://github.com/tomokos2).
 * [#1219](https://github.com/oshi/oshi/pull/1219): Only get primary group on WindowsOSProcess. - [@dbwiddis](https://github.com/dbwiddis).
 
 4.6.0 (4/2/2020), 4.6.1 (4/8/2020)

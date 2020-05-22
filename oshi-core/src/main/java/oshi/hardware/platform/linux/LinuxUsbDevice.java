@@ -94,7 +94,7 @@ public class LinuxUsbDevice extends AbstractUsbDevice {
 
     private static UsbDevice[] getUsbDevices() {
         // Enumerate all usb devices and build information maps
-        Udev.UdevHandle udev = Udev.INSTANCE.udev_new();
+        Udev.UdevContext udev = Udev.INSTANCE.udev_new();
         // Create a list of the devices in the 'usb' subsystem.
         UdevEnumerate enumerate = Udev.INSTANCE.udev_enumerate_new(udev);
         Udev.INSTANCE.udev_enumerate_add_match_subsystem(enumerate, "usb");
