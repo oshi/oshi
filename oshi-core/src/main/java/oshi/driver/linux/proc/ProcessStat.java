@@ -329,6 +329,40 @@ public final class ProcessStat {
     }
 
     /**
+     * Enum corresponding to the fields in the output of {@code /proc/[pid]/statm}
+     */
+    public enum PidStatM {
+        /**
+         * Total program size
+         */
+        SIZE,
+        /**
+         * Resident set size
+         */
+        RESIDENT,
+        /**
+         * Number of resident shared pages (i.e., backed by a file)
+         */
+        SHARED,
+        /**
+         * Text (code)
+         */
+        TEXT,
+        /**
+         * Library (unused since Linux 2.6; always 0)
+         */
+        LIB,
+        /**
+         * Data + stack
+         */
+        DATA,
+        /**
+         * Dirty pages (unused since Linux 2.6; always 0)
+         */
+        DT;
+    }
+
+    /**
      * Constant defining the number of integer values in {@code /proc/pid/stat}. 2.6
      * Kernel has 44 elements, 3.3 has 47, and 3.5 has 52.
      */
@@ -379,6 +413,33 @@ public final class ProcessStat {
             statMap.put(enumArray[i], ParseUtil.parseLongOrDefault(split[i - 3], 0L));
         }
         return new Triplet<>(name, state, statMap);
+    }
+
+    /**
+     * Reads the statistics in {@code /proc/[pid]/statm} and returns the results.
+     *
+     * @param pid
+     *            The process ID for which to fetch stats
+     * @return An EnumMap where the numeric values in {@link PidStatM} are mapped to
+     *         a {@link Long} value.
+     *         <p>
+     *         If the process doesn't exist, returns null.
+     */
+    public static Map<PidStatM, Long> getPidStatM(int pid) {
+        String statm = FileUtil.getStringFromFile(String.format(ProcPath.PID_STATM, pid));
+        if (statm.isEmpty()) {
+            // If pid doesn't exist
+            return null;
+        }
+        // Split the fields
+        String[] split = ParseUtil.whitespaces.split(statm);
+
+        Map<PidStatM, Long> statmMap = new EnumMap<>(PidStatM.class);
+        PidStatM[] enumArray = PidStatM.class.getEnumConstants();
+        for (int i = 0; i < enumArray.length && i < split.length; i++) {
+            statmMap.put(enumArray[i], ParseUtil.parseLongOrDefault(split[i], 0L));
+        }
+        return statmMap;
     }
 
     /**
