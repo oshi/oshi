@@ -54,6 +54,7 @@ public final class ProcPath {
     public static final String PID_FD = PROC + "/%d/fd";
     public static final String PID_IO = PROC + "/%d/io";
     public static final String PID_STAT = PROC + "/%d/stat";
+    public static final String PID_STATM = PROC + "/%d/statm";
     public static final String PID_STATUS = PROC + "/%d/status";
     public static final String SELF_STAT = PROC + "/self/stat";
     public static final String STAT = PROC + "/stat";
