@@ -276,10 +276,15 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
      * and feature flags.
      *
      * @param vendor
+     *            The vendor
      * @param stepping
+     *            The stepping
      * @param model
+     *            The model
      * @param family
+     *            The family
      * @param flags
+     *            The flags
      * @return The Processor ID string
      */
     private static String getProcessorID(String vendor, String stepping, String model, String family, String[] flags) {

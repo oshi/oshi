@@ -447,6 +447,8 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     /**
      * Attempts to read /etc/distrib-release (for some value of distrib)
      *
+     * @param filename
+     *            The /etc/distrib-release file
      * @return a triplet with the parsed family, versionID and codeName if file
      *         successfully read and " release " or " VERSION " found, null
      *         otherwise

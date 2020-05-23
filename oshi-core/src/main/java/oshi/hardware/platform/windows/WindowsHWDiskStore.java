@@ -210,11 +210,12 @@ public final class WindowsHWDiskStore extends AbstractHWDiskStore {
     }
 
     /**
-     * Populates the maps for the specified index. If the index is null, populates
-     * all the maps
+     * Gets disk stats for the specified index. If the index is null, populates all
+     * the maps
      *
      * @param index
      *            The index to populate/update maps for
+     * @return An object encapsulating maps with the stats
      */
     private static DiskStats queryReadWriteStats(String index) {
         // Create object to hold and return results

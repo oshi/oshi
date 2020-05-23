@@ -85,9 +85,11 @@ final class LinuxGlobalMemory extends AbstractGlobalMemory {
      * up to date if the calculation changes: see
      * https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?
      * id=34e431b0ae398fc54ea69ff85ec700722c9da773
-     *
+     * <p>
      * Internally, reading /proc/meminfo is faster than sysinfo because it only
      * spends time populating the memory components of the sysinfo structure.
+     *
+     * @return A pair containing available and total memory in bytes
      */
     private static Pair<Long, Long> readMemInfo() {
         long memFree = 0L;

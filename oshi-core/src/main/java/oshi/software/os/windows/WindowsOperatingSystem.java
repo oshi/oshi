@@ -180,7 +180,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             break;
         case 5:
             if (minor == 2) {
-                if ((suiteMask & 0x00008000) != 0) {// VER_SUITE_WH_SERVER
+                if ((suiteMask & 0x00008000) != 0) { // VER_SUITE_WH_SERVER
                     version = "Home Server";
                 } else if (ntWorkstation) {
                     version = "XP"; // 64 bits
@@ -210,6 +210,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
      * Gets suites available on the system and return as a codename
      *
      * @param suiteMask
+     *            The suite mask bitmask
      *
      * @return Suites
      */

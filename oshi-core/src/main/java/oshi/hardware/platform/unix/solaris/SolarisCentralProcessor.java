@@ -212,8 +212,11 @@ final class SolarisCentralProcessor extends AbstractCentralProcessor {
      * flags.
      *
      * @param stepping
+     *            The stepping
      * @param model
+     *            The model
      * @param family
+     *            The family
      * @return The Processor ID string
      */
     private static String getProcessorID(String stepping, String model, String family) {

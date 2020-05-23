@@ -62,7 +62,7 @@ public interface Netapi32 extends com.sun.jna.platform.win32.Netapi32 {
 
     /**
      * Provides information about sessions established on a server.
-     * 
+     *
      * @param servername
      *            Pointer to a string that specifies the DNS or NetBIOS name of the
      *            remote server on which the function is to execute. If this
