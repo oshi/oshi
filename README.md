@@ -33,24 +33,24 @@ Windows • Linux • Mac OS X • Unix (Solaris, FreeBSD)
 
 Essentials
 ----------
-* [API](http://oshi.github.io/oshi/apidocs/) 
-* [Find OSHI on Maven Central](https://search.maven.org/search?q=com.github.oshi)
+* [API](http://oshi.github.io/oshi/apidocs/) (javadocs) - [Hardware](http://oshi.github.io/oshi/apidocs/oshi/hardware/package-summary.html) / [Software](http://oshi.github.io/oshi/apidocs/oshi/software/os/package-summary.html)
 * [FAQ](https://github.com/oshi/oshi/blob/master/FAQ.md)
+* [Find OSHI on Maven Central](https://search.maven.org/search?q=com.github.oshi)
 * [Upgrading from an earlier version?](https://github.com/oshi/oshi/blob/master/UPGRADING.md) 
 
 Supported features 
 --------------------------
 * Computer System and firmware, baseboard 
 * Operating System and Version/Build
-* Physical (core) and Logical (hyperthreaded) CPUs 
+* Physical (core) and Logical (hyperthreaded) CPUs, processor groups, NUMA nodes
 * System and per-processor load % and tick counters
 * CPU uptime, processes, and threads
-* Process uptime, CPU, memory usage
+* Process uptime, CPU, memory usage, user/group, command line
 * Physical and virtual memory used/available
 * Mounted filesystems (type, usable and total space)
 * Disk drives (model, serial, size) and partitions
 * Network interfaces (IPs, bandwidth in/out)
-* Battery state (% capacity, time remaining)
+* Battery state (% capacity, time remaining, power usage stats)
 * Connected displays (with EDID info)
 * USB Devices
 * Sensors (temperature, fan speeds, voltage)
@@ -86,7 +86,7 @@ git clone https://github.com/oshi/oshi.git && cd oshi
 Note: OSHI uses the latest version of JNA, which may conflict with other dependencies your project (or its parent) includes. If you experience issues with `NoClassDefFound` errors for JNA artifacts, consider one or more of the following steps to resolve the conflict:
  - Listing OSHI earlier (or first) in your dependency list 
  - Specifying the most recent version of JNA (both `jna` and `jna-platform` artifacts) as a dependency
- - If you are using a parent (e.g., Spring Boot) that includes JNA as a dependency, override the `jna.version` property 
+ - If you are using a parent (e.g., Spring Boot) that includes JNA as a dependency, override the `jna.version` property or equivalent
 
 OSHI for enterprise
 -------------------
@@ -165,7 +165,7 @@ Disks:
 
 ```
 
-Sensor readings are available for some hardware (see notes in the [FAQ](https://github.com/oshi/oshi/blob/master/FAQ.md)).
+Sensor readings are available for some hardware (see notes in the [API](http://oshi.github.io/oshi/apidocs/oshi/hardware/Sensors.html)).
 ```
 Sensors:
  CPU Temperature: 69.8°C
