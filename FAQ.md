@@ -24,9 +24,7 @@ each class. The following classes are not thread-safe:
  OSHI gives no guarantees on re-reading changed configurations.
  - `PerfCounterQuery` and `PerfCounterWildcardQuery` objects should only be used within the context of a single
  thread. These are only used internally in OSHI in these single-thread contexts and not intended for user use.
- - The `getSessions()` method on the `OperatingSystem` interface uses native code which is not thread safe.
- While OSHI's methods employ synchronization to coordinate access OSHI threads, users are cautioned that other
- operating system code may access the same underlying data structures and produce unexpected results.
+ - On non-Windows platforms, the `getSessions()` method on the `OperatingSystem` interface uses native code which is not thread safe. While OSHI's methods employ synchronization to coordinate access from its own threads, users are cautioned that other operating system code may access the same underlying data structures and produce unexpected results, particularly on servers with frequent new logins.
 
 Earlier versions do not guarantee thread safety, but as of version 4.6.0, intended use is thread safe.
 Classes with setters on them are obviously not thread-safe unless the use of the setters is synchronized across threads.
