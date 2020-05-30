@@ -40,7 +40,6 @@ public final class ProcessInformation {
 
     private static final String WIN32_PROCESS = "Win32_Process";
     private static final String PROCESS = "Process";
-    private static final String PROCESS_INFORMATION = "Process Information";
     private static final String WIN32_PROCESS_WHERE_NOT_NAME_LIKE_TOTAL = "Win32_Process WHERE NOT Name LIKE\"%_Total\"";
 
     /**
@@ -100,22 +99,16 @@ public final class ProcessInformation {
      * @return Process counters for each process.
      */
     public static Pair<List<String>, Map<ProcessPerformanceProperty, List<Long>>> queryProcessCounters() {
-        PerfCounterWildcardQuery<ProcessPerformanceProperty> processPerformancePerfCounters = new PerfCounterWildcardQuery<>(
-                ProcessPerformanceProperty.class, PROCESS, WIN32_PROCESS_WHERE_NOT_NAME_LIKE_TOTAL,
-                PROCESS_INFORMATION);
-        Map<ProcessPerformanceProperty, List<Long>> values = processPerformancePerfCounters.queryValuesWildcard();
-        List<String> instances = processPerformancePerfCounters.getInstancesFromLastQuery();
-        return new Pair<>(instances, values);
+        return PerfCounterWildcardQuery.queryInstancesAndValues(ProcessPerformanceProperty.class, PROCESS,
+                WIN32_PROCESS_WHERE_NOT_NAME_LIKE_TOTAL);
     }
 
     /**
      * Returns handle counters
      *
-     * @return Process handle counters
+     * @return Process handle counters for each process.
      */
-    public static Map<HandleCountProperty, List<Long>> queryHandles() {
-        PerfCounterWildcardQuery<HandleCountProperty> handlePerfCounters = new PerfCounterWildcardQuery<>(
-                HandleCountProperty.class, PROCESS, WIN32_PROCESS);
-        return handlePerfCounters.queryValuesWildcard();
+    public static Pair<List<String>, Map<HandleCountProperty, List<Long>>> queryHandles() {
+        return PerfCounterWildcardQuery.queryInstancesAndValues(HandleCountProperty.class, PROCESS, WIN32_PROCESS);
     }
 }

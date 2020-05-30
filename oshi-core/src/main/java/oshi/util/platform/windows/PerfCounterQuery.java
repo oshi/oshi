@@ -29,58 +29,41 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.platform.win32.COM.Wbemcli; //NOSONAR
+import com.sun.jna.platform.win32.PdhUtil; //NOSONAR
+import com.sun.jna.platform.win32.PdhUtil.PdhException;
+import com.sun.jna.platform.win32.Win32Exception;
+import com.sun.jna.platform.win32.COM.Wbemcli;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
-import oshi.annotation.concurrent.NotThreadSafe;
+import oshi.annotation.concurrent.ThreadSafe;
 import oshi.util.platform.windows.PerfDataUtil.PerfCounter;
 
 /**
- * Encapsulates information for a Performance Counter query.
- * <p>
- * An instance of this class should only be instantiated and used within the
- * context of a single thread.
- *
- * @param <T>
- *            The enum type for this counter query
+ * Enables queries of Performance Counters using wild cards to filter instances
  */
-@NotThreadSafe
-public class PerfCounterQuery<T extends Enum<T>> {
+@ThreadSafe
+public final class PerfCounterQuery {
 
     private static final Logger LOG = LoggerFactory.getLogger(PerfCounterQuery.class);
 
     /*
-     * Set on instantiation
-     */
-    protected final Class<T> propertyEnum;
-    protected final String perfObject;
-    protected final String perfWmiClass;
-    protected final String queryKey;
-    protected CounterDataSource source;
-    protected PerfCounterQueryHandler pdhQueryHandler;
-
-    /*
-     * Only one will be non-null depending on source
-     */
-    private EnumMap<T, PerfCounter> counterMap = null;
-    protected WmiQuery<T> counterQuery = null;
-
-    /*
      * Multiple classes use these constants
      */
-    /** Constant <code>TOTAL_INSTANCE="_Total"</code> */
     public static final String TOTAL_INSTANCE = "_Total";
-    /** Constant <code>TOTAL_INSTANCES="*_Total"</code> */
     public static final String TOTAL_INSTANCES = "*_Total";
-    /** Constant <code>NOT_TOTAL_INSTANCE="^ + TOTAL_INSTANCE"</code> */
     public static final String NOT_TOTAL_INSTANCE = "^" + TOTAL_INSTANCE;
-    /** Constant <code>NOT_TOTAL_INSTANCES="^ + TOTAL_INSTANCES"</code> */
     public static final String NOT_TOTAL_INSTANCES = "^" + TOTAL_INSTANCES;
 
+    private PerfCounterQuery() {
+    }
+
     /**
-     * Construct a new object to hold performance counter data source and results
+     * Query the a Performance Counter using PDH, with WMI backup on failure, for
+     * values corresponding to the property enum.
      *
+     * @param <T>
+     *            The enum type of {@code propertyEnum}
      * @param propertyEnum
      *            An enum which implements
      *            {@link oshi.util.platform.windows.PerfCounterQuery.PdhCounterProperty}
@@ -91,152 +74,82 @@ public class PerfCounterQuery<T extends Enum<T>> {
      *            be refreshed at the same time
      * @param perfWmiClass
      *            The WMI PerfData_RawData_* class corresponding to the PDH object
+     * @return An {@link EnumMap} of the values indexed by {@code propertyEnum} on
+     *         success, or an empty map if both PDH and WMI queries failed.
      */
-    public PerfCounterQuery(Class<T> propertyEnum, String perfObject, String perfWmiClass) {
-        this(propertyEnum, perfObject, perfWmiClass, perfObject);
-    }
-
-    /**
-     * Construct a new object to hold performance counter data source and results
-     *
-     * @param propertyEnum
-     *            An enum which implements
-     *            {@link oshi.util.platform.windows.PerfCounterQuery.PdhCounterProperty}
-     *            and contains the WMI field (Enum value) and PDH Counter string
-     *            (instance and counter)
-     * @param perfObject
-     *            The PDH object for this counter; all counters on this object will
-     *            be refreshed at the same time
-     * @param perfWmiClass
-     *            The WMI PerfData_RawData_* class corresponding to the PDH object
-     * @param queryKey
-     *            An optional key for PDH counter updates; defaults to the PDH
-     *            object name
-     */
-    public PerfCounterQuery(Class<T> propertyEnum, String perfObject, String perfWmiClass, String queryKey) {
-        this.propertyEnum = propertyEnum;
-        this.perfObject = perfObject;
-        this.perfWmiClass = perfWmiClass;
-        this.queryKey = queryKey;
-        this.pdhQueryHandler = new PerfCounterQueryHandler();
-        // Start off with PDH as source; if query here fails we will permanently
-        // fall back to WMI
-        this.source = CounterDataSource.PDH;
-    }
-
-    /**
-     * Set the Data Source for these counters
-     *
-     * @param source
-     *            The source of data
-     * @return Whether the data source was successfully set
-     */
-    public boolean setDataSource(CounterDataSource source) {
-        this.source = source;
-        switch (source) {
-        case PDH:
-            LOG.debug("Attempting to set PDH Data Source.");
-            unInitWmiCounters();
-            return initPdhCounters();
-        case WMI:
-            LOG.debug("Attempting to set WMI Data Source.");
-            unInitPdhCounters();
-            initWmiCounters();
-            return true;
-        default:
-            // This should never happen unless you've added a new source and
-            // forgot to add a case for it
-            throw new IllegalArgumentException("Invalid Data Source specified.");
-        }
-    }
-
-    /**
-     * Initialize PDH counters for this data source. Adds necessary counters to a
-     * PDH Query.
-     *
-     * @return True if the counters were successfully added.
-     */
-    protected boolean initPdhCounters() {
-        this.counterMap = new EnumMap<>(propertyEnum);
-        for (T prop : propertyEnum.getEnumConstants()) {
-            PerfCounter counter = PerfDataUtil.createCounter(perfObject, ((PdhCounterProperty) prop).getInstance(),
-                    ((PdhCounterProperty) prop).getCounter());
-            counterMap.put(prop, counter);
-            if (!pdhQueryHandler.addCounterToQuery(counter, this.queryKey)) {
-                unInitPdhCounters();
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /**
-     * Uninitialize PDH counters for this data source. Removes necessary counters
-     * from the PDH Query, releasing their handles.
-     */
-    protected void unInitPdhCounters() {
-        pdhQueryHandler.removeAllCountersFromQuery(this.queryKey);
-        this.counterMap = null;
-    }
-
-    /**
-     * Initialize the WMI query object needed to retrieve counters for this data
-     * source.
-     */
-    protected void initWmiCounters() {
-        this.counterQuery = new WmiQuery<>(perfWmiClass, propertyEnum);
-    }
-
-    /**
-     * Uninitializes the WMI query object needed to retrieve counters for this data
-     * source, allowing it to be garbage collected.
-     */
-    protected void unInitWmiCounters() {
-        this.counterQuery = null;
-    }
-
-    /**
-     * Query the current data source (PDH or WMI) for the Performance Counter values
-     * corresponding to the property enum.
-     *
-     * @return A map of the values by the counter enum.
-     */
-    public Map<T, Long> queryValues() {
-        EnumMap<T, Long> valueMap = new EnumMap<>(propertyEnum);
-        T[] props = this.propertyEnum.getEnumConstants();
-        if (source.equals(CounterDataSource.PDH)) {
-            // Set up the query and counter handles, and query
-            if (initPdhCounters() && queryPdh(valueMap, props)) {
-                // If both init and query return true, then valueMap contains
-                // the results. Release the handles.
-                unInitPdhCounters();
-            } else {
-                // If either init or query failed, switch to WMI
-                setDataSource(CounterDataSource.WMI);
-            }
-        }
-        if (source.equals(CounterDataSource.WMI)) {
-            queryWmi(valueMap, props);
+    public static <T extends Enum<T>> Map<T, Long> queryValues(Class<T> propertyEnum, String perfObject,
+            String perfWmiClass) {
+        Map<T, Long> valueMap = queryValuesFromPDH(propertyEnum, perfObject);
+        if (valueMap.isEmpty()) {
+            return queryValuesFromWMI(propertyEnum, perfWmiClass);
         }
         return valueMap;
     }
 
-    private boolean queryPdh(Map<T, Long> valueMap, T[] props) {
-        if (counterMap != null && 0 < pdhQueryHandler.updateQuery(this.queryKey)) {
+    /**
+     * Query the a Performance Counter using PDH for values corresponding to the
+     * property enum.
+     *
+     * @param <T>
+     *            The enum type of {@code propertyEnum}
+     * @param propertyEnum
+     *            An enum which implements
+     *            {@link oshi.util.platform.windows.PerfCounterQuery.PdhCounterProperty}
+     *            and contains the WMI field (Enum value) and PDH Counter string
+     *            (instance and counter)
+     * @param perfObject
+     *            The PDH object for this counter; all counters on this object will
+     *            be refreshed at the same time
+     * @return An {@link EnumMap} of the values indexed by {@code propertyEnum} on
+     *         success, or an empty map if the PDH query failed.
+     */
+    public static <T extends Enum<T>> Map<T, Long> queryValuesFromPDH(Class<T> propertyEnum, String perfObject) {
+        T[] props = propertyEnum.getEnumConstants();
+        String perfObjectLocalized = localize(perfObject);
+        EnumMap<T, PerfCounter> counterMap = new EnumMap<>(propertyEnum);
+        EnumMap<T, Long> valueMap = new EnumMap<>(propertyEnum);
+        try (PerfCounterQueryHandler pdhQueryHandler = new PerfCounterQueryHandler()) {
+            // Set up the query and counter handles
             for (T prop : props) {
-                valueMap.put(prop, pdhQueryHandler.queryCounter(counterMap.get(prop)));
+                PerfCounter counter = PerfDataUtil.createCounter(perfObjectLocalized,
+                        ((PdhCounterProperty) prop).getInstance(), ((PdhCounterProperty) prop).getCounter());
+                counterMap.put(prop, counter);
+                if (!pdhQueryHandler.addCounterToQuery(counter)) {
+                    return valueMap;
+                }
             }
-            return true;
+            // And then query. Zero timestamp means update failed
+            if (0 < pdhQueryHandler.updateQuery(perfObjectLocalized)) {
+                for (T prop : props) {
+                    valueMap.put(prop, pdhQueryHandler.queryCounter(counterMap.get(prop)));
+                }
+            }
         }
-        // Zero timestamp means update failed after muliple
-        // attempts; fallback to WMI
-        return false;
+        return valueMap;
     }
 
-    private void queryWmi(Map<T, Long> valueMap, T[] props) {
-        WmiResult<T> result = WmiQueryHandler.createInstance().queryWMI(this.counterQuery);
+    /**
+     * Query the a Performance Counter using WMI for values corresponding to the
+     * property enum.
+     *
+     * @param <T>
+     *            The enum type of {@code propertyEnum}
+     * @param propertyEnum
+     *            An enum which implements
+     *            {@link oshi.util.platform.windows.PerfCounterQuery.PdhCounterProperty}
+     *            and contains the WMI field (Enum value) and PDH Counter string
+     *            (instance and counter)
+     * @param wmiClass
+     *            The WMI PerfData_RawData_* class corresponding to the PDH object
+     * @return An {@link EnumMap} of the values indexed by {@code propertyEnum} if
+     *         successful, an empty map if the WMI query failed.
+     */
+    public static <T extends Enum<T>> Map<T, Long> queryValuesFromWMI(Class<T> propertyEnum, String wmiClass) {
+        WmiQuery<T> query = new WmiQuery<>(wmiClass, propertyEnum);
+        WmiResult<T> result = WmiQueryHandler.createInstance().queryWMI(query);
+        EnumMap<T, Long> valueMap = new EnumMap<>(propertyEnum);
         if (result.getResultCount() > 0) {
-            for (T prop : props) {
+            for (T prop : propertyEnum.getEnumConstants()) {
                 switch (result.getCIMType(prop)) {
                 case Wbemcli.CIM_UINT16:
                     valueMap.put(prop, Long.valueOf(WmiUtil.getUint16(result, prop, 0)));
@@ -247,25 +160,48 @@ public class PerfCounterQuery<T extends Enum<T>> {
                 case Wbemcli.CIM_UINT64:
                     valueMap.put(prop, WmiUtil.getUint64(result, prop, 0));
                     break;
+                case Wbemcli.CIM_DATETIME:
+                    valueMap.put(prop, WmiUtil.getDateTime(result, prop, 0).toInstant().toEpochMilli());
+                    break;
                 default:
                     throw new ClassCastException("Unimplemented CIM Type Mapping.");
                 }
             }
         }
+        return valueMap;
     }
 
     /**
-     * Source of performance counter data.
+     * Localize a PerfCounter string. English counter names should normally be in
+     * {@code HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows
+     * NT\CurrentVersion\Perflib\009\Counter}, but language manipulations may delete
+     * the {@code 009} index. In this case we can assume English must be the
+     * language and continue. We may still fail to match the name if the assumption
+     * is wrong but it's better than nothing.
+     *
+     * @param perfObject
+     *            A String to localize
+     * @return The localized string if localization successful, or the original
+     *         string otherwise.
      */
-    public enum CounterDataSource {
-        /**
-         * Performance Counter data will be pulled from a PDH Counter
-         */
-        PDH,
-        /**
-         * Performance Counter data will be pulled from a WMI PerfData_RawData_* table
-         */
-        WMI;
+    public static String localize(String perfObject) {
+        String localized = perfObject;
+        try {
+            localized = PdhUtil.PdhLookupPerfNameByIndex(null, PdhUtil.PdhLookupPerfIndexByEnglishName(perfObject));
+        } catch (Win32Exception e) {
+            LOG.warn(
+                    "Unable to locate English counter names in registry Perflib 009. Assuming English counters. Error {}. {}",
+                    String.format("0x%x", e.getHR().intValue()),
+                    "See https://support.microsoft.com/en-us/help/300956/how-to-manually-rebuild-performance-counter-library-values");
+        } catch (PdhException e) {
+            LOG.warn("Unable to localize {} performance counter.  Error {}.", perfObject,
+                    String.format("0x%x", e.getErrorCode()));
+        }
+        if (localized.isEmpty()) {
+            return perfObject;
+        }
+        LOG.debug("Localized {} to {}", perfObject, localized);
+        return localized;
     }
 
     /**

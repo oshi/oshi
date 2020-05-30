@@ -36,12 +36,11 @@ import guru.nidi.codeassert.checkstyle.StyleChecks;
 import guru.nidi.codeassert.checkstyle.StyleEventCollector;
 import guru.nidi.codeassert.config.AnalyzerConfig;
 import guru.nidi.codeassert.config.In;
-import guru.nidi.codeassert.junit.CodeAssertTest;
 
-public class SourceCodeTest extends CodeAssertTest {
-    @Override
+public class SourceCodeTest {
+
     @Test
-    public void checkstyle() {
+    public void testCheckstyle() {
         checkstyleGoogle();
         checkstyleSun();
     }

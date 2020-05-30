@@ -488,6 +488,7 @@
 							<exclude>mvnw.cmd</exclude>
 							<exclude>.gitattributes</exclude>
 							<exclude>**/*.PNG</exclude>
+							<exclude>**/*.yml</exclude>
 							<exclude>LICENSE.txt</exclude>
 							<exclude>**/OSHIJavaFormatConventions.xml</exclude>
 						</excludes>

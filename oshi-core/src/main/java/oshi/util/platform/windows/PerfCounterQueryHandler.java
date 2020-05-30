@@ -42,25 +42,13 @@ import oshi.util.platform.windows.PerfDataUtil.PerfCounter;
  * Utility to handle Performance Counter Queries
  */
 @ThreadSafe
-public final class PerfCounterQueryHandler {
+public final class PerfCounterQueryHandler implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(PerfCounterQueryHandler.class);
 
     private Map<PerfCounter, HANDLEByReference> counterHandleMap = new ConcurrentHashMap<>();
     private Map<String, HANDLEByReference> queryHandleMap = new ConcurrentHashMap<>();
     private Map<String, List<PerfCounter>> queryCounterMap = new ConcurrentHashMap<>();
-
-    public PerfCounterQueryHandler() {
-        // Set up hook to close all queries on shutdown
-        // User is expected to release all queries so this should only be a
-        // backup
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                removeAllCounters();
-            }
-        });
-    }
 
     /**
      * Begin monitoring a Performance Data counter, attached to a query whose key is
@@ -253,5 +241,10 @@ public final class PerfCounterQueryHandler {
             return q;
         }
         return null;
+    }
+
+    @Override
+    public void close() {
+        removeAllCounters();
     }
 }

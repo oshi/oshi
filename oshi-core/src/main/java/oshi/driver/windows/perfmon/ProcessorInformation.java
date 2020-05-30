@@ -42,10 +42,7 @@ import oshi.util.tuples.Pair;
 public final class ProcessorInformation {
 
     private static final String PROCESSOR = "Processor";
-    private static final String INTERRUPT_COUNT = "Interrupt Count";
-    private static final String PROCESSOR_FREQUENCY = "Processor Frequency";
     private static final String PROCESSOR_INFORMATION = "Processor Information";
-    private static final String PROCESSOR_TICK_COUNT = "Processor Tick Count";
 
     // For Win7+ ... NAME field includes NUMA nodes
     private static final String WIN32_PERF_RAW_DATA_COUNTERS_PROCESSOR_INFORMATION_WHERE_NOT_NAME_LIKE_TOTAL = "Win32_PerfRawData_Counters_ProcessorInformation WHERE NOT Name LIKE\"%_Total\"";
@@ -162,15 +159,10 @@ public final class ProcessorInformation {
      * @return Performance Counters for processors.
      */
     public static Pair<List<String>, Map<ProcessorTickCountProperty, List<Long>>> queryProcessorCounters() {
-        PerfCounterWildcardQuery<ProcessorTickCountProperty> processorTickPerfCounters = IS_WIN7_OR_GREATER
-                ? new PerfCounterWildcardQuery<>(ProcessorTickCountProperty.class, PROCESSOR_INFORMATION,
-                        WIN32_PERF_RAW_DATA_COUNTERS_PROCESSOR_INFORMATION_WHERE_NOT_NAME_LIKE_TOTAL,
-                        PROCESSOR_TICK_COUNT)
-                : new PerfCounterWildcardQuery<>(ProcessorTickCountProperty.class, PROCESSOR,
-                        WIN32_PERF_RAW_DATA_PERF_OS_PROCESSOR_WHERE_NOT_NAME_TOTAL, PROCESSOR_TICK_COUNT);
-        Map<ProcessorTickCountProperty, List<Long>> values = processorTickPerfCounters.queryValuesWildcard();
-        List<String> instances = processorTickPerfCounters.getInstancesFromLastQuery();
-        return new Pair<>(instances, values);
+        return IS_WIN7_OR_GREATER ? PerfCounterWildcardQuery.queryInstancesAndValues(ProcessorTickCountProperty.class,
+                PROCESSOR_INFORMATION, WIN32_PERF_RAW_DATA_COUNTERS_PROCESSOR_INFORMATION_WHERE_NOT_NAME_LIKE_TOTAL)
+                : PerfCounterWildcardQuery.queryInstancesAndValues(ProcessorTickCountProperty.class, PROCESSOR,
+                        WIN32_PERF_RAW_DATA_PERF_OS_PROCESSOR_WHERE_NOT_NAME_TOTAL);
     }
 
     /**
@@ -179,10 +171,8 @@ public final class ProcessorInformation {
      * @return Performance Counters for the total of all processors.
      */
     public static Map<SystemTickCountProperty, Long> querySystemCounters() {
-        PerfCounterQuery<SystemTickCountProperty> systemTickPerfCounters = new PerfCounterQuery<>(
-                SystemTickCountProperty.class, PROCESSOR, WIN32_PERF_RAW_DATA_PERF_OS_PROCESSOR_WHERE_NAME_TOTAL,
-                "System Tick Count");
-        return systemTickPerfCounters.queryValues();
+        return PerfCounterQuery.queryValues(SystemTickCountProperty.class, PROCESSOR,
+                WIN32_PERF_RAW_DATA_PERF_OS_PROCESSOR_WHERE_NAME_TOTAL);
     }
 
     /**
@@ -191,9 +181,8 @@ public final class ProcessorInformation {
      * @return Interrupts counter for the total of all processors.
      */
     public static Map<InterruptsProperty, Long> queryInterruptCounters() {
-        PerfCounterQuery<InterruptsProperty> interruptsPerfCounters = new PerfCounterQuery<>(InterruptsProperty.class,
-                PROCESSOR, WIN32_PERF_RAW_DATA_PERF_OS_PROCESSOR_WHERE_NAME_TOTAL, INTERRUPT_COUNT);
-        return interruptsPerfCounters.queryValues();
+        return PerfCounterQuery.queryValues(InterruptsProperty.class, PROCESSOR,
+                WIN32_PERF_RAW_DATA_PERF_OS_PROCESSOR_WHERE_NAME_TOTAL);
     }
 
     /**
@@ -202,11 +191,7 @@ public final class ProcessorInformation {
      * @return Processor frequency counter for each processor.
      */
     public static Pair<List<String>, Map<ProcessorFrequencyProperty, List<Long>>> queryFrequencyCounters() {
-        PerfCounterWildcardQuery<ProcessorFrequencyProperty> processorFrequencyCounters = new PerfCounterWildcardQuery<>(
-                ProcessorFrequencyProperty.class, PROCESSOR_INFORMATION,
-                WIN32_PERF_RAW_DATA_COUNTERS_PROCESSOR_INFORMATION_WHERE_NOT_NAME_LIKE_TOTAL, PROCESSOR_FREQUENCY);
-        Map<ProcessorFrequencyProperty, List<Long>> values = processorFrequencyCounters.queryValuesWildcard();
-        List<String> instances = processorFrequencyCounters.getInstancesFromLastQuery();
-        return new Pair<>(instances, values);
+        return PerfCounterWildcardQuery.queryInstancesAndValues(ProcessorFrequencyProperty.class, PROCESSOR_INFORMATION,
+                WIN32_PERF_RAW_DATA_COUNTERS_PROCESSOR_INFORMATION_WHERE_NOT_NAME_LIKE_TOTAL);
     }
 }
