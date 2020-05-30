@@ -2,6 +2,8 @@
 ================
 * [#1237](https://github.com/oshi/oshi/pull/1237): Update Udev to object oriented style - [@dbwiddis](https://github.com/dbwiddis).
 * [#1240](https://github.com/oshi/oshi/pull/1240): Add a driver for proc/pid/statm - [@dbwiddis](https://github.com/dbwiddis).
+* [#1241](https://github.com/oshi/oshi/pull/1241): Add code-assert - [@dbwiddis](https://github.com/dbwiddis).
+* [#1245](https://github.com/oshi/oshi/pull/1245): Refactor PerfCounterQuery classes and fix memory leak - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here 
 
 4.8.0 / 5.1.0 (5/20/2020)
