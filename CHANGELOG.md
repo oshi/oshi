@@ -1,5 +1,10 @@
 5.2.0 (in progress)
 ================
+* [#1246](https://github.com/oshi/oshi/pull/1246): Configure data source for OperatingSystem#getSessions - [@dbwiddis](https://github.com/dbwiddis).
+* Your contribution here 
+
+4.8.1 / 5.1.1 (5/30/2020)
+================
 * [#1237](https://github.com/oshi/oshi/pull/1237): Update Udev to object oriented style - [@dbwiddis](https://github.com/dbwiddis).
 * [#1240](https://github.com/oshi/oshi/pull/1240): Add a driver for proc/pid/statm - [@dbwiddis](https://github.com/dbwiddis).
 * [#1241](https://github.com/oshi/oshi/pull/1241): Add code-assert - [@dbwiddis](https://github.com/dbwiddis).

@@ -23,8 +23,10 @@ each class. The following classes are not thread-safe:
  However, these methods are intended to be used by a single thread at startup in lieu of reading a configuration file.
  OSHI gives no guarantees on re-reading changed configurations.
  - On non-Windows platforms, the `getSessions()` method on the `OperatingSystem` interface uses native code which is not thread safe. While OSHI's methods employ synchronization to coordinate access from its own threads, users are cautioned that other operating system code may access the same underlying data structures and produce unexpected results, particularly on servers with frequent new logins.
- - The `PerfCounterQueryHandler` class is not thread-safe but is only internally used in single-thread contexts in
-try-with-resources blocks, and is not intended for user use.
+The `oshi.os.unix.whoCommand` property may be set to parse the Posix-standard `who` command in preference to the native implementation,
+which may use reentrant code on some platforms.
+ - The `PerfCounterQueryHandler` class is not thread-safe but is only internally used in single-thread contexts,
+and is not intended for user use.
 
 Earlier versions do not guarantee thread safety, but as of version 4.6.0, intended use is thread safe.
 Classes with setters on them are obviously not thread-safe unless the use of the setters is synchronized across threads.

@@ -40,9 +40,13 @@ import oshi.software.os.OSService;
 import oshi.software.os.OSSession;
 import oshi.software.os.OperatingSystem;
 import oshi.software.os.OperatingSystemVersion;
+import oshi.util.GlobalConfig;
 
 @SuppressWarnings("deprecation")
 public abstract class AbstractOperatingSystem implements OperatingSystem {
+
+    public static final String OSHI_OS_UNIX_WHOCOMMAND = "oshi.os.unix.whoCommand";
+    protected static final boolean USE_WHO_COMMAND = GlobalConfig.get(OSHI_OS_UNIX_WHOCOMMAND, false);
 
     private final Supplier<String> manufacturer = memoize(this::queryManufacturer);
     private final Supplier<FamilyVersionInfo> familyVersionInfo = memoize(this::queryFamilyVersionInfo);
