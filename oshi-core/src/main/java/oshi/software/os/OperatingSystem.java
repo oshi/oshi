@@ -95,11 +95,15 @@ public interface OperatingSystem {
     /**
      * Gets currently logged in users.
      * <p>
-     * On macOS, Linux, and Unix systems, employs native code (see
-     * {@code man getutxent}) that is not thread safe. OSHI's use of this code is
-     * synchronized and may be used in a multi-threaded environment. Users should
-     * note, however, that other operating system code may access the same native
-     * code.
+     * On macOS, Linux, and Unix systems, the default implementation uses native
+     * code (see {@code man getutxent}) that is not thread safe. OSHI's use of this
+     * code is synchronized and may be used in a multi-threaded environment without
+     * introducing any additional conflicts. Users should note, however, that other
+     * operating system code may access the same native code.
+     * <p>
+     * The {@link oshi.driver.unix.Who#queryWho()} method produces similar output
+     * parsing the output of the Posix-standard {@code who} command, and may
+     * internally employ reentrant code on some platforms.
      *
      * @return An {@code UnmodifiableList} of {@link oshi.software.os.OSSession}
      *         objects representing logged-in users

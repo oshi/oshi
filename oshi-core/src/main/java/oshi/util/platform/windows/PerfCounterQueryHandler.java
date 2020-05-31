@@ -38,7 +38,8 @@ import oshi.util.platform.windows.PerfDataUtil.PerfCounter;
 /**
  * Utility to handle Performance Counter Queries
  * <p>
- * Not thread safe. Each query handler should only be used in a single thread.
+ * This class is not thread safe. Each query handler instance should only be
+ * used in a single thread, preferably in a try-with-resources block.
  */
 @NotThreadSafe
 public final class PerfCounterQueryHandler implements AutoCloseable {

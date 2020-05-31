@@ -23,6 +23,8 @@ each class. The following classes are not thread-safe:
  However, these methods are intended to be used by a single thread at startup in lieu of reading a configuration file.
  OSHI gives no guarantees on re-reading changed configurations.
  - On non-Windows platforms, the `getSessions()` method on the `OperatingSystem` interface uses native code which is not thread safe. While OSHI's methods employ synchronization to coordinate access from its own threads, users are cautioned that other operating system code may access the same underlying data structures and produce unexpected results, particularly on servers with frequent new logins.
+ - The `PerfCounterQueryHandler` class is not thread-safe but is only internally used in single-thread contexts in
+try-with-resources blocks, and is not intended for user use.
 
 Earlier versions do not guarantee thread safety, but as of version 4.6.0, intended use is thread safe.
 Classes with setters on them are obviously not thread-safe unless the use of the setters is synchronized across threads.
@@ -65,20 +67,19 @@ with nearly all SIGAR functions. Key differences include:
  - **Additional DLL** SIGAR's implementation is primarily in native C, compiled separately for its supported
 operating systems. It therefore requires users to download an additional DLL specific to their operating
 system. This does have some advantages including faster native code routines, and availability of some
-native compiler intrinsics. In contrast, OSHI accesses native APIs using JNA, which does not require
-any additional platform-specific DLLs.
+native compiler intrinsics. In contrast, OSHI accesses native APIs using JNA, which does not require installation
+of any additional platform-specific DLLs.
  - **Platform Coverage** SIGAR (presently) supports a larger number of platforms, although some users have
 reported incompatibilities with recent architectures and Java versions. OSHI supports 99.5% of OS user share
 with support for Windows, Linux, macOS, FreeBSD, and Solaris, and would support additional Operating Systems
 if access to appropriate machines for development and testing were available.
  - **Language Coverage** SIGAR has bindings for Java, .NET, and Perl. OSHI is specific for Java.
- - **Corporate Development** SIGAR was developed professionally at Hyperic, later acquired by VMWare.
- OSHI's development has been entirely done by open source volunteers.
- - **Actively Maintained Project** [SIGAR is unmaintained](https://github.com/hyperic/sigar/issues/95),
-and apparently abandoned, with multiple independent forks by users fixing specific bugs/incompatibilities. 
-The the [last release](https://github.com/hyperic/sigar/releases/tag/sigar-1.6.4) was in 2010 and the
-[last source commit](https://github.com/hyperic/sigar/commit/7a6aefc7fb315fc92445edcb902a787a6f0ddbd9)
-was in 2015. OSHI is under active development as of 2020.
+ - **Corporate Development / Abandonment** SIGAR was developed commercially at Hyperic, later acquired by VMWare,
+who has abandoned the project. The [last release](https://github.com/hyperic/sigar/releases/tag/sigar-1.6.4)
+was in 2010 and the [last source commit](https://github.com/hyperic/sigar/commit/7a6aefc7fb315fc92445edcb902a787a6f0ddbd9)
+was in 2015. [Multiple independent forks](https://github.com/hyperic/sigar/issues/95) by existing users attempt
+to fix specific bugs/incompatibilities.  In contrast, OSHI's development has been entirely done by open source
+volunteers, and it is under active development as of 2020.
 
 Does OSHI work on Raspberry Pi hardware?
 ========

@@ -1,3 +1,56 @@
+# Guide to upgrading from OSHI 4.x to 5.x
+
+The newest OSHI 5.x releases are functionally equivalent to 4.x releases starting with 4.7,
+with three categories of changes supporting full thread safety:
+* Remove setters from API.
+* Change getters which return arrays of objects to return unmodifiable lists.
+* Remove deprecated code.
+
+New applications or applications requiring thread safety should use the 5.x branch.
+
+Existing applications may continue to use the 4.x branch, as feature parity will be maintained for the near future. 
+
+## API Changes
+
+### Setter removal
+
+The `NetworkIF`, `HWDiskStore`, `OSFileStore`, and `OSProcess` classes are now interfaces, with setters removed.
+
+The `HWPartition` class is now immutable, with setters removed.
+
+### UnmodifiableList return types
+
+The `HardwareAbstractionLayer` methods `getNetworkIFs()`, `getDisks()`, `getPowerSources()`,
+`getDisplays()`, `getSoundCards()`, `getGraphicsCards()`, `getUsbDevices()`,
+the `HWDiskstore` method `getPartitions()`, the `FileSystem` method `getFileStores()`,
+the `GlobalMemory` method `getPhysicalMemory()`, the `OperatingSystem` methods for `getProcesses()`,
+the `CentralProcessor` method `getLogicalProcessors()`, and the `UsbDevice` method `getConnectedDevices()`
+now return an `UnmodifiableList` instead of an array.
+
+### Method changes
+
+The `OperatingSystem` methods fetching `OSProcess` information using a `slowFields` boolean have been removed,
+as the behavior they enabled is now done by default. Windows users should note the addition of a configurable
+parameter optionally allowing WMI caching for improved performance of `OsProcess#getCommandLine`.
+
+The `OperatingSystem` method `getProcessAffinityMask()` is now on the `OSProcess` object as `getAffinityMask()`.
+
+The `OSFileStore` method `updateAtrributes()` is now spelled correctly as `updateAttributes()`.
+
+### Deprecated method removal
+
+The deprecated `OperatingSystemVersion` interface and its getter `OperatingSystem`.`getVersion` were removed.
+Its `getVersion()`, `getCodeName()`, and `getBuildNumber()` methods are available on the object returned
+from the method `getVersionInfo()`.
+
+The deprecated `CentralProcessor` methods `getVendor()`, `getName()`, `getFamily()`, `getModel()`,
+`getStepping()`, `getProcessor()`, `getIdentifier()`, `getVendorFreq()`, and `isCpu64bit` were removed.
+The equivalent methods are available on the object returned from `getProcessorIdentifier()`.
+
+The deprecated `PowerSource` methods `getRemainingCapacity()` and `getTimeRemaining()` were removed,
+replaced by `getRemainingCapacityPercent()` and `getTimeRemainingEstimated()`.
+
+The deprecated `OSProcess` method `calculateCpuPercent()` was removed, replaced by `getProcessCpuLoadCumulative()`.
 
 # Guide to upgrading from OSHI 3.x to 4.x
 
