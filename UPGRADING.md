@@ -21,7 +21,7 @@ The `HWPartition` class is now immutable, with setters removed.
 ### UnmodifiableList return types
 
 The `HardwareAbstractionLayer` methods `getNetworkIFs()`, `getDisks()`, `getPowerSources()`,
-`getDisplays()`, `getSoundCards()`, `getGraphicsCards()`, `getUsbDevices()`, the 
+`getDisplays()`, `getSoundCards()`, `getGraphicsCards()`, `getUsbDevices()`,
 the `HWDiskstore` method `getPartitions()`, the `FileSystem` method `getFileStores()`,
 the `GlobalMemory` method `getPhysicalMemory()`, the `OperatingSystem` methods for `getProcesses()`,
 the `CentralProcessor` method `getLogicalProcessors()`, and the `UsbDevice` method `getConnectedDevices()`
