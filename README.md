@@ -33,7 +33,7 @@ Windows • Linux • Mac OS X • Unix (Solaris, FreeBSD)
 
 Essentials
 ----------
-* [API](http://oshi.github.io/oshi/apidocs/) (javadocs) - [Hardware](http://oshi.github.io/oshi/apidocs/oshi/hardware/package-summary.html) / [Software](http://oshi.github.io/oshi/apidocs/oshi/software/os/package-summary.html)
+* [API](http://oshi.github.io/oshi/apidocs/) (javadocs) - [Operating System](http://oshi.github.io/oshi/apidocs/oshi/software/os/package-summary.html) / [Hardware](http://oshi.github.io/oshi/apidocs/oshi/hardware/package-summary.html)
 * [FAQ](https://github.com/oshi/oshi/blob/master/FAQ.md)
 * [Find OSHI on Maven Central](https://search.maven.org/search?q=com.github.oshi)
 * [Upgrading from an earlier version?](https://github.com/oshi/oshi/blob/master/UPGRADING.md) 
@@ -59,11 +59,11 @@ Downloads
 ---------
 | Stable Release Version | Current Development Version | Dependencies |
 | ------------- | ------------- | ------------- |
-| [oshi-core-5.1.0](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.github.oshi&a=oshi-core&v=5.1.0&e=jar)  | [oshi-core-5.2.0-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=com.github.oshi&a=oshi-core&v=5.2.0-SNAPSHOT&e=jar) | [JNA](https://github.com/java-native-access/jna) • [SLF4J](http://www.slf4j.org/) |
+| [oshi-core-5.1.1](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.github.oshi&a=oshi-core&v=5.1.1&e=jar)  | [oshi-core-5.2.0-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=com.github.oshi&a=oshi-core&v=5.2.0-SNAPSHOT&e=jar) | [JNA](https://github.com/java-native-access/jna) • [SLF4J](http://www.slf4j.org/) |
 
 Usage
 -----
-Include OSHI and its dependencies on your classpath.  We strongly recommend you add OSHI as a dependency to your project dependency manager such as Maven or Gradle. You can [find the appropriate syntax to include OSHI here](https://search.maven.org/artifact/com.github.oshi/oshi-core/5.1.0/jar). 
+Include OSHI and its dependencies on your classpath.  We strongly recommend you add OSHI as a dependency to your project dependency manager such as Maven or Gradle. You can [find the appropriate syntax to include OSHI here](https://search.maven.org/artifact/com.github.oshi/oshi-core/5.1.1/jar). 
 
 Create a new instance of `SystemInfo` and use the getters to access additional information, such as:
 ```
@@ -206,9 +206,9 @@ as a platform-independent library that did not require additional software and h
 both open source and commercial products. We have developed a strong core of features on major Operating Systems, 
 but we would love for *you* to help by:
 * Testing!  Our CI testing is limited.  Download and test the program on various operating systems/versions and hardware and help identify gaps that our limited development and testing may have missed.
-* Contributing ports.  Have an OS that's not covered? It's likely one of the existing ports can be slightly modified. 
 * Offering access to an unsupported OS.  An AIX port will be written if access for development/testing can be provided!
 * Contributing code.  See something that's not working right or could work better?  Help us fix it!  New contributors welcome.
+* Contributing ports.  Have an OS that's not covered? It's likely one of the existing ports can be slightly modified. 
 * Documenting implementation.  Our Wiki is sparse.  Want to help new users follow in your footsteps?
 * Suggesting new features.  Do you need OSHI to do something it doesn't currently do?  Let us know.
 
