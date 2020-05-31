@@ -1,5 +1,6 @@
 5.2.0 (in progress)
 ================
+* [#1246](https://github.com/oshi/oshi/pull/1246): Configure data source for OperatingSystem#getSessions - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here 
 
 4.8.1 / 5.1.1 (5/30/2020)
