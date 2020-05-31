@@ -162,7 +162,7 @@ public final class FormatUtil {
      */
     public static String formatValue(long value, String unit) {
         if (value < KILO) {
-            return String.format("%d %s", value, unit);
+            return String.format("%d %s", value, unit).trim();
         } else if (value < MEGA) { // K
             return formatUnits(value, KILO, "K" + unit);
         } else if (value < GIGA) { // M

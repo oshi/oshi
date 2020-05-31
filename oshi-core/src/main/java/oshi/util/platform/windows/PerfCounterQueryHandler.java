@@ -23,174 +23,109 @@
  */
 package oshi.util.platform.windows;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.platform.win32.WinNT.HANDLEByReference; // NOSONAR
 
-import oshi.annotation.concurrent.ThreadSafe;
+import oshi.annotation.concurrent.NotThreadSafe;
 import oshi.util.FormatUtil;
 import oshi.util.platform.windows.PerfDataUtil.PerfCounter;
 
 /**
  * Utility to handle Performance Counter Queries
+ * <p>
+ * Not thread safe. Each query handler should only be used in a single thread.
  */
-@ThreadSafe
+@NotThreadSafe
 public final class PerfCounterQueryHandler implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(PerfCounterQueryHandler.class);
 
-    private Map<PerfCounter, HANDLEByReference> counterHandleMap = new ConcurrentHashMap<>();
-    private Map<String, HANDLEByReference> queryHandleMap = new ConcurrentHashMap<>();
-    private Map<String, List<PerfCounter>> queryCounterMap = new ConcurrentHashMap<>();
+    // Map of counter handles
+    private Map<PerfCounter, HANDLEByReference> counterHandleMap = new HashMap<>();
+    // The query handle
+    private HANDLEByReference queryHandle = null;
 
     /**
-     * Begin monitoring a Performance Data counter, attached to a query whose key is
-     * the counter's object.
+     * Begin monitoring a Performance Data counter.
      *
      * @param counter
      *            A PerfCounter object.
-     * @return True if the counter was successfully added.
+     * @return True if the counter was successfully added to the query.
      */
     public boolean addCounterToQuery(PerfCounter counter) {
-        return addCounterToQuery(counter, counter.getObject());
-    }
-
-    /**
-     * Begin monitoring a Performance Data counter, attached to a query whose key is
-     * the specified string.
-     *
-     * @param counter
-     *            A PerfCounter object.
-     * @param key
-     *            A string used as the key for the query. All counters with this key
-     *            will be updated when any single counter is updated.
-     * @return True if the counter was successfully added.
-     */
-    public boolean addCounterToQuery(PerfCounter counter, String key) {
         // Open a new query or get the handle to an existing one
-        HANDLEByReference q = getOrOpenQuery(key);
-        if (q == null) {
-            LOG.error("Failed to open a query for PDH object: {}", counter.getObject());
-            return false;
+        if (this.queryHandle == null) {
+            this.queryHandle = new HANDLEByReference();
+            if (!PerfDataUtil.openQuery(this.queryHandle)) {
+                LOG.error("Failed to open a query for PDH object: {}", counter.getObject());
+                this.queryHandle = null;
+                return false;
+            }
         }
         // Get a new handle for the counter
         HANDLEByReference p = new HANDLEByReference();
-        if (PerfDataUtil.addCounter(q, counter.getCounterPath(), p)) {
-            counterHandleMap.put(counter, p);
-            List<PerfCounter> counterList = queryCounterMap.get(key);
-            if (counterList != null) {
-                counterList.add(counter);
-            }
-            return true;
+        if (!PerfDataUtil.addCounter(this.queryHandle, counter.getCounterPath(), p)) {
+            LOG.error("Failed to add counter for PDH object: {}", counter.getObject());
+            return false;
         }
-        return false;
+        counterHandleMap.put(counter, p);
+        return true;
     }
 
     /**
-     * Stop monitoring a Performance Data counter, attached to a query whose key is
-     * the counter's object.
+     * Stop monitoring a Performance Data counter.
      *
      * @param counter
      *            A PerfCounter object
      * @return True if the counter was successfully removed.
      */
     public boolean removeCounterFromQuery(PerfCounter counter) {
-        return removeCounterFromQuery(counter, counter.getObject());
-    }
-
-    /**
-     * Stop monitoring a Performance Data counter, attached to a query whose key is
-     * the specified string..
-     *
-     * @param counter
-     *            A PerfCounter object
-     * @param key
-     *            A string used as the key for the query. All counters with this key
-     *            will be updated when any single counter is updated.
-     * @return True if the counter was successfully removed.
-     */
-    public boolean removeCounterFromQuery(PerfCounter counter, String key) {
+        boolean success = false;
         HANDLEByReference href = counterHandleMap.remove(counter);
         // null if handle wasn't present
-        boolean success = false;
         if (href != null) {
             success = PerfDataUtil.removeCounter(href);
         }
-        List<PerfCounter> counterList = queryCounterMap.get(key);
-        // null if list wasn't present
-        if (counterList != null && counterList.remove(counter) && counterList.isEmpty()) {
-            queryCounterMap.remove(key);
-            PerfDataUtil.closeQuery(queryHandleMap.remove(key));
+        if (counterHandleMap.isEmpty()) {
+            PerfDataUtil.closeQuery(queryHandle);
+            queryHandle = null;
         }
         return success;
-    }
-
-    /**
-     * Stop monitoring Performance Data counters for a particular queryKey and
-     * release their resources
-     *
-     * @param queryKey
-     *            The counter object to remove counters from
-     */
-    public void removeAllCountersFromQuery(String queryKey) {
-        // Remove counter list from queryCounter Map
-        List<PerfCounter> counterList = queryCounterMap.remove(queryKey);
-        if (counterList == null) {
-            return;
-        }
-        // Remove all counters from counterHandle map
-        for (PerfCounter counter : counterList) {
-            HANDLEByReference href = counterHandleMap.remove(counter);
-            // null if handle wasn't present
-            if (href != null) {
-                PerfDataUtil.removeCounter(href);
-            }
-        }
-        // Remove query from query map
-        HANDLEByReference href = queryHandleMap.remove(queryKey);
-        if (href != null) {
-            PerfDataUtil.closeQuery(href);
-        }
     }
 
     /**
      * Stop monitoring all Performance Data counters and release their resources
      */
     public void removeAllCounters() {
-        // Remove all counter handles
+        // Remove all counters from counterHandle map
         for (HANDLEByReference href : counterHandleMap.values()) {
             PerfDataUtil.removeCounter(href);
         }
         counterHandleMap.clear();
-        // Remove all queries
-        for (HANDLEByReference query : queryHandleMap.values()) {
-            PerfDataUtil.closeQuery(query);
+        // Remove query
+        if (this.queryHandle != null) {
+            PerfDataUtil.closeQuery(this.queryHandle);
         }
-        queryHandleMap.clear();
-        queryCounterMap.clear();
+        this.queryHandle = null;
     }
 
     /**
-     * Update all counters on a query.
+     * Update all counters on this query.
      *
-     * @param key
-     *            The key of the query to update.
      * @return The timestamp for the update of all the counters, in milliseconds
      *         since the epoch, or 0 if the update failed
      */
-    public long updateQuery(String key) {
-        if (!queryHandleMap.containsKey(key)) {
-            LOG.error("Query key {} does not exist to update.", key);
+    public long updateQuery() {
+        if (queryHandle == null) {
+            LOG.error("Query does not exist to update.");
             return 0L;
         }
-        return PerfDataUtil.updateQueryTimestamp(queryHandleMap.get(key));
+        return PerfDataUtil.updateQueryTimestamp(queryHandle);
     }
 
     /**
@@ -217,30 +152,6 @@ public final class PerfCounterQueryHandler implements AutoCloseable {
             return 0L;
         }
         return value;
-    }
-
-    /**
-     * Open a query for the given string, or confirm a query is already open for
-     * that string. Multiple counters may be added to this string, but will all be
-     * queried at the same time.
-     *
-     * @param key
-     *            String to associate with the counter. Most code defaults to the
-     *            English PDH object name so custom keys should avoid these strings.
-     * @return A handle to the query, or null if an error occurred.
-     */
-    private HANDLEByReference getOrOpenQuery(String key) {
-        if (queryHandleMap.containsKey(key)) {
-            return queryHandleMap.get(key);
-        }
-        HANDLEByReference q = new HANDLEByReference();
-        if (PerfDataUtil.openQuery(q)) {
-            queryHandleMap.put(key, q);
-            List<PerfCounter> counterList = Collections.synchronizedList(new ArrayList<>());
-            queryCounterMap.put(key, counterList);
-            return q;
-        }
-        return null;
     }
 
     @Override
