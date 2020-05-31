@@ -119,7 +119,7 @@ public final class PerfCounterQuery {
                 }
             }
             // And then query. Zero timestamp means update failed
-            if (0 < pdhQueryHandler.updateQuery(perfObjectLocalized)) {
+            if (0 < pdhQueryHandler.updateQuery()) {
                 for (T prop : props) {
                     valueMap.put(prop, pdhQueryHandler.queryCounter(counterMap.get(prop)));
                 }

@@ -138,7 +138,7 @@ public final class PerfCounterWildcardQuery {
                 counterListMap.put(prop, counterList);
             }
             // And then query. Zero timestamp means update failed
-            if (0 < pdhQueryHandler.updateQuery(perfObjectLocalized)) {
+            if (0 < pdhQueryHandler.updateQuery()) {
                 // Start at 1, first counter defines instance filter
                 for (int i = 1; i < props.length; i++) {
                     T prop = props[i];

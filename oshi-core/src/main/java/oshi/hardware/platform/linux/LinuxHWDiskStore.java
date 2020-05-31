@@ -160,7 +160,7 @@ public final class LinuxHWDiskStore extends AbstractHWDiskStore {
         try {
             UdevEnumerate enumerate = udev.enumerateNew();
             try {
-                enumerate.addMatchSubsystem("block");
+                enumerate.addMatchSubsystem(BLOCK);
                 enumerate.scanDevices();
                 for (UdevListEntry entry = enumerate.getListEntry(); entry != null; entry = entry.getNext()) {
                     String syspath = entry.getName();
@@ -201,22 +201,20 @@ public final class LinuxHWDiskStore extends AbstractHWDiskStore {
                                     // udev_device_get_parent_*() does not take a reference on the returned device,
                                     // it is automatically unref'd with the parent
                                     UdevDevice parent = device.getParentWithSubsystemDevtype(BLOCK, DISK);
-                                    if (parent != null) {
+                                    if (parent != null && store.getName().equals(parent.getDevnode())) {
                                         // `store` should still point to the parent HWDiskStore this partition is
                                         // attached to. If not, it's an error, so skip.
-                                        if (store.getName().equals(parent.getDevnode())) {
-                                            String name = device.getDevnode();
-                                            store.partitionList.add(new HWPartition(name, device.getSysname(),
-                                                    device.getPropertyValue(ID_FS_TYPE) == null ? PARTITION
-                                                            : device.getPropertyValue(ID_FS_TYPE),
-                                                    device.getPropertyValue(ID_FS_UUID) == null ? ""
-                                                            : device.getPropertyValue(ID_FS_UUID),
-                                                    ParseUtil.parseLongOrDefault(device.getSysattrValue(SIZE), 0L)
-                                                            * SECTORSIZE,
-                                                    ParseUtil.parseIntOrDefault(device.getPropertyValue(MAJOR), 0),
-                                                    ParseUtil.parseIntOrDefault(device.getPropertyValue(MINOR), 0),
-                                                    mountsMap.getOrDefault(name, "")));
-                                        }
+                                        String name = device.getDevnode();
+                                        store.partitionList.add(new HWPartition(name, device.getSysname(),
+                                                device.getPropertyValue(ID_FS_TYPE) == null ? PARTITION
+                                                        : device.getPropertyValue(ID_FS_TYPE),
+                                                device.getPropertyValue(ID_FS_UUID) == null ? ""
+                                                        : device.getPropertyValue(ID_FS_UUID),
+                                                ParseUtil.parseLongOrDefault(device.getSysattrValue(SIZE), 0L)
+                                                        * SECTORSIZE,
+                                                ParseUtil.parseIntOrDefault(device.getPropertyValue(MAJOR), 0),
+                                                ParseUtil.parseIntOrDefault(device.getPropertyValue(MINOR), 0),
+                                                mountsMap.getOrDefault(name, "")));
                                     }
                                 }
                             }

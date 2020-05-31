@@ -140,7 +140,7 @@ public class WindowsFileSystem extends AbstractFileSystem {
                 // using WMI's more verbose name and update label if needed
                 OSFileStore volume = volumeMap.get(wmiVolume.getMount());
                 result.remove(volume);
-                result.add(new WindowsOSFileStore(volume.getName(), volume.getVolume(),
+                result.add(new WindowsOSFileStore(wmiVolume.getName(), volume.getVolume(),
                         volume.getLabel().isEmpty() ? wmiVolume.getLabel() : volume.getLabel(), volume.getMount(),
                         volume.getOptions(), volume.getUUID(), "", volume.getDescription(), volume.getType(),
                         volume.getFreeSpace(), volume.getUsableSpace(), volume.getTotalSpace(), 0, 0));
