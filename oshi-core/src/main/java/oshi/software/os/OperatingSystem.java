@@ -95,7 +95,9 @@ public interface OperatingSystem {
      * <p>
      * The {@link oshi.driver.unix.Who#queryWho()} method produces similar output
      * parsing the output of the Posix-standard {@code who} command, and may
-     * internally employ reentrant code on some platforms.
+     * internally employ reentrant code on some platforms. Users may opt to use this
+     * command-line variant by default using the {@code oshi.os.unix.whoCommand}
+     * configuration property.
      *
      * @return An {@code UnmodifiableList} of {@link oshi.software.os.OSSession}
      *         objects representing logged-in users
