@@ -47,6 +47,7 @@
 
 	<properties>
 		<main.basedir>${project.parent.basedir}</main.basedir>
+		<automatic.module.name>com.github.oshi.shaded</automatic.module.name>
 	</properties>
 
 	<dependencies>

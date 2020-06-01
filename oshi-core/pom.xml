@@ -50,6 +50,7 @@
 			in their POM -->
 		<jna.version>5.5.0</jna.version>
 		<main.basedir>${project.parent.basedir}</main.basedir>
+		<automatic.module.name>com.github.oshi</automatic.module.name>
 	</properties>
 
 	<dependencyManagement>
@@ -101,23 +102,4 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
-
-	<build>
-		<pluginManagement>
-			<plugins>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-jar-plugin</artifactId>
-					<configuration>
-						<archive>
-							<!-- appends to parent -->
-							<manifestEntries>
-								<Automatic-Module-Name>com.github.oshi</Automatic-Module-Name>
-							</manifestEntries>
-						</archive>
-					</configuration>
-				</plugin>
-			</plugins>
-		</pluginManagement>
-	</build>		
 </project>
