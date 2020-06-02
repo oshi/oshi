@@ -89,9 +89,9 @@ jobs:
       os: linux
       jdk: openjdk15
       dist: bionic
-# https://github.com/bndtools/bnd/issues/3903
-  allow_failures:
-    - name: "Linux JDK15 EA"
-      os: linux
-      jdk: openjdk15
-      dist: bionic
+# Uncomment if external issue
+#  allow_failures:
+#    - name: "Linux JDK15 EA"
+#      os: linux
+#      jdk: openjdk15
+#      dist: bionic
