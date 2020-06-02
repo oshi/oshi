@@ -56,18 +56,24 @@ public final class Who {
         MacUtmpx ut;
         // Rewind
         SYS.setutxent();
-        // Iterate
-        while ((ut = SYS.getutxent()) != null) {
-            if (ut.ut_type == USER_PROCESS || ut.ut_type == LOGIN_PROCESS) {
-                String user = new String(ut.ut_user, StandardCharsets.US_ASCII).trim();
-                String device = new String(ut.ut_line, StandardCharsets.US_ASCII).trim();
-                String host = new String(ut.ut_host, StandardCharsets.US_ASCII).trim();
-                long loginTime = ut.ut_tv.tv_sec.longValue() * 1000L + ut.ut_tv.tv_usec / 1000L;
-                whoList.add(new OSSession(user, device, loginTime, host));
+        try { // Iterate
+            while ((ut = SYS.getutxent()) != null) {
+                if (ut.ut_type == USER_PROCESS || ut.ut_type == LOGIN_PROCESS) {
+                    String user = new String(ut.ut_user, StandardCharsets.US_ASCII).trim();
+                    String device = new String(ut.ut_line, StandardCharsets.US_ASCII).trim();
+                    String host = new String(ut.ut_host, StandardCharsets.US_ASCII).trim();
+                    long loginTime = ut.ut_tv.tv_sec.longValue() * 1000L + ut.ut_tv.tv_usec / 1000L;
+                    // Sanity check. If errors, default to who command line
+                    if (user.isEmpty() || device.isEmpty() || loginTime < 0 || loginTime > System.currentTimeMillis()) {
+                        return oshi.driver.unix.Who.queryWho();
+                    }
+                    whoList.add(new OSSession(user, device, loginTime, host));
+                }
             }
+        } finally {
+            // Close
+            SYS.endutxent();
         }
-        // Close
-        SYS.endutxent();
         return whoList;
     }
 }
