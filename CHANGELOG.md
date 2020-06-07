@@ -1,6 +1,8 @@
 5.2.0 (in progress)
 ================
 * [#1246](https://github.com/oshi/oshi/pull/1246): Configure data source for OperatingSystem#getSessions - [@dbwiddis](https://github.com/dbwiddis).
+* [#1252](https://github.com/oshi/oshi/pull/1246): Fallback to command line if getSessions sanity check fails - [@dbwiddis](https://github.com/dbwiddis).
+* [#1256](https://github.com/oshi/oshi/pull/1256): Fix calculation of Linux process start time - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here 
 
 4.8.1 / 5.1.1 (5/30/2020)
