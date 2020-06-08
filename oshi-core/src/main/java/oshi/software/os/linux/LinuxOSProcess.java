@@ -34,6 +34,8 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
@@ -42,8 +44,10 @@ import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.linux.proc.ProcessStat;
+import oshi.driver.linux.proc.LinuxOSThread;
 import oshi.driver.linux.proc.UserGroupInfo;
 import oshi.software.common.AbstractOSProcess;
+import oshi.software.os.OSThread;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
@@ -90,6 +94,7 @@ public class LinuxOSProcess extends AbstractOSProcess {
     private long upTime;
     private long bytesRead;
     private long bytesWritten;
+    private List<OSThread> threadDetails;
 
     public LinuxOSProcess(int pid) {
         super(pid);
@@ -206,6 +211,10 @@ public class LinuxOSProcess extends AbstractOSProcess {
         return this.bytesWritten;
     }
 
+    @Override
+    public List<OSThread> getThreadDetails() {
+        return this.threadDetails;
+    }
     @Override
     public long getOpenFiles() {
         // subtract 1 from size for header
@@ -328,6 +337,11 @@ public class LinuxOSProcess extends AbstractOSProcess {
         default:
             this.state = State.OTHER;
             break;
+        }
+        List<Integer> threadIDs = ProcessStat.getThreadIds(getProcessID());
+        this.threadDetails = new ArrayList<OSThread>();
+        for (Integer threadID : threadIDs) {
+            this.threadDetails.add(new LinuxOSThread(getProcessID(), threadID));
         }
         return true;
     }

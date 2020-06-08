@@ -23,6 +23,8 @@
  */
 package oshi.software.os;
 
+import java.util.List;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.windows.wmi.Win32ProcessCached;
 
@@ -361,6 +363,8 @@ public interface OSProcess {
      *         changed to {@link State#INVALID}.
      */
     boolean updateAttributes();
+
+    List<OSThread> getThreadDetails();
 
     /**
      * Process Execution States

@@ -24,7 +24,9 @@
 package oshi.driver.linux.proc;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -452,5 +454,23 @@ public final class ProcessStat {
         File procdir = new File(ProcPath.PROC);
         File[] pids = procdir.listFiles(f -> DIGITS.matcher(f.getName()).matches());
         return pids != null ? pids : new File[0];
+    }
+
+    /**
+     * Gets an List of thread ids for a process from the {@code /proc/[pid]/task/} directory with only numeric digit
+     * filenames, corresponding to the threads.
+     * @param pid process id
+     * @return A list of thread id.
+     */
+    public static List<Integer> getThreadIds(int pid) {
+        File threadDir = new File(String.format(ProcPath.THREADS_PATH, pid));
+        File[] threads = threadDir.listFiles(file -> DIGITS.matcher(file.getName()).matches()
+                && Integer.valueOf(file.getName()) != pid);
+        List<Integer> threadIDs = new ArrayList<Integer>();
+        for (File thread: threads) {
+            int tid = ParseUtil.parseIntOrDefault(thread.getName(), 0);
+            threadIDs.add(tid);
+        }
+        return threadIDs;
     }
 }
