@@ -23,7 +23,37 @@
  */
 package oshi.software.common;
 
+import oshi.software.os.OSProcess;
 import oshi.software.os.OSThread;
 
+import java.util.Collections;
+import java.util.List;
+
 public abstract class AbstractOSThread implements OSThread {
+
+    private OSProcess parentProcess;
+
+    public AbstractOSThread(OSProcess process) {
+        this.parentProcess = process;
+    }
+
+    @Override
+    public OSProcess getParentProcess() {
+        return this.parentProcess;
+    }
+
+    @Override
+    public int getProcessID() {
+        return getParentProcess().getProcessID();
+    }
+
+    @Override
+    public int getParentProcessID() {
+        return getParentProcess().getParentProcessID();
+    }
+
+    @Override
+    public List<OSThread> getThreadDetails() {
+        return Collections.emptyList();
+    }
 }

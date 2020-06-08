@@ -64,9 +64,8 @@ public final class ProcPath {
     public static final String VMSTAT = PROC + "/vmstat";
     public static final String THREADS_PATH = PROC + "/%d/task";
     public static final String THREAD_STATUS = THREADS_PATH + "/%d/status";
-    public static final String THREAD_EXE_PATH = THREADS_PATH + "/%d/exe";
-    public static final String THREAD_CMDLINE = THREADS_PATH + "/%d/cmdline";
-    public static final String THREAD_CWD = THREADS_PATH + "/%d/cwd";
+    public static final String THREAD_STAT = THREADS_PATH + "/%d/stat";
+    public static final String THREAD_IO = THREADS_PATH + "/%d/io";
 
     private ProcPath() {
     }

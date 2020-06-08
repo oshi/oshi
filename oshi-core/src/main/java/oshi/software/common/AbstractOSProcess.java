@@ -26,6 +26,7 @@ package oshi.software.common;
 import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -76,7 +77,7 @@ public abstract class AbstractOSProcess implements OSProcess {
 
     @Override
     public List<OSThread> getThreadDetails() {
-        return null;
+        return Collections.emptyList();
     }
     @Override
     public String toString() {

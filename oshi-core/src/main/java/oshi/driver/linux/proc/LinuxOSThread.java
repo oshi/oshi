@@ -23,118 +23,234 @@
  */
 package oshi.driver.linux.proc;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.InvalidPathException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Map;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import oshi.software.common.AbstractOSThread;
+import oshi.software.os.OSProcess;
+import oshi.software.os.OSThread;
+import oshi.software.os.linux.LinuxOSProcess;
+import oshi.software.os.linux.LinuxOperatingSystem;
+import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.linux.ProcPath;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
 public class LinuxOSThread extends AbstractOSThread {
 
     private static final Logger LOG = LoggerFactory.getLogger(LinuxOSThread.class);
+    private static final int PAGE_SIZE = ParseUtil
+            .parseIntOrDefault(ExecutingCommand.getFirstAnswer("getconf PAGESIZE"), 4096);
 
-    private int processID;
-    private int threadID;
-    private String name;
-    private String exePath;
-    private String commandLine;
-    private String userID;
-    private String user;
-    private String groupID;
-    private String group;
+    private static final int[] THREAD_PID_STAT_ORDERS = new int[LinuxOSThread.ThreadPidStat.values().length];
+    static {
+        for (LinuxOSThread.ThreadPidStat stat : LinuxOSThread.ThreadPidStat.values()) {
+            // The PROC_PID_STAT enum indices are 1-indexed.
+            // Subtract one to get a zero-based index
+            THREAD_PID_STAT_ORDERS[stat.ordinal()] = stat.getOrder() - 1;
+        }
+    }
 
+    private int threadId;
+    private State state = State.INVALID;
+    private int priority;
+    private long virtualSize;
+    private long residentSetSize;
+    private long kernelTime;
+    private long userTime;
+    private long startTime;
+    private long upTime;
+    private long bytesRead;
+    private long bytesWritten;
 
-    public LinuxOSThread(int pID, int tID) {
-        this.processID = pID;
-        this.threadID = tID;
+    public LinuxOSThread(LinuxOSProcess process, int tid) {
+        super(process);
+        this.threadId = tid;
         updateAttributes();
     }
 
+
     @Override
     public String getName() {
-        return this.name;
+        return getParentProcess().getName();
     }
 
     @Override
-    public String getExePath() {
-        return this.exePath;
+    public String getPath() {
+        return getParentProcess().getPath();
     }
 
     @Override
     public String getCommandLine() {
-        return this.commandLine;
+        return getParentProcess().getCommandLine();
     }
 
     @Override
     public String getCurrentWorkingDirectory() {
-        try {
-            String cwdLink = String.format(ProcPath.THREAD_CWD, this.processID, this.threadID);
-            String cwd = new File(cwdLink).getCanonicalPath();
-            if (!cwd.equals(cwdLink)) {
-                return cwd;
-            }
-        } catch (IOException e) {
-            LOG.trace("Couldn't find cwd for thread id {}: {}", this.threadID, e.getMessage());
-        }
-        return "";
+        return getParentProcess().getCurrentWorkingDirectory();
     }
 
     @Override
     public String getUser() {
-        return this.user;
+        return getParentProcess().getUser();
     }
 
     @Override
     public String getUserID() {
-        return this.userID;
+        return getParentProcess().getUserID();
     }
 
     @Override
     public String getGroup() {
-        return this.group;
+        return getParentProcess().getGroup();
     }
 
     @Override
     public String getGroupID() {
-        return this.groupID;
+        return getParentProcess().getGroupID();
     }
 
-    private boolean updateAttributes() {
-        Map<String, String> status = FileUtil.getKeyValueMapFromFile(String.format(ProcPath.THREAD_STATUS, this.processID, this.threadID),
-                ":");
-        this.name = status.getOrDefault("Name", "");
-        this.exePath = getPath(String.format(ProcPath.THREAD_EXE_PATH, this.processID, this.threadID));
-        this.commandLine = FileUtil.getStringFromFile(String.format(ProcPath.THREAD_CMDLINE, this.processID, this.threadID));
-        this.userID = ParseUtil.whitespaces.split(status.getOrDefault("Uid", ""))[0];
-        this.user = UserGroupInfo.getUser(userID);
-        this.groupID = ParseUtil.whitespaces.split(status.getOrDefault("Gid", ""))[0];
-        this.group = UserGroupInfo.getGroupName(groupID);
+    @Override
+    public State getState() {
+        return this.state;
+    }
 
+
+    @Override
+    public int getThreadCount() {
+        return 0;
+    }
+
+    @Override
+    public int getPriority() {
+        return this.priority;
+    }
+
+    @Override
+    public long getVirtualSize() {
+        return this.virtualSize;
+    }
+
+    @Override
+    public long getResidentSetSize() {
+        return this.residentSetSize;
+    }
+
+    @Override
+    public long getKernelTime() {
+        return this.kernelTime;
+    }
+
+    @Override
+    public long getUserTime() {
+        return this.userTime;
+    }
+
+    @Override
+    public long getUpTime() {
+        return this.upTime;
+    }
+
+    @Override
+    public long getStartTime() {
+        return this.startTime;
+    }
+
+    @Override
+    public long getBytesRead() {
+        return this.bytesRead;
+    }
+
+    @Override
+    public long getBytesWritten() {
+        return this.bytesWritten;
+    }
+
+    @Override
+    public long getOpenFiles() {
+        return 0;
+    }
+
+    @Override
+    public double getProcessCpuLoadCumulative() {
+        return 0;
+    }
+
+    @Override
+    public double getProcessCpuLoadBetweenTicks(OSProcess proc) {
+        return 0;
+    }
+
+    @Override
+    public int getBitness() {
+        return 0;
+    }
+
+    @Override
+    public long getAffinityMask() {
+        return 0;
+    }
+
+    @Override
+    public int getThreadId() {
+        return this.threadId;
+    }
+
+    @Override
+    public boolean updateAttributes() {
+        Map<String, String> io = FileUtil.getKeyValueMapFromFile(String.format(ProcPath.THREAD_IO, this.getParentProcess().getProcessID(), this.threadId), ":");
+        Map<String, String> status = FileUtil.getKeyValueMapFromFile(String.format(ProcPath.THREAD_STATUS, this.getParentProcess().getProcessID(), this.threadId), ":");
+        String stat = FileUtil.getStringFromFile(String.format(ProcPath.THREAD_STAT, this.getParentProcess().getProcessID(), this.threadId));
+        if (stat.isEmpty()) {
+            this.state = State.INVALID;
+            return false;
+        }
+        long now = System.currentTimeMillis();
+        long[] statArray = ParseUtil.parseStringToLongArray(stat, THREAD_PID_STAT_ORDERS,
+                ProcessStat.PROC_PID_STAT_LENGTH, ' ');
+
+        // The /proc/pid/cmdline value is null-delimited
+        /*this.startTime = LinuxOperatingSystem.BOOTTIME
+                + statArray[LinuxOSThread.ThreadPidStat.START_TIME.ordinal()] * 1000L / LinuxOperatingSystem.getHz();*/
+        // BOOT_TIME could be up to 5ms off. In rare cases when a process has
+        // started within 5ms of boot it is possible to get negative uptime.
+        if (startTime >= now) {
+            startTime = now - 1;
+        }
+        this.priority = (int) statArray[LinuxOSThread.ThreadPidStat.PRIORITY.ordinal()];
+        this.virtualSize = statArray[LinuxOSThread.ThreadPidStat.VSZ.ordinal()];
+        this.residentSetSize = statArray[LinuxOSThread.ThreadPidStat.RSS.ordinal()] * PAGE_SIZE;
+        this.kernelTime = statArray[LinuxOSThread.ThreadPidStat.KERNEL_TIME.ordinal()] * 1000L / LinuxOperatingSystem.getHz();
+        this.userTime = statArray[LinuxOSThread.ThreadPidStat.USER_TIME.ordinal()] * 1000L / LinuxOperatingSystem.getHz();
+        this.upTime = now - startTime;
+
+        // See man proc for how to parse /proc/[pid]/io
+        this.bytesRead = ParseUtil.parseLongOrDefault(io.getOrDefault("read_bytes", ""), 0L);
+        this.bytesWritten = ParseUtil.parseLongOrDefault(io.getOrDefault("write_bytes", ""), 0L);
+        this.state = ProcessStat.getState(status.getOrDefault("State", "U").charAt(0));
         return true;
     }
 
-    private String getPath(String exePath) {
-        String path = "";
-        try {
-            Path link = Paths.get(exePath);
-            path = Files.readSymbolicLink(link).toString();
-            // For some services the symbolic link process has terminated
-            int index = path.indexOf(" (deleted)");
-            if (index != -1) {
-                path = path.substring(0, index);
-            }
-        } catch (InvalidPathException | IOException | UnsupportedOperationException | SecurityException e) {
-            LOG.debug("Unable to open symbolic link {}", exePath);
+    /**
+     * Enum used to update attributes. The order field represents the 1-indexed
+     * numeric order of the stat in /proc/pid/task/tid/stat per the man file.
+     */
+    private enum ThreadPidStat {
+        // The parsing implementation in ParseUtil requires these to be declared
+        // in increasing order
+        PPID(4), USER_TIME(14), KERNEL_TIME(15), PRIORITY(18), THREAD_COUNT(20), START_TIME(22), VSZ(23), RSS(24);
+
+        private int order;
+
+        public int getOrder() {
+            return this.order;
         }
-        return path;
+
+        ThreadPidStat(int order) {
+            this.order = order;
+        }
     }
 }

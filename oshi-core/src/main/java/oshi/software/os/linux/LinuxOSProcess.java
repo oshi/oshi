@@ -215,6 +215,7 @@ public class LinuxOSProcess extends AbstractOSProcess {
     public List<OSThread> getThreadDetails() {
         return this.threadDetails;
     }
+
     @Override
     public long getOpenFiles() {
         // subtract 1 from size for header
@@ -321,30 +322,11 @@ public class LinuxOSProcess extends AbstractOSProcess {
         this.groupID = ParseUtil.whitespaces.split(status.getOrDefault("Gid", ""))[0];
         this.group = UserGroupInfo.getGroupName(groupID);
         this.name = status.getOrDefault("Name", "");
-        switch (status.getOrDefault("State", "U").charAt(0)) {
-        case 'R':
-            this.state = State.RUNNING;
-            break;
-        case 'S':
-            this.state = State.SLEEPING;
-            break;
-        case 'D':
-            this.state = State.WAITING;
-            break;
-        case 'Z':
-            this.state = State.ZOMBIE;
-            break;
-        case 'T':
-            this.state = State.STOPPED;
-            break;
-        default:
-            this.state = State.OTHER;
-            break;
-        }
-        List<Integer> threadIDs = ProcessStat.getThreadIds(getProcessID());
+        this.state = ProcessStat.getState(status.getOrDefault("State", "U").charAt(0));
+        List<Integer> threadIds = ProcessStat.getThreadIds(getProcessID());
         this.threadDetails = new ArrayList<OSThread>();
-        for (Integer threadID : threadIDs) {
-            this.threadDetails.add(new LinuxOSThread(getProcessID(), threadID));
+        for (Integer threadId : threadIds) {
+            this.threadDetails.add(new LinuxOSThread(this, threadId));
         }
         return true;
     }
