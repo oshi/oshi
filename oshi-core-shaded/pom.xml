@@ -47,6 +47,7 @@
 
 	<properties>
 		<main.basedir>${project.parent.basedir}</main.basedir>
+		<automatic.module.name>com.github.oshi.shaded</automatic.module.name>
 	</properties>
 
 	<dependencies>
@@ -105,6 +106,8 @@
 								<!-- include ONLY dependencies I control -->
 								<dependencySourceInclude>com.github.oshi:*</dependencySourceInclude>
 							</dependencySourceIncludes>
+							<!-- this is needed for modular jars -->
+							<sourcepath>src/main/java</sourcepath>
 						</configuration>
 					</execution>
 				</executions>

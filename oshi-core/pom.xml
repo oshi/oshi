@@ -50,6 +50,7 @@
 			in their POM -->
 		<jna.version>5.5.0</jna.version>
 		<main.basedir>${project.parent.basedir}</main.basedir>
+		<automatic.module.name>com.github.oshi</automatic.module.name>
 	</properties>
 
 	<dependencyManagement>
