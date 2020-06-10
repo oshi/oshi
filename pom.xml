@@ -142,7 +142,7 @@
 		<git-commit-id-plugin.version>4.0.0</git-commit-id-plugin.version>
 		<build-helper-maven-plugin.version>3.1.0</build-helper-maven-plugin.version>
 		<maven-jar-plugin.version>3.2.0</maven-jar-plugin.version>
-		<maven-war-plugin.version>3.2.3</maven-war-plugin.version>
+		<maven-war-plugin.version>3.3.0</maven-war-plugin.version>
 		<bnd-maven-plugin.version>5.1.0</bnd-maven-plugin.version>
 		<maven-shade-plugin.version>3.2.4</maven-shade-plugin.version>
 		<!-- reporting plugins -->
@@ -306,6 +306,7 @@
 								<Os-Version>${os.version}</Os-Version>
 								<X-Compile-Source-JDK>${maven.compiler.source}</X-Compile-Source-JDK>
 								<X-Compile-Target-JDK>${maven.compiler.target}</X-Compile-Target-JDK>
+								<Automatic-Module-Name>${automatic.module.name}</Automatic-Module-Name>
 							</manifestEntries>
 						</archive>
 					</configuration>

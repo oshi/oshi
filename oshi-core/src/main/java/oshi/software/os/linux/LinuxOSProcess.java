@@ -290,11 +290,14 @@ public class LinuxOSProcess extends AbstractOSProcess {
         long[] statArray = ParseUtil.parseStringToLongArray(stat, PROC_PID_STAT_ORDERS,
                 ProcessStat.PROC_PID_STAT_LENGTH, ' ');
 
-        // The /proc/pid/cmdline value is null-delimited
-        this.startTime = LinuxOperatingSystem.BOOTTIME
-                + statArray[ProcPidStat.START_TIME.ordinal()] * 1000L / LinuxOperatingSystem.getHz();
-        // BOOT_TIME could be up to 5ms off. In rare cases when a process has
-        // started within 5ms of boot it is possible to get negative uptime.
+        // BOOTTIME is in seconds and start time from proc/pid/stat is in jiffies.
+        // Combine units to jiffies and convert to millijiffies before hz division to
+        // avoid precision loss without having to cast
+        this.startTime = (LinuxOperatingSystem.BOOTTIME * LinuxOperatingSystem.getHz()
+                + statArray[ProcPidStat.START_TIME.ordinal()]) * 1000L / LinuxOperatingSystem.getHz();
+        // BOOT_TIME could be up to 500ms off and start time up to 5ms off. A process
+        // that has started within last 505ms could produce a future start time/negative
+        // up time, so insert a sanity check.
         if (startTime >= now) {
             startTime = now - 1;
         }
