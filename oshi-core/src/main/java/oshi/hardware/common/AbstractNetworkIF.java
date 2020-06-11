@@ -226,8 +226,7 @@ public abstract class AbstractNetworkIF implements NetworkIF {
         sb.append("  MAC Address: ").append(getMacaddr()).append("\n");
         sb.append("  MTU: ").append(getMTU()).append(", ").append("Speed: ").append(getSpeed()).append("\n");
         sb.append("  IPv4: ").append(Arrays.toString(getIPv4addr())).append("/").append(Arrays.toString(getSubnetMasks())).append("\n");
-        sb.append("  IPv6: ").append(Arrays.toString(getIPv6addr())).append("\n");
-        sb.append("  Prefix Lengths:  ").append(Arrays.toString(getPrefixLengths())).append("\n");
+        sb.append("  IPv6: ").append(Arrays.toString(getIPv6addr())).append("/").append(Arrays.toString(getPrefixLengths())).append("\n");
         sb.append("  Traffic: received ").append(getPacketsRecv()).append(" packets/")
                 .append(FormatUtil.formatBytes(getBytesRecv())).append(" (" + getInErrors() + " err, ")
                 .append(getInDrops() + " drop);");
