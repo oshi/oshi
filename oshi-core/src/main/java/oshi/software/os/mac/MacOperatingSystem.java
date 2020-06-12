@@ -32,6 +32,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -55,6 +56,7 @@ import oshi.software.os.OSSession;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.mac.SysctlUtil;
+import oshi.util.FileUtil;
 
 /**
  * macOS, previously Mac OS X and later OS X) is a series of proprietary
@@ -117,6 +119,7 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
 
     private String parseCodeName() {
         if (this.major == 10) {
+            /*
             switch (this.minor) {
             // MacOS
             case 15:
@@ -154,6 +157,18 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
                 return "Cheetah";
             default:
             }
+            */
+            final String OSHI_VERSIONS_PROPERTIES = "oshi.versions.properties";
+            Properties verProps = FileUtil.readPropertiesFromFilename(OSHI_VERSIONS_PROPERTIES);
+
+            String major = String.valueOf(this.major);
+            String minor = String.valueOf(this.minor);
+            String version_number = major+"."+minor;
+            
+            String version_name = verProps.getProperty(version_number);
+
+            return version_name;
+
         }
         LOG.warn("Unable to parse version {}.{} to a codename.", this.major, this.minor);
         return "";

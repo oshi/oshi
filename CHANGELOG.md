@@ -1,7 +1,7 @@
 5.2.0 (in progress)
 ================
 * [#1247](https://github.com/oshi/oshi/pull/1247): Add Automatic-Module-Name to support JPMS - [@dbwiddis](https://github.com/dbwiddis).
-* Your contribution here 
+* [#1248](https://github.com/oshi/oshi/pull/1248): macOS versions from file - [@hkbiet](https://github.com/hkbiet). 
 
 4.8.2 / 5.1.2 (6/7/2020)
 ================
