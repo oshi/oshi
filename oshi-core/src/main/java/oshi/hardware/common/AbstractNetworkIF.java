@@ -110,7 +110,6 @@ public abstract class AbstractNetworkIF implements NetworkIF {
             this.subnetMasks = subnetMaskList.toArray(new Short[0]);
             this.ipv6 = ipv6list.toArray(new String[0]);
             this.prefixLengths = prefixLengthList.toArray(new Short[0]);
-
         } catch (SocketException e) {
             LOG.error("Socket exception: {}", e.getMessage());
         }
@@ -222,26 +221,23 @@ public abstract class AbstractNetworkIF implements NetworkIF {
 
     @Override
     public String toString() {
-
-        String[] ipv4withmask = getIPv4addr(); 
+        StringBuilder sb = new StringBuilder();
+        sb.append("Name: ").append(getName()).append(" ").append("(").append(getDisplayName()).append(")").append("\n");
+        sb.append("  MAC Address: ").append(getMacaddr()).append("\n");
+        sb.append("  MTU: ").append(getMTU()).append(", ").append("Speed: ").append(getSpeed()).append("\n");
+        String[] ipv4withmask = getIPv4addr();
         if (this.ipv4.length == this.subnetMasks.length) {
             for (int i = 0; i < this.subnetMasks.length; i++) {
                 ipv4withmask[i] += "/" + this.subnetMasks[i];
             }
         }
-
-        String[] ipv6withprefixlength = getIPv6addr(); 
+        sb.append("  IPv4: ").append(Arrays.toString(ipv4withmask)).append("\n");
+        String[] ipv6withprefixlength = getIPv6addr();
         if (this.ipv6.length == this.prefixLengths.length) {
             for (int j = 0; j < this.prefixLengths.length; j++) {
                 ipv6withprefixlength[j] += "/" + this.prefixLengths[j];
             }
         }
-        
-        StringBuilder sb = new StringBuilder();
-        sb.append("Name: ").append(getName()).append(" ").append("(").append(getDisplayName()).append(")").append("\n");
-        sb.append("  MAC Address: ").append(getMacaddr()).append("\n");
-        sb.append("  MTU: ").append(getMTU()).append(", ").append("Speed: ").append(getSpeed()).append("\n");
-        sb.append("  IPv4: ").append(Arrays.toString(ipv4withmask)).append("\n");
         sb.append("  IPv6: ").append(Arrays.toString(ipv6withprefixlength)).append("\n");
         sb.append("  Traffic: received ").append(getPacketsRecv()).append(" packets/")
                 .append(FormatUtil.formatBytes(getBytesRecv())).append(" (" + getInErrors() + " err, ")
