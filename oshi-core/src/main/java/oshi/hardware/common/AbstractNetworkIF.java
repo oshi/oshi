@@ -232,8 +232,8 @@ public abstract class AbstractNetworkIF implements NetworkIF {
 
         String[] ipv6withprefixlength = getIPv6addr(); 
         if (this.ipv6.length == this.prefixLengths.length) {
-            for (int j = 0; j < this.prefixLengths.length; i++) {
-                ipv6withprefixlength[i] += "/" + this.prefixLengths[i];
+            for (int j = 0; j < this.prefixLengths.length; j++) {
+                ipv6withprefixlength[j] += "/" + this.prefixLengths[j];
             }
         }
         
