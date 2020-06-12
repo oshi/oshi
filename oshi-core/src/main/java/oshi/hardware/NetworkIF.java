@@ -268,7 +268,7 @@ public class NetworkIF {
      * <p>
      * (Linux) ARP Protocol hardware identifiers defined in
      * {@code include/uapi/linux/if_arp.h}
-     * 
+     *
      * @return the ifType
      */
     public int getIfType() {
@@ -279,7 +279,7 @@ public class NetworkIF {
      * <p>
      * Setter for the field <code>ifType</code>.
      * </p>
-     * 
+     *
      * @param ifType
      *            the ifType to set
      */
@@ -293,7 +293,7 @@ public class NetworkIF {
      * can be one of the values from the {@code NDIS_PHYSICAL_MEDIUM} enumeration
      * type defined in the {@code Ntddndis.h} header file.
      * </p>
-     * 
+     *
      * @return the ndisPhysicalMediumType
      */
     public int getNdisPhysicalMediumType() {
@@ -304,7 +304,7 @@ public class NetworkIF {
      * <p>
      * Setter for the field <code>ndisPhysicalMediumType</code>.
      * </p>
-     * 
+     *
      * @param ndisPhysicalMediumType
      *            the ndisPhysicalMediumType to set
      */
@@ -317,7 +317,7 @@ public class NetworkIF {
      * interface.
      * <p>
      * (Linux) Indicates the current physical link state of the interface.
-     * 
+     *
      * @return {@code true} if there is a physical network adapter (Windows) or a
      *         connected cable (Linux), false otherwise
      */
@@ -329,7 +329,7 @@ public class NetworkIF {
      * <p>
      * Setter for the field <code>connectorPresent</code>.
      * </p>
-     * 
+     *
      * @param connectorPresent
      *            the connectorPresent to set
      */
@@ -631,7 +631,7 @@ public class NetworkIF {
     /**
      * Determines if the MAC address on this interface corresponds to a known
      * Virtual Machine.
-     * 
+     *
      * @return {@code true} if the MAC address corresponds to a known virtual
      *         machine.
      */
@@ -650,10 +650,20 @@ public class NetworkIF {
         sb.append("Name: ").append(getName()).append(" ").append("(").append(getDisplayName()).append(")").append("\n");
         sb.append("  MAC Address: ").append(getMacaddr()).append("\n");
         sb.append("  MTU: ").append(getMTU()).append(", ").append("Speed: ").append(getSpeed()).append("\n");
-        sb.append("  IPv4: ").append(Arrays.toString(getIPv4addr())).append("\n");
-        sb.append("  Netmask:  ").append(Arrays.toString(getSubnetMasks())).append("\n");
-        sb.append("  IPv6: ").append(Arrays.toString(getIPv6addr())).append("\n");
-        sb.append("  Prefix Lengths:  ").append(Arrays.toString(getPrefixLengths())).append("\n");
+        String[] ipv4withmask = getIPv4addr();
+        if (this.ipv4.length == this.subnetMasks.length) {
+            for (int i = 0; i < this.subnetMasks.length; i++) {
+                ipv4withmask[i] += "/" + this.subnetMasks[i];
+            }
+        }
+        sb.append("  IPv4: ").append(Arrays.toString(ipv4withmask)).append("\n");
+        String[] ipv6withprefixlength = getIPv6addr();
+        if (this.ipv6.length == this.prefixLengths.length) {
+            for (int j = 0; j < this.prefixLengths.length; j++) {
+                ipv6withprefixlength[j] += "/" + this.prefixLengths[j];
+            }
+        }
+        sb.append("  IPv6: ").append(Arrays.toString(ipv6withprefixlength)).append("\n");
         sb.append("  Traffic: received ").append(getPacketsRecv()).append(" packets/")
                 .append(FormatUtil.formatBytes(getBytesRecv())).append(" (" + getInErrors() + " err, ")
                 .append(getInDrops() + " drop);");
