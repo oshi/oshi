@@ -66,6 +66,8 @@ import oshi.util.FileUtil;
 @ThreadSafe
 public class MacOperatingSystem extends AbstractOperatingSystem {
 
+    public static final String MACOS_VERSIONS_PROPERTIES= "oshi.macos.versions.properties";
+
     private static final Logger LOG = LoggerFactory.getLogger(MacOperatingSystem.class);
 
     private int maxProc = 1024;
@@ -73,9 +75,7 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
     private final String osXVersion;
     private final int major;
     private final int minor;
-
-    public static String MACOS_VERSIONS_PROPERTIES;
-
+    
     private static final long BOOTTIME;
     static {
         Timeval tv = new Timeval();
@@ -122,7 +122,6 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
     private String parseCodeName() {
         if (this.major == 10) {
             
-            MACOS_VERSIONS_PROPERTIES = "macos.versions.properties";
             Properties verProps = FileUtil.readPropertiesFromFilename(MACOS_VERSIONS_PROPERTIES);
 
             String version_number = this.major + "." + this.minor;     
