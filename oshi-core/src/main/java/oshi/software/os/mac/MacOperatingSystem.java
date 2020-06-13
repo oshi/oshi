@@ -54,9 +54,9 @@ import oshi.software.os.OSProcess.State;
 import oshi.software.os.OSService;
 import oshi.software.os.OSSession;
 import oshi.util.ExecutingCommand;
+import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.mac.SysctlUtil;
-import oshi.util.FileUtil;
 
 /**
  * macOS, previously Mac OS X and later OS X) is a series of proprietary
@@ -66,16 +66,19 @@ import oshi.util.FileUtil;
 @ThreadSafe
 public class MacOperatingSystem extends AbstractOperatingSystem {
 
-    public static final String MACOS_VERSIONS_PROPERTIES= "oshi.macos.versions.properties";
-
     private static final Logger LOG = LoggerFactory.getLogger(MacOperatingSystem.class);
+
+    public static final String MACOS_VERSIONS_PROPERTIES = "oshi.macos.versions.properties";
+
+    private static final String SYSTEM_LIBRARY_LAUNCH_AGENTS = "/System/Library/LaunchAgents";
+    private static final String SYSTEM_LIBRARY_LAUNCH_DAEMONS = "/System/Library/LaunchDaemons";
 
     private int maxProc = 1024;
 
     private final String osXVersion;
     private final int major;
     private final int minor;
-    
+
     private static final long BOOTTIME;
     static {
         Timeval tv = new Timeval();
@@ -93,11 +96,6 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
         }
     }
 
-    /**
-     * <p>
-     * Constructor for MacOperatingSystem.
-     * </p>
-     */
     public MacOperatingSystem() {
         this.osXVersion = System.getProperty("os.version");
         this.major = ParseUtil.getFirstIntValue(this.osXVersion);
@@ -121,14 +119,8 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
 
     private String parseCodeName() {
         if (this.major == 10) {
-            
             Properties verProps = FileUtil.readPropertiesFromFilename(MACOS_VERSIONS_PROPERTIES);
-
-            String version_number = this.major + "." + this.minor;     
-            String version_name = verProps.getProperty(version_number);
-
-            return version_name;
-
+            return verProps.getProperty(this.major + "." + this.minor);
         }
         LOG.warn("Unable to parse version {}.{} to a codename.", this.major, this.minor);
         return "";
@@ -272,13 +264,13 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
         }
         // Get Directories for stopped services
         ArrayList<File> files = new ArrayList<>();
-        File dir = new File("/System/Library/LaunchAgents");
+        File dir = new File(SYSTEM_LIBRARY_LAUNCH_AGENTS);
         if (dir.exists() && dir.isDirectory()) {
             files.addAll(Arrays.asList(dir.listFiles((f, name) -> name.toLowerCase().endsWith(".plist"))));
         } else {
             LOG.error("Directory: /System/Library/LaunchAgents does not exist");
         }
-        dir = new File("/System/Library/LaunchDaemons");
+        dir = new File(SYSTEM_LIBRARY_LAUNCH_DAEMONS);
         if (dir.exists() && dir.isDirectory()) {
             files.addAll(Arrays.asList(dir.listFiles((f, name) -> name.toLowerCase().endsWith(".plist"))));
         } else {
