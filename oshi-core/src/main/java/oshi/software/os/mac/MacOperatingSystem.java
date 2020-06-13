@@ -74,6 +74,8 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
     private final int major;
     private final int minor;
 
+    public static String MACOS_VERSIONS_PROPERTIES;
+
     private static final long BOOTTIME;
     static {
         Timeval tv = new Timeval();
@@ -119,52 +121,11 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
 
     private String parseCodeName() {
         if (this.major == 10) {
-            /*
-            switch (this.minor) {
-            // MacOS
-            case 15:
-                return "Catalina";
-            case 14:
-                return "Mojave";
-            case 13:
-                return "High Sierra";
-            case 12:
-                return "Sierra";
-            // OS X
-            case 11:
-                return "El Capitan";
-            case 10:
-                return "Yosemite";
-            case 9:
-                return "Mavericks";
-            case 8:
-                return "Mountain Lion";
-            case 7:
-                return "Lion";
-            case 6:
-                return "Snow Leopard";
-            case 5:
-                return "Leopard";
-            case 4:
-                return "Tiger";
-            case 3:
-                return "Panther";
-            case 2:
-                return "Jaguar";
-            case 1:
-                return "Puma";
-            case 0:
-                return "Cheetah";
-            default:
-            }
-            */
-            final String OSHI_VERSIONS_PROPERTIES = "oshi.versions.properties";
-            Properties verProps = FileUtil.readPropertiesFromFilename(OSHI_VERSIONS_PROPERTIES);
-
-            String major = String.valueOf(this.major);
-            String minor = String.valueOf(this.minor);
-            String version_number = major+"."+minor;
             
+            MACOS_VERSIONS_PROPERTIES = "macos.versions.properties";
+            Properties verProps = FileUtil.readPropertiesFromFilename(MACOS_VERSIONS_PROPERTIES);
+
+            String version_number = this.major + "." + this.minor;     
             String version_name = verProps.getProperty(version_number);
 
             return version_name;
