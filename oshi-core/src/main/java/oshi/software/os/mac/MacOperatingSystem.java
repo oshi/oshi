@@ -33,6 +33,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -61,6 +62,7 @@ import oshi.software.os.OSProcess;
 import oshi.software.os.OSService;
 import oshi.software.os.OSSession;
 import oshi.util.ExecutingCommand;
+import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.mac.SysctlUtil;
 
@@ -73,6 +75,11 @@ import oshi.util.platform.mac.SysctlUtil;
 public class MacOperatingSystem extends AbstractOperatingSystem {
 
     private static final Logger LOG = LoggerFactory.getLogger(MacOperatingSystem.class);
+
+    public static final String MACOS_VERSIONS_PROPERTIES = "oshi.macos.versions.properties";
+
+    private static final String SYSTEM_LIBRARY_LAUNCH_AGENTS = "/System/Library/LaunchAgents";
+    private static final String SYSTEM_LIBRARY_LAUNCH_DAEMONS = "/System/Library/LaunchDaemons";
 
     private int maxProc = 1024;
 
@@ -110,11 +117,6 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
         }
     }
 
-    /**
-     * <p>
-     * Constructor for MacOperatingSystem.
-     * </p>
-     */
     @SuppressWarnings("deprecation")
     public MacOperatingSystem() {
         this.version = new MacOSVersionInfoEx();
@@ -140,43 +142,8 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
 
     private String parseCodeName() {
         if (this.major == 10) {
-            switch (this.minor) {
-            // MacOS
-            case 15:
-                return "Catalina";
-            case 14:
-                return "Mojave";
-            case 13:
-                return "High Sierra";
-            case 12:
-                return "Sierra";
-            // OS X
-            case 11:
-                return "El Capitan";
-            case 10:
-                return "Yosemite";
-            case 9:
-                return "Mavericks";
-            case 8:
-                return "Mountain Lion";
-            case 7:
-                return "Lion";
-            case 6:
-                return "Snow Leopard";
-            case 5:
-                return "Leopard";
-            case 4:
-                return "Tiger";
-            case 3:
-                return "Panther";
-            case 2:
-                return "Jaguar";
-            case 1:
-                return "Puma";
-            case 0:
-                return "Cheetah";
-            default:
-            }
+            Properties verProps = FileUtil.readPropertiesFromFilename(MACOS_VERSIONS_PROPERTIES);
+            return verProps.getProperty(this.major + "." + this.minor);
         }
         LOG.warn("Unable to parse version {}.{} to a codename.", this.major, this.minor);
         return "";
@@ -477,13 +444,13 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
         }
         // Get Directories for stopped services
         ArrayList<File> files = new ArrayList<>();
-        File dir = new File("/System/Library/LaunchAgents");
+        File dir = new File(SYSTEM_LIBRARY_LAUNCH_AGENTS);
         if (dir.exists() && dir.isDirectory()) {
             files.addAll(Arrays.asList(dir.listFiles((f, name) -> name.toLowerCase().endsWith(".plist"))));
         } else {
             LOG.error("Directory: /System/Library/LaunchAgents does not exist");
         }
-        dir = new File("/System/Library/LaunchDaemons");
+        dir = new File(SYSTEM_LIBRARY_LAUNCH_DAEMONS);
         if (dir.exists() && dir.isDirectory()) {
             files.addAll(Arrays.asList(dir.listFiles((f, name) -> name.toLowerCase().endsWith(".plist"))));
         } else {
