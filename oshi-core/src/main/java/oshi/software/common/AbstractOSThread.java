@@ -23,15 +23,15 @@
  */
 package oshi.software.common;
 
-import oshi.software.os.OSProcess;
-import oshi.software.os.OSThread;
-
 import java.util.Collections;
 import java.util.List;
 
+import oshi.software.os.OSProcess;
+import oshi.software.os.OSThread;
+
 public abstract class AbstractOSThread implements OSThread {
 
-    private OSProcess parentProcess;
+    private final OSProcess parentProcess;
 
     public AbstractOSThread(OSProcess process) {
         this.parentProcess = process;

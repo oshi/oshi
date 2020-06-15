@@ -59,13 +59,14 @@ public final class ProcPath {
     public static final String SELF_STAT = PROC + "/self/stat";
     public static final String STAT = PROC + "/stat";
     public static final String SYS_FS_FILE_NR = PROC + "/sys/fs/file-nr";
+    public static final String TASK_PATH = PROC + "/%d/task";
+    public static final String TASK_STATUS = TASK_PATH + "/%d/status";
+    public static final String TASK_STAT = TASK_PATH + "/%d/stat";
+    public static final String TASK_IO = TASK_PATH + "/%d/io";
     public static final String UPTIME = PROC + "/uptime";
     public static final String VERSION = PROC + "/version";
     public static final String VMSTAT = PROC + "/vmstat";
-    public static final String THREADS_PATH = PROC + "/%d/task";
-    public static final String THREAD_STATUS = THREADS_PATH + "/%d/status";
-    public static final String THREAD_STAT = THREADS_PATH + "/%d/stat";
-    public static final String THREAD_IO = THREADS_PATH + "/%d/io";
+
 
     private ProcPath() {
     }

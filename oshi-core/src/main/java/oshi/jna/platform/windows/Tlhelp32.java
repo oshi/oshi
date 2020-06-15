@@ -35,7 +35,7 @@ public interface Tlhelp32 extends com.sun.jna.platform.win32.Tlhelp32 {
      * snapshot was taken.
      */
     @FieldOrder({ "dwSize", "cntUsage", "th32ThreadID", "th32OwnerProcessID", "tpBasePri", "tpDeltaPri", "dwFlags" })
-    public static class THREADENTRY32 extends Structure {
+    class THREADENTRY32 extends Structure {
 
         public static class ByReference extends THREADENTRY32 implements Structure.ByReference {
             public ByReference() {
