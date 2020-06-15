@@ -79,6 +79,7 @@ public abstract class AbstractOSProcess implements OSProcess {
     public List<OSThread> getThreadDetails() {
         return Collections.emptyList();
     }
+
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder("OSProcess@");

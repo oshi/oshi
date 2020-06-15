@@ -364,6 +364,10 @@ public interface OSProcess {
      */
     boolean updateAttributes();
 
+    /**
+     * Retrieves the threads of the process and their details.
+     * @return a list of threads
+     */
     List<OSThread> getThreadDetails();
 
     /**

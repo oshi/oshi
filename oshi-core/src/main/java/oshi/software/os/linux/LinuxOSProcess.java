@@ -23,7 +23,18 @@
  */
 package oshi.software.os.linux;
 
-import static oshi.util.Memoizer.memoize;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.linux.proc.ProcessStat;
+import oshi.driver.linux.proc.TaskStat;
+import oshi.driver.linux.proc.UserGroupInfo;
+import oshi.software.common.AbstractOSProcess;
+import oshi.software.os.OSThread;
+import oshi.util.ExecutingCommand;
+import oshi.util.FileUtil;
+import oshi.util.ParseUtil;
+import oshi.util.platform.linux.ProcPath;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -34,24 +45,13 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import oshi.annotation.concurrent.ThreadSafe;
-import oshi.driver.linux.proc.ProcessStat;
-import oshi.driver.linux.proc.LinuxOSThread;
-import oshi.driver.linux.proc.UserGroupInfo;
-import oshi.software.common.AbstractOSProcess;
-import oshi.software.os.OSThread;
-import oshi.util.ExecutingCommand;
-import oshi.util.FileUtil;
-import oshi.util.ParseUtil;
-import oshi.util.platform.linux.ProcPath;
+import static oshi.util.Memoizer.memoize;
 
 @ThreadSafe
 public class LinuxOSProcess extends AbstractOSProcess {
@@ -213,7 +213,7 @@ public class LinuxOSProcess extends AbstractOSProcess {
 
     @Override
     public List<OSThread> getThreadDetails() {
-        return this.threadDetails;
+        return Collections.unmodifiableList(this.threadDetails);
     }
 
     @Override
@@ -323,11 +323,7 @@ public class LinuxOSProcess extends AbstractOSProcess {
         this.group = UserGroupInfo.getGroupName(groupID);
         this.name = status.getOrDefault("Name", "");
         this.state = ProcessStat.getState(status.getOrDefault("State", "U").charAt(0));
-        List<Integer> threadIds = ProcessStat.getThreadIds(getProcessID());
-        this.threadDetails = new ArrayList<OSThread>();
-        for (Integer threadId : threadIds) {
-            this.threadDetails.add(new LinuxOSThread(this, threadId));
-        }
+        this.threadDetails = ProcessStat.getThreadIds(getProcessID()).stream().map(id -> new TaskStat(this, id)).collect(Collectors.toList());
         return true;
     }
 

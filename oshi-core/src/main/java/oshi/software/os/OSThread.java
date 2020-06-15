@@ -23,7 +23,25 @@
  */
 package oshi.software.os;
 
+/**
+ * Represents a Thread/Task on the operating system.
+ */
 public interface OSThread extends OSProcess {
+
+    /**
+     * <p>
+     * Getter for the field <code>threadId</code>.
+     * </p>
+     *
+     * @return Returns the id of the thread.
+     */
     int getThreadId();
+
+    /**
+     * <p>
+     * Getter for the field <code>parentProcess</code> which is the parent process of this thread.
+     * </p>
+     * @return The parent process
+     */
     OSProcess getParentProcess();
 }
