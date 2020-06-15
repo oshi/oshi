@@ -63,7 +63,7 @@ public final class PerfCounterQueryHandler implements AutoCloseable {
         if (this.queryHandle == null) {
             this.queryHandle = new HANDLEByReference();
             if (!PerfDataUtil.openQuery(this.queryHandle)) {
-                LOG.error("Failed to open a query for PDH object: {}", counter.getObject());
+                LOG.warn("Failed to open a query for PDH object: {}", counter.getObject());
                 this.queryHandle = null;
                 return false;
             }
@@ -71,7 +71,7 @@ public final class PerfCounterQueryHandler implements AutoCloseable {
         // Get a new handle for the counter
         HANDLEByReference p = new HANDLEByReference();
         if (!PerfDataUtil.addCounter(this.queryHandle, counter.getCounterPath(), p)) {
-            LOG.error("Failed to add counter for PDH object: {}", counter.getObject());
+            LOG.warn("Failed to add counter for PDH object: {}", counter.getObject());
             return false;
         }
         counterHandleMap.put(counter, p);
@@ -123,7 +123,7 @@ public final class PerfCounterQueryHandler implements AutoCloseable {
      */
     public long updateQuery() {
         if (queryHandle == null) {
-            LOG.error("Query does not exist to update.");
+            LOG.warn("Query does not exist to update.");
             return 0L;
         }
         return PerfDataUtil.updateQueryTimestamp(queryHandle);
@@ -139,8 +139,8 @@ public final class PerfCounterQueryHandler implements AutoCloseable {
      */
     public long queryCounter(PerfCounter counter) {
         if (!counterHandleMap.containsKey(counter)) {
-            if (LOG.isErrorEnabled()) {
-                LOG.error("Counter {} does not exist to query.", counter.getCounterPath());
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Counter {} does not exist to query.", counter.getCounterPath());
             }
             return 0;
         }

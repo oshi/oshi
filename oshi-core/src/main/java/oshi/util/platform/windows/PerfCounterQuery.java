@@ -24,7 +24,10 @@
 package oshi.util.platform.windows;
 
 import java.util.EnumMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +39,7 @@ import com.sun.jna.platform.win32.COM.Wbemcli;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
+import oshi.annotation.concurrent.GuardedBy;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.util.platform.windows.PerfDataUtil.PerfCounter;
 
@@ -46,6 +50,11 @@ import oshi.util.platform.windows.PerfDataUtil.PerfCounter;
 public final class PerfCounterQuery {
 
     private static final Logger LOG = LoggerFactory.getLogger(PerfCounterQuery.class);
+
+    // Use a map to cache failed pdh queries
+    @GuardedBy("failedQueryCacheLock")
+    private static final Set<String> failedQueryCache = new HashSet<>();
+    private static final ReentrantLock failedQueryCacheLock = new ReentrantLock();
 
     /*
      * Multiple classes use these constants
@@ -79,11 +88,25 @@ public final class PerfCounterQuery {
      */
     public static <T extends Enum<T>> Map<T, Long> queryValues(Class<T> propertyEnum, String perfObject,
             String perfWmiClass) {
-        Map<T, Long> valueMap = queryValuesFromPDH(propertyEnum, perfObject);
-        if (valueMap.isEmpty()) {
-            return queryValuesFromWMI(propertyEnum, perfWmiClass);
+        // Check without locking for performance
+        if (!failedQueryCache.contains(perfObject)) {
+            failedQueryCacheLock.lock();
+            try {
+                // Double check lock
+                if (!failedQueryCache.contains(perfObject)) {
+                    Map<T, Long> valueMap = queryValuesFromPDH(propertyEnum, perfObject);
+                    if (!valueMap.isEmpty()) {
+                        return valueMap;
+                    }
+                    // If we are here, query failed
+                    LOG.warn("Disabling further attempts to query {}.", perfObject);
+                    failedQueryCache.add(perfObject);
+                }
+            } finally {
+                failedQueryCacheLock.unlock();
+            }
         }
-        return valueMap;
+        return queryValuesFromWMI(propertyEnum, perfWmiClass);
     }
 
     /**
