@@ -231,8 +231,10 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
         int numberOfThreads = 0;
         ProcTaskInfo taskInfo = new ProcTaskInfo();
         for (int i = 0; i < numberOfProcesses; i++) {
-            SystemB.INSTANCE.proc_pidinfo(pids[i], SystemB.PROC_PIDTASKINFO, 0, taskInfo, taskInfo.size());
-            numberOfThreads += taskInfo.pti_threadnum;
+            int exit = SystemB.INSTANCE.proc_pidinfo(pids[i], SystemB.PROC_PIDTASKINFO, 0, taskInfo, taskInfo.size());
+            if (exit != -1) {
+                numberOfThreads += taskInfo.pti_threadnum;
+            }
         }
         return numberOfThreads;
     }

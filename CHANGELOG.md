@@ -3,6 +3,7 @@
 * [#1247](https://github.com/oshi/oshi/pull/1247): Add Automatic-Module-Name to support JPMS - [@dbwiddis](https://github.com/dbwiddis).
 * [#1262](https://github.com/oshi/oshi/pull/1262): Read macOS versions from properties file - [@hkbiet](https://github.com/hkbiet). 
 * [#1266](https://github.com/oshi/oshi/pull/1266): Suppress repeated attempts to query failed PDH - [@dbwiddis](https://github.com/dbwiddis).
+* [#1267](https://github.com/oshi/oshi/pull/1267): Check proc_pidinfo return value before incrementing numberOfThreads - [@markkulube](https://github.com/markkulube).
 * Your contribution here 
 
 4.8.2 / 5.1.2 (6/7/2020)
