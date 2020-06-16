@@ -173,6 +173,14 @@ public interface OSProcess {
     int getThreadCount();
 
     /**
+     * Retrieves the threads of the process and their details.
+     *
+     * @return an {@code UnmodifiableList} of {@link OSThread} objects representing
+     *         this process's threads
+     */
+    List<OSThread> getThreadDetails();
+
+    /**
      * <p>
      * Getter for the field <code>priority</code>.
      * </p>
@@ -363,12 +371,6 @@ public interface OSProcess {
      *         changed to {@link State#INVALID}.
      */
     boolean updateAttributes();
-
-    /**
-     * Retrieves the threads of the process and their details.
-     * @return a list of threads
-     */
-    List<OSThread> getThreadDetails();
 
     /**
      * Process Execution States

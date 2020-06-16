@@ -31,25 +31,25 @@ import oshi.software.os.OSThread;
 
 public abstract class AbstractOSThread implements OSThread {
 
-    private final OSProcess parentProcess;
+    private final OSProcess owningProcess;
 
     public AbstractOSThread(OSProcess process) {
-        this.parentProcess = process;
+        this.owningProcess = process;
     }
 
     @Override
-    public OSProcess getParentProcess() {
-        return this.parentProcess;
+    public OSProcess getOwningProcess() {
+        return this.owningProcess;
     }
 
     @Override
     public int getProcessID() {
-        return getParentProcess().getProcessID();
+        return getOwningProcess().getProcessID();
     }
 
     @Override
     public int getParentProcessID() {
-        return getParentProcess().getParentProcessID();
+        return getOwningProcess().getParentProcessID();
     }
 
     @Override

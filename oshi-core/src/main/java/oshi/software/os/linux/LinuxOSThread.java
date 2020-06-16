@@ -21,34 +21,29 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package oshi.driver.linux.proc;
+package oshi.software.os.linux;
 
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import oshi.driver.linux.proc.ProcessStat;
 import oshi.software.common.AbstractOSThread;
 import oshi.software.os.OSProcess;
-import oshi.software.os.linux.LinuxOSProcess;
-import oshi.software.os.linux.LinuxOperatingSystem;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.linux.ProcPath;
 
-public class TaskStat extends AbstractOSThread {
+public class LinuxOSThread extends AbstractOSThread {
 
-    private static final Logger LOG = LoggerFactory.getLogger(TaskStat.class);
     private static final int PAGE_SIZE = ParseUtil
             .parseIntOrDefault(ExecutingCommand.getFirstAnswer("getconf PAGESIZE"), 4096);
 
-    private static final int[] THREAD_PID_STAT_ORDERS = new int[TaskStat.ThreadPidStat.values().length];
+    private static final int[] PROC_TASK_STAT_ORDERS = new int[LinuxOSThread.ThreadPidStat.values().length];
     static {
-        for (TaskStat.ThreadPidStat stat : TaskStat.ThreadPidStat.values()) {
+        for (LinuxOSThread.ThreadPidStat stat : LinuxOSThread.ThreadPidStat.values()) {
             // The PROC_PID_STAT enum indices are 1-indexed.
             // Subtract one to get a zero-based index
-            THREAD_PID_STAT_ORDERS[stat.ordinal()] = stat.getOrder() - 1;
+            PROC_TASK_STAT_ORDERS[stat.ordinal()] = stat.getOrder() - 1;
         }
     }
 
@@ -64,7 +59,7 @@ public class TaskStat extends AbstractOSThread {
     private long bytesRead;
     private long bytesWritten;
 
-    public TaskStat(LinuxOSProcess process, int tid) {
+    public LinuxOSThread(LinuxOSProcess process, int tid) {
         super(process);
         this.threadId = tid;
         updateAttributes();
@@ -72,42 +67,42 @@ public class TaskStat extends AbstractOSThread {
 
     @Override
     public String getName() {
-        return getParentProcess().getName();
+        return getOwningProcess().getName();
     }
 
     @Override
     public String getPath() {
-        return getParentProcess().getPath();
+        return getOwningProcess().getPath();
     }
 
     @Override
     public String getCommandLine() {
-        return getParentProcess().getCommandLine();
+        return getOwningProcess().getCommandLine();
     }
 
     @Override
     public String getCurrentWorkingDirectory() {
-        return getParentProcess().getCurrentWorkingDirectory();
+        return getOwningProcess().getCurrentWorkingDirectory();
     }
 
     @Override
     public String getUser() {
-        return getParentProcess().getUser();
+        return getOwningProcess().getUser();
     }
 
     @Override
     public String getUserID() {
-        return getParentProcess().getUserID();
+        return getOwningProcess().getUserID();
     }
 
     @Override
     public String getGroup() {
-        return getParentProcess().getGroup();
+        return getOwningProcess().getGroup();
     }
 
     @Override
     public String getGroupID() {
-        return getParentProcess().getGroupID();
+        return getOwningProcess().getGroupID();
     }
 
     @Override
@@ -117,7 +112,7 @@ public class TaskStat extends AbstractOSThread {
 
     @Override
     public int getThreadCount() {
-        return 0;
+        return 1;
     }
 
     @Override
@@ -198,17 +193,17 @@ public class TaskStat extends AbstractOSThread {
     @Override
     public boolean updateAttributes() {
         Map<String, String> io = FileUtil.getKeyValueMapFromFile(
-                String.format(ProcPath.TASK_IO, this.getParentProcess().getProcessID(), this.threadId), ":");
+                String.format(ProcPath.TASK_IO, this.getOwningProcess().getProcessID(), this.threadId), ":");
         Map<String, String> status = FileUtil.getKeyValueMapFromFile(
-                String.format(ProcPath.TASK_STATUS, this.getParentProcess().getProcessID(), this.threadId), ":");
+                String.format(ProcPath.TASK_STATUS, this.getOwningProcess().getProcessID(), this.threadId), ":");
         String stat = FileUtil.getStringFromFile(
-                String.format(ProcPath.TASK_STAT, this.getParentProcess().getProcessID(), this.threadId));
+                String.format(ProcPath.TASK_STAT, this.getOwningProcess().getProcessID(), this.threadId));
         if (stat.isEmpty()) {
             this.state = State.INVALID;
             return false;
         }
         long now = System.currentTimeMillis();
-        long[] statArray = ParseUtil.parseStringToLongArray(stat, THREAD_PID_STAT_ORDERS,
+        long[] statArray = ParseUtil.parseStringToLongArray(stat, PROC_TASK_STAT_ORDERS,
                 ProcessStat.PROC_PID_STAT_LENGTH, ' ');
 
         // The /proc/pid/cmdline value is null-delimited
@@ -222,12 +217,13 @@ public class TaskStat extends AbstractOSThread {
         if (startTime >= now) {
             startTime = now - 1;
         }
-        this.priority = (int) statArray[TaskStat.ThreadPidStat.PRIORITY.ordinal()];
-        this.virtualSize = statArray[TaskStat.ThreadPidStat.VSZ.ordinal()];
-        this.residentSetSize = statArray[TaskStat.ThreadPidStat.RSS.ordinal()] * PAGE_SIZE;
-        this.kernelTime = statArray[TaskStat.ThreadPidStat.KERNEL_TIME.ordinal()] * 1000L
+        this.priority = (int) statArray[LinuxOSThread.ThreadPidStat.PRIORITY.ordinal()];
+        this.virtualSize = statArray[LinuxOSThread.ThreadPidStat.VSZ.ordinal()];
+        this.residentSetSize = statArray[LinuxOSThread.ThreadPidStat.RSS.ordinal()] * PAGE_SIZE;
+        this.kernelTime = statArray[LinuxOSThread.ThreadPidStat.KERNEL_TIME.ordinal()] * 1000L
                 / LinuxOperatingSystem.getHz();
-        this.userTime = statArray[TaskStat.ThreadPidStat.USER_TIME.ordinal()] * 1000L / LinuxOperatingSystem.getHz();
+        this.userTime = statArray[LinuxOSThread.ThreadPidStat.USER_TIME.ordinal()] * 1000L
+                / LinuxOperatingSystem.getHz();
         this.upTime = now - startTime;
 
         // See man proc for how to parse /proc/[pid]/io

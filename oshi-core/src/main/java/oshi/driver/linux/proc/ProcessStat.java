@@ -43,151 +43,7 @@ import oshi.util.tuples.Triplet;
 @ThreadSafe
 public final class ProcessStat {
 
-    /**
-     * Constant defining the number of integer values in {@code /proc/pid/stat}. 2.6
-     * Kernel has 44 elements, 3.3 has 47, and 3.5 has 52.
-     */
-    public static final int PROC_PID_STAT_LENGTH;
     private static final Pattern DIGITS = Pattern.compile("\\d+");
-
-    static {
-        String stat = FileUtil.getStringFromFile(ProcPath.SELF_STAT);
-        if (!stat.isEmpty() && stat.contains(")")) {
-            // add 3 to account for pid, process name in prarenthesis, and state
-            PROC_PID_STAT_LENGTH = ParseUtil.countStringToLongArray(stat, ' ') + 3;
-        } else {
-            // Default assuming recent kernel
-            PROC_PID_STAT_LENGTH = 52;
-        }
-    }
-
-    private ProcessStat() {
-    }
-
-    /**
-     * Reads the statistics in {@code /proc/[pid]/stat} and returns the results.
-     *
-     * @param pid
-     *            The process ID for which to fetch stats
-     * @return A triplet containing the process name as the first element, a
-     *         character representing the process state as the second element, and
-     *         an EnumMap as the third element, where the numeric values in
-     *         {@link PidStat} are mapped to a {@link Long} value.
-     *         <p>
-     *         If the process doesn't exist, returns null.
-     */
-    public static Triplet<String, Character, Map<PidStat, Long>> getPidStats(int pid) {
-        String stat = FileUtil.getStringFromFile(String.format(ProcPath.PID_STAT, pid));
-        if (stat.isEmpty()) {
-            // If pid doesn't exist
-            return null;
-        }
-        // Get process name from between parentheses and state immediately after
-        int nameStart = stat.indexOf('(') + 1;
-        int nameEnd = stat.indexOf(')');
-        String name = stat.substring(nameStart, nameEnd);
-        Character state = stat.charAt(nameEnd + 2);
-        // Split everything after the state
-        String[] split = ParseUtil.whitespaces.split(stat.substring(nameEnd + 4).trim());
-
-        Map<PidStat, Long> statMap = new EnumMap<>(PidStat.class);
-        PidStat[] enumArray = PidStat.class.getEnumConstants();
-        for (int i = 3; i < enumArray.length && i - 3 < split.length; i++) {
-            statMap.put(enumArray[i], ParseUtil.parseLongOrDefault(split[i - 3], 0L));
-        }
-        return new Triplet<>(name, state, statMap);
-    }
-
-    /**
-     * Reads the statistics in {@code /proc/[pid]/statm} and returns the results.
-     *
-     * @param pid
-     *            The process ID for which to fetch stats
-     * @return An EnumMap where the numeric values in {@link PidStatM} are mapped to
-     *         a {@link Long} value.
-     *         <p>
-     *         If the process doesn't exist, returns null.
-     */
-    public static Map<PidStatM, Long> getPidStatM(int pid) {
-        String statm = FileUtil.getStringFromFile(String.format(ProcPath.PID_STATM, pid));
-        if (statm.isEmpty()) {
-            // If pid doesn't exist
-            return null;
-        }
-        // Split the fields
-        String[] split = ParseUtil.whitespaces.split(statm);
-
-        Map<PidStatM, Long> statmMap = new EnumMap<>(PidStatM.class);
-        PidStatM[] enumArray = PidStatM.class.getEnumConstants();
-        for (int i = 0; i < enumArray.length && i < split.length; i++) {
-            statmMap.put(enumArray[i], ParseUtil.parseLongOrDefault(split[i], 0L));
-        }
-        return statmMap;
-    }
-
-    /**
-     * Gets an array of files in the /proc directory with only numeric digit
-     * filenames, corresponding to processes
-     *
-     * @return An array of File objects for the process files
-     */
-    public static File[] getPidFiles() {
-        File procdir = new File(ProcPath.PROC);
-        File[] pids = procdir.listFiles(f -> DIGITS.matcher(f.getName()).matches());
-        return pids != null ? pids : new File[0];
-    }
-
-    /**
-     * Gets an List of thread ids for a process from the {@code /proc/[pid]/task/}
-     * directory with only numeric digit filenames, corresponding to the threads.
-     *
-     * @param pid process id
-     * @return A list of thread id.
-     */
-    public static List<Integer> getThreadIds(int pid) {
-        File threadDir = new File(String.format(ProcPath.TASK_PATH, pid));
-        File[] threads = threadDir
-                .listFiles(file -> DIGITS.matcher(file.getName()).matches() && Integer.valueOf(file.getName()) != pid);
-        List<Integer> threadIDs = new ArrayList<Integer>();
-        for (File thread : threads) {
-            int tid = ParseUtil.parseIntOrDefault(thread.getName(), 0);
-            threadIDs.add(tid);
-        }
-        return threadIDs;
-    }
-
-    /***
-     * Returns Enum STATE for the state value obtained from status file of any
-     * process/thread.
-     *
-     * @param stateValue
-     *            state value from the status file
-     * @return OSProcess.State
-     */
-    public static OSProcess.State getState(char stateValue) {
-        OSProcess.State state;
-        switch (stateValue) {
-        case 'R':
-            state = OSProcess.State.RUNNING;
-            break;
-        case 'S':
-            state = OSProcess.State.SLEEPING;
-            break;
-        case 'D':
-            state = OSProcess.State.WAITING;
-            break;
-        case 'Z':
-            state = OSProcess.State.ZOMBIE;
-            break;
-        case 'T':
-            state = OSProcess.State.STOPPED;
-            break;
-        default:
-            state = OSProcess.State.OTHER;
-            break;
-        }
-        return state;
-    }
 
     /**
      * Enum corresponding to the fields in the output of {@code /proc/[pid]/stat}
@@ -472,7 +328,7 @@ public final class ProcessStat {
         /**
          * The thread's exit status in the form reported by waitpid(2).
          */
-        EXIT_CODE
+        EXIT_CODE;
     }
 
     /**
@@ -506,6 +362,151 @@ public final class ProcessStat {
         /**
          * Dirty pages (unused since Linux 2.6; always 0)
          */
-        DT
+        DT;
+    }
+
+    /**
+     * Constant defining the number of integer values in {@code /proc/pid/stat}. 2.6
+     * Kernel has 44 elements, 3.3 has 47, and 3.5 has 52.
+     */
+    public static final int PROC_PID_STAT_LENGTH;
+    static {
+        String stat = FileUtil.getStringFromFile(ProcPath.SELF_STAT);
+        if (!stat.isEmpty() && stat.contains(")")) {
+            // add 3 to account for pid, process name in prarenthesis, and state
+            PROC_PID_STAT_LENGTH = ParseUtil.countStringToLongArray(stat, ' ') + 3;
+        } else {
+            // Default assuming recent kernel
+            PROC_PID_STAT_LENGTH = 52;
+        }
+    }
+
+    private ProcessStat() {
+    }
+
+    /**
+     * Reads the statistics in {@code /proc/[pid]/stat} and returns the results.
+     *
+     * @param pid
+     *            The process ID for which to fetch stats
+     * @return A triplet containing the process name as the first element, a
+     *         character representing the process state as the second element, and
+     *         an EnumMap as the third element, where the numeric values in
+     *         {@link PidStat} are mapped to a {@link Long} value.
+     *         <p>
+     *         If the process doesn't exist, returns null.
+     */
+    public static Triplet<String, Character, Map<PidStat, Long>> getPidStats(int pid) {
+        String stat = FileUtil.getStringFromFile(String.format(ProcPath.PID_STAT, pid));
+        if (stat.isEmpty()) {
+            // If pid doesn't exist
+            return null;
+        }
+        // Get process name from between parentheses and state immediately after
+        int nameStart = stat.indexOf('(') + 1;
+        int nameEnd = stat.indexOf(')');
+        String name = stat.substring(nameStart, nameEnd);
+        Character state = stat.charAt(nameEnd + 2);
+        // Split everything after the state
+        String[] split = ParseUtil.whitespaces.split(stat.substring(nameEnd + 4).trim());
+
+        Map<PidStat, Long> statMap = new EnumMap<>(PidStat.class);
+        PidStat[] enumArray = PidStat.class.getEnumConstants();
+        for (int i = 3; i < enumArray.length && i - 3 < split.length; i++) {
+            statMap.put(enumArray[i], ParseUtil.parseLongOrDefault(split[i - 3], 0L));
+        }
+        return new Triplet<>(name, state, statMap);
+    }
+
+    /**
+     * Reads the statistics in {@code /proc/[pid]/statm} and returns the results.
+     *
+     * @param pid
+     *            The process ID for which to fetch stats
+     * @return An EnumMap where the numeric values in {@link PidStatM} are mapped to
+     *         a {@link Long} value.
+     *         <p>
+     *         If the process doesn't exist, returns null.
+     */
+    public static Map<PidStatM, Long> getPidStatM(int pid) {
+        String statm = FileUtil.getStringFromFile(String.format(ProcPath.PID_STATM, pid));
+        if (statm.isEmpty()) {
+            // If pid doesn't exist
+            return null;
+        }
+        // Split the fields
+        String[] split = ParseUtil.whitespaces.split(statm);
+
+        Map<PidStatM, Long> statmMap = new EnumMap<>(PidStatM.class);
+        PidStatM[] enumArray = PidStatM.class.getEnumConstants();
+        for (int i = 0; i < enumArray.length && i < split.length; i++) {
+            statmMap.put(enumArray[i], ParseUtil.parseLongOrDefault(split[i], 0L));
+        }
+        return statmMap;
+    }
+
+    /**
+     * Gets an array of files in the /proc directory with only numeric digit
+     * filenames, corresponding to processes
+     *
+     * @return An array of File objects for the process files
+     */
+    public static File[] getPidFiles() {
+        File procdir = new File(ProcPath.PROC);
+        File[] pids = procdir.listFiles(f -> DIGITS.matcher(f.getName()).matches());
+        return pids != null ? pids : new File[0];
+    }
+
+    /**
+     * Gets an List of thread ids for a process from the {@code /proc/[pid]/task/}
+     * directory with only numeric digit filenames, corresponding to the threads.
+     *
+     * @param pid
+     *            process id
+     * @return A list of thread id.
+     */
+    public static List<Integer> getThreadIds(int pid) {
+        File threadDir = new File(String.format(ProcPath.TASK_PATH, pid));
+        File[] threads = threadDir
+                .listFiles(file -> DIGITS.matcher(file.getName()).matches() && Integer.valueOf(file.getName()) != pid);
+        List<Integer> threadIDs = new ArrayList<>();
+        for (File thread : threads) {
+            int tid = ParseUtil.parseIntOrDefault(thread.getName(), 0);
+            threadIDs.add(tid);
+        }
+        return threadIDs;
+    }
+
+    /***
+     * Returns Enum STATE for the state value obtained from status file of any
+     * process/thread.
+     *
+     * @param stateValue
+     *            state value from the status file
+     * @return OSProcess.State
+     */
+    public static OSProcess.State getState(char stateValue) {
+        OSProcess.State state;
+        switch (stateValue) {
+        case 'R':
+            state = OSProcess.State.RUNNING;
+            break;
+        case 'S':
+            state = OSProcess.State.SLEEPING;
+            break;
+        case 'D':
+            state = OSProcess.State.WAITING;
+            break;
+        case 'Z':
+            state = OSProcess.State.ZOMBIE;
+            break;
+        case 'T':
+            state = OSProcess.State.STOPPED;
+            break;
+        default:
+            state = OSProcess.State.OTHER;
+            break;
+        }
+        return state;
     }
 }

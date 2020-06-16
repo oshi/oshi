@@ -23,18 +23,7 @@
  */
 package oshi.software.os.linux;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import oshi.annotation.concurrent.ThreadSafe;
-import oshi.driver.linux.proc.ProcessStat;
-import oshi.driver.linux.proc.TaskStat;
-import oshi.driver.linux.proc.UserGroupInfo;
-import oshi.software.common.AbstractOSProcess;
-import oshi.software.os.OSThread;
-import oshi.util.ExecutingCommand;
-import oshi.util.FileUtil;
-import oshi.util.ParseUtil;
-import oshi.util.platform.linux.ProcPath;
+import static oshi.util.Memoizer.memoize;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -51,7 +40,18 @@ import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import static oshi.util.Memoizer.memoize;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.linux.proc.ProcessStat;
+import oshi.driver.linux.proc.UserGroupInfo;
+import oshi.software.common.AbstractOSProcess;
+import oshi.software.os.OSThread;
+import oshi.util.ExecutingCommand;
+import oshi.util.FileUtil;
+import oshi.util.ParseUtil;
+import oshi.util.platform.linux.ProcPath;
 
 @ThreadSafe
 public class LinuxOSProcess extends AbstractOSProcess {
@@ -323,7 +323,8 @@ public class LinuxOSProcess extends AbstractOSProcess {
         this.group = UserGroupInfo.getGroupName(groupID);
         this.name = status.getOrDefault("Name", "");
         this.state = ProcessStat.getState(status.getOrDefault("State", "U").charAt(0));
-        this.threadDetails = ProcessStat.getThreadIds(getProcessID()).stream().map(id -> new TaskStat(this, id)).collect(Collectors.toList());
+        this.threadDetails = ProcessStat.getThreadIds(getProcessID()).stream().map(id -> new LinuxOSThread(this, id))
+                .collect(Collectors.toList());
         return true;
     }
 

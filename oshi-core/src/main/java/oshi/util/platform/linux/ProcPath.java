@@ -67,7 +67,6 @@ public final class ProcPath {
     public static final String VERSION = PROC + "/version";
     public static final String VMSTAT = PROC + "/vmstat";
 
-
     private ProcPath() {
     }
 

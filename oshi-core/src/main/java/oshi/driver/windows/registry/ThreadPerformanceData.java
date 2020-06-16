@@ -121,7 +121,7 @@ public final class ThreadPerformanceData {
             int pid = pidList.get(inst).intValue();
             if (pids == null || pids.contains(pid)) {
                 int tid = tidList.get(inst).intValue();
-                String name = "" + inst;
+                String name = Integer.toString(inst);
                 long upTime = upTimeList.get(inst);
                 if (upTime > now) {
                     upTime = WinBase.FILETIME.filetimeToDate((int) (upTime >> 32), (int) (upTime & 0xffffffffL))

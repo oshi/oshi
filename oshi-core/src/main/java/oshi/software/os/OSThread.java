@@ -29,19 +29,16 @@ package oshi.software.os;
 public interface OSThread extends OSProcess {
 
     /**
-     * <p>
-     * Getter for the field <code>threadId</code>.
-     * </p>
+     * The thread id. The meaning of this value is OS-dependent.
      *
      * @return Returns the id of the thread.
      */
     int getThreadId();
 
     /**
-     * <p>
-     * Getter for the field <code>parentProcess</code> which is the parent process of this thread.
-     * </p>
-     * @return The parent process
+     * The owning process of this thread.
+     *
+     * @return The owning process
      */
-    OSProcess getParentProcess();
+    OSProcess getOwningProcess();
 }
