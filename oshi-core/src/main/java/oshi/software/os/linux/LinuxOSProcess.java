@@ -23,6 +23,7 @@
  */
 package oshi.software.os.linux;
 
+import static oshi.hardware.platform.linux.LinuxGlobalMemory.PAGE_SIZE;
 import static oshi.util.Memoizer.memoize;
 
 import java.io.File;
@@ -58,10 +59,6 @@ public class LinuxOSProcess extends AbstractOSProcess {
 
     private static final Logger LOG = LoggerFactory.getLogger(LinuxOSProcess.class);
     private static final String LS_F_PROC_PID_FD = "ls -f " + ProcPath.PID_FD;
-    // Resident Set Size is the number of pages the process has in real memory. To
-    // get the actual size in bytes we need to multiply that with page size.
-    private static final int PAGE_SIZE = ParseUtil
-            .parseIntOrDefault(ExecutingCommand.getFirstAnswer("getconf PAGESIZE"), 4096);
 
     // Get a list of orders to pass to ParseUtil
     private static final int[] PROC_PID_STAT_ORDERS = new int[ProcPidStat.values().length];

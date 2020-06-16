@@ -42,11 +42,12 @@ import oshi.util.tuples.Pair;
  * Memory obtained by /proc/meminfo and sysinfo.totalram
  */
 @ThreadSafe
-final class LinuxGlobalMemory extends AbstractGlobalMemory {
+public final class LinuxGlobalMemory extends AbstractGlobalMemory {
+
+    public static final long PAGE_SIZE = ParseUtil
+            .parseLongOrDefault(ExecutingCommand.getFirstAnswer("getconf PAGE_SIZE"), 4096L);
 
     private final Supplier<Pair<Long, Long>> availTotal = memoize(LinuxGlobalMemory::readMemInfo, defaultExpiration());
-
-    private final Supplier<Long> pageSize = memoize(LinuxGlobalMemory::queryPageSize);
 
     private final Supplier<VirtualMemory> vm = memoize(this::createVirtualMemory);
 
@@ -62,19 +63,12 @@ final class LinuxGlobalMemory extends AbstractGlobalMemory {
 
     @Override
     public long getPageSize() {
-        return pageSize.get();
+        return PAGE_SIZE;
     }
 
     @Override
     public VirtualMemory getVirtualMemory() {
         return vm.get();
-    }
-
-    private static long queryPageSize() {
-        // Ideally we would us sysconf(_SC_PAGESIZE) but the constant is platform
-        // dependent and would require parsing header files, etc. Since this is only
-        // read once at startup, command line is a reliable fallback.
-        return ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer("getconf PAGE_SIZE"), 4096L);
     }
 
     /**

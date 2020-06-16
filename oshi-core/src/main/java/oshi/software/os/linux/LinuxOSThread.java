@@ -23,20 +23,18 @@
  */
 package oshi.software.os.linux;
 
+import static oshi.hardware.platform.linux.LinuxGlobalMemory.PAGE_SIZE;
+
 import java.util.Map;
 
 import oshi.driver.linux.proc.ProcessStat;
 import oshi.software.common.AbstractOSThread;
 import oshi.software.os.OSProcess;
-import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.linux.ProcPath;
 
 public class LinuxOSThread extends AbstractOSThread {
-
-    private static final int PAGE_SIZE = ParseUtil
-            .parseIntOrDefault(ExecutingCommand.getFirstAnswer("getconf PAGESIZE"), 4096);
 
     private static final int[] PROC_TASK_STAT_ORDERS = new int[LinuxOSThread.ThreadPidStat.values().length];
     static {
@@ -206,14 +204,14 @@ public class LinuxOSThread extends AbstractOSThread {
         long[] statArray = ParseUtil.parseStringToLongArray(stat, PROC_TASK_STAT_ORDERS,
                 ProcessStat.PROC_PID_STAT_LENGTH, ' ');
 
-        // The /proc/pid/cmdline value is null-delimited
-        /*
-         * this.startTime = LinuxOperatingSystem.BOOTTIME +
-         * statArray[LinuxOSThread.ThreadPidStat.START_TIME.ordinal()] * 1000L /
-         * LinuxOperatingSystem.getHz();
-         */
-        // BOOT_TIME could be up to 5ms off. In rare cases when a process has
-        // started within 5ms of boot it is possible to get negative uptime.
+        // BOOTTIME is in seconds and start time from proc/pid/stat is in jiffies.
+        // Combine units to jiffies and convert to millijiffies before hz division to
+        // avoid precision loss without having to cast
+        this.startTime = (LinuxOperatingSystem.BOOTTIME * LinuxOperatingSystem.getHz()
+                + statArray[LinuxOSThread.ThreadPidStat.START_TIME.ordinal()]) * 1000L / LinuxOperatingSystem.getHz();
+        // BOOT_TIME could be up to 500ms off and start time up to 5ms off. A process
+        // that has started within last 505ms could produce a future start time/negative
+        // up time, so insert a sanity check.
         if (startTime >= now) {
             startTime = now - 1;
         }
