@@ -23,37 +23,34 @@
  */
 package oshi.software.common;
 
-import java.util.Collections;
-import java.util.List;
-
-import oshi.software.os.OSProcess;
 import oshi.software.os.OSThread;
+
+import java.util.function.Supplier;
+
+import static oshi.util.Memoizer.defaultExpiration;
+import static oshi.util.Memoizer.memoize;
 
 public abstract class AbstractOSThread implements OSThread {
 
-    private final OSProcess owningProcess;
+    private final Supplier<Double> cumulativeCpuLoad = memoize(this::queryCumulativeCpuLoad, defaultExpiration());
 
-    public AbstractOSThread(OSProcess process) {
-        this.owningProcess = process;
+    private final int owningProcessId;
+
+    public AbstractOSThread(int processId) {
+        this.owningProcessId = processId;
     }
 
     @Override
-    public OSProcess getOwningProcess() {
-        return this.owningProcess;
+    public int getOwningProcessId() {
+        return this.owningProcessId;
     }
 
     @Override
-    public int getProcessID() {
-        return getOwningProcess().getProcessID();
+    public double getCpuLoadCumulative() {
+        return cumulativeCpuLoad.get();
     }
 
-    @Override
-    public int getParentProcessID() {
-        return getOwningProcess().getParentProcessID();
-    }
-
-    @Override
-    public List<OSThread> getThreadDetails() {
-        return Collections.emptyList();
+    private double queryCumulativeCpuLoad() {
+        return (getKernelTime() + getUserTime()) / (double) getUpTime();
     }
 }

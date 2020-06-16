@@ -23,13 +23,11 @@
  */
 package oshi.software.os.linux;
 
-import static oshi.hardware.platform.linux.LinuxGlobalMemory.PAGE_SIZE;
-
 import java.util.Map;
 
 import oshi.driver.linux.proc.ProcessStat;
 import oshi.software.common.AbstractOSThread;
-import oshi.software.os.OSProcess;
+import oshi.software.os.OSProcess.State;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.linux.ProcPath;
@@ -46,61 +44,31 @@ public class LinuxOSThread extends AbstractOSThread {
     }
 
     private final int threadId;
+    private String name = "";
     private State state = State.INVALID;
-    private int priority;
-    private long virtualSize;
-    private long residentSetSize;
+    private long minorFaults;
+    private long majorFaults;
+    private long startMemoryAddress;
+    private long contextSwitches;
     private long kernelTime;
     private long userTime;
     private long startTime;
     private long upTime;
-    private long bytesRead;
-    private long bytesWritten;
 
-    public LinuxOSThread(LinuxOSProcess process, int tid) {
-        super(process);
+    public LinuxOSThread(int processId, int tid) {
+        super(processId);
         this.threadId = tid;
         updateAttributes();
     }
 
     @Override
+    public int getThreadId() {
+        return this.threadId;
+    }
+
+    @Override
     public String getName() {
-        return getOwningProcess().getName();
-    }
-
-    @Override
-    public String getPath() {
-        return getOwningProcess().getPath();
-    }
-
-    @Override
-    public String getCommandLine() {
-        return getOwningProcess().getCommandLine();
-    }
-
-    @Override
-    public String getCurrentWorkingDirectory() {
-        return getOwningProcess().getCurrentWorkingDirectory();
-    }
-
-    @Override
-    public String getUser() {
-        return getOwningProcess().getUser();
-    }
-
-    @Override
-    public String getUserID() {
-        return getOwningProcess().getUserID();
-    }
-
-    @Override
-    public String getGroup() {
-        return getOwningProcess().getGroup();
-    }
-
-    @Override
-    public String getGroupID() {
-        return getOwningProcess().getGroupID();
+        return this.name;
     }
 
     @Override
@@ -108,24 +76,35 @@ public class LinuxOSThread extends AbstractOSThread {
         return this.state;
     }
 
+
     @Override
-    public int getThreadCount() {
-        return 1;
+    public double getCpuLoadCumulative() {
+        return 0;
     }
 
     @Override
-    public int getPriority() {
-        return this.priority;
+    public long getStartTime() {
+        return this.startTime;
     }
 
     @Override
-    public long getVirtualSize() {
-        return this.virtualSize;
+    public long getStartMemoryAddress() {
+        return this.startMemoryAddress;
     }
 
     @Override
-    public long getResidentSetSize() {
-        return this.residentSetSize;
+    public long getContextSwitches() {
+        return this.contextSwitches;
+    }
+
+    @Override
+    public long getMinorFaults() {
+        return this.minorFaults;
+    }
+
+    @Override
+    public long getMajorFaults() {
+        return this.majorFaults;
     }
 
     @Override
@@ -144,58 +123,11 @@ public class LinuxOSThread extends AbstractOSThread {
     }
 
     @Override
-    public long getStartTime() {
-        return this.startTime;
-    }
-
-    @Override
-    public long getBytesRead() {
-        return this.bytesRead;
-    }
-
-    @Override
-    public long getBytesWritten() {
-        return this.bytesWritten;
-    }
-
-    @Override
-    public long getOpenFiles() {
-        return 0;
-    }
-
-    @Override
-    public double getProcessCpuLoadCumulative() {
-        return 0;
-    }
-
-    @Override
-    public double getProcessCpuLoadBetweenTicks(OSProcess proc) {
-        return 0;
-    }
-
-    @Override
-    public int getBitness() {
-        return 0;
-    }
-
-    @Override
-    public long getAffinityMask() {
-        return 0;
-    }
-
-    @Override
-    public int getThreadId() {
-        return this.threadId;
-    }
-
-    @Override
     public boolean updateAttributes() {
-        Map<String, String> io = FileUtil.getKeyValueMapFromFile(
-                String.format(ProcPath.TASK_IO, this.getOwningProcess().getProcessID(), this.threadId), ":");
         Map<String, String> status = FileUtil.getKeyValueMapFromFile(
-                String.format(ProcPath.TASK_STATUS, this.getOwningProcess().getProcessID(), this.threadId), ":");
+                String.format(ProcPath.TASK_STATUS, this.getOwningProcessId(), this.threadId), ":");
         String stat = FileUtil.getStringFromFile(
-                String.format(ProcPath.TASK_STAT, this.getOwningProcess().getProcessID(), this.threadId));
+                String.format(ProcPath.TASK_STAT, this.getOwningProcessId(), this.threadId));
         if (stat.isEmpty()) {
             this.state = State.INVALID;
             return false;
@@ -212,22 +144,19 @@ public class LinuxOSThread extends AbstractOSThread {
         // BOOT_TIME could be up to 500ms off and start time up to 5ms off. A process
         // that has started within last 505ms could produce a future start time/negative
         // up time, so insert a sanity check.
-        if (startTime >= now) {
-            startTime = now - 1;
+        if (this.startTime >= now) {
+            this.startTime = now - 1;
         }
-        this.priority = (int) statArray[LinuxOSThread.ThreadPidStat.PRIORITY.ordinal()];
-        this.virtualSize = statArray[LinuxOSThread.ThreadPidStat.VSZ.ordinal()];
-        this.residentSetSize = statArray[LinuxOSThread.ThreadPidStat.RSS.ordinal()] * PAGE_SIZE;
-        this.kernelTime = statArray[LinuxOSThread.ThreadPidStat.KERNEL_TIME.ordinal()] * 1000L
-                / LinuxOperatingSystem.getHz();
-        this.userTime = statArray[LinuxOSThread.ThreadPidStat.USER_TIME.ordinal()] * 1000L
-                / LinuxOperatingSystem.getHz();
-        this.upTime = now - startTime;
-
-        // See man proc for how to parse /proc/[pid]/io
-        this.bytesRead = ParseUtil.parseLongOrDefault(io.getOrDefault("read_bytes", ""), 0L);
-        this.bytesWritten = ParseUtil.parseLongOrDefault(io.getOrDefault("write_bytes", ""), 0L);
+        this.minorFaults = statArray[ThreadPidStat.MINOR_FAULTS.ordinal()];
+        this.majorFaults = statArray[ThreadPidStat.MAJOR_FAUT.ordinal()];
+        this.startMemoryAddress = statArray[ThreadPidStat.START_CODE.ordinal()];
+        Long voluntaryContextSwitches = Long.valueOf(status.get("voluntary_ctxt_switches") != null ? status.get("voluntary_ctxt_switches") : "0");
+        Long nonVoluntaryContextSwitches = Long.valueOf(status.get("nonvoluntary_ctxt_switches") != null ? status.get("nonvoluntary_ctxt_switches") : "0");
+        this.contextSwitches = Math.addExact(voluntaryContextSwitches, nonVoluntaryContextSwitches);
         this.state = ProcessStat.getState(status.getOrDefault("State", "U").charAt(0));
+        this.kernelTime = statArray[ThreadPidStat.KERNEL_TIME.ordinal()] * 1000L / LinuxOperatingSystem.getHz();
+        this.userTime = statArray[ThreadPidStat.USER_TIME.ordinal()] * 1000L / LinuxOperatingSystem.getHz();
+        this.upTime = now - startTime;
         return true;
     }
 
@@ -238,7 +167,7 @@ public class LinuxOSThread extends AbstractOSThread {
     private enum ThreadPidStat {
         // The parsing implementation in ParseUtil requires these to be declared
         // in increasing order
-        PPID(4), USER_TIME(14), KERNEL_TIME(15), PRIORITY(18), THREAD_COUNT(20), START_TIME(22), VSZ(23), RSS(24);
+        PPID(4), MINOR_FAULTS(10), MAJOR_FAUT(12), USER_TIME(14), KERNEL_TIME(15), PRIORITY(18), THREAD_COUNT(20), START_TIME(22), VSZ(23), RSS(24), START_CODE(26);
 
         private final int order;
 

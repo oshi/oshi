@@ -509,4 +509,5 @@ public final class ProcessStat {
         }
         return state;
     }
+
 }

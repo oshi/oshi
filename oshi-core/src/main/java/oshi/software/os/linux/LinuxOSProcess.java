@@ -320,7 +320,7 @@ public class LinuxOSProcess extends AbstractOSProcess {
         this.group = UserGroupInfo.getGroupName(groupID);
         this.name = status.getOrDefault("Name", "");
         this.state = ProcessStat.getState(status.getOrDefault("State", "U").charAt(0));
-        this.threadDetails = ProcessStat.getThreadIds(getProcessID()).stream().map(id -> new LinuxOSThread(this, id))
+        this.threadDetails = ProcessStat.getThreadIds(getProcessID()).stream().map(id -> new LinuxOSThread(getProcessID(), id))
                 .collect(Collectors.toList());
         return true;
     }
