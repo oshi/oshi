@@ -74,18 +74,18 @@ public final class ThreadPerformanceData {
         Map<Integer, PerfCounterBlock> threadMap = new HashMap<>();
         // Iterate instances.
         for (Map<ThreadPerformanceProperty, Object> threadInstanceMap : threadInstanceMaps) {
-            int pid = ((Integer) threadInstanceMap.get(ThreadPerformanceProperty.PROCESSHANDLE)).intValue();
+            int pid = ((Integer) threadInstanceMap.get(ThreadPerformanceProperty.IDPROCESS)).intValue();
             if ((pids == null || pids.contains(pid)) && pid > 0) {
-                int tid = ((Integer) threadInstanceMap.get(ThreadPerformanceProperty.HANDLE)).intValue();
-                String name = String.format("0x%x", threadInstanceMap.get(ThreadPerformanceProperty.STARTADDRESS));
+                int tid = ((Integer) threadInstanceMap.get(ThreadPerformanceProperty.IDTHREAD)).intValue();
+                String name = (String) threadInstanceMap.get(ThreadPerformanceProperty.NAME);
                 long upTime = (perfTime100nSec - (Long) threadInstanceMap.get(ThreadPerformanceProperty.ELAPSEDTIME))
                         / 10_000L;
                 if (upTime < 1L) {
                     upTime = 1L;
                 }
-                long user = ((Long) threadInstanceMap.get(ThreadPerformanceProperty.USERMODETIME)).longValue();
-                long kernel = ((Long) threadInstanceMap.get(ThreadPerformanceProperty.KERNELMODETIME)).longValue();
-                int priority = ((Integer) threadInstanceMap.get(ThreadPerformanceProperty.PRIORITY)).intValue();
+                long user = ((Long) threadInstanceMap.get(ThreadPerformanceProperty.PERCENTUSERTIME)).longValue();
+                long kernel = ((Long) threadInstanceMap.get(ThreadPerformanceProperty.PERCENTPRIVILEGEDTIME)).longValue();
+                int priority = ((Integer) threadInstanceMap.get(ThreadPerformanceProperty.PRIORITYCURRENT)).intValue();
                 int threadState = ((Integer) threadInstanceMap.get(ThreadPerformanceProperty.THREADSTATE)).intValue();
                 threadMap.put(tid, new PerfCounterBlock(name, tid, pid, upTime, user, kernel, priority, threadState));
             }
@@ -109,12 +109,12 @@ public final class ThreadPerformanceData {
         long now = System.currentTimeMillis(); // 1970 epoch
         List<String> instances = instanceValues.getA();
         Map<ThreadPerformanceProperty, List<Long>> valueMap = instanceValues.getB();
-        List<Long> tidList = valueMap.get(ThreadPerformanceProperty.HANDLE);
-        List<Long> pidList = valueMap.get(ThreadPerformanceProperty.PROCESSHANDLE);
-        List<Long> userList = valueMap.get(ThreadPerformanceProperty.USERMODETIME);
-        List<Long> kernelList = valueMap.get(ThreadPerformanceProperty.KERNELMODETIME);
+        List<Long> tidList = valueMap.get(ThreadPerformanceProperty.IDTHREAD);
+        List<Long> pidList = valueMap.get(ThreadPerformanceProperty.IDPROCESS);
+        List<Long> userList = valueMap.get(ThreadPerformanceProperty.PERCENTUSERTIME);
+        List<Long> kernelList = valueMap.get(ThreadPerformanceProperty.PERCENTPRIVILEGEDTIME);
         List<Long> upTimeList = valueMap.get(ThreadPerformanceProperty.ELAPSEDTIME);
-        List<Long> priorityList = valueMap.get(ThreadPerformanceProperty.PRIORITY);
+        List<Long> priorityList = valueMap.get(ThreadPerformanceProperty.PRIORITYCURRENT);
         List<Long> stateList = valueMap.get(ThreadPerformanceProperty.THREADSTATE);
 
         for (int inst = 0; inst < instances.size(); inst++) {

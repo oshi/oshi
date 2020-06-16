@@ -39,25 +39,25 @@ import oshi.util.tuples.Pair;
 public final class ThreadInformation {
 
     private static final String THREAD = "Thread";
-    private static final String WIN32_THREAD_WHERE_NOT_HANDLE_0 = "Win32_Thread WHERE NOT Handle=0";
+    private static final String WIN32_PERF_RAW_DATA_PERF_PROC_THREAD = "Win32_PerfRawData_PerfProc_Thread WHERE NOT Name LIKE \"%_Total\"";
 
     /**
      * Thread performance counters
      */
     public enum ThreadPerformanceProperty implements PdhCounterWildcardProperty {
         // First element defines WMI instance name field and PDH instance filter
-        NAME(PerfCounterQuery.NOT_TOTAL_INSTANCES), // WMI Name is empty
+        NAME(PerfCounterQuery.NOT_TOTAL_INSTANCES),
         // Remaining elements define counters
-        USERMODETIME("% User Time"), //
-        KERNELMODETIME("% Privileged Time"), //
+        PERCENTUSERTIME("% User Time"), //
+        PERCENTPRIVILEGEDTIME("% Privileged Time"), //
         ELAPSEDTIME("Elapsed Time"), //
-        PRIORITY("Priority Current"), //
+        PRIORITYCURRENT("Priority Current"), //
         PRIORITYBASE("Priority Base"), //
         STARTADDRESS("Start Address"), //
         THREADSTATE("Thread State"), //
         THREADWAITREASON("Thread Wait Reason"), //
-        PROCESSHANDLE("ID Process"), //
-        HANDLE("ID Thread");
+        IDPROCESS("ID Process"), //
+        IDTHREAD("ID Thread");
 
         private final String counter;
 
@@ -81,6 +81,6 @@ public final class ThreadInformation {
      */
     public static Pair<List<String>, Map<ThreadPerformanceProperty, List<Long>>> queryThreadCounters() {
         return PerfCounterWildcardQuery.queryInstancesAndValues(ThreadPerformanceProperty.class, THREAD,
-                WIN32_THREAD_WHERE_NOT_HANDLE_0);
+                WIN32_PERF_RAW_DATA_PERF_PROC_THREAD);
     }
 }
