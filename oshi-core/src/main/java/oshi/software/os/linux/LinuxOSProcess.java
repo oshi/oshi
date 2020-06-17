@@ -91,7 +91,6 @@ public class LinuxOSProcess extends AbstractOSProcess {
     private long upTime;
     private long bytesRead;
     private long bytesWritten;
-    private List<OSThread> threadDetails;
 
     public LinuxOSProcess(int pid) {
         super(pid);
@@ -210,7 +209,9 @@ public class LinuxOSProcess extends AbstractOSProcess {
 
     @Override
     public List<OSThread> getThreadDetails() {
-        return Collections.unmodifiableList(this.threadDetails);
+        List<OSThread> threadDetails = ProcessStat.getThreadIds(getProcessID()).stream().map(id -> new LinuxOSThread(getProcessID(), id))
+                .collect(Collectors.toList());
+        return Collections.unmodifiableList(threadDetails);
     }
 
     @Override
@@ -320,8 +321,6 @@ public class LinuxOSProcess extends AbstractOSProcess {
         this.group = UserGroupInfo.getGroupName(groupID);
         this.name = status.getOrDefault("Name", "");
         this.state = ProcessStat.getState(status.getOrDefault("State", "U").charAt(0));
-        this.threadDetails = ProcessStat.getThreadIds(getProcessID()).stream().map(id -> new LinuxOSThread(getProcessID(), id))
-                .collect(Collectors.toList());
         return true;
     }
 

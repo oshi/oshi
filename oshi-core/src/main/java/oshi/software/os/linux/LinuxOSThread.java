@@ -148,11 +148,11 @@ public class LinuxOSThread extends AbstractOSThread {
             this.startTime = now - 1;
         }
         this.minorFaults = statArray[ThreadPidStat.MINOR_FAULTS.ordinal()];
-        this.majorFaults = statArray[ThreadPidStat.MAJOR_FAUT.ordinal()];
+        this.majorFaults = statArray[ThreadPidStat.MAJOR_FAULT.ordinal()];
         this.startMemoryAddress = statArray[ThreadPidStat.START_CODE.ordinal()];
-        Long voluntaryContextSwitches = Long.valueOf(status.get("voluntary_ctxt_switches") != null ? status.get("voluntary_ctxt_switches") : "0");
-        Long nonVoluntaryContextSwitches = Long.valueOf(status.get("nonvoluntary_ctxt_switches") != null ? status.get("nonvoluntary_ctxt_switches") : "0");
-        this.contextSwitches = Math.addExact(voluntaryContextSwitches, nonVoluntaryContextSwitches);
+        long voluntaryContextSwitches = ParseUtil.parseLongOrDefault(status.getOrDefault("voluntary_ctxt_switches", ""), 0L);
+        long nonVoluntaryContextSwitches = ParseUtil.parseLongOrDefault(status.getOrDefault("nonvoluntary_ctxt_switches", ""), 0L);
+        this.contextSwitches = voluntaryContextSwitches + nonVoluntaryContextSwitches;
         this.state = ProcessStat.getState(status.getOrDefault("State", "U").charAt(0));
         this.kernelTime = statArray[ThreadPidStat.KERNEL_TIME.ordinal()] * 1000L / LinuxOperatingSystem.getHz();
         this.userTime = statArray[ThreadPidStat.USER_TIME.ordinal()] * 1000L / LinuxOperatingSystem.getHz();
@@ -167,7 +167,7 @@ public class LinuxOSThread extends AbstractOSThread {
     private enum ThreadPidStat {
         // The parsing implementation in ParseUtil requires these to be declared
         // in increasing order
-        PPID(4), MINOR_FAULTS(10), MAJOR_FAUT(12), USER_TIME(14), KERNEL_TIME(15), PRIORITY(18), THREAD_COUNT(20), START_TIME(22), VSZ(23), RSS(24), START_CODE(26);
+        PPID(4), MINOR_FAULTS(10), MAJOR_FAULT(12), USER_TIME(14), KERNEL_TIME(15), PRIORITY(18), THREAD_COUNT(20), START_TIME(22), VSZ(23), RSS(24), START_CODE(26);
 
         private final int order;
 
