@@ -26,8 +26,12 @@ package oshi.software.os.windows;
 import static oshi.util.Memoizer.memoize;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.function.Supplier;
 
 import org.slf4j.Logger;
@@ -48,14 +52,18 @@ import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 import com.sun.jna.ptr.IntByReference;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.windows.registry.ProcessPerformanceData;
 import oshi.driver.windows.registry.ProcessPerformanceData.PerfCounterBlock;
+import oshi.driver.windows.registry.ProcessWtsData;
 import oshi.driver.windows.registry.ProcessWtsData.WtsInfo;
+import oshi.driver.windows.registry.ThreadPerformanceData;
 import oshi.driver.windows.wmi.Win32Process;
 import oshi.driver.windows.wmi.Win32Process.CommandLineProperty;
 import oshi.driver.windows.wmi.Win32ProcessCached;
 import oshi.jna.platform.windows.Advapi32Util;
 import oshi.jna.platform.windows.Kernel32;
 import oshi.software.common.AbstractOSProcess;
+import oshi.software.os.OSThread;
 import oshi.util.Constants;
 import oshi.util.GlobalConfig;
 import oshi.util.platform.windows.WmiUtil;
@@ -95,11 +103,11 @@ public class WindowsOSProcess extends AbstractOSProcess {
     private long openFiles;
     private int bitness;
 
-    public WindowsOSProcess(int pid, int myPid, int osBitness, Map<Integer, PerfCounterBlock> processMap,
+    public WindowsOSProcess(int pid, WindowsOperatingSystem os, Map<Integer, PerfCounterBlock> processMap,
             Map<Integer, WtsInfo> processWtsMap) {
         super(pid);
         // For executing process, set CWD
-        if (pid == myPid) {
+        if (pid == os.getProcessId()) {
             String cwd = new File(".").getAbsolutePath();
             // trim off trailing "."
             this.currentWorkingDirectory = cwd.isEmpty() ? "" : cwd.substring(0, cwd.length() - 1);
@@ -109,7 +117,7 @@ public class WindowsOSProcess extends AbstractOSProcess {
         // State and possibly roll up.
         this.state = State.RUNNING;
         // Initially set to match OS bitness. If 64 will check later for 32-bit process
-        this.bitness = osBitness;
+        this.bitness = os.getBitness();
         updateAttributes(processMap.get(pid), processWtsMap.get(pid));
     }
 
@@ -237,8 +245,32 @@ public class WindowsOSProcess extends AbstractOSProcess {
     }
 
     @Override
+    public List<OSThread> getThreadDetails() {
+        List<WindowsOSThread> threadList = new ArrayList<>();
+        // Get data from the registry if possible
+        Map<Integer, ThreadPerformanceData.PerfCounterBlock> threads = ThreadPerformanceData
+                .buildThreadMapFromRegistry(Collections.singleton(getProcessID()));
+        // otherwise performance counters with WMI backup
+        if (threads != null) {
+            threads = ThreadPerformanceData.buildThreadMapFromPerfCounters(Collections.singleton(this.getProcessID()));
+        }
+        for (Entry<Integer, ThreadPerformanceData.PerfCounterBlock> entry : threads.entrySet()) {
+            threadList.add(new WindowsOSThread(getProcessID(), entry.getKey(), this.name, entry.getValue()));
+        }
+        return Collections.unmodifiableList(threadList);
+    }
+
+    @Override
     public boolean updateAttributes() {
-        return true;
+        Set<Integer> pids = Collections.singleton(this.getProcessID());
+        // Get data from the registry if possible
+        Map<Integer, PerfCounterBlock> pcb = ProcessPerformanceData.buildProcessMapFromRegistry(null);
+        // otherwise performance counters with WMI backup
+        if (pcb == null) {
+            pcb = ProcessPerformanceData.buildProcessMapFromPerfCounters(pids);
+        }
+        Map<Integer, WtsInfo> wts = ProcessWtsData.queryProcessWtsMap(pids);
+        return updateAttributes(pcb.get(this.getProcessID()), wts.get(this.getProcessID()));
     }
 
     private boolean updateAttributes(PerfCounterBlock pcb, WtsInfo wts) {

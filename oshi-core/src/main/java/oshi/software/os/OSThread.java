@@ -55,28 +55,44 @@ public interface OSThread {
      * @return Returns the execution state of the task/thread.
      */
     State getState();
-
+    
     /**
-     * Gets cumulative CPU usage of this task/thread.
-     * <p>
-     * This calculation sums CPU ticks across all processors.
+     * Gets cumulative CPU usage of this thread.
      *
      * @return The proportion of up time that the thread was executing in kernel or
      *         user mode.
      */
-    double getCpuLoadCumulative();
+    double getThreadCpuLoadCumulative();
+
+    /**
+     * Gets CPU usage of this thread since a previous snapshot of the same thread,
+     * provided as a parameter.
+     *
+     * @param thread
+     *            An {@link OSThread} object containing statistics for this same
+     *            thread collected at a prior point in time. May be null.
+     *
+     * @return If the prior snapshot is for the same thread at a prior point in
+     *         time, the proportion of elapsed up time between the current thread
+     *         snapshot and the previous one that the thread was executing in kernel
+     *         or user mode. Returns cumulative load otherwise.
+     */
+    double getThreadCpuLoadBetweenTicks(OSThread thread);
 
     /**
      * <p>
-     * Getter for the field <code>owningProcessId</code> which is the parent process of this thread.
+     * Getter for the field <code>owningProcessId</code> which is the parent process
+     * of this thread.
      * </p>
+     * 
      * @return The owning process of this thread.
      */
     int getOwningProcessId();
 
     /**
      * <p>
-     * Getter for the field <code>startMemoryAddress</code> which is the memory address above which this thread can run.
+     * Getter for the field <code>startMemoryAddress</code> which is the memory
+     * address above which this thread can run.
      * </p>
      *
      * @return The start address.
@@ -85,27 +101,33 @@ public interface OSThread {
 
     /**
      * <p>
-     * Getter for the field <code>contextSwitches</code> which gives a point in time snapshot of the context switches the thread has done.
-     * Since the context switches could be voluntary and non-voluntary, this gives the sum of both.
+     * Getter for the field <code>contextSwitches</code> which gives a point in time
+     * snapshot of the context switches the thread has done. Since the context
+     * switches could be voluntary and non-voluntary, this gives the sum of both.
      * </p>
+     * 
      * @return sum of both voluntary and involuntary context switches.
      */
     long getContextSwitches();
 
     /**
      * <p>
-     * Getter for the field <code>minorFaults</code>, which gives the number of minor faults the thread has made
-     * which have not required loading a memory page disk.
+     * Getter for the field <code>minorFaults</code>, which gives the number of
+     * minor faults the thread has made which have not required loading a memory
+     * page disk. Linux only.
      * </p>
+     * 
      * @return minor faults.
      */
     long getMinorFaults();
 
     /**
      * <p>
-     * Getter for the field <code>minorFaults</code>, which gives the number of major faults the thread has made
-     * which have required loading a memory page disk.
+     * Getter for the field <code>minorFaults</code>, which gives the number of
+     * major faults the thread has made which have required loading a memory page
+     * disk. Linux only.
      * </p>
+     * 
      * @return minor faults.
      */
     long getMajorFaults();
@@ -125,8 +147,8 @@ public interface OSThread {
      * Getter for the field <code>userTime</code>.
      * </p>
      *
-     * @return Returns the number of milliseconds the task/thread has executed in user
-     *         mode.
+     * @return Returns the number of milliseconds the task/thread has executed in
+     *         user mode.
      */
     long getUserTime();
 
@@ -144,14 +166,15 @@ public interface OSThread {
      * Getter for the field <code>startTime</code>.
      * </p>
      *
-     * @return Returns the start time of the task/thread in number of milliseconds since
-     *         January 1, 1970.
+     * @return Returns the start time of the task/thread in number of milliseconds
+     *         since January 1, 1970.
      */
     long getStartTime();
 
     /**
      * Attempts to updates process attributes. Returns false if the update fails,
-     * which will occur if the process no longer exists.
+     * which will occur if the process no longer exists. Only implemented for Linux
+     * and Windows.
      *
      * @return {@code true} if the update was successful, false if the update
      *         failed. In addition, on a failued update the process state will be

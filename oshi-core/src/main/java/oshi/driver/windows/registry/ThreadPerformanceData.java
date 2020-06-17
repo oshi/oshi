@@ -68,7 +68,7 @@ public final class ThreadPerformanceData {
         }
         List<Map<ThreadPerformanceProperty, Object>> threadInstanceMaps = threadData.getA();
         long perfTime100nSec = threadData.getB(); // 1601
-        // ignore threadData.getC() -- 1970 epoch
+        long now = threadData.getC(); // 1970 epoch
 
         // Create a map and fill it
         Map<Integer, PerfCounterBlock> threadMap = new HashMap<>();
@@ -80,14 +80,20 @@ public final class ThreadPerformanceData {
                 String name = (String) threadInstanceMap.get(ThreadPerformanceProperty.NAME);
                 long upTime = (perfTime100nSec - (Long) threadInstanceMap.get(ThreadPerformanceProperty.ELAPSEDTIME))
                         / 10_000L;
-                if (upTime < 1L) {
-                    upTime = 1L;
+                if (upTime < 1) {
+                    upTime = 1;
                 }
-                long user = ((Long) threadInstanceMap.get(ThreadPerformanceProperty.PERCENTUSERTIME)).longValue();
-                long kernel = ((Long) threadInstanceMap.get(ThreadPerformanceProperty.PERCENTPRIVILEGEDTIME)).longValue();
+                long user = ((Long) threadInstanceMap.get(ThreadPerformanceProperty.PERCENTUSERTIME)).longValue()
+                        / 10_000L;
+                long kernel = ((Long) threadInstanceMap.get(ThreadPerformanceProperty.PERCENTPRIVILEGEDTIME))
+                        .longValue() / 10_000L;
                 int priority = ((Integer) threadInstanceMap.get(ThreadPerformanceProperty.PRIORITYCURRENT)).intValue();
                 int threadState = ((Integer) threadInstanceMap.get(ThreadPerformanceProperty.THREADSTATE)).intValue();
-                threadMap.put(tid, new PerfCounterBlock(name, tid, pid, upTime, user, kernel, priority, threadState));
+                long startAddr = ((Long) threadInstanceMap.get(ThreadPerformanceProperty.STARTADDRESS)).longValue();
+                int contextSwitches = ((Integer) threadInstanceMap.get(ThreadPerformanceProperty.CONTEXTSWITCHESPERSEC))
+                        .intValue();
+                threadMap.put(tid, new PerfCounterBlock(name, tid, pid, now - upTime, user, kernel, priority,
+                        threadState, startAddr, contextSwitches));
             }
         }
         return threadMap;
@@ -111,33 +117,40 @@ public final class ThreadPerformanceData {
         Map<ThreadPerformanceProperty, List<Long>> valueMap = instanceValues.getB();
         List<Long> tidList = valueMap.get(ThreadPerformanceProperty.IDTHREAD);
         List<Long> pidList = valueMap.get(ThreadPerformanceProperty.IDPROCESS);
-        List<Long> userList = valueMap.get(ThreadPerformanceProperty.PERCENTUSERTIME);
-        List<Long> kernelList = valueMap.get(ThreadPerformanceProperty.PERCENTPRIVILEGEDTIME);
-        List<Long> upTimeList = valueMap.get(ThreadPerformanceProperty.ELAPSEDTIME);
+        List<Long> userList = valueMap.get(ThreadPerformanceProperty.PERCENTUSERTIME); // 100-nsec
+        List<Long> kernelList = valueMap.get(ThreadPerformanceProperty.PERCENTPRIVILEGEDTIME); // 100-nsec
+        List<Long> startTimeList = valueMap.get(ThreadPerformanceProperty.ELAPSEDTIME); // filetime
         List<Long> priorityList = valueMap.get(ThreadPerformanceProperty.PRIORITYCURRENT);
         List<Long> stateList = valueMap.get(ThreadPerformanceProperty.THREADSTATE);
+        List<Long> startAddrList = valueMap.get(ThreadPerformanceProperty.STARTADDRESS);
+        List<Long> contextSwitchesList = valueMap.get(ThreadPerformanceProperty.CONTEXTSWITCHESPERSEC);
 
+        int nameIndex = 0;
         for (int inst = 0; inst < instances.size(); inst++) {
             int pid = pidList.get(inst).intValue();
             if (pids == null || pids.contains(pid)) {
                 int tid = tidList.get(inst).intValue();
-                String name = Integer.toString(inst);
-                long upTime = upTimeList.get(inst);
-                if (upTime > now) {
-                    upTime = WinBase.FILETIME.filetimeToDate((int) (upTime >> 32), (int) (upTime & 0xffffffffL))
-                            .getTime();
+                String name = Integer.toString(nameIndex++);
+                long startTime = startTimeList.get(inst);
+                startTime = WinBase.FILETIME.filetimeToDate((int) (startTime >> 32), (int) (startTime & 0xffffffffL))
+                        .getTime();
+                if (startTime > now) {
+                    startTime = now - 1;
                 }
-                long user = userList.get(inst);
-                long kernel = kernelList.get(inst);
+                long user = userList.get(inst) / 10_000L;
+                long kernel = kernelList.get(inst) / 10_000L;
                 int priority = priorityList.get(inst).intValue();
                 int threadState = stateList.get(inst).intValue();
+                long startAddr = startAddrList.get(inst).longValue();
+                int contextSwitches = contextSwitchesList.get(inst).intValue();
+
                 // if creation time value is less than current millis, it's in 1970 epoch,
                 // otherwise it's 1601 epoch and we must convert
-                threadMap.put(pid, new PerfCounterBlock(name, tid, pid, upTime, user, kernel, priority, threadState));
+                threadMap.put(tid, new PerfCounterBlock(name, tid, pid, startTime, user, kernel, priority, threadState,
+                        startAddr, contextSwitches));
             }
         }
         return threadMap;
-
     }
 
     /**
@@ -148,22 +161,26 @@ public final class ThreadPerformanceData {
         private final String name;
         private final int threadID;
         private final int owningProcessID;
-        private final long upTime;
+        private final long startTime;
         private final long userTime;
         private final long kernelTime;
         private final int priority;
         private final int threadState;
+        private final long startAddress;
+        private final int contextSwitches;
 
-        public PerfCounterBlock(String name, int threadID, int owningProcessID, long upTime, long userTime,
-                long kernelTime, int priority, int threadState) {
+        public PerfCounterBlock(String name, int threadID, int owningProcessID, long startTime, long userTime,
+                long kernelTime, int priority, int threadState, long startAddress, int contextSwitches) {
             this.name = name;
             this.threadID = threadID;
             this.owningProcessID = owningProcessID;
-            this.upTime = upTime;
+            this.startTime = startTime;
             this.userTime = userTime;
             this.kernelTime = kernelTime;
             this.priority = priority;
             this.threadState = threadState;
+            this.startAddress = startAddress;
+            this.contextSwitches = contextSwitches;
         }
 
         /**
@@ -188,10 +205,10 @@ public final class ThreadPerformanceData {
         }
 
         /**
-         * @return the upTime
+         * @return the startTime
          */
-        public long getUpTime() {
-            return upTime;
+        public long getStartTime() {
+            return startTime;
         }
 
         /**
@@ -220,6 +237,20 @@ public final class ThreadPerformanceData {
          */
         public int getThreadState() {
             return threadState;
+        }
+
+        /**
+         * @return the startMemoryAddress
+         */
+        public long getStartAddress() {
+            return startAddress;
+        }
+
+        /**
+         * @return the contextSwitches
+         */
+        public int getContextSwitches() {
+            return contextSwitches;
         }
     }
 }

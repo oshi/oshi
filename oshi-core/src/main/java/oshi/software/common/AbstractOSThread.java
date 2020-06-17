@@ -23,12 +23,13 @@
  */
 package oshi.software.common;
 
-import oshi.software.os.OSThread;
+import static oshi.util.Memoizer.defaultExpiration;
+import static oshi.util.Memoizer.memoize;
 
 import java.util.function.Supplier;
 
-import static oshi.util.Memoizer.defaultExpiration;
-import static oshi.util.Memoizer.memoize;
+import oshi.software.os.OSProcess.State;
+import oshi.software.os.OSThread;
 
 public abstract class AbstractOSThread implements OSThread {
 
@@ -46,11 +47,90 @@ public abstract class AbstractOSThread implements OSThread {
     }
 
     @Override
-    public double getCpuLoadCumulative() {
+    public double getThreadCpuLoadCumulative() {
         return cumulativeCpuLoad.get();
     }
 
     private double queryCumulativeCpuLoad() {
         return (getKernelTime() + getUserTime()) / (double) getUpTime();
+    }
+
+    @Override
+    public double getThreadCpuLoadBetweenTicks(OSThread priorSnapshot) {
+        if (priorSnapshot != null && owningProcessId == priorSnapshot.getOwningProcessId()
+                && getThreadId() == priorSnapshot.getThreadId() && getUpTime() > priorSnapshot.getUpTime()) {
+            return (getUserTime() - priorSnapshot.getUserTime() + getKernelTime() - priorSnapshot.getKernelTime())
+                    / (double) (getUpTime() - priorSnapshot.getUpTime());
+        }
+        return getThreadCpuLoadCumulative();
+    }
+
+    /*
+     * Default returns so we don't have to override in subclasses that don't have
+     * them
+     */
+
+    @Override
+    public String getName() {
+        return "";
+    }
+
+    @Override
+    public State getState() {
+        return State.OTHER;
+    }
+
+    @Override
+    public long getStartTime() {
+        return 0L;
+    }
+
+    @Override
+    public long getStartMemoryAddress() {
+        return 0L;
+    }
+
+    @Override
+    public long getContextSwitches() {
+        return 0L;
+    }
+
+    @Override
+    public long getMinorFaults() {
+        return 0L;
+    }
+
+    @Override
+    public long getMajorFaults() {
+        return 0L;
+    }
+
+    @Override
+    public long getKernelTime() {
+        return 0L;
+    }
+
+    @Override
+    public long getUserTime() {
+        return 0L;
+    }
+
+    @Override
+    public long getUpTime() {
+        return 0L;
+    }
+
+    @Override
+    public boolean updateAttributes() {
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        return "OSThread [threadId=" + getThreadId() + ", owningProcessId=" + getOwningProcessId() + ", name="
+                + getName() + ", state=" + getState() + ", kernelTime=" + getKernelTime() + ", userTime="
+                + getUserTime() + ", upTime=" + getUpTime() + ", startTime=" + getStartTime() + ", startMemoryAddress="
+                + getStartMemoryAddress() + ", contextSwitches=" + getContextSwitches() + ", minorFaults="
+                + getMinorFaults() + ", majorFaults=" + getMajorFaults() + "]";
     }
 }

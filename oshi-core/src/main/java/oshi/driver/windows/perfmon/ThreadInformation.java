@@ -57,7 +57,8 @@ public final class ThreadInformation {
         THREADSTATE("Thread State"), //
         THREADWAITREASON("Thread Wait Reason"), //
         IDPROCESS("ID Process"), //
-        IDTHREAD("ID Thread");
+        IDTHREAD("ID Thread"), //
+        CONTEXTSWITCHESPERSEC("Context Switches/sec");
 
         private final String counter;
 
