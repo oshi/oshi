@@ -26,13 +26,12 @@ package oshi.software.os.windows;
 import static oshi.util.Memoizer.memoize;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -246,7 +245,6 @@ public class WindowsOSProcess extends AbstractOSProcess {
 
     @Override
     public List<OSThread> getThreadDetails() {
-        List<WindowsOSThread> threadList = new ArrayList<>();
         // Get data from the registry if possible
         Map<Integer, ThreadPerformanceData.PerfCounterBlock> threads = ThreadPerformanceData
                 .buildThreadMapFromRegistry(Collections.singleton(getProcessID()));
@@ -254,10 +252,12 @@ public class WindowsOSProcess extends AbstractOSProcess {
         if (threads != null) {
             threads = ThreadPerformanceData.buildThreadMapFromPerfCounters(Collections.singleton(this.getProcessID()));
         }
-        for (Entry<Integer, ThreadPerformanceData.PerfCounterBlock> entry : threads.entrySet()) {
-            threadList.add(new WindowsOSThread(getProcessID(), entry.getKey(), this.name, entry.getValue()));
+        if (threads == null) {
+            return Collections.emptyList();
         }
-        return Collections.unmodifiableList(threadList);
+        return Collections.unmodifiableList(threads.entrySet().stream()
+                .map(entry -> new WindowsOSThread(getProcessID(), entry.getKey(), this.name, entry.getValue()))
+                .collect(Collectors.toList()));
     }
 
     @Override

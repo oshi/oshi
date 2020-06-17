@@ -54,9 +54,8 @@ public final class ThreadInfo {
     private ThreadInfo() {
     }
 
-    // TODO: Return a list of thread stats
     public static void queryTaskThreads(int pid) {
-        // TODO: New list here
+        // New list here
         IntByReference port = new IntByReference();
         if (0 == SYS.task_for_pid(SYS.mach_task_self(), pid, port)) {
             System.out.println("Thread port:" + port.getValue());
@@ -88,14 +87,14 @@ public final class ThreadInfo {
                             // run_state constants TH_STATE_x above
                             // suspend_count might be context switches?
                             System.out.println("Thread " + thread + ": " + threadInfo.toString());
-                            // TODO: Add to list here with the stats we want
+                            // Add to list here with the stats we want
                         }
                     }
                 } finally {
-                    SYS.vm_deallocate(task, threadList.getValue(), new NativeLong(count * Integer.SIZE));
+                    SYS.vm_deallocate(task, threadList.getValue(), new NativeLong((long) count * Integer.SIZE));
                 }
             }
         }
-        // TODO Return list here
+        // Return list here
     }
 }
