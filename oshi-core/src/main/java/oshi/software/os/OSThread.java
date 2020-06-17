@@ -67,6 +67,30 @@ public interface OSThread {
     double getCpuLoadCumulative();
 
     /**
+     * Gets CPU usage of this thread since a previous snapshot of the same thread,
+     * provided as a parameter.
+     * <p>
+     * This calculation sums CPU ticks across all processors. This is consistent
+     * with usage calculations on Linux/Unix machines, but should be divided by
+     * the number of logical processors to match the value displayed by the
+     * Windows Task Manager.
+     * <p>
+     * The accuracy of this calculation is dependent on the precision of the Operating
+     * System's tick counters. A polling interval of at least a few seconds is
+     * recommended.
+     *
+     * @param priorSnapshot
+     *            An {@link OSThread} object containing statistics for this same
+     *            thread collected at a prior point in time. May be null.
+     *
+     * @return If the prior snapshot is for the same thread at a prior point in
+     *         time, the proportion of elapsed up time between the current thread
+     *         snapshot and the previous one that the thread was executing in
+     *         kernel or user mode. Returns cumulative load otherwise.
+     */
+    double getCpuLoadBetweenTicks(OSThread priorSnapshot);
+
+    /**
      * <p>
      * Getter for the field <code>owningProcessId</code> which is the parent process of this thread.
      * </p>

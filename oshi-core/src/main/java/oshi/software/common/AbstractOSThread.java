@@ -50,6 +50,16 @@ public abstract class AbstractOSThread implements OSThread {
         return cumulativeCpuLoad.get();
     }
 
+    @Override
+    public double getCpuLoadBetweenTicks(OSThread priorSnapshot) {
+        if (priorSnapshot != null && this.getThreadId() == priorSnapshot.getThreadId()
+                && getUpTime() > priorSnapshot.getUpTime()) {
+            return (getUserTime() - priorSnapshot.getUserTime() + getKernelTime() - priorSnapshot.getKernelTime())
+                    / (double) (getUpTime() - priorSnapshot.getUpTime());
+        }
+        return getCpuLoadCumulative();
+    }
+
     private double queryCumulativeCpuLoad() {
         return (getKernelTime() + getUserTime()) / (double) getUpTime();
     }
