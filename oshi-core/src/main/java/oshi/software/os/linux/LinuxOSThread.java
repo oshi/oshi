@@ -44,7 +44,6 @@ public class LinuxOSThread extends AbstractOSThread {
     }
 
     private final int threadId;
-    private String name = "";
     private State state = State.INVALID;
     private long minorFaults;
     private long majorFaults;
@@ -67,19 +66,8 @@ public class LinuxOSThread extends AbstractOSThread {
     }
 
     @Override
-    public String getName() {
-        return this.name;
-    }
-
-    @Override
     public State getState() {
         return this.state;
-    }
-
-
-    @Override
-    public double getCpuLoadCumulative() {
-        return 0;
     }
 
     @Override
@@ -126,8 +114,8 @@ public class LinuxOSThread extends AbstractOSThread {
     public boolean updateAttributes() {
         Map<String, String> status = FileUtil.getKeyValueMapFromFile(
                 String.format(ProcPath.TASK_STATUS, this.getOwningProcessId(), this.threadId), ":");
-        String stat = FileUtil.getStringFromFile(
-                String.format(ProcPath.TASK_STAT, this.getOwningProcessId(), this.threadId));
+        String stat = FileUtil
+                .getStringFromFile(String.format(ProcPath.TASK_STAT, this.getOwningProcessId(), this.threadId));
         if (stat.isEmpty()) {
             this.state = State.INVALID;
             return false;
@@ -150,8 +138,8 @@ public class LinuxOSThread extends AbstractOSThread {
         this.minorFaults = statArray[ThreadPidStat.MINOR_FAULTS.ordinal()];
         this.majorFaults = statArray[ThreadPidStat.MAJOR_FAULT.ordinal()];
         this.startMemoryAddress = statArray[ThreadPidStat.START_CODE.ordinal()];
-        long voluntaryContextSwitches = ParseUtil.parseLongOrDefault(status.getOrDefault("voluntary_ctxt_switches", ""), 0L);
-        long nonVoluntaryContextSwitches = ParseUtil.parseLongOrDefault(status.getOrDefault("nonvoluntary_ctxt_switches", ""), 0L);
+        long voluntaryContextSwitches = ParseUtil.parseLongOrDefault(status.get("voluntary_ctxt_switches"), 0L);
+        long nonVoluntaryContextSwitches = ParseUtil.parseLongOrDefault(status.get("nonvoluntary_ctxt_switches"), 0L);
         this.contextSwitches = voluntaryContextSwitches + nonVoluntaryContextSwitches;
         this.state = ProcessStat.getState(status.getOrDefault("State", "U").charAt(0));
         this.kernelTime = statArray[ThreadPidStat.KERNEL_TIME.ordinal()] * 1000L / LinuxOperatingSystem.getHz();
@@ -167,7 +155,8 @@ public class LinuxOSThread extends AbstractOSThread {
     private enum ThreadPidStat {
         // The parsing implementation in ParseUtil requires these to be declared
         // in increasing order
-        PPID(4), MINOR_FAULTS(10), MAJOR_FAULT(12), USER_TIME(14), KERNEL_TIME(15), PRIORITY(18), THREAD_COUNT(20), START_TIME(22), VSZ(23), RSS(24), START_CODE(26);
+        PPID(4), MINOR_FAULTS(10), MAJOR_FAULT(12), USER_TIME(14), KERNEL_TIME(15), PRIORITY(18), THREAD_COUNT(20),
+        START_TIME(22), VSZ(23), RSS(24), START_CODE(26);
 
         private final int order;
 

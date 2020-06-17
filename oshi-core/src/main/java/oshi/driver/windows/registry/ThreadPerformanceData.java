@@ -83,7 +83,8 @@ public final class ThreadPerformanceData {
                 if (upTime < 1) {
                     upTime = 1;
                 }
-                long user = ((Long) threadInstanceMap.get(ThreadPerformanceProperty.PERCENTUSERTIME)).longValue()
+                long user = ((Long) threadInstanceMap.get(ThreadPerformanceProperty.PERCENTUSERTIME))
+                        .longValue()
                         / 10_000L;
                 long kernel = ((Long) threadInstanceMap.get(ThreadPerformanceProperty.PERCENTPRIVILEGEDTIME))
                         .longValue() / 10_000L;

@@ -110,6 +110,7 @@ public class WindowsOSThread extends AbstractOSThread {
 
     private boolean updateAttributes(String procName, PerfCounterBlock pcb) {
         if (pcb == null) {
+            this.state = State.INVALID;
             return false;
         } else if (pcb.getName().contains("/") || procName.isEmpty()) {
             name = pcb.getName();            

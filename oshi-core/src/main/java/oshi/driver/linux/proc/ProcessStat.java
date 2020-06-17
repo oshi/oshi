@@ -24,11 +24,11 @@
 package oshi.driver.linux.proc;
 
 import java.io.File;
-import java.util.Map;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.EnumMap;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -469,13 +469,11 @@ public final class ProcessStat {
      */
     public static List<Integer> getThreadIds(int pid) {
         File threadDir = new File(String.format(ProcPath.TASK_PATH, pid));
-        List<Integer> threadIDs = new ArrayList<>();
-        if (threadDir != null) {
-            File[] threads = threadDir
-                    .listFiles(file -> DIGITS.matcher(file.getName()).matches() && Integer.valueOf(file.getName()) != pid);
-            threadIDs = Arrays.stream(threads).map(thread -> ParseUtil.parseIntOrDefault(thread.getName(), 0)).collect(Collectors.toList());
-        }
-        return threadIDs;
+        File[] threads = threadDir
+                .listFiles(file -> DIGITS.matcher(file.getName()).matches() && Integer.valueOf(file.getName()) != pid);
+        return (threads != null) ? Arrays.stream(threads)
+                .map(thread -> ParseUtil.parseIntOrDefault(thread.getName(), 0)).collect(Collectors.toList())
+                : Collections.emptyList();
     }
 
     /***
