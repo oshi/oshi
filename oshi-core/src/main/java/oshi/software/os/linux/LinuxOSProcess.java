@@ -209,8 +209,8 @@ public class LinuxOSProcess extends AbstractOSProcess {
 
     @Override
     public List<OSThread> getThreadDetails() {
-        List<OSThread> threadDetails = ProcessStat.getThreadIds(getProcessID()).stream().map(id -> new LinuxOSThread(getProcessID(), id))
-                .collect(Collectors.toList());
+        List<OSThread> threadDetails = ProcessStat.getThreadIds(getProcessID()).stream()
+                .map(id -> new LinuxOSThread(getProcessID(), id)).collect(Collectors.toList());
         return Collections.unmodifiableList(threadDetails);
     }
 

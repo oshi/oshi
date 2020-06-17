@@ -113,7 +113,7 @@ public class WindowsOSThread extends AbstractOSThread {
             this.state = State.INVALID;
             return false;
         } else if (pcb.getName().contains("/") || procName.isEmpty()) {
-            name = pcb.getName();            
+            name = pcb.getName();
         } else {
             this.name = procName + "/" + pcb.getName();
         }
