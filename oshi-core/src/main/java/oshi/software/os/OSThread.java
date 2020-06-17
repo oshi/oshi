@@ -82,7 +82,7 @@ public interface OSThread {
     /**
      * The owning process of this thread. For single-threaded processes, the owning
      * process ID may be the same as the thread's ID.
-     * 
+     *
      * @return The owning process of this thread.
      */
     int getOwningProcessId();
@@ -97,7 +97,7 @@ public interface OSThread {
     /**
      * A snapshot of the context switches the thread has done. Since the context
      * switches could be voluntary and non-voluntary, this gives the sum of both.
-     * 
+     *
      * @return sum of both voluntary and involuntary context switches.
      */
     long getContextSwitches();
@@ -105,7 +105,7 @@ public interface OSThread {
     /**
      * The number of minor (soft) faults the thread has made which have not required
      * loading a memory page from disk. Sometimes called reclaims. Linux only.
-     * 
+     *
      * @return minor faults.
      */
     long getMinorFaults();
@@ -113,7 +113,7 @@ public interface OSThread {
     /**
      * The number of major (hard) faults the thread has made which have required
      * loading a memory page from disk. Linux only.
-     * 
+     *
      * @return major faults.
      */
     long getMajorFaults();

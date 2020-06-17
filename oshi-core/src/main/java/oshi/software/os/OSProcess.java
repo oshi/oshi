@@ -369,7 +369,7 @@ public interface OSProcess {
      * <p>
      * The amount of returned information is operating-system dependent and may
      * incur some latency.
-     * 
+     *
      * @return a list of threads
      */
     List<OSThread> getThreadDetails();
