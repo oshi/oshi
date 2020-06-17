@@ -55,7 +55,6 @@ public final class ThreadInformation {
         PRIORITYBASE("Priority Base"), //
         STARTADDRESS("Start Address"), //
         THREADSTATE("Thread State"), //
-        THREADWAITREASON("Thread Wait Reason"), //
         IDPROCESS("ID Process"), //
         IDTHREAD("ID Thread"), //
         CONTEXTSWITCHESPERSEC("Context Switches/sec");

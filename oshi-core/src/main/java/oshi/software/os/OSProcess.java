@@ -359,13 +359,16 @@ public interface OSProcess {
      * which will occur if the process no longer exists.
      *
      * @return {@code true} if the update was successful, false if the update
-     *         failed. In addition, on a failued update the process state will be
+     *         failed. In addition, on a failed update the process state will be
      *         changed to {@link State#INVALID}.
      */
     boolean updateAttributes();
 
     /**
      * Retrieves the threads of the process and their details.
+     * <p>
+     * The amount of returned information is operating-system dependent and may
+     * incur some latency.
      * 
      * @return a list of threads
      */

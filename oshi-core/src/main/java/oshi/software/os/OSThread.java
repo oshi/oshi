@@ -38,9 +38,9 @@ public interface OSThread {
     int getThreadId();
 
     /**
-     * <p>
-     * Getter for the field <code>name</code>.
-     * </p>
+     * The name of the thread. Presence of a name is operating-system dependent and
+     * may include information (such as an index of running threads) that changes
+     * during execution.
      *
      * @return Returns the name of the task/thread.
      */
@@ -80,62 +80,46 @@ public interface OSThread {
     double getThreadCpuLoadBetweenTicks(OSThread thread);
 
     /**
-     * <p>
-     * Getter for the field <code>owningProcessId</code> which is the parent process
-     * of this thread.
-     * </p>
+     * The owning process of this thread. For single-threaded processes, the owning
+     * process ID may be the same as the thread's ID.
      * 
      * @return The owning process of this thread.
      */
     int getOwningProcessId();
 
     /**
-     * <p>
-     * Getter for the field <code>startMemoryAddress</code> which is the memory
-     * address above which this thread can run.
-     * </p>
+     * The memory address above which this thread can run.
      *
      * @return The start address.
      */
     long getStartMemoryAddress();
 
     /**
-     * <p>
-     * Getter for the field <code>contextSwitches</code> which gives a point in time
-     * snapshot of the context switches the thread has done. Since the context
+     * A snapshot of the context switches the thread has done. Since the context
      * switches could be voluntary and non-voluntary, this gives the sum of both.
-     * </p>
      * 
      * @return sum of both voluntary and involuntary context switches.
      */
     long getContextSwitches();
 
     /**
-     * <p>
-     * Getter for the field <code>minorFaults</code>, which gives the number of
-     * minor faults the thread has made which have not required loading a memory
-     * page disk. Linux only.
-     * </p>
+     * The number of minor (soft) faults the thread has made which have not required
+     * loading a memory page from disk. Sometimes called reclaims. Linux only.
      * 
      * @return minor faults.
      */
     long getMinorFaults();
 
     /**
-     * <p>
-     * Getter for the field <code>minorFaults</code>, which gives the number of
-     * major faults the thread has made which have required loading a memory page
-     * disk. Linux only.
-     * </p>
+     * The number of major (hard) faults the thread has made which have required
+     * loading a memory page from disk. Linux only.
      * 
-     * @return minor faults.
+     * @return major faults.
      */
     long getMajorFaults();
 
     /**
-     * <p>
-     * Getter for the field <code>kernelTime</code>.
-     * </p>
+     * Kernel (privileged) time used by the thread.
      *
      * @return Returns the number of milliseconds the task/thread has executed in
      *         kernel/system mode.
@@ -143,9 +127,7 @@ public interface OSThread {
     long getKernelTime();
 
     /**
-     * <p>
-     * Getter for the field <code>userTime</code>.
-     * </p>
+     * User time used by the thread.
      *
      * @return Returns the number of milliseconds the task/thread has executed in
      *         user mode.
@@ -153,18 +135,14 @@ public interface OSThread {
     long getUserTime();
 
     /**
-     * <p>
-     * Getter for the field <code>upTime</code>.
-     * </p>
+     * Elapsed/up-time of the thread.
      *
      * @return Returns the number of milliseconds since the task/thread started.
      */
     long getUpTime();
 
     /**
-     * <p>
-     * Getter for the field <code>startTime</code>.
-     * </p>
+     * The start time of the thread.
      *
      * @return Returns the start time of the task/thread in number of milliseconds
      *         since January 1, 1970.
@@ -174,10 +152,10 @@ public interface OSThread {
     /**
      * Attempts to updates process attributes. Returns false if the update fails,
      * which will occur if the process no longer exists. Only implemented for Linux
-     * and Windows.
+     * and Windows; attempts to update on other OS's will fail.
      *
      * @return {@code true} if the update was successful, false if the update
-     *         failed. In addition, on a failued update the process state will be
+     *         failed. In addition, on a failed update the thread state will be
      *         changed to {@link State#INVALID}.
      */
     boolean updateAttributes();
