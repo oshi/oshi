@@ -52,7 +52,6 @@ public final class ThreadInformation {
         PERCENTPRIVILEGEDTIME("% Privileged Time"), //
         ELAPSEDTIME("Elapsed Time"), //
         PRIORITYCURRENT("Priority Current"), //
-        PRIORITYBASE("Priority Base"), //
         STARTADDRESS("Start Address"), //
         THREADSTATE("Thread State"), //
         IDPROCESS("ID Process"), //
