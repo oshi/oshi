@@ -23,16 +23,18 @@
  */
 package oshi.driver.mac;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 
-import com.sun.jna.NativeLong;
-import com.sun.jna.Pointer;
+import com.sun.jna.NativeLong; // NOSONAR squid:S1191
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
 
+import oshi.annotation.concurrent.Immutable;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.platform.mac.SystemB;
 import oshi.jna.platform.mac.SystemB.ThreadBasicInfo;
+import oshi.software.os.OSProcess.State;
 
 /**
  * Utility to query threads for a process
@@ -45,49 +47,31 @@ public final class ThreadInfo {
     private static final int TH_STATE_RUNNING = 1;
     private static final int TH_STATE_STOPPED = 2;
     private static final int TH_STATE_WAITING = 3;
-    private static final int TH_STATE_UNINTERRUPTIBLE = 4; // uninterruptible wait
+    private static final int TH_STATE_UNINTERRUPTIBLE = 4;
     private static final int TH_STATE_HALTED = 5;
-
-    private static final int TH_FLAGS_SWAPPED = 0x1;
-    private static final int TH_FLAGS_IDLE = 0x2;
 
     private ThreadInfo() {
     }
 
-    public static void queryTaskThreads(int pid) {
-        // New list here
+    public static List<ThreadStats> queryTaskThreads(int pid) {
+        List<ThreadStats> taskThreads = new ArrayList<>();
         IntByReference port = new IntByReference();
         if (0 == SYS.task_for_pid(SYS.mach_task_self(), pid, port)) {
-            System.out.println("Thread port:" + port.getValue());
             int task = port.getValue();
             PointerByReference threadList = new PointerByReference();
             IntByReference threadCount = new IntByReference();
-            if (0 != SYS.task_threads(task, threadList, threadCount)) {
+            if (0 == SYS.task_threads(task, threadList, threadCount)) {
                 int count = threadCount.getValue();
-                System.out.println("Thread count:" + count);
                 try {
                     int[] threads = threadList.getValue().getIntArray(0, count);
-                    System.out.println("Thread ports: " + Arrays.toString(threads));
+                    ThreadBasicInfo threadInfo = new ThreadBasicInfo();
+                    IntByReference infoCount = new IntByReference(threadInfo.size() / 4);
                     for (int thread : threads) {
-                        IntByReference infoCount = new IntByReference();
-                        Pointer p = null;
-                        if (0 == SYS.thread_info(thread, SystemB.THREAD_BASIC_INFO, p, infoCount)) {
-                            ThreadBasicInfo threadInfo = new ThreadBasicInfo(p);
-                            // User and system time have second+microsecond resolution
-                            System.out.println("  User secs: " + (threadInfo.user_time.tv_sec.intValue()
-                                    + threadInfo.user_time.tv_usec / 1_000_000d));
-                            System.out.println("System secs: " + (threadInfo.system_time.tv_sec.intValue()
-                                    + threadInfo.system_time.tv_usec / 1_000_000d));
-                            // CPU usage is an int scaled percent, divide by 100 or 256 (?) for a fraction
-                            // Flags are swapped/idle, not needed.
-                            // Some code does not include a thread in this list if state is IDLE, perhaps
-                            // the stats aren't updated?
-                            // sleep_time in seconds, may need to compare CPU usage vs. this for best
-                            // estimate
-                            // run_state constants TH_STATE_x above
-                            // suspend_count might be context switches?
-                            System.out.println("Thread " + thread + ": " + threadInfo.toString());
-                            // Add to list here with the stats we want
+                        if (0 == SYS.thread_info(thread, SystemB.THREAD_BASIC_INFO, threadInfo.getPointer(),
+                                infoCount)) {
+                            threadInfo.read();
+                            taskThreads.add(new ThreadStats(thread, threadInfo.user_time, threadInfo.system_time,
+                                    threadInfo.cpu_usage, threadInfo.run_state));
                         }
                     }
                 } finally {
@@ -95,6 +79,78 @@ public final class ThreadInfo {
                 }
             }
         }
-        // Return list here
+        return taskThreads;
+    }
+
+    /**
+     * Class to encapsulate mach thread info
+     */
+    @Immutable
+    public static class ThreadStats {
+        private final int threadId;
+        private final long userTime;
+        private final long systemTime;
+        private final long upTime;
+        private final State state;
+
+        public ThreadStats(int tid, SystemB.TimeValue userTime, SystemB.TimeValue systemTime, int cpuUsage,
+                int runState) {
+            this.threadId = tid;
+            // Start out with microsecond precision
+            long uTime = userTime.seconds * 1_000_000L + userTime.microseconds;
+            long sTime = systemTime.seconds * 1_000_000L + systemTime.microseconds;
+            long microsecs = uTime + sTime;
+            this.userTime = uTime / 1000L;
+            this.systemTime = sTime / 1000L;
+            // cpuUsage is cpu load times 1000
+            // user + system / uptime * 1000 = cpuUsage
+            // ... uptime (usecs) = user+system (usecs) * 1000 / cpuUsage
+            // ... uptime (ms) = user+system (usecs) / cpuUsage
+            this.upTime = (long) (microsecs / (cpuUsage + 0.5));
+            if (runState == TH_STATE_RUNNING) {
+                this.state = State.RUNNING;
+            } else if (runState == TH_STATE_WAITING || runState == TH_STATE_UNINTERRUPTIBLE) {
+                this.state = State.WAITING;
+            } else if (runState == TH_STATE_STOPPED || runState == TH_STATE_HALTED) {
+                this.state = State.STOPPED;
+            } else {
+                this.state = State.OTHER;
+            }
+        }
+
+        /**
+         * @return the threadId
+         */
+        public int getThreadId() {
+            return threadId;
+        }
+
+        /**
+         * @return the userTime
+         */
+        public long getUserTime() {
+            return userTime;
+        }
+
+        /**
+         * @return the systemTime
+         */
+        public long getSystemTime() {
+            return systemTime;
+        }
+
+        /**
+         * @return the upTime
+         */
+        public long getUpTime() {
+            return upTime;
+        }
+
+        /**
+         * @return the state
+         */
+        public State getState() {
+            return state;
+        }
     }
 }

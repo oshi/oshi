@@ -60,11 +60,17 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB, CLibrary {
         public byte[] ut_pad = new byte[16]; // reserved for future use
     }
 
+    @FieldOrder({ "seconds", "microseconds" })
+    class TimeValue extends Structure {
+        public int seconds;
+        public int microseconds;
+    }
+
     @FieldOrder({ "user_time", "system_time", "cpu_usage", "policy", "run_state", "flags", "suspend_count",
             "sleep_time" })
     class ThreadBasicInfo extends Structure {
-        public Timeval user_time; // user run time
-        public Timeval system_time; // system run time
+        public TimeValue user_time; // user run time
+        public TimeValue system_time; // system run time
         public int cpu_usage; // scaled cpu usage percentage
         public int policy; // scheduling policy in effect
         public int run_state; // run state (see below)
@@ -80,7 +86,7 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB, CLibrary {
             super(p);
             read();
         }
-    };
+    }
 
     /**
      * Reads a line from the current file position in the utmp file. It returns a

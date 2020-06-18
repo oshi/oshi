@@ -27,6 +27,7 @@ import static oshi.util.Memoizer.memoize;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -45,7 +46,10 @@ import com.sun.jna.platform.mac.SystemB.VnodePathInfo;
 import com.sun.jna.ptr.IntByReference;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.mac.ThreadInfo;
+import oshi.driver.mac.ThreadInfo.ThreadStats;
 import oshi.software.common.AbstractOSProcess;
+import oshi.software.os.OSThread;
 import oshi.util.platform.mac.SysctlUtil;
 
 @ThreadSafe
@@ -201,6 +205,23 @@ public class MacOSProcess extends AbstractOSProcess {
     @Override
     public int getThreadCount() {
         return this.threadCount;
+    }
+
+    @Override
+    public List<OSThread> getThreadDetails() {
+        long now = System.currentTimeMillis();
+        List<MacOSThread> details = new ArrayList<>();
+        List<ThreadStats> stats = ThreadInfo.queryTaskThreads(getProcessID());
+        for (ThreadStats stat : stats) {
+            // For long running threads the start time calculation can overestimate
+            long start = now - stat.getUpTime();
+            if (start < this.getStartTime()) {
+                start = this.getStartTime();
+            }
+            details.add(new MacOSThread(getProcessID(), stat.getThreadId(), stat.getState(), stat.getSystemTime(),
+                    stat.getUserTime(), start, now - start));
+        }
+        return Collections.unmodifiableList(details);
     }
 
     @Override
