@@ -118,24 +118,24 @@ public class WindowsOSThread extends AbstractOSThread {
             this.name = procName + "/" + pcb.getName();
         }
         switch (pcb.getThreadState()) {
-        case (0):
+        case 0:
             state = State.NEW;
             break;
-        case (2):
-        case (3):
+        case 2:
+        case 3:
             state = State.RUNNING;
             break;
-        case (4):
+        case 4:
             state = State.STOPPED;
             break;
-        case (5):
+        case 5:
             state = State.SLEEPING;
             break;
-        case (1):
-        case (6):
+        case 1:
+        case 6:
             state = State.WAITING;
             break;
-        case (7):
+        case 7:
         default:
             state = State.OTHER;
         }
@@ -145,7 +145,6 @@ public class WindowsOSThread extends AbstractOSThread {
         userTime = pcb.getUserTime();
         startTime = pcb.getStartTime();
         upTime = System.currentTimeMillis() - pcb.getStartTime();
-        System.out.println(this);
         return true;
     }
 }
