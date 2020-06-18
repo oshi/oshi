@@ -25,6 +25,7 @@ package oshi.software.os.unix.freebsd;
 
 import static oshi.util.Memoizer.memoize;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -35,6 +36,8 @@ import com.sun.jna.ptr.IntByReference;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.platform.unix.freebsd.FreeBsdLibc;
 import oshi.software.common.AbstractOSProcess;
+import oshi.software.os.OSProcess;
+import oshi.software.os.OSThread;
 import oshi.util.ExecutingCommand;
 import oshi.util.LsofUtil;
 import oshi.util.ParseUtil;
@@ -221,6 +224,30 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
             }
         }
         return 0;
+    }
+
+    @Override
+    public List<OSThread> getThreadDetails() {
+        List<OSThread> threads = new ArrayList<>();
+        String psCommand = "ps -awwxo tdname,lwp,state,etimes,systime,time,tdaddr,nivcsw,nvcsw,majflt -H";
+        if (getProcessID() >= 0) {
+            psCommand += " -p " + getProcessID();
+        }
+        List<String> threadList = ExecutingCommand.runNative(psCommand);
+        if (threadList.isEmpty() || threadList.size() < 2) {
+            return threads;
+        }
+        // remove header row
+        threadList.remove(0);
+        // Fill list
+        for (String thread : threadList) {
+            String[] split = ParseUtil.whitespaces.split(thread.trim(), 10);
+            // Elements should match ps command order
+            if (split.length == 10) {
+                threads.add(new FreeBsdOSThread(getProcessID(), split));
+            }
+        }
+        return threads;
     }
 
     @Override
