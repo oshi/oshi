@@ -53,6 +53,7 @@ public class LinuxOSThread extends AbstractOSThread {
     private long userTime;
     private long startTime;
     private long upTime;
+    private int priority;
 
     public LinuxOSThread(int processId, int tid) {
         super(processId);
@@ -111,6 +112,11 @@ public class LinuxOSThread extends AbstractOSThread {
     }
 
     @Override
+    public int getPriority() {
+        return this.priority;
+    }
+
+    @Override
     public boolean updateAttributes() {
         Map<String, String> status = FileUtil.getKeyValueMapFromFile(
                 String.format(ProcPath.TASK_STATUS, this.getOwningProcessId(), this.threadId), ":");
@@ -145,6 +151,7 @@ public class LinuxOSThread extends AbstractOSThread {
         this.kernelTime = statArray[ThreadPidStat.KERNEL_TIME.ordinal()] * 1000L / LinuxOperatingSystem.getHz();
         this.userTime = statArray[ThreadPidStat.USER_TIME.ordinal()] * 1000L / LinuxOperatingSystem.getHz();
         this.upTime = now - startTime;
+        this.priority = (int)statArray[ThreadPidStat.PRIORITY.ordinal()];
         return true;
     }
 

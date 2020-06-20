@@ -43,6 +43,7 @@ public class FreeBsdOSThread extends AbstractOSThread {
     private long userTime;
     private long startTime;
     private long upTime;
+    private int priority;
 
     public FreeBsdOSThread(int processId, String[] split) {
         super(processId);
@@ -104,16 +105,26 @@ public class FreeBsdOSThread extends AbstractOSThread {
     }
 
     @Override
+    public int getPriority() {
+        return this.priority;
+    }
+
+    @Override
     public boolean updateAttributes() {
-        String psCommand = "ps -awwxo tdname,lwp,state,etimes,systime,time,tdaddr,nivcsw,nvcsw,majflt -H -p "
-                + getOwningProcessId() + " | grep " + getThreadId(); //there is no filter for thread is ps command, hence using grep
+        String psCommand = "ps -awwxo tdname,lwp,state,etimes,systime,time,tdaddr,nivcsw,nvcsw,majflt,minflt,pri -H -p "
+                + getOwningProcessId();
+        //there is no switch for thread in ps command, hence filtering.
         List<String> threadList = ExecutingCommand.runNative(psCommand);
-        if (threadList.size() > 1) {
-            // skip header row
-            String[] split = ParseUtil.whitespaces.split(threadList.get(1).trim(), 16);
-            if (split.length == 10) {
-                return updateAttributes(split);
+        String[] split = null;
+        for(String psOutput : threadList) {
+            split = ParseUtil.whitespaces.split(psOutput.trim(), 12);
+            int id = ParseUtil.parseIntOrDefault(split[1], 0);
+            if (id == this.getThreadId()) {
+                break;
             }
+        }
+        if (split != null && split.length == 12) {
+            return updateAttributes(split);
         }
         this.state = OSProcess.State.INVALID;
         return false;
@@ -152,11 +163,14 @@ public class FreeBsdOSThread extends AbstractOSThread {
         this.startTime = now - this.upTime;
         this.kernelTime = ParseUtil.parseDHMSOrDefault(split[4], 0L); //systime
         this.userTime = ParseUtil.parseDHMSOrDefault(split[5], 0L) - this.kernelTime; //time
-        //this.startMemoryAddress = split[6]; hexadecimal
+        this.startMemoryAddress = ParseUtil.hexStringToLong(split[6], 0l);
         long nonVoluntaryContextSwitches = ParseUtil.parseLongOrDefault(split[7], 0L);
         long voluntaryContextSwitches = ParseUtil.parseLongOrDefault(split[8], 0L);
         this.contextSwitches = voluntaryContextSwitches + nonVoluntaryContextSwitches;
         this.majorFaults = ParseUtil.parseLongOrDefault(split[9], 0L);
+        this.minorFaults = ParseUtil.parseLongOrDefault(split[10], 0l);
+        //ps gives values offset by 100, hence adding 100
+        this.priority = 100 + ParseUtil.parseIntOrDefault(split[11], 0);
         return true;
     }
 }

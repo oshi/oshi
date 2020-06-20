@@ -121,6 +121,10 @@ public abstract class AbstractOSThread implements OSThread {
     }
 
     @Override
+    public int getPriority() {
+        return 0;
+    }
+    @Override
     public boolean updateAttributes() {
         return false;
     }

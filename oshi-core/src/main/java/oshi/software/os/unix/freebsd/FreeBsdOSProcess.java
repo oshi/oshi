@@ -229,7 +229,7 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
     @Override
     public List<OSThread> getThreadDetails() {
         List<OSThread> threads = new ArrayList<>();
-        String psCommand = "ps -awwxo tdname,lwp,state,etimes,systime,time,tdaddr,nivcsw,nvcsw,majflt -H";
+        String psCommand = "ps -awwxo tdname,lwp,state,etimes,systime,time,tdaddr,nivcsw,nvcsw,majflt,minflt,pri -H";
         if (getProcessID() >= 0) {
             psCommand += " -p " + getProcessID();
         }
@@ -241,7 +241,7 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
         threadList.remove(0);
         // Fill list
         for (String thread : threadList) {
-            String[] split = ParseUtil.whitespaces.split(thread.trim(), 10);
+            String[] split = ParseUtil.whitespaces.split(thread.trim(), 12);
             // Elements should match ps command order
             if (split.length == 10) {
                 threads.add(new FreeBsdOSThread(getProcessID(), split));

@@ -150,6 +150,12 @@ public interface OSThread {
     long getStartTime();
 
     /**
+     * Priority of the thread, the meaning of which is dependent on the OS.
+     * @return priority.
+     */
+    int getPriority();
+
+    /**
      * Attempts to updates process attributes. Returns false if the update fails,
      * which will occur if the process no longer exists. Only implemented for Linux
      * and Windows; attempts to update on other OS's will fail.

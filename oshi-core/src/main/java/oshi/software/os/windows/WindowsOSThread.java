@@ -43,6 +43,7 @@ public class WindowsOSThread extends AbstractOSThread {
     private long userTime;
     private long startTime;
     private long upTime;
+    private int priority;
 
     public WindowsOSThread(int pid, int tid, String procName, PerfCounterBlock pcb) {
         super(pid);
@@ -96,6 +97,11 @@ public class WindowsOSThread extends AbstractOSThread {
     }
 
     @Override
+    public int getPriority() {
+        return this.priority;
+    }
+
+    @Override
     public boolean updateAttributes() {
         Set<Integer> pids = Collections.singleton(getOwningProcessId());
         // Get data from the registry if possible
@@ -145,6 +151,7 @@ public class WindowsOSThread extends AbstractOSThread {
         userTime = pcb.getUserTime();
         startTime = pcb.getStartTime();
         upTime = System.currentTimeMillis() - pcb.getStartTime();
+        priority = pcb.getPriority();
         return true;
     }
 }
