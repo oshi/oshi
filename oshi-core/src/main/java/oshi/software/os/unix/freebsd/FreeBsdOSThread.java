@@ -116,7 +116,7 @@ public class FreeBsdOSThread extends AbstractOSThread {
         //there is no switch for thread in ps command, hence filtering.
         List<String> threadList = ExecutingCommand.runNative(psCommand);
         String[] split = null;
-        for(String psOutput : threadList) {
+        for (String psOutput:threadList) {
             split = ParseUtil.whitespaces.split(psOutput.trim(), 12);
             int id = ParseUtil.parseIntOrDefault(split[1], 0);
             if (id == this.getThreadId()) {
@@ -163,12 +163,12 @@ public class FreeBsdOSThread extends AbstractOSThread {
         this.startTime = now - this.upTime;
         this.kernelTime = ParseUtil.parseDHMSOrDefault(split[4], 0L); //systime
         this.userTime = ParseUtil.parseDHMSOrDefault(split[5], 0L) - this.kernelTime; //time
-        this.startMemoryAddress = ParseUtil.hexStringToLong(split[6], 0l);
+        this.startMemoryAddress = ParseUtil.hexStringToLong(split[6], 0L);
         long nonVoluntaryContextSwitches = ParseUtil.parseLongOrDefault(split[7], 0L);
         long voluntaryContextSwitches = ParseUtil.parseLongOrDefault(split[8], 0L);
         this.contextSwitches = voluntaryContextSwitches + nonVoluntaryContextSwitches;
         this.majorFaults = ParseUtil.parseLongOrDefault(split[9], 0L);
-        this.minorFaults = ParseUtil.parseLongOrDefault(split[10], 0l);
+        this.minorFaults = ParseUtil.parseLongOrDefault(split[10], 0L);
         //ps gives values offset by 100, hence adding 100
         this.priority = 100 + ParseUtil.parseIntOrDefault(split[11], 0);
         return true;

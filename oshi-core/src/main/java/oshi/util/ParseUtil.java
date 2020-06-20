@@ -1122,15 +1122,14 @@ public final class ParseUtil {
     }
 
     /**
-     * Parses a string of hex digits to long value
-     *
-     * @param hexString
-     *            A sequence of hex digits
+     * Parses a string of hex digits to long value.
+     * @param hexString A sequence of hex digits
+     * @param defaultValue default value to return if parsefails
      * @return The corresponding long value
      */
     public static long hexStringToLong(String hexString, long defaultValue) {
         try {
-            long result = Long.parseLong(hexString,16);
+            long result = Long.parseLong(hexString, 16);
             return result;
         } catch (NumberFormatException e) {
             LOG.trace(DEFAULT_LOG_MSG, hexString, e);

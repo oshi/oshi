@@ -151,7 +151,7 @@ public class LinuxOSThread extends AbstractOSThread {
         this.kernelTime = statArray[ThreadPidStat.KERNEL_TIME.ordinal()] * 1000L / LinuxOperatingSystem.getHz();
         this.userTime = statArray[ThreadPidStat.USER_TIME.ordinal()] * 1000L / LinuxOperatingSystem.getHz();
         this.upTime = now - startTime;
-        this.priority = (int)statArray[ThreadPidStat.PRIORITY.ordinal()];
+        this.priority = (int) statArray[ThreadPidStat.PRIORITY.ordinal()];
         return true;
     }
 
