@@ -76,11 +76,6 @@ public abstract class AbstractOSProcess implements OSProcess {
     }
 
     @Override
-    public List<OSThread> getThreadDetails() {
-        return Collections.emptyList();
-    }
-
-    @Override
     public String toString() {
         StringBuilder builder = new StringBuilder("OSProcess@");
         builder.append(Integer.toHexString(hashCode()));
