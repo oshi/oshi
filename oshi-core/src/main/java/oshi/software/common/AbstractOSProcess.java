@@ -26,13 +26,10 @@ package oshi.software.common;
 import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.function.Supplier;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.os.OSProcess;
-import oshi.software.os.OSThread;
 
 /**
  * A process is an instance of a computer program that is being executed. It

@@ -151,6 +151,7 @@ public interface OSThread {
 
     /**
      * Priority of the thread, the meaning of which is dependent on the OS.
+     * 
      * @return priority.
      */
     int getPriority();

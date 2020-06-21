@@ -49,6 +49,7 @@ public class FreeBsdOSThread extends AbstractOSThread {
         super(processId);
         updateAttributes(split);
     }
+
     @Override
     public int getThreadId() {
         return this.threadId;
@@ -113,10 +114,10 @@ public class FreeBsdOSThread extends AbstractOSThread {
     public boolean updateAttributes() {
         String psCommand = "ps -awwxo tdname,lwp,state,etimes,systime,time,tdaddr,nivcsw,nvcsw,majflt,minflt,pri -H -p "
                 + getOwningProcessId();
-        //there is no switch for thread in ps command, hence filtering.
+        // there is no switch for thread in ps command, hence filtering.
         List<String> threadList = ExecutingCommand.runNative(psCommand);
         String[] split = null;
-        for (String psOutput:threadList) {
+        for (String psOutput : threadList) {
             split = ParseUtil.whitespaces.split(psOutput.trim(), 12);
             int id = ParseUtil.parseIntOrDefault(split[1], 0);
             if (id == this.getThreadId()) {
@@ -134,42 +135,42 @@ public class FreeBsdOSThread extends AbstractOSThread {
         this.name = split[0];
         this.threadId = ParseUtil.parseIntOrDefault(split[1], 0);
         switch (split[2].charAt(0)) {
-            case 'R':
-                this.state = OSProcess.State.RUNNING;
-                break;
-            case 'I':
-            case 'S':
-                this.state = OSProcess.State.SLEEPING;
-                break;
-            case 'D':
-            case 'L':
-            case 'U':
-                this.state = OSProcess.State.WAITING;
-                break;
-            case 'Z':
-                this.state = OSProcess.State.ZOMBIE;
-                break;
-            case 'T':
-                this.state = OSProcess.State.STOPPED;
-                break;
-            default:
-                this.state = OSProcess.State.OTHER;
-                break;
+        case 'R':
+            this.state = OSProcess.State.RUNNING;
+            break;
+        case 'I':
+        case 'S':
+            this.state = OSProcess.State.SLEEPING;
+            break;
+        case 'D':
+        case 'L':
+        case 'U':
+            this.state = OSProcess.State.WAITING;
+            break;
+        case 'Z':
+            this.state = OSProcess.State.ZOMBIE;
+            break;
+        case 'T':
+            this.state = OSProcess.State.STOPPED;
+            break;
+        default:
+            this.state = OSProcess.State.OTHER;
+            break;
         }
         // Avoid divide by zero for processes up less than a second
-        long elapsedTime = ParseUtil.parseDHMSOrDefault(split[3], 0L); //etimes
+        long elapsedTime = ParseUtil.parseDHMSOrDefault(split[3], 0L); // etimes
         this.upTime = elapsedTime < 1L ? 1L : elapsedTime;
         long now = System.currentTimeMillis();
         this.startTime = now - this.upTime;
-        this.kernelTime = ParseUtil.parseDHMSOrDefault(split[4], 0L); //systime
-        this.userTime = ParseUtil.parseDHMSOrDefault(split[5], 0L) - this.kernelTime; //time
+        this.kernelTime = ParseUtil.parseDHMSOrDefault(split[4], 0L); // systime
+        this.userTime = ParseUtil.parseDHMSOrDefault(split[5], 0L) - this.kernelTime; // time
         this.startMemoryAddress = ParseUtil.hexStringToLong(split[6], 0L);
         long nonVoluntaryContextSwitches = ParseUtil.parseLongOrDefault(split[7], 0L);
         long voluntaryContextSwitches = ParseUtil.parseLongOrDefault(split[8], 0L);
         this.contextSwitches = voluntaryContextSwitches + nonVoluntaryContextSwitches;
         this.majorFaults = ParseUtil.parseLongOrDefault(split[9], 0L);
         this.minorFaults = ParseUtil.parseLongOrDefault(split[10], 0L);
-        //ps gives values offset by 100, hence adding 100
+        // ps gives values offset by 100, hence adding 100
         this.priority = 100 + ParseUtil.parseIntOrDefault(split[11], 0);
         return true;
     }

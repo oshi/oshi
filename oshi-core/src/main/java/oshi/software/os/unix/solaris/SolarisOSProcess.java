@@ -230,11 +230,13 @@ public class SolarisOSProcess extends AbstractOSProcess {
 
     @Override
     public List<OSThread> getThreadDetails() {
-        List<String> threadListInfo1 = ExecutingCommand.runNative("ps -o lwp,s,etime,stime,time,addr,pri -p " + getProcessID());
+        List<String> threadListInfo1 = ExecutingCommand
+                .runNative("ps -o lwp,s,etime,stime,time,addr,pri -p " + getProcessID());
         List<String> threadListInfo2 = ExecutingCommand.runNative("prstat -L -v -p " + getProcessID());
         Map<Integer, String[]> threadMap = parseAndMergeThreadInfo(threadListInfo1, threadListInfo2);
         if (threadMap.keySet().size() > 1) {
-            return threadMap.entrySet().stream().map(entry -> new SolarisOSThread(getProcessID(), entry.getValue())).collect(Collectors.toList());
+            return threadMap.entrySet().stream().map(entry -> new SolarisOSThread(getProcessID(), entry.getValue()))
+                    .collect(Collectors.toList());
         }
         return Collections.emptyList();
     }
@@ -281,30 +283,37 @@ public class SolarisOSProcess extends AbstractOSProcess {
     }
 
     /**
-     * Since solaris thread details are not available in a single command. We had to run ne ps command and prstat.
-     * This method merges the output of two commands and returns a map with thread id as key.
-     * @param threadListInfo1 output from ps command.
-     * @param threadListInfo2 output from the prstat command.
+     * Since solaris thread details are not available in a single command. We had to
+     * run ne ps command and prstat. This method merges the output of two commands
+     * and returns a map with thread id as key.
+     * 
+     * @param threadListInfo1
+     *            output from ps command.
+     * @param threadListInfo2
+     *            output from the prstat command.
      * @return a map with key as thread id
      */
-    public static Map<Integer, String[]> parseAndMergeThreadInfo(List<String> threadListInfo1, List<String> threadListInfo2) {
+    public static Map<Integer, String[]> parseAndMergeThreadInfo(List<String> threadListInfo1,
+            List<String> threadListInfo2) {
         Map<Integer, String[]> map = new HashMap<>();
         final String[] split = new String[9];
-        //0-lwpid, 1-state,2-elapsedtime,3-kerneltime, 4-usertime, 5-address, 6-priority
-        if (threadListInfo1.size() > 1) { //first row is header
+        // 0-lwpid, 1-state,2-elapsedtime,3-kerneltime, 4-usertime, 5-address,
+        // 6-priority
+        if (threadListInfo1.size() > 1) { // first row is header
             threadListInfo1.stream().skip(1).forEach(threadInfoPs -> {
                 String[] splitPs = ParseUtil.whitespaces.split(threadInfoPs.trim(), 6);
                 IntStream.rangeClosed(0, 6).forEach(idx -> split[idx] = splitPs[idx]);
                 map.put(ParseUtil.parseIntOrDefault(splitPs[0], 0), split);
             });
-            //0-pid, 1-username, 2-usertime, 3-sys, 4-trp, 5-tfl, 6-dfl, 7-lck, 8-slp, 9-lat, 10-vcx, 11-icx, 12-scl, 13-sig, 14-processid/lwpid
-            if (threadListInfo2.size() > 1) { //first row is header
+            // 0-pid, 1-username, 2-usertime, 3-sys, 4-trp, 5-tfl, 6-dfl, 7-lck, 8-slp,
+            // 9-lat, 10-vcx, 11-icx, 12-scl, 13-sig, 14-processid/lwpid
+            if (threadListInfo2.size() > 1) { // first row is header
                 threadListInfo2.stream().skip(1).forEach(threadInfo -> {
                     String[] splitPrstat = ParseUtil.whitespaces.split(threadInfo.trim(), 10);
-                    String[] processLwpid = ParseUtil.slash.split(splitPrstat[14].trim()); //format is process/lwpid
+                    String[] processLwpid = ParseUtil.slash.split(splitPrstat[14].trim()); // format is process/lwpid
                     String[] split1 = map.get(ParseUtil.parseIntOrDefault(processLwpid[1], 0));
-                    split1[7] = splitPrstat[10]; //voluntary context switch
-                    split1[8] = splitPrstat[11]; //involuntary context switch
+                    split1[7] = splitPrstat[10]; // voluntary context switch
+                    split1[8] = splitPrstat[11]; // involuntary context switch
                 });
             }
         }
@@ -312,7 +321,8 @@ public class SolarisOSProcess extends AbstractOSProcess {
     }
 
     /***
-     * Returns Enum STATE for the state value obtained from status string of thread/process.
+     * Returns Enum STATE for the state value obtained from status string of
+     * thread/process.
      *
      * @param stateValue
      *            state value from the status string
@@ -321,25 +331,25 @@ public class SolarisOSProcess extends AbstractOSProcess {
     public static OSProcess.State getStateFromOutput(char stateValue) {
         OSProcess.State state;
         switch (stateValue) {
-            case 'O':
-                state = OSProcess.State.RUNNING;
-                break;
-            case 'S':
-                state = OSProcess.State.SLEEPING;
-                break;
-            case 'R':
-            case 'W':
-                state = OSProcess.State.WAITING;
-                break;
-            case 'Z':
-                state = OSProcess.State.ZOMBIE;
-                break;
-            case 'T':
-                state = OSProcess.State.STOPPED;
-                break;
-            default:
-                state = OSProcess.State.OTHER;
-                break;
+        case 'O':
+            state = OSProcess.State.RUNNING;
+            break;
+        case 'S':
+            state = OSProcess.State.SLEEPING;
+            break;
+        case 'R':
+        case 'W':
+            state = OSProcess.State.WAITING;
+            break;
+        case 'Z':
+            state = OSProcess.State.ZOMBIE;
+            break;
+        case 'T':
+            state = OSProcess.State.STOPPED;
+            break;
+        default:
+            state = OSProcess.State.OTHER;
+            break;
         }
         return state;
     }

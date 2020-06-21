@@ -96,11 +96,13 @@ public class SolarisOSThread extends AbstractOSThread {
 
     @Override
     public boolean updateAttributes() {
-        List<String> threadListInfo1 = ExecutingCommand.runNative("ps -o lwp,s,etime,stime,time,addr,pri -p " + getOwningProcessId());
+        List<String> threadListInfo1 = ExecutingCommand
+                .runNative("ps -o lwp,s,etime,stime,time,addr,pri -p " + getOwningProcessId());
         List<String> threadListInfo2 = ExecutingCommand.runNative("prstat -L -v -p " + getOwningProcessId());
         Map<Integer, String[]> threadMap = SolarisOSProcess.parseAndMergeThreadInfo(threadListInfo1, threadListInfo2);
         if (threadMap.keySet().size() > 1) {
-            Optional<String[]> split = threadMap.entrySet().stream().filter(entry -> entry.getKey() == this.getThreadId()).map(entry -> entry.getValue()).findFirst();
+            Optional<String[]> split = threadMap.entrySet().stream()
+                    .filter(entry -> entry.getKey() == this.getThreadId()).map(entry -> entry.getValue()).findFirst();
             if (split.isPresent()) {
                 return updateAttributes(split.get());
             } else {
@@ -115,12 +117,12 @@ public class SolarisOSThread extends AbstractOSThread {
         this.threadId = ParseUtil.parseIntOrDefault(split[0], 0);
         this.state = SolarisOSProcess.getStateFromOutput(split[1].charAt(0));
         // Avoid divide by zero for processes up less than a second
-        long elapsedTime = ParseUtil.parseDHMSOrDefault(split[2], 0L); //etimes
+        long elapsedTime = ParseUtil.parseDHMSOrDefault(split[2], 0L); // etimes
         this.upTime = elapsedTime < 1L ? 1L : elapsedTime;
         long now = System.currentTimeMillis();
         this.startTime = now - this.upTime;
-        this.kernelTime = ParseUtil.parseDHMSOrDefault(split[3], 0L); //systime
-        this.userTime = ParseUtil.parseDHMSOrDefault(split[4], 0L) - this.kernelTime; //time
+        this.kernelTime = ParseUtil.parseDHMSOrDefault(split[3], 0L); // systime
+        this.userTime = ParseUtil.parseDHMSOrDefault(split[4], 0L) - this.kernelTime; // time
         this.startMemoryAddress = ParseUtil.hexStringToLong(split[5], 0L);
         this.priority = ParseUtil.parseIntOrDefault(split[6], 0);
         long nonVoluntaryContextSwitches = ParseUtil.parseLongOrDefault(split[7], 0L);

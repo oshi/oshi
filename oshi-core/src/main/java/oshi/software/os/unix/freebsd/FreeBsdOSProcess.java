@@ -36,7 +36,6 @@ import com.sun.jna.ptr.IntByReference;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.platform.unix.freebsd.FreeBsdLibc;
 import oshi.software.common.AbstractOSProcess;
-import oshi.software.os.OSProcess;
 import oshi.software.os.OSThread;
 import oshi.util.ExecutingCommand;
 import oshi.util.LsofUtil;
