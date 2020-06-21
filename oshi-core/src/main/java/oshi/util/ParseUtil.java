@@ -1132,8 +1132,7 @@ public final class ParseUtil {
      */
     public static long hexStringToLong(String hexString, long defaultValue) {
         try {
-            long result = Long.parseLong(hexString, 16);
-            return result;
+            return new BigInteger(hexString, 16).longValue();
         } catch (NumberFormatException e) {
             LOG.trace(DEFAULT_LOG_MSG, hexString, e);
             // Hex failed to parse, just return the default long

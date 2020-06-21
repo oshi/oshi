@@ -516,4 +516,11 @@ public class ParseUtilTest {
         assertEquals("V6 parsing failed", v6test, ParseUtil.parseUtAddrV6toIP(v6));
         assertEquals("V4 parsig failed", v4test, ParseUtil.parseUtAddrV6toIP(v4));
     }
+
+    @Test
+    public void testHexStringToLong() {
+        assertEquals(255L, ParseUtil.hexStringToLong("ff", 0L));
+        assertEquals(-2096147552L, ParseUtil.hexStringToLong("ffffffff830f53a0", 0L));
+        assertEquals(0L, ParseUtil.hexStringToLong("pqwe", 0L));
+    }
 }
