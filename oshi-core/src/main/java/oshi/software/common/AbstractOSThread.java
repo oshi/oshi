@@ -135,7 +135,7 @@ public abstract class AbstractOSThread implements OSThread {
         return "OSThread [threadId=" + getThreadId() + ", owningProcessId=" + getOwningProcessId() + ", name="
                 + getName() + ", state=" + getState() + ", kernelTime=" + getKernelTime() + ", userTime="
                 + getUserTime() + ", upTime=" + getUpTime() + ", startTime=" + getStartTime() + ", startMemoryAddress="
-                + String.format("%x",getStartMemoryAddress()) + ", contextSwitches=" + getContextSwitches() + ", minorFaults="
+                + String.format("%x", getStartMemoryAddress()) + ", contextSwitches=" + getContextSwitches() + ", minorFaults="
                 + getMinorFaults() + ", majorFaults=" + getMajorFaults() + "]";
     }
 }
