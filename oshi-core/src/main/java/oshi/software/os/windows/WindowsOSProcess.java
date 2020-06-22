@@ -319,7 +319,7 @@ public class WindowsOSProcess extends AbstractOSProcess {
             Kernel32.INSTANCE.CloseHandle(pHandle);
         }
 
-        return !this.equals(INVALID);
+        return !this.state.equals(INVALID);
     }
 
     private String queryCommandLine() {
