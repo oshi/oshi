@@ -24,12 +24,8 @@
 package oshi.jna.platform.mac;
 
 import com.sun.jna.Native; // NOSONAR squid:S1191
-import com.sun.jna.NativeLong;
-import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import com.sun.jna.Structure.FieldOrder;
-import com.sun.jna.ptr.IntByReference;
-import com.sun.jna.ptr.PointerByReference;
 
 import oshi.jna.platform.unix.CLibrary;
 
@@ -60,34 +56,6 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB, CLibrary {
         public byte[] ut_pad = new byte[16]; // reserved for future use
     }
 
-    @FieldOrder({ "seconds", "microseconds" })
-    class TimeValue extends Structure {
-        public int seconds;
-        public int microseconds;
-    }
-
-    @FieldOrder({ "user_time", "system_time", "cpu_usage", "policy", "run_state", "flags", "suspend_count",
-            "sleep_time" })
-    class ThreadBasicInfo extends Structure {
-        public TimeValue user_time; // user run time
-        public TimeValue system_time; // system run time
-        public int cpu_usage; // scaled cpu usage percentage
-        public int policy; // scheduling policy in effect
-        public int run_state; // run state (see below)
-        public int flags; // various flags (see below)
-        public int suspend_count; // suspend count for thread
-        public int sleep_time; // number of seconds that thread has been sleeping
-
-        public ThreadBasicInfo() {
-            super();
-        }
-
-        public ThreadBasicInfo(Pointer p) {
-            super(p);
-            read();
-        }
-    }
-
     /**
      * Reads a line from the current file position in the utmp file. It returns a
      * pointer to a structure containing the fields of the line.
@@ -98,13 +66,4 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB, CLibrary {
      *         the "record not found" case)
      */
     MacUtmpx getutxent();
-
-    int task_for_pid(int mach_task_self, int pid, IntByReference port);
-
-    int task_threads(int target_task, PointerByReference thread_list, IntByReference thread_count);
-
-    int vm_deallocate(int target_task, Pointer address, NativeLong size);
-
-    int thread_info(int thread, int flavor, Pointer thread_info, IntByReference thread_info_count);
-
 }

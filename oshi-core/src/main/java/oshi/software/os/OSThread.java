@@ -158,8 +158,8 @@ public interface OSThread {
 
     /**
      * Attempts to updates process attributes. Returns false if the update fails,
-     * which will occur if the process no longer exists. Only implemented for Linux
-     * and Windows; attempts to update on other OS's will fail.
+     * which will occur if the process no longer exists. Not implemented for macOS,
+     * as thread ID is simply an index and not unique.
      *
      * @return {@code true} if the update was successful, false if the update
      *         failed. In addition, on a failed update the thread state will be

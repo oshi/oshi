@@ -95,11 +95,6 @@ public abstract class AbstractOSThread implements OSThread {
     }
 
     @Override
-    public int getPriority() {
-        return 0;
-    }
-
-    @Override
     public boolean updateAttributes() {
         return false;
     }
@@ -108,8 +103,9 @@ public abstract class AbstractOSThread implements OSThread {
     public String toString() {
         return "OSThread [threadId=" + getThreadId() + ", owningProcessId=" + getOwningProcessId() + ", name="
                 + getName() + ", state=" + getState() + ", kernelTime=" + getKernelTime() + ", userTime="
-                + getUserTime() + ", upTime=" + getUpTime() + ", startTime=" + getStartTime() + ", startMemoryAddress="
-                + String.format("%x", getStartMemoryAddress()) + ", contextSwitches=" + getContextSwitches()
-                + ", minorFaults=" + getMinorFaults() + ", majorFaults=" + getMajorFaults() + "]";
+                + getUserTime() + ", upTime=" + getUpTime() + ", startTime=" + getStartTime()
+                + ", startMemoryAddress=0x" + String.format("%x", getStartMemoryAddress()) + ", contextSwitches="
+                + getContextSwitches() + ", minorFaults=" + getMinorFaults() + ", majorFaults=" + getMajorFaults()
+                + "]";
     }
 }

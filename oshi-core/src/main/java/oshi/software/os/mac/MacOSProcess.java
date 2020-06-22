@@ -219,7 +219,7 @@ public class MacOSProcess extends AbstractOSProcess {
                 start = this.getStartTime();
             }
             details.add(new MacOSThread(getProcessID(), stat.getThreadId(), stat.getState(), stat.getSystemTime(),
-                    stat.getUserTime(), start, now - start));
+                    stat.getUserTime(), start, now - start, stat.getPriority()));
         }
         return Collections.unmodifiableList(details);
     }

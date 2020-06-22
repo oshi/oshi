@@ -25,16 +25,15 @@ package oshi.driver.mac;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import com.sun.jna.NativeLong; // NOSONAR squid:S1191
-import com.sun.jna.ptr.IntByReference;
-import com.sun.jna.ptr.PointerByReference;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import oshi.annotation.concurrent.Immutable;
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.jna.platform.mac.SystemB;
-import oshi.jna.platform.mac.SystemB.ThreadBasicInfo;
 import oshi.software.os.OSProcess.State;
+import oshi.util.ExecutingCommand;
+import oshi.util.ParseUtil;
 
 /**
  * Utility to query threads for a process
@@ -42,41 +41,29 @@ import oshi.software.os.OSProcess.State;
 @ThreadSafe
 public final class ThreadInfo {
 
-    private static final SystemB SYS = SystemB.INSTANCE;
-
-    private static final int TH_STATE_RUNNING = 1;
-    private static final int TH_STATE_STOPPED = 2;
-    private static final int TH_STATE_WAITING = 3;
-    private static final int TH_STATE_UNINTERRUPTIBLE = 4;
-    private static final int TH_STATE_HALTED = 5;
+    private static Pattern PS_M = Pattern.compile(
+            "\\D+(\\d+).+(\\d+\\.\\d)\\s+(\\w)\\s+(\\d+)\\D+(\\d+:\\d{2}\\.\\d{2})\\s+(\\d+:\\d{2}\\.\\d{2}).+");
 
     private ThreadInfo() {
     }
 
     public static List<ThreadStats> queryTaskThreads(int pid) {
+        String pidStr = " " + pid + " ";
         List<ThreadStats> taskThreads = new ArrayList<>();
-        IntByReference port = new IntByReference();
-        if (0 == SYS.task_for_pid(SYS.mach_task_self(), pid, port)) {
-            int task = port.getValue();
-            PointerByReference threadList = new PointerByReference();
-            IntByReference threadCount = new IntByReference();
-            if (0 == SYS.task_threads(task, threadList, threadCount)) {
-                int count = threadCount.getValue();
-                try {
-                    int[] threads = threadList.getValue().getIntArray(0, count);
-                    ThreadBasicInfo threadInfo = new ThreadBasicInfo();
-                    IntByReference infoCount = new IntByReference(threadInfo.size() / 4);
-                    for (int thread : threads) {
-                        if (0 == SYS.thread_info(thread, SystemB.THREAD_BASIC_INFO, threadInfo.getPointer(),
-                                infoCount)) {
-                            threadInfo.read();
-                            taskThreads.add(new ThreadStats(thread, threadInfo.user_time, threadInfo.system_time,
-                                    threadInfo.cpu_usage, threadInfo.run_state));
-                        }
-                    }
-                } finally {
-                    SYS.vm_deallocate(task, threadList.getValue(), new NativeLong((long) count * Integer.SIZE));
-                }
+        // Only way to get thread info without root permissions
+        // Using the M switch gives all threads with no possibility to filter
+        List<String> psThread = ExecutingCommand.runNative("ps -awwxM").stream().filter(s -> s.contains(pidStr))
+                .collect(Collectors.toList());
+        int tid = 0;
+        for (String thread : psThread) {
+            Matcher m = PS_M.matcher(thread);
+            if (m.matches() && pid == ParseUtil.parseIntOrDefault(m.group(1), -1)) {
+                double cpu = ParseUtil.parseDoubleOrDefault(m.group(2), 0d);
+                char state = m.group(3).charAt(0);
+                int pri = ParseUtil.parseIntOrDefault(m.group(4), 0);
+                long sTime = ParseUtil.parseDHMSOrDefault(m.group(5), 0L);
+                long uTime = ParseUtil.parseDHMSOrDefault(m.group(6), 0L);
+                taskThreads.add(new ThreadStats(tid++, cpu, state, sTime, uTime, pri));
             }
         }
         return taskThreads;
@@ -92,30 +79,37 @@ public final class ThreadInfo {
         private final long systemTime;
         private final long upTime;
         private final State state;
+        private final int priority;
 
-        public ThreadStats(int tid, SystemB.TimeValue userTime, SystemB.TimeValue systemTime, int cpuUsage,
-                int runState) {
+        public ThreadStats(int tid, double cpu, char state, long sTime, long uTime, int pri) {
             this.threadId = tid;
-            // Start out with microsecond precision
-            long uTime = userTime.seconds * 1_000_000L + userTime.microseconds;
-            long sTime = systemTime.seconds * 1_000_000L + systemTime.microseconds;
-            long microsecs = uTime + sTime;
-            this.userTime = uTime / 1000L;
-            this.systemTime = sTime / 1000L;
-            // cpuUsage is cpu load times 1000
-            // user + system / uptime * 1000 = cpuUsage
-            // ... uptime (usecs) = user+system (usecs) * 1000 / cpuUsage
-            // ... uptime (ms) = user+system (usecs) / cpuUsage
-            this.upTime = (long) (microsecs / (cpuUsage + 0.5));
-            if (runState == TH_STATE_RUNNING) {
-                this.state = State.RUNNING;
-            } else if (runState == TH_STATE_WAITING || runState == TH_STATE_UNINTERRUPTIBLE) {
+            this.userTime = uTime;
+            this.systemTime = sTime;
+            // user + system / uptime = cpu/100
+            // so: uptime = user+system / cpu/100
+            this.upTime = (long) ((uTime + sTime) / (cpu / 100d + 0.0005));
+            switch (state) {
+            case 'I':
+            case 'S':
+                this.state = State.SLEEPING;
+                break;
+            case 'U':
                 this.state = State.WAITING;
-            } else if (runState == TH_STATE_STOPPED || runState == TH_STATE_HALTED) {
+                break;
+            case 'R':
+                this.state = State.RUNNING;
+                break;
+            case 'Z':
+                this.state = State.ZOMBIE;
+                break;
+            case 'T':
                 this.state = State.STOPPED;
-            } else {
+                break;
+            default:
                 this.state = State.OTHER;
+                break;
             }
+            this.priority = pri;
         }
 
         /**
@@ -151,6 +145,13 @@ public final class ThreadInfo {
          */
         public State getState() {
             return state;
+        }
+
+        /**
+         * @return the priority
+         */
+        public int getPriority() {
+            return priority;
         }
     }
 }
