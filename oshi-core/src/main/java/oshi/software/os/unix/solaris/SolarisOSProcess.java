@@ -23,6 +23,12 @@
  */
 package oshi.software.os.unix.solaris;
 
+import static oshi.software.os.OSProcess.State.OTHER;
+import static oshi.software.os.OSProcess.State.RUNNING;
+import static oshi.software.os.OSProcess.State.SLEEPING;
+import static oshi.software.os.OSProcess.State.STOPPED;
+import static oshi.software.os.OSProcess.State.WAITING;
+import static oshi.software.os.OSProcess.State.ZOMBIE;
 import static oshi.util.Memoizer.memoize;
 
 import java.util.Collections;
@@ -31,11 +37,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.AbstractOSProcess;
-import oshi.software.os.OSProcess;
 import oshi.software.os.OSThread;
 import oshi.util.ExecutingCommand;
 import oshi.util.LsofUtil;
@@ -293,8 +297,7 @@ public class SolarisOSProcess extends AbstractOSProcess {
      *            output from the prstat command.
      * @return a map with key as thread id and an array of command outputs as value
      */
-    static Map<Integer, String[]> parseAndMergeThreadInfo(List<String> psThreadInfo,
-            List<String> prstatThreadInfo) {
+    static Map<Integer, String[]> parseAndMergeThreadInfo(List<String> psThreadInfo, List<String> prstatThreadInfo) {
         Map<Integer, String[]> map = new HashMap<>();
         final String[] mergedSplit = new String[9];
         // 0-lwpid, 1-state,2-elapsedtime,3-kerneltime, 4-usertime, 5-address,
@@ -303,9 +306,9 @@ public class SolarisOSProcess extends AbstractOSProcess {
             psThreadInfo.stream().skip(1).forEach(threadInfo -> {
                 String[] psSplit = ParseUtil.whitespaces.split(threadInfo.trim());
                 if (psSplit.length == 7) {
-                    //copying the 1st 7 results from ps command output
+                    // copying the 1st 7 results from ps command output
                     for (int idx = 0; idx < psSplit.length; idx++) {
-                        if (idx == 0) { //index 0 has threadid
+                        if (idx == 0) { // index 0 has threadid
                             map.put(ParseUtil.parseIntOrDefault(psSplit[idx], 0), mergedSplit);
                         }
                         mergedSplit[idx] = psSplit[idx];
@@ -318,11 +321,11 @@ public class SolarisOSProcess extends AbstractOSProcess {
                 prstatThreadInfo.stream().skip(1).forEach(threadInfo -> {
                     String[] splitPrstat = ParseUtil.whitespaces.split(threadInfo.trim());
                     if (splitPrstat.length == 15) {
-                        int idxForwardSlash = splitPrstat[14].lastIndexOf("/"); //format is process/lwpid
-                        if (idxForwardSlash > 0) {
-                            String threadId = splitPrstat[14].substring(idxForwardSlash + 1); //getting the thread id
+                        int idxAfterForwardSlash = splitPrstat[14].lastIndexOf("/") + 1; // format is process/lwpid
+                        if (idxAfterForwardSlash > 0 && idxAfterForwardSlash < splitPrstat[14].length()) {
+                            String threadId = splitPrstat[14].substring(idxAfterForwardSlash); // getting the thread id
                             String[] existingSplit = map.get(Integer.parseInt(threadId));
-                            if (existingSplit != null) { //the thread should already be present from the ps command output
+                            if (existingSplit != null) { // if thread wasn't in ps command output
                                 existingSplit[7] = splitPrstat[10]; // voluntary context switch
                                 existingSplit[8] = splitPrstat[11]; // involuntary context switch
                             }
@@ -340,29 +343,29 @@ public class SolarisOSProcess extends AbstractOSProcess {
      *
      * @param stateValue
      *            state value from the status string
-     * @return OSProcess.State
+     * @return The state
      */
-    public static OSProcess.State getStateFromOutput(char stateValue) {
-        OSProcess.State state;
+    static State getStateFromOutput(char stateValue) {
+        State state;
         switch (stateValue) {
         case 'O':
-            state = OSProcess.State.RUNNING;
+            state = RUNNING;
             break;
         case 'S':
-            state = OSProcess.State.SLEEPING;
+            state = SLEEPING;
             break;
         case 'R':
         case 'W':
-            state = OSProcess.State.WAITING;
+            state = WAITING;
             break;
         case 'Z':
-            state = OSProcess.State.ZOMBIE;
+            state = ZOMBIE;
             break;
         case 'T':
-            state = OSProcess.State.STOPPED;
+            state = STOPPED;
             break;
         default:
-            state = OSProcess.State.OTHER;
+            state = OTHER;
             break;
         }
         return state;

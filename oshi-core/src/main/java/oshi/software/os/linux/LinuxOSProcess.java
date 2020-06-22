@@ -24,6 +24,7 @@
 package oshi.software.os.linux;
 
 import static oshi.hardware.platform.linux.LinuxGlobalMemory.PAGE_SIZE;
+import static oshi.software.os.OSProcess.State.INVALID;
 import static oshi.util.Memoizer.memoize;
 
 import java.io.File;
@@ -79,7 +80,7 @@ public class LinuxOSProcess extends AbstractOSProcess {
     private String userID;
     private String group;
     private String groupID;
-    private State state = State.INVALID;
+    private State state = INVALID;
     private int parentProcessID;
     private int threadCount;
     private int priority;
@@ -278,7 +279,7 @@ public class LinuxOSProcess extends AbstractOSProcess {
                 ":");
         String stat = FileUtil.getStringFromFile(String.format(ProcPath.PID_STAT, getProcessID()));
         if (stat.isEmpty()) {
-            this.state = State.INVALID;
+            this.state = INVALID;
             return false;
         }
         long now = System.currentTimeMillis();

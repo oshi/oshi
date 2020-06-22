@@ -23,6 +23,13 @@
  */
 package oshi.driver.mac;
 
+import static oshi.software.os.OSProcess.State.OTHER;
+import static oshi.software.os.OSProcess.State.RUNNING;
+import static oshi.software.os.OSProcess.State.SLEEPING;
+import static oshi.software.os.OSProcess.State.STOPPED;
+import static oshi.software.os.OSProcess.State.WAITING;
+import static oshi.software.os.OSProcess.State.ZOMBIE;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -91,22 +98,22 @@ public final class ThreadInfo {
             switch (state) {
             case 'I':
             case 'S':
-                this.state = State.SLEEPING;
+                this.state = SLEEPING;
                 break;
             case 'U':
-                this.state = State.WAITING;
+                this.state = WAITING;
                 break;
             case 'R':
-                this.state = State.RUNNING;
+                this.state = RUNNING;
                 break;
             case 'Z':
-                this.state = State.ZOMBIE;
+                this.state = ZOMBIE;
                 break;
             case 'T':
-                this.state = State.STOPPED;
+                this.state = STOPPED;
                 break;
             default:
-                this.state = State.OTHER;
+                this.state = OTHER;
                 break;
             }
             this.priority = pri;

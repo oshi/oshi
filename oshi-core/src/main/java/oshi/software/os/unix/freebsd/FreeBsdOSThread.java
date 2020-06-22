@@ -23,18 +23,26 @@
  */
 package oshi.software.os.unix.freebsd;
 
+import static oshi.software.os.OSProcess.State.INVALID;
+import static oshi.software.os.OSProcess.State.OTHER;
+import static oshi.software.os.OSProcess.State.RUNNING;
+import static oshi.software.os.OSProcess.State.SLEEPING;
+import static oshi.software.os.OSProcess.State.STOPPED;
+import static oshi.software.os.OSProcess.State.WAITING;
+import static oshi.software.os.OSProcess.State.ZOMBIE;
+
+import java.util.List;
+
 import oshi.software.common.AbstractOSThread;
 import oshi.software.os.OSProcess;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
-import java.util.List;
-
 public class FreeBsdOSThread extends AbstractOSThread {
 
     private int threadId;
     private String name = "";
-    private OSProcess.State state = OSProcess.State.INVALID;
+    private OSProcess.State state = INVALID;
     private long minorFaults;
     private long majorFaults;
     private long startMemoryAddress;
@@ -122,37 +130,38 @@ public class FreeBsdOSThread extends AbstractOSThread {
                 return updateAttributes(split);
             }
         }
-        this.state = OSProcess.State.INVALID;
+        this.state = INVALID;
         return false;
     }
 
     private boolean updateAttributes(String[] split) {
         if (split.length != 12) {
+            this.state = INVALID;
             return false;
         }
         this.name = split[0];
         this.threadId = ParseUtil.parseIntOrDefault(split[1], 0);
         switch (split[2].charAt(0)) {
         case 'R':
-            this.state = OSProcess.State.RUNNING;
+            this.state = RUNNING;
             break;
         case 'I':
         case 'S':
-            this.state = OSProcess.State.SLEEPING;
+            this.state = SLEEPING;
             break;
         case 'D':
         case 'L':
         case 'U':
-            this.state = OSProcess.State.WAITING;
+            this.state = WAITING;
             break;
         case 'Z':
-            this.state = OSProcess.State.ZOMBIE;
+            this.state = ZOMBIE;
             break;
         case 'T':
-            this.state = OSProcess.State.STOPPED;
+            this.state = STOPPED;
             break;
         default:
-            this.state = OSProcess.State.OTHER;
+            this.state = OTHER;
             break;
         }
         // Avoid divide by zero for processes up less than a second

@@ -23,6 +23,8 @@
  */
 package oshi.software.os.windows;
 
+import static oshi.software.os.OSProcess.State.INVALID;
+import static oshi.software.os.OSProcess.State.RUNNING;
 import static oshi.util.Memoizer.memoize;
 
 import java.io.File;
@@ -87,7 +89,7 @@ public class WindowsOSProcess extends AbstractOSProcess {
     private String name;
     private String path;
     private String currentWorkingDirectory;
-    private State state = State.INVALID;
+    private State state = INVALID;
     private int parentProcessID;
     private int threadCount;
     private int priority;
@@ -114,7 +116,7 @@ public class WindowsOSProcess extends AbstractOSProcess {
         // There is no easy way to get ExecutuionState for a process.
         // The WMI value is null. It's possible to get thread Execution
         // State and possibly roll up.
-        this.state = State.RUNNING;
+        this.state = RUNNING;
         // Initially set to match OS bitness. If 64 will check later for 32-bit process
         this.bitness = os.getBitness();
         updateAttributes(processMap.get(pid), processWtsMap.get(pid));
@@ -307,7 +309,7 @@ public class WindowsOSProcess extends AbstractOSProcess {
                     this.path = Kernel32Util.QueryFullProcessImageName(pHandle, 0);
                 }
             } catch (Win32Exception e) {
-                this.state = State.INVALID;
+                this.state = INVALID;
             } finally {
                 final HANDLE token = phToken.getValue();
                 if (token != null) {
@@ -317,7 +319,7 @@ public class WindowsOSProcess extends AbstractOSProcess {
             Kernel32.INSTANCE.CloseHandle(pHandle);
         }
 
-        return !this.state.equals(State.INVALID);
+        return !this.equals(INVALID);
     }
 
     private String queryCommandLine() {

@@ -23,6 +23,13 @@
  */
 package oshi.driver.linux.proc;
 
+import static oshi.software.os.OSProcess.State.OTHER;
+import static oshi.software.os.OSProcess.State.RUNNING;
+import static oshi.software.os.OSProcess.State.SLEEPING;
+import static oshi.software.os.OSProcess.State.STOPPED;
+import static oshi.software.os.OSProcess.State.WAITING;
+import static oshi.software.os.OSProcess.State.ZOMBIE;
+
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
@@ -38,7 +45,6 @@ import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.linux.ProcPath;
 import oshi.util.tuples.Triplet;
-
 /**
  * Utility to read process statistics from {@code /proc/[pid]/stat}
  */
@@ -488,22 +494,22 @@ public final class ProcessStat {
         OSProcess.State state;
         switch (stateValue) {
         case 'R':
-            state = OSProcess.State.RUNNING;
+            state = RUNNING;
             break;
         case 'S':
-            state = OSProcess.State.SLEEPING;
+            state = SLEEPING;
             break;
         case 'D':
-            state = OSProcess.State.WAITING;
+            state = WAITING;
             break;
         case 'Z':
-            state = OSProcess.State.ZOMBIE;
+            state = ZOMBIE;
             break;
         case 'T':
-            state = OSProcess.State.STOPPED;
+            state = STOPPED;
             break;
         default:
-            state = OSProcess.State.OTHER;
+            state = OTHER;
             break;
         }
         return state;

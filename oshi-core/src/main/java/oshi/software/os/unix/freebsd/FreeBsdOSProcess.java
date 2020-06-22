@@ -23,6 +23,13 @@
  */
 package oshi.software.os.unix.freebsd;
 
+import static oshi.software.os.OSProcess.State.INVALID;
+import static oshi.software.os.OSProcess.State.OTHER;
+import static oshi.software.os.OSProcess.State.RUNNING;
+import static oshi.software.os.OSProcess.State.SLEEPING;
+import static oshi.software.os.OSProcess.State.STOPPED;
+import static oshi.software.os.OSProcess.State.WAITING;
+import static oshi.software.os.OSProcess.State.ZOMBIE;
 import static oshi.util.Memoizer.memoize;
 
 import java.util.ArrayList;
@@ -53,7 +60,7 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
     private String userID;
     private String group;
     private String groupID;
-    private State state = State.INVALID;
+    private State state = INVALID;
     private int parentProcessID;
     private int threadCount;
     private int priority;
@@ -261,7 +268,7 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
                 return updateAttributes(split);
             }
         }
-        this.state = State.INVALID;
+        this.state = INVALID;
         return false;
     }
 
@@ -269,25 +276,25 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
         long now = System.currentTimeMillis();
         switch (split[0].charAt(0)) {
         case 'R':
-            this.state = State.RUNNING;
+            this.state = RUNNING;
             break;
         case 'I':
         case 'S':
-            this.state = State.SLEEPING;
+            this.state = SLEEPING;
             break;
         case 'D':
         case 'L':
         case 'U':
-            this.state = State.WAITING;
+            this.state = WAITING;
             break;
         case 'Z':
-            this.state = State.ZOMBIE;
+            this.state = ZOMBIE;
             break;
         case 'T':
-            this.state = State.STOPPED;
+            this.state = STOPPED;
             break;
         default:
-            this.state = State.OTHER;
+            this.state = OTHER;
             break;
         }
         this.parentProcessID = ParseUtil.parseIntOrDefault(split[2], 0);

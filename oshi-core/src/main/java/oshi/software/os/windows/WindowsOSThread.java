@@ -23,6 +23,14 @@
  */
 package oshi.software.os.windows;
 
+import static oshi.software.os.OSProcess.State.INVALID;
+import static oshi.software.os.OSProcess.State.NEW;
+import static oshi.software.os.OSProcess.State.OTHER;
+import static oshi.software.os.OSProcess.State.RUNNING;
+import static oshi.software.os.OSProcess.State.SLEEPING;
+import static oshi.software.os.OSProcess.State.STOPPED;
+import static oshi.software.os.OSProcess.State.WAITING;
+
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
@@ -116,7 +124,7 @@ public class WindowsOSThread extends AbstractOSThread {
 
     private boolean updateAttributes(String procName, PerfCounterBlock pcb) {
         if (pcb == null) {
-            this.state = State.INVALID;
+            this.state = INVALID;
             return false;
         } else if (pcb.getName().contains("/") || procName.isEmpty()) {
             name = pcb.getName();
@@ -125,25 +133,25 @@ public class WindowsOSThread extends AbstractOSThread {
         }
         switch (pcb.getThreadState()) {
         case 0:
-            state = State.NEW;
+            state = NEW;
             break;
         case 2:
         case 3:
-            state = State.RUNNING;
+            state = RUNNING;
             break;
         case 4:
-            state = State.STOPPED;
+            state = STOPPED;
             break;
         case 5:
-            state = State.SLEEPING;
+            state = SLEEPING;
             break;
         case 1:
         case 6:
-            state = State.WAITING;
+            state = WAITING;
             break;
         case 7:
         default:
-            state = State.OTHER;
+            state = OTHER;
         }
         startMemoryAddress = pcb.getStartAddress();
         contextSwitches = pcb.getContextSwitches();
