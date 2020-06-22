@@ -28,7 +28,6 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.function.Supplier;
 
-import oshi.software.os.OSProcess.State;
 import oshi.software.os.OSThread;
 
 public abstract class AbstractOSThread implements OSThread {
@@ -76,16 +75,6 @@ public abstract class AbstractOSThread implements OSThread {
     }
 
     @Override
-    public State getState() {
-        return State.OTHER;
-    }
-
-    @Override
-    public long getStartTime() {
-        return 0L;
-    }
-
-    @Override
     public long getStartMemoryAddress() {
         return 0L;
     }
@@ -102,21 +91,6 @@ public abstract class AbstractOSThread implements OSThread {
 
     @Override
     public long getMajorFaults() {
-        return 0L;
-    }
-
-    @Override
-    public long getKernelTime() {
-        return 0L;
-    }
-
-    @Override
-    public long getUserTime() {
-        return 0L;
-    }
-
-    @Override
-    public long getUpTime() {
         return 0L;
     }
 
