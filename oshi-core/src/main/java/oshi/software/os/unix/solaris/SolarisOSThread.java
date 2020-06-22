@@ -23,14 +23,14 @@
  */
 package oshi.software.os.unix.solaris;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
 import oshi.software.common.AbstractOSThread;
 import oshi.software.os.OSProcess;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 public class SolarisOSThread extends AbstractOSThread {
 
@@ -102,14 +102,12 @@ public class SolarisOSThread extends AbstractOSThread {
         Map<Integer, String[]> threadMap = SolarisOSProcess.parseAndMergeThreadInfo(threadListInfo1, threadListInfo2);
         if (threadMap.keySet().size() > 1) {
             Optional<String[]> split = threadMap.entrySet().stream()
-                    .filter(entry -> entry.getKey() == this.getThreadId()).map(entry -> entry.getValue()).findFirst();
+                    .filter(entry -> entry.getKey() == this.getThreadId()).map(Map.Entry::getValue).findFirst();
             if (split.isPresent()) {
                 return updateAttributes(split.get());
-            } else {
-                this.state = OSProcess.State.INVALID;
-                return false;
             }
         }
+        this.state = OSProcess.State.INVALID;
         return false;
     }
 

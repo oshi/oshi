@@ -1126,7 +1126,7 @@ public final class ParseUtil {
 
     /**
      * Parses a string of hex digits to long value.
-     * 
+     *
      * @param hexString
      *            A sequence of hex digits
      * @param defaultValue

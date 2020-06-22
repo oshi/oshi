@@ -25,10 +25,10 @@ package oshi.software.os.unix.solaris;
 
 import static oshi.util.Memoizer.memoize;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Collections;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -283,17 +283,17 @@ public class SolarisOSProcess extends AbstractOSProcess {
     }
 
     /**
-     * Since solaris thread details are not available in a single command. We had to
-     * run ne ps command and prstat. This method merges the output of two commands
-     * and returns a map with thread id as key.
-     * 
+     * Merges results of a ps and prstat query, since Solaris thread details are not
+     * available in a single command. Package private to permit access by
+     * SolarisOSThread.
+     *
      * @param threadListInfo1
      *            output from ps command.
      * @param threadListInfo2
      *            output from the prstat command.
-     * @return a map with key as thread id
+     * @return a map with key as thread id and an array of command outputs as value
      */
-    public static Map<Integer, String[]> parseAndMergeThreadInfo(List<String> threadListInfo1,
+    static Map<Integer, String[]> parseAndMergeThreadInfo(List<String> threadListInfo1,
             List<String> threadListInfo2) {
         Map<Integer, String[]> map = new HashMap<>();
         final String[] split = new String[9];
