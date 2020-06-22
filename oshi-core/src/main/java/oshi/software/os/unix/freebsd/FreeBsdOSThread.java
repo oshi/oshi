@@ -116,22 +116,20 @@ public class FreeBsdOSThread extends AbstractOSThread {
                 + getOwningProcessId();
         // there is no switch for thread in ps command, hence filtering.
         List<String> threadList = ExecutingCommand.runNative(psCommand);
-        String[] split = null;
         for (String psOutput : threadList) {
-            split = ParseUtil.whitespaces.split(psOutput.trim(), 12);
-            int id = ParseUtil.parseIntOrDefault(split[1], 0);
-            if (id == this.getThreadId()) {
-                break;
+            String[] split = ParseUtil.whitespaces.split(psOutput.trim());
+            if (split.length > 1 && this.getThreadId() == ParseUtil.parseIntOrDefault(split[1], 0)) {
+                return updateAttributes(split);
             }
-        }
-        if (split != null && split.length == 12) {
-            return updateAttributes(split);
         }
         this.state = OSProcess.State.INVALID;
         return false;
     }
 
     private boolean updateAttributes(String[] split) {
+        if (split.length != 12) {
+            return false;
+        }
         this.name = split[0];
         this.threadId = ParseUtil.parseIntOrDefault(split[1], 0);
         switch (split[2].charAt(0)) {
@@ -170,8 +168,7 @@ public class FreeBsdOSThread extends AbstractOSThread {
         this.contextSwitches = voluntaryContextSwitches + nonVoluntaryContextSwitches;
         this.majorFaults = ParseUtil.parseLongOrDefault(split[9], 0L);
         this.minorFaults = ParseUtil.parseLongOrDefault(split[10], 0L);
-        // ps gives values offset by 100, hence adding 100
-        this.priority = 100 + ParseUtil.parseIntOrDefault(split[11], 0);
+        this.priority = ParseUtil.parseIntOrDefault(split[11], 0);
         return true;
     }
 }
