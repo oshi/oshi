@@ -23,17 +23,28 @@
  */
 package oshi.driver.linux.proc;
 
+import static oshi.software.os.OSProcess.State.OTHER;
+import static oshi.software.os.OSProcess.State.RUNNING;
+import static oshi.software.os.OSProcess.State.SLEEPING;
+import static oshi.software.os.OSProcess.State.STOPPED;
+import static oshi.software.os.OSProcess.State.WAITING;
+import static oshi.software.os.OSProcess.State.ZOMBIE;
+
 import java.io.File;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.software.os.OSProcess;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.linux.ProcPath;
 import oshi.util.tuples.Triplet;
-
 /**
  * Utility to read process statistics from {@code /proc/[pid]/stat}
  */
@@ -453,4 +464,55 @@ public final class ProcessStat {
         File[] pids = procdir.listFiles(f -> DIGITS.matcher(f.getName()).matches());
         return pids != null ? pids : new File[0];
     }
+
+    /**
+     * Gets an List of thread ids for a process from the {@code /proc/[pid]/task/}
+     * directory with only numeric digit filenames, corresponding to the threads.
+     *
+     * @param pid
+     *            process id
+     * @return A list of thread id.
+     */
+    public static List<Integer> getThreadIds(int pid) {
+        File threadDir = new File(String.format(ProcPath.TASK_PATH, pid));
+        File[] threads = threadDir
+                .listFiles(file -> DIGITS.matcher(file.getName()).matches() && Integer.valueOf(file.getName()) != pid);
+        return (threads != null) ? Arrays.stream(threads)
+                .map(thread -> ParseUtil.parseIntOrDefault(thread.getName(), 0)).collect(Collectors.toList())
+                : Collections.emptyList();
+    }
+
+    /***
+     * Returns Enum STATE for the state value obtained from status file of any
+     * process/thread.
+     *
+     * @param stateValue
+     *            state value from the status file
+     * @return OSProcess.State
+     */
+    public static OSProcess.State getState(char stateValue) {
+        OSProcess.State state;
+        switch (stateValue) {
+        case 'R':
+            state = RUNNING;
+            break;
+        case 'S':
+            state = SLEEPING;
+            break;
+        case 'D':
+            state = WAITING;
+            break;
+        case 'Z':
+            state = ZOMBIE;
+            break;
+        case 'T':
+            state = STOPPED;
+            break;
+        default:
+            state = OTHER;
+            break;
+        }
+        return state;
+    }
+
 }

@@ -128,11 +128,9 @@ public final class HkeyPerformanceDataUtil {
         long perfObjectOffset = perfData.HeaderLength;
         for (int obj = 0; obj < perfData.NumObjectTypes; obj++) {
             PERF_OBJECT_TYPE perfObject = new PERF_OBJECT_TYPE(pPerfData.share(perfObjectOffset));
-
-            // Assume here only the object we're looking for is in this data block and
-            // doesn't require reference to other objects. This is true for the Process
-            // object. Some counters will require multiple objects and this code is not set
-            // up to handle those yet.
+            // Some counters will require multiple objects so we iterate until we find the
+            // right one. e.g. Process (230) is by iteself but Thread (232) has Process
+            // object first
             if (perfObject.ObjectNameTitleIndex == COUNTER_INDEX_MAP.get(objectName).intValue()) {
                 // We found a matching object.
 
@@ -199,7 +197,7 @@ public final class HkeyPerformanceDataUtil {
                 // objects (shouldn't be any). Return results
                 return new Triplet<>(counterMaps, perfTime100nSec, now);
             }
-            // Increment for next object (should never need this)
+            // Increment for next object
             perfObjectOffset += perfObject.TotalByteLength;
         }
         // Failed, return null
@@ -300,7 +298,7 @@ public final class HkeyPerformanceDataUtil {
             String[] counterText = Advapi32Util.registryGetStringArray(WinReg.HKEY_LOCAL_MACHINE, HKEY_PERFORMANCE_TEXT,
                     COUNTER);
             for (int i = 1; i < counterText.length; i += 2) {
-                indexMap.put(counterText[i], Integer.parseInt(counterText[i - 1]));
+                indexMap.putIfAbsent(counterText[i], Integer.parseInt(counterText[i - 1]));
             }
         } catch (Win32Exception we) {
             LOG.error(

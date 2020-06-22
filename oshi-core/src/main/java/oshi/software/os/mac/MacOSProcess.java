@@ -23,10 +23,19 @@
  */
 package oshi.software.os.mac;
 
+import static oshi.software.os.OSProcess.State.INVALID;
+import static oshi.software.os.OSProcess.State.NEW;
+import static oshi.software.os.OSProcess.State.OTHER;
+import static oshi.software.os.OSProcess.State.RUNNING;
+import static oshi.software.os.OSProcess.State.SLEEPING;
+import static oshi.software.os.OSProcess.State.STOPPED;
+import static oshi.software.os.OSProcess.State.WAITING;
+import static oshi.software.os.OSProcess.State.ZOMBIE;
 import static oshi.util.Memoizer.memoize;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -45,7 +54,10 @@ import com.sun.jna.platform.mac.SystemB.VnodePathInfo;
 import com.sun.jna.ptr.IntByReference;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.mac.ThreadInfo;
+import oshi.driver.mac.ThreadInfo.ThreadStats;
 import oshi.software.common.AbstractOSProcess;
+import oshi.software.os.OSThread;
 import oshi.util.platform.mac.SysctlUtil;
 
 @ThreadSafe
@@ -76,7 +88,7 @@ public class MacOSProcess extends AbstractOSProcess {
     private String userID;
     private String group;
     private String groupID;
-    private State state = State.INVALID;
+    private State state = INVALID;
     private int parentProcessID;
     private int threadCount;
     private int priority;
@@ -204,6 +216,23 @@ public class MacOSProcess extends AbstractOSProcess {
     }
 
     @Override
+    public List<OSThread> getThreadDetails() {
+        long now = System.currentTimeMillis();
+        List<MacOSThread> details = new ArrayList<>();
+        List<ThreadStats> stats = ThreadInfo.queryTaskThreads(getProcessID());
+        for (ThreadStats stat : stats) {
+            // For long running threads the start time calculation can overestimate
+            long start = now - stat.getUpTime();
+            if (start < this.getStartTime()) {
+                start = this.getStartTime();
+            }
+            details.add(new MacOSThread(getProcessID(), stat.getThreadId(), stat.getState(), stat.getSystemTime(),
+                    stat.getUserTime(), start, now - start, stat.getPriority()));
+        }
+        return Collections.unmodifiableList(details);
+    }
+
+    @Override
     public int getPriority() {
         return this.priority;
     }
@@ -271,7 +300,7 @@ public class MacOSProcess extends AbstractOSProcess {
         ProcTaskAllInfo taskAllInfo = new ProcTaskAllInfo();
         if (0 > SystemB.INSTANCE.proc_pidinfo(getProcessID(), SystemB.PROC_PIDTASKALLINFO, 0, taskAllInfo,
                 taskAllInfo.size()) || taskAllInfo.ptinfo.pti_threadnum < 1) {
-            this.state = State.INVALID;
+            this.state = INVALID;
             return false;
         }
         Pointer buf = new Memory(SystemB.PROC_PIDPATHINFO_MAXSIZE);
@@ -296,25 +325,25 @@ public class MacOSProcess extends AbstractOSProcess {
 
         switch (taskAllInfo.pbsd.pbi_status) {
         case SSLEEP:
-            this.state = State.SLEEPING;
+            this.state = SLEEPING;
             break;
         case SWAIT:
-            this.state = State.WAITING;
+            this.state = WAITING;
             break;
         case SRUN:
-            this.state = State.RUNNING;
+            this.state = RUNNING;
             break;
         case SIDL:
-            this.state = State.NEW;
+            this.state = NEW;
             break;
         case SZOMB:
-            this.state = State.ZOMBIE;
+            this.state = ZOMBIE;
             break;
         case SSTOP:
-            this.state = State.STOPPED;
+            this.state = STOPPED;
             break;
         default:
-            this.state = State.OTHER;
+            this.state = OTHER;
             break;
         }
         this.parentProcessID = taskAllInfo.pbsd.pbi_ppid;

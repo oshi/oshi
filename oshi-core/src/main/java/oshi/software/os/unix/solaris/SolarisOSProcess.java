@@ -23,13 +23,24 @@
  */
 package oshi.software.os.unix.solaris;
 
+import static oshi.software.os.OSProcess.State.OTHER;
+import static oshi.software.os.OSProcess.State.RUNNING;
+import static oshi.software.os.OSProcess.State.SLEEPING;
+import static oshi.software.os.OSProcess.State.STOPPED;
+import static oshi.software.os.OSProcess.State.WAITING;
+import static oshi.software.os.OSProcess.State.ZOMBIE;
 import static oshi.util.Memoizer.memoize;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.AbstractOSProcess;
+import oshi.software.os.OSThread;
 import oshi.util.ExecutingCommand;
 import oshi.util.LsofUtil;
 import oshi.util.ParseUtil;
@@ -222,6 +233,19 @@ public class SolarisOSProcess extends AbstractOSProcess {
     }
 
     @Override
+    public List<OSThread> getThreadDetails() {
+        List<String> threadListInfo1 = ExecutingCommand
+                .runNative("ps -o lwp,s,etime,stime,time,addr,pri -p " + getProcessID());
+        List<String> threadListInfo2 = ExecutingCommand.runNative("prstat -L -v -p " + getProcessID());
+        Map<Integer, String[]> threadMap = parseAndMergeThreadInfo(threadListInfo1, threadListInfo2);
+        if (threadMap.keySet().size() > 1) {
+            return threadMap.entrySet().stream().map(entry -> new SolarisOSThread(getProcessID(), entry.getValue()))
+                    .collect(Collectors.toList());
+        }
+        return Collections.emptyList();
+    }
+
+    @Override
     public boolean updateAttributes() {
         List<String> procList = ExecutingCommand.runNative(
                 "ps -o s,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etime,time,comm,args -p " + getProcessID());
@@ -238,27 +262,7 @@ public class SolarisOSProcess extends AbstractOSProcess {
 
     private boolean updateAttributes(String[] split) {
         long now = System.currentTimeMillis();
-        switch (split[0].charAt(0)) {
-        case 'O':
-            this.state = State.RUNNING;
-            break;
-        case 'S':
-            this.state = State.SLEEPING;
-            break;
-        case 'R':
-        case 'W':
-            this.state = State.WAITING;
-            break;
-        case 'Z':
-            this.state = State.ZOMBIE;
-            break;
-        case 'T':
-            this.state = State.STOPPED;
-            break;
-        default:
-            this.state = State.OTHER;
-            break;
-        }
+        this.state = getStateFromOutput(split[0].charAt(0));
         this.parentProcessID = ParseUtil.parseIntOrDefault(split[2], 0);
         this.user = split[3];
         this.userID = split[4];
@@ -280,5 +284,90 @@ public class SolarisOSProcess extends AbstractOSProcess {
         this.commandLine = split[14];
 
         return true;
+    }
+
+    /**
+     * Merges results of a ps and prstat query, since Solaris thread details are not
+     * available in a single command. Package private to permit access by
+     * SolarisOSThread.
+     *
+     * @param psThreadInfo
+     *            output from ps command.
+     * @param prstatThreadInfo
+     *            output from the prstat command.
+     * @return a map with key as thread id and an array of command outputs as value
+     */
+    static Map<Integer, String[]> parseAndMergeThreadInfo(List<String> psThreadInfo, List<String> prstatThreadInfo) {
+        Map<Integer, String[]> map = new HashMap<>();
+        final String[] mergedSplit = new String[9];
+        // 0-lwpid, 1-state,2-elapsedtime,3-kerneltime, 4-usertime, 5-address,
+        // 6-priority
+        if (psThreadInfo.size() > 1) { // first row is header
+            psThreadInfo.stream().skip(1).forEach(threadInfo -> {
+                String[] psSplit = ParseUtil.whitespaces.split(threadInfo.trim());
+                if (psSplit.length == 7) {
+                    // copying the 1st 7 results from ps command output
+                    for (int idx = 0; idx < psSplit.length; idx++) {
+                        if (idx == 0) { // index 0 has threadid
+                            map.put(ParseUtil.parseIntOrDefault(psSplit[idx], 0), mergedSplit);
+                        }
+                        mergedSplit[idx] = psSplit[idx];
+                    }
+                }
+            });
+            // 0-pid, 1-username, 2-usertime, 3-sys, 4-trp, 5-tfl, 6-dfl, 7-lck, 8-slp,
+            // 9-lat, 10-vcx, 11-icx, 12-scl, 13-sig, 14-process/lwpid
+            if (prstatThreadInfo.size() > 1) { // first row is header
+                prstatThreadInfo.stream().skip(1).forEach(threadInfo -> {
+                    String[] splitPrstat = ParseUtil.whitespaces.split(threadInfo.trim());
+                    if (splitPrstat.length == 15) {
+                        int idxAfterForwardSlash = splitPrstat[14].lastIndexOf("/") + 1; // format is process/lwpid
+                        if (idxAfterForwardSlash > 0 && idxAfterForwardSlash < splitPrstat[14].length()) {
+                            String threadId = splitPrstat[14].substring(idxAfterForwardSlash); // getting the thread id
+                            String[] existingSplit = map.get(Integer.parseInt(threadId));
+                            if (existingSplit != null) { // if thread wasn't in ps command output
+                                existingSplit[7] = splitPrstat[10]; // voluntary context switch
+                                existingSplit[8] = splitPrstat[11]; // involuntary context switch
+                            }
+                        }
+                    }
+                });
+            }
+        }
+        return map;
+    }
+
+    /***
+     * Returns Enum STATE for the state value obtained from status string of
+     * thread/process.
+     *
+     * @param stateValue
+     *            state value from the status string
+     * @return The state
+     */
+    static State getStateFromOutput(char stateValue) {
+        State state;
+        switch (stateValue) {
+        case 'O':
+            state = RUNNING;
+            break;
+        case 'S':
+            state = SLEEPING;
+            break;
+        case 'R':
+        case 'W':
+            state = WAITING;
+            break;
+        case 'Z':
+            state = ZOMBIE;
+            break;
+        case 'T':
+            state = STOPPED;
+            break;
+        default:
+            state = OTHER;
+            break;
+        }
+        return state;
     }
 }

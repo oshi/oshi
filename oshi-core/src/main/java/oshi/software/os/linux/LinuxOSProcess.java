@@ -23,6 +23,8 @@
  */
 package oshi.software.os.linux;
 
+import static oshi.hardware.platform.linux.LinuxGlobalMemory.PAGE_SIZE;
+import static oshi.software.os.OSProcess.State.INVALID;
 import static oshi.util.Memoizer.memoize;
 
 import java.io.File;
@@ -34,8 +36,11 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +49,7 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.linux.proc.ProcessStat;
 import oshi.driver.linux.proc.UserGroupInfo;
 import oshi.software.common.AbstractOSProcess;
+import oshi.software.os.OSThread;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
@@ -54,10 +60,6 @@ public class LinuxOSProcess extends AbstractOSProcess {
 
     private static final Logger LOG = LoggerFactory.getLogger(LinuxOSProcess.class);
     private static final String LS_F_PROC_PID_FD = "ls -f " + ProcPath.PID_FD;
-    // Resident Set Size is the number of pages the process has in real memory. To
-    // get the actual size in bytes we need to multiply that with page size.
-    private static final int PAGE_SIZE = ParseUtil
-            .parseIntOrDefault(ExecutingCommand.getFirstAnswer("getconf PAGESIZE"), 4096);
 
     // Get a list of orders to pass to ParseUtil
     private static final int[] PROC_PID_STAT_ORDERS = new int[ProcPidStat.values().length];
@@ -78,7 +80,7 @@ public class LinuxOSProcess extends AbstractOSProcess {
     private String userID;
     private String group;
     private String groupID;
-    private State state = State.INVALID;
+    private State state = INVALID;
     private int parentProcessID;
     private int threadCount;
     private int priority;
@@ -207,6 +209,13 @@ public class LinuxOSProcess extends AbstractOSProcess {
     }
 
     @Override
+    public List<OSThread> getThreadDetails() {
+        List<OSThread> threadDetails = ProcessStat.getThreadIds(getProcessID()).stream()
+                .map(id -> new LinuxOSThread(getProcessID(), id)).collect(Collectors.toList());
+        return Collections.unmodifiableList(threadDetails);
+    }
+
+    @Override
     public long getOpenFiles() {
         // subtract 1 from size for header
         return ExecutingCommand.runNative(String.format(LS_F_PROC_PID_FD, getProcessID())).size() - 1L;
@@ -270,7 +279,7 @@ public class LinuxOSProcess extends AbstractOSProcess {
                 ":");
         String stat = FileUtil.getStringFromFile(String.format(ProcPath.PID_STAT, getProcessID()));
         if (stat.isEmpty()) {
-            this.state = State.INVALID;
+            this.state = INVALID;
             return false;
         }
         long now = System.currentTimeMillis();
@@ -312,26 +321,7 @@ public class LinuxOSProcess extends AbstractOSProcess {
         this.groupID = ParseUtil.whitespaces.split(status.getOrDefault("Gid", ""))[0];
         this.group = UserGroupInfo.getGroupName(groupID);
         this.name = status.getOrDefault("Name", "");
-        switch (status.getOrDefault("State", "U").charAt(0)) {
-        case 'R':
-            this.state = State.RUNNING;
-            break;
-        case 'S':
-            this.state = State.SLEEPING;
-            break;
-        case 'D':
-            this.state = State.WAITING;
-            break;
-        case 'Z':
-            this.state = State.ZOMBIE;
-            break;
-        case 'T':
-            this.state = State.STOPPED;
-            break;
-        default:
-            this.state = State.OTHER;
-            break;
-        }
+        this.state = ProcessStat.getState(status.getOrDefault("State", "U").charAt(0));
         return true;
     }
 

@@ -124,6 +124,9 @@ public final class ParseUtil {
     /** Constant <code>startWithNotDigits</code> */
     public static final Pattern startWithNotDigits = Pattern.compile("^[^0-9]*");
 
+    /** Constant <code>forwardSlash</code> */
+    public static final Pattern slash = Pattern.compile("\\/");
+
     static {
         multipliers = new HashMap<>();
         multipliers.put(HZ, 1L);
@@ -1118,6 +1121,25 @@ public final class ParseUtil {
         } catch (UnknownHostException e) {
             // Shouldn't happen with length 4 or 16
             return Constants.UNKNOWN;
+        }
+    }
+
+    /**
+     * Parses a string of hex digits to long value.
+     *
+     * @param hexString
+     *            A sequence of hex digits
+     * @param defaultValue
+     *            default value to return if parsefails
+     * @return The corresponding long value
+     */
+    public static long hexStringToLong(String hexString, long defaultValue) {
+        try {
+            return new BigInteger(hexString, 16).longValue();
+        } catch (NumberFormatException e) {
+            LOG.trace(DEFAULT_LOG_MSG, hexString, e);
+            // Hex failed to parse, just return the default long
+            return defaultValue;
         }
     }
 }

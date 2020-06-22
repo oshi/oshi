@@ -97,6 +97,12 @@ public class OperatingSystemTest {
         assertTrue("Process bitness can't exceed OS bitness", proc.getBitness() <= os.getBitness());
         assertEquals("Bitness must be 0, 32 or 64", 0, proc.getBitness() & ~(32 | 64));
         assertTrue(proc.getOpenFiles() >= -1);
+
+        List<OSThread> threads = proc.getThreadDetails();
+        for (OSThread thread : threads) {
+            assertNotNull(thread);
+        }
+
     }
 
     /**

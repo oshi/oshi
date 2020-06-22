@@ -23,8 +23,16 @@
  */
 package oshi.software.os.unix.freebsd;
 
+import static oshi.software.os.OSProcess.State.INVALID;
+import static oshi.software.os.OSProcess.State.OTHER;
+import static oshi.software.os.OSProcess.State.RUNNING;
+import static oshi.software.os.OSProcess.State.SLEEPING;
+import static oshi.software.os.OSProcess.State.STOPPED;
+import static oshi.software.os.OSProcess.State.WAITING;
+import static oshi.software.os.OSProcess.State.ZOMBIE;
 import static oshi.util.Memoizer.memoize;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -35,6 +43,7 @@ import com.sun.jna.ptr.IntByReference;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.platform.unix.freebsd.FreeBsdLibc;
 import oshi.software.common.AbstractOSProcess;
+import oshi.software.os.OSThread;
 import oshi.util.ExecutingCommand;
 import oshi.util.LsofUtil;
 import oshi.util.ParseUtil;
@@ -51,7 +60,7 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
     private String userID;
     private String group;
     private String groupID;
-    private State state = State.INVALID;
+    private State state = INVALID;
     private int parentProcessID;
     private int threadCount;
     private int priority;
@@ -224,6 +233,30 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
     }
 
     @Override
+    public List<OSThread> getThreadDetails() {
+        List<OSThread> threads = new ArrayList<>();
+        String psCommand = "ps -awwxo tdname,lwp,state,etimes,systime,time,tdaddr,nivcsw,nvcsw,majflt,minflt,pri -H";
+        if (getProcessID() >= 0) {
+            psCommand += " -p " + getProcessID();
+        }
+        List<String> threadList = ExecutingCommand.runNative(psCommand);
+        if (threadList.isEmpty() || threadList.size() < 2) {
+            return threads;
+        }
+        // remove header row
+        threadList.remove(0);
+        // Fill list
+        for (String thread : threadList) {
+            String[] split = ParseUtil.whitespaces.split(thread.trim(), 12);
+            // Elements should match ps command order
+            if (split.length == 10) {
+                threads.add(new FreeBsdOSThread(getProcessID(), split));
+            }
+        }
+        return threads;
+    }
+
+    @Override
     public boolean updateAttributes() {
         String psCommand = "ps -awwxo state,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etimes,systime,time,comm,args -p "
                 + getProcessID();
@@ -235,7 +268,7 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
                 return updateAttributes(split);
             }
         }
-        this.state = State.INVALID;
+        this.state = INVALID;
         return false;
     }
 
@@ -243,25 +276,25 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
         long now = System.currentTimeMillis();
         switch (split[0].charAt(0)) {
         case 'R':
-            this.state = State.RUNNING;
+            this.state = RUNNING;
             break;
         case 'I':
         case 'S':
-            this.state = State.SLEEPING;
+            this.state = SLEEPING;
             break;
         case 'D':
         case 'L':
         case 'U':
-            this.state = State.WAITING;
+            this.state = WAITING;
             break;
         case 'Z':
-            this.state = State.ZOMBIE;
+            this.state = ZOMBIE;
             break;
         case 'T':
-            this.state = State.STOPPED;
+            this.state = STOPPED;
             break;
         default:
-            this.state = State.OTHER;
+            this.state = OTHER;
             break;
         }
         this.parentProcessID = ParseUtil.parseIntOrDefault(split[2], 0);
