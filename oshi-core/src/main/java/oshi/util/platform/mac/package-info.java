@@ -22,6 +22,6 @@
  * SOFTWARE.
  */
 /**
- * Provides utilities for Mac OS X.
+ * Provides utilities for macOS.
  */
 package oshi.util.platform.mac;

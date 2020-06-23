@@ -22,6 +22,6 @@
  * SOFTWARE.
  */
 /**
- * Provides information about Software and OS on Mac OS X
+ * Provides information about Software and OS on macOS
  */
 package oshi.software.os.mac;

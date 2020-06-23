@@ -47,7 +47,7 @@ import oshi.jna.platform.mac.SystemB;
 import oshi.util.ParseUtil;
 
 /**
- * Provides access to SMC calls on OS X
+ * Provides access to SMC calls on macOS
  */
 @ThreadSafe
 public final class SmcUtil {

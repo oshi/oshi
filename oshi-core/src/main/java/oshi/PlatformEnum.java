@@ -36,7 +36,7 @@ public enum PlatformEnum {
      */
     LINUX,
     /**
-     * macOS (OS X)
+     * macOS (formerly OS X)
      */
     MACOSX,
     /**
