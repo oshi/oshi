@@ -58,7 +58,7 @@ import oshi.util.platform.mac.SysctlUtil;
 /**
  * The Mac File System contains {@link oshi.software.os.OSFileStore}s which are
  * a storage pool, device, partition, volume, concrete file system or other
- * implementation specific means of file storage. In Mac OS X, these are found
+ * implementation specific means of file storage. In macOS, these are found
  * in the /Volumes directory.
  */
 @ThreadSafe

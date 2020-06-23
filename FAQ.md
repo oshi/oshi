@@ -48,7 +48,7 @@ Which operating systems are supported?
 ========
 OSHI has been implemented and tested on the following systems.  Some features may work on earlier versions.
 * Windows 7 and higher.  (Nearly all features work on Vista and most work on Windows XP.)
-* Mac OS X version 10.6 (Snow Leopard) and higher
+* macOS version 10.6 (Snow Leopard) and higher
 * Linux (Most major distributions) Kernel 2.6 and higher
 * Unix: Solaris 11 (SunOS 5.11) / FreeBSD 10
 

@@ -36,7 +36,7 @@ import com.sun.jna.ptr.IntByReference;
 import oshi.annotation.concurrent.ThreadSafe;
 
 /**
- * Provides access to sysctl calls on OS X
+ * Provides access to sysctl calls on macOS
  */
 @ThreadSafe
 public final class SysctlUtil {

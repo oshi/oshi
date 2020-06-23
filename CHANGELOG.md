@@ -302,7 +302,7 @@ The default configuration file has been renamed to `oshi.properties` to prevent 
 3.4.4 (10/15/17)
 ================
 * [#392](https://github.com/oshi/oshi/pull/392): Fix NPE for processes terminating before iteration - [@dbwiddis](https://github.com/dbwiddis).
-* [#396](https://github.com/oshi/oshi/pull/396): Fix issue on Mac OS X whereby the buffer size for the call to proc_listpids() was improperly calculated - [@brettwooldridge](https://github.com/brettwooldridge)
+* [#396](https://github.com/oshi/oshi/pull/396): Fix issue on macOS whereby the buffer size for the call to proc_listpids() was improperly calculated - [@brettwooldridge](https://github.com/brettwooldridge)
 * Updated to JNA 4.5.0
 
 3.4.3 (6/2/17)
@@ -385,7 +385,7 @@ The default configuration file has been renamed to `oshi.properties` to prevent 
 2.6-java7 / 2.6.1 (6/17/2016)
 ================
 * [#190](https://github.com/oshi/oshi/pull/190): Add VendorID and ProductID to UsbDevice - [@dbwiddis](https://github.com/dbwiddis).
-* [#193](https://github.com/oshi/oshi/pull/193): Add read/write to Windows and OS X HWDiskStores - [@dbwiddis](https://github.com/dbwiddis).
+* [#193](https://github.com/oshi/oshi/pull/193): Add read/write to Windows and macOS HWDiskStores - [@dbwiddis](https://github.com/dbwiddis).
 * [#194](https://github.com/oshi/oshi/pull/194): Add volume name to OSFileStores - [@henryx](https://github.com/henryx).
 * [#195](https://github.com/oshi/oshi/pull/195): Fixed reading multiple (in particular external) displays on Mac - [@dpagano](https://github.com/dpagano).
 * [#197](https://github.com/oshi/oshi/pull/197): Add UUID to OSFileStores - [@dbwiddis](https://github.com/dbwiddis).
@@ -494,11 +494,11 @@ The default configuration file has been renamed to `oshi.properties` to prevent 
 * Added Travis-CI - [@dblock](https://github.com/dblock).
 * [#3](https://github.com/oshi/oshi/pull/3): Mavenized project - [@le-yams](https://github.com/le-yams).
 * [#5](https://github.com/oshi/oshi/pull/5): Added Linux support - [@ptitvert](https://github.com/ptitvert).
-* [#7](https://github.com/oshi/oshi/pull/7): Added Mac OS X Support - [@ptitvert](https://github.com/ptitvert).
+* [#7](https://github.com/oshi/oshi/pull/7): Added macOS Support - [@ptitvert](https://github.com/ptitvert).
 * [#13](https://github.com/oshi/oshi/pull/13): Support for Windows 8.1 and Windows Server 2008 R2 - [@NagyGa1](https://github.com/NagyGa1).
 * [#15](https://github.com/oshi/oshi/pull/15), [#18](https://github.com/oshi/oshi/pull/18): Added support for CPU load - [@kamenitxan](https://github.com/kamenitxan), [@Sorceror](https://github.com/Sorceror).
 * [#25](https://github.com/oshi/oshi/pull/25), [#29](https://github.com/oshi/oshi/pull/29): Included inactive/reclaimable memory amount in GlobalMemory#getAvailable on Mac/Linux - [@dbwiddis](https://github.com/dbwiddis).
-* [#27](https://github.com/oshi/oshi/pull/27): Replaced all Mac OS X command line parsing with JNA or System properties - [@dbwiddis](https://github.com/dbwiddis).
+* [#27](https://github.com/oshi/oshi/pull/27): Replaced all macOS command line parsing with JNA or System properties - [@dbwiddis](https://github.com/dbwiddis).
 * [#30](https://github.com/oshi/oshi/pull/30): Added processor vendor frequency information - [@alessiofachechi](https://github.com/alessiofachechi).
 * [#32](https://github.com/oshi/oshi/pull/32): Added battery state information - [@dbwiddis](https://github.com/dbwiddis).
 

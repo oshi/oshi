@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 /**
- * Provides extensions of JNA libraries for Mac OS X. These classes should be
+ * Provides extensions of JNA libraries for macOS. These classes should be
  * considered non-API as they may be removed if/when their code is incorporated
  * into the JNA project.
  */

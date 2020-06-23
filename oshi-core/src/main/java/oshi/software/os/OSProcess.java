@@ -348,7 +348,7 @@ public class OSProcess {
      *         For Windows, priority values can range from 0 (lowest priority) to 31
      *         (highest priority).
      *
-     *         Mac OS X has 128 priority levels, ranging from 0 (lowest priority) to
+     *         macOS has 128 priority levels, ranging from 0 (lowest priority) to
      *         127 (highest priority). They are divided into several major bands: 0
      *         through 51 are the normal levels; the default priority is 31. 52
      *         through 79 are the highest priority regular threads; 80 through 95
