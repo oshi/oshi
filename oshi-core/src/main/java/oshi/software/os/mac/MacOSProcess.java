@@ -102,6 +102,8 @@ public class MacOSProcess extends AbstractOSProcess {
     private long bytesWritten;
     private long openFiles;
     private int bitness;
+    private long minorFaults;
+    private long majorFaults;
 
     public MacOSProcess(int pid, int minor) {
         super(pid);
@@ -295,6 +297,16 @@ public class MacOSProcess extends AbstractOSProcess {
     }
 
     @Override
+    public long getMinorFaults() {
+        return this.minorFaults;
+    }
+
+    @Override
+    public long getMajorFaults() {
+        return this.majorFaults;
+    }
+
+    @Override
     public boolean updateAttributes() {
         long now = System.currentTimeMillis();
         ProcTaskAllInfo taskAllInfo = new ProcTaskAllInfo();
@@ -367,6 +379,8 @@ public class MacOSProcess extends AbstractOSProcess {
         this.upTime = now - this.startTime;
         this.openFiles = taskAllInfo.pbsd.pbi_nfiles;
         this.bitness = (taskAllInfo.pbsd.pbi_flags & P_LP64) == 0 ? 32 : 64;
+        this.majorFaults = taskAllInfo.ptinfo.pti_pageins;
+        this.minorFaults = taskAllInfo.ptinfo.pti_faults - taskAllInfo.ptinfo.pti_pageins; //need to confirm about this logic
         if (this.minorVersion >= 9) {
             RUsageInfoV2 rUsageInfoV2 = new RUsageInfoV2();
             if (0 == SystemB.INSTANCE.proc_pid_rusage(getProcessID(), SystemB.RUSAGE_INFO_V2, rUsageInfoV2)) {
