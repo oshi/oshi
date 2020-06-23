@@ -376,7 +376,8 @@ public interface OSProcess {
 
     /**
      * The number of minor (soft) faults the process has made which have not required
-     * loading a memory page from disk. Sometimes called reclaims. Linux only.
+     * loading a memory page from disk. Sometimes called reclaims. For windows we get all the faults
+     * in this and for Solaris there is no data.
      *
      * @return minor faults.
      */

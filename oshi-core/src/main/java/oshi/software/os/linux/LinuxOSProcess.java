@@ -321,7 +321,7 @@ public class LinuxOSProcess extends AbstractOSProcess {
         this.kernelTime = statArray[ProcPidStat.KERNEL_TIME.ordinal()] * 1000L / LinuxOperatingSystem.getHz();
         this.userTime = statArray[ProcPidStat.USER_TIME.ordinal()] * 1000L / LinuxOperatingSystem.getHz();
         this.minorFaults = statArray[ProcPidStat.MINOR_FAULTS.ordinal()];
-        this.majorFaults = statArray[ProcPidStat.MAJOR_FAULT.ordinal()];
+        this.majorFaults = statArray[ProcPidStat.MAJOR_FAULTS.ordinal()];
         this.upTime = now - startTime;
 
         // See man proc for how to parse /proc/[pid]/io
@@ -346,7 +346,7 @@ public class LinuxOSProcess extends AbstractOSProcess {
     private enum ProcPidStat {
         // The parsing implementation in ParseUtil requires these to be declared
         // in increasing order
-        PPID(4), MINOR_FAULTS(10), MAJOR_FAULT(12), USER_TIME(14), KERNEL_TIME(15), PRIORITY(18), THREAD_COUNT(20), START_TIME(22), VSZ(23), RSS(24);
+        PPID(4), MINOR_FAULTS(10), MAJOR_FAULTS(12), USER_TIME(14), KERNEL_TIME(15), PRIORITY(18), THREAD_COUNT(20), START_TIME(22), VSZ(23), RSS(24);
 
         private int order;
 
