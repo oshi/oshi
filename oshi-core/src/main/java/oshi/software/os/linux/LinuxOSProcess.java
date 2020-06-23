@@ -92,6 +92,8 @@ public class LinuxOSProcess extends AbstractOSProcess {
     private long upTime;
     private long bytesRead;
     private long bytesWritten;
+    private long minorFaults;
+    private long majorFaults;
 
     public LinuxOSProcess(int pid) {
         super(pid);
@@ -216,6 +218,16 @@ public class LinuxOSProcess extends AbstractOSProcess {
     }
 
     @Override
+    public long getMinorFaults() {
+        return this.minorFaults;
+    }
+
+    @Override
+    public long getMajorFaults() {
+        return this.majorFaults;
+    }
+
+    @Override
     public long getOpenFiles() {
         // subtract 1 from size for header
         return ExecutingCommand.runNative(String.format(LS_F_PROC_PID_FD, getProcessID())).size() - 1L;
@@ -308,6 +320,8 @@ public class LinuxOSProcess extends AbstractOSProcess {
         this.residentSetSize = statArray[ProcPidStat.RSS.ordinal()] * PAGE_SIZE;
         this.kernelTime = statArray[ProcPidStat.KERNEL_TIME.ordinal()] * 1000L / LinuxOperatingSystem.getHz();
         this.userTime = statArray[ProcPidStat.USER_TIME.ordinal()] * 1000L / LinuxOperatingSystem.getHz();
+        this.minorFaults = statArray[ProcPidStat.MINOR_FAULTS.ordinal()];
+        this.majorFaults = statArray[ProcPidStat.MAJOR_FAULT.ordinal()];
         this.upTime = now - startTime;
 
         // See man proc for how to parse /proc/[pid]/io
@@ -332,7 +346,7 @@ public class LinuxOSProcess extends AbstractOSProcess {
     private enum ProcPidStat {
         // The parsing implementation in ParseUtil requires these to be declared
         // in increasing order
-        PPID(4), USER_TIME(14), KERNEL_TIME(15), PRIORITY(18), THREAD_COUNT(20), START_TIME(22), VSZ(23), RSS(24);
+        PPID(4), MINOR_FAULTS(10), MAJOR_FAULT(12), USER_TIME(14), KERNEL_TIME(15), PRIORITY(18), THREAD_COUNT(20), START_TIME(22), VSZ(23), RSS(24);
 
         private int order;
 

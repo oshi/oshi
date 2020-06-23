@@ -375,6 +375,23 @@ public interface OSProcess {
     List<OSThread> getThreadDetails();
 
     /**
+     * The number of minor (soft) faults the process has made which have not required
+     * loading a memory page from disk. Sometimes called reclaims. Linux only.
+     *
+     * @return minor faults.
+     */
+    long getMinorFaults();
+
+    /**
+     * The number of major (hard) faults the process has made which have required
+     * loading a memory page from disk. Linux only.
+     *
+     * @return major faults.
+     */
+    long getMajorFaults();
+
+
+    /**
      * Process Execution States
      */
     enum State {

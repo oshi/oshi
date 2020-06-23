@@ -72,6 +72,8 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
     private long upTime;
     private long bytesRead;
     private long bytesWritten;
+    private long minorFaults;
+    private long majorFaults;
 
     public FreeBsdOSProcess(int pid, String[] split) {
         super(pid);
@@ -257,14 +259,24 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
     }
 
     @Override
+    public long getMinorFaults() {
+        return this.minorFaults;
+    }
+
+    @Override
+    public long getMajorFaults() {
+        return this.majorFaults;
+    }
+
+    @Override
     public boolean updateAttributes() {
-        String psCommand = "ps -awwxo state,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etimes,systime,time,comm,args -p "
+        String psCommand = "ps -awwxo state,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etimes,systime,time,comm,args,majflt,minflt -p "
                 + getProcessID();
         List<String> procList = ExecutingCommand.runNative(psCommand);
         if (procList.size() > 1) {
             // skip header row
-            String[] split = ParseUtil.whitespaces.split(procList.get(1).trim(), 16);
-            if (split.length == 16) {
+            String[] split = ParseUtil.whitespaces.split(procList.get(1).trim(), 18);
+            if (split.length == 18) {
                 return updateAttributes(split);
             }
         }
@@ -316,7 +328,8 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
         this.path = split[14];
         this.name = this.path.substring(this.path.lastIndexOf('/') + 1);
         this.commandLine = split[15];
-
+        this.minorFaults = ParseUtil.parseLongOrDefault(split[16], 0L);
+        this.majorFaults = ParseUtil.parseLongOrDefault(split[17], 0L);
         return true;
     }
 }
