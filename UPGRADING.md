@@ -1,6 +1,6 @@
 # Guide to upgrading from OSHI 4.x to 5.x
 
-The newest OSHI 5.x releases are functionally equivalent to 4.x releases starting with 4.7,
+OSHI 5.x releases are functionally equivalent to 4.x releases starting with 4.7,
 with three categories of changes supporting full thread safety:
 * Remove setters from API.
 * Change getters which return arrays of objects to return unmodifiable lists.
@@ -8,7 +8,8 @@ with three categories of changes supporting full thread safety:
 
 New applications or applications requiring thread safety should use the 5.x branch.
 
-Existing applications may continue to use the 4.x branch, as feature parity will be maintained for the near future. 
+Existing applications may continue to use the 4.x branch, but some new features
+dependent on the new interface API may not be backported.
 
 ## API Changes
 

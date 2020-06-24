@@ -48,7 +48,7 @@ import oshi.util.ParseUtil;
 @ThreadSafe
 public final class ThreadInfo {
 
-    private static Pattern PS_M = Pattern.compile(
+    private static final Pattern PS_M = Pattern.compile(
             "\\D+(\\d+).+(\\d+\\.\\d)\\s+(\\w)\\s+(\\d+)\\D+(\\d+:\\d{2}\\.\\d{2})\\s+(\\d+:\\d{2}\\.\\d{2}).+");
 
     private ThreadInfo() {

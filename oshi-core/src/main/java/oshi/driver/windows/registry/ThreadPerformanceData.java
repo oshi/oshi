@@ -28,7 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.sun.jna.platform.win32.WinBase;
+import com.sun.jna.platform.win32.WinBase.FILETIME; // NOSONAR squid:s1191
 
 import oshi.annotation.concurrent.Immutable;
 import oshi.annotation.concurrent.ThreadSafe;
@@ -132,8 +132,7 @@ public final class ThreadPerformanceData {
                 int tid = tidList.get(inst).intValue();
                 String name = Integer.toString(nameIndex++);
                 long startTime = startTimeList.get(inst);
-                startTime = WinBase.FILETIME.filetimeToDate((int) (startTime >> 32), (int) (startTime & 0xffffffffL))
-                        .getTime();
+                startTime = FILETIME.filetimeToDate((int) (startTime >> 32), (int) (startTime & 0xffffffffL)).getTime();
                 if (startTime > now) {
                     startTime = now - 1;
                 }

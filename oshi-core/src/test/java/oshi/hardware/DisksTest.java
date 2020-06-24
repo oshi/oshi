@@ -23,8 +23,6 @@
  */
 package oshi.hardware;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -52,9 +50,7 @@ public class DisksTest {
         SystemInfo si = new SystemInfo();
 
         for (HWDiskStore disk : si.getHardware().getDiskStores()) {
-            assertEquals("Disk should be equal to itself.", disk, disk);
-            assertNotEquals("Disk should not be null", disk, null);
-            assertNotEquals(disk, "A String");
+            assertNotNull(disk);
             List<HWPartition> parts = disk.getPartitions();
             List<HWPartition> partList = new ArrayList<>(parts.size());
             for (HWPartition part : parts) {

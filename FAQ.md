@@ -73,15 +73,13 @@ native compiler intrinsics. In contrast, OSHI accesses native APIs using JNA, wh
 of any additional platform-specific DLLs.
  - **Platform Coverage** SIGAR (presently) supports a larger number of platforms, although some users have
 reported incompatibilities with recent architectures and Java versions. OSHI supports 99.5% of OS user share
-with support for Windows, Linux, macOS, FreeBSD, and Solaris, and would support additional Operating Systems
-if access to appropriate machines for development and testing were available.
- - **Language Coverage** SIGAR has bindings for Java, .NET, and Perl. OSHI is specific for Java.
+with support for Windows, Linux, macOS, FreeBSD, Solaris, and AIX (in progress).
  - **Corporate Development / Abandonment** SIGAR was developed commercially at Hyperic, later acquired by VMWare,
 who has abandoned the project. The [last release](https://github.com/hyperic/sigar/releases/tag/sigar-1.6.4)
 was in 2010 and the [last source commit](https://github.com/hyperic/sigar/commit/7a6aefc7fb315fc92445edcb902a787a6f0ddbd9)
 was in 2015. [Multiple independent forks](https://github.com/hyperic/sigar/issues/95) by existing users attempt
-to fix specific bugs/incompatibilities.  In contrast, OSHI's development has been entirely done by open source
-volunteers, and it is under active development as of 2020.
+to fix specific bugs/incompatibilities but none has emerged as a maintained/released fork.  In contrast, OSHI's 
+development has been entirely done by open source volunteers, and it is under active development as of 2020.
 
 Does OSHI work on Raspberry Pi hardware?
 ========
@@ -91,8 +89,7 @@ prepared to help test solutions.
 
 Will you do an AIX or HP-UX port?
 ========
-We'd love to. We need access to those operating systems which only run on their specific machines,
-and are not available in VMs. If you can offer such access, create an issue to notify the team of the possibility.
+An AIX port is in progress.  An HP-UX port may be considered in the future.
 
 Will you do a port for the other BSDs?  How about Android?
 ========
