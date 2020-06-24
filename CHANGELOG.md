@@ -1,6 +1,7 @@
-5.2.0 (in progress)
+4.9.0 / 5.2.0 (in progress)
 ================
 * [#1247](https://github.com/oshi/oshi/pull/1247): Add Automatic-Module-Name to support JPMS - [@dbwiddis](https://github.com/dbwiddis).
+* [#1258](https://github.com/oshi/oshi/pull/1258): (5.x) Add threads details of a process - [@tausiflife](https://github.com/tausiflife).
 * [#1262](https://github.com/oshi/oshi/pull/1262): Read macOS versions from properties file - [@hkbiet](https://github.com/hkbiet). 
 * [#1266](https://github.com/oshi/oshi/pull/1266): Suppress repeated attempts to query failed PDH - [@dbwiddis](https://github.com/dbwiddis).
 * [#1267](https://github.com/oshi/oshi/pull/1267): Check proc_pidinfo return value before incrementing numberOfThreads - [@markkulube](https://github.com/markkulube).
@@ -9,16 +10,15 @@
 4.8.2 / 5.1.2 (6/7/2020)
 ================
 * [#1246](https://github.com/oshi/oshi/pull/1246): Configure data source for OperatingSystem#getSessions - [@dbwiddis](https://github.com/dbwiddis).
-* [#1252](https://github.com/oshi/oshi/pull/1246): Fallback to command line if getSessions sanity check fails - [@dbwiddis](https://github.com/dbwiddis).
+* [#1252](https://github.com/oshi/oshi/pull/1252): Fallback to command line if getSessions sanity check fails - [@dbwiddis](https://github.com/dbwiddis).
 * [#1256](https://github.com/oshi/oshi/pull/1256): Fix calculation of Linux process start time - [@dbwiddis](https://github.com/dbwiddis).
 
 4.8.1 / 5.1.1 (5/30/2020)
 ================
 * [#1237](https://github.com/oshi/oshi/pull/1237): Update Udev to object oriented style - [@dbwiddis](https://github.com/dbwiddis).
 * [#1240](https://github.com/oshi/oshi/pull/1240): Add a driver for proc/pid/statm - [@dbwiddis](https://github.com/dbwiddis).
-* [#1241](https://github.com/oshi/oshi/pull/1241): Add code-assert - [@dbwiddis](https://github.com/dbwiddis).
+* [#1241](https://github.com/oshi/oshi/pull/1241): (5.x) Add code-assert - [@dbwiddis](https://github.com/dbwiddis).
 * [#1245](https://github.com/oshi/oshi/pull/1245): Refactor PerfCounterQuery classes and fix memory leak - [@dbwiddis](https://github.com/dbwiddis).
-* Your contribution here 
 
 4.8.0 / 5.1.0 (5/20/2020)
 ================

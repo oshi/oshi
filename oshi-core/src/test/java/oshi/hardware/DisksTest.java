@@ -52,9 +52,8 @@ public class DisksTest {
 
         HWDiskStore lastDisk = new HWDiskStore();
         for (HWDiskStore disk : si.getHardware().getDiskStores()) {
-            assertEquals(disk, disk);
-            assertNotEquals(disk, null);
-            assertNotEquals(disk, "A String");
+
+            assertNotNull(disk);
             assertNotEquals(disk, lastDisk);
             assertNotEquals(disk.hashCode(), lastDisk.hashCode());
             HWPartition[] parts = disk.getPartitions();
@@ -69,7 +68,6 @@ public class DisksTest {
                 partArray[i].setSize(parts[i].getSize());
                 partArray[i].setMajor(parts[i].getMajor());
                 partArray[i].setMinor(parts[i].getMinor());
-
             }
 
             assertNotNull(disk.getName());
