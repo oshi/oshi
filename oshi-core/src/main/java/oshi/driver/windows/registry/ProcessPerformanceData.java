@@ -87,7 +87,8 @@ public final class ProcessPerformanceData {
                         (Integer) processInstanceMap.get(ProcessPerformanceProperty.PRIORITY),
                         (Long) processInstanceMap.get(ProcessPerformanceProperty.PRIVATEPAGECOUNT), now - upTime,
                         upTime, (Long) processInstanceMap.get(ProcessPerformanceProperty.READTRANSFERCOUNT),
-                        (Long) processInstanceMap.get(ProcessPerformanceProperty.WRITETRANSFERCOUNT)));
+                        (Long) processInstanceMap.get(ProcessPerformanceProperty.WRITETRANSFERCOUNT),
+                        (Integer) processInstanceMap.get(ProcessPerformanceProperty.PAGEFAULTSPERSEC)));
             }
         }
         return processMap;
@@ -116,6 +117,7 @@ public final class ProcessPerformanceData {
         List<Long> ioWriteList = valueMap.get(ProcessPerformanceProperty.WRITETRANSFERCOUNT);
         List<Long> workingSetSizeList = valueMap.get(ProcessPerformanceProperty.PRIVATEPAGECOUNT);
         List<Long> creationTimeList = valueMap.get(ProcessPerformanceProperty.CREATIONDATE);
+        List<Long> pageFaultsList = valueMap.get(ProcessPerformanceProperty.PAGEFAULTSPERSEC);
 
         for (int inst = 0; inst < instances.size(); inst++) {
             int pid = pidList.get(inst).intValue();
@@ -129,7 +131,7 @@ public final class ProcessPerformanceData {
                 processMap.put(pid,
                         new PerfCounterBlock(instances.get(inst), ppidList.get(inst).intValue(),
                                 priorityList.get(inst).intValue(), workingSetSizeList.get(inst), ctime, now - ctime,
-                                ioReadList.get(inst), ioWriteList.get(inst)));
+                                ioReadList.get(inst), ioWriteList.get(inst), pageFaultsList.get(inst).intValue()));
             }
         }
         return processMap;
@@ -148,9 +150,10 @@ public final class ProcessPerformanceData {
         private final long upTime;
         private final long bytesRead;
         private final long bytesWritten;
+        private final int pageFaults;
 
         public PerfCounterBlock(String name, int parentProcessID, int priority, long residentSetSize, long startTime,
-                long upTime, long bytesRead, long bytesWritten) {
+                long upTime, long bytesRead, long bytesWritten, int pageFaults) {
             this.name = name;
             this.parentProcessID = parentProcessID;
             this.priority = priority;
@@ -159,6 +162,7 @@ public final class ProcessPerformanceData {
             this.upTime = upTime;
             this.bytesRead = bytesRead;
             this.bytesWritten = bytesWritten;
+            this.pageFaults = pageFaults;
         }
 
         /**
@@ -215,6 +219,13 @@ public final class ProcessPerformanceData {
          */
         public long getBytesWritten() {
             return bytesWritten;
+        }
+
+        /**
+         * @return the pageFaults
+         */
+        public long getPageFaults() {
+            return pageFaults;
         }
     }
 }
