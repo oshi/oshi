@@ -88,6 +88,8 @@ public class OperatingSystemTest {
         assertTrue(proc.getKernelTime() >= 0);
         assertTrue(proc.getUserTime() >= 0);
         assertTrue(proc.getUpTime() >= 0);
+        assertTrue(proc.getMinorFaults() >= 0);
+        assertTrue(proc.getMajorFaults() >= 0);
         assertTrue(proc.getProcessCpuLoadCumulative() >= 0d);
         assertEquals(proc.getProcessCpuLoadCumulative(), proc.getProcessCpuLoadBetweenTicks(null), Double.MIN_VALUE);
         assertEquals(proc.getProcessCpuLoadCumulative(), proc.getProcessCpuLoadBetweenTicks(proc), Double.MIN_VALUE);

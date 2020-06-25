@@ -103,6 +103,7 @@ public class WindowsOSProcess extends AbstractOSProcess {
     private long bytesWritten;
     private long openFiles;
     private int bitness;
+    private long pageFaults;
 
     public WindowsOSProcess(int pid, WindowsOperatingSystem os, Map<Integer, PerfCounterBlock> processMap,
             Map<Integer, WtsInfo> processWtsMap) {
@@ -246,6 +247,11 @@ public class WindowsOSProcess extends AbstractOSProcess {
     }
 
     @Override
+    public long getMinorFaults() {
+        return this.pageFaults;
+    }
+
+    @Override
     public List<OSThread> getThreadDetails() {
         // Get data from the registry if possible
         Map<Integer, ThreadPerformanceData.PerfCounterBlock> threads = ThreadPerformanceData
@@ -290,6 +296,7 @@ public class WindowsOSProcess extends AbstractOSProcess {
         this.bytesRead = pcb.getBytesRead();
         this.bytesWritten = pcb.getBytesWritten();
         this.openFiles = wts.getOpenFiles();
+        this.pageFaults = pcb.getPageFaults();
 
         // Get a handle to the process for various extended info. Only gets
         // current user unless running as administrator

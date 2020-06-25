@@ -73,6 +73,16 @@ public abstract class AbstractOSProcess implements OSProcess {
     }
 
     @Override
+    public long getMinorFaults() {
+        return 0L;
+    }
+
+    @Override
+    public long getMajorFaults() {
+        return 0L;
+    }
+
+    @Override
     public String toString() {
         StringBuilder builder = new StringBuilder("OSProcess@");
         builder.append(Integer.toHexString(hashCode()));

@@ -375,6 +375,29 @@ public interface OSProcess {
     List<OSThread> getThreadDetails();
 
     /**
+     * The number of minor (soft) faults the process has made which have not
+     * required loading a memory page from disk. Sometimes called reclaims.
+     * <p>
+     * Not available on Solaris. On Windows, this includes the total of major and
+     * minor faults.
+     *
+     * @return minor page faults (reclaims).
+     */
+    long getMinorFaults();
+
+    /**
+     * The number of major (hard) faults the process has made which have required
+     * loading a memory page from disk.
+     * <p>
+     * Not available on Solaris. Windows does not distinguish major and minor faults
+     * at the process level, so this value returns 0 and major faults are included
+     * in {@link #getMinorFaults()}.
+     *
+     * @return major page faults.
+     */
+    long getMajorFaults();
+
+    /**
      * Process Execution States
      */
     enum State {

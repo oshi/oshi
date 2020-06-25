@@ -55,7 +55,8 @@ public final class ProcessInformation {
         PARENTPROCESSID("Creating Process ID"), //
         READTRANSFERCOUNT("IO Read Bytes/sec"), //
         WRITETRANSFERCOUNT("IO Write Bytes/sec"), //
-        PRIVATEPAGECOUNT("Working Set - Private");
+        PRIVATEPAGECOUNT("Working Set - Private"), //
+        PAGEFAULTSPERSEC("Page Faults/sec");
 
         private final String counter;
 
