@@ -26,8 +26,13 @@ package oshi.driver.windows.wmi;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery; //NOSONAR squid:S1191
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
+import oshi.annotation.concurrent.ThreadSafe;
 import oshi.util.platform.windows.WmiQueryHandler;
 
+/**
+ * Utility to query WMI class {@code Win32_OperatingSystem}
+ */
+@ThreadSafe
 public final class Win32OperatingSystem {
 
     private static final String WIN32_OPERATING_SYSTEM = &quot;Win32_OperatingSystem&quot;;
@@ -35,8 +40,8 @@ public final class Win32OperatingSystem {
     /**
      * Operating System properties
      */
-<span class="nc" id="L38">    public enum OSVersionProperty {</span>
-<span class="nc" id="L39">        VERSION, PRODUCTTYPE, BUILDNUMBER, CSDVERSION, SUITEMASK;</span>
+<span class="nc" id="L43">    public enum OSVersionProperty {</span>
+<span class="nc" id="L44">        VERSION, PRODUCTTYPE, BUILDNUMBER, CSDVERSION, SUITEMASK;</span>
     }
 
     private Win32OperatingSystem() {
@@ -48,8 +53,8 @@ public final class Win32OperatingSystem {
      * @return Computer System Manufacturer and Model
      */
     public static WmiResult&lt;OSVersionProperty&gt; queryOsVersion() {
-<span class="nc" id="L51">        WmiQuery&lt;OSVersionProperty&gt; osVersionQuery = new WmiQuery&lt;&gt;(WIN32_OPERATING_SYSTEM, OSVersionProperty.class);</span>
-<span class="nc" id="L52">        return WmiQueryHandler.createInstance().queryWMI(osVersionQuery);</span>
+<span class="nc" id="L56">        WmiQuery&lt;OSVersionProperty&gt; osVersionQuery = new WmiQuery&lt;&gt;(WIN32_OPERATING_SYSTEM, OSVersionProperty.class);</span>
+<span class="nc" id="L57">        return WmiQueryHandler.createInstance().queryWMI(osVersionQuery);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

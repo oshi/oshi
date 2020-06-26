@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Advapi32Util.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.jna.platform.windows</a> &gt; <span class="el_source">Advapi32Util.java</span></div><h1>Advapi32Util.java</h1><pre class="source lang-java linenums">/**
+ * MIT License
+ *
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+package oshi.jna.platform.windows;
+
+import com.sun.jna.platform.win32.Advapi32; // NOSONAR squid:S1191
+import com.sun.jna.platform.win32.Kernel32;
+import com.sun.jna.platform.win32.W32Errors;
+import com.sun.jna.platform.win32.Win32Exception;
+import com.sun.jna.platform.win32.WinNT.HANDLE;
+import com.sun.jna.platform.win32.WinNT.SID_NAME_USE;
+import com.sun.jna.ptr.IntByReference;
+
+import oshi.jna.platform.windows.WinNT.TOKEN_PRIMARY_GROUP;
+
+<span class="nc" id="L36">public class Advapi32Util extends com.sun.jna.platform.win32.Advapi32Util {</span>
+    /**
+     * This function returns the primary group associated with a security token,
+     * such as a user token.
+     *
+     * @param hToken
+     *            Token.
+     * @return Token primary group.
+     */
+    public static Account getTokenPrimaryGroup(HANDLE hToken) {
+        // get token group information size
+<span class="nc" id="L47">        IntByReference tokenInformationLength = new IntByReference();</span>
+<span class="nc bnc" id="L48" title="All 2 branches missed.">        if (Advapi32.INSTANCE.GetTokenInformation(hToken, WinNT.TOKEN_INFORMATION_CLASS.TokenPrimaryGroup, null, 0,</span>
+                tokenInformationLength)) {
+<span class="nc" id="L50">            throw new RuntimeException(&quot;Expected GetTokenInformation to fail with ERROR_INSUFFICIENT_BUFFER&quot;);</span>
+        }
+<span class="nc" id="L52">        int rc = Kernel32.INSTANCE.GetLastError();</span>
+<span class="nc bnc" id="L53" title="All 2 branches missed.">        if (rc != W32Errors.ERROR_INSUFFICIENT_BUFFER) {</span>
+<span class="nc" id="L54">            throw new Win32Exception(rc);</span>
+        }
+        // get token group information
+<span class="nc" id="L57">        TOKEN_PRIMARY_GROUP primaryGroup = new WinNT.TOKEN_PRIMARY_GROUP(tokenInformationLength.getValue());</span>
+<span class="nc bnc" id="L58" title="All 2 branches missed.">        if (!Advapi32.INSTANCE.GetTokenInformation(hToken, WinNT.TOKEN_INFORMATION_CLASS.TokenPrimaryGroup,</span>
+<span class="nc" id="L59">                primaryGroup, tokenInformationLength.getValue(), tokenInformationLength)) {</span>
+<span class="nc" id="L60">            throw new Win32Exception(Kernel32.INSTANCE.GetLastError());</span>
+        }
+        Account group;
+        try {
+<span class="nc" id="L64">            group = Advapi32Util.getAccountBySid(primaryGroup.PrimaryGroup);</span>
+<span class="nc" id="L65">        } catch (Exception e) {</span>
+<span class="nc" id="L66">            group = new Account();</span>
+<span class="nc" id="L67">            group.sid = primaryGroup.PrimaryGroup.getBytes();</span>
+<span class="nc" id="L68">            group.sidString = Advapi32Util.convertSidToStringSid(primaryGroup.PrimaryGroup);</span>
+<span class="nc" id="L69">            group.name = group.sidString;</span>
+<span class="nc" id="L70">            group.fqn = group.sidString;</span>
+<span class="nc" id="L71">            group.accountType = SID_NAME_USE.SidTypeGroup;</span>
+<span class="nc" id="L72">        }</span>
+<span class="nc" id="L73">        return group;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

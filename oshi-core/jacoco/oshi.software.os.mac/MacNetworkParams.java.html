@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 import com.sun.jna.Native;
 import com.sun.jna.ptr.PointerByReference;
 
+import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.platform.mac.SystemB;
 import oshi.jna.platform.unix.CLibrary;
 import oshi.jna.platform.unix.CLibrary.Addrinfo;
@@ -43,11 +44,10 @@ import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
 /**
- * &lt;p&gt;
  * MacNetworkParams class.
- * &lt;/p&gt;
  */
-<span class="nc" id="L50">public class MacNetworkParams extends AbstractNetworkParams {</span>
+@ThreadSafe
+<span class="nc" id="L50">final class MacNetworkParams extends AbstractNetworkParams {</span>
 
 <span class="nc" id="L52">    private static final Logger LOG = LoggerFactory.getLogger(MacNetworkParams.class);</span>
 

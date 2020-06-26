@@ -26,9 +26,14 @@ package oshi.driver.windows.wmi;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery; //NOSONAR squid:S1191
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
+import oshi.annotation.concurrent.ThreadSafe;
 import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
 
+/**
+ * Utility to query Open Hardware Monitor WMI data for Sensors
+ */
+@ThreadSafe
 public final class OhmSensor {
 
     private static final String SENSOR = &quot;Sensor&quot;;
@@ -36,8 +41,8 @@ public final class OhmSensor {
     /**
      * Sensor value property
      */
-<span class="nc" id="L39">    public enum ValueProperty {</span>
-<span class="nc" id="L40">        VALUE;</span>
+<span class="nc" id="L44">    public enum ValueProperty {</span>
+<span class="nc" id="L45">        VALUE;</span>
     }
 
     private OhmSensor() {
@@ -53,12 +58,12 @@ public final class OhmSensor {
      * @return The sensor value.
      */
     public static WmiResult&lt;ValueProperty&gt; querySensorValue(String identifier, String sensorType) {
-<span class="nc" id="L56">        StringBuilder sb = new StringBuilder(SENSOR);</span>
-<span class="nc" id="L57">        sb.append(&quot; WHERE Parent = \&quot;&quot;).append(identifier);</span>
-<span class="nc" id="L58">        sb.append(&quot;\&quot; AND SensorType=\&quot;&quot;).append(sensorType).append('\&quot;');</span>
-<span class="nc" id="L59">        WmiQuery&lt;ValueProperty&gt; ohmSensorQuery = new WmiQuery&lt;&gt;(WmiUtil.OHM_NAMESPACE, sb.toString(),</span>
+<span class="nc" id="L61">        StringBuilder sb = new StringBuilder(SENSOR);</span>
+<span class="nc" id="L62">        sb.append(&quot; WHERE Parent = \&quot;&quot;).append(identifier);</span>
+<span class="nc" id="L63">        sb.append(&quot;\&quot; AND SensorType=\&quot;&quot;).append(sensorType).append('\&quot;');</span>
+<span class="nc" id="L64">        WmiQuery&lt;ValueProperty&gt; ohmSensorQuery = new WmiQuery&lt;&gt;(WmiUtil.OHM_NAMESPACE, sb.toString(),</span>
                 ValueProperty.class);
-<span class="nc" id="L61">        return WmiQueryHandler.createInstance().queryWMI(ohmSensorQuery);</span>
+<span class="nc" id="L66">        return WmiQueryHandler.createInstance().queryWMI(ohmSensorQuery);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

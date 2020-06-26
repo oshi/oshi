@@ -1,5 +1,12 @@
 oshi
+oshi.annotation.concurrent
+oshi.driver.linux
 oshi.driver.linux.proc
+oshi.driver.mac
+oshi.driver.unix
+oshi.driver.unix.freebsd
+oshi.driver.unix.solaris
+oshi.driver.unix.solaris.kstat
 oshi.driver.windows.perfmon
 oshi.driver.windows.registry
 oshi.driver.windows.wmi

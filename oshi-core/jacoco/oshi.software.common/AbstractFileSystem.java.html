@@ -26,19 +26,21 @@ package oshi.software.common;
 import java.util.Arrays;
 import java.util.List;
 
+import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.os.FileSystem;
 import oshi.software.os.OSFileStore;
 
-<span class="nc" id="L32">public abstract class AbstractFileSystem implements FileSystem {</span>
+@ThreadSafe
+<span class="nc" id="L34">public abstract class AbstractFileSystem implements FileSystem {</span>
 
     /**
-     * FileSystem types which are network-based and should be excluded from local-only lists
+     * FileSystem types which are network-based and should be excluded from
+     * local-only lists
      */
-<span class="nc" id="L37">    protected static final List&lt;String&gt; NETWORK_FS_TYPES = Arrays.asList( &quot;afs&quot;, &quot;cifs&quot;, &quot;smbfs&quot;, &quot;sshfs&quot;, &quot;ncpfs&quot;, &quot;ncp&quot;, &quot;nfs&quot;, &quot;nfs4&quot;,</span>
-            &quot;gfs&quot;, &quot;gds2&quot;, &quot;glusterfs&quot; );
+<span class="nc" id="L40">    protected static final List&lt;String&gt; NETWORK_FS_TYPES = Arrays.asList(&quot;afs&quot;, &quot;cifs&quot;, &quot;smbfs&quot;, &quot;sshfs&quot;, &quot;ncpfs&quot;,</span>
+            &quot;ncp&quot;, &quot;nfs&quot;, &quot;nfs4&quot;, &quot;gfs&quot;, &quot;gds2&quot;, &quot;glusterfs&quot;);
 
-
-<span class="nc" id="L41">    protected static final List&lt;String&gt; PSEUDO_FS_TYPES = Arrays.asList(//</span>
+<span class="nc" id="L43">    protected static final List&lt;String&gt; PSEUDO_FS_TYPES = Arrays.asList(//</span>
             // Linux defines a set of virtual file systems
             &quot;anon_inodefs&quot;, // anonymous inodes - inodes without filenames
             &quot;autofs&quot;, // automounter file system, used by Linux, Solaris, FreeBSD
@@ -78,7 +80,8 @@ import oshi.software.os.OSFileStore;
             &quot;sysfs&quot;, // SysFS file system
             &quot;systemd-1&quot;, // Systemd file system
             // &quot;tmpfs&quot;, // Temporary file system
-            // NOTE: tmpfs is evaluated apart, because Linux, Solaris, FreeBSD use it for RAMdisks
+            // NOTE: tmpfs is evaluated apart, because Linux, Solaris, FreeBSD use it for
+            // RAMdisks
             &quot;tracefs&quot;, // thin stackable file system for capturing file system traces
             &quot;usbfs&quot;, // removed in linux 3.5 but still seen in some systems
             // FreeBSD / Solaris defines a set of virtual file systems
@@ -94,7 +97,7 @@ import oshi.software.os.OSFileStore;
 
     @Override
     public OSFileStore[] getFileStores() {
-<span class="nc" id="L97">        return getFileStores(false);</span>
+<span class="nc" id="L100">        return getFileStores(false);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

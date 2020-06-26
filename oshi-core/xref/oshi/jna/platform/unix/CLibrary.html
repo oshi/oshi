@@ -45,100 +45,563 @@
 <a class="jxr_linenumber" name="L37" href="#L37">37</a>  <em class="jxr_javadoccomment"> */</em>
 <a class="jxr_linenumber" name="L38" href="#L38">38</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">interface</strong> <a name="CLibrary" href="../../../../oshi/jna/platform/unix/CLibrary.html#CLibrary">CLibrary</a> <strong class="jxr_keyword">extends</strong> LibCAPI, Library {
 <a class="jxr_linenumber" name="L39" href="#L39">39</a>  
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>      <em class="jxr_comment">/*</em>
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <em class="jxr_comment">     * For getaddrinfo()</em>
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <em class="jxr_comment">     */</em>
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>      <em class="jxr_javadoccomment">/** Constant &lt;code&gt;AI_CANONNAME=2&lt;/code&gt; */</em>
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>      <strong class="jxr_keyword">int</strong> AI_CANONNAME = 2;
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>  
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>      <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>  <em class="jxr_javadoccomment">     * Return type for BSD sysctl kern.boottime</em>
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>      @FieldOrder({ <span class="jxr_string">"tv_sec"</span>, <span class="jxr_string">"tv_usec"</span> })
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>      <strong class="jxr_keyword">class</strong> Timeval <strong class="jxr_keyword">extends</strong> Structure {
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> tv_sec; <em class="jxr_comment">// seconds</em>
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> tv_usec; <em class="jxr_comment">// microseconds</em>
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>      }
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>  
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>      @FieldOrder({ <span class="jxr_string">"sa_family"</span>, <span class="jxr_string">"sa_data"</span> })
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>      <strong class="jxr_keyword">class</strong> Sockaddr <strong class="jxr_keyword">extends</strong> Structure {
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">short</strong> sa_family;
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>          <strong class="jxr_keyword">public</strong> byte[] sa_data = <strong class="jxr_keyword">new</strong> byte[14];
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>  
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> ByReference <strong class="jxr_keyword">extends</strong> Sockaddr <strong class="jxr_keyword">implements</strong> Structure.ByReference {
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>          }
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>      }
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>  
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>      @FieldOrder({ <span class="jxr_string">"ai_flags"</span>, <span class="jxr_string">"ai_family"</span>, <span class="jxr_string">"ai_socktype"</span>, <span class="jxr_string">"ai_protocol"</span>, <span class="jxr_string">"ai_addrlen"</span>, <span class="jxr_string">"ai_addr"</span>, <span class="jxr_string">"ai_canonname"</span>,
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>              <span class="jxr_string">"ai_next"</span> })
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>      <strong class="jxr_keyword">class</strong> Addrinfo <strong class="jxr_keyword">extends</strong> Structure {
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ai_flags;
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ai_family;
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ai_socktype;
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ai_protocol;
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ai_addrlen;
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>          <strong class="jxr_keyword">public</strong> Sockaddr.ByReference ai_addr;
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>          <strong class="jxr_keyword">public</strong> String ai_canonname;
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>          <strong class="jxr_keyword">public</strong> ByReference ai_next;
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>  
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> ByReference <strong class="jxr_keyword">extends</strong> Addrinfo <strong class="jxr_keyword">implements</strong> Structure.ByReference {
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>          }
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>  
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>          <strong class="jxr_keyword">public</strong> Addrinfo() {
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>          }
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>  
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>          <strong class="jxr_keyword">public</strong> Addrinfo(Pointer p) {
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>              <strong class="jxr_keyword">super</strong>(p);
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>              read();
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>          }
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>      }
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>  
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>      <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>  <em class="jxr_javadoccomment">     * Returns the process ID of the calling process. The ID is guaranteed to be</em>
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>  <em class="jxr_javadoccomment">     * unique and is useful for constructing temporary file names.</em>
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>  <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>  <em class="jxr_javadoccomment">     * @return the process ID of the calling process.</em>
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>      <strong class="jxr_keyword">int</strong> getpid();
-<a class="jxr_linenumber" name="L95" href="#L95">95</a>  
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>      <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L97" href="#L97">97</a>  <em class="jxr_javadoccomment">     * Given node and service, which identify an Internet host and a service,</em>
-<a class="jxr_linenumber" name="L98" href="#L98">98</a>  <em class="jxr_javadoccomment">     * getaddrinfo() returns one or more addrinfo structures, each of which contains</em>
-<a class="jxr_linenumber" name="L99" href="#L99">99</a>  <em class="jxr_javadoccomment">     * an Internet address that can be specified in a call to bind(2) or connect(2).</em>
-<a class="jxr_linenumber" name="L100" href="#L100">100</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L101" href="#L101">101</a> <em class="jxr_javadoccomment">     * @param node</em>
-<a class="jxr_linenumber" name="L102" href="#L102">102</a> <em class="jxr_javadoccomment">     *            a numerical network address or a network hostname, whose network</em>
-<a class="jxr_linenumber" name="L103" href="#L103">103</a> <em class="jxr_javadoccomment">     *            addresses are looked up and resolved.</em>
-<a class="jxr_linenumber" name="L104" href="#L104">104</a> <em class="jxr_javadoccomment">     * @param service</em>
-<a class="jxr_linenumber" name="L105" href="#L105">105</a> <em class="jxr_javadoccomment">     *            sets the port in each returned address structure.</em>
-<a class="jxr_linenumber" name="L106" href="#L106">106</a> <em class="jxr_javadoccomment">     * @param hints</em>
-<a class="jxr_linenumber" name="L107" href="#L107">107</a> <em class="jxr_javadoccomment">     *            specifies criteria for selecting the socket address structures</em>
-<a class="jxr_linenumber" name="L108" href="#L108">108</a> <em class="jxr_javadoccomment">     *            returned in the list pointed to by res.</em>
-<a class="jxr_linenumber" name="L109" href="#L109">109</a> <em class="jxr_javadoccomment">     * @param res</em>
-<a class="jxr_linenumber" name="L110" href="#L110">110</a> <em class="jxr_javadoccomment">     *            returned address structure</em>
-<a class="jxr_linenumber" name="L111" href="#L111">111</a> <em class="jxr_javadoccomment">     * @return 0 on success; sets errno on failure</em>
-<a class="jxr_linenumber" name="L112" href="#L112">112</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L113" href="#L113">113</a>     <strong class="jxr_keyword">int</strong> getaddrinfo(String node, String service, Addrinfo hints, PointerByReference res);
-<a class="jxr_linenumber" name="L114" href="#L114">114</a> 
-<a class="jxr_linenumber" name="L115" href="#L115">115</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L116" href="#L116">116</a> <em class="jxr_javadoccomment">     * Frees the memory that was allocated for the dynamically allocated linked list</em>
-<a class="jxr_linenumber" name="L117" href="#L117">117</a> <em class="jxr_javadoccomment">     * res.</em>
-<a class="jxr_linenumber" name="L118" href="#L118">118</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L119" href="#L119">119</a> <em class="jxr_javadoccomment">     * @param res</em>
-<a class="jxr_linenumber" name="L120" href="#L120">120</a> <em class="jxr_javadoccomment">     *            Pointer to linked list returned by getaddrinfo</em>
-<a class="jxr_linenumber" name="L121" href="#L121">121</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L122" href="#L122">122</a>     <strong class="jxr_keyword">void</strong> freeaddrinfo(Pointer res);
-<a class="jxr_linenumber" name="L123" href="#L123">123</a> 
-<a class="jxr_linenumber" name="L124" href="#L124">124</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L125" href="#L125">125</a> <em class="jxr_javadoccomment">     * Translates getaddrinfo error codes to a human readable string, suitable for</em>
-<a class="jxr_linenumber" name="L126" href="#L126">126</a> <em class="jxr_javadoccomment">     * error reporting.</em>
-<a class="jxr_linenumber" name="L127" href="#L127">127</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L128" href="#L128">128</a> <em class="jxr_javadoccomment">     * @param e</em>
-<a class="jxr_linenumber" name="L129" href="#L129">129</a> <em class="jxr_javadoccomment">     *            Error code from getaddrinfo</em>
-<a class="jxr_linenumber" name="L130" href="#L130">130</a> <em class="jxr_javadoccomment">     * @return A human-readable version of the error code</em>
-<a class="jxr_linenumber" name="L131" href="#L131">131</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L132" href="#L132">132</a>     String gai_strerror(<strong class="jxr_keyword">int</strong> e);
-<a class="jxr_linenumber" name="L133" href="#L133">133</a> }
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>      <strong class="jxr_keyword">int</strong> AI_CANONNAME = 2;
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>      <strong class="jxr_keyword">int</strong> UT_LINESIZE = 32;
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>      <strong class="jxr_keyword">int</strong> UT_NAMESIZE = 32;
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>      <strong class="jxr_keyword">int</strong> UT_HOSTSIZE = 256;
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>      <strong class="jxr_keyword">int</strong> LOGIN_PROCESS = 6; <em class="jxr_comment">// Session leader of a logged in user.</em>
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>      <strong class="jxr_keyword">int</strong> USER_PROCESS = 7; <em class="jxr_comment">// Normal process.</em>
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>  
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>      @FieldOrder({ <span class="jxr_string">"sa_family"</span>, <span class="jxr_string">"sa_data"</span> })
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>      <strong class="jxr_keyword">class</strong> Sockaddr <strong class="jxr_keyword">extends</strong> Structure {
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">short</strong> sa_family;
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>          <strong class="jxr_keyword">public</strong> byte[] sa_data = <strong class="jxr_keyword">new</strong> byte[14];
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>  
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> ByReference <strong class="jxr_keyword">extends</strong> Sockaddr <strong class="jxr_keyword">implements</strong> Structure.ByReference {
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>          }
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>      }
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>  
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>      @FieldOrder({ <span class="jxr_string">"ai_flags"</span>, <span class="jxr_string">"ai_family"</span>, <span class="jxr_string">"ai_socktype"</span>, <span class="jxr_string">"ai_protocol"</span>, <span class="jxr_string">"ai_addrlen"</span>, <span class="jxr_string">"ai_addr"</span>, <span class="jxr_string">"ai_canonname"</span>,
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>              <span class="jxr_string">"ai_next"</span> })
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>      <strong class="jxr_keyword">class</strong> Addrinfo <strong class="jxr_keyword">extends</strong> Structure {
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ai_flags;
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ai_family;
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ai_socktype;
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ai_protocol;
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ai_addrlen;
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>          <strong class="jxr_keyword">public</strong> Sockaddr.ByReference ai_addr;
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>          <strong class="jxr_keyword">public</strong> String ai_canonname;
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>          <strong class="jxr_keyword">public</strong> ByReference ai_next;
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>  
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> ByReference <strong class="jxr_keyword">extends</strong> Addrinfo <strong class="jxr_keyword">implements</strong> Structure.ByReference {
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>          }
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>  
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>          <strong class="jxr_keyword">public</strong> Addrinfo() {
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>          }
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>  
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>          <strong class="jxr_keyword">public</strong> Addrinfo(Pointer p) {
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>              <strong class="jxr_keyword">super</strong>(p);
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>              read();
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>          }
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>      }
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>  
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>  <em class="jxr_javadoccomment">     * Return type for sysctl net.inet.ip.stats</em>
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>      @FieldOrder({ <span class="jxr_string">"tcps_connattempt"</span>, <span class="jxr_string">"tcps_accepts"</span>, <span class="jxr_string">"tcps_connects"</span>, <span class="jxr_string">"tcps_drops"</span>, <span class="jxr_string">"tcps_conndrops"</span>, <span class="jxr_string">"tcps_closed"</span>,
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>              <span class="jxr_string">"tcps_segstimed"</span>, <span class="jxr_string">"tcps_rttupdated"</span>, <span class="jxr_string">"tcps_delack"</span>, <span class="jxr_string">"tcps_timeoutdrop"</span>, <span class="jxr_string">"tcps_rexmttimeo"</span>,
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>              <span class="jxr_string">"tcps_persisttimeo"</span>, <span class="jxr_string">"tcps_keeptimeo"</span>, <span class="jxr_string">"tcps_keepprobe"</span>, <span class="jxr_string">"tcps_keepdrops"</span>, <span class="jxr_string">"tcps_sndtotal"</span>, <span class="jxr_string">"tcps_sndpack"</span>,
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>              <span class="jxr_string">"tcps_sndbyte"</span>, <span class="jxr_string">"tcps_sndrexmitpack"</span>, <span class="jxr_string">"tcps_sndrexmitbyte"</span>, <span class="jxr_string">"tcps_sndacks"</span>, <span class="jxr_string">"tcps_sndprobe"</span>, <span class="jxr_string">"tcps_sndurg"</span>,
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>              <span class="jxr_string">"tcps_sndwinup"</span>, <span class="jxr_string">"tcps_sndctrl"</span>, <span class="jxr_string">"tcps_rcvtotal"</span>, <span class="jxr_string">"tcps_rcvpack"</span>, <span class="jxr_string">"tcps_rcvbyte"</span>, <span class="jxr_string">"tcps_rcvbadsum"</span>,
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>              <span class="jxr_string">"tcps_rcvbadoff"</span>, <span class="jxr_string">"tcps_rcvmemdrop"</span>, <span class="jxr_string">"tcps_rcvshort"</span>, <span class="jxr_string">"tcps_rcvduppack"</span>, <span class="jxr_string">"tcps_rcvdupbyte"</span>,
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>              <span class="jxr_string">"tcps_rcvpartduppack"</span>, <span class="jxr_string">"tcps_rcvpartdupbyte"</span>, <span class="jxr_string">"tcps_rcvoopack"</span>, <span class="jxr_string">"tcps_rcvoobyte"</span>, <span class="jxr_string">"tcps_rcvpackafterwin"</span>,
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>              <span class="jxr_string">"tcps_rcvbyteafterwin"</span>, <span class="jxr_string">"tcps_rcvafterclose"</span>, <span class="jxr_string">"tcps_rcvwinprobe"</span>, <span class="jxr_string">"tcps_rcvdupack"</span>, <span class="jxr_string">"tcps_rcvacktoomuch"</span>,
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>              <span class="jxr_string">"tcps_rcvackpack"</span>, <span class="jxr_string">"tcps_rcvackbyte"</span>, <span class="jxr_string">"tcps_rcvwinupd"</span>, <span class="jxr_string">"tcps_pawsdrop"</span>, <span class="jxr_string">"tcps_predack"</span>, <span class="jxr_string">"tcps_preddat"</span>,
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>              <span class="jxr_string">"tcps_pcbcachemiss"</span>, <span class="jxr_string">"tcps_cachedrtt"</span>, <span class="jxr_string">"tcps_cachedrttvar"</span>, <span class="jxr_string">"tcps_cachedssthresh"</span>, <span class="jxr_string">"tcps_usedrtt"</span>,
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>              <span class="jxr_string">"tcps_usedrttvar"</span>, <span class="jxr_string">"tcps_usedssthresh"</span>, <span class="jxr_string">"tcps_persistdrop"</span>, <span class="jxr_string">"tcps_badsyn"</span>, <span class="jxr_string">"tcps_mturesent"</span>,
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>              <span class="jxr_string">"tcps_listendrop"</span>, <span class="jxr_string">"tcps_synchallenge"</span>, <span class="jxr_string">"tcps_rstchallenge"</span>, <span class="jxr_string">"tcps_minmssdrops"</span>, <span class="jxr_string">"tcps_sndrexmitbad"</span>,
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>              <span class="jxr_string">"tcps_badrst"</span>, <span class="jxr_string">"tcps_sc_added"</span>, <span class="jxr_string">"tcps_sc_retransmitted"</span>, <span class="jxr_string">"tcps_sc_dupsyn"</span>, <span class="jxr_string">"tcps_sc_dropped"</span>,
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>              <span class="jxr_string">"tcps_sc_completed"</span>, <span class="jxr_string">"tcps_sc_bucketoverflow"</span>, <span class="jxr_string">"tcps_sc_cacheoverflow"</span>, <span class="jxr_string">"tcps_sc_reset"</span>, <span class="jxr_string">"tcps_sc_stale"</span>,
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>              <span class="jxr_string">"tcps_sc_aborted"</span>, <span class="jxr_string">"tcps_sc_badack"</span>, <span class="jxr_string">"tcps_sc_unreach"</span>, <span class="jxr_string">"tcps_sc_zonefail"</span>, <span class="jxr_string">"tcps_sc_sendcookie"</span>,
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>              <span class="jxr_string">"tcps_sc_recvcookie"</span>, <span class="jxr_string">"tcps_hc_added"</span>, <span class="jxr_string">"tcps_hc_bucketoverflow"</span>, <span class="jxr_string">"tcps_sack_recovery_episode"</span>,
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>             <span class="jxr_string">"tcps_sack_rexmits"</span>, <span class="jxr_string">"tcps_sack_rexmit_bytes"</span>, <span class="jxr_string">"tcps_sack_rcv_blocks"</span>, <span class="jxr_string">"tcps_sack_send_blocks"</span>,
+<a class="jxr_linenumber" name="L101" href="#L101">101</a>             <span class="jxr_string">"tcps_sack_sboverflow"</span>, <span class="jxr_string">"tcps_bg_rcvtotal"</span>, <span class="jxr_string">"tcps_rxtfindrop"</span>, <span class="jxr_string">"tcps_fcholdpacket"</span>, <span class="jxr_string">"tcps_coalesced_pack"</span>,
+<a class="jxr_linenumber" name="L102" href="#L102">102</a>             <span class="jxr_string">"tcps_flowtbl_full"</span>, <span class="jxr_string">"tcps_flowtbl_collision"</span>, <span class="jxr_string">"tcps_lro_twopack"</span>, <span class="jxr_string">"tcps_lro_multpack"</span>,
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>             <span class="jxr_string">"tcps_lro_largepack"</span>, <span class="jxr_string">"tcps_limited_txt"</span>, <span class="jxr_string">"tcps_early_rexmt"</span>, <span class="jxr_string">"tcps_sack_ackadv"</span>, <span class="jxr_string">"tcps_rcv_swcsum"</span>,
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>             <span class="jxr_string">"tcps_rcv_swcsum_bytes"</span>, <span class="jxr_string">"tcps_rcv6_swcsum"</span>, <span class="jxr_string">"tcps_rcv6_swcsum_bytes"</span>, <span class="jxr_string">"tcps_snd_swcsum"</span>,
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>             <span class="jxr_string">"tcps_snd_swcsum_bytes"</span>, <span class="jxr_string">"tcps_snd6_swcsum"</span>, <span class="jxr_string">"tcps_snd6_swcsum_bytes"</span>, <span class="jxr_string">"tcps_msg_unopkts"</span>,
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>             <span class="jxr_string">"tcps_msg_unoappendfail"</span>, <span class="jxr_string">"tcps_msg_sndwaithipri"</span>, <span class="jxr_string">"tcps_invalid_mpcap"</span>, <span class="jxr_string">"tcps_invalid_joins"</span>,
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>             <span class="jxr_string">"tcps_mpcap_fallback"</span>, <span class="jxr_string">"tcps_join_fallback"</span>, <span class="jxr_string">"tcps_estab_fallback"</span>, <span class="jxr_string">"tcps_invalid_opt"</span>, <span class="jxr_string">"tcps_mp_outofwin"</span>,
+<a class="jxr_linenumber" name="L108" href="#L108">108</a>             <span class="jxr_string">"tcps_mp_reducedwin"</span>, <span class="jxr_string">"tcps_mp_badcsum"</span>, <span class="jxr_string">"tcps_mp_oodata"</span>, <span class="jxr_string">"tcps_mp_switches"</span>, <span class="jxr_string">"tcps_mp_rcvtotal"</span>,
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>             <span class="jxr_string">"tcps_mp_rcvbytes"</span>, <span class="jxr_string">"tcps_mp_sndpacks"</span>, <span class="jxr_string">"tcps_mp_sndbytes"</span>, <span class="jxr_string">"tcps_join_rxmts"</span>, <span class="jxr_string">"tcps_tailloss_rto"</span>,
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>             <span class="jxr_string">"tcps_reordered_pkts"</span>, <span class="jxr_string">"tcps_recovered_pkts"</span>, <span class="jxr_string">"tcps_pto"</span>, <span class="jxr_string">"tcps_rto_after_pto"</span>, <span class="jxr_string">"tcps_tlp_recovery"</span>,
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>             <span class="jxr_string">"tcps_tlp_recoverlastpkt"</span>, <span class="jxr_string">"tcps_ecn_client_success"</span>, <span class="jxr_string">"tcps_ecn_recv_ece"</span>, <span class="jxr_string">"tcps_ecn_sent_ece"</span>,
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>             <span class="jxr_string">"tcps_detect_reordering"</span>, <span class="jxr_string">"tcps_delay_recovery"</span>, <span class="jxr_string">"tcps_avoid_rxmt"</span>, <span class="jxr_string">"tcps_unnecessary_rxmt"</span>,
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>             <span class="jxr_string">"tcps_nostretchack"</span>, <span class="jxr_string">"tcps_rescue_rxmt"</span>, <span class="jxr_string">"tcps_pto_in_recovery"</span>, <span class="jxr_string">"tcps_pmtudbh_reverted"</span>,
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>             <span class="jxr_string">"tcps_dsack_disable"</span>, <span class="jxr_string">"tcps_dsack_ackloss"</span>, <span class="jxr_string">"tcps_dsack_badrexmt"</span>, <span class="jxr_string">"tcps_dsack_sent"</span>, <span class="jxr_string">"tcps_dsack_recvd"</span>,
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>             <span class="jxr_string">"tcps_dsack_recvd_old"</span>, <span class="jxr_string">"tcps_mp_sel_symtomsd"</span>, <span class="jxr_string">"tcps_mp_sel_rtt"</span>, <span class="jxr_string">"tcps_mp_sel_rto"</span>, <span class="jxr_string">"tcps_mp_sel_peer"</span>,
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>             <span class="jxr_string">"tcps_mp_num_probes"</span>, <span class="jxr_string">"tcps_mp_verdowngrade"</span>, <span class="jxr_string">"tcps_drop_after_sleep"</span>, <span class="jxr_string">"tcps_probe_if"</span>,
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>             <span class="jxr_string">"tcps_probe_if_conflict"</span>, <span class="jxr_string">"tcps_ecn_client_setup"</span>, <span class="jxr_string">"tcps_ecn_server_setup"</span>, <span class="jxr_string">"tcps_ecn_server_success"</span>,
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>             <span class="jxr_string">"tcps_ecn_lost_synack"</span>, <span class="jxr_string">"tcps_ecn_lost_syn"</span>, <span class="jxr_string">"tcps_ecn_not_supported"</span>, <span class="jxr_string">"tcps_ecn_recv_ce"</span>,
+<a class="jxr_linenumber" name="L119" href="#L119">119</a>             <span class="jxr_string">"tcps_ecn_conn_recv_ce"</span>, <span class="jxr_string">"tcps_ecn_conn_recv_ece"</span>, <span class="jxr_string">"tcps_ecn_conn_plnoce"</span>, <span class="jxr_string">"tcps_ecn_conn_pl_ce"</span>,
+<a class="jxr_linenumber" name="L120" href="#L120">120</a>             <span class="jxr_string">"tcps_ecn_conn_nopl_ce"</span>, <span class="jxr_string">"tcps_ecn_fallback_synloss"</span>, <span class="jxr_string">"tcps_ecn_fallback_reorder"</span>, <span class="jxr_string">"tcps_ecn_fallback_ce"</span>,
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>             <span class="jxr_string">"tcps_tfo_syn_data_rcv"</span>, <span class="jxr_string">"tcps_tfo_cookie_req_rcv"</span>, <span class="jxr_string">"tcps_tfo_cookie_sent"</span>, <span class="jxr_string">"tcps_tfo_cookie_invalid"</span>,
+<a class="jxr_linenumber" name="L122" href="#L122">122</a>             <span class="jxr_string">"tcps_tfo_cookie_req"</span>, <span class="jxr_string">"tcps_tfo_cookie_rcv"</span>, <span class="jxr_string">"tcps_tfo_syn_data_sent"</span>, <span class="jxr_string">"tcps_tfo_syn_data_acked"</span>,
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>             <span class="jxr_string">"tcps_tfo_syn_loss"</span>, <span class="jxr_string">"tcps_tfo_blackhole"</span>, <span class="jxr_string">"tcps_tfo_cookie_wrong"</span>, <span class="jxr_string">"tcps_tfo_no_cookie_rcv"</span>,
+<a class="jxr_linenumber" name="L124" href="#L124">124</a>             <span class="jxr_string">"tcps_tfo_heuristics_disable"</span>, <span class="jxr_string">"tcps_tfo_sndblackhole"</span>, <span class="jxr_string">"tcps_mss_to_default"</span>, <span class="jxr_string">"tcps_mss_to_medium"</span>,
+<a class="jxr_linenumber" name="L125" href="#L125">125</a>             <span class="jxr_string">"tcps_mss_to_low"</span>, <span class="jxr_string">"tcps_ecn_fallback_droprst"</span>, <span class="jxr_string">"tcps_ecn_fallback_droprxmt"</span>, <span class="jxr_string">"tcps_ecn_fallback_synrst"</span>,
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>             <span class="jxr_string">"tcps_mptcp_rcvmemdrop"</span>, <span class="jxr_string">"tcps_mptcp_rcvduppack"</span>, <span class="jxr_string">"tcps_mptcp_rcvpackafterwin"</span>, <span class="jxr_string">"tcps_timer_drift_le_1_ms"</span>,
+<a class="jxr_linenumber" name="L127" href="#L127">127</a>             <span class="jxr_string">"tcps_timer_drift_le_10_ms"</span>, <span class="jxr_string">"tcps_timer_drift_le_20_ms"</span>, <span class="jxr_string">"tcps_timer_drift_le_50_ms"</span>,
+<a class="jxr_linenumber" name="L128" href="#L128">128</a>             <span class="jxr_string">"tcps_timer_drift_le_100_ms"</span>, <span class="jxr_string">"tcps_timer_drift_le_200_ms"</span>, <span class="jxr_string">"tcps_timer_drift_le_500_ms"</span>,
+<a class="jxr_linenumber" name="L129" href="#L129">129</a>             <span class="jxr_string">"tcps_timer_drift_le_1000_ms"</span>, <span class="jxr_string">"tcps_timer_drift_gt_1000_ms"</span>, <span class="jxr_string">"tcps_mptcp_handover_attempt"</span>,
+<a class="jxr_linenumber" name="L130" href="#L130">130</a>             <span class="jxr_string">"tcps_mptcp_interactive_attempt"</span>, <span class="jxr_string">"tcps_mptcp_aggregate_attempt"</span>, <span class="jxr_string">"tcps_mptcp_fp_handover_attempt"</span>,
+<a class="jxr_linenumber" name="L131" href="#L131">131</a>             <span class="jxr_string">"tcps_mptcp_fp_interactive_attempt"</span>, <span class="jxr_string">"tcps_mptcp_fp_aggregate_attempt"</span>, <span class="jxr_string">"tcps_mptcp_heuristic_fallback"</span>,
+<a class="jxr_linenumber" name="L132" href="#L132">132</a>             <span class="jxr_string">"tcps_mptcp_fp_heuristic_fallback"</span>, <span class="jxr_string">"tcps_mptcp_handover_success_wifi"</span>, <span class="jxr_string">"tcps_mptcp_handover_success_cell"</span>,
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>             <span class="jxr_string">"tcps_mptcp_interactive_success"</span>, <span class="jxr_string">"tcps_mptcp_aggregate_success"</span>, <span class="jxr_string">"tcps_mptcp_fp_handover_success_wifi"</span>,
+<a class="jxr_linenumber" name="L134" href="#L134">134</a>             <span class="jxr_string">"tcps_mptcp_fp_handover_success_cell"</span>, <span class="jxr_string">"tcps_mptcp_fp_interactive_success"</span>,
+<a class="jxr_linenumber" name="L135" href="#L135">135</a>             <span class="jxr_string">"tcps_mptcp_fp_aggregate_success"</span>, <span class="jxr_string">"tcps_mptcp_handover_cell_from_wifi"</span>,
+<a class="jxr_linenumber" name="L136" href="#L136">136</a>             <span class="jxr_string">"tcps_mptcp_handover_wifi_from_cell"</span>, <span class="jxr_string">"tcps_mptcp_interactive_cell_from_wifi"</span>,
+<a class="jxr_linenumber" name="L137" href="#L137">137</a>             <span class="jxr_string">"tcps_mptcp_handover_cell_bytes"</span>, <span class="jxr_string">"tcps_mptcp_interactive_cell_bytes"</span>, <span class="jxr_string">"tcps_mptcp_aggregate_cell_bytes"</span>,
+<a class="jxr_linenumber" name="L138" href="#L138">138</a>             <span class="jxr_string">"tcps_mptcp_handover_all_bytes"</span>, <span class="jxr_string">"tcps_mptcp_interactive_all_bytes"</span>, <span class="jxr_string">"tcps_mptcp_aggregate_all_bytes"</span>,
+<a class="jxr_linenumber" name="L139" href="#L139">139</a>             <span class="jxr_string">"tcps_mptcp_back_to_wifi"</span>, <span class="jxr_string">"tcps_mptcp_wifi_proxy"</span>, <span class="jxr_string">"tcps_mptcp_cell_proxy"</span>, <span class="jxr_string">"tcps_ka_offload_drops"</span>,
+<a class="jxr_linenumber" name="L140" href="#L140">140</a>             <span class="jxr_string">"tcps_mptcp_triggered_cell"</span> })
+<a class="jxr_linenumber" name="L141" href="#L141">141</a>     <strong class="jxr_keyword">class</strong> Tcpstat <strong class="jxr_keyword">extends</strong> Structure {
+<a class="jxr_linenumber" name="L142" href="#L142">142</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_connattempt;
+<a class="jxr_linenumber" name="L143" href="#L143">143</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_accepts;
+<a class="jxr_linenumber" name="L144" href="#L144">144</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_connects;
+<a class="jxr_linenumber" name="L145" href="#L145">145</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_drops;
+<a class="jxr_linenumber" name="L146" href="#L146">146</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_conndrops;
+<a class="jxr_linenumber" name="L147" href="#L147">147</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_closed;
+<a class="jxr_linenumber" name="L148" href="#L148">148</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_segstimed;
+<a class="jxr_linenumber" name="L149" href="#L149">149</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_rttupdated;
+<a class="jxr_linenumber" name="L150" href="#L150">150</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_delack;
+<a class="jxr_linenumber" name="L151" href="#L151">151</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_timeoutdrop;
+<a class="jxr_linenumber" name="L152" href="#L152">152</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_rexmttimeo;
+<a class="jxr_linenumber" name="L153" href="#L153">153</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_persisttimeo;
+<a class="jxr_linenumber" name="L154" href="#L154">154</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_keeptimeo;
+<a class="jxr_linenumber" name="L155" href="#L155">155</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_keepprobe;
+<a class="jxr_linenumber" name="L156" href="#L156">156</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_keepdrops;
+<a class="jxr_linenumber" name="L157" href="#L157">157</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_sndtotal;
+<a class="jxr_linenumber" name="L158" href="#L158">158</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_sndpack;
+<a class="jxr_linenumber" name="L159" href="#L159">159</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_sndbyte;
+<a class="jxr_linenumber" name="L160" href="#L160">160</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_sndrexmitpack;
+<a class="jxr_linenumber" name="L161" href="#L161">161</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_sndrexmitbyte;
+<a class="jxr_linenumber" name="L162" href="#L162">162</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_sndacks;
+<a class="jxr_linenumber" name="L163" href="#L163">163</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_sndprobe;
+<a class="jxr_linenumber" name="L164" href="#L164">164</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_sndurg;
+<a class="jxr_linenumber" name="L165" href="#L165">165</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_sndwinup;
+<a class="jxr_linenumber" name="L166" href="#L166">166</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_sndctrl;
+<a class="jxr_linenumber" name="L167" href="#L167">167</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_rcvtotal;
+<a class="jxr_linenumber" name="L168" href="#L168">168</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_rcvpack;
+<a class="jxr_linenumber" name="L169" href="#L169">169</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_rcvbyte;
+<a class="jxr_linenumber" name="L170" href="#L170">170</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_rcvbadsum;
+<a class="jxr_linenumber" name="L171" href="#L171">171</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_rcvbadoff;
+<a class="jxr_linenumber" name="L172" href="#L172">172</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_rcvmemdrop;
+<a class="jxr_linenumber" name="L173" href="#L173">173</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_rcvshort;
+<a class="jxr_linenumber" name="L174" href="#L174">174</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_rcvduppack;
+<a class="jxr_linenumber" name="L175" href="#L175">175</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_rcvdupbyte;
+<a class="jxr_linenumber" name="L176" href="#L176">176</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_rcvpartduppack;
+<a class="jxr_linenumber" name="L177" href="#L177">177</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_rcvpartdupbyte;
+<a class="jxr_linenumber" name="L178" href="#L178">178</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_rcvoopack;
+<a class="jxr_linenumber" name="L179" href="#L179">179</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_rcvoobyte;
+<a class="jxr_linenumber" name="L180" href="#L180">180</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_rcvpackafterwin;
+<a class="jxr_linenumber" name="L181" href="#L181">181</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_rcvbyteafterwin;
+<a class="jxr_linenumber" name="L182" href="#L182">182</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_rcvafterclose;
+<a class="jxr_linenumber" name="L183" href="#L183">183</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_rcvwinprobe;
+<a class="jxr_linenumber" name="L184" href="#L184">184</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_rcvdupack;
+<a class="jxr_linenumber" name="L185" href="#L185">185</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_rcvacktoomuch;
+<a class="jxr_linenumber" name="L186" href="#L186">186</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_rcvackpack;
+<a class="jxr_linenumber" name="L187" href="#L187">187</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_rcvackbyte;
+<a class="jxr_linenumber" name="L188" href="#L188">188</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_rcvwinupd;
+<a class="jxr_linenumber" name="L189" href="#L189">189</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_pawsdrop;
+<a class="jxr_linenumber" name="L190" href="#L190">190</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_predack;
+<a class="jxr_linenumber" name="L191" href="#L191">191</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_preddat;
+<a class="jxr_linenumber" name="L192" href="#L192">192</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_pcbcachemiss;
+<a class="jxr_linenumber" name="L193" href="#L193">193</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_cachedrtt;
+<a class="jxr_linenumber" name="L194" href="#L194">194</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_cachedrttvar;
+<a class="jxr_linenumber" name="L195" href="#L195">195</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_cachedssthresh;
+<a class="jxr_linenumber" name="L196" href="#L196">196</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_usedrtt;
+<a class="jxr_linenumber" name="L197" href="#L197">197</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_usedrttvar;
+<a class="jxr_linenumber" name="L198" href="#L198">198</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_usedssthresh;
+<a class="jxr_linenumber" name="L199" href="#L199">199</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_persistdrop;
+<a class="jxr_linenumber" name="L200" href="#L200">200</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_badsyn;
+<a class="jxr_linenumber" name="L201" href="#L201">201</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_mturesent;
+<a class="jxr_linenumber" name="L202" href="#L202">202</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_listendrop;
+<a class="jxr_linenumber" name="L203" href="#L203">203</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_synchallenge;
+<a class="jxr_linenumber" name="L204" href="#L204">204</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_rstchallenge;
+<a class="jxr_linenumber" name="L205" href="#L205">205</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_minmssdrops;
+<a class="jxr_linenumber" name="L206" href="#L206">206</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_sndrexmitbad;
+<a class="jxr_linenumber" name="L207" href="#L207">207</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_badrst;
+<a class="jxr_linenumber" name="L208" href="#L208">208</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_sc_added;
+<a class="jxr_linenumber" name="L209" href="#L209">209</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_sc_retransmitted;
+<a class="jxr_linenumber" name="L210" href="#L210">210</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_sc_dupsyn;
+<a class="jxr_linenumber" name="L211" href="#L211">211</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_sc_dropped;
+<a class="jxr_linenumber" name="L212" href="#L212">212</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_sc_completed;
+<a class="jxr_linenumber" name="L213" href="#L213">213</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_sc_bucketoverflow;
+<a class="jxr_linenumber" name="L214" href="#L214">214</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_sc_cacheoverflow;
+<a class="jxr_linenumber" name="L215" href="#L215">215</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_sc_reset;
+<a class="jxr_linenumber" name="L216" href="#L216">216</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_sc_stale;
+<a class="jxr_linenumber" name="L217" href="#L217">217</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_sc_aborted;
+<a class="jxr_linenumber" name="L218" href="#L218">218</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_sc_badack;
+<a class="jxr_linenumber" name="L219" href="#L219">219</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_sc_unreach;
+<a class="jxr_linenumber" name="L220" href="#L220">220</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_sc_zonefail;
+<a class="jxr_linenumber" name="L221" href="#L221">221</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_sc_sendcookie;
+<a class="jxr_linenumber" name="L222" href="#L222">222</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_sc_recvcookie;
+<a class="jxr_linenumber" name="L223" href="#L223">223</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_hc_added;
+<a class="jxr_linenumber" name="L224" href="#L224">224</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_hc_bucketoverflow;
+<a class="jxr_linenumber" name="L225" href="#L225">225</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_sack_recovery_episode;
+<a class="jxr_linenumber" name="L226" href="#L226">226</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_sack_rexmits;
+<a class="jxr_linenumber" name="L227" href="#L227">227</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_sack_rexmit_bytes;
+<a class="jxr_linenumber" name="L228" href="#L228">228</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_sack_rcv_blocks;
+<a class="jxr_linenumber" name="L229" href="#L229">229</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_sack_send_blocks;
+<a class="jxr_linenumber" name="L230" href="#L230">230</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_sack_sboverflow;
+<a class="jxr_linenumber" name="L231" href="#L231">231</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_bg_rcvtotal;
+<a class="jxr_linenumber" name="L232" href="#L232">232</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_rxtfindrop;
+<a class="jxr_linenumber" name="L233" href="#L233">233</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_fcholdpacket;
+<a class="jxr_linenumber" name="L234" href="#L234">234</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_coalesced_pack;
+<a class="jxr_linenumber" name="L235" href="#L235">235</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_flowtbl_full;
+<a class="jxr_linenumber" name="L236" href="#L236">236</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_flowtbl_collision;
+<a class="jxr_linenumber" name="L237" href="#L237">237</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_lro_twopack;
+<a class="jxr_linenumber" name="L238" href="#L238">238</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_lro_multpack;
+<a class="jxr_linenumber" name="L239" href="#L239">239</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_lro_largepack;
+<a class="jxr_linenumber" name="L240" href="#L240">240</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_limited_txt;
+<a class="jxr_linenumber" name="L241" href="#L241">241</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_early_rexmt;
+<a class="jxr_linenumber" name="L242" href="#L242">242</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_sack_ackadv;
+<a class="jxr_linenumber" name="L243" href="#L243">243</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_rcv_swcsum;
+<a class="jxr_linenumber" name="L244" href="#L244">244</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_rcv_swcsum_bytes;
+<a class="jxr_linenumber" name="L245" href="#L245">245</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_rcv6_swcsum;
+<a class="jxr_linenumber" name="L246" href="#L246">246</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_rcv6_swcsum_bytes;
+<a class="jxr_linenumber" name="L247" href="#L247">247</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_snd_swcsum;
+<a class="jxr_linenumber" name="L248" href="#L248">248</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_snd_swcsum_bytes;
+<a class="jxr_linenumber" name="L249" href="#L249">249</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_snd6_swcsum;
+<a class="jxr_linenumber" name="L250" href="#L250">250</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_snd6_swcsum_bytes;
+<a class="jxr_linenumber" name="L251" href="#L251">251</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_msg_unopkts;
+<a class="jxr_linenumber" name="L252" href="#L252">252</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_msg_unoappendfail;
+<a class="jxr_linenumber" name="L253" href="#L253">253</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_msg_sndwaithipri;
+<a class="jxr_linenumber" name="L254" href="#L254">254</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_invalid_mpcap;
+<a class="jxr_linenumber" name="L255" href="#L255">255</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_invalid_joins;
+<a class="jxr_linenumber" name="L256" href="#L256">256</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_mpcap_fallback;
+<a class="jxr_linenumber" name="L257" href="#L257">257</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_join_fallback;
+<a class="jxr_linenumber" name="L258" href="#L258">258</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_estab_fallback;
+<a class="jxr_linenumber" name="L259" href="#L259">259</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_invalid_opt;
+<a class="jxr_linenumber" name="L260" href="#L260">260</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_mp_outofwin;
+<a class="jxr_linenumber" name="L261" href="#L261">261</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_mp_reducedwin;
+<a class="jxr_linenumber" name="L262" href="#L262">262</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_mp_badcsum;
+<a class="jxr_linenumber" name="L263" href="#L263">263</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_mp_oodata;
+<a class="jxr_linenumber" name="L264" href="#L264">264</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_mp_switches;
+<a class="jxr_linenumber" name="L265" href="#L265">265</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_mp_rcvtotal;
+<a class="jxr_linenumber" name="L266" href="#L266">266</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_mp_rcvbytes;
+<a class="jxr_linenumber" name="L267" href="#L267">267</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_mp_sndpacks;
+<a class="jxr_linenumber" name="L268" href="#L268">268</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_mp_sndbytes;
+<a class="jxr_linenumber" name="L269" href="#L269">269</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_join_rxmts;
+<a class="jxr_linenumber" name="L270" href="#L270">270</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_tailloss_rto;
+<a class="jxr_linenumber" name="L271" href="#L271">271</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_reordered_pkts;
+<a class="jxr_linenumber" name="L272" href="#L272">272</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_recovered_pkts;
+<a class="jxr_linenumber" name="L273" href="#L273">273</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_pto;
+<a class="jxr_linenumber" name="L274" href="#L274">274</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_rto_after_pto;
+<a class="jxr_linenumber" name="L275" href="#L275">275</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_tlp_recovery;
+<a class="jxr_linenumber" name="L276" href="#L276">276</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_tlp_recoverlastpkt;
+<a class="jxr_linenumber" name="L277" href="#L277">277</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_ecn_client_success;
+<a class="jxr_linenumber" name="L278" href="#L278">278</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_ecn_recv_ece;
+<a class="jxr_linenumber" name="L279" href="#L279">279</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_ecn_sent_ece;
+<a class="jxr_linenumber" name="L280" href="#L280">280</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_detect_reordering;
+<a class="jxr_linenumber" name="L281" href="#L281">281</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_delay_recovery;
+<a class="jxr_linenumber" name="L282" href="#L282">282</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_avoid_rxmt;
+<a class="jxr_linenumber" name="L283" href="#L283">283</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_unnecessary_rxmt;
+<a class="jxr_linenumber" name="L284" href="#L284">284</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_nostretchack;
+<a class="jxr_linenumber" name="L285" href="#L285">285</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_rescue_rxmt;
+<a class="jxr_linenumber" name="L286" href="#L286">286</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_pto_in_recovery;
+<a class="jxr_linenumber" name="L287" href="#L287">287</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_pmtudbh_reverted;
+<a class="jxr_linenumber" name="L288" href="#L288">288</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_dsack_disable;
+<a class="jxr_linenumber" name="L289" href="#L289">289</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_dsack_ackloss;
+<a class="jxr_linenumber" name="L290" href="#L290">290</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_dsack_badrexmt;
+<a class="jxr_linenumber" name="L291" href="#L291">291</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_dsack_sent;
+<a class="jxr_linenumber" name="L292" href="#L292">292</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_dsack_recvd;
+<a class="jxr_linenumber" name="L293" href="#L293">293</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_dsack_recvd_old;
+<a class="jxr_linenumber" name="L294" href="#L294">294</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_mp_sel_symtomsd;
+<a class="jxr_linenumber" name="L295" href="#L295">295</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_mp_sel_rtt;
+<a class="jxr_linenumber" name="L296" href="#L296">296</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_mp_sel_rto;
+<a class="jxr_linenumber" name="L297" href="#L297">297</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_mp_sel_peer;
+<a class="jxr_linenumber" name="L298" href="#L298">298</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_mp_num_probes;
+<a class="jxr_linenumber" name="L299" href="#L299">299</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_mp_verdowngrade;
+<a class="jxr_linenumber" name="L300" href="#L300">300</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_drop_after_sleep;
+<a class="jxr_linenumber" name="L301" href="#L301">301</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_probe_<strong class="jxr_keyword">if</strong>;
+<a class="jxr_linenumber" name="L302" href="#L302">302</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_probe_<strong class="jxr_keyword">if</strong>_conflict;
+<a class="jxr_linenumber" name="L303" href="#L303">303</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_ecn_client_setup;
+<a class="jxr_linenumber" name="L304" href="#L304">304</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_ecn_server_setup;
+<a class="jxr_linenumber" name="L305" href="#L305">305</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_ecn_server_success;
+<a class="jxr_linenumber" name="L306" href="#L306">306</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_ecn_lost_synack;
+<a class="jxr_linenumber" name="L307" href="#L307">307</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_ecn_lost_syn;
+<a class="jxr_linenumber" name="L308" href="#L308">308</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_ecn_not_supported;
+<a class="jxr_linenumber" name="L309" href="#L309">309</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_ecn_recv_ce;
+<a class="jxr_linenumber" name="L310" href="#L310">310</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_ecn_conn_recv_ce;
+<a class="jxr_linenumber" name="L311" href="#L311">311</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_ecn_conn_recv_ece;
+<a class="jxr_linenumber" name="L312" href="#L312">312</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_ecn_conn_plnoce;
+<a class="jxr_linenumber" name="L313" href="#L313">313</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_ecn_conn_pl_ce;
+<a class="jxr_linenumber" name="L314" href="#L314">314</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_ecn_conn_nopl_ce;
+<a class="jxr_linenumber" name="L315" href="#L315">315</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_ecn_fallback_synloss;
+<a class="jxr_linenumber" name="L316" href="#L316">316</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_ecn_fallback_reorder;
+<a class="jxr_linenumber" name="L317" href="#L317">317</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_ecn_fallback_ce;
+<a class="jxr_linenumber" name="L318" href="#L318">318</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_tfo_syn_data_rcv;
+<a class="jxr_linenumber" name="L319" href="#L319">319</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_tfo_cookie_req_rcv;
+<a class="jxr_linenumber" name="L320" href="#L320">320</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_tfo_cookie_sent;
+<a class="jxr_linenumber" name="L321" href="#L321">321</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_tfo_cookie_invalid;
+<a class="jxr_linenumber" name="L322" href="#L322">322</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_tfo_cookie_req;
+<a class="jxr_linenumber" name="L323" href="#L323">323</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_tfo_cookie_rcv;
+<a class="jxr_linenumber" name="L324" href="#L324">324</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_tfo_syn_data_sent;
+<a class="jxr_linenumber" name="L325" href="#L325">325</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_tfo_syn_data_acked;
+<a class="jxr_linenumber" name="L326" href="#L326">326</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_tfo_syn_loss;
+<a class="jxr_linenumber" name="L327" href="#L327">327</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_tfo_blackhole;
+<a class="jxr_linenumber" name="L328" href="#L328">328</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_tfo_cookie_wrong;
+<a class="jxr_linenumber" name="L329" href="#L329">329</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_tfo_no_cookie_rcv;
+<a class="jxr_linenumber" name="L330" href="#L330">330</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_tfo_heuristics_disable;
+<a class="jxr_linenumber" name="L331" href="#L331">331</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_tfo_sndblackhole;
+<a class="jxr_linenumber" name="L332" href="#L332">332</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_mss_to_<strong class="jxr_keyword">default</strong>;
+<a class="jxr_linenumber" name="L333" href="#L333">333</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_mss_to_medium;
+<a class="jxr_linenumber" name="L334" href="#L334">334</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_mss_to_low;
+<a class="jxr_linenumber" name="L335" href="#L335">335</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_ecn_fallback_droprst;
+<a class="jxr_linenumber" name="L336" href="#L336">336</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_ecn_fallback_droprxmt;
+<a class="jxr_linenumber" name="L337" href="#L337">337</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_ecn_fallback_synrst;
+<a class="jxr_linenumber" name="L338" href="#L338">338</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_mptcp_rcvmemdrop;
+<a class="jxr_linenumber" name="L339" href="#L339">339</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_mptcp_rcvduppack;
+<a class="jxr_linenumber" name="L340" href="#L340">340</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_mptcp_rcvpackafterwin;
+<a class="jxr_linenumber" name="L341" href="#L341">341</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_timer_drift_le_1_ms;
+<a class="jxr_linenumber" name="L342" href="#L342">342</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_timer_drift_le_10_ms;
+<a class="jxr_linenumber" name="L343" href="#L343">343</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_timer_drift_le_20_ms;
+<a class="jxr_linenumber" name="L344" href="#L344">344</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_timer_drift_le_50_ms;
+<a class="jxr_linenumber" name="L345" href="#L345">345</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_timer_drift_le_100_ms;
+<a class="jxr_linenumber" name="L346" href="#L346">346</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_timer_drift_le_200_ms;
+<a class="jxr_linenumber" name="L347" href="#L347">347</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_timer_drift_le_500_ms;
+<a class="jxr_linenumber" name="L348" href="#L348">348</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_timer_drift_le_1000_ms;
+<a class="jxr_linenumber" name="L349" href="#L349">349</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_timer_drift_gt_1000_ms;
+<a class="jxr_linenumber" name="L350" href="#L350">350</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_mptcp_handover_attempt;
+<a class="jxr_linenumber" name="L351" href="#L351">351</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_mptcp_interactive_attempt;
+<a class="jxr_linenumber" name="L352" href="#L352">352</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_mptcp_aggregate_attempt;
+<a class="jxr_linenumber" name="L353" href="#L353">353</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_mptcp_fp_handover_attempt;
+<a class="jxr_linenumber" name="L354" href="#L354">354</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_mptcp_fp_interactive_attempt;
+<a class="jxr_linenumber" name="L355" href="#L355">355</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_mptcp_fp_aggregate_attempt;
+<a class="jxr_linenumber" name="L356" href="#L356">356</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_mptcp_heuristic_fallback;
+<a class="jxr_linenumber" name="L357" href="#L357">357</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_mptcp_fp_heuristic_fallback;
+<a class="jxr_linenumber" name="L358" href="#L358">358</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_mptcp_handover_success_wifi;
+<a class="jxr_linenumber" name="L359" href="#L359">359</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_mptcp_handover_success_cell;
+<a class="jxr_linenumber" name="L360" href="#L360">360</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_mptcp_interactive_success;
+<a class="jxr_linenumber" name="L361" href="#L361">361</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_mptcp_aggregate_success;
+<a class="jxr_linenumber" name="L362" href="#L362">362</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_mptcp_fp_handover_success_wifi;
+<a class="jxr_linenumber" name="L363" href="#L363">363</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_mptcp_fp_handover_success_cell;
+<a class="jxr_linenumber" name="L364" href="#L364">364</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_mptcp_fp_interactive_success;
+<a class="jxr_linenumber" name="L365" href="#L365">365</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_mptcp_fp_aggregate_success;
+<a class="jxr_linenumber" name="L366" href="#L366">366</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_mptcp_handover_cell_from_wifi;
+<a class="jxr_linenumber" name="L367" href="#L367">367</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_mptcp_handover_wifi_from_cell;
+<a class="jxr_linenumber" name="L368" href="#L368">368</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_mptcp_interactive_cell_from_wifi;
+<a class="jxr_linenumber" name="L369" href="#L369">369</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> tcps_mptcp_handover_cell_bytes;
+<a class="jxr_linenumber" name="L370" href="#L370">370</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> tcps_mptcp_interactive_cell_bytes;
+<a class="jxr_linenumber" name="L371" href="#L371">371</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> tcps_mptcp_aggregate_cell_bytes;
+<a class="jxr_linenumber" name="L372" href="#L372">372</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> tcps_mptcp_handover_all_bytes;
+<a class="jxr_linenumber" name="L373" href="#L373">373</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> tcps_mptcp_interactive_all_bytes;
+<a class="jxr_linenumber" name="L374" href="#L374">374</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> tcps_mptcp_aggregate_all_bytes;
+<a class="jxr_linenumber" name="L375" href="#L375">375</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_mptcp_back_to_wifi;
+<a class="jxr_linenumber" name="L376" href="#L376">376</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_mptcp_wifi_proxy;
+<a class="jxr_linenumber" name="L377" href="#L377">377</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_mptcp_cell_proxy;
+<a class="jxr_linenumber" name="L378" href="#L378">378</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_ka_offload_drops;
+<a class="jxr_linenumber" name="L379" href="#L379">379</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_mptcp_triggered_cell;
+<a class="jxr_linenumber" name="L380" href="#L380">380</a>     }
+<a class="jxr_linenumber" name="L381" href="#L381">381</a> 
+<a class="jxr_linenumber" name="L382" href="#L382">382</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L383" href="#L383">383</a> <em class="jxr_javadoccomment">     * Return type for sysctl net.inet.ip.stats</em>
+<a class="jxr_linenumber" name="L384" href="#L384">384</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L385" href="#L385">385</a>     @FieldOrder({ <span class="jxr_string">"ips_total"</span>, <span class="jxr_string">"ips_badsum"</span>, <span class="jxr_string">"ips_tooshort"</span>, <span class="jxr_string">"ips_toosmall"</span>, <span class="jxr_string">"ips_badhlen"</span>, <span class="jxr_string">"ips_badlen"</span>,
+<a class="jxr_linenumber" name="L386" href="#L386">386</a>             <span class="jxr_string">"ips_fragments"</span>, <span class="jxr_string">"ips_fragdropped"</span>, <span class="jxr_string">"ips_fragtimeout"</span>, <span class="jxr_string">"ips_forward"</span>, <span class="jxr_string">"ips_fastforward"</span>, <span class="jxr_string">"ips_cantforward"</span>,
+<a class="jxr_linenumber" name="L387" href="#L387">387</a>             <span class="jxr_string">"ips_redirectsent"</span>, <span class="jxr_string">"ips_noproto"</span>, <span class="jxr_string">"ips_delivered"</span>, <span class="jxr_string">"ips_localout"</span>, <span class="jxr_string">"ips_odropped"</span>, <span class="jxr_string">"ips_reassembled"</span>,
+<a class="jxr_linenumber" name="L388" href="#L388">388</a>             <span class="jxr_string">"ips_fragmented"</span>, <span class="jxr_string">"ips_ofragments"</span>, <span class="jxr_string">"ips_cantfrag"</span>, <span class="jxr_string">"ips_badoptions"</span>, <span class="jxr_string">"ips_noroute"</span>, <span class="jxr_string">"ips_badvers"</span>,
+<a class="jxr_linenumber" name="L389" href="#L389">389</a>             <span class="jxr_string">"ips_rawout"</span>, <span class="jxr_string">"ips_toolong"</span>, <span class="jxr_string">"ips_notmember"</span>, <span class="jxr_string">"ips_nogif"</span>, <span class="jxr_string">"ips_badaddr"</span>, <span class="jxr_string">"ips_pktdropcntrl"</span>,
+<a class="jxr_linenumber" name="L390" href="#L390">390</a>             <span class="jxr_string">"ips_rcv_swcsum"</span>, <span class="jxr_string">"ips_rcv_swcsum_bytes"</span>, <span class="jxr_string">"ips_snd_swcsum"</span>, <span class="jxr_string">"ips_snd_swcsum_bytes"</span>, <span class="jxr_string">"ips_adj"</span>,
+<a class="jxr_linenumber" name="L391" href="#L391">391</a>             <span class="jxr_string">"ips_adj_hwcsum_clr"</span>, <span class="jxr_string">"ips_rxc_collisions"</span>, <span class="jxr_string">"ips_rxc_chained"</span>, <span class="jxr_string">"ips_rxc_notchain"</span>, <span class="jxr_string">"ips_rxc_chainsz_gt2"</span>,
+<a class="jxr_linenumber" name="L392" href="#L392">392</a>             <span class="jxr_string">"ips_rxc_chainsz_gt4"</span>, <span class="jxr_string">"ips_rxc_notlist"</span>, <span class="jxr_string">"ips_raw_sappend_fail"</span>, <span class="jxr_string">"ips_necp_policy_drop"</span> })
+<a class="jxr_linenumber" name="L393" href="#L393">393</a>     <strong class="jxr_keyword">class</strong> Ipstat <strong class="jxr_keyword">extends</strong> Structure {
+<a class="jxr_linenumber" name="L394" href="#L394">394</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ips_total;
+<a class="jxr_linenumber" name="L395" href="#L395">395</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ips_badsum;
+<a class="jxr_linenumber" name="L396" href="#L396">396</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ips_tooshort;
+<a class="jxr_linenumber" name="L397" href="#L397">397</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ips_toosmall;
+<a class="jxr_linenumber" name="L398" href="#L398">398</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ips_badhlen;
+<a class="jxr_linenumber" name="L399" href="#L399">399</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ips_badlen;
+<a class="jxr_linenumber" name="L400" href="#L400">400</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ips_fragments;
+<a class="jxr_linenumber" name="L401" href="#L401">401</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ips_fragdropped;
+<a class="jxr_linenumber" name="L402" href="#L402">402</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ips_fragtimeout;
+<a class="jxr_linenumber" name="L403" href="#L403">403</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ips_forward;
+<a class="jxr_linenumber" name="L404" href="#L404">404</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ips_fastforward;
+<a class="jxr_linenumber" name="L405" href="#L405">405</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ips_cantforward;
+<a class="jxr_linenumber" name="L406" href="#L406">406</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ips_redirectsent;
+<a class="jxr_linenumber" name="L407" href="#L407">407</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ips_noproto;
+<a class="jxr_linenumber" name="L408" href="#L408">408</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ips_delivered;
+<a class="jxr_linenumber" name="L409" href="#L409">409</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ips_localout;
+<a class="jxr_linenumber" name="L410" href="#L410">410</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ips_odropped;
+<a class="jxr_linenumber" name="L411" href="#L411">411</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ips_reassembled;
+<a class="jxr_linenumber" name="L412" href="#L412">412</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ips_fragmented;
+<a class="jxr_linenumber" name="L413" href="#L413">413</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ips_ofragments;
+<a class="jxr_linenumber" name="L414" href="#L414">414</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ips_cantfrag;
+<a class="jxr_linenumber" name="L415" href="#L415">415</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ips_badoptions;
+<a class="jxr_linenumber" name="L416" href="#L416">416</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ips_noroute;
+<a class="jxr_linenumber" name="L417" href="#L417">417</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ips_badvers;
+<a class="jxr_linenumber" name="L418" href="#L418">418</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ips_rawout;
+<a class="jxr_linenumber" name="L419" href="#L419">419</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ips_toolong;
+<a class="jxr_linenumber" name="L420" href="#L420">420</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ips_notmember;
+<a class="jxr_linenumber" name="L421" href="#L421">421</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ips_nogif;
+<a class="jxr_linenumber" name="L422" href="#L422">422</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ips_badaddr;
+<a class="jxr_linenumber" name="L423" href="#L423">423</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ips_pktdropcntrl;
+<a class="jxr_linenumber" name="L424" href="#L424">424</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ips_rcv_swcsum;
+<a class="jxr_linenumber" name="L425" href="#L425">425</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ips_rcv_swcsum_bytes;
+<a class="jxr_linenumber" name="L426" href="#L426">426</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ips_snd_swcsum;
+<a class="jxr_linenumber" name="L427" href="#L427">427</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ips_snd_swcsum_bytes;
+<a class="jxr_linenumber" name="L428" href="#L428">428</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ips_adj;
+<a class="jxr_linenumber" name="L429" href="#L429">429</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ips_adj_hwcsum_clr;
+<a class="jxr_linenumber" name="L430" href="#L430">430</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ips_rxc_collisions;
+<a class="jxr_linenumber" name="L431" href="#L431">431</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ips_rxc_chained;
+<a class="jxr_linenumber" name="L432" href="#L432">432</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ips_rxc_notchain;
+<a class="jxr_linenumber" name="L433" href="#L433">433</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ips_rxc_chainsz_gt2;
+<a class="jxr_linenumber" name="L434" href="#L434">434</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ips_rxc_chainsz_gt4;
+<a class="jxr_linenumber" name="L435" href="#L435">435</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ips_rxc_notlist;
+<a class="jxr_linenumber" name="L436" href="#L436">436</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ips_raw_sappend_fail;
+<a class="jxr_linenumber" name="L437" href="#L437">437</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ips_necp_policy_drop;
+<a class="jxr_linenumber" name="L438" href="#L438">438</a>     }
+<a class="jxr_linenumber" name="L439" href="#L439">439</a> 
+<a class="jxr_linenumber" name="L440" href="#L440">440</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L441" href="#L441">441</a> <em class="jxr_javadoccomment">     * Return type for sysctl net.inet6.ip6.stats</em>
+<a class="jxr_linenumber" name="L442" href="#L442">442</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L443" href="#L443">443</a>     @FieldOrder({ <span class="jxr_string">"ip6s_total"</span>, <span class="jxr_string">"ip6s_tooshort"</span>, <span class="jxr_string">"ip6s_toosmall"</span>, <span class="jxr_string">"ip6s_fragments"</span>, <span class="jxr_string">"ip6s_fragdropped"</span>,
+<a class="jxr_linenumber" name="L444" href="#L444">444</a>             <span class="jxr_string">"ip6s_fragtimeout"</span>, <span class="jxr_string">"ip6s_fragoverflow"</span>, <span class="jxr_string">"ip6s_forward"</span>, <span class="jxr_string">"ip6s_cantforward"</span>, <span class="jxr_string">"ip6s_redirectsent"</span>,
+<a class="jxr_linenumber" name="L445" href="#L445">445</a>             <span class="jxr_string">"ip6s_delivered"</span>, <span class="jxr_string">"ip6s_localout"</span>, <span class="jxr_string">"ip6s_odropped"</span>, <span class="jxr_string">"ip6s_reassembled"</span>, <span class="jxr_string">"ip6s_fragmented"</span>,
+<a class="jxr_linenumber" name="L446" href="#L446">446</a>             <span class="jxr_string">"ip6s_ofragments"</span>, <span class="jxr_string">"ip6s_cantfrag"</span>, <span class="jxr_string">"ip6s_badoptions"</span>, <span class="jxr_string">"ip6s_noroute"</span>, <span class="jxr_string">"ip6s_badvers"</span>, <span class="jxr_string">"ip6s_rawout"</span>,
+<a class="jxr_linenumber" name="L447" href="#L447">447</a>             <span class="jxr_string">"ip6s_badscope"</span>, <span class="jxr_string">"ip6s_notmember"</span>, <span class="jxr_string">"ip6s_nxthist"</span>, <span class="jxr_string">"ip6s_m1"</span>, <span class="jxr_string">"ip6s_m2m"</span>, <span class="jxr_string">"ip6s_mext1"</span>, <span class="jxr_string">"ip6s_mext2m"</span>,
+<a class="jxr_linenumber" name="L448" href="#L448">448</a>             <span class="jxr_string">"ip6s_exthdrtoolong"</span>, <span class="jxr_string">"ip6s_nogif"</span>, <span class="jxr_string">"ip6s_toomanyhdr"</span>, <span class="jxr_string">"ip6s_exthdrget"</span>, <span class="jxr_string">"ip6s_exthdrget0"</span>, <span class="jxr_string">"ip6s_pulldown"</span>,
+<a class="jxr_linenumber" name="L449" href="#L449">449</a>             <span class="jxr_string">"ip6s_pulldown_copy"</span>, <span class="jxr_string">"ip6s_pulldown_alloc"</span>, <span class="jxr_string">"ip6s_pullup"</span>, <span class="jxr_string">"ip6s_pullup_copy"</span>, <span class="jxr_string">"ip6s_pullup_alloc"</span>,
+<a class="jxr_linenumber" name="L450" href="#L450">450</a>             <span class="jxr_string">"ip6s_pullup_fail"</span>, <span class="jxr_string">"ip6s_pullup2"</span>, <span class="jxr_string">"ip6s_pullup2_copy"</span>, <span class="jxr_string">"ip6s_pullup2_alloc"</span>, <span class="jxr_string">"ip6s_pullup2_fail"</span>,
+<a class="jxr_linenumber" name="L451" href="#L451">451</a>             <span class="jxr_string">"ip6s_sources_none"</span>, <span class="jxr_string">"ip6s_sources_sameif"</span>, <span class="jxr_string">"ip6s_sources_otherif"</span>, <span class="jxr_string">"ip6s_sources_samescope"</span>,
+<a class="jxr_linenumber" name="L452" href="#L452">452</a>             <span class="jxr_string">"ip6s_sources_otherscope"</span>, <span class="jxr_string">"ip6s_sources_deprecated"</span> })
+<a class="jxr_linenumber" name="L453" href="#L453">453</a>     <strong class="jxr_keyword">class</strong> Ip6stat <strong class="jxr_keyword">extends</strong> Structure {
+<a class="jxr_linenumber" name="L454" href="#L454">454</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> ip6s_total;
+<a class="jxr_linenumber" name="L455" href="#L455">455</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> ip6s_tooshort;
+<a class="jxr_linenumber" name="L456" href="#L456">456</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> ip6s_toosmall;
+<a class="jxr_linenumber" name="L457" href="#L457">457</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> ip6s_fragments;
+<a class="jxr_linenumber" name="L458" href="#L458">458</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> ip6s_fragdropped;
+<a class="jxr_linenumber" name="L459" href="#L459">459</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> ip6s_fragtimeout;
+<a class="jxr_linenumber" name="L460" href="#L460">460</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> ip6s_fragoverflow;
+<a class="jxr_linenumber" name="L461" href="#L461">461</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> ip6s_forward;
+<a class="jxr_linenumber" name="L462" href="#L462">462</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> ip6s_cantforward;
+<a class="jxr_linenumber" name="L463" href="#L463">463</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> ip6s_redirectsent;
+<a class="jxr_linenumber" name="L464" href="#L464">464</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> ip6s_delivered;
+<a class="jxr_linenumber" name="L465" href="#L465">465</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> ip6s_localout;
+<a class="jxr_linenumber" name="L466" href="#L466">466</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> ip6s_odropped;
+<a class="jxr_linenumber" name="L467" href="#L467">467</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> ip6s_reassembled;
+<a class="jxr_linenumber" name="L468" href="#L468">468</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> ip6s_fragmented;
+<a class="jxr_linenumber" name="L469" href="#L469">469</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> ip6s_ofragments;
+<a class="jxr_linenumber" name="L470" href="#L470">470</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> ip6s_cantfrag;
+<a class="jxr_linenumber" name="L471" href="#L471">471</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> ip6s_badoptions;
+<a class="jxr_linenumber" name="L472" href="#L472">472</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> ip6s_noroute;
+<a class="jxr_linenumber" name="L473" href="#L473">473</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> ip6s_badvers;
+<a class="jxr_linenumber" name="L474" href="#L474">474</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> ip6s_rawout;
+<a class="jxr_linenumber" name="L475" href="#L475">475</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> ip6s_badscope;
+<a class="jxr_linenumber" name="L476" href="#L476">476</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> ip6s_notmember;
+<a class="jxr_linenumber" name="L477" href="#L477">477</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>[] ip6s_nxthist = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[256];
+<a class="jxr_linenumber" name="L478" href="#L478">478</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> ip6s_m1;
+<a class="jxr_linenumber" name="L479" href="#L479">479</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>[] ip6s_m2m = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[32];
+<a class="jxr_linenumber" name="L480" href="#L480">480</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> ip6s_mext1;
+<a class="jxr_linenumber" name="L481" href="#L481">481</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> ip6s_mext2m;
+<a class="jxr_linenumber" name="L482" href="#L482">482</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> ip6s_exthdrtoolong;
+<a class="jxr_linenumber" name="L483" href="#L483">483</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> ip6s_nogif;
+<a class="jxr_linenumber" name="L484" href="#L484">484</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> ip6s_toomanyhdr;
+<a class="jxr_linenumber" name="L485" href="#L485">485</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> ip6s_exthdrget;
+<a class="jxr_linenumber" name="L486" href="#L486">486</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> ip6s_exthdrget0;
+<a class="jxr_linenumber" name="L487" href="#L487">487</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> ip6s_pulldown;
+<a class="jxr_linenumber" name="L488" href="#L488">488</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> ip6s_pulldown_copy;
+<a class="jxr_linenumber" name="L489" href="#L489">489</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> ip6s_pulldown_alloc;
+<a class="jxr_linenumber" name="L490" href="#L490">490</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> ip6s_pullup;
+<a class="jxr_linenumber" name="L491" href="#L491">491</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> ip6s_pullup_copy;
+<a class="jxr_linenumber" name="L492" href="#L492">492</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> ip6s_pullup_alloc;
+<a class="jxr_linenumber" name="L493" href="#L493">493</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> ip6s_pullup_fail;
+<a class="jxr_linenumber" name="L494" href="#L494">494</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> ip6s_pullup2;
+<a class="jxr_linenumber" name="L495" href="#L495">495</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> ip6s_pullup2_copy;
+<a class="jxr_linenumber" name="L496" href="#L496">496</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> ip6s_pullup2_alloc;
+<a class="jxr_linenumber" name="L497" href="#L497">497</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> ip6s_pullup2_fail;
+<a class="jxr_linenumber" name="L498" href="#L498">498</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> ip6s_sources_none;
+<a class="jxr_linenumber" name="L499" href="#L499">499</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>[] ip6s_sources_sameif = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[16];
+<a class="jxr_linenumber" name="L500" href="#L500">500</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>[] ip6s_sources_otherif = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[16];
+<a class="jxr_linenumber" name="L501" href="#L501">501</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>[] ip6s_sources_samescope = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[16];
+<a class="jxr_linenumber" name="L502" href="#L502">502</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>[] ip6s_sources_otherscope = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[16];
+<a class="jxr_linenumber" name="L503" href="#L503">503</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>[] ip6s_sources_deprecated = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[16];
+<a class="jxr_linenumber" name="L504" href="#L504">504</a>     }
+<a class="jxr_linenumber" name="L505" href="#L505">505</a> 
+<a class="jxr_linenumber" name="L506" href="#L506">506</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L507" href="#L507">507</a> <em class="jxr_javadoccomment">     * Return type for sysctl net.inet.udp.stats</em>
+<a class="jxr_linenumber" name="L508" href="#L508">508</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L509" href="#L509">509</a>     @FieldOrder({ <span class="jxr_string">"udps_ipackets"</span>, <span class="jxr_string">"udps_hdrops"</span>, <span class="jxr_string">"udps_badsum"</span>, <span class="jxr_string">"udps_badlen"</span>, <span class="jxr_string">"udps_noport"</span>, <span class="jxr_string">"udps_noportbcast"</span>,
+<a class="jxr_linenumber" name="L510" href="#L510">510</a>             <span class="jxr_string">"udps_fullsock"</span>, <span class="jxr_string">"udpps_pcbcachemiss"</span>, <span class="jxr_string">"udpps_pcbhashmiss"</span>, <span class="jxr_string">"udps_opackets"</span>, <span class="jxr_string">"udps_fastout"</span>, <span class="jxr_string">"udps_nosum"</span>,
+<a class="jxr_linenumber" name="L511" href="#L511">511</a>             <span class="jxr_string">"udps_noportmcast"</span>, <span class="jxr_string">"udps_filtermcast"</span>, <span class="jxr_string">"udps_rcv_swcsum"</span>, <span class="jxr_string">"udps_rcv_swcsum_bytes"</span>, <span class="jxr_string">"udps_rcv6_swcsum"</span>,
+<a class="jxr_linenumber" name="L512" href="#L512">512</a>             <span class="jxr_string">"udps_rcv6_swcsum_bytes"</span>, <span class="jxr_string">"udps_snd_swcsum"</span>, <span class="jxr_string">"udps_snd_swcsum_bytes"</span>, <span class="jxr_string">"udps_snd6_swcsum"</span>,
+<a class="jxr_linenumber" name="L513" href="#L513">513</a>             <span class="jxr_string">"udps_snd6_swcsum_bytes"</span> })
+<a class="jxr_linenumber" name="L514" href="#L514">514</a>     <strong class="jxr_keyword">class</strong> Udpstat <strong class="jxr_keyword">extends</strong> Structure {
+<a class="jxr_linenumber" name="L515" href="#L515">515</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> udps_ipackets;
+<a class="jxr_linenumber" name="L516" href="#L516">516</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> udps_hdrops;
+<a class="jxr_linenumber" name="L517" href="#L517">517</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> udps_badsum;
+<a class="jxr_linenumber" name="L518" href="#L518">518</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> udps_badlen;
+<a class="jxr_linenumber" name="L519" href="#L519">519</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> udps_noport;
+<a class="jxr_linenumber" name="L520" href="#L520">520</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> udps_noportbcast;
+<a class="jxr_linenumber" name="L521" href="#L521">521</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> udps_fullsock;
+<a class="jxr_linenumber" name="L522" href="#L522">522</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> udpps_pcbcachemiss;
+<a class="jxr_linenumber" name="L523" href="#L523">523</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> udpps_pcbhashmiss;
+<a class="jxr_linenumber" name="L524" href="#L524">524</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> udps_opackets;
+<a class="jxr_linenumber" name="L525" href="#L525">525</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> udps_fastout;
+<a class="jxr_linenumber" name="L526" href="#L526">526</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> udps_nosum;
+<a class="jxr_linenumber" name="L527" href="#L527">527</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> udps_noportmcast;
+<a class="jxr_linenumber" name="L528" href="#L528">528</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> udps_filtermcast;
+<a class="jxr_linenumber" name="L529" href="#L529">529</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> udps_rcv_swcsum;
+<a class="jxr_linenumber" name="L530" href="#L530">530</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> udps_rcv_swcsum_bytes;
+<a class="jxr_linenumber" name="L531" href="#L531">531</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> udps_rcv6_swcsum;
+<a class="jxr_linenumber" name="L532" href="#L532">532</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> udps_rcv6_swcsum_bytes;
+<a class="jxr_linenumber" name="L533" href="#L533">533</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> udps_snd_swcsum;
+<a class="jxr_linenumber" name="L534" href="#L534">534</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> udps_snd_swcsum_bytes;
+<a class="jxr_linenumber" name="L535" href="#L535">535</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> udps_snd6_swcsum;
+<a class="jxr_linenumber" name="L536" href="#L536">536</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> udps_snd6_swcsum_bytes;
+<a class="jxr_linenumber" name="L537" href="#L537">537</a>     }
+<a class="jxr_linenumber" name="L538" href="#L538">538</a> 
+<a class="jxr_linenumber" name="L539" href="#L539">539</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L540" href="#L540">540</a> <em class="jxr_javadoccomment">     * Returns the process ID of the calling process. The ID is guaranteed to be</em>
+<a class="jxr_linenumber" name="L541" href="#L541">541</a> <em class="jxr_javadoccomment">     * unique and is useful for constructing temporary file names.</em>
+<a class="jxr_linenumber" name="L542" href="#L542">542</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L543" href="#L543">543</a> <em class="jxr_javadoccomment">     * @return the process ID of the calling process.</em>
+<a class="jxr_linenumber" name="L544" href="#L544">544</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L545" href="#L545">545</a>     <strong class="jxr_keyword">int</strong> getpid();
+<a class="jxr_linenumber" name="L546" href="#L546">546</a> 
+<a class="jxr_linenumber" name="L547" href="#L547">547</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L548" href="#L548">548</a> <em class="jxr_javadoccomment">     * Given node and service, which identify an Internet host and a service,</em>
+<a class="jxr_linenumber" name="L549" href="#L549">549</a> <em class="jxr_javadoccomment">     * getaddrinfo() returns one or more addrinfo structures, each of which contains</em>
+<a class="jxr_linenumber" name="L550" href="#L550">550</a> <em class="jxr_javadoccomment">     * an Internet address that can be specified in a call to bind(2) or connect(2).</em>
+<a class="jxr_linenumber" name="L551" href="#L551">551</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L552" href="#L552">552</a> <em class="jxr_javadoccomment">     * @param node</em>
+<a class="jxr_linenumber" name="L553" href="#L553">553</a> <em class="jxr_javadoccomment">     *            a numerical network address or a network hostname, whose network</em>
+<a class="jxr_linenumber" name="L554" href="#L554">554</a> <em class="jxr_javadoccomment">     *            addresses are looked up and resolved.</em>
+<a class="jxr_linenumber" name="L555" href="#L555">555</a> <em class="jxr_javadoccomment">     * @param service</em>
+<a class="jxr_linenumber" name="L556" href="#L556">556</a> <em class="jxr_javadoccomment">     *            sets the port in each returned address structure.</em>
+<a class="jxr_linenumber" name="L557" href="#L557">557</a> <em class="jxr_javadoccomment">     * @param hints</em>
+<a class="jxr_linenumber" name="L558" href="#L558">558</a> <em class="jxr_javadoccomment">     *            specifies criteria for selecting the socket address structures</em>
+<a class="jxr_linenumber" name="L559" href="#L559">559</a> <em class="jxr_javadoccomment">     *            returned in the list pointed to by res.</em>
+<a class="jxr_linenumber" name="L560" href="#L560">560</a> <em class="jxr_javadoccomment">     * @param res</em>
+<a class="jxr_linenumber" name="L561" href="#L561">561</a> <em class="jxr_javadoccomment">     *            returned address structure</em>
+<a class="jxr_linenumber" name="L562" href="#L562">562</a> <em class="jxr_javadoccomment">     * @return 0 on success; sets errno on failure</em>
+<a class="jxr_linenumber" name="L563" href="#L563">563</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L564" href="#L564">564</a>     <strong class="jxr_keyword">int</strong> getaddrinfo(String node, String service, Addrinfo hints, PointerByReference res);
+<a class="jxr_linenumber" name="L565" href="#L565">565</a> 
+<a class="jxr_linenumber" name="L566" href="#L566">566</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L567" href="#L567">567</a> <em class="jxr_javadoccomment">     * Frees the memory that was allocated for the dynamically allocated linked list</em>
+<a class="jxr_linenumber" name="L568" href="#L568">568</a> <em class="jxr_javadoccomment">     * res.</em>
+<a class="jxr_linenumber" name="L569" href="#L569">569</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L570" href="#L570">570</a> <em class="jxr_javadoccomment">     * @param res</em>
+<a class="jxr_linenumber" name="L571" href="#L571">571</a> <em class="jxr_javadoccomment">     *            Pointer to linked list returned by getaddrinfo</em>
+<a class="jxr_linenumber" name="L572" href="#L572">572</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L573" href="#L573">573</a>     <strong class="jxr_keyword">void</strong> freeaddrinfo(Pointer res);
+<a class="jxr_linenumber" name="L574" href="#L574">574</a> 
+<a class="jxr_linenumber" name="L575" href="#L575">575</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L576" href="#L576">576</a> <em class="jxr_javadoccomment">     * Translates getaddrinfo error codes to a human readable string, suitable for</em>
+<a class="jxr_linenumber" name="L577" href="#L577">577</a> <em class="jxr_javadoccomment">     * error reporting.</em>
+<a class="jxr_linenumber" name="L578" href="#L578">578</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L579" href="#L579">579</a> <em class="jxr_javadoccomment">     * @param e</em>
+<a class="jxr_linenumber" name="L580" href="#L580">580</a> <em class="jxr_javadoccomment">     *            Error code from getaddrinfo</em>
+<a class="jxr_linenumber" name="L581" href="#L581">581</a> <em class="jxr_javadoccomment">     * @return A human-readable version of the error code</em>
+<a class="jxr_linenumber" name="L582" href="#L582">582</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L583" href="#L583">583</a>     String gai_strerror(<strong class="jxr_keyword">int</strong> e);
+<a class="jxr_linenumber" name="L584" href="#L584">584</a> 
+<a class="jxr_linenumber" name="L585" href="#L585">585</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L586" href="#L586">586</a> <em class="jxr_javadoccomment">     * Rewinds the file pointer to the beginning of the utmp file. It is generally a</em>
+<a class="jxr_linenumber" name="L587" href="#L587">587</a> <em class="jxr_javadoccomment">     * good idea to call it before any of the other functions.</em>
+<a class="jxr_linenumber" name="L588" href="#L588">588</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L589" href="#L589">589</a>     <strong class="jxr_keyword">void</strong> setutxent();
+<a class="jxr_linenumber" name="L590" href="#L590">590</a> 
+<a class="jxr_linenumber" name="L591" href="#L591">591</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L592" href="#L592">592</a> <em class="jxr_javadoccomment">     * Closes the utmp file. It should be called when the user code is done</em>
+<a class="jxr_linenumber" name="L593" href="#L593">593</a> <em class="jxr_javadoccomment">     * accessing the file with the other functions.</em>
+<a class="jxr_linenumber" name="L594" href="#L594">594</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L595" href="#L595">595</a>     <strong class="jxr_keyword">void</strong> endutxent();
+<a class="jxr_linenumber" name="L596" href="#L596">596</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2020 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

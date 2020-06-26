@@ -38,14 +38,14 @@ import com.sun.jna.platform.mac.IOKit.IOIterator;
 import com.sun.jna.platform.mac.IOKit.IORegistryEntry;
 import com.sun.jna.platform.mac.IOKitUtil;
 
+import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractUsbDevice;
 
 /**
- * &lt;p&gt;
- * MacUsbDevice class.
- * &lt;/p&gt;
+ * Mac Usb Device
  */
+@Immutable
 public class MacUsbDevice extends AbstractUsbDevice {
 
 <span class="nc" id="L51">    private static final CoreFoundation CF = CoreFoundation.INSTANCE;</span>
@@ -296,7 +296,7 @@ public class MacUsbDevice extends AbstractUsbDevice {
             Map&lt;Long, String&gt; productIdMap, Map&lt;Long, String&gt; serialMap, Map&lt;Long, List&lt;Long&gt;&gt; hubMap) {
 <span class="nc" id="L297">        String vendorId = vendorIdMap.getOrDefault(registryEntryId, vid);</span>
 <span class="nc" id="L298">        String productId = productIdMap.getOrDefault(registryEntryId, pid);</span>
-<span class="nc" id="L299">        List&lt;Long&gt; childIds = hubMap.getOrDefault(registryEntryId, new ArrayList&lt;Long&gt;());</span>
+<span class="nc" id="L299">        List&lt;Long&gt; childIds = hubMap.getOrDefault(registryEntryId, new ArrayList&lt;&gt;());</span>
 <span class="nc" id="L300">        List&lt;MacUsbDevice&gt; usbDevices = new ArrayList&lt;&gt;();</span>
 <span class="nc bnc" id="L301" title="All 2 branches missed.">        for (Long id : childIds) {</span>
 <span class="nc" id="L302">            usbDevices.add(getDeviceAndChildren(id, vendorId, productId, nameMap, vendorMap, vendorIdMap, productIdMap,</span>

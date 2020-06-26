@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractUsbDevice;
 import oshi.hardware.platform.mac.MacUsbDevice;
@@ -38,10 +39,9 @@ import oshi.jna.platform.linux.Udev.UdevEnumerate;
 import oshi.jna.platform.linux.Udev.UdevListEntry;
 
 /**
- * &lt;p&gt;
- * LinuxUsbDevice class.
- * &lt;/p&gt;
+ * Linux Usb Device
  */
+@Immutable
 public class LinuxUsbDevice extends AbstractUsbDevice {
 
     /**
@@ -94,7 +94,7 @@ public class LinuxUsbDevice extends AbstractUsbDevice {
 
     private static UsbDevice[] getUsbDevices() {
         // Enumerate all usb devices and build information maps
-<span class="nc" id="L97">        Udev.UdevHandle udev = Udev.INSTANCE.udev_new();</span>
+<span class="nc" id="L97">        Udev.UdevContext udev = Udev.INSTANCE.udev_new();</span>
         // Create a list of the devices in the 'usb' subsystem.
 <span class="nc" id="L99">        UdevEnumerate enumerate = Udev.INSTANCE.udev_enumerate_new(udev);</span>
 <span class="nc" id="L100">        Udev.INSTANCE.udev_enumerate_add_match_subsystem(enumerate, &quot;usb&quot;);</span>
@@ -200,7 +200,7 @@ public class LinuxUsbDevice extends AbstractUsbDevice {
             Map&lt;String, String&gt; productIdMap, Map&lt;String, String&gt; serialMap, Map&lt;String, List&lt;String&gt;&gt; hubMap) {
 <span class="nc" id="L201">        String vendorId = vendorIdMap.getOrDefault(devPath, vid);</span>
 <span class="nc" id="L202">        String productId = productIdMap.getOrDefault(devPath, pid);</span>
-<span class="nc" id="L203">        List&lt;String&gt; childPaths = hubMap.getOrDefault(devPath, new ArrayList&lt;String&gt;());</span>
+<span class="nc" id="L203">        List&lt;String&gt; childPaths = hubMap.getOrDefault(devPath, new ArrayList&lt;&gt;());</span>
 <span class="nc" id="L204">        List&lt;LinuxUsbDevice&gt; usbDevices = new ArrayList&lt;&gt;();</span>
 <span class="nc bnc" id="L205" title="All 2 branches missed.">        for (String path : childPaths) {</span>
 <span class="nc" id="L206">            usbDevices.add(getDeviceAndChildren(path, vendorId, productId, nameMap, vendorMap, vendorIdMap,</span>

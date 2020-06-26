@@ -23,6 +23,23 @@
  */
 package oshi.util.tuples;
 
+import oshi.annotation.concurrent.ThreadSafe;
+
+/**
+ * Convenience class for returning multiple objects from methods.
+ *
+ * @param &lt;A&gt;
+ *            Type of the first element
+ * @param &lt;B&gt;
+ *            Type of the second element
+ * @param &lt;C&gt;
+ *            Type of the third element
+ * @param &lt;D&gt;
+ *            Type of the fourth element
+ * @param &lt;E&gt;
+ *            Type of the fifth element
+ */
+@ThreadSafe
 public class Quintet&lt;A, B, C, D, E&gt; {
 
     private final A a;
@@ -45,13 +62,13 @@ public class Quintet&lt;A, B, C, D, E&gt; {
      * @param e
      *            the fifth object to store
      */
-<span class="fc" id="L48">    public Quintet(A a, B b, C c, D d, E e) {</span>
-<span class="fc" id="L49">        this.a = a;</span>
-<span class="fc" id="L50">        this.b = b;</span>
-<span class="fc" id="L51">        this.c = c;</span>
-<span class="fc" id="L52">        this.d = d;</span>
-<span class="fc" id="L53">        this.e = e;</span>
-<span class="fc" id="L54">    }</span>
+<span class="fc" id="L65">    public Quintet(A a, B b, C c, D d, E e) {</span>
+<span class="fc" id="L66">        this.a = a;</span>
+<span class="fc" id="L67">        this.b = b;</span>
+<span class="fc" id="L68">        this.c = c;</span>
+<span class="fc" id="L69">        this.d = d;</span>
+<span class="fc" id="L70">        this.e = e;</span>
+<span class="fc" id="L71">    }</span>
 
     /**
      * Returns the first stored object.
@@ -59,7 +76,7 @@ public class Quintet&lt;A, B, C, D, E&gt; {
      * @return first object stored
      */
     public final A getA() {
-<span class="fc" id="L62">        return a;</span>
+<span class="fc" id="L79">        return a;</span>
     }
 
     /**
@@ -68,7 +85,7 @@ public class Quintet&lt;A, B, C, D, E&gt; {
      * @return second object stored
      */
     public final B getB() {
-<span class="fc" id="L71">        return b;</span>
+<span class="fc" id="L88">        return b;</span>
     }
 
     /**
@@ -77,7 +94,7 @@ public class Quintet&lt;A, B, C, D, E&gt; {
      * @return third object stored
      */
     public final C getC() {
-<span class="fc" id="L80">        return c;</span>
+<span class="fc" id="L97">        return c;</span>
     }
 
     /**
@@ -86,7 +103,7 @@ public class Quintet&lt;A, B, C, D, E&gt; {
      * @return fourth object stored
      */
     public final D getD() {
-<span class="fc" id="L89">        return d;</span>
+<span class="fc" id="L106">        return d;</span>
     }
 
     /**
@@ -95,7 +112,7 @@ public class Quintet&lt;A, B, C, D, E&gt; {
      * @return fifth object stored
      */
     public final E getE() {
-<span class="fc" id="L98">        return e;</span>
+<span class="fc" id="L115">        return e;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

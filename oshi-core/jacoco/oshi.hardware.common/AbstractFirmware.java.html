@@ -23,13 +23,15 @@
  */
 package oshi.hardware.common;
 
+import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.Firmware;
 import oshi.util.Constants;
 
 /**
  * Firmware data.
  */
-<span class="nc" id="L32">public abstract class AbstractFirmware implements Firmware {</span>
+@Immutable
+<span class="nc" id="L34">public abstract class AbstractFirmware implements Firmware {</span>
 
     /*
      * Multiple classes don't have these, set defaults here
@@ -37,29 +39,28 @@ import oshi.util.Constants;
 
     @Override
     public String getName() {
-<span class="nc" id="L40">        return Constants.UNKNOWN;</span>
+<span class="nc" id="L42">        return Constants.UNKNOWN;</span>
     }
 
     @Override
     public String getDescription() {
-<span class="nc" id="L45">        return Constants.UNKNOWN;</span>
+<span class="nc" id="L47">        return Constants.UNKNOWN;</span>
     }
 
     @Override
     public String getReleaseDate() {
-<span class="nc" id="L50">        return Constants.UNKNOWN;</span>
+<span class="nc" id="L52">        return Constants.UNKNOWN;</span>
     }
 
-    /** {@inheritDoc} */
     @Override
     public String toString() {
-<span class="nc" id="L56">        StringBuilder sb = new StringBuilder();</span>
-<span class="nc" id="L57">        sb.append(&quot;manufacturer=&quot;).append(getManufacturer()).append(&quot;, &quot;);</span>
-<span class="nc" id="L58">        sb.append(&quot;name=&quot;).append(getName()).append(&quot;, &quot;);</span>
-<span class="nc" id="L59">        sb.append(&quot;description=&quot;).append(getDescription()).append(&quot;, &quot;);</span>
-<span class="nc" id="L60">        sb.append(&quot;version=&quot;).append(getVersion()).append(&quot;, &quot;);</span>
-<span class="nc bnc" id="L61" title="All 2 branches missed.">        sb.append(&quot;release date=&quot;).append(getReleaseDate() == null ? &quot;unknown&quot; : getReleaseDate());</span>
-<span class="nc" id="L62">        return sb.toString();</span>
+<span class="nc" id="L57">        StringBuilder sb = new StringBuilder();</span>
+<span class="nc" id="L58">        sb.append(&quot;manufacturer=&quot;).append(getManufacturer()).append(&quot;, &quot;);</span>
+<span class="nc" id="L59">        sb.append(&quot;name=&quot;).append(getName()).append(&quot;, &quot;);</span>
+<span class="nc" id="L60">        sb.append(&quot;description=&quot;).append(getDescription()).append(&quot;, &quot;);</span>
+<span class="nc" id="L61">        sb.append(&quot;version=&quot;).append(getVersion()).append(&quot;, &quot;);</span>
+<span class="nc bnc" id="L62" title="All 2 branches missed.">        sb.append(&quot;release date=&quot;).append(getReleaseDate() == null ? &quot;unknown&quot; : getReleaseDate());</span>
+<span class="nc" id="L63">        return sb.toString();</span>
     }
 
 }

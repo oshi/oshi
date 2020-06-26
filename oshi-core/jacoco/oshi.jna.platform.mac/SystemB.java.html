@@ -24,6 +24,8 @@
 package oshi.jna.platform.mac;
 
 import com.sun.jna.Native; // NOSONAR squid:S1191
+import com.sun.jna.Structure;
+import com.sun.jna.Structure.FieldOrder;
 
 import oshi.jna.platform.unix.CLibrary;
 
@@ -31,8 +33,37 @@ import oshi.jna.platform.unix.CLibrary;
  * System class. This class should be considered non-API as it may be removed
  * if/when its code is incorporated into the JNA project.
  */
-public interface SystemB extends CLibrary, com.sun.jna.platform.mac.SystemB {
+public interface SystemB extends com.sun.jna.platform.mac.SystemB, CLibrary {
 
-<span class="nc" id="L36">    SystemB INSTANCE = Native.load(&quot;System&quot;, SystemB.class);</span>
+<span class="nc" id="L38">    SystemB INSTANCE = Native.load(&quot;System&quot;, SystemB.class);</span>
+
+    int UTX_USERSIZE = 256;
+    int UTX_LINESIZE = 32;
+    int UTX_IDSIZE = 4;
+    int UTX_HOSTSIZE = 256;
+
+    @FieldOrder({ &quot;ut_user&quot;, &quot;ut_id&quot;, &quot;ut_line&quot;, &quot;ut_pid&quot;, &quot;ut_type&quot;, &quot;ut_tv&quot;, &quot;ut_host&quot;, &quot;ut_pad&quot; })
+<span class="nc" id="L46">    class MacUtmpx extends Structure {</span>
+<span class="nc" id="L47">        public byte[] ut_user = new byte[UTX_USERSIZE]; // login name</span>
+<span class="nc" id="L48">        public byte[] ut_id = new byte[UTX_IDSIZE]; // id</span>
+<span class="nc" id="L49">        public byte[] ut_line = new byte[UTX_LINESIZE]; // tty name</span>
+        public int ut_pid; // process id creating the entry
+        public short ut_type; // type of this entry
+        public Timeval ut_tv; // time entry was created
+<span class="nc" id="L53">        public byte[] ut_host = new byte[UTX_HOSTSIZE]; // host name</span>
+<span class="nc" id="L54">        public byte[] ut_pad = new byte[16]; // reserved for future use</span>
+    }
+
+    /**
+     * Reads a line from the current file position in the utmp file. It returns a
+     * pointer to a structure containing the fields of the line.
+     * &lt;p&gt;
+     * Not thread safe
+     *
+     * @return a {@link MacUtmpx} on success, and NULL on failure (which includes
+     *         the &quot;record not found&quot; case)
+     */
+    MacUtmpx getutxent();
+
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

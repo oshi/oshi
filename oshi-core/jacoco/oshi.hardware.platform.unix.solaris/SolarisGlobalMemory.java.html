@@ -28,26 +28,26 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.function.Supplier;
 
-import com.sun.jna.platform.unix.solaris.LibKstat.Kstat; // NOSONAR
-
+import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.unix.solaris.kstat.SystemPages;
 import oshi.hardware.VirtualMemory;
 import oshi.hardware.common.AbstractGlobalMemory;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
-import oshi.util.platform.unix.solaris.KstatUtil;
-import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
 import oshi.util.tuples.Pair;
 
 /**
  * Memory obtained by kstat
  */
-<span class="nc" id="L44">public class SolarisGlobalMemory extends AbstractGlobalMemory {</span>
+@ThreadSafe
+<span class="nc" id="L43">final class SolarisGlobalMemory extends AbstractGlobalMemory {</span>
 
-<span class="nc" id="L46">    private final Supplier&lt;Pair&lt;Long, Long&gt;&gt; availTotal = memoize(this::readSystemPages, defaultExpiration());</span>
+<span class="nc" id="L45">    private final Supplier&lt;Pair&lt;Long, Long&gt;&gt; availTotal = memoize(SystemPages::queryAvailableTotal,</span>
+<span class="nc" id="L46">            defaultExpiration());</span>
 
 <span class="nc" id="L48">    private final Supplier&lt;Long&gt; pageSize = memoize(SolarisGlobalMemory::queryPageSize);</span>
 
-<span class="nc" id="L50">    private final Supplier&lt;VirtualMemory&gt; vm = memoize(SolarisGlobalMemory::createVirtualMemory);</span>
+<span class="nc" id="L50">    private final Supplier&lt;VirtualMemory&gt; vm = memoize(this::createVirtualMemory);</span>
 
     @Override
     public long getAvailable() {
@@ -73,23 +73,8 @@ import oshi.util.tuples.Pair;
 <span class="nc" id="L73">        return ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer(&quot;pagesize&quot;), 4096L);</span>
     }
 
-    private static VirtualMemory createVirtualMemory() {
-<span class="nc" id="L77">        return new SolarisVirtualMemory();</span>
-    }
-
-    private Pair&lt;Long, Long&gt; readSystemPages() {
-<span class="nc" id="L81">        long memAvailable = 0;</span>
-<span class="nc" id="L82">        long memTotal = 0;</span>
-        // Get first result
-<span class="nc" id="L84">        try (KstatChain kc = KstatUtil.openChain()) {</span>
-<span class="nc" id="L85">            Kstat ksp = kc.lookup(null, -1, &quot;system_pages&quot;);</span>
-            // Set values
-<span class="nc bnc" id="L87" title="All 4 branches missed.">            if (ksp != null &amp;&amp; kc.read(ksp)) {</span>
-<span class="nc" id="L88">                memAvailable = KstatUtil.dataLookupLong(ksp, &quot;availrmem&quot;) * getPageSize();</span>
-<span class="nc" id="L89">                memTotal = KstatUtil.dataLookupLong(ksp, &quot;physmem&quot;) * getPageSize();</span>
-            }
-        }
-<span class="nc" id="L92">        return new Pair&lt;&gt;(memAvailable, memTotal);</span>
+    private VirtualMemory createVirtualMemory() {
+<span class="nc" id="L77">        return new SolarisVirtualMemory(this);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

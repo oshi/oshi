@@ -36,193 +36,190 @@
 <a class="jxr_linenumber" name="L28" href="#L28">28</a>  <strong class="jxr_keyword">import</strong> java.util.List;
 <a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">import</strong> java.util.Map;
 <a class="jxr_linenumber" name="L30" href="#L30">30</a>  
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <strong class="jxr_keyword">import</strong> org.slf4j.Logger;
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">import</strong> org.slf4j.LoggerFactory;
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>  
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.Pointer; <em class="jxr_comment">// NOSONAR squid:S1191</em>
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>  
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.Disks;
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.HWDiskStore;
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.HWPartition;
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.linux.Udev;
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <strong class="jxr_keyword">import</strong> oshi.util.FileUtil;
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <strong class="jxr_keyword">import</strong> oshi.util.ParseUtil;
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <strong class="jxr_keyword">import</strong> oshi.util.platform.linux.ProcPath;
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>  
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>  <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>  <em class="jxr_javadoccomment"> * Linux hard disk implementation.</em>
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="LinuxDisks" href="../../../../oshi/hardware/platform/linux/LinuxDisks.html#LinuxDisks">LinuxDisks</a> <strong class="jxr_keyword">implements</strong> <a name="Disks" href="../../../../oshi/hardware/Disks.html#Disks">Disks</a> {
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>  
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Logger LOG = LoggerFactory.getLogger(LinuxDisks.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.HWDiskStore;
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.HWPartition;
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.linux.Udev;
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.linux.Udev.UdevContext;
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <strong class="jxr_keyword">import</strong> oshi.util.FileUtil;
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <strong class="jxr_keyword">import</strong> oshi.util.ParseUtil;
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <strong class="jxr_keyword">import</strong> oshi.util.platform.linux.ProcPath;
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>  
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <em class="jxr_javadoccomment"> * Linux hard disk implementation.</em>
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>  @ThreadSafe
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a name="LinuxDisks" href="../../../../oshi/hardware/platform/linux/LinuxDisks.html#LinuxDisks">LinuxDisks</a> {
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>  
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> SECTORSIZE = 512;
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>  
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>      <strong class="jxr_keyword">private</strong> <a name="LinuxDisks" href="../../../../oshi/hardware/platform/linux/LinuxDisks.html#LinuxDisks">LinuxDisks</a>() {
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>      }
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>  
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> SECTORSIZE = 512;
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>  
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Map&lt;String, String&gt; mountsMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>  
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Map&lt;Integer, String&gt; hashCodeToPathMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>  
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>      <em class="jxr_comment">// Order the field is in udev stats</em>
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>      enum UdevStat {
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>          <em class="jxr_comment">// The parsing implementation in ParseUtil requires these to be declared</em>
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>          <em class="jxr_comment">// in increasing order. Use 0-ordered index here</em>
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>          READS(0), READ_BYTES(2), WRITES(4), WRITE_BYTES(6), QUEUE_LENGTH(8), ACTIVE_MS(9);
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>  
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>          <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> order;
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>  
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getOrder() {
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>              <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.order;
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>      <em class="jxr_comment">// Get a list of orders to pass to ParseUtil</em>
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong>[] UDEV_STAT_ORDERS = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">int</strong>[UdevStat.values().length];
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>      <strong class="jxr_keyword">static</strong> {
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>          <strong class="jxr_keyword">for</strong> (UdevStat stat : UdevStat.values()) {
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>              UDEV_STAT_ORDERS[stat.ordinal()] = stat.getOrder();
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>          }
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>      }
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>  
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>      <em class="jxr_comment">// There are at least 11 elements in udev stat output or sometimes 15. We want</em>
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>      <em class="jxr_comment">// the rightmost 11 or 15 if there is leading text.</em>
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> UDEV_STAT_LENGTH;
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>      <strong class="jxr_keyword">static</strong> {
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>          String stat = FileUtil.getStringFromFile(ProcPath.DISKSTATS);
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>          <strong class="jxr_keyword">int</strong> statLength = 11;
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>          <strong class="jxr_keyword">if</strong> (!stat.isEmpty()) {
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>              statLength = ParseUtil.countStringToLongArray(stat, ' ');
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>          }
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>  
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>          UdevStat(<strong class="jxr_keyword">int</strong> order) {
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>              <strong class="jxr_keyword">this</strong>.order = order;
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>          }
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>      }
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>  
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>      <em class="jxr_comment">// Get a list of orders to pass to ParseUtil</em>
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong>[] UDEV_STAT_ORDERS = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">int</strong>[UdevStat.values().length];
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>      <strong class="jxr_keyword">static</strong> {
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>          <strong class="jxr_keyword">for</strong> (UdevStat stat : UdevStat.values()) {
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>              UDEV_STAT_ORDERS[stat.ordinal()] = stat.getOrder();
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>          }
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>      }
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>  
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>      <em class="jxr_comment">// There are at least 11 elements in udev stat output or sometimes 15. We want</em>
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>      <em class="jxr_comment">// the rightmost 11 or 15 if there is leading text.</em>
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> UDEV_STAT_LENGTH;
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>      <strong class="jxr_keyword">static</strong> {
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>          String stat = FileUtil.getStringFromFile(ProcPath.DISKSTATS);
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>          <strong class="jxr_keyword">int</strong> statLength = 11;
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>          <strong class="jxr_keyword">if</strong> (!stat.isEmpty()) {
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>              statLength = ParseUtil.countStringToLongArray(stat, ' ');
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>          }
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>          UDEV_STAT_LENGTH = statLength;
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>      }
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>  
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>      @Override
-<a class="jxr_linenumber" name="L95" href="#L95">95</a>      <strong class="jxr_keyword">public</strong> <a name="HWDiskStore" href="../../../../oshi/hardware/HWDiskStore.html#HWDiskStore">HWDiskStore</a>[] getDisks() {
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>          <a name="HWDiskStore" href="../../../../oshi/hardware/HWDiskStore.html#HWDiskStore">HWDiskStore</a> store = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L97" href="#L97">97</a>          List&lt;HWDiskStore&gt; result = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
-<a class="jxr_linenumber" name="L98" href="#L98">98</a>  
-<a class="jxr_linenumber" name="L99" href="#L99">99</a>          updateMountsMap();
-<a class="jxr_linenumber" name="L100" href="#L100">100</a>         hashCodeToPathMap.clear();
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>          UDEV_STAT_LENGTH = statLength;
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>      }
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>  
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>  <em class="jxr_javadoccomment">     * Gets the disks on this machine</em>
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>  <em class="jxr_javadoccomment">     * @return an array of {@link HWDiskStore} objects representing the disks</em>
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a name="HWDiskStore" href="../../../../oshi/hardware/HWDiskStore.html#HWDiskStore">HWDiskStore</a>[] getDisks() {
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>          <strong class="jxr_keyword">return</strong> getDisks(<strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>      }
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>  
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <a name="HWDiskStore" h<a name="HWDiskStore" href="../../../../oshi/hardware/HWDiskStore.html#HWDiskStore">HWDiskStore</a>../../oshi/hardware/HWDiskStore.html#HWDiskStore">HWDiskStore</a>[] getDisks(<a name="HWDiskStore" href="../../../../oshi/hardware/HWDiskStore.html#HWDiskStore">HWDiskStore</a> storeToUpdate) {
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>          <a name="HWDiskStore" href="../../../../oshi/hardware/HWDiskStore.html#HWDiskStore">HWDiskStore</a> store = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>          List&lt;HWDiskStore&gt; result = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>  
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>          Map&lt;String, String&gt; mountsMap = readMountsMap();
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>  
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>          UdevContext handle = Udev.INSTANCE.udev_<strong class="jxr_keyword">new</strong>();
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>          Udev.UdevEnumerate enumerate = Udev.INSTANCE.udev_enumerate_<strong class="jxr_keyword">new</strong>(handle);
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>          Udev.INSTANCE.udev_enumerate_add_match_subsystem(enumerate, <span class="jxr_string">"block"</span>);
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>          Udev.INSTANCE.udev_enumerate_scan_devices(enumerate);
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>  
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>          Udev.UdevListEntry entry = Udev.INSTANCE.udev_enumerate_get_list_entry(enumerate);
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>          Udev.UdevDevice device;
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>          <strong class="jxr_keyword">while</strong> ((device = Udev.INSTANCE.udev_device_<strong class="jxr_keyword">new</strong>_from_syspath(handle,
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>                  Udev.INSTANCE.udev_list_entry_get_name(entry))) != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>              String devnode = Udev.INSTANCE.udev_device_get_devnode(device);
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>              <em class="jxr_comment">// Ignore loopback and ram disks; do nothing</em>
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>              <strong class="jxr_keyword">if</strong> (devnode != <strong class="jxr_keyword">null</strong> &amp;&amp; !devnode.startsWith(<span class="jxr_string">"/dev/loop"</span>) &amp;&amp; !devnode.startsWith(<span class="jxr_string">"/dev/ram"</span>)) {
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>                  <strong class="jxr_keyword">if</strong> (<span class="jxr_string">"disk"</span>.equals(Udev.INSTANCE.udev_device_get_devtype(device))) {
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>                      store = <strong class="jxr_keyword">new</strong> <a name="HWDiskStore" href="../../../../oshi/hardware/HWDiskStore.html#HWDiskStore">HWDiskStore</a>();
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>                     store.setName(devnode);
 <a class="jxr_linenumber" name="L101" href="#L101">101</a> 
-<a class="jxr_linenumber" name="L102" href="#L102">102</a>         Udev.UdevHandle handle = Udev.INSTANCE.udev_<strong class="jxr_keyword">new</strong>();
-<a class="jxr_linenumber" name="L103" href="#L103">103</a>         Udev.UdevEnumerate enumerate = Udev.INSTANCE.udev_enumerate_<strong class="jxr_keyword">new</strong>(handle);
-<a class="jxr_linenumber" name="L104" href="#L104">104</a>         Udev.INSTANCE.udev_enumerate_add_match_subsystem(enumerate, <span class="jxr_string">"block"</span>);
-<a class="jxr_linenumber" name="L105" href="#L105">105</a>         Udev.INSTANCE.udev_enumerate_scan_devices(enumerate);
-<a class="jxr_linenumber" name="L106" href="#L106">106</a> 
-<a class="jxr_linenumber" name="L107" href="#L107">107</a>         Udev.UdevListEntry entry = Udev.INSTANCE.udev_enumerate_get_list_entry(enumerate);
-<a class="jxr_linenumber" name="L108" href="#L108">108</a>         Udev.UdevDevice device;
-<a class="jxr_linenumber" name="L109" href="#L109">109</a>         <strong class="jxr_keyword">while</strong> ((device = Udev.INSTANCE.udev_device_<strong class="jxr_keyword">new</strong>_from_syspath(handle,
-<a class="jxr_linenumber" name="L110" href="#L110">110</a>                 Udev.INSTANCE.udev_list_entry_get_name(entry))) != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L111" href="#L111">111</a>             String devnode = Udev.INSTANCE.udev_device_get_devnode(device);
-<a class="jxr_linenumber" name="L112" href="#L112">112</a>             <strong class="jxr_keyword">if</strong> (devnode != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L113" href="#L113">113</a>                 <em class="jxr_comment">// Ignore loopback and ram disks; do nothing</em>
-<a class="jxr_linenumber" name="L114" href="#L114">114</a>                 <strong class="jxr_keyword">if</strong> (!devnode.startsWith(<span class="jxr_string">"/dev/loop"</span>) &amp;&amp; !devnode.startsWith(<span class="jxr_string">"/dev/ram"</span>)) {
-<a class="jxr_linenumber" name="L115" href="#L115">115</a>                     <strong class="jxr_keyword">if</strong> (<span class="jxr_string">"disk"</span>.equals(Udev.INSTANCE.udev_device_get_devtype(device))) {
-<a class="jxr_linenumber" name="L116" href="#L116">116</a>                         store = <strong class="jxr_keyword">new</strong> <a name="HWDiskStore" href="../../../../oshi/hardware/HWDiskStore.html#HWDiskStore">HWDiskStore</a>();
-<a class="jxr_linenumber" name="L117" href="#L117">117</a>                         store.setName(devnode);
-<a class="jxr_linenumber" name="L118" href="#L118">118</a> 
-<a class="jxr_linenumber" name="L119" href="#L119">119</a>                         <em class="jxr_comment">// Avoid model and serial in virtual environments</em>
-<a class="jxr_linenumber" name="L120" href="#L120">120</a>                         store.setModel(
-<a class="jxr_linenumber" name="L121" href="#L121">121</a>                                 Udev.INSTANCE.udev_device_get_property_value(device, <span class="jxr_string">"ID_MODEL"</span>) == <strong class="jxr_keyword">null</strong> ? <span class="jxr_string">"Unknown"</span>
-<a class="jxr_linenumber" name="L122" href="#L122">122</a>                                         : Udev.INSTANCE.udev_device_get_property_value(device, <span class="jxr_string">"ID_MODEL"</span>));
-<a class="jxr_linenumber" name="L123" href="#L123">123</a>                         store.setSerial(Udev.INSTANCE.udev_device_get_property_value(device, <span class="jxr_string">"ID_SERIAL_SHORT"</span>) == <strong class="jxr_keyword">null</strong>
-<a class="jxr_linenumber" name="L124" href="#L124">124</a>                                 ? <span class="jxr_string">"Unknown"</span>
-<a class="jxr_linenumber" name="L125" href="#L125">125</a>                                 : Udev.INSTANCE.udev_device_get_property_value(device, <span class="jxr_string">"ID_SERIAL_SHORT"</span>));
-<a class="jxr_linenumber" name="L126" href="#L126">126</a> 
-<a class="jxr_linenumber" name="L127" href="#L127">127</a>                         store.setSize(ParseUtil.parseLongOrDefault(
-<a class="jxr_linenumber" name="L128" href="#L128">128</a>                                 Udev.INSTANCE.udev_device_get_sysattr_value(device, <span class="jxr_string">"size"</span>), 0L) * SECTORSIZE);
-<a class="jxr_linenumber" name="L129" href="#L129">129</a>                         store.setPartitions(<strong class="jxr_keyword">new</strong> <a name="HWPartition" href="../../../../oshi/hardware/HWPartition.html#HWPartition">HWPartition</a>[0]);
-<a class="jxr_linenumber" name="L130" href="#L130">130</a>                         computeDiskStats(store, device);
-<a class="jxr_linenumber" name="L131" href="#L131">131</a> 
-<a class="jxr_linenumber" name="L132" href="#L132">132</a>                         hashCodeToPathMap.put(store.hashCode(), Udev.INSTANCE.udev_list_entry_get_name(entry));
-<a class="jxr_linenumber" name="L133" href="#L133">133</a>                         result.add(store);
-<a class="jxr_linenumber" name="L134" href="#L134">134</a>                     } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (<span class="jxr_string">"partition"</span>.equals(Udev.INSTANCE.udev_device_get_devtype(device)) &amp;&amp; store != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L135" href="#L135">135</a>                         <em class="jxr_comment">// `store` should still point to the HWDiskStore this</em>
-<a class="jxr_linenumber" name="L136" href="#L136">136</a>                         <em class="jxr_comment">// partition is attached to. If not, it's an error, so</em>
-<a class="jxr_linenumber" name="L137" href="#L137">137</a>                         <em class="jxr_comment">// skip.</em>
-<a class="jxr_linenumber" name="L138" href="#L138">138</a>                         <a name="HWPartition" href="../../../../oshi/hardware/HWPartition.h<a name="HWPartition" href="../../../../oshi/hardware/HWPartition.html#HWPartition">HWPartition</a>tion">HWPartition</a>[] partArray = <strong class="jxr_keyword">new</strong> <a name="HWPartition" href="../../../../oshi/hardware/HWPartition.html#HWPartition">HWPartition</a>[store.getPartitions().length + 1];
-<a class="jxr_linenumber" name="L139" href="#L139">139</a>                         System.arraycopy(store.getPartitions(), 0, partArray, 0, store.getPartitions().length);
-<a class="jxr_linenumber" name="L140" href="#L140">140</a>                         String name = Udev.INSTANCE.udev_device_get_devnode(device);
-<a class="jxr_linenumber" name="L141" href="#L141">141</a>                         partArray[partArray.length - 1] = <strong class="jxr_keyword">new</strong> <a name="HWPartition" href="../../../../oshi/hardware/HWPartition.html#HWPartition">HWPartition</a>(name,
-<a class="jxr_linenumber" name="L142" href="#L142">142</a>                                 Udev.INSTANCE.udev_device_get_sysname(device),
-<a class="jxr_linenumber" name="L143" href="#L143">143</a>                                 Udev.INSTANCE.udev_device_get_property_value(device, <span class="jxr_string">"ID_FS_TYPE"</span>) == <strong class="jxr_keyword">null</strong> ? <span class="jxr_string">"partition"</span>
-<a class="jxr_linenumber" name="L144" href="#L144">144</a>                                         : Udev.INSTANCE.udev_device_get_property_value(device, <span class="jxr_string">"ID_FS_TYPE"</span>),
-<a class="jxr_linenumber" name="L145" href="#L145">145</a>                                 Udev.INSTANCE.udev_device_get_property_value(device, <span class="jxr_string">"ID_FS_UUID"</span>) == <strong class="jxr_keyword">null</strong> ? <span class="jxr_string">""</span>
-<a class="jxr_linenumber" name="L146" href="#L146">146</a>                                         : Udev.INSTANCE.udev_device_get_property_value(device, <span class="jxr_string">"ID_FS_UUID"</span>),
-<a class="jxr_linenumber" name="L147" href="#L147">147</a>                                 ParseUtil.parseLongOrDefault(
-<a class="jxr_linenumber" name="L148" href="#L148">148</a>                                         Udev.INSTANCE.udev_device_get_sysattr_value(device, <span class="jxr_string">"size"</span>), 0L) * SECTORSIZE,
-<a class="jxr_linenumber" name="L149" href="#L149">149</a>                                 ParseUtil.parseIntOrDefault(
-<a class="jxr_linenumber" name="L150" href="#L150">150</a>                                         Udev.INSTANCE.udev_device_get_property_value(device, <span class="jxr_string">"MAJOR"</span>), 0),
-<a class="jxr_linenumber" name="L151" href="#L151">151</a>                                 ParseUtil.parseIntOrDefault(
-<a class="jxr_linenumber" name="L152" href="#L152">152</a>                                         Udev.INSTANCE.udev_device_get_property_value(device, <span class="jxr_string">"MINOR"</span>), 0),
-<a class="jxr_linenumber" name="L153" href="#L153">153</a>                                 mountsMap.getOrDefault(name, <span class="jxr_string">""</span>));
-<a class="jxr_linenumber" name="L154" href="#L154">154</a>                         store.setPartitions(partArray);
-<a class="jxr_linenumber" name="L155" href="#L155">155</a>                     }
-<a class="jxr_linenumber" name="L156" href="#L156">156</a>                 }
-<a class="jxr_linenumber" name="L157" href="#L157">157</a>             } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L158" href="#L158">158</a>                 LOG.warn(<span class="jxr_string">"Failed to retrieve devnode for device {}"</span>, Pointer.nativeValue(device.getPointer()));
-<a class="jxr_linenumber" name="L159" href="#L159">159</a>             }
-<a class="jxr_linenumber" name="L160" href="#L160">160</a>             Udev.INSTANCE.udev_device_unref(device);
-<a class="jxr_linenumber" name="L161" href="#L161">161</a>             entry = Udev.INSTANCE.udev_list_entry_get_next(entry);
-<a class="jxr_linenumber" name="L162" href="#L162">162</a>         }
-<a class="jxr_linenumber" name="L163" href="#L163">163</a>         Udev.INSTANCE.udev_enumerate_unref(enumerate);
-<a class="jxr_linenumber" name="L164" href="#L164">164</a>         Udev.INSTANCE.udev_unref(handle);
-<a class="jxr_linenumber" name="L165" href="#L165">165</a> 
-<a class="jxr_linenumber" name="L166" href="#L166">166</a>         <strong class="jxr_keyword">return</strong> result.toArray(<strong class="jxr_keyword">new</strong> <a name="HWDiskStore" href="../../../../oshi/hardware/HWDiskStore.html#HWDiskStore">HWDiskStore</a>[0]);
-<a class="jxr_linenumber" name="L167" href="#L167">167</a>     }
-<a class="jxr_linenumber" name="L168" href="#L168">168</a> 
-<a class="jxr_linenumber" name="L169" href="#L169">169</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L170" href="#L170">170</a> <em class="jxr_javadoccomment">     * {@inheritDoc}</em>
-<a class="jxr_linenumber" name="L171" href="#L171">171</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L172" href="#L172">172</a> <em class="jxr_javadoccomment">     * @param diskStore</em>
-<a class="jxr_linenumber" name="L173" href="#L173">173</a> <em class="jxr_javadoccomment">     *            a {@link oshi.hardware.HWDiskStore} object.</em>
-<a class="jxr_linenumber" name="L174" href="#L174">174</a> <em class="jxr_javadoccomment">     * @return a boolean.</em>
-<a class="jxr_linenumber" name="L175" href="#L175">175</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L176" href="#L176">176</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> updateDiskStats(<a name="HWDiskStore" href="../../../../oshi/hardware/HWDiskStore.html#HWDiskStore">HWDiskStore</a> diskStore) {
-<a class="jxr_linenumber" name="L177" href="#L177">177</a>         String path = hashCodeToPathMap.get(diskStore.hashCode());
-<a class="jxr_linenumber" name="L178" href="#L178">178</a> 
-<a class="jxr_linenumber" name="L179" href="#L179">179</a>         Udev.UdevHandle handle = Udev.INSTANCE.udev_<strong class="jxr_keyword">new</strong>();
-<a class="jxr_linenumber" name="L180" href="#L180">180</a>         Udev.UdevDevice device = Udev.INSTANCE.udev_device_<strong class="jxr_keyword">new</strong>_from_syspath(handle, path);
-<a class="jxr_linenumber" name="L181" href="#L181">181</a> 
-<a class="jxr_linenumber" name="L182" href="#L182">182</a>         <strong class="jxr_keyword">boolean</strong> update = false;
-<a class="jxr_linenumber" name="L183" href="#L183">183</a>         <strong class="jxr_keyword">if</strong> (device != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L184" href="#L184">184</a>             computeDiskStats(diskStore, device);
-<a class="jxr_linenumber" name="L185" href="#L185">185</a>             update = <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L186" href="#L186">186</a>             Udev.INSTANCE.udev_device_unref(device);
-<a class="jxr_linenumber" name="L187" href="#L187">187</a>         }
-<a class="jxr_linenumber" name="L188" href="#L188">188</a>         Udev.INSTANCE.udev_unref(handle);
-<a class="jxr_linenumber" name="L189" href="#L189">189</a>         <strong class="jxr_keyword">return</strong> update;
-<a class="jxr_linenumber" name="L190" href="#L190">190</a>     }
-<a class="jxr_linenumber" name="L191" href="#L191">191</a> 
-<a class="jxr_linenumber" name="L192" href="#L192">192</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> updateMountsMap() {
-<a class="jxr_linenumber" name="L193" href="#L193">193</a>         <strong class="jxr_keyword">this</strong>.mountsMap.clear();
-<a class="jxr_linenumber" name="L194" href="#L194">194</a>         List&lt;String&gt; mounts = FileUtil.readFile(ProcPath.MOUNTS);
-<a class="jxr_linenumber" name="L195" href="#L195">195</a>         <strong class="jxr_keyword">for</strong> (String mount : mounts) {
-<a class="jxr_linenumber" name="L196" href="#L196">196</a>             String[] split = ParseUtil.whitespaces.split(mount);
-<a class="jxr_linenumber" name="L197" href="#L197">197</a>             <strong class="jxr_keyword">if</strong> (split.length &lt; 2 || !split[0].startsWith(<span class="jxr_string">"/dev/"</span>)) {
-<a class="jxr_linenumber" name="L198" href="#L198">198</a>                 <strong class="jxr_keyword">continue</strong>;
-<a class="jxr_linenumber" name="L199" href="#L199">199</a>             }
-<a class="jxr_linenumber" name="L200" href="#L200">200</a>             <strong class="jxr_keyword">this</strong>.mountsMap.put(split[0], split[1]);
-<a class="jxr_linenumber" name="L201" href="#L201">201</a>         }
-<a class="jxr_linenumber" name="L202" href="#L202">202</a>     }
+<a class="jxr_linenumber" name="L102" href="#L102">102</a>                     <em class="jxr_comment">// Avoid model and serial in virtual environments</em>
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>                     store.setModel(Udev.INSTANCE.udev_device_get_property_value(device, <span class="jxr_string">"ID_MODEL"</span>) == <strong class="jxr_keyword">null</strong> ? <span class="jxr_string">"Unknown"</span>
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>                             : Udev.INSTANCE.udev_device_get_property_value(device, <span class="jxr_string">"ID_MODEL"</span>));
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>                     store.setSerial(
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>                             Udev.INSTANCE.udev_device_get_property_value(device, <span class="jxr_string">"ID_SERIAL_SHORT"</span>) == <strong class="jxr_keyword">null</strong> ? <span class="jxr_string">"Unknown"</span>
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>                                     : Udev.INSTANCE.udev_device_get_property_value(device, <span class="jxr_string">"ID_SERIAL_SHORT"</span>));
+<a class="jxr_linenumber" name="L108" href="#L108">108</a> 
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>                     store.setSize(ParseUtil.parseLongOrDefault(
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>                             Udev.INSTANCE.udev_device_get_sysattr_value(device, <span class="jxr_string">"size"</span>), 0L) * SECTORSIZE);
+<a class="jxr_linenumber" name="L111" href="#L111">111</a> 
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>                     <strong class="jxr_keyword">if</strong> (storeToUpdate == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>                         <em class="jxr_comment">// If getting all stores, add to the list with stats</em>
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>                         store.setPartitions(<strong class="jxr_keyword">new</strong> <a name="HWPartition" href="../../../../oshi/hardware/HWPartition.html#HWPartition">HWPartition</a>[0]);
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>                         computeDiskStats(store, device);
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>                         result.add(store);
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>                     } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (store.equals(storeToUpdate)) {
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>                         <em class="jxr_comment">// Note this equality test is not object equality. If we are only updating a</em>
+<a class="jxr_linenumber" name="L119" href="#L119">119</a>                         <em class="jxr_comment">// single disk, the name, model, serial, and size are sufficient to test if this</em>
+<a class="jxr_linenumber" name="L120" href="#L120">120</a>                         <em class="jxr_comment">// is a match. Add the (old) object, release handle and return.</em>
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>                         computeDiskStats(storeToUpdate, device);
+<a class="jxr_linenumber" name="L122" href="#L122">122</a>                         result.add(storeToUpdate);
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>                         Udev.INSTANCE.udev_device_unref(device);
+<a class="jxr_linenumber" name="L124" href="#L124">124</a>                         <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L125" href="#L125">125</a>                     }
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>                 } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (<span class="jxr_string">"partition"</span>.equals(Udev.INSTANCE.udev_device_get_devtype(device)) &amp;&amp; store != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L127" href="#L127">127</a>                     <em class="jxr_comment">// `store` should still point to the HWDiskStore this</em>
+<a class="jxr_linenumber" name="L128" href="#L128">128</a>                     <em class="jxr_comment">// partition is attached to. If not, it's an error, so</em>
+<a class="jxr_linenumber" name="L129" href="#L129">129</a>                     <em class="jxr_comment">// skip.</em>
+<a class="jxr_linenumber" name="L130" href="#L130">130</a>                     <a name="HWPartition" href="../../../../oshi/hardware/HWPartition.h<a name="HWPartition" href="../../../../oshi/hardware/HWPartition.html#HWPartition">HWPartition</a>tion">HWPartition</a>[] partArray = <strong class="jxr_keyword">new</strong> <a name="HWPartition" href="../../../../oshi/hardware/HWPartition.html#HWPartition">HWPartition</a>[store.getPartitions().length + 1];
+<a class="jxr_linenumber" name="L131" href="#L131">131</a>                     System.arraycopy(store.getPartitions(), 0, partArray, 0, store.getPartitions().length);
+<a class="jxr_linenumber" name="L132" href="#L132">132</a>                     String name = Udev.INSTANCE.udev_device_get_devnode(device);
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>                     partArray[partArray.length - 1] = <strong class="jxr_keyword">new</strong> <a name="HWPartition" href="../../../../oshi/hardware/HWPartition.html#HWPartition">HWPartition</a>(name,
+<a class="jxr_linenumber" name="L134" href="#L134">134</a>                             Udev.INSTANCE.udev_device_get_sysname(device),
+<a class="jxr_linenumber" name="L135" href="#L135">135</a>                             Udev.INSTANCE.udev_device_get_property_value(device, <span class="jxr_string">"ID_FS_TYPE"</span>) == <strong class="jxr_keyword">null</strong> ? <span class="jxr_string">"partition"</span>
+<a class="jxr_linenumber" name="L136" href="#L136">136</a>                                     : Udev.INSTANCE.udev_device_get_property_value(device, <span class="jxr_string">"ID_FS_TYPE"</span>),
+<a class="jxr_linenumber" name="L137" href="#L137">137</a>                             Udev.INSTANCE.udev_device_get_property_value(device, <span class="jxr_string">"ID_FS_UUID"</span>) == <strong class="jxr_keyword">null</strong> ? <span class="jxr_string">""</span>
+<a class="jxr_linenumber" name="L138" href="#L138">138</a>                                     : Udev.INSTANCE.udev_device_get_property_value(device, <span class="jxr_string">"ID_FS_UUID"</span>),
+<a class="jxr_linenumber" name="L139" href="#L139">139</a>                             ParseUtil.parseLongOrDefault(Udev.INSTANCE.udev_device_get_sysattr_value(device, <span class="jxr_string">"size"</span>),
+<a class="jxr_linenumber" name="L140" href="#L140">140</a>                                     0L) * SECTORSIZE,
+<a class="jxr_linenumber" name="L141" href="#L141">141</a>                             ParseUtil.parseIntOrDefault(Udev.INSTANCE.udev_device_get_property_value(device, <span class="jxr_string">"MAJOR"</span>),
+<a class="jxr_linenumber" name="L142" href="#L142">142</a>                                     0),
+<a class="jxr_linenumber" name="L143" href="#L143">143</a>                             ParseUtil.parseIntOrDefault(Udev.INSTANCE.udev_device_get_property_value(device, <span class="jxr_string">"MINOR"</span>),
+<a class="jxr_linenumber" name="L144" href="#L144">144</a>                                     0),
+<a class="jxr_linenumber" name="L145" href="#L145">145</a>                             mountsMap.getOrDefault(name, <span class="jxr_string">""</span>));
+<a class="jxr_linenumber" name="L146" href="#L146">146</a>                     store.setPartitions(partArray);
+<a class="jxr_linenumber" name="L147" href="#L147">147</a>                 }
+<a class="jxr_linenumber" name="L148" href="#L148">148</a>             }
+<a class="jxr_linenumber" name="L149" href="#L149">149</a>             Udev.INSTANCE.udev_device_unref(device);
+<a class="jxr_linenumber" name="L150" href="#L150">150</a>             entry = Udev.INSTANCE.udev_list_entry_get_next(entry);
+<a class="jxr_linenumber" name="L151" href="#L151">151</a>         }
+<a class="jxr_linenumber" name="L152" href="#L152">152</a>         Udev.INSTANCE.udev_enumerate_unref(enumerate);
+<a class="jxr_linenumber" name="L153" href="#L153">153</a>         Udev.INSTANCE.udev_unref(handle);
+<a class="jxr_linenumber" name="L154" href="#L154">154</a> 
+<a class="jxr_linenumber" name="L155" href="#L155">155</a>         <strong class="jxr_keyword">return</strong> result.toArray(<strong class="jxr_keyword">new</strong> <a name="HWDiskStore" href="../../../../oshi/hardware/HWDiskStore.html#HWDiskStore">HWDiskStore</a>[0]);
+<a class="jxr_linenumber" name="L156" href="#L156">156</a>     }
+<a class="jxr_linenumber" name="L157" href="#L157">157</a> 
+<a class="jxr_linenumber" name="L158" href="#L158">158</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L159" href="#L159">159</a> <em class="jxr_javadoccomment">     * Updates the statistics on a disk store.</em>
+<a class="jxr_linenumber" name="L160" href="#L160">160</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L161" href="#L161">161</a> <em class="jxr_javadoccomment">     * @param diskStore</em>
+<a class="jxr_linenumber" name="L162" href="#L162">162</a> <em class="jxr_javadoccomment">     *            the {@link oshi.hardware.HWDiskStore} to update.</em>
+<a class="jxr_linenumber" name="L163" href="#L163">163</a> <em class="jxr_javadoccomment">     * @return {@code true} if the update was (probably) successful.</em>
+<a class="jxr_linenumber" name="L164" href="#L164">164</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L165" href="#L165">165</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> updateDiskStats(<a name="HWDiskStore" href="../../../../oshi/hardware/HWDiskStore.html#HWDiskStore">HWDiskStore</a> diskStore) {
+<a class="jxr_linenumber" name="L166" href="#L166">166</a>         <em class="jxr_comment">// If this returns non-empty (the same store, but updated) then we were</em>
+<a class="jxr_linenumber" name="L167" href="#L167">167</a>         <em class="jxr_comment">// successful in the update</em>
+<a class="jxr_linenumber" name="L168" href="#L168">168</a>         <strong class="jxr_keyword">return</strong> 0 &lt; getDisks(diskStore).length;
+<a class="jxr_linenumber" name="L169" href="#L169">169</a>     }
+<a class="jxr_linenumber" name="L170" href="#L170">170</a> 
+<a class="jxr_linenumber" name="L171" href="#L171">171</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Map&lt;String, String&gt; readMountsMap() {
+<a class="jxr_linenumber" name="L172" href="#L172">172</a>         Map&lt;String, String&gt; mountsMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L173" href="#L173">173</a>         List&lt;String&gt; mounts = FileUtil.readFile(ProcPath.MOUNTS);
+<a class="jxr_linenumber" name="L174" href="#L174">174</a>         <strong class="jxr_keyword">for</strong> (String mount : mounts) {
+<a class="jxr_linenumber" name="L175" href="#L175">175</a>             String[] split = ParseUtil.whitespaces.split(mount);
+<a class="jxr_linenumber" name="L176" href="#L176">176</a>             <strong class="jxr_keyword">if</strong> (split.length &lt; 2 || !split[0].startsWith(<span class="jxr_string">"/dev/"</span>)) {
+<a class="jxr_linenumber" name="L177" href="#L177">177</a>                 <strong class="jxr_keyword">continue</strong>;
+<a class="jxr_linenumber" name="L178" href="#L178">178</a>             }
+<a class="jxr_linenumber" name="L179" href="#L179">179</a>             mountsMap.put(split[0], split[1]);
+<a class="jxr_linenumber" name="L180" href="#L180">180</a>         }
+<a class="jxr_linenumber" name="L181" href="#L181">181</a>         <strong class="jxr_keyword">return</strong> mountsMap;
+<a class="jxr_linenumber" name="L182" href="#L182">182</a>     }
+<a class="jxr_linenumber" name="L183" href="#L183">183</a> 
+<a class="jxr_linenumber" name="L184" href="#L184">184</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> computeDiskStats(<a name="HWDiskStore" href="../../../../oshi/hardware/HWDiskStore.html#HWDiskStore">HWDiskStore</a> store, Udev.UdevDevice disk) {
+<a class="jxr_linenumber" name="L185" href="#L185">185</a>         String devstat = Udev.INSTANCE.udev_device_get_sysattr_value(disk, <span class="jxr_string">"stat"</span>);
+<a class="jxr_linenumber" name="L186" href="#L186">186</a>         <strong class="jxr_keyword">long</strong>[] devstatArray = ParseUtil.parseStringToLongArray(devstat, UDEV_STAT_ORDERS, UDEV_STAT_LENGTH, ' ');
+<a class="jxr_linenumber" name="L187" href="#L187">187</a>         store.setTimeStamp(System.currentTimeMillis());
+<a class="jxr_linenumber" name="L188" href="#L188">188</a> 
+<a class="jxr_linenumber" name="L189" href="#L189">189</a>         <em class="jxr_comment">// Reads and writes are converted in bytes</em>
+<a class="jxr_linenumber" name="L190" href="#L190">190</a>         store.setReads(devstatArray[UdevStat.READS.ordinal()]);
+<a class="jxr_linenumber" name="L191" href="#L191">191</a>         store.setReadBytes(devstatArray[UdevStat.READ_BYTES.ordinal()] * SECTORSIZE);
+<a class="jxr_linenumber" name="L192" href="#L192">192</a>         store.setWrites(devstatArray[UdevStat.WRITES.ordinal()]);
+<a class="jxr_linenumber" name="L193" href="#L193">193</a>         store.setWriteBytes(devstatArray[UdevStat.WRITE_BYTES.ordinal()] * SECTORSIZE);
+<a class="jxr_linenumber" name="L194" href="#L194">194</a>         store.setCurrentQueueLength(devstatArray[UdevStat.QUEUE_LENGTH.ordinal()]);
+<a class="jxr_linenumber" name="L195" href="#L195">195</a>         store.setTransferTime(devstatArray[UdevStat.ACTIVE_MS.ordinal()]);
+<a class="jxr_linenumber" name="L196" href="#L196">196</a>     }
+<a class="jxr_linenumber" name="L197" href="#L197">197</a> 
+<a class="jxr_linenumber" name="L198" href="#L198">198</a>     <em class="jxr_comment">// Order the field is in udev stats</em>
+<a class="jxr_linenumber" name="L199" href="#L199">199</a>     enum UdevStat {
+<a class="jxr_linenumber" name="L200" href="#L200">200</a>         <em class="jxr_comment">// The parsing implementation in ParseUtil requires these to be declared</em>
+<a class="jxr_linenumber" name="L201" href="#L201">201</a>         <em class="jxr_comment">// in increasing order. Use 0-ordered index here</em>
+<a class="jxr_linenumber" name="L202" href="#L202">202</a>         READS(0), READ_BYTES(2), WRITES(4), WRITE_BYTES(6), QUEUE_LENGTH(8), ACTIVE_MS(9);
 <a class="jxr_linenumber" name="L203" href="#L203">203</a> 
-<a class="jxr_linenumber" name="L204" href="#L204">204</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> computeDiskStats(<a name="HWDiskStore" href="../../../../oshi/hardware/HWDiskStore.html#HWDiskStore">HWDiskStore</a> store, Udev.UdevDevice disk) {
-<a class="jxr_linenumber" name="L205" href="#L205">205</a>         String devstat = Udev.INSTANCE.udev_device_get_sysattr_value(disk, <span class="jxr_string">"stat"</span>);
-<a class="jxr_linenumber" name="L206" href="#L206">206</a>         <strong class="jxr_keyword">long</strong>[] devstatArray = ParseUtil.parseStringToLongArray(devstat, UDEV_STAT_ORDERS, UDEV_STAT_LENGTH, ' ');
-<a class="jxr_linenumber" name="L207" href="#L207">207</a>         store.setTimeStamp(System.currentTimeMillis());
-<a class="jxr_linenumber" name="L208" href="#L208">208</a> 
-<a class="jxr_linenumber" name="L209" href="#L209">209</a>         <em class="jxr_comment">// Reads and writes are converted in bytes</em>
-<a class="jxr_linenumber" name="L210" href="#L210">210</a>         store.setReads(devstatArray[UdevStat.READS.ordinal()]);
-<a class="jxr_linenumber" name="L211" href="#L211">211</a>         store.setReadBytes(devstatArray[UdevStat.READ_BYTES.ordinal()] * SECTORSIZE);
-<a class="jxr_linenumber" name="L212" href="#L212">212</a>         store.setWrites(devstatArray[UdevStat.WRITES.ordinal()]);
-<a class="jxr_linenumber" name="L213" href="#L213">213</a>         store.setWriteBytes(devstatArray[UdevStat.WRITE_BYTES.ordinal()] * SECTORSIZE);
-<a class="jxr_linenumber" name="L214" href="#L214">214</a>         store.setCurrentQueueLength(devstatArray[UdevStat.QUEUE_LENGTH.ordinal()]);
-<a class="jxr_linenumber" name="L215" href="#L215">215</a>         store.setTransferTime(devstatArray[UdevStat.ACTIVE_MS.ordinal()]);
-<a class="jxr_linenumber" name="L216" href="#L216">216</a>     }
-<a class="jxr_linenumber" name="L217" href="#L217">217</a> }
+<a class="jxr_linenumber" name="L204" href="#L204">204</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> order;
+<a class="jxr_linenumber" name="L205" href="#L205">205</a> 
+<a class="jxr_linenumber" name="L206" href="#L206">206</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getOrder() {
+<a class="jxr_linenumber" name="L207" href="#L207">207</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.order;
+<a class="jxr_linenumber" name="L208" href="#L208">208</a>         }
+<a class="jxr_linenumber" name="L209" href="#L209">209</a> 
+<a class="jxr_linenumber" name="L210" href="#L210">210</a>         UdevStat(<strong class="jxr_keyword">int</strong> order) {
+<a class="jxr_linenumber" name="L211" href="#L211">211</a>             <strong class="jxr_keyword">this</strong>.order = order;
+<a class="jxr_linenumber" name="L212" href="#L212">212</a>         }
+<a class="jxr_linenumber" name="L213" href="#L213">213</a>     }
+<a class="jxr_linenumber" name="L214" href="#L214">214</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2020 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

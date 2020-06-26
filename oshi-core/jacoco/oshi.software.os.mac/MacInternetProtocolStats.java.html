@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MacInternetProtocolStats.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.software.os.mac</a> &gt; <span class="el_source">MacInternetProtocolStats.java</span></div><h1>MacInternetProtocolStats.java</h1><pre class="source lang-java linenums">/**
+ * MIT License
+ *
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+package oshi.software.os.mac;
+
+import static oshi.util.Memoizer.defaultExpiration;
+import static oshi.util.Memoizer.memoize;
+
+import java.util.List;
+import java.util.function.Supplier;
+
+import oshi.annotation.concurrent.ThreadSafe;
+import oshi.jna.platform.unix.CLibrary.Ip6stat;
+import oshi.jna.platform.unix.CLibrary.Ipstat;
+import oshi.jna.platform.unix.CLibrary.Tcpstat;
+import oshi.jna.platform.unix.CLibrary.Udpstat;
+import oshi.software.os.InternetProtocolStats;
+import oshi.util.ExecutingCommand;
+import oshi.util.ParseUtil;
+import oshi.util.platform.mac.SysctlUtil;
+import oshi.util.tuples.Pair;
+
+@ThreadSafe
+public class MacInternetProtocolStats implements InternetProtocolStats {
+
+    private boolean isElevated;
+
+<span class="nc" id="L48">    public MacInternetProtocolStats(boolean elevated) {</span>
+<span class="nc" id="L49">        this.isElevated = elevated;</span>
+<span class="nc" id="L50">    }</span>
+
+<span class="nc" id="L52">    private Supplier&lt;Pair&lt;Long, Long&gt;&gt; establishedv4v6 = memoize(MacInternetProtocolStats::queryTcpnetstat,</span>
+<span class="nc" id="L53">            defaultExpiration());</span>
+<span class="nc" id="L54">    private Supplier&lt;Tcpstat&gt; tcpstat = memoize(MacInternetProtocolStats::queryTcpstat, defaultExpiration());</span>
+<span class="nc" id="L55">    private Supplier&lt;Udpstat&gt; udpstat = memoize(MacInternetProtocolStats::queryUdpstat, defaultExpiration());</span>
+    // With elevated permissions use tcpstat only
+    // Backup estimate get ipstat and subtract off udp
+<span class="nc" id="L58">    private Supplier&lt;Ipstat&gt; ipstat = memoize(MacInternetProtocolStats::queryIpstat, defaultExpiration());</span>
+<span class="nc" id="L59">    private Supplier&lt;Ip6stat&gt; ip6stat = memoize(MacInternetProtocolStats::queryIp6stat, defaultExpiration());</span>
+
+    @Override
+    public TcpStats getTCPv4Stats() {
+<span class="nc" id="L63">        Tcpstat tcp = tcpstat.get();</span>
+<span class="nc bnc" id="L64" title="All 2 branches missed.">        if (this.isElevated) {</span>
+<span class="nc" id="L65">            return new TcpStats(establishedv4v6.get().getA(), ParseUtil.unsignedIntToLong(tcp.tcps_connattempt),</span>
+<span class="nc" id="L66">                    ParseUtil.unsignedIntToLong(tcp.tcps_accepts), ParseUtil.unsignedIntToLong(tcp.tcps_conndrops),</span>
+<span class="nc" id="L67">                    ParseUtil.unsignedIntToLong(tcp.tcps_drops),</span>
+<span class="nc" id="L68">                    ParseUtil.unsignedIntToLong(tcp.tcps_snd_swcsum - tcp.tcps_sndrexmitpack),</span>
+<span class="nc" id="L69">                    ParseUtil.unsignedIntToLong(tcp.tcps_rcv_swcsum),</span>
+<span class="nc" id="L70">                    ParseUtil.unsignedIntToLong(tcp.tcps_sndrexmitpack), ParseUtil.unsignedIntToLong(</span>
+                            tcp.tcps_rcvbadsum + tcp.tcps_rcvbadoff + tcp.tcps_rcvmemdrop + tcp.tcps_rcvshort),
+                    0L);
+        }
+<span class="nc" id="L74">        Ipstat ip = ipstat.get();</span>
+<span class="nc" id="L75">        Udpstat udp = udpstat.get();</span>
+<span class="nc" id="L76">        return new TcpStats(establishedv4v6.get().getA(), ParseUtil.unsignedIntToLong(tcp.tcps_connattempt),</span>
+<span class="nc" id="L77">                ParseUtil.unsignedIntToLong(tcp.tcps_accepts), ParseUtil.unsignedIntToLong(tcp.tcps_conndrops),</span>
+<span class="nc" id="L78">                ParseUtil.unsignedIntToLong(tcp.tcps_drops),</span>
+<span class="nc" id="L79">                Math.max(0L,</span>
+<span class="nc" id="L80">                        ParseUtil.unsignedIntToLong(ip.ips_snd_swcsum - udp.udps_snd_swcsum - tcp.tcps_sndrexmitpack)),</span>
+<span class="nc" id="L81">                Math.max(0L, ParseUtil.unsignedIntToLong(ip.ips_rcv_swcsum - udp.udps_rcv_swcsum)),</span>
+<span class="nc" id="L82">                ParseUtil.unsignedIntToLong(tcp.tcps_sndrexmitpack),</span>
+<span class="nc" id="L83">                Math.max(0L, ParseUtil.unsignedIntToLong(ip.ips_badsum + ip.ips_tooshort + ip.ips_toosmall</span>
+                        + ip.ips_badhlen + ip.ips_badlen - udp.udps_hdrops + udp.udps_badsum + udp.udps_badlen)),
+                0L);
+    }
+
+    @Override
+    public TcpStats getTCPv6Stats() {
+<span class="nc" id="L90">        Ip6stat ip6 = ip6stat.get();</span>
+<span class="nc" id="L91">        Udpstat udp = udpstat.get();</span>
+<span class="nc" id="L92">        return new TcpStats(establishedv4v6.get().getB(), 0L, 0L, 0L, 0L,</span>
+<span class="nc" id="L93">                ip6.ip6s_localout - ParseUtil.unsignedIntToLong(udp.udps_snd6_swcsum),</span>
+<span class="nc" id="L94">                ip6.ip6s_total - ParseUtil.unsignedIntToLong(udp.udps_rcv6_swcsum), 0L, 0L, 0L);</span>
+    }
+
+    @Override
+    public UdpStats getUDPv4Stats() {
+<span class="nc" id="L99">        Udpstat stat = udpstat.get();</span>
+<span class="nc" id="L100">        return new UdpStats(ParseUtil.unsignedIntToLong(stat.udps_snd_swcsum),</span>
+<span class="nc" id="L101">                ParseUtil.unsignedIntToLong(stat.udps_rcv_swcsum), ParseUtil.unsignedIntToLong(stat.udps_noportmcast),</span>
+<span class="nc" id="L102">                ParseUtil.unsignedIntToLong(stat.udps_hdrops + stat.udps_badsum + stat.udps_badlen));</span>
+    }
+
+    @Override
+    public UdpStats getUDPv6Stats() {
+<span class="nc" id="L107">        Udpstat stat = udpstat.get();</span>
+<span class="nc" id="L108">        return new UdpStats(ParseUtil.unsignedIntToLong(stat.udps_snd6_swcsum),</span>
+<span class="nc" id="L109">                ParseUtil.unsignedIntToLong(stat.udps_rcv6_swcsum), 0L, 0L);</span>
+    }
+
+    private static Tcpstat queryTcpstat() {
+<span class="nc" id="L113">        Tcpstat tcpstat = new Tcpstat();</span>
+<span class="nc" id="L114">        SysctlUtil.sysctl(&quot;net.inet.tcp.stats&quot;, tcpstat);</span>
+<span class="nc" id="L115">        return tcpstat;</span>
+    }
+
+    private static Ipstat queryIpstat() {
+<span class="nc" id="L119">        Ipstat ipstat = new Ipstat();</span>
+<span class="nc" id="L120">        SysctlUtil.sysctl(&quot;net.inet.ip.stats&quot;, ipstat);</span>
+<span class="nc" id="L121">        return ipstat;</span>
+    }
+
+    private static Ip6stat queryIp6stat() {
+<span class="nc" id="L125">        Ip6stat ip6stat = new Ip6stat();</span>
+<span class="nc" id="L126">        SysctlUtil.sysctl(&quot;net.inet6.ip6.stats&quot;, ip6stat);</span>
+<span class="nc" id="L127">        return ip6stat;</span>
+    }
+
+    private static Udpstat queryUdpstat() {
+<span class="nc" id="L131">        Udpstat udpstat = new Udpstat();</span>
+<span class="nc" id="L132">        SysctlUtil.sysctl(&quot;net.inet.udp.stats&quot;, udpstat);</span>
+<span class="nc" id="L133">        return udpstat;</span>
+    }
+
+    private static Pair&lt;Long, Long&gt; queryTcpnetstat() {
+<span class="nc" id="L137">        long tcp4 = 0L;</span>
+<span class="nc" id="L138">        long tcp6 = 0L;</span>
+<span class="nc" id="L139">        List&lt;String&gt; activeConns = ExecutingCommand.runNative(&quot;netstat -n -p tcp&quot;);</span>
+<span class="nc bnc" id="L140" title="All 2 branches missed.">        for (String s : activeConns) {</span>
+<span class="nc bnc" id="L141" title="All 2 branches missed.">            if (s.endsWith(&quot;ESTABLISHED&quot;)) {</span>
+<span class="nc bnc" id="L142" title="All 2 branches missed.">                if (s.startsWith(&quot;tcp4&quot;)) {</span>
+<span class="nc" id="L143">                    tcp4++;</span>
+<span class="nc bnc" id="L144" title="All 2 branches missed.">                } else if (s.startsWith(&quot;tcp6&quot;)) {</span>
+<span class="nc" id="L145">                    tcp6++;</span>
+                }
+            }
+<span class="nc" id="L148">        }</span>
+<span class="nc" id="L149">        return new Pair&lt;&gt;(tcp4, tcp6);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

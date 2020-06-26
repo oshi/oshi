@@ -26,8 +26,13 @@ package oshi.driver.windows.wmi;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery; //NOSONAR squid:S1191
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
+import oshi.annotation.concurrent.ThreadSafe;
 import oshi.util.platform.windows.WmiQueryHandler;
 
+/**
+ * Utility to query WMI class {@code Win32_ComputerSystemProduct}
+ */
+@ThreadSafe
 public final class Win32ComputerSystemProduct {
 
     private static final String WIN32_COMPUTER_SYSTEM_PRODUCT = &quot;Win32_ComputerSystemProduct&quot;;
@@ -35,8 +40,8 @@ public final class Win32ComputerSystemProduct {
     /**
      * Computer System ID number
      */
-<span class="nc" id="L38">    public enum ComputerSystemProductProperty {</span>
-<span class="nc" id="L39">        IDENTIFYINGNUMBER;</span>
+<span class="nc" id="L43">    public enum ComputerSystemProductProperty {</span>
+<span class="nc" id="L44">        IDENTIFYINGNUMBER;</span>
     }
 
     private Win32ComputerSystemProduct() {
@@ -48,9 +53,9 @@ public final class Win32ComputerSystemProduct {
      * @return Assigned serial number of the software element.
      */
     public static WmiResult&lt;ComputerSystemProductProperty&gt; queryIdentifyingNumber() {
-<span class="nc" id="L51">        WmiQuery&lt;ComputerSystemProductProperty&gt; identifyingNumberQuery = new WmiQuery&lt;&gt;(WIN32_COMPUTER_SYSTEM_PRODUCT,</span>
+<span class="nc" id="L56">        WmiQuery&lt;ComputerSystemProductProperty&gt; identifyingNumberQuery = new WmiQuery&lt;&gt;(WIN32_COMPUTER_SYSTEM_PRODUCT,</span>
                 ComputerSystemProductProperty.class);
-<span class="nc" id="L53">        return WmiQueryHandler.createInstance().queryWMI(identifyingNumberQuery);</span>
+<span class="nc" id="L58">        return WmiQueryHandler.createInstance().queryWMI(identifyingNumberQuery);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

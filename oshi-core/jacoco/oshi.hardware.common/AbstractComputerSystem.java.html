@@ -27,6 +27,7 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.function.Supplier;
 
+import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.Baseboard;
 import oshi.hardware.ComputerSystem;
 import oshi.hardware.Firmware;
@@ -34,15 +35,16 @@ import oshi.hardware.Firmware;
 /**
  * Computer System data.
  */
-<span class="nc" id="L37">public abstract class AbstractComputerSystem implements ComputerSystem {</span>
+@Immutable
+<span class="nc" id="L39">public abstract class AbstractComputerSystem implements ComputerSystem {</span>
 
-<span class="nc" id="L39">    private final Supplier&lt;Firmware&gt; firmware = memoize(this::createFirmware);</span>
+<span class="nc" id="L41">    private final Supplier&lt;Firmware&gt; firmware = memoize(this::createFirmware);</span>
 
-<span class="nc" id="L41">    private final Supplier&lt;Baseboard&gt; baseboard = memoize(this::createBaseboard);</span>
+<span class="nc" id="L43">    private final Supplier&lt;Baseboard&gt; baseboard = memoize(this::createBaseboard);</span>
 
     @Override
     public Firmware getFirmware() {
-<span class="nc" id="L45">        return firmware.get();</span>
+<span class="nc" id="L47">        return firmware.get();</span>
     }
 
     /**
@@ -54,7 +56,7 @@ import oshi.hardware.Firmware;
 
     @Override
     public Baseboard getBaseboard() {
-<span class="nc" id="L57">        return baseboard.get();</span>
+<span class="nc" id="L59">        return baseboard.get();</span>
     }
 
     /**
@@ -66,11 +68,11 @@ import oshi.hardware.Firmware;
 
     @Override
     public String toString() {
-<span class="nc" id="L69">        StringBuilder sb = new StringBuilder();</span>
-<span class="nc" id="L70">        sb.append(&quot;manufacturer=&quot;).append(getManufacturer()).append(&quot;, &quot;);</span>
-<span class="nc" id="L71">        sb.append(&quot;model=&quot;).append(getModel()).append(&quot;, &quot;);</span>
-<span class="nc" id="L72">        sb.append(&quot;serial number=&quot;).append(getSerialNumber());</span>
-<span class="nc" id="L73">        return sb.toString();</span>
+<span class="nc" id="L71">        StringBuilder sb = new StringBuilder();</span>
+<span class="nc" id="L72">        sb.append(&quot;manufacturer=&quot;).append(getManufacturer()).append(&quot;, &quot;);</span>
+<span class="nc" id="L73">        sb.append(&quot;model=&quot;).append(getModel()).append(&quot;, &quot;);</span>
+<span class="nc" id="L74">        sb.append(&quot;serial number=&quot;).append(getSerialNumber());</span>
+<span class="nc" id="L75">        return sb.toString();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

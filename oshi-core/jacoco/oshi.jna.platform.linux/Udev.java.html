@@ -23,267 +23,529 @@
  */
 package oshi.jna.platform.linux;
 
-import com.sun.jna.Library;
+import com.sun.jna.Library; // NOSONAR squid:S1191
 import com.sun.jna.Native;
-import com.sun.jna.Pointer;
 import com.sun.jna.PointerType;
 
 /**
- * Interface for talking with Udev.
+ * libudev.h provides APIs to introspect and enumerate devices on the local
+ * system. Udev objects are opaque and must not be accessed by the caller via
+ * different means than functions provided by libudev.
  */
 public interface Udev extends Library {
 
-    /** Constant &lt;code&gt;INSTANCE&lt;/code&gt; */
 <span class="nc" id="L37">    Udev INSTANCE = Native.load(&quot;udev&quot;, Udev.class);</span>
 
-    final class UdevHandle extends PointerType {
-
-        public UdevHandle(Pointer address) {
-<span class="nc" id="L42">            super(address);</span>
-<span class="nc" id="L43">        }</span>
-
-        public UdevHandle() {
-<span class="nc" id="L46">            super();</span>
-<span class="nc" id="L47">        }</span>
-    }
-
-    final class UdevDevice extends PointerType {
-
-        public UdevDevice(Pointer address) {
-<span class="nc" id="L53">            super(address);</span>
-<span class="nc" id="L54">        }</span>
-
-        public UdevDevice() {
-<span class="nc" id="L57">            super();</span>
-<span class="nc" id="L58">        }</span>
-    }
-
-    final class UdevEnumerate extends PointerType {
-
-        public UdevEnumerate(Pointer address) {
-<span class="nc" id="L64">            super(address);</span>
-<span class="nc" id="L65">        }</span>
-
-        public UdevEnumerate() {
-<span class="nc" id="L68">            super();</span>
-<span class="nc" id="L69">        }</span>
-    }
-
-    final class UdevListEntry extends PointerType {
-
-        public UdevListEntry(Pointer address) {
-<span class="nc" id="L75">            super(address);</span>
-<span class="nc" id="L76">        }</span>
-
-        public UdevListEntry() {
-<span class="nc" id="L79">            super();</span>
-<span class="nc" id="L80">        }</span>
-    }
-
     /**
-     * &lt;p&gt;
-     * udev_new.
-     * &lt;/p&gt;
-     *
-     * @return a {@link oshi.jna.platform.linux.Udev.UdevHandle} object.
+     * All functions require a libudev context to operate. This context can be
+     * created via {@link #udev_new}. It is used to track library state and link
+     * objects together. No global state is used by libudev, everything is always
+     * linked to a udev context. Furthermore, multiple different udev contexts can
+     * be used in parallel by multiple threads. However, a single context must not
+     * be accessed by multiple threads in parallel. The caller is responsible for
+     * providing suitable locking if they intend to use it from multiple threads.
      */
-    Udev.UdevHandle udev_new();
+<span class="nc" id="L48">    class UdevContext extends PointerType {</span>
+        /**
+         * Acquire a further reference to this object.
+         *
+         * @return this object, unmodified.
+         */
+        UdevContext ref() {
+<span class="nc" id="L55">            return INSTANCE.udev_ref(this);</span>
+        }
+
+        /**
+         * Drop a reference to this object. Once the reference count hits 0, the context
+         * object is destroyed and freed.
+         */
+        public void unref() {
+<span class="nc" id="L63">            INSTANCE.udev_unref(this);</span>
+<span class="nc" id="L64">        }</span>
+
+        /**
+         * Create a udev enumerate object. Initially, the reference count of the
+         * enumerate object is 1.
+         *
+         * @return On success, returns the allocated enumerator. On failure, NULL is
+         *         returned.
+         */
+        public UdevEnumerate enumerateNew() {
+<span class="nc" id="L74">            return INSTANCE.udev_enumerate_new(this);</span>
+        }
+
+        /**
+         * Creates a udev device object based on information found in {@code /sys},
+         * annotated with properties from the udev-internal device database. Initially,
+         * the reference count of the device is 1.
+         *
+         * @param syspath
+         *            The path of the device in {@code /sys}.
+         * @return the allocated udev device. On failure, NULL is returned, and
+         *         {@code errno} is set appropriately.
+         */
+        public UdevDevice deviceNewFromSyspath(String syspath) {
+<span class="nc" id="L88">            return INSTANCE.udev_device_new_from_syspath(this, syspath);</span>
+        }
+    }
 
     /**
-     * &lt;p&gt;
-     * udev_unref.
-     * &lt;/p&gt;
+     * To enumerate local devices on the system, an enumeration object can be
+     * created via {@link UdevContext#enumerateNew()}.
+     */
+<span class="nc" id="L96">    class UdevEnumerate extends PointerType {</span>
+        /**
+         * Acquire a further reference to this object.
+         *
+         * @return this object, unmodified.
+         */
+        public UdevEnumerate ref() {
+<span class="nc" id="L103">            return INSTANCE.udev_enumerate_ref(this);</span>
+        }
+
+        /**
+         * Drop a reference to this object. Once the reference count hits 0, the context
+         * object is destroyed and freed.
+         */
+        public void unref() {
+<span class="nc" id="L111">            INSTANCE.udev_enumerate_unref(this);</span>
+<span class="nc" id="L112">        }</span>
+
+        /**
+         * Modify filters of this object to match a subsystem.
+         *
+         * @param subsystem
+         *            The subsystem to match
+         * @return an integer greater than, or equal to, 0 on success.
+         */
+        public int addMatchSubsystem(String subsystem) {
+<span class="nc" id="L122">            return INSTANCE.udev_enumerate_add_match_subsystem(this, subsystem);</span>
+        }
+
+        /**
+         * Query this object. Scans {@code /sys} for all devices which match the given
+         * filters. No filters will return all currently available devices.
+         *
+         * @return an integer greater than, or equal to, 0 on success.
+         */
+        public int scanDevices() {
+<span class="nc" id="L132">            return INSTANCE.udev_enumerate_scan_devices(this);</span>
+        }
+
+        /**
+         * Get the first list entry from this object.
+         *
+         * @return On success, returns the first entry in the list of found devices. If
+         *         the list is empty, or on failure, NULL is returned.
+         */
+        public UdevListEntry getListEntry() {
+<span class="nc" id="L142">            return INSTANCE.udev_enumerate_get_list_entry(this);</span>
+        }
+    }
+
+    /**
+     * Whenever libudev returns a list of objects, the {@code udev_list_entry} API
+     * should be used to iterate, access and modify those lists.
+     */
+<span class="nc" id="L150">    class UdevListEntry extends PointerType {</span>
+        /**
+         * Gets the next entry in the enumeration.
+         *
+         * @return On success, returns the next list entry. If no such entry can be
+         *         found, or on failure, NULL is returned.
+         */
+        public UdevListEntry getNext() {
+<span class="nc" id="L158">            return INSTANCE.udev_list_entry_get_next(this);</span>
+        }
+
+        /**
+         * Get the name of this entry, which is the path of the device in {@code /sys}.
+         *
+         * @return A string representing the syspath. On failure, NULL is returned.
+         */
+        public String getName() {
+<span class="nc" id="L167">            return INSTANCE.udev_list_entry_get_name(this);</span>
+        }
+    }
+
+    /**
+     * To introspect a local device on a system, a udev device object can be created
+     * via {@link UdevContext#deviceNewFromSyspath(String)} and friends. The device
+     * object allows one to query current state, read and write attributes and
+     * lookup properties of the device in question.
+     */
+<span class="nc" id="L177">    class UdevDevice extends PointerType {</span>
+        /**
+         * Acquire a further reference to this object.
+         *
+         * @return this object, unmodified.
+         */
+        public UdevDevice ref() {
+<span class="nc" id="L184">            return INSTANCE.udev_device_ref(this);</span>
+        }
+
+        /**
+         * Drop a reference to this object. Once the reference count hits 0, the context
+         * object is destroyed and freed.
+         */
+        public void unref() {
+<span class="nc" id="L192">            INSTANCE.udev_device_unref(this);</span>
+<span class="nc" id="L193">        }</span>
+
+        /**
+         * Gets the parent of this device
+         *
+         * @return the parent device. No additional reference to this device is
+         *         acquired, but the child device owns a reference to the parent device.
+         *         On failure, NULL is returned.
+         */
+        public UdevDevice getParent() {
+<span class="nc" id="L203">            return INSTANCE.udev_device_get_parent(this);</span>
+        }
+
+        /**
+         * Gets the parent of this device matching a subsystem and devtype
+         *
+         * @param subsystem
+         *            The subsystem to match
+         * @param devtype
+         *            The device type to match
+         * @return the parent device. No additional reference to this device is
+         *         acquired, but the child device owns a reference to the parent device.
+         *         On failure, NULL is returned.
+         */
+        public UdevDevice getParentWithSubsystemDevtype(String subsystem, String devtype) {
+<span class="nc" id="L218">            return INSTANCE.udev_device_get_parent_with_subsystem_devtype(this, subsystem, devtype);</span>
+        }
+
+        /**
+         * Gets the syspath of this device
+         *
+         * @return a string that describes the syspath. On failure, may return NULL.
+         */
+        public String getSyspath() {
+<span class="nc" id="L227">            return INSTANCE.udev_device_get_syspath(this);</span>
+        }
+
+        /**
+         * Gets the sysname of this device
+         *
+         * @return a string that describes the sysname. On failure, may return NULL.
+         */
+        public String getSysname() {
+<span class="nc" id="L236">            return INSTANCE.udev_device_get_syspath(this);</span>
+        }
+
+        /**
+         * Gets the devnode of this device
+         *
+         * @return a string that describes the devnode. On failure, may return NULL.
+         */
+        public String getDevnode() {
+<span class="nc" id="L245">            return INSTANCE.udev_device_get_devnode(this);</span>
+        }
+
+        /**
+         * Gets the devtype of this device
+         *
+         * @return a string that describes the devtype. On failure, may return NULL.
+         */
+        public String getDevtype() {
+<span class="nc" id="L254">            return INSTANCE.udev_device_get_devtype(this);</span>
+        }
+
+        /**
+         * Gets the subsystem of this device
+         *
+         * @return a string that describes the subsystem. On failure, may return NULL.
+         */
+        public String getSubsystem() {
+<span class="nc" id="L263">            return INSTANCE.udev_device_get_subsystem(this);</span>
+        }
+
+        /**
+         * Retrieves a device attribute from this device
+         *
+         * @param sysattr
+         *            The attribute to retrieve.
+         * @return a string of the requested value. On error, NULL is returned.
+         *         Attributes that may contain NUL bytes should not be retrieved with
+         *         udev_device_get_sysattr_value(); instead, read them directly from the
+         *         files within the device's syspath.
+         */
+        public String getSysattrValue(String sysattr) {
+<span class="nc" id="L277">            return INSTANCE.udev_device_get_sysattr_value(this, sysattr);</span>
+        }
+
+        /**
+         * Retrieves a device property from this device
+         *
+         * @param key
+         *            The property to retrieve.
+         * @return a string of the requested value. On error, NULL is returned.
+         */
+        public String getPropertyValue(String key) {
+<span class="nc" id="L288">            return INSTANCE.udev_device_get_property_value(this, key);</span>
+        }
+    }
+
+    /**
+     * Allocates a new udev context object and returns a pointer to it. This object
+     * is opaque and must not be accessed by the caller via different means than
+     * functions provided by libudev. Initially, the reference count of the context
+     * is 1.
+     *
+     * @return On success, returns a pointer to the allocated udev context. On
+     *         failure, NULL is returned.
+     */
+    UdevContext udev_new();
+
+    /**
+     * Acquire further references to a udev context object.
      *
      * @param udev
-     *            a {@link oshi.jna.platform.linux.Udev.UdevHandle} object.
+     *            A udev context object.
+     * @return the argument that was passed, unmodified.
      */
-    void udev_unref(Udev.UdevHandle udev);
+    UdevContext udev_ref(UdevContext udev);
 
     /**
-     * &lt;p&gt;
-     * udev_device_unref.
-     * &lt;/p&gt;
-     *
-     * @param udev_device
-     *            a {@link oshi.jna.platform.linux.Udev.UdevDevice} object.
-     */
-    void udev_device_unref(Udev.UdevDevice udev_device);
-
-    /**
-     * &lt;p&gt;
-     * udev_enumerate_unref.
-     * &lt;/p&gt;
-     *
-     * @param udev_enumerate
-     *            a {@link oshi.jna.platform.linux.Udev.UdevEnumerate} object.
-     */
-    void udev_enumerate_unref(Udev.UdevEnumerate udev_enumerate);
-
-    /**
-     * &lt;p&gt;
-     * udev_enumerate_new.
-     * &lt;/p&gt;
+     * Drop a reference to a udev context object. Once the reference count hits 0,
+     * the context object is destroyed and freed.
      *
      * @param udev
-     *            a {@link oshi.jna.platform.linux.Udev.UdevHandle} object.
-     * @return a {@link oshi.jna.platform.linux.Udev.UdevEnumerate} object.
+     *            A udev context object.
+     * @return always returns NULL.
      */
-    Udev.UdevEnumerate udev_enumerate_new(Udev.UdevHandle udev);
+    UdevContext udev_unref(UdevContext udev);
 
     /**
+     * Allocates a new udev device object and returns a pointer to it. This object
+     * is opaque and must not be accessed by the caller via different means than
+     * functions provided by libudev. Initially, the reference count of the device
+     * is 1.
      * &lt;p&gt;
-     * udev_device_get_parent_with_subsystem_devtype.
-     * &lt;/p&gt;
-     *
-     * @param udev_device
-     *            a {@link oshi.jna.platform.linux.Udev.UdevDevice} object.
-     * @param subsystem
-     *            a {@link java.lang.String} object.
-     * @param devtype
-     *            a {@link java.lang.String} object.
-     * @return a {@link oshi.jna.platform.linux.Udev.UdevDevice} object.
-     */
-    Udev.UdevDevice udev_device_get_parent_with_subsystem_devtype(Udev.UdevDevice udev_device, String subsystem,
-            String devtype);
-
-    /**
-     * &lt;p&gt;
-     * udev_device_new_from_syspath.
-     * &lt;/p&gt;
+     * Creates the device object based on information found in {@code /sys},
+     * annotated with properties from the udev-internal device database. A syspath
+     * is any subdirectory of {@code /sys}, with the restriction that a subdirectory
+     * of {@code /sys/devices} (or a symlink to one) represents a real device and as
+     * such must contain a uevent file.
      *
      * @param udev
-     *            a {@link oshi.jna.platform.linux.Udev.UdevHandle} object.
+     *            A udev context object.
      * @param syspath
-     *            a {@link java.lang.String} object.
-     * @return a {@link oshi.jna.platform.linux.Udev.UdevDevice} object.
+     *            The path of the device in {@code /sys}.
+     * @return a pointer to the allocated udev device. On failure, NULL is returned,
+     *         and {@code errno} is set appropriately.
      */
-    Udev.UdevDevice udev_device_new_from_syspath(Udev.UdevHandle udev, String syspath);
+    UdevDevice udev_device_new_from_syspath(UdevContext udev, String syspath);
 
     /**
-     * &lt;p&gt;
-     * udev_list_entry_get_next.
-     * &lt;/p&gt;
+     * Create a udev enumerate object. Initially, the reference count of the
+     * enumerate object is 1.
      *
-     * @param list_entry
-     *            a {@link oshi.jna.platform.linux.Udev.UdevListEntry} object.
-     * @return a {@link oshi.jna.platform.linux.Udev.UdevListEntry} object.
+     * @param udev
+     *            A udev context object.
+     * @return On success, returns a pointer to the allocated udev monitor. On
+     *         failure, NULL is returned.
      */
-    Udev.UdevListEntry udev_list_entry_get_next(Udev.UdevListEntry list_entry);
+    UdevEnumerate udev_enumerate_new(UdevContext udev);
 
     /**
-     * &lt;p&gt;
-     * udev_device_get_sysattr_value.
-     * &lt;/p&gt;
-     *
-     * @param udev_device
-     *            a {@link oshi.jna.platform.linux.Udev.UdevDevice} object.
-     * @param sysattr
-     *            a {@link java.lang.String} object.
-     * @return a {@link java.lang.String} object.
-     */
-    String udev_device_get_sysattr_value(Udev.UdevDevice udev_device, String sysattr);
-
-    /**
-     * &lt;p&gt;
-     * udev_enumerate_add_match_subsystem.
-     * &lt;/p&gt;
+     * Acquire further references to a udev enumerate object.
      *
      * @param udev_enumerate
-     *            a {@link oshi.jna.platform.linux.Udev.UdevEnumerate} object.
+     *            A udev enumerate object.
+     * @return the argument that was passed, unmodified.
+     */
+    UdevEnumerate udev_enumerate_ref(UdevEnumerate udev_enumerate);
+
+    /**
+     * Drop a reference to a udev enumerate object. Once the reference count hits 0,
+     * the enumerate object is destroyed and freed.
+     *
+     * @param udev_enumerate
+     *            A udev enumerate object.
+     * @return always returns NULL.
+     */
+    UdevEnumerate udev_enumerate_unref(UdevEnumerate udev_enumerate);
+
+    /**
+     * Modify filters of a udev enumerate object to match a subsystem.
+     *
+     * @param udev_enumerate
+     *            The udev enumerate object to modify.
      * @param subsystem
-     *            a {@link java.lang.String} object.
-     * @return a int.
+     *            The subsystem to match
+     * @return an integer greater than, or equal to, 0 on success.
      */
-    int udev_enumerate_add_match_subsystem(Udev.UdevEnumerate udev_enumerate, String subsystem);
+    int udev_enumerate_add_match_subsystem(UdevEnumerate udev_enumerate, String subsystem);
 
     /**
-     * &lt;p&gt;
-     * udev_enumerate_scan_devices.
-     * &lt;/p&gt;
+     * Query a udev enumerate object. Scans {@code /sys} for all devices which match
+     * the given filters. No matches will return all currently available devices.
      *
      * @param udev_enumerate
-     *            a {@link oshi.jna.platform.linux.Udev.UdevEnumerate} object.
-     * @return a int.
+     *            The udev enumerate object, with optional filters.
+     * @return an integer greater than, or equal to, 0 on success.
      */
-    int udev_enumerate_scan_devices(Udev.UdevEnumerate udev_enumerate);
+    int udev_enumerate_scan_devices(UdevEnumerate udev_enumerate);
 
     /**
-     * &lt;p&gt;
-     * udev_enumerate_get_list_entry.
-     * &lt;/p&gt;
+     * Get the first list entry from a udev enumerate object.
      *
      * @param udev_enumerate
-     *            a {@link oshi.jna.platform.linux.Udev.UdevEnumerate} object.
-     * @return a {@link oshi.jna.platform.linux.Udev.UdevListEntry} object.
+     *            The udev enumerate object.
+     * @return On success, returns a pointer to the first entry in the list of found
+     *         devices. If the list is empty, or on failure, NULL is returned.
      */
-    Udev.UdevListEntry udev_enumerate_get_list_entry(Udev.UdevEnumerate udev_enumerate);
+    UdevListEntry udev_enumerate_get_list_entry(UdevEnumerate udev_enumerate);
 
     /**
-     * &lt;p&gt;
-     * udev_list_entry_get_name.
-     * &lt;/p&gt;
+     * Gets the next entry in the enumeration.
      *
      * @param list_entry
-     *            a {@link oshi.jna.platform.linux.Udev.UdevListEntry} object.
-     * @return a {@link java.lang.String} object.
+     *            the current list entry
+     * @return On success, returns a pointer to the next list entry. If no such
+     *         entry can be found, or on failure, NULL is returned.
      */
-    String udev_list_entry_get_name(Udev.UdevListEntry list_entry);
+    UdevListEntry udev_list_entry_get_next(UdevListEntry list_entry);
 
     /**
-     * &lt;p&gt;
-     * udev_device_get_devtype.
-     * &lt;/p&gt;
+     * Get the name of the udev list entry
      *
-     * @param udev_device
-     *            a {@link oshi.jna.platform.linux.Udev.UdevDevice} object.
-     * @return a {@link java.lang.String} object.
+     * @param list_entry
+     *            A udev list entry
+     * @return a pointer to a constant string representing the requested value. The
+     *         string is bound to the lifetime of the list entry itself. On failure,
+     *         NULL is returned.
      */
-    String udev_device_get_devtype(Udev.UdevDevice udev_device);
+    String udev_list_entry_get_name(UdevListEntry list_entry);
 
     /**
-     * &lt;p&gt;
-     * udev_device_get_devnode.
-     * &lt;/p&gt;
+     * Acquire further references to a udev device object.
      *
      * @param udev_device
-     *            a {@link oshi.jna.platform.linux.Udev.UdevDevice} object.
-     * @return a {@link java.lang.String} object.
+     *            A udev device object.
+     * @return the argument that was passed, unmodified.
      */
-    String udev_device_get_devnode(Udev.UdevDevice udev_device);
+    UdevDevice udev_device_ref(UdevDevice udev_device);
 
     /**
-     * &lt;p&gt;
-     * udev_device_get_syspath.
-     * &lt;/p&gt;
+     * Drop a reference to a udev device object. Once the reference count hits 0,
+     * the device object is destroyed and freed.
      *
      * @param udev_device
-     *            a {@link oshi.jna.platform.linux.Udev.UdevDevice} object.
-     * @return a {@link java.lang.String} object.
+     *            A udev device object.
+     * @return always returns NULL.
      */
-    String udev_device_get_syspath(Udev.UdevDevice udev_device);
+    UdevDevice udev_device_unref(UdevDevice udev_device);
 
     /**
-     * &lt;p&gt;
-     * udev_device_get_property_value.
-     * &lt;/p&gt;
+     * Gets the parent of a udev device
      *
      * @param udev_device
-     *            a {@link oshi.jna.platform.linux.Udev.UdevDevice} object.
-     * @param key
-     *            a {@link java.lang.String} object.
-     * @return a {@link java.lang.String} object.
+     *            A udev device object.
+     * @return a pointer to the parent device. No additional reference to this
+     *         device is acquired, but the child device owns a reference to such a
+     *         parent device. On failure, NULL is returned.
      */
-    String udev_device_get_property_value(Udev.UdevDevice udev_device, String key);
+    UdevDevice udev_device_get_parent(UdevDevice udev_device);
 
     /**
-     * &lt;p&gt;
-     * udev_device_get_sysname.
-     * &lt;/p&gt;
+     * Gets the parent of a udev device matching a subsystem and devtype
      *
      * @param udev_device
-     *            a {@link oshi.jna.platform.linux.Udev.UdevDevice} object.
-     * @return a {@link java.lang.String} object.
+     *            A udev device object.
+     * @param subsystem
+     *            The subsystem to match
+     * @param devtype
+     *            The device type to match
+     * @return a pointer to the parent device. No additional reference to this
+     *         device is acquired, but the child device owns a reference to such a
+     *         parent device. On failure, NULL is returned.
+     */
+    UdevDevice udev_device_get_parent_with_subsystem_devtype(UdevDevice udev_device, String subsystem, String devtype);
+
+    /**
+     * Gets the syspath of a udev device
+     *
+     * @param udev_device
+     *            A udev device object.
+     * @return a pointer to a constant string that describes the syspath. The
+     *         lifetime of this string is bound to the device it was requested on.
+     *         On failure, may return NULL.
+     */
+    String udev_device_get_syspath(UdevDevice udev_device);
+
+    /**
+     * Gets the sysname of a udev device
+     *
+     * @param udev_device
+     *            A udev device object.
+     * @return a pointer to a constant string that describes the sysname. The
+     *         lifetime of this string is bound to the device it was requested on.
+     *         On failure, may return NULL.
      */
     String udev_device_get_sysname(UdevDevice udev_device);
+
+    /**
+     * Gets the devnode of a udev device
+     *
+     * @param udev_device
+     *            A udev device object.
+     * @return a pointer to a constant string that describes the devnode. The
+     *         lifetime of this string is bound to the device it was requested on.
+     *         On failure, may return NULL.
+     */
+    String udev_device_get_devnode(UdevDevice udev_device);
+
+    /**
+     * Gets the devtype of a udev device
+     *
+     * @param udev_device
+     *            A udev device object.
+     * @return a pointer to a constant string that describes the devtype. The
+     *         lifetime of this string is bound to the device it was requested on.
+     *         On failure, may return NULL.
+     */
+    String udev_device_get_devtype(UdevDevice udev_device);
+
+    /**
+     * Gets the subsystem of a udev device
+     *
+     * @param udev_device
+     *            A udev device object.
+     * @return a pointer to a constant string that describes the subsystem. The
+     *         lifetime of this string is bound to the device it was requested on.
+     *         On failure, may return NULL.
+     */
+    String udev_device_get_subsystem(UdevDevice udev_device);
+
+    /**
+     * Retrieves a device attributesfrom a udev device.
+     *
+     * @param udev_device
+     *            A udev device object.
+     * @param sysattr
+     *            The attribute to retrieve.
+     * @return a pointer to a constant string of the requested value. On error, NULL
+     *         is returned. Attributes that may contain NUL bytes should not be
+     *         retrieved with udev_device_get_sysattr_value(); instead, read them
+     *         directly from the files within the device's syspath.
+     */
+    String udev_device_get_sysattr_value(UdevDevice udev_device, String sysattr);
+
+    /**
+     * Retrieves a device property from a udev device.
+     *
+     * @param udev_device
+     *            A udev device object.
+     * @param key
+     *            The property to retrieve.
+     * @return a pointer to a constant string of the requested value. On error, NULL
+     *         is returned.
+     */
+    String udev_device_get_property_value(UdevDevice udev_device, String key);
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

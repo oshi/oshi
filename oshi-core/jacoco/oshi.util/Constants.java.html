@@ -27,9 +27,12 @@ import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 
+import oshi.annotation.concurrent.ThreadSafe;
+
 /**
  * General constants used in multiple classes
  */
+@ThreadSafe
 public final class Constants {
 
     /**
@@ -46,13 +49,13 @@ public final class Constants {
     /**
      * The Unix Epoch, a default value when WMI DateTime queries return no value.
      */
-<span class="fc" id="L49">    public static final OffsetDateTime UNIX_EPOCH = OffsetDateTime.ofInstant(Instant.EPOCH, ZoneOffset.UTC);</span>
+<span class="fc" id="L52">    public static final OffsetDateTime UNIX_EPOCH = OffsetDateTime.ofInstant(Instant.EPOCH, ZoneOffset.UTC);</span>
 
     /**
      * Everything in this class is static, never instantiate it
      */
-<span class="nc" id="L54">    private Constants() {</span>
-<span class="nc" id="L55">        throw new AssertionError();</span>
+<span class="nc" id="L57">    private Constants() {</span>
+<span class="nc" id="L58">        throw new AssertionError();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
