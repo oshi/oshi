@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>WinNT.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-demo</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.jna.platform.windows</a> &gt; <span class="el_source">WinNT.java</span></div><h1>WinNT.java</h1><pre class="source lang-java linenums">/**
+ * MIT License
+ *
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+package oshi.jna.platform.windows;
+
+import com.sun.jna.IntegerType; // NOSONAR squid:S1191
+import com.sun.jna.Memory;
+import com.sun.jna.Pointer;
+import com.sun.jna.Structure;
+import com.sun.jna.Structure.FieldOrder;
+import com.sun.jna.Union;
+
+public interface WinNT extends com.sun.jna.platform.win32.WinNT {
+    /**
+     * The TOKEN_PRIMARY_GROUP structure specifies a group security identifier (SID)
+     * for an access token.
+     */
+    @FieldOrder({ &quot;PrimaryGroup&quot; })
+    public static class TOKEN_PRIMARY_GROUP extends Structure {
+        /**
+         * A pointer to a SID structure representing a group that will become the
+         * primary group of any objects created by a process using this access token.
+         * The SID must be one of the group SIDs already in the token.
+         */
+        public PSID.ByReference PrimaryGroup;
+
+        public TOKEN_PRIMARY_GROUP() {
+<span class="nc" id="L48">            super();</span>
+<span class="nc" id="L49">        }</span>
+
+        public TOKEN_PRIMARY_GROUP(Pointer memory) {
+<span class="nc" id="L52">            super(memory);</span>
+<span class="nc" id="L53">            read();</span>
+<span class="nc" id="L54">        }</span>
+
+        public TOKEN_PRIMARY_GROUP(int size) {
+<span class="nc" id="L57">            super(new Memory(size));</span>
+<span class="nc" id="L58">        }</span>
+    }
+
+    /**
+     * A 64-bit integer;
+     */
+    @FieldOrder({ &quot;u&quot; })
+    static class LARGE_INTEGER extends Structure implements Comparable&lt;LARGE_INTEGER&gt; {
+<span class="nc" id="L66">        public static class ByReference extends LARGE_INTEGER implements Structure.ByReference {</span>
+        }
+
+        @FieldOrder({ &quot;LowPart&quot;, &quot;HighPart&quot; })
+        public static class LowHigh extends Structure {
+            public DWORD LowPart;
+            public DWORD HighPart;
+
+            public LowHigh() {
+<span class="nc" id="L75">                super();</span>
+<span class="nc" id="L76">            }</span>
+
+            public LowHigh(long value) {
+<span class="nc" id="L79">                this(new DWORD(value &amp; 0xFFFFFFFFL), new DWORD((value &gt;&gt; 32) &amp; 0xFFFFFFFFL));</span>
+<span class="nc" id="L80">            }</span>
+
+<span class="nc" id="L82">            public LowHigh(DWORD low, DWORD high) {</span>
+<span class="nc" id="L83">                LowPart = low;</span>
+<span class="nc" id="L84">                HighPart = high;</span>
+<span class="nc" id="L85">            }</span>
+
+            public long longValue() {
+<span class="nc" id="L88">                long loValue = LowPart.longValue();</span>
+<span class="nc" id="L89">                long hiValue = HighPart.longValue();</span>
+<span class="nc" id="L90">                return ((hiValue &lt;&lt; 32) &amp; 0xFFFFFFFF00000000L) | (loValue &amp; 0xFFFFFFFFL);</span>
+            }
+
+            @Override
+            public String toString() {
+<span class="nc bnc" id="L95" title="All 4 branches missed.">                if ((LowPart == null) || (HighPart == null)) {</span>
+<span class="nc" id="L96">                    return &quot;null&quot;;</span>
+                } else {
+<span class="nc" id="L98">                    return Long.toString(longValue());</span>
+                }
+            }
+        }
+
+        public static class UNION extends Union {
+            public LowHigh lh;
+            public long value;
+
+            public UNION() {
+<span class="nc" id="L108">                super();</span>
+<span class="nc" id="L109">            }</span>
+
+<span class="nc" id="L111">            public UNION(long value) {</span>
+<span class="nc" id="L112">                this.value = value;</span>
+<span class="nc" id="L113">                this.lh = new LowHigh(value);</span>
+<span class="nc" id="L114">            }</span>
+
+            public long longValue() {
+<span class="nc" id="L117">                return value;</span>
+            }
+
+            @Override
+            public void read() {
+<span class="nc" id="L122">                readField(&quot;lh&quot;);</span>
+<span class="nc" id="L123">                readField(&quot;value&quot;);</span>
+<span class="nc" id="L124">            }</span>
+
+            @Override
+            public String toString() {
+<span class="nc" id="L128">                return Long.toString(longValue());</span>
+            }
+        }
+
+        public UNION u;
+
+        public LARGE_INTEGER() {
+<span class="nc" id="L135">            super();</span>
+<span class="nc" id="L136">        }</span>
+
+<span class="nc" id="L138">        public LARGE_INTEGER(long value) {</span>
+<span class="nc" id="L139">            this.u = new UNION(value);</span>
+<span class="nc" id="L140">        }</span>
+
+        /**
+         * Low DWORD.
+         *
+         * @return Low DWORD value
+         */
+        public DWORD getLow() {
+<span class="nc" id="L148">            return u.lh.LowPart;</span>
+        }
+
+        /**
+         * High DWORD.
+         *
+         * @return High DWORD value
+         */
+        public DWORD getHigh() {
+<span class="nc" id="L157">            return u.lh.HighPart;</span>
+        }
+
+        /**
+         * 64-bit value.
+         *
+         * @return The 64-bit value.
+         */
+        public long getValue() {
+<span class="nc" id="L166">            return u.value;</span>
+        }
+
+        @Override
+        public int compareTo(LARGE_INTEGER other) {
+<span class="nc" id="L171">            return compare(this, other);</span>
+        }
+
+        @Override
+        public String toString() {
+<span class="nc bnc" id="L176" title="All 2 branches missed.">            return (u == null) ? &quot;null&quot; : Long.toString(getValue());</span>
+        }
+
+        /**
+         * Compares 2 LARGE_INTEGER values - - &lt;B&gt;Note:&lt;/B&gt; a {@code null} value is
+         * considered &lt;U&gt;greater&lt;/U&gt; than any non-{@code null} one (i.e., {@code null}
+         * values are &amp;quot;pushed&amp;quot; to the end of a sorted array / list of values)
+         *
+         * @param v1
+         *            The 1st value
+         * @param v2
+         *            The 2nd value
+         * @return 0 if values are equal (including if &lt;U&gt;both&lt;/U&gt; are {@code null},
+         *         negative if 1st value less than 2nd one, positive otherwise.
+         *         &lt;B&gt;Note:&lt;/B&gt; the comparison uses the {@link #getValue()}.
+         * @see IntegerType#compare(long, long)
+         */
+        public static int compare(LARGE_INTEGER v1, LARGE_INTEGER v2) {
+<span class="nc bnc" id="L194" title="All 2 branches missed.">            if (v1 == v2) {</span>
+<span class="nc" id="L195">                return 0;</span>
+<span class="nc bnc" id="L196" title="All 2 branches missed.">            } else if (v1 == null) {</span>
+<span class="nc" id="L197">                return 1; // v2 cannot be null or v1 == v2 would hold</span>
+<span class="nc bnc" id="L198" title="All 2 branches missed.">            } else if (v2 == null) {</span>
+<span class="nc" id="L199">                return -1;</span>
+            } else {
+<span class="nc" id="L201">                return IntegerType.compare(v1.getValue(), v2.getValue());</span>
+            }
+        }
+
+        /**
+         * Compares a LARGE_INTEGER value with a {@code long} one. &lt;B&gt;Note:&lt;/B&gt; if the
+         * LARGE_INTEGER value is {@code null} then it is consider &lt;U&gt;greater&lt;/U&gt; than
+         * any {@code long} value.
+         *
+         * @param v1
+         *            The {@link LARGE_INTEGER} value
+         * @param v2
+         *            The {@code long} value
+         * @return 0 if values are equal, negative if 1st value less than 2nd one,
+         *         positive otherwise. &lt;B&gt;Note:&lt;/B&gt; the comparison uses the
+         *         {@link #getValue()}.
+         * @see IntegerType#compare(long, long)
+         */
+        public static int compare(LARGE_INTEGER v1, long v2) {
+<span class="nc bnc" id="L220" title="All 2 branches missed.">            if (v1 == null) {</span>
+<span class="nc" id="L221">                return 1;</span>
+            } else {
+<span class="nc" id="L223">                return IntegerType.compare(v1.getValue(), v2);</span>
+            }
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

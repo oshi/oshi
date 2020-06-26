@@ -29,6 +29,7 @@ import java.util.function.Supplier;
 
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult; // NOSONAR squid:S1191
 
+import oshi.annotation.concurrent.Immutable;
 import oshi.driver.windows.wmi.Win32BaseBoard;
 import oshi.driver.windows.wmi.Win32BaseBoard.BaseBoardProperty;
 import oshi.hardware.common.AbstractBaseboard;
@@ -40,45 +41,47 @@ import oshi.util.tuples.Quartet;
 /**
  * Baseboard data obtained from WMI
  */
-<span class="nc" id="L43">final class WindowsBaseboard extends AbstractBaseboard {</span>
-<span class="nc" id="L44">    private final Supplier&lt;Quartet&lt;String, String, String, String&gt;&gt; manufModelVersSerial = memoize(</span>
+@Immutable
+<span class="nc" id="L45">final class WindowsBaseboard extends AbstractBaseboard {</span>
+
+<span class="nc" id="L47">    private final Supplier&lt;Quartet&lt;String, String, String, String&gt;&gt; manufModelVersSerial = memoize(</span>
             WindowsBaseboard::queryManufModelVersSerial);
 
     @Override
     public String getManufacturer() {
-<span class="nc" id="L49">        return manufModelVersSerial.get().getA();</span>
+<span class="nc" id="L52">        return manufModelVersSerial.get().getA();</span>
     }
 
     @Override
     public String getModel() {
-<span class="nc" id="L54">        return manufModelVersSerial.get().getB();</span>
+<span class="nc" id="L57">        return manufModelVersSerial.get().getB();</span>
     }
 
     @Override
     public String getVersion() {
-<span class="nc" id="L59">        return manufModelVersSerial.get().getC();</span>
+<span class="nc" id="L62">        return manufModelVersSerial.get().getC();</span>
     }
 
     @Override
     public String getSerialNumber() {
-<span class="nc" id="L64">        return manufModelVersSerial.get().getD();</span>
+<span class="nc" id="L67">        return manufModelVersSerial.get().getD();</span>
     }
 
     private static Quartet&lt;String, String, String, String&gt; queryManufModelVersSerial() {
-<span class="nc" id="L68">        String manufacturer = null;</span>
-<span class="nc" id="L69">        String model = null;</span>
-<span class="nc" id="L70">        String version = null;</span>
-<span class="nc" id="L71">        String serialNumber = null;</span>
-<span class="nc" id="L72">        WmiResult&lt;BaseBoardProperty&gt; win32BaseBoard = Win32BaseBoard.queryBaseboardInfo();</span>
-<span class="nc bnc" id="L73" title="All 2 branches missed.">        if (win32BaseBoard.getResultCount() &gt; 0) {</span>
-<span class="nc" id="L74">            manufacturer = WmiUtil.getString(win32BaseBoard, BaseBoardProperty.MANUFACTURER, 0);</span>
-<span class="nc" id="L75">            model = WmiUtil.getString(win32BaseBoard, BaseBoardProperty.MODEL, 0);</span>
-<span class="nc" id="L76">            version = WmiUtil.getString(win32BaseBoard, BaseBoardProperty.VERSION, 0);</span>
-<span class="nc" id="L77">            serialNumber = WmiUtil.getString(win32BaseBoard, BaseBoardProperty.SERIALNUMBER, 0);</span>
+<span class="nc" id="L71">        String manufacturer = null;</span>
+<span class="nc" id="L72">        String model = null;</span>
+<span class="nc" id="L73">        String version = null;</span>
+<span class="nc" id="L74">        String serialNumber = null;</span>
+<span class="nc" id="L75">        WmiResult&lt;BaseBoardProperty&gt; win32BaseBoard = Win32BaseBoard.queryBaseboardInfo();</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">        if (win32BaseBoard.getResultCount() &gt; 0) {</span>
+<span class="nc" id="L77">            manufacturer = WmiUtil.getString(win32BaseBoard, BaseBoardProperty.MANUFACTURER, 0);</span>
+<span class="nc" id="L78">            model = WmiUtil.getString(win32BaseBoard, BaseBoardProperty.MODEL, 0);</span>
+<span class="nc" id="L79">            version = WmiUtil.getString(win32BaseBoard, BaseBoardProperty.VERSION, 0);</span>
+<span class="nc" id="L80">            serialNumber = WmiUtil.getString(win32BaseBoard, BaseBoardProperty.SERIALNUMBER, 0);</span>
         }
-<span class="nc bnc" id="L79" title="All 2 branches missed.">        return new Quartet&lt;&gt;(Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer,</span>
-<span class="nc bnc" id="L80" title="All 4 branches missed.">                Util.isBlank(model) ? Constants.UNKNOWN : model, Util.isBlank(version) ? Constants.UNKNOWN : version,</span>
-<span class="nc bnc" id="L81" title="All 2 branches missed.">                Util.isBlank(serialNumber) ? Constants.UNKNOWN : serialNumber);</span>
+<span class="nc bnc" id="L82" title="All 2 branches missed.">        return new Quartet&lt;&gt;(Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer,</span>
+<span class="nc bnc" id="L83" title="All 4 branches missed.">                Util.isBlank(model) ? Constants.UNKNOWN : model, Util.isBlank(version) ? Constants.UNKNOWN : version,</span>
+<span class="nc bnc" id="L84" title="All 2 branches missed.">                Util.isBlank(serialNumber) ? Constants.UNKNOWN : serialNumber);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

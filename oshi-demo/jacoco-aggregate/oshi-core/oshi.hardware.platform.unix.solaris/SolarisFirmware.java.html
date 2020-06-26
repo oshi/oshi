@@ -23,33 +23,38 @@
  */
 package oshi.hardware.platform.unix.solaris;
 
+import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.common.AbstractFirmware;
 
+/**
+ * Firmware data.
+ */
+@Immutable
 final class SolarisFirmware extends AbstractFirmware {
 
     private final String manufacturer;
     private final String version;
     private final String releaseDate;
 
-<span class="nc" id="L34">    SolarisFirmware(String manufacturer, String version, String releaseDate) {</span>
-<span class="nc" id="L35">        this.manufacturer = manufacturer;</span>
-<span class="nc" id="L36">        this.version = version;</span>
-<span class="nc" id="L37">        this.releaseDate = releaseDate;</span>
-<span class="nc" id="L38">    }</span>
+<span class="nc" id="L39">    SolarisFirmware(String manufacturer, String version, String releaseDate) {</span>
+<span class="nc" id="L40">        this.manufacturer = manufacturer;</span>
+<span class="nc" id="L41">        this.version = version;</span>
+<span class="nc" id="L42">        this.releaseDate = releaseDate;</span>
+<span class="nc" id="L43">    }</span>
 
     @Override
     public String getManufacturer() {
-<span class="nc" id="L42">        return manufacturer;</span>
+<span class="nc" id="L47">        return manufacturer;</span>
     }
 
     @Override
     public String getVersion() {
-<span class="nc" id="L47">        return version;</span>
+<span class="nc" id="L52">        return version;</span>
     }
 
     @Override
     public String getReleaseDate() {
-<span class="nc" id="L52">        return releaseDate;</span>
+<span class="nc" id="L57">        return releaseDate;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

@@ -27,41 +27,36 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import oshi.software.os.OSUser;
+import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
+import oshi.util.tuples.Pair;
 
 /**
  * &lt;p&gt;
  * LinuxUserGroupInfo class.
  * &lt;/p&gt;
  */
-<span class="nc" id="L38">public class LinuxUserGroupInfo {</span>
+public class LinuxUserGroupInfo {
 
-    // Temporarily cache users and groups
-<span class="nc" id="L41">    private Map&lt;String, OSUser&gt; usersIdMap = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L42">    private Map&lt;String, String&gt; groupsIdMap = new HashMap&lt;&gt;();</span>
+    // Temporarily cache users and groups, populated by constructor
+    private final Map&lt;String, Pair&lt;String, String&gt;&gt; usersIdMap;
+    private final Map&lt;String, String&gt; groupsIdMap;
+
+<span class="nc" id="L45">    public LinuxUserGroupInfo() {</span>
+<span class="nc" id="L46">        usersIdMap = getUserMap();</span>
+<span class="nc" id="L47">        groupsIdMap = getGroupMap();</span>
+<span class="nc" id="L48">    }</span>
 
     /**
-     * &lt;p&gt;
-     * getUser.
-     * &lt;/p&gt;
+     * Gets a user from their ID
      *
      * @param userId
-     *            a {@link java.lang.String} object.
-     * @return a {@link oshi.software.os.OSUser} object.
+     *            a user ID
+     * @return a pair containing that user id as the first element and the user name
+     *         as the second
      */
-    public OSUser getUser(String userId) {
-<span class="nc bnc" id="L54" title="All 2 branches missed.">        if (this.usersIdMap.isEmpty()) {</span>
-<span class="nc" id="L55">            cacheUsers();</span>
-        }
-<span class="nc" id="L57">        OSUser user = this.usersIdMap.get(userId);</span>
-<span class="nc bnc" id="L58" title="All 2 branches missed.">        if (user != null) {</span>
-<span class="nc" id="L59">            return user;</span>
-        }
-<span class="nc" id="L61">        user = new OSUser();</span>
-<span class="nc" id="L62">        user.setUserId(userId);</span>
-<span class="nc" id="L63">        user.setUserName(&quot;Unknown&quot;);</span>
-<span class="nc" id="L64">        return user;</span>
+    public Pair&lt;String, String&gt; getUser(String userId) {
+<span class="nc" id="L59">        return this.usersIdMap.getOrDefault(userId, new Pair&lt;&gt;(userId, Constants.UNKNOWN));</span>
     }
 
     /**
@@ -74,48 +69,40 @@ import oshi.util.ExecutingCommand;
      * @return a {@link java.lang.String} object.
      */
     public String getGroupName(String groupId) {
-<span class="nc bnc" id="L77" title="All 2 branches missed.">        if (this.groupsIdMap.isEmpty()) {</span>
-<span class="nc" id="L78">            cacheGroups();</span>
-        }
-<span class="nc" id="L80">        String group = this.groupsIdMap.get(groupId);</span>
-<span class="nc bnc" id="L81" title="All 2 branches missed.">        return (group != null) ? group : &quot;Unknown&quot;;</span>
+<span class="nc" id="L72">        return this.groupsIdMap.getOrDefault(groupId, Constants.UNKNOWN);</span>
     }
 
-    private void cacheUsers() {
-<span class="nc" id="L85">        List&lt;String&gt; passwd = ExecutingCommand.runNative(&quot;getent passwd&quot;);</span>
+    private static Map&lt;String, Pair&lt;String, String&gt;&gt; getUserMap() {
+<span class="nc" id="L76">        HashMap&lt;String, Pair&lt;String, String&gt;&gt; userMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L77">        List&lt;String&gt; passwd = ExecutingCommand.runNative(&quot;getent passwd&quot;);</span>
         // see man 5 passwd for the fields
-<span class="nc bnc" id="L87" title="All 2 branches missed.">        for (String entry : passwd) {</span>
-<span class="nc" id="L88">            String[] split = entry.split(&quot;:&quot;);</span>
-<span class="nc bnc" id="L89" title="All 2 branches missed.">            if (split.length &lt; 3) {</span>
-<span class="nc" id="L90">                continue;</span>
+<span class="nc bnc" id="L79" title="All 2 branches missed.">        for (String entry : passwd) {</span>
+<span class="nc" id="L80">            String[] split = entry.split(&quot;:&quot;);</span>
+<span class="nc bnc" id="L81" title="All 2 branches missed.">            if (split.length &lt; 3) {</span>
+<span class="nc" id="L82">                continue;</span>
             }
-<span class="nc" id="L92">            String userName = split[0];</span>
-<span class="nc" id="L93">            String uid = split[2];</span>
+<span class="nc" id="L84">            String userName = split[0];</span>
+<span class="nc" id="L85">            String uid = split[2];</span>
             // it is allowed to have multiple entries for the same userId,
             // we use the first one
-<span class="nc bnc" id="L96" title="All 2 branches missed.">            if (!this.usersIdMap.containsKey(uid)) {</span>
-<span class="nc" id="L97">                OSUser user = new OSUser();</span>
-<span class="nc" id="L98">                user.setUserId(uid);</span>
-<span class="nc" id="L99">                user.setUserName(userName);</span>
-<span class="nc" id="L100">                this.usersIdMap.put(uid, user);</span>
-            }
-<span class="nc" id="L102">        }</span>
-<span class="nc" id="L103">    }</span>
+<span class="nc" id="L88">            userMap.putIfAbsent(uid, new Pair&lt;&gt;(uid, userName));</span>
+<span class="nc" id="L89">        }</span>
+<span class="nc" id="L90">        return userMap;</span>
+    }
 
-    private void cacheGroups() {
-<span class="nc" id="L106">        List&lt;String&gt; group = ExecutingCommand.runNative(&quot;getent group&quot;);</span>
+    private static Map&lt;String, String&gt; getGroupMap() {
+<span class="nc" id="L94">        Map&lt;String, String&gt; groupMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L95">        List&lt;String&gt; group = ExecutingCommand.runNative(&quot;getent group&quot;);</span>
         // see man 5 group for the fields
-<span class="nc bnc" id="L108" title="All 2 branches missed.">        for (String entry : group) {</span>
-<span class="nc" id="L109">            String[] split = entry.split(&quot;:&quot;);</span>
-<span class="nc bnc" id="L110" title="All 2 branches missed.">            if (split.length &lt; 3) {</span>
-<span class="nc" id="L111">                continue;</span>
+<span class="nc bnc" id="L97" title="All 2 branches missed.">        for (String entry : group) {</span>
+<span class="nc" id="L98">            String[] split = entry.split(&quot;:&quot;);</span>
+<span class="nc bnc" id="L99" title="All 2 branches missed.">            if (split.length &gt; 2) {</span>
+<span class="nc" id="L100">                String groupName = split[0];</span>
+<span class="nc" id="L101">                String gid = split[2];</span>
+<span class="nc" id="L102">                groupMap.putIfAbsent(gid, groupName);</span>
             }
-<span class="nc" id="L113">            String groupName = split[0];</span>
-<span class="nc" id="L114">            String gid = split[2];</span>
-<span class="nc bnc" id="L115" title="All 2 branches missed.">            if (!this.groupsIdMap.containsKey(gid)) {</span>
-<span class="nc" id="L116">                this.groupsIdMap.put(gid, groupName);</span>
-            }
-<span class="nc" id="L118">        }</span>
-<span class="nc" id="L119">    }</span>
+<span class="nc" id="L104">        }</span>
+<span class="nc" id="L105">        return groupMap;</span>
+    }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

@@ -29,7 +29,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.platform.win32.Advapi32;
+import com.sun.jna.platform.win32.Advapi32; // NOSONAR squid:S1191
 import com.sun.jna.platform.win32.Guid;
 import com.sun.jna.platform.win32.SetupApi;
 import com.sun.jna.platform.win32.SetupApi.SP_DEVICE_INTERFACE_DATA;
@@ -40,30 +40,30 @@ import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.platform.win32.WinReg.HKEY;
 import com.sun.jna.ptr.IntByReference;
 
+import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.Display;
 import oshi.hardware.common.AbstractDisplay;
 
 /**
  * A Display
  */
-public class WindowsDisplay extends AbstractDisplay {
+@Immutable
+final class WindowsDisplay extends AbstractDisplay {
 
-<span class="nc" id="L51">    private static final Logger LOG = LoggerFactory.getLogger(WindowsDisplay.class);</span>
+<span class="nc" id="L53">    private static final Logger LOG = LoggerFactory.getLogger(WindowsDisplay.class);</span>
 
-<span class="nc" id="L53">    private static final SetupApi SU = SetupApi.INSTANCE;</span>
-<span class="nc" id="L54">    private static final Advapi32 ADV = Advapi32.INSTANCE;</span>
+<span class="nc" id="L55">    private static final SetupApi SU = SetupApi.INSTANCE;</span>
+<span class="nc" id="L56">    private static final Advapi32 ADV = Advapi32.INSTANCE;</span>
 
-<span class="nc" id="L56">    private static final Guid.GUID GUID_DEVINTERFACE_MONITOR = new Guid.GUID(&quot;E6F07B5F-EE97-4a90-B076-33F57BF4EAA7&quot;);</span>
+<span class="nc" id="L58">    private static final Guid.GUID GUID_DEVINTERFACE_MONITOR = new Guid.GUID(&quot;E6F07B5F-EE97-4a90-B076-33F57BF4EAA7&quot;);</span>
 
     /**
-     * &lt;p&gt;
      * Constructor for WindowsDisplay.
-     * &lt;/p&gt;
      *
      * @param edid
-     *            an array of {@link byte} objects.
+     *            a byte array representing a display EDID
      */
-    public WindowsDisplay(byte[] edid) {
+    WindowsDisplay(byte[] edid) {
 <span class="nc" id="L67">        super(edid);</span>
 <span class="nc" id="L68">        LOG.debug(&quot;Initialized WindowsDisplay&quot;);</span>
 <span class="nc" id="L69">    }</span>

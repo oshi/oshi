@@ -23,21 +23,23 @@
  */
 package oshi.hardware.common;
 
+import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.Baseboard;
 
 /**
  * Baseboard data
  */
-<span class="nc" id="L31">public abstract class AbstractBaseboard implements Baseboard {</span>
+@Immutable
+<span class="nc" id="L33">public abstract class AbstractBaseboard implements Baseboard {</span>
 
     @Override
     public String toString() {
-<span class="nc" id="L35">        StringBuilder sb = new StringBuilder();</span>
-<span class="nc" id="L36">        sb.append(&quot;manufacturer=&quot;).append(getManufacturer()).append(&quot;, &quot;);</span>
-<span class="nc" id="L37">        sb.append(&quot;model=&quot;).append(getModel()).append(&quot;, &quot;);</span>
-<span class="nc" id="L38">        sb.append(&quot;version=&quot;).append(getVersion()).append(&quot;, &quot;);</span>
-<span class="nc" id="L39">        sb.append(&quot;serial number=&quot;).append(getSerialNumber());</span>
-<span class="nc" id="L40">        return sb.toString();</span>
+<span class="nc" id="L37">        StringBuilder sb = new StringBuilder();</span>
+<span class="nc" id="L38">        sb.append(&quot;manufacturer=&quot;).append(getManufacturer()).append(&quot;, &quot;);</span>
+<span class="nc" id="L39">        sb.append(&quot;model=&quot;).append(getModel()).append(&quot;, &quot;);</span>
+<span class="nc" id="L40">        sb.append(&quot;version=&quot;).append(getVersion()).append(&quot;, &quot;);</span>
+<span class="nc" id="L41">        sb.append(&quot;serial number=&quot;).append(getSerialNumber());</span>
+<span class="nc" id="L42">        return sb.toString();</span>
     }
 
 }

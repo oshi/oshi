@@ -28,6 +28,7 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.function.Supplier;
 
+import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.common.AbstractVirtualMemory;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
@@ -36,55 +37,72 @@ import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
 /**
  * Memory obtained by swapinfo
  */
-<span class="nc" id="L39">public class FreeBsdVirtualMemory extends AbstractVirtualMemory {</span>
+@ThreadSafe
+final class FreeBsdVirtualMemory extends AbstractVirtualMemory {
 
-<span class="nc" id="L41">    private final Supplier&lt;Long&gt; used = memoize(FreeBsdVirtualMemory::querySwapUsed, defaultExpiration());</span>
+    FreeBsdGlobalMemory global;
 
-<span class="nc" id="L43">    private final Supplier&lt;Long&gt; total = memoize(FreeBsdVirtualMemory::querySwapTotal, defaultExpiration());</span>
+<span class="nc" id="L45">    private final Supplier&lt;Long&gt; used = memoize(FreeBsdVirtualMemory::querySwapUsed, defaultExpiration());</span>
 
-<span class="nc" id="L45">    private final Supplier&lt;Long&gt; pagesIn = memoize(FreeBsdVirtualMemory::queryPagesIn, defaultExpiration());</span>
+<span class="nc" id="L47">    private final Supplier&lt;Long&gt; total = memoize(FreeBsdVirtualMemory::querySwapTotal, defaultExpiration());</span>
 
-<span class="nc" id="L47">    private final Supplier&lt;Long&gt; pagesOut = memoize(FreeBsdVirtualMemory::queryPagesOut, defaultExpiration());</span>
+<span class="nc" id="L49">    private final Supplier&lt;Long&gt; pagesIn = memoize(FreeBsdVirtualMemory::queryPagesIn, defaultExpiration());</span>
+
+<span class="nc" id="L51">    private final Supplier&lt;Long&gt; pagesOut = memoize(FreeBsdVirtualMemory::queryPagesOut, defaultExpiration());</span>
+
+<span class="nc" id="L53">    public FreeBsdVirtualMemory(FreeBsdGlobalMemory freeBsdGlobalMemory) {</span>
+<span class="nc" id="L54">        this.global = freeBsdGlobalMemory;</span>
+<span class="nc" id="L55">    }</span>
 
     @Override
     public long getSwapUsed() {
-<span class="nc" id="L51">        return used.get();</span>
+<span class="nc" id="L59">        return used.get();</span>
     }
 
     @Override
     public long getSwapTotal() {
-<span class="nc" id="L56">        return total.get();</span>
+<span class="nc" id="L64">        return total.get();</span>
+    }
+
+    @Override
+    public long getVirtualMax() {
+<span class="nc" id="L69">        return this.global.getTotal() + getSwapTotal();</span>
+    }
+
+    @Override
+    public long getVirtualInUse() {
+<span class="nc" id="L74">        return this.global.getTotal() - this.global.getAvailable() + getSwapUsed();</span>
     }
 
     @Override
     public long getSwapPagesIn() {
-<span class="nc" id="L61">        return pagesIn.get();</span>
+<span class="nc" id="L79">        return pagesIn.get();</span>
     }
 
     @Override
     public long getSwapPagesOut() {
-<span class="nc" id="L66">        return pagesOut.get();</span>
+<span class="nc" id="L84">        return pagesOut.get();</span>
     }
 
     private static long querySwapUsed() {
-<span class="nc" id="L70">        String swapInfo = ExecutingCommand.getAnswerAt(&quot;swapinfo -k&quot;, 1);</span>
-<span class="nc" id="L71">        String[] split = ParseUtil.whitespaces.split(swapInfo);</span>
-<span class="nc bnc" id="L72" title="All 2 branches missed.">        if (split.length &lt; 5) {</span>
-<span class="nc" id="L73">            return 0L;</span>
+<span class="nc" id="L88">        String swapInfo = ExecutingCommand.getAnswerAt(&quot;swapinfo -k&quot;, 1);</span>
+<span class="nc" id="L89">        String[] split = ParseUtil.whitespaces.split(swapInfo);</span>
+<span class="nc bnc" id="L90" title="All 2 branches missed.">        if (split.length &lt; 5) {</span>
+<span class="nc" id="L91">            return 0L;</span>
         }
-<span class="nc" id="L75">        return ParseUtil.parseLongOrDefault(split[2], 0L) &lt;&lt; 10;</span>
+<span class="nc" id="L93">        return ParseUtil.parseLongOrDefault(split[2], 0L) &lt;&lt; 10;</span>
     }
 
     private static long querySwapTotal() {
-<span class="nc" id="L79">        return BsdSysctlUtil.sysctl(&quot;vm.swap_total&quot;, 0L);</span>
+<span class="nc" id="L97">        return BsdSysctlUtil.sysctl(&quot;vm.swap_total&quot;, 0L);</span>
     }
 
     private static long queryPagesIn() {
-<span class="nc" id="L83">        return BsdSysctlUtil.sysctl(&quot;vm.stats.vm.v_swappgsin&quot;, 0L);</span>
+<span class="nc" id="L101">        return BsdSysctlUtil.sysctl(&quot;vm.stats.vm.v_swappgsin&quot;, 0L);</span>
     }
 
     private static long queryPagesOut() {
-<span class="nc" id="L87">        return BsdSysctlUtil.sysctl(&quot;vm.stats.vm.v_swappgsout&quot;, 0L);</span>
+<span class="nc" id="L105">        return BsdSysctlUtil.sysctl(&quot;vm.stats.vm.v_swappgsout&quot;, 0L);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

@@ -28,6 +28,7 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.function.Supplier;
 
+import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.VirtualMemory;
 import oshi.hardware.common.AbstractGlobalMemory;
 import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
@@ -35,53 +36,54 @@ import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
 /**
  * Memory obtained by sysctl vm.stats
  */
-<span class="nc" id="L38">public class FreeBsdGlobalMemory extends AbstractGlobalMemory {</span>
+@ThreadSafe
+<span class="nc" id="L40">final class FreeBsdGlobalMemory extends AbstractGlobalMemory {</span>
 
-<span class="nc" id="L40">    private final Supplier&lt;Long&gt; available = memoize(this::queryVmStats, defaultExpiration());</span>
+<span class="nc" id="L42">    private final Supplier&lt;Long&gt; available = memoize(this::queryVmStats, defaultExpiration());</span>
 
-<span class="nc" id="L42">    private final Supplier&lt;Long&gt; total = memoize(FreeBsdGlobalMemory::queryPhysMem);</span>
+<span class="nc" id="L44">    private final Supplier&lt;Long&gt; total = memoize(FreeBsdGlobalMemory::queryPhysMem);</span>
 
-<span class="nc" id="L44">    private final Supplier&lt;Long&gt; pageSize = memoize(FreeBsdGlobalMemory::queryPageSize);</span>
+<span class="nc" id="L46">    private final Supplier&lt;Long&gt; pageSize = memoize(FreeBsdGlobalMemory::queryPageSize);</span>
 
-<span class="nc" id="L46">    private final Supplier&lt;VirtualMemory&gt; vm = memoize(FreeBsdGlobalMemory::createVirtualMemory);</span>
+<span class="nc" id="L48">    private final Supplier&lt;VirtualMemory&gt; vm = memoize(this::createVirtualMemory);</span>
 
     @Override
     public long getAvailable() {
-<span class="nc" id="L50">        return available.get();</span>
+<span class="nc" id="L52">        return available.get();</span>
     }
 
     @Override
     public long getTotal() {
-<span class="nc" id="L55">        return total.get();</span>
+<span class="nc" id="L57">        return total.get();</span>
     }
 
     @Override
     public long getPageSize() {
-<span class="nc" id="L60">        return pageSize.get();</span>
+<span class="nc" id="L62">        return pageSize.get();</span>
     }
 
     @Override
     public VirtualMemory getVirtualMemory() {
-<span class="nc" id="L65">        return vm.get();</span>
+<span class="nc" id="L67">        return vm.get();</span>
     }
 
     private long queryVmStats() {
-<span class="nc" id="L69">        long inactive = BsdSysctlUtil.sysctl(&quot;vm.stats.vm.v_inactive_count&quot;, 0L);</span>
-<span class="nc" id="L70">        long cache = BsdSysctlUtil.sysctl(&quot;vm.stats.vm.v_cache_count&quot;, 0L);</span>
-<span class="nc" id="L71">        long free = BsdSysctlUtil.sysctl(&quot;vm.stats.vm.v_free_count&quot;, 0L);</span>
-<span class="nc" id="L72">        return (inactive + cache + free) * getPageSize();</span>
+<span class="nc" id="L71">        long inactive = BsdSysctlUtil.sysctl(&quot;vm.stats.vm.v_inactive_count&quot;, 0L);</span>
+<span class="nc" id="L72">        long cache = BsdSysctlUtil.sysctl(&quot;vm.stats.vm.v_cache_count&quot;, 0L);</span>
+<span class="nc" id="L73">        long free = BsdSysctlUtil.sysctl(&quot;vm.stats.vm.v_free_count&quot;, 0L);</span>
+<span class="nc" id="L74">        return (inactive + cache + free) * getPageSize();</span>
     }
 
     private static long queryPhysMem() {
-<span class="nc" id="L76">        return BsdSysctlUtil.sysctl(&quot;hw.physmem&quot;, 0L);</span>
+<span class="nc" id="L78">        return BsdSysctlUtil.sysctl(&quot;hw.physmem&quot;, 0L);</span>
     }
 
     private static long queryPageSize() {
-<span class="nc" id="L80">        return BsdSysctlUtil.sysctl(&quot;hw.pagesize&quot;, 4096L);</span>
+<span class="nc" id="L82">        return BsdSysctlUtil.sysctl(&quot;hw.pagesize&quot;, 4096L);</span>
     }
 
-    private static VirtualMemory createVirtualMemory() {
-<span class="nc" id="L84">        return new FreeBsdVirtualMemory();</span>
+    private VirtualMemory createVirtualMemory() {
+<span class="nc" id="L86">        return new FreeBsdVirtualMemory(this);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

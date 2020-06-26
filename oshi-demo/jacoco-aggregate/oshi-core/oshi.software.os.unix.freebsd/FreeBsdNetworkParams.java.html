@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import com.sun.jna.Native;
 import com.sun.jna.ptr.PointerByReference;
 
+import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.platform.unix.CLibrary;
 import oshi.jna.platform.unix.CLibrary.Addrinfo;
 import oshi.jna.platform.unix.freebsd.FreeBsdLibc;
@@ -38,11 +39,10 @@ import oshi.software.common.AbstractNetworkParams;
 import oshi.util.ExecutingCommand;
 
 /**
- * &lt;p&gt;
  * FreeBsdNetworkParams class.
- * &lt;/p&gt;
  */
-<span class="nc" id="L45">public class FreeBsdNetworkParams extends AbstractNetworkParams {</span>
+@ThreadSafe
+<span class="nc" id="L45">final class FreeBsdNetworkParams extends AbstractNetworkParams {</span>
 
 <span class="nc" id="L47">    private static final Logger LOG = LoggerFactory.getLogger(FreeBsdNetworkParams.class);</span>
 

@@ -25,8 +25,8 @@ under the License.
     <language>en-us</language>
     <copyright>&#169;2010 - 2020 oshi</copyright>
     <item>
-      <title>File: 4,
-             Errors: 64,
+      <title>File: 15,
+             Errors: 296,
              Warnings: 0,
              Infos: 0
       </title>
@@ -46,6 +46,118 @@ under the License.
           <tbody>
                           <tr>
                 <td>
+                  <a href="https://github.com/oshi/oshi/oshi-demo/checkstyle.html#oshi.demo.gui.FileStorePanel.java">oshi/demo/gui/FileStorePanel.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  18
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-demo/checkstyle.html#oshi.demo.gui.MemoryPanel.java">oshi/demo/gui/MemoryPanel.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  30
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-demo/checkstyle.html#oshi.demo.gui.UsbPanel.java">oshi/demo/gui/UsbPanel.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  11
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-demo/checkstyle.html#oshi.demo.gui.package-info.java">oshi/demo/gui/package-info.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  4
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-demo/checkstyle.html#oshi.demo.gui.ProcessorPanel.java">oshi/demo/gui/ProcessorPanel.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  21
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-demo/checkstyle.html#oshi.demo.gui.Config.java">oshi/demo/gui/Config.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  9
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-demo/checkstyle.html#oshi.demo.OshiGui.java">oshi/demo/OshiGui.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  33
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-demo/checkstyle.html#oshi.demo.gui.OshiJPanel.java">oshi/demo/gui/OshiJPanel.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  11
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/oshi/oshi/oshi-demo/checkstyle.html#oshi.demo.Json.java">oshi/demo/Json.java</a>
                 </td>
                 <td>
@@ -56,6 +168,20 @@ under the License.
                 </td>
                 <td>
                   6
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-demo/checkstyle.html#oshi.demo.gui.ProcessPanel.java">oshi/demo/gui/ProcessPanel.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  51
                 </td>
               </tr>
                           <tr>
@@ -97,7 +223,35 @@ under the License.
                   0
                 </td>
                 <td>
-                  17
+                  24
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-demo/checkstyle.html#oshi.demo.package-info.java">oshi/demo/package-info.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  4
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-demo/checkstyle.html#oshi.demo.gui.OsHwTextPanel.java">oshi/demo/gui/OsHwTextPanel.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  33
                 </td>
               </tr>
                       </tbody>

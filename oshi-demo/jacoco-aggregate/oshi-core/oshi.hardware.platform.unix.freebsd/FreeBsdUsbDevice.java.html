@@ -29,16 +29,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractUsbDevice;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
 /**
- * &lt;p&gt;
- * FreeBsdUsbDevice class.
- * &lt;/p&gt;
+ * FreeBsd Usb Device
  */
+@Immutable
 public class FreeBsdUsbDevice extends AbstractUsbDevice {
 
     public FreeBsdUsbDevice(String name, String vendor, String vendorId, String productId, String serialNumber,
@@ -174,7 +174,7 @@ public class FreeBsdUsbDevice extends AbstractUsbDevice {
             Map&lt;String, String&gt; productIdMap, Map&lt;String, String&gt; serialMap, Map&lt;String, List&lt;String&gt;&gt; hubMap) {
 <span class="nc" id="L175">        String vendorId = vendorIdMap.getOrDefault(devPath, vid);</span>
 <span class="nc" id="L176">        String productId = productIdMap.getOrDefault(devPath, pid);</span>
-<span class="nc" id="L177">        List&lt;String&gt; childPaths = hubMap.getOrDefault(devPath, new ArrayList&lt;String&gt;());</span>
+<span class="nc" id="L177">        List&lt;String&gt; childPaths = hubMap.getOrDefault(devPath, new ArrayList&lt;&gt;());</span>
 <span class="nc" id="L178">        List&lt;FreeBsdUsbDevice&gt; usbDevices = new ArrayList&lt;&gt;();</span>
 <span class="nc bnc" id="L179" title="All 2 branches missed.">        for (String path : childPaths) {</span>
 <span class="nc" id="L180">            usbDevices.add(getDeviceAndChildren(path, vendorId, productId, nameMap, vendorMap, vendorIdMap,</span>

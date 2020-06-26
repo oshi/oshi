@@ -26,8 +26,13 @@ package oshi.driver.windows.wmi;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery; //NOSONAR squid:S1191
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
+import oshi.annotation.concurrent.ThreadSafe;
 import oshi.util.platform.windows.WmiQueryHandler;
 
+/**
+ * Utility to query WMI class {@code Win32_PnPEntity}
+ */
+@ThreadSafe
 public final class Win32PnPEntity {
 
     private static final String WIN32_PNP_ENTITY = &quot;Win32_PnPEntity&quot;;
@@ -35,8 +40,8 @@ public final class Win32PnPEntity {
     /**
      * DeviceId and name
      */
-<span class="nc" id="L38">    public enum PnPEntityProperty {</span>
-<span class="nc" id="L39">        NAME, MANUFACTURER, PNPDEVICEID;</span>
+<span class="nc" id="L43">    public enum PnPEntityProperty {</span>
+<span class="nc" id="L44">        NAME, MANUFACTURER, PNPDEVICEID;</span>
     }
 
     private Win32PnPEntity() {
@@ -50,9 +55,9 @@ public final class Win32PnPEntity {
      * @return Information regarding each device
      */
     public static WmiResult&lt;PnPEntityProperty&gt; queryDeviceId(String whereClause) {
-<span class="nc" id="L53">        WmiQuery&lt;PnPEntityProperty&gt; pnpEntityQuery = new WmiQuery&lt;&gt;(WIN32_PNP_ENTITY + whereClause,</span>
+<span class="nc" id="L58">        WmiQuery&lt;PnPEntityProperty&gt; pnpEntityQuery = new WmiQuery&lt;&gt;(WIN32_PNP_ENTITY + whereClause,</span>
                 PnPEntityProperty.class);
-<span class="nc" id="L55">        return WmiQueryHandler.createInstance().queryWMI(pnpEntityQuery);</span>
+<span class="nc" id="L60">        return WmiQueryHandler.createInstance().queryWMI(pnpEntityQuery);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

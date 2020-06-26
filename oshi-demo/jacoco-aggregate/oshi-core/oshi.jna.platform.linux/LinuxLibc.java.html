@@ -23,7 +23,9 @@
  */
 package oshi.jna.platform.linux;
 
-import com.sun.jna.Native;
+import com.sun.jna.Native; // NOSONAR squid:s1191
+import com.sun.jna.Structure;
+import com.sun.jna.Structure.FieldOrder;
 import com.sun.jna.platform.linux.LibC;
 
 import oshi.jna.platform.unix.CLibrary;
@@ -34,6 +36,54 @@ import oshi.jna.platform.unix.CLibrary;
  */
 public interface LinuxLibc extends LibC, CLibrary {
 
-<span class="nc" id="L37">    LinuxLibc INSTANCE = Native.load(&quot;c&quot;, LinuxLibc.class);</span>
+<span class="nc" id="L39">    LinuxLibc INSTANCE = Native.load(&quot;c&quot;, LinuxLibc.class);</span>
+
+    /**
+     * Return type for getutxent()
+     */
+    @FieldOrder({ &quot;ut_type&quot;, &quot;ut_pid&quot;, &quot;ut_line&quot;, &quot;ut_id&quot;, &quot;ut_user&quot;, &quot;ut_host&quot;, &quot;ut_exit&quot;, &quot;ut_session&quot;, &quot;ut_tv&quot;,
+            &quot;ut_addr_v6&quot;, &quot;reserved&quot; })
+<span class="nc" id="L46">    class LinuxUtmpx extends Structure {</span>
+        public short ut_type; // Type of login.
+        public int ut_pid; // Process ID of login process.
+<span class="nc" id="L49">        public byte[] ut_line = new byte[UT_LINESIZE]; // Devicename.</span>
+<span class="nc" id="L50">        public byte[] ut_id = new byte[4]; // Inittab ID.</span>
+<span class="nc" id="L51">        public byte[] ut_user = new byte[UT_NAMESIZE]; // Username.</span>
+<span class="nc" id="L52">        public byte[] ut_host = new byte[UT_HOSTSIZE]; // Hostname for remote login.</span>
+        public Exit_status ut_exit; // Exit status of a process marked as DEAD_PROCESS.
+        public int ut_session; // Session ID, used for windowing.
+        public Ut_Tv ut_tv; // Time entry was made.
+<span class="nc" id="L56">        public int[] ut_addr_v6 = new int[4]; // Internet address of remote host; IPv4 address uses just ut_addr_v6[0]</span>
+<span class="nc" id="L57">        public byte[] reserved = new byte[20]; // Reserved for future use.</span>
+    }
+
+    /**
+     * Part of utmpx structure
+     */
+    @FieldOrder({ &quot;e_termination&quot;, &quot;e_exit&quot; })
+<span class="nc" id="L64">    class Exit_status extends Structure {</span>
+        public short e_termination; // Process termination status
+        public short e_exit; // Process exit status
+    }
+
+    /**
+     * 32-bit timeval required for utmpx structure
+     */
+    @FieldOrder({ &quot;tv_sec&quot;, &quot;tv_usec&quot; })
+<span class="nc" id="L73">    class Ut_Tv extends Structure {</span>
+        public int tv_sec; // seconds
+        public int tv_usec; // microseconds
+    }
+
+    /**
+     * Reads a line from the current file position in the utmp file. It returns a
+     * pointer to a structure containing the fields of the line.
+     * &lt;p&gt;
+     * Not thread safe
+     *
+     * @return a {@link LinuxUtmpx} on success, and NULL on failure (which includes
+     *         the &quot;record not found&quot; case)
+     */
+    LinuxUtmpx getutxent();
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

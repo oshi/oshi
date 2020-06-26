@@ -25,16 +25,16 @@ package oshi.hardware.platform.linux;
 
 import java.io.File;
 
+import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.NetworkIF;
-import oshi.hardware.common.AbstractNetworks;
+import oshi.hardware.common.Networks;
 import oshi.util.FileUtil;
 
 /**
- * &lt;p&gt;
  * LinuxNetworks class.
- * &lt;/p&gt;
  */
-<span class="nc" id="L37">public class LinuxNetworks extends AbstractNetworks {</span>
+@ThreadSafe
+<span class="nc" id="L37">public final class LinuxNetworks extends Networks {</span>
     /**
      * Updates interface network statistics on the given interface. Statistics
      * include packets and bytes sent and received, and interface speed.
@@ -52,28 +52,32 @@ import oshi.util.FileUtil;
 <span class="nc" id="L52">        } catch (SecurityException e) {</span>
 <span class="nc" id="L53">            return false;</span>
 <span class="nc" id="L54">        }</span>
-<span class="nc" id="L55">        String txBytesPath = String.format(&quot;/sys/class/net/%s/statistics/tx_bytes&quot;, netIF.getName());</span>
-<span class="nc" id="L56">        String rxBytesPath = String.format(&quot;/sys/class/net/%s/statistics/rx_bytes&quot;, netIF.getName());</span>
-<span class="nc" id="L57">        String txPacketsPath = String.format(&quot;/sys/class/net/%s/statistics/tx_packets&quot;, netIF.getName());</span>
-<span class="nc" id="L58">        String rxPacketsPath = String.format(&quot;/sys/class/net/%s/statistics/rx_packets&quot;, netIF.getName());</span>
-<span class="nc" id="L59">        String txErrorsPath = String.format(&quot;/sys/class/net/%s/statistics/tx_errors&quot;, netIF.getName());</span>
-<span class="nc" id="L60">        String rxErrorsPath = String.format(&quot;/sys/class/net/%s/statistics/rx_errors&quot;, netIF.getName());</span>
-<span class="nc" id="L61">        String collisionsPath = String.format(&quot;/sys/class/net/%s/statistics/collisions&quot;, netIF.getName());</span>
-<span class="nc" id="L62">        String rxDropsPath = String.format(&quot;/sys/class/net/%s/statistics/rx_dropped&quot;, netIF.getName());</span>
-<span class="nc" id="L63">        String speed = String.format(&quot;/sys/class/net/%s/speed&quot;, netIF.getName());</span>
+<span class="nc" id="L55">        String ifTypePath = String.format(&quot;/sys/class/net/%s/type&quot;, netIF.getName());</span>
+<span class="nc" id="L56">        String carrierPath = String.format(&quot;/sys/class/net/%s/carrier&quot;, netIF.getName());</span>
+<span class="nc" id="L57">        String txBytesPath = String.format(&quot;/sys/class/net/%s/statistics/tx_bytes&quot;, netIF.getName());</span>
+<span class="nc" id="L58">        String rxBytesPath = String.format(&quot;/sys/class/net/%s/statistics/rx_bytes&quot;, netIF.getName());</span>
+<span class="nc" id="L59">        String txPacketsPath = String.format(&quot;/sys/class/net/%s/statistics/tx_packets&quot;, netIF.getName());</span>
+<span class="nc" id="L60">        String rxPacketsPath = String.format(&quot;/sys/class/net/%s/statistics/rx_packets&quot;, netIF.getName());</span>
+<span class="nc" id="L61">        String txErrorsPath = String.format(&quot;/sys/class/net/%s/statistics/tx_errors&quot;, netIF.getName());</span>
+<span class="nc" id="L62">        String rxErrorsPath = String.format(&quot;/sys/class/net/%s/statistics/rx_errors&quot;, netIF.getName());</span>
+<span class="nc" id="L63">        String collisionsPath = String.format(&quot;/sys/class/net/%s/statistics/collisions&quot;, netIF.getName());</span>
+<span class="nc" id="L64">        String rxDropsPath = String.format(&quot;/sys/class/net/%s/statistics/rx_dropped&quot;, netIF.getName());</span>
+<span class="nc" id="L65">        String speed = String.format(&quot;/sys/class/net/%s/speed&quot;, netIF.getName());</span>
 
-<span class="nc" id="L65">        netIF.setTimeStamp(System.currentTimeMillis());</span>
-<span class="nc" id="L66">        netIF.setBytesSent(FileUtil.getUnsignedLongFromFile(txBytesPath));</span>
-<span class="nc" id="L67">        netIF.setBytesRecv(FileUtil.getUnsignedLongFromFile(rxBytesPath));</span>
-<span class="nc" id="L68">        netIF.setPacketsSent(FileUtil.getUnsignedLongFromFile(txPacketsPath));</span>
-<span class="nc" id="L69">        netIF.setPacketsRecv(FileUtil.getUnsignedLongFromFile(rxPacketsPath));</span>
-<span class="nc" id="L70">        netIF.setOutErrors(FileUtil.getUnsignedLongFromFile(txErrorsPath));</span>
-<span class="nc" id="L71">        netIF.setInErrors(FileUtil.getUnsignedLongFromFile(rxErrorsPath));</span>
-<span class="nc" id="L72">        netIF.setCollisions(FileUtil.getUnsignedLongFromFile(collisionsPath));</span>
-<span class="nc" id="L73">        netIF.setInDrops(FileUtil.getUnsignedLongFromFile(rxDropsPath));</span>
-<span class="nc" id="L74">        long netSpeed = FileUtil.getUnsignedLongFromFile(speed) * 1024 * 1024;</span>
-<span class="nc bnc" id="L75" title="All 2 branches missed.">        netIF.setSpeed(netSpeed &lt; 0 ? 0 : netSpeed);</span>
-<span class="nc" id="L76">        return true;</span>
+<span class="nc" id="L67">        netIF.setTimeStamp(System.currentTimeMillis());</span>
+<span class="nc" id="L68">        netIF.setIfType(FileUtil.getIntFromFile(ifTypePath));</span>
+<span class="nc bnc" id="L69" title="All 2 branches missed.">        netIF.setConnectorPresent(FileUtil.getIntFromFile(carrierPath) &gt; 0);</span>
+<span class="nc" id="L70">        netIF.setBytesSent(FileUtil.getUnsignedLongFromFile(txBytesPath));</span>
+<span class="nc" id="L71">        netIF.setBytesRecv(FileUtil.getUnsignedLongFromFile(rxBytesPath));</span>
+<span class="nc" id="L72">        netIF.setPacketsSent(FileUtil.getUnsignedLongFromFile(txPacketsPath));</span>
+<span class="nc" id="L73">        netIF.setPacketsRecv(FileUtil.getUnsignedLongFromFile(rxPacketsPath));</span>
+<span class="nc" id="L74">        netIF.setOutErrors(FileUtil.getUnsignedLongFromFile(txErrorsPath));</span>
+<span class="nc" id="L75">        netIF.setInErrors(FileUtil.getUnsignedLongFromFile(rxErrorsPath));</span>
+<span class="nc" id="L76">        netIF.setCollisions(FileUtil.getUnsignedLongFromFile(collisionsPath));</span>
+<span class="nc" id="L77">        netIF.setInDrops(FileUtil.getUnsignedLongFromFile(rxDropsPath));</span>
+<span class="nc" id="L78">        long netSpeed = FileUtil.getUnsignedLongFromFile(speed) * 1024 * 1024;</span>
+<span class="nc bnc" id="L79" title="All 2 branches missed.">        netIF.setSpeed(netSpeed &lt; 0 ? 0 : netSpeed);</span>
+<span class="nc" id="L80">        return true;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

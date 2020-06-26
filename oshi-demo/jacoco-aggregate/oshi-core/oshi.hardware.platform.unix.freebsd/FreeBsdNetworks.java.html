@@ -23,17 +23,17 @@
  */
 package oshi.hardware.platform.unix.freebsd;
 
+import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.NetworkIF;
-import oshi.hardware.common.AbstractNetworks;
+import oshi.hardware.common.Networks;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
 /**
- * &lt;p&gt;
  * FreeBsdNetworks class.
- * &lt;/p&gt;
  */
-<span class="nc" id="L36">public class FreeBsdNetworks extends AbstractNetworks {</span>
+@ThreadSafe
+<span class="nc" id="L36">public final class FreeBsdNetworks extends Networks {</span>
 
     /**
      * Updates interface network statistics on the given interface. Statistics

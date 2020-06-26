@@ -26,8 +26,13 @@ package oshi.driver.windows.wmi;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery; //NOSONAR squid:S1191
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
+import oshi.annotation.concurrent.ThreadSafe;
 import oshi.util.platform.windows.WmiQueryHandler;
 
+/**
+ * Utility to query WMI class {@code Win32_ComputerSystem}
+ */
+@ThreadSafe
 public final class Win32ComputerSystem {
 
     private static final String WIN32_COMPUTER_SYSTEM = &quot;Win32_ComputerSystem&quot;;
@@ -35,8 +40,8 @@ public final class Win32ComputerSystem {
     /**
      * Computer System properties
      */
-<span class="nc" id="L38">    public enum ComputerSystemProperty {</span>
-<span class="nc" id="L39">        MANUFACTURER, MODEL;</span>
+<span class="nc" id="L43">    public enum ComputerSystemProperty {</span>
+<span class="nc" id="L44">        MANUFACTURER, MODEL;</span>
     }
 
     private Win32ComputerSystem() {
@@ -48,9 +53,9 @@ public final class Win32ComputerSystem {
      * @return Computer System Manufacturer and Model
      */
     public static WmiResult&lt;ComputerSystemProperty&gt; queryComputerSystem() {
-<span class="nc" id="L51">        WmiQuery&lt;ComputerSystemProperty&gt; computerSystemQuery = new WmiQuery&lt;&gt;(WIN32_COMPUTER_SYSTEM,</span>
+<span class="nc" id="L56">        WmiQuery&lt;ComputerSystemProperty&gt; computerSystemQuery = new WmiQuery&lt;&gt;(WIN32_COMPUTER_SYSTEM,</span>
                 ComputerSystemProperty.class);
-<span class="nc" id="L53">        return WmiQueryHandler.createInstance().queryWMI(computerSystemQuery);</span>
+<span class="nc" id="L58">        return WmiQueryHandler.createInstance().queryWMI(computerSystemQuery);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
