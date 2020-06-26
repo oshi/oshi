@@ -138,7 +138,7 @@ import oshi.util.tuples.Pair;
      *            the key to retrieve
      * @return the string following id
      */
-    private String parseIdentifier(String identifier, String key) {
+    private static String parseIdentifier(String identifier, String key) {
 <span class="nc" id="L142">        String[] idSplit = ParseUtil.whitespaces.split(identifier);</span>
 <span class="nc" id="L143">        boolean found = false;</span>
 <span class="nc bnc" id="L144" title="All 2 branches missed.">        for (String s : idSplit) {</span>
@@ -153,7 +153,7 @@ import oshi.util.tuples.Pair;
     }
 
     @Override
-    protected LogicalProcessor[] initProcessorCounts() {
+    protected List&lt;LogicalProcessor&gt; initProcessorCounts() {
 <span class="nc bnc" id="L157" title="All 2 branches missed.">        if (VersionHelpers.IsWindows7OrGreater()) {</span>
 <span class="nc" id="L158">            return getLogicalProcessorInformationEx();</span>
         } else {
@@ -161,7 +161,7 @@ import oshi.util.tuples.Pair;
         }
     }
 
-    private LogicalProcessor[] getLogicalProcessorInformationEx() {
+    private List&lt;LogicalProcessor&gt; getLogicalProcessorInformationEx() {
         // Collect a list of logical processors on each physical core and
         // package. These will be 64-bit bitmasks.
 <span class="nc" id="L167">        SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX[] procInfo = Kernel32Util</span>
@@ -220,7 +220,7 @@ import oshi.util.tuples.Pair;
 <span class="nc" id="L220">            numaNodeProcToLogicalProcMap</span>
 <span class="nc" id="L221">                    .put(String.format(&quot;%d,%d&quot;, logProc.getNumaNode(), logProc.getProcessorNumber()), lp++);</span>
 <span class="nc" id="L222">        }</span>
-<span class="nc" id="L223">        return logProcs.toArray(new LogicalProcessor[0]);</span>
+<span class="nc" id="L223">        return logProcs;</span>
     }
 
     private static int getMatchingPackage(List&lt;GROUP_AFFINITY[]&gt; packages, int g, int lp) {
@@ -253,7 +253,7 @@ import oshi.util.tuples.Pair;
 <span class="nc" id="L253">        return 0;</span>
     }
 
-    private LogicalProcessor[] getLogicalProcessorInformation() {
+    private List&lt;LogicalProcessor&gt; getLogicalProcessorInformation() {
         // Collect a list of logical processors on each physical core and
         // package. These will be 64-bit bitmasks.
 <span class="nc" id="L259">        List&lt;Long&gt; packageMaskList = new ArrayList&lt;&gt;();</span>
@@ -287,7 +287,7 @@ import oshi.util.tuples.Pair;
                 }
             }
         }
-<span class="nc" id="L290">        return logProcs.toArray(new LogicalProcessor[0]);</span>
+<span class="nc" id="L290">        return logProcs;</span>
     }
 
     /**
@@ -299,7 +299,7 @@ import oshi.util.tuples.Pair;
      *            The bit to find matching mask
      * @return The index of the list which matched the bit
      */
-    private int getBitMatchingPackageNumber(List&lt;Long&gt; packageMaskList, int logProc) {
+    private static int getBitMatchingPackageNumber(List&lt;Long&gt; packageMaskList, int logProc) {
 <span class="nc bnc" id="L303" title="All 2 branches missed.">        for (int i = 0; i &lt; packageMaskList.size(); i++) {</span>
 <span class="nc bnc" id="L304" title="All 2 branches missed.">            if ((packageMaskList.get(i).longValue() &amp; (1L &lt;&lt; logProc)) &gt; 0) {</span>
 <span class="nc" id="L305">                return i;</span>

@@ -24,12 +24,11 @@
 package oshi.jna.platform.windows;
 
 import com.sun.jna.Native; // NOSONAR squid:S1192
-import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.win32.W32APIOptions;
 
 public interface Kernel32 extends com.sun.jna.platform.win32.Kernel32 {
 
-<span class="nc" id="L32">    Kernel32 INSTANCE = Native.load(&quot;kernel32&quot;, Kernel32.class, W32APIOptions.DEFAULT_OPTIONS);</span>
+<span class="nc" id="L31">    Kernel32 INSTANCE = Native.load(&quot;kernel32&quot;, Kernel32.class, W32APIOptions.DEFAULT_OPTIONS);</span>
 
     /**
      * Retrieves the process affinity mask for the specified process and the system
