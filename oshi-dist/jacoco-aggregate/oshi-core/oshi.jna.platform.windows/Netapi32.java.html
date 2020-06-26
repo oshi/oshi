@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>Netapi32.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.jna.platform.windows</a> &gt; <span class="el_source">Netapi32.java</span></div><h1>Netapi32.java</h1><pre class="source lang-java linenums">/**
+ * MIT License
+ *
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+package oshi.jna.platform.windows;
+
+import com.sun.jna.Native; // NOSONAR squid:S1191
+import com.sun.jna.Pointer;
+import com.sun.jna.Structure;
+import com.sun.jna.Structure.FieldOrder;
+import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.ptr.PointerByReference;
+import com.sun.jna.win32.W32APIOptions;
+import com.sun.jna.win32.W32APITypeMapper;
+
+public interface Netapi32 extends com.sun.jna.platform.win32.Netapi32 {
+
+<span class="nc" id="L37">    Netapi32 INSTANCE = Native.load(&quot;Netapi32&quot;, Netapi32.class, W32APIOptions.DEFAULT_OPTIONS);</span>
+
+    int MAX_PREFERRED_LENGTH = -1;
+
+    @FieldOrder({ &quot;sesi10_cname&quot;, &quot;sesi10_username&quot;, &quot;sesi10_time&quot;, &quot;sesi10_idle_time&quot; })
+    class SESSION_INFO_10 extends Structure {
+        public String sesi10_cname;
+        public String sesi10_username;
+        public int sesi10_time;
+        public int sesi10_idle_time;
+
+        public SESSION_INFO_10() {
+<span class="nc" id="L49">            super(W32APITypeMapper.DEFAULT);</span>
+<span class="nc" id="L50">        }</span>
+
+        public SESSION_INFO_10(Pointer p) {
+<span class="nc" id="L53">            super(p, Structure.ALIGN_DEFAULT, W32APITypeMapper.DEFAULT);</span>
+<span class="nc" id="L54">            read();</span>
+<span class="nc" id="L55">        }</span>
+    }
+
+    /**
+     * Provides information about sessions established on a server.
+     * 
+     * @param servername
+     *            Pointer to a string that specifies the DNS or NetBIOS name of the
+     *            remote server on which the function is to execute. If this
+     *            parameter is NULL, the local computer is used.
+     * @param UncClientName
+     *            Pointer to a string that specifies the name of the computer
+     *            session for which information is to be returned. If this parameter
+     *            is NULL, NetSessionEnum returns information for all computer
+     *            sessions on the server.
+     * @param username
+     *            Pointer to a string that specifies the name of the user for which
+     *            information is to be returned. If this parameter is NULL,
+     *            NetSessionEnum returns information for all users.
+     * @param level
+     *            Specifies the information level of the data. This parameter can be
+     *            one of 0, 1, 2, 10, 502.
+     * @param bufptr
+     *            Pointer to the buffer that receives the data. The format of this
+     *            data depends on the value of the level parameter, for example
+     *            {@code SESSION_INFO_0} for level 0.
+     *            &lt;p&gt;
+     *            This buffer is allocated by the system and must be freed using the
+     *            {@link #NetApiBufferFree} function. Note that you must free the
+     *            buffer even if the function fails with {@code ERROR_MORE_DATA}.
+     * @param prefmaxlen
+     *            Specifies the preferred maximum length of returned data, in bytes.
+     *            If you specify {@link #MAX_PREFERRED_LENGTH}, the function
+     *            allocates the amount of memory required for the data. If you
+     *            specify another value in this parameter, it can restrict the
+     *            number of bytes that the function returns. If the buffer size is
+     *            insufficient to hold all entries, the function returns
+     *            {@code ERROR_MORE_DATA}.
+     * @param entriesread
+     *            Pointer to a value that receives the count of elements actually
+     *            enumerated.
+     * @param totalentries
+     *            Pointer to a value that receives the total number of entries that
+     *            could have been enumerated from the current resume position. Note
+     *            that applications should consider this value only as a hint.
+     * @param resume_handle
+     *            Pointer to a value that contains a resume handle which is used to
+     *            continue an existing session search. The handle should be zero on
+     *            the first call and left unchanged for subsequent calls. If
+     *            resume_handle is NULL, no resume handle is stored.
+     * @return If the function succeeds, the return value is NERR_Success. If the
+     *         function fails, the return value is an error code.
+     */
+    int NetSessionEnum(String servername, String UncClientName, String username, int level, PointerByReference bufptr,
+            int prefmaxlen, IntByReference entriesread, IntByReference totalentries, IntByReference resume_handle);
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

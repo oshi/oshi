@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.SoundCard;
 import oshi.hardware.common.AbstractSoundCard;
 import oshi.util.ExecutingCommand;
@@ -36,23 +37,22 @@ import oshi.util.ParseUtil;
 /**
  * FreeBSD soundcard.
  */
-public class FreeBsdSoundCard extends AbstractSoundCard {
+@Immutable
+final class FreeBsdSoundCard extends AbstractSoundCard {
 
     private static final String LSHAL = &quot;lshal&quot;;
 
     /**
-     * &lt;p&gt;
      * Constructor for FreeBsdSoundCard.
-     * &lt;/p&gt;
-     *
+     * 
      * @param kernelVersion
-     *            a {@link java.lang.String} object.
+     *            The version
      * @param name
-     *            a {@link java.lang.String} object.
+     *            The name
      * @param codec
-     *            a {@link java.lang.String} object.
+     *            The codec
      */
-    public FreeBsdSoundCard(String kernelVersion, String name, String codec) {
+    FreeBsdSoundCard(String kernelVersion, String name, String codec) {
 <span class="nc" id="L56">        super(kernelVersion, name, codec);</span>
 <span class="nc" id="L57">    }</span>
 

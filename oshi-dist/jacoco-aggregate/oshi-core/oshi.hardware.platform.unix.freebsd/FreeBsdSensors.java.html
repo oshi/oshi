@@ -27,15 +27,15 @@ import com.sun.jna.Memory; // NOSONAR squid:S1191
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 
+import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.common.AbstractSensors;
 import oshi.jna.platform.unix.freebsd.FreeBsdLibc;
 
 /**
- * &lt;p&gt;
- * FreeBsdSensors class.
- * &lt;/p&gt;
+ * Sensors from coretemp
  */
-<span class="nc" id="L38">public class FreeBsdSensors extends AbstractSensors {</span>
+@ThreadSafe
+<span class="nc" id="L38">final class FreeBsdSensors extends AbstractSensors {</span>
 
     @Override
     public double queryCpuTemperature() {

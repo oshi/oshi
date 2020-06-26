@@ -32,7 +32,7 @@ import java.util.Map.Entry;
 import com.sun.jna.platform.unix.solaris.LibKstat.Kstat; //NOSONAR
 import com.sun.jna.platform.unix.solaris.LibKstat.KstatIO;
 
-import oshi.hardware.Disks;
+import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
 import oshi.util.ExecutingCommand;
@@ -43,163 +43,169 @@ import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
 /**
  * Solaris hard disk implementation.
  */
-<span class="nc" id="L46">public class SolarisDisks implements Disks {</span>
+@ThreadSafe
+public final class SolarisDisks {
 
-    /**
-     * &lt;p&gt;
-     * updateDiskStats.
-     * &lt;/p&gt;
-     *
-     * @param diskStore
-     *            a {@link oshi.hardware.HWDiskStore} object.
-     * @return true if the update was successful
-     */
-    public static boolean updateDiskStats(HWDiskStore diskStore) {
-<span class="nc" id="L58">        try (KstatChain kc = KstatUtil.openChain()) {</span>
-<span class="nc" id="L59">            Kstat ksp = kc.lookup(null, 0, diskStore.getName());</span>
-<span class="nc bnc" id="L60" title="All 4 branches missed.">            if (ksp != null &amp;&amp; kc.read(ksp)) {</span>
-<span class="nc" id="L61">                KstatIO data = new KstatIO(ksp.ks_data);</span>
-<span class="nc" id="L62">                diskStore.setReads(data.reads);</span>
-<span class="nc" id="L63">                diskStore.setWrites(data.writes);</span>
-<span class="nc" id="L64">                diskStore.setReadBytes(data.nread);</span>
-<span class="nc" id="L65">                diskStore.setWriteBytes(data.nwritten);</span>
-<span class="nc" id="L66">                diskStore.setCurrentQueueLength((long) data.wcnt + data.rcnt);</span>
-                // rtime and snaptime are nanoseconds, convert to millis
-<span class="nc" id="L68">                diskStore.setTransferTime(data.rtime / 1_000_000L);</span>
-<span class="nc" id="L69">                diskStore.setTimeStamp(ksp.ks_snaptime / 1_000_000L);</span>
-<span class="nc" id="L70">                return true;</span>
-            }
-<span class="nc bnc" id="L72" title="All 2 branches missed.">        }</span>
-<span class="nc" id="L73">        return false;</span>
+    private SolarisDisks() {
     }
 
-    @Override
-    public HWDiskStore[] getDisks() {
+    /**
+     * Updates the statistics on a disk store.
+     *
+     * @param diskStore
+     *            the {@link oshi.hardware.HWDiskStore} to update.
+     * @return {@code true} if the update was (probably) successful.
+     */
+    public static boolean updateDiskStats(HWDiskStore diskStore) {
+<span class="nc" id="L60">        try (KstatChain kc = KstatUtil.openChain()) {</span>
+<span class="nc" id="L61">            Kstat ksp = kc.lookup(null, 0, diskStore.getName());</span>
+<span class="nc bnc" id="L62" title="All 4 branches missed.">            if (ksp != null &amp;&amp; kc.read(ksp)) {</span>
+<span class="nc" id="L63">                KstatIO data = new KstatIO(ksp.ks_data);</span>
+<span class="nc" id="L64">                diskStore.setReads(data.reads);</span>
+<span class="nc" id="L65">                diskStore.setWrites(data.writes);</span>
+<span class="nc" id="L66">                diskStore.setReadBytes(data.nread);</span>
+<span class="nc" id="L67">                diskStore.setWriteBytes(data.nwritten);</span>
+<span class="nc" id="L68">                diskStore.setCurrentQueueLength((long) data.wcnt + data.rcnt);</span>
+                // rtime and snaptime are nanoseconds, convert to millis
+<span class="nc" id="L70">                diskStore.setTransferTime(data.rtime / 1_000_000L);</span>
+<span class="nc" id="L71">                diskStore.setTimeStamp(ksp.ks_snaptime / 1_000_000L);</span>
+<span class="nc" id="L72">                return true;</span>
+            }
+<span class="nc bnc" id="L74" title="All 2 branches missed.">        }</span>
+<span class="nc" id="L75">        return false;</span>
+    }
+
+    /**
+     * Gets the disks on this machine
+     *
+     * @return an array of {@link HWDiskStore} objects representing the disks
+     */
+    public static HWDiskStore[] getDisks() {
         // Create map indexed by device name for multiple command reference
-<span class="nc" id="L79">        Map&lt;String, HWDiskStore&gt; diskMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L85">        Map&lt;String, HWDiskStore&gt; diskMap = new HashMap&lt;&gt;();</span>
         // First, run iostat -er to enumerate disks by name. Sample output:
         // errors
         // device,s/w,h/w,trn,tot
         // cmdk0,0,0,0,0
         // sd0,0,0,0
-<span class="nc" id="L85">        List&lt;String&gt; disks = ExecutingCommand.runNative(&quot;iostat -er&quot;);</span>
+<span class="nc" id="L91">        List&lt;String&gt; disks = ExecutingCommand.runNative(&quot;iostat -er&quot;);</span>
 
         // Create map to correlate disk name with block device mount point for
         // later use in partition info
-<span class="nc" id="L89">        Map&lt;String, String&gt; deviceMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L95">        Map&lt;String, String&gt; deviceMap = new HashMap&lt;&gt;();</span>
         // Also run iostat -ern to get the same list by mount point. Sample
         // output:
         // errors
         // s/w,h/w,trn,tot,device
         // 0,0,0,0,c1d0
         // 0,0,0,0,c1t1d0
-<span class="nc" id="L96">        List&lt;String&gt; mountpoints = ExecutingCommand.runNative(&quot;iostat -ern&quot;);</span>
+<span class="nc" id="L102">        List&lt;String&gt; mountpoints = ExecutingCommand.runNative(&quot;iostat -ern&quot;);</span>
         String disk;
-<span class="nc bnc" id="L98" title="All 4 branches missed.">        for (int i = 0; i &lt; disks.size() &amp;&amp; i &lt; mountpoints.size(); i++) {</span>
+<span class="nc bnc" id="L104" title="All 4 branches missed.">        for (int i = 0; i &lt; disks.size() &amp;&amp; i &lt; mountpoints.size(); i++) {</span>
             // Map disk
-<span class="nc" id="L100">            disk = disks.get(i);</span>
-<span class="nc" id="L101">            String[] diskSplit = disk.split(&quot;,&quot;);</span>
-<span class="nc bnc" id="L102" title="All 4 branches missed.">            if (diskSplit.length &gt;= 5 &amp;&amp; !&quot;device&quot;.equals(diskSplit[0])) {</span>
-<span class="nc" id="L103">                HWDiskStore store = new HWDiskStore();</span>
-<span class="nc" id="L104">                store.setName(diskSplit[0]);</span>
-<span class="nc" id="L105">                diskMap.put(diskSplit[0], store);</span>
+<span class="nc" id="L106">            disk = disks.get(i);</span>
+<span class="nc" id="L107">            String[] diskSplit = disk.split(&quot;,&quot;);</span>
+<span class="nc bnc" id="L108" title="All 4 branches missed.">            if (diskSplit.length &gt;= 5 &amp;&amp; !&quot;device&quot;.equals(diskSplit[0])) {</span>
+<span class="nc" id="L109">                HWDiskStore store = new HWDiskStore();</span>
+<span class="nc" id="L110">                store.setName(diskSplit[0]);</span>
+<span class="nc" id="L111">                diskMap.put(diskSplit[0], store);</span>
                 // Map mount
-<span class="nc" id="L107">                String mount = mountpoints.get(i);</span>
-<span class="nc" id="L108">                String[] mountSplit = mount.split(&quot;,&quot;);</span>
-<span class="nc bnc" id="L109" title="All 4 branches missed.">                if (mountSplit.length &gt;= 5 &amp;&amp; !&quot;device&quot;.equals(mountSplit[4])) {</span>
-<span class="nc" id="L110">                    deviceMap.put(diskSplit[0], mountSplit[4]);</span>
+<span class="nc" id="L113">                String mount = mountpoints.get(i);</span>
+<span class="nc" id="L114">                String[] mountSplit = mount.split(&quot;,&quot;);</span>
+<span class="nc bnc" id="L115" title="All 4 branches missed.">                if (mountSplit.length &gt;= 5 &amp;&amp; !&quot;device&quot;.equals(mountSplit[4])) {</span>
+<span class="nc" id="L116">                    deviceMap.put(diskSplit[0], mountSplit[4]);</span>
                 }
             }
         }
 
         // Create map to correlate disk name with blick device mount point for
         // later use in partition info
-<span class="nc" id="L117">        Map&lt;String, Integer&gt; majorMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L123">        Map&lt;String, Integer&gt; majorMap = new HashMap&lt;&gt;();</span>
         // Run lshal, if available, to get block device major (we'll use
         // partition # for minor)
-<span class="nc" id="L120">        List&lt;String&gt; lshal = ExecutingCommand.runNative(&quot;lshal&quot;);</span>
-<span class="nc" id="L121">        disk = &quot;&quot;;</span>
-<span class="nc bnc" id="L122" title="All 2 branches missed.">        for (String line : lshal) {</span>
-<span class="nc bnc" id="L123" title="All 2 branches missed.">            if (line.startsWith(&quot;udi &quot;)) {</span>
-<span class="nc" id="L124">                String udi = ParseUtil.getSingleQuoteStringValue(line);</span>
-<span class="nc" id="L125">                disk = udi.substring(udi.lastIndexOf('/') + 1);</span>
-<span class="nc" id="L126">                continue;</span>
+<span class="nc" id="L126">        List&lt;String&gt; lshal = ExecutingCommand.runNative(&quot;lshal&quot;);</span>
+<span class="nc" id="L127">        disk = &quot;&quot;;</span>
+<span class="nc bnc" id="L128" title="All 2 branches missed.">        for (String line : lshal) {</span>
+<span class="nc bnc" id="L129" title="All 2 branches missed.">            if (line.startsWith(&quot;udi &quot;)) {</span>
+<span class="nc" id="L130">                String udi = ParseUtil.getSingleQuoteStringValue(line);</span>
+<span class="nc" id="L131">                disk = udi.substring(udi.lastIndexOf('/') + 1);</span>
+<span class="nc" id="L132">                continue;</span>
             }
-<span class="nc" id="L128">            line = line.trim();</span>
-<span class="nc bnc" id="L129" title="All 2 branches missed.">            if (line.startsWith(&quot;block.major&quot;)) {</span>
-<span class="nc" id="L130">                majorMap.put(disk, ParseUtil.getFirstIntValue(line));</span>
+<span class="nc" id="L134">            line = line.trim();</span>
+<span class="nc bnc" id="L135" title="All 2 branches missed.">            if (line.startsWith(&quot;block.major&quot;)) {</span>
+<span class="nc" id="L136">                majorMap.put(disk, ParseUtil.getFirstIntValue(line));</span>
             }
-<span class="nc" id="L132">        }</span>
+<span class="nc" id="L138">        }</span>
 
         // Next, run iostat -Er to get model, etc.
-<span class="nc" id="L135">        disks = ExecutingCommand.runNative(&quot;iostat -Er&quot;);</span>
+<span class="nc" id="L141">        disks = ExecutingCommand.runNative(&quot;iostat -Er&quot;);</span>
         // We'll use Model if available, otherwise Vendor+Product
-<span class="nc" id="L137">        disk = &quot;&quot;;</span>
-<span class="nc" id="L138">        String model = &quot;&quot;;</span>
-<span class="nc" id="L139">        String vendor = &quot;&quot;;</span>
-<span class="nc" id="L140">        String product = &quot;&quot;;</span>
-<span class="nc" id="L141">        String serial = &quot;&quot;;</span>
-<span class="nc" id="L142">        long size = 0;</span>
-<span class="nc bnc" id="L143" title="All 2 branches missed.">        for (String line : disks) {</span>
+<span class="nc" id="L143">        disk = &quot;&quot;;</span>
+<span class="nc" id="L144">        String model = &quot;&quot;;</span>
+<span class="nc" id="L145">        String vendor = &quot;&quot;;</span>
+<span class="nc" id="L146">        String product = &quot;&quot;;</span>
+<span class="nc" id="L147">        String serial = &quot;&quot;;</span>
+<span class="nc" id="L148">        long size = 0;</span>
+<span class="nc bnc" id="L149" title="All 2 branches missed.">        for (String line : disks) {</span>
             // The -r switch enables comma delimited for easy parsing!
             // No guarantees on which line the results appear so we'll nest
             // a loop iterating on the comma splits
-<span class="nc" id="L147">            String[] split = line.split(&quot;,&quot;);</span>
-<span class="nc bnc" id="L148" title="All 2 branches missed.">            for (String keyValue : split) {</span>
-<span class="nc" id="L149">                keyValue = keyValue.trim();</span>
+<span class="nc" id="L153">            String[] split = line.split(&quot;,&quot;);</span>
+<span class="nc bnc" id="L154" title="All 2 branches missed.">            for (String keyValue : split) {</span>
+<span class="nc" id="L155">                keyValue = keyValue.trim();</span>
                 // If entry is tne name of a disk, this is beginning of new
                 // output for that disk.
-<span class="nc bnc" id="L152" title="All 2 branches missed.">                if (diskMap.keySet().contains(keyValue)) {</span>
+<span class="nc bnc" id="L158" title="All 2 branches missed.">                if (diskMap.keySet().contains(keyValue)) {</span>
                     // First, if we have existing output from previous,
                     // update
-<span class="nc bnc" id="L155" title="All 2 branches missed.">                    if (!disk.isEmpty()) {</span>
-<span class="nc" id="L156">                        updateStore(diskMap.get(disk), model, vendor, product, serial, size, deviceMap.get(disk),</span>
-<span class="nc" id="L157">                                majorMap.getOrDefault(disk, 0));</span>
+<span class="nc bnc" id="L161" title="All 2 branches missed.">                    if (!disk.isEmpty()) {</span>
+<span class="nc" id="L162">                        updateStore(diskMap.get(disk), model, vendor, product, serial, size, deviceMap.get(disk),</span>
+<span class="nc" id="L163">                                majorMap.getOrDefault(disk, 0));</span>
                     }
                     // Reset values for next iteration
-<span class="nc" id="L160">                    disk = keyValue;</span>
-<span class="nc" id="L161">                    model = &quot;&quot;;</span>
-<span class="nc" id="L162">                    vendor = &quot;&quot;;</span>
-<span class="nc" id="L163">                    product = &quot;&quot;;</span>
-<span class="nc" id="L164">                    serial = &quot;&quot;;</span>
-<span class="nc" id="L165">                    size = 0L;</span>
-<span class="nc" id="L166">                    continue;</span>
+<span class="nc" id="L166">                    disk = keyValue;</span>
+<span class="nc" id="L167">                    model = &quot;&quot;;</span>
+<span class="nc" id="L168">                    vendor = &quot;&quot;;</span>
+<span class="nc" id="L169">                    product = &quot;&quot;;</span>
+<span class="nc" id="L170">                    serial = &quot;&quot;;</span>
+<span class="nc" id="L171">                    size = 0L;</span>
+<span class="nc" id="L172">                    continue;</span>
                 }
                 // Otherwise update variables
-<span class="nc bnc" id="L169" title="All 2 branches missed.">                if (keyValue.startsWith(&quot;Model:&quot;)) {</span>
-<span class="nc" id="L170">                    model = keyValue.replace(&quot;Model:&quot;, &quot;&quot;).trim();</span>
-<span class="nc bnc" id="L171" title="All 2 branches missed.">                } else if (keyValue.startsWith(&quot;Serial No:&quot;)) {</span>
-<span class="nc" id="L172">                    serial = keyValue.replace(&quot;Serial No:&quot;, &quot;&quot;).trim();</span>
-<span class="nc bnc" id="L173" title="All 2 branches missed.">                } else if (keyValue.startsWith(&quot;Vendor:&quot;)) {</span>
-<span class="nc" id="L174">                    vendor = keyValue.replace(&quot;Vendor:&quot;, &quot;&quot;).trim();</span>
-<span class="nc bnc" id="L175" title="All 2 branches missed.">                } else if (keyValue.startsWith(&quot;Product:&quot;)) {</span>
-<span class="nc" id="L176">                    product = keyValue.replace(&quot;Product:&quot;, &quot;&quot;).trim();</span>
-<span class="nc bnc" id="L177" title="All 2 branches missed.">                } else if (keyValue.startsWith(&quot;Size:&quot;)) {</span>
+<span class="nc bnc" id="L175" title="All 2 branches missed.">                if (keyValue.startsWith(&quot;Model:&quot;)) {</span>
+<span class="nc" id="L176">                    model = keyValue.replace(&quot;Model:&quot;, &quot;&quot;).trim();</span>
+<span class="nc bnc" id="L177" title="All 2 branches missed.">                } else if (keyValue.startsWith(&quot;Serial No:&quot;)) {</span>
+<span class="nc" id="L178">                    serial = keyValue.replace(&quot;Serial No:&quot;, &quot;&quot;).trim();</span>
+<span class="nc bnc" id="L179" title="All 2 branches missed.">                } else if (keyValue.startsWith(&quot;Vendor:&quot;)) {</span>
+<span class="nc" id="L180">                    vendor = keyValue.replace(&quot;Vendor:&quot;, &quot;&quot;).trim();</span>
+<span class="nc bnc" id="L181" title="All 2 branches missed.">                } else if (keyValue.startsWith(&quot;Product:&quot;)) {</span>
+<span class="nc" id="L182">                    product = keyValue.replace(&quot;Product:&quot;, &quot;&quot;).trim();</span>
+<span class="nc bnc" id="L183" title="All 2 branches missed.">                } else if (keyValue.startsWith(&quot;Size:&quot;)) {</span>
                     // Size: 1.23GB &lt;1227563008 bytes&gt;
-<span class="nc" id="L179">                    String[] bytes = keyValue.split(&quot;&lt;&quot;);</span>
-<span class="nc bnc" id="L180" title="All 2 branches missed.">                    if (bytes.length &gt; 1) {</span>
-<span class="nc" id="L181">                        bytes = ParseUtil.whitespaces.split(bytes[1]);</span>
-<span class="nc" id="L182">                        size = ParseUtil.parseLongOrDefault(bytes[0], 0L);</span>
+<span class="nc" id="L185">                    String[] bytes = keyValue.split(&quot;&lt;&quot;);</span>
+<span class="nc bnc" id="L186" title="All 2 branches missed.">                    if (bytes.length &gt; 1) {</span>
+<span class="nc" id="L187">                        bytes = ParseUtil.whitespaces.split(bytes[1]);</span>
+<span class="nc" id="L188">                        size = ParseUtil.parseLongOrDefault(bytes[0], 0L);</span>
                     }
                 }
             }
             // At end of output update last entry
-<span class="nc bnc" id="L187" title="All 2 branches missed.">            if (!disk.isEmpty()) {</span>
-<span class="nc" id="L188">                updateStore(diskMap.get(disk), model, vendor, product, serial, size, deviceMap.get(disk),</span>
-<span class="nc" id="L189">                        majorMap.getOrDefault(disk, 0));</span>
+<span class="nc bnc" id="L193" title="All 2 branches missed.">            if (!disk.isEmpty()) {</span>
+<span class="nc" id="L194">                updateStore(diskMap.get(disk), model, vendor, product, serial, size, deviceMap.get(disk),</span>
+<span class="nc" id="L195">                        majorMap.getOrDefault(disk, 0));</span>
             }
-<span class="nc" id="L191">        }</span>
+<span class="nc" id="L197">        }</span>
 
         // Finally use kstat to get reads/writes
         // simultaneously populate result array
-<span class="nc" id="L195">        HWDiskStore[] results = new HWDiskStore[diskMap.keySet().size()];</span>
-<span class="nc" id="L196">        int index = 0;</span>
-<span class="nc bnc" id="L197" title="All 2 branches missed.">        for (Entry&lt;String, HWDiskStore&gt; entry : diskMap.entrySet()) {</span>
-<span class="nc" id="L198">            updateDiskStats(entry.getValue());</span>
-<span class="nc" id="L199">            results[index++] = entry.getValue();</span>
-<span class="nc" id="L200">        }</span>
+<span class="nc" id="L201">        HWDiskStore[] results = new HWDiskStore[diskMap.keySet().size()];</span>
+<span class="nc" id="L202">        int index = 0;</span>
+<span class="nc bnc" id="L203" title="All 2 branches missed.">        for (Entry&lt;String, HWDiskStore&gt; entry : diskMap.entrySet()) {</span>
+<span class="nc" id="L204">            updateDiskStats(entry.getValue());</span>
+<span class="nc" id="L205">            results[index++] = entry.getValue();</span>
+<span class="nc" id="L206">        }</span>
 
-<span class="nc" id="L202">        return results;</span>
+<span class="nc" id="L208">        return results;</span>
     }
 
     /**
@@ -225,123 +231,123 @@ import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
      */
     private static void updateStore(HWDiskStore store, String model, String vendor, String product, String serial,
             long size, String mount, int major) {
-<span class="nc bnc" id="L228" title="All 2 branches missed.">        store.setModel(model.isEmpty() ? (vendor + &quot; &quot; + product).trim() : model);</span>
-<span class="nc" id="L229">        store.setSerial(serial);</span>
-<span class="nc" id="L230">        store.setSize(size);</span>
+<span class="nc bnc" id="L234" title="All 2 branches missed.">        store.setModel(model.isEmpty() ? (vendor + &quot; &quot; + product).trim() : model);</span>
+<span class="nc" id="L235">        store.setSerial(serial);</span>
+<span class="nc" id="L236">        store.setSize(size);</span>
 
         // Temporary list to hold partitions
-<span class="nc" id="L233">        List&lt;HWPartition&gt; partList = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L239">        List&lt;HWPartition&gt; partList = new ArrayList&lt;&gt;();</span>
 
         // Now grab prtvotc output for partitions
         // This requires sudo permissions; will result in &quot;permission denied
         // otherwise&quot; in which case we return empty partition list
-<span class="nc" id="L238">        List&lt;String&gt; prtvotc = ExecutingCommand.runNative(&quot;prtvtoc /dev/dsk/&quot; + mount);</span>
+<span class="nc" id="L244">        List&lt;String&gt; prtvotc = ExecutingCommand.runNative(&quot;prtvtoc /dev/dsk/&quot; + mount);</span>
         // Sample output - see man prtvtoc
-<span class="nc bnc" id="L240" title="All 2 branches missed.">        if (prtvotc.size() &gt; 1) {</span>
-<span class="nc" id="L241">            int bytesPerSector = 0;</span>
+<span class="nc bnc" id="L246" title="All 2 branches missed.">        if (prtvotc.size() &gt; 1) {</span>
+<span class="nc" id="L247">            int bytesPerSector = 0;</span>
             String[] split;
             // We have a result, parse partition table
-<span class="nc bnc" id="L244" title="All 2 branches missed.">            for (String line : prtvotc) {</span>
+<span class="nc bnc" id="L250" title="All 2 branches missed.">            for (String line : prtvotc) {</span>
                 // If line starts with asterisk we ignore except for the one
                 // specifying bytes per sector
-<span class="nc bnc" id="L247" title="All 2 branches missed.">                if (line.startsWith(&quot;*&quot;)) {</span>
-<span class="nc bnc" id="L248" title="All 2 branches missed.">                    if (line.endsWith(&quot;bytes/sector&quot;)) {</span>
-<span class="nc" id="L249">                        split = ParseUtil.whitespaces.split(line);</span>
-<span class="nc bnc" id="L250" title="All 2 branches missed.">                        if (split.length &gt; 0) {</span>
-<span class="nc" id="L251">                            bytesPerSector = ParseUtil.parseIntOrDefault(split[1], 0);</span>
+<span class="nc bnc" id="L253" title="All 2 branches missed.">                if (line.startsWith(&quot;*&quot;)) {</span>
+<span class="nc bnc" id="L254" title="All 2 branches missed.">                    if (line.endsWith(&quot;bytes/sector&quot;)) {</span>
+<span class="nc" id="L255">                        split = ParseUtil.whitespaces.split(line);</span>
+<span class="nc bnc" id="L256" title="All 2 branches missed.">                        if (split.length &gt; 0) {</span>
+<span class="nc" id="L257">                            bytesPerSector = ParseUtil.parseIntOrDefault(split[1], 0);</span>
                         }
                     }
-<span class="nc bnc" id="L254" title="All 2 branches missed.">                } else if (bytesPerSector &gt; 0) {</span>
+<span class="nc bnc" id="L260" title="All 2 branches missed.">                } else if (bytesPerSector &gt; 0) {</span>
                     // If bytes/sector is still 0, these are not real partitions so
                     // ignore.
                     // Lines without asterisk have 6 or 7 whitespaces-split values
                     // representing (last field optional):
                     // Partition Tag Flags Sector Count Sector Mount
-<span class="nc" id="L260">                    split = ParseUtil.whitespaces.split(line.trim());</span>
+<span class="nc" id="L266">                    split = ParseUtil.whitespaces.split(line.trim());</span>
                     // Partition 2 is always the whole disk so we ignore it
-<span class="nc bnc" id="L262" title="All 4 branches missed.">                    if (split.length &gt;= 6 &amp;&amp; !&quot;2&quot;.equals(split[0])) {</span>
-<span class="nc" id="L263">                        HWPartition partition = new HWPartition();</span>
+<span class="nc bnc" id="L268" title="All 4 branches missed.">                    if (split.length &gt;= 6 &amp;&amp; !&quot;2&quot;.equals(split[0])) {</span>
+<span class="nc" id="L269">                        HWPartition partition = new HWPartition();</span>
                         // First field is partition number
-<span class="nc" id="L265">                        partition.setIdentification(mount + &quot;s&quot; + split[0]);</span>
-<span class="nc" id="L266">                        partition.setMajor(major);</span>
-<span class="nc" id="L267">                        partition.setMinor(ParseUtil.parseIntOrDefault(split[0], 0));</span>
+<span class="nc" id="L271">                        partition.setIdentification(mount + &quot;s&quot; + split[0]);</span>
+<span class="nc" id="L272">                        partition.setMajor(major);</span>
+<span class="nc" id="L273">                        partition.setMinor(ParseUtil.parseIntOrDefault(split[0], 0));</span>
                         // Second field is tag. Parse:
-<span class="nc bnc" id="L269" title="All 15 branches missed.">                        switch (ParseUtil.parseIntOrDefault(split[1], 0)) {</span>
+<span class="nc bnc" id="L275" title="All 15 branches missed.">                        switch (ParseUtil.parseIntOrDefault(split[1], 0)) {</span>
                         case 0x01:
                         case 0x18:
-<span class="nc" id="L272">                            partition.setName(&quot;boot&quot;);</span>
-<span class="nc" id="L273">                            break;</span>
-                        case 0x02:
-<span class="nc" id="L275">                            partition.setName(&quot;root&quot;);</span>
-<span class="nc" id="L276">                            break;</span>
-                        case 0x03:
-<span class="nc" id="L278">                            partition.setName(&quot;swap&quot;);</span>
+<span class="nc" id="L278">                            partition.setName(&quot;boot&quot;);</span>
 <span class="nc" id="L279">                            break;</span>
-                        case 0x04:
-<span class="nc" id="L281">                            partition.setName(&quot;usr&quot;);</span>
+                        case 0x02:
+<span class="nc" id="L281">                            partition.setName(&quot;root&quot;);</span>
 <span class="nc" id="L282">                            break;</span>
-                        case 0x05:
-<span class="nc" id="L284">                            partition.setName(&quot;backup&quot;);</span>
+                        case 0x03:
+<span class="nc" id="L284">                            partition.setName(&quot;swap&quot;);</span>
 <span class="nc" id="L285">                            break;</span>
-                        case 0x06:
-<span class="nc" id="L287">                            partition.setName(&quot;stand&quot;);</span>
+                        case 0x04:
+<span class="nc" id="L287">                            partition.setName(&quot;usr&quot;);</span>
 <span class="nc" id="L288">                            break;</span>
-                        case 0x07:
-<span class="nc" id="L290">                            partition.setName(&quot;var&quot;);</span>
+                        case 0x05:
+<span class="nc" id="L290">                            partition.setName(&quot;backup&quot;);</span>
 <span class="nc" id="L291">                            break;</span>
-                        case 0x08:
-<span class="nc" id="L293">                            partition.setName(&quot;home&quot;);</span>
+                        case 0x06:
+<span class="nc" id="L293">                            partition.setName(&quot;stand&quot;);</span>
 <span class="nc" id="L294">                            break;</span>
-                        case 0x09:
-<span class="nc" id="L296">                            partition.setName(&quot;altsctr&quot;);</span>
+                        case 0x07:
+<span class="nc" id="L296">                            partition.setName(&quot;var&quot;);</span>
 <span class="nc" id="L297">                            break;</span>
-                        case 0x0a:
-<span class="nc" id="L299">                            partition.setName(&quot;cache&quot;);</span>
+                        case 0x08:
+<span class="nc" id="L299">                            partition.setName(&quot;home&quot;);</span>
 <span class="nc" id="L300">                            break;</span>
-                        case 0x0b:
-<span class="nc" id="L302">                            partition.setName(&quot;reserved&quot;);</span>
+                        case 0x09:
+<span class="nc" id="L302">                            partition.setName(&quot;altsctr&quot;);</span>
 <span class="nc" id="L303">                            break;</span>
-                        case 0x0c:
-<span class="nc" id="L305">                            partition.setName(&quot;system&quot;);</span>
+                        case 0x0a:
+<span class="nc" id="L305">                            partition.setName(&quot;cache&quot;);</span>
 <span class="nc" id="L306">                            break;</span>
-                        case 0x0e:
-<span class="nc" id="L308">                            partition.setName(&quot;public region&quot;);</span>
+                        case 0x0b:
+<span class="nc" id="L308">                            partition.setName(&quot;reserved&quot;);</span>
 <span class="nc" id="L309">                            break;</span>
-                        case 0x0f:
-<span class="nc" id="L311">                            partition.setName(&quot;private region&quot;);</span>
+                        case 0x0c:
+<span class="nc" id="L311">                            partition.setName(&quot;system&quot;);</span>
 <span class="nc" id="L312">                            break;</span>
+                        case 0x0e:
+<span class="nc" id="L314">                            partition.setName(&quot;public region&quot;);</span>
+<span class="nc" id="L315">                            break;</span>
+                        case 0x0f:
+<span class="nc" id="L317">                            partition.setName(&quot;private region&quot;);</span>
+<span class="nc" id="L318">                            break;</span>
                         default:
-<span class="nc" id="L314">                            partition.setName(&quot;unknown&quot;);</span>
+<span class="nc" id="L320">                            partition.setName(&quot;unknown&quot;);</span>
                             break;
                         }
                         // Third field is flags.
                         // First character writable, second is mountable
-<span class="nc bnc" id="L319" title="All 4 branches missed.">                        switch (split[2]) {</span>
+<span class="nc bnc" id="L325" title="All 4 branches missed.">                        switch (split[2]) {</span>
                         case &quot;00&quot;:
-<span class="nc" id="L321">                            partition.setType(&quot;wm&quot;);</span>
-<span class="nc" id="L322">                            break;</span>
-                        case &quot;10&quot;:
-<span class="nc" id="L324">                            partition.setType(&quot;rm&quot;);</span>
-<span class="nc" id="L325">                            break;</span>
-                        case &quot;01&quot;:
-<span class="nc" id="L327">                            partition.setType(&quot;wu&quot;);</span>
+<span class="nc" id="L327">                            partition.setType(&quot;wm&quot;);</span>
 <span class="nc" id="L328">                            break;</span>
+                        case &quot;10&quot;:
+<span class="nc" id="L330">                            partition.setType(&quot;rm&quot;);</span>
+<span class="nc" id="L331">                            break;</span>
+                        case &quot;01&quot;:
+<span class="nc" id="L333">                            partition.setType(&quot;wu&quot;);</span>
+<span class="nc" id="L334">                            break;</span>
                         default:
-<span class="nc" id="L330">                            partition.setType(&quot;ru&quot;);</span>
+<span class="nc" id="L336">                            partition.setType(&quot;ru&quot;);</span>
                             break;
                         }
                         // Fifth field is sector count
-<span class="nc" id="L334">                        partition.setSize(bytesPerSector * ParseUtil.parseLongOrDefault(split[4], 0L));</span>
+<span class="nc" id="L340">                        partition.setSize(bytesPerSector * ParseUtil.parseLongOrDefault(split[4], 0L));</span>
                         // Seventh field (if present) is mount point
-<span class="nc bnc" id="L336" title="All 2 branches missed.">                        if (split.length &gt; 6) {</span>
-<span class="nc" id="L337">                            partition.setMountPoint(split[6]);</span>
+<span class="nc bnc" id="L342" title="All 2 branches missed.">                        if (split.length &gt; 6) {</span>
+<span class="nc" id="L343">                            partition.setMountPoint(split[6]);</span>
                         }
-<span class="nc" id="L339">                        partList.add(partition);</span>
+<span class="nc" id="L345">                        partList.add(partition);</span>
                     }
                 }
-<span class="nc" id="L342">            }</span>
-<span class="nc" id="L343">            store.setPartitions(partList.toArray(new HWPartition[0]));</span>
+<span class="nc" id="L348">            }</span>
+<span class="nc" id="L349">            store.setPartitions(partList.toArray(new HWPartition[0]));</span>
         }
-<span class="nc" id="L345">    }</span>
+<span class="nc" id="L351">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

@@ -26,16 +26,16 @@ package oshi.hardware.platform.unix.solaris;
 import java.util.ArrayList;
 import java.util.List;
 
+import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.common.AbstractSensors;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
 /**
- * &lt;p&gt;
- * SolarisSensors class.
- * &lt;/p&gt;
+ * Sensors from prtpicl
  */
-<span class="nc" id="L38">public class SolarisSensors extends AbstractSensors {</span>
+@ThreadSafe
+<span class="nc" id="L38">final class SolarisSensors extends AbstractSensors {</span>
 
     @Override
     public double queryCpuTemperature() {

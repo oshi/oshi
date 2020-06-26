@@ -26,8 +26,13 @@ package oshi.driver.windows.wmi;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery; //NOSONAR squid:S1191
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
+import oshi.annotation.concurrent.ThreadSafe;
 import oshi.util.platform.windows.WmiQueryHandler;
 
+/**
+ * Utility to query WMI class {@code Win32_LogicalDiskToPartition}
+ */
+@ThreadSafe
 public final class Win32LogicalDiskToPartition {
 
     private static final String WIN32_LOGICAL_DISK_TO_PARTITION = &quot;Win32_LogicalDiskToPartition&quot;;
@@ -35,8 +40,8 @@ public final class Win32LogicalDiskToPartition {
     /**
      * Links disk drives to partitions
      */
-<span class="nc" id="L38">    public enum DiskToPartitionProperty {</span>
-<span class="nc" id="L39">        ANTECEDENT, DEPENDENT;</span>
+<span class="nc" id="L43">    public enum DiskToPartitionProperty {</span>
+<span class="nc" id="L44">        ANTECEDENT, DEPENDENT;</span>
     }
 
     private Win32LogicalDiskToPartition() {
@@ -48,9 +53,9 @@ public final class Win32LogicalDiskToPartition {
      * @return Antecedent-dependent pairs of disk and partition.
      */
     public static WmiResult&lt;DiskToPartitionProperty&gt; queryDiskToPartition() {
-<span class="nc" id="L51">        WmiQuery&lt;DiskToPartitionProperty&gt; diskToPartitionQuery = new WmiQuery&lt;&gt;(WIN32_LOGICAL_DISK_TO_PARTITION,</span>
+<span class="nc" id="L56">        WmiQuery&lt;DiskToPartitionProperty&gt; diskToPartitionQuery = new WmiQuery&lt;&gt;(WIN32_LOGICAL_DISK_TO_PARTITION,</span>
                 DiskToPartitionProperty.class);
-<span class="nc" id="L53">        return WmiQueryHandler.createInstance().queryWMI(diskToPartitionQuery);</span>
+<span class="nc" id="L58">        return WmiQueryHandler.createInstance().queryWMI(diskToPartitionQuery);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

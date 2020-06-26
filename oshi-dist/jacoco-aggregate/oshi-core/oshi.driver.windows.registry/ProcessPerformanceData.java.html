@@ -28,11 +28,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.windows.perfmon.ProcessInformation.ProcessPerformanceProperty;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OperatingSystem;
 import oshi.util.tuples.Triplet;
 
+/**
+ * Utility to read process data from HKEY_PERFORMANCE_DATA information.
+ */
+@ThreadSafe
 public final class ProcessPerformanceData {
 
     private static final String PROCESS = &quot;Process&quot;;
@@ -54,39 +59,39 @@ public final class ProcessPerformanceData {
      */
     public static Map&lt;Integer, OSProcess&gt; buildProcessMapFromRegistry(OperatingSystem os, Collection&lt;Integer&gt; pids) {
         // Grab the data from the registry.
-<span class="nc" id="L57">        Triplet&lt;List&lt;Map&lt;ProcessPerformanceProperty, Object&gt;&gt;, Long, Long&gt; processData = HkeyPerformanceDataUtil</span>
-<span class="nc" id="L58">                .readPerfDataFromRegistry(PROCESS, ProcessPerformanceProperty.class);</span>
-<span class="nc bnc" id="L59" title="All 2 branches missed.">        if (processData == null) {</span>
-<span class="nc" id="L60">            return null;</span>
+<span class="nc" id="L62">        Triplet&lt;List&lt;Map&lt;ProcessPerformanceProperty, Object&gt;&gt;, Long, Long&gt; processData = HkeyPerformanceDataUtil</span>
+<span class="nc" id="L63">                .readPerfDataFromRegistry(PROCESS, ProcessPerformanceProperty.class);</span>
+<span class="nc bnc" id="L64" title="All 2 branches missed.">        if (processData == null) {</span>
+<span class="nc" id="L65">            return null;</span>
         }
-<span class="nc" id="L62">        List&lt;Map&lt;ProcessPerformanceProperty, Object&gt;&gt; processInstanceMaps = processData.getA();</span>
-<span class="nc" id="L63">        long perfTime100nSec = processData.getB(); // 1601</span>
-<span class="nc" id="L64">        long now = processData.getC(); // 1970 epoch</span>
+<span class="nc" id="L67">        List&lt;Map&lt;ProcessPerformanceProperty, Object&gt;&gt; processInstanceMaps = processData.getA();</span>
+<span class="nc" id="L68">        long perfTime100nSec = processData.getB(); // 1601</span>
+<span class="nc" id="L69">        long now = processData.getC(); // 1970 epoch</span>
 
         // Create a map and fill it
-<span class="nc" id="L67">        Map&lt;Integer, OSProcess&gt; processMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L72">        Map&lt;Integer, OSProcess&gt; processMap = new HashMap&lt;&gt;();</span>
         // Iterate instances.
-<span class="nc bnc" id="L69" title="All 2 branches missed.">        for (Map&lt;ProcessPerformanceProperty, Object&gt; processInstanceMap : processInstanceMaps) {</span>
-<span class="nc" id="L70">            int pid = ((Integer) processInstanceMap.get(ProcessPerformanceProperty.PROCESSID)).intValue();</span>
-<span class="nc" id="L71">            String name = (String) processInstanceMap.get(ProcessPerformanceProperty.NAME);</span>
-<span class="nc bnc" id="L72" title="All 6 branches missed.">            if ((pids == null || pids.contains(pid)) &amp;&amp; !&quot;_Total&quot;.equals(name)) {</span>
-<span class="nc" id="L73">                OSProcess proc = new OSProcess(os);</span>
-<span class="nc" id="L74">                proc.setProcessID(pid);</span>
-<span class="nc" id="L75">                proc.setName(name);</span>
-<span class="nc" id="L76">                long upTime = (perfTime100nSec - (Long) processInstanceMap.get(ProcessPerformanceProperty.CREATIONDATE))</span>
+<span class="nc bnc" id="L74" title="All 2 branches missed.">        for (Map&lt;ProcessPerformanceProperty, Object&gt; processInstanceMap : processInstanceMaps) {</span>
+<span class="nc" id="L75">            int pid = ((Integer) processInstanceMap.get(ProcessPerformanceProperty.PROCESSID)).intValue();</span>
+<span class="nc" id="L76">            String name = (String) processInstanceMap.get(ProcessPerformanceProperty.NAME);</span>
+<span class="nc bnc" id="L77" title="All 6 branches missed.">            if ((pids == null || pids.contains(pid)) &amp;&amp; !&quot;_Total&quot;.equals(name)) {</span>
+<span class="nc" id="L78">                OSProcess proc = new OSProcess(os);</span>
+<span class="nc" id="L79">                proc.setProcessID(pid);</span>
+<span class="nc" id="L80">                proc.setName(name);</span>
+<span class="nc" id="L81">                long upTime = (perfTime100nSec - (Long) processInstanceMap.get(ProcessPerformanceProperty.CREATIONDATE))</span>
                         / 10_000L;
-<span class="nc bnc" id="L78" title="All 2 branches missed.">                proc.setUpTime(upTime &lt; 1L ? 1L : upTime);</span>
-<span class="nc" id="L79">                proc.setStartTime(now - upTime);</span>
-<span class="nc" id="L80">                proc.setBytesRead((Long) processInstanceMap.get(ProcessPerformanceProperty.READTRANSFERCOUNT));</span>
-<span class="nc" id="L81">                proc.setBytesWritten((Long) processInstanceMap.get(ProcessPerformanceProperty.WRITETRANSFERCOUNT));</span>
-<span class="nc" id="L82">                proc.setResidentSetSize((Long) processInstanceMap.get(ProcessPerformanceProperty.PRIVATEPAGECOUNT));</span>
-<span class="nc" id="L83">                proc.setParentProcessID((Integer) processInstanceMap.get(ProcessPerformanceProperty.PARENTPROCESSID));</span>
-<span class="nc" id="L84">                proc.setPriority((Integer) processInstanceMap.get(ProcessPerformanceProperty.PRIORITY));</span>
+<span class="nc bnc" id="L83" title="All 2 branches missed.">                proc.setUpTime(upTime &lt; 1L ? 1L : upTime);</span>
+<span class="nc" id="L84">                proc.setStartTime(now - upTime);</span>
+<span class="nc" id="L85">                proc.setBytesRead((Long) processInstanceMap.get(ProcessPerformanceProperty.READTRANSFERCOUNT));</span>
+<span class="nc" id="L86">                proc.setBytesWritten((Long) processInstanceMap.get(ProcessPerformanceProperty.WRITETRANSFERCOUNT));</span>
+<span class="nc" id="L87">                proc.setResidentSetSize((Long) processInstanceMap.get(ProcessPerformanceProperty.PRIVATEPAGECOUNT));</span>
+<span class="nc" id="L88">                proc.setParentProcessID((Integer) processInstanceMap.get(ProcessPerformanceProperty.PARENTPROCESSID));</span>
+<span class="nc" id="L89">                proc.setPriority((Integer) processInstanceMap.get(ProcessPerformanceProperty.PRIORITY));</span>
 
-<span class="nc" id="L86">                processMap.put(pid, proc);</span>
+<span class="nc" id="L91">                processMap.put(pid, proc);</span>
             }
-<span class="nc" id="L88">        }</span>
-<span class="nc" id="L89">        return processMap;</span>
+<span class="nc" id="L93">        }</span>
+<span class="nc" id="L94">        return processMap;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

@@ -36,78 +36,91 @@ import com.sun.jna.platform.win32.Kernel32; // NOSONAR squid:S1191
 import com.sun.jna.platform.win32.Psapi;
 import com.sun.jna.platform.win32.Psapi.PERFORMANCE_INFORMATION;
 
+import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.windows.perfmon.MemoryInformation;
 import oshi.driver.windows.perfmon.MemoryInformation.PageSwapProperty;
 import oshi.driver.windows.perfmon.PagingFile;
 import oshi.driver.windows.perfmon.PagingFile.PagingPercentProperty;
 import oshi.hardware.common.AbstractVirtualMemory;
 import oshi.util.tuples.Pair;
+import oshi.util.tuples.Triplet;
 
 /**
  * Memory obtained from WMI
  */
-public class WindowsVirtualMemory extends AbstractVirtualMemory {
+@ThreadSafe
+final class WindowsVirtualMemory extends AbstractVirtualMemory {
 
-<span class="nc" id="L51">    private static final Logger LOG = LoggerFactory.getLogger(WindowsVirtualMemory.class);</span>
+<span class="nc" id="L54">    private static final Logger LOG = LoggerFactory.getLogger(WindowsVirtualMemory.class);</span>
 
-    private final long pageSize;
+    private final WindowsGlobalMemory global;
 
-<span class="nc" id="L55">    private final Supplier&lt;Long&gt; used = memoize(this::querySwapUsed, defaultExpiration());</span>
+<span class="nc" id="L58">    private final Supplier&lt;Long&gt; used = memoize(WindowsVirtualMemory::querySwapUsed, defaultExpiration());</span>
 
-<span class="nc" id="L57">    private final Supplier&lt;Long&gt; total = memoize(this::querySwapTotal, defaultExpiration());</span>
+<span class="nc" id="L60">    private final Supplier&lt;Triplet&lt;Long, Long, Long&gt;&gt; totalVmaxVused = memoize(</span>
+<span class="nc" id="L61">            WindowsVirtualMemory::querySwapTotalVirtMaxVirtUsed, defaultExpiration());</span>
 
-<span class="nc" id="L59">    private final Supplier&lt;Pair&lt;Long, Long&gt;&gt; swapInOut = memoize(WindowsVirtualMemory::queryPageSwaps,</span>
-<span class="nc" id="L60">            defaultExpiration());</span>
+<span class="nc" id="L63">    private final Supplier&lt;Pair&lt;Long, Long&gt;&gt; swapInOut = memoize(WindowsVirtualMemory::queryPageSwaps,</span>
+<span class="nc" id="L64">            defaultExpiration());</span>
 
     /**
-     * &lt;p&gt;
      * Constructor for WindowsVirtualMemory.
-     * &lt;/p&gt;
      *
-     * @param pageSize
-     *            The size in bites of memory pages
+     * @param windowsGlobalMemory
+     *            The parent global memory class instantiating this
      */
-<span class="nc" id="L70">    public WindowsVirtualMemory(long pageSize) {</span>
-<span class="nc" id="L71">        this.pageSize = pageSize;</span>
-<span class="nc" id="L72">    }</span>
+<span class="nc" id="L72">    WindowsVirtualMemory(WindowsGlobalMemory windowsGlobalMemory) {</span>
+<span class="nc" id="L73">        this.global = windowsGlobalMemory;</span>
+<span class="nc" id="L74">    }</span>
 
     @Override
     public long getSwapUsed() {
-<span class="nc" id="L76">        return used.get();</span>
+<span class="nc" id="L78">        return this.global.getPageSize() * used.get();</span>
     }
 
     @Override
     public long getSwapTotal() {
-<span class="nc" id="L81">        return total.get();</span>
+<span class="nc" id="L83">        return this.global.getPageSize() * totalVmaxVused.get().getA();</span>
+    }
+
+    @Override
+    public long getVirtualMax() {
+<span class="nc" id="L88">        return this.global.getPageSize() * totalVmaxVused.get().getB();</span>
+    }
+
+    @Override
+    public long getVirtualInUse() {
+<span class="nc" id="L93">        return this.global.getPageSize() * totalVmaxVused.get().getC();</span>
     }
 
     @Override
     public long getSwapPagesIn() {
-<span class="nc" id="L86">        return swapInOut.get().getA();</span>
+<span class="nc" id="L98">        return swapInOut.get().getA();</span>
     }
 
     @Override
     public long getSwapPagesOut() {
-<span class="nc" id="L91">        return swapInOut.get().getB();</span>
+<span class="nc" id="L103">        return swapInOut.get().getB();</span>
     }
 
-    private long querySwapUsed() {
-<span class="nc" id="L95">        return PagingFile.querySwapUsed().getOrDefault(PagingPercentProperty.PERCENTUSAGE, 0L) * this.pageSize;</span>
+    private static long querySwapUsed() {
+<span class="nc" id="L107">        return PagingFile.querySwapUsed().getOrDefault(PagingPercentProperty.PERCENTUSAGE, 0L);</span>
     }
 
-    private long querySwapTotal() {
-<span class="nc" id="L99">        PERFORMANCE_INFORMATION perfInfo = new PERFORMANCE_INFORMATION();</span>
-<span class="nc bnc" id="L100" title="All 2 branches missed.">        if (!Psapi.INSTANCE.GetPerformanceInfo(perfInfo, perfInfo.size())) {</span>
-<span class="nc" id="L101">            LOG.error(&quot;Failed to get Performance Info. Error code: {}&quot;, Kernel32.INSTANCE.GetLastError());</span>
-<span class="nc" id="L102">            return 0L;</span>
+    private static Triplet&lt;Long, Long, Long&gt; querySwapTotalVirtMaxVirtUsed() {
+<span class="nc" id="L111">        PERFORMANCE_INFORMATION perfInfo = new PERFORMANCE_INFORMATION();</span>
+<span class="nc bnc" id="L112" title="All 2 branches missed.">        if (!Psapi.INSTANCE.GetPerformanceInfo(perfInfo, perfInfo.size())) {</span>
+<span class="nc" id="L113">            LOG.error(&quot;Failed to get Performance Info. Error code: {}&quot;, Kernel32.INSTANCE.GetLastError());</span>
+<span class="nc" id="L114">            return new Triplet&lt;&gt;(0L, 0L, 0L);</span>
         }
-<span class="nc" id="L104">        return this.pageSize * (perfInfo.CommitLimit.longValue() - perfInfo.PhysicalTotal.longValue());</span>
+<span class="nc" id="L116">        return new Triplet&lt;&gt;(perfInfo.CommitLimit.longValue() - perfInfo.PhysicalTotal.longValue(),</span>
+<span class="nc" id="L117">                perfInfo.CommitLimit.longValue(), perfInfo.CommitTotal.longValue());</span>
     }
 
     private static Pair&lt;Long, Long&gt; queryPageSwaps() {
-<span class="nc" id="L108">        Map&lt;PageSwapProperty, Long&gt; valueMap = MemoryInformation.queryPageSwaps();</span>
-<span class="nc" id="L109">        return new Pair&lt;&gt;(valueMap.getOrDefault(PageSwapProperty.PAGESINPUTPERSEC, 0L),</span>
-<span class="nc" id="L110">                valueMap.getOrDefault(PageSwapProperty.PAGESOUTPUTPERSEC, 0L));</span>
+<span class="nc" id="L121">        Map&lt;PageSwapProperty, Long&gt; valueMap = MemoryInformation.queryPageSwaps();</span>
+<span class="nc" id="L122">        return new Pair&lt;&gt;(valueMap.getOrDefault(PageSwapProperty.PAGESINPUTPERSEC, 0L),</span>
+<span class="nc" id="L123">                valueMap.getOrDefault(PageSwapProperty.PAGESOUTPUTPERSEC, 0L));</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

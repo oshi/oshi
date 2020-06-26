@@ -26,8 +26,13 @@ package oshi.driver.windows.wmi;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery; //NOSONAR squid:S1191
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
+import oshi.annotation.concurrent.ThreadSafe;
 import oshi.util.platform.windows.WmiQueryHandler;
 
+/**
+ * Utility to query WMI class {@code Win32_BIOS}
+ */
+@ThreadSafe
 public final class Win32Bios {
 
     private static final String WIN32_BIOS_WHERE_PRIMARY_BIOS_TRUE = &quot;Win32_BIOS where PrimaryBIOS=true&quot;;
@@ -35,15 +40,15 @@ public final class Win32Bios {
     /**
      * Serial number property.
      */
-<span class="nc" id="L38">    public enum BiosSerialProperty {</span>
-<span class="nc" id="L39">        SERIALNUMBER;</span>
+<span class="nc" id="L43">    public enum BiosSerialProperty {</span>
+<span class="nc" id="L44">        SERIALNUMBER;</span>
     }
 
     /**
      * BIOS description properties.
      */
-<span class="nc" id="L45">    public enum BiosProperty {</span>
-<span class="nc" id="L46">        MANUFACTURER, NAME, DESCRIPTION, VERSION, RELEASEDATE;</span>
+<span class="nc" id="L50">    public enum BiosProperty {</span>
+<span class="nc" id="L51">        MANUFACTURER, NAME, DESCRIPTION, VERSION, RELEASEDATE;</span>
     }
 
     private Win32Bios() {
@@ -55,9 +60,9 @@ public final class Win32Bios {
      * @return Assigned serial number of the software element.
      */
     public static WmiResult&lt;BiosSerialProperty&gt; querySerialNumber() {
-<span class="nc" id="L58">        WmiQuery&lt;BiosSerialProperty&gt; serialNumQuery = new WmiQuery&lt;&gt;(WIN32_BIOS_WHERE_PRIMARY_BIOS_TRUE,</span>
+<span class="nc" id="L63">        WmiQuery&lt;BiosSerialProperty&gt; serialNumQuery = new WmiQuery&lt;&gt;(WIN32_BIOS_WHERE_PRIMARY_BIOS_TRUE,</span>
                 BiosSerialProperty.class);
-<span class="nc" id="L60">        return WmiQueryHandler.createInstance().queryWMI(serialNumQuery);</span>
+<span class="nc" id="L65">        return WmiQueryHandler.createInstance().queryWMI(serialNumQuery);</span>
     }
 
     /**
@@ -66,8 +71,8 @@ public final class Win32Bios {
      * @return BIOS name, description, and related fields.
      */
     public static WmiResult&lt;BiosProperty&gt; queryBiosInfo() {
-<span class="nc" id="L69">        WmiQuery&lt;BiosProperty&gt; biosQuery = new WmiQuery&lt;&gt;(WIN32_BIOS_WHERE_PRIMARY_BIOS_TRUE, BiosProperty.class);</span>
-<span class="nc" id="L70">        return WmiQueryHandler.createInstance().queryWMI(biosQuery);</span>
+<span class="nc" id="L74">        WmiQuery&lt;BiosProperty&gt; biosQuery = new WmiQuery&lt;&gt;(WIN32_BIOS_WHERE_PRIMARY_BIOS_TRUE, BiosProperty.class);</span>
+<span class="nc" id="L75">        return WmiQueryHandler.createInstance().queryWMI(biosQuery);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

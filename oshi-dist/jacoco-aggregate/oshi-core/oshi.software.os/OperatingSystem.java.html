@@ -26,6 +26,7 @@ package oshi.software.os;
 import java.util.Collection;
 import java.util.List;
 
+import oshi.annotation.concurrent.ThreadSafe;
 import oshi.util.Constants;
 import oshi.util.Util;
 
@@ -33,14 +34,18 @@ import oshi.util.Util;
  * An operating system (OS) is the software on a computer that manages the way
  * different programs use its hardware, and regulates the ways that a user
  * controls the computer.
+ * &lt;p&gt;
+ * Considered thread safe, but see remarks for the {@link #getSessions()}
+ * method.
  */
+@ThreadSafe
 public interface OperatingSystem {
 
     /**
      * Controls sorting of Process output
      */
-<span class="fc" id="L42">    enum ProcessSort {</span>
-<span class="fc" id="L43">    CPU, MEMORY, OLDEST, NEWEST, PID, PARENTPID, NAME</span>
+<span class="fc" id="L47">    enum ProcessSort {</span>
+<span class="fc" id="L48">        CPU, MEMORY, OLDEST, NEWEST, PID, PARENTPID, NAME</span>
     }
 
     /**
@@ -79,6 +84,33 @@ public interface OperatingSystem {
      * @return A {@link oshi.software.os.FileSystem} object.
      */
     FileSystem getFileSystem();
+
+    /**
+     * Instantiates a {@link oshi.software.os.InternetProtocolStats} object.
+     * 
+     * @return a {@link oshi.software.os.InternetProtocolStats} object.
+     */
+    InternetProtocolStats getInternetProtocolStats();
+
+    /**
+     * Gets currently logged in users.
+     * &lt;p&gt;
+     * On macOS, Linux, and Unix systems, the default implementation uses native
+     * code (see {@code man getutxent}) that is not thread safe. OSHI's use of this
+     * code is synchronized and may be used in a multi-threaded environment without
+     * introducing any additional conflicts. Users should note, however, that other
+     * operating system code may access the same native code.
+     * &lt;p&gt;
+     * The {@link oshi.driver.unix.Who#queryWho()} method produces similar output
+     * parsing the output of the Posix-standard {@code who} command, and may
+     * internally employ reentrant code on some platforms. Users may opt to use this
+     * command-line variant by default using the {@code oshi.os.unix.whoCommand}
+     * configuration property.
+     *
+     * @return An {@code UnmodifiableList} of {@link oshi.software.os.OSSession}
+     *         objects representing logged-in users
+     */
+    List&lt;OSSession&gt; getSessions();
 
     /**
      * Gets currently running processes. No order is guaranteed.
@@ -304,20 +336,20 @@ public interface OperatingSystem {
         private final String buildNumber;
         private final String versionStr;
 
-<span class="fc" id="L307">        public OSVersionInfo(String version, String codeName, String buildNumber) {</span>
-<span class="fc" id="L308">            this.version = version;</span>
-<span class="fc" id="L309">            this.codeName = codeName;</span>
-<span class="fc" id="L310">            this.buildNumber = buildNumber;</span>
+<span class="fc" id="L339">        public OSVersionInfo(String version, String codeName, String buildNumber) {</span>
+<span class="fc" id="L340">            this.version = version;</span>
+<span class="fc" id="L341">            this.codeName = codeName;</span>
+<span class="fc" id="L342">            this.buildNumber = buildNumber;</span>
 
-<span class="pc bpc" id="L312" title="1 of 2 branches missed.">            StringBuilder sb = new StringBuilder(getVersion() != null ? getVersion() : Constants.UNKNOWN);</span>
-<span class="pc bpc" id="L313" title="1 of 2 branches missed.">            if (!Util.isBlank(getCodeName())) {</span>
-<span class="fc" id="L314">                sb.append(&quot; (&quot;).append(getCodeName()).append(')');</span>
+<span class="pc bpc" id="L344" title="1 of 2 branches missed.">            StringBuilder sb = new StringBuilder(getVersion() != null ? getVersion() : Constants.UNKNOWN);</span>
+<span class="pc bpc" id="L345" title="1 of 2 branches missed.">            if (!Util.isBlank(getCodeName())) {</span>
+<span class="fc" id="L346">                sb.append(&quot; (&quot;).append(getCodeName()).append(')');</span>
             }
-<span class="pc bpc" id="L316" title="1 of 2 branches missed.">            if (!Util.isBlank(getBuildNumber())) {</span>
-<span class="fc" id="L317">                sb.append(&quot; build &quot;).append(getBuildNumber());</span>
+<span class="pc bpc" id="L348" title="1 of 2 branches missed.">            if (!Util.isBlank(getBuildNumber())) {</span>
+<span class="fc" id="L349">                sb.append(&quot; build &quot;).append(getBuildNumber());</span>
             }
-<span class="fc" id="L319">            this.versionStr = sb.toString();</span>
-<span class="fc" id="L320">        }</span>
+<span class="fc" id="L351">            this.versionStr = sb.toString();</span>
+<span class="fc" id="L352">        }</span>
 
         /**
          * Gets the operating system version.
@@ -325,7 +357,7 @@ public interface OperatingSystem {
          * @return The version, if any. May be {@code null}.
          */
         public String getVersion() {
-<span class="fc" id="L328">            return version;</span>
+<span class="fc" id="L360">            return version;</span>
         }
 
         /**
@@ -334,7 +366,7 @@ public interface OperatingSystem {
          * @return The code name, if any. May be {@code null}.
          */
         public String getCodeName() {
-<span class="fc" id="L337">            return codeName;</span>
+<span class="fc" id="L369">            return codeName;</span>
         }
 
         /**
@@ -343,12 +375,12 @@ public interface OperatingSystem {
          * @return The build number, if any. May be {@code null}.
          */
         public String getBuildNumber() {
-<span class="fc" id="L346">            return buildNumber;</span>
+<span class="fc" id="L378">            return buildNumber;</span>
         }
 
         @Override
         public String toString() {
-<span class="nc" id="L351">            return this.versionStr;</span>
+<span class="nc" id="L383">            return this.versionStr;</span>
         }
     }
 }
