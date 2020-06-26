@@ -33,15 +33,15 @@
 <a class="jxr_linenumber" name="L25" href="#L25">25</a>  
 <a class="jxr_linenumber" name="L26" href="#L26">26</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.mac.IOKit.IOConnect; <em class="jxr_comment">// NOSONAR squid:S1191</em>
 <a class="jxr_linenumber" name="L27" href="#L27">27</a>  
-<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.common.AbstractSensors;
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">import</strong> oshi.util.platform.mac.SmcUtil;
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>  
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <em class="jxr_javadoccomment"> * MacSensors class.</em>
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <em class="jxr_javadoccomment"> * &lt;/p&gt;</em>
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="MacSensors" href="../../../../oshi/hardware/platform/mac/MacSensors.html#MacSensors">MacSensors</a> <strong class="jxr_keyword">extends</strong> <a name="AbstractSensors" href="../../../../oshi/hardware/common/AbstractSensors.html#AbstractSensors">AbstractSensors</a> {
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.common.AbstractSensors;
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <strong class="jxr_keyword">import</strong> oshi.util.platform.mac.SmcUtil;
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>  
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <em class="jxr_javadoccomment"> * Sensors from SMC</em>
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>  @ThreadSafe
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a name="MacSensors" href="../../../../oshi/hardware/platform/mac/MacSensors.html#MacSensors">MacSensors</a> <strong class="jxr_keyword">extends</strong> <a name="AbstractSensors" href="../../../../oshi/hardware/common/AbstractSensors.html#AbstractSensors">AbstractSensors</a> {
 <a class="jxr_linenumber" name="L37" href="#L37">37</a>  
 <a class="jxr_linenumber" name="L38" href="#L38">38</a>      <em class="jxr_comment">// This shouldn't change once determined</em>
 <a class="jxr_linenumber" name="L39" href="#L39">39</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> numFans = 0;

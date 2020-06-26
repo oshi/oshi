@@ -46,14 +46,14 @@
 <a class="jxr_linenumber" name="L38" href="#L38">38</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.mac.IOKit.IORegistryEntry;
 <a class="jxr_linenumber" name="L39" href="#L39">39</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.mac.IOKitUtil;
 <a class="jxr_linenumber" name="L40" href="#L40">40</a>  
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.UsbDevice;
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.common.AbstractUsbDevice;
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>  
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>  <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>  <em class="jxr_javadoccomment"> * MacUsbDevice class.</em>
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>  <em class="jxr_javadoccomment"> * &lt;/p&gt;</em>
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.Immutable;
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.UsbDevice;
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.common.AbstractUsbDevice;
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>  
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>  <em class="jxr_javadoccomment"> * Mac Usb Device</em>
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>  @Immutable
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="MacUsbDevice" href="../../../../oshi/hardware/platform/mac/MacUsbDevice.html#MacUsbDevice">MacUsbDevice</a> <strong class="jxr_keyword">extends</strong> <a name="AbstractUsbDevice" href="../../../../oshi/hardware/common/AbstractUsbDevice.html#AbstractUsbDevice">AbstractUsbDevice</a> {
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>  
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> CoreFoundation CF = CoreFoundation.INSTANCE;
@@ -304,7 +304,7 @@
 <a class="jxr_linenumber" name="L296" href="#L296">296</a>             Map&lt;Long, String&gt; productIdMap, Map&lt;Long, String&gt; serialMap, Map&lt;Long, List&lt;Long&gt;&gt; hubMap) {
 <a class="jxr_linenumber" name="L297" href="#L297">297</a>         String vendorId = vendorIdMap.getOrDefault(registryEntryId, vid);
 <a class="jxr_linenumber" name="L298" href="#L298">298</a>         String productId = productIdMap.getOrDefault(registryEntryId, pid);
-<a class="jxr_linenumber" name="L299" href="#L299">299</a>         List&lt;Long&gt; childIds = hubMap.getOrDefault(registryEntryId, <strong class="jxr_keyword">new</strong> ArrayList&lt;Long&gt;());
+<a class="jxr_linenumber" name="L299" href="#L299">299</a>         List&lt;Long&gt; childIds = hubMap.getOrDefault(registryEntryId, <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;());
 <a class="jxr_linenumber" name="L300" href="#L300">300</a>         List&lt;MacUsbDevice&gt; usbDevices = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
 <a class="jxr_linenumber" name="L301" href="#L301">301</a>         <strong class="jxr_keyword">for</strong> (Long id : childIds) {
 <a class="jxr_linenumber" name="L302" href="#L302">302</a>             usbDevices.add(getDeviceAndChildren(id, vendorId, productId, nameMap, vendorMap, vendorIdMap, productIdMap,

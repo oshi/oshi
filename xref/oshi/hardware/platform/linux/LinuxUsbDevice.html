@@ -37,19 +37,19 @@
 <a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">import</strong> java.util.List;
 <a class="jxr_linenumber" name="L30" href="#L30">30</a>  <strong class="jxr_keyword">import</strong> java.util.Map;
 <a class="jxr_linenumber" name="L31" href="#L31">31</a>  
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.UsbDevice;
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.common.AbstractUsbDevice;
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.platform.mac.MacUsbDevice;
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.linux.Udev;
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.linux.Udev.UdevDevice;
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.linux.Udev.UdevEnumerate;
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.linux.Udev.UdevListEntry;
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>  
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <em class="jxr_javadoccomment"> * LinuxUsbDevice class.</em>
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>  <em class="jxr_javadoccomment"> * &lt;/p&gt;</em>
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.Immutable;
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.UsbDevice;
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.common.AbstractUsbDevice;
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.platform.mac.MacUsbDevice;
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.linux.Udev;
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.linux.Udev.UdevDevice;
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.linux.Udev.UdevEnumerate;
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.linux.Udev.UdevListEntry;
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>  
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <em class="jxr_javadoccomment"> * Linux Usb Device</em>
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>  @Immutable
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="LinuxUsbDevice" href="../../../../oshi/hardware/platform/linux/LinuxUsbDevice.html#LinuxUsbDevice">LinuxUsbDevice</a> <strong class="jxr_keyword">extends</strong> <a name="AbstractUsbDevice" href="../../../../oshi/hardware/common/AbstractUsbDevice.html#AbstractUsbDevice">AbstractUsbDevice</a> {
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>  
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>      <em class="jxr_javadoccomment">/**</em>
@@ -102,7 +102,7 @@
 <a class="jxr_linenumber" name="L94" href="#L94">94</a>  
 <a class="jxr_linenumber" name="L95" href="#L95">95</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <a name="UsbDevice" href="../../../../oshi/hardware/UsbDevice.html#UsbDevice">UsbDevice</a>[] getUsbDevices() {
 <a class="jxr_linenumber" name="L96" href="#L96">96</a>          <em class="jxr_comment">// Enumerate all usb devices and build information maps</em>
-<a class="jxr_linenumber" name="L97" href="#L97">97</a>          Udev.UdevHandle udev = Udev.INSTANCE.udev_<strong class="jxr_keyword">new</strong>();
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>          Udev.UdevContext udev = Udev.INSTANCE.udev_<strong class="jxr_keyword">new</strong>();
 <a class="jxr_linenumber" name="L98" href="#L98">98</a>          <em class="jxr_comment">// Create a list of the devices in the 'usb' subsystem.</em>
 <a class="jxr_linenumber" name="L99" href="#L99">99</a>          UdevEnumerate enumerate = Udev.INSTANCE.udev_enumerate_<strong class="jxr_keyword">new</strong>(udev);
 <a class="jxr_linenumber" name="L100" href="#L100">100</a>         Udev.INSTANCE.udev_enumerate_add_match_subsystem(enumerate, <span class="jxr_string">"usb"</span>);
@@ -208,7 +208,7 @@
 <a class="jxr_linenumber" name="L200" href="#L200">200</a>             Map&lt;String, String&gt; productIdMap, Map&lt;String, String&gt; serialMap, Map&lt;String, List&lt;String&gt;&gt; hubMap) {
 <a class="jxr_linenumber" name="L201" href="#L201">201</a>         String vendorId = vendorIdMap.getOrDefault(devPath, vid);
 <a class="jxr_linenumber" name="L202" href="#L202">202</a>         String productId = productIdMap.getOrDefault(devPath, pid);
-<a class="jxr_linenumber" name="L203" href="#L203">203</a>         List&lt;String&gt; childPaths = hubMap.getOrDefault(devPath, <strong class="jxr_keyword">new</strong> ArrayList&lt;String&gt;());
+<a class="jxr_linenumber" name="L203" href="#L203">203</a>         List&lt;String&gt; childPaths = hubMap.getOrDefault(devPath, <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;());
 <a class="jxr_linenumber" name="L204" href="#L204">204</a>         List&lt;LinuxUsbDevice&gt; usbDevices = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
 <a class="jxr_linenumber" name="L205" href="#L205">205</a>         <strong class="jxr_keyword">for</strong> (String path : childPaths) {
 <a class="jxr_linenumber" name="L206" href="#L206">206</a>             usbDevices.add(getDeviceAndChildren(path, vendorId, productId, nameMap, vendorMap, vendorIdMap,
