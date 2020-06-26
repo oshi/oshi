@@ -1,15 +1,15 @@
 # Guide to upgrading from OSHI 4.x to 5.x
 
-OSHI 5.x releases are functionally equivalent to 4.x releases starting with 4.7,
+OSHI 5.0.0-5.1.2 releases are functionally equivalent to 4.7.0-4.8.2 releases,
 with three categories of changes supporting full thread safety:
 * Remove setters from API.
 * Change getters which return arrays of objects to return unmodifiable lists.
 * Remove deprecated code.
 
-New applications or applications requiring thread safety should use the 5.x branch.
+For users of JPMS, OSHI 5.2.0 and 4.9.0 were released with an Automatic Module Name of `com.github.oshi`,
+which may differ from the `oshi.core` module name previously resolved automatically.
 
-Existing applications may continue to use the 4.x branch, but some new features
-dependent on the new interface API may not be backported.
+Beginning with 4.9.0, the 4.X branch is now in maintenance mode (bug fixes but no new features).
 
 ## API Changes
 

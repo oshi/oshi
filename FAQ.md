@@ -71,15 +71,14 @@ operating systems. It therefore requires users to download an additional DLL spe
 system. This does have some advantages including faster native code routines, and availability of some
 native compiler intrinsics. In contrast, OSHI accesses native APIs using JNA, which does not require installation
 of any additional platform-specific DLLs.
- - **Platform Coverage** SIGAR (presently) supports a larger number of platforms, although some users have
-reported incompatibilities with recent architectures and Java versions. OSHI supports 99.5% of OS user share
-with support for Windows, Linux, macOS, FreeBSD, Solaris, and AIX (in progress).
  - **Corporate Development / Abandonment** SIGAR was developed commercially at Hyperic, later acquired by VMWare,
 who has abandoned the project. The [last release](https://github.com/hyperic/sigar/releases/tag/sigar-1.6.4)
 was in 2010 and the [last source commit](https://github.com/hyperic/sigar/commit/7a6aefc7fb315fc92445edcb902a787a6f0ddbd9)
 was in 2015. [Multiple independent forks](https://github.com/hyperic/sigar/issues/95) by existing users attempt
 to fix specific bugs/incompatibilities but none has emerged as a maintained/released fork.  In contrast, OSHI's 
 development has been entirely done by open source volunteers, and it is under active development as of 2020.
+ - **Support** SIGAR is completely unsupported by its authors, and there is no organized community support.
+OSHI is supported actively to fix bugs, respond to questions, and implement new features.
 
 Does OSHI work on Raspberry Pi hardware?
 ========
@@ -89,7 +88,7 @@ prepared to help test solutions.
 
 Will you do an AIX or HP-UX port?
 ========
-An AIX port is in progress.  An HP-UX port may be considered in the future.
+An AIX port is in progress.  An HP-UX port may be considered in the future if there is non-zero demand.
 
 Will you do a port for the other BSDs?  How about Android?
 ========

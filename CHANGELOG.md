@@ -1,4 +1,8 @@
-4.9.0 / 5.2.0 (in progress)
+5.3.0 (in progress)
+================
+* Your contribution here 
+
+4.9.0 / 5.2.0 (6/25/2020)
 ================
 * [#1247](https://github.com/oshi/oshi/pull/1247): Add Automatic-Module-Name to support JPMS - [@dbwiddis](https://github.com/dbwiddis).
 * [#1258](https://github.com/oshi/oshi/pull/1258): (5.x) Add threads details of a process - [@tausiflife](https://github.com/tausiflife).
@@ -6,7 +10,6 @@
 * [#1266](https://github.com/oshi/oshi/pull/1266): Suppress repeated attempts to query failed PDH - [@dbwiddis](https://github.com/dbwiddis).
 * [#1267](https://github.com/oshi/oshi/pull/1267): Check proc_pidinfo return value before incrementing numberOfThreads - [@markkulube](https://github.com/markkulube).
 * [#1270](https://github.com/oshi/oshi/pull/1270): (5.x) Add page fault info to OSProcess - [@tausiflife](https://github.com/tausiflife).
-* Your contribution here 
 
 4.8.2 / 5.1.2 (6/7/2020)
 ================
