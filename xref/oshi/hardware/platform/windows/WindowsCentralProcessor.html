@@ -146,7 +146,7 @@
 <a class="jxr_linenumber" name="L138" href="#L138">138</a> <em class="jxr_javadoccomment">     *            the key to retrieve</em>
 <a class="jxr_linenumber" name="L139" href="#L139">139</a> <em class="jxr_javadoccomment">     * @return the string following id</em>
 <a class="jxr_linenumber" name="L140" href="#L140">140</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L141" href="#L141">141</a>     <strong class="jxr_keyword">private</strong> String parseIdentifier(String identifier, String key) {
+<a class="jxr_linenumber" name="L141" href="#L141">141</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String parseIdentifier(String identifier, String key) {
 <a class="jxr_linenumber" name="L142" href="#L142">142</a>         String[] idSplit = ParseUtil.whitespaces.split(identifier);
 <a class="jxr_linenumber" name="L143" href="#L143">143</a>         <strong class="jxr_keyword">boolean</strong> found = false;
 <a class="jxr_linenumber" name="L144" href="#L144">144</a>         <strong class="jxr_keyword">for</strong> (String s : idSplit) {
@@ -161,7 +161,7 @@
 <a class="jxr_linenumber" name="L153" href="#L153">153</a>     }
 <a class="jxr_linenumber" name="L154" href="#L154">154</a> 
 <a class="jxr_linenumber" name="L155" href="#L155">155</a>     @Override
-<a class="jxr_linenumber" name="L156" href="#L156">156</a>     <strong class="jxr_keyword">protected</strong> LogicalProcessor[] initProcessorCounts() {
+<a class="jxr_linenumber" name="L156" href="#L156">156</a>     <strong class="jxr_keyword">protected</strong> List&lt;LogicalProcessor&gt; initProcessorCounts() {
 <a class="jxr_linenumber" name="L157" href="#L157">157</a>         <strong class="jxr_keyword">if</strong> (VersionHelpers.IsWindows7OrGreater()) {
 <a class="jxr_linenumber" name="L158" href="#L158">158</a>             <strong class="jxr_keyword">return</strong> getLogicalProcessorInformationEx();
 <a class="jxr_linenumber" name="L159" href="#L159">159</a>         } <strong class="jxr_keyword">else</strong> {
@@ -169,7 +169,7 @@
 <a class="jxr_linenumber" name="L161" href="#L161">161</a>         }
 <a class="jxr_linenumber" name="L162" href="#L162">162</a>     }
 <a class="jxr_linenumber" name="L163" href="#L163">163</a> 
-<a class="jxr_linenumber" name="L164" href="#L164">164</a>     <strong class="jxr_keyword">private</strong> LogicalProcessor[] getLogicalProcessorInformationEx() {
+<a class="jxr_linenumber" name="L164" href="#L164">164</a>     <strong class="jxr_keyword">private</strong> List&lt;LogicalProcessor&gt; getLogicalProcessorInformationEx() {
 <a class="jxr_linenumber" name="L165" href="#L165">165</a>         <em class="jxr_comment">// Collect a list of logical processors on each physical core and</em>
 <a class="jxr_linenumber" name="L166" href="#L166">166</a>         <em class="jxr_comment">// package. These will be 64-bit bitmasks.</em>
 <a class="jxr_linenumber" name="L167" href="#L167">167</a>         SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX[] procInfo = Kernel32Util
@@ -228,7 +228,7 @@
 <a class="jxr_linenumber" name="L220" href="#L220">220</a>             numaNodeProcToLogicalProcMap
 <a class="jxr_linenumber" name="L221" href="#L221">221</a>                     .put(String.format(<span class="jxr_string">"%d,%d"</span>, logProc.getNumaNode(), logProc.getProcessorNumber()), lp++);
 <a class="jxr_linenumber" name="L222" href="#L222">222</a>         }
-<a class="jxr_linenumber" name="L223" href="#L223">223</a>         <strong class="jxr_keyword">return</strong> logProcs.toArray(<strong class="jxr_keyword">new</strong> LogicalProcessor[0]);
+<a class="jxr_linenumber" name="L223" href="#L223">223</a>         <strong class="jxr_keyword">return</strong> logProcs;
 <a class="jxr_linenumber" name="L224" href="#L224">224</a>     }
 <a class="jxr_linenumber" name="L225" href="#L225">225</a> 
 <a class="jxr_linenumber" name="L226" href="#L226">226</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> getMatchingPackage(List&lt;GROUP_AFFINITY[]&gt; packages, <strong class="jxr_keyword">int</strong> g, <strong class="jxr_keyword">int</strong> lp) {
@@ -261,7 +261,7 @@
 <a class="jxr_linenumber" name="L253" href="#L253">253</a>         <strong class="jxr_keyword">return</strong> 0;
 <a class="jxr_linenumber" name="L254" href="#L254">254</a>     }
 <a class="jxr_linenumber" name="L255" href="#L255">255</a> 
-<a class="jxr_linenumber" name="L256" href="#L256">256</a>     <strong class="jxr_keyword">private</strong> LogicalProcessor[] getLogicalProcessorInformation() {
+<a class="jxr_linenumber" name="L256" href="#L256">256</a>     <strong class="jxr_keyword">private</strong> List&lt;LogicalProcessor&gt; getLogicalProcessorInformation() {
 <a class="jxr_linenumber" name="L257" href="#L257">257</a>         <em class="jxr_comment">// Collect a list of logical processors on each physical core and</em>
 <a class="jxr_linenumber" name="L258" href="#L258">258</a>         <em class="jxr_comment">// package. These will be 64-bit bitmasks.</em>
 <a class="jxr_linenumber" name="L259" href="#L259">259</a>         List&lt;Long&gt; packageMaskList = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
@@ -295,7 +295,7 @@
 <a class="jxr_linenumber" name="L287" href="#L287">287</a>                 }
 <a class="jxr_linenumber" name="L288" href="#L288">288</a>             }
 <a class="jxr_linenumber" name="L289" href="#L289">289</a>         }
-<a class="jxr_linenumber" name="L290" href="#L290">290</a>         <strong class="jxr_keyword">return</strong> logProcs.toArray(<strong class="jxr_keyword">new</strong> LogicalProcessor[0]);
+<a class="jxr_linenumber" name="L290" href="#L290">290</a>         <strong class="jxr_keyword">return</strong> logProcs;
 <a class="jxr_linenumber" name="L291" href="#L291">291</a>     }
 <a class="jxr_linenumber" name="L292" href="#L292">292</a> 
 <a class="jxr_linenumber" name="L293" href="#L293">293</a>     <em class="jxr_javadoccomment">/**</em>
@@ -307,7 +307,7 @@
 <a class="jxr_linenumber" name="L299" href="#L299">299</a> <em class="jxr_javadoccomment">     *            The bit to find matching mask</em>
 <a class="jxr_linenumber" name="L300" href="#L300">300</a> <em class="jxr_javadoccomment">     * @return The index of the list which matched the bit</em>
 <a class="jxr_linenumber" name="L301" href="#L301">301</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L302" href="#L302">302</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> getBitMatchingPackageNumber(List&lt;Long&gt; packageMaskList, <strong class="jxr_keyword">int</strong> logProc) {
+<a class="jxr_linenumber" name="L302" href="#L302">302</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> getBitMatchingPackageNumber(List&lt;Long&gt; packageMaskList, <strong class="jxr_keyword">int</strong> logProc) {
 <a class="jxr_linenumber" name="L303" href="#L303">303</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; packageMaskList.size(); i++) {
 <a class="jxr_linenumber" name="L304" href="#L304">304</a>             <strong class="jxr_keyword">if</strong> ((packageMaskList.get(i).longValue() &amp; (1L &lt;&lt; logProc)) &gt; 0) {
 <a class="jxr_linenumber" name="L305" href="#L305">305</a>                 <strong class="jxr_keyword">return</strong> i;

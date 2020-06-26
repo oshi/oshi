@@ -5,9 +5,13 @@ oshi.demo.gui
 oshi.driver.linux
 oshi.driver.linux.proc
 oshi.driver.mac
+oshi.driver.mac.disk
+oshi.driver.mac.net
 oshi.driver.unix
 oshi.driver.unix.freebsd
+oshi.driver.unix.freebsd.disk
 oshi.driver.unix.solaris
+oshi.driver.unix.solaris.disk
 oshi.driver.unix.solaris.kstat
 oshi.driver.windows.perfmon
 oshi.driver.windows.registry

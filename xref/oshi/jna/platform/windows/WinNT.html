@@ -44,7 +44,7 @@
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>  <em class="jxr_javadoccomment">     * for an access token.</em>
 <a class="jxr_linenumber" name="L37" href="#L37">37</a>  <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L38" href="#L38">38</a>      @FieldOrder({ <span class="jxr_string">"PrimaryGroup"</span> })
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> TOKEN_PRIMARY_GROUP <strong class="jxr_keyword">extends</strong> Structure {
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>      <strong class="jxr_keyword">class</strong> TOKEN_PRIMARY_GROUP <strong class="jxr_keyword">extends</strong> Structure {
 <a class="jxr_linenumber" name="L40" href="#L40">40</a>          <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>  <em class="jxr_javadoccomment">         * A pointer to a SID structure representing a group that will become the</em>
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>  <em class="jxr_javadoccomment">         * primary group of any objects created by a process using this access token.</em>
@@ -70,7 +70,7 @@
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>  <em class="jxr_javadoccomment">     * A 64-bit integer;</em>
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>  <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>      @FieldOrder({ <span class="jxr_string">"u"</span> })
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>      <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> LARGE_INTEGER <strong class="jxr_keyword">extends</strong> Structure <strong class="jxr_keyword">implements</strong> Comparable&lt;LARGE_INTEGER&gt; {
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>      <strong class="jxr_keyword">class</strong> LARGE_INTEGER <strong class="jxr_keyword">extends</strong> Structure <strong class="jxr_keyword">implements</strong> Comparable&lt;LARGE_INTEGER&gt; {
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> ByReference <strong class="jxr_keyword">extends</strong> LARGE_INTEGER <strong class="jxr_keyword">implements</strong> Structure.ByReference {
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>          }
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>  

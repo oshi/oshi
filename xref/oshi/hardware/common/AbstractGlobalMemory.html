@@ -49,7 +49,7 @@
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">class</strong> <a name="AbstractGlobalMemory" href="../../../oshi/hardware/common/AbstractGlobalMemory.html#AbstractGlobalMemory">AbstractGlobalMemory</a> <strong class="jxr_keyword">implements</strong> <a name="GlobalMemory" href="../../../oshi/hardware/GlobalMemory.html#GlobalMemory">GlobalMemory</a> {
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>  
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>      @Override
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>      <strong class="jxr_keyword">public</strong> <a name="PhysicalMemory" href="../../../oshi/hardware/PhysicalMemory.html#PhysicalMemory">PhysicalMemory</a>[] getPhysicalMemory() {
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>      <strong class="jxr_keyword">public</strong> List&lt;PhysicalMemory&gt; getPhysicalMemory() {
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>          <em class="jxr_comment">// dmidecode requires sudo permission but is the only option on Linux</em>
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>          <em class="jxr_comment">// and Unix</em>
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>          List&lt;PhysicalMemory&gt; pmList = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
@@ -104,7 +104,7 @@
 <a class="jxr_linenumber" name="L96" href="#L96">96</a>          <strong class="jxr_keyword">if</strong> (capacity &gt; 0) {
 <a class="jxr_linenumber" name="L97" href="#L97">97</a>              pmList.add(<strong class="jxr_keyword">new</strong> <a name="PhysicalMemory" href="../../../oshi/hardware/PhysicalMemory.html#PhysicalMemory">PhysicalMemory</a>(bankLabel + locator, capacity, speed, manufacturer, memoryType));
 <a class="jxr_linenumber" name="L98" href="#L98">98</a>          }
-<a class="jxr_linenumber" name="L99" href="#L99">99</a>          <strong class="jxr_keyword">return</strong> pmList.toArray(<strong class="jxr_keyword">new</strong> <a name="PhysicalMemory" href="../../../oshi/hardware/PhysicalMemory.html#PhysicalMemory">PhysicalMemory</a>[0]);
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>          <strong class="jxr_keyword">return</strong> pmList;
 <a class="jxr_linenumber" name="L100" href="#L100">100</a>     }
 <a class="jxr_linenumber" name="L101" href="#L101">101</a> 
 <a class="jxr_linenumber" name="L102" href="#L102">102</a>     @Override
