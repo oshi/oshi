@@ -36,7 +36,7 @@ public interface WinNT extends com.sun.jna.platform.win32.WinNT {
      * for an access token.
      */
     @FieldOrder({ &quot;PrimaryGroup&quot; })
-    public static class TOKEN_PRIMARY_GROUP extends Structure {
+    class TOKEN_PRIMARY_GROUP extends Structure {
         /**
          * A pointer to a SID structure representing a group that will become the
          * primary group of any objects created by a process using this access token.
@@ -62,7 +62,7 @@ public interface WinNT extends com.sun.jna.platform.win32.WinNT {
      * A 64-bit integer;
      */
     @FieldOrder({ &quot;u&quot; })
-    static class LARGE_INTEGER extends Structure implements Comparable&lt;LARGE_INTEGER&gt; {
+    class LARGE_INTEGER extends Structure implements Comparable&lt;LARGE_INTEGER&gt; {
 <span class="nc" id="L66">        public static class ByReference extends LARGE_INTEGER implements Structure.ByReference {</span>
         }
 

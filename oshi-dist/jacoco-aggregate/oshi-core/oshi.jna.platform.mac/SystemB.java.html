@@ -42,16 +42,18 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB, CLibrary {
     int UTX_IDSIZE = 4;
     int UTX_HOSTSIZE = 256;
 
+    int THREAD_BASIC_INFO = 3;
+
     @FieldOrder({ &quot;ut_user&quot;, &quot;ut_id&quot;, &quot;ut_line&quot;, &quot;ut_pid&quot;, &quot;ut_type&quot;, &quot;ut_tv&quot;, &quot;ut_host&quot;, &quot;ut_pad&quot; })
-<span class="nc" id="L46">    class MacUtmpx extends Structure {</span>
-<span class="nc" id="L47">        public byte[] ut_user = new byte[UTX_USERSIZE]; // login name</span>
-<span class="nc" id="L48">        public byte[] ut_id = new byte[UTX_IDSIZE]; // id</span>
-<span class="nc" id="L49">        public byte[] ut_line = new byte[UTX_LINESIZE]; // tty name</span>
+<span class="nc" id="L48">    class MacUtmpx extends Structure {</span>
+<span class="nc" id="L49">        public byte[] ut_user = new byte[UTX_USERSIZE]; // login name</span>
+<span class="nc" id="L50">        public byte[] ut_id = new byte[UTX_IDSIZE]; // id</span>
+<span class="nc" id="L51">        public byte[] ut_line = new byte[UTX_LINESIZE]; // tty name</span>
         public int ut_pid; // process id creating the entry
         public short ut_type; // type of this entry
         public Timeval ut_tv; // time entry was created
-<span class="nc" id="L53">        public byte[] ut_host = new byte[UTX_HOSTSIZE]; // host name</span>
-<span class="nc" id="L54">        public byte[] ut_pad = new byte[16]; // reserved for future use</span>
+<span class="nc" id="L55">        public byte[] ut_host = new byte[UTX_HOSTSIZE]; // host name</span>
+<span class="nc" id="L56">        public byte[] ut_pad = new byte[16]; // reserved for future use</span>
     }
 
     /**
@@ -64,6 +66,5 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB, CLibrary {
      *         the &quot;record not found&quot; case)
      */
     MacUtmpx getutxent();
-
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
