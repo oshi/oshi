@@ -110,7 +110,7 @@
         <ul class="breadcrumb">
         <li id="publishDate">Last Published: 2020-06-25<span class="divider">|</span>
 </li>
-          <li id="projectVersion">Version: 4.9.0</li>
+          <li id="projectVersion">Version: 5.2.0</li>
         </ul>
       </div>
       <div class="row-fluid">
@@ -167,120 +167,573 @@
 <th>File</th>
 <th>Line</th></tr>
 <tr class="b">
-<td>oshi/software/os/windows/WindowsOSVersionInfoEx.java</td>
-<td><a href="./xref/oshi/software/os/windows/WindowsOSVersionInfoEx.html#L119">119</a></td></tr>
+<td>oshi/software/os/unix/freebsd/FreeBsdOSProcess.java</td>
+<td><a href="./xref/oshi/software/os/unix/freebsd/FreeBsdOSProcess.html#L78">78</a></td></tr>
 <tr class="a">
-<td>oshi/software/os/windows/WindowsOperatingSystem.java</td>
-<td><a href="./xref/oshi/software/os/windows/WindowsOperatingSystem.html#L187">187</a></td></tr>
+<td>oshi/software/os/unix/solaris/SolarisOSProcess.java</td>
+<td><a href="./xref/oshi/software/os/unix/solaris/SolarisOSProcess.html#L73">73</a></td></tr>
 <tr class="b"><td colspan='2'>
 <div>
-<pre>                    version = (ParseUtil.parseLongOrDefault(getBuildNumber(), 0L) &gt; 17762) ? &quot;Server 2019&quot;
-                            : &quot;Server 2016&quot;;
-                }
-            }
-            break;
-        case 6:
-            if (minor == 3) {
-                version = ntWorkstation ? &quot;8.1&quot; : &quot;Server 2012 R2&quot;;
-            } else if (minor == 2) {
-                version = ntWorkstation ? &quot;8&quot; : &quot;Server 2012&quot;;
-            } else if (minor == 1) {
-                version = ntWorkstation ? &quot;7&quot; : &quot;Server 2008 R2&quot;;
-            } else if (minor == 0) {
-                version = ntWorkstation ? &quot;Vista&quot; : &quot;Server 2008&quot;;
-            }
-            break;
-        case 5:
-            if (minor == 2) {
-                if ((suiteMask &amp; 0x00008000) != 0) {// VER_SUITE_WH_SERVER
-                    version = &quot;Home Server&quot;;
-                } else if (ntWorkstation) {
-                    version = &quot;XP&quot;; // 64 bits
-                } else {
-                    version = User32.INSTANCE.GetSystemMetrics(WinUser.SM_SERVERR2) != 0 ? &quot;Server 2003&quot;
-                            : &quot;Server 2003 R2&quot;;
-                }
-            } else if (minor == 1) {
-                version = &quot;XP&quot;; // 32 bits
-            } else if (minor == 0) {
-                version = &quot;2000&quot;;
-            }
-            break;
-        default:
-            break;
-        }
-
-        String sp = WmiUtil.getString(versionInfo, OSVersionProperty.CSDVERSION, 0);
-        if (!sp.isEmpty() &amp;&amp; !&quot;unknown&quot;.equals(sp)) {
-            version = version + &quot; &quot; + sp.replace(&quot;Service Pack &quot;, &quot;SP&quot;);
-        }
-
-        return version;
+<pre>    public FreeBsdOSProcess(int pid, String[] split) {
+        super(pid);
+        updateAttributes(split);
     }
 
-    /**
-     * Gets suites available on the system and return as a codename
-     *
-     * @param suiteMask
-     *
-     * @return Suites
-     */
-    private String parseCodeName(int suiteMask) {</pre></div></td></tr></table>
-<table border="0" class="table table-striped">
-<tr class="a">
-<th>File</th>
-<th>Line</th></tr>
-<tr class="b">
-<td>oshi/software/os/windows/WindowsOSVersionInfoEx.java</td>
-<td><a href="./xref/oshi/software/os/windows/WindowsOSVersionInfoEx.html#L170">170</a></td></tr>
-<tr class="a">
-<td>oshi/software/os/windows/WindowsOperatingSystem.java</td>
-<td><a href="./xref/oshi/software/os/windows/WindowsOperatingSystem.html#L237">237</a></td></tr>
-<tr class="b"><td colspan='2'>
-<div>
-<pre>    private String parseCodeName(int suiteMask) {
-        List&lt;String&gt; suites = new ArrayList&lt;&gt;();
-        if ((suiteMask &amp; 0x00000002) != 0) {
-            suites.add(&quot;Enterprise&quot;);
-        }
-        if ((suiteMask &amp; 0x00000004) != 0) {
-            suites.add(&quot;BackOffice&quot;);
-        }
-        if ((suiteMask &amp; 0x00000008) != 0) {
-            suites.add(&quot;Communication Server&quot;);
-        }
-        if ((suiteMask &amp; 0x00000080) != 0) {
-            suites.add(&quot;Datacenter&quot;);
-        }
-        if ((suiteMask &amp; 0x00000200) != 0) {
-            suites.add(&quot;Home&quot;);
-        }
-        if ((suiteMask &amp; 0x00000400) != 0) {
-            suites.add(&quot;Web Server&quot;);
-        }
-        if ((suiteMask &amp; 0x00002000) != 0) {
-            suites.add(&quot;Storage Server&quot;);
-        }
-        if ((suiteMask &amp; 0x00004000) != 0) {
-            suites.add(&quot;Compute Cluster&quot;);
-        }
-        // 0x8000, Home Server, is included in main version name
-        return String.join(&quot;,&quot;, suites);
+    @Override
+    public String getName() {
+        return this.name;
+    }
+
+    @Override
+    public String getPath() {
+        return this.path;
+    }
+
+    @Override
+    public String getCommandLine() {
+        return this.commandLine;
+    }
+
+    @Override
+    public String getCurrentWorkingDirectory() {
+        return LsofUtil.getCwd(getProcessID());
+    }
+
+    @Override
+    public String getUser() {
+        return this.user;
+    }
+
+    @Override
+    public String getUserID() {
+        return this.userID;
+    }
+
+    @Override
+    public String getGroup() {
+        return this.group;
+    }
+
+    @Override
+    public String getGroupID() {
+        return this.groupID;
+    }
+
+    @Override
+    public State getState() {
+        return this.state;
+    }
+
+    @Override
+    public int getParentProcessID() {
+        return this.parentProcessID;
+    }
+
+    @Override
+    public int getThreadCount() {
+        return this.threadCount;
+    }
+
+    @Override
+    public int getPriority() {
+        return this.priority;
+    }
+
+    @Override
+    public long getVirtualSize() {
+        return this.virtualSize;
+    }
+
+    @Override
+    public long getResidentSetSize() {
+        return this.residentSetSize;
+    }
+
+    @Override
+    public long getKernelTime() {
+        return this.kernelTime;
+    }
+
+    @Override
+    public long getUserTime() {
+        return this.userTime;
+    }
+
+    @Override
+    public long getUpTime() {
+        return this.upTime;
+    }
+
+    @Override
+    public long getStartTime() {
+        return this.startTime;
+    }
+
+    @Override
+    public long getBytesRead() {
+        return this.bytesRead;
+    }
+
+    @Override
+    public long getBytesWritten() {
+        return this.bytesWritten;
+    }
+
+    @Override
+    public long getOpenFiles() {
+        return LsofUtil.getOpenFiles(getProcessID());
+    }
+
+    @Override
+    public int getBitness() {
+        return this.bitness.get();
     }</pre></div></td></tr></table>
 <table border="0" class="table table-striped">
 <tr class="a">
 <th>File</th>
 <th>Line</th></tr>
 <tr class="b">
-<td>oshi/hardware/platform/linux/LinuxDisplay.java</td>
-<td><a href="./xref/oshi/hardware/platform/linux/LinuxDisplay.html#L54">54</a></td></tr>
+<td>oshi/software/os/linux/LinuxOSFileStore.java</td>
+<td><a href="./xref/oshi/software/os/linux/LinuxOSFileStore.html#L43">43</a></td></tr>
 <tr class="a">
-<td>oshi/hardware/platform/unix/freebsd/FreeBsdDisplay.java</td>
-<td><a href="./xref/oshi/hardware/platform/unix/freebsd/FreeBsdDisplay.html#L54">54</a></td></tr>
+<td>oshi/software/os/mac/MacOSFileStore.java</td>
+<td><a href="./xref/oshi/software/os/mac/MacOSFileStore.html#L43">43</a></td></tr>
 <tr class="b">
-<td>oshi/hardware/platform/unix/solaris/SolarisDisplay.java</td>
-<td><a href="./xref/oshi/hardware/platform/unix/solaris/SolarisDisplay.html#L54">54</a></td></tr>
+<td>oshi/software/os/unix/freebsd/FreeBsdOSFileStore.java</td>
+<td><a href="./xref/oshi/software/os/unix/freebsd/FreeBsdOSFileStore.html#L43">43</a></td></tr>
+<tr class="a">
+<td>oshi/software/os/unix/solaris/SolarisOSFileStore.java</td>
+<td><a href="./xref/oshi/software/os/unix/solaris/SolarisOSFileStore.html#L43">43</a></td></tr>
+<tr class="b"><td colspan='2'>
+<div>
+<pre>    public LinuxOSFileStore(String name, String volume, String label, String mount, String options, String uuid,
+            String logicalVolume, String description, String fsType, long freeSpace, long usableSpace, long totalSpace,
+            long freeInodes, long totalInodes) {
+        super(name, volume, label, mount, options, uuid);
+        this.logicalVolume = logicalVolume;
+        this.description = description;
+        this.fsType = fsType;
+        this.freeSpace = freeSpace;
+        this.usableSpace = usableSpace;
+        this.totalSpace = totalSpace;
+        this.freeInodes = freeInodes;
+        this.totalInodes = totalInodes;
+    }
+
+    @Override
+    public String getLogicalVolume() {
+        return this.logicalVolume;
+    }
+
+    @Override
+    public String getDescription() {
+        return this.description;
+    }
+
+    @Override
+    public String getType() {
+        return this.fsType;
+    }
+
+    @Override
+    public long getFreeSpace() {
+        return this.freeSpace;
+    }
+
+    @Override
+    public long getUsableSpace() {
+        return this.usableSpace;
+    }
+
+    @Override
+    public long getTotalSpace() {
+        return this.totalSpace;
+    }
+
+    @Override
+    public long getFreeInodes() {
+        return this.freeInodes;
+    }
+
+    @Override
+    public long getTotalInodes() {
+        return this.totalInodes;
+    }
+
+    @Override
+    public boolean updateAttributes() {
+        for (OSFileStore fileStore : LinuxFileSystem.getFileStoreMatching(getName(), null)) {</pre></div></td></tr></table>
+<table border="0" class="table table-striped">
+<tr class="a">
+<th>File</th>
+<th>Line</th></tr>
+<tr class="b">
+<td>oshi/software/os/linux/LinuxOSProcess.java</td>
+<td><a href="./xref/oshi/software/os/linux/LinuxOSProcess.html#L131">131</a></td></tr>
+<tr class="a">
+<td>oshi/software/os/unix/freebsd/FreeBsdOSProcess.java</td>
+<td><a href="./xref/oshi/software/os/unix/freebsd/FreeBsdOSProcess.html#L101">101</a></td></tr>
+<tr class="b">
+<td>oshi/software/os/unix/solaris/SolarisOSProcess.java</td>
+<td><a href="./xref/oshi/software/os/unix/solaris/SolarisOSProcess.html#L96">96</a></td></tr>
 <tr class="a"><td colspan='2'>
+<div>
+<pre>    }
+
+    @Override
+    public String getUser() {
+        return this.user;
+    }
+
+    @Override
+    public String getUserID() {
+        return this.userID;
+    }
+
+    @Override
+    public String getGroup() {
+        return this.group;
+    }
+
+    @Override
+    public String getGroupID() {
+        return this.groupID;
+    }
+
+    @Override
+    public State getState() {
+        return this.state;
+    }
+
+    @Override
+    public int getParentProcessID() {
+        return this.parentProcessID;
+    }
+
+    @Override
+    public int getThreadCount() {
+        return this.threadCount;
+    }
+
+    @Override
+    public int getPriority() {
+        return this.priority;
+    }
+
+    @Override
+    public long getVirtualSize() {
+        return this.virtualSize;
+    }
+
+    @Override
+    public long getResidentSetSize() {
+        return this.residentSetSize;
+    }
+
+    @Override
+    public long getKernelTime() {
+        return this.kernelTime;
+    }
+
+    @Override
+    public long getUserTime() {
+        return this.userTime;
+    }
+
+    @Override
+    public long getUpTime() {
+        return this.upTime;
+    }
+
+    @Override
+    public long getStartTime() {
+        return this.startTime;
+    }
+
+    @Override
+    public long getBytesRead() {
+        return this.bytesRead;
+    }
+
+    @Override
+    public long getBytesWritten() {
+        return this.bytesWritten;
+    }
+
+    @Override
+    public List&lt;OSThread&gt; getThreadDetails() {</pre></div></td></tr></table>
+<table border="0" class="table table-striped">
+<tr class="b">
+<th>File</th>
+<th>Line</th></tr>
+<tr class="a">
+<td>oshi/software/os/linux/LinuxOSFileStore.java</td>
+<td><a href="./xref/oshi/software/os/linux/LinuxOSFileStore.html#L43">43</a></td></tr>
+<tr class="b">
+<td>oshi/software/os/mac/MacOSFileStore.java</td>
+<td><a href="./xref/oshi/software/os/mac/MacOSFileStore.html#L43">43</a></td></tr>
+<tr class="a">
+<td>oshi/software/os/unix/freebsd/FreeBsdOSFileStore.java</td>
+<td><a href="./xref/oshi/software/os/unix/freebsd/FreeBsdOSFileStore.html#L43">43</a></td></tr>
+<tr class="b">
+<td>oshi/software/os/unix/solaris/SolarisOSFileStore.java</td>
+<td><a href="./xref/oshi/software/os/unix/solaris/SolarisOSFileStore.html#L43">43</a></td></tr>
+<tr class="a">
+<td>oshi/software/os/windows/WindowsOSFileStore.java</td>
+<td><a href="./xref/oshi/software/os/windows/WindowsOSFileStore.html#L45">45</a></td></tr>
+<tr class="b"><td colspan='2'>
+<div>
+<pre>    public LinuxOSFileStore(String name, String volume, String label, String mount, String options, String uuid,
+            String logicalVolume, String description, String fsType, long freeSpace, long usableSpace, long totalSpace,
+            long freeInodes, long totalInodes) {
+        super(name, volume, label, mount, options, uuid);
+        this.logicalVolume = logicalVolume;
+        this.description = description;
+        this.fsType = fsType;
+        this.freeSpace = freeSpace;
+        this.usableSpace = usableSpace;
+        this.totalSpace = totalSpace;
+        this.freeInodes = freeInodes;
+        this.totalInodes = totalInodes;
+    }
+
+    @Override
+    public String getLogicalVolume() {
+        return this.logicalVolume;
+    }
+
+    @Override
+    public String getDescription() {
+        return this.description;
+    }
+
+    @Override
+    public String getType() {
+        return this.fsType;
+    }
+
+    @Override
+    public long getFreeSpace() {
+        return this.freeSpace;
+    }
+
+    @Override
+    public long getUsableSpace() {
+        return this.usableSpace;
+    }
+
+    @Override
+    public long getTotalSpace() {
+        return this.totalSpace;
+    }
+
+    @Override
+    public long getFreeInodes() {
+        return this.freeInodes;
+    }
+
+    @Override
+    public long getTotalInodes() {
+        return this.totalInodes;
+    }
+
+    @Override
+    public boolean updateAttributes() {</pre></div></td></tr></table>
+<table border="0" class="table table-striped">
+<tr class="a">
+<th>File</th>
+<th>Line</th></tr>
+<tr class="b">
+<td>oshi/software/os/unix/freebsd/FreeBsdOSProcess.java</td>
+<td><a href="./xref/oshi/software/os/unix/freebsd/FreeBsdOSProcess.html#L121">121</a></td></tr>
+<tr class="a">
+<td>oshi/software/os/unix/solaris/SolarisOSProcess.java</td>
+<td><a href="./xref/oshi/software/os/unix/solaris/SolarisOSProcess.html#L116">116</a></td></tr>
+<tr class="b">
+<td>oshi/software/os/windows/WindowsOSProcess.java</td>
+<td><a href="./xref/oshi/software/os/windows/WindowsOSProcess.html#L164">164</a></td></tr>
+<tr class="a"><td colspan='2'>
+<div>
+<pre>    }
+
+    @Override
+    public State getState() {
+        return this.state;
+    }
+
+    @Override
+    public int getParentProcessID() {
+        return this.parentProcessID;
+    }
+
+    @Override
+    public int getThreadCount() {
+        return this.threadCount;
+    }
+
+    @Override
+    public int getPriority() {
+        return this.priority;
+    }
+
+    @Override
+    public long getVirtualSize() {
+        return this.virtualSize;
+    }
+
+    @Override
+    public long getResidentSetSize() {
+        return this.residentSetSize;
+    }
+
+    @Override
+    public long getKernelTime() {
+        return this.kernelTime;
+    }
+
+    @Override
+    public long getUserTime() {
+        return this.userTime;
+    }
+
+    @Override
+    public long getUpTime() {
+        return this.upTime;
+    }
+
+    @Override
+    public long getStartTime() {
+        return this.startTime;
+    }
+
+    @Override
+    public long getBytesRead() {
+        return this.bytesRead;
+    }
+
+    @Override
+    public long getBytesWritten() {
+        return this.bytesWritten;
+    }
+
+    @Override
+    public long getOpenFiles() {
+        return LsofUtil.getOpenFiles(getProcessID());</pre></div></td></tr></table>
+<table border="0" class="table table-striped">
+<tr class="b">
+<th>File</th>
+<th>Line</th></tr>
+<tr class="a">
+<td>oshi/software/os/linux/LinuxOSProcess.java</td>
+<td><a href="./xref/oshi/software/os/linux/LinuxOSProcess.html#L151">151</a></td></tr>
+<tr class="b">
+<td>oshi/software/os/windows/WindowsOSProcess.java</td>
+<td><a href="./xref/oshi/software/os/windows/WindowsOSProcess.html#L164">164</a></td></tr>
+<tr class="a"><td colspan='2'>
+<div>
+<pre>    }
+
+    @Override
+    public State getState() {
+        return this.state;
+    }
+
+    @Override
+    public int getParentProcessID() {
+        return this.parentProcessID;
+    }
+
+    @Override
+    public int getThreadCount() {
+        return this.threadCount;
+    }
+
+    @Override
+    public int getPriority() {
+        return this.priority;
+    }
+
+    @Override
+    public long getVirtualSize() {
+        return this.virtualSize;
+    }
+
+    @Override
+    public long getResidentSetSize() {
+        return this.residentSetSize;
+    }
+
+    @Override
+    public long getKernelTime() {
+        return this.kernelTime;
+    }
+
+    @Override
+    public long getUserTime() {
+        return this.userTime;
+    }
+
+    @Override
+    public long getUpTime() {
+        return this.upTime;
+    }
+
+    @Override
+    public long getStartTime() {
+        return this.startTime;
+    }
+
+    @Override
+    public long getBytesRead() {
+        return this.bytesRead;
+    }
+
+    @Override
+    public long getBytesWritten() {
+        return this.bytesWritten;
+    }
+
+    @Override
+    public List&lt;OSThread&gt; getThreadDetails() {</pre></div></td></tr></table>
+<table border="0" class="table table-striped">
+<tr class="b">
+<th>File</th>
+<th>Line</th></tr>
+<tr class="a">
+<td>oshi/hardware/platform/linux/LinuxUsbDevice.java</td>
+<td><a href="./xref/oshi/hardware/platform/linux/LinuxUsbDevice.html#L184">184</a></td></tr>
+<tr class="b">
+<td>oshi/hardware/platform/unix/freebsd/FreeBsdUsbDevice.java</td>
+<td><a href="./xref/oshi/hardware/platform/unix/freebsd/FreeBsdUsbDevice.html#L179">179</a></td></tr>
+<tr class="a"><td colspan='2'>
+<div>
+<pre>    private static LinuxUsbDevice getDeviceAndChildren(String devPath, String vid, String pid,
+            Map&lt;String, String&gt; nameMap, Map&lt;String, String&gt; vendorMap, Map&lt;String, String&gt; vendorIdMap,
+            Map&lt;String, String&gt; productIdMap, Map&lt;String, String&gt; serialMap, Map&lt;String, List&lt;String&gt;&gt; hubMap) {
+        String vendorId = vendorIdMap.getOrDefault(devPath, vid);
+        String productId = productIdMap.getOrDefault(devPath, pid);
+        List&lt;String&gt; childPaths = hubMap.getOrDefault(devPath, new ArrayList&lt;&gt;());
+        List&lt;UsbDevice&gt; usbDevices = new ArrayList&lt;&gt;();
+        for (String path : childPaths) {
+            usbDevices.add(getDeviceAndChildren(path, vendorId, productId, nameMap, vendorMap, vendorIdMap,
+                    productIdMap, serialMap, hubMap));
+        }
+        Collections.sort(usbDevices);
+        return new LinuxUsbDevice(nameMap.getOrDefault(devPath, vendorId + &quot;:&quot; + productId),</pre></div></td></tr></table>
+<table border="0" class="table table-striped">
+<tr class="b">
+<th>File</th>
+<th>Line</th></tr>
+<tr class="a">
+<td>oshi/hardware/platform/linux/LinuxDisplay.java</td>
+<td><a href="./xref/oshi/hardware/platform/linux/LinuxDisplay.html#L55">55</a></td></tr>
+<tr class="b">
+<td>oshi/hardware/platform/unix/freebsd/FreeBsdDisplay.java</td>
+<td><a href="./xref/oshi/hardware/platform/unix/freebsd/FreeBsdDisplay.html#L55">55</a></td></tr>
+<tr class="a">
+<td>oshi/hardware/platform/unix/solaris/SolarisDisplay.java</td>
+<td><a href="./xref/oshi/hardware/platform/unix/solaris/SolarisDisplay.html#L55">55</a></td></tr>
+<tr class="b"><td colspan='2'>
 <div>
 <pre>        LOG.debug(&quot;Initialized LinuxDisplay&quot;);
     }
@@ -290,12 +743,12 @@
      *
      * @return An array of Display objects representing monitors, etc.
      */
-    public static Display[] getDisplays() {
+    public static List&lt;Display&gt; getDisplays() {
         List&lt;String&gt; xrandr = ExecutingCommand.runNative(&quot;xrandr --verbose&quot;);
         // xrandr reports edid in multiple lines. After seeing a line containing
         // EDID, read subsequent lines of hex until 256 characters are reached
         if (xrandr.isEmpty()) {
-            return new Display[0];
+            return Collections.emptyList();
         }
         List&lt;Display&gt; displays = new ArrayList&lt;&gt;();
         StringBuilder sb = null;
@@ -313,16 +766,158 @@
                 if (edid.length &gt;= 128) {
                     displays.add(new LinuxDisplay(edid));</pre></div></td></tr></table>
 <table border="0" class="table table-striped">
-<tr class="b">
+<tr class="a">
 <th>File</th>
 <th>Line</th></tr>
-<tr class="a">
-<td>oshi/software/os/unix/freebsd/FreeBsdFileSystem.java</td>
-<td><a href="./xref/oshi/software/os/unix/freebsd/FreeBsdFileSystem.html#L95">95</a></td></tr>
 <tr class="b">
+<td>oshi/hardware/platform/linux/LinuxNetworkIF.java</td>
+<td><a href="./xref/oshi/hardware/platform/linux/LinuxNetworkIF.html#L75">75</a></td></tr>
+<tr class="a">
+<td>oshi/hardware/platform/windows/WindowsNetworkIF.java</td>
+<td><a href="./xref/oshi/hardware/platform/windows/WindowsNetworkIF.html#L93">93</a></td></tr>
+<tr class="b"><td colspan='2'>
+<div>
+<pre>    }
+
+    @Override
+    public boolean isConnectorPresent() {
+        return this.connectorPresent;
+    }
+
+    @Override
+    public long getBytesRecv() {
+        return this.bytesRecv;
+    }
+
+    @Override
+    public long getBytesSent() {
+        return this.bytesSent;
+    }
+
+    @Override
+    public long getPacketsRecv() {
+        return this.packetsRecv;
+    }
+
+    @Override
+    public long getPacketsSent() {
+        return this.packetsSent;
+    }
+
+    @Override
+    public long getInErrors() {
+        return this.inErrors;
+    }
+
+    @Override
+    public long getOutErrors() {
+        return this.outErrors;
+    }
+
+    @Override
+    public long getInDrops() {
+        return this.inDrops;
+    }
+
+    @Override
+    public long getCollisions() {
+        return this.collisions;
+    }
+
+    @Override
+    public long getSpeed() {
+        return this.speed;
+    }
+
+    @Override
+    public long getTimeStamp() {
+        return this.timeStamp;
+    }
+
+    @Override
+    public boolean updateAttributes() {</pre></div></td></tr></table>
+<table border="0" class="table table-striped">
+<tr class="a">
+<th>File</th>
+<th>Line</th></tr>
+<tr class="b">
+<td>oshi/software/os/mac/MacOSProcess.java</td>
+<td><a href="./xref/oshi/software/os/mac/MacOSProcess.html#L235">235</a></td></tr>
+<tr class="a">
+<td>oshi/software/os/windows/WindowsOSProcess.java</td>
+<td><a href="./xref/oshi/software/os/windows/WindowsOSProcess.html#L179">179</a></td></tr>
+<tr class="b"><td colspan='2'>
+<div>
+<pre>    }
+
+    @Override
+    public int getPriority() {
+        return this.priority;
+    }
+
+    @Override
+    public long getVirtualSize() {
+        return this.virtualSize;
+    }
+
+    @Override
+    public long getResidentSetSize() {
+        return this.residentSetSize;
+    }
+
+    @Override
+    public long getKernelTime() {
+        return this.kernelTime;
+    }
+
+    @Override
+    public long getUserTime() {
+        return this.userTime;
+    }
+
+    @Override
+    public long getUpTime() {
+        return this.upTime;
+    }
+
+    @Override
+    public long getStartTime() {
+        return this.startTime;
+    }
+
+    @Override
+    public long getBytesRead() {
+        return this.bytesRead;
+    }
+
+    @Override
+    public long getBytesWritten() {
+        return this.bytesWritten;
+    }
+
+    @Override
+    public long getOpenFiles() {
+        return this.openFiles;
+    }
+
+    @Override
+    public int getBitness() {
+        return this.bitness;
+    }
+
+    @Override
+    public long getAffinityMask() {</pre></div></td></tr></table>
+<table border="0" class="table table-striped">
+<tr class="a">
+<th>File</th>
+<th>Line</th></tr>
+<tr class="b">
+<td>oshi/software/os/unix/freebsd/FreeBsdFileSystem.java</td>
+<td><a href="./xref/oshi/software/os/unix/freebsd/FreeBsdFileSystem.html#L96">96</a></td></tr>
+<tr class="a">
 <td>oshi/software/os/unix/solaris/SolarisFileSystem.java</td>
-<td><a href="./xref/oshi/software/os/unix/solaris/SolarisFileSystem.html#L99">99</a></td></tr>
-<tr class="a"><td colspan='2'>
+<td><a href="./xref/oshi/software/os/unix/solaris/SolarisFileSystem.html#L98">98</a></td></tr>
+<tr class="b"><td colspan='2'>
 <div>
 <pre>        for (String fs : ExecutingCommand.runNative(&quot;mount -p&quot;)) {
             String[] split = ParseUtil.whitespaces.split(fs);
@@ -352,84 +947,249 @@
                 name = volume.substring(volume.lastIndexOf('/') + 1);
             }</pre></div></td></tr></table>
 <table border="0" class="table table-striped">
-<tr class="b">
+<tr class="a">
 <th>File</th>
 <th>Line</th></tr>
-<tr class="a">
-<td>oshi/software/os/mac/MacFileSystem.java</td>
-<td><a href="./xref/oshi/software/os/mac/MacFileSystem.html#L273">273</a></td></tr>
 <tr class="b">
-<td>oshi/software/os/unix/solaris/SolarisFileSystem.java</td>
-<td><a href="./xref/oshi/software/os/unix/solaris/SolarisFileSystem.html#L188">188</a></td></tr>
-<tr class="a"><td colspan='2'>
+<td>oshi/software/os/unix/freebsd/FreeBsdOSProcess.java</td>
+<td><a href="./xref/oshi/software/os/unix/freebsd/FreeBsdOSProcess.html#L312">312</a></td></tr>
+<tr class="a">
+<td>oshi/software/os/unix/solaris/SolarisOSProcess.java</td>
+<td><a href="./xref/oshi/software/os/unix/solaris/SolarisOSProcess.html#L266">266</a></td></tr>
+<tr class="b"><td colspan='2'>
+<div>
+<pre>        this.parentProcessID = ParseUtil.parseIntOrDefault(split[2], 0);
+        this.user = split[3];
+        this.userID = split[4];
+        this.group = split[5];
+        this.groupID = split[6];
+        this.threadCount = ParseUtil.parseIntOrDefault(split[7], 0);
+        this.priority = ParseUtil.parseIntOrDefault(split[8], 0);
+        // These are in KB, multiply
+        this.virtualSize = ParseUtil.parseLongOrDefault(split[9], 0) * 1024;
+        this.residentSetSize = ParseUtil.parseLongOrDefault(split[10], 0) * 1024;
+        // Avoid divide by zero for processes up less than a second
+        long elapsedTime = ParseUtil.parseDHMSOrDefault(split[11], 0L);
+        this.upTime = elapsedTime &lt; 1L ? 1L : elapsedTime;
+        this.startTime = now - this.upTime;
+        this.kernelTime = ParseUtil.parseDHMSOrDefault(split[12], 0L);</pre></div></td></tr></table>
+<table border="0" class="table table-striped">
+<tr class="a">
+<th>File</th>
+<th>Line</th></tr>
+<tr class="b">
+<td>oshi/hardware/platform/linux/LinuxNetworkIF.java</td>
+<td><a href="./xref/oshi/hardware/platform/linux/LinuxNetworkIF.html#L80">80</a></td></tr>
+<tr class="a">
+<td>oshi/hardware/platform/unix/solaris/SolarisNetworkIF.java</td>
+<td><a href="./xref/oshi/hardware/platform/unix/solaris/SolarisNetworkIF.html#L70">70</a></td></tr>
+<tr class="b"><td colspan='2'>
 <div>
 <pre>    }
 
-    /**
-     * &lt;p&gt;
-     * updateFileStoreStats.
-     * &lt;/p&gt;
-     *
-     * @param osFileStore
-     *            a {@link oshi.software.os.OSFileStore} object.
-     * @return a boolean.
-     */
-    public static boolean updateFileStoreStats(OSFileStore osFileStore) {
-        for (OSFileStore fileStore : getFileStoreMatching(osFileStore.getName())) {
-            if (osFileStore.getVolume().equals(fileStore.getVolume())
-                    &amp;&amp; osFileStore.getMount().equals(fileStore.getMount())) {
-                osFileStore.setLogicalVolume(fileStore.getLogicalVolume());
-                osFileStore.setDescription(fileStore.getDescription());
-                osFileStore.setType(fileStore.getType());
-                osFileStore.setFreeSpace(fileStore.getFreeSpace());
-                osFileStore.setUsableSpace(fileStore.getUsableSpace());
-                osFileStore.setTotalSpace(fileStore.getTotalSpace());
-                osFileStore.setFreeInodes(fileStore.getFreeInodes());
-                osFileStore.setTotalInodes(fileStore.getTotalInodes());
-                return true;
-            }
-        }
-        return false;
-    }
-}</pre></div></td></tr></table>
-<table border="0" class="table table-striped">
-<tr class="b">
-<th>File</th>
-<th>Line</th></tr>
-<tr class="a">
-<td>oshi/software/os/unix/freebsd/FreeBsdOperatingSystem.java</td>
-<td><a href="./xref/oshi/software/os/unix/freebsd/FreeBsdOperatingSystem.html#L156">156</a></td></tr>
-<tr class="b">
-<td>oshi/software/os/unix/solaris/SolarisOperatingSystem.java</td>
-<td><a href="./xref/oshi/software/os/unix/solaris/SolarisOperatingSystem.html#L140">140</a></td></tr>
-<tr class="a"><td colspan='2'>
-<div>
-<pre>        List&lt;OSProcess&gt; sorted = processSort(procs, limit, sort);
-        return sorted.toArray(new OSProcess[0]);
+    @Override
+    public long getBytesRecv() {
+        return this.bytesRecv;
     }
 
-    private List&lt;OSProcess&gt; getProcessListFromPS(String psCommand, int pid, boolean slowFields) {
-        Map&lt;Integer, String&gt; cwdMap = LsofUtil.getCwdMap(pid);
-        List&lt;OSProcess&gt; procs = new ArrayList&lt;&gt;();
-        List&lt;String&gt; procList = ExecutingCommand.runNative(psCommand + (pid &lt; 0 ? &quot;&quot; : pid));
-        if (procList.isEmpty() || procList.size() &lt; 2) {
-            return procs;
-        }
-        // remove header row
-        procList.remove(0);
-        // Fill list
-        for (String proc : procList) {
-            String[] split = ParseUtil.whitespaces.split(proc.trim(), 16);</pre></div></td></tr></table>
+    @Override
+    public long getBytesSent() {
+        return this.bytesSent;
+    }
+
+    @Override
+    public long getPacketsRecv() {
+        return this.packetsRecv;
+    }
+
+    @Override
+    public long getPacketsSent() {
+        return this.packetsSent;
+    }
+
+    @Override
+    public long getInErrors() {
+        return this.inErrors;
+    }
+
+    @Override
+    public long getOutErrors() {
+        return this.outErrors;
+    }
+
+    @Override
+    public long getInDrops() {
+        return this.inDrops;
+    }
+
+    @Override
+    public long getCollisions() {
+        return this.collisions;
+    }
+
+    @Override
+    public long getSpeed() {
+        return this.speed;
+    }
+
+    @Override
+    public long getTimeStamp() {
+        return this.timeStamp;
+    }
+
+    @Override
+    public boolean updateAttributes() {
+        try {</pre></div></td></tr></table>
+<table border="0" class="table table-striped">
+<tr class="a">
+<th>File</th>
+<th>Line</th></tr>
+<tr class="b">
+<td>oshi/hardware/platform/linux/LinuxNetworkIF.java</td>
+<td><a href="./xref/oshi/hardware/platform/linux/LinuxNetworkIF.html#L80">80</a></td></tr>
+<tr class="a">
+<td>oshi/hardware/platform/mac/MacNetworkIF.java</td>
+<td><a href="./xref/oshi/hardware/platform/mac/MacNetworkIF.html#L77">77</a></td></tr>
+<tr class="b">
+<td>oshi/hardware/platform/unix/solaris/SolarisNetworkIF.java</td>
+<td><a href="./xref/oshi/hardware/platform/unix/solaris/SolarisNetworkIF.html#L70">70</a></td></tr>
+<tr class="a">
+<td>oshi/hardware/platform/windows/WindowsNetworkIF.java</td>
+<td><a href="./xref/oshi/hardware/platform/windows/WindowsNetworkIF.html#L98">98</a></td></tr>
+<tr class="b"><td colspan='2'>
+<div>
+<pre>    }
+
+    @Override
+    public long getBytesRecv() {
+        return this.bytesRecv;
+    }
+
+    @Override
+    public long getBytesSent() {
+        return this.bytesSent;
+    }
+
+    @Override
+    public long getPacketsRecv() {
+        return this.packetsRecv;
+    }
+
+    @Override
+    public long getPacketsSent() {
+        return this.packetsSent;
+    }
+
+    @Override
+    public long getInErrors() {
+        return this.inErrors;
+    }
+
+    @Override
+    public long getOutErrors() {
+        return this.outErrors;
+    }
+
+    @Override
+    public long getInDrops() {
+        return this.inDrops;
+    }
+
+    @Override
+    public long getCollisions() {
+        return this.collisions;
+    }
+
+    @Override
+    public long getSpeed() {
+        return this.speed;
+    }
+
+    @Override
+    public long getTimeStamp() {
+        return this.timeStamp;
+    }
+
+    @Override
+    public boolean updateAttributes() {</pre></div></td></tr></table>
+<table border="0" class="table table-striped">
+<tr class="a">
+<th>File</th>
+<th>Line</th></tr>
+<tr class="b">
+<td>oshi/hardware/platform/unix/freebsd/FreeBsdPowerSource.java</td>
+<td><a href="./xref/oshi/hardware/platform/unix/freebsd/FreeBsdPowerSource.html#L47">47</a></td></tr>
+<tr class="a">
+<td>oshi/hardware/platform/unix/solaris/SolarisPowerSource.java</td>
+<td><a href="./xref/oshi/hardware/platform/unix/solaris/SolarisPowerSource.html#L63">63</a></td></tr>
+<tr class="b"><td colspan='2'>
+<div>
+<pre>    public FreeBsdPowerSource(String psName, String psDeviceName, double psRemainingCapacityPercent,
+            double psTimeRemainingEstimated, double psTimeRemainingInstant, double psPowerUsageRate, double psVoltage,
+            double psAmperage, boolean psPowerOnLine, boolean psCharging, boolean psDischarging,
+            CapacityUnits psCapacityUnits, int psCurrentCapacity, int psMaxCapacity, int psDesignCapacity,
+            int psCycleCount, String psChemistry, LocalDate psManufactureDate, String psManufacturer,
+            String psSerialNumber, double psTemperature) {
+        super(psName, psDeviceName, psRemainingCapacityPercent, psTimeRemainingEstimated, psTimeRemainingInstant,
+                psPowerUsageRate, psVoltage, psAmperage, psPowerOnLine, psCharging, psDischarging, psCapacityUnits,
+                psCurrentCapacity, psMaxCapacity, psDesignCapacity, psCycleCount, psChemistry, psManufactureDate,
+                psManufacturer, psSerialNumber, psTemperature);
+    }
+
+    /**
+     * Gets Battery Information
+     *
+     * @return An array of PowerSource objects representing batteries, etc.
+     */
+    public static List&lt;PowerSource&gt; getPowerSources() {
+        return Collections.unmodifiableList(Arrays.asList(getPowerSource(&quot;BAT0&quot;)));
+    }
+
+    private static FreeBsdPowerSource getPowerSource(String name) {</pre></div></td></tr></table>
+<table border="0" class="table table-striped">
+<tr class="a">
+<th>File</th>
+<th>Line</th></tr>
+<tr class="b">
+<td>oshi/hardware/platform/unix/freebsd/FreeBsdPowerSource.java</td>
+<td><a href="./xref/oshi/hardware/platform/unix/freebsd/FreeBsdPowerSource.html#L47">47</a></td></tr>
+<tr class="a">
+<td>oshi/hardware/platform/unix/solaris/SolarisPowerSource.java</td>
+<td><a href="./xref/oshi/hardware/platform/unix/solaris/SolarisPowerSource.html#L63">63</a></td></tr>
+<tr class="b">
+<td>oshi/hardware/platform/windows/WindowsPowerSource.java</td>
+<td><a href="./xref/oshi/hardware/platform/windows/WindowsPowerSource.html#L77">77</a></td></tr>
+<tr class="a"><td colspan='2'>
+<div>
+<pre>    public FreeBsdPowerSource(String psName, String psDeviceName, double psRemainingCapacityPercent,
+            double psTimeRemainingEstimated, double psTimeRemainingInstant, double psPowerUsageRate, double psVoltage,
+            double psAmperage, boolean psPowerOnLine, boolean psCharging, boolean psDischarging,
+            CapacityUnits psCapacityUnits, int psCurrentCapacity, int psMaxCapacity, int psDesignCapacity,
+            int psCycleCount, String psChemistry, LocalDate psManufactureDate, String psManufacturer,
+            String psSerialNumber, double psTemperature) {
+        super(psName, psDeviceName, psRemainingCapacityPercent, psTimeRemainingEstimated, psTimeRemainingInstant,
+                psPowerUsageRate, psVoltage, psAmperage, psPowerOnLine, psCharging, psDischarging, psCapacityUnits,
+                psCurrentCapacity, psMaxCapacity, psDesignCapacity, psCycleCount, psChemistry, psManufactureDate,
+                psManufacturer, psSerialNumber, psTemperature);
+    }
+
+    /**
+     * Gets Battery Information
+     *
+     * @return An array of PowerSource objects representing batteries, etc.
+     */
+    public static List&lt;PowerSource&gt; getPowerSources() {
+        return Collections.unmodifiableList(Arrays.asList(getPowerSource(&quot;BAT0&quot;)));</pre></div></td></tr></table>
 <table border="0" class="table table-striped">
 <tr class="b">
 <th>File</th>
 <th>Line</th></tr>
 <tr class="a">
 <td>oshi/software/os/mac/MacInternetProtocolStats.java</td>
-<td><a href="./xref/oshi/software/os/mac/MacInternetProtocolStats.html#L94">94</a></td></tr>
+<td><a href="./xref/oshi/software/os/mac/MacInternetProtocolStats.html#L92">92</a></td></tr>
 <tr class="b">
 <td>oshi/software/os/unix/freebsd/FreeBsdInternetProtocolStats.java</td>
-<td><a href="./xref/oshi/software/os/unix/freebsd/FreeBsdInternetProtocolStats.html#L64">64</a></td></tr>
+<td><a href="./xref/oshi/software/os/unix/freebsd/FreeBsdInternetProtocolStats.html#L62">62</a></td></tr>
 <tr class="a"><td colspan='2'>
 <div>
 <pre>                ip6.ip6s_total - ParseUtil.unsignedIntToLong(udp.udps_rcv6_swcsum), 0L, 0L, 0L);
@@ -457,83 +1217,424 @@
 <th>File</th>
 <th>Line</th></tr>
 <tr class="a">
-<td>oshi/software/os/windows/WindowsOSVersionInfoEx.java</td>
-<td><a href="./xref/oshi/software/os/windows/WindowsOSVersionInfoEx.html#L96">96</a></td></tr>
+<td>oshi/hardware/platform/unix/freebsd/FreeBsdNetworkIF.java</td>
+<td><a href="./xref/oshi/hardware/platform/unix/freebsd/FreeBsdNetworkIF.html#L66">66</a></td></tr>
 <tr class="b">
-<td>oshi/software/os/windows/WindowsOperatingSystem.java</td>
-<td><a href="./xref/oshi/software/os/windows/WindowsOperatingSystem.html#L165">165</a></td></tr>
+<td>oshi/hardware/platform/unix/solaris/SolarisNetworkIF.java</td>
+<td><a href="./xref/oshi/hardware/platform/unix/solaris/SolarisNetworkIF.html#L69">69</a></td></tr>
 <tr class="a"><td colspan='2'>
 <div>
-<pre>    private String parseVersion(WmiResult&lt;OSVersionProperty&gt; versionInfo, int suiteMask) {
+<pre>                getNetworkInterfaces().stream().map(FreeBsdNetworkIF::new).collect(Collectors.toList()));
+    }
 
-        // Initialize a default, sane value
-        String version = System.getProperty(&quot;os.version&quot;);
+    @Override
+    public long getBytesRecv() {
+        return this.bytesRecv;
+    }
 
-        // Version is major.minor.build. Parse the version string for
-        // major/minor and get the build number separately
-        String[] verSplit = WmiUtil.getString(versionInfo, OSVersionProperty.VERSION, 0).split(&quot;\\D&quot;);
-        int major = verSplit.length &gt; 0 ? ParseUtil.parseIntOrDefault(verSplit[0], 0) : 0;
-        int minor = verSplit.length &gt; 1 ? ParseUtil.parseIntOrDefault(verSplit[1], 0) : 0;
+    @Override
+    public long getBytesSent() {
+        return this.bytesSent;
+    }
 
-        // see
-        // http://msdn.microsoft.com/en-us/library/windows/desktop/ms724833%28v=vs.85%29.aspx
-        boolean ntWorkstation = WmiUtil.getUint32(versionInfo, OSVersionProperty.PRODUCTTYPE,
-                0) == WinNT.VER_NT_WORKSTATION;
-        switch (major) {
-        case 10:
-            if (minor == 0) {
-                if (ntWorkstation) {
-                    version = &quot;10&quot;;
-                } else {
-                    // Build numbers greater than 17762 is Server 2019 for OS
-                    // Version 10.0
-                    version = (ParseUtil.parseLongOrDefault(getBuildNumber(), 0L) &gt; 17762) ? &quot;Server 2019&quot;</pre></div></td></tr></table>
+    @Override
+    public long getPacketsRecv() {
+        return this.packetsRecv;
+    }
+
+    @Override
+    public long getPacketsSent() {
+        return this.packetsSent;
+    }
+
+    @Override
+    public long getInErrors() {
+        return this.inErrors;
+    }
+
+    @Override
+    public long getOutErrors() {
+        return this.outErrors;
+    }
+
+    @Override
+    public long getInDrops() {
+        return this.inDrops;
+    }
+
+    @Override
+    public long getCollisions() {
+        return this.collisions;
+    }
+
+    @Override
+    public long getSpeed() {
+        return 0;</pre></div></td></tr></table>
 <table border="0" class="table table-striped">
 <tr class="b">
 <th>File</th>
 <th>Line</th></tr>
 <tr class="a">
-<td>oshi/software/os/linux/LinuxFileSystem.java</td>
-<td><a href="./xref/oshi/software/os/linux/LinuxFileSystem.html#L256">256</a></td></tr>
+<td>oshi/software/os/mac/MacOSProcess.java</td>
+<td><a href="./xref/oshi/software/os/mac/MacOSProcess.html#L235">235</a></td></tr>
 <tr class="b">
-<td>oshi/software/os/mac/MacFileSystem.java</td>
-<td><a href="./xref/oshi/software/os/mac/MacFileSystem.html#L285">285</a></td></tr>
+<td>oshi/software/os/unix/freebsd/FreeBsdOSProcess.java</td>
+<td><a href="./xref/oshi/software/os/unix/freebsd/FreeBsdOSProcess.html#L136">136</a></td></tr>
 <tr class="a">
-<td>oshi/software/os/unix/solaris/SolarisFileSystem.java</td>
-<td><a href="./xref/oshi/software/os/unix/solaris/SolarisFileSystem.html#L200">200</a></td></tr>
+<td>oshi/software/os/unix/solaris/SolarisOSProcess.java</td>
+<td><a href="./xref/oshi/software/os/unix/solaris/SolarisOSProcess.html#L131">131</a></td></tr>
 <tr class="b"><td colspan='2'>
 <div>
-<pre>        for (OSFileStore fileStore : getFileStoreMatching(osFileStore.getName(), null)) {
-            if (osFileStore.getVolume().equals(fileStore.getVolume())
-                    &amp;&amp; osFileStore.getMount().equals(fileStore.getMount())) {
-                osFileStore.setLogicalVolume(fileStore.getLogicalVolume());
-                osFileStore.setDescription(fileStore.getDescription());
-                osFileStore.setType(fileStore.getType());
-                osFileStore.setFreeSpace(fileStore.getFreeSpace());
-                osFileStore.setUsableSpace(fileStore.getUsableSpace());
-                osFileStore.setTotalSpace(fileStore.getTotalSpace());
-                osFileStore.setFreeInodes(fileStore.getFreeInodes());
-                osFileStore.setTotalInodes(fileStore.getTotalInodes());
-                return true;
-            }
-        }
-        return false;
+<pre>    }
+
+    @Override
+    public int getPriority() {
+        return this.priority;
     }
-}</pre></div></td></tr></table>
+
+    @Override
+    public long getVirtualSize() {
+        return this.virtualSize;
+    }
+
+    @Override
+    public long getResidentSetSize() {
+        return this.residentSetSize;
+    }
+
+    @Override
+    public long getKernelTime() {
+        return this.kernelTime;
+    }
+
+    @Override
+    public long getUserTime() {
+        return this.userTime;
+    }
+
+    @Override
+    public long getUpTime() {
+        return this.upTime;
+    }
+
+    @Override
+    public long getStartTime() {
+        return this.startTime;
+    }
+
+    @Override
+    public long getBytesRead() {
+        return this.bytesRead;
+    }
+
+    @Override
+    public long getBytesWritten() {
+        return this.bytesWritten;
+    }
+
+    @Override
+    public long getOpenFiles() {
+        return this.openFiles;</pre></div></td></tr></table>
+<table border="0" class="table table-striped">
+<tr class="a">
+<th>File</th>
+<th>Line</th></tr>
+<tr class="b">
+<td>oshi/hardware/platform/unix/freebsd/FreeBsdHWDiskStore.java</td>
+<td><a href="./xref/oshi/hardware/platform/unix/freebsd/FreeBsdHWDiskStore.html#L61">61</a></td></tr>
+<tr class="a">
+<td>oshi/hardware/platform/unix/solaris/SolarisHWDiskStore.java</td>
+<td><a href="./xref/oshi/hardware/platform/unix/solaris/SolarisHWDiskStore.html#L63">63</a></td></tr>
+<tr class="b">
+<td>oshi/hardware/platform/windows/WindowsHWDiskStore.java</td>
+<td><a href="./xref/oshi/hardware/platform/windows/WindowsHWDiskStore.html#L83">83</a></td></tr>
+<tr class="a"><td colspan='2'>
+<div>
+<pre>    private FreeBsdHWDiskStore(String name, String model, String serial, long size) {
+        super(name, model, serial, size);
+    }
+
+    @Override
+    public long getReads() {
+        return reads;
+    }
+
+    @Override
+    public long getReadBytes() {
+        return readBytes;
+    }
+
+    @Override
+    public long getWrites() {
+        return writes;
+    }
+
+    @Override
+    public long getWriteBytes() {
+        return writeBytes;
+    }
+
+    @Override
+    public long getCurrentQueueLength() {
+        return currentQueueLength;
+    }
+
+    @Override
+    public long getTransferTime() {
+        return transferTime;
+    }
+
+    @Override
+    public long getTimeStamp() {
+        return timeStamp;
+    }
+
+    @Override
+    public List&lt;HWPartition&gt; getPartitions() {
+        return this.partitionList;
+    }
+
+    @Override
+    public boolean updateAttributes() {</pre></div></td></tr></table>
+<table border="0" class="table table-striped">
+<tr class="b">
+<th>File</th>
+<th>Line</th></tr>
+<tr class="a">
+<td>oshi/software/os/windows/WindowsOSProcess.java</td>
+<td><a href="./xref/oshi/software/os/windows/WindowsOSProcess.html#L352">352</a></td></tr>
+<tr class="b">
+<td>oshi/software/os/windows/WindowsOSProcess.java</td>
+<td><a href="./xref/oshi/software/os/windows/WindowsOSProcess.html#L380">380</a></td></tr>
+<tr class="a"><td colspan='2'>
+<div>
+<pre>                Account account = Advapi32Util.getTokenAccount(phToken.getValue());
+                pair = new Pair&lt;&gt;(account.name, account.sidString);
+            } else {
+                int error = Kernel32.INSTANCE.GetLastError();
+                // Access denied errors are common. Fail silently.
+                if (error != WinError.ERROR_ACCESS_DENIED) {
+                    LOG.error(&quot;Failed to get process token for process {}: {}&quot;, getProcessID(),
+                            Kernel32.INSTANCE.GetLastError());
+                }
+            }
+            final HANDLE token = phToken.getValue();
+            if (token != null) {
+                Kernel32.INSTANCE.CloseHandle(token);
+            }
+            Kernel32.INSTANCE.CloseHandle(pHandle);
+        }
+        if (pair == null) {
+            return new Pair&lt;&gt;(Constants.UNKNOWN, Constants.UNKNOWN);
+        }
+        return pair;
+    }</pre></div></td></tr></table>
+<table border="0" class="table table-striped">
+<tr class="b">
+<th>File</th>
+<th>Line</th></tr>
+<tr class="a">
+<td>oshi/hardware/platform/linux/LinuxPowerSource.java</td>
+<td><a href="./xref/oshi/hardware/platform/linux/LinuxPowerSource.html#L49">49</a></td></tr>
+<tr class="b">
+<td>oshi/hardware/platform/mac/MacPowerSource.java</td>
+<td><a href="./xref/oshi/hardware/platform/mac/MacPowerSource.html#L57">57</a></td></tr>
+<tr class="a"><td colspan='2'>
+<div>
+<pre>    public LinuxPowerSource(String psName, String psDeviceName, double psRemainingCapacityPercent,
+            double psTimeRemainingEstimated, double psTimeRemainingInstant, double psPowerUsageRate, double psVoltage,
+            double psAmperage, boolean psPowerOnLine, boolean psCharging, boolean psDischarging,
+            CapacityUnits psCapacityUnits, int psCurrentCapacity, int psMaxCapacity, int psDesignCapacity,
+            int psCycleCount, String psChemistry, LocalDate psManufactureDate, String psManufacturer,
+            String psSerialNumber, double psTemperature) {
+        super(psName, psDeviceName, psRemainingCapacityPercent, psTimeRemainingEstimated, psTimeRemainingInstant,
+                psPowerUsageRate, psVoltage, psAmperage, psPowerOnLine, psCharging, psDischarging, psCapacityUnits,
+                psCurrentCapacity, psMaxCapacity, psDesignCapacity, psCycleCount, psChemistry, psManufactureDate,
+                psManufacturer, psSerialNumber, psTemperature);
+    }
+
+    /**
+     * Gets Battery Information
+     *
+     * @return An array of PowerSource objects representing batteries, etc.
+     */
+    public static List&lt;PowerSource&gt; getPowerSources() {
+        String psName;</pre></div></td></tr></table>
+<table border="0" class="table table-striped">
+<tr class="b">
+<th>File</th>
+<th>Line</th></tr>
+<tr class="a">
+<td>oshi/software/os/linux/LinuxOSProcess.java</td>
+<td><a href="./xref/oshi/software/os/linux/LinuxOSProcess.html#L166">166</a></td></tr>
+<tr class="b">
+<td>oshi/software/os/mac/MacOSProcess.java</td>
+<td><a href="./xref/oshi/software/os/mac/MacOSProcess.html#L235">235</a></td></tr>
+<tr class="a"><td colspan='2'>
+<div>
+<pre>    }
+
+    @Override
+    public int getPriority() {
+        return this.priority;
+    }
+
+    @Override
+    public long getVirtualSize() {
+        return this.virtualSize;
+    }
+
+    @Override
+    public long getResidentSetSize() {
+        return this.residentSetSize;
+    }
+
+    @Override
+    public long getKernelTime() {
+        return this.kernelTime;
+    }
+
+    @Override
+    public long getUserTime() {
+        return this.userTime;
+    }
+
+    @Override
+    public long getUpTime() {
+        return this.upTime;
+    }
+
+    @Override
+    public long getStartTime() {
+        return this.startTime;
+    }
+
+    @Override
+    public long getBytesRead() {
+        return this.bytesRead;
+    }
+
+    @Override
+    public long getBytesWritten() {
+        return this.bytesWritten;
+    }
+
+    @Override
+    public List&lt;OSThread&gt; getThreadDetails() {</pre></div></td></tr></table>
+<table border="0" class="table table-striped">
+<tr class="b">
+<th>File</th>
+<th>Line</th></tr>
+<tr class="a">
+<td>oshi/hardware/platform/linux/LinuxPowerSource.java</td>
+<td><a href="./xref/oshi/hardware/platform/linux/LinuxPowerSource.html#L49">49</a></td></tr>
+<tr class="b">
+<td>oshi/hardware/platform/mac/MacPowerSource.java</td>
+<td><a href="./xref/oshi/hardware/platform/mac/MacPowerSource.html#L57">57</a></td></tr>
+<tr class="a">
+<td>oshi/hardware/platform/unix/freebsd/FreeBsdPowerSource.java</td>
+<td><a href="./xref/oshi/hardware/platform/unix/freebsd/FreeBsdPowerSource.html#L47">47</a></td></tr>
+<tr class="b">
+<td>oshi/hardware/platform/unix/solaris/SolarisPowerSource.java</td>
+<td><a href="./xref/oshi/hardware/platform/unix/solaris/SolarisPowerSource.html#L63">63</a></td></tr>
+<tr class="a">
+<td>oshi/hardware/platform/windows/WindowsPowerSource.java</td>
+<td><a href="./xref/oshi/hardware/platform/windows/WindowsPowerSource.html#L77">77</a></td></tr>
+<tr class="b"><td colspan='2'>
+<div>
+<pre>    public LinuxPowerSource(String psName, String psDeviceName, double psRemainingCapacityPercent,
+            double psTimeRemainingEstimated, double psTimeRemainingInstant, double psPowerUsageRate, double psVoltage,
+            double psAmperage, boolean psPowerOnLine, boolean psCharging, boolean psDischarging,
+            CapacityUnits psCapacityUnits, int psCurrentCapacity, int psMaxCapacity, int psDesignCapacity,
+            int psCycleCount, String psChemistry, LocalDate psManufactureDate, String psManufacturer,
+            String psSerialNumber, double psTemperature) {
+        super(psName, psDeviceName, psRemainingCapacityPercent, psTimeRemainingEstimated, psTimeRemainingInstant,
+                psPowerUsageRate, psVoltage, psAmperage, psPowerOnLine, psCharging, psDischarging, psCapacityUnits,
+                psCurrentCapacity, psMaxCapacity, psDesignCapacity, psCycleCount, psChemistry, psManufactureDate,
+                psManufacturer, psSerialNumber, psTemperature);
+    }
+
+    /**
+     * Gets Battery Information
+     *
+     * @return An array of PowerSource objects representing batteries, etc.
+     */
+    public static List&lt;PowerSource&gt; getPowerSources() {</pre></div></td></tr></table>
+<table border="0" class="table table-striped">
+<tr class="a">
+<th>File</th>
+<th>Line</th></tr>
+<tr class="b">
+<td>oshi/hardware/platform/linux/LinuxHWDiskStore.java</td>
+<td><a href="./xref/oshi/hardware/platform/linux/LinuxHWDiskStore.html#L99">99</a></td></tr>
+<tr class="a">
+<td>oshi/hardware/platform/unix/freebsd/FreeBsdHWDiskStore.java</td>
+<td><a href="./xref/oshi/hardware/platform/unix/freebsd/FreeBsdHWDiskStore.html#L61">61</a></td></tr>
+<tr class="b">
+<td>oshi/hardware/platform/unix/solaris/SolarisHWDiskStore.java</td>
+<td><a href="./xref/oshi/hardware/platform/unix/solaris/SolarisHWDiskStore.html#L63">63</a></td></tr>
+<tr class="a">
+<td>oshi/hardware/platform/windows/WindowsHWDiskStore.java</td>
+<td><a href="./xref/oshi/hardware/platform/windows/WindowsHWDiskStore.html#L83">83</a></td></tr>
+<tr class="b"><td colspan='2'>
+<div>
+<pre>    private LinuxHWDiskStore(String name, String model, String serial, long size) {
+        super(name, model, serial, size);
+    }
+
+    @Override
+    public long getReads() {
+        return reads;
+    }
+
+    @Override
+    public long getReadBytes() {
+        return readBytes;
+    }
+
+    @Override
+    public long getWrites() {
+        return writes;
+    }
+
+    @Override
+    public long getWriteBytes() {
+        return writeBytes;
+    }
+
+    @Override
+    public long getCurrentQueueLength() {
+        return currentQueueLength;
+    }
+
+    @Override
+    public long getTransferTime() {
+        return transferTime;
+    }
+
+    @Override
+    public long getTimeStamp() {
+        return timeStamp;
+    }
+
+    @Override
+    public List&lt;HWPartition&gt; getPartitions() {
+        return this.partitionList;
+    }</pre></div></td></tr></table>
 <table border="0" class="table table-striped">
 <tr class="a">
 <th>File</th>
 <th>Line</th></tr>
 <tr class="b">
 <td>oshi/hardware/platform/mac/MacUsbDevice.java</td>
-<td><a href="./xref/oshi/hardware/platform/mac/MacUsbDevice.html#L73">73</a></td></tr>
+<td><a href="./xref/oshi/hardware/platform/mac/MacUsbDevice.html#L53">53</a></td></tr>
 <tr class="a">
 <td>oshi/hardware/platform/windows/WindowsUsbDevice.java</td>
-<td><a href="./xref/oshi/hardware/platform/windows/WindowsUsbDevice.html#L63">63</a></td></tr>
+<td><a href="./xref/oshi/hardware/platform/windows/WindowsUsbDevice.html#L64">64</a></td></tr>
 <tr class="b"><td colspan='2'>
 <div>
 <pre>    public MacUsbDevice(String name, String vendor, String vendorId, String productId, String serialNumber,
-            String uniqueDeviceId, UsbDevice[] connectedDevices) {
+            String uniqueDeviceId, List&lt;UsbDevice&gt; connectedDevices) {
         super(name, vendor, vendorId, productId, serialNumber, uniqueDeviceId, connectedDevices);
     }
 
@@ -544,8 +1645,8 @@
      *            a boolean.
      * @return an array of {@link oshi.hardware.UsbDevice} objects.
      */
-    public static UsbDevice[] getUsbDevices(boolean tree) {
-        UsbDevice[] devices = getUsbDevices();
+    public static List&lt;UsbDevice&gt; getUsbDevices(boolean tree) {
+        List&lt;UsbDevice&gt; devices = getUsbDevices();
         if (tree) {
             return devices;
         }
@@ -555,10 +1656,10 @@
         for (UsbDevice device : devices) {
             addDevicesToList(deviceList, device.getConnectedDevices());
         }
-        return deviceList.toArray(new UsbDevice[0]);
+        return deviceList;
     }
 
-    private static UsbDevice[] getUsbDevices() {
+    private static List&lt;UsbDevice&gt; getUsbDevices() {
         // Maps to store information using RegistryEntryID as the key
         Map&lt;Long, String&gt; nameMap = new HashMap&lt;&gt;();</pre></div></td></tr></table>
 <table border="0" class="table table-striped">
@@ -566,30 +1667,23 @@
 <th>File</th>
 <th>Line</th></tr>
 <tr class="b">
-<td>oshi/software/os/linux/LinuxFileSystem.java</td>
-<td><a href="./xref/oshi/software/os/linux/LinuxFileSystem.html#L256">256</a></td></tr>
+<td>oshi/software/os/mac/MacOSFileStore.java</td>
+<td><a href="./xref/oshi/software/os/mac/MacOSFileStore.html#L99">99</a></td></tr>
 <tr class="a">
-<td>oshi/software/os/mac/MacFileSystem.java</td>
-<td><a href="./xref/oshi/software/os/mac/MacFileSystem.html#L285">285</a></td></tr>
-<tr class="b">
-<td>oshi/software/os/unix/solaris/SolarisFileSystem.java</td>
-<td><a href="./xref/oshi/software/os/unix/solaris/SolarisFileSystem.html#L200">200</a></td></tr>
-<tr class="a">
-<td>oshi/software/os/windows/WindowsFileSystem.java</td>
-<td><a href="./xref/oshi/software/os/windows/WindowsFileSystem.html#L351">351</a></td></tr>
+<td>oshi/software/os/unix/solaris/SolarisOSFileStore.java</td>
+<td><a href="./xref/oshi/software/os/unix/solaris/SolarisOSFileStore.html#L99">99</a></td></tr>
 <tr class="b"><td colspan='2'>
 <div>
-<pre>        for (OSFileStore fileStore : getFileStoreMatching(osFileStore.getName(), null)) {
-            if (osFileStore.getVolume().equals(fileStore.getVolume())
-                    &amp;&amp; osFileStore.getMount().equals(fileStore.getMount())) {
-                osFileStore.setLogicalVolume(fileStore.getLogicalVolume());
-                osFileStore.setDescription(fileStore.getDescription());
-                osFileStore.setType(fileStore.getType());
-                osFileStore.setFreeSpace(fileStore.getFreeSpace());
-                osFileStore.setUsableSpace(fileStore.getUsableSpace());
-                osFileStore.setTotalSpace(fileStore.getTotalSpace());
-                osFileStore.setFreeInodes(fileStore.getFreeInodes());
-                osFileStore.setTotalInodes(fileStore.getTotalInodes());
+<pre>        for (OSFileStore fileStore : MacFileSystem.getFileStoreMatching(getName())) {
+            if (getVolume().equals(fileStore.getVolume()) &amp;&amp; getMount().equals(fileStore.getMount())) {
+                this.logicalVolume = fileStore.getLogicalVolume();
+                this.description = fileStore.getDescription();
+                this.fsType = fileStore.getType();
+                this.freeSpace = fileStore.getFreeSpace();
+                this.usableSpace = fileStore.getUsableSpace();
+                this.totalSpace = fileStore.getTotalSpace();
+                this.freeInodes = fileStore.getFreeInodes();
+                this.totalInodes = fileStore.getTotalInodes();
                 return true;
             }
         }
@@ -601,71 +1695,129 @@
 <th>File</th>
 <th>Line</th></tr>
 <tr class="b">
-<td>oshi/hardware/platform/linux/LinuxPowerSource.java</td>
-<td><a href="./xref/oshi/hardware/platform/linux/LinuxPowerSource.html#L48">48</a></td></tr>
+<td>oshi/hardware/platform/linux/LinuxNetworkIF.java</td>
+<td><a href="./xref/oshi/hardware/platform/linux/LinuxNetworkIF.html#L80">80</a></td></tr>
 <tr class="a">
-<td>oshi/hardware/platform/mac/MacPowerSource.java</td>
-<td><a href="./xref/oshi/hardware/platform/mac/MacPowerSource.html#L56">56</a></td></tr>
+<td>oshi/hardware/platform/mac/MacNetworkIF.java</td>
+<td><a href="./xref/oshi/hardware/platform/mac/MacNetworkIF.html#L77">77</a></td></tr>
+<tr class="b">
+<td>oshi/hardware/platform/unix/freebsd/FreeBsdNetworkIF.java</td>
+<td><a href="./xref/oshi/hardware/platform/unix/freebsd/FreeBsdNetworkIF.html#L67">67</a></td></tr>
+<tr class="a">
+<td>oshi/hardware/platform/windows/WindowsNetworkIF.java</td>
+<td><a href="./xref/oshi/hardware/platform/windows/WindowsNetworkIF.html#L98">98</a></td></tr>
 <tr class="b"><td colspan='2'>
 <div>
-<pre>    public LinuxPowerSource(String psName, String psDeviceName, double psRemainingCapacityPercent,
-            double psTimeRemainingEstimated, double psTimeRemainingInstant, double psPowerUsageRate, double psVoltage,
-            double psAmperage, boolean psPowerOnLine, boolean psCharging, boolean psDischarging,
-            CapacityUnits psCapacityUnits, int psCurrentCapacity, int psMaxCapacity, int psDesignCapacity,
-            int psCycleCount, String psChemistry, LocalDate psManufactureDate, String psManufacturer,
-            String psSerialNumber, double psTemperature) {
-        super(psName, psDeviceName, psRemainingCapacityPercent, psTimeRemainingEstimated, psTimeRemainingInstant,
-                psPowerUsageRate, psVoltage, psAmperage, psPowerOnLine, psCharging, psDischarging, psCapacityUnits,
-                psCurrentCapacity, psMaxCapacity, psDesignCapacity, psCycleCount, psChemistry, psManufactureDate,
-                psManufacturer, psSerialNumber, psTemperature);
+<pre>    }
+
+    @Override
+    public long getBytesRecv() {
+        return this.bytesRecv;
     }
 
-    /**
-     * Gets Battery Information
-     *
-     * @return An array of PowerSource objects representing batteries, etc.
-     */
-    public static PowerSource[] getPowerSources() {
-        String psName;</pre></div></td></tr></table>
+    @Override
+    public long getBytesSent() {
+        return this.bytesSent;
+    }
+
+    @Override
+    public long getPacketsRecv() {
+        return this.packetsRecv;
+    }
+
+    @Override
+    public long getPacketsSent() {
+        return this.packetsSent;
+    }
+
+    @Override
+    public long getInErrors() {
+        return this.inErrors;
+    }
+
+    @Override
+    public long getOutErrors() {
+        return this.outErrors;
+    }
+
+    @Override
+    public long getInDrops() {
+        return this.inDrops;
+    }
+
+    @Override
+    public long getCollisions() {
+        return this.collisions;
+    }
+
+    @Override
+    public long getSpeed() {
+        return this.speed;</pre></div></td></tr></table>
 <table border="0" class="table table-striped">
 <tr class="a">
 <th>File</th>
 <th>Line</th></tr>
 <tr class="b">
-<td>oshi/hardware/platform/linux/LinuxPowerSource.java</td>
-<td><a href="./xref/oshi/hardware/platform/linux/LinuxPowerSource.html#L48">48</a></td></tr>
+<td>oshi/software/os/linux/LinuxOSFileStore.java</td>
+<td><a href="./xref/oshi/software/os/linux/LinuxOSFileStore.html#L99">99</a></td></tr>
 <tr class="a">
-<td>oshi/hardware/platform/mac/MacPowerSource.java</td>
-<td><a href="./xref/oshi/hardware/platform/mac/MacPowerSource.html#L56">56</a></td></tr>
+<td>oshi/software/os/mac/MacOSFileStore.java</td>
+<td><a href="./xref/oshi/software/os/mac/MacOSFileStore.html#L99">99</a></td></tr>
 <tr class="b">
-<td>oshi/hardware/platform/unix/freebsd/FreeBsdPowerSource.java</td>
-<td><a href="./xref/oshi/hardware/platform/unix/freebsd/FreeBsdPowerSource.html#L45">45</a></td></tr>
-<tr class="a">
-<td>oshi/hardware/platform/unix/solaris/SolarisPowerSource.java</td>
-<td><a href="./xref/oshi/hardware/platform/unix/solaris/SolarisPowerSource.html#L60">60</a></td></tr>
-<tr class="b">
-<td>oshi/hardware/platform/windows/WindowsPowerSource.java</td>
-<td><a href="./xref/oshi/hardware/platform/windows/WindowsPowerSource.html#L74">74</a></td></tr>
+<td>oshi/software/os/unix/solaris/SolarisOSFileStore.java</td>
+<td><a href="./xref/oshi/software/os/unix/solaris/SolarisOSFileStore.html#L99">99</a></td></tr>
 <tr class="a"><td colspan='2'>
 <div>
-<pre>    public LinuxPowerSource(String psName, String psDeviceName, double psRemainingCapacityPercent,
-            double psTimeRemainingEstimated, double psTimeRemainingInstant, double psPowerUsageRate, double psVoltage,
-            double psAmperage, boolean psPowerOnLine, boolean psCharging, boolean psDischarging,
-            CapacityUnits psCapacityUnits, int psCurrentCapacity, int psMaxCapacity, int psDesignCapacity,
-            int psCycleCount, String psChemistry, LocalDate psManufactureDate, String psManufacturer,
-            String psSerialNumber, double psTemperature) {
-        super(psName, psDeviceName, psRemainingCapacityPercent, psTimeRemainingEstimated, psTimeRemainingInstant,
-                psPowerUsageRate, psVoltage, psAmperage, psPowerOnLine, psCharging, psDischarging, psCapacityUnits,
-                psCurrentCapacity, psMaxCapacity, psDesignCapacity, psCycleCount, psChemistry, psManufactureDate,
-                psManufacturer, psSerialNumber, psTemperature);
+<pre>        for (OSFileStore fileStore : LinuxFileSystem.getFileStoreMatching(getName(), null)) {
+            if (getVolume().equals(fileStore.getVolume()) &amp;&amp; getMount().equals(fileStore.getMount())) {
+                this.logicalVolume = fileStore.getLogicalVolume();
+                this.description = fileStore.getDescription();
+                this.fsType = fileStore.getType();
+                this.freeSpace = fileStore.getFreeSpace();
+                this.usableSpace = fileStore.getUsableSpace();
+                this.totalSpace = fileStore.getTotalSpace();
+                this.freeInodes = fileStore.getFreeInodes();
+                this.totalInodes = fileStore.getTotalInodes();
+                return true;
+            }
+        }
+        return false;
     }
-
-    /**
-     * Gets Battery Information
-     *
-     * @return An array of PowerSource objects representing batteries, etc.
-     */
-    public static PowerSource[] getPowerSources() {</pre></div></td></tr></table>
+}</pre></div></td></tr></table>
+<table border="0" class="table table-striped">
+<tr class="b">
+<th>File</th>
+<th>Line</th></tr>
+<tr class="a">
+<td>oshi/software/os/linux/LinuxOSFileStore.java</td>
+<td><a href="./xref/oshi/software/os/linux/LinuxOSFileStore.html#L99">99</a></td></tr>
+<tr class="b">
+<td>oshi/software/os/mac/MacOSFileStore.java</td>
+<td><a href="./xref/oshi/software/os/mac/MacOSFileStore.html#L99">99</a></td></tr>
+<tr class="a">
+<td>oshi/software/os/unix/solaris/SolarisOSFileStore.java</td>
+<td><a href="./xref/oshi/software/os/unix/solaris/SolarisOSFileStore.html#L99">99</a></td></tr>
+<tr class="b">
+<td>oshi/software/os/windows/WindowsOSFileStore.java</td>
+<td><a href="./xref/oshi/software/os/windows/WindowsOSFileStore.html#L108">108</a></td></tr>
+<tr class="a"><td colspan='2'>
+<div>
+<pre>        for (OSFileStore fileStore : LinuxFileSystem.getFileStoreMatching(getName(), null)) {
+            if (getVolume().equals(fileStore.getVolume()) &amp;&amp; getMount().equals(fileStore.getMount())) {
+                this.logicalVolume = fileStore.getLogicalVolume();
+                this.description = fileStore.getDescription();
+                this.fsType = fileStore.getType();
+                this.freeSpace = fileStore.getFreeSpace();
+                this.usableSpace = fileStore.getUsableSpace();
+                this.totalSpace = fileStore.getTotalSpace();
+                this.freeInodes = fileStore.getFreeInodes();
+                this.totalInodes = fileStore.getTotalInodes();
+                return true;
+            }
+        }
+        return false;
+    }
+}</pre></div></td></tr></table>
 <table border="0" class="table table-striped">
 <tr class="b">
 <th>File</th>
@@ -711,31 +1863,48 @@
 <th>File</th>
 <th>Line</th></tr>
 <tr class="a">
-<td>oshi/hardware/platform/linux/LinuxUsbDevice.java</td>
-<td><a href="./xref/oshi/hardware/platform/linux/LinuxUsbDevice.html#L198">198</a></td></tr>
+<td>oshi/software/os/linux/LinuxOSFileStore.java</td>
+<td><a href="./xref/oshi/software/os/linux/LinuxOSFileStore.html#L100">100</a></td></tr>
 <tr class="b">
-<td>oshi/hardware/platform/unix/freebsd/FreeBsdUsbDevice.java</td>
-<td><a href="./xref/oshi/hardware/platform/unix/freebsd/FreeBsdUsbDevice.html#L172">172</a></td></tr>
-<tr class="a"><td colspan='2'>
+<td>oshi/software/os/mac/MacOSFileStore.java</td>
+<td><a href="./xref/oshi/software/os/mac/MacOSFileStore.html#L100">100</a></td></tr>
+<tr class="a">
+<td>oshi/software/os/unix/freebsd/FreeBsdOSFileStore.java</td>
+<td><a href="./xref/oshi/software/os/unix/freebsd/FreeBsdOSFileStore.html#L100">100</a></td></tr>
+<tr class="b">
+<td>oshi/software/os/unix/solaris/SolarisOSFileStore.java</td>
+<td><a href="./xref/oshi/software/os/unix/solaris/SolarisOSFileStore.html#L100">100</a></td></tr>
+<tr class="a">
+<td>oshi/software/os/windows/WindowsOSFileStore.java</td>
+<td><a href="./xref/oshi/software/os/windows/WindowsOSFileStore.html#L109">109</a></td></tr>
+<tr class="b"><td colspan='2'>
 <div>
-<pre>    private static LinuxUsbDevice getDeviceAndChildren(String devPath, String vid, String pid,
-            Map&lt;String, String&gt; nameMap, Map&lt;String, String&gt; vendorMap, Map&lt;String, String&gt; vendorIdMap,
-            Map&lt;String, String&gt; productIdMap, Map&lt;String, String&gt; serialMap, Map&lt;String, List&lt;String&gt;&gt; hubMap) {
-        String vendorId = vendorIdMap.getOrDefault(devPath, vid);
-        String productId = productIdMap.getOrDefault(devPath, pid);
-        List&lt;String&gt; childPaths = hubMap.getOrDefault(devPath, new ArrayList&lt;&gt;());
-        List&lt;LinuxUsbDevice&gt; usbDevices = new ArrayList&lt;&gt;();</pre></div></td></tr></table>
+<pre>            if (getVolume().equals(fileStore.getVolume()) &amp;&amp; getMount().equals(fileStore.getMount())) {
+                this.logicalVolume = fileStore.getLogicalVolume();
+                this.description = fileStore.getDescription();
+                this.fsType = fileStore.getType();
+                this.freeSpace = fileStore.getFreeSpace();
+                this.usableSpace = fileStore.getUsableSpace();
+                this.totalSpace = fileStore.getTotalSpace();
+                this.freeInodes = fileStore.getFreeInodes();
+                this.totalInodes = fileStore.getTotalInodes();
+                return true;
+            }
+        }
+        return false;
+    }
+}</pre></div></td></tr></table>
 <table border="0" class="table table-striped">
-<tr class="b">
+<tr class="a">
 <th>File</th>
 <th>Line</th></tr>
-<tr class="a">
-<td>oshi/software/os/mac/MacInternetProtocolStats.java</td>
-<td><a href="./xref/oshi/software/os/mac/MacInternetProtocolStats.html#L65">65</a></td></tr>
 <tr class="b">
+<td>oshi/software/os/mac/MacInternetProtocolStats.java</td>
+<td><a href="./xref/oshi/software/os/mac/MacInternetProtocolStats.html#L63">63</a></td></tr>
+<tr class="a">
 <td>oshi/software/os/unix/freebsd/FreeBsdInternetProtocolStats.java</td>
-<td><a href="./xref/oshi/software/os/unix/freebsd/FreeBsdInternetProtocolStats.html#L52">52</a></td></tr>
-<tr class="a"><td colspan='2'>
+<td><a href="./xref/oshi/software/os/unix/freebsd/FreeBsdInternetProtocolStats.html#L50">50</a></td></tr>
+<tr class="b"><td colspan='2'>
 <div>
 <pre>            return new TcpStats(establishedv4v6.get().getA(), ParseUtil.unsignedIntToLong(tcp.tcps_connattempt),
                     ParseUtil.unsignedIntToLong(tcp.tcps_accepts), ParseUtil.unsignedIntToLong(tcp.tcps_conndrops),
@@ -747,78 +1916,92 @@
                     0L);
         }</pre></div></td></tr></table>
 <table border="0" class="table table-striped">
-<tr class="b">
+<tr class="a">
 <th>File</th>
 <th>Line</th></tr>
-<tr class="a">
-<td>oshi/hardware/platform/linux/LinuxGlobalMemory.java</td>
-<td><a href="./xref/oshi/hardware/platform/linux/LinuxGlobalMemory.html#L49">49</a></td></tr>
 <tr class="b">
-<td>oshi/hardware/platform/unix/solaris/SolarisGlobalMemory.java</td>
-<td><a href="./xref/oshi/hardware/platform/unix/solaris/SolarisGlobalMemory.html#L48">48</a></td></tr>
-<tr class="a"><td colspan='2'>
+<td>oshi/hardware/platform/mac/MacHWDiskStore.java</td>
+<td><a href="./xref/oshi/hardware/platform/mac/MacHWDiskStore.html#L85">85</a></td></tr>
+<tr class="a">
+<td>oshi/hardware/platform/unix/freebsd/FreeBsdHWDiskStore.java</td>
+<td><a href="./xref/oshi/hardware/platform/unix/freebsd/FreeBsdHWDiskStore.html#L62">62</a></td></tr>
+<tr class="b">
+<td>oshi/hardware/platform/unix/solaris/SolarisHWDiskStore.java</td>
+<td><a href="./xref/oshi/hardware/platform/unix/solaris/SolarisHWDiskStore.html#L64">64</a></td></tr>
+<tr class="a">
+<td>oshi/hardware/platform/windows/WindowsHWDiskStore.java</td>
+<td><a href="./xref/oshi/hardware/platform/windows/WindowsHWDiskStore.html#L84">84</a></td></tr>
+<tr class="b"><td colspan='2'>
 <div>
-<pre>    private final Supplier&lt;Long&gt; pageSize = memoize(LinuxGlobalMemory::queryPageSize);
-
-    private final Supplier&lt;VirtualMemory&gt; vm = memoize(this::createVirtualMemory);
-
-    @Override
-    public long getAvailable() {
-        return availTotal.get().getA();
+<pre>        updateDiskStats(session, mountPointMap, logicalVolumeMap, cfKeyMap);
     }
 
     @Override
-    public long getTotal() {
-        return availTotal.get().getB();
+    public long getReads() {
+        return reads;
     }
 
     @Override
-    public long getPageSize() {
-        return pageSize.get();
+    public long getReadBytes() {
+        return readBytes;
     }
 
     @Override
-    public VirtualMemory getVirtualMemory() {
-        return vm.get();
+    public long getWrites() {
+        return writes;
     }
 
-    private static long queryPageSize() {
-        // Ideally we would us sysconf(_SC_PAGESIZE) but the constant is platform
-        // dependent and would require parsing header files, etc. Since this is only
-        // read once at startup, command line is a reliable fallback.
-        return ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer(&quot;getconf PAGE_SIZE&quot;), 4096L);</pre></div></td></tr></table>
+    @Override
+    public long getWriteBytes() {
+        return writeBytes;
+    }
+
+    @Override
+    public long getCurrentQueueLength() {
+        return currentQueueLength;
+    }
+
+    @Override
+    public long getTransferTime() {
+        return transferTime;
+    }
+
+    @Override
+    public long getTimeStamp() {
+        return timeStamp;
+    }
+
+    @Override
+    public List&lt;HWPartition&gt; getPartitions() {
+        return this.partitionList;
+    }
+
+    @Override
+    public boolean updateAttributes() {</pre></div></td></tr></table>
 <table border="0" class="table table-striped">
-<tr class="b">
+<tr class="a">
 <th>File</th>
 <th>Line</th></tr>
-<tr class="a">
-<td>oshi/software/os/mac/MacInternetProtocolStats.java</td>
-<td><a href="./xref/oshi/software/os/mac/MacInternetProtocolStats.html#L132">132</a></td></tr>
 <tr class="b">
-<td>oshi/software/os/unix/freebsd/FreeBsdInternetProtocolStats.java</td>
-<td><a href="./xref/oshi/software/os/unix/freebsd/FreeBsdInternetProtocolStats.html#L90">90</a></td></tr>
-<tr class="a"><td colspan='2'>
+<td>oshi/hardware/platform/unix/freebsd/FreeBsdSoundCard.java</td>
+<td><a href="./xref/oshi/hardware/platform/unix/freebsd/FreeBsdSoundCard.html#L80">80</a></td></tr>
+<tr class="a">
+<td>oshi/hardware/platform/unix/solaris/SolarisSoundCard.java</td>
+<td><a href="./xref/oshi/hardware/platform/unix/solaris/SolarisSoundCard.html#L80">80</a></td></tr>
+<tr class="b"><td colspan='2'>
 <div>
-<pre>        SysctlUtil.sysctl(&quot;net.inet.udp.stats&quot;, udpstat);
-        return udpstat;
-    }
-
-    private static Pair&lt;Long, Long&gt; queryTcpnetstat() {
-        long tcp4 = 0L;
-        long tcp6 = 0L;
-        List&lt;String&gt; activeConns = ExecutingCommand.runNative(&quot;netstat -n -p tcp&quot;);
-        for (String s : activeConns) {
-            if (s.endsWith(&quot;ESTABLISHED&quot;)) {
-                if (s.startsWith(&quot;tcp4&quot;)) {
-                    tcp4++;
-                } else if (s.startsWith(&quot;tcp6&quot;)) {
-                    tcp6++;
+<pre>                if (line.contains(&quot;freebsd.driver =&quot;) &amp;&amp; &quot;pcm&quot;.equals(ParseUtil.getSingleQuoteStringValue(line))) {
+                    sounds.add(key);
+                } else if (line.contains(&quot;info.product&quot;)) {
+                    productMap.put(key, ParseUtil.getStringBetween(line, '\''));
+                } else if (line.contains(&quot;info.vendor&quot;)) {
+                    vendorMap.put(key, ParseUtil.getStringBetween(line, '\''));
                 }
             }
         }
-        return new Pair&lt;&gt;(tcp4, tcp6);
-    }
-}</pre></div></td></tr></table></section>
+        List&lt;SoundCard&gt; soundCards = new ArrayList&lt;&gt;();
+        for (String _key : sounds) {
+            soundCards.add(new FreeBsdSoundCard(productMap.get(_key), vendorMap.get(_key) + &quot; &quot; + productMap.get(_key),</pre></div></td></tr></table></section>
         </div>
       </div>
     </div>

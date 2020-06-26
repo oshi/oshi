@@ -524,7 +524,14 @@
 <a class="jxr_linenumber" name="L516" href="#L516">516</a>         assertEquals(<span class="jxr_string">"V6 parsing failed"</span>, v6test, ParseUtil.parseUtAddrV6toIP(v6));
 <a class="jxr_linenumber" name="L517" href="#L517">517</a>         assertEquals(<span class="jxr_string">"V4 parsig failed"</span>, v4test, ParseUtil.parseUtAddrV6toIP(v4));
 <a class="jxr_linenumber" name="L518" href="#L518">518</a>     }
-<a class="jxr_linenumber" name="L519" href="#L519">519</a> }
+<a class="jxr_linenumber" name="L519" href="#L519">519</a> 
+<a class="jxr_linenumber" name="L520" href="#L520">520</a>     @Test
+<a class="jxr_linenumber" name="L521" href="#L521">521</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testHexStringToLong() {
+<a class="jxr_linenumber" name="L522" href="#L522">522</a>         assertEquals(255L, ParseUtil.hexStringToLong(<span class="jxr_string">"ff"</span>, 0L));
+<a class="jxr_linenumber" name="L523" href="#L523">523</a>         assertEquals(-2096147552L, ParseUtil.hexStringToLong(<span class="jxr_string">"ffffffff830f53a0"</span>, 0L));
+<a class="jxr_linenumber" name="L524" href="#L524">524</a>         assertEquals(0L, ParseUtil.hexStringToLong(<span class="jxr_string">"pqwe"</span>, 0L));
+<a class="jxr_linenumber" name="L525" href="#L525">525</a>     }
+<a class="jxr_linenumber" name="L526" href="#L526">526</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2020 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

@@ -68,7 +68,7 @@
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>  
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Supplier&lt;VcGenCmdStrings&gt; vcGenCmd = memoize(<strong class="jxr_keyword">this</strong>::queryVcGenCmd);
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>  
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Supplier&lt;BiosStrings&gt; bios = memoize(<strong class="jxr_keyword">this</strong>::queryBios);
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Supplier&lt;BiosStrings&gt; bios = memoize(LinuxFirmware::queryBios);
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>  
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>      @Override
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>      <strong class="jxr_keyword">public</strong> String getManufacturer() {
@@ -213,7 +213,7 @@
 <a class="jxr_linenumber" name="L205" href="#L205">205</a>     <em class="jxr_comment">// BIOS Revision: 4.6</em>
 <a class="jxr_linenumber" name="L206" href="#L206">206</a>     <em class="jxr_comment">// Firmware Revision: 0.0</em>
 <a class="jxr_linenumber" name="L207" href="#L207">207</a> 
-<a class="jxr_linenumber" name="L208" href="#L208">208</a>     <strong class="jxr_keyword">private</strong> BiosStrings queryBios() {
+<a class="jxr_linenumber" name="L208" href="#L208">208</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> BiosStrings queryBios() {
 <a class="jxr_linenumber" name="L209" href="#L209">209</a>         String biosName = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L210" href="#L210">210</a>         String revision = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L211" href="#L211">211</a> 
