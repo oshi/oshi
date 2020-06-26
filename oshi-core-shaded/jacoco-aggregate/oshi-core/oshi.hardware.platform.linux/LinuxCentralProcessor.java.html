@@ -122,7 +122,7 @@ import oshi.util.ParseUtil;
     }
 
     @Override
-    protected LogicalProcessor[] initProcessorCounts() {
+    protected List&lt;LogicalProcessor&gt; initProcessorCounts() {
 <span class="nc" id="L126">        Map&lt;Integer, Integer&gt; numaNodeMap = mapNumaNodes();</span>
 <span class="nc" id="L127">        List&lt;String&gt; procCpu = FileUtil.readFile(CPUINFO);</span>
 <span class="nc" id="L128">        List&lt;LogicalProcessor&gt; logProcs = new ArrayList&lt;&gt;();</span>
@@ -150,7 +150,7 @@ import oshi.util.ParseUtil;
 <span class="nc" id="L150">        logProcs.add(new LogicalProcessor(currentProcessor, currentCore, currentPackage,</span>
 <span class="nc" id="L151">                numaNodeMap.getOrDefault(currentProcessor, 0)));</span>
 
-<span class="nc" id="L153">        return logProcs.toArray(new LogicalProcessor[0]);</span>
+<span class="nc" id="L153">        return logProcs;</span>
     }
 
     private static Map&lt;Integer, Integer&gt; mapNumaNodes() {
@@ -276,44 +276,49 @@ import oshi.util.ParseUtil;
      * and feature flags.
      *
      * @param vendor
+     *            The vendor
      * @param stepping
+     *            The stepping
      * @param model
+     *            The model
      * @param family
+     *            The family
      * @param flags
+     *            The flags
      * @return The Processor ID string
      */
     private static String getProcessorID(String vendor, String stepping, String model, String family, String[] flags) {
-<span class="nc" id="L286">        boolean procInfo = false;</span>
-<span class="nc" id="L287">        String marker = &quot;Processor Information&quot;;</span>
-<span class="nc bnc" id="L288" title="All 2 branches missed.">        for (String checkLine : ExecutingCommand.runNative(&quot;dmidecode -t 4&quot;)) {</span>
-<span class="nc bnc" id="L289" title="All 4 branches missed.">            if (!procInfo &amp;&amp; checkLine.contains(marker)) {</span>
-<span class="nc" id="L290">                marker = &quot;ID:&quot;;</span>
-<span class="nc" id="L291">                procInfo = true;</span>
-<span class="nc bnc" id="L292" title="All 4 branches missed.">            } else if (procInfo &amp;&amp; checkLine.contains(marker)) {</span>
-<span class="nc" id="L293">                return checkLine.split(marker)[1].trim();</span>
+<span class="nc" id="L291">        boolean procInfo = false;</span>
+<span class="nc" id="L292">        String marker = &quot;Processor Information&quot;;</span>
+<span class="nc bnc" id="L293" title="All 2 branches missed.">        for (String checkLine : ExecutingCommand.runNative(&quot;dmidecode -t 4&quot;)) {</span>
+<span class="nc bnc" id="L294" title="All 4 branches missed.">            if (!procInfo &amp;&amp; checkLine.contains(marker)) {</span>
+<span class="nc" id="L295">                marker = &quot;ID:&quot;;</span>
+<span class="nc" id="L296">                procInfo = true;</span>
+<span class="nc bnc" id="L297" title="All 4 branches missed.">            } else if (procInfo &amp;&amp; checkLine.contains(marker)) {</span>
+<span class="nc" id="L298">                return checkLine.split(marker)[1].trim();</span>
             }
-<span class="nc" id="L295">        }</span>
+<span class="nc" id="L300">        }</span>
         // If we've gotten this far, dmidecode failed. Try cpuid.
-<span class="nc" id="L297">        marker = &quot;eax=&quot;;</span>
-<span class="nc bnc" id="L298" title="All 2 branches missed.">        for (String checkLine : ExecutingCommand.runNative(&quot;cpuid -1r&quot;)) {</span>
-<span class="nc bnc" id="L299" title="All 4 branches missed.">            if (checkLine.contains(marker) &amp;&amp; checkLine.trim().startsWith(&quot;0x00000001&quot;)) {</span>
-<span class="nc" id="L300">                String eax = &quot;&quot;;</span>
-<span class="nc" id="L301">                String edx = &quot;&quot;;</span>
-<span class="nc bnc" id="L302" title="All 2 branches missed.">                for (String register : ParseUtil.whitespaces.split(checkLine)) {</span>
-<span class="nc bnc" id="L303" title="All 2 branches missed.">                    if (register.startsWith(&quot;eax=&quot;)) {</span>
-<span class="nc" id="L304">                        eax = ParseUtil.removeMatchingString(register, &quot;eax=0x&quot;);</span>
-<span class="nc bnc" id="L305" title="All 2 branches missed.">                    } else if (register.startsWith(&quot;edx=&quot;)) {</span>
-<span class="nc" id="L306">                        edx = ParseUtil.removeMatchingString(register, &quot;edx=0x&quot;);</span>
+<span class="nc" id="L302">        marker = &quot;eax=&quot;;</span>
+<span class="nc bnc" id="L303" title="All 2 branches missed.">        for (String checkLine : ExecutingCommand.runNative(&quot;cpuid -1r&quot;)) {</span>
+<span class="nc bnc" id="L304" title="All 4 branches missed.">            if (checkLine.contains(marker) &amp;&amp; checkLine.trim().startsWith(&quot;0x00000001&quot;)) {</span>
+<span class="nc" id="L305">                String eax = &quot;&quot;;</span>
+<span class="nc" id="L306">                String edx = &quot;&quot;;</span>
+<span class="nc bnc" id="L307" title="All 2 branches missed.">                for (String register : ParseUtil.whitespaces.split(checkLine)) {</span>
+<span class="nc bnc" id="L308" title="All 2 branches missed.">                    if (register.startsWith(&quot;eax=&quot;)) {</span>
+<span class="nc" id="L309">                        eax = ParseUtil.removeMatchingString(register, &quot;eax=0x&quot;);</span>
+<span class="nc bnc" id="L310" title="All 2 branches missed.">                    } else if (register.startsWith(&quot;edx=&quot;)) {</span>
+<span class="nc" id="L311">                        edx = ParseUtil.removeMatchingString(register, &quot;edx=0x&quot;);</span>
                     }
                 }
-<span class="nc" id="L309">                return edx + eax;</span>
+<span class="nc" id="L314">                return edx + eax;</span>
             }
-<span class="nc" id="L311">        }</span>
+<span class="nc" id="L316">        }</span>
         // If we've gotten this far, dmidecode failed. Encode arguments
-<span class="nc bnc" id="L313" title="All 2 branches missed.">        if (vendor.startsWith(&quot;0x&quot;)) {</span>
-<span class="nc" id="L314">            return createMIDR(vendor, stepping, model, family) + &quot;00000000&quot;;</span>
+<span class="nc bnc" id="L318" title="All 2 branches missed.">        if (vendor.startsWith(&quot;0x&quot;)) {</span>
+<span class="nc" id="L319">            return createMIDR(vendor, stepping, model, family) + &quot;00000000&quot;;</span>
         }
-<span class="nc" id="L316">        return createProcessorID(stepping, model, family, flags);</span>
+<span class="nc" id="L321">        return createProcessorID(stepping, model, family, flags);</span>
     }
 
     /**
@@ -330,33 +335,33 @@ import oshi.util.ParseUtil;
      * @return A 32-bit hex string for the MIDR
      */
     private static String createMIDR(String vendor, String stepping, String model, String family) {
-<span class="nc" id="L333">        int midrBytes = 0;</span>
+<span class="nc" id="L338">        int midrBytes = 0;</span>
         // Build 32-bit MIDR
-<span class="nc bnc" id="L335" title="All 4 branches missed.">        if (stepping.startsWith(&quot;r&quot;) &amp;&amp; stepping.contains(&quot;p&quot;)) {</span>
-<span class="nc" id="L336">            String[] rev = stepping.substring(1).split(&quot;p&quot;);</span>
+<span class="nc bnc" id="L340" title="All 4 branches missed.">        if (stepping.startsWith(&quot;r&quot;) &amp;&amp; stepping.contains(&quot;p&quot;)) {</span>
+<span class="nc" id="L341">            String[] rev = stepping.substring(1).split(&quot;p&quot;);</span>
             // 3:0 – Revision: last n in rnpn
-<span class="nc" id="L338">            midrBytes |= ParseUtil.parseLastInt(rev[1], 0);</span>
+<span class="nc" id="L343">            midrBytes |= ParseUtil.parseLastInt(rev[1], 0);</span>
             // 23:20 - Variant: first n in rnpn
-<span class="nc" id="L340">            midrBytes |= ParseUtil.parseLastInt(rev[0], 0) &lt;&lt; 20;</span>
+<span class="nc" id="L345">            midrBytes |= ParseUtil.parseLastInt(rev[0], 0) &lt;&lt; 20;</span>
         }
         // 15:4 - PartNum = model
-<span class="nc" id="L343">        midrBytes |= ParseUtil.parseLastInt(model, 0) &lt;&lt; 4;</span>
+<span class="nc" id="L348">        midrBytes |= ParseUtil.parseLastInt(model, 0) &lt;&lt; 4;</span>
         // 19:16 - Architecture = family
-<span class="nc" id="L345">        midrBytes |= ParseUtil.parseLastInt(family, 0) &lt;&lt; 16;</span>
+<span class="nc" id="L350">        midrBytes |= ParseUtil.parseLastInt(family, 0) &lt;&lt; 16;</span>
         // 31:24 - Implementer = vendor
-<span class="nc" id="L347">        midrBytes |= ParseUtil.parseLastInt(vendor, 0) &lt;&lt; 24;</span>
+<span class="nc" id="L352">        midrBytes |= ParseUtil.parseLastInt(vendor, 0) &lt;&lt; 24;</span>
 
-<span class="nc" id="L349">        return String.format(&quot;%08X&quot;, midrBytes);</span>
+<span class="nc" id="L354">        return String.format(&quot;%08X&quot;, midrBytes);</span>
     }
 
     @Override
     public long queryContextSwitches() {
-<span class="nc" id="L354">        return CpuStat.getContextSwitches();</span>
+<span class="nc" id="L359">        return CpuStat.getContextSwitches();</span>
     }
 
     @Override
     public long queryInterrupts() {
-<span class="nc" id="L359">        return CpuStat.getInterrupts();</span>
+<span class="nc" id="L364">        return CpuStat.getInterrupts();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

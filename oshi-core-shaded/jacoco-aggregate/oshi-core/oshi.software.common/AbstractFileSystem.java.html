@@ -96,7 +96,7 @@ import oshi.software.os.OSFileStore;
     );
 
     @Override
-    public OSFileStore[] getFileStores() {
+    public List&lt;OSFileStore&gt; getFileStores() {
 <span class="nc" id="L100">        return getFileStores(false);</span>
     }
 }

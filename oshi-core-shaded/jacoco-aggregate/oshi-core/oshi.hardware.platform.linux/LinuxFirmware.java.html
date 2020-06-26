@@ -60,7 +60,7 @@ import oshi.util.Util;
 
 <span class="nc" id="L61">    private final Supplier&lt;VcGenCmdStrings&gt; vcGenCmd = memoize(this::queryVcGenCmd);</span>
 
-<span class="nc" id="L63">    private final Supplier&lt;BiosStrings&gt; bios = memoize(this::queryBios);</span>
+<span class="nc" id="L63">    private final Supplier&lt;BiosStrings&gt; bios = memoize(LinuxFirmware::queryBios);</span>
 
     @Override
     public String getManufacturer() {
@@ -205,7 +205,7 @@ import oshi.util.Util;
     // BIOS Revision: 4.6
     // Firmware Revision: 0.0
 
-    private BiosStrings queryBios() {
+    private static BiosStrings queryBios() {
 <span class="nc" id="L209">        String biosName = null;</span>
 <span class="nc" id="L210">        String revision = null;</span>
 

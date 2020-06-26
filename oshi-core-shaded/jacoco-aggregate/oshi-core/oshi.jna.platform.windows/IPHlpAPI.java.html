@@ -86,8 +86,7 @@ public interface IPHlpAPI extends com.sun.jna.platform.win32.IPHlpAPI {
      * @param Statistics
      *            A {@link MIB_TCPSTATS} structure that receives the TCP statistics
      *            for the local computer.
-     * @return If the function succeeds, the return value is
-     *         {@link WinError#NO_ERROR}.
+     * @return If the function succeeds, the return value is {@code NO_ERROR}.
      */
     int GetTcpStatistics(MIB_TCPSTATS Statistics);
 
