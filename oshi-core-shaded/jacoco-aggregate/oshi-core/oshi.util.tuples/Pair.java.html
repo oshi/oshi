@@ -23,6 +23,17 @@
  */
 package oshi.util.tuples;
 
+import oshi.annotation.concurrent.ThreadSafe;
+
+/**
+ * Convenience class for returning multiple objects from methods.
+ *
+ * @param &lt;A&gt;
+ *            Type of the first element
+ * @param &lt;B&gt;
+ *            Type of the second element
+ */
+@ThreadSafe
 public class Pair&lt;A, B&gt; {
 
     private final A a;
@@ -36,10 +47,10 @@ public class Pair&lt;A, B&gt; {
      * @param b
      *            the second object to store
      */
-<span class="fc" id="L39">    public Pair(A a, B b) {</span>
-<span class="fc" id="L40">        this.a = a;</span>
-<span class="fc" id="L41">        this.b = b;</span>
-<span class="fc" id="L42">    }</span>
+<span class="fc" id="L50">    public Pair(A a, B b) {</span>
+<span class="fc" id="L51">        this.a = a;</span>
+<span class="fc" id="L52">        this.b = b;</span>
+<span class="fc" id="L53">    }</span>
 
     /**
      * Returns the first stored object.
@@ -47,7 +58,7 @@ public class Pair&lt;A, B&gt; {
      * @return first object stored
      */
     public final A getA() {
-<span class="fc" id="L50">        return a;</span>
+<span class="fc" id="L61">        return a;</span>
     }
 
     /**
@@ -56,7 +67,7 @@ public class Pair&lt;A, B&gt; {
      * @return second object stored
      */
     public final B getB() {
-<span class="fc" id="L59">        return b;</span>
+<span class="fc" id="L70">        return b;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

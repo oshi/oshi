@@ -26,8 +26,13 @@ package oshi.driver.windows.wmi;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery; //NOSONAR squid:S1191
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
+import oshi.annotation.concurrent.ThreadSafe;
 import oshi.util.platform.windows.WmiQueryHandler;
 
+/**
+ * Utility to query WMI class {@code Win32_DiskDrive}
+ */
+@ThreadSafe
 public final class Win32DiskDrive {
 
     private static final String WIN32_DISK_DRIVE = &quot;Win32_DiskDrive&quot;;
@@ -35,15 +40,15 @@ public final class Win32DiskDrive {
     /**
      * Disk drive properties
      */
-<span class="nc" id="L38">    public enum DiskDriveProperty {</span>
-<span class="nc" id="L39">        INDEX, MANUFACTURER, MODEL, NAME, SERIALNUMBER, SIZE;</span>
+<span class="nc" id="L43">    public enum DiskDriveProperty {</span>
+<span class="nc" id="L44">        INDEX, MANUFACTURER, MODEL, NAME, SERIALNUMBER, SIZE;</span>
     }
 
     /**
      * DeviceID and serial properties
      */
-<span class="nc" id="L45">    public enum DeviceIdProperty {</span>
-<span class="nc" id="L46">        PNPDEVICEID, SERIALNUMBER;</span>
+<span class="nc" id="L50">    public enum DeviceIdProperty {</span>
+<span class="nc" id="L51">        PNPDEVICEID, SERIALNUMBER;</span>
     }
 
     private Win32DiskDrive() {
@@ -55,8 +60,8 @@ public final class Win32DiskDrive {
      * @return Information regarding each disk drive.
      */
     public static WmiResult&lt;DiskDriveProperty&gt; queryDiskDrive() {
-<span class="nc" id="L58">        WmiQuery&lt;DiskDriveProperty&gt; diskDriveQuery = new WmiQuery&lt;&gt;(WIN32_DISK_DRIVE, DiskDriveProperty.class);</span>
-<span class="nc" id="L59">        return WmiQueryHandler.createInstance().queryWMI(diskDriveQuery);</span>
+<span class="nc" id="L63">        WmiQuery&lt;DiskDriveProperty&gt; diskDriveQuery = new WmiQuery&lt;&gt;(WIN32_DISK_DRIVE, DiskDriveProperty.class);</span>
+<span class="nc" id="L64">        return WmiQueryHandler.createInstance().queryWMI(diskDriveQuery);</span>
     }
 
     /**
@@ -67,9 +72,9 @@ public final class Win32DiskDrive {
      * @return Information regarding each disk drive's device id and serial number
      */
     public static WmiResult&lt;DeviceIdProperty&gt; queryDiskDriveId(String whereClause) {
-<span class="nc" id="L70">        WmiQuery&lt;DeviceIdProperty&gt; deviceIdQuery = new WmiQuery&lt;&gt;(WIN32_DISK_DRIVE + whereClause,</span>
+<span class="nc" id="L75">        WmiQuery&lt;DeviceIdProperty&gt; deviceIdQuery = new WmiQuery&lt;&gt;(WIN32_DISK_DRIVE + whereClause,</span>
                 DeviceIdProperty.class);
-<span class="nc" id="L72">        return WmiQueryHandler.createInstance().queryWMI(deviceIdQuery);</span>
+<span class="nc" id="L77">        return WmiQueryHandler.createInstance().queryWMI(deviceIdQuery);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

@@ -23,10 +23,12 @@
  */
 package oshi.hardware.platform.windows;
 
+import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.ComputerSystem;
 import oshi.hardware.Display;
 import oshi.hardware.GlobalMemory;
+import oshi.hardware.GraphicsCard;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.NetworkIF;
 import oshi.hardware.PowerSource;
@@ -36,60 +38,64 @@ import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
 
 /**
- * &lt;p&gt;
  * WindowsHardwareAbstractionLayer class.
- * &lt;/p&gt;
  */
-<span class="nc" id="L43">public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {</span>
+@ThreadSafe
+<span class="nc" id="L44">public final class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {</span>
 
     @Override
     public ComputerSystem createComputerSystem() {
-<span class="nc" id="L47">        return new WindowsComputerSystem();</span>
+<span class="nc" id="L48">        return new WindowsComputerSystem();</span>
     }
 
     @Override
     public GlobalMemory createMemory() {
-<span class="nc" id="L52">        return new WindowsGlobalMemory();</span>
+<span class="nc" id="L53">        return new WindowsGlobalMemory();</span>
     }
 
     @Override
     public CentralProcessor createProcessor() {
-<span class="nc" id="L57">        return new WindowsCentralProcessor();</span>
+<span class="nc" id="L58">        return new WindowsCentralProcessor();</span>
     }
 
     @Override
     public Sensors createSensors() {
-<span class="nc" id="L62">        return new WindowsSensors();</span>
+<span class="nc" id="L63">        return new WindowsSensors();</span>
     }
 
     @Override
     public PowerSource[] getPowerSources() {
-<span class="nc" id="L67">        return WindowsPowerSource.getPowerSources();</span>
+<span class="nc" id="L68">        return WindowsPowerSource.getPowerSources();</span>
     }
 
     @Override
     public HWDiskStore[] getDiskStores() {
-<span class="nc" id="L72">        return new WindowsDisks().getDisks();</span>
+<span class="nc" id="L73">        return WindowsDisks.getDisks();</span>
     }
 
     @Override
     public Display[] getDisplays() {
-<span class="nc" id="L77">        return WindowsDisplay.getDisplays();</span>
+<span class="nc" id="L78">        return WindowsDisplay.getDisplays();</span>
     }
 
     @Override
     public NetworkIF[] getNetworkIFs() {
-<span class="nc" id="L82">        return new WindowsNetworks().getNetworks();</span>
+<span class="nc" id="L83">        return new WindowsNetworks().getNetworks();</span>
     }
 
     @Override
     public UsbDevice[] getUsbDevices(boolean tree) {
-<span class="nc" id="L87">        return WindowsUsbDevice.getUsbDevices(tree);</span>
+<span class="nc" id="L88">        return WindowsUsbDevice.getUsbDevices(tree);</span>
     }
 
     @Override
     public SoundCard[] getSoundCards() {
-<span class="nc" id="L92">        return WindowsSoundCard.getSoundCards().toArray(new SoundCard[0]);</span>
+<span class="nc" id="L93">        return WindowsSoundCard.getSoundCards().toArray(new SoundCard[0]);</span>
+    }
+
+    @Override
+    public GraphicsCard[] getGraphicsCards() {
+<span class="nc" id="L98">        return WindowsGraphicsCard.getGraphicsCards().toArray(new GraphicsCard[0]);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

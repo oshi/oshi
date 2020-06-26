@@ -26,8 +26,13 @@ package oshi.driver.windows.wmi;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery; //NOSONAR squid:S1191
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
+import oshi.annotation.concurrent.ThreadSafe;
 import oshi.util.platform.windows.WmiQueryHandler;
 
+/**
+ * Utility to query WMI class {@code Win32_Processor}
+ */
+@ThreadSafe
 public final class Win32Processor {
 
     private static final String WIN32_PROCESSOR = &quot;Win32_Processor&quot;;
@@ -35,22 +40,22 @@ public final class Win32Processor {
     /**
      * Processor voltage properties.
      */
-<span class="nc" id="L38">    public enum VoltProperty {</span>
-<span class="nc" id="L39">        CURRENTVOLTAGE, VOLTAGECAPS;</span>
+<span class="nc" id="L43">    public enum VoltProperty {</span>
+<span class="nc" id="L44">        CURRENTVOLTAGE, VOLTAGECAPS;</span>
     }
 
     /**
      * Processor ID property
      */
-<span class="nc" id="L45">    public enum ProcessorIdProperty {</span>
-<span class="nc" id="L46">        PROCESSORID;</span>
+<span class="nc" id="L50">    public enum ProcessorIdProperty {</span>
+<span class="nc" id="L51">        PROCESSORID;</span>
     }
 
     /**
      * Processor bitness property
      */
-<span class="nc" id="L52">    public enum BitnessProperty {</span>
-<span class="nc" id="L53">        ADDRESSWIDTH;</span>
+<span class="nc" id="L57">    public enum BitnessProperty {</span>
+<span class="nc" id="L58">        ADDRESSWIDTH;</span>
     }
 
     private Win32Processor() {
@@ -64,8 +69,8 @@ public final class Win32Processor {
      *         then the bit setting in VoltageCaps represents the voltage value.
      */
     public static WmiResult&lt;VoltProperty&gt; queryVoltage() {
-<span class="nc" id="L67">        WmiQuery&lt;VoltProperty&gt; voltQuery = new WmiQuery&lt;&gt;(WIN32_PROCESSOR, VoltProperty.class);</span>
-<span class="nc" id="L68">        return WmiQueryHandler.createInstance().queryWMI(voltQuery);</span>
+<span class="nc" id="L72">        WmiQuery&lt;VoltProperty&gt; voltQuery = new WmiQuery&lt;&gt;(WIN32_PROCESSOR, VoltProperty.class);</span>
+<span class="nc" id="L73">        return WmiQueryHandler.createInstance().queryWMI(voltQuery);</span>
     }
 
     /**
@@ -83,8 +88,8 @@ public final class Win32Processor {
      *         contents are in DWORD format.
      */
     public static WmiResult&lt;ProcessorIdProperty&gt; queryProcessorId() {
-<span class="nc" id="L86">        WmiQuery&lt;ProcessorIdProperty&gt; idQuery = new WmiQuery&lt;&gt;(WIN32_PROCESSOR, ProcessorIdProperty.class);</span>
-<span class="nc" id="L87">        return WmiQueryHandler.createInstance().queryWMI(idQuery);</span>
+<span class="nc" id="L91">        WmiQuery&lt;ProcessorIdProperty&gt; idQuery = new WmiQuery&lt;&gt;(WIN32_PROCESSOR, ProcessorIdProperty.class);</span>
+<span class="nc" id="L92">        return WmiQueryHandler.createInstance().queryWMI(idQuery);</span>
     }
 
     /**
@@ -94,8 +99,8 @@ public final class Win32Processor {
      *         operating system it is 64.
      */
     public static WmiResult&lt;BitnessProperty&gt; queryBitness() {
-<span class="nc" id="L97">        WmiQuery&lt;BitnessProperty&gt; bitnessQuery = new WmiQuery&lt;&gt;(WIN32_PROCESSOR, BitnessProperty.class);</span>
-<span class="nc" id="L98">        return WmiQueryHandler.createInstance().queryWMI(bitnessQuery);</span>
+<span class="nc" id="L102">        WmiQuery&lt;BitnessProperty&gt; bitnessQuery = new WmiQuery&lt;&gt;(WIN32_PROCESSOR, BitnessProperty.class);</span>
+<span class="nc" id="L103">        return WmiQueryHandler.createInstance().queryWMI(bitnessQuery);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

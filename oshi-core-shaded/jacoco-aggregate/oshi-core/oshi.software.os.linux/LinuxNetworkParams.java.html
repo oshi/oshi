@@ -36,6 +36,7 @@ import com.sun.jna.Native;
 import com.sun.jna.platform.linux.LibC;
 import com.sun.jna.ptr.PointerByReference;
 
+import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.platform.linux.LinuxLibc;
 import oshi.jna.platform.unix.CLibrary;
 import oshi.jna.platform.unix.CLibrary.Addrinfo;
@@ -44,11 +45,10 @@ import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
 /**
- * &lt;p&gt;
  * LinuxNetworkParams class.
- * &lt;/p&gt;
  */
-<span class="nc" id="L51">public class LinuxNetworkParams extends AbstractNetworkParams {</span>
+@ThreadSafe
+<span class="nc" id="L51">final class LinuxNetworkParams extends AbstractNetworkParams {</span>
 
 <span class="nc" id="L53">    private static final Logger LOG = LoggerFactory.getLogger(LinuxNetworkParams.class);</span>
 

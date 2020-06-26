@@ -32,6 +32,7 @@ import com.sun.jna.platform.mac.IOKit.IOIterator; // NOSONAR squid:S1191
 import com.sun.jna.platform.mac.IOKit.IORegistryEntry;
 import com.sun.jna.platform.mac.IOKitUtil;
 
+import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.common.AbstractFirmware;
 import oshi.util.Constants;
 import oshi.util.Util;
@@ -40,91 +41,92 @@ import oshi.util.tuples.Quintet;
 /**
  * Firmware data obtained from ioreg.
  */
-<span class="nc" id="L43">final class MacFirmware extends AbstractFirmware {</span>
-//releaseDate, manufacturer, version, name, description
-<span class="nc" id="L45">    private final Supplier&lt;Quintet&lt;String, String, String, String, String&gt;&gt; manufNameDescVersRelease = memoize(</span>
+@Immutable
+<span class="nc" id="L45">final class MacFirmware extends AbstractFirmware {</span>
+
+<span class="nc" id="L47">    private final Supplier&lt;Quintet&lt;String, String, String, String, String&gt;&gt; manufNameDescVersRelease = memoize(</span>
             MacFirmware::queryEfi);
 
     @Override
     public String getManufacturer() {
-<span class="nc" id="L50">        return manufNameDescVersRelease.get().getA();</span>
+<span class="nc" id="L52">        return manufNameDescVersRelease.get().getA();</span>
     }
 
     @Override
     public String getName() {
-<span class="nc" id="L55">        return manufNameDescVersRelease.get().getB();</span>
+<span class="nc" id="L57">        return manufNameDescVersRelease.get().getB();</span>
     }
 
     @Override
     public String getDescription() {
-<span class="nc" id="L60">        return manufNameDescVersRelease.get().getC();</span>
+<span class="nc" id="L62">        return manufNameDescVersRelease.get().getC();</span>
     }
 
     @Override
     public String getVersion() {
-<span class="nc" id="L65">        return manufNameDescVersRelease.get().getD();</span>
+<span class="nc" id="L67">        return manufNameDescVersRelease.get().getD();</span>
     }
 
     @Override
     public String getReleaseDate() {
-<span class="nc" id="L70">        return manufNameDescVersRelease.get().getE();</span>
+<span class="nc" id="L72">        return manufNameDescVersRelease.get().getE();</span>
     }
 
     private static Quintet&lt;String, String, String, String, String&gt; queryEfi() {
-<span class="nc" id="L74">        String manufacturer = null;</span>
-<span class="nc" id="L75">        String name = null;</span>
-<span class="nc" id="L76">        String description = null;</span>
-<span class="nc" id="L77">        String version = null;</span>
-<span class="nc" id="L78">        String releaseDate = null;</span>
+<span class="nc" id="L76">        String manufacturer = null;</span>
+<span class="nc" id="L77">        String name = null;</span>
+<span class="nc" id="L78">        String description = null;</span>
+<span class="nc" id="L79">        String version = null;</span>
+<span class="nc" id="L80">        String releaseDate = null;</span>
 
-<span class="nc" id="L80">        IORegistryEntry platformExpert = IOKitUtil.getMatchingService(&quot;IOPlatformExpertDevice&quot;);</span>
-<span class="nc bnc" id="L81" title="All 2 branches missed.">        if (platformExpert != null) {</span>
-<span class="nc" id="L82">            IOIterator iter = platformExpert.getChildIterator(&quot;IODeviceTree&quot;);</span>
-<span class="nc bnc" id="L83" title="All 2 branches missed.">            if (iter != null) {</span>
-<span class="nc" id="L84">                IORegistryEntry entry = iter.next();</span>
-<span class="nc bnc" id="L85" title="All 2 branches missed.">                while (entry != null) {</span>
-<span class="nc bnc" id="L86" title="All 4 branches missed.">                    switch (entry.getName()) {</span>
+<span class="nc" id="L82">        IORegistryEntry platformExpert = IOKitUtil.getMatchingService(&quot;IOPlatformExpertDevice&quot;);</span>
+<span class="nc bnc" id="L83" title="All 2 branches missed.">        if (platformExpert != null) {</span>
+<span class="nc" id="L84">            IOIterator iter = platformExpert.getChildIterator(&quot;IODeviceTree&quot;);</span>
+<span class="nc bnc" id="L85" title="All 2 branches missed.">            if (iter != null) {</span>
+<span class="nc" id="L86">                IORegistryEntry entry = iter.next();</span>
+<span class="nc bnc" id="L87" title="All 2 branches missed.">                while (entry != null) {</span>
+<span class="nc bnc" id="L88" title="All 4 branches missed.">                    switch (entry.getName()) {</span>
                     case &quot;rom&quot;:
-<span class="nc" id="L88">                        byte[] data = entry.getByteArrayProperty(&quot;vendor&quot;);</span>
-<span class="nc bnc" id="L89" title="All 2 branches missed.">                        if (data != null) {</span>
-<span class="nc" id="L90">                            manufacturer = new String(data, StandardCharsets.UTF_8).trim();</span>
+<span class="nc" id="L90">                        byte[] data = entry.getByteArrayProperty(&quot;vendor&quot;);</span>
+<span class="nc bnc" id="L91" title="All 2 branches missed.">                        if (data != null) {</span>
+<span class="nc" id="L92">                            manufacturer = new String(data, StandardCharsets.UTF_8).trim();</span>
                         }
-<span class="nc" id="L92">                        data = entry.getByteArrayProperty(&quot;version&quot;);</span>
-<span class="nc bnc" id="L93" title="All 2 branches missed.">                        if (data != null) {</span>
-<span class="nc" id="L94">                            version = new String(data, StandardCharsets.UTF_8).trim();</span>
+<span class="nc" id="L94">                        data = entry.getByteArrayProperty(&quot;version&quot;);</span>
+<span class="nc bnc" id="L95" title="All 2 branches missed.">                        if (data != null) {</span>
+<span class="nc" id="L96">                            version = new String(data, StandardCharsets.UTF_8).trim();</span>
                         }
-<span class="nc" id="L96">                        data = entry.getByteArrayProperty(&quot;release-date&quot;);</span>
-<span class="nc bnc" id="L97" title="All 2 branches missed.">                        if (data != null) {</span>
-<span class="nc" id="L98">                            releaseDate = new String(data, StandardCharsets.UTF_8).trim();</span>
+<span class="nc" id="L98">                        data = entry.getByteArrayProperty(&quot;release-date&quot;);</span>
+<span class="nc bnc" id="L99" title="All 2 branches missed.">                        if (data != null) {</span>
+<span class="nc" id="L100">                            releaseDate = new String(data, StandardCharsets.UTF_8).trim();</span>
                         }
                         break;
                     case &quot;chosen&quot;:
-<span class="nc" id="L102">                        data = entry.getByteArrayProperty(&quot;booter-name&quot;);</span>
-<span class="nc bnc" id="L103" title="All 2 branches missed.">                        if (data != null) {</span>
-<span class="nc" id="L104">                            name = new String(data, StandardCharsets.UTF_8).trim();</span>
+<span class="nc" id="L104">                        data = entry.getByteArrayProperty(&quot;booter-name&quot;);</span>
+<span class="nc bnc" id="L105" title="All 2 branches missed.">                        if (data != null) {</span>
+<span class="nc" id="L106">                            name = new String(data, StandardCharsets.UTF_8).trim();</span>
                         }
                         break;
                     case &quot;efi&quot;:
-<span class="nc" id="L108">                        data = entry.getByteArrayProperty(&quot;firmware-abi&quot;);</span>
-<span class="nc bnc" id="L109" title="All 2 branches missed.">                        if (data != null) {</span>
-<span class="nc" id="L110">                            description = new String(data, StandardCharsets.UTF_8).trim();</span>
+<span class="nc" id="L110">                        data = entry.getByteArrayProperty(&quot;firmware-abi&quot;);</span>
+<span class="nc bnc" id="L111" title="All 2 branches missed.">                        if (data != null) {</span>
+<span class="nc" id="L112">                            description = new String(data, StandardCharsets.UTF_8).trim();</span>
                         }
                         break;
                     default:
                         break;
                     }
-<span class="nc" id="L116">                    entry.release();</span>
-<span class="nc" id="L117">                    entry = iter.next();</span>
+<span class="nc" id="L118">                    entry.release();</span>
+<span class="nc" id="L119">                    entry = iter.next();</span>
                 }
-<span class="nc" id="L119">                iter.release();</span>
+<span class="nc" id="L121">                iter.release();</span>
             }
-<span class="nc" id="L121">            platformExpert.release();</span>
+<span class="nc" id="L123">            platformExpert.release();</span>
         }
-<span class="nc bnc" id="L123" title="All 2 branches missed.">        return new Quintet&lt;&gt;(Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer,</span>
-<span class="nc bnc" id="L124" title="All 2 branches missed.">                Util.isBlank(name) ? Constants.UNKNOWN : name,</span>
-<span class="nc bnc" id="L125" title="All 2 branches missed.">                Util.isBlank(description) ? Constants.UNKNOWN : description,</span>
-<span class="nc bnc" id="L126" title="All 2 branches missed.">                Util.isBlank(version) ? Constants.UNKNOWN : version,</span>
-<span class="nc bnc" id="L127" title="All 2 branches missed.">                Util.isBlank(releaseDate) ? Constants.UNKNOWN : releaseDate);</span>
+<span class="nc bnc" id="L125" title="All 2 branches missed.">        return new Quintet&lt;&gt;(Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer,</span>
+<span class="nc bnc" id="L126" title="All 2 branches missed.">                Util.isBlank(name) ? Constants.UNKNOWN : name,</span>
+<span class="nc bnc" id="L127" title="All 2 branches missed.">                Util.isBlank(description) ? Constants.UNKNOWN : description,</span>
+<span class="nc bnc" id="L128" title="All 2 branches missed.">                Util.isBlank(version) ? Constants.UNKNOWN : version,</span>
+<span class="nc bnc" id="L129" title="All 2 branches missed.">                Util.isBlank(releaseDate) ? Constants.UNKNOWN : releaseDate);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

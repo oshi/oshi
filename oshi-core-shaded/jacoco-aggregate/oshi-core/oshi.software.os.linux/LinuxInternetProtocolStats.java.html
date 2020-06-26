@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>LinuxInternetProtocolStats.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-core-shaded</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.software.os.linux</a> &gt; <span class="el_source">LinuxInternetProtocolStats.java</span></div><h1>LinuxInternetProtocolStats.java</h1><pre class="source lang-java linenums">/**
+ * MIT License
+ *
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+package oshi.software.os.linux;
+
+import java.util.List;
+
+import oshi.annotation.concurrent.ThreadSafe;
+import oshi.software.os.InternetProtocolStats;
+import oshi.util.ExecutingCommand;
+import oshi.util.ParseUtil;
+
+@ThreadSafe
+<span class="nc" id="L34">public class LinuxInternetProtocolStats implements InternetProtocolStats {</span>
+
+    @Override
+    public TcpStats getTCPv4Stats() {
+<span class="nc" id="L38">        return getTcpStats(&quot;netstat -st4&quot;);</span>
+    }
+
+    @Override
+    public TcpStats getTCPv6Stats() {
+        // &quot;netstat -st6&quot; returns the same as -st4
+<span class="nc" id="L44">        return new TcpStats(0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L);</span>
+    }
+
+    private static TcpStats getTcpStats(String netstatStr) {
+<span class="nc" id="L48">        long connectionsEstablished = 0;</span>
+<span class="nc" id="L49">        long connectionsActive = 0;</span>
+<span class="nc" id="L50">        long connectionsPassive = 0;</span>
+<span class="nc" id="L51">        long connectionFailures = 0;</span>
+<span class="nc" id="L52">        long connectionsReset = 0;</span>
+<span class="nc" id="L53">        long segmentsSent = 0;</span>
+<span class="nc" id="L54">        long segmentsReceived = 0;</span>
+<span class="nc" id="L55">        long segmentsRetransmitted = 0;</span>
+<span class="nc" id="L56">        long inErrors = 0;</span>
+<span class="nc" id="L57">        long outResets = 0;</span>
+<span class="nc" id="L58">        List&lt;String&gt; netstat = ExecutingCommand.runNative(netstatStr);</span>
+<span class="nc bnc" id="L59" title="All 2 branches missed.">        for (String s : netstat) {</span>
+<span class="nc" id="L60">            String[] split = s.trim().split(&quot; &quot;, 2);</span>
+<span class="nc bnc" id="L61" title="All 2 branches missed.">            if (split.length == 2) {</span>
+<span class="nc bnc" id="L62" title="All 11 branches missed.">                switch (split[1]) {</span>
+                case &quot;connections established&quot;:
+<span class="nc" id="L64">                    connectionsEstablished = ParseUtil.parseLongOrDefault(split[0], 0L);</span>
+<span class="nc" id="L65">                    break;</span>
+                case &quot;active connection openings&quot;:
+<span class="nc" id="L67">                    connectionsActive = ParseUtil.parseLongOrDefault(split[0], 0L);</span>
+<span class="nc" id="L68">                    break;</span>
+                case &quot;passive connection openings&quot;:
+<span class="nc" id="L70">                    connectionsPassive = ParseUtil.parseLongOrDefault(split[0], 0L);</span>
+<span class="nc" id="L71">                    break;</span>
+                case &quot;failed connection attempts&quot;:
+<span class="nc" id="L73">                    connectionFailures = ParseUtil.parseLongOrDefault(split[0], 0L);</span>
+<span class="nc" id="L74">                    break;</span>
+                case &quot;connection resets received&quot;:
+<span class="nc" id="L76">                    connectionsReset = ParseUtil.parseLongOrDefault(split[0], 0L);</span>
+<span class="nc" id="L77">                    break;</span>
+                case &quot;segments sent out&quot;:
+<span class="nc" id="L79">                    segmentsSent = ParseUtil.parseLongOrDefault(split[0], 0L);</span>
+<span class="nc" id="L80">                    break;</span>
+                case &quot;segments received&quot;:
+<span class="nc" id="L82">                    segmentsReceived = ParseUtil.parseLongOrDefault(split[0], 0L);</span>
+<span class="nc" id="L83">                    break;</span>
+                case &quot;segments retransmitted&quot;:
+<span class="nc" id="L85">                    segmentsRetransmitted = ParseUtil.parseLongOrDefault(split[0], 0L);</span>
+<span class="nc" id="L86">                    break;</span>
+                case &quot;bad segments received&quot;:
+<span class="nc" id="L88">                    inErrors = ParseUtil.parseLongOrDefault(split[0], 0L);</span>
+<span class="nc" id="L89">                    break;</span>
+                case &quot;resets sent&quot;:
+<span class="nc" id="L91">                    outResets = ParseUtil.parseLongOrDefault(split[0], 0L);</span>
+<span class="nc" id="L92">                    break;</span>
+                default:
+                    break;
+                }
+
+            }
+<span class="nc" id="L98">        }</span>
+<span class="nc" id="L99">        return new TcpStats(connectionsEstablished, connectionsActive, connectionsPassive, connectionFailures,</span>
+                connectionsReset, segmentsSent, segmentsReceived, segmentsRetransmitted, inErrors, outResets);
+    }
+
+    @Override
+    public UdpStats getUDPv4Stats() {
+<span class="nc" id="L105">        return getUdpStats(&quot;netstat -su4&quot;);</span>
+    }
+
+    @Override
+    public UdpStats getUDPv6Stats() {
+<span class="nc" id="L110">        return getUdpStats(&quot;netstat -su6&quot;);</span>
+    }
+
+    private static UdpStats getUdpStats(String netstatStr) {
+<span class="nc" id="L114">        long datagramsSent = 0;</span>
+<span class="nc" id="L115">        long datagramsReceived = 0;</span>
+<span class="nc" id="L116">        long datagramsNoPort = 0;</span>
+<span class="nc" id="L117">        long datagramsReceivedErrors = 0;</span>
+<span class="nc" id="L118">        List&lt;String&gt; netstat = ExecutingCommand.runNative(netstatStr);</span>
+<span class="nc bnc" id="L119" title="All 2 branches missed.">        for (String s : netstat) {</span>
+<span class="nc" id="L120">            String[] split = s.trim().split(&quot; &quot;, 2);</span>
+<span class="nc bnc" id="L121" title="All 2 branches missed.">            if (split.length == 2) {</span>
+<span class="nc bnc" id="L122" title="All 5 branches missed.">                switch (split[1]) {</span>
+                case &quot;packets sent&quot;:
+<span class="nc" id="L124">                    datagramsSent = ParseUtil.parseLongOrDefault(split[0], 0L);</span>
+<span class="nc" id="L125">                    break;</span>
+                case &quot;packets received&quot;:
+<span class="nc" id="L127">                    datagramsReceived = ParseUtil.parseLongOrDefault(split[0], 0L);</span>
+<span class="nc" id="L128">                    break;</span>
+                case &quot;packets to unknown port received&quot;:
+<span class="nc" id="L130">                    datagramsNoPort = ParseUtil.parseLongOrDefault(split[0], 0L);</span>
+<span class="nc" id="L131">                    break;</span>
+                case &quot;packet receive errors&quot;:
+<span class="nc" id="L133">                    datagramsReceivedErrors = ParseUtil.parseLongOrDefault(split[0], 0L);</span>
+<span class="nc" id="L134">                    break;</span>
+                default:
+                    break;
+                }
+            }
+<span class="nc" id="L139">        }</span>
+<span class="nc" id="L140">        return new UdpStats(datagramsSent, datagramsReceived, datagramsNoPort, datagramsReceivedErrors);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

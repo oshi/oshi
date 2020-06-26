@@ -25,15 +25,15 @@ package oshi.hardware.platform.mac;
 
 import com.sun.jna.platform.mac.IOKit.IOConnect; // NOSONAR squid:S1191
 
+import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.common.AbstractSensors;
 import oshi.util.platform.mac.SmcUtil;
 
 /**
- * &lt;p&gt;
- * MacSensors class.
- * &lt;/p&gt;
+ * Sensors from SMC
  */
-<span class="nc" id="L36">public class MacSensors extends AbstractSensors {</span>
+@ThreadSafe
+<span class="nc" id="L36">final class MacSensors extends AbstractSensors {</span>
 
     // This shouldn't change once determined
 <span class="nc" id="L39">    private int numFans = 0;</span>

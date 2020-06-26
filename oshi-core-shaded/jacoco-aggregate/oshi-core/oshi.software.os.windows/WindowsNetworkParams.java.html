@@ -39,16 +39,16 @@ import com.sun.jna.platform.win32.Kernel32Util;
 import com.sun.jna.platform.win32.WinError;
 import com.sun.jna.ptr.IntByReference;
 
+import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.AbstractNetworkParams;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
 /**
- * &lt;p&gt;
  * WindowsNetworkParams class.
- * &lt;/p&gt;
  */
-<span class="nc" id="L51">public class WindowsNetworkParams extends AbstractNetworkParams {</span>
+@ThreadSafe
+<span class="nc" id="L51">final class WindowsNetworkParams extends AbstractNetworkParams {</span>
 
 <span class="nc" id="L53">    private static final Logger LOG = LoggerFactory.getLogger(WindowsNetworkParams.class);</span>
 

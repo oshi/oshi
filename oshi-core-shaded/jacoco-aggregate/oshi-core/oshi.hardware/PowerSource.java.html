@@ -25,31 +25,34 @@ package oshi.hardware;
 
 import java.time.LocalDate;
 
+import oshi.annotation.concurrent.ThreadSafe;
+
 /**
  * The Power Source is one or more batteries with some capacity, and some state
  * of charge/discharge
  */
+@ThreadSafe
 public interface PowerSource {
     /**
      * Units of Battery Capacity
      */
-<span class="fc" id="L36">    enum CapacityUnits {</span>
-    /**
-     * MilliWattHours (mWh).
-     */
-<span class="fc" id="L40">    MWH,</span>
+<span class="fc" id="L39">    enum CapacityUnits {</span>
+        /**
+         * MilliWattHours (mWh).
+         */
+<span class="fc" id="L43">        MWH,</span>
 
-    /**
-     * MilliAmpHours (mAh). Should be multiplied by voltage to convert to mWh.
-     */
-<span class="fc" id="L45">    MAH,</span>
+        /**
+         * MilliAmpHours (mAh). Should be multiplied by voltage to convert to mWh.
+         */
+<span class="fc" id="L48">        MAH,</span>
 
-    /**
-     * Relative units. The specific units are not defined. The ratio of current/max
-     * capacity still represents state of charge and the ratio of max/design
-     * capacity still represents state of health.
-     */
-<span class="fc" id="L52">    RELATIVE;</span>
+        /**
+         * Relative units. The specific units are not defined. The ratio of current/max
+         * capacity still represents state of charge and the ratio of max/design
+         * capacity still represents state of health.
+         */
+<span class="fc" id="L55">        RELATIVE;</span>
     }
 
     /**

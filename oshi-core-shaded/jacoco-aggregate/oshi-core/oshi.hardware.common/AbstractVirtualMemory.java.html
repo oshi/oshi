@@ -23,22 +23,28 @@
  */
 package oshi.hardware.common;
 
+import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.VirtualMemory;
 import oshi.util.FormatUtil;
 
 /**
  * Virtual Memory info.
  */
-<span class="nc" id="L32">public abstract class AbstractVirtualMemory implements VirtualMemory {</span>
+@ThreadSafe
+<span class="nc" id="L34">public abstract class AbstractVirtualMemory implements VirtualMemory {</span>
 
     @Override
     public String toString() {
-<span class="nc" id="L36">        StringBuilder sb = new StringBuilder();</span>
-<span class="nc" id="L37">        sb.append(&quot;Used: &quot;);</span>
-<span class="nc" id="L38">        sb.append(FormatUtil.formatBytes(getSwapUsed()));</span>
-<span class="nc" id="L39">        sb.append(&quot;/&quot;);</span>
-<span class="nc" id="L40">        sb.append(FormatUtil.formatBytes(getSwapTotal()));</span>
-<span class="nc" id="L41">        return sb.toString();</span>
+<span class="nc" id="L38">        StringBuilder sb = new StringBuilder();</span>
+<span class="nc" id="L39">        sb.append(&quot;Swap Used/Avail: &quot;);</span>
+<span class="nc" id="L40">        sb.append(FormatUtil.formatBytes(getSwapUsed()));</span>
+<span class="nc" id="L41">        sb.append(&quot;/&quot;);</span>
+<span class="nc" id="L42">        sb.append(FormatUtil.formatBytes(getSwapTotal()));</span>
+<span class="nc" id="L43">        sb.append(&quot;, Virtual Memory In Use/Max=&quot;);</span>
+<span class="nc" id="L44">        sb.append(FormatUtil.formatBytes(getVirtualInUse()));</span>
+<span class="nc" id="L45">        sb.append(&quot;/&quot;);</span>
+<span class="nc" id="L46">        sb.append(FormatUtil.formatBytes(getVirtualMax()));</span>
+<span class="nc" id="L47">        return sb.toString();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

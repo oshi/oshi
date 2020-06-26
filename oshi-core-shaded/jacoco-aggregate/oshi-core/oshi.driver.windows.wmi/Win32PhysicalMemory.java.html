@@ -26,8 +26,13 @@ package oshi.driver.windows.wmi;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery; //NOSONAR squid:S1191
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
+import oshi.annotation.concurrent.ThreadSafe;
 import oshi.util.platform.windows.WmiQueryHandler;
 
+/**
+ * Utility to query WMI class {@code Win32_PhysicalMemory}
+ */
+@ThreadSafe
 public final class Win32PhysicalMemory {
 
     private static final String WIN32_PHYSICAL_MEMORY = &quot;Win32_PhysicalMemory&quot;;
@@ -35,15 +40,15 @@ public final class Win32PhysicalMemory {
     /**
      * Physical Memory properties for Win10 and later.
      */
-<span class="nc" id="L38">    public enum PhysicalMemoryProperty {</span>
-<span class="nc" id="L39">        BANKLABEL, CAPACITY, SPEED, MANUFACTURER, SMBIOSMEMORYTYPE</span>
+<span class="nc" id="L43">    public enum PhysicalMemoryProperty {</span>
+<span class="nc" id="L44">        BANKLABEL, CAPACITY, SPEED, MANUFACTURER, SMBIOSMEMORYTYPE</span>
     }
 
     /**
      * Physical Memory properties for Win8 and earlier.
      */
-<span class="nc" id="L45">    public enum PhysicalMemoryPropertyWin8 {</span>
-<span class="nc" id="L46">        BANKLABEL, CAPACITY, SPEED, MANUFACTURER, MEMORYTYPE</span>
+<span class="nc" id="L50">    public enum PhysicalMemoryPropertyWin8 {</span>
+<span class="nc" id="L51">        BANKLABEL, CAPACITY, SPEED, MANUFACTURER, MEMORYTYPE</span>
     }
 
     private Win32PhysicalMemory() {
@@ -55,9 +60,9 @@ public final class Win32PhysicalMemory {
      * @return Information regarding physical memory.
      */
     public static WmiResult&lt;PhysicalMemoryProperty&gt; queryphysicalMemory() {
-<span class="nc" id="L58">        WmiQuery&lt;PhysicalMemoryProperty&gt; physicalMemoryQuery = new WmiQuery&lt;&gt;(WIN32_PHYSICAL_MEMORY,</span>
+<span class="nc" id="L63">        WmiQuery&lt;PhysicalMemoryProperty&gt; physicalMemoryQuery = new WmiQuery&lt;&gt;(WIN32_PHYSICAL_MEMORY,</span>
                 PhysicalMemoryProperty.class);
-<span class="nc" id="L60">        return WmiQueryHandler.createInstance().queryWMI(physicalMemoryQuery);</span>
+<span class="nc" id="L65">        return WmiQueryHandler.createInstance().queryWMI(physicalMemoryQuery);</span>
     }
 
     /**
@@ -66,9 +71,9 @@ public final class Win32PhysicalMemory {
      * @return Information regarding physical memory.
      */
     public static WmiResult&lt;PhysicalMemoryPropertyWin8&gt; queryphysicalMemoryWin8() {
-<span class="nc" id="L69">        WmiQuery&lt;PhysicalMemoryPropertyWin8&gt; physicalMemoryQuery = new WmiQuery&lt;&gt;(WIN32_PHYSICAL_MEMORY,</span>
+<span class="nc" id="L74">        WmiQuery&lt;PhysicalMemoryPropertyWin8&gt; physicalMemoryQuery = new WmiQuery&lt;&gt;(WIN32_PHYSICAL_MEMORY,</span>
                 PhysicalMemoryPropertyWin8.class);
-<span class="nc" id="L71">        return WmiQueryHandler.createInstance().queryWMI(physicalMemoryQuery);</span>
+<span class="nc" id="L76">        return WmiQueryHandler.createInstance().queryWMI(physicalMemoryQuery);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

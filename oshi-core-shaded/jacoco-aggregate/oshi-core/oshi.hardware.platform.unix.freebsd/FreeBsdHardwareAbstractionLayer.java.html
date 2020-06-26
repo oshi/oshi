@@ -23,10 +23,12 @@
  */
 package oshi.hardware.platform.unix.freebsd;
 
+import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.ComputerSystem;
 import oshi.hardware.Display;
 import oshi.hardware.GlobalMemory;
+import oshi.hardware.GraphicsCard;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.NetworkIF;
 import oshi.hardware.PowerSource;
@@ -36,70 +38,64 @@ import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
 
 /**
- * &lt;p&gt;
  * FreeBsdHardwareAbstractionLayer class.
- * &lt;/p&gt;
  */
-<span class="nc" id="L43">public class FreeBsdHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {</span>
+@ThreadSafe
+<span class="nc" id="L44">public final class FreeBsdHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {</span>
 
-    /** {@inheritDoc} */
     @Override
     public ComputerSystem createComputerSystem() {
 <span class="nc" id="L48">        return new FreeBsdComputerSystem();</span>
     }
 
-    /** {@inheritDoc} */
     @Override
     public GlobalMemory createMemory() {
-<span class="nc" id="L54">        return new FreeBsdGlobalMemory();</span>
+<span class="nc" id="L53">        return new FreeBsdGlobalMemory();</span>
     }
 
-    /** {@inheritDoc} */
     @Override
     public CentralProcessor createProcessor() {
-<span class="nc" id="L60">        return new FreeBsdCentralProcessor();</span>
+<span class="nc" id="L58">        return new FreeBsdCentralProcessor();</span>
     }
 
-    /** {@inheritDoc} */
     @Override
     public Sensors createSensors() {
-<span class="nc" id="L66">        return new FreeBsdSensors();</span>
+<span class="nc" id="L63">        return new FreeBsdSensors();</span>
     }
 
-    /** {@inheritDoc} */
     @Override
     public PowerSource[] getPowerSources() {
-<span class="nc" id="L72">        return FreeBsdPowerSource.getPowerSources();</span>
+<span class="nc" id="L68">        return FreeBsdPowerSource.getPowerSources();</span>
     }
 
-    /** {@inheritDoc} */
     @Override
     public HWDiskStore[] getDiskStores() {
-<span class="nc" id="L78">        return new FreeBsdDisks().getDisks();</span>
+<span class="nc" id="L73">        return FreeBsdDisks.getDisks();</span>
     }
 
-    /** {@inheritDoc} */
     @Override
     public Display[] getDisplays() {
-<span class="nc" id="L84">        return FreeBsdDisplay.getDisplays();</span>
+<span class="nc" id="L78">        return FreeBsdDisplay.getDisplays();</span>
     }
 
-    /** {@inheritDoc} */
     @Override
     public NetworkIF[] getNetworkIFs() {
-<span class="nc" id="L90">        return new FreeBsdNetworks().getNetworks();</span>
+<span class="nc" id="L83">        return new FreeBsdNetworks().getNetworks();</span>
     }
 
-    /** {@inheritDoc} */
     @Override
     public UsbDevice[] getUsbDevices(boolean tree) {
-<span class="nc" id="L96">        return FreeBsdUsbDevice.getUsbDevices(tree);</span>
+<span class="nc" id="L88">        return FreeBsdUsbDevice.getUsbDevices(tree);</span>
     }
 
-    /** {@inheritDoc} */
     @Override
     public SoundCard[] getSoundCards() {
-<span class="nc" id="L102">        return FreeBsdSoundCard.getSoundCards().toArray(new SoundCard[0]);</span>
+<span class="nc" id="L93">        return FreeBsdSoundCard.getSoundCards().toArray(new SoundCard[0]);</span>
+    }
+
+    @Override
+    public GraphicsCard[] getGraphicsCards() {
+<span class="nc" id="L98">        return FreeBsdGraphicsCard.getGraphicsCards().toArray(new GraphicsCard[0]);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

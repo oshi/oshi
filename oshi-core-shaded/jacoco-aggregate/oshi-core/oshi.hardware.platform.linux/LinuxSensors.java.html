@@ -32,17 +32,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.common.AbstractSensors;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 
 /**
- * &lt;p&gt;
- * LinuxSensors class.
- * &lt;/p&gt;
+ * Sensors from WMI or Open Hardware Monitor
  */
-public class LinuxSensors extends AbstractSensors {
+@ThreadSafe
+final class LinuxSensors extends AbstractSensors {
 
     // Possible sensor types. See sysfs documentation for others, e.g. current
     private static final String TEMP = &quot;temp&quot;;
@@ -68,7 +68,7 @@ public class LinuxSensors extends AbstractSensors {
      * Constructor for LinuxSensors.
      * &lt;/p&gt;
      */
-<span class="nc" id="L71">    public LinuxSensors() {</span>
+<span class="nc" id="L71">    LinuxSensors() {</span>
 <span class="nc bnc" id="L72" title="All 2 branches missed.">        if (!IS_PI) {</span>
 <span class="nc" id="L73">            populateSensorsMapFromHwmon();</span>
             // if no temperature sensor is found in hwmon, try thermal_zone

@@ -23,6 +23,8 @@
  */
 package oshi.hardware;
 
+import static oshi.util.Memoizer.memoize;
+
 import java.net.InetAddress;
 import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
@@ -30,25 +32,33 @@ import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
+import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.SystemInfo;
+import oshi.annotation.concurrent.NotThreadSafe;
 import oshi.hardware.platform.linux.LinuxNetworks;
 import oshi.hardware.platform.mac.MacNetworks;
 import oshi.hardware.platform.unix.freebsd.FreeBsdNetworks;
 import oshi.hardware.platform.unix.solaris.SolarisNetworks;
 import oshi.hardware.platform.windows.WindowsNetworks;
+import oshi.util.FileUtil;
 import oshi.util.FormatUtil;
 import oshi.util.ParseUtil;
 
 /**
  * A network interface in the machine, including statistics
+ * &lt;p&gt;
+ * Thread safe if both threads only use getters, or if setter usage is
+ * externally synchronized.
  */
-<span class="fc" id="L49">public class NetworkIF {</span>
+@NotThreadSafe
+<span class="fc" id="L59">public class NetworkIF {</span>
 
-<span class="fc" id="L51">    private static final Logger LOG = LoggerFactory.getLogger(NetworkIF.class);</span>
+<span class="fc" id="L61">    private static final Logger LOG = LoggerFactory.getLogger(NetworkIF.class);</span>
 
     private NetworkInterface networkInterface;
     private int mtu;
@@ -57,6 +67,9 @@ import oshi.util.ParseUtil;
     private Short[] subnetMasks;
     private String[] ipv6;
     private Short[] prefixLengths;
+    private int ifType;
+    private int ndisPhysicalMediumType;
+    private boolean connectorPresent;
     private long bytesRecv;
     private long bytesSent;
     private long packetsRecv;
@@ -68,6 +81,10 @@ import oshi.util.ParseUtil;
     private long speed;
     private long timeStamp;
 
+    private static final String OSHI_VM_MAC_ADDR_PROPERTIES = &quot;oshi.vmmacaddr.properties&quot;;
+
+<span class="fc" id="L86">    private final Supplier&lt;Properties&gt; vmMacAddrProps = memoize(NetworkIF::queryVmMacAddrProps);</span>
+
     /**
      * Gets the core java {@link NetworkInterface} object.
      *
@@ -75,7 +92,7 @@ import oshi.util.ParseUtil;
      *         {@link java.net.NetworkInterface}.
      */
     public NetworkInterface queryNetworkInterface() {
-<span class="fc" id="L78">        return this.networkInterface;</span>
+<span class="fc" id="L95">        return this.networkInterface;</span>
     }
 
     /**
@@ -85,48 +102,48 @@ import oshi.util.ParseUtil;
      *            The network interface to set
      */
     public void setNetworkInterface(NetworkInterface networkInterface) {
-<span class="fc" id="L88">        this.networkInterface = networkInterface;</span>
+<span class="fc" id="L105">        this.networkInterface = networkInterface;</span>
         try {
             // Set MTU
-<span class="fc" id="L91">            this.mtu = networkInterface.getMTU();</span>
+<span class="fc" id="L108">            this.mtu = networkInterface.getMTU();</span>
             // Set MAC
-<span class="fc" id="L93">            byte[] hwmac = networkInterface.getHardwareAddress();</span>
-<span class="pc bpc" id="L94" title="1 of 2 branches missed.">            if (hwmac != null) {</span>
-<span class="fc" id="L95">                List&lt;String&gt; octets = new ArrayList&lt;&gt;(6);</span>
-<span class="fc bfc" id="L96" title="All 2 branches covered.">                for (byte b : hwmac) {</span>
-<span class="fc" id="L97">                    octets.add(String.format(&quot;%02x&quot;, b));</span>
+<span class="fc" id="L110">            byte[] hwmac = networkInterface.getHardwareAddress();</span>
+<span class="pc bpc" id="L111" title="1 of 2 branches missed.">            if (hwmac != null) {</span>
+<span class="fc" id="L112">                List&lt;String&gt; octets = new ArrayList&lt;&gt;(6);</span>
+<span class="fc bfc" id="L113" title="All 2 branches covered.">                for (byte b : hwmac) {</span>
+<span class="fc" id="L114">                    octets.add(String.format(&quot;%02x&quot;, b));</span>
                 }
-<span class="fc" id="L99">                this.mac = String.join(&quot;:&quot;, octets);</span>
-<span class="fc" id="L100">            } else {</span>
-<span class="nc" id="L101">                this.mac = &quot;Unknown&quot;;</span>
+<span class="fc" id="L116">                this.mac = String.join(&quot;:&quot;, octets);</span>
+<span class="fc" id="L117">            } else {</span>
+<span class="nc" id="L118">                this.mac = &quot;Unknown&quot;;</span>
             }
             // Set IP arrays
-<span class="fc" id="L104">            ArrayList&lt;String&gt; ipv4list = new ArrayList&lt;&gt;();</span>
-<span class="fc" id="L105">            ArrayList&lt;Short&gt; subnetMaskList = new ArrayList&lt;&gt;();</span>
-<span class="fc" id="L106">            ArrayList&lt;String&gt; ipv6list = new ArrayList&lt;&gt;();</span>
-<span class="fc" id="L107">            ArrayList&lt;Short&gt; prefixLengthList = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L121">            ArrayList&lt;String&gt; ipv4list = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L122">            ArrayList&lt;Short&gt; subnetMaskList = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L123">            ArrayList&lt;String&gt; ipv6list = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L124">            ArrayList&lt;Short&gt; prefixLengthList = new ArrayList&lt;&gt;();</span>
 
-<span class="fc bfc" id="L109" title="All 2 branches covered.">            for (InterfaceAddress interfaceAddress : networkInterface.getInterfaceAddresses()) {</span>
-<span class="fc" id="L110">                InetAddress address = interfaceAddress.getAddress();</span>
-<span class="pc bpc" id="L111" title="1 of 2 branches missed.">                if (address.getHostAddress().length() &gt; 0) {</span>
-<span class="fc bfc" id="L112" title="All 2 branches covered.">                    if (address.getHostAddress().contains(&quot;:&quot;)) {</span>
-<span class="fc" id="L113">                        ipv6list.add(address.getHostAddress().split(&quot;%&quot;)[0]);</span>
-<span class="fc" id="L114">                        prefixLengthList.add(interfaceAddress.getNetworkPrefixLength());</span>
+<span class="fc bfc" id="L126" title="All 2 branches covered.">            for (InterfaceAddress interfaceAddress : networkInterface.getInterfaceAddresses()) {</span>
+<span class="fc" id="L127">                InetAddress address = interfaceAddress.getAddress();</span>
+<span class="pc bpc" id="L128" title="1 of 2 branches missed.">                if (address.getHostAddress().length() &gt; 0) {</span>
+<span class="fc bfc" id="L129" title="All 2 branches covered.">                    if (address.getHostAddress().contains(&quot;:&quot;)) {</span>
+<span class="fc" id="L130">                        ipv6list.add(address.getHostAddress().split(&quot;%&quot;)[0]);</span>
+<span class="fc" id="L131">                        prefixLengthList.add(interfaceAddress.getNetworkPrefixLength());</span>
                     } else {
-<span class="fc" id="L116">                        ipv4list.add(address.getHostAddress());</span>
-<span class="fc" id="L117">                        subnetMaskList.add(interfaceAddress.getNetworkPrefixLength());</span>
+<span class="fc" id="L133">                        ipv4list.add(address.getHostAddress());</span>
+<span class="fc" id="L134">                        subnetMaskList.add(interfaceAddress.getNetworkPrefixLength());</span>
                     }
                 }
-<span class="fc" id="L120">            }</span>
+<span class="fc" id="L137">            }</span>
 
-<span class="fc" id="L122">            this.ipv4 = ipv4list.toArray(new String[0]);</span>
-<span class="fc" id="L123">            this.subnetMasks = subnetMaskList.toArray(new Short[0]);</span>
-<span class="fc" id="L124">            this.ipv6 = ipv6list.toArray(new String[0]);</span>
-<span class="fc" id="L125">            this.prefixLengths = prefixLengthList.toArray(new Short[0]);</span>
-<span class="nc" id="L126">        } catch (SocketException e) {</span>
-<span class="nc" id="L127">            LOG.error(&quot;Socket exception: {}&quot;, e.getMessage());</span>
-<span class="fc" id="L128">        }</span>
-<span class="fc" id="L129">    }</span>
+<span class="fc" id="L139">            this.ipv4 = ipv4list.toArray(new String[0]);</span>
+<span class="fc" id="L140">            this.subnetMasks = subnetMaskList.toArray(new Short[0]);</span>
+<span class="fc" id="L141">            this.ipv6 = ipv6list.toArray(new String[0]);</span>
+<span class="fc" id="L142">            this.prefixLengths = prefixLengthList.toArray(new Short[0]);</span>
+<span class="nc" id="L143">        } catch (SocketException e) {</span>
+<span class="nc" id="L144">            LOG.error(&quot;Socket exception: {}&quot;, e.getMessage());</span>
+<span class="fc" id="L145">        }</span>
+<span class="fc" id="L146">    }</span>
 
     /**
      * &lt;p&gt;
@@ -136,7 +153,7 @@ import oshi.util.ParseUtil;
      * @return The interface name.
      */
     public String getName() {
-<span class="fc" id="L139">        return this.networkInterface.getName();</span>
+<span class="fc" id="L156">        return this.networkInterface.getName();</span>
     }
 
     /**
@@ -148,7 +165,7 @@ import oshi.util.ParseUtil;
      *         identical to the name.
      */
     public String getDisplayName() {
-<span class="fc" id="L151">        return this.networkInterface.getDisplayName();</span>
+<span class="fc" id="L168">        return this.networkInterface.getDisplayName();</span>
     }
 
     /**
@@ -163,7 +180,7 @@ import oshi.util.ParseUtil;
      *         the {@link #setNetworkInterface(NetworkInterface)} method
      */
     public int getMTU() {
-<span class="fc" id="L166">        return this.mtu;</span>
+<span class="fc" id="L183">        return this.mtu;</span>
     }
 
     /**
@@ -178,7 +195,7 @@ import oshi.util.ParseUtil;
      *         the {@link #setNetworkInterface(NetworkInterface)} method
      */
     public String getMacaddr() {
-<span class="fc" id="L181">        return this.mac;</span>
+<span class="fc" id="L198">        return this.mac;</span>
     }
 
     /**
@@ -193,7 +210,7 @@ import oshi.util.ParseUtil;
      *         the {@link #setNetworkInterface(NetworkInterface)} method
      */
     public String[] getIPv4addr() {
-<span class="fc" id="L196">        return Arrays.copyOf(this.ipv4, this.ipv4.length);</span>
+<span class="fc" id="L213">        return Arrays.copyOf(this.ipv4, this.ipv4.length);</span>
     }
 
     /**
@@ -209,7 +226,7 @@ import oshi.util.ParseUtil;
      *
      */
     public Short[] getSubnetMasks() {
-<span class="fc" id="L212">        return Arrays.copyOf(this.subnetMasks, this.subnetMasks.length);</span>
+<span class="fc" id="L229">        return Arrays.copyOf(this.subnetMasks, this.subnetMasks.length);</span>
     }
 
     /**
@@ -224,7 +241,7 @@ import oshi.util.ParseUtil;
      *         the {@link #setNetworkInterface(NetworkInterface)} method
      */
     public String[] getIPv6addr() {
-<span class="fc" id="L227">        return Arrays.copyOf(this.ipv6, this.ipv6.length);</span>
+<span class="fc" id="L244">        return Arrays.copyOf(this.ipv6, this.ipv6.length);</span>
     }
 
     /**
@@ -239,8 +256,86 @@ import oshi.util.ParseUtil;
      *         the {@link #setNetworkInterface(NetworkInterface)} method
      */
     public Short[] getPrefixLengths() {
-<span class="fc" id="L242">        return Arrays.copyOf(this.prefixLengths, this.prefixLengths.length);</span>
+<span class="fc" id="L259">        return Arrays.copyOf(this.prefixLengths, this.prefixLengths.length);</span>
     }
+
+    /**
+     * (Windows, macOS) The NDIS Interface Type. NDIS interface types are registered
+     * with the Internet Assigned Numbers Authority (IANA), which publishes a list
+     * of interface types periodically in the Assigned Numbers RFC, or in a
+     * derivative of it that is specific to Internet network management number
+     * assignments.
+     * &lt;p&gt;
+     * (Linux) ARP Protocol hardware identifiers defined in
+     * {@code include/uapi/linux/if_arp.h}
+     *
+     * @return the ifType
+     */
+    public int getIfType() {
+<span class="fc" id="L275">        return ifType;</span>
+    }
+
+    /**
+     * &lt;p&gt;
+     * Setter for the field &lt;code&gt;ifType&lt;/code&gt;.
+     * &lt;/p&gt;
+     *
+     * @param ifType
+     *            the ifType to set
+     */
+    public void setIfType(int ifType) {
+<span class="fc" id="L287">        this.ifType = ifType;</span>
+<span class="fc" id="L288">    }</span>
+
+    /**
+     * &lt;p&gt;
+     * (Windows Vista and higher only) The NDIS physical medium type. This member
+     * can be one of the values from the {@code NDIS_PHYSICAL_MEDIUM} enumeration
+     * type defined in the {@code Ntddndis.h} header file.
+     * &lt;/p&gt;
+     *
+     * @return the ndisPhysicalMediumType
+     */
+    public int getNdisPhysicalMediumType() {
+<span class="fc" id="L300">        return ndisPhysicalMediumType;</span>
+    }
+
+    /**
+     * &lt;p&gt;
+     * Setter for the field &lt;code&gt;ndisPhysicalMediumType&lt;/code&gt;.
+     * &lt;/p&gt;
+     *
+     * @param ndisPhysicalMediumType
+     *            the ndisPhysicalMediumType to set
+     */
+    public void setNdisPhysicalMediumType(int ndisPhysicalMediumType) {
+<span class="fc" id="L312">        this.ndisPhysicalMediumType = ndisPhysicalMediumType;</span>
+<span class="fc" id="L313">    }</span>
+
+    /**
+     * (Windows Vista and higher) Set if a connector is present on the network
+     * interface.
+     * &lt;p&gt;
+     * (Linux) Indicates the current physical link state of the interface.
+     *
+     * @return {@code true} if there is a physical network adapter (Windows) or a
+     *         connected cable (Linux), false otherwise
+     */
+    public boolean isConnectorPresent() {
+<span class="fc" id="L325">        return connectorPresent;</span>
+    }
+
+    /**
+     * &lt;p&gt;
+     * Setter for the field &lt;code&gt;connectorPresent&lt;/code&gt;.
+     * &lt;/p&gt;
+     *
+     * @param connectorPresent
+     *            the connectorPresent to set
+     */
+    public void setConnectorPresent(boolean connectorPresent) {
+<span class="fc" id="L337">        this.connectorPresent = connectorPresent;</span>
+<span class="fc" id="L338">    }</span>
 
     /**
      * &lt;p&gt;
@@ -254,7 +349,7 @@ import oshi.util.ParseUtil;
      *         the {@link #updateAttributes()} method
      */
     public long getBytesRecv() {
-<span class="fc" id="L257">        return this.bytesRecv;</span>
+<span class="fc" id="L352">        return this.bytesRecv;</span>
     }
 
     /**
@@ -266,8 +361,8 @@ import oshi.util.ParseUtil;
      *            Set Bytes Received
      */
     public void setBytesRecv(long bytesRecv) {
-<span class="fc" id="L269">        this.bytesRecv = ParseUtil.unsignedLongToSignedLong(bytesRecv);</span>
-<span class="fc" id="L270">    }</span>
+<span class="fc" id="L364">        this.bytesRecv = ParseUtil.unsignedLongToSignedLong(bytesRecv);</span>
+<span class="fc" id="L365">    }</span>
 
     /**
      * &lt;p&gt;
@@ -281,7 +376,7 @@ import oshi.util.ParseUtil;
      *         the {@link #updateAttributes()} method
      */
     public long getBytesSent() {
-<span class="fc" id="L284">        return this.bytesSent;</span>
+<span class="fc" id="L379">        return this.bytesSent;</span>
     }
 
     /**
@@ -293,8 +388,8 @@ import oshi.util.ParseUtil;
      *            Set the Bytes Sent
      */
     public void setBytesSent(long bytesSent) {
-<span class="fc" id="L296">        this.bytesSent = ParseUtil.unsignedLongToSignedLong(bytesSent);</span>
-<span class="fc" id="L297">    }</span>
+<span class="fc" id="L391">        this.bytesSent = ParseUtil.unsignedLongToSignedLong(bytesSent);</span>
+<span class="fc" id="L392">    }</span>
 
     /**
      * &lt;p&gt;
@@ -308,7 +403,7 @@ import oshi.util.ParseUtil;
      *         the {@link #updateAttributes()} method
      */
     public long getPacketsRecv() {
-<span class="fc" id="L311">        return this.packetsRecv;</span>
+<span class="fc" id="L406">        return this.packetsRecv;</span>
     }
 
     /**
@@ -320,8 +415,8 @@ import oshi.util.ParseUtil;
      *            Set The Packets Received
      */
     public void setPacketsRecv(long packetsRecv) {
-<span class="fc" id="L323">        this.packetsRecv = ParseUtil.unsignedLongToSignedLong(packetsRecv);</span>
-<span class="fc" id="L324">    }</span>
+<span class="fc" id="L418">        this.packetsRecv = ParseUtil.unsignedLongToSignedLong(packetsRecv);</span>
+<span class="fc" id="L419">    }</span>
 
     /**
      * &lt;p&gt;
@@ -335,7 +430,7 @@ import oshi.util.ParseUtil;
      *         the {@link #updateAttributes()} method
      */
     public long getPacketsSent() {
-<span class="fc" id="L338">        return this.packetsSent;</span>
+<span class="fc" id="L433">        return this.packetsSent;</span>
     }
 
     /**
@@ -347,8 +442,8 @@ import oshi.util.ParseUtil;
      *            Set The Packets Sent
      */
     public void setPacketsSent(long packetsSent) {
-<span class="fc" id="L350">        this.packetsSent = ParseUtil.unsignedLongToSignedLong(packetsSent);</span>
-<span class="fc" id="L351">    }</span>
+<span class="fc" id="L445">        this.packetsSent = ParseUtil.unsignedLongToSignedLong(packetsSent);</span>
+<span class="fc" id="L446">    }</span>
 
     /**
      * &lt;p&gt;
@@ -362,7 +457,7 @@ import oshi.util.ParseUtil;
      *         the {@link #updateAttributes()} method
      */
     public long getInErrors() {
-<span class="fc" id="L365">        return this.inErrors;</span>
+<span class="fc" id="L460">        return this.inErrors;</span>
     }
 
     /**
@@ -374,8 +469,8 @@ import oshi.util.ParseUtil;
      *            The Input Errors to set.
      */
     public void setInErrors(long inErrors) {
-<span class="fc" id="L377">        this.inErrors = ParseUtil.unsignedLongToSignedLong(inErrors);</span>
-<span class="fc" id="L378">    }</span>
+<span class="fc" id="L472">        this.inErrors = ParseUtil.unsignedLongToSignedLong(inErrors);</span>
+<span class="fc" id="L473">    }</span>
 
     /**
      * &lt;p&gt;
@@ -389,7 +484,7 @@ import oshi.util.ParseUtil;
      *         the {@link #updateAttributes()} method
      */
     public long getOutErrors() {
-<span class="fc" id="L392">        return this.outErrors;</span>
+<span class="fc" id="L487">        return this.outErrors;</span>
     }
 
     /**
@@ -401,8 +496,8 @@ import oshi.util.ParseUtil;
      *            The Output Errors to set.
      */
     public void setOutErrors(long outErrors) {
-<span class="fc" id="L404">        this.outErrors = ParseUtil.unsignedLongToSignedLong(outErrors);</span>
-<span class="fc" id="L405">    }</span>
+<span class="fc" id="L499">        this.outErrors = ParseUtil.unsignedLongToSignedLong(outErrors);</span>
+<span class="fc" id="L500">    }</span>
 
     /**
      * &lt;p&gt;
@@ -417,7 +512,7 @@ import oshi.util.ParseUtil;
      *         the {@link #updateAttributes()} method
      */
     public long getInDrops() {
-<span class="fc" id="L420">        return inDrops;</span>
+<span class="fc" id="L515">        return inDrops;</span>
     }
 
     /**
@@ -429,8 +524,8 @@ import oshi.util.ParseUtil;
      *            The incoming (receive) dropped packets to set.
      */
     public void setInDrops(long inDrops) {
-<span class="fc" id="L432">        this.inDrops = inDrops;</span>
-<span class="fc" id="L433">    }</span>
+<span class="fc" id="L527">        this.inDrops = inDrops;</span>
+<span class="fc" id="L528">    }</span>
 
     /**
      * &lt;p&gt;
@@ -444,7 +539,7 @@ import oshi.util.ParseUtil;
      *         the {@link #updateAttributes()} method
      */
     public long getCollisions() {
-<span class="fc" id="L447">        return collisions;</span>
+<span class="fc" id="L542">        return collisions;</span>
     }
 
     /**
@@ -456,8 +551,8 @@ import oshi.util.ParseUtil;
      *            The collisions to set.
      */
     public void setCollisions(long collisions) {
-<span class="fc" id="L459">        this.collisions = collisions;</span>
-<span class="fc" id="L460">    }</span>
+<span class="fc" id="L554">        this.collisions = collisions;</span>
+<span class="fc" id="L555">    }</span>
 
     /**
      * &lt;p&gt;
@@ -471,7 +566,7 @@ import oshi.util.ParseUtil;
      *         the {@link #updateAttributes()} method
      */
     public long getSpeed() {
-<span class="fc" id="L474">        return this.speed;</span>
+<span class="fc" id="L569">        return this.speed;</span>
     }
 
     /**
@@ -483,8 +578,8 @@ import oshi.util.ParseUtil;
      *            Set the speed of the network interface
      */
     public void setSpeed(long speed) {
-<span class="fc" id="L486">        this.speed = ParseUtil.unsignedLongToSignedLong(speed);</span>
-<span class="fc" id="L487">    }</span>
+<span class="fc" id="L581">        this.speed = ParseUtil.unsignedLongToSignedLong(speed);</span>
+<span class="fc" id="L582">    }</span>
 
     /**
      * &lt;p&gt;
@@ -494,7 +589,7 @@ import oshi.util.ParseUtil;
      * @return Returns the timeStamp.
      */
     public long getTimeStamp() {
-<span class="fc" id="L497">        return this.timeStamp;</span>
+<span class="fc" id="L592">        return this.timeStamp;</span>
     }
 
     /**
@@ -506,8 +601,8 @@ import oshi.util.ParseUtil;
      *            The timeStamp to set.
      */
     public void setTimeStamp(long timeStamp) {
-<span class="fc" id="L509">        this.timeStamp = timeStamp;</span>
-<span class="fc" id="L510">    }</span>
+<span class="fc" id="L604">        this.timeStamp = timeStamp;</span>
+<span class="fc" id="L605">    }</span>
 
     /**
      * Updates interface network statistics on this interface. Statistics include
@@ -516,40 +611,66 @@ import oshi.util.ParseUtil;
      * @return {@code true} if the update was successful, {@code false} otherwise.
      */
     public boolean updateAttributes() {
-<span class="pc bpc" id="L519" title="5 of 6 branches missed.">        switch (SystemInfo.getCurrentPlatformEnum()) {</span>
+<span class="pc bpc" id="L614" title="5 of 6 branches missed.">        switch (SystemInfo.getCurrentPlatformEnum()) {</span>
         case WINDOWS:
-<span class="nc" id="L521">            return WindowsNetworks.updateNetworkStats(this);</span>
+<span class="nc" id="L616">            return WindowsNetworks.updateNetworkStats(this);</span>
         case LINUX:
-<span class="nc" id="L523">            return LinuxNetworks.updateNetworkStats(this);</span>
+<span class="nc" id="L618">            return LinuxNetworks.updateNetworkStats(this);</span>
         case MACOSX:
-<span class="fc" id="L525">            return MacNetworks.updateNetworkStats(this);</span>
+<span class="fc" id="L620">            return MacNetworks.updateNetworkStats(this);</span>
         case SOLARIS:
-<span class="nc" id="L527">            return SolarisNetworks.updateNetworkStats(this);</span>
+<span class="nc" id="L622">            return SolarisNetworks.updateNetworkStats(this);</span>
         case FREEBSD:
-<span class="nc" id="L529">            return FreeBsdNetworks.updateNetworkStats(this);</span>
+<span class="nc" id="L624">            return FreeBsdNetworks.updateNetworkStats(this);</span>
         default:
-<span class="nc" id="L531">            LOG.error(&quot;Unsupported platform. No update performed.&quot;);</span>
-<span class="nc" id="L532">            return false;</span>
+<span class="nc" id="L626">            LOG.error(&quot;Unsupported platform. No update performed.&quot;);</span>
+<span class="nc" id="L627">            return false;</span>
         }
+    }
+
+    /**
+     * Determines if the MAC address on this interface corresponds to a known
+     * Virtual Machine.
+     *
+     * @return {@code true} if the MAC address corresponds to a known virtual
+     *         machine.
+     */
+    public boolean isKnownVmMacAddr() {
+<span class="nc bnc" id="L639" title="All 2 branches missed.">        String oui = getMacaddr().length() &gt; 7 ? getMacaddr().substring(0, 8) : getMacaddr();</span>
+<span class="nc" id="L640">        return this.vmMacAddrProps.get().containsKey(oui.toUpperCase());</span>
+    }
+
+    private static Properties queryVmMacAddrProps() {
+<span class="nc" id="L644">        return FileUtil.readPropertiesFromFilename(OSHI_VM_MAC_ADDR_PROPERTIES);</span>
     }
 
     @Override
     public String toString() {
-<span class="fc" id="L538">        StringBuilder sb = new StringBuilder();</span>
-<span class="fc" id="L539">        sb.append(&quot;Name: &quot;).append(getName()).append(&quot; &quot;).append(&quot;(&quot;).append(getDisplayName()).append(&quot;)&quot;).append(&quot;\n&quot;);</span>
-<span class="fc" id="L540">        sb.append(&quot;  MAC Address: &quot;).append(getMacaddr()).append(&quot;\n&quot;);</span>
-<span class="fc" id="L541">        sb.append(&quot;  MTU: &quot;).append(getMTU()).append(&quot;, &quot;).append(&quot;Speed: &quot;).append(getSpeed()).append(&quot;\n&quot;);</span>
-<span class="fc" id="L542">        sb.append(&quot;  IPv4: &quot;).append(Arrays.toString(getIPv4addr())).append(&quot;\n&quot;);</span>
-<span class="fc" id="L543">        sb.append(&quot;  Netmask:  &quot;).append(Arrays.toString(getSubnetMasks())).append(&quot;\n&quot;);</span>
-<span class="fc" id="L544">        sb.append(&quot;  IPv6: &quot;).append(Arrays.toString(getIPv6addr())).append(&quot;\n&quot;);</span>
-<span class="fc" id="L545">        sb.append(&quot;  Prefix Lengths:  &quot;).append(Arrays.toString(getPrefixLengths())).append(&quot;\n&quot;);</span>
-<span class="fc" id="L546">        sb.append(&quot;  Traffic: received &quot;).append(getPacketsRecv()).append(&quot; packets/&quot;)</span>
-<span class="fc" id="L547">                .append(FormatUtil.formatBytes(getBytesRecv())).append(&quot; (&quot; + getInErrors() + &quot; err, &quot;)</span>
-<span class="fc" id="L548">                .append(getInDrops() + &quot; drop);&quot;);</span>
-<span class="fc" id="L549">        sb.append(&quot; transmitted &quot;).append(getPacketsSent()).append(&quot; packets/&quot;)</span>
-<span class="fc" id="L550">                .append(FormatUtil.formatBytes(getBytesSent())).append(&quot; (&quot; + getOutErrors() + &quot; err, &quot;)</span>
-<span class="fc" id="L551">                .append(getCollisions() + &quot; coll);&quot;);</span>
-<span class="fc" id="L552">        return sb.toString();</span>
+<span class="fc" id="L649">        StringBuilder sb = new StringBuilder();</span>
+<span class="fc" id="L650">        sb.append(&quot;Name: &quot;).append(getName()).append(&quot; &quot;).append(&quot;(&quot;).append(getDisplayName()).append(&quot;)&quot;).append(&quot;\n&quot;);</span>
+<span class="fc" id="L651">        sb.append(&quot;  MAC Address: &quot;).append(getMacaddr()).append(&quot;\n&quot;);</span>
+<span class="fc" id="L652">        sb.append(&quot;  MTU: &quot;).append(getMTU()).append(&quot;, &quot;).append(&quot;Speed: &quot;).append(getSpeed()).append(&quot;\n&quot;);</span>
+<span class="fc" id="L653">        String[] ipv4withmask = getIPv4addr();</span>
+<span class="pc bpc" id="L654" title="1 of 2 branches missed.">        if (this.ipv4.length == this.subnetMasks.length) {</span>
+<span class="fc bfc" id="L655" title="All 2 branches covered.">            for (int i = 0; i &lt; this.subnetMasks.length; i++) {</span>
+<span class="fc" id="L656">                ipv4withmask[i] += &quot;/&quot; + this.subnetMasks[i];</span>
+            }
+        }
+<span class="fc" id="L659">        sb.append(&quot;  IPv4: &quot;).append(Arrays.toString(ipv4withmask)).append(&quot;\n&quot;);</span>
+<span class="fc" id="L660">        String[] ipv6withprefixlength = getIPv6addr();</span>
+<span class="pc bpc" id="L661" title="1 of 2 branches missed.">        if (this.ipv6.length == this.prefixLengths.length) {</span>
+<span class="fc bfc" id="L662" title="All 2 branches covered.">            for (int j = 0; j &lt; this.prefixLengths.length; j++) {</span>
+<span class="fc" id="L663">                ipv6withprefixlength[j] += &quot;/&quot; + this.prefixLengths[j];</span>
+            }
+        }
+<span class="fc" id="L666">        sb.append(&quot;  IPv6: &quot;).append(Arrays.toString(ipv6withprefixlength)).append(&quot;\n&quot;);</span>
+<span class="fc" id="L667">        sb.append(&quot;  Traffic: received &quot;).append(getPacketsRecv()).append(&quot; packets/&quot;)</span>
+<span class="fc" id="L668">                .append(FormatUtil.formatBytes(getBytesRecv())).append(&quot; (&quot; + getInErrors() + &quot; err, &quot;)</span>
+<span class="fc" id="L669">                .append(getInDrops() + &quot; drop);&quot;);</span>
+<span class="fc" id="L670">        sb.append(&quot; transmitted &quot;).append(getPacketsSent()).append(&quot; packets/&quot;)</span>
+<span class="fc" id="L671">                .append(FormatUtil.formatBytes(getBytesSent())).append(&quot; (&quot; + getOutErrors() + &quot; err, &quot;)</span>
+<span class="fc" id="L672">                .append(getCollisions() + &quot; coll);&quot;);</span>
+<span class="fc" id="L673">        return sb.toString();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
