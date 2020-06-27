@@ -31,8 +31,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.sun.jna.platform.unix.solaris.LibKstat.Kstat; // NOSONAR squid:S1191
-
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.linux.proc.ProcessStat;
 import oshi.driver.unix.solaris.Who;
@@ -47,13 +45,11 @@ import oshi.software.os.OSSession;
 import oshi.software.os.unix.solaris.SolarisOSProcess;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
-import oshi.util.platform.unix.solaris.KstatUtil;
-import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
 
 /**
- * Solaris is a non-free Unix operating system originally developed by Sun
- * Microsystems. It superseded the company's earlier SunOS in 1993. In 2010,
- * after the Sun acquisition by Oracle, it was renamed Oracle Solaris.
+ * AIX (Advanced Interactive eXecutive) is a series of proprietary Unix
+ * operating systems developed and sold by IBM for several of its computer
+ * platforms.
  */
 @ThreadSafe
 public class AixOperatingSystem extends AbstractOperatingSystem {
@@ -62,18 +58,21 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public String queryManufacturer() {
-        return "Oracle";
+        return "IBM";
     }
 
     @Override
     public FamilyVersionInfo queryFamilyVersionInfo() {
-        String[] split = ParseUtil.whitespaces.split(ExecutingCommand.getFirstAnswer("uname -rv"));
-        String version = split[0];
-        String buildNumber = null;
-        if (split.length > 1) {
-            buildNumber = split[1];
+        String[] split = ParseUtil.whitespaces.split(ExecutingCommand.getFirstAnswer("uname -srv"));
+        // AIX 1 7
+        String systemName = split[0];
+        String releaseNumber = null;
+        String versionNumber = null;
+        if (split.length > 2) {
+            releaseNumber = split[1];
+            versionNumber = split[2];
         }
-        return new FamilyVersionInfo("SunOS", new OSVersionInfo(version, "Solaris", buildNumber));
+        return new FamilyVersionInfo("AIX", new OSVersionInfo(versionNumber, systemName, releaseNumber));
     }
 
     @Override
@@ -81,12 +80,12 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
         if (jvmBitness == 64) {
             return 64;
         }
-        return ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer("isainfo -b"), 32);
+        return ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer("getconf KERNEL_BITMODE"), 32);
     }
 
     @Override
     protected boolean queryElevated() {
-        return System.getenv("SUDO_COMMAND") != null;
+        return System.getenv("SUDO_COMMAND") != null; // Not sure of this in AIX
     }
 
     @Override
@@ -101,11 +100,14 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public List<OSSession> getSessions() {
+        // Needs updating to AIX version of WHO, should be same as Solaris but check
+        // timeval struct element sizes
         return Collections.unmodifiableList(USE_WHO_COMMAND ? super.getSessions() : Who.queryUtxent());
     }
 
     @Override
     public List<OSProcess> getProcesses(int limit, ProcessSort sort) {
+        // Needs updating for flags on AIX
         List<OSProcess> procs = getProcessListFromPS(
                 "ps -eo s,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etime,time,comm,args", -1);
         List<OSProcess> sorted = processSort(procs, limit, sort);
@@ -114,6 +116,7 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public OSProcess getProcess(int pid) {
+        // Needs updating for flags on AIX
         List<OSProcess> procs = getProcessListFromPS(
                 "ps -o s,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etime,time,comm,args -p ", pid);
         if (procs.isEmpty()) {
@@ -124,6 +127,7 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public List<OSProcess> getChildProcesses(int parentPid, int limit, ProcessSort sort) {
+        // Needs updating for commands/flags on AIX
         // Get list of children
         List<String> childPids = ExecutingCommand.runNative("pgrep -P " + parentPid);
         if (childPids.isEmpty()) {
@@ -163,6 +167,7 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public int getProcessCount() {
+        // This should work as is, but let's create an AIX driver for it
         return ProcessStat.getPidFiles().length;
     }
 
@@ -182,13 +187,9 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
     }
 
     private static long querySystemUptime() {
-        try (KstatChain kc = KstatUtil.openChain()) {
-            Kstat ksp = kc.lookup("unix", 0, "system_misc");
-            if (ksp != null) {
-                // Snap Time is in nanoseconds; divide for seconds
-                return ksp.ks_snaptime / 1_000_000_000L;
-            }
-        }
+        String uptime = ExecutingCommand.getFirstAnswer("uptime");
+        // Need to parse, check ParseUtil
+        // output: 19:50pm up 11 days 10:37, 2 users, load average: 2.00, 2.13, 2.25
         return 0L;
     }
 
@@ -198,13 +199,12 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
     }
 
     private static long querySystemBootTime() {
-        try (KstatChain kc = KstatUtil.openChain()) {
-            Kstat ksp = kc.lookup("unix", 0, "system_misc");
-            if (ksp != null && kc.read(ksp)) {
-                return KstatUtil.dataLookupLong(ksp, "boot_time");
-            }
-        }
-        return System.currentTimeMillis() / 1000L - querySystemUptime();
+        String boottime = ExecutingCommand.getFirstAnswer("who -b");
+        // Need to parse, check the oshi.driver.unix package who command parsing as this
+        // has been done, probably add a parseboottime method to that class
+        // Output:
+        // system boot 2020-06-16 09:12
+        return 0;
     }
 
     @Override
@@ -214,6 +214,7 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public OSService[] getServices() {
+        // Need to update
         List<OSService> services = new ArrayList<>();
         // Get legacy RC service name possibilities
         List<String> legacySvcs = new ArrayList<>();
