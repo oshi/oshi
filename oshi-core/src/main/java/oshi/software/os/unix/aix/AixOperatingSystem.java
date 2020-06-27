@@ -33,7 +33,7 @@ import java.util.List;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.linux.proc.ProcessStat;
-import oshi.driver.unix.solaris.Who;
+import oshi.driver.unix.aix.Who;
 import oshi.jna.platform.unix.aix.AixLibc;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
@@ -41,7 +41,6 @@ import oshi.software.os.InternetProtocolStats;
 import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OSService;
-import oshi.software.os.OSSession;
 import oshi.software.os.unix.solaris.SolarisOSProcess;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
@@ -63,16 +62,18 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public FamilyVersionInfo queryFamilyVersionInfo() {
-        String[] split = ParseUtil.whitespaces.split(ExecutingCommand.getFirstAnswer("uname -srv"));
-        // AIX 1 7
+        String[] split = ParseUtil.whitespaces.split(ExecutingCommand.getFirstAnswer("uname -srvp"));
+        // AIX 1 7 powerpc
         String systemName = split[0];
         String releaseNumber = null;
         String versionNumber = null;
-        if (split.length > 2) {
+        String archName = null;
+        if (split.length > 3) {
             releaseNumber = split[1];
             versionNumber = split[2];
+            archName = split[3];
         }
-        return new FamilyVersionInfo("AIX", new OSVersionInfo(versionNumber, systemName, releaseNumber));
+        return new FamilyVersionInfo(systemName, new OSVersionInfo(versionNumber, archName, releaseNumber));
     }
 
     @Override
@@ -99,15 +100,8 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
     }
 
     @Override
-    public List<OSSession> getSessions() {
-        // Needs updating to AIX version of WHO, should be same as Solaris but check
-        // timeval struct element sizes
-        return Collections.unmodifiableList(USE_WHO_COMMAND ? super.getSessions() : Who.queryUtxent());
-    }
-
-    @Override
     public List<OSProcess> getProcesses(int limit, ProcessSort sort) {
-        // Needs updating for flags on AIX
+        // Needs updating for flags on AIX or to use /proc fs
         List<OSProcess> procs = getProcessListFromPS(
                 "ps -eo s,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etime,time,comm,args", -1);
         List<OSProcess> sorted = processSort(procs, limit, sort);
@@ -116,7 +110,7 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public OSProcess getProcess(int pid) {
-        // Needs updating for flags on AIX
+        // Needs updating for flags on AIX or to use /proc fs
         List<OSProcess> procs = getProcessListFromPS(
                 "ps -o s,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etime,time,comm,args -p ", pid);
         if (procs.isEmpty()) {
@@ -127,7 +121,7 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public List<OSProcess> getChildProcesses(int parentPid, int limit, ProcessSort sort) {
-        // Needs updating for commands/flags on AIX
+        // Needs updating for flags on AIX or to use /proc fs
         // Get list of children
         List<String> childPids = ExecutingCommand.runNative("pgrep -P " + parentPid);
         if (childPids.isEmpty()) {
@@ -142,6 +136,7 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
     }
 
     private static List<OSProcess> getProcessListFromPS(String psCommand, int pid) {
+        // Needs updating for flags on AIX or to use /proc fs
         List<OSProcess> procs = new ArrayList<>();
         List<String> procList = ExecutingCommand.runNative(psCommand + (pid < 0 ? "" : pid));
         if (procList.isEmpty() || procList.size() < 2) {
@@ -173,6 +168,7 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public int getThreadCount() {
+        // Needs updating for flags on AIX or to use /proc fs
         List<String> threadList = ExecutingCommand.runNative("ps -eLo pid");
         if (!threadList.isEmpty()) {
             // Subtract 1 for header
@@ -183,14 +179,7 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public long getSystemUptime() {
-        return querySystemUptime();
-    }
-
-    private static long querySystemUptime() {
-        String uptime = ExecutingCommand.getFirstAnswer("uptime");
-        // Need to parse, check ParseUtil
-        // output: 19:50pm up 11 days 10:37, 2 users, load average: 2.00, 2.13, 2.25
-        return 0L;
+        return (System.currentTimeMillis() - BOOTTIME) / 1000L;
     }
 
     @Override
@@ -199,12 +188,7 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
     }
 
     private static long querySystemBootTime() {
-        String boottime = ExecutingCommand.getFirstAnswer("who -b");
-        // Need to parse, check the oshi.driver.unix package who command parsing as this
-        // has been done, probably add a parseboottime method to that class
-        // Output:
-        // system boot 2020-06-16 09:12
-        return 0;
+        return Who.queryBootTime();
     }
 
     @Override
@@ -214,7 +198,7 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public OSService[] getServices() {
-        // Need to update
+        // Need to update for whatever services AIX uses
         List<OSService> services = new ArrayList<>();
         // Get legacy RC service name possibilities
         List<String> legacySvcs = new ArrayList<>();
