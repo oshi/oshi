@@ -21,38 +21,41 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package oshi;
+package oshi.software.os.unix.aix;
+
+import static com.sun.jna.platform.unix.LibCAPI.HOST_NAME_MAX; // NOSONAR squid:S1191
+
+import com.sun.jna.Native;
+
+import oshi.annotation.concurrent.ThreadSafe;
+import oshi.jna.platform.unix.solaris.SolarisLibc;
+import oshi.software.common.AbstractNetworkParams;
+import oshi.util.ExecutingCommand;
 
 /**
- * Enum of supported operating systems.
+ * SolarisNetworkParams class.
  */
-public enum PlatformEnum {
-    /**
-     * Microsoft Windows
-     */
-    WINDOWS,
-    /**
-     * A flavor of Linux
-     */
-    LINUX,
-    /**
-     * macOS (formerly OS X)
-     */
-    MACOSX,
-    /**
-     * Solaris (SunOS)
-     */
-    SOLARIS,
-    /**
-     * FreeBSD
-     */
-    FREEBSD,
-    /**
-     * IBM AIX
-     */
-    AIX,
-    /**
-     * OpenBSD, WindowsCE, or an unspecified system
-     */
-    UNKNOWN;
+@ThreadSafe
+final class AixNetworkParams extends AbstractNetworkParams {
+
+    private static final SolarisLibc LIBC = SolarisLibc.INSTANCE;
+
+    @Override
+    public String getHostName() {
+        byte[] hostnameBuffer = new byte[HOST_NAME_MAX + 1];
+        if (0 != LIBC.gethostname(hostnameBuffer, hostnameBuffer.length)) {
+            return super.getHostName();
+        }
+        return Native.toString(hostnameBuffer);
+    }
+
+    @Override
+    public String getIpv4DefaultGateway() {
+        return searchGateway(ExecutingCommand.runNative("route get -inet default"));
+    }
+
+    @Override
+    public String getIpv6DefaultGateway() {
+        return searchGateway(ExecutingCommand.runNative("route get -inet6 default"));
+    }
 }

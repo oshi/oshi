@@ -21,38 +21,46 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package oshi;
+package oshi.hardware.platform.unix.aix;
+
+import oshi.annotation.concurrent.Immutable;
+import oshi.hardware.common.AbstractBaseboard;
 
 /**
- * Enum of supported operating systems.
+ * Baseboard data obtained by smbios
  */
-public enum PlatformEnum {
-    /**
-     * Microsoft Windows
-     */
-    WINDOWS,
-    /**
-     * A flavor of Linux
-     */
-    LINUX,
-    /**
-     * macOS (formerly OS X)
-     */
-    MACOSX,
-    /**
-     * Solaris (SunOS)
-     */
-    SOLARIS,
-    /**
-     * FreeBSD
-     */
-    FREEBSD,
-    /**
-     * IBM AIX
-     */
-    AIX,
-    /**
-     * OpenBSD, WindowsCE, or an unspecified system
-     */
-    UNKNOWN;
+@Immutable
+final class AixBaseboard extends AbstractBaseboard {
+
+    private final String manufacturer;
+    private final String model;
+    private final String serialNumber;
+    private final String version;
+
+    AixBaseboard(String manufacturer, String model, String serialNumber, String version) {
+        this.manufacturer = manufacturer;
+        this.model = model;
+        this.serialNumber = serialNumber;
+        this.version = version;
+    }
+
+    @Override
+    public String getManufacturer() {
+        return this.manufacturer;
+    }
+
+    @Override
+    public String getModel() {
+        return this.model;
+    }
+
+    @Override
+    public String getSerialNumber() {
+        return this.serialNumber;
+    }
+
+    @Override
+    public String getVersion() {
+        return this.version;
+    }
 }

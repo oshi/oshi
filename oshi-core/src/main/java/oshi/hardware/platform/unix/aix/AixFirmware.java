@@ -21,38 +21,39 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package oshi;
+package oshi.hardware.platform.unix.aix;
+
+import oshi.annotation.concurrent.Immutable;
+import oshi.hardware.common.AbstractFirmware;
 
 /**
- * Enum of supported operating systems.
+ * Firmware data.
  */
-public enum PlatformEnum {
-    /**
-     * Microsoft Windows
-     */
-    WINDOWS,
-    /**
-     * A flavor of Linux
-     */
-    LINUX,
-    /**
-     * macOS (formerly OS X)
-     */
-    MACOSX,
-    /**
-     * Solaris (SunOS)
-     */
-    SOLARIS,
-    /**
-     * FreeBSD
-     */
-    FREEBSD,
-    /**
-     * IBM AIX
-     */
-    AIX,
-    /**
-     * OpenBSD, WindowsCE, or an unspecified system
-     */
-    UNKNOWN;
+@Immutable
+final class AixFirmware extends AbstractFirmware {
+
+    private final String manufacturer;
+    private final String version;
+    private final String releaseDate;
+
+    AixFirmware(String manufacturer, String version, String releaseDate) {
+        this.manufacturer = manufacturer;
+        this.version = version;
+        this.releaseDate = releaseDate;
+    }
+
+    @Override
+    public String getManufacturer() {
+        return manufacturer;
+    }
+
+    @Override
+    public String getVersion() {
+        return version;
+    }
+
+    @Override
+    public String getReleaseDate() {
+        return releaseDate;
+    }
 }

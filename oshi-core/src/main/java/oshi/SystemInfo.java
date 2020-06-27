@@ -32,12 +32,14 @@ import com.sun.jna.Platform; // NOSONAR squid:S1191
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.platform.linux.LinuxHardwareAbstractionLayer;
 import oshi.hardware.platform.mac.MacHardwareAbstractionLayer;
+import oshi.hardware.platform.unix.aix.AixHardwareAbstractionLayer;
 import oshi.hardware.platform.unix.freebsd.FreeBsdHardwareAbstractionLayer;
 import oshi.hardware.platform.unix.solaris.SolarisHardwareAbstractionLayer;
 import oshi.hardware.platform.windows.WindowsHardwareAbstractionLayer;
 import oshi.software.os.OperatingSystem;
 import oshi.software.os.linux.LinuxOperatingSystem;
 import oshi.software.os.mac.MacOperatingSystem;
+import oshi.software.os.unix.aix.AixOperatingSystem;
 import oshi.software.os.unix.freebsd.FreeBsdOperatingSystem;
 import oshi.software.os.unix.solaris.SolarisOperatingSystem;
 import oshi.software.os.windows.WindowsOperatingSystem;
@@ -66,6 +68,8 @@ public class SystemInfo {
             currentPlatformEnum = PlatformEnum.SOLARIS;
         } else if (Platform.isFreeBSD()) {
             currentPlatformEnum = PlatformEnum.FREEBSD;
+        } else if (Platform.isAIX()) {
+            currentPlatformEnum = PlatformEnum.AIX;
         } else {
             currentPlatformEnum = PlatformEnum.UNKNOWN;
         }
@@ -109,6 +113,8 @@ public class SystemInfo {
             return new SolarisOperatingSystem();
         case FREEBSD:
             return new FreeBsdOperatingSystem();
+        case AIX:
+            return new AixOperatingSystem();
         default:
             throw new UnsupportedOperationException("Operating system not supported: " + Platform.getOSType());
         }
@@ -137,6 +143,8 @@ public class SystemInfo {
             return new SolarisHardwareAbstractionLayer();
         case FREEBSD:
             return new FreeBsdHardwareAbstractionLayer();
+        case AIX:
+            return new AixHardwareAbstractionLayer();
         default:
             throw new UnsupportedOperationException("Operating system not supported: " + Platform.getOSType());
         }
