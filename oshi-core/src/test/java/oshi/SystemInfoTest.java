@@ -88,6 +88,8 @@ public class SystemInfoTest {
      *            the arguments (unused)
      */
     public static void main(String[] args) {
+        boolean SKIP = false;
+
         logger.info("Initializing System...");
         SystemInfo si = new SystemInfo();
 
@@ -99,55 +101,58 @@ public class SystemInfoTest {
         logger.info("Checking computer system...");
         printComputerSystem(hal.getComputerSystem());
 
-        logger.info("Checking Processor...");
-        printProcessor(hal.getProcessor());
+        // Move items out of this conditional as they are implemented!
+        if (SKIP) {
+            logger.info("Checking Processor...");
+            printProcessor(hal.getProcessor());
 
-        logger.info("Checking Memory...");
-        printMemory(hal.getMemory());
+            logger.info("Checking Memory...");
+            printMemory(hal.getMemory());
 
-        logger.info("Checking CPU...");
-        printCpu(hal.getProcessor());
+            logger.info("Checking CPU...");
+            printCpu(hal.getProcessor());
 
-        logger.info("Checking Processes...");
-        printProcesses(os, hal.getMemory());
+            logger.info("Checking Processes...");
+            printProcesses(os, hal.getMemory());
 
-        logger.info("Checking Services...");
-        printServices(os);
+            logger.info("Checking Services...");
+            printServices(os);
 
-        logger.info("Checking Sensors...");
-        printSensors(hal.getSensors());
+            logger.info("Checking Sensors...");
+            printSensors(hal.getSensors());
 
-        logger.info("Checking Power sources...");
-        printPowerSources(hal.getPowerSources());
+            logger.info("Checking Power sources...");
+            printPowerSources(hal.getPowerSources());
 
-        logger.info("Checking Disks...");
-        printDisks(hal.getDiskStores());
+            logger.info("Checking Disks...");
+            printDisks(hal.getDiskStores());
 
-        logger.info("Checking File System...");
-        printFileSystem(os.getFileSystem());
+            logger.info("Checking File System...");
+            printFileSystem(os.getFileSystem());
 
-        logger.info("Checking Network interfaces...");
-        printNetworkInterfaces(hal.getNetworkIFs());
+            logger.info("Checking Network interfaces...");
+            printNetworkInterfaces(hal.getNetworkIFs());
 
-        logger.info("Checking Network parameters...");
-        printNetworkParameters(os.getNetworkParams());
+            logger.info("Checking Network parameters...");
+            printNetworkParameters(os.getNetworkParams());
 
-        logger.info("Checking IP statistics...");
-        printInternetProtocolStats(os.getInternetProtocolStats());
+            logger.info("Checking IP statistics...");
+            printInternetProtocolStats(os.getInternetProtocolStats());
 
-        // hardware: displays
-        logger.info("Checking Displays...");
-        printDisplays(hal.getDisplays());
+            // hardware: displays
+            logger.info("Checking Displays...");
+            printDisplays(hal.getDisplays());
 
-        // hardware: USB devices
-        logger.info("Checking USB Devices...");
-        printUsbDevices(hal.getUsbDevices(true));
+            // hardware: USB devices
+            logger.info("Checking USB Devices...");
+            printUsbDevices(hal.getUsbDevices(true));
 
-        logger.info("Checking Sound Cards...");
-        printSoundCards(hal.getSoundCards());
+            logger.info("Checking Sound Cards...");
+            printSoundCards(hal.getSoundCards());
 
-        logger.info("Checking Graphics Cards...");
-        printGraphicsCards(hal.getGraphicsCards());
+            logger.info("Checking Graphics Cards...");
+            printGraphicsCards(hal.getGraphicsCards());
+        }
 
         StringBuilder output = new StringBuilder();
         for (int i = 0; i < oshi.size(); i++) {
