@@ -25,6 +25,7 @@ package oshi.hardware.platform.unix.aix;
 
 import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.common.AbstractBaseboard;
+import oshi.util.Constants;
 
 /**
  * Baseboard data obtained by smbios
@@ -37,11 +38,11 @@ final class AixBaseboard extends AbstractBaseboard {
     private final String serialNumber;
     private final String version;
 
-    AixBaseboard(String manufacturer, String model, String serialNumber, String version) {
-        this.manufacturer = manufacturer;
-        this.model = model;
-        this.serialNumber = serialNumber;
-        this.version = version;
+    AixBaseboard() {
+        this.manufacturer = Constants.UNKNOWN;
+        this.model = Constants.UNKNOWN;
+        this.serialNumber = Constants.UNKNOWN;
+        this.version = Constants.UNKNOWN;
     }
 
     @Override

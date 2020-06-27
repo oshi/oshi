@@ -62,17 +62,15 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public FamilyVersionInfo queryFamilyVersionInfo() {
-        String[] split = ParseUtil.whitespaces.split(ExecutingCommand.getFirstAnswer("uname -srvp"));
-        // AIX 1 7 powerpc
+        String[] split = ParseUtil.whitespaces.split(ExecutingCommand.getFirstAnswer("uname -sp"));
+        // AIX powerpc
         String systemName = split[0];
-        String releaseNumber = null;
-        String versionNumber = null;
         String archName = null;
-        if (split.length > 3) {
-            releaseNumber = split[1];
-            versionNumber = split[2];
-            archName = split[3];
+        if (split.length > 1) {
+            archName = split[1];
         }
+        String versionNumber = ExecutingCommand.getFirstAnswer("oslevel");
+        String releaseNumber = ExecutingCommand.getFirstAnswer("oslevel -s");
         return new FamilyVersionInfo(systemName, new OSVersionInfo(versionNumber, archName, releaseNumber));
     }
 
