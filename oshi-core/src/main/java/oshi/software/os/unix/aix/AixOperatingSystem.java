@@ -179,7 +179,7 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public long getSystemUptime() {
-        return (System.currentTimeMillis() - BOOTTIME) / 1000L;
+        return System.currentTimeMillis() / 1000L - BOOTTIME;
     }
 
     @Override
@@ -188,7 +188,7 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
     }
 
     private static long querySystemBootTime() {
-        return Who.queryBootTime();
+        return Who.queryBootTime() / 1000L;
     }
 
     @Override
