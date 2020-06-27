@@ -61,7 +61,8 @@ final class AixComputerSystem extends AbstractComputerSystem {
 
     @Override
     public Firmware createFirmware() {
-        return new AixFirmware(lsattrStrings.get().biosVendor, lsattrStrings.get().biosVersion, Constants.UNKNOWN);
+        return new AixFirmware(lsattrStrings.get().biosVendor, lsattrStrings.get().biosPlatformVersion,
+                lsattrStrings.get().biosVersion);
     }
 
     @Override
@@ -75,6 +76,7 @@ final class AixComputerSystem extends AbstractComputerSystem {
     private static LsattrStrings readLsattr() {
         String fwVendor = "IBM";
         String fwVersion = null;
+        String fwPlatformVersion = null;
 
         String manufacturer = fwVendor;
         String model = null;
@@ -91,6 +93,7 @@ final class AixComputerSystem extends AbstractComputerSystem {
         final String fwVersionMarker = "fwversion";
         final String modelMarker = "modelname";
         final String systemIdMarker = "systemid";
+        final String fwPlatformVersionMarker = "Platform Firmware level is";
 
         for (final String checkLine : ExecutingCommand.runNative("lsattr -El sys0")) {
             if (checkLine.startsWith(fwVersionMarker)) {
@@ -114,20 +117,32 @@ final class AixComputerSystem extends AbstractComputerSystem {
                 serialNumber = ParseUtil.whitespaces.split(serialNumber)[0];
             }
         }
-        return new LsattrStrings(fwVendor, fwVersion, manufacturer, model, serialNumber);
+        for (final String checkLine : ExecutingCommand.runNative("lsmcode -c")) {
+            /*-
+             Platform Firmware level is 3F080425
+             System Firmware level is RG080425_d79e22_regatta
+             */
+            if (checkLine.startsWith(fwPlatformVersionMarker)) {
+                fwPlatformVersion = checkLine.split(fwPlatformVersionMarker)[1].trim();
+                break;
+            }
+        }
+        return new LsattrStrings(fwVendor, fwPlatformVersion, fwVersion, manufacturer, model, serialNumber);
     }
 
     private static final class LsattrStrings {
         private final String biosVendor;
+        private final String biosPlatformVersion;
         private final String biosVersion;
 
         private final String manufacturer;
         private final String model;
         private final String serialNumber;
 
-        private LsattrStrings(String biosVendor, String biosVersion, String manufacturer, String model,
-                String serialNumber) {
+        private LsattrStrings(String biosVendor, String biosPlatformVersion, String biosVersion, String manufacturer,
+                String model, String serialNumber) {
             this.biosVendor = Util.isBlank(biosVendor) ? Constants.UNKNOWN : biosVendor;
+            this.biosPlatformVersion = Util.isBlank(biosPlatformVersion) ? Constants.UNKNOWN : biosPlatformVersion;
             this.biosVersion = Util.isBlank(biosVersion) ? Constants.UNKNOWN : biosVersion;
 
             this.manufacturer = Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer;

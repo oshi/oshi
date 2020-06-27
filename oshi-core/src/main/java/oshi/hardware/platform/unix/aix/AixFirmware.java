@@ -33,13 +33,13 @@ import oshi.hardware.common.AbstractFirmware;
 final class AixFirmware extends AbstractFirmware {
 
     private final String manufacturer;
+    private final String name;
     private final String version;
-    private final String releaseDate;
 
-    AixFirmware(String manufacturer, String version, String releaseDate) {
+    AixFirmware(String manufacturer, String name, String version) {
         this.manufacturer = manufacturer;
+        this.name = name;
         this.version = version;
-        this.releaseDate = releaseDate;
     }
 
     @Override
@@ -48,12 +48,12 @@ final class AixFirmware extends AbstractFirmware {
     }
 
     @Override
-    public String getVersion() {
-        return version;
+    public String getName() {
+        return name;
     }
 
     @Override
-    public String getReleaseDate() {
-        return releaseDate;
+    public String getVersion() {
+        return version;
     }
 }
