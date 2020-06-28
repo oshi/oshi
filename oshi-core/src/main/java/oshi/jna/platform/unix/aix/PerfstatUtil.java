@@ -27,9 +27,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.sun.jna.Function;
 import com.sun.jna.Library; // NOSONAR squid:S1191
-import com.sun.jna.Native;
-import com.sun.jna.Pointer;
+import com.sun.jna.NativeLibrary;
 
 /**
  * The perfstat API uses the perfstat kernel extension to extract various AIX®
@@ -40,18 +40,27 @@ import com.sun.jna.Pointer;
  *
  * The perfstat API is thread–safe, and does not require root authority.
  */
-public interface Perfstat extends Library {
-    Map<String, Object> PERFSTAT_OPTIONS = Collections.unmodifiableMap(new HashMap<String, Object>() {
-        private static final long serialVersionUID = 1L;
-        int RTLD_MEMBER = 0x00040000;
-        int RTLD_GLOBAL = 0x00010000;
-        int RTLD_LAZY = 0x00000004;
-        {
-            put(Library.OPTION_OPEN_FLAGS, RTLD_MEMBER | RTLD_GLOBAL | RTLD_LAZY);
-        }
-    });
+public class PerfstatUtil {
+    private static final int RTLD_MEMBER = 0x00040000;
+    private static final int RTLD_GLOBAL = 0x00010000;
+    private static final int RTLD_LAZY = 0x00000004;
+    private static final Map<String, Object> PERFSTAT_OPTIONS;
+    static {
+        HashMap<String, Object> options = new HashMap<String, Object>();
+        options.put(Library.OPTION_OPEN_FLAGS, RTLD_MEMBER | RTLD_GLOBAL | RTLD_LAZY);
+        PERFSTAT_OPTIONS = Collections.unmodifiableMap(options);
+    }
 
-    Perfstat INSTANCE = Native.load("/usr/lib/libperfstat.a(shr.o)", Perfstat.class, PERFSTAT_OPTIONS);
+    private static final NativeLibrary PERF = NativeLibrary.getInstance("/usr/lib/libperfstat.a(shr.o)",
+            PERFSTAT_OPTIONS);
 
-    int perfstat_cpu(Pointer p, Pointer q, int size, int retCount);
+    public static int perfstat_cpu() {
+        Function perfstat_cpu = PERF.getFunction("perfstat_cpu", Function.THROW_LAST_ERROR);
+        Object[] params = new Object[4];
+        params[0] = null;
+        params[1] = null;
+        params[2] = 1024;
+        params[3] = 0;
+        return perfstat_cpu.invokeInt(params);
+    }
 }

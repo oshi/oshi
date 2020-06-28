@@ -30,9 +30,9 @@ package oshi.jna.platform.unix.aix;
 public class PerfstatTest {
 
     public static void main(String[] args) {
-        Perfstat PERF = Perfstat.INSTANCE;
 
-        PERF.perfstat_cpu(null, null, 1024, 0);
+        int cpu = PerfstatUtil.perfstat_cpu();
+        System.out.println("CPU=" + cpu);
     }
 
 }
