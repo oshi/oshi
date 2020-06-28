@@ -23,12 +23,13 @@
  */
 package oshi.software.os.unix.aix;
 
-import static oshi.software.os.OSProcess.State.OTHER;
+import static oshi.software.os.OSProcess.State.INVALID;
 import static oshi.software.os.OSProcess.State.RUNNING;
-import static oshi.software.os.OSProcess.State.SLEEPING;
-import static oshi.software.os.OSProcess.State.STOPPED;
+import static oshi.software.os.OSProcess.State.NEW;
 import static oshi.software.os.OSProcess.State.WAITING;
-import static oshi.software.os.OSProcess.State.ZOMBIE;
+import static oshi.software.os.OSProcess.State.CANCELED;
+import static oshi.software.os.OSProcess.State.STOPPED;
+import static oshi.software.os.OSProcess.State.OTHER;
 import static oshi.util.Memoizer.memoize;
 
 import java.util.Collections;
@@ -69,6 +70,7 @@ public class AixOSProcess extends AbstractOSProcess {
     private long upTime;
     private long bytesRead;
     private long bytesWritten;
+    private long majorFaults;
 
     public AixOSProcess(int pid, String[] split) {
         super(pid);
@@ -246,6 +248,11 @@ public class AixOSProcess extends AbstractOSProcess {
     }
 
     @Override
+    public long getMajorFaults() {
+        return this.majorFaults;
+    }
+
+    @Override
     public boolean updateAttributes() {
         List<String> procList = ExecutingCommand.runNative(
                 "ps -o s,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etime,time,comm,args -p " + getProcessID());
@@ -282,7 +289,7 @@ public class AixOSProcess extends AbstractOSProcess {
         this.path = split[13];
         this.name = this.path.substring(this.path.lastIndexOf('/') + 1);
         this.commandLine = split[14];
-
+        this.majorFaults = ParseUtil.parseLongOrDefault(split[15], 0L);
         return true;
     }
 
@@ -349,17 +356,19 @@ public class AixOSProcess extends AbstractOSProcess {
         State state;
         switch (stateValue) {
         case 'O':
+            state = INVALID;
+            break;
+        case 'A':
             state = RUNNING;
             break;
-        case 'S':
-            state = SLEEPING;
+        case 'I':
+            state = NEW;
             break;
-        case 'R':
         case 'W':
-            state = WAITING;
+            state = WAITING; //need confirmation on this
             break;
         case 'Z':
-            state = ZOMBIE;
+            state = CANCELED;
             break;
         case 'T':
             state = STOPPED;
