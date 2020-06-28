@@ -99,18 +99,16 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public List<OSProcess> getProcesses(int limit, ProcessSort sort) {
-        // Needs updating for flags on AIX or to use /proc fs
         List<OSProcess> procs = getProcessListFromPS(
-                "ps -eo s,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etime,time,comm,args", -1);
+                "ps -e -o st,pid,ppid,user,uid,group,gid,thcount,pri,vsize,rssize,etime,time,args,comm,pagein", -1);
         List<OSProcess> sorted = processSort(procs, limit, sort);
         return Collections.unmodifiableList(sorted);
     }
 
     @Override
     public OSProcess getProcess(int pid) {
-        // Needs updating for flags on AIX or to use /proc fs
         List<OSProcess> procs = getProcessListFromPS(
-                "ps -o s,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etime,time,comm,args -p ", pid);
+                "ps -o st,pid,ppid,user,uid,group,gid,thcount,pri,vsize,rssize,etime,time,args,comm,pagein -p ", pid);
         if (procs.isEmpty()) {
             return null;
         }
@@ -134,7 +132,6 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
     }
 
     private static List<OSProcess> getProcessListFromPS(String psCommand, int pid) {
-        // Needs updating for flags on AIX or to use /proc fs
         List<OSProcess> procs = new ArrayList<>();
         List<String> procList = ExecutingCommand.runNative(psCommand + (pid < 0 ? "" : pid));
         if (procList.isEmpty() || procList.size() < 2) {
@@ -144,10 +141,10 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
         procList.remove(0);
         // Fill list
         for (String proc : procList) {
-            String[] split = ParseUtil.whitespaces.split(proc.trim(), 15);
+            String[] split = ParseUtil.whitespaces.split(proc.trim(), 16);
             // Elements should match ps command order
-            if (split.length == 15) {
-                procs.add(new SolarisOSProcess(pid < 0 ? ParseUtil.parseIntOrDefault(split[1], 0) : pid, split));
+            if (split.length == 16) {
+                procs.add(new AixOSProcess(pid < 0 ? ParseUtil.parseIntOrDefault(split[1], 0) : pid, split));
             }
         }
         return procs;

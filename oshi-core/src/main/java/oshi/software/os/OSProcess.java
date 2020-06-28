@@ -433,6 +433,8 @@ public interface OSProcess {
          * The state resulting if the process fails to update statistics, probably due
          * to termination.
          */
-        INVALID
+        INVALID,
+
+        CANCELED
     }
 }
