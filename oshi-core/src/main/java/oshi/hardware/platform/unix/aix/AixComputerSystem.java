@@ -70,9 +70,6 @@ final class AixComputerSystem extends AbstractComputerSystem {
         return new AixBaseboard();
     }
 
-    /**
-     * @return
-     */
     private static LsattrStrings readLsattr() {
         String fwVendor = "IBM";
         String fwVersion = null;
