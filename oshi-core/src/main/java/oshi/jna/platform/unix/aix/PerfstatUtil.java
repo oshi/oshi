@@ -27,8 +27,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.sun.jna.Function;
-import com.sun.jna.Library; // NOSONAR squid:S1191
+import com.sun.jna.Function; // NOSONAR squid:S1191
+import com.sun.jna.Library;
 import com.sun.jna.NativeLibrary;
 
 /**
@@ -41,9 +41,9 @@ import com.sun.jna.NativeLibrary;
  * The perfstat API is thread–safe, and does not require root authority.
  */
 public class PerfstatUtil {
-    private static final int RTLD_MEMBER = 0x00040000;
-    private static final int RTLD_GLOBAL = 0x00010000;
-    private static final int RTLD_LAZY = 0x00000004;
+    private static final int RTLD_MEMBER = 0x40000;
+    private static final int RTLD_GLOBAL = 0x0100;
+    private static final int RTLD_LAZY = 0x1;
     private static final Map<String, Object> PERFSTAT_OPTIONS;
     static {
         HashMap<String, Object> options = new HashMap<String, Object>();
@@ -57,10 +57,10 @@ public class PerfstatUtil {
     public static int perfstat_cpu() {
         Function perfstat_cpu = PERF.getFunction("perfstat_cpu", Function.THROW_LAST_ERROR);
         Object[] params = new Object[4];
-        params[0] = null;
-        params[1] = null;
-        params[2] = 1024;
-        params[3] = 0;
+        params[0] = null; // name, ignored
+        params[1] = null; // perfstat_cpu_t
+        params[2] = 1024; // size of perfstat_cpu_t TBD
+        params[3] = 0; // or 1, ignored
         return perfstat_cpu.invokeInt(params);
     }
 }
