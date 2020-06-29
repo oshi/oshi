@@ -65,8 +65,8 @@ public final class AixNetworkIF extends AbstractNetworkIF {
      *         the interfaces
      */
     public static List<NetworkIF> getNetworks() {
-        return Collections.unmodifiableList(
-                getNetworkInterfaces().stream().map(AixNetworkIF::new).collect(Collectors.toList()));
+        return Collections
+                .unmodifiableList(getNetworkInterfaces().stream().map(AixNetworkIF::new).collect(Collectors.toList()));
     }
 
     @Override

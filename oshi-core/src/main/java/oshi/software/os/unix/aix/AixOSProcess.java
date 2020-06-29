@@ -365,7 +365,7 @@ public class AixOSProcess extends AbstractOSProcess {
             state = NEW;
             break;
         case 'W':
-            state = WAITING; //need confirmation on this
+            state = WAITING; // need confirmation on this
             break;
         case 'Z':
             state = CANCELED;

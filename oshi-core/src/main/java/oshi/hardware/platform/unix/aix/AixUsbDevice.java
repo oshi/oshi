@@ -64,9 +64,9 @@ public class AixUsbDevice extends AbstractUsbDevice {
         // Top level is controllers; they won't be added to the list, but all
         // their connected devices will be
         for (UsbDevice device : devices) {
-            deviceList.add(new AixUsbDevice(device.getName(), device.getVendor(), device.getVendorId(),
-                    device.getProductId(), device.getSerialNumber(), device.getUniqueDeviceId(),
-                    Collections.emptyList()));
+            deviceList.add(
+                    new AixUsbDevice(device.getName(), device.getVendor(), device.getVendorId(), device.getProductId(),
+                            device.getSerialNumber(), device.getUniqueDeviceId(), Collections.emptyList()));
             addDevicesToList(deviceList, device.getConnectedDevices());
         }
         return deviceList;
@@ -187,7 +187,7 @@ public class AixUsbDevice extends AbstractUsbDevice {
             usbDevices.add(getDeviceAndChildren(path, vendorId, productId, nameMap, vendorIdMap, productIdMap, hubMap));
         }
         Collections.sort(usbDevices);
-        return new AixUsbDevice(nameMap.getOrDefault(devPath, vendorId + ":" + productId), "", vendorId, productId,
-                "", devPath, usbDevices);
+        return new AixUsbDevice(nameMap.getOrDefault(devPath, vendorId + ":" + productId), "", vendorId, productId, "",
+                devPath, usbDevices);
     }
 }

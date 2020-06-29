@@ -52,8 +52,7 @@ final class AixVirtualMemory extends AbstractVirtualMemory {
             defaultExpiration());
 
     // Swap
-    private final Supplier<Pair<Long, Long>> usedTotal = memoize(AixVirtualMemory::querySwapInfo,
-            defaultExpiration());
+    private final Supplier<Pair<Long, Long>> usedTotal = memoize(AixVirtualMemory::querySwapInfo, defaultExpiration());
 
     private final Supplier<Long> pagesIn = memoize(AixVirtualMemory::queryPagesIn, defaultExpiration());
 

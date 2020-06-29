@@ -158,8 +158,8 @@ public final class AixHWDiskStore extends AbstractHWDiskStore {
 
     private static AixHWDiskStore createStore(String diskName, String model, String vendor, String product,
             String serial, long size, String mount, int major) {
-        AixHWDiskStore store = new AixHWDiskStore(diskName,
-                model.isEmpty() ? (vendor + " " + product).trim() : model, serial, size);
+        AixHWDiskStore store = new AixHWDiskStore(diskName, model.isEmpty() ? (vendor + " " + product).trim() : model,
+                serial, size);
         store.partitionList = Collections.unmodifiableList(Prtvtoc.queryPartitions(mount, major).stream()
                 .sorted(Comparator.comparing(HWPartition::getName)).collect(Collectors.toList()));
         store.updateAttributes();
