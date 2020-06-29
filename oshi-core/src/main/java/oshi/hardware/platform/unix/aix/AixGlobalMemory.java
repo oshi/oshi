@@ -26,10 +26,10 @@ package oshi.hardware.platform.unix.aix;
 import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
 
+import java.util.List;
 import java.util.function.Supplier;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.driver.unix.solaris.kstat.SystemPages;
 import oshi.hardware.VirtualMemory;
 import oshi.hardware.common.AbstractGlobalMemory;
 import oshi.util.ExecutingCommand;
@@ -37,12 +37,13 @@ import oshi.util.ParseUtil;
 import oshi.util.tuples.Pair;
 
 /**
- * Memory obtained by kstat
+ * Memory obtained by perfstat_memory_t
  */
 @ThreadSafe
 final class AixGlobalMemory extends AbstractGlobalMemory {
 
-    private final Supplier<Pair<Long, Long>> availTotal = memoize(SystemPages::queryAvailableTotal,
+    private final Supplier<Pair<Long, Long>> availTotal = memoize(
+            AixGlobalMemory::queryAvailableTotal,
             defaultExpiration());
 
     private final Supplier<Long> pageSize = memoize(AixGlobalMemory::queryPageSize);
@@ -71,6 +72,20 @@ final class AixGlobalMemory extends AbstractGlobalMemory {
 
     private static long queryPageSize() {
         return ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer("pagesize"), 4096L);
+    }
+
+    // Temporary command line, switch to perfstat_memory_t
+    private static Pair<Long, Long> queryAvailableTotal() {
+        long avail = 0;
+        long total = 2048 * 1024 * 1024;
+        List<String> vmstat = ExecutingCommand.runNative("vmstat");
+        for (String s : vmstat) {
+            int memIdx = s.indexOf("mem=");
+            if (memIdx > 0) {
+                total = ParseUtil.parseDecimalMemorySizeToBinary(s.substring(memIdx + 4));
+            }
+        }
+        return new Pair<>(avail, total);
     }
 
     private VirtualMemory createVirtualMemory() {
