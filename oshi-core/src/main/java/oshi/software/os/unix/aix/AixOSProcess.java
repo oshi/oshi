@@ -25,9 +25,9 @@ package oshi.software.os.unix.aix;
 
 import static oshi.software.os.OSProcess.State.INVALID;
 import static oshi.software.os.OSProcess.State.RUNNING;
-import static oshi.software.os.OSProcess.State.NEW;
 import static oshi.software.os.OSProcess.State.WAITING;
-import static oshi.software.os.OSProcess.State.CANCELED;
+import static oshi.software.os.OSProcess.State.SLEEPING;
+import static oshi.software.os.OSProcess.State.ZOMBIE;
 import static oshi.software.os.OSProcess.State.STOPPED;
 import static oshi.software.os.OSProcess.State.OTHER;
 import static oshi.util.Memoizer.memoize;
@@ -286,10 +286,10 @@ public class AixOSProcess extends AbstractOSProcess {
         this.startTime = now - this.upTime;
         this.kernelTime = 0L;
         this.userTime = ParseUtil.parseDHMSOrDefault(split[12], 0L);
-        this.path = split[13];
+        this.commandLine = split[13];
+        this.majorFaults = ParseUtil.parseLongOrDefault(split[14], 0L);
+        this.path = split[15];
         this.name = this.path.substring(this.path.lastIndexOf('/') + 1);
-        this.commandLine = split[14];
-        this.majorFaults = ParseUtil.parseLongOrDefault(split[15], 0L);
         return true;
     }
 
@@ -362,13 +362,13 @@ public class AixOSProcess extends AbstractOSProcess {
             state = RUNNING;
             break;
         case 'I':
-            state = NEW;
+            state = WAITING;
             break;
         case 'W':
-            state = WAITING; // need confirmation on this
+            state = SLEEPING;
             break;
         case 'Z':
-            state = CANCELED;
+            state = ZOMBIE;
             break;
         case 'T':
             state = STOPPED;
