@@ -23,21 +23,23 @@
  */
 package oshi.hardware.platform.unix.aix;
 
+import static oshi.util.Memoizer.defaultExpiration;
+import static oshi.util.Memoizer.memoize;
+
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
-import com.sun.jna.platform.unix.solaris.LibKstat.Kstat; // NOSONAR
+import java.util.function.Supplier;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.unix.aix.perfstat.PerfstatCpu;
 import oshi.hardware.common.AbstractCentralProcessor;
-import oshi.jna.platform.unix.solaris.SolarisLibc;
+import oshi.jna.platform.unix.aix.AixLibc;
+import oshi.jna.platform.unix.aix.Perfstat.perfstat_cpu_t;
+import oshi.jna.platform.unix.aix.Perfstat.perfstat_cpu_total_t;
+import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
-import oshi.util.platform.unix.solaris.KstatUtil;
-import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
 
 /**
  * A CPU
@@ -45,50 +47,69 @@ import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
 @ThreadSafe
 final class AixCentralProcessor extends AbstractCentralProcessor {
 
-    private static final String CPU_INFO = "cpu_info";
+    private final Supplier<perfstat_cpu_total_t> cpuTotal = memoize(PerfstatCpu::queryCpuTotal, defaultExpiration());
+    private final Supplier<perfstat_cpu_t[]> cpuProc = memoize(PerfstatCpu::queryCpu, defaultExpiration());
 
     @Override
     protected ProcessorIdentifier queryProcessorId() {
-        String cpuVendor = "";
+        String cpuVendor = Constants.UNKNOWN;
         String cpuName = "";
         String cpuFamily = "";
-        String cpuModel = "";
-        String cpuStepping = "";
+        boolean cpu64bit = false;
 
-        // Get first result
-        try (KstatChain kc = KstatUtil.openChain()) {
-            Kstat ksp = kc.lookup(CPU_INFO, -1, null);
-            // Set values
-            if (ksp != null && kc.read(ksp)) {
-                cpuVendor = KstatUtil.dataLookupString(ksp, "vendor_id");
-                cpuName = KstatUtil.dataLookupString(ksp, "brand");
-                cpuFamily = KstatUtil.dataLookupString(ksp, "family");
-                cpuModel = KstatUtil.dataLookupString(ksp, "model");
-                cpuStepping = KstatUtil.dataLookupString(ksp, "stepping");
+        final String nameMarker = "Processor Type:";
+        final String familyMarker = "Processor Version:";
+        final String bitnessMarker = "CPU Type:";
+        for (final String checkLine : ExecutingCommand.runNative("prtconf")) {
+            if (checkLine.startsWith(nameMarker)) {
+                cpuName = checkLine.split(nameMarker)[1].trim();
+                if (cpuName.startsWith("P")) {
+                    cpuVendor = "IBM";
+                } else if (cpuName.startsWith("I")) {
+                    cpuVendor = "Intel";
+                }
+            } else if (checkLine.startsWith(familyMarker)) {
+                cpuFamily = checkLine.split(familyMarker)[1].trim();
+            } else if (checkLine.startsWith(bitnessMarker)) {
+                cpu64bit = checkLine.split(bitnessMarker)[1].contains("64");
             }
         }
-        boolean cpu64bit = "64".equals(ExecutingCommand.getFirstAnswer("isainfo -b").trim());
-        String processorID = getProcessorID(cpuStepping, cpuModel, cpuFamily);
 
-        return new ProcessorIdentifier(cpuVendor, cpuName, cpuFamily, cpuModel, cpuStepping, processorID, cpu64bit);
+        String cpuModel = "";
+        String cpuStepping = "";
+        String machineId = ExecutingCommand.getFirstAnswer("uname -m").trim();
+        // last 4 characters are model ID (often 4C) and submodel (always 00)
+        if (machineId.length() == 12) {
+            cpuModel = machineId.substring(8, 10);
+            cpuStepping = machineId.substring(10);
+        }
+
+        return new ProcessorIdentifier(cpuVendor, cpuName, cpuFamily, cpuModel, cpuStepping, machineId, cpu64bit,
+                queryVendorFreq());
     }
 
     @Override
     protected List<LogicalProcessor> initProcessorCounts() {
-        Map<Integer, Integer> numaNodeMap = mapNumaNodes();
+        // lparstat -i
+        // Active Physical CPUs in system : 1
+        String physProcMarker = "Active Physical CPUs in system";
+        int physProcs = 1;
+        for (final String checkLine : ExecutingCommand.runNative("lparstat -i")) {
+            if (checkLine.startsWith(physProcMarker)) {
+                physProcs = ParseUtil.parseLastInt(checkLine, 1);
+                break;
+            }
+        }
+        // bindprocessor -q
+        // The available processors are: 0 1 2 3
         List<LogicalProcessor> logProcs = new ArrayList<>();
-        try (KstatChain kc = KstatUtil.openChain()) {
-            List<Kstat> kstats = kc.lookupAll(CPU_INFO, -1, null);
-
-            for (Kstat ksp : kstats) {
-                if (ksp != null && kc.read(ksp)) {
-                    int procId = logProcs.size(); // 0-indexed
-                    String chipId = KstatUtil.dataLookupString(ksp, "chip_id");
-                    String coreId = KstatUtil.dataLookupString(ksp, "core_id");
-                    LogicalProcessor logProc = new LogicalProcessor(procId, ParseUtil.parseIntOrDefault(coreId, 0),
-                            ParseUtil.parseIntOrDefault(chipId, 0), numaNodeMap.getOrDefault(procId, 0));
-                    logProcs.add(logProc);
-                }
+        String bindprocessor = ExecutingCommand.getFirstAnswer("bindprocessor -q");
+        int zeroIdx = bindprocessor.indexOf("0");
+        if (zeroIdx > 0) {
+            String[] split = ParseUtil.whitespaces.split(bindprocessor.substring(zeroIdx));
+            for (int i = 0; i < split.length; i++) {
+                int procId = ParseUtil.parseIntOrDefault(split[i], i);
+                logProcs.add(new LogicalProcessor(procId, procId / physProcs, 0));
             }
         }
         if (logProcs.isEmpty()) {
@@ -97,53 +118,39 @@ final class AixCentralProcessor extends AbstractCentralProcessor {
         return logProcs;
     }
 
-    private static Map<Integer, Integer> mapNumaNodes() {
-        // Get numa node info from lgrpinfo
-        Map<Integer, Integer> numaNodeMap = new HashMap<>();
-        int lgroup = 0;
-        for (String line : ExecutingCommand.runNative("lgrpinfo -c leaves")) {
-            // Format:
-            // lgroup 0 (root):
-            // CPUs: 0 1
-            // CPUs: 0-7
-            // CPUs: 0-3 6 7 12 13
-            // CPU: 0
-            // CPU: 1
-            if (line.startsWith("lgroup")) {
-                lgroup = ParseUtil.getFirstIntValue(line);
-            } else if (line.contains("CPUs:") || line.contains("CPU:")) {
-                for (Integer cpu : ParseUtil.parseHyphenatedIntList(line.split(":")[1])) {
-                    numaNodeMap.put(cpu, lgroup);
-                }
-            }
-        }
-        return numaNodeMap;
-    }
-
     @Override
     public long[] querySystemCpuLoadTicks() {
+        perfstat_cpu_total_t perfstat = cpuTotal.get();
         long[] ticks = new long[TickType.values().length];
-        // Average processor ticks
-        long[][] procTicks = getProcessorCpuLoadTicks();
-        for (int i = 0; i < ticks.length; i++) {
-            for (long[] procTick : procTicks) {
-                ticks[i] += procTick[i];
-            }
-            ticks[i] /= procTicks.length;
-        }
+        ticks[TickType.USER.ordinal()] = perfstat.user;
+        // Skip NICE
+        ticks[TickType.SYSTEM.ordinal()] = perfstat.sys;
+        ticks[TickType.IDLE.ordinal()] = perfstat.idle;
+        ticks[TickType.IOWAIT.ordinal()] = perfstat.wait;
+        ticks[TickType.IRQ.ordinal()] = perfstat.devintrs;
+        ticks[TickType.SOFTIRQ.ordinal()] = perfstat.softintrs;
+        ticks[TickType.STEAL.ordinal()] = perfstat.idle_stolen_purr + perfstat.busy_stolen_purr;
         return ticks;
     }
 
     @Override
     public long[] queryCurrentFreq() {
+        // $ pmcycles -m
+        // CPU 0 runs at 4204 MHz
+        // CPU 1 runs at 4204 MHz
+        //
+        // ~/git/oshi$ pmcycles -m
+        // This machine runs at 1000 MHz
+
         long[] freqs = new long[getLogicalProcessorCount()];
         Arrays.fill(freqs, -1);
-        try (KstatChain kc = KstatUtil.openChain()) {
-            for (int i = 0; i < freqs.length; i++) {
-                for (Kstat ksp : kc.lookupAll(CPU_INFO, i, null)) {
-                    if (kc.read(ksp)) {
-                        freqs[i] = KstatUtil.dataLookupLong(ksp, "current_clock_Hz");
-                    }
+        String freqMarker = "runs at";
+        int idx = 0;
+        for (final String checkLine : ExecutingCommand.runNative("pmcycles -m")) {
+            if (checkLine.contains(freqMarker)) {
+                freqs[idx++] = ParseUtil.parseHertz(checkLine.split(freqMarker)[1].trim());
+                if (idx >= freqs.length) {
+                    break;
                 }
             }
         }
@@ -151,24 +158,20 @@ final class AixCentralProcessor extends AbstractCentralProcessor {
     }
 
     @Override
-    public long queryMaxFreq() {
-        long max = -1L;
-        try (KstatChain kc = KstatUtil.openChain()) {
-            for (Kstat ksp : kc.lookupAll(CPU_INFO, 0, null)) {
-                if (kc.read(ksp)) {
-                    String suppFreq = KstatUtil.dataLookupString(ksp, "supported_frequencies_Hz");
-                    if (!suppFreq.isEmpty()) {
-                        for (String s : suppFreq.split(":")) {
-                            long freq = ParseUtil.parseLongOrDefault(s, -1L);
-                            if (max < freq) {
-                                max = freq;
-                            }
-                        }
-                    }
-                }
-            }
+    protected long queryMaxFreq() {
+        perfstat_cpu_total_t perfstat = cpuTotal.get();
+        return perfstat.processorHZ;
+    }
+
+    private long queryVendorFreq() {
+        // ~/git/oshi$ prtconf -s
+        // Processor Clock Speed: 1000 MHz
+        String clockSpeed = ExecutingCommand.getFirstAnswer("prtconf -s");
+        int colonIdx = clockSpeed.indexOf(": ");
+        if (colonIdx > 0) {
+            return ParseUtil.parseHertz(clockSpeed.substring(colonIdx + 1).trim());
         }
-        return max;
+        return -1;
     }
 
     @Override
@@ -177,7 +180,7 @@ final class AixCentralProcessor extends AbstractCentralProcessor {
             throw new IllegalArgumentException("Must include from one to three elements.");
         }
         double[] average = new double[nelem];
-        int retval = SolarisLibc.INSTANCE.getloadavg(average, nelem);
+        int retval = AixLibc.INSTANCE.getloadavg(average, nelem);
         if (retval < nelem) {
             for (int i = Math.max(retval, 0); i < average.length; i++) {
                 average[i] = -1d;
@@ -188,67 +191,30 @@ final class AixCentralProcessor extends AbstractCentralProcessor {
 
     @Override
     public long[][] queryProcessorCpuLoadTicks() {
-        long[][] ticks = new long[getLogicalProcessorCount()][TickType.values().length];
-        int cpu = -1;
-        try (KstatChain kc = KstatUtil.openChain()) {
-            for (Kstat ksp : kc.lookupAll("cpu", -1, "sys")) {
-                // This is a new CPU
-                if (++cpu >= ticks.length) {
-                    // Shouldn't happen
-                    break;
-                }
-                if (kc.read(ksp)) {
-                    ticks[cpu][TickType.IDLE.getIndex()] = KstatUtil.dataLookupLong(ksp, "cpu_ticks_idle");
-                    ticks[cpu][TickType.SYSTEM.getIndex()] = KstatUtil.dataLookupLong(ksp, "cpu_ticks_kernel");
-                    ticks[cpu][TickType.USER.getIndex()] = KstatUtil.dataLookupLong(ksp, "cpu_ticks_user");
-                }
-            }
+        perfstat_cpu_t[] cpu = cpuProc.get();
+        long[][] ticks = new long[cpu.length][TickType.values().length];
+        for (int i = 0; i < cpu.length; i++) {
+            ticks[i] = new long[TickType.values().length];
+            ticks[i][TickType.USER.ordinal()] = cpu[i].user;
+            // Skip NICE
+            ticks[i][TickType.SYSTEM.ordinal()] = cpu[i].sys;
+            ticks[i][TickType.IDLE.ordinal()] = cpu[i].idle;
+            ticks[i][TickType.IOWAIT.ordinal()] = cpu[i].wait;
+            ticks[i][TickType.IRQ.ordinal()] = cpu[i].devintrs;
+            ticks[i][TickType.SOFTIRQ.ordinal()] = cpu[i].softintrs;
+            ticks[i][TickType.STEAL.ordinal()] = cpu[i].idle_stolen_purr + cpu[i].busy_stolen_purr;
         }
         return ticks;
     }
 
-    /**
-     * Fetches the ProcessorID by encoding the stepping, model, family, and feature
-     * flags.
-     *
-     * @param stepping
-     *            The stepping
-     * @param model
-     *            The model
-     * @param family
-     *            The family
-     * @return The Processor ID string
-     */
-    private static String getProcessorID(String stepping, String model, String family) {
-        List<String> isainfo = ExecutingCommand.runNative("isainfo -v");
-        StringBuilder flags = new StringBuilder();
-        for (String line : isainfo) {
-            if (line.startsWith("32-bit")) {
-                break;
-            } else if (!line.startsWith("64-bit")) {
-                flags.append(' ').append(line.trim());
-            }
-        }
-        return createProcessorID(stepping, model, family, ParseUtil.whitespaces.split(flags.toString().toLowerCase()));
-    }
-
     @Override
     public long queryContextSwitches() {
-        long swtch = 0;
-        List<String> kstat = ExecutingCommand.runNative("kstat -p cpu_stat:::/pswitch\\\\|inv_swtch/");
-        for (String s : kstat) {
-            swtch += ParseUtil.parseLastLong(s, 0L);
-        }
-        return swtch > 0 ? swtch : -1L;
+        return cpuTotal.get().pswitch;
     }
 
     @Override
     public long queryInterrupts() {
-        long intr = 0;
-        List<String> kstat = ExecutingCommand.runNative("kstat -p cpu_stat:::/intr/");
-        for (String s : kstat) {
-            intr += ParseUtil.parseLastLong(s, 0L);
-        }
-        return intr > 0 ? intr : -1L;
+        perfstat_cpu_total_t cpu = cpuTotal.get();
+        return cpu.devintrs + cpu.softintrs;
     }
 }

@@ -101,10 +101,11 @@ public class SystemInfoTest {
         logger.info("Checking computer system...");
         printComputerSystem(hal.getComputerSystem());
 
+        logger.info("Checking Processor...");
+        printProcessor(hal.getProcessor());
+
         // Move items out of this conditional as they are implemented!
         if (SKIP) {
-            logger.info("Checking Processor...");
-            printProcessor(hal.getProcessor());
 
             logger.info("Checking Memory...");
             printMemory(hal.getMemory());

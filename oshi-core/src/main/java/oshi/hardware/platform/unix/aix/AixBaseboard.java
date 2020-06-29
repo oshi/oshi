@@ -38,6 +38,62 @@ final class AixBaseboard extends AbstractBaseboard {
     private final String serialNumber;
     private final String version;
 
+    /*-
+     ~/git/oshi$ lscfg -vp
+    PLATFORM SPECIFIC
+    Name:  IBM,9114-275
+    Model:  IBM,9114-275
+    Node:  /
+    Device Type:  chrp
+      Platform Firmware:
+        ROM Level.(alterable).......3F080425
+        Version.....................RS6K
+        Hardware Location Code......U0.1-P1-X1/Y1
+      Physical Location: U0.1-P1-X1/Y1
+      System Firmware:
+        ROM Level.(alterable).......RG080425_d79e22_regatta
+        Version.....................RS6K
+        Hardware Location Code......U0.1-P1-X1/Y2
+      Physical Location: U0.1-P1-X1/Y2
+      System VPD:
+        Machine/Cabinet Serial No...10ACFDE
+        Machine Type and Model......9114-275
+        Manufacture ID..............IBM980
+        Version.....................RS6K
+        Op Panel Installed..........Y
+        Brand.......................I0
+        Hardware Location Code......U0.1
+      Physical Location: U0.1
+      PS CEC OP PANEL :
+        Serial Number...............YL1124335115
+        EC Level....................H64013
+        Customer Card ID Number.....28D3
+        FRU Number.................. 97P3352
+        Action Code, Timestamp......BD 200210290851
+        Version.....................RS6K
+        Hardware Location Code......U0.1-L1
+      Physical Location: U0.1-L1
+      1 WAY BACKPLANE :
+        Serial Number...............YL10243490FB
+        Part Number.................80P4315
+        Customer Card ID Number.....26F4
+        CCIN Extender...............1
+        FRU Number.................. 80P4315
+        Version.....................RS6K
+        Hardware Location Code......U0.1-P1
+      Physical Location: U0.1-P1
+      CSP             :
+        Serial Number...............YL1024350048
+        Part Number.................80P5573
+        Customer Card ID Number.....28D0
+        CCIN Extender...............1
+        FRU Number.................. 80P5573
+        ROM Level.(alterable).......3F080425
+        Version.....................RS6K
+        Hardware Location Code......U0.1-P1-X1
+      Physical Location: U0.1-P1-X1
+     */
+
     AixBaseboard() {
         this.manufacturer = Constants.UNKNOWN;
         this.model = Constants.UNKNOWN;

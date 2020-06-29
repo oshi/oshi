@@ -271,7 +271,7 @@ public interface CentralProcessor {
         SOFTIRQ(6),
         /**
          * Time which the hypervisor dedicated for other guests in the system. Only
-         * supported on Linux.
+         * supported on Linux and AIX
          */
         STEAL(7);
 
@@ -429,6 +429,11 @@ public interface CentralProcessor {
 
         public ProcessorIdentifier(String cpuVendor, String cpuName, String cpuFamily, String cpuModel,
                 String cpuStepping, String processorID, boolean cpu64bit) {
+            this(cpuVendor, cpuName, cpuFamily, cpuModel, cpuStepping, processorID, cpu64bit, -1L);
+        }
+
+        public ProcessorIdentifier(String cpuVendor, String cpuName, String cpuFamily, String cpuModel,
+                String cpuStepping, String processorID, boolean cpu64bit, long vendorFreq) {
             this.cpuVendor = cpuVendor;
             this.cpuName = cpuName;
             this.cpuFamily = cpuFamily;
@@ -449,14 +454,18 @@ public interface CentralProcessor {
             sb.append(" Stepping ").append(cpuStepping);
             this.cpuIdentifier = sb.toString();
 
-            // Parse Freq from name string
-            Pattern pattern = Pattern.compile("@ (.*)$");
-            Matcher matcher = pattern.matcher(cpuName);
-            if (matcher.find()) {
-                String unit = matcher.group(1);
-                this.cpuVendorFreq = ParseUtil.parseHertz(unit);
+            if (vendorFreq >= 0) {
+                this.cpuVendorFreq = vendorFreq;
             } else {
-                this.cpuVendorFreq = -1L;
+                // Parse Freq from name string
+                Pattern pattern = Pattern.compile("@ (.*)$");
+                Matcher matcher = pattern.matcher(cpuName);
+                if (matcher.find()) {
+                    String unit = matcher.group(1);
+                    this.cpuVendorFreq = ParseUtil.parseHertz(unit);
+                } else {
+                    this.cpuVendorFreq = -1L;
+                }
             }
         }
 
@@ -518,7 +527,7 @@ public interface CentralProcessor {
          * <p>
          * For processors that do not support the CPUID opcode this field is populated
          * with a comparable hex string. For example, ARM Processors will fill the first
-         * 32 bytes with the MIDR.
+         * 32 bytes with the MIDR. AIX PowerPC Processors will return the machine ID.
          * <p>
          * NOTE: The order of returned bytes is platform and software dependent. Values
          * may be in either Big Endian or Little Endian order.
