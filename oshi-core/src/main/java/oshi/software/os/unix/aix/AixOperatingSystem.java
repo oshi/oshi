@@ -41,7 +41,6 @@ import oshi.software.os.InternetProtocolStats;
 import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OSService;
-import oshi.software.os.unix.solaris.SolarisOSProcess;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 

@@ -23,7 +23,10 @@
  */
 package oshi.jna.platform.unix.aix;
 
+import com.sun.jna.Native;
+
 import oshi.jna.platform.unix.aix.Perfstat.perfstat_cpu_t;
+import oshi.jna.platform.unix.aix.Perfstat.perfstat_id_t;
 
 /**
  * This is temporary to allow testing of the methods without doing the whole
@@ -31,9 +34,21 @@ import oshi.jna.platform.unix.aix.Perfstat.perfstat_cpu_t;
  */
 public class PerfstatTest {
 
+    private static final Perfstat PERF = Perfstat.INSTANCE;
+
     public static void main(String[] args) {
         perfstat_cpu_t cpu = new perfstat_cpu_t();
-        Perfstat.INSTANCE.perfstat_cpu(null, cpu, cpu.size(), 1);
-        System.out.println(cpu.toString());
+        // With null, null, ..., 0, returns total # of elements
+        int cputotal = PERF.perfstat_cpu(null, null, cpu.size(), 0);
+        System.out.println(cputotal + " cpu(s)");
+        if (cputotal > 0) {
+            perfstat_cpu_t[] statp = (perfstat_cpu_t[]) cpu.toArray(cputotal);
+            perfstat_id_t firstcpu = new perfstat_id_t(); // name is ""
+            int ret = PERF.perfstat_cpu(firstcpu, statp, cpu.size(), 1);
+            for (int i = 0; i < ret; i++) {
+                System.out.format("%s: U=%d, S=%d, I=%d%n", Native.toString(statp[i].name), statp[i].user, statp[i].sys,
+                        statp[i].idle);
+            }
+        }
     }
 }

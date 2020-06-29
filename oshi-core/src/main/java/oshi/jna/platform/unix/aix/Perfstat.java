@@ -162,16 +162,16 @@ public interface Perfstat extends Library {
      * Retrieves individual processor usage metrics
      *
      * @param name
-     *            Reserved for future use, must be NULL
+     *            Structure containing empty string when collecting all cpu stats,
+     *            or null to count CPUs
      * @param cpu
-     *            A pointer to a memory area with enough space for the returned
-     *            structure
+     *            Populated with structures, or null to count CPUs
      * @param sizeof_struct
      *            Should be set to sizeof(perfstat_cpu_t)
      * @param desired_number
-     *            Reserved for future use, must be set to 0 or 1
+     *            Set to 0 to count CPUs, 0 or 1 otherwise
      * @return The return value is -1 in case of errors. Otherwise, the number of
      *         structures copied is returned. This is always 1.
      */
-    int perfstat_cpu(perfstat_id_t name, perfstat_cpu_t cpu, int sizeof_struct, int desired_number);
+    int perfstat_cpu(perfstat_id_t name, perfstat_cpu_t[] cpu, int sizeof_struct, int desired_number);
 }
