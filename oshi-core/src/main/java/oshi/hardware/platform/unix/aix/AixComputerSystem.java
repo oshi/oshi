@@ -37,7 +37,7 @@ import oshi.util.ParseUtil;
 import oshi.util.Util;
 
 /**
- * Hardware data obtained from smbios.
+ * Hardware data obtained from lsattr
  */
 @Immutable
 final class AixComputerSystem extends AbstractComputerSystem {

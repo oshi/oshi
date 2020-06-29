@@ -26,79 +26,69 @@ package oshi.hardware.platform.unix.aix;
 import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.common.AbstractBaseboard;
 import oshi.util.Constants;
+import oshi.util.ExecutingCommand;
+import oshi.util.Util;
 
 /**
- * Baseboard data obtained by smbios
+ * Baseboard data obtained by lscfg
  */
 @Immutable
 final class AixBaseboard extends AbstractBaseboard {
 
-    private final String manufacturer;
+    private final String manufacturer = "IBM";
     private final String model;
     private final String serialNumber;
     private final String version;
 
-    /*-
-     ~/git/oshi$ lscfg -vp
-    PLATFORM SPECIFIC
-    Name:  IBM,9114-275
-    Model:  IBM,9114-275
-    Node:  /
-    Device Type:  chrp
-      Platform Firmware:
-        ROM Level.(alterable).......3F080425
-        Version.....................RS6K
-        Hardware Location Code......U0.1-P1-X1/Y1
-      Physical Location: U0.1-P1-X1/Y1
-      System Firmware:
-        ROM Level.(alterable).......RG080425_d79e22_regatta
-        Version.....................RS6K
-        Hardware Location Code......U0.1-P1-X1/Y2
-      Physical Location: U0.1-P1-X1/Y2
-      System VPD:
-        Machine/Cabinet Serial No...10ACFDE
-        Machine Type and Model......9114-275
-        Manufacture ID..............IBM980
-        Version.....................RS6K
-        Op Panel Installed..........Y
-        Brand.......................I0
-        Hardware Location Code......U0.1
-      Physical Location: U0.1
-      PS CEC OP PANEL :
-        Serial Number...............YL1124335115
-        EC Level....................H64013
-        Customer Card ID Number.....28D3
-        FRU Number.................. 97P3352
-        Action Code, Timestamp......BD 200210290851
-        Version.....................RS6K
-        Hardware Location Code......U0.1-L1
-      Physical Location: U0.1-L1
-      1 WAY BACKPLANE :
-        Serial Number...............YL10243490FB
-        Part Number.................80P4315
-        Customer Card ID Number.....26F4
-        CCIN Extender...............1
-        FRU Number.................. 80P4315
-        Version.....................RS6K
-        Hardware Location Code......U0.1-P1
-      Physical Location: U0.1-P1
-      CSP             :
-        Serial Number...............YL1024350048
-        Part Number.................80P5573
-        Customer Card ID Number.....28D0
-        CCIN Extender...............1
-        FRU Number.................. 80P5573
-        ROM Level.(alterable).......3F080425
-        Version.....................RS6K
-        Hardware Location Code......U0.1-P1-X1
-      Physical Location: U0.1-P1-X1
-     */
-
     AixBaseboard() {
-        this.manufacturer = Constants.UNKNOWN;
-        this.model = Constants.UNKNOWN;
-        this.serialNumber = Constants.UNKNOWN;
-        this.version = Constants.UNKNOWN;
+        String bbModel = null;
+        String bbSerialNumber = null;
+        String bbVersion = null;
+
+        final String planeMarker = "BACKPLANE";
+        final String modelMarker = "Part Number";
+        final String serialMarker = "Serial Number";
+        final String versionMarker = "Version";
+        final String locationMarker = "Physical Location";
+
+        // 1 WAY BACKPLANE :
+        // Serial Number...............YL10243490FB
+        // Part Number.................80P4315
+        // Customer Card ID Number.....26F4
+        // CCIN Extender...............1
+        // FRU Number.................. 80P4315
+        // Version.....................RS6K
+        // Hardware Location Code......U0.1-P1
+        // Physical Location: U0.1-P1
+
+        boolean planeFlag = false;
+        for (final String checkLine : ExecutingCommand.runNative("lscfg -vp")) {
+            if (!planeFlag && checkLine.contains(planeMarker)) {
+                planeFlag = true;
+            } else if (planeFlag) {
+                if (checkLine.contains(modelMarker)) {
+                    bbModel = removeLeadingDots(checkLine.split(modelMarker)[1].trim());
+                } else if (checkLine.contains(serialMarker)) {
+                    bbSerialNumber = removeLeadingDots(checkLine.split(serialMarker)[1].trim());
+                } else if (checkLine.contains(versionMarker)) {
+                    bbSerialNumber = removeLeadingDots(checkLine.split(versionMarker)[1].trim());
+                } else if (checkLine.contains(locationMarker)) {
+                    break;
+                }
+            }
+        }
+
+        this.model = Util.isBlank(bbModel) ? Constants.UNKNOWN : bbModel;
+        this.serialNumber = Util.isBlank(bbSerialNumber) ? Constants.UNKNOWN : bbSerialNumber;
+        this.version = Util.isBlank(versionMarker) ? Constants.UNKNOWN : bbVersion;
+    }
+
+    private String removeLeadingDots(String dotPrefixedStr) {
+        int pos = 0;
+        while (pos < dotPrefixedStr.length() && dotPrefixedStr.charAt(pos) == '.') {
+            pos++;
+        }
+        return pos < dotPrefixedStr.length() ? dotPrefixedStr.substring(pos) : null;
     }
 
     @Override

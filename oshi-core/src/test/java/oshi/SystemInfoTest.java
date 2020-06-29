@@ -103,18 +103,18 @@ public class SystemInfoTest {
 
         logger.info("Checking Processor...");
         printProcessor(hal.getProcessor());
+        // memory goes here when done
+        logger.info("Checking CPU...");
+        printCpu(hal.getProcessor());
+
+        logger.info("Checking Processes...");
+        printProcesses(os, hal.getMemory());
 
         // Move items out of this conditional as they are implemented!
         if (SKIP) {
 
             logger.info("Checking Memory...");
             printMemory(hal.getMemory());
-
-            logger.info("Checking CPU...");
-            printCpu(hal.getProcessor());
-
-            logger.info("Checking Processes...");
-            printProcesses(os, hal.getMemory());
 
             logger.info("Checking Services...");
             printServices(os);
