@@ -99,7 +99,7 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
     @Override
     public List<OSProcess> getProcesses(int limit, ProcessSort sort) {
         List<OSProcess> procs = getProcessListFromPS(
-                "ps -e -o st,pid,ppid,user,uid,group,gid,thcount,pri,vsize,rssize,etime,time,args,comm,pagein", -1);
+                "ps -e -o st,pid,ppid,user,uid,group,gid,thcount,pri,vsize,rssize,etime,time,comm,pagein,args", -1);
         List<OSProcess> sorted = processSort(procs, limit, sort);
         return Collections.unmodifiableList(sorted);
     }
@@ -107,7 +107,7 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
     @Override
     public OSProcess getProcess(int pid) {
         List<OSProcess> procs = getProcessListFromPS(
-                "ps -o st,pid,ppid,user,uid,group,gid,thcount,pri,vsize,rssize,etime,time,args,comm,pagein -p ", pid);
+                "ps -o st,pid,ppid,user,uid,group,gid,thcount,pri,vsize,rssize,etime,time,comm,pagein,args -p ", pid);
         if (procs.isEmpty()) {
             return null;
         }
