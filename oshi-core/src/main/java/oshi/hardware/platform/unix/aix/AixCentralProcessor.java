@@ -34,11 +34,11 @@ import java.util.function.Supplier;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.unix.aix.perfstat.PerfstatCpu;
 import oshi.hardware.common.AbstractCentralProcessor;
-import oshi.jna.platform.unix.aix.AixLibc;
 import oshi.jna.platform.unix.aix.Perfstat.perfstat_cpu_t;
 import oshi.jna.platform.unix.aix.Perfstat.perfstat_cpu_total_t;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
+import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 
 /**
@@ -49,6 +49,7 @@ final class AixCentralProcessor extends AbstractCentralProcessor {
 
     private final Supplier<perfstat_cpu_total_t> cpuTotal = memoize(PerfstatCpu::queryCpuTotal, defaultExpiration());
     private final Supplier<perfstat_cpu_t[]> cpuProc = memoize(PerfstatCpu::queryCpu, defaultExpiration());
+    private static final int SBITS = querySbits();
 
     @Override
     protected ProcessorIdentifier queryProcessorId() {
@@ -180,11 +181,9 @@ final class AixCentralProcessor extends AbstractCentralProcessor {
             throw new IllegalArgumentException("Must include from one to three elements.");
         }
         double[] average = new double[nelem];
-        int retval = AixLibc.INSTANCE.getloadavg(average, nelem);
-        if (retval < nelem) {
-            for (int i = Math.max(retval, 0); i < average.length; i++) {
-                average[i] = -1d;
-            }
+        long[] loadavg = cpuTotal.get().loadavg;
+        for (int i = 0; i < nelem; i++) {
+            average[i] = (double) loadavg[i] / SBITS;
         }
         return average;
     }
@@ -216,5 +215,15 @@ final class AixCentralProcessor extends AbstractCentralProcessor {
     public long queryInterrupts() {
         perfstat_cpu_total_t cpu = cpuTotal.get();
         return cpu.devintrs + cpu.softintrs;
+    }
+
+    private static int querySbits() {
+        // read from /usr/include/sys/proc.h
+        for (String s : FileUtil.readFile("/usr/include/sys/proc.h")) {
+            if (s.contains("SBITS") && s.contains("#define")) {
+                return ParseUtil.parseLastInt(s, 16);
+            }
+        }
+        return 16;
     }
 }
