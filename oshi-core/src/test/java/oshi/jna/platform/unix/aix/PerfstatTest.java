@@ -23,6 +23,8 @@
  */
 package oshi.jna.platform.unix.aix;
 
+import oshi.jna.platform.unix.aix.Perfstat.perfstat_cpu_t;
+
 /**
  * This is temporary to allow testing of the methods without doing the whole
  * SystemInfoTest route
@@ -30,9 +32,8 @@ package oshi.jna.platform.unix.aix;
 public class PerfstatTest {
 
     public static void main(String[] args) {
-
-        int cpu = PerfstatUtil.perfstat_cpu();
-        System.out.println("CPU=" + cpu);
+        perfstat_cpu_t cpu = new perfstat_cpu_t();
+        Perfstat.INSTANCE.perfstat_cpu(null, cpu, cpu.size(), 1);
+        System.out.println(cpu.toString());
     }
-
 }
