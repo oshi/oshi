@@ -28,6 +28,7 @@ import com.sun.jna.Native;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.platform.unix.aix.Perfstat;
 import oshi.jna.platform.unix.aix.Perfstat.perfstat_cpu_t;
+import oshi.jna.platform.unix.aix.Perfstat.perfstat_cpu_total_t;
 import oshi.jna.platform.unix.aix.Perfstat.perfstat_id_t;
 
 /**
@@ -43,21 +44,21 @@ public final class PerfstatCpu {
 
     /**
      * Queries perfstat_cpu_total for total CPU usage statistics
-     * 
-     * @return an array of usage statistics
+     *
+     * @return usage statistics
      */
-    public static perfstat_cpu_t queryCpuTotal() {
-        perfstat_cpu_t cpu = new perfstat_cpu_t();
+    public static perfstat_cpu_total_t queryCpuTotal() {
+        perfstat_cpu_total_t cpu = new perfstat_cpu_total_t();
         int ret = PERF.perfstat_cpu_total(null, cpu, cpu.size(), 1);
         if (ret > 0) {
             return cpu;
         }
-        return new perfstat_cpu_t();
+        return new perfstat_cpu_total_t();
     }
 
     /**
      * Queries perfstat_cpu for per-CPU usage statistics
-     * 
+     *
      * @return an array of usage statistics
      */
     public static perfstat_cpu_t[] queryCpu() {
@@ -79,12 +80,12 @@ public final class PerfstatCpu {
         perfstat_cpu_t[] statp = queryCpu();
         System.out.println("Found" + statp.length + " cpu(s)");
         for (int i = 0; i < statp.length; i++) {
-            System.out.format("%5s: U=%d, S=%d, I=%d%n", Native.toString(statp[i].name), statp[i].user, statp[i].sys,
+            System.out.format("%s: U=%d, S=%d, I=%d%n", Native.toString(statp[i].name), statp[i].user, statp[i].sys,
                     statp[i].idle);
         }
 
-        perfstat_cpu_t cpu = queryCpuTotal();
+        perfstat_cpu_total_t cpu = queryCpuTotal();
         System.out.println("Total Usage:");
-        System.out.format("%5s: U=%d, S=%d, I=%d%n", Native.toString(cpu.name), cpu.user, cpu.sys, cpu.idle);
+        System.out.format("%s: U=%d, S=%d, I=%d%n", Native.toString(cpu.description), cpu.user, cpu.sys, cpu.idle);
     }
 }
