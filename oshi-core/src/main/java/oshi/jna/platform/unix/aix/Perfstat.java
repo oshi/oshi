@@ -131,11 +131,11 @@ public interface Perfstat extends Library {
         public long softintrs; // number of offlevel handlers called
         public long phantintrs; // number of phantom interrupts
         public long idle_donated_purr; // number of idle cycles donated by a dedicated partition enabled for donation
-        public long idle_donated_spurr;// number of idle spurr cycles donated by a dedicated partition enabled for
-                                       // donation
+        public long idle_donated_spurr; // number of idle spurr cycles donated by a dedicated partition enabled for
+                                        // donation
         public long busy_donated_purr; // number of busy cycles donated by a dedicated partition enabled for donation
-        public long busy_donated_spurr;// number of busy spurr cycles donated by a dedicated partition enabled for
-                                       // donation
+        public long busy_donated_spurr; // number of busy spurr cycles donated by a dedicated partition enabled for
+                                        // donation
         public long idle_stolen_purr; // number of idle cycles stolen by the hypervisor from a dedicated partition
         public long idle_stolen_spurr; // number of idle spurr cycles stolen by the hypervisor from a dedicated
                                        // partition
@@ -159,6 +159,22 @@ public interface Perfstat extends Library {
     }
 
     /**
+     * Retrieves total processor usage metrics
+     *
+     * @param name
+     *            Reserved for future use, must be NULL
+     * @param cpu
+     *            Populated with structure
+     * @param sizeof_struct
+     *            Should be set to sizeof(perfstat_cpu_t)
+     * @param desired_number
+     *            Reserved for future use, must be set to 0 or 1
+     * @return The return value is -1 in case of errors. Otherwise, the number of
+     *         structures copied is returned. This is always 1.
+     */
+    int perfstat_cpu_total(perfstat_id_t name, perfstat_cpu_t cpu, int sizeof_struct, int desired_number);
+
+    /**
      * Retrieves individual processor usage metrics
      *
      * @param name
@@ -171,7 +187,7 @@ public interface Perfstat extends Library {
      * @param desired_number
      *            Set to 0 to count CPUs, 0 or 1 otherwise
      * @return The return value is -1 in case of errors. Otherwise, the number of
-     *         structures copied is returned. This is always 1.
+     *         structures copied is returned.
      */
     int perfstat_cpu(perfstat_id_t name, perfstat_cpu_t[] cpu, int sizeof_struct, int desired_number);
 }

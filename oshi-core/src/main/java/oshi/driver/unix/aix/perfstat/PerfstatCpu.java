@@ -21,34 +21,70 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package oshi.jna.platform.unix.aix;
+package oshi.driver.unix.aix.perfstat;
 
 import com.sun.jna.Native;
 
+import oshi.annotation.concurrent.ThreadSafe;
+import oshi.jna.platform.unix.aix.Perfstat;
 import oshi.jna.platform.unix.aix.Perfstat.perfstat_cpu_t;
 import oshi.jna.platform.unix.aix.Perfstat.perfstat_id_t;
 
 /**
- * This is temporary to allow testing of the methods without doing the whole
- * SystemInfoTest route
+ * Utility to query performance stats
  */
-public class PerfstatTest {
+@ThreadSafe
+public final class PerfstatCpu {
 
     private static final Perfstat PERF = Perfstat.INSTANCE;
 
-    public static void main(String[] args) {
+    private PerfstatCpu() {
+    }
+
+    /**
+     * Queries perfstat_cpu_total for total CPU usage statistics
+     * 
+     * @return an array of usage statistics
+     */
+    public static perfstat_cpu_t queryCpuTotal() {
+        perfstat_cpu_t cpu = new perfstat_cpu_t();
+        int ret = PERF.perfstat_cpu_total(null, cpu, cpu.size(), 1);
+        if (ret > 0) {
+            return cpu;
+        }
+        return new perfstat_cpu_t();
+    }
+
+    /**
+     * Queries perfstat_cpu for per-CPU usage statistics
+     * 
+     * @return an array of usage statistics
+     */
+    public static perfstat_cpu_t[] queryCpu() {
         perfstat_cpu_t cpu = new perfstat_cpu_t();
         // With null, null, ..., 0, returns total # of elements
         int cputotal = PERF.perfstat_cpu(null, null, cpu.size(), 0);
-        System.out.println(cputotal + " cpu(s)");
         if (cputotal > 0) {
             perfstat_cpu_t[] statp = (perfstat_cpu_t[]) cpu.toArray(cputotal);
             perfstat_id_t firstcpu = new perfstat_id_t(); // name is ""
             int ret = PERF.perfstat_cpu(firstcpu, statp, cpu.size(), 1);
-            for (int i = 0; i < ret; i++) {
-                System.out.format("%s: U=%d, S=%d, I=%d%n", Native.toString(statp[i].name), statp[i].user, statp[i].sys,
-                        statp[i].idle);
+            if (ret > 0) {
+                return statp;
             }
         }
+        return new perfstat_cpu_t[0];
+    }
+
+    public static void main(String[] args) {
+        perfstat_cpu_t[] statp = queryCpu();
+        System.out.println("Found" + statp.length + " cpu(s)");
+        for (int i = 0; i < statp.length; i++) {
+            System.out.format("%5s: U=%d, S=%d, I=%d%n", Native.toString(statp[i].name), statp[i].user, statp[i].sys,
+                    statp[i].idle);
+        }
+
+        perfstat_cpu_t cpu = queryCpuTotal();
+        System.out.println("Total Usage:");
+        System.out.format("%5s: U=%d, S=%d, I=%d%n", Native.toString(cpu.name), cpu.user, cpu.sys, cpu.idle);
     }
 }
