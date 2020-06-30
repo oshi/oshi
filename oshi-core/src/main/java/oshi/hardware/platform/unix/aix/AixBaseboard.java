@@ -35,7 +35,7 @@ import oshi.util.Util;
 @Immutable
 final class AixBaseboard extends AbstractBaseboard {
 
-    private final String manufacturer = "IBM";
+    private static final String IBM = "IBM";
     private final String model;
     private final String serialNumber;
     private final String version;
@@ -83,7 +83,7 @@ final class AixBaseboard extends AbstractBaseboard {
         this.version = Util.isBlank(bbVersion) ? Constants.UNKNOWN : bbVersion;
     }
 
-    private String removeLeadingDots(String dotPrefixedStr) {
+    private static String removeLeadingDots(String dotPrefixedStr) {
         int pos = 0;
         while (pos < dotPrefixedStr.length() && dotPrefixedStr.charAt(pos) == '.') {
             pos++;
@@ -93,7 +93,7 @@ final class AixBaseboard extends AbstractBaseboard {
 
     @Override
     public String getManufacturer() {
-        return this.manufacturer;
+        return IBM;
     }
 
     @Override

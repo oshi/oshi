@@ -110,7 +110,7 @@ final class AixCentralProcessor extends AbstractCentralProcessor {
         // The available processors are: 0 1 2 3
         List<LogicalProcessor> logProcs = new ArrayList<>();
         String bindprocessor = ExecutingCommand.getFirstAnswer("bindprocessor -q");
-        int zeroIdx = bindprocessor.indexOf("0");
+        int zeroIdx = bindprocessor.indexOf('0');
         if (zeroIdx > 0) {
             String[] split = ParseUtil.whitespaces.split(bindprocessor.substring(zeroIdx));
             for (int i = 0; i < split.length; i++) {
@@ -169,7 +169,7 @@ final class AixCentralProcessor extends AbstractCentralProcessor {
         return perfstat.processorHZ;
     }
 
-    private long queryVendorFreq() {
+    private static long queryVendorFreq() {
         // ~/git/oshi$ prtconf -s
         // Processor Clock Speed: 1000 MHz
         String clockSpeed = ExecutingCommand.getFirstAnswer("prtconf -s");
