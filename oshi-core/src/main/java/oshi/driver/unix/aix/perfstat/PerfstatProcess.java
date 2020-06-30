@@ -49,25 +49,26 @@ public final class PerfstatProcess {
     public static perfstat_process_t[] queryProcesses() {
         perfstat_process_t process = new perfstat_process_t();
         // With null, null, ..., 0, returns total # of elements
-        int processtotal = PERF.perfstat_process(null, null, process.size(), 0);
-        if (processtotal > 0) {
-            perfstat_process_t[] statp = (perfstat_process_t[]) process.toArray(processtotal);
+        int procCount = PERF.perfstat_process(null, null, process.size(), 0);
+        if (procCount > 0) {
+            perfstat_process_t[] proct = (perfstat_process_t[]) process.toArray(procCount);
             perfstat_id_t firstprocess = new perfstat_id_t(); // name is ""
-            int ret = PERF.perfstat_process(firstprocess, statp, process.size(), 1);
+            int ret = PERF.perfstat_process(firstprocess, proct, process.size(), procCount);
             if (ret > 0) {
-                return statp;
+                return proct;
             }
         }
         return new perfstat_process_t[0];
     }
 
     public static void main(String[] args) {
-        perfstat_process_t[] statp = queryProcesses();
-        System.out.println("Found" + statp.length + " process(es)");
-        for (int i = 0; i < statp.length && i < 10; i++) {
-            System.out.format("%s: pid=%d, VSZ=%d, RSS=%d (maybe), ucpu_time=%f, scpu_time=%f%n",
-                    Native.toString(statp[i].proc_name), statp[i].pid, statp[i].proc_size, statp[i].real_inuse,
-                    statp[i].ucpu_time, statp[i].scpu_time);
+        perfstat_process_t[] procs = queryProcesses();
+        System.out.println("Found" + procs.length + " process(es)");
+        for (int i = 0; i < procs.length && i < 10; i++) {
+            System.out.format(
+                    "%s: pid=%d, VSZ=%d KB, RSS=%d KB (maybe?), ucpu_time=%d, scpu_time=%d%n",
+                    Native.toString(procs[i].proc_name), procs[i].pid, procs[i].proc_size, procs[i].real_inuse,
+                    (long) procs[i].ucpu_time, (long) procs[i].scpu_time);
         }
     }
 }

@@ -68,7 +68,7 @@ public final class PerfstatCpu {
         if (cputotal > 0) {
             perfstat_cpu_t[] statp = (perfstat_cpu_t[]) cpu.toArray(cputotal);
             perfstat_id_t firstcpu = new perfstat_id_t(); // name is ""
-            int ret = PERF.perfstat_cpu(firstcpu, statp, cpu.size(), 1);
+            int ret = PERF.perfstat_cpu(firstcpu, statp, cpu.size(), cputotal);
             if (ret > 0) {
                 return statp;
             }

@@ -406,7 +406,7 @@ public interface Perfstat extends Library {
      * @param sizeof_struct
      *            Should be set to sizeof(perfstat_cpu_t)
      * @param desired_number
-     *            Set to 0 to count CPUs, 0 or 1 otherwise
+     *            Set to 0 to count CPUs, set to number of cpus to return otherwise
      * @return The return value is -1 in case of errors. Otherwise, the number of
      *         structures copied is returned.
      */
@@ -432,13 +432,15 @@ public interface Perfstat extends Library {
      * Retrieves process-related metrics
      *
      * @param name
-     *            Reserved for future use, must be NULL
+     *            Structure containing empty string when collecting all process
+     *            stats, or null to count processes
      * @param procs
      *            Populated with structure
      * @param sizeof_struct
      *            Should be set to sizeof(perfstat_process_t)
      * @param desired_number
-     *            Reserved for future use, must be set to 0 or 1
+     *            Set to 0 to count processes, set to number of processes to return
+     *            otherwise
      * @return The return value is -1 in case of errors. Otherwise, the number of
      *         structures copied is returned. This is always 1.
      */
