@@ -50,6 +50,11 @@ final class AixCentralProcessor extends AbstractCentralProcessor {
     private final Supplier<perfstat_cpu_total_t> cpuTotal = memoize(PerfstatCpu::queryCpuTotal, defaultExpiration());
     private final Supplier<perfstat_cpu_t[]> cpuProc = memoize(PerfstatCpu::queryCpu, defaultExpiration());
     private static final int SBITS = querySbits();
+    /**
+     * Jiffies per second, used for process time counters.
+     */
+    private static final long USER_HZ = ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer("getconf CLK_TCK"),
+            100L);
 
     @Override
     protected ProcessorIdentifier queryProcessorId() {
@@ -123,14 +128,14 @@ final class AixCentralProcessor extends AbstractCentralProcessor {
     public long[] querySystemCpuLoadTicks() {
         perfstat_cpu_total_t perfstat = cpuTotal.get();
         long[] ticks = new long[TickType.values().length];
-        ticks[TickType.USER.ordinal()] = perfstat.user;
+        ticks[TickType.USER.ordinal()] = perfstat.user * 1000L / USER_HZ;
         // Skip NICE
-        ticks[TickType.SYSTEM.ordinal()] = perfstat.sys;
-        ticks[TickType.IDLE.ordinal()] = perfstat.idle;
-        ticks[TickType.IOWAIT.ordinal()] = perfstat.wait;
-        ticks[TickType.IRQ.ordinal()] = perfstat.devintrs;
-        ticks[TickType.SOFTIRQ.ordinal()] = perfstat.softintrs;
-        ticks[TickType.STEAL.ordinal()] = perfstat.idle_stolen_purr + perfstat.busy_stolen_purr;
+        ticks[TickType.SYSTEM.ordinal()] = perfstat.sys * 1000L / USER_HZ;
+        ticks[TickType.IDLE.ordinal()] = perfstat.idle * 1000L / USER_HZ;
+        ticks[TickType.IOWAIT.ordinal()] = perfstat.wait * 1000L / USER_HZ;
+        ticks[TickType.IRQ.ordinal()] = perfstat.devintrs * 1000L / USER_HZ;
+        ticks[TickType.SOFTIRQ.ordinal()] = perfstat.softintrs * 1000L / USER_HZ;
+        ticks[TickType.STEAL.ordinal()] = (perfstat.idle_stolen_purr + perfstat.busy_stolen_purr) * 1000L / USER_HZ;
         return ticks;
     }
 
@@ -194,14 +199,14 @@ final class AixCentralProcessor extends AbstractCentralProcessor {
         long[][] ticks = new long[cpu.length][TickType.values().length];
         for (int i = 0; i < cpu.length; i++) {
             ticks[i] = new long[TickType.values().length];
-            ticks[i][TickType.USER.ordinal()] = cpu[i].user;
+            ticks[i][TickType.USER.ordinal()] = cpu[i].user * 1000L / USER_HZ;
             // Skip NICE
-            ticks[i][TickType.SYSTEM.ordinal()] = cpu[i].sys;
-            ticks[i][TickType.IDLE.ordinal()] = cpu[i].idle;
-            ticks[i][TickType.IOWAIT.ordinal()] = cpu[i].wait;
-            ticks[i][TickType.IRQ.ordinal()] = cpu[i].devintrs;
-            ticks[i][TickType.SOFTIRQ.ordinal()] = cpu[i].softintrs;
-            ticks[i][TickType.STEAL.ordinal()] = cpu[i].idle_stolen_purr + cpu[i].busy_stolen_purr;
+            ticks[i][TickType.SYSTEM.ordinal()] = cpu[i].sys * 1000L / USER_HZ;
+            ticks[i][TickType.IDLE.ordinal()] = cpu[i].idle * 1000L / USER_HZ;
+            ticks[i][TickType.IOWAIT.ordinal()] = cpu[i].wait * 1000L / USER_HZ;
+            ticks[i][TickType.IRQ.ordinal()] = cpu[i].devintrs * 1000L / USER_HZ;
+            ticks[i][TickType.SOFTIRQ.ordinal()] = cpu[i].softintrs * 1000L / USER_HZ;
+            ticks[i][TickType.STEAL.ordinal()] = (cpu[i].idle_stolen_purr + cpu[i].busy_stolen_purr) * 1000L / USER_HZ;
         }
         return ticks;
     }
