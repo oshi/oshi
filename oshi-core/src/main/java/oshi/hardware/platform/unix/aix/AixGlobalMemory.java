@@ -42,8 +42,7 @@ import oshi.util.tuples.Pair;
 @ThreadSafe
 final class AixGlobalMemory extends AbstractGlobalMemory {
 
-    private final Supplier<Pair<Long, Long>> availTotal = memoize(
-            AixGlobalMemory::queryAvailableTotal,
+    private final Supplier<Pair<Long, Long>> availTotal = memoize(AixGlobalMemory::queryAvailableTotal,
             defaultExpiration());
 
     private final Supplier<Long> pageSize = memoize(AixGlobalMemory::queryPageSize);

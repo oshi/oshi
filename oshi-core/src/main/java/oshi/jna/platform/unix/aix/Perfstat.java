@@ -337,7 +337,7 @@ public interface Perfstat extends Library {
 
     @FieldOrder({ "version", "pid", "proc_name", "proc_priority", "num_threads", "proc_uid", "proc_classid",
             "proc_size", "proc_real_mem_data", "proc_real_mem_text", "proc_virt_mem_data", "proc_virt_mem_text",
-            "shared_lib_data_size", "heap_size", "real_inuse", "virt_inuse", "pgsp_inuse", "filepages",
+            "shared_lib_data_size", "heap_size", "real_inuse", "virt_inuse", "pinned", "pgsp_inuse", "filepages",
             "real_inuse_map", "virt_inuse_map", "pinned_inuse_map", "ucpu_time", "scpu_time", "last_timebase",
             "inBytes", "outBytes", "inOps", "outOps" })
     class perfstat_process_t extends Structure {
