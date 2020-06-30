@@ -265,6 +265,120 @@ public interface Perfstat extends Library {
         public long tb_last; // timebase counter
     }
 
+    @FieldOrder({ "virt_total", "real_total", "real_free", "real_pinned", "real_inuse", "pgbad", "pgexct", "pgins",
+            "pgouts", "pgspins", "pgspouts", "scans", "cycles", "pgsteals", "numperm", "pgsp_total", "pgsp_free",
+            "pgsp_rsvd", "real_system", "real_user", "real_process", "virt_active", "iome", "iomu", "iohwm", "pmem",
+            "comprsd_total", "comprsd_wseg_pgs", "cpgins", "cpgouts", "true_size", "expanded_memory",
+            "comprsd_wseg_size", "target_cpool_size", "max_cpool_size", "min_ucpool_size", "cpool_size", "ucpool_size",
+            "cpool_inuse", "ucpool_inuse", "version", "real_avail", "bytes_coalesced", "bytes_coalesced_mempool" })
+    class perfstat_memory_total_t extends Structure {
+        public long virt_total; // total virtual memory (in 4KB pages)
+        public long real_total; // total real memory (in 4KB pages)
+        public long real_free; // free real memory (in 4KB pages)
+        public long real_pinned; // real memory which is pinned (in 4KB pages)
+        public long real_inuse; // real memory which is in use (in 4KB pages)
+        public long pgbad; // number of bad pages
+        public long pgexct; // number of page faults
+        public long pgins; // number of pages paged in
+        public long pgouts; // number of pages paged out
+        public long pgspins; // number of page ins from paging space
+        public long pgspouts; // number of page outs from paging space
+        public long scans; // number of page scans by clock
+        public long cycles; // number of page replacement cycles
+        public long pgsteals; // number of page steals
+        public long numperm; // number of frames used for files (in 4KB pages)
+        public long pgsp_total; // total paging space (in 4KB pages)
+        public long pgsp_free; // free paging space (in 4KB pages)
+        public long pgsp_rsvd; // reserved paging space (in 4KB pages)
+        public long real_system; // real memory used by system segments (in 4KB pages). This is the sum of all
+                                 // the used pages in segment marked for system usage. Since segment
+                                 // classifications are not always guaranteed to be accurate, this number is only
+                                 // an approximation.
+        public long real_user; // real memory used by non-system segments (in 4KB pages). This is the sum of
+                               // all pages used in segments not marked for system usage. Since segment
+                               // classifications are not always guaranteed to be accurate, this number is only
+                               // an approximation.
+        public long real_process; // real memory used by process segments (in 4KB pages). This is
+                                  // real_total-real_free-numperm-real_system. Since real_system is an
+                                  // approximation, this number is too.
+        public long virt_active; // Active virtual pages. Virtual pages are considered active if they have been
+                                 // accessed
+        public long iome; // I/O memory entitlement of the partition in bytes
+        public long iomu; // I/O memory entitlement of the partition in use in bytes
+        public long iohwm; // High water mark of I/O memory entitlement used in bytes
+        public long pmem; // Amount of physical mmeory currently backing partition's logical memory in
+                          // bytes
+
+        public long comprsd_total; // Total numbers of pages in compressed pool (in 4KB pages)
+        public long comprsd_wseg_pgs; // Number of compressed working storage pages
+        public long cpgins; // number of page ins to compressed pool
+        public long cpgouts; // number of page outs from compressed pool
+
+        public long true_size; // True Memory Size in 4KB pages
+        public long expanded_memory; // Expanded Memory Size in 4KB pages
+        public long comprsd_wseg_size; // Total size of the compressed working storage pages in the pool
+        public long target_cpool_size; // Target Compressed Pool Size in bytes
+        public long max_cpool_size; // Max Size of Compressed Pool in bytes
+        public long min_ucpool_size; // Min Size of Uncompressed Pool in bytes
+        public long cpool_size; // Compressed Pool size in bytes
+        public long ucpool_size; // Uncompressed Pool size in bytes
+        public long cpool_inuse; // Compressed Pool Used in bytes
+        public long ucpool_inuse; // Uncompressed Pool Used in bytes
+        public long version; // version number (1, 2, etc.,)
+        public long real_avail; // number of pages (in 4KB pages) of memory available without paging out working
+                                // segments
+        public long bytes_coalesced; // The number of bytes of the calling partition's logical real memory coalesced
+                                     // because they contained duplicated data
+        public long bytes_coalesced_mempool; // If the calling partition is authorized to see pool wide statistics then
+                                             // the number of bytes of logical real memory coalesced because they
+                                             // contained duplicated data in the calling partition's memory pool else
+                                             // set to zero.
+    }
+
+    @FieldOrder({ "version", "pid", "proc_name", "proc_priority", "num_threads", "proc_uid", "proc_classid",
+            "proc_size", "proc_real_mem_data", "proc_real_mem_text", "proc_virt_mem_data", "proc_virt_mem_text",
+            "shared_lib_data_size", "heap_size", "real_inuse", "virt_inuse", "pgsp_inuse", "filepages",
+            "real_inuse_map", "virt_inuse_map", "pinned_inuse_map", "ucpu_time", "scpu_time", "last_timebase",
+            "inBytes", "outBytes", "inOps", "outOps" })
+    class perfstat_process_t extends Structure {
+        public long version; // version number (1, 2, etc.,)
+        public long pid; // Process ID
+        public byte[] proc_name = new byte[64]; // Name of The Process
+        public int proc_priority; // Process Priority
+        public long num_threads; // Thread Count
+        public long proc_uid; // Owner Info
+        public long proc_classid; // WLM Class Name
+        public long proc_size; // Virtual Size of the Process in KB(Exclusive Usage, Leaving all Shared Library
+                               // Text & Shared File Pages, Shared Memory, Memory Mapped)
+        public long proc_real_mem_data; // Real Memory used for Data in KB
+        public long proc_real_mem_text; // Real Memory used for Text in KB
+        public long proc_virt_mem_data; // Virtual Memory used to Data in KB
+        public long proc_virt_mem_text; // Virtual Memory used for Text in KB
+        public long shared_lib_data_size; // Data Size from Shared Library in KB
+        public long heap_size; // Heap Size in KB
+        public long real_inuse; // The Real memory in use(in KB) by the process including all kind of segments
+                                // (excluding system segments). This includes Text, Data, Shared Library Text,
+                                // Shared Library Data, File Pages, Shared Memory & Memory Mapped
+        public long virt_inuse; // The Virtual memory in use(in KB) by the process including all kind of
+                                // segments (excluding system segments). This includes Text, Data, Shared
+                                // Library Text, Shared Library Data, File Pages, Shared Memory & Memory Mapped
+        public long pinned; // Pinned Memory(in KB) for this process inclusive of all segments
+        public long pgsp_inuse; // Paging Space used(in KB) inclusive of all segments
+        public long filepages; // File Pages used(in KB) including shared pages
+        public long real_inuse_map; // Real memory used(in KB) for Shared Memory and Memory Mapped regions
+        public long virt_inuse_map; // Virtual Memory used(in KB) for Shared Memory and Memory Mapped regions
+        public long pinned_inuse_map; // Pinned memory(in KB) for Shared Memory and Memory Mapped regions
+        public double ucpu_time; // User Mode CPU time will be in percentage or milliseconds based on, whether it
+                                 // is filled by perfstat_process_util or perfstat_process respectively.
+        public double scpu_time; // System Mode CPU time will be in percentage or milliseconds based on, whether
+                                 // it is filled by perfstat_process_util or perfstat_process respectively.
+        public long last_timebase; // Timebase Counter
+        public long inBytes; // Bytes Read from Disk
+        public long outBytes; // Bytes Written to Disk
+        public long inOps; // In Operations from Disk
+        public long outOps; // Out Operations from Disk
+    }
+
     /**
      * Retrieves total processor usage metrics
      *
@@ -273,7 +387,7 @@ public interface Perfstat extends Library {
      * @param cpu
      *            Populated with structure
      * @param sizeof_struct
-     *            Should be set to sizeof(perfstat_cpu_t)
+     *            Should be set to sizeof(perfstat_cpu_total_t)
      * @param desired_number
      *            Reserved for future use, must be set to 0 or 1
      * @return The return value is -1 in case of errors. Otherwise, the number of
@@ -297,4 +411,36 @@ public interface Perfstat extends Library {
      *         structures copied is returned.
      */
     int perfstat_cpu(perfstat_id_t name, perfstat_cpu_t[] cpu, int sizeof_struct, int desired_number);
+
+    /**
+     * Retrieves total memory-related metrics
+     *
+     * @param name
+     *            Reserved for future use, must be NULL
+     * @param mem
+     *            Populated with structure
+     * @param sizeof_struct
+     *            Should be set to sizeof(perfstat_memory_total_t)
+     * @param desired_number
+     *            Reserved for future use, must be set to 0 or 1
+     * @return The return value is -1 in case of errors. Otherwise, the number of
+     *         structures copied is returned. This is always 1.
+     */
+    int perfstat_memory_total(perfstat_id_t name, perfstat_memory_total_t mem, int sizeof_struct, int desired_number);
+
+    /**
+     * Retrieves process-related metrics
+     *
+     * @param name
+     *            Reserved for future use, must be NULL
+     * @param procs
+     *            Populated with structure
+     * @param sizeof_struct
+     *            Should be set to sizeof(perfstat_process_t)
+     * @param desired_number
+     *            Reserved for future use, must be set to 0 or 1
+     * @return The return value is -1 in case of errors. Otherwise, the number of
+     *         structures copied is returned. This is always 1.
+     */
+    int perfstat_process(perfstat_id_t name, perfstat_process_t[] procs, int sizeof_struct, int desired_number);
 }

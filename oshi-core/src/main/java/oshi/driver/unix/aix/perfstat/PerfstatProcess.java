@@ -27,65 +27,47 @@ import com.sun.jna.Native;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.platform.unix.aix.Perfstat;
-import oshi.jna.platform.unix.aix.Perfstat.perfstat_cpu_t;
-import oshi.jna.platform.unix.aix.Perfstat.perfstat_cpu_total_t;
 import oshi.jna.platform.unix.aix.Perfstat.perfstat_id_t;
+import oshi.jna.platform.unix.aix.Perfstat.perfstat_process_t;
 
 /**
- * Utility to query performance stats for cpu
+ * Utility to query performance stats for processes
  */
 @ThreadSafe
-public final class PerfstatCpu {
+public final class PerfstatProcess {
 
     private static final Perfstat PERF = Perfstat.INSTANCE;
 
-    private PerfstatCpu() {
+    private PerfstatProcess() {
     }
 
     /**
-     * Queries perfstat_cpu_total for total CPU usage statistics
-     *
-     * @return usage statistics
-     */
-    public static perfstat_cpu_total_t queryCpuTotal() {
-        perfstat_cpu_total_t cpu = new perfstat_cpu_total_t();
-        int ret = PERF.perfstat_cpu_total(null, cpu, cpu.size(), 1);
-        if (ret > 0) {
-            return cpu;
-        }
-        return new perfstat_cpu_total_t();
-    }
-
-    /**
-     * Queries perfstat_cpu for per-CPU usage statistics
+     * Queries perfstat_process for per-process usage statistics
      *
      * @return an array of usage statistics
      */
-    public static perfstat_cpu_t[] queryCpu() {
-        perfstat_cpu_t cpu = new perfstat_cpu_t();
+    public static perfstat_process_t[] queryProcesses() {
+        perfstat_process_t process = new perfstat_process_t();
         // With null, null, ..., 0, returns total # of elements
-        int cputotal = PERF.perfstat_cpu(null, null, cpu.size(), 0);
-        if (cputotal > 0) {
-            perfstat_cpu_t[] statp = (perfstat_cpu_t[]) cpu.toArray(cputotal);
-            perfstat_id_t firstcpu = new perfstat_id_t(); // name is ""
-            int ret = PERF.perfstat_cpu(firstcpu, statp, cpu.size(), 1);
+        int processtotal = PERF.perfstat_process(null, null, process.size(), 0);
+        if (processtotal > 0) {
+            perfstat_process_t[] statp = (perfstat_process_t[]) process.toArray(processtotal);
+            perfstat_id_t firstprocess = new perfstat_id_t(); // name is ""
+            int ret = PERF.perfstat_process(firstprocess, statp, process.size(), 1);
             if (ret > 0) {
                 return statp;
             }
         }
-        return new perfstat_cpu_t[0];
+        return new perfstat_process_t[0];
     }
 
     public static void main(String[] args) {
-        perfstat_cpu_t[] statp = queryCpu();
-        System.out.println("Found" + statp.length + " cpu(s)");
-        for (int i = 0; i < statp.length; i++) {
-            System.out.format("%s: U=%d, S=%d, I=%d%n", Native.toString(statp[i].name), statp[i].user, statp[i].sys,
-                    statp[i].idle);
+        perfstat_process_t[] statp = queryProcesses();
+        System.out.println("Found" + statp.length + " process(es)");
+        for (int i = 0; i < statp.length && i < 10; i++) {
+            System.out.format("%s: pid=%d, VSZ=%d, RSS=%d (maybe), ucpu_time=%f, scpu_time=%f%n",
+                    Native.toString(statp[i].proc_name), statp[i].pid, statp[i].proc_size, statp[i].real_inuse,
+                    statp[i].ucpu_time, statp[i].scpu_time);
         }
-
-        perfstat_cpu_total_t cpu = queryCpuTotal();
-        System.out.println("Total Usage:");
-        System.out.format("%s: U=%d, S=%d, I=%d%n", Native.toString(cpu.description), cpu.user, cpu.sys, cpu.idle);
     }
 }
