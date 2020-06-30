@@ -183,7 +183,7 @@ final class AixCentralProcessor extends AbstractCentralProcessor {
         double[] average = new double[nelem];
         long[] loadavg = cpuTotal.get().loadavg;
         for (int i = 0; i < nelem; i++) {
-            average[i] = (double) loadavg[i] / SBITS;
+            average[i] = loadavg[i] / (double) (1L << SBITS);
         }
         return average;
     }

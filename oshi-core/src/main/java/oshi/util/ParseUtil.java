@@ -62,6 +62,7 @@ public final class ParseUtil {
      * Used for matching
      */
     private static final Pattern HERTZ_PATTERN = Pattern.compile("(\\d+(.\\d+)?) ?([kMGT]?Hz).*");
+    private static final Pattern BYTES_PATTERN = Pattern.compile("(\\d+) ?([kMGT]?B).*");
 
     /*
      * Used to check validity of a hexadecimal string
@@ -950,6 +951,15 @@ public final class ParseUtil {
      */
     public static long parseDecimalMemorySizeToBinary(String size) {
         String[] mem = ParseUtil.whitespaces.split(size);
+        if (mem.length < 2) {
+            // If no spaces, use regexp
+            Matcher matcher = BYTES_PATTERN.matcher(size.trim());
+            if (matcher.find() && matcher.groupCount() == 2) {
+                mem = new String[2];
+                mem[0] = matcher.group(1);
+                mem[1] = matcher.group(2);
+            }
+        }
         long capacity = ParseUtil.parseLongOrDefault(mem[0], 0L);
         if (mem.length == 2 && mem[1].length() > 1) {
             switch (mem[1].charAt(0)) {

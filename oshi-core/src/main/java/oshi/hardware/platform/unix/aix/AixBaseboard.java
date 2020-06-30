@@ -71,7 +71,7 @@ final class AixBaseboard extends AbstractBaseboard {
                 } else if (checkLine.contains(serialMarker)) {
                     bbSerialNumber = removeLeadingDots(checkLine.split(serialMarker)[1].trim());
                 } else if (checkLine.contains(versionMarker)) {
-                    bbSerialNumber = removeLeadingDots(checkLine.split(versionMarker)[1].trim());
+                    bbVersion = removeLeadingDots(checkLine.split(versionMarker)[1].trim());
                 } else if (checkLine.contains(locationMarker)) {
                     break;
                 }
@@ -80,7 +80,7 @@ final class AixBaseboard extends AbstractBaseboard {
 
         this.model = Util.isBlank(bbModel) ? Constants.UNKNOWN : bbModel;
         this.serialNumber = Util.isBlank(bbSerialNumber) ? Constants.UNKNOWN : bbSerialNumber;
-        this.version = Util.isBlank(versionMarker) ? Constants.UNKNOWN : bbVersion;
+        this.version = Util.isBlank(bbVersion) ? Constants.UNKNOWN : bbVersion;
     }
 
     private String removeLeadingDots(String dotPrefixedStr) {

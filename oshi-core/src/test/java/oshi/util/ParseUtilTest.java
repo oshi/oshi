@@ -429,6 +429,7 @@ public class ParseUtilTest {
         assertEquals(1024, ParseUtil.parseDecimalMemorySizeToBinary("1 kB"));
         assertEquals(1024, ParseUtil.parseDecimalMemorySizeToBinary("1 KB"));
         assertEquals(1_048_576, ParseUtil.parseDecimalMemorySizeToBinary("1 MB"));
+        assertEquals(1_048_576, ParseUtil.parseDecimalMemorySizeToBinary("1MB"));
         assertEquals(1_073_741_824, ParseUtil.parseDecimalMemorySizeToBinary("1 GB"));
         assertEquals(1_099_511_627_776L, ParseUtil.parseDecimalMemorySizeToBinary("1 TB"));
     }

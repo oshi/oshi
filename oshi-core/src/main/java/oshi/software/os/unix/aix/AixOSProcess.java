@@ -24,12 +24,12 @@
 package oshi.software.os.unix.aix;
 
 import static oshi.software.os.OSProcess.State.INVALID;
-import static oshi.software.os.OSProcess.State.RUNNING;
-import static oshi.software.os.OSProcess.State.WAITING;
-import static oshi.software.os.OSProcess.State.SLEEPING;
-import static oshi.software.os.OSProcess.State.ZOMBIE;
-import static oshi.software.os.OSProcess.State.STOPPED;
 import static oshi.software.os.OSProcess.State.OTHER;
+import static oshi.software.os.OSProcess.State.RUNNING;
+import static oshi.software.os.OSProcess.State.SLEEPING;
+import static oshi.software.os.OSProcess.State.STOPPED;
+import static oshi.software.os.OSProcess.State.WAITING;
+import static oshi.software.os.OSProcess.State.ZOMBIE;
 import static oshi.util.Memoizer.memoize;
 
 import java.util.Collections;
@@ -203,35 +203,11 @@ public class AixOSProcess extends AbstractOSProcess {
 
     @Override
     public long getAffinityMask() {
-        long bitMask = 0L;
-        String cpuset = ExecutingCommand.getFirstAnswer("pbind -q " + getProcessID());
-        // Sample output:
-        // <empty string if no binding>
-        // pid 101048 strongly bound to processor(s) 0 1 2 3.
-        if (cpuset.isEmpty()) {
-            List<String> allProcs = ExecutingCommand.runNative("psrinfo");
-            for (String proc : allProcs) {
-                String[] split = ParseUtil.whitespaces.split(proc);
-                int bitToSet = ParseUtil.parseIntOrDefault(split[0], -1);
-                if (bitToSet >= 0) {
-                    bitMask |= 1L << bitToSet;
-                }
-            }
-            return bitMask;
-        } else if (cpuset.endsWith(".") && cpuset.contains("strongly bound to processor(s)")) {
-            String parse = cpuset.substring(0, cpuset.length() - 1);
-            String[] split = ParseUtil.whitespaces.split(parse);
-            for (int i = split.length - 1; i >= 0; i--) {
-                int bitToSet = ParseUtil.parseIntOrDefault(split[i], -1);
-                if (bitToSet >= 0) {
-                    bitMask |= 1L << bitToSet;
-                } else {
-                    // Once we run into the word processor(s) we're done
-                    break;
-                }
-            }
-        }
-        return bitMask;
+        // Need to capture BND field from ps
+        // ps -m -o THREAD -p 12345
+        // BND field for PID is either a dash (all processors) or the processor it's
+        // bound to, do 1L << # to get mask
+        return 1L; // temp placeholder
     }
 
     @Override

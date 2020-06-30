@@ -590,22 +590,29 @@ public interface CentralProcessor {
                 sb.append("amd.");
             } else if (this.getVendor().contains("ARM")) {
                 sb.append("arm.");
+            } else if (this.getVendor().contains("IBM")) {
+                sb.append("ibm.").append(this.cpuName);
             }
-            sb.append(this.cpuFamily);
-            // Check for match with only family
+            // Check for match with only name
             String arch = archProps.getProperty(sb.toString());
+
+            if (Util.isBlank(arch)) {
+                // Append family
+                sb.append(this.cpuFamily);
+                arch = archProps.getProperty(sb.toString());
+            }
 
             if (Util.isBlank(arch)) {
                 // Append model
                 sb.append('.').append(this.cpuModel);
+                arch = archProps.getProperty(sb.toString());
             }
-            arch = archProps.getProperty(sb.toString());
 
             if (Util.isBlank(arch)) {
                 // Append stepping
                 sb.append('.').append(this.cpuStepping);
+                arch = archProps.getProperty(sb.toString());
             }
-            arch = archProps.getProperty(sb.toString());
 
             return Util.isBlank(arch) ? Constants.UNKNOWN : arch;
         }
