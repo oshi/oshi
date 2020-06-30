@@ -23,106 +23,63 @@
  */
 package oshi.hardware.platform.unix.aix;
 
-import static oshi.util.Memoizer.defaultExpiration;
-import static oshi.util.Memoizer.memoize;
-
 import java.util.function.Supplier;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.driver.unix.solaris.kstat.SystemPages;
 import oshi.hardware.common.AbstractVirtualMemory;
-import oshi.util.ExecutingCommand;
-import oshi.util.ParseUtil;
-import oshi.util.tuples.Pair;
+import oshi.jna.platform.unix.aix.Perfstat.perfstat_memory_total_t;
 
 /**
- * Memory obtained by kstat and swap
+ * Memory obtained by perfstat_memory_total_t
  */
 @ThreadSafe
 final class AixVirtualMemory extends AbstractVirtualMemory {
 
-    private static final Pattern SWAP_INFO = Pattern.compile(".+\\s(\\d+)K\\s+(\\d+)K$");
+    // Memoized perfstat from GlobalMemory
+    private final Supplier<perfstat_memory_total_t> perfstatMem;
 
-    private final AixGlobalMemory global;
-
-    // Physical
-    private final Supplier<Pair<Long, Long>> availTotal = memoize(SystemPages::queryAvailableTotal,
-            defaultExpiration());
-
-    // Swap
-    private final Supplier<Pair<Long, Long>> usedTotal = memoize(AixVirtualMemory::querySwapInfo, defaultExpiration());
-
-    private final Supplier<Long> pagesIn = memoize(AixVirtualMemory::queryPagesIn, defaultExpiration());
-
-    private final Supplier<Long> pagesOut = memoize(AixVirtualMemory::queryPagesOut, defaultExpiration());
+    // AIX has multiple page size units, but for purposes of "pages" in perfstat,
+    // the docs specify 4KB pages so we hardcode this
+    private static final long PAGESIZE = 4096L;
 
     /**
      * Constructor for SolarisVirtualMemory.
      *
-     * @param solarisGlobalMemory
-     *            The parent global memory class instantiating this
+     * @param perfstatMem
+     *            The memoized perfstat data from the global memory class
      */
-    AixVirtualMemory(AixGlobalMemory solarisGlobalMemory) {
-        this.global = solarisGlobalMemory;
+    AixVirtualMemory(Supplier<perfstat_memory_total_t> perfstatMem) {
+        this.perfstatMem = perfstatMem;
     }
 
     @Override
     public long getSwapUsed() {
-        return usedTotal.get().getA();
+        perfstat_memory_total_t perfstat = perfstatMem.get();
+        return (perfstat.pgsp_total - perfstat.pgsp_free) * PAGESIZE;
     }
 
     @Override
     public long getSwapTotal() {
-        return usedTotal.get().getB();
+        return perfstatMem.get().pgsp_total * PAGESIZE;
     }
 
     @Override
     public long getVirtualMax() {
-        return this.global.getPageSize() * availTotal.get().getB() + getSwapTotal();
+        return perfstatMem.get().virt_total * PAGESIZE;
     }
 
     @Override
     public long getVirtualInUse() {
-        return this.global.getPageSize() * (availTotal.get().getB() - availTotal.get().getA()) + getSwapUsed();
+        return perfstatMem.get().virt_active * PAGESIZE;
     }
 
     @Override
     public long getSwapPagesIn() {
-        return pagesIn.get();
+        return perfstatMem.get().pgspins;
     }
 
     @Override
     public long getSwapPagesOut() {
-        return pagesOut.get();
-    }
-
-    private static long queryPagesIn() {
-        long swapPagesIn = 0L;
-        for (String s : ExecutingCommand.runNative("kstat -p cpu_stat:::pgswapin")) {
-            swapPagesIn += ParseUtil.parseLastLong(s, 0L);
-        }
-        return swapPagesIn;
-    }
-
-    private static long queryPagesOut() {
-        long swapPagesOut = 0L;
-        for (String s : ExecutingCommand.runNative("kstat -p cpu_stat:::pgswapout")) {
-            swapPagesOut += ParseUtil.parseLastLong(s, 0L);
-        }
-        return swapPagesOut;
-    }
-
-    private static Pair<Long, Long> querySwapInfo() {
-        long swapTotal = 0L;
-        long swapUsed = 0L;
-        String swap = ExecutingCommand.getAnswerAt("swap -lk", 1);
-        Matcher m = SWAP_INFO.matcher(swap);
-        if (m.matches()) {
-            swapTotal = ParseUtil.parseLongOrDefault(m.group(1), 0L) << 10;
-            swapUsed = swapTotal - (ParseUtil.parseLongOrDefault(m.group(2), 0L) << 10);
-        }
-        return new Pair<>(swapUsed, swapTotal);
+        return perfstatMem.get().pgspouts;
     }
 }

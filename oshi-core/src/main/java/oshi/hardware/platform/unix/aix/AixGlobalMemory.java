@@ -26,42 +26,42 @@ package oshi.hardware.platform.unix.aix;
 import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
 
-import java.util.List;
 import java.util.function.Supplier;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.unix.aix.perfstat.PerfstatMemory;
 import oshi.hardware.VirtualMemory;
 import oshi.hardware.common.AbstractGlobalMemory;
-import oshi.util.ExecutingCommand;
-import oshi.util.ParseUtil;
-import oshi.util.tuples.Pair;
+import oshi.jna.platform.unix.aix.Perfstat.perfstat_memory_total_t;
 
 /**
- * Memory obtained by perfstat_memory_t
+ * Memory obtained by perfstat_memory_total_t
  */
 @ThreadSafe
 final class AixGlobalMemory extends AbstractGlobalMemory {
 
-    private final Supplier<Pair<Long, Long>> availTotal = memoize(AixGlobalMemory::queryAvailableTotal,
+    private final Supplier<perfstat_memory_total_t> perfstatMem = memoize(AixGlobalMemory::queryPerfstat,
             defaultExpiration());
 
-    private final Supplier<Long> pageSize = memoize(AixGlobalMemory::queryPageSize);
+    // AIX has multiple page size units, but for purposes of "pages" in perfstat,
+    // the docs specify 4KB pages so we hardcode this
+    private static final long PAGESIZE = 4096L;
 
     private final Supplier<VirtualMemory> vm = memoize(this::createVirtualMemory);
 
     @Override
     public long getAvailable() {
-        return availTotal.get().getA() * getPageSize();
+        return perfstatMem.get().real_avail * PAGESIZE;
     }
 
     @Override
     public long getTotal() {
-        return availTotal.get().getB() * getPageSize();
+        return perfstatMem.get().real_total * PAGESIZE;
     }
 
     @Override
     public long getPageSize() {
-        return pageSize.get();
+        return PAGESIZE;
     }
 
     @Override
@@ -69,25 +69,11 @@ final class AixGlobalMemory extends AbstractGlobalMemory {
         return vm.get();
     }
 
-    private static long queryPageSize() {
-        return ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer("pagesize"), 4096L);
-    }
-
-    // Temporary command line, switch to perfstat_memory_t
-    private static Pair<Long, Long> queryAvailableTotal() {
-        long avail = 0;
-        long total = 2048 * 1024 * 1024;
-        List<String> vmstat = ExecutingCommand.runNative("vmstat");
-        for (String s : vmstat) {
-            int memIdx = s.indexOf("mem=");
-            if (memIdx > 0) {
-                total = ParseUtil.parseDecimalMemorySizeToBinary(s.substring(memIdx + 4));
-            }
-        }
-        return new Pair<>(avail, total);
+    private static perfstat_memory_total_t queryPerfstat() {
+        return PerfstatMemory.queryMemoryTotal();
     }
 
     private VirtualMemory createVirtualMemory() {
-        return new AixVirtualMemory(this);
+        return new AixVirtualMemory(perfstatMem);
     }
 }
