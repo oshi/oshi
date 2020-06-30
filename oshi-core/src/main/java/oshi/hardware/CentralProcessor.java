@@ -582,6 +582,7 @@ public interface CentralProcessor {
         }
 
         private String queryMicroarchitecture() {
+            String arch = null;
             Properties archProps = FileUtil.readPropertiesFromFilename(OSHI_ARCHITECTURE_PROPERTIES);
             // Intel is default, no prefix
             StringBuilder sb = new StringBuilder();
@@ -591,11 +592,12 @@ public interface CentralProcessor {
             } else if (this.getVendor().contains("ARM")) {
                 sb.append("arm.");
             } else if (this.getVendor().contains("IBM")) {
-                sb.append("ibm.").append(this.cpuName);
+                // Directly parse the name to POWER#
+                int powerIdx = this.cpuName.indexOf("_POWER");
+                if (powerIdx > 0) {
+                    arch = this.cpuName.substring(powerIdx + 1);
+                }
             }
-            // Check for match with only name
-            String arch = archProps.getProperty(sb.toString());
-
             if (Util.isBlank(arch)) {
                 // Append family
                 sb.append(this.cpuFamily);
