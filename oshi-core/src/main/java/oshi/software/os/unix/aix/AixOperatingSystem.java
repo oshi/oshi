@@ -43,6 +43,7 @@ import oshi.software.os.OSProcess;
 import oshi.software.os.OSService;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
+import oshi.util.Util;
 
 /**
  * AIX (Advanced Interactive eXecutive) is a series of proprietary Unix
@@ -68,7 +69,10 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
         if (split.length > 1) {
             archName = split[1];
         }
-        String versionNumber = ExecutingCommand.getFirstAnswer("oslevel");
+        String versionNumber = System.getProperty("os.version");
+        if (Util.isBlank(versionNumber)) {
+            versionNumber = ExecutingCommand.getFirstAnswer("oslevel");
+        }
         String releaseNumber = ExecutingCommand.getFirstAnswer("oslevel -s");
         return new FamilyVersionInfo(systemName, new OSVersionInfo(versionNumber, archName, releaseNumber));
     }
