@@ -32,6 +32,7 @@ import static oshi.software.os.OSProcess.State.WAITING;
 import static oshi.software.os.OSProcess.State.ZOMBIE;
 import static oshi.util.Memoizer.memoize;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -212,13 +213,25 @@ public class AixOSProcess extends AbstractOSProcess {
 
     @Override
     public List<OSThread> getThreadDetails() {
-        List<String> threadListInfo1 = ExecutingCommand
-                .runNative("ps -o lwp,s,etime,stime,time,addr,pri -p " + getProcessID());
-        List<String> threadListInfo2 = ExecutingCommand.runNative("prstat -L -v -p " + getProcessID());
-        Map<Integer, String[]> threadMap = parseAndMergeThreadInfo(threadListInfo1, threadListInfo2);
-        if (threadMap.keySet().size() > 1) {
-            return threadMap.entrySet().stream().map(entry -> new AixOSThread(getProcessID(), entry.getValue()))
-                    .collect(Collectors.toList());
+        List<String> threadListInfoPs = ExecutingCommand
+                .runNative("ps -m -o THREAD -p " + getProcessID());
+        //1st row is header, 2nd row is process data.
+        if (threadListInfoPs.size() > 2) {
+            List<OSThread> threads = new ArrayList<OSThread>();
+            threadListInfoPs.remove(0); //header removed
+            threadListInfoPs.remove(1); //process data removed
+            for (String threadInfo : threadListInfoPs) {
+                //USER,PID,PPID,TID,ST,CP,PRI,SC,WCHAN,F,TT,BND,COMMAND
+                String[] threadInfoSplit = ParseUtil.whitespaces.split(threadInfo.trim());
+                if (threadInfoSplit.length == 13) {
+                    String[] split = new String[3];
+                    split[0] = threadInfoSplit[3]; //tid
+                    split[1] = threadInfoSplit[4]; //state
+                    split[2] = threadInfoSplit[6]; //priority
+                    threads.add(new AixOSThread(getProcessID(), split));
+                }
+            }
+            return threads;
         }
         return Collections.emptyList();
     }
@@ -334,12 +347,14 @@ public class AixOSProcess extends AbstractOSProcess {
         case 'O':
             state = INVALID;
             break;
+        case 'R':
         case 'A':
             state = RUNNING;
             break;
         case 'I':
             state = WAITING;
             break;
+        case 'S':
         case 'W':
             state = SLEEPING;
             break;
