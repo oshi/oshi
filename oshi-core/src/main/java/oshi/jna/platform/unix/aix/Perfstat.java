@@ -379,6 +379,70 @@ public interface Perfstat extends Library {
         public long outOps; // Out Operations from Disk
     }
 
+    @FieldOrder({ "name", "devid", "rbytes", "wbytes", "rerrs", "werrs", "rtime", "wtime", "nread", "nwrite",
+            "dev_status" })
+    class perfstat_bio_dev_t extends Structure {
+        public byte[] name = new byte[32]; // Device Name
+        public long devid; // 64bit device id (Upper32=major,lower32=minor)
+        public long rbytes; // Bytes read
+        public long wbytes; // Bytes Written
+        public long rerrs; // Number of read errors
+        public long werrs; // Number of write errors
+        public long rtime; // Aggregate time (reads)
+        public long wtime; // Aggregate time (writes)
+        public long nread; // Number of reads
+        public long nwrite; // Number of writes
+        public long dev_status; // Status of device
+                                // 1 - Available
+                                // 0 - Unavailable
+                                // 0xFFFFFFFF0ERRORNO otherwise
+    }
+
+    @FieldOrder({ "name", "description", "vgname", "size", "free", "bsize", "xrate", "xfers", "wblks", "rblks",
+            "qdepth", "time", "adapter", "paths_count", "q_full", "rserv", "rtimeout", "rfailed", "min_rserv",
+            "max_rserv", "wserv", "wtimeout", "wfailed", "min_wserv", "max_wserv", "wq_depth", "wq_sampled", "wq_time",
+            "wq_min_time", "wq_max_time", "q_sampled", "wpar_id", "pad", "version", "dk_type" })
+    class perfstat_disk_t extends Structure {
+        public byte[] name = new byte[IDENTIFIER_LENGTH]; // name of the disk
+        public byte[] description = new byte[IDENTIFIER_LENGTH]; // disk description (from ODM)
+        public byte[] vgname = new byte[IDENTIFIER_LENGTH]; // volume group name (from ODM)
+        public long size; // size of the disk (in MB)
+        public long free; // free portion of the disk (in MB)
+        public long bsize; // disk block size (in bytes)
+        public long xrate; // OBSOLETE: xrate capability
+        public long xfers; // number of transfers to/from disk
+        public long wblks; // number of blocks written to disk
+        public long rblks; // number of blocks read from disk
+        public long qdepth; // instantaneous "service" queue depth (number of requests sent to disk and not
+                            // completed yet)
+        public long time; // amount of time disk is active
+        public byte[] adapter = new byte[IDENTIFIER_LENGTH];// disk adapter name
+        public int paths_count; // number of paths to this disk
+        public long q_full; // "service" queue full occurrence count (number of times the disk is not
+                            // accepting any more request)
+        public long rserv; // read or receive service time
+        public long rtimeout; // number of read request timeouts
+        public long rfailed; // number of failed read requests
+        public long min_rserv; // min read or receive service time
+        public long max_rserv; // max read or receive service time
+        public long wserv; // write or send service time
+        public long wtimeout; // number of write request timeouts
+        public long wfailed; // number of failed write requests
+        public long min_wserv; // min write or send service time
+        public long max_wserv; // max write or send service time
+        public long wq_depth; // instantaneous wait queue depth (number of requests waiting to be sent to
+                              // disk)
+        public long wq_sampled; // accumulated sampled dk_wq_depth
+        public long wq_time; // accumulated wait queueing time
+        public long wq_min_time; // min wait queueing time
+        public long wq_max_time; // max wait queueing time
+        public long q_sampled; // accumulated sampled dk_q_depth
+        public short wpar_id; // WPAR identifier. cid_t is unsigned short
+        public short[] pad = new short[3]; // Pad of 3 short is available here
+        public long version; // version number (1, 2, etc.,)
+        int dk_type; // Holds more information about the disk. 32-bit union perfstat_dktype_t
+    }
+
     /**
      * Retrieves total processor usage metrics
      *
@@ -442,7 +506,44 @@ public interface Perfstat extends Library {
      *            Set to 0 to count processes, set to number of processes to return
      *            otherwise
      * @return The return value is -1 in case of errors. Otherwise, the number of
-     *         structures copied is returned. This is always 1.
+     *         structures copied is returned.
      */
     int perfstat_process(perfstat_id_t name, perfstat_process_t[] procs, int sizeof_struct, int desired_number);
+
+    /**
+     * Retrieves block IO statistics
+     *
+     * @param name
+     *            Structure containing empty string when collecting all block io
+     *            stats, or null to count block io devices
+     * @param procs
+     *            Populated with structures, or null to count devices
+     * @param sizeof_struct
+     *            Should be set to sizeof(perfstat_bio_stats_t)
+     * @param desired_number
+     *            Set to 0 to count block devices, set to number of devices to
+     *            return otherwise
+     * @return The return value is -1 in case of errors. Otherwise, the number of
+     *         structures copied is returned.
+     */
+    int perfstat_bio_stats(perfstat_id_t name, perfstat_bio_dev_t[] procs, int sizeof_struct, int desired_number);
+
+    /**
+     * Retrieves disk statistics
+     *
+     * @param name
+     *            Structure containing empty string when collecting all disk stats,
+     *            or null to count block disks
+     * @param procs
+     *            Populated with structures, or null to count disk
+     * @param sizeof_struct
+     *            Should be set to sizeof(perfstat_disk_t)
+     * @param desired_number
+     *            Set to 0 to count disks, set to number of disks to return
+     *            otherwise
+     * @return The return value is -1 in case of errors. Otherwise, the number of
+     *         structures copied is returned.
+     */
+    int perfstat_disk(perfstat_id_t name, perfstat_disk_t[] procs, int sizeof_struct, int desired_number);
+
 }
