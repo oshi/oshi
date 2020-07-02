@@ -51,11 +51,4 @@ public final class PerfstatMemory {
         }
         return new perfstat_memory_total_t();
     }
-
-    public static void main(String[] args) {
-        perfstat_memory_total_t memory = queryMemoryTotal();
-        System.out.println("Memory (in 4KB pages):");
-        System.out.format("avail=%d, inuse=%d, free=%d, total=%d, vtotal=%d%n", memory.real_avail, memory.real_inuse,
-                memory.real_free, memory.real_total, memory.virt_total);
-    }
 }

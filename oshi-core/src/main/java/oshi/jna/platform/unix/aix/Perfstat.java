@@ -379,25 +379,6 @@ public interface Perfstat extends Library {
         public long outOps; // Out Operations from Disk
     }
 
-    @FieldOrder({ "name", "devid", "rbytes", "wbytes", "rerrs", "werrs", "rtime", "wtime", "nread", "nwrite",
-            "dev_status" })
-    class perfstat_bio_dev_t extends Structure {
-        public byte[] name = new byte[32]; // Device Name
-        public long devid; // 64bit device id (Upper32=major,lower32=minor)
-        public long rbytes; // Bytes read
-        public long wbytes; // Bytes Written
-        public long rerrs; // Number of read errors
-        public long werrs; // Number of write errors
-        public long rtime; // Aggregate time (reads)
-        public long wtime; // Aggregate time (writes)
-        public long nread; // Number of reads
-        public long nwrite; // Number of writes
-        public long dev_status; // Status of device
-                                // 1 - Available
-                                // 0 - Unavailable
-                                // 0xFFFFFFFF0ERRORNO otherwise
-    }
-
     @FieldOrder({ "name", "description", "vgname", "size", "free", "bsize", "xrate", "xfers", "wblks", "rblks",
             "qdepth", "time", "adapter", "paths_count", "q_full", "rserv", "rtimeout", "rfailed", "min_rserv",
             "max_rserv", "wserv", "wtimeout", "wfailed", "min_wserv", "max_wserv", "wq_depth", "wq_sampled", "wq_time",
@@ -440,7 +421,7 @@ public interface Perfstat extends Library {
         public short wpar_id; // WPAR identifier. cid_t is unsigned short
         public short[] pad = new short[3]; // Pad of 3 short is available here
         public long version; // version number (1, 2, etc.,)
-        int dk_type; // Holds more information about the disk. 32-bit union perfstat_dktype_t
+        public int dk_type; // Holds more information about the disk. 32-bit union perfstat_dktype_t
     }
 
     /**
@@ -509,24 +490,6 @@ public interface Perfstat extends Library {
      *         structures copied is returned.
      */
     int perfstat_process(perfstat_id_t name, perfstat_process_t[] procs, int sizeof_struct, int desired_number);
-
-    /**
-     * Retrieves block IO statistics
-     *
-     * @param name
-     *            Structure containing empty string when collecting all block io
-     *            stats, or null to count block io devices
-     * @param procs
-     *            Populated with structures, or null to count devices
-     * @param sizeof_struct
-     *            Should be set to sizeof(perfstat_bio_stats_t)
-     * @param desired_number
-     *            Set to 0 to count block devices, set to number of devices to
-     *            return otherwise
-     * @return The return value is -1 in case of errors. Otherwise, the number of
-     *         structures copied is returned.
-     */
-    int perfstat_bio_stats(perfstat_id_t name, perfstat_bio_dev_t[] procs, int sizeof_struct, int desired_number);
 
     /**
      * Retrieves disk statistics

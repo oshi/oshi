@@ -23,8 +23,6 @@
  */
 package oshi.driver.unix.aix.perfstat;
 
-import com.sun.jna.Native;
-
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.platform.unix.aix.Perfstat;
 import oshi.jna.platform.unix.aix.Perfstat.perfstat_cpu_t;
@@ -74,18 +72,5 @@ public final class PerfstatCpu {
             }
         }
         return new perfstat_cpu_t[0];
-    }
-
-    public static void main(String[] args) {
-        perfstat_cpu_t[] statp = queryCpu();
-        System.out.println("Found" + statp.length + " cpu(s)");
-        for (int i = 0; i < statp.length; i++) {
-            System.out.format("%s: U=%d, S=%d, I=%d%n", Native.toString(statp[i].name), statp[i].user, statp[i].sys,
-                    statp[i].idle);
-        }
-
-        perfstat_cpu_total_t cpu = queryCpuTotal();
-        System.out.println("Total Usage:");
-        System.out.format("%s: U=%d, S=%d, I=%d%n", Native.toString(cpu.description), cpu.user, cpu.sys, cpu.idle);
     }
 }

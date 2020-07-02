@@ -27,7 +27,6 @@ import com.sun.jna.Native;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.platform.unix.aix.Perfstat;
-import oshi.jna.platform.unix.aix.Perfstat.perfstat_bio_dev_t;
 import oshi.jna.platform.unix.aix.Perfstat.perfstat_disk_t;
 import oshi.jna.platform.unix.aix.Perfstat.perfstat_id_t;
 
@@ -40,26 +39,6 @@ public final class PerfstatDisk {
     private static final Perfstat PERF = Perfstat.INSTANCE;
 
     private PerfstatDisk() {
-    }
-
-    /**
-     * Queries perfstat_bio_stats for per-block-device IO statistics
-     *
-     * @return an array of usage statistics
-     */
-    public static perfstat_bio_dev_t[] queryBlockIOstats() {
-        perfstat_bio_dev_t bio_stats = new perfstat_bio_dev_t();
-        // With null, null, ..., 0, returns total # of elements
-        int total = PERF.perfstat_bio_stats(null, null, bio_stats.size(), 0);
-        if (total > 0) {
-            perfstat_bio_dev_t[] biop = (perfstat_bio_dev_t[]) bio_stats.toArray(total);
-            perfstat_id_t firstbio_stats = new perfstat_id_t(); // name is ""
-            int ret = PERF.perfstat_bio_stats(firstbio_stats, biop, bio_stats.size(), total);
-            if (ret > 0) {
-                return biop;
-            }
-        }
-        return new perfstat_bio_dev_t[0];
     }
 
     /**
@@ -83,14 +62,8 @@ public final class PerfstatDisk {
     }
 
     public static void main(String[] args) {
-        perfstat_bio_dev_t[] biop = queryBlockIOstats();
-        System.out.println("Found " + biop.length + " bio_stats(s)");
-        for (int i = 0; i < biop.length; i++) {
-            System.out.format("%s: id=%x, byteR=%d, byteW=%d%n", Native.toString(biop[i].name), biop[i].devid,
-                    biop[i].rbytes, biop[i].wbytes);
-        }
         perfstat_disk_t[] disks = queryDiskStats();
-        System.out.println("\nFound " + disks.length + " bio_stats(s)");
+        System.out.println("Found " + disks.length + " disk(s)");
         for (int i = 0; i < disks.length; i++) {
             System.out.format("%s: (%s) [%s] size=%d, free=%d, byteR=%d, byteW=%d%n", Native.toString(disks[i].name),
                     Native.toString(disks[i].description), Native.toString(disks[i].vgname), disks[i].size,
