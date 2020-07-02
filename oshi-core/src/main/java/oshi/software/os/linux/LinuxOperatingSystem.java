@@ -538,7 +538,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
 
         if (name.isEmpty()) {
             return "Solaris";
-        } else if ("issue".equals(name.toLowerCase())) {
+        } else if ("issue".equalsIgnoreCase(name)) {
             // /etc/issue will end up here
             return "Unknown";
         } else {
