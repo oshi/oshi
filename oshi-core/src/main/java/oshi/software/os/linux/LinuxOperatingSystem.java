@@ -40,6 +40,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -86,6 +87,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     private static final String RELEASE_DELIM = " release ";
     private static final String DOUBLE_QUOTES = "^\"|\"$";
     private static final String LS_F_PROC_PID_FD = "ls -f " + ProcPath.PID_FD;
+    private static final String FILENAME_PROPERTIES = "oshi.linux.filename.properties";
 
     private static final long BOOTTIME;
     static {
@@ -728,64 +730,16 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
      * @return Mixed case family
      */
     private static String filenameToFamily(String name) {
-        switch (name.toLowerCase()) {
-        // Handle known special cases
-        case "":
-            return "Solaris";
-        case "blackcat":
-            return "Black Cat";
-        case "bluewhite64":
-            return "BlueWhite64";
-        case "e-smith":
-            return "SME Server";
-        case "eos":
-            return "FreeEOS";
-        case "hlfs":
-            return "HLFS";
-        case "lfs":
-            return "Linux-From-Scratch";
-        case "linuxppc":
-            return "Linux-PPC";
-        case "meego":
-            return "MeeGo";
-        case "mandakelinux":
-            return "Mandrake";
-        case "mklinux":
-            return "MkLinux";
-        case "nld":
-            return "Novell Linux Desktop";
-        case "novell":
-        case "SuSE":
-            return "SUSE Linux";
-        case "pld":
-            return "PLD";
-        case "redhat":
-            return "Red Hat Linux";
-        case "sles":
-            return "SUSE Linux ES9";
-        case "sun":
-            return "Sun JDS";
-        case "synoinfo":
-            return "Synology";
-        case "tinysofa":
-            return "Tiny Sofa";
-        case "turbolinux":
-            return "TurboLinux";
-        case "ultrapenguin":
-            return "UltraPenguin";
-        case "va":
-            return "VA-Linux";
-        case "vmware":
-            return "VMWareESX";
-        case "yellowdog":
-            return "Yellow Dog";
 
-        // /etc/issue will end up here:
-        case "issue":
+        if (name.isEmpty()) {
+            return "Solaris";
+        } else if ("issue".equalsIgnoreCase(name)) {
+            // /etc/issue will end up here
             return "Unknown";
-        // If not a special case just capitalize first letter
-        default:
-            return name.substring(0, 1).toUpperCase() + name.substring(1);
+        } else {
+            Properties filenameProps = FileUtil.readPropertiesFromFilename(FILENAME_PROPERTIES);
+            String family = filenameProps.getProperty(name.toLowerCase());
+            return family != null ? family : name.substring(0, 1).toUpperCase() + name.substring(1);
         }
     }
 
