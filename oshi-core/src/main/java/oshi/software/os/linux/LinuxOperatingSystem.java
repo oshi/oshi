@@ -167,7 +167,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
 
         // now for each file (with digit name) get process info
         for (File pidFile : pids) {
-                int pid = ParseUtil.parseIntOrDefault(pidFile.getName(), 0);
+            int pid = ParseUtil.parseIntOrDefault(pidFile.getName(), 0);
             OSProcess proc = new LinuxOSProcess(pid);
             if (!proc.getState().equals(State.INVALID)) {
                 procs.add(proc);
