@@ -535,10 +535,14 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
      * @return Mixed case family
      */
     private static String filenameToFamily(String name) {
-        Properties filenameProps = FileUtil.readPropertiesFromFilename(FILENAME_PROPERTIES);
-        if (name.equals("")) {
+
+        if (name.isEmpty()) {
             return "Solaris";
+        } else if ("issue".equals(name.toLowerCase())) {
+            // /etc/issue will end up here
+            return "Unknown";
         } else {
+            Properties filenameProps = FileUtil.readPropertiesFromFilename(FILENAME_PROPERTIES);
             String family = filenameProps.getProperty(name.toLowerCase());
             return family != null ? family : name.substring(0, 1).toUpperCase() + name.substring(1);
         }
