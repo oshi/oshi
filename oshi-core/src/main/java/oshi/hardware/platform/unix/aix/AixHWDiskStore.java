@@ -147,7 +147,10 @@ public final class AixHWDiskStore extends AbstractHWDiskStore {
             String serial = ms.getB() == null ? Constants.UNKNOWN : ms.getB();
             storeList.add(createStore(storeName, model, serial, disk.size << 20, diskStats, majMinMap));
         }
-        return Collections.unmodifiableList(storeList);
+        return Collections.unmodifiableList(storeList.stream()
+                .sorted(Comparator.comparingInt(
+                        s -> s.getPartitions().isEmpty() ? Integer.MAX_VALUE : s.getPartitions().get(0).getMajor()))
+                .collect(Collectors.toList()));
     }
 
     private static AixHWDiskStore createStore(String diskName, String model, String serial, long size,
