@@ -51,8 +51,10 @@ final class AixCentralProcessor extends AbstractCentralProcessor {
 
     private final Supplier<perfstat_cpu_total_t> cpuTotal = memoize(PerfstatCpu::queryCpuTotal, defaultExpiration());
     private final Supplier<perfstat_cpu_t[]> cpuProc = memoize(PerfstatCpu::queryCpu, defaultExpiration());
-    private final Supplier<perfstat_partition_config_t> config = memoize(PerfstatConfig::queryConfig);
     private static final int SBITS = querySbits();
+
+    private long processorMHz;
+
     /**
      * Jiffies per second, used for process time counters.
      */
@@ -94,16 +96,19 @@ final class AixCentralProcessor extends AbstractCentralProcessor {
         }
 
         return new ProcessorIdentifier(cpuVendor, cpuName, cpuFamily, cpuModel, cpuStepping, machineId, cpu64bit,
-                (long) (config.get().processorMHz * 1_000_000L));
+                processorMHz);
     }
 
     @Override
     protected List<LogicalProcessor> initProcessorCounts() {
-        int physProcs = (int) config.get().numProcessors.max;
+        perfstat_partition_config_t config = PerfstatConfig.queryConfig();
+
+        this.processorMHz = (long) (config.processorMHz * 1_000_000L);
+        int physProcs = (int) config.numProcessors.max;
         if (physProcs < 1) {
             physProcs = 1;
         }
-        int lcpus = config.get().lcpus;
+        int lcpus = config.lcpus;
         if (lcpus < 1) {
             lcpus = 1;
         }
