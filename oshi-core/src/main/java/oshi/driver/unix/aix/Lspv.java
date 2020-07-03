@@ -67,7 +67,7 @@ public final class Lspv {
         String stateMarker = "PV STATE:";
         String sizeMarker = "PP SIZE:";
         long ppSize = 0L; // All physical partitions are the same size
-        for (String s : ExecutingCommand.runNative("lspv -p " + device)) {
+        for (String s : ExecutingCommand.runNative("lspv -L " + device)) {
             if (s.startsWith(stateMarker)) {
                 if (!s.contains("active")) {
                     return Collections.emptyList();

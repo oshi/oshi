@@ -152,7 +152,8 @@ public final class AixHWDiskStore extends AbstractHWDiskStore {
         AixHWDiskStore store = new AixHWDiskStore(diskName, model.isEmpty() ? Constants.UNKNOWN : model, serial, size,
                 diskStats);
         store.partitionList = Collections.unmodifiableList(Lspv.queryLogicalVolumes(diskName).stream()
-                .sorted(Comparator.comparing(HWPartition::getName)).collect(Collectors.toList()));
+                .sorted(Comparator.comparing(HWPartition::getMinor).thenComparing(HWPartition::getName))
+                .collect(Collectors.toList()));
         store.updateAttributes();
         return store;
     }
