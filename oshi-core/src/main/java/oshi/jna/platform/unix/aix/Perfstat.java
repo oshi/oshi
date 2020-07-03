@@ -424,6 +424,77 @@ public interface Perfstat extends Library {
         public int dk_type; // Holds more information about the disk. 32-bit union perfstat_dktype_t
     }
 
+    @FieldOrder({ "online", "max", "min", "desired" })
+    class perfstat_value_t extends Structure {
+        public long online;
+        public long max;
+        public long min;
+        public long desired;
+    }
+
+    @FieldOrder({ "version", "partitionname", "nodename", "conf", "partitionnum", "groupid", "processorFamily",
+            "processorModel", "machineID", "processorMHz", "numProcessors", "OSName", "OSVersion", "OSBuild", "lcpus",
+            "smtthreads", "drives", "nw_adapters", "cpucap", "cpucap_weightage", "entitled_proc_capacity", "vcpus",
+            "processor_poolid", "activecpusinpool", "cpupool_weightage", "sharedpcpu", "maxpoolcap", "entpoolcap",
+            "mem", "mem_weightage", "totiomement", "mempoolid", "hyperpgsize", "exp_mem", "targetmemexpfactor",
+            "targetmemexpsize" })
+    class perfstat_partition_config_t extends Structure {
+        public long version; // Version number
+        public byte[] partitionname = new byte[64]; // Partition Name
+        public byte[] nodename = new byte[64]; // Node Name
+        public int conf; // Partition Properties (perfstat_partition_type_t 32-bit union)
+        public int partitionnum; // Partition Number
+        public int groupid; // Group ID
+
+        /* Hardware Configuration */
+        public byte[] processorFamily = new byte[64]; // Processor Type
+        public byte[] processorModel = new byte[64]; // Processor Model
+        public byte[] machineID = new byte[64]; // Machine ID
+        public double processorMHz; // Processor Clock Speed in MHz
+        public perfstat_value_t numProcessors; // Number of Configured Physical Processors in frame
+
+        /* Software Configuration */
+        public byte[] OSName = new byte[64]; // Name of Operating System
+        public byte[] OSVersion = new byte[64]; // Version of operating System
+        public byte[] OSBuild = new byte[64]; // Build of Operating System
+
+        /* Lpar Configuration */
+        public int lcpus; // Number of Logical CPUs
+        public int smtthreads; // Number of SMT Threads
+        public int drives; // Total Number of Drives
+        public int nw_adapters; // Total Number of Network Adapters
+
+        /* Physical CPU related Configuration */
+        public perfstat_value_t cpucap; // Min, Max and Online CPU Capacity
+        public int cpucap_weightage; // Variable Processor Capacity Weightage
+        public int entitled_proc_capacity; // number of processor units this partition is entitled to receive
+        /* Virtual CPU related Configuration */
+        public perfstat_value_t vcpus; // Min, Max and Online Virtual CPUs
+
+        /* Processor Pool Related Configuration */
+        public int processor_poolid; // Shared Pool ID of physical processors, to which this partition belongs
+        public int activecpusinpool; // Count of physical CPUs in the shared processor pool, to which this partition
+                                     // belongs
+        public int cpupool_weightage; // Pool Weightage
+        public int sharedpcpu; // Number of physical processors allocated for shared processor use
+        public int maxpoolcap; // Maximum processor capacity of partition's pool
+        public int entpoolcap; // Entitled processor capacity of partition's pool
+
+        /* Memory Related Configuration */
+        public perfstat_value_t mem; // Min, Max and Online Memory
+        public int mem_weightage; // Variable Memory Capacity Weightage
+
+        /* AMS Related Configuration */
+        public long totiomement; // I/O Memory Entitlement of the partition in bytes
+        public int mempoolid; // AMS pool id of the pool the LPAR belongs to
+        public long hyperpgsize; // Hypervisor page size in KB
+
+        /* AME Related Configuration */
+        public perfstat_value_t exp_mem; // Min, Max and Online Expanded Memory
+        public long targetmemexpfactor; // Target Memory Expansion Factor scaled by 100
+        public long targetmemexpsize; // Expanded Memory Size in MB
+    }
+
     /**
      * Retrieves total processor usage metrics
      *
@@ -509,4 +580,20 @@ public interface Perfstat extends Library {
      */
     int perfstat_disk(perfstat_id_t name, perfstat_disk_t[] procs, int sizeof_struct, int desired_number);
 
+    /**
+     * Retrieves total memory-related metrics
+     *
+     * @param name
+     *            Reserved for future use, must be NULL
+     * @param config
+     *            Populated with structure
+     * @param sizeof_struct
+     *            Should be set to sizeof(perfstat_partition_config_t)
+     * @param desired_number
+     *            Reserved for future use, must be set to 0 or 1
+     * @return The return value is -1 in case of errors. Otherwise, the number of
+     *         structures copied is returned. This is always 1.
+     */
+    int perfstat_partition_config(perfstat_id_t name, perfstat_partition_config_t config, int sizeof_struct,
+            int desired_number);
 }
