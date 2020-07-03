@@ -23,14 +23,12 @@
  */
 package oshi.software.os.unix.aix;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import oshi.software.common.AbstractOSThread;
 import oshi.software.os.OSProcess;
-import oshi.software.os.OSThread;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
@@ -107,13 +105,12 @@ public class AixOSThread extends AbstractOSThread {
                 .runNative("ps -m -o THREAD -p " + getOwningProcessId());
         //1st row is header, 2nd row is process data.
         if (threadListInfoPs.size() > 2) {
-            List<OSThread> threads = new ArrayList<OSThread>();
             threadListInfoPs.remove(0); //header removed
             threadListInfoPs.remove(1); //process data removed
             for (String threadInfo : threadListInfoPs) {
                 //USER,PID,PPID,TID,ST,CP,PRI,SC,WCHAN,F,TT,BND,COMMAND
                 String[] threadInfoSplit = ParseUtil.whitespaces.split(threadInfo.trim());
-                if (threadInfoSplit.length == 13 && threadInfoSplit[3] == String.valueOf(this.getThreadId())) {
+                if (threadInfoSplit.length == 13 && threadInfoSplit[3].equals(String.valueOf(this.getThreadId()))) {
                     String[] split = new String[3];
                     split[0] = threadInfoSplit[3]; //tid
                     split[1] = threadInfoSplit[4]; //state

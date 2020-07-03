@@ -38,7 +38,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.AbstractOSProcess;
@@ -217,7 +216,7 @@ public class AixOSProcess extends AbstractOSProcess {
                 .runNative("ps -m -o THREAD -p " + getProcessID());
         //1st row is header, 2nd row is process data.
         if (threadListInfoPs.size() > 2) {
-            List<OSThread> threads = new ArrayList<OSThread>();
+            List<OSThread> threads = new ArrayList<>();
             threadListInfoPs.remove(0); //header removed
             threadListInfoPs.remove(1); //process data removed
             for (String threadInfo : threadListInfoPs) {

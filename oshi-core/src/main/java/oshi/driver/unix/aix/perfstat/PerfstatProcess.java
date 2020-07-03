@@ -65,8 +65,7 @@ public final class PerfstatProcess {
         perfstat_process_t[] procs = queryProcesses();
         System.out.println("Found" + procs.length + " process(es)");
         for (int i = 0; i < procs.length && i < 10; i++) {
-            System.out.format(
-                    "%s: pid=%d, VSZ=%d KB, RSS=%d KB (maybe?), ucpu_time=%d, scpu_time=%d%n",
+            System.out.format("%s: pid=%d, VSZ=%d KB, RSS=%d KB (maybe?), ucpu_time=%d, scpu_time=%d%n",
                     Native.toString(procs[i].proc_name), procs[i].pid, procs[i].proc_size, procs[i].real_inuse,
                     (long) procs[i].ucpu_time, (long) procs[i].scpu_time);
         }

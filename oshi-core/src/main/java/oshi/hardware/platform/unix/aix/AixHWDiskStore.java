@@ -28,18 +28,19 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
 
-import com.sun.jna.Native;
+import com.sun.jna.Native; // NOSONAR squid:s1191
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.unix.aix.Lscfg;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
 import oshi.hardware.common.AbstractHWDiskStore;
 import oshi.jna.platform.unix.aix.Perfstat.perfstat_disk_t;
 import oshi.util.Constants;
-import oshi.util.ParseUtil;
+import oshi.util.tuples.Pair;
 
 /**
- * Solaris hard disk implementation.
+ * AiX hard disk implementation.
  */
 @ThreadSafe
 public final class AixHWDiskStore extends AbstractHWDiskStore {
@@ -107,11 +108,10 @@ public final class AixHWDiskStore extends AbstractHWDiskStore {
             if (name.equals(this.getName())) {
                 // we only have total transfers so estimate read/write ratio from blocks
                 long blks = stat.rblks + stat.wblks;
+                this.reads = stat.xfers;
                 if (blks > 0L) {
                     this.writes = stat.xfers * stat.wblks / blks;
-                    this.reads = stat.xfers - this.writes;
-                } else {
-                    this.reads = stat.xfers;
+                    this.reads -= this.writes;
                 }
                 this.readBytes = stat.rblks * stat.bsize;
                 this.writeBytes = stat.wblks * stat.bsize;
@@ -125,48 +125,26 @@ public final class AixHWDiskStore extends AbstractHWDiskStore {
 
     /**
      * Gets the disks on this machine
-     * 
-     * @param lscfg
-     * 
+     *
      * @param diskStats
+     *            Memoized supplier of disk statistics
      *
      * @return an {@code UnmodifiableList} of {@link HWDiskStore} objects
      *         representing the disks
      */
-    public static List<HWDiskStore> getDisks(Supplier<List<String>> lscfg, Supplier<perfstat_disk_t[]> diskStats) {
+    public static List<HWDiskStore> getDisks(Supplier<perfstat_disk_t[]> diskStats) {
         List<AixHWDiskStore> storeList = new ArrayList<>();
-        List<String> cfg = lscfg.get();
-        String serialMarker = "Serial Number";
-        String modelMarker = "Machine Type and Model";
-        String deviceSpecificMarker = "Device Specific";
         for (perfstat_disk_t disk : diskStats.get()) {
             String storeName = Native.toString(disk.name);
-            String model = Native.toString(disk.description);
-            String serial = Constants.UNKNOWN;
-            boolean thisDisk = false;
-            for (String s : cfg) {
-                if (!thisDisk && s.trim().startsWith(storeName)) {
-                    thisDisk = true;
-                }
-                if (thisDisk) {
-                    if (s.contains(modelMarker)) {
-                        model = ParseUtil.removeLeadingDots(s.split(modelMarker)[1].trim());
-                    } else if (s.contains(serialMarker)) {
-                        serial = ParseUtil.removeLeadingDots(s.split(serialMarker)[1].trim());
-                    } else if (s.contains(deviceSpecificMarker)) {
-                        break;
-                    }
-                }
-            }
-            // volume group, probably not right but sub later
-            String mount = Native.toString(disk.vgname);
-            storeList.add(createStore(storeName, model, serial, disk.size << 20, mount, diskStats));
+            Pair<String, String> ms = Lscfg.queryModelSerial(storeName);
+            String model = ms.getA() == null ? Native.toString(disk.description) : ms.getA();
+            String serial = ms.getB() == null ? Constants.UNKNOWN : ms.getB();
+            storeList.add(createStore(storeName, model, serial, disk.size << 20, diskStats));
         }
-
         return Collections.unmodifiableList(storeList);
     }
 
-    private static AixHWDiskStore createStore(String diskName, String model, String serial, long size, String mount,
+    private static AixHWDiskStore createStore(String diskName, String model, String serial, long size,
             Supplier<perfstat_disk_t[]> diskStats) {
         AixHWDiskStore store = new AixHWDiskStore(diskName, model.isEmpty() ? Constants.UNKNOWN : model, serial, size,
                 diskStats);
