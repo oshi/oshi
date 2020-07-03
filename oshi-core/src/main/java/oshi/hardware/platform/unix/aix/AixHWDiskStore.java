@@ -27,12 +27,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import com.sun.jna.Native; // NOSONAR squid:s1191
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.unix.aix.Ls;
 import oshi.driver.unix.aix.Lscfg;
 import oshi.driver.unix.aix.Lspv;
 import oshi.hardware.HWDiskStore;
@@ -136,22 +138,23 @@ public final class AixHWDiskStore extends AbstractHWDiskStore {
      *         representing the disks
      */
     public static List<HWDiskStore> getDisks(Supplier<perfstat_disk_t[]> diskStats) {
+        Map<String, Pair<Integer, Integer>> majMinMap = Ls.queryDeviceMajorMinor();
         List<AixHWDiskStore> storeList = new ArrayList<>();
         for (perfstat_disk_t disk : diskStats.get()) {
             String storeName = Native.toString(disk.name);
             Pair<String, String> ms = Lscfg.queryModelSerial(storeName);
             String model = ms.getA() == null ? Native.toString(disk.description) : ms.getA();
             String serial = ms.getB() == null ? Constants.UNKNOWN : ms.getB();
-            storeList.add(createStore(storeName, model, serial, disk.size << 20, diskStats));
+            storeList.add(createStore(storeName, model, serial, disk.size << 20, diskStats, majMinMap));
         }
         return Collections.unmodifiableList(storeList);
     }
 
     private static AixHWDiskStore createStore(String diskName, String model, String serial, long size,
-            Supplier<perfstat_disk_t[]> diskStats) {
+            Supplier<perfstat_disk_t[]> diskStats, Map<String, Pair<Integer, Integer>> majMinMap) {
         AixHWDiskStore store = new AixHWDiskStore(diskName, model.isEmpty() ? Constants.UNKNOWN : model, serial, size,
                 diskStats);
-        store.partitionList = Collections.unmodifiableList(Lspv.queryLogicalVolumes(diskName).stream()
+        store.partitionList = Collections.unmodifiableList(Lspv.queryLogicalVolumes(diskName, majMinMap).stream()
                 .sorted(Comparator.comparing(HWPartition::getMinor).thenComparing(HWPartition::getName))
                 .collect(Collectors.toList()));
         store.updateAttributes();

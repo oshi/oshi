@@ -34,6 +34,7 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.HWPartition;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
+import oshi.util.tuples.Pair;
 
 /**
  * Utility to query lspv
@@ -45,12 +46,15 @@ public final class Lspv {
     }
 
     /**
-     * Query {@code lspv} to get parition info
+     * Query {@code lspv} to get partition info
+     *
+     * @param majMinMap
+     *            A map of device name to a pair with major and minor numbers.
      *
      * @return A pair containing the model and serial number for the device, or null
      *         if not found
      */
-    public static List<HWPartition> queryLogicalVolumes(String device) {
+    public static List<HWPartition> queryLogicalVolumes(String device, Map<String, Pair<Integer, Integer>> majMinMap) {
         /*-
          $ lspv -L hdisk0
         PHYSICAL VOLUME:    hdisk0                   VOLUME GROUP:     rootvg
@@ -123,7 +127,6 @@ public final class Lspv {
                 ppMap.put(name, ppCount + ppMap.getOrDefault(name, 0));
             }
         }
-        int major = ParseUtil.getFirstIntValue(device);
         List<HWPartition> partitions = new ArrayList<>();
         for (Entry<String, String> entry : mountMap.entrySet()) {
             String mount = "N/A".equals(entry.getValue()) ? "" : entry.getValue();
@@ -131,7 +134,9 @@ public final class Lspv {
             String name = entry.getKey();
             String type = typeMap.get(name);
             long size = ppSize * ppMap.get(name);
-            int minor = ParseUtil.getFirstIntValue(name);
+            Pair<Integer, Integer> majMin = majMinMap.get(name);
+            int major = majMin == null ? ParseUtil.getFirstIntValue(name) : majMin.getA();
+            int minor = majMin == null ? ParseUtil.getFirstIntValue(name) : majMin.getB();
             partitions.add(new HWPartition(name, name, type, "", size, major, minor, mount));
         }
         return partitions;
