@@ -106,8 +106,13 @@ public final class AixHWDiskStore extends AbstractHWDiskStore {
             String name = Native.toString(stat.name);
             if (name.equals(this.getName())) {
                 // we only have total transfers so estimate read/write ratio from blocks
-                this.reads = stat.xfers * stat.rblks / (stat.rblks + stat.wblks);
-                this.writes = stat.xfers * stat.wblks / (stat.rblks + stat.wblks);
+                long blks = stat.rblks + stat.wblks;
+                if (blks > 0L) {
+                    this.writes = stat.xfers * stat.wblks / blks;
+                    this.reads = stat.xfers - this.writes;
+                } else {
+                    this.reads = stat.xfers;
+                }
                 this.readBytes = stat.rblks * stat.bsize;
                 this.writeBytes = stat.wblks * stat.bsize;
                 this.currentQueueLength = stat.qdepth;
