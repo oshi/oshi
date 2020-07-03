@@ -70,13 +70,9 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
     @Override
     public FamilyVersionInfo queryFamilyVersionInfo() {
         perfstat_partition_config_t cfg = config.get();
-        String[] split = ParseUtil.whitespaces.split(ExecutingCommand.getFirstAnswer("uname -sp"));
-        // AIX powerpc
-        String systemName = split[0];
-        String archName = null;
-        if (split.length > 1) {
-            archName = split[1];
-        }
+
+        String systemName = Native.toString(cfg.OSName);
+        String archName = Native.toString(cfg.processorFamily);
         String versionNumber = Native.toString(cfg.OSVersion);
         if (Util.isBlank(versionNumber)) {
             versionNumber = ExecutingCommand.getFirstAnswer("oslevel");

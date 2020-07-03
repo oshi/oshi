@@ -31,6 +31,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Supplier;
 
+import com.sun.jna.Native;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.unix.aix.perfstat.PerfstatConfig;
 import oshi.driver.unix.aix.perfstat.PerfstatCpu;
@@ -53,7 +55,7 @@ final class AixCentralProcessor extends AbstractCentralProcessor {
     private final Supplier<perfstat_cpu_t[]> cpuProc = memoize(PerfstatCpu::queryCpu, defaultExpiration());
     private static final int SBITS = querySbits();
 
-    private long processorMHz;
+    private perfstat_partition_config_t config;
 
     /**
      * Jiffies per second, used for process time counters.
@@ -88,7 +90,7 @@ final class AixCentralProcessor extends AbstractCentralProcessor {
 
         String cpuModel = "";
         String cpuStepping = "";
-        String machineId = ExecutingCommand.getFirstAnswer("uname -m").trim();
+        String machineId = Native.toString(config.machineID);
         // last 4 characters are model ID (often 4C) and submodel (always 00)
         if (machineId.length() == 12) {
             cpuModel = machineId.substring(8, 10);
@@ -96,14 +98,13 @@ final class AixCentralProcessor extends AbstractCentralProcessor {
         }
 
         return new ProcessorIdentifier(cpuVendor, cpuName, cpuFamily, cpuModel, cpuStepping, machineId, cpu64bit,
-                processorMHz);
+                (long) (config.processorMHz * 1_000_000L));
     }
 
     @Override
     protected List<LogicalProcessor> initProcessorCounts() {
-        perfstat_partition_config_t config = PerfstatConfig.queryConfig();
+        this.config = PerfstatConfig.queryConfig();
 
-        this.processorMHz = (long) (config.processorMHz * 1_000_000L);
         int physProcs = (int) config.numProcessors.max;
         if (physProcs < 1) {
             physProcs = 1;
