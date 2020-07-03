@@ -32,10 +32,12 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.unix.aix.perfstat.PerfstatConfig;
 import oshi.driver.unix.aix.perfstat.PerfstatCpu;
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.jna.platform.unix.aix.Perfstat.perfstat_cpu_t;
 import oshi.jna.platform.unix.aix.Perfstat.perfstat_cpu_total_t;
+import oshi.jna.platform.unix.aix.Perfstat.perfstat_partition_config_t;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
@@ -49,6 +51,7 @@ final class AixCentralProcessor extends AbstractCentralProcessor {
 
     private final Supplier<perfstat_cpu_total_t> cpuTotal = memoize(PerfstatCpu::queryCpuTotal, defaultExpiration());
     private final Supplier<perfstat_cpu_t[]> cpuProc = memoize(PerfstatCpu::queryCpu, defaultExpiration());
+    private final Supplier<perfstat_partition_config_t> config = memoize(PerfstatConfig::queryConfig);
     private static final int SBITS = querySbits();
     /**
      * Jiffies per second, used for process time counters.
@@ -91,35 +94,22 @@ final class AixCentralProcessor extends AbstractCentralProcessor {
         }
 
         return new ProcessorIdentifier(cpuVendor, cpuName, cpuFamily, cpuModel, cpuStepping, machineId, cpu64bit,
-                queryVendorFreq());
+                (long) (config.get().processorMHz * 1_000_000L));
     }
 
     @Override
     protected List<LogicalProcessor> initProcessorCounts() {
-        // lparstat -i
-        // Active Physical CPUs in system : 1
-        String physProcMarker = "Active Physical CPUs in system";
-        int physProcs = 1;
-        for (final String checkLine : ExecutingCommand.runNative("lparstat -i")) {
-            if (checkLine.startsWith(physProcMarker)) {
-                physProcs = ParseUtil.parseLastInt(checkLine, 1);
-                break;
-            }
+        int physProcs = (int) config.get().numProcessors.max;
+        if (physProcs < 1) {
+            physProcs = 1;
         }
-        // bindprocessor -q
-        // The available processors are: 0 1 2 3
+        int lcpus = config.get().lcpus;
+        if (lcpus < 1) {
+            lcpus = 1;
+        }
         List<LogicalProcessor> logProcs = new ArrayList<>();
-        String bindprocessor = ExecutingCommand.getFirstAnswer("bindprocessor -q");
-        int zeroIdx = bindprocessor.indexOf('0');
-        if (zeroIdx > 0) {
-            String[] split = ParseUtil.whitespaces.split(bindprocessor.substring(zeroIdx));
-            for (int i = 0; i < split.length; i++) {
-                int procId = ParseUtil.parseIntOrDefault(split[i], i);
-                logProcs.add(new LogicalProcessor(procId, procId / physProcs, 0));
-            }
-        }
-        if (logProcs.isEmpty()) {
-            logProcs.add(new LogicalProcessor(0, 0, 0));
+        for (int proc = 0; proc < lcpus; proc++) {
+            logProcs.add(new LogicalProcessor(proc, proc / physProcs, 0));
         }
         return logProcs;
     }
@@ -167,17 +157,6 @@ final class AixCentralProcessor extends AbstractCentralProcessor {
     protected long queryMaxFreq() {
         perfstat_cpu_total_t perfstat = cpuTotal.get();
         return perfstat.processorHZ;
-    }
-
-    private static long queryVendorFreq() {
-        // ~/git/oshi$ prtconf -s
-        // Processor Clock Speed: 1000 MHz
-        String clockSpeed = ExecutingCommand.getFirstAnswer("prtconf -s");
-        int colonIdx = clockSpeed.indexOf(": ");
-        if (colonIdx > 0) {
-            return ParseUtil.parseHertz(clockSpeed.substring(colonIdx + 1).trim());
-        }
-        return -1;
     }
 
     @Override

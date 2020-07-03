@@ -101,20 +101,19 @@ public class AixOSThread extends AbstractOSThread {
                 return updateAttributes(split.get());
             }
         }
-        List<String> threadListInfoPs = ExecutingCommand
-                .runNative("ps -m -o THREAD -p " + getOwningProcessId());
-        //1st row is header, 2nd row is process data.
+        List<String> threadListInfoPs = ExecutingCommand.runNative("ps -m -o THREAD -p " + getOwningProcessId());
+        // 1st row is header, 2nd row is process data.
         if (threadListInfoPs.size() > 2) {
-            threadListInfoPs.remove(0); //header removed
-            threadListInfoPs.remove(1); //process data removed
+            threadListInfoPs.remove(0); // header removed
+            threadListInfoPs.remove(1); // process data removed
             for (String threadInfo : threadListInfoPs) {
-                //USER,PID,PPID,TID,ST,CP,PRI,SC,WCHAN,F,TT,BND,COMMAND
+                // USER,PID,PPID,TID,ST,CP,PRI,SC,WCHAN,F,TT,BND,COMMAND
                 String[] threadInfoSplit = ParseUtil.whitespaces.split(threadInfo.trim());
                 if (threadInfoSplit.length == 13 && threadInfoSplit[3].equals(String.valueOf(this.getThreadId()))) {
                     String[] split = new String[3];
-                    split[0] = threadInfoSplit[3]; //tid
-                    split[1] = threadInfoSplit[4]; //state
-                    split[2] = threadInfoSplit[6]; //priority
+                    split[0] = threadInfoSplit[3]; // tid
+                    split[1] = threadInfoSplit[4]; // state
+                    split[2] = threadInfoSplit[6]; // priority
                     updateAttributes(split);
                 }
             }

@@ -25,16 +25,22 @@ package oshi.software.os.unix.aix;
 
 import static oshi.software.os.OSService.State.RUNNING;
 import static oshi.software.os.OSService.State.STOPPED;
+import static oshi.util.Memoizer.memoize;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Supplier;
+
+import com.sun.jna.Native;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.linux.proc.ProcessStat;
 import oshi.driver.unix.aix.Who;
+import oshi.driver.unix.aix.perfstat.PerfstatConfig;
 import oshi.jna.platform.unix.aix.AixLibc;
+import oshi.jna.platform.unix.aix.Perfstat.perfstat_partition_config_t;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
 import oshi.software.os.InternetProtocolStats;
@@ -53,6 +59,7 @@ import oshi.util.Util;
 @ThreadSafe
 public class AixOperatingSystem extends AbstractOperatingSystem {
 
+    private final Supplier<perfstat_partition_config_t> config = memoize(PerfstatConfig::queryConfig);
     private static final long BOOTTIME = querySystemBootTime();
 
     @Override
@@ -62,6 +69,7 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public FamilyVersionInfo queryFamilyVersionInfo() {
+        perfstat_partition_config_t cfg = config.get();
         String[] split = ParseUtil.whitespaces.split(ExecutingCommand.getFirstAnswer("uname -sp"));
         // AIX powerpc
         String systemName = split[0];
@@ -69,11 +77,20 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
         if (split.length > 1) {
             archName = split[1];
         }
-        String versionNumber = System.getProperty("os.version");
+        String versionNumber = Native.toString(cfg.OSVersion);
         if (Util.isBlank(versionNumber)) {
             versionNumber = ExecutingCommand.getFirstAnswer("oslevel");
         }
-        String releaseNumber = ExecutingCommand.getFirstAnswer("oslevel -s");
+        String releaseNumber = Native.toString(cfg.OSBuild);
+        if (Util.isBlank(releaseNumber)) {
+            releaseNumber = ExecutingCommand.getFirstAnswer("oslevel -s");
+        } else {
+            // strip leading date
+            int idx = releaseNumber.lastIndexOf(' ');
+            if (idx > 0 && idx < releaseNumber.length()) {
+                releaseNumber = releaseNumber.substring(idx + 1);
+            }
+        }
         return new FamilyVersionInfo(systemName, new OSVersionInfo(versionNumber, archName, releaseNumber));
     }
 
@@ -82,7 +99,8 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
         if (jvmBitness == 64) {
             return 64;
         }
-        return ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer("getconf KERNEL_BITMODE"), 32);
+        // 9th bit of conf is 64-bit kernel
+        return (config.get().conf & 0x0080_0000) > 0 ? 64 : 32;
     }
 
     @Override
