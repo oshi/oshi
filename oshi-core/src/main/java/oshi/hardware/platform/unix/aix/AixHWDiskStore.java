@@ -25,31 +25,26 @@ package oshi.hardware.platform.unix.aix;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.stream.Collectors;
+import java.util.function.Supplier;
 
-import com.sun.jna.platform.unix.solaris.LibKstat.Kstat; //NOSONAR
-import com.sun.jna.platform.unix.solaris.LibKstat.KstatIO;
+import com.sun.jna.Native;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.driver.unix.solaris.disk.Iostat;
-import oshi.driver.unix.solaris.disk.Lshal;
-import oshi.driver.unix.solaris.disk.Prtvtoc;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
 import oshi.hardware.common.AbstractHWDiskStore;
-import oshi.util.platform.unix.solaris.KstatUtil;
-import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
-import oshi.util.tuples.Quintet;
+import oshi.jna.platform.unix.aix.Perfstat.perfstat_disk_t;
+import oshi.util.Constants;
+import oshi.util.ParseUtil;
 
 /**
  * Solaris hard disk implementation.
  */
 @ThreadSafe
 public final class AixHWDiskStore extends AbstractHWDiskStore {
+
+    private final Supplier<perfstat_disk_t[]> diskStats;
 
     private long reads = 0L;
     private long readBytes = 0L;
@@ -60,8 +55,9 @@ public final class AixHWDiskStore extends AbstractHWDiskStore {
     private long timeStamp = 0L;
     private List<HWPartition> partitionList;
 
-    private AixHWDiskStore(String name, String model, String serial, long size) {
+    private AixHWDiskStore(String name, String model, String serial, long size, Supplier<perfstat_disk_t[]> diskStats) {
         super(name, model, serial, size);
+        this.diskStats = diskStats;
     }
 
     @Override
@@ -106,18 +102,16 @@ public final class AixHWDiskStore extends AbstractHWDiskStore {
 
     @Override
     public boolean updateAttributes() {
-        try (KstatChain kc = KstatUtil.openChain()) {
-            Kstat ksp = kc.lookup(null, 0, getName());
-            if (ksp != null && kc.read(ksp)) {
-                KstatIO data = new KstatIO(ksp.ks_data);
-                this.reads = data.reads;
-                this.writes = data.writes;
-                this.readBytes = data.nread;
-                this.writeBytes = data.nwritten;
-                this.currentQueueLength = (long) data.wcnt + data.rcnt;
-                // rtime and snaptime are nanoseconds, convert to millis
-                this.transferTime = data.rtime / 1_000_000L;
-                this.timeStamp = ksp.ks_snaptime / 1_000_000L;
+        for (perfstat_disk_t stat : diskStats.get()) {
+            String name = Native.toString(stat.name);
+            if (name.equals(this.getName())) {
+                // we only have total transfers so estimate read/write ratio from blocks
+                this.reads = stat.xfers * stat.rblks / (stat.rblks + stat.wblks);
+                this.writes = stat.xfers * stat.wblks / (stat.rblks + stat.wblks);
+                this.readBytes = stat.rblks * stat.bsize;
+                this.writeBytes = stat.wblks * stat.bsize;
+                this.currentQueueLength = stat.qdepth;
+                this.transferTime = stat.time;
                 return true;
             }
         }
@@ -126,42 +120,52 @@ public final class AixHWDiskStore extends AbstractHWDiskStore {
 
     /**
      * Gets the disks on this machine
+     * 
+     * @param lscfg
+     * 
+     * @param diskStats
      *
      * @return an {@code UnmodifiableList} of {@link HWDiskStore} objects
      *         representing the disks
      */
-    public static List<HWDiskStore> getDisks() {
-        // Create map to correlate disk name with block device mount point for
-        // later use in partition info
-        Map<String, String> deviceMap = Iostat.queryPartitionToMountMap();
-
-        // Create map to correlate disk name with block device mount point for
-        // later use in partition info. Run lshal, if available, to get block device
-        // major (we'll use partition # for minor)
-        Map<String, Integer> majorMap = Lshal.queryDiskToMajorMap();
-
-        // Create map of model, vendor, product, serial, size
-        // We'll use Model if available, otherwise Vendor+Product
-        Map<String, Quintet<String, String, String, String, Long>> deviceStringMap = Iostat
-                .queryDeviceStrings(deviceMap.keySet());
-
+    public static List<HWDiskStore> getDisks(Supplier<List<String>> lscfg, Supplier<perfstat_disk_t[]> diskStats) {
         List<AixHWDiskStore> storeList = new ArrayList<>();
-        for (Entry<String, Quintet<String, String, String, String, Long>> entry : deviceStringMap.entrySet()) {
-            String storeName = entry.getKey();
-            Quintet<String, String, String, String, Long> val = entry.getValue();
-            storeList.add(createStore(storeName, val.getA(), val.getB(), val.getC(), val.getD(), val.getE(),
-                    deviceMap.getOrDefault(storeName, ""), majorMap.getOrDefault(storeName, 0)));
+        List<String> cfg = lscfg.get();
+        String serialMarker = "Serial Number";
+        String modelMarker = "Machine Type and Model";
+        String deviceSpecificMarker = "Device Specific";
+        for (perfstat_disk_t disk : diskStats.get()) {
+            String storeName = Native.toString(disk.name);
+            String model = Native.toString(disk.description);
+            String serial = Constants.UNKNOWN;
+            boolean thisDisk = false;
+            for (String s : cfg) {
+                if (!thisDisk && s.trim().startsWith(storeName)) {
+                    thisDisk = true;
+                }
+                if (thisDisk) {
+                    if (s.contains(modelMarker)) {
+                        model = ParseUtil.removeLeadingDots(s.split(modelMarker)[1].trim());
+                    } else if (s.contains(serialMarker)) {
+                        serial = ParseUtil.removeLeadingDots(s.split(serialMarker)[1].trim());
+                    } else if (s.contains(deviceSpecificMarker)) {
+                        break;
+                    }
+                }
+            }
+            // volume group, probably not right but sub later
+            String mount = Native.toString(disk.vgname);
+            storeList.add(createStore(storeName, model, serial, disk.size << 20, mount, diskStats));
         }
 
         return Collections.unmodifiableList(storeList);
     }
 
-    private static AixHWDiskStore createStore(String diskName, String model, String vendor, String product,
-            String serial, long size, String mount, int major) {
-        AixHWDiskStore store = new AixHWDiskStore(diskName, model.isEmpty() ? (vendor + " " + product).trim() : model,
-                serial, size);
-        store.partitionList = Collections.unmodifiableList(Prtvtoc.queryPartitions(mount, major).stream()
-                .sorted(Comparator.comparing(HWPartition::getName)).collect(Collectors.toList()));
+    private static AixHWDiskStore createStore(String diskName, String model, String serial, long size, String mount,
+            Supplier<perfstat_disk_t[]> diskStats) {
+        AixHWDiskStore store = new AixHWDiskStore(diskName, model.isEmpty() ? Constants.UNKNOWN : model, serial, size,
+                diskStats);
+        store.partitionList = Collections.emptyList();
         store.updateAttributes();
         return store;
     }

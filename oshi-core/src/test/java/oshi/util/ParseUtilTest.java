@@ -524,4 +524,11 @@ public class ParseUtilTest {
         assertEquals(-2096147552L, ParseUtil.hexStringToLong("ffffffff830f53a0", 0L));
         assertEquals(0L, ParseUtil.hexStringToLong("pqwe", 0L));
     }
+
+    @Test
+    public void testRemoveLeadingDots() {
+        assertEquals("foo", ParseUtil.removeLeadingDots("foo"));
+        assertEquals("bar", ParseUtil.removeLeadingDots("...bar"));
+        assertEquals("", ParseUtil.removeLeadingDots("..."));
+    }
 }

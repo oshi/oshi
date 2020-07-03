@@ -113,6 +113,13 @@ public class SystemInfoTest {
         logger.info("Checking Processes...");
         printProcesses(os, hal.getMemory());
 
+        // services
+        // sensors
+        // power sources
+
+        logger.info("Checking Disks...");
+        printDisks(hal.getDiskStores());
+
         // Move items out of this conditional as they are implemented!
         if (SKIP) {
 
@@ -124,9 +131,6 @@ public class SystemInfoTest {
 
             logger.info("Checking Power sources...");
             printPowerSources(hal.getPowerSources());
-
-            logger.info("Checking Disks...");
-            printDisks(hal.getDiskStores());
 
             logger.info("Checking File System...");
             printFileSystem(os.getFileSystem());

@@ -23,10 +23,13 @@
  */
 package oshi.hardware.platform.unix.aix;
 
+import java.util.List;
+import java.util.function.Supplier;
+
 import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.common.AbstractBaseboard;
 import oshi.util.Constants;
-import oshi.util.ExecutingCommand;
+import oshi.util.ParseUtil;
 import oshi.util.Util;
 
 /**
@@ -40,7 +43,7 @@ final class AixBaseboard extends AbstractBaseboard {
     private final String serialNumber;
     private final String version;
 
-    AixBaseboard() {
+    AixBaseboard(Supplier<List<String>> lscfg) {
         String bbModel = null;
         String bbSerialNumber = null;
         String bbVersion = null;
@@ -62,16 +65,16 @@ final class AixBaseboard extends AbstractBaseboard {
         // Physical Location: U0.1-P1
 
         boolean planeFlag = false;
-        for (final String checkLine : ExecutingCommand.runNative("lscfg -vp")) {
+        for (final String checkLine : lscfg.get()) {
             if (!planeFlag && checkLine.contains(planeMarker)) {
                 planeFlag = true;
             } else if (planeFlag) {
                 if (checkLine.contains(modelMarker)) {
-                    bbModel = removeLeadingDots(checkLine.split(modelMarker)[1].trim());
+                    bbModel = ParseUtil.removeLeadingDots(checkLine.split(modelMarker)[1].trim());
                 } else if (checkLine.contains(serialMarker)) {
-                    bbSerialNumber = removeLeadingDots(checkLine.split(serialMarker)[1].trim());
+                    bbSerialNumber = ParseUtil.removeLeadingDots(checkLine.split(serialMarker)[1].trim());
                 } else if (checkLine.contains(versionMarker)) {
-                    bbVersion = removeLeadingDots(checkLine.split(versionMarker)[1].trim());
+                    bbVersion = ParseUtil.removeLeadingDots(checkLine.split(versionMarker)[1].trim());
                 } else if (checkLine.contains(locationMarker)) {
                     break;
                 }
@@ -81,14 +84,6 @@ final class AixBaseboard extends AbstractBaseboard {
         this.model = Util.isBlank(bbModel) ? Constants.UNKNOWN : bbModel;
         this.serialNumber = Util.isBlank(bbSerialNumber) ? Constants.UNKNOWN : bbSerialNumber;
         this.version = Util.isBlank(bbVersion) ? Constants.UNKNOWN : bbVersion;
-    }
-
-    private static String removeLeadingDots(String dotPrefixedStr) {
-        int pos = 0;
-        while (pos < dotPrefixedStr.length() && dotPrefixedStr.charAt(pos) == '.') {
-            pos++;
-        }
-        return pos < dotPrefixedStr.length() ? dotPrefixedStr.substring(pos) : null;
     }
 
     @Override

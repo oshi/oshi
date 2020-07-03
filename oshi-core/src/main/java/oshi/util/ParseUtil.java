@@ -1152,4 +1152,19 @@ public final class ParseUtil {
             return defaultValue;
         }
     }
+
+    /**
+     * Parses a String "....foo" to "foo"
+     * 
+     * @param dotPrefixedStr
+     *            A string with possibly leading dots
+     * @return The string without the dots
+     */
+    public static String removeLeadingDots(String dotPrefixedStr) {
+        int pos = 0;
+        while (pos < dotPrefixedStr.length() && dotPrefixedStr.charAt(pos) == '.') {
+            pos++;
+        }
+        return pos < dotPrefixedStr.length() ? dotPrefixedStr.substring(pos) : "";
+    }
 }

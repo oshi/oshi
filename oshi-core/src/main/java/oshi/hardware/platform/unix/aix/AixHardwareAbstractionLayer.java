@@ -23,9 +23,15 @@
  */
 package oshi.hardware.platform.unix.aix;
 
+import static oshi.util.Memoizer.defaultExpiration;
+import static oshi.util.Memoizer.memoize;
+
 import java.util.List;
+import java.util.function.Supplier;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.unix.aix.Lscfg;
+import oshi.driver.unix.aix.perfstat.PerfstatDisk;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.ComputerSystem;
 import oshi.hardware.Display;
@@ -38,6 +44,7 @@ import oshi.hardware.Sensors;
 import oshi.hardware.SoundCard;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
+import oshi.jna.platform.unix.aix.Perfstat.perfstat_disk_t;
 
 /**
  * SolarisHardwareAbstractionLayer class.
@@ -45,9 +52,14 @@ import oshi.hardware.common.AbstractHardwareAbstractionLayer;
 @ThreadSafe
 public final class AixHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {
 
+    // Memoized hardware config list
+    private final Supplier<List<String>> lscfg = memoize(Lscfg::queryConfig, defaultExpiration());
+    // Memoized disk stats to pass to disk object(s)
+    private final Supplier<perfstat_disk_t[]> diskStats = memoize(PerfstatDisk::queryDiskStats, defaultExpiration());
+
     @Override
     public ComputerSystem createComputerSystem() {
-        return new AixComputerSystem();
+        return new AixComputerSystem(lscfg);
     }
 
     @Override
@@ -72,7 +84,7 @@ public final class AixHardwareAbstractionLayer extends AbstractHardwareAbstracti
 
     @Override
     public List<HWDiskStore> getDiskStores() {
-        return AixHWDiskStore.getDisks();
+        return AixHWDiskStore.getDisks(lscfg, diskStats);
     }
 
     @Override
