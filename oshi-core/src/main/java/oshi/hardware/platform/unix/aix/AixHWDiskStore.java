@@ -25,13 +25,16 @@ package oshi.hardware.platform.unix.aix;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import com.sun.jna.Native; // NOSONAR squid:s1191
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.unix.aix.Lscfg;
+import oshi.driver.unix.aix.Lspv;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
 import oshi.hardware.common.AbstractHWDiskStore;
@@ -148,7 +151,8 @@ public final class AixHWDiskStore extends AbstractHWDiskStore {
             Supplier<perfstat_disk_t[]> diskStats) {
         AixHWDiskStore store = new AixHWDiskStore(diskName, model.isEmpty() ? Constants.UNKNOWN : model, serial, size,
                 diskStats);
-        store.partitionList = Collections.emptyList();
+        store.partitionList = Collections.unmodifiableList(Lspv.queryLogicalVolumes(diskName).stream()
+                .sorted(Comparator.comparing(HWPartition::getName)).collect(Collectors.toList()));
         store.updateAttributes();
         return store;
     }

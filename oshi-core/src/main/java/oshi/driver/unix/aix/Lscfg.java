@@ -83,7 +83,7 @@ public final class Lscfg {
     }
 
     /**
-     * Query {@code lscfg -p device} to get hardware info
+     * Query {@code lscfg -vl device} to get hardware info
      *
      * @return A pair containing the model and serial number for the device, or null
      *         if not found
@@ -93,7 +93,7 @@ public final class Lscfg {
         String serialMarker = "Serial Number";
         String model = null;
         String serial = null;
-        for (String s : ExecutingCommand.runNative("lscfg -p " + device)) {
+        for (String s : ExecutingCommand.runNative("lscfg -vl " + device)) {
             if (s.contains(modelMarker)) {
                 model = ParseUtil.removeLeadingDots(s.split(modelMarker)[1].trim());
             } else if (s.contains(serialMarker)) {
