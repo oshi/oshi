@@ -398,7 +398,7 @@ public interface Perfstat extends Library {
         public long qdepth; // instantaneous "service" queue depth (number of requests sent to disk and not
                             // completed yet)
         public long time; // amount of time disk is active
-        public byte[] adapter = new byte[IDENTIFIER_LENGTH];// disk adapter name
+        public byte[] adapter = new byte[IDENTIFIER_LENGTH]; // disk adapter name
         public int paths_count; // number of paths to this disk
         public long q_full; // "service" queue full occurrence count (number of times the disk is not
                             // accepting any more request)
@@ -527,6 +527,16 @@ public interface Perfstat extends Library {
         public AnonymousUnionPayload u;
         public long version; // version number (1, 2, etc.,)
 
+        @Override
+        public void read() {
+            super.read();
+            String type = Native.toString(this.name);
+            if (!type.isEmpty()) {
+                u.setType(type);
+            }
+            u.read();
+        }
+
         public static class AnonymousUnionPayload extends Union {
             public AnonymousStructIP ip;
             public AnonymousStructIPv6 ipv6;
@@ -647,7 +657,7 @@ public interface Perfstat extends Library {
             public long nullrecv; // NFS server RPC calls failed due to unavailable packet
             public long badlen; // NFS server RPC requests failed due to bad length
             public long xdrcall; // NFS server RPC requests failed due to bad header
-            public long dupchecks;// NFS server RPC calls found in request cache
+            public long dupchecks; // NFS server RPC calls found in request cache
             public long dupreqs; // total NFS server RPC call duplicates
         }
 
@@ -658,7 +668,7 @@ public interface Perfstat extends Library {
             public long nullrecv; // NFS server RPC calls failed due to unavailable packet
             public long badlen; // NFS server RPC requests failed due to bad length
             public long xdrcall; // NFS server RPC requests failed due to bad header
-            public long dupchecks;// NFS server RPC calls found in request cache
+            public long dupchecks; // NFS server RPC calls found in request cache
             public long dupreqs; // total NFS server RPC call duplicates
         }
 
@@ -673,7 +683,7 @@ public interface Perfstat extends Library {
             public long calls; // total NFS client requests
             public long badcalls; // total NFS client failed calls
             public long clgets; // total number of client nfs clgets
-            public long cltoomany;// total number of client nfs cltoomany
+            public long cltoomany; // total number of client nfs cltoomany
         }
 
         @FieldOrder({ "calls", "badcalls", "public_v2", "public_v3" })
@@ -725,7 +735,7 @@ public interface Perfstat extends Library {
             public long lookup; // NFS V2 server file name lookup requests
             public long readlink; // NFS V2 server readlink requests
             public long read; // NFS V2 server read requests
-            public long writecache;// NFS V2 server cache requests
+            public long writecache; // NFS V2 server cache requests
             public long write; // NFS V2 server write requests
             public long create; // NFS V2 server file creation requests
             public long remove; // NFS V2 server file removal requests
@@ -805,7 +815,7 @@ public interface Perfstat extends Library {
         @FieldOrder({ "client", "server" })
         public static class AnonymousStructNFSv4 extends Structure {
             public AnonymousStructNFSv4client client;
-            public AnonymousStructNFSv3server server;
+            public AnonymousStructNFSv4server server;
         }
 
         @FieldOrder({ "operations", "nullreq", "getattr", "setattr", "lookup", "access", "readlink", "read", "write",
@@ -844,7 +854,7 @@ public interface Perfstat extends Library {
             public long lock_test; // NFS V4 client lock test operations
             public long set_clientid; // NFS V4 client set client id operations
             public long renew; // NFS V4 client renew operations
-            public long client_confirm;// NFS V4 client confirm operations
+            public long client_confirm; // NFS V4 client confirm operations
             public long secinfo; // NFS V4 client secinfo operations
             public long release_lock; // NFS V4 client release lock operations
             public long replicate; // NFS V4 client replicate operations
@@ -861,7 +871,8 @@ public interface Perfstat extends Library {
         @FieldOrder({ "nullreq", "compound", "operations", "access", "close", "commit", "create", "delegpurge",
                 "delegreturn", "getattr", "getfh", "link", "lock", "lockt", "locku", "lookup", "lookupp", "nverify",
                 "open", "openattr", "open_confirm", "open_downgrade", "putfh", "putpubfh", "putrootfh", "read",
-                "readdir", "readlink", "remove", "rename", "renew", "retorefh", "savefh", "secinfo", "setattr",
+                "readdir", "readlink", "remove", "rename", "renew", "restorefh", "savefh", "secinfo",
+                "setattr",
                 "set_clientid", "clientid_confirm", "verify", "write", "release_lock" })
         public static class AnonymousStructNFSv4server extends Structure {
             public long nullreq; // NFS V4 server null calls
@@ -1044,6 +1055,5 @@ public interface Perfstat extends Library {
      * @return The return value is -1 in case of errors. Otherwise, the number of
      *         structures copied is returned.
      */
-    int perfstat_protocol(perfstat_id_t name, perfstat_protocol_t[] protocols, int sizeof_struct,
-            int desired_number);
+    int perfstat_protocol(perfstat_id_t name, perfstat_protocol_t[] protocols, int sizeof_struct, int desired_number);
 }

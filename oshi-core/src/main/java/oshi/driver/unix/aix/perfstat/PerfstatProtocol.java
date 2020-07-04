@@ -102,7 +102,6 @@ public final class PerfstatProtocol {
                 break;
             default:
             }
-            System.out.println(prots[i].toString());
         }
     }
 }
