@@ -23,18 +23,22 @@
  */
 package oshi.hardware.platform.unix.aix;
 
+import static oshi.util.Memoizer.defaultExpiration;
+import static oshi.util.Memoizer.memoize;
+
 import java.net.NetworkInterface;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import com.sun.jna.platform.unix.solaris.LibKstat.Kstat; // NOSONAR
+import com.sun.jna.Native;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.unix.aix.perfstat.PerfstatNetInterface;
 import oshi.hardware.NetworkIF;
 import oshi.hardware.common.AbstractNetworkIF;
-import oshi.util.platform.unix.solaris.KstatUtil;
-import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
+import oshi.jna.platform.unix.aix.Perfstat.perfstat_netinterface_t;
 
 /**
  * SolarisNetworks class.
@@ -53,8 +57,11 @@ public final class AixNetworkIF extends AbstractNetworkIF {
     private long speed;
     private long timeStamp;
 
-    public AixNetworkIF(NetworkInterface netint) {
+    private Supplier<perfstat_netinterface_t[]> netstats;
+
+    public AixNetworkIF(NetworkInterface netint, Supplier<perfstat_netinterface_t[]> netstats) {
         super(netint);
+        this.netstats = netstats;
         updateAttributes();
     }
 
@@ -65,8 +72,10 @@ public final class AixNetworkIF extends AbstractNetworkIF {
      *         the interfaces
      */
     public static List<NetworkIF> getNetworks() {
-        return Collections
-                .unmodifiableList(getNetworkInterfaces().stream().map(AixNetworkIF::new).collect(Collectors.toList()));
+        Supplier<perfstat_netinterface_t[]> netstats = memoize(PerfstatNetInterface::queryNetInterfaces,
+                defaultExpiration());
+        return Collections.unmodifiableList(
+                getNetworkInterfaces().stream().map(n -> new AixNetworkIF(n, netstats)).collect(Collectors.toList()));
     }
 
     @Override
@@ -121,23 +130,21 @@ public final class AixNetworkIF extends AbstractNetworkIF {
 
     @Override
     public boolean updateAttributes() {
-        try (KstatChain kc = KstatUtil.openChain()) {
-            Kstat ksp = kc.lookup("link", -1, getName());
-            if (ksp == null) { // Solaris 10 compatibility
-                ksp = kc.lookup(null, -1, getName());
-            }
-            if (ksp != null && kc.read(ksp)) {
-                this.bytesSent = KstatUtil.dataLookupLong(ksp, "obytes64");
-                this.bytesRecv = KstatUtil.dataLookupLong(ksp, "rbytes64");
-                this.packetsSent = KstatUtil.dataLookupLong(ksp, "opackets64");
-                this.packetsRecv = KstatUtil.dataLookupLong(ksp, "ipackets64");
-                this.outErrors = KstatUtil.dataLookupLong(ksp, "oerrors");
-                this.inErrors = KstatUtil.dataLookupLong(ksp, "ierrors");
-                this.collisions = KstatUtil.dataLookupLong(ksp, "collisions");
-                this.inDrops = KstatUtil.dataLookupLong(ksp, "dl_idrops");
-                this.speed = KstatUtil.dataLookupLong(ksp, "ifspeed");
-                // Snap time in ns; convert to ms
-                this.timeStamp = ksp.ks_snaptime / 1_000_000L;
+        perfstat_netinterface_t[] stats = netstats.get();
+        long now = System.currentTimeMillis();
+        for (perfstat_netinterface_t stat : stats) {
+            String name = Native.toString(stat.name);
+            if (name.equals(this.getName())) {
+                this.bytesSent = stat.obytes;
+                this.bytesRecv = stat.ibytes;
+                this.packetsSent = stat.opackets;
+                this.packetsRecv = stat.ipackets;
+                this.outErrors = stat.oerrors;
+                this.inErrors = stat.ierrors;
+                this.collisions = stat.collisions;
+                this.inDrops = stat.if_iqdrops;
+                this.speed = stat.bitrate;
+                this.timeStamp = now;
                 return true;
             }
         }

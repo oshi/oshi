@@ -120,6 +120,11 @@ public class SystemInfoTest {
         logger.info("Checking Disks...");
         printDisks(hal.getDiskStores());
 
+        // filesystem
+
+        logger.info("Checking Network interfaces...");
+        printNetworkInterfaces(hal.getNetworkIFs());
+
         // Move items out of this conditional as they are implemented!
         if (SKIP) {
 
@@ -135,8 +140,6 @@ public class SystemInfoTest {
             logger.info("Checking File System...");
             printFileSystem(os.getFileSystem());
 
-            logger.info("Checking Network interfaces...");
-            printNetworkInterfaces(hal.getNetworkIFs());
 
             logger.info("Checking Network parameters...");
             printNetworkParameters(os.getNetworkParams());

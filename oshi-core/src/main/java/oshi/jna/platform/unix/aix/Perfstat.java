@@ -495,6 +495,27 @@ public interface Perfstat extends Library {
         public long targetmemexpsize; // Expanded Memory Size in MB
     }
 
+    class  perfstat_netinterface_t extends Structure {
+        public byte[] name = new byte[IDENTIFIER_LENGTH]; // name of the interface
+        public byte[] description = new byte[IDENTIFIER_LENGTH]; // interface description
+                                                                 // (from ODM, similar to lscfg output)
+        public byte type; // ethernet, tokenring, etc. interpretation can be done using
+                          // /usr/include/net/if_types.h
+        public long mtu; // network frame size
+        public long ipackets; // number of packets received on interface
+        public long ibytes; // number of bytes received on interface
+        public long ierrors; // number of input errors on interface
+        public long opackets; // number of packets sent on interface
+        public long obytes; // number of bytes sent on interface
+        public long oerrors; // number of output errors on interface
+        public long collisions; // number of collisions on csma interface
+        public long bitrate; // adapter rating in bit per second
+        public long xmitdrops; // number of packets not transmitted
+        public long version; // version number (1, 2, etc.,)
+        public long if_iqdrops; // Dropped on input, this interface
+        public long if_arpdrops; // Dropped because no arp response
+    }
+
     /**
      * Retrieves total processor usage metrics
      *
@@ -568,8 +589,8 @@ public interface Perfstat extends Library {
      * @param name
      *            Structure containing empty string when collecting all disk stats,
      *            or null to count block disks
-     * @param procs
-     *            Populated with structures, or null to count disk
+     * @param disks
+     *            Populated with structures, or null to count disks
      * @param sizeof_struct
      *            Should be set to sizeof(perfstat_disk_t)
      * @param desired_number
@@ -578,7 +599,7 @@ public interface Perfstat extends Library {
      * @return The return value is -1 in case of errors. Otherwise, the number of
      *         structures copied is returned.
      */
-    int perfstat_disk(perfstat_id_t name, perfstat_disk_t[] procs, int sizeof_struct, int desired_number);
+    int perfstat_disk(perfstat_id_t name, perfstat_disk_t[] disks, int sizeof_struct, int desired_number);
 
     /**
      * Retrieves total memory-related metrics
@@ -595,5 +616,24 @@ public interface Perfstat extends Library {
      *         structures copied is returned. This is always 1.
      */
     int perfstat_partition_config(perfstat_id_t name, perfstat_partition_config_t config, int sizeof_struct,
+            int desired_number);
+
+    /**
+     * Retrieves network interfaces
+     *
+     * @param name
+     *            Structure containing empty string when collecting all interface
+     *            stats, or null to count interfaces
+     * @param netints
+     *            Populated with structures, or null to count interfaces
+     * @param sizeof_struct
+     *            Should be set to sizeof(perfstat_netinterface_t)
+     * @param desired_number
+     *            Set to 0 to count disks, set to number of interfaces to return
+     *            otherwise
+     * @return The return value is -1 in case of errors. Otherwise, the number of
+     *         structures copied is returned.
+     */
+    int perfstat_netinterface(perfstat_id_t name, perfstat_netinterface_t[] netints, int sizeof_struct,
             int desired_number);
 }
