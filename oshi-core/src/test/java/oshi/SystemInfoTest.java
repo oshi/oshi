@@ -125,6 +125,11 @@ public class SystemInfoTest {
         logger.info("Checking Network interfaces...");
         printNetworkInterfaces(hal.getNetworkIFs());
 
+        // networkparams
+
+        logger.info("Checking IP statistics...");
+        printInternetProtocolStats(os.getInternetProtocolStats());
+
         // Move items out of this conditional as they are implemented!
         if (SKIP) {
 
@@ -140,12 +145,8 @@ public class SystemInfoTest {
             logger.info("Checking File System...");
             printFileSystem(os.getFileSystem());
 
-
             logger.info("Checking Network parameters...");
             printNetworkParameters(os.getNetworkParams());
-
-            logger.info("Checking IP statistics...");
-            printInternetProtocolStats(os.getInternetProtocolStats());
 
             // hardware: displays
             logger.info("Checking Displays...");
