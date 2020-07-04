@@ -32,6 +32,7 @@ import com.sun.jna.Native;
 import com.sun.jna.NativeLong;
 import com.sun.jna.Structure;
 import com.sun.jna.Structure.FieldOrder;
+import com.sun.jna.Union;
 
 /**
  * The perfstat API uses the perfstat kernel extension to extract various AIX®
@@ -518,6 +519,394 @@ public interface Perfstat extends Library {
         public long if_arpdrops; // Dropped because no arp response
     }
 
+    @FieldOrder({ "name", "u", "version" })
+    class perfstat_protocol_t extends Structure {
+        // One of: ip, ipv6, icmp, icmpv6, udp, tcp, rpc, nfs, nfsv2, nfsv3, nfsv4
+        public byte[] name = new byte[IDENTIFIER_LENGTH];
+        // Relevant union field based on name field
+        public AnonymousUnionPayload u;
+        public long version; // version number (1, 2, etc.,)
+
+        public static class AnonymousUnionPayload extends Union {
+            public AnonymousStructIP ip;
+            public AnonymousStructIPv6 ipv6;
+            public AnonymousStructICMP icmp;
+            public AnonymousStructICMPv6 icmpv6;
+            public AnonymousStructUDP udp;
+            public AnonymousStructTCP tcp;
+            public AnonymousStructRPC rpc;
+            public AnonymousStructNFS nfs;
+            public AnonymousStructNFSv2 nfsv2;
+            public AnonymousStructNFSv3 nfsv3;
+            public AnonymousStructNFSv4 nfsv4;
+        }
+
+        @FieldOrder({ "ipackets", "ierrors", "iqueueoverflow", "opackets", "oerrors" })
+        public static class AnonymousStructIP extends Structure {
+            public long ipackets; // number of input packets
+            public long ierrors; // number of input errors
+            public long iqueueoverflow; // number of input queue overflows
+            public long opackets; // number of output packets
+            public long oerrors; // number of output errors
+        }
+
+        @FieldOrder({ "ipackets", "ierrors", "iqueueoverflow", "opackets", "oerrors" })
+        public static class AnonymousStructIPv6 extends Structure {
+            public long ipackets; // number of input packets
+            public long ierrors; // number of input errors
+            public long iqueueoverflow; // number of input queue overflows
+            public long opackets; // number of output packets
+            public long oerrors; // number of output errors
+        }
+
+        @FieldOrder({ "received", "sent", "errors" })
+        public static class AnonymousStructICMP extends Structure {
+            public long received; // number of packets received
+            public long sent; // number of packets sent
+            public long errors; // number of errors
+        }
+
+        @FieldOrder({ "received", "sent", "errors" })
+        public static class AnonymousStructICMPv6 extends Structure {
+            public long received; // number of packets received
+            public long sent; // number of packets sent
+            public long errors; // number of errors
+        }
+
+        @FieldOrder({ "ipackets", "ierrors", "opackets", "no_socket" })
+        public static class AnonymousStructUDP extends Structure {
+            public long ipackets; // number of input packets
+            public long ierrors; // number of input errors
+            public long opackets; // number of output packets
+            public long no_socket; // number of packets dropped due to no socket
+        }
+
+        @FieldOrder({ "ipackets", "ierrors", "opackets", "initiated", "accepted", "established", "dropped" })
+        public static class AnonymousStructTCP extends Structure {
+            public long ipackets; // number of input packets
+            public long ierrors; // number of input errors
+            public long opackets; // number of output packets
+            public long initiated; // number of connections initiated
+            public long accepted; // number of connections accepted
+            public long established; // number of connections established
+            public long dropped; // number of connections dropped
+        }
+
+        @FieldOrder({ "client", "server" })
+        public static class AnonymousStructRPC extends Structure {
+            public AnonymousStructRPCclient client;
+            public AnonymousStructRPCserver server;
+        }
+
+        @FieldOrder({ "stream", "dgram" })
+        public static class AnonymousStructRPCclient extends Structure {
+            public AnonymousStructRPCclientstream stream;
+            public AnonymousStructRPCclientdgram dgram;
+        }
+
+        @FieldOrder({ "calls", "badcalls", "badxids", "timeouts", "newcreds", "badverfs", "timers", "nomem", "cantconn",
+                "interrupts" })
+        public static class AnonymousStructRPCclientstream extends Structure {
+            public long calls; // total NFS client RPC connection-oriented calls
+            public long badcalls; // rejected NFS client RPC calls
+            public long badxids; // bad NFS client RPC call responses
+            public long timeouts; // timed out NFS client RPC calls with no reply
+            public long newcreds; // total NFS client RPC authentication refreshes
+            public long badverfs; // total NFS client RPC bad verifier in response
+            public long timers; // NFS client RPC timeout greater than timeout value
+            public long nomem; // NFS client RPC calls memory allocation failure
+            public long cantconn; // failed NFS client RPC calls
+            public long interrupts; // NFS client RPC calls fail due to interrupt
+        }
+
+        @FieldOrder({ "calls", "badcalls", "retrans", "badxids", "timeouts", "newcreds", "badverfs", "timers", "nomem",
+                "cantsend" })
+        public static class AnonymousStructRPCclientdgram extends Structure {
+            public long calls; // total NFS client RPC connectionless calls
+            public long badcalls; // rejected NFS client RPC calls
+            public long retrans; // retransmitted NFS client RPC calls
+            public long badxids; // bad NFS client RPC call responses
+            public long timeouts; // timed out NFS client RPC calls with no reply
+            public long newcreds; // total NFS client RPC authentication refreshes
+            public long badverfs; // total NFS client RPC bad verifier in response
+            public long timers; // NFS client RPC timeout greater than timeout value
+            public long nomem; // NFS client RPC calls memory allocation failure
+            public long cantsend; // NFS client RPC calls not sent
+        }
+
+        @FieldOrder({ "stream", "dgram" })
+        public static class AnonymousStructRPCserver extends Structure {
+            public AnonymousStructRPCserverstream stream;
+            public AnonymousStructRPCserverdgram dgram;
+        }
+
+        @FieldOrder({ "calls", "badcalls", "nullrecv", "badlen", "xdrcall", "dupchecks", "dupreqs" })
+        public static class AnonymousStructRPCserverstream extends Structure {
+            public long calls; // total NFS server RPC connection-oriented requests
+            public long badcalls; // rejected NFS server RPC requests
+            public long nullrecv; // NFS server RPC calls failed due to unavailable packet
+            public long badlen; // NFS server RPC requests failed due to bad length
+            public long xdrcall; // NFS server RPC requests failed due to bad header
+            public long dupchecks;// NFS server RPC calls found in request cache
+            public long dupreqs; // total NFS server RPC call duplicates
+        }
+
+        @FieldOrder({ "calls", "badcalls", "nullrecv", "badlen", "xdrcall", "dupchecks", "dupreqs" })
+        public static class AnonymousStructRPCserverdgram extends Structure {
+            public long calls; // total NFS server RPC connectionless requests
+            public long badcalls; // rejected NFS server RPC requests
+            public long nullrecv; // NFS server RPC calls failed due to unavailable packet
+            public long badlen; // NFS server RPC requests failed due to bad length
+            public long xdrcall; // NFS server RPC requests failed due to bad header
+            public long dupchecks;// NFS server RPC calls found in request cache
+            public long dupreqs; // total NFS server RPC call duplicates
+        }
+
+        @FieldOrder({ "client", "server" })
+        public static class AnonymousStructNFS extends Structure {
+            public AnonymousStructNFSclient client;
+            public AnonymousStructNFSserver server;
+        }
+
+        @FieldOrder({ "calls", "badcalls", "clgets", "cltoomany" })
+        public static class AnonymousStructNFSclient extends Structure {
+            public long calls; // total NFS client requests
+            public long badcalls; // total NFS client failed calls
+            public long clgets; // total number of client nfs clgets
+            public long cltoomany;// total number of client nfs cltoomany
+        }
+
+        @FieldOrder({ "calls", "badcalls", "public_v2", "public_v3" })
+        public static class AnonymousStructNFSserver extends Structure {
+            public long calls; // total NFS server requests
+            public long badcalls; // total NFS server failed calls
+            public long public_v2; // total number of nfs version 2 server calls
+            public long public_v3; // total number of nfs version 3 server calls
+        }
+
+        @FieldOrder({ "client", "server" })
+        public static class AnonymousStructNFSv2 extends Structure {
+            public AnonymousStructNFSv2client client;
+            public AnonymousStructNFSv2server server;
+        }
+
+        @FieldOrder({ "calls", "nullreq", "getattr", "setattr", "root", "lookup", "readlink", "read", "writecache",
+                "write", "create", "remove", "rename", "link", "symlink", "mkdir", "rmdir", "readdir", "statfs" })
+        public static class AnonymousStructNFSv2client extends Structure {
+            public long calls; // NFS V2 client requests
+            public long nullreq; // NFS V2 client null requests
+            public long getattr; // NFS V2 client getattr requests
+            public long setattr; // NFS V2 client setattr requests
+            public long root; // NFS V2 client root requests
+            public long lookup; // NFS V2 client file name lookup requests
+            public long readlink; // NFS V2 client readlink requests
+            public long read; // NFS V2 client read requests
+            public long writecache; // NFS V2 client write cache requests
+            public long write; // NFS V2 client write requests
+            public long create; // NFS V2 client file creation requests
+            public long remove; // NFS V2 client file removal requests
+            public long rename; // NFS V2 client file rename requests
+            public long link; // NFS V2 client link creation requests
+            public long symlink; // NFS V2 client symbolic link creation requests
+            public long mkdir; // NFS V2 client directory creation requests
+            public long rmdir; // NFS V2 client directory removal requests
+            public long readdir; // NFS V2 client read-directory requests
+            public long statfs; // NFS V2 client file stat requests
+        }
+
+        @FieldOrder({ "calls", "nullreq", "getattr", "setattr", "root", "lookup", "readlink", "read", "writecache",
+                "write", "create", "remove", "rename", "link", "symlink", "mkdir", "rmdir", "readdir", "statfs" })
+        public static class AnonymousStructNFSv2server extends Structure {
+            public long calls; // NFS V2 server requests
+            public long nullreq; // NFS V2 server null requests
+            public long getattr; // NFS V2 server getattr requests
+            public long setattr; // NFS V2 server setattr requests
+            public long root; // NFS V2 server root requests
+            public long lookup; // NFS V2 server file name lookup requests
+            public long readlink; // NFS V2 server readlink requests
+            public long read; // NFS V2 server read requests
+            public long writecache;// NFS V2 server cache requests
+            public long write; // NFS V2 server write requests
+            public long create; // NFS V2 server file creation requests
+            public long remove; // NFS V2 server file removal requests
+            public long rename; // NFS V2 server file rename requests
+            public long link; // NFS V2 server link creation requests
+            public long symlink; // NFS V2 server symbolic link creation requests
+            public long mkdir; // NFS V2 server directory creation requests
+            public long rmdir; // NFS V2 server directory removal requests
+            public long readdir; // NFS V2 server read-directory requests
+            public long statfs; // NFS V2 server file stat requests
+        }
+
+        @FieldOrder({ "client", "server" })
+        public static class AnonymousStructNFSv3 extends Structure {
+            public AnonymousStructNFSv3client client;
+            public AnonymousStructNFSv3server server;
+        }
+
+        @FieldOrder({ "calls", "nullreq", "getattr", "setattr", "lookup", "access", "readlink", "read", "write",
+                "create", "mkdir", "symlink", "mknod", "remove", "rmdir", "rename", "link", "readdir", "readdirplus",
+                "fsstat", "fsinfo", "pathconf", "commit" })
+        public static class AnonymousStructNFSv3client extends Structure {
+            public long calls; // NFS V3 client calls
+            public long nullreq; // NFS V3 client null requests
+            public long getattr; // NFS V3 client getattr requests
+            public long setattr; // NFS V3 client setattr requests
+            public long lookup; // NFS V3 client file name lookup requests
+            public long access; // NFS V3 client access requests
+            public long readlink; // NFS V3 client readlink requests
+            public long read; // NFS V3 client read requests
+            public long write; // NFS V3 client write requests
+            public long create; // NFS V3 client file creation requests
+            public long mkdir; // NFS V3 client directory creation requests
+            public long symlink; // NFS V3 client symbolic link creation requests
+            public long mknod; // NFS V3 client mknod creation requests
+            public long remove; // NFS V3 client file removal requests
+            public long rmdir; // NFS V3 client directory removal requests
+            public long rename; // NFS V3 client file rename requests
+            public long link; // NFS V3 client link creation requests
+            public long readdir; // NFS V3 client read-directory requests
+            public long readdirplus; // NFS V3 client read-directory plus requests
+            public long fsstat; // NFS V3 client file stat requests
+            public long fsinfo; // NFS V3 client file info requests
+            public long pathconf; // NFS V3 client path configure requests
+            public long commit; // NFS V3 client commit requests
+        }
+
+        @FieldOrder({ "calls", "nullreq", "getattr", "setattr", "lookup", "access", "readlink", "read", "write",
+                "create", "mkdir", "symlink", "mknod", "remove", "rmdir", "rename", "link", "readdir", "readdirplus",
+                "fsstat", "fsinfo", "pathconf", "commit" })
+        public static class AnonymousStructNFSv3server extends Structure {
+            public long calls; // NFS V3 server requests
+            public long nullreq; // NFS V3 server null requests
+            public long getattr; // NFS V3 server getattr requests
+            public long setattr; // NFS V3 server setattr requests
+            public long lookup; // NFS V3 server file name lookup requests
+            public long access; // NFS V3 server file access requests
+            public long readlink; // NFS V3 server readlink requests
+            public long read; // NFS V3 server read requests
+            public long write; // NFS V3 server write requests
+            public long create; // NFS V3 server file creation requests
+            public long mkdir; // NFS V3 server director6 creation requests
+            public long symlink; // NFS V3 server symbolic link creation requests
+            public long mknod; // NFS V3 server mknode creation requests
+            public long remove; // NFS V3 server file removal requests
+            public long rmdir; // NFS V3 server directory removal requests
+            public long rename; // NFS V3 server file rename requests
+            public long link; // NFS V3 server link creation requests
+            public long readdir; // NFS V3 server read-directory requests
+            public long readdirplus; // NFS V3 server read-directory plus requests
+            public long fsstat; // NFS V3 server file stat requests
+            public long fsinfo; // NFS V3 server file info requests
+            public long pathconf; // NFS V3 server path configure requests
+            public long commit; // NFS V3 server commit requests
+        }
+
+        @FieldOrder({ "client", "server" })
+        public static class AnonymousStructNFSv4 extends Structure {
+            public AnonymousStructNFSv4client client;
+            public AnonymousStructNFSv3server server;
+        }
+
+        @FieldOrder({ "operations", "nullreq", "getattr", "setattr", "lookup", "access", "readlink", "read", "write",
+                "create", "mkdir", "symlink", "mknod", "remove", "rmdir", "rename", "link", "readdir", "statfs",
+                "finfo", "commit", "open", "open_confirm", "open_downgrade", "close", "lock", "unlock", "lock_test",
+                "set_clientid", "renew", "client_confirm", "secinfo", "release_lock", "replicate", "pcl_stat",
+                "acl_stat_l", "pcl_stat_l", "acl_read", "pcl_read", "acl_write", "pcl_write", "delegreturn" })
+        public static class AnonymousStructNFSv4client extends Structure {
+            public long operations; // NFS V4 client operations
+            public long nullreq; // NFS V4 client null operations
+            public long getattr; // NFS V4 client getattr operations
+            public long setattr; // NFS V4 client setattr operations
+            public long lookup; // NFS V4 client lookup operations
+            public long access; // NFS V4 client access operations
+            public long readlink; // NFS V4 client read link operations
+            public long read; // NFS V4 client read operations
+            public long write; // NFS V4 client write operations
+            public long create; // NFS V4 client create operations
+            public long mkdir; // NFS V4 client mkdir operations
+            public long symlink; // NFS V4 client symlink operations
+            public long mknod; // NFS V4 client mknod operations
+            public long remove; // NFS V4 client remove operations
+            public long rmdir; // NFS V4 client rmdir operations
+            public long rename; // NFS V4 client rename operations
+            public long link; // NFS V4 client link operations
+            public long readdir; // NFS V4 client readdir operations
+            public long statfs; // NFS V4 client statfs operations
+            public long finfo; // NFS V4 client file info operations
+            public long commit; // NFS V4 client commit operations
+            public long open; // NFS V4 client open operations
+            public long open_confirm; // NFS V4 client open confirm operations
+            public long open_downgrade; // NFS V4 client open downgrade operations
+            public long close; // NFS V4 client close operations
+            public long lock; // NFS V4 client lock operations
+            public long unlock; // NFS V4 client unlock operations
+            public long lock_test; // NFS V4 client lock test operations
+            public long set_clientid; // NFS V4 client set client id operations
+            public long renew; // NFS V4 client renew operations
+            public long client_confirm;// NFS V4 client confirm operations
+            public long secinfo; // NFS V4 client secinfo operations
+            public long release_lock; // NFS V4 client release lock operations
+            public long replicate; // NFS V4 client replicate operations
+            public long pcl_stat; // NFS V4 client pcl_stat operations
+            public long acl_stat_l; // NFS V4 client acl_stat long operations
+            public long pcl_stat_l; // NFS V4 client pcl_stat long operations
+            public long acl_read; // NFS V4 client acl_read operations
+            public long pcl_read; // NFS V4 client pcl_read operations
+            public long acl_write; // NFS V4 client acl_write operations
+            public long pcl_write; // NFS V4 client pcl_write operations
+            public long delegreturn; // NFS V4 client delegreturn operations
+        }
+
+        @FieldOrder({ "nullreq", "compound", "operations", "access", "close", "commit", "create", "delegpurge",
+                "delegreturn", "getattr", "getfh", "link", "lock", "lockt", "locku", "lookup", "lookupp", "nverify",
+                "open", "openattr", "open_confirm", "open_downgrade", "putfh", "putpubfh", "putrootfh", "read",
+                "readdir", "readlink", "remove", "rename", "renew", "retorefh", "savefh", "secinfo", "setattr",
+                "set_clientid", "clientid_confirm", "verify", "write", "release_lock" })
+        public static class AnonymousStructNFSv4server extends Structure {
+            public long nullreq; // NFS V4 server null calls
+            public long compound; // NFS V4 server compound calls
+            public long operations; // NFS V4 server operations
+            public long access; // NFS V4 server access operations
+            public long close; // NFS V4 server close operations
+            public long commit; // NFS V4 server commit operations
+            public long create; // NFS V4 server create operations
+            public long delegpurge; // NFS V4 server del_purge operations
+            public long delegreturn; // NFS V4 server del_ret operations
+            public long getattr; // NFS V4 server getattr operations
+            public long getfh; // NFS V4 server getfh operations
+            public long link; // NFS V4 server link operations
+            public long lock; // NFS V4 server lock operations
+            public long lockt; // NFS V4 server lockt operations
+            public long locku; // NFS V4 server locku operations
+            public long lookup; // NFS V4 server lookup operations
+            public long lookupp; // NFS V4 server lookupp operations
+            public long nverify; // NFS V4 server nverify operations
+            public long open; // NFS V4 server open operations
+            public long openattr; // NFS V4 server openattr operations
+            public long open_confirm; // NFS V4 server confirm operations
+            public long open_downgrade; // NFS V4 server downgrade operations
+            public long putfh; // NFS V4 server putfh operations
+            public long putpubfh; // NFS V4 server putpubfh operations
+            public long putrootfh; // NFS V4 server putrotfh operations
+            public long read; // NFS V4 server read operations
+            public long readdir; // NFS V4 server readdir operations
+            public long readlink; // NFS V4 server readlink operations
+            public long remove; // NFS V4 server remove operations
+            public long rename; // NFS V4 server rename operations
+            public long renew; // NFS V4 server renew operations
+            public long restorefh; // NFS V4 server restorefh operations
+            public long savefh; // NFS V4 server savefh operations
+            public long secinfo; // NFS V4 server secinfo operations
+            public long setattr; // NFS V4 server setattr operations
+            public long set_clientid; // NFS V4 server setclid operations
+            public long clientid_confirm; // NFS V4 server clid_cfm operations
+            public long verify; // NFS V4 server verify operations
+            public long write; // NFS V4 server write operations
+            public long release_lock; // NFS V4 server release_lo operations
+        }
+    }
+
     /**
      * Retrieves total processor usage metrics
      *
@@ -631,11 +1020,30 @@ public interface Perfstat extends Library {
      * @param sizeof_struct
      *            Should be set to sizeof(perfstat_netinterface_t)
      * @param desired_number
-     *            Set to 0 to count disks, set to number of interfaces to return
-     *            otherwise
+     *            Set to 0 to count network interfaces, set to number of interfaces
+     *            to return otherwise
      * @return The return value is -1 in case of errors. Otherwise, the number of
      *         structures copied is returned.
      */
     int perfstat_netinterface(perfstat_id_t name, perfstat_netinterface_t[] netints, int sizeof_struct,
+            int desired_number);
+
+    /**
+     * Retrieves protocol data
+     *
+     * @param name
+     *            Structure containing empty string when collecting all protocol
+     *            stats, or null to count stats
+     * @param protocols
+     *            Populated with structures, or null to count protocols
+     * @param sizeof_struct
+     *            Should be set to sizeof(perfstat_protocol_t)
+     * @param desired_number
+     *            Set to 0 to count protocols, set to number of protocols to return
+     *            otherwise
+     * @return The return value is -1 in case of errors. Otherwise, the number of
+     *         structures copied is returned.
+     */
+    int perfstat_protocol(perfstat_id_t name, perfstat_protocol_t[] protocols, int sizeof_struct,
             int desired_number);
 }
