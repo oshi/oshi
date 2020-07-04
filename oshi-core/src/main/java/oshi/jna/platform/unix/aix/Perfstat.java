@@ -495,7 +495,9 @@ public interface Perfstat extends Library {
         public long targetmemexpsize; // Expanded Memory Size in MB
     }
 
-    class  perfstat_netinterface_t extends Structure {
+    @FieldOrder({ "name", "description", "type", "mtu", "ipackets", "ibytes", "ierrors", "opackets", "obytes",
+            "oerrors", "collisions", "bitrate", "xmitdrops", "version", "if_iqdrops", "if_arpdrops" })
+    class perfstat_netinterface_t extends Structure {
         public byte[] name = new byte[IDENTIFIER_LENGTH]; // name of the interface
         public byte[] description = new byte[IDENTIFIER_LENGTH]; // interface description
                                                                  // (from ODM, similar to lscfg output)
