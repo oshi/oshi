@@ -99,7 +99,8 @@ final class AixGlobalMemory extends AbstractGlobalMemory {
                 } else if (s.startsWith("Physical Location:")) {
                     locator = "/" + s.substring(18).trim();
                 } else if (s.startsWith("Size")) {
-                    capacity = ParseUtil.parseLongOrDefault(ParseUtil.removeLeadingDots(s.substring(4).trim()), 0L);
+                    capacity = ParseUtil.parseLongOrDefault(ParseUtil.removeLeadingDots(s.substring(4).trim()),
+                            0L) << 20;
                 } else if (s.startsWith("Hardware Location Code")) {
                     // Save previous bank
                     if (capacity > 0) {
