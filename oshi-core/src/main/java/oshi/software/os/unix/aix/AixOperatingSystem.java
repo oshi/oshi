@@ -234,9 +234,9 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
                 String[] serviceSplit = ParseUtil.whitespaces.split(systemService.trim());
                 if (systemService.contains("active")) {
                     if (serviceSplit.length == 4) {
-                        services.add(new OSService(serviceSplit[0], ParseUtil.parseIntOrDefault(serviceSplit[3], 0), RUNNING));
-                    } else if (serviceSplit.length == 3) {
                         services.add(new OSService(serviceSplit[0], ParseUtil.parseIntOrDefault(serviceSplit[2], 0), RUNNING));
+                    } else if (serviceSplit.length == 3) {
+                        services.add(new OSService(serviceSplit[0], ParseUtil.parseIntOrDefault(serviceSplit[1], 0), RUNNING));
                     }
                 } else if (systemService.contains("inoperative")) {
                     services.add(new OSService(serviceSplit[0], 0, STOPPED));
