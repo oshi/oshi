@@ -24,8 +24,6 @@
 package oshi.jna.platform.unix.aix;
 
 import com.sun.jna.Native; // NOSONAR squid:S1191
-import com.sun.jna.Structure;
-import com.sun.jna.Structure.FieldOrder;
 
 import oshi.jna.platform.unix.CLibrary;
 
@@ -36,32 +34,5 @@ import oshi.jna.platform.unix.CLibrary;
 public interface AixLibc extends CLibrary {
 
     AixLibc INSTANCE = Native.load("c", AixLibc.class);
-
-    @FieldOrder({ "flag", "tb_high", "tb_low" })
-    class timebasestruct_t extends Structure {
-        public int flag; // indicats time base or real time
-        public int tb_high; // high 32 bits, or seconds
-        public int tb_low; // low 32 bits, or nanoseconds
-    }
-
-    /**
-     * Reads the real clock time in nanosecond precision to an arbitrary base
-     *
-     * @param time
-     *            Receives the time
-     * @param size
-     *            Size of the structure
-     */
-    void read_real_time(timebasestruct_t time, int size);
-
-    /**
-     * Converts a timebasestruct time to seconds and nanoseconds since the epoch
-     *
-     * @param time
-     *            A timebasestruct time, receives time in seconds and nanoseconds
-     * @param size
-     *            Size of the structure
-     */
-    void time_base_to_time(timebasestruct_t time, int size);
 
 }
