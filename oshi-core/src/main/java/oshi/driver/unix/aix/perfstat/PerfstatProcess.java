@@ -28,6 +28,8 @@ import java.util.Arrays;
 import com.sun.jna.Native;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.jna.platform.unix.aix.AixLibc;
+import oshi.jna.platform.unix.aix.AixLibc.timebasestruct_t;
 import oshi.jna.platform.unix.aix.Perfstat;
 import oshi.jna.platform.unix.aix.Perfstat.perfstat_id_t;
 import oshi.jna.platform.unix.aix.Perfstat.perfstat_process_t;
@@ -63,14 +65,30 @@ public final class PerfstatProcess {
         return new perfstat_process_t[0];
     }
 
+    /**
+     * Converts time in timebase format to milliseconds since the epoch
+     *
+     * @param timebase
+     *            The time in timebase format
+     * @return milliseconds since the epoch
+     */
+    public static long timebaseToTime(long timebase) {
+        timebasestruct_t base = new timebasestruct_t();
+        base.tb_high = (int) (timebase >>> 32);
+        base.tb_low = (int) timebase & 0xffffffff;
+        AixLibc.INSTANCE.time_base_to_time(base, base.size());
+        // Convert seconds and nanos to millis
+        return base.tb_high * 1000L + base.tb_low / 1_000_000L;
+    }
+
     public static void main(String[] args) {
         perfstat_process_t[] procs = queryProcesses();
         System.out.println("Found " + procs.length + " process(es)");
+        long timestamp = timebaseToTime(procs[0].last_timebase);
         for (int i = 0; i < procs.length; i++) {
-            System.out.format("%s: pid=%d, timebase=%d, ucpu_time=%d, scpu_time=%d%n",
-                    Native.toString(procs[i].proc_name), procs[i].pid,
-                    procs[i].last_timebase,
-                    (long) procs[i].ucpu_time, (long) procs[i].scpu_time);
+            System.out.format("%s: pid=%d, timestamp=%d, ucpu_time=%d, scpu_time=%d%n",
+                    Native.toString(procs[i].proc_name), procs[i].pid, timestamp, (long) procs[i].ucpu_time,
+                    (long) procs[i].scpu_time);
         }
     }
 }
