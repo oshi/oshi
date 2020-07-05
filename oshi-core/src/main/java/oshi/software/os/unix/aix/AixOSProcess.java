@@ -40,7 +40,9 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.unix.aix.perfstat.PerfstatCpu;
 import oshi.software.common.AbstractOSProcess;
+import oshi.software.os.OSProcess;
 import oshi.software.os.OSThread;
 import oshi.util.ExecutingCommand;
 import oshi.util.LsofUtil;
@@ -50,6 +52,7 @@ import oshi.util.ParseUtil;
 public class AixOSProcess extends AbstractOSProcess {
 
     private Supplier<Integer> bitness = memoize(this::queryBitness);
+    private Supplier<Long> affinityMask = memoize(this::getAffinityMaskFromCpuCount);
 
     private String name;
     private String path = "";
@@ -187,6 +190,16 @@ public class AixOSProcess extends AbstractOSProcess {
         return this.bitness.get();
     }
 
+    @Override
+    public double getProcessCpuLoadCumulative() {
+        return 0D;
+    }
+
+    @Override
+    public double getProcessCpuLoadBetweenTicks(OSProcess priorSnapshot) {
+        return 0D;
+    }
+
     private int queryBitness() {
         List<String> pflags = ExecutingCommand.runNative("pflags " + getProcessID());
         for (String line : pflags) {
@@ -207,7 +220,24 @@ public class AixOSProcess extends AbstractOSProcess {
         // ps -m -o THREAD -p 12345
         // BND field for PID is either a dash (all processors) or the processor it's
         // bound to, do 1L << # to get mask
-        return 1L; // temp placeholder
+        long affinityMask = 0L;
+        List<String> processAffinityInfoList = ExecutingCommand.runNative("ps -m -o THREAD -p " + getProcessID());
+        if (processAffinityInfoList.size() > 2) { //what happens when the process has not thread?
+            processAffinityInfoList.remove(0); //remove header row
+            processAffinityInfoList.remove(1); //remove process row
+            for (String processAffinityInfo : processAffinityInfoList) { //affinity information is in thread row
+                String[] threadInfoSplit = ParseUtil.whitespaces.split(processAffinityInfo.trim());
+                if (threadInfoSplit.length > 13 && threadInfoSplit[4].charAt(0) != 'Z') { //only non-zombie threads
+                    if (threadInfoSplit[11] == "-") { //affinity to all processors
+                        affinityMask = this.affinityMask.get();
+                    } else {
+                        int affinity = ParseUtil.parseIntOrDefault(threadInfoSplit[11], 0);
+                        affinityMask = 1L << affinity;
+                    }
+                }
+            }
+        }
+        return affinityMask;
     }
 
     @Override
@@ -367,5 +397,22 @@ public class AixOSProcess extends AbstractOSProcess {
             break;
         }
         return state;
+    }
+
+    /**
+     * Returns affinity mask from the number of CPU in the OS.
+     * @return affinity mask
+     */
+    private long getAffinityMaskFromCpuCount() {
+        int cpus = PerfstatCpu.queryCpuTotal().ncpus;
+        long bitMask = 0L;
+        if (cpus < 63) {
+            bitMask = (1L << cpus) - 1;
+        } else if (cpus == 63) {
+            bitMask = Long.MAX_VALUE;
+        } else if (cpus == 64) {
+            bitMask = -1L;
+        }
+        return bitMask;
     }
 }
