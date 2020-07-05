@@ -29,6 +29,7 @@ import java.util.Optional;
 
 import oshi.software.common.AbstractOSThread;
 import oshi.software.os.OSProcess;
+import oshi.software.os.OSThread;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
@@ -89,18 +90,17 @@ public class AixOSThread extends AbstractOSThread {
     }
 
     @Override
+    public double getThreadCpuLoadCumulative() {
+        return 0D;
+    }
+
+    @Override
+    public double getThreadCpuLoadBetweenTicks(OSThread priorSnapshot) {
+        return 0D;
+    }
+
+    @Override
     public boolean updateAttributes() {
-        List<String> threadListInfo1 = ExecutingCommand
-                .runNative("ps -o lwp,s,etime,stime,time,addr,pri -p " + getOwningProcessId());
-        List<String> threadListInfo2 = ExecutingCommand.runNative("prstat -L -v -p " + getOwningProcessId());
-        Map<Integer, String[]> threadMap = AixOSProcess.parseAndMergeThreadInfo(threadListInfo1, threadListInfo2);
-        if (threadMap.keySet().size() > 1) {
-            Optional<String[]> split = threadMap.entrySet().stream()
-                    .filter(entry -> entry.getKey() == this.getThreadId()).map(Map.Entry::getValue).findFirst();
-            if (split.isPresent()) {
-                return updateAttributes(split.get());
-            }
-        }
         List<String> threadListInfoPs = ExecutingCommand.runNative("ps -m -o THREAD -p " + getOwningProcessId());
         // 1st row is header, 2nd row is process data.
         if (threadListInfoPs.size() > 2) {
