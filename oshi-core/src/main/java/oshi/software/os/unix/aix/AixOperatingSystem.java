@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
+import java.util.regex.Matcher;
 
 import com.sun.jna.Native;
 
@@ -212,48 +213,52 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
     public OSService[] getServices() {
         // Need to update for whatever services AIX uses
         List<OSService> services = new ArrayList<>();
-        // Get legacy RC service name possibilities
-        List<String> legacySvcs = new ArrayList<>();
-        File dir = new File("/etc/init.d");
-        File[] listFiles;
-        if (dir.exists() && dir.isDirectory() && (listFiles = dir.listFiles()) != null) {
-            for (File f : listFiles) {
-                legacySvcs.add(f.getName());
-            }
-        }
-        // Iterate service list
-        List<String> svcs = ExecutingCommand.runNative("svcs -p");
+        //Get system services from lssrc command
         /*-
          Output:
-         STATE          STIME    FRMI
-         legacy_run     23:56:49 lrc:/etc/rc2_d/S47pppd
-         legacy_run     23:56:49 lrc:/etc/rc2_d/S81dodatadm_udaplt
-         legacy_run     23:56:49 lrc:/etc/rc2_d/S89PRESERVE
-         online         23:56:25 svc:/system/early-manifest-import:default
-         online         23:56:25 svc:/system/svc/restarter:default
-                        23:56:24       13 svc.startd
+         Subsystem         Group            PID          Status
+            platform_agent                    2949214      active
+            cimsys                            2490590      active
+            snmpd            tcpip            2883698      active
+            syslogd          ras              2359466      active
+            sendmail         mail             3145828      active
+            portmap          portmap          2818188      active
+            inetd            tcpip            2752656      active
+            lpd              spooler                       inoperative
                         ...
          */
-        for (String line : svcs) {
-            if (line.startsWith("online")) {
-                int delim = line.lastIndexOf(":/");
-                if (delim > 0) {
-                    String name = line.substring(delim + 1);
-                    if (name.endsWith(":default")) {
-                        name = name.substring(0, name.length() - 8);
+        List<String> systemServicesInfoList = ExecutingCommand.runNative("lssrc -a");
+        if (systemServicesInfoList.size() > 1) {
+            systemServicesInfoList.remove(0); //remove header
+            for (String systemService : systemServicesInfoList) {
+                String[] serviceSplit = ParseUtil.whitespaces.split(systemService.trim());
+                if (systemService.contains("active")) {
+                    if (serviceSplit.length == 4) {
+                        services.add(new OSService(serviceSplit[0], ParseUtil.parseIntOrDefault(serviceSplit[3], 0), RUNNING));
+                    } else if (serviceSplit.length == 3) {
+                        services.add(new OSService(serviceSplit[0], ParseUtil.parseIntOrDefault(serviceSplit[2], 0), RUNNING));
                     }
-                    services.add(new OSService(name, 0, STOPPED));
+                } else if (systemService.contains("inoperative")) {
+                    services.add(new OSService(serviceSplit[0], 0, STOPPED));
                 }
-            } else if (line.startsWith(" ")) {
-                String[] split = ParseUtil.whitespaces.split(line.trim());
-                if (split.length == 3) {
-                    services.add(new OSService(split[2], ParseUtil.parseIntOrDefault(split[1], 0), RUNNING));
-                }
-            } else if (line.startsWith("legacy_run")) {
-                for (String svc : legacySvcs) {
-                    if (line.endsWith(svc)) {
-                        services.add(new OSService(svc, 0, STOPPED));
-                        break;
+            }
+        }
+        // Get installed services from /etc/rc.d/init.d
+        File dir = new File("/etc/rc.d/init.d");
+        File[] listFiles;
+        if (dir.exists() && dir.isDirectory() && (listFiles = dir.listFiles()) != null) {
+            for (File file : listFiles) {
+                List<String> installedServiceInfoList = ExecutingCommand.runNative(file.getAbsolutePath() + " status");
+                //Apache httpd daemon is running with PID 3997858.
+                if (installedServiceInfoList.size() > 0) { //only output is service info in a single line.
+                    String installedService = installedServiceInfoList.get(0);
+                    if (installedService.contains("running")) {
+                        Matcher m = ParseUtil.AIX_RUNNING_SERVICE_INFO.matcher(installedService);
+                        if (m.find()) {
+                            services.add(new OSService(file.getName(), ParseUtil.parseIntOrDefault(m.group(3), 0), RUNNING));
+                        }
+                    } else {
+                        services.add(new OSService(file.getName(), 0, STOPPED));
                     }
                 }
             }
