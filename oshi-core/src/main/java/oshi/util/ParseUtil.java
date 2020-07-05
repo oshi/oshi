@@ -128,6 +128,9 @@ public final class ParseUtil {
     /** Constant <code>forwardSlash</code> */
     public static final Pattern slash = Pattern.compile("\\/");
 
+    /** Constant <code>forwardSlash</code> */
+    public static final Pattern AIX_RUNNING_SERVICE_INFO = Pattern.compile("(.*)(PID )(\\d*)");
+
     static {
         multipliers = new HashMap<>();
         multipliers.put(HZ, 1L);

@@ -132,11 +132,11 @@ public class SystemInfoTest {
         logger.info("Checking IP statistics...");
         printInternetProtocolStats(os.getInternetProtocolStats());
 
+        logger.info("Checking Services...");
+        printServices(os);
+
         // Move items out of this conditional as they are implemented!
         if (SKIP) {
-
-            logger.info("Checking Services...");
-            printServices(os);
 
             logger.info("Checking Sensors...");
             printSensors(hal.getSensors());
