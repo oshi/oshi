@@ -82,25 +82,15 @@ final class AixGlobalMemory extends AbstractGlobalMemory {
     @Override
     public List<PhysicalMemory> getPhysicalMemory() {
         List<PhysicalMemory> pmList = new ArrayList<>();
-        int bank = 0;
+        boolean isMemModule = false;
         String bankLabel = Constants.UNKNOWN;
         String locator = "";
         long capacity = 0L;
-        String manufacturer = "IBM";
         for (String line : lscfg.get()) {
             String s = line.trim();
             if (s.endsWith("memory-module")) {
-                // Save previous bank
-                if (bank++ > 0) {
-                    if (capacity > 0) {
-                        pmList.add(
-                                new PhysicalMemory(bankLabel + locator, capacity, 0L, manufacturer, Constants.UNKNOWN));
-                    }
-                    bankLabel = Constants.UNKNOWN;
-                    locator = "";
-                    capacity = 0L;
-                }
-            } else if (bank > 0) {
+                isMemModule = true;
+            } else if (isMemModule) {
                 if (s.startsWith("Node:")) {
                     bankLabel = s.substring(5).trim();
                     if (bankLabel.startsWith("IBM,")) {
@@ -110,11 +100,17 @@ final class AixGlobalMemory extends AbstractGlobalMemory {
                     locator = "/" + s.substring(18).trim();
                 } else if (s.startsWith("Size")) {
                     capacity = ParseUtil.parseLongOrDefault(ParseUtil.removeLeadingDots(s.substring(4).trim()), 0L);
+                } else if (s.startsWith("Hardware Location Code")) {
+                    // Save previous bank
+                    if (capacity > 0) {
+                        pmList.add(new PhysicalMemory(bankLabel + locator, capacity, 0L, "IBM", Constants.UNKNOWN));
+                    }
+                    bankLabel = Constants.UNKNOWN;
+                    locator = "";
+                    capacity = 0L;
+                    isMemModule = false;
                 }
             }
-        }
-        if (capacity > 0) {
-            pmList.add(new PhysicalMemory(bankLabel + locator, capacity, 0L, manufacturer, Constants.UNKNOWN));
         }
         return pmList;
     }
