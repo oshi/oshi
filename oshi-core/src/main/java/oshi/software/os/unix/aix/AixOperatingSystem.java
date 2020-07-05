@@ -25,7 +25,6 @@ package oshi.software.os.unix.aix;
 
 import static oshi.software.os.OSService.State.RUNNING;
 import static oshi.software.os.OSService.State.STOPPED;
-import static oshi.software.os.OSService.State.OTHER;
 import static oshi.util.Memoizer.memoize;
 
 import java.io.File;
@@ -233,15 +232,14 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
             systemServicesInfoList.remove(0); //remove header
             for (String systemService : systemServicesInfoList) {
                 String[] serviceSplit = ParseUtil.whitespaces.split(systemService.trim());
-                if (serviceSplit.length == 4) {
-                    int processId = ParseUtil.parseIntOrDefault(serviceSplit[2], 0);
-                    if (serviceSplit[2] == "active") {
-                        services.add(new OSService(serviceSplit[0], processId, RUNNING));
-                    } else if (serviceSplit[2] == "inoperative") {
-                        services.add(new OSService(serviceSplit[0], processId, STOPPED));
-                    } else {
-                        services.add(new OSService(serviceSplit[0], processId, OTHER));
+                if (systemService.contains("active")) {
+                    if (serviceSplit.length == 4) {
+                        services.add(new OSService(serviceSplit[0], ParseUtil.parseIntOrDefault(serviceSplit[3], 0), RUNNING));
+                    } else if (serviceSplit.length == 3) {
+                        services.add(new OSService(serviceSplit[0], ParseUtil.parseIntOrDefault(serviceSplit[2], 0), RUNNING));
                     }
+                } else if (systemService.contains("inoperative")) {
+                    services.add(new OSService(serviceSplit[0], 0, STOPPED));
                 }
             }
         }
