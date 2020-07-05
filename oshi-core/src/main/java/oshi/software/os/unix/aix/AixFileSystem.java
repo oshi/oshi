@@ -118,7 +118,7 @@ public class AixFileSystem extends AbstractFileSystem {
 
                 // Skip non-local drives if requested, and exclude pseudo file systems
                 if ((localOnly && NETWORK_FS_TYPES.contains(type)) || PSEUDO_FS_TYPES.contains(type)
-                        || path.equals("/dev")
+                        || path.equals("/dev") || !path.startsWith("/")
                         || ParseUtil.filePathStartsWith(TMP_FS_PATHS, path) && !path.equals("/")) {
                     continue;
                 }
@@ -149,8 +149,8 @@ public class AixFileSystem extends AbstractFileSystem {
                 }
 
                 fsList.add(new AixOSFileStore(name, volume, name, path, options, "", "", description, type, freeSpace,
-                        usableSpace, totalSpace, inodeFreeMap.getOrDefault(path, 0L),
-                        inodeTotalMap.getOrDefault(path, 0L)));
+                        usableSpace, totalSpace, inodeFreeMap.getOrDefault(volume, 0L),
+                        inodeTotalMap.getOrDefault(volume, 0L)));
             }
         }
         return fsList;
