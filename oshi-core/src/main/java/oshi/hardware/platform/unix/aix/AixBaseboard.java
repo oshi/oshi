@@ -23,6 +23,9 @@
  */
 package oshi.hardware.platform.unix.aix;
 
+import java.util.List;
+import java.util.function.Supplier;
+
 import oshi.annotation.concurrent.Immutable;
 import oshi.driver.unix.aix.Lscfg;
 import oshi.hardware.common.AbstractBaseboard;
@@ -41,8 +44,8 @@ final class AixBaseboard extends AbstractBaseboard {
     private final String serialNumber;
     private final String version;
 
-    AixBaseboard() {
-        Triplet<String, String, String> msv = Lscfg.queryBackplaneModelSerialVersion();
+    AixBaseboard(Supplier<List<String>> lscfg) {
+        Triplet<String, String, String> msv = Lscfg.queryBackplaneModelSerialVersion(lscfg.get());
         this.model = Util.isBlank(msv.getA()) ? Constants.UNKNOWN : msv.getA();
         this.serialNumber = Util.isBlank(msv.getB()) ? Constants.UNKNOWN : msv.getB();
         this.version = Util.isBlank(msv.getC()) ? Constants.UNKNOWN : msv.getC();

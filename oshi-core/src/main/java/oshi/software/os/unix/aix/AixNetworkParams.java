@@ -35,7 +35,7 @@ import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
 /**
- * SolarisNetworkParams class.
+ * AixNetworkParams class.
  */
 @ThreadSafe
 final class AixNetworkParams extends AbstractNetworkParams {
@@ -77,10 +77,8 @@ final class AixNetworkParams extends AbstractNetworkParams {
         */
         for (String line : ExecutingCommand.runNative(netstat)) {
             String[] split = ParseUtil.whitespaces.split(line);
-            if (split.length > 7) {
-                if ("default".equals(split[0])) {
-                    return split[1];
-                }
+            if (split.length > 7 && "default".equals(split[0])) {
+                return split[1];
             }
         }
         return Constants.UNKNOWN;

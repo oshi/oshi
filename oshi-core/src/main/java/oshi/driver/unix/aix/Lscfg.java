@@ -23,6 +23,8 @@
  */
 package oshi.driver.unix.aix;
 
+import java.util.List;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
@@ -39,11 +41,22 @@ public final class Lscfg {
     }
 
     /**
-     * Query {@code lscfg -vp} to get backplane info
+     * Query {@code lscfg -vp} to get all hardware devices
      *
+     * @return A list of the output
+     */
+    public static List<String> queryAllDevices() {
+        return ExecutingCommand.runNative("lscfg -vp");
+    }
+
+    /**
+     * Parse the output of {@code lscfg -vp} to get backplane info
+     *
+     * @param lscfg
+     *            The output of a previous call to {@code lscfg -vp}
      * @return A triplet with backplane model, serial number, and version
      */
-    public static Triplet<String, String, String> queryBackplaneModelSerialVersion() {
+    public static Triplet<String, String, String> queryBackplaneModelSerialVersion(List<String> lscfg) {
         final String planeMarker = "WAY BACKPLANE";
         final String modelMarker = "Part Number";
         final String serialMarker = "Serial Number";
@@ -64,7 +77,7 @@ public final class Lscfg {
         String serialNumber = null;
         String version = null;
         boolean planeFlag = false;
-        for (final String checkLine : ExecutingCommand.runNative("lscfg -vp")) {
+        for (final String checkLine : lscfg) {
             if (!planeFlag && checkLine.contains(planeMarker)) {
                 planeFlag = true;
             } else if (planeFlag) {

@@ -25,6 +25,7 @@ package oshi.hardware.platform.unix.aix;
 
 import static oshi.util.Memoizer.memoize;
 
+import java.util.List;
 import java.util.function.Supplier;
 
 import oshi.annotation.concurrent.Immutable;
@@ -43,6 +44,11 @@ import oshi.util.Util;
 final class AixComputerSystem extends AbstractComputerSystem {
 
     private final Supplier<LsattrStrings> lsattrStrings = memoize(AixComputerSystem::readLsattr);
+    private Supplier<List<String>> lscfg;
+
+    public AixComputerSystem(Supplier<List<String>> lscfg) {
+        this.lscfg = lscfg;
+    }
 
     @Override
     public String getManufacturer() {
@@ -67,7 +73,7 @@ final class AixComputerSystem extends AbstractComputerSystem {
 
     @Override
     public Baseboard createBaseboard() {
-        return new AixBaseboard();
+        return new AixBaseboard(lscfg);
     }
 
     private static LsattrStrings readLsattr() {

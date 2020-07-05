@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.unix.aix.Lscfg;
 import oshi.driver.unix.aix.perfstat.PerfstatDisk;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.ComputerSystem;
@@ -51,12 +52,14 @@ import oshi.jna.platform.unix.aix.Perfstat.perfstat_disk_t;
 @ThreadSafe
 public final class AixHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {
 
+    // Memoized hardware listing
+    private final Supplier<List<String>> lscfg = memoize(Lscfg::queryAllDevices, defaultExpiration());
     // Memoized disk stats to pass to disk object(s)
     private final Supplier<perfstat_disk_t[]> diskStats = memoize(PerfstatDisk::queryDiskStats, defaultExpiration());
 
     @Override
     public ComputerSystem createComputerSystem() {
-        return new AixComputerSystem();
+        return new AixComputerSystem(lscfg);
     }
 
     @Override
