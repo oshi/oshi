@@ -30,6 +30,7 @@ import static oshi.software.os.OSProcess.State.SLEEPING;
 import static oshi.software.os.OSProcess.State.STOPPED;
 import static oshi.software.os.OSProcess.State.WAITING;
 import static oshi.software.os.OSProcess.State.ZOMBIE;
+import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
 
 import java.util.ArrayList;
@@ -52,7 +53,7 @@ import oshi.util.ParseUtil;
 public class AixOSProcess extends AbstractOSProcess {
 
     private Supplier<Integer> bitness = memoize(this::queryBitness);
-    private Supplier<Long> affinityMask = memoize(this::getAffinityMaskFromCpuCount);
+    private final Supplier<Long> affinityMask = memoize(AixOSProcess::getAffinityMaskFromCpuCount, defaultExpiration());
 
     private String name;
     private String path = "";
@@ -353,7 +354,7 @@ public class AixOSProcess extends AbstractOSProcess {
      * Returns affinity mask from the number of CPU in the OS.
      * @return affinity mask
      */
-    private long getAffinityMaskFromCpuCount() {
+    private static long getAffinityMaskFromCpuCount() {
         int cpus = PerfstatCpu.queryCpuTotal().ncpus;
         long bitMask = 0L;
         if (cpus < 63) {
