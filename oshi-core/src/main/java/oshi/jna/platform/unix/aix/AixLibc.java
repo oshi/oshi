@@ -25,6 +25,7 @@ package oshi.jna.platform.unix.aix;
 
 import com.sun.jna.Native; // NOSONAR squid:S1191
 import com.sun.jna.Structure;
+import com.sun.jna.Structure.FieldOrder;
 
 import oshi.jna.platform.unix.CLibrary;
 
@@ -36,6 +37,7 @@ public interface AixLibc extends CLibrary {
 
     AixLibc INSTANCE = Native.load("c", AixLibc.class);
 
+    @FieldOrder({ "flag", "tb_high", "tb_low" })
     class timebasestruct_t extends Structure {
         public int flag; // indicats time base or real time
         public int tb_high; // high 32 bits, or seconds
