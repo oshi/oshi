@@ -64,7 +64,7 @@ public final class AixHardwareAbstractionLayer extends AbstractHardwareAbstracti
 
     @Override
     public GlobalMemory createMemory() {
-        return new AixGlobalMemory();
+        return new AixGlobalMemory(lscfg);
     }
 
     @Override

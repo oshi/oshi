@@ -26,13 +26,18 @@ package oshi.hardware.platform.unix.aix;
 import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Supplier;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.unix.aix.perfstat.PerfstatMemory;
+import oshi.hardware.PhysicalMemory;
 import oshi.hardware.VirtualMemory;
 import oshi.hardware.common.AbstractGlobalMemory;
 import oshi.jna.platform.unix.aix.Perfstat.perfstat_memory_total_t;
+import oshi.util.Constants;
+import oshi.util.ParseUtil;
 
 /**
  * Memory obtained by perfstat_memory_total_t
@@ -42,12 +47,17 @@ final class AixGlobalMemory extends AbstractGlobalMemory {
 
     private final Supplier<perfstat_memory_total_t> perfstatMem = memoize(AixGlobalMemory::queryPerfstat,
             defaultExpiration());
+    private final Supplier<List<String>> lscfg;
 
     // AIX has multiple page size units, but for purposes of "pages" in perfstat,
     // the docs specify 4KB pages so we hardcode this
     private static final long PAGESIZE = 4096L;
 
     private final Supplier<VirtualMemory> vm = memoize(this::createVirtualMemory);
+
+    public AixGlobalMemory(Supplier<List<String>> lscfg) {
+        this.lscfg = lscfg;
+    }
 
     @Override
     public long getAvailable() {
@@ -67,6 +77,46 @@ final class AixGlobalMemory extends AbstractGlobalMemory {
     @Override
     public VirtualMemory getVirtualMemory() {
         return vm.get();
+    }
+
+    @Override
+    public List<PhysicalMemory> getPhysicalMemory() {
+        List<PhysicalMemory> pmList = new ArrayList<>();
+        int bank = 0;
+        String bankLabel = Constants.UNKNOWN;
+        String locator = "";
+        long capacity = 0L;
+        String manufacturer = "IBM";
+        for (String line : lscfg.get()) {
+            String s = line.trim();
+            if (s.endsWith("memory-module")) {
+                // Save previous bank
+                if (bank++ > 0) {
+                    if (capacity > 0) {
+                        pmList.add(
+                                new PhysicalMemory(bankLabel + locator, capacity, 0L, manufacturer, Constants.UNKNOWN));
+                    }
+                    bankLabel = Constants.UNKNOWN;
+                    locator = "";
+                    capacity = 0L;
+                }
+            } else if (bank > 0) {
+                if (s.startsWith("Node:")) {
+                    bankLabel = s.substring(5).trim();
+                    if (bankLabel.startsWith("IBM,")) {
+                        bankLabel = bankLabel.substring(4);
+                    }
+                } else if (s.startsWith("Physical Location:")) {
+                    locator = "/" + s.substring(18).trim();
+                } else if (s.startsWith("Size")) {
+                    capacity = ParseUtil.parseLongOrDefault(ParseUtil.removeLeadingDots(s.substring(4).trim()), 0L);
+                }
+            }
+        }
+        if (capacity > 0) {
+            pmList.add(new PhysicalMemory(bankLabel + locator, capacity, 0L, manufacturer, Constants.UNKNOWN));
+        }
+        return pmList;
     }
 
     private static perfstat_memory_total_t queryPerfstat() {

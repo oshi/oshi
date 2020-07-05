@@ -44,7 +44,7 @@ import oshi.util.Util;
 final class AixComputerSystem extends AbstractComputerSystem {
 
     private final Supplier<LsattrStrings> lsattrStrings = memoize(AixComputerSystem::readLsattr);
-    private Supplier<List<String>> lscfg;
+    private final Supplier<List<String>> lscfg;
 
     public AixComputerSystem(Supplier<List<String>> lscfg) {
         this.lscfg = lscfg;
