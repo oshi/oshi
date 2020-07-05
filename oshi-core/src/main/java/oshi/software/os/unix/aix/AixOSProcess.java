@@ -228,11 +228,12 @@ public class AixOSProcess extends AbstractOSProcess {
             for (String processAffinityInfo : processAffinityInfoList) { //affinity information is in thread row
                 String[] threadInfoSplit = ParseUtil.whitespaces.split(processAffinityInfo.trim());
                 if (threadInfoSplit.length > 13 && threadInfoSplit[4].charAt(0) != 'Z') { //only non-zombie threads
-                    if (threadInfoSplit[11] == "-") { //affinity to all processors
-                        affinityMask = this.affinityMask.get();
+                    if (threadInfoSplit[11].trim().charAt(0) == '-') { //affinity to all processors
+                        return this.affinityMask.get();
                     } else {
                         int affinity = ParseUtil.parseIntOrDefault(threadInfoSplit[11], 0);
-                        affinityMask = 1L << affinity;
+                        affinityMask |= 1L << affinity;
+                        return affinityMask;
                     }
                 }
             }
@@ -308,57 +309,6 @@ public class AixOSProcess extends AbstractOSProcess {
         this.path = split[15];
         this.name = this.path.substring(this.path.lastIndexOf('/') + 1);
         return true;
-    }
-
-    /**
-     * Merges results of a ps and prstat query, since Solaris thread details are not
-     * available in a single command. Package private to permit access by
-     * SolarisOSThread.
-     *
-     * @param psThreadInfo
-     *            output from ps command.
-     * @param prstatThreadInfo
-     *            output from the prstat command.
-     * @return a map with key as thread id and an array of command outputs as value
-     */
-    static Map<Integer, String[]> parseAndMergeThreadInfo(List<String> psThreadInfo, List<String> prstatThreadInfo) {
-        Map<Integer, String[]> map = new HashMap<>();
-        final String[] mergedSplit = new String[9];
-        // 0-lwpid, 1-state,2-elapsedtime,3-kerneltime, 4-usertime, 5-address,
-        // 6-priority
-        if (psThreadInfo.size() > 1) { // first row is header
-            psThreadInfo.stream().skip(1).forEach(threadInfo -> {
-                String[] psSplit = ParseUtil.whitespaces.split(threadInfo.trim());
-                if (psSplit.length == 7) {
-                    // copying the 1st 7 results from ps command output
-                    for (int idx = 0; idx < psSplit.length; idx++) {
-                        if (idx == 0) { // index 0 has threadid
-                            map.put(ParseUtil.parseIntOrDefault(psSplit[idx], 0), mergedSplit);
-                        }
-                        mergedSplit[idx] = psSplit[idx];
-                    }
-                }
-            });
-            // 0-pid, 1-username, 2-usertime, 3-sys, 4-trp, 5-tfl, 6-dfl, 7-lck, 8-slp,
-            // 9-lat, 10-vcx, 11-icx, 12-scl, 13-sig, 14-process/lwpid
-            if (prstatThreadInfo.size() > 1) { // first row is header
-                prstatThreadInfo.stream().skip(1).forEach(threadInfo -> {
-                    String[] splitPrstat = ParseUtil.whitespaces.split(threadInfo.trim());
-                    if (splitPrstat.length == 15) {
-                        int idxAfterForwardSlash = splitPrstat[14].lastIndexOf('/') + 1; // format is process/lwpid
-                        if (idxAfterForwardSlash > 0 && idxAfterForwardSlash < splitPrstat[14].length()) {
-                            String threadId = splitPrstat[14].substring(idxAfterForwardSlash); // getting the thread id
-                            String[] existingSplit = map.get(Integer.parseInt(threadId));
-                            if (existingSplit != null) { // if thread wasn't in ps command output
-                                existingSplit[7] = splitPrstat[10]; // voluntary context switch
-                                existingSplit[8] = splitPrstat[11]; // involuntary context switch
-                            }
-                        }
-                    }
-                });
-            }
-        }
-        return map;
     }
 
     /***
