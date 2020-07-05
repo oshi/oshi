@@ -23,8 +23,6 @@
  */
 package oshi.driver.unix.aix.perfstat;
 
-import com.sun.jna.Native;
-
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.platform.unix.aix.Perfstat;
 import oshi.jna.platform.unix.aix.Perfstat.perfstat_id_t;
@@ -59,49 +57,5 @@ public final class PerfstatProtocol {
             }
         }
         return new perfstat_protocol_t[0];
-    }
-
-    public static void main(String[] args) {
-        perfstat_protocol_t[] prots = queryProtocols();
-        for (int i = 0; i < prots.length; i++) {
-            String type = Native.toString(prots[i].name);
-            System.out.println("Protocol stats for " + type);
-            switch (type) {
-            case "ip":
-                System.out.println(prots[i].u.ip.toString());
-                break;
-            case "ipv6":
-                System.out.println(prots[i].u.ipv6.toString());
-                break;
-            case "icmp":
-                System.out.println(prots[i].u.icmp.toString());
-                break;
-            case "icmpv6":
-                System.out.println(prots[i].u.icmpv6.toString());
-                break;
-            case "udp":
-                System.out.println(prots[i].u.udp.toString());
-                break;
-            case "tcp":
-                System.out.println(prots[i].u.tcp.toString());
-                break;
-            case "rpc":
-                System.out.println(prots[i].u.rpc.toString());
-                break;
-            case "nfs":
-                System.out.println(prots[i].u.nfs.toString());
-                break;
-            case "nfsv2":
-                System.out.println(prots[i].u.nfsv2.toString());
-                break;
-            case "nfsv3":
-                System.out.println(prots[i].u.nfsv3.toString());
-                break;
-            case "nfsv4":
-                System.out.println(prots[i].u.nfsv4.toString());
-                break;
-            default:
-            }
-        }
     }
 }

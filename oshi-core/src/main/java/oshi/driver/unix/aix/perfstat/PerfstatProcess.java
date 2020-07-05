@@ -23,6 +23,8 @@
  */
 package oshi.driver.unix.aix.perfstat;
 
+import java.util.Arrays;
+
 import com.sun.jna.Native;
 
 import oshi.annotation.concurrent.ThreadSafe;
@@ -55,7 +57,7 @@ public final class PerfstatProcess {
             perfstat_id_t firstprocess = new perfstat_id_t(); // name is ""
             int ret = PERF.perfstat_process(firstprocess, proct, process.size(), procCount);
             if (ret > 0) {
-                return proct;
+                return Arrays.copyOf(proct, ret);
             }
         }
         return new perfstat_process_t[0];
