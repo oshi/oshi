@@ -120,14 +120,14 @@ public class SystemInfoTest {
         logger.info("Checking Disks...");
         printDisks(hal.getDiskStores());
 
-
         logger.info("Checking File System...");
         printFileSystem(os.getFileSystem());
 
         logger.info("Checking Network interfaces...");
         printNetworkInterfaces(hal.getNetworkIFs());
 
-        // networkparams
+        logger.info("Checking Network parameters...");
+        printNetworkParameters(os.getNetworkParams());
 
         logger.info("Checking IP statistics...");
         printInternetProtocolStats(os.getInternetProtocolStats());
@@ -143,9 +143,6 @@ public class SystemInfoTest {
 
             logger.info("Checking Power sources...");
             printPowerSources(hal.getPowerSources());
-
-            logger.info("Checking Network parameters...");
-            printNetworkParameters(os.getNetworkParams());
 
             // hardware: displays
             logger.info("Checking Displays...");
