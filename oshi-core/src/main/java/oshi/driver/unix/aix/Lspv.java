@@ -48,6 +48,8 @@ public final class Lspv {
     /**
      * Query {@code lspv} to get partition info
      *
+     * @param device
+     *            The disk to get the volumes from
      * @param majMinMap
      *            A map of device name to a pair with major and minor numbers.
      *

@@ -1155,7 +1155,7 @@ public final class ParseUtil {
 
     /**
      * Parses a String "....foo" to "foo"
-     * 
+     *
      * @param dotPrefixedStr
      *            A string with possibly leading dots
      * @return The string without the dots

@@ -85,6 +85,8 @@ public final class Lscfg {
     /**
      * Query {@code lscfg -vl device} to get hardware info
      *
+     * @param device
+     *            The disk to get the model and serial from
      * @return A pair containing the model and serial number for the device, or null
      *         if not found
      */
