@@ -30,34 +30,29 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.sun.jna.platform.unix.solaris.LibKstat.Kstat; // NOSONAR
-
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.AbstractFileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
-import oshi.util.platform.unix.solaris.KstatUtil;
-import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
 
 /**
- * The Solaris File System contains {@link oshi.software.os.OSFileStore}s which
- * are a storage pool, device, partition, volume, concrete file system or other
- * implementation specific means of file storage. In Solaris, these are found in
- * the /proc/mount filesystem, excluding temporary and kernel mounts.
+ * The AIX File System contains {@link oshi.software.os.OSFileStore}s which are
+ * a storage pool, device, partition, volume, concrete file system or other
+ * implementation specific means of file storage.
  */
 @ThreadSafe
 public class AixFileSystem extends AbstractFileSystem {
 
     // System path mounted as tmpfs
-    private static final List<String> TMP_FS_PATHS = Arrays.asList("/system", "/tmp", "/dev/fd");
+    private static final List<String> TMP_FS_PATHS = Arrays.asList("/proc");
 
     @Override
     public List<OSFileStore> getFileStores(boolean localOnly) {
         return getFileStoreMatching(null, localOnly);
     }
 
-    // Called by SolarisOSFileStore
+    // Called by AixOSFileStore
     static List<OSFileStore> getFileStoreMatching(String nameToMatch) {
         return getFileStoreMatching(nameToMatch, false);
     }
@@ -68,108 +63,115 @@ public class AixFileSystem extends AbstractFileSystem {
         // Get inode usage data
         Map<String, Long> inodeFreeMap = new HashMap<>();
         Map<String, Long> inodeTotalMap = new HashMap<>();
-        String key = null;
-        String total = null;
-        String free = null;
-        String command = "df -g" + (localOnly ? " -l" : "");
+        String command = "df -i" + (localOnly ? " -l" : "");
         for (String line : ExecutingCommand.runNative(command)) {
             /*- Sample Output:
-            /                  (/dev/md/dsk/d0    ):         8192 block size          1024 frag size
-            41310292 total blocks   18193814 free blocks 17780712 available        2486848 total files
-             2293351 free files     22282240 filesys id
-                 ufs fstype       0x00000004 flag             255 filename length
+             $ df -i
+            Filesystem            Inodes   IUsed   IFree IUse% Mounted on
+            /dev/hd4               75081   16741   58340   23% /
+            /dev/hd2              269640   43104  226536   16% /usr
+            /dev/hd9var            43598    1370   42228    4% /var
+            /dev/hd3               79936     386   79550    1% /tmp
+            /dev/hd11admin         29138       7   29131    1% /admin
+            /proc                      0       0       0    -  /proc
+            /dev/hd10opt           47477    4232   43245    9% /opt
+            /dev/livedump          58204       4   58200    1% /var/adm/ras/livedump
+            /dev/fslv00          12419240  292668 12126572    3% /home
             */
             if (line.startsWith("/")) {
-                key = ParseUtil.whitespaces.split(line)[0];
-                total = null;
-            } else if (line.contains("available") && line.contains("total files")) {
-                total = ParseUtil.getTextBetweenStrings(line, "available", "total files").trim();
-            } else if (line.contains("free files")) {
-                free = ParseUtil.getTextBetweenStrings(line, "", "free files").trim();
-                if (key != null && total != null) {
-                    inodeFreeMap.put(key, ParseUtil.parseLongOrDefault(free, 0L));
-                    inodeTotalMap.put(key, ParseUtil.parseLongOrDefault(total, 0L));
-                    key = null;
+                String[] split = ParseUtil.whitespaces.split(line);
+                if (split.length > 5) {
+                    inodeTotalMap.put(split[0], ParseUtil.parseLongOrDefault(split[1], 0L));
+                    inodeFreeMap.put(split[0], ParseUtil.parseLongOrDefault(split[3], 0L));
                 }
             }
         }
 
         // Get mount table
         for (String fs : ExecutingCommand.runNative("cat /etc/mnttab")) { // NOSONAR squid:S135
-            String[] split = ParseUtil.whitespaces.split(fs);
-            if (split.length < 5) {
-                continue;
-            }
-            // 1st field is volume name
-            // 2nd field is mount point
-            // 3rd field is fs type
-            // 4th field is options
-            // other fields ignored
-            String volume = split[0];
-            String path = split[1];
-            String type = split[2];
-            String options = split[3];
+            /*- Sample Output:
+             *   node       mounted        mounted over    vfs       date        options
+            * -------- ---------------  ---------------  ------ ------------ ---------------
+            *          /dev/hd4         /                jfs2   Jun 16 09:12 rw,log=/dev/hd8
+            *          /dev/hd2         /usr             jfs2   Jun 16 09:12 rw,log=/dev/hd8
+            *          /dev/hd9var      /var             jfs2   Jun 16 09:12 rw,log=/dev/hd8
+            *          /dev/hd3         /tmp             jfs2   Jun 16 09:12 rw,log=/dev/hd8
+            *          /dev/hd11admin   /admin           jfs2   Jun 16 09:13 rw,log=/dev/hd8
+            *          /proc            /proc            procfs Jun 16 09:13 rw
+            *          /dev/hd10opt     /opt             jfs2   Jun 16 09:13 rw,log=/dev/hd8
+            *          /dev/livedump    /var/adm/ras/livedump jfs2   Jun 16 09:13 rw,log=/dev/hd8
+            * foo      /dev/fslv00      /home            jfs2   Jun 16 09:13 rw,log=/dev/loglv00
+             */
+            // Lines begin with optional node, which we don't use. To force sensible split
+            // behavior, append any character at the beginning of the string
+            String[] split = ParseUtil.whitespaces.split("x" + fs);
+            if (split.length > 7) {
+                // 1st field is volume name [0-index]
+                // 2nd field is mount point
+                // 3rd field is fs type
+                // 4th-6th fields are date, ignored
+                // 7th field is options
+                String volume = split[1];
+                String path = split[2];
+                String type = split[3];
+                String options = split[4];
 
-            // Skip non-local drives if requested, and exclude pseudo file systems
-            if ((localOnly && NETWORK_FS_TYPES.contains(type)) || PSEUDO_FS_TYPES.contains(type) || path.equals("/dev")
-                    || ParseUtil.filePathStartsWith(TMP_FS_PATHS, path)
-                    || volume.startsWith("rpool") && !path.equals("/")) {
-                continue;
-            }
+                // Skip non-local drives if requested, and exclude pseudo file systems
+                if ((localOnly && NETWORK_FS_TYPES.contains(type)) || PSEUDO_FS_TYPES.contains(type)
+                        || path.equals("/dev")
+                        || ParseUtil.filePathStartsWith(TMP_FS_PATHS, path) && !path.equals("/")) {
+                    continue;
+                }
 
-            String name = path.substring(path.lastIndexOf('/') + 1);
-            // Special case for /, pull last element of volume instead
-            if (name.isEmpty()) {
-                name = volume.substring(volume.lastIndexOf('/') + 1);
-            }
+                String name = path.substring(path.lastIndexOf('/') + 1);
+                // Special case for /, pull last element of volume instead
+                if (name.isEmpty()) {
+                    name = volume.substring(volume.lastIndexOf('/') + 1);
+                }
 
-            if (nameToMatch != null && !nameToMatch.equals(name)) {
-                continue;
-            }
-            File f = new File(path);
-            long totalSpace = f.getTotalSpace();
-            long usableSpace = f.getUsableSpace();
-            long freeSpace = f.getFreeSpace();
+                if (nameToMatch != null && !nameToMatch.equals(name)) {
+                    continue;
+                }
+                File f = new File(path);
+                long totalSpace = f.getTotalSpace();
+                long usableSpace = f.getUsableSpace();
+                long freeSpace = f.getFreeSpace();
 
-            String description;
-            if (volume.startsWith("/dev") || path.equals("/")) {
-                description = "Local Disk";
-            } else if (volume.equals("tmpfs")) {
-                description = "Ram Disk";
-            } else if (NETWORK_FS_TYPES.contains(type)) {
-                description = "Network Disk";
-            } else {
-                description = "Mount Point";
-            }
+                String description;
+                if (volume.startsWith("/dev") || path.equals("/")) {
+                    description = "Local Disk";
+                } else if (volume.equals("tmpfs")) {
+                    description = "Ram Disk";
+                } else if (NETWORK_FS_TYPES.contains(type)) {
+                    description = "Network Disk";
+                } else {
+                    description = "Mount Point";
+                }
 
-            fsList.add(new AixOSFileStore(name, volume, name, path, options, "", "", description, type, freeSpace,
-                    usableSpace, totalSpace, inodeFreeMap.containsKey(path) ? inodeFreeMap.get(path) : 0L,
-                    inodeTotalMap.containsKey(path) ? inodeTotalMap.get(path) : 0L));
+                fsList.add(new AixOSFileStore(name, volume, name, path, options, "", "", description, type, freeSpace,
+                        usableSpace, totalSpace, inodeFreeMap.getOrDefault(path, 0L),
+                        inodeTotalMap.getOrDefault(path, 0L)));
+            }
         }
         return fsList;
     }
 
     @Override
     public long getOpenFileDescriptors() {
-        try (KstatChain kc = KstatUtil.openChain()) {
-            Kstat ksp = kc.lookup(null, -1, "file_cache");
-            // Set values
-            if (ksp != null && kc.read(ksp)) {
-                return KstatUtil.dataLookupLong(ksp, "buf_inuse");
+        boolean header = false;
+        long openfiles = 0L;
+        for (String f : ExecutingCommand.runNative("lsof -nl")) {
+            if (!header) {
+                header = f.startsWith("COMMAND");
+            } else {
+                openfiles++;
             }
         }
-        return 0L;
+        return openfiles;
     }
 
     @Override
     public long getMaxFileDescriptors() {
-        try (KstatChain kc = KstatUtil.openChain()) {
-            Kstat ksp = kc.lookup(null, -1, "file_cache");
-            // Set values
-            if (ksp != null && kc.read(ksp)) {
-                return KstatUtil.dataLookupLong(ksp, "buf_max");
-            }
-        }
-        return 0L;
+        return ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer("ulimit -n"), 0L);
     }
 }
