@@ -88,7 +88,7 @@ public class AixFileSystem extends AbstractFileSystem {
         }
 
         // Get mount table
-        for (String fs : ExecutingCommand.runNative("cat /etc/mnttab")) { // NOSONAR squid:S135
+        for (String fs : ExecutingCommand.runNative("mount")) { // NOSONAR squid:S135
             /*- Sample Output:
              *   node       mounted        mounted over    vfs       date        options
             * -------- ---------------  ---------------  ------ ------------ ---------------
