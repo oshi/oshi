@@ -148,7 +148,7 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
         if (allProcs.isEmpty()) {
             return Collections.emptyList();
         }
-        //filter processes whose parent process id matches
+        // filter processes whose parent process id matches
         return allProcs.stream().filter(proc -> parentPid == proc.getParentProcessID()).collect(Collectors.toList());
     }
 
@@ -265,8 +265,7 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
                 String installedService = ExecutingCommand.getFirstAnswer(file.getAbsolutePath() + " status");
                 // Apache httpd daemon is running with PID 3997858.
                 if (installedService.contains("running")) {
-                    services.add(
-                            new OSService(file.getName(), ParseUtil.parseLastInt(installedService, 0), RUNNING));
+                    services.add(new OSService(file.getName(), ParseUtil.parseLastInt(installedService, 0), RUNNING));
                 } else {
                     services.add(new OSService(file.getName(), 0, STOPPED));
                 }

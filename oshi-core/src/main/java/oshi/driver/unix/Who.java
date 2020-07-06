@@ -25,6 +25,7 @@ package oshi.driver.unix;
 
 import java.time.LocalDateTime;
 import java.time.Year;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
@@ -94,7 +95,7 @@ public final class Who {
                         if (login.isAfter(LocalDateTime.now())) {
                             login = login.minus(1, ChronoUnit.YEARS);
                         }
-                        long millis = login.toEpochSecond(ZoneOffset.UTC) * 1000L;
+                        long millis = login.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
                         whoList.add(
                                 new OSSession(m.group(1), m.group(2), millis, m.group(6) == null ? "" : m.group(6)));
                     } catch (DateTimeParseException e) {

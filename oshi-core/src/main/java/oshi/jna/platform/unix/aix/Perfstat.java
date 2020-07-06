@@ -871,8 +871,7 @@ public interface Perfstat extends Library {
         @FieldOrder({ "nullreq", "compound", "operations", "access", "close", "commit", "create", "delegpurge",
                 "delegreturn", "getattr", "getfh", "link", "lock", "lockt", "locku", "lookup", "lookupp", "nverify",
                 "open", "openattr", "open_confirm", "open_downgrade", "putfh", "putpubfh", "putrootfh", "read",
-                "readdir", "readlink", "remove", "rename", "renew", "restorefh", "savefh", "secinfo",
-                "setattr",
+                "readdir", "readlink", "remove", "rename", "renew", "restorefh", "savefh", "secinfo", "setattr",
                 "set_clientid", "clientid_confirm", "verify", "write", "release_lock" })
         public static class AnonymousStructNFSv4server extends Structure {
             public long nullreq; // NFS V4 server null calls

@@ -66,7 +66,7 @@ final class AixNetworkParams extends AbstractNetworkParams {
         $ netstat -rnf inet
         Routing tables
         Destination        Gateway           Flags   Refs     Use  If   Exp  Groups
-
+        
         Route Tree for Protocol Family 2 (Internet):
         default            192.168.10.1      UG        9    873816 en0      -      -
         127/8              127.0.0.1         U         9    839480 lo0      -      -
