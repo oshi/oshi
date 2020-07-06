@@ -74,7 +74,7 @@ public final class AixHardwareAbstractionLayer extends AbstractHardwareAbstracti
 
     @Override
     public Sensors createSensors() {
-        return new AixSensors();
+        return new AixSensors(lscfg);
     }
 
     @Override

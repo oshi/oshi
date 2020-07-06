@@ -23,13 +23,11 @@
  */
 package oshi.hardware.platform.unix.aix;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.common.AbstractSensors;
-import oshi.util.ExecutingCommand;
-import oshi.util.ParseUtil;
 
 /**
  * Sensors from prtpicl
@@ -37,50 +35,34 @@ import oshi.util.ParseUtil;
 @ThreadSafe
 final class AixSensors extends AbstractSensors {
 
+    private final Supplier<List<String>> lscfg;
+
+    public AixSensors(Supplier<List<String>> lscfg) {
+        this.lscfg = lscfg;
+    }
+
     @Override
     public double queryCpuTemperature() {
-        double maxTemp = 0d;
-        // Return max found temp
-        for (String line : ExecutingCommand.runNative("/usr/sbin/prtpicl -v -c temperature-sensor")) {
-            if (line.trim().startsWith("Temperature:")) {
-                int temp = ParseUtil.parseLastInt(line, 0);
-                if (temp > maxTemp) {
-                    maxTemp = temp;
-                }
-            }
-        }
-        // If it's in millidegrees:
-        if (maxTemp > 1000) {
-            maxTemp /= 1000;
-        }
-        return maxTemp;
+        // Not available in general without specialized software
+        return 0d;
     }
 
     @Override
     public int[] queryFanSpeeds() {
-        List<Integer> speedList = new ArrayList<>();
-        // Return max found temp
-        for (String line : ExecutingCommand.runNative("/usr/sbin/prtpicl -v -c fan")) {
-            if (line.trim().startsWith("Speed:")) {
-                speedList.add(ParseUtil.parseLastInt(line, 0));
+        // Speeds are not available in general without specialized software
+        // We can count fans from lscfg and return an appropriate sized array of zeroes.
+        int fans = 0;
+        for (String s : lscfg.get()) {
+            if (s.contains("Air Mover")) {
+                fans++;
             }
         }
-        int[] fans = new int[speedList.size()];
-        for (int i = 0; i < speedList.size(); i++) {
-            fans[i] = speedList.get(i);
-        }
-        return fans;
+        return new int[fans];
     }
 
     @Override
     public double queryCpuVoltage() {
-        double voltage = 0d;
-        for (String line : ExecutingCommand.runNative("/usr/sbin/prtpicl -v -c voltage-sensor")) {
-            if (line.trim().startsWith("Voltage:")) {
-                voltage = ParseUtil.parseDoubleOrDefault(line.replace("Voltage:", "").trim(), 0d);
-                break;
-            }
-        }
-        return voltage;
+        // Not available in general without specialized software
+        return 0d;
     }
 }

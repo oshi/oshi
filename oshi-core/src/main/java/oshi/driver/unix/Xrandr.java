@@ -21,40 +21,50 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package oshi.hardware.platform.unix.solaris;
+package oshi.driver.unix;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.driver.unix.Xrandr;
-import oshi.hardware.Display;
-import oshi.hardware.common.AbstractDisplay;
+import oshi.util.ExecutingCommand;
+import oshi.util.ParseUtil;
 
 /**
- * A Display
+ * Utility to query xrandr
  */
 @ThreadSafe
-final class SolarisDisplay extends AbstractDisplay {
+public final class Xrandr {
 
-    /**
-     * Constructor for SolarisDisplay.
-     *
-     * @param edid
-     *            a byte array representing a display EDID
-     */
-    SolarisDisplay(byte[] edid) {
-        super(edid);
+    private Xrandr() {
     }
 
-    /**
-     * Gets Display Information
-     *
-     * @return An array of Display objects representing monitors, etc.
-     */
-    public static List<Display> getDisplays() {
-        return Collections.unmodifiableList(
-                Xrandr.getEdidArrays().stream().map(SolarisDisplay::new).collect(Collectors.toList()));
+    public static List<byte[]> getEdidArrays() {
+        List<String> xrandr = ExecutingCommand.runNative("xrandr --verbose");
+        // xrandr reports edid in multiple lines. After seeing a line containing
+        // EDID, read subsequent lines of hex until 256 characters are reached
+        if (xrandr.isEmpty()) {
+            return Collections.emptyList();
+        }
+        List<byte[]> displays = new ArrayList<>();
+        StringBuilder sb = null;
+        for (String s : xrandr) {
+            if (s.contains("EDID")) {
+                sb = new StringBuilder();
+            } else if (sb != null) {
+                sb.append(s.trim());
+                if (sb.length() < 256) {
+                    continue;
+                }
+                String edidStr = sb.toString();
+                byte[] edid = ParseUtil.hexStringToByteArray(edidStr);
+                if (edid.length >= 128) {
+                    displays.add(edid);
+                }
+                sb = null;
+            }
+        }
+        return displays;
     }
 }

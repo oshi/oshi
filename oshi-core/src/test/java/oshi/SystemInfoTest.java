@@ -113,9 +113,14 @@ public class SystemInfoTest {
         logger.info("Checking Processes...");
         printProcesses(os, hal.getMemory());
 
-        // services
-        // sensors
-        // power sources
+        logger.info("Checking Services...");
+        printServices(os);
+
+        logger.info("Checking Sensors...");
+        printSensors(hal.getSensors());
+
+        logger.info("Checking Power sources...");
+        printPowerSources(hal.getPowerSources());
 
         logger.info("Checking Disks...");
         printDisks(hal.getDiskStores());
@@ -132,23 +137,12 @@ public class SystemInfoTest {
         logger.info("Checking IP statistics...");
         printInternetProtocolStats(os.getInternetProtocolStats());
 
-        logger.info("Checking Services...");
-        printServices(os);
+        logger.info("Checking Displays...");
+        printDisplays(hal.getDisplays());
 
         // Move items out of this conditional as they are implemented!
         if (SKIP) {
 
-            logger.info("Checking Sensors...");
-            printSensors(hal.getSensors());
-
-            logger.info("Checking Power sources...");
-            printPowerSources(hal.getPowerSources());
-
-            // hardware: displays
-            logger.info("Checking Displays...");
-            printDisplays(hal.getDisplays());
-
-            // hardware: USB devices
             logger.info("Checking USB Devices...");
             printUsbDevices(hal.getUsbDevices(true));
 
