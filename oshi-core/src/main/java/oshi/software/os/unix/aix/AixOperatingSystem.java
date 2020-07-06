@@ -30,7 +30,9 @@ import static oshi.util.Memoizer.memoize;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
 
@@ -40,8 +42,10 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.linux.proc.ProcessStat;
 import oshi.driver.unix.aix.Who;
 import oshi.driver.unix.aix.perfstat.PerfstatConfig;
+import oshi.driver.unix.aix.perfstat.PerfstatProcess;
 import oshi.jna.platform.unix.aix.AixLibc;
 import oshi.jna.platform.unix.aix.Perfstat.perfstat_partition_config_t;
+import oshi.jna.platform.unix.aix.Perfstat.perfstat_process_t;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
 import oshi.software.os.InternetProtocolStats;
@@ -51,6 +55,7 @@ import oshi.software.os.OSService;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
+import oshi.util.tuples.Pair;
 
 /**
  * AIX (Advanced Interactive eXecutive) is a series of proprietary Unix
@@ -151,9 +156,15 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
 
     private static List<OSProcess> getProcessListFromPS(String psCommand, int pid) {
         List<OSProcess> procs = new ArrayList<>();
+        perfstat_process_t[] perfstat = PerfstatProcess.queryProcesses();
         List<String> procList = ExecutingCommand.runNative(psCommand + (pid < 0 ? "" : pid));
         if (procList.isEmpty() || procList.size() < 2) {
             return procs;
+        }
+        // Parse array to map of user/system times
+        Map<Integer, Pair<Long, Long>> cpuMap = new HashMap<>();
+        for (perfstat_process_t stat : perfstat) {
+            cpuMap.put((int) stat.pid, new Pair<>((long) stat.ucpu_time, (long) stat.scpu_time));
         }
         // remove header row
         procList.remove(0);
@@ -162,7 +173,7 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
             String[] split = ParseUtil.whitespaces.split(proc.trim(), 16);
             // Elements should match ps command order
             if (split.length == 16) {
-                procs.add(new AixOSProcess(pid < 0 ? ParseUtil.parseIntOrDefault(split[1], 0) : pid, split));
+                procs.add(new AixOSProcess(pid < 0 ? ParseUtil.parseIntOrDefault(split[1], 0) : pid, split, cpuMap));
             }
         }
         return procs;

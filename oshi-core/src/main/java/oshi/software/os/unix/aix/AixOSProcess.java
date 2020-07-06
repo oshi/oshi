@@ -35,17 +35,22 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.unix.aix.perfstat.PerfstatCpu;
+import oshi.driver.unix.aix.perfstat.PerfstatProcess;
+import oshi.jna.platform.unix.aix.Perfstat.perfstat_process_t;
 import oshi.software.common.AbstractOSProcess;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OSThread;
 import oshi.util.ExecutingCommand;
 import oshi.util.LsofUtil;
 import oshi.util.ParseUtil;
+import oshi.util.tuples.Pair;
 
 @ThreadSafe
 public class AixOSProcess extends AbstractOSProcess {
@@ -74,9 +79,9 @@ public class AixOSProcess extends AbstractOSProcess {
     private long bytesWritten;
     private long majorFaults;
 
-    public AixOSProcess(int pid, String[] split) {
+    public AixOSProcess(int pid, String[] split, Map<Integer, Pair<Long, Long>> cpuMap) {
         super(pid);
-        updateAttributes(split);
+        updateAttributes(split, cpuMap);
     }
 
     @Override
@@ -270,20 +275,26 @@ public class AixOSProcess extends AbstractOSProcess {
 
     @Override
     public boolean updateAttributes() {
+        perfstat_process_t[] perfstat = PerfstatProcess.queryProcesses();
         List<String> procList = ExecutingCommand.runNative(
                 "ps -o s,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etime,time,comm,args -p " + getProcessID());
+        // Parse array to map of user/system times
+        Map<Integer, Pair<Long, Long>> cpuMap = new HashMap<>();
+        for (perfstat_process_t stat : perfstat) {
+            cpuMap.put((int) stat.pid, new Pair<>((long) stat.ucpu_time, (long) stat.scpu_time));
+        }
         if (procList.size() > 1) {
             String[] split = ParseUtil.whitespaces.split(procList.get(1).trim(), 15);
             // Elements should match ps command order
             if (split.length == 15) {
-                return updateAttributes(split);
+                return updateAttributes(split, cpuMap);
             }
         }
         this.state = State.INVALID;
         return false;
     }
 
-    private boolean updateAttributes(String[] split) {
+    private boolean updateAttributes(String[] split, Map<Integer, Pair<Long, Long>> cpuMap) {
         long now = System.currentTimeMillis();
         this.state = getStateFromOutput(split[0].charAt(0));
         this.parentProcessID = ParseUtil.parseIntOrDefault(split[2], 0);
@@ -296,12 +307,21 @@ public class AixOSProcess extends AbstractOSProcess {
         // These are in KB, multiply
         this.virtualSize = ParseUtil.parseLongOrDefault(split[9], 0) * 1024;
         this.residentSetSize = ParseUtil.parseLongOrDefault(split[10], 0) * 1024;
+        if (cpuMap.containsKey(getProcessID())) {
+            Pair<Long, Long> userSystem = cpuMap.get(getProcessID());
+            this.userTime = userSystem.getA();
+            this.kernelTime = userSystem.getB();
+        } else {
+            this.userTime = ParseUtil.parseDHMSOrDefault(split[12], 0L);
+            this.kernelTime = 0L;
+        }
         // Avoid divide by zero for processes up less than a second
         long elapsedTime = ParseUtil.parseDHMSOrDefault(split[11], 0L);
         this.upTime = elapsedTime < 1L ? 1L : elapsedTime;
+        while (this.upTime < this.userTime + this.kernelTime) {
+            this.upTime += 500L;
+        }
         this.startTime = now - this.upTime;
-        this.kernelTime = 0L;
-        this.userTime = ParseUtil.parseDHMSOrDefault(split[12], 0L);
         this.commandLine = split[13];
         this.majorFaults = ParseUtil.parseLongOrDefault(split[14], 0L);
         this.path = split[15];
