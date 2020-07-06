@@ -35,7 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
-import java.util.regex.Matcher;
+import java.util.stream.Collectors;
 
 import com.sun.jna.Native;
 
@@ -143,17 +143,13 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
     @Override
     public List<OSProcess> getChildProcesses(int parentPid, int limit, ProcessSort sort) {
         // Needs updating for flags on AIX or to use /proc fs
-        // Get list of children
-        List<String> childPids = ExecutingCommand.runNative("pgrep -P " + parentPid);
-        if (childPids.isEmpty()) {
+        // Get all processes
+        List<OSProcess> allProcs = getProcesses(limit, sort);
+        if (allProcs.isEmpty()) {
             return Collections.emptyList();
         }
-        List<OSProcess> procs = getProcessListFromPS(
-                "ps -o s,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etime,time,comm,args -p "
-                        + String.join(",", childPids),
-                -1);
-        List<OSProcess> sorted = processSort(procs, limit, sort);
-        return Collections.unmodifiableList(sorted);
+        //filter processes whose parent process id matches
+        return allProcs.stream().filter(proc -> parentPid == proc.getParentProcessID()).collect(Collectors.toList());
     }
 
     private static List<OSProcess> getProcessListFromPS(String psCommand, int pid) {
