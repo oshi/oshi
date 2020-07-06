@@ -88,7 +88,6 @@ public class SystemInfoTest {
      *            the arguments (unused)
      */
     public static void main(String[] args) {
-        boolean SKIP = false;
 
         logger.info("Initializing System...");
         SystemInfo si = new SystemInfo();
@@ -140,18 +139,14 @@ public class SystemInfoTest {
         logger.info("Checking Displays...");
         printDisplays(hal.getDisplays());
 
-        // Move items out of this conditional as they are implemented!
-        if (SKIP) {
+        logger.info("Checking USB Devices...");
+        printUsbDevices(hal.getUsbDevices(true));
 
-            logger.info("Checking USB Devices...");
-            printUsbDevices(hal.getUsbDevices(true));
+        logger.info("Checking Sound Cards...");
+        printSoundCards(hal.getSoundCards());
 
-            logger.info("Checking Sound Cards...");
-            printSoundCards(hal.getSoundCards());
-
-            logger.info("Checking Graphics Cards...");
-            printGraphicsCards(hal.getGraphicsCards());
-        }
+        logger.info("Checking Graphics Cards...");
+        printGraphicsCards(hal.getGraphicsCards());
 
         StringBuilder output = new StringBuilder();
         for (int i = 0; i < oshi.size(); i++) {

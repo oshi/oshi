@@ -76,7 +76,7 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
     public static List<UsbDevice> getUsbDevices(boolean tree) {
         List<UsbDevice> devices = getUsbDevices();
         if (tree) {
-            return devices;
+            return Collections.unmodifiableList(devices);
         }
         List<UsbDevice> deviceList = new ArrayList<>();
         // Top level is controllers; they won't be added to the list, but all
@@ -84,7 +84,7 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
         for (UsbDevice device : devices) {
             addDevicesToList(deviceList, device.getConnectedDevices());
         }
-        return deviceList;
+        return Collections.unmodifiableList(deviceList);
     }
 
     private static List<UsbDevice> getUsbDevices() {

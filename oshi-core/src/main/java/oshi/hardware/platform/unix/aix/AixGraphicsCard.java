@@ -26,12 +26,12 @@ package oshi.hardware.platform.unix.aix;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Supplier;
 
 import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.GraphicsCard;
 import oshi.hardware.common.AbstractGraphicsCard;
 import oshi.util.Constants;
-import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
 /**
@@ -40,10 +40,8 @@ import oshi.util.ParseUtil;
 @Immutable
 final class AixGraphicsCard extends AbstractGraphicsCard {
 
-    private static final String PCI_CLASS_DISPLAY = "0003";
-
     /**
-     * Constructor for SolarisGraphicsCard
+     * Constructor for AixGraphicsCard
      *
      * @param name
      *            The name
@@ -61,77 +59,36 @@ final class AixGraphicsCard extends AbstractGraphicsCard {
     }
 
     /**
-     * public method used by
-     * {@link oshi.hardware.common.AbstractHardwareAbstractionLayer} to access the
-     * graphics cards.
+     * Gets graphics cards
      *
-     * @return List of
-     *         {@link oshi.hardware.platform.unix.solaris.SolarisGraphicsCard}
-     *         objects.
+     * @param lscfg
+     *            A memoized lscfg list
+     *
+     * @return List of graphics cards
      */
-    public static List<GraphicsCard> getGraphicsCards() {
+    public static List<GraphicsCard> getGraphicsCards(Supplier<List<String>> lscfg) {
         List<GraphicsCard> cardList = new ArrayList<>();
-        // Enumerate all devices and add if required
-        List<String> devices = ExecutingCommand.runNative("prtconf -pv");
-        if (devices.isEmpty()) {
-            return cardList;
-        }
-        String name = "";
-        String vendorId = "";
-        String productId = "";
-        String classCode = "";
-        List<String> versionInfoList = new ArrayList<>();
-        for (String line : devices) {
-            // Node 0x... identifies start of a new device. Save previous if it's a graphics
-            // card
-            if (line.contains("Node 0x")) {
-                if (PCI_CLASS_DISPLAY.equals(classCode)) {
-                    cardList.add(new AixGraphicsCard(name.isEmpty() ? Constants.UNKNOWN : name,
-                            productId.isEmpty() ? Constants.UNKNOWN : productId,
-                            vendorId.isEmpty() ? Constants.UNKNOWN : vendorId,
-                            versionInfoList.isEmpty() ? Constants.UNKNOWN : String.join(", ", versionInfoList), 0L));
-                }
-                // Reset strings
-                name = "";
-                vendorId = Constants.UNKNOWN;
-                productId = Constants.UNKNOWN;
-                classCode = "";
-                versionInfoList.clear();
-            } else {
-                String[] split = line.trim().split(":", 2);
-                if (split.length == 2) {
-                    if (split[0].equals("model")) {
-                        // This is preferred, always set it
-                        name = ParseUtil.getSingleQuoteStringValue(line);
-                    } else if (split[0].equals("name")) {
-                        // Name is backup for model if model doesn't exist, so only
-                        // put if name blank
-                        if (name.isEmpty()) {
-                            name = ParseUtil.getSingleQuoteStringValue(line);
-                        }
-                    } else if (split[0].equals("vendor-id")) {
-                        // Format: vendor-id: 00008086
-                        vendorId = "0x" + line.substring(line.length() - 4);
-                    } else if (split[0].equals("device-id")) {
-                        // Format: device-id: 00002440
-                        productId = "0x" + line.substring(line.length() - 4);
-                    } else if (split[0].equals("revision-id")) {
-                        // Format: revision-id: 00000002
-                        versionInfoList.add(line.trim());
-                    } else if (split[0].equals("class-code")) {
-                        // Format: 00030000
-                        // Display class is 0003xx, first 6 bytes of this code
-                        classCode = line.substring(line.length() - 8, line.length() - 4);
-                    }
+        boolean display = false;
+        String name = null;
+        String vendor = null;
+        List<String> versionInfo = new ArrayList<>();
+        for (String line : lscfg.get()) {
+            String s = line.trim();
+            if (s.startsWith("Name:") && s.contains("display")) {
+                display = true;
+            } else if (display && s.toLowerCase().contains("graphics")) {
+                name = s;
+            } else if (display && name != null) {
+                if (s.startsWith("Manufacture ID")) {
+                    vendor = ParseUtil.removeLeadingDots(s.substring(14));
+                } else if (s.contains("Level")) {
+                    versionInfo.add(s.replaceAll("\\.\\.+", "="));
+                } else if (s.startsWith("Hardware Location Code")) {
+                    cardList.add(
+                            new AixGraphicsCard(name, Constants.UNKNOWN, vendor == null ? Constants.UNKNOWN : vendor,
+                                    versionInfo.isEmpty() ? Constants.UNKNOWN : String.join(",", versionInfo), 0L));
                 }
             }
-        }
-        // In case we reached end before saving
-        if (PCI_CLASS_DISPLAY.equals(classCode)) {
-            cardList.add(new AixGraphicsCard(name.isEmpty() ? Constants.UNKNOWN : name,
-                    productId.isEmpty() ? Constants.UNKNOWN : productId,
-                    vendorId.isEmpty() ? Constants.UNKNOWN : vendorId,
-                    versionInfoList.isEmpty() ? Constants.UNKNOWN : String.join(", ", versionInfoList), 0L));
         }
         return Collections.unmodifiableList(cardList);
     }

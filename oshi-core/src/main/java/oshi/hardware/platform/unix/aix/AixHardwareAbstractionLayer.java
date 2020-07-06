@@ -99,16 +99,16 @@ public final class AixHardwareAbstractionLayer extends AbstractHardwareAbstracti
 
     @Override
     public List<UsbDevice> getUsbDevices(boolean tree) {
-        return AixUsbDevice.getUsbDevices(tree);
+        return AixUsbDevice.getUsbDevices(tree, lscfg);
     }
 
     @Override
     public List<SoundCard> getSoundCards() {
-        return AixSoundCard.getSoundCards();
+        return AixSoundCard.getSoundCards(lscfg);
     }
 
     @Override
     public List<GraphicsCard> getGraphicsCards() {
-        return AixGraphicsCard.getGraphicsCards();
+        return AixGraphicsCard.getGraphicsCards(lscfg);
     }
 }

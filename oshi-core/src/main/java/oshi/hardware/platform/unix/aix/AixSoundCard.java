@@ -25,27 +25,23 @@ package oshi.hardware.platform.unix.aix;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.function.Supplier;
 
 import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.SoundCard;
 import oshi.hardware.common.AbstractSoundCard;
-import oshi.util.ExecutingCommand;
+import oshi.util.Constants;
 import oshi.util.ParseUtil;
 
 /**
- * Solaris Sound Card.
+ * AIX Sound Card.
  */
 @Immutable
 final class AixSoundCard extends AbstractSoundCard {
 
-    private static final String LSHAL = "lshal";
-    private static final String DEFAULT_AUDIO_DRIVER = "audio810";
-
     /**
-     * Constructor for SolarisSoundCard.
+     * Constructor for AixSoundCard.
      *
      * @param kernelVersion
      *            The version
@@ -59,37 +55,23 @@ final class AixSoundCard extends AbstractSoundCard {
     }
 
     /**
-     * <p>
-     * getSoundCards.
-     * </p>
+     * Gets sound cards
      *
-     * @return a {@link java.util.List} object.
+     * @param lscfg
+     *            a memoized lscfg object
+     *
+     * @return sound cards
      */
-    public static List<SoundCard> getSoundCards() {
-        Map<String, String> vendorMap = new HashMap<>();
-        Map<String, String> productMap = new HashMap<>();
-        List<String> sounds = new ArrayList<>();
-        String key = "";
-        for (String line : ExecutingCommand.runNative(LSHAL)) {
-            line = line.trim();
-            if (line.startsWith("udi =")) {
-                // we have the key.
-                key = ParseUtil.getSingleQuoteStringValue(line);
-            } else if (!key.isEmpty() && !line.isEmpty()) {
-                if (line.contains("info.solaris.driver =")
-                        && DEFAULT_AUDIO_DRIVER.equals(ParseUtil.getSingleQuoteStringValue(line))) {
-                    sounds.add(key);
-                } else if (line.contains("info.product")) {
-                    productMap.put(key, ParseUtil.getStringBetween(line, '\''));
-                } else if (line.contains("info.vendor")) {
-                    vendorMap.put(key, ParseUtil.getStringBetween(line, '\''));
+    public static List<SoundCard> getSoundCards(Supplier<List<String>> lscfg) {
+        List<SoundCard> soundCards = new ArrayList<>();
+        for (String line : lscfg.get()) {
+            String s = line.trim();
+            if (s.startsWith("paud")) {
+                String[] split = ParseUtil.whitespaces.split(s, 3);
+                if (split.length == 3) {
+                    soundCards.add(new AixSoundCard(Constants.UNKNOWN, split[2], Constants.UNKNOWN));
                 }
             }
-        }
-        List<SoundCard> soundCards = new ArrayList<>();
-        for (String _key : sounds) {
-            soundCards.add(new AixSoundCard(productMap.get(_key) + " " + DEFAULT_AUDIO_DRIVER,
-                    vendorMap.get(_key) + " " + productMap.get(_key), productMap.get(_key)));
         }
         return Collections.unmodifiableList(soundCards);
     }
