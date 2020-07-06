@@ -55,7 +55,7 @@ import oshi.util.tuples.Pair;
 public class AixOSProcess extends AbstractOSProcess {
 
     private Supplier<Integer> bitness = memoize(this::queryBitness);
-    private final Supplier<Long> affinityMask = memoize(AixOSProcess::getAffinityMaskFromCpuCount, defaultExpiration());
+    private final Supplier<Long> affinityMask = memoize(PerfstatCpu::queryCpuAffinityMask, defaultExpiration());
 
     private String name;
     private String path = "";
@@ -236,7 +236,7 @@ public class AixOSProcess extends AbstractOSProcess {
             for (String processAffinityInfo : processAffinityInfoList) { // affinity information is in thread row
                 String[] threadInfoSplit = ParseUtil.whitespaces.split(processAffinityInfo.trim());
                 if (threadInfoSplit.length > 13 && threadInfoSplit[4].charAt(0) != 'Z') { // only non-zombie threads
-                    if (threadInfoSplit[11].trim().charAt(0) == '-') { // affinity to all processors
+                    if (threadInfoSplit[11].charAt(0) == '-') { // affinity to all processors
                         return this.affinityMask.get();
                     } else {
                         int affinity = ParseUtil.parseIntOrDefault(threadInfoSplit[11], 0);
@@ -369,23 +369,5 @@ public class AixOSProcess extends AbstractOSProcess {
             break;
         }
         return state;
-    }
-
-    /**
-     * Returns affinity mask from the number of CPU in the OS.
-     *
-     * @return affinity mask
-     */
-    private static long getAffinityMaskFromCpuCount() {
-        int cpus = PerfstatCpu.queryCpuTotal().ncpus;
-        long bitMask = 0L;
-        if (cpus < 63) {
-            bitMask = (1L << cpus) - 1;
-        } else if (cpus == 63) {
-            bitMask = Long.MAX_VALUE;
-        } else if (cpus == 64) {
-            bitMask = -1L;
-        }
-        return bitMask;
     }
 }

@@ -40,7 +40,6 @@ import java.util.stream.Collectors;
 import com.sun.jna.Native;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.driver.linux.proc.ProcessStat;
 import oshi.driver.unix.aix.Who;
 import oshi.driver.unix.aix.perfstat.PerfstatConfig;
 import oshi.driver.unix.aix.perfstat.PerfstatProcess;
@@ -67,6 +66,7 @@ import oshi.util.tuples.Pair;
 public class AixOperatingSystem extends AbstractOperatingSystem {
 
     private final Supplier<perfstat_partition_config_t> config = memoize(PerfstatConfig::queryConfig);
+    Supplier<perfstat_process_t[]> procCpu = memoize(PerfstatProcess::queryProcesses, defaultExpiration());
 
     private static final long BOOTTIME = querySystemBootTime();
 
@@ -125,7 +125,7 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
     @Override
     public List<OSProcess> getProcesses(int limit, ProcessSort sort) {
         List<OSProcess> procs = getProcessListFromPS(
-                "ps -e -o st,pid,ppid,user,uid,group,gid,thcount,pri,vsize,rssize,etime,time,comm,pagein,args", -1);
+                "ps -A -o st,pid,ppid,user,uid,group,gid,thcount,pri,vsize,rssize,etime,time,comm,pagein,args", -1);
         List<OSProcess> sorted = processSort(procs, limit, sort);
         return Collections.unmodifiableList(sorted);
     }
@@ -142,24 +142,19 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public List<OSProcess> getChildProcesses(int parentPid, int limit, ProcessSort sort) {
-        // Needs updating for flags on AIX or to use /proc fs
         // Get all processes
         List<OSProcess> allProcs = getProcesses(limit, sort);
-        if (allProcs.isEmpty()) {
-            return Collections.emptyList();
-        }
         // filter processes whose parent process id matches
-        return allProcs.stream().filter(proc -> parentPid == proc.getParentProcessID()).collect(Collectors.toList());
+        return allProcs.isEmpty() ? Collections.emptyList()
+                : Collections.unmodifiableList(allProcs.stream().filter(proc -> parentPid == proc.getParentProcessID())
+                        .collect(Collectors.toList()));
     }
 
-    private static List<OSProcess> getProcessListFromPS(String psCommand, int pid) {
-        List<OSProcess> procs = new ArrayList<>();
-        // Create a memoized cpu usage to pass to processes
-        Supplier<perfstat_process_t[]> procCpu = memoize(PerfstatProcess::queryProcesses, defaultExpiration());
-        perfstat_process_t[] perfstat = PerfstatProcess.queryProcesses();
+    private List<OSProcess> getProcessListFromPS(String psCommand, int pid) {
+        perfstat_process_t[] perfstat = procCpu.get();
         List<String> procList = ExecutingCommand.runNative(psCommand + (pid < 0 ? "" : pid));
         if (procList.isEmpty() || procList.size() < 2) {
-            return procs;
+            return Collections.emptyList();
         }
         // Parse array to map of user/system times
         Map<Integer, Pair<Long, Long>> cpuMap = new HashMap<>();
@@ -169,6 +164,7 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
         // remove header row
         procList.remove(0);
         // Fill list
+        List<OSProcess> procs = new ArrayList<>();
         for (String proc : procList) {
             String[] split = ParseUtil.whitespaces.split(proc.trim(), 16);
             // Elements should match ps command order
@@ -187,19 +183,17 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public int getProcessCount() {
-        // This should work as is, but let's create an AIX driver for it
-        return ProcessStat.getPidFiles().length;
+        return procCpu.get().length;
     }
 
     @Override
     public int getThreadCount() {
-        // Needs updating for flags on AIX or to use /proc fs
-        List<String> threadList = ExecutingCommand.runNative("ps -eLo pid");
-        if (!threadList.isEmpty()) {
-            // Subtract 1 for header
-            return threadList.size() - 1;
+        perfstat_process_t[] procs = procCpu.get();
+        long tc = 0L;
+        for (perfstat_process_t proc : procs) {
+            tc += proc.num_threads;
         }
-        return getProcessCount();
+        return (int) tc;
     }
 
     @Override

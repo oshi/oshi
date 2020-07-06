@@ -73,4 +73,19 @@ public final class PerfstatCpu {
         }
         return new perfstat_cpu_t[0];
     }
+
+    /**
+     * Returns affinity mask from the number of CPU in the OS.
+     *
+     * @return affinity mask
+     */
+    public static long queryCpuAffinityMask() {
+        int cpus = queryCpuTotal().ncpus;
+        if (cpus < 63) {
+            return (1L << cpus) - 1;
+        } else if (cpus == 63) {
+            return Long.MAX_VALUE;
+        }
+        return -1L;
+    }
 }

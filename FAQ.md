@@ -48,9 +48,11 @@ Which operating systems are supported?
 ========
 OSHI has been implemented and tested on the following systems.  Some features may work on earlier versions.
 * Windows 7 and higher.  (Nearly all features work on Vista and most work on Windows XP.)
-* macOS version 10.6 (Snow Leopard) and higher
+* macOS version 10.6 (Snow Leopard) and higher. macOS 11.0 (Big Sur) and higher require at least JNA 5.6.0.
 * Linux (Most major distributions) Kernel 2.6 and higher
-* Unix: Solaris 11 (SunOS 5.11) / FreeBSD 10
+* Solaris 11 (SunOS 5.11) 
+* FreeBSD 10 
+* AIX 7.1 (POWER4)
 
 How do I resolve JNA `NoClassDefFound` errors?
 ========
@@ -86,13 +88,13 @@ Yes, most of the Linux code works here and other Pi-specific code has been imple
 limited testing.  As the developers do not have a Pi to test on, users reporting issues should be 
 prepared to help test solutions.
 
-Will you do an AIX or HP-UX port?
+Will you do a HP-UX port?
 ========
-An AIX port is in progress.  An HP-UX port may be considered in the future if there is non-zero demand.
+No. OSHI depends on JNA, which does not produce a native binary for HP-UX.
 
-Will you do a port for the other BSDs?  How about Android?
+Will you do a port for OpenBSD?  How about Android?
 ========
-Unlikely without bribes such as a lifetime supply of coffee.  But happy to advise someone else who wants to do so!
+Unlikely, unless paid to do so.  But happy to advise someone else!
 
 Will you do a Windows CE port?
 ========
