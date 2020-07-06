@@ -25,6 +25,7 @@ package oshi.software.os.unix.aix;
 
 import static oshi.software.os.OSService.State.RUNNING;
 import static oshi.software.os.OSService.State.STOPPED;
+import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
 
 import java.io.File;
@@ -66,6 +67,7 @@ import oshi.util.tuples.Pair;
 public class AixOperatingSystem extends AbstractOperatingSystem {
 
     private final Supplier<perfstat_partition_config_t> config = memoize(PerfstatConfig::queryConfig);
+
     private static final long BOOTTIME = querySystemBootTime();
 
     @Override
@@ -156,6 +158,8 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
 
     private static List<OSProcess> getProcessListFromPS(String psCommand, int pid) {
         List<OSProcess> procs = new ArrayList<>();
+        // Create a memoized cpu usage to pass to processes
+        Supplier<perfstat_process_t[]> procCpu = memoize(PerfstatProcess::queryProcesses, defaultExpiration());
         perfstat_process_t[] perfstat = PerfstatProcess.queryProcesses();
         List<String> procList = ExecutingCommand.runNative(psCommand + (pid < 0 ? "" : pid));
         if (procList.isEmpty() || procList.size() < 2) {
@@ -173,7 +177,8 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
             String[] split = ParseUtil.whitespaces.split(proc.trim(), 16);
             // Elements should match ps command order
             if (split.length == 16) {
-                procs.add(new AixOSProcess(pid < 0 ? ParseUtil.parseIntOrDefault(split[1], 0) : pid, split, cpuMap));
+                procs.add(new AixOSProcess(pid < 0 ? ParseUtil.parseIntOrDefault(split[1], 0) : pid, split, cpuMap,
+                        procCpu));
             }
         }
         return procs;

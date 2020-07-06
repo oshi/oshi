@@ -42,7 +42,6 @@ import java.util.function.Supplier;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.unix.aix.perfstat.PerfstatCpu;
-import oshi.driver.unix.aix.perfstat.PerfstatProcess;
 import oshi.jna.platform.unix.aix.Perfstat.perfstat_process_t;
 import oshi.software.common.AbstractOSProcess;
 import oshi.software.os.OSProcess;
@@ -79,8 +78,13 @@ public class AixOSProcess extends AbstractOSProcess {
     private long bytesWritten;
     private long majorFaults;
 
-    public AixOSProcess(int pid, String[] split, Map<Integer, Pair<Long, Long>> cpuMap) {
+    // Memoized copy from OperatingSystem
+    private Supplier<perfstat_process_t[]> procCpu;
+
+    public AixOSProcess(int pid, String[] split, Map<Integer, Pair<Long, Long>> cpuMap,
+            Supplier<perfstat_process_t[]> procCpu) {
         super(pid);
+        this.procCpu = procCpu;
         updateAttributes(split, cpuMap);
     }
 
@@ -275,7 +279,7 @@ public class AixOSProcess extends AbstractOSProcess {
 
     @Override
     public boolean updateAttributes() {
-        perfstat_process_t[] perfstat = PerfstatProcess.queryProcesses();
+        perfstat_process_t[] perfstat = procCpu.get();
         List<String> procList = ExecutingCommand.runNative(
                 "ps -o s,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etime,time,comm,args -p " + getProcessID());
         // Parse array to map of user/system times
