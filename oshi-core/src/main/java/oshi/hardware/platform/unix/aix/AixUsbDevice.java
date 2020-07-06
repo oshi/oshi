@@ -51,6 +51,7 @@ public class AixUsbDevice extends AbstractUsbDevice {
      * @param tree
      *            a boolean.
      * @param lscfg
+     *            A memoized lscfg list
      * @return an unmodifiable list of {@link oshi.hardware.UsbDevice} objects.
      */
     public static List<UsbDevice> getUsbDevices(boolean tree, Supplier<List<String>> lscfg) {
