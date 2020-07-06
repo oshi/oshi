@@ -213,7 +213,7 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
     public OSService[] getServices() {
         // Need to update for whatever services AIX uses
         List<OSService> services = new ArrayList<>();
-        //Get system services from lssrc command
+        // Get system services from lssrc command
         /*-
          Output:
          Subsystem         Group            PID          Status
@@ -229,14 +229,16 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
          */
         List<String> systemServicesInfoList = ExecutingCommand.runNative("lssrc -a");
         if (systemServicesInfoList.size() > 1) {
-            systemServicesInfoList.remove(0); //remove header
+            systemServicesInfoList.remove(0); // remove header
             for (String systemService : systemServicesInfoList) {
                 String[] serviceSplit = ParseUtil.whitespaces.split(systemService.trim());
                 if (systemService.contains("active")) {
                     if (serviceSplit.length == 4) {
-                        services.add(new OSService(serviceSplit[0], ParseUtil.parseIntOrDefault(serviceSplit[2], 0), RUNNING));
+                        services.add(new OSService(serviceSplit[0], ParseUtil.parseIntOrDefault(serviceSplit[2], 0),
+                                RUNNING));
                     } else if (serviceSplit.length == 3) {
-                        services.add(new OSService(serviceSplit[0], ParseUtil.parseIntOrDefault(serviceSplit[1], 0), RUNNING));
+                        services.add(new OSService(serviceSplit[0], ParseUtil.parseIntOrDefault(serviceSplit[1], 0),
+                                RUNNING));
                     }
                 } else if (systemService.contains("inoperative")) {
                     services.add(new OSService(serviceSplit[0], 0, STOPPED));
@@ -248,18 +250,16 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
         File[] listFiles;
         if (dir.exists() && dir.isDirectory() && (listFiles = dir.listFiles()) != null) {
             for (File file : listFiles) {
-                List<String> installedServiceInfoList = ExecutingCommand.runNative(file.getAbsolutePath() + " status");
-                //Apache httpd daemon is running with PID 3997858.
-                if (installedServiceInfoList.size() > 0) { //only output is service info in a single line.
-                    String installedService = installedServiceInfoList.get(0);
-                    if (installedService.contains("running")) {
-                        Matcher m = ParseUtil.AIX_RUNNING_SERVICE_INFO.matcher(installedService);
-                        if (m.find()) {
-                            services.add(new OSService(file.getName(), ParseUtil.parseIntOrDefault(m.group(3), 0), RUNNING));
-                        }
-                    } else {
-                        services.add(new OSService(file.getName(), 0, STOPPED));
+                String installedService = ExecutingCommand.getFirstAnswer(file.getAbsolutePath() + " status");
+                // Apache httpd daemon is running with PID 3997858.
+                if (installedService.contains("running")) {
+                    Matcher m = ParseUtil.AIX_RUNNING_SERVICE_INFO.matcher(installedService);
+                    if (m.find()) {
+                        services.add(
+                                new OSService(file.getName(), ParseUtil.parseIntOrDefault(m.group(3), 0), RUNNING));
                     }
+                } else {
+                    services.add(new OSService(file.getName(), 0, STOPPED));
                 }
             }
         }

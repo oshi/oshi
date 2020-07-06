@@ -61,7 +61,7 @@ final class AixNetworkParams extends AbstractNetworkParams {
         return getDefaultGateway("netstat -rnf inet6");
     }
 
-    private String getDefaultGateway(String netstat) {
+    private static String getDefaultGateway(String netstat) {
         /*-
         $ netstat -rnf inet
         Routing tables

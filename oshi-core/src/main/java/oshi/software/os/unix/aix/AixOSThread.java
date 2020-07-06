@@ -24,8 +24,6 @@
 package oshi.software.os.unix.aix;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 import oshi.software.common.AbstractOSThread;
 import oshi.software.os.OSProcess;

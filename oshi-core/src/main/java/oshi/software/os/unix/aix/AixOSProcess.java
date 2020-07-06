@@ -35,9 +35,7 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Supplier;
 
 import oshi.annotation.concurrent.ThreadSafe;
@@ -221,25 +219,24 @@ public class AixOSProcess extends AbstractOSProcess {
         // ps -m -o THREAD -p 12345
         // BND field for PID is either a dash (all processors) or the processor it's
         // bound to, do 1L << # to get mask
-        long affinityMask = 0L;
+        long mask = 0L;
         List<String> processAffinityInfoList = ExecutingCommand.runNative("ps -m -o THREAD -p " + getProcessID());
-        if (processAffinityInfoList.size() > 2) { //what happens when the process has not thread?
-            processAffinityInfoList.remove(0); //remove header row
-            processAffinityInfoList.remove(1); //remove process row
-            for (String processAffinityInfo : processAffinityInfoList) { //affinity information is in thread row
+        if (processAffinityInfoList.size() > 2) { // what happens when the process has not thread?
+            processAffinityInfoList.remove(0); // remove header row
+            processAffinityInfoList.remove(1); // remove process row
+            for (String processAffinityInfo : processAffinityInfoList) { // affinity information is in thread row
                 String[] threadInfoSplit = ParseUtil.whitespaces.split(processAffinityInfo.trim());
-                if (threadInfoSplit.length > 13 && threadInfoSplit[4].charAt(0) != 'Z') { //only non-zombie threads
-                    if (threadInfoSplit[11].trim().charAt(0) == '-') { //affinity to all processors
+                if (threadInfoSplit.length > 13 && threadInfoSplit[4].charAt(0) != 'Z') { // only non-zombie threads
+                    if (threadInfoSplit[11].trim().charAt(0) == '-') { // affinity to all processors
                         return this.affinityMask.get();
                     } else {
                         int affinity = ParseUtil.parseIntOrDefault(threadInfoSplit[11], 0);
-                        affinityMask |= 1L << affinity;
-                        return affinityMask;
+                        mask |= 1L << affinity;
                     }
                 }
             }
         }
-        return affinityMask;
+        return mask;
     }
 
     @Override
@@ -352,6 +349,7 @@ public class AixOSProcess extends AbstractOSProcess {
 
     /**
      * Returns affinity mask from the number of CPU in the OS.
+     *
      * @return affinity mask
      */
     private static long getAffinityMaskFromCpuCount() {
