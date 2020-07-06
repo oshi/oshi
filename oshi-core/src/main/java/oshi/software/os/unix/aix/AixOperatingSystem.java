@@ -269,11 +269,8 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
                 String installedService = ExecutingCommand.getFirstAnswer(file.getAbsolutePath() + " status");
                 // Apache httpd daemon is running with PID 3997858.
                 if (installedService.contains("running")) {
-                    Matcher m = ParseUtil.AIX_RUNNING_SERVICE_INFO.matcher(installedService);
-                    if (m.find()) {
-                        services.add(
-                                new OSService(file.getName(), ParseUtil.parseIntOrDefault(m.group(3), 0), RUNNING));
-                    }
+                    services.add(
+                            new OSService(file.getName(), ParseUtil.parseLastInt(installedService, 0), RUNNING));
                 } else {
                     services.add(new OSService(file.getName(), 0, STOPPED));
                 }
