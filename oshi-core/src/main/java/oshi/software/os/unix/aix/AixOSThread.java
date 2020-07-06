@@ -103,7 +103,7 @@ public class AixOSThread extends AbstractOSThread {
         // 1st row is header, 2nd row is process data.
         if (threadListInfoPs.size() > 2) {
             threadListInfoPs.remove(0); // header removed
-            threadListInfoPs.remove(1); // process data removed
+            threadListInfoPs.remove(0); // process data removed
             for (String threadInfo : threadListInfoPs) {
                 // USER,PID,PPID,TID,ST,CP,PRI,SC,WCHAN,F,TT,BND,COMMAND
                 String[] threadInfoSplit = ParseUtil.whitespaces.split(threadInfo.trim());

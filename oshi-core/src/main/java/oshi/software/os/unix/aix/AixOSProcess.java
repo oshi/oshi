@@ -232,7 +232,7 @@ public class AixOSProcess extends AbstractOSProcess {
         List<String> processAffinityInfoList = ExecutingCommand.runNative("ps -m -o THREAD -p " + getProcessID());
         if (processAffinityInfoList.size() > 2) { // what happens when the process has not thread?
             processAffinityInfoList.remove(0); // remove header row
-            processAffinityInfoList.remove(1); // remove process row
+            processAffinityInfoList.remove(0); // remove process row
             for (String processAffinityInfo : processAffinityInfoList) { // affinity information is in thread row
                 String[] threadInfoSplit = ParseUtil.whitespaces.split(processAffinityInfo.trim());
                 if (threadInfoSplit.length > 13 && threadInfoSplit[4].charAt(0) != 'Z') { // only non-zombie threads
@@ -255,7 +255,7 @@ public class AixOSProcess extends AbstractOSProcess {
         if (threadListInfoPs.size() > 2) {
             List<OSThread> threads = new ArrayList<>();
             threadListInfoPs.remove(0); // header removed
-            threadListInfoPs.remove(1); // process data removed
+            threadListInfoPs.remove(0); // process data removed
             for (String threadInfo : threadListInfoPs) {
                 // USER,PID,PPID,TID,ST,CP,PRI,SC,WCHAN,F,TT,BND,COMMAND
                 String[] threadInfoSplit = ParseUtil.whitespaces.split(threadInfo.trim());
