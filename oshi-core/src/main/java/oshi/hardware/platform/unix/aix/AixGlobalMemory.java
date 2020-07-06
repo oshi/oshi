@@ -55,7 +55,7 @@ final class AixGlobalMemory extends AbstractGlobalMemory {
 
     private final Supplier<VirtualMemory> vm = memoize(this::createVirtualMemory);
 
-    public AixGlobalMemory(Supplier<List<String>> lscfg) {
+    AixGlobalMemory(Supplier<List<String>> lscfg) {
         this.lscfg = lscfg;
     }
 

@@ -37,7 +37,7 @@ final class AixSensors extends AbstractSensors {
 
     private final Supplier<List<String>> lscfg;
 
-    public AixSensors(Supplier<List<String>> lscfg) {
+    AixSensors(Supplier<List<String>> lscfg) {
         this.lscfg = lscfg;
     }
 
