@@ -26,7 +26,6 @@ package oshi.driver.unix;
 import java.time.LocalDateTime;
 import java.time.Year;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
@@ -79,7 +78,7 @@ public final class Who {
                 try {
                     whoList.add(new OSSession(m.group(1), m.group(2),
                             LocalDateTime.parse(m.group(3) + " " + m.group(4), WHO_DATE_FORMAT_LINUX)
-                                    .toEpochSecond(ZoneOffset.UTC) * 1000L,
+                                    .atZone(ZoneId.systemDefault()).toInstant().toEpochMilli(),
                             m.group(5) == null ? Constants.UNKNOWN : m.group(5)));
                 } catch (DateTimeParseException e) {
                     // shouldn't happen if regex matches and OS is producing sensible dates
