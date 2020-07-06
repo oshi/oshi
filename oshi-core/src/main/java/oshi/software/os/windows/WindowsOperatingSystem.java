@@ -37,6 +37,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
@@ -84,6 +85,7 @@ import oshi.software.os.OSProcess;
 import oshi.software.os.OSService;
 import oshi.software.os.OSService.State;
 import oshi.software.os.OSSession;
+import oshi.util.FileUtil;
 import oshi.util.GlobalConfig;
 import oshi.util.ParseUtil;
 import oshi.util.platform.windows.WmiUtil;
@@ -97,6 +99,7 @@ import oshi.util.platform.windows.WmiUtil;
 public class WindowsOperatingSystem extends AbstractOperatingSystem {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsOperatingSystem.class);
+    private static final String WIN_VERSION_PROPERTIES = "oshi.windows.versions.properties";
 
     private static final boolean IS_VISTA_OR_GREATER = VersionHelpers.IsWindowsVistaOrGreater();
 
@@ -155,47 +158,31 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         // http://msdn.microsoft.com/en-us/library/windows/desktop/ms724833%28v=vs.85%29.aspx
         boolean ntWorkstation = WmiUtil.getUint32(versionInfo, OSVersionProperty.PRODUCTTYPE,
                 0) == WinNT.VER_NT_WORKSTATION;
-        switch (major) {
-        case 10:
-            if (minor == 0) {
-                if (ntWorkstation) {
-                    version = "10";
-                } else {
-                    // Build numbers greater than 17762 is Server 2019 for OS
-                    // Version 10.0
-                    version = (ParseUtil.parseLongOrDefault(buildNumber, 0L) > 17762) ? "Server 2019" : "Server 2016";
-                }
+
+        if (major == 10 && minor == 0) {
+            Properties verProps = FileUtil.readPropertiesFromFilename(WIN_VERSION_PROPERTIES);
+            if (ntWorkstation) {
+                version = verProps.getProperty(major + "." + minor + "." + ntWorkstation);
+            } else {
+                // Build numbers greater than 17762 is Server 2019 for OS
+                // Version 10.0
+                version = verProps.getProperty(major + "." + minor + "." + ntWorkstation + "." + (ParseUtil.parseLongOrDefault(buildNumber, 0L) > 17762));
             }
-            break;
-        case 6:
-            if (minor == 3) {
-                version = ntWorkstation ? "8.1" : "Server 2012 R2";
-            } else if (minor == 2) {
-                version = ntWorkstation ? "8" : "Server 2012";
-            } else if (minor == 1) {
-                version = ntWorkstation ? "7" : "Server 2008 R2";
-            } else if (minor == 0) {
-                version = ntWorkstation ? "Vista" : "Server 2008";
+        } else if (major == 6) {
+            Properties verProps = FileUtil.readPropertiesFromFilename(WIN_VERSION_PROPERTIES);
+            version = verProps.getProperty(major + "." + minor + "." + ntWorkstation);
+        } else if (major == 5 && minor == 2) {
+            Properties verProps = FileUtil.readPropertiesFromFilename(WIN_VERSION_PROPERTIES);
+            if ((suiteMask & 0x00008000) != 0) { // VER_SUITE_WH_SERVER
+                version = verProps.getProperty(major + "." + minor + ".HS");
+            } else if (ntWorkstation) {
+                version = verProps.getProperty(major + "." + minor + "." + ntWorkstation); // 64 bits
+            } else {
+                version = verProps.getProperty(major + "." + minor + "." + ntWorkstation + "." +(User32.INSTANCE.GetSystemMetrics(WinUser.SM_SERVERR2) != 0));
             }
-            break;
-        case 5:
-            if (minor == 2) {
-                if ((suiteMask & 0x00008000) != 0) { // VER_SUITE_WH_SERVER
-                    version = "Home Server";
-                } else if (ntWorkstation) {
-                    version = "XP"; // 64 bits
-                } else {
-                    version = User32.INSTANCE.GetSystemMetrics(WinUser.SM_SERVERR2) != 0 ? "Server 2003"
-                            : "Server 2003 R2";
-                }
-            } else if (minor == 1) {
-                version = "XP"; // 32 bits
-            } else if (minor == 0) {
-                version = "2000";
-            }
-            break;
-        default:
-            break;
+        } else if (major == 5 && (minor == 1 || minor == 0)) {
+            Properties verProps = FileUtil.readPropertiesFromFilename(WIN_VERSION_PROPERTIES);
+            version = verProps.getProperty(major + "." + minor);
         }
 
         String sp = WmiUtil.getString(versionInfo, OSVersionProperty.CSDVERSION, 0);
