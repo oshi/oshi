@@ -109,7 +109,7 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     protected boolean queryElevated() {
-        return System.getenv("SUDO_COMMAND") != null; // Not sure of this in AIX
+        return 0 == ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer("id -u"), -1);
     }
 
     @Override
