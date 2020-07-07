@@ -159,14 +159,14 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         boolean ntWorkstation = WmiUtil.getUint32(versionInfo, OSVersionProperty.PRODUCTTYPE,
                 0) == WinNT.VER_NT_WORKSTATION;
 
-        StringBuilder verLookup = new StringBuilder(major + "." + minor);
+        StringBuilder verLookup = new StringBuilder(major).append(".").append(minor);
 
-        if ((suiteMask & 0x00008000) != 0) { // VER_SUITE_WH_SERVER
+        if (!IS_VISTA_OR_GREATER && (suiteMask & 0x00008000) != 0) { // VER_SUITE_WH_SERVER
             verLookup.append(".HS");
-        } else if (ntWorkstation && !"5.1".equals(verLookup.toString()) && !"5.0".equals(verLookup.toString())) {
+        } else if (ntWorkstation && VersionHelpers.IsWindowsVersionOrGreater(5,2,0)) {
             verLookup.append(".nt");
         } else if (ParseUtil.parseLongOrDefault(buildNumber, 0L) > 17762) {
-            verLookup.append(".17762");
+            verLookup.append(".17763+");
         } else if (User32.INSTANCE.GetSystemMetrics(WinUser.SM_SERVERR2) == 0) {
             verLookup.append(".R2");
         }
