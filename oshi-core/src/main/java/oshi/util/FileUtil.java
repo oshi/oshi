@@ -30,6 +30,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -217,7 +218,8 @@ public final class FileUtil {
     }
 
     /**
-     * Read a configuration file from the class path and return its properties
+     * Read a configuration file from the sequence of context classloader, system
+     * classloader and classloader of the current class, and return its properties
      *
      * @param propsFilename
      *            The filename
@@ -225,32 +227,43 @@ public final class FileUtil {
      */
     public static Properties readPropertiesFromFilename(String propsFilename) {
         Properties archProps = new Properties();
-        // Load the configuration file from the classpath
+        // Load the configuration file from the different classloaders
+        if (
+            readPropertiesFromClassLoader(propsFilename, archProps, Thread.currentThread().getContextClassLoader()) ||
+            readPropertiesFromClassLoader(propsFilename, archProps, ClassLoader.getSystemClassLoader()) ||
+            readPropertiesFromClassLoader(propsFilename, archProps, FileUtil.class.getClassLoader())
+        ) {
+            return archProps;
+        }
+
+        LOG.warn("Failed to load default configuration");
+        return archProps;
+    }
+
+    private static boolean readPropertiesFromClassLoader(String propsFilename, Properties archProps, ClassLoader loader) {
+        if (loader == null) {
+            return false;
+        }
+        // Load the configuration file from the classLoader
         try {
-            ClassLoader loader = Thread.currentThread().getContextClassLoader();
-            if (loader == null) {
-                loader = ClassLoader.getSystemClassLoader();
-                if (loader == null) {
-                    throw new IOException();
-                }
-            }
             List<URL> resources = Collections.list(loader.getResources(propsFilename));
             if (resources.isEmpty()) {
-                LOG.warn("No {} file found on the classpath", propsFilename);
-            } else {
-                if (resources.size() > 1) {
-                    LOG.warn("Configuration conflict: there is more than one {} file on the classpath", propsFilename);
-                }
+                LOG.info("No {} file found from ClassLoader {}", propsFilename, loader);
+                return false;
+            }
+            if (resources.size() > 1) {
+                LOG.warn("Configuration conflict: there is more than one {} file on the classpath", propsFilename);
+                return true;
+            }
 
-                try (InputStream in = resources.get(0).openStream()) {
-                    if (in != null) {
-                        archProps.load(in);
-                    }
+            try (InputStream in = resources.get(0).openStream()) {
+                if (in != null) {
+                    archProps.load(in);
                 }
             }
         } catch (IOException e) {
-            LOG.warn("Failed to load default configuration");
+            return false;
         }
-        return archProps;
+        return true;
     }
 }

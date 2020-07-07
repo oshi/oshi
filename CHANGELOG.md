@@ -1,11 +1,14 @@
-4.9.0 / 5.2.0 (in progress)
+4.9.1 / 5.2.1 (in progress)
+* [#1285](https://github.com/oshi/oshi/pull/1247): Fallback to read properties file from classloader of the class - [@ngyukman](https://github.com/ngyukman).
+
+4.9.0 / 5.2.0 (26/7/2020)
 ================
 * [#1247](https://github.com/oshi/oshi/pull/1247): Add Automatic-Module-Name to support JPMS - [@dbwiddis](https://github.com/dbwiddis).
 * [#1258](https://github.com/oshi/oshi/pull/1258): (5.x) Add threads details of a process - [@tausiflife](https://github.com/tausiflife).
-* [#1262](https://github.com/oshi/oshi/pull/1262): Read macOS versions from properties file - [@hkbiet](https://github.com/hkbiet). 
+* [#1262](https://github.com/oshi/oshi/pull/1262): Read macOS versions from properties file - [@hkbiet](https://github.com/hkbiet).
 * [#1266](https://github.com/oshi/oshi/pull/1266): Suppress repeated attempts to query failed PDH - [@dbwiddis](https://github.com/dbwiddis).
 * [#1267](https://github.com/oshi/oshi/pull/1267): Check proc_pidinfo return value before incrementing numberOfThreads - [@markkulube](https://github.com/markkulube).
-* Your contribution here 
+* Your contribution here
 
 4.8.2 / 5.1.2 (6/7/2020)
 ================
@@ -25,7 +28,7 @@
 * [#1229](https://github.com/oshi/oshi/pull/1229): Changed the linux and solaris virtual memory swapins/outs to count just swaps - [@roeezz](https://github.com/roeezz)
 * [#1231](https://github.com/oshi/oshi/pull/1231): Add OSSessions. - [@dbwiddis](https://github.com/dbwiddis).
 * [#1233](https://github.com/oshi/oshi/pull/1233), [#1234](https://github.com/oshi/oshi/pull/1234): Added more unit tests in CentralProcessorTest and ParseUtilTest - [@zachsez](https://github.com/zachsez).
-* [#1195](https://github.com/oshi/oshi/pull/1195), 
+* [#1195](https://github.com/oshi/oshi/pull/1195),
   [#1222](https://github.com/oshi/oshi/pull/1222),
   [#1224](https://github.com/oshi/oshi/pull/1224),
   [#1225](https://github.com/oshi/oshi/pull/1225),
@@ -33,7 +36,7 @@
   [#1228](https://github.com/oshi/oshi/pull/1228),
   [#1232](https://github.com/oshi/oshi/pull/1232),
   [#1235](https://github.com/oshi/oshi/pull/1235):
-  Added messages to unit test assertions in multiple classes. - 
+  Added messages to unit test assertions in multiple classes. -
   [@tomokos2](https://github.com/tomokos2),
   [@david145noone](https://github.com/david145noone),
   [@tausiflife](https://github.com/tausiflife),
@@ -109,7 +112,7 @@
 4.1.0 (10/16/2019), 4.1.1 (10/24/2019)
 ================
 API CHANGE: This version implements thread-safe getters for OSHI attributes.
-As part of this change, support for serialization has been removed. 
+As part of this change, support for serialization has been removed.
 In addition, some setters have been removed from the API, as they were never intended for end user use.
 Additional setter removal may occur in future versions.
 
@@ -122,7 +125,7 @@ The default configuration file has been renamed to `oshi.properties` to prevent 
   [#953](https://github.com/oshi/oshi/pull/953),
   [#968](https://github.com/oshi/oshi/pull/968),
   [#972](https://github.com/oshi/oshi/pull/972): Add toString methods to API interface implementations -
-  [@agithyogendra](https://github.com/agithyogendra), 
+  [@agithyogendra](https://github.com/agithyogendra),
   [@rohitkukreja1508](https://github.com/rohitkukreja1508),
   [@colinbobolin](https://github.com/colinbobolin),
   [@phillips0616](https://github.com/phillips0616),
@@ -133,7 +136,7 @@ The default configuration file has been renamed to `oshi.properties` to prevent 
 * [#959](https://github.com/oshi/oshi/pull/959): Implement thread safety -- Hardware API overhaul. - [@dbwiddis](https://github.com/dbwiddis).
 * [#960](https://github.com/oshi/oshi/pull/960): OSProcess constructor with PID. - [@Potat0x](https://github.com/Potat0x).
 * [#962](https://github.com/oshi/oshi/pull/962): Properly handle null WMI DateTime results. - [@dbwiddis](https://github.com/dbwiddis).
-* [#963](https://github.com/oshi/oshi/pull/964): Move the ProcessorIdentifier inner class to the CentralProcessor class - [@Praveen101997](https://github.com/Praveen101997).  
+* [#963](https://github.com/oshi/oshi/pull/964): Move the ProcessorIdentifier inner class to the CentralProcessor class - [@Praveen101997](https://github.com/Praveen101997).
 * [#971](https://github.com/oshi/oshi/pull/971): Fix handle leak in WindowsDisplay.java - [@r10a](https://github.com/r10a).
 * [#977](https://github.com/oshi/oshi/pull/977): Rename default configuration - [@cilki](https://github.com/cilki).
 * [#981](https://github.com/oshi/oshi/pull/981): List Services - [@agithyogendra](https://github.com/agithyogendra).
@@ -152,8 +155,8 @@ The default configuration file has been renamed to `oshi.properties` to prevent 
 * [#776](https://github.com/oshi/oshi/pull/776): oshi-demo artifact. - [@dbwiddis](https://github.com/dbwiddis).
 * [#779](https://github.com/oshi/oshi/pull/779): API overhaul - CentralProcessor, new LogicalProcessor. - [@dbwiddis](https://github.com/dbwiddis).
 * [#794](https://github.com/oshi/oshi/pull/794): Add NUMA nodes to Logical Processors. - [@dbwiddis](https://github.com/dbwiddis).
-* [#838](https://github.com/oshi/oshi/pull/838), 
-  [#845](https://github.com/oshi/oshi/pull/845), 
+* [#838](https://github.com/oshi/oshi/pull/838),
+  [#845](https://github.com/oshi/oshi/pull/845),
   [#911](https://github.com/oshi/oshi/pull/911): JNA version updates. - [@dbwiddis](https://github.com/dbwiddis).
 * [#857](https://github.com/oshi/oshi/pull/857): Fix CPU temperature - [@rlouwerens](https://github.com/rlouwerens).
 * [#901](https://github.com/oshi/oshi/pull/901): Fix incorrect physical processor count on Linux. - [@ellesummer](https://github.com/ellesummer).
@@ -216,10 +219,10 @@ The default configuration file has been renamed to `oshi.properties` to prevent 
 
 3.9.0 (10/7/2018)
 ================
-* [#630](https://github.com/oshi/oshi/pull/630), 
-  [#640](https://github.com/oshi/oshi/pull/640), 
-  [#645](https://github.com/oshi/oshi/pull/645), 
-  [#652](https://github.com/oshi/oshi/pull/652), 
+* [#630](https://github.com/oshi/oshi/pull/630),
+  [#640](https://github.com/oshi/oshi/pull/640),
+  [#645](https://github.com/oshi/oshi/pull/645),
+  [#652](https://github.com/oshi/oshi/pull/652),
   [#655](https://github.com/oshi/oshi/pull/655): Add Sound Card list. - [@bilalAM](https://github.com/bilalAM).
 * [#636](https://github.com/oshi/oshi/pull/636): Catch exception when english counters missing. - [@dbwiddis](https://github.com/dbwiddis).
 * [#639](https://github.com/oshi/oshi/pull/639): Implement QueueLength metric in HWDiskStore. - [@Space2Man](https://github.com/Space2Man).
@@ -283,9 +286,9 @@ The default configuration file has been renamed to `oshi.properties` to prevent 
 3.5.0 (4/15/2018)
 ================
 * [#446](https://github.com/oshi/oshi/pull/446): Add getChildProcesses to OperatingSystem. - [@jsimomaa](https://github.com/jsimomaa)
-* [#447](https://github.com/oshi/oshi/pull/447), 
-  [#471](https://github.com/oshi/oshi/pull/471): Added context switches and interrupts - 
-  [@jpbempel](https://github.com/jpbempel), 
+* [#447](https://github.com/oshi/oshi/pull/447),
+  [#471](https://github.com/oshi/oshi/pull/471): Added context switches and interrupts -
+  [@jpbempel](https://github.com/jpbempel),
   [@dbwiddis](https://github.com/dbwiddis).
 * [#476](https://github.com/oshi/oshi/pull/476): Count CPU Packages - [@dbwiddis](https://github.com/dbwiddis).
 * [#478](https://github.com/oshi/oshi/pull/478): Windows RSS now reports Private Working Set, matching Task Manager - [@dbwiddis](https://github.com/dbwiddis).
@@ -414,9 +417,9 @@ The default configuration file has been renamed to `oshi.properties` to prevent 
 * [#140](https://github.com/oshi/oshi/pull/140): Added process and thread counts - [@dbwiddis](https://github.com/dbwiddis).
 * [#142](https://github.com/oshi/oshi/pull/142): Added methods for getting swap (total and used) in the system - [@henryx](https://github.com/henryx).
 * [#145](https://github.com/oshi/oshi/pull/145): Refactored common code to abstract classes - [@dbwiddis](https://github.com/dbwiddis).
-* [#147](https://github.com/oshi/oshi/pull/147), 
-  [#149](https://github.com/oshi/oshi/pull/149): Added disk information and statistics - 
-  [@henryx](https://github.com/henryx), 
+* [#147](https://github.com/oshi/oshi/pull/147),
+  [#149](https://github.com/oshi/oshi/pull/149): Added disk information and statistics -
+  [@henryx](https://github.com/henryx),
   [@dbwiddis](https://github.com/dbwiddis).
 * [#150](https://github.com/oshi/oshi/pull/150): Added filesystem types - [@dbwiddis](https://github.com/dbwiddis).
 * [#155](https://github.com/oshi/oshi/pull/155), [#157](https://github.com/oshi/oshi/pull/157): Added network interface statistics - [@henryx](https://github.com/henryx), [@dbwiddis](https://github.com/dbwiddis).
@@ -472,7 +475,7 @@ The default configuration file has been renamed to `oshi.properties` to prevent 
 
 1.4 (9/3/2015)
 ================
-* [#71](https://github.com/oshi/oshi/pull/71), 
+* [#71](https://github.com/oshi/oshi/pull/71),
   [#72](https://github.com/oshi/oshi/pull/72): Added support for Windows 10 & Windows Server 2016 - [@laurent-r](https://github.com/laurent-r).
 * [#75](https://github.com/oshi/oshi/pull/75): Added uptime information - [@dbwiddis](https://github.com/dbwiddis).
 * [#76](https://github.com/oshi/oshi/pull/76): Better linux CPU processor counting - [@dbwiddis](https://github.com/dbwiddis).
