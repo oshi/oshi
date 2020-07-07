@@ -1,7 +1,8 @@
 4.9.1 / 5.2.1 (coming soon)
 ================
 * [#1282](https://github.com/oshi/oshi/pull/1282): (5.x) AIX Port - [@tausiflife](https://github.com/tausiflife), [@dbwiddis](https://github.com/dbwiddis).
-* [#1285](https://github.com/oshi/oshi/pull/1247): Fallback to read properties file from classloader of the class - [@ngyukman](https://github.com/ngyukman).
+* [#1285](https://github.com/oshi/oshi/pull/1285): Fallback to read properties file from classloader of the class - [@ngyukman](https://github.com/ngyukman).
+* [#1290](https://github.com/oshi/oshi/pull/1290): Demo class matching filestore to partition - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here
 
 4.9.0 / 5.2.0 (2020-06-25)
