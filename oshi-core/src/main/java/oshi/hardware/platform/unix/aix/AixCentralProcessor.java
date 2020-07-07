@@ -29,11 +29,13 @@ import static oshi.util.Memoizer.memoize;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
 
 import com.sun.jna.Native;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.unix.aix.Lssrad;
 import oshi.driver.unix.aix.perfstat.PerfstatConfig;
 import oshi.driver.unix.aix.perfstat.PerfstatCpu;
 import oshi.hardware.common.AbstractCentralProcessor;
@@ -44,6 +46,7 @@ import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
+import oshi.util.tuples.Pair;
 
 /**
  * A CPU
@@ -118,9 +121,13 @@ final class AixCentralProcessor extends AbstractCentralProcessor {
         if (lcpus < 1) {
             lcpus = 1;
         }
+        // Get node and package mapping
+        Map<Integer, Pair<Integer, Integer>> nodePkgMap = Lssrad.queryNodesPackages();
         List<LogicalProcessor> logProcs = new ArrayList<>();
         for (int proc = 0; proc < lcpus; proc++) {
-            logProcs.add(new LogicalProcessor(proc, proc / physProcs, 0));
+            Pair<Integer, Integer> nodePkg = nodePkgMap.get(proc);
+            logProcs.add(new LogicalProcessor(proc, proc / physProcs, nodePkg == null ? 0 : nodePkg.getB(),
+                    nodePkg == null ? 0 : nodePkg.getA()));
         }
         return logProcs;
     }
