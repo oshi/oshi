@@ -144,7 +144,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         return new FamilyVersionInfo("Windows", new OSVersionInfo(version, codeName, buildNumber));
     }
 
-    private static String parseVersion(WmiResult<OSVersionProperty> versionInfo, int suiteMask, String buildNumber) {
+    private String parseVersion(WmiResult<OSVersionProperty> versionInfo, int suiteMask, String buildNumber) {
         // Initialize a default, sane value
         String version = System.getProperty("os.version");
 
@@ -158,21 +158,27 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         // http://msdn.microsoft.com/en-us/library/windows/desktop/ms724833%28v=vs.85%29.aspx
         boolean ntWorkstation = WmiUtil.getUint32(versionInfo, OSVersionProperty.PRODUCTTYPE,
                 0) == WinNT.VER_NT_WORKSTATION;
+        boolean fivePtTwo = major == 5 && minor == 2;
 
         StringBuilder verLookup = new StringBuilder(major).append(".").append(minor);
 
-        if (!IS_VISTA_OR_GREATER && (suiteMask & 0x00008000) != 0) { // VER_SUITE_WH_SERVER
-            verLookup.append(".HS");
-        } else if (ntWorkstation && VersionHelpers.IsWindowsVersionOrGreater(5,2,0)) {
+        if (IS_VISTA_OR_GREATER && ntWorkstation) {
             verLookup.append(".nt");
-        } else if (ParseUtil.parseLongOrDefault(buildNumber, 0L) > 17762) {
+        } else if (major == 10 && ParseUtil.parseLongOrDefault(buildNumber, 0L) > 17762) {
             verLookup.append(".17763+");
-        } else if (User32.INSTANCE.GetSystemMetrics(WinUser.SM_SERVERR2) == 0) {
-            verLookup.append(".R2");
+        } else if (fivePtTwo) {
+            if (ntWorkstation && getBitness() == 64) {
+                verLookup.append(".nt.x64");
+            } else if ((suiteMask & 0x00008000) != 0) { // VER_SUITE_WH_SERVER
+                verLookup.append(".HS");
+            } else if (User32.INSTANCE.GetSystemMetrics(WinUser.SM_SERVERR2) != 0) {
+                verLookup.append(".R2");
+            }
         }
 
         Properties verProps = FileUtil.readPropertiesFromFilename(WIN_VERSION_PROPERTIES);
-        version = verProps.getProperty(verLookup.toString()) != null ? verProps.getProperty(verLookup.toString()) : version;
+        version = verProps.getProperty(verLookup.toString()) != null ? verProps.getProperty(verLookup.toString())
+                : version;
 
         String sp = WmiUtil.getString(versionInfo, OSVersionProperty.CSDVERSION, 0);
         if (!sp.isEmpty() && !"unknown".equals(sp)) {
