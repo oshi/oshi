@@ -95,9 +95,11 @@ final class AixCentralProcessor extends AbstractCentralProcessor {
             machineId = ExecutingCommand.getFirstAnswer("uname -m");
         }
         // last 4 characters are model ID (often 4C) and submodel (always 00)
-        if (machineId.length() == 12) {
-            cpuModel = machineId.substring(8, 10);
-            cpuStepping = machineId.substring(10);
+        if (machineId.length() > 10) {
+            int m = machineId.length() - 4;
+            int s = machineId.length() - 2;
+            cpuModel = machineId.substring(m, s);
+            cpuStepping = machineId.substring(s);
         }
 
         return new ProcessorIdentifier(cpuVendor, cpuName, cpuFamily, cpuModel, cpuStepping, machineId, cpu64bit,
