@@ -23,8 +23,6 @@
  */
 package oshi.driver.unix.aix.perfstat;
 
-import com.sun.jna.Native;
-
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.platform.unix.aix.Perfstat;
 import oshi.jna.platform.unix.aix.Perfstat.perfstat_disk_t;
@@ -59,15 +57,5 @@ public final class PerfstatDisk {
             }
         }
         return new perfstat_disk_t[0];
-    }
-
-    public static void main(String[] args) {
-        perfstat_disk_t[] disks = queryDiskStats();
-        System.out.println("Found " + disks.length + " disk(s)");
-        for (int i = 0; i < disks.length; i++) {
-            System.out.format("%s: (%s) [%s] size=%d, free=%d, byteR=%d, byteW=%d%n", Native.toString(disks[i].name),
-                    Native.toString(disks[i].description), Native.toString(disks[i].vgname), disks[i].size,
-                    disks[i].free, disks[i].rblks * disks[i].bsize, disks[i].wblks * disks[i].bsize);
-        }
     }
 }

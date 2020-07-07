@@ -23,8 +23,6 @@
  */
 package oshi.driver.unix.aix.perfstat;
 
-import com.sun.jna.Native;
-
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.platform.unix.aix.Perfstat;
 import oshi.jna.platform.unix.aix.Perfstat.perfstat_partition_config_t;
@@ -52,18 +50,5 @@ public final class PerfstatConfig {
             return config;
         }
         return new perfstat_partition_config_t();
-    }
-
-    public static void main(String[] args) {
-        perfstat_partition_config_t config = queryConfig();
-        System.out.println("prt:" + Native.toString(config.partitionname));
-        System.out.println("nod:" + Native.toString(config.nodename));
-        System.out.println("Fam:" + Native.toString(config.processorFamily));
-        System.out.println("Mod:" + Native.toString(config.processorModel));
-        System.out.println("Mid:" + Native.toString(config.machineID));
-        System.out.println(" OS:" + Native.toString(config.OSName));
-        System.out.println("ver:" + Native.toString(config.OSVersion));
-        System.out.println("bld:" + Native.toString(config.OSBuild));
-        System.out.println(config.toString());
     }
 }

@@ -25,8 +25,6 @@ package oshi.driver.unix.aix.perfstat;
 
 import java.util.Arrays;
 
-import com.sun.jna.Native;
-
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.platform.unix.aix.Perfstat;
 import oshi.jna.platform.unix.aix.Perfstat.perfstat_id_t;
@@ -61,14 +59,5 @@ public final class PerfstatProcess {
             }
         }
         return new perfstat_process_t[0];
-    }
-
-    public static void main(String[] args) {
-        perfstat_process_t[] procs = queryProcesses();
-        System.out.println("Found " + procs.length + " process(es)");
-        for (int i = 0; i < procs.length; i++) {
-            System.out.format("%s: pid=%d, ucpu_time=%d, scpu_time=%d%n", Native.toString(procs[i].proc_name),
-                    procs[i].pid, (long) procs[i].ucpu_time, (long) procs[i].scpu_time);
-        }
     }
 }

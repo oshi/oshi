@@ -83,9 +83,7 @@ public final class PerfstatCpu {
         int cpus = queryCpuTotal().ncpus;
         if (cpus < 63) {
             return (1L << cpus) - 1;
-        } else if (cpus == 63) {
-            return Long.MAX_VALUE;
         }
-        return -1L;
+        return cpus == 63 ? Long.MAX_VALUE : -1L;
     }
 }

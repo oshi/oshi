@@ -24,7 +24,7 @@
 package oshi.driver.unix.aix;
 
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.regex.Matcher;
@@ -58,7 +58,7 @@ public final class Who {
         if (m.matches()) {
             try {
                 return LocalDateTime.parse(m.group(1) + " " + m.group(2), BOOT_DATE_FORMAT_AIX)
-                        .toEpochSecond(ZoneOffset.UTC) * 1000L;
+                        .atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
             } catch (DateTimeParseException e) {
                 // Shouldn't happen with regex matching
             }

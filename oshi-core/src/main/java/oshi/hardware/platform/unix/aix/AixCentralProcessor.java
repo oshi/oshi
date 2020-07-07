@@ -91,6 +91,9 @@ final class AixCentralProcessor extends AbstractCentralProcessor {
         String cpuModel = "";
         String cpuStepping = "";
         String machineId = Native.toString(config.machineID);
+        if (machineId.isEmpty()) {
+            machineId = ExecutingCommand.getFirstAnswer("uname -m");
+        }
         // last 4 characters are model ID (often 4C) and submodel (always 00)
         if (machineId.length() == 12) {
             cpuModel = machineId.substring(8, 10);
