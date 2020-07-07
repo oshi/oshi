@@ -158,7 +158,6 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         // http://msdn.microsoft.com/en-us/library/windows/desktop/ms724833%28v=vs.85%29.aspx
         boolean ntWorkstation = WmiUtil.getUint32(versionInfo, OSVersionProperty.PRODUCTTYPE,
                 0) == WinNT.VER_NT_WORKSTATION;
-        boolean fivePtTwo = major == 5 && minor == 2;
 
         StringBuilder verLookup = new StringBuilder(major).append(".").append(minor);
 
@@ -166,7 +165,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             verLookup.append(".nt");
         } else if (major == 10 && ParseUtil.parseLongOrDefault(buildNumber, 0L) > 17762) {
             verLookup.append(".17763+");
-        } else if (fivePtTwo) {
+        } else if (major == 5 && minor == 2) {
             if (ntWorkstation && getBitness() == 64) {
                 verLookup.append(".nt.x64");
             } else if ((suiteMask & 0x00008000) != 0) { // VER_SUITE_WH_SERVER
