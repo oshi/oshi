@@ -44,7 +44,6 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.unix.aix.perfstat.PerfstatCpu;
 import oshi.jna.platform.unix.aix.Perfstat.perfstat_process_t;
 import oshi.software.common.AbstractOSProcess;
-import oshi.software.os.OSProcess;
 import oshi.software.os.OSThread;
 import oshi.util.ExecutingCommand;
 import oshi.util.LsofUtil;
@@ -196,16 +195,6 @@ public class AixOSProcess extends AbstractOSProcess {
     @Override
     public int getBitness() {
         return this.bitness.get();
-    }
-
-    @Override
-    public double getProcessCpuLoadCumulative() {
-        return 0D;
-    }
-
-    @Override
-    public double getProcessCpuLoadBetweenTicks(OSProcess priorSnapshot) {
-        return 0D;
     }
 
     private int queryBitness() {

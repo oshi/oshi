@@ -27,7 +27,6 @@ import java.util.List;
 
 import oshi.software.common.AbstractOSThread;
 import oshi.software.os.OSProcess;
-import oshi.software.os.OSThread;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
@@ -85,16 +84,6 @@ public class AixOSThread extends AbstractOSThread {
     @Override
     public int getPriority() {
         return this.priority;
-    }
-
-    @Override
-    public double getThreadCpuLoadCumulative() {
-        return 0D;
-    }
-
-    @Override
-    public double getThreadCpuLoadBetweenTicks(OSThread priorSnapshot) {
-        return 0D;
     }
 
     @Override
