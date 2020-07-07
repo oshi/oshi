@@ -33,6 +33,7 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.PowerSource;
 import oshi.hardware.platform.linux.LinuxPowerSource;
 import oshi.hardware.platform.mac.MacPowerSource;
+import oshi.hardware.platform.unix.aix.AixPowerSource;
 import oshi.hardware.platform.unix.freebsd.FreeBsdPowerSource;
 import oshi.hardware.platform.unix.solaris.SolarisPowerSource;
 import oshi.hardware.platform.windows.WindowsPowerSource;
@@ -245,6 +246,8 @@ public abstract class AbstractPowerSource implements PowerSource {
             return SolarisPowerSource.getPowerSources();
         case FREEBSD:
             return FreeBsdPowerSource.getPowerSources();
+        case AIX:
+            return AixPowerSource.getPowerSources();
         default:
             throw new UnsupportedOperationException("Operating system not supported: " + Platform.getOSType());
         }
