@@ -38,6 +38,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
@@ -98,6 +99,7 @@ import oshi.software.os.OSProcess;
 import oshi.software.os.OSService;
 import oshi.software.os.OSService.State;
 import oshi.software.os.OSSession;
+import oshi.util.FileUtil;
 import oshi.util.GlobalConfig;
 import oshi.util.ParseUtil;
 import oshi.util.platform.windows.WmiUtil;
@@ -112,6 +114,7 @@ import oshi.util.tuples.Pair;
 public class WindowsOperatingSystem extends AbstractOperatingSystem {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsOperatingSystem.class);
+    private static final String WIN_VERSION_PROPERTIES = "oshi.windows.versions.properties";
 
     private static final boolean IS_VISTA_OR_GREATER = VersionHelpers.IsWindowsVistaOrGreater();
     private static final boolean IS_WINDOWS7_OR_GREATER = VersionHelpers.IsWindows7OrGreater();
@@ -162,7 +165,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         return new FamilyVersionInfo("Windows", new OSVersionInfo(version, codeName, buildNumber));
     }
 
-    private static String parseVersion(WmiResult<OSVersionProperty> versionInfo, int suiteMask, String buildNumber) {
+    private String parseVersion(WmiResult<OSVersionProperty> versionInfo, int suiteMask, String buildNumber) {
         // Initialize a default, sane value
         String version = System.getProperty("os.version");
 
@@ -176,48 +179,27 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         // http://msdn.microsoft.com/en-us/library/windows/desktop/ms724833%28v=vs.85%29.aspx
         boolean ntWorkstation = WmiUtil.getUint32(versionInfo, OSVersionProperty.PRODUCTTYPE,
                 0) == WinNT.VER_NT_WORKSTATION;
-        switch (major) {
-        case 10:
-            if (minor == 0) {
-                if (ntWorkstation) {
-                    version = "10";
-                } else {
-                    // Build numbers greater than 17762 is Server 2019 for OS
-                    // Version 10.0
-                    version = (ParseUtil.parseLongOrDefault(buildNumber, 0L) > 17762) ? "Server 2019" : "Server 2016";
-                }
+
+
+        StringBuilder verLookup = new StringBuilder(major).append('.').append(minor);
+
+        if (IS_VISTA_OR_GREATER && ntWorkstation) {
+            verLookup.append(".nt");
+        } else if (major == 10 && ParseUtil.parseLongOrDefault(buildNumber, 0L) > 17762) {
+            verLookup.append(".17763+");
+        } else if (major == 5 && minor == 2) {
+            if (ntWorkstation && getBitness() == 64) {
+                verLookup.append(".nt.x64");
+            } else if ((suiteMask & 0x00008000) != 0) { // VER_SUITE_WH_SERVER
+                verLookup.append(".HS");
+            } else if (User32.INSTANCE.GetSystemMetrics(WinUser.SM_SERVERR2) != 0) {
+                verLookup.append(".R2");
             }
-            break;
-        case 6:
-            if (minor == 3) {
-                version = ntWorkstation ? "8.1" : "Server 2012 R2";
-            } else if (minor == 2) {
-                version = ntWorkstation ? "8" : "Server 2012";
-            } else if (minor == 1) {
-                version = ntWorkstation ? "7" : "Server 2008 R2";
-            } else if (minor == 0) {
-                version = ntWorkstation ? "Vista" : "Server 2008";
-            }
-            break;
-        case 5:
-            if (minor == 2) {
-                if ((suiteMask & 0x00008000) != 0) {// VER_SUITE_WH_SERVER
-                    version = "Home Server";
-                } else if (ntWorkstation) {
-                    version = "XP"; // 64 bits
-                } else {
-                    version = User32.INSTANCE.GetSystemMetrics(WinUser.SM_SERVERR2) != 0 ? "Server 2003"
-                            : "Server 2003 R2";
-                }
-            } else if (minor == 1) {
-                version = "XP"; // 32 bits
-            } else if (minor == 0) {
-                version = "2000";
-            }
-            break;
-        default:
-            break;
         }
+
+        Properties verProps = FileUtil.readPropertiesFromFilename(WIN_VERSION_PROPERTIES);
+        version = verProps.getProperty(verLookup.toString()) != null ? verProps.getProperty(verLookup.toString())
+                : version;
 
         String sp = WmiUtil.getString(versionInfo, OSVersionProperty.CSDVERSION, 0);
         if (!sp.isEmpty() && !"unknown".equals(sp)) {
