@@ -64,7 +64,7 @@ public class DiskStoreForPath {
 
     private static Pair<Integer, Integer> getDiskStoreAndPartitionForPath(String path, List<HWDiskStore> diskStores) {
         for (int ds = 0; ds < diskStores.size(); ds++) {
-            HWDiskStore store = diskStores.get(0);
+            HWDiskStore store = diskStores.get(ds);
             List<HWPartition> parts = store.getPartitions();
             for (int part = 0; part < parts.size(); part++) {
                 String mount = parts.get(part).getMountPoint();
