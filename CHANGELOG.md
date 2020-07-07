@@ -1,29 +1,33 @@
-4.9.1 / 5.2.1 (in progress)
-* [#1285](https://github.com/oshi/oshi/pull/1247): Fallback to read properties file from classloader of the class - [@ngyukman](https://github.com/ngyukman).
+4.9.1 / 5.2.1 (coming soon)
+================
+* [#1282](https://github.com/oshi/oshi/pull/1282): (5.x) AIX Port - [@tausiflife](https://github.com/tausiflife), [@dbwiddis](https://github.com/dbwiddis).
+* [#1285](https://github.com/oshi/oshi/pull/1285): Fallback to read properties file from classloader of the class - [@ngyukman](https://github.com/ngyukman).
+* [#1290](https://github.com/oshi/oshi/pull/1290): Demo class matching filestore to partition - [@dbwiddis](https://github.com/dbwiddis).
+* Your contribution here
 
-4.9.0 / 5.2.0 (26/7/2020)
+4.9.0 / 5.2.0 (2020-06-25)
 ================
 * [#1247](https://github.com/oshi/oshi/pull/1247): Add Automatic-Module-Name to support JPMS - [@dbwiddis](https://github.com/dbwiddis).
 * [#1258](https://github.com/oshi/oshi/pull/1258): (5.x) Add threads details of a process - [@tausiflife](https://github.com/tausiflife).
 * [#1262](https://github.com/oshi/oshi/pull/1262): Read macOS versions from properties file - [@hkbiet](https://github.com/hkbiet).
 * [#1266](https://github.com/oshi/oshi/pull/1266): Suppress repeated attempts to query failed PDH - [@dbwiddis](https://github.com/dbwiddis).
 * [#1267](https://github.com/oshi/oshi/pull/1267): Check proc_pidinfo return value before incrementing numberOfThreads - [@markkulube](https://github.com/markkulube).
-* Your contribution here
+* [#1270](https://github.com/oshi/oshi/pull/1270): (5.x) Add page fault info to OSProcess - [@tausiflife](https://github.com/tausiflife).
 
-4.8.2 / 5.1.2 (6/7/2020)
+4.8.2 / 5.1.2 (2020-06-07)
 ================
 * [#1246](https://github.com/oshi/oshi/pull/1246): Configure data source for OperatingSystem#getSessions - [@dbwiddis](https://github.com/dbwiddis).
 * [#1252](https://github.com/oshi/oshi/pull/1252): Fallback to command line if getSessions sanity check fails - [@dbwiddis](https://github.com/dbwiddis).
 * [#1256](https://github.com/oshi/oshi/pull/1256): Fix calculation of Linux process start time - [@dbwiddis](https://github.com/dbwiddis).
 
-4.8.1 / 5.1.1 (5/30/2020)
+4.8.1 / 5.1.1 (2020-05-30)
 ================
 * [#1237](https://github.com/oshi/oshi/pull/1237): Update Udev to object oriented style - [@dbwiddis](https://github.com/dbwiddis).
 * [#1240](https://github.com/oshi/oshi/pull/1240): Add a driver for proc/pid/statm - [@dbwiddis](https://github.com/dbwiddis).
 * [#1241](https://github.com/oshi/oshi/pull/1241): (5.x) Add code-assert - [@dbwiddis](https://github.com/dbwiddis).
 * [#1245](https://github.com/oshi/oshi/pull/1245): Refactor PerfCounterQuery classes and fix memory leak - [@dbwiddis](https://github.com/dbwiddis).
 
-4.8.0 / 5.1.0 (5/20/2020)
+4.8.0 / 5.1.0 (2020-05-20)
 ================
 * [#1229](https://github.com/oshi/oshi/pull/1229): Changed the linux and solaris virtual memory swapins/outs to count just swaps - [@roeezz](https://github.com/roeezz)
 * [#1231](https://github.com/oshi/oshi/pull/1231): Add OSSessions. - [@dbwiddis](https://github.com/dbwiddis).
@@ -46,7 +50,7 @@
   [@zachsez](https://github.com/zachsez),
   [@RaymondLZhou](https://github.com/RaymondLZhou).
 
-5.0.0 (5/5/2020), 5.0.1 (5/6/2020), 5.0.2 (5/14/2020)
+5.0.0 (2020-05-05), 5.0.1 (2020-05-06), 5.0.2 (2020-05-14)
 ================
 * [#1177](https://github.com/oshi/oshi/pull/1177): Remove deprecated code. - [@dbwiddis](https://github.com/dbwiddis).
 * [#1178](https://github.com/oshi/oshi/pull/1178): Make NetworkIF an interface. - [@dbwiddis](https://github.com/dbwiddis).
@@ -59,13 +63,13 @@
 * [#1191](https://github.com/oshi/oshi/pull/1191): Make OSProcess an interface. - [@dbwiddis](https://github.com/dbwiddis).
 * [#1194](https://github.com/oshi/oshi/pull/1194): Optionally batch WMI Command Line queries. - [@dbwiddis](https://github.com/dbwiddis).
 
-4.7.0 (4/25/2020), 4.7.1 (5/2/2020), 4.7.2 (5/6/2020), 4.7.3 (5/14/2020)
+4.7.0 (2020-04-25), 4.7.1 (2020-05-02), 4.7.2 (2020-05-06), 4.7.3 (2020-05-14)
 ================
 * [#1174](https://github.com/oshi/oshi/pull/1174): Add TCP and UDP statistics. - [@dbwiddis](https://github.com/dbwiddis).
 * [#1183](https://github.com/oshi/oshi/pull/1183): Add more VirtualMemory information. - [@dbwiddis](https://github.com/dbwiddis).
 * [#1219](https://github.com/oshi/oshi/pull/1219): Only get primary group on WindowsOSProcess. - [@dbwiddis](https://github.com/dbwiddis).
 
-4.6.0 (4/2/2020), 4.6.1 (4/8/2020)
+4.6.0 (2020-04-02), 4.6.1 (2020-04-08)
 ================
 * [#894](https://github.com/oshi/oshi/pull/894): Look up microarchitecture from processor identifier. - [@tbradellis](https://github.com/tbradellis).
 * [#1150](https://github.com/oshi/oshi/pull/1150): Add fields to NetworkIF to help determine physical interfaces. - [@dbwiddis](https://github.com/dbwiddis).
@@ -73,7 +77,7 @@
 * [#1155](https://github.com/oshi/oshi/pull/1155): Linux proc symlinks may show as (deleted). - [@jlangst6](https://github.com/jlangst6).
 * [#1157](https://github.com/oshi/oshi/pull/1157): Audit and annotate ThreadSafe classes. - [@dbwiddis](https://github.com/dbwiddis).
 
-4.5.0 (3/12/2020), 4.5.2 (3/20/2020)
+4.5.0 (2020-03-12), 4.5.2 (2020-03-20)
 ================
 * [#1123](https://github.com/oshi/oshi/pull/1123): Add driver to parse Linux proc/diskstats. - [@dbwiddis](https://github.com/dbwiddis).
 * [#1124](https://github.com/oshi/oshi/pull/1124): Add driver to parse Linux proc/pid/stat. - [@dbwiddis](https://github.com/dbwiddis).
@@ -83,14 +87,14 @@
 * [#1140](https://github.com/oshi/oshi/pull/1140): Demo Swing GUI. - [@dbwiddis](https://github.com/dbwiddis).
 * [#1143](https://github.com/oshi/oshi/pull/1140): Add process CPU usage between ticks calculation. - [@dbwiddis](https://github.com/dbwiddis).
 
-4.4.0 (2/12/2020), 4.4.1 (2/17/2020), 4.4.2 (2/20/2020)
+4.4.0 (2020-02-12), 4.4.1 (2020-02-17), 4.4.2 (2020-02-20)
 ================
 * [#1098](https://github.com/oshi/oshi/pull/1098): Option to limit FileStore list to local file systems. - [@Space2Man](https://github.com/Space2Man).
 * [#1100](https://github.com/oshi/oshi/pull/1100): Get FileStore options. - [@dbwiddis](https://github.com/dbwiddis).
 * [#1101](https://github.com/oshi/oshi/pull/1101): Add network interface dropped packets and collisions. - [@dbwiddis](https://github.com/dbwiddis).
 * [#1105](https://github.com/oshi/oshi/pull/1105): Added additional pseudo filesystems. - [@Space2Man](https://github.com/Space2Man).
 
-4.3.0 (1/2/2020), 4.3.1 (2/5/2020)
+4.3.0 (2020-01-02), 4.3.1 (2020-02-05)
 ================
 * [#1057](https://github.com/oshi/oshi/pull/1057): Added Subnet Mask & Prefix Length to NetworkIF. - [@vesyrak](https://github.com/Vesyrak).
 * [#1060](https://github.com/oshi/oshi/pull/1060): Fixed Linux page size calculation. - [@dbwiddis](https://github.com/dbwiddis).
@@ -102,14 +106,14 @@
 * [#1093](https://github.com/oshi/oshi/pull/1093): Fix Windows firmware field ordering. - [@dbwiddis](https://github.com/dbwiddis).
 * [#1095](https://github.com/oshi/oshi/pull/1095): Vend JSON via HTTP Server (oshi-demo). - [@dbwiddis](https://github.com/dbwiddis).
 
-4.2.0 (11/9/2019), 4.2.1 (11/14/2019)
+4.2.0 (2019-11-09), 4.2.1 (2019-11-14)
 ================
 * [#1038](https://github.com/oshi/oshi/pull/1038): More Battery Statistics. - [@dbwiddis](https://github.com/dbwiddis).
 * [#1039](https://github.com/oshi/oshi/pull/1039): JNA 5.5.0. - [@dbwiddis](https://github.com/dbwiddis).
 * [#1041](https://github.com/oshi/oshi/pull/1041): Process Affinity. - [@dbwiddis](https://github.com/dbwiddis).
 * [#1045](https://github.com/oshi/oshi/pull/1045): Better event log exception handling. - [@dbwiddis](https://github.com/dbwiddis).
 
-4.1.0 (10/16/2019), 4.1.1 (10/24/2019)
+4.1.0 (2019-10-16), 4.1.1 (2019-10-24)
 ================
 API CHANGE: This version implements thread-safe getters for OSHI attributes.
 As part of this change, support for serialization has been removed.
@@ -146,7 +150,7 @@ The default configuration file has been renamed to `oshi.properties` to prevent 
 * [#1008](https://github.com/oshi/oshi/pull/1008): Specialize getHostName() - [@2kindsofcs](https://github.com/2kindsofcs).
 * Your contribution here.
 
-4.0.0 (8/10/2019)
+4.0.0 (2019-08-10)
 ================
 * [#756](https://github.com/oshi/oshi/pull/756): Require Java 8. - [@dbwiddis](https://github.com/dbwiddis).
 * [#773](https://github.com/oshi/oshi/pull/773): Remove oshi-json artifact. - [@dbwiddis](https://github.com/dbwiddis).
@@ -171,7 +175,7 @@ The default configuration file has been renamed to `oshi.properties` to prevent 
 * [#929](https://github.com/oshi/oshi/pull/929): Add isElevated check to OperatingSystem. - [@dbwiddis](https://github.com/dbwiddis).
 * [#931](https://github.com/oshi/oshi/pull/931): Standardize attribute updating. - [@dbwiddis](https://github.com/dbwiddis).
 
-3.13.0 (1/18/2019), 3.13.1 (4/21/2019), 3.13.2 (4/28/2019), 3.13.3 (6/5/2019), 3.13.4 (9/6/2019), 3.13.5 (1/2/2020)
+3.13.0 (2019-01-18), 3.13.1 (2019-04-21), 3.13.2 (2019-04-28), 3.13.3 (2019-06-05), 3.13.4 (2019-09-06), 3.13.5 (2020-01-02)
 ================
 * [#763](https://github.com/oshi/oshi/pull/763): Refactor PDH/WMI Fallback. - [@dbwiddis](https://github.com/dbwiddis).
 * [#766](https://github.com/oshi/oshi/pull/766): Use query key to update counters in groups. - [@dbwiddis](https://github.com/dbwiddis).
@@ -180,7 +184,7 @@ The default configuration file has been renamed to `oshi.properties` to prevent 
 * [#839](https://github.com/oshi/oshi/pull/838): JNA 5.3.0. - [@dbwiddis](https://github.com/dbwiddis).
 * [#845](https://github.com/oshi/oshi/pull/845): JNA 5.3.1. - [@dbwiddis](https://github.com/dbwiddis).
 
-3.12.1 (12/31/2018), 3.12.2 (1/10/2019)
+3.12.1 (2018-12-31), 3.12.2 (2019-01-10)
 ================
 * [#728](https://github.com/oshi/oshi/pull/728): Separate WMI Query Handling from Util. - [@retomerz](https://github.com/retomerz).
 * [#730](https://github.com/oshi/oshi/pull/730): Fix Windows process token handle leak. - [@dbwiddis](https://github.com/dbwiddis).
@@ -188,7 +192,7 @@ The default configuration file has been renamed to `oshi.properties` to prevent 
 * [#735](https://github.com/oshi/oshi/pull/735): Windows XP Compatibility fixes. - [@dbwiddis](https://github.com/dbwiddis).
 * [#737](https://github.com/oshi/oshi/pull/737): Properly handle redundant COM initialization. - [@dbwiddis](https://github.com/dbwiddis).
 
-3.12.0 (12/16/2018)
+3.12.0 (2018-12-16)
 ================
 * [#694](https://github.com/oshi/oshi/pull/694): ComputerIdentifier Util Method - [@Aashishthakur10](https://github.com/Aashishthakur10).
 * [#699](https://github.com/oshi/oshi/pull/699): Fix PerfData error handling - [@dbwiddis](https://github.com/dbwiddis).
@@ -196,7 +200,7 @@ The default configuration file has been renamed to `oshi.properties` to prevent 
 * [#704](https://github.com/oshi/oshi/pull/704): Check for Virtual Machine - [@haidong](https://github.com/haidong).
 * [#724](https://github.com/oshi/oshi/pull/724): Refactor unsigned long bitmasking - [@LiborB] (https://github.com/LiborB).
 
-3.11.0 (11/21/2018)
+3.11.0 (2018-11-21)
 ================
 * [#685](https://github.com/oshi/oshi/pull/685): Get Linux HZ from system config - [@dbwiddis](https://github.com/dbwiddis).
 * [#686](https://github.com/oshi/oshi/pull/686): JNA 5.1.0 - [@dbwiddis](https://github.com/dbwiddis).
@@ -205,19 +209,19 @@ The default configuration file has been renamed to `oshi.properties` to prevent 
 * [#690](https://github.com/oshi/oshi/pull/690): Prioritize system-release for Fedora and CentOS version - [@dbwiddis](https://github.com/dbwiddis).
 * [#691](https://github.com/oshi/oshi/pull/691): Cache OSProcesses on Linux - [@dbwiddis](https://github.com/dbwiddis).
 
-3.10.0 (11/03/2018)
+3.10.0 (2018-11-03)
 ================
 * [#656](https://github.com/oshi/oshi/pull/656): JNA 5.0.0. - [@dbwiddis](https://github.com/dbwiddis).
 * [#659](https://github.com/oshi/oshi/pull/659): Add free/total inode counts. - [@Space2Man](https://github.com/Space2Man).
 * [#666](https://github.com/oshi/oshi/pull/666): Recreate counter handles when invalid - [@dbwiddis](https://github.com/dbwiddis).
 * [#675](https://github.com/oshi/oshi/pull/675): Solaris 10 network stats compatibility fix - [@dbwiddis](https://github.com/dbwiddis).
 
-3.9.1 (10/14/2018)
+3.9.1 (2018-10-14)
 ================
 * [#647](https://github.com/oshi/oshi/pull/647): Fix Windows idle counter calculation. - [@dbwiddis](https://github.com/dbwiddis).
 * [#653](https://github.com/oshi/oshi/pull/653): Fix transferTime in WindowsDisks by using 1-%Idle - [@Space2Man](https://github.com/Space2Man).
 
-3.9.0 (10/7/2018)
+3.9.0 (2018-10-07)
 ================
 * [#630](https://github.com/oshi/oshi/pull/630),
   [#640](https://github.com/oshi/oshi/pull/640),
@@ -227,7 +231,7 @@ The default configuration file has been renamed to `oshi.properties` to prevent 
 * [#636](https://github.com/oshi/oshi/pull/636): Catch exception when english counters missing. - [@dbwiddis](https://github.com/dbwiddis).
 * [#639](https://github.com/oshi/oshi/pull/639): Implement QueueLength metric in HWDiskStore. - [@Space2Man](https://github.com/Space2Man).
 
-3.8.1 (09/01/2018), 3.8.2 (09/07/2018), 3.8.3 (09/14/2018), 3.8.4 (09/24/2018)
+3.8.1 (2018-09-01), 3.8.2 (2018-09-07), 3.8.3 (2018-09-14), 3.8.4 (2018-09-04)
 ================
 * [#592](https://github.com/oshi/oshi/pull/592): Test for non-numeric doubles in JSON parsing. - [@dbwiddis](https://github.com/dbwiddis).
 * [#597](https://github.com/oshi/oshi/pull/597): Fix Windows serialnumber fallback bug. - [@dbwiddis](https://github.com/dbwiddis).
@@ -240,7 +244,7 @@ The default configuration file has been renamed to `oshi.properties` to prevent 
 * [#614](https://github.com/oshi/oshi/pull/614): Remove unneeded debug query and fix a WMI cast error - [@dbwiddis](https://github.com/dbwiddis).
 * [#626](https://github.com/oshi/oshi/pull/626): Fix calculation of Hz on Linux - [@dbwiddis](https://github.com/dbwiddis).
 
-3.8.0 (08/20/2018)
+3.8.0 (2018-08-20)
 ================
 * [#580](https://github.com/oshi/oshi/pull/580): Windows process uptime wasn't updating. - [@dbwiddis](https://github.com/dbwiddis).
 * [#585](https://github.com/oshi/oshi/pull/585): Fix WMI type mapping and BSTR allocation. - [@dbwiddis](https://github.com/dbwiddis).
@@ -248,7 +252,7 @@ The default configuration file has been renamed to `oshi.properties` to prevent 
 * [#587](https://github.com/oshi/oshi/pull/587): Localize PDH instance enumeration. - [@dbwiddis](https://github.com/dbwiddis).
 * [#588](https://github.com/oshi/oshi/pull/588): WMI backup for all PDH Counters. - [@dbwiddis](https://github.com/dbwiddis).
 
-3.7.1 (07/28/2018), 3.7.2 (08/01/2018)
+3.7.1 (2018-07-28), 3.7.2 (2018-08-01)
 ================
 * [#571](https://github.com/oshi/oshi/pull/571): CIM date broken for timezones east of GMT. - [@dbwiddis](https://github.com/dbwiddis).
 * [#573](https://github.com/oshi/oshi/pull/573): Don't get PDH swap stats if no swap. - [@dbwiddis](https://github.com/dbwiddis).
@@ -256,7 +260,7 @@ The default configuration file has been renamed to `oshi.properties` to prevent 
 * [#575](https://github.com/oshi/oshi/pull/575): Replace WMI value types with Variant types. - [@dbwiddis](https://github.com/dbwiddis).
 * [#577](https://github.com/oshi/oshi/pull/577): Get Windows temperature from PDH counters. - [@dbwiddis](https://github.com/dbwiddis).
 
-3.7.0 (07/28/2018)
+3.7.0 (2018-07-28)
 ================
 * [#551](https://github.com/oshi/oshi/pull/551): Check for zero-length PDH counter lists to avoid exceptions - [@dbwiddis](https://github.com/dbwiddis).
 * [#556](https://github.com/oshi/oshi/pull/556): WMI timeouts, standardization, and simplification. - [@dbwiddis](https://github.com/dbwiddis).
@@ -266,14 +270,14 @@ The default configuration file has been renamed to `oshi.properties` to prevent 
 * [#567](https://github.com/oshi/oshi/pull/567): Cache USB devices. - [@dbwiddis](https://github.com/dbwiddis).
 * [#569](https://github.com/oshi/oshi/pull/569): Remove threetenbp dependency. - [@dbwiddis](https://github.com/dbwiddis).
 
-3.6.1 (6/28/2018), 3.6.2 (7/10/2018)
+3.6.1 (2018-06-28), 3.6.2 (2018-07-10)
 ================
 * [#527](https://github.com/oshi/oshi/pull/527): Correct process information caching and command line retrieval under Windows - [@dustin-johnson](https://github.com/dustin-johnson).
 * [#533](https://github.com/oshi/oshi/pull/533): Filter to CPU zone if multiple Windows Thermal sensors. - [@dbwiddis](https://github.com/dbwiddis).
 * [#542](https://github.com/oshi/oshi/pull/542): Disabled Windows performance collection leads to empty Process cache - [@MarcMil](https://github.com/MarcMil).
 * [#547](https://github.com/oshi/oshi/pull/547): Remove DataTypeConverter dependency so OSHI builds on Java 9+ - [@dbwiddis](https://github.com/dbwiddis).
 
-3.6.0 (6/20/2018)
+3.6.0 (2018-06-20)
 ================
 * [#489](https://github.com/oshi/oshi/pull/489): Switch from WMI to native methods for most Windows Process data. - [@dbwiddis](https://github.com/dbwiddis).
 * [#501](https://github.com/oshi/oshi/pull/501): Added HWDiskStore.updateDiskStats. - [@cjbrowne](https://github.com/cjbrowne).
@@ -283,7 +287,7 @@ The default configuration file has been renamed to `oshi.properties` to prevent 
 * [#509](https://github.com/oshi/oshi/pull/509): Add pages swapped in/out to paging/swap file. - [@dbwiddis](https://github.com/dbwiddis).
 * [#518](https://github.com/oshi/oshi/pull/518): Add OS bitness. - [@dbwiddis](https://github.com/dbwiddis).
 
-3.5.0 (4/15/2018)
+3.5.0 (2018-04-15)
 ================
 * [#446](https://github.com/oshi/oshi/pull/446): Add getChildProcesses to OperatingSystem. - [@jsimomaa](https://github.com/jsimomaa)
 * [#447](https://github.com/oshi/oshi/pull/447),
@@ -294,7 +298,7 @@ The default configuration file has been renamed to `oshi.properties` to prevent 
 * [#478](https://github.com/oshi/oshi/pull/478): Windows RSS now reports Private Working Set, matching Task Manager - [@dbwiddis](https://github.com/dbwiddis).
 * Updated to JNA 4.5.1
 
-3.4.5 (4/11/2018)
+3.4.5 (2018-04-11)
 ================
 * [#433](https://github.com/oshi/oshi/pull/433): Performance improvements for getProcesses() on Linux - [@bildechinger](https://github.com/bildechinger).
 * [#455](https://github.com/oshi/oshi/pull/455): Open files/handles support - [@spyhunter99](https://github.com/spyhunter99).
@@ -302,13 +306,13 @@ The default configuration file has been renamed to `oshi.properties` to prevent 
 * [#464](https://github.com/oshi/oshi/pull/464): OSGi fixes - [@lprimak](https://github.com/lprimak).
 * [#465](https://github.com/oshi/oshi/pull/465): Include a shaded jar with all dependencies - [@lprimak](https://github.com/lprimak).
 
-3.4.4 (10/15/17)
+3.4.4 (2017-10-15)
 ================
 * [#392](https://github.com/oshi/oshi/pull/392): Fix NPE for processes terminating before iteration - [@dbwiddis](https://github.com/dbwiddis).
 * [#396](https://github.com/oshi/oshi/pull/396): Fix issue on macOS whereby the buffer size for the call to proc_listpids() was improperly calculated - [@brettwooldridge](https://github.com/brettwooldridge)
 * Updated to JNA 4.5.0
 
-3.4.3 (6/2/17)
+3.4.3 (2017-06-02)
 ================
 * [#336](https://github.com/oshi/oshi/pull/336): Add Process Current Working Directory - [@dbwiddis](https://github.com/dbwiddis).
 * [#357](https://github.com/oshi/oshi/pull/357): Prioritize OpenHardwareMonitor for Windows Sensors - [@dbwiddis](https://github.com/dbwiddis).
@@ -317,16 +321,16 @@ The default configuration file has been renamed to `oshi.properties` to prevent 
 * [#375](https://github.com/oshi/oshi/pull/375): Added OSGi bundle support - [@swimmesberger](https://github.com/swimmesberger)
 * Updated to JNA 4.4.0.
 
-3.4.2 (3/2/2017)
+3.4.2 (2017-03-02)
 ================
 * [#332](https://github.com/oshi/oshi/pull/332): Remove streamsupport dependency - [@dbwiddis](https://github.com/dbwiddis).
 
-3.4.1 (3/1/2017)
+3.4.1 (2017-03-01)
 ================
 * [#327](https://github.com/oshi/oshi/pull/327): Restore Java 7 compatibility. - [@dbwiddis](https://github.com/dbwiddis).
 * [#328](https://github.com/oshi/oshi/pull/328): Updated to JNA 4.3.0. - [@dbwiddis](https://github.com/dbwiddis).
 
-3.4.0 (2/26/2017)
+3.4.0 (2017-02-26)
 ================
 * Switch groupId to com.github.oshi
 * [#294](https://github.com/oshi/oshi/pull/294), [#305](https://github.com/oshi/oshi/pull/305): Add NetworkParams for network parameter of OS - [@chikei](https://github.com/chikei), [@dbwiddis](https://github.com/dbwiddis).
@@ -336,7 +340,7 @@ The default configuration file has been renamed to `oshi.properties` to prevent 
 * [#309](https://github.com/oshi/oshi/pull/309): Reduce C library duplication. - [@dbwiddis](https://github.com/dbwiddis).
 * [#317](https://github.com/oshi/oshi/pull/317): Add user/uid, group/gid, and command line to OSProcess. - [@dbwiddis](https://github.com/dbwiddis).
 
-3.3 (12/31/2016)
+3.3 (2016-12-31)
 ================
 * [#262](https://github.com/oshi/oshi/pull/262): Add bytesRead and bytesWritten to OSProcess - [@plamenko](https://github.com/plamenko).
 * [#264](https://github.com/oshi/oshi/pull/264), [#289](https://github.com/oshi/oshi/pull/289): BIOS, manufacturer, and baseboard information - [@lundefugl](https://github.com/lundefugl), [@dbwiddis](https://github.com/dbwiddis).
@@ -348,19 +352,19 @@ The default configuration file has been renamed to `oshi.properties` to prevent 
 * [#286](https://github.com/oshi/oshi/pull/286): Reduce required calculations for LinuxProcess initialization - [@dbwiddis](https://github.com/dbwiddis).
 * [#290](https://github.com/oshi/oshi/pull/290): Add input/output errors to Network IF - [@dbwiddis](https://github.com/dbwiddis).
 
-3.2 (9/1/2016)
+3.2 (2016-09-01)
 ================
 * [#243](https://github.com/oshi/oshi/pull/243): Make Windows network statistics 64-bit - [@dbwiddis](https://github.com/dbwiddis).
 * [#244](https://github.com/oshi/oshi/pull/244): Add timestamps to Disk and Network IO Stats - [@dbwiddis](https://github.com/dbwiddis).
 * [#253](https://github.com/oshi/oshi/pull/253): Properly handle CoreStorage Volumes on OSX - [@dbwiddis](https://github.com/dbwiddis).
 * [#256](https://github.com/oshi/oshi/pull/256): Use DeviceID to link Windows Disks and Partitions - [@dbwiddis](https://github.com/dbwiddis).
 
-3.1.1 (8/5/2016)
+3.1.1 (2016-08-05)
 ================
 * [#239](https://github.com/oshi/oshi/pull/239): Fix exceptions on windows disks/partitions - [@dbwiddis](https://github.com/dbwiddis).
 * [#240](https://github.com/oshi/oshi/pull/240): Check sysfs for Linux system serial number - [@dbwiddis](https://github.com/dbwiddis).
 
-3.1 (8/1/2016)
+3.1 (2016-08-01)
 ================
 * [#225](https://github.com/oshi/oshi/pull/225): Bugfixes from Coverity, FindBugs, and PMD - [@dbwiddis](https://github.com/dbwiddis).
 * [#229](https://github.com/oshi/oshi/pull/229): Solaris port - [@dbwiddis](https://github.com/dbwiddis).
@@ -368,7 +372,7 @@ The default configuration file has been renamed to `oshi.properties` to prevent 
 * [#234](https://github.com/oshi/oshi/pull/234): Add read/write count and active disk time to HWDiskStores - [@dbwiddis](https://github.com/dbwiddis).
 * [#235](https://github.com/oshi/oshi/pull/235): Add partition information to HWDiskStores - [@dbwiddis](https://github.com/dbwiddis).
 
-3.0 (7/1/2016)
+3.0 (2016-07-01)
 ================
 * [#205](https://github.com/oshi/oshi/pull/205): Separated oshi-core and oshi-json modules - [@dbwiddis](https://github.com/dbwiddis).
 * [#209](https://github.com/oshi/oshi/pull/209): Move FileSystem and Processes to OperatingSystem - [@dbwiddis](https://github.com/dbwiddis).
@@ -380,12 +384,12 @@ The default configuration file has been renamed to `oshi.properties` to prevent 
 * [#219](https://github.com/oshi/oshi/pull/219): NetworkIFs can now update stats - [@dbwiddis](https://github.com/dbwiddis).
 * [#223](https://github.com/oshi/oshi/pull/223): JUnit Test overhaul, adds, refactoring - [@dbwiddis](https://github.com/dbwiddis).
 
-2.6.2 (6/21/2016)
+2.6.2 (2016-06-21)
 ================
 * [#199](https://github.com/oshi/oshi/pull/199): Use WMI queries for raw data instead of maintaining PDH threads - [@dbwiddis](https://github.com/dbwiddis).
 * Multiple efficiency improvements
 
-2.6-java7 / 2.6.1 (6/17/2016)
+2.6-java7 / 2.6.1 (2016-06-17)
 ================
 * [#190](https://github.com/oshi/oshi/pull/190): Add VendorID and ProductID to UsbDevice - [@dbwiddis](https://github.com/dbwiddis).
 * [#193](https://github.com/oshi/oshi/pull/193): Add read/write to Windows and macOS HWDiskStores - [@dbwiddis](https://github.com/dbwiddis).
@@ -395,12 +399,12 @@ The default configuration file has been renamed to `oshi.properties` to prevent 
 * [#198](https://github.com/oshi/oshi/pull/198): macOS 10.12 (Sierra) - [@dbwiddis](https://github.com/dbwiddis).
 * Created a Java 7 backport using threeten.org dependency released as 2.6-m-java7
 
-2.5.1-java7 / 2.5.2 (6/9/2016)
+2.5.1-java7 / 2.5.2 (2016-06-09)
 ================
 * [#186](https://github.com/oshi/oshi/pull/186), [#187](https://github.com/oshi/oshi/pull/187),  [#188](https://github.com/oshi/oshi/pull/188): Improve USB device trees - [@dbwiddis](https://github.com/dbwiddis).
 * Created a Java 7 backport using threeten.org dependency released as 2.5.1-java7
 
-2.5 (6/4/2016)
+2.5 (2016-04-06)
 ================
 * Upgraded to Java 8 base support
 * [#163](https://github.com/oshi/oshi/pull/163): Update getFileStores() method to include mount point [@henryx](https://github.com/henryx).
@@ -412,7 +416,7 @@ The default configuration file has been renamed to `oshi.properties` to prevent 
 * [#181](https://github.com/oshi/oshi/pull/181): Added USB Device listing - [@dbwiddis](https://github.com/dbwiddis).
 * [#184](https://github.com/oshi/oshi/pull/184): Improve Linux OS version parsing - [@dbwiddis](https://github.com/dbwiddis).
 
-2.4 (5/2/2016)
+2.4 (2016-05-02)
 ================
 * [#140](https://github.com/oshi/oshi/pull/140): Added process and thread counts - [@dbwiddis](https://github.com/dbwiddis).
 * [#142](https://github.com/oshi/oshi/pull/142): Added methods for getting swap (total and used) in the system - [@henryx](https://github.com/henryx).
@@ -424,7 +428,7 @@ The default configuration file has been renamed to `oshi.properties` to prevent 
 * [#150](https://github.com/oshi/oshi/pull/150): Added filesystem types - [@dbwiddis](https://github.com/dbwiddis).
 * [#155](https://github.com/oshi/oshi/pull/155), [#157](https://github.com/oshi/oshi/pull/157): Added network interface statistics - [@henryx](https://github.com/henryx), [@dbwiddis](https://github.com/dbwiddis).
 
-2.3 (4/14/2016)
+2.3 (2016-04-14)
 ================
 * [#124](https://github.com/oshi/oshi/pull/124): Read Windows Sensor info from Open Hardware Monitor as fallback - [@dbwiddis](https://github.com/dbwiddis).
 * [#129](https://github.com/oshi/oshi/pull/129): Improve Linux version and code name parsing - [@dbwiddis](https://github.com/dbwiddis).
@@ -432,48 +436,48 @@ The default configuration file has been renamed to `oshi.properties` to prevent 
 * [#136](https://github.com/oshi/oshi/pull/136): Updated CPU load average to use system call - [@henryx](https://github.com/henryx).
 * [#137](https://github.com/oshi/oshi/pull/137): Added iowait and irq ticks - [@dbwiddis](https://github.com/dbwiddis).
 
-2.2 (3/1/2016)
+2.2 (2016-03-01)
 ================
 * [#121](https://github.com/oshi/oshi/pull/121): Added CPU temperature, fan speeds, and voltage - [@dbwiddis](https://github.com/dbwiddis).
 * [#123](https://github.com/oshi/oshi/pull/123): Handle JSON nulls - [@dbwiddis](https://github.com/dbwiddis).
 
-2.1.2 (2/24/2016)
+2.1.2 (2016-02-24)
 ================
 * [#118](https://github.com/oshi/oshi/pull/118): Port JSON to javax.json - [@dbwiddis](https://github.com/dbwiddis).
 * [#120](https://github.com/oshi/oshi/pull/120): Support all windows processor methods - [@dbwiddis](https://github.com/dbwiddis).
 
-2.1.1 (2/19/2016)
+2.1.1 (2016-02-19)
 ================
 * [#114](https://github.com/oshi/oshi/pull/114): Memory information wasn't updating for Windows - [@dbwiddis](https://github.com/dbwiddis).
 * [#116](https://github.com/oshi/oshi/pull/116): Added JSON output - [@dbwiddis](https://github.com/dbwiddis).
 
-2.1 (1/1/2016)
+2.1 (2016-01-01)
 ================
 * [#108](https://github.com/oshi/oshi/pull/108): Added Display info from EDID - [@dbwiddis](https://github.com/dbwiddis).
 * [#111](https://github.com/oshi/oshi/pull/111): Catch exceptions when Linux c library missing - [@dbwiddis](https://github.com/dbwiddis).
 
-2.0 (11/28/2015)
+2.0 (2015-11-28)
 ================
 * [#101](https://github.com/oshi/oshi/pull/101): Refactored package structure for consistency - [@dbwiddis](https://github.com/dbwiddis).
 * [#103](https://github.com/oshi/oshi/pull/103): Switched CentralProcessor to a single object for all processors - [@dbwiddis](https://github.com/dbwiddis).
 * See [UPGRADING.md](UPGRADING.md) for more details.
 
-1.5.2 (11/23/2015)
+1.5.2 2015-11-23)
 ================
 * [#98](https://github.com/oshi/oshi/pull/98): Upgraded JNA to 4.2.1 - [@dbwiddis](https://github.com/dbwiddis).
 * [#100](https://github.com/oshi/oshi/pull/100): Add physical and logical CPU counts - [@dbwiddis](https://github.com/dbwiddis).
 
-1.5.1 (10/15/2015)
+1.5.1 (2015-10-15)
 ================
 * [#94](https://github.com/oshi/oshi/pull/94): Upgraded JNA to 4.2.0 - [@dbwiddis](https://github.com/dbwiddis).
 * [#96](https://github.com/oshi/oshi/pull/96): Read buffer immediately after Runtime.exec to prevent deadlock - [@dbwiddis](https://github.com/dbwiddis).
 * [#97](https://github.com/oshi/oshi/pull/97): Add system serial number - [@dbwiddis](https://github.com/dbwiddis).
 
-1.5 (9/21/2015)
+1.5 (2015-09-21)
 ================
 * [#87](https://github.com/oshi/oshi/pull/87): Added SLF4J logging, changed exception throwing to log errors to be robust to lack of permissions - [@dbwiddis](https://github.com/dbwiddis).
 
-1.4 (9/3/2015)
+1.4 (2015-09-03)
 ================
 * [#71](https://github.com/oshi/oshi/pull/71),
   [#72](https://github.com/oshi/oshi/pull/72): Added support for Windows 10 & Windows Server 2016 - [@laurent-r](https://github.com/laurent-r).
@@ -481,7 +485,7 @@ The default configuration file has been renamed to `oshi.properties` to prevent 
 * [#76](https://github.com/oshi/oshi/pull/76): Better linux CPU processor counting - [@dbwiddis](https://github.com/dbwiddis).
 * [#78](https://github.com/oshi/oshi/pull/78): Execute FileSystemView on Swing's Event Dispatch Thread - [@dbwiddis](https://github.com/dbwiddis).
 
-1.3 (6/27/2015)
+1.3 (2015-06-27)
 ================
 * Upgraded to Java 7 base support
 * Upgraded JNA to 4.1.0
@@ -490,7 +494,7 @@ The default configuration file has been renamed to `oshi.properties` to prevent 
 * [#51](https://github.com/oshi/oshi/pull/51): Added CPU Ticks and switched to OperatingSystemMXBean for CPU load / load average - [@dbwiddis](https://github.com/dbwiddis).
 * [#62](https://github.com/oshi/oshi/pull/62): Added Per-Processor CPU Load and Ticks - [@dbwiddis](https://github.com/dbwiddis).
 
-1.2 (6/13/2014)
+1.2 (2014-06-13)
 ================
 
 * Added TODO list and enhanced README documentation - [@ptitvert](https://github.com/ptitvert)
@@ -505,12 +509,10 @@ The default configuration file has been renamed to `oshi.properties` to prevent 
 * [#30](https://github.com/oshi/oshi/pull/30): Added processor vendor frequency information - [@alessiofachechi](https://github.com/alessiofachechi).
 * [#32](https://github.com/oshi/oshi/pull/32): Added battery state information - [@dbwiddis](https://github.com/dbwiddis).
 
-1.1 (10/13/2013)
+1.1 (2013-10-13)
 ================
-
 * Added support for Windows 8 to `oshi.software.os.OperatingSystemVersion`, `oshi.software.os.windows.nt.OSVersionInfoEx` - [@laurent-r](https://github.com/laurent-r).
 
-1.0 (6/23/2010)
+1.0 (2010-06-23)
 ===============
-
 * Initial public release - [@dblock](https://github.com/dblock).
