@@ -271,7 +271,7 @@ public interface CentralProcessor {
         SOFTIRQ(6),
         /**
          * Time which the hypervisor dedicated for other guests in the system. Only
-         * supported on Linux.
+         * supported on Linux and AIX
          */
         STEAL(7);
 
@@ -429,6 +429,11 @@ public interface CentralProcessor {
 
         public ProcessorIdentifier(String cpuVendor, String cpuName, String cpuFamily, String cpuModel,
                 String cpuStepping, String processorID, boolean cpu64bit) {
+            this(cpuVendor, cpuName, cpuFamily, cpuModel, cpuStepping, processorID, cpu64bit, -1L);
+        }
+
+        public ProcessorIdentifier(String cpuVendor, String cpuName, String cpuFamily, String cpuModel,
+                String cpuStepping, String processorID, boolean cpu64bit, long vendorFreq) {
             this.cpuVendor = cpuVendor;
             this.cpuName = cpuName;
             this.cpuFamily = cpuFamily;
@@ -449,14 +454,18 @@ public interface CentralProcessor {
             sb.append(" Stepping ").append(cpuStepping);
             this.cpuIdentifier = sb.toString();
 
-            // Parse Freq from name string
-            Pattern pattern = Pattern.compile("@ (.*)$");
-            Matcher matcher = pattern.matcher(cpuName);
-            if (matcher.find()) {
-                String unit = matcher.group(1);
-                this.cpuVendorFreq = ParseUtil.parseHertz(unit);
+            if (vendorFreq >= 0) {
+                this.cpuVendorFreq = vendorFreq;
             } else {
-                this.cpuVendorFreq = -1L;
+                // Parse Freq from name string
+                Pattern pattern = Pattern.compile("@ (.*)$");
+                Matcher matcher = pattern.matcher(cpuName);
+                if (matcher.find()) {
+                    String unit = matcher.group(1);
+                    this.cpuVendorFreq = ParseUtil.parseHertz(unit);
+                } else {
+                    this.cpuVendorFreq = -1L;
+                }
             }
         }
 
@@ -518,7 +527,7 @@ public interface CentralProcessor {
          * <p>
          * For processors that do not support the CPUID opcode this field is populated
          * with a comparable hex string. For example, ARM Processors will fill the first
-         * 32 bytes with the MIDR.
+         * 32 bytes with the MIDR. AIX PowerPC Processors will return the machine ID.
          * <p>
          * NOTE: The order of returned bytes is platform and software dependent. Values
          * may be in either Big Endian or Little Endian order.
@@ -573,6 +582,7 @@ public interface CentralProcessor {
         }
 
         private String queryMicroarchitecture() {
+            String arch = null;
             Properties archProps = FileUtil.readPropertiesFromFilename(OSHI_ARCHITECTURE_PROPERTIES);
             // Intel is default, no prefix
             StringBuilder sb = new StringBuilder();
@@ -581,22 +591,30 @@ public interface CentralProcessor {
                 sb.append("amd.");
             } else if (this.getVendor().contains("ARM")) {
                 sb.append("arm.");
+            } else if (this.getVendor().contains("IBM")) {
+                // Directly parse the name to POWER#
+                int powerIdx = this.cpuName.indexOf("_POWER");
+                if (powerIdx > 0) {
+                    arch = this.cpuName.substring(powerIdx + 1);
+                }
             }
-            sb.append(this.cpuFamily);
-            // Check for match with only family
-            String arch = archProps.getProperty(sb.toString());
+            if (Util.isBlank(arch)) {
+                // Append family
+                sb.append(this.cpuFamily);
+                arch = archProps.getProperty(sb.toString());
+            }
 
             if (Util.isBlank(arch)) {
                 // Append model
                 sb.append('.').append(this.cpuModel);
+                arch = archProps.getProperty(sb.toString());
             }
-            arch = archProps.getProperty(sb.toString());
 
             if (Util.isBlank(arch)) {
                 // Append stepping
                 sb.append('.').append(this.cpuStepping);
+                arch = archProps.getProperty(sb.toString());
             }
-            arch = archProps.getProperty(sb.toString());
 
             return Util.isBlank(arch) ? Constants.UNKNOWN : arch;
         }

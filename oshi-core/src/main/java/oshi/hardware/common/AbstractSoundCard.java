@@ -72,10 +72,10 @@ public abstract class AbstractSoundCard implements SoundCard {
         StringBuilder builder = new StringBuilder();
         builder.append("SoundCard@");
         builder.append(Integer.toHexString(hashCode()));
-        builder.append(" [kernelVersion=");
-        builder.append(this.kernelVersion);
-        builder.append(", name=");
+        builder.append(" [name=");
         builder.append(this.name);
+        builder.append(", kernelVersion=");
+        builder.append(this.kernelVersion);
         builder.append(", codec=");
         builder.append(this.codec);
         builder.append(']');

@@ -88,6 +88,7 @@ public class SystemInfoTest {
      *            the arguments (unused)
      */
     public static void main(String[] args) {
+
         logger.info("Initializing System...");
         SystemInfo si = new SystemInfo();
 
@@ -135,11 +136,9 @@ public class SystemInfoTest {
         logger.info("Checking IP statistics...");
         printInternetProtocolStats(os.getInternetProtocolStats());
 
-        // hardware: displays
         logger.info("Checking Displays...");
         printDisplays(hal.getDisplays());
 
-        // hardware: USB devices
         logger.info("Checking USB Devices...");
         printUsbDevices(hal.getUsbDevices(true));
 

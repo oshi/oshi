@@ -429,6 +429,7 @@ public class ParseUtilTest {
         assertEquals(1024, ParseUtil.parseDecimalMemorySizeToBinary("1 kB"));
         assertEquals(1024, ParseUtil.parseDecimalMemorySizeToBinary("1 KB"));
         assertEquals(1_048_576, ParseUtil.parseDecimalMemorySizeToBinary("1 MB"));
+        assertEquals(1_048_576, ParseUtil.parseDecimalMemorySizeToBinary("1MB"));
         assertEquals(1_073_741_824, ParseUtil.parseDecimalMemorySizeToBinary("1 GB"));
         assertEquals(1_099_511_627_776L, ParseUtil.parseDecimalMemorySizeToBinary("1 TB"));
     }
@@ -522,5 +523,12 @@ public class ParseUtilTest {
         assertEquals(255L, ParseUtil.hexStringToLong("ff", 0L));
         assertEquals(-2096147552L, ParseUtil.hexStringToLong("ffffffff830f53a0", 0L));
         assertEquals(0L, ParseUtil.hexStringToLong("pqwe", 0L));
+    }
+
+    @Test
+    public void testRemoveLeadingDots() {
+        assertEquals("foo", ParseUtil.removeLeadingDots("foo"));
+        assertEquals("bar", ParseUtil.removeLeadingDots("...bar"));
+        assertEquals("", ParseUtil.removeLeadingDots("..."));
     }
 }

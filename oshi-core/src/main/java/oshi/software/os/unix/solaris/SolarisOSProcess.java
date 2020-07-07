@@ -321,7 +321,7 @@ public class SolarisOSProcess extends AbstractOSProcess {
                 prstatThreadInfo.stream().skip(1).forEach(threadInfo -> {
                     String[] splitPrstat = ParseUtil.whitespaces.split(threadInfo.trim());
                     if (splitPrstat.length == 15) {
-                        int idxAfterForwardSlash = splitPrstat[14].lastIndexOf("/") + 1; // format is process/lwpid
+                        int idxAfterForwardSlash = splitPrstat[14].lastIndexOf('/') + 1; // format is process/lwpid
                         if (idxAfterForwardSlash > 0 && idxAfterForwardSlash < splitPrstat[14].length()) {
                             String threadId = splitPrstat[14].substring(idxAfterForwardSlash); // getting the thread id
                             String[] existingSplit = map.get(Integer.parseInt(threadId));

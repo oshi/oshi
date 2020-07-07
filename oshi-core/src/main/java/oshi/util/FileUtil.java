@@ -30,7 +30,6 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -228,11 +227,9 @@ public final class FileUtil {
     public static Properties readPropertiesFromFilename(String propsFilename) {
         Properties archProps = new Properties();
         // Load the configuration file from the different classloaders
-        if (
-            readPropertiesFromClassLoader(propsFilename, archProps, Thread.currentThread().getContextClassLoader()) ||
-            readPropertiesFromClassLoader(propsFilename, archProps, ClassLoader.getSystemClassLoader()) ||
-            readPropertiesFromClassLoader(propsFilename, archProps, FileUtil.class.getClassLoader())
-        ) {
+        if (readPropertiesFromClassLoader(propsFilename, archProps, Thread.currentThread().getContextClassLoader())
+                || readPropertiesFromClassLoader(propsFilename, archProps, ClassLoader.getSystemClassLoader())
+                || readPropertiesFromClassLoader(propsFilename, archProps, FileUtil.class.getClassLoader())) {
             return archProps;
         }
 
@@ -240,7 +237,8 @@ public final class FileUtil {
         return archProps;
     }
 
-    private static boolean readPropertiesFromClassLoader(String propsFilename, Properties archProps, ClassLoader loader) {
+    private static boolean readPropertiesFromClassLoader(String propsFilename, Properties archProps,
+            ClassLoader loader) {
         if (loader == null) {
             return false;
         }

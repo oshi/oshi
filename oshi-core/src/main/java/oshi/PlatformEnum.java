@@ -48,6 +48,10 @@ public enum PlatformEnum {
      */
     FREEBSD,
     /**
+     * IBM AIX
+     */
+    AIX,
+    /**
      * OpenBSD, WindowsCE, or an unspecified system
      */
     UNKNOWN;

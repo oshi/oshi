@@ -59,7 +59,7 @@ public abstract class AbstractOSProcess implements OSProcess {
     }
 
     private double queryCumulativeCpuLoad() {
-        return (getKernelTime() + getUserTime()) / (double) getUpTime();
+        return getUpTime() > 0d ? (getKernelTime() + getUserTime()) / (double) getUpTime() : 0d;
     }
 
     @Override
