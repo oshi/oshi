@@ -159,31 +159,20 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         boolean ntWorkstation = WmiUtil.getUint32(versionInfo, OSVersionProperty.PRODUCTTYPE,
                 0) == WinNT.VER_NT_WORKSTATION;
 
-        if (major == 10 && minor == 0) {
-            Properties verProps = FileUtil.readPropertiesFromFilename(WIN_VERSION_PROPERTIES);
-            if (ntWorkstation) {
-                version = verProps.getProperty(major + "." + minor + "." + ntWorkstation);
-            } else {
-                // Build numbers greater than 17762 is Server 2019 for OS
-                // Version 10.0
-                version = verProps.getProperty(major + "." + minor + "." + ntWorkstation + "." + (ParseUtil.parseLongOrDefault(buildNumber, 0L) > 17762));
-            }
-        } else if (major == 6) {
-            Properties verProps = FileUtil.readPropertiesFromFilename(WIN_VERSION_PROPERTIES);
-            version = verProps.getProperty(major + "." + minor + "." + ntWorkstation);
-        } else if (major == 5 && minor == 2) {
-            Properties verProps = FileUtil.readPropertiesFromFilename(WIN_VERSION_PROPERTIES);
-            if ((suiteMask & 0x00008000) != 0) { // VER_SUITE_WH_SERVER
-                version = verProps.getProperty(major + "." + minor + ".HS");
-            } else if (ntWorkstation) {
-                version = verProps.getProperty(major + "." + minor + "." + ntWorkstation); // 64 bits
-            } else {
-                version = verProps.getProperty(major + "." + minor + "." + ntWorkstation + "." +(User32.INSTANCE.GetSystemMetrics(WinUser.SM_SERVERR2) != 0));
-            }
-        } else if (major == 5 && (minor == 1 || minor == 0)) {
-            Properties verProps = FileUtil.readPropertiesFromFilename(WIN_VERSION_PROPERTIES);
-            version = verProps.getProperty(major + "." + minor);
+        StringBuilder verLookup = new StringBuilder(major + "." + minor);
+
+        if ((suiteMask & 0x00008000) != 0) { // VER_SUITE_WH_SERVER
+            verLookup.append(".HS");
+        } else if (ntWorkstation && !"5.1".equals(verLookup.toString()) && !"5.0".equals(verLookup.toString())) {
+            verLookup.append(".nt");
+        } else if (ParseUtil.parseLongOrDefault(buildNumber, 0L) > 17762) {
+            verLookup.append(".17762");
+        } else if (User32.INSTANCE.GetSystemMetrics(WinUser.SM_SERVERR2) == 0) {
+            verLookup.append(".R2");
         }
+
+        Properties verProps = FileUtil.readPropertiesFromFilename(WIN_VERSION_PROPERTIES);
+        version = verProps.getProperty(verLookup.toString()) != null ? verProps.getProperty(verLookup.toString()) : version;
 
         String sp = WmiUtil.getString(versionInfo, OSVersionProperty.CSDVERSION, 0);
         if (!sp.isEmpty() && !"unknown".equals(sp)) {
