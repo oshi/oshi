@@ -37,9 +37,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -231,16 +228,12 @@ public final class FileUtil {
     public static Properties readPropertiesFromFilename(String propsFilename) {
         Properties archProps = new Properties();
         // Load the configuration file from the different classloaders
-        Set<ClassLoader> loaders = Stream.of(
-            Thread.currentThread().getContextClassLoader(),
-            ClassLoader.getSystemClassLoader(),
-            FileUtil.class.getClassLoader()
-        ).collect(Collectors.toSet());
-
-        for (ClassLoader loader : loaders) {
-            if (readPropertiesFromClassLoader(propsFilename, archProps, loader)) {
-                return archProps;
-            }
+        if (
+            readPropertiesFromClassLoader(propsFilename, archProps, Thread.currentThread().getContextClassLoader()) ||
+            readPropertiesFromClassLoader(propsFilename, archProps, ClassLoader.getSystemClassLoader()) ||
+            readPropertiesFromClassLoader(propsFilename, archProps, FileUtil.class.getClassLoader())
+        ) {
+            return archProps;
         }
 
         LOG.warn("Failed to load default configuration");
