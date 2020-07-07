@@ -298,8 +298,9 @@ public class AixOSProcess extends AbstractOSProcess {
         this.threadCount = ParseUtil.parseIntOrDefault(split[7], 0);
         this.priority = ParseUtil.parseIntOrDefault(split[8], 0);
         // These are in KB, multiply
-        this.virtualSize = ParseUtil.parseLongOrDefault(split[9], 0) * 1024;
-        this.residentSetSize = ParseUtil.parseLongOrDefault(split[10], 0) * 1024;
+        this.virtualSize = ParseUtil.parseLongOrDefault(split[9], 0) << 10;
+        this.residentSetSize = ParseUtil.parseLongOrDefault(split[10], 0) << 10;
+        long elapsedTime = ParseUtil.parseDHMSOrDefault(split[11], 0L);
         if (cpuMap.containsKey(getProcessID())) {
             Pair<Long, Long> userSystem = cpuMap.get(getProcessID());
             this.userTime = userSystem.getA();
@@ -309,16 +310,15 @@ public class AixOSProcess extends AbstractOSProcess {
             this.kernelTime = 0L;
         }
         // Avoid divide by zero for processes up less than a second
-        long elapsedTime = ParseUtil.parseDHMSOrDefault(split[11], 0L);
         this.upTime = elapsedTime < 1L ? 1L : elapsedTime;
         while (this.upTime < this.userTime + this.kernelTime) {
             this.upTime += 500L;
         }
         this.startTime = now - this.upTime;
-        this.commandLine = split[13];
+        this.name = split[13];
         this.majorFaults = ParseUtil.parseLongOrDefault(split[14], 0L);
-        this.path = split[15];
-        this.name = this.path.substring(this.path.lastIndexOf('/') + 1);
+        this.path = ParseUtil.whitespaces.split(split[15])[0];
+        this.commandLine = split[15];
         return true;
     }
 

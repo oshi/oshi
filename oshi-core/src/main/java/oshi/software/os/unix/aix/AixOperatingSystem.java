@@ -217,7 +217,6 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public OSService[] getServices() {
-        // Need to update for whatever services AIX uses
         List<OSService> services = new ArrayList<>();
         // Get system services from lssrc command
         /*-
