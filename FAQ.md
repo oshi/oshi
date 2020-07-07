@@ -90,7 +90,7 @@ prepared to help test solutions.
 
 Will you do a HP-UX port?
 ========
-No. OSHI depends on JNA, which does not produce a native binary for HP-UX.
+OSHI depends on JNA, which does not produce a native binary for HP-UX.
 
 Will you do a port for OpenBSD?  How about Android?
 ========
