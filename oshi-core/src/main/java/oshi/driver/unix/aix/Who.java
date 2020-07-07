@@ -59,7 +59,7 @@ public final class Who {
             try {
                 return LocalDateTime.parse(m.group(1) + " " + m.group(2), BOOT_DATE_FORMAT_AIX)
                         .atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
-            } catch (DateTimeParseException e) {
+            } catch (DateTimeParseException | NullPointerException e) {
                 // Shouldn't happen with regex matching
             }
         }

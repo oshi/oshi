@@ -80,7 +80,7 @@ public final class Who {
                             LocalDateTime.parse(m.group(3) + " " + m.group(4), WHO_DATE_FORMAT_LINUX)
                                     .atZone(ZoneId.systemDefault()).toInstant().toEpochMilli(),
                             m.group(5) == null ? Constants.UNKNOWN : m.group(5)));
-                } catch (DateTimeParseException e) {
+                } catch (DateTimeParseException | NullPointerException e) {
                     // shouldn't happen if regex matches and OS is producing sensible dates
                 }
             } else {
@@ -97,7 +97,7 @@ public final class Who {
                         long millis = login.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
                         whoList.add(
                                 new OSSession(m.group(1), m.group(2), millis, m.group(6) == null ? "" : m.group(6)));
-                    } catch (DateTimeParseException e) {
+                    } catch (DateTimeParseException | NullPointerException e) {
                         // shouldn't happen if regex matches and OS is producing sensible dates
                     }
                 }
