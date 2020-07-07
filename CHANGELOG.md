@@ -1,5 +1,6 @@
-5.3.0 (in progress)
+4.9.1 / 5.2.1 (coming soon)
 ================
+* [#1284](https://github.com/oshi/oshi/pull/1284): (5.x) AIX Port - [@tausiflife](https://github.com/tausiflife), [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here 
 
 4.9.0 / 5.2.0 (6/25/2020)
