@@ -142,20 +142,17 @@
 		<git-commit-id-plugin.version>4.0.0</git-commit-id-plugin.version>
 		<build-helper-maven-plugin.version>3.2.0</build-helper-maven-plugin.version>
 		<maven-jar-plugin.version>3.2.0</maven-jar-plugin.version>
-		<maven-war-plugin.version>3.3.0</maven-war-plugin.version>
 		<bnd-maven-plugin.version>5.1.1</bnd-maven-plugin.version>
 		<maven-shade-plugin.version>3.2.4</maven-shade-plugin.version>
 		<!-- reporting plugins -->
 		<maven-checkstyle-plugin.version>3.1.1</maven-checkstyle-plugin.version>
 		<maven-javadoc-plugin.version>3.1.1</maven-javadoc-plugin.version>
-		<maven-pmd-plugin.version>3.13.0</maven-pmd-plugin.version>
 		<!-- tools -->
 		<maven-antrun-plugin.version>3.0.0</maven-antrun-plugin.version>
 		<maven-assembly-plugin.version>3.3.0</maven-assembly-plugin.version>
 		<maven-dependency-plugin.version>3.1.2</maven-dependency-plugin.version>
 		<maven-release-plugin.version>2.5.3</maven-release-plugin.version>
 		<maven-source-plugin.version>3.2.1</maven-source-plugin.version>
-		<spotbugs-maven-plugin.version>4.0.4</spotbugs-maven-plugin.version>
 		<jacoco-maven-plugin.version>0.8.5</jacoco-maven-plugin.version>
 		<coveralls-maven-plugin.version>4.3.0</coveralls-maven-plugin.version>
 		<jaxb-api.version>2.3.1</jaxb-api.version>
@@ -311,30 +308,6 @@
 						</archive>
 					</configuration>
 				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-war-plugin</artifactId>
-					<version>${maven-war-plugin.version}</version>
-					<configuration>
-						<archive>
-							<manifest>
-								<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-								<addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
-							</manifest>
-							<manifestEntries>
-								<Build-Number>${buildNumber}</Build-Number>
-								<Build-Time>${maven.build.timestamp}</Build-Time>
-								<Copyright>${copyright}</Copyright>
-								<Git-Revision>${git.commit.id}</Git-Revision>
-								<Os-Name>${os.name}</Os-Name>
-								<Os-Arch>${os.arch}</Os-Arch>
-								<Os-Version>${os.version}</Os-Version>
-								<X-Compile-Source-JDK>${maven.compiler.source}</X-Compile-Source-JDK>
-								<X-Compile-Target-JDK>${maven.compiler.target}</X-Compile-Target-JDK>
-							</manifestEntries>
-						</archive>
-					</configuration>
-				</plugin>
 				<!-- OSGi -->
 				<plugin>
 					<groupId>biz.aQute.bnd</groupId>
@@ -379,11 +352,6 @@
 						<detectLinks>true</detectLinks>
 						<detectJavaApiLink>false</detectJavaApiLink>
 					</configuration>
-				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-pmd-plugin</artifactId>
-					<version>${maven-pmd-plugin.version}</version>
 				</plugin>
 				<!-- Tools -->
 				<plugin>
@@ -454,16 +422,6 @@
 				</plugin>
 				<!-- External Tools -->
 				<plugin>
-					<groupId>com.github.spotbugs</groupId>
-					<artifactId>spotbugs-maven-plugin</artifactId>
-					<version>${spotbugs-maven-plugin.version}</version>
-					<configuration>
-						<effort>Max</effort>
-						<includeTests>true</includeTests>
-						<failOnError>false</failOnError>
-					</configuration>
-				</plugin>
-				<plugin>
 					<groupId>org.jacoco</groupId>
 					<artifactId>jacoco-maven-plugin</artifactId>
 					<version>${jacoco-maven-plugin.version}</version>
@@ -492,6 +450,7 @@
 							<exclude>mvnw.cmd</exclude>
 							<exclude>.gitattributes</exclude>
 							<exclude>**/*.PNG</exclude>
+							<exclude>*.yml</exclude>
 							<exclude>**/*.yml</exclude>
 							<exclude>LICENSE.txt</exclude>
 							<exclude>**/OSHIJavaFormatConventions.xml</exclude>
@@ -780,20 +739,12 @@
 				<artifactId>maven-checkstyle-plugin</artifactId>
 			</plugin>
 			<plugin>
-				<groupId>com.github.spotbugs</groupId>
-				<artifactId>spotbugs-maven-plugin</artifactId>
-			</plugin>
-			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jxr-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-pmd-plugin</artifactId>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -849,35 +800,7 @@
 							<failOnViolation>false</failOnViolation>
 						</configuration>
 					</plugin>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-pmd-plugin</artifactId>
-						<executions>
-							<execution>
-								<goals>
-									<goal>check</goal>
-									<goal>cpd-check</goal>
-								</goals>
-							</execution>
-						</executions>
-						<configuration>
-							<failOnViolation>false</failOnViolation>
-							<aggregate>true</aggregate>
-						</configuration>
-					</plugin>
 					<!-- External Tools -->
-					<plugin>
-						<groupId>com.github.spotbugs</groupId>
-						<artifactId>spotbugs-maven-plugin</artifactId>
-						<executions>
-							<execution>
-								<phase>verify</phase>
-								<goals>
-									<goal>check</goal>
-								</goals>
-							</execution>
-						</executions>
-					</plugin>
 					<plugin>
 						<groupId>org.jacoco</groupId>
 						<artifactId>jacoco-maven-plugin</artifactId>

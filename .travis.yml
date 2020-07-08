@@ -52,12 +52,9 @@ script:
     fi
 
 after_success:
-  - if [ "${TRAVIS_BRANCH}" = "master" ]; then
-      bash <(curl -s https://codecov.io/bash);
-      if [ "${TRAVIS_JOB_NAME}" = "Linux JDK11" ]; then
-        ./mvnw clean test jacoco:report coveralls:report;
-        ./mvnw clean org.jacoco:jacoco-maven-plugin:prepare-agent package sonar:sonar;
-      fi
+  - if [ "${TRAVIS_BRANCH}" = "master" ] && [ "${TRAVIS_JOB_NAME}" = "Linux JDK11" ]; then
+      ./mvnw clean test jacoco:report coveralls:report;
+      ./mvnw clean org.jacoco:jacoco-maven-plugin:prepare-agent package sonar:sonar;
     fi
 
 # 5 concurrent total builds and 2 concurrent builds on osx
