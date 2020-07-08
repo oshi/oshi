@@ -10,8 +10,7 @@ Is the API backwards compatible between versions?
 The interfaces and classes in `oshi.hardware` and `oshi.software.os` are considered the OSHI API and are guaranteed to be compatible with the same major version. Differences between major versions can be found in the [UPGRADING.md](UPGRADING.md) document.  
 
 Most, if not all, of the platform-specific implementations of these APIs in lower level packages will remain the same, although it is not intended that users access platform-specific code, and some changes may occur between minor versions, most often in the number of arguments passed to constructors or platform-specific methods. Supporting code in the `oshi.driver` and `oshi.util` packages may,
-rarely, change between minor versions, usually associated with organizing package structure or changing parsing methods for
-efficiency/consistency/ease of use.
+rarely, change between minor versions, usually associated with organizing package structure or changing parsing methods for efficiency/consistency/ease of use.
 
 Code in the platform-specific `oshi.jna.*` packages is intended to be temporary and will be removed when that respective code is included in the JNA project.
 
@@ -39,18 +38,19 @@ What minimum Java version is required?
 ========
 OSHI 3.x is compatible with Java 7, but will not see any added features.  
 
-OSHI 4.x and 5.x require minimum Java 8 compatibility.  
+OSHI 4.x and later require minimum Java 8 compatibility. This minimum level will be retained through at least 2026.
 
-Future version requirements have not yet been finalized. Other than incremental changes, any significant
-improvements will likely require at least Java 11 and leverage modules. 
+In the future, OSHI may include a new artifact targeting JDK 17 and leveraging JPMS, while maintaining feature parity with the JDK 8 version.  
 
 Which operating systems are supported?
 ========
 OSHI has been implemented and tested on the following systems.  Some features may work on earlier versions.
 * Windows 7 and higher.  (Nearly all features work on Vista and most work on Windows XP.)
-* macOS version 10.6 (Snow Leopard) and higher
+* macOS version 10.6 (Snow Leopard) and higher.
 * Linux (Most major distributions) Kernel 2.6 and higher
-* Unix: Solaris 11 (SunOS 5.11) / FreeBSD 10
+* Solaris 11 (SunOS 5.11) 
+* FreeBSD 10 
+* AIX 7.1 (POWER4)
 
 How do I resolve JNA `NoClassDefFound` errors?
 ========
@@ -68,18 +68,18 @@ continues, to overcome specific shortcomings in SIGAR for some use cases.  OSHI 
 with nearly all SIGAR functions. Key differences include:
  - **Additional DLL** SIGAR's implementation is primarily in native C, compiled separately for its supported
 operating systems. It therefore requires users to download an additional DLL specific to their operating
-system. This does have some advantages including faster native code routines, and availability of some
-native compiler intrinsics. In contrast, OSHI accesses native APIs using JNA, which does not require installation
-of any additional platform-specific DLLs.
- - **Platform Coverage** SIGAR (presently) supports a larger number of platforms, although some users have
-reported incompatibilities with recent architectures and Java versions. OSHI supports 99.5% of OS user share
-with support for Windows, Linux, macOS, FreeBSD, Solaris, and AIX (in progress).
- - **Corporate Development / Abandonment** SIGAR was developed commercially at Hyperic, later acquired by VMWare,
-who has abandoned the project. The [last release](https://github.com/hyperic/sigar/releases/tag/sigar-1.6.4)
+system. This does have a few advantages for specific, targeted use cases, including faster native code routines,
+and availability of some native compiler intrinsics. In contrast, OSHI accesses native APIs using JNA, which
+does not require installation of any additional platform-specific DLLs.
+ - **Corporate Development / Abandonment** SIGAR was developed commercially at Hyperic to support monitoring of
+their HQ product. Hyperic's products were later acquired by VMWare, which has transitioned away from Hyperic
+products and have completely abandoned SIGAR. The [last release](https://github.com/hyperic/sigar/releases/tag/sigar-1.6.4)
 was in 2010 and the [last source commit](https://github.com/hyperic/sigar/commit/7a6aefc7fb315fc92445edcb902a787a6f0ddbd9)
 was in 2015. [Multiple independent forks](https://github.com/hyperic/sigar/issues/95) by existing users attempt
 to fix specific bugs/incompatibilities but none has emerged as a maintained/released fork.  In contrast, OSHI's 
 development has been entirely done by open source volunteers, and it is under active development as of 2020.
+ - **Support** SIGAR is completely unsupported by its authors, and there is no organized community support.
+OSHI is supported actively to fix bugs, respond to questions, and implement new features.
 
 Does OSHI work on Raspberry Pi hardware?
 ========
@@ -87,17 +87,9 @@ Yes, most of the Linux code works here and other Pi-specific code has been imple
 limited testing.  As the developers do not have a Pi to test on, users reporting issues should be 
 prepared to help test solutions.
 
-Will you do an AIX or HP-UX port?
+Will you do a HP-UX port? OpenBSD? How about Android?
 ========
-An AIX port is in progress.  An HP-UX port may be considered in the future.
-
-Will you do a port for the other BSDs?  How about Android?
-========
-Unlikely without bribes such as a lifetime supply of coffee.  But happy to advise someone else who wants to do so!
-
-Will you do a Windows CE port?
-========
-No.
+OSHI depends on JNA, which does not produce a native binary for HP-UX.  Support for OpenBSD or Android is unlikely, unless paid to do so.  But happy to advise someone else!
 
 Will you implement ... ?
 ========
