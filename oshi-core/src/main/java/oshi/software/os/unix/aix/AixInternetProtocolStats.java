@@ -28,7 +28,7 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.function.Supplier;
 
-import com.sun.jna.Native;
+import com.sun.jna.Native; // NOSONAR squid:S1191
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.unix.aix.perfstat.PerfstatProtocol;

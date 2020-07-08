@@ -36,7 +36,7 @@ import oshi.util.ParseUtil;
 import oshi.util.Util;
 
 /**
- * Graphics Card info obtained from prtconf
+ * Graphics Card info obtained from lscfg
  */
 @Immutable
 final class AixGraphicsCard extends AbstractGraphicsCard {

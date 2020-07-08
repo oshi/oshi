@@ -54,7 +54,7 @@ public class AixUsbDevice extends AbstractUsbDevice {
      *            A memoized lscfg list
      * @return an unmodifiable list of {@link oshi.hardware.UsbDevice} objects.
      */
-    public static List<UsbDevice> getUsbDevices(boolean tree, Supplier<List<String>> lscfg) {
+    public static List<UsbDevice> getUsbDevices(boolean tree, Supplier<List<String>> lscfg) { // NOSONAR squid:S1172
         return Collections.unmodifiableList(getUsbDevices(lscfg.get()));
     }
 

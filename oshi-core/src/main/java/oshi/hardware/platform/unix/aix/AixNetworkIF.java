@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import com.sun.jna.Native;
+import com.sun.jna.Native; // NOSONAR squid:S1191
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.unix.aix.perfstat.PerfstatNetInterface;
@@ -41,7 +41,7 @@ import oshi.hardware.common.AbstractNetworkIF;
 import oshi.jna.platform.unix.aix.Perfstat.perfstat_netinterface_t;
 
 /**
- * SolarisNetworks class.
+ * AIXNetworks class.
  */
 @ThreadSafe
 public final class AixNetworkIF extends AbstractNetworkIF {

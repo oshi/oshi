@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import com.sun.jna.Native;
+import com.sun.jna.Native; // NOSONAR squid:S1191
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.unix.aix.Lssrad;

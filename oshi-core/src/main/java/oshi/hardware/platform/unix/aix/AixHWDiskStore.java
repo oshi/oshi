@@ -45,7 +45,7 @@ import oshi.util.Constants;
 import oshi.util.tuples.Pair;
 
 /**
- * AiX hard disk implementation.
+ * AIX hard disk implementation.
  */
 @ThreadSafe
 public final class AixHWDiskStore extends AbstractHWDiskStore {

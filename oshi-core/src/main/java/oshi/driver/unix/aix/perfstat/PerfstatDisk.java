@@ -29,7 +29,7 @@ import oshi.jna.platform.unix.aix.Perfstat.perfstat_disk_t;
 import oshi.jna.platform.unix.aix.Perfstat.perfstat_id_t;
 
 /**
- * Utility to query performance stats for bio_stats
+ * Utility to query performance stats for disk_stats
  */
 @ThreadSafe
 public final class PerfstatDisk {
@@ -45,13 +45,13 @@ public final class PerfstatDisk {
      * @return an array of usage statistics
      */
     public static perfstat_disk_t[] queryDiskStats() {
-        perfstat_disk_t disk_stats = new perfstat_disk_t();
+        perfstat_disk_t diskStats = new perfstat_disk_t();
         // With null, null, ..., 0, returns total # of elements
-        int total = PERF.perfstat_disk(null, null, disk_stats.size(), 0);
+        int total = PERF.perfstat_disk(null, null, diskStats.size(), 0);
         if (total > 0) {
-            perfstat_disk_t[] statp = (perfstat_disk_t[]) disk_stats.toArray(total);
-            perfstat_id_t firstdisk_stats = new perfstat_id_t(); // name is ""
-            int ret = PERF.perfstat_disk(firstdisk_stats, statp, disk_stats.size(), total);
+            perfstat_disk_t[] statp = (perfstat_disk_t[]) diskStats.toArray(total);
+            perfstat_id_t firstdiskStats = new perfstat_id_t(); // name is ""
+            int ret = PERF.perfstat_disk(firstdiskStats, statp, diskStats.size(), total);
             if (ret > 0) {
                 return statp;
             }

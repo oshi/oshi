@@ -37,7 +37,7 @@ import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import com.sun.jna.Native;
+import com.sun.jna.Native; // NOSONAR squid:S1191
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.unix.aix.Who;
@@ -188,9 +188,8 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public int getThreadCount() {
-        perfstat_process_t[] procs = procCpu.get();
         long tc = 0L;
-        for (perfstat_process_t proc : procs) {
+        for (perfstat_process_t proc : procCpu.get()) {
             tc += proc.num_threads;
         }
         return (int) tc;
