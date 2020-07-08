@@ -58,7 +58,7 @@ final class LinuxFirmware extends AbstractFirmware {
 
     private final Supplier<String> name = memoize(this::queryName);
 
-    private final Supplier<VcGenCmdStrings> vcGenCmd = memoize(this::queryVcGenCmd);
+    private final Supplier<VcGenCmdStrings> vcGenCmd = memoize(LinuxFirmware::queryVcGenCmd);
 
     private final Supplier<BiosStrings> bios = memoize(this::queryBios);
 
@@ -229,7 +229,7 @@ final class LinuxFirmware extends AbstractFirmware {
         return new BiosStrings(biosName, revision);
     }
 
-    private VcGenCmdStrings queryVcGenCmd() {
+    private static VcGenCmdStrings queryVcGenCmd() {
         String vcReleaseDate = null;
         String vcManufacturer = null;
         String vcVersion = null;

@@ -47,12 +47,12 @@ import com.sun.jna.platform.win32.WinNT.GROUP_AFFINITY;
 import com.sun.jna.platform.win32.WinNT.LOGICAL_PROCESSOR_RELATIONSHIP;
 import com.sun.jna.platform.win32.WinNT.NUMA_NODE_RELATIONSHIP;
 import com.sun.jna.platform.win32.WinNT.PROCESSOR_RELATIONSHIP;
-import com.sun.jna.platform.win32.WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION;
 import com.sun.jna.platform.win32.WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX;
 import com.sun.jna.platform.win32.WinReg;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.windows.LogicalProcessorInformation;
 import oshi.driver.windows.perfmon.ProcessorInformation;
 import oshi.driver.windows.perfmon.ProcessorInformation.InterruptsProperty;
 import oshi.driver.windows.perfmon.ProcessorInformation.ProcessorFrequencyProperty;
@@ -157,7 +157,7 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
         if (VersionHelpers.IsWindows7OrGreater()) {
             return getLogicalProcessorInformationEx();
         } else {
-            return getLogicalProcessorInformation();
+            return LogicalProcessorInformation.getLogicalProcessorInformation().toArray(new LogicalProcessor[0]);
         }
     }
 
@@ -248,61 +248,6 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
         for (int j = 0; j < cores.size(); j++) {
             if ((cores.get(j).mask.longValue() & (1L << lp)) > 0 && cores.get(j).group == g) {
                 return j;
-            }
-        }
-        return 0;
-    }
-
-    private LogicalProcessor[] getLogicalProcessorInformation() {
-        // Collect a list of logical processors on each physical core and
-        // package. These will be 64-bit bitmasks.
-        List<Long> packageMaskList = new ArrayList<>();
-        List<Long> coreMaskList = new ArrayList<>();
-        WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION[] processors = Kernel32Util.getLogicalProcessorInformation();
-        for (SYSTEM_LOGICAL_PROCESSOR_INFORMATION proc : processors) {
-            if (proc.relationship == WinNT.LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorPackage) {
-                packageMaskList.add(proc.processorMask.longValue());
-            } else if (proc.relationship == WinNT.LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorCore) {
-                coreMaskList.add(proc.processorMask.longValue());
-            }
-        }
-        // Sort the list (natural ordering) so core and package numbers
-        // increment as expected.
-        coreMaskList.sort(null);
-        packageMaskList.sort(null);
-
-        // Assign logical processors to cores and packages
-        List<LogicalProcessor> logProcs = new ArrayList<>();
-        for (int core = 0; core < coreMaskList.size(); core++) {
-            long coreMask = coreMaskList.get(core);
-            // Lowest and Highest set bits, indexing from 0
-            int lowBit = Long.numberOfTrailingZeros(coreMask);
-            int hiBit = 63 - Long.numberOfLeadingZeros(coreMask);
-            // Create logical processors for this core
-            for (int i = lowBit; i <= hiBit; i++) {
-                if ((coreMask & (1L << i)) > 0) {
-                    LogicalProcessor logProc = new LogicalProcessor(i, core,
-                            getBitMatchingPackageNumber(packageMaskList, i));
-                    logProcs.add(logProc);
-                }
-            }
-        }
-        return logProcs.toArray(new LogicalProcessor[0]);
-    }
-
-    /**
-     * Iterate over the package mask list and find a matching mask index
-     *
-     * @param packageMaskList
-     *            The list of bitmasks to iterate
-     * @param logProc
-     *            The bit to find matching mask
-     * @return The index of the list which matched the bit
-     */
-    private int getBitMatchingPackageNumber(List<Long> packageMaskList, int logProc) {
-        for (int i = 0; i < packageMaskList.size(); i++) {
-            if ((packageMaskList.get(i).longValue() & (1L << logProc)) > 0) {
-                return i;
             }
         }
         return 0;
