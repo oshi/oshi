@@ -79,9 +79,9 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
     public FamilyVersionInfo queryFamilyVersionInfo() {
         perfstat_partition_config_t cfg = config.get();
 
-        String systemName = Native.toString(cfg.OSName);
-        String archName = Native.toString(cfg.processorFamily);
-        String versionNumber = Native.toString(cfg.OSVersion);
+        String systemName = System.getProperty("os.name");
+        String archName = System.getProperty("os.arch");
+        String versionNumber = System.getProperty("os.version");
         if (Util.isBlank(versionNumber)) {
             versionNumber = ExecutingCommand.getFirstAnswer("oslevel");
         }
