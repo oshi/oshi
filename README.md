@@ -1,7 +1,7 @@
 ![OSHI](https://dl.dropboxusercontent.com/s/c82qboyvvudpvdp/oshilogo.png)
 
-[![Maven central](https://maven-badges.herokuapp.com/maven-central/com.github.oshi/oshi-core/badge.svg?)](https://search.maven.org/search?q=com.github.oshi)
 [![MIT License](http://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![Maven central](https://maven-badges.herokuapp.com/maven-central/com.github.oshi/oshi-core/badge.svg?)](https://search.maven.org/search?q=com.github.oshi)
 [![Tidelift](https://tidelift.com/badges/package/maven/com.github.oshi:oshi-core)](https://tidelift.com/subscription/pkg/maven-com-github-oshi-oshi-core?utm_source=maven-com-github-oshi-oshi-core&utm_medium=referral&utm_campaign=readme)
 [![Travis Build Status](https://travis-ci.org/oshi/oshi.svg)](https://travis-ci.org/oshi/oshi)
 [![Appveyor Build status](https://ci.appveyor.com/api/projects/status/v489i8xoyfspxx7s?svg=true)](https://ci.appveyor.com/project/dbwiddis/oshi)
@@ -18,15 +18,16 @@
 [![Openhub Stats](https://www.openhub.net/p/oshi/widgets/project_thin_badge.gif)](https://www.openhub.net/p/oshi?ref=github)
 [![first-timers-only](https://img.shields.io/badge/first--timers--only-friendly-blue.svg?style=flat-square)](https://www.firsttimersonly.com/)
 
-OSHI is a free [JNA](https://github.com/java-native-access/jna)-based (native) 
-Operating System and Hardware Information library for Java.
+OSHI is a free JNA-based (native) Operating System and Hardware Information library for Java.
 It does not require the installation of any additional native libraries and aims to provide a 
 cross-platform implementation to retrieve system information, such as OS version, processes, 
-memory & CPU usage, disks & partitions, devices, sensors, etc.
+memory and CPU usage, disks and partitions, devices, sensors, etc.
 
 Supported platforms 
 --------------------------- 
 Windows • Linux • macOS • Unix (Solaris, FreeBSD, AIX) 
+
+*Note: macOS 11 (Big Sur) will require JNA 5.6.0*
 
 Essentials
 ----------
@@ -40,17 +41,16 @@ Supported features
 * Computer System and firmware, baseboard 
 * Operating System and Version/Build
 * Physical (core) and Logical (hyperthreaded) CPUs, processor groups, NUMA nodes
-* System and per-processor load % and tick counters
-* CPU uptime, processes, and threads
-* Process uptime, CPU, memory usage, user/group, command line
+* System and per-processor load, usage tick counters, interrupts, uptime
+* Process uptime, CPU, memory usage, user/group, command line args, thread details
 * Physical and virtual memory used/available
-* Mounted filesystems (type, usable and total space)
-* Disk drives (model, serial, size) and partitions
-* Network interfaces (IPs, bandwidth in/out)
+* Mounted filesystems (type, usable and total space, options, reads and writes)
+* Disk drives (model, serial, size, reads and writes) and partitions
+* Network interfaces (IPs, bandwidth in/out), network parameters, TCP/UDP statistics
 * Battery state (% capacity, time remaining, power usage stats)
-* Connected displays (with EDID info)
 * USB Devices
-* Sensors (temperature, fan speeds, voltage)
+* Connected displays (with EDID info), graphics and audio cards
+* Sensors (temperature, fan speeds, voltage) on some hardware
 
 Downloads
 ---------
@@ -60,9 +60,12 @@ Downloads
 
 Usage
 -----
-Include OSHI and its dependencies on your classpath.  We strongly recommend you add OSHI as a dependency to your project dependency manager such as Maven or Gradle. You can [find the appropriate syntax to include OSHI here](https://search.maven.org/artifact/com.github.oshi/oshi-core/5.2.0/jar). 
+1. Include OSHI and its dependencies on your classpath.  We strongly recommend you add OSHI as a dependency to your project dependency manager such as Maven or Gradle. You can [find the appropriate syntax to include OSHI here](https://search.maven.org/artifact/com.github.oshi/oshi-core/5.2.0/jar). 
 
-Create a new instance of `SystemInfo` and use the getters to access additional information, such as:
+2. Create a new instance of `SystemInfo` 
+
+3. Use the getters from `SystemInfo` to access hardware or operating system components, such as:
+
 ```
 SystemInfo si = new SystemInfo();
 HardwareAbstractionLayer hal = si.getHardware();
@@ -80,7 +83,7 @@ git clone https://github.com/oshi/oshi.git && cd oshi
   -Dexec.classpathScope="test"
 ```
 
-Note: OSHI uses the latest version of JNA, which may conflict with other dependencies your project (or its parent) includes. If you experience issues with `NoClassDefFound` errors for JNA artifacts, consider one or more of the following steps to resolve the conflict:
+Note: OSHI uses the latest version of [JNA](https://github.com/java-native-access/jna), which may conflict with other dependencies your project (or its parent) includes. If you experience issues with `NoClassDefFound` errors for JNA artifacts, consider one or more of the following steps to resolve the conflict:
  - Listing OSHI earlier (or first) in your dependency list 
  - Specifying the most recent version of JNA (both `jna` and `jna-platform` artifacts) as a dependency
  - If you are using a parent (e.g., Spring Boot) that includes JNA as a dependency, override the `jna.version` property or equivalent
@@ -202,11 +205,9 @@ Where are we? How can I help?
 as a platform-independent library that did not require additional software and had a license compatible with 
 both open source and commercial products. We have developed a strong core of features on major Operating Systems, 
 but we would love for *you* to help by:
-* Testing!  Our CI testing is limited.  Download and test the program on various operating systems/versions and hardware and help identify gaps that our limited development and testing may have missed.
-* Offering access to an unsupported OS. 
-* Contributing code.  See something that's not working right or could work better?  Help us fix it!  New contributors welcome.
-* Contributing ports.  Have an OS that's not covered? It's likely one of the existing ports can be slightly modified. 
-* Documenting implementation.  Our Wiki is sparse.  Want to help new users follow in your footsteps?
+* Testing!  Our CI testing is limited to a few platforms.  Download and test the program on various operating systems/versions and hardware and help identify gaps that our limited development and testing may have missed. 
+* Contributing code.  See something that's not working right or could work better?  Help us fix it!  New contributors are welcome.
+* Documenting implementation.  Our Wiki is sparse and the `oshi-demo` artifact is a place to host proof-of-concept ideas.  Want to help new users follow in your footsteps?
 * Suggesting new features.  Do you need OSHI to do something it doesn't currently do?  Let us know.
 
 Acknowledgements
