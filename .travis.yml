@@ -72,7 +72,7 @@ jobs:
     - name: "Mac JDK14"
       if: branch = master
       os: osx
-      osx_image: xcode11.4
+      osx_image: xcode12
     - name: "Windows JDK 8"
       if: branch = master
       os: windows
