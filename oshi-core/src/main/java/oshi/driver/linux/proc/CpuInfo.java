@@ -28,8 +28,10 @@ import static oshi.util.platform.linux.ProcPath.CPUINFO;
 import java.util.List;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.util.Constants;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
+import oshi.util.tuples.Quartet;
 
 /**
  * Utility to read CPU info from {@code /proc/cpuinfo}
@@ -41,11 +43,11 @@ public final class CpuInfo {
     }
 
     /**
-     * Gets the manufacturer from {@code /proc/cpuinfo}
+     * Gets the CPU manufacturer from {@code /proc/cpuinfo}
      *
      * @return The manufacturer if known, null otherwise
      */
-    public static String queryManufacturer() {
+    public static String queryCpuManufacturer() {
         List<String> cpuInfo = FileUtil.readFile(CPUINFO);
         for (String line : cpuInfo) {
             if (line.startsWith("CPU implementer")) {
@@ -79,5 +81,63 @@ public final class CpuInfo {
             }
         }
         return null;
+    }
+
+    /**
+     * Gets the board manufacturer, model, version, and serial number from
+     * {@code /proc/cpuinfo}
+     *
+     * @return A quartet of strings for manufacturer, model, version, and serial
+     *         number. Each one may be null if unknown.
+     */
+    public static Quartet<String, String, String, String> queryBoardInfo() {
+        String pcManufacturer = null;
+        String pcModel = null;
+        String pcVersion = null;
+        String pcSerialNumber = null;
+
+        List<String> cpuInfo = FileUtil.readFile(CPUINFO);
+        for (String line : cpuInfo) {
+            String[] splitLine = ParseUtil.whitespacesColonWhitespace.split(line);
+            if (splitLine.length < 2) {
+                continue;
+            }
+            switch (splitLine[0]) {
+            case "Hardware":
+                pcModel = splitLine[1];
+                break;
+            case "Revision":
+                pcVersion = splitLine[1];
+                if (pcVersion.length() > 1) {
+                    pcManufacturer = queryBoardManufacturer(pcVersion.charAt(1));
+                }
+                break;
+            case "Serial":
+                pcSerialNumber = splitLine[1];
+                break;
+            default:
+                // Do nothing
+            }
+        }
+        return new Quartet<>(pcManufacturer, pcModel, pcVersion, pcSerialNumber);
+    }
+
+    private static String queryBoardManufacturer(char digit) {
+        switch (digit) {
+        case '0':
+            return "Sony UK";
+        case '1':
+            return "Egoman";
+        case '2':
+            return "Embest";
+        case '3':
+            return "Sony Japan";
+        case '4':
+            return "Embest";
+        case '5':
+            return "Stadium";
+        default:
+            return Constants.UNKNOWN;
+        }
     }
 }
