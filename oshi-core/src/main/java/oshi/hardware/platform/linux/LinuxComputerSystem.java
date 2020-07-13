@@ -78,7 +78,7 @@ final class LinuxComputerSystem extends AbstractComputerSystem {
 
     private static String queryManufacturer() {
         String result = null;
-        if ((result = Sysfs.queryVendor()) == null && (result = CpuInfo.queryManufacturer()) == null) {
+        if ((result = Sysfs.querySystemVendor()) == null && (result = CpuInfo.queryCpuManufacturer()) == null) {
             return Constants.UNKNOWN;
         }
         return result;
@@ -86,7 +86,7 @@ final class LinuxComputerSystem extends AbstractComputerSystem {
 
     private static String queryModel() {
         String result = null;
-        if ((result = Sysfs.queryModel()) == null && (result = Devicetree.queryModel()) == null
+        if ((result = Sysfs.queryProductModel()) == null && (result = Devicetree.queryModel()) == null
                 && (result = Lshw.queryModel()) == null) {
             return Constants.UNKNOWN;
         }
@@ -95,7 +95,7 @@ final class LinuxComputerSystem extends AbstractComputerSystem {
 
     private static String querySerialNumber() {
         String result = null;
-        if ((result = Sysfs.querySerialNumber()) == null && (result = Dmidecode.querySerialNumber()) == null
+        if ((result = Sysfs.queryProductSerial()) == null && (result = Dmidecode.querySerialNumber()) == null
                 && (result = Lshal.querySerialNumber()) == null && (result = Lshw.querySerialNumber()) == null) {
             return Constants.UNKNOWN;
         }
