@@ -46,7 +46,7 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractCentralProcessor.class);
 
     private final Supplier<ProcessorIdentifier> cpuid = memoize(this::queryProcessorId);
-    private final Supplier<Long> maxFreq = memoize(this::queryMaxFreq);
+    private final Supplier<Long> maxFreq = memoize(this::queryMaxFreq, defaultExpiration());
     private final Supplier<long[]> currentFreq = memoize(this::queryCurrentFreq, defaultExpiration());
     private final Supplier<Long> contextSwitches = memoize(this::queryContextSwitches, defaultExpiration());
     private final Supplier<Long> interrupts = memoize(this::queryInterrupts, defaultExpiration());

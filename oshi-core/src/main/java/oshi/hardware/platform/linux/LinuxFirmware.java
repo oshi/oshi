@@ -106,8 +106,7 @@ final class LinuxFirmware extends AbstractFirmware {
 
     private String queryVersion() {
         String result = null;
-        if ((result = Sysfs.queryBiosVersion(
-                this.biosNameRev.get().getB())) == null
+        if ((result = Sysfs.queryBiosVersion(this.biosNameRev.get().getB())) == null
                 && (result = vcGenCmd.get().version) == null) {
             return Constants.UNKNOWN;
         }
