@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.linux.Lshw;
 import oshi.driver.linux.proc.CpuStat;
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.jna.platform.linux.LinuxLibc;
@@ -237,7 +238,11 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
         }
         if (max > 0L) {
             // If successful, value is in KHz.
-            return max * 1000L;
+            max *= 1000L;
+            // Cpufreq result assumes intel pstates and is unreliable for AMD processors.
+            // Check lshw as a backup
+            long lshwMax = Lshw.queryCpuCapacity();
+            return lshwMax > max ? lshwMax : max;
         }
         return -1L;
     }

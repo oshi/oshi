@@ -3,6 +3,7 @@
 * [#1282](https://github.com/oshi/oshi/pull/1282): (5.x) AIX Port - [@tausiflife](https://github.com/tausiflife), [@dbwiddis](https://github.com/dbwiddis).
 * [#1285](https://github.com/oshi/oshi/pull/1285): Fallback to read properties file from classloader of the class - [@ngyukman](https://github.com/ngyukman).
 * [#1290](https://github.com/oshi/oshi/pull/1290): Demo class matching filestore to partition - [@dbwiddis](https://github.com/dbwiddis).
+* [#1298](https://github.com/oshi/oshi/pull/1298): Use lshw as backup for max CPU frequency - [@dbwiddis](https://github.com/dbwiddis), [@Szwendacz99](https://github.com/Szwendacz99)
 * Your contribution here
 
 4.9.0 / 5.2.0 (2020-06-25)

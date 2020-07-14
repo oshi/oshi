@@ -25,6 +25,7 @@ package oshi.driver.linux;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.util.ExecutingCommand;
+import oshi.util.ParseUtil;
 
 /**
  * Utility to read info from {@code lshw}
@@ -63,5 +64,20 @@ public final class Lshw {
             }
         }
         return null;
+    }
+
+    /**
+     * Query the CPU capacity (max frequency) from lshw
+     *
+     * @return The CPU capacity (max frequency) if available, -1 otherwise
+     */
+    public static long queryCpuCapacity() {
+        String capacityMarker = "capacity:";
+        for (String checkLine : ExecutingCommand.runNative("lshw -class processor")) {
+            if (checkLine.contains(capacityMarker)) {
+                return ParseUtil.parseHertz(checkLine.split(capacityMarker)[1].trim());
+            }
+        }
+        return -1L;
     }
 }
