@@ -28,7 +28,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import org.jetbrains.kotlin.js.config.JsConfig;
 import org.junit.Test;
 
 import oshi.SystemInfo;
@@ -36,8 +35,7 @@ import oshi.hardware.CentralProcessor.ProcessorIdentifier;
 import oshi.hardware.CentralProcessor.TickType;
 import oshi.util.Util;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 
 /**
  * Test CPU
