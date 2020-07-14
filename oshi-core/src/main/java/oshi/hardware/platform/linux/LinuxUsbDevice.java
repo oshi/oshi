@@ -29,14 +29,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.sun.jna.platform.linux.Udev; //NOSONAR squid:S1191
+import com.sun.jna.platform.linux.Udev.UdevDevice;
+import com.sun.jna.platform.linux.Udev.UdevEnumerate;
+import com.sun.jna.platform.linux.Udev.UdevListEntry;
+
 import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractUsbDevice;
 import oshi.hardware.platform.mac.MacUsbDevice;
-import oshi.jna.platform.linux.Udev;
-import oshi.jna.platform.linux.Udev.UdevDevice;
-import oshi.jna.platform.linux.Udev.UdevEnumerate;
-import oshi.jna.platform.linux.Udev.UdevListEntry;
 
 /**
  * Linux Usb Device

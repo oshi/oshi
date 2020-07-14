@@ -54,6 +54,7 @@ import com.sun.jna.platform.win32.Advapi32Util.Account;
 import com.sun.jna.platform.win32.Advapi32Util.EventLogIterator;
 import com.sun.jna.platform.win32.Advapi32Util.EventLogRecord;
 import com.sun.jna.platform.win32.BaseTSD.ULONG_PTRByReference;
+import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.Kernel32Util;
 import com.sun.jna.platform.win32.Psapi;
 import com.sun.jna.platform.win32.Psapi.PERFORMANCE_INFORMATION;
@@ -90,7 +91,6 @@ import oshi.driver.windows.wmi.Win32Process.CommandLineProperty;
 import oshi.driver.windows.wmi.Win32Process.ProcessXPProperty;
 import oshi.driver.windows.wmi.Win32Processor;
 import oshi.driver.windows.wmi.Win32Processor.BitnessProperty;
-import oshi.jna.platform.windows.Kernel32;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
 import oshi.software.os.InternetProtocolStats;
@@ -442,7 +442,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                         proc.setUserID(account.sidString);
                         // Fetching group information incurs ~10ms per process.
                         if (slowFields) {
-                            Account a = oshi.jna.platform.windows.Advapi32Util.getTokenPrimaryGroup(phToken.getValue());
+                            Account a = Advapi32Util.getTokenPrimaryGroup(phToken.getValue());
                             proc.setGroup(a.name);
                             proc.setGroupID(a.sidString);
                         }
