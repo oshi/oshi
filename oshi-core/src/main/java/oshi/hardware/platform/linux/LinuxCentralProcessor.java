@@ -227,7 +227,7 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
     @Override
     public long queryMaxFreq() {
         String cpuFreqPath = GlobalConfig.get(CPUFREQ_PATH, "");
-        long max = 0L;
+        long max = Arrays.stream(this.getCurrentFreq()).max().orElse(-1L);
         // Iterating CPUs only gets the existing policy, so we need to iterate the
         // policy directories to find the system-wide policy max
         File cpufreqdir = new File(cpuFreqPath + "/cpufreq");

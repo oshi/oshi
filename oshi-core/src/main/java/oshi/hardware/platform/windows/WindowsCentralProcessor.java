@@ -222,7 +222,7 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
     @Override
     public long queryMaxFreq() {
         long[] freqs = queryNTPower(1); // Max is field index 1
-        return Arrays.stream(freqs).max().getAsLong();
+        return Arrays.stream(freqs).max().orElse(-1L);
     }
 
     /**
