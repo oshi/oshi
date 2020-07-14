@@ -141,11 +141,9 @@ public class CentralProcessorTest {
                 break;
             case FREEBSD:
             case AIX:
-                assertEquals("Processor group should be 0 for FreeBSD or AIX systems",
-                        0,
+                assertEquals("Processor group should be 0 for FreeBSD or AIX systems", 0,
                         p.getLogicalProcessors().get(lp).getProcessorGroup());
-                assertEquals("NUMA Node should be 0 for FreeBSD or AIX systems",
-                        0,
+                assertEquals("NUMA Node should be 0 for FreeBSD or AIX systems", 0,
                         p.getLogicalProcessors().get(lp).getNumaNode());
                 break;
             default:
