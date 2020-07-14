@@ -27,12 +27,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.platform.win32.IPHlpAPI; // NOSONAR squid:S1191
+import com.sun.jna.platform.win32.VersionHelpers;
 import com.sun.jna.platform.win32.IPHlpAPI.MIB_IFROW;
 import com.sun.jna.platform.win32.IPHlpAPI.MIB_IF_ROW2;
 
 import oshi.hardware.NetworkIF;
 import oshi.hardware.common.AbstractNetworks;
-import oshi.jna.platform.windows.VersionHelpers;
 import oshi.util.ParseUtil;
 
 /**
