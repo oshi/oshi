@@ -47,6 +47,7 @@ import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Native; // NOSONAR squid:S1191
 import com.sun.jna.platform.win32.Advapi32;
+import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.Advapi32Util.EventLogIterator;
 import com.sun.jna.platform.win32.Advapi32Util.EventLogRecord;
 import com.sun.jna.platform.win32.Psapi;
@@ -76,7 +77,6 @@ import oshi.driver.windows.wmi.Win32OperatingSystem;
 import oshi.driver.windows.wmi.Win32OperatingSystem.OSVersionProperty;
 import oshi.driver.windows.wmi.Win32Processor;
 import oshi.driver.windows.wmi.Win32Processor.BitnessProperty;
-import oshi.jna.platform.windows.Kernel32;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
 import oshi.software.os.InternetProtocolStats;

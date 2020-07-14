@@ -42,8 +42,6 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB, CLibrary {
     int UTX_IDSIZE = 4;
     int UTX_HOSTSIZE = 256;
 
-    int THREAD_BASIC_INFO = 3;
-
     @FieldOrder({ "ut_user", "ut_id", "ut_line", "ut_pid", "ut_type", "ut_tv", "ut_host", "ut_pad" })
     class MacUtmpx extends Structure {
         public byte[] ut_user = new byte[UTX_USERSIZE]; // login name

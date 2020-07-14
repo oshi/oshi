@@ -23,10 +23,11 @@
  */
 package oshi.software.os.windows;
 
+import com.sun.jna.platform.win32.IPHlpAPI; // NOSONAR squid:S1191
+import com.sun.jna.platform.win32.IPHlpAPI.MIB_TCPSTATS;
+import com.sun.jna.platform.win32.IPHlpAPI.MIB_UDPSTATS;
+
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.jna.platform.windows.IPHlpAPI;
-import oshi.jna.platform.windows.IPHlpAPI.MIB_TCPSTATS;
-import oshi.jna.platform.windows.IPHlpAPI.MIB_UDPSTATS;
 import oshi.software.os.InternetProtocolStats;
 
 @ThreadSafe

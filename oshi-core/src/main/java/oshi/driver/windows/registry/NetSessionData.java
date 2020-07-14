@@ -27,12 +27,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.sun.jna.Pointer; // NOSONAR squid:S1191
+import com.sun.jna.platform.win32.Netapi32;
+import com.sun.jna.platform.win32.Netapi32.SESSION_INFO_10;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.jna.platform.windows.Netapi32;
-import oshi.jna.platform.windows.Netapi32.SESSION_INFO_10;
 import oshi.software.os.OSSession;
 
 /**

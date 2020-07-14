@@ -31,15 +31,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.sun.jna.platform.linux.Udev; // NOSONAR squid:S1191
+import com.sun.jna.platform.linux.Udev.UdevContext;
+import com.sun.jna.platform.linux.Udev.UdevDevice;
+import com.sun.jna.platform.linux.Udev.UdevEnumerate;
+import com.sun.jna.platform.linux.Udev.UdevListEntry;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
 import oshi.hardware.common.AbstractHWDiskStore;
-import oshi.jna.platform.linux.Udev;
-import oshi.jna.platform.linux.Udev.UdevContext;
-import oshi.jna.platform.linux.Udev.UdevDevice;
-import oshi.jna.platform.linux.Udev.UdevEnumerate;
-import oshi.jna.platform.linux.Udev.UdevListEntry;
 import oshi.util.Constants;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
