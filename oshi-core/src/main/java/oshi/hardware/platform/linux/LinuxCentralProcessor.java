@@ -243,14 +243,16 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
     }
 
     @Override
-    protected Boolean queryBoostEnabled() {
+    protected boolean queryBoostEnabled() {
         // file should be there if cpu supports boost and if boost enabled then value should be 1
         List<String> boost = FileUtil.readFile("/sys/devices/system/cpu/cpufreq/boost");
-        if(boost.isEmpty())
-            return Boolean.FALSE;
-        if(boost.get(0).equals("1"))
-            return Boolean.TRUE;
-        return Boolean.FALSE;
+        if (boost.isEmpty()) {
+            return false;
+        }
+        if (boost.get(0).equals("1")) {
+            return true;
+        }
+        return false;
     }
 
     @Override

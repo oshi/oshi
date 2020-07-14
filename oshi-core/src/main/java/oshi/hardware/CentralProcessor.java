@@ -81,12 +81,14 @@ public interface CentralProcessor {
     long[] getCurrentFreq();
 
     /**
+     * checks if cpu have boost mode enabled
+     * if cpu don't support or it is not enabled then returns false,
+     * otherwise returns true
      *
-     *
-     *
-     *
+     *@return state of boost mode
      */
-    Boolean boostEnabled();
+    boolean boostEnabled();
+
     /**
      * Returns an {@code UnmodifiableList} of the CPU's logical processors. The list
      * will be sorted in order of increasing NUMA node number, and then processor

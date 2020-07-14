@@ -245,9 +245,9 @@ final class FreeBsdCentralProcessor extends AbstractCentralProcessor {
     }
 
     @Override
-    protected Boolean queryBoostEnabled() {
+    protected boolean queryBoostEnabled() {
         // TODO
-        return null;
+        return false;
     }
 
     @Override

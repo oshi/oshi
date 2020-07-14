@@ -107,7 +107,8 @@ public class CentralProcessorTest {
         assertEquals(
                 "Central Processor's logical processor frequency array length should be the same as its logical processor count",
                 curr.length, p.getLogicalProcessorCount());
-        if (max >= 0) {
+        boolean boost = p.boostEnabled();
+        if (max >= 0 && !boost) {
             for (int i = 0; i < curr.length; i++) {
                 assertTrue("Central Processor's logical processor frequency should be at most it's max frequency, max frequency:"+
                                 max+", logical core frequency:"+curr[i],
