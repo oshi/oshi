@@ -81,6 +81,13 @@ public interface CentralProcessor {
     long[] getCurrentFreq();
 
     /**
+     *
+     *
+     *
+     *
+     */
+    Boolean boostEnabled();
+    /**
      * Returns an {@code UnmodifiableList} of the CPU's logical processors. The list
      * will be sorted in order of increasing NUMA node number, and then processor
      * number. This order is consistent with other methods providing per-processor

@@ -115,6 +115,12 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
     }
 
     @Override
+    protected Boolean queryBoostEnabled() {
+        // TODO
+        return null;
+    }
+
+    @Override
     public double[] getSystemLoadAverage(int nelem) {
         if (nelem < 1 || nelem > 3) {
             throw new IllegalArgumentException("Must include from one to three elements.");

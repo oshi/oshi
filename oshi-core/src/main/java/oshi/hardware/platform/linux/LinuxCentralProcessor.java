@@ -243,6 +243,17 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
     }
 
     @Override
+    protected Boolean queryBoostEnabled() {
+        // file should be there if cpu supports boost and if boost enabled then value should be 1
+        List<String> boost = FileUtil.readFile("/sys/devices/system/cpu/cpufreq/boost");
+        if(boost.isEmpty())
+            return Boolean.FALSE;
+        if(boost.get(0).equals("1"))
+            return Boolean.TRUE;
+        return Boolean.FALSE;
+    }
+
+    @Override
     public double[] getSystemLoadAverage(int nelem) {
         if (nelem < 1 || nelem > 3) {
             throw new IllegalArgumentException("Must include from one to three elements.");

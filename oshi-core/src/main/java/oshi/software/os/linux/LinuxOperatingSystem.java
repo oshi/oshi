@@ -574,6 +574,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
                 }
             }
         }
+
         if (!systemctlFound) {
             // Get Directories for stopped services
             File dir = new File("/etc/init");

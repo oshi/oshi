@@ -49,6 +49,7 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
 
     private final Supplier<ProcessorIdentifier> cpuid = memoize(this::queryProcessorId);
     private final Supplier<Long> maxFreq = memoize(this::queryMaxFreq);
+    private final Supplier<Boolean> boost = memoize(this::queryBoostEnabled);
     private final Supplier<long[]> currentFreq = memoize(this::queryCurrentFreq, defaultExpiration());
     private final Supplier<Long> contextSwitches = memoize(this::queryContextSwitches, defaultExpiration());
     private final Supplier<Long> interrupts = memoize(this::queryInterrupts, defaultExpiration());
@@ -114,6 +115,17 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
      * @return The max frequency.
      */
     protected abstract long queryMaxFreq();
+
+    public Boolean boostEnabled() {
+        return boost.get();
+    }
+
+    /**
+     * Check if processor have boost mode enabled.
+     *
+     * @return cpu boost state.
+     */
+    protected abstract Boolean queryBoostEnabled();
 
     @Override
     public long[] getCurrentFreq() {

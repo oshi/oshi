@@ -236,6 +236,10 @@ public class SystemInfoTest {
         if (freq > 0) {
             oshi.add("Max Frequency: " + FormatUtil.formatHertz(freq));
         }
+
+        boolean isBoostEnabled = processor.boostEnabled().booleanValue();
+        oshi.add("Is boost enabled:"+isBoostEnabled);
+
         long[] freqs = processor.getCurrentFreq();
         if (freqs[0] > 0) {
             StringBuilder sb = new StringBuilder("Current Frequencies: ");

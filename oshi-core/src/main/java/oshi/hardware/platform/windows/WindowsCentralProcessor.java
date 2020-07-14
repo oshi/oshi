@@ -225,6 +225,12 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
         return Arrays.stream(freqs).max().getAsLong();
     }
 
+    @Override
+    protected Boolean queryBoostEnabled() {
+        // TODO
+        return null;
+    }
+
     /**
      * Call CallNTPowerInformation for Processor information and return an array of
      * the specified index
