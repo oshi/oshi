@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>WindowsNetworks.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.windows</a> &gt; <span class="el_source">WindowsNetworks.java</span></div><h1>WindowsNetworks.java</h1><pre class="source lang-java linenums">/**
  * MIT License
  *
- * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors:
+ * https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -9,9 +10,8 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -27,25 +27,24 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.platform.win32.IPHlpAPI; // NOSONAR squid:S1191
+import com.sun.jna.platform.win32.VersionHelpers;
 import com.sun.jna.platform.win32.IPHlpAPI.MIB_IFROW;
 import com.sun.jna.platform.win32.IPHlpAPI.MIB_IF_ROW2;
-import com.sun.jna.platform.win32.VersionHelpers;
 
-import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.NetworkIF;
-import oshi.hardware.common.Networks;
+import oshi.hardware.common.AbstractNetworks;
 import oshi.util.ParseUtil;
 
 /**
- * WindowsNetworks class.
+ * @author widdis[at]gmail[dot]com
  */
-@ThreadSafe
-<span class="nc" id="L43">public final class WindowsNetworks extends Networks {</span>
+<span class="nc" id="L41">public class WindowsNetworks extends AbstractNetworks {</span>
+
+    private static final long serialVersionUID = 1L;
 
 <span class="nc" id="L45">    private static final Logger LOG = LoggerFactory.getLogger(WindowsNetworks.class);</span>
 
 <span class="nc" id="L47">    private static final boolean IS_VISTA_OR_GREATER = VersionHelpers.IsWindowsVistaOrGreater();</span>
-    private static final byte CONNECTOR_PRESENT_BIT = 0b00100000;
 
     /**
      * Updates interface network statistics on the given interface. Statistics
@@ -53,57 +52,47 @@ import oshi.util.ParseUtil;
      *
      * @param netIF
      *            The interface on which to update statistics
-     * @return {@code true} if the update was successful, {@code false} otherwise.
      */
-    public static boolean updateNetworkStats(NetworkIF netIF) {
+    public static void updateNetworkStats(NetworkIF netIF) {
         // MIB_IFROW2 requires Vista (6.0) or later.
-<span class="nc bnc" id="L60" title="All 2 branches missed.">        if (IS_VISTA_OR_GREATER) {</span>
+<span class="nc bnc" id="L58" title="All 2 branches missed.">        if (IS_VISTA_OR_GREATER) {</span>
             // Create new MIB_IFROW2 and set index to this interface index
-<span class="nc" id="L62">            MIB_IF_ROW2 ifRow = new MIB_IF_ROW2();</span>
-<span class="nc" id="L63">            ifRow.InterfaceIndex = netIF.queryNetworkInterface().getIndex();</span>
-<span class="nc bnc" id="L64" title="All 2 branches missed.">            if (0 != IPHlpAPI.INSTANCE.GetIfEntry2(ifRow)) {</span>
+<span class="nc" id="L60">            MIB_IF_ROW2 ifRow = new MIB_IF_ROW2();</span>
+<span class="nc" id="L61">            ifRow.InterfaceIndex = netIF.getNetworkInterface().getIndex();</span>
+<span class="nc bnc" id="L62" title="All 2 branches missed.">            if (0 != IPHlpAPI.INSTANCE.GetIfEntry2(ifRow)) {</span>
                 // Error, abort
-<span class="nc" id="L66">                LOG.error(&quot;Failed to retrieve data for interface {}, {}&quot;, netIF.queryNetworkInterface().getIndex(),</span>
-<span class="nc" id="L67">                        netIF.getName());</span>
-<span class="nc" id="L68">                return false;</span>
+<span class="nc" id="L64">                LOG.error(&quot;Failed to retrieve data for interface {}, {}&quot;, netIF.getNetworkInterface().getIndex(),</span>
+<span class="nc" id="L65">                        netIF.getName());</span>
+<span class="nc" id="L66">                return;</span>
             }
-<span class="nc" id="L70">            netIF.setIfType(ifRow.Type);</span>
-<span class="nc" id="L71">            netIF.setNdisPhysicalMediumType(ifRow.PhysicalMediumType);</span>
-<span class="nc bnc" id="L72" title="All 2 branches missed.">            netIF.setConnectorPresent((ifRow.InterfaceAndOperStatusFlags &amp; CONNECTOR_PRESENT_BIT) &gt; 0);</span>
             // These are unsigned longs. netIF setter will mask sign bit.
-<span class="nc" id="L74">            netIF.setBytesSent(ifRow.OutOctets);</span>
-<span class="nc" id="L75">            netIF.setBytesRecv(ifRow.InOctets);</span>
-<span class="nc" id="L76">            netIF.setPacketsSent(ifRow.OutUcastPkts);</span>
-<span class="nc" id="L77">            netIF.setPacketsRecv(ifRow.InUcastPkts);</span>
-<span class="nc" id="L78">            netIF.setOutErrors(ifRow.OutErrors);</span>
-<span class="nc" id="L79">            netIF.setInErrors(ifRow.InErrors);</span>
-<span class="nc" id="L80">            netIF.setCollisions(ifRow.OutDiscards); // closest proxy</span>
-<span class="nc" id="L81">            netIF.setInDrops(ifRow.InDiscards); // closest proxy</span>
-<span class="nc" id="L82">            netIF.setSpeed(ifRow.ReceiveLinkSpeed);</span>
-<span class="nc" id="L83">        } else {</span>
+<span class="nc" id="L69">            netIF.setBytesSent(ifRow.OutOctets);</span>
+<span class="nc" id="L70">            netIF.setBytesRecv(ifRow.InOctets);</span>
+<span class="nc" id="L71">            netIF.setPacketsSent(ifRow.OutUcastPkts);</span>
+<span class="nc" id="L72">            netIF.setPacketsRecv(ifRow.InUcastPkts);</span>
+<span class="nc" id="L73">            netIF.setOutErrors(ifRow.OutErrors);</span>
+<span class="nc" id="L74">            netIF.setInErrors(ifRow.InErrors);</span>
+<span class="nc" id="L75">            netIF.setSpeed(ifRow.ReceiveLinkSpeed);</span>
+<span class="nc" id="L76">        } else {</span>
             // Create new MIB_IFROW and set index to this interface index
-<span class="nc" id="L85">            MIB_IFROW ifRow = new MIB_IFROW();</span>
-<span class="nc" id="L86">            ifRow.dwIndex = netIF.queryNetworkInterface().getIndex();</span>
-<span class="nc bnc" id="L87" title="All 2 branches missed.">            if (0 != IPHlpAPI.INSTANCE.GetIfEntry(ifRow)) {</span>
+<span class="nc" id="L78">            MIB_IFROW ifRow = new MIB_IFROW();</span>
+<span class="nc" id="L79">            ifRow.dwIndex = netIF.getNetworkInterface().getIndex();</span>
+<span class="nc bnc" id="L80" title="All 2 branches missed.">            if (0 != IPHlpAPI.INSTANCE.GetIfEntry(ifRow)) {</span>
                 // Error, abort
-<span class="nc" id="L89">                LOG.error(&quot;Failed to retrieve data for interface {}, {}&quot;, netIF.queryNetworkInterface().getIndex(),</span>
-<span class="nc" id="L90">                        netIF.getName());</span>
-<span class="nc" id="L91">                return false;</span>
+<span class="nc" id="L82">                LOG.error(&quot;Failed to retrieve data for interface {}, {}&quot;, netIF.getNetworkInterface().getIndex(),</span>
+<span class="nc" id="L83">                        netIF.getName());</span>
+<span class="nc" id="L84">                return;</span>
             }
-<span class="nc" id="L93">            netIF.setIfType(ifRow.dwType);</span>
             // These are unsigned ints. Widen them to longs.
-<span class="nc" id="L95">            netIF.setBytesSent(ParseUtil.unsignedIntToLong(ifRow.dwOutOctets));</span>
-<span class="nc" id="L96">            netIF.setBytesRecv(ParseUtil.unsignedIntToLong(ifRow.dwInOctets));</span>
-<span class="nc" id="L97">            netIF.setPacketsSent(ParseUtil.unsignedIntToLong(ifRow.dwOutUcastPkts));</span>
-<span class="nc" id="L98">            netIF.setPacketsRecv(ParseUtil.unsignedIntToLong(ifRow.dwInUcastPkts));</span>
-<span class="nc" id="L99">            netIF.setOutErrors(ParseUtil.unsignedIntToLong(ifRow.dwOutErrors));</span>
-<span class="nc" id="L100">            netIF.setInErrors(ParseUtil.unsignedIntToLong(ifRow.dwInErrors));</span>
-<span class="nc" id="L101">            netIF.setCollisions(ParseUtil.unsignedIntToLong(ifRow.dwOutDiscards)); // closest proxy</span>
-<span class="nc" id="L102">            netIF.setInDrops(ParseUtil.unsignedIntToLong(ifRow.dwInDiscards)); // closest proxy</span>
-<span class="nc" id="L103">            netIF.setSpeed(ParseUtil.unsignedIntToLong(ifRow.dwSpeed));</span>
+<span class="nc" id="L87">            netIF.setBytesSent(ParseUtil.unsignedIntToLong(ifRow.dwOutOctets));</span>
+<span class="nc" id="L88">            netIF.setBytesRecv(ParseUtil.unsignedIntToLong(ifRow.dwInOctets));</span>
+<span class="nc" id="L89">            netIF.setPacketsSent(ParseUtil.unsignedIntToLong(ifRow.dwOutUcastPkts));</span>
+<span class="nc" id="L90">            netIF.setPacketsRecv(ParseUtil.unsignedIntToLong(ifRow.dwInUcastPkts));</span>
+<span class="nc" id="L91">            netIF.setOutErrors(ParseUtil.unsignedIntToLong(ifRow.dwOutErrors));</span>
+<span class="nc" id="L92">            netIF.setInErrors(ParseUtil.unsignedIntToLong(ifRow.dwInErrors));</span>
+<span class="nc" id="L93">            netIF.setSpeed(ParseUtil.unsignedIntToLong(ifRow.dwSpeed));</span>
         }
-<span class="nc" id="L105">        netIF.setTimeStamp(System.currentTimeMillis());</span>
-<span class="nc" id="L106">        return true;</span>
-    }
+<span class="nc" id="L95">        netIF.setTimeStamp(System.currentTimeMillis());</span>
+<span class="nc" id="L96">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

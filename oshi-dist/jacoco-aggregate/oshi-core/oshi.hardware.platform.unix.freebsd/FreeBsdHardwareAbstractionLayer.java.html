@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>FreeBsdHardwareAbstractionLayer.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.unix.freebsd</a> &gt; <span class="el_source">FreeBsdHardwareAbstractionLayer.java</span></div><h1>FreeBsdHardwareAbstractionLayer.java</h1><pre class="source lang-java linenums">/**
  * MIT License
  *
- * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors:
+ * https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -9,9 +10,8 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,14 +23,10 @@
  */
 package oshi.hardware.platform.unix.freebsd;
 
-import java.util.List;
-
-import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.ComputerSystem;
 import oshi.hardware.Display;
 import oshi.hardware.GlobalMemory;
-import oshi.hardware.GraphicsCard;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.NetworkIF;
 import oshi.hardware.PowerSource;
@@ -39,65 +35,104 @@ import oshi.hardware.SoundCard;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
 
-/**
- * FreeBsdHardwareAbstractionLayer class.
- */
-@ThreadSafe
-<span class="nc" id="L46">public final class FreeBsdHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {</span>
+<span class="nc" id="L38">public class FreeBsdHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {</span>
 
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public ComputerSystem createComputerSystem() {
-<span class="nc" id="L50">        return new FreeBsdComputerSystem();</span>
+    public ComputerSystem getComputerSystem() {
+<span class="nc bnc" id="L47" title="All 2 branches missed.">        if (this.computerSystem == null) {</span>
+<span class="nc" id="L48">            this.computerSystem = new FreeBsdComputerSystem();</span>
+        }
+<span class="nc" id="L50">        return this.computerSystem;</span>
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public GlobalMemory createMemory() {
-<span class="nc" id="L55">        return new FreeBsdGlobalMemory();</span>
+    public GlobalMemory getMemory() {
+<span class="nc bnc" id="L58" title="All 2 branches missed.">        if (this.memory == null) {</span>
+<span class="nc" id="L59">            this.memory = new FreeBsdGlobalMemory();</span>
+        }
+<span class="nc" id="L61">        return this.memory;</span>
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public CentralProcessor createProcessor() {
-<span class="nc" id="L60">        return new FreeBsdCentralProcessor();</span>
+    public CentralProcessor getProcessor() {
+<span class="nc bnc" id="L69" title="All 2 branches missed.">        if (this.processor == null) {</span>
+<span class="nc" id="L70">            this.processor = new FreeBsdCentralProcessor();</span>
+        }
+<span class="nc" id="L72">        return this.processor;</span>
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public Sensors createSensors() {
-<span class="nc" id="L65">        return new FreeBsdSensors();</span>
+    public PowerSource[] getPowerSources() {
+<span class="nc" id="L80">        return FreeBsdPowerSource.getPowerSources();</span>
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public List&lt;PowerSource&gt; getPowerSources() {
-<span class="nc" id="L70">        return FreeBsdPowerSource.getPowerSources();</span>
+    public HWDiskStore[] getDiskStores() {
+<span class="nc" id="L88">        return new FreeBsdDisks().getDisks();</span>
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public List&lt;HWDiskStore&gt; getDiskStores() {
-<span class="nc" id="L75">        return FreeBsdHWDiskStore.getDisks();</span>
+    public Display[] getDisplays() {
+<span class="nc" id="L96">        return FreeBsdDisplay.getDisplays();</span>
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public List&lt;Display&gt; getDisplays() {
-<span class="nc" id="L80">        return FreeBsdDisplay.getDisplays();</span>
+    public Sensors getSensors() {
+<span class="nc bnc" id="L104" title="All 2 branches missed.">        if (this.sensors == null) {</span>
+<span class="nc" id="L105">            this.sensors = new FreeBsdSensors();</span>
+        }
+<span class="nc" id="L107">        return this.sensors;</span>
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public List&lt;NetworkIF&gt; getNetworkIFs() {
-<span class="nc" id="L85">        return FreeBsdNetworkIF.getNetworks();</span>
+    public NetworkIF[] getNetworkIFs() {
+<span class="nc" id="L115">        return new FreeBsdNetworks().getNetworks();</span>
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public List&lt;UsbDevice&gt; getUsbDevices(boolean tree) {
-<span class="nc" id="L90">        return FreeBsdUsbDevice.getUsbDevices(tree);</span>
+    public UsbDevice[] getUsbDevices(boolean tree) {
+<span class="nc" id="L123">        return FreeBsdUsbDevice.getUsbDevices(tree);</span>
     }
 
+    /**
+     * Instantiates an array of {@link SoundCard} objects, representing the
+     * Sound cards.
+     *
+     * @return An array of SoundCard objects or an empty array if none are
+     *         present.
+     */
     @Override
-    public List&lt;SoundCard&gt; getSoundCards() {
-<span class="nc" id="L95">        return FreeBsdSoundCard.getSoundCards();</span>
-    }
-
-    @Override
-    public List&lt;GraphicsCard&gt; getGraphicsCards() {
-<span class="nc" id="L100">        return FreeBsdGraphicsCard.getGraphicsCards();</span>
+    public SoundCard[] getSoundCards() {
+<span class="nc" id="L135">        return FreeBsdSoundCard.getSoundCards().toArray(new SoundCard[0]);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

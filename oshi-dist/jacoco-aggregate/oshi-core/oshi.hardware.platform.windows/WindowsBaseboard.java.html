@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>WindowsBaseboard.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.windows</a> &gt; <span class="el_source">WindowsBaseboard.java</span></div><h1>WindowsBaseboard.java</h1><pre class="source lang-java linenums">/**
  * MIT License
  *
- * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors:
+ * https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -9,9 +10,8 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,65 +23,39 @@
  */
 package oshi.hardware.platform.windows;
 
-import static oshi.util.Memoizer.memoize;
+import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery; // NOSONAR squid:S1191
+import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
-import java.util.function.Supplier;
-
-import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult; // NOSONAR squid:S1191
-
-import oshi.annotation.concurrent.Immutable;
-import oshi.driver.windows.wmi.Win32BaseBoard;
-import oshi.driver.windows.wmi.Win32BaseBoard.BaseBoardProperty;
 import oshi.hardware.common.AbstractBaseboard;
-import oshi.util.Constants;
-import oshi.util.Util;
+import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
-import oshi.util.tuples.Quartet;
 
 /**
  * Baseboard data obtained from WMI
+ *
+ * @author widdis [at] gmail [dot] com
  */
-@Immutable
-<span class="nc" id="L45">final class WindowsBaseboard extends AbstractBaseboard {</span>
+public class WindowsBaseboard extends AbstractBaseboard {
 
-<span class="nc" id="L47">    private final Supplier&lt;Quartet&lt;String, String, String, String&gt;&gt; manufModelVersSerial = memoize(</span>
-            WindowsBaseboard::queryManufModelVersSerial);
+    private static final long serialVersionUID = 1L;
 
-    @Override
-    public String getManufacturer() {
-<span class="nc" id="L52">        return manufModelVersSerial.get().getA();</span>
+<span class="nc" id="L42">    enum BaseboardProperty {</span>
+<span class="nc" id="L43">        MANUFACTURER, MODEL, VERSION, SERIALNUMBER;</span>
     }
 
-    @Override
-    public String getModel() {
-<span class="nc" id="L57">        return manufModelVersSerial.get().getB();</span>
-    }
+<span class="nc" id="L46">    WindowsBaseboard() {</span>
+<span class="nc" id="L47">        init();</span>
+<span class="nc" id="L48">    }</span>
 
-    @Override
-    public String getVersion() {
-<span class="nc" id="L62">        return manufModelVersSerial.get().getC();</span>
-    }
-
-    @Override
-    public String getSerialNumber() {
-<span class="nc" id="L67">        return manufModelVersSerial.get().getD();</span>
-    }
-
-    private static Quartet&lt;String, String, String, String&gt; queryManufModelVersSerial() {
-<span class="nc" id="L71">        String manufacturer = null;</span>
-<span class="nc" id="L72">        String model = null;</span>
-<span class="nc" id="L73">        String version = null;</span>
-<span class="nc" id="L74">        String serialNumber = null;</span>
-<span class="nc" id="L75">        WmiResult&lt;BaseBoardProperty&gt; win32BaseBoard = Win32BaseBoard.queryBaseboardInfo();</span>
-<span class="nc bnc" id="L76" title="All 2 branches missed.">        if (win32BaseBoard.getResultCount() &gt; 0) {</span>
-<span class="nc" id="L77">            manufacturer = WmiUtil.getString(win32BaseBoard, BaseBoardProperty.MANUFACTURER, 0);</span>
-<span class="nc" id="L78">            model = WmiUtil.getString(win32BaseBoard, BaseBoardProperty.MODEL, 0);</span>
-<span class="nc" id="L79">            version = WmiUtil.getString(win32BaseBoard, BaseBoardProperty.VERSION, 0);</span>
-<span class="nc" id="L80">            serialNumber = WmiUtil.getString(win32BaseBoard, BaseBoardProperty.SERIALNUMBER, 0);</span>
+    private void init() {
+<span class="nc" id="L51">        WmiQuery&lt;BaseboardProperty&gt; baseboardQuery = new WmiQuery&lt;&gt;(&quot;Win32_BaseBoard&quot;, BaseboardProperty.class);</span>
+<span class="nc" id="L52">        WmiResult&lt;BaseboardProperty&gt; win32BaseBoard = WmiQueryHandler.createInstance().queryWMI(baseboardQuery);</span>
+<span class="nc bnc" id="L53" title="All 2 branches missed.">        if (win32BaseBoard.getResultCount() &gt; 0) {</span>
+<span class="nc" id="L54">            setManufacturer(WmiUtil.getString(win32BaseBoard, BaseboardProperty.MANUFACTURER, 0));</span>
+<span class="nc" id="L55">            setModel(WmiUtil.getString(win32BaseBoard, BaseboardProperty.MODEL, 0));</span>
+<span class="nc" id="L56">            setVersion(WmiUtil.getString(win32BaseBoard, BaseboardProperty.VERSION, 0));</span>
+<span class="nc" id="L57">            setSerialNumber(WmiUtil.getString(win32BaseBoard, BaseboardProperty.SERIALNUMBER, 0));</span>
         }
-<span class="nc bnc" id="L82" title="All 2 branches missed.">        return new Quartet&lt;&gt;(Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer,</span>
-<span class="nc bnc" id="L83" title="All 4 branches missed.">                Util.isBlank(model) ? Constants.UNKNOWN : model, Util.isBlank(version) ? Constants.UNKNOWN : version,</span>
-<span class="nc bnc" id="L84" title="All 2 branches missed.">                Util.isBlank(serialNumber) ? Constants.UNKNOWN : serialNumber);</span>
-    }
+<span class="nc" id="L59">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

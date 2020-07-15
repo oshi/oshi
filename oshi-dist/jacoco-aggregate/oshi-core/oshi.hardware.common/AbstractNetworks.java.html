@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>AbstractNetworks.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.common</a> &gt; <span class="el_source">AbstractNetworks.java</span></div><h1>AbstractNetworks.java</h1><pre class="source lang-java linenums">/**
  * MIT License
  *
- * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors:
+ * https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -9,9 +10,8 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -26,6 +26,7 @@ package oshi.hardware.common;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 
@@ -37,54 +38,44 @@ import oshi.hardware.Networks;
 
 /**
  * Network interfaces implementation.
+ *
+ * @author enrico[dot]bianchi[at]gmail[dot]com
  */
-<span class="nc" id="L41">public abstract class AbstractNetworks implements Networks {</span>
+<span class="nc" id="L44">public abstract class AbstractNetworks implements Networks {</span>
 
-<span class="nc" id="L43">    private static final Logger LOG = LoggerFactory.getLogger(AbstractNetworks.class);</span>
+    private static final long serialVersionUID = 1L;
 
-    @Override
-    public NetworkIF[] getNetworks() {
-<span class="nc" id="L47">        List&lt;NetworkIF&gt; result = new ArrayList&lt;&gt;();</span>
-
-<span class="nc bnc" id="L49" title="All 2 branches missed.">        for (NetworkInterface netint : getNetworkInterfaces()) {</span>
-<span class="nc" id="L50">            NetworkIF netIF = new NetworkIF();</span>
-<span class="nc" id="L51">            netIF.setNetworkInterface(netint);</span>
-<span class="nc" id="L52">            netIF.updateAttributes();</span>
-<span class="nc" id="L53">            result.add(netIF);</span>
-        }
-
-<span class="nc" id="L56">        return result.toArray(new NetworkIF[0]);</span>
-    }
+<span class="nc" id="L48">    private static final Logger LOG = LoggerFactory.getLogger(AbstractNetworks.class);</span>
 
     /**
-     * Returns network interfaces that are not Loopback, and have a hardware
-     * address.
-     *
-     * @return An array of network interfaces
+     * {@inheritDoc}
      */
-    protected NetworkInterface[] getNetworkInterfaces() {
-<span class="nc" id="L66">        List&lt;NetworkInterface&gt; result = new ArrayList&lt;&gt;();</span>
-<span class="nc" id="L67">        Enumeration&lt;NetworkInterface&gt; interfaces = null;</span>
+    @Override
+    public NetworkIF[] getNetworks() {
+<span class="nc" id="L55">        List&lt;NetworkIF&gt; result = new ArrayList&lt;&gt;();</span>
+        Enumeration&lt;NetworkInterface&gt; interfaces;
 
         try {
-<span class="nc" id="L70">            interfaces = NetworkInterface.getNetworkInterfaces(); // can return null</span>
-<span class="nc" id="L71">        } catch (SocketException ex) {</span>
-<span class="nc" id="L72">            LOG.error(&quot;Socket exception when retrieving interfaces: {}&quot;, ex.getMessage());</span>
-<span class="nc" id="L73">        }</span>
-<span class="nc bnc" id="L74" title="All 2 branches missed.">        if (interfaces != null) {</span>
-<span class="nc bnc" id="L75" title="All 2 branches missed.">            while (interfaces.hasMoreElements()) {</span>
-<span class="nc" id="L76">                NetworkInterface netint = interfaces.nextElement();</span>
-                try {
-<span class="nc bnc" id="L78" title="All 4 branches missed.">                    if (!netint.isLoopback() &amp;&amp; netint.getHardwareAddress() != null) {</span>
-<span class="nc" id="L79">                        result.add(netint);</span>
-                    }
-<span class="nc" id="L81">                } catch (SocketException ex) {</span>
-<span class="nc" id="L82">                    LOG.error(&quot;Socket exception when retrieving interface \&quot;{}\&quot;: {}&quot;, netint.getName(),</span>
-<span class="nc" id="L83">                            ex.getMessage());</span>
-<span class="nc" id="L84">                }</span>
-<span class="nc" id="L85">            }</span>
-        }
-<span class="nc" id="L87">        return result.toArray(new NetworkInterface[0]);</span>
+<span class="nc" id="L59">            interfaces = NetworkInterface.getNetworkInterfaces();</span>
+<span class="nc" id="L60">        } catch (SocketException ex) {</span>
+<span class="nc" id="L61">            LOG.error(&quot;Socket exception when retrieving interfaces: {}&quot;, ex);</span>
+<span class="nc" id="L62">            return new NetworkIF[0];</span>
+<span class="nc" id="L63">        }</span>
+
+<span class="nc bnc" id="L65" title="All 2 branches missed.">        for (NetworkInterface netint : Collections.list(interfaces)) {</span>
+            try {
+<span class="nc bnc" id="L67" title="All 4 branches missed.">                if (!netint.isLoopback() &amp;&amp; netint.getHardwareAddress() != null) {</span>
+<span class="nc" id="L68">                    NetworkIF netIF = new NetworkIF();</span>
+<span class="nc" id="L69">                    netIF.setNetworkInterface(netint);</span>
+<span class="nc" id="L70">                    netIF.updateNetworkStats();</span>
+<span class="nc" id="L71">                    result.add(netIF);</span>
+                }
+<span class="nc" id="L73">            } catch (SocketException ex) {</span>
+<span class="nc" id="L74">                LOG.error(&quot;Socket exception when retrieving interface \&quot;{}\&quot;: {}&quot;, netint.getName(), ex);</span>
+<span class="nc" id="L75">            }</span>
+<span class="nc" id="L76">        }</span>
+
+<span class="nc" id="L78">        return result.toArray(new NetworkIF[result.size()]);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
