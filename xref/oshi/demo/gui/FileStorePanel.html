@@ -73,8 +73,8 @@
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>      }
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>  
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> init(<a name="FileSystem" href="../../../oshi/software/os/FileSystem.html#FileSystem">FileSystem</a> fs) {
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>          <a name="OSFileStore" href="../../../oshi/software/os/OSFileStore.html#OSFileStore">OSFileStore</a>[] fileStores = fs.getFileStores();
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>          DefaultPieDataset[] fsData = <strong class="jxr_keyword">new</strong> DefaultPieDataset[fileStores.length];
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>          List&lt;OSFileStore&gt; fileStores = fs.getFileStores();
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>          DefaultPieDataset[] fsData = <strong class="jxr_keyword">new</strong> DefaultPieDataset[fileStores.size()];
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>          JFreeChart[] fsCharts = <strong class="jxr_keyword">new</strong> JFreeChart[fsData.length];
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>  
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>          JPanel fsPanel = <strong class="jxr_keyword">new</strong> JPanel();
@@ -84,9 +84,9 @@
 <a class="jxr_linenumber" name="L76" href="#L76">76</a>          fsConstraints.weighty = 1d;
 <a class="jxr_linenumber" name="L77" href="#L77">77</a>          fsConstraints.fill = GridBagConstraints.BOTH;
 <a class="jxr_linenumber" name="L78" href="#L78">78</a>  
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>          <strong class="jxr_keyword">int</strong> modBase = (<strong class="jxr_keyword">int</strong>) (fileStores.length * (Config.GUI_HEIGHT + Config.GUI_WIDTH)
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>                  / (Config.GUI_WIDTH * Math.sqrt(fileStores.length)));
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>          <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; fileStores.length; i++) {
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>          <strong class="jxr_keyword">int</strong> modBase = (<strong class="jxr_keyword">int</strong>) (fileStores.size() * (Config.GUI_HEIGHT + Config.GUI_WIDTH)
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>                  / (Config.GUI_WIDTH * Math.sqrt(fileStores.size())));
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>          <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; fileStores.size(); i++) {
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>              fsData[i] = <strong class="jxr_keyword">new</strong> DefaultPieDataset();
 <a class="jxr_linenumber" name="L83" href="#L83">83</a>              fsCharts[i] = ChartFactory.createPieChart(<strong class="jxr_keyword">null</strong>, fsData[i], <strong class="jxr_keyword">true</strong>, <strong class="jxr_keyword">true</strong>, false);
 <a class="jxr_linenumber" name="L84" href="#L84">84</a>              configurePlot(fsCharts[i]);
@@ -111,40 +111,42 @@
 <a class="jxr_linenumber" name="L103" href="#L103">103</a>     }
 <a class="jxr_linenumber" name="L104" href="#L104">104</a> 
 <a class="jxr_linenumber" name="L105" href="#L105">105</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> updateDatasets(<a name="FileSystem" href="../../../oshi/software/os/FileSystem.html#FileSystem">FileSystem</a> fs, DefaultPieDataset[] fsData, JFreeChart[] fsCharts) {
-<a class="jxr_linenumber" name="L106" href="#L106">106</a>         <a name="OSFileStore" href="../../../oshi/software/os/OSFileStore.html#OSFileStore">OSFileStore</a>[] fileStores = fs.getFileStores();
-<a class="jxr_linenumber" name="L107" href="#L107">107</a>         <strong class="jxr_keyword">if</strong> (fileStores.length != fsData.length) {
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>         List&lt;OSFileStore&gt; fileStores = fs.getFileStores();
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>         <strong class="jxr_keyword">if</strong> (fileStores.size() != fsData.length) {
 <a class="jxr_linenumber" name="L108" href="#L108">108</a>             <strong class="jxr_keyword">return</strong> false;
 <a class="jxr_linenumber" name="L109" href="#L109">109</a>         }
-<a class="jxr_linenumber" name="L110" href="#L110">110</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; fsData.length; i++) {
-<a class="jxr_linenumber" name="L111" href="#L111">111</a>             fsCharts[i].setTitle(fileStores[i].getName());
-<a class="jxr_linenumber" name="L112" href="#L112">112</a>             List&lt;TextTitle&gt; subtitles = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
-<a class="jxr_linenumber" name="L113" href="#L113">113</a>             <strong class="jxr_keyword">if</strong> (SystemInfo.getCurrentPlatformEnum().equals(PlatformEnum.WINDOWS)) {
-<a class="jxr_linenumber" name="L114" href="#L114">114</a>                 subtitles.add(<strong class="jxr_keyword">new</strong> TextTitle(fileStores[i].getLabel()));
-<a class="jxr_linenumber" name="L115" href="#L115">115</a>             }
-<a class="jxr_linenumber" name="L116" href="#L116">116</a>             <strong class="jxr_keyword">long</strong> usable = fileStores[i].getUsableSpace();
-<a class="jxr_linenumber" name="L117" href="#L117">117</a>             <strong class="jxr_keyword">long</strong> total = fileStores[i].getTotalSpace();
-<a class="jxr_linenumber" name="L118" href="#L118">118</a>             subtitles.add(<strong class="jxr_keyword">new</strong> TextTitle(
-<a class="jxr_linenumber" name="L119" href="#L119">119</a>                     <span class="jxr_string">"Available: "</span> + FormatUtil.formatBytes(usable) + <span class="jxr_string">"/"</span> + FormatUtil.formatBytes(total)));
-<a class="jxr_linenumber" name="L120" href="#L120">120</a>             fsCharts[i].setSubtitles(subtitles);
-<a class="jxr_linenumber" name="L121" href="#L121">121</a>             fsData[i].setValue(USED, (<strong class="jxr_keyword">double</strong>) total - usable);
-<a class="jxr_linenumber" name="L122" href="#L122">122</a>             fsData[i].setValue(AVAILABLE, usable);
-<a class="jxr_linenumber" name="L123" href="#L123">123</a>         }
-<a class="jxr_linenumber" name="L124" href="#L124">124</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L125" href="#L125">125</a>     }
-<a class="jxr_linenumber" name="L126" href="#L126">126</a> 
-<a class="jxr_linenumber" name="L127" href="#L127">127</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> configurePlot(JFreeChart chart) {
-<a class="jxr_linenumber" name="L128" href="#L128">128</a>         PiePlot plot = (PiePlot) chart.getPlot();
-<a class="jxr_linenumber" name="L129" href="#L129">129</a>         plot.setSectionPaint(USED, Color.red);
-<a class="jxr_linenumber" name="L130" href="#L130">130</a>         plot.setSectionPaint(AVAILABLE, Color.green);
-<a class="jxr_linenumber" name="L131" href="#L131">131</a>         plot.setExplodePercent(USED, 0.10);
-<a class="jxr_linenumber" name="L132" href="#L132">132</a>         plot.setSimpleLabels(<strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L133" href="#L133">133</a> 
-<a class="jxr_linenumber" name="L134" href="#L134">134</a>         PieSectionLabelGenerator labelGenerator = <strong class="jxr_keyword">new</strong> StandardPieSectionLabelGenerator(<span class="jxr_string">"{0}: {1} ({2})"</span>,
-<a class="jxr_linenumber" name="L135" href="#L135">135</a>                 <strong class="jxr_keyword">new</strong> DecimalFormat(<span class="jxr_string">"0"</span>), <strong class="jxr_keyword">new</strong> DecimalFormat(<span class="jxr_string">"0%"</span>));
-<a class="jxr_linenumber" name="L136" href="#L136">136</a>         plot.setLabelGenerator(labelGenerator);
-<a class="jxr_linenumber" name="L137" href="#L137">137</a>     }
-<a class="jxr_linenumber" name="L138" href="#L138">138</a> 
-<a class="jxr_linenumber" name="L139" href="#L139">139</a> }
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>         <strong class="jxr_keyword">int</strong> i = 0;
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>         <strong class="jxr_keyword">for</strong> (<a name="OSFileStore" href="../../../oshi/software/os/OSFileStore.html#OSFileStore">OSFileStore</a> store : fileStores) {
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>             fsCharts[i].setTitle(store.getName());
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>             List&lt;TextTitle&gt; subtitles = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>             <strong class="jxr_keyword">if</strong> (SystemInfo.getCurrentPlatformEnum().equals(PlatformEnum.WINDOWS)) {
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>                 subtitles.add(<strong class="jxr_keyword">new</strong> TextTitle(store.getLabel()));
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>             }
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>             <strong class="jxr_keyword">long</strong> usable = store.getUsableSpace();
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>             <strong class="jxr_keyword">long</strong> total = store.getTotalSpace();
+<a class="jxr_linenumber" name="L119" href="#L119">119</a>             subtitles.add(<strong class="jxr_keyword">new</strong> TextTitle(
+<a class="jxr_linenumber" name="L120" href="#L120">120</a>                     <span class="jxr_string">"Available: "</span> + FormatUtil.formatBytes(usable) + <span class="jxr_string">"/"</span> + FormatUtil.formatBytes(total)));
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>             fsCharts[i].setSubtitles(subtitles);
+<a class="jxr_linenumber" name="L122" href="#L122">122</a>             fsData[i].setValue(USED, (<strong class="jxr_keyword">double</strong>) total - usable);
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>             fsData[i].setValue(AVAILABLE, usable);
+<a class="jxr_linenumber" name="L124" href="#L124">124</a>             i++;
+<a class="jxr_linenumber" name="L125" href="#L125">125</a>         }
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L127" href="#L127">127</a>     }
+<a class="jxr_linenumber" name="L128" href="#L128">128</a> 
+<a class="jxr_linenumber" name="L129" href="#L129">129</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> configurePlot(JFreeChart chart) {
+<a class="jxr_linenumber" name="L130" href="#L130">130</a>         PiePlot plot = (PiePlot) chart.getPlot();
+<a class="jxr_linenumber" name="L131" href="#L131">131</a>         plot.setSectionPaint(USED, Color.red);
+<a class="jxr_linenumber" name="L132" href="#L132">132</a>         plot.setSectionPaint(AVAILABLE, Color.green);
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>         plot.setExplodePercent(USED, 0.10);
+<a class="jxr_linenumber" name="L134" href="#L134">134</a>         plot.setSimpleLabels(<strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L135" href="#L135">135</a> 
+<a class="jxr_linenumber" name="L136" href="#L136">136</a>         PieSectionLabelGenerator labelGenerator = <strong class="jxr_keyword">new</strong> StandardPieSectionLabelGenerator(<span class="jxr_string">"{0}: {1} ({2})"</span>,
+<a class="jxr_linenumber" name="L137" href="#L137">137</a>                 <strong class="jxr_keyword">new</strong> DecimalFormat(<span class="jxr_string">"0"</span>), <strong class="jxr_keyword">new</strong> DecimalFormat(<span class="jxr_string">"0%"</span>));
+<a class="jxr_linenumber" name="L138" href="#L138">138</a>         plot.setLabelGenerator(labelGenerator);
+<a class="jxr_linenumber" name="L139" href="#L139">139</a>     }
+<a class="jxr_linenumber" name="L140" href="#L140">140</a> 
+<a class="jxr_linenumber" name="L141" href="#L141">141</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2020 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

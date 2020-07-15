@@ -329,7 +329,7 @@
 <a class="jxr_linenumber" name="L321" href="#L321">321</a>                 prstatThreadInfo.stream().skip(1).forEach(threadInfo -&gt; {
 <a class="jxr_linenumber" name="L322" href="#L322">322</a>                     String[] splitPrstat = ParseUtil.whitespaces.split(threadInfo.trim());
 <a class="jxr_linenumber" name="L323" href="#L323">323</a>                     <strong class="jxr_keyword">if</strong> (splitPrstat.length == 15) {
-<a class="jxr_linenumber" name="L324" href="#L324">324</a>                         <strong class="jxr_keyword">int</strong> idxAfterForwardSlash = splitPrstat[14].lastIndexOf(<span class="jxr_string">"/"</span>) + 1; <em class="jxr_comment">// format is process/lwpid</em>
+<a class="jxr_linenumber" name="L324" href="#L324">324</a>                         <strong class="jxr_keyword">int</strong> idxAfterForwardSlash = splitPrstat[14].lastIndexOf('/') + 1; <em class="jxr_comment">// format is process/lwpid</em>
 <a class="jxr_linenumber" name="L325" href="#L325">325</a>                         <strong class="jxr_keyword">if</strong> (idxAfterForwardSlash &gt; 0 &amp;&amp; idxAfterForwardSlash &lt; splitPrstat[14].length()) {
 <a class="jxr_linenumber" name="L326" href="#L326">326</a>                             String threadId = splitPrstat[14].substring(idxAfterForwardSlash); <em class="jxr_comment">// getting the thread id</em>
 <a class="jxr_linenumber" name="L327" href="#L327">327</a>                             String[] existingSplit = map.get(Integer.parseInt(threadId));
