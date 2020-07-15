@@ -51,7 +51,7 @@ public abstract class AbstractOSThread implements OSThread {
     }
 
     private double queryCumulativeCpuLoad() {
-<span class="nc" id="L54">        return (getKernelTime() + getUserTime()) / (double) getUpTime();</span>
+<span class="nc bnc" id="L54" title="All 2 branches missed.">        return getUpTime() &gt; 0d ? (getKernelTime() + getUserTime()) / (double) getUpTime() : 0d;</span>
     }
 
     @Override
