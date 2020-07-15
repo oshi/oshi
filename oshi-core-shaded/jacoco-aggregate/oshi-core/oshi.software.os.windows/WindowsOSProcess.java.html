@@ -40,6 +40,8 @@ import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Pointer; // NOSONAR squid:S1191
 import com.sun.jna.platform.win32.Advapi32;
+import com.sun.jna.platform.win32.Advapi32Util;
+import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.Advapi32Util.Account;
 import com.sun.jna.platform.win32.BaseTSD.ULONG_PTRByReference;
 import com.sun.jna.platform.win32.Kernel32Util;
@@ -61,8 +63,6 @@ import oshi.driver.windows.registry.ThreadPerformanceData;
 import oshi.driver.windows.wmi.Win32Process;
 import oshi.driver.windows.wmi.Win32Process.CommandLineProperty;
 import oshi.driver.windows.wmi.Win32ProcessCached;
-import oshi.jna.platform.windows.Advapi32Util;
-import oshi.jna.platform.windows.Kernel32;
 import oshi.software.common.AbstractOSProcess;
 import oshi.software.os.OSThread;
 import oshi.util.Constants;
