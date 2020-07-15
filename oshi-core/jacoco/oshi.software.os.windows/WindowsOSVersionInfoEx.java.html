@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>WindowsOSVersionInfoEx.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.software.os.windows</a> &gt; <span class="el_source">WindowsOSVersionInfoEx.java</span></div><h1>WindowsOSVersionInfoEx.java</h1><pre class="source lang-java linenums">/**
  * MIT License
  *
- * Copyright (c) 2010 - 2020 The OSHI Project Contributors:
- * https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -10,8 +9,9 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -32,52 +32,59 @@ import org.slf4j.LoggerFactory;
 import com.sun.jna.platform.win32.User32;
 import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.platform.win32.WinUser;
-import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
+import oshi.driver.windows.wmi.Win32OperatingSystem;
+import oshi.driver.windows.wmi.Win32OperatingSystem.OSVersionProperty;
 import oshi.software.common.AbstractOSVersionInfoEx;
+import oshi.software.os.OperatingSystem;
 import oshi.util.ParseUtil;
-import oshi.util.StringUtil;
-import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
 
+/**
+ * &lt;p&gt;
+ * WindowsOSVersionInfoEx class.
+ * &lt;/p&gt;
+ *
+ * @deprecated Use {@link OperatingSystem.OSVersionInfo}
+ */
+@Deprecated
 public class WindowsOSVersionInfoEx extends AbstractOSVersionInfoEx {
 
-    private static final long serialVersionUID = 1L;
+<span class="nc" id="L54">    private static final Logger LOG = LoggerFactory.getLogger(WindowsOSVersionInfoEx.class);</span>
 
-<span class="nc" id="L48">    private static final Logger LOG = LoggerFactory.getLogger(WindowsOSVersionInfoEx.class);</span>
-
-<span class="nc" id="L50">    enum OSVersionProperty {</span>
-<span class="nc" id="L51">        VERSION, PRODUCTTYPE, BUILDNUMBER, CSDVERSION, SUITEMASK;</span>
-    }
-
-<span class="nc" id="L54">    public WindowsOSVersionInfoEx() {</span>
-<span class="nc" id="L55">        init();</span>
-<span class="nc" id="L56">    }</span>
-
-    private void init() {
+    /**
+     * &lt;p&gt;
+     * Constructor for WindowsOSVersionInfoEx.
+     * &lt;/p&gt;
+     */
+<span class="nc" id="L61">    public WindowsOSVersionInfoEx() {</span>
         // Populate a key-value map from WMI
-<span class="nc" id="L60">        WmiQuery&lt;OSVersionProperty&gt; osVersionQuery = new WmiQuery&lt;&gt;(&quot;Win32_OperatingSystem&quot;, OSVersionProperty.class);</span>
-<span class="nc" id="L61">        WmiResult&lt;OSVersionProperty&gt; versionInfo = WmiQueryHandler.createInstance().queryWMI(osVersionQuery);</span>
-<span class="nc bnc" id="L62" title="All 2 branches missed.">        if (versionInfo.getResultCount() &lt; 1) {</span>
-<span class="nc" id="L63">            handleNoVersionInfo();</span>
+<span class="nc" id="L63">        WmiResult&lt;OSVersionProperty&gt; versionInfo = Win32OperatingSystem.queryOsVersion();</span>
+<span class="nc bnc" id="L64" title="All 2 branches missed.">        if (versionInfo.getResultCount() &lt; 1) {</span>
+<span class="nc" id="L65">            handleNoVersionInfo();</span>
         } else {
             // Guaranteed that versionInfo is not null and lists non-empty
             // before calling the parse*() methods
-<span class="nc" id="L67">            int suiteMask = WmiUtil.getUint32(versionInfo, OSVersionProperty.SUITEMASK, 0);</span>
-<span class="nc" id="L68">            setBuildNumber(WmiUtil.getString(versionInfo, OSVersionProperty.BUILDNUMBER, 0));</span>
-<span class="nc" id="L69">            setVersion(parseVersion(versionInfo, suiteMask));</span>
-<span class="nc" id="L70">            setCodeName(parseCodeName(suiteMask));</span>
-<span class="nc" id="L71">            LOG.debug(&quot;Initialized OSVersionInfoEx&quot;);</span>
+<span class="nc" id="L69">            int suiteMask = WmiUtil.getUint32(versionInfo, OSVersionProperty.SUITEMASK, 0);</span>
+<span class="nc" id="L70">            setBuildNumber(WmiUtil.getString(versionInfo, OSVersionProperty.BUILDNUMBER, 0));</span>
+<span class="nc" id="L71">            setVersion(parseVersion(versionInfo, suiteMask));</span>
+<span class="nc" id="L72">            setCodeName(parseCodeName(suiteMask));</span>
+<span class="nc" id="L73">            LOG.debug(&quot;Initialized OSVersionInfoEx&quot;);</span>
         }
-<span class="nc" id="L73">    }</span>
+<span class="nc" id="L75">    }</span>
 
+    /**
+     * &lt;p&gt;
+     * handleNoVersionInfo.
+     * &lt;/p&gt;
+     */
     protected void handleNoVersionInfo() {
-<span class="nc" id="L76">        LOG.warn(&quot;No version data available.&quot;);</span>
-<span class="nc" id="L77">        setVersion(System.getProperty(&quot;os.version&quot;));</span>
-<span class="nc" id="L78">        setCodeName(&quot;&quot;);</span>
-<span class="nc" id="L79">        setBuildNumber(&quot;&quot;);</span>
-<span class="nc" id="L80">    }</span>
+<span class="nc" id="L83">        LOG.warn(&quot;No version data available.&quot;);</span>
+<span class="nc" id="L84">        setVersion(System.getProperty(&quot;os.version&quot;));</span>
+<span class="nc" id="L85">        setCodeName(&quot;&quot;);</span>
+<span class="nc" id="L86">        setBuildNumber(&quot;&quot;);</span>
+<span class="nc" id="L87">    }</span>
 
     /**
      * Gets the operating system version
@@ -89,68 +96,68 @@ public class WindowsOSVersionInfoEx extends AbstractOSVersionInfoEx {
     private String parseVersion(WmiResult&lt;OSVersionProperty&gt; versionInfo, int suiteMask) {
 
         // Initialize a default, sane value
-<span class="nc" id="L92">        String version = System.getProperty(&quot;os.version&quot;);</span>
+<span class="nc" id="L99">        String version = System.getProperty(&quot;os.version&quot;);</span>
 
         // Version is major.minor.build. Parse the version string for
         // major/minor and get the build number separately
-<span class="nc" id="L96">        String[] verSplit = WmiUtil.getString(versionInfo, OSVersionProperty.VERSION, 0).split(&quot;\\D&quot;);</span>
-<span class="nc bnc" id="L97" title="All 2 branches missed.">        int major = verSplit.length &gt; 0 ? ParseUtil.parseIntOrDefault(verSplit[0], 0) : 0;</span>
-<span class="nc bnc" id="L98" title="All 2 branches missed.">        int minor = verSplit.length &gt; 1 ? ParseUtil.parseIntOrDefault(verSplit[1], 0) : 0;</span>
+<span class="nc" id="L103">        String[] verSplit = WmiUtil.getString(versionInfo, OSVersionProperty.VERSION, 0).split(&quot;\\D&quot;);</span>
+<span class="nc bnc" id="L104" title="All 2 branches missed.">        int major = verSplit.length &gt; 0 ? ParseUtil.parseIntOrDefault(verSplit[0], 0) : 0;</span>
+<span class="nc bnc" id="L105" title="All 2 branches missed.">        int minor = verSplit.length &gt; 1 ? ParseUtil.parseIntOrDefault(verSplit[1], 0) : 0;</span>
 
         // see
         // http://msdn.microsoft.com/en-us/library/windows/desktop/ms724833%28v=vs.85%29.aspx
-<span class="nc bnc" id="L102" title="All 2 branches missed.">        boolean ntWorkstation = WmiUtil.getUint32(versionInfo, OSVersionProperty.PRODUCTTYPE,</span>
+<span class="nc bnc" id="L109" title="All 2 branches missed.">        boolean ntWorkstation = WmiUtil.getUint32(versionInfo, OSVersionProperty.PRODUCTTYPE,</span>
                 0) == WinNT.VER_NT_WORKSTATION;
-<span class="nc bnc" id="L104" title="All 4 branches missed.">        switch (major) {</span>
+<span class="nc bnc" id="L111" title="All 4 branches missed.">        switch (major) {</span>
         case 10:
-<span class="nc bnc" id="L106" title="All 2 branches missed.">            if (minor == 0) {</span>
-<span class="nc bnc" id="L107" title="All 2 branches missed.">                if (ntWorkstation) {</span>
-<span class="nc" id="L108">                    version = &quot;10&quot;;</span>
+<span class="nc bnc" id="L113" title="All 2 branches missed.">            if (minor == 0) {</span>
+<span class="nc bnc" id="L114" title="All 2 branches missed.">                if (ntWorkstation) {</span>
+<span class="nc" id="L115">                    version = &quot;10&quot;;</span>
                 } else {
                     // Build numbers greater than 17762 is Server 2019 for OS
                     // Version 10.0
-<span class="nc bnc" id="L112" title="All 2 branches missed.">                    version = (ParseUtil.parseLongOrDefault(getBuildNumber(), 0L) &gt; 17762) ? &quot;Server 2019&quot;</span>
-<span class="nc" id="L113">                            : &quot;Server 2016&quot;;</span>
+<span class="nc bnc" id="L119" title="All 2 branches missed.">                    version = (ParseUtil.parseLongOrDefault(getBuildNumber(), 0L) &gt; 17762) ? &quot;Server 2019&quot;</span>
+<span class="nc" id="L120">                            : &quot;Server 2016&quot;;</span>
                 }
             }
             break;
         case 6:
-<span class="nc bnc" id="L118" title="All 2 branches missed.">            if (minor == 3) {</span>
-<span class="nc bnc" id="L119" title="All 2 branches missed.">                version = ntWorkstation ? &quot;8.1&quot; : &quot;Server 2012 R2&quot;;</span>
-<span class="nc bnc" id="L120" title="All 2 branches missed.">            } else if (minor == 2) {</span>
-<span class="nc bnc" id="L121" title="All 2 branches missed.">                version = ntWorkstation ? &quot;8&quot; : &quot;Server 2012&quot;;</span>
-<span class="nc bnc" id="L122" title="All 2 branches missed.">            } else if (minor == 1) {</span>
-<span class="nc bnc" id="L123" title="All 2 branches missed.">                version = ntWorkstation ? &quot;7&quot; : &quot;Server 2008 R2&quot;;</span>
-<span class="nc bnc" id="L124" title="All 2 branches missed.">            } else if (minor == 0) {</span>
-<span class="nc bnc" id="L125" title="All 2 branches missed.">                version = ntWorkstation ? &quot;Vista&quot; : &quot;Server 2008&quot;;</span>
+<span class="nc bnc" id="L125" title="All 2 branches missed.">            if (minor == 3) {</span>
+<span class="nc bnc" id="L126" title="All 2 branches missed.">                version = ntWorkstation ? &quot;8.1&quot; : &quot;Server 2012 R2&quot;;</span>
+<span class="nc bnc" id="L127" title="All 2 branches missed.">            } else if (minor == 2) {</span>
+<span class="nc bnc" id="L128" title="All 2 branches missed.">                version = ntWorkstation ? &quot;8&quot; : &quot;Server 2012&quot;;</span>
+<span class="nc bnc" id="L129" title="All 2 branches missed.">            } else if (minor == 1) {</span>
+<span class="nc bnc" id="L130" title="All 2 branches missed.">                version = ntWorkstation ? &quot;7&quot; : &quot;Server 2008 R2&quot;;</span>
+<span class="nc bnc" id="L131" title="All 2 branches missed.">            } else if (minor == 0) {</span>
+<span class="nc bnc" id="L132" title="All 2 branches missed.">                version = ntWorkstation ? &quot;Vista&quot; : &quot;Server 2008&quot;;</span>
             }
             break;
         case 5:
-<span class="nc bnc" id="L129" title="All 2 branches missed.">            if (minor == 2) {</span>
-<span class="nc bnc" id="L130" title="All 2 branches missed.">                if ((suiteMask &amp; 0x00008000) != 0) {// VER_SUITE_WH_SERVER</span>
-<span class="nc" id="L131">                    version = &quot;Home Server&quot;;</span>
-<span class="nc bnc" id="L132" title="All 2 branches missed.">                } else if (ntWorkstation) {</span>
-<span class="nc" id="L133">                    version = &quot;XP&quot;; // 64 bits</span>
+<span class="nc bnc" id="L136" title="All 2 branches missed.">            if (minor == 2) {</span>
+<span class="nc bnc" id="L137" title="All 2 branches missed.">                if ((suiteMask &amp; 0x00008000) != 0) {// VER_SUITE_WH_SERVER</span>
+<span class="nc" id="L138">                    version = &quot;Home Server&quot;;</span>
+<span class="nc bnc" id="L139" title="All 2 branches missed.">                } else if (ntWorkstation) {</span>
+<span class="nc" id="L140">                    version = &quot;XP&quot;; // 64 bits</span>
                 } else {
-<span class="nc bnc" id="L135" title="All 2 branches missed.">                    version = User32.INSTANCE.GetSystemMetrics(WinUser.SM_SERVERR2) != 0 ? &quot;Server 2003&quot;</span>
-<span class="nc" id="L136">                            : &quot;Server 2003 R2&quot;;</span>
+<span class="nc bnc" id="L142" title="All 2 branches missed.">                    version = User32.INSTANCE.GetSystemMetrics(WinUser.SM_SERVERR2) != 0 ? &quot;Server 2003&quot;</span>
+<span class="nc" id="L143">                            : &quot;Server 2003 R2&quot;;</span>
                 }
-<span class="nc bnc" id="L138" title="All 2 branches missed.">            } else if (minor == 1) {</span>
-<span class="nc" id="L139">                version = &quot;XP&quot;; // 32 bits</span>
-<span class="nc bnc" id="L140" title="All 2 branches missed.">            } else if (minor == 0) {</span>
-<span class="nc" id="L141">                version = &quot;2000&quot;;</span>
+<span class="nc bnc" id="L145" title="All 2 branches missed.">            } else if (minor == 1) {</span>
+<span class="nc" id="L146">                version = &quot;XP&quot;; // 32 bits</span>
+<span class="nc bnc" id="L147" title="All 2 branches missed.">            } else if (minor == 0) {</span>
+<span class="nc" id="L148">                version = &quot;2000&quot;;</span>
             }
             break;
         default:
             break;
         }
 
-<span class="nc" id="L148">        String sp = WmiUtil.getString(versionInfo, OSVersionProperty.CSDVERSION, 0);</span>
-<span class="nc bnc" id="L149" title="All 4 branches missed.">        if (!sp.isEmpty() &amp;&amp; !&quot;unknown&quot;.equals(sp)) {</span>
-<span class="nc" id="L150">            version = version + &quot; &quot; + sp.replace(&quot;Service Pack &quot;, &quot;SP&quot;);</span>
+<span class="nc" id="L155">        String sp = WmiUtil.getString(versionInfo, OSVersionProperty.CSDVERSION, 0);</span>
+<span class="nc bnc" id="L156" title="All 4 branches missed.">        if (!sp.isEmpty() &amp;&amp; !&quot;unknown&quot;.equals(sp)) {</span>
+<span class="nc" id="L157">            version = version + &quot; &quot; + sp.replace(&quot;Service Pack &quot;, &quot;SP&quot;);</span>
         }
 
-<span class="nc" id="L153">        return version;</span>
+<span class="nc" id="L160">        return version;</span>
     }
 
     /**
@@ -161,33 +168,33 @@ public class WindowsOSVersionInfoEx extends AbstractOSVersionInfoEx {
      * @return Suites
      */
     private String parseCodeName(int suiteMask) {
-<span class="nc" id="L164">        List&lt;String&gt; suites = new ArrayList&lt;&gt;();</span>
-<span class="nc bnc" id="L165" title="All 2 branches missed.">        if ((suiteMask &amp; 0x00000002) != 0) {</span>
-<span class="nc" id="L166">            suites.add(&quot;Enterprise&quot;);</span>
+<span class="nc" id="L171">        List&lt;String&gt; suites = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L172" title="All 2 branches missed.">        if ((suiteMask &amp; 0x00000002) != 0) {</span>
+<span class="nc" id="L173">            suites.add(&quot;Enterprise&quot;);</span>
         }
-<span class="nc bnc" id="L168" title="All 2 branches missed.">        if ((suiteMask &amp; 0x00000004) != 0) {</span>
-<span class="nc" id="L169">            suites.add(&quot;BackOffice&quot;);</span>
+<span class="nc bnc" id="L175" title="All 2 branches missed.">        if ((suiteMask &amp; 0x00000004) != 0) {</span>
+<span class="nc" id="L176">            suites.add(&quot;BackOffice&quot;);</span>
         }
-<span class="nc bnc" id="L171" title="All 2 branches missed.">        if ((suiteMask &amp; 0x00000008) != 0) {</span>
-<span class="nc" id="L172">            suites.add(&quot;Communication Server&quot;);</span>
+<span class="nc bnc" id="L178" title="All 2 branches missed.">        if ((suiteMask &amp; 0x00000008) != 0) {</span>
+<span class="nc" id="L179">            suites.add(&quot;Communication Server&quot;);</span>
         }
-<span class="nc bnc" id="L174" title="All 2 branches missed.">        if ((suiteMask &amp; 0x00000080) != 0) {</span>
-<span class="nc" id="L175">            suites.add(&quot;Datacenter&quot;);</span>
+<span class="nc bnc" id="L181" title="All 2 branches missed.">        if ((suiteMask &amp; 0x00000080) != 0) {</span>
+<span class="nc" id="L182">            suites.add(&quot;Datacenter&quot;);</span>
         }
-<span class="nc bnc" id="L177" title="All 2 branches missed.">        if ((suiteMask &amp; 0x00000200) != 0) {</span>
-<span class="nc" id="L178">            suites.add(&quot;Home&quot;);</span>
+<span class="nc bnc" id="L184" title="All 2 branches missed.">        if ((suiteMask &amp; 0x00000200) != 0) {</span>
+<span class="nc" id="L185">            suites.add(&quot;Home&quot;);</span>
         }
-<span class="nc bnc" id="L180" title="All 2 branches missed.">        if ((suiteMask &amp; 0x00000400) != 0) {</span>
-<span class="nc" id="L181">            suites.add(&quot;Web Server&quot;);</span>
+<span class="nc bnc" id="L187" title="All 2 branches missed.">        if ((suiteMask &amp; 0x00000400) != 0) {</span>
+<span class="nc" id="L188">            suites.add(&quot;Web Server&quot;);</span>
         }
-<span class="nc bnc" id="L183" title="All 2 branches missed.">        if ((suiteMask &amp; 0x00002000) != 0) {</span>
-<span class="nc" id="L184">            suites.add(&quot;Storage Server&quot;);</span>
+<span class="nc bnc" id="L190" title="All 2 branches missed.">        if ((suiteMask &amp; 0x00002000) != 0) {</span>
+<span class="nc" id="L191">            suites.add(&quot;Storage Server&quot;);</span>
         }
-<span class="nc bnc" id="L186" title="All 2 branches missed.">        if ((suiteMask &amp; 0x00004000) != 0) {</span>
-<span class="nc" id="L187">            suites.add(&quot;Compute Cluster&quot;);</span>
+<span class="nc bnc" id="L193" title="All 2 branches missed.">        if ((suiteMask &amp; 0x00004000) != 0) {</span>
+<span class="nc" id="L194">            suites.add(&quot;Compute Cluster&quot;);</span>
         }
         // 0x8000, Home Server, is included in main version name
-<span class="nc" id="L190">        return StringUtil.join(&quot;,&quot;, suites);</span>
+<span class="nc" id="L197">        return String.join(&quot;,&quot;, suites);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

@@ -1,5 +1,16 @@
 oshi
-oshi.data.windows
+oshi.annotation.concurrent
+oshi.driver.linux
+oshi.driver.linux.proc
+oshi.driver.mac
+oshi.driver.unix
+oshi.driver.unix.freebsd
+oshi.driver.unix.solaris
+oshi.driver.unix.solaris.kstat
+oshi.driver.windows
+oshi.driver.windows.perfmon
+oshi.driver.windows.registry
+oshi.driver.windows.wmi
 oshi.hardware
 oshi.hardware.common
 oshi.hardware.platform.linux
@@ -26,3 +37,4 @@ oshi.util.platform.mac
 oshi.util.platform.unix.freebsd
 oshi.util.platform.unix.solaris
 oshi.util.platform.windows
+oshi.util.tuples

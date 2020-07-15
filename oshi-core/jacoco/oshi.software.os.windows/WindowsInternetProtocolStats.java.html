@@ -23,47 +23,48 @@
  */
 package oshi.software.os.windows;
 
+import com.sun.jna.platform.win32.IPHlpAPI; // NOSONAR squid:S1191
+import com.sun.jna.platform.win32.IPHlpAPI.MIB_TCPSTATS;
+import com.sun.jna.platform.win32.IPHlpAPI.MIB_UDPSTATS;
+
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.jna.platform.windows.IPHlpAPI;
-import oshi.jna.platform.windows.IPHlpAPI.MIB_TCPSTATS;
-import oshi.jna.platform.windows.IPHlpAPI.MIB_UDPSTATS;
 import oshi.software.os.InternetProtocolStats;
 
 @ThreadSafe
-<span class="nc" id="L33">public class WindowsInternetProtocolStats implements InternetProtocolStats {</span>
+<span class="nc" id="L34">public class WindowsInternetProtocolStats implements InternetProtocolStats {</span>
 
-<span class="nc" id="L35">    private static final IPHlpAPI IPHLP = IPHlpAPI.INSTANCE;</span>
+<span class="nc" id="L36">    private static final IPHlpAPI IPHLP = IPHlpAPI.INSTANCE;</span>
 
     @Override
     public TcpStats getTCPv4Stats() {
-<span class="nc" id="L39">        MIB_TCPSTATS stats = new MIB_TCPSTATS();</span>
-<span class="nc" id="L40">        IPHLP.GetTcpStatisticsEx(stats, IPHlpAPI.AF_INET);</span>
-<span class="nc" id="L41">        return new TcpStats(stats.dwCurrEstab, stats.dwActiveOpens, stats.dwPassiveOpens, stats.dwAttemptFails,</span>
+<span class="nc" id="L40">        MIB_TCPSTATS stats = new MIB_TCPSTATS();</span>
+<span class="nc" id="L41">        IPHLP.GetTcpStatisticsEx(stats, IPHlpAPI.AF_INET);</span>
+<span class="nc" id="L42">        return new TcpStats(stats.dwCurrEstab, stats.dwActiveOpens, stats.dwPassiveOpens, stats.dwAttemptFails,</span>
                 stats.dwEstabResets, stats.dwOutSegs, stats.dwInSegs, stats.dwRetransSegs, stats.dwInErrs,
                 stats.dwOutRsts);
     }
 
     @Override
     public TcpStats getTCPv6Stats() {
-<span class="nc" id="L48">        MIB_TCPSTATS stats = new MIB_TCPSTATS();</span>
-<span class="nc" id="L49">        IPHLP.GetTcpStatisticsEx(stats, IPHlpAPI.AF_INET6);</span>
-<span class="nc" id="L50">        return new TcpStats(stats.dwCurrEstab, stats.dwActiveOpens, stats.dwPassiveOpens, stats.dwAttemptFails,</span>
+<span class="nc" id="L49">        MIB_TCPSTATS stats = new MIB_TCPSTATS();</span>
+<span class="nc" id="L50">        IPHLP.GetTcpStatisticsEx(stats, IPHlpAPI.AF_INET6);</span>
+<span class="nc" id="L51">        return new TcpStats(stats.dwCurrEstab, stats.dwActiveOpens, stats.dwPassiveOpens, stats.dwAttemptFails,</span>
                 stats.dwEstabResets, stats.dwOutSegs, stats.dwInSegs, stats.dwRetransSegs, stats.dwInErrs,
                 stats.dwOutRsts);
     }
 
     @Override
     public UdpStats getUDPv4Stats() {
-<span class="nc" id="L57">        MIB_UDPSTATS stats = new MIB_UDPSTATS();</span>
-<span class="nc" id="L58">        IPHLP.GetUdpStatisticsEx(stats, IPHlpAPI.AF_INET);</span>
-<span class="nc" id="L59">        return new UdpStats(stats.dwOutDatagrams, stats.dwInDatagrams, stats.dwNoPorts, stats.dwInErrors);</span>
+<span class="nc" id="L58">        MIB_UDPSTATS stats = new MIB_UDPSTATS();</span>
+<span class="nc" id="L59">        IPHLP.GetUdpStatisticsEx(stats, IPHlpAPI.AF_INET);</span>
+<span class="nc" id="L60">        return new UdpStats(stats.dwOutDatagrams, stats.dwInDatagrams, stats.dwNoPorts, stats.dwInErrors);</span>
     }
 
     @Override
     public UdpStats getUDPv6Stats() {
-<span class="nc" id="L64">        MIB_UDPSTATS stats = new MIB_UDPSTATS();</span>
-<span class="nc" id="L65">        IPHLP.GetUdpStatisticsEx(stats, IPHlpAPI.AF_INET6);</span>
-<span class="nc" id="L66">        return new UdpStats(stats.dwOutDatagrams, stats.dwInDatagrams, stats.dwNoPorts, stats.dwInErrors);</span>
+<span class="nc" id="L65">        MIB_UDPSTATS stats = new MIB_UDPSTATS();</span>
+<span class="nc" id="L66">        IPHLP.GetUdpStatisticsEx(stats, IPHlpAPI.AF_INET6);</span>
+<span class="nc" id="L67">        return new UdpStats(stats.dwOutDatagrams, stats.dwInDatagrams, stats.dwNoPorts, stats.dwInErrors);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

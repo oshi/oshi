@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SolarisGlobalMemory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.unix.solaris</a> &gt; <span class="el_source">SolarisGlobalMemory.java</span></div><h1>SolarisGlobalMemory.java</h1><pre class="source lang-java linenums">/**
  * MIT License
  *
- * Copyright (c) 2010 - 2020 The OSHI Project Contributors:
- * https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -10,8 +9,9 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,70 +23,58 @@
  */
 package oshi.hardware.platform.unix.solaris;
 
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import static oshi.util.Memoizer.defaultExpiration;
+import static oshi.util.Memoizer.memoize;
 
-import com.sun.jna.platform.unix.solaris.LibKstat.Kstat; // NOSONAR
+import java.util.function.Supplier;
 
+import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.unix.solaris.kstat.SystemPages;
+import oshi.hardware.VirtualMemory;
 import oshi.hardware.common.AbstractGlobalMemory;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
-import oshi.util.platform.unix.solaris.KstatUtil;
+import oshi.util.tuples.Pair;
 
 /**
- * Memory obtained by /proc/meminfo and sysinfo.totalram
- *
- * @author alessandro[at]perucchi[dot]org
- * @author widdis[at]gmail[dot]com
+ * Memory obtained by kstat
  */
-public class SolarisGlobalMemory extends AbstractGlobalMemory {
+@ThreadSafe
+<span class="nc" id="L43">final class SolarisGlobalMemory extends AbstractGlobalMemory {</span>
 
-    private static final long serialVersionUID = 1L;
+<span class="nc" id="L45">    private final Supplier&lt;Pair&lt;Long, Long&gt;&gt; availTotal = memoize(SystemPages::queryAvailableTotal,</span>
+<span class="nc" id="L46">            defaultExpiration());</span>
 
-<span class="nc" id="L47">    private static final Pattern SWAPINFO = Pattern.compile(&quot;.+\\s(\\d+)K\\s+(\\d+)K$&quot;);</span>
+<span class="nc" id="L48">    private final Supplier&lt;Long&gt; pageSize = memoize(SolarisGlobalMemory::queryPageSize);</span>
 
-<span class="nc" id="L49">    public SolarisGlobalMemory() {</span>
-<span class="nc" id="L50">        this.pageSize = ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer(&quot;pagesize&quot;), 4096L);</span>
-<span class="nc" id="L51">    }</span>
+<span class="nc" id="L50">    private final Supplier&lt;VirtualMemory&gt; vm = memoize(this::createVirtualMemory);</span>
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    protected void updateMeminfo() {
-        // Get first result
-<span class="nc" id="L59">        Kstat ksp = KstatUtil.kstatLookup(null, -1, &quot;system_pages&quot;);</span>
-        // Set values
-<span class="nc bnc" id="L61" title="All 4 branches missed.">        if (ksp != null &amp;&amp; KstatUtil.kstatRead(ksp)) {</span>
-<span class="nc" id="L62">            this.memAvailable = KstatUtil.kstatDataLookupLong(ksp, &quot;availrmem&quot;) * this.pageSize;</span>
-<span class="nc" id="L63">            this.memTotal = KstatUtil.kstatDataLookupLong(ksp, &quot;physmem&quot;) * this.pageSize;</span>
-        }
+    public long getAvailable() {
+<span class="nc" id="L54">        return availTotal.get().getA();</span>
+    }
 
-<span class="nc" id="L66">        this.swapPagesIn = 0L;</span>
-<span class="nc" id="L67">        List&lt;String&gt; kstat = ExecutingCommand.runNative(&quot;kstat -p cpu_stat:::pgpgin&quot;);</span>
-<span class="nc bnc" id="L68" title="All 2 branches missed.">        for (String s : kstat) {</span>
-<span class="nc" id="L69">            this.swapPagesIn += ParseUtil.parseLastLong(s, 0L);</span>
-<span class="nc" id="L70">        }</span>
-
-<span class="nc" id="L72">        this.swapPagesOut = 0L;</span>
-<span class="nc" id="L73">        kstat = ExecutingCommand.runNative(&quot;kstat -p cpu_stat:::pgpgout&quot;);</span>
-<span class="nc bnc" id="L74" title="All 2 branches missed.">        for (String s : kstat) {</span>
-<span class="nc" id="L75">            this.swapPagesOut += ParseUtil.parseLastLong(s, 0L);</span>
-<span class="nc" id="L76">        }</span>
-<span class="nc" id="L77">    }</span>
-
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    protected void updateSwap() {
-<span class="nc" id="L84">        String swapInfo = ExecutingCommand.getAnswerAt(&quot;swap -lk&quot;, 1);</span>
-<span class="nc" id="L85">        Matcher m = SWAPINFO.matcher(swapInfo);</span>
-<span class="nc bnc" id="L86" title="All 2 branches missed.">        if (m.matches()) {</span>
-<span class="nc" id="L87">            this.swapTotal = ParseUtil.parseLongOrDefault(m.group(1), 0L) &lt;&lt; 10;</span>
-<span class="nc" id="L88">            this.swapUsed = this.swapTotal - (ParseUtil.parseLongOrDefault(m.group(2), 0L) &lt;&lt; 10);</span>
-        }
-<span class="nc" id="L90">    }</span>
+    public long getTotal() {
+<span class="nc" id="L59">        return availTotal.get().getB();</span>
+    }
+
+    @Override
+    public long getPageSize() {
+<span class="nc" id="L64">        return pageSize.get();</span>
+    }
+
+    @Override
+    public VirtualMemory getVirtualMemory() {
+<span class="nc" id="L69">        return vm.get();</span>
+    }
+
+    private static long queryPageSize() {
+<span class="nc" id="L73">        return ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer(&quot;pagesize&quot;), 4096L);</span>
+    }
+
+    private VirtualMemory createVirtualMemory() {
+<span class="nc" id="L77">        return new SolarisVirtualMemory(this);</span>
+    }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

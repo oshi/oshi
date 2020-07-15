@@ -31,13 +31,13 @@ import org.slf4j.LoggerFactory;
 
 import com.sun.jna.platform.win32.Advapi32Util.Account; // NOSONAR squid:S1191
 import com.sun.jna.platform.win32.Advapi32Util.InfoKey;
+import com.sun.jna.platform.win32.Advapi32Util;
 import com.sun.jna.platform.win32.Win32Exception;
 import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.platform.win32.WinReg;
 import com.sun.jna.platform.win32.WinReg.HKEY;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.jna.platform.windows.Advapi32Util;
 import oshi.software.os.OSSession;
 
 /**

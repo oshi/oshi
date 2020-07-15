@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MacFileSystem.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.software.os.mac</a> &gt; <span class="el_source">MacFileSystem.java</span></div><h1>MacFileSystem.java</h1><pre class="source lang-java linenums">/**
  * MIT License
  *
- * Copyright (c) 2010 - 2020 The OSHI Project Contributors:
- * https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -10,8 +9,9 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -24,180 +24,279 @@
 package oshi.software.os.mac;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Pointer;
+import com.sun.jna.Pointer; // NOSONAR squid:S1191
+import com.sun.jna.platform.mac.CoreFoundation;
+import com.sun.jna.platform.mac.CoreFoundation.CFDictionaryRef;
+import com.sun.jna.platform.mac.CoreFoundation.CFMutableDictionaryRef;
+import com.sun.jna.platform.mac.CoreFoundation.CFStringRef;
+import com.sun.jna.platform.mac.DiskArbitration;
+import com.sun.jna.platform.mac.DiskArbitration.DADiskRef;
+import com.sun.jna.platform.mac.DiskArbitration.DASessionRef;
+import com.sun.jna.platform.mac.IOKit.IOIterator;
+import com.sun.jna.platform.mac.IOKit.IORegistryEntry;
+import com.sun.jna.platform.mac.IOKitUtil;
 import com.sun.jna.platform.mac.SystemB;
 import com.sun.jna.platform.mac.SystemB.Statfs;
-import com.sun.jna.ptr.IntByReference;
 
-import oshi.jna.platform.mac.CoreFoundation;
-import oshi.jna.platform.mac.CoreFoundation.CFDictionaryRef;
-import oshi.jna.platform.mac.CoreFoundation.CFMutableDictionaryRef;
-import oshi.jna.platform.mac.DiskArbitration;
-import oshi.jna.platform.mac.DiskArbitration.DADiskRef;
-import oshi.jna.platform.mac.DiskArbitration.DASessionRef;
-import oshi.jna.platform.mac.IOKit;
-import oshi.software.os.FileSystem;
+import oshi.annotation.concurrent.ThreadSafe;
+import oshi.software.common.AbstractFileSystem;
 import oshi.software.os.OSFileStore;
-import oshi.util.platform.mac.CfUtil;
-import oshi.util.platform.mac.IOKitUtil;
+import oshi.util.Constants;
 import oshi.util.platform.mac.SysctlUtil;
 
 /**
- * The Mac File System contains {@link OSFileStore}s which are a storage pool,
- * device, partition, volume, concrete file system or other implementation
- * specific means of file storage. In Mac OS X, these are found in the /Volumes
- * directory.
- *
- * @author widdis[at]gmail[dot]com
+ * The Mac File System contains {@link oshi.software.os.OSFileStore}s which are
+ * a storage pool, device, partition, volume, concrete file system or other
+ * implementation specific means of file storage. In macOS, these are found in
+ * the /Volumes directory.
  */
-<span class="nc" id="L60">public class MacFileSystem implements FileSystem {</span>
+@ThreadSafe
+<span class="nc" id="L65">public class MacFileSystem extends AbstractFileSystem {</span>
 
-    private static final long serialVersionUID = 1L;
-
-<span class="nc" id="L64">    private static final Logger LOG = LoggerFactory.getLogger(MacFileSystem.class);</span>
+<span class="nc" id="L67">    private static final Logger LOG = LoggerFactory.getLogger(MacFileSystem.class);</span>
 
     // Regexp matcher for /dev/disk1 etc.
-<span class="nc" id="L67">    private static final Pattern LOCAL_DISK = Pattern.compile(&quot;/dev/disk\\d&quot;);</span>
+<span class="nc" id="L70">    private static final Pattern LOCAL_DISK = Pattern.compile(&quot;/dev/disk\\d&quot;);</span>
 
-    /**
-     * Gets File System Information.
-     *
-     * @return An array of {@link OSFileStore} objects representing mounted
-     *         volumes. May return disconnected volumes with
-     *         {@link OSFileStore#getTotalSpace()} = 0.
-     */
+    // User specifiable flags.
+    private static final int MNT_RDONLY = 0x00000001;
+    private static final int MNT_SYNCHRONOUS = 0x00000002;
+    private static final int MNT_NOEXEC = 0x00000004;
+    private static final int MNT_NOSUID = 0x00000008;
+    private static final int MNT_NODEV = 0x00000010;
+    private static final int MNT_UNION = 0x00000020;
+    private static final int MNT_ASYNC = 0x00000040;
+    private static final int MNT_CPROTECT = 0x00000080;
+    private static final int MNT_EXPORTED = 0x00000100;
+    private static final int MNT_QUARANTINE = 0x00000400;
+    private static final int MNT_LOCAL = 0x00001000;
+    private static final int MNT_QUOTA = 0x00002000;
+    private static final int MNT_ROOTFS = 0x00004000;
+    private static final int MNT_DOVOLFS = 0x00008000;
+    private static final int MNT_DONTBROWSE = 0x00100000;
+    private static final int MNT_IGNORE_OWNERSHIP = 0x00200000;
+    private static final int MNT_AUTOMOUNTED = 0x00400000;
+    private static final int MNT_JOURNALED = 0x00800000;
+    private static final int MNT_NOUSERXATTR = 0x01000000;
+    private static final int MNT_DEFWRITE = 0x02000000;
+    private static final int MNT_MULTILABEL = 0x04000000;
+    private static final int MNT_NOATIME = 0x10000000;
+
+<span class="nc" id="L96">    private static final Map&lt;Integer, String&gt; OPTIONS_MAP = new HashMap&lt;&gt;();</span>
+    static {
+<span class="nc" id="L98">        OPTIONS_MAP.put(MNT_SYNCHRONOUS, &quot;synchronous&quot;);</span>
+<span class="nc" id="L99">        OPTIONS_MAP.put(MNT_NOEXEC, &quot;noexec&quot;);</span>
+<span class="nc" id="L100">        OPTIONS_MAP.put(MNT_NOSUID, &quot;nosuid&quot;);</span>
+<span class="nc" id="L101">        OPTIONS_MAP.put(MNT_NODEV, &quot;nodev&quot;);</span>
+<span class="nc" id="L102">        OPTIONS_MAP.put(MNT_UNION, &quot;union&quot;);</span>
+<span class="nc" id="L103">        OPTIONS_MAP.put(MNT_ASYNC, &quot;asynchronous&quot;);</span>
+<span class="nc" id="L104">        OPTIONS_MAP.put(MNT_CPROTECT, &quot;content-protection&quot;);</span>
+<span class="nc" id="L105">        OPTIONS_MAP.put(MNT_EXPORTED, &quot;exported&quot;);</span>
+<span class="nc" id="L106">        OPTIONS_MAP.put(MNT_QUARANTINE, &quot;quarantined&quot;);</span>
+<span class="nc" id="L107">        OPTIONS_MAP.put(MNT_LOCAL, &quot;local&quot;);</span>
+<span class="nc" id="L108">        OPTIONS_MAP.put(MNT_QUOTA, &quot;quotas&quot;);</span>
+<span class="nc" id="L109">        OPTIONS_MAP.put(MNT_ROOTFS, &quot;rootfs&quot;);</span>
+<span class="nc" id="L110">        OPTIONS_MAP.put(MNT_DOVOLFS, &quot;volfs&quot;);</span>
+<span class="nc" id="L111">        OPTIONS_MAP.put(MNT_DONTBROWSE, &quot;nobrowse&quot;);</span>
+<span class="nc" id="L112">        OPTIONS_MAP.put(MNT_IGNORE_OWNERSHIP, &quot;noowners&quot;);</span>
+<span class="nc" id="L113">        OPTIONS_MAP.put(MNT_AUTOMOUNTED, &quot;automounted&quot;);</span>
+<span class="nc" id="L114">        OPTIONS_MAP.put(MNT_JOURNALED, &quot;journaled&quot;);</span>
+<span class="nc" id="L115">        OPTIONS_MAP.put(MNT_NOUSERXATTR, &quot;nouserxattr&quot;);</span>
+<span class="nc" id="L116">        OPTIONS_MAP.put(MNT_DEFWRITE, &quot;defwrite&quot;);</span>
+<span class="nc" id="L117">        OPTIONS_MAP.put(MNT_MULTILABEL, &quot;multilabel&quot;);</span>
+<span class="nc" id="L118">        OPTIONS_MAP.put(MNT_NOATIME, &quot;noatime&quot;);</span>
+<span class="nc" id="L119">    }</span>
+
     @Override
-    public OSFileStore[] getFileStores() {
-        // Open a DiskArbitration session to get VolumeName of file systems with
-        // bsd names
-<span class="nc" id="L80">        DASessionRef session = DiskArbitration.INSTANCE.DASessionCreate(CfUtil.ALLOCATOR);</span>
-<span class="nc bnc" id="L81" title="All 2 branches missed.">        if (session == null) {</span>
-<span class="nc" id="L82">            LOG.error(&quot;Unable to open session to DiskArbitration framework.&quot;);</span>
-        }
-
+    public OSFileStore[] getFileStores(boolean localOnly) {
         // List of file systems
-<span class="nc" id="L86">        List&lt;OSFileStore&gt; fsList = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L124">        List&lt;OSFileStore&gt; fsList = getFileStoreMatching(null, localOnly);</span>
+<span class="nc" id="L125">        return fsList.toArray(new OSFileStore[0]);</span>
+    }
+
+    private static List&lt;OSFileStore&gt; getFileStoreMatching(String nameToMatch) {
+<span class="nc" id="L129">        return getFileStoreMatching(nameToMatch, false);</span>
+    }
+
+    private static List&lt;OSFileStore&gt; getFileStoreMatching(String nameToMatch, boolean localOnly) {
+<span class="nc" id="L133">        List&lt;OSFileStore&gt; fsList = new ArrayList&lt;&gt;();</span>
 
         // Use getfsstat to find fileSystems
         // Query with null to get total # required
-<span class="nc" id="L90">        int numfs = SystemB.INSTANCE.getfsstat64(null, 0, 0);</span>
-<span class="nc bnc" id="L91" title="All 2 branches missed.">        if (numfs &gt; 0) {</span>
+<span class="nc" id="L137">        int numfs = SystemB.INSTANCE.getfsstat64(null, 0, 0);</span>
+<span class="nc bnc" id="L138" title="All 2 branches missed.">        if (numfs &gt; 0) {</span>
+            // Open a DiskArbitration session to get VolumeName of file systems
+            // with bsd names
+<span class="nc" id="L141">            DASessionRef session = DiskArbitration.INSTANCE</span>
+<span class="nc" id="L142">                    .DASessionCreate(CoreFoundation.INSTANCE.CFAllocatorGetDefault());</span>
+<span class="nc bnc" id="L143" title="All 2 branches missed.">            if (session == null) {</span>
+<span class="nc" id="L144">                LOG.error(&quot;Unable to open session to DiskArbitration framework.&quot;);</span>
+            } else {
+<span class="nc" id="L146">                CFStringRef daVolumeNameKey = CFStringRef.createCFString(&quot;DAVolumeName&quot;);</span>
 
-            // Create array to hold results
-<span class="nc" id="L94">            Statfs[] fs = new Statfs[numfs];</span>
-            // Fill array with results
-<span class="nc" id="L96">            numfs = SystemB.INSTANCE.getfsstat64(fs, numfs * new Statfs().size(), SystemB.MNT_NOWAIT);</span>
-<span class="nc bnc" id="L97" title="All 2 branches missed.">            for (int f = 0; f &lt; numfs; f++) {</span>
-                // Mount on name will match mounted path, e.g. /Volumes/foo
-                // Mount to name will match canonical path., e.g., /dev/disk0s2
-                // Byte arrays are null-terminated strings
+                // Create array to hold results
+<span class="nc" id="L149">                Statfs[] fs = new Statfs[numfs];</span>
+                // Fill array with results
+<span class="nc" id="L151">                numfs = SystemB.INSTANCE.getfsstat64(fs, numfs * new Statfs().size(), SystemB.MNT_NOWAIT);</span>
+<span class="nc bnc" id="L152" title="All 2 branches missed.">                for (int f = 0; f &lt; numfs; f++) {</span>
+                    // Mount on name will match mounted path, e.g. /Volumes/foo
+                    // Mount to name will match canonical path., e.g., /dev/disk0s2
+                    // Byte arrays are null-terminated strings
 
-                // Get volume name
-<span class="nc" id="L103">                String volume = new String(fs[f].f_mntfromname).trim();</span>
-                // Skip system types
-<span class="nc bnc" id="L105" title="All 4 branches missed.">                if (volume.equals(&quot;devfs&quot;) || volume.startsWith(&quot;map &quot;)) {</span>
-<span class="nc" id="L106">                    continue;</span>
-                }
-                // Set description
-<span class="nc" id="L109">                String description = &quot;Volume&quot;;</span>
-<span class="nc bnc" id="L110" title="All 2 branches missed.">                if (LOCAL_DISK.matcher(volume).matches()) {</span>
-<span class="nc" id="L111">                    description = &quot;Local Disk&quot;;</span>
-                }
-<span class="nc bnc" id="L113" title="All 4 branches missed.">                if (volume.startsWith(&quot;localhost:&quot;) || volume.startsWith(&quot;//&quot;)) {</span>
-<span class="nc" id="L114">                    description = &quot;Network Drive&quot;;</span>
-                }
-                // Set type and path
-<span class="nc" id="L117">                String type = new String(fs[f].f_fstypename).trim();</span>
-<span class="nc" id="L118">                String path = new String(fs[f].f_mntonname).trim();</span>
-
-                // Set name and uuid
-<span class="nc" id="L121">                String name = &quot;&quot;;</span>
-<span class="nc" id="L122">                String uuid = &quot;&quot;;</span>
-                // Use volume to find DiskArbitration volume name and search for
-                // the registry entry for UUID
-<span class="nc" id="L125">                String bsdName = volume.replace(&quot;/dev/disk&quot;, &quot;disk&quot;);</span>
-<span class="nc bnc" id="L126" title="All 2 branches missed.">                if (bsdName.startsWith(&quot;disk&quot;)) {</span>
-                    // Get the DiskArbitration dictionary for this disk,
-                    // which has volumename
-<span class="nc" id="L129">                    DADiskRef disk = DiskArbitration.INSTANCE.DADiskCreateFromBSDName(CfUtil.ALLOCATOR, session,</span>
-                            volume);
-<span class="nc bnc" id="L131" title="All 2 branches missed.">                    if (disk != null) {</span>
-<span class="nc" id="L132">                        CFDictionaryRef diskInfo = DiskArbitration.INSTANCE.DADiskCopyDescription(disk);</span>
-<span class="nc bnc" id="L133" title="All 2 branches missed.">                        if (diskInfo != null) {</span>
-                            // get volume name from its key
-<span class="nc" id="L135">                            Pointer volumePtr = CoreFoundation.INSTANCE.CFDictionaryGetValue(diskInfo,</span>
-<span class="nc" id="L136">                                    CfUtil.getCFString(&quot;DAVolumeName&quot;));</span>
-<span class="nc" id="L137">                            name = CfUtil.cfPointerToString(volumePtr);</span>
-<span class="nc" id="L138">                            CfUtil.release(diskInfo);</span>
-                        }
-<span class="nc" id="L140">                        CfUtil.release(disk);</span>
+                    // Get volume name
+<span class="nc" id="L158">                    String volume = new String(fs[f].f_mntfromname, StandardCharsets.UTF_8).trim();</span>
+                    // Skip non-local drives if requested, skip system types
+<span class="nc" id="L160">                    final int flags = fs[f].f_flags;</span>
+<span class="nc bnc" id="L161" title="All 6 branches missed.">                    if ((localOnly &amp;&amp; (flags &amp; MNT_LOCAL) == 0) || volume.equals(&quot;devfs&quot;)</span>
+<span class="nc bnc" id="L162" title="All 2 branches missed.">                            || volume.startsWith(&quot;map &quot;)) {</span>
+<span class="nc" id="L163">                        continue;</span>
                     }
-                    // Search for bsd name in IOKit registry for UUID
-<span class="nc" id="L143">                    CFMutableDictionaryRef matchingDict = IOKitUtil.getBSDNameMatchingDict(bsdName);</span>
-<span class="nc bnc" id="L144" title="All 2 branches missed.">                    if (matchingDict != null) {</span>
-                        // search for all IOservices that match the bsd name
-<span class="nc" id="L146">                        IntByReference fsIter = new IntByReference();</span>
-<span class="nc" id="L147">                        IOKitUtil.getMatchingServices(matchingDict, fsIter);</span>
-                        // getMatchingServices releases matchingDict
-                        // Should only match one logical drive
-<span class="nc" id="L150">                        int fsEntry = IOKit.INSTANCE.IOIteratorNext(fsIter.getValue());</span>
-<span class="nc bnc" id="L151" title="All 4 branches missed.">                        if (fsEntry != 0 &amp;&amp; IOKit.INSTANCE.IOObjectConformsTo(fsEntry, &quot;IOMedia&quot;)) {</span>
-                            // Now get the UUID
-<span class="nc" id="L153">                            uuid = IOKitUtil.getIORegistryStringProperty(fsEntry, &quot;UUID&quot;);</span>
-<span class="nc bnc" id="L154" title="All 2 branches missed.">                            if (uuid == null) {</span>
-<span class="nc" id="L155">                                uuid = &quot;&quot;;</span>
-                            } else {
-<span class="nc" id="L157">                                uuid = uuid.toLowerCase();</span>
+
+<span class="nc" id="L166">                    String type = new String(fs[f].f_fstypename, StandardCharsets.UTF_8).trim();</span>
+<span class="nc" id="L167">                    String description = &quot;Volume&quot;;</span>
+<span class="nc bnc" id="L168" title="All 2 branches missed.">                    if (LOCAL_DISK.matcher(volume).matches()) {</span>
+<span class="nc" id="L169">                        description = &quot;Local Disk&quot;;</span>
+<span class="nc bnc" id="L170" title="All 6 branches missed.">                    } else if (volume.startsWith(&quot;localhost:&quot;) || volume.startsWith(&quot;//&quot;) || volume.startsWith(&quot;smb://&quot;)</span>
+<span class="nc bnc" id="L171" title="All 2 branches missed.">                            || NETWORK_FS_TYPES.contains(type)) {</span>
+<span class="nc" id="L172">                        description = &quot;Network Drive&quot;;</span>
+                    }
+<span class="nc" id="L174">                    String path = new String(fs[f].f_mntonname, StandardCharsets.UTF_8).trim();</span>
+<span class="nc" id="L175">                    String name = &quot;&quot;;</span>
+<span class="nc" id="L176">                    File file = new File(path);</span>
+<span class="nc bnc" id="L177" title="All 2 branches missed.">                    if (name.isEmpty()) {</span>
+<span class="nc" id="L178">                        name = file.getName();</span>
+                        // getName() for / is still blank, so:
+<span class="nc bnc" id="L180" title="All 2 branches missed.">                        if (name.isEmpty()) {</span>
+<span class="nc" id="L181">                            name = file.getPath();</span>
+                        }
+                    }
+<span class="nc bnc" id="L184" title="All 4 branches missed.">                    if (nameToMatch != null &amp;&amp; !nameToMatch.equals(name)) {</span>
+<span class="nc" id="L185">                        continue;</span>
+                    }
+
+<span class="nc bnc" id="L188" title="All 2 branches missed.">                    StringBuilder options = new StringBuilder((MNT_RDONLY &amp; flags) == 0 ? &quot;rw&quot; : &quot;ro&quot;);</span>
+<span class="nc bnc" id="L189" title="All 2 branches missed.">                    String moreOptions = OPTIONS_MAP.entrySet().stream().filter(e -&gt; (e.getKey() &amp; flags) &gt; 0)</span>
+<span class="nc" id="L190">                            .map(Map.Entry::getValue).collect(Collectors.joining(&quot;,&quot;));</span>
+<span class="nc bnc" id="L191" title="All 2 branches missed.">                    if (!moreOptions.isEmpty()) {</span>
+<span class="nc" id="L192">                        options.append(',').append(moreOptions);</span>
+                    }
+
+<span class="nc" id="L195">                    String uuid = &quot;&quot;;</span>
+                    // Use volume to find DiskArbitration volume name and search for
+                    // the registry entry for UUID
+<span class="nc" id="L198">                    String bsdName = volume.replace(&quot;/dev/disk&quot;, &quot;disk&quot;);</span>
+<span class="nc bnc" id="L199" title="All 2 branches missed.">                    if (bsdName.startsWith(&quot;disk&quot;)) {</span>
+                        // Get the DiskArbitration dictionary for this disk,
+                        // which has volumename
+<span class="nc" id="L202">                        DADiskRef disk = DiskArbitration.INSTANCE.DADiskCreateFromBSDName(</span>
+<span class="nc" id="L203">                                CoreFoundation.INSTANCE.CFAllocatorGetDefault(), session, volume);</span>
+<span class="nc bnc" id="L204" title="All 2 branches missed.">                        if (disk != null) {</span>
+<span class="nc" id="L205">                            CFDictionaryRef diskInfo = DiskArbitration.INSTANCE.DADiskCopyDescription(disk);</span>
+<span class="nc bnc" id="L206" title="All 2 branches missed.">                            if (diskInfo != null) {</span>
+                                // get volume name from its key
+<span class="nc" id="L208">                                Pointer result = diskInfo.getValue(daVolumeNameKey);</span>
+<span class="nc" id="L209">                                CFStringRef volumePtr = new CFStringRef(result);</span>
+<span class="nc" id="L210">                                name = volumePtr.stringValue();</span>
+<span class="nc bnc" id="L211" title="All 2 branches missed.">                                if (name == null) {</span>
+<span class="nc" id="L212">                                    name = Constants.UNKNOWN;</span>
+                                }
+<span class="nc" id="L214">                                diskInfo.release();</span>
                             }
-<span class="nc" id="L159">                            IOKit.INSTANCE.IOObjectRelease(fsEntry);</span>
+<span class="nc" id="L216">                            disk.release();</span>
                         }
-<span class="nc" id="L161">                        IOKit.INSTANCE.IOObjectRelease(fsIter.getValue());</span>
+                        // Search for bsd name in IOKit registry for UUID
+<span class="nc" id="L219">                        CFMutableDictionaryRef matchingDict = IOKitUtil.getBSDNameMatchingDict(bsdName);</span>
+<span class="nc bnc" id="L220" title="All 2 branches missed.">                        if (matchingDict != null) {</span>
+                            // search for all IOservices that match the bsd name
+<span class="nc" id="L222">                            IOIterator fsIter = IOKitUtil.getMatchingServices(matchingDict);</span>
+<span class="nc bnc" id="L223" title="All 2 branches missed.">                            if (fsIter != null) {</span>
+                                // getMatchingServices releases matchingDict
+                                // Should only match one logical drive
+<span class="nc" id="L226">                                IORegistryEntry fsEntry = fsIter.next();</span>
+<span class="nc bnc" id="L227" title="All 4 branches missed.">                                if (fsEntry != null &amp;&amp; fsEntry.conformsTo(&quot;IOMedia&quot;)) {</span>
+                                    // Now get the UUID
+<span class="nc" id="L229">                                    uuid = fsEntry.getStringProperty(&quot;UUID&quot;);</span>
+<span class="nc bnc" id="L230" title="All 2 branches missed.">                                    if (uuid != null) {</span>
+<span class="nc" id="L231">                                        uuid = uuid.toLowerCase();</span>
+                                    }
+<span class="nc" id="L233">                                    fsEntry.release();</span>
+                                }
+<span class="nc" id="L235">                                fsIter.release();</span>
+                            }
+                        }
                     }
-                }
-<span class="nc" id="L164">                File file = new File(path);</span>
-<span class="nc bnc" id="L165" title="All 2 branches missed.">                if (name.isEmpty()) {</span>
-<span class="nc" id="L166">                    name = file.getName();</span>
-                    // getName() for / is still blank, so:
-<span class="nc bnc" id="L168" title="All 2 branches missed.">                    if (name.isEmpty()) {</span>
-<span class="nc" id="L169">                        name = file.getPath();</span>
-                    }
-                }
 
-                // Add to the list
-<span class="nc" id="L174">                OSFileStore osStore = new OSFileStore();</span>
-<span class="nc" id="L175">                osStore.setName(name);</span>
-<span class="nc" id="L176">                osStore.setVolume(volume);</span>
-<span class="nc" id="L177">                osStore.setMount(path);</span>
-<span class="nc" id="L178">                osStore.setDescription(description);</span>
-<span class="nc" id="L179">                osStore.setType(type);</span>
-<span class="nc" id="L180">                osStore.setUUID(uuid);</span>
-<span class="nc" id="L181">                osStore.setUsableSpace(file.getUsableSpace());</span>
-<span class="nc" id="L182">                osStore.setTotalSpace(file.getTotalSpace());</span>
-<span class="nc" id="L183">                osStore.setFreeInodes(fs[f].f_ffree);</span>
-<span class="nc" id="L184">                osStore.setTotalInodes(fs[f].f_files);</span>
-<span class="nc" id="L185">                fsList.add(osStore);</span>
+                    // Add to the list
+<span class="nc" id="L241">                    OSFileStore osStore = new OSFileStore();</span>
+<span class="nc" id="L242">                    osStore.setName(name);</span>
+<span class="nc" id="L243">                    osStore.setVolume(volume);</span>
+<span class="nc" id="L244">                    osStore.setLabel(name);</span>
+<span class="nc" id="L245">                    osStore.setMount(path);</span>
+<span class="nc" id="L246">                    osStore.setDescription(description);</span>
+<span class="nc" id="L247">                    osStore.setType(type);</span>
+<span class="nc" id="L248">                    osStore.setOptions(options.toString());</span>
+<span class="nc bnc" id="L249" title="All 2 branches missed.">                    osStore.setUUID(uuid == null ? &quot;&quot; : uuid);</span>
+<span class="nc" id="L250">                    osStore.setFreeSpace(file.getFreeSpace());</span>
+<span class="nc" id="L251">                    osStore.setUsableSpace(file.getUsableSpace());</span>
+<span class="nc" id="L252">                    osStore.setTotalSpace(file.getTotalSpace());</span>
+<span class="nc" id="L253">                    osStore.setFreeInodes(fs[f].f_ffree);</span>
+<span class="nc" id="L254">                    osStore.setTotalInodes(fs[f].f_files);</span>
+<span class="nc" id="L255">                    fsList.add(osStore);</span>
+                }
+<span class="nc" id="L257">                daVolumeNameKey.release();</span>
+                // Close DA session
+<span class="nc" id="L259">                session.release();</span>
             }
         }
-        // Close DA session
-<span class="nc" id="L189">        CfUtil.release(session);</span>
-<span class="nc" id="L190">        return fsList.toArray(new OSFileStore[fsList.size()]);</span>
+<span class="nc" id="L262">        return fsList;</span>
     }
 
     @Override
     public long getOpenFileDescriptors() {
-<span class="nc" id="L195">        return SysctlUtil.sysctl(&quot;kern.num_files&quot;, 0);</span>
+<span class="nc" id="L267">        return SysctlUtil.sysctl(&quot;kern.num_files&quot;, 0);</span>
     }
 
     @Override
     public long getMaxFileDescriptors() {
-<span class="nc" id="L200">        return SysctlUtil.sysctl(&quot;kern.maxfiles&quot;, 0);</span>
+<span class="nc" id="L272">        return SysctlUtil.sysctl(&quot;kern.maxfiles&quot;, 0);</span>
+    }
+
+    /**
+     * &lt;p&gt;
+     * updateFileStoreStats.
+     * &lt;/p&gt;
+     *
+     * @param osFileStore
+     *            a {@link oshi.software.os.OSFileStore} object.
+     * @return a boolean.
+     */
+    public static boolean updateFileStoreStats(OSFileStore osFileStore) {
+<span class="nc bnc" id="L285" title="All 2 branches missed.">        for (OSFileStore fileStore : getFileStoreMatching(osFileStore.getName())) {</span>
+<span class="nc bnc" id="L286" title="All 2 branches missed.">            if (osFileStore.getVolume().equals(fileStore.getVolume())</span>
+<span class="nc bnc" id="L287" title="All 2 branches missed.">                    &amp;&amp; osFileStore.getMount().equals(fileStore.getMount())) {</span>
+<span class="nc" id="L288">                osFileStore.setLogicalVolume(fileStore.getLogicalVolume());</span>
+<span class="nc" id="L289">                osFileStore.setDescription(fileStore.getDescription());</span>
+<span class="nc" id="L290">                osFileStore.setType(fileStore.getType());</span>
+<span class="nc" id="L291">                osFileStore.setFreeSpace(fileStore.getFreeSpace());</span>
+<span class="nc" id="L292">                osFileStore.setUsableSpace(fileStore.getUsableSpace());</span>
+<span class="nc" id="L293">                osFileStore.setTotalSpace(fileStore.getTotalSpace());</span>
+<span class="nc" id="L294">                osFileStore.setFreeInodes(fileStore.getFreeInodes());</span>
+<span class="nc" id="L295">                osFileStore.setTotalInodes(fileStore.getTotalInodes());</span>
+<span class="nc" id="L296">                return true;</span>
+            }
+<span class="nc" id="L298">        }</span>
+<span class="nc" id="L299">        return false;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MacSensors.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.mac</a> &gt; <span class="el_source">MacSensors.java</span></div><h1>MacSensors.java</h1><pre class="source lang-java linenums">/**
  * MIT License
  *
- * Copyright (c) 2010 - 2020 The OSHI Project Contributors:
- * https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -10,8 +9,9 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,100 +23,53 @@
  */
 package oshi.hardware.platform.mac;
 
-import java.util.Arrays;
+import com.sun.jna.platform.mac.IOKit.IOConnect; // NOSONAR squid:S1191
 
-import oshi.hardware.Sensors;
-import oshi.jna.platform.mac.IOKit;
+import oshi.annotation.concurrent.ThreadSafe;
+import oshi.hardware.common.AbstractSensors;
 import oshi.util.platform.mac.SmcUtil;
 
-public class MacSensors implements Sensors {
+/**
+ * Sensors from SMC
+ */
+@ThreadSafe
+<span class="nc" id="L36">final class MacSensors extends AbstractSensors {</span>
 
-    private static final long serialVersionUID = 1L;
+    // This shouldn't change once determined
+<span class="nc" id="L39">    private int numFans = 0;</span>
 
-    // Store some things to throttle SMC queries
-<span class="nc" id="L37">    private double lastTemp = 0d;</span>
-
-    private long lastTempTime;
-
-<span class="nc" id="L41">    private int numFans = 0;</span>
-
-<span class="nc" id="L43">    private int[] lastFanSpeeds = new int[0];</span>
-
-    private long lastFanSpeedsTime;
-
-<span class="nc" id="L47">    private double lastVolts = 0d;</span>
-
-    private long lastVoltsTime;
-
-<span class="nc" id="L51">    public MacSensors() {</span>
-<span class="nc" id="L52">        SmcUtil.smcOpen();</span>
-        // Do an initial read of temperature and fan speeds. This caches initial
-        // dataInfo and improves success of future queries
-<span class="nc" id="L55">        this.lastTemp = getCpuTemperature();</span>
-<span class="nc" id="L56">        this.lastFanSpeeds = getFanSpeeds();</span>
-
-<span class="nc" id="L58">        Runtime.getRuntime().addShutdownHook(new Thread() {</span>
-            @Override
-            public void run() {
-<span class="nc" id="L61">                SmcUtil.smcClose();</span>
-<span class="nc" id="L62">            }</span>
-        });
-<span class="nc" id="L64">    }</span>
-
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public double getCpuTemperature() {
-        // Only update every second
-<span class="nc bnc" id="L72" title="All 2 branches missed.">        if (System.currentTimeMillis() - this.lastTempTime &gt; 900) {</span>
-<span class="nc" id="L73">            double temp = SmcUtil.smcGetFloat(IOKit.SMC_KEY_CPU_TEMP, 50);</span>
-<span class="nc bnc" id="L74" title="All 2 branches missed.">            if (temp &gt; 0d) {</span>
-<span class="nc" id="L75">                this.lastTemp = temp;</span>
-<span class="nc" id="L76">                this.lastTempTime = System.currentTimeMillis();</span>
-            }
+    public double queryCpuTemperature() {
+<span class="nc" id="L43">        IOConnect conn = SmcUtil.smcOpen();</span>
+<span class="nc" id="L44">        double temp = SmcUtil.smcGetFloat(conn, SmcUtil.SMC_KEY_CPU_TEMP);</span>
+<span class="nc" id="L45">        SmcUtil.smcClose(conn);</span>
+<span class="nc bnc" id="L46" title="All 2 branches missed.">        if (temp &gt; 0d) {</span>
+<span class="nc" id="L47">            return temp;</span>
         }
-<span class="nc" id="L79">        return this.lastTemp;</span>
+<span class="nc" id="L49">        return 0d;</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public int[] getFanSpeeds() {
-        // Only update every second
-<span class="nc bnc" id="L88" title="All 2 branches missed.">        if (System.currentTimeMillis() - this.lastFanSpeedsTime &gt; 900) {</span>
-            // If we don't have fan # try to get it
-<span class="nc bnc" id="L90" title="All 2 branches missed.">            if (this.numFans == 0) {</span>
-<span class="nc" id="L91">                this.numFans = (int) SmcUtil.smcGetLong(IOKit.SMC_KEY_FAN_NUM, 50);</span>
-<span class="nc" id="L92">                this.lastFanSpeeds = new int[this.numFans];</span>
-            }
-<span class="nc bnc" id="L94" title="All 2 branches missed.">            for (int i = 0; i &lt; this.numFans; i++) {</span>
-<span class="nc" id="L95">                int speed = (int) SmcUtil.smcGetFloat(String.format(IOKit.SMC_KEY_FAN_SPEED, i), 50);</span>
-<span class="nc bnc" id="L96" title="All 2 branches missed.">                if (speed &gt; 0) {</span>
-<span class="nc" id="L97">                    this.lastFanSpeeds[i] = speed;</span>
-<span class="nc" id="L98">                    this.lastFanSpeedsTime = System.currentTimeMillis();</span>
-                }
-            }
+    public int[] queryFanSpeeds() {
+        // If we don't have fan # try to get it
+<span class="nc" id="L55">        IOConnect conn = SmcUtil.smcOpen();</span>
+<span class="nc bnc" id="L56" title="All 2 branches missed.">        if (this.numFans == 0) {</span>
+<span class="nc" id="L57">            this.numFans = (int) SmcUtil.smcGetLong(conn, SmcUtil.SMC_KEY_FAN_NUM);</span>
         }
-        // Make a copy to return
-<span class="nc" id="L103">        return Arrays.copyOf(this.lastFanSpeeds, this.lastFanSpeeds.length);</span>
+<span class="nc" id="L59">        int[] fanSpeeds = new int[this.numFans];</span>
+<span class="nc bnc" id="L60" title="All 2 branches missed.">        for (int i = 0; i &lt; this.numFans; i++) {</span>
+<span class="nc" id="L61">            fanSpeeds[i] = (int) SmcUtil.smcGetFloat(conn, String.format(SmcUtil.SMC_KEY_FAN_SPEED, i));</span>
+        }
+<span class="nc" id="L63">        SmcUtil.smcClose(conn);</span>
+<span class="nc" id="L64">        return fanSpeeds;</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public double getCpuVoltage() {
-        // Only update every second
-<span class="nc bnc" id="L112" title="All 2 branches missed.">        if (System.currentTimeMillis() - this.lastVoltsTime &gt; 900) {</span>
-<span class="nc" id="L113">            double kiloVolts = SmcUtil.smcGetFloat(IOKit.SMC_KEY_CPU_VOLTAGE, 50);</span>
-<span class="nc bnc" id="L114" title="All 2 branches missed.">            if (kiloVolts &gt; 0d) {</span>
-<span class="nc" id="L115">                this.lastVolts = kiloVolts / 1000d;</span>
-<span class="nc" id="L116">                this.lastVoltsTime = System.currentTimeMillis();</span>
-            }
-        }
-<span class="nc" id="L119">        return this.lastVolts;</span>
+    public double queryCpuVoltage() {
+<span class="nc" id="L69">        IOConnect conn = SmcUtil.smcOpen();</span>
+<span class="nc" id="L70">        double volts = SmcUtil.smcGetFloat(conn, SmcUtil.SMC_KEY_CPU_VOLTAGE) / 1000d;</span>
+<span class="nc" id="L71">        SmcUtil.smcClose(conn);</span>
+<span class="nc" id="L72">        return volts;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
