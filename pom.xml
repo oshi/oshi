@@ -118,42 +118,39 @@
 		<!-- Base directory, overwrite in submodules -->
 		<main.basedir>${project.basedir}</main.basedir>
 		<!-- Dependency versions -->
-		<slf4j.version>1.7.25</slf4j.version>
-		<junit-vintage-engine.version>5.4.0-M1</junit-vintage-engine.version>
+		<slf4j.version>1.7.30</slf4j.version>
+		<junit-vintage-engine.version>5.6.2</junit-vintage-engine.version>
 		<!-- Compile versions -->
 		<maven-clean-plugin.version>3.1.0</maven-clean-plugin.version>
 		<maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
 		<maven-deploy-plugin.version>3.0.0-M1</maven-deploy-plugin.version>
-		<maven-enforcer-plugin.version>3.0.0-M2</maven-enforcer-plugin.version>
+		<maven-enforcer-plugin.version>3.0.0-M3</maven-enforcer-plugin.version>
 		<maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
 		<maven-install-plugin.version>3.0.0-M1</maven-install-plugin.version>
 		<maven-resources-plugin.version>3.1.0</maven-resources-plugin.version>
-		<maven-site-plugin.version>3.7.1</maven-site-plugin.version>
-		<maven-surefire-plugin.version>3.0.0-M3</maven-surefire-plugin.version>
+		<maven-site-plugin.version>3.9.1</maven-site-plugin.version>
+		<maven-surefire-plugin.version>3.0.0-M5</maven-surefire-plugin.version>
 		<!-- maven-site-plugin dependencies -->
-		<doxia-module-markdown.version>1.8</doxia-module-markdown.version>
+		<doxia-module-markdown.version>1.9.1</doxia-module-markdown.version>
 		<wagon-git.version>2.0.3</wagon-git.version><!-- https://github.com/trajano/wagon-git/issues/18 -->
-		<wagon-ssh.version>3.3.1</wagon-ssh.version>
-		<maven-fluido-skin.version>1.7</maven-fluido-skin.version>
+		<wagon-ssh.version>3.4.0</wagon-ssh.version>
+		<maven-fluido-skin.version>1.9</maven-fluido-skin.version>
 		<!-- build plugins -->
-		<git-commit-id-plugin.version>2.2.6</git-commit-id-plugin.version>
-		<build-helper-maven-plugin.version>3.0.0</build-helper-maven-plugin.version>
-		<maven-jar-plugin.version>3.1.1</maven-jar-plugin.version>
-		<maven-war-plugin.version>3.2.2</maven-war-plugin.version>
-		<bnd-maven-plugin.version>4.1.0</bnd-maven-plugin.version>
-		<maven-shade-plugin.version>3.2.1</maven-shade-plugin.version>
+		<git-commit-id-plugin.version>4.0.0</git-commit-id-plugin.version>
+		<build-helper-maven-plugin.version>3.2.0</build-helper-maven-plugin.version>
+		<maven-jar-plugin.version>3.2.0</maven-jar-plugin.version>
+		<bnd-maven-plugin.version>5.1.1</bnd-maven-plugin.version>
+		<maven-shade-plugin.version>3.2.4</maven-shade-plugin.version>
 		<!-- reporting plugins -->
-		<maven-checkstyle-plugin.version>3.0.0</maven-checkstyle-plugin.version>
-		<maven-javadoc-plugin.version>3.0.1</maven-javadoc-plugin.version>
-		<maven-pmd-plugin.version>3.11.0</maven-pmd-plugin.version>
+		<maven-checkstyle-plugin.version>3.1.1</maven-checkstyle-plugin.version>
+		<maven-javadoc-plugin.version>3.1.1</maven-javadoc-plugin.version>
 		<!-- tools -->
-		<maven-antrun-plugin.version>1.8</maven-antrun-plugin.version>
-		<maven-assembly-plugin.version>3.1.1</maven-assembly-plugin.version>
-		<maven-dependency-plugin.version>3.1.1</maven-dependency-plugin.version>
+		<maven-antrun-plugin.version>3.0.0</maven-antrun-plugin.version>
+		<maven-assembly-plugin.version>3.3.0</maven-assembly-plugin.version>
+		<maven-dependency-plugin.version>3.1.2</maven-dependency-plugin.version>
 		<maven-release-plugin.version>2.5.3</maven-release-plugin.version>
-		<maven-source-plugin.version>3.0.1</maven-source-plugin.version>
-		<spotbugs-maven-plugin.version>3.1.10</spotbugs-maven-plugin.version>
-		<jacoco-maven-plugin.version>0.8.2</jacoco-maven-plugin.version>
+		<maven-source-plugin.version>3.2.1</maven-source-plugin.version>
+		<jacoco-maven-plugin.version>0.8.5</jacoco-maven-plugin.version>
 		<coveralls-maven-plugin.version>4.3.0</coveralls-maven-plugin.version>
 		<tidy-maven-plugin.version>1.1.0</tidy-maven-plugin.version>
 		<license-maven-plugin.version>3.0</license-maven-plugin.version>
@@ -161,23 +158,23 @@
 		<jdepend-maven-plugin.version>2.0</jdepend-maven-plugin.version>
 		<maven-changelog-plugin.version>2.3</maven-changelog-plugin.version>
 		<maven-jxr-plugin.version>3.0.0</maven-jxr-plugin.version>
-		<maven-project-info-reports-plugin.version>3.0.0</maven-project-info-reports-plugin.version>
-		<maven-surefire-report-plugin.version>2.22.1</maven-surefire-report-plugin.version>
+		<maven-project-info-reports-plugin.version>3.1.0</maven-project-info-reports-plugin.version>
+		<maven-surefire-report-plugin.version>2.22.2</maven-surefire-report-plugin.version>
 		<taglist-maven-plugin.version>2.4</taglist-maven-plugin.version>
 		<versions-maven-plugin.version>2.7</versions-maven-plugin.version>
 		<!-- SCM -->
-		<maven-scm-plugin.version>1.11.1</maven-scm-plugin.version>
-		<maven-scm-provider-jgit.version>1.11.1</maven-scm-provider-jgit.version>
+		<maven-scm-plugin.version>1.11.2</maven-scm-plugin.version>
+		<maven-scm-provider-jgit.version>1.11.2</maven-scm-provider-jgit.version>
 		<JavaEWAH.version>1.1.6</JavaEWAH.version>
 		<jsch.version>0.1.55</jsch.version>
-		<jgit.version>5.2.1.201812262042-r</jgit.version>
+		<jgit.version>5.8.0.202006091008-r</jgit.version>
 		<plexus-utils.version>3.1.1</plexus-utils.version>
 		<!-- Misc. -->
-		<sonar-maven-plugin.version>3.6.0.1398</sonar-maven-plugin.version>
+		<sonar-maven-plugin.version>3.7.0.1746</sonar-maven-plugin.version>
 		<wagon-maven-plugin.version>2.0.0</wagon-maven-plugin.version>
-		<animal-sniffer-maven-plugin.version>1.17</animal-sniffer-maven-plugin.version>
-		<dependency-check-maven.version>5.0.0-M3</dependency-check-maven.version>
-		<puppycrawl.checkstyle.version>8.16</puppycrawl.checkstyle.version>
+		<animal-sniffer-maven-plugin.version>1.19</animal-sniffer-maven-plugin.version>
+		<dependency-check-maven.version>5.3.2</dependency-check-maven.version>
+		<puppycrawl.checkstyle.version>8.34</puppycrawl.checkstyle.version>
 		<m2e.lifecycle-mapping.version>1.0.0</m2e.lifecycle-mapping.version>
 	</properties>
 
@@ -317,30 +314,6 @@
 						</archive>
 					</configuration>
 				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-war-plugin</artifactId>
-					<version>${maven-war-plugin.version}</version>
-					<configuration>
-						<archive>
-							<manifest>
-								<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-								<addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
-							</manifest>
-							<manifestEntries>
-								<Build-Number>${buildNumber}</Build-Number>
-								<Build-Time>${maven.build.timestamp}</Build-Time>
-								<Copyright>${copyright}</Copyright>
-								<Git-Revision>${git.commit.id}</Git-Revision>
-								<Os-Name>${os.name}</Os-Name>
-								<Os-Arch>${os.arch}</Os-Arch>
-								<Os-Version>${os.version}</Os-Version>
-								<X-Compile-Source-JDK>${maven.compiler.source}</X-Compile-Source-JDK>
-								<X-Compile-Target-JDK>${maven.compiler.target}</X-Compile-Target-JDK>
-							</manifestEntries>
-						</archive>
-					</configuration>
-				</plugin>
 				<!-- OSGi -->
 				<plugin>
 					<groupId>biz.aQute.bnd</groupId>
@@ -383,11 +356,6 @@
 							</manifestEntries>
 						</archive>
 					</configuration>
-				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-pmd-plugin</artifactId>
-					<version>${maven-pmd-plugin.version}</version>
 				</plugin>
 				<!-- Tools -->
 				<plugin>
@@ -457,20 +425,6 @@
 					</executions>
 				</plugin>
 				<!-- External Tools -->
-				<plugin>
-					<groupId>com.github.spotbugs</groupId>
-					<artifactId>spotbugs-maven-plugin</artifactId>
-					<version>${spotbugs-maven-plugin.version}</version>
-					<dependencies>
-						<!-- overwrite dependency on spotbugs if you want to specify the version 
-							of spotbugs -->
-						<dependency>
-							<groupId>com.github.spotbugs</groupId>
-							<artifactId>spotbugs</artifactId>
-							<version>${spotbugs-maven-plugin.version}</version>
-						</dependency>
-					</dependencies>
-				</plugin>
 				<plugin>
 					<groupId>org.jacoco</groupId>
 					<artifactId>jacoco-maven-plugin</artifactId>
@@ -609,11 +563,6 @@
 				<artifactId>git-commit-id-plugin</artifactId>
 				<configuration>
 					<dotGitDirectory>.git</dotGitDirectory>
-					<!-- Fixes occassional issue in commit id plugin - see https://github.com/ktoso/maven-git-commit-id-plugin/issues/61 -->
-					<gitDescribe>
-						<always>true</always>
-					</gitDescribe>
-					<runOnlyOnce>true</runOnlyOnce>
 				</configuration>
 				<executions>
 					<execution>
@@ -805,20 +754,12 @@
 				<artifactId>maven-checkstyle-plugin</artifactId>
 			</plugin>
 			<plugin>
-				<groupId>com.github.spotbugs</groupId>
-				<artifactId>spotbugs-maven-plugin</artifactId>
-			</plugin>
-			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jxr-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-pmd-plugin</artifactId>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -876,22 +817,6 @@
 						</executions>
 						<configuration>
 							<failOnViolation>false</failOnViolation>
-						</configuration>
-					</plugin>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-pmd-plugin</artifactId>
-						<executions>
-							<execution>
-								<goals>
-									<goal>check</goal>
-									<goal>cpd-check</goal>
-								</goals>
-							</execution>
-						</executions>
-						<configuration>
-							<failOnViolation>false</failOnViolation>
-							<aggregate>true</aggregate>
 						</configuration>
 					</plugin>
 					<!-- External Tools -->
