@@ -217,41 +217,52 @@ public final class FileUtil {
     }
 
     /**
-     * Read a configuration file from the class path and return its properties
+     * Read a configuration file from the sequence of context classloader, system
+     * classloader and classloader of the current class, and return its properties
      *
      * @param propsFilename
      *            The filename
      * @return A {@link Properties} object containing the properties.
      */
     public static Properties readPropertiesFromFilename(String propsFilename) {
-<span class="fc" id="L227">        Properties archProps = new Properties();</span>
-        // Load the configuration file from the classpath
-        try {
-<span class="fc" id="L230">            ClassLoader loader = Thread.currentThread().getContextClassLoader();</span>
-<span class="pc bpc" id="L231" title="1 of 2 branches missed.">            if (loader == null) {</span>
-<span class="nc" id="L232">                loader = ClassLoader.getSystemClassLoader();</span>
-<span class="nc bnc" id="L233" title="All 2 branches missed.">                if (loader == null) {</span>
-<span class="nc" id="L234">                    throw new IOException();</span>
-                }
-            }
-<span class="fc" id="L237">            List&lt;URL&gt; resources = Collections.list(loader.getResources(propsFilename));</span>
-<span class="fc bfc" id="L238" title="All 2 branches covered.">            if (resources.isEmpty()) {</span>
-<span class="fc" id="L239">                LOG.warn(&quot;No {} file found on the classpath&quot;, propsFilename);</span>
-            } else {
-<span class="pc bpc" id="L241" title="1 of 2 branches missed.">                if (resources.size() &gt; 1) {</span>
-<span class="nc" id="L242">                    LOG.warn(&quot;Configuration conflict: there is more than one {} file on the classpath&quot;, propsFilename);</span>
-                }
+<span class="fc" id="L228">        Properties archProps = new Properties();</span>
+        // Load the configuration file from the different classloaders
+<span class="fc bfc" id="L230" title="All 2 branches covered.">        if (readPropertiesFromClassLoader(propsFilename, archProps, Thread.currentThread().getContextClassLoader())</span>
+<span class="pc bpc" id="L231" title="1 of 2 branches missed.">                || readPropertiesFromClassLoader(propsFilename, archProps, ClassLoader.getSystemClassLoader())</span>
+<span class="pc bpc" id="L232" title="1 of 2 branches missed.">                || readPropertiesFromClassLoader(propsFilename, archProps, FileUtil.class.getClassLoader())) {</span>
+<span class="fc" id="L233">            return archProps;</span>
+        }
 
-<span class="fc" id="L245">                try (InputStream in = resources.get(0).openStream()) {</span>
-<span class="pc bpc" id="L246" title="1 of 2 branches missed.">                    if (in != null) {</span>
-<span class="fc" id="L247">                        archProps.load(in);</span>
-                    }
+<span class="fc" id="L236">        LOG.warn(&quot;Failed to load default configuration&quot;);</span>
+<span class="fc" id="L237">        return archProps;</span>
+    }
+
+    private static boolean readPropertiesFromClassLoader(String propsFilename, Properties archProps,
+            ClassLoader loader) {
+<span class="pc bpc" id="L242" title="1 of 2 branches missed.">        if (loader == null) {</span>
+<span class="nc" id="L243">            return false;</span>
+        }
+        // Load the configuration file from the classLoader
+        try {
+<span class="fc" id="L247">            List&lt;URL&gt; resources = Collections.list(loader.getResources(propsFilename));</span>
+<span class="fc bfc" id="L248" title="All 2 branches covered.">            if (resources.isEmpty()) {</span>
+<span class="fc" id="L249">                LOG.info(&quot;No {} file found from ClassLoader {}&quot;, propsFilename, loader);</span>
+<span class="fc" id="L250">                return false;</span>
+            }
+<span class="pc bpc" id="L252" title="1 of 2 branches missed.">            if (resources.size() &gt; 1) {</span>
+<span class="nc" id="L253">                LOG.warn(&quot;Configuration conflict: there is more than one {} file on the classpath&quot;, propsFilename);</span>
+<span class="nc" id="L254">                return true;</span>
+            }
+
+<span class="fc" id="L257">            try (InputStream in = resources.get(0).openStream()) {</span>
+<span class="pc bpc" id="L258" title="1 of 2 branches missed.">                if (in != null) {</span>
+<span class="fc" id="L259">                    archProps.load(in);</span>
                 }
             }
-<span class="nc" id="L251">        } catch (IOException e) {</span>
-<span class="nc" id="L252">            LOG.warn(&quot;Failed to load default configuration&quot;);</span>
-<span class="fc" id="L253">        }</span>
-<span class="fc" id="L254">        return archProps;</span>
+<span class="nc" id="L262">        } catch (IOException e) {</span>
+<span class="nc" id="L263">            return false;</span>
+<span class="fc" id="L264">        }</span>
+<span class="fc" id="L265">        return true;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

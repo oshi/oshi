@@ -25,8 +25,8 @@ under the License.
     <language>en-us</language>
     <copyright>&#169;2010 - 2020 oshi</copyright>
     <item>
-      <title>File: 15,
-             Errors: 296,
+      <title>File: 16,
+             Errors: 314,
              Warnings: 0,
              Infos: 0
       </title>
@@ -210,6 +210,20 @@ under the License.
                 </td>
                 <td>
                   16
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-demo/checkstyle.html#oshi.demo.DiskStoreForPath.java">oshi/demo/DiskStoreForPath.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  18
                 </td>
               </tr>
                           <tr>

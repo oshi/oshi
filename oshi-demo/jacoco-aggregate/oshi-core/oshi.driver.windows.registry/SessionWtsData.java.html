@@ -33,18 +33,18 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.sun.jna.Pointer; // NOSONAR squid:S1191
+import com.sun.jna.platform.win32.IPHlpAPI;
 import com.sun.jna.platform.win32.VersionHelpers;
 import com.sun.jna.platform.win32.WinBase;
 import com.sun.jna.platform.win32.WinNT;
+import com.sun.jna.platform.win32.Wtsapi32;
+import com.sun.jna.platform.win32.Wtsapi32.WTSINFO;
+import com.sun.jna.platform.win32.Wtsapi32.WTS_CLIENT_ADDRESS;
+import com.sun.jna.platform.win32.Wtsapi32.WTS_SESSION_INFO;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.jna.platform.windows.IPHlpAPI;
-import oshi.jna.platform.windows.Wtsapi32;
-import oshi.jna.platform.windows.Wtsapi32.WTSINFO;
-import oshi.jna.platform.windows.Wtsapi32.WTS_CLIENT_ADDRESS;
-import oshi.jna.platform.windows.Wtsapi32.WTS_SESSION_INFO;
 import oshi.software.os.OSSession;
 import oshi.util.ParseUtil;
 
