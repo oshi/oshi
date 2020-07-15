@@ -9,17 +9,17 @@
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_javadoccomment"> * MIT License</em>
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_javadoccomment"> * Copyright (c) 2010 - 2020 The OSHI Project Contributors: <a href="https://github.com/oshi/oshi/graphs/contributors" target="alexandria_uri">https://github.com/oshi/oshi/graphs/contributors</a></em>
-<a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * Permission is hereby granted, free of charge, to any person obtaining a copy</em>
-<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> * of this software and associated documentation files (the "Software"), to deal</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> * in the Software without restriction, including without limitation the rights</em>
-<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell</em>
-<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * copies of the Software, and to permit persons to whom the Software is</em>
-<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * furnished to do so, subject to the following conditions:</em>
-<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <em class="jxr_javadoccomment"> * The above copyright notice and this permission notice shall be included in all</em>
-<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <em class="jxr_javadoccomment"> * copies or substantial portions of the Software.</em>
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_javadoccomment"> * Copyright (c) 2010 - 2020 The OSHI Project Contributors:</em>
+<a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * <a href="https://github.com/oshi/oshi/graphs/contributors" target="alexandria_uri">https://github.com/oshi/oshi/graphs/contributors</a></em>
+<a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> * Permission is hereby granted, free of charge, to any person obtaining a copy</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> * of this software and associated documentation files (the "Software"), to deal</em>
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> * in the Software without restriction, including without limitation the rights</em>
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell</em>
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * copies of the Software, and to permit persons to whom the Software is</em>
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <em class="jxr_javadoccomment"> * furnished to do so, subject to the following conditions:</em>
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <em class="jxr_javadoccomment"> * The above copyright notice and this permission notice shall be included in</em>
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <em class="jxr_javadoccomment"> * all copies or substantial portions of the Software.</em>
 <a class="jxr_linenumber" name="L15" href="#L15">15</a>  <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L16" href="#L16">16</a>  <em class="jxr_javadoccomment"> * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR</em>
 <a class="jxr_linenumber" name="L17" href="#L17">17</a>  <em class="jxr_javadoccomment"> * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,</em>
@@ -32,277 +32,251 @@
 <a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">package</strong> oshi.software.os;
 <a class="jxr_linenumber" name="L25" href="#L25">25</a>  
 <a class="jxr_linenumber" name="L26" href="#L26">26</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.junit.Assert.assertEquals;
-<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.junit.Assert.assertFalse;
-<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.junit.Assert.assertNotEquals;
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.junit.Assert.assertNotNull;
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.junit.Assert.assertTrue;
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>  
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">import</strong> java.util.ArrayList;
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <strong class="jxr_keyword">import</strong> java.util.Collection;
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <strong class="jxr_keyword">import</strong> java.util.HashSet;
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <strong class="jxr_keyword">import</strong> java.util.List;
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <strong class="jxr_keyword">import</strong> java.util.Set;
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.junit.Assert.assertNotNull;
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.junit.Assert.assertTrue;
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>  
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <strong class="jxr_keyword">import</strong> java.util.ArrayList;
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <strong class="jxr_keyword">import</strong> java.util.Collection;
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">import</strong> java.util.HashMap;
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <strong class="jxr_keyword">import</strong> java.util.List;
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <strong class="jxr_keyword">import</strong> java.util.Map;
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>  
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <strong class="jxr_keyword">import</strong> org.junit.Test;
 <a class="jxr_linenumber" name="L37" href="#L37">37</a>  
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <strong class="jxr_keyword">import</strong> org.junit.Test;
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <strong class="jxr_keyword">import</strong> oshi.SystemInfo;
 <a class="jxr_linenumber" name="L39" href="#L39">39</a>  
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <strong class="jxr_keyword">import</strong> oshi.SystemInfo;
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.OSProcess.State;
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.OperatingSystem.OSVersionInfo;
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>  
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>  <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>  <em class="jxr_javadoccomment"> * Test OS</em>
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="OperatingSystemTest" href="../../../oshi/software/os/OperatingSystemTest.html#OperatingSystemTest">OperatingSystemTest</a> {
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>  
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>      <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>  <em class="jxr_javadoccomment">     * Test operating system</em>
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>      @Test
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testOperatingSystem() {
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>          SystemInfo si = <strong class="jxr_keyword">new</strong> SystemInfo();
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>          OperatingSystem os = si.getOperatingSystem();
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>          assertNotNull(os.getFamily());
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>          assertNotNull(os.getManufacturer());
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>          OSVersionInfo versionInfo = os.getVersionInfo();
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>          assertNotNull(versionInfo);
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>  
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>          assertTrue(os.getSystemUptime() &gt; 0);
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>          assertTrue(os.getSystemBootTime() &gt; 0);
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>          assertTrue(os.getSystemBootTime() &lt; System.currentTimeMillis() / 1000L);
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <em class="jxr_javadoccomment"> * Test OS</em>
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="OperatingSystemTest" href="../../../oshi/software/os/OperatingSystemTest.html#OperatingSystemTest">OperatingSystemTest</a> {
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>  
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>  <em class="jxr_javadoccomment">     * Test operating system</em>
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>      @Test
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testOperatingSystem() {
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>          SystemInfo si = <strong class="jxr_keyword">new</strong> SystemInfo();
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>          OperatingSystem os = si.getOperatingSystem();
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>          assertNotNull(os.getFamily());
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>          assertNotNull(os.getManufacturer());
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>          OperatingSystemVersion version = os.getVersion();
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>          assertNotNull(version);
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>          assertNotNull(version.getVersion());
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>          assertNotNull(version.getCodeName());
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>          assertNotNull(version.getBuildNumber());
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>  
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>          assertTrue(os.getProcessCount() &gt;= 1);
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>          assertTrue(os.getThreadCount() &gt;= 1);
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>          assertTrue(os.getBitness() == 32 || os.getBitness() == 64);
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>          assertTrue(os.getProcessId() &gt; 0);
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>  
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>          assertTrue(os.getProcessCount() &gt;= 1);
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>          assertTrue(os.getThreadCount() &gt;= 1);
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>          assertTrue(os.getBitness() == 32 || os.getBitness() == 64);
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>          assertTrue(os.getProcessId() &gt; 0);
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>          assertEquals(os.isElevated(), os.isElevated());
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>  
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>          assertFalse(os.getProcesses(0, <strong class="jxr_keyword">null</strong>).isEmpty());
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>          OSProcess proc = os.getProcess(os.getProcessId());
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>          assertTrue(proc.getName().length() &gt; 0);
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>          assertTrue(proc.getPath().length() &gt; 0);
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>          assertNotNull(proc.getCommandLine());
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>          assertNotNull(proc.getCurrentWorkingDirectory());
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>          assertNotNull(proc.getUser());
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>          assertNotNull(proc.getUserID());
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>          assertNotNull(proc.getGroup());
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>          assertNotNull(proc.getGroupID());
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>          assertNotEquals(State.INVALID, proc.getState());
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>          assertEquals(proc.getProcessID(), os.getProcessId());
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>          assertTrue(proc.getParentProcessID() &gt;= 0);
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>          assertTrue(proc.getThreadCount() &gt; 0);
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>          assertTrue(proc.getPriority() &gt;= -20 &amp;&amp; proc.getPriority() &lt;= 128);
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>          assertTrue(proc.getVirtualSize() &gt;= 0);
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>          assertTrue(proc.getResidentSetSize() &gt;= 0);
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>          assertTrue(proc.getKernelTime() &gt;= 0);
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>          assertTrue(proc.getUserTime() &gt;= 0);
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>          assertTrue(proc.getUpTime() &gt;= 0);
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>          assertTrue(proc.getMinorFaults() &gt;= 0);
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>          assertTrue(proc.getMajorFaults() &gt;= 0);
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>          assertTrue(proc.getProcessCpuLoadCumulative() &gt;= 0d);
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>          assertEquals(proc.getProcessCpuLoadCumulative(), proc.getProcessCpuLoadBetweenTicks(<strong class="jxr_keyword">null</strong>), Double.MIN_VALUE);
-<a class="jxr_linenumber" name="L95" href="#L95">95</a>          assertEquals(proc.getProcessCpuLoadCumulative(), proc.getProcessCpuLoadBetweenTicks(proc), Double.MIN_VALUE);
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>          assertTrue(proc.getStartTime() &gt;= 0);
-<a class="jxr_linenumber" name="L97" href="#L97">97</a>          assertTrue(proc.getBytesRead() &gt;= 0);
-<a class="jxr_linenumber" name="L98" href="#L98">98</a>          assertTrue(proc.getBytesWritten() &gt;= 0);
-<a class="jxr_linenumber" name="L99" href="#L99">99</a>          assertTrue(<span class="jxr_string">"Process bitness can't exceed OS bitness"</span>, proc.getBitness() &lt;= os.getBitness());
-<a class="jxr_linenumber" name="L100" href="#L100">100</a>         assertEquals(<span class="jxr_string">"Bitness must be 0, 32 or 64"</span>, 0, proc.getBitness() &amp; ~(32 | 64));
-<a class="jxr_linenumber" name="L101" href="#L101">101</a>         assertTrue(proc.getOpenFiles() &gt;= -1);
-<a class="jxr_linenumber" name="L102" href="#L102">102</a> 
-<a class="jxr_linenumber" name="L103" href="#L103">103</a>         List&lt;OSThread&gt; threads = proc.getThreadDetails();
-<a class="jxr_linenumber" name="L104" href="#L104">104</a>         <strong class="jxr_keyword">for</strong> (OSThread thread : threads) {
-<a class="jxr_linenumber" name="L105" href="#L105">105</a>             assertNotNull(thread);
-<a class="jxr_linenumber" name="L106" href="#L106">106</a>         }
-<a class="jxr_linenumber" name="L107" href="#L107">107</a> 
-<a class="jxr_linenumber" name="L108" href="#L108">108</a>     }
-<a class="jxr_linenumber" name="L109" href="#L109">109</a> 
-<a class="jxr_linenumber" name="L110" href="#L110">110</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L111" href="#L111">111</a> <em class="jxr_javadoccomment">     * Tests process query by pid list</em>
-<a class="jxr_linenumber" name="L112" href="#L112">112</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L113" href="#L113">113</a>     @Test
-<a class="jxr_linenumber" name="L114" href="#L114">114</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testProcessQueryByList() {
-<a class="jxr_linenumber" name="L115" href="#L115">115</a>         SystemInfo si = <strong class="jxr_keyword">new</strong> SystemInfo();
-<a class="jxr_linenumber" name="L116" href="#L116">116</a>         OperatingSystem os = si.getOperatingSystem();
-<a class="jxr_linenumber" name="L117" href="#L117">117</a>         assertNotNull(os.getFamily());
-<a class="jxr_linenumber" name="L118" href="#L118">118</a>         assertNotNull(os.getManufacturer());
-<a class="jxr_linenumber" name="L119" href="#L119">119</a>         OSVersionInfo versionInfo = os.getVersionInfo();
-<a class="jxr_linenumber" name="L120" href="#L120">120</a>         assertNotNull(versionInfo);
-<a class="jxr_linenumber" name="L121" href="#L121">121</a> 
-<a class="jxr_linenumber" name="L122" href="#L122">122</a>         assertTrue(os.getProcessCount() &gt;= 1);
-<a class="jxr_linenumber" name="L123" href="#L123">123</a>         assertTrue(os.getThreadCount() &gt;= 1);
-<a class="jxr_linenumber" name="L124" href="#L124">124</a>         assertTrue(os.getProcessId() &gt; 0);
-<a class="jxr_linenumber" name="L125" href="#L125">125</a> 
-<a class="jxr_linenumber" name="L126" href="#L126">126</a>         List&lt;OSProcess&gt; processes = os.getProcesses(5, <strong class="jxr_keyword">null</strong>);
-<a class="jxr_linenumber" name="L127" href="#L127">127</a>         assertNotNull(processes);
-<a class="jxr_linenumber" name="L128" href="#L128">128</a>         <em class="jxr_comment">// every OS should have at least one process running on it</em>
-<a class="jxr_linenumber" name="L129" href="#L129">129</a>         assertFalse(processes.isEmpty());
-<a class="jxr_linenumber" name="L130" href="#L130">130</a>         <em class="jxr_comment">// the list of pids we want info on</em>
-<a class="jxr_linenumber" name="L131" href="#L131">131</a>         List&lt;Integer&gt; pids = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
-<a class="jxr_linenumber" name="L132" href="#L132">132</a>         <strong class="jxr_keyword">for</strong> (OSProcess p : processes) {
-<a class="jxr_linenumber" name="L133" href="#L133">133</a>             pids.add(p.getProcessID());
-<a class="jxr_linenumber" name="L134" href="#L134">134</a>         }
-<a class="jxr_linenumber" name="L135" href="#L135">135</a>         <em class="jxr_comment">// query for just those processes</em>
-<a class="jxr_linenumber" name="L136" href="#L136">136</a>         Collection&lt;OSProcess&gt; processes1 = os.getProcesses(pids);
-<a class="jxr_linenumber" name="L137" href="#L137">137</a>         <em class="jxr_comment">// there's a potential for a race condition here, if a process we</em>
-<a class="jxr_linenumber" name="L138" href="#L138">138</a>         <em class="jxr_comment">// queried for initially wasn't running during the second query. In this case,</em>
-<a class="jxr_linenumber" name="L139" href="#L139">139</a>         <em class="jxr_comment">// try again with the shorter list</em>
-<a class="jxr_linenumber" name="L140" href="#L140">140</a>         <strong class="jxr_keyword">while</strong> (processes1.size() &lt; pids.size()) {
-<a class="jxr_linenumber" name="L141" href="#L141">141</a>             pids.clear();
-<a class="jxr_linenumber" name="L142" href="#L142">142</a>             <strong class="jxr_keyword">for</strong> (OSProcess p : processes1) {
-<a class="jxr_linenumber" name="L143" href="#L143">143</a>                 pids.add(p.getProcessID());
-<a class="jxr_linenumber" name="L144" href="#L144">144</a>             }
-<a class="jxr_linenumber" name="L145" href="#L145">145</a>             <em class="jxr_comment">// query for just those processes</em>
-<a class="jxr_linenumber" name="L146" href="#L146">146</a>             processes1 = os.getProcesses(pids);
-<a class="jxr_linenumber" name="L147" href="#L147">147</a>         }
-<a class="jxr_linenumber" name="L148" href="#L148">148</a>         assertEquals(processes1.size(), pids.size());
-<a class="jxr_linenumber" name="L149" href="#L149">149</a> 
-<a class="jxr_linenumber" name="L150" href="#L150">150</a>     }
-<a class="jxr_linenumber" name="L151" href="#L151">151</a> 
-<a class="jxr_linenumber" name="L152" href="#L152">152</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L153" href="#L153">153</a> <em class="jxr_javadoccomment">     * Tests child process getter</em>
-<a class="jxr_linenumber" name="L154" href="#L154">154</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L155" href="#L155">155</a>     @Test
-<a class="jxr_linenumber" name="L156" href="#L156">156</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testGetChildProcesses() {
-<a class="jxr_linenumber" name="L157" href="#L157">157</a>         <em class="jxr_comment">// Testing child processes is tricky because we don't really know a priori what</em>
-<a class="jxr_linenumber" name="L158" href="#L158">158</a>         <em class="jxr_comment">// processes might have children, and if we do test the full list vs. individual</em>
-<a class="jxr_linenumber" name="L159" href="#L159">159</a>         <em class="jxr_comment">// processes, we run into a race condition where child processes can start or</em>
-<a class="jxr_linenumber" name="L160" href="#L160">160</a>         <em class="jxr_comment">// stop before we measure a second time. So we can't really test for one-to-one</em>
-<a class="jxr_linenumber" name="L161" href="#L161">161</a>         <em class="jxr_comment">// correspondence of child process lists.</em>
-<a class="jxr_linenumber" name="L162" href="#L162">162</a>         <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L163" href="#L163">163</a>         <em class="jxr_comment">// We can expect code logic failures to occur all/most of the time for</em>
-<a class="jxr_linenumber" name="L164" href="#L164">164</a>         <em class="jxr_comment">// categories of processes, however, and allow occasional differences due to</em>
-<a class="jxr_linenumber" name="L165" href="#L165">165</a>         <em class="jxr_comment">// race conditions. So we will test three categories of processes: Those with 0</em>
-<a class="jxr_linenumber" name="L166" href="#L166">166</a>         <em class="jxr_comment">// children, those with exactly 1 child process, and those with multiple child</em>
-<a class="jxr_linenumber" name="L167" href="#L167">167</a>         <em class="jxr_comment">// processes. On the second poll, we expect at least half of processes in those</em>
-<a class="jxr_linenumber" name="L168" href="#L168">168</a>         <em class="jxr_comment">// categories to still be in the same category.</em>
-<a class="jxr_linenumber" name="L169" href="#L169">169</a>         <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L170" href="#L170">170</a>         SystemInfo si = <strong class="jxr_keyword">new</strong> SystemInfo();
-<a class="jxr_linenumber" name="L171" href="#L171">171</a>         OperatingSystem os = si.getOperatingSystem();
-<a class="jxr_linenumber" name="L172" href="#L172">172</a>         List&lt;OSProcess&gt; processes = os.getProcesses(0, <strong class="jxr_keyword">null</strong>);
-<a class="jxr_linenumber" name="L173" href="#L173">173</a>         Set&lt;Integer&gt; zeroChildSet = <strong class="jxr_keyword">new</strong> HashSet&lt;&gt;();
-<a class="jxr_linenumber" name="L174" href="#L174">174</a>         Set&lt;Integer&gt; oneChildSet = <strong class="jxr_keyword">new</strong> HashSet&lt;&gt;();
-<a class="jxr_linenumber" name="L175" href="#L175">175</a>         Set&lt;Integer&gt; manyChildSet = <strong class="jxr_keyword">new</strong> HashSet&lt;&gt;();
-<a class="jxr_linenumber" name="L176" href="#L176">176</a>         <em class="jxr_comment">// Initialize all processes with no children</em>
-<a class="jxr_linenumber" name="L177" href="#L177">177</a>         <strong class="jxr_keyword">for</strong> (OSProcess p : processes) {
-<a class="jxr_linenumber" name="L178" href="#L178">178</a>             zeroChildSet.add(p.getProcessID());
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>          assertTrue(os.getProcesses(0, <strong class="jxr_keyword">null</strong>).length &gt; 0);
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>          OSProcess proc = os.getProcess(os.getProcessId());
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>          assertTrue(proc.getName().length() &gt; 0);
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>          assertTrue(proc.getPath().length() &gt; 0);
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>          assertTrue(proc.getCommandLine().length() &gt; 0);
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>          assertNotNull(proc.getCurrentWorkingDirectory());
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>          assertNotNull(proc.getUser());
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>          assertNotNull(proc.getUserID());
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>          assertNotNull(proc.getGroup());
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>          assertNotNull(proc.getGroupID());
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>          assertNotNull(proc.getState());
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>          assertEquals(proc.getProcessID(), os.getProcessId());
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>          assertTrue(proc.getParentProcessID() &gt; 0);
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>          assertTrue(proc.getThreadCount() &gt; 0);
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>          assertTrue(proc.getPriority() &gt;= -20 &amp;&amp; proc.getPriority() &lt;= 128);
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>          assertTrue(proc.getVirtualSize() &gt;= 0);
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>          assertTrue(proc.getResidentSetSize() &gt;= 0);
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>          assertTrue(proc.getKernelTime() &gt;= 0);
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>          assertTrue(proc.getUserTime() &gt;= 0);
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>          assertTrue(proc.getUpTime() &gt;= 0);
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>          assertTrue(proc.calculateCpuPercent() &gt;= 0d);
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>          assertTrue(proc.getStartTime() &gt;= 0);
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>          assertTrue(proc.getBytesRead() &gt;= 0);
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>          assertTrue(proc.getBytesWritten() &gt;= 0);
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>          assertTrue(proc.getOpenFiles() &gt;= -1);
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>      }
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>  
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>  <em class="jxr_javadoccomment">     * Tests process query by pid list</em>
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>      @Test
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testProcessQueryByList() {
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>          SystemInfo si = <strong class="jxr_keyword">new</strong> SystemInfo();
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>          OperatingSystem os = si.getOperatingSystem();
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>          assertNotNull(os.getFamily());
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>         assertNotNull(os.getManufacturer());
+<a class="jxr_linenumber" name="L101" href="#L101">101</a>         OperatingSystemVersion version = os.getVersion();
+<a class="jxr_linenumber" name="L102" href="#L102">102</a>         assertNotNull(version);
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>         assertNotNull(version.getVersion());
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>         assertNotNull(version.getCodeName());
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>         assertNotNull(version.getBuildNumber());
+<a class="jxr_linenumber" name="L106" href="#L106">106</a> 
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>         assertTrue(os.getProcessCount() &gt;= 1);
+<a class="jxr_linenumber" name="L108" href="#L108">108</a>         assertTrue(os.getThreadCount() &gt;= 1);
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>         assertTrue(os.getProcessId() &gt; 0);
+<a class="jxr_linenumber" name="L110" href="#L110">110</a> 
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>         OSProcess[] processes = os.getProcesses(5, <strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>         assertNotNull(processes);
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>         <em class="jxr_comment">// every OS should have at least one process running on it</em>
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>         assertTrue(processes.length &gt; 0);
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>         <em class="jxr_comment">// the list of pids we want info on</em>
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>         List&lt;Integer&gt; pids = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>         <strong class="jxr_keyword">for</strong> (OSProcess p : processes) {
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>             pids.add(p.getProcessID());
+<a class="jxr_linenumber" name="L119" href="#L119">119</a>         }
+<a class="jxr_linenumber" name="L120" href="#L120">120</a>         <em class="jxr_comment">// query for just those processes</em>
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>         Collection&lt;OSProcess&gt; processes1 = os.getProcesses(pids);
+<a class="jxr_linenumber" name="L122" href="#L122">122</a>         <em class="jxr_comment">// theres a potential for a race condition here, if a process we queried</em>
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>         <em class="jxr_comment">// for initially wasn't running during the second query. In this case,</em>
+<a class="jxr_linenumber" name="L124" href="#L124">124</a>         <em class="jxr_comment">// try again with the shorter list</em>
+<a class="jxr_linenumber" name="L125" href="#L125">125</a>         <strong class="jxr_keyword">while</strong> (processes1.size() &lt; pids.size()) {
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>             pids.clear();
+<a class="jxr_linenumber" name="L127" href="#L127">127</a>             <strong class="jxr_keyword">for</strong> (OSProcess p : processes1) {
+<a class="jxr_linenumber" name="L128" href="#L128">128</a>                 pids.add(p.getProcessID());
+<a class="jxr_linenumber" name="L129" href="#L129">129</a>             }
+<a class="jxr_linenumber" name="L130" href="#L130">130</a>             <em class="jxr_comment">// query for just those processes</em>
+<a class="jxr_linenumber" name="L131" href="#L131">131</a>             processes1 = os.getProcesses(pids);
+<a class="jxr_linenumber" name="L132" href="#L132">132</a>         }
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>         assertEquals(processes1.size(), pids.size());
+<a class="jxr_linenumber" name="L134" href="#L134">134</a> 
+<a class="jxr_linenumber" name="L135" href="#L135">135</a>     }
+<a class="jxr_linenumber" name="L136" href="#L136">136</a> 
+<a class="jxr_linenumber" name="L137" href="#L137">137</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L138" href="#L138">138</a> <em class="jxr_javadoccomment">     * Tests child process getter</em>
+<a class="jxr_linenumber" name="L139" href="#L139">139</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L140" href="#L140">140</a>     @Test
+<a class="jxr_linenumber" name="L141" href="#L141">141</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testGetChildProcesses() {
+<a class="jxr_linenumber" name="L142" href="#L142">142</a>         <em class="jxr_comment">// Get list of PIDS</em>
+<a class="jxr_linenumber" name="L143" href="#L143">143</a>         SystemInfo si = <strong class="jxr_keyword">new</strong> SystemInfo();
+<a class="jxr_linenumber" name="L144" href="#L144">144</a>         OperatingSystem os = si.getOperatingSystem();
+<a class="jxr_linenumber" name="L145" href="#L145">145</a>         OSProcess[] processes = os.getProcesses(0, <strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L146" href="#L146">146</a>         Map&lt;Integer, Integer&gt; childMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L147" href="#L147">147</a>         <em class="jxr_comment">// First iteration to set all 0's</em>
+<a class="jxr_linenumber" name="L148" href="#L148">148</a>         <strong class="jxr_keyword">for</strong> (OSProcess p : processes) {
+<a class="jxr_linenumber" name="L149" href="#L149">149</a>             childMap.put(p.getProcessID(), 0);
+<a class="jxr_linenumber" name="L150" href="#L150">150</a>             childMap.put(p.getParentProcessID(), 0);
+<a class="jxr_linenumber" name="L151" href="#L151">151</a>         }
+<a class="jxr_linenumber" name="L152" href="#L152">152</a>         <em class="jxr_comment">// Second iteration to count children</em>
+<a class="jxr_linenumber" name="L153" href="#L153">153</a>         <strong class="jxr_keyword">for</strong> (OSProcess p : processes) {
+<a class="jxr_linenumber" name="L154" href="#L154">154</a>             childMap.put(p.getParentProcessID(), childMap.get(p.getParentProcessID()) + 1);
+<a class="jxr_linenumber" name="L155" href="#L155">155</a>         }
+<a class="jxr_linenumber" name="L156" href="#L156">156</a>         <em class="jxr_comment">// Find a PID with 0, 1, and N&gt;1 children</em>
+<a class="jxr_linenumber" name="L157" href="#L157">157</a>         <strong class="jxr_keyword">int</strong> zeroPid = -1;
+<a class="jxr_linenumber" name="L158" href="#L158">158</a>         <strong class="jxr_keyword">int</strong> onePid = -1;
+<a class="jxr_linenumber" name="L159" href="#L159">159</a>         <strong class="jxr_keyword">int</strong> nPid = -1;
+<a class="jxr_linenumber" name="L160" href="#L160">160</a>         <strong class="jxr_keyword">int</strong> nNum = 0;
+<a class="jxr_linenumber" name="L161" href="#L161">161</a>         <strong class="jxr_keyword">int</strong> mPid = -1;
+<a class="jxr_linenumber" name="L162" href="#L162">162</a>         <strong class="jxr_keyword">int</strong> mNum = 0;
+<a class="jxr_linenumber" name="L163" href="#L163">163</a>         <strong class="jxr_keyword">for</strong> (Integer i : childMap.keySet()) {
+<a class="jxr_linenumber" name="L164" href="#L164">164</a>             <strong class="jxr_keyword">if</strong> (zeroPid &lt; 0 &amp;&amp; childMap.get(i) == 0) {
+<a class="jxr_linenumber" name="L165" href="#L165">165</a>                 zeroPid = i;
+<a class="jxr_linenumber" name="L166" href="#L166">166</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (onePid &lt; 0 &amp;&amp; childMap.get(i) == 1) {
+<a class="jxr_linenumber" name="L167" href="#L167">167</a>                 onePid = i;
+<a class="jxr_linenumber" name="L168" href="#L168">168</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (nPid &lt; 0 &amp;&amp; childMap.get(i) &gt; 1) {
+<a class="jxr_linenumber" name="L169" href="#L169">169</a>                 <em class="jxr_comment">// nPid is probably PID=1 with all PIDs with no other parent</em>
+<a class="jxr_linenumber" name="L170" href="#L170">170</a>                 nPid = i;
+<a class="jxr_linenumber" name="L171" href="#L171">171</a>                 nNum = childMap.get(i);
+<a class="jxr_linenumber" name="L172" href="#L172">172</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (mPid &lt; 0 &amp;&amp; childMap.get(i) &gt; 1) {
+<a class="jxr_linenumber" name="L173" href="#L173">173</a>                 mPid = i;
+<a class="jxr_linenumber" name="L174" href="#L174">174</a>                 mNum = childMap.get(i);
+<a class="jxr_linenumber" name="L175" href="#L175">175</a>             }
+<a class="jxr_linenumber" name="L176" href="#L176">176</a>             <strong class="jxr_keyword">if</strong> (zeroPid &gt;= 0 &amp;&amp; onePid &gt;= 0 &amp;&amp; nPid &gt;= 0 &amp;&amp; mPid &gt;= 0) {
+<a class="jxr_linenumber" name="L177" href="#L177">177</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L178" href="#L178">178</a>             }
 <a class="jxr_linenumber" name="L179" href="#L179">179</a>         }
-<a class="jxr_linenumber" name="L180" href="#L180">180</a>         <em class="jxr_comment">// Move parents with 1 or more children to other set</em>
-<a class="jxr_linenumber" name="L181" href="#L181">181</a>         <strong class="jxr_keyword">for</strong> (OSProcess p : processes) {
-<a class="jxr_linenumber" name="L182" href="#L182">182</a>             <strong class="jxr_keyword">if</strong> (zeroChildSet.contains(p.getParentProcessID())) {
-<a class="jxr_linenumber" name="L183" href="#L183">183</a>                 <em class="jxr_comment">// Zero to One</em>
-<a class="jxr_linenumber" name="L184" href="#L184">184</a>                 zeroChildSet.remove(p.getParentProcessID());
-<a class="jxr_linenumber" name="L185" href="#L185">185</a>                 oneChildSet.add(p.getParentProcessID());
-<a class="jxr_linenumber" name="L186" href="#L186">186</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (oneChildSet.contains(p.getParentProcessID())) {
-<a class="jxr_linenumber" name="L187" href="#L187">187</a>                 <em class="jxr_comment">// One to many</em>
-<a class="jxr_linenumber" name="L188" href="#L188">188</a>                 oneChildSet.remove(p.getParentProcessID());
-<a class="jxr_linenumber" name="L189" href="#L189">189</a>                 manyChildSet.add(p.getParentProcessID());
-<a class="jxr_linenumber" name="L190" href="#L190">190</a>             }
-<a class="jxr_linenumber" name="L191" href="#L191">191</a>         }
-<a class="jxr_linenumber" name="L192" href="#L192">192</a>         <em class="jxr_comment">// Now test that majority of each set is in same category</em>
-<a class="jxr_linenumber" name="L193" href="#L193">193</a>         <strong class="jxr_keyword">int</strong> matched = 0;
-<a class="jxr_linenumber" name="L194" href="#L194">194</a>         <strong class="jxr_keyword">int</strong> total = 0;
-<a class="jxr_linenumber" name="L195" href="#L195">195</a>         <strong class="jxr_keyword">for</strong> (Integer i : zeroChildSet) {
-<a class="jxr_linenumber" name="L196" href="#L196">196</a>             <strong class="jxr_keyword">if</strong> (os.getChildProcesses(i, 0, <strong class="jxr_keyword">null</strong>).isEmpty()) {
-<a class="jxr_linenumber" name="L197" href="#L197">197</a>                 matched++;
-<a class="jxr_linenumber" name="L198" href="#L198">198</a>             }
-<a class="jxr_linenumber" name="L199" href="#L199">199</a>             <em class="jxr_comment">// Quit if enough to test</em>
-<a class="jxr_linenumber" name="L200" href="#L200">200</a>             <strong class="jxr_keyword">if</strong> (++total &gt; 9) {
-<a class="jxr_linenumber" name="L201" href="#L201">201</a>                 <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L202" href="#L202">202</a>             }
-<a class="jxr_linenumber" name="L203" href="#L203">203</a>         }
-<a class="jxr_linenumber" name="L204" href="#L204">204</a>         <strong class="jxr_keyword">if</strong> (total &gt; 4) {
-<a class="jxr_linenumber" name="L205" href="#L205">205</a>             assertTrue(<span class="jxr_string">"Most processes with no children should not suddenly have them."</span>, matched &gt; total / 2);
-<a class="jxr_linenumber" name="L206" href="#L206">206</a>         }
-<a class="jxr_linenumber" name="L207" href="#L207">207</a>         matched = 0;
-<a class="jxr_linenumber" name="L208" href="#L208">208</a>         total = 0;
-<a class="jxr_linenumber" name="L209" href="#L209">209</a>         <strong class="jxr_keyword">for</strong> (Integer i : oneChildSet) {
-<a class="jxr_linenumber" name="L210" href="#L210">210</a>             <strong class="jxr_keyword">if</strong> (os.getChildProcesses(i, 0, <strong class="jxr_keyword">null</strong>).size() == 1) {
-<a class="jxr_linenumber" name="L211" href="#L211">211</a>                 matched++;
-<a class="jxr_linenumber" name="L212" href="#L212">212</a>             }
-<a class="jxr_linenumber" name="L213" href="#L213">213</a>             <em class="jxr_comment">// Quit if enough to test</em>
-<a class="jxr_linenumber" name="L214" href="#L214">214</a>             <strong class="jxr_keyword">if</strong> (++total &gt; 9) {
-<a class="jxr_linenumber" name="L215" href="#L215">215</a>                 <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L216" href="#L216">216</a>             }
-<a class="jxr_linenumber" name="L217" href="#L217">217</a>         }
-<a class="jxr_linenumber" name="L218" href="#L218">218</a>         <strong class="jxr_keyword">if</strong> (total &gt; 4) {
-<a class="jxr_linenumber" name="L219" href="#L219">219</a>             assertTrue(<span class="jxr_string">"Most processes with one child should not suddenly have zero or more than one."</span>,
-<a class="jxr_linenumber" name="L220" href="#L220">220</a>                     matched &gt; total / 2);
-<a class="jxr_linenumber" name="L221" href="#L221">221</a>         }
-<a class="jxr_linenumber" name="L222" href="#L222">222</a>         matched = 0;
-<a class="jxr_linenumber" name="L223" href="#L223">223</a>         total = 0;
-<a class="jxr_linenumber" name="L224" href="#L224">224</a>         <strong class="jxr_keyword">for</strong> (Integer i : manyChildSet) {
-<a class="jxr_linenumber" name="L225" href="#L225">225</a>             <strong class="jxr_keyword">if</strong> (os.getChildProcesses(i, 0, <strong class="jxr_keyword">null</strong>).size() &gt; 1) {
-<a class="jxr_linenumber" name="L226" href="#L226">226</a>                 matched++;
-<a class="jxr_linenumber" name="L227" href="#L227">227</a>             }
-<a class="jxr_linenumber" name="L228" href="#L228">228</a>             <em class="jxr_comment">// Quit if enough to test</em>
-<a class="jxr_linenumber" name="L229" href="#L229">229</a>             <strong class="jxr_keyword">if</strong> (++total &gt; 9) {
-<a class="jxr_linenumber" name="L230" href="#L230">230</a>                 <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L231" href="#L231">231</a>             }
-<a class="jxr_linenumber" name="L232" href="#L232">232</a>         }
-<a class="jxr_linenumber" name="L233" href="#L233">233</a>         <strong class="jxr_keyword">if</strong> (total &gt; 4) {
-<a class="jxr_linenumber" name="L234" href="#L234">234</a>             assertTrue(<span class="jxr_string">"Most processes with more than one child should not suddenly have one or less."</span>,
-<a class="jxr_linenumber" name="L235" href="#L235">235</a>                     matched &gt; total / 2);
-<a class="jxr_linenumber" name="L236" href="#L236">236</a>         }
-<a class="jxr_linenumber" name="L237" href="#L237">237</a>     }
-<a class="jxr_linenumber" name="L238" href="#L238">238</a> 
-<a class="jxr_linenumber" name="L239" href="#L239">239</a>     @Test
-<a class="jxr_linenumber" name="L240" href="#L240">240</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testGetCommandLine() {
-<a class="jxr_linenumber" name="L241" href="#L241">241</a>         <strong class="jxr_keyword">int</strong> processesWithNonEmptyCmdLine = 0;
-<a class="jxr_linenumber" name="L242" href="#L242">242</a> 
-<a class="jxr_linenumber" name="L243" href="#L243">243</a>         SystemInfo si = <strong class="jxr_keyword">new</strong> SystemInfo();
-<a class="jxr_linenumber" name="L244" href="#L244">244</a>         OperatingSystem os = si.getOperatingSystem();
-<a class="jxr_linenumber" name="L245" href="#L245">245</a>         <strong class="jxr_keyword">for</strong> (OSProcess process : os.getProcesses(0, <strong class="jxr_keyword">null</strong>)) {
-<a class="jxr_linenumber" name="L246" href="#L246">246</a>             <strong class="jxr_keyword">if</strong> (!process.getCommandLine().trim().isEmpty()) {
-<a class="jxr_linenumber" name="L247" href="#L247">247</a>                 processesWithNonEmptyCmdLine++;
-<a class="jxr_linenumber" name="L248" href="#L248">248</a>             }
-<a class="jxr_linenumber" name="L249" href="#L249">249</a>         }
-<a class="jxr_linenumber" name="L250" href="#L250">250</a> 
-<a class="jxr_linenumber" name="L251" href="#L251">251</a>         assertTrue(processesWithNonEmptyCmdLine &gt;= 1);
-<a class="jxr_linenumber" name="L252" href="#L252">252</a>     }
-<a class="jxr_linenumber" name="L253" href="#L253">253</a> 
-<a class="jxr_linenumber" name="L254" href="#L254">254</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L255" href="#L255">255</a> <em class="jxr_javadoccomment">     * Tests services getter</em>
-<a class="jxr_linenumber" name="L256" href="#L256">256</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L180" href="#L180">180</a>         <strong class="jxr_keyword">if</strong> (zeroPid &gt;= 0) {
+<a class="jxr_linenumber" name="L181" href="#L181">181</a>             assertEquals(0, os.getChildProcesses(zeroPid, 0, <strong class="jxr_keyword">null</strong>).length);
+<a class="jxr_linenumber" name="L182" href="#L182">182</a>         }
+<a class="jxr_linenumber" name="L183" href="#L183">183</a>         <em class="jxr_comment">// Due to race condition, a process may terminate before we count its</em>
+<a class="jxr_linenumber" name="L184" href="#L184">184</a>         <em class="jxr_comment">// children.</em>
+<a class="jxr_linenumber" name="L185" href="#L185">185</a>         <strong class="jxr_keyword">if</strong> (onePid &gt;= 0) {
+<a class="jxr_linenumber" name="L186" href="#L186">186</a>             assertTrue(0 &lt;= os.getChildProcesses(onePid, 0, <strong class="jxr_keyword">null</strong>).length);
+<a class="jxr_linenumber" name="L187" href="#L187">187</a>         }
+<a class="jxr_linenumber" name="L188" href="#L188">188</a>         <strong class="jxr_keyword">if</strong> (nPid &gt;= 0) {
+<a class="jxr_linenumber" name="L189" href="#L189">189</a>             assertTrue(0 &lt;= os.getChildProcesses(nPid, 0, <strong class="jxr_keyword">null</strong>).length);
+<a class="jxr_linenumber" name="L190" href="#L190">190</a>         }
+<a class="jxr_linenumber" name="L191" href="#L191">191</a>         <strong class="jxr_keyword">if</strong> (mPid &gt;= 0) {
+<a class="jxr_linenumber" name="L192" href="#L192">192</a>             assertTrue(0 &lt;= os.getChildProcesses(mPid, 0, <strong class="jxr_keyword">null</strong>).length);
+<a class="jxr_linenumber" name="L193" href="#L193">193</a>         }
+<a class="jxr_linenumber" name="L194" href="#L194">194</a>         <em class="jxr_comment">// At least one of these tests should work.</em>
+<a class="jxr_linenumber" name="L195" href="#L195">195</a>         <strong class="jxr_keyword">if</strong> (onePid &gt;= 0 &amp;&amp; nPid &gt;= 0 &amp;&amp; mPid &gt;= 0) {
+<a class="jxr_linenumber" name="L196" href="#L196">196</a>             assertTrue(os.getChildProcesses(onePid, 0, <strong class="jxr_keyword">null</strong>).length == 1
+<a class="jxr_linenumber" name="L197" href="#L197">197</a>                     || os.getChildProcesses(nPid, 0, <strong class="jxr_keyword">null</strong>).length == nNum
+<a class="jxr_linenumber" name="L198" href="#L198">198</a>                     || os.getChildProcesses(mPid, 0, <strong class="jxr_keyword">null</strong>).length == mNum);
+<a class="jxr_linenumber" name="L199" href="#L199">199</a>         }
+<a class="jxr_linenumber" name="L200" href="#L200">200</a>     }
+<a class="jxr_linenumber" name="L201" href="#L201">201</a> 
+<a class="jxr_linenumber" name="L202" href="#L202">202</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L203" href="#L203">203</a> <em class="jxr_javadoccomment">     * Test OSProcess setters and getters</em>
+<a class="jxr_linenumber" name="L204" href="#L204">204</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L205" href="#L205">205</a>     @Test
+<a class="jxr_linenumber" name="L206" href="#L206">206</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testOSProcessSetters() {
+<a class="jxr_linenumber" name="L207" href="#L207">207</a>         SystemInfo si = <strong class="jxr_keyword">new</strong> SystemInfo();
+<a class="jxr_linenumber" name="L208" href="#L208">208</a>         OperatingSystem os = si.getOperatingSystem();
+<a class="jxr_linenumber" name="L209" href="#L209">209</a>         OSProcess oldProcess = os.getProcess(os.getProcessId());
+<a class="jxr_linenumber" name="L210" href="#L210">210</a> 
+<a class="jxr_linenumber" name="L211" href="#L211">211</a>         OSProcess newProcess = <strong class="jxr_keyword">new</strong> OSProcess();
+<a class="jxr_linenumber" name="L212" href="#L212">212</a>         newProcess.setName(oldProcess.getName());
+<a class="jxr_linenumber" name="L213" href="#L213">213</a>         newProcess.setPath(oldProcess.getPath());
+<a class="jxr_linenumber" name="L214" href="#L214">214</a>         newProcess.setCommandLine(oldProcess.getCommandLine());
+<a class="jxr_linenumber" name="L215" href="#L215">215</a>         newProcess.setCurrentWorkingDirectory(oldProcess.getCurrentWorkingDirectory());
+<a class="jxr_linenumber" name="L216" href="#L216">216</a>         newProcess.setUser(oldProcess.getUser());
+<a class="jxr_linenumber" name="L217" href="#L217">217</a>         newProcess.setUserID(oldProcess.getUserID());
+<a class="jxr_linenumber" name="L218" href="#L218">218</a>         newProcess.setGroup(oldProcess.getGroup());
+<a class="jxr_linenumber" name="L219" href="#L219">219</a>         newProcess.setGroupID(oldProcess.getGroupID());
+<a class="jxr_linenumber" name="L220" href="#L220">220</a>         newProcess.setState(oldProcess.getState());
+<a class="jxr_linenumber" name="L221" href="#L221">221</a>         newProcess.setProcessID(oldProcess.getProcessID());
+<a class="jxr_linenumber" name="L222" href="#L222">222</a>         newProcess.setParentProcessID(oldProcess.getParentProcessID());
+<a class="jxr_linenumber" name="L223" href="#L223">223</a>         newProcess.setThreadCount(oldProcess.getThreadCount());
+<a class="jxr_linenumber" name="L224" href="#L224">224</a>         newProcess.setPriority(oldProcess.getPriority());
+<a class="jxr_linenumber" name="L225" href="#L225">225</a>         newProcess.setVirtualSize(oldProcess.getVirtualSize());
+<a class="jxr_linenumber" name="L226" href="#L226">226</a>         newProcess.setResidentSetSize(oldProcess.getResidentSetSize());
+<a class="jxr_linenumber" name="L227" href="#L227">227</a>         newProcess.setKernelTime(oldProcess.getKernelTime());
+<a class="jxr_linenumber" name="L228" href="#L228">228</a>         newProcess.setUserTime(oldProcess.getUserTime());
+<a class="jxr_linenumber" name="L229" href="#L229">229</a>         newProcess.setUpTime(oldProcess.getUpTime());
+<a class="jxr_linenumber" name="L230" href="#L230">230</a>         newProcess.setStartTime(oldProcess.getStartTime());
+<a class="jxr_linenumber" name="L231" href="#L231">231</a>         newProcess.setBytesRead(oldProcess.getBytesRead());
+<a class="jxr_linenumber" name="L232" href="#L232">232</a>         newProcess.setBytesWritten(oldProcess.getBytesWritten());
+<a class="jxr_linenumber" name="L233" href="#L233">233</a> 
+<a class="jxr_linenumber" name="L234" href="#L234">234</a>         assertEquals(oldProcess.getName(), newProcess.getName());
+<a class="jxr_linenumber" name="L235" href="#L235">235</a>         assertEquals(oldProcess.getPath(), newProcess.getPath());
+<a class="jxr_linenumber" name="L236" href="#L236">236</a>         assertEquals(oldProcess.getCommandLine(), newProcess.getCommandLine());
+<a class="jxr_linenumber" name="L237" href="#L237">237</a>         assertEquals(oldProcess.getCurrentWorkingDirectory(), newProcess.getCurrentWorkingDirectory());
+<a class="jxr_linenumber" name="L238" href="#L238">238</a>         assertEquals(oldProcess.getUser(), newProcess.getUser());
+<a class="jxr_linenumber" name="L239" href="#L239">239</a>         assertEquals(oldProcess.getUserID(), newProcess.getUserID());
+<a class="jxr_linenumber" name="L240" href="#L240">240</a>         assertEquals(oldProcess.getGroup(), newProcess.getGroup());
+<a class="jxr_linenumber" name="L241" href="#L241">241</a>         assertEquals(oldProcess.getGroupID(), newProcess.getGroupID());
+<a class="jxr_linenumber" name="L242" href="#L242">242</a>         assertEquals(oldProcess.getState(), newProcess.getState());
+<a class="jxr_linenumber" name="L243" href="#L243">243</a>         assertEquals(oldProcess.getProcessID(), newProcess.getProcessID());
+<a class="jxr_linenumber" name="L244" href="#L244">244</a>         assertEquals(oldProcess.getParentProcessID(), newProcess.getParentProcessID());
+<a class="jxr_linenumber" name="L245" href="#L245">245</a>         assertEquals(oldProcess.getThreadCount(), newProcess.getThreadCount());
+<a class="jxr_linenumber" name="L246" href="#L246">246</a>         assertEquals(oldProcess.getPriority(), newProcess.getPriority());
+<a class="jxr_linenumber" name="L247" href="#L247">247</a>         assertEquals(oldProcess.getVirtualSize(), newProcess.getVirtualSize());
+<a class="jxr_linenumber" name="L248" href="#L248">248</a>         assertEquals(oldProcess.getResidentSetSize(), newProcess.getResidentSetSize());
+<a class="jxr_linenumber" name="L249" href="#L249">249</a>         assertEquals(oldProcess.getKernelTime(), newProcess.getKernelTime());
+<a class="jxr_linenumber" name="L250" href="#L250">250</a>         assertEquals(oldProcess.getUserTime(), newProcess.getUserTime());
+<a class="jxr_linenumber" name="L251" href="#L251">251</a>         assertEquals(oldProcess.getUpTime(), newProcess.getUpTime());
+<a class="jxr_linenumber" name="L252" href="#L252">252</a>         assertEquals(oldProcess.getStartTime(), newProcess.getStartTime());
+<a class="jxr_linenumber" name="L253" href="#L253">253</a>         assertEquals(oldProcess.getBytesRead(), newProcess.getBytesRead());
+<a class="jxr_linenumber" name="L254" href="#L254">254</a>         assertEquals(oldProcess.getBytesWritten(), newProcess.getBytesWritten());
+<a class="jxr_linenumber" name="L255" href="#L255">255</a>     }
+<a class="jxr_linenumber" name="L256" href="#L256">256</a> 
 <a class="jxr_linenumber" name="L257" href="#L257">257</a>     @Test
-<a class="jxr_linenumber" name="L258" href="#L258">258</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testGetServices() {
-<a class="jxr_linenumber" name="L259" href="#L259">259</a>         SystemInfo si = <strong class="jxr_keyword">new</strong> SystemInfo();
-<a class="jxr_linenumber" name="L260" href="#L260">260</a>         OperatingSystem os = si.getOperatingSystem();
-<a class="jxr_linenumber" name="L261" href="#L261">261</a>         <strong class="jxr_keyword">int</strong> stopped = 0;
-<a class="jxr_linenumber" name="L262" href="#L262">262</a>         <strong class="jxr_keyword">int</strong> running = 0;
-<a class="jxr_linenumber" name="L263" href="#L263">263</a>         <strong class="jxr_keyword">for</strong> (OSService svc : os.getServices()) {
-<a class="jxr_linenumber" name="L264" href="#L264">264</a>             assertTrue(svc.getName().length() &gt; 0);
-<a class="jxr_linenumber" name="L265" href="#L265">265</a>             <strong class="jxr_keyword">switch</strong> (svc.getState()) {
-<a class="jxr_linenumber" name="L266" href="#L266">266</a>             <strong class="jxr_keyword">case</strong> STOPPED:
-<a class="jxr_linenumber" name="L267" href="#L267">267</a>                 stopped++;
-<a class="jxr_linenumber" name="L268" href="#L268">268</a>                 <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L269" href="#L269">269</a>             <strong class="jxr_keyword">case</strong> RUNNING:
-<a class="jxr_linenumber" name="L270" href="#L270">270</a>                 running++;
-<a class="jxr_linenumber" name="L271" href="#L271">271</a>                 <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L272" href="#L272">272</a>             <strong class="jxr_keyword">default</strong>:
-<a class="jxr_linenumber" name="L273" href="#L273">273</a>                 <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L274" href="#L274">274</a>             }
-<a class="jxr_linenumber" name="L275" href="#L275">275</a>         }
-<a class="jxr_linenumber" name="L276" href="#L276">276</a>         <em class="jxr_comment">// Should be at least one of each</em>
-<a class="jxr_linenumber" name="L277" href="#L277">277</a>         assertNotEquals(0, stopped);
-<a class="jxr_linenumber" name="L278" href="#L278">278</a>         assertNotEquals(0, running);
-<a class="jxr_linenumber" name="L279" href="#L279">279</a>     }
-<a class="jxr_linenumber" name="L280" href="#L280">280</a> 
-<a class="jxr_linenumber" name="L281" href="#L281">281</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L282" href="#L282">282</a> <em class="jxr_javadoccomment">     * Tests sessions getter</em>
-<a class="jxr_linenumber" name="L283" href="#L283">283</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L284" href="#L284">284</a>     @Test
-<a class="jxr_linenumber" name="L285" href="#L285">285</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testGetSessions() {
-<a class="jxr_linenumber" name="L286" href="#L286">286</a>         SystemInfo si = <strong class="jxr_keyword">new</strong> SystemInfo();
-<a class="jxr_linenumber" name="L287" href="#L287">287</a>         OperatingSystem os = si.getOperatingSystem();
-<a class="jxr_linenumber" name="L288" href="#L288">288</a>         <strong class="jxr_keyword">for</strong> (OSSession sess : os.getSessions()) {
-<a class="jxr_linenumber" name="L289" href="#L289">289</a>             assertTrue(sess.getUserName().length() &gt; 0);
-<a class="jxr_linenumber" name="L290" href="#L290">290</a>             assertTrue(sess.getTerminalDevice().length() &gt; 0);
-<a class="jxr_linenumber" name="L291" href="#L291">291</a>             <em class="jxr_comment">// Login time</em>
-<a class="jxr_linenumber" name="L292" href="#L292">292</a>             assertTrue(String.format(<span class="jxr_string">"Logon time should be before now: %d &lt; %d%n%s"</span>, sess.getLoginTime(),
-<a class="jxr_linenumber" name="L293" href="#L293">293</a>                     System.currentTimeMillis(), sess), sess.getLoginTime() &lt;= System.currentTimeMillis());
-<a class="jxr_linenumber" name="L294" href="#L294">294</a>             assertNotNull(sess.getHost());
-<a class="jxr_linenumber" name="L295" href="#L295">295</a>         }
-<a class="jxr_linenumber" name="L296" href="#L296">296</a>     }
-<a class="jxr_linenumber" name="L297" href="#L297">297</a> }
+<a class="jxr_linenumber" name="L258" href="#L258">258</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testGetCommandLine() {
+<a class="jxr_linenumber" name="L259" href="#L259">259</a>         <strong class="jxr_keyword">int</strong> processesWithNonEmptyCmdLine = 0;
+<a class="jxr_linenumber" name="L260" href="#L260">260</a> 
+<a class="jxr_linenumber" name="L261" href="#L261">261</a>         SystemInfo si = <strong class="jxr_keyword">new</strong> SystemInfo();
+<a class="jxr_linenumber" name="L262" href="#L262">262</a>         OperatingSystem os = si.getOperatingSystem();
+<a class="jxr_linenumber" name="L263" href="#L263">263</a>         <strong class="jxr_keyword">for</strong> (OSProcess process : os.getProcesses(0, <strong class="jxr_keyword">null</strong>)) {
+<a class="jxr_linenumber" name="L264" href="#L264">264</a>             <strong class="jxr_keyword">if</strong> (!process.getCommandLine().trim().isEmpty()) {
+<a class="jxr_linenumber" name="L265" href="#L265">265</a>                 processesWithNonEmptyCmdLine++;
+<a class="jxr_linenumber" name="L266" href="#L266">266</a>             }
+<a class="jxr_linenumber" name="L267" href="#L267">267</a>         }
+<a class="jxr_linenumber" name="L268" href="#L268">268</a> 
+<a class="jxr_linenumber" name="L269" href="#L269">269</a>         assertTrue(processesWithNonEmptyCmdLine &gt;= 1);
+<a class="jxr_linenumber" name="L270" href="#L270">270</a>     }
+<a class="jxr_linenumber" name="L271" href="#L271">271</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2020 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

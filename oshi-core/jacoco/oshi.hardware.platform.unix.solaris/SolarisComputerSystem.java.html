@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SolarisComputerSystem.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.unix.solaris</a> &gt; <span class="el_source">SolarisComputerSystem.java</span></div><h1>SolarisComputerSystem.java</h1><pre class="source lang-java linenums">/**
  * MIT License
  *
- * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors:
+ * https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -9,9 +10,8 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,67 +23,26 @@
  */
 package oshi.hardware.platform.unix.solaris;
 
-import static oshi.util.Memoizer.memoize;
-
-import java.util.function.Supplier;
-
-import oshi.annotation.concurrent.Immutable;
-import oshi.hardware.Baseboard;
-import oshi.hardware.Firmware;
 import oshi.hardware.common.AbstractComputerSystem;
-import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
-import oshi.util.Util;
 
 /**
- * Hardware data obtained from smbios.
+ * Hardware data obtained from smbios
+ *
+ * @author widdis [at] gmail [dot] com
  */
-@Immutable
-<span class="nc" id="L43">final class SolarisComputerSystem extends AbstractComputerSystem {</span>
+final class SolarisComputerSystem extends AbstractComputerSystem {
 
-<span class="nc" id="L45">    private final Supplier&lt;SmbiosStrings&gt; smbiosStrings = memoize(SolarisComputerSystem::readSmbios);</span>
+    private static final long serialVersionUID = 1L;
 
-    @Override
-    public String getManufacturer() {
-<span class="nc" id="L49">        return smbiosStrings.get().manufacturer;</span>
-    }
+    private static final String UNKNOWN = &quot;unknown&quot;;
 
-    @Override
-    public String getModel() {
-<span class="nc" id="L54">        return smbiosStrings.get().model;</span>
-    }
+<span class="nc" id="L41">    SolarisComputerSystem() {</span>
+<span class="nc" id="L42">        init();</span>
+<span class="nc" id="L43">    }</span>
 
-    @Override
-    public String getSerialNumber() {
-<span class="nc" id="L59">        return smbiosStrings.get().serialNumber;</span>
-    }
-
-    @Override
-    public Firmware createFirmware() {
-<span class="nc" id="L64">        return new SolarisFirmware(smbiosStrings.get().biosVendor, smbiosStrings.get().biosVersion,</span>
-<span class="nc" id="L65">                smbiosStrings.get().biosDate);</span>
-    }
-
-    @Override
-    public Baseboard createBaseboard() {
-<span class="nc" id="L70">        return new SolarisBaseboard(smbiosStrings.get().boardManufacturer, smbiosStrings.get().boardModel,</span>
-<span class="nc" id="L71">                smbiosStrings.get().boardSerialNumber, smbiosStrings.get().boardVersion);</span>
-    }
-
-    private static SmbiosStrings readSmbios() {
-<span class="nc" id="L75">        String biosVendor = null;</span>
-<span class="nc" id="L76">        String biosVersion = null;</span>
-<span class="nc" id="L77">        String biosDate = null;</span>
-
-<span class="nc" id="L79">        String manufacturer = null;</span>
-<span class="nc" id="L80">        String model = null;</span>
-<span class="nc" id="L81">        String serialNumber = null;</span>
-
-<span class="nc" id="L83">        String boardManufacturer = null;</span>
-<span class="nc" id="L84">        String boardModel = null;</span>
-<span class="nc" id="L85">        String boardVersion = null;</span>
-<span class="nc" id="L86">        String boardSerialNumber = null;</span>
+    private void init() {
 
         // $ smbios
         // ID SIZE TYPE
@@ -121,126 +80,142 @@ import oshi.util.Util;
         // ID SIZE TYPE
         // 3 .... &lt;snip&gt; ...
 
-<span class="nc" id="L124">        final String vendorMarker = &quot;Vendor:&quot;;</span>
-<span class="nc" id="L125">        final String biosDateMarker = &quot;Release Date:&quot;;</span>
-<span class="nc" id="L126">        final String biosVersionMarker = &quot;VersionString:&quot;;</span>
+<span class="nc" id="L83">        String vendor = &quot;&quot;;</span>
+<span class="nc" id="L84">        final String vendorMarker = &quot;Vendor:&quot;;</span>
+<span class="nc" id="L85">        String biosDate = &quot;&quot;;</span>
+<span class="nc" id="L86">        final String biosDateMarker = &quot;Release Date:&quot;;</span>
+<span class="nc" id="L87">        String biosVersion = &quot;&quot;;</span>
+<span class="nc" id="L88">        final String biosVersionMarker = &quot;VersionString:&quot;;</span>
 
-<span class="nc" id="L128">        final String manufacturerMarker = &quot;Manufacturer:&quot;;</span>
-<span class="nc" id="L129">        final String productMarker = &quot;Product:&quot;;</span>
-<span class="nc" id="L130">        final String serialNumMarker = &quot;Serial Number:&quot;;</span>
-<span class="nc" id="L131">        final String versionMarker = &quot;Version:&quot;;</span>
+<span class="nc" id="L90">        String manufacturer = &quot;&quot;;</span>
+<span class="nc" id="L91">        String boardManufacturer = &quot;&quot;;</span>
+<span class="nc" id="L92">        final String manufacturerMarker = &quot;Manufacturer:&quot;;</span>
+<span class="nc" id="L93">        String product = &quot;&quot;;</span>
+<span class="nc" id="L94">        String model = &quot;&quot;;</span>
+<span class="nc" id="L95">        final String productMarker = &quot;Product:&quot;;</span>
+<span class="nc" id="L96">        String version = &quot;&quot;;</span>
+<span class="nc" id="L97">        final String versionMarker = &quot;Version:&quot;;</span>
+<span class="nc" id="L98">        String serialNumber = &quot;&quot;;</span>
+<span class="nc" id="L99">        String boardSerialNumber = &quot;&quot;;</span>
+<span class="nc" id="L100">        final String serialNumMarker = &quot;Serial Number:&quot;;</span>
 
-<span class="nc" id="L133">        int smbTypeId = -1;</span>
+<span class="nc" id="L102">        SolarisFirmware firmware = new SolarisFirmware();</span>
+<span class="nc" id="L103">        SolarisBaseboard baseboard = new SolarisBaseboard();</span>
+
+<span class="nc" id="L105">        boolean smbTypeBIOS = false;</span>
+<span class="nc" id="L106">        boolean smbTypeSystem = false;</span>
+<span class="nc" id="L107">        boolean smbTypeBaseboard = false;</span>
         // Only works with root permissions but it's all we've got
-<span class="nc bnc" id="L135" title="All 2 branches missed.">        for (final String checkLine : ExecutingCommand.runNative(&quot;smbios&quot;)) {</span>
-            // Change the smbTypeId when hitting a new header
-<span class="nc bnc" id="L137" title="All 4 branches missed.">            if (checkLine.contains(&quot;SMB_TYPE_&quot;) &amp;&amp; (smbTypeId = getSmbType(checkLine)) == Integer.MAX_VALUE) {</span>
-                // If we get past what we need, stop iterating
-<span class="nc" id="L139">                break;</span>
+<span class="nc bnc" id="L109" title="All 2 branches missed.">        for (final String checkLine : ExecutingCommand.runNative(&quot;smbios&quot;)) {</span>
+            // First 3 SMB_TYPE_* options are what we need. After that we quit
+<span class="nc bnc" id="L111" title="All 2 branches missed.">            if (checkLine.contains(&quot;SMB_TYPE_&quot;)) {</span>
+<span class="nc bnc" id="L112" title="All 2 branches missed.">                if (checkLine.contains(&quot;SMB_TYPE_BIOS&quot;)) {</span>
+<span class="nc" id="L113">                    smbTypeBIOS = true;</span>
+<span class="nc" id="L114">                    smbTypeSystem = false;</span>
+<span class="nc" id="L115">                    smbTypeBaseboard = false;</span>
+<span class="nc bnc" id="L116" title="All 2 branches missed.">                } else if (checkLine.contains(&quot;SMB_TYPE_SYSTEM&quot;)) {</span>
+<span class="nc" id="L117">                    smbTypeBIOS = false;</span>
+<span class="nc" id="L118">                    smbTypeSystem = true;</span>
+<span class="nc" id="L119">                    smbTypeBaseboard = false;</span>
+<span class="nc bnc" id="L120" title="All 2 branches missed.">                } else if (checkLine.contains(&quot;SMB_TYPE_BASEBOARD&quot;)) {</span>
+<span class="nc" id="L121">                    smbTypeBIOS = false;</span>
+<span class="nc" id="L122">                    smbTypeSystem = false;</span>
+<span class="nc" id="L123">                    smbTypeBaseboard = true;</span>
+                } else {
+                    break;
+                }
             }
-            // Based on the smbTypeID we are processing for
-<span class="nc bnc" id="L142" title="All 4 branches missed.">            switch (smbTypeId) {</span>
-            case 0: // BIOS
-<span class="nc bnc" id="L144" title="All 2 branches missed.">                if (checkLine.contains(vendorMarker)) {</span>
-<span class="nc" id="L145">                    biosVendor = checkLine.split(vendorMarker)[1].trim();</span>
-<span class="nc bnc" id="L146" title="All 2 branches missed.">                } else if (checkLine.contains(biosVersionMarker)) {</span>
-<span class="nc" id="L147">                    biosVersion = checkLine.split(biosVersionMarker)[1].trim();</span>
-<span class="nc bnc" id="L148" title="All 2 branches missed.">                } else if (checkLine.contains(biosDateMarker)) {</span>
-<span class="nc" id="L149">                    biosDate = checkLine.split(biosDateMarker)[1].trim();</span>
+
+<span class="nc bnc" id="L129" title="All 2 branches missed.">            if (smbTypeBIOS) {</span>
+<span class="nc bnc" id="L130" title="All 2 branches missed.">                if (checkLine.contains(vendorMarker)) {</span>
+<span class="nc" id="L131">                    vendor = checkLine.split(vendorMarker)[1].trim();</span>
+<span class="nc bnc" id="L132" title="All 2 branches missed.">                } else if (checkLine.contains(biosVersionMarker)) {</span>
+<span class="nc" id="L133">                    biosVersion = checkLine.split(biosVersionMarker)[1].trim();</span>
+<span class="nc bnc" id="L134" title="All 2 branches missed.">                } else if (checkLine.contains(biosDateMarker)) {</span>
+<span class="nc" id="L135">                    biosDate = checkLine.split(biosDateMarker)[1].trim();</span>
                 }
-                break;
-            case 1: // SYSTEM
-<span class="nc bnc" id="L153" title="All 2 branches missed.">                if (checkLine.contains(manufacturerMarker)) {</span>
-<span class="nc" id="L154">                    manufacturer = checkLine.split(manufacturerMarker)[1].trim();</span>
-<span class="nc bnc" id="L155" title="All 2 branches missed.">                } else if (checkLine.contains(productMarker)) {</span>
-<span class="nc" id="L156">                    model = checkLine.split(productMarker)[1].trim();</span>
-<span class="nc bnc" id="L157" title="All 2 branches missed.">                } else if (checkLine.contains(serialNumMarker)) {</span>
-<span class="nc" id="L158">                    serialNumber = checkLine.split(serialNumMarker)[1].trim();</span>
+<span class="nc bnc" id="L137" title="All 2 branches missed.">            } else if (smbTypeSystem) {</span>
+<span class="nc bnc" id="L138" title="All 2 branches missed.">                if (checkLine.contains(manufacturerMarker)) {</span>
+<span class="nc" id="L139">                    manufacturer = checkLine.split(manufacturerMarker)[1].trim();</span>
+<span class="nc bnc" id="L140" title="All 2 branches missed.">                } else if (checkLine.contains(productMarker)) {</span>
+<span class="nc" id="L141">                    product = checkLine.split(productMarker)[1].trim();</span>
+<span class="nc bnc" id="L142" title="All 2 branches missed.">                } else if (checkLine.contains(serialNumMarker)) {</span>
+<span class="nc" id="L143">                    serialNumber = checkLine.split(serialNumMarker)[1].trim();</span>
                 }
-                break;
-            case 2: // BASEBOARD
-<span class="nc bnc" id="L162" title="All 2 branches missed.">                if (checkLine.contains(manufacturerMarker)) {</span>
-<span class="nc" id="L163">                    boardManufacturer = checkLine.split(manufacturerMarker)[1].trim();</span>
-<span class="nc bnc" id="L164" title="All 2 branches missed.">                } else if (checkLine.contains(productMarker)) {</span>
-<span class="nc" id="L165">                    boardModel = checkLine.split(productMarker)[1].trim();</span>
-<span class="nc bnc" id="L166" title="All 2 branches missed.">                } else if (checkLine.contains(versionMarker)) {</span>
-<span class="nc" id="L167">                    boardVersion = checkLine.split(versionMarker)[1].trim();</span>
-<span class="nc bnc" id="L168" title="All 2 branches missed.">                } else if (checkLine.contains(serialNumMarker)) {</span>
-<span class="nc" id="L169">                    boardSerialNumber = checkLine.split(serialNumMarker)[1].trim();</span>
+<span class="nc bnc" id="L145" title="All 2 branches missed.">            } else if (smbTypeBaseboard) {</span>
+<span class="nc bnc" id="L146" title="All 2 branches missed.">                if (checkLine.contains(manufacturerMarker)) {</span>
+<span class="nc" id="L147">                    boardManufacturer = checkLine.split(manufacturerMarker)[1].trim();</span>
+<span class="nc bnc" id="L148" title="All 2 branches missed.">                } else if (checkLine.contains(productMarker)) {</span>
+<span class="nc" id="L149">                    model = checkLine.split(productMarker)[1].trim();</span>
+<span class="nc bnc" id="L150" title="All 2 branches missed.">                } else if (checkLine.contains(versionMarker)) {</span>
+<span class="nc" id="L151">                    version = checkLine.split(versionMarker)[1].trim();</span>
+<span class="nc bnc" id="L152" title="All 2 branches missed.">                } else if (checkLine.contains(serialNumMarker)) {</span>
+<span class="nc" id="L153">                    boardSerialNumber = checkLine.split(serialNumMarker)[1].trim();</span>
                 }
-                break;
-            default:
-                break;
             }
-<span class="nc" id="L175">        }</span>
-        // If we get to end and haven't assigned, use fallback
-<span class="nc bnc" id="L177" title="All 2 branches missed.">        if (Util.isBlank(serialNumber)) {</span>
-<span class="nc" id="L178">            serialNumber = readSerialNumber();</span>
-        }
-<span class="nc" id="L180">        return new SmbiosStrings(biosVendor, biosVersion, biosDate, manufacturer, model, serialNumber,</span>
-                boardManufacturer, boardModel, boardVersion, boardSerialNumber);
-    }
+<span class="nc" id="L156">        }</span>
 
-    private static int getSmbType(String checkLine) {
-<span class="nc bnc" id="L185" title="All 2 branches missed.">        if (checkLine.contains(&quot;SMB_TYPE_BIOS&quot;)) {</span>
-<span class="nc" id="L186">            return 0; // BIOS</span>
-<span class="nc bnc" id="L187" title="All 2 branches missed.">        } else if (checkLine.contains(&quot;SMB_TYPE_SYSTEM&quot;)) {</span>
-<span class="nc" id="L188">            return 1; // SYSTEM</span>
-<span class="nc bnc" id="L189" title="All 2 branches missed.">        } else if (checkLine.contains(&quot;SMB_TYPE_BASEBOARD&quot;)) {</span>
-<span class="nc" id="L190">            return 2; // BASEBOARD</span>
-        } else {
-            // First 3 SMB_TYPEs are what we need. After that no need to
-            // continue processing the output
-<span class="nc" id="L194">            return Integer.MAX_VALUE;</span>
+<span class="nc bnc" id="L158" title="All 2 branches missed.">        if (!vendor.isEmpty()) {</span>
+<span class="nc" id="L159">            firmware.setManufacturer(vendor);</span>
         }
-    }
+<span class="nc bnc" id="L161" title="All 2 branches missed.">        if (!biosVersion.isEmpty()) {</span>
+<span class="nc" id="L162">            firmware.setVersion(biosVersion);</span>
+        }
+<span class="nc bnc" id="L164" title="All 2 branches missed.">        if (!biosDate.isEmpty()) {</span>
+            try {
+                // Date is MM-DD-YYYY, convert to YYYY-MM-DD
+<span class="nc" id="L167">                firmware.setReleaseDate(String.format(&quot;%s-%s-%s&quot;, biosDate.substring(6, 10), biosDate.substring(0, 2),</span>
+<span class="nc" id="L168">                        biosDate.substring(3, 5)));</span>
+<span class="nc" id="L169">            } catch (StringIndexOutOfBoundsException e) {</span>
+<span class="nc" id="L170">                firmware.setReleaseDate(biosDate);</span>
+<span class="nc" id="L171">            }</span>
+        }
 
-    private static String readSerialNumber() {
+<span class="nc bnc" id="L174" title="All 2 branches missed.">        if (!manufacturer.isEmpty()) {</span>
+<span class="nc" id="L175">            setManufacturer(manufacturer);</span>
+        }
+<span class="nc bnc" id="L177" title="All 2 branches missed.">        if (!product.isEmpty()) {</span>
+<span class="nc" id="L178">            setModel(product);</span>
+        }
+<span class="nc bnc" id="L180" title="All 2 branches missed.">        if (serialNumber.isEmpty()) {</span>
+<span class="nc" id="L181">            serialNumber = getSystemSerialNumber();</span>
+        }
+<span class="nc" id="L183">        setSerialNumber(serialNumber);</span>
+
+<span class="nc bnc" id="L185" title="All 2 branches missed.">        if (!boardManufacturer.isEmpty()) {</span>
+<span class="nc" id="L186">            baseboard.setManufacturer(boardManufacturer);</span>
+        }
+<span class="nc bnc" id="L188" title="All 2 branches missed.">        if (!model.isEmpty()) {</span>
+<span class="nc" id="L189">            baseboard.setModel(model);</span>
+        }
+<span class="nc bnc" id="L191" title="All 2 branches missed.">        if (!version.isEmpty()) {</span>
+<span class="nc" id="L192">            baseboard.setVersion(version);</span>
+        }
+<span class="nc bnc" id="L194" title="All 2 branches missed.">        if (!boardSerialNumber.isEmpty()) {</span>
+<span class="nc" id="L195">            baseboard.setSerialNumber(boardSerialNumber);</span>
+        }
+
+<span class="nc" id="L198">        setFirmware(firmware);</span>
+<span class="nc" id="L199">        setBaseboard(baseboard);</span>
+<span class="nc" id="L200">    }</span>
+
+    private String getSystemSerialNumber() {
         // If they've installed STB (Sun Explorer) this should work
-<span class="nc" id="L200">        String serialNumber = ExecutingCommand.getFirstAnswer(&quot;sneep&quot;);</span>
+<span class="nc" id="L204">        String serialNumber = ExecutingCommand.getFirstAnswer(&quot;sneep&quot;);</span>
         // if that didn't work, try...
-<span class="nc bnc" id="L202" title="All 2 branches missed.">        if (serialNumber.isEmpty()) {</span>
-<span class="nc" id="L203">            String marker = &quot;chassis-sn:&quot;;</span>
-<span class="nc bnc" id="L204" title="All 2 branches missed.">            for (String checkLine : ExecutingCommand.runNative(&quot;prtconf -pv&quot;)) {</span>
-<span class="nc bnc" id="L205" title="All 2 branches missed.">                if (checkLine.contains(marker)) {</span>
-<span class="nc" id="L206">                    serialNumber = ParseUtil.getSingleQuoteStringValue(checkLine);</span>
-<span class="nc" id="L207">                    break;</span>
+<span class="nc bnc" id="L206" title="All 2 branches missed.">        if (serialNumber.isEmpty()) {</span>
+<span class="nc" id="L207">            String marker = &quot;chassis-sn:&quot;;</span>
+<span class="nc bnc" id="L208" title="All 2 branches missed.">            for (String checkLine : ExecutingCommand.runNative(&quot;prtconf -pv&quot;)) {</span>
+<span class="nc bnc" id="L209" title="All 2 branches missed.">                if (checkLine.contains(marker)) {</span>
+<span class="nc" id="L210">                    serialNumber = ParseUtil.getSingleQuoteStringValue(checkLine);</span>
+<span class="nc" id="L211">                    break;</span>
                 }
-<span class="nc" id="L209">            }</span>
+<span class="nc" id="L213">            }</span>
         }
-<span class="nc" id="L211">        return serialNumber;</span>
-    }
-
-    private static final class SmbiosStrings {
-        private final String biosVendor;
-        private final String biosVersion;
-        private final String biosDate;
-
-        private final String manufacturer;
-        private final String model;
-        private final String serialNumber;
-
-        private final String boardManufacturer;
-        private final String boardModel;
-        private final String boardVersion;
-        private final String boardSerialNumber;
-
-        private SmbiosStrings(String biosVendor, String biosVersion, String biosDate, //
-                String manufacturer, String model, String serialNumber, //
-<span class="nc" id="L230">                String boardManufacturer, String boardModel, String boardVersion, String boardSerialNumber) {</span>
-<span class="nc bnc" id="L231" title="All 2 branches missed.">            this.biosVendor = Util.isBlank(biosVendor) ? Constants.UNKNOWN : biosVendor;</span>
-<span class="nc bnc" id="L232" title="All 2 branches missed.">            this.biosVersion = Util.isBlank(biosVersion) ? Constants.UNKNOWN : biosVersion;</span>
-<span class="nc bnc" id="L233" title="All 2 branches missed.">            this.biosDate = Util.isBlank(biosDate) ? Constants.UNKNOWN : biosDate;</span>
-
-<span class="nc bnc" id="L235" title="All 2 branches missed.">            this.manufacturer = Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer;</span>
-<span class="nc bnc" id="L236" title="All 2 branches missed.">            this.model = Util.isBlank(model) ? Constants.UNKNOWN : model;</span>
-<span class="nc bnc" id="L237" title="All 2 branches missed.">            this.serialNumber = Util.isBlank(serialNumber) ? Constants.UNKNOWN : serialNumber;</span>
-
-<span class="nc bnc" id="L239" title="All 2 branches missed.">            this.boardManufacturer = Util.isBlank(boardManufacturer) ? Constants.UNKNOWN : boardManufacturer;</span>
-<span class="nc bnc" id="L240" title="All 2 branches missed.">            this.boardModel = Util.isBlank(boardModel) ? Constants.UNKNOWN : boardModel;</span>
-<span class="nc bnc" id="L241" title="All 2 branches missed.">            this.boardVersion = Util.isBlank(boardVersion) ? Constants.UNKNOWN : boardVersion;</span>
-<span class="nc bnc" id="L242" title="All 2 branches missed.">            this.boardSerialNumber = Util.isBlank(boardSerialNumber) ? Constants.UNKNOWN : boardSerialNumber;</span>
-<span class="nc" id="L243">        }</span>
+<span class="nc bnc" id="L215" title="All 2 branches missed.">        if (serialNumber.isEmpty()) {</span>
+<span class="nc" id="L216">            serialNumber = UNKNOWN;</span>
+        }
+<span class="nc" id="L218">        return serialNumber;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
