@@ -1,8 +1,6 @@
 GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
 oshi-json/oshi-core,oshi.jna.platform.windows,PowrProf.SystemBatteryState,7,0,0,0,2,0,1,0,1,0
 oshi-json/oshi-core,oshi.jna.platform.windows,PowrProf,6,0,0,0,1,0,1,0,1,0
-oshi-json/oshi-core,oshi.jna.platform.windows,VersionHelpers,187,0,2,0,30,0,18,0,17,0
-oshi-json/oshi-core,oshi.jna.platform.windows,Kernel32,6,0,0,0,1,0,1,0,1,0
 oshi-json/oshi-core,oshi.util.platform.windows,WmiQueryHandler,255,0,29,0,74,0,30,0,14,0
 oshi-json/oshi-core,oshi.util.platform.windows,PerfDataUtil.PerfCounter,57,0,2,0,14,0,6,0,5,0
 oshi-json/oshi-core,oshi.util.platform.windows,PerfDataUtil,215,0,32,0,44,0,24,0,8,0
@@ -68,11 +66,11 @@ oshi-json/oshi-core,oshi.hardware.common,AbstractDisplay,17,0,0,0,5,0,3,0,3,0
 oshi-json/oshi-core,oshi.software.os.windows,WindowsOperatingSystem.ProcessXPProperty,84,0,0,0,2,0,1,0,1,0
 oshi-json/oshi-core,oshi.software.os.windows,WindowsOperatingSystem.BitnessProperty,14,0,0,0,2,0,1,0,1,0
 oshi-json/oshi-core,oshi.software.os.windows,WindowsOSVersionInfoEx.OSVersionProperty,54,0,0,0,2,0,1,0,1,0
-oshi-json/oshi-core,oshi.software.os.windows,WindowsOperatingSystem,1527,0,146,0,323,0,91,0,18,0
+oshi-json/oshi-core,oshi.software.os.windows,WindowsOperatingSystem,1526,0,146,0,323,0,91,0,18,0
 oshi-json/oshi-core,oshi.software.os.windows,WindowsFileSystem.LogicalDiskProperty,74,0,0,0,2,0,1,0,1,0
 oshi-json/oshi-core,oshi.software.os.windows,WindowsNetworkParams,202,0,22,0,46,0,19,0,8,0
 oshi-json/oshi-core,oshi.software.os.windows,WindowsFileSystem,458,0,32,0,100,0,26,0,8,0
-oshi-json/oshi-core,oshi.software.os.windows,WindowsOSVersionInfoEx,304,0,66,0,69,0,40,0,6,0
+oshi-json/oshi-core,oshi.software.os.windows,WindowsOSVersionInfoEx,304,0,66,0,71,0,40,0,6,0
 oshi-json/oshi-core,oshi.software.os.windows,WindowsFileSystem.HandleCountProperty,37,0,0,0,7,0,3,0,3,0
 oshi-json/oshi-core,oshi.software.os.windows,WindowsOperatingSystem.ProcessProperty,24,0,0,0,2,0,1,0,1,0
 oshi-json/oshi-core,oshi.software.os.windows,WindowsOSSystemInfo,64,0,4,0,21,0,7,0,5,0
@@ -93,7 +91,7 @@ oshi-json/oshi-core,oshi.jna.platform.linux,Libc,6,0,0,0,1,0,1,0,1,0
 oshi-json/oshi-core,oshi.software.os.linux,LinuxFileSystem,501,0,46,0,96,0,30,0,7,0
 oshi-json/oshi-core,oshi.software.os.linux,LinuxOSVersionInfoEx,448,0,92,0,102,0,55,0,9,0
 oshi-json/oshi-core,oshi.software.os.linux,LinuxUserGroupInfo.UsersCache,94,0,10,0,25,0,8,0,3,0
-oshi-json/oshi-core,oshi.software.os.linux,LinuxOperatingSystem,1282,0,172,0,259,0,122,0,22,0
+oshi-json/oshi-core,oshi.software.os.linux,LinuxOperatingSystem,1270,0,168,0,260,0,120,0,22,0
 oshi-json/oshi-core,oshi.software.os.linux,LinuxOperatingSystem.ProcPidStat,103,0,0,0,6,0,3,0,3,0
 oshi-json/oshi-core,oshi.software.os.linux,LinuxOperatingSystem.new FileFilter() {...},42,0,14,0,5,0,9,0,2,0
 oshi-json/oshi-core,oshi.software.os.linux,LinuxNetworkParams,203,0,32,0,48,0,21,0,5,0
@@ -149,7 +147,7 @@ oshi-json/oshi-core,oshi.hardware.platform.unix.solaris,SolarisComputerSystem,36
 oshi-json/oshi-core,oshi.hardware.platform.unix.solaris,SolarisBaseboard,3,0,0,0,1,0,1,0,1,0
 oshi-json/oshi-core,oshi.hardware.platform.unix.solaris,SolarisFirmware,3,0,0,0,1,0,1,0,1,0
 oshi-json/oshi-core,oshi.hardware.platform.unix.solaris,SolarisHardwareAbstractionLayer,70,0,8,0,19,0,15,0,11,0
-oshi-json/oshi-core,oshi.hardware.platform.linux,LinuxPowerSource,271,0,56,0,59,0,31,0,3,0
+oshi-json/oshi-core,oshi.hardware.platform.linux,LinuxPowerSource,271,0,56,0,60,0,31,0,3,0
 oshi-json/oshi-core,oshi.hardware.platform.linux,LinuxSensors,322,0,34,0,60,0,23,0,6,0
 oshi-json/oshi-core,oshi.hardware.platform.linux,LinuxFirmware,136,0,24,0,29,0,14,0,2,0
 oshi-json/oshi-core,oshi.hardware.platform.linux,LinuxSensors.new FileFilter() {...},11,0,0,0,2,0,2,0,2,0
@@ -212,7 +210,7 @@ oshi-json/oshi-core,oshi.util,FormatUtil,0,377,0,36,0,57,0,30,0,12
 oshi-json/oshi-core,oshi.util,LsofUtil,65,0,9,0,13,0,6,0,1,0
 oshi-json/oshi-core,oshi.util,StringUtil,0,40,0,4,0,7,0,4,0,2
 oshi-json/oshi-core,oshi.util,ParseUtil,11,1027,14,114,1,214,13,82,0,31
-oshi-json/oshi-core,oshi.util,ExecutingCommand,21,81,1,5,6,21,1,7,0,5
+oshi-json/oshi-core,oshi.util,ExecutingCommand,21,79,1,5,6,21,1,7,0,5
 oshi-json/oshi-core,oshi.util,MapUtil,0,74,0,6,0,19,0,7,0,4
 oshi-json/oshi-core,oshi.util,FileUtil,57,168,13,25,14,44,12,15,0,8
 oshi-json/oshi-core,oshi.software.common,AbstractNetworkParams,164,0,20,0,35,0,16,0,6,0
