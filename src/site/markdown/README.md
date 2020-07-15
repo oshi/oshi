@@ -1,33 +1,31 @@
 ![OSHI](https://dl.dropboxusercontent.com/s/c82qboyvvudpvdp/oshilogo.png)
 
+[![MIT License](http://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Maven central](https://maven-badges.herokuapp.com/maven-central/com.github.oshi/oshi-core/badge.svg?)](https://search.maven.org/search?q=com.github.oshi)
-[![Tidelift](https://tidelift.com/badges/package/maven/com.github.oshi:oshi-core)](https://tidelift.com/subscription/pkg/maven-com-github-oshi-oshi-core?utm_source=maven-com-github-oshi-oshi-core&nbsp;utm_medium=referral&nbsp;utm_campaign=readme)
+[![Tidelift](https://tidelift.com/badges/package/maven/com.github.oshi:oshi-core)](https://tidelift.com/subscription/pkg/maven-com-github-oshi-oshi-core?utm_source=maven-com-github-oshi-oshi-core&amp;utm_medium=referral&amp;utm_campaign=readme)
 [![Travis Build Status](https://travis-ci.org/oshi/oshi.svg)](https://travis-ci.org/oshi/oshi)
 [![Appveyor Build status](https://ci.appveyor.com/api/projects/status/v489i8xoyfspxx7s?svg=true)](https://ci.appveyor.com/project/dbwiddis/oshi)
-[![Coverage Status](https://coveralls.io/repos/github/oshi/oshi/badge.svg?branch=master)](https://coveralls.io/github/oshi/oshi?branch=master)
-[![codecov.io](https://codecov.io/github/oshi/oshi/coverage.svg?branch=master)](https://codecov.io/github/oshi/oshi?branch=master)
 [![Coverity Scan Build Status](https://img.shields.io/coverity/scan/9332.svg)](https://scan.coverity.com/projects/dblock-oshi)
-[![Codacy Grade](https://api.codacy.com/project/badge/Grade/5370178ae91d4f56b43de2f26f7c5e7a)](https://www.codacy.com/app/widdis/oshi?utm_source=github.com&nbsp;amp;utm_medium=referral&nbsp;amp;utm_content=oshi/oshi&nbsp;amp;utm_campaign=Badge_Grade)
-[![MIT License](http://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![SonarQube Bugs](https://sonarcloud.io/api/project_badges/measure?project=com.github.oshi%3Aoshi-parent&nbsp;metric=bugs)](https://sonarcloud.io/dashboard?id=com.github.oshi%3Aoshi-parent)
-[![SonarQube Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=com.github.oshi%3Aoshi-parent&nbsp;metric=vulnerabilities)](https://sonarcloud.io/dashboard?id=com.github.oshi%3Aoshi-parent)
-[![SonarQube Maintainability](https://sonarcloud.io/api/project_badges/measure?project=com.github.oshi%3Aoshi-parent&nbsp;metric=sqale_rating)](https://sonarcloud.io/dashboard?id=com.github.oshi%3Aoshi-parent)
-[![SonarQube Reliability](https://sonarcloud.io/api/project_badges/measure?project=com.github.oshi%3Aoshi-parent&nbsp;metric=reliability_rating)](https://sonarcloud.io/dashboard?id=com.github.oshi%3Aoshi-parent)
-[![SonarQube Security](https://sonarcloud.io/api/project_badges/measure?project=com.github.oshi%3Aoshi-parent&nbsp;metric=security_rating)](https://sonarcloud.io/dashboard?id=com.github.oshi%3Aoshi-parent)
-[![Code Quality: Java](https://img.shields.io/lgtm/grade/java/g/oshi/oshi.svg?logo=lgtm&nbsp;logoWidth=18)](https://lgtm.com/projects/g/oshi/oshi/context:java)
+[![Code Quality: Java](https://img.shields.io/lgtm/grade/java/g/oshi/oshi.svg?logo=lgtm&amp;logoWidth=18)](https://lgtm.com/projects/g/oshi/oshi/context:java)
+[![Codacy Grade](https://api.codacy.com/project/badge/Grade/5370178ae91d4f56b43de2f26f7c5e7a)](https://www.codacy.com/app/widdis/oshi?utm_source=github.com&amp;amp;utm_medium=referral&amp;amp;utm_content=oshi/oshi&amp;amp;utm_campaign=Badge_Grade)
+[![SonarQube Bugs](https://sonarcloud.io/api/project_badges/measure?project=com.github.oshi%3Aoshi-parent&amp;metric=bugs)](https://sonarcloud.io/dashboard?id=com.github.oshi%3Aoshi-parent)
+[![SonarQube Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=com.github.oshi%3Aoshi-parent&amp;metric=vulnerabilities)](https://sonarcloud.io/dashboard?id=com.github.oshi%3Aoshi-parent)
+[![SonarQube Maintainability](https://sonarcloud.io/api/project_badges/measure?project=com.github.oshi%3Aoshi-parent&amp;metric=sqale_rating)](https://sonarcloud.io/dashboard?id=com.github.oshi%3Aoshi-parent)
+[![SonarQube Reliability](https://sonarcloud.io/api/project_badges/measure?project=com.github.oshi%3Aoshi-parent&amp;metric=reliability_rating)](https://sonarcloud.io/dashboard?id=com.github.oshi%3Aoshi-parent)
+[![SonarQube Security](https://sonarcloud.io/api/project_badges/measure?project=com.github.oshi%3Aoshi-parent&amp;metric=security_rating)](https://sonarcloud.io/dashboard?id=com.github.oshi%3Aoshi-parent)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/oshi/oshi/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/oshi/oshi/?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/oshi/oshi/badge.svg?branch=master)](https://coveralls.io/github/oshi/oshi?branch=master)
 [![Openhub Stats](https://www.openhub.net/p/oshi/widgets/project_thin_badge.gif)](https://www.openhub.net/p/oshi?ref=github)
 [![first-timers-only](https://img.shields.io/badge/first--timers--only-friendly-blue.svg?style=flat-square)](https://www.firsttimersonly.com/)
 
-OSHI is a free [JNA](https://github.com/java-native-access/jna)-based (native) 
-Operating System and Hardware Information library for Java.
+OSHI is a free JNA-based (native) Operating System and Hardware Information library for Java.
 It does not require the installation of any additional native libraries and aims to provide a 
 cross-platform implementation to retrieve system information, such as OS version, processes, 
-memory & CPU usage, disks &nbsp; partitions, devices, sensors, etc.
+memory and CPU usage, disks and partitions, devices, sensors, etc.
 
 Supported platforms 
 --------------------------- 
-Windows • Linux • macOS • Unix (Solaris, FreeBSD) 
+Windows • Linux • macOS • Unix (Solaris, FreeBSD, AIX) 
 
 Essentials
 ----------
@@ -41,29 +39,31 @@ Supported features
 * Computer System and firmware, baseboard 
 * Operating System and Version/Build
 * Physical (core) and Logical (hyperthreaded) CPUs, processor groups, NUMA nodes
-* System and per-processor load % and tick counters
-* CPU uptime, processes, and threads
-* Process uptime, CPU, memory usage, user/group, command line
+* System and per-processor load, usage tick counters, interrupts, uptime
+* Process uptime, CPU, memory usage, user/group, command line args, thread details
 * Physical and virtual memory used/available
-* Mounted filesystems (type, usable and total space)
-* Disk drives (model, serial, size) and partitions
-* Network interfaces (IPs, bandwidth in/out)
+* Mounted filesystems (type, usable and total space, options, reads and writes)
+* Disk drives (model, serial, size, reads and writes) and partitions
+* Network interfaces (IPs, bandwidth in/out), network parameters, TCP/UDP statistics
 * Battery state (% capacity, time remaining, power usage stats)
-* Connected displays (with EDID info)
 * USB Devices
-* Sensors (temperature, fan speeds, voltage)
+* Connected displays (with EDID info), graphics and audio cards
+* Sensors (temperature, fan speeds, voltage) on some hardware
 
 Downloads
 ---------
 | Stable Release Version | Current Development Version | Dependencies |
 | ------------- | ------------- | ------------- |
-| [oshi-core-5.2.0](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&nbsp;g=com.github.oshi&nbsp;a=oshi-core&nbsp;v=5.2.0&nbsp;e=jar)  | [oshi-core-5.3.0-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&nbsp;g=com.github.oshi&nbsp;a=oshi-core&nbsp;v=5.3.0-SNAPSHOT&nbsp;e=jar) | [JNA](https://github.com/java-native-access/jna) • [SLF4J](http://www.slf4j.org/) |
+| [oshi-core-5.2.1](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&amp;g=com.github.oshi&amp;a=oshi-core&amp;v=5.2.1&amp;e=jar)  | [oshi-core-5.3.0-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;g=com.github.oshi&amp;a=oshi-core&amp;v=5.3.0-SNAPSHOT&amp;e=jar) | [JNA](https://github.com/java-native-access/jna) • [SLF4J](http://www.slf4j.org/) |
 
 Usage
 -----
-Include OSHI and its dependencies on your classpath.  We strongly recommend you add OSHI as a dependency to your project dependency manager such as Maven or Gradle. You can [find the appropriate syntax to include OSHI here](https://search.maven.org/artifact/com.github.oshi/oshi-core/5.2.0/jar). 
+1. Include OSHI and its dependencies on your classpath.  We strongly recommend you add OSHI as a dependency to your project dependency manager such as Maven or Gradle. You can [find the appropriate syntax to include OSHI here](https://search.maven.org/artifact/com.github.oshi/oshi-core/5.2.1/jar). 
 
-Create a new instance of `SystemInfo` and use the getters to access additional information, such as:
+2. Create a new instance of `SystemInfo` 
+
+3. Use the getters from `SystemInfo` to access hardware or operating system components, such as:
+
 ```
 SystemInfo si = new SystemInfo();
 HardwareAbstractionLayer hal = si.getHardware();
@@ -81,7 +81,7 @@ git clone https://github.com/oshi/oshi.git && cd oshi
   -Dexec.classpathScope="test"
 ```
 
-Note: OSHI uses the latest version of JNA, which may conflict with other dependencies your project (or its parent) includes. If you experience issues with `NoClassDefFound` errors for JNA artifacts, consider one or more of the following steps to resolve the conflict:
+Note: OSHI uses the latest version of [JNA](https://github.com/java-native-access/jna), which may conflict with other dependencies your project (or its parent) includes. If you experience issues with `NoClassDefFound` errors for JNA artifacts, consider one or more of the following steps to resolve the conflict:
  - Listing OSHI earlier (or first) in your dependency list 
  - Specifying the most recent version of JNA (both `jna` and `jna-platform` artifacts) as a dependency
  - If you are using a parent (e.g., Spring Boot) that includes JNA as a dependency, override the `jna.version` property or equivalent
@@ -90,7 +90,7 @@ OSHI for enterprise
 -------------------
 Available as part of the Tidelift Subscription
 
-The maintainers of OSHI and thousands of other packages are working with Tidelift to deliver commercial support and maintenance for the open source dependencies you use to build your applications. Save time, reduce risk, and improve code health, while paying the maintainers of the exact dependencies you use. [Learn more.](https://tidelift.com/subscription/pkg/maven-com-github-oshi-oshi-core?utm_source=maven-com-github-oshi-oshi-core&nbsp;utm_medium=referral&nbsp;utm_campaign=readme)
+The maintainers of OSHI and thousands of other packages are working with Tidelift to deliver commercial support and maintenance for the open source dependencies you use to build your applications. Save time, reduce risk, and improve code health, while paying the maintainers of the exact dependencies you use. [Learn more.](https://tidelift.com/subscription/pkg/maven-com-github-oshi-oshi-core?utm_source=maven-com-github-oshi-oshi-core&amp;utm_medium=referral&amp;utm_campaign=readme)
 
 Security contact information
 ----------------------------
@@ -203,11 +203,9 @@ Where are we? How can I help?
 as a platform-independent library that did not require additional software and had a license compatible with 
 both open source and commercial products. We have developed a strong core of features on major Operating Systems, 
 but we would love for *you* to help by:
-* Testing!  Our CI testing is limited.  Download and test the program on various operating systems/versions and hardware and help identify gaps that our limited development and testing may have missed.
-* Offering access to an unsupported OS.
-* Contributing code.  See something that's not working right or could work better?  Help us fix it!  New contributors welcome.
-* Contributing ports.  Have an OS that's not covered? It's likely one of the existing ports can be slightly modified. 
-* Documenting implementation.  Our Wiki is sparse.  Want to help new users follow in your footsteps?
+* Testing!  Our CI testing is limited to a few platforms.  Download and test the program on various operating systems/versions and hardware and help identify gaps that our limited development and testing may have missed. 
+* Contributing code.  See something that's not working right or could work better?  Help us fix it!  New contributors are welcome.
+* Documenting implementation.  Our Wiki is sparse and the `oshi-demo` artifact is a place to host proof-of-concept ideas.  Want to help new users follow in your footsteps?
 * Suggesting new features.  Do you need OSHI to do something it doesn't currently do?  Let us know.
 
 Acknowledgements

@@ -1,11 +1,14 @@
-4.9.1 / 5.2.1 (coming soon)
+4.9.1 / 5.2.1 (in progress)
+================
+* Your contribution here
+
+4.9.1 / 5.2.1 (2020-07-14)
 ================
 * [#1282](https://github.com/oshi/oshi/pull/1282): (5.x) AIX Port - [@tausiflife](https://github.com/tausiflife), [@dbwiddis](https://github.com/dbwiddis).
 * [#1285](https://github.com/oshi/oshi/pull/1285): Fallback to read properties file from classloader of the class - [@ngyukman](https://github.com/ngyukman).
 * [#1290](https://github.com/oshi/oshi/pull/1290): Demo class matching filestore to partition - [@dbwiddis](https://github.com/dbwiddis).
 * [#1298](https://github.com/oshi/oshi/pull/1298): Use lshw as backup for max CPU frequency - [@dbwiddis](https://github.com/dbwiddis), [@Szwendacz99](https://github.com/Szwendacz99)
 * [#1299](https://github.com/oshi/oshi/pull/1299): JNA 5.6.0 / macOS 11 Compatibility - [@dbwiddis](https://github.com/dbwiddis)
-* Your contribution here
 
 4.9.0 / 5.2.0 (2020-06-25)
 ================
@@ -177,7 +180,7 @@ The default configuration file has been renamed to `oshi.properties` to prevent 
 * [#929](https://github.com/oshi/oshi/pull/929): Add isElevated check to OperatingSystem. - [@dbwiddis](https://github.com/dbwiddis).
 * [#931](https://github.com/oshi/oshi/pull/931): Standardize attribute updating. - [@dbwiddis](https://github.com/dbwiddis).
 
-3.13.0 (2019-01-18), 3.13.1 (2019-04-21), 3.13.2 (2019-04-28), 3.13.3 (2019-06-05), 3.13.4 (2019-09-06), 3.13.5 (2020-01-02)
+3.13.0 (2019-01-18), 3.13.1 (2019-04-21), 3.13.2 (2019-04-28), 3.13.3 (2019-06-05), 3.13.4 (2019-09-06), 3.13.5 (2020-01-02), 3.13.6 (2020-07-14)
 ================
 * [#763](https://github.com/oshi/oshi/pull/763): Refactor PDH/WMI Fallback. - [@dbwiddis](https://github.com/dbwiddis).
 * [#766](https://github.com/oshi/oshi/pull/766): Use query key to update counters in groups. - [@dbwiddis](https://github.com/dbwiddis).
@@ -185,6 +188,7 @@ The default configuration file has been renamed to `oshi.properties` to prevent 
 * [#769](https://github.com/oshi/oshi/pull/769): Close PDH handles after each query. - [@dbwiddis](https://github.com/dbwiddis).
 * [#839](https://github.com/oshi/oshi/pull/838): JNA 5.3.0. - [@dbwiddis](https://github.com/dbwiddis).
 * [#845](https://github.com/oshi/oshi/pull/845): JNA 5.3.1. - [@dbwiddis](https://github.com/dbwiddis).
+* [#1299](https://github.com/oshi/oshi/pull/1299): JNA 5.6.0 / macOS 11 Compatibility - [@dbwiddis](https://github.com/dbwiddis)
 
 3.12.1 (2018-12-31), 3.12.2 (2019-01-10)
 ================

@@ -27,8 +27,6 @@ Supported platforms
 --------------------------- 
 Windows • Linux • macOS • Unix (Solaris, FreeBSD, AIX) 
 
-*Note: macOS 11 (Big Sur) will require JNA 5.6.0*
-
 Essentials
 ----------
 * [API](http://oshi.github.io/oshi/apidocs/) (javadocs) - [Operating System](http://oshi.github.io/oshi/apidocs/oshi/software/os/package-summary.html) / [Hardware](http://oshi.github.io/oshi/apidocs/oshi/hardware/package-summary.html)
@@ -56,11 +54,11 @@ Downloads
 ---------
 | Stable Release Version | Current Development Version | Dependencies |
 | ------------- | ------------- | ------------- |
-| [oshi-core-5.2.0](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.github.oshi&a=oshi-core&v=5.2.0&e=jar)  | [oshi-core-5.3.0-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=com.github.oshi&a=oshi-core&v=5.3.0-SNAPSHOT&e=jar) | [JNA](https://github.com/java-native-access/jna) • [SLF4J](http://www.slf4j.org/) |
+| [oshi-core-5.2.1](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.github.oshi&a=oshi-core&v=5.2.1&e=jar)  | [oshi-core-5.3.0-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=com.github.oshi&a=oshi-core&v=5.3.0-SNAPSHOT&e=jar) | [JNA](https://github.com/java-native-access/jna) • [SLF4J](http://www.slf4j.org/) |
 
 Usage
 -----
-1. Include OSHI and its dependencies on your classpath.  We strongly recommend you add OSHI as a dependency to your project dependency manager such as Maven or Gradle. You can [find the appropriate syntax to include OSHI here](https://search.maven.org/artifact/com.github.oshi/oshi-core/5.2.0/jar). 
+1. Include OSHI and its dependencies on your classpath.  We strongly recommend you add OSHI as a dependency to your project dependency manager such as Maven or Gradle. You can [find the appropriate syntax to include OSHI here](https://search.maven.org/artifact/com.github.oshi/oshi-core/5.2.1/jar). 
 
 2. Create a new instance of `SystemInfo` 
 
