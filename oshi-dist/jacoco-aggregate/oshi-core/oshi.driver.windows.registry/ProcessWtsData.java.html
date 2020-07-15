@@ -31,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Pointer; // NOSONAR squid:s1191
+import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.VersionHelpers;
 import com.sun.jna.platform.win32.Wtsapi32;
 import com.sun.jna.platform.win32.Wtsapi32.WTS_PROCESS_INFO_EX;
@@ -42,7 +43,6 @@ import oshi.annotation.concurrent.Immutable;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.windows.wmi.Win32Process;
 import oshi.driver.windows.wmi.Win32Process.ProcessXPProperty;
-import oshi.jna.platform.windows.Kernel32;
 import oshi.util.platform.windows.WmiUtil;
 
 /**
