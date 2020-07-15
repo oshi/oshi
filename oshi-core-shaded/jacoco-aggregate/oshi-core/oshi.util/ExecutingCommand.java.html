@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>ExecutingCommand.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-core-shaded</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.util</a> &gt; <span class="el_source">ExecutingCommand.java</span></div><h1>ExecutingCommand.java</h1><pre class="source lang-java linenums">/**
  * MIT License
  *
- * Copyright (c) 2010 - 2020 The OSHI Project Contributors:
- * https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -10,8 +9,9 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -26,6 +26,7 @@ package oshi.util;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -33,65 +34,76 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import oshi.annotation.concurrent.ThreadSafe;
+
 /**
  * A class for executing on the command line and returning the result of
  * execution.
- *
- * @author alessandro[at]perucchi[dot]org
  */
-public class ExecutingCommand {
+@ThreadSafe
+public final class ExecutingCommand {
 
-<span class="fc" id="L44">    private static final Logger LOG = LoggerFactory.getLogger(ExecutingCommand.class);</span>
+<span class="fc" id="L46">    private static final Logger LOG = LoggerFactory.getLogger(ExecutingCommand.class);</span>
 
     private ExecutingCommand() {
     }
 
     /**
-     * Executes a command on the native command line and returns the result.
+     * Executes a command on the native command line and returns the result. This is
+     * a convenience method to call {@link java.lang.Runtime#exec(String)} and
+     * capture the resulting output in a list of Strings. On Windows, built-in
+     * commands not associated with an executable program may require
+     * {@code cmd.exe /c} to be prepended to the command.
      *
      * @param cmdToRun
      *            Command to run
-     * @return A list of Strings representing the result of the command, or
-     *         empty string if the command failed
+     * @return A list of Strings representing the result of the command, or empty
+     *         string if the command failed
      */
     public static List&lt;String&gt; runNative(String cmdToRun) {
-<span class="fc" id="L58">        String[] cmd = cmdToRun.split(&quot; &quot;);</span>
-<span class="fc" id="L59">        return runNative(cmd);</span>
+<span class="fc" id="L64">        String[] cmd = cmdToRun.split(&quot; &quot;);</span>
+<span class="fc" id="L65">        return runNative(cmd);</span>
     }
 
     /**
-     * Executes a command on the native command line and returns the result line
-     * by line.
+     * Executes a command on the native command line and returns the result line by
+     * line. This is a convenience method to call
+     * {@link java.lang.Runtime#exec(String[])} and capture the resulting output in
+     * a list of Strings. On Windows, built-in commands not associated with an
+     * executable program may require the strings {@code cmd.exe} and {@code /c} to
+     * be prepended to the array.
      *
      * @param cmdToRunWithArgs
      *            Command to run and args, in an array
-     * @return A list of Strings representing the result of the command, or
-     *         empty string if the command failed
+     * @return A list of Strings representing the result of the command, or empty
+     *         string if the command failed
      */
     public static List&lt;String&gt; runNative(String[] cmdToRunWithArgs) {
-<span class="fc" id="L72">        Process p = null;</span>
+<span class="fc" id="L82">        Process p = null;</span>
         try {
-<span class="fc" id="L74">            p = Runtime.getRuntime().exec(cmdToRunWithArgs);</span>
-<span class="fc" id="L75">        } catch (SecurityException | IOException e) {</span>
-<span class="fc" id="L76">            LOG.trace(&quot;Couldn't run command {}: {}&quot;, Arrays.toString(cmdToRunWithArgs), e);</span>
-<span class="fc" id="L77">            return new ArrayList&lt;&gt;(0);</span>
-<span class="fc" id="L78">        }</span>
+<span class="fc" id="L84">            p = Runtime.getRuntime().exec(cmdToRunWithArgs);</span>
+<span class="fc" id="L85">        } catch (SecurityException | IOException e) {</span>
+<span class="fc" id="L86">            LOG.trace(&quot;Couldn't run command {}: {}&quot;, Arrays.toString(cmdToRunWithArgs), e.getMessage());</span>
+<span class="fc" id="L87">            return new ArrayList&lt;&gt;(0);</span>
+<span class="fc" id="L88">        }</span>
 
-<span class="fc" id="L80">        ArrayList&lt;String&gt; sa = new ArrayList&lt;&gt;();</span>
-<span class="fc" id="L81">        try (BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()))) {</span>
+<span class="fc" id="L90">        ArrayList&lt;String&gt; sa = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L91">        try (BufferedReader reader = new BufferedReader(</span>
+<span class="fc" id="L92">                new InputStreamReader(p.getInputStream(), Charset.defaultCharset()))) {</span>
             String line;
-<span class="fc bfc" id="L83" title="All 2 branches covered.">            while ((line = reader.readLine()) != null) {</span>
-<span class="fc" id="L84">                sa.add(line);</span>
+<span class="fc bfc" id="L94" title="All 2 branches covered.">            while ((line = reader.readLine()) != null) {</span>
+<span class="fc" id="L95">                sa.add(line);</span>
             }
-<span class="fc" id="L86">            p.waitFor();</span>
-<span class="nc" id="L87">        } catch (IOException e) {</span>
-<span class="nc" id="L88">            LOG.trace(&quot;Problem reading output from {}: {}&quot;, Arrays.toString(cmdToRunWithArgs), e);</span>
-<span class="nc" id="L89">            return new ArrayList&lt;&gt;(0);</span>
-<span class="nc" id="L90">        } catch (InterruptedException ie) {</span>
-<span class="nc" id="L91">            LOG.trace(&quot;Interrupted while reading output from {}: {}&quot;, Arrays.toString(cmdToRunWithArgs), ie);</span>
-<span class="nc" id="L92">            Thread.currentThread().interrupt();</span>
-<span class="fc" id="L93">        }</span>
-<span class="fc" id="L94">        return sa;</span>
+<span class="fc" id="L97">            p.waitFor();</span>
+<span class="nc" id="L98">        } catch (IOException e) {</span>
+<span class="nc" id="L99">            LOG.trace(&quot;Problem reading output from {}: {}&quot;, Arrays.toString(cmdToRunWithArgs), e.getMessage());</span>
+<span class="nc" id="L100">            return new ArrayList&lt;&gt;(0);</span>
+<span class="nc" id="L101">        } catch (InterruptedException ie) {</span>
+<span class="nc" id="L102">            LOG.trace(&quot;Interrupted while reading output from {}: {}&quot;, Arrays.toString(cmdToRunWithArgs),</span>
+<span class="nc" id="L103">                    ie.getMessage());</span>
+<span class="nc" id="L104">            Thread.currentThread().interrupt();</span>
+<span class="fc" id="L105">        }</span>
+<span class="fc" id="L106">        return sa;</span>
     }
 
     /**
@@ -102,7 +114,7 @@ public class ExecutingCommand {
      * @return String or empty string if command failed
      */
     public static String getFirstAnswer(String cmd2launch) {
-<span class="fc" id="L105">        return getAnswerAt(cmd2launch, 0);</span>
+<span class="fc" id="L117">        return getAnswerAt(cmd2launch, 0);</span>
     }
 
     /**
@@ -117,12 +129,12 @@ public class ExecutingCommand {
      *         running of command fails
      */
     public static String getAnswerAt(String cmd2launch, int answerIdx) {
-<span class="fc" id="L120">        List&lt;String&gt; sa = ExecutingCommand.runNative(cmd2launch);</span>
+<span class="fc" id="L132">        List&lt;String&gt; sa = ExecutingCommand.runNative(cmd2launch);</span>
 
-<span class="pc bpc" id="L122" title="1 of 4 branches missed.">        if (answerIdx &gt;= 0 &amp;&amp; answerIdx &lt; sa.size()) {</span>
-<span class="fc" id="L123">            return sa.get(answerIdx);</span>
+<span class="pc bpc" id="L134" title="1 of 4 branches missed.">        if (answerIdx &gt;= 0 &amp;&amp; answerIdx &lt; sa.size()) {</span>
+<span class="fc" id="L135">            return sa.get(answerIdx);</span>
         }
-<span class="fc" id="L125">        return &quot;&quot;;</span>
+<span class="fc" id="L137">        return &quot;&quot;;</span>
     }
 
 }

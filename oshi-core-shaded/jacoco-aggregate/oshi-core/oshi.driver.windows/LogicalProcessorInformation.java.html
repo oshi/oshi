@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>LogicalProcessorInformation.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-core-shaded</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.driver.windows</a> &gt; <span class="el_source">LogicalProcessorInformation.java</span></div><h1>LogicalProcessorInformation.java</h1><pre class="source lang-java linenums">/**
+ * MIT License
+ *
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+package oshi.driver.windows;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+
+import com.sun.jna.platform.win32.Kernel32Util; // NOSONAR squid:S1191
+import com.sun.jna.platform.win32.WinNT;
+import com.sun.jna.platform.win32.WinNT.GROUP_AFFINITY;
+import com.sun.jna.platform.win32.WinNT.LOGICAL_PROCESSOR_RELATIONSHIP;
+import com.sun.jna.platform.win32.WinNT.NUMA_NODE_RELATIONSHIP;
+import com.sun.jna.platform.win32.WinNT.PROCESSOR_RELATIONSHIP;
+import com.sun.jna.platform.win32.WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION;
+import com.sun.jna.platform.win32.WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX;
+
+import oshi.annotation.concurrent.ThreadSafe;
+import oshi.hardware.CentralProcessor.LogicalProcessor;
+
+/**
+ * Utility to query Logical Processor Information pre-Win7
+ */
+@ThreadSafe
+public final class LogicalProcessorInformation {
+
+    private LogicalProcessorInformation() {
+    }
+
+    /**
+     * Get a list of logical processors on this machine. Requires Windows 7 and
+     * higher.
+     *
+     * @return A list of logical processors
+     */
+    public static List&lt;LogicalProcessor&gt; getLogicalProcessorInformationEx() {
+        // Collect a list of logical processors on each physical core and
+        // package. These will be 64-bit bitmasks.
+<span class="nc" id="L60">        SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX[] procInfo = Kernel32Util</span>
+<span class="nc" id="L61">                .getLogicalProcessorInformationEx(WinNT.LOGICAL_PROCESSOR_RELATIONSHIP.RelationAll);</span>
+<span class="nc" id="L62">        List&lt;GROUP_AFFINITY[]&gt; packages = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L63">        List&lt;NUMA_NODE_RELATIONSHIP&gt; numaNodes = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L64">        List&lt;GROUP_AFFINITY&gt; cores = new ArrayList&lt;&gt;();</span>
+
+<span class="nc bnc" id="L66" title="All 2 branches missed.">        for (int i = 0; i &lt; procInfo.length; i++) {</span>
+<span class="nc bnc" id="L67" title="All 4 branches missed.">            switch (procInfo[i].relationship) {</span>
+            case LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorPackage:
+<span class="nc" id="L69">                packages.add(((PROCESSOR_RELATIONSHIP) procInfo[i]).groupMask);</span>
+<span class="nc" id="L70">                break;</span>
+            case LOGICAL_PROCESSOR_RELATIONSHIP.RelationNumaNode:
+<span class="nc" id="L72">                numaNodes.add((NUMA_NODE_RELATIONSHIP) procInfo[i]);</span>
+<span class="nc" id="L73">                break;</span>
+            case LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorCore:
+<span class="nc" id="L75">                cores.add(((PROCESSOR_RELATIONSHIP) procInfo[i]).groupMask[0]);</span>
+<span class="nc" id="L76">                break;</span>
+            default:
+                // Ignore Group and Cache info
+                break;
+            }
+        }
+        // Windows doesn't define core and package numbers, so we sort the lists
+        // so core and package numbers increment consistently with processor
+        // numbers/bitmasks, ordered in groups
+<span class="nc" id="L85">        cores.sort(Comparator.comparing(c -&gt; c.group * 64L + c.mask.longValue()));</span>
+<span class="nc" id="L86">        packages.sort(Comparator.comparing(p -&gt; p[0].group * 64L + p[0].mask.longValue()));</span>
+
+        // Iterate Logical Processors and use bitmasks to match packages, cores,
+        // and NUMA nodes
+<span class="nc" id="L90">        List&lt;LogicalProcessor&gt; logProcs = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L91" title="All 2 branches missed.">        for (GROUP_AFFINITY coreMask : cores) {</span>
+<span class="nc" id="L92">            int group = coreMask.group;</span>
+<span class="nc" id="L93">            long mask = coreMask.mask.longValue();</span>
+            // Iterate mask for logical processor numbers
+<span class="nc" id="L95">            int lowBit = Long.numberOfTrailingZeros(mask);</span>
+<span class="nc" id="L96">            int hiBit = 63 - Long.numberOfLeadingZeros(mask);</span>
+<span class="nc bnc" id="L97" title="All 2 branches missed.">            for (int lp = lowBit; lp &lt;= hiBit; lp++) {</span>
+<span class="nc bnc" id="L98" title="All 2 branches missed.">                if ((mask &amp; (1L &lt;&lt; lp)) &gt; 0) {</span>
+<span class="nc" id="L99">                    LogicalProcessor logProc = new LogicalProcessor(lp, getMatchingCore(cores, group, lp),</span>
+<span class="nc" id="L100">                            getMatchingPackage(packages, group, lp), getMatchingNumaNode(numaNodes, group, lp), group);</span>
+<span class="nc" id="L101">                    logProcs.add(logProc);</span>
+                }
+            }
+<span class="nc" id="L104">        }</span>
+        // Sort by numaNode and then logical processor number to match
+        // PerfCounter/WMI ordering
+<span class="nc" id="L107">        logProcs.sort(Comparator.comparing(LogicalProcessor::getNumaNode)</span>
+<span class="nc" id="L108">                .thenComparing(LogicalProcessor::getProcessorNumber));</span>
+<span class="nc" id="L109">        return logProcs;</span>
+    }
+
+    private static int getMatchingPackage(List&lt;GROUP_AFFINITY[]&gt; packages, int g, int lp) {
+<span class="nc bnc" id="L113" title="All 2 branches missed.">        for (int i = 0; i &lt; packages.size(); i++) {</span>
+<span class="nc bnc" id="L114" title="All 2 branches missed.">            for (int j = 0; j &lt; packages.get(i).length; j++) {</span>
+<span class="nc bnc" id="L115" title="All 4 branches missed.">                if ((packages.get(i)[j].mask.longValue() &amp; (1L &lt;&lt; lp)) &gt; 0 &amp;&amp; packages.get(i)[j].group == g) {</span>
+<span class="nc" id="L116">                    return i;</span>
+                }
+            }
+        }
+<span class="nc" id="L120">        return 0;</span>
+    }
+
+    private static int getMatchingNumaNode(List&lt;NUMA_NODE_RELATIONSHIP&gt; numaNodes, int g, int lp) {
+<span class="nc bnc" id="L124" title="All 2 branches missed.">        for (int j = 0; j &lt; numaNodes.size(); j++) {</span>
+<span class="nc bnc" id="L125" title="All 2 branches missed.">            if ((numaNodes.get(j).groupMask.mask.longValue() &amp; (1L &lt;&lt; lp)) &gt; 0</span>
+<span class="nc bnc" id="L126" title="All 2 branches missed.">                    &amp;&amp; numaNodes.get(j).groupMask.group == g) {</span>
+<span class="nc" id="L127">                return numaNodes.get(j).nodeNumber;</span>
+            }
+        }
+<span class="nc" id="L130">        return 0;</span>
+    }
+
+    private static int getMatchingCore(List&lt;GROUP_AFFINITY&gt; cores, int g, int lp) {
+<span class="nc bnc" id="L134" title="All 2 branches missed.">        for (int j = 0; j &lt; cores.size(); j++) {</span>
+<span class="nc bnc" id="L135" title="All 4 branches missed.">            if ((cores.get(j).mask.longValue() &amp; (1L &lt;&lt; lp)) &gt; 0 &amp;&amp; cores.get(j).group == g) {</span>
+<span class="nc" id="L136">                return j;</span>
+            }
+        }
+<span class="nc" id="L139">        return 0;</span>
+    }
+
+    /*
+     * Non-EX version for pre-Win7
+     */
+
+    /**
+     * Get a list of logical processors on this machine
+     *
+     * @return A list of logical processors
+     */
+    public static List&lt;LogicalProcessor&gt; getLogicalProcessorInformation() {
+        // Collect a list of logical processors on each physical core and
+        // package.
+<span class="nc" id="L154">        List&lt;Long&gt; packageMaskList = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L155">        List&lt;Long&gt; coreMaskList = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L156">        WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION[] processors = Kernel32Util.getLogicalProcessorInformation();</span>
+<span class="nc bnc" id="L157" title="All 2 branches missed.">        for (SYSTEM_LOGICAL_PROCESSOR_INFORMATION proc : processors) {</span>
+<span class="nc bnc" id="L158" title="All 2 branches missed.">            if (proc.relationship == WinNT.LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorPackage) {</span>
+<span class="nc" id="L159">                packageMaskList.add(proc.processorMask.longValue());</span>
+<span class="nc bnc" id="L160" title="All 2 branches missed.">            } else if (proc.relationship == WinNT.LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorCore) {</span>
+<span class="nc" id="L161">                coreMaskList.add(proc.processorMask.longValue());</span>
+            }
+        }
+        // Sort the list (natural ordering) so core and package numbers
+        // increment as expected.
+<span class="nc" id="L166">        coreMaskList.sort(null);</span>
+<span class="nc" id="L167">        packageMaskList.sort(null);</span>
+
+        // Assign logical processors to cores and packages
+<span class="nc" id="L170">        List&lt;LogicalProcessor&gt; logProcs = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L171" title="All 2 branches missed.">        for (int core = 0; core &lt; coreMaskList.size(); core++) {</span>
+<span class="nc" id="L172">            long coreMask = coreMaskList.get(core);</span>
+            // Lowest and Highest set bits, indexing from 0
+<span class="nc" id="L174">            int lowBit = Long.numberOfTrailingZeros(coreMask);</span>
+<span class="nc" id="L175">            int hiBit = 63 - Long.numberOfLeadingZeros(coreMask);</span>
+            // Create logical processors for this core
+<span class="nc bnc" id="L177" title="All 2 branches missed.">            for (int i = lowBit; i &lt;= hiBit; i++) {</span>
+<span class="nc bnc" id="L178" title="All 2 branches missed.">                if ((coreMask &amp; (1L &lt;&lt; i)) &gt; 0) {</span>
+<span class="nc" id="L179">                    LogicalProcessor logProc = new LogicalProcessor(i, core,</span>
+<span class="nc" id="L180">                            LogicalProcessorInformation.getBitMatchingPackageNumber(packageMaskList, i));</span>
+<span class="nc" id="L181">                    logProcs.add(logProc);</span>
+                }
+            }
+        }
+<span class="nc" id="L185">        return logProcs;</span>
+    }
+
+    /**
+     * Iterate over the package mask list and find a matching mask index
+     *
+     * @param packageMaskList
+     *            The list of bitmasks to iterate
+     * @param logProc
+     *            The bit to find matching mask
+     * @return The index of the list which matched the bit
+     */
+    private static int getBitMatchingPackageNumber(List&lt;Long&gt; packageMaskList, int logProc) {
+<span class="nc bnc" id="L198" title="All 2 branches missed.">        for (int i = 0; i &lt; packageMaskList.size(); i++) {</span>
+<span class="nc bnc" id="L199" title="All 2 branches missed.">            if ((packageMaskList.get(i).longValue() &amp; (1L &lt;&lt; logProc)) &gt; 0) {</span>
+<span class="nc" id="L200">                return i;</span>
+            }
+        }
+<span class="nc" id="L203">        return 0;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
