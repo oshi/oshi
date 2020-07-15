@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>WindowsCentralProcessor.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.windows</a> &gt; <span class="el_source">WindowsCentralProcessor.java</span></div><h1>WindowsCentralProcessor.java</h1><pre class="source lang-java linenums">/**
  * MIT License
  *
- * Copyright (c) 2010 - 2020 The OSHI Project Contributors:
- * https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -10,8 +9,9 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,262 +23,152 @@
  */
 package oshi.hardware.platform.windows;
 
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Native; // NOSONAR squid:S1191
+import com.sun.jna.Memory; // NOSONAR squid:S1191
+import com.sun.jna.Native;
 import com.sun.jna.platform.win32.Advapi32Util;
 import com.sun.jna.platform.win32.Kernel32;
-import com.sun.jna.platform.win32.Kernel32Util;
+import com.sun.jna.platform.win32.PowrProf.POWER_INFORMATION_LEVEL;
 import com.sun.jna.platform.win32.VersionHelpers;
 import com.sun.jna.platform.win32.WinBase;
 import com.sun.jna.platform.win32.WinBase.SYSTEM_INFO;
-import com.sun.jna.platform.win32.WinNT;
-import com.sun.jna.platform.win32.WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION;
 import com.sun.jna.platform.win32.WinReg;
-import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
-import oshi.data.windows.PerfCounterQuery;
-import oshi.data.windows.PerfCounterQuery.PdhCounterProperty;
-import oshi.data.windows.PerfCounterWildcardQuery;
-import oshi.data.windows.PerfCounterWildcardQuery.PdhCounterWildcardProperty;
+import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.windows.LogicalProcessorInformation;
+import oshi.driver.windows.perfmon.ProcessorInformation;
+import oshi.driver.windows.perfmon.ProcessorInformation.InterruptsProperty;
+import oshi.driver.windows.perfmon.ProcessorInformation.ProcessorFrequencyProperty;
+import oshi.driver.windows.perfmon.ProcessorInformation.ProcessorTickCountProperty;
+import oshi.driver.windows.perfmon.ProcessorInformation.SystemTickCountProperty;
+import oshi.driver.windows.perfmon.SystemInformation;
+import oshi.driver.windows.perfmon.SystemInformation.ContextSwitchProperty;
+import oshi.driver.windows.wmi.Win32Processor;
+import oshi.driver.windows.wmi.Win32Processor.ProcessorIdProperty;
 import oshi.hardware.common.AbstractCentralProcessor;
-import oshi.util.MapUtil;
+import oshi.jna.platform.windows.PowrProf;
+import oshi.jna.platform.windows.PowrProf.ProcessorPowerInformation;
 import oshi.util.ParseUtil;
-import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
+import oshi.util.tuples.Pair;
 
 /**
  * A CPU, representing all of a system's processors. It may contain multiple
  * individual Physical and Logical processors.
  */
-public class WindowsCentralProcessor extends AbstractCentralProcessor {
+@ThreadSafe
+<span class="nc" id="L68">final class WindowsCentralProcessor extends AbstractCentralProcessor {</span>
 
-    private static final long serialVersionUID = 1L;
+<span class="nc" id="L70">    private static final Logger LOG = LoggerFactory.getLogger(WindowsCentralProcessor.class);</span>
 
-<span class="nc" id="L63">    private static final Logger LOG = LoggerFactory.getLogger(WindowsCentralProcessor.class);</span>
-
-<span class="nc" id="L65">    private static final boolean IS_VISTA_OR_GREATER = VersionHelpers.IsWindowsVistaOrGreater();</span>
-
-    private static final String PROCESSOR = &quot;Processor&quot;;
-
-<span class="nc" id="L69">    enum ProcessorProperty {</span>
-<span class="nc" id="L70">        PROCESSORID;</span>
-    }
-
-    /*
-     * For tick counts
-     */
-<span class="nc" id="L76">    enum ProcessorTickCountProperty implements PdhCounterWildcardProperty {</span>
-        // First element defines WMI instance name field and PDH instance filter
-<span class="nc" id="L78">        NAME(PerfCounterQuery.NOT_TOTAL_INSTANCE),</span>
-        // Remaining elements define counters
-<span class="nc" id="L80">        PERCENTDPCTIME(&quot;% DPC Time&quot;), //</span>
-<span class="nc" id="L81">        PERCENTINTERRUPTTIME(&quot;% Interrupt Time&quot;), //</span>
-<span class="nc" id="L82">        PERCENTPRIVILEGEDTIME(&quot;% Privileged Time&quot;), //</span>
-<span class="nc" id="L83">        PERCENTPROCESSORTIME(&quot;% Processor Time&quot;), //</span>
-<span class="nc" id="L84">        PERCENTUSERTIME(&quot;% User Time&quot;);</span>
-
-        private final String counter;
-
-<span class="nc" id="L88">        ProcessorTickCountProperty(String counter) {</span>
-<span class="nc" id="L89">            this.counter = counter;</span>
-<span class="nc" id="L90">        }</span>
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public String getCounter() {
-<span class="nc" id="L97">            return counter;</span>
-        }
-    }
-
-<span class="nc" id="L101">    private final transient PerfCounterWildcardQuery&lt;ProcessorTickCountProperty&gt; processorTickPerfCounters = new PerfCounterWildcardQuery&lt;&gt;(</span>
-            ProcessorTickCountProperty.class, PROCESSOR, &quot;Win32_PerfRawData_PerfOS_Processor WHERE NOT Name=\&quot;_Total\&quot;&quot;,
-            &quot;Processor Tick Count&quot;);
-
-<span class="nc" id="L105">    enum SystemTickCountProperty implements PdhCounterProperty {</span>
-<span class="nc" id="L106">        PERCENTDPCTIME(PerfCounterQuery.TOTAL_INSTANCE, &quot;% DPC Time&quot;), //</span>
-<span class="nc" id="L107">        PERCENTINTERRUPTTIME(PerfCounterQuery.TOTAL_INSTANCE, &quot;% Interrupt Time&quot;);</span>
-
-        private final String instance;
-        private final String counter;
-
-<span class="nc" id="L112">        SystemTickCountProperty(String instance, String counter) {</span>
-<span class="nc" id="L113">            this.instance = instance;</span>
-<span class="nc" id="L114">            this.counter = counter;</span>
-<span class="nc" id="L115">        }</span>
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public String getInstance() {
-<span class="nc" id="L122">            return instance;</span>
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public String getCounter() {
-<span class="nc" id="L130">            return counter;</span>
-        }
-    }
-
-<span class="nc" id="L134">    private final transient PerfCounterQuery&lt;SystemTickCountProperty&gt; systemTickPerfCounters = new PerfCounterQuery&lt;&gt;(</span>
-            SystemTickCountProperty.class, PROCESSOR, &quot;Win32_PerfRawData_PerfOS_Processor WHERE Name=\&quot;_Total\&quot;&quot;,
-            &quot;System Tick Count&quot;);
-
-<span class="nc" id="L138">    enum InterruptsProperty implements PdhCounterProperty {</span>
-<span class="nc" id="L139">        INTERRUPTSPERSEC(PerfCounterQuery.TOTAL_INSTANCE, &quot;Interrupts/sec&quot;);</span>
-
-        private final String instance;
-        private final String counter;
-
-<span class="nc" id="L144">        InterruptsProperty(String instance, String counter) {</span>
-<span class="nc" id="L145">            this.instance = instance;</span>
-<span class="nc" id="L146">            this.counter = counter;</span>
-<span class="nc" id="L147">        }</span>
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public String getInstance() {
-<span class="nc" id="L154">            return instance;</span>
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public String getCounter() {
-<span class="nc" id="L162">            return counter;</span>
-        }
-    }
-
-<span class="nc" id="L166">    private final transient PerfCounterQuery&lt;InterruptsProperty&gt; interruptsPerfCounters = new PerfCounterQuery&lt;&gt;(</span>
-            InterruptsProperty.class, PROCESSOR, &quot;Win32_PerfRawData_PerfOS_Processor WHERE Name=\&quot;_Total\&quot;&quot;,
-            &quot;Interrupt Count&quot;);
-
-    /*
-     * For tick counts
-     */
-<span class="nc" id="L173">    enum ContextSwitchProperty implements PdhCounterProperty {</span>
-<span class="nc" id="L174">        CONTEXTSWITCHESPERSEC(null, &quot;Context Switches/sec&quot;);</span>
-
-        private final String instance;
-        private final String counter;
-
-<span class="nc" id="L179">        ContextSwitchProperty(String instance, String counter) {</span>
-<span class="nc" id="L180">            this.instance = instance;</span>
-<span class="nc" id="L181">            this.counter = counter;</span>
-<span class="nc" id="L182">        }</span>
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public String getInstance() {
-<span class="nc" id="L189">            return instance;</span>
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public String getCounter() {
-<span class="nc" id="L197">            return counter;</span>
-        }
-    }
-
-<span class="nc" id="L201">    private final transient PerfCounterQuery&lt;ContextSwitchProperty&gt; contextSwitchPerfCounters = new PerfCounterQuery&lt;&gt;(</span>
-            ContextSwitchProperty.class, &quot;System&quot;, &quot;Win32_PerfRawData_PerfOS_System&quot;);
-
-    /**
-     * Create a Processor
-     */
-    public WindowsCentralProcessor() {
-<span class="nc" id="L208">        super();</span>
-        // Initialize class variables
-<span class="nc" id="L210">        initVars();</span>
-        // Initialize tick arrays
-<span class="nc" id="L212">        initTicks();</span>
-
-<span class="nc" id="L214">        LOG.debug(&quot;Initialized Processor&quot;);</span>
-<span class="nc" id="L215">    }</span>
+    // populated by initProcessorCounts called by the parent constructor
+    private Map&lt;String, Integer&gt; numaNodeProcToLogicalProcMap;
 
     /**
      * Initializes Class variables
      */
-    private void initVars() {
-<span class="nc" id="L221">        final String cpuRegistryRoot = &quot;HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\&quot;;</span>
-<span class="nc" id="L222">        String[] processorIds = Advapi32Util.registryGetKeys(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryRoot);</span>
-<span class="nc bnc" id="L223" title="All 2 branches missed.">        if (processorIds.length &gt; 0) {</span>
-<span class="nc" id="L224">            String cpuRegistryPath = cpuRegistryRoot + processorIds[0];</span>
-<span class="nc" id="L225">            setVendor(Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,</span>
-                    &quot;VendorIdentifier&quot;));
-<span class="nc" id="L227">            setName(Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,</span>
-                    &quot;ProcessorNameString&quot;));
-<span class="nc" id="L229">            setIdentifier(</span>
-<span class="nc" id="L230">                    Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath, &quot;Identifier&quot;));</span>
-        }
-<span class="nc" id="L232">        SYSTEM_INFO sysinfo = new SYSTEM_INFO();</span>
-<span class="nc" id="L233">        Kernel32.INSTANCE.GetNativeSystemInfo(sysinfo);</span>
-<span class="nc bnc" id="L234" title="All 2 branches missed.">        if (sysinfo.processorArchitecture.pi.wProcessorArchitecture.intValue() == 9 // PROCESSOR_ARCHITECTURE_AMD64</span>
-<span class="nc bnc" id="L235" title="All 2 branches missed.">                || sysinfo.processorArchitecture.pi.wProcessorArchitecture.intValue() == 6) { // PROCESSOR_ARCHITECTURE_IA64</span>
-<span class="nc" id="L236">            setCpu64(true);</span>
-<span class="nc bnc" id="L237" title="All 2 branches missed.">        } else if (sysinfo.processorArchitecture.pi.wProcessorArchitecture.intValue() == 0) { // PROCESSOR_ARCHITECTURE_INTEL</span>
-<span class="nc" id="L238">            setCpu64(false);</span>
-        }
+    @Override
+    protected ProcessorIdentifier queryProcessorId() {
+<span class="nc" id="L80">        String cpuVendor = &quot;&quot;;</span>
+<span class="nc" id="L81">        String cpuName = &quot;&quot;;</span>
+<span class="nc" id="L82">        String cpuIdentifier = &quot;&quot;;</span>
+<span class="nc" id="L83">        String cpuFamily = &quot;&quot;;</span>
+<span class="nc" id="L84">        String cpuModel = &quot;&quot;;</span>
+<span class="nc" id="L85">        String cpuStepping = &quot;&quot;;</span>
+        String processorID;
+<span class="nc" id="L87">        boolean cpu64bit = false;</span>
 
-<span class="nc" id="L241">        WmiQuery&lt;ProcessorProperty&gt; processorIdQuery = new WmiQuery&lt;&gt;(&quot;Win32_Processor&quot;, ProcessorProperty.class);</span>
-<span class="nc" id="L242">        WmiResult&lt;ProcessorProperty&gt; processorId = WmiQueryHandler.createInstance().queryWMI(processorIdQuery);</span>
-<span class="nc bnc" id="L243" title="All 2 branches missed.">        if (processorId.getResultCount() &gt; 0) {</span>
-<span class="nc" id="L244">            setProcessorID(WmiUtil.getString(processorId, ProcessorProperty.PROCESSORID, 0));</span>
+<span class="nc" id="L89">        final String cpuRegistryRoot = &quot;HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\&quot;;</span>
+<span class="nc" id="L90">        String[] processorIds = Advapi32Util.registryGetKeys(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryRoot);</span>
+<span class="nc bnc" id="L91" title="All 2 branches missed.">        if (processorIds.length &gt; 0) {</span>
+<span class="nc" id="L92">            String cpuRegistryPath = cpuRegistryRoot + processorIds[0];</span>
+<span class="nc" id="L93">            cpuVendor = Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,</span>
+                    &quot;VendorIdentifier&quot;);
+<span class="nc" id="L95">            cpuName = Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,</span>
+                    &quot;ProcessorNameString&quot;);
+<span class="nc" id="L97">            cpuIdentifier = Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,</span>
+                    &quot;Identifier&quot;);
         }
-<span class="nc" id="L246">    }</span>
+<span class="nc bnc" id="L100" title="All 2 branches missed.">        if (!cpuIdentifier.isEmpty()) {</span>
+<span class="nc" id="L101">            cpuFamily = parseIdentifier(cpuIdentifier, &quot;Family&quot;);</span>
+<span class="nc" id="L102">            cpuModel = parseIdentifier(cpuIdentifier, &quot;Model&quot;);</span>
+<span class="nc" id="L103">            cpuStepping = parseIdentifier(cpuIdentifier, &quot;Stepping&quot;);</span>
+        }
+<span class="nc" id="L105">        SYSTEM_INFO sysinfo = new SYSTEM_INFO();</span>
+<span class="nc" id="L106">        Kernel32.INSTANCE.GetNativeSystemInfo(sysinfo);</span>
+<span class="nc" id="L107">        int processorArchitecture = sysinfo.processorArchitecture.pi.wProcessorArchitecture.intValue();</span>
+<span class="nc bnc" id="L108" title="All 6 branches missed.">        if (processorArchitecture == 9 // PROCESSOR_ARCHITECTURE_AMD64</span>
+                || processorArchitecture == 12 // PROCESSOR_ARCHITECTURE_ARM64
+                || processorArchitecture == 6) { // PROCESSOR_ARCHITECTURE_IA64
+<span class="nc" id="L111">            cpu64bit = true;</span>
+        }
+<span class="nc" id="L113">        WmiResult&lt;ProcessorIdProperty&gt; processorId = Win32Processor.queryProcessorId();</span>
+<span class="nc bnc" id="L114" title="All 2 branches missed.">        if (processorId.getResultCount() &gt; 0) {</span>
+<span class="nc" id="L115">            processorID = WmiUtil.getString(processorId, ProcessorIdProperty.PROCESSORID, 0);</span>
+        } else {
+<span class="nc" id="L117">            processorID = createProcessorID(cpuStepping, cpuModel, cpuFamily,</span>
+<span class="nc bnc" id="L118" title="All 2 branches missed.">                    cpu64bit ? new String[] { &quot;ia64&quot; } : new String[0]);</span>
+        }
+<span class="nc" id="L120">        return new ProcessorIdentifier(cpuVendor, cpuName, cpuFamily, cpuModel, cpuStepping, processorID, cpu64bit);</span>
+    }
 
     /**
-     * Updates logical and physical processor counts
+     * Parses identifier string
+     *
+     * @param identifier
+     *            the full identifier string
+     * @param key
+     *            the key to retrieve
+     * @return the string following id
      */
-    @Override
-    protected void calculateProcessorCounts() {
-        // Get number of logical processors
-<span class="nc" id="L254">        SYSTEM_INFO sysinfo = new SYSTEM_INFO();</span>
-<span class="nc" id="L255">        Kernel32.INSTANCE.GetSystemInfo(sysinfo);</span>
-<span class="nc" id="L256">        this.logicalProcessorCount = sysinfo.dwNumberOfProcessors.intValue();</span>
-
-        // Get number of physical processors
-<span class="nc" id="L259">        WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION[] processors = Kernel32Util.getLogicalProcessorInformation();</span>
-<span class="nc bnc" id="L260" title="All 2 branches missed.">        for (SYSTEM_LOGICAL_PROCESSOR_INFORMATION proc : processors) {</span>
-<span class="nc bnc" id="L261" title="All 2 branches missed.">            if (proc.relationship == WinNT.LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorPackage) {</span>
-<span class="nc" id="L262">                this.physicalPackageCount++;</span>
+    private String parseIdentifier(String identifier, String key) {
+<span class="nc" id="L133">        String[] idSplit = ParseUtil.whitespaces.split(identifier);</span>
+<span class="nc" id="L134">        boolean found = false;</span>
+<span class="nc bnc" id="L135" title="All 2 branches missed.">        for (String s : idSplit) {</span>
+            // If key string found, return next value
+<span class="nc bnc" id="L137" title="All 2 branches missed.">            if (found) {</span>
+<span class="nc" id="L138">                return s;</span>
             }
-<span class="nc bnc" id="L264" title="All 2 branches missed.">            if (proc.relationship == WinNT.LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorCore) {</span>
-<span class="nc" id="L265">                this.physicalProcessorCount++;</span>
-            }
+<span class="nc" id="L140">            found = s.equals(key);</span>
         }
-<span class="nc" id="L268">    }</span>
+        // If key string not found, return empty string
+<span class="nc" id="L143">        return &quot;&quot;;</span>
+    }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public long[] getSystemCpuLoadTicks() {
-<span class="nc" id="L275">        long[] ticks = new long[TickType.values().length];</span>
-<span class="nc" id="L276">        WinBase.FILETIME lpIdleTime = new WinBase.FILETIME();</span>
-<span class="nc" id="L277">        WinBase.FILETIME lpKernelTime = new WinBase.FILETIME();</span>
-<span class="nc" id="L278">        WinBase.FILETIME lpUserTime = new WinBase.FILETIME();</span>
-<span class="nc bnc" id="L279" title="All 2 branches missed.">        if (!Kernel32.INSTANCE.GetSystemTimes(lpIdleTime, lpKernelTime, lpUserTime)) {</span>
-<span class="nc" id="L280">            LOG.error(&quot;Failed to update system idle/kernel/user times. Error code: {}&quot;, Native.getLastError());</span>
-<span class="nc" id="L281">            return ticks;</span>
+    protected LogicalProcessor[] initProcessorCounts() {
+<span class="nc bnc" id="L148" title="All 2 branches missed.">        if (VersionHelpers.IsWindows7OrGreater()) {</span>
+<span class="nc" id="L149">            List&lt;LogicalProcessor&gt; logProcs = LogicalProcessorInformation.getLogicalProcessorInformationEx();</span>
+            // Save numaNode,Processor lookup for future PerfCounter instance lookup
+<span class="nc" id="L151">            this.numaNodeProcToLogicalProcMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L152">            int lp = 0;</span>
+<span class="nc bnc" id="L153" title="All 2 branches missed.">            for (LogicalProcessor logProc : logProcs) {</span>
+<span class="nc" id="L154">                numaNodeProcToLogicalProcMap</span>
+<span class="nc" id="L155">                        .put(String.format(&quot;%d,%d&quot;, logProc.getNumaNode(), logProc.getProcessorNumber()), lp++);</span>
+<span class="nc" id="L156">            }</span>
+<span class="nc" id="L157">            return logProcs.toArray(new LogicalProcessor[0]);</span>
+        } else {
+<span class="nc" id="L159">            return LogicalProcessorInformation.getLogicalProcessorInformation().toArray(new LogicalProcessor[0]);</span>
+        }
+    }
+
+    @Override
+    public long[] querySystemCpuLoadTicks() {
+<span class="nc" id="L165">        long[] ticks = new long[TickType.values().length];</span>
+<span class="nc" id="L166">        WinBase.FILETIME lpIdleTime = new WinBase.FILETIME();</span>
+<span class="nc" id="L167">        WinBase.FILETIME lpKernelTime = new WinBase.FILETIME();</span>
+<span class="nc" id="L168">        WinBase.FILETIME lpUserTime = new WinBase.FILETIME();</span>
+<span class="nc bnc" id="L169" title="All 2 branches missed.">        if (!Kernel32.INSTANCE.GetSystemTimes(lpIdleTime, lpKernelTime, lpUserTime)) {</span>
+<span class="nc" id="L170">            LOG.error(&quot;Failed to update system idle/kernel/user times. Error code: {}&quot;, Native.getLastError());</span>
+<span class="nc" id="L171">            return ticks;</span>
         }
         // IOwait:
         // Windows does not measure IOWait.
@@ -287,115 +177,156 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
         // Percent time raw value is cumulative 100NS-ticks
         // Divide by 10_000 to get milliseconds
 
-<span class="nc" id="L290">        Map&lt;SystemTickCountProperty, Long&gt; valueMap = this.systemTickPerfCounters.queryValues();</span>
-<span class="nc" id="L291">        ticks[TickType.IRQ.getIndex()] = MapUtil.getOrDefault(valueMap, SystemTickCountProperty.PERCENTINTERRUPTTIME,</span>
-<span class="nc" id="L292">                0L) / 10_000L;</span>
-<span class="nc" id="L293">        ticks[TickType.SOFTIRQ.getIndex()] = MapUtil.getOrDefault(valueMap, SystemTickCountProperty.PERCENTDPCTIME, 0L)</span>
+<span class="nc" id="L180">        Map&lt;SystemTickCountProperty, Long&gt; valueMap = ProcessorInformation.querySystemCounters();</span>
+<span class="nc" id="L181">        ticks[TickType.IRQ.getIndex()] = valueMap.getOrDefault(SystemTickCountProperty.PERCENTINTERRUPTTIME, 0L)</span>
+                / 10_000L;
+<span class="nc" id="L183">        ticks[TickType.SOFTIRQ.getIndex()] = valueMap.getOrDefault(SystemTickCountProperty.PERCENTDPCTIME, 0L)</span>
                 / 10_000L;
 
-<span class="nc" id="L296">        ticks[TickType.IDLE.getIndex()] = lpIdleTime.toDWordLong().longValue() / 10_000L;</span>
-<span class="nc" id="L297">        ticks[TickType.SYSTEM.getIndex()] = lpKernelTime.toDWordLong().longValue() / 10_000L</span>
-<span class="nc" id="L298">                - ticks[TickType.IDLE.getIndex()];</span>
-<span class="nc" id="L299">        ticks[TickType.USER.getIndex()] = lpUserTime.toDWordLong().longValue() / 10_000L;</span>
+<span class="nc" id="L186">        ticks[TickType.IDLE.getIndex()] = lpIdleTime.toDWordLong().longValue() / 10_000L;</span>
+<span class="nc" id="L187">        ticks[TickType.SYSTEM.getIndex()] = lpKernelTime.toDWordLong().longValue() / 10_000L</span>
+<span class="nc" id="L188">                - ticks[TickType.IDLE.getIndex()];</span>
+<span class="nc" id="L189">        ticks[TickType.USER.getIndex()] = lpUserTime.toDWordLong().longValue() / 10_000L;</span>
         // Additional decrement to avoid double counting in the total array
-<span class="nc" id="L301">        ticks[TickType.SYSTEM.getIndex()] -= ticks[TickType.IRQ.getIndex()] + ticks[TickType.SOFTIRQ.getIndex()];</span>
-<span class="nc" id="L302">        return ticks;</span>
+<span class="nc" id="L191">        ticks[TickType.SYSTEM.getIndex()] -= ticks[TickType.IRQ.getIndex()] + ticks[TickType.SOFTIRQ.getIndex()];</span>
+<span class="nc" id="L192">        return ticks;</span>
+    }
+
+    @Override
+    public long[] queryCurrentFreq() {
+<span class="nc bnc" id="L197" title="All 2 branches missed.">        if (VersionHelpers.IsWindows7OrGreater()) {</span>
+            Pair&lt;List&lt;String&gt;, Map&lt;ProcessorFrequencyProperty, List&lt;Long&gt;&gt;&gt; instanceValuePair = ProcessorInformation
+<span class="nc" id="L199">                    .queryFrequencyCounters();</span>
+<span class="nc" id="L200">            List&lt;String&gt; instances = instanceValuePair.getA();</span>
+<span class="nc" id="L201">            Map&lt;ProcessorFrequencyProperty, List&lt;Long&gt;&gt; valueMap = instanceValuePair.getB();</span>
+<span class="nc" id="L202">            List&lt;Long&gt; percentMaxList = valueMap.get(ProcessorFrequencyProperty.PERCENTOFMAXIMUMFREQUENCY);</span>
+<span class="nc bnc" id="L203" title="All 2 branches missed.">            if (!instances.isEmpty()) {</span>
+<span class="nc" id="L204">                long maxFreq = this.getMaxFreq();</span>
+<span class="nc" id="L205">                long[] freqs = new long[getLogicalProcessorCount()];</span>
+<span class="nc bnc" id="L206" title="All 2 branches missed.">                for (int p = 0; p &lt; instances.size(); p++) {</span>
+<span class="nc bnc" id="L207" title="All 2 branches missed.">                    int cpu = instances.get(p).contains(&quot;,&quot;)</span>
+<span class="nc" id="L208">                            ? numaNodeProcToLogicalProcMap.getOrDefault(instances.get(p), 0)</span>
+<span class="nc" id="L209">                            : ParseUtil.parseIntOrDefault(instances.get(p), 0);</span>
+<span class="nc bnc" id="L210" title="All 2 branches missed.">                    if (cpu &gt;= getLogicalProcessorCount()) {</span>
+<span class="nc" id="L211">                        continue;</span>
+                    }
+<span class="nc" id="L213">                    freqs[cpu] = percentMaxList.get(cpu) * maxFreq / 100L;</span>
+                }
+<span class="nc" id="L215">                return freqs;</span>
+            }
+        }
+        // If &lt;Win7 or anything failed in PDH/WMI, use the native call
+<span class="nc" id="L219">        return queryNTPower(2); // Current is field index 2</span>
+    }
+
+    @Override
+    public long queryMaxFreq() {
+<span class="nc" id="L224">        long[] freqs = queryNTPower(1); // Max is field index 1</span>
+<span class="nc" id="L225">        return Arrays.stream(freqs).max().orElse(-1L);</span>
     }
 
     /**
-     * {@inheritDoc}
+     * Call CallNTPowerInformation for Processor information and return an array of
+     * the specified index
+     *
+     * @param fieldIndex
+     *            The field, in order as defined in the
+     *            {@link PowrProf#PROCESSOR_INFORMATION} structure.
+     * @return The array of values.
      */
+    private long[] queryNTPower(int fieldIndex) {
+<span class="nc" id="L238">        ProcessorPowerInformation ppi = new ProcessorPowerInformation();</span>
+<span class="nc" id="L239">        long[] freqs = new long[getLogicalProcessorCount()];</span>
+<span class="nc" id="L240">        int bufferSize = ppi.size() * freqs.length;</span>
+<span class="nc" id="L241">        Memory mem = new Memory(bufferSize);</span>
+<span class="nc bnc" id="L242" title="All 2 branches missed.">        if (0 != PowrProf.INSTANCE.CallNtPowerInformation(POWER_INFORMATION_LEVEL.ProcessorInformation, null, 0, mem,</span>
+                bufferSize)) {
+<span class="nc" id="L244">            LOG.error(&quot;Unable to get Processor Information&quot;);</span>
+<span class="nc" id="L245">            Arrays.fill(freqs, -1L);</span>
+<span class="nc" id="L246">            return freqs;</span>
+        }
+<span class="nc bnc" id="L248" title="All 2 branches missed.">        for (int i = 0; i &lt; freqs.length; i++) {</span>
+<span class="nc" id="L249">            ppi = new ProcessorPowerInformation(mem.share(i * (long) ppi.size()));</span>
+<span class="nc bnc" id="L250" title="All 2 branches missed.">            if (fieldIndex == 1) { // Max</span>
+<span class="nc" id="L251">                freqs[i] = ppi.maxMhz * 1_000_000L;</span>
+<span class="nc bnc" id="L252" title="All 2 branches missed.">            } else if (fieldIndex == 2) { // Current</span>
+<span class="nc" id="L253">                freqs[i] = ppi.currentMhz * 1_000_000L;</span>
+            } else {
+<span class="nc" id="L255">                freqs[i] = -1L;</span>
+            }
+        }
+<span class="nc" id="L258">        return freqs;</span>
+    }
+
     @Override
     public double[] getSystemLoadAverage(int nelem) {
-<span class="nc bnc" id="L310" title="All 4 branches missed.">        if (nelem &lt; 1 || nelem &gt; 3) {</span>
-<span class="nc" id="L311">            throw new IllegalArgumentException(&quot;Must include from one to three elements.&quot;);</span>
+<span class="nc bnc" id="L263" title="All 4 branches missed.">        if (nelem &lt; 1 || nelem &gt; 3) {</span>
+<span class="nc" id="L264">            throw new IllegalArgumentException(&quot;Must include from one to three elements.&quot;);</span>
         }
-<span class="nc" id="L313">        double[] average = new double[nelem];</span>
+<span class="nc" id="L266">        double[] average = new double[nelem];</span>
         // Windows doesn't have load average
-<span class="nc bnc" id="L315" title="All 2 branches missed.">        for (int i = 0; i &lt; average.length; i++) {</span>
-<span class="nc" id="L316">            average[i] = -1;</span>
+<span class="nc bnc" id="L268" title="All 2 branches missed.">        for (int i = 0; i &lt; average.length; i++) {</span>
+<span class="nc" id="L269">            average[i] = -1;</span>
         }
-<span class="nc" id="L318">        return average;</span>
+<span class="nc" id="L271">        return average;</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public long[][] getProcessorCpuLoadTicks() {
-<span class="nc" id="L326">        Map&lt;ProcessorTickCountProperty, List&lt;Long&gt;&gt; valueMap = this.processorTickPerfCounters.queryValuesWildcard();</span>
-<span class="nc" id="L327">        List&lt;String&gt; instances = this.processorTickPerfCounters.getInstancesFromLastQuery();</span>
-<span class="nc" id="L328">        List&lt;Long&gt; systemList = valueMap.get(ProcessorTickCountProperty.PERCENTPRIVILEGEDTIME);</span>
-<span class="nc" id="L329">        List&lt;Long&gt; userList = valueMap.get(ProcessorTickCountProperty.PERCENTUSERTIME);</span>
-<span class="nc" id="L330">        List&lt;Long&gt; irqList = valueMap.get(ProcessorTickCountProperty.PERCENTINTERRUPTTIME);</span>
-<span class="nc" id="L331">        List&lt;Long&gt; softIrqList = valueMap.get(ProcessorTickCountProperty.PERCENTDPCTIME);</span>
+    public long[][] queryProcessorCpuLoadTicks() {
+        Pair&lt;List&lt;String&gt;, Map&lt;ProcessorTickCountProperty, List&lt;Long&gt;&gt;&gt; instanceValuePair = ProcessorInformation
+<span class="nc" id="L277">                .queryProcessorCounters();</span>
+<span class="nc" id="L278">        List&lt;String&gt; instances = instanceValuePair.getA();</span>
+<span class="nc" id="L279">        Map&lt;ProcessorTickCountProperty, List&lt;Long&gt;&gt; valueMap = instanceValuePair.getB();</span>
+<span class="nc" id="L280">        List&lt;Long&gt; systemList = valueMap.get(ProcessorTickCountProperty.PERCENTPRIVILEGEDTIME);</span>
+<span class="nc" id="L281">        List&lt;Long&gt; userList = valueMap.get(ProcessorTickCountProperty.PERCENTUSERTIME);</span>
+<span class="nc" id="L282">        List&lt;Long&gt; irqList = valueMap.get(ProcessorTickCountProperty.PERCENTINTERRUPTTIME);</span>
+<span class="nc" id="L283">        List&lt;Long&gt; softIrqList = valueMap.get(ProcessorTickCountProperty.PERCENTDPCTIME);</span>
         // % Processor Time is actually Idle time
-<span class="nc" id="L333">        List&lt;Long&gt; idleList = valueMap.get(ProcessorTickCountProperty.PERCENTPROCESSORTIME);</span>
+<span class="nc" id="L285">        List&lt;Long&gt; idleList = valueMap.get(ProcessorTickCountProperty.PERCENTPROCESSORTIME);</span>
 
-<span class="nc" id="L335">        long[][] ticks = new long[this.logicalProcessorCount][TickType.values().length];</span>
-<span class="nc bnc" id="L336" title="All 12 branches missed.">        if (instances.isEmpty() || systemList == null || userList == null || irqList == null || softIrqList == null</span>
+<span class="nc" id="L287">        long[][] ticks = new long[getLogicalProcessorCount()][TickType.values().length];</span>
+<span class="nc bnc" id="L288" title="All 12 branches missed.">        if (instances.isEmpty() || systemList == null || userList == null || irqList == null || softIrqList == null</span>
                 || idleList == null) {
-<span class="nc" id="L338">            return ticks;</span>
+<span class="nc" id="L290">            return ticks;</span>
         }
-<span class="nc bnc" id="L340" title="All 2 branches missed.">        for (int p = 0; p &lt; instances.size(); p++) {</span>
-<span class="nc" id="L341">            int cpu = ParseUtil.parseIntOrDefault(instances.get(p), 0);</span>
-<span class="nc bnc" id="L342" title="All 2 branches missed.">            if (cpu &gt;= this.logicalProcessorCount) {</span>
-<span class="nc" id="L343">                continue;</span>
+<span class="nc bnc" id="L292" title="All 2 branches missed.">        for (int p = 0; p &lt; instances.size(); p++) {</span>
+<span class="nc bnc" id="L293" title="All 2 branches missed.">            int cpu = instances.get(p).contains(&quot;,&quot;) ? numaNodeProcToLogicalProcMap.getOrDefault(instances.get(p), 0)</span>
+<span class="nc" id="L294">                    : ParseUtil.parseIntOrDefault(instances.get(p), 0);</span>
+<span class="nc bnc" id="L295" title="All 2 branches missed.">            if (cpu &gt;= getLogicalProcessorCount()) {</span>
+<span class="nc" id="L296">                continue;</span>
             }
-<span class="nc" id="L345">            ticks[cpu][TickType.SYSTEM.getIndex()] = systemList.get(cpu);</span>
-<span class="nc" id="L346">            ticks[cpu][TickType.USER.getIndex()] = userList.get(cpu);</span>
-<span class="nc" id="L347">            ticks[cpu][TickType.IRQ.getIndex()] = irqList.get(cpu);</span>
-<span class="nc" id="L348">            ticks[cpu][TickType.SOFTIRQ.getIndex()] = softIrqList.get(cpu);</span>
-<span class="nc" id="L349">            ticks[cpu][TickType.IDLE.getIndex()] = idleList.get(cpu);</span>
+<span class="nc" id="L298">            ticks[cpu][TickType.SYSTEM.getIndex()] = systemList.get(cpu);</span>
+<span class="nc" id="L299">            ticks[cpu][TickType.USER.getIndex()] = userList.get(cpu);</span>
+<span class="nc" id="L300">            ticks[cpu][TickType.IRQ.getIndex()] = irqList.get(cpu);</span>
+<span class="nc" id="L301">            ticks[cpu][TickType.SOFTIRQ.getIndex()] = softIrqList.get(cpu);</span>
+<span class="nc" id="L302">            ticks[cpu][TickType.IDLE.getIndex()] = idleList.get(cpu);</span>
 
             // Additional decrement to avoid double counting in the
             // total array
-<span class="nc" id="L353">            ticks[cpu][TickType.SYSTEM.getIndex()] -= ticks[cpu][TickType.IRQ.getIndex()]</span>
-<span class="nc" id="L354">                    + ticks[cpu][TickType.SOFTIRQ.getIndex()];</span>
+<span class="nc" id="L306">            ticks[cpu][TickType.SYSTEM.getIndex()] -= ticks[cpu][TickType.IRQ.getIndex()]</span>
+<span class="nc" id="L307">                    + ticks[cpu][TickType.SOFTIRQ.getIndex()];</span>
 
             // Raw value is cumulative 100NS-ticks
             // Divide by 10_000 to get milliseconds
-<span class="nc" id="L358">            ticks[cpu][TickType.SYSTEM.getIndex()] /= 10_000L;</span>
-<span class="nc" id="L359">            ticks[cpu][TickType.USER.getIndex()] /= 10_000L;</span>
-<span class="nc" id="L360">            ticks[cpu][TickType.IRQ.getIndex()] /= 10_000L;</span>
-<span class="nc" id="L361">            ticks[cpu][TickType.SOFTIRQ.getIndex()] /= 10_000L;</span>
-<span class="nc" id="L362">            ticks[cpu][TickType.IDLE.getIndex()] /= 10_000L;</span>
+<span class="nc" id="L311">            ticks[cpu][TickType.SYSTEM.getIndex()] /= 10_000L;</span>
+<span class="nc" id="L312">            ticks[cpu][TickType.USER.getIndex()] /= 10_000L;</span>
+<span class="nc" id="L313">            ticks[cpu][TickType.IRQ.getIndex()] /= 10_000L;</span>
+<span class="nc" id="L314">            ticks[cpu][TickType.SOFTIRQ.getIndex()] /= 10_000L;</span>
+<span class="nc" id="L315">            ticks[cpu][TickType.IDLE.getIndex()] /= 10_000L;</span>
         }
         // Skipping nice and IOWait, they'll stay 0
-<span class="nc" id="L365">        return ticks;</span>
+<span class="nc" id="L318">        return ticks;</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public long getSystemUptime() {
-        // Uptime is in seconds so divide milliseconds
-        // GetTickCount64 requires Vista (6.0) or later
-<span class="nc bnc" id="L375" title="All 2 branches missed.">        if (IS_VISTA_OR_GREATER) {</span>
-<span class="nc" id="L376">            return Kernel32.INSTANCE.GetTickCount64() / 1000L;</span>
-        } else {
-            // 32 bit rolls over at ~ 49 days
-<span class="nc" id="L379">            return Kernel32.INSTANCE.GetTickCount() / 1000L;</span>
-        }
+    public long queryContextSwitches() {
+<span class="nc" id="L323">        return SystemInformation.queryContextSwitchCounters().getOrDefault(ContextSwitchProperty.CONTEXTSWITCHESPERSEC,</span>
+<span class="nc" id="L324">                0L);</span>
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public long getContextSwitches() {
-<span class="nc" id="L388">        Map&lt;ContextSwitchProperty, Long&gt; valueMap = this.contextSwitchPerfCounters.queryValues();</span>
-<span class="nc" id="L389">        return MapUtil.getOrDefault(valueMap, ContextSwitchProperty.CONTEXTSWITCHESPERSEC, 0L);</span>
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public long getInterrupts() {
-<span class="nc" id="L397">        Map&lt;InterruptsProperty, Long&gt; valueMap = this.interruptsPerfCounters.queryValues();</span>
-<span class="nc" id="L398">        return MapUtil.getOrDefault(valueMap, InterruptsProperty.INTERRUPTSPERSEC, 0L);</span>
+    public long queryInterrupts() {
+<span class="nc" id="L329">        return ProcessorInformation.queryInterruptCounters().getOrDefault(InterruptsProperty.INTERRUPTSPERSEC, 0L);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

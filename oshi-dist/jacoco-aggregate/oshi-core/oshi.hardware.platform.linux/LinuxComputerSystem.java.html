@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>LinuxComputerSystem.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.linux</a> &gt; <span class="el_source">LinuxComputerSystem.java</span></div><h1>LinuxComputerSystem.java</h1><pre class="source lang-java linenums">/**
  * MIT License
  *
- * Copyright (c) 2010 - 2020 The OSHI Project Contributors:
- * https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -10,8 +9,9 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,101 +23,83 @@
  */
 package oshi.hardware.platform.linux;
 
+import static oshi.util.Memoizer.memoize;
+
+import java.util.function.Supplier;
+
+import oshi.annotation.concurrent.Immutable;
+import oshi.driver.linux.Devicetree;
+import oshi.driver.linux.Dmidecode;
+import oshi.driver.linux.Lshal;
+import oshi.driver.linux.Lshw;
+import oshi.driver.linux.Sysfs;
+import oshi.driver.linux.proc.CpuInfo;
+import oshi.hardware.Baseboard;
+import oshi.hardware.Firmware;
 import oshi.hardware.common.AbstractComputerSystem;
-import oshi.util.ExecutingCommand;
-import oshi.util.FileUtil;
-import oshi.util.ParseUtil;
+import oshi.util.Constants;
 
 /**
- * Hardware data obtained from sysfs
- *
- * @author SchiTho1 [at] Securiton AG
- * @author widdis [at] gmail [dot] com
+ * Hardware data obtained from sysfs.
  */
-final class LinuxComputerSystem extends AbstractComputerSystem {
+@Immutable
+<span class="nc" id="L46">final class LinuxComputerSystem extends AbstractComputerSystem {</span>
 
-    private static final long serialVersionUID = 1L;
+<span class="nc" id="L48">    private final Supplier&lt;String&gt; manufacturer = memoize(LinuxComputerSystem::queryManufacturer);</span>
 
-    // Note: /sys/class/dmi/id symlinks here, but /sys/devices/* is the
-    // official/approved path for sysfs information
-    private static final String SYSFS_SERIAL_PATH = &quot;/sys/devices/virtual/dmi/id/&quot;;
-    private static final String UNKNOWN = &quot;unknown&quot;;
+<span class="nc" id="L50">    private final Supplier&lt;String&gt; model = memoize(LinuxComputerSystem::queryModel);</span>
 
-<span class="nc" id="L46">    LinuxComputerSystem() {</span>
-<span class="nc" id="L47">        init();</span>
-<span class="nc" id="L48">    }</span>
+<span class="nc" id="L52">    private final Supplier&lt;String&gt; serialNumber = memoize(LinuxComputerSystem::querySerialNumber);</span>
 
-    private void init() {
+    @Override
+    public String getManufacturer() {
+<span class="nc" id="L56">        return manufacturer.get();</span>
+    }
 
-        // $ ls /sys/devices/virtual/dmi/id/
-        // bios_date board_vendor chassis_version product_version
-        // bios_vendor board_version modalias subsystem
-        // bios_version chassis_asset_tag power sys_vendor
-        // board_asset_tag chassis_serial product_name uevent
-        // board_name chassis_type product_serial
-        // board_serial chassis_vendor product_uuid
+    @Override
+    public String getModel() {
+<span class="nc" id="L61">        return model.get();</span>
+    }
 
-<span class="nc" id="L60">        final String sysVendor = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + &quot;sys_vendor&quot;);</span>
-<span class="nc bnc" id="L61" title="All 4 branches missed.">        if (sysVendor != null &amp;&amp; !sysVendor.trim().isEmpty()) {</span>
-<span class="nc" id="L62">            setManufacturer(sysVendor.trim());</span>
+    @Override
+    public String getSerialNumber() {
+<span class="nc" id="L66">        return serialNumber.get();</span>
+    }
+
+    @Override
+    public Firmware createFirmware() {
+<span class="nc" id="L71">        return new LinuxFirmware();</span>
+    }
+
+    @Override
+    public Baseboard createBaseboard() {
+<span class="nc" id="L76">        return new LinuxBaseboard();</span>
+    }
+
+    private static String queryManufacturer() {
+<span class="nc" id="L80">        String result = null;</span>
+<span class="nc bnc" id="L81" title="All 4 branches missed.">        if ((result = Sysfs.querySystemVendor()) == null &amp;&amp; (result = CpuInfo.queryCpuManufacturer()) == null) {</span>
+<span class="nc" id="L82">            return Constants.UNKNOWN;</span>
         }
+<span class="nc" id="L84">        return result;</span>
+    }
 
-<span class="nc" id="L65">        final String productName = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + &quot;product_name&quot;);</span>
-<span class="nc" id="L66">        final String productVersion = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + &quot;product_version&quot;);</span>
-
-<span class="nc bnc" id="L68" title="All 4 branches missed.">        if (productName != null &amp;&amp; !productName.trim().isEmpty()) {</span>
-
-<span class="nc bnc" id="L70" title="All 6 branches missed.">            if (productVersion != null &amp;&amp; !productVersion.trim().isEmpty() &amp;&amp; !&quot;None&quot;.equals(productVersion.trim())) {</span>
-
-<span class="nc" id="L72">                setModel(productName.trim() + &quot; (version: &quot; + productVersion.trim() + &quot;)&quot;);</span>
-            } else {
-<span class="nc" id="L74">                setModel(productName.trim());</span>
-            }
-        } else {
-<span class="nc bnc" id="L77" title="All 4 branches missed.">            if (productVersion != null &amp;&amp; !productVersion.trim().isEmpty()) {</span>
-
-<span class="nc" id="L79">                setModel(productVersion.trim());</span>
-            }
+    private static String queryModel() {
+<span class="nc" id="L88">        String result = null;</span>
+<span class="nc bnc" id="L89" title="All 4 branches missed.">        if ((result = Sysfs.queryProductModel()) == null &amp;&amp; (result = Devicetree.queryModel()) == null</span>
+<span class="nc bnc" id="L90" title="All 2 branches missed.">                &amp;&amp; (result = Lshw.queryModel()) == null) {</span>
+<span class="nc" id="L91">            return Constants.UNKNOWN;</span>
         }
+<span class="nc" id="L93">        return result;</span>
+    }
 
-<span class="nc" id="L83">        setSerialNumber(getSystemSerialNumber());</span>
-
-<span class="nc" id="L85">        setFirmware(new LinuxFirmware());</span>
-
-<span class="nc" id="L87">        setBaseboard(new LinuxBaseboard());</span>
-<span class="nc" id="L88">    }</span>
-
-    private String getSystemSerialNumber() {
-        // These sysfs files accessible by root, or can be chmod'd at boot time
-        // to enable access without root
-<span class="nc" id="L93">        String serialNumber = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + &quot;product_serial&quot;);</span>
-<span class="nc bnc" id="L94" title="All 4 branches missed.">        if (serialNumber.isEmpty() || &quot;None&quot;.equals(serialNumber)) {</span>
-<span class="nc" id="L95">            serialNumber = FileUtil.getStringFromFile(SYSFS_SERIAL_PATH + &quot;board_serial&quot;);</span>
-<span class="nc bnc" id="L96" title="All 4 branches missed.">            if (serialNumber.isEmpty() || &quot;None&quot;.equals(serialNumber)) {</span>
-<span class="nc" id="L97">                serialNumber = UNKNOWN;</span>
-            }
+    private static String querySerialNumber() {
+<span class="nc" id="L97">        String result = null;</span>
+<span class="nc bnc" id="L98" title="All 4 branches missed.">        if ((result = Sysfs.queryProductSerial()) == null &amp;&amp; (result = Dmidecode.querySerialNumber()) == null</span>
+<span class="nc bnc" id="L99" title="All 4 branches missed.">                &amp;&amp; (result = Lshal.querySerialNumber()) == null &amp;&amp; (result = Lshw.querySerialNumber()) == null) {</span>
+<span class="nc" id="L100">            return Constants.UNKNOWN;</span>
         }
-        // If root privileges this will work
-<span class="nc" id="L101">        String marker = &quot;Serial Number:&quot;;</span>
-<span class="nc bnc" id="L102" title="All 2 branches missed.">        if (UNKNOWN.equals(serialNumber)) {</span>
-<span class="nc bnc" id="L103" title="All 2 branches missed.">            for (String checkLine : ExecutingCommand.runNative(&quot;dmidecode -t system&quot;)) {</span>
-<span class="nc bnc" id="L104" title="All 2 branches missed.">                if (checkLine.contains(marker)) {</span>
-<span class="nc" id="L105">                    serialNumber = checkLine.split(marker)[1].trim();</span>
-<span class="nc" id="L106">                    break;</span>
-                }
-<span class="nc" id="L108">            }</span>
-        }
-        // if lshal command available (HAL deprecated in newer linuxes)
-<span class="nc bnc" id="L111" title="All 2 branches missed.">        if (UNKNOWN.equals(serialNumber)) {</span>
-<span class="nc" id="L112">            marker = &quot;system.hardware.serial =&quot;;</span>
-<span class="nc bnc" id="L113" title="All 2 branches missed.">            for (String checkLine : ExecutingCommand.runNative(&quot;lshal&quot;)) {</span>
-<span class="nc bnc" id="L114" title="All 2 branches missed.">                if (checkLine.contains(marker)) {</span>
-<span class="nc" id="L115">                    serialNumber = ParseUtil.getSingleQuoteStringValue(checkLine);</span>
-<span class="nc" id="L116">                    break;</span>
-                }
-<span class="nc" id="L118">            }</span>
-        }
-<span class="nc" id="L120">        return serialNumber;</span>
+<span class="nc" id="L102">        return result;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

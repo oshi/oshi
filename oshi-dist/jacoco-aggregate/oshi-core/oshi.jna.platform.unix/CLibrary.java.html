@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>CLibrary.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.jna.platform.unix</a> &gt; <span class="el_source">CLibrary.java</span></div><h1>CLibrary.java</h1><pre class="source lang-java linenums">/**
  * MIT License
  *
- * Copyright (c) 2010 - 2020 The OSHI Project Contributors:
- * https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -10,8 +9,9 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -27,38 +27,30 @@ import com.sun.jna.Library;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import com.sun.jna.Structure.FieldOrder;
-import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.platform.unix.LibCAPI;
 import com.sun.jna.ptr.PointerByReference;
 
 /**
  * C library with code common to all *nix-based operating systems. This class
  * should be considered non-API as it may be removed if/when its code is
  * incorporated into the JNA project.
- *
- * @author widdis[at]gmail[dot]com
  */
-public interface CLibrary extends Library {
+public interface CLibrary extends LibCAPI, Library {
 
-    /*
-     * For getaddrinfo()
-     */
     int AI_CANONNAME = 2;
 
-    /**
-     * Return type for BSD sysctl kern.boottime
-     */
-    @FieldOrder({ &quot;tv_sec&quot;, &quot;tv_usec&quot; })
-<span class="nc" id="L51">    class Timeval extends Structure {</span>
-        public long tv_sec; // seconds
-        public long tv_usec; // microseconds
-    }
+    int UT_LINESIZE = 32;
+    int UT_NAMESIZE = 32;
+    int UT_HOSTSIZE = 256;
+    int LOGIN_PROCESS = 6; // Session leader of a logged in user.
+    int USER_PROCESS = 7; // Normal process.
 
     @FieldOrder({ &quot;sa_family&quot;, &quot;sa_data&quot; })
-<span class="nc" id="L57">    class Sockaddr extends Structure {</span>
+<span class="nc" id="L49">    class Sockaddr extends Structure {</span>
         public short sa_family;
-<span class="nc" id="L59">        public byte[] sa_data = new byte[14];</span>
+<span class="nc" id="L51">        public byte[] sa_data = new byte[14];</span>
 
-<span class="nc" id="L61">        public static class ByReference extends Sockaddr implements Structure.ByReference {</span>
+<span class="nc" id="L53">        public static class ByReference extends Sockaddr implements Structure.ByReference {</span>
         }
     }
 
@@ -74,129 +66,475 @@ public interface CLibrary extends Library {
         public String ai_canonname;
         public ByReference ai_next;
 
-<span class="nc" id="L77">        public static class ByReference extends Addrinfo implements Structure.ByReference {</span>
+<span class="nc" id="L69">        public static class ByReference extends Addrinfo implements Structure.ByReference {</span>
         }
 
-<span class="nc" id="L80">        public Addrinfo() {</span>
-<span class="nc" id="L81">        }</span>
+<span class="nc" id="L72">        public Addrinfo() {</span>
+<span class="nc" id="L73">        }</span>
 
         public Addrinfo(Pointer p) {
-<span class="nc" id="L84">            super(p);</span>
-<span class="nc" id="L85">            read();</span>
-<span class="nc" id="L86">        }</span>
+<span class="nc" id="L76">            super(p);</span>
+<span class="nc" id="L77">            read();</span>
+<span class="nc" id="L78">        }</span>
     }
 
     /**
-     * The sysctl() function retrieves system information and allows processes with
-     * appropriate privileges to set system information. The information available
-     * from sysctl() consists of integers, strings, and tables.
-     *
-     * The state is described using a &quot;Management Information Base&quot; (MIB) style
-     * name, listed in name, which is a namelen length array of integers.
-     *
-     * The information is copied into the buffer specified by oldp. The size of the
-     * buffer is given by the location specified by oldlenp before the call, and
-     * that location gives the amount of data copied after a successful call and
-     * after a call that returns with the error code ENOMEM. If the amount of data
-     * available is greater than the size of the buffer supplied, the call supplies
-     * as much data as fits in the buffer provided and returns with the error code
-     * ENOMEM. If the old value is not desired, oldp and oldlenp should be set to
-     * NULL.
-     *
-     * The size of the available data can be determined by calling sysctl() with the
-     * NULL argument for oldp. The size of the available data will be returned in
-     * the location pointed to by oldlenp. For some operations, the amount of space
-     * may change often. For these operations, the system attempts to round up so
-     * that the returned size is large enough for a call to return the data shortly
-     * thereafter.
-     *
-     * To set a new value, newp is set to point to a buffer of length newlen from
-     * which the requested value is to be taken. If a new value is not to be set,
-     * newp should be set to NULL and newlen set to 0.
-     *
-     * @param name
-     *            MIB array of integers
-     * @param namelen
-     *            length of the MIB array
-     * @param oldp
-     *            Information retrieved
-     * @param oldlenp
-     *            Size of information retrieved
-     * @param newp
-     *            Information to be written
-     * @param newlen
-     *            Size of information to be written
-     * @return 0 on success; sets errno on failure
+     * Return type for sysctl net.inet.ip.stats
      */
-    int sysctl(int[] name, int namelen, Pointer oldp, IntByReference oldlenp, Pointer newp, int newlen);
+    @FieldOrder({ &quot;tcps_connattempt&quot;, &quot;tcps_accepts&quot;, &quot;tcps_connects&quot;, &quot;tcps_drops&quot;, &quot;tcps_conndrops&quot;, &quot;tcps_closed&quot;,
+            &quot;tcps_segstimed&quot;, &quot;tcps_rttupdated&quot;, &quot;tcps_delack&quot;, &quot;tcps_timeoutdrop&quot;, &quot;tcps_rexmttimeo&quot;,
+            &quot;tcps_persisttimeo&quot;, &quot;tcps_keeptimeo&quot;, &quot;tcps_keepprobe&quot;, &quot;tcps_keepdrops&quot;, &quot;tcps_sndtotal&quot;, &quot;tcps_sndpack&quot;,
+            &quot;tcps_sndbyte&quot;, &quot;tcps_sndrexmitpack&quot;, &quot;tcps_sndrexmitbyte&quot;, &quot;tcps_sndacks&quot;, &quot;tcps_sndprobe&quot;, &quot;tcps_sndurg&quot;,
+            &quot;tcps_sndwinup&quot;, &quot;tcps_sndctrl&quot;, &quot;tcps_rcvtotal&quot;, &quot;tcps_rcvpack&quot;, &quot;tcps_rcvbyte&quot;, &quot;tcps_rcvbadsum&quot;,
+            &quot;tcps_rcvbadoff&quot;, &quot;tcps_rcvmemdrop&quot;, &quot;tcps_rcvshort&quot;, &quot;tcps_rcvduppack&quot;, &quot;tcps_rcvdupbyte&quot;,
+            &quot;tcps_rcvpartduppack&quot;, &quot;tcps_rcvpartdupbyte&quot;, &quot;tcps_rcvoopack&quot;, &quot;tcps_rcvoobyte&quot;, &quot;tcps_rcvpackafterwin&quot;,
+            &quot;tcps_rcvbyteafterwin&quot;, &quot;tcps_rcvafterclose&quot;, &quot;tcps_rcvwinprobe&quot;, &quot;tcps_rcvdupack&quot;, &quot;tcps_rcvacktoomuch&quot;,
+            &quot;tcps_rcvackpack&quot;, &quot;tcps_rcvackbyte&quot;, &quot;tcps_rcvwinupd&quot;, &quot;tcps_pawsdrop&quot;, &quot;tcps_predack&quot;, &quot;tcps_preddat&quot;,
+            &quot;tcps_pcbcachemiss&quot;, &quot;tcps_cachedrtt&quot;, &quot;tcps_cachedrttvar&quot;, &quot;tcps_cachedssthresh&quot;, &quot;tcps_usedrtt&quot;,
+            &quot;tcps_usedrttvar&quot;, &quot;tcps_usedssthresh&quot;, &quot;tcps_persistdrop&quot;, &quot;tcps_badsyn&quot;, &quot;tcps_mturesent&quot;,
+            &quot;tcps_listendrop&quot;, &quot;tcps_synchallenge&quot;, &quot;tcps_rstchallenge&quot;, &quot;tcps_minmssdrops&quot;, &quot;tcps_sndrexmitbad&quot;,
+            &quot;tcps_badrst&quot;, &quot;tcps_sc_added&quot;, &quot;tcps_sc_retransmitted&quot;, &quot;tcps_sc_dupsyn&quot;, &quot;tcps_sc_dropped&quot;,
+            &quot;tcps_sc_completed&quot;, &quot;tcps_sc_bucketoverflow&quot;, &quot;tcps_sc_cacheoverflow&quot;, &quot;tcps_sc_reset&quot;, &quot;tcps_sc_stale&quot;,
+            &quot;tcps_sc_aborted&quot;, &quot;tcps_sc_badack&quot;, &quot;tcps_sc_unreach&quot;, &quot;tcps_sc_zonefail&quot;, &quot;tcps_sc_sendcookie&quot;,
+            &quot;tcps_sc_recvcookie&quot;, &quot;tcps_hc_added&quot;, &quot;tcps_hc_bucketoverflow&quot;, &quot;tcps_sack_recovery_episode&quot;,
+            &quot;tcps_sack_rexmits&quot;, &quot;tcps_sack_rexmit_bytes&quot;, &quot;tcps_sack_rcv_blocks&quot;, &quot;tcps_sack_send_blocks&quot;,
+            &quot;tcps_sack_sboverflow&quot;, &quot;tcps_bg_rcvtotal&quot;, &quot;tcps_rxtfindrop&quot;, &quot;tcps_fcholdpacket&quot;, &quot;tcps_coalesced_pack&quot;,
+            &quot;tcps_flowtbl_full&quot;, &quot;tcps_flowtbl_collision&quot;, &quot;tcps_lro_twopack&quot;, &quot;tcps_lro_multpack&quot;,
+            &quot;tcps_lro_largepack&quot;, &quot;tcps_limited_txt&quot;, &quot;tcps_early_rexmt&quot;, &quot;tcps_sack_ackadv&quot;, &quot;tcps_rcv_swcsum&quot;,
+            &quot;tcps_rcv_swcsum_bytes&quot;, &quot;tcps_rcv6_swcsum&quot;, &quot;tcps_rcv6_swcsum_bytes&quot;, &quot;tcps_snd_swcsum&quot;,
+            &quot;tcps_snd_swcsum_bytes&quot;, &quot;tcps_snd6_swcsum&quot;, &quot;tcps_snd6_swcsum_bytes&quot;, &quot;tcps_msg_unopkts&quot;,
+            &quot;tcps_msg_unoappendfail&quot;, &quot;tcps_msg_sndwaithipri&quot;, &quot;tcps_invalid_mpcap&quot;, &quot;tcps_invalid_joins&quot;,
+            &quot;tcps_mpcap_fallback&quot;, &quot;tcps_join_fallback&quot;, &quot;tcps_estab_fallback&quot;, &quot;tcps_invalid_opt&quot;, &quot;tcps_mp_outofwin&quot;,
+            &quot;tcps_mp_reducedwin&quot;, &quot;tcps_mp_badcsum&quot;, &quot;tcps_mp_oodata&quot;, &quot;tcps_mp_switches&quot;, &quot;tcps_mp_rcvtotal&quot;,
+            &quot;tcps_mp_rcvbytes&quot;, &quot;tcps_mp_sndpacks&quot;, &quot;tcps_mp_sndbytes&quot;, &quot;tcps_join_rxmts&quot;, &quot;tcps_tailloss_rto&quot;,
+            &quot;tcps_reordered_pkts&quot;, &quot;tcps_recovered_pkts&quot;, &quot;tcps_pto&quot;, &quot;tcps_rto_after_pto&quot;, &quot;tcps_tlp_recovery&quot;,
+            &quot;tcps_tlp_recoverlastpkt&quot;, &quot;tcps_ecn_client_success&quot;, &quot;tcps_ecn_recv_ece&quot;, &quot;tcps_ecn_sent_ece&quot;,
+            &quot;tcps_detect_reordering&quot;, &quot;tcps_delay_recovery&quot;, &quot;tcps_avoid_rxmt&quot;, &quot;tcps_unnecessary_rxmt&quot;,
+            &quot;tcps_nostretchack&quot;, &quot;tcps_rescue_rxmt&quot;, &quot;tcps_pto_in_recovery&quot;, &quot;tcps_pmtudbh_reverted&quot;,
+            &quot;tcps_dsack_disable&quot;, &quot;tcps_dsack_ackloss&quot;, &quot;tcps_dsack_badrexmt&quot;, &quot;tcps_dsack_sent&quot;, &quot;tcps_dsack_recvd&quot;,
+            &quot;tcps_dsack_recvd_old&quot;, &quot;tcps_mp_sel_symtomsd&quot;, &quot;tcps_mp_sel_rtt&quot;, &quot;tcps_mp_sel_rto&quot;, &quot;tcps_mp_sel_peer&quot;,
+            &quot;tcps_mp_num_probes&quot;, &quot;tcps_mp_verdowngrade&quot;, &quot;tcps_drop_after_sleep&quot;, &quot;tcps_probe_if&quot;,
+            &quot;tcps_probe_if_conflict&quot;, &quot;tcps_ecn_client_setup&quot;, &quot;tcps_ecn_server_setup&quot;, &quot;tcps_ecn_server_success&quot;,
+            &quot;tcps_ecn_lost_synack&quot;, &quot;tcps_ecn_lost_syn&quot;, &quot;tcps_ecn_not_supported&quot;, &quot;tcps_ecn_recv_ce&quot;,
+            &quot;tcps_ecn_conn_recv_ce&quot;, &quot;tcps_ecn_conn_recv_ece&quot;, &quot;tcps_ecn_conn_plnoce&quot;, &quot;tcps_ecn_conn_pl_ce&quot;,
+            &quot;tcps_ecn_conn_nopl_ce&quot;, &quot;tcps_ecn_fallback_synloss&quot;, &quot;tcps_ecn_fallback_reorder&quot;, &quot;tcps_ecn_fallback_ce&quot;,
+            &quot;tcps_tfo_syn_data_rcv&quot;, &quot;tcps_tfo_cookie_req_rcv&quot;, &quot;tcps_tfo_cookie_sent&quot;, &quot;tcps_tfo_cookie_invalid&quot;,
+            &quot;tcps_tfo_cookie_req&quot;, &quot;tcps_tfo_cookie_rcv&quot;, &quot;tcps_tfo_syn_data_sent&quot;, &quot;tcps_tfo_syn_data_acked&quot;,
+            &quot;tcps_tfo_syn_loss&quot;, &quot;tcps_tfo_blackhole&quot;, &quot;tcps_tfo_cookie_wrong&quot;, &quot;tcps_tfo_no_cookie_rcv&quot;,
+            &quot;tcps_tfo_heuristics_disable&quot;, &quot;tcps_tfo_sndblackhole&quot;, &quot;tcps_mss_to_default&quot;, &quot;tcps_mss_to_medium&quot;,
+            &quot;tcps_mss_to_low&quot;, &quot;tcps_ecn_fallback_droprst&quot;, &quot;tcps_ecn_fallback_droprxmt&quot;, &quot;tcps_ecn_fallback_synrst&quot;,
+            &quot;tcps_mptcp_rcvmemdrop&quot;, &quot;tcps_mptcp_rcvduppack&quot;, &quot;tcps_mptcp_rcvpackafterwin&quot;, &quot;tcps_timer_drift_le_1_ms&quot;,
+            &quot;tcps_timer_drift_le_10_ms&quot;, &quot;tcps_timer_drift_le_20_ms&quot;, &quot;tcps_timer_drift_le_50_ms&quot;,
+            &quot;tcps_timer_drift_le_100_ms&quot;, &quot;tcps_timer_drift_le_200_ms&quot;, &quot;tcps_timer_drift_le_500_ms&quot;,
+            &quot;tcps_timer_drift_le_1000_ms&quot;, &quot;tcps_timer_drift_gt_1000_ms&quot;, &quot;tcps_mptcp_handover_attempt&quot;,
+            &quot;tcps_mptcp_interactive_attempt&quot;, &quot;tcps_mptcp_aggregate_attempt&quot;, &quot;tcps_mptcp_fp_handover_attempt&quot;,
+            &quot;tcps_mptcp_fp_interactive_attempt&quot;, &quot;tcps_mptcp_fp_aggregate_attempt&quot;, &quot;tcps_mptcp_heuristic_fallback&quot;,
+            &quot;tcps_mptcp_fp_heuristic_fallback&quot;, &quot;tcps_mptcp_handover_success_wifi&quot;, &quot;tcps_mptcp_handover_success_cell&quot;,
+            &quot;tcps_mptcp_interactive_success&quot;, &quot;tcps_mptcp_aggregate_success&quot;, &quot;tcps_mptcp_fp_handover_success_wifi&quot;,
+            &quot;tcps_mptcp_fp_handover_success_cell&quot;, &quot;tcps_mptcp_fp_interactive_success&quot;,
+            &quot;tcps_mptcp_fp_aggregate_success&quot;, &quot;tcps_mptcp_handover_cell_from_wifi&quot;,
+            &quot;tcps_mptcp_handover_wifi_from_cell&quot;, &quot;tcps_mptcp_interactive_cell_from_wifi&quot;,
+            &quot;tcps_mptcp_handover_cell_bytes&quot;, &quot;tcps_mptcp_interactive_cell_bytes&quot;, &quot;tcps_mptcp_aggregate_cell_bytes&quot;,
+            &quot;tcps_mptcp_handover_all_bytes&quot;, &quot;tcps_mptcp_interactive_all_bytes&quot;, &quot;tcps_mptcp_aggregate_all_bytes&quot;,
+            &quot;tcps_mptcp_back_to_wifi&quot;, &quot;tcps_mptcp_wifi_proxy&quot;, &quot;tcps_mptcp_cell_proxy&quot;, &quot;tcps_ka_offload_drops&quot;,
+            &quot;tcps_mptcp_triggered_cell&quot; })
+<span class="nc" id="L141">    class Tcpstat extends Structure {</span>
+        public int tcps_connattempt;
+        public int tcps_accepts;
+        public int tcps_connects;
+        public int tcps_drops;
+        public int tcps_conndrops;
+        public int tcps_closed;
+        public int tcps_segstimed;
+        public int tcps_rttupdated;
+        public int tcps_delack;
+        public int tcps_timeoutdrop;
+        public int tcps_rexmttimeo;
+        public int tcps_persisttimeo;
+        public int tcps_keeptimeo;
+        public int tcps_keepprobe;
+        public int tcps_keepdrops;
+        public int tcps_sndtotal;
+        public int tcps_sndpack;
+        public int tcps_sndbyte;
+        public int tcps_sndrexmitpack;
+        public int tcps_sndrexmitbyte;
+        public int tcps_sndacks;
+        public int tcps_sndprobe;
+        public int tcps_sndurg;
+        public int tcps_sndwinup;
+        public int tcps_sndctrl;
+        public int tcps_rcvtotal;
+        public int tcps_rcvpack;
+        public int tcps_rcvbyte;
+        public int tcps_rcvbadsum;
+        public int tcps_rcvbadoff;
+        public int tcps_rcvmemdrop;
+        public int tcps_rcvshort;
+        public int tcps_rcvduppack;
+        public int tcps_rcvdupbyte;
+        public int tcps_rcvpartduppack;
+        public int tcps_rcvpartdupbyte;
+        public int tcps_rcvoopack;
+        public int tcps_rcvoobyte;
+        public int tcps_rcvpackafterwin;
+        public int tcps_rcvbyteafterwin;
+        public int tcps_rcvafterclose;
+        public int tcps_rcvwinprobe;
+        public int tcps_rcvdupack;
+        public int tcps_rcvacktoomuch;
+        public int tcps_rcvackpack;
+        public int tcps_rcvackbyte;
+        public int tcps_rcvwinupd;
+        public int tcps_pawsdrop;
+        public int tcps_predack;
+        public int tcps_preddat;
+        public int tcps_pcbcachemiss;
+        public int tcps_cachedrtt;
+        public int tcps_cachedrttvar;
+        public int tcps_cachedssthresh;
+        public int tcps_usedrtt;
+        public int tcps_usedrttvar;
+        public int tcps_usedssthresh;
+        public int tcps_persistdrop;
+        public int tcps_badsyn;
+        public int tcps_mturesent;
+        public int tcps_listendrop;
+        public int tcps_synchallenge;
+        public int tcps_rstchallenge;
+        public int tcps_minmssdrops;
+        public int tcps_sndrexmitbad;
+        public int tcps_badrst;
+        public int tcps_sc_added;
+        public int tcps_sc_retransmitted;
+        public int tcps_sc_dupsyn;
+        public int tcps_sc_dropped;
+        public int tcps_sc_completed;
+        public int tcps_sc_bucketoverflow;
+        public int tcps_sc_cacheoverflow;
+        public int tcps_sc_reset;
+        public int tcps_sc_stale;
+        public int tcps_sc_aborted;
+        public int tcps_sc_badack;
+        public int tcps_sc_unreach;
+        public int tcps_sc_zonefail;
+        public int tcps_sc_sendcookie;
+        public int tcps_sc_recvcookie;
+        public int tcps_hc_added;
+        public int tcps_hc_bucketoverflow;
+        public int tcps_sack_recovery_episode;
+        public int tcps_sack_rexmits;
+        public int tcps_sack_rexmit_bytes;
+        public int tcps_sack_rcv_blocks;
+        public int tcps_sack_send_blocks;
+        public int tcps_sack_sboverflow;
+        public int tcps_bg_rcvtotal;
+        public int tcps_rxtfindrop;
+        public int tcps_fcholdpacket;
+        public int tcps_coalesced_pack;
+        public int tcps_flowtbl_full;
+        public int tcps_flowtbl_collision;
+        public int tcps_lro_twopack;
+        public int tcps_lro_multpack;
+        public int tcps_lro_largepack;
+        public int tcps_limited_txt;
+        public int tcps_early_rexmt;
+        public int tcps_sack_ackadv;
+        public int tcps_rcv_swcsum;
+        public int tcps_rcv_swcsum_bytes;
+        public int tcps_rcv6_swcsum;
+        public int tcps_rcv6_swcsum_bytes;
+        public int tcps_snd_swcsum;
+        public int tcps_snd_swcsum_bytes;
+        public int tcps_snd6_swcsum;
+        public int tcps_snd6_swcsum_bytes;
+        public int tcps_msg_unopkts;
+        public int tcps_msg_unoappendfail;
+        public int tcps_msg_sndwaithipri;
+        public int tcps_invalid_mpcap;
+        public int tcps_invalid_joins;
+        public int tcps_mpcap_fallback;
+        public int tcps_join_fallback;
+        public int tcps_estab_fallback;
+        public int tcps_invalid_opt;
+        public int tcps_mp_outofwin;
+        public int tcps_mp_reducedwin;
+        public int tcps_mp_badcsum;
+        public int tcps_mp_oodata;
+        public int tcps_mp_switches;
+        public int tcps_mp_rcvtotal;
+        public int tcps_mp_rcvbytes;
+        public int tcps_mp_sndpacks;
+        public int tcps_mp_sndbytes;
+        public int tcps_join_rxmts;
+        public int tcps_tailloss_rto;
+        public int tcps_reordered_pkts;
+        public int tcps_recovered_pkts;
+        public int tcps_pto;
+        public int tcps_rto_after_pto;
+        public int tcps_tlp_recovery;
+        public int tcps_tlp_recoverlastpkt;
+        public int tcps_ecn_client_success;
+        public int tcps_ecn_recv_ece;
+        public int tcps_ecn_sent_ece;
+        public int tcps_detect_reordering;
+        public int tcps_delay_recovery;
+        public int tcps_avoid_rxmt;
+        public int tcps_unnecessary_rxmt;
+        public int tcps_nostretchack;
+        public int tcps_rescue_rxmt;
+        public int tcps_pto_in_recovery;
+        public int tcps_pmtudbh_reverted;
+        public int tcps_dsack_disable;
+        public int tcps_dsack_ackloss;
+        public int tcps_dsack_badrexmt;
+        public int tcps_dsack_sent;
+        public int tcps_dsack_recvd;
+        public int tcps_dsack_recvd_old;
+        public int tcps_mp_sel_symtomsd;
+        public int tcps_mp_sel_rtt;
+        public int tcps_mp_sel_rto;
+        public int tcps_mp_sel_peer;
+        public int tcps_mp_num_probes;
+        public int tcps_mp_verdowngrade;
+        public int tcps_drop_after_sleep;
+        public int tcps_probe_if;
+        public int tcps_probe_if_conflict;
+        public int tcps_ecn_client_setup;
+        public int tcps_ecn_server_setup;
+        public int tcps_ecn_server_success;
+        public int tcps_ecn_lost_synack;
+        public int tcps_ecn_lost_syn;
+        public int tcps_ecn_not_supported;
+        public int tcps_ecn_recv_ce;
+        public int tcps_ecn_conn_recv_ce;
+        public int tcps_ecn_conn_recv_ece;
+        public int tcps_ecn_conn_plnoce;
+        public int tcps_ecn_conn_pl_ce;
+        public int tcps_ecn_conn_nopl_ce;
+        public int tcps_ecn_fallback_synloss;
+        public int tcps_ecn_fallback_reorder;
+        public int tcps_ecn_fallback_ce;
+        public int tcps_tfo_syn_data_rcv;
+        public int tcps_tfo_cookie_req_rcv;
+        public int tcps_tfo_cookie_sent;
+        public int tcps_tfo_cookie_invalid;
+        public int tcps_tfo_cookie_req;
+        public int tcps_tfo_cookie_rcv;
+        public int tcps_tfo_syn_data_sent;
+        public int tcps_tfo_syn_data_acked;
+        public int tcps_tfo_syn_loss;
+        public int tcps_tfo_blackhole;
+        public int tcps_tfo_cookie_wrong;
+        public int tcps_tfo_no_cookie_rcv;
+        public int tcps_tfo_heuristics_disable;
+        public int tcps_tfo_sndblackhole;
+        public int tcps_mss_to_default;
+        public int tcps_mss_to_medium;
+        public int tcps_mss_to_low;
+        public int tcps_ecn_fallback_droprst;
+        public int tcps_ecn_fallback_droprxmt;
+        public int tcps_ecn_fallback_synrst;
+        public int tcps_mptcp_rcvmemdrop;
+        public int tcps_mptcp_rcvduppack;
+        public int tcps_mptcp_rcvpackafterwin;
+        public int tcps_timer_drift_le_1_ms;
+        public int tcps_timer_drift_le_10_ms;
+        public int tcps_timer_drift_le_20_ms;
+        public int tcps_timer_drift_le_50_ms;
+        public int tcps_timer_drift_le_100_ms;
+        public int tcps_timer_drift_le_200_ms;
+        public int tcps_timer_drift_le_500_ms;
+        public int tcps_timer_drift_le_1000_ms;
+        public int tcps_timer_drift_gt_1000_ms;
+        public int tcps_mptcp_handover_attempt;
+        public int tcps_mptcp_interactive_attempt;
+        public int tcps_mptcp_aggregate_attempt;
+        public int tcps_mptcp_fp_handover_attempt;
+        public int tcps_mptcp_fp_interactive_attempt;
+        public int tcps_mptcp_fp_aggregate_attempt;
+        public int tcps_mptcp_heuristic_fallback;
+        public int tcps_mptcp_fp_heuristic_fallback;
+        public int tcps_mptcp_handover_success_wifi;
+        public int tcps_mptcp_handover_success_cell;
+        public int tcps_mptcp_interactive_success;
+        public int tcps_mptcp_aggregate_success;
+        public int tcps_mptcp_fp_handover_success_wifi;
+        public int tcps_mptcp_fp_handover_success_cell;
+        public int tcps_mptcp_fp_interactive_success;
+        public int tcps_mptcp_fp_aggregate_success;
+        public int tcps_mptcp_handover_cell_from_wifi;
+        public int tcps_mptcp_handover_wifi_from_cell;
+        public int tcps_mptcp_interactive_cell_from_wifi;
+        public long tcps_mptcp_handover_cell_bytes;
+        public long tcps_mptcp_interactive_cell_bytes;
+        public long tcps_mptcp_aggregate_cell_bytes;
+        public long tcps_mptcp_handover_all_bytes;
+        public long tcps_mptcp_interactive_all_bytes;
+        public long tcps_mptcp_aggregate_all_bytes;
+        public int tcps_mptcp_back_to_wifi;
+        public int tcps_mptcp_wifi_proxy;
+        public int tcps_mptcp_cell_proxy;
+        public int tcps_ka_offload_drops;
+        public int tcps_mptcp_triggered_cell;
+    }
 
     /**
-     * The sysctlbyname() function accepts an ASCII representation of the name and
-     * internally looks up the integer name vector. Apart from that, it behaves the
-     * same as the standard sysctl() function.
-     *
-     * @param name
-     *            ASCII representation of the MIB name
-     * @param oldp
-     *            Information retrieved
-     * @param oldlenp
-     *            Size of information retrieved
-     * @param newp
-     *            Information to be written
-     * @param newlen
-     *            Size of information to be written
-     * @return 0 on success; sets errno on failure
+     * Return type for sysctl net.inet.ip.stats
      */
-    int sysctlbyname(String name, Pointer oldp, IntByReference oldlenp, Pointer newp, int newlen);
+    @FieldOrder({ &quot;ips_total&quot;, &quot;ips_badsum&quot;, &quot;ips_tooshort&quot;, &quot;ips_toosmall&quot;, &quot;ips_badhlen&quot;, &quot;ips_badlen&quot;,
+            &quot;ips_fragments&quot;, &quot;ips_fragdropped&quot;, &quot;ips_fragtimeout&quot;, &quot;ips_forward&quot;, &quot;ips_fastforward&quot;, &quot;ips_cantforward&quot;,
+            &quot;ips_redirectsent&quot;, &quot;ips_noproto&quot;, &quot;ips_delivered&quot;, &quot;ips_localout&quot;, &quot;ips_odropped&quot;, &quot;ips_reassembled&quot;,
+            &quot;ips_fragmented&quot;, &quot;ips_ofragments&quot;, &quot;ips_cantfrag&quot;, &quot;ips_badoptions&quot;, &quot;ips_noroute&quot;, &quot;ips_badvers&quot;,
+            &quot;ips_rawout&quot;, &quot;ips_toolong&quot;, &quot;ips_notmember&quot;, &quot;ips_nogif&quot;, &quot;ips_badaddr&quot;, &quot;ips_pktdropcntrl&quot;,
+            &quot;ips_rcv_swcsum&quot;, &quot;ips_rcv_swcsum_bytes&quot;, &quot;ips_snd_swcsum&quot;, &quot;ips_snd_swcsum_bytes&quot;, &quot;ips_adj&quot;,
+            &quot;ips_adj_hwcsum_clr&quot;, &quot;ips_rxc_collisions&quot;, &quot;ips_rxc_chained&quot;, &quot;ips_rxc_notchain&quot;, &quot;ips_rxc_chainsz_gt2&quot;,
+            &quot;ips_rxc_chainsz_gt4&quot;, &quot;ips_rxc_notlist&quot;, &quot;ips_raw_sappend_fail&quot;, &quot;ips_necp_policy_drop&quot; })
+<span class="nc" id="L393">    class Ipstat extends Structure {</span>
+        public int ips_total;
+        public int ips_badsum;
+        public int ips_tooshort;
+        public int ips_toosmall;
+        public int ips_badhlen;
+        public int ips_badlen;
+        public int ips_fragments;
+        public int ips_fragdropped;
+        public int ips_fragtimeout;
+        public int ips_forward;
+        public int ips_fastforward;
+        public int ips_cantforward;
+        public int ips_redirectsent;
+        public int ips_noproto;
+        public int ips_delivered;
+        public int ips_localout;
+        public int ips_odropped;
+        public int ips_reassembled;
+        public int ips_fragmented;
+        public int ips_ofragments;
+        public int ips_cantfrag;
+        public int ips_badoptions;
+        public int ips_noroute;
+        public int ips_badvers;
+        public int ips_rawout;
+        public int ips_toolong;
+        public int ips_notmember;
+        public int ips_nogif;
+        public int ips_badaddr;
+        public int ips_pktdropcntrl;
+        public int ips_rcv_swcsum;
+        public int ips_rcv_swcsum_bytes;
+        public int ips_snd_swcsum;
+        public int ips_snd_swcsum_bytes;
+        public int ips_adj;
+        public int ips_adj_hwcsum_clr;
+        public int ips_rxc_collisions;
+        public int ips_rxc_chained;
+        public int ips_rxc_notchain;
+        public int ips_rxc_chainsz_gt2;
+        public int ips_rxc_chainsz_gt4;
+        public int ips_rxc_notlist;
+        public int ips_raw_sappend_fail;
+        public int ips_necp_policy_drop;
+    }
 
     /**
-     * The sysctlnametomib() function accepts an ASCII representation of the name,
-     * looks up the integer name vector, and returns the numeric representation in
-     * the mib array pointed to by mibp. The number of elements in the mib array is
-     * given by the location specified by sizep before the call, and that location
-     * gives the number of entries copied after a successful call. The resulting mib
-     * and size may be used in subsequent sysctl() calls to get the data associated
-     * with the requested ASCII name. This interface is intended for use by
-     * applications that want to repeatedly request the same variable (the sysctl()
-     * function runs in about a third the time as the same request made via the
-     * sysctlbyname() function).
-     *
-     * The number of elements in the mib array can be determined by calling
-     * sysctlnametomib() with the NULL argument for mibp.
-     *
-     * The sysctlnametomib() function is also useful for fetching mib prefixes. If
-     * size on input is greater than the number of elements written, the array still
-     * contains the additional elements which may be written programmatically.
-     *
-     * @param name
-     *            ASCII representation of the name
-     * @param mibp
-     *            Integer array containing the corresponding name vector.
-     * @param size
-     *            On input, number of elements in the returned array; on output, the
-     *            number of entries copied.
-     * @return 0 on success; sets errno on failure
+     * Return type for sysctl net.inet6.ip6.stats
      */
-    int sysctlnametomib(String name, Pointer mibp, IntByReference size);
+    @FieldOrder({ &quot;ip6s_total&quot;, &quot;ip6s_tooshort&quot;, &quot;ip6s_toosmall&quot;, &quot;ip6s_fragments&quot;, &quot;ip6s_fragdropped&quot;,
+            &quot;ip6s_fragtimeout&quot;, &quot;ip6s_fragoverflow&quot;, &quot;ip6s_forward&quot;, &quot;ip6s_cantforward&quot;, &quot;ip6s_redirectsent&quot;,
+            &quot;ip6s_delivered&quot;, &quot;ip6s_localout&quot;, &quot;ip6s_odropped&quot;, &quot;ip6s_reassembled&quot;, &quot;ip6s_fragmented&quot;,
+            &quot;ip6s_ofragments&quot;, &quot;ip6s_cantfrag&quot;, &quot;ip6s_badoptions&quot;, &quot;ip6s_noroute&quot;, &quot;ip6s_badvers&quot;, &quot;ip6s_rawout&quot;,
+            &quot;ip6s_badscope&quot;, &quot;ip6s_notmember&quot;, &quot;ip6s_nxthist&quot;, &quot;ip6s_m1&quot;, &quot;ip6s_m2m&quot;, &quot;ip6s_mext1&quot;, &quot;ip6s_mext2m&quot;,
+            &quot;ip6s_exthdrtoolong&quot;, &quot;ip6s_nogif&quot;, &quot;ip6s_toomanyhdr&quot;, &quot;ip6s_exthdrget&quot;, &quot;ip6s_exthdrget0&quot;, &quot;ip6s_pulldown&quot;,
+            &quot;ip6s_pulldown_copy&quot;, &quot;ip6s_pulldown_alloc&quot;, &quot;ip6s_pullup&quot;, &quot;ip6s_pullup_copy&quot;, &quot;ip6s_pullup_alloc&quot;,
+            &quot;ip6s_pullup_fail&quot;, &quot;ip6s_pullup2&quot;, &quot;ip6s_pullup2_copy&quot;, &quot;ip6s_pullup2_alloc&quot;, &quot;ip6s_pullup2_fail&quot;,
+            &quot;ip6s_sources_none&quot;, &quot;ip6s_sources_sameif&quot;, &quot;ip6s_sources_otherif&quot;, &quot;ip6s_sources_samescope&quot;,
+            &quot;ip6s_sources_otherscope&quot;, &quot;ip6s_sources_deprecated&quot; })
+<span class="nc" id="L453">    class Ip6stat extends Structure {</span>
+        public long ip6s_total;
+        public long ip6s_tooshort;
+        public long ip6s_toosmall;
+        public long ip6s_fragments;
+        public long ip6s_fragdropped;
+        public long ip6s_fragtimeout;
+        public long ip6s_fragoverflow;
+        public long ip6s_forward;
+        public long ip6s_cantforward;
+        public long ip6s_redirectsent;
+        public long ip6s_delivered;
+        public long ip6s_localout;
+        public long ip6s_odropped;
+        public long ip6s_reassembled;
+        public long ip6s_fragmented;
+        public long ip6s_ofragments;
+        public long ip6s_cantfrag;
+        public long ip6s_badoptions;
+        public long ip6s_noroute;
+        public long ip6s_badvers;
+        public long ip6s_rawout;
+        public long ip6s_badscope;
+        public long ip6s_notmember;
+<span class="nc" id="L477">        public long[] ip6s_nxthist = new long[256];</span>
+        public long ip6s_m1;
+<span class="nc" id="L479">        public long[] ip6s_m2m = new long[32];</span>
+        public long ip6s_mext1;
+        public long ip6s_mext2m;
+        public long ip6s_exthdrtoolong;
+        public long ip6s_nogif;
+        public long ip6s_toomanyhdr;
+        public long ip6s_exthdrget;
+        public long ip6s_exthdrget0;
+        public long ip6s_pulldown;
+        public long ip6s_pulldown_copy;
+        public long ip6s_pulldown_alloc;
+        public long ip6s_pullup;
+        public long ip6s_pullup_copy;
+        public long ip6s_pullup_alloc;
+        public long ip6s_pullup_fail;
+        public long ip6s_pullup2;
+        public long ip6s_pullup2_copy;
+        public long ip6s_pullup2_alloc;
+        public long ip6s_pullup2_fail;
+        public long ip6s_sources_none;
+<span class="nc" id="L499">        public long[] ip6s_sources_sameif = new long[16];</span>
+<span class="nc" id="L500">        public long[] ip6s_sources_otherif = new long[16];</span>
+<span class="nc" id="L501">        public long[] ip6s_sources_samescope = new long[16];</span>
+<span class="nc" id="L502">        public long[] ip6s_sources_otherscope = new long[16];</span>
+<span class="nc" id="L503">        public long[] ip6s_sources_deprecated = new long[16];</span>
+    }
 
     /**
-     * The getloadavg() function returns the number of processes in the system run
-     * queue averaged over various periods of time. Up to nelem samples are
-     * retrieved and assigned to successive elements of loadavg[]. The system
-     * imposes a maximum of 3 samples, representing averages over the last 1, 5, and
-     * 15 minutes, respectively.
-     *
-     * @param loadavg
-     *            An array of doubles which will be filled with the results
-     * @param nelem
-     *            Number of samples to return
-     * @return If the load average was unobtainable, -1 is returned; otherwise, the
-     *         number of samples actually retrieved is returned.
-     * @see &lt;A HREF=
-     *      &quot;https://www.freebsd.org/cgi/man.cgi?query=getloadavg&amp;sektion=3&quot;&gt;
-     *      getloadavg(3)&lt;/A&gt;
+     * Return type for sysctl net.inet.udp.stats
      */
-    int getloadavg(double[] loadavg, int nelem);
+    @FieldOrder({ &quot;udps_ipackets&quot;, &quot;udps_hdrops&quot;, &quot;udps_badsum&quot;, &quot;udps_badlen&quot;, &quot;udps_noport&quot;, &quot;udps_noportbcast&quot;,
+            &quot;udps_fullsock&quot;, &quot;udpps_pcbcachemiss&quot;, &quot;udpps_pcbhashmiss&quot;, &quot;udps_opackets&quot;, &quot;udps_fastout&quot;, &quot;udps_nosum&quot;,
+            &quot;udps_noportmcast&quot;, &quot;udps_filtermcast&quot;, &quot;udps_rcv_swcsum&quot;, &quot;udps_rcv_swcsum_bytes&quot;, &quot;udps_rcv6_swcsum&quot;,
+            &quot;udps_rcv6_swcsum_bytes&quot;, &quot;udps_snd_swcsum&quot;, &quot;udps_snd_swcsum_bytes&quot;, &quot;udps_snd6_swcsum&quot;,
+            &quot;udps_snd6_swcsum_bytes&quot; })
+<span class="nc" id="L514">    class Udpstat extends Structure {</span>
+        public int udps_ipackets;
+        public int udps_hdrops;
+        public int udps_badsum;
+        public int udps_badlen;
+        public int udps_noport;
+        public int udps_noportbcast;
+        public int udps_fullsock;
+        public int udpps_pcbcachemiss;
+        public int udpps_pcbhashmiss;
+        public int udps_opackets;
+        public int udps_fastout;
+        public int udps_nosum;
+        public int udps_noportmcast;
+        public int udps_filtermcast;
+        public int udps_rcv_swcsum;
+        public int udps_rcv_swcsum_bytes;
+        public int udps_rcv6_swcsum;
+        public int udps_rcv6_swcsum_bytes;
+        public int udps_snd_swcsum;
+        public int udps_snd_swcsum_bytes;
+        public int udps_snd6_swcsum;
+        public int udps_snd6_swcsum_bytes;
+    }
 
     /**
      * Returns the process ID of the calling process. The ID is guaranteed to be
@@ -243,5 +581,17 @@ public interface CLibrary extends Library {
      * @return A human-readable version of the error code
      */
     String gai_strerror(int e);
+
+    /**
+     * Rewinds the file pointer to the beginning of the utmp file. It is generally a
+     * good idea to call it before any of the other functions.
+     */
+    void setutxent();
+
+    /**
+     * Closes the utmp file. It should be called when the user code is done
+     * accessing the file with the other functions.
+     */
+    void endutxent();
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

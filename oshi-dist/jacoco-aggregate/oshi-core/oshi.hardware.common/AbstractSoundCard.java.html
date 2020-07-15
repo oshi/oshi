@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>AbstractSoundCard.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.common</a> &gt; <span class="el_source">AbstractSoundCard.java</span></div><h1>AbstractSoundCard.java</h1><pre class="source lang-java linenums">/**
  * MIT License
  *
- * Copyright (c) 2010 - 2020 The OSHI Project Contributors:
- * https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -10,8 +9,9 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,65 +23,63 @@
  */
 package oshi.hardware.common;
 
+import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.SoundCard;
 
 /**
  * An abstract Sound Card
- *
- * @author BilalAM
  */
+@Immutable
 public abstract class AbstractSoundCard implements SoundCard {
 
     private String kernelVersion;
     private String name;
     private String codec;
 
-<span class="nc" id="L39">    public AbstractSoundCard(String kernelVersion, String name, String codec) {</span>
-<span class="nc" id="L40">        this.kernelVersion = kernelVersion;</span>
-<span class="nc" id="L41">        this.name = name;</span>
-<span class="nc" id="L42">        this.codec = codec;</span>
-<span class="nc" id="L43">    }</span>
+    /**
+     * Abstract Sound Card Constructor
+     * 
+     * @param kernelVersion
+     *            The version
+     * @param name
+     *            The name
+     * @param codec
+     *            The codec
+     */
+<span class="nc" id="L49">    public AbstractSoundCard(String kernelVersion, String name, String codec) {</span>
+<span class="nc" id="L50">        this.kernelVersion = kernelVersion;</span>
+<span class="nc" id="L51">        this.name = name;</span>
+<span class="nc" id="L52">        this.codec = codec;</span>
+<span class="nc" id="L53">    }</span>
 
     @Override
     public String getDriverVersion() {
-<span class="nc" id="L47">        return this.kernelVersion;</span>
+<span class="nc" id="L57">        return this.kernelVersion;</span>
     }
-
-    public void setKernelVersion(String kernelVersion) {
-<span class="nc" id="L51">        this.kernelVersion = kernelVersion;</span>
-<span class="nc" id="L52">    }</span>
 
     @Override
     public String getName() {
-<span class="nc" id="L56">        return this.name;</span>
+<span class="nc" id="L62">        return this.name;</span>
     }
-
-    public void setName(String name) {
-<span class="nc" id="L60">        this.name = name;</span>
-<span class="nc" id="L61">    }</span>
 
     @Override
     public String getCodec() {
-<span class="nc" id="L65">        return this.codec;</span>
+<span class="nc" id="L67">        return this.codec;</span>
     }
-
-    public void setCodec(String codec) {
-<span class="nc" id="L69">        this.codec = codec;</span>
-<span class="nc" id="L70">    }</span>
 
     @Override
     public String toString() {
-<span class="nc" id="L74">        StringBuilder builder = new StringBuilder();</span>
-<span class="nc" id="L75">        builder.append(&quot;SoundCard@&quot;);</span>
-<span class="nc" id="L76">        builder.append(Integer.toHexString(hashCode()));</span>
-<span class="nc" id="L77">        builder.append(&quot; [kernelVersion=&quot;);</span>
-<span class="nc" id="L78">        builder.append(this.kernelVersion);</span>
-<span class="nc" id="L79">        builder.append(&quot;, name=&quot;);</span>
-<span class="nc" id="L80">        builder.append(this.name);</span>
-<span class="nc" id="L81">        builder.append(&quot;, codec=&quot;);</span>
-<span class="nc" id="L82">        builder.append(this.codec);</span>
-<span class="nc" id="L83">        builder.append(']');</span>
-<span class="nc" id="L84">        return builder.toString();</span>
+<span class="nc" id="L72">        StringBuilder builder = new StringBuilder();</span>
+<span class="nc" id="L73">        builder.append(&quot;SoundCard@&quot;);</span>
+<span class="nc" id="L74">        builder.append(Integer.toHexString(hashCode()));</span>
+<span class="nc" id="L75">        builder.append(&quot; [kernelVersion=&quot;);</span>
+<span class="nc" id="L76">        builder.append(this.kernelVersion);</span>
+<span class="nc" id="L77">        builder.append(&quot;, name=&quot;);</span>
+<span class="nc" id="L78">        builder.append(this.name);</span>
+<span class="nc" id="L79">        builder.append(&quot;, codec=&quot;);</span>
+<span class="nc" id="L80">        builder.append(this.codec);</span>
+<span class="nc" id="L81">        builder.append(']');</span>
+<span class="nc" id="L82">        return builder.toString();</span>
     }
 
 }
