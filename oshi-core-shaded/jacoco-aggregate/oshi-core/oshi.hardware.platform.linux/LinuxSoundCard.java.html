@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>LinuxSoundCard.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-core-shaded</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.linux</a> &gt; <span class="el_source">LinuxSoundCard.java</span></div><h1>LinuxSoundCard.java</h1><pre class="source lang-java linenums">/**
  * MIT License
  *
- * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors:
+ * https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -9,9 +10,8 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -25,44 +25,33 @@ package oshi.hardware.platform.linux;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import oshi.annotation.concurrent.Immutable;
-import oshi.hardware.SoundCard;
 import oshi.hardware.common.AbstractSoundCard;
 import oshi.util.FileUtil;
-import oshi.util.platform.linux.ProcPath;
 
 /**
  * Sound card data obtained via /proc/asound directory
+ *
+ * @author BilalAM
  */
-@Immutable
-final class LinuxSoundCard extends AbstractSoundCard {
 
-<span class="nc" id="L47">    private static final Logger LOG = LoggerFactory.getLogger(LinuxSoundCard.class);</span>
+public class LinuxSoundCard extends AbstractSoundCard {
 
+    private static final String SC_PATH = &quot;/proc/asound/&quot;;
     private static final String CARD_FOLDER = &quot;card&quot;;
     private static final String CARDS_FILE = &quot;cards&quot;;
     private static final String ID_FILE = &quot;id&quot;;
 
-    /**
-     * Constructor for LinuxSoundCard.
-     *
-     * @param kernelVersion
-     *            The version
-     * @param name
-     *            The name
-     * @param codec
-     *            The codec
-     */
-    LinuxSoundCard(String kernelVersion, String name, String codec) {
-<span class="nc" id="L64">        super(kernelVersion, name, codec);</span>
-<span class="nc" id="L65">    }</span>
+<span class="nc" id="L50">    private static final Logger LOG = LoggerFactory.getLogger(LinuxSoundCard.class);</span>
+
+    public LinuxSoundCard(String kernelVersion, String name, String codec) {
+<span class="nc" id="L53">        super(kernelVersion, name, codec);</span>
+<span class="nc" id="L54">    }</span>
 
     /**
      * Method to find all the card folders contained in the &lt;b&gt;asound&lt;/b&gt; folder
@@ -71,64 +60,65 @@ final class LinuxSoundCard extends AbstractSoundCard {
      * @return : A list of files starting with 'card'
      */
     private static List&lt;File&gt; getCardFolders() {
-<span class="nc" id="L74">        File cardsDirectory = new File(ProcPath.ASOUND);</span>
-<span class="nc" id="L75">        List&lt;File&gt; cardFolders = new ArrayList&lt;&gt;();</span>
-<span class="nc" id="L76">        File[] allContents = cardsDirectory.listFiles();</span>
-<span class="nc bnc" id="L77" title="All 2 branches missed.">        if (allContents != null) {</span>
-<span class="nc bnc" id="L78" title="All 2 branches missed.">            for (File card : allContents) {</span>
-<span class="nc bnc" id="L79" title="All 4 branches missed.">                if (card.getName().startsWith(CARD_FOLDER) &amp;&amp; card.isDirectory()) {</span>
-<span class="nc" id="L80">                    cardFolders.add(card);</span>
+<span class="nc" id="L63">        File cardsDirectory = new File(SC_PATH);</span>
+<span class="nc" id="L64">        List&lt;File&gt; cardFolders = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L65">        File[] allContents = cardsDirectory.listFiles();</span>
+<span class="nc bnc" id="L66" title="All 2 branches missed.">        if (allContents != null) {</span>
+<span class="nc bnc" id="L67" title="All 2 branches missed.">            for (File card : allContents) {</span>
+<span class="nc bnc" id="L68" title="All 4 branches missed.">                if (card.getName().startsWith(CARD_FOLDER) &amp;&amp; card.isDirectory()) {</span>
+<span class="nc" id="L69">                    cardFolders.add(card);</span>
                 }
             }
         } else {
-<span class="nc" id="L84">            LOG.warn(&quot;No Audio Cards Found&quot;);</span>
+<span class="nc" id="L73">            LOG.warn(&quot;No Audio Cards Found&quot;);</span>
         }
-<span class="nc" id="L86">        return cardFolders;</span>
+<span class="nc" id="L75">        return cardFolders;</span>
     }
 
     /**
-     * Reads the 'version' file in the asound folder that contains the complete name
-     * of the ALSA driver. Reads all the lines of the file and retrieves the first
-     * line.
+     * Reads the 'version' file in the asound folder that contains the complete
+     * name of the ALSA driver. Reads all the lines of the file and retrieves
+     * the first line.
      *
      * @return The complete name of the ALSA driver currently residing in our
      *         machine
      */
     private static String getSoundCardVersion() {
-<span class="nc" id="L98">        String driverVersion = FileUtil.getStringFromFile(ProcPath.ASOUND + &quot;version&quot;);</span>
-<span class="nc bnc" id="L99" title="All 2 branches missed.">        return driverVersion.isEmpty() ? &quot;not available&quot; : driverVersion;</span>
+<span class="nc" id="L87">        String driverVersion = FileUtil.getStringFromFile(SC_PATH + &quot;version&quot;);</span>
+<span class="nc bnc" id="L88" title="All 2 branches missed.">        return driverVersion.isEmpty() ? &quot;not available&quot; : driverVersion;</span>
     }
 
     /**
-     * Retrieves the codec of the sound card contained in the &lt;b&gt;codec&lt;/b&gt; file. The
-     * name of the codec is always the first line of that file. &lt;br&gt;
+     * Retrieves the codec of the sound card contained in the &lt;b&gt;codec&lt;/b&gt; file.
+     * The name of the codec is always the first line of that file. &lt;br&gt;
      * &lt;b&gt;Working&lt;/b&gt; &lt;br&gt;
-     * This converts the codec file into key value pairs using the {@link FileUtil}
-     * class and then returns the value of the &lt;b&gt;Codec&lt;/b&gt; key.
+     * This converts the codec file into key value pairs using the
+     * {@link FileUtil} class and then returns the value of the &lt;b&gt;Codec&lt;/b&gt;
+     * key.
      *
      * @param cardDir
      *            The sound card directory
      * @return The name of the codec
      */
     private static String getCardCodec(File cardDir) {
-<span class="nc" id="L114">        String cardCodec = &quot;&quot;;</span>
-<span class="nc" id="L115">        File[] cardFiles = cardDir.listFiles();</span>
-<span class="nc bnc" id="L116" title="All 2 branches missed.">        if (cardFiles != null) {</span>
-<span class="nc bnc" id="L117" title="All 2 branches missed.">            for (File file : cardFiles) {</span>
-<span class="nc bnc" id="L118" title="All 2 branches missed.">                if (file.getName().startsWith(&quot;codec&quot;)) {</span>
-<span class="nc bnc" id="L119" title="All 2 branches missed.">                    if (!file.isDirectory()) {</span>
-<span class="nc" id="L120">                        cardCodec = FileUtil.getKeyValueMapFromFile(file.getPath(), &quot;:&quot;).get(&quot;Codec&quot;);</span>
+<span class="nc" id="L104">        String cardCodec = &quot;&quot;;</span>
+<span class="nc" id="L105">        File[] cardFiles = cardDir.listFiles();</span>
+<span class="nc bnc" id="L106" title="All 2 branches missed.">        if (cardFiles != null) {</span>
+<span class="nc bnc" id="L107" title="All 2 branches missed.">            for (File file : cardFiles) {</span>
+<span class="nc bnc" id="L108" title="All 2 branches missed.">                if (file.getName().startsWith(&quot;codec&quot;)) {</span>
+<span class="nc bnc" id="L109" title="All 2 branches missed.">                    if (!file.isDirectory()) {</span>
+<span class="nc" id="L110">                        cardCodec = FileUtil.getKeyValueMapFromFile(file.getPath(), &quot;:&quot;).get(&quot;Codec&quot;);</span>
                     } else {
-                        // on various centos environments, this is a subdirectory
-                        // each file is usually named something like
-                        // codec#0-0
+                        // on various centos environments, this is a
+                        // subdirectory -- each file is usually named something
+                        // like codec#0-0
                         // example : ac97#0-0
-<span class="nc" id="L126">                        File[] codecs = file.listFiles();</span>
-<span class="nc bnc" id="L127" title="All 2 branches missed.">                        if (codecs != null) {</span>
-<span class="nc bnc" id="L128" title="All 2 branches missed.">                            for (File codec : codecs) {</span>
-<span class="nc bnc" id="L129" title="All 4 branches missed.">                                if (!codec.isDirectory() &amp;&amp; codec.getName().contains(&quot;#&quot;)) {</span>
-<span class="nc" id="L130">                                    cardCodec = codec.getName().substring(0, codec.getName().indexOf('#'));</span>
-<span class="nc" id="L131">                                    break;</span>
+<span class="nc" id="L116">                        File[] codecs = file.listFiles();</span>
+<span class="nc bnc" id="L117" title="All 2 branches missed.">                        if (codecs != null) {</span>
+<span class="nc bnc" id="L118" title="All 2 branches missed.">                            for (File codec : codecs) {</span>
+<span class="nc bnc" id="L119" title="All 4 branches missed.">                                if (!codec.isDirectory() &amp;&amp; codec.getName().contains(&quot;#&quot;)) {</span>
+<span class="nc" id="L120">                                    cardCodec = codec.getName().substring(0, codec.getName().indexOf(&quot;#&quot;));</span>
+<span class="nc" id="L121">                                    break;</span>
                                 }
                             }
                         }
@@ -136,14 +126,14 @@ final class LinuxSoundCard extends AbstractSoundCard {
                 }
             }
         }
-<span class="nc" id="L139">        return cardCodec;</span>
+<span class="nc" id="L129">        return cardCodec;</span>
     }
 
     /**
      * Retrieves the name of the sound card by :
      * &lt;ol&gt;
-     * &lt;li&gt;Reading the &lt;b&gt;id&lt;/b&gt; file and comparing each id with the card id present
-     * in the &lt;b&gt;cards&lt;/b&gt; file&lt;/li&gt;
+     * &lt;li&gt;Reading the &lt;b&gt;id&lt;/b&gt; file and comparing each id with the card id
+     * present in the &lt;b&gt;cards&lt;/b&gt; file&lt;/li&gt;
      * &lt;li&gt;If the id and the card name matches , then it assigns that name to
      * {@literal cardName}&lt;/li&gt;
      * &lt;/ol&gt;
@@ -153,31 +143,31 @@ final class LinuxSoundCard extends AbstractSoundCard {
      * @return The name of the sound card.
      */
     private static String getCardName(File file) {
-<span class="nc" id="L156">        String cardName = &quot;Not Found..&quot;;</span>
-<span class="nc" id="L157">        Map&lt;String, String&gt; cardNamePairs = FileUtil.getKeyValueMapFromFile(ProcPath.ASOUND + &quot;/&quot; + CARDS_FILE, &quot;:&quot;);</span>
-<span class="nc" id="L158">        String cardId = FileUtil.getStringFromFile(file.getPath() + &quot;/&quot; + ID_FILE);</span>
-<span class="nc bnc" id="L159" title="All 2 branches missed.">        for (Map.Entry&lt;String, String&gt; entry : cardNamePairs.entrySet()) {</span>
-<span class="nc bnc" id="L160" title="All 2 branches missed.">            if (entry.getKey().contains(cardId)) {</span>
-<span class="nc" id="L161">                cardName = entry.getValue();</span>
-<span class="nc" id="L162">                return cardName;</span>
+<span class="nc" id="L146">        String cardName = &quot;Not Found..&quot;;</span>
+<span class="nc" id="L147">        Map&lt;String, String&gt; cardNamePairs = FileUtil.getKeyValueMapFromFile(SC_PATH + &quot;/&quot; + CARDS_FILE, &quot;:&quot;);</span>
+<span class="nc" id="L148">        String cardId = FileUtil.getStringFromFile(file.getPath() + &quot;/&quot; + ID_FILE);</span>
+<span class="nc bnc" id="L149" title="All 2 branches missed.">        for (Map.Entry&lt;String, String&gt; entry : cardNamePairs.entrySet()) {</span>
+<span class="nc bnc" id="L150" title="All 2 branches missed.">            if (entry.getKey().contains(cardId)) {</span>
+<span class="nc" id="L151">                cardName = entry.getValue();</span>
+<span class="nc" id="L152">                return cardName;</span>
             }
-<span class="nc" id="L164">        }</span>
-<span class="nc" id="L165">        return cardName;</span>
+<span class="nc" id="L154">        }</span>
+<span class="nc" id="L155">        return cardName;</span>
     }
 
     /**
      * public method used by
-     * {@link oshi.hardware.common.AbstractHardwareAbstractionLayer} to access the
-     * sound cards.
+     * {@link oshi.hardware.common.AbstractHardwareAbstractionLayer} to access
+     * the sound cards.
      *
-     * @return List of {@link oshi.hardware.platform.linux.LinuxSoundCard} objects.
+     * @return List of {@link LinuxSoundCard} objects.
      */
-    public static List&lt;SoundCard&gt; getSoundCards() {
-<span class="nc" id="L176">        List&lt;LinuxSoundCard&gt; soundCards = new ArrayList&lt;&gt;();</span>
-<span class="nc bnc" id="L177" title="All 2 branches missed.">        for (File cardFile : getCardFolders()) {</span>
-<span class="nc" id="L178">            soundCards.add(new LinuxSoundCard(getSoundCardVersion(), getCardName(cardFile), getCardCodec(cardFile)));</span>
-<span class="nc" id="L179">        }</span>
-<span class="nc" id="L180">        return Collections.unmodifiableList(soundCards);</span>
+    public static List&lt;LinuxSoundCard&gt; getSoundCards() {
+<span class="nc" id="L166">        List&lt;LinuxSoundCard&gt; soundCards = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L167" title="All 2 branches missed.">        for (File cardFile : getCardFolders()) {</span>
+<span class="nc" id="L168">            soundCards.add(new LinuxSoundCard(getSoundCardVersion(), getCardName(cardFile), getCardCodec(cardFile)));</span>
+<span class="nc" id="L169">        }</span>
+<span class="nc" id="L170">        return soundCards;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
